@@ -1,343 +1,260 @@
 """
-Feature Importance Extraction Module for GNN.
+Feature Importance Extraction Module.
 
-This module implements feature importance extraction using SHAP (SHapley Additive exPlanations)
-on the trained Static Scattering Potential GNN model. It computes global feature importance
-scores based on the model's predictions and outputs them to a JSON file.
-
-Dependencies:
-- shap (must be added to requirements.txt if not present)
-- numpy
-- json
-- pickle
-- logging
-- pathlib
+Implements SHAP-based feature importance extraction from a trained GNN model.
+Outputs SHAP values to a NumPy array file as required by T032.
 """
-
 import json
 import logging
 import pickle
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-
 import numpy as np
 
-# Import the GNN model class and training utilities
-from model.gnn import StaticScatteringPotentialGNN, load_graphs_for_training
+# Import from project modules
 from config import get_config, get_paths
+from model.gnn import load_graphs_for_training, StaticScatteringPotentialGNN
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-def load_trained_model(model_path: Path, config: Dict[str, Any]) -> StaticScatteringPotentialGNN:
+def load_trained_model(model_path: Path) -> StaticScatteringPotentialGNN:
     """
     Load a trained GNN model from disk.
 
     Args:
-        model_path: Path to the saved model weights (pickle file).
-        config: Configuration dictionary containing hyperparameters.
+        model_path: Path to the saved model checkpoint.
 
     Returns:
-        Loaded StaticScatteringPotentialGNN instance.
+        The loaded model instance.
     """
-    logger.info(f"Loading trained model from {model_path}")
-    
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model checkpoint not found at {model_path}")
+
+    logger.info(f"Loading model from {model_path}")
     with open(model_path, 'rb') as f:
-        model_data = pickle.load(f)
+        model = pickle.load(f)
     
-    # Reconstruct model with hyperparameters from config
-    gnn_config = config.get('gnn', {})
-    input_dim = gnn_config.get('input_dim', 10)  # Default, will be inferred if possible
-    hidden_dim = gnn_config.get('hidden_dim', 64)
-    output_dim = 1  # Predicting a single scalar (Static Scattering Potential)
-    
-    model = StaticScatteringPotentialGNN(
-        input_dim=input_dim,
-        hidden_dim=hidden_dim,
-        output_dim=output_dim
-    )
-    
-    # Load weights if available in the saved data
-    if 'weights' in model_data:
-        model.load_state_dict(model_data['weights'])
-        logger.info("Model weights loaded successfully")
-    else:
-        logger.warning("No weights found in saved model data")
-    
+    model.eval()
     return model
 
 def extract_node_features(graph_data: Dict[str, Any]) -> np.ndarray:
     """
-    Extract node features from a graph data structure.
+    Extract node features from a graph dictionary.
     
+    The graph is expected to have a 'nodes' key containing a list of node objects.
+    Each node object should have features (e.g., degree, clustering coefficient).
+
     Args:
-        graph_data: Dictionary containing graph information with 'node_features' key.
-        
+        graph_data: Dictionary representing a graph.
+
     Returns:
-        Numpy array of node features (N_nodes x N_features).
+        NumPy array of shape [N_nodes, N_features].
     """
-    if 'node_features' not in graph_data:
-        raise ValueError("Graph data missing 'node_features' key")
+    nodes = graph_data.get('nodes', [])
+    if not nodes:
+        return np.array([])
     
-    features = np.array(graph_data['node_features'])
-    if features.ndim == 1:
-        features = features.reshape(-1, 1)
-    return features
+    # Assume node structure: {id, coords, degree, clustering_coeff, ...}
+    # We extract 'degree' and 'clustering_coeff' as topological features.
+    # If 'coords' are present, we could also use radial distribution features,
+    # but for T032 we focus on topological metrics as per spec FR-005 context.
+    
+    features_list = []
+    for node in nodes:
+        # Extract degree and clustering coefficient
+        degree = float(node.get('degree', 0))
+        clustering = float(node.get('clustering_coeff', 0.0))
+        # Normalize features if needed (assuming simple scaling for now)
+        features_list.append([degree, clustering])
+    
+    return np.array(features_list, dtype=np.float32)
 
 def compute_shap_values(
     model: StaticScatteringPotentialGNN,
-    X: np.ndarray,
-    nsamples: int = 100,
-    batch_size: int = 32
-) -> Tuple[np.ndarray, np.ndarray]:
+    feature_matrix: np.ndarray,
+    background_size: int = 50
+) -> np.ndarray:
     """
-    Compute SHAP values for feature importance analysis.
+    Compute SHAP values for the model predictions.
     
-    Since SHAP for graph neural networks can be complex, we use a simplified approach:
-    1. Treat the graph as a bag of node features
-    2. Use KernelSHAP or a gradient-based approximation
+    Since SHAP is an external dependency and might not be installed in all
+    environments, we implement a simplified permutation-based feature importance
+    that mimics SHAP's behavior for this specific task, or use a fallback if
+    shap is not available. However, the task explicitly asks for SHAP.
     
-    For this implementation, we use a gradient-based approximation which is
-    computationally efficient for GNNs.
+    We will attempt to import shap. If unavailable, we raise an error as
+    per "Fail loudly" constraint.
     
     Args:
         model: Trained GNN model.
-        X: Input feature matrix (N_samples x N_features).
-        nsamples: Number of samples for approximation.
-        batch_size: Batch size for processing.
-        
+        feature_matrix: Matrix of input features [N_samples, N_features].
+        background_size: Size of background dataset for SHAP.
+
     Returns:
-        Tuple of (shap_values, feature_importance_scores).
+        NumPy array of SHAP values [N_samples, N_features].
     """
-    logger.info(f"Computing SHAP values for {X.shape[0]} samples with {nsamples} approximations")
+    try:
+        import shap
+    except ImportError:
+        logger.error("SHAP library not installed. Please install it: pip install shap")
+        raise RuntimeError("SHAP library is required for T032 but not found.")
+
+    logger.info(f"Computing SHAP values for {feature_matrix.shape[0]} samples...")
     
-    # For a simplified approach, we'll use the absolute gradient magnitude as a proxy
-    # for feature importance. This is valid when the model is differentiable.
+    # Create a simple wrapper for the model to work with SHAP
+    # The model expects graph data, but SHAP expects a function f(x) -> y
+    # We assume feature_matrix is [N_samples, N_features] where each row is a sample's aggregated features.
+    # For node-level graphs, this is complex. We assume the trainer has already
+    # aggregated node features to a graph-level representation for the final prediction.
     
-    shap_values = np.zeros_like(X)
+    # If the model operates on node-level, we might need to average SHAP values.
+    # For this implementation, we assume the input to this function is the
+    # graph-level feature vector derived from the graph.
     
-    # In a full implementation, we would use the actual SHAP library:
-    # import shap
-    # explainer = shap.GradientExplainer(model, X)
-    # shap_values = explainer.shap_values(X)
+    # We create a mock background dataset
+    if feature_matrix.shape[0] < background_size:
+        background_size = feature_matrix.shape[0]
     
-    # For now, we simulate the process by computing the average absolute gradient
-    # across the dataset. Since we don't have direct access to PyTorch tensors here,
-    # we'll use a numerical approximation.
+    background = shap.sample(feature_matrix, background_size)
     
-    logger.info("Using gradient-based approximation for feature importance")
+    # Define the model function for SHAP
+    # We assume the model has a method `predict` that takes a feature matrix
+    # If the model expects a graph object, we need to adapt.
+    # Based on T030, the model predicts "local heat flux".
+    # For T033a (Pearson), we need a single value per sample (global conductivity).
+    # We assume the trainer has aggregated these to a single prediction per sample.
+    # Here we assume `model` can predict on a batch of feature vectors.
     
-    # Create a simple numerical gradient approximation
-    epsilon = 1e-4
-    n_features = X.shape[1]
+    def model_predict(x):
+        # x is [batch, features]
+        # We need to convert x back to the format the model expects if necessary.
+        # Assuming the model was trained on graph-level features extracted similarly.
+        # This is a simplification. In a real scenario, we'd need the exact graph structure.
+        # For T032, we assume `model` can accept a numpy array of features.
+        with torch.no_grad():
+            # Convert to tensor
+            x_tensor = torch.FloatTensor(x)
+            # Forward pass
+            output = model(x_tensor)
+            # If output is a tensor, convert to numpy
+            return output.detach().numpy()
+
+    # Initialize SHAP explainer
+    explainer = shap.PermutationExplainer(model_predict, background)
     
-    for i in range(min(n_features, 50)):  # Limit for performance
-        X_plus = X.copy()
-        X_plus[:, i] += epsilon
+    # Compute SHAP values
+    shap_values = explainer.shap_values(feature_matrix)
+    
+    # Ensure output is a numpy array
+    if isinstance(shap_values, list):
+        shap_values = np.array(shap_values)
         
-        X_minus = X.copy()
-        X_minus[:, i] -= epsilon
-        
-        # This is a placeholder for the actual model evaluation
-        # In a real implementation, we would call model(X_plus) and model(X_minus)
-        # For now, we'll compute a simple difference metric
-        grad_approx = np.abs(np.mean(X_plus, axis=0) - np.mean(X_minus, axis=0))
-        
-        shap_values[:, i] = grad_approx * 10  # Scale factor for visualization
-    
-    # Normalize SHAP values
-    shap_values = shap_values / (np.max(shap_values) + 1e-8)
-    
-    # Compute global feature importance as the mean absolute SHAP value
-    feature_importance = np.mean(np.abs(shap_values), axis=0)
-    
-    return shap_values, feature_importance
+    return np.array(shap_values, dtype=np.float32)
 
 def extract_feature_importance(
     model_path: Path,
-    graph_data_dir: Path,
-    output_path: Path
-) -> Dict[str, Any]:
+    graphs_path: Path,
+    output_path: Path,
+    sample_limit: Optional[int] = None
+) -> Tuple[Path, Dict[str, Any]]:
     """
-    Main function to extract feature importance from a trained GNN model.
-    
+    Main function to extract feature importance and save results.
+
     Args:
-        model_path: Path to the trained model file.
-        graph_data_dir: Directory containing graph data files.
-        output_path: Path where the feature importance results will be saved.
-        
+        model_path: Path to the trained model.
+        graphs_path: Path to the directory containing processed graphs.
+        output_path: Path where SHAP values will be saved.
+        sample_limit: Optional limit on the number of samples to process.
+
     Returns:
-        Dictionary containing feature importance results.
+        Tuple of (output_path, metadata_dict).
     """
-    logger.info(f"Starting feature importance extraction")
-    logger.info(f"Model path: {model_path}")
-    logger.info(f"Graph data directory: {graph_data_dir}")
-    logger.info(f"Output path: {output_path}")
+    logger.info(f"Starting feature importance extraction...")
     
-    # Load configuration
-    config = get_config()
+    # Load model
+    model = load_trained_model(model_path)
     
-    # Load the trained model
-    model = load_trained_model(model_path, config)
+    # Load graphs
+    graphs, metadata = load_graphs_for_training(graphs_path, limit=sample_limit)
     
-    # Load graph data for analysis
-    logger.info("Loading graph data for feature importance analysis")
-    graph_files = list(graph_data_dir.glob('*.pkl'))
+    if not graphs:
+        raise ValueError("No graphs found for feature importance extraction.")
     
-    if not graph_files:
-        logger.warning(f"No graph files found in {graph_data_dir}")
-        # Create a dummy result if no data is available
-        result = {
-            "status": "no_data",
-            "message": "No graph files found for analysis",
-            "feature_importance": {}
-        }
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        return result
+    logger.info(f"Processing {len(graphs)} graphs...")
     
-    # Load a subset of graphs for analysis (limit to 10 for performance)
-    graphs_to_analyze = []
-    for graph_file in graph_files[:10]:
-        try:
-            with open(graph_file, 'rb') as f:
-                graph_data = pickle.load(f)
-            graphs_to_analyze.append(graph_data)
-        except Exception as e:
-            logger.warning(f"Failed to load {graph_file}: {e}")
+    # Extract features for each graph
+    feature_matrix_list = []
+    for graph in graphs:
+        features = extract_node_features(graph)
+        # Aggregate node features to graph level (e.g., mean)
+        if features.size > 0:
+            graph_features = np.mean(features, axis=0)
+            feature_matrix_list.append(graph_features)
+        else:
+            # Handle empty graph case if necessary
+            feature_matrix_list.append(np.zeros(2)) # Assuming 2 features: degree, clustering
     
-    if not graphs_to_analyze:
-        logger.error("No valid graph data could be loaded")
-        result = {
-            "status": "error",
-            "message": "No valid graph data could be loaded",
-            "feature_importance": {}
-        }
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        return result
+    feature_matrix = np.array(feature_matrix_list, dtype=np.float32)
+    logger.info(f"Feature matrix shape: {feature_matrix.shape}")
     
-    # Extract features from graphs
-    feature_matrix = []
-    feature_names = []
+    # Compute SHAP values
+    shap_values = compute_shap_values(model, feature_matrix)
     
-    for i, graph_data in enumerate(graphs_to_analyze):
-        try:
-            features = extract_node_features(graph_data)
-            if i == 0:
-                # Get feature names from the first graph (if available)
-                if 'feature_names' in graph_data:
-                    feature_names = graph_data['feature_names']
-                else:
-                    # Generate default feature names
-                    n_features = features.shape[1]
-                    feature_names = [f"feature_{j}" for j in range(n_features)]
-            feature_matrix.append(features)
-        except Exception as e:
-            logger.warning(f"Failed to extract features from graph {i}: {e}")
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    if not feature_matrix:
-        logger.error("No features could be extracted from the graphs")
-        result = {
-            "status": "error",
-            "message": "No features could be extracted from the graphs",
-            "feature_importance": {}
-        }
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        return result
+    # Save SHAP values
+    logger.info(f"Saving SHAP values to {output_path}")
+    np.save(output_path, shap_values)
     
-    # Concatenate features (using mean across nodes for each graph)
-    X = np.array([np.mean(graph_features, axis=0) for graph_features in feature_matrix])
-    
-    logger.info(f"Feature matrix shape: {X.shape}")
-    logger.info(f"Feature names: {feature_names}")
-    
-    # Compute SHAP values and feature importance
-    shap_values, feature_importance = compute_shap_values(model, X)
-    
-    # Create result dictionary
-    result = {
-        "status": "success",
-        "n_samples_analyzed": X.shape[0],
-        "n_features": X.shape[1],
-        "feature_importance": {},
-        "top_features": []
+    metadata_output = {
+        "shape": list(shap_values.shape),
+        "n_samples": len(graphs),
+        "n_features": feature_matrix.shape[1],
+        "model_path": str(model_path),
+        "graphs_path": str(graphs_path)
     }
     
-    # Map feature importance to names
-    for i, name in enumerate(feature_names):
-        if i < len(feature_importance):
-            result["feature_importance"][name] = float(feature_importance[i])
-    
-    # Identify top features
-    importance_indices = np.argsort(feature_importance)[::-1]
-    for idx in importance_indices[:5]:  # Top 5 features
-        if idx < len(feature_names):
-            result["top_features"].append({
-                "name": feature_names[idx],
-                "importance": float(feature_importance[idx])
-            })
-    
-    # Save results
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    logger.info(f"Feature importance results saved to {output_path}")
-    logger.info(f"Top feature: {result['top_features'][0]['name'] if result['top_features'] else 'N/A'}")
-    
-    return result
+    return output_path, metadata_output
 
 def main():
-    """
-    Main entry point for feature importance extraction.
-    """
+    """Entry point for the feature importance extraction script."""
+    import sys
+    import torch # Required for model loading if using torch
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    
+    config = get_config()
+    paths = get_paths(config)
+    
+    model_path = paths['model_output'] / 'trained_gnn.pkl'
+    graphs_path = paths['graphs']
+    output_file = paths['model_output'] / 'shap_values.npy'
+    
     try:
-        config = get_config()
-        paths = get_paths()
-        
-        # Define paths
-        model_dir = paths['model_outputs']
-        graph_dir = paths['processed_graphs']
-        output_file = paths['model_outputs'] / "feature_importance.json"
-        
-        # Find the latest model file
-        model_files = list(model_dir.glob('*.pkl'))
-        if not model_files:
-            logger.error("No trained model files found in the model outputs directory")
-            return 1
-        
-        # Sort by modification time and take the latest
-        model_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
-        latest_model = model_files[0]
-        
-        logger.info(f"Using model: {latest_model}")
-        
-        # Extract feature importance
-        result = extract_feature_importance(
-            model_path=latest_model,
-            graph_data_dir=graph_dir,
+        output_path, metadata = extract_feature_importance(
+            model_path=model_path,
+            graphs_path=graphs_path,
             output_path=output_file
         )
+        logger.info(f"Feature importance extraction completed successfully.")
+        logger.info(f"Output saved to: {output_path}")
+        logger.info(f"Metadata: {metadata}")
         
-        if result["status"] == "success":
-            logger.info("Feature importance extraction completed successfully")
-            return 0
-        else:
-            logger.error(f"Feature importance extraction failed: {result.get('message', 'Unknown error')}")
-            return 1
+        # Save metadata as JSON for verification
+        metadata_path = output_file.with_suffix('.json')
+        with open(metadata_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
             
     except Exception as e:
-        logger.exception(f"Unexpected error during feature importance extraction: {e}")
-        return 1
+        logger.error(f"Feature importance extraction failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

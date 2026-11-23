@@ -1,0 +1,42 @@
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script, configuration, or manifest file was provided that adds validation
+    to check that all derived features are saved under `data/processed/` and that
+    their content hashes are recorded in `state/manifest.json`. The required artifact
+    (validation code and updated manifest) is missing.
+T025#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No model files or checksum records were presented in the evidence; the required\
+    \ `data/models/lofo_models/` directory with N\u20111 distinct Gradient Boosting\
+    \ models (each leaving out one chemical family) is absent, so the task\u2019s\
+    \ deliverable is not demonstrated."
+T026:
+  c: false
+  h: 0d561d0fce9161ed5851fe4dfe5ae5bced9c92fecb9ab8481ef078cd9c19115e
+  r: The required artifact `tests/integration/test_metrics.py` does not exist, so
+    no integration test for bootstrapped confidence interval calculation is present.
+    The task cannot be considered completed until this file is added with the appropriate
+    test implementation.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/shap_report.md` file is present, and there is no evidence that\
+    \ the report includes the required sections (feature importance, CI results, transferability\
+    \ metrics, the \u201CPower Analysis\u201D text extracted from `state/power_analysis.json`,\
+    \ and the \u201CCausal Disclaimer\u201D from `artifacts/causal_disclaimer.txt`).\
+    \ The implementer must create the markdown report with all specified content."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/performance_metrics.json` file was presented, and no content showing\
+    \ the required metrics (RMSE, R\xB2, MDES, VIF, confidence interval bounds, significance\
+    \ flag, transferability flags) was provided. The implementer must create and supply\
+    \ this JSON file with the specified fields."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `state/manifest.json` file was provided, and there is no evidence that any
+    SHAP subset hashes were recorded or reported. The required artifact is missing,
+    so the task is not satisfied.

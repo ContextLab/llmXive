@@ -1,0 +1,24 @@
+# Schema for frequency_distribution outputs
+# Generated for T036: Final verification of all JSON outputs against contract schemas
+type: object
+required:
+  - language
+  - tokens
+properties:
+  language:
+    type: string
+    description: Language code (en, fr, zh)
+  tokens:
+    type: object
+    description: Token frequency counts
+    additionalProperties:
+      type: integer
+      minimum: 0
+  total_tokens:
+    type: integer
+    description: Total number of tokens processed
+    minimum: 0
+  unique_tokens:
+    type: integer
+    description: Number of unique tokens
+    minimum: 0

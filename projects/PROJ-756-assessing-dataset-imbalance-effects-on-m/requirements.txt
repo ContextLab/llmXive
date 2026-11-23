@@ -1,0 +1,10 @@
+pandas
+scikit-learn
+shap
+magpie
+datasets
+numpy
+scipy
+pyyaml
+cvxpy
+requests

@@ -1,345 +1,355 @@
+"""
+Data cleaning, merging, imputation, and sampling pipeline for CSA analysis.
+Implements T016, T017, T018, and T018b.
+"""
+import os
+import json
+import math
+from pathlib import Path
+from typing import Dict, List, Optional, Any, Tuple
 import pandas as pd
 import numpy as np
-from pathlib import Path
-from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
-import logging
-import json
-import os
+from utils.logging import get_logger, log_operation, ReproducibilityLogger
+from utils.config import get_raw_data_dir, get_processed_data_dir, get_state_dir, get_target_countries, get_target_years
 
-from utils.config import get_max_ram_gb, get_target_countries, get_target_years, get_processed_data_dir
-from utils.logging import log_provenance_mapping, initialize_logging
+# Initialize logger
+logger = get_logger("data_clean")
 
-logger = logging.getLogger(__name__)
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate the great-circle distance between two points on the Earth (km)."""
+    R = 6371.0  # Earth radius in km
+    lat1_rad = math.radians(lat1)
+    lat2_rad = math.radians(lat2)
+    delta_lat = math.radians(lat2 - lat1)
+    delta_lon = math.radians(lon2 - lon1)
 
-def clean_and_merge(raw_data_dir: Optional[Path] = None, output_dir: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Load raw data from LSMS, FAOSTAT, and NASA POWER, clean, and merge.
-    
-    This is a placeholder implementation to satisfy the import requirement.
-    The actual implementation assumes T012-T016 have populated the raw data
-    and performed initial cleaning/merging logic.
-    
-    Returns a DataFrame ready for sampling.
-    """
-    # In a real implementation, this would:
-    # 1. Load cleaned LSMS data
-    # 2. Load and merge FAOSTAT data
-    # 3. Load and merge NASA POWER climate data
-    # 4. Perform imputation (T016)
-    # 5. Return the merged DataFrame
-    
-    # For T017, we assume the merged data exists at a standard location or is passed in.
-    # Since we cannot fabricate data, we will raise an error if the expected file doesn't exist
-    # or if the data is not provided.
-    
-    if raw_data_dir is None:
-        raw_data_dir = Path("data/raw")
-    if output_dir is None:
-        output_dir = get_processed_data_dir()
-        
-    # Attempt to load a pre-merged file if it exists (simulating T015 completion)
-    merged_path = raw_data_dir / "merged_cleaned.parquet"
-    if merged_path.exists():
-        logger.info(f"Loading pre-merged data from {merged_path}")
-        df = pd.read_parquet(merged_path)
-        return df
-    else:
-        # In a real pipeline, this would trigger the download and merge steps
-        # For now, we return an empty dataframe with expected columns to allow testing of the sampling logic
-        # This is a fallback for demonstration; in production, this path should not be taken without data.
-        logger.warning("No merged data found. Returning empty DataFrame with schema.")
-        return pd.DataFrame(columns=[
-            'country_code', 'year', 'household_id', 'latitude', 'longitude',
-            'conservation_tillage', 'crop_diversity', 'irrigation_efficiency',
-            'food_security_score', 'digital_access', 'finance_access',
-            'climate_temp_avg', 'climate_precip_total', 'region'
-        ])
+    a = math.sin(delta_lat / 2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
-def apply_imputation_weights(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Apply imputation weights to the DataFrame.
-    Placeholder for T016 logic.
-    """
-    logger.info("Applying imputation weights (placeholder)")
-    return df
+    return R * c
 
-def validate_imputation_quality(df: pd.DataFrame) -> Dict[str, Any]:
+def merge_climate_data(df_lsms: pd.DataFrame, df_climate: pd.DataFrame, max_dist_km: float = 100.0) -> pd.DataFrame:
     """
-    Validate the quality of imputation.
-    Placeholder for T016 logic.
+    Merge climate data to LSMS data based on spatial proximity.
+    Uses Haversine formula for distance calculation.
     """
-    logger.info("Validating imputation quality (placeholder)")
-    return {"status": "ok", "missing_count": 0}
+    if df_climate.empty or df_lsms.empty:
+        logger.warning("Empty dataframe provided for climate merge.")
+        return df_lsms
 
-def get_imputation_report(df: pd.DataFrame) -> str:
-    """
-    Generate a report on imputation.
-    Placeholder for T016 logic.
-    """
-    logger.info("Generating imputation report (placeholder)")
-    return "Imputation report placeholder"
+    # Ensure coordinates are numeric
+    df_lsms = df_lsms.copy()
+    df_climate = df_climate.copy()
 
-def calculate_design_weights(df: pd.DataFrame, country_col: str = 'country_code', region_col: str = 'region') -> pd.DataFrame:
-    """
-    Calculate survey design weights to preserve design effects.
-    
-    This function computes weights based on the inverse of the selection probability
-    and non-response adjustments if available. For this implementation, we assume
-    a stratified sampling design where weights are proportional to the inverse of
-    the sampling fraction within each country-region stratum.
-    
-    Args:
-        df: The merged DataFrame.
-        country_col: Name of the country code column.
-        region_col: Name of the region column (for stratification).
-        
-    Returns:
-        DataFrame with a new 'design_weight' column.
-    """
-    logger.info("Calculating design weights...")
-    
-    # Check for necessary columns
-    required_cols = [country_col, region_col]
-    if not all(col in df.columns for col in required_cols):
-        raise ValueError(f"DataFrame must contain columns: {required_cols}")
-    
-    # Calculate stratum sizes
-    # In a real survey, we would have population sizes for each stratum.
-    # Here, we approximate by assuming the sample is representative and
-    # weighting by the inverse of the stratum's proportion in the sample
-    # to correct for over/under-sampling.
-    
-    # Calculate the total number of observations per stratum
-    stratum_counts = df.groupby([country_col, region_col]).size().reset_index(name='stratum_n')
-    
-    # Calculate the total number of observations per country
-    country_totals = df.groupby(country_col).size().reset_index(name='country_n')
-    
-    # Merge back to get counts
-    df_with_counts = df.merge(stratum_counts, on=[country_col, region_col], how='left')
-    df_with_counts = df_with_counts.merge(country_totals, on=country_col, how='left')
-    
-    # Calculate sampling fraction per stratum (stratum_n / country_n)
-    # This is a simplification. Real design weights often come from the survey metadata.
-    # We assume the 'country_n' represents the total sample size for that country,
-    # and we want to weight such that each stratum contributes proportionally to its size in the population.
-    # Without population data, we use the sample distribution as a proxy for population distribution
-    # or assume equal weighting if strata are balanced.
-    
-    # A more robust approach for this task (given limited data) is to calculate weights
-    # that normalize the contribution of each stratum to the total sample size.
-    # Weight = (Total Sample Size) / (Number of Strata * Stratum Size) ? No.
-    
-    # Let's use the standard formula: Weight = 1 / (Probability of Selection)
-    # If we assume a simple random sample within strata, and we don't know population sizes,
-    # we might just use the inverse of the stratum's proportion in the sample to balance them.
-    # However, the task asks to "preserve design effects".
-    
-    # Simplified Strategy:
-    # 1. Assume the data provided is the raw sample.
-    # 2. Calculate the weight as the inverse of the stratum's share of the total sample,
-    #    normalized so the sum of weights equals the total sample size (or 1).
-    #    This ensures that strata with fewer observations get higher weights.
-    
-    total_n = len(df_with_counts)
-    stratum_share = df_with_counts['stratum_n'] / total_n
-    # Avoid division by zero
-    stratum_share = stratum_share.replace(0, np.nan)
-    
-    # Design weight = 1 / stratum_share
-    # This gives more weight to under-sampled strata.
-    df_with_counts['design_weight'] = 1.0 / stratum_share
-    
-    # Normalize weights to sum to total_n (optional but common)
-    # df_with_counts['design_weight'] = df_with_counts['design_weight'] * (total_n / df_with_counts['design_weight'].sum())
-    
-    # Log provenance
-    log_provenance_mapping(
-        source="calculated_design_weights",
-        target="design_weight",
-        method="inverse_stratum_share",
-        timestamp=datetime.now().isoformat()
-    )
-    
-    logger.info(f"Design weights calculated. Min: {df_with_counts['design_weight'].min():.2f}, Max: {df_with_counts['design_weight'].max():.2f}")
-    
-    return df_with_counts
+    # Drop rows with missing coordinates
+    df_lsms = df_lsms.dropna(subset=['latitude', 'longitude'])
 
-def stratified_sample(df: pd.DataFrame, 
-                      target_n_per_country: int = 5000, 
-                      max_ram_gb: Optional[int] = None, 
-                      country_col: str = 'country_code',
-                      seed: int = 42) -> pd.DataFrame:
+    merged_rows = []
+    unmatched_count = 0
+
+    for idx, row in df_lsms.iterrows():
+        best_match = None
+        min_dist = float('inf')
+
+        for c_idx, c_row in df_climate.iterrows():
+            dist = haversine_distance(
+                row['latitude'], row['longitude'],
+                c_row['latitude'], c_row['longitude']
+            )
+            if dist <= max_dist_km and dist < min_dist:
+                min_dist = dist
+                best_match = c_row
+
+        if best_match is not None:
+            new_row = row.to_dict()
+            new_row.update(best_match.to_dict())
+            new_row['climate_dist_km'] = min_dist
+            merged_rows.append(new_row)
+        else:
+            unmatched_count += 1
+
+    logger.info(f"Merged {len(merged_rows)} rows; {unmatched_count} unmatched due to distance > {max_dist_km}km.")
+    return pd.DataFrame(merged_rows)
+
+def clean_and_merge(lsms_data: Dict[str, pd.DataFrame], climate_data: Dict[str, pd.DataFrame], faostat_data: Dict[str, pd.DataFrame]) -> pd.DataFrame:
     """
-    Perform stratified sampling with design weights to ensure target N and RAM constraints.
-    
-    This function:
-    1. Calculates design weights.
-    2. Determines the sampling fraction per country to meet the target N.
-    3. Samples within each country, respecting the design weights (probability proportional to weight).
-    4. Ensures the final dataset fits within the RAM limit (by estimating size).
-    
-    Args:
-        df: Input DataFrame.
-        target_n_per_country: Target number of households per country.
-        max_ram_gb: Maximum RAM in GB. If None, uses config.
-        country_col: Column name for country.
-        seed: Random seed for reproducibility.
-        
-    Returns:
-        Sampled DataFrame with 'design_weight' column.
+    Clean and merge LSMS, Climate, and FAOSTAT data.
+    Returns a single merged DataFrame.
     """
-    if max_ram_gb is None:
-        max_ram_gb = get_max_ram_gb()
-        
-    logger.info(f"Starting stratified sampling. Target N per country: {target_n_per_country}, Max RAM: {max_ram_gb}GB")
+    # Start with LSMS data (assuming it's the primary unit of analysis: household)
+    # Combine all country LSMS data
+    all_lsms = []
+    for country, df in lsms_data.items():
+        df = df.copy()
+        df['country'] = country
+        all_lsms.append(df)
     
-    # 1. Calculate design weights
-    df_weighted = calculate_design_weights(df, country_col=country_col)
+    if not all_lsms:
+        raise ValueError("No LSMS data provided for merging.")
+
+    df_lsms = pd.concat(all_lsms, ignore_index=True)
+
+    # Merge Climate Data (simplified: assume climate data is already aggregated or matched)
+    # In a real scenario, we would iterate through climate data and match by coordinates
+    # For this implementation, we assume climate_data is a dict of country -> df, 
+    # and we perform a spatial join or nearest neighbor match if coordinates exist.
+    # If climate_data keys match country codes, we might join on country + year if available.
     
-    # 2. Estimate memory usage per row
-    # Approximate memory per row in MB
-    estimated_bytes_per_row = df_weighted.memory_usage(deep=True).sum() / len(df_weighted)
-    max_rows_allowed = int((max_ram_gb * 1024 * 1024 * 1024) * 0.8 / estimated_bytes_per_row) # 80% safety margin
+    # Placeholder for complex spatial join if needed; currently assuming direct match or no climate if empty
+    # If climate_data exists, we attempt to merge if 'latitude'/'longitude' exist in both
+    if climate_data:
+        all_climate = []
+        for country, df in climate_data.items():
+            df = df.copy()
+            df['country'] = country
+            all_climate.append(df)
+        if all_climate:
+            df_climate = pd.concat(all_climate, ignore_index=True)
+            df_lsms = merge_climate_data(df_lsms, df_climate)
+
+    # Merge FAOSTAT (usually by Country + Year)
+    if faostat_data:
+        all_faostat = []
+        for country, df in faostat_data.items():
+            df = df.copy()
+            df['country'] = country
+            all_faostat.append(df)
+        if all_faostat:
+            df_faostat = pd.concat(all_faostat, ignore_index=True)
+            # Merge on country and year if available
+            merge_keys = ['country', 'year']
+            if all(k in df_lsms.columns and k in df_faostat.columns for k in merge_keys):
+                df_lsms = df_lsms.merge(df_faostat, on=merge_keys, how='left')
+            else:
+                # Fallback: merge on country only if year is missing
+                if 'country' in df_lsms.columns and 'country' in df_faostat.columns:
+                    df_lsms = df_lsms.merge(df_faostat, on='country', how='left')
+
+    return df_lsms
+
+def apply_imputation(df: pd.DataFrame, strategy: str = 'mean') -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Apply imputation strategy to missing values.
+    """
+    df = df.copy()
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    imputation_report = {}
+
+    for col in numeric_cols:
+        if df[col].isna().any():
+            if strategy == 'mean':
+                val = df[col].mean()
+            elif strategy == 'median':
+                val = df[col].median()
+            else:
+                val = 0
+            
+            df[col] = df[col].fillna(val)
+            imputation_report[col] = {'strategy': strategy, 'value': val, 'missing_count': int(df[col].isna().sum())}
+
+    return df, imputation_report
+
+def validate_imputation_quality(df: pd.DataFrame) -> bool:
+    """
+    Validate that key predictors have no missing values after imputation.
+    """
+    key_predictors = ['csa_index', 'hdds', 'digital_access', 'finance_access']
+    for col in key_predictors:
+        if col in df.columns and df[col].isna().any():
+            logger.warning(f"Key predictor {col} still has missing values.")
+            return False
+    return True
+
+def get_imputation_report(report: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Convert imputation report to DataFrame for logging.
+    """
+    return pd.DataFrame([report])
+
+@log_operation
+def run_sampling_pipeline(
+    raw_lsms_path: Optional[str] = None,
+    raw_climate_path: Optional[str] = None,
+    raw_faostat_path: Optional[str] = None,
+    output_path: Optional[str] = None,
+    ipw_output_path: Optional[str] = None
+) -> None:
+    """
+    Main pipeline: Download (if paths provided), Clean, Merge, Impute, Sample.
+    Calculates Merge Success Rate (T018b) and outputs IPW weights (T018).
+    """
+    processed_dir = get_processed_data_dir()
+    state_dir = get_state_dir()
     
-    logger.info(f"Estimated max rows for {max_ram_gb}GB RAM: {max_rows_allowed}")
+    # If paths are not provided, assume data is already downloaded to raw/
+    # For T018b, we need to calculate merge success rate.
+    # We assume the data is loaded into memory as DataFrames.
+    # In a real run, we would load from the raw files.
     
-    # 3. Determine sampling strategy per country
-    np.random.seed(seed)
-    sampled_dfs = []
+    # Simulate loading data (In real execution, load from disk)
+    # Since T013-T015 are implemented, we assume data exists in data/raw/
+    # We will load them here if they exist.
     
-    countries = df_weighted[country_col].unique()
-    total_target = target_n_per_country * len(countries)
+    lsms_data = {}
+    climate_data = {}
+    faostat_data = {}
     
-    # If the total target exceeds RAM capacity, scale down
-    if total_target > max_rows_allowed:
-        logger.warning(f"Target N ({total_target}) exceeds RAM limit ({max_rows_allowed}). Scaling target.")
-        scale_factor = max_rows_allowed / total_target
-        target_n_per_country = int(target_n_per_country * scale_factor)
-        logger.info(f"Adjusted target N per country: {target_n_per_country}")
+    countries = get_target_countries()
+    years = get_target_years()
     
+    # Load LSMS (Mocking load for now, assuming T013-T015 populated data/raw/)
+    # In a real scenario, we'd iterate and load parquet/csv from data/raw/
     for country in countries:
-        country_df = df_weighted[df_weighted[country_col] == country]
-        
-        if len(country_df) <= target_n_per_country:
-            # If sample is smaller than target, keep all
-            logger.info(f"Country {country}: Keeping all {len(country_df)} rows (below target).")
-            sampled_dfs.append(country_df)
-            continue
-        
-        # Probability proportional to weight
-        # Normalize weights to sum to 1
-        weights = country_df['design_weight']
-        weights = weights / weights.sum()
-        
-        n_sample = min(target_n_per_country, len(country_df))
-        
-        # Sample with replacement or without? Usually without for survey data, but with weights.
-        # Using 'p' for probability.
-        sampled_indices = country_df.sample(n=n_sample, weights=weights, replace=False, random_state=seed).index
-        sampled_country_df = country_df.loc[sampled_indices]
-        
-        logger.info(f"Country {country}: Sampled {len(sampled_country_df)} rows.")
-        sampled_dfs.append(sampled_country_df)
+        # Check for LSMS file
+        lsms_file = Path(raw_lsms_path) if raw_lsms_path else Path(get_raw_data_dir()) / f"{country}_lsms.parquet"
+        if lsms_file.exists():
+            lsms_data[country] = pd.read_parquet(lsms_file)
+        else:
+            # Fallback to searching data/raw/
+            for f in Path(get_raw_data_dir()).glob(f"{country}*"):
+                if f.suffix == '.parquet' or f.suffix == '.csv':
+                    df = pd.read_parquet(f) if f.suffix == '.parquet' else pd.read_csv(f)
+                    lsms_data[country] = df
+                    break
     
-    final_df = pd.concat(sampled_dfs, ignore_index=True)
-    
-    logger.info(f"Final sampled dataset size: {len(final_df)} rows.")
-    
-    # Log provenance for sampling
-    log_provenance_mapping(
-        source="stratified_sampling",
-        target="sampled_dataset",
-        method=f"weighted_stratified_{country_col}",
-        params={"target_n": target_n_per_country, "seed": seed},
-        timestamp=datetime.now().isoformat()
-    )
-    
-    return final_df
+    # Load Climate
+    for country in countries:
+        climate_file = Path(raw_climate_path) if raw_climate_path else Path(get_raw_data_dir()) / f"{country}_climate.parquet"
+        if climate_file.exists():
+            climate_data[country] = pd.read_parquet(climate_file)
+        else:
+            for f in Path(get_raw_data_dir()).glob(f"{country}*climate*"):
+                if f.suffix == '.parquet' or f.suffix == '.csv':
+                    df = pd.read_parquet(f) if f.suffix == '.parquet' else pd.read_csv(f)
+                    climate_data[country] = df
+                    break
 
-def apply_sampling_weights(df: pd.DataFrame, weight_col: str = 'design_weight') -> pd.DataFrame:
-    """
-    Apply the sampling weights to the DataFrame for analysis.
-    This function ensures the weights are correctly normalized if needed.
-    """
-    logger.info("Applying sampling weights for analysis.")
-    # The weights are already calculated in calculate_design_weights.
-    # This function might be used to renormalize or prepare for specific model inputs.
-    return df
+    # Load FAOSTAT
+    for country in countries:
+        faostat_file = Path(raw_faostat_path) if raw_faostat_path else Path(get_raw_data_dir()) / f"{country}_faostat.parquet"
+        if faostat_file.exists():
+            faostat_data[country] = pd.read_parquet(faostat_file)
+        else:
+            for f in Path(get_raw_data_dir()).glob(f"{country}*faostat*"):
+                if f.suffix == '.parquet' or f.suffix == '.csv':
+                    df = pd.read_parquet(f) if f.suffix == '.parquet' else pd.read_csv(f)
+                    faostat_data[country] = df
+                    break
 
-def validate_sample_quality(df: pd.DataFrame, min_n_per_country: int = 5000) -> Dict[str, Any]:
-    """
-    Validate the quality of the sampled dataset.
-    Checks for:
-    - Minimum N per country
-    - Distribution of design weights
-    - Missing values in key columns
-    """
-    logger.info("Validating sample quality.")
-    results = {
-        "status": "ok",
-        "issues": []
+    if not lsms_data:
+        raise FileNotFoundError("No LSMS data found in raw directory. Run download pipeline first.")
+
+    # Clean and Merge
+    logger.info("Starting clean and merge...")
+    df_merged = clean_and_merge(lsms_data, climate_data, faostat_data)
+    
+    # T018b: Calculate Merge Success Rate
+    # "Number of successfully merged records" / "Total available non-duplicate LSMS records" * 100
+    total_lsms_records = sum(len(df) for df in lsms_data.values())
+    merged_records = len(df_merged)
+    
+    # Calculate missingness rate for key predictors
+    key_cols = ['hdds', 'csa_index', 'digital_access', 'finance_access']
+    missing_cols = [col for col in key_cols if col in df_merged.columns]
+    if missing_cols:
+        missingness = df_merged[missing_cols].isna().sum().sum() / (len(df_merged) * len(missing_cols))
+    else:
+        missingness = 0.0
+
+    merge_stats = {
+        "merge_success_rate_pct": (merged_records / total_lsms_records * 100) if total_lsms_records > 0 else 0.0,
+        "total_available_records": total_lsms_records,
+        "merged_records": merged_records,
+        "missingness_rate": float(missingness)
     }
     
-    countries = df['country_code'].unique()
-    for country in countries:
-        n = len(df[df['country_code'] == country])
-        if n < min_n_per_country:
-            msg = f"Country {country} has {n} rows, below target {min_n_per_country}."
-            results["issues"].append(msg)
-            results["status"] = "warning"
-            logger.warning(msg)
-    
-    if df['design_weight'].isnull().any():
-        msg = "Null design weights detected."
-        results["issues"].append(msg)
-        results["status"] = "error"
-        logger.error(msg)
-    
-    return results
+    stats_path = Path(processed_dir) / "merge_stats.json"
+    with open(stats_path, 'w') as f:
+        json.dump(merge_stats, f, indent=2)
+    logger.info(f"Merge stats written to {stats_path}")
 
-def save_sampled_data(df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
-    """
-    Save the sampled and weighted dataset to disk.
-    """
-    if output_path is None:
-        output_path = get_processed_data_dir() / "merged_sample.parquet"
+    # Imputation
+    logger.info("Applying imputation...")
+    df_imputed, imp_report = apply_imputation(df_merged)
+    
+    # Validate
+    if not validate_imputation_quality(df_imputed):
+        logger.warning("Imputation validation failed.")
+
+    # T018: Stratified Sampling & IPW Weights
+    # Check memory limit (7GB)
+    # Estimate memory: len * width * 8 bytes (rough)
+    estimated_mb = df_imputed.memory_usage(deep=True).sum() / (1024 * 1024)
+    should_sample = estimated_mb > 7000  # 7GB threshold
+
+    if should_sample:
+        logger.info(f"Data size {estimated_mb:.2f}MB > 7GB. Applying stratified sampling.")
+        # Stratify by country
+        strata = df_imputed['country'].unique()
+        target_n_per_stratum = 5000
         
-    logger.info(f"Saving sampled data to {output_path}")
-    df.to_parquet(output_path, index=False)
-    return output_path
+        sampled_dfs = []
+        ipw_data = []
+        
+        for stratum in strata:
+            df_stratum = df_imputed[df_imputed['country'] == stratum]
+            n_stratum = len(df_stratum)
+            
+            if n_stratum > target_n_per_stratum:
+                # Sample
+                df_sample = df_stratum.sample(n=target_n_per_stratum, random_state=42)
+                sampling_frac = target_n_per_stratum / n_stratum
+            else:
+                df_sample = df_stratum
+                sampling_frac = 1.0
+            
+            sampled_dfs.append(df_sample)
+            ipw_data.append({
+                'country': stratum,
+                'stratum_size': n_stratum,
+                'sample_size': len(df_sample),
+                'sampling_fraction': sampling_frac,
+                'ipw': 1.0 / sampling_frac if sampling_frac > 0 else 0.0
+            })
+        
+        df_final = pd.concat(sampled_dfs, ignore_index=True)
+        df_ipw = pd.DataFrame(ipw_data)
+    else:
+        logger.info(f"Data size {estimated_mb:.2f}MB <= 7GB. Retaining all data.")
+        df_final = df_imputed
+        # Create IPW weights for full data (weight = 1)
+        strata = df_final['country'].unique()
+        ipw_data = []
+        for stratum in strata:
+            n_stratum = len(df_final[df_final['country'] == stratum])
+            ipw_data.append({
+                'country': stratum,
+                'stratum_size': n_stratum,
+                'sample_size': n_stratum,
+                'sampling_fraction': 1.0,
+                'ipw': 1.0
+            })
+        df_ipw = pd.DataFrame(ipw_data)
 
-def run_sampling_pipeline(raw_data_dir: Optional[Path] = None, output_dir: Optional[Path] = None) -> Path:
-    """
-    End-to-end function to run the sampling pipeline.
-    1. Load data (clean_and_merge)
-    2. Apply imputation weights (apply_imputation_weights)
-    3. Stratified sample (stratified_sample)
-    4. Validate (validate_sample_quality)
-    5. Save (save_sampled_data)
-    """
-    logger.info("Running full sampling pipeline.")
-    
-    # Load and merge
-    df = clean_and_merge(raw_data_dir, output_dir)
-    
-    # Apply imputation weights if needed (placeholder)
-    df = apply_imputation_weights(df)
-    
-    # Validate imputation
-    validate_imputation_quality(df)
-    
-    # Stratified sampling
-    sampled_df = stratified_sample(df)
-    
-    # Validate sample
-    validation = validate_sample_quality(sampled_df)
-    if validation["status"] == "error":
-        raise RuntimeError(f"Sampling validation failed: {validation['issues']}")
-    
-    # Save
-    output_path = save_sampled_data(sampled_df, output_dir)
-    
-    logger.info(f"Pipeline complete. Output: {output_path}")
-    return output_path
+    # Verify target N >= 5000 per country
+    for stratum in df_final['country'].unique():
+        n = len(df_final[df_final['country'] == stratum])
+        if n < 5000:
+            logger.warning(f"Target N >= 5000 for {stratum} not met. Available: {n}.")
+
+    # Output
+    output_file = Path(output_path) if output_path else Path(processed_dir) / "merged_sample.parquet"
+    df_final.to_parquet(output_file, index=False)
+    logger.info(f"Final dataset written to {output_file}")
+
+    # Output IPW weights
+    ipw_file = Path(ipw_output_path) if ipw_output_path else Path(processed_dir) / "ipw_weights.parquet"
+    df_ipw.to_parquet(ipw_file, index=False)
+    logger.info(f"IPW weights written to {ipw_file}")
+
+def main():
+    """Entry point for the clean pipeline."""
+    run_sampling_pipeline()
+
+if __name__ == "__main__":
+    main()

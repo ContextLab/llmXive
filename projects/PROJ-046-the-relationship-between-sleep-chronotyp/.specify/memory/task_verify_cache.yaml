@@ -1,0 +1,13 @@
+T025:
+  c: false
+  h: cd87d2336f4c2c7fcca9842eb3ab85f49084ab7fcc0a11a91b03629509290584
+  r: "The required artifact `tests/test-report.R` does not exist on disk, so the validation\
+    \ test for report structure cannot be present or evaluated. The task\u2019s core\
+    \ deliverable is missing."
+T046:
+  c: true
+  h: 864765ca8023fc039f876bedd45fb2e027c4806bd19ed2223472cce6fb41771b
+  r: "The repository contains a non\u2011empty `tests/test-classify.R` that defines\
+    \ a test suite checking that `check_data_presence` throws an error when `data/raw/study_data.csv`\
+    \ is absent and the `PIPELINE_TEST_MODE` flag is not set, fulfilling the required\
+    \ abort\u2011behavior test."

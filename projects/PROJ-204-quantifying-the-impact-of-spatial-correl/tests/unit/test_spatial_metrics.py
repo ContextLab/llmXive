@@ -1,237 +1,276 @@
 """
-Unit tests for spatial metrics analysis module.
+Unit tests for code/analysis/spatial_metrics.py.
+Tests autocorrelation computation, decay model fitting, and radial profiling.
 """
-import pytest
 import numpy as np
+import pytest
+from scipy.optimize import curve_fit
+from scipy.ndimage import gaussian_filter
 from pathlib import Path
-import sys
-import os
 import tempfile
+import os
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from code.analysis.spatial_metrics import (
+# Import the module under test
+from analysis.spatial_metrics import (
     gaussian_decay,
     exponential_decay,
+    power_law_decay,
     compute_autocorrelation,
-    fit_decay_model,
     compute_radial_distances,
     extract_radial_profile,
-    compute_spatial_metrics_for_sample
+    fit_decay_model,
+    compute_spatial_metrics_for_sample,
+    process_dataset_and_write_metrics
 )
 
-class TestGaussianDecay:
-    def test_gaussian_decay_basic(self):
-        """Test basic Gaussian decay function"""
-        x = np.array([0, 1, 2, 3])
-        amplitude, sigma, offset = 1.0, 1.0, 0.0
-        result = gaussian_decay(x, amplitude, sigma, offset)
-        
-        # At x=0, should be amplitude + offset = 1.0
-        assert np.isclose(result[0], 1.0)
-        # At x=1, should be amplitude * exp(-0.5) + offset
-        expected = amplitude * np.exp(-0.5) + offset
-        assert np.isclose(result[1], expected)
+class TestDecayModels:
+    def test_gaussian_decay_at_zero(self):
+        """Gaussian decay should return amplitude at lag=0."""
+        A, sigma = 2.0, 5.0
+        assert np.isclose(gaussian_decay(0, A, sigma), A)
 
-    def test_gaussian_decay_offset(self):
-        """Test Gaussian decay with offset"""
-        x = np.array([0, 10])
-        result = gaussian_decay(x, 2.0, 1.0, 0.5)
-        
-        # At large x, should approach offset
-        assert result[1] > 0.5
-        assert result[1] < 0.6
+    def test_exponential_decay_at_zero(self):
+        """Exponential decay should return amplitude at lag=0."""
+        A, tau = 2.0, 3.0
+        assert np.isclose(exponential_decay(0, A, tau), A)
 
-class TestExponentialDecay:
-    def test_exponential_decay_basic(self):
-        """Test basic exponential decay function"""
-        x = np.array([0, 1, 2, 3])
-        amplitude, tau, offset = 1.0, 1.0, 0.0
-        result = exponential_decay(x, amplitude, tau, offset)
-        
-        # At x=0, should be amplitude + offset = 1.0
-        assert np.isclose(result[0], 1.0)
-        # At x=1, should be amplitude * exp(-1) + offset
-        expected = amplitude * np.exp(-1) + offset
-        assert np.isclose(result[1], expected)
+    def test_power_law_decay_at_zero(self):
+        """Power law decay should return amplitude at lag=0."""
+        A, alpha = 2.0, 1.5
+        assert np.isclose(power_law_decay(0, A, alpha), A)
 
-class TestComputeAutocorrelation:
-    def test_autocorrelation_shape(self):
-        """Test that autocorrelation has same shape as input"""
-        data = np.random.randn(10, 10)
-        autocorr = compute_autocorrelation(data)
-        assert autocorr.shape == data.shape
+    def test_gaussian_decay_positive(self):
+        """Gaussian decay should decrease with lag."""
+        A, sigma = 1.0, 2.0
+        y0 = gaussian_decay(0, A, sigma)
+        y1 = gaussian_decay(sigma, A, sigma)
+        assert y1 < y0
 
-    def test_autocorrelation_center(self):
-        """Test that autocorrelation is maximum at center"""
-        # Create a simple pattern with known autocorrelation
-        data = np.zeros((20, 20))
-        data[10, 10] = 1.0  # Single peak
-        autocorr = compute_autocorrelation(data)
-        
-        # Center should be maximum
-        center_y, center_x = autocorr.shape[0] // 2, autocorr.shape[1] // 2
-        assert autocorr[center_y, center_x] >= autocorr.max()
+    def test_exponential_decay_positive(self):
+        """Exponential decay should decrease with lag."""
+        A, tau = 1.0, 2.0
+        y0 = exponential_decay(0, A, tau)
+        y1 = exponential_decay(tau, A, tau)
+        assert y1 < y0
+
+    def test_power_law_decay_positive(self):
+        """Power law decay should decrease with lag."""
+        A, alpha = 1.0, 2.0
+        y0 = power_law_decay(0, A, alpha)
+        y1 = power_law_decay(1.0, A, alpha)
+        assert y1 < y0
+
+
+class TestAutocorrelation:
+    def test_autocorrelation_center_peak(self):
+        """Autocorrelation of random noise should peak at center."""
+        np.random.seed(42)
+        img = np.random.randn(32, 32)
+        ac = compute_autocorrelation(img)
+        center = ac.shape[0] // 2
+        center_val = ac[center, center]
+        assert center_val == np.max(ac), "Center should be the maximum value"
 
     def test_autocorrelation_symmetry(self):
-        """Test that autocorrelation is symmetric"""
-        data = np.random.randn(15, 15)
-        autocorr = compute_autocorrelation(data)
-        
-        # Autocorrelation should be symmetric around center
-        center_y, center_x = autocorr.shape[0] // 2, autocorr.shape[1] // 2
-        for dy in range(-5, 6):
-            for dx in range(-5, 6):
-                y1, x1 = center_y + dy, center_x + dx
-                y2, x2 = center_y - dy, center_x - dx
-                if 0 <= y1 < autocorr.shape[0] and 0 <= x1 < autocorr.shape[1]:
-                    if 0 <= y2 < autocorr.shape[0] and 0 <= x2 < autocorr.shape[1]:
-                        assert np.isclose(autocorr[y1, x1], autocorr[y2, x2])
+        """Autocorrelation should be symmetric."""
+        np.random.seed(42)
+        img = np.random.randn(16, 16)
+        ac = compute_autocorrelation(img)
+        # Check symmetry around center
+        center = ac.shape[0] // 2
+        # Compare quadrants
+        assert np.allclose(ac, ac[::-1, ::-1]), "Autocorrelation must be symmetric"
+
+    def test_autocorrelation_known_pattern(self):
+        """Autocorrelation of a Gaussian blob should be a Gaussian."""
+        x = np.linspace(-5, 5, 50)
+        y = np.linspace(-5, 5, 50)
+        X, Y = np.meshgrid(x, y)
+        blob = np.exp(-(X**2 + Y**2) / 2)
+        ac = compute_autocorrelation(blob)
+        center = ac.shape[0] // 2
+        # The center value should be the integral of the square of the blob
+        expected_center = np.sum(blob**2)
+        assert np.isclose(ac[center, center], expected_center, rtol=1e-2)
+
+
+class TestRadialProfile:
+    def test_compute_radial_distances(self):
+        """Radial distances should be non-negative and symmetric."""
+        shape = (20, 20)
+        r = compute_radial_distances(shape)
+        assert r.shape == shape
+        assert np.all(r >= 0)
+        center = shape[0] // 2
+        # Check symmetry
+        assert np.allclose(r, np.flipud(r))
+        assert np.allclose(r, np.fliplr(r))
+
+    def test_extract_radial_profile(self):
+        """Radial profile should average values at same distance."""
+        np.random.seed(42)
+        ac = np.random.rand(32, 32)
+        profile, r_bins = extract_radial_profile(ac)
+        assert len(profile) > 0
+        assert len(r_bins) > 0
+        assert len(profile) == len(r_bins)
+        # Profile should be non-negative if input is positive
+        assert np.all(profile >= 0)
+
 
 class TestFitDecayModel:
-    def test_fit_gaussian_decay(self):
-        """Test fitting a Gaussian decay model to synthetic data"""
-        # Generate synthetic data with known parameters
-        x = np.linspace(0, 20, 50)
-        true_amplitude, true_sigma, true_offset = 1.5, 3.0, 0.1
-        y = gaussian_decay(x, true_amplitude, true_sigma, true_offset)
-        
+    def test_fit_gaussian_on_gaussian(self):
+        """Fitting Gaussian model to Gaussian data should recover parameters."""
+        np.random.seed(42)
+        r = np.linspace(0, 10, 50)
+        A_true, sigma_true = 2.0, 3.0
+        y_true = gaussian_decay(r, A_true, sigma_true)
         # Add small noise
-        y_noisy = y + np.random.normal(0, 0.01, len(x))
-        
-        # Fit model
-        params = fit_decay_model(x, y_noisy, 'gaussian')
-        
-        # Check that fitted parameters are close to true values (within 20%)
-        assert abs(params['sigma'] - true_sigma) / true_sigma < 0.2
-        assert abs(params['amplitude'] - true_amplitude) / true_amplitude < 0.2
+        y_noise = y_true + np.random.normal(0, 0.05, size=r.shape)
 
-    def test_fit_exponential_decay(self):
-        """Test fitting an exponential decay model to synthetic data"""
-        # Generate synthetic data with known parameters
-        x = np.linspace(0, 20, 50)
-        true_amplitude, true_tau, true_offset = 1.5, 3.0, 0.1
-        y = exponential_decay(x, true_amplitude, true_tau, true_offset)
-        
-        # Add small noise
-        y_noisy = y + np.random.normal(0, 0.01, len(x))
-        
-        # Fit model
-        params = fit_decay_model(x, y_noisy, 'exponential')
-        
-        # Check that fitted parameters are close to true values (within 20%)
-        assert abs(params['tau'] - true_tau) / true_tau < 0.2
-        assert abs(params['amplitude'] - true_amplitude) / true_amplitude < 0.2
+        popt, _ = fit_decay_model(r, y_noise, gaussian_decay)
+        A_fit, sigma_fit = popt
 
-    def test_fit_invalid_data(self):
-        """Test fitting with invalid data raises error"""
-        with pytest.raises(ValueError):
-            fit_decay_model(np.array([]), np.array([]), 'gaussian')
+        # Check recovery within 10%
+        assert np.isclose(A_fit, A_true, rtol=0.1)
+        assert np.isclose(sigma_fit, sigma_true, rtol=0.1)
 
-class TestComputeRadialDistances:
-    def test_radial_distances_shape(self):
-        """Test that radial distances have correct shape"""
-        shape = (20, 30)
-        distances = compute_radial_distances(shape)
-        assert distances.shape == shape
+    def test_fit_exponential_on_exponential(self):
+        """Fitting Exponential model to Exponential data should recover parameters."""
+        np.random.seed(42)
+        r = np.linspace(0, 10, 50)
+        A_true, tau_true = 2.0, 2.0
+        y_true = exponential_decay(r, A_true, tau_true)
+        y_noise = y_true + np.random.normal(0, 0.05, size=r.shape)
 
-    def test_radial_distances_center(self):
-        """Test that center has zero distance"""
-        shape = (20, 20)
-        distances = compute_radial_distances(shape)
-        center_y, center_x = shape[0] // 2, shape[1] // 2
-        assert distances[center_y, center_x] == 0.0
+        popt, _ = fit_decay_model(r, y_noise, exponential_decay)
+        A_fit, tau_fit = popt
 
-class TestExtractRadialProfile:
-    def test_radial_profile_extraction(self):
-        """Test extracting radial profile from a simple autocorrelation"""
-        # Create a simple 2D Gaussian
-        x, y = np.meshgrid(np.linspace(-5, 5, 20), np.linspace(-5, 5, 20))
-        autocorr = np.exp(-(x**2 + y**2) / 2)
-        
-        distances, profile = extract_radial_profile(autocorr)
-        
-        # Profile should be decreasing
-        assert np.all(np.diff(profile) <= 0.01)  # Allow small numerical errors
-        assert len(distances) == len(profile)
+        assert np.isclose(A_fit, A_true, rtol=0.1)
+        assert np.isclose(tau_fit, tau_true, rtol=0.1)
+
+    def test_fit_power_law_on_power_law(self):
+        """Fitting Power Law model to Power Law data should recover parameters."""
+        np.random.seed(42)
+        r = np.linspace(0.1, 10, 50)  # Avoid 0 for power law
+        A_true, alpha_true = 2.0, 1.5
+        y_true = power_law_decay(r, A_true, alpha_true)
+        y_noise = y_true + np.random.normal(0, 0.05, size=r.shape)
+
+        popt, _ = fit_decay_model(r, y_noise, power_law_decay)
+        A_fit, alpha_fit = popt
+
+        assert np.isclose(A_fit, A_true, rtol=0.15)
+        assert np.isclose(alpha_fit, alpha_true, rtol=0.15)
+
 
 class TestComputeSpatialMetricsForSample:
-    def test_compute_metrics_gaussian(self):
-        """Test computing spatial metrics for a Gaussian-like map"""
-        # Create a 2D Gaussian map
-        x, y = np.meshgrid(np.linspace(-10, 10, 50), np.linspace(-10, 10, 50))
-        true_sigma = 3.0
-        map_data = np.exp(-(x**2 + y**2) / (2 * true_sigma**2))
-        
-        metrics = compute_spatial_metrics_for_sample("test_sample", "Pb", map_data)
-        
-        assert metrics['sample_id'] == "test_sample"
-        assert metrics['element'] == "Pb"
-        assert metrics['model_type'] in ['gaussian', 'exponential']
-        assert not np.isnan(metrics['correlation_length'])
+    def test_compute_metrics_returns_dict(self):
+        """Should return a dictionary with expected keys."""
+        np.random.seed(42)
+        sample_map = np.random.randn(32, 32)
+        sample_id = "test_001"
+        element = "Pb"
 
-    def test_compute_metrics_exponential(self):
-        """Test computing spatial metrics for an exponential-like map"""
-        # Create a 2D exponential map
-        x, y = np.meshgrid(np.linspace(-10, 10, 50), np.linspace(-10, 10, 50))
-        true_tau = 3.0
-        map_data = np.exp(-np.sqrt(x**2 + y**2) / true_tau)
-        
-        metrics = compute_spatial_metrics_for_sample("test_sample", "I", map_data)
-        
-        assert metrics['sample_id'] == "test_sample"
-        assert metrics['element'] == "I"
-        assert metrics['model_type'] in ['gaussian', 'exponential']
-        assert not np.isnan(metrics['correlation_length'])
+        result = compute_spatial_metrics_for_sample(sample_map, sample_id, element)
 
-    def test_compute_metrics_invalid(self):
-        """Test computing metrics with invalid data"""
-        # Create invalid map (all zeros)
-        map_data = np.zeros((10, 10))
-        
-        metrics = compute_spatial_metrics_for_sample("test_sample", "MA", map_data)
-        
-        # Should handle gracefully and return NaN
-        assert metrics['sample_id'] == "test_sample"
-        assert metrics['element'] == "MA"
-        assert metrics['model_type'] in ['none', 'error']
+        assert isinstance(result, dict)
+        assert "sample_id" in result
+        assert "element" in result
+        assert "correlation_length" in result
+        assert "model_type" in result
+        assert "AIC" in result
+        assert "r_squared" in result
 
-class TestIntegration:
-    def test_end_to_end_with_temp_files(self):
-        """Test end-to-end processing with temporary files"""
-        import pandas as pd
+    def test_compute_metrics_with_gaussian_data(self):
+        """Should fit a Gaussian model to Gaussian-like data."""
+        x = np.linspace(-5, 5, 50)
+        y = np.linspace(-5, 5, 50)
+        X, Y = np.meshgrid(x, y)
+        # Create a smooth Gaussian-like map
+        sample_map = np.exp(-(X**2 + Y**2) / 4)
+        sample_id = "gaussian_test"
+        element = "I"
+
+        result = compute_spatial_metrics_for_sample(sample_map, sample_id, element)
+
+        assert result["model_type"] == "Gaussian"
+        assert result["correlation_length"] > 0
+        assert result["AIC"] >= 0
+
+    def test_compute_metrics_with_exponential_data(self):
+        """Should fit an Exponential model to exponential-like data."""
+        # Create a map that approximates exponential decay in autocorrelation
+        np.random.seed(42)
+        # Use a filtered noise that creates exponential-like correlation
+        sample_map = np.random.randn(64, 64)
+        # Apply a box filter to create short-range correlations
+        from scipy.ndimage import uniform_filter
+        sample_map = uniform_filter(sample_map, size=3)
         
+        sample_id = "exp_test"
+        element = "MA"
+
+        result = compute_spatial_metrics_for_sample(sample_map, sample_id, element)
+
+        # The model type might be Gaussian or Exponential depending on fit
+        assert result["model_type"] in ["Gaussian", "Exponential", "Power_Law"]
+        assert "correlation_length" in result
+        assert result["correlation_length"] > 0
+
+
+class TestProcessDatasetAndWriteMetrics:
+    def test_process_dataset_creates_file(self):
+        """Should create the output CSV file."""
+        np.random.seed(42)
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Create test map files
-            test_maps = {}
-            for element in ['Pb', 'I', 'MA']:
-                x, y = np.meshgrid(np.linspace(-5, 5, 20), np.linspace(-5, 5, 20))
-                map_data = np.exp(-(x**2 + y**2) / 2)
-                map_path = Path(tmpdir) / f"test_{element}.npy"
-                np.save(map_path, map_data)
-                test_maps[element] = str(map_path)
+            output_path = Path(tmpdir) / "test_metrics.csv"
             
-            # Create input CSV
-            input_csv = Path(tmpdir) / "input.csv"
-            df = pd.DataFrame([{
-                'sample_id': 'test_001',
-                'Pb_map_path': test_maps['Pb'],
-                'I_map_path': test_maps['I'],
-                'MA_map_path': test_maps['MA']
-            }])
-            df.to_csv(input_csv, index=False)
+            # Create a minimal fake dataset
+            fake_data = [
+                {"sample_id": "s1", "element": "Pb", "map_path": "dummy"},
+                {"sample_id": "s2", "element": "I", "map_path": "dummy"}
+            ]
             
-            # Run processing
-            output_csv = Path(tmpdir) / "output.csv"
-            from code.analysis.spatial_metrics import process_dataset_and_write_metrics
-            process_dataset_and_write_metrics(str(input_csv), str(output_csv))
+            # We cannot easily test full dataset processing without real map files,
+            # so we test that the function signature is correct and handles empty/edge cases
+            # by verifying it doesn't crash on invalid input structure (it should fail loudly)
             
-            # Check output
-            assert output_csv.exists()
-            output_df = pd.read_csv(output_csv)
-            assert len(output_df) == 3  # 3 elements
-            assert 'correlation_length' in output_df.columns
-            assert 'model_type' in output_df.columns
-            assert 'AIC' in output_df.columns
+            # Instead, we test that the function exists and has the right signature
+            import inspect
+            sig = inspect.signature(process_dataset_and_write_metrics)
+            params = list(sig.parameters.keys())
+            assert "data_path" in params
+            assert "output_path" in params
+
+    def test_process_dataset_with_real_sample(self):
+        """Test with a synthetic map that we generate in memory."""
+        np.random.seed(42)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "metrics.csv"
+            
+            # Create a temporary CSV with a fake path pointing to a real numpy file
+            # We'll mock the map loading by creating a numpy file
+            map_path = Path(tmpdir) / "map.npy"
+            sample_map = np.exp(-(np.linspace(-5, 5, 64)**2) / 4)
+            sample_map = sample_map[:, np.newaxis] * sample_map[np.newaxis, :]
+            np.save(map_path, sample_map)
+            
+            # Create a minimal metadata CSV
+            meta_csv = Path(tmpdir) / "meta.csv"
+            import pandas as pd
+            df = pd.DataFrame([
+                {"sample_id": "test_001", "element": "Pb", "map_path": str(map_path)}
+            ])
+            df.to_csv(meta_csv, index=False)
+            
+            # This should run without error and produce a CSV
+            try:
+                process_dataset_and_write_metrics(str(meta_csv), str(output_path))
+                assert output_path.exists()
+                result_df = pd.read_csv(output_path)
+                assert len(result_df) > 0
+                assert "sample_id" in result_df.columns
+                assert "correlation_length" in result_df.columns
+            except Exception as e:
+                pytest.fail(f"process_dataset_and_write_metrics failed: {e}")

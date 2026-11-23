@@ -1,0 +1,15 @@
+{
+  "node_error_rate": 0.0,
+  "edge_error_rate": 0.0,
+  "predicate_error_rate": 0.0,
+  "total_nodes_constructed": 12,
+  "total_nodes_ground_truth": 12,
+  "total_edges_constructed": 15,
+  "total_edges_ground_truth": 15,
+  "mismatched_nodes": {
+    "missing_in_constructed": [],
+    "extra_in_constructed": []
+  },
+  "mismatched_edges": [],
+  "seed_used": 42
+}

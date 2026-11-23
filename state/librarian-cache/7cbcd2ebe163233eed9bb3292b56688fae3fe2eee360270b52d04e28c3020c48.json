@@ -1,0 +1,690 @@
+{
+  "fetched_at": "2026-09-01T12:29:33Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Leveraging LLMs for Automated Generation of Code Complexity Metrics",
+      "target_n": 5
+    },
+    "duration_seconds": 66.309,
+    "ended_at": "2026-09-01T12:29:33Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "LLM-based code quality assessment"
+        ],
+        [
+          2,
+          "automated software complexity estimation using language models"
+        ],
+        [
+          3,
+          "large language models for static code analysis"
+        ],
+        [
+          4,
+          "neural network prediction of cyclomatic complexity"
+        ],
+        [
+          5,
+          "generative AI for software metric computation"
+        ],
+        [
+          6,
+          "code complexity measurement with transformer models"
+        ],
+        [
+          7,
+          "AI-driven software maintainability evaluation"
+        ],
+        [
+          8,
+          "natural language processing for code metric extraction"
+        ],
+        [
+          9,
+          "fine-tuned LLMs for source code analysis"
+        ],
+        [
+          10,
+          "automated derivation of Halstead metrics using LLMs"
+        ],
+        [
+          11,
+          "machine learning approaches to code complexity prediction"
+        ],
+        [
+          12,
+          "LLMs for estimating cognitive complexity"
+        ],
+        [
+          13,
+          "deep learning models for software engineering metrics"
+        ],
+        [
+          14,
+          "automated code smell detection via large language models"
+        ],
+        [
+          15,
+          "semantic code analysis for complexity scoring"
+        ],
+        [
+          16,
+          "zero-shot code metric generation with foundation models"
+        ],
+        [
+          17,
+          "comparing LLM outputs to traditional complexity tools"
+        ],
+        [
+          18,
+          "LLM-assisted software refactoring based on complexity"
+        ],
+        [
+          19,
+          "predicting code maintainability with generative AI"
+        ],
+        [
+          20,
+          "automated generation of software engineering KPIs using LLMs"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "LLM-based code quality assessment": 5,
+        "Leveraging LLMs for Automated Generation of Code Complexity Metrics computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "code complexity static analysis LLM generation",
+      "cyclomatic complexity maintainability index generation",
+      "code smell detection automated refactoring LLM",
+      "code quality assessment benchmark evaluation LLM",
+      "software metrics prediction training data leakage"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2306.02398"
+      ]
+    },
+    "per_query_hit_count": {
+      "Leveraging LLMs for Automated Generation of Code Complexity Metrics computer science": 3,
+      "code complexity static analysis LLM generation": 2,
+      "code quality assessment benchmark evaluation LLM": 3,
+      "code smell detection automated refactoring LLM": 3,
+      "cyclomatic complexity maintainability index generation": 3,
+      "software metrics prediction training data leakage": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "2404.17586",
+          "rationale": "The paper focuses on using LLMs to generate academic text from code, which is a distinct construct from the user's question about using LLMs to *measure* or *generate* code complexity metrics. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (both involve LLMs and code, but the mechanism and output are entirely different).",
+          "title": "The Future of Scientific Publishing: Automated Article Generation"
+        },
+        {
+          "primary_pointer": "2508.08322",
+          "rationale": "The paper focuses on improving code generation accuracy and context management in multi-agent LLM systems, which is a distinct construct from the user's question about the automated *generation* or *calculation* of code complexity metrics. While both involve LLMs and code, the paper does not measure, propose, or discuss the mechanism of deriving complexity metrics (e.g., cyclomatic complexity, coupling), nor does it establish a baseline for such metrics, failing to meet any of the inclusion crit",
+          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code"
+        },
+        {
+          "primary_pointer": "2402.12317",
+          "rationale": "The paper focuses on improving code generation accuracy via retrieval-augmented generation (RAG) and does not measure, analyze, or propose methods for generating code complexity metrics. It fails to satisfy any inclusion criteria as it addresses a different dependent variable (execution accuracy) and mechanism (retrieval evolution) rather than the user's specific interest in complexity metrics.",
+          "title": "EVOR: Evolving Retrieval for Code Generation"
+        },
+        {
+          "primary_pointer": "2306.02398",
+          "rationale": "The paper focuses on image quality assessment for super-resolution tasks in computer vision, which is an entirely different domain from the user's question about generating code complexity metrics using LLMs. It fails the \"off-domain entirely\" rejection rule as it shares no measurable connection to the user's mechanism, variables, or empirical setting.",
+          "title": "Scale Guided Hypernetwork for Blind Super-Resolution Image Quality Assessment"
+        },
+        {
+          "primary_pointer": "2405.08745",
+          "rationale": "The paper focuses on video quality assessment (BVQA) and perceptual metrics for social media videos, which is an off-domain topic entirely distinct from the user's question about generating code complexity metrics using LLMs. The shared term \"complexity\" refers to visual content complexity in the paper versus algorithmic or structural complexity in code, constituting a distinct construct sharing only a homonym keyword.",
+          "title": "Enhancing Blind Video Quality Assessment with Rich Quality-aware Features"
+        },
+        {
+          "primary_pointer": "2404.16205",
+          "rationale": "The paper focuses on video quality assessment (VQA) for user-generated content using deep learning, which is a distinct domain from the user's question about leveraging LLMs to generate code complexity metrics. It fails to address the specific mechanism (LLMs), the target domain (code), or the specific variable (complexity metrics), and instead belongs to the unrelated field of multimedia quality evaluation.",
+          "title": "AIS 2024 Challenge on Video Quality Assessment of User-Generated Content: Methods and Results"
+        },
+        {
+          "primary_pointer": "1310.8111",
+          "rationale": "The paper proposes a general hierarchical model for \"Information System Quality\" (RatQual) and does not specifically address the automated generation of \"code complexity metrics\" using \"LLMs,\" nor does it measure the specific variables or mechanisms required by the user's question. It fails to meet the criteria for same-mechanism evidence, variable overlap, or foundational methodology for the specific intersection of LLMs and code complexity.",
+          "title": "Towards an Assessment-oriented Model for External Information System Quality Characterization"
+        },
+        {
+          "primary_pointer": "2606.29752",
+          "rationale": "The paper focuses on image quality assessment for low-light image enhancement using computer vision models, which is an entirely different domain (computer vision) from the user's question about generating code complexity metrics using LLMs (software engineering). It shares no measurable connection to the user's mechanism, variables, or empirical setting, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+          "title": "LEIQ-Assessor: Multi-dimensional Quality Assessment of Low-light Enhanced Images via Multi-task Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-01T12:28:27Z",
+    "term_input": {
+      "normalized": "leveraging llms for automated generation of code complexity metrics computer science",
+      "raw": "Leveraging LLMs for Automated Generation of Code Complexity Metrics computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-09-01T12:29:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-09-01T12:29:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cyclomatic complexity is an incompletely specified but mathematically principled software metric that can be usefully applied to both source and binary code. We consider the application of path homology as a stronger analogue of cyclomatic complexity. We have implemented an algorithm to compute path homology in arbitrary dimension and applied it to several classes of relevant flow graphs, including randomly generated flow graphs representing structured and unstructured control flow. We also compared path homology and cyclomatic complexity on a set of disassembled binaries obtained from the grep utility. There exist control flow graphs realizable at the assembly level with nontrivial path homology in arbitrary dimension. We exhibit several classes of examples in this vein while also experimentally demonstrating that path homology gives identicial results to cyclomatic complexity for at least one detailed notion of structured control flow. We also experimentally demonstrate that the two notions differ on disassembled binaries, and we highlight an example of extreme disagreement. Path homology empirically generalizes cyclomatic complexity for an elementary notion of structured code and appears to identify more structurally relevant features of control flow in general. Path homology therefore has the potential to substantially improve upon cyclomatic complexity.",
+          "claimed_authors": [
+            "Steve Huntsman"
+          ],
+          "claimed_title": "Path homology as a stronger analogue of cyclomatic complexity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.00944"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='Path homology as a stronger analogue of cyclomatic complexity')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Network or graph structures are ubiquitous in the study of complex systems. Often, we are interested in complexity trends of these system as it evolves under some dynamic. An example might be looking at the complexity of a food web as species enter an ecosystem via migration or speciation, and leave via extinction.\n  In a previous paper, a complexity measure of networks was proposed based on the {\\em complexity is information content} paradigm. To apply this paradigm to any object, one must fix two things: a representation language, in which strings of symbols from some alphabet describe, or stand for the objects being considered; and a means of determining when two such descriptions refer to the same object. With these two things set, the information content of an object can be computed in principle from the number of equivalent descriptions describing a particular object.\n  The previously proposed representation language had the deficiency that the fully connected and empty networks were the most complex for a given number of nodes. A variation of this measure, called zcomplexity, applied a compression algorithm to the resulting bitstring representation, to solve this problem. Unfortunately, zcomplexity proved too computationally expensive to be practical.\n  In this paper, I propose a new representation language that encodes the number of links along with the number of nodes and a representation of the linklist. This, like zcomplexity, exhibits minimal complexity for fully connected and empty networks, but is as tractable as the original measure.\n  ...",
+          "claimed_authors": [
+            "Russell K. Standish"
+          ],
+          "claimed_title": "Complexity of Networks (reprise)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0911.3482"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='Complexity of Networks (reprise)')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Numerous definitions for complexity have been proposed over the last half century, with little consensus achieved on how to use the term. A definition of complexity is supplied here that is closely related to the Kolmogorov Complexity and Shannon Entropy measures widely used as complexity measures, yet addresses a number of concerns raised against these measures. However, the price of doing this is to introduce context dependence into the definition of complexity. It is argued that such context dependence is an inherent property of complexity, and related concepts such as entropy and emergence. Scientists are uncomfortable with such context dependence, which smacks of subjectivity, and this is perhaps the reason why little agreement has been found on the meaning of these terms.",
+          "claimed_authors": [
+            "Russell K. Standish"
+          ],
+          "claimed_title": "On Complexity and Emergence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "nlin/0101006"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='On Complexity and Emergence')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated batch refactoring has become a de-facto mechanism to restructure software that may have significant design flaws negatively impacting the code quality and maintainability. Although automated batch refactoring techniques are known to significantly improve overall software quality and maintainability, their impact on resource utilization is not well studied. This paper aims to bridge the gap between batch refactoring code smells and consumption of resources. It determines the relationship between software code smell batch refactoring, and resource consumption. Next, it aims to design algorithms to predict the impact of code smell refactoring on resource consumption. This paper investigates 16 code smell types and their joint effect on resource utilization for 31 open source applications. It provides a detailed empirical analysis of the change in application CPU and memory utilization after refactoring specific code smells in isolation and in batches. This analysis is then used to train regression algorithms to predict the impact of batch refactoring on CPU and memory utilization before making any refactoring decisions. Experimental results also show that our ANN-based regression model provides highly accurate predictions for the impact of batch refactoring on resource consumption. It allows the software developers to intelligently decide which code smells they should refactor jointly to achieve high code quality and maintainability without increasing the application resource utilization. This paper responds to the important and urgent need of software engineers across a broad range of software applications, who are looking to refactor code smells and at the same time improve resource consumption. Finally, it brings forward the concept of resource aware code smell refactoring to the most crucial software applications.",
+          "claimed_authors": [
+            "Asif Imran",
+            "Tevfik Kosar",
+            "Jaroslaw Zola",
+            "Muhammed Fatih Bulut"
+          ],
+          "claimed_title": "Predicting the Impact of Batch Refactoring Code Smells on Application Resource Consumption",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.15763"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='Predicting the Impact of Batch Refactoring Code Smells on Application Resource Consumption')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cloud-based software-as-a-service (SaaS) have gained popularity due to their low cost and elasticity. However, like other software, SaaS applications suffer from code smells, which can drastically affect functionality and resource usage. Code smell is any design in the source code that indicates a deeper problem. The software community deploys automated refactoring to eliminate smells which can improve performance and also decrease the usage of critical resources. However, studies that analyze the impact of automatic refactoring smells in SaaS on resources such as CPU and memory have been conducted to a limited extent. Here, we aim to fill that gap and study the impact on resource usage of SaaS applications due to automatic refactoring of seven classic code smells: god class, feature envy, type checking, cyclic dependency, shotgun surgery, god method, and spaghetti code. We specified six real-life SaaS applications from Github called Zimbra, OneDataShare, GraphHopper, Hadoop, JENA, and JAMES which ran on Openstack cloud. Results show that refactoring smells by tools like JDeodrant and JSparrow have widely varying impacts on the CPU and memory consumption of the tested applications based on the type of smell refactored. We present the resource utilization impact of each smell and also discuss the potential reasons leading to that effect.",
+          "claimed_authors": [
+            "Asif Imran",
+            "Tevfik Kosar"
+          ],
+          "claimed_title": "The Impact of Auto-Refactoring Code Smells on the Resource Utilization of Cloud Software",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.06214"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='The Impact of Auto-Refactoring Code Smells on the Resource Utilization of Cloud Software')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Energy consumption of mobile apps is a domain that is receiving a lot of attention from researchers. Recent studies indicate that the energy consumption of mobile devices could be improved by improving the quality of mobile apps. Frequent refactoring is one way of achieving this goal. In this paper, we explore the performance and energy impact of several common code refactorings in Android apps. Experimental results indicate that some code smell refactorings positively impact the energy consumption of Android apps. Refactoring of the code smells \"Duplicated code\" and \"Type checking\" reduce energy consumption by up to 10.8%. Significant reduction in energy consumption, however, does not seem to be directly related to the increase or decrease of execution time. In addition, the energy impact over permutations of code smell refactorings in the selected Android apps was small. When analyzing the order in which refactorings were made across code smell types, it turned out that some permutations resulted in a reduction and some in an increase of energy consumption for the analyzed apps. More research needs to be done to investigate how factors like size and age of software apps, experience, and number of contributors to app development correlate with (a) the number and type of code smells found and (b) the impact of energy consumption and performance after refactoring.",
+          "claimed_authors": [
+            "Hina Anwar",
+            "Dietmar Pfahl",
+            "Satish N. Srirama"
+          ],
+          "claimed_title": "Evaluating the impact of code smell refactoring on the energy consumption of Android applications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.26031"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='Evaluating the impact of code smell refactoring on the energy consumption of Android applications')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Re-speaking is a mechanism for obtaining high quality subtitles for use in live broadcast and other public events. Because it relies on humans performing the actual re-speaking, the task of estimating the quality of the results is non-trivial. Most organisations rely on humans to perform the actual quality assessment, but purely automatic methods have been developed for other similar problems, like Machine Translation. This paper will try to compare several of these methods: BLEU, EBLEU, NIST, METEOR, METEOR-PL, TER and RIBES. These will then be matched to the human-derived NER metric, commonly used in re-speaking.",
+          "claimed_authors": [
+            "Krzysztof Wołk",
+            "Danijel Koržinek"
+          ],
+          "claimed_title": "Comparison and Adaptation of Automatic Evaluation Metrics for Quality Assessment of Re-Speaking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.02789"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='Comparison and Adaptation of Automatic Evaluation Metrics for Quality Assessment of Re-Speaking')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The growing dependence on Large Language Models (LLMs) for finishing user instructions necessitates a comprehensive understanding of their robustness to complex task completion in real-world situations. To address this critical need, we propose the PowerPoint Task Completion Robustness benchmark (PPTC-R) to measure LLMs' robustness to the user PPT task instruction and software version. Specifically, we construct adversarial user instructions by attacking user instructions at sentence, semantic, and multi-language levels. To assess the robustness of Language Models to software versions, we vary the number of provided APIs to simulate both the newest version and earlier version settings. Subsequently, we test 3 closed-source and 4 open-source LLMs using a benchmark that incorporates these robustness settings, aiming to evaluate how deviations impact LLMs' API calls for task completion. We find that GPT-4 exhibits the highest performance and strong robustness in our benchmark, particularly in the version update and the multilingual settings. However, we find that all LLMs lose their robustness when confronted with multiple challenges (e.g., multi-turn) simultaneously, leading to significant performance drops. We further analyze the robustness behavior and error reasons of LLMs in our benchmark, which provide valuable insights for researchers to understand the LLM's robustness in task completion and develop more robust LLMs and agents. We release the code and data at \\url{https://github.com/ZekaiGalaxy/PPTCR}.",
+          "claimed_authors": [
+            "Zekai Zhang",
+            "Yiduo Guo",
+            "Yaobo Liang",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "PPTC-R benchmark: Towards Evaluating the Robustness of Large Language Models for PowerPoint Task Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.03788"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='PPTC-R benchmark: Towards Evaluating the Robustness of Large Language Models for PowerPoint Task Completion')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, defect prediction has received a great deal of attention in the empirical software engineering world. Predicting software defects before the maintenance phase is very important not only to decrease the maintenance costs but also increase the overall quality of a software product. There are different types of product, process, and developer based software metrics proposed so far to measure the defectiveness of a software system. This paper suggests to use a novel set of software metrics which are based on the similarities detected among the source code files in a software project. To find source code similarities among different files of a software system, plagiarism and clone detection techniques are used. Two simple similarity metrics are calculated for each file, considering its overall similarity to the defective and non defective files in the project. Using these similarity metrics, we predict whether a specific file is defective or not. Our experiments on 10 open source data sets show that depending on the amount of detected similarity, proposed metrics could achieve significantly better performance compared to the existing static code metrics in terms of the area under the curve (AUC).",
+          "claimed_authors": [
+            "Ahmet Okutan"
+          ],
+          "claimed_title": "Use of Source Code Similarity Metrics in Software Defect Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.10033"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='Use of Source Code Similarity Metrics in Software Defect Prediction')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Object-Oriented (OO) software system evolves over the time to meet the new requirements. Based on the initial release of software, the continuous modification of software code leads to software evolution. Software needs to evolve over the time to meet the new user's requirements. Software companies often develop variant software of the original one depends on customers' needs. The main hypothesis of this paper states that the software when it evolves over the time, its code continues to grow, change and become more complex. This paper proposes an automatic approach (Iris) to examine the proposed hypothesis. Originality of this approach is the exploiting of the software variants to study the impact of software evolution on the software metrics. This paper presents the results of experiments conducted on three releases of drawing shapes software, sixteen releases of rhino software, eight releases of mobile media software and ten releases of ArgoUML software. Based on the extracted software metrics, It has been found that Iris hypothesis is supported by the computed metrics.",
+          "claimed_authors": [
+            "Ra'Fat Al-Msie'deen",
+            "Anas H. Blasi"
+          ],
+          "claimed_title": "The Impact of the Object-Oriented Software Evolution on Software Metrics: The Iris Approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1803.09823"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='The Impact of the Object-Oriented Software Evolution on Software Metrics: The Iris Approach')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Context: Software engineering researchers have undertaken many experiments investigating the potential of software defect prediction algorithms. Unfortunately, some widely used performance metrics are known to be problematic, most notably F1, but nevertheless F1 is widely used.\n  Objective: To investigate the potential impact of using F1 on the validity of this large body of research.\n  Method: We undertook a systematic review to locate relevant experiments and then extract all pairwise comparisons of defect prediction performance using F1 and the un-biased Matthews correlation coefficient (MCC).\n  Results: We found a total of 38 primary studies. These contain 12,471 pairs of results. Of these, 21.95% changed direction when the MCC metric is used instead of the biased F1 metric. Unfortunately, we also found evidence suggesting that F1 remains widely used in software defect prediction research.\n  Conclusions: We reiterate the concerns of statisticians that the F1 is a problematic metric outside of an information retrieval context, since we are concerned about both classes (defect-prone and not defect-prone units). This inappropriate usage has led to a substantial number (more than one fifth) of erroneous (in terms of direction) results. Therefore we urge researchers to (i) use an unbiased metric and (ii) publish detailed results including confusion matrices such that alternative analyses become possible.",
+          "claimed_authors": [
+            "Jingxiu Yao",
+            "Martin Shepperd"
+          ],
+          "claimed_title": "The impact of using biased performance metrics on software defect prediction research",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10201"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs for Automated Generation of Code Complexity Metrics computer sci', candidate_title='The impact of using biased performance metrics on software defect prediction research')",
+        "failed_at": "2026-09-01T12:29:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jeremy R. Harper"
+          ],
+          "title": "The Future of Scientific Publishing: Automated Article Generation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.17586",
+        "summary": "This study introduces a novel software tool leveraging large language model (LLM) prompts, designed to automate the generation of academic articles from Python code a significant advancement in the fields of biomedical informatics and computer science. Selected for its widespread adoption and analytical versatility, Python served as a foundational proof of concept; however, the underlying methodology and framework exhibit adaptability across various GitHub repo's underlining the tool's broad applicability (Harper 2024). By mitigating the traditionally time-intensive academic writing process, particularly in synthesizing complex datasets and coding outputs, this approach signifies a monumental leap towards streamlining research dissemination. The development was achieved without reliance on advanced language model agents, ensuring high fidelity in the automated generation of coherent and comprehensive academic content. This exploration not only validates the successful application and efficiency of the software but also projects how future integration of LLM agents which could amplify its capabilities, propelling towards a future where scientific findings are disseminated more swiftly and accessibly.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.17586",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:29:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Muhammad Haseeb"
+          ],
+          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.08322",
+        "summary": "Large Language Models (LLMs) have shown promise in automating code generation and software engineering tasks, yet they often struggle with complex, multi-file projects due to context limitations and knowledge gaps. We propose a novel context engineering workflow that combines multiple AI components: an Intent Translator (GPT-5) for clarifying user requirements, an Elicit-powered semantic literature retrieval for injecting domain knowledge, NotebookLM-based document synthesis for contextual understanding, and a Claude Code multi-agent system for code generation and validation. Our integrated approach leverages intent clarification, retrieval-augmented generation, and specialized sub-agents orchestrated via Claude's agent framework. We demonstrate that this method significantly improves the accuracy and reliability of code assistants in real-world repositories, yielding higher single-shot success rates and better adherence to project context than baseline single-agent approaches. Qualitative results on a large Next.js codebase show the multi-agent system effectively plans, edits, and tests complex features with minimal human intervention. We compare our system with recent frameworks like CodePlan, MASAI, and HyperAgent, highlighting how targeted context injection and agent role decomposition lead to state-of-the-art performance. Finally, we discuss the implications for deploying LLM-based coding assistants in production, along with lessons learned on context management and future research directions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.08322",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:29:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hongjin Su",
+            "Shuyang Jiang",
+            "Yuhang Lai",
+            "Haoyuan Wu",
+            "Boao Shi",
+            "Che Liu",
+            "Qian Liu",
+            "Tao Yu"
+          ],
+          "title": "EVOR: Evolving Retrieval for Code Generation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.12317",
+        "summary": "Recently the retrieval-augmented generation (RAG) has been successfully applied in code generation. However, existing pipelines for retrieval-augmented code generation (RACG) employ static knowledge bases with a single source, limiting the adaptation capabilities of Large Language Models (LLMs) to domains they have insufficient knowledge of. In this work, we develop a novel pipeline, EVOR, that employs the synchronous evolution of both queries and diverse knowledge bases. On two realistic settings where the external knowledge is required to solve code generation tasks, we compile four new datasets associated with frequently updated libraries and long-tail programming languages, named EVOR-BENCH. Extensive experiments demonstrate that EVOR achieves two to four times of execution accuracy compared to other methods such as Reflexion (Shinn et al., 2024), DocPrompting (Zhou et al., 2023), etc. We demonstrate that EVOR is flexible and can be easily combined with them to achieve further improvement. Further analysis reveals that EVOR benefits from the synchronous evolution of queries and documents and the diverse information sources in the knowledge base. We hope that our studies will inspire more insights into the design of advanced RACG pipelines in future research. Our model, code, and data are available at https://arks-codegen.github.io.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.12317",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:29:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jun Fu"
+          ],
+          "title": "Scale Guided Hypernetwork for Blind Super-Resolution Image Quality Assessment",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.02398",
+        "summary": "With the emergence of image super-resolution (SR) algorithm, how to blindly evaluate the quality of super-resolution images has become an urgent task. However, existing blind SR image quality assessment (IQA) metrics merely focus on visual characteristics of super-resolution images, ignoring the available scale information. In this paper, we reveal that the scale factor has a statistically significant impact on subjective quality scores of SR images, indicating that the scale information can be used to guide the task of blind SR IQA. Motivated by this, we propose a scale guided hypernetwork framework that evaluates SR image quality in a scale-adaptive manner. Specifically, the blind SR IQA procedure is divided into three stages, i.e., content perception, evaluation rule generation, and quality prediction. After content perception, a hypernetwork generates the evaluation rule used in quality prediction based on the scale factor of the SR image. We apply the proposed scale guided hypernetwork framework to existing representative blind IQA metrics, and experimental results show that the proposed framework not only boosts the performance of these IQA metrics but also enhances their generalization abilities. Source code will be available at https://github.com/JunFu1995/SGH.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.02398",
+          "http_status": 200,
+          "pdf_sample_score": 0.2849,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:29:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wei Sun",
+            "Linhan Cao",
+            "Jun Jia",
+            "Zhichao Zhang",
+            "Zicheng Zhang",
+            "Xiongkuo Min",
+            "Guangtao Zhai"
+          ],
+          "title": "Enhancing Blind Video Quality Assessment with Rich Quality-aware Features",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.08745",
+        "summary": "Blind video quality assessment (BVQA) is a highly challenging task due to the intrinsic complexity of video content and visual distortions, especially given the high popularity of social media videos, which originate from a wide range of sources, and are often processed by various compression and enhancement algorithms. While recent BVQA and blind image quality assessment (BIQA) studies have made remarkable progress, their models typically perform well on the datasets they were trained on but generalize poorly to unseen videos, making them less effective for accurately evaluating the perceptual quality of diverse social media videos. In this paper, we propose Rich Quality-aware features enabled Video Quality Assessment (RQ-VQA), a simple yet effective method to enhance BVQA by leveraging rich quality-aware features extracted from off-the-shelf BIQA and BVQA models. Our approach exploits the expertise of existing quality assessment models within their trained domains to improve generalization. Specifically, we design a multi-source feature framework that integrates:(1) Learnable spatial features} from a base model fine-tuned on the target VQA dataset to capture domain-specific quality cues; (2) Temporal motion features from the fast pathway of SlowFast pre-trained on action recognition datasets to model motion-related distortions; (3) Spatial quality-aware features from BIQA models trained on diverse IQA datasets to enhance frame-level distortion representation; and (4) Spatiotemporal quality-aware features from a BVQA model trained on large-scale VQA datasets to jointly encode spatial structure and temporal dynamics. These features are concatenated and fed into a multi-layer perceptron (MLP) to regress them into quality scores. Experimental results demonstrate that our model achieves state-of-the-art performance on three public social media VQA datasets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.08745",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:29:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Marcos V. Conde",
+            "Saman Zadtootaghaj",
+            "Nabajeet Barman",
+            "Radu Timofte",
+            "Chenlong He",
+            "Qi Zheng",
+            "Ruoxi Zhu",
+            "Zhengzhong Tu",
+            "Haiqiang Wang",
+            "Xiangguang Chen",
+            "Wenhui Meng",
+            "Xiang Pan",
+            "Huiying Shi",
+            "Han Zhu",
+            "Xiaozhong Xu",
+            "Lei Sun",
+            "Zhenzhong Chen",
+            "Shan Liu",
+            "Zicheng Zhang",
+            "Haoning Wu",
+            "Yingjie Zhou",
+            "Chunyi Li",
+            "Xiaohong Liu",
+            "Weisi Lin",
+            "Guangtao Zhai",
+            "Wei Sun",
+            "Yuqin Cao",
+            "Yanwei Jiang",
+            "Jun Jia",
+            "Zhichao Zhang",
+            "Zijian Chen",
+            "Weixia Zhang",
+            "Xiongkuo Min",
+            "Steve Göring",
+            "Zihao Qi",
+            "Chen Feng"
+          ],
+          "title": "AIS 2024 Challenge on Video Quality Assessment of User-Generated Content: Methods and Results",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.16205",
+        "summary": "This paper reviews the AIS 2024 Video Quality Assessment (VQA) Challenge, focused on User-Generated Content (UGC). The aim of this challenge is to gather deep learning-based methods capable of estimating the perceptual quality of UGC videos. The user-generated videos from the YouTube UGC Dataset include diverse content (sports, games, lyrics, anime, etc.), quality and resolutions. The proposed methods must process 30 FHD frames under 1 second. In the challenge, a total of 102 participants registered, and 15 submitted code and models. The performance of the top-5 submissions is reviewed and provided here as a survey of diverse deep models for efficient video quality assessment of user-generated content.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.16205",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:29:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Abir Elmir",
+            "Badr Elmir",
+            "Bouchaib Bounabat"
+          ],
+          "title": "Towards an Assessment-oriented Model for External Information System Quality Characterization",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1310.8111",
+        "summary": "Information System Quality (ISQ) management discipline requires a set of assessment mechanisms to evaluate external quality characteristics that are influenced by the environmental parameters and impacted by the ecosystem factors. The present paper suggests a new assessment oriented model that takes into consideration all facets of each external quality feature. The proposed model, named RatQual, gives a hierarchical categorization for quality. RatQual is designed to quantify dependent-environment qualities by considering internal, external and in use aspects. This model is supported by a tool that automates the assessment process. This tool gives assistance in quality evolution planning and serves for periodical monitoring operations used to enhance and improve information system quality.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1310.8111",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:29:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Wei Sun",
+            "Yanwei Jiang",
+            "Dandan Zhu",
+            "Jinqiu Sang",
+            "Jikai Xu",
+            "Weixia Zhang",
+            "Guangtao Zhai"
+          ],
+          "title": "LEIQ-Assessor: Multi-dimensional Quality Assessment of Low-light Enhanced Images via Multi-task Learning",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.29752",
+        "summary": "Low-light image enhancement algorithms (LIEAs) aim to improve the visibility of images captured under poor illumination. However, the enhancement process often introduces artifacts such as noise amplification, color shift, structural damage, and over-exposure, which degrade the perceptual quality of the enhanced images. Therefore, a reliable image quality assessment (IQA) metric for evaluating enhancement effects is of great importance for both the development of LIEAs and their practical applications. In this paper, we present \\textbf{LEIQ-Assessor}, a multi-dimensional quality assessment model for low-light image enhancement based on multi-task learning, developed for the QoMEX 2026 Grand Challenge on Low-light Enhanced Image Quality Assessment. Specifically, our method leverages a pre-trained SigLIP2 Vision Transformer as the backbone and simultaneously predicts the overall Mean Opinion Score (MOS) together with six perceptual sub-attributes: lightness, color fidelity, noise level, exposure quality, naturalness, and content recovery. By jointly optimizing these correlated objectives via the PLCC loss, the shared representation captures richer quality-aware features than its single-task counterpart. Experiments on the MLE benchmark demonstrate that LEIQ-Assessor significantly outperforms existing no-reference IQA models and hand-crafted quality descriptors. Our method achieved second place in the QoMEX 2026 Grand Challenge on Low-light Enhanced Image Quality Assessment. The code is available at https://github.com/sunwei925/LEIQ-Assessor.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.29752",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-01T12:29:13Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "leveraging llms for automated generation of code complexity metrics computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

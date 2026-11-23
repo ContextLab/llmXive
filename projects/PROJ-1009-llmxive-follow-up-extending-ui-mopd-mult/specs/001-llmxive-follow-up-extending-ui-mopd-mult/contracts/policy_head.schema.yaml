@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PolicyHead"
+type: "object"
+required:
+  - head_id
+  - platform_id
+  - artifact_path
+  - checksum
+properties:
+  head_id:
+    type: "string"
+    description: "Unique identifier for the policy head."
+  platform_id:
+    type: "string"
+    description: "Platform the head is trained for."
+  artifact_path:
+    type: "string"
+    description: "Relative path to the serialized policy checkpoint."
+  checksum:
+    type: "string"
+    description: "SHA‑256 hash of the checkpoint file."
+additionalProperties: false

@@ -1,0 +1,607 @@
+{
+  "fetched_at": "2026-10-24T08:24:51Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change",
+      "target_n": 5
+    },
+    "duration_seconds": 114.918,
+    "ended_at": "2026-10-24T08:24:51Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "spatiotemporal modeling of avian migration and climate variables"
+        ],
+        [
+          2,
+          "hierarchical Bayesian analysis of bird movement datasets"
+        ],
+        [
+          3,
+          "species distribution models for migratory birds under climate change"
+        ],
+        [
+          4,
+          "phenological shifts in migratory birds linked to temperature trends"
+        ],
+        [
+          5,
+          "multivariate time‑series analysis of bird migration and climate indices"
+        ],
+        [
+          6,
+          "generalized additive models for avian migration patterns and precipitation"
+        ],
+        [
+          7,
+          "climate envelope modeling of seasonal bird routes"
+        ],
+        [
+          8,
+          "eBird data analytics for climate‑driven migration changes"
+        ],
+        [
+          9,
+          "remote sensing of migratory pathways and environmental covariates"
+        ],
+        [
+          10,
+          "longitudinal study of migratory timing and extreme weather events"
+        ],
+        [
+          11,
+          "statistical inference on climate impacts to bird stopover sites"
+        ],
+        [
+          12,
+          "big‑data approaches to ornithological migration records and climate datasets"
+        ],
+        [
+          13,
+          "mixed‑effects models of bird migration distance and climate anomalies"
+        ],
+        [
+          14,
+          "ecological niche modeling of migratory species in a warming climate"
+        ],
+        [
+          15,
+          "correlation analysis of global climate indices and avian migration metrics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change statistics": 0,
+        "hierarchical Bayesian analysis of bird movement datasets": 3,
+        "spatiotemporal modeling of avian migration and climate variables": 2
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "avian migration trajectories",
+      "eBird observations",
+      "climate velocity phenology",
+      "spatiotemporal correlation analysis",
+      "temperature-driven phenological shift"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1010.5058"
+      ]
+    },
+    "per_query_hit_count": {
+      "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change statistics": 3,
+      "avian migration trajectories": 3,
+      "climate velocity phenology": 0,
+      "eBird observations": 3,
+      "spatiotemporal correlation analysis": 3,
+      "temperature-driven phenological shift": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2410.23327",
+          "rationale": "The paper studies deep‑learning models for tree phenology under climate change, not bird migration patterns; it measures plant phenological timing rather than avian migration data, so it lacks the relevant independent or dependent variables and mechanism for the user's question.",
+          "title": "Deep learning meets tree phenology modeling: PhenoFormer vs. process-based models"
+        },
+        {
+          "primary_pointer": "1503.07557",
+          "rationale": "The paper studies precipitation extremes under climate change and does not involve bird migration patterns, nor does it provide baseline or methodological insight relevant to statistical analysis of migration data; it is off‑domain for the user's question.",
+          "title": "Precipitation extremes under climate change"
+        },
+        {
+          "primary_pointer": "2211.08160",
+          "rationale": "The paper studies paleoclimate reconstruction with sparse Gaussian processes and does not involve bird migration data or contemporary climate‑change statistics, so it lacks a measurable connection to the user's variables or domain.",
+          "title": "Spatiotemporal modeling of European paleoclimate using doubly sparse Gaussian processes"
+        },
+        {
+          "primary_pointer": "1402.5723",
+          "rationale": "The paper focuses on a Bayesian hierarchical method for smoothing functional data and does not study bird migration, climate‑change statistics, or their relationship, nor does it serve as a canonical methodological reference for such ecological analyses. Hence it does not directly address the user's research question.",
+          "title": "Smoothing and mean-covariance estimation of functional data with a Bayesian hierarchical model"
+        },
+        {
+          "primary_pointer": "1308.6069",
+          "rationale": "The paper focuses on Bayesian nonconvex penalization and sparse regression methods, without any connection to bird migration patterns, climate change data, or ecological statistical analysis, thus it does not meet any inclusion criteria.",
+          "title": "Compound Poisson Processes, Latent Shrinkage Priors and Bayesian Nonconvex Penalization"
+        },
+        {
+          "primary_pointer": "1309.1799",
+          "rationale": "The paper presents a Bayesian nonparametric method for weighted survey sampling, applied to a social‑science study, and does not address bird migration patterns, climate‑change statistics, or the typical ecological/climatological analyses relevant to the user's question. It falls outside the domain and variables of interest.",
+          "title": "Bayesian Nonparametric Weighted Sampling Inference"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-10-24T08:22:56Z",
+    "term_input": {
+      "normalized": "statistical analysis of publicly available bird migration patterns and climate change statistics",
+      "raw": "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mediterranean ecosystems such as those found in California, Central Chile, Southern Europe, and Southwest Australia host numerous, diverse, fire-adapted micro-ecosystems. These micro-ecosystems are as diverse as mountainous conifer to desert-like chaparral communities. Over the last few centuries, human intervention, invasive species, and climate warming have drastically affected the composition and health of Mediterranean ecosystems on almost every continent. Increased fuel load from fire suppression policies and the continued range expansion of non-native insects and plants, some driven by long-term drought, produced the deadliest wildfire season on record in 2018. As a consequence of these fires, a large number of structures are destroyed, releasing household chemicals into the environment as uncontrolled toxins. The mobilization of these materials can lead to health risks and disruption in both human and natural systems. This article identifies drivers that led to a structural weakening of the mosaic of fire-adapted ecosystems in California, and subsequently increased the risk of destructive and explosive wildfires throughout the state. Under a new climate regime, managing the impacts on systems moving out-of-phase with natural processes may protect lives and ensure the stability of ecosystem services.",
+          "claimed_authors": [
+            "Kimberley Miner",
+            "Laura Meyerson",
+            ". Climate Change Institute",
+            "School of Earth",
+            "Climate Sciences",
+            "University of Maine",
+            " Orono",
+            "ME 04469 2. Department of Natural Resources Science",
+            "University of Rhode Island",
+            " Kingston",
+            "RI 02881"
+          ],
+          "claimed_title": "Invasive species, extreme fire risk, and toxin release under a changing climate",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.01035"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Invasive species, extreme fire risk, and toxin release under a changing climate')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The response of precipitation extremes to climate change is considered using results from theory, modeling, and observations, with a focus on the physical factors that control the response. Observations and simulations with climate models show that precipitation extremes intensify in response to a warming climate. However, the sensitivity of precipitation extremes to warming remains uncertain when convection is important, and it may be higher in the tropics than the extratropics. Several physical contributions govern the response of precipitation extremes. The thermodynamic contribution is robust and well understood, but theoretical understanding of the microphysical and dynamical contributions is still being developed. Orographic precipitation extremes and snowfall extremes respond differently from other precipitation extremes and require particular attention. Outstanding research challenges include the influence of mesoscale convective organization, the dependence on the duration considered, and the need to better constrain the sensitivity of tropical precipitation extremes to warming.",
+          "claimed_authors": [
+            "Paul A. O'Gorman"
+          ],
+          "claimed_title": "Precipitation extremes under climate change",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.07557"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Precipitation extremes under climate change')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assessments of impacts of climate change and future projections over the Indian region, have so far relied on a single regional climate model (RCM) - eg., the PRECIS RCM of the Hadley Centre, UK. While these assessments have provided inputs to various reports (e.g., INCCA 2010; NATCOMM2 2012), it is important to have an ensemble of climate projections drawn from multiple RCMs due to large uncertainties in regional-scale climate projections. Ensembles of multi-RCM projections driven under different perceivable socio-economic scenarios are required to capture the probable path of growth, and provide the behavior of future climate and impacts on various biophysical systems and economic sectors dependent on such systems.\n  The Centre for Climate Change Research, Indian Institute of Tropical Meteorology (CCCR-IITM) has generated an ensemble of high resolution downscaled projections of regional climate and monsoon over South Asia until 2100 for the Intergovernmental Panel for Climate Change (IPCC)using a RCM (ICTP-RegCM4) at 50 km horizontal resolution, by driving the regional model with lateral and lower boundary conditions from multiple global atmosphere-ocean coupled models from the Coupled Model Intercomparison Project Phase 5 (CMIP5). The future projections are based on three Representation Concentration Pathway (RCP) scenarios (viz., RCP2.6, RCP4.5, RCP8.5) of the IPCC.",
+          "claimed_authors": [
+            "J. Sanjay",
+            "R. Krishnan",
+            "M. V. S. Ramarao",
+            "R. Mahesh",
+            "Bhupendra Bahadur Singh",
+            "Jayashri Patel",
+            "Sandip Ingle",
+            "Preethi Bhaskar",
+            "J. V. Revadekar",
+            "T. P. Sabin",
+            "M. Mujumdar"
+          ],
+          "claimed_title": "Future Climate Change Projections over the Indian Region",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.10386"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Future Climate Change Projections over the Indian Region')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An emerging area of research is the study of macroscale migration patterns as a network of nodes that represent places (e.g., countries, cities, and rural areas) and edges that encode migration ties that connect those places. In this chapter, we first review advances in the study of migration networks and recent work that has employed network analysis to examine such networks at different geographical scales. In our discussion, we focus in particular on global scale migration networks. We then propose ways to leverage network analysis in concert with digital technologies and online geolocated data to examine the structure and dynamics of migration networks. The implementation of such approaches for studying migration networks faces many challenges, including ethical ones, methodological ones, socio-technological ones (e.g., data availability and reuse), and research reproducibility. We detail these challenges, and we then consider possible ways of linking digital geolocated data to administrative and survey data as a way of harnessing new technologies to construct increasingly realistic migration networks (e.g., using multiplex networks). We also briefly discuss new methods (e.g., multilayer network analysis) in network analysis and adjacent fields (e.g., machine learning) that can help advance understanding of macroscale patterns of migration.",
+          "claimed_authors": [
+            "Valentin Danchev",
+            "Mason A. Porter"
+          ],
+          "claimed_title": "Migration Networks: Applications of Network Analysis to Macroscale Migration Patterns",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2002.10992"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Migration Networks: Applications of Network Analysis to Macroscale Migration Patterns')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
+          "claimed_authors": [
+            "Dorsaf Sebai",
+            "Abderrazak Jemai",
+            "Imed Bennour"
+          ],
+          "claimed_title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1154"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Performance Analysis of Software to Hardware Task Migration in Codesign')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Moving mission-oriented enterprise applications to cloud environments is a major IT strategic task and requires a systematic approach. The foci of this paper are to review and examine existing cloud migration approaches from the process models perspective. To this aim, an evaluation framework is proposed and used to analyse and compare existing approaches for highlighting their features, similarities, and key differences. The survey distills the state of the art in cloud migration research and makes a rich inventory of important activities, recommendations, techniques, and concerns that are commonly involved in the migration process in one place. This enables academia and practitioners in the cloud computing community to get an overarching view of the cloud migration process. Furthermore, the survey identifies a number challenges that have not been yet addressed by existing approaches, developing opportunities for further research endeavors.",
+          "claimed_authors": [
+            "Mahdi Fahmideh",
+            "Graham Low",
+            "Ghassan Beydoun",
+            "Farhad Daneshgar"
+          ],
+          "claimed_title": "Cloud Migration Process A Survey Evaluation Framework and Open Challenges",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.10725"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Cloud Migration Process A Survey Evaluation Framework and Open Challenges')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Nancy Grace Roman Space Telescope is poised to revolutionize our scientific understanding of exoplanets, dark matter, dark energy, and general astrophysics, including through an innovative community approach to defining and executing sky surveys. The Roman Observations Time Allocation Committee (ROTAC) was convened to recommend time allocations for the three Core Community Surveys (CCS) using the Wide Field Instrument (WFI): the High Latitude Wide Area Survey, the High Latitude Time Domain Survey, and the Galactic Bulge Time Domain Survey, as well as balance the time allocation for the General Astrophysics Surveys. Each CCS had a corresponding Definition Committee that collected community input and designed proposals for a nominal (in-guide) survey, as well as underguide and overguide options with smaller and larger time allocations, respectively. These options explored different ways of fulfilling the mission science requirements while maximizing general astrophysics science goals enabled by the surveys. In this report, the ROTAC lays out its recommendations for the three CCS observing designs and the WFI time allotment for CCS (74.5%) and the General Astrophysics Surveys (25.5%).",
+          "claimed_authors": [
+            "Roman Observations Time Allocation Committee",
+            "Core Community Survey Definition Committees"
+          ],
+          "claimed_title": "Roman Observations Time Allocation Committee: Final Report and Recommendations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.10574"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Roman Observations Time Allocation Committee: Final Report and Recommendations')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present different aspects of the ground-based observational counterpart of the CoRoT satellite mission. We give an overview of the selected asteroseismic targets, the numerous instruments and observatories involved, and the first scientific results.",
+          "claimed_authors": [
+            "K. Uytterhoeven",
+            "E. Poretti",
+            "P. Mathias",
+            "P. J. Amado",
+            "M. Rainer",
+            "S. Martin-Ruiz",
+            "E. Rodriguez",
+            "M. Paparo",
+            "K. Pollard",
+            "C. Maceroni",
+            "L. Balaguer-Nunoz",
+            "I. Ribas",
+            "C. Catala",
+            "C. Neiner",
+            "R. A. Garcia",
+            "the CoRoT/SWG Ground-based Observations Working Group"
+          ],
+          "claimed_title": "The asteroseismic ground-based observational counterpart of CoRoT",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0907.3363"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='The asteroseismic ground-based observational counterpart of CoRoT')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Intensity-image reconstruction from event streams remains a challenging problem due to the binary, sparse, and asynchronous nature of event data. This work proposes eBIRD, an event-guided reconstruction framework that combines a DDPM with ControlNet-based conditioning. We analyze generic and specialized diffusion learning strategies for handwritten digit (N-MNIST) and face (RGBE-Gaze) reconstruction using 33ms event windows. On N-MNIST, the general model achieves the best reconstruction quality (MSE 0.0052, SSIM 0.8982, PSNR 23.34dB), whereas the specialized model performs best on RGBE-Gaze (MSE 0.0161, SSIM 0.7605, PSNR 19.08dB). These preliminary results suggest that controllable diffusion models are a promising approach for event-guided intensity-image reconstruction, while highlighting that the preferred learning strategy depends on the reconstruction domain.",
+          "claimed_authors": [
+            "Ignacio Bugueno-Cordova",
+            "Fabian Valderrama",
+            "Rodrigo Verschae"
+          ],
+          "claimed_title": "eBIRD: Event-based Intensity Image Reconstruction Using Controllable Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.08519"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='eBIRD: Event-based Intensity Image Reconstruction Using Controllable Diffusion Models')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Physics has been transforming our view of nature for centuries. While combining physical knowledge with computational approaches has enabled detailed modeling of physical systems' evolution, understanding the emergence of patterns and structures remains limited. Correlations between quantities are the most reliable approach to describe relationships between different variables. However, for complex patterns, directly searching for correlations is often impractical, as complexity and spatial inhomogeneity can obscure correlations. We discovered that the key is to search for correlations in local regions and developed a new method, adjacent correlation analysis, to extract such correlations and represent them in phase space. When multiple observations are available, a useful way to study a system is to analyze distributions in phase space using the Probability Density Function (PDF). Adjacent correlation analysis evaluates vectors representing local correlations, which can be overlaid on the PDF plot to form the adjacent correlation plot. These correlation vectors often exhibit remarkably regular patterns and may lead to the discovery of new laws. The vectors we derive are equivalent to the vector field in dynamical systems on the attracting manifold. By efficiently representing spatial patterns as correlation vectors in phase space, our approach opens avenues for classification, prediction, parameter fitting, and forecasting.",
+          "claimed_authors": [
+            "Guang-Xing Li"
+          ],
+          "claimed_title": "Revealing hidden correlations from complex spatial distributions: Adjacent Correlation Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.05759"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Revealing hidden correlations from complex spatial distributions: Adjacent Correlation Analysis')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multivariate correlation analysis plays an important role in various fields such as statistics, economics, and big data analytics. In this paper, we propose a pair of measures, the unsigned correlation coefficient (UCC) and the unsigned incorrelation coefficient (UIC), to measure the strength of correlation and incorrelation (lack of correlation) among multiple variables. The absolute value of Pearson's correlation coefficient is a special case of UCC for two variables. Some important properties of UCC and UIC show that the proposed UCC and UIC are a pair of effective measures for multivariate correlation. We also take the unsigned tri-variate correlation coefficient as an example to visually display the effectiveness of the proposed UCC, and the geometrical explanation of UIC is also discussed. All the properties and the figures of UCC and UIC show that the proposed UCC and UIC are the general measures of correlation for multiple variables.",
+          "claimed_authors": [
+            "Jianji Wang",
+            "Nanning Zheng"
+          ],
+          "claimed_title": "Measures of Correlation for Multiple Variables",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.4827"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Measures of Correlation for Multiple Variables')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We discuss the recent developments of semi-classical and micro-local analysis in the context of nilpotent Lie groups and for sub-elliptic operators. In particular, we give an overview of pseudo-differential calculi recently defined on nilpotent Lie groups as well as of the notion of quantum limits in the Euclidean and nilpotent cases.",
+          "claimed_authors": [
+            "Veronique Fischer"
+          ],
+          "claimed_title": "Towards semi-classical analysis for sub-elliptic operators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.09854"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Towards semi-classical analysis for sub-elliptic operators')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pest phenological models describe the cumulative flux of the individuals into each stage of the life cycle of a stage-structured population. Phenological models are widely used tools in pest control decision making. Despite the fact that these models do not provide information on population abundance, they share some advantages with respect to the more sophisticated and complex demographic models. The main advantage is that they do not require data collection to define the initial conditions of model simulation, reducing the effort for field sampling and the high uncertainty affecting sample estimates. Phenological models are often built considering the developmental rate function only. To the aim of adding more realism to phenological models, in this paper we explore the consequences of improving these models taking into consideration three additional elements: the age distribution of individuals which exit from the overwintering phase, the age- and temperature-dependent profile of the fecundity rate function and the consideration of a temperature-dependent mortality rate function. Numerical simulations are performed to investigate the effect of these elements with respect to phenological models considering development rate functions only. To further test the implications of different models formulation, we compare results obtained from different phenological models to the case study of the codling moth (Cydia pomonella) a primary pest of the apple orchard. The results obtained from model comparison are discussed in view of their potential application in pest control decision support.",
+          "claimed_authors": [
+            "Sara Pasquali",
+            "Cinzia Soresina",
+            "Gianni Gilioli"
+          ],
+          "claimed_title": "The effects of fecundity, mortality and distribution of the initial condition in phenological models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.02121"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='The effects of fecundity, mortality and distribution of the initial condition in phenological models')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper proposes an adaptive randomization procedure for two-stage randomized controlled trials. The method uses data from a first-wave experiment in order to determine how to stratify in a second wave of the experiment, where the objective is to minimize the variance of an estimator for the average treatment effect (ATE). We consider selection from a class of stratified randomization procedures which we call stratification trees: these are procedures whose strata can be represented as decision trees, with differing treatment assignment probabilities across strata. By using the first wave to estimate a stratification tree, we simultaneously select which covariates to use for stratification, how to stratify over these covariates, as well as the assignment probabilities within these strata. Our main result shows that using this randomization procedure with an appropriate estimator results in an asymptotic variance which is minimal in the class of stratification trees. Moreover, the results we present are able to accommodate a large class of assignment mechanisms within strata, including stratified block randomization. In a simulation study, we find that our method, paired with an appropriate cross-validation procedure ,can improve on ad-hoc choices of stratification. We conclude by applying our method to the study in Karlan and Wood (2017), where we estimate stratification trees using the first wave of their experiment.",
+          "claimed_authors": [
+            "Max Tabord-Meehan"
+          ],
+          "claimed_title": "Stratification Trees for Adaptive Randomization in Randomized Controlled Trials",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.05127"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Stratification Trees for Adaptive Randomization in Randomized Controlled Trials')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "A multivariate distribution function F is in the max-domain of attraction of an extreme value distribution if and only if this is true for the copula corresponding to F and its univariate margins. Aulbach et al. (2012a) have shown that a copula satisfies the extreme value condition if and only if the copula is tail equivalent to a generalized Pareto copula (GPC). In this paper we propose a chi-square goodness-of-fit test in arbitrary dimension for testing whether a copula is in a certain neighborhood of a GPC. The test can be applied to stochastic processes as well to check whether the corresponding copula process is close to a generalized Pareto process. Since the p-value of the proposed test is highly sensitive to a proper selection of a certain threshold, we also present a graphical tool that makes the decision, whether or not to reject the hypothesis, more comfortable.",
+          "claimed_authors": [
+            "Stefan Aulbach",
+            "Michael Falk"
+          ],
+          "claimed_title": "Testing for a δ-neighborhood of a generalized Pareto copula",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.1412"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Testing for a δ-neighborhood of a generalized Pareto copula')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we develop new multiscale methods to test qualitative hypotheses about the regression function m in a nonparametric regression model with fixed design points and time series errors. In time series applications, m represents a nonparametric time trend. Practitioners are often interested in whether the trend m has certain shape properties. For example, they would like to know whether m is constant or whether it is increasing/decreasing in certain time regions. Our multiscale methods allow to test for such shape properties of the trend m. In order to perform the methods, we require an estimator of the long-run variance of the error process. We propose a new difference-based estimator of the long-run error variance for the case that the error terms form an AR(p) process. In the technical part of the paper, we derive asymptotic theory for the proposed multiscale test and the estimator of the long-run error variance. The theory is complemented by a simulation study and an empirical application to climate data.",
+          "claimed_authors": [
+            "Marina Khismatullina",
+            "Michael Vogt"
+          ],
+          "claimed_title": "Multiscale inference and long-run variance estimation in nonparametric regression with time series errors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.01253"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Multiscale inference and long-run variance estimation in nonparametric regression with time series errors')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Rotationally symmetric distributions on the p-dimensional unit hypersphere, extremely popular in directional statistics, involve a location parameter theta that indicates the direction of the symmetry axis. The most classical way of addressing the spherical location problem H_0:theta=theta_0, with theta_0 a fixed location, is the so-called Watson test, which is based on the sample mean of the observations. This test enjoys many desirable properties, but its implementation requires the sample size n to be large compared to the dimension p. This is a severe limitation, since more and more problems nowadays involve high-dimensional directional data (e.g., in genetics or text mining). In this work, we therefore introduce a modified Watson statistic that can cope with high-dimensionality. We derive its asymptotic null distribution as both n and p go to infinity. This is achieved in a universal asymptotic framework that allows p to go to infinity arbitrarily fast (or slowly) as a function of n. We further show that our results also provide high-dimensional tests for a problem that has recently attracted much attention, namely that of testing that the covariance matrix of a multinormal distribution has a \"theta_0-spiked\" structure. Finally, a Monte Carlo simulation study corroborates our asymptotic results.",
+          "claimed_authors": [
+            "Christophe Ley",
+            "Davy Paindaveine",
+            "Thomas Verdebout"
+          ],
+          "claimed_title": "High-dimensional tests for spherical location and spiked covariance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.2823"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='High-dimensional tests for spherical location and spiked covariance')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We propose a novel approach to uniformity testing on the $d$-dimensional unit hypersphere $\\mathcal{S}^{d-1}$ based on maximal projections. This approach gives a unifying view on the classical uniformity tests of Rayleigh and Bingham, and it links to measures of multivariate skewness and kurtosis. We derive the limiting distribution under the null hypothesis using limit theorems for Banach space valued stochastic processes and we present strategies to simulate the limiting processes by applying results on the theory of spherical harmonics. We examine the behavior under contiguous and fixed alternatives and show the consistency of the testing procedure for some classes of alternatives. For the first time in uniformity testing on the sphere, we derive local Bahadur efficiency statements. We evaluate the theoretical findings and empirical powers of the procedures in a broad competitive Monte Carlo simulation study and, finally, apply the new tests to a data set on midpoints of large craters on the moon.",
+          "claimed_authors": [
+            "Jaroslav Borodavka",
+            "Bruno Ebner"
+          ],
+          "claimed_title": "A general maximal projection approach to uniformity testing on the hypersphere",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.03482"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='A general maximal projection approach to uniformity testing on the hypersphere')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Gibbs samplers are popular algorithms to approximate posterior distributions arising from Bayesian hierarchical models. Despite their popularity and good empirical performances, however, there are still relatively few quantitative results on their convergence properties, e.g. much less than for gradient-based sampling methods. In this work we analyse the behaviour of total variation mixing times of Gibbs samplers targeting hierarchical models using tools from Bayesian asymptotics. We obtain dimension-free convergence results under random data-generating assumptions, for a broad class of two-level models with generic likelihood function. Specific examples with Gaussian, binomial and categorical likelihoods are discussed.",
+          "claimed_authors": [
+            "Filippo Ascolani",
+            "Giacomo Zanella"
+          ],
+          "claimed_title": "Dimension-free mixing times of Gibbs samplers for Bayesian hierarchical models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06993"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Dimension-free mixing times of Gibbs samplers for Bayesian hierarchical models')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We develop tests for high-dimensional covariance matrices under a generalized elliptical model. Our tests are based on a central limit theorem (CLT) for linear spectral statistics of the sample covariance matrix based on self-normalized observations. For testing sphericity, our tests neither assume specific parametric distributions nor involve the kurtosis of data. More generally, we can test against any non-negative definite matrix that can even be not invertible. As an interesting application, we illustrate in empirical studies that our tests can be used to test uncorrelatedness among idiosyncratic returns.",
+          "claimed_authors": [
+            "Xinxin Yang",
+            "Xinghua Zheng",
+            "Jiaqi Chen"
+          ],
+          "claimed_title": "Testing High-dimensional Covariance Matrices under the Elliptical Distribution and Beyond",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.04010"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Testing High-dimensional Covariance Matrices under the Elliptical Distribution and Beyond')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Let $(\\mathbf{W,W'})$ be an exchangeable pair of vectors in $\\mathbb{R}^k$. Suppose this pair satisfies \\beas E(\\mathbf{W}'|\\mathbf{W})=(I_k-Λ)\\mathbf{W}+\\mathbf{R(W)}. \\enas If $||\\mathbf{W-W'}||_2\\le K$ and $\\mathbf{R(W)}=0$, then concentration of measure results of following form is proved for all $\\mathbf{w}\\succeq 0$ when the moment generating function of $\\mathbf{W}$ is finite. \\beas P(\\mathbf{W}\\succeq\\mathbf{w}),P(\\mathbf{W}\\preceq -\\mathbf{w})\\le \\exp(-\\frac{||\\mathbf{w}||_2^2}{2K^2ν_1}), \\enas for an explicit constant $ν_1$, where $\\succeq$ stands for coordinate wise $\\ge$ ordering.\n  This result is applied to examples like complete non degenerate U-statistics. Also, we deal with the example of doubly indexed permutation statistics where $\\mathbf{R(W)}\\neq 0$ and obtain similar concentration of measure inequalities. Practical examples from doubly indexed permutation statistics include Mann-Whitney-Wilcoxon statistic and random intersection of two graphs. Both these two examples are used in nonparametric statistical testing. We conclude the paper with a multivariate generalization of a recent concentration result due to Ghosh and Goldstein \\cite{cnm} involving bounded size bias couplings.",
+          "claimed_authors": [
+            "Subhankar Ghosh"
+          ],
+          "claimed_title": "Multivariate concentration of measure type results using exchangeable pairs and size biasing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1001.1396"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='Multivariate concentration of measure type results using exchangeable pairs and size biasing')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The log-normal distribution is one of the most common distributions used for modeling skewed and positive data. It frequently arises in many disciplines of science, specially in the biological and medical sciences. The statistical analysis for comparing the means of two independent log-normal distributions is an issue of significant interest. In this paper we present a robust test for this problem. The unknown parameters of the model are estimated by minimum density power divergence estimators (Basu et al 1998, Biometrika, 85(3), 549-559). The robustness as well as the asymptotic properties of the proposed test statistics are rigorously established. The performance of the test is explored through simulations and real data analysis. The test is compared with some existing methods, and it is demonstrated that the proposed test outperforms the others in the presence of outliers.",
+          "claimed_authors": [
+            "Ayanendranath Basu",
+            "Abhijit Mandal",
+            "Nirian Martin",
+            "Leandro Pardo"
+          ],
+          "claimed_title": "A Robust Wald-type Test for Testing the Equality of Two Means from Log-Normal Samples",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.10950"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Statistical Analysis of Publicly Available Bird Migration Patterns and Climate C', candidate_title='A Robust Wald-type Test for Testing the Equality of Two Means from Log-Normal Samples')",
+        "failed_at": "2026-10-24T08:24:13Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Diego Rybski",
+            "Anne Holsten",
+            "Jürgen P. Kropp"
+          ],
+          "title": "Towards a unified characterization of phenological phases: fluctuations and correlations with temperature",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1010.5058",
+        "summary": "Phenological timing -- i.e. the course of annually recurring development stages in nature -- is of particular interest since it can be understood as a proxy for the climate at a specific region; moreover changes in the so called phenological phases can be a direct consequence of climate change. We analyze records of botanical phenology and study their fluctuations which we find to depend on the seasons. In contrast to previous studies, where typically trends in the phenology of individual species are estimated, we consider the ensemble of all available phases and propose a phenological index that characterizes the influence of climate on the multitude of botanical species.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1010.5058",
+          "http_status": 200,
+          "pdf_sample_score": 0.1506,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-24T08:24:13Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical analysis of publicly available bird migration patterns and climate change statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

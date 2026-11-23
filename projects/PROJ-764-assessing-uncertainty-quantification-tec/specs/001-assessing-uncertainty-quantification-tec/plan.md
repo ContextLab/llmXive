@@ -1,37 +1,45 @@
 # Implementation Plan: Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted Material Properties
 
-**Branch**: `001-assess-uncertainty-quantification` | **Date**: 2026-06-22 | **Spec**: `spec.md`
+**Branch**: `001-assess-uncertainty-quantification` | **Date**: 2026-06-22 | **Spec**: [link]
+**Input**: Feature specification from `/specs/001-assess-uncertainty-quantification/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to assess three lightweight Uncertainty Quantification (UQ) techniques—Deep Ensembles, Monte-Carlo Dropout, and Sparse Gaussian Processes—on a subset of the **Open Quantum Materials Database (OQMD)**. The goal is to evaluate calibration (ECE, Interval Score) and downstream screening utility (precision at fixed recall) for predicting material properties (formation energy) under strict CPU-only constraints (limited cores, 7 GB RAM, 5-hour runtime limit). The pipeline adheres to the project constitution, ensuring reproducibility, data hygiene, and strict adherence to functional requirements (FR-001 to FR-010).
+This project implements a comparative analysis of three lightweight Uncertainty Quantification (UQ) techniques—Deep Ensembles, Monte-Carlo Dropout, and Sparse Gaussian Processes—applied to a baseline feed-forward neural network predicting material properties (formation energy, bulk modulus, band gap) from the OQMD dataset. The plan adheres to a strict 5-hour runtime budget on a 2-core CPU GitHub Actions runner, prioritizing CPU-tractable methods (small models, PCA-reduced features) while ensuring rigorous calibration metrics (ECE, Interval Score) and downstream screening utility are measured against real, open-access data.
+
+**Critical Update on Data & Models**: 
+1. Structural descriptors (atomic radius, packing fraction) are **not** present in the raw OQMD dataset and will be computed from crystal structures using `pymatgen`.
+2. The baseline NN uses a **heteroscedastic loss** to output both mean and variance, enabling proper aleatoric/epistemic separation.
+3. ECE and all metrics are computed dynamically from real predictions; no placeholders are used.
+4. **Data Splitting**: Splitting is performed by **Material-ID** to prevent leakage from duplicate entries.
 
 ## Technical Context
 
-**Language/Version**: Python  
-**Primary Dependencies**: `scikit-learn`, `gpytorch` (CPU mode), `torch` (CPU wheels), `pandas`, `numpy`, `requests`, `pyyaml`, `datasets` (HuggingFace)  
-**Storage**: Local filesystem (`data/`, `results/`), CSV/Parquet formats  
-**Testing**: `pytest` (contract tests, unit tests for UQ metrics)  
-**Target Platform**: GitHub Actions Free Tier (Linux, 2 CPU, 7 GB RAM)  
-**Project Type**: Computational Research Pipeline  
-**Performance Goals**: Total pipeline runtime ≤ 5 hours; Model training ≤ 30 mins; UQ evaluation ≤ 20 mins per property.  
-**Constraints**: No GPU/CUDA; No large model training from scratch; Memory usage < 7 GB; Strict handling of missing data.
+**Language/Version**: Python 3.10  
+**Primary Dependencies**: `torch` (CPU), `gpytorch` (CPU), `scikit-learn`, `pandas`, `numpy`, `datasets` (Hugging Face), `matplotlib`, `pymatgen`  
+**Storage**: Local filesystem (`data/`, `results/`), Hugging Face Hub (dataset download)  
+**Testing**: `pytest` (contract tests on schemas, unit tests on metrics)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM)  
+**Project Type**: Computational Research Pipeline / CLI  
+**Performance Goals**: Total pipeline runtime ≤ 5 hours; Deep Ensemble training ≤ 30 mins; UQ evaluation ≤ 20 mins/property.  
+**Constraints**: CPU-first execution; strict memory limit (~7 GB); no fabricated results.  
+**Scale/Scope**: Dataset subset ~k compounds (streamed/sampled to fit RAM); Model parameters ≤ 10k.
 
-> **Dataset Source**: The project uses the **OQMD Formation Energy** dataset via the HuggingFace `datasets` library (`oqmd/formation-energy`), which provides formation energy and compositional features without API keys. This replaces the unverified Materials Project assumption to ensure reproducibility (Constitution Principle I).
+> **Note on Compute Feasibility**: All selected methods (FFNN with ≤10k params, Sparse GP with PCA) are designed to run on the CPU runner. No GPU-specific methods (e.g., full BNNs, large transformers) are included. If the Sparse GP fails to converge on CPU due to scale, the plan falls back to a Standard GP on a smaller subset (N=2000) or logs a warning, ensuring the pipeline completes within the time budget.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research.*
 
-| Principle | Status | Evidence / Action |
+| Principle | Status | Evidence/Action |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed seeds (42), deterministic data splits, and uses a verified HuggingFace dataset loader. |
-| **II. Verified Accuracy** | **PASS** | All citations in `research.md` validated against primary sources. Dataset URL restricted to verified HuggingFace source. |
-| **III. Data Hygiene** | **PASS** | Pipeline includes checksum generation (`data/`), exclusion logs (`validation_report.json`), and no in-place modification. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (ECE, Precision) derived strictly from `results/` CSVs generated by code. |
-| **V. Versioning Discipline** | **PASS** | Content hashes for `data/` and `code/` will be recorded in `state/`. |
-| **VI. Lightweight UQ Execution** | **PASS** | Architecture limits parameters to ≤10k, uses a sufficient number of GP inducing points, and enforces a 5-hour hard timeout for the *entire pipeline*. |
-| **VII. Calibration-Driven Evaluation** | **PASS** | Success metrics (SC-001) explicitly require ECE, Interval Score, and coverage rates with defined binning strategies. |
+| **I. Reproducibility** | ✅ PASS | Plan mandates `seed=42` (and 43, 44 for robustness), pinned `requirements.txt`, and deterministic data splits (Material-ID Stratified). All datasets fetched from verified HF URLs. |
+| **II. Verified Accuracy** | ✅ PASS | Citations limited to the "Verified datasets" block and the specific arXiv paper for MC Dropout passes. No invented URLs. |
+| **III. Data Hygiene** | ✅ PASS | Plan includes `validation_report.json` for missing data, checksumming of downloaded artifacts, and immutable raw data storage. |
+| **IV. Single Source of Truth** | ✅ PASS | All metrics (ECE, Sharpness) derived programmatically from `results/` CSVs. No hand-typed numbers in plan. |
+| **V. Versioning Discipline** | ✅ PASS | `main.py` includes a `hash_artifacts()` step that computes SHA256 hashes of all outputs and updates `state/...yaml` timestamps. |
+| **VI. Lightweight UQ Execution** | ✅ PASS | Model architecture constrained to ≤10k params; PCA applied to reduce GP dimensionality; runtime budget enforced via `timeout` logic. |
+| **VII. Calibration-Driven Evaluation** | ✅ PASS | Plan explicitly requires ECE, Interval Score, and Sharpness for [deferred]/90% intervals as the primary success metric. |
 
 ## Project Structure
 
@@ -43,10 +51,7 @@ specs/001-assess-uncertainty-quantification/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── material_sample.schema.yaml
-│   └── uq_prediction.schema.yaml
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output (schemas)
 ```
 
 ### Source Code (repository root)
@@ -54,68 +59,86 @@ specs/001-assess-uncertainty-quantification/
 ```text
 code/
 ├── data/
-│   ├── download.py           # Handles OQMD dataset loading via HuggingFace
-│   ├── preprocess.py         # Feature extraction, PCA, missing data handling
-│   └── checksums.json        # Data integrity records
+│   ├── download.py          # Downloads OQMD subset, handles retries
+│   ├── preprocess.py        # Cleans, splits (Material-ID Stratified), computes descriptors, PCA, exports CSVs
+│   └── validation.py        # Generates validation_report.json
 ├── models/
-│   ├── baseline_nn.py        # 2-layer FFNN with heteroscedastic head
-│   ├── deep_ensemble.py      # 5-model ensemble
-│   ├── mc_dropout.py         # MC Dropout inference wrapper
-│   └── sparse_gp.py          # Sparse GP with PCA
-├── uq/
-│   ├── metrics.py            # ECE (quantile binning), Interval Score, Sharpness
-│   └── screening.py          # Downstream selection logic (Expected Loss ranking)
-├── main.py                   # Orchestrator (training -> eval -> screening) with global timeout
-├── requirements.txt          # Pinned dependencies
-└── config.yaml               # Hyperparameters (seeds, splits, limits)
+│   ├── baseline_nn.py       # 2-layer NN with heteroscedastic output, parameter counter, trainer
+│   ├── deep_ensemble.py     # Ensemble training & inference
+│   ├── mc_dropout.py        # MC-Dropout model & inference loop
+│   └── sparse_gp.py         # Sparse GP with PCA integration
+├── eval/
+│   ├── metrics.py           # ECE (binned by total uncertainty), Interval Score, Sharpness calculators
+│   └── screening.py         # Downstream screening logic (Bootstrap Permutation Test)
+├── utils/
+│   ├── config.py            # Load config.yaml (seeds, paths)
+│   └── logging.py           # Structured logging
+├── main.py                  # Orchestration script (timeout enforced, versioning/hashing)
+└── requirements.txt         # Pinned dependencies
 
-tests/
-├── contract/
-│   └── test_schemas.py       # Validates output against contracts
-├── unit/
-│   └── test_uq_metrics.py    # Tests ECE/Interval Score logic
-└── integration/
-    └── test_pipeline.py      # End-to-end run (mock data)
+data/
+├── raw/                     # Downloaded parquet/CSV (checksummed)
+└── processed/               # Train/Val/Test CSVs, PCA transformer, validation_report.json
+
+results/
+├── models/                  # Saved checkpoints (.pt)
+│   ├── baseline_nn_arch.pt
+│   ├── ensemble/
+│   ├── mc_dropout/
+│   └── sparse_gp_model.pt
+├── predictions/             # UQ output CSVs
+│   ├── uq_predictions_ensemble.csv
+│   ├── uq_predictions_mc_dropout.csv
+│   └── uq_predictions_sparse_gp.csv
+└── metrics/                 # Final evaluation JSONs/CSVs
+    └── calibration_summary.csv
 ```
 
-**Structure Decision**: A modular `code/` directory with separation of concerns (Data, Models, UQ Logic) is selected to ensure maintainability and clear mapping to FR-001 through FR-010. The `main.py` orchestrator enforces the global computational budget and timeout.
+**Structure Decision**: Single-project structure chosen to minimize overhead for a research pipeline. `code/` contains modular scripts for data, models, and eval to allow independent testing and re-running of specific phases (e.g., re-run eval without re-training).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Three UQ Methods** | Required by FR-003, FR-004, FR-005 for comparative ranking. | Using only one method would fail the comparative analysis requirement (US-2). |
-| **Sparse GP with PCA** | Required to fit GP within 7 GB RAM and 5-hour limit on 2 cores. | Full GP (O(N^3)) is computationally intractable for the dataset size on CPU. |
-| **Deep Ensemble (5x)** | Required to separate epistemic/aleatoric uncertainty (FR-008). | Single model cannot provide variance estimates without MC Dropout or GP. |
-| **Heteroscedastic Loss** | Required to validly decompose uncertainty (aleatoric vs epistemic). | Homoscedastic MSE makes aleatoric variance undefined/zero, invalidating the split. |
+|-----------|------------|-------------------------------------|
+| **Three UQ Methods** | Required by Spec (FR-003, FR-004, FR-005) to compare aleatoric/epistemic separation and calibration. | A single method would fail to answer the comparative research question (US-2). |
+| **Sparse GP + PCA** | Full GP is O(N^3) and infeasible for N>10k on 7GB RAM. Sparse GP with PCA reduces dimensionality and complexity to O(M^2 N) where M << N. | Standard GP would exceed memory/time budget; Deep Ensemble alone would miss the GP baseline comparison. |
+| **Material-ID Stratified Split** | Ensures no data leakage if multiple entries exist per material ID. | Random/Quantile split could lead to training on a sample and testing on its duplicate, invalidating ECE. |
+| **Heteroscedastic Loss** | Required to output variance for aleatoric uncertainty estimation (FR-008). | Standard MSE loss only outputs mean, making aleatoric separation impossible. |
 
-## Phase Plan
+## Methodology & Implementation Steps
 
-### Phase 0: Data Acquisition & Validation
-*   **FR-001**: Implement `data/download.py` to load the OQMD dataset via `datasets.load_dataset("oqmd/formation-energy")`.
-*   **FR-010**: Implement validation logic to exclude rows with missing critical features and generate `validation_report.json`.
-*   **SC-005**: Log percentage of null values in target columns.
-*   **Constitution**: Checksum raw data.
+### Phase 1: Data Ingestion & Preprocessing
+1.  **Download**: Fetch OQMD subset from verified HF URL. Retry on failure.
+2.  **Validate**: Check for nulls in targets. Log to `validation_report.json`.
+3.  **Feature Engineering**: Parse CIF structures using `pymatgen` to compute `atomic_radius` and `packing_fraction`. Exclude rows where CIF is missing.
+4.  **Split**: Perform **Material-ID Stratified Split** (80/10/10) based on `formation_energy` quantiles. Ensure no material ID appears in multiple splits.
+5.  **Transform**: Fit PCA on Training set (retain >90% variance). Save `pca_transformer.pkl`. Apply to Train/Val/Test.
 
-### Phase 1: Baseline & UQ Model Implementation
-*   **FR-002**: Implement `models/baseline_nn.py` (2 hidden layers, ≤10k params, **heteroscedastic output head**).
-*   **FR-003**: Implement `models/deep_ensemble.py` (multiple independent trains).
-*   **FR-004**: Implement `models/mc_dropout.py` (p=0.2, 30 passes).
-*   **FR-005**: Implement `models/sparse_gp.py` (PCA to a reduced dimensionality **globally applied to all methods**, 500 inducing points).
-*   **FR-009**: Wrap the **entire pipeline** (data load, training, eval, screening) in a 5-hour timeout mechanism.
+### Phase 2: Model Training
+1.  **Baseline NN**: Train 2-layer FFNN with **heteroscedastic loss** (outputs mean + log_var). Verify parameter count ≤ 10,000. Save `baseline_nn_arch.pt`.
+2.  **Deep Ensemble**: Train multiple independent models (seeds 42-46). Save to `results/models/ensemble/`.
+3.  **MC-Dropout**: Train 1 model with dropout (p=0.2). Save to `results/models/mc_dropout/`.
+4.  **Sparse GP**: Fit Sparse GP on PCA-reduced training data with a set of inducing points. If CPU timeout risk, fallback to N=2000 subset. Save `sparse_gp_model.pt`.
 
-### Phase 2: Evaluation & Calibration
-* **FR-006**: Implement `uq/metrics.py` for ECE (using **uncertainty quantile binning**), Interval Score, Sharpness ([deferred]/90%).
-*   **FR-008**: Implement uncertainty decomposition logic (valid only for heteroscedastic models).
-*   **SC-001**: Calculate calibration metrics against test set.
-*   **SC-004**: Run multiple seeds; perform **bootstrap paired t-test** (1000 resamples) to determine significance of ECE differences between methods. Apply **Holm-Bonferroni correction** for multiple comparisons.
+### Phase 3: Inference & Prediction
+1.  **Ensemble Inference**: Generate 5 predictions per sample. Compute mean, variance, and decompose into Aleatoric/Epistemic.
+2.  **MC-Dropout Inference**: Run multiple stochastic forward passes (per verified fact 2007.03293) to estimate variance. Decompose uncertainty.
+3.  **GP Inference**: Generate predictions with variance. Calculate `reconstruction_variance` (FR-005).
+4.  **Output**: Save predictions to `results/predictions/uq_predictions_*.csv` using `prediction_output.schema.yaml`.
 
-### Phase 3: Downstream Screening
-*   **FR-007**: Implement `uq/screening.py` using **Expected Loss ranking** (prediction + variance penalty) instead of interval thresholding.
-*   **SC-003**: Compare precision of UQ-ranked vs. point-prediction-ranked candidates at fixed recall.
-*   **Edge Case**: If GP fails, log warning and **exclude GP from the final ranking**; proceed with Ensemble/MC-Dropout only.
+### Phase 4: Evaluation & Robustness
+1. **Calibration Metrics**: Compute ECE (binned by predicted uncertainty), Interval Score, and Sharpness for [deferred] and [deferred] intervals.
+2.  **Robustness Check**: Train models on multiple random seeds. Calculate Coefficient of Variation (CV) of ECE scores. Flag if CV > 0.1 (SC-004).
+3.  **Screening**: Perform Bootstrap Permutation Test (sufficient iterations) to compare UQ-filtered precision vs. random baseline.
 
-### Phase 4: Reporting & Artifacts
-*   Generate `results/calibration_report.csv`, `results/screening_results.csv`.
-*   Verify all outputs against `contracts/`.
-*   Update `state/` with artifact hashes.
+### Phase 5: Versioning & Reporting
+1.  **Hashing**: `main.py` computes SHA256 hashes of all artifacts in `results/`.
+2.  **State Update**: Update `state/projects/PROJ-764...yaml` with `updated_at` and artifact hashes.
+3.  **Final Report**: Generate `calibration_summary.csv` and `screening_results.json`.
+
+## Risk Mitigation
+
+*   **Missing Data**: Rows with missing CIFs or structural descriptors are excluded; `validation_report.json` logs the count (FR-010).
+*   **GP Convergence**: If Sparse GP optimization fails, the system falls back to Standard GP (N=2000). If that fails, the run is marked "partial".
+*   **Timeout**: A hard timeout (5h) is enforced in `main.py`. If exceeded, the pipeline fails with a clear error code.
+*   **Fabrication Prevention**: No synthetic data. All results derived from the verified OQMD subset. All metrics are computed from real predictions.

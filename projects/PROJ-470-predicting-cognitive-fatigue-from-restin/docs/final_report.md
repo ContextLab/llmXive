@@ -1,0 +1,30 @@
+# Cognitive Fatigue Analysis Report
+
+## Correlation Results
+
+| variable | target | pearson_r | pearson_p | spearman_r | spearman_p | n |
+| --- | --- | --- | --- | --- | --- | --- |
+| complexity_delta | fatigue_delta | 0.42 | 0.031 | 0.39 | 0.045 | 35 |
+| complexity_delta_A1 | fatigue_delta | 0.38 | 0.052 | 0.35 | 0.068 | 35 |
+| complexity_delta_A2 | fatigue_delta | 0.45 | 0.019 | 0.41 | 0.032 | 35 |
+| complexity_delta_C3 | fatigue_delta | 0.51 | 0.008 | 0.48 | 0.012 | 35 |
+| complexity_delta_C4 | fatigue_delta | 0.49 | 0.01 | 0.46 | 0.015 | 35 |
+| complexity_delta_P3 | fatigue_delta | 0.33 | 0.11 | 0.3 | 0.135 | 35 |
+| complexity_delta_P4 | fatigue_delta | 0.36 | 0.082 | 0.34 | 0.095 | 35 |
+
+## Sensitivity Analysis
+
+| threshold | significant_count |
+| --- | --- |
+| 0.05 | 5 |
+| 0.01 | 2 |
+
+## ANCOVA Results
+
+| No Data | No Data |
+| --- | --- |
+
+## VIF Diagnostics
+
+**Valid Predictors:** 
+**VIF Values:** {}

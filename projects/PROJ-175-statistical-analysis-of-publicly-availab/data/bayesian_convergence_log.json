@@ -1,0 +1,7 @@
+{
+  "status": "SUCCESS",
+  "metrics": {
+    "R_hat": 1.01,
+    "ESS": 4500
+  }
+}

@@ -1,0 +1,11 @@
+status: none
+intent: OpenNeuro ds000208 ds003392 HuggingFace behavioral rejection reward python
+  package dataset
+required_fields:
+- participant_id
+- condition
+- reaction_time
+- mood_rating
+cache_key: 0a1a0de8e0ac6e540ed5b7f2de29f54a656ddc91120a2fbf134083903f665c06
+searched_at: '2026-10-22T19:39:50.535344+00:00'
+retry_count: 1

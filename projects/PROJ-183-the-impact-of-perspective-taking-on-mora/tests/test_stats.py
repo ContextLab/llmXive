@@ -1,68 +1,80 @@
-"""
-Unit tests for statistical analysis (T029, T030, T031).
-"""
+import json
 import pytest
-import numpy as np
-from scipy import stats
+from pathlib import Path
+import tempfile
+import os
 
-def calculate_icc(data):
-    """
-    Mock ICC calculation for T029.
-    In real code, this would use statsmodels or pingouin.
-    """
-    # Simple placeholder logic for testing structure
-    # ICC = Variance_between / (Variance_between + Variance_within)
-    # Here we just return a dummy value for the test structure
-    return 0.05
+# Import the function to test
+try:
+    from code.analysis.stats import validate_stratification
+except ImportError:
+    # Fallback if running from project root
+    from code.analysis.stats import validate_stratification
 
-def perform_ttest(group1, group2):
+def test_validate_stratification_success():
     """
-    Mock t-test for T030.
+    Test that validate_stratification correctly calculates mean differences
+    and saves the report when given valid stimuli data.
     """
-    t_stat, p_val = stats.ttest_ind(group1, group2)
-    # Cohen's d approximation
-    mean_diff = np.mean(group1) - np.mean(group2)
-    pooled_std = np.sqrt((np.std(group1)**2 + np.std(group2)**2) / 2)
-    d = mean_diff / pooled_std if pooled_std != 0 else 0
-    
-    return {
-        "t_statistic": t_stat,
-        "p_value": p_val,
-        "cohen_d": d,
-        "ci_95": (mean_diff - 1.96 * pooled_std, mean_diff + 1.96 * pooled_std)
-    }
+    # Create a temporary stimuli file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        stimuli_data = [
+            {"id": "1", "condition": "perspective_taking", "vader_score": 0.8},
+            {"id": "2", "condition": "perspective_taking", "vader_score": 0.9},
+            {"id": "3", "condition": "control_summarization", "vader_score": 0.75},
+            {"id": "4", "condition": "control_summarization", "vader_score": 0.85},
+        ]
+        json.dump(stimuli_data, f)
+        temp_path = f.name
 
-def perform_mann_whitney(group1, group2):
+    try:
+        result = validate_stratification(Path(temp_path))
+        
+        assert result["validation_status"] == "completed"
+        assert result["condition_counts"]["perspective_taking"] == 2
+        assert result["condition_counts"]["control_summarization"] == 2
+        
+        # Check means: PT (0.8+0.9)/2 = 0.85, Control (0.75+0.85)/2 = 0.8
+        assert abs(result["mean_sentiment_scores"]["perspective_taking"] - 0.85) < 0.001
+        assert abs(result["mean_sentiment_scores"]["control_summarization"] - 0.80) < 0.001
+        
+        # Diff = 0.05
+        assert abs(result["absolute_difference"] - 0.05) < 0.001
+        
+        # Check report file was created
+        report_path = Path("data/processed/stratification_report.json")
+        assert report_path.exists()
+        
+        with open(report_path, 'r') as rf:
+            saved_report = json.load(rf)
+            assert saved_report == result
+            
+    finally:
+        os.unlink(temp_path)
+        if Path("data/processed/stratification_report.json").exists():
+            Path("data/processed/stratification_report.json").unlink()
+
+def test_validate_stratification_missing_file():
     """
-    Mock Mann-Whitney U test for T031.
+    Test that validate_stratification raises FileNotFoundError for missing file.
     """
-    u_stat, p_val = stats.mannwhitneyu(group1, group2)
-    return {"u_statistic": u_stat, "p_value": p_val}
+    with pytest.raises(FileNotFoundError):
+        validate_stratification(Path("nonexistent/path/stimuli.json"))
 
-def test_icc_calculation_structure():
-    """Test T029: Verify ICC calculation returns a float."""
-    dummy_data = [1, 2, 3]
-    result = calculate_icc(dummy_data)
-    assert isinstance(result, float)
+def test_validate_stratification_insufficient_data():
+    """
+    Test that validate_stratification raises ValueError if one condition is missing.
+    """
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        stimuli_data = [
+            {"id": "1", "condition": "perspective_taking", "vader_score": 0.8},
+            {"id": "2", "condition": "perspective_taking", "vader_score": 0.9},
+        ]
+        json.dump(stimuli_data, f)
+        temp_path = f.name
 
-def test_ttest_output_accuracy():
-    """Test T030: Check p, d, CI presence."""
-    g1 = np.random.normal(0, 1, 100)
-    g2 = np.random.normal(0.5, 1, 100)
-    result = perform_ttest(g1, g2)
-    
-    assert "t_statistic" in result
-    assert "p_value" in result
-    assert "cohen_d" in result
-    assert "ci_95" in result
-    assert isinstance(result["p_value"], float)
-
-def test_mann_whitney_robustness():
-    """Test T031: Verify Mann-Whitney U test output."""
-    g1 = np.random.normal(0, 1, 100)
-    g2 = np.random.normal(0.5, 1, 100)
-    result = perform_mann_whitney(g1, g2)
-    
-    assert "u_statistic" in result
-    assert "p_value" in result
-    assert isinstance(result["p_value"], float)
+    try:
+        with pytest.raises(ValueError):
+            validate_stratification(Path(temp_path))
+    finally:
+        os.unlink(temp_path)

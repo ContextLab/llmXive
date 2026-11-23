@@ -22,11 +22,11 @@ properties:
     type: number
     description: "Halstead volume from radon. Use null if failed."
     nullable: true
-  branch_coverage_pct:
+  mutation_score:
     type: number
     minimum: 0
-    maximum: 100
-    description: "Branch coverage percentage. Use null if failed."
+    maximum: 1
+    description: "Mutation score (testability proxy). Use null if failed."
     nullable: true
   pass_rate:
     type: integer
@@ -40,7 +40,7 @@ properties:
       - success
       - failed_generation
       - failed_execution
-      - failed_coverage
+      - failed_mutation
     description: "Status of the analysis."
 required:
   - task_id

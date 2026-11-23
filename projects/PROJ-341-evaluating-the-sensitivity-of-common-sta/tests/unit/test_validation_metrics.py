@@ -1,269 +1,129 @@
 """
-Unit tests for validation_metrics.py (T034)
-
-Tests for:
-- load_simulated_pvalues_for_comparison
-- load_real_data_pvalues
-- calculate_real_data_power
-- calculate_ks_distance
-- calculate_validation_metrics
-- save_validation_metrics
+Unit tests for validation_metrics.py (Task T034).
 """
-
 import os
 import json
+import tempfile
+import pytest
 import numpy as np
-from scipy import stats
 
-# Import the module under test
-from code.analysis.validation_metrics import (
-    load_simulated_pvalues_for_comparison,
-    load_real_data_pvalues,
-    calculate_real_data_power,
-    calculate_ks_distance,
-    calculate_validation_metrics,
-    save_validation_metrics
-)
+# Mock the dependencies that might not be fully set up
+import sys
+from unittest.mock import patch, MagicMock
 
+# Add code directory to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-class TestLoadSimulatedPValues:
-    """Tests for load_simulated_pvalues_for_comparison"""
-
-    def test_load_empty_file(self, tmp_path):
-        """Test loading an empty CSV file"""
-        csv_path = tmp_path / "p_values_raw.csv"
-        csv_path.write_text("sample_size,effect_size,test_type,p_value\n")
-
-        result = load_simulated_pvalues_for_comparison()
-        assert result == {}
-
-    def test_load_single_entry(self, tmp_path):
-        """Test loading a single entry"""
-        csv_path = tmp_path / "p_values_raw.csv"
-        csv_path.write_text(
-            "sample_size,effect_size,test_type,p_value\n"
-            "10,0.5,t-test,0.03\n"
-        )
-
-        result = load_simulated_pvalues_for_comparison()
-        assert (10, 0.5) in result
-        assert len(result[(10, 0.5)]) == 1
-        assert result[(10, 0.5)][0] == 0.03
-
-    def test_load_multiple_entries(self, tmp_path):
-        """Test loading multiple entries"""
-        csv_path = tmp_path / "p_values_raw.csv"
-        csv_path.write_text(
-            "sample_size,effect_size,test_type,p_value\n"
-            "10,0.5,t-test,0.03\n"
-            "10,0.5,t-test,0.04\n"
-            "20,0.3,anova,0.06\n"
-        )
-
-        result = load_simulated_pvalues_for_comparison()
-        assert len(result[(10, 0.5)]) == 2
-        assert len(result[(20, 0.3)]) == 1
-
-    def test_filter_by_test_type(self, tmp_path):
-        """Test filtering by test type"""
-        csv_path = tmp_path / "p_values_raw.csv"
-        csv_path.write_text(
-            "sample_size,effect_size,test_type,p_value\n"
-            "10,0.5,t-test,0.03\n"
-            "10,0.5,anova,0.04\n"
-        )
-
-        result = load_simulated_pvalues_for_comparison(test_type='t-test')
-        assert len(result) == 1
-        assert (10, 0.5) in result
-
-
-class TestLoadRealDataPValues:
-    """Tests for load_real_data_pvalues"""
-
-    def test_load_empty_file(self, tmp_path):
-        """Test loading an empty CSV file"""
-        csv_path = tmp_path / "real_data_pvalues.csv"
-        csv_path.write_text("test_type,p_value\n")
-
-        result = load_real_data_pvalues()
-        assert result == {}
-
-    def test_load_single_entry(self, tmp_path):
-        """Test loading a single entry"""
-        csv_path = tmp_path / "real_data_pvalues.csv"
-        csv_path.write_text(
-            "test_type,p_value\n"
-            "t-test,0.03\n"
-        )
-
-        result = load_real_data_pvalues()
-        assert 't-test' in result
-        assert result['t-test'] == [0.03]
-
-    def test_load_multiple_test_types(self, tmp_path):
-        """Test loading multiple test types"""
-        csv_path = tmp_path / "real_data_pvalues.csv"
-        csv_path.write_text(
-            "test_type,p_value\n"
-            "t-test,0.03\n"
-            "anova,0.04\n"
-            "chi-squared,0.05\n"
-        )
-
-        result = load_real_data_pvalues()
-        assert len(result) == 3
-        assert 't-test' in result
-        assert 'anova' in result
-        assert 'chi-squared' in result
-
-
-class TestCalculateRealDataPower:
-    """Tests for calculate_real_data_power"""
-
-    def test_empty_list(self):
-        """Test with empty list"""
-        result = calculate_real_data_power([])
-        assert np.isnan(result['empirical_power'])
-        assert result['sample_size'] == 0
-
-    def test_all_rejections(self):
-        """Test when all p-values reject null"""
-        p_values = [0.01, 0.02, 0.03, 0.04]
-        result = calculate_real_data_power(p_values, alpha=0.05)
-        assert result['empirical_power'] == 1.0
-        assert result['sample_size'] == 4
-
-    def test_no_rejections(self):
-        """Test when no p-values reject null"""
-        p_values = [0.1, 0.2, 0.3, 0.4]
-        result = calculate_real_data_power(p_values, alpha=0.05)
-        assert result['empirical_power'] == 0.0
-        assert result['sample_size'] == 4
-
-    def test_partial_rejections(self):
-        """Test with partial rejections"""
-        p_values = [0.01, 0.06, 0.03, 0.1]
-        result = calculate_real_data_power(p_values, alpha=0.05)
-        assert result['empirical_power'] == 0.5  # 2 out of 4
-        assert result['sample_size'] == 4
-
-
-class TestCalculateKsDistance:
-    """Tests for calculate_ks_distance"""
-
-    def test_empty_lists(self):
-        """Test with empty lists"""
-        result = calculate_ks_distance([], [])
-        assert 'insufficient_data' in result['note']
-
-    def test_identical_distributions(self):
-        """Test with identical distributions"""
-        np.random.seed(42)
-        sim = np.random.uniform(0, 1, 100)
-        real = sim.copy()
-        result = calculate_ks_distance(list(sim), list(real))
-        assert result['ks_statistic'] == 0.0
-
-    def test_different_distributions(self):
-        """Test with different distributions"""
-        np.random.seed(42)
-        sim = np.random.uniform(0, 0.5, 100)  # Uniform on [0, 0.5]
-        real = np.random.uniform(0.5, 1.0, 100)  # Uniform on [0.5, 1.0]
-        result = calculate_ks_distance(list(sim), list(real))
-        # KS statistic should be high for very different distributions
-        assert result['ks_statistic'] > 0.5
-        assert not np.isnan(result['p_value'])
-
-    def test_single_values(self):
-        """Test with single values"""
-        result = calculate_ks_distance([0.03], [0.04])
-        assert not np.isnan(result['ks_statistic'])
+from code.analysis.validation_metrics import calculate_validation_metrics, save_validation_metrics
 
 
 class TestCalculateValidationMetrics:
-    """Tests for calculate_validation_metrics"""
-
-    def test_missing_files(self, tmp_path, monkeypatch):
-        """Test when required files are missing"""
-        # Monkeypatch paths to point to non-existent files
-        monkeypatch.setattr(
-            "code.analysis.validation_metrics.SIMULATED_PVALUES_PATH",
-            str(tmp_path / "nonexistent.csv")
-        )
-        monkeypatch.setattr(
-            "code.analysis.validation_metrics.REAL_DATA_PVALUES_PATH",
-            str(tmp_path / "nonexistent.csv")
-        )
-
-        with pytest.raises(FileNotFoundError):
-            calculate_validation_metrics()
-
-    def test_structure_of_output(self, tmp_path, monkeypatch):
-        """Test that output has expected structure"""
-        # Create minimal test files
-        sim_csv = tmp_path / "p_values_raw.csv"
-        sim_csv.write_text(
-            "sample_size,effect_size,test_type,p_value\n"
-            "10,0.5,t-test,0.03\n"
-            "10,0.5,t-test,0.04\n"
-            "20,0.3,anova,0.06\n"
-        )
-
-        real_csv = tmp_path / "real_data_pvalues.csv"
-        real_csv.write_text(
-            "test_type,p_value\n"
-            "t-test,0.03\n"
-            "t-test,0.04\n"
-            "anova,0.06\n"
-        )
-
-        monkeypatch.setattr(
-            "code.analysis.validation_metrics.SIMULATED_PVALUES_PATH",
-            str(sim_csv)
-        )
-        monkeypatch.setattr(
-            "code.analysis.validation_metrics.REAL_DATA_PVALUES_PATH",
-            str(real_csv)
-        )
-
-        metrics = calculate_validation_metrics()
-
-        assert 'timestamp' in metrics
-        assert 'alpha' in metrics
-        assert 'test_types' in metrics
-        assert 'summary' in metrics
-        assert 'total_tests' in metrics['summary']
-        assert 'passed' in metrics['summary']
-        assert 'overall_status' in metrics['summary']
-
+    """Tests for calculate_validation_metrics function."""
+    
+    def test_single_dataset_passed(self, tmp_path):
+        """Test with a single dataset that passes validation."""
+        power_data = {
+            'dataset_id': 'test_dataset',
+            'ks_distance': 0.05,
+            'power_estimate': 0.85
+        }
+        
+        power_file = tmp_path / "real_data_power.json"
+        with open(power_file, 'w') as f:
+            json.dump(power_data, f)
+        
+        with patch('code.analysis.validation_metrics.REAL_DATA_POWER_PATH', str(power_file)):
+            metrics = calculate_validation_metrics(str(power_file))
+            
+        assert metrics['total_datasets'] == 1
+        assert metrics['passed_validation_count'] == 1
+        assert metrics['avg_ks_distance'] == 0.05
+        assert len(metrics['details']) == 1
+        assert metrics['details'][0]['passed_validation'] is True
+        
+    def test_multiple_datasets_mixed_results(self, tmp_path):
+        """Test with multiple datasets, some passing and some failing."""
+        power_data = [
+            {'dataset_id': 'ds1', 'ks_distance': 0.05, 'power_estimate': 0.8},
+            {'dataset_id': 'ds2', 'ks_distance': 0.15, 'power_estimate': 0.6},
+            {'dataset_id': 'ds3', 'ks_distance': 0.08, 'power_estimate': 0.9}
+        ]
+        
+        power_file = tmp_path / "real_data_power.json"
+        with open(power_file, 'w') as f:
+            json.dump(power_data, f)
+            
+        metrics = calculate_validation_metrics(str(power_file))
+        
+        assert metrics['total_datasets'] == 3
+        assert metrics['passed_validation_count'] == 2  # ds1 and ds3
+        assert abs(metrics['avg_ks_distance'] - (0.05 + 0.15 + 0.08) / 3) < 1e-6
+        
+    def test_empty_results(self, tmp_path):
+        """Test with empty results list."""
+        power_data = []
+        
+        power_file = tmp_path / "real_data_power.json"
+        with open(power_file, 'w') as f:
+            json.dump(power_data, f)
+            
+        metrics = calculate_validation_metrics(str(power_file))
+        
+        assert metrics['total_datasets'] == 0
+        assert metrics['passed_validation_count'] == 0
+        assert metrics['avg_ks_distance'] == 0.0
+        
+    def test_k_distance_threshold_boundary(self, tmp_path):
+        """Test boundary condition where KS distance equals exactly 0.10."""
+        power_data = {
+            'dataset_id': 'boundary_test',
+            'ks_distance': 0.10,
+            'power_estimate': 0.75
+        }
+        
+        power_file = tmp_path / "real_data_power.json"
+        with open(power_file, 'w') as f:
+            json.dump(power_data, f)
+            
+        metrics = calculate_validation_metrics(str(power_file))
+        
+        # 0.10 should pass (<= 0.10)
+        assert metrics['passed_validation_count'] == 1
+        assert metrics['details'][0]['passed_validation'] is True
+        
 
 class TestSaveValidationMetrics:
-    """Tests for save_validation_metrics"""
-
-    def test_save_and_load(self, tmp_path):
-        """Test saving and reloading metrics"""
+    """Tests for save_validation_metrics function."""
+    
+    def test_save_and_reload(self, tmp_path):
+        """Test that metrics can be saved and reloaded correctly."""
         metrics = {
-            'test': 'validation',
-            'value': 42,
-            'nested': {'key': 'value'}
+            'total_datasets': 2,
+            'passed_validation_count': 1,
+            'avg_ks_distance': 0.12,
+            'details': [
+                {'dataset_id': 'a', 'ks_distance': 0.1, 'passed_validation': True},
+                {'dataset_id': 'b', 'ks_distance': 0.14, 'passed_validation': False}
+            ]
         }
-
-        output_path = tmp_path / "test_metrics.json"
-        saved_path = save_validation_metrics(metrics, str(output_path))
-
-        assert saved_path == str(output_path)
-        assert output_path.exists()
-
-        with open(output_path, 'r') as f:
+        
+        output_file = tmp_path / "validation_metrics.json"
+        save_validation_metrics(metrics, str(output_file))
+        
+        assert output_file.exists()
+        
+        with open(output_file, 'r') as f:
             loaded = json.load(f)
-
-        assert loaded == metrics
-
+            
+        assert loaded['total_datasets'] == metrics['total_datasets']
+        assert loaded['passed_validation_count'] == metrics['passed_validation_count']
+        assert abs(loaded['avg_ks_distance'] - metrics['avg_ks_distance']) < 1e-6
+        
     def test_creates_directory(self, tmp_path):
-        """Test that function creates output directory if needed"""
-        metrics = {'test': 'value'}
-        nested_path = tmp_path / "subdir" / "metrics.json"
-
+        """Test that function creates output directory if it doesn't exist."""
+        metrics = {'total_datasets': 1, 'passed_validation_count': 1, 'avg_ks_distance': 0.0}
+        
+        nested_path = tmp_path / "subdir" / "output.json"
         save_validation_metrics(metrics, str(nested_path))
+        
         assert nested_path.exists()

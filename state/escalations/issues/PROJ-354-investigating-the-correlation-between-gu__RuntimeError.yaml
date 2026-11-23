@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-09T01:02:23.540407+00:00'
+issue_number: 1370
+project_id: PROJ-354-investigating-the-correlation-between-gu

@@ -1,184 +1,170 @@
+"""
+Wiener Filtering Gap Filling Algorithm.
+
+Implements Wiener filtering to reconstruct CMB maps from incomplete data.
+Integrates with the NaN Guard (T043) to ensure data integrity.
+"""
 import numpy as np
 import healpy as hp
 import logging
 import time
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any
-import json
-import os
 
-from code.config import DATA_DERIVED_DIR, DATA_RESULTS_DIR, LOGS_DIR
-from code.data_io import save_metadata
+from gap_filling.NaN_guard import scan_for_nans, apply_nan_guard_wrapper
+from gap_filling.failure_handler import log_convergence_failure, record_excluded_realization
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def compute_noise_power_spectrum(mask: np.ndarray, noise_level: float = 1.0) -> np.ndarray:
+def compute_noise_power_spectrum(nside: int, noise_level: float = 1e-3) -> np.ndarray:
     """
-    Compute a simplified noise power spectrum based on mask and noise level.
-    In a real scenario, this would be derived from instrument specifications.
+    Computes a simple white noise power spectrum.
     """
-    nside = hp.get_nside(mask)
-    l_max = 2 * nside - 1
-    l = np.arange(l_max + 1)
-    
-    # Simplified: white noise spectrum
-    # C_l = noise_variance * (4 * pi) / N_pix
-    n_pix = hp.nside2npix(nside)
-    noise_var = noise_level ** 2
-    cl_noise = (4 * np.pi * noise_var) / n_pix * np.ones_like(l, dtype=float)
-    
-    return cl_noise
+    lmax = 3 * nside - 1
+    ell = np.arange(lmax + 1)
+    # White noise: constant Cl
+    cl_n = np.ones(lmax + 1) * noise_level
+    return cl_n
 
-def compute_signal_power_spectrum(nside: int, l_max: int = None) -> np.ndarray:
+def compute_signal_power_spectrum(nside: int, lmax: Optional[int] = None) -> np.ndarray:
     """
-    Compute theoretical CMB power spectrum using a simple model.
-    In production, this should use CAMB or similar.
+    Computes a theoretical signal power spectrum (simplified CMB).
+    In a real run, this would load from CAMB or a file.
     """
-    if l_max is None:
-        l_max = 2 * nside - 1
-        
-    l = np.arange(l_max + 1)
-    # Simple power law approximation for demonstration
-    # C_l ~ A * l^(-2) for l > 0
-    cl_signal = np.zeros_like(l, dtype=float)
-    cl_signal[1:] = 1e-10 * (l[1:] ** -2)
-    cl_signal[0] = 1e-9  # Monopole
-    
-    return cl_signal
+    if lmax is None:
+        lmax = 3 * nside - 1
+    ell = np.arange(lmax + 1)
+    # Simple power law approximation
+    cl_s = np.zeros(lmax + 1)
+    # Avoid division by zero at l=0
+    cl_s[1:] = 1.0 / (ell[1:] ** 2) 
+    cl_s[0] = 0.0 # Monopole removed
+    return cl_s
 
 def wiener_filter_map(
-    map_data: np.ndarray,
+    input_map: np.ndarray,
     mask: np.ndarray,
     cl_signal: np.ndarray,
     cl_noise: np.ndarray,
-    l_max: int = None
-) -> Tuple[np.ndarray, Dict[str, Any]]:
+    lmax: Optional[int] = None
+) -> np.ndarray:
     """
-    Apply Wiener filtering to a masked map.
+    Applies a Wiener filter to the input map.
     
     Args:
-        map_data: Observed map (with gaps).
-        mask: Boolean mask (True = valid).
-        cl_signal: Theoretical signal power spectrum.
+        input_map: Input map with gaps (NaNs).
+        mask: Boolean mask (True=valid, False=gap).
+        cl_signal: Signal power spectrum.
         cl_noise: Noise power spectrum.
-        l_max: Maximum multipole moment.
-        
+        lmax: Maximum multipole.
+    
     Returns:
-        Tuple of (filtered_map, stats_dict).
+        Filtered map.
     """
-    nside = hp.get_nside(map_data)
-    if l_max is None:
-        l_max = 2 * nside - 1
-        
-    l = np.arange(l_max + 1)
+    nside = hp.get_nside(input_map)
+    if lmax is None:
+        lmax = 3 * nside - 1
     
-    # Transform observed map to harmonic space
-    # Use only valid pixels for alm calculation (healpy handles masking internally if mask is provided)
-    # However, map2alm expects a full map. We will fill gaps with 0 and hope the filter corrects it.
-    # A better approach is to use the mask to weight the map.
+    # Prepare mask map (1 for valid, 0 for gap)
+    mask_map = mask.astype(float)
     
-    # Create a weighted map: valid pixels * 1, gaps * 0
-    weighted_map = map_data.copy()
-    weighted_map[~mask.astype(bool)] = 0.0
+    # Initialize the map with zeros in gaps for the transform
+    # We assume input_map has NaNs in gaps, replace with 0 temporarily
+    clean_map = input_map.copy()
+    nan_mask = np.isnan(clean_map)
+    clean_map[nan_mask] = 0.0
     
-    # Calculate alm from weighted map
-    alm = hp.map2alm(weighted_map, lmax=l_max, use_pixel_weights=False)
+    # Combine signal and noise
+    cl_total = cl_signal + cl_noise
     
-    # Calculate Wiener filter coefficients
-    # W_l = C_l^S / (C_l^S + C_l^N)
-    # Handle division by zero
-    denom = cl_signal + cl_noise
-    denom[denom == 0] = 1e-30
-    w_l = cl_signal / denom
+    # Wiener filter in harmonic space
+    # W_l = Cl_signal / (Cl_signal + Cl_noise)
+    # Note: This is a simplified diagonal approximation. 
+    # Full Wiener filtering involves matrix inversion which is expensive.
+    # For this implementation, we use the diagonal approximation which is standard
+    # for initial gap filling checks.
     
-    # Apply filter in harmonic space
-    alm_filtered = hp.almxfl(alm, w_l, lmax=l_max)
+    alm_in = hp.map2alm(clean_map, lmax=lmax, use_weights=True)
     
-    # Transform back to pixel space
-    filtered_map = hp.alm2map(alm_filtered, nside)
+    # Apply filter
+    alm_filtered = hp.almxfl(alm_in, cl_signal / (cl_total + 1e-10))
     
-    stats = {
-        "algorithm": "wiener_filter",
-        "l_max": l_max,
-        "nside": nside
-    }
+    # Transform back
+    filtered_map = hp.alm2map(alm_filtered, nside, lmax=lmax)
     
-    return filtered_map, stats
+    # Blend: Use filtered values in gaps, original values elsewhere
+    # Ensure we don't introduce NaNs from the original gaps
+    final_map = np.where(mask_map > 0, input_map, filtered_map)
+    
+    return final_map
 
 def apply_wiener_filling(
-    map_path: str,
-    mask_path: str,
-    output_path: str,
-    metadata_path: str,
-    noise_level: float = 1.0,
-    l_max: int = None
-) -> bool:
+    input_map: np.ndarray,
+    mask: np.ndarray,
+    realization_id: str,
+    algo_name: str = "wiener_filter",
+    noise_level: float = 1e-3
+) -> np.ndarray:
     """
-    Wrapper to load map, apply Wiener filter, and save results.
+    Wrapper for Wiener filtering with NaN Guarding.
+    
+    Args:
+        input_map: Input map.
+        mask: Valid pixel mask.
+        realization_id: ID for logging.
+        algo_name: Algorithm name.
+        noise_level: Assumed noise level.
     
     Returns:
-        True if successful, False if any critical failure occurs.
+        Filled map.
+    
+    Raises:
+        NaNPropagationError: If output contains NaNs.
     """
+    logger.info(f"Applying Wiener Filter for {realization_id}")
     start_time = time.time()
     
-    logger.info(f"Loading map from {map_path}")
-    map_data = hp.read_map(map_path, field=0)
-    
-    logger.info(f"Loading mask from {mask_path}")
-    mask_data = hp.read_map(mask_path, field=0)
-    
-    nside = hp.get_nside(map_data)
-    if l_max is None:
-        l_max = 2 * nside - 1
+    try:
+        nside = hp.get_nside(input_map)
+        cl_sig = compute_signal_power_spectrum(nside)
+        cl_noise = compute_noise_power_spectrum(nside, noise_level)
         
-    logger.info("Computing signal and noise power spectra")
-    cl_signal = compute_signal_power_spectrum(nside, l_max)
-    cl_noise = compute_noise_power_spectrum(mask_data, noise_level)
-    
-    logger.info("Applying Wiener filter")
-    filtered_map, stats = wiener_filter_map(map_data, mask_data, cl_signal, cl_noise, l_max)
-    
-    exec_time = time.time() - start_time
-    
-    # Save filtered map
-    hp.write_map(output_path, filtered_map, overwrite=True)
-    logger.info(f"Filtered map saved to {output_path}")
-    
-    # Record metadata
-    metadata = {
-        "algo_name": "wiener_filter",
-        "algo_version": "1.0.0",
-        "exec_time_sec": exec_time,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "parameters": {
-            "noise_level": noise_level,
-            "l_max": l_max
-        },
-        "input_map": map_path,
-        "input_mask": mask_path,
-        "output_map": output_path
-    }
-    
-    os.makedirs(os.path.dirname(metadata_path), exist_ok=True)
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
+        filled_map = wiener_filter_map(input_map, mask, cl_sig, cl_noise)
         
-    logger.info(f"Metadata saved to {metadata_path}")
-    
-    # Wiener filter is generally stable, but we check for NaNs
-    if np.any(np.isnan(filtered_map)) or np.any(np.isinf(filtered_map)):
-        logger.error(f"Wiener filter produced NaN/Inf values for {map_path}. Excluding from analysis.")
-        return False
+        # T043: Explicit NaN check
+        scan_for_nans(filled_map, realization_id, algo_name)
         
-    return True
+        exec_time = time.time() - start_time
+        logger.info(f"Wienner filter completed for {realization_id} in {exec_time:.2f}s")
+        
+        return filled_map
+        
+    except NaNPropagationError:
+        raise
+    except Exception as e:
+        logger.error(f"Wiener filter failed for {realization_id}: {e}")
+        log_convergence_failure(realization_id, algo_name, str(e))
+        raise
 
 def main():
     """
-    Entry point for standalone execution.
+    Minimal execution test for Wiener Filter.
     """
-    logger.info("Wiener Filter Module - Main Entry")
-    print("Wiener Filter module loaded. Ready for pipeline integration.")
+    logging.basicConfig(level=logging.INFO)
+    
+    nside = 16
+    npix = hp.nside2npix(nside)
+    test_map = np.random.randn(npix)
+    
+    mask = np.ones(npix, dtype=bool)
+    mask[0:10] = False
+    test_map[0:10] = np.nan
+    
+    try:
+        result = apply_wiener_filling(test_map, mask, "test_002", "wiener_filter")
+        print(f"Success: Map filled. Shape: {result.shape}, Has NaNs: {np.any(np.isnan(result))}")
+    except Exception as e:
+        print(f"Failed: {e}")
 
 if __name__ == "__main__":
     main()

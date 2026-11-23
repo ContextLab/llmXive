@@ -1,47 +1,41 @@
 """
-Project configuration and utility functions.
+Configuration management for the pipeline.
 """
 import os
 from typing import Optional
+from pathlib import Path
 
-def ensure_directories() -> str:
-    """
-    Ensure all required project directories exist.
-    
-    Returns:
-        Path to the project root directory
-    """
-    # Get the project root (parent of code/)
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
-    # Define required directories
-    directories = [
-        'code',
-        'data',
-        'data/raw_cif',
-        'models',
-        'results',
-        'contracts',
-        'specs',
-        'tests',
-        'tests/unit',
-        'tests/integration',
-        'tests/contract'
+def get_base_dir() -> Path:
+    """Get the project root directory."""
+    return Path(__file__).resolve().parent.parent
+
+def get_data_dir() -> Path:
+    """Get the data directory path."""
+    return get_base_dir() / "data"
+
+def get_models_dir() -> Path:
+    """Get the models directory path."""
+    return get_base_dir() / "models"
+
+def get_results_dir() -> Path:
+    """Get the results directory path."""
+    return get_base_dir() / "results"
+
+def get_cod_url() -> str:
+    """Get the Crystallography Open Database URL."""
+    return os.getenv("COD_URL", "https://www.crystallography.net/cod/")
+
+def get_hf_model_path() -> str:
+    """Get the HuggingFace model path."""
+    return os.getenv("HF_MODEL_PATH", "seyonec/PubChem10M_SMILES_BPE_60k")
+
+def ensure_directories() -> None:
+    """Create necessary directories if they don't exist."""
+    dirs = [
+        get_data_dir(),
+        get_models_dir(),
+        get_results_dir(),
+        get_base_dir() / "data" / "raw_cif"
     ]
-    
-    for directory in directories:
-        full_path = os.path.join(project_root, directory)
-        os.makedirs(full_path, exist_ok=True)
-    
-    return project_root
-
-# Default configuration values
-DEFAULT_CONFIG = {
-    'seed': 42,
-    'max_non_h_atoms': 50,
-    'batch_size': 100,
-    'retry_delay': 1.0,
-    'max_retries': 3,
-    'train_test_split': 0.8,
-    'max_permutation_shuffles': 10000
-}
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)

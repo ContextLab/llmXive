@@ -1,9 +1,8 @@
 """
-Execution Results Tagging and Aggregation Module
+Execution Results Classification and Aggregation Module
 
-This module handles the classification and aggregation of execution results
-from the sandbox environment. It categorizes outcomes into specific tags
-(syntax, timeout, OOM, pass, fail) and aggregates them for statistical analysis.
+This module implements raw error tagging logic for LLM-generated code execution results.
+It classifies execution outcomes into specific categories: syntax, timeout, OOM, pass, fail.
 """
 
 import json
@@ -12,228 +11,307 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime
 from enum import Enum
+import re
 
-from model.sandbox import ExecutionStatus, ExecutionResult
+from config import get_config_dict
 from utils.logging import get_execution_logger
-
-logger = get_execution_logger()
 
 
 class ExecutionTag(Enum):
-    """Enumeration of possible execution outcome tags."""
+    """Enumeration of possible execution result tags."""
     PASS = "pass"
     FAIL = "fail"
-    SYNTAX_ERROR = "syntax"
+    SYNTAX = "syntax"
     TIMEOUT = "timeout"
     OOM = "oom"
-    SECURITY_VIOLATION = "security"
-    UNKNOWN = "unknown"
+    ERROR = "error"  # Catch-all for other execution errors
 
 
-def classify_error_message(error_msg: str) -> ExecutionTag:
+def classify_error_message(error_message: str) -> ExecutionTag:
     """
-    Classify an error message string into a specific ExecutionTag.
+    Classify an error message into a specific error category.
 
     Args:
-        error_msg: The error string returned by the sandbox or execution engine.
+        error_message: The error string captured during execution.
 
     Returns:
-        The corresponding ExecutionTag.
+        ExecutionTag enum representing the classified error type.
     """
-    if not error_msg:
-        return ExecutionTag.UNKNOWN
+    if not error_message:
+        return ExecutionTag.ERROR
 
-    error_lower = error_msg.lower()
+    error_lower = error_message.lower()
 
-    # Check for specific error patterns
-    if "timeout" in error_lower or "timed out" in error_lower:
+    # Check for syntax errors
+    syntax_indicators = [
+        "syntaxerror",
+        "invalid syntax",
+        "unexpected token",
+        "indentationerror",
+        "taberror",
+        "unexpected indent",
+        "unmatched parenthesis",
+        "missing closing"
+    ]
+    if any(indicator in error_lower for indicator in syntax_indicators):
+        return ExecutionTag.SYNTAX
+
+    # Check for timeout errors
+    timeout_indicators = [
+        "timeout",
+        "timed out",
+        "execution timeout",
+        "max execution time exceeded",
+        "killed due to timeout"
+    ]
+    if any(indicator in error_lower for indicator in timeout_indicators):
         return ExecutionTag.TIMEOUT
 
-    if "out of memory" in error_lower or "oom" in error_lower or "memory" in error_lower:
+    # Check for Out of Memory errors
+    oom_indicators = [
+        "out of memory",
+        "oom",
+        "memory error",
+        "cannot allocate memory",
+        "memory limit exceeded",
+        "killed (memory)",
+        "segfault (memory)"
+    ]
+    if any(indicator in error_lower for indicator in oom_indicators):
         return ExecutionTag.OOM
 
-    if "syntax" in error_lower or "indentation" in error_lower or "invalid syntax" in error_lower:
-        return ExecutionTag.SYNTAX_ERROR
+    # Check for general failure (runtime errors that aren't syntax/timeout/oom)
+    # This includes assertion failures, logical errors caught by tests, etc.
+    failure_indicators = [
+        "assertionerror",
+        "failed",
+        "test failed",
+        "assertion failed",
+        "error"
+    ]
+    if any(indicator in error_lower for indicator in failure_indicators):
+        return ExecutionTag.FAIL
 
-    if "security" in error_lower or "violation" in error_lower or "forbidden" in error_lower:
-        return ExecutionTag.SECURITY_VIOLATION
-
-    return ExecutionTag.FAIL
+    return ExecutionTag.ERROR
 
 
-def tag_execution_result(result: ExecutionResult) -> ExecutionTag:
+def tag_execution_result(
+    task_id: str,
+    perturbation_type: str,
+    execution_status: str,
+    error_message: Optional[str] = None,
+    test_results: Optional[List[Dict[str, Any]]] = None
+) -> Dict[str, Any]:
     """
-    Map a sandbox ExecutionResult object to an ExecutionTag.
+    Tag an execution result with appropriate classification.
 
     Args:
-        result: The ExecutionResult object from the sandbox module.
+        task_id: The ID of the task being executed.
+        perturbation_type: Type of perturbation applied (e.g., 'original', 'synonym', 'typo').
+        execution_status: Status from sandbox execution ('passed', 'failed', 'error', 'timeout').
+        error_message: Optional error message captured during execution.
+        test_results: Optional list of individual test case results.
 
     Returns:
-        The corresponding ExecutionTag.
+        Dictionary containing the tagged execution result.
     """
-    if result.status == ExecutionStatus.PASS:
-        return ExecutionTag.PASS
+    config = get_config_dict()
+    timestamp = datetime.utcnow().isoformat()
 
-    if result.status == ExecutionStatus.FAIL:
-        return classify_error_message(result.error_message or result.output)
+    # Determine the primary tag based on execution status and error message
+    if execution_status == "passed":
+        tag = ExecutionTag.PASS
+        reason = "All test cases passed"
+    elif execution_status == "timeout":
+        tag = ExecutionTag.TIMEOUT
+        reason = "Execution exceeded timeout limit"
+    elif execution_status == "oom":
+        tag = ExecutionTag.OOM
+        reason = "Out of memory during execution"
+    elif execution_status == "error":
+        # Classify the error message
+        tag = classify_error_message(error_message or "")
+        reason = error_message or "Unknown execution error"
+    else:
+        # execution_status == "failed" or unknown
+        tag = ExecutionTag.FAIL
+        reason = error_message or "Execution failed"
 
-    if result.status == ExecutionStatus.TIMEOUT:
-        return ExecutionTag.TIMEOUT
+    result = {
+        "task_id": task_id,
+        "perturbation_type": perturbation_type,
+        "tag": tag.value,
+        "execution_status": execution_status,
+        "error_message": error_message,
+        "reason": reason,
+        "timestamp": timestamp,
+        "test_results": test_results or []
+    }
 
-    if result.status == ExecutionStatus.OOM:
-        return ExecutionTag.OOM
-
-    if result.status == ExecutionStatus.SECURITY_VIOLATION:
-        return ExecutionTag.SECURITY_VIOLATION
-
-    if result.status == ExecutionStatus.ERROR:
-        return classify_error_message(result.error_message or "Unknown execution error")
-
-    return ExecutionTag.UNKNOWN
+    return result
 
 
-def aggregate_results(results: List[Dict[str, Any]]) -> Dict[str, int]:
+def aggregate_results(
+    results: List[Dict[str, Any]]
+) -> Dict[str, Any]:
     """
-    Aggregate a list of execution result dictionaries into counts per tag.
+    Aggregate execution results to compute summary statistics.
 
     Args:
-        results: List of dictionaries, each containing a 'tag' field.
+        results: List of execution result dictionaries.
 
     Returns:
-        Dictionary mapping tag names to their counts.
+        Dictionary containing aggregated statistics.
     """
-    counts = {tag.value: 0 for tag in ExecutionTag}
-    for r in results:
-        tag_val = r.get("tag")
-        if tag_val in counts:
-            counts[tag_val] += 1
-        else:
-            counts["unknown"] += 1
-    return counts
+    if not results:
+        return {
+            "total": 0,
+            "by_tag": {},
+            "by_perturbation_type": {},
+            "pass_rate": 0.0
+        }
+
+    total = len(results)
+    by_tag: Dict[str, int] = {}
+    by_perturbation_type: Dict[str, Dict[str, int]] = {}
+
+    for result in results:
+        tag = result.get("tag", "unknown")
+        pert_type = result.get("perturbation_type", "unknown")
+
+        # Count by tag
+        by_tag[tag] = by_tag.get(tag, 0) + 1
+
+        # Count by perturbation type
+        if pert_type not in by_perturbation_type:
+            by_perturbation_type[pert_type] = {}
+        by_perturbation_type[pert_type][tag] = by_perturbation_type[pert_type].get(tag, 0) + 1
+
+    # Calculate pass rate
+    pass_count = by_tag.get(ExecutionTag.PASS.value, 0)
+    pass_rate = pass_count / total if total > 0 else 0.0
+
+    return {
+        "total": total,
+        "by_tag": by_tag,
+        "by_perturbation_type": by_perturbation_type,
+        "pass_rate": pass_rate,
+        "pass_count": pass_count,
+        "fail_count": total - pass_count
+    }
 
 
-def save_results_to_json(results: List[Dict[str, Any]], output_path: str) -> None:
+def save_results_to_json(
+    results: List[Dict[str, Any]],
+    output_path: Optional[str] = None
+) -> Path:
     """
-    Save a list of execution results to a JSON file.
+    Save execution results to a JSON file.
 
     Args:
-        results: List of result dictionaries.
-        output_path: Path to the output JSON file.
+        results: List of execution result dictionaries.
+        output_path: Optional path for the output file. If None, uses default path.
+
+    Returns:
+        Path to the saved file.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    config = get_config_dict()
+    if output_path is None:
+        output_path = str(Path(config["data_dir"]) / "processed" / "execution_results.json")
 
-    # Ensure timestamps are serialized correctly
-    serializable_results = []
-    for r in results:
-        rec = r.copy()
-        if "timestamp" in rec and isinstance(rec["timestamp"], datetime):
-            rec["timestamp"] = rec["timestamp"].isoformat()
-        serializable_results.append(rec)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(serializable_results, f, indent=2)
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, default=str)
 
-    logger.info(f"Saved {len(results)} execution results to {output_path}")
+    return output_file
 
 
-def load_results_from_json(input_path: str) -> List[Dict[str, Any]]:
+def load_results_from_json(
+    input_path: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """
     Load execution results from a JSON file.
 
     Args:
-        input_path: Path to the input JSON file.
+        input_path: Optional path for the input file. If None, uses default path.
 
     Returns:
-        List of result dictionaries.
+        List of execution result dictionaries.
     """
-    path = Path(input_path)
-    if not path.exists():
-        logger.warning(f"Results file not found: {input_path}")
+    config = get_config_dict()
+    if input_path is None:
+        input_path = str(Path(config["data_dir"]) / "processed" / "execution_results.json")
+
+    input_file = Path(input_path)
+
+    if not input_file.exists():
         return []
 
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    # Restore timestamps if needed
-    for r in data:
-        if "timestamp" in r and isinstance(r["timestamp"], str):
-            try:
-                r["timestamp"] = datetime.fromisoformat(r["timestamp"])
-            except ValueError:
-                pass
-
-    return data
+    with open(input_file, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
-def main() -> None:
+def main():
     """
-    Main entry point for testing the execution results module.
-    This function creates a mock ExecutionResult and demonstrates tagging.
+    Main function to demonstrate execution result tagging and aggregation.
+    This is primarily for testing and validation purposes.
     """
-    logger.info("Running execution_results module self-test...")
+    logger = get_execution_logger()
+    logger.info("Starting execution results module demonstration")
 
-    # Mock data for demonstration
-    mock_results = [
-        {
-            "task_id": "test_001",
-            "perturbation_type": "synonym",
-            "status": ExecutionStatus.PASS,
-            "tag": None,
-            "timestamp": datetime.now()
-        },
-        {
-            "task_id": "test_002",
-            "perturbation_type": "typo",
-            "status": ExecutionStatus.FAIL,
-            "error_message": "SyntaxError: invalid syntax (<string>, line 1)",
-            "tag": None,
-            "timestamp": datetime.now()
-        },
-        {
-            "task_id": "test_003",
-            "perturbation_type": "rephrase",
-            "status": ExecutionStatus.TIMEOUT,
-            "tag": None,
-            "timestamp": datetime.now()
-        },
-        {
-            "task_id": "test_004",
-            "perturbation_type": "synonym",
-            "status": ExecutionStatus.FAIL,
-            "error_message": "AssertionError: expected True, got False",
-            "tag": None,
-            "timestamp": datetime.now()
-        }
+    # Simulate some execution results
+    sample_results = [
+        tag_execution_result(
+            task_id="human_eval_001",
+            perturbation_type="original",
+            execution_status="passed",
+            test_results=[{"test": "test_1", "status": "passed"}, {"test": "test_2", "status": "passed"}]
+        ),
+        tag_execution_result(
+            task_id="human_eval_002",
+            perturbation_type="synonym",
+            execution_status="error",
+            error_message="SyntaxError: invalid syntax at line 5"
+        ),
+        tag_execution_result(
+            task_id="human_eval_003",
+            perturbation_type="typo",
+            execution_status="timeout",
+            error_message="Execution timeout: exceeded 10 second limit"
+        ),
+        tag_execution_result(
+            task_id="human_eval_004",
+            perturbation_type="rephrase",
+            execution_status="error",
+            error_message="MemoryError: out of memory during execution"
+        ),
+        tag_execution_result(
+            task_id="human_eval_005",
+            perturbation_type="original",
+            execution_status="failed",
+            error_message="AssertionError: expected [1, 2, 3] but got [1, 2, 4]"
+        )
     ]
 
-    # Tag results
-    tagged_results = []
-    for r in mock_results:
-        tag = tag_execution_result(ExecutionResult(
-            status=r["status"],
-            output="",
-            error_message=r.get("error_message"),
-            duration=0.0
-        ))
-        r["tag"] = tag.value
-        tagged_results.append(r)
+    # Save results
+    output_path = save_results_to_json(sample_results)
+    logger.info(f"Saved {len(sample_results)} results to {output_path}")
 
-    # Aggregate
-    counts = aggregate_results(tagged_results)
+    # Load and aggregate
+    loaded_results = load_results_from_json()
+    aggregates = aggregate_results(loaded_results)
 
-    # Log summary
-    logger.info(f"Aggregated counts: {counts}")
+    logger.info(f"Aggregated results: {json.dumps(aggregates, indent=2)}")
 
-    # Save to data/processed/execution_results.json
-    output_path = "data/processed/execution_results.json"
-    save_results_to_json(tagged_results, output_path)
+    # Verify file exists and is non-empty
+    if output_path.exists() and output_path.stat().st_size > 0:
+        logger.info("Verification passed: output file exists and is non-empty")
+    else:
+        logger.error("Verification failed: output file missing or empty")
 
-    # Verify load
-    loaded = load_results_from_json(output_path)
-    logger.info(f"Verified load: {len(loaded)} records")
-
-    logger.info("Self-test completed successfully.")
+    return output_path
 
 
 if __name__ == "__main__":

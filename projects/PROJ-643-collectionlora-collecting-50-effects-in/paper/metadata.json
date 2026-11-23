@@ -72,5 +72,15 @@
     "table/deploy_cost.tex",
     "table/incremental.tex",
     "table/lora_table.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "a9f364d890d17b36a8491ed3a09610c094fd6be93c88e9537ba59dccff970069",
+      "bytes": 38587651
+    },
+    "original.pdf": {
+      "sha256": "bfb2351a7d78a36dee46afa8e9c3bb47d14aaab567b6cbdf52a3f80c55cd89e3",
+      "bytes": 38543011
+    }
+  }
 }

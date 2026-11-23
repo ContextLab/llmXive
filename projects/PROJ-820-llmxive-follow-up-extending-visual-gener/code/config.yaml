@@ -1,0 +1,47 @@
+# Configuration for llmXive pipeline
+# This file manages random seeds, model paths, and configuration settings
+
+seed: 42
+model_path: "latent-consistency/lcm-lora-sdv"
+device: "cpu"
+
+paths:
+  data_raw: "data/raw"
+  data_derived_physics_constraints: "data/derived/physics_constraints"
+  data_derived_prompts: "data/derived/prompts"
+  data_derived_generated_images: "data/derived/generated_images"
+  data_derived_evaluation_results: "data/derived/evaluation_results"
+  data_processed: "data/processed"
+  code_simulation: "code/simulation"
+  code_generation: "code/generation"
+  code_evaluation: "code/evaluation"
+  code_analysis: "code/analysis"
+  code_utils: "code/utils"
+  tests_contract: "tests/contract"
+  tests_integration: "tests/integration"
+  tests_unit: "tests/unit"
+  specs: "specs/001-llmxive-followup"
+  state_projects: "state/projects"
+
+# Simulation settings
+simulation:
+  max_iterations: 1000
+  tolerance: 0.001
+
+# Generation settings
+generation:
+  image_size: 512
+  num_inference_steps: 10
+  guidance_scale: 7.5
+
+# Evaluation settings
+evaluation:
+  confidence_threshold: 0.7
+  iou_threshold: 0.5
+  y_offset_threshold: 5
+
+# Statistics settings
+statistics:
+  alpha: 0.05
+  power_target: 0.8
+  effect_size: 0.2

@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-solar-purification"
+version = "0.1.0"
+description = "Low-cost solar-powered water purification trade-off analysis"
+requires-python = ">=3.11"
+dependencies = [
+    "scipy",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "requests",
+    "beautifulsoup4",
+    "pyyaml",
+    "pytest",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | figures
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+# Extend the ruff.toml or override specific settings here if needed
+# Most settings are in ruff.toml for clarity
+line-length = 88
+target-version = "py311"

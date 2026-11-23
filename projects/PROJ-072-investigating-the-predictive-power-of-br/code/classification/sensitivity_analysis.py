@@ -13,112 +13,161 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_analysis_config(config_path: Path) -> dict:
-    """Load the analysis configuration JSON."""
-    if not config_path.exists():
-        logger.error(f"Analysis config not found at {config_path}")
-        raise FileNotFoundError(f"Analysis config not found at {config_path}")
+def load_analysis_config(config_path: str = "data/metadata/analysis_config.json") -> dict:
+    """
+    Load the analysis configuration JSON.
     
-    with open(config_path, 'r') as f:
-        return json.load(f)
+    Args:
+        config_path: Path to the analysis_config.json file.
+        
+    Returns:
+        Dictionary containing the configuration.
+        
+    Raises:
+        FileNotFoundError: If the config file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+    """
+    path = Path(config_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    
+    with open(path, 'r') as f:
+        config = json.load(f)
+    
+    logger.info(f"Loaded analysis config from {config_path}")
+    return config
 
-def load_features(features_path: Path) -> pd.DataFrame:
-    """Load the primary features CSV."""
-    if not features_path.exists():
-        logger.error(f"Features file not found at {features_path}")
-        raise FileNotFoundError(f"Features file not found at {features_path}")
+def load_features(features_path: str = "data/processed/features.csv") -> pd.DataFrame:
+    """
+    Load the primary feature matrix.
     
-    df = pd.read_csv(features_path)
-    logger.info(f"Loaded features with shape {df.shape}")
+    Args:
+        features_path: Path to the features.csv file.
+        
+    Returns:
+        DataFrame containing the features.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+    """
+    path = Path(features_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Feature file not found: {features_path}")
+    
+    df = pd.read_csv(path)
+    logger.info(f"Loaded features from {features_path} with shape {df.shape}")
     return df
 
-def generate_simulated_med_status(n_samples: int, seed: int = 42) -> np.ndarray:
+def generate_simulated_med_status(n_subjects: int, seed: int = 42) -> np.ndarray:
     """
     Generate simulated medication status covariate.
-    Bernoulli distribution with p=0.5.
+    
+    Generates a Bernoulli distributed random variable with p=0.5.
+    
+    Args:
+        n_subjects: Number of subjects to simulate.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        NumPy array of shape (n_subjects,) containing 0.0 or 1.0.
     """
     rng = np.random.default_rng(seed)
-    # 0 = control, 1 = medicated (arbitrary coding for simulation)
-    return rng.binomial(n=1, p=0.5, size=n_samples)
+    # Bernoulli p=0.5
+    simulated_med = rng.binomial(n=1, p=0.5, size=n_subjects).astype(float)
+    logger.info(f"Generated simulated medication status for {n_subjects} subjects (seed={seed})")
+    return simulated_med
 
 def run_sensitivity_analysis(
-    config_path: Path,
-    features_path: Path,
-    output_path: Path
-) -> bool:
+    config_path: str = "data/metadata/analysis_config.json",
+    features_path: str = "data/processed/features.csv",
+    output_path: str = "data/processed/features_sim_med.csv"
+) -> pd.DataFrame:
     """
-    Main logic for T031: Sensitivity analysis data generation.
+    Run the sensitivity analysis data generation pipeline.
     
-    Reads analysis_config.json. If medication_status_available is false,
-    generates simulated covariate and appends to features.csv, saving
-    as features_sim_med.csv.
+    This function:
+    1. Reads the analysis configuration.
+    2. Checks if medication status is available.
+    3. If not available, generates a simulated covariate.
+    4. Appends the simulated column to the features DataFrame.
+    5. Saves the result to a new file.
+    
+    Args:
+        config_path: Path to analysis_config.json.
+        features_path: Path to features.csv.
+        output_path: Path for the output features_sim_med.csv.
+        
+    Returns:
+        The modified DataFrame with the simulated column.
+        
+    Raises:
+        FileNotFoundError: If config is missing.
+        ValueError: If medication status is already available (no simulation needed).
     """
-    logger.info("Starting sensitivity analysis data generation (T031)...")
-    
     # 1. Load config
-    try:
-        config = load_analysis_config(config_path)
-    except FileNotFoundError:
-        logger.warning("Analysis config not found. Assuming medication data unavailable.")
-        medication_available = False
-    else:
-        medication_available = config.get('medication_status_available', False)
+    config = load_analysis_config(config_path)
     
-    # 2. Check condition
-    if medication_available:
-        logger.info("medication_status_available is True. Skipping simulation.")
-        logger.info("No new file generated. Primary analysis has real data.")
-        return True
+    # 2. Check medication status availability
+    medication_status_available = config.get("medication_status_available", False)
     
-    logger.info("medication_status_available is False. Generating simulated covariate.")
-    
+    if medication_status_available:
+        logger.warning("Medication status is already available. No simulation needed.")
+        # Load original features and return them without modification, 
+        # but strictly speaking the task implies simulation only when false.
+        # However, to be safe and produce the output file as requested:
+        df = load_features(features_path)
+        # Ensure we don't accidentally add a column if it's already there
+        if "sim_med_status" in df.columns:
+            logger.info("sim_med_status column already exists in features.")
+        else:
+            logger.info("Adding placeholder sim_med_status column (already available).")
+            # We still generate it to satisfy the schema requirement of the output file
+            # even if the real data exists, but the task specifically says "If false... generate".
+            # We will follow the task strictly: only generate if false.
+            raise ValueError("Medication status is available. Simulation is not required per task logic.")
+        return df
+
     # 3. Load features
-    try:
-        df_features = load_features(features_path)
-    except FileNotFoundError:
-        logger.error("Cannot proceed: features.csv not found. US2 must complete first.")
-        return False
+    df = load_features(features_path)
+    n_subjects = len(df)
     
-    if df_features.empty:
-        logger.error("Features dataframe is empty.")
-        return False
+    # 4. Generate simulated covariate
+    sim_med = generate_simulated_med_status(n_subjects, seed=42)
     
-    # 4. Generate simulation
-    n_subjects = len(df_features)
-    logger.info(f"Generating simulated medication status for {n_subjects} subjects.")
+    # 5. Append to DataFrame
+    df["sim_med_status"] = sim_med
     
-    sim_med_status = generate_simulated_med_status(n_subjects, seed=42)
+    # 6. Save to new file
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
     
-    # 5. Append to dataframe
-    df_sim = df_features.copy()
-    df_sim['sim_med_status'] = sim_med_status
+    logger.info(f"Saved sensitivity analysis features to {output_path}")
+    logger.info(f"Output shape: {df.shape} (Original: {df.shape[0]}x{df.shape[1]-1}, Added 1 column)")
     
-    # 6. Save output
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df_sim.to_csv(output_path, index=False)
-    
-    logger.info(f"Successfully saved simulated features to {output_path}")
-    logger.info(f"New shape: {df_sim.shape}")
-    logger.info(f"Columns: {list(df_sim.columns)}")
-    
-    return True
+    return df
 
 def main():
-    """Entry point for T031."""
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parents[2]
-    config_path = project_root / 'data' / 'metadata' / 'analysis_config.json'
-    features_path = project_root / 'data' / 'processed' / 'features.csv'
-    output_path = project_root / 'data' / 'processed' / 'features_sim_med.csv'
+    """
+    Main entry point for the sensitivity analysis data generation.
+    """
+    logger.info("Starting Sensitivity Analysis Data Generation (T031)")
     
-    success = run_sensitivity_analysis(config_path, features_path, output_path)
-    
-    if not success:
-        logger.error("Sensitivity analysis generation failed.")
+    try:
+        run_sensitivity_analysis()
+        logger.info("Sensitivity analysis data generation completed successfully.")
+    except FileNotFoundError as e:
+        logger.error(f"Configuration file missing: {e}")
         sys.exit(1)
-    else:
-        logger.info("Sensitivity analysis generation completed successfully.")
+    except ValueError as e:
+        logger.error(f"Simulation skipped: {e}")
+        # This is a valid state if medication data exists, but per task spec
+        # we might want to exit cleanly or handle it.
+        # The task says "If ... false, generate...". If true, we do nothing.
         sys.exit(0)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

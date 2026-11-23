@@ -1,1 +1,3 @@
-"""Contract tests to verify API specifications and data contracts."""
+"""
+Contract tests verifying API interfaces and data schemas.
+"""

@@ -1,0 +1,232 @@
+"""
+VIF Calculation for Salience Predictor vs Low-Level Features.
+
+Calculates the Variance Inflation Factor (VIF) for the salience predictor
+against the generated low-level features (luminance, contrast, edge density).
+This verifies multicollinearity as per SCR-002 (FR-009 exclusion).
+
+Output: data/interim/vif_verification.json
+"""
+import os
+import sys
+import json
+import logging
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+import pandas as pd
+import numpy as np
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+# Import local project utilities
+from config import get_paths, load_config
+from utils.logging import get_logger
+
+# Set up logging
+logger = get_logger(__name__)
+
+
+def calculate_vif(df: pd.DataFrame, feature_cols: List[str], target_col: str) -> Dict[str, float]:
+    """
+    Calculate VIF for each feature in the dataframe.
+
+    Args:
+        df: DataFrame containing features and target.
+        feature_cols: List of feature column names to calculate VIF for.
+        target_col: Name of the target variable (salience).
+
+    Returns:
+        Dictionary mapping feature names to their VIF values.
+    """
+    # Prepare the design matrix (add constant for intercept)
+    X = df[feature_cols + [target_col]].copy()
+    X = X.dropna()  # Drop rows with missing values
+
+    if len(X) < 3:
+        logger.error("Not enough data points to calculate VIF (n < 3).")
+        raise ValueError("Insufficient data for VIF calculation.")
+
+    # We calculate VIF for the target variable against the features
+    # The VIF for a variable X_i is 1 / (1 - R_i^2) where R_i^2 is the R-squared
+    # of a regression of X_i on all other independent variables.
+    # Here, we treat the features as the predictors and the target as one of them
+    # to see how much the target is collinear with the set of low-level features.
+    # However, standard VIF is usually calculated for predictors in a model.
+    # In this context (SCR-002), we want to know if 'salience' is collinear with
+    # 'luminance', 'contrast', 'edge_density'.
+    # So we run a regression: salience ~ luminance + contrast + edge_density
+    # and check the VIF of the predictors? No, that checks if predictors are collinear.
+    # We want to check if the SALIENCE predictor is collinear with the low-level features.
+    # So we run: salience ~ luminance + contrast + edge_density
+    # But VIF is defined for the predictors.
+    # Let's interpret the task: "VIF for the salience predictor against the generated low-level features".
+    # This implies we treat Salience as the dependent variable in a collinearity check?
+    # Or we treat the set {Salience, Luminance, Contrast, Edge} as predictors and check VIF for Salience.
+    # Correct approach for "VIF of Salience against others":
+    # Regress Salience on {Luminance, Contrast, Edge} -> This gives R^2.
+    # VIF_Salience = 1 / (1 - R^2).
+    # If R^2 is high, Salience is highly predictable from low-level features -> High VIF -> Multicollinearity.
+
+    # Select the columns: Salience + Low Level Features
+    cols_to_check = feature_cols + [target_col]
+    data_matrix = X[cols_to_check].values
+
+    # We need to calculate VIF for the target_col specifically.
+    # VIF_j = 1 / (1 - R_j^2) where R_j^2 is from regressing X_j on all other X_k.
+    # Here X_j = target_col, others = feature_cols.
+
+    vif_results = {}
+
+    # Calculate R^2 for target_col regressed on feature_cols
+    y = X[target_col].values
+    X_features = X[feature_cols].values
+
+    # Add constant for intercept
+    X_features_const = np.column_stack([np.ones(len(X_features)), X_features])
+
+    # Simple OLS to get R^2
+    # beta = (X'X)^-1 X'y
+    try:
+        beta = np.linalg.lstsq(X_features_const, y, rcond=None)[0]
+        y_pred = X_features_const @ beta
+        ss_res = np.sum((y - y_pred) ** 2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+    except np.linalg.LinAlgError:
+        logger.error("Singular matrix in VIF calculation. Features might be perfectly collinear.")
+        r_squared = 1.0 # Max collinearity
+
+    vif_for_salience = 1.0 / (1.0 - r_squared) if (1.0 - r_squared) > 1e-9 else float('inf')
+    vif_results[target_col] = vif_for_salience
+
+    # Also calculate VIF for the features themselves to ensure the feature set is valid
+    # (Standard VIF check for the model predictors)
+    # We add the target as a predictor to see if it inflates the features' VIFs?
+    # The prompt asks for "VIF for the salience predictor".
+    # So the single value vif_for_salience is the primary output.
+    # But let's also report the R^2 for clarity.
+    vif_results[f"{target_col}_r_squared"] = r_squared
+
+    return vif_results
+
+
+def load_low_level_features(config: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Load the low-level features generated by T030b.
+    """
+    paths = get_paths(config)
+    features_path = paths["interim"] / "low_level_features.csv"
+
+    if not features_path.exists():
+        raise FileNotFoundError(
+            f"Low-level features file not found at {features_path}. "
+            "Please run T030b (feature_gen.py) first."
+        )
+
+    df = pd.read_csv(features_path)
+    logger.info(f"Loaded low-level features from {features_path}. Shape: {df.shape}")
+    return df
+
+
+def write_vif_report(vif_results: Dict[str, float], config: Dict[str, Any]) -> Path:
+    """
+    Write the VIF verification report to JSON.
+    """
+    paths = get_paths(config)
+    output_path = paths["interim"] / "vif_verification.json"
+
+    report = {
+        "status": "completed",
+        "vif_values": vif_results,
+        "threshold": 5.0,
+        "interpretation": "VIF > 5 indicates high multicollinearity. "
+                        "If VIF for salience is high, it confirms that low-level features "
+                        "explain salience, supporting the exclusion of FR-009 (FR-009 excluded per SCR-002).",
+        "timestamp": pd.Timestamp.now().isoformat()
+    }
+
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"VIF report written to {output_path}")
+    return output_path
+
+
+def main():
+    """
+    Main entry point for VIF calculation.
+    """
+    config = load_config()
+    logger.info("Starting VIF Calculation (T030)...")
+
+    try:
+        # Load data
+        df = load_low_level_features(config)
+
+        # Define columns
+        # Expected columns from feature_gen.py: 'image_id', 'luminance', 'contrast', 'edge_density', 'salience_score'
+        # We need to verify 'salience_score' exists. If not, we might need to merge with aligned_metrics.
+        # However, T030b (feature_gen) description says: "compute luminance... for all images in data/raw".
+        # T030 says: "VIF for the salience predictor against the generated low-level features".
+        # This implies the salience score must be present in the same dataframe.
+        # If feature_gen.py only computes image properties, we need to join with salience maps.
+        # Let's assume the aligned dataset or a merged file is the source, OR feature_gen.py was updated to include salience.
+        # Given the strict dependency "Must run AFTER T030b", and T030b generates features.
+        # If T030b output doesn't have salience, we must merge.
+        # Let's check if 'salience_score' is in the loaded df.
+        if 'salience_score' not in df.columns:
+            logger.warning("salience_score not found in low_level_features.csv. Attempting to merge with aligned_metrics.")
+            # Try to load aligned metrics
+            aligned_path = get_paths(config)["processed"] / "aligned_metrics.csv"
+            if aligned_path.exists():
+                df_aligned = pd.read_csv(aligned_path)
+                # Merge on image_id
+                if 'image_id' in df.columns and 'TrialID' in df_aligned.columns:
+                    # Assume TrialID contains image_id or we need to parse it.
+                    # For simplicity, assume the feature_gen output has a way to link.
+                    # If T030b output is just image stats, we might need to join.
+                    # Let's assume for this task that the user ensures the data is ready or
+                    # we perform a simple merge if keys match.
+                    # Given the constraints, let's assume the feature_gen output is enriched or
+                    # we look for a common key.
+                    # If we can't find a robust merge strategy without more context, we fail loudly.
+                    raise ValueError(
+                        "salience_score column missing and automatic merge with aligned_metrics failed or not supported. "
+                        "Ensure T030b output includes salience or provide a merged dataset."
+                    )
+                else:
+                    raise ValueError("Cannot merge: keys mismatch between features and aligned metrics.")
+            else:
+                raise FileNotFoundError("aligned_metrics.csv not found. Cannot retrieve salience scores.")
+
+        # Define feature columns (low-level) and target
+        feature_cols = ['luminance', 'contrast', 'edge_density']
+        target_col = 'salience_score'
+
+        # Verify columns exist
+        missing_cols = [c for c in feature_cols + [target_col] if c not in df.columns]
+        if missing_cols:
+            raise ValueError(f"Missing required columns in dataset: {missing_cols}")
+
+        # Calculate VIF
+        vif_results = calculate_vif(df, feature_cols, target_col)
+
+        # Write report
+        output_path = write_vif_report(vif_results, config)
+
+        # Interpret results
+        vif_salience = vif_results.get(target_col, 0)
+        if vif_salience > 5.0:
+            logger.warning(f"High multicollinearity detected! VIF for salience = {vif_salience:.2f} (> 5.0). "
+                           "This supports the exclusion of FR-009 (SCR-002).")
+        else:
+            logger.info(f"VIF for salience = {vif_salience:.2f}. No severe multicollinearity detected.")
+
+        logger.info("VIF Calculation completed successfully.")
+
+    except Exception as e:
+        logger.error(f"VIF Calculation failed: {e}", exc_info=True)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Raw HCP Dataset Schema
+description: Schema for validating the raw dataset loaded from HCP (HCP-RestingState.parquet).
+type: object
+required:
+  - subject_id
+  - tactile_score
+  - age
+  - sex
+  - mean_fd
+  - scanner_id
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject.
+  tactile_score:
+    type: number
+    description: Two-point tactile discrimination threshold (mm).
+    minimum: 0
+  age:
+    type: integer
+    description: Age of the subject in years.
+    minimum: 18
+    maximum: 35
+  sex:
+    type: string
+    enum:
+      - M
+      - F
+    description: Biological sex of the subject.
+  mean_fd:
+    type: number
+    description: Mean Framewise Displacement (motion estimate).
+    minimum: 0
+  scanner_id:
+    type: string
+    description: Identifier for the scanner used.
+  roi_time_series:
+    type: array
+    items:
+      type: number
+    description: Time series data for each ROI (Schaefer-200 atlas).
+  metadata:
+    type: object
+    properties:
+      doi:
+        type: string
+        description: DOI of the tactile instrument used.
+      source:
+        type: string
+        description: Source dataset name (e.g., HCP).
+      version:
+        type: string
+        description: Dataset version.
+additionalProperties: true

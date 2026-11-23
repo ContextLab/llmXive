@@ -3,6 +3,8 @@ import re
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple, Set
 
+import z3
+
 from utils.logging import get_logger
 from evaluation.validators import validate_task
 
@@ -15,12 +17,18 @@ def calculate_hallucination_rate(
     task_type: Optional[str] = None
 ) -> Tuple[int, int]:
     """
-    Calculate hallucination rate for a single output.
+    Calculate hallucination rate for a single output using multi‑hop reasoning verification.
 
-    Logic:
-    1. Regex extraction of entity-value pairs.
-    2. Multi-hop reasoning check (simplified for this task).
-    3. Compare extracted facts against context.
+    Steps:
+    1. Extract entity‑value pairs from the model output via regex.
+    2. Extract entity‑value pairs from the provided context (ground‑truth) using the same regex.
+    3. For each extracted fact that is *not* directly present in the context, build a Z3
+       solver encoding:
+         - Each entity can take exactly one value (exclusive choice).
+         - Context facts are asserted as true.
+         - The inferred fact is asserted as true.
+       If the solver returns `unsat` or `unknown`, the fact is considered a hallucination.
+       If the solver returns `sat`, the fact is deemed logically entailed (not a hallucination).
 
     Returns:
         Tuple (hallucinated_count, total_facts_count)
@@ -28,32 +36,82 @@ def calculate_hallucination_rate(
     if not output_text:
         return 0, 0
 
-    # 1. Extract entity-value pairs
+    # 1. Extract entity‑value pairs from the output
     pattern = r'\b(\w+): (\w+)\b'
-    matches = re.findall(pattern, output_text)
-    if not matches:
+    output_matches = re.findall(pattern, output_text)
+    if not output_matches:
         return 0, 0
 
-    total_facts = len(matches)
+    total_facts = len(output_matches)
     hallucinated_count = 0
 
-    context_lower = context.lower() if context else ""
+    # 2. Extract entity‑value pairs from the context (if any)
+    context_matches: Set[Tuple[str, str]] = set()
+    if context:
+        context_matches = set(re.findall(pattern, context))
 
-    for key, value in matches:
-        # Simple check: is the fact present in the context?
-        # In a real multi-hop scenario, we would use a solver or graph traversal.
-        # Here we check if the specific key-value pair appears in context.
-        fact_string = f"{key}: {value}"
-        if fact_string.lower() not in context_lower:
-            # Check if it's a derived fact (multi-hop) - simplified heuristic
-            # If the key is not in context at all, it's likely a hallucination
-            if key.lower() not in context_lower:
-                hallucinated_count += 1
+    # Helper to build a Z3 variable name for an entity/value pair
+    def var_name(entity: str, value: str) -> str:
+        return f"{entity}__{value}"
+
+    # 3. Evaluate each output fact
+    for entity, value in output_matches:
+        fact = (entity, value)
+
+        # Direct match in context → not a hallucination
+        if fact in context_matches:
+            continue
+
+        # Build Z3 model to test if the fact can be derived from context
+        try:
+            solver = z3.Solver()
+
+            # Gather all possible values for each entity:
+            #   • values observed in the context for that entity
+            #   • the candidate value from the output (so it can be tested)
+            entity_to_values: Dict[str, Set[str]] = {}
+            for ctx_entity, ctx_value in context_matches:
+                entity_to_values.setdefault(ctx_entity, set()).add(ctx_value)
+
+            # Ensure the candidate entity/value is represented
+            entity_to_values.setdefault(entity, set()).add(value)
+
+            # Create Bool variables for each (entity, possible_value) pair
+            entity_vars: Dict[Tuple[str, str], z3.BoolRef] = {}
+            for ent, vals in entity_to_values.items():
+                for val in vals:
+                    v = z3.Bool(var_name(ent, val))
+                    entity_vars[(ent, val)] = v
+
+            # Constraint: each entity takes exactly one value
+            for ent, vals in entity_to_values.items():
+                vars_for_entity = [entity_vars[(ent, val)] for val in vals]
+                # Exactly‑one constraint using PbEq (sum == 1)
+                solver.add(z3.PbEq([(v, 1) for v in vars_for_entity], 1))
+
+            # Assert all context facts as true
+            for ctx_entity, ctx_value in context_matches:
+                solver.add(entity_vars[(ctx_entity, ctx_value)] == z3.BoolVal(True))
+
+            # Assert the inferred fact as true
+            solver.add(entity_vars[(entity, value)] == z3.BoolVal(True))
+
+            # Check satisfiability
+            check_result = solver.check()
+
+            if check_result == z3.sat:
+                # Fact is logically consistent with context → not hallucination
+                continue
             else:
-                # Key exists but value might be wrong or derived
-                # For this task, we assume if it's not explicitly in context, it's a hallucination
-                # unless we have a solver to verify derivation.
+                # unsat or unknown → hallucination
                 hallucinated_count += 1
+
+        except Exception as e:
+            logger.error(
+                f"Z3 solver error while checking fact {entity}:{value} – treating as hallucination. Error: {e}"
+            )
+            # Propagate as a runtime error to avoid silent failures (as required by T045)
+            raise RuntimeError(f"Z3 evaluation failed for fact {entity}:{value}") from e
 
     return hallucinated_count, total_facts
 

@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-080-phase-transitions-in-amorphous-solids-un",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/preprocess.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026e pipeline halts because synthetic data is strictly prohibited.\u2026\u201d; 2 run-book script(s) missing (plan/impl path mismatch): python code/analysis.py --input-dir data/processed/ --output-dir data/processed/; python code/predict.py --input-dir data/processed/ --output-dir data/processed/; 2 command(s) failed: python code/utils.py --verify-data (rc=1); python code/preprocess.py --input-dir data/raw/ --output-dir data/processed/ (rc=1); 2 declared deliverable(s) absent: data/processed/precursor_metrics.csv; data/processed/yield_flags.json",
+  "artifacts": [],
+  "failures": [
+    "python code/utils.py --verify-data -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-080-phase-transitions-in-amorphous-solids-un/code/utils.py\", line 4, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/preprocess.py --input-dir data/raw/ --output-dir data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-080-phase-transitions-in-amorphous-solids-un/code/preprocess.py\", line 1, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analysis.py --input-dir data/processed/ --output-dir data/processed/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-080-phase-transitions-in-amorphous-solids-un/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-080-phase-transitions-in-amorphous-solids-un/code/analysis.py': [Errno 2] No such file or directory",
+    "python code/predict.py --input-dir data/processed/ --output-dir data/processed/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-080-phase-transitions-in-amorphous-solids-un/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-080-phase-transitions-in-amorphous-solids-un/code/predict.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-01T00:16:59Z"
+}

@@ -1,0 +1,58 @@
+T010a:
+  c: false
+  h: 8b238362df212e1c2b7564562f08c8809081ced34ba648c439560eac728a2406
+  r: The required `code/simulation_parameters.json` file does not exist, and `code/config.py`
+    contains only placeholder constant values (e.g., `effect_size_high_low = 0.5`)
+    rather than values read from `research.md` or a JSON file. Consequently, the task
+    of extracting verified effect sizes and N and defining them as constants is not
+    fulfilled.
+T013:
+  c: false
+  h: d60e9f98e7ab55318188525fc7aaa11764e557210fe6aef699298456112a36d7
+  r: "The required output file `data/processed/cleaned_data.csv` does not exist, and\
+    \ the provided `code/preprocess.py` (as shown) contains no logic for handling\
+    \ missing values, reporting the final N, or writing a cleaned CSV to the specified\
+    \ path. The implementation therefore does not meet the task\u2019s core requirements."
+T014a:
+  c: false
+  h: e49add600b18de75a49f027f079a49731f0b15b3f959af68fbadf36399dd6651
+  r: The repository lacks the required `data/processed/cleaned_data.csv` and the resulting
+    `data/processed/outcome_type.json`. Moreover, the provided `code/preprocess.py`
+    (truncated) does not contain the logic to count unique `risk_taking_score` values
+    and write the outcome type JSON as specified. The necessary artifact and functionality
+    are missing.
+T023:
+  c: false
+  h: 3214a614a510fe34ebd175185aacbf68a7f293f62a3cc4b6696bfc9f2694d48c
+  r: The required output file `data/processed/model_output.json` does not exist, so
+    the CI bounds, parameter recovery metric, and `ci_width` are never written. Additionally,
+    `code/simulation_parameters.json` lacks the expected `injected_interaction_effect`
+    key (it contains `effect_size_interaction` instead), so the script cannot read
+    the correct injected effect size. These missing/incorrect artifacts prevent the
+    task from being fulfilled.
+T033:
+  c: false
+  h: 25cb82685ad7159641edb73dde04e4f5464b62a3f245447b2aff0269a1f9dd8b
+  r: The required output file `reports/analysis_report.html` does not exist, and the
+    provided `code/report.py` snippet shows no rendering of the Jinja2 template nor
+    any use of WeasyPrint to create a PDF. Consequently the script does not fulfill
+    the specification of generating and saving the HTML (and PDF) report.
+T035:
+  c: false
+  h: 762ad4a5a96985029ed19473830b4f5e8d010a73d6bb566251b27f28a0e2565e
+  r: The test file `tests/contract/test_report_schema.py` exists, but the required
+    schema file `contracts/model_output.schema.yaml` is missing, so the test cannot
+    truly validate the report against the contract. Add the `model_output.schema.yaml`
+    file (with the expected keys) and ensure the test uses it without fallback.
+T040a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` file or updated content was presented; the implementer did
+    not supply the required markdown with specific execution steps and dependencies,
+    so the task is not satisfied.
+T072:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `quickstart.md` file is provided, nor any excerpt showing a new \u201C\
+    Edge Case Handling\u201D section that describes the behaviors of T053, T055, and\
+    \ T057. The required documentation artifact is missing, so the task is not satisfied."

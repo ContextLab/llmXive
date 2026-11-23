@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FuzzResult"
+type: "object"
+required:
+  - binary_id
+  - model
+  - crash_count
+  - unique_stack_traces
+  - severity_scores
+  - execution_status
+properties:
+  binary_id:
+    type: "string"
+    description: "Identifier of the compiled binary (hash of source + model)."
+  model:
+    type: "string"
+    description: "One of: \"human\", \"codellama\", \"starcoder\"."
+  crash_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of security‑relevant crashes detected (per FR‑011)."
+  unique_stack_traces:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of distinct ASan/UBSan stack‑trace strings."
+  severity_scores:
+    type: "array"
+    items:
+      type: "integer"
+      minimum: 1
+      maximum: 4
+    description: "Severity score (1‑4) for each security‑relevant crash per FR‑009."
+  execution_status:
+    type: "string"
+    enum:
+      - "success"
+      - "timeout"
+      - "compile_fail"
+    description: "Overall status of the fuzzing run (FR‑003, FR‑011)."

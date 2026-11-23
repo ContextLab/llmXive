@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.21018",
+  "judged_at": "2026-08-15T09:41:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"vidu s1: a real-time interactive video generation model\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (real-time interactive generative AI) and domain (low-latency human-AI interaction) as the user's question, despite applying it to music generation rather than video. It provides essential prior work on the architectural strategies (e.g., lock-free communication, sparse event streams, O(1) inference) required to achieve the \"real-time interactive\" capability central to the user's research topic.",
+  "relevant": true
+}

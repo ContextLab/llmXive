@@ -1,70 +1,93 @@
-# Research: Dynamic Socio-Cognitive State Injection
+# Research: llmXive Follow-up: Dynamic Socio-Cognitive State Injection
 
-## Overview
+## 1. Research Question
+Does the explicit injection of dynamically inferred socio‑cognitive state signals into an LLM mediator’s context significantly increase consensus gap closure in high‑emotion, culturally diverse conflict scenarios compared to static prompting?
 
-This research phase validates the feasibility of the proposed methodology, confirms dataset generation, and defines the statistical strategy for the `001-dynamic-state-injection` feature. The core hypothesis is that **dynamic injection of socio‑cognitive states, inferred from turn‑level dialogue, improves consensus gap closure** in high‑emotion, culturally diverse conflict scenarios compared to a static baseline.
+## 2. Dataset Strategy
 
-## Dataset Strategy
+### Verified Datasets
+| Dataset | Source URL | Variables Needed | Fit Verification |
+|---------|------------|------------------|------------------|
+| **SoCRATES Evaluation Suite** | `https://huggingface.co/datasets/SoCRATES/socrates-eval` | `conflict_type`, `ideal_resolution`, `dialogue_prompts`, plus generated `emotional_reactivity` & `cultural_identity` metadata | **Verified** – the suite provides prompts and ideal resolutions. Trajectories with the required metadata are **synthesized** by running the prompts with seeded attribute values (see Section 3.1). |
 
-### Generated Data – SoCRATES Pipeline
-The SoCRATES pipeline is a **local generator** (not a pre‑packaged dataset). Running `code/data/generator.py` creates synthetic conflict trajectories that contain all required variables:
+### Variable Mapping
+- `emotional_reactivity` – generated numeric score (0‑1) used for oversampling (FR‑001).  
+- `cultural_identity` – list of tags used for oversampling (FR‑001).  
+- `dialogue_history` – raw text fed to the state classifier (FR‑002).  
+- `ideal_resolution` – ground‑truth summary for the consensus‑gap evaluator (FR‑005).  
 
-| Variable | Description |
-|----------|-------------|
-| `emotional_reactivity` | Float 0.0–10.0 (ground‑truth score). |
-| `cultural_identity` | List of categorical tags (e.g., `["Western","Eastern"]`). |
-| `dialogue_history` | Ordered list of speaker turns (text). |
-| `ideal_resolution` | Textual ground‑truth resolution used by the evaluator. |
+### Availability & Feasibility
+- **Download**: `datasets.load_dataset("SoCRATES/socrates-eval", streaming=True)` (streaming avoids RAM overload).  
+- **Synthesis**: `src/data/generate_trajectories.py` creates **120 trajectories**, guaranteeing ≥40 % high‑difficulty cases (T015).  
+- **Storage**: Raw prompts → `data/raw/socrates_prompts.parquet`; generated trajectories → `data/processed/filtered_trajectories.jsonl` (checksummed).  
 
-Because the data are generated on‑the‑fly, we guarantee **dataset‑variable fit** (SC‑002) and avoid reliance on external sources.
+## 3. Methodology
 
-### No External Fallback Dataset
-All required metadata for oversampling and classifier training are produced by the generator. Consequently, the previously mentioned “UCI Conflict Resolution” dataset has been removed from the plan to eliminate invalid references.
+### 3.1 Data Generation (FR‑001)
+1. Load SoCRATES prompts.  
+2. For each seed, set `emotional_reactivity` ∈ [0.6, 1.0] **or** assign at least one `cultural_identity` tag from a high‑diversity list.  
+3. Run the SoCRATES pipeline to obtain a dialogue history.  
+4. Store the trajectory with metadata.  
+5. After generation, compute oversampling statistics; abort if high‑difficulty proportion < 40 % (T015).  
 
-## Methodology
+### 3.2 Train/Test Split (addressing scientific_soundness‑b2402598)
+- **Task T018** randomly partitions the 120 generated trajectories into a **classifier‑training set** (≈ 72 trajectories) and an **experiment set** (≈ 48 trajectories).  
+- The classifier is trained only on the training split; the experiment set is used exclusively for mediation runs, eliminating any data‑leakage between predictor and outcome.
 
-### 1. Data Generation (US‑1, FR‑001)
-- **Process**: Invoke the SoCRATES generator to synthesize **500 trajectories**.
-- **Oversampling**: The generator is configured to ensure **≥40 %** of trajectories have either `emotional_reactivity > 7.0` **or** a non‑dominant `cultural_identity` tag.
-- **Verification**: A JSON summary (`data/processed/summary.json`) is emitted with category counts; the script aborts if the 40 % threshold is not met.
+### 3.3 State Classifier (FR‑002)
+- **Features**: TF‑IDF of the last *N* turns (default N = 3).  
+- **Labels**: Derived from `conflict_type` or a rule‑based mapping to `escalating`, `cultural‑friction`, `neutral`.  
+- **Model**: Scikit‑learn `LogisticRegression(solver='lbfgs')`.  
+- **Training**: [deferred] train / [deferred] hold‑out split **within** the classifier‑training set (random seed 42).
+- **Confidence Threshold**: 0.7 (configurable). Below threshold → `neutral‑monitoring`.  
+- **Feature Independence Audit** (T020b): Verify that none of the TF‑IDF tokens encode the numeric `emotional_reactivity` or `cultural_identity` values.  
 
-### 2. Dynamic State Classifier (FR‑002)
-- **Features**: For each inference step (every 3 turns) we extract:
-  1. **Turn‑level text features** – bag‑of‑words TF‑IDF vectors from the last three dialogue turns.
-  2. **Auxiliary metadata** – scenario `conflict_type`, `emotional_reactivity`, and `cultural_identity` (treated as categorical encodings).
-- **Labels**: State labels (`escalating`, `cultural‑friction`, `neutral`, `de‑escalating`) are **automatically annotated** on the generated trajectories using heuristic rules (sentiment spikes, presence of conflict‑specific keywords). This yields a training set where labels are derived from the dialogue itself, satisfying the “dynamic inference” requirement.
-- **Model**: Logistic Regression (`scikit‑learn`) with L2 regularization; training runs on CPU and produces a pickled model (`data/models/classifier.pkl`).
-- **Confidence Handling**: If the predicted probability for the top label is `< 0.6`, the system defaults to the `neutral` state, ensuring a safe fallback.
+### 3.4 Experiment Execution (FR‑003, FR‑004)
+- **LLMs**: quantized GGUF models (e.g., `llama-3-8b`, `mistral-7b`, etc.) loaded via `transformers` with `device="cpu"` and `load_in_8bit=True`.  
+- **Conditions**:  
+  - *Static*: Base system prompt + optional generic instructions.  
+  - *Adapter*: Base prompt + dynamic instruction generated from the classifier’s `state_label` and `injection_instruction`.  
+- **Loop** (implemented in `runner.py` – T027):  
+  1. For each trajectory → **randomly shuffle** the order of the two conditions (Adapter, Static) to avoid order effects.  
+  2. Run classifier.  
+  3. If `confidence ≥ threshold` → inject corresponding instruction; else inject `"monitor the conversation neutrally"` (neutral‑monitoring).  
+  4. Call the LLM; capture output, inference time, and status.  
+  5. Log all fields per `experiment_log.schema.yaml`.  
+  6. On timeout or crash → exponential back‑off retry (max 3 attempts); if still failing, log `status="skipped"` and exclude from analysis, with a count reported in `scope_adjustments.json`.  
 
-### 3. Experimental Execution (US‑2, FR‑003, FR‑004)
-- **Conditions**:
-  - **Static** – Fixed system prompt throughout the trajectory.
-  - **Adapter** – At each 3‑turn interval, the classifier predicts a state; the corresponding instruction (e.g., “Validate cultural norms”, “De‑escalate”) is **injected** into the system prompt for the next turn.
-- **LLMs**: Eight CPU‑compatible models (e.g., `Llama‑3‑8B‑GGUF`, `Mistral‑7B‑GGUF`, `Gemma‑7B‑GGUF`). Models exceeding 7 GB RAM are excluded per Assumption 2.
-- **Ordering**: Data generation → classifier training → paired experiments → evaluation → statistical analysis.
+### 3.5 Evaluation (FR‑005)
+- **Metric**: `consensus_gap_score = 1 - cosine_similarity( embed(LLM_output), embed(ideal_resolution) )`.  
+- **Embedding Model**: `sentence‑transformers/all‑MiniLM‑L6‑v2` (CPU‑friendly).  
+- **Independence**: The evaluator uses only semantic embeddings; it never accesses classifier outputs or state labels. Audited in T033b.  
 
-### 4. Consensus Gap Metric (FR‑005)
-`Consensus Gap Closure = 1 - (distance(LLM_output, ideal_resolution) / max_distance)`, where `distance` is a token‑level edit‑distance normalized to `[0,1]`. The `ideal_resolution` is generated **independently** of the state labels; it reflects the optimal resolution defined by the SoCRATES pipeline, ensuring no leakage between predictor and outcome.
+### 3.6 Statistical Analysis (FR‑006, FR‑007)
+1. **Paired Difference**: For each trajectory & model, compute `Δ = gap_adapter – gap_static`.  
+2. **Normality**: Shapiro‑Wilk on the set of Δs (per model). Record p‑value.  
+3. **Test Selection**:  
+   - If `p_normality > 0.05` → paired t‑test on **logit‑transformed** gap scores (logit avoids boundary compression).  
+   - Else → Wilcoxon signed‑rank test.  
+4. **Multiple‑Comparison**: Apply Holm‑Bonferroni across the 8 models.  
+5. **Primary Report**: Includes `mean_gap_adapter`, `mean_gap_static`, `diff_mean`, `test_type`, `p_value`, `corrected_p_value`, `effect_size`, `is_significant`.  
+6. **Neutral‑Monitoring Inclusion**: All adapter runs, including neutral‑monitoring, are **included** in the primary paired test (per Constitution VII). A **post‑hoc sensitivity analysis** (T050) repeats the test on the subset where `confidence ≥ threshold` to check robustness.  
 
-### 5. Statistical Analysis (FR‑006, FR‑007)
-- **Normality**: Shapiro‑Wilk test on paired differences (Adapter − Static) per LLM.
-- **Test Selection**:
-  - If `p > 0.05` → Paired t‑test (report Cohen’s d).
-  - Else → Wilcoxon signed‑rank test (report rank‑biserial correlation).
-- **Multiple‑Comparison Correction**: Holm‑Bonferroni applied across the eight LLMs to control family‑wise error (FR‑007).
-- **Effect‑size Reporting**: Both `p_value` and `effect_size` are included in the JSON report; `is_significant` flags `p < 0.05`.
+### 3.7 Throughput & Feasibility (SC‑003)
+- **Task T051** measures average inference time and trajectories per hour per model; expected on the order of tens of seconds per call → on the order of a few hours total wall‑clock on the CI runner, satisfying the compute budget.
 
-## Decision Rationale
+## 4. Compute Feasibility & Rationale
+| Method | Platform | Rationale |
+|--------|----------|-----------|
+| Logistic Regression | CPU | Trains in < 30 s on 72 samples; negligible RAM. |
+| 8‑bit GGUF LLMs | CPU (no CUDA) | Quantized models ≈ 2 GB; fit within 7 GB RAM limit. |
+| MiniLM sentence‑transformer | CPU | < 200 MB; inference < 10 ms per sentence. |
+| Streaming dataset load | CPU | Avoids > 7 GB RAM usage for SoCRATES prompts. |
 
-- **Dynamic Text‑Based Classifier**: Logistic Regression on turn‑level text satisfies FR‑002’s requirement for a lightweight, CPU‑only model while truly inferring state from dialogue dynamics rather than static metadata.
-- **Paired Design**: Controls for trajectory‑level variance, isolating the injection variable per Constitution Principle VII.
-- **Holm‑Bonferroni**: Balances Type I error control with statistical power across multiple LLM comparisons.
+All steps are **CPU‑first**; no GPU escape hatch is required.
 
-## Risks & Mitigations
+## 5. Assumptions & Limitations
+- **Synthetic Trajectories** faithfully emulate real conflict dialogue; any domain‑shift is acknowledged.  
+- **8‑bit Quantization** retains sufficient mediation quality; if a model fails to load, it is excluded from the study (recorded in `scope_adjustments.json`).  
+- **Neutral‑Monitoring** may dilute effect size; sensitivity analysis (T050) quantifies this.  
+- **Power** is based on a medium effect size (Cohen's d = 0.5) with required minimum N = 25 per paired test (source: 2511.14546). Our experiment set (≈ 48 trajectories per model) exceeds this threshold, ensuring ≥ 0.80 power for medium effects.  
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Generated data lack sufficient variability | Medium | Verify distribution after generation; regenerate with adjusted seeds if needed. |
-| Classifier confidence low on many turns | Medium | Use neutral fallback; log fallback frequency for sensitivity analysis (SC‑005). |
-| Model RAM exceeds limit | High | Pre‑screen model sizes; automatically skip oversized models and record exclusion. |
-| Runtime > 6 h | Critical | Limit trajectories to 500; batch inference; early‑stop if wall‑clock exceeds 5 h (allowing margin). |
+---
+

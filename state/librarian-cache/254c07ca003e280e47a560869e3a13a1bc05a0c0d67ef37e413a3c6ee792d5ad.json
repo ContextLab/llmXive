@@ -1,0 +1,670 @@
+{
+  "fetched_at": "2026-08-13T09:47:03Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Self-Talk on Resilience to Microaggressions",
+      "target_n": 5
+    },
+    "duration_seconds": 83.832,
+    "ended_at": "2026-08-13T09:47:03Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "internal dialogue and psychological resilience to discrimination"
+        ],
+        [
+          2,
+          "coping mechanisms for microaggressions in marginalized groups"
+        ],
+        [
+          3,
+          "self-affirmation strategies against subtle bias"
+        ],
+        [
+          4,
+          "verbal self-regulation and stress buffering in social identity contexts"
+        ],
+        [
+          5,
+          "cognitive reframing of racial and gender microaggressions"
+        ],
+        [
+          6,
+          "positive self-talk interventions for minority stress"
+        ],
+        [
+          7,
+          "resilience building through internal narrative in response to prejudice"
+        ],
+        [
+          8,
+          "self-compassion and resistance to interpersonal microinvalidations"
+        ],
+        [
+          9,
+          "metacognitive self-talk and emotional recovery from bias incidents"
+        ],
+        [
+          10,
+          "protective factors against microaggression-induced psychological distress"
+        ],
+        [
+          11,
+          "narrative identity and resilience to everyday discrimination"
+        ],
+        [
+          12,
+          "internal monologue as a buffer against stereotype threat"
+        ],
+        [
+          13,
+          "self-distancing and coping with microaggressive experiences"
+        ],
+        [
+          14,
+          "psychological resilience and self-verbalization in diverse populations"
+        ],
+        [
+          15,
+          "affirmative self-talk and minority mental health outcomes"
+        ],
+        [
+          16,
+          "self-efficacy and resistance to subtle forms of racism or sexism"
+        ],
+        [
+          17,
+          "cognitive-behavioral self-talk techniques for discrimination stress"
+        ],
+        [
+          18,
+          "internal resources for navigating microaggressions in workplace or academic settings"
+        ],
+        [
+          19,
+          "self-regulatory processes in response to identity-based microaggressions"
+        ],
+        [
+          20,
+          "the role of self-concept in mitigating microaggression impacts"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Self-Talk on Resilience to Microaggressions psychology": 0,
+        "cognitive reframing of racial and gender microaggressions": 3,
+        "coping mechanisms for microaggressions in marginalized groups": 0,
+        "internal dialogue and psychological resilience to discrimination": 0,
+        "self-affirmation strategies against subtle bias": 2,
+        "verbal self-regulation and stress buffering in social identity contexts": 1
+      },
+      "total_queries_issued": 5
+    },
+    "extracted_queries": [
+      "internal dialogue self-instruction cognitive reframing",
+      "racial microaggression daily diary experience sampling",
+      "ethnic minority identity affirmation coping strategies",
+      "psychological resilience stress reactivity recovery time",
+      "self-talk mechanism emotion regulation cognitive appraisal"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2112.03789"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Impact of Self-Talk on Resilience to Microaggressions psychology": 3,
+      "ethnic minority identity affirmation coping strategies": 3,
+      "internal dialogue self-instruction cognitive reframing": 3,
+      "psychological resilience stress reactivity recovery time": 2,
+      "racial microaggression daily diary experience sampling": 3,
+      "self-talk mechanism emotion regulation cognitive appraisal": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "2112.03789",
+          "rationale": "The paper uses the terms \"self-exciting\" and \"resilience\" in the context of financial mathematics and stochastic order books, which is a distinct construct sharing only homonym keywords with the user's question about psychological self-talk and resilience to microaggressions. It is entirely off-domain (finance vs. psychology) and has no measurable connection to the user's mechanism, variables, or empirical setting.",
+          "title": "Self-exciting price impact via negative resilience in stochastic order books"
+        },
+        {
+          "primary_pointer": "2405.11320",
+          "rationale": "The paper focuses on algorithmic bias and sampling strategies in generative AI for face synthesis, which is entirely off-domain from the user's question regarding the psychological mechanisms of self-talk and resilience to microaggressions. It shares no measurable connection to the user's variables, population, or causal mechanisms, failing all inclusion criteria (a-f) and triggering the \"off-domain entirely\" rejection rule.",
+          "title": "Sampling Strategies for Mitigating Bias in Face Synthesis Methods"
+        },
+        {
+          "primary_pointer": "2401.04972",
+          "rationale": "The paper investigates algorithmic bias in machine translation systems, which is an off-domain topic entirely distinct from the user's question about the psychological mechanisms of self-talk and resilience in human subjects. It shares only the keyword \"bias\" (referring to social stereotypes) but addresses a different construct (NLP system errors vs. human psychological coping) and population (software vs. humans), failing all inclusion criteria (a-f).",
+          "title": "Whose wife is it anyway? Assessing bias against same-gender relationships in machine translation"
+        },
+        {
+          "primary_pointer": "1607.00139",
+          "rationale": "The paper focuses on computational methods for detecting stress in social media text, which is an off-domain application (NLP/transportation) that does not measure the psychological mechanism of self-talk, the construct of resilience, or the specific impact of microaggressions on human subjects. It fails to satisfy any inclusion criteria as it addresses a distinct construct (automated stress detection) sharing only the general keyword \"stress\" without connecting to the user's specific variables ",
+          "title": "TensiStrength: Stress and relaxation magnitude detection for social media texts"
+        },
+        {
+          "primary_pointer": "2601.17203",
+          "rationale": "The paper focuses on computational linguistics and NLP bias metrics (word embeddings) to predict macro-level societal gender gaps, which is an off-domain study distinct from the user's question about the psychological mechanism of self-talk and individual resilience to microaggressions. It shares only the broad keyword \"gender\" but addresses a completely different construct, methodology, and empirical population without measuring the specific psychological variables or mechanisms requested.",
+          "title": "Relating Word Embedding Gender Biases to Gender Gaps: A Cross-Cultural Analysis"
+        },
+        {
+          "primary_pointer": "2205.06621",
+          "rationale": "The paper focuses on algorithmic bias in hate speech detection models and data curation, which is an off-domain topic (computer science/NLP) compared to the user's question about the psychological mechanism of self-talk and resilience in human subjects. It does not measure the psychological variables, mechanisms, or empirical populations relevant to the user's specific research question.",
+          "title": "Analyzing Hate Speech Data along Racial, Gender and Intersectional Axes"
+        },
+        {
+          "primary_pointer": "2403.16514",
+          "rationale": "The paper focuses on the linguistic classification and detection of racial microaggressions on social media using NLP, which does not measure the psychological mechanism of self-talk, the construct of resilience, or the causal impact of self-talk on resilience to microaggressions. While it shares the domain of \"microaggressions,\" it addresses a distinct construct (content moderation and linguistic signatures) rather than the user's specific variables (self-talk and resilience), failing to meet t",
+          "title": "Linguistically Differentiating Acts and Recalls of Racial Microaggressions on Social Media"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-13T09:45:39Z",
+    "term_input": {
+      "normalized": "the impact of self-talk on resilience to microaggressions psychology",
+      "raw": "The Impact of Self-Talk on Resilience to Microaggressions psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Urbanization is rapidly increasing, with urban populations expected to grow significantly by 2050, particularly in developing regions. This expansion brings challenges related to chronic stresses and acute shocks, such as the COVID-19 pandemic, which has underscored the critical role of urban form in a city's capacity to manage public health crises. Despite the heightened interest in urban resilience, research examining the relationship between urban morphology and pandemic resilience remains limited, often focusing solely on density and its effect on disease transmission. This work aims to address this gap by evaluating existing frameworks that analyze the relationship between urban resilience and urban form. By critically reviewing these frameworks, with a particular emphasis on theoretical and quantitative approaches, this study seeks to transfer the knowledge gained to better understand the relationship between pandemic resilience and urban morphology. The work also links theoretical ideas with quantitative frameworks, offering a cohesive analysis. The anticipated novelty of this study lies in its comprehensive assessment of urban resilience frameworks and the identification of the current gaps in integrating resilience to pandemic thinking into urban planning and design. The goal is not only to enhance the understanding of urban resilience but also to offer practical guidance for developing more adaptive and effective frameworks for assessing resilience to pandemics in urban environments, thereby preparing cities to better withstand and recover from future crises.",
+          "claimed_authors": [
+            "Yue Sun",
+            "Ryan Weightman",
+            "Anye Shi",
+            "Timur Dogan",
+            "Samitha Samaranayake"
+          ],
+          "claimed_title": "A Review of Urban Resilience Frameworks: Transferring Knowledge to Enhance Pandemic Resilience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.17371"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='A Review of Urban Resilience Frameworks: Transferring Knowledge to Enhance Pandemic Resilience')",
+        "failed_at": "2026-08-13T09:46:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding mind-brain-environment relations is one of the key topics in psychology. Kurt Lewin, inspired by theoretical physics, tried to establish topological and vector psychology analyzing patterns of interaction between the individual and her/his environment. The time is ripe to reformulate his ambitious goals, searching for ways to interpret objectively measured brain processes in terms of suitable psychological constructs. Connecting cognitive and social psychology constructs to neurophenomics, as it is done now in psychiatry, should ground them in physical reality.",
+          "claimed_authors": [
+            "Włodzisław Duch"
+          ],
+          "claimed_title": "Kurt Lewin, psychological constructs and sources of brain cognitive activity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.01767"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Kurt Lewin, psychological constructs and sources of brain cognitive activity')",
+        "failed_at": "2026-08-13T09:46:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we introduce Dependency Dialogue Acts (DDA), a novel framework for capturing the structure of speaker-intentions in multi-party dialogues. DDA combines and adapts features from existing dialogue annotation frameworks, and emphasizes the multi-relational response structure of dialogues in addition to the dialogue acts and rhetorical relations. It represents the functional, discourse, and response structure in multi-party multi-threaded conversations. A few key features distinguish DDA from existing dialogue annotation frameworks such as SWBD-DAMSL and the ISO 24617-2 standard. First, DDA prioritizes the relational structure of the dialogue units and the dialog context, annotating both dialog acts and rhetorical relations as response relations to particular utterances. Second, DDA embraces overloading in dialogues, encouraging annotators to specify multiple response relations and dialog acts for each dialog unit. Lastly, DDA places an emphasis on adequately capturing how a speaker is using the full dialog context to plan and organize their speech. With these features, DDA is highly expressive and recall-oriented with regard to conversation dynamics between multiple speakers. In what follows, we present the DDA annotation framework and case studies annotating DDA structures in multi-party, multi-threaded conversations.",
+          "claimed_authors": [
+            "Jon Z. Cai",
+            "Brendan King",
+            "Margaret Perkoff",
+            "Shiran Dudy",
+            "Jie Cao",
+            "Marie Grace",
+            "Natalia Wojarnik",
+            "Ananya Ganesh",
+            "James H. Martin",
+            "Martha Palmer",
+            "Marilyn Walker",
+            "Jeffrey Flanigan"
+          ],
+          "claimed_title": "Dependency Dialogue Acts -- Annotation Scheme and Case Study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.12944"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Dependency Dialogue Acts -- Annotation Scheme and Case Study')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The human brain is autonomously active. To understand the functional role of this self-sustained neural activity, and its interplay with the sensory data input stream, is an important question in cognitive system research and we review here the present state of theoretical modelling.\n  This review will start with a brief overview of the experimental efforts, together with a discussion of transient vs. self-sustained neural activity in the framework of reservoir computing. The main emphasis will be then on two paradigmal neural network architectures showing continuously ongoing transient-state dynamics: saddle point networks and networks of attractor relics.\n  Self-active neural networks are confronted with two seemingly contrasting demands: a stable internal dynamical state and sensitivity to incoming stimuli. We show, that this dilemma can be solved by networks of attractor relics based on competitive neural dynamics, where the attractor relics compete on one side with each other for transient dominance, and on the other side with the dynamical influence of the input signals. Unsupervised and local Hebbian-style online learning then allows the system to build up correlations between the internal dynamical transient states and the sensory input stream. An emergent cognitive capability results from this set-up. The system performs online, and on its own, a non-linear independent component analysis of the sensory data stream, all the time being continuously and autonomously active. This process maps the independent components of the sensory input onto the attractor relics, which acquire in this way a semantic meaning.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognitive computation with autonomously active neural networks: an emerging field",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0901.3028"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Cognitive computation with autonomously active neural networks: an emerging field')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work, we examine the linguistic signature of online racial microaggressions (acts) and how it differs from that of personal narratives recalling experiences of such aggressions (recalls) by Black social media users. We manually curate and annotate a corpus of acts and recalls from in-the-wild social media discussions, and verify labels with Black workshop participants. We leverage Natural Language Processing (NLP) and qualitative analysis on this data to classify (RQ1), interpret (RQ2), and characterize (RQ3) the language underlying acts and recalls of racial microaggressions in the context of racism in the U.S. Our findings show that neural language models (LMs) can classify acts and recalls with high accuracy (RQ1) with contextual words revealing themes that associate Blacks with objects that reify negative stereotypes (RQ2). Furthermore, overlapping linguistic signatures between acts and recalls serve functionally different purposes (RQ3), providing broader implications to the current challenges in content moderation systems on social media.",
+          "claimed_authors": [
+            "Uma Sushmitha Gunturi",
+            "Anisha Kumar",
+            "Xiaohan Ding",
+            "Eugenia H. Rho"
+          ],
+          "claimed_title": "Linguistically Differentiating Acts and Recalls of Racial Microaggressions on Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.16514"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Linguistically Differentiating Acts and Recalls of Racial Microaggressions on Social Media')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper reviews research methods used to understand the user experience of mobile technology. The paper presents an improvement of the Experience Sampling Method and case studies supporting its design. The paper concludes with an agenda of future work for improving research in this field.\n  Keywords: Research methods, topology, case study, contrasting graph, Experience Sampling Method",
+          "claimed_authors": [
+            "Mauro Cherubini",
+            "Nuria Oliver"
+          ],
+          "claimed_title": "A Refined Experience Sampling Method to Capture Mobile User Experience",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0906.4125"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='A Refined Experience Sampling Method to Capture Mobile User Experience')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study analyzes tract-level real estate ownership patterns in New York State (NYS) and New York City (NYC) to uncover racial disparities. We use an advanced race/ethnicity imputation model (LSTM+Geo with XGBoost filtering, validated at 89.2% accuracy) to compare the predicted racial composition of property owners to the resident population from census data. We examine both a Full Model (statewide) and a Name-Only LSTM Model (NYC) to assess how incorporating geospatial context affects our predictions and disparity estimates. The results reveal significant inequities: White individuals hold a disproportionate share of properties and property value relative to their population, while Black, Hispanic, and Asian communities are underrepresented as property owners. These disparities are most pronounced in minority-majority neighborhoods, where ownership is predominantly White despite a predominantly non-White population. Corporate ownership (LLCs, trusts, etc.) exacerbates these gaps by reducing owner-occupied opportunities in urban minority communities. We provide a breakdown of ownership vs. population by race for majority-White, -Black, -Hispanic, and -Asian tracts, identify those with extreme ownership disparities, and compare patterns in urban, suburban, and rural contexts. The findings underscore persistent racial inequity in property ownership, reflecting broader historical and socio-economic forces, and highlight the importance of data-driven approaches to address these issues.",
+          "claimed_authors": [
+            "Sanjana Chalavadi",
+            "Andrei Pastor",
+            "Terry Leitch"
+          ],
+          "claimed_title": "NY Real Estate Racial Equity Analysis via Applied Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.16946"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='NY Real Estate Racial Equity Analysis via Applied Machine Learning')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The force of the ethnic separatism, essentially origining from negative effect of ethnic identity, is damaging the stability and harmony of multiethnic countries. In order to eliminate the foundation of the ethnic separatism and set up a harmonious ethnic relationship, some scholars have proposed a viewpoint: ethnic harmony could be promoted by popularizing civic identity. However, this viewpoint is discussed only from a philosophical prospective and still lack supports of scientific evidences. Because ethic group and ethnic identity are products of evolution and ethnic identity is the parochialism strategy under the perspective of game theory, this paper proposes an evolutionary game simulation model to study the relationship between civic identity and ethnic conflict based on evolutionary game theory. The simulation results indicate that: 1) the ratio of individuals with civic identity has a positive association with the frequency of ethnic conflicts; 2) ethnic conflict will not die out by killing all ethnic members once for all, and it also cannot be reduced by a forcible pressure, i.e., increasing the ratio of individuals with civic identity; 3) the average frequencies of conflicts can stay in a low level by promoting civic identity periodically and persistently.",
+          "claimed_authors": [
+            "Jun Qin",
+            "Yunfei Yi",
+            "Hongrun Wu",
+            "Yuhang Liu",
+            "Xiaonian Tong",
+            "Bojin Zheng"
+          ],
+          "claimed_title": "Some Results on Ethnic Conflicts Based on Evolutionary Game Simulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1405.3614"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Some Results on Ethnic Conflicts Based on Evolutionary Game Simulation')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we study the continuum time dynamics of a stock in a market where agents behavior is modeled by a Minority Game and a Grand Canonical Minority Game. The dynamics derived is a generalized geometric Brownian motion; from the Black & Scholes formula the calibration of both the Minority Game and the Grand Canonical Minority Game, by means of their characteristic parameters, is performed. We conclude that for both games the asymmetric phase with characteristic parameters close to critical ones is coherent with options implied volatility market.",
+          "claimed_authors": [
+            "Matteo Ortisi",
+            "Valerio Zuccolo"
+          ],
+          "claimed_title": "From Minority Game to Black & Scholes pricing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1205.2521"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='From Minority Game to Black & Scholes pricing')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this article, we discuss various implementation of L1 filtering in order to detect some properties of noisy signals. This filter consists of using a L1 penalty condition in order to obtain the filtered signal composed by a set of straight trends or steps. This penalty condition, which determines the number of breaks, is implemented in a constrained least square problem and is represented by a regularization parameter ? which is estimated by a cross-validation procedure. Financial time series are usually characterized by a long-term trend (called the global trend) and some short-term trends (which are named local trends). A combination of these two time scales can form a simple model describing the process of a global trend process with some mean-reverting properties. Explicit applications to momentum strategies are also discussed in detail with appropriate uses of the trend configurations.",
+          "claimed_authors": [
+            "Tung-Lam Dao"
+          ],
+          "claimed_title": "Momentum Strategies with L1 Filter",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1403.4069"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Momentum Strategies with L1 Filter')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Space-time distributions')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Patients do not access physicians at random but rather via naturally emerging networks of patient flows between them. As retirements, mass quarantines and absence due to sickness during pandemics, or other shocks thin out these networks, the system might be pushed closer to a tipping point where it loses its ability to deliver care to the population. Here we propose a data-driven framework to quantify the regional resilience to such shocks of primary and secondary care in Austria via an agent-based model. For each region and medical specialty we construct detailed patient-sharing networks from administrative data and stress-test these networks by removing increasing numbers of physicians from the system. This allows us to measure regional resilience indicators describing how many physicians can be removed from a certain area before individual patients won't be treated anymore. We find that such tipping points do indeed exist and that regions and medical specialties differ substantially in their resilience. These systemic differences can be related to indicators for individual physicians by quantifying how much their hypothetical removal would stress the system (risk score) or how much of the stress from the removal of other physicians they would be able to absorb (benefit score). Our stress-testing framework could enable health authorities to rapidly identify bottlenecks in access to care as well as to inspect these naturally emerging physician networks and how potential absences would impact them.",
+          "claimed_authors": [
+            "Michaela Kaleta",
+            "Jana Lasser",
+            "Elma Dervic",
+            "Liuhuaying Yang",
+            "Johannes Sorger",
+            "Ruggiero Lo Sardo",
+            "Stefan Thurner",
+            "Alexandra Kautzky-Willer",
+            "Peter Klimek"
+          ],
+          "claimed_title": "Stress-testing the Resilience of the Austrian Healthcare System Using Agent-Based Simulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.07746"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Stress-testing the Resilience of the Austrian Healthcare System Using Agent-Based Simulation')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, there has been growing interest in studying cognitive distortions and emotional appraisals from both computational and psychological perspectives. Despite considerable similarities between emotional reappraisal and cognitive reframing as emotion regulation techniques, these concepts have largely been examined in isolation. This research explores the relationship between cognitive distortions and emotional appraisal dimensions, examining their potential connections and relevance for future interdisciplinary studies. Under this pretext, we conduct an exploratory computational study, aimed at investigating the relationship between cognitive distortion and emotional appraisals. We show that the patterns of statistically significant relationships between cognitive distortions and appraisal dimensions vary across different distortion categories, giving rise to distinct appraisal profiles for individual distortion classes. Additionally, we analyze the impact of cognitive restructuring on appraisal dimensions, exemplifying the emotion regulation aspect of cognitive restructuring.",
+          "claimed_authors": [
+            "Navneet Agarwal",
+            "Kairit Sirts"
+          ],
+          "claimed_title": "Exploratory Study into Relations between Cognitive Distortions and Emotional Appraisals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.15979"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Exploratory Study into Relations between Cognitive Distortions and Emotional Appraisals')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in machine learning have led to computer systems that are human-like in behaviour. Sentiment analysis, the automatic determination of emotions in text, is allowing us to capitalize on substantial previously unattainable opportunities in commerce, public health, government policy, social sciences, and art. Further, analysis of emotions in text, from news to social media posts, is improving our understanding of not just how people convey emotions through language but also how emotions shape our behaviour. This article presents a sweeping overview of sentiment analysis research that includes: the origins of the field, the rich landscape of tasks, challenges, a survey of the methods and resources used, and applications. We also discuss discuss how, without careful fore-thought, sentiment analysis has the potential for harmful outcomes. We outline the latest lines of research in pursuit of fairness in sentiment analysis.",
+          "claimed_authors": [
+            "Saif M. Mohammad"
+          ],
+          "claimed_title": "Sentiment Analysis: Automatically Detecting Valence, Emotions, and Other Affectual States from Text",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.11882"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Talk on Resilience to Microaggressions psychology', candidate_title='Sentiment Analysis: Automatically Detecting Valence, Emotions, and Other Affectual States from Text')",
+        "failed_at": "2026-08-13T09:46:11Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Julia Ackermann",
+            "Thomas Kruse",
+            "Mikhail Urusov"
+          ],
+          "title": "Self-exciting price impact via negative resilience in stochastic order books",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2112.03789",
+        "summary": "Most of the existing literature on optimal trade execution in limit order book models assumes that resilience is positive. But negative resilience also has a natural interpretation, as it models self-exciting behaviour of the price impact, where trading activities of the large investor stimulate other market participants to trade in the same direction. In the paper we discuss several new qualitative effects on optimal trade execution that arise when we allow resilience to take negative values. We do this in a framework where both market depth and resilience are stochastic processes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2112.03789",
+          "http_status": 200,
+          "pdf_sample_score": 0.1671,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T09:46:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Emmanouil Maragkoudakis",
+            "Symeon Papadopoulos",
+            "Iraklis Varlamis",
+            "Christos Diou"
+          ],
+          "title": "Sampling Strategies for Mitigating Bias in Face Synthesis Methods",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.11320",
+        "summary": "Synthetically generated images can be used to create media content or to complement datasets for training image analysis models. Several methods have recently been proposed for the synthesis of high-fidelity face images; however, the potential biases introduced by such methods have not been sufficiently addressed. This paper examines the bias introduced by the widely popular StyleGAN2 generative model trained on the Flickr Faces HQ dataset and proposes two sampling strategies to balance the representation of selected attributes in the generated face images. We focus on two protected attributes, gender and age, and reveal that biases arise in the distribution of randomly sampled images against very young and very old age groups, as well as against female faces. These biases are also assessed for different image quality levels based on the GIQA score. To mitigate bias, we propose two alternative methods for sampling on selected lines or spheres of the latent space to increase the number of generated samples from the under-represented classes. The experimental results show a decrease in bias against underrepresented groups and a more uniform distribution of the protected features at different levels of image quality.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.11320",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T09:46:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian Stewart",
+            "Rada Mihalcea"
+          ],
+          "title": "Whose wife is it anyway? Assessing bias against same-gender relationships in machine translation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2401.04972",
+        "summary": "Machine translation often suffers from biased data and algorithms that can lead to unacceptable errors in system output. While bias in gender norms has been investigated, less is known about whether MT systems encode bias about social relationships, e.g., \"the lawyer kissed her wife.\" We investigate the degree of bias against same-gender relationships in MT systems, using generated template sentences drawn from several noun-gender languages (e.g., Spanish) and comprised of popular occupation nouns. We find that three popular MT services consistently fail to accurately translate sentences concerning relationships between entities of the same gender. The error rate varies considerably based on the context, and same-gender sentences referencing high female-representation occupations are translated with lower accuracy. We provide this work as a case study in the evaluation of intrinsic bias in NLP systems with respect to social relationships.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2401.04972",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T09:46:28Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mike Thelwall"
+          ],
+          "title": "TensiStrength: Stress and relaxation magnitude detection for social media texts",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1607.00139",
+        "summary": "Computer systems need to be able to react to stress in order to perform optimally on some tasks. This article describes TensiStrength, a system to detect the strength of stress and relaxation expressed in social media text messages. TensiStrength uses a lexical approach and a set of rules to detect direct and indirect expressions of stress or relaxation, particularly in the context of transportation. It is slightly more effective than a comparable sentiment analysis program, although their similar performances occur despite differences on almost half of the tweets gathered. The effectiveness of TensiStrength depends on the nature of the tweets classified, with tweets that are rich in stress-related terms being particularly problematic. Although generic machine learning methods can give better performance than TensiStrength overall, they exploit topic-related terms in a way that may be undesirable in practical applications and that may not work as well in more focused contexts. In conclusion, TensiStrength and generic machine learning approaches work well enough to be practical choices for intelligent applications that need to take advantage of stress information, and the decision about which to use depends on the nature of the texts analysed and the purpose of the task.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1607.00139",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T09:46:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Scott Friedman",
+            "Sonja Schmer-Galunder",
+            "Anthony Chen",
+            "Jeffrey Rye"
+          ],
+          "title": "Relating Word Embedding Gender Biases to Gender Gaps: A Cross-Cultural Analysis",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.17203",
+        "summary": "Modern models for common NLP tasks often employ machine learning techniques and train on journalistic, social media, or other culturally-derived text. These have recently been scrutinized for racial and gender biases, rooting from inherent bias in their training text. These biases are often sub-optimal and recent work poses methods to rectify them; however, these biases may shed light on actual racial or gender gaps in the culture(s) that produced the training text, thereby helping us understand cultural context through big data. This paper presents an approach for quantifying gender bias in word embeddings, and then using them to characterize statistical gender gaps in education, politics, economics, and health. We validate these metrics on 2018 Twitter data spanning 51 U.S. regions and 99 countries. We correlate state and country word embedding biases with 18 international and 5 U.S.-based statistical gender gaps, characterizing regularities and predictive strength.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.17203",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T09:46:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Antonis Maronikolakis",
+            "Philip Baader",
+            "Hinrich Schütze"
+          ],
+          "title": "Analyzing Hate Speech Data along Racial, Gender and Intersectional Axes",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2205.06621",
+        "summary": "To tackle the rising phenomenon of hate speech, efforts have been made towards data curation and analysis. When it comes to analysis of bias, previous work has focused predominantly on race. In our work, we further investigate bias in hate speech datasets along racial, gender and intersectional axes. We identify strong bias against African American English (AAE), masculine and AAE+Masculine tweets, which are annotated as disproportionately more hateful and offensive than from other demographics. We provide evidence that BERT-based models propagate this bias and show that balancing the training data for these protected attributes can lead to fairer models with regards to gender, but not race.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2205.06621",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T09:46:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Uma Sushmitha Gunturi",
+            "Anisha Kumar",
+            "Xiaohan Ding",
+            "Eugenia H. Rho"
+          ],
+          "title": "Linguistically Differentiating Acts and Recalls of Racial Microaggressions on Social Media",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.16514",
+        "summary": "In this work, we examine the linguistic signature of online racial microaggressions (acts) and how it differs from that of personal narratives recalling experiences of such aggressions (recalls) by Black social media users. We manually curate and annotate a corpus of acts and recalls from in-the-wild social media discussions, and verify labels with Black workshop participants. We leverage Natural Language Processing (NLP) and qualitative analysis on this data to classify (RQ1), interpret (RQ2), and characterize (RQ3) the language underlying acts and recalls of racial microaggressions in the context of racism in the U.S. Our findings show that neural language models (LMs) can classify acts and recalls with high accuracy (RQ1) with contextual words revealing themes that associate Blacks with objects that reify negative stereotypes (RQ2). Furthermore, overlapping linguistic signatures between acts and recalls serve functionally different purposes (RQ3), providing broader implications to the current challenges in content moderation systems on social media.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.16514",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T09:46:38Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of self-talk on resilience to microaggressions psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

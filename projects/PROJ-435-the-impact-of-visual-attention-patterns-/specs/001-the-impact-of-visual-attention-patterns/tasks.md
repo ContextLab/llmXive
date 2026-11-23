@@ -1,253 +1,181 @@
-# Tasks: The Impact of Visual Attention Patterns on Susceptibility to Misleading Headlines
+# Tasks: The Impact of Visual Attention Patterns on Susceptibility to Misleading Headlines  
 
-**Input**: Design documents from `/specs/001-impact-of-visual-attention-patterns/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: `specs/001-impact-of-visual-attention-patterns/spec.md`, `plan.md` (implementation plan), existing project artifacts.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Verification**: Each task includes explicit verification steps. All paths are relative to the repository root.  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+---  
 
-## Format: `[ID] [P?] [Story] Description`
+## Phase 0 – Project scaffolding  
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] **T001** [US0] Create the canonical project directory tree and a helper script.  
+  - **Artifact(s)**: `scripts/init_project.py` (exposes `setup_project_structure()`), empty directories `code/`, `data/raw/`, `data/derived/`, `data/processed/`, `tests/`, `state/`, `output/`, `docs/`.  
+  - **Verification**: Run `python scripts/init_project.py`; afterwards `tree` (or `ls -R`) must show all listed directories and the script must exit with code 0.  
 
-## Path Conventions
+- [ ] **T002** [US0] Add a pinned `requirements.txt` and a minimal `pyproject.toml` that configures the linting/formatting tools.   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
+  - **Artifact(s)**: `requirements.txt` (Python 3.11, `pandas`, `numpy`, `statsmodels`, `datasets`, `nltk`, `vaderSentiment`, `ruff`, `black`, `flake8`, `pytest`, `shapely`), `pyproject.toml` (contains `[tool.black]`, `[tool.ruff]` sections).  
+  - **Verification**: `pip install -r requirements.txt` succeeds, `ruff --version` and `black --version` run without error, and `ruff check code/` returns no lint failures on a clean repository.  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] **T003** [US0] Create concrete lint/format configuration files.  
+  - **Artifact(s)**: `.ruff.toml` (sets `select = ["E", "F", "W", "C90"]`), `.flake8` (basic ignore list), `pyproject.toml` already contains Black settings (`line-length = 88`).  
+  - **Verification**: `ruff check .` and `flake8 .` both exit with status 0; `black --check .` reports no changes needed.  
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] **T023** [FR‑001] Checksum raw data files after ingestion.  
+  - **Artifact(s)**: `state/artifacts.yaml` (mapping `data/raw/*.parquet` → SHA‑256 hash).  
+  - **Verification**: After data ingestion, a Python script recomputes the hash of each file in `data/raw/` and asserts that the entry in `state/artifacts.yaml` matches the computed hash.  
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] **T024** [FR‑001] Run a PII scan on all files under `data/raw/`.  
+  - **Artifact(s)**: `state/pii_scan_report.json` (contains `has_pii: false` on success).  
+  - **Verification**: The scan script exits with code 0 and the JSON report contains `"has_pii": false`; any detection causes the pipeline to abort.  
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] **T026** [FR‑001] Create a logging configuration file with required top‑level keys.  
+  - **Artifact(s)**: `code/config/logging_config.yaml` containing `level`, `format`, and `handlers` sections.  
+  - **Verification**: Loading the YAML with `yaml.safe_load` yields a dict with the three required top‑level keys; missing keys cause the script to exit with an error.  
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+---  
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1 – Data ingestion & validation  
 
-**Purpose**: Project initialization and basic structure
+- [ ] **T004** [FR‑001] Create a central configuration file for the pipeline.  
+  - **Artifact(s)**: `code/config.yaml` containing at least the keys `dataset_id`, `random_seed`, `ivt_duration_threshold`, `fixation_min_duration_ms`. Example values: `dataset_id: "myorg/misinfo-eye-tracking"`, `random_seed: 42`, `ivt_duration_threshold: 30`, `fixation_min_duration_ms: 100`.  
+  - **Verification**: `python -c "import yaml, pathlib; cfg = yaml.safe_load(open('code/config.yaml')); assert set(['dataset_id','random_seed','ivt_duration_threshold','fixation_min_duration_ms']).issubset(cfg)"` runs without AssertionError.  
 
-- [ ] T001 Create project structure per implementation plan: `code/`, `data/raw/`, `data/derived/`, `data/processed/`, `tests/`, `state/`
-- [X] T002 Initialize Python 3.11 project with requirements.txt dependencies (pandas, numpy, scikit-learn, statsmodels, nltk, scipy)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] **T005** [FR‑001] Implement a data‑loading script that fetches the verified eye‑tracking dataset via the 🤗 datasets library.  
+  - **Artifact(s)**: `code/utils/data_loader.py` (function `load_raw_dataset()`), output file `data/raw/eye_tracking_raw.parquet`.  
+  - **Side‑effects**: Compute SHA‑256 of the parquet file and write `state/artifacts.yaml` (mapping `eye_tracking_raw.parquet → <hash>`); log the resolved `dataset_id` in `state/runtime_events.json`.  
+  - **Verification**: After running `python -m code.utils.data_loader`, the parquet file exists, its hash entry is present in `state/artifacts.yaml`, and `state/runtime_events.json` contains a field `"dataset_id": "<value from config.yaml>"`.  
 
----
+- [ ] **T006** [FR‑001] Validate the raw file against the `raw_gaze.schema.yaml` contract.  
+  - **Artifact(s)**: `code/utils/validate_raw_schema.py` (uses `jsonschema.validate`), validation report `state/schema_validation.json`.  
+  - **Verification**: The script exits with code 0 and `state/schema_validation.json` contains `"valid": true`.  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+---  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **Includes Synthetic Data Generation to ensure downstream tasks have valid inputs.**
+## Phase 2 – Preprocessing (User Story 1)  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T007** [FR‑001] Implement I‑VT fixation detection.  
+  - **Artifact(s)**: `code/utils/fixation_detection.py` exposing `detect_fixations(gaze_df, min_duration_ms)`; defaults read from `code/config.yaml`.  
+  - **Verification**: Unit test `tests/unit/test_fixation_detection.py` asserts that a synthetic gaze stream with a 120 ms stationary period yields a fixation record of duration ≥ 120 ms.  
 
-Examples of foundational tasks (adjust based on your project):
+- [ ] **T008** [FR‑001] Implement ROI‑mapping logic.  
+  - **Artifact(s)**: `code/utils/roi_mapping.py` exposing `map_to_roi(gaze_df, roi_definitions)`; uses `shapely.geometry.Polygon`.  
+  - **Verification**: Integration test `tests/integration/test_roi_mapping.py` maps a point known to lie inside a dummy ROI and checks that the resulting `roi_type` column equals the ROI name.  
 
-- [ ] T004 Setup data directory structure: `data/raw/`, `data/derived/`, `data/processed/`
-- [X] T005 [P] Implement `code/utils/data_loading.py` with functions to fetch eye-tracking data from verified sources using `datasets.load_dataset` (e.g., HuggingFace dataset `nab` or specific UCI repository URL with revision tag `v1.0.0`). **Constraint**: Must strictly adhere to the "Verified datasets" block in plan.md (University of Dundee/Boston University sources). Do NOT use generic "verified sources" descriptions. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T006 [P] Implement `code/utils/fixation_detection.py` with I-VT and I-DT algorithms (CPU-optimized). **Config Requirement**: The code MUST attempt to read parameters from `code/config.yaml` first. If the keys `ivt_velocity_threshold` or `idt_dispersion_threshold` are missing, it MUST fall back to the hardcoded defaults of 30 deg/s and 100px respectively. The task description must explicitly state this fallback logic to avoid ambiguity.
-- [ ] T007 [P] Create base data models in `code/models/`: `Participant` (id, crt_score, random_intercept), `Stimulus` (id, headline_text, valence, random_intercept), `GazeEvent` (timestamp, duration, roi, participant_id)
-- [ ] T008 Configure logging infrastructure to capture data quality warnings and exclusion counts
-- [ ] T009 Setup environment configuration and random seed management for reproducibility
-- [X] T022 [P] [US2] Implement `code/05_synthetic_data_generator.py` to generate the unified synthetic dataset for simulation. **Mandatory Requirements**:
- 1. Generate `belief_rating` (Likert scale, Uniform distribution) and `cognitive_reflection_score` (Normal distribution, mean=5, std=1.5).
- 2. Generate ground truth variables for the **three-way interaction** with specific coefficients: `fixation_coef=0.5`, `valence_coef=0.3`, `crt_coef=-0.2`, `interaction_coef=0.1`.
- 3. **DO NOT** generate `confidence_assignment_time` or any four-way interaction variables.
- 4. Output `data/derived/synthetic_raw_data.csv`.
- 5. **Note**: This task is strictly for raw synthetic generation. Outlier capping and merging are handled in T023.
-- [ ] T023 [US2] Implement `code/03_data_merge.py` to merge the Gaze stream (`data/derived/preprocessed_gaze.csv` from T018) and the Synthetic stream (`data/derived/synthetic_raw_data.csv` from T022). **Logic**:
- 1. Join on `participant_id` and `headline_id`.
- 2. **Immediately apply** outlier capping to `cognitive_reflection_score` at the 1st and 99th percentiles within this script.
- 3. Output `data/derived/merged_dataset.csv`.
- 4. **Dependency**: Must run after T018 (Preprocessed Gaze) and T022 (Synthetic Gen).
+- [ ] **T009** [FR‑001] Build the preprocessing pipeline.  
+  - **Artifact(s)**: `code/pipelines/preprocess_gaze.py` (CLI entry `python -m code.pipelines.preprocess_gaze --threshold 100`).  
+  - **Outputs**: `data/derived/preprocessed_gaze.csv` (columns: participant_id, headline_id, fixation_duration, roi_type, …), `output/exclusion_log.txt` (list of participants removed for > 20 % data loss).  
+  - **Verification**: After execution, `output/exclusion_log.txt` contains at least one line, and `data/derived/preprocessed_gaze.csv` has a `source_fixation_duration` column for every retained participant.  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] **T010** [SC‑001] Generate a data‑quality summary.  
+  - **Artifact(s)**: `code/pipelines/data_quality_report.py` producing `data/derived/data_quality_summary.csv` with columns `participant_id`, `data_loss_percent`, `excluded_flag`.  
+  - **Verification**: The summary file rows sum to the total number of participants in the raw dataset; the count of `excluded_flag == True` matches the number reported in `output/exclusion_log.txt`.  
 
----
+---  
 
-## Phase 3: User Story 1 - Core Data Ingestion and Preprocessing (Priority: P1) 🎯 MVP
+## Phase 3 – Valence calculation (User Story 1 continued)  
 
-**Goal**: Ingest raw eye-tracking data, apply I-VT fixation detection, filter low-quality participants, and map gaze to ROIs.
+- [ ] **T011** [FR‑003] Calculate headline emotional valence and handle lexicon fallback.  
+  - **Artifact(s)**: `code/services/valence_calculator.py` (function `compute_valence(texts)`).  
+  - **Outputs**: `data/derived/valence_scores.csv` (columns: `headline_id`, `valence`, `lexicon_used`).  
+  - **Side‑effect**: If average NRC coverage < 50 %, the script switches *all* headlines to VADER and logs the event (`"lexicon_switch": true`) in `state/runtime_events.json`.  
+  - **Verification**: After running the script, `data/derived/valence_scores.csv` exists, contains a `lexicon_used` column, and `state/runtime_events.json` contains a boolean field `"lexicon_switched"` reflecting the actual behavior.  
 
-**Independent Test**: The pipeline can be fully tested by running the preprocessing script on a provided sample dataset and verifying that the output contains only participants with <20% data loss and that fixation events are correctly timestamped and mapped to Regions of Interest (ROIs).
+---  
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+## Phase 4 – Merging & outlier handling (User Story 2)  
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] **T012** [FR‑001 & FR‑004] Merge all analysis‑ready tables and cap extreme CRT scores.  
+  - **Artifact(s)**: `code/pipelines/merge_datasets.py` producing `data/derived/merged_dataset_full.csv`.  
+  - **Processing steps**:  
+    1. Load `preprocessed_gaze.csv`, `valence_scores.csv`, and the belief outcome column (`belief_rating`) from the raw parquet.  
+    2. Cap `cognitive_reflection_score` at the 1st and 99th percentiles (global).  
+    3. Compute `headline_length` (word count) and `total_fixation_duration` (sum of all fixations per participant‑headline).  
+  - **Verification**: The resulting CSV validates against `contracts/dataset.schema.yaml` (no missing required columns) and the CRT column contains no values outside the percentile caps.  
 
-- [X] T010 [P] [US1] Contract test for data ingestion output schema in `tests/contract/test_ingestion_schema.py`
-- [X] T011 [P] [US1] Integration test for I-VT algorithm on sample noisy data in `tests/integration/test_ivt_preprocessing.py`
+---  
 
-### Implementation for User Story 1
+## Phase 5 – Mixed‑effects regression (User Story 2)  
 
-- [X] T012 [P] [US1] Implement `code/01_ingest_and_preprocess.py` to load raw CSV/Parquet eye-tracking data
-- [X] T013 [P] [US1] Implement I-VT fixation detection logic in `code/utils/fixation_detection.py` (minimum duration threshold set to a configurable value)
-- [X] T014 [US1] Implement data quality filter in `code/01_ingest_and_preprocess.py` to retain participants with <20% data loss (exclude those with >20% loss)
-- [ ] T015 [US1] Implement ROI mapping logic to assign gaze points to "source attribution" and other bounding boxes
-- [ ] T016 [US1] Handle edge cases: exclude trials with missing ROI coordinates and log exclusion counts
-- [ ] T017 [US1] Handle edge cases: treat zero fixations on source ROI as valid data (duration=0) rather than missing
-- [ ] T018 [US1] Generate `data/derived/preprocessed_gaze.csv` with filtered participants and mapped fixations
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Mixed-Effects Regression Analysis (Priority: P2)
-
-**Goal**: Execute a mixed-effects regression model testing the interaction between visual attention, headline valence, and cognitive reflection on belief susceptibility.
-
-**Independent Test**: The model can be tested independently by running the regression script on a synthetic dataset with known interaction coefficients and verifying that the estimated coefficients match the synthetic truth within an acceptable margin of error., while correctly identifying the random intercepts for participants and headlines.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T019 [P] [US2] Contract test for regression output schema in `tests/contract/test_regression_schema.py`
-- [ ] T020 [P] [US2] Integration test for coefficient recovery on synthetic data in `tests/integration/test_mixed_effects_recovery.py`
-
-### Implementation for User Story 2
-
-- [ ] T021 [US2] Implement `code/02_valence_calculation.py` using NRC Emotion Lexicon with automatic fallback to VADER if coverage < 50%. **Input**: `data/derived/merged_dataset.csv` (column `headline_text`) generated by T023. **Output**: `data/derived/valence_scores.csv`. **Depends on**: T023 completion. **Logic**: Calculate NRC coverage defined as the percentage of unique words in the headline that match the NRC lexicon. If coverage < 50%, switch to VADER and log the switch (FR-003).
-- [ ] T024 [US2] Implement `code/04_regression_analysis.py` using `statsmodels` for mixed-effects regression (random intercepts for Participant and Headline). **Input**: `data/derived/valence_scores.csv` (T021) and `data/derived/preprocessed_gaze.csv` (T018). **Output**: `data/derived/regression_results.csv`. **Model Formula**: `belief_rating ~ fixation_duration * valence * crt + (1|participant_id) + (1|headline_id)`. **Depends on**: T021.
-- [ ] T025 [US2] Implement calculation of the three-way interaction term (fixation × valence × cognitive reflection) and verify it matches the ground truth from T022.
-- [ ] T026 [US2] Apply multiple-comparison correction (Bonferroni or Holm-Bonferroni) for hypothesis testing.
-- [ ] T027 [US2] Generate `data/derived/regression_results.csv` containing coefficients, p-values, CIs, and interaction terms.
-- [ ] T028 [US2] Ensure the final report frames findings as causal per FR-006 regarding the simulated mechanism **AND** adheres to Outcome-Neutral Validation. **Instruction**: If the p-value for the interaction term is >= 0.05, the script MUST trigger `code/09_null_result_report.py` to generate a formal 'Null Result Report' treating this as a primary finding. If p < 0.05, generate a 'Causal Framing Statement' that explicitly states: "Within the controlled experimental design of this synthetic simulation, the data supports a causal link between [variables]." The report MUST assert the causal link within the controlled experimental design (synthetic ground truth) without weakening disclaimers that negate the causal framing, while strictly adhering to the Outcome-Neutral Validation principle by prioritizing the Null Result Report for non-significant findings.
-- [ ] T037 [US2] [P] Verify that the direction and significance of the main effect (three-way interaction) remain consistent using the capped `cognitive_reflection_score` data generated in T023. **Input**: `data/derived/regression_results.csv` (T027). **Note**: This task explicitly validates the three-way interaction only; no four-way interactions or `confidence_assignment_time` variables are involved. **Dependency**: Requires T023 completion to ensure capped data is used.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Robustness and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Perform robustness checks including alternative fixation thresholds and sensitivity analysis to ensure findings are not artifacts of parameter choices.
-
-**Independent Test**: The robustness suite can be tested by running the analysis with modified parameters (e.g., 50ms vs 150ms thresholds) and verifying that the direction and significance of the main effect remain consistent across these variations.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T029 [P] [US3] Contract test for robustness report schema in `tests/contract/test_robustness_schema.py`
-- [ ] T030 [P] [US3] Integration test for threshold sweep stability in `tests/integration/test_sensitivity_analysis.py`
-
-### Implementation for User Story 3
-
-- [ ] T031 [P] [US3] Implement `code/robustness_analysis.py` to sweep fixation duration cutoffs across a range of values to evaluate sensitivity.
-- [ ] T032 [US3] Implement robustness analysis to sweep the **fixation duration cutoff** (50ms, 100ms, 150ms) and measure the resulting variation in the mean belief rating. **Input**: `data/derived/preprocessed_gaze.csv` (T018), `data/derived/merged_dataset.csv` (T023), `data/derived/valence_scores.csv` (T021), and the regression logic from T024. **Action**: Re-run the regression model logic (T024) with each new threshold value. **Output**: `data/derived/robustness_report.csv`. **Note**: This task strictly addresses SC-003 (threshold sweep) and does not involve sweeping significance levels (alpha). **Dependency**: Must depend on T024 and T021 to ensure correct logic and data are used.
-- [ ] T033 [US3] Implement controls for headline length in the regression model to rule out confounding.
-- [ ] T034 [US3] Generate `data/derived/robustness_report.csv` showing variation in mean belief rating across thresholds.
-- [ ] T038 [US3] [P] Verify that the direction and significance of the main effect remain consistent across threshold variations. **Note**: This task focuses on threshold stability.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T045 [P] Documentation updates in `docs/` and `paper/`
-- [ ] T046 Code cleanup and refactoring
-- [ ] T047 Performance optimization across all stories (ensure <300 min runtime)
-- [ ] T048 [P] Additional unit tests in `tests/unit/`
-- [ ] T049 Run `quickstart.md` validation
-- [ ] T050 Verify all artifacts are checksummed in `state/`
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **Critical**: T022 (Synthetic Data) and T023 (Data Merge) must complete before any US2 or US3 tasks.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires preprocessed data from US1. **Note**: T022 (Synthetic Data) must be completed before T023 (Merge). T023 must be completed before T021 (Valence) and T024 (Model). T021 depends on T023. T024 depends on T021.
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires results from US2
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, US1, US2, US3 can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must be feasible on CPU-only CI with limited core counts and memory resources (no GPU).. No 8-bit quantization or large model loading.
-- **Data Integrity**: All synthetic data generation must use pinned random seeds and be documented as "Simulation Mode" to distinguish from real empirical claims.
-- **Scope Constraint**: Strictly implement the three-way interaction (FR-004). Do NOT implement four-way interactions or `confidence_assignment_time` variables. Phase 6 has been removed.
-- **Causal Framing**: Adhere to FR-006 by framing findings as causal within the experimental design, without weakening disclaimers, while prioritizing Null Result Reports for non-significant findings.
-- **Task Consolidation**: Task T023 (Data Merge) has been restored to ensure the producer-consumer chain is valid. T022 is now strictly for generation; T023 handles merge and capping.
-- **Task Ordering**: T021 explicitly depends on T023. T037 explicitly depends on T023. T032 explicitly depends on T024 and T021.
-- **Robustness Correction**: T032 has been corrected to re-run the regression model with new thresholds using raw data, rather than attempting to derive variation from static results.
-- **Alpha Sweep Removal**: Tasks T035 and T036 have been removed as the alpha sweep was not authorized by the spec (FR-005).
+- [ ] **T014** [FR‑004 & FR‑007] Fit the mixed‑effects model and apply Holm‑Bonferroni correction.  
+  - **Artifact(s)**: `code/services/run_regression.py` (function `run_mixed_effects(df)`).  
+  - **Output**: `data/processed/regression_results.json` adhering to `contracts/output.schema.yaml`. The JSON must contain the interaction term, corrected p‑value, `family_wise_error_rate`, and a boolean `significance_flag`.  
+  - **Verification**: Validation script `code/utils/validate_regression_output.py` confirms the JSON matches the schema; the field `interaction_term.is_significant` reflects Holm‑Bonferroni‑adjusted significance and `family_wise_error_rate` is present.  
+
+- [ ] **T015** [SC‑005] Record total pipeline runtime and compare against the 300‑minute wall‑clock limit.  
+  - **Artifact(s)**: `state/runtime_metrics.json` with keys `total_runtime_seconds`, `limit_seconds`, `within_limit`.  
+  - **Verification**: After the full pipeline (tasks T001–T014) finishes, `state/runtime_metrics.json["within_limit"]` is `true`.  
+
+---  
+
+## Phase 6 – Robustness & sensitivity analysis (User Story 3)  
+
+- [ ] **T016** [FR‑005] Perform a fixation‑duration threshold sweep (50 ms, 100 ms, 150 ms).  
+  - **Artifact(s)**: `code/pipelines/robustness_sweep.py` (loops over thresholds, re‑runs preprocessing → merge → regression).  
+  - **Output**: `data/processed/robustness_report.json` – an array of objects each with `threshold_ms`, `interaction_p_value`, `is_significant`.  
+  - **Verification**: The JSON contains exactly three entries; each entry passes schema validation (`contracts/output.schema.yaml` → `robustness` array).  
+
+- [ ] **T017** [SC‑003] Check stability of the three‑way interaction across the sweep.  
+  - **Artifact(s)**: `data/processed/stability_check.json` with boolean fields `consistent_direction`, `consistent_significance`, `ci_overlap_summary`.  
+  - **Verification**: Running `python -m code.pipelines.stability_check` reads `robustness_report.json` and writes `stability_check.json`; the script exits with code 0 only if both `consistent_direction` and `consistent_significance` are `true`.  
+
+---  
+
+## Phase 7 – Final outputs & hand‑off  
+
+- [ ] **T018** [FR‑006] Generate the causal‑framing statement.  
+  - **Artifact(s)**: `code/services/causal_framing.py` reads `regression_results.json` and writes `output/causal_framing_statement.txt`.  
+  - **Verification**: The text file is non‑empty and contains the phrase “causal” if the experimental design permits, otherwise contains “associational”.  
+
+- [ ] **T019** [Documentation] Update project README and quick‑start guide.  
+  - **Artifact(s)**: `docs/README.md` and `docs/quickstart.md` now list the exact commands to run each pipeline stage (`python -m scripts.init_project`, `python -m code.utils.data_loader`, `python -m code.pipelines.preprocess_gaze`, …).  
+  - **Verification**: A reviewer can follow the steps from a fresh clone and reproduce all artifacts without manual edits.  
+
+- [ ] **T020** [Testing] Add comprehensive contract and integration tests for the whole workflow.  
+  - **Artifact(s)**:  
+    - `tests/contract/test_ingestion_schema.py` (validates raw parquet against `raw_gaze.schema.yaml`).  
+    - `tests/contract/test_regression_schema.py` (validates `regression_results.json`).  
+    - `tests/contract/test_robustness_schema.py` (validates `robustness_report.json`).  
+    - `tests/integration/test_mixed_effects_recovery.py` (runs regression on a tiny real subset and asserts that the three‑way coefficient is present and the JSON conforms to the schema).  
+    - `tests/integration/test_sensitivity_analysis.py` (executes `robustness_sweep.py` and checks that `stability_check.json` reports consistency).  
+  - **Verification**: `pytest -q` reports 0 failures.  
+
+- [ ] **T021** [End‑to‑end] Provide a one‑command quick‑start script that executes the full analysis from raw download to final report.  
+  - **Artifact(s)**: `code/quickstart.py` (calls the pipeline modules in the correct order).  
+  - **Verification**: Running `python -m code.quickstart` completes in < 300 minutes on the CI runner, produces `data/processed/regression_results.json`, `output/causal_framing_statement.txt`, and exits with status 0.  
+
+- [ ] **T022** [Data hygiene] Record SHA‑256 hashes for **every** file written under `data/`, `output/`, and `state/`.  
+  - **Artifact(s)**: `state/artifacts.yaml` (mapping relative paths → hex hashes).  
+  - **Verification**: `python -c "import yaml, hashlib, pathlib; art = yaml.safe_load(open('state/artifacts.yaml')); for p,h in art.items(): assert pathlib.Path(p).read_bytes() and hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() == h"` runs without AssertionError and also asserts that every file under the three directories appears in the mapping.  
+
+- [ ] **T025** [Data model] Implement the data‑model module (`src/models/participant.py`, `src/models/stimulus.py`, `src/models/gaze_event.py`, `src/models/analysis_result.py`) and add schema‑validation tests.  
+  - **Artifact(s)**: Model class files and `tests/contract/test_data_model_schema.py`.  
+  - **Verification**: Importing each model class succeeds; the contract test validates that instances serialized to JSON conform to the schemas defined in `contracts/`.  
+
+---  
+
+### Dependency ordering  
+
+| Task | Must finish before |
+|------|--------------------|
+| T001 | – |
+| T002, T003, T023, T024, T026 | T001 |
+| T004 | T002, T003, T023, T024, T026 |
+| T005, T006 | T004 |
+| T007, T008 | T005 |
+| T009, T010 | T007, T008 |
+| T011 | T009 |
+| T012 | T009, T011 |
+| T014 | T012 |
+| T015 | T014 |
+| T016 | T014 (re‑run with varied thresholds) |
+| T017 | T016 |
+| T018 | T014 |
+| T019, T020 | T018 |
+| T021 | T020 |
+| T022 | T021 |
+| T025 | – (independent, but should exist before any code that imports the models) |
+| T026 | – (logging config must exist before any pipeline execution) |
+
+---  
+
+*All random seeds are fixed in `code/config.yaml` (`random_seed: 42`) and reset before each robustness iteration to guarantee reproducibility.*  

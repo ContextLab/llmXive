@@ -1,141 +1,112 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Input Entities Schema"
-description: "JSON Schema contracts for Participant, NoiseLog, and TaskPerformance input entities for the Ambient Noise on Cognitive Flexibility study."
+title: "Ambient Noise Cognitive Flexibility Dataset"
+description: "JSON Schema for raw logs and processed entities in the ambient noise study."
 
 definitions:
   Participant:
     type: object
-    description: "Core participant demographic and metadata."
     required:
       - participant_id
-      - age
-      - gender
-      - work_environment_type
-      - device_type
+      - start_time
+      - end_time
+      - device_id
+      - calibration_status
+      - calibration_error_margin
     properties:
       participant_id:
         type: string
-        description: "Unique identifier for the participant."
-        pattern: "^P\\d{4}$"
-      age:
-        type: integer
-        minimum: 18
-        maximum: 99
-        description: "Age of the participant in years."
-      gender:
+        description: "Unique identifier for the participant"
+      start_time:
         type: string
-        enum: ["Male", "Female", "Non-binary", "Prefer not to say", "Other"]
-        description: "Gender identity of the participant."
-      work_environment_type:
+        format: date-time
+        description: "ISO 8601 timestamp of session start"
+      end_time:
         type: string
-        enum: ["Home", "Co-working", "Office", "Hybrid"]
-        description: "Primary work environment type."
-      device_type:
+        format: date-time
+        description: "ISO 8601 timestamp of session end"
+      device_id:
         type: string
-        enum: ["Desktop", "Laptop", "Tablet", "Mobile"]
-        description: "Primary device used for the task."
-      recruitment_date:
+        description: "Identifier for the recording device"
+      calibration_status:
         type: string
-        format: date
-        description: "Date of recruitment (YYYY-MM-DD)."
-      consent_status:
-        type: boolean
-        description: "Whether consent was obtained."
+        enum: ["PASS", "FAIL", "MISSING"]
+        description: "Status of the device calibration"
+      calibration_error_margin:
+        type: number
+        description: "Calibration error in decibels (dB)"
+      demographic_info:
+        type: object
+        properties:
+          age:
+            type: integer
+          gender:
+            type: string
+          work_experience_years:
+            type: number
 
   NoiseLog:
     type: object
-    description: "Individual noise level measurement log entry."
     required:
-      - log_id
       - participant_id
       - timestamp
-      - noise_level_db
-      - device_id
+      - db_level
+      - frequency_band
     properties:
-      log_id:
-        type: string
-        description: "Unique identifier for the log entry."
-        pattern: "^LOG\\d{8}$"
       participant_id:
         type: string
-        description: "Reference to the participant ID."
-        pattern: "^P\\d{4}$"
+        description: "Foreign key reference to Participant.participant_id"
       timestamp:
         type: string
         format: date-time
-        description: "ISO 8601 timestamp of the measurement."
-      noise_level_db:
+        description: "ISO 8601 timestamp of the measurement"
+      db_level:
         type: number
-        minimum: 0
-        maximum: 130
-        description: "Measured noise level in decibels (dB)."
-      device_id:
+        description: "Sound pressure level in decibels"
+      frequency_band:
         type: string
-        description: "Identifier of the recording device."
-      calibration_status:
+        enum: ["Low", "Mid", "High", "Full"]
+        description: "Frequency band of the measurement"
+      source:
         type: string
-        enum: ["passed", "failed", "pending", "unknown"]
-        description: "Status of the device calibration at time of log."
-      error_margin_db:
-        type: number
-        minimum: 0
-        description: "Calibration error margin in dB (if applicable)."
-      ambient_conditions:
-        type: string
-        enum: ["Quiet", "Moderate", "Loud", "Very Loud"]
-        description: "Subjective ambient condition category."
+        description: "Source of the noise (e.g., 'ambient', 'device')"
 
   TaskPerformance:
     type: object
-    description: "Individual task trial performance metrics."
     required:
-      - trial_id
       - participant_id
+      - task_id
       - timestamp
-      - task_type
       - reaction_time_ms
       - error_count
+      - correct
     properties:
-      trial_id:
-        type: string
-        description: "Unique identifier for the trial."
-        pattern: "^TRIAL\\d{8}$"
       participant_id:
         type: string
-        description: "Reference to the participant ID."
-        pattern: "^P\\d{4}$"
+        description: "Foreign key reference to Participant.participant_id"
+      task_id:
+        type: string
+        description: "Identifier for the specific cognitive task"
       timestamp:
         type: string
         format: date-time
-        description: "ISO 8601 timestamp of the trial completion."
-      task_type:
-        type: string
-        enum: ["Stroop", "N-back", "Switching", "Flanker"]
-        description: "Type of cognitive task performed."
+        description: "ISO 8601 timestamp of task completion"
       reaction_time_ms:
         type: number
-        minimum: 0
-        description: "Reaction time in milliseconds."
+        description: "Reaction time in milliseconds"
       error_count:
         type: integer
-        minimum: 0
-        description: "Number of errors committed in the trial."
-      stimulus_condition:
+        description: "Number of errors in the task trial"
+      correct:
+        type: boolean
+        description: "Whether the trial was correct"
+      task_type:
         type: string
-        enum: ["Congruent", "Incongruent", "Neutral"]
-        description: "Stimulus condition of the trial."
-      accuracy:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "Accuracy rate (0.0 to 1.0) for the trial."
+        enum: ["switching", "n_back", "stroop"]
+        description: "Type of cognitive task performed"
 
-# Root schema for validation of a single entity instance
-allOf:
+# Input entities (raw data)
+type: object
+oneOf:
   - $ref: "#/definitions/Participant"
   - $ref: "#/definitions/NoiseLog"
   - $ref: "#/definitions/TaskPerformance"
-
-# Note: For array validation (e.g., a file containing multiple logs),
-# the consuming code should validate each item against the specific definition.
-# This schema defines the structure of the individual entities.

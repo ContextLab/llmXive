@@ -1,179 +1,335 @@
 """
-Unit tests for the Wilcoxon signed-rank test implementation in code/analysis/stats.py.
+Unit tests for code/analysis/stats.py.
 
-This module verifies:
-1. Correct calculation of the Wilcoxon statistic (W) and p-value.
-2. Proper handling of ties (continuity correction).
-3. Correct handling of zero differences (exclusion).
-4. Two-sided vs one-sided test logic.
-5. Integration with Bonferroni correction logic (if applicable).
-
-These tests do NOT require external data; they use synthetic but deterministic
-datasets to verify statistical correctness against known values or scipy.stats.
+This module validates the statistical logic for Wilcoxon signed-rank tests,
+Exact Permutation tests, and Survival Analysis (Cox PH) including censored data handling.
 """
-import pytest
+import json
+import os
+import tempfile
+from pathlib import Path
+from typing import List, Dict, Any
+
 import numpy as np
-from scipy import stats as scipy_stats
+import json
+import os
 import sys
 from pathlib import Path
+from typing import List, Dict, Any, Tuple
 
-# Ensure the code directory is in the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-from analysis.stats import wilcoxon_signed_rank, bonferroni_correct
+from analysis.stats import (
+    run_wilcoxon_signed_rank_test,
+    run_exact_permutation_test,
+    run_cox_survival_analysis,
+    apply_bonferroni_correction,
+    load_agent_logs_for_pairing,
+    compute_paired_coverage_data
+)
 
 
 class TestWilcoxonSignedRank:
-    """Tests for the wilcoxon_signed_rank function."""
+    """Tests for the Wilcoxon signed-rank test implementation."""
 
-    def test_perfect_match_all_zeros(self):
-        """
-        Test case where all differences are zero.
-        Expected: W=0, p-value=1.0 (or handled gracefully).
-        """
+    def test_wilcoxon_identical_pairs(self):
+        """Test with identical pairs (should result in W=0 or non-significant)."""
+        x = [1.0, 2.0, 3.0, 4.0, 5.0]
+        y = [1.0, 2.0, 3.0, 4.0, 5.0]
+        
+        stat, pval = run_wilcoxon_signed_rank_test(x, y)
+        
+        # With identical pairs, statistic should be 0 or very low
+        assert stat == 0.0
+        assert pval == 1.0  # Perfectly correlated, no difference
+
+    def test_wilcoxon_significant_difference(self):
+        """Test with a clear systematic difference."""
+        # Baseline is consistently lower than Iterative
+        baseline = [10.0, 12.0, 11.0, 13.0, 10.5]
+        iterative = [20.0, 22.0, 21.0, 23.0, 20.5]
+        
+        stat, pval = run_wilcoxon_signed_rank_test(baseline, iterative)
+        
+        assert stat > 0
+        assert pval < 0.05  # Should be significant given the clear gap
+
+    def test_wilcoxon_small_sample(self):
+        """Test with small sample size (N=3)."""
         x = [1.0, 2.0, 3.0]
-        y = [1.0, 2.0, 3.0]
-        # Our implementation should handle this.
-        # If we exclude zeros, we have 0 samples -> W=0, p=1.0 by convention or raise.
-        # We expect a result that is mathematically consistent.
-        w, p = wilcoxon_signed_rank(x, y)
-        # With no non-zero differences, scipy returns W=0.0, p=1.0
-        assert p == 1.0
-        assert w == 0.0
+        y = [2.0, 3.0, 4.0]
+        
+        # Should not raise an error even with small N
+        stat, pval = run_wilcoxon_signed_rank_test(x, y)
+        
+        assert isinstance(stat, float)
+        assert isinstance(pval, float)
+        assert 0.0 <= pval <= 1.0
 
-    def test_simple_alternating_signs(self):
-        """
-        Test with a known small dataset.
-        x = [1, 2, 3, 4]
-        y = [2, 1, 4, 3]
-        Diffs = [-1, 1, -1, 1] -> Ranks = [1.5, 1.5, 1.5, 1.5] (ties)
-        W+ = 1.5 + 1.5 = 3.0
-        W- = 1.5 + 1.5 = 3.0
-        W = min(3, 3) = 3.0
-        """
+    def test_wilcoxon_ties_handling(self):
+        """Test that ties are handled correctly (continuity correction)."""
+        # Create data with ties
+        x = [1.0, 1.0, 2.0, 2.0, 3.0]
+        y = [1.5, 1.5, 2.5, 2.5, 3.5]
+        
+        stat, pval = run_wilcoxon_signed_rank_test(x, y)
+        
+        assert isinstance(stat, float)
+        assert isinstance(pval, float)
+        # Ties should not cause NaN or Inf
+        assert not np.isnan(stat)
+        assert not np.isinf(stat)
+
+
+class TestExactPermutation:
+    """Tests for the Exact Permutation test implementation."""
+
+    def test_permutation_identical(self):
+        """Test with identical data (p-value should be 1.0)."""
         x = [1.0, 2.0, 3.0, 4.0]
-        y = [2.0, 1.0, 4.0, 3.0]
-        w, p = wilcoxon_signed_rank(x, y)
+        y = [1.0, 2.0, 3.0, 4.0]
         
-        # Compare against scipy
-        scipy_w, scipy_p = scipy_stats.wilcoxon(x, y, zero_method='wilcox', correction=False)
+        stat, pval = run_exact_permutation_test(x, y)
         
-        # Allow small floating point differences
-        assert abs(w - scipy_w) < 1e-6
-        assert abs(p - scipy_p) < 1e-6
+        assert pval == 1.0
 
-    def test_with_ties_and_continuity_correction(self):
-        """
-        Test that continuity correction is applied when ties exist.
-        """
-        x = [10, 20, 30, 40, 50]
-        y = [12, 22, 30, 42, 52] # Diffs: -2, -2, 0, -2, -2
-        # Non-zero diffs: -2, -2, -2, -2. Ranks: 1, 2, 3, 4. Sum = 10. W=10.
-        # Ties in diffs (-2 appears 4 times).
-        w, p = wilcoxon_signed_rank(x, y)
+    def test_permutation_significant(self):
+        """Test with clearly separated groups."""
+        x = [1.0, 1.1, 1.2, 1.3]
+        y = [10.0, 10.1, 10.2, 10.3]
         
-        # Scipy with correction=True (default)
-        scipy_w, scipy_p = scipy_stats.wilcoxon(x, y, zero_method='wilcox', correction=True)
+        stat, pval = run_exact_permutation_test(x, y)
         
-        assert abs(w - scipy_w) < 1e-6
-        # p-values might differ slightly due to exact vs approximation, but should be close
-        assert abs(p - scipy_p) < 1e-4
+        # With perfect separation, p-value should be very low
+        assert pval < 0.05
 
-    def test_one_sided_greater(self):
-        """
-        Test one-sided test (alternative='greater').
-        """
-        x = [1, 2, 3, 4, 5]
-        y = [0, 1, 2, 3, 4] # x > y mostly
+    def test_permutation_single_pair(self):
+        """Test with minimal sample size (N=1)."""
+        x = [1.0]
+        y = [2.0]
         
-        # Two-sided first
-        w_two, p_two = wilcoxon_signed_rank(x, y, alternative='two-sided')
-        # One-sided greater
-        w_one, p_one = wilcoxon_signed_rank(x, y, alternative='greater')
+        # Should handle N=1 gracefully
+        stat, pval = run_exact_permutation_test(x, y)
         
-        # For one-sided, p should be roughly half of two-sided if direction matches
-        # Note: scipy behavior for one-sided is p/2 if direction is correct
-        scipy_w, scipy_p = scipy_stats.wilcoxon(x, y, alternative='greater')
-        
-        assert abs(w_one - scipy_w) < 1e-6
-        assert abs(p_one - scipy_p) < 1e-4
+        assert isinstance(pval, float)
 
-    def test_different_sample_sizes(self):
-        """
-        Test that the function raises an error for mismatched lengths.
-        """
-        x = [1, 2, 3]
-        y = [1, 2]
+    def test_permutation_ties_heavy(self):
+        """Test with many ties (dominant ties scenario)."""
+        # Many identical values
+        x = [0.0, 0.0, 0.0, 0.0, 0.0]
+        y = [0.0, 0.0, 0.0, 0.0, 0.1]
         
-        with pytest.raises(ValueError):
-            wilcoxon_signed_rank(x, y)
+        stat, pval = run_exact_permutation_test(x, y)
+        
+        assert not np.isnan(pval)
+        assert 0.0 <= pval <= 1.0
 
-    def test_empty_input(self):
-        """
-        Test behavior with empty lists.
-        """
-        x = []
-        y = []
+
+class TestSurvivalAnalysis:
+    """Tests for Survival Analysis (Cox PH) with censored data."""
+
+    def test_cox_no_censoring(self):
+        """Test Cox model with no censored data (all events observed)."""
+        # Create synthetic data: time, event (1=event, 0=censored), group
+        # Simulating 'baseline' vs 'iterative' groups
+        times = np.array([10.0, 12.0, 15.0, 20.0, 25.0])
+        events = np.array([1, 1, 1, 1, 1])  # All observed
+        group = np.array([0, 0, 1, 1, 1])  # 0=baseline, 1=iterative
         
-        # Should handle gracefully, likely returning W=0, p=1.0
-        w, p = wilcoxon_signed_rank(x, y)
-        assert w == 0.0
-        assert p == 1.0
+        # Create DataFrame-like structure expected by lifelines
+        df = {
+            'T': times,
+            'E': events,
+            'group': group
+        }
+        
+        hazard_ratio, pval = run_cox_survival_analysis(df)
+        
+        assert hazard_ratio is not None
+        assert isinstance(pval, float)
+        assert 0.0 <= pval <= 1.0
+
+    def test_cox_with_censoring(self):
+        """Test Cox model with censored data (crucial for ranking efficiency)."""
+        # Simulate censored data: some issues never found the solution
+        times = np.array([5.0, 8.0, 12.0, 20.0, 30.0])
+        events = np.array([1, 0, 1, 0, 1])  # 0 = censored (N+1 penalty logic)
+        group = np.array([0, 0, 1, 1, 1])
+        
+        df = {
+            'T': times,
+            'E': events,
+            'group': group
+        }
+        
+        hazard_ratio, pval = run_cox_survival_analysis(df)
+        
+        # Should handle censoring without crashing
+        assert hazard_ratio is not None
+        assert isinstance(pval, float)
+        assert not np.isnan(hazard_ratio)
+
+    def test_cox_all_censored(self):
+        """Test edge case: all data censored (should handle gracefully)."""
+        times = np.array([10.0, 20.0, 30.0])
+        events = np.array([0, 0, 0])  # All censored
+        group = np.array([0, 1, 0])
+        
+        df = {
+            'T': times,
+            'E': events,
+            'group': group
+        }
+        
+        # Should not crash, might return NaN or specific warning
+        hazard_ratio, pval = run_cox_survival_analysis(df)
+        
+        # The function should handle this gracefully (return NaN or similar)
+        # We assert it doesn't crash and returns a float-like
+        assert isinstance(pval, float)
+
+    def test_cox_group_imbalance(self):
+        """Test with highly imbalanced group sizes."""
+        times = np.array([5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 20.0])
+        events = np.array([1, 1, 1, 1, 1, 1, 1])
+        group = np.array([0, 0, 0, 0, 0, 0, 1])  # 6 vs 1
+        
+        df = {
+            'T': times,
+            'E': events,
+            'group': group
+        }
+        
+        hazard_ratio, pval = run_cox_survival_analysis(df)
+        
+        assert isinstance(pval, float)
 
 
 class TestBonferroniCorrection:
-    """Tests for the bonferroni_correct function."""
+    """Tests for Bonferroni correction logic."""
 
-    def test_single_test(self):
-        """
-        With 1 test, corrected p should equal original p.
-        """
-        p_val = 0.05
-        corrected = bonferroni_correct([p_val], alpha=0.05)
-        assert corrected == p_val
-
-    def test_multiple_tests_simple(self):
-        """
-        With 2 tests, corrected p should be p * 2.
-        """
-        p_vals = [0.02, 0.03]
-        corrected = bonferroni_correct(p_vals, alpha=0.05)
-        expected = [0.04, 0.06]
-        assert corrected == expected
-
-    def test_cap_at_1(self):
-        """
-        Corrected p-values should not exceed 1.0.
-        """
-        p_vals = [0.6, 0.7]
-        corrected = bonferroni_correct(p_vals, alpha=0.05)
-        # 0.6 * 2 = 1.2 -> capped at 1.0
-        # 0.7 * 2 = 1.4 -> capped at 1.0
-        assert corrected[0] == 1.0
-        assert corrected[1] == 1.0
-
-    def test_significance_threshold(self):
-        """
-        Test that the function correctly identifies significant results.
-        """
-        p_vals = [0.01, 0.03, 0.1]
-        corrected = bonferroni_correct(p_vals, alpha=0.05)
+    def test_bonferroni_simple(self):
+        """Test basic Bonferroni correction."""
+        p_values = [0.01, 0.05, 0.10]
+        alpha = 0.05
         
-        # 0.01 * 3 = 0.03 (sig)
-        # 0.03 * 3 = 0.09 (not sig)
-        # 0.1 * 3 = 0.3 (not sig)
-        assert corrected[0] < 0.05
-        assert corrected[1] >= 0.05
-        assert corrected[2] >= 0.05
+        adjusted = apply_bonferroni_correction(p_values, alpha)
+        
+        assert len(adjusted) == len(p_values)
+        # Adjusted p-values should be >= original
+        for adj, orig in zip(adjusted, p_values):
+            assert adj >= orig
+        
+        # First one (0.01 * 3 = 0.03) should be < 0.05
+        assert adjusted[0] < 0.05
+        # Second one (0.05 * 3 = 0.15) should be > 0.05
+        assert adjusted[1] > 0.05
 
-    def test_alpha_parameter(self):
-        """
-        Test with a different alpha value.
-        """
-        p_vals = [0.01, 0.02]
-        # Alpha = 0.1, n=2 -> threshold = 0.05
-        corrected = bonferroni_correct(p_vals, alpha=0.1)
-        # 0.01 * 2 = 0.02 (< 0.1, sig)
-        # 0.02 * 2 = 0.04 (< 0.1, sig)
-        assert corrected[0] < 0.1
-        assert corrected[1] < 0.1
+    def test_bonferroni_cap_at_1(self):
+        """Test that adjusted p-values are capped at 1.0."""
+        p_values = [0.5, 0.6, 0.7]
+        alpha = 0.05
+        
+        adjusted = apply_bonferroni_correction(p_values, alpha)
+        
+        for adj in adjusted:
+            assert adj <= 1.0
+
+    def test_bonferroni_empty_list(self):
+        """Test with empty list."""
+        p_values = []
+        alpha = 0.05
+        
+        adjusted = apply_bonferroni_correction(p_values, alpha)
+        
+        assert len(adjusted) == 0
+
+
+class TestPairingLogic:
+    """Tests for data loading and pairing logic."""
+
+    def test_load_agent_logs_pairing(self, tmp_path):
+        """Test that logs are correctly paired by issue_id."""
+        # Create mock log files
+        baseline_path = tmp_path / "baseline_logs.jsonl"
+        iterative_path = tmp_path / "iterative_logs.jsonl"
+        
+        baseline_data = [
+            {"issue_id": "1", "coverage": 0.5, "rank": 10},
+            {"issue_id": "2", "coverage": 0.3, "rank": 20},
+            {"issue_id": "3", "coverage": 0.8, "rank": 5}
+        ]
+        
+        iterative_data = [
+            {"issue_id": "1", "coverage": 0.7, "rank": 5},
+            {"issue_id": "2", "coverage": 0.4, "rank": 15},
+            {"issue_id": "3", "coverage": 0.9, "rank": 2}
+        ]
+        
+        with open(baseline_path, "w") as f:
+            for item in baseline_data:
+                f.write(json.dumps(item) + "\n")
+        
+        with open(iterative_path, "w") as f:
+            for item in iterative_data:
+                f.write(json.dumps(item) + "\n")
+        
+        # Load and pair
+        paired = load_agent_logs_for_pairing(str(baseline_path), str(iterative_path))
+        
+        assert len(paired) == 3
+        # Check specific pairings
+        assert paired[0]["issue_id"] == "1"
+        assert paired[0]["baseline_coverage"] == 0.5
+        assert paired[0]["iterative_coverage"] == 0.7
+
+    def test_compute_paired_coverage_data(self, tmp_path):
+        """Test coverage data computation from paired logs."""
+        baseline_path = tmp_path / "baseline.jsonl"
+        iterative_path = tmp_path / "iterative.jsonl"
+        
+        # Write test data
+        with open(baseline_path, "w") as f:
+            f.write(json.dumps({"issue_id": "1", "coverage": 0.5}) + "\n")
+            f.write(json.dumps({"issue_id": "2", "coverage": 0.3}) + "\n")
+        
+        with open(iterative_path, "w") as f:
+            f.write(json.dumps({"issue_id": "1", "coverage": 0.6}) + "\n")
+            f.write(json.dumps({"issue_id": "2", "coverage": 0.4}) + "\n")
+        
+        baseline_arr, iterative_arr = compute_paired_coverage_data(
+            str(baseline_path), str(iterative_path)
+        )
+        
+        assert len(baseline_arr) == 2
+        assert len(iterative_arr) == 2
+        assert np.allclose(baseline_arr, [0.5, 0.3])
+        assert np.allclose(iterative_arr, [0.6, 0.4])
+
+    def test_paired_coverage_missing_issue(self, tmp_path):
+        """Test behavior when an issue is missing from one log."""
+        baseline_path = tmp_path / "baseline.jsonl"
+        iterative_path = tmp_path / "iterative.jsonl"
+        
+        with open(baseline_path, "w") as f:
+            f.write(json.dumps({"issue_id": "1", "coverage": 0.5}) + "\n")
+            f.write(json.dumps({"issue_id": "2", "coverage": 0.3}) + "\n")
+            f.write(json.dumps({"issue_id": "3", "coverage": 0.4}) + "\n")
+        
+        with open(iterative_path, "w") as f:
+            f.write(json.dumps({"issue_id": "1", "coverage": 0.6}) + "\n")
+            # Issue 2 is missing
+            f.write(json.dumps({"issue_id": "3", "coverage": 0.5}) + "\n")
+        
+        baseline_arr, iterative_arr = compute_paired_coverage_data(
+            str(baseline_path), str(iterative_path)
+        )
+        
+        # Should only return pairs that exist in BOTH
+        assert len(baseline_arr) == 2
+        assert len(iterative_arr) == 2
+        # Issue 1 and 3 should be present
+        assert 0.5 in baseline_arr
+        assert 0.4 in baseline_arr

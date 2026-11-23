@@ -1,10 +1,4 @@
 import pytest
-import logging
-from pathlib import Path
-import sys
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from code.utils.error_handling import (
     PipelineError,
     DataFetchError,
@@ -13,63 +7,95 @@ from code.utils.error_handling import (
     ConfigError,
     handle_error,
     validate_not_null,
-    validate_positive
+    validate_positive,
+    pipeline_error_handler
 )
-from code.utils.logger import setup_logger
+from code.utils.logger import get_pipeline_logger
 
-class TestExceptionHierarchy:
-    def test_pipeline_error_is_exception(self):
-        assert issubclass(PipelineError, Exception)
 
-    def test_data_fetch_error_is_pipeline_error(self):
-        assert issubclass(DataFetchError, PipelineError)
+logger = get_pipeline_logger()
 
-    def test_data_processing_error_is_pipeline_error(self):
-        assert issubclass(DataProcessingError, PipelineError)
 
-    def test_model_training_error_is_pipeline_error(self):
-        assert issubclass(ModelTrainingError, PipelineError)
+def test_pipeline_error_hierarchy():
+    """Test that specific errors inherit from PipelineError."""
+    assert issubclass(DataFetchError, PipelineError)
+    assert issubclass(DataProcessingError, PipelineError)
+    assert issubclass(ModelTrainingError, PipelineError)
+    assert issubclass(ConfigError, PipelineError)
 
-    def test_config_error_is_pipeline_error(self):
-        assert issubclass(ConfigError, PipelineError)
 
-class TestHandleError:
-    def test_handle_error_custom_logger(self):
-        logger = setup_logger(name="test_handle", level=logging.DEBUG)
-        error = ValueError("Test")
-        
-        # Should not raise since reraise defaults to True, but we catch it
-        with pytest.raises(ValueError):
-            handle_error(error, context="Unit Test", logger=logger)
+def test_validate_not_null_pass():
+    """Test validate_not_null with valid input."""
+    assert validate_not_null("value", "test_field") == "value"
+    assert validate_not_null(0, "test_field") == 0
+    assert validate_not_null(False, "test_field") is False
 
-    def test_handle_error_default_logger(self):
-        # This will use the global logger if available, or setup a fallback
-        error = ValueError("Test")
-        with pytest.raises(ValueError):
-            handle_error(error, context="Unit Test", reraise=True)
 
-class TestValidations:
-    def test_validate_not_null_none(self):
-        logger = setup_logger(name="test_val_null", level=logging.ERROR)
-        with pytest.raises(DataProcessingError):
-            validate_not_null(None, "test_var", logger=logger)
+def test_validate_not_null_fail():
+    """Test validate_not_null raises on None."""
+    with pytest.raises(DataProcessingError) as exc_info:
+        validate_not_null(None, "test_field")
+    assert "test_field" in str(exc_info.value)
 
-    def test_validate_not_null_valid(self):
-        logger = setup_logger(name="test_val_valid", level=logging.ERROR)
-        # Should pass silently
-        validate_not_null("data", "test_var", logger=logger)
 
-    def test_validate_positive_zero(self):
-        logger = setup_logger(name="test_pos_zero", level=logging.ERROR)
-        with pytest.raises(DataProcessingError):
-            validate_positive(0, "test_var", logger=logger)
+def test_validate_positive_pass():
+    """Test validate_positive with valid input."""
+    assert validate_positive(1.0, "test_field") == 1.0
+    assert validate_positive(0.001, "test_field") == 0.001
+    assert validate_positive(100, "test_field") == 100
 
-    def test_validate_positive_negative(self):
-        logger = setup_logger(name="test_pos_neg", level=logging.ERROR)
-        with pytest.raises(DataProcessingError):
-            validate_positive(-1, "test_var", logger=logger)
 
-    def test_validate_positive_positive(self):
-        logger = setup_logger(name="test_pos_ok", level=logging.ERROR)
-        # Should pass
-        validate_positive(1, "test_var", logger=logger)
+def test_validate_positive_fail_zero():
+    """Test validate_positive raises on zero."""
+    with pytest.raises(DataProcessingError) as exc_info:
+        validate_positive(0, "test_field")
+    assert "positive" in str(exc_info.value).lower()
+
+
+def test_validate_positive_fail_negative():
+    """Test validate_positive raises on negative."""
+    with pytest.raises(DataProcessingError) as exc_info:
+        validate_positive(-5, "test_field")
+    assert "positive" in str(exc_info.value).lower()
+
+
+def test_validate_positive_fail_type():
+    """Test validate_positive raises on non-numeric."""
+    with pytest.raises(DataProcessingError) as exc_info:
+        validate_positive("string", "test_field")
+    assert "number" in str(exc_info.value).lower()
+
+
+def test_handle_error_logs_and_reraises():
+    """Test that handle_error logs and re-raises by default."""
+    with pytest.raises(ValueError) as exc_info:
+        try:
+            raise ValueError("Test error")
+        except ValueError as e:
+            handle_error(e, context="Test Context", reraise=True)
+    assert "Test error" in str(exc_info.value)
+
+
+def test_handle_error_logs_no_reraise(capsys):
+    """Test that handle_error logs but does not re-raise when requested."""
+    try:
+        raise ValueError("Test error no reraise")
+    except ValueError as e:
+        handle_error(e, context="Test Context", reraise=False)
+    
+    # Verify log output (simplified check)
+    captured = capsys.readouterr()
+    # The logger writes to file and stdout, checking stdout content
+    assert "Test error no reraise" in captured.out or "Test Context" in captured.out
+
+
+def test_pipeline_error_handler_decorator():
+    """Test the decorator handles exceptions correctly."""
+    @pipeline_error_handler
+    def failing_func():
+        raise RuntimeError("Decorated error")
+
+    with pytest.raises(RuntimeError) as exc_info:
+        failing_func()
+    
+    assert "Decorated error" in str(exc_info.value)

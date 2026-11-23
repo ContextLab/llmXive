@@ -1,0 +1,8 @@
+T000:
+  c: true
+  h: b590a55a6c61710e146bd2d534a411f237cae1266c08865c992136de3efdef65
+  r: "Checked the `docs/phase0_overview.md` file (resolved path `docs/phase0_overview.md`,\
+    \ 3485\u202Fbytes) \u2013 it exists, contains the required headings for each Phase\u202F\
+    0 sub\u2011step and notes its reference in `tasks.md`, fulfilling the documentation\
+    \ requirement."
+  sig: 6868564d9217972f9a35f999a189542e83d442b6a3b1d84d113faff9e492ec99

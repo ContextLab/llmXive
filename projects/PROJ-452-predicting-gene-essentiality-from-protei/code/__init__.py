@@ -1,3 +1,3 @@
 """
-llmXive Gene Essentiality Analysis Package.
+Code package for gene essentiality prediction pipeline.
 """

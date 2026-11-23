@@ -1,1 +1,2 @@
-# Plots directory - stores generated visualization figures
+# This file ensures the artifacts/plots directory is tracked in git
+# Generated plots and figures will be stored here

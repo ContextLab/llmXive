@@ -112,5 +112,15 @@
     "tables/sft_opd_ablation.tex",
     "tables/sft_param.tex",
     "tables/tool_rl.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "99bee916b668375e1fd1912d164f17eb551d9f25b95e27850980563c9be6a47a",
+      "bytes": 9206491
+    },
+    "original.pdf": {
+      "sha256": "2cca3c3889db6d7669828119a9371760cbd1f2ee1ad566429445b4022d9d7454",
+      "bytes": 9130489
+    }
+  }
 }

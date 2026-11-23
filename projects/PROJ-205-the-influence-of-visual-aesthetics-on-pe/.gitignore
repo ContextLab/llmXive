@@ -75,12 +75,13 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
-# Data
-data/raw/
-data/processed/
-data/interim/
-data/external/
-figures/
-*.csv
-*.json
+# Pyre type checker
+.pyre/
+
+# Project specific
+data/raw/*.csv
+data/processed/*.csv
+data/processed/*.json
+data/consent/*.txt
 logs/
+.streamlit/

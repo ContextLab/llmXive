@@ -54,5 +54,15 @@
     "seed/bytesans.tfm",
     "seed/bytesansmedium.tfm",
     "seed/seed_logo.png"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "6c6ce7cb980501492a058b4f1ddf23e7a4fc1312892d5c255e8f586977c42f3e",
+      "bytes": 10188258
+    },
+    "original.pdf": {
+      "sha256": "74683189bb2f8511774242496ef5d89d227e325c52718cc80037feb6f41b74ea",
+      "bytes": 10128018
+    }
+  }
 }

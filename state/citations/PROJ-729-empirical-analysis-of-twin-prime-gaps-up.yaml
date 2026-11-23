@@ -9,31 +9,9 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/math/0506067
   verified_at: '2026-07-03T05:54:47.337308Z'
-- artifact_hash: e3e2ea30939f54c4c59a353447dfcc09a35f078103899071db1460315ba9610b
+- artifact_hash: 5cc92065d16da0f78eefe16d05fd48399e25a18f15425553063bfe7959f3521d
   artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[math/0506067] Small gaps between primes or almost primes'
-  kind: url
-  value: https://arxiv.org/abs/math/0506067
-  verification_status: verified
-  verified_against_url: https://arxiv.org/abs/math/0506067
-  verified_at: '2026-07-08T18:53:01.025943Z'
-- artifact_hash: e3e2ea30939f54c4c59a353447dfcc09a35f078103899071db1460315ba9610b
-  artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Pi - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Pi
-  verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-07-08T18:53:01.025943Z'
-- artifact_hash: e3e2ea30939f54c4c59a353447dfcc09a35f078103899071db1460315ba9610b
-  artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
-  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -41,4 +19,4 @@
   value: https://oeis.org/A002386
   verification_status: pending
   verified_against_url: https://oeis.org/A002386
-  verified_at: '2026-07-08T18:53:01.025943Z'
+  verified_at: '2026-10-23T09:32:00.405120Z'

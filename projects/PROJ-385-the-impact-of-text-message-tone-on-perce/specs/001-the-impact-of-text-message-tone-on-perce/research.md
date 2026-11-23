@@ -1,92 +1,61 @@
 # Research: The Impact of Text Message Tone on Perceived Emotional Support
 
-## 1. Research Question & Hypotheses
+**Feature**: `001-text-tone-emotional-support`  
+**Date**: 2026-08-08  
 
-**Primary Question**: Does the relationship between paralinguistic features (emoji, punctuation, length) and perceived emotional support vary depending on the sender's relationship to the recipient (close friend vs. acquaintance)?
+## Overview
+This document outlines the empirical strategy, dataset considerations, statistical methods, and methodological safeguards required to answer the central question: *How does the tone of a text message (emoji count, punctuation style, length) interact with the relational context (close friend vs. acquaintance) to shape perceived emotional support?*  
 
-**Hypotheses**:
-- **H1 (Interaction)**: There is a significant interaction between Relationship Type and specific paralinguistic features. Specifically, high cue intensity (e.g., multiple emojis, exclamation marks) will increase perceived support more for acquaintances than for close friends.
-- **H2 (Main Effects)**: Specific features (e.g., emojis) may have main effects on perceived support independent of relationship.
-- **H3 (Non-Linearity)**: The effect of emojis may be non-linear (e.g., 2 emojis may not be twice as effective as 1).
+All decisions are grounded in the functional requirements (FR‑001 – FR‑007) and success criteria (SC‑001 – SC‑005) from the specification. No un‑specified thresholds or metrics are introduced.
 
-## 2. Dataset Strategy
+## Dataset Strategy
 
-Since the study requires a controlled experimental design with specific manipulations of emoji, punctuation, and length, **no external public dataset** is suitable. The "Verified datasets" block provided (POPE, RefCOCO, MP-DocVQA) contains image-text pairs for VQA tasks and is irrelevant to this text-message sentiment study.
+| Dataset | Source | Access | Role |
+|---------|--------|--------|------|
+| **Stimuli metadata** | Generated locally from base scenarios (see Phase 1) | Programmatic (no external download) | Provides the objective cue features for each text message. |
+| **Human ratings** | Collected via Prolific (real participants) and stored in `data/raw/real_ratings.csv` | Uploaded by the research team after collection; **not** fetched from an external URL. | Primary dependent variable (multi‑point Likert rating of perceived emotional support). |
+| **Consent records** | Stored under `data/consent/` (JSON) | Internal only | Guarantees compliance with Principle VI (anonymity & consent). |
 
-**Strategy**:
-1.  **Stimulus Generation (FR-001)**: A Python script will generate a factorial design of text messages.
-    -   *Base Scenarios*: 4 generic scenarios (e.g., "I had a rough day").
-    -   *Factors*:
-        -   Emoji Level: 3 levels (None, 1 Emoji, 2+ Emojis).
-        -   Punctuation Level: 2 levels (Standard, Exaggerated/Repeated).
-        -   Length Level: 2 levels (Concise, Elaborate).
-    -   *Total Variants*: 4 scenarios × 3 × 2 × 2 = 48 unique stimuli.
-2.  **Data Simulation (FR-002)**: A second script will simulate human ratings.
-    - *Participants*: Simulated N = [deferred] (targeting [deferred] power for medium interaction effect, α=0.05).
-    - *Design*: Within-subjects. Each participant rates all 48 stimuli in both "Friend" and "Acquaintance" contexts.
-    - *Simulation Modes*:
-        -   **Effect Present**: Ratings drawn from a distribution with a mean shift based on the hypothesized interaction.
-        -   **Null Hypothesis (Validation)**: Ratings drawn with NO interaction effect (only main effects or noise) to verify the pipeline correctly returns non-significant results (Type I error control).
-        -   **Noise Only**: Pure random noise to test robustness.
-    - *Validity*: This synthetic approach allows for exact control over the independent variables, which is necessary for the factorial analysis required by the spec. The inclusion of Null/Noise modes ensures the pipeline is not validated in a tautological loop.
+> **Note**: No open‑source dataset matching the required structure exists. The plan therefore relies on the *real* dataset produced by the Prolific study, as mandated by FR‑002. The pipeline validates its presence and integrity before any analysis.
 
-**Dataset Variables**:
--   `stimulus_id`: Unique ID for the text variant.
--   `participant_id`: Unique ID for the rater.
--   `relationship`: Categorical (Friend, Acquaintance).
--   `emoji_level`: Integer (0, 1, 2).
--   `punctuation_type`: Categorical (Standard, Exaggerated).
--   `length_category`: Categorical (Concise, Elaborate).
--   `rating`: Integer 1-7 (Perceived Emotional Support).
+## Methods Rationale
 
-## 3. Statistical Analysis Plan
+| Analysis Component | Method | Library (CPU‑only) | Justification |
+|--------------------|--------|--------------------|---------------|
+| Cue‑intensity computation | Weighted sum of three binary features (emoji, punctuation, length) | `pandas` | Directly implements the operationalization defined in FR‑001 and FR‑005. |
+| **Power analysis** | **Simulation‑based LMM power estimation**: generate 1 000 synthetic datasets using the planned random‑effects structure, fit the LMM, and compute the proportion of significant interaction effects (α = 0.05). | `statsmodels`, `numpy` | Aligns with FR‑002’s requirement and avoids the inappropriate ANOVA‑based calculation. |
+| Linear Mixed‑Effects Model (primary) | `statsmodels.MixedLM` with random intercepts for `participant_id` and `stimulus_id` | `statsmodels` | Provides a well‑established frequentist LMM framework compatible with CPU‑only CI runners (Principle VII). |
+| Degrees of freedom | Wald Z (normal approximation) – `statsmodels` does not implement Satterthwaite for MixedLM; this limitation is explicitly reported. | `statsmodels` | Transparent reporting of the limitation; satisfies SC‑001 without mis‑claiming Satterthwaite. |
+| Post‑hoc pairwise comparisons | Tukey HSD (`statsmodels.stats.multicomp.pairwise_tukeyhsd`) | `statsmodels` | Controls family‑wise error rate as required by SC‑003. |
+| Sensitivity analysis | Re‑fit LMM under three alternative cue‑intensity weightings (equal, emoji‑dominant, punctuation‑dominant) | `statsmodels` (same pipeline) | Directly addresses FR‑005 and SC‑002. |
+| Straight‑lining detection | Variance‑zero check per participant across all stimulus ratings | `numpy`/`pandas` | Implements FR‑006. |
+| Missing‑data handling | Listwise deletion of participants with incomplete rows (documented) | `pandas` | Satisfies FR‑006 and ensures model assumptions. |
+| Randomization & Counterbalancing | Per‑participant random order generation; each stimulus presented once in each relationship context (block‑balanced). | `numpy` | Guarantees internal validity (addresses methodology concerns). |
 
-### 3.1 Primary Model (FR-003)
--   **Method**: Linear Mixed-Effects Model (LMM) using `statsmodels` or `linearmodels` (CPU-only).
--   **Formula**: `rating ~ relationship * emoji_level * punctuation_type * length_category + (1 | participant_id) + (1 | stimulus_id)`
-    -   **Encoding**: Categorical factors (Emoji, Punctuation, Length) will be **dummy-coded (treatment contrasts)**. This avoids assuming a linear additive effect (e.g., that 2 emojis are exactly twice as intense as 1) and allows the model to estimate the specific effect of each level.
--   **Degrees of Freedom**: Satterthwaite approximation (standard in `lmerTest` equivalent for Python).
--   **Outcome**: Fixed effect estimates, standard errors, t-values, and p-values for the **interaction terms** (e.g., `relationship:emoji_level`, `relationship:punctuation_type`).
+### Statistical Rigor Checklist
+- **Multiple comparisons** – Tukey HSD applied to all post‑hoc tests (SC‑003).  
+- **Power justification** – Simulation‑based LMM power analysis; target N = 60 participants (SC‑001).  
+- **Causal inference** – The design is observational (participants rate pre‑generated stimuli). All claims will be framed as *associational*; no causal language is used (complies with statistical rigor).  
+- **Measurement validity** – The Likert scale is a standard, validated measure of perceived support in affective research (no new instrument introduced).  
+- **Collinearity** – Cue‑intensity is a composite; its components are not entered as separate predictors, avoiding multicollinearity concerns.  
 
-### 3.2 Post-Hoc Analysis (FR-004)
--   **Condition**: If any interaction term is statistically significant (p < 0.05).
--   **Method**: Tukey-corrected pairwise comparisons.
--   **Implementation**: `statsmodels.stats.multicomp` or `pingouin` (CPU-optimized).
--   **Correction**: Family-wise error rate controlled at α = 0.05.
+## Execution Plan Summary (mirrors `plan.md` phases)
+1. **Stimulus generation** – creates `stimuli.csv` with fully crossed feature matrix and balanced context assignment (FR‑001).  
+2. **Data verification** – checks existence, checksum, straight‑lining, and missingness (FR‑002, FR‑006, FR‑007).  
+3. **Pre‑processing** – merges stimulus metadata with ratings, computes cue‑intensity (FR‑001, FR‑005).  
+4. **Primary LMM** – tests `relationship × cue_intensity` interaction (FR‑003, SC‑001) using Wald Z.  
+5. **Post‑hoc Tukey** – conditional on a significant interaction (FR‑004, SC‑003).  
+6. **Sensitivity analysis** – three alternative weightings, reports stability (FR‑005, SC‑002).  
+7. **Reporting & CI** – aggregates results, ensures runtime ≤ 6 h (SC‑005), runs contract tests, validates artifact manifest (Principle V).  
 
-### 3.3 Factorial Decomposition & Construct Validity
--   **Objective**: Address the concern that a composite "cue_intensity" variable may mask specific psychological mechanisms.
--   **Procedure**:
-    1.  Run the full factorial model (Section 3.1) to test individual factors and their interactions.
-    2.  Analyze the specific interaction terms (e.g., `relationship:emoji_level`) to determine if the effect is driven by emojis, punctuation, or their combination.
-    3.  This step validates that the findings are not artifacts of an arbitrary weighting scheme.
+All steps are ordered so that data is downloaded/validated before any downstream computation, satisfying the “producer‑before‑consumer” ordering required by the methodology panel.
 
-### 3.4 Sensitivity Analysis (FR-005)
--   **Objective**: Test robustness of the interaction effect to the *definition* of "Cue Intensity" (structural, not just mathematical).
--   **Procedure**:
-    1.  Define 3 alternative **structural** operationalizations of "High Cue":
-        -   *Model A (Disjunctive)*: High cue = (Emoji > 0) OR (Punctuation = Exaggerated).
-        -   *Model B (Conjunctive)*: High cue = (Emoji > 0) AND (Punctuation = Exaggerated).
-        -   *Model C (Dominant)*: High cue = Emoji > 0 (ignoring punctuation/length).
-    2.  Create a binary "High_Cue" variable for each model and re-run the LMM: `rating ~ relationship * High_Cue + (1|participant) + (1|stimulus)`.
-    3.  Compare the interaction p-values and effect sizes across the three models.
--   **Success Metric**: The interaction effect remains significant (p < 0.05) across all three structural definitions, demonstrating robustness of the psychological finding. This tests if the finding holds across different *logical* definitions of the construct, rather than just mathematical weights.
+## Risks & Mitigations
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Insufficient participants (N < 60) | Power loss → SC‑001 not met | Early recruitment monitoring; if N < 60 after a pre‑registered window, pause analysis and report limitation. |
+| Straight‑lining participants inflate variance | Bias in estimates | Automatic detection and exclusion; exclusion counts reported in `report.md`. |
+| Missing ratings for a subset of stimuli | Reduced data completeness | Listwise deletion; documented missing‑data log; sensitivity check on reduced sample size. |
+| Prolific data export format changes | Pipeline breakage | Version‑pin the export schema; include fallback parsing logic. |
 
-### 3.5 Data Quality & Cleaning (FR-006)
--   **Straight-lining Detection**: Calculate variance of ratings per participant across all stimuli. If variance = 0, flag and exclude.
--   **Missing Data**: Listwise deletion for participants with missing ratings > 10%.
--   **Randomization Check**: Verify that `relationship` assignment is balanced. If not, exclude affected participants.
-
-## 4. Compute Feasibility & Constraints
-
--   **Hardware**: GitHub Actions Free Tier (2 vCPU, 7 GB RAM, No GPU).
--   **Library Choice**: `statsmodels` and `linearmodels` are pure Python/Cython, fully CPU-compatible. No `torch` or GPU-specific libraries are used.
-- **Data Size**: 48 stimuli × ~200 participants × 2 contexts = [deferred] rows. < 1 MB. Trivial for RAM.
--   **Runtime**: LMM on <20k rows typically completes in < 30 seconds. Sensitivity analysis (3x runs) < 2 minutes. Well within 6-hour limit.
-
-## 5. Decision Rationale
-
--   **Synthetic Data vs. Real Data**: Real data collection via Prolific is outside the scope of the *computational pipeline* implementation. The spec requires the *system* to be capable of collecting and analyzing data. Simulating the data allows the pipeline to be fully tested and verified (FR-002 acceptance criteria) without external dependencies or costs.
--   **Full Factorial LMM**: Essential for handling the crossed random effects and testing the specific psychological mechanism (interaction of specific cues) without assuming linearity.
--   **Null Hypothesis Simulation**: Critical for validating the pipeline. If the pipeline only simulates "effect present" data, it cannot verify its ability to correctly return null results.
--   **Structural Sensitivity**: Tests whether the finding is robust to *how* we define "high cue" (e.g., does it matter if we require both emoji and punctuation, or just one?), which is more psychologically meaningful than re-weighting a linear sum.
+No additional constraints beyond those explicitly listed in the specification are introduced. 

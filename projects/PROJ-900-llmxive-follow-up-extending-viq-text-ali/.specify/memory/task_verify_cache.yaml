@@ -1,28 +1,197 @@
 T001:
+  c: true
+  h: e8d52c36a3cc04ec092c5cef97e1d3d9c889022812137a320219aa6bbbdf9177
+  r: All five requested directories (`data/raw/`, `data/processed/`, `data/results/`,
+    `code/`, `tests/`) exist and each contains a `.gitkeep` file, exactly as T001
+    requires. The extra contents (scripts, tests, `ground_truth_images/`) are consistent
+    with later tasks and do not conflict with this directory-scaffolding task.
+  sig: 8b0cf71999ab8ae9f9611c37e2f99dc60d8b3f2f94f0d7f14e5325aac5fc5f5d
+T002:
+  c: true
+  h: 2b90b33e41d4efe0816fce0ec5d889195a6526203bdf36a99badff84ec7cb181
+  r: The `requirements.txt` exists at the resolved project path (226 bytes) and pins
+    all ten required packages at the exact specified versions (torch==2.1.0+cpu, transformers==4.36.0,
+    datasets==2.14.0, scikit-learn==1.3.0, opencv-python-headless==4.8.0, numpy==1.24.0,
+    pandas==2.0.0, matplotlib==3.7.0, scipy==1.10.0, psutil==2.3.0), plus additional
+    reasonable dependencies (pillow, h5py, sentencepiece) that don't conflict with
+    the requirement.
+  sig: 308afb8c126f201e652ef51baa748a5af65015a4322e603349d75d8f5446a55b
+T004:
+  c: true
+  h: 2ada9226dce86069261bb8feace8e7b7e87e40b6f579e63713d7326e9c86c125
+  r: "`code/config.py` exists (4900 bytes) and defines all required explicit keys\
+    \ with correct defaults: `batch_size=8`, `learning_rate=1e-4`, `seed=42`, `dataset_limits`\
+    \ (including `max_train_samples`), `paths` (data dirs), and `thresholds` (including\
+    \ `semantic_threshold`), plus serialization helpers \u2014 no stubs or placeholders."
+  sig: 0b2dc1f6942d0a8bf1770a7f608587363648e2f8020ef4c8af620b88321dabb3
+T005:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/raw/`, `data/processed/`, `data/results/`,\
-    \ `code/`, or `tests/` directories (each containing a `.gitkeep` file) was provided;\
-    \ the claim lacks any artifact showing these folders exist. The implementer must\
-    \ add the directories with non\u2011empty `.gitkeep` placeholder files."
-T003:
+  h: 7d08fc5a2cd31320b587f4c3db8da56b626cd595927fc53d23e194387352175d
+  r: "The file exists and fails loudly on fetch errors, but it does not implement\
+    \ the required **standard spatial resize to a fixed resolution** \u2014 there\
+    \ is no resizing logic (no transforms, no target resolution, no PIL/torch resize)\
+    \ anywhere in `code/data_loader.py`. It also loads COCO via `load_dataset(\"mscoco\"\
+    , \"2017\", ...)` instead of the specified `load_dataset(\"coco\", split=\"train\"\
+    , streaming=True)`, and ImageNet \"batch handling\" is only a generic `get_dataloader`\
+    \ that returns `None` for streaming datasets rather than real batch handling.\
+    \ Additionally, the T032 benchmark fabricates a \"baseline\""
+  sig: e2330e22687df8b51669fc446a7312498368cf0cbe226fafb95e0f91690a7cc8
+T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` entries
-    for ruff/black, `.ruff.toml`, or CI scripts invoking these tools) were provided,
-    nor any evidence that the tools have been set up and run. The required artifacts
-    are missing, so the task is not satisfied.
+  h: 59256bbb9728867d9e0591f93547a3976f853013fb320b1a797c213a190e503e
+  r: "The task explicitly forbids a fallback architecture and requires a `RuntimeError`\
+    \ with a clear message when the ViQ checkpoint is missing, but `code/model.py`\
+    \ implements `FrozenViQWrapper` as a self-described \"Simulated ViQ Encoder\"\
+    \ (a small ResNet-like CNN) with no checkpoint loading or error path at all \u2014\
+    \ a fabricated stand-in rather than the required frozen ViQ wrapper using ID \"\
+    viq-base-v\". Additionally, the `Codebook.forward` reshape-back branch is dead\
+    \ code (the 4D check occurs after `x` is already reshaped to 3D), so 4D inputs\
+    \ return wrongly-shaped outputs."
+  sig: 83014fc7334c78e1b887cc041bd99d818e996285c5eddbaf9ac7b0140a20f4a8
+T006a:
+  c: false
+  h: c10f61cc23b27247d07c131bf8dc4f73d7697d72286a31e28fe7741734455fd4
+  r: "The script exists, but it cannot succeed: `load_viq_encoder` calls `get_model(model_type=\"\
+    viq_encoder\", model_id=...)`, while `code/model.py` defines `get_model(model_id:\
+    \ str = \"viq-base-v\")` \u2014 the unexpected `model_type` keyword raises a `TypeError`,\
+    \ which the script catches and converts to a `RuntimeError`/exit 1, so the claimed\
+    \ \"exits with code 0\" is unachievable and no execution evidence (logs, output)\
+    \ was provided. Moreover, the \"frozen ViQ encoder\" is explicitly a simulated\
+    \ placeholder (a small ResNet with adaptive pooling that the model.py docstring\
+    \ says is used because \"we don't have t"
+  sig: f2261eaa09b127a849bc8016f46a53bae20b01eb534c912f0ba8165ac351664b
+T006b:
+  c: false
+  h: 3fb388d5ea4f2e44d43cb039468a50e7871408c0d1436713dfe2b204b7384d90
+  r: "The required deliverables `data/results/pivot_plan.md` and `data/results/failure_analysis.md`\
+    \ are MISSING \u2014 the script `code/handle_hypothesis_failure.py` exists but\
+    \ was never run (or its outputs were not produced), and there is no execution\
+    \ evidence of T006a failing or the handler running. Additionally, `plan.md` and\
+    \ `spec.md` show no pivot-related updates (no \"Hypothesis Failure Protocol\"\
+    \ / DR-003 section), and the script itself never updates `spec.md` as required.\
+    \ The implementer must run the handler (after a T006a failure) to generate both\
+    \ result files and actually update `plan.md` and `sp"
+  sig: 6a2573a780a522a422653ca25ff02b5dd16ddffbe7fec5d3ee99dc85a01eaaeb
+T007:
+  c: true
+  h: 8140a5f1874099521ee109627d3601385127e190f8575fd1b1cd0e785a5f17bb
+  r: '`code/utils.py` exists (6278 bytes) and implements all four required metrics:
+    PSNR (MSE-based with data_range handling), SSIM (via skimage with channel handling
+    and fallback), Cosine Similarity (with zero-norm guard), and Texture Complexity
+    via Variance of the Laplacian (cv2.Laplacian + np.var). No stubs, TODOs, or placeholders;
+    implementations are real and functional.'
+  sig: 3274285fe015e5ce52cdc7861035451165e071e5c02320bdd4894183f993d70f
+T008a:
+  c: true
+  h: fd70baffe2d8491c92a5f3d7424953d988411f85bc5b3313e9a0ee4e9ce86211
+  r: '`tests/test_data.py` exists (791 bytes) and contains `test_data_loader_streaming_returns_64x64_shape`,
+    which constructs `COCOStreamingDataset(split="train", resolution=64, limit=10)`
+    and asserts batch shape (3, 64, 64). The existing `code/data_loader.py` `COCOStreamingDataset.__init__`
+    accepts only `split` and `streaming` (no `resolution`/`limit`), so the test fails
+    with a TypeError as required by the "fails initially" TDD condition.'
+  sig: 4975b283ab19bdd3042757910ceba5a7c7d5efa32c27473158240f661444f3e4
+T008b:
+  c: true
+  h: aaea7ac8120bc74dbb5cdbc98d69d0d307819051f5a410212bc65377c299772b
+  r: "The file `tests/test_metrics.py` exists (4401\u202Fbytes) and defines `test_psnr_calculation_on_known_pair`.\
+    \ Given the current `utils.calculate_psnr` implementation, the second assertion\
+    \ (`psnr_diff == 0.0`) will fail, satisfying the requirement that the test initially\
+    \ fails. The test also includes additional high\u2011resolution shape checks,\
+    \ which do not affect this core requirement."
+  sig: 13d51d568f8d036063b57fb84fc9327c74dd258123bbfba53e0292ceff7007de
+T009:
+  c: true
+  h: 946431a5c51035f62ff1cb94a76d5e21f67b9950daada67ada9d2ebc91f118e4
+  r: "Checked the provided `code/state.py` (10136\u202Fbytes) which implements SHA\u2011\
+    256 hashing for files/directories, version string generation, artifact manifest\
+    \ creation, saving/loading manifests, verification, and lineage reporting \u2013\
+    \ all core functionalities required by Constitution Principle\u202FV. The module\
+    \ is fully implemented, non\u2011empty, and contains no stubs or placeholders."
+  sig: 9fc3ae8b095a5f0f67f6986906903a064ebd08217ed65283f535c3ec7e049949
+T012:
+  c: false
+  h: dda77f1b4fcab3c1c3da1d20072b6ad6ee13f02542822fd61ab51fc9d295b3b7
+  r: "The required output files `data/results/codebook_v0.pth` and `data/results/train_log.json`\
+    \ are absent, and the provided `code/train.py` is incomplete (truncated) with\
+    \ no visible training loop, dynamic batch\u2011size logic, or loss\u2011decrease\
+    \ verification. The task\u2019s deliverables are therefore not satisfied."
 T014:
+  c: true
+  h: 276f62e97ff8e0ba5a74999a1e9b21f20cdc8a21d63762337912aafbf825bcca
+  r: "Checked `code/eval_low_res.py` \u2013 it loads 64\xD764 COCO samples, runs the\
+    \ model, computes PSNR and SSIM via `utils.calculate_psnr`/`calculate_ssim`, logs\
+    \ per\u2011sample and summary values, saves results, and exits normally when metrics\
+    \ are produced. The required logging and successful exit behavior are present."
+  sig: 98b76ad614e78e9ed93e987a6767c792e3a86ae8c910176d64499ebe767d55b3
+T017:
   c: false
-  h: f377d6e928eeab2a71f3bc0b26224c86509dc5e75e2c7172ed3b093c18c6e08a
-  r: "The repository contains `code/train.py`, but the shown portion ends before any\
-    \ checkpoint\u2011saving code and the expected output file `data/results/codebook_v0.pth`\
-    \ is absent. Consequently, the required checkpoint\u2011saving logic is not present\
-    \ and the artifact the task demanded does not exist."
-T016:
+  h: b2c6158379664388beeb0649d21ca38640cbb10d228b6510f6ed2e36f313442a
+  r: "The repository contains `tests/test_metrics.py` with a `test_high_res_shape_handling`\
+    \ function, but it never imports or exercises `code/eval_high_res.py`. The test\
+    \ only checks utility metric functions on synthetic 1024\xD71024 tensors, so it\
+    \ does not verify that `eval_high_res.py` correctly handles 1024\xD71024 inputs\
+    \ as required. The unit test must import `eval_high_res` (or its relevant functions)\
+    \ and confirm that processing high\u2011resolution images runs without shape or\
+    \ memory errors."
+  sig: 325f2f6eab26bf778fb32b7f076179e1d23a8a863606f1c5c02ef5abdfb60334
+T018:
+  c: false
+  h: ac40118c6e3ca5030069ff3ac6b228e7a8556e361eed501f23ab7f52aaa5ca0e
+  r: "The `tests/integration/test_eval.py` file exists, but it expects output artifacts\
+    \ (`embeddings_high_res.h5` with an `image_ids` dataset and `fidelity_metrics.json`\
+    \ with specific keys) that the referenced `code/eval_high_res.py` script never\
+    \ creates (it writes an `ids` dataset and does not generate any metrics file).\
+    \ Consequently the integration test would fail and does not truly verify end\u2011\
+    to\u2011end high\u2011resolution inference on a small batch. The required behavior\
+    \ is missing/mismatched."
+  sig: a5ee88f178b20cde638b70a5e0e10b343b89a6d633415849cd24c3c5cae170b4
+T019:
+  c: false
+  h: ce157c4a63e88047520558177d3519b13453ba6abe47c51867969999f43ddc20
+  r: "The repository lacks the required `data/results/codebook_v0.pth` checkpoint\
+    \ and the output files `data/results/embeddings_high_res.h5` and the PNG ground\u2011\
+    truth images. Moreover, `code/eval_high_res.py` is truncated, only processes a\
+    \ limited subset of ImageNet (no COCO data), does not actually write embeddings\
+    \ to an H5 file nor save the native 1024\xD71024 images with the prescribed naming\
+    \ scheme. These essential artifacts and full functionality are missing."
+T019a:
+  c: false
+  h: 20512729c26f2ae5f08a5e020a9be32d898eb25e5cf749e47afcb8004596bf22
+  r: "The script `code/extract_native_images.py` exists, but the required output directory\
+    \ `data/processed/native_1024/` with the extracted 1024\u202F\xD7\u202F1024 images\
+    \ (and accompanying validation log/checksums) is missing, so the task\u2019s deliverable\
+    \ is not present."
+  sig: a6a004bd4713159f94dd60639f632a97e2a73ce73ae38f796d47fd213e161d6a
+T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or log output was presented showing that training loss,
-    reconstruction loss, and codebook usage statistics are now being logged. The required
-    artifact (e.g., updated training script with logging statements or sample log
-    files) is missing, so the task is not satisfied.
+  r: "No script implementing the Spearman rank correlation and paired t\u2011test/Wilcoxon\
+    \ (or the required one\u2011sample t\u2011test) is present, nor is there any JSON\
+    \ output `{spearman_r, p_value, method}` produced from a pandas DataFrame. The\
+    \ claim lacks the actual code file and example output, so the task requirements\
+    \ are not met."
+T026:
+  c: false
+  h: 387c4c13eea9ccca7a5b7de80455a7316b2706c29f3b2908a5bc8d23ac25e657
+  r: "The required data file `data/results/embeddings_high_res.h5` does not exist,\
+    \ so the script cannot load the high\u2011resolution visual embeddings as the\
+    \ task demands. Additionally, the provided `eval_semantic.py` is truncated and\
+    \ does not clearly show the computation of CLIP text embeddings for captions.\
+    \ The missing embedding file must be generated (by T019) and present for the task\
+    \ to be complete."
+T028:
+  c: false
+  h: 6f11d531b4b358f56f41db5552043904347dd74d5897552e138c00a4cae7c9af
+  r: "The repository lacks the required `data/results/semantic_baseline.json` and\
+    \ the output `data/results/semantic_diff.json`. Moreover, `code/analysis.py` implements\
+    \ a correlation analysis script unrelated to computing the percentage difference\
+    \ between high\u2011res and baseline semantic similarity scores. The task\u2019\
+    s core functionality and output file are therefore missing."
+T040:
+  c: false
+  h: cb60f05380b1169b58c81ca2ca7289f02b48690a1a5266aff7fb769ed47c0032
+  r: "The repository contains `code/verify_data_integrity.py`, but the script\u2019\
+    s implementation is truncated and does not show any logic that writes `data/raw/checksums.json`.\
+    \ Moreover, the required `data/raw/checksums.json` file is absent, so the task\u2019\
+    s verification condition is not met. The missing checksum file (and likely incomplete\
+    \ script) must be added for the task to be considered complete."

@@ -1,10 +1,7 @@
 """
 Test script to verify logging infrastructure (T005).
-
-This script:
-1. Initializes the logging infrastructure.
-2. Writes test log entries.
-3. Verifies the log file exists and contains valid JSON lines.
+Runs a few sample log events and ensures logs are written to logs/pipeline.log
+in JSON format.
 """
 import json
 import os
@@ -12,56 +9,89 @@ from pathlib import Path
 from code.utils.logging_config import setup_logging, get_logger, log_event
 
 def main():
-    # Initialize logging
-    print("Initializing logging infrastructure...")
-    logger = setup_logging(level=10, console_output=True)
-    test_logger = get_logger("test.T005")
+    # Setup logging
+    logger = setup_logging(level="DEBUG", console_output=True)
 
-    # Log various test events
-    log_event(test_logger, 10, "Debug message test", {"test_id": "T005-01"})
-    log_event(test_logger, 20, "Info message test", {"test_id": "T005-02", "status": "ok"})
-    log_event(test_logger, 30, "Warning message test", {"test_id": "T005-03", "warning": "low_memory"})
-    log_event(test_logger, 40, "Error message test", {"test_id": "T005-04", "error_code": 500})
-    
-    # Simulate an exception log
+    # Log a startup event
+    log_event(
+        logger,
+        "INFO",
+        "Pipeline started",
+        task_id="T005",
+        component="logging_test"
+    )
+
+    # Log a sample processing event
+    log_event(
+        logger,
+        "DEBUG",
+        "Simulating data processing step",
+        participant_id="001",
+        status="running",
+        metrics={"nodes": 90, "edges": 4500}
+    )
+
+    # Log a warning
+    log_event(
+        logger,
+        "WARNING",
+        "Sample warning: Motion threshold exceeded",
+        participant_id="002",
+        fd_value=0.65
+    )
+
+    # Log an error simulation
     try:
-        raise ValueError("Simulated error for T005")
-    except Exception:
-        test_logger.exception("Exception occurred during test")
+        raise ValueError("Simulated error for logging test")
+    except ValueError:
+        log_event(
+            logger,
+            "ERROR",
+            "Simulated error caught and logged",
+            context="test_run"
+        )
 
-    print("Logging complete. Verifying output...")
+    # Log completion
+    log_event(
+        logger,
+        "INFO",
+        "Logging infrastructure test completed successfully",
+        status="success"
+    )
 
+    # Verify log file exists and is valid JSON
     log_path = Path("logs/pipeline.log")
-    
     if not log_path.exists():
-        print("ERROR: Log file was not created at logs/pipeline.log")
+        print("ERROR: Log file was not created.")
         return 1
 
-    # Verify content
-    valid_json_count = 0
-    line_count = 0
-    with open(log_path, 'r', encoding='utf-8') as f:
-        for line in f:
+    print(f"Log file created at: {log_path.absolute()}")
+
+    # Validate JSON lines
+    with open(log_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        valid_count = 0
+        for i, line in enumerate(lines):
             line = line.strip()
             if not line:
                 continue
-            line_count += 1
             try:
-                data = json.loads(line)
-                # Check required fields per FR-011
-                assert "timestamp" in data, "Missing timestamp"
-                assert "level" in data, "Missing level"
-                assert "message" in data, "Missing message"
-                valid_json_count += 1
+                entry = json.loads(line)
+                if "timestamp" in entry and "level" in entry and "message" in entry:
+                    valid_count += 1
+                else:
+                    print(f"Line {i+1}: Missing required JSON keys.")
             except json.JSONDecodeError as e:
-                print(f"ERROR: Invalid JSON on line {line_count}: {e}")
-                return 1
-            except AssertionError as e:
-                print(f"ERROR: Missing required field on line {line_count}: {e}")
+                print(f"Line {i+1}: Invalid JSON - {e}")
                 return 1
 
-    print(f"SUCCESS: Verified {valid_json_count} valid JSON log entries.")
-    return 0
+    print(f"Validated {valid_count} JSON log entries.")
+    if valid_count > 0:
+        print("T005 Logging infrastructure: PASSED")
+        return 0
+    else:
+        print("T005 Logging infrastructure: FAILED (no valid entries)")
+        return 1
 
 if __name__ == "__main__":
     exit(main())

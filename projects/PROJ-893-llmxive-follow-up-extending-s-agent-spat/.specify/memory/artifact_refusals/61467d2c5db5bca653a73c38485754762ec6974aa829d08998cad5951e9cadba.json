@@ -1,0 +1,7 @@
+{
+  "task_id": "T007",
+  "fingerprint": "6542de03f32b095bdd0fba5c3b5945b94618444aa9d50d0bbbfffa4f765bf060",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'code/data/validate_distribution.py': SyntaxError at line 243: expected an indented block after 'with' statement on line 242. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 12888"
+}

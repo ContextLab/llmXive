@@ -1,0 +1,34 @@
+# Configuration for the Perovskite Stability Pipeline
+# T006 requires this file to exist and contain delay_multiplier for retry logic.
+
+# Retry Logic Configuration (T006)
+retry:
+  max_retries: 3
+  base_delay_seconds: 1.0
+  delay_multiplier: 2.0
+
+# Instrumentation Configuration (T047c, T052)
+instrumentation:
+  default_precision_celsius: 10.0
+  registry_file: "data/raw/instrument_registry.csv"
+  unmapped_log_file: "data/raw/unmapped_instruments.log"
+
+# Model Training Configuration (T054)
+model:
+  low_confidence_weight: 0.5
+  max_grid_search_combinations: 10
+  k_folds: 5
+
+# Paths
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  state_dir: "state"
+  figures_dir: "figures"
+
+# Time Budgets
+time_budget:
+  total_seconds: 14400 # 4 hours
+  data_fetching_seconds: 3600
+  feature_engineering_seconds: 3600
+  model_training_seconds: 7200

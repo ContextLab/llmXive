@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-harness"
+version = "0.1.0"
+description = "LLMXive automated science pipeline harness"
+requires-python = ">=3.11"
+dependencies = [
+    "datasets",
+    "tree-sitter",
+    "scikit-learn",
+    "pandas",
+    "networkx",
+    "radon",
+    "pytest",
+    "jsonschema",
+    "pyyaml",
+    "asgiref"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+select = ["E","F","W"]

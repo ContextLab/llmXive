@@ -1,186 +1,185 @@
-"""
-Unit tests for image resizing and normalization in code/data/preprocess.py.
+"""Unit tests for image resizing and normalization in the preprocessing pipeline.
 
-These tests verify:
-1. Images are resized to the target dimensions (224x224) while maintaining aspect ratio logic.
-2. Pixel values are normalized to the expected range (0-1 or [-1, 1] depending on config).
-3. Edge cases (small images, large images, grayscale) are handled correctly.
+These tests verify that the image processing functions in `code/data/preprocess.py`
+correctly resize images to target dimensions, normalize pixel values to [0, 1],
+and handle corrupted or invalid image inputs by raising appropriate errors.
 """
 
 import os
 import sys
 import tempfile
-import unittest
-from pathlib import Path
+import pytest
 import numpy as np
-import cv2
+from pathlib import Path
 
-# Add the project root to the path to allow imports from code/
-# Assuming this test runs from the project root or the tests directory
-project_root = Path(__file__).parent.parent.parent
-code_dir = project_root / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Add the code directory to the path to allow imports from sibling modules
+code_dir = Path(__file__).parent.parent.parent / "code"
+sys.path.insert(0, str(code_dir))
 
 from data.preprocess import resize_with_aspect_ratio, normalize_image, preprocess_single_image
-from utils.config import get_project_root
 
 
-class TestResizeWithAspectRatio(unittest.TestCase):
-    """Tests for the resize_with_aspect_ratio function."""
+class TestResizeNormalization:
+    """Tests for image resizing and normalization logic."""
 
-    def setUp(self):
-        """Create temporary test images."""
-        self.temp_dir = tempfile.mkdtemp()
+    def test_resize_normalizes_correctly_rgb(self):
+        """Test that RGB images are resized correctly and normalized to [0, 1]."""
+        # Create a synthetic RGB image with known values
+        input_shape = (100, 100, 3)
+        target_shape = (50, 50)  # (height, width)
+        input_image = np.random.randint(0, 256, size=input_shape, dtype=np.uint8)
 
-    def tearDown(self):
-        """Clean up temporary files."""
-        import shutil
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+        # Resize
+        resized = resize_with_aspect_ratio(input_image, target_shape)
 
-    def _create_test_image(self, filename, shape, dtype=np.uint8):
-        """Helper to create a dummy image file."""
-        # shape is (H, W, C) or (H, W)
-        img = np.random.randint(0, 255, shape, dtype=dtype)
-        path = os.path.join(self.temp_dir, filename)
-        cv2.imwrite(path, img)
-        return path
+        # Check shape
+        assert resized.shape[0] == target_shape[0], f"Expected height {target_shape[0]}, got {resized.shape[0]}"
+        assert resized.shape[1] == target_shape[1], f"Expected width {target_shape[1]}, got {resized.shape[1]}"
+        assert resized.shape[2] == 3, "Expected 3 channels"
 
-    def test_resize_larger_image(self):
-        """Test resizing an image larger than target (300x300 -> 224x224)."""
-        img_path = self._create_test_image("large.png", (300, 300, 3))
-        target_size = (224, 224)
+        # Normalize
+        normalized = normalize_image(resized)
 
-        resized_img = resize_with_aspect_ratio(img_path, target_size)
+        # Check normalization range
+        assert normalized.min() >= 0.0, "Normalized values should be >= 0"
+        assert normalized.max() <= 1.0, "Normalized values should be <= 1"
+        assert normalized.dtype == np.float32, "Normalized image should be float32"
 
-        self.assertIsNotNone(resized_img)
-        self.assertEqual(resized_img.shape[0], target_size[0])
-        self.assertEqual(resized_img.shape[1], target_size[1])
-        # Check that it's a numpy array
-        self.assertIsInstance(resized_img, np.ndarray)
+    def test_resize_normalizes_correctly_grayscale(self):
+        """Test that grayscale images are resized correctly and normalized to [0, 1]."""
+        # Create a synthetic grayscale image
+        input_shape = (80, 80)
+        target_shape = (40, 40)
+        input_image = np.random.randint(0, 256, size=input_shape, dtype=np.uint8)
 
-    def test_resize_smaller_image(self):
-        """Test resizing an image smaller than target (100x100 -> 224x224)."""
-        img_path = self._create_test_image("small.png", (100, 100, 3))
-        target_size = (224, 224)
+        # Resize
+        resized = resize_with_aspect_ratio(input_image, target_shape)
 
-        resized_img = resize_with_aspect_ratio(img_path, target_size)
+        # Check shape
+        assert resized.shape == target_shape, f"Expected shape {target_shape}, got {resized.shape}"
 
-        self.assertIsNotNone(resized_img)
-        self.assertEqual(resized_img.shape[0], target_size[0])
-        self.assertEqual(resized_img.shape[1], target_size[1])
+        # Normalize
+        normalized = normalize_image(resized)
 
-    def test_resize_non_square_preserves_aspect_ratio_logic(self):
-        """Test that aspect ratio is respected (padding logic if implemented, or simple stretch check)."""
-        # Create a 400x200 image (2:1 aspect ratio)
-        img_path = self._create_test_image("rect.png", (200, 400, 3))
-        target_size = (224, 224)
+        # Check normalization range
+        assert normalized.min() >= 0.0, "Normalized values should be >= 0"
+        assert normalized.max() <= 1.0, "Normalized values should be <= 1"
+        assert normalized.dtype == np.float32, "Normalized image should be float32"
 
-        resized_img = resize_with_aspect_ratio(img_path, target_size)
+    def test_resize_preserves_aspect_ratio(self):
+        """Test that aspect ratio is preserved during resize with padding."""
+        # Create a non-square image
+        input_shape = (200, 100, 3)  # 2:1 aspect ratio
+        target_shape = (100, 100)
+        input_image = np.random.randint(0, 256, size=input_shape, dtype=np.uint8)
 
-        # The function is expected to resize to the target size.
-        # If the implementation uses padding to maintain aspect ratio,
-        # the output should be 224x224 with black bars.
-        # If it stretches, it is 224x224.
-        # In either case, dimensions must match target.
-        self.assertEqual(resized_img.shape[0], target_size[0])
-        self.assertEqual(resized_img.shape[1], target_size[1])
+        resized = resize_with_aspect_ratio(input_image, target_shape)
 
-    def test_grayscale_image(self):
-        """Test resizing a grayscale image."""
-        img_path = self._create_test_image("gray.png", (150, 150)) # No channel dim
-        target_size = (224, 224)
+        # The resized image should fit within the target dimensions
+        assert resized.shape[0] <= target_shape[0]
+        assert resized.shape[1] <= target_shape[1]
 
-        resized_img = resize_with_aspect_ratio(img_path, target_size)
+        # Check that at least one dimension matches the target (no unnecessary padding)
+        assert resized.shape[0] == target_shape[0] or resized.shape[1] == target_shape[1]
 
-        self.assertIsNotNone(resized_img)
-        self.assertEqual(resized_img.shape[0], target_size[0])
-        self.assertEqual(resized_img.shape[1], target_size[1])
-        # Grayscale might remain 2D or become 3D with 1 channel depending on cv2.INTER_
-        # We just check dimensions match target.
+    def test_normalize_with_extreme_values(self):
+        """Test normalization with images containing 0 and 255 values."""
+        input_shape = (50, 50, 3)
+        input_image = np.zeros(input_shape, dtype=np.uint8)
+        input_image[0, 0, 0] = 255  # Set one pixel to max
 
+        resized = resize_with_aspect_ratio(input_image, (50, 50))
+        normalized = normalize_image(resized)
 
-class TestNormalizeImage(unittest.TestCase):
-    """Tests for the normalize_image function."""
-
-    def test_normalize_uint8_to_float(self):
-        """Test converting uint8 (0-255) to float (0.0-1.0)."""
-        # Create a test array
-        img = np.random.randint(0, 256, (224, 224, 3), dtype=np.uint8)
-        normalized = normalize_image(img)
-
-        self.assertEqual(normalized.dtype, np.float32)
-        self.assertTrue(np.all(normalized >= 0.0))
-        self.assertTrue(np.all(normalized <= 1.0))
-
-    def test_normalize_specific_values(self):
-        """Test normalization with known values."""
-        img = np.array([[[0, 128, 255]]], dtype=np.uint8)
-        normalized = normalize_image(img)
-
-        # 0 -> 0.0, 128 -> 0.50196..., 255 -> 1.0
-        expected_min = 0.0
-        expected_max = 1.0
-        expected_mid = 128.0 / 255.0
-
-        self.assertAlmostEqual(normalized[0, 0, 0], expected_min, places=5)
-        self.assertAlmostEqual(normalized[0, 0, 1], expected_mid, places=5)
-        self.assertAlmostEqual(normalized[0, 0, 2], expected_max, places=5)
-
-    def test_normalize_preserves_shape(self):
-        """Test that normalization does not change image shape."""
-        img = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
-        normalized = normalize_image(img)
-
-        self.assertEqual(img.shape, normalized.shape)
+        # Min should be 0.0, max should be 1.0
+        assert normalized.min() == 0.0, "Min should be 0.0"
+        assert normalized.max() == 1.0, "Max should be 1.0"
 
 
-class TestPreprocessSingleImage(unittest.TestCase):
+class TestCorruptedImageHandling:
+    """Tests for handling of corrupted or invalid image inputs."""
+
+    def test_corrupted_image_raises_value_error(self):
+        """Test that a corrupted image (invalid bit depth) raises ValueError."""
+        # Create a corrupted image with invalid bit depth (e.g., 16-bit where 8-bit expected)
+        # Simulate a corrupted file by creating an array with invalid dtype for the function
+        input_shape = (100, 100, 3)
+        # Using int64 which is not a standard image dtype for this pipeline
+        corrupted_image = np.random.randint(0, 2**32, size=input_shape, dtype=np.int64)
+
+        with pytest.raises(ValueError, match="Invalid image dtype"):
+            resize_with_aspect_ratio(corrupted_image, (50, 50))
+
+    def test_nan_values_raise_error(self):
+        """Test that images with NaN values raise ValueError."""
+        input_shape = (100, 100, 3)
+        input_image = np.random.rand(*input_shape).astype(np.float32)
+        input_image[0, 0, 0] = np.nan
+
+        with pytest.raises(ValueError, match="Image contains NaN or Inf values"):
+            normalize_image(input_image)
+
+    def test_empty_image_raises_error(self):
+        """Test that an empty image raises ValueError."""
+        input_image = np.zeros((0, 0, 3), dtype=np.uint8)
+
+        with pytest.raises(ValueError, match="Image dimensions must be positive"):
+            resize_with_aspect_ratio(input_image, (50, 50))
+
+    def test_invalid_target_shape_raises_error(self):
+        """Test that an invalid target shape raises ValueError."""
+        input_shape = (100, 100, 3)
+        input_image = np.random.randint(0, 256, size=input_shape, dtype=np.uint8)
+
+        with pytest.raises(ValueError, match="Target shape dimensions must be positive"):
+            resize_with_aspect_ratio(input_image, (0, 50))
+
+    def test_extreme_aspect_ratio_handled(self):
+        """Test that extreme aspect ratios are handled gracefully (with padding)."""
+        # Very wide image
+        input_shape = (50, 500, 3)
+        target_shape = (100, 100)
+        input_image = np.random.randint(0, 256, size=input_shape, dtype=np.uint8)
+
+        # This should not raise an error, but may produce a small resized image with padding
+        resized = resize_with_aspect_ratio(input_image, target_shape)
+
+        assert resized.shape[0] <= target_shape[0]
+        assert resized.shape[1] <= target_shape[1]
+        assert resized.shape[2] == 3
+
+
+class TestPreprocessSingleImage:
     """Tests for the full preprocessing pipeline on a single image."""
 
-    def setUp(self):
-        self.temp_dir = tempfile.mkdtemp()
+    def test_preprocess_single_image_complete_flow(self):
+        """Test the complete preprocessing flow on a valid image."""
+        input_shape = (128, 128, 3)
+        input_image = np.random.randint(0, 256, size=input_shape, dtype=np.uint8)
+        target_shape = (64, 64)
 
-    def tearDown(self):
-        import shutil
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
+        # Preprocess
+        processed = preprocess_single_image(input_image, target_shape)
 
-    def _create_test_image(self, filename, shape):
-        img = np.random.randint(0, 255, shape, dtype=np.uint8)
-        path = os.path.join(self.temp_dir, filename)
-        cv2.imwrite(path, img)
-        return path
+        # Check final shape
+        assert processed.shape == (target_shape[0], target_shape[1], 3), \
+            f"Expected shape {target_shape[0], target_shape[1], 3}, got {processed.shape}"
 
-    def test_full_pipeline_output_dimensions(self):
-        """Test that the full pipeline produces a 224x224 normalized image."""
-        img_path = self._create_test_image("test.png", (300, 300, 3))
-        target_size = (224, 224)
+        # Check normalization
+        assert processed.min() >= 0.0
+        assert processed.max() <= 1.0
+        assert processed.dtype == np.float32
 
-        result = preprocess_single_image(img_path, target_size)
+    def test_preprocess_single_image_grayscale(self):
+        """Test preprocessing on a grayscale image."""
+        input_shape = (128, 128)
+        input_image = np.random.randint(0, 256, size=input_shape, dtype=np.uint8)
+        target_shape = (64, 64)
 
-        # result is typically a numpy array (H, W, C) float32
-        self.assertIsInstance(result, np.ndarray)
-        self.assertEqual(result.shape[0], target_size[0])
-        self.assertEqual(result.shape[1], target_size[1])
-        self.assertEqual(result.dtype, np.float32)
-        self.assertTrue(np.all(result >= 0.0))
-        self.assertTrue(np.all(result <= 1.0))
+        processed = preprocess_single_image(input_image, target_shape)
 
-    def test_full_pipeline_grayscale(self):
-        """Test full pipeline on a grayscale image."""
-        img_path = self._create_test_image("gray.png", (100, 100))
-        target_size = (224, 224)
-
-        result = preprocess_single_image(img_path, target_size)
-
-        self.assertIsInstance(result, np.ndarray)
-        self.assertEqual(result.shape[0], target_size[0])
-        self.assertEqual(result.shape[1], target_size[1])
-        # Grayscale might result in shape (224, 224, 1) or (224, 224)
-        # Check that spatial dimensions are correct.
-        self.assertEqual(result.shape[0], 224)
-        self.assertEqual(result.shape[1], 224)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        # Grayscale should remain 2D
+        assert processed.shape == target_shape
+        assert processed.min() >= 0.0
+        assert processed.max() <= 1.0
+        assert processed.dtype == np.float32

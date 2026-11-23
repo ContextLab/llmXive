@@ -1,0 +1,64 @@
+# Configuration Schema for the Robustness Evaluation Pipeline
+# This schema defines the required structure and types for the project's
+# configuration file (code/config.yaml). It is used by `code/config.py`
+# to validate configuration values before the pipeline runs.
+#
+# All fields are required unless otherwise noted.
+#
+# Types follow the JSON Schema draft-07 conventions, expressed in YAML.
+type: object
+required:
+  - seed
+  - n_replications
+  - dependency_strengths
+  - test_types
+  - dataset_manifest_path
+  - use_real_data
+  - use_streaming
+properties:
+  seed:
+    type: integer
+    minimum: 0
+    description: Random seed for reproducibility of all stochastic processes.
+  n_replications:
+    type: integer
+    minimum: 1
+    description: Number of Monte‑Carlo replications per configuration.
+  dependency_strengths:
+    type: array
+    items:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+    minItems: 1
+    uniqueItems: true
+    description: >
+      List of dependency strength values (r) to sweep.
+      Must be a subset of the discrete set required by the specification,
+      e.g., [0.0, 0.1, 0.2, 0.3, 0.5].
+  test_types:
+    type: array
+    items:
+      type: string
+      enum:
+        - t_test
+        - anova
+        - chi_squared
+    minItems: 1
+    description: >
+      List of statistical test identifiers to run. Valid values are
+      "t_test", "anova", and "chi_squared".
+  dataset_manifest_path:
+    type: string
+    format: uri
+    description: Path (relative to the project root) to the dataset manifest YAML file.
+  use_real_data:
+    type: boolean
+    description: >
+      If true, the pipeline uses real public datasets fetched from the manifest.
+      If false, only synthetic data generation paths are executed.
+  use_streaming:
+    type: boolean
+    description: >
+      When true, datasets larger than available memory are processed in streaming mode.
+      When false, datasets are loaded entirely into memory.

@@ -1,23 +1,8 @@
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.ruff]
-# Inherits settings from .ruff.toml
-line-length = 88
-target-version = "py311"
+[tool.black]
+line-length = 120
+target-version = ["py311"]
+skip-string-normalization = false

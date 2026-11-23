@@ -1,0 +1,7 @@
+# Project dependencies
+torch
+numpy
+scipy
+datasets
+pyyaml
+# Existing dependencies (if any) are retained; added pyyaml for reproducibility audit.

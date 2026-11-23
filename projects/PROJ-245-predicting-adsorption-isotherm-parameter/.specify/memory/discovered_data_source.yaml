@@ -1,0 +1,17 @@
+status: none
+intent: NIST Adsorption Isotherms Database HuggingFace MOF-1000 Zenodo python package
+  dataset
+required_fields:
+- pressure
+- amount_adsorbed
+- temperature
+- adsorbate_name
+- adsorbent_id
+- surface_area
+- pore_volume
+- isotherm_type
+- henrys_constant
+- langmuir_capacity
+cache_key: 3c5fa7a848c0bf4666e270ce475c00fee86cd7c3df5bf88ea65e999c066e6ac0
+searched_at: '2026-09-06T05:46:47.985242+00:00'
+retry_count: 1

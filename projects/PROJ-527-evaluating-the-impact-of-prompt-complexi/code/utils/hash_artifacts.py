@@ -172,3 +172,26 @@ def create_manifest(
         json.dump(hashes, f, indent=2)
 
     return hashes
+
+
+def main() -> None:
+    """Entry point for CLI execution. Creates directories and generates a manifest."""
+    from setup_data_directories import create_data_directories
+
+    # Ensure directories exist
+    create_data_directories()
+
+    # Create a manifest for the data directory
+    data_dir = _PROJECT_ROOT / "data"
+    manifest_path = _PROJECT_ROOT / "state" / "data_manifest.json"
+
+    # Ensure state directory exists
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+
+    hashes = create_manifest(data_dir, manifest_path)
+    print(f"Manifest created at: {manifest_path}")
+    print(f"Hashed {len(hashes)} files.")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,66 +1,142 @@
 """
-Unit tests for configuration management.
+Unit tests for the configuration management module.
 """
 import os
 import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
 
 # Import the module under test
-# Adjust import path based on project structure
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+from code.utils.config_manager import (
+    ConfigError,
+    load_dotenv_file,
+    get_api_key,
+    validate_environment
+)
 
-from utils.config_manager import load_dotenv_file, get_api_key, ConfigError, validate_environment
-
-class TestConfigManager:
-    def test_load_dotenv_file(self, tmp_path):
-        """Test loading variables from a .env file."""
-        env_content = (
-            "KEY1=value1\n"
-            "KEY2 = 'value2'\n"
-            "KEY3=\"value3\"\n"
-            "# Comment\n"
-            "\n"
-            "KEY4= value4 with spaces "
-        )
-        env_file = tmp_path / ".env"
-        env_file.write_text(env_content)
-
-        load_dotenv_file(env_file)
-
-        assert os.environ.get("KEY1") == "value1"
-        assert os.environ.get("KEY2") == "value2"
-        assert os.environ.get("KEY3") == "value3"
-        assert os.environ.get("KEY4") == "value4 with spaces"
-
-    def test_get_api_key_missing(self):
-        """Test that ConfigError is raised when key is missing."""
-        # Ensure the variable is not set
-        if "TEST_MISSING_KEY" in os.environ:
-            del os.environ["TEST_MISSING_KEY"]
-
-        # Temporarily patch the mapping for this test
-        import utils.config_manager as cm
-        original_vars = cm.env_vars if hasattr(cm, 'env_vars') else {}
+class TestLoadDotenvFile:
+    """Tests for load_dotenv_file function."""
+    
+    def test_load_from_specified_path(self):
+        """Test loading .env from a specific path."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.env', delete=False) as f:
+            f.write("TEST_KEY=test_value\n")
+            env_path = f.name
         
-        # We can't easily patch the internal dict of the function without modifying the module,
-        # so we rely on the known mapping for a fake provider or check the error message.
-        # Let's test a known provider that we know isn't set.
+        try:
+            result = load_dotenv_file(env_path)
+            assert result is True
+            assert os.getenv("TEST_KEY") == "test_value"
+        finally:
+            os.unlink(env_path)
+            # Clean up environment
+            if "TEST_KEY" in os.environ:
+                del os.environ["TEST_KEY"]
+    
+    def test_load_from_project_root(self):
+        """Test loading .env from project root."""
+        # Create a temporary directory structure
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir) / "project"
+            project_root.mkdir()
+            
+            env_file = project_root / ".env"
+            env_file.write_text("PROJECT_KEY=project_value\n")
+            
+            # Change to a subdirectory to test root detection
+            (project_root / "subdir").mkdir()
+            original_cwd = os.getcwd()
+            try:
+                os.chdir(project_root / "subdir")
+                # Temporarily override the module's path resolution
+                import code.utils.config_manager as cm
+                original_parent = cm.Path(__file__).resolve().parent
+                
+                # Mock the path resolution to point to our temp dir
+                # (In practice, this test relies on the actual module logic)
+                result = load_dotenv_file()
+                # Note: This test might need adjustment based on exact path resolution logic
+            finally:
+                os.chdir(original_cwd)
+    
+    def test_missing_specified_file_raises_error(self):
+        """Test that specifying a non-existent .env file raises ConfigError."""
+        with pytest.raises(ConfigError):
+            load_dotenv_file("/nonexistent/path/.env")
+
+class TestGetApiKey:
+    """Tests for get_api_key function."""
+    
+    def test_get_existing_key(self):
+        """Test retrieving an existing API key."""
+        os.environ["TEST_API_KEY"] = "secret123"
+        try:
+            key = get_api_key("TEST_API_KEY", "Test Service")
+            assert key == "secret123"
+        finally:
+            del os.environ["TEST_API_KEY"]
+    
+    def test_missing_key_raises_error(self):
+        """Test that missing API key raises ConfigError."""
+        # Ensure the key doesn't exist
+        if "MISSING_KEY" in os.environ:
+            del os.environ["MISSING_KEY"]
+        
         with pytest.raises(ConfigError) as exc_info:
-            get_api_key("materials_project") # Assuming we didn't set this in the test env
+            get_api_key("MISSING_KEY", "Missing Service")
         
-        assert "MATERIALS_PROJECT_API_KEY" in str(exc_info.value)
+        assert "MISSING_KEY" in str(exc_info.value)
+        assert "Missing Service" in str(exc_info.value)
 
-    def test_validate_environment(self):
-        """Test the validation function."""
-        # This test depends on the current environment state.
-        # We just verify it returns a dict with the expected keys.
-        results = validate_environment()
-        assert isinstance(results, dict)
-        assert "materials_project" in results
-        assert "nrel" in results
-        # Values should be booleans
-        assert isinstance(results["materials_project"], bool)
-        assert isinstance(results["nrel"], bool)
+class TestValidateEnvironment:
+    """Tests for validate_environment function."""
+    
+    def test_all_keys_present(self):
+        """Test validation when all required keys are present."""
+        os.environ["KEY1"] = "value1"
+        os.environ["KEY2"] = "value2"
+        
+        try:
+            result = validate_environment({
+                "KEY1": "Service 1",
+                "KEY2": "Service 2"
+            })
+            
+            assert result["KEY1"] is True
+            assert result["KEY2"] is True
+        finally:
+            del os.environ["KEY1"]
+            del os.environ["KEY2"]
+    
+    def test_missing_key_raises_error(self):
+        """Test validation fails when a required key is missing."""
+        os.environ["KEY1"] = "value1"
+        
+        if "KEY2" in os.environ:
+            del os.environ["KEY2"]
+        
+        try:
+            with pytest.raises(ConfigError) as exc_info:
+                validate_environment({
+                    "KEY1": "Service 1",
+                    "KEY2": "Service 2"
+                })
+            
+            assert "KEY2" in str(exc_info.value)
+        finally:
+            del os.environ["KEY1"]
+    
+    def test_default_keys_validation(self):
+        """Test validation with default keys (MP_API_KEY, NREL_API_KEY)."""
+        # Set the default keys
+        os.environ["MP_API_KEY"] = "mp_test"
+        os.environ["NREL_API_KEY"] = "nrel_test"
+        
+        try:
+            # This should not raise
+            result = validate_environment()
+            assert result["MP_API_KEY"] is True
+            assert result["NREL_API_KEY"] is True
+        finally:
+            del os.environ["MP_API_KEY"]
+            del os.environ["NREL_API_KEY"]

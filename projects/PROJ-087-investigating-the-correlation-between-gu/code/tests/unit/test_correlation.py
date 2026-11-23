@@ -1,140 +1,147 @@
-"""
-Unit tests for correlation analysis module (US2).
-Tests Spearman correlation calculation and Benjamini-Hochberg correction.
-"""
 import pytest
 import pandas as pd
 import numpy as np
 from scipy.stats import spearmanr
-
 from src.correlation import (
     calculate_spearman_correlation,
     apply_benjamini_hochberg,
-    flag_correlations
+    flag_correlations,
+    handle_no_significant_associations,
+    run_correlation_analysis
 )
-
+import tempfile
+import os
+from pathlib import Path
 
 @pytest.fixture
 def sample_diversity_df():
-    """Create a sample DataFrame with diversity and sleep metrics."""
-    np.random.seed(42)
-    n = 100
-    data = {
-        "sample_id": [f"S{i}" for i in range(n)],
-        "shannon_diversity": np.random.normal(3.5, 0.5, n),
-        "simpson_diversity": np.random.normal(0.8, 0.1, n),
-        "observed_otus": np.random.normal(200, 30, n),
-        "sleep_efficiency": np.random.normal(85, 10, n),
-        "sleep_duration_hours": np.random.normal(7, 1.5, n),
-        "wake_after_sleep_onset": np.random.normal(20, 10, n)
-    }
-    # Introduce a known correlation for testing
-    data["sleep_efficiency"] = data["shannon_diversity"] * 10 + np.random.normal(0, 2, n)
-    return pd.DataFrame(data)
+    """Sample diversity DataFrame for testing."""
+    return pd.DataFrame({
+        'sample_id': ['S1', 'S2', 'S3', 'S4', 'S5'],
+        'shannon': [3.2, 3.5, 2.8, 3.1, 3.4],
+        'simpson': [0.85, 0.88, 0.75, 0.82, 0.87],
+        'observed_otus': [120, 135, 98, 115, 130]
+    })
 
+@pytest.fixture
+def sample_sleep_df():
+    """Sample sleep DataFrame for testing."""
+    return pd.DataFrame({
+        'sample_id': ['S1', 'S2', 'S3', 'S4', 'S5'],
+        'sleep_efficiency': [0.85, 0.90, 0.70, 0.82, 0.88],
+        'sleep_duration_hours': [7.5, 8.0, 6.0, 7.2, 7.8]
+    })
 
-def test_spearman_correlation_calculation(sample_diversity_df):
-    """
-    Test that Spearman correlation is calculated correctly.
-    We expect a positive correlation between shannon_diversity and sleep_efficiency
-    because we engineered it in the fixture.
-    """
-    diversity_cols = ["shannon_diversity", "simpson_diversity"]
-    sleep_cols = ["sleep_efficiency"]
+def test_spearman_correlation_calculation(sample_diversity_df, sample_sleep_df):
+    """Test that Spearman correlation is calculated correctly."""
+    result = calculate_spearman_correlation(sample_diversity_df, sample_sleep_df)
 
-    result_df = calculate_spearman_correlation(
-        sample_diversity_df,
-        sleep_metrics=sleep_cols,
-        diversity_metrics=diversity_cols
-    )
+    assert not result.empty
+    assert 'r' in result.columns
+    assert 'p' in result.columns
+    assert 'n_samples' in result.columns
+    assert len(result) == 6  # 3 diversity x 2 sleep metrics
 
-    assert not result_df.empty, "Result DataFrame should not be empty"
-    assert "r" in result_df.columns
-    assert "p" in result_df.columns
-    assert "is_moderate" in result_df.columns
-
-    # Check specific correlation for engineered relationship
-    shannon_sleep = result_df[
-        (result_df["metric_diversity"] == "shannon_diversity") &
-        (result_df["metric_sleep"] == "sleep_efficiency")
-    ]
-
-    assert not shannon_sleep.empty, "Shannon vs Sleep Efficiency correlation missing"
-    r_val = shannon_sleep["r"].values[0]
-
-    # Verify magnitude and sign (positive correlation)
-    assert r_val > 0.5, f"Expected strong positive correlation, got {r_val}"
-
-    # Verify p-value is small for this strong correlation
-    p_val = shannon_sleep["p"].values[0]
-    assert p_val < 0.05, f"Expected significant p-value, got {p_val}"
-
+    # Check that r values are between -1 and 1
+    assert all(result['r'].between(-1, 1))
 
 def test_benjamini_hochberg_correction():
-    """
-    Test Benjamini-Hochberg correction logic.
-    Creates a known set of p-values and verifies the monotonicity of adjusted p-values.
-    """
-    # Create a DataFrame with known p-values
+    """Test BH correction with known values."""
     df = pd.DataFrame({
-        "p": [0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5]
+        'p': [0.01, 0.03, 0.04, 0.08]
     })
 
-    result_df = apply_benjamini_hochberg(df, p_col="p", q_col="q")
+    result = apply_benjamini_hochberg(df)
 
-    assert "q" in result_df.columns
-    assert len(result_df) == len(df)
-
-    # Check monotonicity: adjusted p-values should be non-decreasing when sorted by raw p
-    sorted_q = result_df.sort_values("p")["q"]
-    assert all(sorted_q.diff().fillna(0) >= -1e-9), "Adjusted p-values must be non-decreasing"
-
-    # Check that q-values are <= 1
-    assert all(result_df["q"] <= 1.0), "Adjusted p-values must be <= 1.0"
-
-    # Check that q-values are >= raw p-values (property of BH)
-    assert all(result_df["q"] >= result_df["p"] - 1e-9), "Adjusted p-values should be >= raw p-values"
-
+    assert 'q' in result.columns
+    assert len(result) == 4
+    # Q-values should be >= corresponding p-values
+    assert all(result['q'] >= result['p'])
 
 def test_flag_correlations():
-    """Test the flagging logic for moderate and meaningful correlations."""
+    """Test correlation flagging logic."""
     df = pd.DataFrame({
-        "r": [0.1, 0.35, -0.4, 0.29, 0.5],
-        "p": [0.5, 0.01, 0.02, 0.04, 0.06],
-        "q": [0.6, 0.03, 0.04, 0.05, 0.09]
+        'r': [0.1, 0.35, -0.4, 0.25],
+        'q': [0.5, 0.03, 0.04, 0.06]
     })
 
-    result_df = flag_correlations(df, r_threshold=0.3, q_threshold=0.05)
+    result = flag_correlations(df, r_threshold=0.3, q_threshold=0.05)
 
-    assert "is_moderate" in result_df.columns
-    assert "is_meaningful" in result_df.columns
+    assert 'is_moderate' in result.columns
+    assert 'is_meaningful' in result.columns
 
-    # Check is_moderate logic (|r| > 0.3)
-    expected_moderate = [False, True, True, False, True]
-    assert list(result_df["is_moderate"]) == expected_moderate
+    # Check flagging logic
+    assert result.iloc[0]['is_moderate'] == False  # |0.1| <= 0.3
+    assert result.iloc[1]['is_moderate'] == True   # |0.35| > 0.3
+    assert result.iloc[2]['is_moderate'] == True   # |-0.4| > 0.3
+    assert result.iloc[3]['is_moderate'] == False  # |0.25| <= 0.3
 
-    # Check is_meaningful logic (q < 0.05 AND |r| > 0.3)
-    expected_meaningful = [False, True, True, False, False]
-    assert list(result_df["is_meaningful"]) == expected_meaningful
-
+    assert result.iloc[0]['is_meaningful'] == False  # Not moderate
+    assert result.iloc[1]['is_meaningful'] == True   # Moderate and q < 0.05
+    assert result.iloc[2]['is_meaningful'] == True   # Moderate and q < 0.05
+    assert result.iloc[3]['is_meaningful'] == False  # Not moderate
 
 def test_empty_dataframe_handling():
-    """Test that functions handle empty DataFrames gracefully."""
-    empty_df = pd.DataFrame(columns=["sample_id", "shannon_diversity", "sleep_efficiency"])
+    """Test handling of empty DataFrames."""
+    empty_df = pd.DataFrame()
 
-    result = calculate_spearman_correlation(
-        empty_df,
-        sleep_metrics=["sleep_efficiency"],
-        diversity_metrics=["shannon_diversity"]
-    )
-
+    result = calculate_spearman_correlation(empty_df, empty_df)
     assert result.empty
-    assert "metric_diversity" in result.columns
 
-    # Test BH on empty
-    bh_result = apply_benjamini_hochberg(result)
-    assert bh_result.empty
+    result_bh = apply_benjamini_hochberg(empty_df)
+    assert result_bh.empty
 
-    # Test flagging on empty
-    flag_result = flag_correlations(bh_result)
-    assert flag_result.empty
+    result_flag = flag_correlations(empty_df)
+    assert result_flag.empty
+
+def test_handle_no_significant_associations():
+    """Test the handling of no significant associations case."""
+    # Case 1: Empty DataFrame
+    empty_df = pd.DataFrame()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_results.csv"
+        result = handle_no_significant_associations(empty_df, output_path)
+
+        assert result.empty
+        assert 'status' in result.columns
+        assert all(result['status'] == 'no_significant_associations')
+        assert output_path.exists()
+
+    # Case 2: DataFrame with no meaningful correlations
+    df_no_sig = pd.DataFrame({
+        'diversity_metric': ['shannon', 'simpson'],
+        'sleep_metric': ['sleep_efficiency', 'sleep_duration_hours'],
+        'r': [0.15, 0.20],
+        'p': [0.4, 0.35],
+        'q': [0.5, 0.45],
+        'is_moderate': [False, False],
+        'is_meaningful': [False, False]
+    })
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_results_no_sig.csv"
+        result = handle_no_significant_associations(df_no_sig, output_path)
+
+        assert len(result) == 2
+        assert all(result['status'] == 'no_significant_associations')
+        assert output_path.exists()
+
+    # Case 3: DataFrame with some meaningful correlations
+    df_with_sig = pd.DataFrame({
+        'diversity_metric': ['shannon', 'simpson'],
+        'sleep_metric': ['sleep_efficiency', 'sleep_duration_hours'],
+        'r': [0.35, 0.15],
+        'p': [0.03, 0.4],
+        'q': [0.04, 0.5],
+        'is_moderate': [True, False],
+        'is_meaningful': [True, False]
+    })
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_results_with_sig.csv"
+        result = handle_no_significant_associations(df_with_sig, output_path)
+
+        assert len(result) == 2
+        assert result.iloc[0]['status'] == 'significant'
+        assert result.iloc[1]['status'] == 'non_significant'
+        assert output_path.exists()

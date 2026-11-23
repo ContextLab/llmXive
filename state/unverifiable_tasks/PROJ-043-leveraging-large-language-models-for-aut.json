@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-043-leveraging-large-language-models-for-aut",
+  "tasks": [
+    {
+      "task_key": "T002",
+      "reject_count": 1,
+      "last_reason": "The required file `projects/PROJ-043-leveraging-large-language-models-for-aut/code/requirements.txt` is missing, and the existing `requirements.txt` does not contain the exact pinned versions listed in the task (e.g., it lacks `transformers==4.38.0`, uses version ranges, and omits several required packages). Consequently the task\u2019s dependency initialization is not satisfied.",
+      "first_seen": "2026-10-03T12:29:01.738753+00:00",
+      "last_seen": "2026-10-03T12:29:01.738753+00:00"
+    },
+    {
+      "task_key": "T005a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-10-03T12:29:01.740181+00:00",
+      "last_seen": "2026-10-03T12:29:01.740181+00:00"
+    }
+  ],
+  "updated_at": "2026-10-03T12:29:01.740181+00:00"
+}

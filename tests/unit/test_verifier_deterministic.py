@@ -25,12 +25,12 @@ def _run(project_dir: Path, tasks: Path, monkeypatch) -> dict:
         project_dir, tasks, already_verified=set(),
         notes_path=project_dir / "notes.md", state_path=project_dir / "state.yaml",
         project_id="PROJ-DET", repo_root=project_dir,
+        cap=0,
     )
 
 
-def test_existing_artifact_accepted_without_llm(tmp_path: Path, monkeypatch) -> None:
-    """A claimed task whose declared artifact exists + is non-empty is ACCEPTED
-    with NO LLM call (verify_task is monkeypatched to raise)."""
+def test_existing_artifact_requires_content_verification(tmp_path: Path, monkeypatch) -> None:
+    """A nonempty stub is not proof of a completed implementation."""
     (tmp_path / "code").mkdir()
     (tmp_path / "code" / "model.py").write_text("def train():\n    return 1\n", encoding="utf-8")
     tasks = tmp_path / "tasks.md"
@@ -38,8 +38,8 @@ def test_existing_artifact_accepted_without_llm(tmp_path: Path, monkeypatch) -> 
 
     result = _run(tmp_path, tasks, monkeypatch)
 
-    assert result["accepted"] == 1 and not result["deferred"]
-    assert "- [X] T001" in tasks.read_text(encoding="utf-8")
+    assert result["accepted"] == 0 and result["deferred"] == ["T001"]
+    assert "- [~] T001" in tasks.read_text(encoding="utf-8")
 
 
 def test_missing_production_artifact_reopened_without_llm(tmp_path: Path, monkeypatch) -> None:
@@ -67,16 +67,15 @@ def test_empty_data_output_is_not_valid(tmp_path: Path, monkeypatch) -> None:
     assert result["rejected"] and "- [ ] T003" in tasks.read_text(encoding="utf-8")
 
 
-def test_populated_data_output_is_accepted(tmp_path: Path, monkeypatch) -> None:
-    """A declared data output with a header + at least one data row validates → the
-    task is accepted with no LLM call."""
+def test_populated_data_requires_content_verification(tmp_path: Path, monkeypatch) -> None:
+    """Arbitrary rows cannot establish that the required analysis ran."""
     (tmp_path / "data").mkdir()
     (tmp_path / "data" / "out.csv").write_text("col_a,col_b\n1,2\n3,4\n", encoding="utf-8")
     tasks = tmp_path / "tasks.md"
     tasks.write_text("# T\n\n- [X] T004 generate data/out.csv with rows\n", encoding="utf-8")
 
     result = _run(tmp_path, tasks, monkeypatch)
-    assert result["accepted"] == 1 and "- [X] T004" in tasks.read_text(encoding="utf-8")
+    assert result["accepted"] == 0 and "- [~] T004" in tasks.read_text(encoding="utf-8")
 
 
 def test_setup_task_gets_real_file_evidence_not_prose_fallback(tmp_path: Path) -> None:

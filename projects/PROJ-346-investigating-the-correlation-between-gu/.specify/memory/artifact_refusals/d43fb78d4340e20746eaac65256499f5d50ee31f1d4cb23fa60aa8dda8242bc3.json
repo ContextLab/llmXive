@@ -1,0 +1,7 @@
+{
+  "task_id": "T014",
+  "fingerprint": "1992d27a7fb3151bfac423bb2a15f86177c31669850d1a4b768fd1feb00f441c",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/unit/test_preprocess_merge.py': SyntaxError at line 7: invalid decimal literal. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 2338"
+}

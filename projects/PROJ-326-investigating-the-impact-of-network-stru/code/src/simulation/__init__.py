@@ -1,3 +1,2 @@
-"""
-Simulation package.
-"""
+# Simulation package initialization
+pass

@@ -1,0 +1,36 @@
+- artifact_path: projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/README.md
+  attempts: 1
+  canonical: Data sourced from MS-COCO and HuggingFace
+  claim_id: c_28ce39bd
+  context: All data is sourced from real datasets (MS-COCO, HuggingFace). No synthetic
+    data is used.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_sourced_from_MS-COCO_and_HuggingFace
+  kind: entity_fact
+  raw_text: All data is sourced from real datasets (MS-COCO, HuggingFace).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:49:07Z'
+- artifact_path: projects/PROJ-1000-llmxive-follow-up-extending-orbitquant-d/README.md
+  attempts: 1
+  canonical: No synthetic data used
+  claim_id: c_1740742a
+  context: All data is sourced from real datasets (MS-COCO, HuggingFace). No synthetic
+    data is used.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_synthetic_data_used
+  kind: entity_fact
+  raw_text: No synthetic data is used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T12:49:38Z'

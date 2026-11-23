@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1905.01896",
+  "judged_at": "2026-07-17T15:38:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"gemma 4 technical report\" linguistics",
+  "rationale": "The paper is a theoretical review of distributional semantics in computational linguistics and does not measure the specific mechanisms, variables, or empirical properties of the \"Gemma 4\" model or the \"llmXive\" follow-up context requested by the user. It fails to satisfy any inclusion criteria (a-f) because it lacks the specific model focus, empirical data on Gemma 4, or the specific \"llmXive\" framework, and instead addresses a broad, general subfield of linguistics.",
+  "relevant": false
+}

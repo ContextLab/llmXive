@@ -1,181 +1,157 @@
 """
-Unit tests for statistical corrections, specifically FDR (Benjamini-Hochberg).
+Unit tests for statistical correction methods in analysis.stats.
+Specifically tests FDR correction (Benjamini-Hochberg) as per T021.
 """
 import pytest
 import numpy as np
 import pandas as pd
-from typing import List
+from scipy import stats
 
-# Import the FDR implementation from the analysis module.
-# Based on the API surface, stats functionality resides in code/analysis/stats.py.
-# We assume the function is named `fdr_correction` or similar.
-# If it doesn't exist yet, this test will fail to import, but the task
-# is to write the test for the logic described in T027/T021.
-# Since T027 (Implementation) is not yet done, we implement the test
-# assuming the function will be added to `code/analysis/stats.py`.
-# To make this test runnable in isolation for verification, we will
-# define the expected logic inline or import if available.
-# Given the strict constraint "import only names that exist", and T027 is pending,
-# we must check if the function exists. If not, we cannot import it.
-# However, the task is to implement the TEST.
-# Strategy: Try to import. If it fails, the test suite will report ImportError,
-# which is a valid failure state indicating the implementation is missing.
-# But to ensure the test logic itself is correct, we will define a helper
-# that implements the standard BH algorithm to compare against the real one.
-
-try:
-    from code.analysis.stats import fdr_correction
-    HAS_IMPLEMENTATION = True
-except (ImportError, ModuleNotFoundError):
-    HAS_IMPLEMENTATION = False
-    fdr_correction = None
-
-
-def benjamini_hochberg(p_values: List[float], alpha: float = 0.05) -> List[float]:
-    """
-    Standard Benjamini-Hochberg implementation for comparison.
-    """
-    n = len(p_values)
-    if n == 0:
-        return []
-    
-    # Sort p-values and keep track of original indices
-    sorted_indices = np.argsort(p_values)
-    sorted_p = np.array([p_values[i] for i in sorted_indices])
-    
-    # Calculate BH q-values
-    ranks = np.arange(1, n + 1)
-    q_values = sorted_p * n / ranks
-    
-    # Ensure monotonicity (q_i <= q_{i+1})
-    # We iterate from the largest rank downwards
-    for i in range(n - 2, -1, -1):
-        if q_values[i] > q_values[i + 1]:
-            q_values[i] = q_values[i + 1]
-    
-    # Cap at 1.0
-    q_values = np.minimum(q_values, 1.0)
-    
-    # Restore original order
-    final_q = np.zeros(n)
-    final_q[sorted_indices] = q_values
-    
-    return final_q.tolist()
+# Import the function under test from the project's stats module
+from analysis.stats import fdr_correction_benjamini_hochberg
 
 
 class TestFDRCorrection:
-    """Tests for FDR correction logic."""
+    """Tests for the Benjamini-Hochberg FDR correction implementation."""
 
     def test_fdr_correction_known_values(self):
         """
-        Test FDR correction with a known set of p-values and expected q-values.
+        Implement test_fdr_correction with known p-values and expected q-values.
         
-        Input: [0.01, 0.04, 0.03, 0.005, 0.02]
-        Sorted: 0.005 (rank 1), 0.01 (rank 2), 0.02 (rank 3), 0.03 (rank 4), 0.04 (rank 5)
+        Uses a standard example to verify the Benjamini-Hochberg procedure.
+        Input p-values: [0.01, 0.03, 0.04, 0.08, 0.12]
+        Sorted indices: 0, 1, 2, 3, 4
         n = 5
         
-        Calculations:
-        1. 0.005 * 5 / 1 = 0.025
-        2. 0.010 * 5 / 2 = 0.025
-        3. 0.020 * 5 / 3 = 0.0333...
-        4. 0.030 * 5 / 4 = 0.0375
-        5. 0.040 * 5 / 5 = 0.040
+        Expected calculation steps:
+        1. Sort p-values: [0.01, 0.03, 0.04, 0.08, 0.12] (already sorted)
+        2. Calculate rank (i+1) for each: [1, 2, 3, 4, 5]
+        3. Calculate BH critical value: (i+1)/n * alpha (we don't use alpha here, we calculate q)
+        4. Calculate q-values: p * n / (i+1)
+           - 0.01 * 5 / 1 = 0.05
+           - 0.03 * 5 / 2 = 0.075
+           - 0.04 * 5 / 3 = 0.0666...
+           - 0.08 * 5 / 4 = 0.10
+           - 0.12 * 5 / 5 = 0.12
+        5. Enforce monotonicity (cumulative min from right to left):
+           - q[4] = 0.12
+           - q[3] = min(0.10, 0.12) = 0.10
+           - q[2] = min(0.0666, 0.10) = 0.0666
+           - q[1] = min(0.075, 0.0666) = 0.0666
+           - q[0] = min(0.05, 0.0666) = 0.05
         
-        Monotonicity check (from bottom up):
-        0.040 -> 0.040
-        0.0375 < 0.040 -> 0.0375
-        0.0333 < 0.0375 -> 0.0333
-        0.025 < 0.0333 -> 0.025
-        0.025 <= 0.025 -> 0.025
-        
-        Result (sorted order): [0.025, 0.025, 0.0333, 0.0375, 0.040]
-        Original order mapping:
-        0.01 (idx 0) -> rank 2 -> 0.025
-        0.04 (idx 1) -> rank 5 -> 0.040
-        0.03 (idx 2) -> rank 4 -> 0.0375
-        0.005 (idx 3) -> rank 1 -> 0.025
-        0.02 (idx 4) -> rank 3 -> 0.0333
-        
-        Expected: [0.025, 0.040, 0.0375, 0.025, 0.0333]
+        Expected q-values (approx): [0.05, 0.066667, 0.066667, 0.10, 0.12]
         """
-        p_values = [0.01, 0.04, 0.03, 0.005, 0.02]
-        expected_q = [0.025, 0.040, 0.0375, 0.025, 0.0333]
+        p_values = np.array([0.01, 0.03, 0.04, 0.08, 0.12])
+        expected_q_values = np.array([0.05, 0.06666667, 0.06666667, 0.10, 0.12])
         
-        # Use our reference implementation to verify the expected values first
-        ref_q = benjamini_hochberg(p_values)
-        for i, (e, r) in enumerate(zip(expected_q, ref_q)):
-            assert abs(e - r) < 1e-6, f"Reference calc mismatch at {i}: {e} vs {r}"
+        q_values = fdr_correction_benjamini_hochberg(p_values)
         
-        if HAS_IMPLEMENTATION:
-            # If the implementation exists, compare against it
-            result = fdr_correction(p_values)
-            for i, (exp, res) in enumerate(zip(expected_q, result)):
-                assert abs(exp - res) < 1e-4, f"Mismatch at index {i}: expected {exp}, got {res}"
-        else:
-            # If implementation is missing, we still validate the logic of the test
-            # by checking the reference implementation works as expected.
-            # This ensures the test is ready once the code is implemented.
-            result = benjamini_hochberg(p_values)
-            for i, (exp, res) in enumerate(zip(expected_q, result)):
-                assert abs(exp - res) < 1e-4
+        assert q_values is not None, "FDR correction returned None"
+        assert len(q_values) == len(p_values), "Output length does not match input length"
+        
+        # Check values with tolerance for floating point arithmetic
+        np.testing.assert_array_almost_equal(q_values, expected_q_values, decimal=6)
 
-    def test_fdr_monotonicity(self):
+    def test_fdr_correction_unsorted_input(self):
         """
-        Ensure that q-values are monotonically increasing with p-values.
+        Test that the function correctly handles unsorted p-values.
+        The BH procedure requires sorting first.
         """
-        # Random-ish p-values
-        p_values = [0.1, 0.01, 0.5, 0.2, 0.05]
+        p_values = np.array([0.08, 0.01, 0.12, 0.03, 0.04])
+        # Expected result should be the same as the sorted case, just mapped back to original order
+        # Sorted: [0.01, 0.03, 0.04, 0.08, 0.12] -> q: [0.05, 0.0666, 0.0666, 0.10, 0.12]
+        # Original order indices: 1, 3, 4, 0, 2
+        # Expected q in original order: [0.10, 0.05, 0.12, 0.0666, 0.0666]
+        expected_q_values = np.array([0.10, 0.05, 0.12, 0.06666667, 0.06666667])
         
-        result = benjamini_hochberg(p_values)
+        q_values = fdr_correction_benjamini_hochberg(p_values)
         
-        # Sort p and result together
-        sorted_pairs = sorted(zip(p_values, result))
-        sorted_p = [p for p, q in sorted_pairs]
-        sorted_q = [q for p, q in sorted_pairs]
-        
-        # Check monotonicity of q-values
-        for i in range(len(sorted_q) - 1):
-            assert sorted_q[i] <= sorted_q[i+1] + 1e-9, \
-                f"Monotonicity violation: {sorted_q[i]} > {sorted_q[i+1]}"
+        np.testing.assert_array_almost_equal(q_values, expected_q_values, decimal=6)
 
-    def test_fdr_cap_at_one(self):
-        """
-        Ensure q-values never exceed 1.0.
-        """
-        # Large p-values
-        p_values = [0.8, 0.9, 0.95, 0.99]
+    def test_fdr_correction_pandas_series(self):
+        """Test that the function accepts pandas Series as input."""
+        p_values = pd.Series([0.01, 0.03, 0.04])
         
-        result = benjamini_hochberg(p_values)
+        q_values = fdr_correction_benjamini_hochberg(p_values)
         
-        for q in result:
-            assert q <= 1.0001, f"Q-value exceeds 1.0: {q}"
+        assert q_values is not None
+        assert len(q_values) == 3
+        # Verify monotonicity
+        assert np.all(np.diff(q_values) >= 0) or len(q_values) == 1
 
-    def test_fdr_empty_input(self):
-        """
-        Test handling of empty list.
-        """
-        assert benjamini_hochberg([]) == []
+    def test_fdr_correction_edge_cases(self):
+        """Test edge cases like all p=0, all p=1, single value."""
+        # Single value
+        p_single = np.array([0.05])
+        q_single = fdr_correction_benjamini_hochberg(p_single)
+        assert q_single[0] == 0.05  # p * 1 / 1 = p
+        
+        # All ones (should remain ones)
+        p_ones = np.array([1.0, 1.0, 1.0])
+        q_ones = fdr_correction_benjamini_hochberg(p_ones)
+        np.testing.assert_array_almost_equal(q_ones, p_ones)
+        
+        # All zeros (should remain zeros)
+        p_zeros = np.array([0.0, 0.0, 0.0])
+        q_zeros = fdr_correction_benjamini_hochberg(p_zeros)
+        np.testing.assert_array_almost_equal(q_zeros, p_zeros)
 
-    def test_fdr_single_value(self):
+    def test_fdr_correction_monotonicity_enforcement(self):
         """
-        Test handling of single p-value.
+        Test that the cumulative minimum step enforces monotonicity correctly.
+        This is the critical step that distinguishes BH from simple p*n/i.
         """
-        p = [0.05]
-        result = benjamini_hochberg(p)
-        # For n=1, q = p * 1 / 1 = p
-        assert abs(result[0] - 0.05) < 1e-6
+        # Construct a case where simple p*n/i would violate monotonicity
+        # p = [0.05, 0.06, 0.07]
+        # n=3
+        # raw_q = [0.05*3/1=0.15, 0.06*3/2=0.09, 0.07*3/3=0.07]
+        # This is decreasing: 0.15 > 0.09 > 0.07, which is invalid for sorted p.
+        # Wait, p is sorted, so q must be non-decreasing.
+        # Actually, the raw calculation p_i * n / i can decrease if p_i increases slowly.
+        # Example: p=[0.1, 0.11, 0.12], n=3
+        # q_raw = [0.3, 0.165, 0.12] -> Decreasing!
+        # BH requires q[i] <= q[i+1]. So we take cummin from the right.
+        # q_corrected = [0.12, 0.12, 0.12]
         
-    def test_fdr_with_implementation_if_exists(self):
-        """
-        Integration check: if fdr_correction exists in stats.py, run it.
-        """
-        if not HAS_IMPLEMENTATION:
-            pytest.skip("Implementation of fdr_correction not yet present in code/analysis/stats.py")
+        p_values = np.array([0.10, 0.11, 0.12])
+        q_values = fdr_correction_benjamini_hochberg(p_values)
         
-        p_values = [0.001, 0.01, 0.05, 0.1]
-        expected = benjamini_hochberg(p_values)
-        actual = fdr_correction(p_values)
+        # Check monotonicity
+        assert np.all(np.diff(q_values) >= -1e-9), "Q-values must be monotonically non-decreasing"
         
-        assert len(actual) == len(expected)
-        for a, e in zip(actual, expected):
-            assert abs(a - e) < 1e-4, f"Implementation mismatch: {a} != {e}"
+        # In this specific case, all q-values should be capped by the smallest valid q (the last one)
+        # because the raw calculation drops.
+        # Last raw: 0.12 * 3 / 3 = 0.12
+        # Middle raw: 0.11 * 3 / 2 = 0.165 -> capped to 0.12
+        # First raw: 0.10 * 3 / 1 = 0.30 -> capped to 0.12
+        expected = np.array([0.12, 0.12, 0.12])
+        np.testing.assert_array_almost_equal(q_values, expected, decimal=6)
+
+    def test_fdr_correction_comparison_with_scipy(self):
+        """
+        Compare our implementation with scipy.stats.multipletests (if available)
+        to ensure correctness.
+        """
+        try:
+            from statsmodels.stats.multitest import multipletests
+        except ImportError:
+            pytest.skip("statsmodels not available for comparison")
+
+        p_values = np.array([0.001, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.9])
+        
+        # Our implementation
+        q_ours = fdr_correction_benjamini_hochberg(p_values)
+        
+        # Scipy/Statsmodels implementation (method='fdr_bh')
+        _, q_theirs, _, _ = multipletests(p_values, method='fdr_bh')
+        
+        np.testing.assert_array_almost_equal(q_ours, q_theirs, decimal=6)
+
+    def test_fdr_correction_output_type(self):
+        """Ensure the function returns a numpy array."""
+        p_values = [0.01, 0.05, 0.1]
+        q_values = fdr_correction_benjamini_hochberg(p_values)
+        
+        assert isinstance(q_values, np.ndarray), "Output should be a numpy array"
+        assert q_values.dtype in [np.float32, np.float64], "Output should be float"

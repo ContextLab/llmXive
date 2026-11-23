@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1812.03322",
+  "judged_at": "2026-08-09T06:25:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"minwm: a full-stack open-source framework for real-time interactive vi\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for the \"Real-Time Interactive\" and \"Distributed\" aspects of the user's framework, specifically addressing the critical challenge of scene synchronization and state consistency under network latency which is central to any full-stack real-time interactive system. Additionally, it aligns with criterion (b) by measuring the independent variable of network latency/jitter on the dependent variable of shared state consistency ",
+  "relevant": true
+}

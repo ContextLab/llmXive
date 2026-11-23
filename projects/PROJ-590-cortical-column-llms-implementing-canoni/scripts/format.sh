@@ -1,13 +1,11 @@
-#!/usr/bin/env bash
-# Script to format code and run linting checks for the project.
-# Prerequisites: ruff and black must be installed (pip install -e ".[dev]")
-
+#!/bin/bash
+# Run formatter and auto-fix linter issues
 set -e
 
-echo "Running formatter (black)..."
-black code/
+echo "Running Black formatter..."
+black .
 
-echo "Running linter (ruff)..."
-ruff check code/
+echo "Running Ruff fix..."
+ruff check . --fix
 
-echo "Format and lint check complete."
+echo "Formatting complete."

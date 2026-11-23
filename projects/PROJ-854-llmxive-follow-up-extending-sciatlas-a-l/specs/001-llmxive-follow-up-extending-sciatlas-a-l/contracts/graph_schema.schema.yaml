@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SubgraphWithClustersSchema"
+description: "Schema for the processed subgraph with topological and text-based metrics."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique work identifier."
+  title:
+    type: "string"
+    description: "Work title."
+  cited_by_count:
+    type: "integer"
+    description: "Citation count. Defaults to 0 if missing."
+  publication_date:
+    type: "string"
+    format: "date-time"
+    description: "Publication date."
+  primary_cluster:
+    type: "integer"
+    description: "Louvain cluster ID."
+  topic_cluster:
+    type: "integer"
+    description: "K-Means cluster ID."
+  bridging_coefficient:
+    type: "number"
+    description: "Inter-cluster edges / total degree. Range [0.0, 1.0]."
+  novelty_score:
+    type: "number"
+    description: "Cosine distance to topic cluster centroid. Range [0.0, 2.0]."
+  embedding_vector:
+    type: "array"
+    items:
+      type: "number"
+    description: "384-dimensional embedding vector."
+required:
+  - "id"
+  - "title"
+  - "cited_by_count"
+  - "primary_cluster"
+  - "topic_cluster"
+  - "bridging_coefficient"
+  - "novelty_score"
+additionalProperties: true

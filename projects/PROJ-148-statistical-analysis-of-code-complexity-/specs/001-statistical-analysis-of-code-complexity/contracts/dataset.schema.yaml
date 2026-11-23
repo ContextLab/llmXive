@@ -1,50 +1,67 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Processed Dataset Schema
-description: "Schema for the processed code complexity dataset (FR-002, FR-003)"
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Code Complexity Dataset Schema"
+description: "Schema for the function‑level CSV used in modeling (FR‑002, FR‑003, FR‑004)."
 type: object
 properties:
-  code_unit_id:
+  function_id:
     type: string
-    description: "Unique identifier for the code unit"
+    description: "UUID for the function unit."
   project_id:
     type: string
-    description: "Identifier for the source project"
+    description: "Identifier of the source Java project."
   file_path:
     type: string
-    description: "Path relative to project root"
-  cyclomatic_complexity:
-    type: number
-    description: "Computed cyclomatic complexity metric"
-  lines_of_code:
+    description: "Relative path to the .java file."
+  function_name:
+    type: string
+    description: "Name of the function or method."
+  start_line:
     type: integer
-    description: "Total lines of code in unit"
+    minimum: 1
+    description: "Starting line number (1‑based)."
+  end_line:
+    type: integer
+    minimum: 1
+    description: "Ending line number (1‑based)."
+  cyclomatic_complexity:
+    type: integer
+    minimum: 0
+    description: "Cyclomatic Complexity (CC)."
+  loc:
+    type: integer
+    minimum: 0
+    description: "Lines of Code."
   token_count:
     type: integer
-    description: "Total token count in unit"
+    minimum: 0
+    description: "Total token count."
   nesting_depth:
     type: integer
-    description: "Maximum nesting depth"
+    minimum: 0
+    description: "Maximum nesting depth."
   halstead_volume:
     type: number
-    description: "Computed Halstead volume"
-  is_bug_fix:
-    type: boolean
-    description: "Binary label: true if unit contains bug fix"
+    description: "Halstead Volume (float)."
+  bug_label:
+    type: integer
+    enum: [0, 1]
+    description: "Binary label: 1 if the function appears in a bug‑fix commit, 0 otherwise."
   split:
     type: string
-    enum:
-      - train
-      - test
-    description: "Dataset split assignment (FR-004)"
+    enum: ["train", "test"]
+    description: "Dataset split assignment (project‑level stratified)."
 required:
-  - code_unit_id
+  - function_id
   - project_id
   - file_path
+  - function_name
+  - start_line
+  - end_line
   - cyclomatic_complexity
-  - lines_of_code
+  - loc
   - token_count
   - nesting_depth
   - halstead_volume
-  - is_bug_fix
+  - bug_label
   - split
 additionalProperties: false

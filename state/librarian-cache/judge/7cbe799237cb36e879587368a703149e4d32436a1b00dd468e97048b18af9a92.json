@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.13006",
+  "judged_at": "2026-07-31T15:58:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "The paper focuses on engineering fine-grained emotion intensity control in text-to-speech systems using large language models, which is an off-domain application of \"emotion\" to speech synthesis rather than a study of the psychological mechanism of interoceptive awareness or emotional regulation in humans. It shares the keyword \"emotion\" but addresses a distinct construct (acoustic parameter control) with no measurable connection to the user's variables (interoception, stress, regulation) or emp",
+  "relevant": false
+}

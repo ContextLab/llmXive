@@ -1,0 +1,109 @@
+T001a:
+  task: ffe68162f843fbf8d37094e4b0f614cacb0e96ed1298581bb9a203e0948026a0
+T001b:
+  task: e03e120272332be7cac585a92164d375598b2f778975e3f5487157b485aa158a
+T002a:
+  reason: "The provided `requirements.txt` exists, but it does not contain pinned\
+    \ (exact) version specifications for the listed packages\u2014most entries lack\
+    \ any version constraint and `pytest`/`pytest-cov` use `>=` instead of `==`. To\
+    \ satisfy the task, each dependency must be pinned to a specific version (e.g.,\
+    \ `pytest==7.4.0`, `pandas==2.2.1`, etc.)."
+  task: 4734b857bf0c6fb127e5325e300afe0a8b14ba4e7d6a1bf0290e690840a1ea48
+T002b:
+  reason: The only artifact provided is the `requirements.txt` file; there is no evidence
+    that a virtual environment was created (e.g., a `venv/` directory, activation
+    script, or `pyvenv.cfg`) nor any logs or records showing that `pip install -r
+    requirements.txt` was executed. Without such proof, the task of creating a virtualenv
+    and installing the listed dependencies is not satisfied.
+  task: 5a16d974c802f347c448862d3bd026b22fca1976ff97177640acdab7cb54f5c5
+T003:
+  reason: No configuration files or scripts for ruff or black (e.g., `pyproject.toml`,
+    `.ruff.toml`, `black.toml`, or CI setup) are present in the provided artifact
+    list, so the required linting/formatting setup cannot be confirmed. The implementer
+    must add the appropriate configuration files and any integration steps.
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  task: 0a76677129a49827c6b16570b181d3c42a0593f9ff3f8280dfde05926944c90c
+T005:
+  task: fb03424328d1964ad7de000db382e727ad3fdd8557aeffea7f36b718f903da25
+T006a:
+  task: 9fbb41ff809931cb1a593a31ff85264998296aa4f3c18393540eea3986b290ed
+T006b:
+  task: d3310b267e9bbbca12e7718b7dbc55deb59c266da6bce8ffb5767e6e5e0b8b91
+T006c:
+  task: d782885e22e3aa5dd977d7a2bcce02a243bd961f36eed22f3a1c05d5a4ca7d17
+T006d:
+  task: 44811bee984250a65b509d95cee99adb37863b48013b09ac482f2ac21da336d1
+T007:
+  task: 2d4cac58a8ecfc7674d8adf0db2f1d77017e3e0d47c8d9a08ebc11c5d93df4a8
+T009:
+  task: 193af5f385cf7d666bbf5a7d51601d9e817424ebc27adada99c2ada002b95df3
+T010:
+  task: 358329f75ac38428870ba97bc3edda9f05146dca3ddd2728055b72f77c8bf66e
+T011:
+  task: 81002f73faccbafdb5b032781707546253945a58f5fd6204e8adc58796205d2e
+T012:
+  task: 80bbcf1830bfef88a47e71d446f5229b320855994ad901623a8fd11f0302792c
+T013:
+  task: 96a71e33b08fd2b94b94a1e2cd7b64e37dd1319cba97a1a2849791c34835b051
+T014:
+  task: 1e8c5e7b4ac1e10d16a033628bb72fd00d7eea44c1d5715d7b839b6e035f39f0
+T022:
+  task: 6efbd36418a1d9a1e175a925e421a60948b802421df7c4f22bbd37a49c9bdb30
+T023:
+  task: 5280f317bea97b35ec9e6fd562e09daca06b7e82eb325c3364ae38516701f728
+T024:
+  task: dbf52f930e60989b18e27e27d75f269673bebd1fc160b3bdaf3e93e15e3b87df
+T025:
+  task: ae42f172b785e6757079bf908da4674d28de2f1f323ff6d97da15aad8158fd19
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/stats_summary.csv'
+  task: 88a50da884e489fc233ed6a73d4f78f6cc66fb7961a9b73cc76c32d38832cfc1
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/corrected_pvalues.csv'
+  task: 9f06041d6f44657196c2d3316feb688139ca5ae087d392bb0c8d04a7220522d5
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/summary.csv'
+  task: 0e32b51ec349aaef0efe27119b005f1cdd100af8826ce8ca7c72894e5df1e1cf
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_report.csv'
+  task: f30cc8074ce56a6e2581330b2d7d27c6d71b75b68cf15b37b26376fec3c703e3
+T039:
+  task: d850b7f705c19ff915f79317e916305bd45a50c71e4fb35e679e04661a8eaea2
+T040:
+  task: 821128f10bd2fe101954cb890c5b1b64ec0fdfd6b4a4c2f7fad48f8d3f43349c
+T041:
+  task: d01d6c26f4e8b082655321310e509465e2f9f9b11b0a65ff1f635f22acaadeeb
+T042:
+  task: ccee775c0c8d636c47cffaaece22359ffa596743202e72716775a3d412bba5fb
+T043:
+  task: 3dcff0f6cb712d7158bf5555651dfb80b6397e44486e36bde58289b46a8d5cc5
+T044:
+  task: 6aedd9071f26ec0a0c8afbac8773a14344b34bc3ce2e61c4c9b21ca03985c4df
+T045:
+  task: 7c15a2454dfcd815d3585c0d53c24fd83a3192770fa0f4b01dd9f0824e92fd25
+T046:
+  task: c65feba5aa8c82552fd4cbbd889438be198b0ba9bc2a00d09502402651b2fa5a
+T047:
+  task: ce69598402862f1f398cdefc326fa3c6be54d59574a60f6667be31d49102fe9d
+T048:
+  task: 0863e617d3821d65b2fd4714d03ed25c52f5591e98a70a19cacfe1588e614189
+T048b:
+  reason: 'declared artifact(s) missing/empty/invalid: outputs/performance_report.txt'
+  task: 5e9b4ceedea5965f442f831132758d80a59548c784420b32bd473aeb4a9b616b
+T049:
+  task: 3096a0b4853ce4f7f1de6715f1d10756a56dd0a97c8d7c24b7852704ecbcf9cf
+T050:
+  task: a1f910f23fdd7388f279984f35b05f89f09f51d20646968a97cd69a22cb08673
+T052:
+  task: 43d449e5cd57c5b4f60a527b41fe6d31b125164288bc6bedaf917639fcf504bb
+T053:
+  task: f410dfc983beeaba9eb736f3c0539d967290da0b18d6c4c7e7e853a5b0cd9ca8
+T057:
+  task: 741e7cf80c3671bd8050bb3d20aff745d16152dde394bf5fe6438b72996f0b85
+T058:
+  task: 04ac5d184ea5336563f569dada5d27b23e5421d2088332322cdf7e884fd28854
+T060:
+  task: 0f4e0e19af3dfcdb7bb5332b15b8ce2acfb6c3e962e364589ecb712d365ab97c
+T061:
+  task: 98c2dd0ac4e8e1425952aceed8d07505b63822d6c174be7d1b92522a8bb0edf2

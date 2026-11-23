@@ -1,123 +1,138 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Tabular Metadata Schema
 description: >
-  Defines the schema for tabular metadata statistics computed for MulTaBench datasets.
-  This schema is used to validate outputs from code/analysis/metadata_stats.py (Task T024)
-  and serves as input for the projection layer training (Task T025).
+  Schema for tabular metadata statistics computed by code/analysis/metadata_stats.py.
+  This schema defines the structure for the summary CSV `data/processed/metadata_stats_summary.csv`
+  and intermediate JSON artifacts used in the MulTaBench extension pipeline.
 type: object
 required:
-  - run_id
   - dataset_id
-  - features
+  - cardinality
+  - missingness
+  - sparsity
+  - variance
 properties:
-  run_id:
-    type: string
-    description: Unique identifier for the pipeline run (e.g., '20231027_001').
-    pattern: '^[0-9]{8}_[0-9]{3}$'
   dataset_id:
     type: string
-    description: Identifier of the MulTaBench dataset (e.g., 'mimic-iii', 'higgs').
+    description: >
+      Unique identifier for the dataset. This matches the `dataset_id` field
+      in the embeddings parquet files and is propagated via `run_id` linkage.
+      Example: "multabench_dataset_001"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  
+  cardinality:
+    type: object
+    description: >
+      Dictionary mapping feature names to their cardinality (number of unique values).
+      For numerical features, this is the count of distinct values.
+      For categorical features, this is the number of unique categories.
+    additionalProperties:
+      type: integer
+      minimum: 1
+      description: Number of unique values for the specific feature.
+  
+  missingness:
+    type: object
+    description: >
+      Dictionary mapping feature names to their missingness ratio (0.0 to 1.0).
+      Represents the fraction of rows where the feature value is null/NaN.
+    additionalProperties:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: Fraction of missing values for the specific feature.
+  
+  sparsity:
+    type: object
+    description: >
+      Dictionary mapping feature names to their sparsity ratio (0.0 to 1.0).
+      For numerical features, this is the fraction of zero values.
+      For categorical features (one-hot encoded), this is the fraction of zero values.
+    additionalProperties:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: Fraction of zero values for the specific feature.
+  
+  variance:
+    type: object
+    description: >
+      Dictionary mapping feature names to their variance (population variance).
+      For constant features (zero variance), this value will be 0.0.
+      Features with zero variance should be flagged for potential exclusion.
+    additionalProperties:
+      type: number
+      minimum: 0.0
+      description: Population variance of the feature values.
+  
+  feature_count:
+    type: integer
+    description: Total number of tabular features analyzed in this dataset.
+    minimum: 1
+  
+  row_count:
+    type: integer
+    description: Total number of rows (samples) in the dataset.
+    minimum: 1
+  
+  zero_variance_features:
+    type: array
+    description: List of feature names that have zero variance (constant features).
+    items:
+      type: string
+    default: []
+  
+  high_missingness_features:
+    type: array
+    description: >
+      List of feature names where missingness > 0.5 (50% missing).
+      These features may require special handling (imputation or exclusion).
+    items:
+      type: string
+    default: []
+  
   computed_at:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of when the metadata was computed.
-  feature_count:
-    type: integer
-    minimum: 0
-    description: Total number of tabular features analyzed.
-  row_count:
-    type: integer
-    minimum: 0
-    description: Total number of rows in the dataset used for analysis.
-  cardinality:
-    type: number
-    minimum: 0
-    description: Average number of unique values per feature.
-  missingness:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Proportion of missing values across all features (0.0 to 1.0).
-  sparsity:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Proportion of zero values in the feature matrix (for sparse datasets).
-  variance:
-    type: number
-    minimum: 0.0
-    description: Average variance across all numerical features.
-  feature_details:
-    type: array
-    description: Detailed statistics per feature.
-    items:
-      type: object
-      required:
-        - name
-        - type
-      properties:
-        name:
-          type: string
-          description: Name of the feature column.
-        type:
-          type: string
-          enum: [numerical, categorical, boolean, datetime, mixed]
-          description: Inferred data type of the feature.
-        unique_count:
-          type: integer
-          minimum: 1
-          description: Number of unique values for this feature.
-        missing_count:
-          type: integer
-          minimum: 0
-          description: Number of missing (NaN/None) values.
-        zero_count:
-          type: integer
-          minimum: 0
-          description: Number of zero values (relevant for sparsity).
-        mean:
-          type: number
-          description: Mean value (only for numerical features).
-        std:
-          type: number
-          description: Standard deviation (only for numerical features).
-        min:
-          type: number
-          description: Minimum value (only for numerical features).
-        max:
-          type: number
-          description: Maximum value (only for numerical features).
-        top_category:
-          type: string
-          description: Most frequent category (only for categorical features).
-        frequency:
-          type: number
-          description: Frequency of the top category (0.0 to 1.0).
+    description: ISO 8601 timestamp when the metadata was computed.
+  
+  run_id:
+    type: string
+    description: >
+      The run identifier associated with this metadata computation.
+      Links this metadata to the corresponding embeddings and model outputs.
+      Format: "{project}_{timestamp}_{hash}"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  
+  source_file:
+    type: string
+    description: Path to the source dataset file used for computation.
+    example: "data/raw/multabench_dataset_001.parquet"
+
 additionalProperties: false
 examples:
-  - run_id: "20231027_001"
-    dataset_id: "mimic-iii"
-    computed_at: "2023-10-27T10:00:00Z"
-    feature_count: 15
-    row_count: 50000
-    cardinality: 12.5
-    missingness: 0.05
-    sparsity: 0.10
-    variance: 2.34
-    feature_details:
-      - name: "age"
-        type: "numerical"
-        unique_count: 100
-        missing_count: 100
-        zero_count: 0
-        mean: 65.0
-        std: 15.0
-        min: 0
-        max: 100
-      - name: "gender"
-        type: "categorical"
-        unique_count: 2
-        missing_count: 0
-        zero_count: 0
-        top_category: "M"
-        frequency: 0.52
+  - dataset_id: "multabench_dataset_001"
+    cardinality:
+      "feature_A": 15
+      "feature_B": 3
+      "feature_C": 100
+    missingness:
+      "feature_A": 0.0
+      "feature_B": 0.12
+      "feature_C": 0.0
+    sparsity:
+      "feature_A": 0.0
+      "feature_B": 0.0
+      "feature_C": 0.85
+    variance:
+      "feature_A": 2.45
+      "feature_B": 0.0
+      "feature_C": 12.3
+    feature_count: 3
+    row_count: 1000
+    zero_variance_features:
+      - "feature_B"
+    high_missingness_features: []
+    computed_at: "2024-01-15T10:30:00Z"
+    run_id: "llmxive_20240115_abc123"
+    source_file: "data/raw/multabench_dataset_001.parquet"

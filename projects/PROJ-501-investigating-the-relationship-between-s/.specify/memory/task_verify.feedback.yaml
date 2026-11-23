@@ -1,0 +1,96 @@
+T001:
+  task: 2071236e862ea87de7810a68c40c1cc9d5c35ebdee58678ef7bc15d514db0f6a
+T002:
+  task: 55ab5ab5f09ce332668d7c9588a854549118489d4a39a821a51853b3168bd506
+T003:
+  task: ef40bafb42c5de545c9d26ebaaf485f6d4805fe74331547330a16742ae4d0c02
+T004:
+  reason: "The `requirements.txt` file is present, but it lists the required packages\
+    \ without any version pins (e.g., `requests` instead of `requests==X.Y.Z`) and\
+    \ adds unrelated tooling entries, violating the task\u2019s explicit demand for\
+    \ a pinned\u2011version requirements file."
+  task: 4070a00968c7606d2689aa5388a9f1a47c6b7c10e8a3cda6f1e459a8519b2fbc
+T005:
+  reason: "The only artifact provided is the `requirements.txt` file; there is no\
+    \ evidence of a created virtual environment (e.g., a `venv/` directory, activation\
+    \ scripts, or a `pyproject.toml`/`Pipfile.lock`) nor any proof that the listed\
+    \ dependencies were installed (e.g., `pip freeze` output, installation logs, or\
+    \ a test import script). The task\u2019s core requirement\u2014creating a virtual\
+    \ environment and installing the dependencies\u2014is therefore unmet."
+  task: a9e6f49d635a61f3b7a2d3b7c21b2e5adec915c2bcdf326787be648e8a7a804d
+T006:
+  task: 8b23b1662ae67338f5057a6d6284dba5368e0c713e6cc6ff97fea355d100beee
+T007:
+  task: 67623773bb15892aa7fad1475652333e6791c5bf8bfd1fd06083d3d1d111a1cf
+T008:
+  task: 4462c5c590bcb37dcbd4d6c7beb5ed80f303cb398430ab0a95d257414898f588
+T009:
+  task: 74b6a3a23b6675b2ade1a2dcf52fdf6a6f0f7bc5708c52eb9efda22f1bc5d79b
+T010:
+  task: 66ac3b08311d1018491a38f7e7ad64ccbbcef596af7befd5caedc2d578633708
+T010a:
+  task: 133a920bdec0583a5118128e4c7d725966fd5eb7d9597e5464cd9e698e1d02e2
+T011:
+  task: d64c5dc95b5b56fd842457896ccff7115be5eca311096494640ab6c433ad2551
+T012:
+  task: 0558a0db34ca18d07d90d1da4faed870fbb817e9b193d6244f4bc445dd0d8dce
+T013:
+  task: 183d55f7410eedbb78b0974473467e11fdfe0e00efe34df6092fce0f42fe05f3
+T014:
+  task: 560d1b2b52e90bd042aa1a7855a428ab936f9c042ca0c1d0b32efaf6fcfc4dfa
+T015:
+  task: 0ba7201936dab94d0d74e6d5b0e2b0d02e673383ea857bcb031b0fb57e752846
+T015a:
+  task: f15212936d3801d98370f3deacb5fd06124ef0a483e8ad7056c59e66d56e3e3d
+T016:
+  task: 3bed6d410d91de09c84f00291e2ced6c845c7d38f4e8d111ddd7e5077e8138af
+T017:
+  task: 5cd2b2fb1adcb6c296e46ccfb68e07ffd5a4fab814650d1692b5808a3331c169
+T018:
+  task: 3a7bf6cbe248a8a4202ea5837e8dee1e93fc84899f83708574e8f6baf04884d2
+T019:
+  task: 4b2970fb44e75ac3c4623a0465d99d5b56540e67a3901d95170db412815e5cab
+T020:
+  task: 0419d30e44544e4ebebc5ffc480cd7b9128e30cac99486166d380961bd4f8989
+T021:
+  task: a3e533b24b993cc7ef3ded0d52b03932736d73ba2a1cd85156f4c790c6a53b7c
+T022:
+  task: 3eb9d64ca520838cd9385356066b732fe6e8356c47015c72e2f8358cbd5ace6a
+T023:
+  task: efe2b1304e073c131a875ca0e7415846a41eaa6dafcc3b154f4bfa4e2e7bad2a
+T024a:
+  task: 3a4fefcb93d4fa68bba1d69571b8a6781e9ee28713439d7dbdc130b75b2ac758
+T024b:
+  task: 96be136899f40942ad8759a7440266b40f857ab33663b44ad7e66ee4437c9e97
+T025:
+  task: 4ab605ee50ffc6d278c41a0e33027243dcf8016fd6c1626c3f4b5eca64dcbd67
+T026:
+  task: e6fc8b88ae3be15ecb00c5314d07e2364f9b15942aa2a04795092c4acee46ba8
+T027:
+  task: 91e873bebcf62c5588efc60031172fe84cfcf19d84b2c9fbfff6ccb75749849e
+T028:
+  task: 4cff4b9fc3cd0b90f6ad349162e3b443a7d12f6e93a802714637a80919f30c96
+T029:
+  task: 4064f19fb198fdf8e36f442da8658f2920e4c3b6d1667fdf5de20f6c1810b25e
+T030:
+  task: 3ef7be170b7e3f8f73fea3cedb63972d1d3a752dd28fc0c02fbda5dac0f9ee6b
+T031:
+  task: a7ed59f89d28d5023c130f7fdacc0eee476574b5ca21eb3a12e12f88f545591c
+T032:
+  task: 6cce6d7591dd306e14ecb1826246146520287cc434281bc0dbf0087618a2fba1
+T033:
+  task: 9e7f014d13f9d82415904eda028cf5fa059448dd9dab95b45e6a53d5bb654c19
+T034:
+  task: d68cbf29155eef1c295060d54a67151c2e1f5da5df68c2286a5cf8eeeccd6b4d
+T035:
+  task: dccb46892e592b4a589f98cb4b62ae2fe07f0782bed37d341f8a2e2b8219e36f
+T036:
+  task: 5489d56ce1312eb6c0253e841575617bd2a01a43818816c390fa43b49a6e317a
+T037:
+  task: 44f0bd87f8b36d8a9db99ba6b43947e2c45ba0cced416eff1609636bcda324b1
+T038:
+  task: 2af243bc1fc202480c3c3f77f2431b5ab08d2c16b36914a0676b3ad35af8b155
+T039:
+  task: 7d6c50af2abfaf13d22be0c13ca9e036c2b520415b30a21a5ba0a19f9a4e567f
+T040:
+  task: 15447aabd9bacd953ded408cdea1e037cce3e146215f0b8f2baa7491faa93b4a

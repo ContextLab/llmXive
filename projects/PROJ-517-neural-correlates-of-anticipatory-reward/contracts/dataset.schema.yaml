@@ -1,36 +1,59 @@
-# Schema for neural correlates dataset
-# Generated/Managed by T006
+# Dataset Schema for Neural Correlates of Anticipatory Reward Processing
+# This schema defines the flat structure required for streaming and CPU processing.
+# It replaces array-based timestamps with single float values per row (one row per spike).
+
 type: object
+description: "Schema for raw spike train data aligned with trial metadata"
+
 properties:
   trial_id:
     type: string
-    pattern: "^trial_[0-9]+$"
-    description: "Unique identifier for the trial, format: trial_<number>"
+    description: "Unique identifier for the trial (e.g., 'trial_0001')"
+    pattern: "^trial_\\d{4}$"
+    
   neuron_id:
-    type: integer
-    description: "Unique identifier for the neuron"
-  spike_timestamps:
-    type: array
-    items:
-      type: number
-    description: "List of spike timestamps in milliseconds"
+    type: string
+    description: "Unique identifier for the neuron (e.g., 'neuron_01')"
+    pattern: "^neuron_\\d{2}$"
+    
+  spike_time_ms:
+    type: number
+    format: float
+    description: "Timestamp of the spike in milliseconds relative to trial start"
+    minimum: 0.0
+    maximum: 10000.0
+    
+  cue_time_ms:
+    type: number
+    format: float
+    description: "Timestamp of the cue stimulus in milliseconds relative to trial start"
+    minimum: 0.0
+    maximum: 10000.0
+    
   reward_magnitude:
     type: number
-    description: "Magnitude of the reward delivered"
-  cue_timestamps:
-    type: array
-    items:
-      type: number
-    description: "List of cue timestamps in milliseconds"
-  spike_sorting_metadata:
-    type: object
-    properties:
-      snr:
-        type: number
-      isolation_distance:
-        type: number
-    description: "Metadata regarding spike sorting quality"
+    format: float
+    description: "Magnitude of the reward delivered (e.g., 0.0, 1.0, 2.0)"
+    
+  snr:
+    type: number
+    format: float
+    description: "Signal-to-Noise Ratio of the spike sorting"
+    minimum: 0.0
+    
+  isolation_distance:
+    type: number
+    format: float
+    description: "Isolation distance metric for spike sorting quality"
+    minimum: 0.0
+    
 required:
   - trial_id
   - neuron_id
+  - spike_time_ms
+  - cue_time_ms
   - reward_magnitude
+  - snr
+  - isolation_distance
+
+additionalProperties: false

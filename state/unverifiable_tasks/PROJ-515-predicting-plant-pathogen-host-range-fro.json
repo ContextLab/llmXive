@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-515-predicting-plant-pathogen-host-range-fro",
+  "tasks": [
+    {
+      "task_key": "T013",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/data/preprocess.py",
+      "first_seen": "2026-09-20T21:59:15.818436+00:00",
+      "last_seen": "2026-09-20T21:59:15.818436+00:00"
+    },
+    {
+      "task_key": "T014",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/models/train.py",
+      "first_seen": "2026-09-20T21:59:15.819265+00:00",
+      "last_seen": "2026-09-20T21:59:15.819265+00:00"
+    },
+    {
+      "task_key": "T020",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/models/evaluate.py",
+      "first_seen": "2026-09-20T21:59:15.820042+00:00",
+      "last_seen": "2026-09-20T21:59:15.820042+00:00"
+    },
+    {
+      "task_key": "T015",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/models/evaluate.py",
+      "first_seen": "2026-09-20T21:59:15.820773+00:00",
+      "last_seen": "2026-09-20T21:59:15.820773+00:00"
+    }
+  ],
+  "updated_at": "2026-09-20T21:59:15.820773+00:00"
+}

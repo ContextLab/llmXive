@@ -1,0 +1,99 @@
+| **MNAR Mechanism Validation (Task T010)** | Added to address circularity: verifying M-Y correlation is tautological (mechanism is defined by it). Task T010 uses Kolmogorov-Smirnov test to validate that observed-data distribution diverges from complete-data distribution. | Without independent check, validation merely confirms code executed correctly, not that MNAR mechanism behaves as theorized. |
+
+## Methodology
+
+### 1. Synthetic Data Generation (SCM) — Phase 1 Task T006 + Phase 2 Task T029b
+
+**Model**: Linear Structural Causal Model (SCM).
+- $T = \text{Bernoulli}(\text{logit}^{-1}(\gamma X))$
+- $Y = \alpha T + \beta X + \epsilon$
+- **Ground Truth ATE**: $\alpha$ (explicitly stored via regenerate_ground_truth).
+
+**MNAR Injection** (Phase 2 Task T029b):
+- Missingness indicator $M$ generated via logistic model: $P(M=1|Y) = \text{logit}^{-1}(\alpha_{mnar} + \beta_{mnar} Y)$.
+- $\beta_{mnar}$ is swept across a range of values including zero.
+- $\beta_{mnar} = 0$ represents MAR/MCAR (baseline).
+- $\beta_{mnar} > 0$ represents MNAR (missingness depends on unobserved $Y$).
+
+**Verification** (Phase 1 Task T010):
+- Verify MNAR mechanism by comparing observed-data distribution (with missingness) to complete-data distribution using Kolmogorov-Smirnov test.
+- If KS test p < 0.05, distributions diverge (MNAR mechanism working).
+- If KS test p >= 0.05, distributions similar (MNAR mechanism insufficient).
+- This provides independent validation beyond confirming M-Y correlation (which is tautological).
+
+**Ground Truth Regeneration** (Phase 1 Task T006):
+- Implement `regenerate_ground_truth(seed, beta) → (tau_true, alpha, beta)` function.
+- Deterministic: given seed and beta, always returns same ground truth values.
+- Called by Phase 2 Task T029d to store ground truth in every row of simulation_summary.csv.
+- Enables post-hoc verification of ground truth integrity (Constitution Principle VI).
+
+### 2. Imputation Strategies — Phase 2 Tasks T017-T019
+
+- **Mean** (Task T017): Replace missing $Y$ with column mean. Bootstrap resampling (Task T019) for robust SEs/CIs.
+- **KNN** (Task T018): $k=5$ nearest neighbors (Euclidean distance on $T, X$). Bootstrap resampling for robust SEs/CIs.
+- **MICE** (Task T018): `sklearn.experimental.enable_iterative_imputer()` with `IterativeImputer` (default estimator=BayesianRidge, max_iter=10, random_state=seed). Rubin's Rules (Task T019) for combining SEs/CIs across imputations.
+- **Constraint**: All run on CPU. No GPU.
+
+### 3. Causal Estimation — Phase 2 Task T020-T025
+
+- **IPW** (Task T024): Inverse Probability Weighting using propensity scores.
+- **PSM** (Task T025): Propensity Score Matching (nearest neighbor, caliper=0.05).
+- **Output**: Estimated ATE ($\hat{\tau}$) for each (Imputation, Estimator) pair.
+- **Divergence Check** (Phase 3 Task T031): Calculate |bias_IPW - bias_PSM|. If > 0.1, flag as interaction effect.
+
+### 4. Bias Quantification & Statistical Testing — Phase 3 Tasks T028-T034
+
+**Bias Calculation** (Phase 2 Task T029d):
+- Bias: $|\hat{\tau} - \tau_{true}|$ where $\tau_{true}$ is regenerated via regenerate_ground_truth.
+- RMSE: $\sqrt{\frac{1}{N}\sum(\hat{\tau}_i - \tau_{true})^2}$.
+
+**Statistical Test (Task T028)** — Integrated Decision Tree:
+1. Compute Shapiro-Wilk test on bias distribution for each beta level.
+2. If $p < 0.05$ (non-normal) → **Friedman Test**.
+3. If $p \ge$ the conventional significance threshold (normal) → **Repeated-Measures ANOVA**.
+4. **Independently** (always): If skewness > 1 or < -1 → Compute **Bootstrap CIs** (1000 iterations) for difference in medians as robust alternative.
+5. Write results to `data/results/statistical_tests.json` with schema matching `contracts/statistical_test.schema.yaml`. Fields: test_type (anova/friedman/bootstrap), p_value, test_statistic, skewness, bootstrap_ci_diff.
+
+**Rationale for Integrated Decision Tree**: 
+- Bootstrap is not a fallback for ANOVA failure; it is a mandatory robustness check whenever data is skewed.
+- This ensures FR-006's requirement for a robust alternative is always satisfied, not conditionally.
+- ANOVA/Friedman provides the primary test (more power if assumptions hold); bootstrap provides robustness check (valid under any distribution).
+
+**Sensitivity Analysis** (Phase 3 Tasks T030, T035):
+- **Bias Trend (Task T030)**: Sweep $\beta_{mnar}$. Compute Spearman rank correlation (rho) and p-value for bias vs. beta. Verify rho > 0.9 AND p < 0.05. Write to `data/results/sensitivity_analysis.json` with monotonicity_confirmed flag. If condition fails, set flag to false and log warning.
+- **Coverage Trend (Task T035)**: Compute regression slope for coverage rate vs. beta. Verify slope < 0 AND p < 0.05. Write to same JSON with negative_slope_confirmed flag. If condition fails, set flag to false and log warning.
+- **Scope Limitation**: This study uses a logistic MNAR mechanism (standard in simulation literature). Non-linear MNAR structures (e.g., quadratic, interaction-based) are outside the initial scope and should be explored in future work. Findings are specific to this linear-logistic interaction and may not generalize to other MNAR forms.
+
+### 5. Computational Feasibility
+
+- **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
+- **Strategy**:
+  - Sample size $N=1000$ per run (small enough for RAM).
+  - Multiple runs will be conducted (A moderate $\beta$ level).
+  - Parallelize runs if possible (using `joblib` with `n_jobs=2`), otherwise sequential.
+  - **No GPU**: All libraries (`scikit-learn`, `statsmodels`) used in CPU mode.
+  - **Runtime**: Target < 4 hours.
+  - **Power Analysis (Task T033)**: Post-hoc power calculation verifies adequate power to detect a moderate Cohen's d in bias differences. If power < 80%, limitation is explicitly flagged in paper.
+
+### 6. Research Question Clarification
+
+**What this study measures**: The *failure* of standard imputation methods to recover the *generative parameter* (tau_true) under MNAR. This is empirical (not tautological) because the bias depends on the specific imputation method chosen and the MNAR mechanism's strength.
+
+**What this study does NOT claim**: That standard methods can recover the true causal effect under MNAR (they cannot; the effect is not identifiable from observed data alone).
+
+**Independent Validation (Task T036)**: Compute bias relative to an IPW estimator on complete data (oracle benchmark). If bias relative to the oracle is large, the imputation methods are failing. If bias relative to the oracle is small but bias relative to the generative parameter is large, the MNAR mechanism is simply distorting the parameter (expected behavior, not a failure).
+
+## Decision Rationale
+
+| Decision | Rationale |
+|----------|-----------|
+| **Synthetic Data** | Real-world data lacks known ATE. Simulation is the only way to quantify bias against "truth" (the generative parameter). |
+| **MNAR Mechanism** | Logistic dependency on $Y$ is the standard parametric form for MNAR studies. Linear-logistic interaction is standard; non-linear mechanisms are future work. |
+| **IPW + PSM** | Constitution Principle VII requires dual estimation to separate imputation error from identification error. Task T031 flags divergence as interaction effect. |
+| **Statistical Decision Tree** | FR-006 mandates robust testing. ANOVA is powerful if normal; Friedman if not. Bootstrap handles skewness. Integrated into single Task T028 to ensure robustness always executed. |
+| **CPU-Only** | GitHub Actions free tier has no GPU. Heavy models (e.g., deep learning imputation) are infeasible. |
+| **Oracle Benchmark (Task T036)** | Addresses circularity: provides independent validation beyond generative parameter. |
+| **MNAR Validation (Task T010)** | Addresses tautology: Kolmogorov-Smirnov test validates mechanism against observable data properties. |
+| **Rubin's Rules + Bootstrap** | Standard practice for combining SEs/CIs from multiple imputations (MICE) and resampling (Mean/KNN). Implemented in Tasks T019. |
+
+## Phase Breakdown

@@ -3,104 +3,120 @@
 ## Project Overview
 **Project ID**: PROJ-205
 **Title**: The Influence of Visual Aesthetics on Perceived Credibility of Online Information
-**Goal**: To investigate how visual design quality affects the perceived credibility of online content through a controlled online experiment.
+**Status**: Active
+**Version**: 1.0.0
 
-## Research Questions
-1. Does visual aesthetic quality significantly impact perceived credibility ratings?
-2. Which specific design elements (layout, typography, color scheme) have the strongest effect?
-3. Do demographic factors (age, education) moderate the relationship between aesthetics and credibility?
+## Objectives
+This project aims to investigate how the visual design quality of online content affects users' perceptions of its credibility. We will conduct an empirical study where participants rate the credibility and professionalism of identical text content presented in four different visual styles: Professional, Minimalist, Low-Quality, and Neutral.
 
 ## Methodology
-- **Design**: Between-subjects experiment with Latin Square counterbalancing
-- **Stimuli**: 4 versions of the same text content with varying visual aesthetics:
- - Professional (High-fidelity)
- - Minimalist (Low-fidelity)
- - Low-Quality (Broken CSS)
- - Neutral (Standard browser default)
-- **Measures**: 7-point Likert scales for Credibility and Professionalism
-- **Sample Size**: Target N=250 participants
-- **Statistical Analysis**: Repeated-measures ANOVA with post-hoc pairwise comparisons
+1. **Stimuli Creation**: Generate four HTML variations of a neutral text passage.
+2. **Experimental Design**: Use a Latin Square design to counterbalance presentation order.
+3. **Data Collection**: Web-based survey (Streamlit) collecting Likert-scale ratings.
+4. **Statistical Analysis**: Repeated-measures ANOVA followed by Bonferroni-corrected pairwise t-tests.
+5. **Robustness Checks**: Mixed-effects models controlling for demographics.
 
-## Project Structure
+## Directory Structure
+The project adheres to the following structure:
+
 ```
-projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/
-├── plan.md # This file
-├── specs/
-│ ├── 001-visual-aesthetics-credibility/
-│ │ ├── spec.md # Feature specification
-│ │ ├── research.md # Research background
-│ │ └── data-model.md # Data model definition
-│ └── contracts/ # API contracts
+PROJ-205-the-influence-of-visual-aesthetics-on-pe/
 ├── code/
-│ ├── stimuli/ # HTML stimulus files
+│ ├── analysis/ # Statistical analysis scripts
+│ │ ├── 01_preprocess.py
+│ │ ├── 01_anova.py
+│ │ ├── 02_pairwise.py
+│ │ ├── 03_report.py
+│ │ ├── 04_mixed_effects.py
+│ │ └── 05_robustness_report.py
+│ ├── stimuli/ # Stimuli generation and verification
 │ │ ├── professional.html
 │ │ ├── minimalist.html
 │ │ ├── low_quality.html
 │ │ ├── neutral.html
 │ │ ├── text_content.txt
-│ │ └── check_irb_env.py
-│ ├── survey/
-│ │ └── app.py # Streamlit survey application
-│ ├── utils/
-│ │ ├── config.py # Configuration management
-│ │ ├── helpers.py # Utility functions
-│ │ └── setup_data_dirs.py
-│ └── analysis/
-│ ├── 01_preprocess.py
-│ ├── 01_anova.py
-│ ├── 02_pairwise.py
-│ ├── 03_report.py
-│ ├── 04_mixed_effects.py
-│ └── 05_robustness_report.py
+│ │ ├── check_irb_env.py
+│ │ └── verify_irb_protocol.py
+│ ├── survey/ # Data collection application
+│ │ └── app.py
+│ └── utils/ # Helper utilities
+│ ├── config.py
+│ ├── helpers.py
+│ ├── setup_data_dirs.py
+│ ├── setup_env.py
+│ └── truncate_metadata.py
 ├── data/
-│ ├── raw/
-│ │ ├── submissions.csv
-│ │ └── consent_log.csv
-│ ├── processed/
-│ │ ├── excluded_audit.csv
-│ │ ├── analysis_results.json
-│ │ └── robustness_results.json
-│ └── consent/
-│ └── irb_approved.txt
-├── tests/
-│ ├── unit/
-│ │ └── test_randomization.py
-│ ├── integration/
-│ │ └── test_survey_flow.py
-│ └── contract/
-│ └── test_csv_schema.py
-├── docs/
+│ ├── raw/ # Raw survey submissions (CSV)
+│ ├── processed/ # Cleaned data and analysis outputs
+│ └── consent/ # IRB approved consent forms
+├── docs/ # Design documents and source materials
 │ ├── NEUTRAL_TEXT_V1.txt
 │ ├── STIMULI_DESIGN_V1.json
 │ └── IRB_PROTO_V1.txt
+├── specs/ # Feature specifications
+│ └── 001-visual-aesthetics-credibility/
+├── tests/ # Test suite
+│ ├── unit/
+│ ├── integration/
+│ └── contract/
+├── projects/
+│ └── PROJ-205-the-influence-of-visual-aesthetics-on-pe/
+│ └── plan.md # This file
 ├── requirements.txt
 ├── README.md
-└── quickstart.md
+└── tasks.md
 ```
 
-## Implementation Phases
-1. **Setup**: Project initialization and structure
-2. **Foundational**: Core infrastructure (stimuli, data directories, utilities)
-3. **US0**: Informed Consent Workflow
-4. **US1**: Participant Survey Data Collection (MVP)
-5. **US2**: Statistical Analysis Pipeline
-6. **US3**: Robustness and Validation Checks
-7. **Polish**: Testing and documentation
+## Phases of Execution
+
+### Phase 1: Setup
+- Initialize project structure.
+- Configure Python environment and dependencies.
+- Set up linting and formatting tools.
+
+### Phase 2: Foundational
+- Create stimuli (HTML files) based on design specs.
+- Prepare neutral text source.
+- Set up data directories and IRB consent infrastructure.
+
+### Phase 3: User Story 0 (Informed Consent)
+- Implement consent workflow in the survey app.
+- Ensure IRB text is displayed and logged correctly.
+
+### Phase 4: User Story 1 (Data Collection)
+- Implement Latin Square randomization.
+- Build stimulus rendering and rating collection.
+- Handle submission, IP hashing, and CSV export.
+
+### Phase 5: User Story 2 (Analysis)
+- Preprocess data and filter incomplete submissions.
+- Run Repeated-Measures ANOVA.
+- Perform pairwise comparisons with effect sizes.
+- Generate summary reports.
+
+### Phase 6: User Story 3 (Robustness)
+- Implement Mixed-Effects models with demographic covariates.
+- Compare results with ANOVA findings.
+
+### Phase 7: Polish
+- Add comprehensive unit and integration tests.
+- Finalize documentation and validation.
+
+## Ethical Considerations
+- **IRB Compliance**: All data collection will strictly follow the IRB-approved protocol (see `docs/IRB_PROTO_V1.txt`).
+- **Privacy**: IP addresses are hashed immediately and never stored in raw form.
+- **Consent**: Participation is voluntary; users must explicitly agree to the consent form before proceeding.
+- **Data Security**: Raw data is stored securely; analysis is performed on anonymized datasets.
 
 ## Dependencies
 - Python 3.11+
-- Streamlit (web interface)
-- pandas, numpy, scipy, statsmodels (analysis)
-- pyyaml (configuration)
-
-## Ethical Considerations
-- IRB-approved consent process
-- IP address hashing for privacy
-- No client-side storage of PII
-- Transparent data exclusion criteria
+- Streamlit (Web Interface)
+- Pandas, NumPy, SciPy (Data Handling & Stats)
+- Statsmodels (ANOVA & Mixed-Effects)
+- PyYAML (Configuration)
 
 ## Success Criteria
-- Complete data collection from 250 participants
-- Statistically significant results (p < 0.05)
-- Robustness confirmed via mixed-effects models
-- Full audit trail for reproducibility
+1. Complete dataset collection (N >= 250) with valid consent.
+2. Statistically significant results (or clear non-significance) regarding the effect of visual aesthetics on credibility.
+3. Reproducible analysis pipeline with all scripts passing validation tests.
+4. Full compliance with ethical guidelines and data privacy standards.

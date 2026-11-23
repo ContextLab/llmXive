@@ -1,0 +1,113 @@
+{
+  "trace_id": "held_out_43_02565",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "insert_image",
+    "resize_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 94.03,
+        "height": 47.8992
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 22.0173,
+        "height": 19.9804
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 84.0641,
+        "height": 34.0615
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 3.1422,
+        "height": 10.0978
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 70.1461,
+        "y": 54.8146,
+        "width": 91.2366,
+        "height": 44.0158
+      }
+    },
+    {
+      "step": 5,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 43.036,
+        "height": 76.7727
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 7.499,
+        "saturation": 27.4414
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 8.9798,
+        "saturation": 15.1943
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 24.1597,
+        "saturation": 29.3071
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 88.1513,
+        "saturation": 72.0492
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.943348,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 873.462092
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 5,
+    "layout_hash": "43-2565-resize_element"
+  },
+  "variance_multiplier": 1.5
+}

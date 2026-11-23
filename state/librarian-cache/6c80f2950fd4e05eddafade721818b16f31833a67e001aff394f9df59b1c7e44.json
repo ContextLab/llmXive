@@ -1,0 +1,591 @@
+{
+  "fetched_at": "2026-07-20T10:15:13Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors",
+      "target_n": 5
+    },
+    "duration_seconds": 58.201,
+    "ended_at": "2026-07-20T10:15:13Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "hydrogen diffusivity prediction in metallic alloys"
+        ],
+        [
+          2,
+          "machine learning models for hydrogen diffusion coefficients"
+        ],
+        [
+          3,
+          "microstructure-property relationships for hydrogen transport"
+        ],
+        [
+          4,
+          "computational prediction of hydrogen mobility in metals"
+        ],
+        [
+          5,
+          "hydrogen embrittlement diffusion modeling"
+        ],
+        [
+          6,
+          "atomic diffusion coefficients in crystalline materials"
+        ],
+        [
+          7,
+          "data-driven estimation of hydrogen permeability"
+        ],
+        [
+          8,
+          "composition-dependent hydrogen diffusion in steel and alloys"
+        ],
+        [
+          9,
+          "grain boundary effects on hydrogen diffusion rates"
+        ],
+        [
+          10,
+          "first-principles calculations of hydrogen migration barriers"
+        ],
+        [
+          11,
+          "multiscale modeling of hydrogen transport in metals"
+        ],
+        [
+          12,
+          "hydrogen solubility and diffusivity correlations"
+        ],
+        [
+          13,
+          "crystallographic orientation influence on hydrogen diffusion"
+        ],
+        [
+          14,
+          "deep learning for hydrogen diffusion in complex alloys"
+        ],
+        [
+          15,
+          "trap density and hydrogen diffusion kinetics"
+        ],
+        [
+          16,
+          "hydrogen transport mechanisms in body-centered cubic metals"
+        ],
+        [
+          17,
+          "predictive modeling of hydrogen diffusion using descriptors"
+        ],
+        [
+          18,
+          "hydrogen diffusion in high-entropy alloys"
+        ],
+        [
+          19,
+          "ab initio prediction of hydrogen diffusion coefficients"
+        ],
+        [
+          20,
+          "hydrogen migration pathways in metal lattices"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors materials science": 0,
+        "hydrogen diffusivity prediction in metallic alloys": 3,
+        "machine learning models for hydrogen diffusion coefficients": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "hydrogen solubility lattice trapping binding energy",
+      "DFT hydrogen metal hydride interstitial site",
+      "grain boundary segregation dislocation pipe diffusion",
+      "mean squared displacement diffusion activation energy",
+      "machine learning interatomic potential surrogate model"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2308.07823"
+      ]
+    },
+    "per_query_hit_count": {
+      "DFT hydrogen metal hydride interstitial site": 1,
+      "Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors materials science": 3,
+      "grain boundary segregation dislocation pipe diffusion": 3,
+      "hydrogen solubility lattice trapping binding energy": 2,
+      "machine learning interatomic potential surrogate model": 3,
+      "mean squared displacement diffusion activation energy": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "cond-mat/0408068",
+          "rationale": "The paper focuses on half-metallicity and magnetic properties (Slater-Pauling behavior) in Heusler alloys, which is a distinct construct from the user's question regarding hydrogen diffusion coefficients. While both topics fall under materials science, the paper does not measure the diffusion mechanism, hydrogen solubility, or the specific microstructural descriptors relevant to hydrogen transport, failing to satisfy any of the inclusion criteria (a-f).",
+          "title": "Half-metallicity and Slater-Pauling behavior in the ferromagnetic Heusler alloys"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources in machine learning for official statistics (e.g., census or economic data), which is an entirely different domain from materials science and the physical prediction of hydrogen diffusion coefficients. It shares no measurable connection to the user's specific mechanism, variables, or empirical setting, falling under the \"Off-domain entirely\" rejection rule.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper focuses on general validation standards for machine learning in biology, which is an off-domain application (biology vs. materials science) and does not measure the specific physical mechanism (hydrogen diffusion), variables (compositional/microstructural descriptors), or domain (metals) required by the user's question. It fails to satisfy any inclusion criteria (a-f) as it offers no empirical baseline, specific mechanism evidence, or domain-relevant methodology for the stated problem.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on machine learning methodology (learning curves for algorithm selection) and does not address the specific domain of materials science, hydrogen diffusion, or the prediction of physical properties from compositional descriptors. It fails all inclusion criteria (a-f) as it shares no mechanism, variables, or empirical population with the user's question, representing a case of distinct constructs sharing only the keyword \"learning\" (in the context of ML vs. physical ",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper focuses on a general methodology for interpreting machine learning models using energy landscape concepts, but it does not measure hydrogen diffusion coefficients, study metals, or utilize compositional/microstructural descriptors as variables. It fails to satisfy any inclusion criteria (a-f) because it lacks the specific domain, mechanism, or empirical variables required by the user's question, representing only a shared keyword (\"physics-inspired\") without a substantive connection to",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        },
+        {
+          "primary_pointer": "1905.04749",
+          "rationale": "The paper focuses on machine learning for fake news detection in social media, which is an entirely different domain (natural language processing/social science) from the user's question regarding hydrogen diffusion in metals (materials science). It shares no measurable connection to the specific mechanism, variables, or empirical population required, falling under the \"Off-domain entirely\" rejection rule.",
+          "title": "A Benchmark Study of Machine Learning Models for Online Fake News Detection"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-20T10:14:15Z",
+    "term_input": {
+      "normalized": "predicting the diffusion coefficient of hydrogen in metals from compositional and microstructural descriptors materials science",
+      "raw": "Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional and Microstructural Descriptors materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The United States Department of Energy (DOE) has published a progression of technical targets to be satisfied by on-board rechargeable hydrogen storage systems in light-duty vehicles. By combining simplified storage system and vehicle models with interpolated data from metal hydride databases, we obtain material-level requirements for metal hydrides that can be assembled into systems that satisfy the DOE targets for 2017. We assume minimal balance-of-plant components for systems with and without a hydrogen combustion loop for supplemental heating. Tank weight and volume are driven by the stringent requirements for refueling time. The resulting requirements suggest that, at least for this specific application, no current on-board rechargeable metal hydride satisfies these requirements.",
+          "claimed_authors": [
+            "Jose Miguel Pasini",
+            "Claudio Corgnale",
+            "Bart A. van Hassel",
+            "Theodore Motyka",
+            "Sudarshan Kumar",
+            "Kevin L. Simmons"
+          ],
+          "claimed_title": "Metal hydride material requirements for automotive hydrogen storage systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1307.0890"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Metal hydride material requirements for automotive hydrogen storage systems')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Studies of muonic hydrogen atoms and molecules have been performed traditionally in bulk targets of gas, liquid or solid. At TRIUMF, Canada's meson facility, we have developed a new type of target system using multilayer thin films of solid hydrogen, which provides a beam of muonic hydrogen atoms in vacuum. Using the time-of-flight of the muonic atoms, the energy-dependent information of muonic reactions are obtained in direct manner. We discuss some unique measurements enabled by the new technique, with emphasis on processes relevant to muon catalyzed fusion.",
+          "claimed_authors": [
+            " TRIUMF Muonic Hydrogen Collaboration",
+            "M. C. Fujiwara",
+            "A. Adamczak",
+            "J. M. Bailey",
+            "G. A. Beer",
+            "J. L. Beveridge",
+            "M. P. Faifman",
+            "T. M. Huber",
+            "P. Kammel",
+            "S. K. Kim",
+            "P. E. Knowles",
+            "A. R. Kunselman",
+            "V. E. Markushin",
+            "G. M. Marshall",
+            "G. R. Mason",
+            "F. Mulhauser",
+            "A. Olin",
+            "C. Petitjean",
+            "T. A. Porcelli",
+            "J. Zmeskal"
+          ],
+          "claimed_title": "Time-of-Flight Spectroscopy of Muonic Hydrogen Atoms and Molecules",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "nucl-ex/0101007"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Time-of-Flight Spectroscopy of Muonic Hydrogen Atoms and Molecules')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the $B \\to Kl^+l^-$ semileptonic decay process in three-flavor lattice QCD. We analyze several ensembles generated by the MILC collaboration at different lattice spacings and sea-quark masses. We use the asqtad improved staggered action for the light quarks and the clover action with the Fermilab interpretation for the heavy $b$ quark. We present preliminary results for the vector current induced form factors for a range of kaon energies. Our analysis includes chiral and continuum extrapolations based on SU(2) staggered χPT.",
+          "claimed_authors": [
+            "Ran Zhou",
+            "Jon A. Bailey",
+            "Alexei Bazavov",
+            "Aida X. El-Khadra",
+            "Steven Gottlieb",
+            "Rajendra D. Jain",
+            "Andreas S. Kronfeld",
+            "Ruth S. Van de Water",
+            "Fermilab Lattice",
+            "MILC Collaborations"
+          ],
+          "claimed_title": "Form factors for $B$ to $Kll$ semileptonic decay from three-flavor lattice QCD",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0981"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Form factors for $B$ to $Kll$ semileptonic decay from three-flavor lattice QCD')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report on heavy quark mass calculations using Fermilab heavy quarks. Lattice calculations of heavy-strange meson masses are combined with one-loop (automated) lattice perturbation theory to arrive at the quark mass. Mesons are constructed from Fermilab heavy quarks and staggered light quarks. We use the MILC ensembles at three lattice spacings and sea quark mass ratios of $m_{\\rm u,d} / m_{\\rm s} = 0.1$ to 0.4. Preliminary results for the bottom quark are given in the potential subtracted scheme.",
+          "claimed_authors": [
+            "Elizabeth D. Freeland",
+            "Andreas S. Kronfeld",
+            "James N. Simone",
+            "Ruth S. Van de Water",
+            "Fermilab Lattice",
+            "MILC Collaborations"
+          ],
+          "claimed_title": "Heavy-Quark Masses from the Fermilab Method in Three-Flavor Lattice QCD",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0710.4339"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Heavy-Quark Masses from the Fermilab Method in Three-Flavor Lattice QCD')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Developing new metal hydrides is a critical step toward efficient hydrogen storage in carbon-neutral energy systems. However, existing materials databases, such as the Materials Project, contain a limited number of well-characterized hydrides, which constrains the discovery of optimal candidates. This work presents a framework that integrates causal discovery with a lightweight generative machine learning model to generate novel metal hydride candidates that may not exist in current databases. Using a dataset of 450 samples (270 training, 90 validation, and 90 testing), the model generates 1,000 candidates. After ranking and filtering, six previously unreported chemical formulas and crystal structures are identified, four of which are validated by density functional theory simulations and show strong potential for future experimental investigation. Overall, the proposed framework provides a scalable and time-efficient approach for expanding hydrogen storage datasets and accelerating materials discovery.",
+          "claimed_authors": [
+            "Xiyuan Liu",
+            "Christian Hacker",
+            "Shengnian Wang",
+            "Yuhua Duan"
+          ],
+          "claimed_title": "A generative machine learning model for designing metal hydrides applied to hydrogen storage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.20892"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='A generative machine learning model for designing metal hydrides applied to hydrogen storage')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a continuum model for the dynamics of low angle grain boundaries in two dimensions based on the motion of constituent dislocations of the grain boundaries. The continuum model consists of an equation for the motion of grain boundaries (i.e., motion of the constituent dislocations in the grain boundary normal direction) and equations for the dislocation structure evolution on the grain boundaries. This model is derived from the discrete dislocation dynamics model. The long-range elastic interaction between dislocations is included in the continuum model, which ensures that the dislocation structure on a grain boundary is consistent with the Frank's formula. These evolution of the grain boundary and its dislocation structure are able to describe both normal motion and tangential translation of the grain boundary and grain rotation due to both coupling and sliding. Since the continuum model is based upon dislocation structure, it naturally accounts for the grain boundary shape change during the motion and rotation of the grain boundary by motion and reaction of the constituent dislocations. Using the derived continuum grain boundary dynamics model, simulations are performed for the dynamics of circular and non-circular two dimensional grain boundaries, and the results are validated by discrete dislocation dynamics simulations.",
+          "claimed_authors": [
+            "Luchan Zhang",
+            "Yang Xiang"
+          ],
+          "claimed_title": "Motion of grain boundaries incorporating dislocation structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.01856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Motion of grain boundaries incorporating dislocation structure')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a continuum model to compute the energy of low angle grain boundaries for any given degrees of freedom (arbitrary rotation axis, rotation angle and boundary plane orientation) based on a continuum dislocation structure. In our continuum model, we minimize the grain boundary energy associated with the dislocation structure subject to the constraint of Frank's formula for dislocations with all possible Burgers vectors. This constrained minimization problem is solved by the penalty method by which it is turned into an unconstrained minimization problem. The grain boundary dislocation structure is approximated by a network of straight dislocations that predicts the energy and dislocation densities of the grain boundaries. The grain boundary energy based on the calculated dislocation structure is able to incorporate its anisotropic nature. We use our continuum model to systematically study the energy of $<111>$ low angle grain boundaries in fcc Al with any boundary plane orientation and all six possible Burgers vectors. Comparisons with results of the atomistic simulations show that our continuum model is able to give excellent predictions of the energy and dislocation densities of low angle grain boundaries. We also study the energy of low angle grain boundaries in fcc Al with varying rotation axis while the rest degrees of freedom are fixed. With minor modifications, our model can also apply to dislocation structures and energy of heterogeneous interfaces.",
+          "claimed_authors": [
+            "Luchan Zhang",
+            "Yejun Gu",
+            "Yang Xiang"
+          ],
+          "claimed_title": "Energy of low angle grain boundaries based on continuum dislocation structure",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.04318"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Energy of low angle grain boundaries based on continuum dislocation structure')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Revealing statistics of H-defect interactions provides insights into significant ductility loss due to the particular strain partitioning in H-charged structural alloys. Experimental investigation of these interactions is extremely difficult, labor-intensive, and costly. Here, we used MD and GCMC simulations and studied H-diffusion deformation at polycrystalline scale with atomic resolution efficiently. To study H-free surface interactions, large pillars including all possible angles and planes of free surfaces were modeled. To study H-grain boundary interactions, several polycrystalline models containing comparable statistics of low and high angle grain boundaries were examined. We studied the statistics of H-segregation tendencies based on free surface angles and grain boundary types. Dislocation activities were also classified for these various types and total density and strength were compared and analyzed compared to H-free samples. In the free surface model, it was observed that H was evenly distributed along the model's surface. Although the dislocation density was reduced compared to H-free samples, localized bands of dislocations were produced. Additionally in the polycrystalline samples, it was concluded that H tends to segregate along grain boundaries with misorientation angles less than or equal to 25 degrees. However, specific misorientation angle interactions -- namely $>45$ degrees -- led to increased dislocation density in H-charged samples compared to their H-free counterparts.",
+          "claimed_authors": [
+            "Matthew J. Melfi",
+            "S. Mohadeseh Taheri-Mousavi"
+          ],
+          "claimed_title": "Computational statistics of segregation and dislocation activities of hydrogen charged free surfaces and grain boundaries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.11134"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Computational statistics of segregation and dislocation activities of hydrogen charged free surfaces and grain boundaries')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Experimental results of the rapidity distributions of negatively charged pions produced in proton-proton ($p$-$p$) and beryllium-beryllium (Be-Be) collisions at different beam momentums, measured by the NA61/SHINE Collaboration at the super proton synchrotron (SPS), are described by a revised (three-source) Landau hydrodynamic model. The squared speed-of-sound parameter $c^2_s$ is then extracted from the width of rapidity distribution. There is a local minimum (knee point) which indicates a softest point in the equation of state (EoS) appearing at about 40$A$ GeV/$c$ (or 8.8 GeV) in $c^2_s$ excitation function [the dependence of $c^2_s$ on incident beam momentum (or center-of-mass energy)]. This knee point should be related to the searching for the onset of quark deconfinement and the critical point of quark-gluon plasma (QGP) phase transition.",
+          "claimed_authors": [
+            "Fu-Hu Liu",
+            "Li-Na Gao",
+            "Roy A. Lacey"
+          ],
+          "claimed_title": "Searching for minimum in dependence of squared speed-of-sound on collision energy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.06839"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Searching for minimum in dependence of squared speed-of-sound on collision energy')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Diffusion Coefficient of Hydrogen in Metals from Compositional an', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-07-20T10:14:44Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chunguang Tang",
+            "Gang Sun",
+            "Yun Liu"
+          ],
+          "title": "Is hydrogen diffusion in amorphous metals non-Arrhenian?",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.15498",
+        "summary": "Hydrogen diffusion is critical to the performance of metals for hydrogen storage as well as other important applications. As compared to its crystalline counterpart which follows the Arrhenius relation, hydrogen diffusion in amorphous metals sometimes are experimentally found to be non-Arrhenian. In this work we studied the diffusion of hydrogen in amorphous Pd-H and Zr-Cu-H alloys based on molecular dynamics simulations. Our simulations confirm Arrhenian diffusion behaviour for hydrogen in amorphous alloys, in contrast to previous theoretical studies which predict non-Arrhenian behaviour. We show that the simulated non-Arrhenian diffusion based on molecular dynamics could result from a systematic error related to too short simulation time. We also discussed the experimental non-Arrhenian behaviour of hydrogen diffusion within the framework of quantum tunneling and amorphous-amorphous phase transformations.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.15498",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T10:14:49Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Grace M. Lu",
+            "Matthew Witman",
+            "Sapan Agarwal",
+            "Vitalie Stavila",
+            "Dallas R. Trinkle"
+          ],
+          "title": "Explainable Machine Learning for Hydrogen Diffusion in Metals and Random Binary Alloys",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2308.07823",
+        "summary": "Hydrogen diffusion in metals and alloys plays an important role in the discovery of new materials for fuel cell and energy storage technology. While analytic models use hand-selected features that have clear physical ties to hydrogen diffusion, they often lack accuracy when making quantitative predictions. Machine learning models are capable of making accurate predictions, but their inner workings are obscured, rendering it unclear which physical features are truly important. To develop interpretable machine learning models to predict the activation energies of hydrogen diffusion in metals and random binary alloys, we create a database for physical and chemical properties of the species and use it to fit six machine learning models. Our models achieve root-mean-squared-errors between 98-119 meV on the testing data and accurately predict that elemental Ru has a large activation energy, while elemental Cr and Fe have small activation energies. By analyzing the feature importances of these fitted models, we identify relevant physical properties for predicting hydrogen diffusivity. While metrics for measuring the individual feature importances for machine learning models exist, correlations between the features lead to disagreement between models and limit the conclusions that can be drawn. Instead grouped feature importances, formed by combining the features via their correlations, agree across the six models and reveal that the two groups containing the packing factor and electronic specific heat are particularly significant for predicting hydrogen diffusion in metals and random binary alloys. This framework allows us to interpret machine learning models and enables rapid screening of new materials with the desired rates of hydrogen diffusion.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2308.07823",
+          "http_status": 200,
+          "pdf_sample_score": 0.3178,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T10:14:49Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the diffusion coefficient of hydrogen in metals from compositional and microstructural descriptors materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

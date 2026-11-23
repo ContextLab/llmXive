@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.03586",
+  "judged_at": "2026-07-19T19:00:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (anomaly detection in industrial control systems) and measures the same dependent variable (detection performance/resilience against adversarial attacks) within the user's specified domain, providing essential context on the robustness of current industrial anomaly detection methods.",
+  "relevant": true
+}

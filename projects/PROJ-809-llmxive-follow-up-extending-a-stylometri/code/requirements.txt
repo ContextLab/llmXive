@@ -1,0 +1,7 @@
+# Project Dependencies
+# Installed via pip install -r requirements.txt
+pyyaml>=6.0
+datasets>=2.0.0
+pandas>=2.0.0
+scikit-learn>=1.0.0
+pytest>=7.0.0

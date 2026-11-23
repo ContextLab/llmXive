@@ -1,0 +1,51 @@
+# Context Configuration Schema
+# Defines the parameters used to construct the context window for the model.
+# Corresponds to the `ContextConfiguration` dataclass in `code/config.py`.
+
+schema_version: "1.0"
+entity_name: "ContextConfiguration"
+
+fields:
+  - name: strategy_type
+    type: enum[StrategyType]
+    description: "The context processing strategy used (e.g., 'naive_truncation', 'tfidf', 'diff_aware', 'semantic_summarization')."
+    required: true
+    enum_values:
+      - naive_truncation
+      - tfidf
+      - diff_aware
+      - semantic_summarization
+    
+  - name: max_tokens
+    type: integer
+    description: "Maximum number of tokens allowed in the final context window."
+    required: true
+    
+  - name: truncation_strategy
+    type: enum[TruncationStrategy]
+    description: "How to handle content exceeding max_tokens (e.g., 'head', 'tail', 'center')."
+    required: true
+    enum_values:
+      - head
+      - tail
+      - center
+    
+  - name: tfidf_top_k
+    type: integer
+    description: "Number of top relevant snippets to retrieve when using TF-IDF strategy."
+    required: false
+    
+  - name: diff_window_size
+    type: integer
+    description: "Number of lines to include around changed blocks for diff-aware strategy."
+    required: false
+    
+  - name: summarization_model
+    type: string
+    description: "Model identifier or rule-set name used for semantic summarization (if applicable)."
+    required: false
+    
+  - name: seed
+    type: integer
+    description: "Random seed used for any stochastic context selection (reproducibility)."
+    required: true

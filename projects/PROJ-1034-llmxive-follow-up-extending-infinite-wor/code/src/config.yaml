@@ -1,0 +1,56 @@
+# Configuration for baseline comparison (T016)
+# Compatible with EcoDirector (T004) and NeuralBaseline (T005)
+
+# Eco-Director (CA) Configuration
+eco_director:
+  grid_size: 100
+  neighborhood_radius: 1
+  update_rule: "conway"
+  initial_density: 0.3
+  max_steps: 10000
+  memory_limit_mb: 2048
+  random_seed: 42
+  enable_logging: true
+  log_interval: 1000
+
+# Neural Baseline Configuration
+neural_baseline:
+  model_type: "throttled_proxy"
+  max_tokens: 1000
+  temperature: 0.7
+  max_steps: 10000
+  memory_limit_mb: 2048
+  random_seed: 42
+  enable_logging: true
+  log_interval: 1000
+
+# Global Settings
+global:
+  output_dir: "data/raw"
+  log_dir: "data/logs"
+  timeout_seconds: 21600  # 6 hours
+  enable_progress_bar: false
+
+# Simulation Parameters for Comparison
+comparison:
+  steps: 10000
+  configurations:
+    - name: "default"
+      eco_director:
+        grid_size: 100
+        neighborhood_radius: 1
+      neural_baseline:
+        model_type: "throttled_proxy"
+    - name: "high_density"
+      eco_director:
+        grid_size: 100
+        neighborhood_radius: 1
+        initial_density: 0.5
+      neural_baseline:
+        model_type: "throttled_proxy"
+    - name: "large_grid"
+      eco_director:
+        grid_size: 200
+        neighborhood_radius: 2
+      neural_baseline:
+        model_type: "throttled_proxy"

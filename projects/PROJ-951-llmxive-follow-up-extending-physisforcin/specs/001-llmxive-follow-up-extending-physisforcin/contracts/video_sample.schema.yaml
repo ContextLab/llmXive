@@ -1,44 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "VideoSample"
-description: "Schema for a single generated robotic manipulation video with physics metadata."
-type: "object"
+type: object
+required:
+  - video_id
+  - prompt
+  - video_path
+  - generation_timestamp
+  - physics_score
+  - filter_status
+  - condition
 properties:
-  id:
-    type: "string"
-    format: "uuid"
+  video_id:
+    type: string
     description: "Unique identifier for the video sample."
   prompt:
-    type: "string"
-    description: "The text prompt used for video generation."
+    type: string
+    description: "Text prompt used for generation."
   video_path:
-    type: "string"
-    description: "Relative path to the MP4 video file."
+    type: string
+    description: "Relative path to the MP4 file."
+  generation_timestamp:
+    type: string
+    format: date-time
+    description: "ISO-8601 timestamp of acquisition/generation."
   physics_score:
-    type: "number"
+    type: number
     minimum: 0.0
     maximum: 1.0
-    description: "Physics consistency score from the PyBullet filter (0.0 to 1.0)."
-  pass_status:
-    type: "boolean"
-    description: "True if the video passed the physics filter (score ≥ 60th percentile)."
-  generation_timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO 8601 timestamp of generation."
-  checksum:
-    type: "string"
-    pattern: "^[a-f0-9]{64}$"
-    description: "SHA-256 checksum of the video file."
-  batch_id:
-    type: "string"
-    description: "Identifier for the generation batch (A, B, C)."
-required:
-  - "id"
-  - "prompt"
-  - "video_path"
-  - "physics_score"
-  - "pass_status"
-  - "generation_timestamp"
-  - "checksum"
-  - "batch_id"
+    description: "Normalized physics consistency score (0 – 1); raw 0‑100 scale divided by 100."
+  filter_status:
+    type: string
+    enum:
+      - "pass"
+      - "fail"
+      - "error"
+    description: "Result of the PyBullet physics filter."
+  condition:
+    type: string
+    enum:
+      - "filtered"
+      - "unfiltered"
+    description: "Experimental condition this sample belongs to."
+  simulation_failure:
+    type: boolean
+    default: false
+    description: "True if the PyBullet simulation crashed or timed out on this video."
 additionalProperties: false

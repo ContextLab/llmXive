@@ -62,5 +62,15 @@
     "sections/introduction.tex",
     "sections/method.tex",
     "sections/related_work.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "79240f59858067b4a105006df5b49662bca1cda492be10b31194bfdcf5fd337c",
+      "bytes": 3218015
+    },
+    "original.pdf": {
+      "sha256": "f1a79d471a34503799b548f301dc27e9ea6ed1601374acd27dc8e2ec955467b8",
+      "bytes": 2616289
+    }
+  }
 }

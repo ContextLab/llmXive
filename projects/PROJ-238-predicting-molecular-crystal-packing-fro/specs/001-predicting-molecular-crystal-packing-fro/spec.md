@@ -98,5 +98,5 @@ The researcher needs to identify which molecular descriptors most influence pack
 - The "dominant intermolecular interaction type" can be reliably extracted from the crystal structure data using geometric criteria (e.g., distance and angle cutoffs) without requiring additional experimental data not present in the source files.
 - The relationship between single-molecule descriptors and crystal packing is sufficiently strong to be captured by non-linear models (Random Forest/Gradient Boosting) without requiring complex many-body simulations.
 - The analysis assumes an observational design; therefore, all findings regarding "prediction" are framed as associational, not causal, as no randomization of crystal conditions is performed.
-- The RDKit library is available in the standard Python environment and can compute all required descriptors (dipole moment, surface area, etc.) within the 6-hour job limit.
+- The RDKit library is available in the standard Python environment and can compute all required descriptors (dipole moment, surface area, etc.) within the job time limits.
 - If the source dataset lacks specific variables required for the interaction type classification (e.g., specific hydrogen bond angles), the project will proceed with the available variables and record the limitation in the final report.

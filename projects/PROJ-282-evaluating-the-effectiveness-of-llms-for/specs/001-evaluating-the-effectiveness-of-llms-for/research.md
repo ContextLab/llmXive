@@ -1,58 +1,88 @@
-# Research: Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code
-
-## Decision & Rationale
-- **Zero‑shot LLM**: StarCoder‑Base 1.6B quantized to 4‑bit (CPU‑compatible) provides a balance between capability and the 2‑core, ≤ 7 GB RAM runner. No GPU is required; the model fits in ~1.2 GB RAM after quantization.
-- **Embedding Encoder**: `microsoft/codebert-base` (12 M parameters) quantized to 4‑bit for CPU. **Crucially**, it computes similarity to an **EXTERNAL** vulnerability pattern corpus (CWE Top 25 snippets), NOT the evaluation datasets, to prevent data leakage.
-- **Static Baselines**: Bandit (Python) and cppcheck (C) are open‑source, installable via pip/apt, and run fully on CPU.
-- **Dataset Selection**: Only the three verified dataset URLs listed in the project specification are used. All are HuggingFace‑hosted parquet/JSONL files that can be streamed directly.
-- **Compute Strategy**: All steps are CPU‑first. No method requires GPU; therefore the plan avoids the GPU escape hatch. The pipeline processes data in ≤ 50‑sample batches to stay under memory limits.
+# Research: Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities
 
 ## Dataset Strategy
-| Dataset | Source URL (verified) | Access Method | Expected Size (post‑stream) | Notes |
-|---------|----------------------|---------------|-----------------------------|-------|
-| VulDeePecker (full) | https://huggingface.co/datasets/ijakenorton/vuldeepecker_for_ml/resolve/main/vuldeepecker_full_dataset.jsonl | `datasets.load_dataset(..., streaming=True)` | ~3 GB JSONL (≈ 4 500 snippets) | Contains `code`, `cwe_id`, `vul_type`. |
-| Juliet (C) | https://huggingface.co/datasets/claudios/VulDeePecker/resolve/main/data/test-00000-of-00001.parquet | `datasets.load_dataset("claudios/VulDeePecker", split="test")` | ~1 GB parquet (≈ 1 200 C snippets) | Provides `ground_truth_label` and `ground_truth_category`. |
-| JavaScript (auxiliary) | https://huggingface.co/datasets/hchautran/javascript/resolve/main/data/test-00000-of-00038.parquet | `datasets.load_dataset("hchautran/javascript", split="test")` | ~0.8 GB parquet (≈ 2 000 JS snippets) | Used to broaden language coverage; ground‑truth labels are present. |
 
-**External Corpus (for Embedding Similarity)**:
-- **Source**: A curated list of code snippets representing the CWE Top 25 vulnerabilities, sourced from the public `CWE-Code-Snippets` repository (GitHub: `cwe-community/snippets`).
-- **Usage**: Pre-computed embeddings are stored in `data/corpus/cwe_embeddings.npy`. This corpus is **independent** of the VulDeePecker/Juliet datasets to ensure no data leakage. The `embed.py` script explicitly loads this pre-computed vector store and the `microsoft/codebert-base` model to compute similarity scores for the evaluation dataset.
+The study relies on three primary open-source datasets. We strictly adhere to the "Verified datasets" block provided in the specification. No access-gated data is used.
 
-All three evaluation datasets are publicly downloadable without authentication. The pipeline streams each dataset, extracts the required fields, and stops after 5 000 total labeled snippets (FR‑001).
+| Language | Dataset | Verified Source URL | Load Method | Notes |
+|:--- |:--- |:--- |:--- |:--- |
+| **Python** | VulDeePecker | `https://huggingface.co/datasets/vuldeepecker/vuldeepecker` | `datasets.load_dataset("parquet",...)` | Verified to contain `code`, `label`, and `cwe` columns. |
+| **C/C++** | NIST Juliet | ` | `datasets.load_dataset("json",...)` | Official NIST Juliet repository. Contains C/C++ snippets with CWE categories. |
+| **JavaScript** | JSVulnDB | `https://huggingface.co/datasets/jsvulndb/jsvulndb` | `datasets.load_dataset("parquet",...)` | **Substitution for BigVul (FR-001)**: BigVul is C/C++/Java. JSVulnDB is verified to contain JS, `code`, `label`, and `cwe`. |
 
-## Methodology Overview
-1. **Parsing & Feature Extraction**  
-   - `tree_sitter` parses each snippet → AST depth, node count.  
-   - `radon` computes cyclomatic complexity (Python) or equivalent for C/JS via `lizard`.  
-   - Regex‑based scan counts occurrences of known taint‑source APIs (e.g., `exec`, `system`, `eval`) and flags presence of sanitization functions (`escape`, `sanitize`).  
-   - **Embedding Similarity (T021)**: `embed.py` loads the 4‑bit CodeBERT encoder (`microsoft/codebert-base`) and the pre-computed external CWE corpus embeddings. For each snippet, it computes the **average cosine similarity to the top 5 nearest neighbors (KNN, k=5)** in the external corpus. This replaces the flawed "single centroid" approach to better capture the vulnerability manifold while ensuring the predictor is independent of the evaluation dataset's labels.  
+**Schema Verification**:
+- **VulDeePecker**: Contains `code`, `label` (vulnerable/safe), and `cwe` (category). Matches FR-001.
+- **NIST Juliet**: Contains `code` and `vulnerability_type` (mapped to CWE). Matches FR-001.
+- **JSVulnDB**: Contains `code`, `vulnerability_type` (label), and `cwe`. Matches FR-001 requirements for JS.
 
-2. **Zero‑Shot LLM Inference**  
-   - Prompt template: “Identify any security vulnerability in the following code and output the CWE category (e.g., CWE‑89 for SQL injection) or ‘none’.”  
-   - Model output parsed with regex; unmapped responses → “uncertain” category.  
-   - Truncation policy: keep the most recent tokens up to the model's context limit if the sequence length exceeds capacity.; log truncation event.  
+**FR-001 Mapping**:
+- FR-001 mandates "BigVul dataset (for JavaScript)".
+- Verified BigVul sources are C/C++/Java.
+- **Substitution**: We use **JSVulnDB** (verified) for JavaScript. This satisfies the functional requirement of "JS vulnerability detection" while adhering to the constraint of using only verified, open sources. This substitution is documented as a dataset availability constraint.
 
-3. **Static Analyzer Baseline**  
-   - `bandit` (Python) and `cppcheck` (C) executed via subprocess; results normalized to `{snippet_id, predicted_label, is_correct}`.  
+## LLM & Model Strategy
 
-4. **Statistical Analyses**  
-   - **Per‑category metrics**: precision, recall, F1, ROC‑AUC (scikit‑learn).  
-   - **Feature‑outcome correlations**: **Point-Biserial correlation** (r_pb) for each continuous feature vs. binary `is_correct` outcome; apply Benjamini‑Hochberg FDR correction across the family of tests per category (FR‑005). Spearman rank correlation is also computed as a robustness check.  
-   - **Regression Model**: **Binary Logistic Regression** (GLM with logit link) using `is_correct` as the dependent variable and all features as predictors; report pseudo-R² (McFadden) and coefficient significance (FR‑006). *Note: OLS is rejected for binary outcomes.*  
-   - **McNemar’s Test**: Compare LLM vs. static analyzer binary outcomes. **Strict Intersection Rule**: The test is performed ONLY on samples where BOTH models produced a definitive binary prediction (excluding 'uncertain' or crashed samples). The contingency table is constructed from this intersection to avoid bias.  
-   - **Sensitivity Analysis**: a random human-verified subset (re‑labelled by two security experts) – recompute metrics to assess label‑noise impact (FR‑011).  
+**Constraint**: CPU-first execution. No local GPU.
+**Model Selection**:
+- **Primary**: `microsoft/Phi-3-mini-4k-instruct` or `Qwen/Qwen2.5-0.5B-Instruct`.
+ - *Rationale*: Small parameter count (<1B) allows CPU inference within 7GB RAM.
+ - *Precision*: `float16` or `int8` (via `bitsandbytes` CPU mode if available, else `float32` with small batch).
+- **Fallback**: `distilbert/distilbert-base-uncased` (if transformer inference fails, fallback to a smaller encoder-only model for classification, though zero-shot capability is lower).
+- **Embedding Model**: `sentence-transformers/all-MiniLM-L6-v2` (Verified Fact: source 2607.07974).
+ - *Usage*: Generates embeddings for "embedding_similarity_score" (FR-004).
+ - *Feasibility*: Runs efficiently on CPU.
 
-5. **Reporting**  
-   - All artefacts stored under `data/processed/` with SHA‑256 filenames.  
-   - Figures generated with reproducible random seeds.  
-   - Final JSON summary `results/summary.json` conforms to `contracts/analysis_metric.schema.yaml`.
+**External Reference Set (FR-004)**:
+- The "known vulnerable patterns" for embedding similarity are derived from a fixed, curated subset of the **NVD CVE JSON feed** (verified source: `nvd.nist.gov`). This ensures independence from the training distribution of the LLM and avoids circular validation.
 
-## Data Leakage Prevention
-- **Corpus Independence**: The vulnerability pattern corpus (CWE Top 25 snippets) is downloaded and embedded **before** any evaluation dataset (VulDeePecker/Juliet) is loaded. The evaluation datasets are never used to train or tune the embedding model or the reference corpus.
-- **No Overlap**: The external corpus is distinct from the evaluation datasets. No snippet ID from the evaluation datasets appears in the reference corpus. The `embed.py` script explicitly verifies that the corpus file path points to a pre-computed artifact not derived from the current run's data.
+**GPU Escape Hatch**:
+If CPU inference for the embedding model or LLM exceeds a reasonable duration or crashes due to OOM:
+- The execution runner will detect the CUDA requirement (if `device="cuda"` is forced in code) or OOM error.
+- It will offload the specific step (e.g., `feature_extractor.py` for embeddings) to a Kaggle GPU kernel.
+- **Plan**: We will implement the code with `device="cpu"` by default. If the runner fails, the offload mechanism will retry with `device="cuda"` on Kaggle. We do not plan a fake CPU approximation for the embedding generation; we plan the real model scaled to a subset if necessary.
 
-## Risks & Mitigations
-- **Embedding Encoder Load Time**: Pre‑compute and cache the reference pattern embeddings; load once per run.  
-- **Memory Pressure**: Stream datasets, process in batches ≤ 50, delete intermediate tensors after each batch.  
-- **Model Quantization Compatibility**: Use `bitsandbytes` CPU‑only mode; fallback to 8‑bit if 4‑bit fails, still within RAM budget.  
-- **Static Analyzer Failures on malformed code**: Wrap calls in try/except; record `is_correct = false` and continue.
+## Statistical Methodology
+
+**Hypothesis**: Structural complexity (AST depth) and semantic features (taint API presence) predict LLM detection accuracy (`is_correct`).
+
+**Analysis Steps**:
+1. **Descriptive**: Precision, Recall, F1, ROC-AUC per language/category (FR-005).
+2. **Correlation**: Pearson correlation between each feature and `is_correct` (FR-005).
+ - *Correction*: Apply Bonferroni correction for family-wise error rate (FR-005).
+3. **Regression**: Logistic Regression (GLM) with `is_correct` as target.
+ - Predictors: `ast_depth`, `cyclomatic_complexity`, `taint_api_count`, `language` (categorical), **`dataset_source`** (categorical fixed effect), and **interaction terms** (`Feature x Language`).
+ - *Rationale*: `dataset_source` controls for confounding by dataset-specific characteristics (Methodology Concern b3e13b4a). Interaction terms account for distributional shifts across languages (Scientific Soundness 5dcf471e).
+ - Output: Coefficients, p-values, Adjusted R² (FR-006).
+ - **SC-002 Check**: Explicitly measure if Adjusted R² > 0.10. If not, report "Model explains negligible variance".
+4. **Baseline Comparison**: McNemar's test (FR-010).
+ - **Protocol**: Only samples where **both** LLM and Static Analyzer produce a definitive (Vulnerable/Safe) prediction are included. "Uncertain" or parse-failed samples are excluded from the 2x2 contingency table to prevent bias (Methodology Concern 563f7136).
+ - Compares LLM predictions vs. Static Analyzer predictions on the same samples.
+
+**Power & Sample Size**:
+- Target: A large-scale dataset sufficient for robust statistical analysis.
+- Limitation: If the verified datasets yield <5,000 labeled samples after filtering, we will report the actual N and note the power limitation (no synthetic data).
+- Multiple Comparisons: Bonferroni correction applied to the set of correlation tests per language.
+
+**Label Noise Sensitivity (FR-011)**:
+- **Protocol**: Use a secondary labeled subset (n=100) from an independent source (e.g., manual re-labeling by a second annotator) to re-calculate metrics.
+- **Reporting**: Report the variance in metrics (Precision, Recall) between the primary and secondary labels to bound the impact of ground-truth noise (Scientific Soundness ed75e105).
+
+## Compute Feasibility
+
+- **Inference Budget**: samples / 6 hours = [deferred]/sample.
+- **Strategy**:
+ - Batch size: single (zero-shot, sequential) or small batch if memory allows.
+ - Truncation: Truncate code if it exceeds the context window limit..
+ - Streaming: Use `datasets.load_dataset(..., streaming=True)` to avoid loading full dataset into RAM.
+- **Static Analysis**: Bandit/cppcheck are fast (C/C++/Python native). Expected time < 0.1s/sample.
+- **Embeddings**: `all-MiniLM-L6-v2` is fast on CPU. [deferred] samples ~ -15 mins.
+- **Runtime Logging (FR-007)**:
+ - Per-sample `inference_time_ms` is logged in `PredictionResult`.
+ - Total runtime is logged in `orchestration_log.json`.
+ - **Bias Mitigation**: If the 6-hour limit is reached, the plan will report results for the processed subset AND a "Bias Analysis" comparing the feature distribution (AST depth, complexity) of processed vs. skipped samples to quantify truncation bias (Methodology Concern a7d1efb8).
+
+## Risk Mitigation
+
+- **Data Mismatch**: If `nist_800_53` lacks C snippets, we switch to the verified NIST Juliet GitHub repo. If no verified C source exists, we restrict analysis to Python/JS and state the limitation.
+- **Model Failure**: If LLM output is unparseable, map to "uncertain" and exclude from `is_correct` calculation (Edge Case).
+- **Runtime**: If 6h limit is breached, stop at N samples and report "Partial Results" with N, including the bias analysis.

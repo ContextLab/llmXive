@@ -1,0 +1,88 @@
+T001:
+  reason: The provided evidence shows the `code` and `tests` directories with the
+    required files, but there is no proof that the `data`, `state`, and `docs` directories
+    were created (they are not listed or contain any files). These missing directories
+    mean the full project structure task is not satisfied.
+  task: d1a7feb67c67c80fbd0d6a05f5d5ec5096f1824fdd7f034ca16baab694dedea5
+T002:
+  reason: The provided `requirements.txt` lists numpy, scipy, matplotlib, pytest,
+    black, and flake8, but it does **not** contain the required `sympy` package. Consequently
+    the file does not meet the task specification.
+  task: 54bf811c681dbb91ff699726b8f563f6e8c66846481eeabaabd06caf64927d37
+T003:
+  reason: The repository contains a correct `pyproject.toml` with the required Black
+    and pytest sections, but there is no `.flake8` file (or its contents) present
+    to satisfy the linting configuration requirement. The missing `.flake8` file must
+    be added with the specified `[flake8] max-line-length = 100` content.
+  task: 5a33c87d0443d4879b9d3503dfffa0531e185d14c858529cf0b47f63021212cf
+T004:
+  reason: The provided `code/dickman.py` does not use `scipy.integrate.odeint` at
+    all, nor does it set the required tolerances (`rtol=1e-6`, `atol=1e-9`). Instead
+    it implements a custom trapezoidal integration with NumPy, which fails the core
+    specification. The task therefore remains unfinished.
+  task: cacc5b8f909e3f11aedfcd7e8082bc4100a85e7122f260f7c5a1eb19b17c15d4
+T005:
+  task: ae6d41f74c6ba1fa864e484539d1b7d358a14b8e423605f9fe88e1a80e7f2d9b
+T006:
+  task: 41b0e990e26d20e8dfebb4d434ed4cfd4a83e741cc4a2663975c4fb94d1c4155
+T010:
+  task: 175e20c4730a7e82700aa88cdd1233c6fd839ca1a926a3208696c43271348baf
+T011:
+  task: c7426202d08c21f7c1b4d48a237089057b644137c83ec4dcaf93dad21d352dee
+T012:
+  task: 2b1718aa36402f1d3218d924e5d9b4d120cc443959f565e6cc6f9757e8ea5ec1
+T013:
+  task: 34d8f547d9a5fd6cf849b4355b235e12d0f18c5fde9a7bbc15adb128b55bc2d6
+T014:
+  task: bd76e38b5f1153ddf7c199b3f9b4755a1e7445378ce6a5ea71018217b036cd04
+T018:
+  task: 6c91d12a20c4737fea32249addea14a42f6f19df5af6c8c84e54dc818d6503b8
+T019:
+  task: 97c632fe17740b31eaf4b253c13d6575ffba9aa7e196d5fc12e808f677faf6d6
+T020:
+  task: cc41b77527bf5c080bd119b607443a9a37947ca7f447ad05279ae6c091b80788
+T021:
+  task: 265a33c9f69b3248a291f908678fc7549370f306838880838c5a4d9fa586ddca
+T022:
+  task: 252e59f965ac4c8d2809df8f4f8a954d34f753fb3b81377edb7577b6cf1b0051
+T023a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/density_measurements_spec.csv'
+  task: d138b5a62848f6e519f4c3559d66126b975a4d6c9445af9da7490dab169e336d
+T023b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/density_measurements_plan.csv'
+  task: d302508dac5e73af9b6dda3e8cfc428f910eab2f6113c5351bccb7c429af4a7e
+T023c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/density_measurements_sensitivity.csv'
+  task: 943f3d144e1fce79564d05306f0f7534f0bfdc2de45fea2a8a25efde9ea42139
+T023d:
+  reason: 'declared artifact(s) missing/empty/invalid: data/density_measurements_spec.csv,
+    data/density_measurements_plan.csv'
+  task: a6c75e4244c9c68384969256b16a4fd1fdc2459be1c500ab75b36341f9c9652c
+T024:
+  task: 2a89c1850ba530f226e52335afbc984bc4aad3d2ad9f7e7e6cd82fd57ed8a369
+T025:
+  task: 6e36d921e11d93c23385b178121d57a25c67c92424d88a1e94ee585780cd09dc
+T026a:
+  reason: 'Requested task execution failed; rerun successfully: code/run_plan_analysis.py
+    exit=1'
+  task: 1a732e3cc06cd2f72d713f5505a6ec145b332f7148730a3f5edf4172021d99a0
+T026b:
+  task: 9311df40c41223b13cf7e6b45bfaac1b4551135089978d88125beace32a13d4f
+T027a:
+  task: 6263d23a624b90a53029a8cdd9d4382bc498ceb7b2563ed6b4bcbde852a097b7
+T027b:
+  task: e6b9c3bdab1a6bd67f760a42371e57046939c5df9809d4da83d1d580f51683b4
+T028:
+  task: 2de835962cd9efc4592c53d1ff4b30b6ddc48d24470ab2ddf01f51dd6fce01a7
+T029:
+  task: 41413a4803fde91f5aaf7b0cdac772851458051408b354809de09ce6780fb307
+T030:
+  task: fa789ac3c606f2e7447542aa65f8722ce275b068c49990e94e246a497db4744c
+T031:
+  task: bf7c7cc0540ab6d14766f7dc8aa55f977c10b807652ac3e95febbaa12328c6a9
+T033a:
+  task: 132f0652340da9c1d7dc197d180547d40e994ac15bcbcea93140d800ac960517
+T033b:
+  task: 8fff86830bdbee25be7b6c37213ee4bc011e10bb270130a57b6bf14f8a7fcd74
+T036:
+  task: 6e0ae7de54a3a1805e7b020667554519f6262ccf09bd9c9f7fc3a43a04e687cb

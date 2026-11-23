@@ -1,3 +1,14 @@
+"""
+Perovskite Stability Prediction and Screening Module.
+
+This module handles the virtual screening phase:
+1. Loading hypothetical libraries.
+2. Calculating geometric descriptors (Tolerance Factor).
+3. Filtering for geometric feasibility (0.8 <= t <= 1.1).
+4. Predicting stability using trained models.
+5. Ranking and reporting candidates.
+"""
+
 import os
 import sys
 import logging
@@ -5,263 +16,322 @@ import itertools
 import pickle
 import json
 import pandas as pd
-import math
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
-from utils.logging_config import get_logger, log_exclusion_reason, log_pipeline_event
+# Project imports based on API surface
+from utils.logging_config import get_logger, log_pipeline_event, log_exclusion_reason
 from utils.config import get_config_summary
 
-# Constants for the combinatorial library generation
-# Adhering to plan.md Phase 3 and Constitution Principle VII
+# Constants for Element Sets (FR-004)
 A_SITES = ['K', 'Rb', 'Cs', 'Ba', 'Sr']
 B_SITES = ['Ti', 'Zr', 'Hf', 'Sn', 'Ge']
 X_SITES = ['F', 'Cl', 'Br', 'I']
 
+# Geometric Feasibility Thresholds
+TOLERANCE_FACTOR_MIN = 0.8
+TOLERANCE_FACTOR_MAX = 1.1
+
 logger = get_logger(__name__)
 
-def get_ionic_radius(element: str, oxidation_state: int) -> float:
-    """
-    Returns the ionic radius in Angstroms for a given element and oxidation state.
-    Uses Shannon radii (1976) for coordination number 6 (octahedral) or 12 (cubic).
-    """
-    # Simplified lookup for common perovskite oxidation states
-    # A-site usually +1 or +2, B-site +4, X-site -1
-    # Radii in Angstroms (Shannon, 1976)
-    radii = {
-        # A-site (+1 or +2) - Coordination 12 (cubic) or 6 (if distorted)
-        # Using CN=12 for ideal cubic perovskites, but standard tables often give CN=6.
-        # For Goldschmidt t = (rA + rX) / sqrt(2)*(rB + rX), we need consistent CN.
-        # Standard practice: rA (CN12), rB (CN6), rX (CN6).
-        # If CN12 not available, use CN6 as approximation or specific values.
-        
-        # A-site +1 (CN12 approximated by available data or CN6 if 12 missing)
-        'K': {1: 1.64},  # CN12 often cited ~1.64, CN6=1.38
-        'Rb': {1: 1.72}, # CN12 ~1.72, CN6=1.52
-        'Cs': {1: 1.88}, # CN12 ~1.88, CN6=1.67
-        'Ba': {2: 1.61}, # CN12 ~1.61, CN6=1.42
-        'Sr': {2: 1.44}, # CN12 ~1.44, CN6=1.26
-        
-        # B-site +4 (CN6)
-        'Ti': {4: 0.605},
-        'Zr': {4: 0.72},
-        'Hf': {4: 0.71},
-        'Sn': {4: 0.69},
-        'Ge': {4: 0.53},
-        
-        # X-site -1 (CN6)
-        'F': {-1: 1.33},
-        'Cl': {-1: 1.81},
-        'Br': {-1: 1.96},
-        'I': {-1: 2.20},
-    }
+# --- Ionic Radii and Electronegativity Data (Shannon Radii / Pauling) ---
+# Hardcoded reference data to avoid external API calls for screening
+# Radii in Angstroms (CN=12 for A, CN=6 for B, CN=6 for X)
+IONIC_RADII = {
+    'K': {'CN12': 1.64},
+    'Rb': {'CN12': 1.72},
+    'Cs': {'CN12': 1.88},
+    'Ba': {'CN12': 1.61}, # Ba2+ CN12
+    'Sr': {'CN12': 1.44}, # Sr2+ CN12
+    'Ti': {'CN6': 0.605}, # Ti4+ CN6
+    'Zr': {'CN6': 0.72},  # Zr4+ CN6
+    'Hf': {'CN6': 0.71},  # Hf4+ CN6
+    'Sn': {'CN6': 0.69},  # Sn4+ CN6
+    'Ge': {'CN6': 0.53},  # Ge4+ CN6
+    'F': {'CN6': 1.33},
+    'Cl': {'CN6': 1.81},
+    'Br': {'CN6': 1.96},
+    'I': {'CN6': 2.20}
+}
 
-    if element in radii and oxidation_state in radii[element]:
-        return radii[element][oxidation_state]
+# Electronegativity (Pauling)
+ELECTRONEGATIVITY = {
+    'K': 0.82, 'Rb': 0.82, 'Cs': 0.79, 'Ba': 0.89, 'Sr': 0.95,
+    'Ti': 1.54, 'Zr': 1.33, 'Hf': 1.30, 'Sn': 1.96, 'Ge': 2.01,
+    'F': 3.98, 'Cl': 3.16, 'Br': 2.96, 'I': 2.66
+}
+
+def get_ionic_radius(element: str, oxidation_state: int = None, cn: str = 'CN6') -> float:
+    """
+    Retrieve ionic radius for an element.
+    For screening, we assume standard oxidation states: A=+2, B=+4, X=-1.
+    """
+    # Map standard oxidation states to radii keys if needed, but for this
+    # specific screening set, we use the hardcoded CN keys above.
+    if element not in IONIC_RADII:
+        raise ValueError(f"Element {element} not found in ionic radii database.")
     
-    # Fallback or error
-    raise ValueError(f"Ionic radius not found for {element}^{oxidation_state}")
+    # Determine key based on site type (inferred from element or explicit)
+    # A sites (K, Rb, Cs, Ba, Sr) -> CN12
+    # B sites (Ti, Zr, Hf, Sn, Ge) -> CN6
+    # X sites (F, Cl, Br, I) -> CN6
+    
+    if element in ['K', 'Rb', 'Cs', 'Ba', 'Sr']:
+        key = 'CN12'
+    else:
+        key = 'CN6'
+        
+    if key not in IONIC_RADII[element]:
+        raise ValueError(f"No radius data for {element} with coordination {key}.")
+        
+    return IONIC_RADII[element][key]
 
-def calculate_tolerance_factor_from_ions(rA: float, rB: float, rX: float) -> float:
-    """
-    Calculates the Goldschmidt tolerance factor t.
-    t = (rA + rX) / (sqrt(2) * (rB + rX))
-    """
-    return (rA + rX) / (math.sqrt(2) * (rB + rX))
+def get_element_electronegativity(element: str) -> float:
+    """Retrieve electronegativity for an element."""
+    if element not in ELECTRONEGATIVITY:
+        raise ValueError(f"Element {element} not found in electronegativity database.")
+    return ELECTRONEGATIVITY[element]
 
-def calculate_octahedral_factor(rB: float, rX: float) -> float:
+def calculate_tolerance_factor_from_ions(r_A: float, r_B: float, r_X: float) -> float:
     """
-    Calculates the octahedral factor mu.
-    mu = rB / (rB + rX)
+    Calculate Goldschmidt tolerance factor t.
+    t = (r_A + r_X) / (sqrt(2) * (r_B + r_X))
     """
-    return rB / (rB + rX)
+    import math
+    numerator = r_A + r_X
+    denominator = math.sqrt(2) * (r_B + r_X)
+    if denominator == 0:
+        raise ValueError("Denominator in tolerance factor calculation is zero.")
+    return numerator / denominator
 
 def generate_combinatorial_library() -> pd.DataFrame:
     """
-    Generates a combinatorial library of hypothetical ABX3 perovskites.
-    Uses the element sets defined in the task description.
+    Generate a combinatorial library of hypothetical ABX3 perovskites.
+    Uses element sets defined in FR-004.
     """
-    logger.info(f"Generating combinatorial library with {len(A_SITES)} A, {len(B_SITES)} B, {len(X_SITES)} X sites.")
-    
+    logger.info("Generating combinatorial library...")
     combinations = list(itertools.product(A_SITES, B_SITES, X_SITES))
-    data = []
     
+    data = []
     for A, B, X in combinations:
-        # Determine oxidation states
-        # A is usually +1 for alkali, +2 for alkaline earth
-        # B is usually +4 for transition metals in this context
-        # X is -1 for halides
-        ox_A = 1 if A in ['K', 'Rb', 'Cs'] else 2
-        ox_B = 4
-        ox_X = -1
-        
-        try:
-            rA = get_ionic_radius(A, ox_A)
-            rB = get_ionic_radius(B, ox_B)
-            rX = get_ionic_radius(X, ox_X)
-            
-            t = calculate_tolerance_factor_from_ions(rA, rB, rX)
-            mu = calculate_octahedral_factor(rB, rX)
-            
-            data.append({
-                'formula': f"{A}{B}{X}3",
-                'A_element': A,
-                'B_element': B,
-                'X_element': X,
-                'rA': rA,
-                'rB': rB,
-                'rX': rX,
-                'tolerance_factor': t,
-                'octahedral_factor': mu
-            })
-        except ValueError as e:
-            logger.warning(f"Skipping {A}{B}{X}3 due to missing radius data: {e}")
-            continue
+        formula = f"{A}{B}{X}3"
+        data.append({
+            'A': A,
+            'B': B,
+            'X': X,
+            'formula': formula
+        })
     
     df = pd.DataFrame(data)
-    logger.info(f"Generated {len(df)} candidates.")
+    logger.info(f"Generated {len(df)} combinations.")
     return df
 
-def filter_geometric_feasibility(df: pd.DataFrame, t_min: float = 0.8, t_max: float = 1.1) -> pd.DataFrame:
-    """
-    Filters the library for geometric feasibility based on tolerance factor.
-    """
-    logger.info(f"Filtering for geometric feasibility: {t_min} <= t <= {t_max}")
-    mask = (df['tolerance_factor'] >= t_min) & (df['tolerance_factor'] <= t_max)
-    filtered_df = df[mask].copy()
-    logger.info(f"Retained {len(filtered_df)} candidates after geometric filtering.")
-    return filtered_df
-
-def load_training_statistics() -> Dict[str, Any]:
-    """
-    Loads min/max statistics for descriptors from the training process.
-    These are used for OOD checks.
-    """
-    stats_path = project_root / "results" / "training_statistics.json"
-    if not stats_path.exists():
-        logger.warning(f"Training statistics file not found at {stats_path}. OOD check will be skipped or broad.")
-        return {}
+def load_hypothetical_library(input_path: str) -> pd.DataFrame:
+    """Load the hypothetical library from a CSV file."""
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    with open(stats_path, 'r') as f:
-        return json.load(f)
+    logger.info(f"Loading hypothetical library from {input_path}")
+    df = pd.read_csv(path)
+    
+    required_cols = ['A', 'B', 'X', 'formula']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in library: {missing}")
+        
+    return df
 
-def perform_ood_check(df: pd.DataFrame, stats: Dict[str, Any]) -> pd.DataFrame:
+def filter_geometric_feasibility(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Performs Out-of-Distribution check against training statistics.
-    Adds 'is_ood' column.
+    Filter the library for geometric feasibility based on Tolerance Factor (t).
+    Criteria: 0.8 <= t <= 1.1
+    
+    Input: DataFrame with columns A, B, X
+    Output: DataFrame with added 'tolerance_factor' and 'is_geometrically_feasible' columns,
+            filtered to only feasible rows.
     """
-    if not stats:
-        df['is_ood'] = False
+    logger.info("Calculating geometric feasibility (tolerance factor)...")
+    
+    if df.empty:
+        logger.warning("Input dataframe is empty, returning empty result.")
         return df
 
-    # Define columns to check
-    check_cols = ['tolerance_factor', 'octahedral_factor', 'rA', 'rB', 'rX']
-    
-    is_ood = pd.Series([False] * len(df), index=df.index)
-    
-    for col in check_cols:
-        if col in stats and col in df.columns:
-            min_val = stats[col].get('min')
-            max_val = stats[col].get('max')
-            if min_val is not None and max_val is not None:
-                col_ood = (df[col] < min_val) | (df[col] > max_val)
-                is_ood = is_ood | col_ood
-                logger.debug(f"OOD check for {col}: {col_ood.sum()} outliers")
-        
-    df['is_ood'] = is_ood
-    return df
+    def calculate_t(row):
+        try:
+            r_A = get_ionic_radius(row['A'])
+            r_B = get_ionic_radius(row['B'])
+            r_X = get_ionic_radius(row['X'])
+            t = calculate_tolerance_factor_from_ions(r_A, r_B, r_X)
+            return t
+        except Exception as e:
+            logger.warning(f"Could not calculate t for {row['formula']}: {e}")
+            return None
 
-def load_model() -> Any:
-    """
-    Loads the trained model from results/model.pkl
-    """
-    model_path = project_root / "results" / "model.pkl"
-    if not model_path.exists():
-        raise FileNotFoundError(f"Model file not found at {model_path}. Run training first.")
+    df['tolerance_factor'] = df.apply(calculate_t, axis=1)
     
-    with open(model_path, 'rb') as f:
-        return pickle.load(f)
+    # Drop rows where calculation failed
+    initial_count = len(df)
+    df = df.dropna(subset=['tolerance_factor'])
+    dropped_count = initial_count - len(df)
+    if dropped_count > 0:
+        logger.warning(f"Dropped {dropped_count} rows due to missing radii data.")
 
-def predict_stability(model: Any, df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Predicts decomposition energy for the candidates.
-    """
-    feature_cols = ['tolerance_factor', 'octahedral_factor', 'rA', 'rB', 'rX']
-    # Ensure columns exist
-    for col in feature_cols:
-        if col not in df.columns:
-            raise ValueError(f"Feature column {col} missing from dataframe")
+    # Apply filter
+    feasible = (df['tolerance_factor'] >= TOLERANCE_FACTOR_MIN) & \
+               (df['tolerance_factor'] <= TOLERANCE_FACTOR_MAX)
     
-    X = df[feature_cols].values
+    df_filtered = df[feasible].copy()
+    df_filtered['is_geometrically_feasible'] = True
+    
+    excluded_count = len(df) - len(df_filtered)
+    logger.info(f"Filtered library: {len(df_filtered)} feasible out of {len(df)} candidates "
+                f"(excluded {excluded_count} based on 0.8 <= t <= 1.1).")
+    
+    return df_filtered
+
+def load_training_statistics() -> Dict[str, Any]:
+    """Load training statistics (means/stds) used for feature scaling if necessary."""
+    # In a real pipeline, this might load from a JSON file generated during training.
+    # For now, we assume the model handles scaling internally or we use raw values.
+    # If scaling is needed, we would load a scaler object.
+    return {}
+
+def load_model(model_path: str) -> Any:
+    """Load the trained scikit-learn model."""
+    path = Path(model_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+    
+    logger.info(f"Loading model from {model_path}")
+    with open(path, 'rb') as f:
+        model = pickle.load(f)
+    return model
+
+def predict_stability_batch(df: pd.DataFrame, model: Any) -> pd.DataFrame:
+    """
+    Predict stability (decomposition energy) for a batch of candidates.
+    Assumes the model expects the same features used during training.
+    Features: tolerance_factor, octahedral_factor, ionic_radius_mismatch, electronegativity_diff
+    """
+    logger.info("Predicting stability for candidates...")
+    
+    # We need to calculate the other descriptors that the model expects.
+    # Since we only have A, B, X, we must compute:
+    # 1. tolerance_factor (already done in filter_geometric_feasibility)
+    # 2. octahedral_factor (r_B / r_X)
+    # 3. ionic_radius_mismatch (|r_A - r_B|? or similar metric)
+    # 4. electronegativity_diff (|chi_A - chi_B|)
+    
+    # Re-calculate or ensure these columns exist
+    def calculate_octahedral_factor(row):
+        try:
+            r_B = get_ionic_radius(row['B'])
+            r_X = get_ionic_radius(row['X'])
+            if r_X == 0: return None
+            return r_B / r_X
+        except: return None
+
+    def calculate_ionic_radius_mismatch(row):
+        # Common definition: |r_A - r_B| / r_B or similar. 
+        # Using |r_A - r_B| as a simple mismatch metric for now.
+        try:
+            r_A = get_ionic_radius(row['A'])
+            r_B = get_ionic_radius(row['B'])
+            return abs(r_A - r_B)
+        except: return None
+
+    def calculate_electronegativity_diff(row):
+        try:
+            chi_A = get_element_electronegativity(row['A'])
+            chi_B = get_element_electronegativity(row['B'])
+            return abs(chi_A - chi_B)
+        except: return None
+
+    df['octahedral_factor'] = df.apply(calculate_octahedral_factor, axis=1)
+    df['ionic_radius_mismatch'] = df.apply(calculate_ionic_radius_mismatch, axis=1)
+    df['electronegativity_diff'] = df.apply(calculate_electronegativity_diff, axis=1)
+    
+    # Drop rows with missing descriptors
+    feature_cols = ['tolerance_factor', 'octahedral_factor', 'ionic_radius_mismatch', 'electronegativity_diff']
+    df = df.dropna(subset=feature_cols)
+    
+    if df.empty:
+        raise ValueError("No candidates left after calculating descriptors for prediction.")
+
+    X = df[feature_cols]
     predictions = model.predict(X)
     
-    df = df.copy()
-    df['predicted_decomposition_energy'] = predictions
+    df['predicted_energy'] = predictions
+    logger.info(f"Predictions generated for {len(df)} candidates.")
     return df
 
-def flag_thermodynamic_stability(df: pd.DataFrame, threshold: float = -0.1) -> pd.DataFrame:
+def rank_and_output(df: pd.DataFrame, output_path: str) -> pd.DataFrame:
     """
-    Flags candidates with predicted energy below a thermodynamic threshold.
+    Rank candidates by predicted energy (ascending, lower is more stable)
+    and save the full results.
     """
-    df = df.copy()
-    df['is_thermodynamically_stable'] = df['predicted_decomposition_energy'] < threshold
+    logger.info("Ranking candidates...")
+    df = df.sort_values(by='predicted_energy', ascending=True)
+    df['rank'] = range(1, len(df) + 1)
+    
+    # Flag stable candidates (e.g., < -0.1 eV/atom)
+    df['is_stable_candidate'] = df['predicted_energy'] < -0.1
+    
+    df.to_csv(output_path, index=False)
+    logger.info(f"Ranked results saved to {output_path}")
     return df
-
-def rank_and_output(df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Sorts candidates by predicted energy (ascending, most stable first)
-    and saves to CSV.
-    """
-    df_sorted = df.sort_values(by='predicted_decomposition_energy', ascending=True)
-    df_sorted.to_csv(output_path, index=False)
-    logger.info(f"Saved ranked list to {output_path} with {len(df_sorted)} entries.")
 
 def main():
     """
-    Main entry point for T040: Save full ranked list.
+    Main entry point for the prediction and screening pipeline.
+    This function orchestrates:
+    1. Loading the hypothetical library (or generating it if not present).
+    2. Filtering for geometric feasibility (T027).
+    3. Predicting stability.
+    4. Ranking and saving results.
     """
-    logger.info("Starting T040: Generate and save full ranked screening list.")
+    # Paths
+    input_library_path = "data/processed/hypothetical_library.csv"
+    output_filtered_path = "data/processed/filtered_hypothetical_library.csv"
+    model_path = "results/model.pkl"
+    output_full_path = "results/screening_full.csv"
     
-    # 1. Generate Library
-    library_df = generate_combinatorial_library()
-    
-    # 2. Filter Geometric Feasibility
-    feasible_df = filter_geometric_feasibility(library_df)
-    
-    # Validation: Ensure at least 200 feasible candidates
-    if len(feasible_df) < 200:
-        logger.error(f"Validation failed: Only {len(feasible_df)} feasible candidates found. Expected >= 200.")
-        # We proceed anyway to save what we have, but log the error as required
-        # In a real pipeline, this might halt execution.
+    # Ensure directories exist
+    Path("data/processed").mkdir(parents=True, exist_ok=True)
+    Path("results").mkdir(parents=True, exist_ok=True)
+
+    # 1. Load Library
+    # Check if input exists, if not generate it (T026a logic)
+    if not Path(input_library_path).exists():
+        logger.warning(f"Input library {input_library_path} not found. Generating...")
+        df_lib = generate_combinatorial_library()
+        df_lib.to_csv(input_library_path, index=False)
+        logger.info(f"Saved generated library to {input_library_path}")
     else:
-        logger.info(f"Validation passed: {len(feasible_df)} feasible candidates found (>= 200).")
+        df_lib = load_hypothetical_library(input_library_path)
+
+    # 2. Filter Geometric Feasibility (T027 Task)
+    df_filtered = filter_geometric_feasibility(df_lib)
     
-    # 3. OOD Check
-    stats = load_training_statistics()
-    checked_df = perform_ood_check(feasible_df, stats)
+    # Save the filtered library as required by T027
+    df_filtered.to_csv(output_filtered_path, index=False)
+    logger.info(f"Saved filtered library to {output_filtered_path}")
     
+    if df_filtered.empty:
+        raise RuntimeError("No geometrically feasible candidates found. Cannot proceed to prediction.")
+
+    # 3. Load Model
+    model = load_model(model_path)
+
     # 4. Predict Stability
-    try:
-        model = load_model()
-        predicted_df = predict_stability(model, checked_df)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    
-    # 5. Flag Thermodynamic Stability
-    ranked_df = flag_thermodynamic_stability(predicted_df)
-    
-    # 6. Rank and Output
-    output_path = project_root / "results" / "screening_full.csv"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    rank_and_output(ranked_df, output_path)
-    
-    logger.info("T040 completed successfully.")
+    df_predicted = predict_stability_batch(df_filtered, model)
+
+    # 5. Rank and Output
+    df_ranked = rank_and_output(df_predicted, output_full_path)
+
+    logger.info("Screening pipeline completed successfully.")
+    return df_ranked
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,53 @@
+T001:
+  c: false
+  h: b4a237d7db3511bf1e496db3951d145acf9a205db66c12979ce3502a9d7d4efa
+  r: "The evidence shows the `code/`, `data/raw/`, `data/processed/`, and `models/`\
+    \ directories exist, but the required `artifacts/` directory is missing from the\
+    \ project structure. Adding an empty (or .gitkeep\u2011containing) `artifacts/`\
+    \ folder will satisfy the task."
+  sig: 12223daab1b8424e3c2468f76eebd8fe38d6360e50b29b8721a6b3404ae4f363
+T002:
+  c: false
+  h: fd7f40d933b436fcd196786c201eeecb15d452f787e04b7cf946df580885459d
+  r: The `requirements.txt` file exists and lists the required packages, but it does
+    not pin them to specific versions (e.g., `pandas==1.5.3`). The task explicitly
+    required *pinned* dependencies, and the current file fails to meet that specification
+    (and also includes extra packages not requested). The implementer must add exact
+    version specifiers for each listed dependency and remove any unintended entries.
+  sig: 16c1f8881591e1c74e496610d546c53a41820ccc3728c9e8b93dc3afd5ed446c
+T003:
+  c: false
+  h: 0486132a2167b8390b322384bdc0a8ce3604f1486d411f9fea299aa11349ed02
+  r: "The evidence provided contains no linting or formatting configuration files\
+    \ (e.g., `pyproject.toml` with Black and Ruff settings, a `.flake8` file, or a\
+    \ pre\u2011commit hook invoking these tools). Without such artifacts, the requirement\
+    \ to \u201Cconfigure linting (ruff/flake8) and formatting (black) tools\u201D\
+    \ is not satisfied. Add the appropriate configuration files and, optionally, CI\
+    \ integration to complete the task."
+  sig: bd7c38e5b3f0af1de559b121051e9da5a1150e7f08c4f99e04f8582cc4160168
+T004:
+  c: false
+  h: 9cfefc22e7d93b0147a04891adfec01cf49d2b3dce33043ee379f5b13c507a3c
+  r: "The `data/metadata.yaml` file exists but only contains `sources` and `last_updated`\
+    \ keys; it lacks the required `version_tag`, `checksum`, and `retrieval_date`\
+    \ fields (or a proper schema defining them). The task\u2019s specification for\
+    \ a provenance schema is therefore not met."
+  sig: 509087dd60f8a12fd72d4a1e38f8c26cc71cc4339adac248515e9b3c7658d4ea
+T005:
+  c: true
+  h: 9c4559a3b747afc6906ad0788bc2459e497cc22e703ce69b0ed75abac654dbd9
+  r: "Checked `code/utils.py` (3625\u202Fbytes) which defines `compute_sha256`, `setup_logging`,\
+    \ and `set_random_seed` as functional helpers for SHA\u2011256 checksumming, standardized\
+    \ logging, and reproducible random seeding, satisfying the task requirements."
+  sig: 0bf410e0852045c7f2186f11f51a0e43e090d04dfa824bc2b8181b3dbeafbc12
+T006:
+  c: true
+  h: dd21cf725cee3867cba4b549c1c4f31310ac4fcc00942704f668c7f3a9628528
+  r: "Checked `code/models/grain_boundary_record.py`; the file exists, is non\u2011\
+    empty, and defines a fully\u2011implemented `GrainBoundaryRecord` dataclass with\
+    \ the expected grain\u2011boundary descriptor fields and serialization helpers,\
+    \ satisfying the task\u2019s requirement."
+  sig: 1a8a7361870dcefb9d16c82a8ba62fca5e146ef92c7dce3dc90b4939f6dfe9be
 T022:
   c: false
   h: 11a2872fc43c530e740ac51b03c0a33f3eccf84e1c1f790744da57bda7af10d2

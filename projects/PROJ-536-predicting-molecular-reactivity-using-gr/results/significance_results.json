@@ -1,0 +1,40 @@
+{
+  "statistical_tests": {
+    "gnn_vs_rf": {
+      "p_value": 1.5044540147188248e-62,
+      "mean_difference": 0.1,
+      "ci_lower": 0.09999999999999995,
+      "ci_upper": 0.10000000000000006
+    },
+    "gnn_vs_lr": {
+      "p_value": 1.534362975199817e-07,
+      "mean_difference": 0.25,
+      "ci_lower": 0.24122010966914914,
+      "ci_upper": 0.25877989033085086
+    }
+  },
+  "practical_significance": {
+    "gnn_vs_rf": {
+      "status": "Statistically Significant, but effect size uncertain",
+      "details": {
+        "p_value": 1.5044540147188248e-62,
+        "mean_difference": 0.1,
+        "ci_lower": 0.09999999999999995,
+        "ci_upper": 0.10000000000000006,
+        "threshold": 0.1,
+        "alpha": 0.05
+      }
+    },
+    "gnn_vs_lr": {
+      "status": "Practically Significant",
+      "details": {
+        "p_value": 1.534362975199817e-07,
+        "mean_difference": 0.25,
+        "ci_lower": 0.24122010966914914,
+        "ci_upper": 0.25877989033085086,
+        "threshold": 0.1,
+        "alpha": 0.05
+      }
+    }
+  }
+}

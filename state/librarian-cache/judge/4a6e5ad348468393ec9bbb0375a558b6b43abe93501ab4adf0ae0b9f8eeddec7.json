@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.21391",
+  "judged_at": "2026-08-04T19:00:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting avian migration patterns from publicly available ebird data biology",
+  "rationale": "The paper focuses on generating synthetic remote sensing imagery for computer vision tasks (detection, segmentation) using a layout-to-image framework, which is distinct from the user's question about predicting biological migration patterns from observational citizen science data (eBird). While both involve \"remote sensing\" or \"data,\" the paper addresses image synthesis and augmentation rather than the ecological mechanism, statistical modeling, or empirical analysis of avian migration, failing",
+  "relevant": false
+}

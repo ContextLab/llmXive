@@ -1,0 +1,9 @@
+status: none
+intent: '### User Story 1 - Core Drift Quantification Pipeline (Priority: P1) A researcher
+  needs to ingest raw electrophysiology and behavioral data, process it into stable
+  population activity matrices, and compute the primary metric: the rate of representational
+  drift over training days. **Why this priority'
+required_fields: []
+cache_key: 3dc2f4dd8f59c3090616e49ba5a79b99ba8371b0fa788639c27eb223f080054f
+searched_at: '2026-10-14T23:33:55.083829+00:00'
+retry_count: 1

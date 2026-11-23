@@ -1,56 +1,82 @@
 # Quickstart: Quantifying the Influence of Topological Defects on 2D Material Properties
 
 ## Prerequisites
-- Python 3.11+
-- `pip`
-- Access to GitHub Actions (for CI testing) or a local environment with multiple CPU cores.
+
+-   Python 3.11+
+-   Git
+-   API Key for Materials Project (set as `MP_API_KEY` environment variable)
+-   (Optional) `data/raw/defect_dataset_2022.csv` if you have a local copy.
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-209-quantifying-the-influence-of-topological
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-209-quantifying-the-influence-of-topological
+    ```
 
-2. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-## Running the Workflow
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### Option 1: Local Execution (Development)
-Run the full pipeline end‑to‑end:
+## Running the Pipeline
+
+The pipeline can be run end-to-end via the orchestration script.
+
+### 1. Data Acquisition
+This step downloads pristine structures and attempts to load/generate defect data.
 ```bash
-# Step 1: Acquire Data (fetches from API, attempts 2022 dataset, or generates synthetic)
 python code/01_data_acquisition.py
-
-# Step 2: Process Data (normalization, filtering, checksum recording)
-python code/02_data_processing.py
-
-# Step 3: Train Models & Compute Inference
-python code/03_modeling.py
-python code/04_inference.py
 ```
+*   **Output**: `data/raw/pristine_structures.csv`, `data/raw/defect_dataset_2022.csv` (or `synthetic_train.csv` if real data missing), `data/state/cache_load_log.json`.
 
-### Option 2: Jupyter Notebook
-For interactive exploration:
+### 2. Feature Engineering
+Normalizes data and encodes features.
 ```bash
-jupyter notebook code/notebook_analysis.ipynb
+python code/02_feature_engineering.py
 ```
-*Note: The notebook executes the same logic as the scripts but in a cell‑by‑cell manner.*
+*   **Output**: `data/processed/feature_matrix.csv`, `data/processed/target_matrix.csv`, `data/state/exclusion_log.json`.
 
-### Option 3: GitHub Actions (CI)
-Push to the `001-quantify-defect-influence` branch to trigger the automated workflow. The job will:
-1. Install dependencies.
-2. Run all scripts in the prescribed order.
-3. Validate outputs against `contracts/` schemas.
-4. Fail if runtime > 6 hours or RAM > 7 GB.
+### 3. Modeling & Inference
+Trains models, performs CV, and runs permutation tests.
+```bash
+python code/03_modeling.py
+```
+*   **Output**: `data/state/model_results.json`, `data/state/permutation_pvalues.json`.
 
-## Expected Outputs
-- `data/processed/features.csv`: Normalized feature matrix.
-- `data/processed/targets.csv`: Normalized target variables.
-- `results/models/`: Saved Random Forest models and `model_config.yaml`.
-- `results/inference/`: Permutation importance tables, FDR‑adjusted p‑values, sensitivity analysis plots.
-- `Validation_Report.json`: Status of external validation (expected: `NO_EXTERNAL_DATA` if no external set is found, or `SYNTHETIC_FALLBACK` if synthetic data was used).
+### 4. Analysis & Reporting
+Generates sensitivity analysis and the final validation report.
+```bash
+python code/04_analysis.py
+```
+*   **Output**: `data/state/Validation_Report.json`, `data/state/sensitivity_analysis.csv`.
+
+### 5. Full Pipeline (One Command)
+```bash
+python code/run_pipeline.py
+```
+
+## Testing
+
+Run the unit tests to verify the pipeline logic:
+```bash
+pytest tests/unit/
+```
+
+Run the contract tests to verify data schemas:
+```bash
+pytest tests/contract/
+```
+
+## Troubleshooting
+
+-   **API Failure**: If the Materials Project API fails, check `data/state/cache_load_log.json`. If no cache exists, the pipeline will halt with `[ERROR: API access unavailable and no cache present]`.
+-   **Missing Defect Data**: If `defect_dataset_2022.csv` is missing, the pipeline will generate `synthetic_train.csv` and flag it as `TESTING_ONLY`. **Scientific analysis will halt.**
+-   **Memory Error**: The pipeline is optimized for standard RAM configurations. If you encounter OOM, reduce the `N_PERMUTATIONS` in `code/03_modeling.py` (default a substantial number).

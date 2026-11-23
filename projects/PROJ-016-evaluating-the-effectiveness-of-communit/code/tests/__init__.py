@@ -1,4 +1,4 @@
 """
-Test package for llmXive project.
-Contains unit tests for data acquisition, cleaning, analysis, and visualization modules.
+Tests package initialization.
+Contains unit tests for the llmXive project.
 """

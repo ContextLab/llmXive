@@ -1,0 +1,14 @@
+status: none
+intent: download Xeno-canto bird song dataset with WorldClim climate data python package
+  dataset
+required_fields:
+- species_id
+- song_metric_1
+- song_metric_2
+- temperature
+- precipitation
+- latitude
+- longitude
+cache_key: 03a104a5a3d66103608eab009cdcb9162dfac9d780d7bfe779dc8f4f28ae904e
+searched_at: '2026-10-15T16:48:49.949237+00:00'
+retry_count: 1

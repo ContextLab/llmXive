@@ -13,16 +13,24 @@ properties:
     type: "integer"
     description: "Number of times downloaded."
   publication_link:
-    type: ["string", "null"]
+    type:
+      - "string"
+      - "null"
     description: "URL to the primary publication (may be null)."
   task_id:
-    type: ["integer", "null"]
+    type:
+      - "integer"
+      - "null"
     description: "Associated task ID (may be null)."
   task_type:
-    type: ["string", "null"]
+    type:
+      - "string"
+      - "null"
     description: "e.g., 'Binary Classification', 'Multi-class'."
   class_distribution:
-    type: ["object", "null"]
+    type:
+      - "object"
+      - "null"
     description: "Distribution of classes if available."
   downloaded_at:
     type: "string"

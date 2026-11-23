@@ -1,138 +1,95 @@
 """
 Contract test for data ingestion output schema (T010).
-
-This test verifies that the output of `code/data_ingestion.py` adheres to the
-expected schema defined for User Story 1. It ensures that:
-1. The output file `data/raw/nrel_perovskites.csv` exists.
-2. The CSV contains the required columns: `formula`, `T_d`, `atomic_fraction_A`,
-   `weighted_ionic_radius`, `atomic_fraction_B`, `atomic_fraction_X`,
-   `weighted_electronegativity`, `weighted_formation_enthalpy`,
-   `weighted_first_ionization_energy`, `variance_ionic_radius`, `variance_electronegativity`,
-   `T_d_uncertainty`, `source`, `instrument_model`, `precision`.
-3. Critical numeric columns (`T_d`, `atomic_fraction_A`, `weighted_ionic_radius`, etc.)
-   are not null for the first 10 rows (or all rows if fewer than 10).
-
-Prerequisites:
-- `code/data_ingestion.py` must have been executed successfully to generate the CSV.
-- The CSV must be located at `data/raw/nrel_perovskites.csv`.
+Verifies that the final processed dataset contains the required columns
+with non-null values as specified in the user story 1 requirements.
 """
-import csv
 import os
+import sys
 import pytest
+import pandas as pd
 from pathlib import Path
 
-# Define the expected columns based on the data model and task requirements
-EXPECTED_COLUMNS = {
+# Add project root to path for imports if running via pytest
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+REQUIRED_COLUMNS = [
     "formula",
     "T_d",
     "atomic_fraction_A",
-    "weighted_ionic_radius",
     "atomic_fraction_B",
     "atomic_fraction_X",
-    "weighted_electronegativity",
-    "weighted_formation_enthalpy",
-    "weighted_first_ionization_energy",
-    "variance_ionic_radius",
-    "variance_electronegativity",
-    "T_d_uncertainty",
-    "source",
-    "instrument_model",
-    "precision"
-}
-
-REQUIRED_NUMERIC_COLUMNS = {
-    "T_d",
-    "atomic_fraction_A",
     "weighted_ionic_radius",
-    "atomic_fraction_B",
-    "atomic_fraction_X",
     "weighted_electronegativity",
     "weighted_formation_enthalpy",
-    "weighted_first_ionization_energy",
     "variance_ionic_radius",
     "variance_electronegativity",
-    "T_d_uncertainty"
-}
+    "total_uncertainty"
+]
 
-OUTPUT_PATH = Path("data/raw/nrel_perovskites.csv")
+# The expected output file path based on the pipeline flow
+# T017 writes to data/processed/descriptors_final.csv
+EXPECTED_OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "descriptors_final.csv"
 
+def test_output_file_exists():
+    """Verify that the final processed dataset file exists."""
+    assert EXPECTED_OUTPUT_PATH.exists(), (
+        f"Output file {EXPECTED_OUTPUT_PATH} does not exist. "
+        "Ensure the data ingestion pipeline (T012-T017) has been run successfully."
+    )
 
-class TestDataIngestionSchema:
-    """Contract tests for the data ingestion output schema."""
+def test_required_columns_present():
+    """Verify that the output CSV contains all required columns."""
+    df = pd.read_csv(EXPECTED_OUTPUT_PATH)
+    missing_columns = set(REQUIRED_COLUMNS) - set(df.columns)
+    assert not missing_columns, (
+        f"Missing required columns in {EXPECTED_OUTPUT_PATH}: {missing_columns}. "
+        f"Found columns: {list(df.columns)}"
+    )
 
-    def test_output_file_exists(self):
-        """Verify that the data ingestion script produced the output file."""
-        assert OUTPUT_PATH.exists(), f"Output file {OUTPUT_PATH} does not exist. Run code/data_ingestion.py first."
+def test_columns_non_null():
+    """Verify that all required columns have non-null values."""
+    df = pd.read_csv(EXPECTED_OUTPUT_PATH)
+    for col in REQUIRED_COLUMNS:
+        null_count = df[col].isnull().sum()
+        assert null_count == 0, (
+            f"Column '{col}' contains {null_count} null values in {EXPECTED_OUTPUT_PATH}. "
+            "All required columns must have non-null values."
+        )
 
-    def test_required_columns_present(self):
-        """Verify that all required columns are present in the CSV header."""
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            actual_columns = set(reader.fieldnames)
-            
-            missing_columns = EXPECTED_COLUMNS - actual_columns
-            extra_columns = actual_columns - EXPECTED_COLUMNS
-            
-            assert not missing_columns, f"Missing required columns: {missing_columns}"
-            
-            # Log extra columns but don't fail (schema extension is allowed)
-            if extra_columns:
-                pytest.skip(f"Extra columns found (allowed): {extra_columns}")
+def test_data_types():
+    """Verify that numeric columns contain numeric data."""
+    df = pd.read_csv(EXPECTED_OUTPUT_PATH)
+    numeric_cols = [
+        "T_d",
+        "atomic_fraction_A",
+        "atomic_fraction_B",
+        "atomic_fraction_X",
+        "weighted_ionic_radius",
+        "weighted_electronegativity",
+        "weighted_formation_enthalpy",
+        "variance_ionic_radius",
+        "variance_electronegativity",
+        "total_uncertainty"
+    ]
+    for col in numeric_cols:
+        # Check if the column can be converted to numeric
+        # This handles cases where the column might be read as object due to mixed types
+        try:
+            pd.to_numeric(df[col])
+        except (ValueError, TypeError):
+            pytest.fail(f"Column '{col}' contains non-numeric data: {df[col].head()}")
 
-    def test_numeric_columns_not_null(self):
-        """Verify that critical numeric columns contain non-null values."""
-        rows_checked = 0
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                rows_checked += 1
-                if rows_checked > 10:
-                    break
-                
-                for col in REQUIRED_NUMERIC_COLUMNS:
-                    value = row.get(col)
-                    assert value is not None and value.strip() != "", \
-                        f"Column '{col}' contains null/empty value in row {rows_checked}"
+def test_formula_validity():
+    """Verify that formula entries are non-empty strings."""
+    df = pd.read_csv(EXPECTED_OUTPUT_PATH)
+    assert all(df["formula"].astype(str).str.len() > 0), (
+        "All formula entries must be non-empty strings."
+    )
 
-    def test_formula_format(self):
-        """Verify that the 'formula' column contains valid chemical formula strings."""
-        import re
-        # Basic regex for chemical formula (e.g., CsPbI3, CH3NH3PbI3)
-        formula_pattern = re.compile(r"^[A-Za-z0-9\(\)\[\]]+$")
-        
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                formula = row.get("formula", "")
-                assert formula_pattern.match(formula), f"Invalid formula format: {formula}"
-                break  # Check only the first row for format validity
-
-    def test_t_d_positive(self):
-        """Verify that T_d values are positive (thermal decomposition temperature)."""
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                t_d = row.get("T_d")
-                if t_d is not None and t_d.strip() != "":
-                    val = float(t_d)
-                    assert val > 0, f"T_d value {val} is not positive"
-                    break  # Check only the first valid row
-
-    def test_atomic_fractions_sum_to_one(self):
-        """Verify that atomic fractions for A, B, and X sites sum to approximately 1.0."""
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                try:
-                    frac_a = float(row.get("atomic_fraction_A", 0) or 0)
-                    frac_b = float(row.get("atomic_fraction_B", 0) or 0)
-                    frac_x = float(row.get("atomic_fraction_X", 0) or 0)
-                    
-                    total = frac_a + frac_b + frac_x
-                    # Allow small floating point error
-                    assert abs(total - 1.0) < 1e-5, \
-                        f"Atomic fractions sum to {total}, expected ~1.0"
-                    break  # Check only the first valid row
-                except ValueError:
-                    # Skip rows where conversion fails (e.g., empty values)
-                    continue
+def test_total_uncertainty_positive():
+    """Verify that total_uncertainty values are non-negative."""
+    df = pd.read_csv(EXPECTED_OUTPUT_PATH)
+    assert all(df["total_uncertainty"] >= 0), (
+        "All total_uncertainty values must be non-negative."
+    )

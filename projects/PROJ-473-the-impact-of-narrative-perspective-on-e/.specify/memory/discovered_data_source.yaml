@@ -1,0 +1,19 @@
+status: none
+intent: Project Gutenberg short stories corpus with metadata and reader response dataset
+  python package
+required_fields:
+- story_id
+- title
+- author
+- publication_year
+- genre
+- language
+- text
+- token_count
+- reader_response_id
+- participant_id
+- response_text
+- rating_score
+cache_key: fca4b230257312e06c59570bfa10b7ffb11cb21a8f60eaf607eb34028b406d77
+searched_at: '2026-09-02T09:43:51.821676+00:00'
+retry_count: 1

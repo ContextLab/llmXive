@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: llmXive follow-up: extending "EvalVerse" with CPU-tractable Feature Distillation
 
 **Input**: Design documents from `/specs/001-llmxive-feature-distillation/`
@@ -20,32 +24,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `specs/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`opencv-python`, `librosa`, `scikit-learn`, `xgboost`, `psutil`) in `requirements.txt`
-- [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
+- [X] T001 Create project structure per implementation plan (`src/`, `tests/`, `specs/`)
+- [X] T002 Initialize Python 3 project with pinned dependencies (`opencv-python`, `librosa`, `scikit-learn`, `xgboost`, `psutil`, `statsmodels`) in `projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/code/requirements.txt`. **Constraint**: Must be located in the `code/` directory as per Constitution Principle I.
+- [X] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
 
 ---
 
@@ -55,16 +59,25 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `scripts/checksum_data.py` to verify EvalVerse local download via SHA-256 and record hash in `state/artifact_hashes`
-- [ ] T005 [P] Create `src/config.py` with constants, random seeds, and thresholds
-- [ ] T006 [P] Implement `src/utils.py` for logging, error handling, and file I/O helpers
-- [ ] T007 Create base data structures (`VideoClip`, `FeatureVector`, `DimensionScore`) in `src/data/models.py`
-- [ ] T008 [P] Implement individual error handling in `src/data/preprocess.py` to gracefully skip missing audio tracks and handle optical flow failures (returning null/zero vectors)
-- [ ] T009 Setup environment configuration management and local cache directory structure (`data/raw`, `data/processed`)
-- [ ] T018 [P] **GATE**: Implement preliminary validation (FR-009) to correlate VLM scores vs human scores on n ≥ 30 subset in `src/models/evaluate.py`. **Output**: `state/validation_status.json`. **Constraint**: Exit with code 1 if r < 0.70. This task MUST complete successfully before T012-T017 are allowed to run.
-- [ ] T040 [P] **GATE**: Calculate global error rate across the dataset in `src/data/preprocess.py` after T014. **Output**: `state/global_error_rate.json`. **Constraint**: If error_count/total_count > 0.05, raise `DataQualityError` and halt pipeline. This task MUST complete before T012.
+- [X] T014 [P] Implement `src/data/download.py` to fetch and unzip EvalVerse dataset from Zenodo/Repo if local cache is empty. **Output**: Raw data in `data/raw/`. **Constraint**: Must use `DATASET_URL` and `DATASET_DOI` from `src/config.py` (defined in T009b). Must handle initial fetch and unzip logic.
+- [X] T004 Implement `scripts/checksum_data.py` to verify EvalVerse local download via SHA-256 and record hash in `state/projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi.yaml` under `artifact_hashes`. **Prerequisite**: Must run AFTER T014 to verify fetched data. **Output**: Updates `state/projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi.yaml`. **Note**: Removed [P] tag to enforce serial dependency with T004b.
+- [X] T004b Implement `src/data/verify_provenance.py` to check that the downloaded dataset's metadata matches the `DATASET_DOI` and `DATASET_URL` in `src/config.py` at runtime. **Action**: Reads the checksum recorded by T004 to verify hash integrity, then checks metadata. **Output**: `state/provenance_check.json` with status "pass", "fail", or "version_mismatch". **Constraint**: If mismatch or URL unreachable, EXIT with code 1 (HALT) to enforce strict verification per Constitution Principle I. This ensures pipeline runs on fresh runners only against verified canonical data. **Prerequisite**: T014, T004. **Note**: T004b reads checksum from T004 output to verify hash. T004 MUST complete before T004b.
+- [X] T005 [P] Create `src/config.py` with constants, random seeds, and thresholds. **Action**: Define `VLM_PROXY_THRESHOLD` (configurable) and `BASELINE_IMPROVEMENT_THRESHOLD` (configurable) to satisfy FR-009 and US1 quality gates without hardcoding arbitrary values in task logic.
+- [X] T006 [P] Implement `src/utils.py` for logging, error handling, and file I/O helpers
+- [X] T007 Create base data structures (`VideoClip`, `FeatureVector`, `DimensionScore`) in `src/data/models.py`
+- [X] T009a [P] Create directory structure script to initialize `data/raw`, `data/processed`, `data/results`, `state/`, `reports/` folders.
+- [X] T009b [P] Implement dataset source configuration in `src/config.py`: Define `DATASET_DOI` and `DATASET_URL` as hardcoded constants to ensure Reproducibility Principle I compliance. **Constraint**: These constants MUST be used by T014 for fetching.
+- [X] T009c [P] Initialize project-specific state file structure. **Action**: Create `state/projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi.yaml` if it does not exist, ensuring the `artifact_hashes` key is present. **Constraint**: Must run before T004 to ensure the target file exists. **Prerequisite**: T009a.
+- [X] T035 [P] **GATE**: Implement comprehensive CPU-only execution validation in `src/utils/cpu_validator.py`. **Action**: (1) Static scan: Scan `code/` for imports of GPU libraries (e.g., `torch.cuda`, `tensorflow.keras.backend.set_session`, `cv2.cuda`, `xgboost.gpu`, `librosa.cuda`, `cv2.CAP_CUDA`, `xgboost.train` with `tree_method='gpu_hist'`) and exit 1 if found. (2) Runtime test: Execute a dry-run of the feature extraction pipeline on a small sample on a CPU-only runner. **Output**: `state/cpu_validation.json` with status "pass" or "fail". **Constraint**: If any GPU-specific code is detected or if the runtime dry-run fails, exit with code 1. **Prerequisite**: T002, T005. **Note**: This task MUST pass before any feature extraction (T012a, T013a) begins to enforce SC-001 early.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+**Critical Order Notes (Phase 2)**:
+1. T009b (Config) MUST run before T014 (Fetch).
+2. T014 (Fetch) MUST run before T004 (Verify).
+3. T004 (Verify) MUST run before T004b (Provenance).
+4. T014 (Fetch) MUST run before T004b (Provenance).
+5. T035 (CPU Gate) MUST run before T012a, T013a.
 
 ---
 
@@ -74,27 +87,48 @@
 
 **Independent Test**: The system extracts features, trains models, and outputs a ranked list of dimensions with correlation coefficients and confidence intervals.
 
-**⚠️ GATE**: T018 and T040 must pass (exit 0) before T012-T017, T019, T020 execute.
+**⚠️ GATE**: T041 (Validation Gate) and T040 (Quality Gate) must pass (exit 0) before T012a, T013a, T015a-T015b, T016a-T016c, T019a-T019c, T020a-T020c, T017, T018 execute.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T010 [P] [US1] Contract test for feature extraction output schema in `tests/contract/test_feature_schema.py`
-- [ ] T011 [P] [US1] Integration test for full correlation pipeline on a 10-clip sample in `tests/integration/test_us1_pipeline.py`
+- [X] T010 [P] [US1] Contract test for feature extraction output schema in `tests/contract/test_feature_schema.py`
+- [X] T011 [P] [US1] Integration test for full correlation pipeline on a small sample in `tests/integration/test_us1_pipeline.py`. **Assertion**: `assert pearson_corr > 0.5` on the test subset. **Constraint**: Must use the same seed as T005.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement optical flow extraction (magnitude/variance) and HOG density in `src/data/preprocess.py` (OpenCV CPU-only)
-- [ ] T013 [US1] Implement audio feature extraction (spectral centroid, zero-crossing rate) in `src/data/preprocess.py` (Librosa) with missing audio handling
-- [ ] T014 [US1] Implement data loading and parsing of EvalVerse CSV/Parquet metadata (expert scores) in `src/data/download.py`
-- [ ] T015 [US1] Implement Ridge/Lasso and XGBoost training pipeline in `src/models/train.py` targeting human expert scores
-- [ ] T016 [US1] Implement Pearson/Spearman correlation calculation and bootstrapping for 95% CIs in `src/models/metrics.py`
-- [ ] T019 [US1] Implement baseline comparisons (Mean Predictor, Shuffled Features) in `src/models/evaluate.py`. **Required**: This task is mandatory for validity. Output `data/baseline_results.csv`. **Prerequisite for T017**.
-- [ ] T020 [US1] Implement permutation-based multiple-comparison correction in `src/models/metrics.py`. **Required**: This task is mandatory for validity. Output `data/permutation_results.csv`. **Prerequisite for T017**.
-- [ ] T017 [US1] Implement logic to flag dimensions as "feature-sufficient" (r ≥ 0.85) or "VLM-required" (lower CI < 0.70) in `src/reports/generate.py`
+- [X] T042 [US1] Implement CSV/Parquet parsing logic to extract human expert scores, VLM proxy scores, and dimension labels from raw data in `src/data/preprocess.py`. **Output**: `data/processed/scores.csv` with columns `[clip_id, dimension, human_score, vlm_proxy_score]`. **Constraint**: Must explicitly extract 'vlm_proxy_score'. **Prerequisite**: T014 (Fetch).
+- [X] T040 [US1] **GATE**: Calculate global error rate across the dataset in `src/data/preprocess.py` after T042. **Definition of Error**: A row is an error if it has missing required columns, null scores, or schema mismatch. **Output**: `state/global_error_rate.json`. **Constraint**: If error_count/total_count > 0.05 on the sample, EXIT with code 1 (HALT). This task MUST complete before T012a and T013a. **Prerequisite**: T042.
+- [X] T041 [US1] **GATE**: Implement preliminary validation (FR-009) in `src/models/evaluate.py` to correlate VLM proxy scores against human expert scores on a subset. **Input**: Reads `data/processed/scores.csv` (from T042). **Output**: `state/validation_status.json`. **Constraint**: The validation gate requires a minimum of 10 samples. If n < 10, EXIT with code 1. If 10 ≤ n < 30, log a WARNING but allow proceed. **CRITICAL**: Must validate that Pearson correlation between VLM proxy and human scores is ≥ `CONFIG.VLM_PROXY_THRESHOLD` (defined in T005); if not, EXIT with code 1. **Rationale**: This threshold is a "Sanity Check" derived from FR-009's requirement to validate the proxy's signal before investing in feature extraction. It ensures the proxy is not random noise. This is distinct from the final "feature-sufficient" threshold (0.85) defined in T017. T041 passing does NOT guarantee the final research criteria; T017 performs the final classification. **Prerequisite**: T042.
+- [X] T012a [US1] Implement optical flow extraction (magnitude/variance) in `src/data/extract_optical.py` (OpenCV CPU-only). **Includes**: Error handling for missing frames (if a clip fails, set `missing_data_flag=True` and log a warning; DO NOT return zero vector). **Implementation Details**: Use `cv2.calcOpticalFlowFarneback`. **Output**: `data/processed/features_optical.json` with entries `[{"clip_id": str, "dimension": str, "feature_vector": [float], "missing_data_flag": bool}]`. **Constraint**: `feature_vector` must be a JSON list of floats. **Prerequisite**: T041, T040.
+- [X] T012b [US1] Implement HOG density calculation in `src/data/extract_hog.py` (OpenCV CPU-only). **Includes**: Error handling for missing frames (if a clip fails, set `missing_data_flag=True` and log a warning; DO NOT return zero vector). **Implementation Details**: Use `cv2.HOGDescriptor`. **Output**: `data/processed/features_hog.json` with entries `[{"clip_id": str, "dimension": str, "feature_vector": [float], "missing_data_flag": bool}]`. **Constraint**: `feature_vector` must be a JSON list of floats. **Prerequisite**: T041, T040.
+- [X] T013a [US1] Implement spectral centroid extraction in `src/data/extract_spectral.py` (Librosa). **Includes**: Error handling for missing audio tracks (if a clip fails, set `missing_data_flag=True` and log a warning; DO NOT return zero vector). **Implementation Details**: Use `librosa.feature.spectral_centroid` with `n_bins=128`. **Output**: `data/processed/features_spectral.json` with entries `[{"clip_id": str, "dimension": str, "feature_vector": [float], "missing_data_flag": bool}]`. **Constraint**: `feature_vector` must be a JSON list of floats. **Prerequisite**: T041, T040.
+- [X] T013b [US1] Implement zero-crossing rate extraction in `src/data/extract_zcr.py` (Librosa). **Includes**: Error handling for missing audio tracks (if a clip fails, set `missing_data_flag=True` and log a warning; DO NOT return zero vector). **Implementation Details**: Use `librosa.feature.zero_crossing_rate`. **Output**: `data/processed/features_zcr.json` with entries `[{"clip_id": str, "dimension": str, "feature_vector": [float], "missing_data_flag": bool}]`. **Constraint**: `feature_vector` must be a JSON list of floats. **Prerequisite**: T041, T040.
+- [X] T012d [US1] **GATE**: Verify Feature Extraction Artifacts. **Action**: Check existence and schema validity of `data/processed/features_optical.json`, `data/processed/features_hog.json`, `data/processed/features_spectral.json`, and `data/processed/features_zcr.json`. **Constraint**: If files are missing or schema invalid, EXIT with code 1. **Prerequisite**: T012a, T012b, T013a, T013b.
+- [X] T015a [US1] Implement Ridge/Lasso training pipeline in `src/models/train.py` targeting human expert scores. **Output**: `data/models/{dimension}_ridge.joblib`, `data/models/{dimension}_lasso.joblib`. **Prerequisite**: T012d.
+- [X] T015b [US1] Implement XGBoost training pipeline in `src/models/train.py` targeting human expert scores. **Output**: `data/models/{dimension}_xgb.joblib`. **Prerequisite**: T012d.
+- [X] T016a [US1] Implement data preparation for correlation analysis in `src/models/metrics.py`. **Action**: Load `features_optical.json`, `features_hog.json`, `features_spectral.json`, `features_zcr.json` and `scores.csv`, parse to numpy, exclude `missing_data_flag=True`, and prepare arrays for each dimension. **Output**: `data/processed/correlation_data.pkl`. **Prerequisite**: T012d, T042.
+- [X] T016b [US1] Implement Pearson AND Spearman correlation calculation in `src/models/metrics.py`. **[FR-004]**. **Implementation Details**: Load `correlation_data.pkl`, calculate point estimates. **Input**: Pairs of (feature_vector, human_score) for each dimension. **Output**: `data/processed/correlations_point.csv` with columns `[dimension, pearson_r, spearman_r]`. **Prerequisite**: T016a.
+- [X] T016c [US1] Implement bootstrapping for 95% CIs in `src/models/metrics.py`. **[FR-007]**. **Implementation Details**: Use `scipy.stats.bootstrap` with `method="percentile"`, `n_resamples=1000`. **Input**: Pairs of (feature_vector, human_score) from T016a. **Statistic**: `scipy.stats.pearsonr`. **Crucial Correction**: Stratification is allowed if dimension-specific variance is high. **Output**: `data/processed/correlations.csv` with columns `[dimension, pearson_r, spearman_r, lower_ci, upper_ci]`. **Prerequisite**: T016a.
+- [X] T019a [US1] Implement baseline predictors (Mean, Shuffled) in `src/models/evaluate.py`. **Output**: `data/processed/baseline_predictions.csv`. **Prerequisite**: T015a, T015b.
+- [X] T019b [US1] Calculate RMSE/R² for baselines and best model in `src/models/evaluate.py`. **Output**: `data/baseline_results.csv`. **Schema**: `[dimension, predictor_type, rmse, r2]`. **Constraint**: Must calculate R². **Prerequisite**: T019a.
+- [X] T019c [US1] **GATE**: Implement baseline quality check in `src/models/evaluate.py`. **Action**: Assert that `best_model_rmse < mean_predictor_rmse`. **Constraint**: If validation fails (reduction < `CONFIG.BASELINE_IMPROVEMENT_THRESHOLD`, defined in T005), log failure and EXIT with code 1. **Rationale**: This is a Quality Gate to ensure model efficacy, not a research scope limiter. **Prerequisite**: T019b.
+- [X] T020a [US1] Implement permutation engine (shuffling labels, recalculating stats) in `src/models/metrics.py`. **Parameter**: `n_permutations=10000`. **Input**: `correlation_data.pkl` from T016a. **Shuffling**: Permute human_score labels for each dimension. **Output**: `data/processed/permutation_raw.csv`. **Schema**: `[dimension, permutation_id, correlation_value]`. **Prerequisite**: T015a, T015b.
+- [X] T020b [US1] Implement Max-T aggregation logic in `src/models/metrics.py`. **Action**: Aggregate max-T statistics from T020a. **Output**: `data/processed/max_t_stats.csv`. **Prerequisite**: T020a.
+- [X] T020c [US1] Implement FDR adjustment calculation in `src/models/metrics.py`. **Action**: Apply `statsmodels.stats.multitest.multipletests` with method 'fdr_bh' (Benjamini-Hochberg) to the raw p-values from T020b. **Output**: `data/permutation_results.csv`. **Schema**: `[dimension, raw_p, adjusted_p]`. **Constraint**: Must apply FDR control. **Note**: This task implements FDR control, not FWER. **Prerequisite**: T020b.
+- [X] T017a [US1] Implement logic to flag dimensions as "feature-sufficient" (lower_95ci >= 0.85), "VLM-required" (lower_95ci < 0.70), or "gray_zone" (in between) in `src/reports/generate.py`. **[FR-008]**. **Constraint**: "gray_zone" is a valid research outcome for dimensions where the CI overlaps the threshold. **Prerequisite**: T016c, T019c, T020c.
+- [X] T017b [US1] Implement file writing logic to output the classification results from T017a. **Output**: `data/dimension_viability.csv` with columns `[dimension, pearson_r, lower_ci, upper_ci, status, adjusted_p]`. **Prerequisite**: T017a.
+- [X] T018 [US1] Generate final dimension viability report `data/dimension_viability.csv` (consolidated). **Prerequisite**: T017b.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+
+**Critical Order Notes (Phase 3)**:
+1. **Pipeline Unblocked**: T014 -> T042 -> T041 -> T012a/T012b/T013a/T013b -> T012d -> T015a/b -> T016a -> T016b/T016c, T019a/b/c, T020a/b/c -> T017a -> T017b -> T018.
+2. T012a, T012b, T013a, T013b are atomic and correctly ordered.
+3. T017 depends on T016c, T019c, T020c. All are mandatory.
+4. T016b and T016c are parallel tasks dependent on T016a.
+5. T019c and T020c are mandatory gates before T017.
 
 ---
 
@@ -104,40 +138,49 @@
 
 **Independent Test**: The system executes the full pipeline on a representative subset and logs peak memory and time per clip.
 
-**⚠️ GATE**: T021 must pass (exit 0) before T022-T025 execute.
+**⚠️ GATE**: T021 must pass (exit 0) before T024 executes.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for memory profiling logic with mock data in `tests/unit/test_profiles.py`
-- [ ] T022 [P] [US2] Integration test for timing constraints on a 100-clip batch in `tests/integration/test_us2_timing.py`
+- [X] T021 [P] [US2] Unit test for memory profiling logic with mock data in `tests/unit/test_profiles.py`
+- [X] T022 [P] [US2] Integration test for timing constraints on a large batch of clips in `tests/integration/test_us2_timing.py`. **Assertion**: `assert projected_hours < 6.0`. **Constraint**: Must use the same seed as T005.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] **GATE**: Implement memory and time profiling wrapper in `src/data/profiles.py` using `psutil` on a sample batch. **Output**: `state/feasibility_gate.json`. **Constraint**: If peak_memory > 7GB OR projected_total_hours > 6.0, exit with code 1 and flag "non-viable". This task MUST complete before T022.
-- [ ] T022 [US2] Implement batch processing logic to process N clips and aggregate timing stats in `src/cli/run_pipeline.py`
-- [ ] T023 [US2] Implement structured report generation for memory/time metrics in `src/reports/generate.py`
-- [ ] T024 [US2] Add logic to calculate per-clip inference time and project total time for N=10,000 clips in `src/models/evaluate.py`. **Output**: `data/timing_profile.csv`.
-- [ ] T025 [US2] Generate final feasibility report `reports/feasibility_profile.json` containing peak_memory_gb and projected_total_hours.
+- [X] T022a [US2] Implement batch processing loop to process N clips and log per-clip timing in `src/cli/run_pipeline.py`. **Input**: `data/processed/scores.csv`. **Output**: `data/processed/batch_raw_logs.json`. **Implementation Details**: Use `batch_size=100`. **Schema**: `[{clip_id: str, cpu_time_sec: float, status: str}]`. **Prerequisite**: T012a, T013a.
+- [X] T022b [US2] Implement aggregation logic in `src/cli/run_pipeline.py`. **Action**: Calculate mean/median/max from `batch_raw_logs.json`. **Output**: `data/processed/batch_stats.json`. **Prerequisite**: T022a.
+- [X] T023b [US2] Implement structured logging of exact CPU time and memory peak to JSON file in `src/data/profiles.py`. **[FR-006]**. **Implementation Details**: Use `psutil` to measure peak memory per clip. **Output**: `data/profiling_logs.json`. **Schema**: A JSON list of objects: `[{clip_id: str, cpu_time_sec: float, peak_memory_mb: float, status: str, artifact_hash: str, git_commit: str, seed: int}]`. **Constraint**: `status` must be one of: "success", "failed", "timeout". Must log exact values per clip. **Reproducibility**: `artifact_hash` is computed via SHA-256 of the input file for that clip. `git_commit` is obtained via `subprocess.run(['git', 'rev-parse', 'HEAD'])`. Must also calculate `projected_total_hours` internally here using `mean_time * 10000 / 3600`. **Prerequisite**: T022a (runs during batch processing).
+- [X] T021b [US2] **GATE**: Implement linear scaling validation in `src/models/evaluate.py`. **[FR-006]**. **Method**: Perform Ordinary Least Squares (OLS) regression using `scipy.stats.linregress` on `clip_index` vs `cpu_time_sec` from T023b data. **Implementation Details**: Validate linear scaling assumption (R^2 > 0.95) AND check p-value for significance of the slope (p < 0.05). **Output**: `state/scaling_validation.json`. **Constraint**: Verify linearity (R^2 > 0.95) and slope significance (p < 0.05). Exit with code 1 if linearity assumption fails. This task MUST complete before T021. **Prerequisite**: T023b.
+- [X] T021 [US2] **GATE**: Implement memory and time profiling wrapper in `src/data/profiles.py` using `psutil` on a sample batch. **Input**: `data/profiling_logs.json` (from T023b) and `state/scaling_validation.json` (from T021b). **Output**: `state/feasibility_gate.json`. **Constraint**: If peak_memory_mb > 7168 (7GB) OR projected_total_hours (calculated internally from mean time in T023b: `mean_time * 10000 / 3600`) > 6.0, log failure and EXIT with code 1. **Note**: T021 consumes T023b and T021b outputs directly. T024 runs AFTER T021 passes. **Prerequisite**: T021b, T023b.
+- [X] T024a [US2] Implement logic to calculate per-clip inference time and project total time for N=10,000 clips in `src/models/evaluate.py` based on T023b results. **Output**: `data/timing_profile.csv`. **Schema**: `[mean_time_per_clip_sec, projected_total_hours]`. **Formula**: `projected_total_hours = (mean_time_per_clip_sec * [sample_size]) / seconds_per_hour`, rounded to 2 decimal places. **Constraint**: Input time must be in seconds. **Prerequisite**: T021 (Gate must pass), T023b.
+- [X] T024b [US2] Generate final feasibility report `reports/feasibility_profile.json` containing `peak_memory_gb` and `projected_total_hours`. **Prerequisite**: T024a.
+- [X] T023 [US2] Implement structured report generation for memory/time metrics in `src/reports/generate.py`. **Output**: `data/reports/profiling_report.json`. **Prerequisite**: T021.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+
+**Critical Order Notes (Phase 4)**:
+- **Linear Chain**: T022a -> T022b -> T023b -> T021b -> T021 -> T024a -> T024b -> T023 -> T025.
+- **No Circular Dependencies**: T024a runs AFTER T021. T023b produces data for T021.
+- **Schema Fixed**: T023b includes `artifact_hash`, `git_commit`, `seed` for reproducibility.
 
 ---
 
 ## Phase 5: User Story 3 - Sensitivity Analysis of Feature Thresholds (Priority: P3)
 
-**Goal**: Ensure decision boundaries (0.85) are robust by sweeping thresholds in the high range (e.g., 0.85, 0.90).
+**Goal**: Ensure decision boundaries (0.85) are robust by sweeping thresholds in the high range (e.g., High performance).
 
 **Independent Test**: The system re-runs classification logic with varied thresholds and reports stability/flip rates.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Contract test for sensitivity analysis output schema in `tests/contract/test_sensitivity_schema.py`
+- [X] T026 [P] [US3] Contract test for sensitivity analysis output schema in `tests/contract/test_sensitivity_schema.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement threshold sweep logic in `src/models/metrics.py`. **Output**: Intermediate results for stability calculation.
-- [ ] T027 [US3] Implement stability calculation (flip rate) and "threshold-sensitive" flagging in `src/models/evaluate.py`. **Output**: `data/sensitivity_analysis.csv` with columns [dimension, threshold, status, flip_rate].
-- [ ] T028 [US3] Generate full sensitivity matrix table `data/sensitivity_matrix_full.csv` showing classification outcome for *each dimension* at *all tested thresholds*. **Required**: This artifact is mandatory for methodological verification (US-3 Acceptance Scenario 3).
+- [X] T033 [US3] Implement threshold sweep logic in `src/models/metrics.py`. **Output**: `data/sensitivity_sweep_raw.csv`. **Schema**: `[dimension, threshold, status]`. **Thresholds**: `{0.80, 0.85, 0.90}`. **Status Logic**: `feature-sufficient` if `r >= threshold` else `VLM-required`. **Prerequisite**: T016c (provides `r`), T020c.
+- [X] T027a [US3] Implement flip rate calculation in `src/models/evaluate.py` using T033 output. **Output**: `data/sensitivity_flip_rate.csv`. **Schema**: `[dimension, flip_rate]`. **Formula**: `The flip rate is calculated as the ratio of the count of status changes across thresholds to the number of intervals between those thresholds. `. **Constraint**: Explicitly calculate flip rate. **[FR-005]**. **Prerequisite**: T033.
+- [X] T027b [US3] Implement stability flagging logic in `src/models/evaluate.py`. **Action**: Flag dimensions as "threshold-sensitive" if `flip_rate > 0.1`. **Output**: `data/sensitivity_status.csv` (updated with flag). **Prerequisite**: T027a.
+- [X] T028 [US3] Generate full sensitivity matrix table `data/sensitivity_matrix_full.csv` showing classification outcome for *each dimension* at *all tested thresholds*. **Input**: `data/sensitivity_sweep_raw.csv` (from T033). **Format**: Wide-format matrix (pivot table) where rows are dimensions and columns are thresholds. **Schema**: `[dimension, status_0.80, status_0.85, status_0.90]`. **Implementation Details**: Aggregate T033 raw data into a wide format for methodological verification. **Required**: This artifact is mandatory for methodological verification (US-3 Acceptance Scenario 3) and satisfies SC-004. **Prerequisite**: T027b.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -147,10 +190,12 @@
 
 **Purpose**: Improvements that affect multiple user stories and ensure rigor
 
-- [ ] T029 [P] Documentation updates in `docs/` and `specs/`
-- [ ] T030 Code cleanup and refactoring for CPU optimization
-- [ ] T031 [P] Additional unit tests for edge cases (all-black frames, missing audio) in `tests/unit/`
-- [ ] T032 [P] Run `quickstart.md` validation and ensure all tasks pass on local CPU environment
+- [X] T029 [P] Documentation updates in `docs/` and `specs/`
+- [X] T030 Code cleanup and refactoring for CPU optimization
+- [X] T031 [P] Additional unit tests for edge cases (all-black frames, missing audio) in `tests/unit/`
+- [X] T034a [P] Implement seed scanning logic in `src/utils/seed_validator.py`. **Action**: Scan all scripts in `src/` and `scripts/` (excluding `tests/`) for seed usage. **Regex Patterns**: `r'\\b(random|np|numpy)\\.seed\\b'`, `r'\\btorch\\.manual_seed\\b'`, `r'\\bnp\\.random\\.seed\\b'`. **Exclusion**: Explicitly ignore any file path containing `/tests/`. **Output**: `state/seed_scan_results.json` with list of files and seed values found. **Prerequisite**: T005.
+- [X] T034b [P] Implement seed validation report generation in `src/utils/seed_validator.py`. **Action**: Verify seeds match values in `src/config.py` using `state/seed_scan_results.json`. **Output**: `state/seed_validation.json` with status "pass" or "fail". **Constraint**: If any script lacks a pinned seed or uses a mismatched value, exit with code 1. **Prerequisite**: T034a.
+- [X] T032 [P] Run `quickstart.md` validation and ensure all tasks pass on local CPU environment
 
 ---
 
@@ -160,19 +205,41 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+ - **Critical Order**: T009b (Config) -> T014 (Fetch) -> T004 (Verify) -> T004b (Provenance).
+ - **Critical Order**: T035 (CPU Gate) MUST run before T012a, T013a.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-  - **Critical Order**: T018 (Gate) AND T040 (Gate) MUST complete before T012-T017, T019, T020.
-  - T019 and T020 MUST complete before T017.
+ - **Critical Order**: T014 (Fetch) MUST complete before T042 (Parse).
+ - T042 (Parse) MUST complete before T041 (Validation Gate) and T040 (Quality Gate).
+ - T041 and T040 (Gates) MUST complete BEFORE T012a, T012b, T013a, T013b (Feature Extraction).
+ - **Parallel Note**: T012a, T012b, T013a, T013b are parallel-safe with respect to each other as they write to distinct files.
+ - T015a/b MUST complete before T016a, T016b, T016c, T019a, T020a.
+ - T016a MUST complete before T016b and T016c.
+ - T016b and T016c are parallel tasks.
+ - T019c and T020c are mandatory prerequisites for T017.
+ - T017 depends on T016c, T019c, T020c.
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-  - **Critical Order**: T021 (Gate) MUST complete before T022-T025.
+ - **Critical Order**: T022a (Batch Loop) MUST run before T023b (Logging).
+ - T023b (Logging) and T022b (Aggregation) MUST complete before T021b (Scaling Validation) and T021 (Feasibility Gate).
+ - **Correction**: T021b (Scaling Validation) depends ONLY on T023b (raw logs). T024a (Projection) is NOT a prerequisite for T021b.
+ - T021b (Scaling Validation) MUST complete before T024a (Projection).
+ - T021 (Feasibility Gate) depends on T021b AND T023b (raw logs). T021 does NOT depend on T024a.
+ - T021 (Feasibility Gate) MUST complete before T024a (Projection).
+ - T021 (Feasibility Gate) MUST complete before T023 (Report).
+ - T023 (Report) MUST complete before T024b (Final Report).
+ - **Linear Chain**: T022a -> T022b -> T023b -> T021b -> T021 -> T024a -> T024b -> T023 -> T025.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+ - **Critical Order**: T016c MUST complete before T033 (Sweep).
+ - T020c MUST complete before T033 (Sweep).
+ - T033 MUST complete before T027a.
+ - T027a MUST complete before T027b.
+ - T027b MUST complete before T028.
 
 ### Within Each User Story
 
@@ -186,6 +253,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
+ - Note: T004 is NOT parallel-safe with T004b.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -200,11 +268,13 @@
 Task: "Contract test for feature extraction output schema in tests/contract/test_feature_schema.py"
 Task: "Integration test for full correlation pipeline on a small sample in tests/integration/test_us1_pipeline.py"
 
-# Launch all models for User Story 1 together (after Gates T018, T040 pass):
-Task: "Implement optical flow extraction in src/data/preprocess.py"
-Task: "Implement audio feature extraction in src/data/preprocess.py"
+# Launch all models for User Story 1 together (after Gates T041, T040 pass):
+Task: "Implement optical flow extraction in src/data/extract_optical.py"
+Task: "Implement HOG density calculation in src/data/extract_hog.py"
+Task: "Implement spectral centroid extraction in src/data/extract_spectral.py"
+Task: "Implement zero-crossing rate extraction in src/data/extract_zcr.py"
 Task: "Implement baseline comparisons in src/models/evaluate.py"
-Task: "Implement permutation correction in src/models/metrics.py"
+Task: "Implement permutation-based multiple-comparison correction in src/models/metrics.py"
 ```
 
 ---
@@ -215,7 +285,11 @@ Task: "Implement permutation correction in src/models/metrics.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Ensure T018 and T040 Gates pass)
+ - Ensure T009b (Config) runs before T014 (Fetch).
+ - Ensure T014 (Fetch) runs before T004 (Verify).
+ - Ensure T004 (Verify) runs before T004b (Provenance).
+ - Ensure T035 (CPU Gate) runs before T012a, T013a.
+3. Complete Phase 3: User Story 1 (Ensure T041 and T040 Gates pass)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -233,9 +307,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Focus on Gates T018, T040 first)
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1 (Focus on Gates T041, T040 first)
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -245,8 +319,21 @@ With multiple developers:
 - [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
-- **GATE Tasks (T018, T021, T040)**: These tasks MUST exit with code 0 to proceed. If they exit with code 1, the pipeline halts immediately.
+- **GATE Tasks (T041, T021, T040)**: These tasks MUST exit with code 0 to proceed. If they exit with code 1, the pipeline halts immediately (except T040 which halts on high error rate, T021 which halts on non-viability).
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **T012a/T012b/T013a/T013b Note**: Split into atomic tasks. Both T012a/T012b and T013a/T013b include error handling for missing frames/audio as a shared requirement for robustness.
+- **T016c Note**: Explicitly mandated 'percentile' method and allowed stratification. Split into T016a, T016b, T016c.
+- **T019 Note**: Added explicit threshold from `CONFIG`. Made it a hard gate (EXIT 1 on failure). Split into T019a, T019b, T019c.
+- **T020 Note**: Marked as MANDATORY. Blocks T017. Split into T020a, T020b, T020c. **Correction**: Specified `statsmodels` for FDR control.
+- **T021 Note**: Added explicit memory (7GB) and time (6h) thresholds. T021 calculates projection internally; T024a runs after. **Correction**: Now exits with code 1 on failure to enforce Gate semantics.
+- **T024 Note**: Updated to depend on T021 (Gate must pass). Split into T024a, T024b.
+- **T041 Note**: Updated to require n ≥ 10 and warn if n < 30. Added validation of VLM proxy correlation using `CONFIG.VLM_PROXY_THRESHOLD`. Explicitly linked to FR-009.
+- **T004 Note**: Removed [P] tag to enforce serial dependency with T004b.
+- **T034 Note**: Added to explicitly validate seed pinning per Constitution Principle I. **Update**: T034 now depends on T005 and T002. Split into T034a/T034b. Removed T012a, T013a, T015a dependency. **Correction**: Defined explicit scope (`src/`, `scripts/`) and regex patterns.
+- **T035 Note**: Added to explicitly validate CPU-only execution per SC-001. Merged T035a/T035b into single T035 task in Phase 2. Updated to include GPU patterns for OpenCV, XGBoost, Librosa.
+- **T017 Note**: Clarified "gray_zone" as a valid research outcome.
+- **T023b Note**: Added explicit source definitions for `artifact_hash` and `git_commit`.
+- **T021b Note**: Added explicit p-value check for slope significance.

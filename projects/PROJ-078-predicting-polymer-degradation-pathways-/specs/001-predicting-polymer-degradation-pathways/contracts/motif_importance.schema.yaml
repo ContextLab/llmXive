@@ -1,11 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "MotifImportance"
-description: "Schema for motif importance scores and statistical validation. Uses Label-Shuffling (global) and Motif-Masking (local) permutation tests."
+description: "Schema for motif importance scores linking subgraphs to degradation pathways."
 type: "object"
 properties:
+  motif_id:
+    type: "string"
+    description: "Unique motif identifier"
   motif_pattern:
     type: "string"
-    description: "SMILES fragment or subgraph description"
+    description: "SMILES of the subgraph motif"
   pathway:
     type: "string"
     description: "Associated degradation pathway"
@@ -13,30 +16,24 @@ properties:
       - "hydrolysis"
       - "oxidation"
       - "photolysis"
-      - "other"
   importance_score:
     type: "number"
-    description: "Integrated Gradients attribution score (for interpretation only)"
-  p_value_global:
+    description: "Integrated Gradients score (0 – 1)"
+    minimum: 0.0
+    maximum: 1.0
+  p_value:
     type: "number"
-    description: "Label-shuffling permutation test p-value (global model significance)"
-    minimum: 0
-    maximum: 1
-  p_value_local:
-    type: "number"
-    description: "Motif-masking permutation test p-value (local motif significance)"
-    minimum: 0
-    maximum: 1
-  confidence:
-    type: "number"
-    description: "Prediction confidence (0-1)"
-    minimum: 0
-    maximum: 1
+    description: "Empirical p‑value from the **permutation test**"
+    minimum: 0.0
+    maximum: 1.0
+  significant:
+    type: "boolean"
+    description: "True if p < 0.05"
 required:
-  - "motif_pattern"
-  - "pathway"
-  - "importance_score"
-  - "p_value_global"
-  - "p_value_local"
-  - "confidence"
+  - motif_id
+  - motif_pattern
+  - pathway
+  - importance_score
+  - p_value
+  - significant
 additionalProperties: false

@@ -1,0 +1,58 @@
+# JSON Schema for CorrelationAnalysis data model
+# This schema validates the output of the correlation analysis pipeline.
+# It follows the Draft-07 JSON Schema specification and is expressed in YAML.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: CorrelationAnalysis
+description: |
+  Results of a statistical correlation analysis between a network topological
+  metric and the thermal conductivity (kappa) of a material. Each record
+  corresponds to a single metric evaluated across an ensemble of realizations.
+type: object
+required:
+  - analysis_id
+  - metric_name
+  - r
+  - p_value
+  - slope
+  - intercept
+  - ci_lower
+  - ci_upper
+  - bootstrap_iterations
+  - sample_size
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for the analysis run (e.g., UUID).
+  metric_name:
+    type: string
+    description: Name of the topological metric (e.g., "clustering_coefficient").
+  r:
+    type: number
+    description: Pearson correlation coefficient between the metric and kappa.
+  p_value:
+    type: number
+    description: Two‑tailed p‑value associated with the correlation.
+  slope:
+    type: number
+    description: Slope of the linear regression line (metric → kappa).
+  intercept:
+    type: number
+    description: Intercept of the linear regression line.
+  ci_lower:
+    type: number
+    description: Lower bound of the bootstrap confidence interval for the correlation coefficient.
+  ci_upper:
+    type: number
+    description: Upper bound of the bootstrap confidence interval for the correlation coefficient.
+  bootstrap_iterations:
+    type: integer
+    minimum: 0
+    description: Number of bootstrap resampling iterations performed.
+  sample_size:
+    type: integer
+    minimum: 1
+    description: Number of data points (network realizations) used in the analysis.
+  notes:
+    type: string
+    description: Optional free‑form notes or comments about the analysis.
+additionalProperties: false

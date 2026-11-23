@@ -1,173 +1,243 @@
 """
 Main entry point for the Early Life Stress Impact Analysis Pipeline.
-Implements robust error handling, JSON logging, and custom exception propagation.
-"""
 
+This module orchestrates the entire pipeline: data acquisition, preprocessing,
+statistical modeling, and robustness validation. It includes comprehensive
+error handling and JSON-formatted logging to logs/pipeline.log.
+"""
 import json
 import logging
 import logging.handlers
 import os
 import sys
+import traceback
 from pathlib import Path
-from datetime import datetime
-from typing import Optional, Any
+from typing import Optional, Dict, Any
 
-# Ensure we can import sibling modules
-# Assuming this script runs from the project root or code directory
-# The project structure places 'code' at the root of the project
-# We add the parent directory of this file to sys.path if running as script
-if __name__ == "__main__":
-    script_dir = Path(__file__).resolve().parent
-    if script_dir.name == "code":
-        project_root = script_dir.parent
-        if str(project_root) not in sys.path:
-            sys.path.insert(0, str(project_root))
+# Import project configuration
+from code.config import (
+    get_project_root,
+    get_logs_dir,
+    ensure_directories,
+    get_data_dir,
+    get_processed_dir
+)
+from code.data.acquisition import main as acquire_data_main
+from code.data.preprocessing import main as preprocessing_main
+from code.analysis.modeling import main as modeling_main
+from code.analysis.robustness import main as robustness_main
+from code.analysis.save_results import main as save_results_main
+from code.analysis.aggregate_robustness import main as aggregate_robustness_main
 
-from data.loaders import load_csv, load_tsv
-from config import LOG_DIR, DATA_PROCESSED_DIR, LOG_FILE_NAME
-
-# --- Custom Exceptions ---
-
+# Custom Exceptions
 class PipelineError(Exception):
     """Base exception for pipeline errors."""
-    def __init__(self, message: str, details: Optional[dict] = None):
+    def __init__(self, message: str, stage: Optional[str] = None, details: Optional[Dict[str, Any]] = None):
         super().__init__(message)
         self.message = message
+        self.stage = stage
         self.details = details or {}
 
 class DataLoadError(PipelineError):
-    """Raised when data loading fails."""
-    pass
+    """Exception raised when data loading fails."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, stage="DataLoading", details=details)
 
 class ValidationError(PipelineError):
-    """Raised when data validation fails."""
-    pass
+    """Exception raised when data validation fails."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, stage="Validation", details=details)
 
 class AnalysisError(PipelineError):
-    """Raised when analysis steps fail."""
-    pass
+    """Exception raised when statistical analysis fails."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, stage="Analysis", details=details)
 
-# --- Logging Configuration ---
+class IOWriteError(PipelineError):
+    """Exception raised when writing output files fails."""
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, stage="IOWrite", details=details)
 
-def setup_logging() -> logging.Logger:
+# Logger setup
+_logger: Optional[logging.Logger] = None
+
+def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
     """
-    Configures a logger that writes JSON-formatted logs to logs/pipeline.log.
-    Returns the configured logger instance.
-    """
-    # Ensure log directory exists
-    log_path = Path(LOG_DIR)
-    log_path.mkdir(parents=True, exist_ok=True)
+    Configure JSON logging to logs/pipeline.log and console output.
     
-    log_file_path = log_path / LOG_FILE_NAME
+    Args:
+        log_level: Minimum logging level (e.g., logging.INFO, logging.DEBUG)
+        
+    Returns:
+        Configured logger instance
+    """
+    global _logger
+    if _logger is not None:
+        return _logger
+
+    project_root = get_project_root()
+    logs_dir = get_logs_dir()
+    
+    # Ensure logs directory exists
+    try:
+        ensure_directories()
+    except Exception as e:
+        print(f"CRITICAL: Failed to create logs directory: {e}", file=sys.stderr)
+        raise
 
     # Create logger
-    logger = logging.getLogger("pipeline")
-    logger.setLevel(logging.DEBUG)
+    _logger = logging.getLogger("pipeline")
+    _logger.setLevel(log_level)
+    _logger.propagate = False
 
-    # Remove existing handlers to avoid duplicates in interactive environments
-    if logger.hasHandlers():
-        logger.handlers.clear()
+    # Clear existing handlers to avoid duplicates in repeated runs
+    _logger.handlers.clear()
 
-    # File Handler with JSON Formatter
-    # We use a custom formatter to output JSON
-    class JSONFormatter(logging.Formatter):
-        def format(self, record):
-            log_record = {
-                "timestamp": datetime.utcnow().isoformat(),
-                "level": record.levelname,
-                "module": record.module,
-                "function": record.funcName,
-                "message": record.getMessage(),
-            }
-            
-            # Add exception info if present
-            if record.exc_info:
-                log_record["exception"] = self.formatException(record.exc_info)
-            
-            # Add extra fields if present
-            if hasattr(record, 'details'):
-                log_record["details"] = record.details
-
-            return json.dumps(log_record)
-
-    file_handler = logging.FileHandler(log_file_path, mode='a')
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(JSONFormatter())
-
-    logger.addHandler(file_handler)
-
-    # Optional: Stream handler for console (standard format)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    logger.addHandler(console_handler)
-
-    return logger
-
-# --- Main Pipeline Logic ---
-
-def run_pipeline(logger: logging.Logger) -> bool:
-    """
-    Executes the main pipeline steps with comprehensive error handling.
-    Returns True if successful, False otherwise.
-    """
+    # JSON File Handler
+    log_file_path = logs_dir / "pipeline.log"
     try:
-        logger.info("Pipeline started.")
+        file_handler = logging.FileHandler(log_file_path)
+        file_handler.setLevel(log_level)
         
-        # Example Step 1: Data Loading (Demonstrating I/O error handling)
-        # Note: This attempts to load a file that might not exist yet or be empty,
-        # serving as a test for the error handling mechanism.
-        input_file = DATA_PROCESSED_DIR / "cleaned_dataset.csv"
-        
-        if not input_file.exists():
-            # If the file doesn't exist, we handle it gracefully but log it
-            # In a real run, this might be a failure condition depending on requirements
-            logger.warning(f"Input file {input_file} not found. Skipping data loading step.")
-        else:
-            logger.info(f"Loading data from {input_file}")
-            try:
-                # Using the imported loader
-                df = load_csv(input_file)
-                logger.info(f"Successfully loaded {len(df)} rows.")
-            except Exception as e:
-                # Specific handling for data loading errors
-                error_msg = f"Failed to load data from {input_file}"
-                logger.error(error_msg, extra={'details': {'error_type': type(e).__name__, 'details': str(e)}})
-                raise DataLoadError(error_msg, details={'error_type': type(e).__name__, 'details': str(e)}) from e
+        # Custom JSON Formatter
+        class JSONFormatter(logging.Formatter):
+            def format(self, record: logging.LogRecord) -> str:
+                log_record = {
+                    "timestamp": self.formatTime(record, self.datefmt),
+                    "level": record.levelname,
+                    "logger": record.name,
+                    "message": record.getMessage(),
+                    "module": record.module,
+                    "function": record.funcName,
+                    "line": record.lineno
+                }
+                
+                if record.exc_info:
+                    log_record["exception"] = {
+                        "type": record.exc_info[0].__name__,
+                        "message": str(record.exc_info[1]),
+                        "traceback": traceback.format_exception(*record.exc_info)
+                    }
+                
+                if hasattr(record, 'details'):
+                    log_record["details"] = record.details
+                
+                return json.dumps(log_record)
 
-        # Example Step 2: Validation (Demonstrating custom exception raising)
-        # Simulate a check that might fail
-        # In a real scenario, this would validate against schema
-        logger.info("Running validation checks...")
-        
-        # Placeholder for actual validation logic
-        # If validation fails, raise ValidationError
-        # For now, we assume it passes if data loaded
-        
-        logger.info("Pipeline completed successfully.")
-        return True
+        file_handler.setFormatter(JSONFormatter())
+        _logger.addHandler(file_handler)
+    except Exception as e:
+        # Fallback to standard formatting if JSON fails
+        fallback_handler = logging.FileHandler(log_file_path)
+        fallback_handler.setLevel(log_level)
+        fallback_handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        _logger.addHandler(fallback_handler)
+        _logger.error(f"Failed to setup JSON logging, using fallback: {e}")
 
+    # Console Handler (Standard formatting for readability)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    console_handler.setFormatter(console_formatter)
+    _logger.addHandler(console_handler)
+
+    return _logger
+
+def run_stage(stage_name: str, func, *args, **kwargs) -> Any:
+    """
+    Execute a pipeline stage with comprehensive error handling and logging.
+    
+    Args:
+        stage_name: Name of the stage for logging
+        func: Function to execute
+        *args: Arguments to pass to the function
+        **kwargs: Keyword arguments to pass to the function
+        
+    Returns:
+        Result of the function execution
+        
+    Raises:
+        PipelineError: If the stage fails
+    """
+    logger = logging.getLogger("pipeline")
+    logger.info(f"Starting stage: {stage_name}", extra={"details": {"stage": stage_name}})
+    
+    try:
+        result = func(*args, **kwargs)
+        logger.info(f"Completed stage: {stage_name}", extra={"details": {"stage": stage_name, "status": "success"}})
+        return result
     except DataLoadError as e:
-        logger.critical(f"Data loading failed: {e.message}", extra={'details': e.details})
-        return False
+        logger.error(f"Data loading failed in {stage_name}: {e.message}", extra={"details": e.details})
+        raise
     except ValidationError as e:
-        logger.critical(f"Validation failed: {e.message}", extra={'details': e.details})
-        return False
+        logger.error(f"Validation failed in {stage_name}: {e.message}", extra={"details": e.details})
+        raise
     except AnalysisError as e:
-        logger.critical(f"Analysis failed: {e.message}", extra={'details': e.details})
+        logger.error(f"Analysis failed in {stage_name}: {e.message}", extra={"details": e.details})
+        raise
+    except IOWriteError as e:
+        logger.error(f"IO write failed in {stage_name}: {e.message}", extra={"details": e.details})
+        raise
+    except Exception as e:
+        error_msg = f"Unexpected error in {stage_name}: {str(e)}"
+        logger.exception(error_msg)
+        raise PipelineError(error_msg, stage=stage_name, details={"exception": str(e)}) from e
+
+def run_pipeline() -> bool:
+    """
+    Execute the full analysis pipeline.
+    
+    Returns:
+        True if pipeline completed successfully, False otherwise
+    """
+    logger = setup_logging()
+    logger.info("Pipeline initialization started")
+    
+    try:
+        # 1. Data Acquisition
+        run_stage("Data Acquisition", acquire_data_main)
+        
+        # 2. Preprocessing
+        run_stage("Preprocessing", preprocessing_main)
+        
+        # 3. Statistical Modeling
+        run_stage("Statistical Modeling", modeling_main)
+        
+        # 4. Robustness Validation
+        run_stage("Robustness Validation", robustness_main)
+        
+        # 5. Save Results
+        run_stage("Save Results", save_results_main)
+        
+        # 6. Aggregate Robustness Metrics
+        run_stage("Aggregate Robustness", aggregate_robustness_main)
+        
+        logger.info("Pipeline completed successfully")
+        return True
+        
+    except PipelineError as e:
+        logger.error(f"Pipeline failed at stage '{e.stage}': {e.message}")
         return False
     except Exception as e:
-        # Catch-all for unexpected errors
-        logger.critical(f"Unexpected error occurred: {str(e)}", exc_info=True)
+        logger.exception(f"Pipeline failed with unexpected error: {str(e)}")
         return False
+    finally:
+        logger.info("Pipeline execution finished")
 
-def main():
-    """Entry point for the script."""
-    logger = setup_logging()
-    success = run_pipeline(logger)
-    if not success:
-        sys.exit(1)
-    sys.exit(0)
+def main() -> int:
+    """
+    Main entry point for the script.
+    
+    Returns:
+        Exit code (0 for success, 1 for failure)
+    """
+    success = run_pipeline()
+    return 0 if success else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

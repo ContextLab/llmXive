@@ -1,0 +1,4 @@
+record_id,species_id,snr_db,noise_level_db
+1,sp_A,15.0,60
+3,sp_A,12.0,50
+5,sp_B,10.0,55

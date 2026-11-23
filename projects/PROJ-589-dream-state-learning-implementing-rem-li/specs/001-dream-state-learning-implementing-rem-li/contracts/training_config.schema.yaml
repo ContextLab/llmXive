@@ -1,56 +1,58 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Training Configuration Schema"
-description: "Schema for the experiment configuration (hyperparameters, seeds, paths)."
+title: "Training Configuration"
+description: "Hyper‑parameters and resource limits for a training run."
 type: "object"
 properties:
   model_name:
     type: "string"
-    description: "Name of the HuggingFace model (e.g., 'distilbert-base-uncased')."
+    description: "HuggingFace model identifier (e.g., 'distilbert-base-uncased')."
   seed:
     type: "integer"
     description: "Random seed for reproducibility."
   total_steps:
     type: "integer"
     minimum: 1
-    description: "Total number of training steps."
+    description: "Total number of gradient steps."
   wake_dream_ratio:
     type: "object"
     properties:
       wake_steps:
         type: "integer"
         default: 4
+        description: "Number of consecutive wake steps."
       dream_steps:
         type: "integer"
         default: 1
+        description: "Number of consecutive dream steps."
     required:
-      - wake_steps
-      - dream_steps
-    description: "Ratio of wake to dream steps."
+      - "wake_steps"
+      - "dream_steps"
+    description: "Ratio governing the oscillatory schedule."
   dream_temperature:
     type: "number"
     minimum: 0.1
     maximum: 2.0
-    description: "Temperature for generative replay in dream phase."
+    description: "Sampling temperature during dream generation."
   warmup_steps:
     type: "integer"
     minimum: 0
-    description: "Number of initial wake-only steps."
+    description: "Initial wake‑only steps before the first dream."
   batch_size:
     type: "integer"
     minimum: 1
-    description: "Training batch size."
+    description: "Training batch size (CPU‑friendly)."
   max_memory_mb:
     type: "integer"
     minimum: 1000
     maximum: 7000
-    description: "Hard memory limit in MB (default 6500)."
+    description: "Hard memory cap in megabytes (default 6500)."
 required:
-  - model_name
-  - seed
-  - total_steps
-  - wake_dream_ratio
-  - dream_temperature
-  - warmup_steps
-  - batch_size
-  - max_memory_mb
+  - "model_name"
+  - "seed"
+  - "total_steps"
+  - "wake_dream_ratio"
+  - "dream_temperature"
+  - "warmup_steps"
+  - "batch_size"
+  - "max_memory_mb"
 additionalProperties: false

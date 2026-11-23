@@ -1,0 +1,49 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings, `os.path.isdir` checks, or other concrete evidence of\
+    \ the required folders (`projects/PROJ-268-the-impact-of-network-centrality-on-neur/`\
+    \ and its sub\u2011directories) were provided. Without visible proof that these\
+    \ paths exist, the task requirement is not satisfied."
+T001c:
+  c: false
+  h: 2a685ae0ae1d95e7866379b1908497dd64e01963cb85ec1dc7d3a8517b3beb23
+  r: "The required file `projects/PROJ-268-the-impact-of-network-centrality-on-neur/code/requirements.txt`\
+    \ does not exist, and there is no evidence that `pip install -r requirements.txt`\
+    \ was run or succeeded. The task\u2019s core deliverable is therefore missing."
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or Black settings) or related setup scripts are present in `projects/PROJ-268-the-impact-of-network-centrality-on-neur/code/`.
+    Without these artifacts, the task of configuring ruff/flake8 and Black has not
+    been demonstrated.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration file, or documentation was provided showing that error\
+    \ handling has been added to raise fatal errors when a \u201CData Gap\u201D or\
+    \ \u201CStorage Limit Exceeded\u201D condition occurs. The claim lacks any tangible\
+    \ artifact (e.g., updated script, settings file, or test demonstrating the behavior)."
+T012b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No preprocessing script, pipeline code, or generated 400\u202F\xD7\u202F400\
+    \ structural and functional connectivity matrices are present. The claim provides\
+    \ only a textual description; there is no evidence of raw NIfTI detection, Schaefer\u2011\
+    atlas parcellation, or any output files in `data/processed`. The required artifacts\
+    \ are missing, so the task is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV files named `centrality_<subject_id>.csv` or `synchrony_<subject_id>.csv`\
+    \ are present in the `data/processed` directory, nor any evidence (e.g., file\
+    \ listings, content snippets) that such per\u2011subject outputs were generated.\
+    \ The required artifacts are missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation was presented that adds a dimension\u2011matching\
+    \ check for structural (SC) and functional (FC) connectivity matrices, nor any\
+    \ error handling that halts execution on mismatch. The required validation artifact\
+    \ is missing."

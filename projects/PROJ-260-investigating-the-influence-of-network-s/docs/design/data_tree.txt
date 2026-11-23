@@ -1,0 +1,7 @@
+data/raw
+data/derived
+data/derived/topology
+data/derived/vdos
+data/derived/reference
+data/derived/correlation
+data/metadata

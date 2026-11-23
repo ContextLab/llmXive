@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainingRun"
+description: "Schema for a training run artifact. Includes both per‑run summary fields and optional per‑step fields for compatibility with existing logger tests."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  variant:
+    type: "string"
+    enum:
+      - "grpo"
+      - "baseline"
+      - "student-only"
+    description: "The variant of SDAR used."
+  environment:
+    type: "string"
+    enum:
+      - "alfworld"
+      - "webshop"
+    description: "The environment used for training."
+  seed:
+    type: "integer"
+    description: "Random seed used."
+  start_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of start."
+  end_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of end."
+  total_steps:
+    type: "integer"
+    description: "Total number of training steps."
+  final_success_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Average task success rate."
+  avg_cpu_time_per_step:
+    type: "number"
+    description: "Average CPU time in seconds per step."
+  peak_memory_mb:
+    type: "number"
+    description: "Peak RSS memory in MB."
+  convergence_steps:
+    type:
+      - "integer"
+      - "null"
+    description: "Steps to reach reward threshold 0.8, or null if not reached."
+  early_stopped:
+    type: "boolean"
+    description: "True if the run terminated early due to threshold or step cap."
+  # Optional per‑step fields (may appear in individual log records)
+  step:
+    type: "integer"
+    description: "Training step index (optional per‑step record)."
+  reward:
+    type: "number"
+    description: "Reward obtained at this step (optional per‑step record)."
+  cpu_time_sec:
+    type: "number"
+    description: "CPU time consumed by this step in seconds (optional per‑step record)."
+  step_peak_memory_mb:
+    type: "number"
+    description: "Peak memory usage for this step in MB (optional per‑step record)."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the log entry (optional per‑step record)."
+required:
+  - "run_id"
+  - "variant"
+  - "environment"
+  - "seed"
+  - "start_time"
+  - "end_time"
+  - "total_steps"
+  - "final_success_rate"
+  - "avg_cpu_time_per_step"
+  - "peak_memory_mb"
+  - "early_stopped"
+additionalProperties: false

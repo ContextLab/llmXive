@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Summary Schema"
+description: "Schema for the aggregated statistical results including p-values and significance."
+type: "object"
+required:
+  - "architecture"
+  - "method"
+  - "mean_improvement"
+  - "std_improvement"
+  - "p_value_raw"
+  - "p_value_adjusted"
+  - "significant"
+  - "m_des"
+properties:
+  architecture:
+    type: "string"
+    enum:
+      - "MoE"
+      - "SSM"
+    description: "The student architecture being tested."
+  method:
+    type: "string"
+    description: "The comparison method (e.g., 'Direct-OPD vs Baseline')."
+  mean_improvement:
+    type: "number"
+    description: "Mean log-probability improvement across the dataset."
+  std_improvement:
+    type: "number"
+    description: "Standard deviation of the improvement."
+  p_value_raw:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from the t-test or Wilcoxon test."
+  p_value_adjusted:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-corrected p-value (alpha / 2)."
+  significant:
+    type: "boolean"
+    description: "True if p_value_adjusted < 0.05."
+  m_des:
+    type: "number"
+    description: "Minimum Detectable Effect Size for the given sample size and power."
+additionalProperties: false

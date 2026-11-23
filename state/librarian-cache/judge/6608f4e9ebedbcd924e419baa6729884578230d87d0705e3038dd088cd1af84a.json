@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.01131",
+  "judged_at": "2026-07-19T21:48:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geneb: why genomic models are hard to compare\" linguistics",
+  "rationale": "This paper satisfies criterion (a) and (b) as it provides a comprehensive evaluation framework for measuring specific linguistic properties (semantic relations) in pretrained language models, which directly addresses the \"linguistics\" extension of the user's question regarding the comparability and evaluation of genomic-style models in a linguistic domain. It establishes the necessary empirical baseline and methodology for comparing model performance on linguistic tasks, which is the core mechan",
+  "relevant": true
+}

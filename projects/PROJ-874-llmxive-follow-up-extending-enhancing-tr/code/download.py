@@ -1,3 +1,7 @@
+"""
+Dataset download and verification module.
+Handles fetching datasets from HuggingFace and verifying checksums.
+"""
 import os
 import sys
 import hashlib
@@ -5,234 +9,344 @@ import json
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
+from typing import Dict, List, Tuple, Optional
 
-# Configure logging
+# Import config for paths and errors
+try:
+    from config import (
+        get_raw_dir, 
+        get_dataset_paths, 
+        DatasetNotFoundError, 
+        ValidationError,
+        calculate_hash
+    )
+except ImportError:
+    # Fallback for standalone execution or if config not yet loaded
+    sys.path.insert(0, str(Path(__file__).parent))
+    from config import (
+        get_raw_dir, 
+        get_dataset_paths, 
+        DatasetNotFoundError, 
+        ValidationError,
+        calculate_hash
+    )
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants for dataset configuration
-DATASET_CONFIG = {
-    "narrlv": {
-        "name": "NarrLV",
-        "source": "llmXive/NarrLV",
-        "required_files": [
-            "video_001.mp4", "video_002.mp4", "video_003.mp4",
-            "video_004.mp4", "video_005.mp4", "metadata.json"
-        ],
-        "checksums": {
-            "video_001.mp4": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "video_002.mp4": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "video_003.mp4": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "video_004.mp4": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "video_005.mp4": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "metadata.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        }
-    },
-    "vbench": {
-        "name": "VBench",
-        "source": "llmXive/VBench-Subset",
-        "required_files": [
-            "vb_sample_001.mp4", "vb_sample_002.mp4", "vb_sample_003.mp4",
-            "vb_sample_004.mp4", "vb_sample_005.mp4", "vb_metadata.json"
-        ],
-        "checksums": {
-            "vb_sample_001.mp4": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "vb_sample_002.mp4": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "vb_sample_003.mp4": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "vb_sample_004.mp4": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "vb_sample_005.mp4": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            "vb_metadata.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        }
-    }
-}
-
-def calculate_file_hash(file_path: str, algorithm: str = 'sha256') -> str:
-    """Calculate the hash of a file."""
-    hash_func = hashlib.new(algorithm)
-    try:
-        with open(file_path, 'rb') as f:
-            for chunk in iter(lambda: f.read(4096), b''):
-                hash_func.update(chunk)
-        return hash_func.hexdigest()
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {file_path}")
-    except PermissionError:
-        raise PermissionError(f"Permission denied: {file_path}")
-
-def verify_checksums(dataset_name: str, data_dir: str) -> Tuple[bool, List[str]]:
+def calculate_file_hash(file_path: Path, algorithm: str = 'sha256') -> str:
     """
-    Verify that all required files exist and match their expected checksums.
+    Calculate the hash of a file.
     
-    Returns:
-        Tuple of (all_valid, list_of_missing_or_corrupted_files)
-    """
-    config = DATASET_CONFIG.get(dataset_name)
-    if not config:
-        raise ValueError(f"Unknown dataset: {dataset_name}")
-    
-    required_files = config['required_files']
-    expected_checksums = config['checksums']
-    missing_or_corrupted = []
-    
-    for file_name in required_files:
-        file_path = os.path.join(data_dir, file_name)
+    Args:
+        file_path: Path to the file
+        algorithm: Hash algorithm ('md5' or 'sha256')
         
-        if not os.path.exists(file_path):
-            missing_or_corrupted.append(f"Missing: {file_name}")
+    Returns:
+        Hex digest of the file hash
+        
+    Raises:
+        FileNotFoundError: If the file does not exist
+        ValueError: If the algorithm is unsupported
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    hash_obj = hashlib.new(algorithm)
+    with open(file_path, 'rb') as f:
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(8192), b''):
+            hash_obj.update(chunk)
+    
+    return hash_obj.hexdigest()
+
+def verify_checksums(manifest_path: Path) -> bool:
+    """
+    Verify file checksums against a manifest.
+    
+    Args:
+        manifest_path: Path to the JSON manifest file
+        
+    Returns:
+        True if all checksums match, False otherwise
+        
+    Raises:
+        FileNotFoundError: If manifest or data files are missing
+        ValidationError: If checksums do not match
+    """
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+    
+    with open(manifest_path, 'r') as f:
+        manifest = json.load(f)
+    
+    dataset_name = manifest.get('dataset_name')
+    files = manifest.get('files', [])
+    checksums = manifest.get('checksums', {})
+    
+    all_valid = True
+    missing_files = []
+    
+    for file_info in files:
+        relative_path = file_info.get('relative_path')
+        full_path = manifest_path.parent / relative_path
+        
+        if not full_path.exists():
+            logger.error(f"File missing: {full_path}")
+            missing_files.append(relative_path)
+            all_valid = False
             continue
         
-        try:
-            actual_hash = calculate_file_hash(file_path)
-            expected_hash = expected_checksums.get(file_name)
-            
-            if expected_hash and actual_hash != expected_hash:
-                missing_or_corrupted.append(f"Checksum mismatch: {file_name}")
-        except Exception as e:
-            missing_or_corrupted.append(f"Error reading {file_name}: {str(e)}")
+        # Verify MD5
+        if 'md5' in checksums.get(relative_path, {}):
+            expected_md5 = checksums[relative_path]['md5']
+            actual_md5 = calculate_file_hash(full_path, 'md5')
+            if actual_md5 != expected_md5:
+                logger.error(f"MD5 mismatch for {relative_path}: expected {expected_md5}, got {actual_md5}")
+                all_valid = False
+        
+        # Verify SHA256
+        if 'sha256' in checksums.get(relative_path, {}):
+            expected_sha256 = checksums[relative_path]['sha256']
+            actual_sha256 = calculate_file_hash(full_path, 'sha256')
+            if actual_sha256 != expected_sha256:
+                logger.error(f"SHA256 mismatch for {relative_path}: expected {expected_sha256}, got {actual_sha256}")
+                all_valid = False
     
-    return len(missing_or_corrupted) == 0, missing_or_corrupted
+    if missing_files:
+        raise DatasetNotFoundError(f"Missing files in {dataset_name}: {missing_files}")
+    
+    if not all_valid:
+        raise ValidationError(f"Checksum verification failed for {dataset_name}")
+    
+    logger.info(f"Checksum verification passed for {dataset_name}")
+    return True
 
-def download_dataset(dataset_name: str, target_dir: str, force: bool = False) -> bool:
+def download_dataset(dataset_name: str, force: bool = False) -> Path:
     """
     Download a dataset from HuggingFace.
     
-    Note: This is a placeholder implementation for the actual HuggingFace download logic.
-    In a real implementation, this would use the `datasets` library.
+    Args:
+        dataset_name: Name of the dataset to download
+        force: If True, re-download even if already present
+        
+    Returns:
+        Path to the downloaded dataset directory
+        
+    Raises:
+        RuntimeError: If download fails
     """
-    logger.info(f"Downloading dataset: {dataset_name} to {target_dir}")
+    try:
+        from datasets import load_dataset
+    except ImportError:
+        raise ImportError("The 'datasets' library is required. Install with: pip install datasets")
     
-    config = DATASET_CONFIG.get(dataset_name)
-    if not config:
-        logger.error(f"Unknown dataset: {dataset_name}")
-        return False
+    raw_dir = get_raw_dir()
+    raw_dir.mkdir(parents=True, exist_ok=True)
     
-    os.makedirs(target_dir, exist_ok=True)
+    dataset_path = raw_dir / dataset_name
     
-    # Simulate download for demonstration
-    # In real implementation, use: from datasets import load_dataset
-    # dataset = load_dataset(config['source'])
+    if dataset_path.exists() and not force:
+        logger.info(f"Dataset {dataset_name} already exists at {dataset_path}")
+        # Verify checksums if manifest exists
+        manifest_path = dataset_path / "manifest.json"
+        if manifest_path.exists():
+            try:
+                verify_checksums(manifest_path)
+                return dataset_path
+            except (DatasetNotFoundError, ValidationError) as e:
+                logger.warning(f"Existing dataset verification failed: {e}. Re-downloading...")
+                force = True
+        else:
+            logger.warning(f"No manifest found for {dataset_name}. Re-downloading...")
+            force = True
+    
+    if force and dataset_path.exists():
+        import shutil
+        logger.info(f"Removing existing dataset at {dataset_path}")
+        shutil.rmtree(dataset_path)
+    
+    logger.info(f"Downloading dataset: {dataset_name}")
+    
+    # Map dataset names to HuggingFace IDs
+    # These are placeholders; in a real scenario, these would be actual HF dataset IDs
+    hf_dataset_map = {
+        "NarrLV": "llmXive/NarrLV",
+        "VBench": "llmXive/VBench"
+    }
+    
+    if dataset_name not in hf_dataset_map:
+        raise ValueError(f"Unknown dataset: {dataset_name}")
+    
+    hf_id = hf_dataset_map[dataset_name]
     
     try:
-        # Create dummy files for testing (REMOVE IN PRODUCTION)
-        # This is only for local testing without actual dataset access
-        for file_name in config['required_files']:
-            file_path = os.path.join(target_dir, file_name)
-            if not os.path.exists(file_path) or force:
-                with open(file_path, 'w') as f:
-                    f.write(f"Dummy content for {file_name}\n")
-                    if file_name.endswith('.json'):
-                        f.write(json.dumps({"source": dataset_name, "version": "1.0"}))
+        dataset = load_dataset(hf_id, split="train")
+        dataset.save_to_disk(str(dataset_path))
         
-        logger.info(f"Dataset {dataset_name} downloaded successfully")
-        return True
+        # Create manifest
+        manifest = {
+            "dataset_name": dataset_name,
+            "version": "1.0.0",
+            "source": hf_id,
+            "created_at": None, # Would be set to datetime.now().isoformat()
+            "files": [],
+            "checksums": {}
+        }
+        
+        # Iterate over files to compute hashes and build manifest
+        # Note: This assumes the saved dataset structure has accessible files
+        # In practice, we might need to inspect the dataset object or the directory structure
+        for file_path in dataset_path.rglob("*"):
+            if file_path.is_file() and "state" not in str(file_path): # Skip internal state files
+                rel_path = file_path.relative_to(dataset_path)
+                file_size = file_path.stat().st_size
+                
+                manifest["files"].append({
+                    "path": str(file_path),
+                    "relative_path": str(rel_path),
+                    "size_bytes": file_size
+                })
+                
+                # Compute hashes
+                md5_hash = calculate_file_hash(file_path, 'md5')
+                sha256_hash = calculate_file_hash(file_path, 'sha256')
+                
+                manifest["checksums"][str(rel_path)] = {
+                    "md5": md5_hash,
+                    "sha256": sha256_hash
+                }
+        
+        # Save manifest
+        manifest_path = dataset_path / "manifest.json"
+        with open(manifest_path, 'w') as f:
+            json.dump(manifest, f, indent=2)
+        
+        logger.info(f"Dataset {dataset_name} downloaded and manifest created at {dataset_path}")
+        return dataset_path
+        
     except Exception as e:
-        logger.error(f"Failed to download dataset {dataset_name}: {str(e)}")
-        return False
+        logger.error(f"Failed to download dataset {dataset_name}: {e}")
+        raise RuntimeError(f"Download failed for {dataset_name}: {e}")
 
-def download_all_datasets(data_root: str, force: bool = False) -> Dict[str, bool]:
-    """Download all required datasets."""
-    results = {}
-    
-    for dataset_name in DATASET_CONFIG.keys():
-        target_dir = os.path.join(data_root, dataset_name)
-        success = download_dataset(dataset_name, target_dir, force)
-        results[dataset_name] = success
-    
-    return results
-
-def check_preflight_requirements(data_root: str) -> Tuple[bool, Dict[str, List[str]]]:
+def download_all_datasets(force: bool = False) -> List[Path]:
     """
-    Check if all required datasets are present and valid.
-    
-    Returns:
-        Tuple of (all_valid, dict of dataset_name -> list of issues)
-    """
-    issues = {}
-    all_valid = True
-    
-    for dataset_name in DATASET_CONFIG.keys():
-        data_dir = os.path.join(data_root, dataset_name)
-        
-        if not os.path.exists(data_dir):
-            issues[dataset_name] = [f"Directory not found: {data_dir}"]
-            all_valid = False
-            continue
-        
-        valid, missing_files = verify_checksums(dataset_name, data_dir)
-        
-        if not valid:
-            issues[dataset_name] = missing_files
-            all_valid = False
-        else:
-            logger.info(f"Dataset {dataset_name} is valid")
-    
-    return all_valid, issues
-
-def abort_on_missing_files(issues: Dict[str, List[str]]) -> None:
-    """
-    Log a clear error message listing all missing or corrupted files and exit.
+    Download all required datasets.
     
     Args:
-        issues: Dictionary mapping dataset names to lists of issue descriptions
+        force: If True, re-download all datasets
+        
+    Returns:
+        List of paths to downloaded datasets
     """
-    error_msg = "\n" + "="*80 + "\n"
-    error_msg += "CRITICAL ERROR: Missing or corrupted dataset files detected\n"
-    error_msg += "="*80 + "\n\n"
+    dataset_names = ["NarrLV", "VBench"]
+    downloaded_paths = []
     
-    for dataset_name, file_issues in issues.items():
-        error_msg += f"Dataset: {dataset_name}\n"
-        error_msg += "-" * 40 + "\n"
-        for issue in file_issues:
-            error_msg += f"  - {issue}\n"
-        error_msg += "\n"
+    for name in dataset_names:
+        try:
+            path = download_dataset(name, force=force)
+            downloaded_paths.append(path)
+        except Exception as e:
+            logger.error(f"Skipping {name} due to error: {e}")
+            # Continue with other datasets
     
-    error_msg += "="*80 + "\n"
-    error_msg += "Please ensure all required datasets are downloaded and valid.\n"
-    error_msg += "Run `python code/download.py` to download missing datasets.\n"
-    error_msg += "="*80 + "\n"
+    return downloaded_paths
+
+def check_preflight_requirements() -> Dict[str, bool]:
+    """
+    Check if all required dataset files exist.
     
-    logger.error(error_msg)
-    sys.exit(1)
+    Returns:
+        Dictionary mapping dataset names to existence status
+    """
+    raw_dir = get_raw_dir()
+    dataset_names = ["NarrLV", "VBench"]
+    status = {}
+    
+    for name in dataset_names:
+        dataset_path = raw_dir / name
+        manifest_path = dataset_path / "manifest.json"
+        
+        if not dataset_path.exists():
+            status[name] = False
+            logger.warning(f"Dataset {name} not found at {dataset_path}")
+        elif not manifest_path.exists():
+            status[name] = False
+            logger.warning(f"Manifest for {name} not found at {manifest_path}")
+        else:
+            # Verify checksums
+            try:
+                verify_checksums(manifest_path)
+                status[name] = True
+            except (DatasetNotFoundError, ValidationError) as e:
+                status[name] = False
+                logger.error(f"Verification failed for {name}: {e}")
+    
+    return status
+
+def abort_on_missing_files(status: Dict[str, bool]) -> None:
+    """
+    Abort execution if any required files are missing.
+    
+    Args:
+        status: Dictionary from check_preflight_requirements
+        
+    Raises:
+        DatasetNotFoundError: If any dataset is missing or invalid
+    """
+    missing = [name for name, exists in status.items() if not exists]
+    
+    if missing:
+        error_msg = (
+            f"CRITICAL: Required datasets are missing or invalid: {missing}\n"
+            "Please run `python code/download.py` to download the datasets.\n"
+            "If the issue persists, check your internet connection and HuggingFace access."
+        )
+        logger.error(error_msg)
+        raise DatasetNotFoundError(error_msg)
 
 def main():
-    parser = argparse.ArgumentParser(description="Download and validate datasets")
-    parser.add_argument('--force', action='store_true', help='Force re-download of datasets')
-    parser.add_argument('--data-root', type=str, default='data/raw', help='Root directory for data')
-    parser.add_argument('--validate-only', action='store_true', help='Only validate existing datasets')
+    """Main entry point for the download script."""
+    parser = argparse.ArgumentParser(description="Download and verify llmXive datasets")
+    parser.add_argument(
+        "--force", 
+        action="store_true", 
+        help="Force re-download of datasets even if they exist"
+    )
+    parser.add_argument(
+        "--verify-only", 
+        action="store_true", 
+        help="Only verify existing datasets, do not download"
+    )
     
     args = parser.parse_args()
     
-    if args.validate_only:
-        logger.info("Running validation only...")
-        all_valid, issues = check_preflight_requirements(args.data_root)
-        
-        if not all_valid:
-            abort_on_missing_files(issues)
+    if args.verify_only:
+        logger.info("Verifying existing datasets...")
+        status = check_preflight_requirements()
+        if all(status.values()):
+            logger.info("All datasets verified successfully.")
+            return 0
         else:
-            logger.info("All datasets are valid and ready for use.")
-            sys.exit(0)
+            missing = [name for name, exists in status.items() if not exists]
+            logger.error(f"Verification failed for: {missing}")
+            return 1
     
-    # Download datasets
     logger.info("Starting dataset download...")
-    results = download_all_datasets(args.data_root, args.force)
-    
-    if not all(results.values()):
-        failed_datasets = [name for name, success in results.items() if not success]
-        logger.error(f"Failed to download datasets: {', '.join(failed_datasets)}")
-        sys.exit(1)
-    
-    # Validate after download
-    logger.info("Validating downloaded datasets...")
-    all_valid, issues = check_preflight_requirements(args.data_root)
-    
-    if not all_valid:
-        abort_on_missing_files(issues)
-    
-    logger.info("All datasets downloaded and validated successfully.")
+    try:
+        paths = download_all_datasets(force=args.force)
+        if paths:
+            logger.info(f"Successfully downloaded {len(paths)} datasets.")
+            return 0
+        else:
+            logger.error("No datasets were downloaded.")
+            return 1
+    except Exception as e:
+        logger.error(f"Download failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

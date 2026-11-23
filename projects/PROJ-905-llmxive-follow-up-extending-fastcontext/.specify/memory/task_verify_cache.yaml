@@ -1,0 +1,23 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the directories `data/raw`, `data/processed`,
+    `data/results`, `code`, `tests/unit`, `tests/integration`, `specs/contracts`,
+    and `state` exist under `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/`.
+    Without confirming the presence of this project structure, the task requirement
+    is not satisfied.
+T002:
+  c: false
+  h: e8e92197a401326433d2da4e3d355acb1ee68baf650fa6dd60cc6aea11bb613e
+  r: "The required file `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt`\
+    \ does not exist, and the existing `requirements.txt` files contain only package\
+    \ lists, not the full specification excerpt the task expects. The task\u2019s\
+    \ core requirement is therefore unmet."
+T023:
+  c: false
+  h: 882bb003344b96dbe2e11e8457192682aa149f02342da9508a0dd8ae5146df93
+  r: "The `code/main.py` file is present but the shown implementation is truncated,\
+    \ contains placeholder repository loading, and never reaches the parts that would\
+    \ actually invoke the Lite and Baseline pipelines or write log entries. Moreover,\
+    \ the required output file `data/results/exploration_logs.jsonl` is missing entirely.\
+    \ The task\u2019s core requirements are therefore not satisfied."

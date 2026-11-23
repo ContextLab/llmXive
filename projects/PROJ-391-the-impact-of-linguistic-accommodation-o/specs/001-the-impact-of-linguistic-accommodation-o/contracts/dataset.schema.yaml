@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Processed Dialogue Dataset Schema"
-description: "Schema for the processed dialogue dataset containing accommodation metrics, proxy emotion scores, and optional human empathy ratings."
+description: "Schema for the processed dialogue dataset containing accommodation metrics and dialogue-level emotion scores."
 type: object
 properties:
   conversation_id:
@@ -9,18 +9,18 @@ properties:
   turn_index:
     type: integer
     description: "Index of the turn within the conversation."
-  user_turn:
+  text:
     type: string
-    description: "Normalized text of the user's turn."
-  ai_response:
+    description: "Normalized text of the first turn in the pair."
+  partner_turn:
     type: string
-    description: "Normalized text of the proxy AI response."
-  emotion_label:
+    description: "Normalized text of the adjacent turn."
+  dialogue_emotion_label:
     type: string
     description: "Emotion label from the source (e.g., \"Joy\")."
   lexical_overlap:
     type: number
-    description: "Jaccard similarity of token sets between user and AI."
+    description: "Jaccard similarity of token sets between turns."
     minimum: 0.0
     maximum: 1.0
   syntactic_similarity:
@@ -28,14 +28,19 @@ properties:
     description: "Jaccard similarity of POS tag sets."
     minimum: 0.0
     maximum: 1.0
+  bigram_overlap:
+    type: number
+    description: "Jaccard similarity of bigram sets."
+    minimum: 0.0
+    maximum: 1.0
   dependency_similarity:
     type: number
-    description: "Jaccard similarity of dependency relation labels."
+    description: "Jaccard similarity of dependency relation labels (optional)."
     minimum: 0.0
     maximum: 1.0
   sentence_length_variance:
     type: number
-    description: "Variance of sentence lengths in the AI response."
+    description: "Variance of sentence lengths in the turns."
     minimum: 0.0
   emotion_mapped_score:
     type: integer
@@ -51,26 +56,16 @@ properties:
     description: "Dominant LDA cluster ID (k=10)."
     minimum: 0
     maximum: 9
-  is_validation_subset:
-    type: boolean
-    description: "True if record belongs to the n = 30 manual rating set."
-  human_empathy_rating:
-    type: integer
-    description: "Human‑rated empathy score (1‑5) for AI responses (optional, present only for validation subset)."
-    minimum: 1
-    maximum: 5
 required:
   - conversation_id
   - turn_index
-  - user_turn
-  - ai_response
+  - text
+  - partner_turn
   - lexical_overlap
   - syntactic_similarity
-  - dependency_similarity
   - sentence_length_variance
-  - emotion_label
+  - dialogue_emotion_label
   - emotion_mapped_score
   - word_count
   - lda_topic_id
-  - is_validation_subset
 additionalProperties: false

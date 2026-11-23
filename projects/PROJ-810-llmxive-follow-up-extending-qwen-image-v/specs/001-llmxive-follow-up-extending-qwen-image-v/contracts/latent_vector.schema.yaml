@@ -29,8 +29,8 @@ properties:
       - "cpu"
     description: "Device used for encoding."
 required:
-  - vector_id
-  - source_region
-  - encoding_time_ms
-  - model_version
-  - device
+  - "vector_id"
+  - "source_region"
+  - "encoding_time_ms"
+  - "model_version"
+  - "device"

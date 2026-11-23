@@ -1,244 +1,223 @@
 """
-Contract test for metadata schema validation.
+Contract test for metadata schema.
+Implements validate_metadata_schema function to ensure metadata.csv
+conforms to the required schema defined in the project specifications.
 
-This module implements the validate_metadata_schema function to ensure
-that metadata retrieved from the NASA Exoplanet Archive conforms to the
-expected schema required for User Story 1 (Data Acquisition and Pre-processing).
-
-Dependencies:
-- T011b (code/download.py) must define the expected schema structure.
+Depends on T007 (base data models).
 """
 
+import os
+import sys
 import pandas as pd
-from typing import List, Dict, Any, Optional
-import logging
+import pytest
+from pathlib import Path
 
-# Configure logging for the test module
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Add parent directory to path for imports if running standalone
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-# Required columns based on T011b requirements and User Story 1 goals
+from data_models import PlanetCategory
+
+# Required columns as per T012 specification
 REQUIRED_COLUMNS = [
-    'planet_name',
-    'host_star_name',
-    'equilibrium_temperature',  # K
-    'host_metallicity',         # [Fe/H]
-    'spectral_resolution',      # R
-    'signal_to_noise_ratio',    # SNR
-    'planet_category',          # 'Hot Jupiter' or 'Super Earth'
-    'spectrum_file_path',
-    'upper_limit_flag'          # Boolean indicating censored data
+    "planet_name",
+    "temperature",
+    "metallicity",
+    "snr",
+    "resolution",
+    "planet_category",
+    "instrument",
+    "wavelength_range"
 ]
 
-# Column type expectations
+# Expected data types for validation
 COLUMN_TYPES = {
-    'planet_name': str,
-    'host_star_name': str,
-    'equilibrium_temperature': (int, float),
-    'host_metallicity': (int, float),
-    'spectral_resolution': (int, float),
-    'signal_to_noise_ratio': (int, float),
-    'planet_category': str,
-    'spectrum_file_path': str,
-    'upper_limit_flag': bool
+    "planet_name": str,
+    "temperature": (int, float),
+    "metallicity": (int, float),
+    "snr": (int, float),
+    "resolution": (int, float),
+    "planet_category": str,
+    "instrument": str,
+    "wavelength_range": str
 }
 
-# Valid values for categorical columns
-VALID_CATEGORIES = {'Hot Jupiter', 'Super Earth'}
+# Valid categories based on T011c classification logic
+VALID_CATEGORIES = {"Hot Jupiter", "Temperate Super-Earth"}
 
-def validate_metadata_schema(df: pd.DataFrame) -> Dict[str, Any]:
+def validate_metadata_schema(df: pd.DataFrame) -> dict:
     """
-    Validates that a DataFrame conforms to the expected metadata schema.
-    
-    This function checks:
-    1. All required columns are present
-    2. Column data types match expectations
-    3. Categorical columns contain valid values
-    4. No critical columns have null values (except upper_limit_flag which can be False)
+    Validate that a DataFrame conforms to the metadata schema.
     
     Args:
-        df: pandas DataFrame containing exoplanet metadata
-        
+        df: DataFrame to validate (expected from data/processed/metadata.csv)
+    
     Returns:
-        Dict with validation results:
-        - 'valid': bool indicating if schema is valid
-        - 'errors': list of error messages
-        - 'warnings': list of warning messages
-        - 'missing_columns': list of missing required columns
-        - 'type_errors': dict of columns with type mismatches
-        - 'null_counts': dict of null counts per required column
+        dict: Validation results with 'valid' boolean and 'errors' list
     """
-    result = {
-        'valid': True,
-        'errors': [],
-        'warnings': [],
-        'missing_columns': [],
-        'type_errors': {},
-        'null_counts': {}
-    }
+    errors = []
+    warnings = []
     
-    if df is None or df.empty:
-        result['valid'] = False
-        result['errors'].append("DataFrame is None or empty")
-        return result
+    # Check 1: Required columns exist
+    missing_columns = set(REQUIRED_COLUMNS) - set(df.columns)
+    if missing_columns:
+        errors.append(f"Missing required columns: {missing_columns}")
     
-    # Check for required columns
-    missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-    if missing:
-        result['valid'] = False
-        result['missing_columns'] = missing
-        result['errors'].append(f"Missing required columns: {missing}")
-    
-    # Check data types for columns that exist
+    # Check 2: Column data types
     for col, expected_type in COLUMN_TYPES.items():
         if col in df.columns:
-            # Check if any non-null values have wrong type
-            non_null = df[col].dropna()
-            if len(non_null) > 0:
-                if not all(isinstance(val, expected_type) for val in non_null):
-                    result['valid'] = False
-                    result['type_errors'][col] = f"Expected {expected_type}, got mixed types"
-                    result['errors'].append(f"Type mismatch in column '{col}'")
-        
-    # Check for null values in critical columns
-    critical_columns = ['equilibrium_temperature', 'host_metallicity', 
-                      'spectral_resolution', 'signal_to_noise_ratio',
-                      'planet_category']
+            # Check for non-null values first
+            if df[col].isnull().any():
+                errors.append(f"Column '{col}' contains null values")
+            
+            # Type checking (allow numeric types to be int or float)
+            if not df[col].apply(lambda x: isinstance(x, expected_type) if isinstance(expected_type, tuple) else isinstance(x, expected_type)).all():
+                errors.append(f"Column '{col}' has incorrect data type. Expected {expected_type}")
     
-    for col in critical_columns:
-        if col in df.columns:
-            null_count = df[col].isnull().sum()
-            result['null_counts'][col] = null_count
-            if null_count > 0:
-                result['warnings'].append(
-                    f"Column '{col}' has {null_count} null values"
-                )
-    
-    # Validate planet_category values
-    if 'planet_category' in df.columns:
-        invalid_categories = set(df['planet_category'].dropna().unique()) - VALID_CATEGORIES
+    # Check 3: Planet category validity
+    if "planet_category" in df.columns:
+        invalid_categories = set(df["planet_category"].unique()) - VALID_CATEGORIES
         if invalid_categories:
-            result['valid'] = False
-            result['errors'].append(
-                f"Invalid planet categories found: {invalid_categories}"
-            )
+            errors.append(f"Invalid planet categories found: {invalid_categories}")
     
-    # Validate upper_limit_flag is boolean
-    if 'upper_limit_flag' in df.columns:
-        non_bool = df['upper_limit_flag'].dropna()
-        if len(non_bool) > 0 and not all(isinstance(val, bool) for val in non_bool):
-            result['valid'] = False
-            result['errors'].append("upper_limit_flag must be boolean")
+    # Check 4: Numeric ranges (basic sanity checks)
+    if "temperature" in df.columns:
+        if (df["temperature"] <= 0).any():
+            errors.append("Temperature values must be positive")
     
-    return result
+    if "snr" in df.columns:
+        if (df["snr"] < 0).any():
+            errors.append("SNR values cannot be negative")
+    
+    if "resolution" in df.columns:
+        if (df["resolution"] <= 0).any():
+            errors.append("Resolution values must be positive")
+    
+    # Check 5: Row count sanity (from T013b requirement)
+    if len(df) == 0:
+        warnings.append("Metadata file is empty (0 rows)")
+    
+    return {
+        "valid": len(errors) == 0,
+        "errors": errors,
+        "warnings": warnings,
+        "row_count": len(df),
+        "column_count": len(df.columns)
+    }
 
-
-def test_validate_metadata_schema_basic():
-    """Test basic schema validation with valid data."""
-    valid_data = pd.DataFrame({
-        'planet_name': ['WASP-12b', 'GJ 1214b'],
-        'host_star_name': ['WASP-12', 'GJ 1214'],
-        'equilibrium_temperature': [2500.0, 500.0],
-        'host_metallicity': [0.1, -0.2],
-        'spectral_resolution': [100.0, 50.0],
-        'signal_to_noise_ratio': [15.0, 8.0],
-        'planet_category': ['Hot Jupiter', 'Super Earth'],
-        'spectrum_file_path': ['/data/raw/wasp12.fits', '/data/raw/gj1214.fits'],
-        'upper_limit_flag': [False, False]
-    })
+def test_validate_metadata_schema_valid_file():
+    """Test validation against a valid metadata file if it exists."""
+    metadata_path = Path(__file__).parent.parent.parent / "data" / "processed" / "metadata.csv"
     
-    result = validate_metadata_schema(valid_data)
-    assert result['valid'] is True
-    assert len(result['errors']) == 0
-    logger.info("✓ Basic valid schema test passed")
+    if not metadata_path.exists():
+        pytest.skip(f"Test data not available: {metadata_path}")
+    
+    df = pd.read_csv(metadata_path)
+    result = validate_metadata_schema(df)
+    
+    assert result["valid"] is True, f"Validation failed: {result['errors']}"
+    assert result["row_count"] > 0, "Expected non-empty dataset"
 
 def test_validate_metadata_schema_missing_columns():
-    """Test validation with missing required columns."""
-    incomplete_data = pd.DataFrame({
-        'planet_name': ['WASP-12b'],
-        'host_star_name': ['WASP-12']
+    """Test validation fails when required columns are missing."""
+    df = pd.DataFrame({
+        "planet_name": ["test"],
+        "temperature": [1000.0]
     })
+    result = validate_metadata_schema(df)
     
-    result = validate_metadata_schema(incomplete_data)
-    assert result['valid'] is False
-    assert len(result['missing_columns']) > 0
-    assert 'equilibrium_temperature' in result['missing_columns']
-    logger.info("✓ Missing columns test passed")
-
-def test_validate_metadata_schema_invalid_categories():
-    """Test validation with invalid planet categories."""
-    invalid_data = pd.DataFrame({
-        'planet_name': ['Test Planet'],
-        'host_star_name': ['Test Star'],
-        'equilibrium_temperature': [1000.0],
-        'host_metallicity': [0.0],
-        'spectral_resolution': [100.0],
-        'signal_to_noise_ratio': [10.0],
-        'planet_category': ['Unknown Type'],  # Invalid
-        'spectrum_file_path': ['/data/raw/test.fits'],
-        'upper_limit_flag': [False]
-    })
-    
-    result = validate_metadata_schema(invalid_data)
-    assert result['valid'] is False
-    assert any('Invalid planet categories' in err for err in result['errors'])
-    logger.info("✓ Invalid categories test passed")
+    assert result["valid"] is False
+    assert any("Missing required columns" in err for err in result["errors"])
 
 def test_validate_metadata_schema_null_values():
-    """Test validation with null values in critical columns."""
-    null_data = pd.DataFrame({
-        'planet_name': ['WASP-12b'],
-        'host_star_name': ['WASP-12'],
-        'equilibrium_temperature': [None],  # Null critical value
-        'host_metallicity': [0.1],
-        'spectral_resolution': [100.0],
-        'signal_to_noise_ratio': [15.0],
-        'planet_category': ['Hot Jupiter'],
-        'spectrum_file_path': ['/data/raw/wasp12.fits'],
-        'upper_limit_flag': [False]
+    """Test validation fails when required columns have null values."""
+    df = pd.DataFrame({
+        "planet_name": [None],
+        "temperature": [1000.0],
+        "metallicity": [0.0],
+        "snr": [10.0],
+        "resolution": [50.0],
+        "planet_category": ["Hot Jupiter"],
+        "instrument": ["HST"],
+        "wavelength_range": ["0.5-2.5"]
     })
+    result = validate_metadata_schema(df)
     
-    result = validate_metadata_schema(null_data)
-    assert result['valid'] is True  # Schema is valid, but warnings should exist
-    assert 'equilibrium_temperature' in result['null_counts']
-    assert result['null_counts']['equilibrium_temperature'] == 1
-    assert any('null values' in w for w in result['warnings'])
-    logger.info("✓ Null values test passed")
+    assert result["valid"] is False
+    assert any("null values" in err for err in result["errors"])
 
-def test_validate_metadata_schema_empty_dataframe():
-    """Test validation with empty DataFrame."""
-    empty_data = pd.DataFrame()
-    
-    result = validate_metadata_schema(empty_data)
-    assert result['valid'] is False
-    assert any('empty' in err for err in result['errors'])
-    logger.info("✓ Empty DataFrame test passed")
-
-def test_validate_metadata_schema_type_mismatch():
-    """Test validation with type mismatches."""
-    type_mismatch_data = pd.DataFrame({
-        'planet_name': ['WASP-12b'],
-        'host_star_name': ['WASP-12'],
-        'equilibrium_temperature': ['2500.0'],  # String instead of number
-        'host_metallicity': [0.1],
-        'spectral_resolution': [100.0],
-        'signal_to_noise_ratio': [15.0],
-        'planet_category': ['Hot Jupiter'],
-        'spectrum_file_path': ['/data/raw/wasp12.fits'],
-        'upper_limit_flag': [False]
+def test_validate_metadata_schema_invalid_category():
+    """Test validation fails when planet category is invalid."""
+    df = pd.DataFrame({
+        "planet_name": ["test"],
+        "temperature": [1000.0],
+        "metallicity": [0.0],
+        "snr": [10.0],
+        "resolution": [50.0],
+        "planet_category": ["Invalid Category"],
+        "instrument": ["HST"],
+        "wavelength_range": ["0.5-2.5"]
     })
+    result = validate_metadata_schema(df)
     
-    result = validate_metadata_schema(type_mismatch_data)
-    assert result['valid'] is False
-    assert 'equilibrium_temperature' in result['type_errors']
-    logger.info("✓ Type mismatch test passed")
+    assert result["valid"] is False
+    assert any("Invalid planet categories" in err for err in result["errors"])
+
+def test_validate_metadata_schema_negative_values():
+    """Test validation fails for physically impossible negative values."""
+    df = pd.DataFrame({
+        "planet_name": ["test"],
+        "temperature": [-100.0],
+        "metallicity": [0.0],
+        "snr": [10.0],
+        "resolution": [50.0],
+        "planet_category": ["Hot Jupiter"],
+        "instrument": ["HST"],
+        "wavelength_range": ["0.5-2.5"]
+    })
+    result = validate_metadata_schema(df)
+    
+    assert result["valid"] is False
+    assert any("Temperature values must be positive" in err for err in result["errors"])
 
 if __name__ == "__main__":
-    logger.info("Running metadata schema contract tests...")
-    test_validate_metadata_schema_basic()
-    test_validate_metadata_schema_missing_columns()
-    test_validate_metadata_schema_invalid_categories()
-    test_validate_metadata_schema_null_values()
-    test_validate_metadata_schema_empty_dataframe()
-    test_validate_metadata_schema_type_mismatch()
-    logger.info("All contract tests passed!")
+    # Run basic self-test
+    print("Running contract test for metadata schema...")
+    
+    # Test 1: Valid schema structure
+    test_df = pd.DataFrame({
+        "planet_name": ["HD 209458 b"],
+        "temperature": [1450.0],
+        "metallicity": [0.0],
+        "snr": [15.0],
+        "resolution": [100.0],
+        "planet_category": ["Hot Jupiter"],
+        "instrument": ["HST"],
+        "wavelength_range": ["0.6-1.7"]
+    })
+    
+    result = validate_metadata_schema(test_df)
+    assert result["valid"], f"Valid test failed: {result['errors']}"
+    print("✓ Valid schema test passed")
+    
+    # Test 2: Missing columns
+    invalid_df = pd.DataFrame({"planet_name": ["test"]})
+    result = validate_metadata_schema(invalid_df)
+    assert not result["valid"], "Missing columns test should fail"
+    print("✓ Missing columns test passed")
+    
+    # Test 3: Invalid category
+    invalid_df = pd.DataFrame({
+        "planet_name": ["test"],
+        "temperature": [1000.0],
+        "metallicity": [0.0],
+        "snr": [10.0],
+        "resolution": [50.0],
+        "planet_category": ["Unknown"],
+        "instrument": ["HST"],
+        "wavelength_range": ["0.5-2.5"]
+    })
+    result = validate_metadata_schema(invalid_df)
+    assert not result["valid"], "Invalid category test should fail"
+    print("✓ Invalid category test passed")
+    
+    print("All contract tests passed.")

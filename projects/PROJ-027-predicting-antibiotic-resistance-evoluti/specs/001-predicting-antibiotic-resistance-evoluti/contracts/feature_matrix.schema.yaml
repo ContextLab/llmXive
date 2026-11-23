@@ -1,5 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Feature Matrix Schema
+title: "Feature Matrix Schema"
 description: "Schema for the processed genomic feature matrix used in modeling."
 type: object
 properties:

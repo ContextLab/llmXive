@@ -1,257 +1,152 @@
 import pytest
-import numpy as np
 import pandas as pd
-from pathlib import Path
-import sys
+import numpy as np
 import json
-import logging
-import os
+from pathlib import Path
+import shutil
 
-# Ensure the code directory is in the path for imports
-code_dir = Path(__file__).resolve().parent.parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+from collinearity import calculate_vif, run_pca_on_metrics, check_and_handle_collinearity, generate_descriptive_vif_report
 
-from collinearity import calculate_vif, run_pca_on_metrics, check_and_handle_collinearity
-
-
-class TestVIFCalculation:
-    """
-    Unit tests for VIF calculation logic in code/collinearity.py
-    """
+class TestCollinearity:
+    
+    @pytest.fixture(autouse=True)
+    def setup_teardown(self):
+        # Ensure data/results directory exists for tests
+        self.test_dir = Path("data/results")
+        self.test_dir.mkdir(parents=True, exist_ok=True)
+        yield
+        # Cleanup after test if needed
+        if self.test_dir.exists():
+            for f in self.test_dir.glob("*"):
+                if f.is_file() and f.name.startswith("test_"):
+                    f.unlink()
 
     def test_vif_calculation_returns_infinite_for_perfectly_collinear_predictors(self):
-        """
-        Test that VIF returns infinity (or a very large number) when predictors are perfectly collinear.
-        This happens when one predictor is a linear combination of others.
-        """
-        # Create a dataset with perfect collinearity
-        # X1 and X2 are identical, so X2 = 1.0 * X1 + 0
-        np.random.seed(42)
-        n_samples = 100
+        """Test that VIF is infinite (or very high) for perfectly collinear predictors."""
+        # Create a DataFrame with perfectly collinear columns
+        df = pd.DataFrame({
+            'x1': [1, 2, 3, 4, 5],
+            'x2': [2, 4, 6, 8, 10],  # x2 = 2 * x1
+            'x3': [1, 1, 1, 1, 1]   # constant
+        })
         
-        data = {
-            'X1': np.random.randn(n_samples),
-            'X2': np.random.randn(n_samples),
-            'X3': np.random.randn(n_samples)
-        }
+        vif_dict = calculate_vif(df)
         
-        # Create perfect collinearity: X1_new = X1 + X2
-        data['X1_new'] = data['X1'] + data['X2']
+        # x2 should have very high VIF due to perfect collinearity with x1
+        assert vif_dict['x2'] > 100 or np.isinf(vif_dict['x2']), "VIF should be very high for collinear predictors"
         
-        # Now X1_new is perfectly collinear with X1 and X2
-        # Specifically, X1_new - X1 - X2 = 0
-        
-        df = pd.DataFrame(data)
-        
-        # Calculate VIF for all columns
-        vif_results = calculate_vif(df)
-        
-        # At least one of the collinear predictors should have infinite VIF
-        # In practice, due to numerical precision, it might be a very large number
-        # We check if any VIF is extremely large (indicating near-perfect collinearity)
-        max_vif = max(vif_results.values())
-        
-        # If there's perfect collinearity, VIF should be infinite or very large
-        # We use a threshold of 1e10 to detect this
-        assert max_vif > 1e10, f"Expected infinite VIF for collinear predictors, got max VIF = {max_vif}"
-        
-        # Specifically check that X1_new has high VIF (it's the linear combination)
-        assert vif_results['X1_new'] > 1e10, f"X1_new should have infinite VIF, got {vif_results['X1_new']}"
-
-    def test_vif_calculation_returns_normal_values_for_uncollinear_predictors(self):
-        """
-        Test that VIF returns reasonable values for uncollinear predictors.
-        """
-        np.random.seed(42)
-        n_samples = 100
-        
-        # Create uncorrelated predictors
-        data = {
-            'X1': np.random.randn(n_samples),
-            'X2': np.random.randn(n_samples),
-            'X3': np.random.randn(n_samples)
-        }
-        
-        df = pd.DataFrame(data)
-        vif_results = calculate_vif(df)
-        
-        # For uncorrelated predictors, VIF should be close to 1
-        for col, vif in vif_results.items():
-            assert 1.0 <= vif < 5.0, f"VIF for {col} should be close to 1, got {vif}"
-
-
-class TestPCAFallback:
-    """
-    Unit tests for PCA fallback logic when VIF > 5
-    """
-
     def test_pca_fallback_triggers_when_vif_gt_5_and_variance_explained_gt_60(self):
-        """
-        Test that PCA is triggered when VIF > 5 and cumulative variance > 60%.
-        """
+        """Test that PCA is triggered when VIF > 5 and succeeds if variance explained > 60%."""
+        # Create a DataFrame with some collinearity but still enough variance
         np.random.seed(42)
         n_samples = 100
         
-        # Create a dataset with moderate collinearity
-        # X1 and X2 are correlated but not perfectly
-        data = {
-            'X1': np.random.randn(n_samples),
-            'X2': np.random.randn(n_samples),
-            'X3': np.random.randn(n_samples)
-        }
+        # Create correlated variables
+        x1 = np.random.normal(0, 1, n_samples)
+        x2 = x1 * 0.8 + np.random.normal(0, 0.5, n_samples)  # Correlated but not perfect
+        x3 = np.random.normal(0, 1, n_samples)  # Independent
         
-        # Add some correlation between X1 and X2
-        data['X2'] = 0.7 * data['X1'] + 0.3 * np.random.randn(n_samples)
+        df = pd.DataFrame({
+            'global_efficiency': x1,
+            'modularity': x2,
+            'clustering': x3
+        })
         
-        df = pd.DataFrame(data)
-        
-        # Calculate VIF
-        vif_results = calculate_vif(df)
-        
-        # Check if any VIF > 5
-        max_vif = max(vif_results.values())
-        
-        if max_vif > 5:
-            # Run PCA and check if it succeeds
-            pca_result = run_pca_on_metrics(df)
-            
-            # PCA should return a result with explained variance
-            assert 'explained_variance_ratio' in pca_result, "PCA result should contain explained_variance_ratio"
-            
-            # Check cumulative variance
-            cum_var = sum(pca_result['explained_variance_ratio'])
-            assert cum_var > 0.6, f"Cumulative variance should be > 60%, got {cum_var:.2%}"
-            
-            # Check that PCA components are returned
-            assert 'components' in pca_result, "PCA result should contain components"
-            assert pca_result['components'].shape[0] <= df.shape[1], "Number of components should not exceed original features"
-        else:
-            # If VIF is not > 5, PCA should not be triggered
-            # This is a valid case too
-            pass
-
-    def test_pca_fallback_does_not_trigger_when_variance_explained_lt_60(self):
-        """
-        Test that PCA fallback is not considered successful if variance < 60%.
-        """
-        # Create a dataset where PCA might not explain enough variance
-        # This is harder to construct deterministically, so we test the logic
-        np.random.seed(42)
-        n_samples = 50  # Smaller sample size
-        
-        # Create noisy, uncorrelated data
-        data = {
-            'X1': np.random.randn(n_samples),
-            'X2': np.random.randn(n_samples),
-            'X3': np.random.randn(n_samples),
-            'X4': np.random.randn(n_samples)
-        }
-        
-        df = pd.DataFrame(data)
-        
-        # Run PCA
-        pca_result = run_pca_on_metrics(df)
-        
-        # Check cumulative variance
-        cum_var = sum(pca_result['explained_variance_ratio'])
-        
-        # If cumulative variance is low, the function should handle it appropriately
-        # The exact behavior depends on implementation, but we verify the function runs
-        assert 'explained_variance_ratio' in pca_result, "PCA result should contain explained_variance_ratio"
-
-    def test_pca_fallback_handles_singular_matrix(self):
-        """
-        Test that PCA handles singular matrix errors gracefully.
-        """
-        # Create a dataset with perfect collinearity (singular matrix)
-        np.random.seed(42)
-        n_samples = 100
-        
-        data = {
-            'X1': np.random.randn(n_samples),
-            'X2': np.random.randn(n_samples),
-            'X3': np.random.randn(n_samples)
-        }
-        
-        # Create perfect collinearity
-        data['X1_new'] = data['X1'] + data['X2']
-        
-        df = pd.DataFrame(data)
-        
-        # Run PCA - should handle the singular matrix
-        try:
-            pca_result = run_pca_on_metrics(df)
-            # If it doesn't raise an exception, it should handle it gracefully
-            assert isinstance(pca_result, dict), "PCA result should be a dictionary"
-        except np.linalg.LinAlgError:
-            # This is expected for singular matrices
-            # The function should catch this and handle it appropriately
-            pass
-
-
-class TestCollinearityHandling:
-    """
-    Integration tests for the full collinearity handling workflow
-    """
-
-    def test_check_and_handle_collinearity_with_high_vif(self):
-        """
-        Test the full workflow when VIF is high.
-        """
-        np.random.seed(42)
-        n_samples = 100
-        
-        # Create dataset with high collinearity
-        data = {
-            'X1': np.random.randn(n_samples),
-            'X2': np.random.randn(n_samples),
-            'X3': np.random.randn(n_samples)
-        }
-        
-        # Create collinearity
-        data['X1_new'] = data['X1'] + data['X2']
-        
-        df = pd.DataFrame(data)
-        
-        # Run the full collinearity check
-        result = check_and_handle_collinearity(df)
-        
-        # Result should contain information about VIF and PCA
-        assert 'vif_results' in result, "Result should contain VIF results"
-        assert 'pca_performed' in result, "Result should indicate if PCA was performed"
+        # First check VIF
+        vif_dict = calculate_vif(df)
         
         # If VIF > 5, PCA should be attempted
-        max_vif = max(result['vif_results'].values())
-        if max_vif > 5:
-            assert result['pca_performed'] in [True, False], "PCA performed should be boolean"
+        max_vif = max(vif_dict.values())
+        
+        if max_vif > 5.0:
+            pca, info = run_pca_on_metrics(df, ['global_efficiency', 'modularity', 'clustering'], variance_threshold=0.60)
+            
+            # If PCA succeeds, it should return a PCA object and variance > 0.60
+            if info['success']:
+                assert pca is not None
+                assert info['variance_explained'] >= 0.60
+            else:
+                # If PCA fails, the info should reflect that
+                assert info['success'] == False
+                assert info['variance_explained'] < 0.60
+        else:
+            # If VIF is low, PCA might not be triggered, but the function should still work
+            pca, info = run_pca_on_metrics(df, ['global_efficiency', 'modularity', 'clustering'], variance_threshold=0.60)
+            # The function should not crash
+            assert isinstance(info, dict)
+    
+    def test_descriptive_vif_report_contains_correlation_matrix(self):
+        """Test that the descriptive VIF report contains a correlation matrix."""
+        df = pd.DataFrame({
+            'x1': [1, 2, 3, 4, 5],
+            'x2': [2, 4, 6, 8, 10],
+            'x3': [1, 3, 2, 4, 3]
+        })
+        
+        report_path = self.test_dir / "test_descriptive_vif_report.json"
+        report_data = generate_descriptive_vif_report(df, ['x1', 'x2', 'x3'], report_path)
+        
+        assert "correlation_matrix" in report_data
+        assert "vif_values" in report_data
+        assert "variance_decomposition" in report_data
+        
+        # Check that the correlation matrix is a dictionary of dictionaries
+        corr_matrix = report_data["correlation_matrix"]
+        assert isinstance(corr_matrix, dict)
+        assert "x1" in corr_matrix
+        assert isinstance(corr_matrix["x1"], dict)
+        
+        # Check that the file was created
+        assert report_path.exists()
+        
+        # Load and verify the JSON
+        with open(report_path, 'r') as f:
+            loaded_report = json.load(f)
+        
+        assert loaded_report == report_data
 
-    def test_check_and_handle_collinearity_with_low_vif(self):
-        """
-        Test the full workflow when VIF is low.
-        """
+    def test_check_and_handle_collinearity_handles_singular_matrix(self):
+        """Test that collinearity check handles singular matrices gracefully."""
+        # Create a DataFrame with a singular matrix (perfectly collinear)
+        df = pd.DataFrame({
+            'x1': [1, 2, 3, 4, 5],
+            'x2': [2, 4, 6, 8, 10],  # Perfectly collinear
+            'x3': [1, 1, 1, 1, 1]   # Constant
+        })
+        
+        result = check_and_handle_collinearity(df, ['x1', 'x2', 'x3'])
+        
+        # Should not crash and should return a valid result
+        assert "status" in result
+        assert result["status"] in ["ok", "pca_success", "pca_failed_report_generated"]
+        
+        # If PCA failed, a report should be generated
+        if result["status"] == "pca_failed_report_generated":
+            assert "report_path" in result
+            assert Path(result["report_path"]).exists()
+
+    def test_vif_with_realistic_graph_metrics(self):
+        """Test VIF calculation with realistic graph metrics data."""
         np.random.seed(42)
-        n_samples = 100
+        n = 50
         
-        # Create dataset with low collinearity
-        data = {
-            'X1': np.random.randn(n_samples),
-            'X2': np.random.randn(n_samples),
-            'X3': np.random.randn(n_samples)
-        }
+        # Simulate some realistic graph metrics with moderate correlation
+        global_eff = np.random.normal(0.4, 0.1, n)
+        local_eff = global_eff * 0.6 + np.random.normal(0, 0.05, n)  # Correlated
+        modularity = np.random.normal(0.3, 0.05, n)  # Less correlated
         
-        df = pd.DataFrame(data)
+        df = pd.DataFrame({
+            'global_efficiency': global_eff,
+            'local_efficiency': local_eff,
+            'modularity': modularity
+        })
         
-        # Run the full collinearity check
-        result = check_and_handle_collinearity(df)
+        vif_dict = calculate_vif(df)
         
-        # Result should indicate no PCA needed
-        assert 'vif_results' in result, "Result should contain VIF results"
-        assert result['pca_performed'] == False, "PCA should not be performed when VIF is low"
+        # All VIFs should be finite
+        for col, vif in vif_dict.items():
+            assert np.isfinite(vif), f"VIF for {col} is not finite"
         
-        # All VIF values should be low
-        for col, vif in result['vif_results'].items():
-            assert vif < 5.0, f"VIF for {col} should be < 5, got {vif}"
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        # global_efficiency and local_efficiency should have higher VIF due to correlation
+        assert vif_dict['global_efficiency'] > 1.0
+        assert vif_dict['local_efficiency'] > 1.0

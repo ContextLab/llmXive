@@ -1,3 +1,1 @@
-"""
-Data validation modules.
-"""
+"""Data validation modules."""

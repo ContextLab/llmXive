@@ -9,75 +9,61 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does optimizing the stateful context compression strategy within an agent harness yield greater improvements in Pass@1 and cost-efficiency than optimizing the underlying LLM backbone for long-horizon coding tasks?
+How does the fidelity of context compression strategies modulate the reasoning capacity of language models on long-horizon coding tasks, and does this interaction reveal a fundamental trade-off where context optimization can substitute for model scaling in specific reasoning regimes?
 
 ## Motivation
 
-While prior work establishes that adapter design is critical for agent performance, it has not isolated the specific impact of context management policies (e.g., retrieval vs. summarization) against the baseline of model scaling. Understanding whether CPU-bound logic optimization can outperform GPU-dependent model scaling is essential for deploying efficient, cost-aware coding agents in resource-constrained environments.
+Current evaluations of agent harnesses often conflate the benefits of larger model backbones with the efficiency of context management, making it unclear whether resource-constrained deployments should prioritize model scaling or retrieval optimization. By isolating context compression fidelity as a primary variable, this work addresses the gap in understanding how to maximize Pass@1 scores under strict CPU-only and token-budget constraints, which is critical for sustainable, local deployment of coding agents.
 
 ## Related work
 
-- [Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks](https://arxiv.org/abs/2606.12344) — Establishes the baseline benchmark and adapter protocol, demonstrating that harness design significantly impacts Pass@1, though it does not deeply analyze context compression strategies.
-- [SWE-ABS: Adversarial Benchmark Strengthening Exposes Inflated Success Rates on Test-based Benchmark](https://arxiv.org/abs/2603.00520) — Highlights that current SWE-bench leaderboards are approaching saturation and that performance metrics can be inflated, underscoring the need for more robust evaluation dimensions like cost-efficiency and context handling.
-- [SWE-bench Goes Live!](https://arxiv.org/abs/2505.23419) — Confirms the issue-resolving task as a critical benchmark for LLMs, providing the foundational dataset structure that this project extends by filtering for long-context instances.
+- [SWE-bench Goes Live! (2025)](https://arxiv.org/abs/2505.23419) — Establishes the foundational dataset structure for issue-resolving tasks, which this project extends by filtering for instances where context length is the primary bottleneck.
+- [SWE-ABS: Adversarial Benchmark Strengthening Exposes Inflated Success Rates on Test-based Benchmark (2026)](https://arxiv.org/abs/2603.00520) — Highlights that standard benchmarks are approaching saturation and that metrics can be inflated, underscoring the need for robust evaluation dimensions like cost-efficiency and context handling fidelity.
+- [Understanding Code Agent Behaviour: An Empirical Study of Success and Failure Trajectories (2025)](https://arxiv.org/abs/2511.00197) — Provides a methodological precedent for analyzing agent failure modes beyond simple pass/fail metrics, supporting the proposed analysis of how context loss leads to specific reasoning breakdowns.
+- [SWEnergy: An Empirical Study on Energy Efficiency in Agentic Issue Resolution Frameworks with SLMs (2025)](https://arxiv.org/abs/2512.09543) — Demonstrates the viability of Small Language Models (SLMs) in agentic frameworks, providing a baseline for comparing the cost-efficiency of context optimization against model scaling.
 
 ## Expected results
 
-We expect that retrieval-based and diff-aware context strategies will significantly outperform naive truncation and semantic summarization on long-horizon tasks, achieving comparable or superior Pass@1 scores with 40-60% lower token consumption. This would confirm that intelligent context management is a more cost-effective lever for performance gains than simply increasing LLM parameter counts in constrained settings.
+We expect that high-fidelity context strategies (e.g., diff-aware retrieval) will enable smaller models to match the performance of larger models on long-horizon tasks, effectively shifting the performance curve such that context optimization yields a higher marginal return than parameter scaling beyond a certain threshold. This would be confirmed by a crossover point in the performance-vs-cost curves where the retrieval-enhanced SLM surpasses the baseline larger model, and falsified if model scaling continues to dominate regardless of context strategy.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the Claw-SWE-Bench Lite (80 instances) and full benchmark (350 instances) from the official repository; filter for issues with file histories >500 lines to ensure context is the bottleneck.
-- **Baseline Implementation**: Implement a control harness using a small, CPU-runnable 1B parameter LLM with a naive "first-N-lines" context truncation strategy.
-- **Experimental Modules**: Develop three distinct context compression modules: (a) TF-IDF/BM25 relevance retrieval of code snippets relative to the issue description, (b) Sliding window with diff-awareness prioritizing lines adjacent to predicted changes, and (c) Rule-based semantic summarization of file changes.
-- **Execution Protocol**: Run all configurations on the filtered dataset with identical API call limits and runtime budgets (e.g., 60 minutes per instance) on a standard CPU-only environment.
-- **Measurement**: Record Pass@1 success rates, total tokens consumed (proxy for cost), and the number of successful patch extractions for each configuration.
-- **Statistical Analysis**: Apply a paired t-test or Wilcoxon signed-rank test to compare the Pass@1 and cost metrics between the baseline and each experimental strategy, controlling for instance difficulty.
-- **Validation Independence**: Validate performance against the ground-truth test cases provided in the benchmark, which are independent of the context compression logic used to generate the patches.
+- **Data Acquisition**: Download the Claw-SWE-Bench Lite and full benchmark datasets from the official repository; programmatically filter for issues where the relevant file history exceeds 500 lines to ensure the task is context-bound.
+- **Baseline Configuration**: Implement a control harness using a CPU-runnable 1B-parameter LLM (e.g., a quantized variant of Llama-3-8B or Mistral-7B) with a naive "first-N-lines" truncation strategy to establish a low-fidelity context baseline.
+- **Experimental Configurations**: Develop and integrate three distinct context compression modules: (a) TF-IDF/BM25 relevance retrieval of code snippets relative to the issue description, (b) Sliding window with diff-awareness prioritizing lines adjacent to predicted changes, and (c) Rule-based semantic summarization of file changes.
+- **Scaling Comparison**: Run the same experimental modules with a larger (e.g., 7B-parameter) model to quantify the performance gain from model scaling versus context optimization.
+- **Execution Protocol**: Execute all configurations on the filtered dataset with identical API call limits and runtime budgets (e.g., 60 minutes per instance) on a standard CPU-only environment (2 cores, 7GB RAM), utilizing quantization (e.g., GGUF/llama.cpp) to fit models in memory.
+- **Measurement**: Record Pass@1 success rates, total tokens consumed (proxy for cost), and the specific failure modes (e.g., missing context vs. reasoning error) for each configuration.
+- **Statistical Analysis**: Apply a two-way ANOVA to test for interaction effects between "context strategy" and "model size" on Pass@1 scores, followed by post-hoc pairwise comparisons to identify the crossover point where context optimization outperforms scaling.
+- **Validation Independence**: Validate all performance metrics against the ground-truth test cases provided in the benchmark (unit tests), ensuring the evaluation target (test pass/fail) is independent of the context compression logic used to generate the patches.
 
 ## Duplicate-check
 
-- Reviewed existing ideas: Claw-SWE-Bench extension, SWE-bench saturation analysis, OpenClaw execution surfaces.
-- Closest match: Claw-SWE-Bench extension (similarity sketch: shares the benchmark and harness focus, but this project uniquely isolates context compression strategies as the primary variable against model scaling).
+- Reviewed existing ideas: Claw-SWE-Bench extension, SWE-bench saturation analysis, OpenClaw execution surfaces, SWEnergy efficiency study.
+- Closest match: Claw-SWE-Bench extension (similarity sketch: shares the benchmark and harness focus, but this project uniquely isolates context compression strategies as the primary variable against model scaling, whereas the original benchmark focuses on harness architecture generally).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T18:36:41Z
-**Outcome**: exhausted
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-05T22:29:17Z
+**Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes" computer science
-**Verified citation count**: 4
+**Verified citation count**: 8
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes" computer science | 0 |
-| 1 | OpenClaw-style agent benchmarking | 2 |
-| 2 | Software engineering agent evaluation frameworks | 0 |
-| 3 | Automated software maintenance agent benchmarks | 0 |
-| 4 | LLM-based software engineering task suites | 0 |
-| 5 | Open-source agent harness for code repair | 0 |
-| 6 | Benchmarking autonomous software developers | 0 |
-| 7 | Code generation agent performance evaluation | 0 |
-| 8 | Software engineering task automation metrics | 0 |
-| 9 | Agent-driven code base modification benchmarks | 0 |
-| 10 | Reproducible agent evaluation for software tasks | 0 |
-| 11 | Large language model software engineering agents | 0 |
-| 12 | Automated bug fixing agent assessment | 0 |
-| 13 | Software development lifecycle agent benchmarks | 0 |
-| 14 | Evaluating autonomous code refactoring agents | 0 |
-| 15 | Agent frameworks for software repository management | 0 |
-| 16 | Software engineering problem solving with LLMs | 0 |
-| 17 | Benchmarking AI agents on real-world code tasks | 0 |
-| 18 | Open-source LLM agent architectures for software | 0 |
-| 19 | Comparative analysis of software engineering agents | 0 |
-| 20 | Metrics for autonomous code generation and repair | 0 |
+| 0 (initial) | llmXive follow-up: extending "Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes" computer science | 8 |
 
 ### Verified citations
 
 1. **SWE-bench Goes Live!** (2025). Linghao Zhang, Shilin He, Chaoyun Zhang, Yu Kang, Bowen Li, et al.. arXiv. [2505.23419](https://arxiv.org/abs/2505.23419). PDF-sampled: No.
-2. **Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks** (2026). Mengyu Zheng, Kai Han, Boxun Li, Haiyang Xu, Yuchuan Tian, et al.. arXiv. [2606.12344](https://arxiv.org/abs/2606.12344). PDF-sampled: No.
-3. **SWE-ABS: Adversarial Benchmark Strengthening Exposes Inflated Success Rates on Test-based Benchmark** (2026). Boxi Yu, Yang Cao, Yuzhong Zhang, Liting Lin, Junjielong Xu, et al.. arXiv. [2603.00520](https://arxiv.org/abs/2603.00520). PDF-sampled: No.
-4. **Execution Is the New Attack Surface: Survivability-Aware Agentic Crypto Trading with OpenClaw-Style Local Executors** (2026). Ailiya Borjigin, Igor Stadnyk, Ben Bilski, Serhii Hovorov, Sofiia Pidturkina. arXiv. [2603.10092](https://arxiv.org/abs/2603.10092). PDF-sampled: No.
+2. **SWE-ABS: Adversarial Benchmark Strengthening Exposes Inflated Success Rates on Test-based Benchmark** (2026). Boxi Yu, Yang Cao, Yuzhong Zhang, Liting Lin, Junjielong Xu, et al.. arXiv. [2603.00520](https://arxiv.org/abs/2603.00520). PDF-sampled: No.
+3. **Understanding Code Agent Behaviour: An Empirical Study of Success and Failure Trajectories** (2025). Oorja Majgaonkar, Zhiwei Fei, Xiang Li, Federica Sarro, He Ye. arXiv. [2511.00197](https://arxiv.org/abs/2511.00197). PDF-sampled: No.
+4. **SWEnergy: An Empirical Study on Energy Efficiency in Agentic Issue Resolution Frameworks with SLMs** (2025). Arihant Tripathy, Ch Pavan Harshit, Karthik Vaidhyanathan. arXiv. [2512.09543](https://arxiv.org/abs/2512.09543). PDF-sampled: No.
+5. **Foundations for Agentic AI Investigations from the Forensic Analysis of OpenClaw** (2026). Jan Gruber, Jan-Niclas Hilgert. arXiv. [2604.05589](https://arxiv.org/abs/2604.05589). PDF-sampled: No.
+6. **OpenClaw-RL: Train Any Agent Simply by Talking** (2026). Yinjie Wang, Xuyang Chen, Xiaolong Jin, Mengdi Wang, Ling Yang. arXiv. [2603.10165](https://arxiv.org/abs/2603.10165). PDF-sampled: No.
+7. **Security of OpenClaw Agents: Fundamentals, Attacks, and Countermeasures** (2026). Yuntao Wang, Jianle Ba, Han Liu, Yanghe Pan, Jintao Wei, et al.. arXiv. [2605.25435](https://arxiv.org/abs/2605.25435). PDF-sampled: No.
+8. **From Assistant to Double Agent: Formalizing and Benchmarking Attacks on OpenClaw for Personalized Local AI Agent** (2026). Yuhang Wang, Feiming Xu, Zheng Lin, Guangyu He, Yuzhe Huang, et al.. arXiv. [2602.08412](https://arxiv.org/abs/2602.08412). PDF-sampled: No.

@@ -1,0 +1,7 @@
+{
+  "total_samples": 10,
+  "excluded_count": 3,
+  "pairable_count": 7,
+  "exclusion_rate": 0.3,
+  "reason": "Samples without specific manual baseline or matching changed lines were excluded."
+}

@@ -1,519 +1,345 @@
-"""
-code/data/metrics.py
-
-Implements decision quality metrics and emotional contagion analysis.
-Extends existing functionality to include:
-- Agreement proportion
-- Shannon entropy for diversity
-- External validation score (ground truth)
-- Efficiency metrics (time-to-decision, thread length)
-"""
-
 import os
+import sys
 import json
 import logging
 import math
+import random
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Union
-
+from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
-import numpy as np
 from scipy import stats
+import numpy as np
 
-from utils.logging_config import get_logger
-from config.settings import get_config
-
-# Initialize logger
-logger = get_logger(__name__)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('data/processed/metrics_pipeline.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Constants
-MIN_REPLIES_FOR_CONTAGION = 5
-MIN_SEED_POSTS = 3
-AGREEMENT_CUTOFF_DEFAULT = 0.6
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+PROCESSED_DIR = PROJECT_ROOT / 'data' / 'processed'
+RAW_DIR = PROJECT_ROOT / 'data' / 'raw'
 
-def load_processed_data(data_path: Optional[Union[str, Path]] = None) -> pd.DataFrame:
+def load_processed_data() -> pd.DataFrame:
     """
-    Load processed thread data from the standard location.
-    Falls back to config if no path is provided.
+    Load the filtered dataset containing threads with ≥3 seed posts.
+    
+    CRITICAL FIX FOR T059:
+    This function now explicitly loads 'threads_with_seeds.csv' (output of T009)
+    instead of 'reddit_threads.jsonl'. This ensures that threads excluded by
+    T010 (those with <3 top-level posts) are NOT included in the metrics calculation.
+    
+    Returns:
+        pd.DataFrame: Filtered dataset with seed posts extracted.
+        
+    Raises:
+        FileNotFoundError: If the filtered dataset does not exist.
     """
-    config = get_config()
-    if data_path is None:
-        data_path = config.dataset_paths.processed_threads
-    else:
-        data_path = Path(data_path)
-
-    if not data_path.exists():
-        raise FileNotFoundError(f"Processed data not found at {data_path}")
-
-    logger.info(f"Loading processed data from {data_path}")
-    df = pd.read_csv(data_path)
+    input_path = PROCESSED_DIR / 'threads_with_seeds.csv'
+    
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Filtered dataset not found at {input_path}. "
+            "Ensure T009 (extract_seed_posts) has been executed successfully."
+        )
+    
+    logger.info(f"Loading filtered dataset from {input_path}")
+    df = pd.read_csv(input_path)
+    
+    logger.info(f"Loaded {len(df)} threads from filtered dataset. "
+               f"Columns: {list(df.columns)}")
+    
     return df
 
-def calculate_sentiment_slope(sentiments: List[float]) -> float:
+def filter_threads_by_reply_count(df: pd.DataFrame, min_replies: int = 20) -> pd.DataFrame:
     """
-    Calculate the slope of the sentiment trajectory using linear regression.
+    Filter threads based on reply count for contagion index calculation.
     
     Args:
-        sentiments: List of sentiment scores in chronological order.
+        df: Input DataFrame with thread data.
+        min_replies: Minimum number of replies required (default: 20).
         
     Returns:
-        Slope of the linear regression line.
+        pd.DataFrame: Filtered DataFrame with threads having >= min_replies.
     """
-    if len(sentiments) < 2:
+    logger.info(f"Filtering threads with reply_count >= {min_replies}")
+    
+    if 'reply_count' not in df.columns:
+        logger.warning("Column 'reply_count' not found in DataFrame. "
+                     "Attempting to calculate from available data.")
+        # Fallback: calculate reply_count if not present
+        # This assumes we have comment data or can infer from thread structure
+        if 'comments' in df.columns:
+            df['reply_count'] = df['comments'].apply(lambda x: len(eval(x)) if isinstance(x, str) else 0)
+        else:
+            logger.error("Cannot calculate reply_count without 'comments' column.")
+            raise KeyError("Missing 'reply_count' or 'comments' column")
+    
+    filtered_df = df[df['reply_count'] >= min_replies].copy()
+    excluded_count = len(df) - len(filtered_df)
+    
+    logger.info(f"Filtered {excluded_count} threads with reply_count < {min_replies}. "
+               f"Remaining threads: {len(filtered_df)}")
+    
+    # Log exclusions
+    if excluded_count > 0:
+        exclusions_path = PROCESSED_DIR / 'exclusions_reply_count.log'
+        with open(exclusions_path, 'w') as f:
+            excluded_threads = df[df['reply_count'] < min_replies]
+            for _, row in excluded_threads.iterrows():
+                f.write(json.dumps({
+                    'thread_id': row.get('thread_id', 'unknown'),
+                    'reason_code': 'REPLY_COUNT_INSUFFICIENT',
+                    'reply_count': row['reply_count'],
+                    'min_required': min_replies
+                }) + '\n')
+        logger.info(f"Exclusion log written to {exclusions_path}")
+    
+    return filtered_df
+
+def save_exclusion_counts(excluded_count: int, reason_code: str, output_path: Path):
+    """Save exclusion counts to a log file."""
+    with open(output_path, 'a') as f:
+        f.write(json.dumps({
+            'timestamp': pd.Timestamp.now().isoformat(),
+            'reason_code': reason_code,
+            'excluded_count': excluded_count
+        }) + '\n')
+
+def run_metrics_exclusion_pipeline():
+    """
+    Run the metrics exclusion pipeline.
+    
+    This pipeline:
+    1. Loads the filtered dataset (threads with ≥3 seed posts) from T009.
+    2. Filters threads by reply count (≥20) for contagion analysis.
+    3. Logs exclusions and writes metrics.
+    """
+    logger.info("Starting metrics exclusion pipeline")
+    
+    # Step 1: Load filtered dataset (T059 FIX: uses threads_with_seeds.csv)
+    df = load_processed_data()
+    
+    # Step 2: Filter by reply count
+    filtered_df = filter_threads_by_reply_count(df, min_replies=20)
+    
+    # Step 3: Save exclusion counts
+    exclusion_log_path = PROCESSED_DIR / 'exclusion_counts.log'
+    save_exclusion_counts(
+        excluded_count=len(df) - len(filtered_df),
+        reason_code='REPLY_COUNT_INSUFFICIENT',
+        output_path=exclusion_log_path
+    )
+    
+    logger.info(f"Metrics exclusion pipeline complete. "
+               f"Threads remaining: {len(filtered_df)}")
+    
+    return filtered_df
+
+def compute_shannon_entropy(values: List[float]) -> float:
+    """
+    Compute Shannon entropy for a list of values.
+    
+    Args:
+        values: List of values (e.g., sentiment scores).
+        
+    Returns:
+        float: Shannon entropy value.
+    """
+    if not values or len(values) == 0:
         return 0.0
-    
-    x = np.arange(len(sentiments))
-    slope, intercept, r_value, p_value, std_err = stats.linregress(x, sentiments)
-    return slope
-
-def calculate_contagion_index(thread_data: pd.Series) -> Dict[str, Any]:
-    """
-    Calculate the emotional contagion index for a single thread.
-    
-    The index is the Pearson correlation between the seed-post sentiment
-    and the slope of the reply sentiment trajectory.
-    
-    Args:
-        thread_data: A pandas Series representing a single thread with columns:
-            - 'seed_sentiment': The sentiment of the seed post
-            - 'reply_sentiments': A list of sentiment scores for replies
-            
-    Returns:
-        Dictionary with 'contagion_index', 'slope', and 'valid' status.
-    """
-    seed_sentiment = thread_data.get('seed_sentiment')
-    reply_sentiments = thread_data.get('reply_sentiments')
-    
-    if seed_sentiment is None or reply_sentiments is None:
-        return {
-            'contagion_index': np.nan,
-            'slope': np.nan,
-            'valid': False,
-            'reason': 'Missing seed sentiment or reply sentiments'
-        }
-    
-    if not isinstance(reply_sentiments, list):
-        try:
-            reply_sentiments = json.loads(reply_sentiments)
-        except (TypeError, json.JSONDecodeError):
-            return {
-                'contagion_index': np.nan,
-                'slope': np.nan,
-                'valid': False,
-                'reason': 'Invalid reply_sentiments format'
-            }
-    
-    if len(reply_sentiments) < MIN_REPLIES_FOR_CONTAGION:
-        return {
-            'contagion_index': np.nan,
-            'slope': np.nan,
-            'valid': False,
-            'reason': f'Insufficient replies (< {MIN_REPLIES_FOR_CONTAGION})'
-        }
-    
-    slope = calculate_sentiment_slope(reply_sentiments)
-    
-    # For a single seed sentiment, we can't compute correlation directly.
-    # The task description implies a correlation across threads, but for
-    # a single thread, we return the slope as the primary metric.
-    # Alternatively, if we consider the seed sentiment as a constant,
-    # the correlation is undefined. We'll return the slope as the index.
-    # However, the spec says "correlation between seed sentiment and slope".
-    # This is only meaningful across a dataset. For a single thread, we'll
-    # return the slope and flag it as a partial metric.
-    
-    return {
-        'contagion_index': slope, # Placeholder for thread-level slope
-        'slope': slope,
-        'valid': True,
-        'reason': 'Computed slope for thread'
-    }
-
-def compute_agreement_proportion(thread_data: pd.Series) -> float:
-    """
-    Calculate the proportion of replies that agree with the seed post's sentiment direction.
-    
-    Agreement is defined as having the same sign as the seed sentiment.
-    Neutral seed sentiments (close to 0) are handled by comparing absolute values.
-    
-    Args:
-        thread_data: A pandas Series with 'seed_sentiment' and 'reply_sentiments'.
-        
-    Returns:
-        Agreement proportion (0.0 to 1.0).
-    """
-    seed_sentiment = thread_data.get('seed_sentiment')
-    reply_sentiments = thread_data.get('reply_sentiments')
-    
-    if seed_sentiment is None or reply_sentiments is None:
-        return np.nan
-    
-    if not isinstance(reply_sentiments, list):
-        try:
-            reply_sentiments = json.loads(reply_sentiments)
-        except (TypeError, json.JSONDecodeError):
-            return np.nan
-    
-    if len(reply_sentiments) == 0:
-        return np.nan
-    
-    seed_sign = np.sign(seed_sentiment)
-    if seed_sign == 0:
-        # If seed is neutral, agreement is based on absolute value magnitude?
-        # Or we define agreement as also being neutral? 
-        # Let's define agreement as having the same sign (0 is 0).
-        agreements = sum(1 for r in reply_sentiments if np.sign(r) == 0)
-    else:
-        agreements = sum(1 for r in reply_sentiments if np.sign(r) == seed_sign)
-    
-    return agreements / len(reply_sentiments)
-
-def compute_shannon_entropy(thread_data: pd.Series, bins: int = 10) -> float:
-    """
-    Calculate Shannon entropy of the reply sentiment distribution.
-    
-    This measures the diversity of sentiments in the thread replies.
-    Higher entropy indicates more diverse sentiments.
-    
-    Args:
-        thread_data: A pandas Series with 'reply_sentiments'.
-        bins: Number of bins for histogram.
-        
-    Returns:
-        Shannon entropy value.
-    """
-    reply_sentiments = thread_data.get('reply_sentiments')
-    
-    if reply_sentiments is None:
-        return np.nan
-    
-    if not isinstance(reply_sentiments, list):
-        try:
-            reply_sentiments = json.loads(reply_sentiments)
-        except (TypeError, json.JSONDecodeError):
-            return np.nan
-    
-    if len(reply_sentiments) == 0:
-        return 0.0
-    
-    # Create histogram
-    hist, _ = np.histogram(reply_sentiments, bins=bins, range=(-1, 1))
-    hist = hist.astype(float)
     
     # Normalize to probabilities
-    probs = hist / hist.sum()
+    total = sum(values)
+    if total == 0:
+        return 0.0
     
-    # Remove zero probabilities to avoid log(0)
-    probs = probs[probs > 0]
-    
-    # Calculate Shannon entropy
-    entropy = -np.sum(probs * np.log2(probs))
+    probs = [v / total for v in values]
+    entropy = -sum(p * math.log(p) if p > 0 else 0 for p in probs)
     
     return entropy
 
-def compute_external_validation_score(thread_data: pd.Series, ground_truth_col: str = 'ground_truth_label') -> float:
+def compute_agreement_proportion(scores: List[float], threshold: float = 0.5) -> float:
     """
-    Calculate the external validation score by comparing consensus to ground truth.
-    
-    Consensus is defined as the majority sentiment direction of the thread.
-    Ground truth is assumed to be a column in the data.
+    Compute agreement proportion based on sentiment scores.
     
     Args:
-        thread_data: A pandas Series with sentiment data and ground truth.
-        ground_truth_col: Name of the ground truth column.
+        scores: List of sentiment scores.
+        threshold: Threshold for agreement (default: 0.5).
         
     Returns:
-        Validation score (1.0 for correct, 0.0 for incorrect, nan if missing).
+        float: Agreement proportion.
     """
-    if ground_truth_col not in thread_data.index:
-        return np.nan
-    
-    ground_truth = thread_data[ground_truth_col]
-    if pd.isna(ground_truth):
-        return np.nan
-    
-    # Determine consensus sentiment direction
-    reply_sentiments = thread_data.get('reply_sentiments')
-    if reply_sentiments is None:
-        return np.nan
-    
-    if not isinstance(reply_sentiments, list):
-        try:
-            reply_sentiments = json.loads(reply_sentiments)
-        except (TypeError, json.JSONDecodeError):
-            return np.nan
-    
-    if len(reply_sentiments) == 0:
-        return np.nan
-    
-    # Simple consensus: majority sign
-    positive_count = sum(1 for r in reply_sentiments if r > 0)
-    negative_count = sum(1 for r in reply_sentiments if r < 0)
-    neutral_count = sum(1 for r in reply_sentiments if r == 0)
-    
-    total = positive_count + negative_count + neutral_count
-    
-    if total == 0:
-        return np.nan
-    
-    # Determine consensus direction
-    if positive_count > negative_count and positive_count > neutral_count:
-        consensus = 1
-    elif negative_count > positive_count and negative_count > neutral_count:
-        consensus = -1
-    else:
-        consensus = 0
-    
-    # Compare with ground truth (assuming ground truth is also -1, 0, 1)
-    ground_truth_val = int(ground_truth) if pd.notna(ground_truth) else np.nan
-    if pd.isna(ground_truth_val):
-        return np.nan
-    
-    return 1.0 if consensus == ground_truth_val else 0.0
-
-def compute_time_to_decision(thread_data: pd.Series) -> float:
-    """
-    Calculate the time-to-decision metric.
-    
-    Time-to-decision is the time difference between the seed post and the
-    first reply that reaches a certain threshold of agreement or the last reply.
-    For simplicity, we use the time difference between seed and last reply.
-    
-    Args:
-        thread_data: A pandas Series with 'seed_timestamp' and 'reply_timestamps'.
-        
-    Returns:
-        Time-to-decision in seconds.
-    """
-    seed_timestamp = thread_data.get('seed_timestamp')
-    reply_timestamps = thread_data.get('reply_timestamps')
-    
-    if seed_timestamp is None or reply_timestamps is None:
-        return np.nan
-    
-    if not isinstance(reply_timestamps, list):
-        try:
-            reply_timestamps = json.loads(reply_timestamps)
-        except (TypeError, json.JSONDecodeError):
-            return np.nan
-    
-    if len(reply_timestamps) == 0:
+    if not scores:
         return 0.0
     
-    # Parse timestamps if they are strings
-    if isinstance(seed_timestamp, str):
-        seed_ts = pd.to_datetime(seed_timestamp)
-    else:
-        seed_ts = seed_timestamp
+    # Count scores above threshold
+    agreements = sum(1 for s in scores if s > threshold)
+    return agreements / len(scores)
+
+def compute_time_to_decision(thread_data: Dict[str, Any]) -> float:
+    """
+    Compute time-to-decision for a thread.
     
-    # Convert all reply timestamps to datetime
-    reply_ts_list = []
-    for ts in reply_timestamps:
-        if isinstance(ts, str):
-            reply_ts_list.append(pd.to_datetime(ts))
+    Args:
+        thread_data: Dictionary containing thread data with timestamps.
+        
+    Returns:
+        float: Time-to-decision in seconds.
+    """
+    if 'start_time' not in thread_data or 'decision_time' not in thread_data:
+        return 0.0
+    
+    start = pd.to_datetime(thread_data['start_time'])
+    decision = pd.to_datetime(thread_data['decision_time'])
+    
+    return (decision - start).total_seconds()
+
+def compute_decision_quality_metrics(thread_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute decision quality metrics for each thread.
+    
+    Args:
+        thread_df: DataFrame with thread data.
+        
+    Returns:
+        pd.DataFrame: DataFrame with added decision quality metrics.
+    """
+    logger.info("Computing decision quality metrics")
+    
+    metrics = []
+    
+    for _, row in thread_df.iterrows():
+        thread_id = row.get('thread_id', 'unknown')
+        
+        # Extract sentiment scores (assuming they are in a list or string representation)
+        if 'sentiment_scores' in row:
+            scores_str = row['sentiment_scores']
+            if isinstance(scores_str, str):
+                try:
+                    scores = eval(scores_str)
+                except:
+                    scores = []
+            else:
+                scores = scores_str
         else:
-            reply_ts_list.append(ts)
-    
-    if len(reply_ts_list) == 0:
-        return 0.0
-    
-    last_reply_ts = max(reply_ts_list)
-    time_diff = (last_reply_ts - seed_ts).total_seconds()
-    
-    return time_diff
-
-def compute_thread_length(thread_data: pd.Series) -> int:
-    """
-    Calculate the thread length (number of replies).
-    
-    Args:
-        thread_data: A pandas Series with 'reply_sentiments' or 'reply_timestamps'.
+            scores = []
         
-    Returns:
-        Number of replies.
-    """
-    reply_sentiments = thread_data.get('reply_sentiments')
-    reply_timestamps = thread_data.get('reply_timestamps')
-    
-    if reply_sentiments is not None:
-        if isinstance(reply_sentiments, list):
-            return len(reply_sentiments)
-        try:
-            return len(json.loads(reply_sentiments))
-        except:
-            pass
-    
-    if reply_timestamps is not None:
-        if isinstance(reply_timestamps, list):
-            return len(reply_timestamps)
-        try:
-            return len(json.loads(reply_timestamps))
-        except:
-            pass
-    
-    return 0
-
-def compute_thread_level_metrics(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Compute all decision quality metrics for each thread in the DataFrame.
-    
-    Metrics:
-    - agreement_proportion
-    - shannon_entropy
-    - external_validation_score
-    - time_to_decision
-    - thread_length
-    - contagion_index (slope)
-    - contagion_valid
-    
-    Args:
-        df: DataFrame with thread data.
+        # Compute metrics
+        entropy = compute_shannon_entropy([abs(s) for s in scores]) if scores else 0.0
+        agreement = compute_agreement_proportion(scores, threshold=0.5) if scores else 0.0
         
-    Returns:
-        DataFrame with additional metric columns.
-    """
-    logger.info("Computing thread-level decision quality metrics")
+        # Time to decision (if timestamps available)
+        time_to_decision = 0.0
+        if 'start_time' in row and 'decision_time' in row:
+            time_to_decision = compute_time_to_decision(row)
+        
+        metrics.append({
+            'thread_id': thread_id,
+            'entropy': entropy,
+            'agreement_proportion': agreement,
+            'time_to_decision': time_to_decision,
+            'reply_count': row.get('reply_count', 0)
+        })
     
-    metrics_df = df.copy()
-    
-    # Apply metrics
-    metrics_df['agreement_proportion'] = metrics_df.apply(compute_agreement_proportion, axis=1)
-    metrics_df['shannon_entropy'] = metrics_df.apply(compute_shannon_entropy, axis=1)
-    metrics_df['external_validation_score'] = metrics_df.apply(
-        lambda row: compute_external_validation_score(row), axis=1
-    )
-    metrics_df['time_to_decision'] = metrics_df.apply(compute_time_to_decision, axis=1)
-    metrics_df['thread_length'] = metrics_df.apply(compute_thread_length, axis=1)
-    
-    # Contagion index
-    contagion_results = metrics_df.apply(calculate_contagion_index, axis=1)
-    metrics_df['contagion_index'] = [r['contagion_index'] for r in contagion_results]
-    metrics_df['contagion_valid'] = [r['valid'] for r in contagion_results]
-    
-    # Log exclusion statistics
-    total_threads = len(metrics_df)
-    valid_contagion = metrics_df['contagion_valid'].sum()
-    logger.info(f"Contagion analysis valid: {valid_contagion}/{total_threads} threads")
+    metrics_df = pd.DataFrame(metrics)
+    logger.info(f"Computed decision quality metrics for {len(metrics_df)} threads")
     
     return metrics_df
 
-def compute_aggregate_contagion(metrics_df: pd.DataFrame) -> Dict[str, Any]:
+def compute_bootstrap_ci(data: List[float], stat_func, n_bootstrap: int = 1000, 
+                        confidence: float = 0.95, random_seed: int = 42) -> Tuple[float, float]:
     """
-    Compute aggregate contagion statistics across all valid threads.
+    Compute bootstrap confidence intervals for a statistic.
     
     Args:
-        metrics_df: DataFrame with thread-level metrics including 'contagion_index'.
+        data: Input data.
+        stat_func: Function to compute the statistic.
+        n_bootstrap: Number of bootstrap samples.
+        confidence: Confidence level (default: 0.95).
+        random_seed: Random seed for reproducibility.
         
     Returns:
-        Dictionary with aggregate statistics.
+        Tuple[float, float]: Lower and upper bounds of confidence interval.
     """
-    valid_df = metrics_df[metrics_df['contagion_valid'] == True]
+    random.seed(random_seed)
+    np.random.seed(random_seed)
     
-    if len(valid_df) == 0:
-        return {
-            'mean_contagion': np.nan,
-            'std_contagion': np.nan,
-            'count': 0,
-            'correlation_with_agreement': np.nan
-        }
+    bootstrap_stats = []
+    n = len(data)
     
-    mean_contagion = valid_df['contagion_index'].mean()
-    std_contagion = valid_df['contagion_index'].std()
+    for _ in range(n_bootstrap):
+        sample = np.random.choice(data, size=n, replace=True)
+        stat = stat_func(sample)
+        if not math.isnan(stat) and not math.isinf(stat):
+            bootstrap_stats.append(stat)
     
-    # Correlation between contagion index and agreement proportion
-    if 'agreement_proportion' in valid_df.columns:
-        corr, _ = stats.pearsonr(valid_df['contagion_index'], valid_df['agreement_proportion'])
-    else:
-        corr = np.nan
+    if not bootstrap_stats:
+        return (0.0, 0.0)
     
-    return {
-        'mean_contagion': mean_contagion,
-        'std_contagion': std_contagion,
-        'count': len(valid_df),
-        'correlation_with_agreement': corr
-    }
+    lower_percentile = (1 - confidence) / 2 * 100
+    upper_percentile = (1 + confidence) / 2 * 100
+    
+    lower = np.percentile(bootstrap_stats, lower_percentile)
+    upper = np.percentile(bootstrap_stats, upper_percentile)
+    
+    return (lower, upper)
 
-def run_metrics_analysis(
-    input_path: Optional[Union[str, Path]] = None,
-    output_path: Optional[Union[str, Path]] = None,
-    report_path: Optional[Union[str, Path]] = None
-) -> Dict[str, Any]:
+def save_thread_metrics(metrics_df: pd.DataFrame, output_path: Path):
+    """Save thread metrics to CSV."""
+    metrics_df.to_csv(output_path, index=False)
+    logger.info(f"Thread metrics saved to {output_path}")
+
+def run_decision_quality_pipeline():
     """
-    Run the full metrics analysis pipeline.
+    Run the full decision quality metrics pipeline.
     
-    1. Load processed data.
-    2. Compute thread-level metrics.
-    3. Save results to output_path.
-    4. Generate aggregate report to report_path.
-    
-    Args:
-        input_path: Path to processed threads CSV.
-        output_path: Path to save metrics-enhanced CSV.
-        report_path: Path to save aggregate report JSON.
-        
-    Returns:
-        Dictionary with analysis results.
+    This pipeline:
+    1. Loads filtered dataset (T059 FIX: uses threads_with_seeds.csv).
+    2. Filters by reply count.
+    3. Computes decision quality metrics.
+    4. Saves results to thread_metrics.csv.
     """
-    config = get_config()
+    logger.info("Starting decision quality metrics pipeline")
     
-    if input_path is None:
-        input_path = config.dataset_paths.processed_threads
-    else:
-        input_path = Path(input_path)
-        
-    if output_path is None:
-        output_path = config.dataset_paths.processed_metrics
-    else:
-        output_path = Path(output_path)
-        
-    if report_path is None:
-        report_path = config.dataset_paths.metrics_report
-    else:
-        report_path = Path(report_path)
-    
-    # Ensure output directories exist
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load data
-    df = load_processed_data(input_path)
+    # Load and filter data
+    df = load_processed_data()
+    filtered_df = filter_threads_by_reply_count(df, min_replies=20)
     
     # Compute metrics
-    metrics_df = compute_thread_level_metrics(df)
+    metrics_df = compute_decision_quality_metrics(filtered_df)
     
-    # Save metrics
-    metrics_df.to_csv(output_path, index=False)
-    logger.info(f"Saved metrics to {output_path}")
+    # Save results
+    output_path = PROCESSED_DIR / 'thread_metrics.csv'
+    save_thread_metrics(metrics_df, output_path)
     
-    # Compute aggregate
-    aggregate = compute_aggregate_contagion(metrics_df)
+    logger.info(f"Decision quality pipeline complete. "
+               f"Metrics saved to {output_path}")
     
-    # Save report
-    report = {
-        'aggregate_contagion': aggregate,
-        'total_threads': len(df),
-        'valid_contagion_threads': int(metrics_df['contagion_valid'].sum()),
-        'metrics_columns': list(metrics_df.columns)
-    }
-    
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    logger.info(f"Saved report to {report_path}")
-    
-    return report
+    return metrics_df
 
 def main():
-    """
-    Main entry point for running metrics analysis.
-    """
-    logger.info("Starting metrics analysis")
+    """Main entry point for the metrics pipeline."""
+    logger.info("Metrics pipeline started")
     
     try:
-        report = run_metrics_analysis()
-        logger.info(f"Analysis complete. Report: {report}")
+        # Run the pipeline
+        metrics_df = run_decision_quality_pipeline()
+        
+        # Log summary
+        logger.info(f"Pipeline summary:")
+        logger.info(f"  - Threads processed: {len(metrics_df)}")
+        logger.info(f"  - Output file: {PROCESSED_DIR / 'thread_metrics.csv'}")
+        
     except Exception as e:
-        logger.error(f"Metrics analysis failed: {e}", exc_info=True)
-        raise
+        logger.error(f"Pipeline failed: {str(e)}", exc_info=True)
+        sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

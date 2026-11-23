@@ -1,140 +1,190 @@
 """
-Download verified UCI datasets for the augmentation impact study.
+Data download and verification module.
 
-Fetches Breast Cancer, Ionosphere, and Heart Disease datasets via direct URLs.
-Saves them to data/raw/ and computes SHA256 checksums.
+This module handles the fetching of UCI datasets from canonical URLs,
+verification of cryptographic checksums, and logging of fetch deviations.
 """
 
 import os
 import hashlib
 import logging
+import json
 import requests
-import pandas as pd
+from typing import Dict, Any, Tuple, List, Optional
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Configuration
-RAW_DATA_DIR = Path("data/raw")
-RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Verified UCI datasets with direct CSV URLs
-DATASETS = {
-    "breast_cancer": {
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data",
-        "filename": "breast_cancer.csv",
-        "has_header": False,
-        "columns": [
-            "id", "clump_thickness", "uniformity_cell_size", "uniformity_cell_shape",
-            "marginal_adhesion", "single_epithelial_cell_size", "bare_nuclei",
-            "bland_chromatin", "normal_nucleoli", "mitoses", "class"
-        ]
-    },
-    "ionosphere": {
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data",
-        "filename": "ionosphere.csv",
-        "has_header": False,
-        "columns": None  # Will be handled dynamically
-    },
-    "heart_disease": {
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data",
-        "filename": "heart_disease.csv",
-        "has_header": False,
-        "columns": [
-            "age", "sex", "cp", "trestbps", "chol", "fbs", "restecg",
-            "thalach", "exang", "oldpeak", "slope", "ca", "thal", "target"
-        ]
-    }
-}
+class DataFetchError(Exception):
+    """Raised when a dataset fetch fails or checksum mismatch occurs."""
 
-def compute_sha256(filepath: Path) -> str:
-    """Compute SHA256 checksum of a file."""
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+
+def compute_sha256(filepath: str) -> str:
+    """
+    Compute SHA256 hash of a file.
+
+    Args:
+        filepath: Path to the file to hash.
+
+    Returns:
+        Hexadecimal string representation of the SHA256 hash.
+    """
     sha256_hash = hashlib.sha256()
     with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_dataset(dataset_name: str, config: dict) -> bool:
-    """
-    Download a single dataset and save to data/raw/.
 
-    Args:
-        dataset_name: Name of the dataset
-        config: Dataset configuration with url, filename, etc.
+def load_verified_datasets() -> Dict[str, Any]:
+    """
+    Load verified datasets configuration from JSON.
 
     Returns:
-        True if download successful, False otherwise
-    """
-    try:
-        logger.info(f"Downloading {dataset_name} from {config['url']}")
-        
-        response = requests.get(config['url'], timeout=30)
-        response.raise_for_status()
-        
-        output_path = RAW_DATA_DIR / config['filename']
-        
-        # Parse and save the data
-        if config['has_header']:
-            df = pd.read_csv(pd.io.common.StringIO(response.text))
-        else:
-            df = pd.read_csv(
-                pd.io.common.StringIO(response.text),
-                header=None,
-                names=config['columns']
-            )
-        
-        # Clean data: remove rows with missing values (represented as '?')
-        df = df.replace('?', pd.NA)
-        df = df.dropna()
-        
-        # Save to CSV
-        df.to_csv(output_path, index=False)
-        
-        # Compute checksum
-        checksum = compute_sha256(output_path)
-        
-        logger.info(f"Saved {output_path} ({len(df)} rows, checksum: {checksum[:16]}...)")
-        
-        return True
-        
-    except Exception as e:
-        logger.error(f"Failed to download {dataset_name}: {str(e)}")
-        return False
+        Dictionary mapping dataset names to their configuration (URL, checksum).
 
-def main():
-    """Main function to download all verified datasets."""
-    logger.info("Starting data download process...")
-    
-    successful_downloads = 0
-    failed_downloads = []
-    
-    for dataset_name, config in DATASETS.items():
-        if download_dataset(dataset_name, config):
-            successful_downloads += 1
-        else:
-            failed_downloads.append(dataset_name)
-    
-    # Log warning if count doesn't match expected 3
-    if successful_downloads != 3:
-        logger.warning(
-            f"Downloaded {successful_downloads} datasets instead of expected 3. "
-            f"Failed: {failed_downloads}. This deviates from FR-001 intent of 5 datasets, "
-            f"but we are using only verified datasets as required."
-        )
-    
-    logger.info(f"Download complete: {successful_downloads}/3 datasets successful")
-    
-    if failed_downloads:
-        logger.error(f"Failed datasets: {', '.join(failed_downloads)}")
-        return 1
-    
-    return 0
+    Raises:
+        FileNotFoundError: If the verified_datasets.json file does not exist.
+    """
+    config_path = Path("code/verified_datasets.json")
+    if not config_path.exists():
+        raise FileNotFoundError(f"Verified datasets config not found at {config_path}")
+
+    with open(config_path, "r") as f:
+        return json.load(f)
+
+
+def download_dataset(
+    dataset_name: str,
+    url: str,
+    expected_checksum: str,
+    output_dir: str
+) -> str:
+    """
+    Download a dataset and verify its checksum.
+
+    Args:
+        dataset_name: Name of the dataset (used for filename).
+        url: Canonical URL to fetch the dataset from.
+        expected_checksum: Expected SHA256 checksum for verification.
+        output_dir: Directory to save the downloaded file.
+
+    Returns:
+        Path to the downloaded and verified file.
+
+    Raises:
+        DataFetchError: If download fails or checksum mismatch occurs.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    filename = f"{dataset_name}.csv"
+    filepath = os.path.join(output_dir, filename)
+
+    logger.info(f"Downloading {dataset_name} from {url}")
+    try:
+        response = requests.get(url, timeout=300)
+        response.raise_for_status()
+
+        with open(filepath, "wb") as f:
+            f.write(response.content)
+
+        actual_checksum = compute_sha256(filepath)
+
+        if actual_checksum != expected_checksum:
+            raise DataFetchError(
+                f"Checksum mismatch for {dataset_name}. "
+                f"Expected: {expected_checksum}, Got: {actual_checksum}"
+            )
+
+        logger.info(f"Successfully downloaded and verified {dataset_name}")
+        return filepath
+
+    except requests.RequestException as e:
+        raise DataFetchError(f"Failed to download {dataset_name}: {str(e)}")
+
+
+def log_deviation(
+    dataset_name: str,
+    message: str,
+    log_path: str
+) -> None:
+    """
+    Log a deviation event to a JSON log file.
+
+    Args:
+        dataset_name: Name of the dataset that caused the deviation.
+        message: Description of the deviation.
+        log_path: Path to the JSON log file.
+    """
+    log_entry = {
+        "dataset_name": dataset_name,
+        "status": "deviation",
+        "message": message,
+        "timestamp": "2024-01-01T00:00:00"  # Placeholder for actual timestamp logic
+    }
+
+    log_data: List[Dict[str, Any]] = []
+    if os.path.exists(log_path):
+        try:
+            with open(log_path, "r") as f:
+                log_data = json.load(f)
+        except json.JSONDecodeError:
+            log_data = []
+
+    log_data.append(log_entry)
+
+    with open(log_path, "w") as f:
+        json.dump(log_data, f, indent=2)
+
+    logger.warning(f"Logged deviation for {dataset_name}: {message}")
+
+
+def main() -> None:
+    """Main entry point for data download."""
+    base_dir = Path("projects/PROJ-269-assessing-the-impact-of-data-augmentatio")
+    data_raw_dir = base_dir / "data" / "raw"
+    data_derived_dir = base_dir / "data" / "derived"
+
+    os.makedirs(data_raw_dir, exist_ok=True)
+    os.makedirs(data_derived_dir, exist_ok=True)
+
+    fetch_count_log_path = str(data_derived_dir / "fetch_count.log")
+
+    try:
+        verified_datasets = load_verified_datasets()
+        fetched_count = 0
+        total_count = len(verified_datasets)
+
+        for dataset_name, config in verified_datasets.items():
+            url = config["url"]
+            expected_checksum = config["checksum"]
+
+            try:
+                download_dataset(dataset_name, url, expected_checksum, str(data_raw_dir))
+                fetched_count += 1
+            except DataFetchError as e:
+                logger.error(f"Failed to fetch {dataset_name}: {str(e)}")
+                log_deviation(dataset_name, str(e), fetch_count_log_path)
+
+        # Log deviation if count doesn't meet spec (assuming spec requires all)
+        if fetched_count < total_count:
+            log_deviation(
+                "summary",
+                f"Only fetched {fetched_count}/{total_count} datasets",
+                fetch_count_log_path
+            )
+
+        logger.info(f"Downloaded {fetched_count}/{total_count} datasets successfully")
+
+    except Exception as e:
+        logger.error(f"Fatal error in download process: {str(e)}")
+        raise
+
 
 if __name__ == "__main__":
-    exit(main())
+    main()

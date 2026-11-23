@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "PartialLogicTrace Schema"
+description: "Schema for the extracted partial logic trace (anchor). Anchor steps must be pseudo-code only."
+type: object
+required:
+  - task_id
+  - anchor_steps
+  - extraction_method
+  - status
+properties:
+  task_id:
+    type: string
+    description: "Foreign key to the EvaluationTask."
+  anchor_steps:
+    type: array
+    description: "List of strings representing the first 3 algorithmic steps. MUST be pseudo-code only, not Python or target language syntax."
+    items:
+      type: string
+    minItems: 1
+    maxItems: 3
+  extraction_method:
+    type: string
+    description: "Method used for extraction (e.g., 'AST-Based')."
+    enum:
+      - "AST-Based"
+      - "Fallback"
+  status:
+    type: string
+    description: "Status of the extraction process."
+    enum:
+      - "Success"
+      - "Failed"
+additionalProperties: false

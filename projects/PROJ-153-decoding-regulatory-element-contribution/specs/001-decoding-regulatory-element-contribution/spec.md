@@ -35,7 +35,7 @@ A reviewer needs a concise statistical report demonstrating that CRE activity ex
 **Acceptance Scenarios**:
 
 1. **Given** the mixed‑model analysis is completed on the filtered subset, **when** the reviewer reads the PDF, **then** the report contains a table where the fixed‑effect β₁ for ΔPeakSignal is significant (adjusted p < 0.05) for at least one stress condition.
-2. **Given** the permutation test (10,000 shuffles) has been performed, **when** the reviewer examines the empirical null plot, **then** the report includes the empirical p-value for the observed β₁, and the system confirms if p < 0.05.
+2. **Given** the permutation test (shuffles) has been performed, **when** the reviewer examines the empirical null plot, **then** the report includes the empirical p-value for the observed β₁, and the system confirms if p < 0.05.
 3. **Given** the bias sensitivity analysis (FR-017) is complete, **when** the reviewer reads the report, **then** the report includes a comparison of β₁ estimates between the full set and the filtered set to quantify selection bias.
 
 ---
@@ -112,7 +112,7 @@ A lab member wishes to load the most promising CREs into IGV to plan follow‑up
 - All command‑line tools (`fastp`, `bowtie2`, `MACS2`, `bedtools`, `BEDOPS`, `deepTools`, `lme4` in R, `clusterProfiler` or equivalent) run within the **2‑core, 7 GB RAM, ≤5 h** limits of the GitHub Actions free‑tier runner.
 - No GPU or CUDA‑based acceleration is required; all steps use CPU‑only implementations.
 - Sample size (number of genes with paired CRE and eQTL data) is assumed sufficient for mixed‑model inference; a formal power analysis will be performed later (deferred).
-- The chosen FDR threshold of 0.01 for MACS2 is a widely accepted standard for stringent peak detection in yeast ChIP‑seq studies.
+- The chosen FDR threshold for MACS2 is a widely accepted standard for stringent peak detection in yeast ChIP‑seq studies.
 - Collinearity diagnostics (VIF) are appropriate for the modest number of TF predictors per CRE; VIF > 5 is treated as problematic.
 - All external URLs cited in the idea (arXiv papers) are reachable and correctly formatted; no additional citations are introduced.
 - **Expected Results**: A ranked catalog of CREs is expected based on prior literature, but the system will output all significant CREs regardless of count.

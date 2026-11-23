@@ -1,0 +1,13 @@
+status: none
+intent: download Open University Learning Analytics Dataset OULAD events python package
+  dataset
+required_fields:
+- student_id
+- course_id
+- final_grade
+- is_complete
+- submission_timestamp
+- response_timestamp
+cache_key: bc1aecb661acdf12785ce41274f949880f1bbf4ecd74ca7a35bd572dc9cb5c9f
+searched_at: '2026-10-13T03:31:07.579834+00:00'
+retry_count: 1

@@ -18,3 +18,1039 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T03:35:38Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 model size is approximately 80MB
+  claim_id: c_067a9ddd
+  context: 'Implement `code/metrics/extract.py` to compute argument semantic variance
+    using `sentence-transformers/all-MiniLM-L6-v2` (CPU-only). **Definition**: Variance
+    = mean pairwise cosine distance of all argument embeddings in a trace. **Note**:
+    Model size ~80MB fits within 7GB RAM constraint.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sentence-transformers/all-MiniLM-L6-v2_model_size_is_approxi
+  kind: entity_fact
+  raw_text: Model size ~80MB fits within 7GB RAM constraint.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:59:19Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_eb49917e
+  context: T012 [US1] Implement code/generators/synthetic_trace.py to generate **5000**
+    multi-turn sessions mimicking MemSlides schema (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:55:48Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: compute argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_4f8297ff
+  context: T020 [US2] Implement code/metrics/extract.py to compute all structural
+    metrics... argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_argument_semantic_variance_using_sentence-transforme
+  kind: entity_fact
+  raw_text: Compute argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T00:59:18Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_3502cf0e
+  context: 'Implementation for User Story 1 - T012: Implement code/generators/synthetic_trace.py
+    to generate 5000 multi-turn sessions mimicking MemSlides schema (FR-001).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:00:29Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  claim_id: c_511f1b93
+  context: 'Implementation for User Story 2 - T020: Implement code/metrics/extract.py
+    to compute all structural metrics... using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_argument_sema
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+    calculation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:07:23Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  claim_id: c_3f83fb22
+  context: T020 [US2] Implement code/metrics/extract.py to compute all structural
+    metrics (sequence entropy, tool-repetition frequency, argument semantic variance
+    using sentence-transformers/all-MiniLM-L6-v2 CPU-only) for traces in data/training/
+    and data/held_out/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_argument_sema
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:10:35Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  claim_id: c_f8236ed1
+  context: 'Phase 4: User Story 2. Implementation for User Story 2. T020 [US2] Implement
+    code/metrics/extract.py to compute all structural metrics (sequence entropy, tool-repetition
+    frequency, argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only) for traces in data/training/ and data/held_out/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_argument_sema
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:12:04Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance
+  claim_id: c_45d36c88
+  context: T020 [US2] Implement code/metrics/extract.py to compute all structural
+    metrics... argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_CPU-only_for_argu
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:13:11Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: models must be CPU-tractable using Decision Tree, RuleFit, or scikit-learn
+  claim_id: c_6d6a903b
+  context: 'Constraint: All models must be CPU-tractable (Decision Tree, RuleFit,
+    scikit-learn). No GPU, no 8-bit/4-bit quantization, no large LMs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All models must be CPU-tractable (Decision Tree, RuleFit, scikit-learn).
+    No GPU, no 8-bit/4-bit quantization, no large LMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:13:46Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: compressibility_analysis.schema.yaml validates beta_coefficients, p_values,
+    trade_off_curve_points, edit_accuracy_difference, and delta_accuracy
+  claim_id: c_c66b41c2
+  context: 'T004 Create contract schemas... compressibility_analysis.schema.yaml must
+    validate statistical artifacts including: beta_coefficients, p_values, trade_off_curve_points,
+    edit_accuracy_difference, and delta_accuracy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compressibility_analysis.schema.yaml_validates_beta_coeffici
+  kind: entity_fact
+  raw_text: The compressibility_analysis.schema.yaml must validate statistical artifacts
+    including beta_coefficients, p_values, trade_off_curve_points, edit_accuracy_difference,
+    and delta_accuracy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:14:03Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 3
+  canonical: generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_0f4a07dd
+  context: T012 [US1] Implement code/generators/synthetic_trace.py to generate 5000
+    multi-turn sessions mimicking MemSlides schema (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:14:46Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Compute structural metrics using sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_f1501d18
+  context: 'Phase 4: User Story 2. T020 [US2] Implement code/metrics/extract.py to
+    compute all structural metrics... using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_structural_metrics_using_sentence-transformers/all-M
+  kind: entity_fact
+  raw_text: Compute structural metrics (sequence entropy, tool-repetition frequency,
+    argument semantic variance) using sentence-transformers/all-MiniLM-L6-v2 CPU-only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:15:47Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_1269f121
+  context: Implementation for User Story 1 - T012 [US1] Implement code/generators/synthetic_trace.py
+    to generate 5000 multi-turn sessions mimicking MemSlides schema (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:17:42Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  claim_id: c_a5dbfeca
+  context: Implement code/metrics/extract.py to compute all structural metrics (sequence
+    entropy, tool-repetition frequency, argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only) for traces in data/training/ and data/held_out/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_argument_sema
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:17:44Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Variance defined as mean pairwise cosine distance of all argument embeddings
+  claim_id: c_52464462
+  context: 'Generate data/processed/feature_matrix.csv containing structural metrics
+    for every trace. Definition: Variance = mean pairwise cosine distance of all argument
+    embeddings.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variance_defined_as_mean_pairwise_cosine_distance_of_all_arg
+  kind: entity_fact
+  raw_text: Variance is defined as mean pairwise cosine distance of all argument embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:18:32Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Compressibility Score calculated as RuleSetSize divided by TraceLength
+    conditioned on Fidelity threshold
+  claim_id: c_7423e1a6
+  context: Calculate 'Compressibility Score' for each trace in the held-out set as
+    RuleSetSize / TraceLength conditioned on Fidelity >= config.threshold (where Fidelity
+    is derived from the model's held-out prediction accuracy).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compressibility_Score_calculated_as_RuleSetSize_divided_by_T
+  kind: entity_fact
+  raw_text: Compressibility Score is calculated as RuleSetSize / TraceLength conditioned
+    on Fidelity >= config.threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:19:16Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 2
+  canonical: Generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_112dfbae
+  context: T012 [US1] Implement code/generators/synthetic_trace.py to generate 5000
+    multi-turn sessions mimicking MemSlides schema (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:26:07Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  claim_id: c_0f972b4b
+  context: T020 [US2] Implement code/metrics/extract.py to compute all structural
+    metrics... argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_argument_sema
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:26:47Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: All models must be CPU-tractable using Decision Tree, RuleFit, or scikit-learn
+  claim_id: c_f7166686
+  context: 'Constraint: All models must be CPU-tractable (Decision Tree, RuleFit,
+    scikit-learn). No GPU, no 8-bit/4-bit quantization, no large LMs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_models_must_be_CPU-tractable_using_Decision_Tree,_RuleFi
+  kind: entity_fact
+  raw_text: All models must be CPU-tractable (Decision Tree, RuleFit, scikit-learn).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:27:16Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  claim_id: c_2406ab3c
+  context: T020 [US2] Implement code/metrics/extract.py to compute **all** structural
+    metrics (sequence entropy, tool-repetition frequency, argument semantic variance
+    using `sentence-transformers/all-MiniLM-L6-v2` CPU-only) for traces in data/training/
+    and data/held_out/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_argument_sema
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:28:22Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: generate 5000 multi-turn sessions mimicking MemSlides schema
+  claim_id: c_0ad4161b
+  context: T012 [US1] Implement code/generators/synthetic_trace.py to generate **5000**
+    multi-turn sessions mimicking MemSlides schema (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:31:33Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: compute argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_784b5a63
+  context: T020 [US2] Implement code/metrics/extract.py to compute **all** structural
+    metrics (sequence entropy, tool-repetition frequency, argument semantic variance
+    using `sentence-transformers/all-MiniLM-L6-v2` CPU-only) for traces in data/training/
+    and data/held_out/.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_argument_semantic_variance_using_sentence-transforme
+  kind: entity_fact
+  raw_text: Compute argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:32:29Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: variance defined as mean pairwise cosine distance of all argument embeddings
+  claim_id: c_89c662f4
+  context: '**Definition**: Variance = mean pairwise cosine distance of all argument
+    embeddings. Handle undefined variance with default imputation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variance_defined_as_mean_pairwise_cosine_distance_of_all_arg
+  kind: entity_fact
+  raw_text: Variance is defined as mean pairwise cosine distance of all argument embeddings
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:33:11Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance
+  claim_id: c_91ff8404
+  context: 'Phase 4: User Story 2 - Structural Metric Extraction & Rule Induction
+    (Priority: P2). Implementation for User Story 2. T020 [US2] Implement code/metrics/extract.py
+    to compute **all** structural metrics (sequence entropy, tool-repetition frequency,
+    argument semantic variance using `sentence-transformers/all-MiniLM-L6-v2` CPU-only)
+    for traces in `data/training/` and `data/held_out/`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_CPU-only_for_argu
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 CPU-only for argument semantic
+    variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:33:58Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: generate 5000 multi-turn synthetic sessions
+  claim_id: c_153c30ff
+  context: T012 [US1] Implement code/generators/synthetic_trace.py to generate 5000
+    multi-turn sessions mimicking MemSlides schema (FR-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generators/synthetic_trace.py to generate 5000 multi-turn
+    sessions mimicking MemSlides schema
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:35:19Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L6-v2 for semantic variance
+  claim_id: c_130b6cf9
+  context: T020 [US2] Implement code/metrics/extract.py to compute all structural
+    metrics... argument semantic variance using sentence-transformers/all-MiniLM-L6-v2
+    CPU-only
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_semantic_vari
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 for argument semantic variance
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T01:35:55Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: 5000 multi-turn revision sessions generated for training set with seed
+    42
+  claim_id: c_88696e82
+  context: Generate Synthetic Training Data. Generate 5000 multi-turn revision sessions
+    for the Training Set using seed=42 and standard parameters (tool_types, min_length=5,
+    max_length=20).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 5000 multi-turn revision sessions for the Training Set using
+    seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:50:31Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: 5000 distinct sessions generated for held-out test set with seed 43
+  claim_id: c_33fd11b5
+  context: Generate Synthetic Held-Out Data. Generate 5000 distinct sessions for the
+    Held-Out Test Set using seed=43 and perturbed distribution (variance_multiplier=1.5
+    for sequence length and tool repetition) to ensure structural diversity and variance
+    in the outcome variable (fidelity loss).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 5000 distinct sessions for the Held-Out Test Set using seed=43.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:51:35Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: KS test p-value threshold less than 0.05 required for distributional
+    shift confirmation
+  claim_id: c_5be6ed30
+  context: 'Requirement: The KS test p-value must be < 0.05 for at least one metric
+    to confirm distributional shift. If p >= 0.05 for all metrics, raise a StructuralShiftError
+    with a detailed report of the overlap.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS_test_p-value_threshold_less_than_0.05_required_for_distri
+  kind: magnitude
+  raw_text: The KS test p-value must be < 0.05 for at least one metric to confirm
+    distributional shift.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:52:17Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Decision Tree model with max depth 5 and min samples leaf 10
+  claim_id: c_9f31a4af
+  context: Train a lightweight CPU model (Decision Tree with max_depth=5, min_samples_leaf=10)
+    using aggregate structural metrics to predict the serialized final_state.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a lightweight CPU model with Decision Tree max_depth=5 and min_samples_leaf=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:52:29Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Fidelity threshold 90 percent triggers warning log
+  claim_id: c_3c906b32
+  context: Execute the generated rules against the final_state of the training traces
+    to verify they reproduce the state. If fidelity < 90%, log a warning but proceed.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If fidelity < 90%, log a warning but proceed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:52:29Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Logit transformation of delta accuracy with epsilon 1e-4
+  claim_id: c_a77eb653
+  context: 'Transformation: Apply logit transformation to delta_acc (mapping [-1,
+    1] to (0, 1) after shifting) using epsilon=1e-4. Handle edge cases by adding a
+    small epsilon.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply logit transformation to delta_acc using epsilon=1e-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:52:52Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: P-value significance threshold 0.05 with Bonferroni correction
+  claim_id: c_1ecaafa5
+  context: 'Significance: Flag p-values < 0.05 as significant, applying Bonferroni
+    correction if multiple metrics are tested.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag p-values < 0.05 as significant, applying Bonferroni correction if
+    multiple metrics are tested.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:52:52Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: 1000 bootstrap resamples performed for regression confidence intervals
+  claim_id: c_716054cb
+  context: After the primary regression (T035), perform 1000 bootstrap resamples of
+    the accuracy_deltas.csv dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1000 bootstrap resamples of the accuracy_deltas.csv dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:53:25Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test normality violation threshold p-value 0.01
+  claim_id: c_bfdc445e
+  context: 'Action: If assumptions are severely violated (e.g., p-value < 0.01 for
+    normality), flag the result in the output JSON with assumption_violation: true
+    and suggest the Spearman fallback (which is already implemented as a fallback).'
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Flag result if p-value < 0.01 for normality in Shapiro-Wilk test.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T18:53:25Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Resampling seed 42 used
+  claim_id: c_6dbcd40d
+  context: 'Seed: Use seed=42 for resampling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 for resampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:54:04Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Full pipeline dry-run executed locally
+  claim_id: c_276f99f1
+  context: Run a Dry-Run of the full pipeline on the local machine to verify all new
+    tasks execute without errors and produce the expected outputs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_dry-run_executed_locally
+  kind: entity_fact
+  raw_text: Run Dry-Run of the full pipeline on the local machine.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:54:38Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if runtime exceeds 6 hours or memory exceeds 7 GB
+  claim_id: c_941a56fc
+  context: 'Gate: If runtime > 6h or memory > 7GB, pipeline halts with failure status.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If runtime > 6h or memory > 7GB, pipeline halts with failure status.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:54:39Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Graphviz version 0.20 or higher used for data lineage
+  claim_id: c_f73091c6
+  context: 'Implementation Detail: Use graphviz (>=0.20) library. The DOT file must
+    use node [shape=box, label=trace_id] and edge [style=solid] syntax.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use graphviz (>=0.20) library for data lineage generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:55:08Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Configuration values fidelity tolerance 0.90 training seed 42 holdout
+    seed 43 holdout variance multiplier 1.5
+  claim_id: c_d2d13f90
+  context: 'Explicit Constraint: Define FIDELITY_TOLERANCE = 0.90, TRAINING_SEED =
+    42, HOLDOUT_SEED = 43, HOLDOUT_VARIANCE_MULTIPLIER = 1.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define FIDELITY_TOLERANCE = 0.90, TRAINING_SEED = 42, HOLDOUT_SEED = 43,
+    HOLDOUT_VARIANCE_MULTIPLIER = 1.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:55:56Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: 5000 multi-turn revision sessions for Training Set with seed 42
+  claim_id: c_2d4d6927
+  context: T001 [P] [Phase0] Generate Synthetic Training Data. Generate 5000 multi-turn
+    revision sessions for the Training Set using seed=42 and standard parameters (tool_types,
+    min_length=5, max_length=20).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 5000 multi-turn revision sessions for the Training Set using
+    seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:57:27Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: 5000 distinct sessions for Held-Out Test Set with seed 43
+  claim_id: c_ad977865
+  context: T002 [P] [Phase0] Generate Synthetic Held-Out Data. Generate 5000 distinct
+    sessions for the Held-Out Test Set using seed=43 and perturbed distribution (variance_multiplier=1.5
+    for sequence length and tool repetition) to ensure structural diversity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 5000 distinct sessions for the Held-Out Test Set using seed=43.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:57:27Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: FIDELITY_TOLERANCE set to 0.90 in config
+  claim_id: c_652002c1
+  context: 'T006 [P] [Foundational] Setup code/config.py with seeds, paths, and threshold
+    configurations. Explicit Constraint: Define FIDELITY_TOLERANCE = 0.90, TRAINING_SEED
+    = 42, HOLDOUT_SEED = 43, HOLDOUT_VARIANCE_MULTIPLIER = 1.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define FIDELITY_TOLERANCE = 0.90 in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:57:42Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: KS test p-value threshold of 0.05 for distributional shift
+  claim_id: c_86f811ad
+  context: 'T068 [US1/US3] Structural Diversity Validator. Requirement: The KS test
+    p-value must be < 0.05 for at least one metric to confirm distributional shift.
+    If p >= 0.05 for all metrics, raise a StructuralShiftError.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS_test_p-value_threshold_of_0.05_for_distributional_shift
+  kind: magnitude
+  raw_text: The KS test p-value must be less than 0.05 for at least one metric to
+    confirm distributional shift.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:58:40Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Decision Tree with max_depth 5 and min_samples_leaf 10
+  claim_id: c_60c81e75
+  context: T023 [US2] Implement code/models/rule_induction.py to perform aggregate
+    rule induction. Train a lightweight CPU model (Decision Tree with max_depth=5,
+    min_samples_leaf=10) using aggregate structural metrics to predict the serialized
+    final_state.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a Decision Tree with max_depth=5 and min_samples_leaf=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T18:59:09Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Rule fidelity warning threshold of 90%
+  claim_id: c_c62367dc
+  context: 'T023 [US2] Validation: Execute the generated rules against the final_state
+    of the training traces to verify they reproduce the state. If fidelity < 90%,
+    log a warning but proceed.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rule_fidelity_warning_threshold_of_90%25
+  kind: magnitude
+  raw_text: If rule fidelity is less than 90%, log a warning but proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T19:00:15Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: 1000 bootstrap resamples for regression confidence intervals
+  claim_id: c_383f1174
+  context: 'T070 [P] [Foundational] Implement a Resampling-Based Confidence Interval
+    for the Regression coefficients. Logic: After the primary regression (T035), perform
+    1000 bootstrap resamples of the accuracy_deltas.csv dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 1000 bootstrap resamples of the accuracy_deltas.csv dataset for
+    confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T19:00:36Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Seed 42 for resampling
+  claim_id: c_2a65150b
+  context: 'T070 [P] [Foundational] Deliverable: Append confidence_intervals to data/processed/statistical_analysis.json.
+    Dependency: Requires T035 completion. Seed: Use seed=42 for resampling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use seed=42 for the resampling process.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T19:01:12Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Normality assumption violation threshold p-value 0.01
+  claim_id: c_adecccac
+  context: 'T071 [P] [Foundational] Add a Model Assumption Check. Action: If assumptions
+    are severely violated (e.g., p-value < 0.01 for normality), flag the result in
+    the output JSON with assumption_violation: true.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Normality_assumption_violation_threshold_p-value_0.01
+  kind: magnitude
+  raw_text: Flag p-values less than 0.01 for normality as severely violated assumptions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T19:01:58Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Significance threshold p-value 0.05 with Bonferroni correction
+  claim_id: c_263c40a3
+  context: 'T035 [US3] Implement code/evaluation/stats.py for statistical analysis.
+    Significance: Flag p-values < 0.05 as significant, applying Bonferroni correction
+    if multiple metrics are tested.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significance_threshold_p-value_0.05_with_Bonferroni_correcti
+  kind: magnitude
+  raw_text: Flag p-values less than 0.05 as significant, applying Bonferroni correction
+    if multiple metrics are tested.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T19:02:23Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Runtime 6 hours and memory 7GB feasibility gate thresholds
+  claim_id: c_241b8e1d
+  context: 'T017 [US3] Feasibility Gate. Measure total runtime, peak memory, and disk
+    usage. Generate data/processed/feasibility_report.json. Gate: If runtime > 6h
+    or memory > 7GB, pipeline halts with failure status.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If runtime exceeds 6 hours or memory exceeds 7GB, the pipeline halts with
+    failure status.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T19:02:47Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Graphviz version 0.20 dependency
+  claim_id: c_7c59a53a
+  context: 'T063 [P] [Foundational] Add a Data Lineage generator. Implementation Detail:
+    Use graphviz (>=0.20) library.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use graphviz version 0.20 or higher for data lineage visualization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T19:03:07Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Epsilon 1e-4 for logit transformation
+  claim_id: c_6571d19b
+  context: 'T035 [US3] Transformation: Apply logit transformation to delta_acc (mapping
+    [-1, 1] to (0, 1) after shifting) using epsilon=1e-4. Handle edge cases by adding
+    a small epsilon.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use epsilon=1e-4 for logit transformation of delta_acc.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T19:03:31Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Delta_acc clamping range -1.0 to 1.0
+  claim_id: c_23bf08d7
+  context: 'T069 [US3] Delta Boundary Correction. Logic: Ensure delta_acc is clamped
+    to the range [-1.0, 1.0] to prevent logit transformation failures.'
+  evidence:
+    asserted: '-1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Clamp delta_acc to the range [-1.0, 1.0].
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T19:03:31Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Fidelity loss range 0.0 to 1.0
+  claim_id: c_c00bf95e
+  context: 'T035b [US3] Implement code/evaluation/calculate_deltas.py. Validation:
+    Assert that all fidelity_loss values are in [0.0, 1.0]. raise ValueError if invalid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that all fidelity_loss values are in the range [0.0, 1.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T19:03:50Z'
+- artifact_path: projects/PROJ-859-llmxive-follow-up-extending-memslides-a/specs/001-llmxive-follow-up-extending-memslides-a/tasks.md
+  attempts: 1
+  canonical: Rule fidelity check threshold 90%
+  claim_id: c_1e767971
+  context: 'T023 [US2] Validation: Execute the generated rules against the final_state
+    of the training traces to verify they reproduce the state. If fidelity < 90%,
+    log a warning but proceed.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rule_fidelity_check_threshold_90%25
+  kind: magnitude
+  raw_text: If fidelity is less than 90%, log a warning.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T19:04:05Z'

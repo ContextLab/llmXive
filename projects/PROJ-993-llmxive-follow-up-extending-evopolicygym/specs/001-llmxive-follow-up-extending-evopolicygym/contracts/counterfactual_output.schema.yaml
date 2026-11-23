@@ -1,0 +1,29 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CounterfactualExplanationOutput
+type: object
+description: Output schema for the counterfactual explanation generator.
+required:
+  - rule_id
+  - explanation_text
+  - suggested_action
+  - valid
+properties:
+  rule_id:
+    type: string
+    description: ID of the violated rule identified by the LLM.
+  explanation_text:
+    type: string
+    description: Natural language explanation of the failure.
+    maxLength: 200
+  suggested_action:
+    type: string
+    description: The action that would have succeeded.
+  valid:
+    type: boolean
+    description: Whether the output passed schema validation.
+  generation_method:
+    type: string
+    enum:
+      - "llm"
+      - "fallback"
+    description: Method used to generate the explanation.

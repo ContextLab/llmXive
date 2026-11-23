@@ -1,0 +1,636 @@
+{
+  "fetched_at": "2026-08-24T09:39:52Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Captures\"",
+      "target_n": 5
+    },
+    "duration_seconds": 82.908,
+    "ended_at": "2026-08-24T09:39:52Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "4D human-scene reconstruction from sparse views"
+        ],
+        [
+          2,
+          "dynamic human reconstruction from low-overlap multi-view captures"
+        ],
+        [
+          3,
+          "joint optimization of human and scene geometry with limited overlap"
+        ],
+        [
+          4,
+          "4D human-scene modeling from uncalibrated sparse imagery"
+        ],
+        [
+          5,
+          "monocular 4D human-scene reconstruction with scene priors"
+        ],
+        [
+          6,
+          "neural radiance fields for 4D human-scene reconstruction"
+        ],
+        [
+          7,
+          "dynamic neural radiance fields from sparse camera trajectories"
+        ],
+        [
+          8,
+          "human-scene interaction modeling from low-overlap video sequences"
+        ],
+        [
+          9,
+          "3D human pose and shape estimation in complex scenes from sparse views"
+        ],
+        [
+          10,
+          "view synthesis for dynamic human-scene reconstruction with occlusion"
+        ],
+        [
+          11,
+          "simultaneous human and environment reconstruction from limited data"
+        ],
+        [
+          12,
+          "neural implicit representations for 4D human-scene recovery"
+        ],
+        [
+          13,
+          "dynamic scene reconstruction with human actors from sparse captures"
+        ],
+        [
+          14,
+          "4D human reconstruction in cluttered environments from low-overlap inputs"
+        ],
+        [
+          15,
+          "multi-view stereo for human-scene reconstruction with partial visibility"
+        ],
+        [
+          16,
+          "learning-based 4D human-scene reconstruction from sparse viewpoints"
+        ],
+        [
+          17,
+          "temporal consistency in 4D human-scene reconstruction from low-overlap sequences"
+        ],
+        [
+          18,
+          "human-centric dynamic scene reconstruction from sparse multi-view data"
+        ],
+        [
+          19,
+          "neural rendering of 4D human-scene interactions from limited observations"
+        ],
+        [
+          20,
+          "sparse-view 4D reconstruction of humans and their surrounding environments"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "4D human-scene reconstruction from sparse views": 5,
+        "llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Captures\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multi-view stereo low-overlap pose ambiguity",
+      "neural radiance fields sparse input camera poses",
+      "structure from motion loop closure outlier rejection",
+      "novel view synthesis view consistency geometric error",
+      "self-supervised depth estimation scale drift bundle adjustment"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2506.18601"
+      ]
+    },
+    "per_query_hit_count": {
+      "llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Captures\" computer science": 3,
+      "multi-view stereo low-overlap pose ambiguity": 3,
+      "neural radiance fields sparse input camera poses": 3,
+      "novel view synthesis view consistency geometric error": 3,
+      "self-supervised depth estimation scale drift bundle adjustment": 3,
+      "structure from motion loop closure outlier rejection": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1902.09328",
+          "rationale": "The paper focuses on reconstructing the internal elasticity distribution of physical elastic bodies using local displacement fields, which is a distinct construct from the user's question about 4D human-scene reconstruction (geometry and appearance) from low-overlap camera captures. While both involve \"reconstruction\" and \"sparse\" data, the underlying physical mechanisms (elasticity vs. visual geometry), data modalities (displacement sensors vs. images), and target populations (elastic bodies vs",
+          "title": "Sparse Elasticity Reconstruction and Clustering using Local Displacement Fields"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-24T09:38:29Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"4d human-scene reconstruction from low-overlap captures\" computer science",
+      "raw": "llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Captures\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce MonSter++, a geometric foundation model for multi-view depth estimation, unifying rectified stereo matching and unrectified multi-view stereo. Both tasks fundamentally recover metric depth from correspondence search and consequently face the same dilemma: struggling to handle ill-posed regions with limited matching cues. To address this, we propose MonSter++, a novel method that integrates monocular depth priors into multi-view depth estimation, effectively combining the complementary strengths of single-view and multi-view cues. MonSter++ fuses monocular depth and multi-view depth into a dual-branched architecture. Confidence-based guidance adaptively selects reliable multi-view cues to correct scale ambiguity in monocular depth. The refined monocular predictions, in turn, effectively guide multi-view estimation in ill-posed regions. This iterative mutual enhancement enables MonSter++ to evolve coarse object-level monocular priors into fine-grained, pixel-level geometry, fully unlocking the potential of multi-view depth estimation. MonSter++ achieves new state-of-the-art on both stereo matching and multi-view stereo. By effectively incorporating monocular priors through our cascaded search and multi-scale depth fusion strategy, our real-time variant RT-MonSter++ also outperforms previous real-time methods by a large margin. As shown in Fig.1, MonSter++ achieves significant improvements over previous methods across eight benchmarks from three tasks -- stereo matching, real-time stereo matching, and multi-view stereo, demonstrating the strong generality of our framework. Besides high accuracy, MonSter++ also demonstrates superior zero-shot generalization capability. We will release both the large and the real-time models to facilitate their use by the open-source community.",
+          "claimed_authors": [
+            "Junda Cheng",
+            "Wenjing Liao",
+            "Zhipeng Cai",
+            "Longliang Liu",
+            "Gangwei Xu",
+            "Xianqi Wang",
+            "Yuzhou Wang",
+            "Zikang Yuan",
+            "Yong Deng",
+            "Jinliang Zang",
+            "Yangyang Shi",
+            "Jinhui Tang",
+            "Xin Yang"
+          ],
+          "claimed_title": "MonSter++: Unified Stereo Matching, Multi-view Stereo, and Real-time Stereo with Monodepth Priors",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.08643"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='MonSter++: Unified Stereo Matching, Multi-view Stereo, and Real-time Stereo with Monodepth Priors')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces a novel deep framework for dense 3D reconstruction from multiple image frames, leveraging a sparse set of depth measurements gathered jointly with image acquisition. Given a deep multi-view stereo network, our framework uses sparse depth hints to guide the neural network by modulating the plane-sweep cost volume built during the forward step, enabling us to infer constantly much more accurate depth maps. Moreover, since multiple viewpoints can provide additional depth measurements, we propose a multi-view guidance strategy that increases the density of the sparse points used to guide the network, thus leading to even more accurate results. We evaluate our Multi-View Guided framework within a variety of state-of-the-art deep multi-view stereo networks, demonstrating its effectiveness at improving the results achieved by each of them on BlendedMVG and DTU datasets.",
+          "claimed_authors": [
+            "Matteo Poggi",
+            "Andrea Conti",
+            "Stefano Mattoccia"
+          ],
+          "claimed_title": "Multi-View Guided Multi-View Stereo",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.11467"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='Multi-View Guided Multi-View Stereo')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The STEREO experiment, aiming to probe short baseline neutrino oscillations by precisely measuring reactor anti-neutrino spectrum, is currently under installation. It is located at short distance from the compact research reactor core of the Institut Laue-Langevin, Grenoble, France. Dedicated electronics, hosted in a single $μ$TCA crate, were designed for this experiment. In this article, the electronics requirements, architecture and the performances achieved are described. It is shown how intrinsic Pulse Shape Discrimination properties of the liquid scintillator are preserved and how custom adaptable logic is used to improve the muon veto efficiency.",
+          "claimed_authors": [
+            "V. Hélaine",
+            "STEREO collaboration"
+          ],
+          "claimed_title": "Electronics for the STEREO experiment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.00003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='Electronics for the STEREO experiment')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural Radiance Field (NeRF) has recently emerged as a powerful representation to synthesize photorealistic novel views. While showing impressive performance, it relies on the availability of dense input views with highly accurate camera poses, thus limiting its application in real-world scenarios. In this work, we introduce Sparse Pose Adjusting Radiance Field (SPARF), to address the challenge of novel-view synthesis given only few wide-baseline input images (as low as 3) with noisy camera poses. Our approach exploits multi-view geometry constraints in order to jointly learn the NeRF and refine the camera poses. By relying on pixel matches extracted between the input views, our multi-view correspondence objective enforces the optimized scene and camera poses to converge to a global and geometrically accurate solution. Our depth consistency loss further encourages the reconstructed scene to be consistent from any viewpoint. Our approach sets a new state of the art in the sparse-view regime on multiple challenging datasets.",
+          "claimed_authors": [
+            "Prune Truong",
+            "Marie-Julie Rakotosaona",
+            "Fabian Manhardt",
+            "Federico Tombari"
+          ],
+          "claimed_title": "SPARF: Neural Radiance Fields from Sparse and Noisy Poses",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.11738"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='SPARF: Neural Radiance Fields from Sparse and Noisy Poses')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural Radiance Fields (NeRFs) encode the radiance in a scene parameterized by the scene's plenoptic function. This is achieved by using an MLP together with a mapping to a higher-dimensional space, and has been proven to capture scenes with a great level of detail. Naturally, the same parameterization can be used to encode additional properties of the scene, beyond just its radiance. A particularly interesting property in this regard is the semantic decomposition of the scene. We introduce a novel technique for semantic soft decomposition of neural radiance fields (named SSDNeRF) which jointly encodes semantic signals in combination with radiance signals of a scene. Our approach provides a soft decomposition of the scene into semantic parts, enabling us to correctly encode multiple semantic classes blending along the same direction -- an impossible feat for existing methods. Not only does this lead to a detailed, 3D semantic representation of the scene, but we also show that the regularizing effects of the MLP used for encoding help to improve the semantic representation. We show state-of-the-art segmentation and reconstruction results on a dataset of common objects and demonstrate how the proposed approach can be applied for high quality temporally consistent video editing and re-compositing on a dataset of casually captured selfie videos.",
+          "claimed_authors": [
+            "Siddhant Ranade",
+            "Christoph Lassner",
+            "Kai Li",
+            "Christian Haene",
+            "Shen-Chi Chen",
+            "Jean-Charles Bazin",
+            "Sofien Bouaziz"
+          ],
+          "claimed_title": "SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.03406"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce GNeRF, a framework to marry Generative Adversarial Networks (GAN) with Neural Radiance Field (NeRF) reconstruction for the complex scenarios with unknown and even randomly initialized camera poses. Recent NeRF-based advances have gained popularity for remarkable realistic novel view synthesis. However, most of them heavily rely on accurate camera poses estimation, while few recent methods can only optimize the unknown camera poses in roughly forward-facing scenes with relatively short camera trajectories and require rough camera poses initialization. Differently, our GNeRF only utilizes randomly initialized poses for complex outside-in scenarios. We propose a novel two-phases end-to-end framework. The first phase takes the use of GANs into the new realm for optimizing coarse camera poses and radiance fields jointly, while the second phase refines them with additional photometric loss. We overcome local minima using a hybrid and iterative optimization scheme. Extensive experiments on a variety of synthetic and natural scenes demonstrate the effectiveness of GNeRF. More impressively, our approach outperforms the baselines favorably in those scenes with repeated patterns or even low textures that are regarded as extremely challenging before.",
+          "claimed_authors": [
+            "Quan Meng",
+            "Anpei Chen",
+            "Haimin Luo",
+            "Minye Wu",
+            "Hao Su",
+            "Lan Xu",
+            "Xuming He",
+            "Jingyi Yu"
+          ],
+          "claimed_title": "GNeRF: GAN-based Neural Radiance Field without Posed Camera",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.15606"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='GNeRF: GAN-based Neural Radiance Field without Posed Camera')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper a binary feature based Loop Closure Detection (LCD) method is proposed, which for the first time achieves higher precision-recall (PR) performance compared with state-of-the-art SIFT feature based approaches. The proposed system originates from our previous work Multi-Index hashing for Loop closure Detection (MILD), which employs Multi-Index Hashing (MIH)~\\cite{greene1994multi} for Approximate Nearest Neighbor (ANN) search of binary features. As the accuracy of MILD is limited by repeating textures and inaccurate image similarity measurement, burstiness handling is introduced to solve this problem and achieves considerable accuracy improvement. Additionally, a comprehensive theoretical analysis on MIH used in MILD is conducted to further explore the potentials of hashing methods for ANN search of binary features from probabilistic perspective. This analysis provides more freedom on best parameter choosing in MIH for different application scenarios. Experiments on popular public datasets show that the proposed approach achieved the highest accuracy compared with state-of-the-art while running at 30Hz for databases containing thousands of images.",
+          "claimed_authors": [
+            "Lei Han",
+            "Guyue Zhou",
+            "Lan Xu",
+            "Lu Fang"
+          ],
+          "claimed_title": "Beyond SIFT using Binary features for Loop Closure Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1709.05833"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='Beyond SIFT using Binary features for Loop Closure Detection')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Outlier detection is a well-researched and crucial problem in machine learning. However, there is little research on string data outlier detection, as most literature focuses on outlier detection of numerical data. A robust string data outlier detection algorithm could assist with data cleaning or anomaly detection in system log files. In this thesis, we compare two string outlier detection algorithms. Firstly, we introduce a variant of the well-known local outlier factor algorithm, which we tailor to detect outliers on string data using the Levenshtein measure to calculate the density of the dataset. We present a differently weighted Levenshtein measure, which considers hierarchical character classes and can be used to tune the algorithm to a specific string dataset. Secondly, we introduce a new kind of outlier detection algorithm based on the hierarchical left regular expression learner, which infers a regular expression for the expected data. Using various datasets and parameters, we experimentally show that both algorithms can conceptually find outliers in string data. We show that the regular expression-based algorithm is especially good at finding outliers if the expected values have a distinct structure that is sufficiently different from the structure of the outliers. In contrast, the local outlier factor algorithms are best at finding outliers if their edit distance to the expected data is sufficiently distinct from the edit distance between the expected data.",
+          "claimed_authors": [
+            "Philip Maus"
+          ],
+          "claimed_title": "Comparison of Outlier Detection Algorithms on String Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.11049"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='Comparison of Outlier Detection Algorithms on String Data')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper gives an overview of the problems and methods of recovery of structure and motion parameters of rigid bodies from multiframes.",
+          "claimed_authors": [
+            "Mieczysław A. Kłopotek"
+          ],
+          "claimed_title": "Structure and Motion from Multiframes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.12797"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='Structure and Motion from Multiframes')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose DENSER, a Depth-guided ENSemble with Staged EFA-GS Reconstruction for soccer novel view synthesis. DENSER extends EFA-GS with three key contributions: (1) camera-height-based loss weighting that prioritises ground-level broadcast views, (2) monocular depth supervision from Depth-Anything-V2 to regularise geometry in textureless regions, and (3) a three-model pixel-average ensemble whose members diverge from a shared base checkpoint by varying training length and Gaussian scale clamping. On five held-out challenge scenes we achieve a mean PSNR of 29.89 dB, SSIM of 0.791, and LPIPS of 0.366.",
+          "claimed_authors": [
+            "Parthsarthi Rawat"
+          ],
+          "claimed_title": "DENSER: Depth-Guided Ensemble with Staged EFA-GS Reconstruction for Soccer Novel View Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.01419"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='DENSER: Depth-Guided Ensemble with Staged EFA-GS Reconstruction for Soccer Novel View Synthesis')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a new task, novel view synthesis for LiDAR sensors. While traditional model-based LiDAR simulators with style-transfer neural networks can be applied to render novel views, they fall short of producing accurate and realistic LiDAR patterns because the renderers rely on explicit 3D reconstruction and exploit game engines, that ignore important attributes of LiDAR points. We address this challenge by formulating, to the best of our knowledge, the first differentiable end-to-end LiDAR rendering framework, LiDAR-NeRF, leveraging a neural radiance field (NeRF) to facilitate the joint learning of geometry and the attributes of 3D points. However, simply employing NeRF cannot achieve satisfactory results, as it only focuses on learning individual pixels while ignoring local information, especially at low texture areas, resulting in poor geometry. To this end, we have taken steps to address this issue by introducing a structural regularization method to preserve local structural details. To evaluate the effectiveness of our approach, we establish an object-centric multi-view LiDAR dataset, dubbed NeRF-MVL. It contains observations of objects from 9 categories seen from 360-degree viewpoints captured with multiple LiDAR sensors. Our extensive experiments on the scene-level KITTI-360 dataset, and on our object-level NeRF-MVL show that our LiDAR-NeRF surpasses the model-based algorithms significantly.",
+          "claimed_authors": [
+            "Tang Tao",
+            "Longfei Gao",
+            "Guangrun Wang",
+            "Yixing Lao",
+            "Peng Chen",
+            "Hengshuang Zhao",
+            "Dayang Hao",
+            "Xiaodan Liang",
+            "Mathieu Salzmann",
+            "Kaicheng Yu"
+          ],
+          "claimed_title": "LiDAR-NeRF: Novel LiDAR View Synthesis via Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.10406"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='LiDAR-NeRF: Novel LiDAR View Synthesis via Neural Radiance Fields')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The abundance of casually captured monocular videos and images on social media provides a valuable source for immersive content creation, where generating novel views from such sparse observations can greatly enhance user experiences. However, producing photorealistic and geometrically consistent views with precise camera control remains challenging when input coverage is extremely limited. Reconstruction-based approaches such as NeRF and 3D Gaussian Splatting (3DGS) deteriorate severely under sparse inputs and fail to explicitly handle occlusions. Generative methods ease data requirements but still struggle with large-baseline view synthesis due to inaccurate or implicit geometric guidance. To overcome these limitations, we introduce UniWorld-View, a unified framework for controllable large-baseline novel view synthesis from monocular inputs. UniWorld-View integrates explicit 3D guidance with generative diffusion modeling to enable precise camera control and geometrically consistent view generation. The geometric guidance is obtained through an occlusion-aware point cloud rendering strategy that resolves visibility ambiguities and provides accurate priors for diffusion-based synthesis. By coupling this rendering strategy with powerful video diffusion backbones, UniWorld-View achieves high-fidelity novel view generation even under extreme camera motions and wide-baseline changes, and can further provide multi-view videos for downstream dynamic 3DGS reconstruction. Experiments on the WorldScore benchmark and zero-shot NVS benchmarks demonstrate the effectiveness of UniWorld-View in controllability, geometric consistency, and visual fidelity.",
+          "claimed_authors": [
+            "Haiyang Zhou",
+            "Wangbo Yu",
+            "Chaoran Feng",
+            "Xunyu Zhou",
+            "Yonghong Tian",
+            "Li Yuan"
+          ],
+          "claimed_title": "UniWorld-View: Large-Baseline View Synthesis via Video Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.04701"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='UniWorld-View: Large-Baseline View Synthesis via Video Diffusion Models')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite advancements in self-supervised monocular depth estimation, challenges persist in dynamic scenarios due to the dependence on assumptions about a static world. In this paper, we present Manydepth2, to achieve precise depth estimation for both dynamic objects and static backgrounds, all while maintaining computational efficiency. To tackle the challenges posed by dynamic content, we incorporate optical flow and coarse monocular depth to create a pseudo-static reference frame. This frame is then utilized to build a motion-aware cost volume in collaboration with the vanilla target frame. Furthermore, to improve the accuracy and robustness of the network architecture, we propose an attention-based depth network that effectively integrates information from feature maps at different resolutions by incorporating both channel and non-local attention mechanisms. Compared to methods with similar computational costs, Manydepth2 achieves a significant reduction of approximately five percent in root-mean-square error for self-supervised monocular depth estimation on the KITTI-2015 dataset. The code could be found at https://github.com/kaichen-z/Manydepth2.",
+          "claimed_authors": [
+            "Kaichen Zhou",
+            "Jia-Wang Bian",
+            "Jian-Qing Zheng",
+            "Jiaxing Zhong",
+            "Qian Xie",
+            "Niki Trigoni",
+            "Andrew Markham"
+          ],
+          "claimed_title": "Manydepth2: Motion-Aware Self-Supervised Monocular Depth Estimation in Dynamic Scenes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.15268"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='Manydepth2: Motion-Aware Self-Supervised Monocular Depth Estimation in Dynamic Scenes')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Self-supervised monocular depth estimation has seen significant progress in recent years, especially in outdoor environments. However, depth prediction results are not satisfying in indoor scenes where most of the existing data are captured with hand-held devices. As compared to outdoor environments, estimating depth of monocular videos for indoor environments, using self-supervised methods, results in two additional challenges: (i) the depth range of indoor video sequences varies a lot across different frames, making it difficult for the depth network to induce consistent depth cues for training; (ii) the indoor sequences recorded with handheld devices often contain much more rotational motions, which cause difficulties for the pose network to predict accurate relative camera poses. In this work, we propose a novel framework-MonoIndoor++ by giving special considerations to those challenges and consolidating a set of good practices for improving the performance of self-supervised monocular depth estimation for indoor environments. First, a depth factorization module with transformer-based scale regression network is proposed to estimate a global depth scale factor explicitly, and the predicted scale factor can indicate the maximum depth values. Second, rather than using a single-stage pose estimation strategy as in previous methods, we propose to utilize a residual pose estimation module to estimate relative camera poses across consecutive frames iteratively. Third, to incorporate extensive coordinates guidance for our residual pose estimation module, we propose to perform coordinate convolutional encoding directly over the inputs to pose networks. The proposed method is validated on a variety of benchmark indoor datasets, i.e., EuRoC MAV, NYUv2, ScanNet and 7-Scenes, demonstrating the state-of-the-art performance.",
+          "claimed_authors": [
+            "Runze Li",
+            "Pan Ji",
+            "Yi Xu",
+            "Bir Bhanu"
+          ],
+          "claimed_title": "MonoIndoor++:Towards Better Practice of Self-Supervised Monocular Depth Estimation for Indoor Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.08951"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='MonoIndoor++:Towards Better Practice of Self-Supervised Monocular Depth Estimation for Indoor Environments')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Depth completion, the technique of estimating a dense depth image from sparse depth measurements, has a variety of applications in robotics and autonomous driving. However, depth completion faces 3 main challenges: the irregularly spaced pattern in the sparse depth input, the difficulty in handling multiple sensor modalities (when color images are available), as well as the lack of dense, pixel-level ground truth depth labels. In this work, we address all these challenges. Specifically, we develop a deep regression model to learn a direct mapping from sparse depth (and color images) to dense depth. We also propose a self-supervised training framework that requires only sequences of color and sparse depth images, without the need for dense depth labels. Our experiments demonstrate that our network, when trained with semi-dense annotations, attains state-of-the- art accuracy and is the winning approach on the KITTI depth completion benchmark at the time of submission. Furthermore, the self-supervised framework outperforms a number of existing solutions trained with semi- dense annotations.",
+          "claimed_authors": [
+            "Fangchang Ma",
+            "Guilherme Venturelli Cavalheiro",
+            "Sertac Karaman"
+          ],
+          "claimed_title": "Self-supervised Sparse-to-Dense: Self-supervised Depth Completion from LiDAR and Monocular Camera",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.00275"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"4D Human-Scene Reconstruction from Low-Overlap Cap', candidate_title='Self-supervised Sparse-to-Dense: Self-supervised Depth Completion from LiDAR and Monocular Camera')",
+        "failed_at": "2026-08-24T09:38:58Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Pierre Zins",
+            "Yuanlu Xu",
+            "Edmond Boyer",
+            "Stefanie Wuhrer",
+            "Tony Tung"
+          ],
+          "title": "Data-Driven 3D Reconstruction of Dressed Humans From Sparse Views",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2104.08013",
+        "summary": "Recently, data-driven single-view reconstruction methods have shown great progress in modeling 3D dressed humans. However, such methods suffer heavily from depth ambiguities and occlusions inherent to single view inputs. In this paper, we tackle this problem by considering a small set of input views and investigate the best strategy to suitably exploit information from these views. We propose a data-driven end-to-end approach that reconstructs an implicit 3D representation of dressed humans from sparse camera views. Specifically, we introduce three key components: first a spatially consistent reconstruction that allows for arbitrary placement of the person in the input views using a perspective camera model; second an attention-based fusion layer that learns to aggregate visual information from several viewpoints; and third a mechanism that encodes local 3D patterns under the multi-view context. In the experiments, we show the proposed approach outperforms the state of the art on standard data both quantitatively and qualitatively. To demonstrate the spatially consistent reconstruction, we apply our approach to dynamic scenes. Additionally, we apply our method on real data acquired with a multi-camera platform and demonstrate our approach can obtain results comparable to multi-view stereo with dramatically less views.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2104.08013",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-24T09:39:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Denis Rozumny",
+            "Jonathon Luiten",
+            "Numair Khan",
+            "Johannes Schönberger",
+            "Peter Kontschieder"
+          ],
+          "title": "BulletGen: Improving 4D Reconstruction with Bullet-Time Generation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.18601",
+        "summary": "Transforming casually captured, monocular videos into fully immersive dynamic experiences is a highly ill-posed task, and comes with significant challenges, e.g., reconstructing unseen regions, and dealing with the ambiguity in monocular depth estimation. In this work we introduce BulletGen, an approach that takes advantage of generative models to correct errors and complete missing information in a Gaussian-based dynamic scene representation. This is done by aligning the output of a diffusion-based video generation model with the 4D reconstruction at a single frozen \"bullet-time\" step. The generated frames are then used to supervise the optimization of the 4D Gaussian model. Our method seamlessly blends generative content with both static and dynamic scene components, achieving state-of-the-art results on both novel-view synthesis, and 2D/3D tracking tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.18601",
+          "http_status": 200,
+          "pdf_sample_score": 0.1931,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-24T09:39:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Weihong Pan",
+            "Xiaoyu Zhang",
+            "Zhuang Zhang",
+            "Zhichao Ye",
+            "Nan Wang",
+            "Haomin Liu",
+            "Guofeng Zhang"
+          ],
+          "title": "SparseCam4D: Spatio-Temporally Consistent 4D Reconstruction from Sparse Cameras",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.26481",
+        "summary": "High-quality 4D reconstruction enables photorealistic and immersive rendering of the dynamic real world. However, unlike static scenes that can be fully captured with a single camera, high-quality dynamic scenes typically require dense arrays of tens or even hundreds of synchronized cameras. Dependence on such costly lab setups severely limits practical scalability. To this end, we propose a sparse-camera dynamic reconstruction framework that exploits abundant yet inconsistent generative observations. Our key innovation is the Spatio-Temporal Distortion Field, which provides a unified mechanism for modeling inconsistencies in generative observations across both spatial and temporal dimensions. Building on this, we develop a complete pipeline that enables 4D reconstruction from sparse and uncalibrated camera inputs. We evaluate our method on multi-camera dynamic scene benchmarks, achieving spatio-temporally consistent high-fidelity renderings and significantly outperforming existing approaches. Project page available at https://inspatio.github.io/sparse-cam4d/",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.26481",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-24T09:39:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tanuj Sur",
+            "Shashank Tripathi",
+            "Nikos Athanasiou",
+            "Ha Linh Nguyen",
+            "Kai Xu",
+            "Michael J. Black",
+            "Angela Yao"
+          ],
+          "title": "UniCon3R: Unified Contact-aware 4D Human-Scene Reconstruction from Monocular Video",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.19923",
+        "summary": "We introduce UniCon3R, a unified feed-forward framework for online human-scene 4D reconstruction from monocular video. Current feed-forward human-scene reconstruction methods suffer from artifacts, where bodies float above the ground or penetrate parts of the scene. A key reason is the lack of effective interaction modelling between the human and the environment. Our goal is to exploit contact between the human and the scene during inference to actively improve the human mesh reconstruction. To that end, we explicitly model interaction by inferring 4D contact from the human pose and scene geometry and use the contact as a corrective cue for generating the pose. This enables UniCon3R to jointly recover scene geometry and spatially aligned 4D humans within the scene. Experiments on standard human-centric video benchmarks show that UniCon3R outperforms state-of-the-art baselines on physical plausibility and global human motion estimation while preserving fast, feed-forward inference speeds. The results validate our central claim: contact serves as a powerful internal prior, thus establishing a new paradigm for physically grounded joint human-scene reconstruction. Project page is available at https://surtantheta.github.io/UniCon3R .",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.19923",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-24T09:39:08Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"4d human-scene reconstruction from low-overlap captures\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

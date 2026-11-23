@@ -1,0 +1,177 @@
+T001:
+  c: true
+  h: 441d8ea4ed350ac63d1e7935d2f87e1f98cc4593ea6eefe5168ea21534c54e7c
+  r: All six required directories (`src/`, `tests/`, `data/raw/`, `data/processed/`,
+    `results/`, `docs/`) exist and are non-empty (except intentionally empty `data/processed/`),
+    confirmed by the collector's directory listings, and the setup script's execution
+    log (exit 0) shows all six were created.
+  sig: 8892cb2aef90bb19800a82b2a7d9cf89c82cc098b02484c48f91ba37d759d84b
+T002:
+  c: true
+  h: 4ee19c4713924a58e2f41c8f5e6e37015f356a14013e062a7a6864d3c33613ad
+  r: The `requirements.txt` exists at the project root, is non-empty, and contains
+    pinned versions of all seven required packages (networkx, numpy, scipy, pandas,
+    scikit-learn, matplotlib, pytest) plus extras. Execution logs show `pip install
+    -r requirements.txt` ran successfully (exit 0, "Requirements installed successfully")
+    and a passing test confirming the install log exists.
+  sig: 5618e770b708611f2fc0d62a792c051f42a3c99deb05f58175dce1cb83df552c
+T004:
+  c: true
+  h: 22933275da1b18fff7ead77bf5d39592a79a30089ee44f99c6289b8b4c74f256
+  r: '`config.yaml` exists (700 bytes), is valid YAML with `seeds.random_seed: 42`,
+    `thresholds.r_target: 0.8`, `thresholds.t_min: 100`, and default paths including
+    `data/raw` and `results`, matching the task''s required keys and values. The `data/raw/`
+    and `results/` directories also exist as specified.'
+  sig: d55abda5ee295a391aaa8cf4e50f152440a2ce95aec76eb05a5f7431c751e911
+T005a:
+  c: false
+  h: 3b3ebc71c599e23f826e88068e576fae48b1f203fab6b8d4763b16c6d6fe7a39
+  r: "Checked `src/loader.py` execution log and `data/raw/` contents: only 9\u202F\
+    *.mtx* files were successfully downloaded and converted (com\u2011DBLP failed\
+    \ with 404) and no *.csv* files exist, so the required \u201C\u2265\u202F10 files\u201D\
+    \ condition is not met. The loader also never processes any Network Repository\
+    \ URLs. The task therefore remains incomplete."
+  sig: 0be7c84b7fabea75db51614bb8aaa9822cb1c34a7c3cbd15605abc9e7e3ab263
+T005b:
+  c: true
+  h: e0b114d6f8c616efa2282e542616f715e0725f5581e5743f2b8cb1884f025512
+  r: "Checked `data/checksums.txt` (1673\u202Fbytes, 18 correctly\u2011formatted `<hash>\
+    \  <filename>` lines) and the pytest run (`tests/test_compute_checksums.py`) which\
+    \ confirms the file exists, the format is correct, and every file in `data/raw/`\
+    \ has an entry. The compute script log also reports writing 18 entries. All evidence\
+    \ shows the required SHA\u2011256 checksum file was generated and passes verification."
+  sig: 50329a4ef137b0c40359b59f364a3ae0c8b5d0c641d151d43952ca6e30c51364
+T005c:
+  c: false
+  h: 7962e7dca05fa4798f2158259fcc6e05db7c1be93726b8b664f0f2f9d1a3ed05
+  r: "The `src/loader.py` code does implement the validator correctly (`fetch_snap_dataset`\
+    \ raises `RuntimeError` on HTTPError/URLError/unexpected errors, and `load_real_data`\
+    \ has no silent fallback). However, the task's verification requirement \u2014\
+    \ simulating a 404 by altering a URL and confirming the script aborts with a clear\
+    \ error \u2014 has no supporting evidence: no test script, log, or execution output\
+    \ demonstrating the abort behavior was provided. The implementer should run a\
+    \ 404-simulation test (e.g., a bad URL in the dataset list) and attach the resulting\
+    \ error log/output as proof."
+  sig: ade54afc82154cf34ea7400ca8679762e9caddb3371cfe99b4a2b41d1aaaaa94
+T006:
+  c: false
+  h: 3ed7d28474e12355714df6a9058caa6e52005bf606ac3dca5dac428db8960720
+  r: "The module `src/data_models.py` exists and defines `TopologicalMetrics` and\
+    \ `NetworkGraph`, but it does not itself define `SimulationResult` and `RegressionModel`\
+    \ \u2014 it re-exports them via `from data_models import ...`, which depends on\
+    \ the top-level `code/data_models.py` being importable; there is no evidence (no\
+    \ `__init__.py`/path setup shown, no execution evidence) that `from src.data_models\
+    \ import NetworkGraph` actually succeeds from the project root, and this cross-module\
+    \ import is likely to fail. Additionally, the two `NetworkGraph` definitions (in\
+    \ `src/` and `code/`) diverge (graph objec"
+  sig: cec8ab2c2aa73506404576d3e171b09494ca8ba9ce3d386efe402b4f071aa09d
+T007:
+  c: false
+  h: 853d67409b31c21c69281f3d1aceadc4a0baef2bbd72b4fc53427c4c5a8fb926
+  r: 'The current `src/utils.py` does contain a `save_json` that writes with `indent=2`
+    and a `get_logger` wrapper, but the only execution evidence on record is the T007
+    test run, which FAILED (exit 2, `ImportError: cannot import name ''save_json''
+    from ''src.utils''`), and there is no subsequent successful run demonstrating
+    the required verification (`utils.save_json({}, "tmp.json")` creating a readable
+    file). Additionally, the task says save_json "validates against the appropriate
+    schema," but the implementation makes schema validation purely optional via a
+    `schema_path` argument that defaults to None'
+  sig: 84675aa76b31febd0a5c2f2138fa01ce15f781fb83023b7c3aa0e0161c7ef28c
+T008a:
+  c: true
+  h: 4083d1b944acdb5766ee32ab4cc11e3e95fab9f90149b92e6e0d6ce1e8d1d29d
+  r: 'The `tests/conftest.py` file exists (997 bytes) and contains the required pytest
+    configuration elements: (1) a `temp_data_dir` fixture using `tmp_path_factory`
+    for temporary directories with session scope, (2) a `deterministic_rng` fixture
+    that sets a deterministic seed (42) for both `random` and `np.random` with `autouse=True`
+    to apply to all tests, and (3) proper pytest fixture syntax. The file also includes
+    a helper `sample_graph` fixture and correctly adds the code directory to `sys.path`
+    for module imports. The implementation directly satisfies both stated requirements:
+    temporary director'
+  sig: 4393b2e4c777a30f04a0ba97101af5198375ab7dd5d5cd7b41b0b4ec360e6819
+T008b:
+  c: false
+  h: 2633114f83a60cc6fb69fec5e58c6f81995585e2769eca7fba881e1321d68560
+  r: 'The test file `tests/test_properties.py` exists and contains three property-based
+    tests, but **the tests cannot pass** due to critical import and implementation
+    issues:
+
+
+    1. **Import Path Mismatch**: The test imports `from topology import compute_metrics`
+    and `from simulation import check_disconnected, run_kuramoto_simulation`, expecting
+    these modules in the Python path. However, the actual implementations are in `code/topology.py`
+    and `code/simulation.py`. The test file''s path setup (`sys.path.insert(0, str(code_dir))`)
+    should resolve this, but the test would need to be run from the project ro'
+  sig: 64abb01ac94580aa80f5566245f55e07cdf1b5f1992d9e4f7b153fc905649320
+T009:
+  c: false
+  h: b46dac77cec9bb8991b35ff5a14cf7c30268937c5961a849326a3a347ba884da
+  r: "The task requires `python -m src.validators --self-test` to exit with code 0,\
+    \ confirming validators work on sample files. While the historical execution log\
+    \ shows the command exited with code 0, the log contains **empty stdout and stderr**,\
+    \ which is suspicious. More critically, the `_self_test()` function in `src/validators.py`\
+    \ (lines 280\u2013298) only attempts to **load schema files from the `contracts/`\
+    \ directory** \u2014 it does not validate any actual JSON data files against those\
+    \ schemas. The function logs successful schema loading but performs no validation\
+    \ of sample JSON files against the loaded"
+  sig: aa8113064b200260e5b5b5ff4e52c6791ee5ffb3d87bf98c1174a8b8263b24c0
+T010:
+  c: false
+  h: 5b415bbae3fa4718231df62414d514f5d96e2c4d4cde8f22d16e3123f5042949
+  r: 'The test file `tests/test_topology.py` exists and contains all three required
+    test functions (`test_degree_sum_equals_twice_edges`, `test_clustering_bounds`,
+    `test_avg_path_length_disconnected_returns_null`), but the execution evidence
+    shows that **two of the three tests are currently failing**, which directly contradicts
+    the task requirement.
+
+
+    **Specific failures:**
+
+
+    1. **`test_degree_sum_equals_twice_edges` FAILED**: The test expects the sum of
+    degree_distribution values to equal `2 * num_edges` (6), but gets 4. The current
+    implementation returns a dict mapping `node -> degree`, so summing t'
+  sig: 1edb006ba94b58c95482a4a0122df8b60de1be4dadbe4b8fc7b517a84b1c6160
+T011:
+  c: false
+  h: 0804ff6be747fd3f848638afc6e33f8c8d577f5fbc50d496f3c33f97f4c7c774
+  r: 'The test file `tests/test_simulation.py` exists and contains the two required
+    test functions (`test_ring_graph_analytical_match_pct` and `test_k_sweep_converges`),
+    but the tests **currently fail** due to critical mismatches between the test expectations
+    and the underlying implementation.
+
+
+    **Specific failures:**
+
+
+    1. **`SynchronizationStatus.FAILED` does not exist**: The `code/src/simulation.py`
+    implementation attempts to use `SynchronizationStatus.FAILED`, but the enum defined
+    in `code/data_models.py` only defines `SYNCHRONIZED`, `NOT_SYNCHRONIZED`, `DISCONNECTED`,
+    and `ERROR`. The test executi'
+  sig: 07585d8e8355b5a7a2a00c0bf4316e899709e8b708d3d0897be1a1a96f110cba
+T022:
+  c: false
+  h: 77f62d7b411d927a4d5c7f9c43b99526e7fa2786b44c44abf1f5e09127e04832
+  r: "Both required artifacts are missing: `results/sim_results.json` does not exist,\
+    \ and consequently `data/processed_metrics.csv` is also absent, so the aggregation\
+    \ logic cannot have been implemented or verified. The task\u2019s verification\
+    \ condition is not satisfied."
+T024:
+  c: false
+  h: 257bf310a9708746576e6a12c8190ff2a7d3eb3de9dcdd294d2e0e0215e7da7c
+  r: The required `src/stats.py` file does not exist, and the expected `results/regression_summary.json`
+    output is also missing, so the VIF check logic and its verification cannot be
+    evaluated. The implementer must add the module and generate the JSON file with
+    the required fields.
+T044:
+  c: false
+  h: 0d3e8c0246b1118dbedfd7e2878527ed693dce4a642782bd7e7a42b320a070b2
+  r: "The test file `tests/test_schema_validation.py` exists and is well-structured,\
+    \ but the task cannot be completed because **all four required schema files are\
+    \ MISSING**:\n\n1. `network_metrics.schema.yaml` \u2014 MISSING\n2. `regression_model.schema.yaml`\
+    \ \u2014 MISSING\n3. `regression_summary.schema.yaml` \u2014 MISSING\n4. `simulation_result.schema.yaml`\
+    \ \u2014 MISSING\n\nThe test execution log shows the parametrized test collected\
+    \ only 1 item and **SKIPPED** it (not passed), which occurs because the glob pattern\
+    \ `contracts/*.schema.yaml` found no schema files. The task explicitly requires\
+    \ that \"every schema is exercise"
+  sig: 3239a6733573337be760263af9aaf1f2781b595145fab1d6e875d4126abc2351

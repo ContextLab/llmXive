@@ -1,70 +1,83 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: ExecutionMetric
 description: >
-  Schema for a single execution metric record resulting from running a
-  query against a specific executor under CPU constraints.
+  Records the outcome of executing a query instance against a specific executor.
+  Captures latency, resource usage, and success status.
 type: object
 required:
-  - execution_id
+  - metric_id
   - query_id
-  - source_type
-  - complexity_level
+  - executor_type
   - latency_ms
-  - success
+  - status
   - timestamp
 properties:
-  execution_id:
+  metric_id:
     type: string
-    description: Unique identifier for this specific execution run.
+    description: Unique identifier for this metric record.
+    pattern: "^m-\\d{5}$"
   query_id:
     type: string
-    description: Reference to the query instance executed.
-  source_type:
+    description: Reference to the executed query instance.
+    pattern: "^q-\\d{5}$"
+  executor_type:
     type: string
+    description: The type of executor used.
     enum:
       - text
       - relational
       - graph
-    description: The data source type.
   complexity_level:
     type: integer
+    description: The complexity level of the query being executed.
     minimum: 1
-    description: The exact integer complexity level of the query.
+  source_type:
+    type: string
+    description: The source type of the query.
+    enum:
+      - text
+      - relational
+      - graph
   latency_ms:
     type: number
+    description: >
+      End-to-end execution latency in milliseconds.
+      Measured in real wall-clock time.
     minimum: 0
-    description: End-to-end latency in milliseconds.
-  success:
-    type: boolean
-    description: True if execution completed without timeout or error.
+  status:
+    type: string
+    description: Execution status.
+    enum:
+      - success
+      - timeout
+      - error
   error_message:
     type: string
-    nullable: true
-    description: Error details if success is false.
-  timeout_triggered:
-    type: boolean
-    description: True if the execution was terminated due to CPU time limit.
+    description: Error details if status is 'error' or 'timeout'.
+    default: ""
   translation_error:
-    type: integer
-    enum:
-      - 0
-      - 1
-    nullable: true
+    type: boolean
     description: >
-      Binary flag: 1 if the executed plan mismatched the ground_truth_plan,
-      0 if matched. Null if not yet computed.
-  cpu_time_ms:
-    type: number
-    nullable: true
-    description: Actual CPU time consumed (if measurable).
+      True if the executed plan differed from the ground_truth_plan.
+      Requires ground truth comparison to be performed.
+    default: false
+  resource_usage:
+    type: object
+    description: Optional resource usage metrics (CPU, Memory).
+    properties:
+      cpu_time_ms:
+        type: number
+      memory_mb:
+        type: number
+      throttled:
+        type: boolean
+        description: True if CPU throttling was active during execution.
+    additionalProperties: true
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of execution completion.
-  executor_version:
-    type: string
-    description: Version string of the executor used.
-  environment_info:
+    description: ISO 8601 timestamp when execution finished.
+  metadata:
     type: object
-    description: Optional environment details (OS, Python version, CPU cores).
+    description: Additional execution context.
     additionalProperties: true

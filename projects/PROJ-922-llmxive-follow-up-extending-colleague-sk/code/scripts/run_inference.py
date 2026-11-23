@@ -1,263 +1,280 @@
 """
-Run Inference Script for llmXive Project (T015)
+run_inference.py - Execute the full inference pipeline with comprehensive logging.
 
-This script segments the workload into parallel jobs (Monolithic, Separated, Generic),
-iterates over profiles and tasks, runs inference using the engine, and logs detailed
-status updates (start, progress, completion, failures) to the project logger and console.
-
-Outputs:
-    data/interim/inference_outputs.jsonl: Records of inference results with metadata.
+This script runs inference for all profiles x tasks x conditions.
+It implements structured logging for start, progress, completion, and failures.
 """
 import json
 import time
 import sys
-import random
 import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-from datetime import datetime
+from typing import Dict, Any, List, Optional
 
-# Project imports based on API surface
+# Import from project API surface
 from utils.config import get_project_root, get_data_dir, ensure_dir, set_global_seed
 from utils.logging import get_logger, log_info, log_warning, log_error, log_debug, log_event
 from data_generation.profiles import load_profiles
 from data_generation.tasks import load_tasks
-from inference.prompts import build_prompt, get_monolithic_prompt, get_separated_tracks_prompt, get_generic_baseline_prompt
+from inference.prompts import build_prompt
 from inference.engine import InferenceEngine, InferenceTimeoutError, InferenceOOMError, ModelLoadError
 
 # Constants
-CONDITIONS = ["monolithic", "separated", "generic"]
-OUTPUT_FILENAME = "inference_outputs.jsonl"
+CONDITIONS = ["Monolithic", "Separated", "Generic"]
+OUTPUT_FILE = "data/interim/inference_outputs.jsonl"
 
-# Logger setup
-logger = get_logger("run_inference")
-
-def log_run_start(profile_count: int, task_count: int):
+def log_run_start(profile_count: int, task_count: int, conditions: List[str]):
     """Log the start of the inference run."""
-    total_runs = profile_count * task_count * len(CONDITIONS)
+    total_runs = profile_count * task_count * len(conditions)
     log_event(
-        event_type="INFERENCE_RUN_START",
-        message=f"Starting inference run for {profile_count} profiles, {task_count} tasks, {len(CONDITIONS)} conditions.",
-        details={
+        event_type="INFERENCE_START",
+        message=f"Starting inference pipeline: {profile_count} profiles x {task_count} tasks x {len(conditions)} conditions = {total_runs} total runs.",
+        metadata={
             "profile_count": profile_count,
             "task_count": task_count,
-            "condition_count": len(CONDITIONS),
-            "total_expected_runs": total_runs,
-            "timestamp": datetime.utcnow().isoformat()
+            "conditions": conditions,
+            "total_runs": total_runs
         }
     )
-    log_info(f"Inference run started. Total expected runs: {total_runs}")
+    log_info("Inference pipeline initialized.")
 
-def log_progress(current: int, total: int, current_profile_id: str, current_task_id: str, condition: str):
-    """Log progress of the current inference step."""
+def log_progress(current: int, total: int, profile_id: str, task_id: str, condition: str, elapsed: float):
+    """Log progress of a single inference step."""
     percent = (current / total) * 100
     log_event(
         event_type="INFERENCE_PROGRESS",
-        message=f"Processing {current}/{total} ({percent:.1f}%)",
-        details={
+        message=f"Progress: {percent:.1f}% ({current}/{total}) - {profile_id} / {task_id} / {condition}",
+        metadata={
             "current": current,
             "total": total,
-            "profile_id": current_profile_id,
-            "task_id": current_task_id,
+            "percent": round(percent, 2),
+            "profile_id": profile_id,
+            "task_id": task_id,
             "condition": condition,
-            "timestamp": datetime.utcnow().isoformat()
+            "elapsed_seconds": round(elapsed, 2)
         }
     )
-    # Only print to console every 10% or at milestones to avoid spam
-    if int(percent) % 10 == 0 or current == 1 or current == total:
-        log_info(f"Progress: {current}/{total} | {condition} | Profile: {current_profile_id} | Task: {current_task_id}")
+    # Log every 10% or at specific milestones to avoid spam
+    if percent % 10 < 1.0:
+        log_info(f"Reached {percent:.0f}% completion.")
 
-def log_completion(record: Dict[str, Any]):
-    """Log successful completion of a single inference step."""
+def log_completion(output_file: str, total_runs: int, success_count: int, failure_count: int):
+    """Log the successful completion of the pipeline."""
     log_event(
-        event_type="INFERENCE_SUCCESS",
-        message=f"Successfully generated response for {record['profile_id']}/{record['task_id']} ({record['condition']})",
-        details={
-            "profile_id": record["profile_id"],
-            "task_id": record["task_id"],
-            "condition": record["condition"],
-            "latency": record.get("latency", 0),
-            "timestamp": datetime.utcnow().isoformat()
+        event_type="INFERENCE_COMPLETE",
+        message=f"Inference pipeline completed successfully.",
+        metadata={
+            "output_file": str(output_file),
+            "total_runs": total_runs,
+            "success_count": success_count,
+            "failure_count": failure_count,
+            "success_rate": round(success_count / total_runs * 100, 2) if total_runs > 0 else 0
         }
     )
-    log_debug(f"Success: {record['profile_id']} - {record['task_id']} ({record['condition']})")
+    log_info(f"Pipeline finished. Success: {success_count}, Failures: {failure_count}. Output: {output_file}")
 
-def log_failure(profile_id: str, task_id: str, condition: str, error: Exception):
-    """Log a failure during inference."""
-    error_type = type(error).__name__
-    error_msg = str(error)
-    
+def log_failure(profile_id: str, task_id: str, condition: str, error_type: str, error_msg: str):
+    """Log a specific failure for a run."""
     log_event(
         event_type="INFERENCE_FAILURE",
-        message=f"Failed to generate response for {profile_id}/{task_id} ({condition}): {error_type}",
-        details={
+        message=f"Failed to run inference for {profile_id}/{task_id}/{condition}: {error_type}",
+        level="ERROR",
+        metadata={
             "profile_id": profile_id,
             "task_id": task_id,
             "condition": condition,
             "error_type": error_type,
-            "error_message": error_msg,
-            "timestamp": datetime.utcnow().isoformat()
+            "error_message": error_msg
         }
     )
-    log_error(f"Failure: {profile_id} - {task_id} ({condition}) -> {error_type}: {error_msg}")
+    log_error(f"Run failed: {profile_id} / {task_id} / {condition} -> {error_type}: {error_msg}")
 
 def build_prompt_template(profile: Dict[str, Any], task: Dict[str, Any], condition: str) -> str:
     """Build the prompt string based on the condition."""
-    # Unpack profile and task details
-    domain = profile.get("domain", "general")
-    behavior_keywords = profile.get("behavior_keywords", [])
-    capability_rules = profile.get("capability_rules", "")
-    task_text = task.get("text", "")
-    
-    if condition == "monolithic":
-        return get_monolithic_prompt(domain, behavior_keywords, task_text)
-    elif condition == "separated":
-        return get_separated_tracks_prompt(capability_rules, behavior_keywords, task_text)
-    elif condition == "generic":
-        return get_generic_baseline_prompt(task_text)
-    else:
-        raise ValueError(f"Unknown condition: {condition}")
+    return build_prompt(profile, task, condition)
 
 def run_inference_batch(
-    engine: InferenceEngine,
     profiles: List[Dict[str, Any]],
     tasks: List[Dict[str, Any]],
-    output_path: Path
-):
+    engine: InferenceEngine,
+    output_file: Path
+) -> Dict[str, int]:
     """
-    Run inference for all profiles, tasks, and conditions.
-    Logs start, progress, completion, and failures.
+    Run inference for all combinations and write to output file.
+    Returns a dict with success and failure counts.
     """
     total_runs = len(profiles) * len(tasks) * len(CONDITIONS)
     current_run = 0
+    success_count = 0
+    failure_count = 0
 
-    # Ensure output directory exists
-    ensure_dir(output_path.parent)
+    log_run_start(len(profiles), len(tasks), CONDITIONS)
 
-    # Open file for appending results
-    with open(output_path, 'a', encoding='utf-8') as f_out:
+    start_time = time.time()
+
+    # Open file for appending (or creating)
+    with open(output_file, 'w') as f:
         for profile in profiles:
             for task in tasks:
                 for condition in CONDITIONS:
                     current_run += 1
-                    profile_id = profile.get("id")
-                    task_id = task.get("id")
-
-                    # Log Progress
-                    log_progress(current_run, total_runs, profile_id, task_id, condition)
+                    run_start = time.time()
+                    profile_id = profile.get('id', 'unknown')
+                    task_id = task.get('id', 'unknown')
 
                     try:
-                        # Build Prompt
-                        prompt_text = build_prompt_template(profile, task, condition)
-                        
-                        # Run Inference
-                        start_time = time.time()
-                        response_text = engine.generate(prompt_text)
-                        end_time = time.time()
-                        latency = end_time - start_time
+                        # Build prompt
+                        prompt = build_prompt_template(profile, task, condition)
 
-                        # Construct Record
+                        # Run inference
+                        output_text = engine.generate(prompt, timeout=300)
+                        latency = time.time() - run_start
+
+                        # Log progress
+                        log_progress(current_run, total_runs, profile_id, task_id, condition, time.time() - start_time)
+
+                        # Record success
                         record = {
                             "profile_id": profile_id,
                             "task_id": task_id,
                             "condition": condition,
-                            "prompt": prompt_text,
-                            "response": response_text,
-                            "latency": latency,
+                            "latency": round(latency, 2),
                             "success_flag": True,
-                            "timestamp": datetime.utcnow().isoformat()
+                            "output_text": output_text,
+                            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
                         }
+                        f.write(json.dumps(record) + '\n')
+                        success_count += 1
 
-                        # Write to disk
-                        f_out.write(json.dumps(record) + '\n')
-                        f_out.flush()
-
-                        # Log Success
-                        log_completion(record)
-
-                    except (InferenceTimeoutError, InferenceOOMError, ModelLoadError) as e:
-                        log_failure(profile_id, task_id, condition, e)
-                        # Write failure record to ensure data integrity
-                        failure_record = {
+                    except InferenceTimeoutError as e:
+                        log_failure(profile_id, task_id, condition, "TIMEOUT", str(e))
+                        record = {
                             "profile_id": profile_id,
                             "task_id": task_id,
                             "condition": condition,
-                            "prompt": None, # Do not log prompt on failure to save space if needed, or keep for debugging
-                            "response": None,
+                            "latency": round(time.time() - run_start, 2),
+                            "success_flag": False,
+                            "output_text": None,
+                            "error": "timeout",
+                            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        f.write(json.dumps(record) + '\n')
+                        failure_count += 1
+
+                    except InferenceOOMError as e:
+                        log_failure(profile_id, task_id, condition, "OOM", str(e))
+                        record = {
+                            "profile_id": profile_id,
+                            "task_id": task_id,
+                            "condition": condition,
+                            "latency": round(time.time() - run_start, 2),
+                            "success_flag": False,
+                            "output_text": None,
+                            "error": "oom",
+                            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+                        }
+                        f.write(json.dumps(record) + '\n')
+                        failure_count += 1
+
+                    except ModelLoadError as e:
+                        log_failure(profile_id, task_id, condition, "MODEL_LOAD", str(e))
+                        record = {
+                            "profile_id": profile_id,
+                            "task_id": task_id,
+                            "condition": condition,
                             "latency": 0,
                             "success_flag": False,
-                            "error": str(e),
-                            "timestamp": datetime.utcnow().isoformat()
+                            "output_text": None,
+                            "error": "model_load",
+                            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
                         }
-                        f_out.write(json.dumps(failure_record) + '\n')
-                        f_out.flush()
+                        f.write(json.dumps(record) + '\n')
+                        failure_count += 1
+
                     except Exception as e:
                         # Catch-all for unexpected errors
-                        log_failure(profile_id, task_id, condition, e)
-                        failure_record = {
+                        log_failure(profile_id, task_id, condition, "UNEXPECTED", str(e))
+                        record = {
                             "profile_id": profile_id,
                             "task_id": task_id,
                             "condition": condition,
-                            "prompt": None,
-                            "response": None,
-                            "latency": 0,
+                            "latency": round(time.time() - run_start, 2),
                             "success_flag": False,
-                            "error": f"UnexpectedError: {str(e)}",
-                            "timestamp": datetime.utcnow().isoformat()
+                            "output_text": None,
+                            "error": "unexpected",
+                            "error_details": str(e),
+                            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
                         }
-                        f_out.write(json.dumps(failure_record) + '\n')
-                        f_out.flush()
+                        f.write(json.dumps(record) + '\n')
+                        failure_count += 1
 
-    log_info(f"Inference batch complete. Results saved to {output_path}")
+    total_elapsed = time.time() - start_time
+    log_completion(output_file, total_runs, success_count, failure_count)
+    log_info(f"Total time elapsed: {total_elapsed:.2f} seconds")
+
+    return {"success": success_count, "failure": failure_count}
 
 def main():
     """Main entry point for the inference script."""
+    logger = get_logger("run_inference")
+    logger.info("Starting run_inference script.")
+
+    # Set seed for reproducibility
     set_global_seed(42)
+
     project_root = get_project_root()
     data_dir = get_data_dir()
-    
-    # Define paths
-    profiles_path = data_dir / "profiles.json"
-    tasks_path = data_dir / "tasks.json"
-    output_path = data_dir / "interim" / OUTPUT_FILENAME
 
-    log_run_start(0, 0) # Placeholder counts, updated after loading
+    # Ensure output directory exists
+    output_path = project_root / OUTPUT_FILE
+    ensure_dir(output_path.parent)
 
-    # Load Data
+    # Load data
+    profiles_path = data_dir / "raw" / "profiles.json"
+    tasks_path = data_dir / "raw" / "tasks.json"
+
     if not profiles_path.exists():
         log_error(f"Profiles file not found: {profiles_path}")
         sys.exit(1)
+
     if not tasks_path.exists():
         log_error(f"Tasks file not found: {tasks_path}")
         sys.exit(1)
 
     profiles = load_profiles(profiles_path)
     tasks = load_tasks(tasks_path)
-    
-    # Update start log with actual counts
-    logger.handlers.clear() # Reset to ensure clean state if reused
-    # Re-attach handlers if needed, but get_logger usually handles singleton
-    # We just log the corrected start
-    total_expected = len(profiles) * len(tasks) * len(CONDITIONS)
-    log_info(f"Loaded {len(profiles)} profiles and {len(tasks)} tasks. Total runs: {total_expected}")
 
-    # Initialize Engine
-    # Assuming default model config or env vars as per T009
+    if not profiles:
+        log_error("No valid profiles loaded.")
+        sys.exit(1)
+
+    if not tasks:
+        log_error("No valid tasks loaded.")
+        sys.exit(1)
+
+    log_info(f"Loaded {len(profiles)} profiles and {len(tasks)} tasks.")
+
+    # Initialize engine
+    # Note: In a real run, model path and params would be args.
+    # For now, we assume the engine is configured or we use a default.
+    # The engine implementation handles the actual loading.
     try:
-        engine = InferenceEngine(model_name="Llama-8B-Q4", device="cpu")
-        log_info("Inference engine initialized successfully.")
+        engine = InferenceEngine()
+        # If specific model args are needed, they should be passed here or via config
+        # e.g., engine = InferenceEngine(model_path="...", device="cpu")
     except Exception as e:
         log_error(f"Failed to initialize inference engine: {e}")
         sys.exit(1)
 
-    # Run Batch
-    run_inference_batch(engine, profiles, tasks, output_path)
+    # Run inference
+    try:
+        results = run_inference_batch(profiles, tasks, engine, output_path)
+        log_info(f"Inference batch completed. Results: {results}")
+    except Exception as e:
+        log_error(f"Fatal error during inference batch: {e}")
+        sys.exit(1)
 
-    log_event(
-        event_type="INFERENCE_RUN_COMPLETE",
-        message="All inference jobs completed.",
-        details={"timestamp": datetime.utcnow().isoformat()}
-    )
+    logger.info("run_inference script finished.")
 
 if __name__ == "__main__":
     main()

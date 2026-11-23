@@ -1,0 +1,88 @@
+- artifact_path: projects/PROJ-512-predicting-molecular-permeability-of-pol/docs/DATA_DICTIONARY.md
+  attempts: 1
+  canonical: log_permeability data source is NIST/PubChem
+  claim_id: c_fdfb3b34
+  context: log_permeability | Float | Target variable (log10 of permeability coefficient)
+    | NIST/PubChem
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_permeability_data_source_is_NIST/PubChem
+  kind: entity_fact
+  raw_text: The 'log_permeability' feature source is NIST/PubChem.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T20:51:10Z'
+- artifact_path: projects/PROJ-512-predicting-molecular-permeability-of-pol/docs/DATA_DICTIONARY.md
+  attempts: 1
+  canonical: ECFP4 fingerprints are 2048 bits
+  claim_id: c_31583cd2
+  context: '- **ECFP4 Fingerprints**: 2048-bit circular fingerprints generated via
+    RDKit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline models use ECFP4 fingerprints with a length of 2048 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T20:51:25Z'
+- artifact_path: projects/PROJ-512-predicting-molecular-permeability-of-pol/docs/DATA_DICTIONARY.md
+  attempts: 1
+  canonical: Records with missing log_permeability are excluded
+  claim_id: c_8e2df232
+  context: '1. **Missing Values**: Records with missing `log_permeability` are excluded.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Records_with_missing_log_permeability_are_excluded
+  kind: entity_fact
+  raw_text: The dataset excludes records with missing log_permeability values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T20:51:48Z'
+- artifact_path: projects/PROJ-512-predicting-molecular-permeability-of-pol/docs/DATA_DICTIONARY.md
+  attempts: 1
+  canonical: Entries with identical SMILES are averaged by arithmetic mean of log-permeability
+  claim_id: c_bb582e56
+  context: '2. **Duplicates**: Entries with identical SMILES are averaged (arithmetic
+    mean of log-permeability).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Entries_with_identical_SMILES_are_averaged_by_arithmetic_mea
+  kind: entity_fact
+  raw_text: Entries with identical SMILES are averaged using the arithmetic mean of
+    log-permeability.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T20:52:11Z'
+- artifact_path: projects/PROJ-512-predicting-molecular-permeability-of-pol/docs/DATA_DICTIONARY.md
+  attempts: 1
+  canonical: Records with molecular weight less than 1000 Da are flagged
+  claim_id: c_67044305
+  context: '3. **Small Molecules**: Records with MW < 1000 Da are flagged in `logs/small_molecule_review.csv`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Records_with_molecular_weight_less_than_1000_Da_are_flagged
+  kind: magnitude
+  raw_text: Records with molecular weight less than 1000 Da are flagged in a review
+    log.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T20:53:23Z'

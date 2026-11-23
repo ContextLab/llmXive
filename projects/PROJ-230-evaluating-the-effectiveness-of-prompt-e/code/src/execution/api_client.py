@@ -1,5 +1,5 @@
 """
-API Client for HuggingFace Inference API (CodeLlama-7B).
+API Client for HuggingFace Inference API.
 Implements exponential backoff, timeout enforcement, and error handling.
 """
 import os
@@ -9,95 +9,65 @@ import requests
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 
-from src.utils.timeout_utils import run_with_api_timeout, TimeoutError as ProjectTimeoutError
-from src.utils.logging import get_logger
+from src.utils.timeout_utils import enforce_api_timeout, TimeoutError as ProjectTimeoutError
 
-# Configuration
-API_URL = os.getenv(
-    "HF_INFERENCE_URL",
-    "https://api-inference.huggingface.co/models/codellama/CodeLlama-7b-Instruct-hf"
-)
-API_TOKEN = os.getenv("HF_API_TOKEN")
-MAX_RETRIES = int(os.getenv("HF_MAX_RETRIES", "5"))
-BASE_DELAY = float(os.getenv("HF_BASE_DELAY", "2.0"))
-MAX_DELAY = float(os.getenv("HF_MAX_DELAY", "60.0"))
-TIMEOUT_SECONDS = 120
-
-logger = get_logger(__name__)
-
+# Configure logger
+logger = logging.getLogger(__name__)
 
 class InferenceError(Exception):
-    """Custom exception for inference failures."""
+    """Base exception for inference API errors."""
     pass
-
 
 class MalformedResponseError(InferenceError):
-    """Raised when the API response structure is unexpected."""
+    """Raised when the API response structure is invalid."""
     pass
 
+class RateLimitError(InferenceError):
+    """Raised when the API returns a 429 rate limit response."""
+    pass
 
-def _calculate_backoff(attempt: int) -> float:
-    """Calculate exponential backoff delay with jitter."""
-    delay = min(BASE_DELAY * (2 ** attempt), MAX_DELAY)
-    # Add small jitter to prevent thundering herd
-    jitter = delay * 0.1 * (time.time() % 1)
-    return delay + jitter
+class ServerError(InferenceError):
+    """Raised for 5xx server errors."""
+    pass
 
-
-def _handle_error_response(response: requests.Response, attempt: int) -> None:
-    """Parse and log error from HTTP response."""
-    try:
-        error_data = response.json()
-        error_msg = error_data.get("error", "Unknown error")
-        detail = error_data.get("details", "")
-    except ValueError:
-        error_msg = response.text or "Unknown error"
-        detail = ""
-
-    logger.warning(
-        f"API Error on attempt {attempt + 1}: {response.status_code} - {error_msg}. Details: {detail}"
-    )
-
-    if response.status_code == 429:
-        raise InferenceError(f"Rate limited. Retry after {error_data.get('estimated_time', 60)}s")
-    elif response.status_code >= 500:
-        raise InferenceError(f"Server error ({response.status_code}): {error_msg}")
-    else:
-        raise InferenceError(f"Client error ({response.status_code}): {error_msg}")
-
+# Configuration
+API_BASE_URL = "https://api-inference.huggingface.co/models/codellama/CodeLlama-7b-hf"
+MAX_RETRIES = 5
+INITIAL_BACKOFF = 1.0
+MAX_BACKOFF = 60.0
+TIMEOUT_SECONDS = 120
 
 def call_inference_api(
     prompt: str,
-    model: str = "codellama/CodeLlama-7b-Instruct-hf",
+    api_key: Optional[str] = None,
     max_new_tokens: int = 512,
     temperature: float = 0.2,
-    seed: Optional[int] = None,
-    retry_attempts: int = MAX_RETRIES
+    seed: Optional[int] = None
 ) -> str:
     """
     Call the HuggingFace Inference API with exponential backoff and timeout.
 
     Args:
-        prompt: The text prompt to send to the model.
-        model: Model identifier on HuggingFace.
+        prompt: The input prompt text.
+        api_key: HuggingFace API token. Defaults to HF_TOKEN env var.
         max_new_tokens: Maximum tokens to generate.
         temperature: Sampling temperature.
-        seed: Random seed for determinism.
-        retry_attempts: Number of retry attempts on failure.
+        seed: Random seed for deterministic generation.
 
     Returns:
-        The generated text string.
+        The generated text output.
 
     Raises:
-        InferenceError: If all retries fail or a non-recoverable error occurs.
-        MalformedResponseError: If the response JSON structure is invalid.
-        TimeoutError: If the request exceeds the timeout limit.
+        InferenceError: If the API call fails after retries.
+        MalformedResponseError: If the response cannot be parsed.
+        ProjectTimeoutError: If the request exceeds the timeout.
     """
-    if not API_TOKEN:
-        raise InferenceError("HF_API_TOKEN environment variable is not set.")
+    token = api_key or os.getenv("HF_TOKEN")
+    if not token:
+        raise InferenceError("HF_TOKEN environment variable not set and no API key provided.")
 
     headers = {
-        "Authorization": f"Bearer {API_TOKEN}",
+        "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
 
@@ -107,109 +77,115 @@ def call_inference_api(
             "max_new_tokens": max_new_tokens,
             "temperature": temperature,
             "return_full_text": False,
-            "do_sample": temperature > 0.0
+            "do_sample": temperature > 0,
         }
     }
-
     if seed is not None:
         payload["parameters"]["seed"] = seed
 
-    last_error: Optional[Exception] = None
+    url = API_BASE_URL
 
-    for attempt in range(retry_attempts):
+    last_exception = None
+    backoff = INITIAL_BACKOFF
+
+    for attempt in range(1, MAX_RETRIES + 1):
         try:
-            logger.debug(f"Sending request to {API_URL} (attempt {attempt + 1}/{retry_attempts})")
+            # Wrap the request with timeout enforcement
+            def make_request():
+                response = requests.post(url, headers=headers, json=payload, timeout=TIMEOUT_SECONDS)
+                return response
 
-            def _make_request():
-                resp = requests.post(API_URL, headers=headers, json=payload, timeout=TIMEOUT_SECONDS)
-                resp.raise_for_status()
-                return resp
+            # Use the project's timeout utility
+            response = enforce_api_timeout(make_request, timeout_seconds=TIMEOUT_SECONDS)
 
-            # Enforce timeout using the project utility
-            response = run_with_api_timeout(_make_request, timeout_seconds=TIMEOUT_SECONDS)
+            if response.status_code == 200:
+                data = response.json()
+                if not isinstance(data, list) or len(data) == 0:
+                    raise MalformedResponseError(f"Unexpected response structure: {data}")
+                
+                # Handle the typical HF response format: [{'generated_text': '...'}]
+                if 'generated_text' in data[0]:
+                    return data[0]['generated_text'].strip()
+                else:
+                    raise MalformedResponseError(f"Missing 'generated_text' in response: {data}")
 
-            try:
-                result_json = response.json()
-            except ValueError as e:
-                raise MalformedResponseError(f"Failed to parse JSON response: {e}")
-
-            # Handle HuggingFace specific response formats
-            if isinstance(result_json, list) and len(result_json) > 0:
-                generated_text = result_json[0].get("generated_text", "")
-            elif isinstance(result_json, dict) and "generated_text" in result_json:
-                generated_text = result_json["generated_text"]
-            elif isinstance(result_json, dict) and "error" in result_json:
-                # Model might be loading
-                error_msg = result_json.get("error", "Model loading error")
-                logger.warning(f"Model loading or error: {error_msg}. Retrying...")
-                time.sleep(_calculate_backoff(attempt))
+            elif response.status_code == 429:
+                # Rate limited
+                retry_after = response.headers.get('Retry-After', backoff)
+                try:
+                    wait_time = float(retry_after)
+                except (ValueError, TypeError):
+                    wait_time = backoff
+                
+                logger.warning(f"Rate limited. Waiting {wait_time}s before retry {attempt}/{MAX_RETRIES}.")
+                time.sleep(wait_time)
+                last_exception = RateLimitError(f"Rate limit exceeded. Retry-After: {retry_after}")
                 continue
+
+            elif 500 <= response.status_code < 600:
+                # Server error, retry
+                logger.warning(f"Server error {response.status_code}. Retrying in {backoff}s (attempt {attempt}/{MAX_RETRIES}).")
+                time.sleep(backoff)
+                last_exception = ServerError(f"Server error: {response.status_code} - {response.text}")
+                backoff = min(backoff * 2, MAX_BACKOFF)
+                continue
+
             else:
-                raise MalformedResponseError(f"Unexpected response structure: {result_json}")
-
-            if not generated_text:
-                logger.warning("Received empty generated_text from API.")
-                return ""
-
-            logger.info(f"Successfully generated {len(generated_text)} chars.")
-            return generated_text
+                # Client error (4xx) that is not rate limit - likely permanent
+                raise InferenceError(f"Client error {response.status_code}: {response.text}")
 
         except ProjectTimeoutError as e:
-            last_error = e
-            logger.warning(f"Timeout on attempt {attempt + 1}: {e}")
-            if attempt == retry_attempts - 1:
-                raise InferenceError(f"API request timed out after {retry_attempts} attempts.")
-            time.sleep(_calculate_backoff(attempt))
+            logger.error(f"Request timed out after {TIMEOUT_SECONDS}s on attempt {attempt}.")
+            last_exception = e
+            if attempt == MAX_RETRIES:
+                raise
+            time.sleep(backoff)
+            backoff = min(backoff * 2, MAX_BACKOFF)
 
         except requests.exceptions.RequestException as e:
-            last_error = e
-            logger.warning(f"Request failed on attempt {attempt + 1}: {e}")
-            if attempt == retry_attempts - 1:
-                raise InferenceError(f"Network error after {retry_attempts} attempts: {e}")
-            time.sleep(_calculate_backoff(attempt))
+            logger.warning(f"Network error on attempt {attempt}: {e}. Retrying...")
+            last_exception = e
+            if attempt == MAX_RETRIES:
+                raise InferenceError(f"Network error after {MAX_RETRIES} retries: {e}")
+            time.sleep(backoff)
+            backoff = min(backoff * 2, MAX_BACKOFF)
 
-        except (InferenceError, MalformedResponseError) as e:
-            # Non-retryable errors or handled logic
-            if isinstance(e, MalformedResponseError):
-                # Malformed responses are usually not fixed by retrying unless transient
-                logger.error(f"Malformed response: {e}")
-                raise
-            # For InferenceError (e.g., 429, 500), we might retry if it was wrapped
-            if "Rate limited" in str(e) or "Server error" in str(e):
-                if attempt == retry_attempts - 1:
-                    raise
-                time.sleep(_calculate_backoff(attempt))
-            else:
-                raise
+        except (ValueError, KeyError, TypeError) as e:
+            # Parsing errors are likely fatal unless the payload is wrong
+            raise MalformedResponseError(f"Failed to parse response: {e}")
 
-        except Exception as e:
-            last_error = e
-            logger.exception(f"Unexpected error on attempt {attempt + 1}: {e}")
-            if attempt == retry_attempts - 1:
-                raise InferenceError(f"Unexpected error after retries: {e}")
-            time.sleep(_calculate_backoff(attempt))
-
-    raise InferenceError(f"Failed to get response after {retry_attempts} attempts. Last error: {last_error}")
-
+    # If we exit the loop without returning, raise the last exception
+    raise InferenceError(f"Failed after {MAX_RETRIES} retries. Last error: {last_exception}")
 
 def main():
-    """Test script for the API client."""
-    test_prompt = "Translate this Python function to JavaScript:\n\ndef add(a, b):\n    return a + b"
-    try:
-        logger.info("Testing API client with a sample prompt...")
-        result = call_inference_api(
-            prompt=test_prompt,
-            max_new_tokens=100,
-            temperature=0.1,
-            seed=42
-        )
-        logger.info(f"Result:\n{result}")
-    except Exception as e:
-        logger.error(f"Test failed: {e}")
-        return 1
-    return 0
+    """
+    CLI entry point for testing the API client.
+    Usage: python -m src.execution.api_client --prompt "def add(a, b):"
+    """
+    import argparse
+    import sys
 
+    parser = argparse.ArgumentParser(description="Test HuggingFace Inference API client")
+    parser.add_argument("--prompt", type=str, default="def add(a, b):\n    return a + b", help="Input prompt")
+    parser.add_argument("--api-key", type=str, default=None, help="HF API Token")
+    parser.add_argument("--max-tokens", type=int, default=128, help="Max new tokens")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO)
+    
+    try:
+        result = call_inference_api(
+            prompt=args.prompt,
+            api_key=args.api_key,
+            max_new_tokens=args.max_tokens,
+            seed=args.seed
+        )
+        print(f"Generated:\n{result}")
+    except InferenceError as e:
+        logger.error(f"API Call failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

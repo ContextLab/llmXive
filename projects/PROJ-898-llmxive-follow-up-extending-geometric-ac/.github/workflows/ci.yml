@@ -1,0 +1,67 @@
+name: CI - Experimental Trial
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+# FR-004: 2-core x86_64 runner, no GPU/CUDA.
+# ubuntu-latest runners are x86_64 with 2 (dedicated) CPU cores
+# and no GPU attached by default.
+jobs:
+  run-trial:
+    runs-on: ubuntu-latest
+
+    # SC-005: enforce the 6-hour CI time limit (360 minutes).
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Verify Environment (No GPU, x86_64)
+        run: |
+          python -c "import torch; assert not torch.cuda.is_available(), 'GPU detected but not expected in CI'"
+          python -c "import platform; print(f'Architecture: {platform.machine()}'); assert platform.machine() in ('x86_64', 'AMD64'), 'Expected x86_64 runner'"
+
+      - name: Lint (ruff)
+        run: |
+          pip install ruff==0.1.6
+          ruff check .
+
+      - name: Run unit and integration tests
+        run: |
+          python -m pytest tests/ -v
+
+      - name: Run Experimental Pipeline
+        run: |
+          python scripts/compute_reference_stats.py --input data/results/trial_logs.jsonl --output data/results/analysis_report.md
+
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: experimental-results
+          path: |
+            data/results/*.csv
+            data/results/*.json
+            data/results/*.md
+            data/results/*.log
+            data/results/*.jsonl
+            data/generated/*.json
+            data/generated/*.csv
+            data/raw/*.pt
+            data/raw/*.json
+            code/config.yaml
+            requirements.txt

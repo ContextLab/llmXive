@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-197-predicting-plant-drought-tolerance-from-
-last_run_id: ef07f1b7-ce5d-4968-8443-670196ac2d7e
+last_run_id: 854079f1-2f24-4448-aedf-1892ad2da6fd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from
 title: Predicting Plant Drought Tolerance from Publicly Available Physiological and
   Genomic Data
-updated_at: '2026-07-07T10:07:13.181492Z'
+updated_at: '2026-10-05T22:35:08.923742Z'

@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MoleculeSchema"
+description: "Schema for a single molecule instance in the QM9 dataset."
+type: "object"
+properties:
+  mol_id:
+    type: "string"
+    description: "Unique identifier for the molecule."
+  atoms:
+    type: "array"
+    description: "List of atomic numbers."
+    items:
+      type: "integer"
+  positions:
+    type: "array"
+    description: "3D coordinates (x, y, z) for each atom."
+    items:
+      type: "array"
+      items:
+        type: "number"
+        format: "float"
+      minItems: 3
+      maxItems: 3
+  charges_merkollman:
+    type: "array"
+    description: "Ground truth Merz-Kollman partial charges."
+    items:
+      type: "number"
+      format: "float"
+  connectivity:
+    type: "array"
+    description: "Bond connectivity (source, target, bond_type)."
+    items:
+      type: "array"
+      items:
+        type: "integer"
+  scaffold:
+    type: "string"
+    description: "Bemis-Murcko scaffold hash."
+required:
+  - "mol_id"
+  - "atoms"
+  - "positions"
+  - "charges_merkollman"
+  - "connectivity"
+  - "scaffold"
+additionalProperties: false

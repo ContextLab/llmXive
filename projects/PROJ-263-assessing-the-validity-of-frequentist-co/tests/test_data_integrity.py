@@ -1,150 +1,164 @@
-"""
-Unit tests for the data_integrity module.
-"""
 import os
 import json
-import hashlib
 import tempfile
+import hashlib
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
 
-# Import the module under test
-# We need to mock the config imports if they rely on global state, 
-# but for this test we assume standard project structure or mock paths.
+# Mock the config module to avoid dependency on actual project structure during unit tests
 import sys
-from io import StringIO
+from unittest.mock import patch, MagicMock
 
-# Mock the config module to avoid dependency on full project setup during unit tests
-class MockConfig:
-    @staticmethod
-    def get_data_dir():
-        return Path(tempfile.gettempdir()) / "llmXive_test_data"
-    
-    @staticmethod
-    def get_output_dir():
-        return Path(tempfile.gettempdir()) / "llmXive_test_output"
-
-# Inject mock before importing data_integrity if necessary, 
-# but since we are testing logic that uses Path operations, 
-# we will patch the specific functions used.
-
-# We will import the module and patch the config functions directly in the module
-import importlib
-import data_integrity
-
+# Create a temporary directory for test data
 @pytest.fixture
-def temp_data_structure():
-    """Create a temporary directory structure for testing."""
-    base = Path(tempfile.gettempdir()) / "llmXive_test_data"
-    raw_dir = base / "raw"
-    processed_dir = base / "processed"
+def temp_data_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        raw_dir = Path(tmpdir) / "raw"
+        processed_dir = Path(tmpdir) / "processed"
+        raw_dir.mkdir()
+        processed_dir.mkdir()
+        
+        # Mock the config functions
+        with patch('data_integrity.get_raw_data_dir', return_value=raw_dir), \
+             patch('data_integrity.get_processed_data_dir', return_value=processed_dir):
+            yield raw_dir, processed_dir
+
+def test_compute_file_sha256(temp_data_dir):
+    """Test SHA-256 computation on a known file."""
+    raw_dir, _ = temp_data_dir
+    test_file = raw_dir / "test.txt"
+    test_content = b"Hello, World!"
+    test_file.write_bytes(test_content)
+
+    # Calculate expected hash manually
+    expected_hash = hashlib.sha256(test_content).hexdigest()
+
+    from code.data_integrity import compute_file_sha256
+    actual_hash = compute_file_sha256(test_file)
+
+    assert actual_hash == expected_hash
+
+def test_compute_file_sha256_missing_file(temp_data_dir):
+    """Test that FileNotFoundError is raised for missing files."""
+    raw_dir, _ = temp_data_dir
+    missing_file = raw_dir / "nonexistent.txt"
+
+    from code.data_integrity import compute_file_sha256
+    with pytest.raises(FileNotFoundError):
+        compute_file_sha256(missing_file)
+
+def test_generate_checksums_for_raw_data(temp_data_dir):
+    """Test checksum generation for multiple files."""
+    raw_dir, _ = temp_data_dir
     
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    # Create test files
+    file1 = raw_dir / "data1.csv"
+    file1.write_text("col1,col2\n1,2")
+    
+    file2 = raw_dir / "data2.csv"
+    file2.write_text("col1,col2\n3,4")
+
+    # Create a hidden file that should be skipped
+    hidden_file = raw_dir / ".hidden"
+    hidden_file.write_text("secret")
+
+    from code.data_integrity import generate_checksums_for_raw_data
+    checksums = generate_checksums_for_raw_data()
+
+    # Check that we have checksums for the two visible files
+    assert len(checksums) == 2
+    assert str(file1) in checksums
+    assert str(file2) in checksums
+    assert ".hidden" not in str(checksums)
+
+def test_save_checksums(temp_data_dir):
+    """Test saving checksums to a JSON file."""
+    raw_dir, processed_dir = temp_data_dir
+    
+    test_checksums = {
+        "file1.csv": "abc123",
+        "file2.csv": "def456"
+    }
+
+    from code.data_integrity import save_checksums
+    output_path = save_checksums(test_checksums)
+
+    assert output_path.exists()
+    assert output_path.parent == processed_dir
+    
+    with open(output_path, 'r') as f:
+        saved_data = json.load(f)
+    
+    assert saved_data == test_checksums
+
+def test_verify_checksums_success(temp_data_dir):
+    """Test successful verification of checksums."""
+    raw_dir, processed_dir = temp_data_dir
     
     # Create a test file
-    test_file = raw_dir / "test_data.csv"
-    test_file.write_text("col1,col2\n1,2\n3,4")
+    test_file = raw_dir / "verify_test.csv"
+    test_content = b"verification test"
+    test_file.write_bytes(test_content)
+    expected_hash = hashlib.sha256(test_content).hexdigest()
     
-    yield {
-        "base": base,
-        "raw": raw_dir,
-        "processed": processed_dir,
-        "test_file": test_file
-    }
-    
-    # Cleanup
-    import shutil
-    shutil.rmtree(base, ignore_errors=True)
+    # Create checksums file
+    checksums = {str(test_file): expected_hash}
+    checksums_path = processed_dir / "checksums.json"
+    with open(checksums_path, 'w') as f:
+        json.dump(checksums, f)
 
-def test_compute_file_sha256(temp_data_structure):
-    """Test SHA-256 computation on a known file."""
-    test_file = temp_data_structure["test_file"]
-    
-    # Calculate expected hash manually
-    expected_hash = hashlib.sha256(test_file.read_bytes()).hexdigest()
-    
-    # Call function
-    result = data_integrity.compute_file_sha256(test_file)
-    
-    assert result == expected_hash
-    assert len(result) == 64  # SHA-256 hex length
+    from code.data_integrity import verify_checksums
+    assert verify_checksums(checksums_path) is True
 
-def test_generate_checksums_for_raw_data(temp_data_structure):
-    """Test the full generation process."""
-    # Patch get_data_dir to return our temp dir
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        record = data_integrity.generate_checksums_for_raw_data()
+def test_verify_checksums_mismatch(temp_data_dir):
+    """Test verification failure when checksums don't match."""
+    raw_dir, processed_dir = temp_data_dir
     
-    assert record["total_files"] == 1
-    assert len(record["files"]) == 1
-    assert record["files"][0]["filename"] == "test_data.csv"
-    assert "checksum" in record["files"][0]
-    assert len(record["files"][0]["checksum"]) == 64
+    # Create a test file
+    test_file = raw_dir / "mismatch_test.csv"
+    test_content = b"original content"
+    test_file.write_bytes(test_content)
+    
+    # Create checksums file with wrong hash
+    wrong_hash = hashlib.sha256(b"different content").hexdigest()
+    checksums = {str(test_file): wrong_hash}
+    checksums_path = processed_dir / "checksums.json"
+    with open(checksums_path, 'w') as f:
+        json.dump(checksums, f)
 
-def test_save_checksums(temp_data_structure):
-    """Test saving checksums to JSON."""
-    test_record = {
-        "version": "1.0",
-        "files": [
-            {"filename": "test.csv", "checksum": "abc123"}
-        ]
-    }
-    
-    output_path = temp_data_structure["processed"] / "test_checksums.json"
-    
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        saved_path = data_integrity.save_checksums(test_record, output_path)
-    
-    assert saved_path.exists()
-    with open(saved_path, "r") as f:
-        loaded = json.load(f)
-    
-    assert loaded == test_record
+    from code.data_integrity import verify_checksums
+    assert verify_checksums(checksums_path) is False
 
-def test_verify_checksums_success(temp_data_structure):
-    """Test verification when files match."""
-    # Generate real checksums first
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        record = data_integrity.generate_checksums_for_raw_data()
-        data_integrity.save_checksums(record)
+def test_verify_checksums_missing_file(temp_data_dir):
+    """Test verification failure when a file is missing."""
+    raw_dir, processed_dir = temp_data_dir
     
-    # Verify
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        is_valid = data_integrity.verify_checksums()
-    
-    assert is_valid is True
+    # Create checksums file referencing a non-existent file
+    checksums = {str(raw_dir / "missing.csv"): "somehash"}
+    checksums_path = processed_dir / "checksums.json"
+    with open(checksums_path, 'w') as f:
+        json.dump(checksums, f)
 
-def test_verify_checksums_failure(temp_data_structure):
-    """Test verification when file is modified."""
-    # Generate checksums
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        record = data_integrity.generate_checksums_for_raw_data()
-        data_integrity.save_checksums(record)
-    
-    # Modify file
-    temp_data_structure["test_file"].write_text("modified content")
-    
-    # Verify should fail
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        is_valid = data_integrity.verify_checksums()
-    
-    assert is_valid is False
+    from code.data_integrity import verify_checksums
+    assert verify_checksums(checksums_path) is False
 
-def test_missing_file_verification(temp_data_structure):
-    """Test verification when a file is deleted."""
-    # Generate checksums
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        record = data_integrity.generate_checksums_for_raw_data()
-        data_integrity.save_checksums(record)
+def test_main_function(temp_data_dir):
+    """Test the main function execution."""
+    raw_dir, processed_dir = temp_data_dir
     
-    # Delete file
-    temp_data_structure["test_file"].unlink()
+    # Create a test file
+    test_file = raw_dir / "main_test.csv"
+    test_file.write_text("test,data\n1,2")
+
+    from code.data_integrity import main
+    # This should run without raising exceptions
+    main()
     
-    # Verify should fail
-    with patch.object(data_integrity, 'get_data_dir', return_value=temp_data_structure["base"]):
-        is_valid = data_integrity.verify_checksums()
+    # Verify that checksums file was created
+    checksums_path = processed_dir / "checksums.json"
+    assert checksums_path.exists()
     
-    assert is_valid is False
+    with open(checksums_path, 'r') as f:
+        checksums = json.load(f)
+    
+    assert len(checksums) >= 1

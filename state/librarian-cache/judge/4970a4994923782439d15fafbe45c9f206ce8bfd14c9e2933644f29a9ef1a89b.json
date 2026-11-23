@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.20332",
+  "judged_at": "2026-07-20T10:13:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the validity of statistical significance in randomized controlled trials with missing data statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the validity (Type I error control and statistical power) of a statistical testing mechanism in the specific domain of data with missing values, which is the core construct of the user's question regarding statistical significance under missing data conditions. Although the paper focuses on two-sample testing rather than the full RCT framework, it provides the necessary empirical baseline and methodological evidence for how missin",
+  "relevant": true
+}

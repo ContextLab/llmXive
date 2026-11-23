@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-02T13:23:04.336004+00:00'
+issue_number: 1337
+project_id: PROJ-1034-llmxive-follow-up-extending-infinite-wor

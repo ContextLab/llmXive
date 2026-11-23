@@ -2,76 +2,105 @@
 
 ## Prerequisites
 
-- Python 3.11 or higher.
-- A POSIX-compliant environment (Linux, macOS, or WSL).
-- At least 8 GB of available RAM (project requires ~6 GB peak).
-- No GPU required (CPU-only execution).
+- Python 3.11+
+- pip (Python package manager)
+- Git
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
+1. **Clone the repository** (if not already done):
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian
+   ```
+
 2. **Create a virtual environment**:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
+
 3. **Install dependencies**:
    ```bash
    pip install -r code/requirements.txt
    ```
-   *Note: Ensure `torch` is installed for CPU only. If using `pip`, use the CPU wheel: `pip install torch --index-url https://download.pytorch.org/whl/cpu`.*
+   *Note: `requirements.txt` is located in `code/` and pins all dependencies.*
 
 ## Running the Pipeline
 
-The project is designed to run as a single pipeline, but individual stages can be executed separately.
+### Step 1: Generate Synthetic Data
 
-### 1. Generate Synthetic Data (FR-001)
-Generates a large set of synthetic attention matrices and computes ground-truth scaling factors.
-```bash
-python code/main.py --stage generate
-```
-- **Output**: `data/raw/synthetic_attention_dataset.csv`
-- **Time**: ~10-30 minutes (depending on Sinkhorn solver speed).
+Generate synthetic attention matrices and compute ground-truth scaling factors.
 
-### 2. Train the Static Prior Model (FR-002)
-Trains a multi-layer perceptron with multiple hidden layers to predict scaling factors.
 ```bash
-python code/main.py --stage train
+python code/main.py --task generate_data
 ```
-- **Input**: `data/raw/synthetic_attention_dataset.csv`
-- **Output**: `code/models/static_prior.pt`, `data/processed/model_predictions.json`
-- **Time**: ~1-5 minutes.
 
-### 3. Run Simulation (FR-003)
-Simulates the autoregressive loop with KVarN, Static Prior, and Closed-form baselines.
-```bash
-python code/main.py --stage simulate --runs 30 --steps 1000
-```
-- **Input**: `code/models/static_prior.pt`
-- **Output**: `data/processed/simulation_results.csv`
-- **Time**: ~2-4 hours (depending on CPU speed and number of runs).
+- **Output**: `data/raw/synthetic_attention_matrices.jsonl`
+- **Time**: A short duration (depends on CPU speed).
 
-### 4. Analyze Results (FR-006, FR-007)
-Performs statistical analysis (t-tests, sensitivity analysis) and generates summary reports.
+### Step 2: Train the Static Prior Model
+
+Train the 2-layer MLP on the generated data.
+
 ```bash
-python code/main.py --stage analyze
+python code/main.py --task train_model
 ```
-- **Input**: `data/processed/simulation_results.csv`
-- **Output**: `data/final/statistical_summary.json`, `data/final/visualizations/`
+
+- **Output**: `code/models/static_prior_mlp.pt`
+- **Metrics**: Training loss, test MSE (printed to console).
+
+### Step 3: Run Simulation
+
+Run the autoregressive simulation for both methods.
+
+```bash
+python code/main.py --task run_simulation --runs multiple_runs
+```
+
+- **Output**: `data/results/simulation_run_001.json` to `simulation_run_030.json`
+- **Time**: Several hours (Multiple runs of [deferred] steps
+
+Research question: [To be defined]
+Method: [To be defined]
+References: [To be defined]).
+
+### Step 4: Analyze Results
+
+Run statistical tests, sensitivity analysis, and theoretical lower bound comparison.
+
+```bash
+python code/main.py --task analyze_results
+```
+
+- **Output**: Summary statistics, t-test results, sensitivity plots, and theoretical bound comparison (saved to `data/results/analysis/`).
 
 ## Verification
 
-To verify the installation and data generation:
+### Unit Tests
+
+Run the test suite to ensure correctness.
+
 ```bash
-python code/main.py --stage verify
+pytest tests/unit/
 ```
-This runs a quick check on the generated dataset to ensure:
-- Dimensions are correct (128x128).
-- Sinkhorn solver converges.
-- Scaling factors are within expected ranges.
+
+### Integration Tests
+
+Run end-to-end tests for the simulation loop.
+
+```bash
+pytest tests/integration/
+```
 
 ## Troubleshooting
 
-- **OOM (Out of Memory)**: If you encounter memory errors, reduce the number of simulation runs (`--runs`) or steps (`--steps`). The default is designed for standard RAM configurations.
-- **Sinkhorn Timeout**: If the Sinkhorn solver takes too long, check the `MAX_ITERATIONS` parameter in `code/data_generation/synthetic_attention.py`.
-- **CUDA Error**: Ensure you installed the CPU version of PyTorch. If you see CUDA errors, reinstall with `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
+- **Sinkhorn Solver Non-Convergence**: If many matrices fail to converge, increase `max_iterations` in `code/data_generation/sinkhorn_solver.py`.
+- **Out of Memory**: Reduce `num_matrices` in `generate_data` task (e.g., [deferred] instead of [deferred]).
+- **Time Limit Exceeded**: Reduce `steps` in `run_simulation` task (e.g., 500 instead of [deferred]) and note the power limitation.
+
+## Next Steps
+
+- Review `research.md` for detailed methodology and results.
+- Check `data-model.md` for data structure details.
+- Examine `contracts/` for schema definitions.

@@ -1,54 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Cluster-Robust OLS Analysis Output Schema"
-description: "Schema for the Cluster-Robust Ordinary Least Squares model results and post-hoc comparisons."
-type: object
+title: "Analysis Results Schema"
+description: "Schema for the final metrics and sensitivity analysis results."
+type: "object"
 properties:
-  comparison_pair:
-    type: string
-    description: "Pair of groups being compared (e.g., 'Immediate vs Delayed')."
-  mean_diff:
-    type: number
-    description: "Difference in mean final grades between groups."
-  std_err:
-    type: number
-    description: "Standard error of the mean difference (clustered)."
-  t_value:
-    type: number
-    description: "T-statistic."
-  p_value:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Raw p-value."
-  p_adjusted:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Tukey HSD adjusted p-value."
-  cohen_d:
-    type: number
-    description: "Cohen's d effect size."
-  significant:
-    type: boolean
-    description: "True if p_adjusted < 0.05."
   model_type:
-    type: string
-    enum:
-      - "Clustered OLS"
-    description: "Type of model used."
-  fixed_effect:
-    type: string
-    description: "Name of the fixed effect variable (feedback_group)."
-  cluster_variable:
-    type: string
-    description: "Name of the clustering variable (course_id)."
+    type: "string"
+    description: "Type of statistical model used (e.g., Cluster-Robust OLS)."
+  comparison_groups:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of groups compared (e.g., Immediate vs Delayed)."
+  results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        comparison:
+          type: "string"
+          description: "Name of the pairwise comparison (e.g., Immediate-Delayed)."
+        p_value:
+          type: "number"
+          description: "P-value from the statistical test."
+        effect_size:
+          type: "number"
+          description: "Cohen's d effect size."
+        significant:
+          type: "boolean"
+          description: "Whether the result is significant at p < 0.05."
+      required:
+        - comparison
+        - p_value
+        - effect_size
+        - significant
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      stability_proportion:
+        type: "number"
+        description: "Proportion of sweeps where p < 0.05."
+      flip_rate:
+        type: "number"
+        description: "Proportion of sweeps where the conclusion changes."
+      boundary_sweeps_count:
+        type: "integer"
+        description: "Total number of boundary sweeps performed."
+    required:
+      - stability_proportion
+      - flip_rate
+      - boundary_sweeps_count
 required:
-  - comparison_pair
-  - mean_diff
-  - p_value
-  - p_adjusted
-  - cohen_d
-  - significant
   - model_type
-  - cluster_variable
+  - comparison_groups
+  - results
+  - sensitivity_analysis
 additionalProperties: false

@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CriticalInteractionVector"
+type: object
+required:
+  - model_name
+  - coeff_snr
+  - coeff_rt60
+  - coeff_interaction
+  - coeff_snr_sq
+  - coeff_rt60_sq
+  - coeff_baseline_sss
+  - coeff_transcript_perplexity
+  - ci_lower
+  - ci_upper
+  - r2
+  - mae
+  - universal_vector
+  - similarity_to_others
+properties:
+  model_name:
+    type: string
+    description: "ASR model identifier"
+  coeff_snr:
+    type: number
+    description: "Linear coefficient for SNR"
+  coeff_rt60:
+    type: number
+    description: "Linear coefficient for RT60"
+  coeff_interaction:
+    type: number
+    description: "Coefficient for the interaction term SNR × RT60"
+  coeff_snr_sq:
+    type: number
+    description: "Quadratic term for SNR"
+  coeff_rt60_sq:
+    type: number
+    description: "Quadratic term for RT60"
+  coeff_baseline_sss:
+    type: number
+    description: "Coefficient for baseline Semantic Similarity Score"
+  coeff_transcript_perplexity:
+    type: number
+    description: "Coefficient for transcript difficulty (perplexity)"
+  ci_lower:
+    type: object
+    description: "Lower confidence interval for each coefficient"
+    additionalProperties:
+      type: number
+  ci_upper:
+    type: object
+    description: "Upper confidence interval for each coefficient"
+    additionalProperties:
+      type: number
+  r2:
+    type: number
+    description: "Out‑of‑sample R² on the held‑out test set"
+  mae:
+    type: number
+    description: "Mean Absolute Error on the held‑out test set"
+  universal_vector:
+    type: array
+    items:
+      type: number
+    description: "Vector derived from the universal collapse intensity (FR‑036)"
+  similarity_to_others:
+    type: number
+    description: "Cosine similarity of this vector to the mean across all models (FR‑051)"
+additionalProperties: false

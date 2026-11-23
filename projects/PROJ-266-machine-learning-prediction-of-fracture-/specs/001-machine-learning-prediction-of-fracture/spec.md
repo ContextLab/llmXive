@@ -35,7 +35,7 @@ A researcher trains a lightweight 3-block CNN on the training set and compares i
 
 ### User Story 3 - Feature Attribution and Stability Reporting (Priority: P3)
 
-A researcher generates Grad-CAM heatmaps for a random subset of test images to visualize which microstructural regions influenced the model's predictions. The system validates the stability of these attributions by computing the Intersection-over-Union (IoU) of the heatmaps across 5 augmented views of the same image.
+A researcher generates Grad-CAM heatmaps for a random subset of test images to visualize which microstructural regions influenced the model's predictions. The system validates the stability of these attributions by computing the Intersection-over-Union (IoU) of the heatmaps across multiple augmented views of the same image.
 
 **Why this priority**: This addresses the "mechanistic understanding" goal of the research question by ensuring the model's attention is stable against input perturbations, rather than relying on potentially circular correlations with derived metrics.
 
@@ -58,7 +58,7 @@ A researcher generates Grad-CAM heatmaps for a random subset of test images to v
 
 - **FR-001**: The system MUST convert all input images to 8-bit grayscale and resize them to exactly 128x128 pixels before training. (See US-1)
 - **FR-002**: The system MUST split the dataset into training, validation, and test sets, stratified by alloy family, using a fixed random seed to ensure reproducibility. (See US-1)
-- **FR-003**: The system MUST implement a multi-block CNN architecture (Conv-ReLU-BatchNorm-MaxPool) followed by two fully connected layers (256 → 64 → 1) for regression. (See US-2)
+- **FR-003**: The system MUST implement a multi-block CNN architecture (Conv-ReLU-BatchNorm-MaxPool) followed by two fully connected layers of decreasing dimensionality for regression. (See US-2)
 - **FR-004**: The system MUST train baseline models (Linear Regression and RandomForestRegressor with a standard ensemble configuration) on handcrafted texture features (GLCM, band-pass filtered power spectra) extracted from the same images. (See US-2)
 - **FR-005**: The system MUST perform 5 independent training runs with different random seeds and execute a Wilcoxon signed-rank test (α = 0.05) on the distribution of MAE differences between the CNN and each baseline model. (See US-2)
 - **FR-006**: The system MUST generate Grad-CAM heatmaps for a random subset of at least 10 test images to visualize predictive features. (See US-3)
@@ -82,7 +82,7 @@ A researcher generates Grad-CAM heatmaps for a random subset of test images to v
 
 - **SC-001**: The explanatory power of imaging data is measured against the performance of the baseline models to determine if the CNN demonstrates a statistically significant improvement. (See US-2)
 - **SC-002**: The predictive superiority of the CNN is measured against the baseline models using a Wilcoxon signed-rank test with α = 0.05 on the distribution of MAE differences across 5 runs. (See US-2)
-- **SC-003**: The validity of feature attribution is measured by the consistency of Grad-CAM heatmaps across 5 augmented views of the same image (IoU score). (See US-3)
+- **SC-003**: The validity of feature attribution is measured by the consistency of Grad-CAM heatmaps across multiple augmented views of the same image (IoU score). (See US-3)
 - **SC-004**: The computational feasibility is measured against the constraint of completing the full training and evaluation pipeline within 6 hours on a 2-core CPU-only runner. (See Assumptions)
 - **SC-005**: The robustness of the model is measured by calculating the standard deviation of R² across multiple runs with different seeds. (See Assumptions)
 

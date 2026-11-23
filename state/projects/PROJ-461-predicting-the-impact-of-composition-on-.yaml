@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T22:27:25.750881Z'
-current_stage: validated
+current_stage: in_progress
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-461-predicting-the-impact-of-composition-on-
-last_run_id: bf3ee163-bfaf-4bbc-973e-7f2f4b911fd1
+last_run_id: 4e8add07-1e72-442f-9e62-6b62f351d7e9
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-461-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on
 title: Predicting the Impact of Composition on the Density of Metallic Glasses
-updated_at: '2026-06-15T07:58:10.080555Z'
+updated_at: '2026-09-07T14:50:18.137170Z'

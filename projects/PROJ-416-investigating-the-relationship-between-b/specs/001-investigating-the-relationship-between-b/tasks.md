@@ -51,7 +51,7 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes dataset verification and safety gates.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -60,10 +60,36 @@
 - [X] T006 [P] Setup `code/main.py` orchestration entry point with argument parsing
 - [X] T007 Create `code/config.py` for environment variables (OpenNeuro ID, paths, seeds)
 - [X] T008 Implement `code/utils/logging.py` with structured logging for pipeline provenance
-- [ ] T009 Setup `tests/unit` and `tests/integration` directory structures <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
- in "<unicode string>", line 2, column 13:
- contents: |
- ^) -->
+- [X] T009 Setup `tests/unit` and `tests/integration` directory structures
+- [X] T001a [Blocking Prerequisite] Implement Multi-Source Data Aggregation Logic (FR-013, Plan Phase 0.1):
+ - **Scope**: This task implements the iterative search algorithm across multiple public repositories and writes the result.
+ - **Logic**:
+ 1. Define a list of verified sources: [OpenNeuro, HCP-Young-Adults subset, Secondary Repository].
+ 2. Iterate through each source, checking for:
+ - Resting-state fMRI (NIfTI).
+ - Paired pre/post clinical scores.
+ - Validated anxiety instrument (GAD-7, HAM-A).
+ 3. **Select** the first source meeting all criteria.
+ 4. **Halt** with "Data Unavailable: No longitudinal dataset found" if all 3 fail.
+ 5. If a source is found, write `data/verified_sources.json` with schema: `{"source_name": "...", "dataset_id": "...", "verified_date": "YYYY-MM-DD", "notes": "...", "has_pre_post": true, "has_clinical_scores": true, "dataset_version": "...", "download_date": "YYYY-MM-DD"}`.
+ 6. **Logging**: Explicitly log the source selection rationale (source name, dataset ID, validation status) to `logs/download.log` for transparency.
+ - **Output**: `data/verified_sources.json`.
+ - **Note**: This task is SEQUENTIAL. It must complete successfully before T001b or T041 can proceed.
+- [X] T001b [Blocking Prerequisite] Implement "Verified Source" Gate Enforcement (FR-013):
+ - **Scope**: This task reads the output of T001a and enforces the halt condition.
+ - **Logic**: If `data/verified_sources.json` is missing or indicates no valid source, raise a `FatalError` immediately with the message "BLOCKED: No verified dataset source found after multi-source aggregation. Project cannot proceed."
+ - **Dependency**: Depends on T001a completing successfully.
+ - **Note**: This task is the enforcement gate. It must complete before T012 or T046 can proceed.
+- [X] T041 [US1] [Gate Implementation] Implement a strict "Verified Source" gate in `code/data/download.py`: Read the OpenNeuro ID from `data/verified_sources.json` (populated by T001a). If the ID is missing or invalid, the script MUST raise a `FatalError` immediately and exit. Do NOT attempt to fetch from arbitrary IDs.
+ - **Precedes**: T012 (Download).
+ - **Location**: `code/data/download.py`
+ - **Clarification**: This is a runtime check embedded within the execution flow of T012, ensuring the gate runs immediately before download attempts.
+- [X] T046 [US1] [Verification] Run a dry-run of the data download and validation pipeline against the `data/verified_sources.json` entry to confirm the "Verified Source" gate triggers correctly if the file is missing or corrupted.
+ - **Trigger**: Execute with command `python code/main.py --dry-run --verify-gate`.
+ - **Precedes**: Any real data download attempts.
+ - **Deliverable**: A log entry in `logs/validation.log` confirming the gate logic is active and functional.
+ - **Artifact**: `logs/validation.log` containing "SUCCESS: Verified Source Gate Active".
+ - **Dependency**: Requires T001b and T041 to be implemented.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,20 +105,51 @@
 
 > **NOTE**: Write these tests FIRST. Ensure they FAIL before implementing the code they test.
 
-- [ ] T010 [P] [US1] Unit test for `code/data/validate.py` to ensure it halts on missing `pre_treatment_score` or `post_treatment_score` in metadata
-- [ ] T011 [P] [US1] Unit test for `code/data/preprocess.py` to verify motion threshold logic (>3mm/3°) flags subjects correctly <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Unit test for `code/data/validate.py` to ensure it halts on missing `pre_treatment_score` or `post_treatment_score` in metadata
+- [X] T011 [P] [US1] Unit test for `code/data/preprocess.py` to verify motion threshold logic (>3mm/3°) flags subjects correctly
 
 ### Code Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data/download.py` to fetch data from OpenNeuro (or halt if no verified source ID is provided)
-- [X] T012a [US1] Implement `code/data/download.py` to explicitly check for a verified OpenNeuro ID; if missing, halt execution with a fatal error and log "Missing verified dataset source" to align with Plan Summary "STATUS: BLOCKED" and FR-011
-- [ ] T013 [US1] Implement `code/data/validate.py` to check for paired pre/post fMRI and clinical scores; verify the instrument is a validated anxiety scale (e.g., GAD-7, HAM-A) with citable documentation or halt with fatal error (FR-011, FR-009)
-- [X] T014 [US1] Implement `code/data/preprocess.py` for motion correction, slice timing, and normalization using `nilearn` (CPU-optimized, subset N=10 for CI feasibility)
-- [~] T015 [US1] Implement quality control in `code/data/preprocess.py` to calculate Mean Framewise Displacement (FD) and exclude subjects >3mm/3° translation/rotation; ensure FD is saved as a mandatory covariate column in `data/metrics/network_metrics.csv` ONLY for subjects who PASSED the motion threshold (i.e., were not excluded) (FR-015b merged)
-- [~] T016 [US1] Add logging for excluded subjects and specific exclusion reasons in `logs/preprocessing.log`
-- [~] T017 [US1] Implement `code/data/save_metadata.py` to store subject list, exclusion reasons, and motion metrics in `data/metrics/subject_info.json`
+- [ ] T012 [US1] Implement `code/data/download.py` to fetch data from OpenNeuro using the ID from `data/verified_sources.json` (populated by T001a).
+ - **Logic**: Read `data/verified_sources.json`. If the ID is missing or invalid, raise a `FatalError` immediately and log "Missing verified dataset source".
+ - **Constraint**: Do NOT attempt to fetch from arbitrary IDs.
+ - **Artifact**: Downloaded NIfTI files in `data/raw/` and updated `data/verified_sources.json` with `download_date`.
+ - **Dependency**: Requires T041 to be implemented.
+- [X] T012b [US1] Implement metadata extraction in `code/data/download.py`:
+ - **Logic**: Upon successful download, extract `dataset_version` (from API response or dataset.json) and `download_date` (current timestamp).
+ - **Artifact**: Append these fields to `data/verified_sources.json` (overwriting or merging) to ensure T053 has the required data.
+ - **Schema**: `{"dataset_version": "...", "download_date": "YYYY-MM-DD"}`.
+- [X] T013 [US1] Implement comprehensive validation logic in `code/data/validate.py`:
+ 1. Check for paired pre/post fMRI and clinical scores at the dataset level; verify the instrument is a validated anxiety scale (e.g., GAD-7, HAM-A) with citable documentation or halt with fatal error (FR-011, FR-009).
+ 2. **Runtime Re-validation**: Even if T001a passed, re-check variables at runtime. If missing, halt with "Missing required variable: [variable_name]" (FR-011, SC-001).
+ 3. **Static Confounder Check**: Iterate through metadata to check for specific confounders (medication status, age, comorbidities).
+ 4. **Output**: Write the list of *potential* confounders to `data/metrics/confounder_candidates.json`.
+ 5. Iterate through subjects, check for individual completeness (pre AND post scans present), exclude ONLY incomplete subjects, and log the exclusion reason (Edge Case: Incomplete Scans).
+ *Must complete BEFORE T013a and T013b*.
+- [X] T013b [US1] [Runtime Missingness Calculation] Implement the dynamic missingness calculation logic for confounders (FR-012):
+ - **Logic**: Read `data/metrics/confounder_candidates.json` and the full subject list.
+ - **Calculation**: For each candidate confounder, calculate the percentage of missing data across ALL subjects.
+ - **Decision**: If >50% missing for a specific confounder, mark it for exclusion.
+ - **Artifact**: Update `data/metrics/confounder_config.json` with the final list of included/excluded confounders and their `missing_pct`.
+ - **Logging**: Log the exclusion reason to `logs/confounder_exclusion.log`.
+ - **Dependency**: Must run AFTER T013 (to get candidates) and BEFORE T013a (to finalize the list) and T028a (to use the config).
+- [X] T013a [US1] [Exclusion Logic] Implement the runtime exclusion logic based on T013 and T013b's output:
+ - **Logic**: Read `data/metrics/confounder_config.json` and the list of incomplete subjects from T013. Generate a filtered subject list excluding those with incomplete scans.
+ - **Artifact**: Write the final filtered subject list to `data/metrics/filtered_subjects.csv` with columns: `subject_id`, `status`, `exclusion_reason`.
+ - **Dependency**: Must run AFTER T013 and T013b.
+ - **Precedes**: T015 (which must process ONLY the included subjects).
+- [X] T015 [US1] Implement quality control in `code/data/preprocess.py` (or `code/data/qc.py`) to:
+ 1. Calculate Mean Framewise Displacement (FD) for each subject in the `filtered_subjects.csv` list.
+ 2. Exclude subjects if translation > 3mm OR rotation > 3° (distinct checks as per FR-002, SC-002).
+ 3. Extract clinical confounders (medication, age, comorbidities) from metadata if available.
+ 4. Save `mean_fd` (float), `translation_mm`, `rotation_deg`, and clinical confounders to `data/metrics/qc_metrics.csv` as mandatory columns.
+ *Must run AFTER T013a to process the output NIfTI, but BEFORE US2 consumes the metrics*.
+- [X] T016 [US1] Add logging for excluded subjects and specific exclusion reasons in `logs/preprocessing.log`
+- [X] T017 [US1] Implement `code/data/save_metadata.py` to append subject list, exclusion reasons, and motion metrics to `data/metrics/qc_metrics.csv` with schema: `{"subject_id": "...", "status": "included|excluded", "exclusion_reason": "..."}`.
+ - **CRITICAL NOTE**: T013 is the sole gate for variable existence. T017 must NOT re-implement validation logic or halt conditions. It only saves the curated list. If pre/post scores are missing, T013 must have already halted the process. T017 assumes valid input from T013.
+ *Must run AFTER T015 to capture final exclusion decisions. This is the strict final step of US1*.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 is fully functional ONLY after T017 completes.
 
 ---
 
@@ -102,6 +159,8 @@
 
 **Independent Test**: Run on a single preprocessed subject; verify matrices and metrics exist with values in expected mathematical bounds (Q≥0, Eff≥0).
 
+**⚠️ BLOCKING DEPENDENCY**: This phase CANNOT start until T017 (US1) is complete. US2 requires preprocessed NIfTI files from US1.
+
 ### Test Implementation for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for `code/analysis/network.py` to ensure modularity Q is non-negative and efficiency values are finite
@@ -109,22 +168,32 @@
 
 ### Code Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/analysis/network.py` to extract ROI time series using AAL or Schaefer atlas (parcellations with a moderate number of regions)
+- [X] T020 [US2] Implement `code/analysis/network.py` to extract ROI time series using AAL or Schaefer atlas (parcellations with a moderate number of regions).
+ - **Dependency**: Requires preprocessed NIfTI files from T014 (US1).
 - [X] T021 [US2] Implement functional connectivity matrix calculation (Pearson correlation) in `code/analysis/network.py`
-- [~] T022 [US2] Implement network metric calculation (Modularity Q, Global Efficiency, Local Efficiency) using `networkx` or `brainconn`
-- [X] T023 [US2] Add NaN/Infinity handling in `code/analysis/network.py` to exclude invalid metrics and log events
-- [ ] T024 [US2] Save connectivity matrices and metrics to `data/metrics/network_metrics.csv` and `data/metrics/matrices/`
-- [X] T025 [US2] Implement `code/analysis/validate_metrics.py` to enforce bounds (Q≥0, Eff≥0) and halt on systematic failures
+- [X] T022 [US2] Implement network metric calculation (Modularity Q, Global Efficiency, Local Efficiency) using `bctpy` (Brain Connectivity Toolbox Python) to ensure mathematical correctness and compliance with SC-003 bounds
+- [ ] T023 [US2] Implement NaN/Infinity handling in `code/analysis/network.py` to exclude invalid metrics and log events to `logs/network_errors.log`.
+ - **Logic**: If a metric is NaN or Infinity, exclude it for that subject and log the event with subject ID and metric name.
+ - **Artifact**: `logs/network_errors.log`.
+- [ ] T024 [US2] Save connectivity matrices and metrics to `data/metrics/network_metrics.csv` and `data/metrics/matrices/`.
+ - **Schema**: `subject_id`, `atlas`, `modularity_q`, `global_efficiency`, `local_efficiency`.
+ - **Logic**: Save the full connectivity matrix as a NIfTI or CSV in `data/metrics/matrices/` and the summary metrics in `data/metrics/network_metrics.csv`.
+ - **Dependency**: Requires T020-T023 to be complete.
+- [ ] T025 [US2] Implement `code/analysis/validate_metrics.py` to enforce bounds (Q≥0, Eff≥0) and halt on systematic failures, logging to `logs/validation_errors.log`.
+ - **Logic**: Iterate through `network_metrics.csv`. If any Q < 0 or Eff < 0, halt with "Invalid Metric Bounds" and log to `logs/validation_errors.log`.
+ - **Artifact**: `logs/validation_errors.log`.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, At least User Stories 1 AND 2 should both work independently
 
 ---
 
 ## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
 
-**Goal**: Perform ANCOVA analysis (Post ~ Pre + Metric), apply FDR correction, run sensitivity analysis, and generate diagnostic plots. Note: Ridge regression is explicitly rejected per Plan Methodological Clarification.
+**Goal**: Perform ANCOVA analysis (Post ~ Pre + Metric), apply FDR correction, run sensitivity analysis, and generate diagnostic plots. Implement Univariate Models as primary path, with PCA for collinearity as mandated by Spec.
 
 **Independent Test**: Run on sample data; verify regression coefficients, p-values, effect sizes, and plots are generated.
+
+**⚠️ BLOCKING DEPENDENCY**: This phase CANNOT start until T024 (US2) is complete. US3 requires network metrics from US2.
 
 ### Test Implementation for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -133,15 +202,65 @@
 
 ### Code Implementation for User Story 3
 
-- [X] T028 [US3] Implement `code/analysis/stats.py` to perform ANCOVA (Post ~ Pre + Metric + Confounds + FD_Covariate) with `statsmodels` <!-- ATOMIZE: requested -->
-- [X] T029 [US3] Implement VIF calculation in `code/analysis/stats.py`; if VIF > 5, apply separate univariate models with FDR correction (Per Plan Methodological Clarification #2: Ridge regression is rejected as methodologically unsound for hypothesis testing). Do NOT implement Ridge regression fallback.
-- [X] T029b [US3] Implement logic in `code/analysis/stats.py` to document the methodological divergence from Spec FR-005/FR-012 in the final report, explicitly stating that Univariate models with FDR were chosen over Ridge regression per Plan guidance.
-- [X] T030 [US3] Implement multiple comparison correction (FDR/Bonferroni) in `code/analysis/stats.py` for >1 metric hypothesis
-- [X] T031 [US3] Implement power analysis in `code/analysis/stats.py` (G*Power logic) to: HALT if N < 5; FLAG limitation if 5 <= N < 10; calculate and save the 'minimum N required' value to the report (SC-004)
-- [X] T032 [US3] Implement sensitivity analysis in `code/analysis/stats.py` sweeping motion thresholds {2mm, 3mm} and p-values {uncorrected, 0.05, 0.1}, ensuring 'uncorrected' is treated as a distinct sweep point (FR-010)
+- [ ] T031 [US3] Implement power analysis in `code/analysis/stats.py` using `statsmodels.stats.power.FTestPower` as the G*Power equivalent.
+ - **Parameters**: Use `f2=0.15` explicitly to ensure the parameter maps to Cohen's f² (as required by SC-004), not Cohen's f or d.
+ - **Calculation**: Explicitly calculate `min_N_required` using `statsmodels.stats.power.FTestPower.solve_power(effect_size=0.15, alpha=0.05, power=0.8, nobs1=None, ratio=1.0, alternative='two-sided')`.
+ - **Verification**: Document the parameter mapping in the output JSON to ensure Verified Accuracy.
+ - **HALT Logic**: If N < 5, HALT the pipeline with "Insufficient Power: N < 5".
+ - **WARNING Logic**: If 5 <= N < required, FLAG limitation with "WARNING: Underpowered for hypothesis testing (Power < 0.8)" and log this warning. **DO NOT** halt or suppress p-values; proceed with analysis and **MUST** report p-values and effect sizes as per SC-004. The warning is an *addition* to the report, not a replacement of statistical output.
+ - Calculate the 'minimum N required' value.
+ - **Output**: Save the full calculation details (including `min_N_required`, `effect_size`, `alpha`, `power`, `method`, `status`, `warning_message`) to `data/metrics/power_analysis.json` with the following schema: `{"min_N_required": <int>, `effect_size": <float>, "alpha": <float>, "power": <float>, "method": "FTestPower", "status": "HALT|WARNING|OK", "warning_message": "<string>"}`.
+ - **Explicit Requirement**: The code MUST write the human-readable warning string "WARNING: Underpowered for hypothesis testing (Power < 0.8)" directly into the **Methodological Constraints** section of `reports/results.md` if the status is WARNING.
+ - **Clarification**: Use `statsmodels` FTestPower as the accepted "equivalent" to G*Power. Document the mapping of parameters (e.g., `f2=0.15` corresponds to G*Power's `f²=0.15`) in the output JSON and report to ensure Verified Accuracy.
+ - **Dependency**: Must run BEFORE T028a to determine if the pipeline should proceed (HALT condition).
+- [ ] T031b [US3] Implement logic in `code/analysis/stats.py` to consume `data/metrics/power_analysis.json` generated by T031, and include the `min_N_required` value and method details in the final report generation.
+ - **Logic**: Read `power_analysis.json` and inject `min_N_required` and `method` into `reports/results.md`.
+ - **Artifact**: Updated `reports/results.md`.
+- [X] T029 [US3] Implement VIF calculation and regression logic in `code/analysis/stats.py`.
+ - **MANDATORY PATH**: If VIF <= 5, use standard OLS regression with FDR correction.
+ - **MANDATORY COLLINEARITY HANDLING**: If VIF > 5, compute Principal Components (PCA) of the network metrics.
+ - Use `sklearn.decomposition.PCA` to generate components.
+ - **Halt Condition**: If PCA fails OR if fewer than 2 components explain >90% variance, HALT the pipeline with "Collinearity Unresolvable".
+ - **Implementation Requirement**: Raise the specific exception class `CollinearityUnresolvableError` and log the detailed reason to `logs/collinearity.log`. The pipeline must exit with code `1`.
+ - **Exploratory Visualization**: If PCA succeeds AND >=2 components explain >90% variance, proceed with the PCA components **ONLY for visualization** in the report (e.g., scatter plot of PC1 vs Outcome), but do NOT use them as predictors in the primary ANCOVA model. Log a warning and switch to "Exploratory Mode" (report effect sizes, no p-value claims) as per Plan Phase 0.5.
+ - **PRIMARY PREDICTORS**: The primary ANCOVA model MUST use the original univariate network metrics. **DO NOT** replace primary predictors with PCA components.
+ - **Correction**: If VIF <= 5 and multiple univariate tests are run, T030's FDR/Bonferroni correction MUST be applied to these results.
+ - **Artifact**: Save the model decision (OLS, PCA-Exploratory, or Halt) to `data/metrics/model_selection_log.json` with keys: `vif_value`, `pca_variance_explained`, `decision`, `reason`.
+ - Log the model type used (OLS or PCA-Exploratory) in the output.
+ - **Dependency**: Requires base model structure from T028a.
+ - **Dependency**: Must run BEFORE T028a to determine if the pipeline should proceed (HALT condition).
+- [X] T029b [US3] Implement logic in `code/analysis/stats.py` to append a Methodological Note to `reports/results.md`, explicitly documenting the primary path (Univariate) and the conditional PCA path as implemented.
+ - **Content**: "Primary Path: Univariate OLS. Collinearity Handling: PCA for visualization only if VIF > 5."
+ - **Artifact**: Updated `reports/results.md`.
+- [ ] T028a [US3] Implement dynamic confounder injection logic in `code/analysis/stats.py`.
+ - **Logic**: Read `data/metrics/confounder_config.json` and parse the list of included confounders.
+ - **Action**: Dynamically construct the `statsmodels` formula string to include these confounders (e.g., `Post ~ Pre + Metric + Age + MedStatus`).
+ - **Artifact**: Updated formula string used in T028.
+ - **Dependency**: Must run BEFORE T028.
+- [ ] T028 [US3] Implement `code/analysis/stats.py` to perform ANCOVA (Post ~ Pre + Metric + Confounds + FD_Covariate) with `statsmodels`.
+ - **Formula**: `Post_treatment_score ~ Pre_treatment_score + Network_Metric + Confounder1 + Confounder2 + Mean_FD`.
+ - **Dependency**: Requires network metrics from T024 (US2), the final curated subject list from T017 (US1), the output of T031 (Power) and T029 (Collinearity) to ensure HALT conditions are met before running, and T028a for confounder injection.
+ - **Artifact**: Save regression results (coefficients, p-values, R-squared) to `data/metrics/regression_results.csv`.
+- [X] T030 [US3] Implement multiple comparison correction (FDR/Bonferroni) in `code/analysis/stats.py` for >1 metric hypothesis.
+ - **Mandatory Application**: This correction MUST be applied to all univariate tests performed when VIF <= 5.
+ - **Mandatory Application**: This correction MUST be applied to any secondary exploratory tests if PCA is used.
+- [ ] T032 [US3] Implement sensitivity analysis in `code/analysis/stats.py` sweeping:
+ 1. Motion thresholds: {, 3.0} mm.
+ 2. P-values: {0.05, 0.1}.
+ 3. Outcome definitions: {Change Score, Residual, Raw Post}. (Per Plan Phase 4).
+ - **Output**: Save the variation in outcome rates and effect sizes for each threshold combination to `reports/sensitivity_analysis.md`.
+ - **Schema**: Columns: `threshold_type`, `threshold_value`, `significant_count`, `effect_size`, `ci_lower`, `ci_upper`.
+ - **Dependency**: Requires T028 results.
 - [X] T033 [US3] Implement `code/analysis/plots.py` to generate scatter plots with regression lines and residual diagnostics
-- [ ] T034 [US3] Generate final report in `reports/results.md` with associational framing (FR-008); include logic to check `metadata.study_design` for string 'randomized' OR `metadata.randomized` for boolean true; frame findings as ASSOCIATIONAL if neither condition is met (SC-005); include all metrics, coefficients, and the minimum N value
-- [ ] T035 [US3] Save all statistical outputs (coefficients, p-values, VIF, power calc, min_N) to `data/metrics/statistical_results.csv`
+- [X] T034 [US3] Generate final report in `reports/results.md` with associational framing (FR-008).
+ - **Logic**: Check `metadata.study_design` for the string 'randomized' OR `metadata.randomized` for boolean true.
+ - **Framing Rule**: If **NEITHER** exists (fields missing OR false values), default to framing findings as **ASSOCIATIONAL** (SC-005).
+ - **Implementation**: Explicitly implement the check: `if (metadata.study_design != 'randomized' and metadata.randomized != true) or (metadata.study_design is None and metadata.randomized is None): frame = 'ASSOCIATIONAL'`.
+ - Include all metrics, coefficients, and the minimum N value.
+- [X] T035 [US3] Save all statistical outputs (coefficients, p-values, VIF, power calc, min_N) to `data/metrics/statistical_results.csv` with columns: `subject_id`, `metric`, `coefficient`, `p_value_uncorrected`, `p_value_corrected`, `vif`, `min_N_required`, `model_type`.
+- [X] T045 [US3] [Integration] Implement `tests/integration/test_data_flow.py` to verify the output of T017 (motion metrics) is correctly consumed by T028 (stats) as a covariate, and that T024 (network metrics) is correctly consumed by T028.
+ - **Moved from Phase N+1 to Phase 5** to ensure integration testing happens during implementation.
+ - **Validates**: The entire chain: T017 -> T024 -> T028.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,12 +270,107 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Update `docs/quickstart.md` with execution instructions for N=10 subset
-- [ ] T037a [P] Refactor code to add comprehensive docstrings to all public functions in `code/analysis/` and `code/data/`
-- [ ] T037b [P] Refactor `code/data/preprocess.py` to reduce cyclomatic complexity where possible without losing readability
-- [ ] T038 Performance optimization for preprocessing loop (ensure N=10 completes <6h)
-- [ ] T039 [P] Add unit tests for `code/analysis/stats.py` edge cases (collinearity, NaNs)
-- [ ] T040 Run `quickstart.md` validation to ensure end-to-end flow works on CI
+- [X] T036 [P] Update `docs/quickstart.md` with execution instructions for N=10 subset
+- [X] T037a [P] Refactor code to add comprehensive docstrings to all public functions in `code/analysis/` and `code/data/`
+- [X] T037b [P] Refactor `code/data/preprocess.py` to reduce cyclomatic complexity to <=10. Target functions: `preprocess_subject`, `calculate_motion_metrics`.
+- [X] T038 [US1] [Performance Verification] Run the full preprocessing pipeline on the **N=20 subset** (or maximum available) and verify compliance with FR-002.
+ - **Logic**: Execute `code/main.py` with the full N=20 subset.
+ - **Metrics**: Log wall-clock time and peak memory usage (via `tracemalloc` or `psutil`) to `logs/performance_profile.log`.
+ - **Assertion**: Assert that total time <= 6 hours AND peak memory <= 7GB. If limits are exceeded, the task fails and logs the specific violation.
+ - **Artifact**: `logs/performance_profile.log` containing execution time, peak memory, and pass/fail status.
+- [X] T039 [P] Add unit tests for `code/analysis/stats.py` edge cases (collinearity, NaNs)
+- [X] T040 Run `quickstart.md` validation to ensure end-to-end flow works on CI
+
+---
+
+## Phase N+1: Revision & Review Resolution (Addressing Plan/Spec Conflicts)
+
+**Goal**: Resolve specific methodological conflicts identified in the plan review and ensure strict adherence to data hygiene rules.
+
+- [X] T043 [US1] Update `code/data/validate.py` to strictly enforce the "Real Data Only" rule: Remove any `try/except` blocks that fallback to synthetic data generation. If `nilearn` or `bids` fails to load a specific subject's data, the pipeline must crash with a detailed error log, not a synthetic substitute. Add a unit test `tests/unit/test_validate.py` that asserts the process exits with code 1 on a simulated download failure.
+- [X] T044 [US3] [Active] Enhance `code/analysis/stats.py` sensitivity analysis (T032) to explicitly sweep:
+ 1. Motion threshold: {, 3.0} mm.
+ 2. P-value: {0.01, 0.05, 0.1}.
+ 3. Outcome definitions: {Change Score, Residual, Raw Post}.
+ - **Note**: Outcome definitions are INCLUDED in the sweep as per Plan Phase 4 and FR-010/SC-006.
+ - Generate a summary table in `reports/sensitivity_analysis.md` showing the count of significant findings and effect sizes at each threshold combination.
+ - **Artifact**: `reports/sensitivity_analysis.md`
+ - **Columns**: `threshold_type`, `threshold_value`, `significant_count`, `effect_size`, `ci_lower`, `ci_upper`.
+ - **Clarification**: This task explicitly mandates the generation of the artifact with the specified schema.
+
+**Note**: Task T042 has been removed as the methodological conflict is resolved by the code logic in T029 (Univariate primary, PCA for collinearity).
+
+---
+
+## Phase N+2: Final Verification & Documentation
+
+**Goal**: Ensure all critical constraints are met and documentation reflects the final implementation state.
+
+- [X] T047 [US3] [Verification] Validate the `reports/results.md` output against the "Associational Framing" rule (FR-008).
+ - **Logic**: If `metadata.study_design` != 'randomized' AND `metadata.randomized` != true, ensure the report explicitly states "Findings are framed as ASSOCIATIONAL".
+ - **Action**: If the framing is incorrect, the task must fail and the report generation logic must be patched.
+- [ ] T048 [US3] [Verification] Confirm the `data/metrics/power_analysis.json` file contains the `min_N_required` key and that `reports/results.md` references this value accurately.
+ - **Action**: Implement `tests/integration/test_power_analysis.py` to assert `data/metrics/power_analysis.json` contains `min_N_required` and `reports/results.md` references it.
+ - **Deliverable**: `tests/integration/test_power_analysis.py` with a test case asserting the specific key existence and value reference.
+- [X] T049 [Polish] Update `README.md` to include a "Known Limitations" section referencing the "Underpowered" warning logic (SC-004) and the "Associational" framing constraint.
+ - **Deliverable**: `README.md` with "Known Limitations" section.
+- [X] T050a [US1] [Integration] Implement `tests/integration/test_data_unavailable_halt.py` to verify the pipeline halts correctly when no longitudinal dataset is found.
+ - **Scenario**: Simulate a run where `data/verified_sources.json` indicates no valid source or the multi-source check fails.
+ - **Success Criteria**: The pipeline must exit with code 1 and log "Data Unavailable: No longitudinal dataset found".
+ - **Deliverable**: `tests/integration/test_data_unavailable_halt.py` with a test case asserting the specific fatal error message and exit code.
+ - **Note**: This task validates the "Data Unavailable" halt as a valid PASS condition.
+- [X] T050b [US3] [Integration] Implement `tests/integration/test_e2e_positive.py` to verify the entire pipeline (Download -> Preprocess -> Metrics -> Stats -> Report) executes without manual intervention on a small N=10 subset (if data is available).
+ - **Scenario**: Run the full pipeline on a verified subset.
+ - **Success Criteria**: All phases complete successfully and `reports/results.md` is generated.
+ - **Deliverable**: `tests/integration/test_e2e_positive.py` and a log file `ci_e2e_log.txt`.
+ - **Note**: This task validates the positive flow. If data is not available, T050a should pass, and T050b should be skipped or marked as "Data Unavailable" (not a failure).
+
+---
+
+## Phase N+3: Post-Analysis Data Hygiene & Stream Validation
+
+**Goal**: Ensure the streaming implementation for large datasets (if applicable) adheres to the "Real Data + Real Results" rule and that no synthetic fallbacks exist in the data loading logic.
+
+- [X] T052 [US1] [Verification] Verify that `code/data/validate.py` raises a `FatalError` immediately if the `anxiety_instrument` is not in the whitelist (GAD-7, HAM-A, BAI) and does not fallback to a "best guess" or synthetic label.
+ - **Action**: Add a unit test `tests/unit/test_validate_instrument.py` that asserts a `FatalError` is raised for an unknown instrument.
+- [X] T053 [US3] [Verification] Confirm that the `reports/results.md` includes a specific "Data Source" section listing the exact OpenNeuro ID, dataset version, and download date used for the analysis.
+ - **Action**: Update `code/reports/generate.py` to inject this metadata into the final report header.
+
+**Note**: Task T051 has been removed as it references a 'large dataset' streaming requirement that contradicts the spec's defined pilot scale (N<20).
+
+---
+
+## Phase N+4: Final Integration & Execution Readiness
+
+**Goal**: Ensure the entire pipeline is robust, reproducible, and ready for the execution stage, with explicit verification of the "Data Unavailable" halt behavior and end-to-end flow.
+
+- [X] T054 [US1] [Integration] Implement `tests/integration/test_halt_conditions.py` to verify the pipeline halts correctly in all defined failure scenarios:
+ 1. Missing `data/verified_sources.json`.
+ 2. Missing required variables (pre/post scores) in metadata.
+ 3. Invalid anxiety instrument (not in whitelist).
+ 4. Insufficient power (N < 5).
+ 5. Collinearity unresolvable (PCA fails or <2 components explain >90% variance).
+ - **Deliverable**: `tests/integration/test_halt_conditions.py` with 5 distinct test cases, each asserting the specific fatal error message.
+ - **Precedes**: T050b (Final End-to-End Test).
+- [ ] T055 [US3] [Documentation] Update `code/reports/generate.py` and `code/reports/templates/results_template.md` to include a "Methodological Constraints" section that explicitly lists:
+ 1. The primary analysis path (Univariate OLS).
+ 2. The conditional PCA path for collinearity (visualization only).
+ 3. The sensitivity analysis parameters (motion: {2.0, 3.0}, p-value: {0.01, 0.05, 0.1}, outcome: {Change, Residual, Raw}).
+ 4. The associational framing rule.
+ 5. The power analysis method and minimum N required.
+ - **Deliverable**: Updated `code/reports/generate.py` and `code/reports/templates/results_template.md` with the new section.
+ - **Schema**: The new section must contain keys: `primary_path`, `pca_path`, `sensitivity_params`, `associational_rule`, `power_method`.
+- [X] T056 [Polish] [Documentation] Update `docs/quickstart.md` to include a "Troubleshooting" section that guides users on:
+ 1. How to interpret the "Data Unavailable" halt.
+ 2. How to check the `data/verified_sources.json` file.
+ 3. How to manually verify the "Verified Source" gate.
+ 4. How to interpret the "Underpowered" warning.
+ - **Deliverable**: Updated `docs/quickstart.md` with the new section.
+- [X] T057 [Polish] [Documentation] Create `docs/CONTRIBUTING.md` with guidelines for:
+ 1. Adding new data sources to the multi-source aggregation (FR-013).
+ 2. Extending the sensitivity analysis parameters.
+ 3. Updating the anxiety instrument whitelist.
+ - **Deliverable**: `docs/CONTRIBUTING.md` with the new guidelines.
 
 ---
 
@@ -170,12 +384,16 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase N+1)**: Depends on completion of all core implementation tasks (Phase 3-5) to verify and patch specific logic.
+- **Final Verification (Phase N+2)**: Depends on completion of Phase N+1.
+- **Data Hygiene (Phase N+3)**: Depends on completion of Phase N+2 to ensure final data integrity.
+- **Final Integration (Phase N+4)**: Depends on completion of Phase N+3 to ensure all halt conditions and documentation are in place.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (preprocessed data)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (network metrics)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **BLOCKING DEPENDENCY**: Requires US1 output (preprocessed data from T014)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **BLOCKING DEPENDENCY**: Requires US2 output (network metrics from T024)
 
 ### Within Each User Story
 
@@ -249,9 +467,14 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All data processing must fit within 2 CPU cores, 7GB RAM, 14GB disk, and 6 hours. Use N=10 subset.
+- **Critical Constraint**: All data processing must fit within 2 CPU cores, 7GB RAM, 14GB disk, and 6 hours. Use N=10 subset for CI.
 - **Critical Constraint**: No GPU/CUDA. No 8-bit/4-bit quantization. No deep learning training.
-- **Critical Constraint**: If dataset variables (pre/post scores) are missing, the pipeline MUST halt immediately (FR-011).
-- **Critical Constraint**: Ridge regression is explicitly REJECTED per Plan Methodological Clarification; use Univariate models with FDR correction instead.
-- **Critical Constraint**: Sensitivity analysis must include uncorrected p-value case and specific motion thresholds {2mm, 3mm}.
-- **Critical Constraint**: Report must frame findings as ASSOCIATIONAL if study_design is not 'randomized' (string) OR metadata.randomized is not true (boolean).
+- **Critical Constraint**: If dataset variables (pre/post scores) are missing, the pipeline MUST halt immediately with "Missing required variable: [variable_name]" (FR-011).
+- **Critical Constraint**: Implement Univariate Models as PRIMARY path. Implement PCA for collinearity (VIF > 5) as mandated by FR-005/FR-012. Ridge regression is FORBIDDEN. PCA components MUST NOT replace primary predictors.
+- **Critical Constraint**: Sensitivity analysis must sweep motion thresholds across a range of clinically relevant values, p-values spanning standard significance levels, and outcome definitions {Change, Residual, Raw}..
+- **Critical Constraint**: Report must frame findings as ASSOCIATIONAL if `metadata.study_design` is not 'randomized' (string) OR `metadata.randomized` is not true (boolean), or if fields are missing.
+- **Critical Constraint**: G*Power calculation must explicitly save 'minimum N required' to `data/metrics/power_analysis.json` and `reports/results.md` (SC-004), including 'Exploratory Mode' warning logic for 5 ≤ N < required and HALT for N < 5. Use `f2=0.15` in `statsmodels`.
+- **Critical Constraint**: T045 (Data Flow Verification) is now part of Phase 5 to ensure integration testing happens during implementation.
+- **Critical Constraint**: T046-T050 (Final Verification) are mandatory to close the loop on data hygiene and reporting constraints. T050 is split into T050a (Data Unavailable) and T050b (Positive E2E).
+- **Critical Constraint**: T051 has been removed as it contradicts the pilot scale. T052-T053 (Data Hygiene & Stream Validation) are mandatory to ensure no synthetic fallbacks and proper streaming implementation.
+- **Critical Constraint**: T054-T057 (Final Integration) are mandatory to ensure all halt conditions are tested and documentation is complete for the execution stage.

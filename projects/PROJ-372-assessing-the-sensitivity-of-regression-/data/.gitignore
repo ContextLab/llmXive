@@ -1,0 +1,43 @@
+# Ignore all data files and large artifacts
+# These are generated and should not be committed to version control
+
+# Raw data (never modify)
+data/raw/*
+!data/raw/.gitkeep
+
+# Processed data
+data/processed/*
+!data/processed/.gitkeep
+
+# Artifacts (models, logs, plots, etc.)
+artifacts/*
+!artifacts/.gitkeep
+!artifacts/run.log
+
+# Python artifacts
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+
+# Environment and virtualenvs
+env/
+venv/
+ENV/
+.venv/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs (keep the log file itself but ignore content)
+artifacts/*.log
+!artifacts/.gitkeep

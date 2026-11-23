@@ -1,0 +1,4 @@
+binning_strategy,predictor,outcome,pearson_r,p_value
+quartiles,edge_density,accuracy,0.0,1.0
+quartiles,color_entropy,accuracy,0.0,1.0
+quartiles,object_count,accuracy,0.0,1.0

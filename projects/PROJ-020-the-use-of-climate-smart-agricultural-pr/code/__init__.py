@@ -1,3 +1,1 @@
-"""
-Main package for the Climate-Smart Agriculture research project.
-"""
+"""Root package for the Climate-Smart Agriculture Analysis project."""

@@ -1,2 +1,2 @@
-# This directory is reserved for utility modules.
-# Add your utility code here (e.g., logging.py, helpers.py).
+# This directory contains utility modules for the llmXive pipeline.
+# Created by task T001c.

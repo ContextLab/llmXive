@@ -1,0 +1,12 @@
+[
+  {
+    "data_file": "final_dataset.csv",
+    "required": [
+      "data_reports"
+    ]
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/data/processed/final_augmented_dataset.csv",
+    "required": []
+  }
+]

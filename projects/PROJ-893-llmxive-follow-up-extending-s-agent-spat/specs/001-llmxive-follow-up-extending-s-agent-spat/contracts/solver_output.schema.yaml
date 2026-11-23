@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CSP Solver Output Schema
+description: |
+  Schema for the output of the symbolic CSP solver.
+  Contains the prediction, solver status, and execution metadata.
+type: object
+required:
+  - scene_id
+  - prediction
+  - status
+  - solver_time_ms
+properties:
+  scene_id:
+    type: string
+    description: The ID of the processed scene.
+    pattern: "^scene_\\d+$"
+  prediction:
+    type: [string, integer, number, boolean, array, null]
+    description: The solution found by the CSP solver.
+  status:
+    type: string
+    description: Status of the solving process.
+    enum:
+      - solved
+      - no_solution
+      - timeout
+      - error
+      - excluded
+  solver_time_ms:
+    type: number
+    format: float
+    minimum: 0
+    description: Time taken to solve the constraints in milliseconds.
+  constraints_solved:
+    type: integer
+    minimum: 0
+    description: Number of constraints successfully processed.
+  error_message:
+    type: [string, null]
+    description: Error details if status is 'error' or 'excluded'.
+  solution_metadata:
+    type: object
+    description: Optional metadata about the solution.
+    properties:
+      variable_count:
+        type: integer
+      domain_size:
+        type: integer
+      propagation_rounds:
+        type: integer
+additionalProperties: false

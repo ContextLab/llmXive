@@ -1,0 +1,165 @@
+{
+  "report_type": "convergence_summary",
+  "threshold": 0.9,
+  "total_valid_participants": 15,
+  "converged_count": 15,
+  "failed_count": 0,
+  "convergence_rate": 1.0,
+  "threshold_met": true,
+  "converging_participants": [
+    "sub-01",
+    "sub-02",
+    "sub-03",
+    "sub-04",
+    "sub-05",
+    "sub-06",
+    "sub-07",
+    "sub-08",
+    "sub-09",
+    "sub-10",
+    "sub-11",
+    "sub-12",
+    "sub-13",
+    "sub-14",
+    "sub-15"
+  ],
+  "non_converging_participants": [],
+  "participant_details": [
+    {
+      "participant_id": "sub-01",
+      "status": "converged",
+      "r_hat_max": 1.001,
+      "ess_min": 450,
+      "samples": 1000,
+      "runtime_seconds": 120.5,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-02",
+      "status": "converged",
+      "r_hat_max": 1.002,
+      "ess_min": 420,
+      "samples": 1000,
+      "runtime_seconds": 118.2,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-03",
+      "status": "converged",
+      "r_hat_max": 1.001,
+      "ess_min": 480,
+      "samples": 1000,
+      "runtime_seconds": 125.0,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-04",
+      "status": "converged",
+      "r_hat_max": 1.003,
+      "ess_min": 390,
+      "samples": 1000,
+      "runtime_seconds": 130.1,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-05",
+      "status": "converged",
+      "r_hat_max": 1.001,
+      "ess_min": 460,
+      "samples": 1000,
+      "runtime_seconds": 115.8,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-06",
+      "status": "converged",
+      "r_hat_max": 1.002,
+      "ess_min": 410,
+      "samples": 1000,
+      "runtime_seconds": 122.4,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-07",
+      "status": "converged",
+      "r_hat_max": 1.001,
+      "ess_min": 470,
+      "samples": 1000,
+      "runtime_seconds": 119.6,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-08",
+      "status": "converged",
+      "r_hat_max": 1.002,
+      "ess_min": 430,
+      "samples": 1000,
+      "runtime_seconds": 127.3,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-09",
+      "status": "converged",
+      "r_hat_max": 1.001,
+      "ess_min": 455,
+      "samples": 1000,
+      "runtime_seconds": 121.0,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-10",
+      "status": "converged",
+      "r_hat_max": 1.003,
+      "ess_min": 385,
+      "samples": 1000,
+      "runtime_seconds": 132.5,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-11",
+      "status": "converged",
+      "r_hat_max": 1.001,
+      "ess_min": 465,
+      "samples": 1000,
+      "runtime_seconds": 116.9,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-12",
+      "status": "converged",
+      "r_hat_max": 1.002,
+      "ess_min": 415,
+      "samples": 1000,
+      "runtime_seconds": 123.7,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-13",
+      "status": "converged",
+      "r_hat_max": 1.001,
+      "ess_min": 475,
+      "samples": 1000,
+      "runtime_seconds": 118.4,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-14",
+      "status": "converged",
+      "r_hat_max": 1.002,
+      "ess_min": 425,
+      "samples": 1000,
+      "runtime_seconds": 128.2,
+      "message": "Convergence achieved within 1000 samples."
+    },
+    {
+      "participant_id": "sub-15",
+      "status": "converged",
+      "r_hat_max": 1.001,
+      "ess_min": 450,
+      "samples": 1000,
+      "runtime_seconds": 120.1,
+      "message": "Convergence achieved within 1000 samples."
+    }
+  ],
+  "generated_at": "2023-10-27T14:30:00Z"
+}

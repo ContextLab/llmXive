@@ -140,7 +140,7 @@
       + '<div class="ad-feedback" hidden>'
       + '<div class="ad-fb-inner">'
       + '<label class="field"><span class="l">Your feedback on this artifact</span>'
-      + '<textarea class="ad-fb-text" placeholder="What\'s missing, wrong, or could be improved? A maintenance agent will triage this to the right pipeline step within the hour."></textarea></label>'
+      + '<textarea class="ad-fb-text" placeholder="What\'s missing, wrong, or could be improved? Scheduled triage routes this to the relevant pipeline step."></textarea></label>'
       + '<div class="ad-fb-actions actions">'
       + '<span class="ad-fb-msg"></span>'
       + '<button class="btn ghost ad-fb-cancel" type="button">Cancel</button>'
@@ -219,9 +219,9 @@
           target_stage: _currentProject ? _currentProject.current_stage : null,
           content: text,
         });
-        // FR-013b: confirmation with a clickable issue link + "within the hour".
+        // Confirm the issue URL without promising worker completion time.
         fbMsg.innerHTML = 'Thanks — created <a href="' + escapeHtml(issue.html_url) + '" target="_blank" rel="noopener">issue #' + issue.number + '</a>. ' +
-          'A maintenance agent will process it within the next hour.';
+          'Scheduled triage will process it when workers run.';
         fbMsg.className = "ad-fb-msg ok";
         fbText.value = "";
       } catch (err) {
@@ -401,8 +401,29 @@
       html += '<div style="font-size:11px; color:var(--muted); margin-bottom:6px;">' +
         escapeHtml(pp.ingestion_statement) + '</div>';
     }
-    if (pp.source_url) {
-      html += row('<i class="fa-solid fa-arrow-up-right-from-square"></i>', 'Original source', pp.source_url, '');
+    // The ingested body is NOT re-hosted here: it carries the arXiv
+    // Non-exclusive Distribution License, which grants distribution to
+    // arxiv.org and is silent on anyone else. So the paper is linked AT ITS
+    // SOURCE, the licence it is served under is named, and the digest of the
+    // version llmXive actually reviewed is shown -- the source URL serves the
+    // CURRENT version, which for many papers is no longer the same file.
+    const src = pp.original_source || {};
+    const sourceUrl = src.url || pp.source_url;
+    if (sourceUrl) {
+      html += row('<i class="fa-solid fa-arrow-up-right-from-square"></i>',
+        'Original paper (at the source)', sourceUrl, src.arxiv_id || '');
+    }
+    if (src.license) {
+      html += row('<i class="fa-solid fa-scale-balanced"></i>', 'Licence',
+        src.license_url || '', src.license);
+    }
+    if (src.reviewed_version && src.reviewed_version.sha256) {
+      const rv = src.reviewed_version;
+      html += '<div style="font-size:11px; color:var(--muted); margin:2px 0 6px;">' +
+        'llmXive reviewed ' + escapeHtml(rv.file || 'the original') + ', sha256 ' +
+        escapeHtml(String(rv.sha256).slice(0, 12)) +
+        (rv.bytes ? ' (' + escapeHtml(String(rv.bytes)) + ' bytes)' : '') +
+        '. The link above serves the current version, which may differ.</div>';
     }
     // Viewer toggles: swap the main pane between the llmXive paper PDF and the
     // automated-review report — both render IN the modal (no new tab). The paper
@@ -784,5 +805,8 @@
       });
   }
 
-  window.LlmxiveDialog = { open, close };
+  // ``_test`` is a seam for tests only: _preprintBlockHTML is pure string
+  // building (no DOM), so tests/unit/test_dialog_preprint_block.py can drive the
+  // REAL shipped code under Node with nothing but a window stub.
+  window.LlmxiveDialog = { open, close, _test: { preprintBlockHTML: _preprintBlockHTML } };
 })();

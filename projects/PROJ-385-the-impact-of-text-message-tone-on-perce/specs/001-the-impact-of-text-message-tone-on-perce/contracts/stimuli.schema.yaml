@@ -1,0 +1,35 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Stimuli Schema (Deprecated Alias)"
+type: "object"
+required:
+  - "stimulus_id"
+  - "base_scenario"
+  - "emoji_count"
+  - "punctuation_pattern"
+  - "length_category"
+  - "full_text"
+  - "cue_intensity"
+properties:
+  stimulus_id:
+    type: "string"
+    pattern: "^S[0-9]{3}$"
+  base_scenario:
+    type: "string"
+    minLength: 1
+  emoji_count:
+    type: "integer"
+    enum: [0, 1, 2]
+  punctuation_pattern:
+    type: "string"
+    enum: ["Standard", "Excessive"]
+  length_category:
+    type: "string"
+    enum: ["Short", "Long"]
+  full_text:
+    type: "string"
+    minLength: 1
+  cue_intensity:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+additionalProperties: false

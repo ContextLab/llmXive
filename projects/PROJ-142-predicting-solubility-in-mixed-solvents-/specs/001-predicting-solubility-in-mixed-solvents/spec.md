@@ -24,7 +24,7 @@ The system must ingest raw solubility data from verified public sources.
 ### FR-002: Data Filtering
 - Filter molecules with Molecular Weight (MW) < 500 Da.
 - Filter records where solvent composition sum != 1.0 (within tolerance 1e-5).
-- Handle missing values via KNN imputation (max 15% rate).
+- Handle missing values via KNN imputation (max [deferred] rate).
 
 ### FR-003: Feature Engineering
 - Compute RDKit descriptors (Morgan fingerprints, topological indices) for solutes.
@@ -35,7 +35,7 @@ The system must ingest raw solubility data from verified public sources.
 ### FR-004: Model Training
 - Train XGBoost and Random Forest regressors.
 - Implement Abraham solvation parameter baseline (using `solv` package or fallback).
-- Perform 5-fold cross-validation.
+- Perform k-fold cross-validation.
 
 ### FR-005: Model Evaluation
 - Calculate RMSE, MAE, and R² on hold-out test sets.
@@ -88,7 +88,7 @@ The system must ingest raw solubility data from verified public sources.
 
 ## 5. Assumptions & Gaps
 
-- **DSSTox Exclusion**: As noted in FR-001, DSSTox is excluded due to stoichiometry complexity.
+- **DSSTox Exclusion**: As noted in FR-001, DSSTox is excluded due to stoichiometry complexity. This exclusion is formally documented per the project Plan's "Assumptions & Gaps" section to prevent scope creep regarding complex stoichiometry normalization in the MVP.
 - **Mixed Solvent Data**: If insufficient mixed-solvent data exists (< 100 rows), the system will pivot to pure solvent prediction logic.
 - **Abraham Parameters**: If the `solv` package is unavailable, a fallback linear regression using standard Abraham parameters (a, b, c, s, v, r) will be used.
 

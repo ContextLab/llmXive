@@ -1,84 +1,65 @@
-"""
-Script to initialize the project directory structure for the 
-'Influence of Chatbot Politeness on User-Perceived Quality' research project.
-
-Creates the following directories relative to the project root:
-- data/raw
-- data/processed
-- code
-- code/utils
-- tests
-- tests/unit
-- tests/integration
-- tests/contract
-- docs
-- specs
-- figures
-
-Also creates .gitkeep files in data directories to ensure they are tracked
-by git even when empty.
-"""
 import os
 import sys
 from pathlib import Path
+from typing import List, Dict, Any, Optional
 
-def create_structure():
-    # Define the root directory (current working directory where script is run)
-    root = Path.cwd()
+def create_structure(base_path: Optional[Path] = None) -> Dict[str, str]:
+    """
+    Creates the project directory structure for the llmXive pipeline.
     
-    # Define the directory structure to create
-    # Using relative paths from the root
-    directories = [
+    Args:
+        base_path: Optional base path. Defaults to current working directory.
+        
+    Returns:
+        Dictionary mapping directory names to their absolute paths.
+    """
+    if base_path is None:
+        base_path = Path.cwd()
+    
+    required_dirs = [
         "data/raw",
         "data/processed",
         "code",
         "code/utils",
         "tests",
+        "tests/contract",
         "tests/unit",
         "tests/integration",
-        "tests/contract",
         "docs",
-        "specs",
-        "figures"
+        "state"
     ]
     
-    # Track created directories
-    created = []
+    created_paths = {}
     
-    for dir_path in directories:
-        full_path = root / dir_path
+    for dir_name in required_dirs:
+        full_path = base_path / dir_name
         try:
             full_path.mkdir(parents=True, exist_ok=True)
-            created.append(dir_path)
-            
-            # Create .gitkeep in data directories to ensure they are tracked
-            if dir_path.startswith("data/"):
-                gitkeep_path = full_path / ".gitkeep"
-                if not gitkeep_path.exists():
-                    gitkeep_path.touch()
-                    print(f"  Created .gitkeep in {dir_path}")
-                    
-        except PermissionError:
-            print(f"  Error: Permission denied creating {dir_path}")
-            return False
-        except Exception as e:
-            print(f"  Error creating {dir_path}: {e}")
-            return False
+            created_paths[dir_name] = str(full_path.resolve())
+            print(f"Created directory: {full_path}")
+        except OSError as e:
+            print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
+            raise
     
-    # Print summary
-    print(f"\nProject structure initialized successfully in: {root}")
-    print(f"Created {len(created)} directories:")
-    for d in created:
-        print(f"  - {d}")
-        
-    return True
+    return created_paths
+
+def main() -> int:
+    """
+    Main entry point for the setup script.
+    
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    try:
+        print("Initializing project directory structure...")
+        created = create_structure()
+        print("\nDirectory structure created successfully:")
+        for name, path in created.items():
+            print(f"  {name}: {path}")
+        return 0
+    except Exception as e:
+        print(f"Failed to create directory structure: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    print("Initializing project structure for PROJ-755...")
-    success = create_structure()
-    if not success:
-        print("\nInitialization failed. Please check permissions and try again.")
-        sys.exit(1)
-    else:
-        print("\nInitialization complete.")
-        sys.exit(0)
+    sys.exit(main())

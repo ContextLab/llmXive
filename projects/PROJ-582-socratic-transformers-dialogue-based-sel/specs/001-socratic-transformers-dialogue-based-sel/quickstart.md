@@ -1,12 +1,12 @@
 # Quickstart: Socratic Transformers
 
-## Prerequisites
+## 1. Prerequisites
 
-*   Python 3.11+
-*   Access to a GitHub Actions runner (free-tier) or local machine with ≥7GB RAM.
-*   HuggingFace account (optional, for model access).
+-   Python 3.11+
+-   Git
+-   (Optional) Kaggle CLI for GPU offload (if CPU fails)
 
-## Installation
+## 2. Installation
 
 1.  **Clone and Setup**:
     ```bash
@@ -17,64 +17,46 @@
     pip install -r requirements.txt
     ```
 
-2.  **Verify Dependencies**:
-    Ensure `bitsandbytes` is installed with CPU support:
-    ```bash
-    python -c "import bitsandbytes; print(bitsandbytes.__version__)"
-    ```
+2.  **Dependencies**:
+    -   `transformers`, `peft`, `bitsandbytes`, `datasets`, `scikit-learn`, `accelerate`.
 
-## Running the Pipeline
+## 3. Running the Pipeline
 
-### Step 1: Generate Data
-Run the data generation script for the Socratic condition.
+### Step 1: Data Generation
+Download GSM8K and generate the three conditions (Static, Selection, Ablation).
 ```bash
-python src/data/generate_dialogue.py \
-  --dataset gsm8k \
-  --condition socratic \
-  --seed 42 \
-  --threshold 0.05 \
-  --output data/generated/dialogue_socratic_seed42.jsonl
+python -m src.data.generator --config src/utils/config.yaml
 ```
-*Note: This will download GSMK if not present and generate a representative set of samples.*
+*Output*: `data/processed/static_tuples.jsonl`, `dialogue_tuples.jsonl`, `ablation_tuples.jsonl`.
 
-### Step 2: Train Model
-Train the Phi-1.5 model on the generated data.
+### Step 2: Fine-Tuning
+Train the model on each condition. The script auto-detects OOM and offloads to Kaggle if necessary. **Runs multiple independent seeds per condition.**
 ```bash
-python src/train/train_loop.py \
-  --data_path data/generated/dialogue_socratic_seed42.jsonl \
-  --condition socratic \
-  --seed 42 \
-  --output_dir models/socratic_seed42 \
-  --max_epochs 3
-```
-*Warning: This may take several hours on a CPU-only runner.*
-
-### Step 3: Evaluate
-Evaluate the trained model on GSM8K test.
-```bash
-python src/eval/benchmark.py \
-  --model_path models/socratic_seed42 \
-  --benchmark gsm8k_test \
-  --output data/results/eval_seed42.jsonl
+python -m src.model.trainer --condition selection --seeds 5
+python -m src.model.trainer --condition ablation --seeds 5
+python -m src.model.trainer --condition static --seeds 5
 ```
 
-### Step 4: Analyze
-Run the statistical analysis (requires results from multiple seeds).
+### Step 3: Evaluation
+Evaluate on GSM8K test, MATH-500, and MMLU-STEM.
 ```bash
-python src/analyze/stats.py \
-  --input_dir data/results \
-  --output data/results/aggregated_stats.csv
+python -m src.eval.metrics --conditions selection ablation static
 ```
 
-## Validation
-
-To ensure data integrity, run the contract tests:
+### Step 4: Analysis
+Run statistical tests (Independent t-tests with Bonferroni correction).
 ```bash
-pytest tests/contract/
+python -m src.eval.stats --input data/results/metrics.json
 ```
 
-## Troubleshooting
+## 4. Reproducibility
 
-*   **OOM Error**: If you encounter `RuntimeError: CUDA out of memory` (unexpected on CPU) or `MemoryError`, check that `bitsandbytes` is loaded with `cpu` flag. Ensure no other processes are using RAM.
-*   **Degenerate Dialogue**: If the log shows `DEGENERATE_DIALOGUE_TRUNCATED`, the model is repeating itself. This is expected behavior; the sample is skipped.
-*   **Timeout**: If training exceeds 6 hours, reduce `max_epochs` or `batch_size` in `train_loop.py`.
+-   **Seeds**: All random seeds are pinned in `src/utils/config.yaml`.
+-   **Data**: Raw datasets are fetched via `datasets.load_dataset` on every run.
+-   **Checksums**: Verify data integrity with `python -m src.utils.io verify`.
+
+## 5. Troubleshooting
+
+-   **OOM Error**: If the training script fails with `CUDA out of memory` or `exit code 137`, it will automatically attempt to offload to a Kaggle GPU instance. Ensure your Kaggle account is linked if running locally.
+-   **Dataset Download**: Ensure internet access. If behind a proxy, set `HF_DATASETS_OFFLINE=0`.
+-   **Timeout**: If a run exceeds a predefined time threshold, it will be terminated. Check logs for "TIMEOUT" message.

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-follow-up-extending-minimax-spar"
 version = "0.1.0"
-description = "llmXive follow-up: extending MiniMax Sparse Attention"
+description = "Extending MiniMax Sparse Attention with Heuristic Selection"
 requires-python = ">=3.11"
 dependencies = [
     "transformers",
@@ -17,36 +17,51 @@ dependencies = [
     "pytest",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest-cov",
-]
-
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
     | \.tox
-    | __pycache__
+    | \.venv
+    | _build
+    | buck-out
     | build
     | dist
-    | data
-    | results
 )/
 '''
 
 [tool.ruff]
-# Inherit settings from code/ruff.toml if needed, 
-# but typically we keep ruff config in the project root or a dedicated file.
-# This section serves as a fallback or override for project-wide settings.
-extend = "code/ruff.toml"
+target-version = "py311"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"] # Allow unused imports in __init__.py for API exposure
+
+[tool.ruff.isort]
+known-first-party = ["code", "utils", "data", "heuristics", "eval", "models", "analysis"]
+force-single-line = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"

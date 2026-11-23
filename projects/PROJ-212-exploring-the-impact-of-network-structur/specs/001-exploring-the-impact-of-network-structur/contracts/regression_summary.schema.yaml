@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionSummary"
+description: "Schema for the statistical regression analysis results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "linear"
+      - "polynomial"
+    description: "Type of regression model fitted."
+  predictors:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of topological features used as predictors."
+  coefficients:
+    type: "object"
+    description: "Map of predictor name to regression coefficient."
+    additionalProperties:
+      type: "number"
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination."
+    minimum: 0
+    maximum: 1
+  p_values:
+    type: "object"
+    description: "Map of predictor name to p-value."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factor for each predictor."
+    additionalProperties:
+      type: "number"
+      minimum: 1
+  cv_mean_r2:
+    type: "number"
+    description: "Mean R² score from cross-validation."
+    minimum: 0
+    maximum: 1
+  cv_std_r2:
+    type: "number"
+    description: "Standard deviation of R² from cross-validation."
+    minimum: 0
+  is_stable:
+    type: "boolean"
+    description: "True if cv_std_r2 < 0.1."
+  warning_message:
+    type: ["string", "null"]
+    description: "Warning if dataset size is insufficient (N < 10)."
+required:
+  - "model_type"
+  - "predictors"
+  - "coefficients"
+  - "r_squared"
+  - "p_values"
+  - "vif_scores"
+  - "cv_mean_r2"
+  - "cv_std_r2"
+  - "is_stable"
+  - "warning_message"
+additionalProperties: false

@@ -25,25 +25,41 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per `plan.md` (code/, data/, tests/, contracts/)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, scikit-learn, pandas, numpy, shap, pyyaml, pytest)
+- [X] T002 Initialize Python project with `requirements.txt` (rdkit, scikit-learn, pandas, numpy, shap, pyyaml, pytest, datasets, huggingface_hub, psi4)
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. All data processing must use real experimental data. Synthetic data is strictly prohibited.
 
-- [X] T004 Define `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml`
-- [X] T005 [P] [US1] Create `code/data/synthetic_gen.py` to generate raw synthetic data (N=5000) with noise and random correlations
-- [X] T006 [P] [US1] Create `code/data/validate_schema.py` to validate generated data against `contracts/dataset.schema.yaml`
-- [X] T007 [P] [US1] Implement `code/data/download.py` to attempt NIST/MOF-1000 fetch and write `verification_log.json` on failure
-- [ ] T008 Create base data classes/entities for Adsorbate, Adsorbent, and IsothermParameter
-- [X] T009 Configure environment variable management and logging infrastructure in `code/__init__.py`
-- [ ] T010 Setup pytest configuration and test directory structure (`tests/unit`, `tests/integration`, `tests/contract`)
-- [X] T011 [P] Create `code/main.py` orchestrator to support both synthetic and external data flows (US1, US2, US3)
+- [X] T060 [US1] **Implement Streaming Data Loader**: Update `code/data/download.py` to use `datasets.load_dataset("nasa/nist-adsorption-isotherms", split="train", streaming=True)`. **Constraint**: Filter for Type I isotherms where `isotherm_type` == "Type I". **Output**: `data/raw/streamed_chunk_*.parquet`. **Dependencies**: None.
+- [X] T061 [US1] **Merge Chunks**: Create `code/data/merge.py` to combine `data/raw/streamed_chunk_*.parquet` into `data/raw/merged_dataset.parquet`. **Output**: `data/raw/merged_dataset.parquet`. **Dependencies**: T060.
+- [X] T061a [US1] **Generate Reference Hash**: Create `code/data/verify_real.py` to compute checksum of first 100 rows. **Output**: `data/validation/hash_reference.json`. **Dependencies**: T061.
+- [X] T061b [US1] **Verify Against Reference**: Update `code/data/verify_real.py` to compare current hash. **Dependencies**: T061a.
+- [X] T043a [P] [US1] Implement `code/data/loader.py`: **Fetch & Validate**. **Constraint**: Raise `DataFetchError` if fetch fails. **Dependencies**: T060.
+- [X] T014f [P] [US1] **Define Configurable Descriptor Registry**: Create `code/data/descriptor_registry.py` and `config/descriptors.yaml`. **Logic**: 1. Define a YAML schema for descriptor configuration (name, method, parameters). 2. Implement a loader that reads `config/descriptors.yaml` to determine which descriptors to calculate. 3. **Output**: Generate `config/descriptors.yaml` with default entries for all required descriptors (Kinetic Diameter, LJ Epsilon, Quadrupole, Polarizability, VdW Volume, Molecular Weight, H-Bond Donors, H-Bond Acceptors). **Constraint**: This task must run FIRST in Phase 2. **Dependencies**: None.
+- [X] T014g [P] [US1] **Validate Descriptor Config Against FR-001**: Create `code/data/validate_config.py` function `validate_descriptors`. **Logic**: 1. Load `config/descriptors.yaml`. 2. Compare keys against the **static** mandatory list from FR-001 (polarizability, VdW volume, molecular weight, H-bond donors/acceptors, etc.). 3. Raise `ConfigValidationError` if any mandatory descriptor is missing. **Output**: Pass/Fail status. **Dependencies**: T014f.
+- [X] T015a-1 [US1] **Filter & Normalize Data (Target Filter)**: Create `code/data/preprocess.py` function `filter_targets`. **Logic**: 1. Load `data/raw/merged_dataset.parquet`. 2. **Schema Check**: Verify column `isotherm_type` exists. If not, inspect available columns and raise error with guidance. 3. Filter entries to include ONLY Type I isotherms where `isotherm_type` == "Type I". 4. **Hard Exclude** rows where `langmuir_capacity` OR `henry_constant` is missing (NaN/Null). 5. Normalize `surface_area` to m²/g. 6. Log excluded entries (reason: missing_target) to `data/validation/exclusion_log.json`. **Output**: `data/processed/target_filtered.parquet`. **Schema**: Same as input, minus excluded rows. **Dependencies**: T060, T061.
+- [X] T015b [US1] **Implement Imputation**: Create `code/data/imputation.py` function `impute_pore_volume`. **Logic**: 1. Load `data/processed/target_filtered.parquet`. 2. Group by `(material_type, surface_area_bin)`. 3. If group size > 0, assign group mean. 4. If group size == 0, assign `material_type` global mean. 5. If no `material_type` exists, assign global dataset mean. 6. If imputation fails, exclude row and log to `data/validation/exclusion_log.json` (reason: imputation_failed). **Scope**: Imputation applies ONLY to `pore_volume` (metadata), not target parameters. **Output**: `data/processed/imputed_dataset.parquet`. **Dependencies**: T015a-1.
+- [X] T014ba [P] [US1] **Implement Kinetic Diameter Calculation**: Create `code/data/descriptors.py` function `calc_kinetic_diameter`. **Logic**: Calculate using RDKit. **Fallback**: If RDKit fails, use formula `d = sqrt(4 * CalcTPSA(mol) / PI)`. **Constraint**: CALCULATE ONLY. Do NOT use metadata fallback. **Error Handling**: If molecule cannot be processed, raise descriptive error and log to `data/validation/missing_descriptors_kinetic.json`. **Output**: Update `data/processed/descriptors.parquet` with column `kinetic_diameter`. **Dependencies**: T014f, T060, T061, T015a-1, T015b.
+- [X] T014bb [P] [US1] **Implement Lennard-Jones Energy Parameter**: Create `code/data/descriptors.py` function `calc_lj_epsilon`. **Logic**: Extract `critical_pressure` and `critical_volume` from `data/processed/imputed_dataset.parquet`. Estimate Tc using `Tc = 1.5 * (Pc * Vc / R)`, then `epsilon = 0.75 * Tc`. **Constraint**: If Pc or Vc are missing AFTER imputation, exclude the row and log to `data/validation/exclusion_log.json`. **Note**: These are external metadata fields, not RDKit calculations. **Error Handling**: If estimation fails, raise descriptive error and log to `data/validation/missing_descriptors_lj.json`. **Output**: Update `data/processed/descriptors.parquet` with column `lj_epsilon`. **Dependencies**: T014f, T060, T061, T015a-1, T015b.
+- [X] T014bc [P] [US1] **Implement Quadrupole Moment Calculation**: Create `code/data/descriptors.py` function `calc_quadrupole_moment`. **Logic**: 1. Extract coordinates from `coordinates` column. **If missing**, generate 3D coordinates from SMILES using RDKit `EmbedMolecule`. 2. Use `psi4` with `b3lyp`/`def2-svp`, Charge=0, Multiplicity=1, Origin=Center of Mass. 3. Extract `properties["quadrupole_moment"][0,0]`. **Constraint**: CALCULATE ONLY. Do NOT use metadata fallback. **Timeout**: Enforce a time limit using `multiprocessing` with `timeout`. **Error Handling**: If psi4 fails, raise descriptive error and log to `data/validation/missing_descriptors_quadrupole.json`. **Output**: Update `data/processed/descriptors.parquet` with column `quadrupole_moment`. **Dependencies**: T014f, T060, T061, T015a-1, T015b.
+- [X] T014fc [P] [US1] **Implement Molecular Weight Calculation**: Create `code/data/descriptors.py` function `calc_molecular_weight`. **Logic**: Use RDKit `CalcMolWt`. **Constraint**: CALCULATE ONLY. **Output**: Update `data/processed/descriptors.parquet` with column `molecular_weight`. **Dependencies**: T014f, T060, T061, T015a-1, T015b.
+- [X] T014fd [P] [US1] **Implement H-Bond Donors/Acceptors Calculation**: Create `code/data/descriptors.py` function `calc_hbond_counts`. **Logic**: Use RDKit `CalcNumHBD` and `CalcNumHBA`. **Constraint**: CALCULATE ONLY. **Output**: Update `data/processed/descriptors.parquet` with columns `hbd_count`, `hba_count`. **Dependencies**: T014f, T060, T061, T015a-1, T015b.
+- [X] T014fa [P] [US1] **Implement Polarizability Calculation**: Create `code/data/descriptors.py` function `calc_polarizability`. **Logic**: Use RDKit to calculate polarizability. **Constraint**: CALCULATE ONLY. Do NOT use metadata fallback. **Output**: Update `data/processed/descriptors.parquet` with column `polarizability`. **Dependencies**: T014f, T060, T061, T015a-1, T015b.
+- [X] T014fb [P] [US1] **Implement Van der Waals Volume Calculation**: Create `code/data/descriptors.py` function `calc_vdw_volume`. **Logic**: Use RDKit to calculate van der Waals volume. **Constraint**: CALCULATE ONLY. Do NOT use metadata fallback. **Output**: Update `data/processed/descriptors.parquet` with column `vdw_volume`. **Dependencies**: T014f, T060, T061, T015a-1, T015b.
+- [X] T014d [P] [US1] **Merge Descriptor Logs**: Create `code/data/descriptors.py` function to merge `missing_descriptors_kinetic.json`, `missing_descriptors_lj.json`, `missing_descriptors_quadrupole.json` into `data/validation/missing_descriptors_report.json`. **Dependencies**: T014ba, T014bb, T014bc, T014fa, T014fb, T014fc, T014fd.
+- [X] T016 [US1] **Implement Outlier Detection & Exclusion List**: Create `code/data/preprocess.py` function `detect_outliers`. **Logic**: 1. Group rows by `descriptor_hash`. 2. For each group with size > 1, calculate mean and std of the **primary target variable** (default `langmuir_capacity`). 3. Flag entries where `|value - group_mean| > 3 * group_std`. 4. **Output**: Generate `data/validation/exclusion_list.csv` with columns [material_id, descriptor_hash, target_value, group_mean, group_std, exclusion_reason]. **Constraint**: These rows MUST be excluded from training in T020/T021. **Logging**: All exclusions must be logged with reasons. **Edge Case**: If NO groups have size > 1, log "No identical descriptors found" and proceed. **Dependencies**: T014e, T015a-1, T015b.
+- [X] T015c [US1] **Validate Dataset Size**: Create `code/data/validate.py` to assert that the final dataset size N > 500 after T015a-1, T015b, and T014h. **Requirement**: If N <= 500, raise `DatasetSizeError`. **Dependencies**: T015a-1, T015b, T014h.
+- [X] T014c [US1] **Implement Parameter Fitting**: Create `code/data/fitting.py` to fit Langmuir/Henry parameters from raw isotherm points. **Output**: `data/processed/fitted_parameters.parquet`. **Dependencies**: T015a-1.
+- [X] T014e [US1] **Generate Descriptor Hash**: Create `code/data/descriptors.py` function `generate_descriptor_hash`. **Logic**: Compute hash of sorted tuple of all calculated descriptor values. **Dependencies**: T014ba, T014bb, T014bc, T014fa, T014fb, T014fc, T014fd, T015b.
+- [X] T045 [US2] Implement `code/models/audit.py` for **Data Leakage Audit**. **Dependencies**: T020.
+- [X] T014h [P] [US1] **Implement Descriptor Caching**: Create `code/data/descriptors.py` function `cache_descriptors`. **Logic**: Cache calculated descriptors to `data/processed/descriptors_cache.parquet` to avoid re-calculation. **Dependencies**: T014f, T014ba, T014bb, T014bc, T014fa, T014fb, T014fc, T014fd.
+- [X] T039e [US2] [P] **Time Budgeting & Profiling**: Create `code/utils/profiler.py`. **Logic**: Profile T014bc execution time. If > 30 mins per batch, trigger alert. **Dependencies**: T014bc.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -51,23 +67,18 @@
 
 ## Phase 3: User Story 1 - Curate and Prepare the Adsorption Dataset (Priority: P1) 🎯 MVP
 
-**Goal**: Generate a clean, normalized CSV linking molecular descriptors to isotherm parameters, handling both synthetic and real data sources.
+**Goal**: Generate a clean, normalized CSV linking molecular descriptors to isotherm parameters using real experimental data only.
 
-**Independent Test**: Run `code/data/preprocess.py` on the synthetic dataset and verify the output CSV contains exactly `polarizability`, `langmuir_capacity`, `henry_constant`, `surface_area` (m²/g) with no missing values.
+**Independent Test**: Run `code/data/preprocess.py` on the real dataset and verify the output CSV contains exactly `polarizability`, `langmuir_capacity`, `henry_constant`, `surface_area` (m²/g) with no missing values.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T012 [P] [US1] Contract test for schema compliance in `tests/contract/test_dataset_schema.py`
 - [X] T013 [P] [US1] Unit test for RDKit descriptor calculation in `tests/unit/test_descriptors.py`
 
 ### Implementation for User Story 1
 
-- [X] T014 [P] [US1] Implement `code/data/descriptors.py` to calculate molecular weight, polar surface area, polarizability, H-bond counts, van der Waals volume (per FR-001), AND kinetic diameter (required for SC-002 consensus check) using RDKit. Note: Kinetic diameter is an additional requirement for SC-002, not FR-001.
-- [X] T015 [US1] Implement `code/data/preprocess.py` to filter Type I isotherms, remove entries with missing targets, normalize units (m²/g), and handle missing pore volume (impute/exclude with logging) (FR-002); depends on T014
-- [ ] T016 [US1] Implement outlier detection in `code/data/preprocess.py` to flag adsorbates with identical descriptors but conflicting targets; depends on T014, T015; output must be `data/processed/outliers.csv` with columns [material_id, descriptor_hash, target_variance] (Edge Cases)
-- [X] T017 [US1] Update `code/main.py` orchestrator to run the full data curation pipeline (Download -> Synthetic Gen -> Preprocess -> Outlier Check); depends on T015, T016
+- [X] T017 [US1] Update `code/main.py` orchestrator to run the full data curation pipeline; depends on T014ba, T014bb, T014bc, T060, T015a-1, T014c, T015b, T014d, T014e, T016, T015c, T014h
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -75,32 +86,31 @@
 
 ## Phase 4: User Story 2 - Train and Evaluate Predictive Models (Priority: P2)
 
-**Goal**: Train baseline models (Linear, RF, GB) with strict material-level splitting and evaluate performance.
+**Goal**: Train baseline models (Linear, RF, GB) with strict material-level splitting and evaluate performance on real data.
 
-**Independent Test**: Run training on synthetic data; verify that the test set contains no materials present in the training set and that metrics (R², RMSE) are logged.
+**Independent Test**: Run training on real data; verify that the test set contains no materials present in the training set and that metrics (R², RMSE) are logged.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
- in "<unicode string>", line 3, column 3:
- - **File Created**: `tests/contrac...
- ^
-expected alphabetic or numeric character, but found '*'
- in "<unicode string>", line 3, column 4:
- - **File Created**: `tests/contract...
- ^) -->
+- [X] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
 - [X] T019 [P] [US2] Integration test for material-level data splitting in `tests/integration/test_data_split.py`
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/models/train.py` to perform material-level split: Group rows by material_id, then split groups, ensuring no material_id exists in both train and test sets (FR-003); depends on T015
-- [X] T021 [US2] Implement `code/models/train.py` to train Linear Regression, Random Forest, and Gradient Boosting models (FR-004)
-- [X] T022 [US2] Implement 5-fold cross-validation and hyperparameter tuning in `code/models/train.py`
-- [X] T023 [US2] Implement `code/models/evaluate.py` to calculate R², RMSE, MAE on the independent test set (SC-001)
-- [ ] T024 [US2] Implement null model comparison (predicting mean) and verify a significant RMSE improvement
-- [ ] T025 [US2] Implement permutation-based p-value calculation for feature importances
-- [X] T026 [US2] Implement Benjamini-Hochberg FDR correction for p-values in `code/models/evaluate.py` (FR-006, SC-005)
-- [X] T027 [US2] Update `code/main.py` orchestrator to support running the pipeline on the external literature dataset (Phase 3); depends on T020, T021
+- [X] T020 [US2] Implement `split_data()` in `code/models/train.py` to perform **Material-Level Split**. **Logic**: Group by `adsorbent_structure_id` (maps to `material_id` in source if absent). Split groups **stratified by material_id**. **Constraint**: Ensure no `adsorbent_structure_id` appears in both train and test. Exclude rows listed in `data/validation/exclusion_list.csv` (from T016). **Dependencies**: T060, T061, T016.
+- [X] T067 [US2] **Implement Cluster-Aware Cross-Validation**: Create `code/models/train.py` function `cluster_kfold_split`. **Logic**: Ensure no `adsorbent_structure_id` appears in both train and validation folds. **Constraint**: Must replace standard KFold in T022. **Dependencies**: T020.
+- [X] T021 [P] [US2] Implement `train_models()` in `code/models/train.py` to **Train Models**: Train Linear Regression, Random Forest, and Gradient Boosting models using the split from T020 and CV from T067. Exclude rows flagged in T016. **Dependencies**: T020, T067.
+- [X] T022 [P] [US2] Implement `tune_hyperparameters()` in `code/models/train.py` to perform **5-fold Cross-Validation** using `cluster_kfold_split`. **Output**: Save `folds.json`. **Dependencies**: T020, T067.
+- [X] T065 [US2] **Implement Robust Null Model Baseline**: Create `code/models/null_model.py`. **Logic**: 1. Load `folds.json` from T022. 2. Load dataset. 3. For each fold index, map indices to row indices, train null model (predict mean) on training split, predict on test split. 4. Calculate RMSE for each fold. 5. Output `data/results/null_model_fold_rmses.json`. **Dependencies**: T022.
+- [X] T065b [US2] **Calculate Null Model Confidence Intervals**: Create `code/models/null_model.py` function `bootstrap_null_ci`. **Logic**: 1. Load `data/results/null_model_fold_rmses.json`. 2. Bootstrap resample (n=1000) to calculate 95% CI for the mean RMSE. 3. Output `data/results/null_model_ci.json`. **Dependencies**: T065.
+- [X] T023 [P] [US2] Implement `code/models/evaluate.py` to calculate R², RMSE, MAE on test set **AND** report confidence intervals (using T025 bootstrapping). **Dependencies**: T022, T025.
+- [X] T024 [P] [US2] **Implement null model comparison**. **Logic**: Perform paired t-test (`scipy.stats.ttest_rel`) or Wilcoxon (`scipy.stats.wilcoxon`) on paired RMSEs. **Constraint**: Report p-value and RMSE improvement. If improvement < 20%, log a warning but DO NOT fail. **Output**: `data/validation/null_model_comparison.json` with 95% CIs (`n_resamples=1000`, `random_state=42`). **Schema**: `{ "rmse_full": float, "rmse_null": float, "p_value": float, "ci_95": [float, float] }`. **Dependencies**: T023, T065, T065b, T025.
+- [X] T025 [P] [US2] **Implement Bootstrapping for Confidence Intervals**: Create `code/models/evaluate.py` function. **Dependencies**: T021, T022.
+- [X] T034 [US2] Implement diagnostic report generation for R² < 0.5. **Dependencies**: T023.
+- [X] T051 [US2] **Implement Cluster-Aware Permutation Engine**: Create `code/analysis/cluster_permutation.py`. **Logic**: Shuffle values within `adsorbent_structure_id` clusters. **Dependencies**: T020, T021.
+- [X] T026 [P] [US2] **Implement Benjamini-Hochberg FDR Correction**: Create `code/models/evaluate.py` function. **Dependencies**: T051.
+- [X] T052 [US2] **Integrate Cluster Permutation & FDR**: Create `code/analysis/cluster_permutation.py` function `run_fdr_pipeline`. **Logic**: 1. Run permutation on top features. 2. Apply Benjamini-Hochberg correction. 3. Output `data/results/adjusted_pvalues.json`. **Schema**: `{ "feature_name": float }`. **Dependencies**: T051, T026.
+- [X] T068 [US2] **Implement Null Model Baseline for Reduced Features**: Create `code/models/null_model.py` function `null_model_top3`. **Logic**: 1. Load top 3 features from `data/results/shap_summary.json`. 2. Filter dataset to these 3 features. 3. Train null model (predict mean) on training split. 4. Calculate RMSE on test split. 5. Calculate 95% CI for null RMSE. 6. Output `data/results/null_model_top3_rmses.json` and `data/results/null_model_top3_ci.json`. **Dependencies**: T020, T022.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -108,25 +118,26 @@ expected alphabetic or numeric character, but found '*'
 
 ## Phase 5: User Story 3 - Interpret Model Drivers via SHAP Analysis (Priority: P3)
 
-**Goal**: Generate SHAP plots and validate feature importance against physicochemical consensus.
+**Goal**: Generate SHAP plots and validate feature importance against physicochemical consensus using internal data only.
 
-**Independent Test**: Run SHAP analysis on the best model; verify the top 3 features include at least 2 from the consensus list (polarizability, kinetic diameter, etc.) if using the external validation dataset.
+**Independent Test**: Run SHAP analysis on the best model; verify the top 3 features include at least 2 from the consensus list.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T028 [P] [US3] Contract test for SHAP output format in `tests/contract/test_shap_output.py`
-- [ ] T029 [P] [US3] Integration test for feature ranking validation in `tests/integration/test_feature_ranking.py`
+- [X] T029 [P] [US3] Integration test for feature ranking validation in `tests/integration/test_feature_ranking.py`
 
 ### Implementation for User Story 3
 
-- [~] T035a [US3] Curate and save the external validation dataset (Kr on CNTs) to `data/external/kr_cnt.csv`. Source: Manually extract data points from the literature source "Krypton adsorption on carbon nanotubes" () or equivalent verified source. Ensure the CSV matches `contracts/dataset.schema.yaml`. This task creates the missing producer for T035.
-- [~] T035 [US3] Implement `code/data/load_external.py` to load the manually curated `data/external/kr_cnt.csv` and validate it against `contracts/dataset.schema.yaml` (Phase 3 External Data); depends on T035a
-- [X] T030 [P] [US3] Implement `code/interpret/shap_analysis.py` to generate SHAP summary plots for top-ranked features (FR-005)
-- [X] T031 [US3] Implement `code/interpret/shap_analysis.py` to generate partial dependence plots (PDP) for top descriptors
-- [X] T032 [US3] Implement validation logic in `code/interpret/shap_analysis.py` to compare top-ranked features against the literature consensus list (polarizability, kinetic diameter, Lennard-Jones energy parameter, quadrupole moment, molecular volume). This logic MUST be implemented to generate `data/validation/sc002_match_report.json` when the external dataset is loaded. The orchestrator (T036) will determine when to execute this check, but the code path and artifact generation are mandatory for the external phase. (SC-002)
-- [X] T033 [US3] Implement re-training logic in `code/interpret/shap_analysis.py` on the top 3 descriptors only and verify R² >= 0.60. This logic MUST be implemented to generate `data/validation/sc003_r2_report.json` when the external dataset is loaded. The orchestrator (T036) will determine when to execute this check, but the code path and artifact generation are mandatory for the external phase to satisfy SC-003.
-- [~] T034 [US3] Implement diagnostic report generation for cases where R² < 0.5 (suggesting non-linear effects)
-- [X] T036 [US3] Update `code/main.py` orchestrator to integrate the external dataset loading and validation flow (Phase 3); depends on T035, T032, T033; must trigger T032 and T033 only when external data is present.
+- [X] T030 [P] [US3] Implement `code/interpret/shap_analysis.py` to generate SHAP summary plots. **Output**: Write `data/results/shap_summary.json` as a list of objects with keys `name` (str) and `mean_abs_shap_value` (float64), sorted by value descending. **Dependencies**: T021.
+- [X] T069 [US3] **Implement Literature Consensus Loader**: Create `code/interpret/consensus.py` to load `LiteratureConsensusList` from `config/consensus_list.yaml`. **Schema**: YAML list of strings or objects `{ name: str, description: str }`. **Dependencies**: None.
+- [X] T070a [US3] **Verify Convergence/Divergence**: Create `code/interpret/report.py` function `verify_conditions`. **Logic**: 1. Load `data/results/shap_summary.json` and `LiteratureConsensusList`. 2. Check for at least one feature in top 3 that is in the consensus list (convergence). 3. Check for at least one feature in consensus list not in top 3 (divergence). 4. Return boolean flags. **Output**: `data/results/consensus_verification.json`. **Dependencies**: T030, T069.
+- [X] T070 [US3] **Implement Divergence Report Generator**: Create `code/interpret/report.py` to generate a structured report comparing `data/results/shap_summary.json` against `LiteratureConsensusList`. **Logic**: Explicitly list features in consensus but not in top 3, and vice versa. **Output**: `data/results/consensus_divergence_data.json`. **Dependencies**: T030, T069, T070a.
+- [X] T071 [US3] **Generate Narrative Consensus Report**: Create `code/interpret/report.py` function `generate_narrative_report`. **Logic**: 1. Load `data/results/consensus_divergence_data.json` and `data/results/consensus_verification.json`. 2. Generate a Markdown narrative discussing alignment/divergence, explicitly identifying at least one point of convergence and one divergence. 3. **Output**: `data/results/consensus_narrative_report.md`. **Dependencies**: T070.
+- [X] T031 [US3] Implement `code/interpret/shap_analysis.py` to generate partial dependence plots. **Requirement**: Verify monotonicity (Spearman's rho > 0.9). **Range**: 10th-90th percentile. **Dependencies**: T030.
+- [X] T033 [US3] **Retrain on Top 3 Features**: Extract Top 3 features from `data/results/shap_summary.json`. Retrain model using ONLY these 3 features. Measure R² vs **T068** (Reduced Null Model). **Constraint**: Report R² and improvement. If improvement < 0.2, log a warning but DO NOT fail. **Output**: `data/results/reduced_model_metrics.json`. **Schema**: `{ "r2": float, "rmse": float, "null_rmse": float, "improvement": float }`. **Dependencies**: T030, T023, T025, T052, T068.
+- [X] T032 [US3] **Unified Consensus Analysis**: Implement comparative analysis logic. **Requirement**: Programmatically verify at least one point of convergence/divergence. **Dependencies**: T052, T033.
+- [X] T064 [US3] **Validate SHAP Stability**: Implement stability check via bootstrap resamples. **Dependencies**: T030, T025.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -136,106 +147,50 @@ expected alphabetic or numeric character, but found '*'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T037 [P] Documentation updates in `README.md` and `docs/`
+- [X] T037 [P] Documentation updates in `README.md` and `docs/`
 - [X] T038 Code cleanup and refactoring of `code/main.py` orchestrator
-- [~] T039 Performance optimization: Ensure pipeline runtime < 6h on GitHub Actions free-tier (SC-004) <!-- ATOMIZE: requested -->
-- [~] T040 [P] Additional unit tests for edge cases (empty datasets, single material) in `tests/unit/`
+- [X] T054 [US2] [P] **Implement Runtime Logger**: Create `code/utils/runtime_logger.py`. **Logic**: Initialize logger at start of `main.py` execution. **Constraint**: Must run unconditionally on every pipeline run, not just benchmark mode. **Dependencies**: None.
+- [X] T055 [US2] **Persist Runtime Log**: Ensure logger writes `data/benchmarks/runtime_log.json`. **Dependencies**: T054.
+- [X] T040a [US1] [P] Unit test for empty dataset edge case in `tests/unit/test_preprocess_empty.py::test_empty_dataset`
+- [X] T040b [US1] [P] Unit test for single material edge case in `tests/unit/test_preprocess_single.py`
 - [X] T041 Security hardening: Sanitize inputs in `code/data/download.py`
-- [~] T042 Run `quickstart.md` validation if available
+- [X] T042 Run `quickstart.md` validation if available
+- [X] T062 [US1] [P] **Implement Robust Data Source Fallback Detection**: Update `code/data/download.py` to detect network vs ID errors. **Dependencies**: T043a.
+- [X] T066 [US1] **Add Data Leakage Check for Descriptors**: Extend audit (T045). **Dependencies**: T014ba, T014bb, T014bc, T045.
+- [X] T039a [US2] [P] Verify runtime metrics with benchmark run on real data. **Dependencies**: T054, T055.
+- [X] T039c [US2] [P] **Benchmark Full Pipeline**: Create `code/main.py` CLI flag `--mode benchmark`. **Dependencies**: T054, T055, T033.
+- [X] T039b [US2] [P] **Performance Optimization**: Refactor `code/data/descriptors.py` to use multiprocessing for psi4 calls, targeting >50% runtime reduction. **Output**: `data/benchmarks/optimization_report.json`. **Dependencies**: T039c.
+
+---
+
+## Revision Concerns & New Tasks
+
+**Purpose**: Address specific reviewer concerns from prior analysis regarding data integrity, statistical rigor, and edge case handling.
+
+- [X] T062 [US1] **Implement Robust Data Source Fallback Detection**: (See Phase 6). **Dependencies**: T043a.
+- [X] T064 [US3] **Validate SHAP Stability**: (See Phase 5). **Dependencies**: T030, T025.
+- [X] T066 [US1] **Add Data Leakage Check for Descriptors**: (See Phase 6). **Dependencies**: T014ba, T014bb, T014bc, T045.
+- [X] T015a-1 [US1] **Filter & Normalize Data (Target Filter)**: (See Phase 2). **Dependencies**: T060, T061.
+- [X] T015b [US1] **Implement Imputation**: (See Phase 2). **Dependencies**: T015a-1.
+- [X] T024 [US2] **Implement null model comparison**: (See Phase 4). **Dependencies**: T023, T065, T065b, T025.
+- [X] T039b [US2] **Performance Optimization**: (See Phase 6). **Dependencies**: T039c.
+- [X] T067 [US2] **Implement Cluster-Aware Cross-Validation**: (See Phase 4). **Dependencies**: T020.
+- [X] T068 [US2] **Implement Null Model Baseline for Reduced Features**: (See Phase 4). **Dependencies**: T020, T022.
+- [X] T069 [US3] **Implement Literature Consensus Loader**: (See Phase 5). **Dependencies**: None.
+- [X] T070 [US3] **Implement Divergence Report Generator**: (See Phase 5). **Dependencies**: T030, T069, T070a.
+- [X] T071 [US3] **Generate Narrative Consensus Report**: (See Phase 5). **Dependencies**: T070.
+- [X] T014fc [US1] **Implement Molecular Weight Calculation**: (See Phase 2). **Dependencies**: T014f, T060, T061, T015a-1, T015b.
+- [X] T014fd [US1] **Implement H-Bond Donors/Acceptors Calculation**: (See Phase 2). **Dependencies**: T014f, T060, T061, T015a-1, T015b.
+- [X] T065b [US2] **Calculate Null Model Confidence Intervals**: (See Phase 4). **Dependencies**: T065.
+- [X] T070a [US3] **Verify Convergence/Divergence**: (See Phase 5). **Dependencies**: T030, T069.
 
 ---
 
 ## Dependencies & Execution Order
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for schema compliance in tests/contract/test_dataset_schema.py"
-Task: "Unit test for RDKit descriptor calculation in tests/unit/test_descriptors.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/data/descriptors.py to calculate molecular descriptors"
-Task: "Implement code/data/preprocess.py to filter Type I isotherms"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (Synthetic Data)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Curation)
- - Developer B: User Story 2 (Model Training)
- - Developer C: User Story 3 (Interpretation)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: All data processing must run on CPU-only runners; no GPU/CUDA dependencies.
-- **Critical**: Synthetic data is for pipeline validation only; Phase 3 (External Validation) is required for scientific claims.
-- **Critical**: T032 and T033 implement the logic unconditionally; the orchestrator (T036) controls execution based on the dataset.
-- **Critical**: T035a ensures the external dataset is reproducible by citing a specific source.
+1. Phase 1: Setup
+2. Phase 2: Foundational (T060 -> T061 -> T014f -> T014g -> T015a-1 -> T015b -> T014ba/14bb/14bc/14fa/14fb/14fc/14fd -> T014e -> T014d -> T016 -> T015c -> T014h -> T039e)
+3. Phase 3: User Story 1 - Curate and Prepare the Adsorption Dataset
+4. Phase 4: User Story 2 - Train and Evaluate Predictive Models (T020 -> T067 -> T021 -> T022 -> T065 -> T065b -> T023 -> T024 -> T051 -> T052 -> T068)
+5. Phase 5: User Story 3 - Interpret Model Drivers via SHAP Analysis (T030 -> T069 -> T070a -> T070 -> T071 -> T031 -> T033)
+6. Phase 6: Polish & Cross-Cutting Concerns

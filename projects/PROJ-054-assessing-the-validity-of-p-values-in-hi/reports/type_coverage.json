@@ -1,0 +1,77 @@
+{
+  "total_functions": 45,
+  "typed_functions": 42,
+  "coverage_percentage": 93.3,
+  "files": [
+    {
+      "path": "code/analyze_pvalues.py",
+      "total_functions": 4,
+      "typed_functions": 4
+    },
+    {
+      "path": "code/bootstrap_ci.py",
+      "total_functions": 4,
+      "typed_functions": 4
+    },
+    {
+      "path": "code/cleanup_refactor.py",
+      "total_functions": 9,
+      "typed_functions": 9
+    },
+    {
+      "path": "code/collect_pvalues.py",
+      "total_functions": 4,
+      "typed_functions": 4
+    },
+    {
+      "path": "code/docs_generator.py",
+      "total_functions": 6,
+      "typed_functions": 6
+    },
+    {
+      "path": "code/generate_data.py",
+      "total_functions": 4,
+      "typed_functions": 4
+    },
+    {
+      "path": "code/integrate_pipeline.py",
+      "total_functions": 3,
+      "typed_functions": 3
+    },
+    {
+      "path": "code/legacy_t024_placeholder.py",
+      "total_functions": 1,
+      "typed_functions": 0
+    },
+    {
+      "path": "code/plot_qq.py",
+      "total_functions": 4,
+      "typed_functions": 4
+    },
+    {
+      "path": "code/profile_simulation.py",
+      "total_functions": 4,
+      "typed_functions": 4
+    },
+    {
+      "path": "code/run_tests.py",
+      "total_functions": 3,
+      "typed_functions": 3
+    },
+    {
+      "path": "code/sensitivity_analysis.py",
+      "total_functions": 4,
+      "typed_functions": 4
+    },
+    {
+      "path": "code/store_trajectories.py",
+      "total_functions": 3,
+      "typed_functions": 3
+    },
+    {
+      "path": "code/validate_quickstart.py",
+      "total_functions": 4,
+      "typed_functions": 4
+    }
+  ]
+}

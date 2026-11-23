@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Discharge Metrics Dataset Schema"
+description: "Schema for the unified dataset containing topological and confinement metrics for DIII-D discharges."
+type: object
+properties:
+  discharge_id:
+    type: integer
+    description: "Unique identifier for the DIII-D discharge."
+  island_width:
+    type: number
+    description: "Width of the primary magnetic island in meters."
+  resonant_surface_density:
+    type: number
+    description: "Count of rational surfaces per unit normalized minor radius (descriptive only)."
+  tau_e:
+    type: number
+    description: "Energy confinement time in seconds."
+  mode:
+    type: string
+    enum: ["L-mode", "H-mode"]
+    description: "Confinement mode based on H98y2 factor (derived from h98y2)."
+  q_min:
+    type: number
+    description: "Minimum safety factor in the plasma."
+  q_max:
+    type: number
+    description: "Maximum safety factor in the plasma."
+  collinear_flag:
+    type: boolean
+    description: "True if resonant surface density is collinear with q-profile range (always true by definition)."
+required:
+  - discharge_id
+  - island_width
+  - resonant_surface_density
+  - tau_e
+  - mode
+  - q_min
+  - q_max
+additionalProperties: false

@@ -1,1 +1,12 @@
-[]
+- artifact_hash: f7401f395bcccab09589faab7189681b8d13b3be2a3ca7bc4e557c180d5be68a
+  artifact_path: projects/PROJ-875-llmxive-follow-up-extending-beyond-the-c/specs/001-llmxive-follow-up-extending-beyond-the-c/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2607.07974] A Multi-cluster Boundary Learning Method for Out-of-Scope
+    Intent Detection via MiniLM Embedding'
+  kind: url
+  value: https://arxiv.org/abs/2607.07974
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2607.07974
+  verified_at: '2026-10-09T08:19:59.034084Z'

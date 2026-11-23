@@ -1,0 +1,17 @@
+status: none
+intent: "download DGRP TE insertion calls and RNA\u2011seq expression dataset python\
+  \ package dataset"
+required_fields:
+- line_id
+- te_id
+- te_presence
+- gene_id
+- expression_value
+- pc1
+- pc2
+- pc3
+- pc4
+- pc5
+cache_key: e25b0175a477ee5245d7e147217a465acaa1c8cabf3d99df6394a8cf44bd5120
+searched_at: '2026-10-17T03:48:40.988557+00:00'
+retry_count: 1

@@ -1,0 +1,9 @@
+numpy
+scipy
+pandas
+scikit-learn
+pymc
+statsmodels
+pyyaml
+rdkit==2023.9.1
+jsonschema>=4.0.0

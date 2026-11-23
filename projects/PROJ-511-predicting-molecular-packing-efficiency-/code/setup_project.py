@@ -1,9 +1,11 @@
 import os
 import sys
+from pathlib import Path
+import logging
 
 def create_directories():
     """
-    Creates the required project directory structure for the molecular packing efficiency project.
+    Creates the required project directory structure for PROJ-511.
     
     Directories created:
     - code/
@@ -13,11 +15,9 @@ def create_directories():
     - results/
     - contracts/
     - specs/
-    
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
     """
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    base_path = Path(__file__).resolve().parent.parent
+    
     directories = [
         "code",
         "data",
@@ -29,19 +29,31 @@ def create_directories():
     ]
     
     created_count = 0
-    for directory in directories:
-        full_path = os.path.join(base_dir, directory)
-        try:
-            os.makedirs(full_path, exist_ok=True)
-            print(f"Created directory: {full_path}")
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logging.info(f"Created directory: {dir_path}")
             created_count += 1
-        except Exception as e:
-            print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
-            return False
+        else:
+            logging.debug(f"Directory already exists: {dir_path}")
     
-    print(f"Successfully created {created_count}/{len(directories)} directories.")
-    return True
+    logging.info(f"Project setup complete. Created {created_count} new directories.")
+    return created_count
+
+def main():
+    """Entry point for the project setup script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    try:
+        create_directories()
+        logging.info("Directory structure successfully created.")
+    except Exception as e:
+        logging.error(f"Failed to create directory structure: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    main()

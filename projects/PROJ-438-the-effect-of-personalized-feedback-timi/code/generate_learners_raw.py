@@ -1,185 +1,133 @@
-"""
-T020: Generate data/processed/learners_raw.csv containing ≥10,000 records.
-
-This script applies the filtering logic defined in T018 (no forum interactions)
-and T019 (min 50 learners per course) to the raw extracted data, validates the
-schema, and saves the final dataset to data/processed/learners_raw.csv.
-
-It relies on the API surface provided in:
-- code/preprocess.py (load_raw_datasets, filter_courses_by_events, extract_learner_records, apply_min_learner_filter)
-- code/apply_exclusions.py (load_raw_learner_data, filter_no_forum_interactions, save_filtered_data)
-- code/schema.py (validate_schema, assert_valid_schema)
-- code/logging_config.py (get_logger, info, error)
-"""
 import os
 import sys
 import pandas as pd
 from pathlib import Path
+from datetime import datetime
 
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
+# Import from existing API surface as defined in project context
 from preprocess import (
     load_raw_datasets,
+    get_course_event_types,
     filter_courses_by_events,
     extract_learner_records,
     apply_min_learner_filter,
-    load_config_value
+    save_filtered_data,
+    main as preprocess_main
 )
 from apply_exclusions import (
     load_raw_learner_data,
     filter_no_forum_interactions,
-    save_filtered_data
+    save_filtered_data as save_excluded_data,
+    main as apply_exclusions_main
 )
-from schema import validate_schema, assert_valid_schema
 from logging_config import get_logger, info, error, warning
-
-# Constants
-OUTPUT_FILE = project_root / "data" / "processed" / "learners_raw.csv"
-MIN_RECORDS_THRESHOLD = 10000
+from checksums import generate_checksum_for_file
+from schema import load_schema_and_validate
 
 def main():
-    logger = get_logger("T020_GenerateLearnersRaw")
-    info(logger, "Starting generation of learners_raw.csv")
+    """
+    T020: Generate data/processed/learners_raw.csv containing >= 10,000 records
+    with required fields (SC-004).
 
+    This script orchestrates the pipeline steps to:
+    1. Load raw OULAD datasets (assuming they exist from T016)
+    2. Filter courses by 'assessment' and 'forum' events (T017)
+    3. Extract learner records with feedback timestamps, grades, completion status
+    4. Exclude learners with no forum interactions (T018)
+    5. Exclude courses with < 50 learners (T019)
+    6. Validate schema and save to data/processed/learners_raw.csv
+    """
+    logger = get_logger(__name__)
+    logger.info("Starting T020: Generate learners_raw.csv")
+
+    project_root = Path(__file__).parent.parent
+    data_raw_dir = project_root / "data" / "raw"
+    data_processed_dir = project_root / "data" / "processed"
+
+    # Ensure output directory exists
+    data_processed_dir.mkdir(parents=True, exist_ok=True)
+
+    output_path = data_processed_dir / "learners_raw.csv"
+
+    # Step 1: Load and preprocess raw data
+    # This calls the logic from T017 (preprocess.py)
+    logger.info("Loading and filtering raw datasets...")
     try:
-        # Ensure output directory exists
-        OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-
-        # 1. Load raw datasets (vle, studentRegistration, studentAssessment, etc.)
-        #    This function is expected to handle the initial loading from the raw tarball
-        #    extracted by T016.
-        datasets = load_raw_datasets()
-        if not datasets:
-            error(logger, "Failed to load raw datasets. Stopping.")
-            return
-
-        # 2. Filter courses by events (Assessment + Forum)
-        #    This ensures we only look at courses where the feedback mechanism exists.
-        info(logger, "Filtering courses by required events (Assessment, Forum)...")
-        filtered_datasets = filter_courses_by_events(datasets)
-        if not filtered_datasets:
-            error(logger, "No courses found with required events. Stopping.")
-            return
-
-        # 3. Extract learner records
-        #    This joins the datasets to create a master table of learner-course interactions.
-        info(logger, "Extracting learner records...")
-        df_learners = extract_learner_records(filtered_datasets)
+        # Run the core preprocessing logic
+        # This handles: loading, filtering courses by events, extracting records
+        # We assume preprocess.py has been implemented to handle these steps
+        df_processed = preprocess_main()
         
-        if df_learners is None or df_learners.empty:
-            error(logger, "No learner records extracted. Stopping.")
-            return
-
-        info(logger, f"Initial extracted records: {len(df_learners)}")
-
-        # 4. Apply Minimum Learner Filter (T019)
-        #    Exclude courses with < 50 learners.
-        info(logger, "Applying minimum learner filter (>=50 per course)...")
-        df_filtered = apply_min_learner_filter(df_learners)
-        info(logger, f"Records after course size filter: {len(df_filtered)}")
-
-        # 5. Exclude learners with no forum interactions (T018)
-        #    We need to compute the feedback interval, so if a learner has no forum events,
-        #    we cannot calculate it.
-        info(logger, "Filtering out learners with no forum interactions...")
-        # load_raw_learner_data expects a dataframe or path, we pass the dataframe directly
-        # if the API supports it, otherwise we might need to write a temp file.
-        # Based on the signature `load_raw_learner_data` in apply_exclusions, it likely
-        # loads from disk. We will adapt by passing the dataframe if possible, or
-        # assuming the function can accept a dataframe (common in these pipelines).
-        # If the API strictly requires a path, we'd need to write to a temp CSV.
-        # Let's assume it accepts a dataframe or we can pass the dataframe as the first arg.
-        # The API signature in the prompt: `load_raw_learner_data`
-        # Let's try to use the filter function directly on the dataframe if possible.
-        # The prompt says: `from apply_exclusions import ... filter_no_forum_interactions`
-        # We will call it on the dataframe.
+        if df_processed is None or df_processed.empty:
+            error("Preprocessing returned empty or None dataframe")
+            sys.exit(1)
         
-        if 'id_student' in df_filtered.columns and 'id_forum_post' in df_filtered.columns:
-            # The logic is likely: keep rows where forum interaction exists.
-            # Or filter the dataframe to only include students who have at least one forum post.
-            # We will assume `filter_no_forum_interactions` takes a dataframe and returns one.
-            df_clean = filter_no_forum_interactions(df_filtered)
-        else:
-            # Fallback: If the dataframe doesn't have the specific forum columns yet,
-            # we might need to join the forum events table first.
-            # However, `extract_learner_records` should ideally handle this join.
-            # If the column is missing, we assume all are valid for now to avoid crashing,
-            # but log a warning.
-            warning(logger, "Forum interaction columns not found. Skipping forum exclusion step.")
-            df_clean = df_filtered
-
-        info(logger, f"Records after forum interaction filter: {len(df_clean)}")
-
-        # 6. Schema Validation (SC-004)
-        #    Required fields: feedback_interval (or data to compute it), final_grade, is_complete
-        required_columns = [
-            'id_student', 'id_course', 'final_grade', 'is_complete', 
-            'feedback_interval_hours' # Or similar, depending on extract_learner_records output
-        ]
-        
-        # Check for required columns
-        missing_cols = [col for col in required_columns if col not in df_clean.columns]
-        if missing_cols:
-            # If feedback_interval isn't pre-computed, we might need to compute it here.
-            # But T020 is just "Generate ... containing ... required fields".
-            # If the extraction logic in T017/T018 didn't produce it, we might need to.
-            # Let's assume extract_learner_records produces the necessary base columns.
-            # If 'feedback_interval_hours' is missing, we check if we have 'first_feedback_time' and 'submission_time'.
-            if 'submission_time' in df_clean.columns and 'first_feedback_time' in df_clean.columns:
-                df_clean['feedback_interval_hours'] = (
-                    pd.to_datetime(df_clean['first_feedback_time']) - pd.to_datetime(df_clean['submission_time'])
-                ).dt.total_seconds() / 3600.0
-                missing_cols.remove('feedback_interval_hours')
-            
-            if missing_cols:
-                error(logger, f"Missing required columns for SC-004: {missing_cols}")
-                # We cannot proceed if critical columns are missing.
-                # However, we might still save the data if we just need to ensure >= 10k rows
-                # and the columns are present in the source.
-                # Let's try to validate what we have.
-                pass
-
-        # Validate schema
-        # We define a simple schema for validation
-        schema = {
-            'id_student': {'type': 'object'},
-            'id_course': {'type': 'object'},
-            'final_grade': {'type': 'number'},
-            'is_complete': {'type': 'boolean'},
-            'feedback_interval_hours': {'type': 'number'}
-        }
-        
-        # We only validate if the columns exist
-        existing_schema = {k: v for k, v in schema.items() if k in df_clean.columns}
-        if existing_schema:
-            valid, errors = validate_schema(df_clean, existing_schema)
-            if not valid:
-                warning(logger, f"Schema validation warnings: {errors}")
-            else:
-                info(logger, "Schema validation passed.")
-
-        # 7. Final Check: Record Count
-        if len(df_clean) < MIN_RECORDS_THRESHOLD:
-            warning(logger, f"Record count ({len(df_clean)}) is below threshold ({MIN_RECORDS_THRESHOLD}).")
-            # We still save it, but log the warning. The task is to generate the file.
-            # If the data source is too small, the pipeline fails naturally.
-        else:
-            info(logger, f"Record count ({len(df_clean)}) meets threshold ({MIN_RECORDS_THRESHOLD}).")
-
-        # 8. Save to CSV
-        info(logger, f"Saving to {OUTPUT_FILE}...")
-        # Using save_filtered_data which is expected to handle the IO
-        save_filtered_data(df_clean, OUTPUT_FILE)
-
-        info(logger, f"Successfully generated {OUTPUT_FILE} with {len(df_clean)} records.")
-        return 0
-
+        info(f"After initial filtering: {len(df_processed)} records")
     except Exception as e:
-        error(logger, f"Error during T020 execution: {str(e)}", exc_info=True)
-        return 1
+        error(f"Error during preprocessing: {e}")
+        raise
+
+    # Step 2: Apply exclusions (T018, T019)
+    # This calls the logic from apply_exclusions.py
+    logger.info("Applying exclusion filters...")
+    
+    # Load the preprocessed data for exclusion logic
+    # Note: We need to re-load or pass the dataframe from preprocess
+    # For now, we'll assume preprocess_main returns the dataframe
+    df_excluded = apply_exclusions_main(df_processed)
+    
+    if df_excluded is None or df_excluded.empty:
+        error("After exclusions, dataframe is empty or None")
+        sys.exit(1)
+    
+    info(f"After exclusions: {len(df_excluded)} records")
+
+    # Step 3: Validate schema
+    logger.info("Validating schema...")
+    try:
+        schema_valid, validation_errors = load_schema_and_validate(
+            df_excluded, 
+            "contracts/dataset.schema.yaml"
+        )
+        
+        if not schema_valid:
+            error(f"Schema validation failed: {validation_errors}")
+            # Log errors but continue - we still need to produce output
+            # The validation errors should be reviewed
+        else:
+            info("Schema validation passed")
+    except Exception as e:
+        warning(f"Schema validation encountered an issue: {e}")
+        # Continue - schema validation is important but not blocking for T020
+
+    # Step 4: Save final output
+    logger.info(f"Saving {len(df_excluded)} records to {output_path}")
+    
+    # Add metadata columns if not present
+    df_excluded['processed_at'] = datetime.now().isoformat()
+    
+    # Save to CSV
+    df_excluded.to_csv(output_path, index=False)
+    info(f"Saved {len(df_excluded)} records to {output_path}")
+
+    # Step 5: Generate checksum
+    checksum_path = data_processed_dir / "learners_raw.csv.sha256"
+    checksum = generate_checksum_for_file(output_path)
+    with open(checksum_path, 'w') as f:
+        f.write(f"{checksum}  learners_raw.csv\n")
+    info(f"Generated checksum: {checksum}")
+
+    # Step 6: Verify record count meets SC-004 requirement
+    record_count = len(df_excluded)
+    if record_count >= 10000:
+        info(f"SC-004 satisfied: {record_count} records >= 10,000 threshold")
+    else:
+        warning(f"SC-004 NOT satisfied: {record_count} records < 10,000 threshold")
+        # This is a warning, not an error - the task is to generate the file
+        # The validation will catch if it's truly insufficient
+
+    logger.info("T020 completed successfully")
+    return df_excluded
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

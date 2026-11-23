@@ -1,0 +1,550 @@
+{
+  "fetched_at": "2026-09-24T09:33:45Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environments",
+      "target_n": 5
+    },
+    "duration_seconds": 59.466,
+    "ended_at": "2026-09-24T09:33:45Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "cognitive load theory and decision making"
+        ],
+        [
+          2,
+          "mental workload effects on judgment accuracy"
+        ],
+        [
+          3,
+          "information overload and decision quality"
+        ],
+        [
+          4,
+          "cognitive capacity constraints in simulation"
+        ],
+        [
+          5,
+          "working memory limits and choice accuracy"
+        ],
+        [
+          6,
+          "extraneous cognitive load impact on performance"
+        ],
+        [
+          7,
+          "decision fatigue in virtual environments"
+        ],
+        [
+          8,
+          "stress and cognitive load on judgment"
+        ],
+        [
+          9,
+          "dual-task interference in simulated decision making"
+        ],
+        [
+          10,
+          "resource depletion and decision accuracy"
+        ],
+        [
+          11,
+          "bounded rationality under high cognitive load"
+        ],
+        [
+          12,
+          "attentional resources and decision errors"
+        ],
+        [
+          13,
+          "cognitive overload in training simulations"
+        ],
+        [
+          14,
+          "mental effort and decision precision"
+        ],
+        [
+          15,
+          "situational awareness under cognitive strain"
+        ],
+        [
+          16,
+          "heuristic processing under cognitive load"
+        ],
+        [
+          17,
+          "cognitive tunneling and decision outcomes"
+        ],
+        [
+          18,
+          "executive function load and choice accuracy"
+        ],
+        [
+          19,
+          "simulated task complexity and cognitive performance"
+        ],
+        [
+          20,
+          "psychological stressors and decision-making errors"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environments psychology": 0,
+        "cognitive load theory and decision making": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "mental workload n-back task Stroop",
+      "dual-task interference simulated driving air traffic control",
+      "cognitive resource allocation executive function depletion",
+      "decision accuracy error rate reaction time",
+      "working memory capacity overload bounded rationality"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2507.07037"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environments psychology": 3,
+      "cognitive resource allocation executive function depletion": 3,
+      "decision accuracy error rate reaction time": 3,
+      "dual-task interference simulated driving air traffic control": 3,
+      "mental workload n-back task Stroop": 3,
+      "working memory capacity overload bounded rationality": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2111.04380",
+          "rationale": "The paper focuses on the governance and auditing of automated decision-making systems (ADMS) from an ethical and policy perspective, which is a distinct construct from the user's question about the psychological mechanism of \"cognitive load\" affecting human \"decision-making accuracy\" in simulated environments. While both mention \"decision-making,\" the paper does not measure the independent variable (cognitive load), the dependent variable (accuracy under load), or the specific psychological mech",
+          "title": "Ethics-Based Auditing of Automated Decision-Making Systems: Intervention Points and Policy Implications"
+        },
+        {
+          "primary_pointer": "1202.4918",
+          "rationale": "The paper focuses on a theoretical mathematical framework (quantum probabilities) for modeling social interactions and resolving decision-theoretic paradoxes, rather than empirically measuring the impact of \"cognitive load\" on \"decision-making accuracy\" in \"simulated environments.\" It fails to address the specific independent variable (cognitive load) or the empirical context (simulated environments) required by the user's question, and it does not establish a baseline or foundational method for",
+          "title": "Quantum decision making by social agents"
+        },
+        {
+          "primary_pointer": "2110.10980",
+          "rationale": "The paper focuses on the governance, ethics, and auditing of automated decision-making systems (ADMS), which is a distinct construct from the psychological mechanism of \"cognitive load\" affecting human \"decision-making accuracy\" in simulated environments. While both involve \"decision-making,\" the candidate paper addresses organizational policy and system validation rather than the cognitive or behavioral variables specified in the user's question, failing to meet any of the inclusion criteria (a",
+          "title": "Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations"
+        },
+        {
+          "primary_pointer": "1203.5452",
+          "rationale": "The paper focuses on organizational knowledge management and collaboration modes (individual vs. collective) without measuring cognitive load, decision-making accuracy, or simulated environments, thus failing to address the specific variables or mechanisms in the user's question. It falls under the rejection rule for \"distinct construct sharing only homonym keywords\" (using \"decision making\" in a management context rather than a cognitive psychology context) and is off-domain regarding the speci",
+          "title": "Modeling of Mixed Decision Making Process"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-24T09:32:46Z",
+    "term_input": {
+      "normalized": "the impact of cognitive load on decision-making accuracy in simulated environments psychology",
+      "raw": "The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environments psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Important decisions that impact human lives, livelihoods, and the natural environment are increasingly being automated. Delegating tasks to so-called automated decision-making systems (ADMS) can improve efficiency and enable new solutions. However, these benefits are coupled with ethical challenges. For example, ADMS may produce discriminatory outcomes, violate individual privacy, and undermine human self-determination. New governance mechanisms are thus needed that help organisations design and deploy ADMS in ways that are ethical, while enabling society to reap the full economic and social benefits of automation. In this article, we consider the feasibility and efficacy of ethics-based auditing (EBA) as a governance mechanism that allows organisations to validate claims made about their ADMS. Building on previous work, we define EBA as a structured process whereby an entity's present or past behaviour is assessed for consistency with relevant principles or norms. We then offer three contributions to the existing literature. First, we provide a theoretical explanation of how EBA can contribute to good governance by promoting procedural regularity and transparency. Second, we propose seven criteria for how to design and implement EBA procedures successfully. Third, we identify and discuss the conceptual, technical, social, economic, organisational, and institutional constraints associated with EBA. We conclude that EBA should be considered an integral component of multifaced approaches to managing the ethical risks posed by ADMS.",
+          "claimed_authors": [
+            "Jakob Mokander",
+            "Jessica Morley",
+            "Mariarosaria Taddeo",
+            "Luciano Floridi"
+          ],
+          "claimed_title": "Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.10980"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Ethics-Based Auditing of Automated Decision-Making Systems: Nature, Scope, and Limitations')",
+        "failed_at": "2026-09-24T09:33:14Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The influence of additional information on the decision making of agents, who are interacting members of a society, is analyzed within the mathematical framework based on the use of quantum probabilities. The introduction of social interactions, which influence the decisions of individual agents, leads to a generalization of the quantum decision theory developed earlier by the authors for separate individuals. The generalized approach is free of the standard paradoxes of classical decision theory. This approach also explains the error-attenuation effects observed for the paradoxes occurring when decision makers, who are members of a society, consult with each other, increasing in this way the available mutual information. A precise correspondence between quantum decision theory and classical utility theory is formulated via the introduction of an intermediate probabilistic version of utility theory of a novel form, which obeys the requirement that zero-utility prospects should have zero probability weights.",
+          "claimed_authors": [
+            "V. I. Yukalov",
+            "D. Sornette"
+          ],
+          "claimed_title": "Quantum decision making by social agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4918"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Quantum decision making by social agents')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper describes an open-access database focusing on the study of mental workload (MW) assessment system for wearable devices. A wristband photoplethysmogram (PPG) was provided as a representative of wearable devices. In addition, a clinical device that can record Electrocardiography (ECG) , galvanic skin response (GSR) and, fingertip PPG was included in the database as a reference. The MW was induced by performing the N-back task with 22 subjects. The participants were asked to answer the Pittsburgh Sleep Quality Index (PSQI) questionnaire at the beginning of the experiment and the NASA Task Load Index (NASA-TLX) questionnaire after each N-back task. The result of data analysis show the potential uses of the recorded modalities and the feasibility of the MW elicitation protocol. Finally the MAUS dataset is now available for academic use (The MAUS dataset is available at IEEE Dataport: https://ieee-dataport.org/open-access/maus-dataset-mental-workload-assessment-n-back-task-using-wearable-sensor). Besides, we also presents a reproducible baseline system as a preliminary benchmark (The code of the baseline system on MAUS dataset is available on Github: https://github.com/rickwu11/MAUS\\_dataset\\_baseline\\_system), which testing accuracy are 71.6 %, 66.7 %, and 59.9 % in ECG, fingertip PPG, wristband PPG, respectively.",
+          "claimed_authors": [
+            "Win-Ken Beh",
+            "Yi-Hsuan Wu",
+            " An-Yeu",
+            " Wu"
+          ],
+          "claimed_title": "MAUS: A Dataset for Mental Workload Assessmenton N-back Task Using Wearable Sensor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.02561"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='MAUS: A Dataset for Mental Workload Assessmenton N-back Task Using Wearable Sensor')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Manipulating MW in driving simulator studies without the need to introduce a non-driving-related task remains challenging. This study aims to empirically evaluate the modified speed regulation n-back task, a tool to manipulate drivers' MW. Our experiment involved 23 participants who experienced a 0-back and 2-back driving condition, with task-irrelevant novel environmental sounds used to elicit P3a event-related potentials. Results indicate that the 2-back condition was perceived as more demanding, evidenced by higher NASA-TLX scores (overall score, mental and temporal demand, effort, frustration). The mean P3a amplitude was diminished during the 2-back condition compared to the 0-back condition, suggesting that drivers experienced higher MW and had fewer resources available to process the novel environmental sounds. This study provides empirical evidence indicating that the speed regulation n-back task could be a valid, effective, and reproducible method to manipulate MW in driving research.",
+          "claimed_authors": [
+            "Nikol Figalová",
+            "Jürgen Pichen",
+            "Vanchha Chandrayan",
+            "Olga Pollatos",
+            "Lewis Chuang",
+            "Martin Baumann"
+          ],
+          "claimed_title": "Manipulating Drivers' Mental Workload: Neuroergonomic Evaluation of the Speed Regulation N-Back Task Using NASA-TLX and Auditory P3a",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.18099"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title=\"Manipulating Drivers' Mental Workload: Neuroergonomic Evaluation of the Speed Regulation N-Back Task Using NASA-TLX and Auditory P3a\")",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "World models enable a predictive substrate for planning and action, yet existing formulations merely answer a physical question: what/where it is, and how will it evolve. Human behavior, however, is driven by hidden mental state (what a person believes, wants, intends, feels, and considers socially permissible), so a model that tracks the physical scene but not what each agent knows and believes about it predicts the wrong action for the right-looking scene. We formulate Mental World Modeling (MWM), a generic theoretical framework that makes mental variables core components of a world model rather than posthoc rationales: MWM aintains a coupled physical-mental world state, renders a target-specific partial observation, and simulates how candidate actions jointly update both components. We instantiate the framework in MENTIS, a training-free and fully inspectable baseline that decomposes the process into state parsing, target-observation generation, action decomposition, coupled physical and mental transition, and branch-level value evaluation. On a manually constructed, quality-controlled dataset of situated decision scenarios spanning text, image, and sounding-video stories, experiments with 8 modern LLM-based world models demonstrate that explicitly modeling the mental state is essential for predicting human decisions. Deeper analyses further expose the bottlenecks of current mental world modeling. We expect MWM as a next stage of world modeling, from simulating physical scenes to simulating the minds that act in them.",
+          "claimed_authors": [
+            "Hao Fei",
+            "Yiran Zhao"
+          ],
+          "claimed_title": "Mental World Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.27201"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Mental World Modeling')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article addresses the issue of computing the expected cost functions from a probabilistic model of the air traffic flow and capacity management. The Clenshaw-Curtis quadrature is compared to Monte-Carlo algorithms defined specifically for this problem. By tailoring the algorithms to this model, we reduce the computational burden in order to simulate real instances. The study shows that the Monte-Carlo algorithm is more sensible to the amount of uncertainty in the system, but has the advantage to return a result with the associated accuracy on demand. The performances for both approaches are comparable for the computation of the expected cost of delay and the expected cost of congestion. Finally, this study shows some evidences that the simulation of the proposed probabilistic model is tractable for realistic instances.",
+          "claimed_authors": [
+            "Gaétan Marceau",
+            "Pierre Savéant",
+            "Marc Schoenauer"
+          ],
+          "claimed_title": "Computational Methods for Probabilistic Inference of Sector Congestion in Air Traffic Management",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.3921"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Computational Methods for Probabilistic Inference of Sector Congestion in Air Traffic Management')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Adaptive-Cruise Control (ACC) automatically accelerates or decelerates a vehicle to maintain a selected time gap, to reach a desired velocity, or to prevent a rear-end collision. To this end, the ACC sensors detect and track the vehicle ahead for measuring the actual distance and speed difference. Together with the own velocity, these input variables are exactly the same as in car-following models. The focus of this contribution is: What will be the impact of a spreading of ACC systems on the traffic dynamics? Do automated driving strategies have the potential to improve the capacity and stability of traffic flow or will they necessarily increase the heterogeneity and instability? How does the result depend on the ACC equipment level?\n  We discuss microscopic modeling aspects for human and automated (ACC) driving. By means of microscopic traffic simulations, we study how a variable percentage of ACC-equipped vehicles influences the stability of traffic flow, the maximum flow under free traffic conditions until traffic breaks down, and the dynamic capacity of congested traffic. Furthermore, we compare different percentages of ACC with respect to travel times in a specific congestion scenario. Remarkably, we find that already a small amount of ACC equipped cars and, hence, a marginally increased free and dynamic capacity, leads to a drastic reduction of traffic congestion.",
+          "claimed_authors": [
+            "Arne Kesting",
+            "Martin Treiber",
+            "Martin Schönhof",
+            "Florian Kranke",
+            "Dirk Helbing"
+          ],
+          "claimed_title": "Jam-avoiding adaptive cruise control (ACC) and its impact on traffic dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "physics/0601096"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Jam-avoiding adaptive cruise control (ACC) and its impact on traffic dynamics')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding how air traffic controllers construct a mental 'picture' of complex air traffic situations is crucial but remains a challenge due to the inherently intricate, high-dimensional interactions between aircraft, pilots, and controllers. Previous work on modeling the strategies of air traffic controllers and their mental image of traffic situations often centers on specific air traffic control tasks or pairwise interactions between aircraft, neglecting to capture the comprehensive dynamics of an air traffic situation. To address this issue, we propose a machine learning-based framework for explaining air traffic situations. Specifically, we employ a Transformer-based multi-agent trajectory model that encapsulates both the spatio-temporal movement of aircraft and social interaction between them. By deriving attention scores from the model, we can quantify the influence of individual aircraft on overall traffic dynamics. This provides explainable insights into how air traffic controllers perceive and understand the traffic situation. Trained on real-world air traffic surveillance data collected from the terminal airspace around Incheon International Airport in South Korea, our framework effectively explicates air traffic situations. This could potentially support and enhance the decision-making and situational awareness of air traffic controllers.",
+          "claimed_authors": [
+            "Hong-ah Chai",
+            "Seokbin Yoon",
+            "Keumjin Lee"
+          ],
+          "claimed_title": "Learning to Explain Air Traffic Situation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.10764"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Learning to Explain Air Traffic Situation')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article presents advances in resource allocation (RA) for downlink non-orthogonal multiple access (NOMA) systems, focusing on user pairing (UP) and power allocation (PA) algorithms. The former pairs the users to obtain the high capacity gain by exploiting the channel gain difference between the users, while the later allocates power to users in each cluster to balance system throughput and user fairness. Additionally, the article introduces the concept of cluster fairness and proposes the divideand- next largest difference-based UP algorithm to distribute the capacity gain among the NOMA clusters in a controlled manner. Furthermore, performance comparison between multiple-input multiple-output NOMA (MIMO-NOMA) and MIMO-OMA is conducted when users have pre-defined quality of service. Simulation results are presented, which validate the advantages of NOMA over OMA. Finally, the article provides avenues for further research on RA for downlink NOMA.",
+          "claimed_authors": [
+            "S. M. Riazul Islam",
+            "Ming Zeng",
+            "Octavia A. Dobre",
+            "Kyung-Sup Kwak"
+          ],
+          "claimed_title": "Resource Allocation for Downlink NOMA Systems: Key Techniques and Open Issues",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1801.00121"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Resource Allocation for Downlink NOMA Systems: Key Techniques and Open Issues')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the problem of sequentially allocating resources in a censored semi-bandits setup, where the learner allocates resources at each step to the arms and observes loss. The loss depends on two hidden parameters, one specific to the arm but independent of the resource allocation, and the other depends on the allocated resource. More specifically, the loss equals zero for an arm if the resource allocated to it exceeds a constant (but unknown) arm dependent threshold. The goal is to learn a resource allocation that minimizes the expected loss. The problem is challenging because the loss distribution and threshold value of each arm are unknown. We study this setting by establishing its `equivalence' to Multiple-Play Multi-Armed Bandits (MP-MAB) and Combinatorial Semi-Bandits. Exploiting these equivalences, we derive optimal algorithms for our problem setting using known algorithms for MP-MAB and Combinatorial Semi-Bandits. The experiments on synthetically generated data validate the performance guarantees of the proposed algorithms.",
+          "claimed_authors": [
+            "Arun Verma",
+            "Manjesh K. Hanawal",
+            "Arun Rajkumar",
+            "Raman Sankaran"
+          ],
+          "claimed_title": "Censored Semi-Bandits for Resource Allocation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.05781"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Censored Semi-Bandits for Resource Allocation')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Workflow technology is widely used to facilitate the business process in enterprise information systems (EIS), and it has the potential to reduce design time, enhance product quality and decrease product cost. However, significant limitations still exist: as an important task in the context of workflow, many present resource allocation operations are still performed manually, which are time-consuming. This paper presents a data mining approach to address the resource allocation problem (RAP) and improve the productivity of workflow resource management. Specifically, an Apriori-like algorithm is used to find the frequent patterns from the event log, and association rules are generated according to predefined resource allocation constraints. Subsequently, a correlation measure named lift is utilized to annotate the negatively correlated resource allocation rules for resource reservation. Finally, the rules are ranked using the confidence measures as resource allocation rules. Comparative experiments are performed using C4.5, SVM, ID3, Naïve Bayes and the presented approach, and the results show that the presented approach is effective in both accuracy and candidate resource recommendations.",
+          "claimed_authors": [
+            "Tingyu Liu",
+            "Yalong Cheng",
+            "Zhonghua Ni"
+          ],
+          "claimed_title": "Mining Event Logs to Support Workflow Resource Allocation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1206.6557"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Mining Event Logs to Support Workflow Resource Allocation')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Space-time distributions')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a state-space-based path integral method to calculate the rate of electron transfer (ET) in multi-state, multi-electron condensed-phase processes. We employ an exact path integral in discrete electronic states and continuous Cartesian nuclear variables to obtain a transition state theory (TST) estimate to the rate. A dynamic recrossing correction to the TST rate is then obtained from real-time dynamics simulations using mean field ring polymer molecular dynamics. We employ two different reaction coordinates in our simulations and show that, despite the use of mean field dynamics, the use of an accurate dividing surface to compute TST rates allows us to achieve remarkable agreement with Fermi's golden rule rates for nonadiabatic ET in the normal regime of Marcus theory. Further, we show that using a reaction coordinate based on electronic state populations allows us to capture the turnover in rates for ET in the Marcus inverted regime.",
+          "claimed_authors": [
+            "Jessica Ryan Duke",
+            "Nandini Ananth"
+          ],
+          "claimed_title": "State Space Path Integrals for Electronically Nonadiabatic Reaction Rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.01394"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='State Space Path Integrals for Electronically Nonadiabatic Reaction Rates')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Efficient high-performance decoding of topological stabilizer codes has the potential to crucially improve the balance between logical failure rates and the number and individual error rates of the constituent qubits. High-threshold maximum-likelihood decoders require an explicit error model for Pauli errors to decode a specific syndrome, whereas lower-threshold heuristic approaches such as minimum weight matching are \"error agnostic\". Here we consider an intermediate approach, formulating a decoder that depends on the bias, i.e., the relative probability of phase-flip to bit-flip errors, but is agnostic to error rate. Our decoder is based on counting the number and effective weight of the most likely error chains in each equivalence class of a given syndrome. We use Metropolis-based Monte Carlo sampling to explore the space of error chains and find unique chains, that are efficiently identified using a hash table. Using the error-rate invariance the decoder can sample chains effectively at an error rate which is higher than the physical error rate and without the need for \"thermalization\" between chains in different equivalence classes. Applied to the surface code and the XZZX code, the decoder matches maximum-likelihood decoders for moderate code sizes or low error rates. We anticipate that, because of the compressed information content per syndrome, it can be taken full advantage of in combination with machine-learning methods to extrapolate Monte Carlo-generated data.",
+          "claimed_authors": [
+            "Karl Hammar",
+            "Alexei Orekhov",
+            "Patrik Wallin Hybelius",
+            "Anna Katariina Wisakanto",
+            "Basudha Srivastava",
+            "Anton Frisk Kockum",
+            "Mats Granath"
+          ],
+          "claimed_title": "Error-rate-agnostic decoding of topological stabilizer codes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.01977"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Error-rate-agnostic decoding of topological stabilizer codes')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper investigates the zero-error capacity of channels with memory. Motivated by the nuanced requirements of semantic communication that incorporate memory, we advance the classical enlightened dictator channel by introducing a new category known as the semantic channel. We analyze the zero-error capacity of the semantic channel using a comprehensive framework that accommodates multiple input and output memories. Our approach reveals a more sophisticated and detailed model compared to the classical memory channels, highlighting the impact of memory on achieving error-free communication.",
+          "claimed_authors": [
+            "Qi Cao",
+            "Yulin Shao",
+            "Shangwei Ge"
+          ],
+          "claimed_title": "On the Zero-Error Capacity of Semantic Channels with Input and Output Memories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.21732"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='On the Zero-Error Capacity of Semantic Channels with Input and Output Memories')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The experiments at Run 2 of the Tevatron have each accumulated over 1 inverse femtobarn of high-transverse momentum data. Such a dataset allows for the first precision (i.e. comparisons between theory and experiment at the few percent level) tests of QCD at a hadron collider. While the Large Hadron Collider has been designed as a discovery machine, basic QCD analyses will still need to be performed to understand the working environment. The Tevatron-for-LHC workshop was conceived as a communication link to pass on the expertise of the Tevatron and to test new analysis ideas coming from the LHC community. The TeV4LHC QCD Working Group focussed on important aspects of QCD at hadron colliders: jet definitions, extraction and use of Parton Distribution Functions, the underlying event, Monte Carlo tunes, and diffractive physics. This report summarizes some of the results achieved during this workshop.",
+          "claimed_authors": [
+            " TeV4LHC QCD Working Group",
+            "M. Albrow",
+            "M. Begel",
+            "D. Bourilkov",
+            "M. Campanelli",
+            "F. Chlebana",
+            "A. De Roeck",
+            "J. R. Dittmann",
+            "S. D. Ellis",
+            "B. Field",
+            "R. Field",
+            "M. Gallinaro",
+            "W. Giele",
+            "K. Goulianos",
+            "R. C. Group",
+            "K. Hatakeyama",
+            "Z. Hubacek",
+            "J. Huston",
+            "W. Kilgore",
+            "T. Kluge",
+            "S. W. Lee",
+            "A. Moraes",
+            "S. Mrenna",
+            "F. Olness",
+            "J. Proudfoot",
+            "K. Rabbertz",
+            "C. Royon",
+            "T. Sjostrand",
+            "P. Skands",
+            "J. Smith",
+            "W. K. Tung",
+            "M. R. Whalley",
+            "M. Wobisch",
+            "M. Zielinski"
+          ],
+          "claimed_title": "Tevatron-for-LHC Report of the QCD Working Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "hep-ph/0610012"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Tevatron-for-LHC Report of the QCD Working Group')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "During the last years, there has been a lot of interest in achieving some kind of complex reasoning using deep neural networks. To do that, models like Memory Networks (MemNNs) have combined external memory storages and attention mechanisms. These architectures, however, lack of more complex reasoning mechanisms that could allow, for instance, relational reasoning. Relation Networks (RNs), on the other hand, have shown outstanding results in relational reasoning tasks. Unfortunately, their computational cost grows quadratically with the number of memories, something prohibitive for larger problems. To solve these issues, we introduce the Working Memory Network, a MemNN architecture with a novel working memory storage and reasoning module. Our model retains the relational reasoning abilities of the RN while reducing its computational complexity from quadratic to linear. We tested our model on the text QA dataset bAbI and the visual QA dataset NLVR. In the jointly trained bAbI-10k, we set a new state-of-the-art, achieving a mean error of less than 0.5%. Moreover, a simple ensemble of two of our models solves all 20 tasks in the joint version of the benchmark.",
+          "claimed_authors": [
+            "Juan Pavez",
+            "Héctor Allende",
+            "Héctor Allende-Cid"
+          ],
+          "claimed_title": "Working Memory Networks: Augmenting Memory Networks with a Relational Reasoning Module",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.09354"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Cognitive Load on Decision-Making Accuracy in Simulated Environmen', candidate_title='Working Memory Networks: Augmenting Memory Networks with a Relational Reasoning Module')",
+        "failed_at": "2026-09-24T09:33:30Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yimin Du",
+            "Guolin Tang"
+          ],
+          "title": "Cognitive Load and Information Processing in Financial Markets: Theory and Evidence from Disclosure Complexity",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.07037",
+        "summary": "Cognitive-load research in financial markets generally treats disclosure complexity as a property of the document and information acquisition as a direct interaction between an investor and that document. Machine-readable reporting and AI intermediaries make both assumptions incomplete. We develop a reader--task--interface framework in which processing load depends jointly on disclosure content, the representation through which it is accessed, and the transformation technology available to the reader. We evaluate the framework using a historical XBRL-transition diagnostic, a census of 207,684 SEC filings, a paired multi-model interface experiment, and held-out criterion validation. The historical evidence is consistent with interface substitution but has a modest statutory first stage and is interpreted as a measurement diagnostic. Modern filings reveal that human-facing burden and machine accessibility are distinct: large issuers produce longer reports while supplying richer structured coverage. The experiment crosses 432 filing-grounded questions with twelve interfaces and six hosted model implementations, producing 31,104 responses. Grounded accuracy rises from 47.2\\% under BM25 HTML to 99.5\\% under perfectly localized text; fact-matched oracle XBRL reaches 99.6\\%. Most of the observed XBRL--HTML gap in these numerical tasks therefore arises from evidence localization and table reconstruction rather than syntax or taxonomy alone. Cognitive load is consequently not a stable scalar attribute of disclosure: it is local to a reader, task, interface, and processing stage.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.07037",
+          "http_status": 200,
+          "pdf_sample_score": 0.3249,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-24T09:33:34Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of cognitive load on decision-making accuracy in simulated environments psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

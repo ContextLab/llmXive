@@ -1,233 +1,164 @@
-# Tasks: llmXive follow-up: extending "DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward"
+# Tasks: llmXive follow‑up – extending “DVAO: Dynamic Variance‑adaptive Advantage Optimization for Multi‑reward”
 
-**Input**: Design documents from `/specs/001-llmxive-noise-scaling/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 [P] Create `src/` directory structure
-- [ ] T002 [P] Create `tests/` directory structure
-- [ ] T003 [P] Create `data/` directory structure
-- [ ] T004 [P] Create `scripts/` directory structure
-- [ ] T005 [P] Create `docs/` directory structure
-- [ ] T006 [P] Create `src/derivation/__init__.py`
-- [ ] T007 [P] Create `src/simulation/__init__.py`
-- [ ] T008 [P] Create `src/analysis/__init__.py`
-- [ ] T009 [P] Create `tests/unit/__init__.py`
-- [ ] T010 [P] Create `tests/contract/__init__.py`
-- [ ] T011 [P] Create `tests/integration/__init__.py`
-- [ ] T012 [P] Create `data/raw/.gitkeep`
-- [ ] T013 [P] Create `data/processed/.gitkeep`
+**Inputs**: `spec.md`, `plan.md`, existing code base under `code/`, data‑model contracts in `specs/001-llmxive-follow-up-extending-dvao-dynamic/contracts/`.  
+**Goal**: Produce a complete, reproducible study that (1) derives a closed‑form variance‑scaling law and sample‑complexity lower bound, (2) validates it on synthetic multi‑objective tabular MDPs under strict CPU‑only resource limits, (3) performs sensitivity analyses (window size k, noise correlation ρ, reward‑distribution type), (4) demonstrates construct‑validity on a held‑out heavy‑tailed set, and (5) hands off all artifacts for paper generation.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Project foundation & verification
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T000 [P] **Run citation verification & checksum recording** – execute `src/verification/verify_citations.py`, pin all random seeds, compute SHA‑256 checksums for every file under `data/`, and store them in `state/artifact_hashes.yaml`.   <!-- FAILED-IN-EXECUTION: src/verification/verify_citations.py exit=1 -->
+  *Verification*: `python -m src.verification.verify_citations && python -c "import yaml, pathlib; h=yaml.safe_load(open('state/artifact_hashes.yaml')); assert isinstance(h, dict)"`.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T001 [P] **Create project entry point & config** – add `src/main.py` with an `if __name__ == "__main__":` CLI that loads a YAML config, and create `src/config/defaults.yaml` (default N=5, k=0.01, rho=0, distribution=linear) plus `config/small_demo.yaml` (tiny demo config).  
+  *Verification*: `python src/main.py --config config/small_demo.yaml && echo "OK"`.
 
-- [ ] T014 [P] Create `src/config/defaults.yaml` with hyperparameters: `N` (5, 10, 20, 50), `k` (window size ratios), `seeds`, `noise_correlation` (ρ ∈ {0, 0.2, 0.5})
-- [ ] T015 [P] Implement `src/simulation/synthetic_mdp.py` with: (1) tabular MDP generation with N objectives using random linear combinations of state features, (2) explicit support for noise correlation parameter ρ ∈ {0, 0.2, 0.5} as required by FR-009, (3) deterministic seeded random state management
-- [ ] T016 [P] Implement `src/simulation/heuristic.py` for the "Moving-Window Heuristic" variance estimation using last k steps (configurable k < rollout group size)
-- [ ] T017 [P] Create `src/simulation/runner.py` with main() function accepting --n-objectives, --seed, --noise-correlation arguments, executing CPU-constrained training loops with memory checks (<7GB), and exiting with code 0 on success
-- [ ] T018 [P] Implement `src/derivation/variance_scaling.py` for symbolic derivation of noise accumulation using sympy, returning a sympy Expr object representing Var(A) as function of N and ε_i
-- [ ] T019 [P] Implement `src/derivation/sample_complexity.py` to invert variance equations to sample complexity bounds, returning closed-form equation as string
-- [ ] T020 [P] Implement `src/analysis/pareto.py` to calculate distance to theoretical Pareto frontier for given policy and reward functions
-- [ ] T021 [P] Implement `src/analysis/stats.py` with: (1) one-sample t-test function for deviation from theoretical bound, (2) paired t-test function for heuristic vs full-batch, (3) sensitivity analysis functions
-- [ ] T022 [P] Create `tests/unit/test_derivation.py` to verify symbolic equations simplify correctly
-- [ ] T023 [P] Create `tests/unit/test_mdp.py` to verify MDP generation determinism and objective counts
-- [ ] T024 [P] Create `tests/unit/test_heuristic.py` to verify windowed variance calculation logic
-- [ ] T025 [P] Create `scripts/update_state.py` to compute checksums for `data/` and `code/` (Constitution Principle V)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T002 [S] **Run minimal end‑to‑end example** – execute the quickstart command with the small demo config, producing `data/processed/empirical_results.json`. Validate against the JSON schema using `jsonschema.validate`.  
+  *Verification*: `python -m src.main --config config/small_demo.yaml && python -c "import json, jsonschema, yaml; schema=yaml.safe_load(open('specs/001-llmxive-follow-up-extending-dvao-dynamic/contracts/empirical_results.schema.yaml')); instance=json.load(open('data/processed/empirical_results.json')); jsonschema.validate(instance, schema)"`.
 
 ---
 
-## Phase 3: User Story 1 - Theoretical Derivation of Noise Scaling Law (Priority: P1) 🎯 MVP
+## Phase 1 – Theoretical derivation (User Story 1, P1)
 
-**Goal**: Mathematically derive the theoretical lower bound on sample complexity for Pareto optimality as a function of N and independent noise.
+- [ ] T003 [S] **Derive variance‑scaling law** – implement `src/derivation/variance_scaling.py` using **sympy** to symbolically compute `Var(A)` for a weighted advantage function with `N` independent noises `ε_i`. Export a single file `data/processed/theoretical_bound.json` containing the fields `n_range`, `variance_equation`, `sample_complexity_bound`, and `assumptions`.  
+  *Verification*: `python -c "import json; d=json.load(open('data/processed/theoretical_bound.json')); assert all(k in d for k in ['variance_equation','sample_complexity_bound'])"`.
 
-**Independent Test**: The system generates a mathematical document containing the closed-form derivation of variance accumulation as a function of N.
+- [ ] T004 [S] **Verify derivation algebraically** – add `src/derivation/verify_symbolic.py` that loads the expression from `theoretical_bound.json`, simplifies it, and checks equality against the manually‑derived form `N*σ²`. Write a log `data/processed/derivation_verification.json` with `status: "PASS"`.  
+  *Verification*: `python src/derivation/verify_symbolic.py && python -c "import json; assert json.load(open('data/processed/derivation_verification.json'))['status']=='PASS'"`.
 
-### Implementation for User Story 1
+- [ ] T005 [S] **Invert variance to sample‑complexity bound** – extend `src/derivation/sample_complexity.py` to read `theoretical_bound.json`, solve for the minimal sample count `K(N,σ,ε_target)` achieving a target error, and write the bound back into the same JSON under the key `sample_complexity_bound`.  
+  *Verification*: `python src/derivation/sample_complexity.py && python -c "import json; d=json.load(open('data/processed/theoretical_bound.json')); assert 'sample_complexity_bound' in d"`.
 
-- [ ] T026 [US1] Verify `src/derivation/variance_scaling.py` outputs correct closed-form equation for Var(A) as function of N and ε_i
-- [ ] T027 [US1] Verify `src/derivation/sample_complexity.py` correctly inverts variance to sample complexity bound
-- [ ] T028 [US1] Add explicit assumption logging (i.i.d. noise) to derivation output
-- [ ] T029 [US1] Create `docs/theoretical_derivation.md` with required sections: (1) closed-form equation for Var(A) as function of N and ε_i, (2) sample complexity bound derivation, (3) explicit assumptions list, (4) verification results from sympy
-- [ ] T030 [US1] Create `docs/peer_review_checklist.md` with verification criteria for SC-001 alternative path, including algebraic consistency checklist and peer review sign-off template
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T006 [S] **Generate human‑readable derivation report** – extend `src/derivation/sample_complexity.py` with a `--generate-docs` flag that produces `docs/theoretical_derivation.md` containing the sympy expression, step‑by‑step algebra, assumptions, and the closed‑form bound.  
+  *Verification*: `python src/derivation/sample_complexity.py --generate-docs && grep -q "Sample Complexity" docs/theoretical_derivation.md`.
 
 ---
 
-## Phase 4: User Story 2 - Synthetic Environment Generation & Heuristic Implementation (Priority: P2)
+## Phase 2 – Synthetic environment generation (User Story 2, P2)
 
-**Goal**: Generate synthetic multi-objective tabular MDPs (N ∈ {5, 10, 20, 50}) and implement the Moving-Window Heuristic for variance estimation.
+- [ ] T007 [S] **Generate tabular MDPs** – implement `src/environment/synthetic_mdp.py` with function `generate_mdp(n_objectives, seed, rho, distribution)` creating a tabular MDP (state = 200, action = 5) and `N` reward functions as random linear combinations of state features. Support **linear**, **sparse**, **non‑convex** families. When `n_objectives > 50` the function reduces `effective_state_space_size` by a factor of 2 (as required by FR‑016) and logs the reduction.  
+  *Verification*: `python -c "from src.environment.synthetic_mdp import generate_mdp; mdp=generate_mdp(60,seed=1,rho=0,distribution='linear'); assert mdp['effective_state_space_size']==100"`.
 
-**Independent Test**: The system runs a simulation script that instantiates environments for N=50 and executes multiple episodes using the Moving-Window Heuristic without memory errors.
+- [ ] T008 [S] **Log achieved noise correlation** – extend the generator to compute the empirical correlation matrix of injected noise and write a summary (`rho_target`, `rho_actual_mean`, `correlation_matrix_snapshot`) to `data/processed/noise_properties.json`.  
+  *Verification*: `python -c "import json; d=json.load(open('data/processed/noise_properties.json')); assert 'rho_target' in d"`.
 
-### Implementation for User Story 2
+- [ ] T009 [S] **Resource‑guard for large N** – in `src/environment/runner.py` add logic: if `N>50` reduce `effective_state_space_size` by a factor of 2, enforce **2 CPU cores** (`os.sched_setaffinity`) and **≤ 7 GB RAM** (monitor via `psutil`). On limit breach exit with code 1 and print `ResourceLimitExceeded` to stderr. Log `effective_n`, `effective_state_space_size`, and `degraded_flag` to `data/processed/resource_log.json`.  
+  *Verification*: `python src/environment/runner.py --n 60 --seed 0 && echo $? && grep -q "ResourceLimitExceeded" <(python src/environment/runner.py --n 60 --seed 0 2>&1)`.
 
-- [ ] T031 [US2] Verify `src/simulation/synthetic_mdp.py` generates correct tabular MDPs with N objectives and noise correlation parameter ρ
-- [ ] T032 [US2] Verify `src/simulation/heuristic.py` correctly calculates variance using only last k steps
-- [ ] T033 [US2] Integrate `src/simulation/runner.py` with memory footprint checks (<7GB) and CPU constraints, ensuring it uses foundational MDP and heuristic modules
-- [ ] T034 [US2] Add logic to handle edge case where N > 50 by degrading state space size or sampling
-- [ ] T035 [US2] Add logging calls to output empirical variance and distance to Pareto frontier in `data/processed/empirical_results.json` with schema: {n_objectives, empirical_variance, pareto_distance, timestamp}
-- [ ] T036 [US2] Extend `src/simulation/synthetic_mdp.py` to support sensitivity analysis for noise correlation structure (ρ ∈ {0, 0.2, 0.5}) as required by FR-009
-- [ ] T037 [US2] Verify MDP generation is deterministic with seeded random states
+- [ ] T009a [S] **Verify graceful failure (FR‑005)** – run the runner with deliberately excessive memory/CPU settings and assert exit code 1 and correct stderr message.  
+  *Verification*: `python src/environment/runner.py --n 200 --seed 0 2>err.txt; grep -q "ResourceLimitExceeded" err.txt && [ $? -eq 1 ]`.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Validation & Sensitivity Analysis (Priority: P3)
-
-**Goal**: Perform statistical validation (one-sample t-test against theoretical bound AND paired t-test) and sensitivity analysis on window size k.
-
-**Independent Test**: The system outputs a statistical report containing p-values from one-sample t-test, paired t-test results, and a table showing variation in convergence rates as k varies.
-
-### Implementation for User Story 3
-
-- [ ] T038 [US3] Implement one-sample t-test in `src/analysis/stats.py` comparing mean deviation of heuristic variance from theoretical lower bound for each N (FR-006 requirement)
-- [ ] T039 [US3] Implement paired t-test in `src/analysis/stats.py` comparing Heuristic variance vs. Full-Batch Empirical variance as additional validation
-- [ ] T040 [US3] Implement stability check: ratio of heuristic/full-batch variance must remain within [0.9, 1.1] for ≥ 95% of steps
-- [ ] T041 [US3] Implement sensitivity analysis sweep for window size k over a range of rollout sizes
-- [ ] T042 [US3] Calculate and log false-positive rates where heuristic reports stable but deviation > 5%
-- [ ] T043 [US3] Compute correlation between variance estimation error and distance to Pareto frontier
-- [ ] T044 [US3] Calculate and verify coincidence point (within ±1 objective count) between statistical failure (p < 0.05) and Pareto frontier distance threshold (>5%) as required by SC-002
-- [ ] T045 [US3] Generate final statistical report in `data/processed/statistical_report.json` with required keys: p_value_one_sample, p_value_paired, n_objectives, k_window, correlation_coefficient, coincidence_flag, failure_point_n
-- [ ] T046 [US3] Add logic to handle non-Gaussian noise distributions and log deviations (Assumptions)
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T010 [S] **Runner orchestration script** – create `src/environment/runner.py` that loads an MDP, runs a configurable number of episodes, respects the resource guard, and writes per‑run metrics (including convergence speed) to `data/processed/empirical_results/<experiment_id>.json`.  
+  *Verification*: `python src/environment/runner.py --config config/small_demo.yaml && test -f data/processed/empirical_results/run_001.json`.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 3 – Heuristic & baseline implementation (User Story 2, P2)
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T011 [S] **Moving‑Window variance heuristic** – implement `src/analysis/heuristic.py` with `estimate_variance(trajectory, window_frac)` that uses the last `k = int(window_frac * len(trajectory))` steps. Enforce `window_frac ∈ {0.01,0.05,0.1}`; raise `ValueError` for smaller values. Store per‑run estimates in `data/processed/heuristic_estimates/<experiment_id>.json` and also record **per‑step ratio** (`heuristic_variance / full_batch_variance`) in `data/processed/heuristic_step_ratios/<experiment_id>.json`.  
+  *Verification*: `python -c "from src.analysis.heuristic import estimate_variance; import numpy as np; assert estimate_variance(np.arange(100),0.05)>0"`.
 
-- [ ] T047 [P] Update `docs/quickstart.md` with instructions for running the full experiment suite
-- [ ] T048 Code cleanup and refactoring for memory efficiency in `src/simulation/runner.py` using generators instead of lists for trajectory storage
-- [ ] T049 Refactor `src/analysis/stats.py` to use batch processing for variance calculations to reduce memory footprint
-- [ ] T050 [P] Add comprehensive unit tests for `src/analysis/pareto.py`
-- [ ] T051 Run `scripts/update_state.py` to verify artifact checksums and update `state/` files
-- [ ] T052 Validate `quickstart.md` by running a full end-to-end execution on a local CPU-only environment
+- [ ] T012 [S] **Full‑batch variance ground truth** – implement `src/analysis/full_batch_variance.py` that computes the variance of the advantage function over the entire trajectory (FR‑013) and writes `data/processed/full_batch_variance/<experiment_id>.json`.  
+  *Verification*: `python -c "import json; d=json.load(open('data/processed/full_batch_variance/run_001.json')); assert 'full_batch_variance' in d"`.
 
----
+- [ ] T013 [S] **Statistical bias & stability analysis** – using outputs from T011, T012, and the per‑step ratio files, compute:  
+    * mean bias (`heuristic_variance_mean – full_batch_variance_mean`)  
+    * TOST equivalence test for bias with margin ±0.05 (FR‑015)  
+    * one‑sample t‑test for bias (additional check)  
+    * stability rate: percentage of steps where ratio lies in `[0.9,1.1]` (SC‑003)  
+    * false‑positive rate based on the stability test (SC‑004)  
+  Write results to `data/processed/bias_stability_report/<experiment_id>.json`.  
+  *Verification*: `python src/analysis/bias_stability.py && test -f data/processed/bias_stability_report/run_001.json`.
 
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- Different user stories can be worked on in parallel by different team members
+- [ ] T014 [S] **Static scalarization baseline** – implement `src/analysis/baseline.py` that evaluates a fixed weight vector `w` on each trajectory and records the sample count needed to reach the Pareto‑threshold. Output to `data/processed/baseline_results/<experiment_id>.json`.  
+  *Verification*: `python -c "import json; d=json.load(open('data/processed/baseline_results/run_001.json')); assert 'sample_count' in d"`.
 
 ---
 
-## Parallel Example: User Story 2
+## Phase 4 – Full experimental sweep (User Stories 2‑3, P2‑P3)
 
-```bash
-# Launch all tests for User Story 2 together (if tests requested):
-Task: "Contract test for synthetic_mdp in tests/contract/test_synthetic_mdp.py"
-Task: "Integration test for runner in tests/integration/test_runner.py"
+- [ ] T015 [S] **Run exhaustive sweep** – orchestrate runs over all combinations of  
+  * `N ∈ {5,10,15,20,30,40,50}`  
+  * `k ∈ {0.01,0.05,0.1}`  
+  * `ρ ∈ {0,0.2,0.5}`  
+  * `distribution ∈ {linear, sparse, non_convex}`  
+  ensuring **≥30 independent runs per configuration** (≥50 for final analysis). Each run invokes the pipeline (T007‑T014) and writes its result JSON under `data/processed/empirical_results/`.  
+  *Verification*: `python src/analysis/run_sweep.py && python -c "import pathlib, json; files=list(pathlib.Path('data/processed/empirical_results').glob('*.json')); assert len(files) >= 7*3*3*3*30"`.
 
-# Launch all models for User Story 2 together:
-Task: "Verify synthetic_mdp.py"
-Task: "Verify heuristic.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T016 [S] **Statistical validation** – in `src/analysis/statistics.py` compute:  
+  * Linear regression of `sample_count` vs `N` (log‑log) → slope, `R²`.  
+  * **TOST equivalence test** for the slope against the theoretical slope (margin ± 0.1) (FR‑006).  
+  * Incorporate bias TOST results from T013.  
+  * One‑sample t‑test for heuristic bias (additional check).  
+  * Binomial test for false‑positive rate (SC‑004).  
+  * Noise sanity‑check (FR‑014) confirming ≤5 % relative error.  
+  Write `data/processed/statistical_report.json` conforming to `statistical_report.schema.yaml`.  
+  *Verification*: `python src/analysis/statistics.py && python -c "import json, yaml, jsonschema; schema=yaml.safe_load(open('specs/001-llmxive-follow-up-extending-dvao-dynamic/contracts/statistical_report.schema.yaml')); instance=json.load(open('data/processed/statistical_report.json')); jsonschema.validate(instance, schema)"`.
 
 ---
 
-## Notes
+## Phase 5 – Pareto oracle & distance computation
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All simulation tasks must strictly adhere to 7GB RAM limit; avoid storing full history for large N.
-- **Real Data**: All synthetic data must be generated deterministically with seeds; no external downloads required for this feature.
-- **Validation Independence**: Ensure `src/derivation` and `src/simulation` remain separate to prevent circular logic.
-- **FR-006 Compliance**: One-sample t-test against theoretical bound must be implemented as primary validation, paired t-test as additional validation.
-- **SC-002 Compliance**: Coincidence point verification (within ±1 objective count) between statistical failure and Pareto distance threshold is mandatory.
-- **FR-009 Compliance**: Noise correlation parameter ρ ∈ {0, 0.2, 0.5} must be supported from foundational phase.
-- **SC-001 Compliance**: Both symbolic math engine verification AND peer review checklist must be implemented.
+- [ ] T017 [S] **Pareto oracle implementation** – add `src/analysis/pareto_oracle.py` that computes the weighted‑sum Pareto frontier with step 0.01, returns the distance of the final policy to this frontier, and writes `pareto_frontier_distance` into each entry of the corresponding `empirical_results` JSON file.  
+  *Verification*: `python src/analysis/pareto_oracle.py && python -c "import json, pathlib; f=next(pathlib.Path('data/processed/empirical_results').glob('*.json')); d=json.load(open(f)); assert 'pareto_frontier_distance' in d"`.
+
+---
+
+## Phase 6 – Held‑out validation & construct validity (User Stories 4‑5, P4‑P5)
+
+- [ ] T018 [S] **Generate heavy‑tailed held‑out set** – sample reward noise from a Student‑t distribution (df = 3) to create `data/derived/heavy_tailed_set.json` and a separate validation split `data/derived/heavy_tailed_validation.json`.  
+  *Verification*: `python -c "import json; d=json.load(open('data/derived/heavy_tailed_set.json')); assert len(d)>0"`.
+
+- [ ] T019 [S] **Run heuristic on heavy‑tailed set & compare to bound** – execute the full pipeline on the held‑out set, compute empirical sample complexity, compare against the theoretical bound, and flag deviations >10 % in `data/processed/heavy_tailed_validation_report.json`.  
+  *Verification*: `python src/analysis/run_heavy_tailed.py && python -c "import json; d=json.load(open('data/processed/heavy_tailed_validation_report.json')); assert d['deviation_percent'] <= 10"`.
+
+- [ ] T020 [S] **Construct‑validity across reward families** – add `scripts/validate_construct_validity.py` that loads each reward‑distribution type (linear, sparse, non‑convex, heavy‑tailed), runs the full sweep (re‑using T015), aggregates results, and writes `data/processed/construct_validity_results.json` conforming to `construct_validity_results.schema.yaml`.  
+  *Verification*: `python scripts/validate_construct_validity.py && python -c "import json; d=json.load(open('data/processed/construct_validity_results.json')); assert all(v['pass_criteria_met'] for v in d)"`.
+
+- [ ] T021 [S] **Descriptive‑statistics comparison to published LLM‑reward stats** – compute mean, variance, skewness of generated rewards and compare to published RLHF reward statistics (e.g., OpenAI logs). Store results in `data/processed/llm_reward_stats_comparison.json`.  
+  *Verification*: `python src/analysis/compare_llm_stats.py && python -c "import json; d=json.load(open('data/processed/llm_reward_stats_comparison.json')); assert 'llm_reference' in d"`.
+
+- [ ] T022 [S] **Generate regression & Pareto‑distance plots** – using `matplotlib`, produce `figures/regression_slope.png`, `figures/pareto_distance.png`, and record the file paths in `docs/final_report.md`. Verify that the PNG files exist.  
+  *Verification*: `python src/analysis/plot_results.py && test -f figures/regression_slope.png && test -f figures/pareto_distance.png`.
+
+---
+
+## Phase 7 – Reporting & reproducibility hand‑off (User Story 6, P6)
+
+- [ ] T023 [S] **Assemble final research report** – generate `docs/final_report.md` that (a) summarizes the derived bound, (b) presents tables/figures derived directly from the JSON artifacts (`empirical_results`, `statistical_report`, `construct_validity_results`, `llm_reward_stats_comparison`), (c) discusses resource‑guard behavior, (d) lists limitations, and (e) hyperlinks all underlying data files.  
+  *Verification*: `python src/report/generate_report.py && grep -q "data/processed/empirical_results" docs/final_report.md`.
+
+- [ ] T024 [S] **End‑to‑end reproducibility script** – create `run_full_pipeline.sh` that runs (T000 → T001 → T002 → T003‑T006 → T007‑T010 → T011‑T014 → T015 → T016 → T017‑T022 → T023) in sequence, exits with non‑zero code on any failure, and logs a summary to `logs/pipeline_summary.log`.  
+  *Verification*: `bash run_full_pipeline.sh && echo $?` should be `0`.
+
+- [ ] T025 [P] **Final CI verification** – CI runs `run_full_pipeline.sh`, then executes `scripts/check_report_links.py` to ensure every figure/table reference in `final_report.md` resolves to an existing file.  
+  *Verification*: `python scripts/check_report_links.py && echo "CI passed"`.
+
+---
+
+## Phase 8 – Pending reviewer‑raised issues (merged)
+
+- The earlier duplicate tasks T087 and T089 have been merged into T008 and T020 respectively.
+
+---
+
+### Dependency & requirement mapping (updated)
+
+| Requirement | Implementing Task(s) |
+|-------------|----------------------|
+| FR‑001, FR‑002 | T003, T004, T005 |
+| FR‑003, FR‑014, FR‑016, FR‑012 | T007, T008, T009 |
+| FR‑004, FR‑013 | T011, T012 |
+| FR‑005, FR‑016 | T009, T009a |
+| FR‑006, FR‑007, FR‑009, FR‑010 | T015, T016, T020 |
+| FR‑018, FR‑019 | T014 |
+| FR‑015 | T013 (TOST bias test) |
+| FR‑017 | T017 |
+| SC‑001‑SC‑007 | T004, T016, T021 |
+| Resource limits (2 CPU, ≤ 7 GB) | T009 |
+| Validation independence (held‑out set) | T018, T019 |
+| Additional support tasks | T023, T024, T025 |
+
+All tasks respect data‑flow ordering, resource constraints, and the single‑source‑of‑truth principle.
+
+*All tasks are unchecked (`[ ]`).* 

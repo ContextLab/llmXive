@@ -34,7 +34,7 @@ This project implements a computational pipeline to determine if graph theory me
 | **III. Data Hygiene** | **PASS** | Raw data checksummed in `state/`. Preprocessing outputs new files; no in-place modification. |
 | **IV. Single Source of Truth** | **PASS** | All figures/stats in `paper/` will be generated programmatically from `data/` artifacts. |
 | **V. Versioning Discipline** | **PASS** | **Mechanism**: `scripts/hash_artifacts.sh` generates SHA-256 hashes for all `data/` and `code/` files and updates `state/projects/PROJ-072-...yaml` `artifact_hashes` map automatically on every run. |
-| **VI. Neuroimaging Standardization** | **PASS** | Pipeline uses FSL/AFNI logic (via `nilearn`) for motion correction, normalization, 0.01-0.1Hz bandpass. AAL atlas strictly enforced. |
+| **VI. Neuroimaging Standardization** | **PASS** | Pipeline uses FSL/AFNI logic (via `nilearn`) for motion correction, normalization, and low-frequency bandpass filtering. AAL atlas strictly enforced. |
 | **VII. Statistical Significance** | **PASS** | Plan includes FDR-corrected t-tests and permutation tests. CI calculation and Cohen's d included. |
 
 ## Project Structure

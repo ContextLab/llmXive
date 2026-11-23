@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# Data
+data/raw/*.csv
+data/processed/*.parquet
+data/raw/*.tsv
+data/raw/*.xlsx
+data/raw/*.zip
+data/raw/*.gz
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Test/Temp
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/

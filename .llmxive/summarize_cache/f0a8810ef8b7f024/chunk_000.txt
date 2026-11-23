@@ -1,0 +1,81 @@
+# Project Plan: llmXive follow-up: extending "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo"
+
+## Overview
+This project extends the research findings from "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models" by implementing a rigorous, reproducible pipeline to validate and extend the proposed metrics for training efficiency in text-to-image models.
+
+## Research Context
+The original "Lens" paper proposes new metrics for evaluating training efficiency in foundational text-to-image models. This follow-up project aims to:
+1. Reproduce key findings from the original paper
+2. Extend the analysis with additional statistical validation
+3. Implement a robust, CPU-only pipeline for reproducibility
+4. Validate the proposed metrics against human preference data
+
+## Project Goals
+- **Reproducibility**: Ensure all experiments can be reproduced on CPU-only hardware
+- **Statistical Rigor**: Implement proper statistical testing and significance analysis
+- **Scalability**: Handle large datasets through streaming and efficient processing
+- **Validation**: Validate proposed metrics against human preference data
+
+## User Stories
+
+### US1: Feature Extraction Pipeline
+**As a** researcher, **I want** to extract linguistic and syntactic features from image captions **so that** I can analyze the relationship between caption complexity and model performance.
+
+**Acceptance Criteria**:
+- Extract linguistic uncertainty proxy using BERT perplexity
+- Calculate syntactic depth using dependency parsing
+- Compute noun phrase density and token diversity
+- Handle edge cases (short captions, BERT failures, timeouts)
+- Validate output against schema contracts
+
+### US2: Alignment Deviation Calculation
+**As a** researcher, **I want** to calculate the alignment deviation score between CLIP scores and human ratings **so that** I can measure how well automated metrics align with human preferences.
+
+**Acceptance Criteria**:
+- Validate presence of CLIP scores and human ratings
+- Normalize scores using appropriate statistical methods
+- Calculate absolute deviation between normalized scores
+- Handle missing ratings and zero variance cases
+- Validate output against schema contracts
+
+### US3: Predictive Modeling and Significance Testing
+**As a** researcher, **I want** to train a predictive model and perform rigorous statistical significance testing **so that** I can identify which linguistic features significantly predict alignment deviation.
+
+**Acceptance Criteria**:
+- Train XGBoost model with proper cross-validation
+- Perform permutation-based significance testing
+- Apply Benjamini-Hochberg correction for multiple comparisons
+- Conduct sensitivity analysis across seeds and thresholds
+- Generate stability metrics and feature importance rankings
+
+## Implementation Phases
+
+### Phase 1: Setup (Shared Infrastructure)
+**Purpose**: Project initialization, basic structure, and Contract Creation.
+
+- [X] T001 [P] Define project directory structure (`projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/`) including `data/raw`, `data/processed`, `code`, `code/data`, `code/tests`, `code/utils`, `code/models`, `docs`.
+- [X] T001b [P] Execute structure creation: `mkdir -p data/raw data/processed code code/tests code/utils code/models docs`. **Note**: `data/` and `code/` are **sibling directories** at the project root, NOT nested. `data/` holds raw/processed data; `code/` holds scripts.
+- [X] T002 [P] Initialize a Python project with `requirements.txt` (xgboost, scikit-learn, transformers, spacy, datasets, pandas, numpy, pydantic, jsonschema, **torch**). **Note**: `torch` (CPU-only version) is a **REQUIRED dependency** for CPU-only BERT inference in T014a; it is NOT optional.
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T004a [P] [Setup] Create data schema contracts in `specs/001-llmxive-follow-up-extending-lens-rethink/contracts/` (dataset, feature_vector, deviation_target, significance_results). **Note**: Moved to Phase 1 to ensure contracts exist before validation tasks (T018a). **Requirement**: Define `DataSchemaError` message "Missing required dataset or column: pick-a-pic/human_rating" for FR-003.
+- [X] T004b [P] [Setup] **Contract Test Scaffolding**: Create the `code/tests/contract/` directory and implement basic scaffolding for contract validation tests (e.g., `test_dataset_schema.py`, `test_feature_vector_schema.py`) to verify the schemas defined in T004a. **Requirement**: This task ensures the "Single Source of Truth" validation loop is complete per Spec Assumptions. **Dependency**: Requires T004a.
+- [X] T005 [P] Setup `code/__init__.py` and directory structure (`data/`, `code/`, `tests/`) - create empty `__init__.py` files and ensure directories `data/raw`, `data/processed`, `code/data`, `code/tests`, `code/utils`, `code/models` exist as **siblings** at the project root (not nested).
+- [X] T006 [P] Implement basic logging infrastructure in `code/utils/logging.py`
+- [X] T007 [P] Create base data model entities: `code/models/caption_record.py` (class `CaptionRecord`) and `code/models/linguistic_feature_vector.py` (class `LinguisticFeatureVector`)
+- [X] T008 [P] Setup environment configuration management (seed pinning, path constants) in `code/config.py`
+- [X] T009 [S] [US1] Implement `code/data/download.py` to **materialize** the full `pick-a-pic` dataset to `data/raw/pick-a-pic.parquet` (or equivalent) via `datasets.load_dataset(..., streaming=True)`. **Requirement**: Explicitly validate the presence of the 'human_rating' column. **Crucial**: Check for dataset availability; if `load_dataset` fails, **raise `DataSchemaError`** with the exact message "Missing required dataset or column: pick-a-pic/human_rating". **Note**: This task MUST materialize the file to disk before T010 can checksum it. **Note**: Consumes output stream from T009.
+- [X] T013 [S] [US1] **REMOVED**: Task T013 (Stratified Random Sampling) has been removed as it contradicted the Spec requirement to use the full dataset. The analysis will now process the full dataset or fail loudly.
+
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+---
+
+### Phase 2: Foundational (Blocking Prerequisites)
+
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **Includes Data Acquisition to ensure Producer-before-Consumer.**
+
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
+
+- [X] T010 [S] [Setup] Implement checksumming logic in `code/data/download.py` and update `state/projects/PROJ-925-llmxive-follow-up-extending-lens-rethink.yaml` with raw data hashes. **Dependency**: This task MUST run AFTER T009 (Data Loading) is complete and the raw file is materialized to `data/raw/pick-a-pic.parquet`.
+- [X] T014a [S] [US1] Implement `def compute_linguistic_uncertainty_proxy(caption: str) -> float` in `code/features.py` using `bert-base-uncased` on CPU. Explicitly apply natural logarithm to perplexity (`ln(perplexity)`) per FR-001. **Requirement**: **Explicitly separate** two error paths: 1) **Timeout (FR-001)**: If calculation exceeds a predefined time threshold, exclude sample, log `caption_id` with reason 'TIMEOUT_EXCEEDED'. 2) **Inference Failure (FR-012)**: If BERT model loading or inference fails (e.g., model not found), catch exception, log `caption_id` with reason 'BERT_FAILURE', and exclude the row. **Note**: Consumes output stream from T009.
+- [X] T014b [S] [US1] **Preliminary Validation**: Validate `compute_linguistic_uncertainty_proxy` logic and produce `results/validation_report.json` (US1). **Note**: This task validates the feature logic itself. Final Constitution Enforcement is handled by T045 in Phase 5.

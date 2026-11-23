@@ -1,0 +1,16 @@
+status: none
+intent: Materials Project MP-API melting point heat capacity OMDB CIF NIST PCM python
+  package dataset
+required_fields:
+- material_id
+- composition
+- melting_point
+- heat_capacity
+- latent_heat_of_fusion
+- cif_file
+- has_structure
+- temperature
+- density
+cache_key: 9c804a3dc451c6a60aee82dedef066eda1dab705db675ee784958354e7d4b387
+searched_at: '2026-10-31T13:12:05.257176+00:00'
+retry_count: 1

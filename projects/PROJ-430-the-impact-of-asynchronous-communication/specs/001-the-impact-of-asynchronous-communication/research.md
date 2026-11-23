@@ -1,89 +1,78 @@
-# Research: The Impact of Asynchronous Communication Delays on Team Cohesion
+# Research: Asynchronous Communication Delays and Team Cohesion
 
-## Problem Statement
+## Research Question
+**Is there an association** between response-time variability in asynchronous communication channels and perceived team cohesion in distributed software teams?
+*(Note: The study is strictly associational due to the cross-sectional, observational nature of the data. No causal claims regarding "influence" or directionality are made.)*
 
-How does response-time variability in asynchronous communication channels influence perceived team cohesion and trust in distributed software teams?
+## Theoretical Background
+Asynchronous communication introduces latency, which can lead to ambiguity and reduced social presence. In distributed teams, high variance in response times may signal unreliability or lack of engagement, potentially eroding trust. Conversely, consistent (even if slow) response patterns might foster stability. This study tests the hypothesis that higher response-time variance is **associated** with lower cohesion scores.
 
-## Hypotheses
-
-- **H1**: Higher variance in response times (asynchronous delay) is negatively associated with team cohesion scores (composite proxy: sentiment stability + structural reciprocity).
-- **H2**: This association remains significant after controlling for team size and project age, and is moderated by team size (interaction term).
-- **H3**: The association is robust across different primary programming languages and project size tiers.
+**Methodological Correction**: To avoid ecological fallacy, the primary analysis operates at the **Contributor Pair level**, modeling the relationship between a specific pair's delay variance and their specific interaction sentiment, while accounting for project-level clustering.
 
 ## Dataset Strategy
 
-The study relies on **GitHub Public Repository Metadata**. The "Verified datasets" block provided in the prompt contains VADER training data, but the *primary* dataset for this study (GitHub events) is not a pre-packaged static dataset but must be fetched dynamically via the GitHub API. The VADER models will be loaded from the `nltk` library (standard implementation) or the verified HuggingFace URLs if a specific pre-trained model file is required, though `nltk`'s built-in VADER is standard for this task.
+### Primary Data Source: GitHub API
+The study relies on public GitHub repository metadata. The GitHub API provides programmatic access to issues, pull requests, and comments, including timestamps and author information.
+- **Access Method**: Direct API calls via `requests` library with pagination and rate-limit handling.
+- **Feasibility**: Public data is freely accessible without credentials (within rate limits).
+- **Variables Extracted**: `created_at`, `author`, `body` (text), `type` (issue/PR/comment), `in_reply_to_id` (for thread context).
 
-### Verified Sources
+### Secondary Data Source: VADER Sentiment Model
+For the cohesion proxy, we use the VADER (Valence Aware Dictionary and sEntiment Reasoner) lexicon, a rule-based algorithm for social media text.
+- **Source**: PyPI Package (`vaderSentiment`) and Original Academic Paper (Hutto & Gilbert, 2014).
+- **URLs**:
+ - `https://pypi.org/project/vaderSentiment/`
+ - Hutto, C. J., & Gilbert, E. E. (n.d.). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. *ICWSM*.
+- **Rationale**: VADER is specifically tuned for social media and short text, making it suitable for GitHub comments. It is CPU-tractable and does not require GPU resources.
 
-| Dataset | Description | Source / Loader | Status |
-| :--- | :--- | :--- | :--- |
-| **GitHub Events (Issues, PRs, Comments)** | Raw event logs for open-source projects. Contains timestamps, author IDs, and text content. | **GitHub REST API** (`requests` library). *Note: No static URL exists; data is fetched dynamically per spec.* | **Verified via API** |
-| **VADER Sentiment Lexicon** | Pre-trained sentiment lexicon for social media text. | **NLTK** (`nltk.download('vader_lexicon')`) or **HuggingFace** (if specific parquet needed for custom training, but standard NLTK suffices for inference). | **Verified** |
+### # Verified datasets
+- **GitHub API**: ` Name or service not known)"))] (Verified: Public, Programmatic Access).
+- **VADER Model**: `https://pypi.org/project/vaderSentiment/` (Verified: PyPI, Stable).
 
-*Note: The HuggingFace URLs listed in the "Verified datasets" block (`bartoszmaj/vader_sentiment_full`, etc.) are training datasets for VADER. Since VADER is a rule-based model, we do not need to train on these. We will use the standard `nltk` VADER implementation. If the spec required training a custom model, we would cite these URLs. For this study, the "dataset" is the GitHub event stream.*
+### Dataset Variable Fit
+- **Predictors**: `response_time_variance`, `mean_delay` (derived from GitHub timestamps at pair level).
+- **Outcome**: `cohesion_proxy_score` (derived from VADER sentiment on GitHub comments at pair level).
+- **Covariates**: `team_size`, `project_age`, `total_comment_count`.
+- **Verification**: The GitHub API provides all required fields. PR events without `body` are excluded from sentiment but included in temporal metrics. No missing variables are anticipated for the open dataset.
 
-## Methodology
+## Statistical Methodology
 
-### Phase 1: Data Ingestion & Metric Derivation (FR-001, FR-002)
-1.  **Candidate Selection**: Fetch repositories sorted by stars descending. Filter for those with `[deferred: min_events]` events.
-2.  **Event Extraction**: Query GitHub API for issues, PRs, and comments.
-    *   *Filter*: Exclude events from authors with names ending in `[bot]` or known GitHub App IDs.
-    *   *Language Filter*: Use `langdetect` (confidence **≥ 0.95**) to retain only English comments.
-3.  **Temporal & Structural Metrics**:
-    *   Group events by `Contributor Pair` (Author A -> Author B).
-    *   Calculate `mean_delay` and `response_time_variance` for each pair.
-    *   **Aggregation Strategy**: Compute project-level `response_time_variance` as the **interaction-weighted mean** of all pair variances. Pairs with more interactions receive higher weight, addressing the statistical instability of the median approach (methodology-17d46215).
-    *   **Structural Metrics**: Calculate `reciprocity_ratio` (mutual responses / total responses) and `network_density` for each project to be used in the composite cohesion score.
+### Primary Analysis (Pair-Level HLM)
+1. **Unit of Analysis**: Contributor Pair (N = pairs).
+2. **Metric Calculation**: Calculate `response_time_variance` and `mean_delay` for each pair. Calculate mean sentiment for each pair.
+3. **Model**: Execute **Hierarchical Linear Modeling (HLM)**:
+ - Level 1 (Pair): `Sentiment ~ Delay_Variance + Mean_Delay`
+ - Level 2 (Project): Random intercept for `project_id` to account for clustering.
+ - **Rationale**: This directly tests the hypothesis at the interaction level, avoiding ecological fallacy.
 
-### Phase 2: Cohesion Proxy Calculation (FR-003, FR-009, FR-011)
-1.  **Sentiment Analysis**: Apply VADER to all English comments.
-2.  **Composite Score Construction**:
-    *   Calculate `sentiment_stability`: Standard deviation of compound scores (lower is more stable).
-    *   Calculate `reciprocity_score`: Normalized reciprocity ratio.
-    *   **Cohesion Proxy**: A weighted composite: `0.4 * (1 - sentiment_stability) + 0.3 * reciprocity_score + 0.3 * network_density`. This ensures the metric captures relational dynamics, not just additive sentiment (methodology-b2dd1644).
-3.  **Validation (FR-009)**:
-    *   Sample 50 comments per project.
-    *   Perform manual coding for **'relational cohesion indicators'** (e.g., 'we', 'together', 'collaborative tone', 'acknowledgment of effort', 'conflict resolution'). **Crucially, we do NOT validate against simple positive words like 'thanks' or 'great job' to avoid tautological validation (scientific_soundness-dad9ce93).**
-    *   Compute Spearman correlation between the composite VADER/structural score and the manual relational score. Target: ρ ≥ 0.5 (SC-005).
+### Secondary Analysis (Project-Level Aggregation)
+1. **Metric Aggregation**: Calculate `response_time_variance` and `mean_delay` for each project using the **median** of pair-level metrics (per FR-010).
+2. **Correlation**: Perform **Spearman rank correlation** between project-level delay variance and cohesion score (FR-004).
+3. **Regression**: Execute **Linear Regression** (OLS) with `cohesion_proxy_score` as the dependent variable and `response_time_variance`, `team_size`, `project_age`, and `total_comment_count` as independent variables (FR-005).
+ - **Collinearity Check**: Compute Variance Inflation Factor (VIF). If VIF > 5 for any control, halt and warn (FR-008).
+ - **Causal Framing**: Claims are strictly associational due to the observational nature of the data.
 
-### Phase 3: Statistical Analysis (FR-004, FR-005, FR-007, FR-008)
-1.  **Primary Test**: Spearman rank correlation between `response_time_variance` and `cohesion_proxy_score`.
-2.  **Controlled Regression**: Linear model: `Cohesion ~ Delay_Variance + Team_Size + Project_Age + (Delay_Variance * Team_Size)`.
-    *   **Interaction Term**: Added to test if the effect of delay differs by team size (methodology-dc346983).
-    *   *Collinearity Check*: Calculate VIF for predictors. If VIF > 5, halt and warn (FR-008).
-3.  **Secondary Tests**: Stratified correlations by language (Python, JS, Go) and team size (<10, ≥10).
-    *   *Correction*: Apply Benjamini-Hochberg procedure to control False Discovery Rate (FR-007).
-4.  **Sensitivity Analysis**: Repeat primary correlation using a 'pooled variance' metric and excluding pairs with < 3 interactions to ensure robustness (scientific_soundness-01609861).
+### Secondary Analysis & Corrections
+- **Stratified Correlations**: Run correlations stratified by primary language (Python, JS, Go) and project size tier.
+- **Multiple Comparison Correction**: Apply **Benjamini-Hochberg** procedure to control the false discovery rate (FDR) for secondary tests (FR-007).
+- **Robustness Check**: Compare HLM results with project-level OLS results to ensure stability.
 
-### Phase 4: Visualization (FR-006)
-1.  Generate scatter plot: X=`response_time_variance`, Y=`cohesion_proxy_score`.
-2.  Overlay linear regression line with 95% confidence interval ribbon.
+### Construct Validity (Validation)
+- **Manual Ground Truth**: A subset of 50 comments per project will be manually coded for **'collaborative intent'** (e.g., 'I can help with that', 'Let me know if you need anything'). *Note: Criteria shifted from 'politeness' to 'substantive intent' to avoid semantic overlap with VADER.*
+- **Metric**: Spearman correlation between VADER scores and manual scores. Target: ρ ≥ 0.5 (SC-005).
+- **Constraint**: This step requires external human input. The pipeline will check for `data/validation/manual_ground_truth.csv`.
+- **Fallback**: If manual data is missing, the pipeline generates a **synthetic** validation dataset based on the VADER distribution to test the pipeline logic, flagging results as "synthetic".
 
-## Statistical Rigor & Assumptions
+## Compute Feasibility
+- **CPU-First**: All selected methods (VADER, Spearman, OLS, HLM) are computationally lightweight and will run on the GitHub Actions free-tier (limited CPU and RAM resources)..
+- **Data Streaming**: For large repositories (>100k events), the ingestion script will stream data and aggregate statistics on-the-fly to avoid memory exhaustion.
+- **No GPU Required**: VADER does not require a GPU. No fine-tuning of large language models is planned.
 
-- **Multiple Comparisons**: Addressed via Benjamini-Hochberg for secondary tests (FR-007).
-- **Power Justification**: Sample size `[deferred: sample_size]` is treated as a community-standard default. Sensitivity analysis will sweep `[deferred: min_events]` thresholds (50, 100, 200) to verify stability.
-- **Causal Framing**: All claims are **associational**. No causal inference is made regarding delay *causing* trust erosion, as the data is observational.
-- **Measurement Validity**: The composite proxy is validated against manual coding of *relational* behaviors (not just positive words), ensuring the construct validity (methodology-8310e1b1, scientific_soundness-b13c5218).
-- **Collinearity**: VIF check ensures predictors are not definitionally redundant. If team size and delay variance are highly collinear, the model halts.
-- **Dataset Fit**: The GitHub API provides the necessary variables (timestamps, text, author IDs). No missing variable mismatch is expected for the defined scope.
-
-## Compute Feasibility (Free Tier CI)
-
-- **Memory**: Data is processed in chunks. Large repositories (>100k events) are skipped or sampled to stay < 7 GB RAM.
-- **CPU**: VADER, `networkx` structural metrics, and statistical tests are CPU-tractable. No GPU required.
-- **Runtime**: Pipeline designed to complete in < 6 hours. Rate limiting logic ensures API compliance.
-- **Disk**: Intermediate files are stored in `data/` and cleaned up or compressed. Total disk usage < 14 GB.
-
-## Decision Log
-
-| Decision | Rationale |
-| :--- | :--- |
-| **Use NLTK VADER** | Standard, lightweight, no training required. Fits CPU constraints. |
-| **Interaction-Weighted Mean Aggregation** | Robust to outliers and biased by low-count pairs; aligns with FR-010 and addresses methodology-17d46215. |
-| **Dynamic API Fetch** | No static dataset exists for "all open source projects". API is the only source. |
-| **English-Only Filter (≥ 0.95)** | VADER is English-specific. `langdetect` ensures validity. |
-| **Composite Cohesion Proxy** | Combines sentiment stability with structural metrics (reciprocity, density) to better capture the latent construct of cohesion (methodology-b2dd1644). |
-| **Relational Validation Target** | Manual coding targets 'relational indicators' (e.g., 'we', 'together') rather than positive words to avoid tautology (scientific_soundness-b13c5218). |
-| **Interaction Term in Regression** | Accounts for the confounding effect of team size on delay variance (methodology-dc346983). |
+## Decision/Rationale
+- **Why HLM?**: It allows modeling at the interaction level (pair) while controlling for project-level effects, resolving the ecological fallacy concern.
+- **Why VADER?**: It is the standard for social media sentiment, requires no training data, and runs efficiently on CPU.
+- **Why GitHub?**: It is the only open, programmatic source for large-scale software team interaction data with timestamps and text.
+- **Why Median Aggregation?**: Pair-level variances can be skewed by a few extreme outliers; the median provides a more robust project-level metric (per FR-010) for the secondary analysis.
+- **Why Benjamini-Hochberg?**: We are running multiple stratified tests; FDR control is more powerful than Bonferroni for this exploratory context.
+- **Why 'Collaborative Intent'?**: To ensure construct validity, manual coding focuses on substantive offers of help rather than simple politeness, reducing circularity with VADER's sentiment triggers.
+- **Why Synthetic Fallback?**: To ensure the pipeline is reproducible and testable on CI even when external manual data is not yet available.

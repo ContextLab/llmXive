@@ -26,12 +26,14 @@ from torch import nn
 from torch_geometric.nn import GCNConv
 from torch_geometric.data import Data
 
-# Project‑specific logger utility
+# ----------------------------------------------------------------------
+# Import the project‑specific logger utility.  If it cannot be imported,
+# fall back to a basic logger to avoid import‑time crashes.
+# ----------------------------------------------------------------------
 try:
     # utils.logging is part of the project API surface
     from utils.logging import get_logger, log_info
 except Exception:  # pragma: no cover
-    # Fallback to a simple logger if the utility cannot be imported
     logging.basicConfig(level=logging.INFO)
     _fallback_logger = logging.getLogger(__name__)
 
@@ -42,6 +44,15 @@ except Exception:  # pragma: no cover
         _fallback_logger.info(message)
 
 __all__ = ["SingleLayerMPNN", "get_device"]
+
+# ----------------------------------------------------------------------
+# Ensure the module is imported only on CPU‑only environments.
+# The requirement (FR‑003) explicitly demands that we assert CUDA is not
+# available at import time.
+# ----------------------------------------------------------------------
+assert not torch.cuda.is_available(), (
+    "CUDA is available – this module must run on CPU only."
+)
 
 def get_device() -> torch.device:
     """
@@ -78,7 +89,7 @@ class SingleLayerMPNN(nn.Module):
         # Ensure model parameters are on the CPU
         self.to(self.device)
 
-        # Log the chosen device – required by the unit test T016a
+        # Log the chosen device – required by the unit test
         log_info("Device: CPU")
 
         # Single GCN convolution layer
@@ -94,7 +105,9 @@ class SingleLayerMPNN(nn.Module):
         ----------
         data : torch_geometric.data.Data
             Graph data containing at least ``x`` (node features) and
-            ``edge_index`` (graph connectivity).
+            ``edge_index`` (graph connectivity).  A ``Batch`` object is
+            also accepted because it inherits from ``Data`` and provides
+            the same fields.
 
         Returns
         -------
@@ -122,7 +135,7 @@ class SingleLayerMPNN(nn.Module):
         Parameters
         ----------
         data : torch_geometric.data.Data
-            Input graph.
+            Input graph (or batch).
 
         Returns
         -------

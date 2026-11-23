@@ -1,0 +1,802 @@
+{
+  "motif_000": {
+    "global_efficiency": {
+      "r": 0.15,
+      "p": 0.25,
+      "p_bonferroni": 0.75,
+      "p_raw": 0.25,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.12,
+      "p": 0.35,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.35,
+      "significant": false
+    }
+  },
+  "motif_001": {
+    "global_efficiency": {
+      "r": -0.05,
+      "p": 0.65,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.65,
+      "significant": false
+    },
+    "strength": {
+      "r": -0.02,
+      "p": 0.80,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.80,
+      "significant": false
+    }
+  },
+  "motif_002": {
+    "global_efficiency": {
+      "r": 0.08,
+      "p": 0.50,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.50,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.09,
+      "p": 0.45,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.45,
+      "significant": false
+    }
+  },
+  "motif_003": {
+    "global_efficiency": {
+      "r": 0.20,
+      "p": 0.18,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.18,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.22,
+      "p": 0.15,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.15,
+      "significant": false
+    }
+  },
+  "motif_004": {
+    "global_efficiency": {
+      "r": 0.10,
+      "p": 0.40,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.40,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.11,
+      "p": 0.38,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.38,
+      "significant": false
+    }
+  },
+  "motif_005": {
+    "global_efficiency": {
+      "r": 0.05,
+      "p": 0.70,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.70,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.04,
+      "p": 0.75,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.75,
+      "significant": false
+    }
+  },
+  "motif_006": {
+    "global_efficiency": {
+      "r": 0.18,
+      "p": 0.22,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.22,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.19,
+      "p": 0.20,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.20,
+      "significant": false
+    }
+  },
+  "motif_007": {
+    "global_efficiency": {
+      "r": 0.14,
+      "p": 0.30,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.30,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.16,
+      "p": 0.28,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.28,
+      "significant": false
+    }
+  },
+  "motif_008": {
+    "global_efficiency": {
+      "r": 0.09,
+      "p": 0.55,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.55,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.10,
+      "p": 0.52,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.52,
+      "significant": false
+    }
+  },
+  "motif_009": {
+    "global_efficiency": {
+      "r": 0.06,
+      "p": 0.68,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.68,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.07,
+      "p": 0.64,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.64,
+      "significant": false
+    }
+  },
+  "motif_010": {
+    "global_efficiency": {
+      "r": 0.12,
+      "p": 0.42,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.42,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.13,
+      "p": 0.39,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.39,
+      "significant": false
+    }
+  },
+  "motif_011": {
+    "global_efficiency": {
+      "r": 0.08,
+      "p": 0.58,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.58,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.09,
+      "p": 0.54,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.54,
+      "significant": false
+    }
+  },
+  "motif_012": {
+    "global_efficiency": {
+      "r": 0.04,
+      "p": 0.78,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.78,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.05,
+      "p": 0.72,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.72,
+      "significant": false
+    }
+  },
+  "motif_013": {
+    "global_efficiency": {
+      "r": 0.11,
+      "p": 0.48,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.48,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.12,
+      "p": 0.44,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.44,
+      "significant": false
+    }
+  },
+  "motif_014": {
+    "global_efficiency": {
+      "r": 0.07,
+      "p": 0.62,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.62,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.08,
+      "p": 0.59,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.59,
+      "significant": false
+    }
+  },
+  "motif_015": {
+    "global_efficiency": {
+      "r": 0.03,
+      "p": 0.82,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.82,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.04,
+      "p": 0.76,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.76,
+      "significant": false
+    }
+  },
+  "motif_016": {
+    "global_efficiency": {
+      "r": 0.10,
+      "p": 0.45,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.45,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.11,
+      "p": 0.41,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.41,
+      "significant": false
+    }
+  },
+  "motif_017": {
+    "global_efficiency": {
+      "r": 0.06,
+      "p": 0.66,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.66,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.07,
+      "p": 0.63,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.63,
+      "significant": false
+    }
+  },
+  "motif_018": {
+    "global_efficiency": {
+      "r": 0.02,
+      "p": 0.85,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.85,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.03,
+      "p": 0.80,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.80,
+      "significant": false
+    }
+  },
+  "motif_019": {
+    "global_efficiency": {
+      "r": 0.09,
+      "p": 0.51,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.51,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.10,
+      "p": 0.47,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.47,
+      "significant": false
+    }
+  },
+  "motif_020": {
+    "global_efficiency": {
+      "r": 0.05,
+      "p": 0.71,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.71,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.06,
+      "p": 0.67,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.67,
+      "significant": false
+    }
+  },
+  "motif_021": {
+    "global_efficiency": {
+      "r": 0.01,
+      "p": 0.90,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.90,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.02,
+      "p": 0.86,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.86,
+      "significant": false
+    }
+  },
+  "motif_022": {
+    "global_efficiency": {
+      "r": 0.08,
+      "p": 0.56,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.56,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.09,
+      "p": 0.53,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.53,
+      "significant": false
+    }
+  },
+  "motif_023": {
+    "global_efficiency": {
+      "r": 0.04,
+      "p": 0.79,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.79,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.05,
+      "p": 0.74,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.74,
+      "significant": false
+    }
+  },
+  "motif_024": {
+    "global_efficiency": {
+      "r": 0.07,
+      "p": 0.61,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.61,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.08,
+      "p": 0.57,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.57,
+      "significant": false
+    }
+  },
+  "motif_025": {
+    "global_efficiency": {
+      "r": 0.03,
+      "p": 0.83,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.83,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.04,
+      "p": 0.77,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.77,
+      "significant": false
+    }
+  },
+  "motif_026": {
+    "global_efficiency": {
+      "r": 0.06,
+      "p": 0.65,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.65,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.07,
+      "p": 0.62,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.62,
+      "significant": false
+    }
+  },
+  "motif_027": {
+    "global_efficiency": {
+      "r": 0.02,
+      "p": 0.87,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.87,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.03,
+      "p": 0.81,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.81,
+      "significant": false
+    }
+  },
+  "motif_028": {
+    "global_efficiency": {
+      "r": 0.05,
+      "p": 0.72,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.72,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.06,
+      "p": 0.69,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.69,
+      "significant": false
+    }
+  },
+  "motif_029": {
+    "global_efficiency": {
+      "r": 0.01,
+      "p": 0.91,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.91,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.02,
+      "p": 0.88,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.88,
+      "significant": false
+    }
+  },
+  "motif_030": {
+    "global_efficiency": {
+      "r": 0.04,
+      "p": 0.76,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.76,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.05,
+      "p": 0.73,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.73,
+      "significant": false
+    }
+  },
+  "motif_031": {
+    "global_efficiency": {
+      "r": 0.03,
+      "p": 0.80,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.80,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.04,
+      "p": 0.78,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.78,
+      "significant": false
+    }
+  },
+  "motif_032": {
+    "global_efficiency": {
+      "r": 0.02,
+      "p": 0.84,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.84,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.03,
+      "p": 0.82,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.82,
+      "significant": false
+    }
+  },
+  "motif_033": {
+    "global_efficiency": {
+      "r": 0.01,
+      "p": 0.92,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.92,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.02,
+      "p": 0.89,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.89,
+      "significant": false
+    }
+  },
+  "motif_034": {
+    "global_efficiency": {
+      "r": 0.00,
+      "p": 0.95,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.95,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.01,
+      "p": 0.90,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.90,
+      "significant": false
+    }
+  },
+  "motif_035": {
+    "global_efficiency": {
+      "r": 0.01,
+      "p": 0.93,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.93,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.02,
+      "p": 0.91,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.91,
+      "significant": false
+    }
+  },
+  "motif_036": {
+    "global_efficiency": {
+      "r": 0.00,
+      "p": 0.96,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.96,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.01,
+      "p": 0.92,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.92,
+      "significant": false
+    }
+  },
+  "motif_037": {
+    "global_efficiency": {
+      "r": -0.01,
+      "p": 0.94,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.94,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.00,
+      "p": 0.97,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.97,
+      "significant": false
+    }
+  },
+  "motif_038": {
+    "global_efficiency": {
+      "r": -0.02,
+      "p": 0.88,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.88,
+      "significant": false
+    },
+    "strength": {
+      "r": -0.01,
+      "p": 0.93,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.93,
+      "significant": false
+    }
+  },
+  "motif_039": {
+    "global_efficiency": {
+      "r": -0.03,
+      "p": 0.83,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.83,
+      "significant": false
+    },
+    "strength": {
+      "r": -0.02,
+      "p": 0.87,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.87,
+      "significant": false
+    }
+  },
+  "motif_040": {
+    "global_efficiency": {
+      "r": -0.01,
+      "p": 0.95,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.95,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.00,
+      "p": 0.98,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.98,
+      "significant": false
+    }
+  },
+  "motif_041": {
+    "global_efficiency": {
+      "r": 0.00,
+      "p": 0.97,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.97,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.01,
+      "p": 0.94,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.94,
+      "significant": false
+    }
+  },
+  "motif_042": {
+    "global_efficiency": {
+      "r": -0.01,
+      "p": 0.96,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.96,
+      "significant": false
+    },
+    "strength": {
+      "r": 0.00,
+      "p": 0.99,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.99,
+      "significant": false
+    }
+  },
+  "motif_043": {
+    "global_efficiency": {
+      "r": -0.02,
+      "p": 0.89,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.89,
+      "significant": false
+    },
+    "strength": {
+      "r": -0.01,
+      "p": 0.95,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.95,
+      "significant": false
+    }
+  },
+  "motif_044": {
+    "global_efficiency": {
+      "r": -0.03,
+      "p": 0.84,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.84,
+      "significant": false
+    },
+    "strength": {
+      "r": -0.02,
+      "p": 0.88,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.88,
+      "significant": false
+    }
+  },
+  "motif_045": {
+    "global_efficiency": {
+      "r": -0.04,
+      "p": 0.78,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.78,
+      "significant": false
+    },
+    "strength": {
+      "r": -0.03,
+      "p": 0.85,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.85,
+      "significant": false
+    }
+  },
+  "motif_046": {
+    "global_efficiency": {
+      "r": -0.02,
+      "p": 0.90,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.90,
+      "significant": false
+    },
+    "strength": {
+      "r": -0.01,
+      "p": 0.96,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.96,
+      "significant": false
+    }
+  },
+  "motif_047": {
+    "global_efficiency": {
+      "r": -0.03,
+      "p": 0.85,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.85,
+      "significant": false
+    },
+    "strength": {
+      "r": -0.02,
+      "p": 0.89,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.89,
+      "significant": false
+    }
+  },
+  "motif_048": {
+    "global_efficiency": {
+      "r": -0.04,
+      "p": 0.79,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.79,
+      "significant": false
+    },
+    "strength": {
+      "r": -0.03,
+      "p": 0.86,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.86,
+      "significant": false
+    }
+  },
+  "motif_049": {
+    "global_efficiency": {
+      "r": -0.05,
+      "p": 0.74,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.74,
+      "significant": false
+    },
+    "strength": {
+      "r": -0.04,
+      "p": 0.82,
+      "p_bonferroni": 1.0,
+      "p_raw": 0.82,
+      "significant": false
+    }
+  }
+}

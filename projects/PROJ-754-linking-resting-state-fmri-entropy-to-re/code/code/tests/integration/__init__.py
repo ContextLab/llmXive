@@ -1,0 +1,1 @@
+"""Integration test package placeholder for directory‑structure validation."""

@@ -1,0 +1,3 @@
+# Extends pyproject.toml settings if needed, or standalone config
+# Currently using pyproject.toml for unified config
+extend = "code/pyproject.toml"

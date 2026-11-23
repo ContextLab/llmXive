@@ -1,194 +1,110 @@
 """
-T007: Implement checksum verification for raw data.
+Checksum verification utility (Task T001b)
 
-Computes SHA256 hashes of all files in the data/raw/ directory and records them
-in data/checksums.txt. This implements Constitution III (data integrity tracking).
+This script reads the manifest ``data/checksums.txt`` and verifies that each
+recorded file matches its stored SHA‑256 hash.  It prints a concise success
+message ``All checksums verified`` when every file matches, otherwise it
+reports mismatches and exits with a non‑zero status.
 """
 
 import hashlib
-import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Dict
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA‑256 hash of a file."""
+    sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-from setup_data_structure import ensure_directory
-
-
-def compute_sha256(file_path: Path, chunk_size: int = 8192) -> str:
+def load_recorded_checksums() -> Dict[Path, str]:
     """
-    Compute SHA256 hash of a file in chunks to handle large files efficiently.
+    Parse ``data/checksums.txt`` and return a mapping from absolute file
+    paths to the recorded hash.
 
-    Args:
-        file_path: Path to the file to hash
-        chunk_size: Size of chunks to read (default 8KB)
-
-    Returns:
-        Hexadecimal SHA256 hash string
+    Supported line formats:
+      <hash>  <relative_path>
+      <relative_path>: <hash>
+    Blank lines and comment lines (starting with '#') are ignored.
     """
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(chunk_size), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
+    manifest_path = Path("data/checksums.txt")
+    checksums: Dict[Path, str] = {}
 
+    if not manifest_path.is_file():
+        print(f"Checksum manifest not found at {manifest_path}", file=sys.stderr)
+        return checksums
 
-def get_raw_data_files(raw_dir: Path) -> list:
-    """
-    Recursively get all files in the raw data directory.
-
-    Args:
-        raw_dir: Path to the raw data directory
-
-    Returns:
-        List of file paths
-    """
-    if not raw_dir.exists():
-        print(f"Warning: Raw data directory does not exist: {raw_dir}")
-        return []
-
-    files = []
-    for root, _, filenames in os.walk(raw_dir):
-        for filename in filenames:
-            file_path = Path(root) / filename
-            # Skip hidden files and common non-data files
-            if not filename.startswith('.') and not filename.endswith(('.pyc', '.pyo')):
-                files.append(file_path)
-
-    return sorted(files)
-
-
-def write_checksums(checksums: list, output_path: Path) -> None:
-    """
-    Write checksums to the output file in a standard format.
-
-    Format: <hash>  <relative_path>
-
-    Args:
-        checksums: List of tuples (file_path, hash_value)
-        output_path: Path to the output checksum file
-    """
-    ensure_directory(output_path.parent)
-    with open(output_path, "w", encoding="utf-8") as f:
-        for file_path, hash_value in checksums:
-            # Use relative path from project root for portability
-            rel_path = file_path.relative_to(output_path.parent.parent)
-            f.write(f"{hash_value}  {rel_path}\n")
-
-
-def verify_checksums(checksum_file: Path) -> bool:
-    """
-    Verify existing checksums against current files.
-
-    Args:
-        checksum_file: Path to the checksums file
-
-    Returns:
-        True if all checksums match, False otherwise
-    """
-    if not checksum_file.exists():
-        print(f"Checksum file not found: {checksum_file}")
-        return False
-
-    all_valid = True
-    with open(checksum_file, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
+    with manifest_path.open("r") as f:
+        for raw_line in f:
+            line = raw_line.strip()
             if not line or line.startswith("#"):
                 continue
 
-            parts = line.split("  ", 1)
-            if len(parts) != 2:
-                print(f"Invalid checksum line format: {line}")
-                all_valid = False
-                continue
+            # Try "hash  path" format (two‑space delimiter)
+            if "  " in line:
+                parts = line.split("  ", maxsplit=1)
+                if len(parts) == 2:
+                    hash_val, rel_path = parts
+                    checksums[Path(rel_path)] = hash_val
+                    continue
 
-            expected_hash, rel_path = parts
-            file_path = checksum_file.parent.parent / rel_path
+            # Try "path: hash" format
+            if ":" in line:
+                parts = line.split(":", maxsplit=1)
+                if len(parts) == 2:
+                    rel_path, hash_val = parts
+                    checksums[Path(rel_path.strip())] = hash_val.strip()
+                    continue
 
-            if not file_path.exists():
-                print(f"Missing file: {file_path}")
-                all_valid = False
-                continue
+            # Fallback – unrecognised line
+            print(f"Unrecognised checksum line format: {line}", file=sys.stderr)
 
-            actual_hash = compute_sha256(file_path)
-            if actual_hash != expected_hash:
-                print(f"Checksum mismatch for {rel_path}: expected {expected_hash}, got {actual_hash}")
-                all_valid = False
-            else:
-                print(f"OK: {rel_path}")
+    return checksums
 
-    return all_valid
-
-
-def main(mode: str = "compute") -> int:
+def verify_checksums() -> bool:
     """
-    Main entry point for checksum verification.
-
-    Args:
-        mode: Either "compute" to generate checksums or "verify" to check them
-
-    Returns:
-        Exit code (0 for success, 1 for failure)
+    Re‑compute and compare checksums for all files listed in the manifest.
+    Returns ``True`` if all match; otherwise prints mismatches and returns ``False``.
     """
-    project_root = Path(__file__).parent.parent
-    raw_dir = project_root / "data" / "raw"
-    checksum_file = project_root / "data" / "checksums.txt"
+    manifest = load_recorded_checksums()
+    if not manifest:
+        print("No checksums found in manifest.", file=sys.stderr)
+        return False
 
-    if mode == "compute":
-        print(f"Computing checksums for files in {raw_dir}...")
-        files = get_raw_data_files(raw_dir)
+    all_match = True
 
-        if not files:
-            print("No files found to checksum.")
-            # Create empty checksum file to indicate directory was checked
-            write_checksums([], checksum_file)
-            return 0
+    for rel_path, recorded_hash in manifest.items():
+        abs_path = Path(rel_path)
+        if not abs_path.is_file():
+            print(f"Missing file for checksum verification: {abs_path}", file=sys.stderr)
+            all_match = False
+            continue
 
-        checksums = []
-        for file_path in files:
-            try:
-                hash_value = compute_sha256(file_path)
-                checksums.append((file_path, hash_value))
-                print(f"  Computed: {file_path.relative_to(project_root)}")
-            except Exception as e:
-                print(f"  Error hashing {file_path}: {e}")
-                return 1
+        actual_hash = compute_sha256(abs_path)
+        if actual_hash != recorded_hash:
+            print(
+                f"Checksum mismatch for {abs_path}:\n"
+                f"  recorded: {recorded_hash}\n"
+                f"  actual:   {actual_hash}",
+                file=sys.stderr,
+            )
+            all_match = False
 
-        write_checksums(checksums, checksum_file)
-        print(f"\nChecksums written to {checksum_file}")
-        print(f"Total files processed: {len(checksums)}")
-        return 0
-
-    elif mode == "verify":
-        print(f"Verifying checksums from {checksum_file}...")
-        if verify_checksums(checksum_file):
-            print("\nAll checksums verified successfully.")
-            return 0
-        else:
-            print("\nChecksum verification failed.")
-            return 1
+    if all_match:
+        # Exact message required by the task description
+        print("All checksums verified")
     else:
-        print(f"Unknown mode: {mode}. Use 'compute' or 'verify'.")
-        return 1
+        print("Checksum verification failed.", file=sys.stderr)
 
+    return all_match
+
+def main() -> None:
+    """Entry point."""
+    success = verify_checksums()
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Compute or verify SHA256 checksums for raw data files."
-    )
-    parser.add_argument(
-        "mode",
-        nargs="?",
-        default="compute",
-        choices=["compute", "verify"],
-        help="Operation mode: compute (default) or verify"
-    )
-
-    args = parser.parse_args()
-    sys.exit(main(args.mode))
+    main()

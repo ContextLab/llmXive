@@ -1,112 +1,118 @@
-"""
-Unit tests for the fetch module (User Story 1).
-Specifically tests T010a and T010b regarding candidate retrieval and fallback logic.
-"""
 import pytest
-import sys
 import os
-from pathlib import Path
+import subprocess
 from unittest.mock import patch, MagicMock
+from pathlib import Path
+import shutil
+import tempfile
 
-# Ensure the code directory is in the path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-code_path = project_root / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
+# Import the function to test
+# Assuming fetch.py is in the code directory and utils is accessible
+import sys
+sys.path.insert(0, 'code')
+from fetch import has_valid_git_history, clone_batch
 
-# Import the function to be tested
-# We assume fetch.py exists as per T012 implementation context.
-# If T012 is not yet done, this import will fail, which is expected behavior 
-# until the implementation task is completed.
-try:
-    from fetch import get_candidates
-except ImportError:
-    # In a strict CI environment, we might want to fail hard here.
-    # However, for the purpose of this test file existence, we define a stub 
-    # that will be replaced by the real module when T012 is run.
-    # This allows the test file to be syntactically valid and loadable.
-    def get_candidates():
-        return []
-
-class TestGetCandidates:
-    """Tests for the get_candidates function."""
-
-    @patch('fetch.requests.get')
-    def test_get_candidates_returns_ids(self, mock_get):
-        """
-        T010a: Verify that get_candidates returns a list of repository IDs.
-        This test mocks the HuggingFace API response to ensure the function
-        correctly parses and returns a list of 500 candidate IDs.
-        """
-        # Mock the API response
-        mock_response = MagicMock()
-        mock_response.status_code = 200
+class TestHasValidGitHistory:
+    def setup_method(self):
+        # Create a temporary directory for testing
+        self.temp_dir = tempfile.mkdtemp()
+        self.repo_path = Path(self.temp_dir) / "test_repo"
+        self.repo_path.mkdir()
         
-        # Simulate a list of 500 repo objects from HuggingFace
-        # The API usually returns a list of dicts with 'id' or 'repo_id'
-        mock_data = [{"id": f"repo_{i}", "stars": 150} for i in range(500)]
-        mock_response.json.return_value = mock_data
+        # Initialize a valid git repo with one commit
+        subprocess.run(["git", "init"], cwd=self.repo_path, check=True, capture_output=True)
+        (self.repo_path / "test.txt").write_text("content")
+        subprocess.run(["git", "add", "."], cwd=self.repo_path, check=True, capture_output=True)
+        subprocess.run(["git", "-c", "user.name=test", "-c", "user.email=test@test.com", "commit", "-m", "initial"], 
+                       cwd=self.repo_path, check=True, capture_output=True)
+
+    def teardown_method(self):
+        # Cleanup
+        shutil.rmtree(self.temp_dir)
+
+    def test_valid_history(self):
+        assert has_valid_git_history(self.repo_path) is True
+
+    def test_empty_history(self):
+        # Create a new repo without commits
+        empty_repo = Path(self.temp_dir) / "empty_repo"
+        empty_repo.mkdir()
+        subprocess.run(["git", "init"], cwd=empty_repo, check=True, capture_output=True)
         
-        mock_get.return_value = mock_response
+        assert has_valid_git_history(empty_repo) is False
 
-        # Call the function
-        result = get_candidates()
-
-        # Assertions
-        assert isinstance(result, list), "Result should be a list"
-        assert len(result) == 500, f"Expected 500 candidates, got {len(result)}"
+    def test_non_git_directory(self):
+        non_git = Path(self.temp_dir) / "not_git"
+        non_git.mkdir()
         
-        # Verify all items are strings (IDs)
-        for item in result:
-            assert isinstance(item, str), f"Expected string ID, got {type(item)}"
-            assert item.startswith("repo_"), f"ID format unexpected: {item}"
+        assert has_valid_git_history(non_git) is False
 
-        # Verify the correct URL was called (optional but good practice)
-        mock_get.assert_called_once()
-
-    @patch('fetch.requests.get')
-    def test_get_candidates_fallback(self, mock_get):
-        """
-        T010b: Verify that get_candidates falls back to a local list if the API is unreachable.
+    def test_missing_directory(self):
+        missing = Path(self.temp_dir) / "missing"
         
-        This test simulates a network failure (e.g., ConnectionError or generic Exception)
-        when calling the HuggingFace API and asserts that the function catches the error
-        and returns a valid fallback list of candidate IDs instead of crashing.
-        """
-        # Mock a network error to simulate unreachable API
-        mock_get.side_effect = Exception("Connection refused: Unable to reach HuggingFace API")
+        assert has_valid_git_history(missing) is False
 
-        # Call the function
-        # We expect this to NOT raise an exception but return a fallback list
-        result = get_candidates()
+class TestCloneBatch:
+    def setup_method(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.target_dir = Path(self.temp_dir) / "clones"
+        self.target_dir.mkdir()
 
-        # Assertions: 
-        # 1. Result must be a list
-        assert isinstance(result, list), "Fallback result should be a list"
+    def teardown_method(self):
+        shutil.rmtree(self.temp_dir)
+
+    @patch('fetch.subprocess.run')
+    @patch('fetch.has_valid_git_history')
+    def test_clone_success_and_history_check(self, mock_history, mock_run):
+        # Mock successful clone
+        mock_run.return_value = MagicMock(returncode=0)
+        mock_history.return_value = True
         
-        # 2. The fallback logic (in fetch.py) should return a non-empty list of at least one candidate
-        #    to ensure the pipeline can proceed with some data, even if not the full 500.
-        #    The task description says "Return list of 500 candidate IDs" on success, 
-        #    but on fallback it implies a local list. We assert it's a list of strings.
-        assert len(result) > 0, "Fallback list should contain at least one candidate ID"
+        candidates = ["test/repo1"]
+        result = clone_batch(candidates, self.target_dir, max_concurrent=1)
         
-        for item in result:
-            assert isinstance(item, str), f"Fallback item must be a string ID, got {type(item)}"
+        assert len(result) == 1
+        assert mock_history.called
+        
+    @patch('fetch.subprocess.run')
+    @patch('fetch.has_valid_git_history')
+    def test_clone_excludes_empty_history(self, mock_history, mock_run):
+        # Mock successful clone
+        mock_run.return_value = MagicMock(returncode=0)
+        # But history check fails
+        mock_history.return_value = False
+        
+        candidates = ["test/repo1"]
+        result = clone_batch(candidates, self.target_dir, max_concurrent=1)
+        
+        # Should be empty because history check failed
+        assert len(result) == 0
+        assert mock_history.called
 
-    def test_get_candidates_handles_empty_response(self):
-        """
-        Test that an empty API response returns an empty list.
-        """
-        with patch('fetch.requests.get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = []
-            mock_get.return_value = mock_response
-
-            result = get_candidates()
-
-            assert result == []
-            assert isinstance(result, list)
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    @patch('fetch.subprocess.run')
+    def test_clone_retry_logic(self, mock_run):
+        # First two attempts fail, third succeeds
+        mock_run.side_effect = [
+            subprocess.CalledProcessError(1, "git"),
+            subprocess.CalledProcessError(1, "git"),
+            MagicMock(returncode=0)
+        ]
+        
+        candidates = ["test/repo1"]
+        result = clone_batch(candidates, self.target_dir, max_concurrent=1)
+        
+        # Should succeed on 3rd attempt
+        assert len(result) == 1
+        assert mock_run.call_count == 3
+        
+    @patch('fetch.subprocess.run')
+    def test_clone_fails_after_max_retries(self, mock_run):
+        # Always fail
+        mock_run.side_effect = subprocess.CalledProcessError(1, "git")
+        
+        candidates = ["test/repo1"]
+        result = clone_batch(candidates, self.target_dir, max_concurrent=1)
+        
+        # Should fail after 3 retries
+        assert len(result) == 0
+        assert mock_run.call_count == 3

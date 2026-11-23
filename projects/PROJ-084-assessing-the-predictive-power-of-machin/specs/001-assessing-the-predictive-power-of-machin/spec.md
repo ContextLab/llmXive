@@ -27,7 +27,7 @@ A researcher needs to ingest the raw USPTO reaction yield dataset, sanitize the 
 
 A researcher needs to train Random Forest and Support Vector Machine (SVM) regressors on the extracted fingerprints, automatically tuning hyperparameters via grid search with cross-validation to identify the best-performing model configuration for yield prediction.
 
-**Why this priority**: This step establishes the baseline predictive performance. It determines whether classical ML methods can achieve the expected R² range (0.4–0.6) before investing effort in detailed analysis or feature importance extraction.
+**Why this priority**: This step establishes the baseline predictive performance. It determines whether classical ML methods can achieve the expected R² range before investing effort in detailed analysis or feature importance extraction.
 
 **Independent Test**: The training module can be tested by running the grid search on a small, fixed validation subset and verifying that the best hyperparameters are selected and the model achieves a measurable R² score on the validation set.
 
@@ -60,7 +60,7 @@ A researcher needs to evaluate how well the trained models generalize across dif
 - What happens when the USPTO dataset contains duplicate reactions with conflicting yield values? (System must handle by averaging or selecting the most frequent value, with logging).
 - How does the system handle reactions where the yield is reported as a range (e.g., "50-60%") rather than a single value? (System must either exclude these or parse the midpoint, with explicit handling documented).
 - How does the system handle reactions with missing reagent information? (System must exclude these entries during preprocessing to ensure valid fingerprint generation).
-- What happens if the stratified split results in a reaction class with fewer than 10 samples in the test set? (System must either merge small classes or exclude them from per-class analysis, with a warning).
+- What happens if the stratified split results in a reaction class with an insufficient number of samples in the test set? (System must either merge small classes or exclude them from per-class analysis, with a warning).
 
 ## Requirements
 

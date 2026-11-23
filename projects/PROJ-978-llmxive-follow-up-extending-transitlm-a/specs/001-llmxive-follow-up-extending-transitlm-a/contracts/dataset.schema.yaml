@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stratified Route Dataset Schema"
+description: "Schema for the processed, stratified route dataset used in analysis."
+type: "object"
+properties:
+  route_id:
+    type: "string"
+    description: "Unique identifier for the route."
+  city:
+    type: "string"
+    description: "Name of the city (e.g., 'Beijing')."
+  start_station:
+    type: "string"
+    description: "ID of the starting station."
+  end_station:
+    type: "string"
+    description: "ID of the ending station."
+  station_sequence:
+    type: "array"
+    items:
+      type: "string"
+    description: "Ordered list of station IDs in the route."
+  stop_count:
+    type: "integer"
+    description: "Total number of stops in the route."
+  stratum:
+    type: "string"
+    enum:
+      - "short-haul"
+      - "medium-haul"
+      - "long-haul"
+    description: "Stratification category based on stop count."
+  topological_complexity:
+    type: "number"
+    description: "Path-level betweenness centrality score."
+  valid_path_set:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "string"
+    description: "The set of all geographically valid paths for this start/end pair, generated via BFS on the adjacency graph."
+  hop_validity:
+    type: "array"
+    items:
+      type: "boolean"
+    description: "Validity status for each hop in the sequence (true if prediction matches valid path set)."
+  failure_hop:
+    type:
+      - "integer"
+      - "null"
+    description: "Index of the first invalid hop, or null if valid."
+required:
+  - route_id
+  - city
+  - start_station
+  - end_station
+  - station_sequence
+  - stop_count
+  - stratum
+  - topological_complexity
+  - valid_path_set
+  - hop_validity
+  - failure_hop
+additionalProperties: false

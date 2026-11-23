@@ -1,47 +1,47 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Material Sample
-description: Schema for material sample data used in the OQMD dataset.
+description: Schema for material sample features extracted from OQMD.
 type: object
 required:
   - sample_id
-  - formula
-  - elements
-  - crystal_system
-  - space_group
   - formation_energy
+  - element_fractions
 properties:
   sample_id:
-    type: string
-    description: Unique identifier for the material sample.
-  formula:
-    type: string
-    description: Chemical formula of the material (e.g., "Fe2O3").
-  elements:
-    type: array
-    items:
-      type: string
-    description: List of constituent elements.
-  crystal_system:
-    type: string
-    enum:
-      - cubic
-      - tetragonal
-      - orthorhombic
-      - monoclinic
-      - triclinic
-      - hexagonal
-      - rhombohedral
-    description: Crystal system of the material.
-  space_group:
     type: integer
-    description: Space group number (1-230).
+    description: Unique identifier for the material sample.
   formation_energy:
     type: number
-    description: Formation energy in eV/atom.
-  structure_id:
-    type: string
-    description: Optional external structure identifier.
-  metadata:
-    type: object
-    description: Additional metadata fields.
-    additionalProperties: true
+    format: float64
+    description: Formation energy per atom (eV/atom).
+  bulk_modulus:
+    type: number
+    format: float64
+    nullable: true
+    description: Bulk modulus (GPa). May be missing if not available in source.
+  band_gap:
+    type: number
+    format: float64
+    nullable: true
+    description: Band gap (eV). May be missing if not available in source.
+  element_fractions:
+    type: array
+    description: Compositional features (fractions of elements).
+    items:
+      type: number
+      format: float64
+    minItems: 1
+  radius:
+    type: number
+    format: float64
+    nullable: true
+    description: Mean atomic radius (Å). Optional structural descriptor.
+  packing_fraction:
+    type: number
+    format: float64
+    nullable: true
+    description: Packing fraction. Optional structural descriptor.
+  target_bin:
+    type: integer
+    nullable: true
+    description: Quantile bin index for the target variable (formation_energy). Added during preprocessing.

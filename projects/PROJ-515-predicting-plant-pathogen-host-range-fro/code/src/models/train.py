@@ -1,8 +1,6 @@
 """
-Model Training Module for Plant Pathogen Host Range Prediction.
-
-Implements L1-regularized Logistic Regression with nested VIF analysis
-for feature selection within each cross-validation fold.
+Training module for L1-regularized Logistic Regression with Nested VIF Analysis.
+Implements FR-004: Training function for predictive host-range model.
 """
 import os
 import json
@@ -13,369 +11,366 @@ from typing import Tuple, List, Optional, Dict, Any, Union
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from loguru import logger
+
 from src.utils.logging import get_logger
-from src.utils.validators import validate_dataframe_schema
+from src.config import Paths
 
 # Initialize logger
 logger = get_logger(__name__)
 
 
-def calculate_vif(features: pd.DataFrame, exclude_first: bool = True) -> pd.Series:
+def calculate_vif(X: np.ndarray, feature_names: List[str]) -> pd.DataFrame:
     """
     Calculate Variance Inflation Factor (VIF) for each feature.
-
+    
     Args:
-        features: DataFrame containing feature columns.
-        exclude_first: If True, exclude the first column (intercept) from calculation.
-
+        X: Feature matrix (n_samples, n_features)
+        feature_names: List of feature names
+        
     Returns:
-        Series of VIF values indexed by feature name.
+        DataFrame with feature names and VIF values
     """
-    if features.shape[1] == 0:
-        return pd.Series(dtype=float)
-
-    # Add intercept column if needed (sklearn handles this, but VIF needs it)
-    # VIF = 1 / (1 - R^2) where R^2 is from regressing feature i on all other features
+    if X.shape[1] == 0:
+        return pd.DataFrame({'feature': [], 'vif': []})
+    
+    # Add intercept column for VIF calculation
+    X_with_intercept = np.column_stack([np.ones(X.shape[0]), X])
+    feature_names_with_intercept = ['intercept'] + feature_names
+    
     vif_data = []
-    feature_names = features.columns.tolist()
-
-    for i, col in enumerate(feature_names):
-        # Skip the first column if exclude_first is True
-        if exclude_first and i == 0:
-            continue
-
-        X_other = features.drop(columns=[col])
-        if X_other.shape[1] == 0:
-            # Only one feature left, VIF is undefined (or 1.0 by convention)
-            vif_data.append((col, 1.0))
-            continue
-
-        # Fit OLS regression of current feature on others
-        # Using numpy for simplicity: y = X * beta + error
-        # R^2 = 1 - (SS_res / SS_tot)
-        try:
-            # Add constant for intercept
-            X_with_const = np.column_stack([np.ones(X_other.shape[0]), X_other.values])
-            y = features[col].values
-
-            # Solve least squares
-            beta, residuals, rank, s = np.linalg.lstsq(X_with_const, y, rcond=None)
-
-            if residuals.size > 0:
-                ss_res = residuals[0]
-            else:
-                # Perfect fit or singular matrix
-                ss_res = 0.0
-
-            ss_tot = np.sum((y - np.mean(y)) ** 2)
-
-            if ss_tot == 0:
-                r_squared = 0.0
-            else:
-                r_squared = 1.0 - (ss_res / ss_tot)
-
-            # Clamp r_squared to [0, 1) to avoid division by zero
-            r_squared = min(r_squared, 0.9999)
-            r_squared = max(r_squared, 0.0)
-
-            vif = 1.0 / (1.0 - r_squared)
-            vif_data.append((col, vif))
-
-        except Exception as e:
-            logger.warning(f"Could not calculate VIF for {col}: {e}")
-            vif_data.append((col, np.inf))
-
-    return pd.Series([v for _, v in vif_data], index=[col for col, _ in vif_data])
+    
+    for i in range(1, X_with_intercept.shape[1]):
+        # Get the feature column (skip intercept)
+        feature_col = X_with_intercept[:, i]
+        
+        # Regress this feature against all other features
+        other_features = np.delete(X_with_intercept, i, axis=1)
+        
+        # Skip if only intercept remains
+        if other_features.shape[1] <= 1:
+            vif = np.inf
+        else:
+            # Simple linear regression to calculate R^2
+            # Using numpy's lstsq for least squares
+            try:
+                coeffs, residuals, rank, s = np.linalg.lstsq(
+                    other_features, feature_col, rcond=None
+                )
+                
+                # Calculate predicted values
+                y_pred = other_features @ coeffs
+                
+                # Calculate R^2
+                ss_res = np.sum((feature_col - y_pred) ** 2)
+                ss_tot = np.sum((feature_col - np.mean(feature_col)) ** 2)
+                
+                if ss_tot == 0:
+                    r_squared = 0
+                else:
+                    r_squared = 1 - (ss_res / ss_tot)
+                
+                # VIF = 1 / (1 - R^2)
+                if r_squared >= 1.0:
+                    vif = np.inf
+                else:
+                    vif = 1 / (1 - r_squared)
+            except np.linalg.LinAlgError:
+                vif = np.inf
+        
+        vif_data.append({
+            'feature': feature_names_with_intercept[i],
+            'vif': vif
+        })
+    
+    return pd.DataFrame(vif_data)
 
 
 def run_vif_selection(
-    X: pd.DataFrame,
-    threshold: float = 5.0,
+    X: np.ndarray,
+    y: np.ndarray,
+    feature_names: List[str],
+    vif_threshold: float = 5.0,
     logger: Optional[Any] = None
-) -> Tuple[pd.DataFrame, List[str]]:
+) -> Tuple[np.ndarray, List[str], pd.DataFrame]:
     """
-    Perform iterative VIF-based feature selection.
-
-    Removes features with VIF >= threshold until all remaining features
-    have VIF < threshold. Ties are broken by selecting the feature with
-    lower variance.
-
+    Perform VIF-based feature selection.
+    Iteratively removes features with VIF >= threshold until all features pass.
+    
     Args:
-        X: Feature DataFrame.
-        threshold: VIF threshold for removal (default 5.0).
-        logger: Logger instance.
-
+        X: Feature matrix (n_samples, n_features)
+        y: Target labels (n_samples,)
+        feature_names: List of feature names
+        vif_threshold: VIF threshold for removal (default: 5.0)
+        logger: Optional logger instance
+        
     Returns:
-        Tuple of (reduced DataFrame, list of removed feature names).
+        Tuple of (reduced feature matrix, reduced feature names, VIF history DataFrame)
     """
     if logger is None:
         logger = get_logger(__name__)
-
-    current_features = X.copy()
-    removed_features = []
+    
+    logger.info(f"Starting VIF selection with threshold={vif_threshold}")
+    logger.info(f"Initial features: {len(feature_names)}")
+    
+    X_current = X.copy()
+    names_current = feature_names.copy()
+    vif_history = []
+    
     iteration = 0
-
-    while True:
+    max_iterations = len(feature_names)  # Safety limit
+    
+    while iteration < max_iterations:
         iteration += 1
-        if current_features.shape[1] == 0:
-            logger.warning("All features removed during VIF selection!")
+        
+        # Calculate VIF for current features
+        vif_df = calculate_vif(X_current, names_current)
+        
+        # Record current state
+        vif_history.append(vif_df.copy())
+        
+        # Find features above threshold
+        high_vif = vif_df[vif_df['vif'] >= vif_threshold]
+        
+        if len(high_vif) == 0:
+            logger.info(f"VIF selection complete after {iteration} iterations")
+            logger.info(f"Final features: {len(names_current)}")
             break
-
-        vif_series = calculate_vif(current_features)
-
-        if vif_series.empty:
-            break
-
-        # Check if any feature exceeds threshold
-        high_vif_mask = vif_series >= threshold
-
-        if not high_vif_mask.any():
-            logger.info(f"VIF selection complete after {iteration} iterations. "
-                      f"Remaining features: {len(current_features.columns)}")
-            break
-
-        # Find features with highest VIF
-        high_vif_features = vif_series[high_vif_mask]
-        max_vif = high_vif_features.max()
-        candidates = high_vif_features[high_vif_features == max_vif].index.tolist()
-
-        # Tie-breaker: select feature with lowest variance
-        if len(candidates) > 1:
-            variances = current_features[candidates].var()
-            to_remove = variances.idxmin()
-            logger.debug(f"Tie-breaker: removing {to_remove} (variance: {variances[to_remove]:.4f}) "
-                       f"among candidates with VIF={max_vif:.2f}")
-        else:
-            to_remove = candidates[0]
-
-        logger.info(f"Iteration {iteration}: Removing feature '{to_remove}' with VIF={max_vif:.2f}")
-
+        
+        # Remove feature with highest VIF (tie-break: lower variance)
+        # Calculate variance for tie-breaking
+        variances = np.var(X_current, axis=0)
+        
+        # Get the feature with highest VIF
+        max_vif_idx = high_vif['vif'].idxmax()
+        feature_to_remove = high_vif.loc[max_vif_idx, 'feature']
+        
+        # If there are ties, use variance as tie-breaker
+        max_vif_value = high_vif.loc[max_vif_idx, 'vif']
+        tied_features = high_vif[high_vif['vif'] == max_vif_value]
+        
+        if len(tied_features) > 1:
+            # Find the one with lowest variance among tied features
+            lowest_var_feature = None
+            lowest_var = np.inf
+            
+            for _, row in tied_features.iterrows():
+                feat_name = row['feature']
+                feat_idx = names_current.index(feat_name)
+                feat_var = variances[feat_idx]
+                
+                if feat_var < lowest_var:
+                    lowest_var = feat_var
+                    lowest_var_feature = feat_name
+            
+            feature_to_remove = lowest_var_feature
+        
         # Remove the feature
-        current_features = current_features.drop(columns=[to_remove])
-        removed_features.append(to_remove)
-
-        # Safety check: prevent infinite loops
-        if iteration > X.shape[1]:
-            logger.error("VIF selection exceeded maximum iterations. Breaking.")
+        remove_idx = names_current.index(feature_to_remove)
+        names_current.remove(feature_to_remove)
+        X_current = np.delete(X_current, remove_idx, axis=1)
+        
+        logger.debug(f"Removed feature '{feature_to_remove}' (VIF={vif_df.loc[max_vif_idx, 'vif']:.2f})")
+        
+        # Safety check: if no features left, break
+        if len(names_current) == 0:
+            logger.warning("All features removed by VIF selection!")
             break
-
-    return current_features, removed_features
+    
+    # Final VIF check
+    final_vif_df = calculate_vif(X_current, names_current)
+    vif_history.append(final_vif_df.copy())
+    
+    vif_history_df = pd.concat(vif_history, keys=range(len(vif_history)), names=['iteration', 'row'])
+    vif_history_df = vif_history_df.reset_index()
+    
+    return X_current, names_current, vif_history_df
 
 
 def train_l1_logistic_regression(
-    X_train: pd.DataFrame,
-    y_train: pd.Series,
+    X: np.ndarray,
+    y: np.ndarray,
+    feature_names: List[str],
     vif_threshold: float = 5.0,
+    C: float = 1.0,
     random_state: int = 42,
-    fold_id: Optional[int] = None,
-    output_dir: Optional[Union[str, Path]] = None
-) -> Tuple[LogisticRegression, pd.DataFrame, List[str]]:
+    logger: Optional[Any] = None
+) -> Tuple[LogisticRegression, List[str], pd.DataFrame]:
     """
-    Train an L1-regularized Logistic Regression model with VIF-based feature selection.
-
-    This function performs:
-    1. VIF-based feature selection on the training fold only.
-    2. Standardization of features.
-    3. Training of LogisticRegression with penalty='l1' and solver='liblinear'.
-
+    Train L1-regularized Logistic Regression with VIF-based feature selection.
+    
     Args:
-        X_train: Feature DataFrame for training.
-        y_train: Target Series for training.
-        vif_threshold: VIF threshold for feature removal (default 5.0).
-        random_state: Random seed for reproducibility.
-        fold_id: Optional fold identifier for output file naming.
-        output_dir: Directory to save VIF-filtered feature list.
-
+        X: Feature matrix (n_samples, n_features)
+        y: Target labels (n_samples,)
+        feature_names: List of feature names
+        vif_threshold: VIF threshold for feature removal (default: 5.0)
+        C: Inverse of regularization strength (default: 1.0)
+        random_state: Random seed for reproducibility
+        logger: Optional logger instance
+        
     Returns:
-        Tuple of:
-            - Trained LogisticRegression model
-            - DataFrame of selected features (with their indices)
-            - List of removed feature names
+        Tuple of (trained model, selected feature names, VIF history DataFrame)
     """
-    logger.info(f"Starting training for L1 Logistic Regression (VIF threshold={vif_threshold})")
-
-    # Ensure output directory exists
-    if output_dir:
-        output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
-
-    # Step 1: VIF-based feature selection (strictly on training data)
-    logger.info(f"Performing VIF selection on {X_train.shape[1]} features...")
-    X_selected, removed_features = run_vif_selection(X_train, threshold=vif_threshold, logger=logger)
-
-    selected_features = X_selected.columns.tolist()
-    logger.info(f"Selected {len(selected_features)} features after VIF filtering: {selected_features}")
-
-    # Save reduced feature set to file
-    if output_dir and fold_id is not None:
-        feature_file = output_path / f"vif_filtered_features_fold_{fold_id}.csv"
-        selected_df = pd.DataFrame({
-            'feature_index': range(len(selected_features)),
-            'feature_name': selected_features
-        })
-        selected_df.to_csv(feature_file, index=False)
-        logger.info(f"Saved VIF-filtered features to {feature_file}")
-
-    # Handle edge case: no features remain
+    if logger is None:
+        logger = get_logger(__name__)
+    
+    logger.info("Starting L1 Logistic Regression training")
+    logger.info(f"Input shape: {X.shape}")
+    logger.info(f"Positive class ratio: {np.mean(y):.3f}")
+    
+    # Step 1: VIF-based feature selection
+    X_reduced, selected_features, vif_history = run_vif_selection(
+        X, y, feature_names, vif_threshold=vif_threshold, logger=logger
+    )
+    
     if len(selected_features) == 0:
-        logger.error("No features remain after VIF selection. Cannot train model.")
-        raise ValueError("No features available after VIF selection. "
-                       "Try lowering the VIF threshold or check input data quality.")
-
+        raise ValueError("No features remaining after VIF selection!")
+    
+    logger.info(f"Features after VIF selection: {len(selected_features)}")
+    
     # Step 2: Standardize features
     scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_selected)
-    X_train_scaled_df = pd.DataFrame(X_train_scaled, columns=selected_features, index=X_selected.index)
-
+    X_scaled = scaler.fit_transform(X_reduced)
+    
     # Step 3: Train L1-regularized Logistic Regression
-    logger.info("Training LogisticRegression with penalty='l1', solver='liblinear'...")
-
+    # Using liblinear solver which supports L1 penalty
     model = LogisticRegression(
         penalty='l1',
         solver='liblinear',
+        C=C,
         random_state=random_state,
         max_iter=1000,
-        C=1.0,  # Regularization strength
         class_weight='balanced'  # Handle class imbalance
     )
-
-    model.fit(X_train_scaled_df, y_train)
-
-    logger.info(f"Model training complete. Coefficients: {model.coef_}")
-
-    return model, X_selected, removed_features
+    
+    model.fit(X_scaled, y)
+    
+    logger.info(f"Model trained successfully")
+    logger.info(f"Number of non-zero coefficients: {np.sum(model.coef_ != 0)}")
+    
+    return model, selected_features, vif_history
 
 
 def train_model_fold(
-    X: pd.DataFrame,
-    y: pd.Series,
-    train_idx: np.ndarray,
-    val_idx: np.ndarray,
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    feature_names: List[str],
+    fold_idx: int,
+    output_dir: Path,
     vif_threshold: float = 5.0,
+    C: float = 1.0,
     random_state: int = 42,
-    fold_id: int = 0,
-    output_dir: Optional[Union[str, Path]] = None
-) -> Tuple[LogisticRegression, float, Dict[str, Any]]:
+    logger: Optional[Any] = None
+) -> Tuple[LogisticRegression, List[str], Dict[str, Any]]:
     """
-    Train a single fold of the cross-validation loop.
-
+    Train a model on a single fold with VIF filtering and save metadata.
+    
     Args:
-        X: Full feature DataFrame.
-        y: Full target Series.
-        train_idx: Indices for training set.
-        val_idx: Indices for validation set.
-        vif_threshold: VIF threshold for feature selection.
-        random_state: Random seed.
-        fold_id: Fold identifier.
-        output_dir: Directory to save VIF-filtered features.
-
+        X_train: Training feature matrix
+        y_train: Training labels
+        feature_names: List of all feature names
+        fold_idx: Current fold index
+        output_dir: Directory to save VIF filtered features
+        vif_threshold: VIF threshold for feature removal
+        C: Inverse of regularization strength
+        random_state: Random seed
+        logger: Optional logger instance
+        
     Returns:
-        Tuple of:
-            - Trained model
-            - Validation AUPRC (placeholder, actual calculation in evaluate module)
-            - Metrics dictionary
+        Tuple of (trained model, selected feature names, metadata dict)
     """
-    # Split data
-    X_train = X.iloc[train_idx].reset_index(drop=True)
-    y_train = y.iloc[train_idx].reset_index(drop=True)
-    X_val = X.iloc[val_idx].reset_index(drop=True)
-    y_val = y.iloc[val_idx].reset_index(drop=True)
-
-    # Train model
-    model, X_selected, removed_features = train_l1_logistic_regression(
-        X_train=X_train,
-        y_train=y_train,
+    if logger is None:
+        logger = get_logger(__name__)
+    
+    logger.info(f"Training fold {fold_idx}")
+    
+    # Train model with VIF selection
+    model, selected_features, vif_history = train_l1_logistic_regression(
+        X_train, y_train, feature_names,
         vif_threshold=vif_threshold,
+        C=C,
         random_state=random_state,
-        fold_id=fold_id,
-        output_dir=output_dir
+        logger=logger
     )
-
-    # Standardize validation data using training scaler
-    scaler = StandardScaler()
-    X_val_scaled = scaler.fit_transform(X_selected)  # Fit on train, transform val
-
-    # Evaluate on validation set
-    from sklearn.metrics import roc_auc_score, precision_score, recall_score, f1_score
-
-    y_val_pred_proba = model.predict_proba(X_val_scaled)[:, 1]
-    y_val_pred = model.predict(X_val_scaled)
-
-    metrics = {
-        'fold_id': fold_id,
-        'n_train_samples': len(train_idx),
-        'n_val_samples': len(val_idx),
-        'n_features_selected': len(X_selected.columns),
-        'n_features_removed': len(removed_features),
-        'vif_threshold': vif_threshold
+    
+    # Save VIF filtered features for this fold
+    vif_output_path = output_dir / f"vif_filtered_features_fold_{fold_idx}.csv"
+    vif_history.to_csv(vif_output_path, index=False)
+    logger.info(f"Saved VIF history to {vif_output_path}")
+    
+    # Save selected features
+    selected_features_df = pd.DataFrame({
+        'feature': selected_features,
+        'fold': fold_idx
+    })
+    selected_features_path = output_dir / f"selected_features_fold_{fold_idx}.csv"
+    selected_features_df.to_csv(selected_features_path, index=False)
+    logger.info(f"Saved selected features to {selected_features_path}")
+    
+    metadata = {
+        'fold': fold_idx,
+        'initial_features': len(feature_names),
+        'final_features': len(selected_features),
+        'vif_threshold': vif_threshold,
+        'C': C,
+        'selected_features': selected_features,
+        'vif_history_path': str(vif_output_path),
+        'selected_features_path': str(selected_features_path)
     }
-
-    # Calculate metrics (handle single-class case)
-    try:
-        if len(np.unique(y_val)) > 1:
-            metrics['val_auprc'] = roc_auc_score(y_val, y_val_pred_proba)
-        else:
-            metrics['val_auprc'] = np.nan
-    except Exception as e:
-        logger.warning(f"Could not calculate AUPRC for fold {fold_id}: {e}")
-        metrics['val_auprc'] = np.nan
-
-    try:
-        metrics['val_precision'] = precision_score(y_val, y_val_pred, zero_division=0)
-    except:
-        metrics['val_precision'] = 0.0
-
-    try:
-        metrics['val_recall'] = recall_score(y_val, y_val_pred, zero_division=0)
-    except:
-        metrics['val_recall'] = 0.0
-
-    try:
-        metrics['val_f1'] = f1_score(y_val, y_val_pred, zero_division=0)
-    except:
-        metrics['val_f1'] = 0.0
-
-    return model, metrics['val_auprc'], metrics
+    
+    return model, selected_features, metadata
 
 
-def save_model(model: LogisticRegression, scaler: StandardScaler, output_path: Union[str, Path]) -> None:
+def save_model(
+    model: LogisticRegression,
+    selected_features: List[str],
+    output_path: Path,
+    metadata: Optional[Dict[str, Any]] = None
+) -> None:
     """
-    Save trained model and scaler to disk.
-
+    Save trained model and metadata to disk.
+    
     Args:
-        model: Trained LogisticRegression model.
-        scaler: Fitted StandardScaler.
-        output_path: Path to save the model.
+        model: Trained LogisticRegression model
+        selected_features: List of feature names used in training
+        output_path: Path to save the model
+        metadata: Optional metadata dictionary
     """
-    import joblib
-
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    import pickle
+    
     model_data = {
         'model': model,
-        'scaler': scaler
+        'selected_features': selected_features,
+        'metadata': metadata
     }
-
-    joblib.dump(model_data, output_path)
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'wb') as f:
+        pickle.dump(model_data, f)
+    
     logger.info(f"Model saved to {output_path}")
 
 
-def load_model(model_path: Union[str, Path]) -> Tuple[LogisticRegression, StandardScaler]:
+def load_model(model_path: Path) -> Tuple[LogisticRegression, List[str], Dict[str, Any]]:
     """
-    Load trained model and scaler from disk.
-
+    Load trained model and metadata from disk.
+    
     Args:
-        model_path: Path to the saved model.
-
+        model_path: Path to the saved model
+        
     Returns:
-        Tuple of (model, scaler).
+        Tuple of (model, selected_features, metadata)
     """
-    import joblib
-
-    model_path = Path(model_path)
-    if not model_path.exists():
-        raise FileNotFoundError(f"Model file not found: {model_path}")
-
-    model_data = joblib.load(model_path)
-    return model_data['model'], model_data['scaler']
+    import pickle
+    
+    with open(model_path, 'rb') as f:
+        model_data = pickle.load(f)
+    
+    logger.info(f"Model loaded from {model_path}")
+    logger.info(f"Features: {len(model_data['selected_features'])}")
+    
+    return (
+        model_data['model'],
+        model_data['selected_features'],
+        model_data.get('metadata', {})
+    )

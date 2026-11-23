@@ -1,98 +1,242 @@
+"""
+Logic Generator Module for llmXive Project.
+Implements generation of propositional and arithmetic logic problems with controlled entropy.
+"""
+
 import hashlib
 import random
 from typing import List, Dict, Any, Tuple, Optional
+from dataclasses import asdict
+
 from models.synthetic_problem import SyntheticProblem
-from config import Config
+from config import Config, get_config
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Simple propositional logic templates
-TEMPLATES_PROP = [
-    ("If A then B", "A", "B", ["imp", "var"]),
-    ("A and B", "A", "B", ["and", "var"]),
-    ("A or B", "A", "B", ["or", "var"]),
-    ("Not A", "A", "Not A", ["not", "var"]),
-    ("A implies B, A, therefore B", "A", "B", ["imp", "var", "mp"]),
+# Constants for problem generation
+LOGIC_OPERATORS = ['AND', 'OR', 'IMPLIES', 'IFF']
+ARITHMETIC_OPERATORS = ['+', '-', '*', '//']
+ARITHMETIC_PATTERNS = [
+    "If {p1} is true and {p2} is false, what is the result of {val1} {op} {val2}?",
+    "Given {val1} {op} {val2} = {res}, determine the truth of {p1} {op_logic} {p2}.",
+    "Calculate {val1} {op} {val2} assuming {p1} implies {p2}."
+]
+LOGIC_PATTERNS = [
+    "Premise: {p1}. Premise: {p2}. Operator: {op}. What is the solution?",
+    "Given {p1} {op} {p2}, determine the truth value.",
+    "If {p1} and {p2} hold, does {op} apply?"
 ]
 
-def generate_propositional_problem(entropy_level: str, seed: int) -> SyntheticProblem:
+def generate_propositional_problem(seed: Optional[int] = None) -> SyntheticProblem:
     """
-    Generate a single propositional logic problem.
+    Generates a valid propositional logic problem with randomized premises and operators.
+    
+    Args:
+        seed: Optional seed for reproducibility within this call.
+        
+    Returns:
+        SyntheticProblem instance with randomized premises, operators, and a solution.
     """
-    random.seed(seed)
-    template = random.choice(TEMPLATES_PROP)
+    if seed is not None:
+        random.seed(seed)
     
-    premises = [template[0]]
-    solution = template[2] if len(template) > 2 else "Unknown"
-    operators = template[3]
-    
-    # Adjust entropy by complexity (simulated)
-    if entropy_level == "high":
-        premises.append("C is true")
-        operators.append("var")
-    elif entropy_level == "low":
-        premises = [template[0]]
-        operators = [template[3][0]]
-    
-    problem_id = hashlib.md5(f"{seed}{template[0]}".encode()).hexdigest()[:8]
-    
-    return SyntheticProblem(
-        id=problem_id,
-        premises=premises,
-        operators=operators,
-        solution=solution,
-        entropy_level=entropy_level,
-        metadata={"seed": seed, "template": template[0]}
-    )
+    config = get_config()
+    # Use config seed if not provided
+    effective_seed = seed if seed is not None else config.seed
+    random.seed(effective_seed)
 
-def generate_arithmetic_problem(entropy_level: str, seed: int) -> SyntheticProblem:
-    """
-    Generate a simple arithmetic problem.
-    """
-    random.seed(seed)
-    a = random.randint(1, 10)
-    b = random.randint(1, 10)
-    op = random.choice(["+", "-", "*"])
+    # Generate random premises (simple boolean statements)
+    premise_templates = [
+        "The sky is blue",
+        "Grass is green",
+        "The sun is hot",
+        "Water is wet",
+        "Fire is warm",
+        "Ice is cold",
+        "Snow is white",
+        "The moon is bright"
+    ]
     
-    if op == "+":
-        res = a + b
-    elif op == "-":
-        res = a - b
-    else:
-        res = a * b
+    # Select 2 random premises
+    p1 = random.choice(premise_templates)
+    p2 = random.choice([p for p in premise_templates if p != p1])
     
-    premises = [f"{a} {op} {b} = ?"]
-    solution = str(res)
-    operators = [op]
+    # Select a random operator
+    op = random.choice(LOGIC_OPERATORS)
     
-    problem_id = hashlib.md5(f"{seed}{a}{op}{b}".encode()).hexdigest()[:8]
+    # Generate solution based on logic
+    # For simplicity, we map operators to a deterministic string representation
+    # In a full implementation, this would involve a SAT solver or truth table
+    solution_map = {
+        'AND': 'Both premises must be true.',
+        'OR': 'At least one premise must be true.',
+        'IMPLIES': 'If the first is true, the second must be true.',
+        'IFF': 'Both premises must have the same truth value.'
+    }
+    solution = solution_map[op]
     
-    return SyntheticProblem(
-        id=problem_id,
-        premises=premises,
-        operators=operators,
+    # Assign entropy level based on randomness (placeholder logic, refined in T012)
+    entropy_level = random.choice(['High', 'Low', 'Target'])
+
+    problem = SyntheticProblem(
+        id=f"prop_{random.randint(10000, 99999)}",
+        premises=[p1, p2],
+        operators=[op],
         solution=solution,
         entropy_level=entropy_level,
-        metadata={"seed": seed, "a": a, "b": b, "op": op}
+        metadata={
+            "type": "propositional",
+            "seed": effective_seed
+        }
     )
+    
+    return problem
+
+def generate_arithmetic_problem(seed: Optional[int] = None) -> SyntheticProblem:
+    """
+    Generates a valid arithmetic word problem with randomized operands and operators.
+    
+    Args:
+        seed: Optional seed for reproducibility.
+        
+    Returns:
+        SyntheticProblem instance representing an arithmetic problem.
+    """
+    if seed is not None:
+        random.seed(seed)
+    
+    config = get_config()
+    effective_seed = seed if seed is not None else config.seed
+    random.seed(effective_seed)
+
+    # Generate random numbers
+    val1 = random.randint(1, 100)
+    val2 = random.randint(1, 50)
+    op = random.choice(ARITHMETIC_OPERATORS)
+    
+    # Calculate result to ensure validity
+    if op == '//':
+        # Avoid division by zero and ensure integer result
+        val2 = random.randint(1, 20)
+        res = val1 // val2
+    elif op == '*':
+        res = val1 * val2
+    elif op == '+':
+        res = val1 + val2
+    elif op == '-':
+        res = val1 - val2
+        
+    # Construct problem statement
+    pattern = random.choice(ARITHMETIC_PATTERNS)
+    problem_text = pattern.format(
+        p1="The first number is valid",
+        p2="The second number is valid",
+        val1=val1,
+        val2=val2,
+        op=op,
+        res=res,
+        op_logic="AND"
+    )
+    
+    solution = f"The result is {res}."
+    entropy_level = random.choice(['High', 'Low', 'Target'])
+
+    problem = SyntheticProblem(
+        id=f"arith_{random.randint(10000, 99999)}",
+        premises=[f"{val1} {op} {val2}"],
+        operators=[op],
+        solution=solution,
+        entropy_level=entropy_level,
+        metadata={
+            "type": "arithmetic",
+            "operand1": val1,
+            "operand2": val2,
+            "result": res,
+            "seed": effective_seed
+        }
+    )
+    
+    return problem
 
 def generate_dataset_batch(
-    count: int,
-    entropy_level: str,
-    seed: int
+    count: int, 
+    problem_type: str = 'propositional',
+    seed: Optional[int] = None
 ) -> List[SyntheticProblem]:
     """
-    Generate a batch of problems with a specific entropy level.
+    Generates a batch of logic problems.
+    
+    Args:
+        count: Number of problems to generate.
+        problem_type: 'propositional' or 'arithmetic'.
+        seed: Base seed for the batch.
+        
+    Returns:
+        List of SyntheticProblem instances.
     """
+    if seed is None:
+        seed = get_config().seed
+        
     problems = []
     for i in range(count):
-        # Alternate between logic and arithmetic
-        if i % 2 == 0:
-            p = generate_propositional_problem(entropy_level, seed + i)
+        # Increment seed slightly to ensure variety while maintaining reproducibility
+        current_seed = seed + i
+        
+        if problem_type == 'propositional':
+            prob = generate_propositional_problem(seed=current_seed)
+        elif problem_type == 'arithmetic':
+            prob = generate_arithmetic_problem(seed=current_seed)
         else:
-            p = generate_arithmetic_problem(entropy_level, seed + i)
-        problems.append(p)
-    
-    logger.info(f"Generated {len(problems)} problems with entropy level: {entropy_level}")
+            raise ValueError(f"Unknown problem type: {problem_type}")
+        
+        problems.append(prob)
+        
     return problems
+
+def compute_structure_hash(problem: SyntheticProblem) -> str:
+    """
+    Computes a deterministic hash of the problem's logical structure.
+    Used for ensuring distinctness between training and test sets.
+    
+    Args:
+        problem: The SyntheticProblem instance.
+        
+    Returns:
+        SHA256 hash string of the canonical structure representation.
+    """
+    # Canonical representation: sorted premises + sorted operators
+    canonical_str = f"{sorted(problem.premises)}|{sorted(problem.operators)}"
+    return hashlib.sha256(canonical_str.encode('utf-8')).hexdigest()
+
+def main():
+    """
+    Entry point for testing the logic generator directly.
+    """
+    config = get_config()
+    logger.info(f"Starting Logic Generator with seed: {config.seed}")
+    
+    # Generate a sample propositional problem
+    prop_prob = generate_propositional_problem()
+    logger.info(f"Generated Propositional Problem: {prop_prob.id}")
+    logger.info(f"  Premises: {prop_prob.premises}")
+    logger.info(f"  Operator: {prop_prob.operators}")
+    logger.info(f"  Solution: {prop_prob.solution}")
+    
+    # Generate a sample arithmetic problem
+    arith_prob = generate_arithmetic_problem()
+    logger.info(f"Generated Arithmetic Problem: {arith_prob.id}")
+    logger.info(f"  Premises: {arith_prob.premises}")
+    logger.info(f"  Operator: {arith_prob.operators}")
+    logger.info(f"  Solution: {arith_prob.solution}")
+    
+    # Test batch generation
+    batch = generate_dataset_batch(5, problem_type='propositional')
+    logger.info(f"Generated batch of {len(batch)} problems.")
+    
+    # Test structure hash
+    h = compute_structure_hash(prop_prob)
+    logger.info(f"Structure hash for {prop_prob.id}: {h}")
+
+if __name__ == "__main__":
+    main()

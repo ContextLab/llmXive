@@ -1,5 +1,5 @@
 """
-Tests for the logging infrastructure (T005).
+Unit tests for the logging infrastructure (T005).
 """
 import json
 import os
@@ -7,158 +7,138 @@ import tempfile
 from pathlib import Path
 import pytest
 
-from code.src.utils.logging import (
-    log_run,
-    log_metric,
-    get_run_log,
-    clear_run_log,
-    _load_existing_log,
-    _save_log,
-    _LOG_FILE_PATH,
-    _DATA_DIR
-)
-
+# We will temporarily override the LOG_FILE_PATH constant
+import code.src.utils.logging as logging_module
 
 @pytest.fixture
-def clean_log_file(tmp_path, monkeypatch):
-    """
-    Fixture to isolate logging tests to a temporary directory.
-    Replaces the global _LOG_FILE_PATH and _DATA_DIR with temp equivalents.
-    """
-    # Create a temp directory structure
-    temp_data = tmp_path / "data"
-    temp_data.mkdir()
-    temp_log = temp_data / "run_log.json"
-    
-    # Monkeypatch the module's global paths
-    import code.src.utils.logging as logging_module
-    original_log_path = logging_module._LOG_FILE_PATH
-    original_data_dir = logging_module._DATA_DIR
-    
-    logging_module._LOG_FILE_PATH = temp_log
-    logging_module._DATA_DIR = temp_data
-    
-    yield temp_log
-    
-    # Restore original paths
-    logging_module._LOG_FILE_PATH = original_log_path
-    logging_module._DATA_DIR = original_data_dir
+def temp_log_file(tmp_path):
+    """Create a temporary log file path for testing."""
+    log_file = tmp_path / "run_log.json"
+    # Create empty array
+    with open(log_file, 'w') as f:
+        json.dump([], f)
+    return str(log_file)
 
+@pytest.fixture
+def setup_logging_env(tmp_path, temp_log_file):
+    """Setup environment for logging tests."""
+    # Patch the constant to use temp file
+    original_path = logging_module.LOG_FILE_PATH
+    logging_module.LOG_FILE_PATH = temp_log_file
+    yield
+    # Restore original
+    logging_module.LOG_FILE_PATH = original_path
 
-def test_log_run_creates_entry(clean_log_file):
-    """Test that log_run creates a new entry in the JSON file."""
-    seed = 42
-    params = {"alpha": 0.5}
-    metrics = {"duration": 1.23}
+def test_init_logging_creates_file(setup_logging_env, tmp_path):
+    """Test that init_logging creates the log file if it doesn't exist."""
+    # Remove file if it exists
+    log_path = Path(tmp_path) / "run_log.json"
+    if log_path.exists():
+        log_path.unlink()
     
-    entry = log_run(seed=seed, parameters=params, metrics=metrics)
+    # Re-patch for this specific test
+    import code.src.utils.logging as lm
+    lm.LOG_FILE_PATH = str(log_path)
     
-    # Check returned entry
-    assert entry["seed"] == seed
-    assert entry["parameters"] == params
-    assert entry["metrics"] == metrics
-    assert "run_id" in entry
-    assert "timestamp" in entry
+    # Call init
+    lm.init_logging()
     
-    # Check file on disk
-    assert clean_log_file.exists()
-    with open(clean_log_file, "r") as f:
-        data = json.load(f)
-    
-    assert isinstance(data, list)
-    assert len(data) == 1
-    assert data[0]["seed"] == seed
+    # Verify file exists and is empty array
+    assert log_path.exists(), "Log file should be created"
+    with open(log_path, 'r') as f:
+        content = json.load(f)
+    assert content == [], "Log file should be an empty array"
 
-
-def test_log_run_appends_entry(clean_log_file):
-    """Test that subsequent log_run calls append to the list."""
-    log_run(seed=1)
-    log_run(seed=2)
+def test_log_metric_adds_entry(setup_logging_env):
+    """Test that log_metric appends a valid entry."""
+    event = {
+        'timestamp': '2025-01-15T10:00:00Z',
+        'event_type': 'graph_generated',
+        'run_id': 'test-run-1',
+        'seed': 42,
+        'status': 'success',
+        'duration_seconds': 1.5
+    }
     
-    with open(clean_log_file, "r") as f:
-        data = json.load(f)
+    logging_module.log_metric(event)
     
-    assert len(data) == 2
-    assert data[0]["seed"] == 1
-    assert data[1]["seed"] == 2
+    # Read back
+    log_entries = logging_module.get_run_log()
+    assert len(log_entries) == 1
+    assert log_entries[0]['run_id'] == 'test-run-1'
+    assert set(log_entries[0].keys()) == {'timestamp', 'event_type', 'run_id', 'seed', 'status', 'duration_seconds'}
 
-
-def test_log_metric_updates_existing_run(clean_log_file):
-    """Test that log_metric updates the metrics dict of an existing run."""
-    run_id = "test_run_001"
-    log_run(run_id=run_id, seed=99)
+def test_log_metric_missing_fields_raises(setup_logging_env):
+    """Test that log_metric raises ValueError for missing fields."""
+    event = {
+        'timestamp': '2025-01-15T10:00:00Z',
+        'event_type': 'graph_generated',
+        # Missing run_id, seed, status, duration_seconds
+    }
     
-    log_metric("accuracy", 0.95, run_id=run_id)
+    with pytest.raises(ValueError, match="Missing required fields"):
+        logging_module.log_metric(event)
+
+def test_log_run_convenience(setup_logging_env):
+    """Test the log_run convenience wrapper."""
+    logging_module.log_run(
+        event_type='simulation_start',
+        run_id='sim-run-99',
+        seed=123,
+        status='started',
+        duration_seconds=0.01,
+        extra_param='value'
+    )
     
-    entries = get_run_log()
-    assert len(entries) == 1
-    assert entries[0]["metrics"]["accuracy"] == 0.95
+    log_entries = logging_module.get_run_log()
+    assert len(log_entries) == 1
+    assert log_entries[0]['run_id'] == 'sim-run-99'
+    assert log_entries[0]['extra_param'] == 'value'
 
-
-def test_log_metric_creates_new_entry_if_run_id_not_found(clean_log_file):
-    """Test that log_metric creates a new entry if run_id is provided but not found."""
-    # Log a run with a specific ID
-    log_run(run_id="run_A", seed=1)
+def test_load_existing_log_empty(setup_logging_env, tmp_path):
+    """Test loading an empty log."""
+    log_path = Path(tmp_path) / "empty_log.json"
+    with open(log_path, 'w') as f:
+        json.dump([], f)
     
-    # Log a metric for a DIFFERENT ID
-    log_metric("loss", 0.5, run_id="run_B", seed=2)
+    import code.src.utils.logging as lm
+    original = lm.LOG_FILE_PATH
+    lm.LOG_FILE_PATH = str(log_path)
     
-    entries = get_run_log()
-    assert len(entries) == 2
+    result = lm.load_existing_log()
+    assert result == []
+    lm.LOG_FILE_PATH = original
+
+def test_schema_check(setup_logging_env):
+    """Verify the schema check requirement: set(entry.keys()) == required."""
+    required = {'timestamp', 'event_type', 'run_id', 'seed', 'status', 'duration_seconds'}
     
-    run_a = next(e for e in entries if e["run_id"] == "run_A")
-    run_b = next(e for e in entries if e["run_id"] == "run_B")
+    event = {
+        'timestamp': '2025-01-15T10:00:00Z',
+        'event_type': 'divergence_detected',
+        'run_id': 'div-test',
+        'seed': 0,
+        'status': 'aborted',
+        'duration_seconds': 10.0
+    }
     
-    assert "loss" not in run_a["metrics"]
-    assert run_b["metrics"]["loss"] == 0.5
+    logging_module.log_metric(event)
+    entry = logging_module.get_run_log()[-1]
+    assert set(entry.keys()) == required
 
-
-def test_log_metric_appends_to_latest_if_no_run_id(clean_log_file):
-    """Test that log_metric appends to the last entry if run_id is None."""
-    log_run(seed=1)
-    log_run(seed=2) # This becomes the latest
+def test_event_types_valid(setup_logging_env):
+    """Test that valid event types are accepted."""
+    valid_types = ['graph_generated', 'simulation_start', 'simulation_end', 'divergence_detected', 'timeout_reached']
+    for et in valid_types:
+        event = {
+            'timestamp': '2025-01-15T10:00:00Z',
+            'event_type': et,
+            'run_id': f'test-{et}',
+            'seed': 1,
+            'status': 'ok',
+            'duration_seconds': 0.1
+        }
+        logging_module.log_metric(event)
     
-    log_metric("val_loss", 0.3)
-    
-    entries = get_run_log()
-    # Should still be 2 entries
-    assert len(entries) == 2
-    # The last one should have the metric
-    assert entries[1]["metrics"]["val_loss"] == 0.3
-
-
-def test_get_run_log(clean_log_file):
-    """Test retrieving the full log."""
-    log_run(seed=1)
-    log_run(seed=2)
-    
-    log = get_run_log()
-    assert len(log) == 2
-
-
-def test_clear_run_log(clean_log_file):
-    """Test that clear_run_log deletes the file."""
-    log_run(seed=1)
-    assert clean_log_file.exists()
-    
-    clear_run_log()
-    assert not clean_log_file.exists()
-
-
-def test_empty_log_file_handling(clean_log_file):
-    """Test behavior when log file exists but is empty."""
-    # Create empty file
-    clean_log_file.touch()
-    
-    log = _load_existing_log()
-    assert log == []
-
-
-def test_invalid_json_handling(clean_log_file):
-    """Test behavior when log file contains invalid JSON."""
-    with open(clean_log_file, "w") as f:
-        f.write("{ invalid json }")
-    
-    log = _load_existing_log()
-    # Should return empty list on error
-    assert log == []
+    entries = logging_module.get_run_log()
+    assert len(entries) == len(valid_types)

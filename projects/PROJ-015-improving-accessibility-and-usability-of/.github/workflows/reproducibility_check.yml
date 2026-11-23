@@ -1,0 +1,81 @@
+name: Reproducibility Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  reproducibility-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Ensure data directories exist
+        run: |
+          mkdir -p data/raw data/processed figures
+
+      - name: Generate simulated data (CI mode only)
+        # This step is strictly for CI validation to ensure the pipeline runs.
+        # In production, the pipeline must fail if this data is missing and --simulate is not used.
+        run: |
+          python code/simulator/simulator.py --n 10 --seed 42 --output data/raw/simulated_sessions.json
+
+      - name: Execute Notebook
+        run: |
+          jupyter nbconvert --to script code/analysis.ipynb --output analysis_executed.py
+
+      - name: Run Analysis Script
+        run: |
+          python code/analysis/run_analysis.py --input data/processed/cleaned_sessions.csv --output data/processed/metrics_summary.csv
+
+      - name: Verify Artifacts
+        run: |
+          # Check for required metrics summary
+          if [ ! -f "data/processed/metrics_summary.csv" ]; then
+            echo "ERROR: metrics_summary.csv not found"
+            exit 1
+          fi
+          
+          # Check for descriptive stats
+          if [ ! -f "data/processed/descriptive_stats.csv" ]; then
+            echo "ERROR: descriptive_stats.csv not found"
+            exit 1
+          fi
+
+          # Check for power flags
+          if [ ! -f "data/processed/power_flags.json" ]; then
+            echo "ERROR: power_flags.json not found"
+            exit 1
+          fi
+
+          # Check for figures
+          if [ ! -f "figures/completion_time.png" ]; then
+            echo "ERROR: completion_time.png not found"
+            exit 1
+          fi
+          if [ ! -f "figures/error_count.png" ]; then
+            echo "ERROR: error_count.png not found"
+            exit 1
+          fi
+          if [ ! -f "figures/sus_score.png" ]; then
+            echo "ERROR: sus_score.png not found"
+            exit 1
+          fi
+
+          echo "All artifacts verified successfully."

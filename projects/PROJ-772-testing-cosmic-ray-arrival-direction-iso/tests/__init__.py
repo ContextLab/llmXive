@@ -1,1 +1,1 @@
-# Tests package
+# Tests directory placeholder

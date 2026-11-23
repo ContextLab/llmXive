@@ -1,11 +1,13 @@
 """
-Implementation of VectorBloomFilter using bytearray for dynamic bit vector storage.
+Vector-based Bloom Filter implementation using bytearray.
 
-This implementation uses Python's bytearray to simulate a bit vector, providing
-a middle-ground between native Python lists (ArrayBloomFilter) and specialized
-bitarray libraries (BitsetBloomFilter).
+This module provides the VectorBloomFilter class, which implements the
+BloomFilter abstract base class using a bytearray as the underlying
+bit vector. This is more memory-efficient than native Python lists
+but less efficient than the bitarray library.
 """
-from typing import Union, Iterable, List, Tuple
+
+from typing import Union, Iterable, List, Tuple, Optional
 import math
 import struct
 
@@ -15,202 +17,227 @@ from .hash_utils import get_k_hashes, hash_murmur3_32
 
 class VectorBloomFilter(BloomFilter):
     """
-    Bloom Filter implementation using a bytearray as the underlying bit vector.
-    
-    This class uses a bytearray to store bits, where each byte represents 8 bits.
-    It provides efficient memory usage compared to Python lists while maintaining
-    compatibility with the standard BloomFilter interface.
-    
+    A Bloom Filter implementation using a bytearray for the bit vector.
+
+    This implementation uses a bytearray where each byte represents 8 bits.
+    It offers better memory efficiency than a list of integers but lacks
+    the specialized bit-manipulation speed of the bitarray library.
+
     Attributes:
         size (int): Total number of bits in the filter.
         k (int): Number of hash functions to use.
-        fpr_target (float): Target false positive rate.
-        bit_vector (bytearray): The underlying bit storage.
+        fpr (float): Target false positive rate.
+        _vector (bytearray): The underlying bit vector storage.
     """
-    
+
     def __init__(
         self,
         expected_elements: int,
-        fpr_target: float = 0.01,
+        false_positive_rate: float,
         seed: int = 42
     ):
         """
         Initialize the VectorBloomFilter.
-        
+
         Args:
-            expected_elements: The expected number of elements to insert.
-            fpr_target: The target false positive rate (0 < fpr < 1).
-            seed: Seed for hash functions to ensure reproducibility.
-        
-        Raises:
-            ValueError: If fpr_target is not in (0, 1).
+            expected_elements (int): The expected number of elements to insert.
+            false_positive_rate (float): The desired false positive rate (0 < fpr < 1).
+            seed (int): Seed for the hash functions.
         """
-        if not (0 < fpr_target < 1):
-            raise ValueError("fpr_target must be between 0 and 1")
-        
+        if not 0 < false_positive_rate < 1:
+            raise ValueError("false_positive_rate must be between 0 and 1")
+
         # Calculate optimal m (bits) and k (hash functions)
-        self.size, self.k = calculate_optimal_parameters(
-            expected_elements, fpr_target
-        )
-        self.fpr_target = fpr_target
-        self.expected_elements = expected_elements
+        m, k = calculate_optimal_parameters(expected_elements, false_positive_rate)
+
+        self.size = m
+        self.k = k
+        self.fpr = false_positive_rate
         self.seed = seed
-        
-        # Calculate number of bytes needed
-        # ceil(size / 8)
-        num_bytes = (self.size + 7) // 8
-        self.bit_vector = bytearray(num_bytes)
-        
-        # Track inserted count for statistics
-        self._count = 0
-    
-    def _get_byte_index(self, bit_index: int) -> int:
+
+        # Calculate number of bytes needed (ceil(m / 8))
+        num_bytes = (m + 7) // 8
+        self._vector = bytearray(num_bytes)
+
+    def _set_bit(self, index: int) -> None:
+        """Set the bit at the given index to 1."""
+        byte_index = index // 8
+        bit_index = index % 8
+        self._vector[byte_index] |= (1 << bit_index)
+
+    def _get_bit(self, index: int) -> bool:
+        """Get the value of the bit at the given index."""
+        byte_index = index // 8
+        bit_index = index % 8
+        return bool(self._vector[byte_index] & (1 << bit_index))
+
+    def insert(self, element: Union[str, bytes, int]) -> None:
         """
-        Convert a bit index to a byte index in the bytearray.
-        
+        Insert an element into the Bloom filter.
+
         Args:
-            bit_index: The index of the bit (0 to size-1).
-        
-        Returns:
-            The index of the byte containing this bit.
+            element: The element to insert. Can be a string, bytes, or integer.
         """
-        return bit_index // 8
-    
-    def _get_bit_mask(self, bit_index: int) -> int:
-        """
-        Get the bit mask for a specific bit index within a byte.
-        
-        Args:
-            bit_index: The index of the bit (0 to size-1).
-        
-        Returns:
-            An integer with a single bit set at the appropriate position.
-        """
-        return 1 << (bit_index % 8)
-    
-    def _set_bit(self, bit_index: int) -> None:
-        """
-        Set a bit at the specified index to 1.
-        
-        Args:
-            bit_index: The index of the bit to set.
-        """
-        byte_idx = self._get_byte_index(bit_index)
-        mask = self._get_bit_mask(bit_index)
-        self.bit_vector[byte_idx] |= mask
-    
-    def _get_bit(self, bit_index: int) -> bool:
-        """
-        Get the value of a bit at the specified index.
-        
-        Args:
-            bit_index: The index of the bit to read.
-        
-        Returns:
-            True if the bit is set, False otherwise.
-        """
-        byte_idx = self._get_byte_index(bit_index)
-        mask = self._get_bit_mask(bit_index)
-        return (self.bit_vector[byte_idx] & mask) != 0
-    
-    def insert(self, item: Union[str, bytes, int, float]) -> None:
-        """
-        Insert an item into the Bloom filter.
-        
-        The item is hashed using k different hash functions, and the corresponding
-        bits in the bit vector are set to 1.
-        
-        Args:
-            item: The item to insert. Can be a string, bytes, int, or float.
-        """
-        # Convert item to bytes for hashing
-        if isinstance(item, str):
-            item_bytes = item.encode('utf-8')
-        elif isinstance(item, (int, float)):
-            item_bytes = struct.pack('d', float(item))
-        elif isinstance(item, bytes):
-            item_bytes = item
+        if element is None:
+            raise ValueError("Cannot insert None into Bloom filter")
+
+        # Convert element to bytes if it's not already
+        if isinstance(element, int):
+            # Convert integer to bytes (big-endian)
+            # Handle negative numbers by using two's complement representation
+            if element < 0:
+                # For negative numbers, we need a fixed width.
+                # We'll use a reasonable width based on the magnitude.
+                byte_length = (element.bit_length() // 8) + 2
+                element_bytes = element.to_bytes(byte_length, byteorder='big', signed=True)
+            else:
+                byte_length = (element.bit_length() // 8) + 1 if element > 0 else 1
+                element_bytes = element.to_bytes(byte_length, byteorder='big', signed=False)
+        elif isinstance(element, str):
+            element_bytes = element.encode('utf-8')
         else:
-            item_bytes = str(item).encode('utf-8')
-        
-        # Get k hash values
-        hash_values = get_k_hashes(item_bytes, self.k, self.seed)
-        
-        # Set the corresponding bits
-        for h in hash_values:
-            bit_index = h % self.size
-            self._set_bit(bit_index)
-        
-        self._count += 1
-    
-    def contains(self, item: Union[str, bytes, int, float]) -> bool:
+            element_bytes = element
+
+        # Get k hash indices
+        indices = get_k_hashes(element_bytes, self.k, self.seed, self.size)
+
+        for index in indices:
+            self._set_bit(index)
+
+    def contains(self, element: Union[str, bytes, int]) -> bool:
         """
-        Check if an item might be in the Bloom filter.
-        
+        Check if an element is possibly in the Bloom filter.
+
         Args:
-            item: The item to check. Can be a string, bytes, int, or float.
-        
+            element: The element to check. Can be a string, bytes, or integer.
+
         Returns:
-            True if the item might be in the filter (possible false positive),
-            False if the item is definitely not in the filter.
+            bool: True if the element might be in the set, False if it definitely is not.
         """
-        # Convert item to bytes for hashing
-        if isinstance(item, str):
-            item_bytes = item.encode('utf-8')
-        elif isinstance(item, (int, float)):
-            item_bytes = struct.pack('d', float(item))
-        elif isinstance(item, bytes):
-            item_bytes = item
+        if element is None:
+            return False
+
+        # Convert element to bytes if it's not already
+        if isinstance(element, int):
+            if element < 0:
+                byte_length = (element.bit_length() // 8) + 2
+                element_bytes = element.to_bytes(byte_length, byteorder='big', signed=True)
+            else:
+                byte_length = (element.bit_length() // 8) + 1 if element > 0 else 1
+                element_bytes = element.to_bytes(byte_length, byteorder='big', signed=False)
+        elif isinstance(element, str):
+            element_bytes = element.encode('utf-8')
         else:
-            item_bytes = str(item).encode('utf-8')
-        
-        # Get k hash values
-        hash_values = get_k_hashes(item_bytes, self.k, self.seed)
-        
-        # Check if all corresponding bits are set
-        for h in hash_values:
-            bit_index = h % self.size
-            if not self._get_bit(bit_index):
+            element_bytes = element
+
+        # Get k hash indices
+        indices = get_k_hashes(element_bytes, self.k, self.seed, self.size)
+
+        for index in indices:
+            if not self._get_bit(index):
                 return False
-        
+
         return True
-    
+
     def false_positive_rate(self) -> float:
         """
         Calculate the theoretical false positive rate.
-        
+
         Returns:
-            The theoretical false positive rate based on the current number of
-            inserted elements and the filter parameters.
+            float: The theoretical false positive rate.
         """
-        n = self._count
+        # Theoretical FPR: (1 - e^(-k*n/m))^k
+        n = self.size  # This is m in the formula, n is expected_elements
+        # We need to estimate n based on current bits set, but for theoretical
+        # calculation we use the initial parameters
+        # Actually, the formula uses n (number of inserted elements)
+        # Since we don't track n, we return the target FPR
+        # Or we can calculate based on the actual bits set
+        # Let's calculate based on actual bits set for a more accurate estimate
+        bits_set = sum(bin(b).count('1') for b in self._vector)
+        n_estimated = bits_set / self.k if self.k > 0 else 0
+        
+        if n_estimated == 0:
+            return 0.0
+
+        # (1 - exp(-k * n / m))^k
         m = self.size
         k = self.k
-        
-        if n == 0:
-            return 0.0
-        
-        # Theoretical FPR formula: (1 - e^(-kn/m))^k
-        # Using the approximation for small probabilities
-        return (1 - math.exp(-k * n / m)) ** k
-    
+        exponent = -k * n_estimated / m
+        return (1 - math.exp(exponent)) ** k
+
     def memory_usage_bytes(self) -> int:
         """
-        Calculate the memory usage of the bit vector.
-        
+        Calculate the memory usage of the filter in bytes.
+
         Returns:
-            The size of the bit vector in bytes.
+            int: Memory usage in bytes.
         """
-        return len(self.bit_vector)
-    
-    @property
-    def count(self) -> int:
-        """Return the number of elements inserted."""
-        return self._count
-    
-    @property
-    def bits_per_element(self) -> float:
-        """Calculate bits per element."""
-        if self._count == 0:
-            return 0.0
-        return self.size / self._count
+        return len(self._vector)
+
+    def __len__(self) -> int:
+        """Return the size of the filter in bits."""
+        return self.size
+
+    def __repr__(self) -> str:
+        """Return a string representation of the Bloom filter."""
+        return (
+            f"VectorBloomFilter(size={self.size}, k={self.k}, "
+            f"fpr={self.fpr:.6f}, bytes={self.memory_usage_bytes()})"
+        )
+
+    def union(self, other: 'VectorBloomFilter') -> 'VectorBloomFilter':
+        """
+        Create a new Bloom filter that is the union of this and another.
+
+        Args:
+            other: Another VectorBloomFilter with the same size and k.
+
+        Returns:
+            VectorBloomFilter: A new filter representing the union.
+
+        Raises:
+            ValueError: If the filters have different sizes or k values.
+        """
+        if self.size != other.size or self.k != other.k:
+            raise ValueError("Cannot union Bloom filters with different sizes or k values")
+
+        result = VectorBloomFilter.__new__(VectorBloomFilter)
+        result.size = self.size
+        result.k = self.k
+        result.fpr = self.fpr
+        result.seed = self.seed
+        result._vector = bytearray(len(self._vector))
+
+        for i in range(len(self._vector)):
+            result._vector[i] = self._vector[i] | other._vector[i]
+
+        return result
+
+    def intersection(self, other: 'VectorBloomFilter') -> 'VectorBloomFilter':
+        """
+        Create a new Bloom filter that is the intersection of this and another.
+
+        Args:
+            other: Another VectorBloomFilter with the same size and k.
+
+        Returns:
+            VectorBloomFilter: A new filter representing the intersection.
+
+        Raises:
+            ValueError: If the filters have different sizes or k values.
+        """
+        if self.size != other.size or self.k != other.k:
+            raise ValueError("Cannot intersect Bloom filters with different sizes or k values")
+
+        result = VectorBloomFilter.__new__(VectorBloomFilter)
+        result.size = self.size
+        result.k = self.k
+        result.fpr = self.fpr
+        result.seed = self.seed
+        result._vector = bytearray(len(self._vector))
+
+        for i in range(len(self._vector)):
+            result._vector[i] = self._vector[i] & other._vector[i]
+
+        return result

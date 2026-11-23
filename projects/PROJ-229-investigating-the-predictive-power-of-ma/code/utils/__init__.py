@@ -1,9 +1,25 @@
 """
-Utility modules for the llmXive research pipeline.
-Exports logging, error handling, stability checks, and collinearity utilities.
+utils package initialization.
+
+This module deliberately avoids eager imports of sub‑modules that depend on each
+other (e.g., ``collinearity_utils``) to prevent circular‑import errors.
+Only lightweight, dependency‑free utilities are imported here.
 """
-from code.utils.logger import setup_logger, get_pipeline_logger
-from code.utils.error_handling import (
+
+# Re‑export the most commonly used logger utilities
+from .logger import (
+    setup_logger,
+    get_pipeline_logger,
+    log_debug,
+    log_info,
+    log_warning,
+    log_error,
+    log_critical,
+    log_exception_details,
+)
+
+# Re‑export error‑handling classes and helpers
+from .error_handling import (
     PipelineError,
     DataFetchError,
     DataProcessingError,
@@ -12,14 +28,18 @@ from code.utils.error_handling import (
     handle_error,
     validate_not_null,
     validate_positive,
-    pipeline_error_handler
+    pipeline_error_handler,
 )
-from code.utils.stability_checks import check_nan_inf, check_memory_usage, validate_dataframe
-from code.utils.collinearity_utils import calculate_vif, identify_high_collinearity
 
 __all__ = [
     "setup_logger",
     "get_pipeline_logger",
+    "log_debug",
+    "log_info",
+    "log_warning",
+    "log_error",
+    "log_critical",
+    "log_exception_details",
     "PipelineError",
     "DataFetchError",
     "DataProcessingError",
@@ -29,9 +49,4 @@ __all__ = [
     "validate_not_null",
     "validate_positive",
     "pipeline_error_handler",
-    "check_nan_inf",
-    "check_memory_usage",
-    "validate_dataframe",
-    "calculate_vif",
-    "identify_high_collinearity"
 ]

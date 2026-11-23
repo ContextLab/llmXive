@@ -1,0 +1,12 @@
+{
+  "alfworld": {
+    "status": "success",
+    "output_file": "data/raw/proxy_alfworld_weights.npz",
+    "is_proxy": true
+  },
+  "searchqa": {
+    "status": "success",
+    "output_file": "data/raw/proxy_searchqa_weights.npz",
+    "is_proxy": true
+  }
+}

@@ -1,0 +1,16 @@
+status: none
+intent: CLEVR dataset scene descriptions with object bounding boxes and physics constraints
+  python package dataset
+required_fields:
+- scene_id
+- textual_description
+- object_id
+- object_type
+- bounding_box
+- center_of_gravity
+- size_dimensions
+- collision_rules
+- object_relationships
+cache_key: 07a93e9f9ff66a5dad6d9d6e4558f257661e6ae8414cbed3dbd1b113d7b43e4f
+searched_at: '2026-10-13T02:47:51.133254+00:00'
+retry_count: 1

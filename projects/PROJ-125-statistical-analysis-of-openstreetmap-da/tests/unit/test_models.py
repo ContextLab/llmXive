@@ -1,207 +1,175 @@
 """
-Unit tests for base data models and schema validation.
+Unit tests for data models in code/models/.
+
+These tests verify:
+- CityBoundary geometry validation
+- RasterCovariate file existence and stats computation
+- TemperatureRaster unit conversion
+- Serialization/deserialization
 """
 import pytest
+import json
+import tempfile
+import os
 from pathlib import Path
-from shapely.geometry import Polygon
-from shapely.wkt import loads
+import numpy as np
 
-from models.base import BaseModel
-from models.city import CityBoundary
-from models.raster import RasterCovariate, TemperatureRaster
+# Import models
+from code.models.city_boundary import CityBoundary
+from code.models.raster_covariate import RasterCovariate
+from code.models.temperature_raster import TemperatureRaster
 
-# --- CityBoundary Tests ---
 
-def test_city_boundary_init_valid():
-    """Test initialization with valid WKT geometry."""
-    wkt = "POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))"
-    city = CityBoundary(name="TestCity", geometry=wkt, source="Test")
-    assert city.name == "TestCity"
-    assert city.source == "Test"
-    assert city.geometry.is_valid
+class TestCityBoundary:
+    """Tests for CityBoundary model."""
 
-def test_city_boundary_init_invalid_geometry():
-    """Test initialization raises error for invalid geometry."""
-    with pytest.raises(TypeError):
-        CityBoundary(name="TestCity", geometry=12345)
-
-def test_city_boundary_validate_empty_name():
-    """Test validation fails for empty name."""
-    city = CityBoundary(name="", geometry="POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))")
-    with pytest.raises(ValueError, match="City name cannot be empty"):
-        city.validate()
-
-def test_city_boundary_validate_invalid_geometry():
-    """Test validation fails for invalid geometry."""
-    # Create an invalid polygon (self-intersecting or similar)
-    # Shapely handles this, but we simulate a case where is_valid is False
-    # For this test, we rely on the is_valid check in validate()
-    # A simple way to force invalidity in a test might be complex,
-    # so we test the logic path by mocking or using a known bad WKT if possible.
-    # However, standard WKTs are usually valid. Let's test the empty geometry case.
-    city = CityBoundary(name="Test", geometry="POLYGON EMPTY")
-    with pytest.raises(ValueError, match="Geometry cannot be empty"):
-        city.validate()
-
-def test_city_boundary_to_dict():
-    """Test serialization to dictionary."""
-    wkt = "POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))"
-    city = CityBoundary(name="TestCity", geometry=wkt)
-    data = city.to_dict()
-    assert "name" in data
-    assert "geometry_wkt" in data
-    assert "crs" in data
-    assert data["name"] == "TestCity"
-
-def test_city_boundary_save_and_load(tmp_path):
-    """Test saving and loading from JSON."""
-    wkt = "POLYGON ((0 0, 1 0, 1 1, 0 1, 0 0))"
-    city = CityBoundary(name="TestCity", geometry=wkt)
-    save_path = tmp_path / "city.json"
-    city.save(save_path)
-    assert save_path.exists()
-    
-    loaded_city = CityBoundary.from_json(save_path)
-    assert loaded_city.name == city.name
-    assert loaded_city.crs == city.crs
-
-# --- RasterCovariate Tests ---
-
-def test_raster_covariate_init():
-    """Test initialization of RasterCovariate."""
-    # We can't easily create a real file in a temp dir for this test without rasterio
-    # So we test the object creation and validation logic for fields
-    # We will mock the path existence check or use a real temp file
-    import tempfile
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        temp_path = f.name
-    
-    try:
-        raster = RasterCovariate(
-            name="test_covariate",
-            path=temp_path,
-            crs="EPSG:3857",
-            resolution=30.0,
-            description="Test covariate"
+    def test_valid_initialization(self):
+        """Test initialization with valid WKT."""
+        wkt = "POLYGON((-74.0 40.7, -74.0 40.8, -73.9 40.8, -73.9 40.7, -74.0 40.7))"
+        city = CityBoundary(
+            city_name="New York",
+            wkt_geometry=wkt,
+            crs_epsg=4326,
+            source="OpenStreetMap"
         )
-        assert raster.name == "test_covariate"
-        assert raster.resolution == 30.0
-        raster.validate() # Should pass
-    finally:
-        import os
-        os.unlink(temp_path)
+        assert city.city_name == "New York"
+        assert city.crs_epsg == 4326
+        assert city.source == "OpenStreetMap"
+        assert city.bbox is not None
+        assert len(city.bbox) == 4
 
-def test_raster_covariate_missing_file():
-    """Test validation fails if file does not exist."""
-    raster = RasterCovariate(
-        name="test_covariate",
-        path="/non/existent/path.tif",
-        crs="EPSG:3857",
-        resolution=30.0
-    )
-    with pytest.raises(FileNotFoundError):
-        raster.validate()
+    def test_invalid_geometry_type(self):
+        """Test that non-polygon geometry raises error."""
+        wkt = "POINT(-74.0 40.7)"
+        with pytest.raises(ValueError):
+            CityBoundary(
+                city_name="Test",
+                wkt_geometry=wkt,
+                crs_epsg=4326
+            )
 
-def test_raster_covariate_invalid_resolution():
-    """Test validation fails for non-positive resolution."""
-    import tempfile
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        temp_path = f.name
-    try:
-        raster = RasterCovariate(
-            name="test",
-            path=temp_path,
-            crs="EPSG:3857",
-            resolution=-10.0
+    def test_invalid_crs(self):
+        """Test that invalid EPSG code raises error."""
+        wkt = "POLYGON((-74.0 40.7, -74.0 40.8, -73.9 40.8, -73.9 40.7, -74.0 40.7))"
+        with pytest.raises(ValueError):
+            CityBoundary(
+                city_name="Test",
+                wkt_geometry=wkt,
+                crs_epsg=-1
+            )
+
+    def test_serialization(self):
+        """Test JSON serialization and deserialization."""
+        wkt = "POLYGON((-74.0 40.7, -74.0 40.8, -73.9 40.8, -73.9 40.7, -74.0 40.7))"
+        city = CityBoundary(
+            city_name="New York",
+            wkt_geometry=wkt,
+            crs_epsg=4326
         )
-        with pytest.raises(ValueError, match="Resolution must be positive"):
-            raster.validate()
-    finally:
-        import os
-        os.unlink(temp_path)
+        
+        json_str = city.to_json()
+        data = json.loads(json_str)
+        assert data['city_name'] == "New York"
+        assert data['crs_epsg'] == 4326
 
-# --- TemperatureRaster Tests ---
+        # Test loading from dict
+        city2 = CityBoundary(**data)
+        assert city2.city_name == city.city_name
 
-def test_temperature_raster_init():
-    """Test initialization of TemperatureRaster."""
-    import tempfile
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        temp_path = f.name
-    try:
-        temp_raster = TemperatureRaster(
-            name="MODIS_LST",
-            path=temp_path,
-            crs="EPSG:3857",
-            resolution=30.0,
-            unit="Kelvin",
-            min_val=200.0,
-            max_val=350.0,
-            cloud_cover_pct=5.0
-        )
-        assert temp_raster.unit == "Kelvin"
-        assert temp_raster.cloud_cover_pct == 5.0
-        temp_raster.validate()
-    finally:
-        import os
-        os.unlink(temp_path)
 
-def test_temperature_raster_invalid_unit():
-    """Test validation fails for invalid unit."""
-    import tempfile
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        temp_path = f.name
-    try:
-        temp_raster = TemperatureRaster(
-            name="MODIS_LST",
-            path=temp_path,
-            crs="EPSG:3857",
-            resolution=30.0,
-            unit="InvalidUnit"
-        )
-        with pytest.raises(ValueError, match="Invalid temperature unit"):
-            temp_raster.validate()
-    finally:
-        import os
-        os.unlink(temp_path)
+class TestRasterCovariate:
+    """Tests for RasterCovariate model."""
 
-def test_temperature_raster_cloud_cover_range():
-    """Test validation fails for cloud cover out of range."""
-    import tempfile
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        temp_path = f.name
-    try:
-        temp_raster = TemperatureRaster(
-            name="MODIS_LST",
-            path=temp_path,
-            crs="EPSG:3857",
-            resolution=30.0,
-            cloud_cover_pct=150.0
-        )
-        with pytest.raises(ValueError, match="Cloud cover percentage"):
-            temp_raster.validate()
-    finally:
-        import os
-        os.unlink(temp_path)
+    def test_file_not_found(self):
+        """Test that missing file raises error."""
+        with pytest.raises(FileNotFoundError):
+            RasterCovariate(
+                name="test_covariate",
+                file_path="/nonexistent/path.tif",
+                crs_epsg=4326,
+                resolution_m=30.0
+            )
 
-def test_temperature_raster_convert_units():
-    """Test unit conversion logic."""
-    import tempfile
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        temp_path = f.name
-    try:
-        temp_raster = TemperatureRaster(
-            name="MODIS_LST",
-            path=temp_path,
-            crs="EPSG:3857",
-            resolution=30.0,
-            unit="Kelvin",
-            min_val=273.15, # 0 C
-            max_val=373.15 # 100 C
-        )
-        temp_raster.convert_units("Celsius")
-        assert temp_raster.unit == "Celsius"
-        assert abs(temp_raster.min_val - 0.0) < 0.01
-        assert abs(temp_raster.max_val - 100.0) < 0.01
-    finally:
-        import os
-        os.unlink(temp_path)
+    def test_stats_computation(self):
+        """Test that stats are computed automatically."""
+        with tempfile.NamedTemporaryFile(suffix='.tif', delete=False) as tmp:
+            # Create a minimal GeoTIFF
+            try:
+                import rasterio
+                from rasterio.transform import from_bounds
+                import numpy as np
+
+                data = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], dtype=np.float32)
+                transform = from_bounds(0, 0, 3, 3, 3, 3)
+                
+                with rasterio.open(
+                    tmp.name, 'w',
+                    driver='GTiff',
+                    height=3, width=3,
+                    count=1,
+                    dtype=data.dtype,
+                    crs='EPSG:4326',
+                    transform=transform
+                ) as dst:
+                    dst.write(data, 1)
+
+                cov = RasterCovariate(
+                    name="test_cov",
+                    file_path=tmp.name,
+                    crs_epsg=4326,
+                    resolution_m=1.0
+                )
+                
+                assert cov.stats is not None
+                assert cov.stats['mean'] == 5.0
+                assert cov.stats['count'] == 9
+            finally:
+                os.unlink(tmp.name)
+
+
+class TestTemperatureRaster:
+    """Tests for TemperatureRaster model."""
+
+    def test_unit_conversion(self):
+        """Test Kelvin to Celsius conversion."""
+        with tempfile.NamedTemporaryFile(suffix='.tif', delete=False) as tmp:
+            try:
+                import rasterio
+                from rasterio.transform import from_bounds
+                import numpy as np
+
+                # Create data in Kelvin
+                data = np.array([[300, 301, 302], [303, 304, 305]], dtype=np.float32)
+                transform = from_bounds(0, 0, 3, 2, 3, 2)
+                
+                with rasterio.open(
+                    tmp.name, 'w',
+                    driver='GTiff',
+                    height=2, width=3,
+                    count=1,
+                    dtype=data.dtype,
+                    crs='EPSG:4326',
+                    transform=transform
+                ) as dst:
+                    dst.write(data, 1)
+
+                temp_raster = TemperatureRaster(
+                    name="test_temp",
+                    file_path=tmp.name,
+                    crs_epsg=4326,
+                    resolution_m=1.0,
+                    unit="K"
+                )
+                
+                # Convert to Celsius
+                temp_c = temp_raster.convert_units("C")
+                assert temp_c.unit == "C"
+                # Mean should be around 27-28 C (300-305 K)
+                assert 20 < temp_c.stats['mean_temp_c'] < 35
+            finally:
+                os.unlink(tmp.name)
+
+    def test_missing_required_fields(self):
+        """Test validation of required fields."""
+        with pytest.raises(ValueError):
+            TemperatureRaster.load_from_file("nonexistent.json")

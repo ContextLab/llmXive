@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResults"
+description: "Schema for LogiQA evaluation results per model variant and seed."
+type: "object"
+properties:
+  model_variant:
+    type: "string"
+    description: "Name of the model variant (fim, nl_control, baseline)."
+  seed:
+    type: "integer"
+    description: "Random seed used for the run."
+  accuracy:
+    type: "number"
+    description: "Accuracy score (0.0 to 1.0)."
+  logiqa_samples_processed:
+    type: "integer"
+    description: "Number of samples processed."
+  convergence_status:
+    type: "string"
+    description: "Status of model convergence during training."
+    enum:
+      - "converged"
+      - "underfit"
+      - "timeout"
+required:
+  - model_variant
+  - seed
+  - accuracy
+  - logiqa_samples_processed
+  - convergence_status

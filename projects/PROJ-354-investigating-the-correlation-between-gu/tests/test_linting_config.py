@@ -1,125 +1,101 @@
 """
-Tests for the linting configuration and helper functions.
+Unit tests for the linting configuration module.
 """
-
-import subprocess
-import sys
-from unittest.mock import patch, MagicMock
-
 import pytest
+import sys
+import subprocess
+from unittest.mock import patch, MagicMock
+from pathlib import Path
 
-# Import the module to test
-import code.linting_config as linting_config
+# Adjust path to import code modules
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-
-class TestLintingConfigConstants:
-    """Test that configuration constants are correctly defined."""
-
-    def test_black_line_length(self):
-        assert linting_config.BLACK_LINE_LENGTH == 88
-
-    def test_black_target_version(self):
-        assert linting_config.BLACK_TARGET_VERSION == "py310"
-
-    def test_ruff_target_version(self):
-        assert linting_config.RUFF_TARGET_VERSION == "3.10"
-
-    def test_exclude_patterns(self):
-        assert isinstance(linting_config.EXCLUDE_PATTERNS, list)
-        assert ".git" in linting_config.EXCLUDE_PATTERNS
-        assert "data" in linting_config.EXCLUDE_PATTERNS
-        assert "results" in linting_config.EXCLUDE_PATTERNS
+from code.linting_config import (
+    get_black_config,
+    get_ruff_config,
+    validate_environment,
+    run_formatter,
+    run_linter,
+    main,
+)
 
 
-class TestGetConfigFunctions:
-    """Test the configuration dictionary generators."""
+class TestConfigGeneration:
+    """Tests for configuration retrieval functions."""
 
-    def test_get_black_config(self):
-        config = linting_config.get_black_config()
-        assert config["line-length"] == 88
-        assert "py310" in config["target-version"]
-        assert "data" in config["exclude"]
+    def test_get_black_config_returns_valid_dict(self):
+        config = get_black_config()
+        assert isinstance(config, dict)
+        assert "line_length" in config
+        assert config["line_length"] == 88
+        assert "target_version" in config
+        assert config["target_version"] == "py310"
 
-    def test_get_ruff_config(self):
-        config = linting_config.get_ruff_config()
-        assert config["target-version"] == "py310"
-        assert "E" in config["lint"]["select"]
-        assert "F" in config["lint"]["select"]
-        assert "E501" in config["lint"]["ignore"]
+    def test_get_ruff_config_returns_valid_dict(self):
+        config = get_ruff_config()
+        assert isinstance(config, dict)
+        assert "select" in config
+        assert isinstance(config["select"], list)
+        assert "E" in config["select"]
+        assert "ignore" in config
+        assert isinstance(config["ignore"], list)
 
 
-class TestValidateEnvironment:
-    """Test the environment validation function."""
+class TestEnvironmentValidation:
+    """Tests for environment validation."""
 
     @patch("code.linting_config.subprocess.run")
     def test_validate_environment_success(self, mock_run):
-        # Mock successful execution for both tools
-        mock_run.return_value = MagicMock(returncode=0)
-
-        with patch("code.linting_config.print") as mock_print:
-            result = linting_config.validate_environment()
-            assert result is True
-            mock_print.assert_not_called()  # No error messages expected
-
-    @patch("code.linting_config.subprocess.run")
-    def test_validate_environment_failure(self, mock_run):
-        # Mock failure for one tool
-        def side_effect(*args, **kwargs):
-            if "ruff" in str(args):
-                raise subprocess.CalledProcessError(1, "ruff")
-            return MagicMock(returncode=0)
-
-        mock_run.side_effect = side_effect
-
-        with patch("code.linting_config.print") as mock_print:
-            result = linting_config.validate_environment()
-            assert result is False
-            mock_print.assert_called()  # Should print missing tools message
-
-
-class TestRunFormatter:
-    """Test the Black formatter runner."""
-
-    @patch("code.linting_config.subprocess.run")
-    def test_run_formatter_success(self, mock_run):
+        # Mock successful subprocess calls for both ruff and black
         mock_run.return_value = MagicMock(
-            returncode=0, stdout="All done!", stderr=""
+            stdout="ruff 0.1.0", stderr="", returncode=0
         )
 
-        with patch("code.linting_config.print") as mock_print:
-            result = linting_config.run_formatter("code")
+        with patch("code.linting_config.subprocess.run", side_effect=[
+            MagicMock(stdout="ruff 0.1.0", stderr="", returncode=0),
+            MagicMock(stdout="black, 23.1.0", stderr="", returncode=0),
+        ]):
+            result = validate_environment()
             assert result is True
-            mock_run.assert_called_once()
-            args = mock_run.call_args[0][0]
-            assert "black" in args
 
     @patch("code.linting_config.subprocess.run")
-    def test_run_formatter_failure(self, mock_run):
-        mock_run.side_effect = subprocess.CalledProcessError(1, "black")
+    def test_validate_environment_failure_missing_tool(self, mock_run):
+        # Mock failure for ruff
+        mock_run.side_effect = FileNotFoundError("ruff not found")
 
-        result = linting_config.run_formatter("code")
+        result = validate_environment()
         assert result is False
 
 
-class TestRunLinter:
-    """Test the Ruff linter runner."""
+class TestRunners:
+    """Tests for formatter and linter runners."""
 
     @patch("code.linting_config.subprocess.run")
-    def test_run_linter_success(self, mock_run):
-        mock_run.return_value = MagicMock(
-            returncode=0, stdout="All checks passed!", stderr=""
+    def test_run_formatter_check_only(self, mock_run):
+        mock_run.return_value = MagicMock(stdout="", stderr="", returncode=0)
+
+        result = run_formatter(check_only=True)
+        assert result is True
+        # Verify --check flag was passed
+        call_args = mock_run.call_args[0][0]
+        assert "--check" in call_args
+
+    @patch("code.linting_config.subprocess.run")
+    def test_run_linter_fix_mode(self, mock_run):
+        mock_run.return_value = MagicMock(stdout="", stderr="", returncode=0)
+
+        result = run_linter(fix=True)
+        assert result is True
+        # Verify --fix flag was passed
+        call_args = mock_run.call_args[0][0]
+        assert "--fix" in call_args
+
+    @patch("code.linting_config.subprocess.run")
+    def test_run_linter_issues_found(self, mock_run):
+        # Simulate ruff finding issues (non-zero exit code)
+        mock_run.side_effect = subprocess.CalledProcessError(
+            returncode=1, cmd=["ruff"], output="E501 line too long"
         )
 
-        with patch("code.linting_config.print") as mock_print:
-            result = linting_config.run_linter("code")
-            assert result is True
-            mock_run.assert_called_once()
-            args = mock_run.call_args[0][0]
-            assert "ruff" in args
-
-    @patch("code.linting_config.subprocess.run")
-    def test_run_linter_failure(self, mock_run):
-        mock_run.side_effect = subprocess.CalledProcessError(1, "ruff")
-
-        result = linting_config.run_linter("code")
+        result = run_linter()
         assert result is False

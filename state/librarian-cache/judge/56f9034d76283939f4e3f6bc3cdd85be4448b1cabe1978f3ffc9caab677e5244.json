@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1812.10860",
+  "judged_at": "2026-08-11T10:13:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+  "rationale": "This paper belongs in the literature review as a foundational methodology and empirical baseline (categories c and d) for the \"pretraining tasks\" and \"language modeling\" components of the user's question regarding scalable visual pretraining for language intelligence. While it focuses on text-only tasks, it establishes the canonical evidence base for which pretraining objectives work, which is essential context for any follow-up work extending these methods to the visual domain.",
+  "relevant": true
+}

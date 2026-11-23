@@ -1,18 +1,3 @@
 # Data Configuration
-# Defines storage and validation rules for data artifacts
-storage:
-  raw_dir: "raw"
-  processed_dir: "processed"
-  checksums: true
-
-validation:
-  required_fields:
-    - "repo_owner"
-    - "repo_name"
-    - "commit_hash"
-    - "tool"
-    - "timestamp"
-
-retention:
-  raw_keep_days: 30
-  processed_keep_days: 365
+raw_dir: "data/raw"
+processed_dir: "data/processed"

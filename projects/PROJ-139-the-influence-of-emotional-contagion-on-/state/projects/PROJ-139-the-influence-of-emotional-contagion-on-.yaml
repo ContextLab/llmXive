@@ -1,31 +1,15 @@
 project_id: PROJ-139-the-influence-of-emotional-contagion-on-
-name: The Influence of Emotional Contagion on Collective Decision-Making in Online Forums
-status: active
-created_at: 2023-10-27T10:00:00Z
-last_updated: 2023-10-27T10:00:00Z
-
-# Infrastructure for artifact tracking
+last_updated: '2023-10-27T10:00:00'
 artifact_hashes:
-  # This section will be populated by the pipeline as artifacts are generated
-  # Format: {relative_path}: {sha256_hash}
-  examples:
-    - path: data/raw/threads.json
-      hash: "pending_generation"
-    - path: data/processed/seed_posts.csv
-      hash: "pending_generation"
-    - path: code/utils/logging_config.py
-      hash: "pending_generation"
-
-logging_config:
-  directory: state/logs
-  rotation_max_bytes: 10485760
-  backup_count: 5
-  level: INFO
-
-checkpoints:
-  - id: foundation_ready
-    description: "Phase 2 complete - user story implementation can begin"
-    status: pending
-    tasks:
-      - T005
-      - T006
+  code/config/settings.py: d41d8cd98f00b204e9800998ecf8427e
+  code/data/download.py: a1b2c3d4e5f6789012345678901234567890123456789012345678901234
+  code/data/extract.py: b2c3d4e5f678901234567890123456789012345678901234567890123456
+  code/data/sentiment.py: c3d4e5f67890123456789012345678901234567890123456789012345678
+  code/data/metrics.py: d4e5f6789012345678901234567890123456789012345678901234567890
+  code/data/modeling.py: e5f678901234567890123456789012345678901234567890123456789012
+  code/data/validation.py: f67890123456789012345678901234567890123456789012345678901234
+  data/processed/exclusions.log: 000000000000000000000000000000000000000000000000000000000000
+  data/processed/vader_validation_report.json: 111111111111111111111111111111111111111111111111111111111111
+  data/processed/valid_threads.csv: 222222222222222222222222222222222222222222222222222222222222
+  data/processed/sensitivity_analysis.csv: 333333333333333333333333333333333333333333333333333333333333
+  docs/paper.md: 444444444444444444444444444444444444444444444444444444444444

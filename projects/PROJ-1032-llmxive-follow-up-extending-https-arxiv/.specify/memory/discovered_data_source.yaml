@@ -1,0 +1,8 @@
+status: none
+intent: GSM8K dataset downloadable pip install python package dataset
+required_fields:
+- question
+- answer
+cache_key: c36a4eb6a9d5fa956ed91500428a6b8f796633aa3658b4aa674923e5df3ab3de
+searched_at: '2026-10-04T19:45:13.493971+00:00'
+retry_count: 1

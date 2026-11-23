@@ -14,3 +14,622 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T07:28:04Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Extract 20 methods per project type for 60 total methods in Defects4J
+    dataset
+  claim_id: c_6c76855e
+  context: 'T013 [P] [US1] Implement code/download/download_defects4j.py to fetch
+    DefectsJ v2.0 and extract a stratified sample of buggy methods (FR-001). ... Stratified
+    Sampling: Implement stratified sampling to extract N=20 methods per project type
+    (Chart, Time, Math) for a total of 60 methods using a fixed random seed to ensure
+    balanced representation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling to extract N=20 methods per project type
+    (Chart, Time, Math) for a total of 60 methods using a fixed random seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:38:28Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Verify timestamp precision is 100ms or less
+  claim_id: c_2500acdc
+  context: "T012 [US1] Implement code/simulation/latency_calibrator.py to verify timestamp\
+    \ precision \u2264100ms (FR-003). ... Must raise SystemExit with exit code 1 if\
+    \ latency >100ms, preventing any data download or simulation."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_timestamp_precision_is_100ms_or_less
+  kind: magnitude
+  raw_text: Assert latency precision is less than or equal to 100ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:38:54Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Verify CI runtime is 6 hours or less and memory is 7GB or less
+  claim_id: c_094966cd
+  context: "T030-workflow [US3] CI Workflow: ... Assert runtime \u22646h and memory\
+    \ \u22647GB using code/utils/resource_monitor.py. ... T029 [US3] Create docs/README.md\
+    \ documenting how to rerun analysis on GitHub Actions free-tier (\u22646h, \u2264\
+    7GB RAM, NO GPU) (FR-007)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_CI_runtime_is_6_hours_or_less_and_memory_is_7GB_or_le
+  kind: magnitude
+  raw_text: Assert runtime is less than or equal to 6 hours and memory is less than
+    or equal to 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:39:10Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Apply Holm-Bonferroni correction with alpha 0.05
+  claim_id: c_e4117e79
+  context: "T024-stats [US2] ... Import and invoke correction function from code/analysis/correction_utils.py\
+    \ to apply Holm-Bonferroni correction (\u03B1=0.05) (FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Holm-Bonferroni correction with an alpha of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:39:32Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Flag tasks with duration over 30 minutes as outliers
+  claim_id: c_dc1cb561
+  context: 'T045 [US2] Mandatory: Implement outlier detection logic in code/analysis/run_statistics.py
+    to flag tasks with duration >30 minutes, update data/analysis_results/outlier_flags.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_tasks_with_duration_over_30_minutes_as_outliers
+  kind: magnitude
+  raw_text: Flag tasks with duration greater than 30 minutes as outliers.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:40:08Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Exclude participants with 2 or more tasks over 30 minutes
+  claim_id: c_157fc08f
+  context: "T048 [US2] Mandatory: Implement explicit outlier exclusion logic in code/analysis/run_statistics.py\
+    \ to filter participants with \u22652 tasks >30 minutes before running McNemar's\
+    \ or LME tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants with 2 or more tasks exceeding 30 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:40:12Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Verify numerical tolerance of 1e-4 for p-values and effect sizes
+  claim_id: c_c4a2b8f6
+  context: 'T030-workflow [US3] ... Command: python code/tests/test_reproducibility.py
+    --seed 42 --tolerance 1e-4. Tolerance: 1e-4 for p-values and effect sizes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare results with a numerical tolerance of 1e-4 for p-values and effect
+    sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:40:17Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Verify reproducibility package size is under 500MB
+  claim_id: c_2a7dbb15
+  context: 'T031 [US3] Reproducibility Package: ... Verification: Assert data/reproducibility_package_v1.0.tar.gz
+    exists and is < 500MB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_reproducibility_package_size_is_under_500MB
+  kind: magnitude
+  raw_text: Assert the reproducibility package is less than 500MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:40:24Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Use CodeLlama 8-bit quantization for real summary generation
+  claim_id: c_b3a21fbf
+  context: 'T014-real [Manual] [US1] Offline (Real): Implement code/generation/run_gpu_summaries.py
+    to perform actual LLM summary generation via HuggingFace codellama/CodeLlamab-hf
+    with -bit quantization (device="cuda", load_in_8bit=True).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use HuggingFace codellama/CodeLlamab-hf with 8-bit quantization for real
+    LLM summary generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:40:28Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: extract 20 methods per project type for total 60 methods
+  claim_id: c_e23cb5db
+  context: 'Stratified Sampling: Implement stratified sampling to extract **N=20 methods
+    per project type** (Chart, Time, Math) for a **total of 60 methods** using a fixed
+    random seed to ensure balanced representation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified sampling is implemented to extract N=20 methods per project
+    type (Chart, Time, Math) for a total of 60 methods.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:42:32Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis default values 0.01 0.05 0.10
+  claim_id: c_7b16fcb4
+  context: 'Define sensitivity analysis range in `code/analysis/config.py` to specify
+    the "standard cutoffs" for the sweep. **Mandatory default values**: `[0.01, 0.05,
+    0.10]`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis range uses mandatory default values of [0.01,
+    0.05, 0.10].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:42:36Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: flag tasks with duration greater than 30 minutes
+  claim_id: c_cbc88b01
+  context: Implement outlier detection logic in `code/analysis/run_statistics.py`
+    to flag tasks with duration >30 minutes, update `data/analysis_results/outlier_flags.json`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_tasks_with_duration_greater_than_30_minutes
+  kind: magnitude
+  raw_text: Outlier detection flags tasks with duration greater than 30 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:42:45Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: exclude participants with 2 or more tasks exceeding 30 minutes
+  claim_id: c_17d1d3d2
+  context: "Implement explicit outlier exclusion logic in `code/analysis/run_statistics.py`\
+    \ to filter participants with \u22652 tasks >30 minutes before running McNemar's\
+    \ or LME tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Participants with 2 or more tasks exceeding 30 minutes are excluded from
+    paired analyses.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:42:49Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: tolerance 1e-4 for p-values and effect sizes
+  claim_id: c_f3ccc040
+  context: 'Compare `data/analysis_results/results.csv` against the current execution''s
+    results. **Command**: `python code/tests/test_reproducibility.py --seed 42 --tolerance
+    1e-4`. **Tolerance**: `1e-4` for p-values and effect sizes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reproducibility package verification uses a tolerance of 1e-4 for
+    p-values and effect sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:42:54Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: reproducibility package less than 500MB
+  claim_id: c_952094b2
+  context: 'Verification: Assert `data/reproducibility_package_v1.0.tar.gz` exists
+    and is < 500MB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_package_less_than_500MB
+  kind: magnitude
+  raw_text: The reproducibility package must be less than 500MB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:42:57Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: CI memory limit 7GB
+  claim_id: c_e3187ebf
+  context: "Setup CI resource monitor `code/utils/resource_monitor.py` to assert \u2264\
+    7GB RAM and \u22646h runtime via in-script assertions as per FR-007's CI test\
+    \ procedure"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_memory_limit_7GB
+  kind: entity_fact
+  raw_text: The CI runner must assert memory usage of 7GB or less.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:43:02Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: CI runtime limit 6 hours
+  claim_id: c_219c926b
+  context: "Setup CI resource monitor `code/utils/resource_monitor.py` to assert \u2264\
+    7GB RAM and \u22646h runtime via in-script assertions as per FR-007's CI test\
+    \ procedure"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI runner must assert a runtime of 6 hours or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:43:04Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: latency calibrator verify precision 100ms
+  claim_id: c_05203606
+  context: "Implement `code/simulation/latency_calibrator.py` to verify timestamp\
+    \ precision \u2264100ms (FR-003)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latency_calibrator_verify_precision_100ms
+  kind: entity_fact
+  raw_text: The latency calibrator verifies timestamp precision of 100ms or less.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:43:09Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: exit code 1 if latency exceeds 100ms
+  claim_id: c_c0f90f22
+  context: Must raise `SystemExit` with exit code 1 if latency >100ms, preventing
+    any data download or simulation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must raise SystemExit with exit code 1 if latency exceeds 100ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:43:13Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: fallback if timeout exceeds 30 seconds
+  claim_id: c_3f2c9374
+  context: If the generation fails (timeout >30s, empty output, or non-text), the
+    system MUST **immediately** call the rule-based `srcML` extractor for that specific
+    task and log the fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LLM generation fallback triggers if generation fails, times out after
+    30 seconds, produces empty output, or non-text output.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:43:15Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction alpha 0.05
+  claim_id: c_6024512a
+  context: "Import and invoke correction function from `code/analysis/correction_utils.py`\
+    \ to apply Holm-Bonferroni correction (\u03B1=0.05) (FR-006)."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: "Holm\u2013Bonferroni method"
+      url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Holm-Bonferroni correction is applied with an alpha of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T08:43:19Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: use codellama CodeLlamab-hf with 8-bit quantization
+  claim_id: c_ef7a7982
+  context: Implement `code/generation/run_gpu_summaries.py` to perform **actual**
+    LLM summary generation via HuggingFace `codellama/CodeLlamab-hf` with -bit quantization
+    (`device="cuda"`, `load_in_8bit=True`).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline uses codellama/CodeLlamab-hf with 8-bit quantization for
+    LLM summary generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:43:21Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: reproducibility package named data/reproducibility_package_v1.0.tar.gz
+  claim_id: c_bb3c941a
+  context: Implement `code/utils/package_reproducibility.py` to generate `data/reproducibility_package_v1.0.tar.gz`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reproducibility package is named data/reproducibility_package_v1.0.tar.gz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:43:24Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: stratified sampling of 60 methods with 20 per project type
+  claim_id: c_d00d8af3
+  context: 'Stratified Sampling: Implement stratified sampling to extract N=20 methods
+    per project type (Chart, Time, Math) for a total of 60 methods using a fixed random
+    seed to ensure balanced representation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling to extract N=20 methods per project type
+    (Chart, Time, Math) for a total of 60 methods
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:44:51Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: timestamp precision threshold of 100ms
+  claim_id: c_9f0b5f02
+  context: "Implement code/simulation/latency_calibrator.py to verify timestamp precision\
+    \ \u2264100ms (FR-003)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timestamp_precision_threshold_of_100ms
+  kind: entity_fact
+  raw_text: "Verify timestamp precision \u2264100ms"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:44:58Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: CI runtime limit of 6 hours and memory limit of 7GB
+  claim_id: c_abd8651b
+  context: "Assert runtime \u22646h and memory \u22647GB using code/utils/resource_monitor.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assert runtime \u22646h and memory \u22647GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:44:58Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: outlier detection for tasks exceeding 30 minutes
+  claim_id: c_3c61ee4f
+  context: Implement outlier detection logic in code/analysis/run_statistics.py to
+    flag tasks with duration >30 minutes, update data/analysis_results/outlier_flags.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag tasks with duration >30 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:44:59Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: exclude participants with 2 or more tasks exceeding 30 minutes
+  claim_id: c_50b66766
+  context: "Implement explicit outlier exclusion logic in code/analysis/run_statistics.py\
+    \ to filter participants with \u22652 tasks >30 minutes before running McNemar's\
+    \ or LME tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter participants with \u22652 tasks >30 minutes"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:44:59Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction at alpha level 0.05
+  claim_id: c_e952a5a0
+  context: "Import and invoke correction function from code/analysis/correction_utils.py\
+    \ to apply Holm-Bonferroni correction (\u03B1=0.05 (Wikipedia: Holm\u2013Bonferroni\
+    \ method, https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method)) (FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply Holm-Bonferroni correction (\u03B1=0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:45:02Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: numerical tolerance of 1e-4 for reproducibility check
+  claim_id: c_192344b2
+  context: 'Compare data/analysis_results/results.csv against the current execution''s
+    results. Command: python code/tests/test_reproducibility.py --seed 42 --tolerance
+    1e-4. Tolerance: 1e-4 for p-values and effect sizes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify numerical tolerance of 1e-4 for p-values and effect sizes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:45:06Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: reproducibility package size limit of 500MB
+  claim_id: c_6a9ce547
+  context: 'Verification: Assert data/reproducibility_package_v1.0.tar.gz exists and
+    is < 500MB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert data/reproducibility_package_v1.0.tar.gz is < 500MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:45:08Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: use statsmodels.formula.api.mixedlm for Linear Mixed-Effects models
+  claim_id: c_578a6990
+  context: Run Linear Mixed-Effects (LME) models with random intercepts for participants
+    using statsmodels.formula.api.mixedlm (FR-004).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_statsmodels.formula.api.mixedlm_for_Linear_Mixed-Effects
+  kind: entity_fact
+  raw_text: Run LME models using statsmodels.formula.api.mixedlm
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:45:11Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: HuggingFace CodeLlama 8-bit quantization model
+  claim_id: c_c56ca045
+  context: Implement code/generation/run_gpu_summaries.py to perform actual LLM summary
+    generation via HuggingFace codellama/CodeLlamab-hf with -bit quantization (device="cuda",
+    load_in_8bit=True).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use HuggingFace codellama/CodeLlamab-hf with 8-bit quantization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:45:13Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: 30 second timeout for LLM generation fallback
+  claim_id: c_7ff7ed01
+  context: If the generation fails (timeout >30s, empty output, or non-text), the
+    system MUST immediately call the rule-based srcML extractor for that specific
+    task and log the fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Timeout threshold of 30s for LLM inference fallback
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:45:15Z'
+- artifact_path: projects/PROJ-140-evaluating-the-efficacy-of-code-summariz/specs/001-evaluating-the-efficacy-of-code-summariz/tasks.md
+  attempts: 1
+  canonical: random seed 42 for reproducibility verification
+  claim_id: c_96db754d
+  context: 'Command: python code/tests/test_reproducibility.py --seed 42 --tolerance
+    1e-4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fixed random seed 42 for reproducibility test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T08:45:19Z'

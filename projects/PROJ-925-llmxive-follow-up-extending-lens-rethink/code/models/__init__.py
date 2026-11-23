@@ -1,12 +1,5 @@
 """
-Models package for llmXive follow-up project.
+Model definitions for llmXive.
 
-Exports base data model entities for the pipeline.
+Contains data models and Pydantic schemas.
 """
-from .caption_record import CaptionRecord
-from .linguistic_feature_vector import LinguisticFeatureVector
-
-__all__ = [
-    "CaptionRecord",
-    "LinguisticFeatureVector"
-]

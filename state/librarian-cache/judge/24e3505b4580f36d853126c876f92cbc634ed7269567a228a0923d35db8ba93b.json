@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.11022",
+  "judged_at": "2026-08-17T09:36:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of code generation models on code vulnerability density computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it empirically measures the same dependent variable (code vulnerability density/security) within the exact same domain (LLM-generated code) and investigates the causal mechanism of how AI models impact security, even though it focuses specifically on the \"iterative\" aspect rather than a general baseline.",
+  "relevant": true
+}

@@ -96,7 +96,7 @@ A domain expert needs to visualize the predicted phase diagrams alongside ground
 - **SC-006**: The statistical power analysis is reported with a calculated power value ≥ 0.8 (at α ≤ 0.05); if power < 0.8, the project halts (See US-2).
 - **SC-007**: The generated descriptors (mean atomic radius, electronegativity, etc.) are validated against a reference dataset of known physical constants with ≤ 1% deviation (See US-1).
 - **SC-008**: The model performance improvement over the null baseline is measured as a percentage reduction in MAE, with a target of statistically significant improvement (p < 0.05) (See US-2).
-- **SC-009**: The standard deviation of prediction errors is measured against a threshold of 50K (Kelvin) to trigger the `LOW_DATA_DENSITY` error condition (See Edge Cases).
+- **SC-009**: The standard deviation of prediction errors is measured against a predefined threshold to trigger the `LOW_DATA_DENSITY` error condition. (See Edge Cases).
 
 ## Assumptions
 

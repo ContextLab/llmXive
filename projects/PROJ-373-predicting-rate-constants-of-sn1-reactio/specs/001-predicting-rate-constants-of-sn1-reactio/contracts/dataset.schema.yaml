@@ -1,31 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SN1 Dataset Schema"
+description: "Schema for the cleaned SN1 reaction dataset"
 type: object
-required:
-  - smiles
-  - rate_constant
-  - substrate_class
 properties:
   smiles:
     type: string
-    description: Canonical SMILES string
+    description: "Canonical SMILES string"
   rate_constant:
     type: number
-    description: Experimental rate constant
+    description: "Experimental rate constant (normalized to s^-1)"
+  temperature:
+    type: number
+    description: "Reaction temperature in Kelvin"
+  solvent:
+    type: string
+    description: "Solvent name"
   substrate_class:
     type: string
     enum:
       - secondary
       - tertiary
-    description: Substrate classification
-  gasteiger_charges:
-    type: array
-    items:
-      type: number
-    description: Gasteiger partial charges
-  topological_indices:
-    type: array
-    items:
-      type: number
-    description: Topological indices
-  source_id:
-    type: string
-    description: Source database ID
+    description: "Explicit substrate class from source"
+  descriptors:
+    type: object
+    description: "Computed molecular descriptors"
+    properties:
+      gasteiger_charges:
+        type: array
+        items:
+          type: number
+      topological_indices:
+        type: array
+        items:
+          type: number
+required:
+  - smiles
+  - rate_constant
+  - temperature
+  - solvent
+  - substrate_class
+  - descriptors

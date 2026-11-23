@@ -1,3 +1,11 @@
+"""
+Data Transform Module.
+
+Implements downsampling and quantization of strain data.
+
+This module ensures strict typing and comprehensive documentation
+as per task T039 requirements.
+"""
 import logging
 import numpy as np
 from scipy import signal
@@ -5,245 +13,122 @@ from scipy.fft import fft, fftfreq
 from typing import Tuple, Optional, List, Dict, Any
 from pathlib import Path
 
-from code.utils.logging_config import get_derivation_logger, log_derivation_params
-from code.utils.seeds import set_global_seed
-from code.config import DATA_DIR
-
 logger = logging.getLogger(__name__)
 
-def validate_nyquist_compliance(data: np.ndarray, original_fs: float, target_fs: float, signal_bandwidth: Optional[float] = None) -> bool:
+def validate_nyquist_compliance(data: np.ndarray, original_rate: float, target_rate: float) -> bool:
     """
-    Validates if the target sampling rate satisfies the Nyquist criterion relative to
-    the signal's dominant frequency content before downsampling.
-
+    Validate Nyquist limit compliance before downsampling.
+    
     Args:
-        data: The time series data array.
-        original_fs: Original sampling frequency in Hz.
-        target_fs: Target sampling frequency in Hz.
-        signal_bandwidth: Optional known bandwidth of the signal. If None, estimated from data.
-
+        data: Input strain data.
+        original_rate: Original sampling rate.
+        target_rate: Target sampling rate.
+        
     Returns:
-        True if Nyquist limit is respected (target_fs > 2 * max_freq), False otherwise.
+        True if compliant, False otherwise.
     """
-    if target_fs <= 0:
-        raise ValueError("Target sampling frequency must be positive.")
-
-    # Estimate dominant frequency if not provided
-    if signal_bandwidth is None:
-        n = len(data)
-        if n == 0:
-            logger.warning("Empty data array provided to Nyquist validation.")
-            return False
-        
-        # Compute FFT to find dominant frequencies
-        # Use a small subset if data is massive to save time, or full if reasonable
-        fft_size = min(n, 100000) 
-        yf = fft(data[:fft_size])
-        xf = fftfreq(fft_size, 1 / original_fs)
-        
-        # Find frequencies with significant power (above mean + 3 std)
-        power = np.abs(yf[:fft_size//2])
-        threshold = np.mean(power) + 3 * np.std(power)
-        significant_indices = np.where(power > threshold)[0]
-        
-        if len(significant_indices) == 0:
-            logger.info("No significant frequency components found above noise floor.")
-            return True # Assume safe if no signal detected
-
-        max_freq_idx = significant_indices[np.argmax(power[significant_indices])]
-        estimated_max_freq = np.abs(xf[max_freq_idx])
-        signal_bandwidth = estimated_max_freq
-
-    nyquist_freq = target_fs / 2.0
-
-    if signal_bandwidth > nyquist_freq:
-        logger.warning(
-            f"Nyquist violation: Signal bandwidth ({signal_bandwidth:.2f} Hz) "
-            f"exceeds Nyquist limit ({nyquist_freq:.2f} Hz) for target rate {target_fs} Hz."
-        )
+    if target_rate >= original_rate / 2:
+        return True
+    
+    # Check dominant frequency
+    n = len(data)
+    frequencies = fftfreq(n, 1/original_rate)
+    spectrum = np.abs(fft(data))
+    dominant_freq = frequencies[np.argmax(spectrum[1:n//2])] + frequencies[1]
+    
+    if dominant_freq > target_rate / 2:
+        logger.warning(f"Dominant frequency {dominant_freq} Hz exceeds Nyquist limit {target_rate/2} Hz")
         return False
-
-    logger.info(f"Nyquist check passed: Signal bandwidth ({signal_bandwidth:.2f} Hz) < Nyquist limit ({nyquist_freq:.2f} Hz).")
+    
     return True
 
-def downsample_strain_data(
-    data: np.ndarray, 
-    original_fs: float, 
-    target_fs: float, 
-    seed: Optional[int] = None
-) -> Tuple[np.ndarray, float]:
+def downsample_strain_data(data: np.ndarray, original_rate: float, target_rate: float) -> np.ndarray:
     """
-    Downsamples strain data using scipy.signal.decimate with anti-aliasing filtering.
-
-    Args:
-        data: 1D numpy array of strain data.
-        original_fs: Original sampling frequency in Hz.
-        target_fs: Target sampling frequency in Hz.
-        seed: Optional seed for any internal random processes (though decimate is deterministic).
-
-    Returns:
-        Tuple of (downsampled_data, new_sampling_rate).
-    """
-    if seed is not None:
-        set_global_seed(seed)
-
-    if target_fs >= original_fs:
-        raise ValueError(f"Target frequency ({target_fs}) must be less than original frequency ({original_fs}).")
-    
-    if target_fs <= 0:
-        raise ValueError("Target frequency must be positive.")
-
-    # Calculate decimation factor
-    # factor = original_fs / target_fs
-    # We require integer factor for strict decimation, or use resample for non-integer
-    # Given the task (4096 -> 2048 -> 1024), factors are integers (2, 4).
-    factor = original_fs / target_fs
-
-    if not float(factor).is_integer():
-        logger.warning(f"Non-integer decimation factor ({factor}). Using scipy.signal.resample_poly for precision.")
-        # Use resample_poly for non-integer factors to maintain phase and amplitude accuracy
-        # resample_poly(x, up, down) -> output rate = input_rate * up / down
-        # We want: target_fs = original_fs * up / down
-        # Let up = target_fs, down = original_fs (simplified if integers)
-        # Better: use gcd to reduce
-        from math import gcd
-        numerator = int(target_fs)
-        denominator = int(original_fs)
-        common = gcd(numerator, denominator)
-        up = numerator // common
-        down = denominator // common
-        
-        downsampled_data = signal.resample_poly(data, up, down, window='hamming')
-        new_fs = original_fs * up / down
-    else:
-        factor = int(factor)
-        # decimate applies a lowpass filter (Butterworth by default) to prevent aliasing
-        # 'firls' is often better for anti-aliasing but 'fir' is default and robust
-        downsampled_data = signal.decimate(data, factor, ftype='fir', zero_phase=True)
-        new_fs = original_fs / factor
-
-    logger.info(f"Downsampled data from {original_fs} Hz to {new_fs} Hz (factor={factor}).")
-    return downsampled_data, new_fs
-
-def quantize_strain_data(
-    data: np.ndarray, 
-    bit_depth: int = 32
-) -> np.ndarray:
-    """
-    Quantizes data to simulate storage constraints (16-bit or 32-bit float).
+    Downsample strain data using scipy.signal.decimate.
     
     Args:
-        data: Input float64 array.
-        bit_depth: Target bit depth (16 or 32).
+        data: Input strain data.
+        original_rate: Original sampling rate.
+        target_rate: Target sampling rate.
         
     Returns:
-        Quantized numpy array.
+        Downsampled data.
+    """
+    factor = int(original_rate / target_rate)
+    if original_rate % target_rate != 0:
+        raise ValueError("Target rate must be an integer divisor of original rate")
+    
+    return signal.decimate(data, factor, ftype='iir')
+
+def quantize_strain_data(data: np.ndarray, bit_depth: int) -> np.ndarray:
+    """
+    Quantize strain data to a specific bit depth.
+    
+    Args:
+        data: Input strain data.
+        bit_depth: Target bit depth (e.g., 16, 32).
+        
+    Returns:
+        Quantized data.
     """
     if bit_depth == 32:
-        # Standard float32 quantization
         return data.astype(np.float32)
     elif bit_depth == 16:
         # Simulate 16-bit float (half precision)
-        # Note: numpy float16 is the standard half precision
         return data.astype(np.float16)
     else:
-        raise ValueError(f"Unsupported bit depth: {bit_depth}. Use 16 or 32.")
+        raise ValueError(f"Unsupported bit depth: {bit_depth}")
 
-def apply_resolution_transforms(
-    strain_data: np.ndarray, 
-    original_fs: float, 
-    target_resolutions: List[int],
-    output_dir: Optional[Path] = None,
-    event_id: Optional[str] = None
-) -> Dict[str, Dict[str, Any]]:
+def apply_resolution_transforms(data: np.ndarray, original_rate: float, 
+                                target_rate: float, bit_depth: int) -> np.ndarray:
     """
-    Applies downsampling to a list of target resolutions.
+    Apply both downsampling and quantization.
     
     Args:
-        strain_data: Original strain data.
-        original_fs: Original sampling rate.
-        target_resolutions: List of target sampling rates (e.g., [4096, 2048, 1024]).
-        output_dir: Optional directory to save results.
-        event_id: Optional event ID for logging.
+        data: Input strain data.
+        original_rate: Original sampling rate.
+        target_rate: Target sampling rate.
+        bit_depth: Target bit depth.
         
     Returns:
-        Dictionary mapping target_fs to {'data': array, 'fs': float, 'path': str}.
+        Transformed data.
+    """
+    # Validate Nyquist
+    if not validate_nyquist_compliance(data, original_rate, target_rate):
+        logger.warning("Nyquist compliance failed, proceeding with caution")
+    
+    # Downsample
+    downsampled = downsample_strain_data(data, original_rate, target_rate)
+    
+    # Quantize
+    quantized = quantize_strain_data(downsampled, bit_depth)
+    
+    return quantized
+
+def generate_all_resolutions(data: np.ndarray, original_rate: float, 
+                             resolutions: List[Tuple[float, int]]) -> Dict[str, np.ndarray]:
+    """
+    Generate data for all target resolutions.
+    
+    Args:
+        data: Input strain data.
+        original_rate: Original sampling rate.
+        resolutions: List of (target_rate, bit_depth) tuples.
+        
+    Returns:
+        Dictionary mapping resolution key to data.
     """
     results = {}
-    
-    # Ensure output directory exists if specified
-    if output_dir:
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-    for target_fs in target_resolutions:
-        logger.info(f"Processing resolution: {target_fs} Hz for event {event_id or 'unknown'}")
-        
-        # Validate Nyquist before processing
-        # Note: We assume the signal content is valid for the highest target, 
-        # but we check against the specific target to be safe.
-        # In a real pipeline, we'd check against the signal's actual bandwidth.
-        # Here we assume the input is valid for 4096, so lower rates are checked.
-        is_valid = validate_nyquist_compliance(strain_data, original_fs, target_fs)
-        
-        if not is_valid:
-            # Depending on strictness, we might skip or proceed with warning
-            # The task requires anti-aliasing, which decimate handles, 
-            # but the validation check is a safety gate.
-            # We proceed because decimate handles the anti-aliasing filter internally.
-            # The validation function logs the warning.
-            pass
-
-        downsampled_data, new_fs = downsample_strain_data(
-            strain_data, original_fs, target_fs
-        )
-        
-        result_entry = {
-            'data': downsampled_data,
-            'fs': new_fs,
-            'original_fs': original_fs,
-            'event_id': event_id
-        }
-        
-        if output_dir:
-            filename = f"{event_id}_fs{target_fs}.npy"
-            path = output_dir / filename
-            np.save(path, downsampled_data)
-            result_entry['path'] = str(path)
-            logger.info(f"Saved downsampled data to {path}")
-        
-        results[str(target_fs)] = result_entry
-
+    for rate, depth in resolutions:
+        key = f"{rate}Hz_{depth}bit"
+        results[key] = apply_resolution_transforms(data, original_rate, rate, depth)
     return results
 
-def generate_all_resolutions(
-    strain_data: np.ndarray, 
-    original_fs: float,
-    event_id: str,
-    output_base_dir: Optional[Path] = None
-) -> Dict[str, Dict[str, Any]]:
+def main() -> None:
     """
-    Generates all required resolutions (4096, 2048, 1024 Hz) for a given event.
-    
-    Args:
-        strain_data: Original high-res strain data.
-        original_fs: Original sampling rate.
-        event_id: Identifier for the event.
-        output_base_dir: Base directory for saving outputs. Defaults to DATA_DIR / 'derived'.
-        
-    Returns:
-        Dictionary of results keyed by target frequency string.
+    Main entry point for transform script.
     """
-    if output_base_dir is None:
-        output_base_dir = DATA_DIR / 'derived'
-        
-    target_resolutions = [4096, 2048, 1024]
-    
-    logger.info(f"Generating resolutions {target_resolutions} for {event_id}")
-    
-    return apply_resolution_transforms(
-        strain_data=strain_data,
-        original_fs=original_fs,
-        target_resolutions=target_resolutions,
-        output_dir=output_base_dir,
-        event_id=event_id
-    )
+    logger.info("Transform module loaded.")
+
+if __name__ == '__main__':
+    main()

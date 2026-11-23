@@ -1,23 +1,21 @@
-T015:
+T101:
+  c: true
+  h: 6dcf5a3229ec4c3a9e4a29dd8055b7330f64d128d0c314ca2618f06da5b46988
+  r: "Checked that `data/derived/baseline_metrics.csv` contains exactly three rows\
+    \ with the correct header and non\u2011negative MAE values, and that `data/derived/baseline_residuals.png`\
+    \ is a non\u2011empty image (\u2265200\u202F\xD7\u202F200\u202Fpx) which opens\
+    \ via PIL; the accompanying unit test `tests/unit/test_baseline_metrics.py` validates\
+    \ these conditions."
+  sig: abcabcb385991c953d476ee7ce841a44a6b65ab38df0927393ea0f811bd21a9a
+T103:
   c: false
-  h: 9651e8f5b931d0546515fd0097983f107df948118408b81a5ebe60858c8779f5
-  r: The `code/analysis/stats.py` file exists and contains functions to load predictions
-    and compute MAE/RMSE, but the required output artifact `data/derived/baseline_residuals.png`
-    is missing, indicating the script does not generate (or at least did not produce)
-    the residual distribution plot. The task therefore is not fully satisfied.
-T022:
-  c: false
-  h: 8c82ffa02b8acac19868270100b77bd902ca5647365d496cc716b03173dc2ba2
-  r: "The required output file `data/derived/model_comparison.png` does not exist,\
-    \ and the shown portion of `code/analysis/stats.py` contains only data loading\
-    \ and metric calculations with no code that creates or saves the comparison plot.\
-    \ Consequently the task\u2019s core requirement (generating and saving the plot)\
-    \ is not satisfied."
-T027:
-  c: false
-  h: c5960ec077d3dc9336cb9205670a5cae38359b09cbe45e08bab8a91b6295cec6
-  r: The `code/analysis/explainability.py` file is truncated and does not contain
-    the logic to compute SHAP interaction values, select top interacting fingerprint
-    bit pairs, create a heatmap, or save it as `data/derived/shap_interactions.png`.
-    Moreover, the required PNG file is absent from the repository. Both the implementation
-    and the output artifact are missing.
+  h: 7f7c3b0caac28233cb763752f8fd2736a2e20f93127a4a4b618e72b08e45944d
+  r: "The required output `data/derived/deviation_contexts.csv` is MISSING (as is\
+    \ `data/derived/test_set.csv`), so there is no evidence the `--map-bits` command\
+    \ was ever run or that the unit test passed. Additionally, the implementation's\
+    \ mapping logic is substantively wrong: it builds `rule_lookup = {idx: rules[idx]\
+    \ ...}` positionally, so only the first 5 bit indices get a SMARTS rule and all\
+    \ higher bits are labeled `uninterpretable` regardless of whether they are MACCS\
+    \ or hashed ECFP4/FP2 bits \u2014 it never actually matches each top-K bit's SMARTS\
+    \ against molecules via `GetSubstructMatches` or resolv"
+  sig: feafb4ca7bc1f848be0202f850098dc7265f341cac0f5aaa51e245d79e5c0a4a

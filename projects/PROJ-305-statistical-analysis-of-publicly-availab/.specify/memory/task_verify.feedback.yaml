@@ -1,0 +1,37 @@
+T001:
+  task: d21b4b4adb31830a06c2784e444bd7c41506c0f56e426a2b9ef3f06739c7a6bd
+T002:
+  reason: "Checked `src/data/download.py` (uses dataset\u202F`chrisvoncsefalvay/vaers-outcomes`\
+    \ instead of the required `\"vaers/vaers2020_2023\"`), the generated `data/raw/vaers_2020_2023.parquet`\
+    \ (size\u202F>\u202F0) and `data/checksums.txt` (checksum line present). The wrong\
+    \ dataset source violates the task specification, so the requirement is not fully\
+    \ satisfied."
+  task: c1dbc93df69bacecb0ee9573e244f4b7018db0e3307b59f158c214f30c5a0428
+T003:
+  reason: 'Requested task execution failed; rerun successfully: src/data/validate_raw.py
+    exit=1'
+  task: 4aebdc993fd2cf8087fd2ecbd1d5c0533a6f0cd4c25ded1aa5772a4a3cd5f511
+T004:
+  reason: 'Requested task execution failed; rerun successfully: src/data/clean.py
+    exit=1'
+  task: 605c06d8cb9da4379c48e70c0dd9aeec83cb0a42672321b84d1551f71264f675
+T005:
+  task: 3dacd34606dc25a2a536641019122f99891c8d86b68a220b2ba19c82782f8206
+T006:
+  task: e253ab21fa505127d83598ce9e0309bcfcba2dce83a5299bbafc1c7ae8300ae7
+T007:
+  task: 654ab2a358298be0014b28ea0e98be031be531cb17b2f07eb1734ac34a1c3fe5
+T008:
+  task: d509360e7fb244002ea9d0acb7d4301b5231e6ccb854f58b417e20500fd6f083
+T009:
+  task: b7d697a8069d2efcd284efe7e6dad922351c60b5d41dd6fad2517d201037ba9a
+T010:
+  task: 1e94e961308627c07b6fc370fd18eda4cac1bccea01c7a689b98acbb819159cf
+T011:
+  task: c4f172c3ecd91272862a3aa9dac7e26bba3225148826ffe06988d5af87eef02a
+T012:
+  task: aae4bfb707bd1a2bb4e6d62412092547ac16ef6489f25947641eed73b9d6a264
+T013:
+  task: 44fc1b76a39e85b4892f49a8d45b4da2a31cb0ca9acf75575c9b1773a580c6a4
+T014:
+  task: 6905a67ab6c4f9a222418a0f420b64802eee9ecb925f66495e4ce31a5cae9f1b

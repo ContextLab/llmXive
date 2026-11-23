@@ -7,8 +7,8 @@ No synthetic generation of input properties occurs here.
 """
 
 import os
-import yaml
 from typing import Dict, List, Optional, Any
+import yaml
 
 from utils.logging import log_compliance_check
 

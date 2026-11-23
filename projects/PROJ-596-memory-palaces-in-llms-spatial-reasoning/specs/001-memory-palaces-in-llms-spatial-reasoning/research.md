@@ -1,97 +1,103 @@
 # Research: Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall
 
-## 1. Dataset Strategy
+## Overview
 
-The project relies on three public sequential-memory benchmarks. The following table lists the verified sources and the specific variable fit for the "episodic recall" outcome.
+This research investigates whether explicit spatial organization of episodic memories in transformer architectures improves recall accuracy on sequential memory benchmarks. The study compares a "Spatial Memory" variant of `gpt2-medium` against a "Non-Spatial External Memory" baseline across three datasets: bAbI task 3, LAMBADA, and Story Cloze.
 
-| Dataset | Verified Source / Loader | Variable Fit & Rationale | Status |
+## Dataset Strategy
+
+The study relies on publicly available, programmatic datasets to ensure reproducibility on the GitHub Actions free tier.
+
+| Dataset | Source / Verified URL | Load Method | Relevance to Study |
 | :--- | :--- | :--- | :--- |
-| **bAbI Task 3** | `datasets.load_dataset("babi", "task03")` (HuggingFace) | **Fit**: Contains episodic facts (e.g., "The ball is in the kitchen") and questions requiring retrieval ("Where is the ball?"). <br>**Rationale**: Directly tests episodic recall of specific facts in a sequence. **Primary dataset for hypothesis testing.** | **Verified** |
-| **LAMBADA** | `datasets.load_dataset("EleutherAI/lambada_openai")` (HuggingFace) | **Fit**: Requires predicting the last word of a paragraph based on long-range context. <br>**Rationale**: Tests long-context retention, a form of episodic memory over a narrative. **Feasibility check only (1 seed, 1 epoch).** | **Verified** |
-| **Story Cloze** | `datasets.load_dataset("story_cloze", "2018")` (HuggingFace) | **Fit**: Requires choosing the correct ending to a story based on 4 preceding sentences. <br>**Rationale**: Tests narrative coherence and recall of story events. **Feasibility check only (1 seed, 1 epoch).** | **Verified** |
+| **bAbI Task** | `facebook/babi` (Hugging Face) | `datasets.load_dataset("facebook/babi", "task3")` | Tests temporal reasoning and object tracking in a controlled, synthetic environment. Maps to episodic recall of specific events. |
+| **LAMBADA** | `EleutherAI/lambada_openai` (Hugging Face) | `datasets.load_dataset("EleutherAI/lambada_openai")` | Tests long-context prediction. The "last word" prediction requires integrating context over long distances, simulating episodic retrieval. |
+| **Story Cloze** | `rocstories` (Hugging Face) | `datasets.load_dataset("rocstories")` | Tests narrative coherence. The task is to choose the correct ending for a 4-sentence story. **Note**: If `rocstories` is unavailable, the third benchmark is dropped; no proxy dataset is used to preserve construct validity. |
 
-**Dataset-Variable Fit Confirmation**:
-- **bAbI Task 3**: The "facts" map directly to `EpisodicChunk` objects. The "questions" map to the retrieval query. The spatial grid will assign slots to facts.
-- **LAMBADA/Story Cloze**: Used only for feasibility checks. The "episodic chunk" mapping is tenuous; they are not used for primary hypothesis testing due to lack of explicit fact-question structure.
-- **FIFO Eviction**: As noted in the spec, if a sequence exceeds the 64-slot grid, a FIFO eviction policy will be applied. This is a necessary constraint for the "spatial capacity" hypothesis.
+**Dataset-Variable Fit**:
+- **bAbI**: Contains explicit "stories" with entities and locations. The task requires recalling the location of an object after a sequence of movements. This maps directly to the "episodic recall" outcome.
+- **LAMBADA**: Contains long paragraphs where the last word is predicted. The "variable" is the context window; the "outcome" is the correct word. This maps to the ability to hold episodic traces over long distances.
+- **Story Cloze**: Contains five-sentence stories. The task is to choose the correct ending. This maps to narrative coherence and long-term dependency.
 
-**Note on Verified Sources**: The prompt provides specific parquet URLs for LAMBADA and RSS feeds. However, standard HuggingFace loaders (`datasets`) are preferred for reproducibility and checksumming (Constitution I). The specific parquet URLs provided in the prompt for LAMBADA (`cimec/lambada`, `craffel/openai_lambada`, `EleutherAI/lambada_openai`) confirm the availability of the dataset. The RSS feed URLs are irrelevant to this study (which focuses on text memory, not RSS) and are ignored. The "FIFO" dataset is not a dataset but an eviction policy; no URL is required.
+**Access Gated Data**: No access-gated data (e.g., ADNI, HCP) is used. All datasets are open and downloadable via `datasets` library.
 
-## 2. Methodology & Statistical Rigor
+## Methodology
 
-### 2.1 Model Architecture
-- **Base**: **DistilGPT2** (66M parameters) — chosen for CPU feasibility. GPT Medium (355M) is infeasible on CPU within RAM limits.
-- **Quantization**: 4-bit (using `bitsandbytes` CPU-compatible version or `accelerate` with 4-bit logic).
-- **Spatial Module**:
-  - 2-D Grid: 8x8 = 64 slots.
-  - Retrieval: Soft-addressed via cosine similarity between current hidden state and slot embeddings.
-  - **Distance-Decay Penalty**: A penalty term is added to the attention weights based on the Euclidean distance in the grid to enforce locality and distinguish from standard global attention.
-  - Update: Episodic chunks update slot embeddings via a weighted average.
-- **Baseline**: Standard `distilgpt2` with no spatial module (standard self-attention only).
-- **Ablation**: Non-spatial attention head with the same parameter count as the spatial module but without grid coordinates (random projection). This isolates the effect of "spatiality" from "additional parameters".
+### Architectural Mapping (Address vs. Content)
 
-### 2.2 Training Protocol
-- **Epochs**: 3 (for bAbI), 1 (for LAMBADA/Story Cloze).
-- **Batch Size**: Starts at 8. If peak RSS > 6 GB, reduces to 4. If still > 6 GB, **subsamples top [deferred] of samples by length** (capped at [deferred] of original size).
-- **Learning Rate**: 5e-5.
-- **Seeds**: 5 random seeds (0, 1, 2, 3, 4) for bAbI; 1 seed for others.
-- **Hardware**: CPU-only (2 cores, ~7 GB RAM).
+To address concerns regarding the distinction between address and content (John von Neumann concern), the architecture explicitly separates the spatial coordinate (address) from the stored representation (content).
 
-### 2.3 Statistical Analysis Plan
-1. **Primary Metric**: Exact-match recall accuracy.
-2. **Comparison**: Paired two-tailed t-test between Spatial and Baseline across 5 seeds (bAbI only).
-3. **Multiple Comparison Correction**: Bonferroni correction (default) or Holm-Bonferroni if Bonferroni is overly conservative.
-   - **Rationale**: Testing multiple datasets (bAbI, LAMBADA, Story Cloze) inflates Type I error. Correction is mandatory (FR-006).
-4. **Effect Size**: Cohen's d with 95% Confidence Intervals.
-5. **Power Analysis**: With N=5, the study is underpowered to detect medium effects (<20% power). The analysis will prioritize reporting **effect sizes (Cohen's d)** and confidence intervals over p-values for significance claims. The minimum detectable effect size will be reported.
-6. **Normality Check**: Shapiro-Wilk test on accuracy differences. If p < 0.05, use Wilcoxon signed-rank test instead.
-7. **Interference Distance**:
-   - **Spatial Variant**: Measure of recall drop when semantically unrelated items are injected into **adjacent grid coordinates**.
-   - **Baseline Variant**: Measure of recall drop when semantically unrelated items are injected at **random positions in the input sequence** (simulating "random slot" assignment). This creates a valid "structured vs. unstructured" comparison.
-   - **Hypothesis**: Spatial variant shows lower interference (higher robustness) than baseline.
-   - **Validation**: Statistical test on interference distance metric.
+1.  **Address Generation (Spatial Index)**:
+    -   The hidden state $h_t$ of the current token is projected through a small Multi-Layer Perceptron (MLP) to a 2D vector $z_t \in \mathbb{R}^2$.
+    -   $z_t$ is normalized and clamped to the grid coordinates $(x, y) \in [0, 7] \times [0, 7]$. This $(x, y)$ pair serves as the **Address**.
+    -   This mechanism is distinct from the content; the address is a soft pointer to a location, not the data itself.
 
-### 2.4 Computational Feasibility
-- **RAM Constraint**: 6 GB limit (Constitution VI).
-  - `distilgpt2` 4-bit: ~0.5 GB.
-  - Activation memory with small batch sizes: ~3-4 GB (estimated).
- - **Mitigation**: Automatic batch size reduction to 4. If still too high, **subsample top [deferred] of samples**.
-- **Runtime Constraint**: 5 hours.
-  - **Primary Scope**: bAbI Task 3 (5 seeds * 2 models * 3 epochs = 30 runs).
-  - **Secondary Scope**: LAMBADA/Story Cloze (1 seed * 2 models * 1 epoch = 4 runs).
-  - **Total Runs**: ~34 runs.
- - **Estimate**: [deferred] per run on CPU (DistilGPT2) = [deferred] total. **Safe within 5-hour limit.**
-  - **Risk**: If runtime exceeds 5 hours, the project will fail. The plan prioritizes bAbI (primary) over LAMBADA/Story Cloze (secondary).
+2.  **Content Storage (Memory Buffer)**:
+    -   The episodic chunk $c_t$ (a vector representation of the text) is stored at the location $(x, y)$ in the grid.
+    -   The grid is a tensor of shape $(8, 8, D)$, where $D$ is the embedding dimension.
+    -   This separation ensures that the "spatial" property is the index, while the "memory" is the content stored at that index.
 
-## 3. Reviewer Response & Methodological Rigor
+3.  **Retrieval (Soft-Addressed)**:
+    -   Retrieval uses cosine similarity between the current hidden state $h_t$ and the stored vectors in the grid.
+    -   This allows for "fuzzy" retrieval where the model can attend to nearby slots if the exact address is noisy, mimicking human memory reconstruction.
 
-### 3.1 Addressing "Measurable Structural Correlate" (Rosalind Franklin)
-- **Response**: The "Interference Distance" metric is introduced to quantify the structural benefit of spatial organization. It measures the *robustness* of recall under interference, distinguishing "spatial memory" from mere "grid usage."
-- **Method**: Inject unrelated items into adjacent slots (spatial) or random positions (baseline) and measure recall drop. This provides a quantitative "diffraction pattern" equivalent for the memory palace.
+### Model Architecture
 
-### 3.2 Addressing "Measurable Cost" (John von Neumann)
-- **Response**: The cost is measured in:
-  1. **Compute Time**: Training time comparison (Spatial vs. Baseline).
-  2. **Memory Overhead**: Slot embedding storage (negligible compared to model weights).
-  3. **Recall Accuracy**: The primary metric. If Spatial improves accuracy without significant time penalty, the cost is justified.
+1.  **Base Model**: `gpt2-medium` (355M parameters), loaded with 4-bit quantization (`bitsandbytes` or `llama.cpp` equivalent for CPU) to fit within 6 GB RAM.
+2.  **Spatial Memory Module**:
+    -   **Grid**: 8x8 (64 slots).
+    -   **Assignment**: A learned embedding lookup based on content (not deterministic hash). The hidden state of the current token is projected to a 2D coordinate $(x, y)$ via a small MLP, then clamped to the grid.
+    -   **Storage**: Each slot stores a vector representation of the episodic chunk.
+    -   **Retrieval**: Soft-addressed retrieval using cosine similarity between the current hidden state and slot embeddings.
+    -   **Eviction**: FIFO (First-In-First-Out) if the grid is full.
+3.  **Non-Spatial Baseline**:
+    -   **Definition**: A variant with a standard external memory buffer (a flat list of vectors) of the same capacity (64 slots).
+    -   **Mechanism**: The buffer is accessed via a learned attention mechanism that does **not** use spatial coordinates. The address generation MLP is removed; the model attends to the buffer based solely on content similarity.
+    -   **Purpose**: This isolates the effect of spatial organization. Both models have the same memory capacity and access mechanism (attention), but only the spatial model has the coordinate-based index.
 
-### 3.3 Addressing "Binding Problem" (Eric Kandel)
-- **Response**: The plan acknowledges the binding problem (spatial tags integrating with distributed representations) and addresses it via **soft-addressed read mechanisms** (cosine similarity) with a **distance-decay penalty**. Explicit binding architectures are deferred to future work.
-- **Rationale**: This is a standard approximation in computational neuroscience and is sufficient for the current hypothesis test.
+### Training Protocol
 
-### 3.4 Statistical Rigor
-- **Multiple Comparisons**: Bonferroni/Holm-Bonferroni applied.
-- **Power**: N=5 is a limitation. The study is framed as a **feasibility and signal-detection pilot**. Results will report effect sizes (Cohen's d) and confidence intervals rather than relying solely on p-values.
-- **Causal Claims**: Findings are framed as **associational** (correlation between spatial organization and recall accuracy), not causal, as there is no randomization of architecture in the real world (only in the simulation).
+-   **Fine-tuning**: 3 epochs, batch size 8 (reduced to 4 if RAM > 6 GB), learning rate 5e-5.
+-   **Random Seeds**: 5 seeds (0, 1, 2, 3, 4) for both spatial and non-spatial variants.
+-   **Datasets**: bAbI task 3, LAMBADA, Story Cloze.
+-   **Metrics**:
+    -   **Exact-Match Recall**: Percentage of correct predictions.
+    -   **Interference Distance**: Drop in recall under forced collision (see below).
+    -   **Slot Occupancy**: Distribution of items per slot.
+    -   **Coordinate Variance**: Trace of the 2D covariance matrix of assigned coordinates.
 
-## 4. Decision Log
+### Statistical Analysis
 
-| Decision | Rationale | Alternative Rejected |
-| :--- | :--- | :--- |
-| **DistilGPT2 (66M)** | Required to fit model in 6 GB RAM on CPU with training overhead. | GPT-2 Medium (355M) exceeds RAM even with 4-bit quantization during training on CPU. |
-| **4-bit Quantization** | Required to fit model weights in RAM. | Full precision or 8-bit (bitsandbytes on CUDA) is impossible without GPU. |
-| **Soft-Addressed Retrieval with Distance-Decay** | Standard, differentiable approach for spatial memory with enforced locality. | Hard addressing (non-differentiable, harder to train). |
-| **Baseline Interference (Random Injection)** | Creates a valid "structured vs. unstructured" comparison. | No interference metric for baseline (invalid comparison). |
-| **Bonferroni Correction** | Simple, conservative, standard for small number of tests (3). | No correction (inflated false positives). |
-| **[deferred] Subsampling** | Necessary to meet 6 GB RAM constraint if batch size 4 fails. | Full dataset (risk of OOM). |
-| **Focus on bAbI Task 3** | Only dataset with explicit episodic fact-question structure. | LAMBADA/Story Cloze (lack of structure, used only for feasibility). |
+-   **Primary Test**: Paired two-tailed t-tests comparing spatial vs. non-spatial recall accuracy across 5 seeds (as mandated by FR-005).
+-   **Robustness Check**: Due to low power (N=5), **permutation tests** (10,000 iterations) and **bootstrap confidence intervals** (95%) will be computed alongside t-tests. Results are interpreted primarily through effect sizes and robustness checks, acknowledging the exploratory nature.
+-   **Correction**: Bonferroni or Holm-Bonferroni for multiple comparisons (datasets).
+-   **Effect Size**: Cohen's d with 95% confidence intervals.
+-   **Assumption Check**: Shapiro-Wilk test for normality; if violated, Wilcoxon signed-rank test is reported as a secondary check, but permutation tests remain the primary robust metric.
+
+## Structural Correlates & Metrics
+
+To address the "John von Neumann" and "Rosalind Franklin" concerns regarding measurable structural correlates:
+
+1.  **Interference Distance (Retrieval Robustness)**: Measures the robustness of the retrieval mechanism under forced collision.
+    -   **Protocol**: An **Inference-Time Intervention** is applied. For the spatial model, the retrieval key is perturbed to target an *adjacent* grid coordinate (Manhattan distance = 1). For the non-spatial model, the retrieval index is perturbed to a *random* index (simulating a collision in a flat buffer).
+    -   **Metric**: $\Delta \text{Recall} = \text{Recall}_{\text{clean}} - \text{Recall}_{\text{collision}}$.
+    -   **Hypothesis**: Spatial variant will show a smaller $\Delta \text{Recall}$ (more robust) than non-spatial. This is a valid comparison because both tests measure the drop in performance under a "collision" condition, even if the collision topology differs (adjacent vs. random).
+2.  **Slot Occupancy Distribution**: Logs the count of items per slot. A uniform distribution suggests effective spatial organization; a skewed distribution suggests clustering or failure.
+3.  **Coordinate Variance**: Measures how "spread out" the memory assignments are.
+    -   **Note**: This is a **Descriptive Diagnostic**, not a standalone validation metric. High variance does not prove better recall. It must be **correlated** with recall accuracy in the results section to be meaningful. Low variance (clustering) is logged as a potential failure mode.
+
+## Decision/Rationale
+
+-   **CPU-First**: The plan prioritizes CPU execution with 4-bit quantization to fit the GitHub Actions free tier. If the model fails to fit even with 4-bit, the plan falls back to a smaller model (e.g., `gpt2-small`) or a smaller dataset subset, but never fabricates a CPU approximation of a GPU-only method.
+-   **Dataset Choice**: bAbI, LAMBADA, and Story Cloze are chosen for their direct mapping to episodic recall and long-context prediction. They are open and programmatic.
+-   **Statistical Rigor**: Paired t-tests are performed as required, but supplemented by permutation tests to address the low power (N=5) concern. The low power is explicitly acknowledged.
+-   **Eviction Policy**: FIFO is essential to test the spatial capacity hypothesis. If the grid is full, the oldest item is evicted. This is logged and the interference metric is computed only on non-evicted samples.
+-   **Baseline Definition**: The baseline is strictly defined as the "Non-Spatial External Memory" variant to isolate the spatial variable. A "no memory" condition is excluded from the primary comparison.
+
+## Limitations
+
+-   **Construct Validity**: bAbI, LAMBADA, and Story Cloze measure different phenomena. Results are reported separately.
+-   **Convergence**: 3 epochs may be insufficient for full convergence on a 355M model. Results are interpreted with this limitation.
+-   **Confounding Variable**: The "external memory buffer" is a confound. A control variant with a non-spatial buffer is included.
+-   **Statistical Power**: N=5 seeds limits the ability to detect small effects. Results are framed as exploratory effect size estimates.
+-   **Interference Metric**: The interference metric measures retrieval robustness under forced collision, not the model's natural spatial reasoning during training. This is an external stress test.

@@ -1,62 +1,54 @@
-"""
-Configuration module for llmXive project.
-Handles random seeds, experiment parameters, and reproducibility settings.
-"""
 import os
 import random
 from typing import Dict, Any, List
 
-# Import seed loading implementation from T008
-# T008 implemented loading SEED_A and SEED_B from environment variables
-def _load_seeds_impl() -> Dict[str, int]:
-    """Load random seeds from environment variables with defaults."""
-    seed_a = int(os.environ.get('SEED_A', '42'))
-    seed_b = int(os.environ.get('SEED_B', '123'))
-    return {'SEED_A': seed_a, 'SEED_B': seed_b}
-
-# Load seeds using T008 implementation
-_seeds = _load_seeds_impl()
-SEED_A = _seeds['SEED_A']
-SEED_B = _seeds['SEED_B']
-
-# Experiment parameters (T005)
-LIBRARY_SIZES: List[int] = [10, 30, 50, 100]
-OVERLAP_LEVELS: Dict[str, float] = {
-    'low': 0.25,
-    'medium': 0.55,
-    'high': 0.85
-}
-
-# Reproducibility settings
-PINNED_SEEDS = True
-FORCE_CPU = True
+# Default seeds
+DEFAULT_SEED_A = 42
+DEFAULT_SEED_B = 123
 
 def get_seeds() -> Dict[str, int]:
-    """Return the current random seeds."""
-    return {'SEED_A': SEED_A, 'SEED_B': SEED_B}
+    """
+    Returns a dictionary of seeds, prioritizing environment variables.
+    """
+    seed_a = int(os.getenv('SEED_A', DEFAULT_SEED_A))
+    seed_b = int(os.getenv('SEED_B', DEFAULT_SEED_B))
+    return {'seed_a': seed_a, 'seed_b': seed_b}
 
-def get_experiment_config() -> Dict[str, Any]:
-    """Return complete experiment configuration."""
-    return {
-        'seeds': get_seeds(),
-        'library_sizes': LIBRARY_SIZES,
-        'overlap_levels': OVERLAP_LEVELS,
-        'pinned_seeds': PINNED_SEEDS,
-        'force_cpu': FORCE_CPU
-    }
+SEED_A = get_seeds()['seed_a']
+SEED_B = get_seeds()['seed_b']
 
-def pin_seeds() -> None:
-    """Pin all random number generators to ensure reproducibility."""
-    random.seed(SEED_A)
-    os.environ['PYTHONHASHSEED'] = str(SEED_A)
-    
-    # Pin numpy if available
+def pin_seeds():
+    """
+    Pins random seeds for reproducibility.
+    """
+    seeds = get_seeds()
+    random.seed(seeds['seed_a'])
+    # numpy is handled in utils.py usually, but we can set it here if needed
     try:
         import numpy as np
-        np.random.seed(SEED_A)
+        np.random.seed(seeds['seed_a'])
     except ImportError:
         pass
 
-def validate_reproducibility() -> bool:
-    """Validate that seeds are properly pinned and reproducible."""
-    return PINNED_SEEDS and (SEED_A is not None) and (SEED_B is not None)
+def get_experiment_config() -> Dict[str, Any]:
+    """
+    Loads experiment configuration from environment or defaults.
+    """
+    config = {
+        'pruning_interval': int(os.getenv('PRUNING_INTERVAL', 10)),
+        'overlap_level': os.getenv('OVERLAP_LEVEL', 'medium'),
+        'library_sizes': [10, 20, 50, 100],
+        'k_retrieval': 5,
+        'threshold_sim': 0.70
+    }
+    return config
+
+def validate_reproducibility():
+    """
+    Validates that seeds are set correctly.
+    """
+    seeds = get_seeds()
+    if seeds['seed_a'] == DEFAULT_SEED_A and seeds['seed_b'] == DEFAULT_SEED_B:
+        print(f"Using default seeds: A={seeds['seed_a']}, B={seeds['seed_b']}")
+    else:
+        print(f"Using environment seeds: A={seeds['seed_a']}, B={seeds['seed_b']}")

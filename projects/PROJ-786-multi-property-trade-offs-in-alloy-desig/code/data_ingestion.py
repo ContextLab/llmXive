@@ -1,188 +1,105 @@
-"""
-Data Ingestion Module for Alloy Design Project.
-
-Fetches OQMD elastic properties data via HuggingFace, filters for valid
-Bulk and Shear Moduli entries, and prepares the dataset for downstream
-processing. Implements the pivot to DFT proxies as per FR-001.
-"""
-
 import os
 import sys
 import logging
 from typing import Dict, Any, Optional
 import pandas as pd
-
-# Add project root to path for imports if running as script
-_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if _project_root not in sys.path:
-    sys.path.insert(0, _project_root)
-
 from datasets import load_dataset
-from config import get_config, verify_config
-from utils.logging_config import get_logger, log_info_with_context, log_error_with_context, log_warning_with_context
 
-# Initialize logger for this module
-logger = get_logger(__name__)
+from config import get_config, verify_config, data_source
+from utils.logging_config import log_info_with_context, log_warning_with_context, log_error_with_context
 
-def load_oqmd_data(dataset_name: str = "OQMD/elastic_properties", 
-                   streaming: bool = False) -> Optional[pd.DataFrame]:
+logger = logging.getLogger(__name__)
+
+def load_oqmd_data(dataset_name: Optional[str] = None) -> pd.DataFrame:
     """
-    Fetches the OQMD elastic properties dataset from HuggingFace.
-
-    Args:
-        dataset_name: The HuggingFace dataset identifier.
-        streaming: If True, streams the dataset (useful for large datasets).
-
-    Returns:
-        A pandas DataFrame containing the dataset, or None if loading fails.
+    Fetches OQMD data via HuggingFace datasets.
+    Falls back to the configured data source if none provided.
     """
+    ds_name = dataset_name or data_source
+    log_info_with_context(f"Loading dataset: {ds_name}", context="data_ingestion")
+    
     try:
-        log_info_with_context(logger, f"Loading dataset: {dataset_name}")
-        dataset = load_dataset(dataset_name, split="train", streaming=streaming)
+        # Load the dataset from HuggingFace
+        dataset = load_dataset(ds_name, split="train", streaming=True)
         
-        # Convert to DataFrame
-        if streaming:
-            df = pd.DataFrame(dataset)
-        else:
-            df = dataset.to_pandas()
+        # Convert streaming dataset to DataFrame
+        # Since streaming yields rows one by one, we collect them
+        df_list = []
+        for row in dataset:
+            df_list.append(row)
         
-        log_info_with_context(logger, f"Dataset loaded successfully. Shape: {df.shape}")
+        df = pd.DataFrame(df_list)
+        log_info_with_context(f"Successfully loaded {len(df)} rows", context="data_ingestion")
         return df
     except Exception as e:
-        log_error_with_context(logger, f"Failed to load dataset {dataset_name}: {str(e)}")
-        return None
+        log_error_with_context(f"Failed to load dataset {ds_name}: {str(e)}", context="data_ingestion")
+        raise
 
 def filter_valid_entries(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Filters the dataframe for entries with valid Bulk and Shear Moduli.
-    
-    Implements FR-001: Filter for entries with `bulk_modulus` and `shear_modulus` > 0
-    and exclude missing data.
-
-    Args:
-        df: The raw dataframe from OQMD.
-
-    Returns:
-        Filtered dataframe containing only valid entries.
+    Filters entries to keep only those with valid bulk_modulus and shear_modulus > 0.
+    Excludes missing data.
     """
-    if df is None or df.empty:
-        log_warning_with_context(logger, "Input dataframe is empty or None")
-        return pd.DataFrame()
-
-    required_columns = ["bulk_modulus", "shear_modulus"]
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    
+    required_cols = ["bulk_modulus", "shear_modulus", "composition"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        log_error_with_context(logger, f"Missing required columns: {missing_cols}")
-        return pd.DataFrame()
-
-    initial_count = len(df)
-    log_info_with_context(logger, f"Starting filter on {initial_count} rows")
-
-    # Filter for non-null and > 0 values
-    mask = (
-        df["bulk_modulus"].notna() & 
-        (df["bulk_modulus"] > 0) &
-        df["shear_modulus"].notna() & 
-        (df["shear_modulus"] > 0)
-    )
+        raise ValueError(f"Missing required columns: {missing_cols}")
     
-    filtered_df = df[mask].reset_index(drop=True)
-    final_count = len(filtered_df)
-
+    # Filter for valid moduli
+    mask = (df["bulk_modulus"] > 0) & (df["shear_modulus"] > 0)
+    filtered_df = df[mask].dropna(subset=required_cols)
+    
     log_info_with_context(
-        logger, 
-        f"Filter complete. Kept {final_count} rows ({initial_count - final_count} removed)."
+        f"Filtered data: {len(df)} -> {len(filtered_df)} valid entries",
+        context="data_ingestion"
     )
-
     return filtered_df
 
-def save_processed_data(df: pd.DataFrame, output_path: str) -> bool:
-    """
-    Saves the processed dataframe to a CSV file.
-
-    Args:
-        df: The dataframe to save.
-        output_path: The path to the output CSV file.
-
-    Returns:
-        True if successful, False otherwise.
-    """
-    if df.empty:
-        log_warning_with_context(logger, "Cannot save empty dataframe")
-        return False
-
-    try:
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        df.to_csv(output_path, index=False)
-        log_info_with_context(logger, f"Saved processed data to {output_path}")
-        return True
-    except Exception as e:
-        log_error_with_context(logger, f"Failed to save data to {output_path}: {str(e)}")
-        return False
+def save_processed_data(df: pd.DataFrame, output_path: str):
+    """Saves the processed DataFrame to CSV."""
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    log_info_with_context(f"Saved processed data to {output_path}", context="data_ingestion")
 
 def main():
-    """
-    Main entry point for data ingestion.
+    """Main entry point for data ingestion."""
+    config = get_config()
+    verify_config(config)
     
-    1. Loads configuration.
-    2. Fetches OQMD data.
-    3. Filters for valid Bulk/Shear moduli.
-    4. Checks minimum row count (US-1 Acceptance 1).
-    5. Saves to data/processed/encoded_alloys.csv (intermediate step for T015).
-    """
+    raw_data_path = config.get("raw_data_path", "data/raw/oqmd_data.csv")
+    processed_dir = config.get("processed_dir", "data/processed")
+    output_path = os.path.join(processed_dir, "encoded_alloys.csv")
+    
+    # Ensure output directory exists
+    os.makedirs(processed_dir, exist_ok=True)
+    
     try:
-        # Load configuration
-        config = get_config()
-        verify_config(config)
-
-        output_path = os.path.join(
-            config.get("paths", {}).get("processed_dir", "data/processed"),
-            "encoded_alloys.csv"
-        )
-
-        log_info_with_context(logger, "Starting Data Ingestion Pipeline")
-
-        # 1. Load Data
-        raw_df = load_oqmd_data()
-        if raw_df is None:
-            log_error_with_context(logger, "Data loading failed. Aborting.")
-            sys.exit(1)
-
-        # 2. Filter Data
-        valid_df = filter_valid_entries(raw_df)
+        # Load data
+        df = load_oqmd_data()
         
-        if valid_df.empty:
-            log_error_with_context(logger, "No valid entries found after filtering.")
-            sys.exit(1)
-
-        # 3. Check Minimum Row Count (US-1 Acceptance 1)
-        min_rows = config.get("data", {}).get("min_valid_rows", 500)
-        if len(valid_df) < min_rows:
+        # Filter valid entries
+        valid_df = filter_valid_entries(df)
+        
+        # Check minimum row count
+        if len(valid_df) < 500:
             log_warning_with_context(
-                logger, 
-                f"Insufficient data for statistical analysis (N={len(valid_df)} < {min_rows}). "
-                f"Exiting gracefully as per US-1 acceptance criteria."
+                f"Insufficient data for statistical analysis (N < 500). Found {len(valid_df)} rows.",
+                context="data_ingestion"
             )
-            # Even if insufficient, we save what we have for inspection, 
-            # but the script exits with code 0 as requested by the task description
-            # to indicate a "graceful failure" rather than a crash.
+            # Still save what we have, but exit with code 0 as per contract
             save_processed_data(valid_df, output_path)
-            sys.exit(0)
-
-        # 4. Save Data
-        if not save_processed_data(valid_df, output_path):
-            log_error_with_context(logger, "Failed to save processed data.")
-            sys.exit(1)
-
-        log_info_with_context(logger, "Data Ingestion Pipeline completed successfully.")
-        sys.exit(0)
-
+            return 0
+        
+        # Save processed data
+        save_processed_data(valid_df, output_path)
+        log_info_with_context("Data ingestion completed successfully", context="data_ingestion")
+        return 0
+        
     except Exception as e:
-        log_error_with_context(logger, f"Unexpected error in main pipeline: {str(e)}")
-        sys.exit(1)
+        log_error_with_context(f"Data ingestion failed: {str(e)}", context="data_ingestion")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

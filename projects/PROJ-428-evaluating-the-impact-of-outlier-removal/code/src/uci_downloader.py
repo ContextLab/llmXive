@@ -1,10 +1,3 @@
-"""
-UCI Dataset Downloader and Preprocessor.
-
-Downloads 5 public datasets from the UCI Machine Learning Repository,
-identifies univariate continuous variables, and outputs clean CSV files
-with baseline variance values.
-"""
 import os
 import sys
 import urllib.request
@@ -13,222 +6,213 @@ from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 import pandas as pd
 import numpy as np
-import yaml
-
-# Add project root to path if running as script
-if __package__ is None:
-    root_dir = Path(__file__).resolve().parent.parent
-    if str(root_dir) not in sys.path:
-        sys.path.insert(0, str(root_dir))
-
+import json
 from src.setup_dirs import setup_directories
-from src.logger import get_logger, configure_logger
-from src.validators import load_schema, validate_data, validate_type, validate_value
+from src.logger import get_logger
 
-# Configure logging
 logger = get_logger(__name__)
 
-# UCI Dataset configurations (real, public datasets)
-# Using raw GitHub URLs or direct HTTP links for reliability
-UCI_DATASETS = [
+# Specific UCI datasets selected for univariate continuous analysis
+# We target direct CSV data links.
+DATASETS_CONFIG = [
     {
-        "name": "uci_automobile",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/autos/cimports-automobile.data",
-        "target_file": "data/raw/uci_automobile.csv",
-        "processed_file": "data/processed/uci_clean_automobile.csv",
-        "description": "Automobile dataset with continuous variables like price, engine-size, etc."
-    },
-    {
-        "name": "uci_breast_cancer",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data",
-        "target_file": "data/raw/uci_breast_cancer.csv",
-        "processed_file": "data/processed/uci_clean_breast_cancer.csv",
-        "description": "Wisconsin Breast Cancer dataset with continuous measurements."
-    },
-    {
-        "name": "uci_iris",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data",
-        "target_file": "data/raw/uci_iris.csv",
-        "processed_file": "data/processed/uci_clean_iris.csv",
-        "description": "Classic Iris flower dataset with 4 continuous features."
-    },
-    {
-        "name": "uci_wine",
+        "name": "Wine",
+        "csv_name": "uci_wine.csv",
         "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data",
-        "target_file": "data/raw/uci_wine.csv",
-        "processed_file": "data/processed/uci_clean_wine.csv",
-        "description": "Wine dataset with continuous chemical measurements."
+        "description": "Chemical constituents of wines. All 13 features are continuous."
     },
     {
-        "name": "uci_diabetes",
+        "name": "Iris",
+        "csv_name": "uci_iris.csv",
+        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data",
+        "description": "Flower measurements. All 4 features are continuous."
+    },
+    {
+        "name": "Breast_Cancer",
+        "csv_name": "uci_breast_cancer.csv",
+        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/breast-cancer-wisconsin.data",
+        "description": "Wisconsin Breast Cancer. Several continuous features."
+    },
+    {
+        "name": "Diabetes",
+        "csv_name": "uci_diabetes.csv",
         "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/pima-indians-diabetes/pima-indians-diabetes.data",
-        "target_file": "data/raw/uci_diabetes.csv",
-        "processed_file": "data/processed/uci_clean_diabetes.csv",
-        "description": "Pima Indians Diabetes dataset with continuous medical features."
+        "description": "Pima Indians Diabetes. All 8 features are continuous."
+    },
+    {
+        "name": "Heart",
+        "csv_name": "uci_heart.csv",
+        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data",
+        "description": "Cleveland Heart Disease. Mix of types, we filter for continuous."
     }
 ]
 
 def setup_directories_for_download():
-    """Ensure data directories exist."""
+    """Ensure raw and processed directories exist."""
     setup_directories()
-    logger.info("Data directories ensured.")
+    raw_dir = Path("data/raw")
+    processed_dir = Path("data/processed")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    return raw_dir, processed_dir
 
-def download_dataset(url: str, target_path: Path) -> bool:
-    """
-    Download a dataset from a URL to a target path.
-    Returns True on success, False on failure.
-    """
+def download_dataset(dataset_info: Dict, raw_dir: Path) -> Optional[Path]:
+    """Download a dataset from UCI to the raw directory."""
+    url = dataset_info["url"]
+    csv_name = dataset_info["csv_name"]
+    save_path = raw_dir / csv_name
+
+    if save_path.exists():
+        logger.info(f"Dataset {csv_name} already exists at {save_path}. Skipping download.")
+        return save_path
+
+    logger.info(f"Downloading {dataset_info['name']} from {url}...")
     try:
-        logger.info(f"Downloading from {url} to {target_path}...")
-        target_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Add headers to mimic a browser request to avoid 403 errors
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
         req = urllib.request.Request(url, headers=headers)
-        
         with urllib.request.urlopen(req, timeout=30) as response:
-            with open(target_path, 'wb') as out_file:
-                out_file.write(response.read())
+            content = response.read()
+            with open(save_path, 'wb') as f:
+                f.write(content)
         
-        logger.info(f"Successfully downloaded {target_path.name}")
-        return True
-    except urllib.error.HTTPError as e:
-        logger.error(f"HTTP Error {e.code} downloading {url}: {e.reason}")
-        return False
+        if save_path.stat().st_size == 0:
+            logger.error(f"Downloaded file {csv_name} is empty.")
+            save_path.unlink()
+            return None
+
+        logger.info(f"Successfully downloaded {csv_name} ({save_path.stat().st_size} bytes).")
+        return save_path
     except urllib.error.URLError as e:
-        logger.error(f"URL Error downloading {url}: {e.reason}")
-        return False
+        logger.error(f"Failed to download {url}: {e}")
+        return None
     except Exception as e:
         logger.error(f"Unexpected error downloading {url}: {e}")
-        return False
+        return None
 
 def identify_continuous_columns(df: pd.DataFrame) -> List[str]:
     """
-    Identify univariate continuous variables in a DataFrame.
-    Returns a list of column names that are numeric and have variance > 0.
+    Identify columns that are purely numeric (continuous or discrete integers).
+    We treat all numeric columns as continuous for the purpose of variance estimation.
     """
-    continuous_cols = []
-    for col in df.columns:
-        if pd.api.types.is_numeric_dtype(df[col]):
-            # Check for variance > 0 to ensure it's not a constant
-            if df[col].var() > 0:
-                continuous_cols.append(col)
-            else:
-                logger.debug(f"Column {col} is numeric but constant (variance=0), skipping.")
-        else:
-            logger.debug(f"Column {col} is non-numeric ({df[col].dtype}), skipping.")
-    return continuous_cols
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    logger.info(f"Identified {len(numeric_cols)} numeric columns: {numeric_cols}")
+    return numeric_cols
 
-def clean_and_process_dataset(
-    df: pd.DataFrame, 
-    continuous_cols: List[str], 
-    output_path: Path
-) -> Dict:
+def clean_and_process_dataset(df: pd.DataFrame, name: str, raw_path: Path) -> Tuple[pd.DataFrame, Dict]:
     """
-    Clean the dataset by handling missing values and outliers (basic),
-    then calculate baseline variance for continuous columns.
-    Returns a dictionary of baseline variances.
+    Clean the dataset:
+    1. Identify continuous columns.
+    2. Handle missing values (represented as '?' in some UCI datasets).
+    3. Calculate baseline variance for each continuous column.
+    4. Return clean dataframe and metadata.
     """
-    logger.info(f"Processing dataset: {df.shape[0]} rows, {df.shape[1]} columns")
+    # Handle '?' as NaN
+    df = df.replace('?', np.nan)
     
-    # Basic cleaning: drop rows with any NaN in continuous columns
-    # For this task, we focus on continuous variables only
-    if continuous_cols:
-        df_clean = df[continuous_cols].dropna()
-    else:
-        logger.warning("No continuous columns found. Saving empty result.")
-        df_clean = pd.DataFrame()
+    # Identify continuous columns
+    continuous_cols = identify_continuous_columns(df)
+    
+    if not continuous_cols:
+        logger.warning(f"No continuous columns found in {name}. Skipping processing.")
+        return pd.DataFrame(), {}
 
-    # Save clean data
-    df_clean.to_csv(output_path, index=False)
-    logger.info(f"Saved clean dataset to {output_path} with {df_clean.shape[0]} rows")
+    # Filter dataframe to only continuous columns
+    df_clean = df[continuous_cols].copy()
+    
+    # Convert to numeric, coercing errors to NaN
+    for col in continuous_cols:
+        df_clean[col] = pd.to_numeric(df_clean[col], errors='coerce')
+
+    # Drop rows with any NaN in continuous columns
+    initial_rows = len(df_clean)
+    df_clean = df_clean.dropna()
+    dropped_rows = initial_rows - len(df_clean)
+    if dropped_rows > 0:
+        logger.info(f"Dropped {dropped_rows} rows with missing values in {name}.")
+
+    if len(df_clean) == 0:
+        logger.error(f"No valid data remaining for {name} after cleaning.")
+        return pd.DataFrame(), {}
 
     # Calculate baseline variance
-    baseline_variance = {}
-    for col in continuous_cols:
-        if col in df_clean.columns and df_clean[col].var() > 0:
-            baseline_variance[col] = float(df_clean[col].var())
-        else:
-            baseline_variance[col] = 0.0
+    variances = df_clean.var().to_dict()
+    metadata = {
+        "dataset_name": name,
+        "source_file": raw_path.name,
+        "continuous_columns": continuous_cols,
+        "rows_before_cleaning": initial_rows,
+        "rows_after_cleaning": len(df_clean),
+        "dropped_rows": dropped_rows,
+        "baseline_variances": variances
+    }
 
-    return baseline_variance
+    return df_clean, metadata
 
 def process_all_datasets():
-    """Main execution function to download and process all datasets."""
-    setup_directories_for_download()
-    
-    results = []
-    success_count = 0
+    """Main entry point to download, clean, and process all 5 datasets."""
+    raw_dir, processed_dir = setup_directories_for_download()
+    all_metadata = []
 
-    for dataset_config in UCI_DATASETS:
-        name = dataset_config["name"]
-        url = dataset_config["url"]
-        raw_path = Path(dataset_config["target_file"])
-        clean_path = Path(dataset_config["processed_file"])
-
-        logger.info(f"--- Processing {name} ---")
-
-        # Download
-        if not download_dataset(url, raw_path):
-            logger.error(f"Failed to download {name}. Skipping.")
-            continue
-
-        # Load
-        try:
-            # Infer delimiter (comma or semicolon) and header presence
-            # Most UCI datasets are comma-separated without headers
-            df = pd.read_csv(raw_path, header=None)
-            # Assign generic column names
-            df.columns = [f"col_{i}" for i in range(df.shape[1])]
-            logger.info(f"Loaded {name} with shape {df.shape}")
-        except Exception as e:
-            logger.error(f"Failed to load {name}: {e}")
-            continue
-
-        # Identify continuous columns
-        continuous_cols = identify_continuous_columns(df)
-        if not continuous_cols:
-            logger.warning(f"No continuous columns found in {name}.")
-            # Create empty output file to indicate processing attempt
-            pd.DataFrame().to_csv(clean_path, index=False)
-            results.append({
-                "dataset": name,
-                "status": "no_continuous_cols",
-                "variance": {},
-                "rows": 0
-            })
-            continue
-
-        # Process and clean
-        baseline_variance = clean_and_process_dataset(df, continuous_cols, clean_path)
+    for ds in DATASETS_CONFIG:
+        name = ds["name"]
+        logger.info(f"Processing dataset: {name}")
         
-        results.append({
-            "dataset": name,
-            "status": "success",
-            "continuous_columns": continuous_cols,
-            "variance": baseline_variance,
-            "rows": len(df) if 'df' in locals() else 0
-        })
-        success_count += 1
+        # 1. Download
+        raw_path = download_dataset(ds, raw_dir)
+        if raw_path is None:
+            logger.error(f"Skipping {name} due to download failure.")
+            continue
 
-    # Save summary of results
-    summary_path = Path("data/processed/uci_baseline_summary.json")
-    summary_path.parent.mkdir(parents=True, exist_ok=True)
-    import json
+        # 2. Load
+        try:
+            # Most UCI data files don't have headers.
+            df = pd.read_csv(raw_path, header=None)
+        except Exception as e:
+            logger.error(f"Failed to load {raw_path}: {e}")
+            continue
+
+        # 3. Clean and Process
+        df_clean, metadata = clean_and_process_dataset(df, name, raw_path)
+        
+        if df_clean.empty:
+            logger.warning(f"Dataset {name} resulted in empty clean dataframe.")
+            continue
+
+        # 4. Save Clean CSV
+        output_filename = f"uci_clean_{name.lower()}.csv"
+        output_path = processed_dir / output_filename
+        df_clean.to_csv(output_path, index=False)
+        logger.info(f"Saved clean dataset to {output_path}")
+
+        # 5. Save Variance Metadata
+        meta_filename = f"uci_clean_{name.lower()}_variance.json"
+        meta_path = processed_dir / meta_filename
+        with open(meta_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+        logger.info(f"Saved variance metadata to {meta_path}")
+
+        all_metadata.append(metadata)
+
+    # Save a summary of all variances
+    summary_path = processed_dir / "uci_all_variances.json"
     with open(summary_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Processing complete. {success_count}/{len(UCI_DATASETS)} datasets processed successfully.")
-    logger.info(f"Summary saved to {summary_path}")
+        json.dump(all_metadata, f, indent=2)
+    logger.info(f"Saved summary to {summary_path}")
+
+    return all_metadata
+
+def main():
+    """Entry point for the script."""
+    logger.info("Starting UCI Dataset Download and Processing...")
+    try:
+        results = process_all_datasets()
+        logger.info(f"Successfully processed {len(results)} datasets.")
+        print(f"Completed. Processed {len(results)} datasets.")
+    except Exception as e:
+        logger.critical(f"Fatal error in UCI Downloader: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    # Initialize logging configuration if not already done
-    # This assumes the project structure is set up as per T008
-    try:
-        configure_logger(level="INFO")
-    except Exception:
-        pass # Logger might already be configured
-
-    process_all_datasets()
+    main()

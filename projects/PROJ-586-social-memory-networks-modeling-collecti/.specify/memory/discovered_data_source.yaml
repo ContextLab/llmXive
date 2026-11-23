@@ -1,14 +1,16 @@
 status: none
-intent: Hanabi game interaction dataset USK-difficult USK-easy WINNIE-US2 USD-Enhanced
-  CoQA python package dataset
+intent: download Hanabi game trajectory dataset python package dataset
 required_fields:
 - game_id
-- episode_id
-- agent_id
-- action
-- cue
-- retrieved_fact
-- specialization_index
-- cue_retrieval_efficiency
-- timestamp
-- context_state
+- turn_number
+- player_id
+- observed_hand
+- hidden_hand
+- action_type
+- hint_target
+- hint_information
+- reward
+- outcome
+cache_key: f4f4e1e8d716a2f25c59cd761bcdceded0a37bd3ede6878d8ea389c82e3bf3d6
+searched_at: '2026-10-09T09:38:50.173028+00:00'
+retry_count: 1

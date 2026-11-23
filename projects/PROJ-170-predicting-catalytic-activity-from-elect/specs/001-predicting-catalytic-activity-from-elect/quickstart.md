@@ -1,88 +1,125 @@
 # Quickstart: Predicting Catalytic Activity from Electronic Structure and Reaction Path Features
 
 ## Prerequisites
-
-- Python 3.10+
-- Git
-- GB free disk space
-- Network access (for dataset download)
+- **Python 3.11+** installed locally or in the CI runner.  
+- **Internet access** (required for streaming OC20 and calling the Materials Project API).  
+- **Materials Project API key** exported as an environment variable: `export MP_API_KEY=YOUR_KEY`.  
+- **GitHub Actions runner constraints** (2 CPU cores, ≤ 7 GB RAM, ≤ 14 GB disk) – the pipeline is designed to respect these limits.
 
 ## Installation
 
-1. **Clone the repository** (if not already done):
+```bash
+# Clone the repository
+git clone <repo-url>
+cd PROJ-170-predicting-catalytic-activity
+
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+# Install pinned dependencies
+pip install -r requirements.txt
+```
+
+**`requirements.txt` (pinned versions)**
+
+```text
+pandas==2.1.4
+numpy==1.26.2
+scikit-learn==1.3.2
+xgboost==2.0.2
+shap==0.44.0
+datasets==2.14.6
+matplotlib==3.8.2
+seaborn==0.13.0
+pytest==7.4.3
+pymatgen==2023.10.1
+mp-api==0.35.0
+tqdm==4.66.2
+```
+
+## Step‑by‑Step Execution
+
+All scripts are located under `code/`. Each script writes its outputs to the paths described in `data-model.md`.
+
+1. **Create directory skeleton** (required for the test suite):
+
    ```bash
-   git clone <repo-url>
-   cd projects/PROJ-170-predicting-catalytic-activity-from-elect
+   python - <<'PY'
+import pathlib
+for sub in [
+    "data/raw",
+    "data/processed",
+    "outputs",
+    "tests/unit",
+    "tests/integration",
+    "tests/contract",
+]:
+    pathlib.Path(sub).mkdir(parents=True, exist_ok=True)
+PY
    ```
 
-2. **Create a virtual environment**:
+2. **Download raw data & fetch MP descriptors**  
+   This step streams OC20 and caches MP descriptors; it also writes `required_columns.json` and `data/checksums.txt`.
+
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   python code/download_data.py
    ```
 
-3. **Install dependencies**:
+3. **Compute DFT‑derived descriptors** (real physics, not placeholders):
+
    ```bash
-   pip install -r code/requirements.txt
+   python code/extract_descriptors.py
    ```
-   *Note: `requirements.txt` pins versions for reproducibility (Constitution Principle I).*
 
-## Running the Pipeline
+   *Output*: `data/processed/oc20_descriptors.parquet` containing all required descriptor columns.
 
-The pipeline is executed sequentially. Run the following commands in order:
+4. **Alignment, imputation, scaling** (produces the unified CSV). Because we do not yet have an open experimental TOF dataset, the `experimental_tof` column will be `null`.
 
-### Step 1: Download Data
-```bash
-python code/download_data.py
-```
-- Downloads a stratified sample of the OC20 dataset.
-- Saves to `data/raw/`.
-- Generates checksums.
+   ```bash
+   python code/preprocess.py
+   ```
 
-### Step 2: Preprocess & Align
-```bash
-python code/preprocess.py
-```
-- Aligns OC20 entries by composition and facet.
-- Derives descriptors and performs structure-based KNN imputation.
-- Scales features.
-- Outputs `data/processed/aligned_dataset.csv`.
+   *Outputs*: `data/processed/aligned_dataset.csv`, `outputs/alignment_metrics.json`, `outputs/scaling_report.json`, `outputs/imputation_log.json`.
 
-### Step 3: Train Models
-```bash
-python code/train.py
-```
-- Trains XGBoost and Linear Baseline with nested cross-validation.
-- Saves best model to `code/models/`.
+5. **Scope‑revision request (handles missing TOF data)**  
+   Generates a JSON request and a placeholder CSV with a correctly formatted checksum (no trailing newline).
 
-### Step 4: Evaluate & Interpret
-```bash
-python code/evaluate.py
-```
-- Computes metrics (R², MAE, p-value, alignment rate).
-- Generates SHAP plot (`outputs/feature_importance.png`).
-- Saves `outputs/metrics.json`.
+   ```bash
+   python code/request_scope_revision.py
+   ```
 
-### Step 5: Generate Report
-```bash
-python code/report.py
-```
-- Compiles `outputs/final_report.md` with all findings.
+   *Outputs*: `outputs/scope_revision_request.json`, `data/raw/experimental_tof_placeholder.csv`, updated `data/checksums.txt`.
 
-## Verifying Results
+6. **(Optional) Model training & evaluation** – run **only after** an open experimental TOF dataset is supplied.
 
-- **Check Metrics**: Open `outputs/metrics.json`.
-- **Check Plot**: View `outputs/feature_importance.png`.
-- **Check Report**: Read `outputs/final_report.md`.
+   ```bash
+   python code/train.py            # XGBoost grid‑search
+   python code/train_baseline.py  # Linear baseline
+   python code/stat_test.py       # Shapiro‑Wilk + paired test
+   python code/interpret.py       # SHAP analysis
+   python code/evaluate_reduced.py
+   python code/report.py
+   ```
 
-## Troubleshooting
+7. **Run the full test suite** (verifies schema compliance, checksum integrity, and runtime ≤ 6 h):
 
-- **Missing Data**: If `download_data.py` fails to download OC20, check network connectivity.
-- **Memory Error**: If RAM usage exceeds 7GB, reduce the sample size in `download_data.py` (adjust `SAMPLE_SIZE` constant).
-- **KNN Imputation Failure**: If many rows are excluded, check `data/processed/aligned_dataset.csv` for `exclusion_reason`.
+   ```bash
+   pytest -v
+   ```
 
-## Next Steps
+   Expected outcome: **all tests pass**; `metrics.json.total_seconds` ≤ 21600.
 
-- Review `outputs/final_report.md` for scientific insights.
-- Run `pytest tests/` to verify contract compliance.
-- Proceed to `research_review` stage if all success criteria are met.
+## Expected Runtime & Resource Usage
+- **Alignment‑only pipeline** (steps 1‑4) completes in **≈ 1 hour** on the CI runner.  
+- **Peak RAM** stays below **5 GB** thanks to streaming and chunked processing.  
+- **Disk consumption** ≤ 12 GB (raw parquet shards streamed, final CSV ~200 MB).  
+- All steps are **CPU‑only**; no GPU resources are required.
+
+## What to Do When the Experimental TOF Dataset Becomes Available
+1. Replace `data/raw/experimental_tof_placeholder.csv` with the real CSV (same header).  
+2. Update `data/checksums.txt` with the new SHA‑256 hash (single‑line, no newline).  
+3. Re‑run `code/preprocess.py` to fill the `experimental_tof` column.  
+4. Proceed with steps 6 above to train, evaluate, and report.
+
+---

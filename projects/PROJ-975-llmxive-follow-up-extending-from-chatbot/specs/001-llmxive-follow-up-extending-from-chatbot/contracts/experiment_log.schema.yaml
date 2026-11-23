@@ -1,59 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Experiment Log Schema"
-description: "Schema for experiment execution logs"
+title: "ExperimentLogSchema"
+description: "Schema for the CSV output of the agent execution. Defines expected columns and types for validation scripts."
 type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the experiment run configuration (library size, overlap, pruning flag)."
+  task_id:
+    type: "string"
+    description: "Reference to the task."
+  library_size:
+    type: "integer"
+    description: "Size of the skill library used (10, 20, 30, 40, 50, 60, 70, 80, 90, 100)."
+    enum: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+  pruning_enabled:
+    type: "boolean"
+    description: "Whether the pruning heuristic was active."
+  success:
+    type: "boolean"
+    description: "Whether the task was completed successfully."
+  latency_ms:
+    type: "number"
+    description: "Execution latency in milliseconds."
+  tokens_used:
+    type: "integer"
+    description: "Estimated token count."
+  retrieval_precision:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Jaccard similarity between retrieved and ground‑truth skills."
+  retrieval_diversity:
+    type: "number"
+    description: "Inverse variance of cosine similarities of the top‑k (k=5) retrieved skills against the task's ground‑truth set."
+  edge_case:
+    type: "string"
+    description: "Tag for edge cases (e.g., 'missing_skill', 'memory_limit', 'max_overlap', 'null')."
 required:
   - run_id
   - task_id
   - library_size
   - pruning_enabled
-  - execution_success
+  - success
+  - latency_ms
+  - tokens_used
   - retrieval_precision
   - retrieval_diversity
-  - pruning_risk_count
-  - latency_ms
-  - token_usage
-properties:
-  run_id:
-    type: "string"
-    description: "Unique run identifier"
-  task_id:
-    type: "string"
-    pattern: "^task_\\d{3}$"
-    description: "Reference to the task"
-  library_size:
-    type: "integer"
-    enum:
-      - 10
-      - 30
-      - 50
-      - 100
-    description: "Size of the active library"
-  pruning_enabled:
-    type: "boolean"
-    description: "Whether pruning was active"
-  execution_success:
-    type: "boolean"
-    description: "Did retrieved code run and match expected output? (Primary Outcome)"
-  retrieval_precision:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Jaccard similarity between retrieved and ground truth"
-  retrieval_diversity:
-    type: "number"
-    minimum: 0.0
-    description: "Inverse variance of cosine similarities"
-  pruning_risk_count:
-    type: "integer"
-    minimum: 0
-    description: "Number of high-risk skills pruned (causal entanglement metric)"
-  latency_ms:
-    type: "number"
-    minimum: 0
-    description: "Execution time in milliseconds"
-  token_usage:
-    type: "integer"
-    minimum: 0
-    description: "Tokens consumed"
+  - edge_case
 additionalProperties: false

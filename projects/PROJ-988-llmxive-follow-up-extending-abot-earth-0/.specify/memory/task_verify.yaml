@@ -1,3 +1,16 @@
-T005 [P] Implement `code/lib/alignment.py` for coordinate transform logic (UTM/Geographic): 2
-T006 [P] Implement `code/lib/degradation.py` for synthetic mask generation and downscaling logic: 2
-T007d [P] Create `code/lib/models.py` class `FidelityMetrics`: 1
+T001b: 1
+T002a: 1
+T002b: 1
+T003: 1
+T004: 1
+T005: 1
+T006: 1
+T007a: 1
+T007b: 1
+T007c: 1
+T007d: 1
+T008: 1
+T020: 1
+T028: 1
+T029: 1
+T029b: 1

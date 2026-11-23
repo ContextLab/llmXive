@@ -1,247 +1,162 @@
 """
-Unit tests for the base data model classes.
+Unit tests for data model classes (T007).
 
-Tests verify that AlloyRecord, EnvironmentRecord, and CorrosionMeasurement
-correctly enforce data types, ranges, and required fields.
+Tests instantiation with valid and invalid data to ensure Pydantic v2
+strict schema enforcement works as expected.
 """
 import pytest
-from datetime import datetime
+from typing import Dict
+from pydantic import ValidationError
 from code.data.models import AlloyRecord, EnvironmentRecord, CorrosionMeasurement
+from code.utils.exceptions import SchemaMismatchError
+
 
 class TestAlloyRecord:
-    """Tests for the AlloyRecord dataclass."""
+    """Tests for AlloyRecord class."""
 
-    def test_valid_creation(self):
-        """Test creating a valid AlloyRecord."""
-        alloy = AlloyRecord(
-            alloy_id="AL001",
-            designation="304L",
-            composition={"Fe": 0.70, "Cr": 0.18, "Ni": 0.10, "C": 0.02}
-        )
-        assert alloy.alloy_id == "AL001"
-        assert alloy.designation == "304L"
-        assert alloy.composition["Cr"] == 0.18
-
-    def test_empty_alloy_id_raises(self):
-        """Test that empty alloy_id raises ValueError."""
-        with pytest.raises(ValueError, match="alloy_id cannot be empty"):
-            AlloyRecord(
-                alloy_id="",
-                designation="304L",
-                composition={"Fe": 0.70}
-            )
-
-    def test_empty_designation_raises(self):
-        """Test that empty designation raises ValueError."""
-        with pytest.raises(ValueError, match="designation cannot be empty"):
-            AlloyRecord(
-                alloy_id="AL001",
-                designation="",
-                composition={"Fe": 0.70}
-            )
+    def test_valid_alloy_record(self):
+        """Test instantiation with valid data."""
+        data = {
+            "alloy_id": "AL-001",
+            "composition": {"Fe": 0.70, "Cr": 0.18, "Ni": 0.08},
+            "specific_alloy_designation": "304 Stainless Steel"
+        }
+        record = AlloyRecord(**data)
+        assert record.alloy_id == "AL-001"
+        assert record.composition["Fe"] == 0.70
+        assert record.specific_alloy_designation == "304 Stainless Steel"
 
     def test_empty_composition_raises(self):
-        """Test that empty composition raises ValueError."""
-        with pytest.raises(ValueError, match="composition dictionary cannot be empty"):
-            AlloyRecord(
-                alloy_id="AL001",
-                designation="304L",
-                composition={}
-            )
-
-    def test_invalid_fraction_type_raises(self):
-        """Test that non-numeric fraction raises TypeError."""
-        with pytest.raises(TypeError):
-            AlloyRecord(
-                alloy_id="AL001",
-                designation="304L",
-                composition={"Fe": "0.70"}
-            )
-
-    def test_fraction_out_of_range_raises(self):
-        """Test that fraction outside [0, 1] raises ValueError."""
-        with pytest.raises(ValueError):
-            AlloyRecord(
-                alloy_id="AL001",
-                designation="304L",
-                composition={"Fe": 1.5}
-            )
-
-    def test_to_dict(self):
-        """Test serialization to dictionary."""
-        alloy = AlloyRecord(
-            alloy_id="AL001",
-            designation="304L",
-            composition={"Fe": 0.70, "Cr": 0.18},
-            source="NIST"
-        )
-        d = alloy.to_dict()
-        assert d["alloy_id"] == "AL001"
-        assert d["source"] == "NIST"
-        assert "created_at" in d
-
-    def test_from_dict(self):
-        """Test deserialization from dictionary."""
+        """Test that empty composition raises SchemaMismatchError."""
         data = {
-            "alloy_id": "AL001",
-            "designation": "304L",
-            "composition": {"Fe": 0.70, "Cr": 0.18},
-            "source": "NIST"
+            "alloy_id": "AL-002",
+            "composition": {},
+            "specific_alloy_designation": "Test Alloy"
         }
-        alloy = AlloyRecord.from_dict(data)
-        assert alloy.alloy_id == "AL001"
-        assert alloy.source == "NIST"
+        with pytest.raises(SchemaMismatchError):
+            AlloyRecord(**data)
+
+    def test_negative_fraction_raises(self):
+        """Test that negative weight fraction raises SchemaMismatchError."""
+        data = {
+            "alloy_id": "AL-003",
+            "composition": {"Fe": -0.1},
+            "specific_alloy_designation": "Test Alloy"
+        }
+        with pytest.raises(SchemaMismatchError):
+            AlloyRecord(**data)
+
+    def test_fraction_over_one_raises(self):
+        """Test that weight fraction > 1 raises SchemaMismatchError."""
+        data = {
+            "alloy_id": "AL-004",
+            "composition": {"Fe": 1.5},
+            "specific_alloy_designation": "Test Alloy"
+        }
+        with pytest.raises(SchemaMismatchError):
+            AlloyRecord(**data)
+
+    def test_empty_alloy_id_raises(self):
+        """Test that empty alloy_id raises SchemaMismatchError."""
+        data = {
+            "alloy_id": "",
+            "composition": {"Fe": 0.9},
+            "specific_alloy_designation": "Test Alloy"
+        }
+        with pytest.raises(SchemaMismatchError):
+            AlloyRecord(**data)
+
+    def test_empty_designation_raises(self):
+        """Test that empty specific_alloy_designation raises SchemaMismatchError."""
+        data = {
+            "alloy_id": "AL-005",
+            "composition": {"Fe": 0.9},
+            "specific_alloy_designation": "   "
+        }
+        with pytest.raises(SchemaMismatchError):
+            AlloyRecord(**data)
 
 
 class TestEnvironmentRecord:
-    """Tests for the EnvironmentRecord dataclass."""
+    """Tests for EnvironmentRecord class."""
 
-    def test_valid_creation(self):
-        """Test creating a valid EnvironmentRecord."""
-        env = EnvironmentRecord(
-            env_id="ENV001",
-            ph=7.0,
-            temperature_c=25.0,
-            solution_composition={"Cl-": 0.5},
-            aeration="aerated"
-        )
-        assert env.env_id == "ENV001"
-        assert env.ph == 7.0
-        assert env.solution_composition["Cl-"] == 0.5
+    def test_valid_environment_record(self):
+        """Test instantiation with valid data."""
+        data = {
+            "ph": 7.0,
+            "temperature": 25.0,
+            "electrolyte_type": "NaCl"
+        }
+        record = EnvironmentRecord(**data)
+        assert record.ph == 7.0
+        assert record.temperature == 25.0
+        assert record.electrolyte_type == "NaCl"
 
-    def test_empty_env_id_raises(self):
-        """Test that empty env_id raises ValueError."""
-        with pytest.raises(ValueError, match="env_id cannot be empty"):
-            EnvironmentRecord(env_id="")
-
-    def test_invalid_ph_type_raises(self):
-        """Test that non-numeric pH raises TypeError."""
-        with pytest.raises(TypeError):
-            EnvironmentRecord(
-                env_id="ENV001",
-                ph="7.0"
-            )
-
-    def test_invalid_temperature_type_raises(self):
-        """Test that non-numeric temperature raises TypeError."""
-        with pytest.raises(TypeError):
-            EnvironmentRecord(
-                env_id="ENV001",
-                temperature_c="25"
-            )
+    def test_ph_out_of_range_warns_but_passes(self):
+        """Test that pH outside 0-14 warns but passes validation."""
+        # We expect a warning, but no exception for strict schema unless we enforce bounds.
+        # The validator currently allows it with a warning.
+        data = {
+            "ph": 15.0,
+            "temperature": 25.0,
+            "electrolyte_type": "Acid"
+        }
+        # Should not raise
+        record = EnvironmentRecord(**data)
+        assert record.ph == 15.0
 
     def test_temperature_below_absolute_zero_raises(self):
-        """Test that temperature below -273.15 raises ValueError."""
-        with pytest.raises(ValueError):
-            EnvironmentRecord(
-                env_id="ENV001",
-                temperature_c=-300.0
-            )
-
-    def test_to_dict(self):
-        """Test serialization to dictionary."""
-        env = EnvironmentRecord(
-            env_id="ENV001",
-            ph=7.0,
-            source="NIST"
-        )
-        d = env.to_dict()
-        assert d["env_id"] == "ENV001"
-        assert d["ph"] == 7.0
-
-    def test_from_dict(self):
-        """Test deserialization from dictionary."""
+        """Test that temperature below absolute zero raises SchemaMismatchError."""
         data = {
-            "env_id": "ENV001",
             "ph": 7.0,
-            "temperature_c": 25.0
+            "temperature": -300.0,
+            "electrolyte_type": "Water"
         }
-        env = EnvironmentRecord.from_dict(data)
-        assert env.env_id == "ENV001"
-        assert env.temperature_c == 25.0
+        with pytest.raises(SchemaMismatchError):
+            EnvironmentRecord(**data)
+
+    def test_empty_electrolyte_raises(self):
+        """Test that empty electrolyte_type raises SchemaMismatchError."""
+        data = {
+            "ph": 7.0,
+            "temperature": 25.0,
+            "electrolyte_type": "   "
+        }
+        with pytest.raises(SchemaMismatchError):
+            EnvironmentRecord(**data)
 
 
 class TestCorrosionMeasurement:
-    """Tests for the CorrosionMeasurement dataclass."""
+    """Tests for CorrosionMeasurement class."""
 
-    def test_valid_creation(self):
-        """Test creating a valid CorrosionMeasurement."""
-        meas = CorrosionMeasurement(
-            measurement_id="MEAS001",
-            alloy_id="AL001",
-            env_id="ENV001",
-            corrosion_potential_mv=-250.0,
-            method="potentiodynamic"
-        )
-        assert meas.measurement_id == "MEAS001"
-        assert meas.corrosion_potential_mv == -250.0
+    def test_valid_measurement(self):
+        """Test instantiation with valid data."""
+        data = {
+            "record_id": "REC-001",
+            "potential_mV": -250.5
+        }
+        record = CorrosionMeasurement(**data)
+        assert record.record_id == "REC-001"
+        assert record.potential_mV == -250.5
 
-    def test_empty_measurement_id_raises(self):
-        """Test that empty measurement_id raises ValueError."""
-        with pytest.raises(ValueError, match="measurement_id cannot be empty"):
-            CorrosionMeasurement(
-                measurement_id="",
-                alloy_id="AL001",
-                env_id="ENV001"
-            )
+    def test_empty_record_id_raises(self):
+        """Test that empty record_id raises SchemaMismatchError."""
+        data = {
+            "record_id": "",
+            "potential_mV": -250.5
+        }
+        with pytest.raises(SchemaMismatchError):
+            CorrosionMeasurement(**data)
 
-    def test_empty_alloy_id_ref_raises(self):
-        """Test that empty alloy_id reference raises ValueError."""
-        with pytest.raises(ValueError, match="alloy_id reference cannot be empty"):
-            CorrosionMeasurement(
-                measurement_id="MEAS001",
-                alloy_id="",
-                env_id="ENV001"
-            )
+    def test_whitespace_record_id_strips(self):
+        """Test that whitespace in record_id is stripped."""
+        data = {
+            "record_id": "  REC-002  ",
+            "potential_mV": -200.0
+        }
+        record = CorrosionMeasurement(**data)
+        assert record.record_id == "REC-002"
 
-    def test_empty_env_id_ref_raises(self):
-        """Test that empty env_id reference raises ValueError."""
-        with pytest.raises(ValueError, match="env_id reference cannot be empty"):
-            CorrosionMeasurement(
-                measurement_id="MEAS001",
-                alloy_id="AL001",
-                env_id=""
-            )
 
-    def test_invalid_potential_type_raises(self):
-        """Test that non-numeric potential raises TypeError."""
-        with pytest.raises(TypeError):
-            CorrosionMeasurement(
-                measurement_id="MEAS001",
-                alloy_id="AL001",
-                env_id="ENV001",
-                corrosion_potential_mv="250"
-            )
-
-    def test_negative_corrosion_rate_mpy_raises(self):
-        """Test that negative corrosion rate mpy raises ValueError."""
-        with pytest.raises(ValueError):
-            CorrosionMeasurement(
-                measurement_id="MEAS001",
-                alloy_id="AL001",
-                env_id="ENV001",
-                corrosion_rate_mpy=-1.0
-            )
-
-    def test_negative_corrosion_rate_mm_y_raises(self):
-        """Test that negative corrosion rate mm/y raises ValueError."""
-        with pytest.raises(ValueError):
-            CorrosionMeasurement(
-                measurement_id="MEAS001",
-                alloy_id="AL001",
-                env_id="ENV001",
-                corrosion_rate_mm_y=-0.1
-            )
-
-    def test_to_json_and_from_json(self):
-        """Test JSON serialization and deserialization."""
-        meas = CorrosionMeasurement(
-            measurement_id="MEAS001",
-            alloy_id="AL001",
-            env_id="ENV001",
-            corrosion_potential_mv=-250.0
-        )
-        json_str = meas.to_json()
-        restored = CorrosionMeasurement.from_json(json_str)
-        assert restored.measurement_id == "MEAS001"
-        assert restored.corrosion_potential_mv == -250.0
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

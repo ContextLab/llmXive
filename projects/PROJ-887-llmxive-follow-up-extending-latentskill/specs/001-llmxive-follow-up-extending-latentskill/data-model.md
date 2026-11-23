@@ -2,55 +2,92 @@
 
 ## Overview
 
-This document defines the data structures used to represent Skill Vectors, Evaluation Results, and the configuration for the retrieval system. All data is stored in CPU-friendly formats (NumPy, CSV, JSON) to ensure compatibility with the GitHub Actions runner.
+This document defines the data structures, file formats, and schemas used throughout the project. All data is stored in `data/` with strict versioning and checksumming.
 
-## Entities
+## File Hierarchy
 
-### 1. Skill Vector
-Represents a single LoRA adapter flattened and normalized.
+```text
+data/
+├── raw/
+│   ├── weights.npz          # Raw LoRA A/B matrices (downloaded)
+│   └── task_descriptions.json # Task descriptions (metadata)
+├── processed/
+│   ├── skill_index.npz      # Flattened, normalized vectors + metadata
+│   └── text_embeddings.npy  # Sentence embeddings for all tasks
+└── results/
+    ├── stats_raw.json       # Raw success rates (unadjusted)
+    └── stats_report.json    # Final report with BH-corrected p-values
+```
 
-*   **ID**: Unique string (e.g., `alfworld_task_001`).
-*   **Task Description**: Text string describing the task.
-*   **Vector**: 1D float32 array (L2 normalized).
-*   **Source**: Original dataset name (ALFWorld or Search-QA).
-*   **Dimensions**: Total elements = sum of elements in A and B matrices.
+## Data Schemas
 
-### 2. Composite Task
-A novel task formed by combining existing skills, used for evaluation.
+### 1. Skill Vector Index (`data/processed/skill_index.npz`)
 
-*   **ID**: Unique string.
-*   **Description**: Text description.
-*   **Ground Truth**: (Optional) The actual LoRA weights if available for reconstruction error calculation (SC-005).
+A NumPy archive containing:
+*   `vectors`: `(N, D)` float32 array. Flattened, normalized LoRA vectors.
+*   `task_ids`: `(N,)` string array. Unique identifiers.
+*   `descriptions`: `(N,)` string array. Original task text.
+*   `metadata`: JSON string (serialized) containing base model version, rank, etc.
 
-### 3. Evaluation Result
-Record of a single task run.
+### 2. Raw Statistics (`data/results/stats_raw.json`)
 
-*   **Task ID**: Reference to Composite Task.
-*   **Method**: `nearest_neighbor`, `arithmetic_mean`, `weighted_mean`, `baseline`.
-*   **Run ID**: Integer (1 to N).
-*   **Success**: Boolean (1/0).
-*   **Latency**: Float (seconds for selection only).
-*   **Timestamp**: ISO 8601.
+A JSON object mapping task IDs to their success rates across strategies.
 
-### 4. Statistical Summary
-Aggregated results for reporting.
+```json
+{
+  "task_001": {
+    "baseline": 0.8,
+    "nearest_neighbor": 0.7,
+    "arithmetic_mean": 0.65,
+    "weighted_avg": 0.75
+  },
+  ...
+}
+```
 
-*   **Method**: Strategy name.
-*   **Mean Success**: Float.
-*   **Std Dev**: Float.
-*   **P-Value**: Float (raw).
-*   **P-Value BH**: Float (corrected).
-*   **Significant**: Boolean.
+### 3. Statistical Report (`data/results/stats_report.json`)
 
-## Storage Formats
+A JSON object containing the final analysis, including p-values and BH corrections.
 
-*   **Skill Vector Database**: `data/processed/skill_vectors.npy` (NumPy array) + `data/processed/skill_metadata.json`.
-*   **Evaluation Logs**: `data/results/eval_log.csv`.
-*   **Synthesized Adapters**: `artifacts/synthesized_adapters/{task_id}_{method}.npz`.
+```json
+{
+  "summary": {
+    "total_tasks": a small number,
+    "runs_per_task": "multiple",
+    "baseline_success_rate": "a high baseline success rate"
+  },
+  "comparisons": [
+    {
+      "strategy": "nearest_neighbor",
+      "raw_p_value": "statistically significant",
+      "bh_corrected_p_value":,
+      "significant": false
+    },
+    {
+      "strategy": "weighted_avg",
+      "raw_p_value": "a statistically significant threshold",
+      The study will evaluate whether the Benjamini-Hochberg corrected p-value falls below the conventional significance threshold of 0.05 to determine statistical significance.,
+      "significant": true
+    }
+  ],
+  "alignment_check": {
+    "pearson_correlation": "a moderate to strong positive association",
+    p_value: statistically significant.
+    "valid": true
+  },
+  "linearity_validation": {
+    "reconstruction_error": a low magnitude,
+    "threshold": 0.05,
+    "valid": true
+  }
+}
+```
 
-## Data Lineage
+## Data Hygiene Rules
 
-1.  **Raw**: `data/raw/{task_id}_A.npy`, `data/raw/{task_id}_B.npy` (Downloaded).
-2.  **Processed**: `data/processed/skill_vectors.npy` (Derived via `src/ingestion/flatten_lora.py`).
-3.  **Derived**: `data/results/eval_log.csv` (Derived via `src/evaluation/runner.py`).
-4.  **Final**: `data/results/stats_summary.json` (Derived via `src/evaluation/stats.py`).
+1.  **Checksums**: Every file in `data/raw/` and `data/processed/` must have a corresponding SHA256 hash recorded in `state/...yaml`.
+2.  **Immutability**: Files in `data/raw/` are never modified. Derived files in `data/processed/` and `data/results/` are written as new files.
+3.  **Format**:
+    *   `.npz` files must be readable by `numpy.load()`.
+    *   `.json` files must be valid JSON (no trailing commas, proper escaping).
+4.  **PII**: No personally identifiable information is allowed in task descriptions or metadata.

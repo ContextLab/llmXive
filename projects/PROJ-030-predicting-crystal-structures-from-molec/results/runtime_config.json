@@ -1,0 +1,5 @@
+{
+  "training_device": "cpu",
+  "device_detected_at": "2026-10-23T15:36:08.291910",
+  "cpu_only_enforced": true
+}

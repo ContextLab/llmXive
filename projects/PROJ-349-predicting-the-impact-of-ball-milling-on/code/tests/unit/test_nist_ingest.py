@@ -1,145 +1,164 @@
 """
 Unit tests for NIST Repository Downloader (T013).
+
+These tests verify the ingestion logic, parsing, and error handling.
+They do NOT fetch real data from NIST (mocked).
 """
 
 import json
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, mock_open
 import pytest
 import pandas as pd
 
+from src.exceptions import DataIngestionError, DataFormatError
 from src.ingest.nist_repo import (
-    calculate_sha256,
-    validate_checksum,
-    fetch_data,
-    parse_csv,
-    extract_psd_metrics,
+    fetch_nist_data,
+    parse_nist_csv,
+    parse_nist_json,
+    normalize_nist_schema,
     run_nist_ingestion,
-    DataIngestionError,
-    SourceConnectionError,
-    SourceNotFoundError,
-    DataFormatError
+    calculate_checksum
 )
 
 @pytest.fixture
 def temp_dir():
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        yield Path(tmpdirname)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 @pytest.fixture
 def mock_csv_content():
-    return """material_id,d10,d50,d90,material_type,milling_speed
-    mat001,5.2,12.5,25.0,Ceramic,500
-    mat002,3.1,8.4,15.2,Metal,600
-    mat003,10.0,20.0,40.0,Polymer,450
+    return """experiment_id,source,material_type,milling_speed,milling_time,ball_to_powder_ratio,youngs_modulus,density,d10,d50,d90,process_duration
+    NIST_001,NIST_Test,Aluminum,500,60,10,70,2.7,10,50,100,60
+    NIST_002,NIST_Test,Steel,600,90,15,200,7.8,15,60,120,90
     """
 
 @pytest.fixture
 def mock_csv_path(temp_dir, mock_csv_content):
-    path = temp_dir / "test_data.csv"
+    path = temp_dir / "mock_nist.csv"
     path.write_text(mock_csv_content)
     return path
 
-def test_calculate_sha256(mock_csv_path):
-    """Test SHA256 calculation."""
-    checksum = calculate_sha256(mock_csv_path)
-    assert len(checksum) == 64  # SHA256 hex length
-    assert isinstance(checksum, str)
+class TestHashing:
+    def test_calculate_checksum(self, temp_dir):
+        test_file = temp_dir / "test.txt"
+        test_file.write_text("test content")
+        checksum = calculate_checksum(test_file)
+        assert len(checksum) == 64  # SHA-256 hex length
+        assert isinstance(checksum, str)
 
-def test_validate_checksum_success(mock_csv_path):
-    """Test successful checksum validation."""
-    checksum = calculate_sha256(mock_csv_path)
-    assert validate_checksum(mock_csv_path, checksum) is True
+class TestParseCSV:
+    def test_parse_csv_success(self, mock_csv_content):
+        df = parse_nist_csv(mock_csv_content)
+        assert len(df) == 2
+        assert "experiment_id" in df.columns
+        assert df.iloc[0]["material_type"] == "Aluminum"
 
-def test_validate_checksum_mismatch(mock_csv_path):
-    """Test checksum mismatch detection."""
-    assert validate_checksum(mock_csv_path, "wrong_checksum") is False
+    def test_parse_csv_empty(self):
+        with pytest.raises(DataIngestionError):
+            parse_nist_csv("")
 
-def test_fetch_data_success(temp_dir):
-    """Test successful data fetch."""
-    output_path = temp_dir / "downloaded.csv"
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.content = b"test,data\n1,2"
-    
-    with patch('src.ingest.nist_repo.requests.get', return_value=mock_response):
-        result = fetch_data("http://example.com/data.csv", output_path)
-        assert result.exists()
-        assert result.read_bytes() == b"test,data\n1,2"
+    def test_parse_csv_invalid_format(self):
+        with pytest.raises(DataFormatError):
+            parse_nist_csv("not,a,valid,csv")
 
-def test_fetch_data_404(temp_dir):
-    """Test 404 handling."""
-    output_path = temp_dir / "downloaded.csv"
-    mock_response = MagicMock()
-    mock_response.status_code = 404
-    
-    with patch('src.ingest.nist_repo.requests.get', return_value=mock_response):
-        with pytest.raises(SourceNotFoundError):
-            fetch_data("http://example.com/not_found.csv", output_path)
+class TestParseJSON:
+    def test_parse_json_list(self):
+        data = [
+            {"experiment_id": "1", "material_type": "Cu", "d50": 50},
+            {"experiment_id": "2", "material_type": "Fe", "d50": 60}
+        ]
+        # Mocking normalize to avoid full schema check in this unit test
+        with patch('src.ingest.nist_repo.normalize_nist_schema') as mock_norm:
+            mock_norm.return_value = pd.DataFrame(data)
+            df = parse_nist_json(data)
+            assert len(df) == 2
 
-def test_parse_csv(mock_csv_path):
-    """Test CSV parsing."""
-    df = parse_csv(mock_csv_path)
-    assert len(df) == 3
-    assert 'd50' in df.columns
+    def test_parse_json_dict_with_data_key(self):
+        data = {"data": [{"experiment_id": "1", "material_type": "Cu"}]}
+        with patch('src.ingest.nist_repo.normalize_nist_schema') as mock_norm:
+            mock_norm.return_value = pd.DataFrame(data["data"])
+            df = parse_nist_json(data)
+            assert len(df) == 1
 
-def test_extract_psd_metrics():
-    """Test PSD metric extraction."""
-    data = {
-        'material_id': ['m1', 'm2'],
-        'd10': [1.0, 2.0],
-        'd50': [5.0, 10.0],
-        'd90': [10.0, 20.0],
-        'extra_col': ['a', 'b']
-    }
-    df = pd.DataFrame(data)
-    result = extract_psd_metrics(df)
-    
-    assert 'd10' in result.columns
-    assert 'd50' in result.columns
-    assert 'd90' in result.columns
-    assert len(result) == 2
-    # Check if extra columns are handled or dropped based on logic
-    # The implementation keeps 'material_id' and PSDs, drops others unless mapped
-    assert 'material_id' in result.columns
+    def test_parse_json_no_data(self):
+        with pytest.raises(DataFormatError):
+            parse_nist_json({"random": "key"})
 
-def test_extract_psd_metrics_missing_cols():
-    """Test extraction failure on missing columns."""
-    data = {
-        'material_id': ['m1'],
-        'd10': [1.0],
-        # Missing d50 and d90
-    }
-    df = pd.DataFrame(data)
-    with pytest.raises(DataFormatError):
-        extract_psd_metrics(df)
+class TestNormalizeSchema:
+    def test_normalize_success(self, mock_csv_content):
+        df = pd.read_csv(pd.io.common.StringIO(mock_csv_content))
+        result = normalize_nist_schema(df)
+        assert "experiment_id" in result.columns
+        assert "source" in result.columns
 
-@patch('src.ingest.nist_repo.fetch_data')
-@patch('src.ingest.nist_repo.parse_csv')
-@patch('src.ingest.nist_repo.extract_psd_metrics')
-def test_download_nist_data_full_flow(mock_extract, mock_parse, mock_fetch, temp_dir):
-    """Test full ingestion flow with mocked dependencies."""
-    mock_df = pd.DataFrame({'d10': [1], 'd50': [2], 'd90': [3], 'material_id': ['m1']})
-    mock_fetch.return_value = temp_dir / "data.csv"
-    mock_parse.return_value = pd.DataFrame({'d10': [1], 'd50': [2], 'd90': [3], 'material_id': ['m1']})
-    mock_extract.return_value = mock_df
-    
-    # Mock the directory creation
-    with patch('pathlib.Path.mkdir'):
-        result = run_nist_ingestion(output_dir=temp_dir)
-    
-    assert len(result) == 1
-    mock_fetch.assert_called_once()
-    mock_parse.assert_called_once()
-    mock_extract.assert_called_once()
+    def test_normalize_missing_columns(self):
+        df = pd.DataFrame({"wrong_col": [1]})
+        with pytest.raises(DataIngestionError):
+            normalize_nist_schema(df)
 
-@patch('src.ingest.nist_repo.fetch_data')
-def test_download_nist_data_no_data(mock_fetch, temp_dir):
-    """Test flow when fetch fails."""
-    mock_fetch.side_effect = SourceConnectionError("Connection failed")
-    
-    with patch('pathlib.Path.mkdir'):
-        with pytest.raises(SourceConnectionError):
-            run_nist_ingestion(output_dir=temp_dir)
+class TestFetchData:
+    @patch('src.ingest.nist_repo.requests.get')
+    def test_fetch_csv_success(self, mock_get, mock_csv_content):
+        mock_response = MagicMock()
+        mock_response.text = mock_csv_content
+        mock_response.headers = {'content-type': 'text/csv'}
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+
+        df = fetch_nist_data("TEST_ID")
+        assert len(df) == 2
+        mock_get.assert_called_once()
+
+    @patch('src.ingest.nist_repo.requests.get')
+    def test_fetch_json_success(self, mock_get):
+        mock_data = [{"experiment_id": "1", "material_type": "Cu", "d50": 50}]
+        mock_response = MagicMock()
+        mock_response.json.return_value = mock_data
+        mock_response.headers = {'content-type': 'application/json'}
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+
+        with patch('src.ingest.nist_repo.normalize_nist_schema') as mock_norm:
+            mock_norm.return_value = pd.DataFrame(mock_data)
+            df = fetch_nist_data("TEST_ID")
+            assert len(df) == 1
+
+    def test_fetch_no_id(self):
+        with pytest.raises(DataIngestionError):
+            fetch_nist_data(None)
+
+    @patch('src.ingest.nist_repo.requests.get')
+    def test_fetch_failure(self, mock_get):
+        mock_get.side_effect = Exception("Network Error")
+        with pytest.raises(DataIngestionError):
+            fetch_nist_data("TEST_ID")
+
+class TestRunIngestion:
+    @patch('src.ingest.nist_repo.fetch_nist_data')
+    @patch('src.ingest.nist_repo.OUTPUT_DIR')
+    @patch('src.ingest.nist_repo.OUTPUT_FILE')
+    def test_run_ingestion_success(self, mock_output_file, mock_output_dir, mock_fetch, temp_dir, mock_csv_content):
+        # Setup mocks
+        mock_output_dir.mkdir = MagicMock()
+        mock_output_file.parent = temp_dir
+        mock_output_file.__truediv__ = lambda self, name: temp_dir / name
+        
+        mock_df = pd.read_csv(pd.io.common.StringIO(mock_csv_content))
+        mock_fetch.return_value = mock_df
+
+        # Mock calculate_checksum to avoid file I/O in test
+        with patch('src.ingest.nist_repo.calculate_checksum', return_value="abc123"):
+            result = run_nist_ingestion("TEST_ID")
+            
+            # Verify output file path logic
+            assert result is not None
+            mock_fetch.assert_called_once_with("TEST_ID")
+
+    @patch('src.ingest.nist_repo.fetch_nist_data')
+    def test_run_ingestion_empty_data(self, mock_fetch):
+        mock_fetch.return_value = pd.DataFrame()
+        with pytest.raises(DataIngestionError):
+            run_nist_ingestion("TEST_ID")

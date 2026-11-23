@@ -1,0 +1,71 @@
+# Contract Schema for Model Results
+# Defines the expected structure for data produced by the model training and evaluation pipeline.
+# This schema is used by T050 to verify artifact integrity.
+
+type: object
+required:
+  - r2
+  - mae
+  - cv_scores
+  - sensitivity_data
+  - vif_scores
+
+properties:
+  r2:
+    type: number
+    description: Coefficient of determination (R²) for the final model on the test set.
+    minimum: -1.0
+    maximum: 1.0
+
+  mae:
+    type: number
+    description: Mean Absolute Error of the final model on the test set.
+    minimum: 0.0
+
+  cv_scores:
+    type: array
+    description: List of R² scores from k-fold cross-validation.
+    items:
+      type: number
+    minItems: 1
+
+  sensitivity_data:
+    type: array
+    description: Results of the outlier sensitivity analysis across different thresholds.
+    items:
+      type: object
+      required:
+        - threshold
+        - r2
+        - kruskal_stat
+        - kruskal_pval
+      properties:
+        threshold:
+          type: number
+          description: The sigma threshold used for outlier exclusion (e.g., 3.0).
+        r2:
+          type: number
+          description: R² score achieved with this threshold.
+        kruskal_stat:
+          type: number
+          description: Kruskal-Wallis H statistic comparing variances.
+        kruskal_pval:
+          type: number
+          description: P-value from the Kruskal-Wallis test.
+
+  vif_scores:
+    type: array
+    description: Variance Inflation Factor scores for features included in the final model.
+    items:
+      type: object
+      required:
+        - feature
+        - vif
+      properties:
+        feature:
+          type: string
+          description: Name of the feature.
+        vif:
+          type: number
+          description: Calculated VIF value.
+          minimum: 1.0

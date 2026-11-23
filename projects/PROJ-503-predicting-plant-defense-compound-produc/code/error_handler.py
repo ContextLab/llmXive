@@ -1,148 +1,234 @@
 """
-Error handling framework for the plant defense prediction pipeline.
-
-Provides centralized error handling, logging, and specific error raising
-functions for the defined error codes: E-DATASET, E-PAIRING, E-TIMEOUT, E-POWER.
+Error handling framework for the plant defense compound prediction pipeline.
+Implements timeout monitoring and validation logic for error codes:
+- E-DATASET, E-PAIRING, E-TIMEOUT, E-POWER
 """
-
 import sys
-import logging
 import time
-from typing import Optional, Dict, Any
+import logging
+import signal
+from typing import Optional, Dict, Any, Callable
 from pathlib import Path
+from functools import wraps
+from contextlib import contextmanager
 
 from exceptions import (
-    PipelineError,
-    E_DATASET,
-    E_PAIRING,
-    E_TIMEOUT,
-    E_POWER
+    E_DATASET, E_PAIRING, E_TIMEOUT, E_POWER, E_SAMPLESIZE,
+    raise_dataset_error, raise_pairing_error, raise_timeout_error,
+    raise_power_error, raise_samplesize_error
 )
 
-# Configure module logger
+# Configure logging for error tracking
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Timeout tracking
-_start_time: Optional[float] = None
-_timeout_limit_seconds: int = 14400  # 4 hours per FR-008
+# Default timeout limit in seconds (4 hours as per FR-008)
+DEFAULT_TIMEOUT_SECONDS = 4 * 60 * 60  # 4 hours
 
-def set_timeout_limit(seconds: int) -> None:
-    """Set the CPU time limit for the pipeline execution."""
-    global _timeout_limit_seconds
-    _timeout_limit_seconds = seconds
+# Global timeout state
+_timeout_start: Optional[float] = None
+_timeout_limit: float = DEFAULT_TIMEOUT_SECONDS
+
+
+def set_timeout_limit(seconds: float) -> None:
+    """
+    Set the global timeout limit for the pipeline execution.
+    
+    Args:
+        seconds: Timeout limit in seconds (default: 4 hours)
+    """
+    global _timeout_limit
+    _timeout_limit = seconds
+    logger.info(f"Timeout limit set to {seconds} seconds ({seconds/3600:.2f} hours)")
+
 
 def start_timeout_monitor() -> None:
-    """Start the CPU time monitor."""
-    global _start_time
-    _start_time = time.time()
-    logger.info(f"Timeout monitor started. Limit: {_timeout_limit_seconds} seconds")
+    """Start the timeout monitoring timer."""
+    global _timeout_start
+    _timeout_start = time.time()
+    logger.info("Timeout monitor started")
 
-def check_timeout() -> bool:
+
+def check_timeout() -> Optional[bool]:
     """
-    Check if the elapsed CPU time exceeds the timeout limit.
+    Check if the timeout has been exceeded.
     
     Returns:
-        True if timeout exceeded, False otherwise.
+        True if timeout exceeded, None if not started, False if within limit
     """
-    if _start_time is None:
-        return False
+    if _timeout_start is None:
+        return None
     
-    elapsed = time.time() - _start_time
-    if elapsed > _timeout_limit_seconds:
-        logger.error(f"Timeout exceeded: {elapsed:.2f}s > {_timeout_limit_seconds}s")
+    elapsed = time.time() - _timeout_start
+    if elapsed > _timeout_limit:
+        logger.error(f"Timeout exceeded: {elapsed:.2f}s > {_timeout_limit}s")
         return True
     return False
 
-def handle_error(
-    error: Exception,
-    log_file: Optional[Path] = None,
-    exit_on_error: bool = True
-) -> None:
+
+def wrap_with_timeout(timeout_seconds: Optional[float] = None) -> Callable:
     """
-    Centralized error handler that logs and optionally exits.
+    Decorator to wrap a function with timeout enforcement.
+    
+    Args:
+        timeout_seconds: Optional specific timeout for this function
+        
+    Returns:
+        Decorated function that raises E_TIMEOUT if exceeded
+    """
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            limit = timeout_seconds if timeout_seconds else _timeout_limit
+            
+            try:
+                result = func(*args, **kwargs)
+                elapsed = time.time() - start_time
+                logger.debug(f"{func.__name__} completed in {elapsed:.2f}s")
+                return result
+            except Exception as e:
+                elapsed = time.time() - start_time
+                logger.error(f"{func.__name__} failed after {elapsed:.2f}s: {str(e)}")
+                raise
+        return wrapper
+    return decorator
+
+
+@contextmanager
+def timeout_context(timeout_seconds: Optional[float] = None):
+    """
+    Context manager for timeout enforcement.
+    
+    Args:
+        timeout_seconds: Optional specific timeout for this block
+        
+    Raises:
+        E_TIMEOUT: If timeout is exceeded within the context
+    """
+    start_time = time.time()
+    limit = timeout_seconds if timeout_seconds else _timeout_limit
+    
+    try:
+        yield
+    finally:
+        elapsed = time.time() - start_time
+        if elapsed > limit:
+            logger.error(f"Context timeout: {elapsed:.2f}s > {limit}s")
+            raise E_TIMEOUT(f"Operation exceeded timeout limit of {limit} seconds")
+
+
+def handle_error(error: Exception) -> None:
+    """
+    Centralized error handler that logs and formats error messages.
     
     Args:
         error: The exception instance to handle
-        log_file: Optional path to append error details
-        exit_on_error: If True, terminate the program after logging
     """
-    error_msg = str(error)
-    error_code = getattr(error, 'error_code', 'E-UNKNOWN')
-    
-    # Log to console/logger
-    logger.error(f"[{error_code}] {error_msg}")
-    
-    # Log to file if provided
-    if log_file:
-        try:
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_file, 'a') as f:
-                f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} | {error_code} | {error_msg}\n")
-        except Exception as log_err:
-            logger.warning(f"Failed to write error log to {log_file}: {log_err}")
-    
-    if exit_on_error:
-        logger.critical("Pipeline terminated due to critical error.")
-        sys.exit(1)
-
-def raise_dataset_error(message: str, context: Optional[Dict[str, Any]] = None) -> None:
-    """
-    Raise E_DATASET exception with optional context.
-    
-    Args:
-        message: Human-readable error message
-        context: Optional dict with additional details (e.g., accession_id, source_url)
-    """
-    if context:
-        details = " | ".join([f"{k}={v}" for k, v in context.items()])
-        full_message = f"{message} ({details})"
+    if isinstance(error, PipelineError):
+        logger.error(f"[{error.error_code}] {error.message}")
+        if error.details:
+            logger.error(f"Details: {error.details}")
     else:
-        full_message = message
+        logger.error(f"Unexpected error: {type(error).__name__}: {str(error)}")
     
-    logger.critical(f"E-DATASET: {full_message}")
-    raise E_DATASET(full_message)
+    # Re-raise to allow proper propagation
+    raise error
 
-def raise_pairing_error(message: str, context: Optional[Dict[str, Any]] = None) -> None:
+
+def validate_pairing_rate(pairing_rate: float, threshold: float = 0.95) -> None:
     """
-    Raise E_PAIRING exception with optional context.
+    Validate that the pairing rate meets the minimum threshold.
     
     Args:
-        message: Human-readable error message
-        context: Optional dict with pairing statistics (e.g., pairing_rate, n_matched, n_total)
+        pairing_rate: The calculated pairing rate (0.0 to 1.0)
+        threshold: Minimum required pairing rate (default: 0.95)
+        
+    Raises:
+        E_PAIRING: If pairing rate is below threshold
     """
-    if context:
-        details = " | ".join([f"{k}={v}" for k, v in context.items()])
-        full_message = f"{message} ({details})"
-    else:
-        full_message = message
-    
-    logger.critical(f"E-PAIRING: {full_message}")
-    raise E_PAIRING(full_message)
+    if pairing_rate < threshold:
+        details = {
+            "pairing_rate": pairing_rate,
+            "threshold": threshold,
+            "deficit": threshold - pairing_rate
+        }
+        raise_pairing_error(
+            f"Pairing rate {pairing_rate:.2%} is below required threshold {threshold:.2%}",
+            details
+        )
+    logger.info(f"Pairing rate validation passed: {pairing_rate:.2%} >= {threshold:.2%}")
 
-def raise_timeout_error(message: str) -> None:
+
+def validate_sample_size(sample_size: int, minimum_required: int = 28) -> None:
     """
-    Raise E_TIMEOUT exception.
+    Validate that the sample size meets the minimum requirement for power analysis.
     
     Args:
-        message: Human-readable error message
+        sample_size: The number of samples available
+        minimum_required: Minimum required sample size (default: 28 per T015)
+        
+    Raises:
+        E_POWER: If sample size is insufficient for statistical power
     """
-    full_message = f"{message} (Timeout limit: {_timeout_limit_seconds}s)"
-    logger.critical(f"E-TIMEOUT: {full_message}")
-    raise E_TIMEOUT(full_message)
+    if sample_size < minimum_required:
+        details = {
+            "sample_size": sample_size,
+            "minimum_required": minimum_required,
+            "deficit": minimum_required - sample_size
+        }
+        raise_power_error(
+            f"Sample size {sample_size} is below minimum required {minimum_required} for power analysis",
+            details
+        )
+    logger.info(f"Sample size validation passed: {sample_size} >= {minimum_required}")
 
-def raise_power_error(message: str, context: Optional[Dict[str, Any]] = None) -> None:
+
+def validate_dataset_availability(dataset_count: int, minimum_required: int = 1) -> None:
     """
-    Raise E_POWER exception with optional context.
+    Validate that at least one verified dataset is available.
     
     Args:
-        message: Human-readable error message
-        context: Optional dict with power analysis details (e.g., required_n, available_n, effect_size)
+        dataset_count: Number of verified datasets found
+        minimum_required: Minimum required datasets (default: 1)
+        
+    Raises:
+        E_DATASET: If no verified datasets are found
     """
-    if context:
-        details = " | ".join([f"{k}={v}" for k, v in context.items()])
-        full_message = f"{message} ({details})"
-    else:
-        full_message = message
-    
-    logger.critical(f"E-POWER: {full_message}")
-    raise E_POWER(full_message)
+    if dataset_count < minimum_required:
+        details = {
+            "dataset_count": dataset_count,
+            "minimum_required": minimum_required
+        }
+        raise_dataset_error(
+            f"No verified plant omics datasets found. Required: {minimum_required}, Found: {dataset_count}",
+            details
+        )
+    logger.info(f"Dataset availability validation passed: {dataset_count} >= {minimum_required}")
+
+
+# Re-export for convenience
+__all__ = [
+    'set_timeout_limit',
+    'start_timeout_monitor',
+    'check_timeout',
+    'wrap_with_timeout',
+    'timeout_context',
+    'handle_error',
+    'validate_pairing_rate',
+    'validate_sample_size',
+    'validate_dataset_availability',
+    'E_DATASET',
+    'E_PAIRING',
+    'E_TIMEOUT',
+    'E_POWER',
+    'E_SAMPLESIZE',
+    'raise_dataset_error',
+    'raise_pairing_error',
+    'raise_timeout_error',
+    'raise_power_error',
+    'raise_samplesize_error'
+]

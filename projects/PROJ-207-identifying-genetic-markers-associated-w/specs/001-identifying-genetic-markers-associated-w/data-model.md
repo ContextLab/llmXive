@@ -1,76 +1,101 @@
 # Data Model: Identifying Genetic Markers Associated with Honeybee Colony Collapse Disorder
 
-## 1. Entity Relationship Overview
+## Overview
 
-The data model consists of three primary entities:
-1.  **Colony**: The biological unit of analysis.
-2.  **Genotype**: The set of SNPs for a specific colony.
-3.  **AssociationResult**: The output of the GWAS pipeline.
+This document defines the data structures, schemas, and relationships for the GWAS pipeline. All data flows through `data/` with strict versioning and checksumming.
 
-### 1.1 Colony
-- **Primary Key**: `colony_id`
+## Entities
+
+### Colony
+
 - **Attributes**:
-  - `health_status`: Binary (0=Healthy, 1=CCD)
-  - `geographic_region`: String (Categorical)
-  - `sampling_year`: Integer
-  - `Varroa_mite_count`: Integer
-  - `PC1` ... `PC10`: Float (Principal Components for population structure)
-- **Constraints**:
-  - `health_status` must be 0 or 1.
-  - `Varroa_mite_count` ≥ 0.
-  - Missing `Varroa_mite_count` > 10% of total triggers `ERR_VARROA_COVARIATE_MISSING`.
-  - If `geographic_region` and `sampling_year` are collinear (VIF > 5), they are excluded from the primary model in favor of PCs.
+  - `colony_id` (string): Unique identifier.
+  - `health_status` (binary): CCD=1, Healthy=0.
+  - `geographic_region` (string): e.g., "California", "Florida".
+  - `sampling_year` (integer): e.g., 2020, 2021.
+  - `varroa_mite_count` (float): Mite count per colony.
+- **Source**: Hugging Face dataset `bee_genome_variants` (v1.0).
+- **Validation**: All fields required; `health_status` must be 0 or 1.
 
-### 1.2 Genotype (SNP)
-- **Composite Key**: (`colony_id`, `SNP_rs_id`)
+### SNP
+
 - **Attributes**:
-  - `SNP_ref`: String (A/C/G/T)
-  - `SNP_alt`: String (A/C/G/T)
-  - `Allele_Freq`: Float (0.0 - 1.0)
-  - `Genotype_Call`: Integer (0, 1, 2) representing count of alt allele.
-- **Quality Filters**:
-  - `QUAL` > 30 (from VCF)
-  - `Depth` ≥ 10 (from VCF)
+  - `rs_id` (string): rs identifier or "chr:pos:ref:alt".
+  - `chromosome` (string): e.g., "chr1", "chr2".
+  - `position` (integer): Genomic position.
+  - `reference_allele` (string): e.g., "A", "T".
+  - `alternate_allele` (string): e.g., "G", "C".
+  - `allele_frequency` (float): Frequency of alternate allele.
+  - `p_value` (float): GWAS p-value.
+  - `q_value` (float): FDR-corrected q-value.
+  - `odds_ratio` (float): Odds ratio from logistic regression.
+- **Source**: PLINK output (`data/processed/gwas_results.tsv`).
+- **Validation**: All fields required; `p_value` and `q_value` in [0, 1].
 
-### 1.3 AssociationResult
-- **Primary Key**: `SNP_rs_id`
+### Colony_Pheno
+
 - **Attributes**:
-  - `p_value`: Float
-  - `bonferroni_q`: Float (Bonferroni-corrected p-value)
-  - `fdr_q_value`: Float (BH-corrected q-value, exploratory)
-  - `odds_ratio`: Float
-  - `significant`: Boolean (bonferroni_q < 0.05)
-  - `chromosome`: Integer
-  - `position`: Integer
+  - `colony_id` (string): Foreign key to `Colony`.
+  - `covariates` (dict): {`region`: str, `year`: int, `varroa`: float}.
+- **Source**: Derived from `Colony` and metadata.
+- **Validation**: Consistency check with `Colony` table.
 
-## 2. File Formats & Schemas
+## File Schema
 
-The pipeline consumes and produces files in specific formats. Schemas are defined in `contracts/`.
+### `data/raw/colony_metadata.csv`
 
-### 2.1 Input: Synthetic VCF (Simulated)
-- **Format**: VCF 4.2
-- **Structure**: Header lines (`##`) + Header (`#CHROM...`) + Data rows.
-- **Validation**: Checked against `contracts/dataset.schema.yaml`.
+| Column | Type | Description |
+|--------|------|-------------|
+| colony_id | string | Unique ID |
+| health_status | int | 0=Healthy, 1=CCD |
+| geographic_region | string | Region name |
+| sampling_year | int | Year of sampling |
+| varroa_mite_count | float | Mite count |
 
-### 2.2 Input: Phenotype Metadata
-- **Format**: CSV
-- **Columns**: `colony_id`, `health_status`, `geographic_region`, `sampling_year`, `Varroa_mite_count`.
+### `data/interim/gwas_raw.tsv`
 
-### 2.3 Output: GWAS Results
-- **Format**: TSV (Tab-Separated Values)
-- **Columns**: `SNP`, `CHR`, `POS`, `A1`, `A2`, `FREQ`, `P`, `BONFERRONI_P`, `FDR_Q`, `OR`, `SE`.
+| Column | Type | Description |
+|--------|------|-------------|
+| SNP | string | rs_id or chr:pos:ref:alt |
+| CHR | int | Chromosome number |
+| BP | int | Base pair position |
+| A1 | string | Alternate allele |
+| TEST | string | Test type (ADD) |
+| OR | float | Odds ratio |
+| SE | float | Standard error |
+| P | float | P-value |
 
-## 3. Data Flow
+### `data/processed/gwas_results_fdr.tsv`
 
-1.  **Raw**: `data/raw/synthetic_vcf.vcf`, `data/raw/phenotypes.csv`, `data/raw/simulated_reads.fastq`
-2.  **Interim**: `data/interim/plink.bed`, `data/interim/plink.bim`, `data/interim/plink.fam`, `data/interim/pcs.tsv`
-3.  **Processed**: `data/processed/gwas_results.tsv`, `data/processed/lasso_metrics.json`, `data/processed/power_analysis.txt`
+| Column | Type | Description |
+|--------|------|-------------|
+| SNP | string | rs_id |
+| CHR | int | Chromosome |
+| BP | int | Position |
+| A1 | string | Alternate allele |
+| P | float | Raw p-value |
+| Q | float | FDR-corrected q-value |
+| OR | float | Odds ratio |
+| SIGNIFICANT | bool | q < 0.05 |
 
-## 4. Data Quality Rules
+## Relationships
 
-- **Missing Data**:
-  - If `Varroa_mite_count` is missing for >10% of colonies, halt with `ERR_VARROA_COVARIATE_MISSING`.
-  - SNPs with missing genotypes in >5% of samples are pruned.
-- **Hardy-Weinberg Equilibrium**: SNPs failing HWE (p < 1e-6) are flagged (optional, but recommended for QC).
-- **Minor Allele Frequency (MAF)**: SNPs with MAF < 0.01 are pruned to reduce multiple testing burden.
-- **Population Structure**: Top 10 PCs must be computed and included as covariates.
+- `Colony` → `Colony_Pheno`: One-to-one (each colony has one phenotype record).
+- `Colony` → `SNP`: Many-to-many (each colony has many SNPs; each SNP is in many colonies).
+- `SNP` → `gwas_results_fdr`: One-to-one (each SNP has one GWAS result).
+
+## Data Flow
+
+1. **Download**: `code/01_download_data.sh` fetches real HF dataset with SSL validation.
+2. **Harmonize**: `code/02_harmonize_phenotypes.py` maps CCD criteria and checks Varroa coverage.
+3. **Align & Call**: `code/03_align_and_call.sh` produces VCF.
+4. **Filter**: `code/04_filter_snps.py` pre-filters to immune pathway (Candidate-Gene).
+5. **Collinearity**: `code/05_collinearity_diag.py` checks covariates.
+6. **Power**: `code/06_power_analysis.py` calculates power with corrected alpha.
+7. **GWAS**: `code/07_gwas_plink.sh` produces `gwas_raw.tsv`.
+8. **FDR**: `code/08_apply_fdr.py` produces `gwas_results_fdr.tsv`.
+9. **Sensitivity**: `code/09_threshold_sensitivity.py` sweeps p-values.
+10. **LASSO**: `code/10_lasso_validation.py` trains on [deferred] and validates on [deferred].
+11. **PRS**: `code/11_prs_and_lr_test.py` computes PRS and likelihood-ratio test.
+12. **Annotation**: `code/12_annotate_genes.py` produces gene annotations.
+13. **Format**: `code/13_format_results.py` adds associational disclaimer.

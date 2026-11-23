@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-automation-system"
+version = "0.1.0"
+description = "Automated scientific discovery pipeline for gene regulation"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "sentence-transformers>=2.2.0",
+    "datasets>=2.14.0",
+    "scipy>=1.11.0",
+    "statsmodels>=0.14.0",
+    "pyyaml>=6.0",
+    "pytest>=7.4.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Explicitly point to the config file if needed, though usually auto-discovered
+# Config content is duplicated in .ruff.toml for clarity in this task
+extend = ".ruff.toml"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"

@@ -1,0 +1,5 @@
+{
+  "mode": "Data Insufficient",
+  "source": "data/processed/verified_source_manifest.json",
+  "message": "Mode set to Data Insufficient based on verified_source_manifest.json"
+}

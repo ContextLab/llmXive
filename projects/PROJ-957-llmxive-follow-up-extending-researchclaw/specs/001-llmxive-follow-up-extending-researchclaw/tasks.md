@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -16,50 +16,49 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- **Single project**: `code/`, `tests/` at repository root (matches plan.md structure)
+- **Web app**: `backend/code/`, `frontend/code/`
+- **Mobile**: `api/code/`, `ios/code/` or `android/code/`
+- Paths shown below assume single project - adjusted to match plan.md `code/` structure
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1: Setup & Data Model (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per implementation plan
-- [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `scipy`, `pytest`, `pyyaml`, `jsonschema`, `datasets`, `tqdm`, `numpy`, `statsmodels`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Project initialization, data contracts, and foundational artifacts.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `src/utils/checksum.py` for SHA256 verification of data artifacts
-- [X] T005 [P] Implement `src/utils/logging.py` with structured JSON logging and error tracking
-- [ ] T006 [P] Implement `src/utils/config.py` for loading experiment parameters, timeout limits, and constants including `RESEARCHCLAWBENCH_DATASET_ID`, `SCIENTIFIC_CORE_MARGIN=5`, and `MAX_CONCURRENCY=7` (specifically for the TOST equivalence test on "Scientific Core" scores as required by FR-005)
-- [ ] T007 [P] Create `src/data/loader.py` with ResearchClawBench fetch logic using `datasets.load_dataset` or canonical URL; use `RESEARCHCLAWBENCH_DATASET_ID` from config; include checksum verification against `data/raw/`; if ID is placeholder or checksum fails, ABORT with error (no mock data). **Output**: Write checksum to `data/raw/checksum.txt`.
-- [ ] T007b [S] Implement "Verified Accuracy" Gate Logic: Read the checksum file at `data/raw/checksum.txt` (produced by T007). Verify the hash matches the expected value defined in `config.py`. If mismatch, trigger T007e (Exit). If match, trigger T007c (Log) and T007d (Write). This task is the entry point for the gate sequence. **Trigger**: Must run after T007 completes successfully.
-- [ ] T007c [S] Implement Gate Logging: Write the specific message "GATE: Verified Accuracy [PASS]" or "GATE: Verified Accuracy [FAIL]" to `results/verified_accuracy_gate.log` (UTF-8). This task runs only after T007b passes.
-- [ ] T007d [S] Implement Gate File Write: Create or update a marker file `results/verified_accuracy_gate.done` to signal successful gate passage. This task runs only after T007c.
-- [ ] T007e [S] Implement Gate Exit Handler: Exit the process with code 1 if T007b detected a mismatch. This task runs only if T007b fails.
-- [ ] T008 [S] Create `src/data/filter.py` to implement the specific logic to SELECT exactly 10 tasks from the ResearchClawBench dataset where the metadata field `failure_mode` equals "experimental protocol mismatch". WRITE the resulting subset to `data/processed/protocol_mismatch_subset.json`. Include a verification step to check if `failure_mode` key exists in the dataset schema before filtering; if missing, log an error and abort (FR-001, FR-006). **Dependency**: This task requires T007e to NOT have been triggered (i.e., gate passed). **Output**: `data/processed/protocol_mismatch_subset.json` with SHA256 checksum.
-- [ ] T009 [P] Create `assets/templates/` directory; implement `src/scaffolding/template_loader.py` to load `template_map.json` (mapping multiple task IDs to template filenames); create `TEMPLATE-001-v1.0.md` by fetching content from the verified open-access manual URL: ` (Note: This URL is used as a placeholder for the specific template source; replace with the actual ResearchClawBench template URL if different, but for this task, use the provided URL as the canonical source) and save the content to `assets/templates/TEMPLATE-001-v1.0.md` with UTF-8 encoding; if URL is unavailable or fetch fails, ABORT with error (no placeholders).
-- [ ] T009b [P] Implement logic to generate and populate `assets/templates/template_map.json` with the explicit mapping of the 10 selected task IDs (from T008) to their specific template IDs (e.g., `{"task_001": "TEMPLATE-001-v1.0", "task_002": "TEMPLATE-001-v1.0"}`). This file MUST exist and be valid JSON before T015b runs.
-- [ ] T009c [P] Create `assets/templates/constraint_keywords.yaml` containing the explicit list of keywords used for "Scaffold Conflict" detection (FR-007); implement `src/scaffolding/validator.py` to load this file
-- [ ] T010a [P] Create `contracts/rubric_schema.json` defining the JSON structure for "Protocol Alignment" (0-50) and "Scientific Core" scoring logic. The scoring algorithm MUST be a weighted sum of specific criteria: `{"criteria": [{"key": "step_1", "weight": 0.4}, {"key": "step_2", "weight": 0.6}]}`. Define these specific keys and weights in the task description or the file content; include `constraint_keywords` list reference for FR-007.
-- [ ] T010b [P] Implement `src/scoring/rubric_engine.py` to load `contracts/rubric_schema.json` and implement the logic to calculate scores based on the schema definitions (weighted sum of criteria)
-- [ ] T021 [S] [US2] Implement `src/scoring/dummy_test.py` to validate the rubric logic (FR-008). This task MUST: 1) Generate Set A (scaffold text, no steps) and Set B (steps, no scaffold) dummy outputs; 2) Run the scoring engine on both; 3) Assert that Set B scores high (>= 40) and Set A scores low (< 10) as per FR-008. If assertion fails, write a report to `results/rubric_validation.json` with status "FAIL" and abort the experiment. This task is a prerequisite for T023 (Execution). **Dependency**: Must run after T010b. **Location**: Phase 2 (Foundational) to ensure rubric is valid before execution.
+- [X] T001 Create project structure per implementation plan
+- [X] T002 Initialize project with dependencies: `pandas`, `scipy`, `pytest`, `pyyaml`, `jsonschema`, `datasets`, `tqdm`, `numpy`, `statsmodels`
+- [X] T003 [P] Create `pyproject.toml` with explicit configuration for linting and formatting. The file MUST contain a `[tool.ruff]` section with `line-length = 88` and `target-version = "py3"`, and a `[tool.black]` section with `line-length = 88` and `target-version = ["py311"]`. This task replaces the generic "Configure linting" instruction with a concrete file creation task.
+- [X] T004 [P] Implement `code/utils/checksum.py` for SHA256 verification of data artifacts
+- [X] T005 [P] Implement `code/utils/logging.py` with structured JSON logging and error tracking
+- [X] T006 [P] Implement `code/config.py` as a single source of truth for experiment parameters. The file MUST define a class `Config` with the following attributes and default values: `RESEARCHCLAWBENCH_DATASET_ID: str = "researchclawbench/v1"`, `SCIENTIFIC_CORE_MARGIN: int = 5`, `MAX_CONCURRENCY: int = 7`, `TIMEOUT_PER_RUN: int = 3600`, `TOTAL_WALL_CLOCK_BUDGET: int = 86400`, `EXPECTED_DATASET_HASH: str = ""` (to be populated after first successful fetch or defined in env), `OSF_TEMPLATE_MANIFEST_ID: str = ""` (to be populated with the specific OSF project ID for the Curated Template Set v1.0 manifest). The class MUST have a `load()` method that reads from environment variables or falls back to these defaults. **CRITICAL**: Add a `bootstrap()` method that computes the dataset hash from raw data and writes it to `.config/hashes.yaml` if the file does not exist or the key is missing. Export this class at the module level. **Dependency**: None.
+- [X] T022a_gen [S] Create `docs/agent_list.md` with the required Markdown table structure. The file MUST contain a Markdown table with columns: `Name`, `Model`, `Max_Tokens`, `Temperature`, `Description`. The list MUST be explicitly defined as the agents from the original study: Agent-Alpha (Llama, context size, a standardized performance metric, "General reasoning"), Agent-Beta (Mistral, context size, a standardized performance metric, "Code generation"), Agent-Gamma (Gemma, context size, a standardized performance metric, "Scientific text"), Agent-Delta (CodeLlama, context size, a standardized performance metric, "Code execution"), Agent-Epsilon (Zephyr, context size, a standardized performance metric, "Instruction following"), Agent-Zeta (OpenChat, context size, a standardized performance metric, "Multi-turn dialogue"), Agent-Eta (WizardLM, context size, a standardized performance metric, "Complex reasoning"). **CRITICAL**: The agent list MUST be hardcoded based on the *original study's published list* to avoid ambiguity about which agents constitute "all". This task replaces the generic "Identify agents" instruction with a concrete file creation task. **Dependency**: None.
+- [X] T022a [S] Identify and list the specific autonomous agents from the original study. The task MUST explicitly define the list of agents by PARSING `docs/agent_list.md` (generated by T022a_gen). **Dependency**: T022a_gen.
+- [X] T009b [S] [P] Fetch and Normalize Template Manifest: Fetch content from the verified URL in `assets/templates/verified_manifest_url.txt` (produced by T009a). The manifest MUST contain a list of distinct template IDs and their corresponding URLs. Iterate through the list, fetch each template content (text within `<div class="protocol">` or specific section headers), and save to `assets/templates/TEMPLATE-{ID}-v1.0.md` with UTF-8 encoding. **CRITICAL**: If an insufficient number of templates are found, abort with exit code 1 and log to `stderr`. **Dependency**: T009a.
+- [X] T007 [S] Create `code/data/loader.py` with ResearchClawBench fetch logic using `datasets.load_dataset(..., streaming=True)` or canonical URL; use `RESEARCHCLAWBENCH_DATASET_ID` from `code/config.py`. **CRITICAL**: This task MUST: 1) Fetch the dataset using `streaming=True` to prevent OOM. 2) **Explicitly check** if the `failure_mode` key exists in the dataset schema. If the key is **MISSING entirely**, abort with error (FR-006): exit code 1, log "GATE: Verified Accuracy [FAIL] - Key Missing" to `stderr`, and produce NO output files. 3) If the key exists, count tasks with `failure_mode == "experimental protocol mismatch"`. If count < 10, abort with error (FR-006): exit code 1, log "GATE: Verified Accuracy [FAIL] - Count Insufficient" to `stderr`, and produce NO output files. 4) If count >= 10, sort the matching tasks by `task_id` ascending and select the first 10. 5) Compute SHA256 of the RAW dataset and write it to `data/raw/raw_checksum.txt` in the exact format `sha256: <hex_string>`. **Output**: `data/raw/raw_checksum.txt` (format: `sha256: <hex_string>`). **Note**: T007 is marked [S] to ensure T008 waits for the raw fetch.
+- [X] T007b [S] Implement "Verified Accuracy Gate" Logic: This task consolidates the gate sequence. It MUST: 1) Read the checksum file at `data/raw/raw_checksum.txt` (produced by T007). 2) Check if `EXPECTED_DATASET_HASH` is defined in `.config/hashes.yaml`. 3) If `.config/hashes.yaml` does not exist or `EXPECTED_DATASET_HASH` is empty (first run): Compute the hash from the raw data, save it to `.config/hashes.yaml`, and proceed (bootstrap). 4) If `.config/hashes.yaml` exists and hash mismatch: Write "GATE: Verified Accuracy [FAIL]" to `results/verified_accuracy_gate.log`, create `results/verified_accuracy_gate.failed`, and exit the process with code 1. 5) If match: Write "GATE: Verified Accuracy [PASS]" to `results/verified_accuracy_gate.log`, create `results/verified_accuracy_gate.done`, and proceed. **CRITICAL**: This task MUST depend ONLY on T007. **Dependency**: T007.
+- [X] T008 [S] Create `code/data/filter.py` to implement the specific logic to SELECT tasks from the ResearchClawBench dataset where the metadata field `failure_mode` equals "experimental protocol mismatch". **CRITICAL**: This task MUST depend on T007b (Verified Accuracy Gate). **Note**: T007 now handles the fetch; T008 focuses on filtering. WRITE the resulting subset to `data/processed/protocol_mismatch_subset.json`. Include a verification step: if the `failure_mode` key is missing entirely, abort with error (FR-006): exit code 1, log "GATE: Verified Accuracy [FAIL]" to `stderr`. If the key exists but the count of tasks with value "experimental protocol mismatch" is < 10, the system MUST ABORT with error (FR-006): exit code 1, log "GATE: Verified Accuracy [FAIL]" to `stderr`. If the count is >= 10 but the dominant mode differs from "experimental protocol mismatch", DO NOT abort; instead, write `results/failure_mode_audit.csv` with the schema `dominant_mode,count,total_tasks` (CSV header row, UTF-8, comma delimiter) containing the actual dominant mode and its count. The algorithm for 'dominant mode' MUST be explicitly defined as: "calculate the mode of the failure_mode field across the entire loaded dataset". **CRITICAL**: This task MUST ALSO write the SHA256 checksum of the FILTERED subset to `data/processed/subset_checksum.txt` in the format `sha256: <hex_string>`. **Dependency**: T007b. **Output**: `data/processed/protocol_mismatch_subset.json` and `data/processed/subset_checksum.txt` with SHA256 checksum.
+- [X] T009b_map [S] [P] Validate Mapping Rules and Candidates: Read the filtered candidate tasks from `data/processed/protocol_mismatch_subset.json` (produced by T008) and the list of fetched template IDs from `assets/templates/`. **CRITICAL**: This task MUST first verify that the manifest contains a specific heuristic defined as "match by task_id prefix". If the manifest lacks this rule, abort with exit code 1 and log "GATE: Mapping Rule Missing". **CRITICAL**: This task MUST THEN verify that the manifest contains a 1-to-1 mapping for ALL 10 task IDs selected by T008. If any task ID lacks a corresponding template ID, abort with exit code 1 and log "GATE: Mapping Missing for Task {id}". Only if ALL 10 tasks are mappable, write the explicit 1-to-1 mapping to `assets/templates/task_template_mapping.json`. **Dependency**: T008, T009b.
+- [X] T009c_map [S] [P] Select Tasks and Map Templates: Load the filtered dataset from `data/processed/protocol_mismatch_subset.json` (produced by T008) and the mapping from `assets/templates/task_template_mapping.json` (produced by T009b_map). Select the tasks and verify the mapping exists for each. **CRITICAL**: If any task ID lacks a corresponding template ID in the mapping, abort with a non-zero exit code to signal failure. and log "GATE: Mapping Missing for Task {id}". Write the selected IDs and their mapping to `assets/templates/task_template_mapping.json` (or update it if partial). **Dependency**: T008, T009b_map.
+- [X] T009d [S] [P] Create `assets/templates/constraint_keywords.yaml` containing the explicit list of keywords used for "Scaffold Conflict" detection (FR-007); implement `code/scaffolding/validator.py` to load this file. **Dependency**: T009c_map.
+- [X] T010a [P] Create `contracts/rubric_schema.json` defining the JSON structure for "Protocol Alignment" (0-50) and "Scientific Core" scoring logic. The scoring algorithm MUST be a weighted sum of specific criteria: `{"Protocol Alignment": {"criteria": [{"key": "protocol_step_1", "weight": 0.4}, {"key": "protocol_step_2", "weight": 0.6}]}, "Scientific Core": {"criteria": [{"key": "hypothesis_clarity", "weight": 0.5}, {"key": "methodology_soundness", "weight": 0.5}]}}`. Define these specific keys and weights in the task description or the file content; include `constraint_keywords` list reference for FR-007. **CRITICAL**: This schema MUST include keys `threshold_high` (value 40) and `threshold_low` (value 10) for FR-008 validation. **CRITICAL**: Include `feature_extraction_method` key describing how to extract these keys from text (e.g., "regex match for step headers").
+- [X] T010b [P] Implement `code/scoring/rubric_engine.py` to load `contracts/rubric_schema.json` and implement the logic to calculate scores based on the schema definitions (weighted sum of criteria)
+- [X] T010c [P] Create `contracts/score_output.schema.yaml` defining the exact JSON/YAML structure for dummy outputs (Set A and Set B) required by FR-008. The schema MUST include fields for `output_text`, `expected_score_range`, and `validation_criteria`. **Dependency**: T010a.
+- [X] T020b [S] [P] Implement `code/scoring/dummy_generator.py` to generate Set A (scaffold text, no steps) and Set B (steps, no scaffold) dummy outputs; write to `results/dummy_outputs.json` for FR-008 validation. **Dependency**: T010c.
+- [X] T021 [S] [US2] Implement `code/scoring/dummy_test.py` to validate the rubric logic (FR-008). This task MUST: 1) **Inline Generate** Set A and Set B dummy outputs using the EXACT text templates defined below, adhering to the schema in `contracts/score_output.schema.yaml`. **Set A Template**: "Here is the protocol: Step 1 is... (scaffold text only)". **Set B Template**: "Step 1: Mix A and B. Step 2: Heat to 50C. (no scaffold text)". 2) Run the scoring engine on both. 3) Assert that Set B scores high (>= threshold_high from `rubric_schema.json`) and Set A scores low (< threshold_low from `rubric_schema.json`) as per FR-008. **CRITICAL**: The thresholds (>= 40, < 10) MUST be read from `rubric_schema.json` or a config file, NOT hardcoded, to ensure the test validates the dynamic schema. If assertion fails, write a report to `results/rubric_validation.json` with status "FAIL" and abort the experiment. This task is a prerequisite for T023 (Execution). **Dependency**: Must run after T010b, T010c, and T020b. **Location**: Phase 1 (Foundational) to ensure rubric is valid before execution.
+- [X] T014_init [S] [P] Initialize `results/audit_ids.csv`. Create the file with the header `run_id,conflict_reason` if it does not exist. **Dependency**: None.
+- [X] T009a [S] [P] Implement "Reference-Validator" step for Template Manifest URL: Read `OSF_TEMPLATE_MANIFEST_ID` from `code/config.py`. If `OSF_TEMPLATE_MANIFEST_ID` is empty, abort with exit code 1 and log "GATE: Template ID Missing" to `stderr`. Construct the URL as `https://osf.io/{OSF_TEMPLATE_MANIFEST_ID}/manifest.json`. Perform an HTTP HEAD request to verify the URL exists and returns a successful status code. If verification fails (HTTP error or timeout), abort with exit code 1, log "GATE: Verified Accuracy [FAIL]" to `stderr` and `results/verified_accuracy_gate.log`, and produce NO output files. Write the verified URL to `assets/templates/verified_manifest_url.txt`. **CRITICAL**: This task MUST depend on T007b to ensure the dataset gate is passed before fetching templates. **Dependency**: T007b, T006.
+- [X] T022b [S] Create `agents_config.yaml` defining the specific autonomous agents from the original study by PARSING `docs/agent_list.md` (generated by T022a) to extract agent names and flags. Ensure no GPU/CUDA dependencies are included. **Dependency**: T022a.
+- [X] T022 [S] Implement `code/agents/loader.py`: Instantiate the specific autonomous agents defined in `agents_config.yaml` (created by T022b) using a factory pattern; ensure CPU-only execution via `code/agents/cpu_compat.py` (FR-003). **Dependency**: T022b.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Scaffolded Protocol Injection (Priority: P1) 🎯 MVP
+## Phase 2: User Story 1 - Scaffolded Protocol Injection (Priority: P1) 🎯 MVP
 
 **Goal**: Load specific tasks, inject domain-specific procedural templates into agent prompts, and handle conflict detection.
 
@@ -69,23 +68,25 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T011 [P] [US1] Unit test for `src/scaffolding/injector.py`: verify template ID insertion does not alter task description
-- [ ] T012 [P] [US1] Unit test for `src/scaffolding/validator.py`: verify "Scaffold Conflict" detection against `assets/templates/constraint_keywords.yaml`
+- [X] T011 [P] [US1] Unit test for `code/scaffolding/injector.py`: verify template ID insertion does not alter task description
+- [X] T012 [P] [US1] Unit test for `code/scaffolding/validator.py`: verify "Scaffold Conflict" detection against `assets/templates/constraint_keywords.yaml`
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `src/scaffolding/injector.py`: Load task, retrieve template ID via `template_loader.py`, append template to system prompt (FR-001, FR-002)
-- [ ] T014 [US1] Implement `src/scaffolding/validator.py`: Check task metadata vs `assets/templates/constraint_keywords.yaml` (loaded by T009c); log "Scaffold Conflict" and exclude run if mismatch (FR-007). **CRITICAL**: If a conflict is detected, the system MUST write the specific run ID to `results/audit_ids.csv` with the schema `run_id,task_id,conflict_reason,timestamp` (UTF-8 encoding, comma delimiter) and flag the run for a mandatory human expert audit as required by FR-007. The file MUST be created if it doesn't exist.
-- [ ] T015b [US1] Implement `src/data/loader.py` extension to load the filtered set (T008 output), bind them to their corresponding templates via `template_map.json` (generated by T009b), write the resulting 10-task subset to `data/processed/protocol_mismatch_subset.json`, calculate and store the SHA256 checksum of this file (FR-001, Constitution Principle III). **Dependency**: This task MUST wait for T007e (Verified Accuracy gate) to pass successfully. The JSON structure MUST be `{"tasks": [{"task_id": "...", "template_id": "..."}]}`.
-- [ ] T015c [US1] Implement logic to write the failure mode audit report to `results/failure_mode_audit.csv` if the dominant mode differs from the expected mode (`experimental protocol mismatch`) or if the count of expected mode is < 10 (FR-001). **Distinction**: This task handles "Failure Mode Audit" (edge case), distinct from T014 which handles "Scaffold Conflict" (FR-007).
-- [ ] T016 [US1] Implement error handling in `src/cli/run_experiment.py`: Abort and exit code 1 if dataset lacks required metadata (FR-006)
-- [ ] T017 [US1] Add logging for scaffold injection events and conflict warnings
+- [X] T013 [P] [US1] Implement `code/scaffolding/injector.py`: Load task, retrieve template ID via `task_template_mapping.json` (from T009c_map), load the specific template content, append template to system prompt (FR-001, FR-002)
+- [X] T014 [US1] Implement `code/scaffolding/validator.py`: Check task metadata vs `assets/templates/constraint_keywords.yaml` (loaded by T009d); log "Scaffold Conflict" and exclude run if mismatch (FR-007). **CRITICAL**: This task MUST ONLY define the validation function/class. The runtime invocation of this function to detect conflicts and write to `results/audit_ids.csv` MUST occur inside the execution loop of T023. **Dependency**: T009d.
+- [X] T014c [S] [US1] Implement `code/analysis/filter.py`: Load `results/audit_ids.csv` (populated dynamically by T023). **Verification Step**: Verify that the final aggregated dataset (input to T024) does NOT contain any run_ids present in `audit_ids.csv`. If any excluded run_id is found in the dataset, abort with error. **Dependency**: T023. **Note**: This task MUST run AFTER T023 to ensure the file is populated.
+- [X] T014b [S] [US1] Implement `code/analysis/audit_sampler.py`: Load `results/audit_ids.csv` (from T023), select a random sample of [deferred] of the conflict IDs (or all if < 10), and generate `results/human_audit_report.json` containing the selected IDs and a summary of conflict reasons. This task satisfies the "mandatory human expert audit" requirement of FR-007. **Dependency**: T023.
+- [X] T015c_audit [S] [US1] Implement logic to write the failure mode audit report to `results/failure_mode_audit.csv` if the dominant mode differs from the expected mode (`experimental protocol mismatch`). **CRITICAL**: This task MUST calculate the mode across the ENTIRE dataset, not just the subset. **Dependency**: T008.
+- [X] T015c_count [S] [US1] Implement logic to write the failure mode audit report to `results/failure_mode_audit.csv` if the count of tasks with `failure_mode == "experimental protocol mismatch"` is < 10. **CRITICAL**: This task handles the "Subset Availability" check, distinct from T015c_audit. **Dependency**: T008.
+- [X] T016 [US1] Implement error handling in `code/cli/run_experiment.py`: Abort and exit code 1 if dataset lacks required metadata (FR-006)
+- [X] T017 [US1] Add logging for scaffold injection events and conflict warnings
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Dual-Condition Execution & Scoring (Priority: P2)
+## Phase 3: User Story 2 - Dual-Condition Execution & Scoring (Priority: P2)
 
 **Goal**: Execute agents under Zero-Shot and Scaffolded conditions, apply rubrics, and store paired results.
 
@@ -93,26 +94,25 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Contract test for scoring engine: verify `rubric_schema.json` loads and validates input structure
-- [ ] T020 [P] [US2] Integration test: Run 1 agent on 1 task (Zero-Shot) and 1 task (Scaffolded) and verify paired output structure
+- [X] T019 [P] [US2] Contract test for scoring engine: verify `rubric_schema.json` loads and validates input structure
+- [X] T020 [P] [US2] Integration test: Run 1 agent on 1 task (Zero-Shot) and 1 task (Scaffolded) and verify paired output structure
 
 ### Implementation for User Story 2
 
-- [ ] T020b [US2] Implement `src/scoring/dummy_generator.py` to generate Set A (scaffold text, no steps) and Set B (steps, no scaffold) dummy outputs; write to `results/dummy_outputs.json` for FR-008 validation
-- [ ] T022a [P] [US2] Identify and list the specific autonomous agents from the original study (e.g., "Agent-Alpha", "Agent-Beta", etc.) and their CPU-compatible configuration parameters. Document this list in `docs/agent_list.md` as a Markdown table with columns: `Agent Name`, `CPU Config`, `Memory Limit`.
-- [ ] T022b [P] [US2] Create `agents_config.yaml` defining the specific autonomous agents from the original study by PARSING `docs/agent_list.md` (generated by T022a) to extract agent names and flags. Ensure no GPU/CUDA dependencies are included.
-- [ ] T022 [US2] Implement `src/agents/loader.py`: Instantiate the specific autonomous agents defined in `agents_config.yaml` (created by T022b) using a factory pattern; ensure CPU-only execution via `agents/cpu_compat.py` (FR-003)
-- [ ] T023a [S] [US2] Implement `src/agents/concurrency.py` with a semaphore-based concurrency controller (limit=7) and a wall-clock budget enforcement function (`run_with_budget`). This task MUST implement the logic to enforce a strict total wall-clock time budget and a timeout per run.
-- [ ] T023 [US2] Implement `src/cli/run_experiment.py` execution loop: Read 10 tasks from T015b (`data/processed/protocol_mismatch_subset.json`), load agents from T022, and execute a **comprehensive multi-agent loop** (multiple agents × 2 conditions [Zero-Shot, Scaffolded] × 10 tasks). Use `src/agents/concurrency.py` (Ta) to enforce concurrency limit of 7 and 24h budget. Do NOT use `sampling.py` or N=30 generations; strictly adhere to the 140-run experimental unit defined in FR-003. **Dependency**: T023 MUST run after T023a and T021.
-- [ ] T024 [US2] Implement result aggregation: Store Zero-Shot and Scaffolded scores as paired dataset entries linked by task ID in `results/paired_scores.json`
-- [ ] T025 [US2] Add timeout handling: Record "Timeout" status and exclude from statistical calculation if run exceeds a predefined duration threshold
-- [ ] T026 [US2] Implement logic to calculate the completion rate against the 140-run baseline. Report the pass/fail status for SC-004 (≥ 95% success rate) in `results/completion_rate_report.json`. **CRITICAL**: If the rate is < 95%, the system MUST exit with code 1 and update the project state file `state/projects/PROJ-957-llmxive-follow-up-extending-researchclaw.yaml` (set `current_stage` to `failed_sc004` or `status` to `failed`). Log a critical warning and flag the experiment as "Failed SC-004".
+- [X] T038 [S] [US2] Implement `code/agents/timeout_guard.py` to enforce per-run hard timeouts. The module MUST wrap the agent execution loop in a `signal.alarm` (Unix) or `multiprocessing` context (cross-platform) that raises a `TimeoutError` if the agent exceeds a configurable `TIMEOUT_PER_RUN` threshold. **CRITICAL**: On timeout, the system MUST NOT retry the run; it MUST log the run ID with status "TIMEOUT_EXCEEDED" to `results/audit_ids.csv` (reusing the conflict schema) and exclude it from aggregation. **Dependency**: T023a.
+- [X] T040 [S] [US2] Implement `code/agents/error_recovery.py` to handle transient agent failures (e.g., API rate limits, network blips). The module MUST implement an exponential backoff strategy (limited retries) for network errors ONLY. **CRITICAL**: For logic errors (e.g., "Scaffold Conflict", "Timeout"), the system MUST NOT retry. For network errors, if all retries fail, the run MUST be marked "NETWORK_FAILURE" and excluded, NOT replaced with synthetic data. **Dependency**: T022.
+- [X] T023a [S] [US2] Implement `code/agents/concurrency.py` with a semaphore-based concurrency controller (limit=7) and a wall-clock budget enforcement function (`run_with_budget`). This task MUST implement the logic to enforce a strict total wall-clock time budget by reading `TOTAL_WALL_CLOCK_BUDGET` from the `Config` class defined in T006. **Dependency**: T006.
+- [X] T044 [S] [US2] Implement `code/analysis/exclusion_checker.py`: A module that loads `results/audit_ids.csv` and provides a `is_excluded(run_id)` function. **CRITICAL**: This task MUST be integrated into the execution loop of T023 to perform real-time exclusion checks. **Dependency**: T014_init.
+- [X] T023 [US2] Implement `code/cli/run_experiment.py` execution loop: Read 10 tasks from T008 (`data/processed/protocol_mismatch_subset.json`), load agents from T022, and execute a **comprehensive multi-agent loop** (multiple agents × 2 conditions [Zero-Shot, Scaffolded] × 10 tasks). Use `code/agents/concurrency.py` (T023a) to enforce a concurrency limit and total wall-clock budget. **CRITICAL**: This loop MUST import `Config` from `code/config.py` (T006) to enforce the budget (86400s / 24 hours). Do NOT use `sampling.py` or N=30 generations; strictly adhere to the 140-run experimental unit defined in FR-003. **CRITICAL**: This loop MUST check `results/audit_ids.csv` (from T014_init and T014 runtime) in real-time via T044; if a run_id is flagged as a conflict or timeout, the run MUST be immediately excluded from the results aggregation. **CRITICAL**: This loop MUST check if `data/processed/protocol_mismatch_subset.json` exists; if missing, abort with code 1. **CRITICAL**: This loop MUST call `code/scaffolding/validator.py` to detect conflicts and append to `results/audit_ids.csv` in real-time. **CRITICAL**: This loop MUST depend on T038 (Timeout), T040 (Error Recovery), T023a, T021, T013, T014, T014_init, T044, T006, and T009c_map (task-template mapping). **CRITICAL**: The output `results/paired_scores.json` MUST follow this schema: `[{"task_id": "id", "agent_id": "agent", "condition": "zero_shot|scaffolded", "scores": {"protocol_alignment": 0-50, "scientific_core": 0-50}}]`. **Dependency**: T023 MUST run after T038, T040, T023a, T021, T013, T014, T014_init, T044, T006, and T009c_map.
+- [X] T024 [US2] Implement result aggregation: Store Zero-Shot and Scaffolded scores as paired dataset entries linked by task ID in `results/paired_scores.json`. **CRITICAL**: This task MUST filter out any runs listed in `results/audit_ids.csv` (from T023 runtime) BEFORE writing the final JSON, ensuring the statistical dataset is clean. **CRITICAL**: This task MUST depend on T010a and T010c to ensure schemas are available. **Dependency**: T024 MUST run after T014c (Filter), T023, T010a, and T010c.
+- [X] T025 [US2] Add timeout handling: Record "Timeout" status and exclude from statistical calculation if run exceeds a predefined duration threshold
+- [X] T026 [S] [US2] Implement logic to calculate the completion rate against the 140-run baseline. **CRITICAL**: The task MUST explicitly calculate the expected baseline as `7 agents * 2 conditions * 10 tasks = 140`. **CRITICAL**: It MUST distinguish between "Excluded Runs" (timeouts, conflicts) and "Failed Runs" (unrecoverable errors). The success rate is calculated as `(Total Runs - Excluded Runs - Failed Runs) / (Total Runs - Excluded Runs)`. If the success rate is < 95%, the system MUST log a critical error, write "GATE: SC-004 [FAIL]" to `results/verified_accuracy_gate.log`, and exit with code 1. **CRITICAL**: Excluded runs do NOT count as failures for the 95% threshold; they are removed from the denominator. Report the exclusion rate and success rate in `results/completion_rate_report.json`. **CRITICAL**: "Total Runs" refers to the 140 planned runs. **Dependency**: T023.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Statistical Decoupling Analysis (Priority: P3)
+## Phase 4: User Story 3 - Statistical Decoupling Analysis (Priority: P3)
 
 **Goal**: Perform TOST equivalence test on "Scientific Core" and paired Wilcoxon test on "Protocol Alignment".
 
@@ -120,28 +120,40 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for `src/analysis/tests.py`: Verify TOST logic with synthetic data (margin=5)
-- [ ] T028 [P] [US3] Unit test for `src/analysis/tests.py`: Verify Wilcoxon test execution (pre-specified)
+- [X] T027 [P] [US3] Unit test for `code/analysis/tests.py`: Verify TOST logic with synthetic data (margin=5)
+- [X] T028 [P] [US3] Unit test for `code/analysis/tests.py`: Verify Wilcoxon test execution (pre-specified)
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `src/analysis/tests.py`: Read paired scores from `results/paired_scores.json`; perform a normality check (Shapiro-Wilk) and select either a paired t-test or Wilcoxon signed-rank test accordingly (FR-005); if power is low (<0.4), log warning but proceed with the selected test; perform TOST on "Scientific Core" scores with `MARGIN=5` from config (FR-005). **CRITICAL**: This task MUST include logic to interpret the TOST p-values (both < 0.05) and map them to the status string "safe" or "inconclusive" to be passed to the report generator.
-- [ ] T030 [US3] Implement `src/analysis/report.py`: Generate JSON report with keys: `tost_p_value`, `wilcoxon_statistic`, `effect_size_cohen_d` (if t-test), `effect_size_rank_biserial` (if Wilcoxon), `ci_95_lower` (mean difference), `ci_95_upper` (mean difference), `power_estimate` (SC-003), `tost_equivalence_margin` (value=5), AND `interpreted_status` (value: "safe" or "inconclusive") to verify the "safe" status defined in SC-003 and FR-005.
-- [ ] T031 [US3] Add logic to report "inconclusive" status explicitly if statistical power is insufficient (N=10)
-- [ ] T033 [US3] Integrate analysis module into `src/cli/run_experiment.py` to run after all executions complete
+- [X] T029 [P] [US3] Implement `code/analysis/tests.py`: Read paired scores from `results/paired_scores.json`; perform a normality check (Shapiro-Wilk) and select either a paired t-test or Wilcoxon signed-rank test accordingly (FR-005); if power is low (<0.4), log warning but proceed with the selected test; perform TOST on "Scientific Core" scores with `MARGIN=5` from config (FR-005). **CRITICAL**: This task MUST output raw stats (p-values, statistics, effect sizes) to be passed to the report generator. **Dependency**: T024.
+- [X] T043 [S] [US3] Implement `code/analysis/power_calculator.py` to explicitly calculate statistical power for the observed effect size and N=10. **CRITICAL**: This task MUST implement a function that calculates statistical power for N=10. If power < 0.4, the `results/statistical_report.json` (T030) MUST include a specific `power_warning` field with the exact power value and a recommendation to interpret results as "inconclusive" rather than "validated". **Dependency**: T029.
+- [X] T030 [US3] Implement `code/analysis/report.py`: Generate JSON report at `results/statistical_report.json` with keys: `tost_p_value_lower`, `tost_p_value_upper`, `tost_equivalence_margin` (value=5), `wilcoxon_statistic`, `wilcoxon_p_value`, `effect_size_cohen_d` (if t-test), `effect_size_rank_biserial` (if Wilcoxon), `mean_difference` (CALCULATED VALUE: `mean(Scaffolded) - mean(Zero-Shot)` from `results/paired_scores.json`), `ci_95_lower` (mean difference), `ci_95_upper` (mean difference), `power_estimate` (SC-003), `shapiro_statistic`, `shapiro_p_value`, AND `interpreted_status` (value: "safe" if TOST p-values < 0.05, otherwise "inconclusive") to verify the "safe" status defined in SC-003 and FR-005. **Dependency**: T029, T043.
+- [X] T031 [US3] Add logic to report "inconclusive" status explicitly if statistical power is insufficient (N=10)
+- [X] T033 [US3] Integrate analysis module into `code/cli/run_experiment.py` to run after all executions complete
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 5: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates in `docs/` covering execution flow and statistical methodology
-- [ ] T035 Code cleanup and refactoring of `src/agents/` and `src/scaffolding/`
-- [ ] T036 [P] Additional unit tests for edge cases (timeout, conflict detection) in `tests/unit/`
-- [ ] T037 Run `quickstart.md` validation to ensure end-to-end reproducibility on CPU runner
+- [X] T034 [P] Documentation updates in `docs/` covering execution flow and statistical methodology
+- [X] T035 Code cleanup and refactoring of `code/agents/` and `code/scaffolding/`
+- [X] T036 [P] Additional unit tests for edge cases (timeout, conflict detection) in `tests/unit/`
+- [X] T037 Run `quickstart.md` validation to ensure end-to-end reproducibility on CPU runner
+
+---
+
+## Phase 6: Revision & Verification (Post-Analysis Fixes)
+
+**Purpose**: Address specific concerns raised by the `/speckit.analyze` phase regarding data integrity, edge case handling, and statistical robustness.
+
+**⚠️ CRITICAL**: These tasks are added to resolve specific gaps identified in the initial analysis pass.
+
+- [ ] T042 [S] [US2] Enhance `code/agents/timeout_guard.py` (T038) to write a detailed timeout trace to `results/timeout_traces.log`. **CRITICAL**: This task MUST implement a complete logging function that writes JSON lines with the exact fields `agent_name`, `task_id`, and `step_reached` to `results/timeout_traces.log`. Do NOT reference a stub. **Dependency**: T038.
+- [ ] T045 [P] [US3] Create `tests/unit/test_tost.py` to verify the TOST implementation with a known synthetic dataset where the equivalence margin is exactly 5 points. This ensures the statistical engine correctly identifies "safe" vs "inconclusive" results before running on real data. **Dependency**: T029.
 
 ---
 
@@ -150,17 +162,18 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+- **Foundational (Phase 1)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 2+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase 6)**: Depends on completion of Analysis (Phase 4) and review of `analyze_report`
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for scaffold injection logic
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 for paired score data
+- **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 1) - Depends on US1 for scaffold injection logic
+- **User Story 3 (P3)**: Can start after Foundational (Phase 1) - Depends on US2 for paired score data
 
 ### Within Each User Story
 
@@ -173,7 +186,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2), EXCEPT T007b-T007e which are sequential.
+- All Foundational tasks marked [P] can run in parallel (within Phase 1), EXCEPT T007b, T008, T009a, T009b, T009b_map, T009c_map which are sequential.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -185,12 +198,12 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for src/scaffolding/injector.py"
-Task: "Unit test for src/scaffolding/validator.py"
+Task: "Unit test for code/scaffolding/injector.py"
+Task: "Unit test for code/scaffolding/validator.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement src/scaffolding/injector.py"
-Task: "Implement src/scaffolding/validator.py"
+Task: "Implement code/scaffolding/injector.py"
+Task: "Implement code/scaffolding/validator.py"
 ```
 
 ---
@@ -199,9 +212,9 @@ Task: "Implement src/scaffolding/validator.py"
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
+1. Complete Phase 1: Setup & Data Model
+2. Complete Phase 1: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 2: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -237,10 +250,21 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All agent execution must be CPU-only (no CUDA/GPU) to run on GitHub Actions free tier.
-- **Data Integrity**: All dataset downloads must use real URLs or `datasets.load_dataset`; no synthetic/fake data generation for input.
+- **Data Integrity**: All dataset downloads must use real URLs or `datasets.load_dataset` with `streaming=True`; no synthetic/fake data generation for input.
 - **Statistical Rigor**: T029 must perform normality check and select test accordingly; low power handling is a fallback note.
-- **Verified Accuracy**: T007-T007e must abort if data/templates cannot be verified; no placeholders allowed.
-- **Scope**: Strictly 140 runs (7 agents × 2 conditions × 10 (2402.18749, https://arxiv.org/abs/2402.18749) tasks). No N=30 generations.
-- **Execution Order**: T023 (Execution) MUST run after T015b (Data Prep), T022 (Agent Loading), and T023a (Concurrency Controller). T029 (Analysis) MUST run after T024 (Aggregation).
-- **Gate Logic**: T007b-T007e form a sequential chain that blocks T008 and all subsequent tasks.
-- **Audit Trails**: T014 handles "Scaffold Conflict" (FR-007); T015c handles "Failure Mode Audit" (edge case).
+- **Verified Accuracy**: T007b forms a sequential chain that blocks T008 and all subsequent tasks. T009a must also pass T007b.
+- **Scope**: Strictly 140 runs (7 agents × 2 conditions × 10 tasks). No N=30 generations.
+- **Execution Order**: T023 (Execution) MUST run after T008 (Data Prep), T022 (Agent Loading), T023a (Concurrency Controller), T013 (Scaffold Injection), T014 (Conflict Logic), T014_init (Audit Init), T044 (Exclusion Logic), T006 (Config), and T009c_map (Mapping). T029 (Analysis) MUST run after T024 (Aggregation).
+- **Gate Logic**: T007b forms a sequential chain that blocks T008 and all subsequent tasks. T009a must also pass T007b.
+- **Audit Trails**: T014 handles "Scaffold Conflict" (FR-007); T014c handles "Real-time Exclusion" (runs AFTER T023); T014b handles "Human Audit Sampling"; T015c_audit handles "Dominant Mode Audit" (dataset-wide); T015c_count handles "Subset Availability" (count < 10). T014_init initializes the audit file.
+- **Agent List**: T022a_gen explicitly defines the 7 agents to ensure CPU tractability. T022a_gen creates the source file.
+- **Completion Rate**: T026 reports failure and exits with code 1 if rate < 95%, enforcing the blocking gate, but distinguishes excluded runs from failures.
+- **Filtering**: T014c MUST run after T023 to ensure T024 aggregates only clean data.
+- **Revision Concerns**: T038 addresses timeout hardening; T040 addresses transient network errors without synthetic fallback; T007/T008 now use streaming and explicit abort logic. **NEW**: T042 addresses timeout traceability; T043 addresses low power statistical rigor; T045 addresses TOST unit testing.
+- **Template Mapping**: T009b_map and T009c_map now produce `task_template_mapping.json` to ensure 1-to-1 mapping for T013.
+- **Rubric Validation**: T021 is now complete and marks the rubric as valid before execution.
+- **Mapping Logic**: T009b_map explicitly reads the manifest to define the mapping heuristic, resolving the generic heuristic concern.
+- **Key Missing Check**: T007 now explicitly checks for key existence before counting.
+- **Edge Case Separation**: T015c_audit and T015c_count separate the dominant mode and count checks.
+- **Exclusion Logic**: T044 is now in Phase 2 to ensure real-time checks are available during T023.
+- **Abort Logic**: T026 now distinguishes excluded runs from failures.

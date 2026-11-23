@@ -1,0 +1,49 @@
+- artifact_path: projects/PROJ-119-statistical-modeling-of-temporal-depende/quickstart.md
+  attempts: 1
+  canonical: script fetches 5 years of daily OHLCV data for BTC and ETH
+  claim_id: c_d0158632
+  context: In step 3, the download_raw_data.py script fetches the last 5 years of
+    daily OHLCV data for BTC and ETH, writes them as Parquet files under data/raw/.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This script fetches the last 5\u202Fyears of daily OHLCV data for BTC\
+    \ and ETH"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T15:34:34Z'
+- artifact_path: projects/PROJ-119-statistical-modeling-of-temporal-depende/quickstart.md
+  attempts: 1
+  canonical: maximum resident set size less than or equal to 6 GB
+  claim_id: c_9738318a
+  context: "Check runtime compliance \u2013 ensure Maximum resident set size \u2264\
+    \u202F6\u202FGB and total CPU time \u2264\u202F2\u202Fh (typical for full bootstrap)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Maximum resident set size \u2264\u202F6\u202FGB"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T15:34:34Z'
+- artifact_path: projects/PROJ-119-statistical-modeling-of-temporal-depende/quickstart.md
+  attempts: 1
+  canonical: total CPU time less than or equal to 2 hours
+  claim_id: c_a8a67ea2
+  context: "Check runtime compliance \u2013 ensure Maximum resident set size \u2264\
+    \u202F6\u202FGB and total CPU time \u2264\u202F2\u202Fh (typical for full bootstrap)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "total CPU time \u2264\u202F2\u202Fh"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T15:34:34Z'

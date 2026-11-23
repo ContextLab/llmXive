@@ -1,0 +1,3 @@
+"""
+Models module initialization.
+"""

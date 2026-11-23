@@ -1,0 +1,6 @@
+[
+  {
+    "data_file": "data/processed/gwas_results_fdr.tsv",
+    "required": []
+  }
+]

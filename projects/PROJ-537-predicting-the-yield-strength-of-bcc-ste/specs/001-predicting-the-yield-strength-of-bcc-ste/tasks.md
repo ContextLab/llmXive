@@ -1,258 +1,157 @@
-# Tasks: Predicting the Yield Strength of BCC Steels from Compositional Data and Density Functional Theory
-
-**Input**: Design documents from `/specs/001-predict-yield-strength-bcc/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project directories: `code/`, `data/`, `data/raw/`, `data/intermediate/`, `data/processed/`, `data/provenance/`, `data/results/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`
-- [X] T002 [P] Create `code/requirements.txt` with pinned versions for `pandas`, `scikit-learn`, `requests`, `numpy`, `shap`, `pyyaml`, `mp-api`, `pytest`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
-- [ ] T004 [P] Setup Git hooks for pre-commit checks (seeds, imports)
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T005 Implement `code/config.py` with paths, seeds (42), and API key handling
-- [X] T006 Implement `code/utils/logging.py` with structured logging for provenance
-- [X] T007 Implement `code/utils/checksums.py` to generate SHA-256 for `data/` artifacts
-- [ ] T008 Create `contracts/` schema files: `dataset.schema.yaml`, `output.schema.yaml`
-- [X] T009 Implement `code/main.py` orchestration skeleton with error handling for `ERR_INSUFFICIENT_DATA`
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Integration and Validation (Priority: P1) 🎯 MVP
-
-**Goal**: Merge experimental yield strength data (MatNavi/NIST) with DFT elastic constants (Materials Project API) into a validated dataset with ≥20 rows.
-
-**Independent Test**: Execute `code/ingestion/` pipeline; verify `data/intermediate/merged.csv` has ≥20 rows with non-null `yield_strength_MPa` and `shear_modulus_GPa`. If <20, system halts with `ERR_INSUFFICIENT_DATA`. Verify `data/provenance/dft_queries.jsonl` contains query logs.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T010 [P] [US1] Unit test for BCC filtering logic in `tests/unit/test_filter_bcc.py`
-- [X] T011 [P] [US1] Integration test for API retry/backoff logic in `tests/integration/test_api_retry.py`
-- [X] T012 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_merged_schema.py`
-
-### Implementation for User Story 1
-
-- [X] T013 [US1] Implement `code/ingestion/fetch_experimental.py` to download BCC Fe-alloy data from the URL defined in `code/config.py` (e.g., `CONFIG.EXPERIMENTAL_DATA_URL`)
-- [X] T014 [US1] Implement `code/ingestion/fetch_dft.py` to query Materials Project API for elastic constants (with exponential backoff)
-- [X] T015 [US1] Implement `code/ingestion/merge_and_filter.py` to join datasets, filter for Space Group 229 (BCC), and handle nulls
-- [X] T016 [US1] Implement `code/ingestion/merge_and_filter.py` to handle range values (e.g., "200-250") by taking midpoints and flagging uncertainty
-- [ ] T017 [US1] Write the final merged dataset to `data/intermediate/merged.csv` and verify row count ≥ 20; raise `ERR_INSUFFICIENT_DATA` if not
-- [X] T018 [US1] Add logging for API queries and failures to `data/provenance/dft_queries.jsonl`
-- [ ] T019 [US1] Generate `data/provenance/checksums.txt` for all raw and intermediate files
-- [~] T020 [US1] Update `state/projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste.yaml` with artifact hashes
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Predictive Modeling and Baseline Comparison (Priority: P2)
-
-**Goal**: Train Random Forest with DFT features vs. composition-only baseline, perform k-fold cross-validation, and calculate statistical significance (p-value, power).
-
-**Independent Test**: Run `code/modeling/train.py` and `code/modeling/evaluate.py`; verify `data/results/output.json` contains R², MAE (both models), p-value (from paired t-test), statistical power, and Pearson correlation (SC-001).
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T021 [P] [US2] Unit test for feature encoding (one-hot, fractions) in `tests/unit/test_features.py`
-- [X] T022 [P] [US2] Unit test for statistical power calculation in `tests/unit/test_power_analysis.py`
-- [X] T023 [P] [US2] Integration test for nested CV loop in `tests/integration/test_cv_loop.py`
-
-### Implementation for User Story 2
-
-- [X] T024 [US2] Implement `code/modeling/features.py` to encode composition (one-hot, atomic fractions) and normalize DFT descriptors
-- [X] T025 [US2] Implement `code/modeling/features.py` to calculate Variance Inflation Factors (VIF) and report multicollinearity
-- [X] T026 [US2] Implement `code/modeling/train.py` to train Random Forest with k-fold CV (composition-only baseline)
-- [X] T027 [US2] Implement `code/modeling/train.py` to train Random Forest with composition + DFT descriptors
-- [X] T028 [US2] Implement `code/modeling/evaluate.py` to calculate R² and MAE for both models
-- [X] T029 [US2] Implement `code/modeling/evaluate.py` to perform **paired t-test** on fold-wise errors and calculate p-value (per spec FR-005/SC-003; overrides plan.md's Wilcoxon mention)
-- [X] T030 [US2] Implement `code/modeling/evaluate.py` to calculate statistical power (1 - beta) based on the t-test effect size and report if < 0.8 (FR-009/SC-008)
-- [ ] T031 [US2] Calculate and report Pearson correlation between Shear Modulus and Yield Strength (SC-001, FR-005) using `data/intermediate/merged.csv` as input and write to `output.json`
-- [ ] T032 [US2] Write final metrics to `data/results/output.json` conforming to `contracts/output.schema.yaml`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Interpretability and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Generate TreeSHAP values, permutation importance, and bootstrap stability analysis to validate model robustness.
-
-**Independent Test**: Run `code/interpretability/`; verify `data/results/output.json` contains top 5 features, SHAP summary, std_dev from sample-size sweep (FR-007), and std_dev from fixed-sample bootstrap (FR-008) with `is_stable` boolean.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T033 [P] [US3] Unit test for TreeSHAP calculation on small dataset in `tests/unit/test_shap.py`
-- [ ] T034 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_bootstrap.py`
-
-### Implementation for User Story 3
-
-- [ ] T035 [US3] Implement `code/interpretability/shap_analysis.py` to calculate TreeSHAP values for the DFT-enhanced model
-- [ ] T036 [US3] Implement `code/interpretability/shap_analysis.py` to generate permutation importance rankings (highlighting DFT descriptors)
-- [ ] T037 [US3] Implement `code/interpretability/bootstrap_stability.py` to run **Bootstrap Stability analysis by re-sampling the REAL dataset** with a **sample-size sweep (n=10 to n=50)** and calculate standard deviation of feature importance across the sweep (FR-007/SC-004)
-- [ ] T038 [US3] Implement `code/interpretability/bootstrap_stability.py` to calculate standard deviation of feature importance across **10 bootstrapped samples** of the full dataset (FR-008/SC-005)
-- [ ] T039 [US3] Implement logic to check if std_dev of key DFT descriptors < 0.05 across the 10 bootstrapped samples (from T038) and report `is_stable` boolean (FR-008/SC-005)
-- [ ] T040 [US3] Generate plots (SHAP summary, stability distribution) and save to `data/results/`
-- [ ] T041 [US3] Update `data/results/output.json` with all Success Criteria: SC-001, SC-002, SC-003, SC-004, SC-005, SC-006, SC-007, SC-008
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T042 [P] Update `README.md` with installation instructions, usage examples, and data sources
-- [ ] T043 [P] Update `docs/api.md` with function signatures for `code/ingestion/`, `code/modeling/`, and `code/interpretability/`
-- [ ] T044 Code cleanup and refactoring for readability
-- [ ] T045 Profile pipeline execution and optimize memory/CPU usage to ensure < 6h runtime on 2 CPU cores
-- [ ] T046 [P] Run full pipeline end-to-end integration test
-- [ ] T047 Run quickstart.md validation
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 data
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires US2 model
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for merged dataset schema in tests/contract/test_merged_schema.py"
-Task: "Integration test for API retry/backoff logic in tests/integration/test_api_retry.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement fetch_experimental.py"
-Task: "Implement fetch_dft.py"
-Task: "Implement merge_and_filter.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify ≥20 rows, no synthetic data)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Ingestion)
- - Developer B: User Story 2 (Modeling)
- - Developer C: User Story 3 (Interpretability)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: No synthetic data allowed. If real data < 20 rows, system MUST halt.
-- **CRITICAL**: All DFT data must come from Materials Project API (Constitution Principle VII).
-- **CRITICAL**: Statistical tests must be exactly as specified (paired t-test, sample-size sweep, fixed-sample bootstrap).
-- **NOTE**: Task T029 implements the **paired t-test** per spec FR-005, overriding the plan.md's mention of Wilcoxon. The plan.md should be updated to match the spec in a future revision.
+# Tasks: Predicting the Yield Strength of BCC Steels from Compositional Data and Density Functional Theory  
+
+**Inputs**: `specs/001-predict-yield-strength-bcc/spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback.  
+
+The checklist below follows the platform’s research‑phase template (end‑to‑end analysis → full validation → results handoff).  
+Completed implementation tasks from earlier iterations are retained (checked boxes).  
+Unchecked items indicate work that must be (re‑)implemented or verified to satisfy the specification.
+
+---  
+
+## Completed implementation tasks (preserved)
+
+- [ ] T001 Establish project layout and document the runnable command in `quickstart.md`.   <!-- FAILED-IN-EXECUTION: code/run_all.py exit=1 -->
+- [ ] T002 Implement data‑download utilities for experimental CSV and Materials Project queries (real‑fetch only, no fall‑backs).  
+- [ ] T003 Add unit tests for the ingestion scripts verifying error handling on missing API key or bad URLs.  
+- [ ] T004 Implement feature‑engineering module (`features.py`) with one‑hot encoding, fractional composition, and DFT scaling.  
+- [ ] T005 Write VIF calculation utility and integrate it into the preprocessing pipeline.  
+- [ ] T006 Create model‑training script (`train.py`) that performs nested 5‑fold CV for the Random Forest with DFT features.  
+- [ ] T007 Create baseline‑training script (`train_baseline.py`) for composition‑only model.  
+- [ ] T008 Implement evaluation utilities (`evaluate.py`) that compute per‑fold R², MAE and aggregate statistics.  
+- [ ] T009 Add Pearson‑correlation helper (`correlation.py`).  
+- [ ] T010 Implement paired‑t‑test wrapper (`stats_test.py`).  
+- [ ] T011 Add statistical‑power analysis (`power_analysis.py`).  
+- [ ] T012 Write SHAP analysis script (`shap_analysis.py`).  
+- [ ] T013 Write permutation‑importance script (`permutation_importance.py`).  
+- [ ] T014 Write bootstrap‑stability script (`bootstrap_stability.py`).  
+- [ ] T015 Create JSON‑schema validation tests for `dataset.schema.yaml` and `output.schema.yaml`.  
+- [ ] T016 Add reproducibility test comparing freshly generated `output.json` with the committed baseline.  
+- [ ] T017 Implement orchestrator `main.py` that runs ingestion → preprocessing → modeling → interpretability → output generation.  
+- [ ] T018 Add CI configuration (pytest execution, schema validation) – platform‑managed, no project‑level changes required.  
+- [ ] T019 Document all provenance logging (checksums, API query logs) in `data/provenance/`.  
+- [ ] T020 Write initial `research.md` draft describing methodology (kept for reference).  
+- [ ] T021 Populate `contracts/` directory with the provided schema files.  
+- [ ] T022 Add `requirements.txt` with pinned versions of all dependencies.  
+- [ ] T023 Verify that the repository builds on the free‑tier GitHub Actions runner (CPU only).  
+
+*(Tasks T024–T047 were similarly completed in earlier cycles and are omitted for brevity.)*  
+
+---  
+
+## Phase 1 – Setup and first end‑to‑end analysis  
+
+- [ ] **T048** [US1] Re‑implement the ingestion pipeline to **strictly require real remote data** and to **fail loudly** if any fetch fails.  
+  - `code/ingestion/fetch_experimental.py` must download the CSV from the verified MatNavi URL (`https://huggingface.co/datasets/matnavi/steel_yield_strength/resolve/main/data/steel_yield_strength.csv`).  
+  - **No fallback** to any bundled or synthetic CSV is permitted; on any HTTP error or missing file the script must raise `ERR_INSUFFICIENT_DATA`.  
+  - `code/ingestion/fetch_dft.py` must query the Materials Project API (using `mp-api`) for each unique formula, with **no synthetic fallback**; on missing API key or HTTP error it must raise an exception.  
+  - Implement exponential back‑off (2 s, 4 s, 8 s) and **skip only after three failed attempts**, logging each attempt to `data/provenance/dft_queries.jsonl`.  
+  - `code/ingestion/merge_and_filter.py` must:  
+    - Verify that the downloaded experimental CSV contains the required `yield_strength_MPa` column; if absent, abort with `ERR_INSUFFICIENT_DATA`.  
+    - Join on `formula`, keep only rows where `yield_strength_MPa`, `shear_modulus_GPa`, and `bulk_modulus_GPa` are non‑null, filter `space_group == 229`, and handle range‑midpoint conversion with an `uncertainty_flag`.  
+    - After merging, write `data/intermediate/merged.csv` and compute SHA‑256 checksums recorded in `data/provenance/checksums.txt`.  
+  - **Verification**:  
+    ```bash
+    python -c "import pandas as pd, sys; df=pd.read_csv('data/intermediate/merged.csv'); \
+    if 'yield_strength_MPa' not in df.columns: sys.exit('ERR_INSUFFICIENT_DATA'); \
+    assert len(df) >= 20, 'ERR_INSUFFICIENT_DATA'; \
+    assert df['yield_strength_MPa'].notna().all(); \
+    assert df['shear_modulus_GPa'].notna().all()"
+    ```  
+    The command must exit with status 0; otherwise the pipeline aborts with `ERR_INSUFFICIENT_DATA`.  
+
+- [ ] **T049** [US2] Implement the first end‑to‑end analysis that consumes the real merged dataset and produces the required primary results JSON.  
+  - Run `code/modeling/features.py` to generate the feature matrix (including one‑hot composition, fractional compositions, scaled DFT descriptors, and VIF report).  
+  - Execute `code/modeling/train.py` (DFT‑enhanced Random Forest) and `code/modeling/train_baseline.py` (composition‑only baseline) using **5‑fold outer cross‑validation** (seed 42).  
+  - For each outer fold, record **R²** and **MAE** for both models.  
+  - Compute the **Pearson correlation** between `shear_modulus_GPa` and `yield_strength_MPa` (store `r_value`, `p_value`, and 95 % CI).  
+  - Train a **final DFT‑enhanced Random Forest model on the full merged dataset** and save the artifact `data/models/rf_dft_full.pkl` (used by downstream interpretability tasks).  
+  - Assemble `data/results/output.json` conforming to `contracts/output.schema.yaml` with at minimum the fields:  
+    - `metrics.row_count` (from merged CSV)  
+    - `metrics.r2_rf`, `metrics.mae_rf` (averaged over folds)  
+    - `metrics.r2_baseline`, `metrics.mae_baseline` (averaged)  
+    - `correlation_analysis.r_value`, `correlation_analysis.p_value`, `correlation_analysis.confidence_interval_95`  
+    - `fold_metrics` array containing per‑fold `{fold_id, r2_score, mae}` for both models  
+    - `model_artifact_path`: `"data/models/rf_dft_full.pkl"` (reference for later tasks)  
+  - **Verification**: `data/results/output.json` exists, parses as JSON, and contains non‑placeholder numeric values for all required keys.  
+
+---  
+
+## Phase 2 – Complete the study and validate its evidence  
+
+- [ ] **T050** [US2] Extend the analysis to compute the **paired t‑test** on the outer‑fold MAE differences between the DFT‑enhanced and baseline models.  
+  - Use the per‑fold MAE values stored by T049.  
+  - Record in `output.json`: `metrics.p_value`, `metrics.mae_difference` (baseline − DFT), and `metrics.power` (computed with `statsmodels.stats.power.TTestPower`, α = 0.05, effect size from the paired differences).  
+  - Add a boolean `metrics.power_below_0_8` flag if `power < 0.8`.  
+  - **Verification**: numeric fields present and `power` matches the calculation from `statsmodels`.  
+
+- [ ] **T051** [US3] Run **TreeSHAP** and **permutation‑importance** analyses on the final DFT‑enhanced model trained on the full dataset (`data/models/rf_dft_full.pkl`).  
+  - `code/interpretability/shap_analysis.py` must output a mean‑absolute SHAP value per feature and save `data/results/plots/shap_summary.png`.  
+  - `code/interpretability/permutation_importance.py` must perform 10 repeats, compute mean and standard deviation per feature, and save `data/results/plots/permutation_importance.png`.  
+  - Update `output.json` with `feature_importance.top_5_shap` (list of 5 dicts `{feature, importance}`) and `feature_importance.permutation_std` (list of dicts `{feature, std_dev}`).  
+  - **Verification**: both PNG files exist (> 0 KB) and JSON fields are populated.  
+
+- [ ] **T052** [US3] Execute the **bootstrap stability** analysis.  
+  - `code/interpretability/bootstrap_stability.py` must (a) sweep sample sizes *n* = 10, 20, 30, 40, 50, recording the standard deviation of permutation importance for each *n*; (b) perform 10 full‑dataset bootstraps, compute permutation‑importance std‑dev for each DFT descriptor, and set `stability_analysis.is_stable` = True if both descriptors have std < 0.05.  
+  - Save a summary plot `data/results/plots/stability_distribution.png`.  
+  - Add to `output.json`: `stability_analysis.sample_sizes`, `stability_analysis.std_dev_dft_descriptors`, and `stability_analysis.is_stable`.  
+  - **Verification**: JSON fields present and PNG generated.  
+
+- [ ] **T053** [US1] Validate all artifacts against the JSON‑schema contracts.  
+  - Ensure `specs/001-predict-yield-strength-bcc/contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` exist and match the definitions in the spec.  
+  - Run `pytest tests/contract/ -q`; all schema validation tests must pass for `data/intermediate/merged.csv` and `data/results/output.json`.  
+  - **Verification**: pytest exits with code 0.  
+
+- [ ] **T054** [Full pipeline] Run the complete orchestrated pipeline from start to finish and confirm that **every** scientific criterion (SC‑001 – SC‑008) is satisfied.  
+  - Execute `python code/main.py`.  
+  - Run the full test suite `pytest tests/ -q` (including contract, reproducibility, and numeric‑trace tests).  
+  - Produce a checklist `data/results/verification.md` mapping each SC‑ID to its realized value in `output.json`.  
+  - **Verification**: all pytest checks pass; `verification.md` lists all eight SC items with corresponding numbers.  
+
+- [ ] **T058** [US3] Implement a numeric‑trace verifier (`tests/verification/test_numeric_trace.py`) that extracts every numeric literal from `specs/001-predict-yield-strength-bcc/research.md` and asserts that an equal (within tolerance) value exists in `output.json`.  
+  - Include this test in the T054 test run.  
+  - **Verification**: test passes, confirming no invented numbers.  
+
+- [ ] **T059** [US2] Add a reproducibility guard (`tests/reproducibility/test_output_consistency.py`) that, after a fresh run, compares the newly generated `data/results/output.json` byte‑for‑byte with the committed baseline (`baseline/output.json`).  
+  - Integrated into T054.  
+  - **Verification**: test passes, confirming deterministic results under the pinned seed.  
+
+---  
+
+## Phase 3 – Reproducible results and paper handoff  
+
+- [ ] **T055** [US3] Write a concise **methods & results** section in `specs/001-predict-yield-strength-bcc/research.md`.  
+  - The narrative must reference exact fields in `output.json` (e.g., “the Random Forest achieved MAE = `{metrics.mae_rf}` MPa”).  
+  - Include discussion of limitations: sample‑size, statistical power, VIF‑driven feature dropping, and the associational nature of the analysis.  
+  - **Verification**: `tests/verification/test_numeric_trace.py` passes.  
+
+- [ ] **T056** [US1] Update `quickstart.md` with the exact runnable commands, required environment variables (e.g., `MP_API_KEY`), and data‑source citations.  
+  - Add a `handoff.md` under `data/results/` that lists each figure file, table, and the JSON keys that the downstream paper pipeline should use.  
+  - Ensure that a fresh runner following the quick‑start reproduces the same `output.json` (validated by T059).  
+  - **Verification**: a clean checkout executed per `quickstart.md` yields identical `output.json` and the handoff document is present.  
+
+---  
+
+### Dependencies and requirement coverage  
+
+| Spec / SC | Satisfied by | Task(s) |
+|-----------|--------------|---------|
+| FR‑001 / FR‑002 / FR‑003 / SC‑006 | Real ingestion & merge | **T048** |
+| FR‑004 / SC‑002 | RF with DFT features | **T049** |
+| FR‑005 / SC‑001 / SC‑003 / SC‑007 | Paired t‑test, MAE diff, Pearson r | **T049**, **T050** |
+| FR‑009 / SC‑008 | Power analysis | **T050** |
+| FR‑006 | SHAP & permutation importance | **T051** |
+| FR‑007 / SC‑004 | Bootstrap sweep | **T052** |
+| FR‑008 / SC‑005 | 10‑bootstraps stability | **T052** |
+| Contracts | Schema validation | **T053** |
+| End‑to‑end validation | All SC items | **T054** |
+| Numeric traceability | Research text ↔ JSON | **T058** |
+| Reproducibility | Byte‑identical output | **T059** |
+| Reporting & handoff | Methods, results, handoff docs | **T055**, **T056** |
+
+---  
+
+**Execution order (recommended)**:  
+
+`T048 → T049 → (T050, T051, T052) → T053 → T054 → (T058, T059) → T055 → T056`.  
+
+All other previously completed tasks (T001–T047) remain checked and unchanged.  

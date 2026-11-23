@@ -1,3 +1,1 @@
-"""
-Test suite for PROJ-054.
-"""
+# Test package for PROJ-054

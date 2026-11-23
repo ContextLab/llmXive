@@ -24,7 +24,7 @@ interest_signals:
   - 'Nobel Memorial Lecture: Maps of Bounded Rationality (2002)'
   - 'Kahneman & Tversky, ''Prospect Theory: An Analysis of Decision under Risk'' (Econometrica
     1979)'
-  - https://www.nobelprize.org/prizes/economic-sciences/2002/kahneman/lecture/
+  - https://kahneman.scholar.princeton.edu/publications
 - id: noise-as-distinct-from-bias
   label: Noise as a distinct error source from bias in expert judgement
   kind: open_problem

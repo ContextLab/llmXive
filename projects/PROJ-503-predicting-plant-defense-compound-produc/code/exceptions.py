@@ -1,69 +1,60 @@
 """
-Custom exception classes for the llmXive plant defense prediction pipeline.
-
-Defines specific error codes as per plan.md requirements:
-- E_DATASET: Data acquisition or availability failures
-- E_PAIRING: Sample pairing failures (<95% match rate)
-- E_TIMEOUT: Execution time limit exceeded (>4h)
-- E_POWER: Power analysis failure (required n < 28)
+Custom exception classes for the plant defense prediction pipeline.
 """
+import sys
+from typing import Optional, Dict, Any
+
 
 class PipelineError(Exception):
-    """Base exception for all pipeline errors."""
-    
-    def __init__(self, message: str, error_code: str = "E-UNKNOWN"):
-        self.message = message
-        self.error_code = error_code
-        super().__init__(f"[{error_code}] {message}")
+    """Base exception for pipeline errors."""
+    pass
 
 
 class E_DATASET(PipelineError):
-    """
-    Raised when dataset acquisition fails or required data is unavailable.
-    
-    Triggers:
-    - GEO/Metabolomics Workbench search returns no results
-    - Required files missing or corrupted
-    - Accession IDs invalid or deprecated
-    - Data pairing feasibility <95% with no valid fallback
-    """
-    def __init__(self, message: str):
-        super().__init__(message, "E-DATASET")
+    """Exception raised when dataset issues occur (not found, invalid, download failed)."""
+    pass
 
 
 class E_PAIRING(PipelineError):
-    """
-    Raised when sample-level pairing rate is insufficient (<95%).
-    
-    Triggers:
-    - Sample-level pairing <95% AND condition-level aggregation n < 28
-    - Critical metadata mismatch preventing pairing
-    - Fallback pairing strategy exhausted without success
-    """
-    def __init__(self, message: str):
-        super().__init__(message, "E-PAIRING")
+    """Exception raised when sample pairing rate is below threshold."""
+    pass
 
 
 class E_TIMEOUT(PipelineError):
-    """
-    Raised when CPU time exceeds the 4-hour computational budget.
-    
-    Triggers:
-    - Runtime > 4 hours (14400 seconds) as per FR-008
-    - Resource monitoring detects imminent timeout
-    """
-    def __init__(self, message: str):
-        super().__init__(message, "E-TIMEOUT")
+    """Exception raised when execution exceeds time limits."""
+    pass
 
 
 class E_POWER(PipelineError):
-    """
-    Raised when power analysis indicates insufficient sample size.
-    
-    Triggers:
-    - Calculated required n < 28 for effect size r=0.5, alpha=0.05, power=0.8
-    - Actual available samples < required n
-    - Power analysis aborts the pipeline per plan.md T009/T015
-    """
-    def __init__(self, message: str):
-        super().__init__(message, "E-POWER")
+    """Exception raised when power analysis fails (insufficient sample size)."""
+    pass
+
+
+class E_SAMPLESIZE(PipelineError):
+    """Exception raised when sample size is insufficient for analysis."""
+    pass
+
+
+def raise_dataset_error(message: str) -> None:
+    """Raise E_DATASET exception with the given message."""
+    raise E_DATASET(message)
+
+
+def raise_pairing_error(message: str) -> None:
+    """Raise E_PAIRING exception with the given message."""
+    raise E_PAIRING(message)
+
+
+def raise_timeout_error(message: str) -> None:
+    """Raise E_TIMEOUT exception with the given message."""
+    raise E_TIMEOUT(message)
+
+
+def raise_power_error(message: str) -> None:
+    """Raise E_POWER exception with the given message."""
+    raise E_POWER(message)
+
+
+def raise_samplesize_error(message: str) -> None:
+    """Raise E_SAMPLESIZE exception with the given message."""
+    raise E_SAMPLESIZE(message)

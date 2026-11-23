@@ -1,0 +1,5 @@
+# Existing dependencies are assumed to be present.
+# Adding explicit requirement for Parquet support.
+pyarrow>=13.0.0
+# (Optional) fastparquet can be used as an alternative engine.
+fastparquet>=0.8.0

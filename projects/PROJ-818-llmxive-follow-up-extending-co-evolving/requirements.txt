@@ -1,7 +1,10 @@
-sympy>=1.12
-networkx>=3.2
-numpy>=1.26
-scipy>=1.12
-pytest>=8.0
-ruff>=0.4.0
-black>=24.0.0
+sympy>=1.11
+networkx>=3.0
+numpy>=1.24
+scipy>=1.10
+statsmodels>=0.14
+pytest>=7.3
+gym-minigrid>=1.0
+ruff>=0.1.0
+black>=23.0.0
+pre-commit>=3.3.0

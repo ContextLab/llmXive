@@ -1,0 +1,13 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a** — The implementer provided no artifact showing that the required directories (`projects/PROJ-944-llmxive-follow-up-extending-geneb-why-ge/`, `code/`, `data/`, `outputs/`, `tests/`) actually exist; there is no directory listing, screenshot, or other confirmation. Without concrete evidence of these folders being created, the task requirement is not satisfied.
+- **T002** — The implementer provided only the task description and user‑story specifications; there is no visible project scaffold, no `pyproject.toml`, `requirements.txt`, `environment.yml`, or any other file that shows a Python 3.11 project initialized with the listed dependencies. Consequently the required artifact (the initialized project with the specified packages) is missing.
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` entries for Black, a `.ruff.toml` or `ruff.toml`, or a pre‑commit hook) were presented, nor any evidence that ruff and black have been set up in the repository. The required artifacts are missing, so the task is not satisfied.
+- **T004a** — No evidence of the required directories (`data/raw/`, `data/processed/`, `outputs/reports/`, `outputs/figures/`, `state/`) being created or listed is present; the only provided artifact is a feature specification, not the filesystem structure. The task remains undone until those directories exist in the project.
+- **T004b** — No code, script, or output files were provided that compute SHA‑256 checksums for the files in `data/raw/` and `data/processed/`, nor any JSON/YAML snippet placed in the `state/` directory. The required artifacts are missing, so the task is not satisfied.
+- **T004c** — declared artifact(s) missing/empty/invalid: state/projects/PROJ-944-llmxive-follow-up-extending-geneb-why-ge.yaml
+- **T006** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T006a** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T008** — No code, configuration, or documentation implementing a retry mechanism with exponential backoff for GENEB/ZENODO network requests was provided; the only evidence is the task description, which does not include the required artifact. The implementer’s claim lacks any tangible implementation.

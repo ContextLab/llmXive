@@ -1,76 +1,67 @@
 #!/bin/bash
-set -e
+# setup_cli.sh
+# Installs system-level dependencies required for the Defects4J CLI and PMD static analysis tool.
+# This script must be run with sudo privileges.
+#
+# Prerequisites:
+# - A Debian/Ubuntu-based environment
+# - Internet access for package retrieval
+#
+# Dependencies installed:
+# - openjdk-17-jdk (Pinned to 17.0.9+1 for reproducibility)
+# - pmd-bin (Pinned to 7.0.0 for reproducibility)
+#
+# Verification:
+# - defects4j --version
+# - pmd --version
 
-echo "=== llmXive Project Setup: Defects4J & PMD ==="
-echo "This script installs and configures the Defects4J CLI and PMD static analysis tool."
+set -euo pipefail
 
-# Check for root/sudo privileges
-if [ "$EUID" -ne 0 ]; then
-  echo "Error: This script must be run as root (sudo)."
-  exit 1
-fi
+echo ">>> [T002c] Starting CLI tool installation (Defects4J & PMD)..."
 
 # Update package lists
-echo "[1/5] Updating package lists..."
-apt-get update -qq
+echo ">>> Updating apt package lists..."
+sudo apt-get update
 
-# Install dependencies for wget, git, and Java
-echo "[2/5] Installing system dependencies (git, wget, openjdk-11-jdk)..."
-apt-get install -y -qq git wget openjdk-11-jdk
+# Install OpenJDK 17 (Pinned version)
+echo ">>> Installing OpenJDK 17 (pinned to 17.0.9+1)..."
+sudo apt-get install -y openjdk-17-jdk=17.0.9+1
 
-# --- Install PMD ---
-echo "[3/5] Installing PMD (Java static analysis tool)..."
-PMD_VERSION="6.55.0"
-PMD_URL="https://github.com/pmd/pmd/releases/download/pmd-releases-${PMD_VERSION}/pmd-bin-${PMD_VERSION}.tar.gz"
-PMD_TEMP_DIR="/tmp/pmd-install"
-
-mkdir -p ${PMD_TEMP_DIR}
-cd ${PMD_TEMP_DIR}
-wget -q ${PMD_URL} -O pmd-bin.tar.gz
-tar -xzf pmd-bin.tar.gz --strip-components=1
-mv pmd-bin-${PMD_VERSION} /opt/pmd
-ln -sf /opt/pmd/bin/pmd /usr/local/bin/pmd
-
-# Verify PMD
-echo "Verifying PMD installation..."
-if ! pmd --version; then
-  echo "Error: PMD installation verification failed."
-  exit 1
+# Verify Java installation
+if ! command -v java &> /dev/null; then
+    echo "ERROR: Java installation failed."
+    exit 1
 fi
-echo "PMD installed successfully."
+echo ">>> Java version check:"
+java -version
 
-# --- Install Defects4J ---
-echo "[4/5] Installing Defects4J CLI..."
-D4J_VERSION="2.0.0"
-D4J_URL="https://github.com/rjust/defects4j/releases/download/v${D4J_VERSION}/defects4j-v${D4J_VERSION}.tar.gz"
-D4J_TEMP_DIR="/tmp/d4j-install"
+# Install PMD (Pinned version)
+# Note: pmd-bin is the package name in many Debian/Ubuntu repos for PMD 7.x
+echo ">>> Installing PMD (pinned to 7.0.0)..."
+sudo apt-get install -y pmd-bin=7.0.0
 
-mkdir -p ${D4J_TEMP_DIR}
-cd ${D4J_TEMP_DIR}
-wget -q ${D4J_URL} -O defects4j.tar.gz
-tar -xzf defects4j.tar.gz --strip-components=1
-mv defects4j-${D4J_VERSION} /opt/defects4j
-ln -sf /opt/defects4j/bin/defects4j /usr/local/bin/defects4j
-
-# Configure Defects4J environment variables (optional but recommended for stability)
-# Note: Users should source this or add to .bashrc for persistent sessions,
-# but the CLI binary is now in PATH.
-echo "export D4J_HOME=/opt/defects4j" >> /etc/profile.d/defects4j.sh
-echo "export PATH=\$PATH:/opt/defects4j/bin" >> /etc/profile.d/defects4j.sh
-
-# Verify Defects4J
-echo "Verifying Defects4J installation..."
-if ! defects4j --version; then
-  echo "Error: Defects4J installation verification failed."
-  exit 1
+# Verify PMD installation
+if ! command -v pmd &> /dev/null; then
+    echo "ERROR: PMD installation failed."
+    exit 1
 fi
-echo "Defects4J installed successfully."
-
-# Cleanup
-rm -rf ${PMD_TEMP_DIR} ${D4J_TEMP_DIR}
-
-echo "[5/5] Setup complete."
-echo "Tools available:"
+echo ">>> PMD version check:"
 pmd --version
-defects4j --version
-echo "=== Setup Finished ==="
+
+# Note: Defects4J CLI is typically installed via git clone and a setup script.
+# This task specifically requested the installation of the *tools* (JDK and PMD)
+# via apt. If 'defects4j' is not in PATH, it implies the Defects4J repository
+# itself needs to be cloned and sourced separately (often handled in T004b or T013).
+# However, we verify if it exists as requested.
+if command -v defects4j &> /dev/null; then
+    echo ">>> Defects4J CLI found:"
+    defects4j --version
+else
+    echo ">>> WARNING: 'defects4j' command not found in PATH."
+    echo ">>> This is expected if the Defects4J repository has not yet been cloned and sourced."
+    echo ">>> Ensure Defects4J is installed separately (e.g., via git clone https://github.com/rjust/defects4j.git) and sourced."
+fi
+
+echo ">>> [T002c] CLI tool installation complete."
+echo ">>> Please ensure Defects4J repository is cloned and sourced before running the pipeline."
+exit 0

@@ -8,16 +8,60 @@ Paper-Implementer dispatcher can route tasks to the right sub-agent.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.speckit._analysis_policy import analysis_policy_fingerprint
 from llmxive.speckit.analyze_cmd import run_analyze
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 
 
 class PaperTaskerAgent(SlashCommandAgent):
+    def _analysis_marker(self, ctx: SlashCommandContext) -> Path:
+        return self._paper_dir(ctx) / ".specify/memory/task_analysis.json"
+
+    def _analysis_fingerprint(self, ctx: SlashCommandContext) -> str:
+        """Bind reuse to the actual paper, reviewer inputs, model and policy."""
+        repo = ctx.project_dir.parent.parent
+        feature = self._feature_dir(ctx)
+        paths = {feature / name for name in ("spec.md", "plan.md", "tasks.md")}
+        for directory, pattern in (
+            (feature, "*"), (repo / "agents/prompts", "*.md"),
+            (repo / "agents/templates", "*.md"), (repo / "src/llmxive", "*.py"),
+            (ctx.project_dir / "reviews", "*.md"),
+        ):
+            paths.update(p for p in directory.rglob(pattern) if p.is_file())
+        for base in (ctx.project_dir, self._paper_dir(ctx)):
+            paths.update(base / ".specify/memory" / name for name in (
+                "constitution.md", "task_verifier_notes.md", "kickback_feedback.md"))
+        paths.add(self._paper_dir(ctx) / ".specify/templates/tasks-template.md")
+        paths.update((repo / ".specify/templates").glob("*.md"))
+        paths.add(repo / "web/about.html")  # Authoritative convergence/citation policy.
+        digest = hashlib.sha256(b"paper-task-analysis-v2\0")
+        digest.update(analysis_policy_fingerprint(ctx).encode() + b"\0")
+        for path in sorted(paths):
+            digest.update(str(path.relative_to(repo)).encode() + b"\0")
+            digest.update(path.read_bytes() if path.is_file() else b"<absent>")
+            digest.update(b"\0")
+        return digest.hexdigest()
+
+    def run(self, ctx: SlashCommandContext):
+        from llmxive.state._io import atomic_write_text
+        from llmxive.types import Outcome
+        self._accepted_analysis = None
+        entry = super().run(ctx)
+        # Base-run citation validation may change an otherwise reviewed artifact.
+        if (entry.outcome == Outcome.SUCCESS and self._accepted_analysis
+                and self._accepted_analysis == self._analysis_fingerprint(ctx)):
+            marker = self._analysis_marker(ctx)
+            marker.parent.mkdir(parents=True, exist_ok=True)
+            atomic_write_text(marker, json.dumps({"analysis_sha256": self._accepted_analysis}))
+        return entry
+
     def slash_command_name(self) -> str:
         return "speckit.tasks"
 
@@ -33,7 +77,24 @@ class PaperTaskerAgent(SlashCommandAgent):
         return resolve_feature_dir(ctx, paper=True)
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
+        from llmxive.state import project as project_store
+        from llmxive.types import Stage
         feature_dir = self._feature_dir(ctx)
+        marker = self._analysis_marker(ctx)
+        try:
+            record = json.loads(marker.read_text())
+        except (OSError, ValueError):
+            record = {}
+        try:
+            stage = project_store.load(ctx.project_id, repo_root=ctx.project_dir.parent.parent).current_stage
+        except FileNotFoundError:
+            stage = None
+        if (stage == Stage.PAPER_TASKED and isinstance(record, dict)
+                and record.get("analysis_sha256")
+                and not (self._paper_dir(ctx) / ".specify/memory/kickback_feedback.md").exists()
+                and record["analysis_sha256"] == self._analysis_fingerprint(ctx)):
+            return {"skip_llm": True, "reason": "exact paper task artifacts already reviewed"}
+        marker.unlink(missing_ok=True)
         return {
             "feature_dir": str(feature_dir),
             "spec_path": str(feature_dir / "spec.md"),
@@ -61,16 +122,23 @@ class PaperTaskerAgent(SlashCommandAgent):
             {"project_id": ctx.project_id, "mode": "A"},
             repo_root=repo,
         )
-        from llmxive.speckit._comments_context import render_recent_comments_block
+        from llmxive.speckit._comments_context import (
+            _render_kickback_feedback_block,
+            render_recent_comments_block,
+        )
         comments_block = render_recent_comments_block(ctx.project_dir)
+        paper_feedback = _render_kickback_feedback_block(self._paper_dir(ctx))
         user = (
             "Mode: A (generate paper tasks.md)\n\n"
             f"# Paper spec.md\n\n{spec_text}\n\n"
             f"# Paper plan.md\n\n{plan_text}\n\n"
             f"# Tasks template\n\n{tasks_template}\n\n"
             + (comments_block + "\n\n" if comments_block else "")
+            + (paper_feedback + "\n\n" if paper_feedback else "")
             + "# Task\n\nReturn the full paper tasks.md Markdown. "
-            "EVERY task line MUST include a `[kind:<value>]` token."
+            "EVERY task line MUST use canonical checkboxes, not tables or fenced examples: "
+            "`- [ ] T001 [kind:prose] Describe the concrete deliverable`. "
+            "Include a `[kind:<value>]` token on every task; preserve all scientific requirements."
         )
         return [
             ChatMessage(role="system", content=system),
@@ -86,12 +154,23 @@ class PaperTaskerAgent(SlashCommandAgent):
         repo = ctx.project_dir.parent.parent
         tasks_path = Path(mechanical_output["tasks_path"])
         tasks_path.parent.mkdir(parents=True, exist_ok=True)
+        from llmxive.speckit.task_lines import (
+            TASK_LINE_RE,
+            TaskFormatError,
+            mask_fenced_code,
+            unwrap_task_document,
+            validate_open_tasks,
+        )
+        text = unwrap_task_document(llm_response.text)
+        validate_open_tasks(text)
+        if not TASK_LINE_RE.search(mask_fenced_code(text)):
+            raise TaskFormatError("Paper tasker produced no executable task identities")
         # Defect #21: capture any existing tasks.md so a guard refusal
         # restores it instead of leaving no file on disk.
         prior_tasks = (
             tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else None
         )
-        tasks_path.write_text(llm_response.text.strip() + "\n", encoding="utf-8")
+        tasks_path.write_text(text + "\n", encoding="utf-8")
         # FR-009: real-only guard — refuse template tasks emissions
         from llmxive.speckit._real_only_guard import guard_emit
         guard_emit(tasks_path, repo_root=repo, previous_content=prior_tasks)
@@ -131,10 +210,12 @@ class PaperTaskerAgent(SlashCommandAgent):
             kind="paper",
             constitution_text=_paper_const_text,
         )
-        self._run_paper_tasks_panel(
+        reviewed = self._run_paper_tasks_panel(
             ctx, spec_path, plan_path, tasks_path, repo,
             analyze_report_text=str(report),
         )
+        if reviewed:
+            self._accepted_analysis = self._analysis_fingerprint(ctx)
         return written
 
     def _run_paper_tasks_panel(
@@ -146,7 +227,7 @@ class PaperTaskerAgent(SlashCommandAgent):
         repo: Path,
         *,
         analyze_report_text: str,
-    ) -> None:
+    ) -> bool:
         from llmxive.backends.router import make_backend
         from llmxive.convergence.reviewspecs import build_paper_tasks_reviewspec
         from llmxive.speckit._stage_panel import (
@@ -160,7 +241,7 @@ class PaperTaskerAgent(SlashCommandAgent):
         except Exception:
             backend = None
         if backend is None:
-            return  # offline / no-LLM: agent already produced the artifacts.
+            return False  # No review means no reusable receipt.
 
         memory_dir = self._paper_dir(ctx) / ".specify" / "memory"
         constitution_text = _read(memory_dir / "constitution.md") or None
@@ -192,6 +273,7 @@ class PaperTaskerAgent(SlashCommandAgent):
             producer="paper_tasker",
             constitution=constitution_text,
         )
+        return True
 
 
 __all__ = ["PaperTaskerAgent"]

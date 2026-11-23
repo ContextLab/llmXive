@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-979-llmxive-follow-up-extending-loopcoder-v2",
+  "stage": "in_progress",
+  "class": "transient",
+  "fingerprint": "unknown",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-17T09:24:29.583432+00:00",
+  "last_seen": "2026-10-17T09:24:29.583432+00:00",
+  "retry_after": "2026-10-17T09:34:29.583432+00:00",
+  "last_error": "no implementation progress: no stage change or verified task completion",
+  "evidence": "no implementation progress: no stage change or verified task completion",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
+}

@@ -1,212 +1,106 @@
+"""
+Analysis utilities for brain network metrics.
+"""
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, Any
 from pathlib import Path
 import logging
 from utils.io import save_parquet, load_parquet, save_json, load_json, ensure_dir
 
-# ----------------------------------------------------------------------
-# Public API
-# ----------------------------------------------------------------------
-__all__ = [
-    "regress_confounds",
-    "compute_static_connectivity",
-    "compute_static_metrics",
-    "compute_dynamic_connectivity",
-    "compute_reconfiguration_rate",
-    "compute_icc",
-    "run_sensitivity_analysis",
-    "main",
-]
+logger = logging.getLogger(__name__)
 
-# ----------------------------------------------------------------------
-# Placeholder / minimal implementations for existing functions
-# ----------------------------------------------------------------------
-def regress_confounds(time_series: np.ndarray, confounds: np.ndarray) -> np.ndarray:
-    """
-    Regress out confound variables from the time series.
-
-    Parameters
-    ----------
-    time_series : np.ndarray
-        2D array (timepoints x variables) of BOLD signals.
-    confounds : np.ndarray
-        2D array (timepoints x confound variables).
-
-    Returns
-    -------
-    np.ndarray
-        Residuals after linear regression of confounds.
-    """
-    if time_series.shape[0] != confounds.shape[0]:
-        raise ValueError("Time series and confounds must have the same number of timepoints.")
-    # Simple OLS regression using numpy.linalg.lstsq
+def regress_confounds(time_series: np.array, confounds: np.array) -> np.array:
+    """Regress out FD/DVARS confounds from the time series."""
+    # Simple linear regression using least squares
     X = np.column_stack([confounds, np.ones(confounds.shape[0])])
-    beta, _, _, _ = np.linalg.lstsq(X, time_series, rcond=None)
-    fitted = X @ beta
-    residuals = time_series - fitted
+    betas = np.linalg.lstsq(X, time_series, rcond=None)[0]
+    residuals = time_series - X @ betas
     return residuals
 
-def compute_static_connectivity(time_series: np.ndarray) -> np.ndarray:
-    """
-    Compute static functional connectivity (Pearson correlation) matrix.
+def compute_static_connectivity(time_series: np.array) -> np.array:
+    """Compute static functional connectivity matrix (Pearson correlation)."""
+    return np.corrcoef(time_series.T)
 
-    Parameters
-    ----------
-    time_series : np.ndarray
-        2D array (timepoints x ROIs).
+def compute_static_metrics(matrix: np.array, network_map: Dict[str, List[int]]) -> Dict[str, float]:
+    """Derive static network metrics for specific networks."""
+    import networkx as nx
 
-    Returns
-    -------
-    np.ndarray
-        Correlation matrix (ROIs x ROIs).
-    """
-    if time_series.ndim != 2:
-        raise ValueError("time_series must be a 2D array (timepoints x ROIs).")
-    corr = np.corrcoef(time_series.T)
-    return corr
+    G = nx.from_numpy_array(matrix)
+    metrics = {}
 
-def compute_static_metrics(matrix: np.ndarray, network_map: Dict[int, str]) -> Dict[str, float]:
-    """
-    Compute static network metrics for predefined networks.
+    # Global efficiency
+    metrics["global_efficiency"] = nx.global_efficiency(G)
 
-    This placeholder returns dummy values; real implementation should
-    compute metrics such as global efficiency, modularity, etc.
-    """
-    # Placeholder: return the mean of the upper triangle as a dummy metric
-    triu = matrix[np.triu_indices_from(matrix, k=1)]
-    return {"mean_connectivity": float(np.mean(triu))}
+    # Modularity (using the greedy modularity communities as a proxy)
+    communities = nx.algorithms.community.greedy_modularity_communities(G)
+    modularity = nx.algorithms.community.modularity(G, communities)
+    metrics["modularity_Q"] = modularity
 
-def compute_dynamic_connectivity(
-    time_series: np.ndarray, window_size: int, step: int
-) -> List[np.ndarray]:
-    """
-    Compute sliding-window dynamic connectivity matrices.
+    # Within‑module degree for each network in network_map
+    for net_name, roi_indices in network_map.items():
+        subgraph = G.subgraph(roi_indices)
+        degrees = dict(subgraph.degree())
+        mean_degree = np.mean(list(degrees.values()))
+        metrics[f"{net_name}_within_degree"] = mean_degree
 
-    Parameters
-    ----------
-    time_series : np.ndarray
-        2D array (timepoints x ROIs).
-    window_size : int
-        Number of TRs in each window.
-    step : int
-        Step size between windows.
+    return metrics
 
-    Returns
-    -------
-    List[np.ndarray]
-        List of correlation matrices for each window.
-    """
+def compute_dynamic_connectivity(time_series: np.array, window_size: int, step: int) -> List[np.array]:
+    """Compute sliding-window dynamic connectivity matrices."""
     n_timepoints = time_series.shape[0]
     windows = []
     for start in range(0, n_timepoints - window_size + 1, step):
-        window_ts = time_series[start : start + window_size, :]
+        window_ts = time_series[start:start + window_size, :]
         corr = np.corrcoef(window_ts.T)
         windows.append(corr)
     return windows
 
-def compute_reconfiguration_rate(dynamic_matrices: List[np.ndarray]) -> float:
-    """
-    Compute a simple reconfiguration rate metric.
+def compute_reconfiguration_rate(dynamic_matrices: List[np.array]) -> float:
+    """Calculate the dynamic reconfiguration rate from sliding-window matrices."""
+    diffs = []
+    for i in range(1, len(dynamic_matrices)):
+        diff = np.abs(dynamic_matrices[i] - dynamic_matrices[i - 1]).mean()
+        diffs.append(diff)
+    return float(np.mean(diffs)) if diffs else 0.0
 
-    This placeholder computes the average Frobenius norm difference
-    between successive windows.
-    """
-    if len(dynamic_matrices) < 2:
-        return 0.0
-    diffs = [
-        np.linalg.norm(dynamic_matrices[i] - dynamic_matrices[i - 1], ord="fro")
-        for i in range(1, len(dynamic_matrices))
-    ]
-    return float(np.mean(diffs))
-
-# ----------------------------------------------------------------------
-# ICC computation
-# ----------------------------------------------------------------------
 def compute_icc(metrics: List[float]) -> float:
-    """
-    Compute the Intraclass Correlation Coefficient (ICC) for a list of
-    metric values obtained across different sliding‑window sizes.
+    """Calculate Intraclass Correlation Coefficient (ICC) for a list of metrics."""
+    # Simplified ICC(3,1) implementation
+    n = len(metrics)
+    if n < 2:
+        return 0.0
+    mean_total = np.mean(metrics)
+    ms_between = np.var(metrics, ddof=1) * n
+    ms_within = np.mean([(m - mean_total) ** 2 for m in metrics])
+    icc = (ms_between - ms_within) / (ms_between + (n - 1) * ms_within)
+    return float(icc)
 
-    The implementation uses the two‑way random effects model (ICC2)
-    provided by the ``pingouin`` library. If ``pingouin`` is not
-    installed, an informative ImportError is raised.
-
-    Parameters
-    ----------
-    metrics : List[float]
-        Metric values (e.g., reconfiguration rates) for each window size.
-
-    Returns
-    -------
-    float
-        The ICC value (between 0 and 1). Higher values indicate greater
-        reliability/stability of the metric across window sizes.
-    """
-    if not metrics:
-        raise ValueError("The metrics list must contain at least one value.")
-
-    try:
-        import pingouin as pg
-    except ImportError as exc:
-        raise ImportError(
-            "The 'pingouin' package is required for ICC computation. "
-            "Install it via 'pip install pingouin'."
-        ) from exc
-
-    # Build a DataFrame compatible with pingouin's intraclass_corr function.
-    # All metrics belong to a single dummy subject; each metric is treated as
-    # a rating from a different rater (i.e., window size).
-    df = pd.DataFrame(
-        {
-            "subject": [1] * len(metrics),          # Dummy subject identifier
-            "rater": list(range(len(metrics))),    # Rater ID = window index
-            "rating": metrics,
-        }
-    )
-
-    icc_df = pg.intraclass_corr(
-        data=df,
-        targets="subject",
-        raters="rater",
-        ratings="rating",
-    )
-
-    # Select the ICC2 (two‑way random effects, single rater) row.
-    icc_row = icc_df.loc[icc_df["Type"] == "ICC2"]
-    if icc_row.empty:
-        raise RuntimeError("Failed to compute ICC2; pingouin returned no result.")
-    icc_value = icc_row["ICC"].values[0]
-    return float(icc_value)
-
-# ----------------------------------------------------------------------
-# Sensitivity analysis (placeholder)
-# ----------------------------------------------------------------------
-def run_sensitivity_analysis(
-    time_series: np.ndarray, window_sizes: List[int]
-) -> Dict[int, float]:
-    """
-    Run sensitivity analysis over a list of window sizes.
-
-    This placeholder computes the ICC of the reconfiguration rate
-    for each window size and returns a mapping from window size to ICC.
-    """
-    results = {}
+def run_sensitivity_analysis(time_series: np.array, window_sizes: List[int]) -> Dict[str, Any]:
+    """Run sensitivity analysis with multiple window sizes to assess stability of dynamic metrics."""
+    reconfig_rates = {}
     for ws in window_sizes:
-        dyn = compute_dynamic_connectivity(time_series, window_size=ws, step=5)
-        rate = compute_reconfiguration_rate(dyn)
-        # For the purpose of this placeholder we treat the single rate as a list
-        # with duplicate values to allow ICC computation (which needs >1 value).
-        icc = compute_icc([rate, rate])
-        results[ws] = icc
-    return results
+        dyn = compute_dynamic_connectivity(time_series, ws, step=5)
+        reconfig_rates[ws] = compute_reconfiguration_rate(dyn)
 
-# ----------------------------------------------------------------------
-# Main entry point (placeholder)
-# ----------------------------------------------------------------------
-def main() -> None:
-    """
-    Placeholder main function for the metrics module.
-    """
-    logging.basicConfig(level=logging.INFO)
-    logging.info("Metrics module loaded. No standalone execution defined.")
+    icc = compute_icc(list(reconfig_rates.values()))
+
+    stability_assessment = "stable" if icc >= 0.7 else "unstable"
+
+    return {
+        "window_sizes": window_sizes,
+        "reconfiguration_rates": reconfig_rates,
+        "icc": icc,
+        "stability_assessment": stability_assessment,
+    }
+
+def main():
+    """Demonstration entry point."""
+    # Generate synthetic data for illustration
+    rng = np.random.default_rng(42)
+    ts = rng.normal(size=(200, 400))
+    result = run_sensitivity_analysis(ts, [20, 30, 40])
+    print(result)
+
+if __name__ == "__main__":
+    main()

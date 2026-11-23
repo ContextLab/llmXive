@@ -1,0 +1,31 @@
+status: verified
+kind: pypi_package
+ref: GEOparse
+access_python: "import os\nimport GEOparse\n\ngse = GEOparse.get_GEO(geo='GSE9655',\
+  \ destdir=os.getcwd())\n\nrecords = []\nfor gsm in gse.gsms.values():\n    rec =\
+  \ {\n        'AccessionID': getattr(gse, 'geo_accession', getattr(gse, 'name', '')),\n\
+  \        'SampleID': gsm.get_accession(),\n        'Organism': gsm.metadata.get('organism_ch1',\
+  \ [''])[0],\n        'Condition': gsm.metadata.get('characteristics_ch1', [''])[0],\n\
+  \        'RawCountMatrix': getattr(gsm, 'table', None),\n        'Metadata': gsm.metadata,\n\
+  \    }\n    records.append(rec)\n\nprint(f'RECORDS={len(records)}')\nif records:\n\
+  \    print('FIELDS=' + ','.join(records[0].keys()))"
+record_count: 14
+sample_fields:
+- AccessionID
+- SampleID
+- Organism
+- Condition
+- RawCountMatrix
+- Metadata
+field_coverage: 0.75
+required_fields:
+- AccessionID
+- SampleID
+- Organism
+- StressType
+- Condition
+- RawCountMatrix
+- Metadata
+- SHA256Checksum
+intent: NCBI GEO Entrez E-utilities Arabidopsis abiotic stress python package dataset
+cache_key: c57b97ea3e40bceba0e374153a705cb546ba0acd9232c256e2ccd2149c86ce69

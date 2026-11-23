@@ -1,0 +1,11 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — the task writes platform-owned path(s) inside the project: `state/` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T003** — The only concrete evidence is a log showing `setup_linting.py` ran without error and printed messages about updating `pyproject.toml` and `.gitignore`, but the actual contents of those files are not provided, and the unit‑test suite that should verify the Ruff/Black (and flake8) configuration failed due to import errors before any linting checks could run. Consequently there is no verifiable artifact confirming that the required linting and formatting tools are correctly configured.
+- **T004** — the task writes platform-owned path(s) inside the project: `state/` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T004b** — declared artifact(s) missing/empty/invalid: src/lib/exceptions.py, src/lib/utils.py
+- **T005** — The `tests/contract/` directory exists, but the required schema files `dataset.schema.yaml`, `descriptor_set.schema.yaml`, and `model_artifact.schema.yaml` are reported as MISSING, so the task’s core deliverable is not present.
+- **T006** — declared artifact(s) missing/empty/invalid: src/lib/config.py
+- **T008** — The test file `tests/contract/test_dataset_schema.py` is present and implements the required schema‑validation checks, but it depends on a schema file `tests/contract/dataset.schema.yaml` (loaded via `load_schema("dataset")`). No such schema artifact is provided, so the test cannot run successfully. Add the missing `dataset.schema.yaml` (or otherwise supply the expected JSON Schema) to satisfy the contract test requirement.

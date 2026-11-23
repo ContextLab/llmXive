@@ -1,0 +1,4 @@
+openml>=0.14
+pandas>=2.0
+requests>=2.0
+# Existing dependencies (numpy, scipy, scikit-learn, etc.) are provided by the platform.

@@ -4,25 +4,26 @@ import time
 import json
 import gc
 import signal
-import argparse
-import psutil
+import random
+import math
 import torch
 import torch.nn as nn
+import torch.optim as optim
 from torch.utils.data import DataLoader
+from typing import Tuple, List, Dict, Optional
+import psutil
+import numpy as np
 from pathlib import Path
-from typing import Optional, Dict, Any
 
-# Import from sibling modules as per API surface
 from models.transformer import TranslationTransformer, count_parameters
-from utils.data_utils import compute_checksum, update_checksums
-from utils.physics_metrics import load_config
+from utils.data_utils import update_checksums
 
 # --- Timeout Handling ---
 class TimeoutError(Exception):
     pass
 
 def timeout_handler(signum, frame):
-    raise TimeoutError("Training timeout exceeded")
+    raise TimeoutError("Training timed out")
 
 def set_timeout(seconds: int):
     signal.signal(signal.SIGALRM, timeout_handler)
@@ -31,170 +32,199 @@ def set_timeout(seconds: int):
 def reset_timeout():
     signal.alarm(0)
 
-# --- Memory Monitoring ---
-def get_peak_memory_mb():
+# --- Memory Tracking ---
+_peak_memory_mb = 0.0
+
+def get_peak_memory_mb() -> float:
     process = psutil.Process(os.getpid())
-    return process.memory_info().rss / (1024 * 1024)
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 * 1024)
 
-_peak_memory = 0.0
-
-def update_peak_memory(current_mb: float):
-    global _peak_memory
-    if current_mb > _peak_memory:
-        _peak_memory = current_mb
+def update_peak_memory():
+    global _peak_memory_mb
+    current = get_peak_memory_mb()
+    if current > _peak_memory_mb:
+        _peak_memory_mb = current
 
 def log_peak_memory():
-    global _peak_memory
-    print(f"[RAM-PEAK-MB]: {_peak_memory:.2f}")
+    global _peak_memory_mb
+    update_peak_memory()
+    print(f"[RAM-PEAK-MB]: {_peak_memory_mb:.2f}")
 
-# --- Dataset Class (Minimal Implementation for Context) ---
+# --- Dataset ---
 class StabilityDataset(torch.utils.data.Dataset):
-    def __init__(self, data_path: str):
+    def __init__(self, parquet_path: str):
         import pandas as pd
-        self.df = pd.read_parquet(data_path)
-        # Assuming columns 'translation_vector' (list/array) and 'label' exist
-        # In a real scenario, we would parse the parquet properly
-        self.data = self.df['translation_vector'].apply(lambda x: torch.tensor(x, dtype=torch.float32)).tolist()
-        self.labels = self.df['label'].tolist()
+        self.df = pd.read_parquet(parquet_path)
+        self.translation_keys = [col for col in self.df.columns if col.startswith('translation')]
+        self.bounds_keys = [col for col in self.df.columns if col.startswith('initial_bounds')]
+        
+        # Convert to tensors
+        self.X_trans = torch.tensor(self.df[self.translation_keys].values, dtype=torch.float32)
+        self.X_bounds = torch.tensor(self.df[self.bounds_keys].values, dtype=torch.float32)
+        self.y = torch.tensor(self.df['stability_label'].values, dtype=torch.float32)
 
     def __len__(self):
-        return len(self.labels)
+        return len(self.df)
 
     def __getitem__(self, idx):
-        return self.data[idx], torch.tensor(self.labels[idx], dtype=torch.float32)
+        return self.X_trans[idx], self.X_bounds[idx], self.y[idx]
 
-# --- Training Functions ---
+def collate_fn(batch):
+    trans, bounds, labels = zip(*batch)
+    return torch.stack(trans), torch.stack(bounds), torch.stack(labels)
+
+# --- Training Utilities ---
 def set_seed(seed: int = 42):
+    random.seed(seed)
+    np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-def train_epoch(model: nn.Module, loader: DataLoader, optimizer: torch.optim.Optimizer, criterion: nn.Module, device: torch.device):
+def train_epoch(model: nn.Module, loader: DataLoader, criterion: nn.Module, optimizer: optim.Optimizer, device: torch.device) -> float:
     model.train()
     total_loss = 0.0
-    for batch_x, batch_y in loader:
-        batch_x = torch.stack(batch_x).to(device) # Shape: (B, Seq, F)
-        batch_y = batch_y.to(device)
-
+    for trans, bounds, labels in loader:
+        trans, bounds, labels = trans.to(device), bounds.to(device), labels.to(device)
+        
         optimizer.zero_grad()
-        outputs = model(batch_x)
-        loss = criterion(outputs, batch_y)
+        outputs = model(trans, bounds)
+        loss = criterion(outputs.squeeze(), labels)
         loss.backward()
         optimizer.step()
+        
         total_loss += loss.item()
-
-        # Update memory stats periodically
-        update_peak_memory(get_peak_memory_mb())
-
+        update_peak_memory()
+    
     return total_loss / len(loader)
 
-def evaluate(model: nn.Module, loader: DataLoader, criterion: nn.Module, device: torch.device):
+def evaluate(model: nn.Module, loader: DataLoader, criterion: nn.Module, device: torch.device) -> Tuple[float, float]:
     model.eval()
     total_loss = 0.0
     correct = 0
     total = 0
+    
     with torch.no_grad():
-        for batch_x, batch_y in loader:
-            batch_x = torch.stack(batch_x).to(device)
-            batch_y = batch_y.to(device)
-
-            outputs = model(batch_x)
-            loss = criterion(outputs, batch_y)
+        for trans, bounds, labels in loader:
+            trans, bounds, labels = trans.to(device), bounds.to(device), labels.to(device)
+            outputs = model(trans, bounds)
+            loss = criterion(outputs.squeeze(), labels)
+            
             total_loss += loss.item()
-
-            preds = (torch.sigmoid(outputs) > 0.5).float()
-            correct += (preds == batch_y).sum().item()
-            total += batch_y.size(0)
-
-            update_peak_memory(get_peak_memory_mb())
-
+            predicted = (torch.sigmoid(outputs.squeeze()) > 0.5).float()
+            correct += (predicted == labels).sum().item()
+            total += labels.size(0)
+            
+            update_peak_memory()
+    
     return total_loss / len(loader), correct / total
 
 def main():
-    parser = argparse.ArgumentParser(description="Train Stability Model")
-    parser.add_argument("--data", type=str, default="data/processed/train.parquet", help="Path to training data")
-    parser.add_argument("--output", type=str, default="data/processed/trained_model.pt", help="Path to save model")
-    parser.add_argument("--epochs", type=int, default=10, help="Number of epochs")
-    parser.add_argument("--batch_size", type=int, default=32, help="Batch size")
-    parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
-    parser.add_argument("--timeout", type=int, default=21600, help="Timeout in seconds (6 hours)")
-    args = parser.parse_args()
+    # Configuration
+    device = torch.device("cpu") # CPU-only as per constraints
+    epochs = 10
+    batch_size = 64
+    learning_rate = 1e-3
+    timeout_seconds = 21600 # 6 hours
+    data_path_train = "data/processed/train.parquet"
+    data_path_test = "data/processed/test.parquet"
+    output_model_path = "data/processed/trained_model.pt"
+    output_log_path = "data/processed/training_log.json"
 
-    # Load config
-    config = load_config("code/config.yaml")
+    print(f"Loading data from {data_path_train}...")
+    train_dataset = StabilityDataset(data_path_train)
+    test_dataset = StabilityDataset(data_path_test)
     
-    # Device setup (CPU only as per constraints)
-    device = torch.device("cpu")
-    print(f"Using device: {device}")
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
-    # Data Loading
-    print(f"Loading data from {args.data}...")
-    dataset = StabilityDataset(args.data)
-    loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    # Model Initialization
+    input_dim_trans = train_dataset.X_trans.shape[1]
+    input_dim_bounds = train_dataset.X_bounds.shape[1]
+    
+    print(f"Initializing TranslationTransformer with trans_dim={input_dim_trans}, bounds_dim={input_dim_bounds}...")
+    model = TranslationTransformer(
+        trans_input_dim=input_dim_trans,
+        bounds_input_dim=input_dim_bounds,
+        d_model=64,
+        nhead=4,
+        num_layers=4,
+        dim_feedforward=128,
+        dropout=0.1
+    ).to(device)
 
-    # Model Setup
-    # Assuming input dim is based on translation vector length (e.g., 3) and sequence length
-    # We need to infer or set these. For this implementation, we assume a fixed config or derive from first batch.
-    # Let's assume sequence length 10 and feature dim 3 for translation vectors.
-    input_dim = 3 
-    seq_len = 10 
-    model = TranslationTransformer(input_dim=input_dim, seq_len=seq_len, hidden_dim=64, num_layers=4, num_heads=4, dropout=0.1)
-    model = model.to(device)
-
-    # Parameter Count Verification (T025 Requirement)
     param_count = count_parameters(model)
     print(f"Model Parameter Count: {param_count:,}")
     
     if param_count >= 10_000_000:
-        raise ValueError(f"Model has {param_count:,} parameters, which exceeds the 10,000,000 limit.")
-    
-    print("Parameter count verified: < 10,000,000")
+        raise ValueError(f"Model parameter count ({param_count}) exceeds limit of 10,000,000.")
 
-    # Loss and Optimizer
     criterion = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # Timeout Setup
-    set_timeout(args.timeout)
-
+    # Training Loop
+    set_timeout(timeout_seconds)
     try:
-        print("Starting training...")
-        for epoch in range(args.epochs):
-            start_time = time.time()
-            train_loss = train_epoch(model, loader, optimizer, criterion, device)
-            val_loss, val_acc = evaluate(model, loader, criterion, device)
-            end_time = time.time()
-
-            print(f"Epoch {epoch+1}/{args.epochs} - Loss: {train_loss:.4f} - Val Loss: {val_loss:.4f} - Val Acc: {val_acc:.4f} - Time: {end_time - start_time:.2f}s")
-            log_peak_memory() # Log memory usage periodically
-
-        print("Training completed successfully.")
-    except TimeoutError:
-        print("Training timed out.")
+        print(f"Starting training for {epochs} epochs on CPU...")
+        start_time = time.time()
+        
+        history = {'train_loss': [], 'test_loss': [], 'test_acc': []}
+        
+        for epoch in range(1, epochs + 1):
+            train_loss = train_epoch(model, train_loader, criterion, optimizer, device)
+            test_loss, test_acc = evaluate(model, test_loader, criterion, device)
+            
+            history['train_loss'].append(train_loss)
+            history['test_loss'].append(test_loss)
+            history['test_acc'].append(test_acc)
+            
+            update_peak_memory()
+            print(f"Epoch {epoch}/{epochs} - Train Loss: {train_loss:.4f} - Test Loss: {test_loss:.4f} - Test Acc: {test_acc:.4f}")
+        
+        elapsed_time = time.time() - start_time
+        print(f"Training completed in {elapsed_time:.2f} seconds.")
+        
+    except TimeoutError as e:
+        print(f"ERROR: {e}")
         sys.exit(1)
     finally:
         reset_timeout()
 
-    # Save Model (T024)
-    print(f"Saving model to {args.output}...")
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
+    # --- T024: Save Model and Log Parameter Count ---
+    print(f"Saving trained model to {output_model_path}...")
     torch.save({
+        'epoch': epochs,
         'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
         'param_count': param_count,
-        'config': {
-            'input_dim': input_dim,
-            'seq_len': seq_len,
-            'hidden_dim': 64,
-            'num_layers': 4,
-            'num_heads': 4
-        }
-    }, args.output)
+        'input_trans_dim': input_dim_trans,
+        'input_bounds_dim': input_dim_bounds,
+        'history': history
+    }, output_model_path)
 
-    # Update Checksums (T006 dependency)
-    if os.path.exists("data/checksums.json"):
-        update_checksums("data/checksums.json", args.output)
+    # Log parameter count explicitly
+    log_entry = {
+        "model_path": output_model_path,
+        "total_parameters": param_count,
+        "training_epochs": epochs,
+        "final_test_accuracy": history['test_acc'][-1],
+        "final_test_loss": history['test_loss'][-1],
+        "peak_memory_mb": _peak_memory_mb
+    }
+    
+    with open(output_log_path, 'w') as f:
+        json.dump(log_entry, f, indent=2)
+    
+    print(f"Model saved successfully. Parameter count: {param_count:,}")
+    print(f"Training log saved to {output_log_path}")
 
-    print(f"Model saved. Total parameters: {param_count:,}")
+    # Update checksums for the new model file
+    update_checksums(output_model_path)
+    update_checksums(output_log_path)
+
+    # Final Memory Log
+    log_peak_memory()
 
 if __name__ == "__main__":
     main()

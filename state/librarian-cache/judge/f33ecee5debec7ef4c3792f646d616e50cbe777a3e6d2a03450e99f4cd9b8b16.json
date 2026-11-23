@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2001.09641",
+  "judged_at": "2026-10-20T12:26:54Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"identifying stimulus-driven neural activity patterns in multi-patient \" biology",
+  "rationale": "The user's question concerns identifying stimulus-driven neural activity patterns in multi-patient (clinical neuroimaging) data, whereas this paper is about cultured neural networks and spiking neural networks learning stimulus-avoidance behavior via STDP — a distinct construct sharing only the keyword \"stimulus\" and \"neural,\" with no connection to multi-patient stimulus-response pattern identification.",
+  "relevant": false
+}

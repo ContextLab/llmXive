@@ -1,0 +1,22 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Report Schema
+type: object
+properties:
+  semi_mae:
+    type: number
+    description: "Mean Absolute Error of the Semi-Empirical model"
+  dft_mae:
+    type: number
+    description: "Mean Absolute Error of the DFT model"
+  t_test_p_value:
+    type: number
+    description: "Paired t-test p-value (or Wilcoxon p-value if normality fails)"
+  semi_mae_threshold_met:
+    type: boolean
+    description: "True if semi_mae <= 2.0"
+required:
+  - semi_mae
+  - dft_mae
+  - t_test_p_value
+  - semi_mae_threshold_met
+additionalProperties: false

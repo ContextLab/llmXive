@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-307-machine-learning-prediction-of-crack-pro
-last_run_id: dd5d6010-3c5c-4141-a315-eba8cc7065c6
+last_run_id: 02a702e8-59c8-491a-a32f-97643c79bd0a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-307-machine-learning-prediction-of-crack-pro/specs/001-machine-learning-prediction-of-crack-pro
 title: Machine Learning Prediction of Crack Propagation Rates in Metals
-updated_at: '2026-07-06T02:32:26.740686Z'
+updated_at: '2026-10-10T10:21:19.554631Z'

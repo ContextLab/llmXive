@@ -1,57 +1,34 @@
 import os
 import json
 from pathlib import Path
+from code.config import get_config
 
 def main():
-    """
-    Creates the required project directory structure for the disorder study.
-    Ensures all necessary folders exist and initializes the provenance metadata file.
-    """
-    # Determine the project root relative to this script's location
-    # The script is at code/setup_data_dirs.py, so root is parent of 'code'
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
-
-    # Define the directory structure to create
-    dirs = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/metadata",
-        "tests",
-        "docs",
-        "specs"
+    """Main entry point for ensuring data directories exist."""
+    config = get_config()
+    
+    # Ensure all data directories exist
+    data_dirs = [
+        config["DATA_RAW_PATH"],
+        config["DATA_PROCESSED_PATH"],
+        config["DATA_METADATA_PATH"],
+        config["FIGURES_PATH"]
     ]
-
-    created = []
-    for d in dirs:
-        full_path = project_root / d
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(str(full_path.relative_to(project_root)))
-        else:
-            # Ensure it is a directory
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
-
-    # Initialize the provenance metadata file if it doesn't exist
-    metadata_dir = project_root / "data" / "metadata"
-    provenance_file = metadata_dir / "provenance.json"
     
-    if not provenance_file.exists():
-        initial_data = {
-            "version": "1.0.0",
-            "created_at": "2026-06-07T00:00:00Z",
-            "entries": []
-        }
-        with open(provenance_file, 'w') as f:
-            json.dump(initial_data, f, indent=2)
-        created.append("data/metadata/provenance.json")
+    for dir_path in data_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Ensured directory exists: {dir_path}")
     
-    if created:
-        print(f"Created directories and files: {', '.join(created)}")
-    else:
-        print("All required directories and files already exist.")
+    # Create a metadata file to confirm setup
+    metadata_file = config["DATA_METADATA_PATH"] / "setup_timestamp.json"
+    with open(metadata_file, 'w') as f:
+        json.dump({
+            "setup_complete": True,
+            "timestamp": os.popen("date").read().strip()
+        }, f, indent=2)
+    
+    print(f"Setup metadata written to {metadata_file}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

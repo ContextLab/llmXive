@@ -4,16 +4,13 @@ from pathlib import Path
 
 def main():
     """
-    Creates the project directory structure for PROJ-548.
-    Ensures all required folders for data, analysis, utils, tests, and state exist.
+    Create the project directory structure as defined in the implementation plan.
+    
+    Addresses FR-001, SC-004.
     """
-    # Define the project root relative to this script's location
-    # The script is in code/, so root is parent of code/
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-
-    # Define all required directories relative to project root
-    required_dirs = [
+    # Define the relative paths to create
+    # All paths are relative to the project root (assumed to be the current working directory)
+    directories = [
         "src/data",
         "src/analysis",
         "src/utils",
@@ -24,40 +21,42 @@ def main():
         "data/processed",
         "data/results",
         "results",
-        "state",
-        "figures", # Added for visualization outputs as per common pipeline needs
-        "docs",    # Added for documentation
+        "state"
     ]
 
     created_count = 0
     existing_count = 0
 
-    for dir_path_str in required_dirs:
-        full_path = project_root / dir_path_str
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {full_path}")
+    for dir_path in directories:
+        path = Path(dir_path)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
             created_count += 1
         else:
-            existing_count += 1
+            # Check if it is indeed a directory
+            if path.is_dir():
+                print(f"Directory already exists: {dir_path}")
+                existing_count += 1
+            else:
+                print(f"ERROR: Path exists but is not a directory: {dir_path}")
+                sys.exit(1)
 
-    print(f"\nStructure setup complete.")
-    print(f"Directories created: {created_count}")
-    print(f"Directories already existing: {existing_count}")
-    print(f"Project root: {project_root}")
+    print(f"\nProject structure initialization complete.")
+    print(f"  Created: {created_count} new directories")
+    print(f"  Existing: {existing_count} directories")
 
-    # Verify the structure by listing the root contents
-    print("\nProject Directory Tree (Root Level):")
-    for item in sorted(project_root.iterdir()):
-        if item.is_dir():
-            print(f"  [DIR] {item.name}/")
-            # List immediate subdirs for key directories
-            if item.name in ["src", "data", "tests", "results", "state"]:
-                for sub in sorted(item.iterdir()):
-                    if sub.is_dir():
-                        print(f"    [DIR] {item.name}/{sub.name}/")
-
-    return 0
+    # Verify structure
+    missing = []
+    for dir_path in directories:
+        if not Path(dir_path).is_dir():
+            missing.append(dir_path)
+    
+    if missing:
+        print(f"\nFATAL: The following directories were not created: {missing}")
+        sys.exit(1)
+    else:
+        print("Verification passed: All required directories exist.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

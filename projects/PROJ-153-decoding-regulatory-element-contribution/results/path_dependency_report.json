@@ -1,0 +1,133 @@
+{
+  "task_id": "T62b",
+  "description": "Path Dependency Verification",
+  "timestamp": "new",
+  "code_analysis": {
+    "scripts_analyzed": 15,
+    "total_unique_paths": 42,
+    "paths": [
+      "data/verified_accessions.yaml",
+      "data/manifest.yaml",
+      "data/raw/*.fastq.gz",
+      "data/processed/CRE_merged.bed",
+      "data/processed/peak_signal_matrix.tsv",
+      "data/processed/null_regions.bed",
+      "data/processed/null_region_signal.bed",
+      "data/processed/delta_peak_signal.tsv",
+      "data/processed/vif_flags.tsv",
+      "data/processed/motif_validation_flags.tsv",
+      "data/processed/hic_validation_flags.tsv",
+      "data/processed/cre_filtered.tsv",
+      "data/processed/weighted_delta_signal.tsv",
+      "data/processed/lmm_results.tsv",
+      "data/processed/hic_matrix_10kb.cool",
+      "plan.md",
+      "tasks.md",
+      "specs/001-yeast-cre-analysis/spec.md",
+      "results/CRE_ranked_heatshock.md",
+      "results/CRE_ranked_osmotic.md",
+      "results/CRE_ranked_oxidative.md",
+      "results/fdr_sweep_summary.tsv",
+      "results/permutation_pvalue.csv",
+      "results/variance_explained.tsv",
+      "results/go_enrichment.tsv",
+      "results/bias_sensitivity.csv",
+      "results/summit_match_stats.tsv",
+      "results/Statistical_summary.pdf",
+      "results/traceability_manifest.json",
+      "results/performance_report.csv",
+      "results/path_dependency_report.json",
+      "results/syntax_validation.log",
+      "results/dry_run_manifest.json",
+      "tracks/heatshock_CRE_signal.bw",
+      "tracks/osmotic_CRE_signal.bw",
+      "tracks/oxidative_CRE_signal.bw",
+      "logs/pipeline.log",
+      "data/raw/eqtl/*.tsv",
+      "data/processed/peaks_fdr_0.01.bed",
+      "data/processed/peaks_fdr_0.05.bed",
+      "data/processed/peaks_fdr_0.10.bed",
+      "code/03_annotate.py"
+    ],
+    "path_sources": {
+      "data/verified_accessions.yaml": ["00_verify_manifest.py", "01_stream_eqtl.py"],
+      "data/manifest.yaml": ["00_verify_manifest.py", "01_stream_eqtl.py", "01_download.sh"],
+      "data/processed/CRE_merged.bed": ["03_annotate.py", "04_filter.py"],
+      "data/processed/peak_signal_matrix.tsv": ["04_filter.py", "05b_check_collinearity.py"],
+      "data/processed/delta_peak_signal.tsv": ["05b_compute_delta_signal.py", "05c_compute_weights.py"],
+      "data/processed/vif_flags.tsv": ["05b_check_collinearity.py", "05c_compute_weights.py"],
+      "data/processed/cre_filtered.tsv": ["04_filter.py", "05c_compute_weights.py"],
+      "results/CRE_ranked_heatshock.md": ["10_generate_reports_with_r2.py", "08_visualize.py"],
+      "results/Statistical_summary.pdf": ["10_generate_reports_with_r2.py"],
+      "tracks/heatshock_CRE_signal.bw": ["08_visualize.py"]
+    }
+  },
+  "validation_results": {
+    "inputs": {
+      "data/verified_accessions.yaml": {"exists": true, "reason": "Exists"},
+      "data/manifest.yaml": {"exists": true, "reason": "Exists"},
+      "data/raw/*.fastq.gz": {"exists": false, "reason": "No matches for wildcard pattern data/raw/*.fastq.gz"},
+      "data/processed/CRE_merged.bed": {"exists": false, "reason": "Not found"},
+      "data/processed/peak_signal_matrix.tsv": {"exists": false, "reason": "Not found"},
+      "data/processed/null_regions.bed": {"exists": false, "reason": "Not found"},
+      "data/processed/null_region_signal.bed": {"exists": false, "reason": "Not found"},
+      "data/processed/delta_peak_signal.tsv": {"exists": false, "reason": "Not found"},
+      "data/processed/vif_flags.tsv": {"exists": false, "reason": "Not found"},
+      "data/processed/motif_validation_flags.tsv": {"exists": false, "reason": "Not found"},
+      "data/processed/hic_validation_flags.tsv": {"exists": false, "reason": "Not found"},
+      "data/processed/cre_filtered.tsv": {"exists": false, "reason": "Not found"},
+      "data/processed/weighted_delta_signal.tsv": {"exists": false, "reason": "Not found"},
+      "data/processed/lmm_results.tsv": {"exists": false, "reason": "Not found"},
+      "data/processed/hic_matrix_10kb.cool": {"exists": false, "reason": "Not found"},
+      "plan.md": {"exists": true, "reason": "Exists"},
+      "tasks.md": {"exists": true, "reason": "Exists"},
+      "specs/001-yeast-cre-analysis/spec.md": {"exists": true, "reason": "Exists"}
+    },
+    "outputs": {
+      "results/CRE_ranked_heatshock.md": {"exists": false, "reason": "Expected output (parent dir exists): results/CRE_ranked_heatshock.md"},
+      "results/CRE_ranked_osmotic.md": {"exists": false, "reason": "Expected output (parent dir exists): results/CRE_ranked_osmotic.md"},
+      "results/CRE_ranked_oxidative.md": {"exists": false, "reason": "Expected output (parent dir exists): results/CRE_ranked_oxidative.md"},
+      "results/fdr_sweep_summary.tsv": {"exists": false, "reason": "Expected output (parent dir exists): results/fdr_sweep_summary.tsv"},
+      "results/permutation_pvalue.csv": {"exists": false, "reason": "Expected output (parent dir exists): results/permutation_pvalue.csv"},
+      "results/variance_explained.tsv": {"exists": false, "reason": "Expected output (parent dir exists): results/variance_explained.tsv"},
+      "results/go_enrichment.tsv": {"exists": false, "reason": "Expected output (parent dir exists): results/go_enrichment.tsv"},
+      "results/bias_sensitivity.csv": {"exists": false, "reason": "Expected output (parent dir exists): results/bias_sensitivity.csv"},
+      "results/summit_match_stats.tsv": {"exists": false, "reason": "Expected output (parent dir exists): results/summit_match_stats.tsv"},
+      "results/Statistical_summary.pdf": {"exists": false, "reason": "Expected output (parent dir exists): results/Statistical_summary.pdf"},
+      "results/traceability_manifest.json": {"exists": false, "reason": "Expected output (parent dir exists): results/traceability_manifest.json"},
+      "results/performance_report.csv": {"exists": false, "reason": "Expected output (parent dir exists): results/performance_report.csv"},
+      "results/path_dependency_report.json": {"exists": true, "reason": "Exists"},
+      "results/syntax_validation.log": {"exists": false, "reason": "Expected output (parent dir exists): results/syntax_validation.log"},
+      "results/dry_run_manifest.json": {"exists": false, "reason": "Expected output (parent dir exists): results/dry_run_manifest.json"},
+      "tracks/heatshock_CRE_signal.bw": {"exists": false, "reason": "Expected output (parent dir exists): tracks/heatshock_CRE_signal.bw"},
+      "tracks/osmotic_CRE_signal.bw": {"exists": false, "reason": "Expected output (parent dir exists): tracks/osmotic_CRE_signal.bw"},
+      "tracks/oxidative_CRE_signal.bw": {"exists": false, "reason": "Expected output (parent dir exists): tracks/oxidative_CRE_signal.bw"},
+      "logs/pipeline.log": {"exists": false, "reason": "Expected output (parent dir exists): logs/pipeline.log"}
+    },
+    "dynamic_patterns": {
+      "data/processed/peaks_fdr_([\\d.]+)\\.bed": {
+        "matches": [],
+        "count": 0
+      },
+      "results/CRE_ranked_(\\w+)\\.md": {
+        "matches": [],
+        "count": 0
+      },
+      "tracks/(\\w+)_CRE_signal\\.bw": {
+        "matches": [],
+        "count": 0
+      }
+    },
+    "summary": {
+      "total_inputs": 18,
+      "missing_inputs": 13,
+      "total_outputs": 19,
+      "missing_outputs": 18
+    }
+  },
+  "status": "FAIL",
+  "recommendations": [
+    "Missing 13 input files. Ensure data is downloaded: ['data/raw/*.fastq.gz', 'data/processed/CRE_merged.bed', 'data/processed/peak_signal_matrix.tsv', 'data/processed/null_regions.bed', 'data/processed/null_region_signal.bed', 'data/processed/delta_peak_signal.tsv', 'data/processed/vif_flags.tsv', 'data/processed/motif_validation_flags.tsv', 'data/processed/hic_validation_flags.tsv', 'data/processed/cre_filtered.tsv', 'data/processed/weighted_delta_signal.tsv', 'data/processed/lmm_results.tsv', 'data/processed/hic_matrix_10kb.cool']",
+    "Missing 18 expected output files. Run pipeline to generate: ['results/CRE_ranked_heatshock.md', 'results/CRE_ranked_osmotic.md', 'results/CRE_ranked_oxidative.md', 'results/fdr_sweep_summary.tsv', 'results/permutation_pvalue.csv', 'results/variance_explained.tsv', 'results/go_enrichment.tsv', 'results/bias_sensitivity.csv', 'results/summit_match_stats.tsv', 'results/Statistical_summary.pdf', 'results/traceability_manifest.json', 'results/performance_report.csv', 'results/syntax_validation.log', 'results/dry_run_manifest.json', 'tracks/heatshock_CRE_signal.bw', 'tracks/osmotic_CRE_signal.bw', 'tracks/oxidative_CRE_signal.bw', 'logs/pipeline.log']"
+  ]
+}

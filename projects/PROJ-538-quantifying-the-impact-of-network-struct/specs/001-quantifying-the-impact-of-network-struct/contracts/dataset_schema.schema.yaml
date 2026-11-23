@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AtomicSnapshot Schema"
+description: "Schema for atomic snapshot data (real or synthetic)."
+type: "object"
+properties:
+  snapshot_id:
+    type: "string"
+    description: "Unique identifier for the snapshot."
+  alloy_type:
+    type: "string"
+    enum: ["Cu-Ni", "Au-Ag"]
+    description: "Type of alloy system."
+  atomic_positions:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+      minItems: 3
+      maxItems: 3
+    description: "List of 3D coordinates for each atom."
+  species:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of atomic species corresponding to positions."
+  thermal_conductivity:
+    type: "number"
+    minimum: 0
+    description: "Thermal conductivity in W/m·K."
+  source:
+    type: "string"
+    enum: ["real", "synthetic"]
+    description: "Origin of the data."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of creation."
+required:
+  - snapshot_id
+  - alloy_type
+  - atomic_positions
+  - species
+  - thermal_conductivity
+  - source
+  - timestamp
+additionalProperties: false

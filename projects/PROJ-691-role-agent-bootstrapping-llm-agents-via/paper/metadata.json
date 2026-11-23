@@ -36,5 +36,11 @@
     "small.pdf",
     "title.pdf",
     "visualize.pdf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "dc4cdb53dc2ce1c98676650ddfe31ffbbaf2ebe13812ec141549d0c8929279b3",
+      "bytes": 3268281
+    }
+  }
 }

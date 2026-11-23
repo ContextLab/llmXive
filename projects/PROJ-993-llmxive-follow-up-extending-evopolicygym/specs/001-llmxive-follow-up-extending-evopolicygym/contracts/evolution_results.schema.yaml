@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvolutionResults"
+description: "Schema for the final evolution results CSV."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the evolutionary run."
+  seed:
+    type: "integer"
+    description: "Random seed used for this run."
+  condition:
+    type: "string"
+    description: "Experimental condition."
+    enum:
+      - "baseline"
+      - "counterfactual"
+  generalization_score:
+    type: "number"
+    description: "Performance score on the dynamic-shift test set."
+  complexity:
+    type: "number"
+    description: "Cyclomatic complexity of the evolved policy."
+  branch_count:
+    type: "integer"
+    description: "Number of conditional branches in the policy."
+  generation_errors:
+    type: "integer"
+    description: "Count of generation errors encountered during evolution."
+required:
+  - "run_id"
+  - "seed"
+  - "condition"
+  - "generalization_score"
+  - "complexity"
+  - "branch_count"
+  - "generation_errors"

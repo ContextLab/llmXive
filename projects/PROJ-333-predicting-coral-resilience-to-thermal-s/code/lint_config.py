@@ -1,154 +1,252 @@
 """
-Configuration for linting (ruff) and formatting (black) tools.
+Linting and Formatting Configuration Generator for llmXive Project.
 
-This module centralizes configuration settings to ensure consistency
-across the project. It generates configuration files for ruff and black.
+This module generates configuration files for Ruff (replacing flake8/pylint)
+and Black/isort to ensure consistent code style across the project.
 """
 import os
 import tomlkit
 import tomli_w
 import json
+from pathlib import Path
+
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).parent.parent
 
 def get_ruff_config():
-    """Return ruff configuration dictionary."""
+    """
+    Returns a dictionary representing the Ruff configuration.
+    Replaces flake8 and pylint with a modern, fast linter.
+    """
     return {
-        "lint": {
-            "select": [
-                "E",      # pycodestyle errors
-                "W",      # pycodestyle warnings
-                "F",      # pyflakes
-                "I",      # isort
-                "B",      # flake8-bugbear
-                "C4",     # flake8-comprehensions
-                "UP",     # pyupgrade
-            ],
-            "ignore": [
-                "E501",   # Line too long (handled by black)
-                "B008",   # Do not perform function call in argument defaults
-            ],
-            "unfixable": ["F401"], # Unused imports
-        },
+        "target-version": "py39",
         "line-length": 88,
-        "target-version": "py311",
+        "select": [
+            "E",   # pycodestyle errors
+            "W",   # pycodestyle warnings
+            "F",   # Pyflakes
+            "I",   # isort (sorting)
+            "C",   # flake8-comprehensions
+            "B",   # flake8-bugbear
+            "UP",  # pyupgrade
+            "N",   # pep8-naming
+            "ANN", # flake8-annotations (optional strictness)
+            "S",   # flake8-bandit (security)
+            "A",   # flake8-builtins
+            "COM", # flake8-commas
+            "C4",  # flake8-comprehensions
+            "DTZ", # flake8-datetimez
+            "T10", # flake8-debugger
+            "EXE", # flake8-executable
+            "ISC", # flake8-implicit-str-concat
+            "ICN", # flake8-import-conventions
+            "PIE", # flake8-pie
+            "PT",  # flake8-pytest-style
+            "Q",   # flake8-quotes
+            "RSE", # flake8-raise
+            "RET", # flake8-return
+            "SIM", # flake8-simplify
+            "TCH", # flake8-type-checking
+            "ARG", # flake8-unused-arguments
+            "PTH", # flake8-use-pathlib
+            "ERA", # eradicate
+            "PL",  # Pylint
+            "TRY", # tryceratops
+            "FLY", # flynt
+            "NPY", # NumPy-specific rules
+            "PERF",# Perflint
+            "RUF"  # Ruff-specific rules
+        ],
+        "ignore": [
+            "ANN101", # Missing type annotation for self
+            "ANN102", # Missing type annotation for cls
+            "ANN204", # Missing return type annotation for special method __init__
+            "S101",   # Use of assert detected (common in tests)
+            "S105",   # Possible hardcoded password
+            "S106",   # Possible hardcoded password
+            "S107",   # Possible hardcoded password
+            "E501",   # Line too long (handled by Black)
+            "COM812", # Trailing comma missing (conflict with Black)
+            "ISC001", # Implicit string concatenation (conflict with Black)
+            "PLR0913",# Too many arguments in function definition
+            "PLR2004",# Magic value used in comparison
+            "B905",   # zip() without an explicit strict= parameter (Python 3.10+)
+        ],
+        "exclude": [
+            ".git",
+            "__pycache__",
+            "build",
+            "dist",
+            "*.egg-info",
+            "venv",
+            ".venv",
+            "data",
+            "docs",
+            "migrations"
+        ],
+        "per-file-ignores": {
+            "tests/*": [
+                "S101", # Assert allowed in tests
+                "ANN",  # Annotations less critical in tests
+                "D103"  # Missing docstring in public function
+            ],
+            "code/utils/errors.py": [
+                "D105"  # Missing docstring in magic method
+            ]
+        },
+        "isort": {
+            "known-first-party": ["config", "data", "models", "utils", "ingest", "quant", "dge_analysis", "viz", "enrichment"],
+            "force-sort-within-sections": true,
+            "lines-after-imports": 2
+        },
+        "pydocstyle": {
+            "convention": "numpy"
+        },
+        "mccabe": {
+            "max-complexity": 12
+        }
     }
 
 def get_black_config():
-    """Return black configuration dictionary."""
+    """
+    Returns a dictionary representing the Black configuration.
+    """
     return {
         "line-length": 88,
-        "target-version": ["py311"],
-        "include": r'\.pyi?$',
-        "exclude": r'''
-        /(
-            \.git
-            | \.hg
-            | \.mypy_cache
-            | \.tox
-            | \.venv
-            | _build
-            | buck-out
-            | build
-            | dist
-        )/
-        ''',
+        "target-version": ["py39", "py310", "py311"],
+        "include": "\\.pyi?$",
+        "exclude": """
+            /(
+                \\.git
+              | \\.hg
+              | \\.mypy_cache
+              | \\.tox
+              | \\.venv
+              | _build
+              | buck-out
+              | build
+              | dist
+              | data
+            )/
+        """,
+        "skip-string-normalization": false,
+        "preview": true
     }
 
-def generate_ruff_toml(root_dir=".", filename="ruff.toml"):
-    """Generate a ruff.toml file with the current configuration."""
+def generate_ruff_toml():
+    """
+    Generates the ruff.toml configuration file.
+    """
     config = get_ruff_config()
-    path = os.path.join(root_dir, filename)
+    # Convert to TOML format manually or via tomlkit
+    # Using tomlkit for better formatting control
+    doc = tomlkit.document()
+    
+    # Add target-version as an array
+    if "target-version" in config:
+        doc["target-version"] = config.pop("target-version")
+    
+    # Add simple values
+    for key, value in config.items():
+        if key == "exclude":
+            doc[key] = value
+        elif key == "select" or key == "ignore":
+            doc[key] = value
+        elif key == "per-file-ignores":
+            doc[key] = value
+        elif key == "isort":
+            doc["isort"] = value
+        elif key == "pydocstyle":
+            doc["pydocstyle"] = value
+        elif key == "mccabe":
+            doc["mccabe"] = value
+    
+    # Specific handling for ruff.toml structure
+    # Ruff prefers specific sections
+    output = tomlkit.document()
+    output["target-version"] = config.get("target-version", "py39")
+    output["line-length"] = config.get("line-length", 88)
+    output["select"] = config.get("select", [])
+    output["ignore"] = config.get("ignore", [])
+    output["exclude"] = config.get("exclude", [])
+    
+    if "per-file-ignores" in config:
+        output["per-file-ignores"] = config["per-file-ignores"]
+    
+    if "isort" in config:
+        output["isort"] = config["isort"]
+    
+    if "pydocstyle" in config:
+        output["pydocstyle"] = config["pydocstyle"]
+    
+    if "mccabe" in config:
+        output["mccabe"] = config["mccabe"]
+
+    path = PROJECT_ROOT / "ruff.toml"
     with open(path, "w") as f:
-        # Using tomlkit for pretty printing, or simple string conversion
-        # Since tomlkit might not be in deps, let's write manually for safety
-        # or use a simple approach if tomlkit is not guaranteed.
-        # However, T002 added dependencies. Let's assume we can write a simple TOML.
-        # To be safe and dependency-light, we construct the string.
-        
-        f.write("# Ruff configuration\n")
-        f.write(f'line-length = {config["line-length"]}\n')
-        f.write(f'target-version = "{config["target-version"]}"\n\n')
-        
-        f.write('[lint]\n')
-        f.write('select = [\n')
-        for rule in config["lint"]["select"]:
-            f.write(f'    "{rule}",\n')
-        f.write(']\n')
-        
-        f.write('ignore = [\n')
-        for rule in config["lint"]["ignore"]:
-            f.write(f'    "{rule}",\n')
-        f.write(']\n')
-        
-        f.write('unfixable = [\n')
-        for rule in config["lint"]["unfixable"]:
-            f.write(f'    "{rule}",\n')
-        f.write(']\n')
+        f.write(tomlkit.dumps(output))
+    
     return path
 
-def generate_pyproject_toml(root_dir=".", filename="pyproject.toml"):
+def generate_pyproject_toml():
     """
-    Update or create pyproject.toml with Black configuration.
-    Assumes a basic pyproject.toml structure or creates the tool section.
+    Generates or updates pyproject.toml with Black and isort settings.
     """
-    path = os.path.join(root_dir, filename)
+    path = PROJECT_ROOT / "pyproject.toml"
+    
+    if path.exists():
+        with open(path, "rb") as f:
+            try:
+                import tomli
+                doc = tomli.load(f)
+            except ImportError:
+                # Fallback if tomli not installed, assume simple structure
+                doc = {}
+    else:
+        doc = {}
+    
+    # Ensure tool sections exist
+    if "tool" not in doc:
+        doc["tool"] = {}
+    
+    # Add Black config
     black_config = get_black_config()
+    doc["tool"]["black"] = {
+        "line-length": black_config["line-length"],
+        "target-version": black_config["target-version"],
+        "include": black_config["include"],
+        "exclude": black_config["exclude"].strip(),
+        "skip-string-normalization": black_config["skip-string-normalization"]
+    }
     
-    # Simple approach: Append or create section. 
-    # For robustness in a script, we might read existing content.
-    # But for this task, generating a standard config file is sufficient.
+    # Add isort config
+    ruff_config = get_ruff_config()
+    if "isort" in ruff_config:
+        doc["tool"]["isort"] = ruff_config["isort"]
     
-    content = f"""[tool.black]
-line-length = {black_config["line-length"]}
-target-version = ['py311']
-include = {black_config["include"]}
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
-"""
-    # If file exists, we should ideally merge, but for T003 setup,
-    # writing a standard config block is the goal. 
-    # We will overwrite if it's just for the tool section or append carefully.
-    # To be safe and simple as per "extend, don't re-author" without complex parsing:
-    # We'll write the tool.black section. If pyproject.toml exists, we assume
-    # the user or a previous step handles merging, or we overwrite if it's small.
-    # Given the constraint "Extend, don't re-author", and T002 created deps,
-    # we will write a fresh pyproject.toml if it doesn't exist, or append the tool section.
-    
-    if os.path.exists(path):
-        with open(path, "r") as f:
-            existing = f.read()
-        if "[tool.black]" not in existing:
-            with open(path, "a") as f:
-                f.write("\n" + content)
-        return path
-    
+    # Write back
     with open(path, "w") as f:
-        f.write(content)
+        import tomli_w
+        f.write(tomli_w.dumps(doc))
+    
     return path
 
 def main():
-    """Main entry point to generate configuration files."""
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    """
+    Main entry point to generate all linting and formatting configuration files.
+    """
+    print("Generating Ruff configuration...")
+    ruff_path = generate_ruff_toml()
+    print(f"  Created: {ruff_path}")
     
-    print(f"Generating configuration files in {root}...")
+    print("Generating/Updating pyproject.toml (Black & isort)...")
+    pyproject_path = generate_pyproject_toml()
+    print(f"  Updated: {pyproject_path}")
     
-    ruff_path = generate_ruff_toml(root)
-    print(f"Created: {ruff_path}")
-    
-    pyproject_path = generate_pyproject_toml(root)
-    print(f"Updated: {pyproject_path}")
-    
-    print("Configuration complete. Run 'ruff check .' and 'black .' to apply.")
+    print("\nConfiguration complete.")
+    print("To run linter:   ruff check .")
+    print("To format code:  black .")
+    print("To sort imports: ruff check --select I .")
 
 if __name__ == "__main__":
     main()

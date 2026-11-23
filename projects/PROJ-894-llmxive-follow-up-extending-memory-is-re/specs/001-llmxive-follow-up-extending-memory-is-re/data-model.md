@@ -2,77 +2,70 @@
 
 ## Overview
 
-This document defines the data structures used throughout the project, ensuring consistency between data loading, processing, and analysis. All data is stored in `data/` with raw data preserved and processed data derived.
+This document defines the data structures used for the benchmark execution, including the input graph representation, execution logs, and statistical outputs. All data is stored in JSON/CSV formats with strict schema validation.
 
-## Input Data
+## Entities
 
 ### 1. Task
-A single reasoning query from the LoCoMo benchmark.
-- **Attributes**:
-  - `task_id`: Unique identifier (string).
-  - `question`: The query string.
-  - `context`: The supporting text/context.
-  - `ground_truth`: The expected answer.
-  - `source`: "LoCoMo".
+A single reasoning query.
+- `task_id`: Unique identifier (string).
+- `question`: The multi-hop question (string).
+- `context`: The text context from which the graph is derived (string).
+- `ground_truth`: The expected answer (string).
 
-### 2. Graph
-A directed graph representing the memory structure for a task.
-- **Attributes**:
-  - `task_id`: Foreign key to Task.
-  - `nodes`: List of node objects (fact, id).
-  - `edges`: List of edge objects (source_id, target_id, confidence).
-  - `noise_level`: Float (0.0 to 1.0) indicating proportion of injected noise.
-  - `seed`: Integer random seed used for generation.
-  - `construction_method`: String (e.g., "NER+RuleBased").
+### 2. Graph Node
+A fact or sentence within the memory graph.
+- `node_id`: Unique identifier (string).
+- `content`: The text content of the fact (string).
+- `vector_embedding`: Optional dense vector (array of floats) if semantic similarity is used.
 
-### 3. Execution Log
-Record of a single task execution under a specific strategy.
-- **Attributes**:
-  - `task_id`: Foreign key to Task.
-  - `strategy`: Enum { "Full", "Lazy", "Greedy" }.
-  - `accuracy`: Float (0.0–1.0).
-  - `nodes_visited`: Integer.
-  - `latency_seconds`: Float.
-  - `status`: Enum { "success", "timeout", "unresolved", "error" }.
-  - `evidence_threshold`: Float (only for "Lazy").
-  - `top_k`: Integer (only for "Greedy").
-  - `timestamp`: ISO8601 timestamp.
+### 3. Graph Edge
+A relationship between nodes.
+- `source_id`: Source node ID (string).
+- `target_id`: Target node ID (string).
+- `weight`: Confidence score or similarity metric (float).
+- `type`: Relationship type (string, e.g., "logical", "semantic").
 
-### 4. Statistical Result
-Aggregated metrics and test statistics.
-- **Attributes**:
-  - `comparison`: String (e.g., "Lazy vs Full").
-  - `p_value`: Float.
-  - `test_statistic`: Float.
-  - `correlation_coefficient`: Float (Point-Biserial).
-  - `inflection_point`: Integer (nodes_visited) or null.
-  - `threshold_found`: Boolean.
-  - `m_des`: Float (Minimum Detectable Effect Size).
+### 4. Execution Log
+A record of a single task execution.
+- `task_id`: ID of the task (string).
+- `strategy`: "Full", "Lazy", or "Greedy" (string).
+- `nodes_visited`: Count of nodes traversed (integer).
+- `accuracy`: 1.0 if correct, 0.0 if incorrect (float).
+- `latency_ms`: Total time in milliseconds (float).
+- `status`: "completed", "timeout", "error", "invalid_graph" (string).
+- `evidence_threshold`: Threshold used for Lazy strategy (float, nullable). **Must capture the exact value used in sensitivity sweeps.**
+- `token_count`: Total tokens generated (integer). **Extracted from LLM response metadata.**
+- `hard_cap_applied`: Boolean indicating if the hard cap on nodes visited was reached (boolean).
+- `construction_model`: Name of the embedding model used for graph construction (string).
+- `scoring_model`: Name of the embedding model used for edge scoring (string).
+- `noise_applied`: Boolean indicating if noise was applied to the graph (boolean).
 
-## File Formats
-
-### Input Data
-- **LoCoMo CSV**: `data/raw/locomo.csv`
-  - Columns: `task_id`, `question`, `context`, `ground_truth`.
-
-### Processed Data
-- **Graphs**: `data/processed/graphs/{task_id}_{strategy}_{noise}.json`
-  - JSON format containing nodes and edges.
-- **Results**: `data/processed/results/{strategy}_results.csv`
-  - CSV format with columns: `task_id`, `strategy`, `accuracy`, `nodes_visited`, `latency_seconds`, `status`, `evidence_threshold`, `top_k`, `timestamp`.
-- **Analysis**: `data/processed/analysis/stats.json`
-  - JSON format containing statistical test results.
+### 5. Statistical Summary
+Aggregated results for a strategy.
+- `strategy`: Strategy name (string).
+- `n_tasks`: Number of tasks completed (integer).
+- `mean_accuracy`: Average accuracy (float).
+- `std_accuracy`: Standard deviation (float).
+- `mean_nodes`: Average nodes visited (float).
+- `p_value`: P-value from statistical test (float).
+- `test_statistic`: T or W value (float).
+- `correlation_coefficient`: Point-Biserial r (float).
+- `inflection_point`: Nodes count where accuracy drops (integer, nullable).
 
 ## Data Flow
 
-1. **Download**: `data_loader.py` fetches `locomo.csv` from HuggingFace.
-2. **Graph Generation**: `graph_utils.py` generates synthetic graphs with noise injection (distractor edges), saving to `data/processed/graphs/`.
-3. **Execution**: `runner.py` runs strategies, logging results to `data/processed/results/`.
-4. **Analysis**: `analysis.py` reads results CSVs, computes statistics, and saves to `data/processed/analysis/`.
+1. **Raw Data**: `data/raw/locomo.csv` (Downloaded).
+2. **Intermediate**: `data/intermediate/graphs_raw.json` (Parsed graph structures - **Immutable**).
+3. **Intermediate**: `data/intermediate/graph_validation_scores.json` (Edge coherence scores).
+4. **Processed**:
+   - `data/processed/baseline_results.csv` (Full strategy output).
+   - `data/processed/lazy_results.csv` (Lazy strategy output).
+   - `data/processed/greedy_results.csv` (Greedy strategy output).
+   - `data/processed/noisy_graphs.json` (Synthetic noisy variants).
+   - `data/processed/stats_clean.json` (Statistical analysis on clean data).
+   - `data/processed/stats_noisy.json` (Statistical analysis on noisy data).
 
-## Validation Rules
+## Schema Validation
 
-- **Task**: `question` and `ground_truth` must not be empty.
-- **Graph**: Must be a valid directed graph (no self-loops unless specified).
-- **Execution Log**: `accuracy` must be in [0.0, 1.0]. `nodes_visited` must be >= 0.
-- **Timeout**: If `status` == "timeout", `accuracy` is recorded as 0.0 or null (depending on implementation), and `latency` is capped at 1800.
+All generated CSVs and JSONs must conform to the schemas defined in `contracts/`, including `contracts/noisy_graphs.schema.yaml`.

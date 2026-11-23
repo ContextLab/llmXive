@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.01103",
+  "judged_at": "2026-07-30T10:45:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"in-context world modeling for robotic control\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism of using learned models (DNNs) for real-time control of nonlinear systems under uncertainty, which is the fundamental domain of \"In-Context World Modeling for Robotic Control.\" While it uses the specific framework of LQR and DNNs rather than the \"in-context\" terminology, it provides essential empirical and theoretical evidence on the stability and performance of data-driven world models in robotic control, a can",
+  "relevant": true
+}

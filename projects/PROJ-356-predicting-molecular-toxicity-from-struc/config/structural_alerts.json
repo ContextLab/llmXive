@@ -1,0 +1,88 @@
+{
+  "patterns": [
+    {
+      "pattern_id": "NITRO_AROMATIC_01",
+      "smarts_string": "[*;a]([N+](=O)[O-])",
+      "weight": 1.5,
+      "source": "Brenk Set",
+      "description": "Nitroaromatic group"
+    },
+    {
+      "pattern_id": "EPOXIDE_01",
+      "smarts_string": "[C;D3]1[O;D1][C;D3]1",
+      "weight": 2.0,
+      "source": "Brenk Set",
+      "description": "Epoxide ring"
+    },
+    {
+      "pattern_id": "PRIMARY_ARI_AMINE_01",
+      "smarts_string": "[N;D1;H2][c]",
+      "weight": 1.2,
+      "source": "Brenk Set",
+      "description": "Primary aromatic amine"
+    },
+    {
+      "pattern_id": "SECONDARY_ARI_AMINE_01",
+      "smarts_string": "[N;D2;H1][c]",
+      "weight": 1.0,
+      "source": "Brenk Set",
+      "description": "Secondary aromatic amine"
+    },
+    {
+      "pattern_id": "AZIDE_01",
+      "smarts_string": "[N;D1]=[N;D1]=[N;D1]",
+      "weight": 2.5,
+      "source": "Brenk Set",
+      "description": "Azide group"
+    },
+    {
+      "pattern_id": "ISOCYANATE_01",
+      "smarts_string": "[N;D1]=[C;D2]=[O;D1]",
+      "weight": 2.0,
+      "source": "Brenk Set",
+      "description": "Isocyanate group"
+    },
+    {
+      "pattern_id": "ALDEHYDE_01",
+      "smarts_string": "[C;D2](=[O;D1])[H;D1]",
+      "weight": 0.8,
+      "source": "Brenk Set",
+      "description": "Aldehyde group"
+    },
+    {
+      "pattern_id": "HALO_ALIPHATIC_01",
+      "smarts_string": "[C;D4][Cl,Br,I,F]",
+      "weight": 0.5,
+      "source": "Brenk Set",
+      "description": "Halogenated aliphatic"
+    },
+    {
+      "pattern_id": "AZO_01",
+      "smarts_string": "[N;D1]=[N;D1]",
+      "weight": 1.8,
+      "source": "Brenk Set",
+      "description": "Azo group"
+    },
+    {
+      "pattern_id": "HYDRAZINE_01",
+      "smarts_string": "[N;D1][N;D1]",
+      "weight": 1.5,
+      "source": "Brenk Set",
+      "description": "Hydrazine group"
+    },
+    {
+      "pattern_id": "THIOUREA_01",
+      "smarts_string": "[S;D2]=[C;D2]([N;D3])[N;D3]",
+      "weight": 1.6,
+      "source": "ToxCast",
+      "description": "Thiourea group"
+    },
+    {
+      "pattern_id": "ANILINE_01",
+      "smarts_string": "c1ccccc1N",
+      "weight": 1.3,
+      "source": "ToxCast",
+      "description": "Aniline derivative"
+    }
+  ]
+}

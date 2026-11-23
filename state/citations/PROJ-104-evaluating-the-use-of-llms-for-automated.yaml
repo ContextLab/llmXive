@@ -1,0 +1,11 @@
+- artifact_hash: dc085138aaf154d83cf5d2081fc6adf612ff4e7544474cefdbc47572ad90d350
+  artifact_path: projects/PROJ-104-evaluating-the-use-of-llms-for-automated/specs/001-evaluating-the-use-of-llms-for-automated/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://api.github.com/...`
+  verification_status: pending
+  verified_against_url: https://api.github.com/
+  verified_at: '2026-10-26T15:59:54.117035Z'

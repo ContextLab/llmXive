@@ -390,3 +390,47 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T03:25:10Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/README.md
+  attempts: 1
+  canonical: repository implements reproducible pipeline for evaluating PCA t-SNE
+    and UMAP embeddings on single-cell RNA-seq data
+  claim_id: c_c3a1d146
+  context: "This repository implements a reproducible pipeline for evaluating PCA,\
+    \ t\u2011SNE, and UMAP embeddings on single\u2011cell RNA\u2011seq data. The pipeline\
+    \ includes data acquisition, preprocessing, geometric diagnostics, embedding generation,\
+    \ clustering fidelity assessment, sensitivity analysis, and mixed\u2011effects\
+    \ statistical modeling."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This repository implements a reproducible pipeline for evaluating PCA,\
+    \ t\u2011SNE, and UMAP embeddings on single\u2011cell RNA\u2011seq data."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T22:40:21Z'
+- artifact_path: projects/PROJ-168-statistical-evaluation-of-dimensionality/README.md
+  attempts: 1
+  canonical: pipeline includes data acquisition preprocessing geometric diagnostics
+    embedding generation clustering fidelity assessment sensitivity analysis mixed-effects
+    statistical modeling
+  claim_id: c_b8c85ebd
+  context: "This repository implements a reproducible pipeline for evaluating PCA,\
+    \ t\u2011SNE, and UMAP embeddings on single\u2011cell RNA\u2011seq data. The pipeline\
+    \ includes data acquisition, preprocessing, geometric diagnostics, embedding generation,\
+    \ clustering fidelity assessment, sensitivity analysis, and mixed\u2011effects\
+    \ statistical modeling."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline includes data acquisition, preprocessing, geometric diagnostics,\
+    \ embedding generation, clustering fidelity assessment, sensitivity analysis,\
+    \ and mixed\u2011effects statistical modeling."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T22:40:21Z'

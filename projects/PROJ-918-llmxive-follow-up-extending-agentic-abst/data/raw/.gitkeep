@@ -1,2 +1,2 @@
-# This directory stores raw data files.
-# Do not commit large binary files.
+# This directory stores raw, unprocessed data downloaded from external sources.
+# Do not commit large data files. Add patterns to .gitignore.

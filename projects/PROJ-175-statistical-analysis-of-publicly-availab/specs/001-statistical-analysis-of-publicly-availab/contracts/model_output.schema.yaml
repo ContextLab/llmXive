@@ -1,116 +1,34 @@
-%YAML 1.2
----
-title: Model Output Schema for Statistical Analysis
+name: ModelResult
+description: Schema for model output data from statistical analysis
 version: 1.0.0
-description: >
-  Schema for model outputs including logistic regression and Bayesian hierarchical model results.
-  Validates artifacts produced by code/models/fit_logistic.py and code/models/fit_bayesian.py.
-
-type: object
-required:
-  - model_type
-  - sample_size
-  - coefficients
-  - p_values
-  - vif_scores
-  - metrics
-  - diagnostics
-
-properties:
-  model_type:
-    type: string
-    description: Type of model fitted.
-    enum:
-      - LogisticRegression_Null
-      - LogisticRegression_Full
-      - BayesianHierarchical
-
-  sample_size:
-    type: integer
-    description: Number of samples used for training.
-    minimum: 1
-
-  coefficients:
-    type: object
-    description: Dictionary of feature names to coefficient values.
-    additionalProperties:
-      type: number
-      format: float
-
-  p_values:
-    type: object
-    description: Dictionary of feature names to p-values (for frequentist models).
-    additionalProperties:
-      type: number
-      format: float
-      minimum: 0
-      maximum: 1
-
-  vif_scores:
-    type: object
-    description: Variance Inflation Factor for each predictor.
-    additionalProperties:
-      type: number
-      format: float
-      minimum: 1
-
-  metrics:
-    type: object
-    description: Model performance metrics.
+fields:
+  - name: ModelResult
+    description: Results from statistical model fitting
     properties:
-      auc:
-        type: number
-        format: float
-        minimum: 0
-        maximum: 1
-      log_likelihood:
-        type: number
-        format: float
-      bic:
-        type: number
-        format: float
-      aic:
-        type: number
-        format: float
-    required:
-      - auc
-      - log_likelihood
-
-  diagnostics:
-    type: object
-    description: Model-specific diagnostics.
-    properties:
-      convergence_status:
-        type: string
-        description: Status of model convergence (e.g., 'Success', 'Failed').
-      effective_sample_size:
-        type: integer
-        description: Effective sample size for Bayesian models.
-      likelihood_ratio_statistic:
-        type: number
-        format: float
-        description: Statistic for Null vs Full model comparison.
-      likelihood_ratio_p_value:
-        type: number
-        format: float
-        description: P-value for Likelihood Ratio Test.
-
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of model execution.
-
-  config:
-    type: object
-    description: Hyperparameters and configuration used.
-    properties:
-      regularization_strength:
-        type: number
-        format: float
-      random_seed:
-        type: integer
-      downsample_factor:
-        type: number
-        format: float
-
-additionalProperties: false
+      coefficients:
+        type: dict
+        description: Dictionary of model coefficients with predictor names as keys
+        required: true
+      p_values:
+        type: dict
+        description: Dictionary of p-values for each coefficient
+        required: true
+      vif_scores:
+        type: dict
+        description: Dictionary of Variance Inflation Factor scores for predictors
+        required: true
+      posterior_distributions:
+        type: dict
+        description: Dictionary of posterior distribution parameters for Bayesian models
+        required: true
+      model_type:
+        type: str
+        description: Type of model used (logistic, bayesian, etc.)
+        required: true
+      methodology:
+        type: str
+        description: Methodology used (Causal Independence or Correlational Analysis)
+        required: true
+metadata:
+  created_by: T007a_schema_model
+  last_updated: 2024-01-01T00:00:00Z

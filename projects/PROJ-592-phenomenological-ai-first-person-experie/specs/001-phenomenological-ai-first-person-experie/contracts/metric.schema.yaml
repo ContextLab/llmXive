@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Validity Score
+type: object
+properties:
+  report_id:
+    type: string
+    description: "Foreign key to PhenomenologicalReport.id"
+  logical_coherence:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Score from 0 to 1 (NLI-based, secondary metric)"
+  output_reproducibility:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Score from 0 to 1 (embedding-based, aggregated per prompt)"
+  marker_specificity:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Ratio of targeted markers to total markers (primary phenomenological metric)"
+  composite_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Weighted sum of the three components (0.33 each)"
+  computed_at:
+    type: string
+    format: date-time
+    description: "Timestamp of computation"
+required:
+  - "report_id"
+  - "logical_coherence"
+  - "output_reproducibility"
+  - "marker_specificity"
+  - "composite_score"
+  - "computed_at"
+additionalProperties: false

@@ -1,379 +1,319 @@
 """
-Distribution fitting and analysis module for GitHub issue resolution times.
+Distribution Fitting Analysis Module
 
-This module handles:
-1. Loading cleaned issue data
-2. Fitting parametric distributions (log-normal, Weibull)
-3. Analyzing distribution quality
-4. Saving results and generating figures
+Implements ECDF generation, parametric distribution fitting (log-normal, Weibull),
+and statistical goodness-of-fit testing using scipy.stats.
 """
+
 import json
 import logging
 import sys
+import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy import stats
+from scipy.special import boxcox
+
+# Add parent to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from utils.config import get_config, get_path
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-DEFAULT_DATA_PATH = "data/processed/cleaned_issues.csv"
-DEFAULT_RESULTS_PATH = "data/processed/distribution_metrics.json"
-DEFAULT_FIGURES_DIR = "data/figures"
-LOG_MIN_VALUE = 1e-6  # Minimum value for log transformation to avoid log(0)
-
-def load_cleaned_data(data_path: Optional[str] = None) -> pd.DataFrame:
-    """
-    Load the cleaned issues dataset from CSV.
-
-    Args:
-        data_path: Path to the cleaned CSV file. Defaults to DEFAULT_DATA_PATH.
-
-    Returns:
-        DataFrame containing cleaned issue data.
-
-    Raises:
-        FileNotFoundError: If the data file does not exist.
-        ValueError: If required columns are missing.
-    """
-    if data_path is None:
-        data_path = DEFAULT_DATA_PATH
-
-    path = Path(data_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Cleaned data file not found: {data_path}")
-
-    logger.info(f"Loading cleaned data from {data_path}")
-    df = pd.read_csv(path)
-
-    # Verify required columns
-    required_cols = ['resolution_time_hours', 'language']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
-
-    logger.info(f"Loaded {len(df)} records with columns: {list(df.columns)}")
+def load_cleaned_data() -> pd.DataFrame:
+    """Load the cleaned dataset from the processed data directory."""
+    config = get_config()
+    data_path = get_path("cleaned_issues", config)
+    
+    if not Path(data_path).exists():
+        raise FileNotFoundError(f"Cleaned dataset not found at {data_path}")
+    
+    df = pd.read_csv(data_path)
+    logger.info(f"Loaded {len(df)} issues from {data_path}")
     return df
 
 def fit_distribution(data: np.ndarray, dist_name: str) -> Dict[str, Any]:
     """
-    Fit a parametric distribution to the data.
-
+    Fit a parametric distribution to the data and return fit statistics.
+    
     Args:
-        data: 1D numpy array of resolution times.
-        dist_name: Name of the distribution ('lognorm' or 'weibull_min').
-
+        data: 1D array of resolution times (must be positive)
+        dist_name: Name of the distribution ('lognorm' or 'weibull_min')
+        
     Returns:
-        Dictionary containing fit parameters and goodness-of-fit metrics.
+        Dictionary containing parameters, KS statistic, p-value, and AIC
     """
-    logger.info(f"Fitting {dist_name} distribution to data (n={len(data)})")
-
-    # Filter non-positive values for distributions that require positive support
-    valid_data = data[data > 0]
-    if len(valid_data) < 10:
+    if dist_name not in ['lognorm', 'weibull_min']:
+        raise ValueError(f"Unsupported distribution: {dist_name}")
+    
+    # Filter out non-positive values for fitting
+    positive_data = data[data > 0]
+    if len(positive_data) < 10:
         logger.warning(f"Insufficient positive data points for {dist_name} fitting")
         return {
-            "params": [],
-            "ks_statistic": None,
-            "p_value": None,
-            "aic": None,
-            "goodness_of_fit": "fail",
-            "error": "Insufficient positive data"
+            'distribution': dist_name,
+            'status': 'failed',
+            'reason': 'Insufficient positive data points'
         }
-
+    
     try:
+        # Fit the distribution
         if dist_name == 'lognorm':
-            # Fit log-normal distribution
-            # scipy.stats.lognorm uses shape (s), loc, scale
-            # We fix loc=0 for standard log-normal
-            shape, loc, scale = stats.lognorm.fit(valid_data, floc=0)
-            dist_obj = stats.lognorm(shape, loc=loc, scale=scale)
+            # lognorm in scipy: s is the shape parameter (sigma of underlying normal)
+            # We fix loc=0 and scale to estimate shape, loc, scale
+            params = stats.lognorm.fit(positive_data, floc=0)
+            dist = stats.lognorm(*params)
         elif dist_name == 'weibull_min':
-            # Fit Weibull minimum distribution
-            # scipy.stats.weibull_min uses c, loc, scale
-            c, loc, scale = stats.weibull_min.fit(valid_data, floc=0)
-            dist_obj = stats.weibull_min(c, loc=loc, scale=scale)
-        else:
-            raise ValueError(f"Unsupported distribution: {dist_name}")
-
+            # weibull_min: c is the shape parameter
+            params = stats.weibull_min.fit(positive_data, floc=0)
+            dist = stats.weibull_min(*params)
+        
         # Kolmogorov-Smirnov test
-        ks_stat, p_value = stats.kstest(valid_data, dist_obj.cdf)
-
+        ks_stat, p_value = stats.kstest(positive_data, dist.cdf)
+        
         # Calculate AIC
-        # AIC = 2k - 2ln(L), where k is number of parameters
-        # For scipy distributions, we use the log-likelihood from the fit
-        log_likelihood = np.sum(dist_obj.logpdf(valid_data))
-        k = 2  # Typically 2-3 parameters depending on fit
+        # AIC = 2k - 2ln(L)
+        # For scipy distributions, we can use logpdf to compute log-likelihood
+        log_likelihood = np.sum(dist.logpdf(positive_data))
+        k = len(params)  # Number of parameters
         aic = 2 * k - 2 * log_likelihood
-
-        # Determine goodness of fit (p > 0.05 suggests good fit)
-        goodness = "pass" if p_value > 0.05 else "fail"
-
-        logger.info(f"{dist_name} fit: KS={ks_stat:.4f}, p={p_value:.4f}, AIC={aic:.2f}")
-
+        
         return {
-            "params": [float(p) for p in [shape if dist_name == 'lognorm' else c, loc, scale]],
-            "ks_statistic": float(ks_stat),
-            "p_value": float(p_value),
-            "aic": float(aic),
-            "goodness_of_fit": goodness
+            'distribution': dist_name,
+            'status': 'success',
+            'parameters': {
+                'shape': params[0],
+                'loc': params[1] if len(params) > 1 else 0.0,
+                'scale': params[2] if len(params) > 2 else 1.0
+            },
+            'ks_statistic': float(ks_stat),
+            'p_value': float(p_value),
+            'aic': float(aic),
+            'n_samples': len(positive_data)
         }
-
+        
     except Exception as e:
-        logger.error(f"Error fitting {dist_name}: {e}")
+        logger.error(f"Failed to fit {dist_name}: {str(e)}")
         return {
-            "params": [],
-            "ks_statistic": None,
-            "p_value": None,
-            "aic": None,
-            "goodness_of_fit": "fail",
-            "error": str(e)
+            'distribution': dist_name,
+            'status': 'failed',
+            'reason': str(e)
         }
 
-def analyze_distributions(df: pd.DataFrame) -> Dict[str, Any]:
+def analyze_distributions(df: pd.DataFrame, time_column: str = 'resolution_time_hours') -> Dict[str, Any]:
     """
-    Analyze the distribution of resolution times.
-
+    Analyze the distribution of resolution times by fitting multiple parametric models.
+    
     Args:
-        df: DataFrame with 'resolution_time_hours' column.
-
+        df: DataFrame containing the cleaned issue data
+        time_column: Name of the column containing resolution times
+        
     Returns:
-        Dictionary containing data statistics and distribution fit results.
+        Dictionary with fitting results for each distribution
     """
-    data = df['resolution_time_hours'].values
-
-    # Basic statistics
-    data_stats = {
-        "count": int(len(data)),
-        "mean": float(np.mean(data)),
-        "median": float(np.median(data)),
-        "std": float(np.std(data)),
-        "min": float(np.min(data)),
-        "max": float(np.max(data))
+    if time_column not in df.columns:
+        raise ValueError(f"Column '{time_column}' not found in dataframe")
+    
+    data = df[time_column].values
+    logger.info(f"Fitting distributions to {len(data)} resolution time values")
+    
+    results = {
+        'metadata': {
+            'total_samples': len(data),
+            'positive_samples': int(np.sum(data > 0)),
+            'mean_resolution_time': float(np.mean(data[data > 0])) if np.sum(data > 0) > 0 else 0.0,
+            'median_resolution_time': float(np.median(data[data > 0])) if np.sum(data > 0) > 0 else 0.0
+        },
+        'distributions': {}
     }
-
-    # Fit distributions
-    fits = {}
-    distributions = ['lognorm', 'weibull_min']
-
-    for dist_name in distributions:
-        fits[dist_name] = fit_distribution(data, dist_name)
-
+    
+    # Fit log-normal
+    lognorm_result = fit_distribution(data, 'lognorm')
+    results['distributions']['lognorm'] = lognorm_result
+    
+    # Fit Weibull
+    weibull_result = fit_distribution(data, 'weibull_min')
+    results['distributions']['weibull_min'] = weibull_result
+    
     # Determine best fit based on AIC (lower is better)
-    valid_fits = {k: v for k, v in fits.items() if v.get('aic') is not None}
+    valid_fits = [k for k, v in results['distributions'].items() if v.get('status') == 'success']
     if valid_fits:
-        best_fit = min(valid_fits, key=lambda k: valid_fits[k]['aic'])
+        best_fit = min(valid_fits, key=lambda k: results['distributions'][k]['aic'])
+        results['best_fit'] = {
+            'distribution': best_fit,
+            'aic': results['distributions'][best_fit]['aic']
+        }
+        logger.info(f"Best fit distribution: {best_fit} (AIC: {results['distributions'][best_fit]['aic']:.2f})")
     else:
-        best_fit = None
+        results['best_fit'] = None
+        logger.warning("No valid distribution fits found")
+    
+    return results
 
-    result = {
-        "data_stats": data_stats,
-        "fits": fits,
-        "best_fit": best_fit
-    }
-
-    logger.info(f"Analysis complete. Best fit: {best_fit}")
-    return result
-
-def save_results(results: Dict[str, Any], output_path: Optional[str] = None) -> None:
+def generate_ecdf_plot(data: np.ndarray, title: str = "Empirical CDF of Issue Resolution Times") -> plt.Figure:
     """
-    Save analysis results to a JSON file.
-
+    Generate an ECDF plot with logarithmic x-axis.
+    
     Args:
-        results: Dictionary containing analysis results.
-        output_path: Path for the output JSON file. Defaults to DEFAULT_RESULTS_PATH.
+        data: 1D array of resolution times
+        title: Plot title
+        
+    Returns:
+        Matplotlib Figure object
     """
-    if output_path is None:
-        output_path = DEFAULT_RESULTS_PATH
+    # Filter positive data
+    positive_data = data[data > 0]
+    if len(positive_data) == 0:
+        raise ValueError("No positive data points available for ECDF plot")
+    
+    # Sort data
+    sorted_data = np.sort(positive_data)
+    # Calculate ECDF
+    ecdf = np.arange(1, len(sorted_data) + 1) / len(sorted_data)
+    
+    # Create plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(sorted_data, ecdf, marker='.', linestyle='none', alpha=0.7, markersize=1)
+    ax.set_xlabel('Resolution Time (hours)')
+    ax.set_ylabel('Cumulative Probability')
+    ax.set_title(title)
+    ax.set_xscale('log')
+    ax.grid(True, which="both", ls="-", alpha=0.2)
+    
+    # Add reference lines
+    for p in [0.5, 0.9, 0.95]:
+        idx = np.searchsorted(ecdf, p)
+        if idx < len(sorted_data):
+            ax.axhline(y=p, color='gray', linestyle='--', alpha=0.5)
+            ax.axvline(x=sorted_data[idx], color='gray', linestyle='--', alpha=0.5)
+            ax.text(sorted_data[idx] * 1.1, p, f'{int(p*100)}%', va='bottom', ha='left', fontsize=9)
+    
+    plt.tight_layout()
+    return fig
 
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+def generate_fit_comparison_plot(data: np.ndarray, fit_results: Dict[str, Any]) -> plt.Figure:
+    """
+    Generate a comparison plot showing ECDF vs fitted distributions.
+    
+    Args:
+        data: 1D array of resolution times
+        fit_results: Dictionary containing distribution fit results
+        
+    Returns:
+        Matplotlib Figure object
+    """
+    positive_data = data[data > 0]
+    if len(positive_data) == 0:
+        raise ValueError("No positive data points available for comparison plot")
+    
+    sorted_data = np.sort(positive_data)
+    ecdf = np.arange(1, len(sorted_data) + 1) / len(sorted_data)
+    
+    fig, ax = plt.subplots(figsize=(12, 8))
+    
+    # Plot ECDF
+    ax.plot(sorted_data, ecdf, 'b.', label='Empirical CDF', alpha=0.5, markersize=1)
+    
+    # Plot fitted distributions
+    colors = {'lognorm': 'red', 'weibull_min': 'green'}
+    linestyles = {'lognorm': '-', 'weibull_min': '--'}
+    
+    for dist_name, result in fit_results.get('distributions', {}).items():
+        if result.get('status') == 'success':
+            params = result['parameters']
+            if dist_name == 'lognorm':
+                dist = stats.lognorm(params['shape'], loc=params['loc'], scale=params['scale'])
+            elif dist_name == 'weibull_min':
+                dist = stats.weibull_min(params['shape'], loc=params['loc'], scale=params['scale'])
+            
+            # Generate smooth curve
+            x_vals = np.linspace(sorted_data.min(), sorted_data.max(), 500)
+            y_vals = dist.cdf(x_vals)
+            ax.plot(x_vals, y_vals, color=colors.get(dist_name, 'black'), 
+                    linestyle=linestyles.get(dist_name, '-'), 
+                    linewidth=2, label=f'{dist_name} fit')
+    
+    ax.set_xlabel('Resolution Time (hours)')
+    ax.set_ylabel('Cumulative Probability')
+    ax.set_title('ECDF vs Parametric Distribution Fits')
+    ax.set_xscale('log')
+    ax.legend(loc='lower right')
+    ax.grid(True, which="both", ls="-", alpha=0.2)
+    
+    plt.tight_layout()
+    return fig
 
-    with open(path, 'w') as f:
+def save_results(results: Dict[str, Any], output_path: Path) -> None:
+    """Save analysis results to a JSON file."""
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-
     logger.info(f"Results saved to {output_path}")
 
-def generate_ecdf_plot(data: np.ndarray, output_path: Optional[str] = None) -> None:
-    """
-    Generate and save an ECDF plot with log-scaled x-axis.
-
-    Args:
-        data: 1D array of resolution times.
-        output_path: Path to save the figure. Defaults to data/figures/ecdf.png.
-    """
-    if output_path is None:
-        output_path = Path(DEFAULT_FIGURES_DIR) / "ecdf.png"
-    else:
-        output_path = Path(output_path)
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Filter positive values for log scale
-    valid_data = data[data > 0]
-    if len(valid_data) == 0:
-        logger.warning("No positive data for ECDF plot")
-        return
-
-    # Calculate ECDF
-    x = np.sort(valid_data)
-    y = np.arange(1, len(x) + 1) / len(x)
-
-    # Create plot
-    plt.figure(figsize=(10, 6))
-    plt.plot(x, y, marker='.', linestyle='none', markersize=3, alpha=0.6)
-    plt.xscale('log')
-    plt.xlabel('Resolution Time (hours, log scale)')
-    plt.ylabel('Cumulative Probability')
-    plt.title('Empirical Cumulative Distribution Function (ECDF)\nof GitHub Issue Resolution Times')
-    plt.grid(True, which="both", ls="--", alpha=0.5)
-    plt.tight_layout()
-
-    plt.savefig(output_path, dpi=150)
-    plt.close()
-
-    logger.info(f"ECDF plot saved to {output_path}")
-
-def generate_fit_comparison_plot(data: np.ndarray, fits: Dict[str, Any], output_path: Optional[str] = None) -> None:
-    """
-    Generate a plot comparing fitted distributions to the empirical data.
-
-    Args:
-        data: 1D array of resolution times.
-        fits: Dictionary containing fit results.
-        output_path: Path to save the figure. Defaults to data/figures/distribution_fits.png.
-    """
-    if output_path is None:
-        output_path = Path(DEFAULT_FIGURES_DIR) / "distribution_fits.png"
-    else:
-        output_path = Path(output_path)
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    valid_data = data[data > 0]
-    if len(valid_data) == 0:
-        logger.warning("No positive data for fit comparison plot")
-        return
-
-    # Calculate ECDF
-    x_ecdf = np.sort(valid_data)
-    y_ecdf = np.arange(1, len(x_ecdf) + 1) / len(x_ecdf)
-
-    # Create x values for smooth curves
-    x_curve = np.linspace(np.min(valid_data), np.max(valid_data), 1000)
-
-    plt.figure(figsize=(12, 7))
-
-    # Plot ECDF
-    plt.plot(x_ecdf, y_ecdf, 'b.', alpha=0.5, label='Empirical Data', markersize=2)
-
-    # Plot fitted distributions
-    colors = {'lognorm': 'r', 'weibull_min': 'g'}
-    for dist_name, fit_result in fits.items():
-        if fit_result.get('params') and fit_result['goodness_of_fit'] != 'fail':
-            try:
-                if dist_name == 'lognorm':
-                    shape, loc, scale = fit_result['params']
-                    dist_obj = stats.lognorm(shape, loc=loc, scale=scale)
-                elif dist_name == 'weibull_min':
-                    c, loc, scale = fit_result['params']
-                    dist_obj = stats.weibull_min(c, loc=loc, scale=scale)
-                else:
-                    continue
-
-                y_curve = dist_obj.cdf(x_curve)
-                color = colors.get(dist_name, 'k')
-                plt.plot(x_curve, y_curve, color=color, linewidth=2,
-                         label=f'{dist_name} fit (p={fit_result["p_value"]:.3f})')
-            except Exception as e:
-                logger.warning(f"Could not plot {dist_name}: {e}")
-
-    plt.xscale('log')
-    plt.xlabel('Resolution Time (hours, log scale)')
-    plt.ylabel('Cumulative Probability')
-    plt.title('Distribution Fit Comparison')
-    plt.legend()
-    plt.grid(True, which="both", ls="--", alpha=0.5)
-    plt.tight_layout()
-
-    plt.savefig(output_path, dpi=150)
-    plt.close()
-
-    logger.info(f"Fit comparison plot saved to {output_path}")
-
-def save_figures(df: pd.DataFrame, fits: Dict[str, Any]) -> Dict[str, str]:
-    """
-    Generate and save all required figures.
-
-    Args:
-        df: DataFrame with resolution time data.
-        fits: Dictionary of distribution fit results.
-
-    Returns:
-        Dictionary mapping figure types to their file paths.
-    """
-    data = df['resolution_time_hours'].values
-    figures_dir = Path(DEFAULT_FIGURES_DIR)
-    figures_dir.mkdir(parents=True, exist_ok=True)
-
-    saved_files = {}
-
-    # ECDF Plot
-    ecdf_path = figures_dir / "ecdf.png"
-    generate_ecdf_plot(data, str(ecdf_path))
-    saved_files['ecdf'] = str(ecdf_path)
-
-    # Fit Comparison Plot
-    fit_path = figures_dir / "distribution_fits.png"
-    generate_fit_comparison_plot(data, fits, str(fit_path))
-    saved_files['fit_comparison'] = str(fit_path)
-
-    logger.info(f"Saved figures: {list(saved_files.keys())}")
-    return saved_files
+def save_figures(figs: Dict[str, plt.Figure], output_dir: Path) -> None:
+    """Save figures to the output directory."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for name, fig in figs.items():
+        path = output_dir / f"{name}.png"
+        fig.savefig(path, dpi=300, bbox_inches='tight')
+        plt.close(fig)
+        logger.info(f"Saved figure: {path}")
 
 def main():
-    """
-    Main entry point for distribution analysis.
-    Loads data, fits distributions, saves results and figures.
-    """
-    logger.info("Starting distribution analysis...")
-
+    """Main entry point for distribution fitting analysis."""
+    logger.info("Starting distribution fitting analysis...")
+    
+    # Load data
+    df = load_cleaned_data()
+    
+    # Analyze distributions
+    results = analyze_distributions(df)
+    
+    # Generate figures
+    data = df['resolution_time_hours'].values
+    figs = {}
+    
+    # ECDF Plot
     try:
-        # Load data
-        df = load_cleaned_data()
-
-        # Analyze distributions
-        results = analyze_distributions(df)
-
-        # Save results to JSON
-        save_results(results)
-
-        # Generate and save figures
-        save_figures(df, results['fits'])
-
-        logger.info("Distribution analysis completed successfully.")
-        return 0
-
-    except FileNotFoundError as e:
-        logger.error(f"Data file error: {e}")
-        return 1
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        return 1
+        figs['ecdf'] = generate_ecdf_plot(data, "Empirical CDF of Issue Resolution Times")
     except Exception as e:
-        logger.error(f"Unexpected error during analysis: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
+        logger.error(f"Failed to generate ECDF plot: {e}")
+    
+    # Fit Comparison Plot
+    try:
+        figs['fit_comparison'] = generate_fit_comparison_plot(data, results)
+    except Exception as e:
+        logger.error(f"Failed to generate fit comparison plot: {e}")
+    
+    # Define output paths
+    config = get_config()
+    output_dir = get_path("figures", config)
+    results_path = get_path("distribution_metrics", config)
+    
+    # Ensure directories exist
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    Path(results_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save figures
+    if figs:
+        save_figures(figs, Path(output_dir))
+    
+    # Save results
+    save_results(results, Path(results_path))
+    
+    logger.info("Distribution fitting analysis completed successfully.")
+    return results
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

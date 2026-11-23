@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final statistical analysis results including test statistics and anomaly counts."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum:
+      - "anderson_darling"
+      - "kolmogorov_smirnov"
+    description: "Type of statistical test performed."
+  statistic:
+    type: "number"
+    description: "The calculated test statistic."
+  p_value:
+    type: "number"
+    description: "The p-value from the test."
+    minimum: 0
+    maximum: 1
+  conclusion:
+    type: "string"
+    enum:
+      - "REJECT_NULL"
+      - "FAIL_TO_REJECT"
+    description: "Conclusion based on p-value < 0.05."
+  anomaly_count:
+    type: "integer"
+    description: "Number of jurisdictions flagged as anomalies at the primary threshold."
+    minimum: 0
+  threshold_used:
+    type: "number"
+ description: "The discrepancy threshold used for anomaly detection (e.g., 0.005 for [deferred])."
+  model_type:
+    type: "string"
+    enum:
+      - "negative_binomial"
+      - "parametric_bootstrap"
+    description: "The null model used for simulation."
+  iterations:
+    type: "integer"
+    description: "Number of Monte Carlo iterations performed."
+    minimum: 1000
+  execution_time_seconds:
+    type: "number"
+    description: "Total execution time in seconds (for SC-004)."
+  vif_results:
+    type: "object"
+    description: "Variance Inflation Factor results (if applicable)."
+    nullable: true
+required:
+  - test_type
+  - statistic
+  - p_value
+  - conclusion
+  - anomaly_count
+  - threshold_used
+  - model_type
+  - iterations
+  - execution_time_seconds
+additionalProperties: false

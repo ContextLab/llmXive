@@ -1,204 +1,191 @@
 import csv
 import json
 import os
-from typing import Any, Dict, List, Optional, Union
-import requests
-import logging
 import random
-from collections import defaultdict
+from typing import Any, Dict, List, Optional, Union
+import logging
+from pathlib import Path
 
-# Configure logging
+from .config import get_processed_data_path, get_raw_data_path
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def get_materials_project_api_key() -> Optional[str]:
-    """Retrieve the Materials Project API key from environment variables."""
-    return os.getenv("MP_API_KEY")
-
 def load_csv(filepath: str) -> List[Dict[str, Any]]:
     """Load a CSV file into a list of dictionaries."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"CSV file not found: {filepath}")
     with open(filepath, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         return list(reader)
 
-def load_json(filepath: str) -> Any:
-    """Load a JSON file."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"JSON file not found: {filepath}")
-    with open(filepath, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
 def save_csv(data: List[Dict[str, Any]], filepath: str) -> None:
     """Save a list of dictionaries to a CSV file."""
     if not data:
-        logger.warning("No data to save to CSV.")
+        logger.warning(f"No data to save to {filepath}")
         return
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    fieldnames = data[0].keys()
     with open(filepath, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=data[0].keys())
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
 
+def load_json(filepath: str) -> Any:
+    """Load a JSON file."""
+    with open(filepath, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
 def save_json(data: Any, filepath: str) -> None:
     """Save data to a JSON file."""
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
     with open(filepath, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
 
-def fetch_materials_project_elements(api_key: str) -> Dict[str, Dict[str, Any]]:
-    """Fetch elemental properties from Materials Project API v3."""
-    url = "https://api.materialsproject.org/v3/elements"
-    headers = {"X-API-Key": api_key}
-    try:
-        response = requests.get(url, headers=headers, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        # Assume 'data' is a list of element objects
-        return {elem['element_id']: elem for elem in data.get('data', [])}
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch elements from Materials Project: {e}")
-        return {}
-
-def fetch_materials_project_composition(api_key: str, composition: str) -> Optional[Dict[str, Any]]:
-    """Fetch composition data from Materials Project API v3."""
-    url = f"https://api.materialsproject.org/v3/compositions/{composition}"
-    headers = {"X-API-Key": api_key}
-    try:
-        response = requests.get(url, headers=headers, timeout=30)
-        if response.status_code == 404:
-            return None
-        response.raise_for_status()
-        return response.json().get('data')
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch composition {composition}: {e}")
-        return None
-
-def filter_by_phase_label(data: List[Dict[str, Any]], valid_labels: List[str] = None) -> List[Dict[str, Any]]:
-    """Filter dataset to only include rows with definitive phase labels."""
+def filter_by_phase_label(data: List[Dict[str, Any]], valid_labels: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """Filter compositions by phase label (amorphous/crystalline)."""
     if valid_labels is None:
-        valid_labels = ['amorphous', 'crystalline', 'glass', 'crystal']
-    # Normalize valid labels to lowercase for comparison
-    valid_labels_lower = [l.lower() for l in valid_labels]
-    filtered = []
-    for row in data:
-        # Look for common phase label keys
-        label = None
-        for key in ['phase', 'phase_label', 'structure_type', 'label']:
-            if key in row and row[key]:
-                label = str(row[key]).lower()
-                break
-        if label in valid_labels_lower:
-            filtered.append(row)
-        else:
-            logger.debug(f"Dropped composition {row.get('composition', 'unknown')} due to invalid phase label: {label}")
-    logger.info(f"Filtered dataset: {len(filtered)} kept, {len(data) - len(filtered)} dropped.")
+        valid_labels = ['amorphous', 'crystalline']
+    return [row for row in data if row.get('phase', '').lower() in valid_labels]
+
+def load_and_filter_dataset(input_path: str, output_path: str, valid_labels: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """Load dataset, filter by phase, and save."""
+    data = load_csv(input_path)
+    filtered = filter_by_phase_label(data, valid_labels)
+    save_csv(filtered, output_path)
+    logger.info(f"Filtered dataset: {len(data)} -> {len(filtered)} rows")
     return filtered
 
-def load_and_filter_dataset(filepath: str, valid_labels: List[str] = None) -> List[Dict[str, Any]]:
-    """Load a dataset and filter by phase label."""
-    data = load_csv(filepath)
-    return filter_by_phase_label(data, valid_labels)
-
-def ensure_data_directories() -> None:
-    """Ensure required data directories exist."""
-    dirs = ['data/raw', 'data/processed', 'data/results', 'figures']
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
-
-def cap_dataset_stratified(data: List[Dict[str, Any]], max_size: int = 10000, system_key: str = 'alloy_system') -> List[Dict[str, Any]]:
+def cap_dataset_stratified(
+    data: List[Dict[str, Any]],
+    target_size: int,
+    stratify_col: str = 'alloy_system',
+    source_col: str = 'source',
+    primary_source: str = 'Science Advances',
+    seed: int = 42
+) -> List[Dict[str, Any]]:
     """
-    Cap the dataset to max_size using stratified random sampling by alloy system.
+    Cap the dataset to `target_size` using stratified random sampling by `stratify_col`.
     
-    This implements FR-007: Enforce a hard cap of 10,000 compositions.
-    Stratification ensures the relative distribution of alloy systems is preserved.
+    Priority Logic (FR-010):
+    1. Identify records from the primary source (Science Advances).
+    2. Calculate the max allowable count per alloy system based on the primary source distribution.
+    3. If the primary source count for a system exceeds the system's proportional share, 
+       cap it to that share.
+    4. Fill remaining slots with secondary source (Materials Project) records if needed, 
+       maintaining the stratification ratio as closely as possible.
     
     Args:
-        data: List of composition dictionaries.
-        max_size: Maximum number of rows to keep.
-        system_key: The key in the dictionary representing the alloy system (e.g., 'alloy_system', 'system').
+        data: List of row dictionaries.
+        target_size: Maximum number of rows (e.g., 10,000).
+        stratify_col: Column name to stratify by (e.g., 'alloy_system').
+        source_col: Column name indicating the data source.
+        primary_source: The value in `source_col` considered primary.
+        seed: Random seed for reproducibility.
     
     Returns:
-        A new list of dictionaries capped to max_size.
+        A new list of dictionaries, capped and stratified.
     """
-    if len(data) <= max_size:
-        logger.info(f"Dataset size ({len(data)}) is already within the limit ({max_size}). No capping needed.")
-        return data
+    if not data:
+        logger.warning("Input data is empty.")
+        return []
 
-    logger.info(f"Dataset size ({len(data)}) exceeds limit ({max_size}). Applying stratified random sampling.")
-
-    # Group data by alloy system
-    system_groups = defaultdict(list)
-    for i, row in enumerate(data):
-        # Handle missing system key by assigning to 'unknown'
-        system = row.get(system_key, 'unknown')
-        if system is None:
-            system = 'unknown'
-        system_groups[system].append(row)
-
-    # Calculate sample size for each system
-    # We want to preserve the proportion of each system in the final dataset
-    system_counts = {k: len(v) for k, v in system_groups.items()}
-    total_items = len(data)
+    random.seed(seed)
     
-    sampled_data = []
-    
-    # Calculate proportional allocation
-    for system, items in system_groups.items():
-        current_count = len(items)
-        # Calculate proportion
-        proportion = current_count / total_items
-        # Calculate sample size for this system
-        sample_size = int(proportion * max_size)
-        
-        # Ensure we don't exceed the remaining capacity if proportions don't sum exactly to 1 due to rounding
-        # But since we iterate, we'll just cap at the calculated size for now. 
-        # A more robust approach is to handle the remainder, but for 10k cap, simple proportional is usually fine.
-        # We must ensure sample_size doesn't exceed the actual number of items available
-        sample_size = min(sample_size, current_count)
-        
-        # Random sample
-        if sample_size > 0:
-            sampled_group = random.sample(items, sample_size)
-            sampled_data.extend(sampled_group)
-            logger.debug(f"Sampled {sample_size}/{current_count} from system '{system}'")
+    # Separate by source
+    primary_rows = [r for r in data if r.get(source_col) == primary_source]
+    secondary_rows = [r for r in data if r.get(source_col) != primary_source]
 
-    # If rounding errors caused us to be under the limit, fill the rest randomly from the remaining
-    if len(sampled_data) < max_size:
-        remaining_needed = max_size - len(sampled_data)
-        # Flatten all groups to find remaining items not yet sampled
-        # Since random.sample removes items from the list conceptually (we used new lists), 
-        # we need to track what was used or just sample from the original list excluding sampled.
-        # Simpler: Just take a random sample from the original data that isn't in sampled_data?
-        # That's O(N^2). Better to track indices or re-group.
-        # Given the scale, let's just do a second pass if needed, but usually proportional rounding is very close.
-        # Let's implement a simple fill from the groups that have leftovers.
+    # Group by alloy_system
+    from collections import defaultdict
+    primary_groups: Dict[str, List[Dict]] = defaultdict(list)
+    secondary_groups: Dict[str, List[Dict]] = defaultdict(list)
+
+    for r in primary_rows:
+        key = r.get(stratify_col, 'Unknown')
+        primary_groups[key].append(r)
+    
+    for r in secondary_rows:
+        key = r.get(stratify_col, 'Unknown')
+        secondary_groups[key].append(r)
+
+    # Calculate total counts per system
+    all_systems = set(primary_groups.keys()) | set(secondary_groups.keys())
+    total_per_system = {sys: len(primary_groups[sys]) + len(secondary_groups[sys]) for sys in all_systems}
+    total_all = len(data)
+
+    if total_all == 0:
+        return []
+
+    # Determine target counts per system based on stratified proportion
+    # We want to preserve the ratio of each system in the final dataset
+    target_counts = {}
+    for sys in all_systems:
+        proportion = total_per_system[sys] / total_all
+        count = int(round(target_size * proportion))
+        # Ensure at least 1 if the system exists, unless target is 0
+        if count == 0 and total_per_system[sys] > 0:
+            count = 1
+        target_counts[sys] = count
+
+    # Adjust for rounding errors to hit target_size exactly
+    current_sum = sum(target_counts.values())
+    diff = target_size - current_sum
+    if diff != 0:
+        # Sort systems by remaining fractional part or just by size to add/remove
+        # Simple approach: add/subtract from largest groups
+        sorted_sys = sorted(all_systems, key=lambda s: total_per_system[s], reverse=True)
+        for i in range(abs(diff)):
+            sys = sorted_sys[i % len(sorted_sys)]
+            if diff > 0:
+                target_counts[sys] += 1
+            else:
+                if target_counts[sys] > 0:
+                    target_counts[sys] -= 1
+
+    final_data = []
+    
+    # 1. Process Primary Source first
+    for sys in all_systems:
+        available_primary = primary_groups[sys]
+        needed = target_counts[sys]
         
-        # Re-identify leftovers
-        leftovers = []
-        for system, items in system_groups.items():
-            # We need to know which specific items were picked. 
-            # Since we used random.sample on a list of references, we can't easily compare object identity if dicts are identical.
-            # However, we built 'sampled_data' from 'items'.
-            # Let's reconstruct the set of used items by index if we had indices, or just assume the proportional math is close enough.
-            # For strict correctness, we should track indices.
-            pass 
+        # Take all available primary, up to needed
+        # If we have more primary than needed, we MUST cap (FR-010 says retain primary first, 
+        # but we are capped by total size. If primary > needed, we take 'needed' random ones).
+        # Actually, the constraint "Retain records from primary source first" usually means 
+        # "Don't drop primary to keep secondary". 
+        # So: Take min(available_primary, needed).
         
-        # Fallback: If we are slightly under, just random sample from the whole original dataset to fill up, 
-        # acknowledging slight stratification drift is acceptable for the last few rows.
-        if remaining_needed > 0:
-            # Create a set of tuples of sorted items to identify used rows (assuming dicts are hashable? No)
-            # Convert to string representation for comparison? Expensive.
-            # Let's just assume the proportional allocation is sufficient for the cap logic.
-            # The requirement is "≤10,000", so being slightly under is fine.
+        take_count = min(len(available_primary), needed)
+        if take_count > 0:
+            # Shuffle to ensure randomness within the primary set
+            random.shuffle(available_primary)
+            final_data.extend(available_primary[:take_count])
+            needed -= take_count
+
+    # 2. Fill remaining slots with Secondary Source
+    for sys in all_systems:
+        if needed <= 0:
+            # Recalculate needed globally? No, we iterate per system.
+            # If we already met the target for this system, skip.
+            # But we might have over-allocated in step 1? No, we capped at 'needed' per system.
+            # Wait, if primary > needed, we took 'needed'. The system quota is full.
+            # If primary < needed, we took all primary, and 'needed' is reduced by what we took.
+            # We need to track the remaining quota for this specific system.
             pass
-
-    # Final check to ensure we don't exceed max_size (due to potential logic issues)
-    if len(sampled_data) > max_size:
-        # Truncate
-        random.shuffle(sampled_data)
-        sampled_data = sampled_data[:max_size]
         
-    logger.info(f"Final dataset size after capping: {len(sampled_data)}")
-    return sampled_data
+        # Recalculate remaining quota for this system
+        # We took min(len(primary), original_target). 
+        # Remaining needed = original_target - taken
+        # But we didn't store original_target per system in the loop easily.
+        # Let's re-derive:
+        original_target = target_counts[sys]
+        taken_primary = min(len(primary_groups[sys]), original_target)
+        remaining_quota = original_target - taken_primary
+        
+        if remaining_quota > 0:
+            available_secondary = secondary_groups[sys]
+            take_count = min(len(available_secondary), remaining_quota)
+            if take_count > 0:
+                random.shuffle(available_secondary)
+                final_data.extend(available_secondary[:take_count])
+
+    logger.info(f"Capped dataset: {len(data)} -> {len(final_data)} rows (Target: {target_size})")
+    return final_data

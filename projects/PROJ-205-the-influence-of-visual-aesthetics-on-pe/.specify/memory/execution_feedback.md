@@ -1,0 +1,119 @@
+# Execution failures — fix these before the analysis can run
+
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
+
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
+
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
+
+- code/utils/generate_mock_data.py: function `generate_user_agent` returns a bare RNG draw (line 63) — a reported value computed from no real input
+- code/analysis/05_audit.py: synthetic/fake INPUT data not authorized by the spec — “…pp.py) or the authorized mock data generator (code/utils/ge…”
+- code/analysis/05_audit.py: synthetic/fake INPUT data not authorized by the spec — “…n the survey or generate mock data first using "…”
+- code/utils/generate_mock_data.py: synthetic/fake INPUT data not authorized by the spec — “…""" Utility to generate mock data for benchmarking and dev…”
+- code/utils/generate_mock_data.py: synthetic/fake INPUT data not authorized by the spec — “…evelopment.  This script generates a synthetic dataset for the survey s…”
+- code/utils/generate_mock_data.py: synthetic/fake INPUT data not authorized by the spec — “…entry point to generate mock data."""     print("Generatin…”
+- code/utils/generate_mock_data.py: synthetic/fake INPUT data not authorized by the spec — “…""     print("Generating mock survey data...")          # Ensure d…”
+
+The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
+
+**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/utils/generate_mock_data.py: function `generate_user_agent` returns a bare RNG draw (line 63) — a reported value computed from no real input; code/analysis/05_audit.py: synthetic/fake INPUT data not authorized by the spec — “…pp.py) or the authorized mock data generator (code/utils/ge…”; code/analysis/05_audit.py: synthetic/fake INPUT data not authorized by the spec — “…n the survey or generate mock data first using "…”; 3 command(s) failed: python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json (rc=1); python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json (rc=1); python code/analysis/03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json (rc=1); 7 declared deliverable(s) absent: data/processed/anova_results.json; data/processed/clean_data.csv; data/processed/dedup_report.csv
+
+## Failing / missing run-book commands
+
+- python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json -> rc=1
+    Loading data from ../../data/raw/participants.csv...
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/01_anova.py", line 268, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/01_anova.py", line 236, in main
+    df = load_wide_data(args.input)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/01_anova.py", line 51, in load_wide_data
+    raise FileNotFoundError(f"Input file not found: {input_path}")
+FileNotFoundError: Input file not found: ../../data/raw/participants.csv
+- python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json -> rc=1
+    Loading data from ../../data/raw/participants.csv...
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/02_pairwise.py", line 189, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/02_pairwise.py", line 168, in main
+    df = load_wide_data(args.input)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/02_pairwise.py", line 32, in load_wide_data
+    raise FileNotFoundError(f"Input file not found: {input_path}")
+FileNotFoundError: Input file not found: ../../data/raw/participants.csv
+- python code/analysis/03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/03_mixed_effects.py", line 306, in <module>
+    main()
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/03_mixed_effects.py", line 213, in main
+    os.makedirs(os.dirname(output_path), exist_ok=True)
+                ^^^^^^^^^^
+AttributeError: module 'os' has no attribute 'dirname'
+
+## Declared deliverables still missing
+
+- data/processed/anova_results.json
+- data/processed/clean_data.csv
+- data/processed/dedup_report.csv
+- data/processed/mixed_effects_comparison.json
+- data/processed/mixed_effects_results.json
+- data/processed/power_analysis_report.json
+- data/raw/submissions.csv
+
+## Declared deliverables NOT produced — make the run-book produce them
+
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+
+- `data/processed/anova_results.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/04_compare.py` — NOT invoked by the run-book
+    - `code/analysis/03_mixed_effects.py` — IS a run-book command
+    - `code/analysis/05_robustness_report.py` — NOT invoked by the run-book
+    - `code/analysis/03_report.py` — NOT invoked by the run-book
+    - `code/analysis/01_anova.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/anova_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/clean_data.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/04_power_analysis.py` — NOT invoked by the run-book
+    - `code/analysis/00_preprocess.py` — NOT invoked by the run-book
+    - `code/analysis/00_verify_dependencies.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/clean_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/dedup_report.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/utils/dedup.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/dedup_report.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/mixed_effects_comparison.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/04_compare.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/mixed_effects_comparison.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/mixed_effects_results.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/update_schemas.py` — NOT invoked by the run-book
+    - `code/analysis/04_compare.py` — NOT invoked by the run-book
+    - `code/analysis/03_mixed_effects.py` — IS a run-book command
+    - `code/analysis/05_robustness_report.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/mixed_effects_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/power_analysis_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis/04_power_analysis.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/power_analysis_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/submissions.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/survey/app.py` — NOT invoked by the run-book
+    - `code/survey/constants.py` — NOT invoked by the run-book
+    - `code/utils/generate_mock_data.py` — NOT invoked by the run-book
+    - `code/utils/helpers.py` — NOT invoked by the run-book
+    - `code/utils/checksums.py` — NOT invoked by the run-book
+    - `code/utils/dedup.py` — NOT invoked by the run-book
+    - `code/utils/truncate_metadata.py` — NOT invoked by the run-book
+    - `code/analysis/04_power_analysis.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/raw/submissions.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+
+## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
+
+One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
+
+**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
+
+### `data/raw/participants.csv`
+
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis/03_mixed_effects.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/raw/participants.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/analysis/03_mixed_effects.py`.

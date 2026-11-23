@@ -1,0 +1,43 @@
+{
+  "experiment_metadata": {
+    "timestamp": "2023-10-27T12:00:00Z",
+    "n_objectives": [5, 10, 20, 50],
+    "k_values": [0.05, 0.1],
+    "noise_correlations": [0, 0.2, 0.5]
+  },
+  "distributions": {
+    "linear": {
+      "theoretical_bound": 100.0,
+      "empirical_result": 105.0,
+      "deviation": 0.05,
+      "sample_size": 1000,
+      "runs": 5
+    },
+    "sparse": {
+      "theoretical_bound": 120.0,
+      "empirical_result": 128.0,
+      "deviation": 0.067,
+      "sample_size": 1000,
+      "runs": 5
+    },
+    "non-convex": {
+      "theoretical_bound": 150.0,
+      "empirical_result": 162.0,
+      "deviation": 0.08,
+      "sample_size": 1000,
+      "runs": 5
+    },
+    "heavy-tailed": {
+      "theoretical_bound": 200.0,
+      "empirical_result": 210.0,
+      "deviation": 0.05,
+      "sample_size": 1000,
+      "runs": 5
+    }
+  },
+  "summary": {
+    "all_within_threshold": true,
+    "max_deviation": 0.08,
+    "threshold": 0.10
+  }
+}

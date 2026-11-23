@@ -1,0 +1,31 @@
+# Schema for trained model artifacts and metrics
+# Fields: cancer_type (string), alpha (float), lambda (float), coefficients (object), cross_val_auc (float)
+type: object
+required:
+  - cancer_type
+  - alpha
+  - lambda
+  - coefficients
+  - cross_val_auc
+properties:
+  cancer_type:
+    type: string
+    description: The tumor type this model was trained on
+  alpha:
+    type: number
+    format: float
+    description: Elastic net mixing parameter (1 for Lasso, 0 for Ridge)
+  lambda:
+    type: number
+    format: float
+    description: Regularization strength parameter
+  coefficients:
+    type: object
+    description: Mapping of gene symbol to coefficient value
+    additionalProperties:
+      type: number
+      format: float
+  cross_val_auc:
+    type: number
+    format: float
+    description: Area Under the ROC Curve from cross-validation

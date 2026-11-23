@@ -8,6 +8,10 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import numpy as np
+import pandas as pd
+import mne
+from scipy.signal import butter, filtfilt
+from scipy.stats import kurtosis
 
 def calculate_angular_deviation(heading_vector: np.ndarray, optimal_vector: np.ndarray) -> Optional[float]:
     """
@@ -56,14 +60,7 @@ def apply_filters(raw_data: np.ndarray, sfreq: float, bandpass: List[float], not
     logger = logging.getLogger(__name__)
     logger.info(f"Applying bandpass filter [{bandpass[0]}Hz, {bandpass[1]}Hz] and notch filter {notch}Hz")
 
-    # Placeholder for actual MNE filtering
-    # In real implementation: use mne.filter.filter_data()
-    filtered_data = raw_data.copy()
-
-    # Simulate filtering (remove this in real implementation)
-    # This is just to satisfy the function signature for now
-    from scipy.signal import butter, filtfilt
-
+    # Band‑pass filter using butterworth
     def butter_bandpass(lowcut, highcut, fs, order=4):
         nyq = 0.5 * fs
         low = lowcut / nyq
@@ -76,18 +73,24 @@ def apply_filters(raw_data: np.ndarray, sfreq: float, bandpass: List[float], not
         y = filtfilt(b, a, data, axis=1)
         return y
 
-    filtered_data = butter_bandpass_filter(
-        filtered_data, bandpass[0], bandpass[1], sfreq
-    )
+    filtered = butter_bandpass_filter(raw_data, bandpass[0], bandpass[1], sfreq)
 
-    return filtered_data
+    # Notch filter (simple FIR notch using mne)
+    try:
+        notch_filter = mne.filter.notch_filter(filtered, sfreq, np.array([notch]), verbose=False)
+        filtered = notch_filter
+    except Exception as e:
+        logger.warning(f"Notch filter failed ({e}); proceeding without notch.")
 
-def run_ica(raw_data: np.ndarray, n_components: Optional[int] = None) -> Dict[str, Any]:
+    return filtered
+
+def run_ica(raw_data: np.ndarray, sfreq: float, n_components: Optional[int] = None) -> Dict[str, Any]:
     """
     Run ICA to identify and remove artifacts.
 
     Args:
-        raw_data: Preprocessed EEG data.
+        raw_data: Preprocessed EEG data (n_channels, n_samples).
+        sfreq: Sampling frequency in Hz.
         n_components: Number of ICA components (None for automatic).
 
     Returns:
@@ -96,13 +99,35 @@ def run_ica(raw_data: np.ndarray, n_components: Optional[int] = None) -> Dict[st
     logger = logging.getLogger(__name__)
     logger.info("Running ICA for artifact removal")
 
-    # Placeholder for actual MNE ICA
-    # In real implementation: use mne.preprocessing.ICA
+    # Create MNE Raw object from numpy data
+    n_channels = raw_data.shape[0]
+    ch_names = [f'CH{i}' for i in range(n_channels)]
+    info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types='eeg')
+    raw = mne.io.RawArray(raw_data, info, verbose=False)
+
+    # Fit ICA
+    ica = mne.preprocessing.ICA(n_components=n_components or 0.95,
+                                random_state=0,
+                                max_iter='auto',
+                                verbose=False)
+    ica.fit(raw)
+
+    # Simple heuristic: mark components with high kurtosis as artifacts
+    sources = ica.get_sources(raw).get_data()
+    component_kurtosis = kurtosis(sources, axis=1)
+    kurt_threshold = np.percentile(np.abs(component_kurtosis), 90)  # top 10% as bad
+    bad_idxs = [idx for idx, val in enumerate(component_kurtosis) if np.abs(val) >= kurt_threshold]
+
+    ica.exclude = bad_idxs
+    cleaned_raw = ica.apply(raw.copy())
+
     result = {
-        'n_components': n_components,
-        'removed_components': [],
-        'ica_info': 'Placeholder ICA result'
+        'n_components': ica.n_components_,
+        'removed_components': bad_idxs,
+        'ica_info': 'ICA performed with kurtosis‑based exclusion',
+        'cleaned_data': cleaned_raw.get_data()
     }
+    logger.info(f"ICA removed components: {bad_idxs}")
 
     return result
 
@@ -117,8 +142,27 @@ def save_preprocessing_log(log_data: Dict[str, Any], output_path: str) -> None:
     path = Path(output_path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Load existing log if present and append
+    if path.is_file():
+        with open(path, 'r', encoding='utf-8') as f:
+            existing = yaml.safe_load(f) or {}
+    else:
+        existing = {}
+
+    # Ensure top‑level structure
+    existing.setdefault('version', 1.0)
+    existing.setdefault('generated_by', 'preprocess.py')
+    existing.setdefault('timestamp', None)
+    existing.setdefault('entries', [])
+
+    entry = {
+        'step': log_data.get('step', 'ICA'),
+        'details': log_data
+    }
+    existing['entries'].append(entry)
+
     with open(path, 'w', encoding='utf-8') as f:
-        yaml.dump(log_data, f, default_flow_style=False)
+        yaml.dump(existing, f, default_flow_style=False)
 
     logger = logging.getLogger(__name__)
     logger.info(f"Preprocessing log saved to {output_path}")
@@ -175,23 +219,47 @@ def process_eeg_data(raw_file: str, config: Dict[str, Any]) -> Dict[str, Any]:
     Process raw EEG data according to configuration.
 
     Args:
-        raw_file: Path to raw EEG data file.
+        raw_file: Path to raw EEG data file (CSV with columns FCz, Cz, Fz).
         config: Preprocessing configuration dictionary.
 
     Returns:
-        Dictionary with processed data and metadata.
+        Dictionary with processed data and metadata, including ICA removal info.
     """
     logger = logging.getLogger(__name__)
     logger.info(f"Processing EEG data from {raw_file}")
 
-    # Placeholder for actual data loading and processing
-    # In real implementation: use mne.io.read_raw()
+    # Load CSV
+    df = pd.read_csv(raw_file)
+
+    # Extract EEG channels (assume columns FCz, Cz, Fz)
+    eeg_channels = ['FCz', 'Cz', 'Fz']
+    if not all(ch in df.columns for ch in eeg_channels):
+        raise ValueError(f"EEG channel columns {eeg_channels} not found in {raw_file}")
+
+    # Pivot to shape (n_channels, n_samples)
+    # Assume data is ordered by time; we take the values as they appear
+    eeg_data = df[eeg_channels].to_numpy().T  # shape (3, n_samples)
+
+    sfreq = config.get('preprocessing', {}).get('sfreq', 1000.0)  # default 1000 Hz
+    bandpass = config.get('preprocessing', {}).get('filter_bandpass', [1.0, 40.0])
+    notch = config.get('preprocessing', {}).get('filter_notch', 50.0)
+
+    # Filtering
+    filtered = apply_filters(eeg_data, sfreq, bandpass, notch)
+
+    # ICA
+    ica_result = run_ica(filtered, sfreq)
 
     result = {
         'raw_file': raw_file,
         'config': config,
+        'filtered_shape': filtered.shape,
+        'ica': {
+            'removed_components': ica_result['removed_components'],
+            'n_components': ica_result['n_components']
+        },
         'processed': True,
-        'message': 'Placeholder processing result'
+        'message': 'EEG data filtered and ICA applied'
     }
 
     return result
@@ -202,23 +270,32 @@ def main():
     """
     import argparse
     parser = argparse.ArgumentParser(description='Preprocess EEG data')
-    parser.add_argument('--config', type=str, required=True, help='Path to config file')
-    parser.add_argument('--input', type=str, required=True, help='Path to input data')
+    parser.add_argument('--config', type=str, required=False, help='Path to config file')
+    parser.add_argument('--input', type=str, required=True, help='Path to input CSV data')
     parser.add_argument('--output', type=str, required=True, help='Path to output directory')
-
     args = parser.parse_args()
 
-    # Load config
+    # Load configuration (defaults if missing)
     from .config_loader import load_config
     config = load_config(args.config)
 
     # Run processing
     result = process_eeg_data(args.input, config)
 
-    # Save results
-    save_preprocessing_log(result, f"{args.output}/preprocessing_log.yaml")
+    # Save ICA log to the canonical preprocessing log
+    log_path = Path('data/preprocessing.yaml')
+    log_data = {
+        'step': 'ICA',
+        'removed_components': result['ica']['removed_components'],
+        'n_components': result['ica']['n_components'],
+        'raw_file': args.input
+    }
+    save_preprocessing_log(log_data, str(log_path))
 
-    print(f"Preprocessing complete. Results saved to {args.output}")
+    # Ensure output directory exists (may be used by downstream steps)
+    Path(args.output).mkdir(parents=True, exist_ok=True)
+
+    print(f"Preprocessing complete. ICA log written to {log_path}")
 
 if __name__ == '__main__':
     main()

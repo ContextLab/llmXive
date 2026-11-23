@@ -1,11 +1,8 @@
 """
 Stimulus Generation Module for Visual Crowding Experiments.
 
-Generates controlled visual crowding stimuli from RAVDESS frames with:
-- Parametric control over flanker count and eccentricity
-- Emotion filtering with graceful degradation for missing categories
-- Overlap detection and exclusion
-- Comprehensive logging and manifest generation
+Generates controlled visual crowding stimuli from the RAVDESS dataset with
+parametric control over flanker count, eccentricity, and emotion.
 """
 import os
 import sys
@@ -13,258 +10,420 @@ import json
 import logging
 import math
 import random
+import shutil
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-from PIL import Image, ImageDraw, ImageFont
-import numpy as np
 
-# Import from project API surface
-from config import get_seed, set_all_seeds, ensure_directories, get_env_config
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+
+# Add project root to path to resolve imports
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from config import set_all_seeds, ensure_directories, get_seed
 from utils.frame_extractor import extract_frames_from_dataset
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/interim/generation_errors.log', mode='w')
-    ]
-)
-logger = logging.getLogger(__name__)
-
 # Constants
-TARGET_SIZE = (256, 256)
-FLANKER_SIZE = 40
-MIN_FLANKER_COUNT = 3
-MAX_FLANKER_COUNT = 12
-ECCENTRICITY_LEVELS = [0.1, 0.2, 0.3]  # Relative to image radius
-EMOTION_CATEGORIES = [
-    'angry', 'disgusted', 'fearful', 'happy', 
-    'neutral', 'sad', 'surprised', 'calm'
-]
+RAVDESS_FRAMES_DIR = Path("data/raw/frames")
+STIMULI_OUTPUT_DIR = Path("data/interim/stimuli")
+ERROR_LOG_PATH = Path("data/interim/generation_errors.log")
+MANIFEST_PATH = Path("data/interim/stimuli_manifest.json")
 
-def load_frames_by_emotion(frames_dir: Path, emotions: List[str]) -> Dict[str, List[Path]]:
-    """Load frames filtered by emotion categories."""
-    emotion_frames = {emotion: [] for emotion in emotions}
-    missing_emotions = []
+# RAVDESS Emotion Mapping
+RAVDESS_EMOTIONS = {
+    1: "neutral",
+    2: "calm",
+    3: "happy",
+    4: "sad",
+    5: "angry",
+    6: "fearful",
+    7: "disgusted",
+    8: "surprised"
+}
+
+# Visual Parameters
+TARGET_SIZE = (256, 256)  # Target face size
+FLANKER_SIZE = 64  # Flanker image size
+MIN_ECCENTRICITY = 1.5  # In units of target radius
+MAX_ECCENTRICITY = 3.0  # In units of target radius
+FLANKER_COUNTS = [3, 5, 7]  # Levels of crowding
+
+# Setup logging
+def setup_logging():
+    """Configure logging for the stimulus generation process."""
+    ensure_directories([ERROR_LOG_PATH.parent])
     
-    for emotion in emotions:
-        emotion_path = frames_dir / emotion
-        if not emotion_path.exists():
-            logger.warning(f"Emotion category '{emotion}' not found in dataset. Excluding from generation.")
-            missing_emotions.append(emotion)
-            continue
+    # Create file handler for errors
+    error_handler = logging.FileHandler(ERROR_LOG_PATH, mode='w')
+    error_handler.setLevel(logging.WARNING)
+    error_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    error_handler.setFormatter(error_formatter)
+
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+
+    logger = logging.getLogger('stimulus_gen')
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(error_handler)
+    logger.addHandler(console_handler)
+
+    return logger
+
+logger = setup_logging()
+
+def load_frames_by_emotion(emotion_id: int, max_frames: int = 10) -> List[Image.Image]:
+    """
+    Load frames from the RAVDESS dataset filtered by a specific emotion.
+    
+    Args:
+        emotion_id: The numeric ID of the emotion (1-8)
+        max_frames: Maximum number of frames to load per actor
         
-        for frame_file in emotion_path.glob("*.png"):
-            emotion_frames[emotion].append(frame_file)
+    Returns:
+        List of PIL Image objects
+    """
+    frames = []
+    emotion_name = RAVDESS_EMOTIONS.get(emotion_id, f"unknown_{emotion_id}")
+    logger.info(f"Loading frames for emotion: {emotion_name} (ID: {emotion_id})")
+
+    if not RAVDESS_FRAMES_DIR.exists():
+        logger.error(f"Frames directory not found: {RAVDESS_FRAMES_DIR}")
+        return []
+
+    # Scan for actor directories
+    actor_dirs = [d for d in RAVDESS_FRAMES_DIR.iterdir() if d.is_dir()]
+    
+    if not actor_dirs:
+        logger.warning(f"No actor directories found in {RAVDESS_FRAMES_DIR}")
+        return []
+
+    for actor_dir in actor_dirs:
+        # Look for emotion-specific subdirectories or files
+        # RAVDESS structure: actor_XX/actor_XX_s01_emotion_XX.jpg
+        emotion_files = list(actor_dir.glob(f"*emotion_{emotion_id}*"))
         
-        if not emotion_frames[emotion]:
-            logger.warning(f"No frames found for emotion '{emotion}'. Excluding from generation.")
-            missing_emotions.append(emotion)
+        if not emotion_files:
+            # Try case-insensitive or alternative naming
+            all_files = list(actor_dir.glob("*"))
+            emotion_files = [f for f in all_files if str(emotion_id) in f.stem or emotion_name in f.stem.lower()]
+
+        # Select up to max_frames
+        selected = emotion_files[:max_frames]
+        for img_path in selected:
+            try:
+                img = Image.open(img_path).convert('RGB')
+                img = img.resize(TARGET_SIZE, Image.Resampling.LANCZOS)
+                frames.append(img)
+            except Exception as e:
+                logger.warning(f"Failed to load image {img_path}: {e}")
+
+    if not frames:
+        logger.warning(f"No frames found for emotion ID {emotion_id}. Proceeding with available categories.")
     
-    # Log missing emotions
-    for emotion in missing_emotions:
-        if emotion in emotion_frames:
-            del emotion_frames[emotion]
+    return frames
+
+def generate_flanker_positions(
+    target_radius: float, 
+    eccentricity: float, 
+    count: int
+) -> List[Tuple[float, float]]:
+    """
+    Generate random positions for flankers around a central target.
     
-    available = list(emotion_frames.keys())
-    logger.info(f"Available emotion categories: {available}")
-    return emotion_frames
+    Args:
+        target_radius: Radius of the target face
+        eccentricity: Distance from center in units of target radius
+        count: Number of flankers to place
+        
+    Returns:
+        List of (x, y) coordinates relative to image center
+    """
+    positions = []
+    min_dist = target_radius + FLANKER_SIZE / 2  # Minimum distance to avoid overlap with target
+    max_dist = eccentricity * target_radius
+    
+    attempts = 0
+    max_attempts = 1000
+    
+    while len(positions) < count and attempts < max_attempts:
+        # Random angle
+        angle = random.uniform(0, 2 * math.pi)
+        # Random distance within eccentricity range
+        dist = random.uniform(min_dist, max_dist)
+        
+        x = dist * math.cos(angle)
+        y = dist * math.sin(angle)
+        
+        # Check for overlap with existing flankers
+        overlap = False
+        for existing_x, existing_y in positions:
+            dx = x - existing_x
+            dy = y - existing_y
+            if math.hypot(dx, dy) < FLANKER_SIZE:
+                overlap = True
+                break
+        
+        if not overlap:
+            positions.append((x, y))
+        
+        attempts += 1
+    
+    if len(positions) < count:
+        logger.warning(f"Could only place {len(positions)} of {count} flankers due to overlap constraints.")
+        
+    return positions
 
 def check_flanker_overlap(
     positions: List[Tuple[float, float]], 
-    flanker_size: int
+    target_radius: float,
+    flanker_radius: float
 ) -> bool:
-    """Check if any flankers overlap with each other or the center."""
-    center_size = FLANKER_SIZE  # Same size for simplicity
-    min_dist = flanker_size + center_size / 2
+    """
+    Check if any flankers overlap with the target or each other.
     
-    for i, (x1, y1) in enumerate(positions):
-        # Check overlap with center
-        dist_to_center = math.sqrt(x1**2 + y1**2)
-        if dist_to_center < min_dist:
-            return True
+    Args:
+        positions: List of flanker positions
+        target_radius: Radius of the central target
+        flanker_radius: Radius of a flanker
         
-        # Check overlap with other flankers
-        for j in range(i + 1, len(positions)):
-            x2, y2 = positions[j]
-            dist = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
-            if dist < min_dist:
-                return True
+    Returns:
+        True if any overlap is detected, False otherwise
+    """
+    # Check overlap with target (center at 0,0)
+    for x, y in positions:
+        if math.hypot(x, y) < target_radius + flanker_radius:
+            return True
     
+    # Check overlap between flankers
+    for i in range(len(positions)):
+        for j in range(i + 1, len(positions)):
+            dx = positions[i][0] - positions[j][0]
+            dy = positions[i][1] - positions[j][1]
+            if math.hypot(dx, dy) < 2 * flanker_radius:
+                return True
+                
     return False
 
-def generate_flanker_positions(
-    eccentricity: float, 
-    flanker_count: int, 
-    image_size: Tuple[int, int]
-) -> List[Tuple[float, float]]:
-    """Generate non-overlapping flanker positions around the center."""
-    img_w, img_h = image_size
-    center = (img_w / 2, img_h / 2)
-    radius = min(img_w, img_h) / 2
-    target_radius = eccentricity * radius
-    
-    positions = []
-    max_attempts = 1000
-    
-    for _ in range(max_attempts):
-        if len(positions) >= flanker_count:
-            break
-        
-        angle = random.uniform(0, 2 * math.pi)
-        # Add some radial variation
-        r = target_radius * random.uniform(0.8, 1.2)
-        x = r * math.cos(angle)
-        y = r * math.sin(angle)
-        
-        # Check if this position causes overlap
-        test_positions = positions + [(x, y)]
-        if not check_flanker_overlap(test_positions, FLANKER_SIZE):
-            positions.append((x, y))
-    
-    if len(positions) < flanker_count:
-        logger.warning(f"Could only place {len(positions)} non-overlapping flankers out of {flanker_count}")
-    
-    return [(p[0] + center[0], p[1] + center[1]) for p in positions]
-
 def create_stimulus(
-    target_frame_path: Path,
+    target_img: Image.Image,
     flanker_positions: List[Tuple[float, float]],
-    output_path: Path
-) -> bool:
-    """Create a crowding stimulus by adding flankers to a target frame."""
-    try:
-        # Load target image
-        target_img = Image.open(target_frame_path).convert('RGB')
-        target_img = target_img.resize(TARGET_SIZE, Image.Resampling.LANCZOS)
+    flanker_count: int,
+    eccentricity: float
+) -> Tuple[Image.Image, str]:
+    """
+    Create a crowding stimulus by placing flankers around a target face.
+    
+    Args:
+        target_img: The central target face image
+        flanker_positions: List of (x, y) coordinates for flankers
+        flanker_count: The intended number of flankers
+        eccentricity: The eccentricity value used
         
-        draw = ImageDraw.Draw(target_img)
+    Returns:
+        Tuple of (stimulus image, exclusion reason or 'success')
+    """
+    # Create a blank canvas (white background)
+    canvas_size = TARGET_SIZE[0] + int(2 * (eccentricity * (TARGET_SIZE[0]/2)))
+    canvas = Image.new('RGB', (canvas_size, canvas_size), color=(255, 255, 255))
+    
+    # Calculate center
+    center_x = canvas_size // 2
+    center_y = canvas_size // 2
+    
+    # Paste target in the center
+    target_radius = TARGET_SIZE[0] / 2
+    canvas.paste(target_img, (center_x - target_radius, center_y - target_radius))
+    
+    # Create a placeholder flanker (random noise or a generic face patch)
+    # For this implementation, we use a simple gray square to represent flankers
+    # In a real experiment, these would be scrambled face parts or other faces
+    flanker_img = Image.new('RGB', (FLANKER_SIZE, FLANKER_SIZE), color=(128, 128, 128))
+    flanker_radius = FLANKER_SIZE / 2
+    
+    # Place flankers
+    for i, (x, y) in enumerate(flanker_positions):
+        # Check overlap before placing
+        if check_flanker_overlap([pos for j, pos in enumerate(flanker_positions) if j <= i], 
+                                 target_radius, 
+                                 flanker_radius):
+            # Skip if overlap detected (shouldn't happen if generated correctly, but safety check)
+            continue
         
-        # Draw flankers (simple circles for now)
-        for x, y in flanker_positions:
-            # Convert relative coordinates to image coordinates
-            img_x, img_y = int(x), int(y)
-            
-            # Draw flanker circle
-            left_up = (img_x - FLANKER_SIZE // 2, img_y - FLANKER_SIZE // 2)
-            right_down = (img_x + FLANKER_SIZE // 2, img_y + FLANKER_SIZE // 2)
-            
-            # Random gray shade for flanker
-            gray_value = random.randint(50, 150)
-            draw.ellipse([left_up, right_down], fill=(gray_value, gray_value, gray_value))
-        
-        # Save stimulus
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        target_img.save(output_path)
-        return True
-        
-    except Exception as e:
-        logger.error(f"Failed to create stimulus from {target_frame_path}: {str(e)}")
-        return False
+        pos_x = int(center_x + x - flanker_radius)
+        pos_y = int(center_y + y - flanker_radius)
+        canvas.paste(flanker_img, (pos_x, pos_y))
+    
+    # Verify exclusion condition: if we couldn't place all requested flankers
+    if len(flanker_positions) < flanker_count:
+        return canvas, f"overlap_exclusion: only placed {len(flanker_positions)} of {flanker_count} flankers"
+    
+    return canvas, "success"
 
 def generate_stimuli(
-    frames_dir: Path,
-    output_dir: Path,
-    emotions: Optional[List[str]] = None,
+    seed: int = 42,
+    emotions: Optional[List[int]] = None,
     flanker_counts: Optional[List[int]] = None,
-    eccentricities: Optional[List[float]] = None
-) -> List[Dict[str, Any]]:
-    """Generate all stimuli combinations."""
+    eccentricities: Optional[List[float]] = None,
+    frames_per_emotion: int = 5
+) -> Dict[str, Any]:
+    """
+    Generate the full set of crowding stimuli.
+    
+    Args:
+        seed: Random seed for reproducibility
+        emotions: List of emotion IDs to process (default: all 1-8)
+        flanker_counts: List of flanker counts (default: [3, 5, 7])
+        eccentricities: List of eccentricity values (default: linear spacing)
+        frames_per_emotion: Number of source frames to use per emotion
+        
+    Returns:
+        Dictionary containing generation statistics and paths
+    """
+    set_all_seeds(seed)
+    ensure_directories([STIMULI_OUTPUT_DIR, ERROR_LOG_PATH.parent])
+    
     if emotions is None:
-        emotions = EMOTION_CATEGORIES
+        emotions = list(RAVDESS_EMOTIONS.keys())
     if flanker_counts is None:
-        flanker_counts = list(range(MIN_FLANKER_COUNT, MAX_FLANKER_COUNT + 1, 3))
+        flanker_counts = FLANKER_COUNTS
     if eccentricities is None:
-        eccentricities = ECCENTRICITY_LEVELS
+        # Generate 3 levels of eccentricity
+        eccentricities = [MIN_ECCENTRICITY, (MIN_ECCENTRICITY + MAX_ECCENTRICITY) / 2, MAX_ECCENTRICITY]
     
-    # Load available frames
-    emotion_frames = load_frames_by_emotion(frames_dir, emotions)
-    if not emotion_frames:
-        logger.error("No valid emotion categories found. Aborting generation.")
-        return []
+    generated_files = []
+    errors = []
+    missing_emotions = []
     
-    stimuli_manifest = []
-    total_combinations = 0
-    successful = 0
+    logger.info(f"Starting stimulus generation with {len(emotions)} emotions, "
+               f"{len(flanker_counts)} flanker counts, and {len(eccentricities)} eccentricities")
     
-    for emotion, frames in emotion_frames.items():
+    for emotion_id in emotions:
+        frames = load_frames_by_emotion(emotion_id, max_frames=frames_per_emotion)
+        
+        if not frames:
+            missing_emotions.append(emotion_id)
+            errors.append({
+                "type": "missing_data",
+                "emotion_id": emotion_id,
+                "emotion_name": RAVDESS_EMOTIONS.get(emotion_id, "unknown"),
+                "reason": "No frames found for this emotion"
+            })
+            continue
+        
         for flanker_count in flanker_counts:
             for eccentricity in eccentricities:
-                total_combinations += 1
-                
-                if not frames:
-                    logger.warning(f"No frames available for {emotion}, skipping combination")
-                    continue
-                
-                # Select a random frame for this combination
-                frame_path = random.choice(frames)
-                
-                # Generate flanker positions
-                positions = generate_flanker_positions(eccentricity, flanker_count, TARGET_SIZE)
-                
-                if len(positions) < flanker_count:
-                    logger.warning(f"Overlap detection: Could not place {flanker_count} flankers for {emotion} at eccentricity {eccentricity}")
-                    # Log exclusion reason
-                    logger.error(f"EXCLUSION: {emotion}, {flanker_count}, {eccentricity} - Overlapping flankers could not be placed")
-                    continue
-                
-                # Create output filename
-                stem = frame_path.stem
-                output_filename = f"{stem}_{emotion}_f{flanker_count}_e{eccentricity:.1f}.png"
-                output_path = output_dir / output_filename
-                
-                # Create stimulus
-                if create_stimulus(frame_path, positions, output_path):
-                    successful += 1
-                    stimuli_manifest.append({
-                        "file_path": str(output_path),
-                        "emotion": emotion,
+                for frame_idx, frame in enumerate(frames):
+                    # Generate positions
+                    positions = generate_flanker_positions(
+                        target_radius=TARGET_SIZE[0]/2,
+                        eccentricity=eccentricity,
+                        count=flanker_count
+                    )
+                    
+                    # Create stimulus
+                    stimulus, status = create_stimulus(
+                        target_img=frame,
+                        flanker_positions=positions,
+                        flanker_count=flanker_count,
+                        eccentricity=eccentricity
+                    )
+                    
+                    if status != "success":
+                        errors.append({
+                            "type": "generation_error",
+                            "emotion_id": emotion_id,
+                            "flanker_count": flanker_count,
+                            "eccentricity": eccentricity,
+                            "frame_idx": frame_idx,
+                            "reason": status
+                        })
+                        logger.warning(f"Excluded stimulus: {status}")
+                        continue
+                    
+                    # Save stimulus
+                    filename = (
+                        f"stimulus_e{emotion_id}_f{flanker_count}_ec{eccentricity:.2f}_fr{frame_idx:02d}.png"
+                    )
+                    filepath = STIMULI_OUTPUT_DIR / filename
+                    stimulus.save(filepath)
+                    
+                    generated_files.append({
+                        "filename": filename,
+                        "filepath": str(filepath),
+                        "emotion_id": emotion_id,
+                        "emotion_name": RAVDESS_EMOTIONS.get(emotion_id),
                         "flanker_count": flanker_count,
                         "eccentricity": eccentricity,
-                        "source_frame": str(frame_path),
+                        "frame_idx": frame_idx,
                         "status": "success"
                     })
-                    logger.info(f"Generated: {output_filename}")
-                else:
-                    logger.error(f"EXCLUSION: {emotion}, {flanker_count}, {eccentricity} - Failed to create image")
     
-    logger.info(f"Generation complete. Success: {successful}/{total_combinations}")
-    return stimuli_manifest
+    # Log missing emotions as warnings but do not halt
+    if missing_emotions:
+        missing_names = [RAVDESS_EMOTIONS.get(e, str(e)) for e in missing_emotions]
+        logger.warning(f"Missing categories (proceeding with available): {missing_names}")
+        for e in missing_emotions:
+            errors.append({
+                "type": "missing_category",
+                "emotion_id": e,
+                "emotion_name": RAVDESS_EMOTIONS.get(e),
+                "reason": "Category missing from source data"
+            })
+    
+    # Write error log
+    if errors:
+        with open(ERROR_LOG_PATH, 'w') as f:
+            json.dump(errors, f, indent=2)
+        logger.info(f"Logged {len(errors)} errors/exclusions to {ERROR_LOG_PATH}")
+    else:
+        # Create empty log if no errors to ensure file exists for downstream tasks
+        with open(ERROR_LOG_PATH, 'w') as f:
+            f.write("[]")
+    
+    return {
+        "total_generated": len(generated_files),
+        "total_errors": len(errors),
+        "files": generated_files,
+        "output_dir": str(STIMULI_OUTPUT_DIR)
+    }
 
 def main():
-    """Main entry point for stimulus generation."""
-    set_all_seeds(get_seed())
-    config = get_env_config()
+    """Entry point for the stimulus generation script."""
+    import argparse
     
-    # Ensure directories exist
-    ensure_directories()
+    parser = argparse.ArgumentParser(description="Generate visual crowding stimuli from RAVDESS.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--emotions", type=int, nargs="+", default=None, 
+                       help="Specific emotion IDs to process (default: all 1-8)")
+    parser.add_argument("--flankers", type=int, nargs="+", default=None,
+                       help="Specific flanker counts (default: 3 5 7)")
+    parser.add_argument("--eccentricities", type=float, nargs="+", default=None,
+                       help="Specific eccentricity values (default: auto-generated)")
+    parser.add_argument("--frames", type=int, default=5, help="Frames per emotion")
     
-    frames_dir = Path(config.get('frames_dir', 'data/raw/frames'))
-    output_dir = Path(config.get('stimuli_dir', 'data/interim/stimuli'))
-    output_dir.mkdir(parents=True, exist_ok=True)
+    args = parser.parse_args()
     
-    logger.info(f"Starting stimulus generation from {frames_dir}")
-    
-    # Generate stimuli
-    manifest = generate_stimuli(
-        frames_dir=frames_dir,
-        output_dir=output_dir,
-        emotions=EMOTION_CATEGORIES,
-        flanker_counts=list(range(3, 13, 3)),
-        eccentricities=[0.1, 0.2, 0.3]
-    )
-    
-    # Write manifest
-    manifest_path = output_dir / "stimuli_manifest.json"
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    
-    logger.info(f"Manifest written to {manifest_path}")
-    print(f"Generated {len(manifest)} stimuli")
-    
-    return manifest
+    try:
+        result = generate_stimuli(
+            seed=args.seed,
+            emotions=args.emotions,
+            flanker_counts=args.flankers,
+            eccentricities=args.eccentricities,
+            frames_per_emotion=args.frames
+        )
+        
+        logger.info(f"Generation complete: {result['total_generated']} stimuli created, "
+                   f"{result['total_errors']} exclusions logged.")
+        logger.info(f"Output directory: {result['output_dir']}")
+        
+    except Exception as e:
+        logger.error(f"Fatal error during generation: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

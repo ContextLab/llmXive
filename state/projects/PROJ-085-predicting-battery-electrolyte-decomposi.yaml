@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-085-predicting-battery-electrolyte-decomposi
-last_run_id: 59c40f3b-2610-43ba-bafd-70151dbde411
+last_run_id: c3da48df-3afe-48e8-9f72-90d3f55d6e70
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-085-predicting-battery-electrolyte-decomposi/specs/001-predicting-battery-electrolyte-decomposi
 title: Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning
-updated_at: '2026-07-10T22:45:21.095584Z'
+updated_at: '2026-10-18T05:27:43.245840Z'

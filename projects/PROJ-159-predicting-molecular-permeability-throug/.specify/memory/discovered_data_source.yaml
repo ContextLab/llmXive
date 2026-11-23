@@ -1,0 +1,18 @@
+status: none
+intent: CoRE MOF 2019 IZA Zeolite Figshare gas permeability python package dataset
+required_fields:
+- framework_id
+- framework_name
+- framework_cif
+- graph_node_atomic_number
+- graph_node_valence
+- graph_node_partial_charge
+- graph_node_hybridization
+- graph_node_orbital_info
+- graph_edge_distance
+- gas_smiles
+- gas_name
+- permeability_value
+cache_key: 3634e77bf1dabda053278ec4184105c2865ced3ddfd8a5e1db1c3b6404b54fb9
+searched_at: '2026-10-21T03:25:45.482662+00:00'
+retry_count: 1

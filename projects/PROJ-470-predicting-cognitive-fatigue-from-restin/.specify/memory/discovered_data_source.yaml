@@ -1,14 +1,14 @@
 status: none
-intent: download resting state EEG fatigue ratings dataset paired with PVT python
-  package dataset
+intent: PhysioNet resting state EEG fatigue rating dataset with PVT python package
+  dataset
 required_fields:
 - participant_id
 - eeg_signal
 - sampling_rate
-- recording_start_time
-- recording_end_time
 - fatigue_rating_pre
 - fatigue_rating_post
-- pvt_reaction_times
-- pvt_trial_number
 - task_condition
+- timestamp
+cache_key: 2bfd569fc8bf6ec83ba44556b59b2aa6991452dd33523a75d047c1c7511c56ae
+searched_at: '2026-10-14T16:34:44.892470+00:00'
+retry_count: 1

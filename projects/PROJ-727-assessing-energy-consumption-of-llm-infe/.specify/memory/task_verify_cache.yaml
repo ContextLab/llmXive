@@ -1,0 +1,21 @@
+T027:
+  c: true
+  h: ea6b58f71e42c4c12d3ab730d8e5dead445ece00f715b6f2cc54047ca4191ce2
+  r: "The file `code/visualization.py` exists, is non\u2011empty, and its `load_data`\
+    \ function reads exclusively from `data/processed/energy_results_aggregated.csv`\
+    \ and performs metric calculations without referencing any raw data. No placeholder\
+    \ or stub code is present."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` file was presented in the provided evidence, nor any excerpt
+    showing its contents. Without the file existing and containing the required template
+    (run instructions and placeholders for expected artifacts), the task requirement
+    is not satisfied. The implementer must add the `quickstart.md` document with the
+    specified structure.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `run.sh` execution on a clean GitHub Actions runner is provided,\
+    \ nor are the required output files (e.g., CSVs, PNGs) shown to exist or be non\u2011\
+    null. Without logs or generated artifacts, the final validation cannot be confirmed."

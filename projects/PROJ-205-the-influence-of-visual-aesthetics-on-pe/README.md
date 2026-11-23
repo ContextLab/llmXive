@@ -1,19 +1,43 @@
-# The Influence of Visual Aesthetics on Perceived Credibility of Online Information
+# PROJ-205: The Influence of Visual Aesthetics on Perceived Credibility
 
-## Project Overview
-This project investigates how visual design quality affects the perceived credibility of online content through a controlled online experiment.
+## Description
+This project implements an automated scientific pipeline to study how visual design affects the perceived credibility of online information.
 
-## Quick Start
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run the survey: `streamlit run code/survey/app.py`
-3. Run analysis: `python code/analysis/01_preprocess.py`
+## Setup
+1. Ensure Python 3.11+ is installed.
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+3. Set up data directories:
+ ```bash
+ python code/utils/setup_data_dirs.py
+ ```
+4. Configure IRB environment:
+ ```bash
+ export IRB_PROTOCOL_ID="YOUR_PROTOCOL_ID"
+ python code/utils/setup_env.py
+ ```
 
-## Project Structure
-See `projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/plan.md` for full structure.
+## Running the Study
+Start the Streamlit survey app:
+```bash
+streamlit run code/survey/app.py
+```
 
-## Requirements
-- Python 3.11+
-- See `requirements.txt` for dependencies
+## Analysis Pipeline
+Run the analysis scripts in order:
+1. Preprocessing: `python code/analysis/01_preprocess.py`
+2. ANOVA: `python code/analysis/01_anova.py`
+3. Pairwise Tests: `python code/analysis/02_pairwise.py`
+4. Report Generation: `python code/analysis/03_report.py`
+5. Robustness Check: `python code/analysis/04_mixed_effects.py`
+
+## Testing
+Run the test suite:
+```bash
+pytest tests/
+```
 
 ## License
-This project is for research purposes only.
+Internal Research Use Only.

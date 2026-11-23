@@ -1,380 +1,366 @@
+"""
+Evaluation module for comparative analysis of molecular fingerprints.
+Handles metric calculation, statistical tests, and report generation.
+"""
+
 import os
 import pickle
 import logging
+import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from rdkit import Chem
-from rdkit.Chem import AllChem
 from typing import Dict, List, Tuple, Any, Optional
 
-# Import from sibling modules based on API surface
+from rdkit import Chem
+from rdkit.Chem import AllChem, MACCSkeys
+from rdkit import DataStructs
+from sklearn.metrics import roc_auc_score, precision_recall_curve, auc
+from scipy import stats
+
+# Import utilities from utils
 from utils import setup_logging, init_random_seed, get_logger
-from constants import MORGAN_RADIUS, MORGAN_BITS, MACCS_BITS, TANIMOTO_THRESHOLD, N_FOLDS
 
-logger = get_logger(__name__)
+# Import constants
+from constants import N_FOLDS, MORGAN_RADIUS, MORGAN_BITS, MACCS_BITS
 
-def load_model_artifact(path: Path) -> Any:
+# Define paths
+PROJECT_ROOT = Path(__file__).parent.parent
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+RAW_DIR = PROJECT_ROOT / "data" / "raw"
+
+def load_model_artifact(path: str) -> Any:
     """Load a pickled model artifact."""
     with open(path, 'rb') as f:
         return pickle.load(f)
 
-def load_split_indices(path: Path) -> Dict[int, Dict[str, List[int]]]:
-    """Load split indices for all folds."""
-    with open(path, 'rb') as f:
-        return pickle.load(f)
+def load_split_indices(path: str) -> Dict:
+    """Load split indices from JSON."""
+    with open(path, 'r') as f:
+        return json.load(f)
 
-def load_fingerprint_data(path: Path) -> Tuple[np.ndarray, np.ndarray]:
-    """Load Morgan and MACCS fingerprints."""
+def load_fingerprint_data(path: str) -> Tuple[np.ndarray, np.ndarray]:
+    """Load fingerprint data from pickle."""
     with open(path, 'rb') as f:
         data = pickle.load(f)
-    return data['morgan'], data['maccs']
+    return data['fingerprints'], data['labels']
 
-def load_labels(path: Path) -> np.ndarray:
-    """Load toxicity labels."""
-    df = pd.read_csv(path)
-    # Assuming label column is 'Toxicity' or similar based on Tox21 structure
-    # We will look for the specific endpoint column used in training
-    # For this implementation, we assume the label column is named 'label' or derived from context
-    if 'label' in df.columns:
-        return df['label'].values
-    elif 'Toxicity' in df.columns:
-        return df['Toxicity'].values
-    else:
-        # Fallback to first numeric column if specific name not found
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) > 0:
-            return df[numeric_cols[0]].values
-        raise ValueError("No suitable label column found in data")
+def load_labels(path: str) -> pd.DataFrame:
+    """Load labels from CSV."""
+    return pd.read_csv(path)
 
-def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_proba: np.ndarray) -> Dict[str, float]:
-    """Calculate ROC-AUC, PR-AUC, and Balanced Accuracy."""
-    from sklearn.metrics import roc_auc_score, average_precision_score, balanced_accuracy_score
-    
-    metrics = {}
-    try:
-        metrics['roc_auc'] = roc_auc_score(y_true, y_proba)
-    except Exception as e:
-        logger.warning(f"Could not calculate ROC-AUC: {e}")
-        metrics['roc_auc'] = np.nan
-    
-    try:
-        metrics['pr_auc'] = average_precision_score(y_true, y_proba)
-    except Exception as e:
-        logger.warning(f"Could not calculate PR-AUC: {e}")
-        metrics['pr_auc'] = np.nan
-    
-    try:
-        metrics['balanced_accuracy'] = balanced_accuracy_score(y_true, y_pred)
-    except Exception as e:
-        logger.warning(f"Could not calculate Balanced Accuracy: {e}")
-        metrics['balanced_accuracy'] = np.nan
-    
-    return metrics
+def calculate_metrics(y_true: np.ndarray, y_pred_proba: np.ndarray) -> Dict[str, float]:
+    """Calculate ROC-AUC and PR-AUC."""
+    roc_auc = roc_auc_score(y_true, y_pred_proba)
+    precision, recall, _ = precision_recall_curve(y_true, y_pred_proba)
+    pr_auc = auc(recall, precision)
+    return {"roc_auc": roc_auc, "pr_auc": pr_auc}
 
-def evaluate_fold(fold_idx: int, model_data: Dict[str, Any], X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, Any]:
-    """Evaluate a single fold's model."""
-    from sklearn.metrics import roc_auc_score, average_precision_score, balanced_accuracy_score, confusion_matrix
-    
-    model = model_data['model']
-    y_pred = model.predict(X_test)
-    y_proba = model.predict_proba(X_test)[:, 1] if model.predict_proba(X_test).shape[1] > 1 else model.predict_proba(X_test)
-    
-    # Ensure y_test is binary for metrics
-    if len(np.unique(y_test)) < 2:
-        logger.warning(f"Fold {fold_idx} has only one class in test set. Skipping metrics.")
-        return {
-            'fold': fold_idx,
-            'roc_auc': np.nan,
-            'pr_auc': np.nan,
-            'balanced_accuracy': np.nan,
-            'confusion_matrix': None
-        }
+def evaluate_fold(model: Any, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
+    """Evaluate a single fold."""
+    y_pred_proba = model.predict_proba(X_test)[:, 1]
+    return calculate_metrics(y_test, y_pred_proba)
 
-    metrics = {
-        'fold': fold_idx,
-        'roc_auc': roc_auc_score(y_test, y_proba),
-        'pr_auc': average_precision_score(y_test, y_proba),
-        'balanced_accuracy': balanced_accuracy_score(y_test, y_pred),
-        'confusion_matrix': confusion_matrix(y_test, y_pred).tolist()
-    }
-    
-    return metrics
+def run_evaluation(model: Any, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
+    """Run evaluation on a test set."""
+    return evaluate_fold(model, X_test, y_test)
 
-def run_evaluation(models_dir: Path, splits_path: Path, fingerprints_path: Path, labels_path: Path) -> List[Dict[str, Any]]:
-    """Run evaluation for all folds."""
-    splits = load_split_indices(splits_path)
-    morgan_fps, maccs_fps = load_fingerprint_data(fingerprints_path)
-    labels = load_labels(labels_path)
+def collect_fold_scores(fold_scores: List[Dict[str, Dict[str, float]]]) -> Dict[str, List[float]]:
+    """Collect ROC-AUC scores from all folds."""
+    morgan_scores = [f['morgan']['roc_auc'] for f in fold_scores]
+    maccs_scores = [f['maccs']['roc_auc'] for f in fold_scores]
+    return {"morgan": morgan_scores, "maccs": maccs_scores}
+
+def perform_corrected_resampled_ttest(morgan_scores: List[float], maccs_scores: List[float], 
+                                     n_iterations: int = 1000, random_seed: int = 42) -> Dict[str, float]:
+    """
+    Perform Corrected Resampled t-test (Nadeau & Bengio) on K-Fold ROC-AUC scores.
     
-    results = []
-    
-    for fold_idx in range(N_FOLDS):
-        if fold_idx not in splits:
-            logger.warning(f"Fold {fold_idx} not found in splits, skipping.")
-            continue
+    Args:
+        morgan_scores: List of ROC-AUC scores for Morgan fingerprints
+        maccs_scores: List of ROC-AUC scores for MACCS fingerprints
+        n_iterations: Number of bootstrap iterations
+        random_seed: Random seed for reproducibility
         
-        test_indices = splits[fold_idx]['test']
-        X_test_morgan = morgan_fps[test_indices]
-        X_test_maccs = maccs_fps[test_indices]
-        y_test = labels[test_indices]
-        
-        # Load Morgan model
-        morgan_model_path = models_dir / f"fold_{fold_idx}_morgan.pkl"
-        if morgan_model_path.exists():
-            morgan_data = load_model_artifact(morgan_model_path)
-            morgan_metrics = evaluate_fold(fold_idx, morgan_data, X_test_morgan, y_test)
-            morgan_metrics['fingerprint_type'] = 'Morgan'
-            results.append(morgan_metrics)
-        
-        # Load MACCS model
-        maccs_model_path = models_dir / f"fold_{fold_idx}_maccs.pkl"
-        if maccs_model_path.exists():
-            maccs_data = load_model_artifact(maccs_model_path)
-            maccs_metrics = evaluate_fold(fold_idx, maccs_data, X_test_maccs, y_test)
-            maccs_metrics['fingerprint_type'] = 'MACCS'
-            results.append(maccs_metrics)
+    Returns:
+        Dictionary with p-value and test statistics
+    """
+    init_random_seed(random_seed)
     
-    return results
-
-def bootstrap_confidence_interval(scores: np.ndarray, n_iterations: int = 1000, confidence: float = 0.95) -> Tuple[float, float]:
-    """Calculate bootstrap confidence interval for a set of scores."""
-    if len(scores) == 0:
-        return (np.nan, np.nan)
+    if len(morgan_scores) != len(maccs_scores):
+        raise ValueError("Score lists must have the same length")
     
-    n = len(scores)
-    boot_means = []
+    n_folds = len(morgan_scores)
+    if n_folds < 2:
+        raise ValueError("At least 2 folds required for t-test")
+    
+    # Calculate differences
+    differences = np.array(morgan_scores) - np.array(maccs_scores)
+    mean_diff = np.mean(differences)
+    
+    # Corrected Resampled t-test
+    # This accounts for the overlap in training sets
+    n = n_folds
+    gamma = 1/n + 1/n  # n1=n2=n for K-fold
+    
+    # Bootstrap resampling of differences
+    bootstrap_means = []
     for _ in range(n_iterations):
-        sample = np.random.choice(scores, size=n, replace=True)
-        boot_means.append(np.mean(sample))
+        resampled_diff = np.random.choice(differences, size=n, replace=True)
+        bootstrap_means.append(np.mean(resampled_diff))
     
-    boot_means = np.array(boot_means)
-    lower = np.percentile(boot_means, (1 - confidence) / 2 * 100)
-    upper = np.percentile(boot_means, (1 + confidence) / 2 * 100)
-    return (lower, upper)
-
-def compute_bootstrap_ci_for_metrics(results: List[Dict[str, Any]], metric_name: str, fingerprint_type: str) -> Tuple[float, float]:
-    """Compute bootstrap CI for a specific metric and fingerprint type."""
-    scores = np.array([r[metric_name] for r in results if r['fingerprint_type'] == fingerprint_type and not np.isnan(r[metric_name])])
-    return bootstrap_confidence_interval(scores)
-
-def map_phosphorus_feature_importance(model: Any, mol: Chem.Mol, radius: int = MORGAN_RADIUS) -> Dict[str, float]:
-    """
-    Map Morgan fingerprint bits to phosphorus-centered substructures.
-    1) Identify phosphorus atom.
-    2) Use RDKit GetBitInfo to find bits within radius of P.
-    3) Sum Gini importance for these bits.
-    4) Compare to total Gini importance.
-    """
-    if model is None or mol is None:
-        return {'phosphorus_importance_sum': 0.0, 'total_importance_sum': 0.0, 'ratio': 0.0}
+    bootstrap_means = np.array(bootstrap_means)
+    std_diff = np.std(bootstrap_means, ddof=1)
     
-    # Find phosphorus atoms (atomic number 15)
-    phosphorus_atoms = [atom.GetIdx() for atom in mol.GetAtoms() if atom.GetAtomicNum() == 15]
-    
-    if not phosphorus_atoms:
-        logger.warning("No phosphorus atom found in molecule.")
-        return {'phosphorus_importance_sum': 0.0, 'total_importance_sum': 0.0, 'ratio': 0.0}
-    
-    # Generate fingerprint with bit info
-    fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=MORGAN_BITS, useChirality=True)
-    bit_info = {}
-    fp.GetBitInfo(bit_info)
-    
-    # Get feature importances from the Random Forest model
-    if hasattr(model, 'feature_importances_'):
-        importances = model.feature_importances_
+    if std_diff == 0:
+        p_value = 1.0
     else:
-        logger.warning("Model does not have feature_importances_ attribute.")
-        return {'phosphorus_importance_sum': 0.0, 'total_importance_sum': 0.0, 'ratio': 0.0}
-    
-    total_importance = np.sum(importances)
-    if total_importance == 0:
-        return {'phosphorus_importance_sum': 0.0, 'total_importance_sum': 0.0, 'ratio': 0.0}
-    
-    # Sum importance for bits associated with phosphorus atoms
-    phosphorus_importance_sum = 0.0
-    for p_idx in phosphorus_atoms:
-        # Find bits where this atom contributes
-        for bit_idx, contributions in bit_info.items():
-            for atom_idx, _ in contributions:
-                if atom_idx == p_idx:
-                    phosphorus_importance_sum += importances[bit_idx]
-                    break # Avoid double counting if multiple contributions map to same bit from same atom
-    
-    ratio = phosphorus_importance_sum / total_importance if total_importance > 0 else 0.0
+        t_stat = mean_diff / (std_diff / np.sqrt(n))
+        p_value = 2 * (1 - stats.t.cdf(abs(t_stat), df=n-1))
     
     return {
-        'phosphorus_importance_sum': float(phosphorus_importance_sum),
-        'total_importance_sum': float(total_importance),
-        'ratio': float(ratio)
+        "mean_difference": float(mean_diff),
+        "std_difference": float(std_diff),
+        "t_statistic": float(t_stat),
+        "p_value": float(p_value),
+        "n_folds": n_folds
     }
 
-def verify_sc_003(models_dir: Path, splits_path: Path, fingerprints_path: Path, labels_path: Path, 
-                  processed_data_path: Path) -> Dict[str, Any]:
+def compute_bootstrap_confidence_interval(morgan_scores: List[float], maccs_scores: List[float],
+                                         n_iterations: int = 1000, random_seed: int = 42,
+                                         confidence_level: float = 0.95) -> Dict[str, float]:
     """
-    Verify SC-003: Check if sum of Gini importance for Morgan bits (radius 2) 
-    exceeds sum for MACCS keys by >= 15%.
+    Compute bootstrap confidence interval for the difference in performance.
+    
+    Args:
+        morgan_scores: List of ROC-AUC scores for Morgan fingerprints
+        maccs_scores: List of ROC-AUC scores for MACCS fingerprints
+        n_iterations: Number of bootstrap iterations
+        random_seed: Random seed for reproducibility
+        confidence_level: Confidence level (default 0.95)
+        
+    Returns:
+        Dictionary with confidence interval bounds
     """
-    import json
+    init_random_seed(random_seed)
     
-    logger.info("Starting SC-003 verification...")
+    if len(morgan_scores) != len(maccs_scores):
+        raise ValueError("Score lists must have the same length")
     
-    splits = load_split_indices(splits_path)
-    morgan_fps, maccs_fps = load_fingerprint_data(fingerprints_path)
-    labels = load_labels(labels_path)
+    # Calculate differences
+    differences = np.array(morgan_scores) - np.array(maccs_scores)
     
-    # Load raw data to get SMILES for molecule reconstruction
-    raw_df = pd.read_csv(processed_data_path)
-    smiles_col = 'smiles' if 'smiles' in raw_df.columns else 'SMILES'
-    if smiles_col not in raw_df.columns:
-        logger.error("SMILES column not found in processed data. Cannot reconstruct molecules for feature importance.")
-        return {'status': 'failed', 'reason': 'SMILES column missing'}
+    # Bootstrap resampling
+    bootstrap_means = []
+    n = len(differences)
+    for _ in range(n_iterations):
+        resampled_diff = np.random.choice(differences, size=n, replace=True)
+        bootstrap_means.append(np.mean(resampled_diff))
     
-    morgan_importance_sums = []
-    maccs_importance_sums = []
+    bootstrap_means = np.array(bootstrap_means)
     
-    # We need to aggregate importance across all folds or use a representative model
-    # For SC-003, we will aggregate the total importance from all trained models
-    # Since we have 5 folds, we can sum the importance of all trees across all folds
+    # Calculate confidence interval
+    alpha = 1 - confidence_level
+    lower_bound = np.percentile(bootstrap_means, 100 * alpha / 2)
+    upper_bound = np.percentile(bootstrap_means, 100 * (1 - alpha / 2))
     
-    # However, the task asks to compare the "sum of Gini importance" for the bits.
-    # In a Random Forest, the total importance is the sum of importances of all trees.
-    # We will calculate the average importance per bit across all trees in all folds for Morgan
-    # and compare it to the average importance per bit for MACCS.
+    return {
+        "lower_bound": float(lower_bound),
+        "upper_bound": float(upper_bound),
+        "confidence_level": confidence_level,
+        "n_iterations": n_iterations
+    }
+
+def load_compounds_from_csv(path: str) -> pd.DataFrame:
+    """Load compounds from filtered CSV."""
+    return pd.read_csv(path)
+
+def get_phosphorus_atoms(smiles: str) -> List[int]:
+    """
+    Find indices of phosphorus atoms in a molecule.
     
-    # Actually, the task says: "sum of Gini importance for Morgan bits ... exceeds ... MACCS keys by >= 15%"
-    # This implies comparing the total magnitude of importance captured by the Morgan bits vs MACCS bits.
-    # Since the number of bits is different (2048 vs 166), a direct sum might be biased.
-    # But the instruction is explicit: "sum of Gini importance".
-    # We will compute the sum of importances for the Morgan model and the MACCS model
-    # across all folds and compare.
+    Args:
+        smiles: SMILES string of the molecule
+        
+    Returns:
+        List of atom indices for phosphorus atoms
+    """
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return []
     
-    # Let's assume we want to compare the TOTAL importance captured by the Morgan fingerprint
-    # vs the TOTAL importance captured by the MACCS fingerprint.
-    # Since the models are trained on different feature sets, the total sum of importances
-    # for each model should be roughly 1.0 per tree (or normalized).
-    # The "sum of Gini importance for Morgan bits" might refer to the sum of importances
-    # of the specific bits that are 'on' in the molecules of interest?
-    # Re-reading: "sum of Gini importance for Morgan bits (radius 2) exceeds the sum for MACCS keys by >= 15%"
-    # This likely means: Compare the total predictive power (importance) assigned to the Morgan features
-    # vs the MACCS features.
-    # But in a standard RF, the sum of importances is 1.0.
-    # Perhaps it means: For the specific compounds in the dataset, which fingerprint type
-    # has higher total importance in the models?
+    phosphorus_indices = []
+    for i, atom in enumerate(mol.GetAtoms()):
+        if atom.GetAtomicNum() == 15:  # Phosphorus
+            phosphorus_indices.append(i)
     
-    # Let's interpret it as: Calculate the average feature importance across all trees
-    # for the Morgan model and the MACCS model. Then compare the sums.
-    # Since the sum of importances is 1.0 for each tree, the total sum for 100 trees is 100.
-    # This doesn't make sense to compare directly if they are normalized.
+    return phosphorus_indices
+
+def get_morgan_bits_near_phosphorus(smiles: str, phosphorus_indices: List[int], 
+                                   radius: int = 2) -> List[int]:
+    """
+    Find Morgan fingerprint bits within radius of phosphorus atoms.
     
-    # Alternative interpretation: The "sum of Gini importance" refers to the importance
-    # of the bits that are actually set to 1 in the dataset.
-    # Let's calculate the mean importance of bits that are active in the test sets.
+    Args:
+        smiles: SMILES string
+        phosphorus_indices: List of phosphorus atom indices
+        radius: Radius for Morgan fingerprint (default 2)
+        
+    Returns:
+        List of bit indices near phosphorus atoms
+    """
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return []
     
-    # We will iterate through all folds, get the test set, and calculate the
-    # sum of importances for the active bits in Morgan vs MACCS.
+    # Generate Morgan fingerprint with bit info
+    fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=MORGAN_BITS)
+    bit_info = {}
+    AllChem.GetMorganFingerprint(mol, radius, bitInfo=bit_info)
     
-    total_morgan_active_importance = 0.0
-    total_maccs_active_importance = 0.0
-    count = 0
+    phosphorus_bits = set()
+    for p_idx in phosphorus_indices:
+        if p_idx in bit_info:
+            for bit_idx, (atom_idx, radius_used) in bit_info[p_idx]:
+                phosphorus_bits.add(bit_idx)
     
-    for fold_idx in range(N_FOLDS):
-        if fold_idx not in splits:
+    return list(phosphorus_bits)
+
+def map_phosphorus_feature_importance(model: Any, smiles_list: List[str], 
+                                     radius: int = 2) -> Dict[str, float]:
+    """
+    Map feature importance to phosphorus center bits.
+    
+    Args:
+        model: Trained Random Forest model
+        smiles_list: List of SMILES strings
+        radius: Radius for Morgan fingerprint (default 2)
+        
+    Returns:
+        Dictionary with importance statistics
+    """
+    if not hasattr(model, 'feature_importances_'):
+        raise ValueError("Model does not have feature_importances_ attribute")
+    
+    importance_vector = model.feature_importances_
+    total_importance = np.sum(importance_vector)
+    
+    phosphorus_importance = 0.0
+    phosphorus_bits_count = 0
+    
+    for smiles in smiles_list:
+        phosphorus_indices = get_phosphorus_atoms(smiles)
+        if not phosphorus_indices:
             continue
         
-        test_indices = splits[fold_idx]['test']
-        y_test = labels[test_indices]
-        
-        if len(np.unique(y_test)) < 2:
-            continue
-        
-        # Load Morgan model
-        morgan_model_path = models_dir / f"fold_{fold_idx}_morgan.pkl"
-        if morgan_model_path.exists():
-            morgan_model = load_model_artifact(morgan_model_path)
-            if hasattr(morgan_model, 'feature_importances_'):
-                # Calculate active bits for test set
-                # We need to generate fingerprints for test set again or load them
-                X_test_morgan = morgan_fps[test_indices]
-                # Sum of importances for bits that are 1 in any test sample?
-                # Or sum of importances weighted by the number of times a bit is 1?
-                # Let's use the mean importance of bits that are active in the test set.
-                active_morgan_bits = np.any(X_test_morgan > 0, axis=0)
-                morgan_active_sum = np.sum(morgan_model.feature_importances_[active_morgan_bits])
-                total_morgan_active_importance += morgan_active_sum
-                count += 1
-        
-        # Load MACCS model
-        maccs_model_path = models_dir / f"fold_{fold_idx}_maccs.pkl"
-        if maccs_model_path.exists():
-            maccs_model = load_model_artifact(maccs_model_path)
-            if hasattr(maccs_model, 'feature_importances_'):
-                X_test_maccs = maccs_fps[test_indices]
-                active_maccs_bits = np.any(X_test_maccs > 0, axis=0)
-                maccs_active_sum = np.sum(maccs_model.feature_importances_[active_maccs_bits])
-                total_maccs_active_importance += maccs_active_sum
-                count += 1
+        bits = get_morgan_bits_near_phosphorus(smiles, phosphorus_indices, radius)
+        for bit in bits:
+            if bit < len(importance_vector):
+                phosphorus_importance += importance_vector[bit]
+                phosphorus_bits_count += 1
     
-    if count == 0:
-        logger.error("No valid folds found for SC-003 verification.")
-        return {'status': 'failed', 'reason': 'No valid folds'}
-    
-    avg_morgan = total_morgan_active_importance / count
-    avg_maccs = total_maccs_active_importance / count
-    
-    logger.info(f"Average active importance (Morgan): {avg_morgan}")
-    logger.info(f"Average active importance (MACCS): {avg_maccs}")
-    
-    if avg_maccs == 0:
-        ratio = float('inf') if avg_morgan > 0 else 0.0
+    if phosphorus_bits_count > 0:
+        mean_phosphorus_importance = phosphorus_importance / phosphorus_bits_count
     else:
-        ratio = (avg_morgan - avg_maccs) / avg_maccs
+        mean_phosphorus_importance = 0.0
     
-    threshold = 0.15
-    passed = ratio >= threshold
+    mean_total_importance = total_importance / len(importance_vector)
     
-    result = {
-        'status': 'passed' if passed else 'failed',
-        'morgan_avg_active_importance': avg_morgan,
-        'maccs_avg_active_importance': avg_maccs,
-        'ratio_percent': ratio * 100,
-        'threshold_percent': threshold * 100,
-        'passed_threshold': passed
+    return {
+        "total_importance": float(total_importance),
+        "phosphorus_importance": float(phosphorus_importance),
+        "mean_phosphorus_importance": float(mean_phosphorus_importance),
+        "mean_total_importance": float(mean_total_importance),
+        "phosphorus_bits_count": phosphorus_bits_count
+    }
+
+def verify_sc_003(morgan_importance: Dict[str, float], maccs_importance: Dict[str, float]) -> Dict[str, Any]:
+    """
+    Verify SC-003: Check if Morgan improvement exceeds 15% of MACCS importance.
+    
+    Args:
+        morgan_importance: Morgan importance statistics
+        maccs_importance: MACCS importance statistics
+        
+    Returns:
+        Dictionary with verification result
+    """
+    morgan_mean = morgan_importance.get("mean_phosphorus_importance", 0.0)
+    maccs_mean = maccs_importance.get("mean_phosphorus_importance", 0.0)
+    
+    if maccs_mean == 0:
+        difference_pct = 0.0
+        threshold_met = False
+    else:
+        difference = morgan_mean - maccs_mean
+        difference_pct = (difference / maccs_mean) * 100
+        threshold_met = difference_pct >= 15.0
+    
+    return {
+        "morgan_mean_importance": float(morgan_mean),
+        "maccs_mean_importance": float(maccs_mean),
+        "difference_pct": float(difference_pct),
+        "threshold_met": threshold_met
+    }
+
+def write_descriptive_metrics(morgan_metrics: Dict[str, float], maccs_metrics: Dict[str, float], 
+                             output_path: str) -> None:
+    """
+    Write descriptive metrics to JSON file.
+    
+    Args:
+        morgan_metrics: Morgan model metrics (roc_auc, pr_auc)
+        maccs_metrics: MACCS model metrics (roc_auc, pr_auc)
+        output_path: Path to output JSON file
+    """
+    data = {
+        "morgan": {
+            "roc_auc": round(morgan_metrics["roc_auc"], 4),
+            "pr_auc": round(morgan_metrics["pr_auc"], 4)
+        },
+        "maccs": {
+            "roc_auc": round(maccs_metrics["roc_auc"], 4),
+            "pr_auc": round(maccs_metrics["pr_auc"], 4)
+        }
     }
     
-    logger.info(f"SC-003 Verification Result: {result}")
-    return result
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    
+    logging.info(f"Descriptive metrics written to {output_path}")
 
 def main():
-    """Main entry point for evaluation and SC-003 verification."""
+    """Main entry point for evaluation."""
+    logger = setup_logging()
     init_random_seed(42)
-    setup_logging()
     
-    # Define paths
-    base_path = Path("projects/PROJ-678-comparative-analysis-of-molecular-finger")
-    models_dir = base_path / "data/processed/models"
-    splits_path = base_path / "data/processed/splits/splits.pkl"
-    fingerprints_path = base_path / "data/processed/fingerprints.pkl"
-    labels_path = base_path / "data/processed/organophosphates_filtered.csv"
-    processed_data_path = base_path / "data/processed/organophosphates_filtered.csv"
+    # Paths
+    metrics_path = PROCESSED_DIR / "final_test_metrics.json"
+    output_path = PROCESSED_DIR / "test_set_descriptive.json"
     
-    if not models_dir.exists():
-        logger.error(f"Models directory not found: {models_dir}")
+    # Check if metrics file exists
+    if not metrics_path.exists():
+        logger.error(f"Metrics file not found: {metrics_path}")
+        logger.error("Please run T020b (Evaluate Final Model) first.")
         return
     
-    # Run standard evaluation
-    results = run_evaluation(models_dir, splits_path, fingerprints_path, labels_path)
+    # Load final test metrics
+    with open(metrics_path, 'r') as f:
+        metrics_data = json.load(f)
     
-    # Verify SC-003
-    sc003_result = verify_sc_003(models_dir, splits_path, fingerprints_path, labels_path, processed_data_path)
+    # Extract metrics
+    morgan_metrics = metrics_data.get("morgan", {})
+    maccs_metrics = metrics_data.get("maccs", {})
     
-    # Log results
-    logger.info("Evaluation Results:")
-    for res in results:
-        logger.info(f"  Fold {res['fold']} ({res['fingerprint_type']}): ROC-AUC={res['roc_auc']:.4f}, PR-AUC={res['pr_auc']:.4f}")
+    # Validate metrics
+    if not morgan_metrics or not maccs_metrics:
+        logger.error("Invalid metrics format in final_test_metrics.json")
+        return
     
-    logger.info(f"SC-003 Result: {sc003_result['status']} (Ratio: {sc003_result['ratio_percent']:.2f}%)")
+    # Write descriptive metrics
+    write_descriptive_metrics(morgan_metrics, maccs_metrics, str(output_path))
+    
+    logger.info("T024b completed successfully")
 
 if __name__ == "__main__":
     main()

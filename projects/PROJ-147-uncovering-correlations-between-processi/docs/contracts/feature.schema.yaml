@@ -1,0 +1,104 @@
+# Feature Schema for Model Input
+# Defines the feature space expected by the machine learning models.
+# Used by: code/models/trainer.py, code/models/predictor.py
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelFeatureSchema
+description: |
+  Schema defining the input features for the RandomForest model.
+  Includes both raw processing conditions and derived physics-based features.
+type: object
+required:
+  - features
+  - target
+properties:
+  features:
+    type: array
+    items:
+      $ref: "#/definitions/feature_definition"
+  target:
+    type: array
+    items:
+      $ref: "#/definitions/target_definition"
+definitions:
+  feature_definition:
+    type: object
+    required:
+      - name
+      - type
+      - unit
+      - description
+    properties:
+      name:
+        type: string
+        description: Feature name (must match column names in processed data)
+      type:
+        type: string
+        enum: [continuous, categorical, binary]
+      unit:
+        type: string
+        description: Physical unit (e.g., "K", "s^-1", "dimensionless")
+      description:
+        type: string
+      is_derived:
+        type: boolean
+        description: Whether this feature is derived from raw inputs
+  target_definition:
+    type: object
+    required:
+      - name
+      - type
+      - unit
+      - description
+    properties:
+      name:
+        type: string
+        description: Target variable name
+      type:
+        type: string
+        enum: [continuous, categorical]
+      unit:
+        type: string
+        description: Physical unit (MRD for ODF)
+      description:
+        type: string
+examples:
+  - name: "Example Feature Set"
+    features:
+      - name: rolling_temperature
+        type: continuous
+        unit: K
+        description: Rolling temperature
+        is_derived: false
+      - name: reduction_ratio
+        type: continuous
+        unit: dimensionless
+        description: Thickness reduction
+        is_derived: false
+      - name: strain_rate
+        type: continuous
+        unit: s^-1
+        description: Strain rate
+        is_derived: false
+      - name: zener_hollomon_param
+        type: continuous
+        unit: s^-1
+        description: Derived Zener-Hollomon parameter
+        is_derived: true
+      - name: alloy_family_encoded
+        type: categorical
+        unit: encoded
+        description: One-hot encoded alloy family
+        is_derived: true
+    target:
+      - name: ODF_100
+        type: continuous
+        unit: MRD
+        description: {100} texture intensity
+      - name: ODF_110
+        type: continuous
+        unit: MRD
+        description: {110} texture intensity
+      - name: ODF_111
+        type: continuous
+        unit: MRD
+        description: {111} texture intensity

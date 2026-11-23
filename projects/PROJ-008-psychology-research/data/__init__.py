@@ -1,1 +1,1 @@
-# Data directory initialization
+# Data package: raw, processed, and figures outputs

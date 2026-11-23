@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MaskingMap"
+description: "Schema for the artifact mapping function IDs to token spans for FIM masking."
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique identifier matching the dataset problem."
+  masking_targets:
+    type: "array"
+    description: "List of tokens to be masked during training."
+    items:
+      type: "object"
+      properties:
+        function_id:
+          type: "integer"
+          description: "The step_id corresponding to the function."
+        start_token:
+          type: "integer"
+          description: "Start index of the token span."
+        end_token:
+          type: "integer"
+          description: "End index of the token span."
+        mask_type:
+          type: "string"
+          description: "Type of masking (e.g., 'body', 'args', 'missing_step')."
+          enum:
+            - "body"
+            - "args"
+            - "missing_step"
+            - "full"
+      required:
+        - function_id
+        - start_token
+        - end_token
+        - mask_type
+required:
+  - problem_id
+  - masking_targets

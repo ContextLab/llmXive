@@ -1,0 +1,118 @@
+openapi: 3.0.0
+info:
+  title: Simulation API
+  version: 1.0.0
+  description: API for running random matrix simulations
+
+paths:
+  /run/simulation:
+    post:
+      summary: Run a single simulation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulationRequest'
+      responses:
+        '200':
+          description: Simulation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationResponse'
+
+  /run/sweep:
+    post:
+      summary: Run parameter sweep
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SweepRequest'
+      responses:
+        '200':
+          description: Sweep completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SweepResponse'
+
+components:
+  schemas:
+    SimulationRequest:
+      type: object
+      properties:
+        matrix_size:
+          type: integer
+          example: 1000
+        seed:
+          type: integer
+          example: 42
+        perturbation:
+          $ref: '#/components/schemas/PerturbationConfig'
+
+    PerturbationConfig:
+      type: object
+      properties:
+        rank:
+          type: integer
+          example: 1
+        norm:
+          type: number
+          example: 2.5
+        pattern:
+          type: string
+          enum: [DIAGONAL, RANDOM_SPARSE, BLOCK_SPARSE]
+        sparsity_density:
+          type: number
+          example: 0.1
+
+    SimulationResponse:
+      type: object
+      properties:
+        run_id:
+          type: string
+        eigenvalues:
+          type: array
+          items:
+            type: number
+        outlier_detected:
+          type: boolean
+        raw_data_path:
+          type: string
+        checksum:
+          type: string
+
+    SweepRequest:
+      type: object
+      properties:
+        matrix_sizes:
+          type: array
+          items:
+            type: integer
+        theta_range:
+          type: array
+          items:
+            type: number
+        num_iterations:
+          type: integer
+
+    SweepResponse:
+      type: object
+      properties:
+        results_path:
+          type: string
+        fitted_params:
+          $ref: '#/components/schemas/FittedParams'
+
+    FittedParams:
+      type: object
+      properties:
+        theta_c:
+          type: number
+        confidence_interval:
+          type: array
+          items:
+            type: number

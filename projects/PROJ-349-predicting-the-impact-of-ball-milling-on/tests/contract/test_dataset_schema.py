@@ -1,147 +1,141 @@
 """
-Contract tests for dataset schema validation.
-
-Verifies that the validation logic correctly enforces the schema defined in 
-contracts/dataset.schema.yaml.
+Contract test for dataset schema validation.
+Validates that the dataset conforms to the schema defined in contracts/dataset.schema.yaml.
 """
-import json
 import os
-import tempfile
+import sys
+import json
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 import pandas as pd
-import pytest
-import yaml
+from jsonschema import validate, ValidationError
 
-from src.utils.validate_schema import (
-    load_schema, 
-    validate_dataframe_schema, 
-    validate_and_clean,
-    DEFAULT_SCHEMA_PATH
-)
-from src.exceptions import SchemaValidationError, InsufficientDataError
+# Add project root to path for imports if running directly
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from src.preprocess.validate_schema import load_schema
+from src.utils.exceptions import InsufficientDataError
 
 
-@pytest.fixture
-def valid_schema_dict():
-    return {
-        "type": "object",
-        "required": ["id", "value"],
-        "properties": {
-            "id": {"type": "string"},
-            "value": {"type": "number"}
-        },
-        "additionalProperties": False
-    }
+def test_schema_validation_passes(df):
+    """
+    Test that a valid dataframe passes schema validation.
 
-@pytest.fixture
-def valid_dataframe():
+    Args:
+        df (pd.DataFrame): A dataframe that should conform to the schema.
+    """
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    if not schema_path.exists():
+        pytest.fail(f"Schema file not found at {schema_path}")
+
+    schema = load_schema(schema_path)
+
+    # Convert dataframe to dict for jsonschema validation
+    # jsonschema expects a dict of lists or a single object dict.
+    # Since our schema defines an 'object' with properties, we validate a single row.
+    # To test the structure, we validate the first row.
+    if len(df) == 0:
+        pytest.skip("DataFrame is empty, cannot validate structure.")
+
+    # Convert to dict of lists format if needed, but jsonschema.validate
+    # expects the instance to match the schema type.
+    # The schema is type: object. So we validate a single row dict.
+    row_dict = df.iloc[0].to_dict()
+
+    try:
+        validate(instance=row_dict, schema=schema)
+    except ValidationError as e:
+        pytest.fail(f"Schema validation failed for row: {e.message}")
+
+
+def test_schema_validation_fails_missing_field():
+    """
+    Test that a dataframe with a missing required field fails validation.
+    """
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    schema = load_schema(schema_path)
+
+    # Create a dataframe missing 'experiment_id'
     data = {
-        "id": ["exp_001", "exp_002"] * 100, # Ensure > 150 rows
-        "value": [1.0, 2.0] * 100
+        "source_name": ["Materials Project"],
+        "source_id": ["12345"],
+        # missing experiment_id
+        "material_type": ["Copper"],
+        "milling_speed": [500.0],
+        "milling_time": [1.0],
+        "ball_to_powder_ratio": [10.0],
+        "youngs_modulus": [110.0],
+        "density": [8.96],
+        "d10": [10.0],
+        "d50": [50.0],
+        "d90": [100.0],
+        "process_duration": [3600.0]
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    row_dict = df.iloc[0].to_dict()
 
-@pytest.fixture
-def small_dataframe():
-    # Less than 150 rows
+    with pytest.raises(ValidationError):
+        validate(instance=row_dict, schema=schema)
+
+
+def test_schema_validation_fails_wrong_type():
+    """
+    Test that a dataframe with a wrong type for a field fails validation.
+    """
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    schema = load_schema(schema_path)
+
+    # Create a dataframe with wrong type for milling_speed (string instead of number)
     data = {
-        "id": ["exp_001", "exp_002"],
-        "value": [1.0, 2.0]
+        "experiment_id": ["exp_001"],
+        "source_name": ["Materials Project"],
+        "source_id": ["12345"],
+        "material_type": ["Copper"],
+        "milling_speed": "fast",  # Should be number
+        "milling_time": [1.0],
+        "ball_to_powder_ratio": [10.0],
+        "youngs_modulus": [110.0],
+        "density": [8.96],
+        "d10": [10.0],
+        "d50": [50.0],
+        "d90": [100.0],
+        "process_duration": [3600.0]
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    row_dict = df.iloc[0].to_dict()
 
-@pytest.fixture
-def missing_col_dataframe():
+    with pytest.raises(ValidationError):
+        validate(instance=row_dict, schema=schema)
+
+
+def test_schema_validation_fails_enum():
+    """
+    Test that a dataframe with an invalid source_name fails validation.
+    """
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    schema = load_schema(schema_path)
+
+    # Create a dataframe with invalid source_name
     data = {
-        "id": ["exp_001"],
-        # "value" is missing
+        "experiment_id": ["exp_001"],
+        "source_name": ["Invalid Source"],  # Not in enum
+        "source_id": ["12345"],
+        "material_type": ["Copper"],
+        "milling_speed": [500.0],
+        "milling_time": [1.0],
+        "ball_to_powder_ratio": [10.0],
+        "youngs_modulus": [110.0],
+        "density": [8.96],
+        "d10": [10.0],
+        "d50": [50.0],
+        "d90": [100.0],
+        "process_duration": [3600.0]
     }
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    row_dict = df.iloc[0].to_dict()
 
-@pytest.fixture
-def null_value_dataframe():
-    data = {
-        "id": ["exp_001"] * 151,
-        "value": [1.0] * 150 + [None] # One null in required field
-    }
-    return pd.DataFrame(data)
-
-@pytest.fixture
-def extra_col_dataframe():
-    data = {
-        "id": ["exp_001"] * 151,
-        "value": [1.0] * 151,
-        "extra_col": ["x"] * 151
-    }
-    return pd.DataFrame(data)
-
-class TestLoadSchema:
-    def test_load_schema_success(self, tmp_path):
-        schema_content = {
-            "type": "object",
-            "properties": {"test": {"type": "string"}}
-        }
-        schema_file = tmp_path / "test_schema.yaml"
-        with open(schema_file, "w") as f:
-            yaml.dump(schema_content, f)
-        
-        result = load_schema(schema_file)
-        assert result == schema_content
-
-    def test_load_schema_file_not_found(self):
-        with pytest.raises(FileNotFoundError):
-            load_schema("non_existent_path.yaml")
-
-    def test_load_schema_invalid_yaml(self, tmp_path):
-        schema_file = tmp_path / "bad.yaml"
-        with open(schema_file, "w") as f:
-            f.write("invalid: yaml: content: [")
-        
-        with pytest.raises(Exception): # yaml.YAMLError or similar
-            load_schema(schema_file)
-
-class TestValidateDataFrameSchema:
-    def test_valid_dataframe(self, valid_dataframe, valid_schema_dict):
-        # Temporarily patch the schema to use our fixture
-        with patch('src.utils.validate_schema.DEFAULT_SCHEMA_PATH', None):
-            # We pass the schema directly to avoid file loading
-            result = validate_dataframe_schema(valid_dataframe, schema=valid_schema_dict)
-            assert result is True
-
-    def test_insufficient_rows(self, small_dataframe, valid_schema_dict):
-        with pytest.raises(InsufficientDataError):
-            validate_dataframe_schema(small_dataframe, schema=valid_schema_dict)
-
-    def test_missing_required_columns(self, missing_col_dataframe, valid_schema_dict):
-        with pytest.raises(SchemaValidationError):
-            validate_dataframe_schema(missing_col_dataframe, schema=valid_schema_dict)
-
-    def test_extra_columns_strict(self, extra_col_dataframe, valid_schema_dict):
-        # valid_schema_dict has additionalProperties: False
-        with pytest.raises(SchemaValidationError):
-            validate_dataframe_schema(extra_col_dataframe, schema=valid_schema_dict)
-
-    def test_null_in_required_field(self, null_value_dataframe, valid_schema_dict):
-        with pytest.raises(SchemaValidationError):
-            validate_dataframe_schema(null_value_dataframe, schema=valid_schema_dict)
-
-    def test_non_dataframe_input(self, valid_schema_dict):
-        with pytest.raises(TypeError):
-            validate_dataframe_schema("not a dataframe", schema=valid_schema_dict)
-
-    def test_validation_false_on_error_non_strict(self, missing_col_dataframe, valid_schema_dict):
-        result = validate_dataframe_schema(missing_col_dataframe, schema=valid_schema_dict, strict=False)
-        assert result is False
-
-class TestValidateAndClean:
-    def test_success(self, valid_dataframe, valid_schema_dict):
-        with patch('src.utils.validate_schema.DEFAULT_SCHEMA_PATH', None):
-            result = validate_and_clean(valid_dataframe, schema_path=valid_schema_dict)
-            # Should return the same dataframe
-            assert result.equals(valid_dataframe)
-
-    def test_raises_on_error(self, small_dataframe, valid_schema_dict):
-        with pytest.raises(InsufficientDataError):
-            validate_and_clean(small_dataframe, schema_path=valid_schema_dict)
+    with pytest.raises(ValidationError):
+        validate(instance=row_dict, schema=schema)

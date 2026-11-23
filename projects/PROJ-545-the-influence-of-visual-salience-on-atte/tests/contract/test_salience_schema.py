@@ -1,63 +1,105 @@
 """
-Contract tests for US1: Data Ingestion and Salience Computation.
-
-Specifically validates the schema and range constraints for salience scores
-produced by the preprocessing pipeline.
+Contract tests for Salience Enriched Dataset Schema.
+Verifies that the output of the salience pipeline adheres to the expected schema.
 """
-import pytest
-import pandas as pd
-from pathlib import Path
-import sys
 import os
+import sys
+import csv
+import pytest
+from pathlib import Path
+from typing import List, Dict, Any
 
-# Ensure code/ is importable
-_code_root = Path(__file__).parent.parent.parent / "code"
-if str(_code_root) not in sys.path:
-    sys.path.insert(0, str(_code_root))
+# Ensure project root is in path
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from data_models import Scenario
-from utils.logger import get_logger
+REQUIRED_COLUMNS = [
+    "scenario_id", "salience_score", "salience_method", "image_url",
+    "outcome", "species", "age", "gender", "social_status",
+    "agency", "choice", "lives_saved", "lives_lost", "text_fallback_used"
+]
 
-logger = get_logger(__name__)
+def load_csv_as_dicts(csv_path: Path) -> List[Dict[str, Any]]:
+    """Helper to load CSV into list of dicts."""
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        return list(reader)
 
-
-def _load_processed_data() -> pd.DataFrame:
+def validate_row_schema(row: Dict[str, Any], row_idx: int) -> List[str]:
     """
-    Helper to load the processed salience data.
-    Expects data/processed/salience_scores.csv to exist (produced by T014).
+    Validates a single row against the schema rules.
+    Returns a list of error messages.
     """
-    data_path = Path(__file__).parent.parent.parent / "data" / "processed" / "salience_scores.csv"
-    if not data_path.exists():
-        pytest.skip(f"Data file not found: {data_path}. Run preprocessing tasks first.")
-    return pd.read_csv(data_path)
+    errors = []
 
+    # Check required columns exist
+    for col in REQUIRED_COLUMNS:
+        if col not in row:
+            errors.append(f"Row {row_idx}: Missing required column '{col}'")
 
-def test_schema_validates_salience_score_range():
+    if "salience_score" in row:
+        try:
+            score = float(row["salience_score"])
+            if not (0.0 <= score <= 1.0):
+                errors.append(f"Row {row_idx}: salience_score {score} is not in [0.0, 1.0]")
+        except ValueError:
+            errors.append(f"Row {row_idx}: salience_score '{row['salience_score']}' is not numeric")
+
+    if "salience_method" in row:
+        valid_methods = {"itti_gvs", "text_heuristic", "fallback"}
+        if row["salience_method"] not in valid_methods:
+            errors.append(f"Row {row_idx}: salience_method '{row['salience_method']}' not in {valid_methods}")
+
+    if "text_fallback_used" in row:
+        val = str(row["text_fallback_used"]).lower()
+        if val not in ("true", "false", "1", "0"):
+            errors.append(f"Row {row_idx}: text_fallback_used '{row['text_fallback_used']}' is not boolean-like")
+
+    return errors
+
+def test_schema_columns_exist(sample_preprocessed_data: Path):
     """
-    Contract test: Verify that every row in the processed dataset has a
-    numeric salience_score within the normalized range [0.0, 1.0].
-
-    This enforces the contract that the salience computation pipeline
-    (T013) and merging logic (T014) produce valid normalized scores.
+    Contract Test: Verify all required columns exist in the header.
     """
-    df = _load_processed_data()
+    with open(sample_preprocessed_data, "r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        header = next(reader)
+    
+    missing = set(REQUIRED_COLUMNS) - set(header)
+    assert len(missing) == 0, f"Missing required columns: {missing}"
 
-    # Assert column exists
-    assert "salience_score" in df.columns, "Missing required column 'salience_score'"
+def test_schema_numeric_range(sample_preprocessed_data: Path):
+    """
+    Contract Test: Verify salience_score is numeric and within [0.0, 1.0].
+    """
+    rows = load_csv_as_dicts(sample_preprocessed_data)
+    for i, row in enumerate(rows):
+        if "salience_score" in row:
+            try:
+                score = float(row["salience_score"])
+                assert 0.0 <= score <= 1.0, f"Row {i}: salience_score {score} out of range"
+            except ValueError:
+                pytest.fail(f"Row {i}: salience_score is not numeric")
 
-    # Assert numeric type
-    assert pd.api.types.is_numeric_dtype(df["salience_score"]), \
-        "Column 'salience_score' must be numeric"
+def test_schema_valid_methods(sample_preprocessed_data: Path):
+    """
+    Contract Test: Verify salience_method is one of the allowed values.
+    """
+    rows = load_csv_as_dicts(sample_preprocessed_data)
+    valid_methods = {"itti_gvs", "text_heuristic", "fallback"}
+    for i, row in enumerate(rows):
+        if "salience_method" in row:
+            assert row["salience_method"] in valid_methods, f"Row {i}: Invalid method {row['salience_method']}"
 
-    # Assert range constraints [0.0, 1.0]
-    min_score = df["salience_score"].min()
-    max_score = df["salience_score"].max()
-
-    assert min_score >= 0.0, f"Salience score minimum {min_score} is below 0.0"
-    assert max_score <= 1.0, f"Salience score maximum {max_score} is above 1.0"
-
-    # Assert no NaN values in the score column (schema validity)
-    assert not df["salience_score"].isna().any(), \
-        "Found NaN values in 'salience_score' column"
-
-    logger.info(f"Schema validation passed: {len(df)} rows, range [{min_score:.4f}, {max_score:.4f}]")
+def test_schema_all_rows_valid(sample_preprocessed_data: Path):
+    """
+    Contract Test: Run full schema validation on all rows.
+    """
+    rows = load_csv_as_dicts(sample_preprocessed_data)
+    all_errors = []
+    for i, row in enumerate(rows):
+        errors = validate_row_schema(row, i)
+        all_errors.extend(errors)
+    
+    assert len(all_errors) == 0, f"Schema validation failed for {len(all_errors)} rows:\n" + "\n".join(all_errors)

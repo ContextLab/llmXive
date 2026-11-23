@@ -1,89 +1,81 @@
-%YAML 1.2
----
-title: Recipe Ingredient Substitution Dataset Schema
-version: 1.0.0
-description: >
-  Schema for the processed recipe dataset containing ingredient pairs,
-  co-occurrence statistics, flavor similarity, and functional roles.
-  Used to validate data produced by code/data/preprocess.py.
-
-type: object
-required:
-  - ingredient_a
-  - ingredient_b
-  - log_cooccurrence
-  - flavor_similarity
-  - functional_role
-  - functional_role_raw_rank
-  - functional_role_residual
-  - source_dataset
-  - is_train
-
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "IngredientPair Dataset Schema"
+description: "Schema for the dataset containing ingredient pairs and their attributes for substitution prediction."
+type: "object"
 properties:
-  ingredient_a:
-    type: string
-    description: Canonical ID of the first ingredient (normalized).
+  ingredient_id:
+    type: "string"
+    description: "Unique identifier for the ingredient pair."
     minLength: 1
-
-  ingredient_b:
-    type: string
-    description: Canonical ID of the second ingredient (normalized).
-    minLength: 1
-
-  log_cooccurrence:
-    type: number
-    format: float
-    description: Log-transformed co-occurrence count: log(C_ij + 1).
-    minimum: 0
-
+  log_co_occurrence:
+    type: "number"
+    description: "Log-transformed co-occurrence frequency of the ingredient pair, with epsilon smoothing for zero counts."
+    minimum: -10.0
+    maximum: 10.0
   flavor_similarity:
-    type: number
-    format: float
-    description: Cosine similarity between FlavorDB chemical vectors for the pair.
+    type: "number"
+    description: "Recipe1M embedding cosine similarity"
+    computed_from: "sentence-transformers/all-MiniLM-L6-v2"
+    proxy_source: "Recipe1M"
     minimum: -1.0
     maximum: 1.0
-
   functional_role:
-    type: string
-    description: Discretized functional role derived from orthogonalized rank.
+    type: "string"
+    description: "Functional role of the ingredient (primary, secondary, garnish)."
     enum:
-      - Primary
-      - Secondary
-      - Garnish
-      - Unknown
-
-  functional_role_raw_rank:
-    type: integer
-    description: Original global frequency rank of the ingredient pair context.
-    minimum: 1
-
-  functional_role_residual:
-    type: number
-    format: float
-    description: Residual from OLS regression of raw rank on global log-frequency (orthogonalized role).
-
-  source_dataset:
-    type: string
-    description: Source of the recipe data (e.g., Recipe1M, Counterfactual).
+      - "primary"
+      - "secondary"
+      - "garnish"
+  compatibility_label:
+    type: "integer"
+    description: "Binary label indicating compatibility (1 = compatible, 0 = not compatible)."
     enum:
-      - Recipe1M
-      - Counterfactual
-      - FlavorDB-derived
-
-  is_train:
-    type: boolean
-    description: Flag indicating if the row belongs to the training set (stratified split).
-
-  pair_id:
-    type: string
-    description: Unique identifier for the ingredient pair (generated).
-
-  missing_role_flag:
-    type: boolean
-    description: True if functional role was imputed as 'Unknown'.
-
-  missing_sim_flag:
-    type: boolean
-    description: True if flavor similarity was imputed with median.
-
+      - 0
+      - 1
+required:
+  - ingredient_id
+  - log_co_occurrence
+  - flavor_similarity
+  - functional_role
+  - compatibility_label
 additionalProperties: false
+definitions:
+  IngredientPair:
+    type: "object"
+    properties:
+      ingredient_id:
+        type: "string"
+        description: "Unique identifier for the ingredient pair."
+        minLength: 1
+      log_co_occurrence:
+        type: "number"
+        description: "Log-transformed co-occurrence frequency of the ingredient pair, with epsilon smoothing for zero counts."
+        minimum: -10.0
+        maximum: 10.0
+      flavor_similarity:
+        type: "number"
+        description: "Recipe1M embedding cosine similarity"
+        computed_from: "sentence-transformers/all-MiniLM-L6-v2"
+        proxy_source: "Recipe1M"
+        minimum: -1.0
+        maximum: 1.0
+      functional_role:
+        type: "string"
+        description: "Functional role of the ingredient (primary, secondary, garnish)."
+        enum:
+          - "primary"
+          - "secondary"
+          - "garnish"
+      compatibility_label:
+        type: "integer"
+        description: "Binary label indicating compatibility (1 = compatible, 0 = not compatible)."
+        enum:
+          - 0
+          - 1
+    required:
+      - ingredient_id
+      - log_co_occurrence
+      - flavor_similarity
+      - functional_role
+      - compatibility_label
+    additionalProperties: false

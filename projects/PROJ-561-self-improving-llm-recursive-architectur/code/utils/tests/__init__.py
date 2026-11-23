@@ -1,3 +1,1 @@
-"""
-Tests for utility modules.
-"""
+# Utils tests package initialization

@@ -1,163 +1,118 @@
-"""
-Data directory structure setup and metadata schema initialization.
+"""Setup data directory structure and initialize metadata schema.
 
-This module ensures the required data directories exist and initializes
-the checksums tracking file with the metadata schema.
+This script implements task T006:
+- Creates data/processed/ and data/raw/ directories.
+- Initializes data/checksums.txt if it does not exist.
+- Writes docs/data_model.md defining the graph_metadata.json schema.
 """
 import os
 import json
 from pathlib import Path
 import logging
+import sys
 
-# Configure logging for this module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Add parent to path for imports if running as script
+if 'code' not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent))
 
-# Project root is assumed to be the parent of the 'code' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+from utils.logging_utils import get_logger, log_operation
 
-# Directories to ensure exist
-REQUIRED_DIRS = [
-    PROJECT_ROOT / 'data' / 'processed',
-    PROJECT_ROOT / 'data' / 'checksums',
-    PROJECT_ROOT / 'state' / 'projects',
-]
+logger = get_logger("setup_data_structure")
 
-CHECKSUMS_FILE = PROJECT_ROOT / 'data' / 'checksums.txt'
 
-# Metadata schema definition
-METADATA_SCHEMA = {
-    "version": "1.0.0",
-    "description": "Schema for tracking data artifacts in the research pipeline",
-    "fields": [
-        {
-            "name": "file_path",
-            "type": "string",
-            "description": "Relative path to the file from project root",
-            "required": True
-        },
-        {
-            "name": "checksum",
-            "type": "string",
-            "description": "SHA-256 checksum of the file content",
-            "required": True
-        },
-        {
-            "name": "created_at",
-            "type": "string",
-            "description": "ISO 8601 timestamp of file creation",
-            "required": True
-        },
-        {
-            "name": "source_task",
-            "type": "string",
-            "description": "Task ID that generated this artifact",
-            "required": False
-        },
-        {
-            "name": "metadata",
-            "type": "object",
-            "description": "Additional metadata specific to the artifact type",
-            "required": False
-        }
-    ],
-    "supported_artifacts": [
-        {
-            "type": "graph",
-            "extension": ".gpickle",
-            "metadata_fields": ["nodes", "edges", "rewiring_prob", "seed"]
-        },
-        {
-            "type": "simulation_result",
-            "extension": ".csv",
-            "metadata_fields": ["critical_coupling", "time_steps", "runtime"]
-        },
-        {
-            "type": "analysis_report",
-            "extension": ".md",
-            "metadata_fields": ["correlation", "p_value", "methodology"]
-        }
-    ]
-}
-
-def ensure_directory(dir_path: Path) -> bool:
-    """
-    Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        dir_path: Path to the directory to create
-        
-    Returns:
-        True if directory exists or was created successfully, False otherwise
-    """
-    try:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Directory ensured: {dir_path}")
-        return True
-    except OSError as e:
-        logger.error(f"Failed to create directory {dir_path}: {e}")
-        return False
-
-def initialize_checksums_file() -> bool:
-    """
-    Initialize the checksums file with the metadata schema header.
-    
-    The file uses a tab-separated format for easy parsing:
-    file_path\tchecksum\tcreated_at\tsource_task\tmetadata
-    
-    Returns:
-        True if file was initialized successfully, False otherwise
-    """
-    try:
-        # Create the file with header information
-        with open(CHECKSUMS_FILE, 'w', encoding='utf-8') as f:
-            # Write schema version and description as comments
-            f.write(f"# Metadata Schema Version: {METADATA_SCHEMA['version']}\n")
-            f.write(f"# Description: {METADATA_SCHEMA['description']}\n")
-            f.write(f"# Generated: {Path(__file__).resolve()}\n")
-            f.write("\n")
-            
-            # Write header row
-            f.write("file_path\tchecksum\tcreated_at\tsource_task\tmetadata\n")
-            
-            # Write schema definition as JSON for reference
-            f.write(f"# SCHEMA: {json.dumps(METADATA_SCHEMA, indent=2)}\n")
-        
-        logger.info(f"Checksums file initialized: {CHECKSUMS_FILE}")
-        return True
-    except OSError as e:
-        logger.error(f"Failed to initialize checksums file {CHECKSUMS_FILE}: {e}")
-        return False
-
-def main() -> int:
-    """
-    Main entry point for data structure setup.
-    
-    Returns:
-        0 on success, 1 on failure
-    """
-    logger.info("Starting data directory structure setup...")
-    
-    success = True
-    
-    # Ensure all required directories exist
-    for dir_path in REQUIRED_DIRS:
-        if not ensure_directory(dir_path):
-            success = False
-    
-    # Initialize checksums file
-    if not initialize_checksums_file():
-        success = False
-    
-    if success:
-        logger.info("Data directory structure setup completed successfully.")
-        return 0
+def ensure_directory(path: Path) -> None:
+    """Ensure a directory exists, creating it if necessary."""
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
+        logger.log("directory_created", path=str(path))
     else:
-        logger.error("Data directory structure setup failed.")
-        return 1
+        logger.log("directory_exists", path=str(path))
+
+
+def initialize_checksums_file(path: Path) -> None:
+    """Initialize or verify the checksums file."""
+    if not path.exists():
+        content = (
+            "# Checksums for generated artifacts\n"
+            "# Format: <algorithm> <relative_path>\n"
+            "# Generated by: T006 (Data Structure Setup)\n"
+            "# This file tracks SHA256 hashes of all data artifacts (raw and processed).\n"
+            "# Updated by: generate_checksums.py, verify_checksum.py\n"
+        )
+        path.write_text(content)
+        logger.log("checksums_file_created", path=str(path))
+    else:
+        logger.log("checksums_file_exists", path=str(path))
+
+
+def initialize_metadata_schema(docs_path: Path) -> None:
+    """Write the data model documentation for graph_metadata.json."""
+    schema = {
+        "node_count": {
+            "type": "int",
+            "description": "Total number of nodes in the graph (N)."
+        },
+        "avg_degree": {
+            "type": "float",
+            "description": "Average degree of the graph (k)."
+        },
+        "p": {
+            "type": "float",
+            "description": "Rewiring probability used in Watts-Strogatz generation."
+        },
+        "seed": {
+            "type": "int",
+            "description": "Random seed used for reproducibility."
+        },
+        "checksum": {
+            "type": "string",
+            "description": "SHA256 checksum of the corresponding .gpickle file."
+        }
+    }
+
+    content = (
+        "# Data Model: Graph Metadata\n\n"
+        "This document defines the schema for `graph_metadata.json`, "
+        "which stores metadata for each generated network topology.\n\n"
+        "## Schema Definition\n\n"
+        "The file contains a list of objects with the following keys:\n\n"
+    )
+
+    for key, details in schema.items():
+        content += f"- **{key}** ({details['type']}): {details['description']}\n"
+
+    content += "\n## Example Entry\n\n"
+    content += "```json\n"
+    content += json.dumps(schema, indent=2) + "\n"
+    content += "```\n"
+
+    docs_path.parent.mkdir(parents=True, exist_ok=True)
+    docs_path.write_text(content)
+    logger.log("data_model_written", path=str(docs_path))
+
+
+def main() -> None:
+    """Main entry point for T006."""
+    root = Path(__file__).parent.parent
+    data_dir = root / "data"
+    processed_dir = data_dir / "processed"
+    raw_dir = data_dir / "raw"
+    checksums_file = data_dir / "checksums.txt"
+    docs_path = root / "docs" / "data_model.md"
+
+    # Ensure directories
+    ensure_directory(processed_dir)
+    ensure_directory(raw_dir)
+
+    # Initialize checksums file
+    initialize_checksums_file(checksums_file)
+
+    # Initialize metadata schema
+    initialize_metadata_schema(docs_path)
+
+    print("T006: Data directory structure and metadata schema setup complete.")
+    logger.log("task_completed", task_id="T006")
+
 
 if __name__ == "__main__":
-    exit(main())
+    main()

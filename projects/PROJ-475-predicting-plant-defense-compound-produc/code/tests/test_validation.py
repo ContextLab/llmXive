@@ -1,6 +1,10 @@
 """
-Integration tests for the validation pipeline (US1).
-Verifies listwise deletion logic and retention calculations.
+Integration tests for the validation pipeline (Task T017).
+
+Specific Tests:
+- test_merge_preserves_population_ids: Verifies that merge_datasets correctly joins on population_id.
+- test_listwise_deletion_removes_nulls: Verifies that perform_listwise_deletion removes rows with missing data.
+- test_retention_check_fails_below_80_percent: Verifies that calculate_retention_percentage raises SystemExit with E-DATA-INSUFFICIENT if retention < 80%.
 """
 import json
 import os
@@ -8,324 +12,262 @@ import sys
 import tempfile
 import shutil
 from pathlib import Path
-from unittest.mock import patch
-
-import numpy as np
+import unittest
 import pandas as pd
-import pytest
 
-# Add project root to path to allow imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Adjust imports based on project structure
+# Assuming tests are in code/tests/ and modules are in code/
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from data.validation import (
-    load_json_data,
     merge_datasets,
     perform_listwise_deletion,
-    validate_data_integrity,
     calculate_retention_percentage,
-    run_validation_pipeline,
+    load_json_data,
+    load_vcf_as_dataframe
 )
-from data.mock_generator import generate_all_mock_data
-from utils.logging import get_module_logger
-from config import get_config
-
-logger = get_module_logger(__name__)
+from utils.io import DiskSpaceError
 
 
-class TestValidationPipelineIntegration:
-    """Integration tests verifying the full validation flow."""
-
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """Create a temporary directory for test artifacts."""
-        self.test_dir = tempfile.mkdtemp()
-        self.data_dir = Path(self.test_dir) / "data"
-        self.data_dir.mkdir(parents=True)
+class TestValidationPipelineIntegration(unittest.TestCase):
+    def setUp(self):
+        """Set up a temporary directory for test artifacts."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.data_dir = Path(self.temp_dir)
         self.raw_dir = self.data_dir / "raw"
-        self.raw_dir.mkdir()
         self.processed_dir = self.data_dir / "processed"
+        self.logs_dir = self.data_dir / "logs"
+
+        self.raw_dir.mkdir()
         self.processed_dir.mkdir()
+        self.logs_dir.mkdir()
 
-        # Mock config to point to test directory
-        self.config = get_config()
-        self.config.paths["raw_data"] = str(self.raw_dir)
-        self.config.paths["processed_data"] = str(self.processed_dir)
+        # Create dummy log file
+        self.exclusions_log = self.logs_dir / "exclusions.log"
+        self.exclusions_log.touch()
 
-        yield
+    def tearDown(self):
+        """Clean up the temporary directory."""
+        shutil.rmtree(self.temp_dir)
 
-        # Cleanup
-        shutil.rmtree(self.test_dir)
+    def _create_mock_genomic_vcf(self, file_path, population_ids):
+        """Create a mock VCF file for testing."""
+        # Minimal VCF header and some dummy data
+        header_lines = [
+            "##fileformat=VCFv4.2",
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t" + "\t".join(population_ids)
+        ]
+        rows = []
+        for i, pid in enumerate(population_ids):
+            # Simple genotype: 0/0 for all
+            gt = "0/0"
+            row = f"chr1\t100\t.\tA\tT\t30\tPASS\t.\tGT\t{gt}"
+            rows.append(row)
 
-    def _generate_test_data(self, include_nulls=True):
-        """Generate mock data with specific null patterns for testing."""
-        # Genomic data
-        genomic = {
-            "records": [
-                {"population_id": "P1", "variant_id": "V1", "genotype": 0},
-                {"population_id": "P1", "variant_id": "V2", "genotype": 1},
-                {"population_id": "P2", "variant_id": "V1", "genotype": 2},
-                {"population_id": "P2", "variant_id": "V2", "genotype": None if include_nulls else 0},
-                {"population_id": "P3", "variant_id": "V1", "genotype": 0},
-            ]
+        content = "\n".join(header_lines + rows)
+        with open(file_path, "w") as f:
+            f.write(content)
+
+    def _create_mock_env_csv(self, file_path, population_ids):
+        """Create a mock Environmental CSV file."""
+        data = {
+            "population_id": population_ids,
+            "lat": [30.0] * len(population_ids),
+            "lon": [40.0] * len(population_ids),
+            "temp": [20.0] * len(population_ids),
+            "precip": [500.0] * len(population_ids),
+            "ph": [6.5] * len(population_ids)
         }
+        df = pd.DataFrame(data)
+        df.to_csv(file_path, index=False)
 
-        # Environmental data
-        env_data = {
-            "records": [
-                {"population_id": "P1", "env_id": "E1", "temp": 20.5, "precip": 100},
-                {"population_id": "P2", "env_id": "E2", "temp": None if include_nulls else 22.0, "precip": 150},
-                {"population_id": "P3", "env_id": "E3", "temp": 18.0, "precip": None},
-            ]
-        }
-
-        # Compound data
-        compound_data = {
-            "records": [
-                {"population_id": "P1", "compound_id": "C1", "concentration": 10.5},
-                {"population_id": "P2", "compound_id": "C2", "concentration": 15.0},
-                {"population_id": "P3", "compound_id": "C3", "concentration": 12.0},
-            ]
-        }
-
-        # Write to files
-        with open(self.raw_dir / "genomic_vcf.json", "w") as f:
-            json.dump(genomic, f)
-        with open(self.raw_dir / "env_data.json", "w") as f:
-            json.dump(env_data, f)
-        with open(self.raw_dir / "compound_data.json", "w") as f:
-            json.dump(compound_data, f)
-
-        return genomic, env_data, compound_data
-
-    def test_load_json_data(self):
-        """Test loading JSON data from disk."""
-        self._generate_test_data(include_nulls=False)
-
-        genomic = load_json_data(self.raw_dir / "genomic_vcf.json")
-        env_data = load_json_data(self.raw_dir / "env_data.json")
-        compound = load_json_data(self.raw_dir / "compound_data.json")
-
-        assert "records" in genomic
-        assert len(genomic["records"]) == 5
-        assert "records" in env_data
-        assert len(env_data["records"]) == 3
-
-    def test_merge_datasets(self):
-        """Test merging of three datasets into a single DataFrame."""
-        self._generate_test_data(include_nulls=False)
-
-        genomic = load_json_data(self.raw_dir / "genomic_vcf.json")
-        env_data = load_json_data(self.raw_dir / "env_data.json")
-        compound = load_json_data(self.raw_dir / "compound_data.json")
-
-        merged_df = merge_datasets(genomic, env_data, compound)
-
-        assert isinstance(merged_df, pd.DataFrame)
-        assert "population_id" in merged_df.columns
-        assert "compound_id" in merged_df.columns
-        assert "env_id" in merged_df.columns
-
-        # All populations P1, P2, P3 should be present before deletion
-        assert "P1" in merged_df["population_id"].values
-        assert "P2" in merged_df["population_id"].values
-        assert "P3" in merged_df["population_id"].values
-
-    def test_perform_listwise_deletion_with_nulls(self):
-        """
-        Integration test: Verify that listwise deletion removes rows with ANY nulls
-        in critical columns (population_id, env_id, compound_id, genotype, temp, concentration).
-        """
-        # Generate data with intentional nulls
-        # P1: No nulls -> should keep
-        # P2: Null in env_data.temp -> should delete
-        # P3: Null in compound_data.concentration -> should delete (actually P3 has null in env precip, but let's check logic)
-        # Wait, my mock generator logic:
-        # P2: temp is None
-        # P3: precip is None (not concentration)
-        # Let's adjust mock to ensure concentration is null for P3 to test compound deletion
-        
-        self._generate_test_data(include_nulls=True)
-
-        # Manually inject a null concentration for P3 to ensure compound deletion triggers
-        compound_path = self.raw_dir / "compound_data.json"
-        with open(compound_path, "r") as f:
-            data = json.load(f)
-        # Find P3 record and set concentration to null
-        for rec in data["records"]:
-            if rec["population_id"] == "P3":
-                rec["concentration"] = None
-        with open(compound_path, "w") as f:
+    def _create_mock_compounds_json(self, file_path, population_ids):
+        """Create a mock Compound JSON file."""
+        data = []
+        for pid in population_ids:
+            data.append({
+                "population_id": pid,
+                "compound_name": "Alkaloid_A",
+                "concentration": 10.5,
+                "source_study": "Study_X"
+            })
+        with open(file_path, "w") as f:
             json.dump(data, f)
 
-        genomic = load_json_data(self.raw_dir / "genomic_vcf.json")
-        env_data = load_json_data(self.raw_dir / "env_data.json")
-        compound = load_json_data(self.raw_dir / "compound_data.json")
-
-        merged_df = merge_datasets(genomic, env_data, compound)
-
-        initial_count = len(merged_df)
-        
-        # Perform listwise deletion
-        # The function expects a DataFrame and a list of columns to check for nulls
-        # Based on typical validation logic, we check key identifiers and values
-        critical_cols = ["population_id", "env_id", "compound_id", "genotype", "temp", "concentration"]
-        
-        clean_df = perform_listwise_deletion(merged_df, columns=critical_cols)
-
-        final_count = len(clean_df)
-
-        # P1 is the only one without nulls in critical columns
-        # P2 has null temp
-        # P3 has null concentration
-        assert final_count < initial_count, "Listwise deletion should reduce row count"
-        assert final_count == 1, "Only P1 should remain after listwise deletion"
-        
-        remaining_pop = clean_df.iloc[0]["population_id"]
-        assert remaining_pop == "P1", f"Expected P1 to remain, got {remaining_pop}"
-
-    def test_validate_data_integrity(self):
-        """Test that validation catches missing critical identifiers."""
-        # Create data missing population_id for one record
-        genomic = {
-            "records": [
-                {"population_id": None, "variant_id": "V1", "genotype": 0}, # Invalid
-                {"population_id": "P1", "variant_id": "V2", "genotype": 1},
-            ]
-        }
-        env_data = {
-            "records": [
-                {"population_id": "P1", "env_id": "E1", "temp": 20.0, "precip": 100},
-            ]
-        }
-        compound = {
-            "records": [
-                {"population_id": "P1", "compound_id": "C1", "concentration": 10.5},
-            ]
-        }
-
-        # Write files
-        with open(self.raw_dir / "genomic_vcf.json", "w") as f:
-            json.dump(genomic, f)
-        with open(self.raw_dir / "env_data.json", "w") as f:
-            json.dump(env_data, f)
-        with open(self.raw_dir / "compound_data.json", "w") as f:
-            json.dump(compound, f)
-
-        genomic_loaded = load_json_data(self.raw_dir / "genomic_vcf.json")
-        env_loaded = load_json_data(self.raw_dir / "env_data.json")
-        compound_loaded = load_json_data(self.raw_dir / "compound_data.json")
-
-        merged_df = merge_datasets(genomic_loaded, env_loaded, compound_loaded)
-        
-        # Perform deletion first to remove the bad row
-        clean_df = perform_listwise_deletion(merged_df, columns=["population_id"])
-        
-        # Now validate
-        is_valid, issues = validate_data_integrity(clean_df)
-        
-        assert is_valid, "Data should be valid after listwise deletion"
-        assert len(issues) == 0
-
-    def test_retention_percentage_calculation(self):
-        """Verify retention percentage is calculated correctly."""
-        initial_rows = 100
-        final_rows = 80
-        
-        retention = calculate_retention_percentage(initial_rows, final_rows)
-        
-        assert retention == 80.0
-        assert retention <= 100.0
-        assert retention >= 0.0
-
-    def test_run_validation_pipeline_integration(self):
+    def test_merge_preserves_population_ids(self):
         """
-        End-to-end integration test: Run the full validation pipeline
-        and verify the output file is created and contains cleaned data.
+        Test that merge_datasets correctly joins datasets on population_id
+        and preserves all expected population IDs.
         """
-        self._generate_test_data(include_nulls=True)
-        
-        # Modify P3 concentration to null to ensure it gets deleted
+        # Setup: Create raw files with known population IDs
+        population_ids = ["POP_001", "POP_002", "POP_003", "POP_004", "POP_005"]
+        genomic_path = self.raw_dir / "genomic.vcf"
+        env_path = self.raw_dir / "env_data.csv"
         compound_path = self.raw_dir / "compound_data.json"
-        with open(compound_path, "r") as f:
-            data = json.load(f)
-        for rec in data["records"]:
-            if rec["population_id"] == "P3":
-                rec["concentration"] = None
-        with open(compound_path, "w") as f:
-            json.dump(data, f)
 
-        # Run the pipeline
-        output_path = self.processed_dir / "validated_data.csv"
-        
-        # Patch the config paths to use our test directory
-        with patch('data.validation.get_config') as mock_get_config:
-            mock_config = self.config
-            mock_get_config.return_value = mock_config
-            
-            # Execute pipeline
-            try:
-                run_validation_pipeline(
-                    genomic_path=self.raw_dir / "genomic_vcf.json",
-                    env_path=self.raw_dir / "env_data.json",
-                    compound_path=self.raw_dir / "compound_data.json",
-                    output_path=str(output_path)
-                )
-            except SystemExit as e:
-                # If retention is too low, it might exit. 
-                # With our data (3 rows -> 1 row), retention is 33%, which is < 80%
-                # This might trigger the exit in T014 logic. 
-                # We need to adjust the mock data to ensure retention > 80% OR 
-                # handle the expected exit. 
-                # Let's adjust the mock data to have 10 rows, 9 valid, 1 invalid.
-                pass
+        self._create_mock_genomic_vcf(genomic_path, population_ids)
+        self._create_mock_env_csv(env_path, population_ids)
+        self._create_mock_compounds_json(compound_path, population_ids)
 
-        # Re-run with better data proportions to avoid SystemExit
-        # Generate 10 populations, 9 valid, 1 invalid
-        genomic_records = []
-        env_records = []
-        compound_records = []
-        
-        for i in range(1, 11):
-            pop_id = f"P{i}"
-            genomic_records.append({"population_id": pop_id, "variant_id": "V1", "genotype": i % 2})
-            env_records.append({"population_id": pop_id, "env_id": f"E{i}", "temp": 20.0 + i, "precip": 100.0})
-            compound_records.append({"population_id": pop_id, "compound_id": f"C{i}", "concentration": 10.0 + i})
-        
-        # Make P10 invalid (null temp)
-        env_records[9]["temp"] = None
+        # Execute: Merge datasets
+        output_path = self.processed_dir / "merged_raw.csv"
+        try:
+            # We need to mock the logging to avoid file path issues in tests if needed,
+            # but the function should work with the paths provided.
+            # The function signature expects paths or DataFrames. Based on T013 description:
+            # "Input: Raw files from T010-T012. Logic: Perform inner join..."
+            # We assume merge_datasets takes file paths.
+            merge_datasets(
+                genomic_file=str(genomic_path),
+                env_file=str(env_path),
+                compound_file=str(compound_path),
+                output_file=str(output_path)
+            )
+        except Exception as e:
+            self.fail(f"merge_datasets failed with: {e}")
 
-        genomic_data = {"records": genomic_records}
-        env_data = {"records": env_records}
-        compound_data = {"records": compound_records}
+        # Verify: Check output file exists and contains correct IDs
+        self.assertTrue(output_path.exists(), "Merged output file was not created.")
 
-        with open(self.raw_dir / "genomic_vcf.json", "w") as f:
-            json.dump(genomic_data, f)
-        with open(self.raw_dir / "env_data.json", "w") as f:
-            json.dump(env_data, f)
-        with open(self.raw_dir / "compound_data.json", "w") as f:
-            json.dump(compound_data, f)
+        df = pd.read_csv(output_path)
+        self.assertIn("population_id", df.columns, "population_id column missing in merged data.")
 
-        # Run pipeline again
-        with patch('data.validation.get_config') as mock_get_config:
-            mock_config = self.config
-            mock_get_config.return_value = mock_config
-            
-            # This should succeed with 90% retention
-            run_validation_pipeline(
-                genomic_path=self.raw_dir / "genomic_vcf.json",
-                env_path=self.raw_dir / "env_data.json",
-                compound_path=self.raw_dir / "compound_data.json",
-                output_path=str(output_path)
+        # Since it's an inner join on all three, and we provided same IDs for all,
+        # all 5 should be present.
+        present_ids = set(df["population_id"].tolist())
+        expected_ids = set(population_ids)
+
+        self.assertEqual(present_ids, expected_ids,
+                         f"Merged data population IDs {present_ids} do not match expected {expected_ids}")
+
+    def test_listwise_deletion_removes_nulls(self):
+        """
+        Test that perform_listwise_deletion removes rows with missing data
+        in key columns (Genomic, Env, Compound).
+        """
+        # Setup: Create a DataFrame with intentional nulls
+        # Simulate the state after merge (some rows might have nulls if join was outer or data was missing)
+        data = {
+            "population_id": ["POP_001", "POP_002", "POP_003", "POP_004"],
+            "lat": [30.0, 31.0, None, 33.0], # Null in POP_003
+            "temp": [20.0, 21.0, 22.0, 23.0],
+            "concentration": [10.0, None, 12.0, 13.0], # Null in POP_002
+            "genotype_score": [0.5, 0.6, 0.7, None] # Null in POP_004 (simulating missing genomic)
+        }
+        df_input = pd.DataFrame(data)
+        input_path = self.processed_dir / "merged_raw_with_nulls.csv"
+        output_path = self.processed_dir / "final_cleaned.csv"
+
+        df_input.to_csv(input_path, index=False)
+
+        # Execute: Perform listwise deletion
+        try:
+            perform_listwise_deletion(
+                input_file=str(input_path),
+                output_file=str(output_path),
+                log_file=str(self.exclusions_log)
+            )
+        except Exception as e:
+            self.fail(f"perform_listwise_deletion failed with: {e}")
+
+        # Verify: Output file exists and has no nulls in key columns
+        self.assertTrue(output_path.exists(), "Cleaned output file was not created.")
+
+        df_clean = pd.read_csv(output_path)
+
+        # Check that rows with nulls in key columns are removed
+        # Key columns to check: lat, concentration, genotype_score (and population_id)
+        # The function should remove any row where ANY of these are null (listwise deletion)
+        self.assertEqual(len(df_clean), 1, "Expected only 1 row (POP_001) after listwise deletion.")
+
+        # Verify the remaining row is POP_001
+        self.assertEqual(df_clean.iloc[0]["population_id"], "POP_001")
+
+        # Verify no nulls in the remaining data
+        self.assertFalse(df_clean.isnull().any().any(), "Remaining data contains nulls.")
+
+    def test_retention_check_fails_below_80_percent(self):
+        """
+        Test that calculate_retention_percentage raises SystemExit with E-DATA-INSUFFICIENT
+        if retention is below 80%.
+        """
+        # Setup: Define initial and final counts
+        initial_count = 100
+        final_count = 79 # 79% retention
+
+        # Execute: Call the function
+        with self.assertRaises(SystemExit) as context:
+            calculate_retention_percentage(
+                n_initial=initial_count,
+                n_final=final_count,
+                threshold=80.0,
+                error_code="E-DATA-INSUFFICIENT"
             )
 
-        # Verify output file exists
-        assert output_path.exists(), "Output file should be created by the pipeline"
-        
-        # Verify content
-        df = pd.read_csv(output_path)
-        assert len(df) == 9, "Should have 9 rows after deleting P10"
-        assert "P10" not in df["population_id"].values, "P10 should be deleted due to null temp"
-        assert "population_id" in df.columns
-        assert "compound_id" in df.columns
-        assert "env_id" in df.columns
+        # Verify: Check exit code and message
+        self.assertEqual(context.exception.code, "E-DATA-INSUFFICIENT",
+                         f"Expected exit code 'E-DATA-INSUFFICIENT', got {context.exception.code}")
+
+        # Also test that it does NOT fail when above threshold
+        final_count_ok = 85 # 85% retention
+        try:
+            calculate_retention_percentage(
+                n_initial=initial_count,
+                n_final=final_count_ok,
+                threshold=80.0,
+                error_code="E-DATA-INSUFFICIENT"
+            )
+        except SystemExit:
+            self.fail("calculate_retention_percentage should not raise SystemExit when retention >= threshold")
+
+    def test_retention_check_passes_at_80_percent(self):
+        """
+        Test that calculate_retention_percentage passes exactly at 80% threshold.
+        """
+        initial_count = 100
+        final_count = 80 # Exactly 80%
+
+        try:
+            calculate_retention_percentage(
+                n_initial=initial_count,
+                n_final=final_count,
+                threshold=80.0,
+                error_code="E-DATA-INSUFFICIENT"
+            )
+        except SystemExit:
+            self.fail("calculate_retention_percentage should not raise SystemExit when retention == threshold")
+
+    def test_listwise_deletion_logs_exclusions(self):
+        """
+        Test that perform_listwise_deletion logs excluded population IDs to the log file.
+        """
+        # Setup: Create a DataFrame with nulls
+        data = {
+            "population_id": ["POP_001", "POP_002", "POP_003"],
+            "lat": [30.0, None, 32.0],
+            "temp": [20.0, 21.0, 22.0],
+            "concentration": [10.0, 11.0, None]
+        }
+        df_input = pd.DataFrame(data)
+        input_path = self.processed_dir / "merged_log_test.csv"
+        output_path = self.processed_dir / "cleaned_log_test.csv"
+
+        df_input.to_csv(input_path, index=False)
+
+        # Execute
+        perform_listwise_deletion(
+            input_file=str(input_path),
+            output_file=str(output_path),
+            log_file=str(self.exclusions_log)
+        )
+
+        # Verify log content
+        self.assertTrue(self.exclusions_log.exists(), "Exclusions log file was not created.")
+
+        with open(self.exclusions_log, "r") as f:
+            log_content = f.read()
+
+        # Should mention POP_002 and POP_003 (the ones with nulls)
+        # The exact format depends on the implementation, but we expect some record of exclusion
+        self.assertIn("POP_002", log_content, "POP_002 should be logged as excluded.")
+        self.assertIn("POP_003", log_content, "POP_003 should be logged as excluded.")

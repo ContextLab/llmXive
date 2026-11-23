@@ -2,6 +2,9 @@
 Main Pipeline Orchestrator.
 Orchestrates: Ingestion -> Validation -> Preprocessing -> Training -> Evaluation.
 Updates state file upon completion (Constitution Principle V).
+
+CRITICAL: This pipeline requires REAL data sources. It does NOT generate synthetic data.
+If real data fetches fail, the pipeline will crash loudly (Constitution Principle VI).
 """
 import sys
 import os
@@ -42,20 +45,23 @@ def update_state_file():
 def run_pipeline():
     """
     Execute the full research pipeline.
+    This function strictly follows the sequence: Ingestion -> Validation -> Preprocessing -> Training -> Evaluation.
+    It relies on the underlying modules to fetch REAL data. If any step fails due to missing real data,
+    it will raise an exception and stop the pipeline.
     """
     logger.info("Starting full research pipeline")
     
     # Step 1: Ingestion (T010-T012)
+    # Fetches REAL genomic, environmental, and compound data.
+    # If verified URLs are not configured or data fetch fails, it raises an error (no mock fallback).
     logger.info("Step 1: Data Ingestion")
     try:
         from data.ingestion import run_all_ingestion
-        # run_all_ingestion is the correct function to trigger the full ingestion
-        # It handles fetching or generating mock data based on config
         run_all_ingestion()
     except Exception as e:
         logger.error(f"Ingestion step failed: {e}")
-        return False
-    
+        raise  # Fail loudly
+
     # Step 2: Validation (T013-T014)
     logger.info("Step 2: Data Validation")
     try:
@@ -63,8 +69,8 @@ def run_pipeline():
         run_validation_pipeline()
     except Exception as e:
         logger.error(f"Validation step failed: {e}")
-        return False
-    
+        raise
+
     # Step 3: Preprocessing (T015-T016, T019-T021, T026)
     logger.info("Step 3: Data Preprocessing & Feature Engineering")
     try:
@@ -72,29 +78,26 @@ def run_pipeline():
         run_preprocessing_pipeline()
     except Exception as e:
         logger.error(f"Preprocessing/Feature Engineering step failed: {e}")
-        return False
-    
+        raise
+
     # Step 4: Model Training (T022-T025)
     logger.info("Step 4: Model Training")
     try:
         from models.training import train_model
-        # train_model handles loading data, CV strategy, and training
         train_model()
     except Exception as e:
         logger.error(f"Model training step failed: {e}")
-        return False
-    
+        raise
+
     # Step 5: Evaluation (T029-T033)
     logger.info("Step 5: Model Evaluation")
     try:
         from models.evaluation import run_permutation_test, run_sensitivity_analysis
-        # Run permutation test
         run_permutation_test()
-        # Run sensitivity analysis
         run_sensitivity_analysis()
     except Exception as e:
         logger.error(f"Model evaluation step failed: {e}")
-        return False
+        raise
     
     logger.info("Full pipeline completed successfully")
     return True
@@ -102,7 +105,8 @@ def run_pipeline():
 def main(config=None, *args, **kwargs):
     """
     Entry point for the main pipeline.
-    Accepts optional config argument and *args/**kwargs to satisfy all call sites.
+    Accepts optional config argument and *args/**kwargs to satisfy all call sites
+    (tests, scripts, other modules) without breaking existing contracts.
     """
     configure_root_logger()
     
@@ -113,7 +117,13 @@ def main(config=None, *args, **kwargs):
     else:
         get_config()  # Load default config
     
-    success = run_pipeline()
+    success = False
+    try:
+        success = run_pipeline()
+    except Exception as e:
+        logger.critical(f"Pipeline execution failed with critical error: {e}")
+        # Ensure we do not update state on failure
+        return 1
     
     if success:
         update_state_file()

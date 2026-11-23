@@ -1,0 +1,15 @@
+status: none
+intent: download RoboDojo dataset HuggingFace python package parquet library
+required_fields:
+- task_id
+- scene_name
+- object_ids
+- initial_pose
+- goal_pose
+- pose_success_threshold
+- orientation_success_threshold
+- semantic_embedding
+- affordance_predicates
+cache_key: f32772c1179c61a6a350c89246a667599a6df53110ae5b1b68de2662bf94c753
+searched_at: '2026-11-07T08:15:00.556316+00:00'
+retry_count: 1

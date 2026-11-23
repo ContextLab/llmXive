@@ -1,0 +1,160 @@
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the `data/raw/`, `data/processed/`, and `data/artifacts/`
+    directories actually exist (e.g., a directory listing, screenshots, or code that
+    creates them). Without such artifacts, we cannot confirm the task was fulfilled.
+T010b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `logs/citation_validation.log` file was provided, nor any output\
+    \ showing it was created or contains entries. The required artifact is missing,\
+    \ so the task\u2019s verification requirement is not satisfied."
+T018c:
+  c: false
+  h: 2e6e02c3c62d77ee9b02c2f832d0d70cfa27903f5bb97fa60cf58397e22e3ab8
+  r: "The repository lacks the required `data/raw/curated_literature_raw.json` file,\
+    \ and the shown portion of `code/ingestion.py` does not contain an implementation\
+    \ of `fetch_curated_literature_data()` (nor any logic that fetches, validates,\
+    \ and saves the Zenodo data). Consequently the task\u2019s core requirements are\
+    \ not met."
+T018d:
+  c: false
+  h: 9f1fb6b8974abebd467f301473a323c1c82619d6a63808239b2c008ba90eaaea
+  r: The `fetch_nist_data()` function in `code/ingestion.py` does not use `requests`,
+    does not parse all required columns (`sample_count`, `sintering_temp`), does not
+    write the raw response to `data/raw/nist_raw.json`, and the fallback logic is
+    not invoked. Moreover, the expected output file `data/raw/nist_raw.json` is missing.
+T018f:
+  c: false
+  h: d20e497f53c16924117ed18f0b843eb47c8b091151850a398414ece2ba3686d0
+  r: The repository contains `code/ingestion.py`, but the required `clean_data_pipeline()`
+    function is not present (or not fully implemented) and the expected output file
+    `data/processed/step_final_cleaned.csv` does not exist. Both the core pipeline
+    implementation and its resulting CSV are missing, so the task is not satisfied.
+T018g#1:
+  c: false
+  h: 4dca0ebcc3b3e630b86c4bb8f21e1d0af94caab3c05bec0b1fc2ac95eb151f7c
+  r: The repository lacks a `load_curated_literature_data()` implementation that checks
+    the marker file, validates source URLs, parses the CSV, and writes `data/raw/curated_literature_raw.json`.
+    Moreover, the required `curated_literature_raw.json` file is absent. These missing
+    pieces must be added for the task to be considered complete.
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test, or documentation artifact was presented that adds a validation
+    step to check for missing values in primary predictors after imputation. Without
+    a concrete implementation (e.g., a function, script, or unit test) the requirement
+    cannot be verified as satisfied. The next implementer must provide the actual
+    validation logic and evidence (e.g., code snippet, test results) showing that
+    after imputation no primary predictor contains missing values.
+T025:
+  c: false
+  h: 098daeff3ba714f057a047260f2f368d3f8fe3cde3632cd462a61468ae359064
+  r: "The integration test file exists, but the required output `data/results/cv_split_report.json`\
+    \ was not created (it is missing), so the test does not fulfill the task\u2019\
+    s requirement to generate the stratification report with the specified schema.\
+    \ The artifact needed for completion is absent."
+T027b:
+  c: false
+  h: a97381a7740ffba1da2e78f4e3a022ab9b44ba008f52e3444b281e886cb3144b
+  r: "The `train_models()` function is truncated and never performs model training,\
+    \ cross\u2011validation loops, or writes any feature\u2011importance data. Moreover,\
+    \ the required `data/results/fold_importances.json` file does not exist. Both\
+    \ the core functionality and the critical output artifact are missing."
+T028:
+  c: false
+  h: 8cf42a5b444dc57939ae6a8fb3c1dd11b519510f946e0bcfd87404352441ada8
+  r: The provided `code/modeling.py` does not contain an `evaluate_models()` function
+    (the file only shows imports and a `prepare_splits` implementation), and the required
+    output file `data/results/model_metrics.json` is absent. Both the core function
+    and its expected JSON output are missing, so the task is not satisfied.
+T028b:
+  c: false
+  h: 7b879f24bf5210da7792d5893f3b645dba888d833da34edfd423098e81bff9d8
+  r: "The provided `code/modeling.py` excerpt does not contain a `run_baseline_predictor()`\
+    \ implementation, and the required output file `data/results/baseline_metrics.json`\
+    \ is absent. Consequently the task\u2019s core requirement\u2014creating the baseline\
+    \ predictor and saving its MAE\u2014is not satisfied."
+T044:
+  c: false
+  h: e2b0c1d4fdf570584ce7b7fc65343bce91cd175ebf5c69f0771a16289e50ac67
+  r: The required state file `state/projects/PROJ-314-predicting-the-impact-of-composition-on-.yaml`
+    does not exist, so the hashes were never written. The presence of `code/hash_artifacts.py`
+    alone is insufficient; the task demanded execution of the script and the resulting
+    updated YAML file, which is missing. The next implementer must run the script
+    and ensure the YAML file is created with the `data_hashes` and `code_hashes` entries.
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was provided showing that `train_models`\
+    \ and `run_permutation_test` are now wrapped in a timeout handler limiting execution\
+    \ to 6\u202Fhours. The required runtime\u2011enforcement implementation is missing."
+T052:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log file implementing the described memory monitor\
+    \ was provided; there is no evidence of a `psutil`\u2011based wrapper around the\
+    \ ingestion tasks, nor of a `logs/memory_monitor.log` being created. The required\
+    \ artifact is missing."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., script, function, test, or documentation) was provided that
+    checks the NIST ceramic data URL for reachability or validates its content before
+    download. Without such evidence, the requirement is not satisfied.
+T056:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that `group_correlated_features()`\
+    \ is now invoked before feature ranking in `generate_interpretation()`, nor that\
+    \ VIF >\u202F5 triggers clustering and aggregate importance reporting. The required\
+    \ implementation artifact is missing."
+T059a:
+  c: false
+  h: de1e2ddd9ce5237365d03e5b9ec5b169ab5861c531902cd269754ae3d7f839b4
+  r: The repository lacks the required `data/processed/step_range_filtered.csv` file,
+    and the provided excerpt of `code/ingestion.py` does not contain an implementation
+    of `flag_high_variance_ranges()` (the function is absent from the visible code).
+    Both the output artifact and the specified function are missing, so the task is
+    not satisfied.
+T062:
+  c: false
+  h: 2ec8fa8d37a3a57dd3e10484d029c9bcf2ab991626333b7427e97cdc3ac0d63e
+  r: The repository lacks a `calculate_dataset_power()` implementation in `code/ingestion.py`
+    (the file ends before such a function appears) and the required `data/reports/data_availability_report.json`
+    file is absent, so the statistical power field cannot have been added. Both the
+    code change and the output artifact are missing.
+T078:
+  c: false
+  h: fb11990e61698ae5ff4bfa6c98748684ba62e3992a8cc63e22174e7e19ef9325
+  r: "The required files `data/processed/step_final_cleaned.csv` and `data/reports/final_report.md`\
+    \ are missing, and the existing `model_metrics.json` is unrelated to the dry\u2011\
+    run (it references task T031 and predates the project). No dry\u2011run logs or\
+    \ evidence of the pipeline execution are provided."
+T083:
+  c: false
+  h: c21e98197a743e5bba8234fb8a959d6371532de5b543e3630b718a0dd47c460b
+  r: The required artifact `data/results/descriptor_sufficiency.json` is missing,
+    so the pipeline was not run and no verification of the descriptor sufficiency
+    logic could be performed. The task therefore lacks the essential output file.
+T084:
+  c: false
+  h: 0ad73ddba2dea864636c544a506c1257fffa5c006a498c039ee847a282143f94
+  r: The required artifact `data/results/permutation_test_report.json` does not exist,
+    so there is no p-value, MAE improvement percentage, or significance flag to verify.
+    The task cannot be considered completed until this file is generated with the
+    appropriate contents.
+T086:
+  c: false
+  h: 2f6db9b08953a0a2c3b91e74fb04b32424b1ae79b7b95afd7a72c82f32882503
+  r: The required state file `state/projects/PROJ-314-predicting-the-impact-of-composition-on-.yaml`
+    does not exist, so no artifact hashes can be verified. The implementer must ensure
+    the script creates/updates this file with the expected `artifact_hashes` entries.
+T087:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No memory\u2011profiler output, logs, or benchmark data were supplied to show\
+    \ that `fetch_materials_project_data_streaming()` was run on a large dataset and\
+    \ kept memory usage below 2\u202FGB. The required artifact (e.g., a profiling\
+    \ report or screenshots) is missing, so the verification task is not satisfied."

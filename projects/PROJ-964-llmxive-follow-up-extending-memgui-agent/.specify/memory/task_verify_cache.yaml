@@ -1,0 +1,144 @@
+T001a:
+  c: false
+  h: 093fd70f2989a3a92e9a896401fa9c275da27523aa0a21c3ae8852900aace55b
+  r: The task T001a requires creating a `code/data_generation` directory AND creating
+    an `__init__.py` file within it. However, the evidence collector has provided
+    no artifact paths or confirmation that these items exist on disk. The task description
+    itself contains no substantive requirements beyond the directory and file creation,
+    yet no resolved artifact paths are reported for `code/data_generation/` or `code/data_generation/__init__.py`.
+    Without explicit evidence that these artifacts exist and are present (even if
+    empty, as `__init__.py` is intentionally minimal), the task cannot be verified
+    as
+  sig: 59d4fc2ae54f3575eba1a9421906380d7ca56b8bb31659c7c211176393a9428a
+T001b:
+  c: false
+  h: 1562c33eeff8d73ed18033314551f406947f243586752aec6a0a06d3ed5b99d3
+  r: The task T001b requires creating a `code/agents` directory AND creating an `__init__.py`
+    file within it. However, the evidence collector has provided no artifact paths
+    or confirmation that these directories/files exist in the project. The task description
+    itself is marked as "REJECTED/Obsolete" with a note to "See T001h for redo," which
+    indicates this task has been superseded and is no longer the active requirement.
+    Without explicit evidence that the `code/agents/` directory and `code/agents/__init__.py`
+    file exist at the project root (`projects/PROJ-964-llmxive-follow-up-extending-memgui-agen
+  sig: 22c49c96149b52f8e9a69a66bb9a7bfc57d1f80aa2385958dc105c63f09f3eb2
+T001c:
+  c: false
+  h: a0f1b30d94fa5323be34fc33144ba3c205364d187c818cb15b1286ede68d15bf
+  r: The task T001c requires creating a `code/retrieval` directory AND creating an
+    `__init__.py` file within it. However, the evidence collector has provided no
+    artifact paths or confirmation that these files exist in the project. The task
+    description itself contains no substantive requirements beyond the directory and
+    file creation, yet no evidence of their existence has been presented. Additionally,
+    the task is marked as "REJECTED/Obsolete" with a note to "See T001h for redo,"
+    which indicates this task has been superseded and should not be considered complete.
+    Without explicit confirmation from t
+  sig: 7d085fe90ffd446e700d751b78f646d04c714b6da9ee751f7dcd61599d83f34f
+T001d:
+  c: false
+  h: f2f3b04150db22ef7d08fe801913fe3a4b479d990b30ab3bf5a6cd83abe15b04
+  r: 'The task T001d requires creating a `code/evaluation` directory AND creating
+    an `__init__.py` file within it. However, no evidence has been provided showing
+    that these artifacts exist in the project. The collector report contains no resolved
+    artifact paths for `code/evaluation` or `code/evaluation/__init__.py`, and no
+    file listing or directory structure evidence confirms their presence. Additionally,
+    the task is marked as "REJECTED/Obsolete" with a note to "See T001h for redo,"
+    indicating this task has been superseded and should not be considered complete.
+    The implementer''s claim of completion '
+  sig: a6a26e9ca305c95808d0663cb68e1d84ad17b9c50899784e4e3f6567d1fb7122
+T001e:
+  c: false
+  h: a74143e04bddce861b7bb1c7a62d56c01ec2dab13cc2ee9d4fff42d98e885c38
+  r: The task T001e requires creating a `code/utils` directory AND creating an `__init__.py`
+    file within it. However, the evidence collector has provided no artifact paths
+    or confirmation that these directories/files exist in the project. The task description
+    itself contains no substantive requirements beyond the directory and file creation,
+    yet no resolved artifact paths are listed showing `code/utils/__init__.py` or
+    even `code/utils/` as existing. Without explicit evidence that these artifacts
+    exist at their expected locations in the project root, the task cannot be verified
+    as complete. Addition
+  sig: 3a4da586e15fb7fcb695aed3ad6445c5a9a691ca48cb3310d75fc64430ee002d
+T001f:
+  c: false
+  h: 96545337fcd32caa9d66707fe756065624a7e1d22680185ff42544b82d841838
+  r: "The task T001f is marked as \"REJECTED/Obsolete\" with an explicit instruction\
+    \ to \"See T001h for redo,\" which means this task should not be considered active\
+    \ or complete. The task itself has been superseded by T001h. Additionally, while\
+    \ a `tests/` directory structure does exist on disk with subdirectories (`contract/`,\
+    \ `integration/`, `unit/`) and some files (`__init__.py`, `conftest.py`, `test_placeholder.py`),\
+    \ the task provides no specification of what this directory structure should contain\
+    \ or how it should be organized\u2014only that it should be created. The presence\
+    \ of a placeholder test file a"
+  sig: b291672f1ef130462d7ae4e713598b367547866293b8e99b70a9e8fc2813c3bb
+T005:
+  c: false
+  h: bede40b72d59dbfa661c720a340c70101b499033dbd39ba384aa2a9fdde946de
+  r: The provided `memory_profiler.py` defines logging functions but the `profile_memory_latency`
+    context manager is cut off before it computes peak memory, latency, and calls
+    `log_metrics`, so it does not demonstrably perform the required logging. Additionally,
+    the target `data/logs/memory_profile.json` file is absent, indicating that no
+    logging has actually occurred. The implementation must be completed to calculate
+    and record the metrics and ensure the JSON file is created.
+T006:
+  c: true
+  h: 008f47511774de2bd34388c292c7d9537d3b54afd455595f526e08e8b8572a2b
+  r: "The repository contains a non\u2011empty `code/utils/memory_profiler.py` that\
+    \ defines `log_metrics` (writing the required `peak_memory_mb`, `latency_ms`,\
+    \ and `agent_type` fields) and a context manager for profiling, creating the target\
+    \ `data/synthetic_benchmark/memory_profile.json` on first use. No placeholder\
+    \ or missing functionality is evident."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a high\u2011level feature specification and no\
+    \ code or file defining an `ExecutionLog` dataclass. There is no artifact on disk\
+    \ showing a non\u2011empty, correctly structured data model, so the task requirement\
+    \ is unmet. The missing piece is a concrete Python dataclass (e.g., `@dataclass\
+    \ class ExecutionLog: ...`) that records the necessary fields for decision logging."
+T011:
+  c: false
+  h: 051feafcabc5cb80abb2ca68828614498a71ba1cf32c25bcf20577032fb030e9
+  r: "The repository contains `code/data_generation/synthetic_benchmark.py`, but the\
+    \ file is truncated and does not show a complete generation loop that writes trajectories\
+    \ to disk. Moreover, the required output `data/synthetic_benchmark/trajectories.jsonl`\
+    \ is absent, so the \u226550 valid trajectories have not been persisted. The missing\
+    \ JSONL file (and incomplete script) must be provided for the task to be considered\
+    \ complete."
+T013:
+  c: false
+  h: 9813463151ba7f2ada68bebdad00f4db1a0f70f3cf2b98adfe53f07be289170a
+  r: "The repository contains `code/data_generation/expert_system_validator.py`, but\
+    \ the file is truncated and shows no logic that writes `data/synthetic_benchmark/review_results.json`\
+    \ or creates `needs_human_review.json` on failure. Moreover, the required `data/synthetic_benchmark/review_results.json`\
+    \ file is missing entirely. The task\u2019s output artifacts are therefore not\
+    \ present."
+T013b:
+  c: false
+  h: 6dd3293838b98c09089c851aa6e6e69e83f8955a12d6c87334863f77c5c7b9f7
+  r: "The provided `human_review_consumer.py` is truncated (ends mid\u2011line) and\
+    \ lacks the CLI/HTML review logic and the code that writes human feedback to `data/synthetic_benchmark/review_results.json`.\
+    \ Moreover, the required `review_results.json` file does not exist. The task\u2019\
+    s core functionality is therefore not implemented."
+T020:
+  c: false
+  h: c9c2df212bec0373d8c7c1ee0222b82999ab7485c5e38f569e59ed9ba9dd0ab3
+  r: "The required input `data/synthetic_benchmark/trajectories.jsonl` does not exist,\
+    \ and the expected output `data/results/baseline_execution_logs.jsonl` was not\
+    \ generated. Without these files the runner cannot be exercised, so the task\u2019\
+    s core requirement of executing the baseline agent and recording the failure step\
+    \ with attribution is unmet. The next implementer must provide the synthetic benchmark\
+    \ file and ensure the runner writes the execution logs as specified."
+T024:
+  c: false
+  h: 5d93891cfdf1271cd741e075dbfe144bc0f88fe06a5154ea3a0a4572d6a0395f
+  r: "The required integration test file `tests/integration/retrieval/test_recall_injection.py`\
+    \ does not exist in the repository, so the task\u2019s primary artifact is missing.\
+    \ No further evidence of a test implementation is present."
+T029:
+  c: false
+  h: 5273edd147441eed7b6f6ce452bbe59d0f63cd40adc570dc5ddd7e51cd3e62d7
+  r: "The repository contains a `recall_runner.py` that begins to implement `RunnerProtocol`,\
+    \ but the file is truncated and does not show a complete `run` method or logic\
+    \ to write `data/results/recall_execution_logs.jsonl`. Moreover, the required\
+    \ input file `data/synthetic_benchmark/trajectories.jsonl` and the expected output\
+    \ log file are absent. The task\u2019s core requirement\u2014to execute on the\
+    \ benchmark and generate the execution\u2011log file\u2014is therefore not satisfied."

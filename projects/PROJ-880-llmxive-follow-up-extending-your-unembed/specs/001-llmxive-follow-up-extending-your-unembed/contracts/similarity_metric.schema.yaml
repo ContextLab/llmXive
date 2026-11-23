@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Similarity Metric Schema
+type: object
+required:
+  - model_pair
+  - delta_similarity
+  - ci
+  - generated_at
+properties:
+  model_pair:
+    type: string
+  delta_similarity:
+    type: number
+    minimum: -1
+    maximum: 1
+  ci:
+    type: array
+    minItems: 2
+    maxItems: 2
+    items:
+      type: number
+  generated_at:
+    type: string
+    format: date-time

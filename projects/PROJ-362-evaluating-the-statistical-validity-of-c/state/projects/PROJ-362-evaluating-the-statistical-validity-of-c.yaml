@@ -1,0 +1,7 @@
+artifact_hashes:
+  combined_qrels.json: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  trec_robust04_qrels.json: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  trec_web-track-2009_qrels.json: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  trec_web-track-2010_qrels.json: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  trec_web-track-2011_qrels.json: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  trec_web-track-2012_qrels.json: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"

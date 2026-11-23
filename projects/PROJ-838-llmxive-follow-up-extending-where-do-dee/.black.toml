@@ -1,0 +1,4 @@
+# This file is a legacy configuration for black if invoked via CLI without pyproject.toml
+# However, we prefer pyproject.toml. This is a safety net.
+line-length = 88
+target-version = ['py311']

@@ -1,0 +1,88 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Metadata Schema
+description: |
+  Schema defining the structure of raw input metadata for the Motif-rsFC pipeline.
+  This schema validates the manifest of raw data files (HCP S3 downloads) before processing.
+type: object
+required:
+  - dataset_id
+  - source
+  - version
+  - subjects
+  - created_at
+  - checksums
+properties:
+  dataset_id:
+    type: string
+    description: Unique identifier for this dataset instance (e.g., 'HCP_1200_Subset')
+    pattern: "^[a-zA-Z0-9_-]+$"
+  source:
+    type: string
+    description: Origin of the data
+    enum:
+      - HCP_S3
+  version:
+    type: string
+    description: Version of the dataset or schema
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+  created_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of manifest creation
+  subjects:
+    type: array
+    description: List of subject metadata entries
+    items:
+      type: object
+      required:
+        - subject_id
+        - dwi_path
+        - rsfmri_path
+        - checksums
+      properties:
+        subject_id:
+          type: string
+          description: Unique subject identifier (e.g., '100306')
+          pattern: "^\\d{6}$"
+        dwi_path:
+          type: string
+          description: Relative path to the raw DWI file in data/raw/
+          pattern: "^data/raw/.*\\.nii\\.gz$"
+        rsfmri_path:
+          type: string
+          description: Relative path to the raw rs-fMRI file in data/raw/
+          pattern: "^data/raw/.*\\.nii\\.gz$"
+        checksums:
+          type: object
+          required:
+            - dwi_sha256
+            - rsfmri_sha256
+          properties:
+            dwi_sha256:
+              type: string
+              description: SHA-256 hash of the DWI file
+              pattern: "^[a-f0-9]{64}$"
+            rsfmri_sha256:
+              type: string
+              description: SHA-256 hash of the rs-fMRI file
+              pattern: "^[a-f0-9]{64}$"
+  checksums:
+    type: object
+    description: Aggregate checksums for the manifest itself
+    required:
+      - manifest_sha256
+    properties:
+      manifest_sha256:
+        type: string
+        description: SHA-256 hash of the manifest file
+        pattern: "^[a-f0-9]{64}$"
+  metadata:
+    type: object
+    description: Optional additional metadata
+    properties:
+      notes:
+        type: string
+      cohort_size:
+        type: integer
+        minimum: 1
+additionalProperties: false

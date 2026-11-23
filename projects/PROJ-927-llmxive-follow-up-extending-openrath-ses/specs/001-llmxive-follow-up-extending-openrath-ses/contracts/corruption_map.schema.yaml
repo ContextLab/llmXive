@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Corruption Map"
+description: "Records of what was corrupted for a specific workflow, targeting logical data entities."
+type: object
+required:
+  - workflow_id
+  - corruption_rate
+  - logical_targets
+  - deleted_items
+  - modified_items
+properties:
+  workflow_id:
+    type: string
+  corruption_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+  logical_targets:
+    type: array
+    description: "List of logical entity identifiers (e.g., 'node_4_output') targeted for corruption."
+    items:
+      type: string
+  deleted_items:
+    type: array
+    description: "List of physical file paths or keys that were deleted (mapped from logical_targets)."
+    items:
+      type: string
+  modified_items:
+    type: array
+    description: "List of physical file paths or keys that were modified (mapped from logical_targets)."
+    items:
+      type: string
+  critical_deletions:
+    type: array
+    description: "List of logical entities that were deleted and marked as critical for the decision path."
+    items:
+      type: string
+additionalProperties: false

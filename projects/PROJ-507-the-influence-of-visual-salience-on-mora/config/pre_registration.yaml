@@ -1,0 +1,15 @@
+# Pre-registration Configuration for Visual Salience Study
+# This file defines the precision threshold for statistical analysis.
+# It is required by T046 (Precision Threshold Check).
+#
+# MIN_PRECISION: The maximum allowed width of the 95% Confidence Interval
+#                for the primary salience coefficient.
+#                If the observed CI width > MIN_PRECISION, the result is flagged
+#                as not meeting pre-registered precision standards.
+#
+# verification_status: Must be set to 'VERIFIED' by the principal investigator
+#                      before the analysis stage (T046) can proceed.
+#                      If 'UNVERIFIED', the system will raise a PreRegistrationError.
+
+MIN_PRECISION: 0.15
+verification_status: UNVERIFIED

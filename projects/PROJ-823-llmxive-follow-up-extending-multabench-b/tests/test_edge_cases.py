@@ -1,311 +1,223 @@
 """
-Unit tests for edge cases in the llmXive pipeline.
-Covers empty datasets, single-row datasets, and zero-variance features.
+Tests for edge case handling in the MulTaBench pipeline.
+
+Tests cover:
+- Zero variance detection and handling
+- Missing field detection and handling
+- Empty and single-row datasets
+- Integration with preprocessing pipeline
 """
 import pytest
 import pandas as pd
 import numpy as np
-import json
-import os
-import sys
-from pathlib import Path
-from datetime import datetime
-import tempfile
-import shutil
+from code.embeddings.edge_case_handler import (
+    EdgeCaseHandler,
+    detect_zero_variance_columns,
+    detect_missing_fields,
+    handle_zero_variance_columns,
+    handle_missing_fields,
+    preprocess_dataset_for_edge_cases
+)
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
-from config import ensure_directories
-from utils.logging import get_logger
-from data_loader import ingest_dataset
-from embeddings.generator import EmbeddingGenerator
-from analysis.metadata_stats import compute_feature_stats, load_dataset_list, process_single_dataset, save_summary_csv
-from models.projection import MLPProjection, create_projection_model
-from models.trainer import Trainer
-
-
-class TestEmptyDataset:
-    """Tests for handling empty datasets."""
-
-    def test_empty_dataframe_metadata_stats(self):
-        """Test metadata_stats handles empty DataFrame gracefully."""
-        empty_df = pd.DataFrame()
-        
-        with pytest.raises((ValueError, IndexError)):
-            compute_feature_stats(empty_df)
-
-    def test_empty_dataset_embedding_generation(self, tmp_path):
-        """Test embedding generation with empty dataset."""
-        # Create a minimal empty dataset structure
-        dataset_dir = tmp_path / "empty_dataset"
-        dataset_dir.mkdir()
-        
-        # Create empty CSV
-        empty_csv = dataset_dir / "data.csv"
-        empty_csv.write_text("id,text,image_path\n")
-        
-        # Create metadata file
-        metadata = {
-            "dataset_id": "empty_test",
-            "task_type": "classification",
-            "num_rows": 0,
-            "has_text": True,
-            "has_image": True
-        }
-        with open(dataset_dir / "metadata.json", "w") as f:
-            json.dump(metadata, f)
-        
-        # Test that processing an empty dataset raises appropriate error or handles gracefully
-        # This is expected behavior - empty datasets should be detected and skipped
-        try:
-            stats = process_single_dataset(str(dataset_dir))
-            assert stats is None or stats.get("num_rows", 0) == 0
-        except (ValueError, IndexError) as e:
-            # Expected: empty datasets should raise an error or be skipped
-            assert "empty" in str(e).lower() or "zero" in str(e).lower()
-
-
-class TestSingleRowDataset:
-    """Tests for handling single-row datasets."""
-
-    def test_single_row_metadata_stats(self):
-        """Test metadata_stats handles single-row DataFrame correctly."""
-        single_row_df = pd.DataFrame({
-            'id': [1],
-            'feature1': [10.0],
-            'feature2': ['text'],
-            'target': [1]
-        })
-        
-        stats = compute_feature_stats(single_row_df)
-        
-        # Should compute stats without error
-        assert stats is not None
-        assert stats['num_rows'] == 1
-        assert stats['feature_count'] == 3  # id, feature1, feature2
-
-    def test_single_row_embedding_generation(self, tmp_path):
-        """Test embedding generation with single-row dataset."""
-        dataset_dir = tmp_path / "single_row_dataset"
-        dataset_dir.mkdir()
-        
-        # Create single-row CSV
-        single_csv = dataset_dir / "data.csv"
-        single_csv.write_text("id,text,image_path\n1,sample text,path/to/image.jpg\n")
-        
-        # Create metadata file
-        metadata = {
-            "dataset_id": "single_row_test",
-            "task_type": "classification",
-            "num_rows": 1,
-            "has_text": True,
-            "has_image": True
-        }
-        with open(dataset_dir / "metadata.json", "w") as f:
-            json.dump(metadata, f)
-        
-        # Should process without error
-        try:
-            stats = process_single_dataset(str(dataset_dir))
-            assert stats is not None
-            assert stats['num_rows'] == 1
-        except Exception as e:
-            pytest.fail(f"Single row dataset processing failed: {e}")
-
-    def test_single_row_projection_training(self, tmp_path):
-        """Test projection model training with single-row dataset."""
-        # Create a simple projection model
-        input_dim = 10
-        output_dim = 5
-        model = MLPProjection(input_dim, output_dim)
-        
-        # Create single sample
-        x = torch.randn(1, input_dim)
-        y = torch.randn(1, output_dim)
-        
-        # Should not raise error
-        output = model(x)
-        assert output.shape == (1, output_dim)
-
-
-class TestZeroVarianceFeatures:
-    """Tests for handling zero-variance features."""
-
-    def test_zero_variance_feature_stats(self):
-        """Test metadata_stats correctly identifies zero-variance features."""
+class TestZeroVariance:
+    """Tests for zero variance detection and handling."""
+    
+    def test_detect_zero_variance_constant_column(self):
+        """Test detection of a constant column."""
         df = pd.DataFrame({
-            'id': [1, 2, 3, 4, 5],
-            'constant_feature': [5.0, 5.0, 5.0, 5.0, 5.0],
-            'variable_feature': [1.0, 2.0, 3.0, 4.0, 5.0]
+            'constant': [5.0] * 100,
+            'variable': np.random.randn(100)
         })
         
-        stats = compute_feature_stats(df)
+        handler = EdgeCaseHandler()
+        result = handler.detect_zero_variance(df)
         
-        # Should identify constant feature
-        assert 'constant_feature' in stats.get('zero_variance_features', [])
-        assert stats.get('num_zero_variance_features', 0) >= 1
-
-    def test_zero_variance_in_projection(self):
-        """Test that zero-variance features are handled in projection."""
-        # Create dataset with zero-variance feature
+        assert 'constant' in result
+        assert 'variable' not in result
+    
+    def test_detect_zero_variance_all_nan(self):
+        """Test detection of all-NaN column as zero variance."""
         df = pd.DataFrame({
-            'feature1': [1.0, 1.0, 1.0],
-            'feature2': [1.0, 2.0, 3.0],
-            'target': [0, 1, 0]
+            'all_nan': [np.nan] * 100,
+            'variable': np.random.randn(100)
         })
         
-        # Normalize features (zero variance should result in NaN or constant)
-        from sklearn.preprocessing import StandardScaler
-        scaler = StandardScaler()
+        handler = EdgeCaseHandler()
+        result = handler.detect_zero_variance(df)
         
-        # This should handle zero variance gracefully
-        try:
-            scaled = scaler.fit_transform(df[['feature1', 'feature2']])
-            # Zero variance feature will have NaN or 0 after scaling
-            assert scaled.shape == (3, 2)
-        except Exception as e:
-            # StandardScaler raises error for zero variance - this is expected
-            # The pipeline should handle this by skipping or imputing
-            assert "variance" in str(e).lower() or "std" in str(e).lower()
-
-    def test_mixed_variance_features(self):
-        """Test handling of mixed variance features."""
+        assert 'all_nan' in result
+    
+    def test_handle_zero_variance_skip(self):
+        """Test dropping zero variance columns."""
         df = pd.DataFrame({
-            'high_var': [1.0, 10.0, 100.0, 1000.0],
-            'zero_var': [5.0, 5.0, 5.0, 5.0],
-            'low_var': [1.0, 1.1, 1.2, 1.3]
+            'constant': [5.0] * 100,
+            'variable': np.random.randn(100)
         })
         
-        stats = compute_feature_stats(df)
+        handler = EdgeCaseHandler(skip_zero_variance=True)
+        result_df, metadata = handler.handle_zero_variance(df, ['constant'])
         
-        assert stats['num_zero_variance_features'] >= 1
-        assert stats['num_non_zero_variance_features'] >= 2
-
-
-class TestMissingValues:
-    """Tests for handling missing values in datasets."""
-
-    def test_high_missingness_stats(self):
-        """Test metadata_stats handles high missingness correctly."""
+        assert 'constant' not in result_df.columns
+        assert 'variable' in result_df.columns
+        assert metadata['action'] == 'drop'
+    
+    def test_handle_zero_variance_impute(self):
+        """Test imputing zero variance columns with mean."""
         df = pd.DataFrame({
-            'complete': [1.0, 2.0, 3.0, 4.0],
-            'missing_some': [1.0, np.nan, 3.0, np.nan],
-            'all_missing': [np.nan, np.nan, np.nan, np.nan]
+            'constant': [5.0] * 100,
+            'variable': np.random.randn(100)
         })
         
-        stats = compute_feature_stats(df)
+        handler = EdgeCaseHandler(skip_zero_variance=False)
+        result_df, metadata = handler.handle_zero_variance(df, ['constant'])
         
-        assert stats['overall_missingness'] > 0
-        assert stats['num_features_with_missing'] >= 2
+        assert 'constant' in result_df.columns
+        assert result_df['constant'].iloc[0] == 5.0
+        assert metadata['action'] == 'impute'
 
-    def test_missing_values_in_embedding(self):
-        """Test embedding generation with missing values."""
-        # Create dataset with missing text/image paths
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            dataset_dir = Path(tmp_dir) / "missing_test"
-            dataset_dir.mkdir()
-            
-            # Create CSV with missing values
-            csv_content = """id,text,image_path
-            1,hello text,path/to/image.jpg
-            2,,path/to/image2.jpg
-            3,some text,
-            """
-            (dataset_dir / "data.csv").write_text(csv_content)
-            
-            metadata = {
-                "dataset_id": "missing_test",
-                "task_type": "classification",
-                "num_rows": 3,
-                "has_text": True,
-                "has_image": True
-            }
-            with open(dataset_dir / "metadata.json", "w") as f:
-                json.dump(metadata, f)
-            
-            # Should handle missing values gracefully
-            try:
-                stats = process_single_dataset(str(dataset_dir))
-                assert stats is not None
-            except Exception as e:
-                # Expected to handle missing values or raise informative error
-                assert "missing" in str(e).lower() or "empty" in str(e).lower()
-
-
-class TestInvalidDataFormats:
-    """Tests for handling invalid data formats."""
-
-    def test_corrupted_parquet_file(self):
-        """Test handling of corrupted parquet files."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            corrupt_file = Path(tmp_dir) / "corrupt.parquet"
-            corrupt_file.write_text("not a valid parquet file")
-            
-            try:
-                import pandas as pd
-                pd.read_parquet(str(corrupt_file))
-                pytest.fail("Should have raised an error for corrupted parquet")
-            except Exception as e:
-                # Expected: corrupted file should raise error
-                assert "parquet" in str(e).lower() or "corrupt" in str(e).lower()
-
-    def test_invalid_json_metadata(self):
-        """Test handling of invalid JSON metadata."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            metadata_file = Path(tmp_dir) / "metadata.json"
-            metadata_file.write_text("{ invalid json }")
-            
-            try:
-                with open(metadata_file, 'r') as f:
-                    json.load(f)
-                pytest.fail("Should have raised JSON decode error")
-            except json.JSONDecodeError:
-                # Expected: invalid JSON should raise decode error
-                pass
-
-
-class TestMemoryEdgeCases:
-    """Tests for memory-related edge cases."""
-
-    def test_very_small_batch_size(self):
-        """Test processing with batch size of 1."""
-        from embeddings.utils import batch_process_embeddings
+class TestMissingFields:
+    """Tests for missing field detection and handling."""
+    
+    def test_detect_missing_fields(self):
+        """Test detection of missing values in required fields."""
+        df = pd.DataFrame({
+            'required1': [1.0, 2.0, np.nan, 4.0],
+            'required2': [10.0, np.nan, 30.0, 40.0],
+            'optional': [100.0, 200.0, 300.0, 400.0]
+        })
         
-        # Create small dataset
-        data = [{"id": i, "text": f"text_{i}"} for i in range(5)]
+        handler = EdgeCaseHandler()
+        result = handler.detect_missing_fields(df, ['required1', 'required2'])
         
-        # Process with batch size 1
-        try:
-            # This should work but may be slow
-            results = batch_process_embeddings(
-                data, 
-                batch_size=1,
-                process_func=lambda x: x  # Dummy function
-            )
-            assert len(results) == 5
-        except Exception as e:
-            pytest.fail(f"Batch size 1 processing failed: {e}")
-
-    def test_very_large_feature_dimension(self):
-        """Test handling of very high dimensional features."""
-        # Create model with high input dimension
-        input_dim = 10000
-        output_dim = 100
+        assert 'required1' in result
+        assert 'required2' in result
+        assert result['required1'] == 1
+        assert result['required2'] == 1
+        assert 'optional' not in result
+    
+    def test_handle_missing_fields_skip(self):
+        """Test dropping rows with missing required fields."""
+        df = pd.DataFrame({
+            'required1': [1.0, 2.0, np.nan, 4.0],
+            'required2': [10.0, 20.0, 30.0, 40.0]
+        })
         
-        try:
-            model = MLPProjection(input_dim, output_dim)
-            x = torch.randn(1, input_dim)
-            output = model(x)
-            assert output.shape == (1, output_dim)
-        except MemoryError:
-            # Expected: very large dimensions may cause memory issues
-            pass
+        handler = EdgeCaseHandler(missing_strategy='skip')
+        result_df, metadata = handler.handle_missing_fields(
+            df,
+            {'required1': 1},
+            ['required1', 'required2']
+        )
+        
+        assert len(result_df) == 3
+        assert metadata['action'] == 'skip_rows'
+        assert metadata['rows_dropped'] == 1
+    
+    def test_handle_missing_fields_impute(self):
+        """Test imputing missing values in required fields."""
+        df = pd.DataFrame({
+            'required1': [1.0, 2.0, np.nan, 4.0],
+            'required2': [10.0, 20.0, 30.0, 40.0]
+        })
+        
+        handler = EdgeCaseHandler(missing_strategy='impute', impute_value=0.0)
+        result_df, metadata = handler.handle_missing_fields(
+            df,
+            {'required1': 1},
+            ['required1', 'required2']
+        )
+        
+        assert len(result_df) == 4
+        assert result_df['required1'].iloc[2] == 0.0
+        assert metadata['action'] == 'impute'
 
+class TestFullPipeline:
+    """Tests for the full edge case handling pipeline."""
+    
+    def test_process_full_pipeline(self):
+        """Test complete processing pipeline."""
+        df = pd.DataFrame({
+            'constant': [5.0] * 100,
+            'required1': np.random.randn(100),
+            'required2': [10.0] * 99 + [np.nan],
+            'variable': np.random.randn(100)
+        })
+        
+        handler = EdgeCaseHandler(
+            skip_zero_variance=True,
+            missing_strategy='skip'
+        )
+        
+        result_df, metadata = handler.process(
+            df,
+            required_fields=['required1', 'required2']
+        )
+        
+        # Check zero variance handling
+        assert 'constant' not in result_df.columns
+        assert metadata['zero_variance']['action'] == 'drop'
+        
+        # Check missing field handling
+        assert len(result_df) == 99
+        assert metadata['missing_fields']['action'] == 'skip_rows'
+    
+    def test_empty_dataframe(self):
+        """Test handling of empty DataFrame."""
+        df = pd.DataFrame()
+        
+        handler = EdgeCaseHandler()
+        result_df, metadata = handler.process(
+            df,
+            required_fields=['required1']
+        )
+        
+        assert result_df.empty
+        assert metadata['original_shape'] == (0, 0)
+        assert metadata['final_shape'] == (0, 0)
+    
+    def test_single_row_dataset(self):
+        """Test handling of single-row dataset."""
+        df = pd.DataFrame({
+            'required1': [1.0],
+            'required2': [2.0]
+        })
+        
+        handler = EdgeCaseHandler()
+        result_df, metadata = handler.process(
+            df,
+            required_fields=['required1', 'required2']
+        )
+        
+        assert len(result_df) == 1
+        assert metadata['final_shape'] == (1, 2)
 
-# Import torch for tests that need it
-import torch
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+class TestConvenienceFunctions:
+    """Tests for convenience functions."""
+    
+    def test_detect_zero_variance_columns_func(self):
+        """Test the standalone detect_zero_variance_columns function."""
+        df = pd.DataFrame({
+            'constant': [5.0] * 100,
+            'variable': np.random.randn(100)
+        })
+        
+        result = detect_zero_variance_columns(df)
+        assert 'constant' in result
+    
+    def test_preprocess_dataset_for_edge_cases_func(self):
+        """Test the standalone preprocess_dataset_for_edge_cases function."""
+        df = pd.DataFrame({
+            'constant': [5.0] * 100,
+            'required1': np.random.randn(100),
+            'required2': [10.0] * 99 + [np.nan]
+        })
+        
+        result_df, metadata = preprocess_dataset_for_edge_cases(
+            df,
+            required_fields=['required1', 'required2'],
+            skip_zero_variance=True,
+            missing_strategy='skip'
+        )
+        
+        assert 'constant' not in result_df.columns
+        assert len(result_df) == 99

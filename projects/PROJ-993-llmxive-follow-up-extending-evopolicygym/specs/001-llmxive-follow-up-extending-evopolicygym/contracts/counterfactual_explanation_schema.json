@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/counterfactual_explanation.json",
+  "title": "Counterfactual Explanation Contract",
+  "description": "JSON Schema defining the structure of a generated counterfactual explanation. Ensures that explanations contain the required Rule ID, trajectory context, and suggested correction.",
+  "type": "object",
+  "properties": {
+    "explanation_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this explanation instance."
+    },
+    "trajectory_id": {
+      "type": "string",
+      "description": "Reference to the trajectory or episode that triggered the explanation."
+    },
+    "violated_rule_id": {
+      "type": "string",
+      "description": "The specific ID of the rule from the environment schema that was violated."
+    },
+    "rule_description": {
+      "type": "string",
+      "description": "Human-readable description of the violated rule."
+    },
+    "counterfactual_condition": {
+      "type": "string",
+      "description": "The minimal change required to avoid the violation (e.g., 'If action X had been taken at step Y')."
+    },
+    "natural_language_explanation": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "The generated natural language explanation."
+    },
+    "confidence_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Model confidence in the generated explanation."
+    },
+    "generation_metadata": {
+      "type": "object",
+      "properties": {
+        "model_id": {
+          "type": "string",
+          "description": "Identifier of the LLM used for generation."
+        },
+        "tokens_used": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "generation_time_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fallback_used": {
+          "type": "boolean",
+          "description": "True if a template fallback was used instead of LLM generation."
+        }
+      },
+      "required": ["model_id", "tokens_used", "generation_time_ms", "fallback_used"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "fallback", "timeout", "error"],
+      "description": "Status of the explanation generation process."
+    }
+  },
+  "required": [
+    "explanation_id",
+    "trajectory_id",
+    "violated_rule_id",
+    "counterfactual_condition",
+    "natural_language_explanation",
+    "confidence_score",
+    "generation_metadata",
+    "status"
+  ],
+  "additionalProperties": false
+}

@@ -10,6 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
+- **[S]**: Sequential (must run after dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
@@ -43,222 +44,92 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Initialize project directory structure: Create `code/`, `tests/`, `data/`, and `docs/` directories in a single step.
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` dependencies (pandas, numpy, scipy, statsmodels, matplotlib, seaborn, pyyaml)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T005 [P] Implement data hygiene utilities: `code/utils/checksum.py` (MD5/SHA256 for input validation)
-- [X] T006 [P] Setup configuration management: `code/utils/config.py` (seed pinning, path loading)
-- [ ] T007 Create base data models: `contracts/study_record.schema.yaml` and `contracts/meta_analysis_result.schema.yaml`
-- [ ] T008 [P] Implement tract harmonization logic: `code/analysis/tract_mapping.py` (JHU Atlas mapping, string normalization). **Constraint**: This task MUST NOT implement any prioritization or filtering logic. It must only standardize tract names. Prioritization logic is gated by the study count check in T016.
-- [X] T009 Setup logging infrastructure: `code/utils/logger.py` (structured logging for convergence warnings, fallbacks)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Meta-Analysis Data Extraction and Synthesis (Priority: P1) 🎯 MVP
-
-**Goal**: Extract effect sizes from CSV, handle missing data, perform random-effects meta-analysis, and trigger narrative fallback if N < 10.
-
-**Independent Test**: Run extraction script on a small, synthetic CSV of mock studies with known effect sizes and verify the output JSON contains the correct weighted mean and confidence intervals calculated via `statsmodels` logic.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T010 [P] [US1] Unit test for extraction logic in `tests/unit/test_extraction.py` (verify r, n parsing)
-- [X] T011 [P] [US1] Unit test for meta-analysis calculation in `tests/unit/test_meta_analysis.py` (verify weighted mean within 0.001 tolerance)
-- [X] T012 [P] [US1] Unit test for narrative fallback trigger in `tests/unit/test_narrative.py` (verify N < 10 skips aggregation)
-
-### Implementation for User Story 1
-
-- [X] T013 [P] [US1] Implement `code/extraction/parser.py` to parse CSV/JSON inputs for r, n, tract AND qualitative descriptors. **Extraction Logic**: When direct (r, n) pairs are unavailable, implement specific logic to search for tract names (e.g., "arcuate", "cingulum", "uncinate") in proximity to directional verbs ("increased", "decreased", "correlated", "associated with") to extract "neural circuitry" and "preference" descriptors. **Fallback**: If no specific descriptors are found, include the study in the narrative pool with a `no_qualitative_data` flag. **Do NOT** use vague "broad regex" or "open-ended NLP"; the extraction must target specific neural circuitry terms defined in the spec.
-- [ ] T014 [US1] Implement `code/analysis/meta_analysis.py` Random-Effects model using `statsmodels` (handle convergence failure by falling back to Fixed-Effects with warning); output `study_count` artifact.
-- [X] T015 [US1] Implement `code/analysis/narrative.py` to generate structured text summary if eligible study count < 10; consumes `qualitative_notes` from T013 AND `study_count` from T014. **Structure Requirements**:
-## Study Overview
-This study investigates the correlation between structural brain connectivity (dMRI metrics) and individual music preferences. The methodology employs a qualitative thematic analysis to identify emerging trends regarding neural circuitry. References include [Author] et al. ([Year]).
-
-## Qualitative Themes
-The analysis focuses on categorizing recurring themes regarding specific tracts (e.g., arcuate fasciculus, cingulum bundle) and their reported associations with music preference behaviors.
-
-## Limitations
-The scope is constrained by the limited number of eligible studies (N < 10), precluding quantitative meta-analysis.
-Additionally, include a JSON metadata block at the top with keys: `study_count`, `synthesis_mode`, `timestamp`. **Depends on: T013, T014**
-- [X] T016 [US1] Implement `code/main.py` entry point logic: load raw CSV, run extraction, check N count. **Gate Logic**: If N < 10, trigger narrative mode immediately. If N >= 10, proceed to quantitative analysis AND apply tract prioritization (if applicable) ONLY after the count check passes.
-- [~] T017 [US1] Add validation and error handling for missing effect sizes (exclude study with log entry if conversion fails).
-- [~] T018 [US1] Handle zero-studies edge case: ensure `narrative.py` produces a valid "No studies found" summary if input CSV is empty.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Heterogeneity and Bias Assessment (Priority: P2)
-
-**Goal**: Calculate I² statistics and perform Egger's regression test (only if N ≥ 10).
-
-**Independent Test**: Provide a synthetic dataset with high variance and verify I² > 50%; provide skewed data to verify Egger's test p-value < 0.05; verify skip logic for N < 10.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T019 [P] [US2] Unit test for I² calculation in `tests/unit/test_heterogeneity.py` (verify precision to **exactly two decimal places** as required by SC-002, e.g., 52.34)
-- [X] T020 [P] [US2] Unit test for Egger's regression in `tests/unit/test_bias.py` (verify p-value calculation and N < 10 skip logic; verify `egger_skipped_reason` output matches **exact string**: 'Skipped: Insufficient studies (N < 10) for Egger's regression')
-
-### Implementation for User Story 2
-
-- [X] T021 [US2] Implement `code/analysis/bias.py` Egger's linear regression test. **Skip Logic**: Explicitly SKIP if `study_count` (from T014) < 10. **Input Verification**: Read `study_count` from T014 output JSON to determine skip condition. **Output Requirement**: If N >= 10, report the intercept and p-value. If N < 10, output the exact string `egger_skipped_reason: "Skipped: Insufficient studies (N < 10) for Egger's regression"` as a runtime value in the result JSON. **Depends on: T014**
-- [X] T021b [US2] Implement `code/analysis/heterogeneity.py` I² calculation. **Precision Requirement**: The output MUST report the I² statistic with **exactly two decimal places** (e.g., 52.34) as mandated by **SC-002** and **FR-002**. **Parallel Safety**: This task reads from T014 and writes to the heterogeneity section of the output JSON. **Depends on: T021** (to ensure atomic writes to the shared JSON artifact).
-- [X] T022 [US2] Implement `code/analysis/correction.py` for multiple comparison correction. **Decision Logic**:
- 1. Apply **Bonferroni correction** ONLY if N ≥ 10 AND k ≥ 2 tracts (for the independent subset).
- 2. **Strict Requirement**: If N < 10, skip and trigger narrative mode.
- 3. **Constraint**: Do NOT implement Robust Variance Estimation (RVE). The spec mandates Bonferroni correction only.
- 4. Include a mandatory "Limitations" note in the output report acknowledging that Bonferroni is conservative due to tract non-independence.
- 5. **Output Requirement**: Report the **adjusted significance threshold** value in the output report. **Depends on: T014, T008**
-- [X] T023 [US2] Integrate bias assessment into `code/main.py` (run after meta-analysis, update `MetaAnalysisResult` JSON).
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Visualization and Reporting (Priority: P3)
-
-**Goal**: Generate forest plots, funnel plots, and summary correlation plots using `matplotlib` and `seaborn`.
-
-**Independent Test**: Run plotting module on a static dataset and verify PNG files exist, are under a reasonable file size limit, and contain correct axis labels/data points.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T025 [P] [US3] Integration test for plot generation in `tests/integration/test_plots.py` (verify file existence, size < 5MB, peak memory < 6GB using tracemalloc, and correct axis labels).
-
-### Implementation for User Story 3
-
-- [X] T027 [P] [US3] Implement `code/visualization/plots.py` to generate all required plots: Forest plot (summary diamond aligns with `weighted_mean_r`), Funnel plot (standard error vs effect size, symmetry line at pooled effect), and Correlation summary plot. **Optimization**: Implement PNG compression settings (optimize=True, dpi=150) to ensure file size < 5MB.
-- [X] T028 [US3] Integrate visualization into `code/main.py` (save PNGs to `data/derived/` after analysis).
-- [X] T031 [US3] Implement file size validation logic in `code/utils/validator.py`: Add a function to verify generated PNGs are < 5MB. Integrate this check into the `main.py` pipeline post-generation. **Depends on: T027**
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T032 [P] Generate `docs/paper_draft.md` from `MetaAnalysisResult` JSON using Jinja2 template (automated report generation).
-- [ ] T033 [P] Run linting (ruff) and fix any violations; refactoring triggered by test failures.
-- [ ] T034 [P] Profile total runtime and ensure < 15 mins on CI; optimize bottlenecks if exceeded.
-- [ ] T035 [P] Additional unit tests in `tests/unit/` (coverage for p-value conversion edge cases).
-- [ ] T036 Run `quickstart.md` validation to ensure end-to-end pipeline execution.
-- [ ] T037 Verify `tasks.md` execution order matches data flow (extraction -> analysis -> visualization).
-- [ ] T038 [P] Create `data/fetcher.py` to retrieve real, public datasets from **PubMed** and **Web of Science** (or equivalent open-access repositories like OpenNeuro) for dMRI and music preference data. **Constraint**: If specific dMRI/music pairs are not found in these primary sources, implement the logic to pivot to narrative review as defined in the spec. Do NOT use NAB or UCI datasets for this specific data strategy.
-- [ ] T039 [P] Implement `tests/integration/test_real_data_flow.py` to verify the pipeline processes real dataset downloads without memory overflow.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data extraction from US1 (T014 output)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on results from US1 and US2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Explicit Task Dependencies
-
-- **T022 (Bonferroni)**: Explicitly depends on **T008 (tract_mapping)** for harmonized tract names AND **T014** for study_count.
-- **T021 (Egger's)**: Explicitly depends on **T014** for study_count.
-- **T021b (I²)**: Explicitly depends on **T021** (to ensure atomic writes) and **T014** for study_count.
-- **T015 (Narrative)**: Explicitly depends on **T013** for qualitative_notes AND **T014** for study_count.
-- **T031 (File Size)**: Explicitly depends on **T027** for plot generation.
-- **T039 (Real Data Flow)**: Explicitly depends on **T038** for dataset fetching logic.
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [X] T001 Create project structure: Create the following directory structure at `projects/PROJ-082-investigating-the-correlation-between-st/`: `code/`, `data/raw/`, `data/processed/`, `data/derived/`, `tests/unit/`, `tests/integration/`. **Output**: The directory structure.
+- [X] T002 Create `requirements.txt` and `pyproject.toml`: Create `projects/PROJ-082-investigating-the-correlation-between-st/code/requirements.txt` with pinned versions for `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`, `ruff`, `black`. Create `projects/PROJ-082-investigating-the-correlation-between-st/code/pyproject.toml` with `[tool.ruff]` and `[tool.black]` sections. **Output**: `code/requirements.txt`, `code/pyproject.toml`. **Constraint**: Must specify `python>=3.11`.
+- [X] T005 Implement data hygiene utilities: `code/utils/checksum.py` (MD5/SHA256 for input validation). **Input**: Must depend on the existence of the directories created by T001. **Output**: `code/utils/checksum.py` with functions `calculate_checksum(file_path)` and `verify_checksum(file_path, expected_hash)`. **Constraint**: Must raise an exception if the file does not exist. **CRITICAL**: This task MUST NOT update the state file. It only provides utility functions for checksum calculation. **Depends on**: T001.
+- [X] T006 Create Config System: Create `code/config/config_schema.yaml`, `code/utils/config.py`, and `code/config/config.yaml`. **Output**: `code/config/config_schema.yaml`, `code/utils/config.py`, `code/config/config.yaml`. **Constraint**: Must explicitly set `seed: 42` for default mock, `seed: 43` for quantitative mock, and `seed: 44` for Bonferroni-specific mock. **Depends on**: T001.
+- [ ] T007 Define Schemas and Lexicon: Create `contracts/study_record.schema.yaml`, `contracts/meta_analysis_result.schema.yaml`, `code/config/generate_lexicon.py`,  `code/config/tract_lexicon.yaml`, and `data/config/narrative_methodology.yaml`. **Output**: Schema files, `code/config/tract_lexicon.yaml`, `data/config/narrative_methodology.yaml`. **Depends on**: T001, T006.
+- [X] T007c-2 Generate Tract Lexicon: Run `code/config/generate_lexicon.py`. **Output**: `code/config/tract_lexicon.yaml`. **Depends on**: T007.
+- [X] T007d Implement NLP Logic: Create `code/extraction/nlp_logic.py`. **Task**: Implement regex patterns to search for tract names (from the lexicon) in proximity (≤5 words) to directional verbs. Generate `nlp_logic.py`. **Constraint**: This logic MUST ONLY be applied to studies that lack both `r` and `n` values. **Output**: `code/extraction/nlp_logic.py` with function `extract_qualitative_desc(text, lexicon, scheme)`. **Depends on**: T007c-2.
+- [X] T007e-integration Integrate Reference Validator: Integrate the Reference-Validator Agent into the NLP extraction process to verify citations found in extracted qualitative descriptors. **Output**: Modified `code/extraction/nlp_logic.py` with citation verification logic. **Depends on**: T007d.
+- [ ] T010 Generate Mock Data: Create `code/data/generate_mock_data.py` that generates `data/raw/mock_studies.csv` by default (N=15, 5+ tracts). Supports optional `--config` values `fallback`, `quant`, `bonferroni` for specific test scenarios. **Output**: `data/raw/mock_studies.csv`. **Depends on**: T001, T006, T007c-2.
+- [ ] T012b Handle N=0 Input: Create `code/data/ensure_input.py`. **Task**: Check if `data/raw/studies.csv` exists. If not, copy `data/raw/mock_studies.csv` to `data/raw/studies.csv`. **Constraint**: This task MUST NOT crash if the file is missing; it must create an empty CSV to allow the pipeline to proceed to T012a with N=0. **Output**: `code/data/ensure_input.py`. **Depends on**: T001.
+- [X] T012a Implement Qualitative Extraction: Implement `code/analysis/extraction.py` to parse qualitative descriptors if no direct (r, n) pairs exist. **Input**: Requires T007d, T007e-integration. **Output**: `code/analysis/extraction.py`. **Depends on**: T007d, T007e-integration, T012b.
+- [X] T013 Implement Parser and Converter: Create `code/extraction/parser.py`. **Task**: Parse CSV/JSON inputs for `r`, `n`, `tract` and merge with qualitative data from T012a. **CRITICAL**: Implement p-value to r-value conversion here (FR-001 Edge Cases) using standard formulas (e.g., Fisher's z) with explicit sign determination logic. **Constraint**: Must handle empty input files gracefully (produce empty output). **Output**: `code/extraction/parser.py`. **Depends on**: T012b, T012a, T007d.
+
+## Phase 2: Core Analysis Logic (Gatekeeper & Models)
+
+**Purpose**: Implement the statistical core and the pivot logic
+
+- [ ] T014a Implement Random-Effects Model: Create `code/analysis/meta_analysis.py`. **Task**: Run Random-Effects Model (DerSimonian-Laird) on `extracted_studies.csv`. **Output**: `data/derived/meta_results.json`. **Depends on**: T013.
+- [ ] T014b Implement Heterogeneity Assessment: Implement I² calculation and Egger's regression in `code/analysis/bias.py`. **Output**: `data/derived/heterogeneity_results.json` and `data/derived/egger_test.json`. **Depends on**: T013.
+- [X] T014 Implement Meta-Analysis Model: Orchestrate T014a and T014b. **Output**: `data/derived/meta_results.json`. **Depends on**: T014a, T014b.
+- [ ] T015a Implement Narrative Synthesis Engine: Create `code/analysis/narrative_engine.py`. **Task**: Generate `data/derived/narrative_content.md`. **Output**: `code/analysis/narrative_engine.py`. **Depends on**: T013.
+- [ ] T057 Re-implement Quantitative Gatekeeper: Create `code/analysis/gatekeeper.py`. **Task**: Check `study_count.json`. If N < 10, set mode="narrative" and write `gate_result.json`. If N >= 10, set mode="quantitative". **Output**: `data/derived/gate_result.json`. **Depends on**: T013.
+- [X] T015b Implement Narrative Summary: Create `code/analysis/narrative.py`. **Task**: Consume `narrative_content.md` and produce `data/derived/narrative_summary.md` with JSON metadata block. **Output**: `code/analysis/narrative.py`. **Depends on**: T015a, T057.
+- [ ] T015d Implement Narrative Pivot: Create `code/analysis/pivot_narrative.py`. **Task**: Orchestrates T015b based on `mode` flag from `gate_result.json`. **Output**: `code/analysis/pivot_narrative.py`. **Depends on**: T015b, T057.
+- [ ] T081 Implement Random-Effects Model Convergence Handler: Integrate fallback to Fixed-Effects model in `code/analysis/meta_analysis.py` if `statsmodels` fails to converge. **Output**: Updated `code/analysis/meta_analysis.py`. **Depends on**: T014a.
+
+## Phase 3: Visualization, Reporting & Validation
+
+**Purpose**: Generate outputs and validate them
+
+- [ ] T024 Implement Forest Plot: Create `code/visualization/plots_forest.py`. **Output**: `data/derived/forest_plot.png`. **Depends on**: T057, T014.
+- [ ] T025 Implement Funnel Plot: Create `code/visualization/plots_funnel.py`. **Output**: `data/derived/funnel_plot.png`. **Depends on**: T057, T017b.
+- [X] T026 Implement Correlation Summary Plot: Create `code/visualization/plots_correlation.py`. **Output**: `data/derived/correlation_plot.png`. **Depends on**: T057, T014.
+- [ ] T017b Implement Heterogeneity Assessment: Run I² and Egger's test. **Output**: `data/derived/heterogeneity_results.json`. **Depends on**: T057, T014.
+- [X] T018b Implement Visualization: Run `code/viz/plots.py`. **Output**: `data/derived/plots/*.png`. **Depends on**: T057, T024, T025, T026.
+- [ ] T021b Implement Bonferroni Calculation: Apply Bonferroni correction for multiple tract comparisons. **Output**: `data/derived/bonferroni_status.json`. **Depends on**: T057, T014.
+- [X] T031 Validation Report Generation: Aggregate results from `size_validation.log` and produce `data/derived/validation_report.json`. **Output**: The script file `code/visualization/validator.py`. **Depends on**: T027b.
+- [X] T027b Plot File‑Size Validator: Extend `code/utils/validator.py` with `validate_png_size`. **Output**: The script file `code/utils/validator.py`. **Depends on**: T024, T025, T026.
+- [X] T027c Regenerator: Create `code/visualization/regenerator.py`. **Output**: The script file `code/visualization/regenerator.py`. **Depends on**: T027b, T031.
+- [X] T027d Validation Report Check: Create `code/visualization/check_validation.py`. **Output**: The script file `code/visualization/check_validation.py`. **Depends on**: T027b, T027c, T031.
+- [ ] T032 Generate Paper Draft: Create `code/report/generate_paper.py`. **Output**: The script file `code/report/generate_paper.py`. **Depends on**: T014, T021b, T018b, T017b.
+- [X] T042 Implement Memory-Safe Plot Module: Create `code/visualization/memory_safe_plots.py`. **Output**: The script file `code/visualization/memory_safe_plots.py`. **Depends on**: T002.
+- [X] T043b Implement Low-Memory Plotting Fallback: Update `code/visualization/memory_safe_plots.py` to detect memory pressure. **Output**: Updated plot scripts. **Depends on**: T042.
+- [X] T044b Implement Tract Independence Logic: Create `code/analysis/independence_checker.py`. **Output**: The script file `code/analysis/independence_checker.py`. **Depends on**: T013.
+- [X] T049 Create End-to-End Integration Test: Create `tests/integration/test_full_pipeline.py`. **Output**: The test file `tests/integration/test_full_pipeline.py`. **Depends on**: T014, T021b, T032.
+- [X] T050 Update Quickstart: Update `README.md` and `docs/paper_draft.md`. **Output**: Updated `README.md`, `docs/paper_draft.md`. **Depends on**: T049.
+- [ ] T051a Create Run-Book Entry Point: Create `code/data/generators.py`. **Output**: The script file `code/data/generators.py`. **Depends on**: T010.
+- [X] T051b Update Quickstart: Update `docs/quickstart.md`. **Output**: The updated file `docs/quickstart.md`. **Depends on**: T051a.
+- [X] T053 Implement Memory-Safe Plot Module: Create `code/visualization/memory_safe_plots.py`. **Output**: The script file `code/visualization/memory_safe_plots.py`. **Depends on**: T002.
+- [X] T056 Implement Unified Data Loader: Create `code/data/loader.py`. **Output**: The script file `code/data/loader.py`. **Depends on**: T001, T006, T010.
+- [X] T056a Enforce Mock Data: Add a task to explicitly set the `--use-mock` flag in the CI pipeline. **Output**: Modified CI configuration. **Depends on**: T056.
+- [X] T059 Dataset Size Check: Create `code/data/check_dataset_size.py`. **Output**: The script file `code/data/check_dataset_size.py`. **Depends on**: T001, T056.
+- [X] T060 Implement Data Source Validation: Create `code/data/validate_metadata.py`. **Output**: The script file `code/data/validate_metadata.py`. **Depends on**: T013.
+- [X] T061 Implement Sensitivity Analysis: Create `code/analysis/sensitivity_analysis.py`. **Output**: The script file `code/analysis/sensitivity_analysis.py`. **Depends on**: T014.
+- [ ] T062 Implement Plot Accessibility Checks: Update `code/visualization/plots_forest.py`. **Output**: Updated plot scripts. **Depends on**: T024.
+- [X] T063 Generate Systematic Review of Absence Report: Create `code/analysis/absence_report.py`. **Output**: The script file `code/analysis/absence_report.py`. **Depends on**: T015b.
+- [X] T064 Implement Data Source Audit Trail: Create `code/data/audit_trail.py`. **Output**: The script file `code/data/audit_trail.py`. **Depends on**: T056, T070.
+- [X] T065 Generate Data Source Report: Create `code/data/generate_source_report.py`. **Output**: The script file `code/data/generate_source_report.py`. **Depends on**: T076.
+- [X] T066 Validate Mock Data Integrity: Create `tests/unit/test_mock_data_integrity.py`. **Output**: The test file `tests/unit/test_mock_data_integrity.py`. **Depends on**: T010.
+- [X] T067 Validate Mock Data Tract Diversity: Create `tests/unit/test_tract_diversity.py`. **Output**: The test file `tests/unit/test_tract_diversity.py`. **Depends on**: T010.
+- [X] T068 Update Documentation on Data Scarcity: Update `docs/paper_draft.md` and `README.md`. **Output**: Updated `docs/paper_draft.md`, `README.md`. **Depends on**: T063.
+- [X] T069 Validate Narrative Synthesis Output: Create `tests/unit/test_narrative_output.py`. **Output**: The test file `tests/unit/test_narrative_output.py`. **Depends on**: T063.
+- [X] T070 Implement Data Source Fallback Logic: Update `code/data/loader.py`. **Output**: Updated `code/data/loader.py`. **Depends on**: T056.
+- [ ] T071 Implement Explicit Pivot Logic: Update `code/analysis/gatekeeper.py`. **Output**: `code/analysis/gatekeeper.py`. **Depends on**: T057, T015b, T070.
+- [X] T072 Generate Data Source Report: Create `code/data/generate_source_report.py`. **Output**: The script file `code/data/generate_source_report.py`. **Depends on**: T056, T032, T076.
+- [X] T073 Generate Data Source Report: Create `code/data/generate_source_report.py`. **Output**: The script file `code/data/generate_source_report.py`. **Depends on**: T010, T007c-2.
+- [X] T073b Implement Data Source Fallback Logic: Update `code/data/loader.py`. **Output**: Updated `code/data/loader.py`. **Depends on**: T010, T007c-2.
+- [X] T074 Update Documentation: Update `docs/paper_draft.md` and `README.md`. **Output**: Updated `docs/paper_draft.md`, `README.md`. **Depends on**: T071, T072.
+- [X] T075 Run Pivot Logic Test: Execute `pytest tests/unit/test_pivot_logic.py` with assertions for 'No Quantitative Evidence Found' header, missing forest plots, and correct JSON flags. **Output**: The test file `tests/unit/test_pivot_logic.py`. **Depends on**: T071, T017b, T021b, T049.
+- [X] T076 Implement Data Hygiene Check: Create `code/data/validate_metadata.py`. **Output**: The script file `code/data/validate_metadata.py`. **Depends on**: T013.
+- [X] T077 Implement Data Source Fallback Logic: Update `code/data/loader.py`. **Output**: Updated `code/data/loader.py`. **Depends on**: T010, T073.
+- [X] T078 Implement Sensitivity Analysis: Create `code/analysis/sensitivity_analysis.py`. **Output**: The script file `code/analysis/sensitivity_analysis.py`. **Depends on**: T014.
+- [ ] T079 Implement Plot Export Formats: Update `code/visualization/plots_forest.py`. **Output**: Updated plot scripts. **Depends on**: T024.
+- [X] T080 Implement P-Value Conversion Fallback: Integrated into T013.
+- [X] T082 Implement Tract Lexicon Expansion: Update `code/config/generate_lexicon.py`. **Output**: Updated `code/config/generate_lexicon.py`. **Depends on**: T007c-2.
+- [ ] T083 Implement Bonferroni Correction for Dependent Tracts: Update `code/analysis/correction.py`. **Constraint**: Must strictly implement Bonferroni as per FR-005. **Output**: Updated `code/analysis/correction.py`. **Depends on**: T021b, T044b.
+- [ ] T084 Implement Plot Accessibility Checks: Update `code/visualization/plots_forest.py`. **Output**: Updated plot scripts. **Depends on**: T024, T025, T026.
+- [X] T085 Implement Study Metadata Validation: Create `code/data/validate_metadata.py`. **Output**: The script file `code/data/validate_metadata.py`. **Depends on**: T013.
+- [ ] T086 Implement Heterogeneity Source Analysis: Create `code/analysis/heterogeneity_sources.py`. **Output**: The script file `code/analysis/heterogeneity_sources.py`. **Depends on**: T018b.
+- [ ] T087 Implement Report Generation Fallback: Update `code/report/generate_paper.py`. **Output**: Updated `code/report/generate_paper.py`. **Depends on**: T032.
+- [X] T088 Implement Data Source Audit Trail: Create `code/data/audit_trail.py`. **Output**: The script file `code/data/audit_trail.py`. **Depends on**: T056, T070.
+- [X] T089 Implement Data Source Report: Create `code/data/generate_source_report.py`. **Output**: The script file `code/data/generate_source_report.py`. **Depends on**: T056, T032, T076.
+- [X] T090 Implement Mock Data Integrity: Create `tests/unit/test_mock_data_integrity.py`. **Output**: The test file `tests/unit/test_mock_data_integrity.py`. **Depends on**: T010.
+- [X] T091 Implement Mock Data Tract Diversity: Create `tests/unit/test_tract_diversity.py`. **Output**: The test file `tests/unit/test_tract_diversity.py`. **Depends on**: T010.
+- [X] T092 Update Documentation on Data Scarcity: Update `docs/paper_draft.md` and `README.md`. **Output**: Updated `docs/paper_draft.md`, `README.md`. **Depends on**: T063.
+- [X] T093 Validate Narrative Synthesis Output: Create `tests/unit/test_narrative_output.py`. **Output**: The test file `tests/unit/test_narrative_output.py`. **Depends on**: T063.
+- [X] T094 Implement Data Source Fallback Logic: Update `code/data/loader.py`. **Output**: Updated `code/data/loader.py`. **Depends on**: T056.
+- [X] T095 Implement Sensitivity Analysis: Create `code/analysis/sensitivity_analysis.py`. **Output**: The script file `code/analysis/sensitivity_analysis.py`. **Depends on**: T014.
+- [ ] T096 Implement Plot Export Formats: Update `code/visualization/plots_forest.py`. **Output**: Updated plot scripts. **Depends on**: T024.

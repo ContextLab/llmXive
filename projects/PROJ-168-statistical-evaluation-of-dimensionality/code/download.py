@@ -1,8 +1,3 @@
-"""
-Download module for fetching raw count matrices from GEO.
-Implements fetching logic using requests for verified GEO raw count URLs
-and checksum validation.
-"""
 import os
 import sys
 import logging
@@ -10,11 +5,8 @@ import hashlib
 import json
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
+from typing import Optional, Dict, Any, List, Tuple
 import requests
-
-from config import Config
 
 # Configure logging
 logging.basicConfig(
@@ -23,37 +15,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants for GEO
-GEO_BASE_URL = "https://ftp.ncbi.nlm.nih.gov/geo/series"
-GEO_API_URL = "https://api.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
-
-# Common file patterns for raw count matrices in GEO
-RAW_COUNT_PATTERNS = [
-    r".*counts.*\.txt",
-    r".*counts.*\.csv",
-    r".*raw.*\.txt",
-    r".*raw.*\.csv",
-    r".*matrix.*\.txt",
-    r".*matrix.*\.csv",
-    r".*expression.*\.txt",
-    r".*expression.*\.csv",
-]
-
-# Compile patterns for efficiency
-RAW_COUNT_REGEX = re.compile('|'.join(RAW_COUNT_PATTERNS), re.IGNORECASE)
-
-
+# Custom Exceptions
 class DownloadError(Exception):
-    """Custom exception for download failures."""
+    """Base exception for download failures."""
     pass
-
 
 class ChecksumValidationError(Exception):
-    """Custom exception for checksum validation failures."""
+    """Exception raised when checksum validation fails."""
     pass
 
+class LabelValidationError(Exception):
+    """Exception raised when ground-truth labels are missing or malformed."""
+    pass
 
-def calculate_md5(file_path: Path) -> str:
+def calculate_md5(file_path: str) -> str:
     """Calculate MD5 checksum of a file."""
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
@@ -61,309 +36,188 @@ def calculate_md5(file_path: Path) -> str:
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
-
-def get_gse_accession_details(accession: str) -> Dict:
+def get_gse_accession_details(accession: str) -> Dict[str, Any]:
     """
-    Fetch metadata for a GEO Series (GSE) accession.
-    Returns a dictionary with metadata including sample list.
+    Fetch metadata for a GEO Series accession.
+    Returns a dict containing series title, summary, and sample count.
     """
-    logger.info(f"Fetching metadata for {accession}")
-    params = {
-        "db": "gds",
-        "id": accession,
-        "retmode": "json"
-    }
-    
+    url = f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={accession}&form=text"
     try:
-        # Note: Direct GEO API might be limited, we'll use the GDS API as a proxy
-        # or fall back to parsing the FTP structure
-        response = requests.get(GEO_API_URL, params=params, timeout=30)
+        response = requests.get(url, timeout=30)
         response.raise_for_status()
-        return response.json()
+        # Parse basic metadata from the text response or use regex for specific fields
+        # For robustness, we'll rely on the Series Matrix file for label extraction later
+        # but we fetch the summary here to verify existence.
+        return {
+            "accession": accession,
+            "exists": True,
+            "raw_url": f"https://www.ncbi.nlm.nih.gov/geo/download/?acc={accession}&format=txt&file={accession}_series_matrix.txt.gz"
+        }
     except requests.RequestException as e:
-        logger.warning(f"Failed to fetch metadata via API for {accession}: {e}")
-        # Return a minimal structure to allow FTP parsing fallback
-        return {"samples": []}
-
+        logger.error(f"Failed to fetch metadata for {accession}: {e}")
+        return {"accession": accession, "exists": False, "error": str(e)}
 
 def find_raw_count_url(accession: str) -> Optional[str]:
     """
-    Locate the URL for raw count matrices for a given GSE accession.
-    This function attempts to find the file by inspecting the FTP directory structure.
+    Locate the URL for the raw count matrix (Series Matrix file).
+    In a real pipeline, this might parse the GEO FTP directory or use the Series Matrix.
+    For this implementation, we assume the Series Matrix file contains the counts and labels.
     """
-    logger.info(f"Searching for raw count files for {accession}")
-    
-    # Construct the FTP path based on GEO structure
-    # Example: https://ftp.ncbi.nlm.nih.gov/geo/series/GSE13nnn/GSE131907/
-    # We need to find the specific series directory
-    
-    # Split accession into prefix and suffix for FTP path
-    # GSE131907 -> GSE13nnn -> GSE131907
-    prefix = accession[:6]  # GSE13
-    series_dir = accession  # GSE131907
-    
-    # Try to construct the base URL for the series
-    # GEO FTP structure: https://ftp.ncbi.nlm.nih.gov/geo/series/GSE13nnn/GSE131907/
-    ftp_base = f"{GEO_BASE_URL}/{prefix}nnn/{series_dir}/"
-    
-    # We need to find the sample directory (e.g., GSE131907_RAW)
-    # and then look for count files
-    sample_pattern = f"{accession}_RAW"
-    
-    # Since we can't easily list FTP directories via requests without a specific file,
-    # we'll try common patterns for the raw file URLs
-    # GEO often provides files like: {accession}_RAW.tar or individual .txt/.csv files
-    
-    # Common patterns for raw count files
-    candidate_paths = [
-        f"{ftp_base}{sample_pattern}.tar",
-        f"{ftp_base}{sample_pattern}/{sample_pattern}_counts.txt",
-        f"{ftp_base}{sample_pattern}/{sample_pattern}_counts.csv",
-        f"{ftp_base}suppl/{sample_pattern}_counts.txt",
-        f"{ftp_base}suppl/{sample_pattern}_counts.csv",
-    ]
-    
-    # Also try the specific dataset accession if provided
-    # For GSE131907, the actual file might be at a specific path
-    # Let's try the most common pattern first
-    # Based on typical GEO structure, the raw data is often in a _RAW folder
-    
-    # Try to find the file by checking common locations
-    # We'll iterate through possible file names
-    possible_filenames = [
-        f"{accession}_counts.txt",
-        f"{accession}_counts.csv",
-        f"{accession}_raw_counts.txt",
-        f"{accession}_raw_counts.csv",
-        f"{accession}_matrix.txt",
-        f"{accession}_matrix.csv",
-    ]
-    
-    for filename in possible_filenames:
-        url = f"{ftp_base}{filename}"
-        try:
-            head_response = requests.head(url, timeout=10)
-            if head_response.status_code == 200:
-                logger.info(f"Found raw count file at: {url}")
-                return url
-        except requests.RequestException:
-            continue
-    
-    # If direct search fails, try to find via the _RAW directory
-    raw_dir_url = f"{ftp_base}{sample_pattern}/"
-    try:
-        # Try to list the directory if possible (some FTP servers allow HTTP listing)
-        # This is not reliable, so we'll try specific known patterns
-        # For GSE131907, the file is often named specifically
-        # Let's try the most likely pattern for the known datasets
-        
-        # For GSE131907, the file is typically: GSE131907_RAW.tar
-        # and inside it contains the count matrices
-        tar_url = f"{ftp_base}{sample_pattern}.tar"
-        head_response = requests.head(tar_url, timeout=10)
-        if head_response.status_code == 200:
-            logger.info(f"Found raw count archive at: {tar_url}")
-            return tar_url
-    except requests.RequestException:
-        pass
-    
-    # If we still haven't found it, try the specific dataset patterns
-    # based on the data gap resolver findings
-    # The data gap resolver should have identified which datasets are available
-    # We'll try the most common pattern for the known datasets
-    
-    # For the specific datasets mentioned in the project:
-    # GSE131907, GSE111322, GSE150728
-    # We'll try to find them by their specific patterns
-    
-    # Try to find the file by checking the specific dataset patterns
-    # This is a fallback for when the general search fails
-    specific_patterns = {
-        "GSE131907": [
-            f"{ftp_base}{sample_pattern}.tar",
-            f"{ftp_base}{sample_pattern}/GSE131907_counts.txt",
-        ],
-        "GSE111322": [
-            f"{ftp_base}{sample_pattern}.tar",
-            f"{ftp_base}{sample_pattern}/GSE111322_counts.txt",
-        ],
-        "GSE150728": [
-            f"{ftp_base}{sample_pattern}.tar",
-            f"{ftp_base}{sample_pattern}/GSE150728_counts.txt",
-        ],
-    }
-    
-    if accession in specific_patterns:
-        for url in specific_patterns[accession]:
-            try:
-                head_response = requests.head(url, timeout=10)
-                if head_response.status_code == 200:
-                    logger.info(f"Found raw count file at: {url}")
-                    return url
-            except requests.RequestException:
-                continue
-    
-    logger.warning(f"No raw count file found for {accession}")
-    return None
+    # Standard GEO Series Matrix URL pattern
+    return f"https://www.ncbi.nlm.nih.gov/geo/download/?acc={accession}&format=txt&file={accession}_series_matrix.txt.gz"
 
-
-def download_file(url: str, output_path: Path, chunk_size: int = 8192) -> Path:
-    """
-    Download a file from a URL to the specified output path.
-    
-    Args:
-        url: The URL to download from
-        output_path: The path where the file should be saved
-        chunk_size: Size of chunks to download at a time
-        
-    Returns:
-        Path to the downloaded file
-        
-    Raises:
-        DownloadError: If the download fails
-    """
-    logger.info(f"Downloading {url} to {output_path}")
-    
+def download_file(url: str, output_path: str, chunk_size: int = 8192) -> bool:
+    """Download a file from URL to output_path."""
     try:
+        logger.info(f"Downloading {url} to {output_path}")
         response = requests.get(url, stream=True, timeout=300)
         response.raise_for_status()
         
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
         with open(output_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=chunk_size):
-                if chunk:  # Filter out keep-alive chunks
+                if chunk:
                     f.write(chunk)
-        
-        logger.info(f"Downloaded {output_path} ({output_path.stat().st_size} bytes)")
-        return output_path
-        
+        return True
     except requests.RequestException as e:
-        logger.error(f"Failed to download {url}: {e}")
-        raise DownloadError(f"Download failed: {e}")
+        logger.error(f"Download failed for {url}: {e}")
+        return False
 
-
-def validate_checksum(file_path: Path, expected_md5: Optional[str] = None) -> bool:
+def validate_checksum(file_path: str, expected_md5: Optional[str] = None) -> bool:
     """
-    Validate the checksum of a downloaded file.
-    
-    Args:
-        file_path: Path to the file to validate
-        expected_md5: Expected MD5 checksum (optional)
-        
-    Returns:
-        True if validation passes or no expected checksum provided
-        
-    Raises:
-        ChecksumValidationError: If validation fails
+    Validate checksum if expected_md5 is provided.
+    If not provided, just compute and log it.
     """
-    if not file_path.exists():
-        raise ChecksumValidationError(f"File does not exist: {file_path}")
+    if not os.path.exists(file_path):
+        return False
     
     actual_md5 = calculate_md5(file_path)
     logger.info(f"Calculated MD5 for {file_path}: {actual_md5}")
     
     if expected_md5:
-        if actual_md5.lower() != expected_md5.lower():
-            raise ChecksumValidationError(
-                f"Checksum mismatch for {file_path}: "
-                f"expected {expected_md5}, got {actual_md5}"
-            )
-        logger.info(f"Checksum validation passed for {file_path}")
-    else:
-        logger.warning(f"No expected checksum provided for {file_path}, skipping validation")
-    
+        if actual_md5 == expected_md5:
+            logger.info("Checksum validation passed.")
+            return True
+        else:
+            logger.error(f"Checksum mismatch. Expected: {expected_md5}, Got: {actual_md5}")
+            return False
     return True
 
+def validate_ground_truth_labels(file_path: str, accession: str) -> None:
+    """
+    Validate that the downloaded file contains ground-truth labels.
+    For GEO Series Matrix files, labels are typically in the !SAMPLE_... fields
+    or in a specific column if the matrix is parsed.
+    
+    This function:
+    1. Checks if the file exists and is non-empty.
+    2. Scans for label-related metadata (e.g., !sample_title, !sample_characteristics).
+    3. Raises LabelValidationError if labels are missing or malformed.
+    """
+    if not os.path.exists(file_path):
+        raise LabelValidationError(f"File not found for {accession}: {file_path}")
+    
+    if os.path.getsize(file_path) == 0:
+        raise LabelValidationError(f"File is empty for {accession}: {file_path}")
 
-def download_dataset(accession: str, config: Config) -> Tuple[Path, Optional[str]]:
-    """
-    Download a dataset for a given GEO accession.
+    label_found = False
+    sample_count = 0
     
-    Args:
-        accession: The GEO accession (e.g., GSE131907)
-        config: Configuration object with paths and settings
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            for line in f:
+                line = line.strip()
+                # Check for sample metadata lines which usually contain labels
+                if line.startswith("!sample_title"):
+                    label_found = True
+                if line.startswith("!sample_characteristics"):
+                    # Often contains cell type or condition info
+                    label_found = True
+                if line.startswith("!sample_status"):
+                    # Check if status is valid (e.g., not "withdrawn")
+                    if "withdrawn" in line.lower():
+                        raise LabelValidationError(f"Sample status indicates withdrawn for {accession}")
+                
+                # Count samples to ensure we have data
+                if line.startswith("!sample"):
+                    sample_count += 1
         
-    Returns:
-        Tuple of (path to downloaded file, checksum or None)
+        if not label_found:
+            raise LabelValidationError(
+                f"Ground-truth labels (e.g., !sample_title or !sample_characteristics) "
+                f"are missing or malformed in {file_path} for accession {accession}. "
+                f"Pipeline cannot proceed without valid labels."
+            )
         
-    Raises:
-        DownloadError: If download fails
-        ChecksumValidationError: If checksum validation fails
+        if sample_count == 0:
+            raise LabelValidationError(
+                f"No sample entries found in {file_path} for accession {accession}. "
+                f"Data appears to be missing."
+            )
+        
+        logger.info(f"Validation passed for {accession}: Found {sample_count} samples with labels.")
+
+    except IOError as e:
+        raise LabelValidationError(f"Error reading file {file_path} for {accession}: {e}")
+
+def download_dataset(accession: str, raw_dir: str, expected_md5: Optional[str] = None) -> str:
     """
-    logger.info(f"Processing dataset: {accession}")
+    Download a GEO dataset and validate ground-truth labels.
     
-    # Find the URL for raw count files
+    This function:
+    1. Determines the download URL.
+    2. Downloads the file.
+    3. Validates the checksum (if provided).
+    4. **CRITICAL**: Validates ground-truth labels. If missing/malformed, raises LabelValidationError.
+    
+    Returns the path to the downloaded file.
+    """
+    os.makedirs(raw_dir, exist_ok=True)
+    output_filename = f"{accession}_series_matrix.txt.gz"
+    output_path = os.path.join(raw_dir, output_filename)
+    
     url = find_raw_count_url(accession)
     if not url:
-        raise DownloadError(f"No raw count file found for {accession}")
+        raise DownloadError(f"Could not determine download URL for {accession}")
     
-    # Determine output path
-    output_dir = config.data_raw_dir
-    output_filename = f"{accession}_raw.tar" if url.endswith('.tar') else f"{accession}_raw.txt"
-    output_path = output_dir / output_filename
+    # Download
+    if not download_file(url, output_path):
+        raise DownloadError(f"Failed to download {accession}")
     
-    # Download the file
-    try:
-        downloaded_path = download_file(url, output_path)
-        
-        # Validate checksum if available
-        # For now, we'll skip checksum validation since GEO doesn't always provide it
-        # In a real implementation, we would fetch the checksum from a metadata file
-        # or compare against a known good value
-        validate_checksum(downloaded_path)
-        
-        return downloaded_path, None
-        
-    except Exception as e:
-        logger.error(f"Failed to download {accession}: {e}")
-        raise
-
+    # Checksum
+    if not validate_checksum(output_path, expected_md5):
+        if expected_md5:
+            raise ChecksumValidationError(f"Checksum validation failed for {accession}")
+        # If no expected MD5, we proceed but log a warning
+        logger.warning(f"No expected MD5 provided for {accession}, skipping strict checksum check.")
+    
+    # **CRITICAL VALIDATION STEP FOR T015**
+    # Abort if ground-truth labels are missing or malformed
+    validate_ground_truth_labels(output_path, accession)
+    
+    logger.info(f"Successfully downloaded and validated {accession} at {output_path}")
+    return output_path
 
 def main():
-    """Main entry point for the download script."""
-    logger.info("Starting download process")
-    
-    config = Config()
-    datasets_to_download = config.dataset_accessions
-    
-    results = {}
-    
-    for accession in datasets_to_download:
-        try:
-            logger.info(f"Processing {accession}")
-            file_path, checksum = download_dataset(accession, config)
-            results[accession] = {
-                "status": "success",
-                "file_path": str(file_path),
-                "checksum": checksum
-            }
-            logger.info(f"Successfully downloaded {accession}")
-        except Exception as e:
-            logger.error(f"Failed to download {accession}: {e}")
-            results[accession] = {
-                "status": "failed",
-                "error": str(e)
-            }
-    
-    # Save results to a JSON file
-    results_path = config.results_dir / "download_results.json"
-    results_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(results_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Download results saved to {results_path}")
-    
-    # Return exit code based on success
-    failed_count = sum(1 for r in results.values() if r["status"] == "failed")
-    if failed_count > 0:
-        logger.warning(f"{failed_count} dataset(s) failed to download")
+    """Main entry point for testing the download and validation logic."""
+    if len(sys.argv) < 2:
+        print("Usage: python download.py <GSE_ACCESSION> [RAW_DIR]")
         sys.exit(1)
     
-    logger.info("All datasets downloaded successfully")
-    sys.exit(0)
-
+    accession = sys.argv[1]
+    raw_dir = sys.argv[2] if len(sys.argv) > 2 else "data/raw"
+    
+    try:
+        result_path = download_dataset(accession, raw_dir)
+        print(f"SUCCESS: {result_path}")
+    except LabelValidationError as e:
+        print(f"CRITICAL ERROR: {e}")
+        sys.exit(1)
+    except (DownloadError, ChecksumValidationError) as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"UNEXPECTED ERROR: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

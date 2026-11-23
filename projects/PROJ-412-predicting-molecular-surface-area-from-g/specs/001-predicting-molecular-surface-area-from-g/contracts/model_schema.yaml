@@ -1,0 +1,123 @@
+# Model Output Schema
+# Contract for model output artifacts (T005).
+# Consumed by: tests/contract/test_model_output.py (T019), T040, T025.
+#
+# Defines the expected fields for model output:
+#   - model_type (str)
+#   - metrics (dict of floats)
+#   - hyperparameters (dict)
+
+version: 1
+type: object
+required:
+  - model_type
+  - metrics
+  - hyperparameters
+properties:
+  model_type:
+    type: string
+    description: >
+      Identifier of the trained model. Allowed values reflect the models
+      mandated by the spec (FR-003 GCN, FR-004 Descriptor/Geometry-Based
+      Baseline).
+    enum:
+      - gcn
+      - baseline_2d
+      - baseline_3d
+      - geometry_oracle
+  metrics:
+    type: object
+    description: >
+      Aggregate performance metrics computed on the held-out test set.
+      Units: Angstrom^2 for MAE and RMSE; R^2 is dimensionless.
+    required:
+      - mae
+      - rmse
+      - r2
+    properties:
+      mae:
+        type: number
+        description: Mean Absolute Error (A^2). Must be a real measured value.
+        minimum: 0
+      rmse:
+        type: number
+        description: Root Mean Squared Error (A^2). Must be >= mae.
+        minimum: 0
+      r2:
+        type: number
+        description: Coefficient of determination (dimensionless, may be negative).
+    additionalProperties: false
+  hyperparameters:
+    type: object
+    description: >
+      Model-specific training hyperparameters. Exact keys depend on
+      model_type; all values must be the values actually used in training.
+    required:
+      - random_seed
+    properties:
+      random_seed:
+        type: integer
+        description: Random seed used for reproducibility (Constitution Principle I).
+      epochs:
+        type: integer
+        minimum: 1
+        maximum: 50
+        description: Max training epochs (FR-003 caps at 50).
+      patience:
+        type: integer
+        minimum: 1
+        description: Early-stopping patience (spec: 5).
+      batch_size:
+        type: integer
+        minimum: 1
+        description: Training batch size (dynamic fallback per T058 may reduce this).
+      learning_rate:
+        type: number
+        minimum: 0
+      hidden_dim:
+        type: integer
+        minimum: 1
+      num_layers:
+        type: integer
+        minimum: 1
+      n_estimators:
+        type: integer
+        minimum: 1
+        description: For RandomForest-based baselines.
+      max_depth:
+        type: [integer, "null"]
+        description: For tree-based baselines.
+    additionalProperties: true
+  predictions:
+    type: array
+    description: Optional per-molecule predictions (smiles, predicted_sasa, error).
+    items:
+      type: object
+      required:
+        - smiles
+        - predicted_sasa
+        - error
+      properties:
+        smiles:
+          type: string
+        predicted_sasa:
+          type: number
+        error:
+          type: number
+          description: true_sasa - predicted_sasa (A^2).
+  statistical_tests:
+    type: object
+    description: Optional statistical comparison results (FR-005).
+    properties:
+      test_name:
+        type: string
+        enum:
+          - paired_ttest
+          - wilcoxon_signed_rank
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+      cohen_d:
+        type: number
+additionalProperties: true

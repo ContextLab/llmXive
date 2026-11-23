@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-034-quantifying-uncertainty-in-small-sample-",
+  "tasks": [
+    {
+      "task_key": "T017",
+      "reject_count": 1,
+      "last_reason": "The required `data/results/simulation.log` file does not exist, and the YAML project state file lacks the `artifact_hashes` entry with a SHA\u2011256 checksum for the log. Consequently the logging output and checksum recording mandated by the task are missing.",
+      "first_seen": "2026-09-17T13:06:15.651929+00:00",
+      "last_seen": "2026-09-17T13:06:15.651929+00:00"
+    }
+  ],
+  "updated_at": "2026-09-17T13:06:15.651929+00:00"
+}

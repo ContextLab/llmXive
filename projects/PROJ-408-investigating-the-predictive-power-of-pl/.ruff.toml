@@ -1,0 +1,18 @@
+[lint]
+# Enable specific rules for unused imports and missing type hints
+select = [
+    "F401",  # unused-import
+    "ANN",   # flake8-annotations (missing type hints)
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "I",     # isort (import sorting)
+]
+
+# Ignore specific annotations that are too strict for this project
+ignore = [
+    "ANN001", # Missing type annotation for function argument (allow for flexibility)
+    "ANN201", # Missing return type annotation for public function (allow for flexibility)
+]
+
+# Treat unused imports as errors
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9_]+))$"

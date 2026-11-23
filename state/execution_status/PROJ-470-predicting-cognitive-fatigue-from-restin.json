@@ -1,21 +1,20 @@
 {
   "project_id": "PROJ-470-predicting-cognitive-fatigue-from-restin",
   "ok": false,
-  "reason": "every produced artifact is gitignored (data/processed/validation_report.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 2 declared deliverable(s) absent: data/processed/lzc_metrics.csv; data/processed/pe_metrics.csv",
-  "artifacts": [
-    "data/processed/validation_report.json"
-  ],
+  "reason": "5 command(s) failed: python code/download.py --validate (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 6 declared deliverable(s) absent: data/analysis/ancova_results.csv; data/analysis/complexity_metrics.csv; data/analysis/resource_usage.json",
+  "artifacts": [],
   "failures": [
-    "python code/download.py -> rc=1\n    2026-07-15 08:33:30,626 - download - INFO - Starting data retrieval and validation pipeline.\n2026-07-15 08:33:30,628 - download - INFO - Attempting to fetch Sleep-EDF dataset...\n2026-07-15 08:33:30,628 - download - ERROR - Failed to fetch Sleep-EDF: No module named 'datasets'\n2026-07-15 08:33:30,628 - download - INFO - Attempting to fetch SHHS dataset as fallback...\n2026-07-15 08:33:30,628 - download - ERROR - Failed to fetch SHHS: No module named 'datasets'\n2026-07-15 08:33:30,629 - download - INFO - Validation report written to /home/runner/work/llmXive/ll",
-    "python code/preprocess.py -> rc=1\n    2026-07-15 08:33:30,844 - preprocess - INFO - Starting preprocessing pipeline\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/preprocess.py\", line 310, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/preprocess.py\", line 281, in main\n    processed_data, summary = process_eeg_stream(stream, config, logger)\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File ",
-    "python code/features.py -> rc=1\n    2026-07-15 08:33:31,149 - features - INFO - Starting feature extraction pipeline\n2026-07-15 08:33:31,149 - features - INFO - Input: data/processed/preprocessed_eeg.npy\n2026-07-15 08:33:31,149 - features - INFO - Output LZC: data/processed/lzc_metrics.csv\n2026-07-15 08:33:31,149 - features - INFO - Output PE: data/processed/pe_metrics.csv\n2026-07-15 08:33:31,149 - features - INFO - Loading preprocessed EEG data from data/processed/preprocessed_eeg.npy\n2026-07-15 08:33:31,149 - features - ERROR - Data file not found: Preprocessed data not found at data/process",
-    "python code/analysis.py -> rc=1\n    2026-07-15 08:33:32,182 - __main__ - INFO - Starting analysis pipeline.\n2026-07-15 08:33:32,184 - __main__ - ERROR - Complexity metrics file not found: data/processed/complexity_metrics.csv"
+    "python code/download.py --validate -> rc=1\n    ",
+    "python code/preprocess.py -> rc=1\n    ERROR: Sample EEG file not found at data/raw/sample_eeg.fif.\nPlease run code/download.py first.",
+    "python code/features.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/features.py\", line 19, in <module>\n    from utils.monitor import ResourceMonitor\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/utils/monitor.py\", line 14, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'",
+    "python code/analysis.py -> rc=1\n    2026-09-24 19:24:22,503 - root - INFO - Starting analysis pipeline.\n2026-09-24 19:24:22,504 - root - ERROR - Complexity metrics file not found: data/analysis/complexity_metrics.csv",
+    "python code/report.py -> rc=1\n    m-restin/code/report.py\", line 207, in main\n    generate_report(\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/report.py\", line 93, in generate_report\n    report_lines.append(render_markdown_table(correlation_df))\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/report.py\", line 66, in render_markdown_table\n    return df.to_markdown(index=False)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 9,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 9,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T08:33:34Z",
   "failure_class": "execution_bug",
-  "evidence": []
+  "evidence": [],
+  "updated_at": "2026-09-24T19:24:24Z"
 }

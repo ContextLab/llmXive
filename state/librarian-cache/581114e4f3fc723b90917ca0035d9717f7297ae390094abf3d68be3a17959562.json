@@ -1,0 +1,600 @@
+{
+  "fetched_at": "2026-07-19T21:48:30Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\"",
+      "target_n": 5
+    },
+    "duration_seconds": 58.112,
+    "ended_at": "2026-07-19T21:48:30Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "comparative evaluation of genomic language models"
+        ],
+        [
+          2,
+          "benchmarking challenges in DNA sequence modeling"
+        ],
+        [
+          3,
+          "standardization of metrics for biological language models"
+        ],
+        [
+          4,
+          "reproducibility crisis in genomic NLP"
+        ],
+        [
+          5,
+          "cross-model comparison of transformer architectures for genomics"
+        ],
+        [
+          6,
+          "evaluation protocols for DNA foundation models"
+        ],
+        [
+          7,
+          "limitations of current benchmarks in computational biology"
+        ],
+        [
+          8,
+          "heterogeneity in genomic model training and testing"
+        ],
+        [
+          9,
+          "assessing generalizability of language models on biological data"
+        ],
+        [
+          10,
+          "challenges in aligning genomic model performance metrics"
+        ],
+        [
+          11,
+          "variability in dataset composition for DNA language models"
+        ],
+        [
+          12,
+          "methodological inconsistencies in genomic AI research"
+        ],
+        [
+          13,
+          "fair comparison frameworks for biological sequence models"
+        ],
+        [
+          14,
+          "meta-analysis of genomic model performance studies"
+        ],
+        [
+          15,
+          "transferability of language models across genomic tasks"
+        ],
+        [
+          16,
+          "evaluation bias in DNA sequence prediction models"
+        ],
+        [
+          17,
+          "interoperability of genomic model benchmarks"
+        ],
+        [
+          18,
+          "difficulties in replicating genomic NLP results"
+        ],
+        [
+          19,
+          "unified evaluation standards for biological language models"
+        ],
+        [
+          20,
+          "comparative analysis of pretraining strategies in genomics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "benchmarking challenges in DNA sequence modeling": 2,
+        "comparative evaluation of genomic language models": 3,
+        "llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" linguistics": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "model evaluation benchmark heterogeneity",
+      "GENEB framework linguistic model comparison",
+      "perplexity held-out evaluation cross-lingual",
+      "training data contamination linguistic models",
+      "language model scalability linguistic diversity"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2307.12114"
+      ]
+    },
+    "per_query_hit_count": {
+      "GENEB framework linguistic model comparison": 3,
+      "language model scalability linguistic diversity": 3,
+      "llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" linguistics": 3,
+      "model evaluation benchmark heterogeneity": 3,
+      "perplexity held-out evaluation cross-lingual": 3,
+      "training data contamination linguistic models": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2510.22758",
+          "rationale": "The paper focuses on evaluating empathetic speech language models using vocal cues and dialogue benchmarks, which is a distinct domain from the user's question regarding the comparison of genomic models and their linguistic properties. There is no overlap in the biological mechanism, data type (genomic vs. spoken audio), or the specific methodological challenge of comparing models across different genomic architectures.",
+          "title": "EchoMind: An Interrelated Multi-level Benchmark for Evaluating Empathetic Speech Language Models"
+        },
+        {
+          "primary_pointer": "2402.06079",
+          "rationale": "The paper focuses on the methodology and performance of a generative model for DNA sequences, whereas the user's question targets the specific problem of \"comparability\" and evaluation challenges in genomic models (as framed by the GENEB paper). While both involve genomic models, the candidate paper does not measure the same mechanism of comparison difficulty, establish a baseline for model comparability, or address the linguistic/evaluation framework implied by the user's follow-up; it is a dis",
+          "title": "DiscDiff: Latent Diffusion Model for DNA Sequence Generation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-19T21:47:32Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"geneb: why genomic models are hard to compare\" linguistics",
+      "raw": "llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing neural information retrieval (IR) models have often been studied in homogeneous and narrow settings, which has considerably limited insights into their out-of-distribution (OOD) generalization capabilities. To address this, and to facilitate researchers to broadly evaluate the effectiveness of their models, we introduce Benchmarking-IR (BEIR), a robust and heterogeneous evaluation benchmark for information retrieval. We leverage a careful selection of 18 publicly available datasets from diverse text retrieval tasks and domains and evaluate 10 state-of-the-art retrieval systems including lexical, sparse, dense, late-interaction and re-ranking architectures on the BEIR benchmark. Our results show BM25 is a robust baseline and re-ranking and late-interaction-based models on average achieve the best zero-shot performances, however, at high computational costs. In contrast, dense and sparse-retrieval models are computationally more efficient but often underperform other approaches, highlighting the considerable room for improvement in their generalization capabilities. We hope this framework allows us to better evaluate and understand existing retrieval systems, and contributes to accelerating progress towards better robust and generalizable systems in the future. BEIR is publicly available at https://github.com/UKPLab/beir.",
+          "claimed_authors": [
+            "Nandan Thakur",
+            "Nils Reimers",
+            "Andreas Rücklé",
+            "Abhishek Srivastava",
+            "Iryna Gurevych"
+          ],
+          "claimed_title": "BEIR: A Heterogenous Benchmark for Zero-shot Evaluation of Information Retrieval Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.08663"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='BEIR: A Heterogenous Benchmark for Zero-shot Evaluation of Information Retrieval Models')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce SECQUE, a comprehensive benchmark for evaluating large language models (LLMs) in financial analysis tasks. SECQUE comprises 565 expert-written questions covering SEC filings analysis across four key categories: comparison analysis, ratio calculation, risk assessment, and financial insight generation. To assess model performance, we develop SECQUE-Judge, an evaluation mechanism leveraging multiple LLM-based judges, which demonstrates strong alignment with human evaluations. Additionally, we provide an extensive analysis of various models' performance on our benchmark. By making SECQUE publicly available, we aim to facilitate further research and advancements in financial AI.",
+          "claimed_authors": [
+            "Noga Ben Yoash",
+            "Meni Brief",
+            "Oded Ovadia",
+            "Gil Shenderovitz",
+            "Moshik Mishaeli",
+            "Rachel Lemberg",
+            "Eitam Sheetrit"
+          ],
+          "claimed_title": "SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.04596"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software Visualization encompasses the development and evaluation of methods for graphically representing different aspects of methods of software, including its structure, execution and evolution. Creating visualizations helps the user to better understand complex phenomena. It is also found by the software engineering community that visualization is essential and important. In order to visualize the evolution of the models in Model-Driven Software Evolution, authors have proposed a framework which consists of 7 key areas (views) and 22 key features for the assessment of Model Driven Software Evolution process and addresses a number of stakeholder concerns. The framework is derived by the application of the Goal Question Metric Paradigm. This paper aims to describe an application of the framework by considering different visualization tools/CASE tools which are used to visualize the models in different views and to capture the information of models during their evolution. Comparison of such tools is also possible by using the framework.",
+          "claimed_authors": [
+            "Akepogu Anand Rao",
+            "Karanam Madhavi"
+          ],
+          "claimed_title": "Framework for Visualizing Model-Driven Software Evolution and its Application",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1188"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Framework for Visualizing Model-Driven Software Evolution and its Application')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A lively research field has recently emerged that uses experimental methods to probe the linguistic behavior of modern deep networks. While work in this tradition often reports intriguing results about the grammatical skills of deep nets, it is not clear what their implications for linguistic theorizing should be. As a consequence, linguistically-oriented deep net analysis has had very little impact on linguistics at large. In this chapter, I suggest that deep networks should be treated as theories making explicit predictions about the acceptability of linguistic utterances. I argue that, if we overcome some obstacles standing in the way of seriously pursuing this idea, we will gain a powerful new theoretical tool, complementary to mainstream algebraic approaches.",
+          "claimed_authors": [
+            "Marco Baroni"
+          ],
+          "claimed_title": "On the proper role of linguistically-oriented deep net analysis in linguistic theorizing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.08694"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='On the proper role of linguistically-oriented deep net analysis in linguistic theorizing')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have achieved remarkable success in Natural Language Processing (NLP), yet their cross-lingual performance consistency remains a significant challenge. This paper introduces a novel methodology for efficiently identifying inherent cross-lingual weaknesses in LLMs. Our approach leverages beam search and LLM-based simulation to generate bilingual question pairs that expose performance discrepancies between English and target languages. We construct a new dataset of over 6,000 bilingual pairs across 16 languages using this methodology, demonstrating its effectiveness in revealing weaknesses even in state-of-the-art models. The extensive experiments demonstrate that our method precisely and cost-effectively pinpoints cross-lingual weaknesses, consistently revealing over 50\\% accuracy drops in target languages across a wide range of models. Moreover, further experiments investigate the relationship between linguistic similarity and cross-lingual weaknesses, revealing that linguistically related languages share similar performance patterns and benefit from targeted post-training. Code is available at https://github.com/xzx34/Cross-Lingual-Pitfalls.",
+          "claimed_authors": [
+            "Zixiang Xu",
+            "Yanbo Wang",
+            "Yue Huang",
+            "Xiuying Chen",
+            "Jieyu Zhao",
+            "Meng Jiang",
+            "Xiangliang Zhang"
+          ],
+          "claimed_title": "Cross-Lingual Pitfalls: Automatic Probing Cross-Lingual Weakness of Multilingual Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.18673"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Cross-Lingual Pitfalls: Automatic Probing Cross-Lingual Weakness of Multilingual Large Language Models')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While summarization has been extensively researched in natural language processing (NLP), cross-lingual cross-temporal summarization (CLCTS) is a largely unexplored area that has the potential to improve cross-cultural accessibility and understanding. This paper comprehensively addresses the CLCTS task, including dataset creation, modeling, and evaluation. We (1) build the first CLCTS corpus with 328 instances for hDe-En (extended version with 455 instances) and 289 for hEn-De (extended version with 501 instances), leveraging historical fiction texts and Wikipedia summaries in English and German; (2) examine the effectiveness of popular transformer end-to-end models with different intermediate finetuning tasks; (3) explore the potential of GPT-3.5 as a summarizer; (4) report evaluations from humans, GPT-4, and several recent automatic evaluation metrics. Our results indicate that intermediate task finetuned end-to-end models generate bad to moderate quality summaries while GPT-3.5, as a zero-shot summarizer, provides moderate to good quality outputs. GPT-3.5 also seems very adept at normalizing historical text. To assess data contamination in GPT-3.5, we design an adversarial attack scheme in which we find that GPT-3.5 performs slightly worse for unseen source documents compared to seen documents. Moreover, it sometimes hallucinates when the source sentences are inverted against its prior knowledge with a summarization accuracy of 0.67 for plot omission, 0.71 for entity swap, and 0.53 for plot negation. Overall, our regression results of model performances suggest that longer, older, and more complex source texts (all of which are more characteristic for historical language variants) are harder to summarize for all models, indicating the difficulty of the CLCTS task.",
+          "claimed_authors": [
+            "Ran Zhang",
+            "Jihed Ouni",
+            "Steffen Eger"
+          ],
+          "claimed_title": "Cross-lingual Cross-temporal Summarization: Dataset, Models, Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.12916"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Cross-lingual Cross-temporal Summarization: Dataset, Models, Evaluation')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the design, the evaluation setup, and the results of the 2016 WMT shared task on cross-lingual pronoun prediction. This is a classification task in which participants are asked to provide predictions on what pronoun class label should replace a placeholder value in the target-language text, provided in lemmatised and PoS-tagged form. We provided four subtasks, for the English-French and English-German language pairs, in both directions. Eleven teams participated in the shared task; nine for the English-French subtask, five for French-English, nine for English-German, and six for German-English. Most of the submissions outperformed two strong language-model based baseline systems, with systems using deep recurrent neural networks outperforming those using other architectures for most language pairs.",
+          "claimed_authors": [
+            "Liane Guillou",
+            "Christian Hardmeier",
+            "Preslav Nakov",
+            "Sara Stymne",
+            "Jörg Tiedemann",
+            "Yannick Versley",
+            "Mauro Cettolo",
+            "Bonnie Webber",
+            "Andrei Popescu-Belis"
+          ],
+          "claimed_title": "Findings of the 2016 WMT Shared Task on Cross-lingual Pronoun Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.12091"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Findings of the 2016 WMT Shared Task on Cross-lingual Pronoun Prediction')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data contamination poses a significant threat to the reliable evaluation of Large Language Models (LLMs). This issue arises when benchmark samples may inadvertently appear in training sets, compromising the validity of reported performance. While detection methods have been developed for the pre-training and Supervised Fine-Tuning stages, a critical research gap exists for the increasingly significant phase of Reinforcement Learning (RL) post-training. As RL post-training becomes pivotal for advancing LLM reasoning, the absence of specialized contamination detection methods in this paradigm presents a critical vulnerability. To address this, we conduct the first systematic study of data detection within RL post-training scenario and propose Self-Critique. Our method is motivated by a key observation: after RL phase, the output entropy distribution of LLMs tends to collapse into highly specific and sparse modes. Self-Critique probes for the underlying policy collapse, i.e., the model's convergence to a narrow reasoning path, which causes this entropy reduction. To facilitate this research, we also introduce RL-MIA, a benchmark constructed to simulate this specific contamination scenario. Extensive experiments show that Self-Critique significantly outperforms baseline methods across multiple models and contamination tasks, achieving an AUC improvement of up to 30%. Whereas existing methods are close to a random guess for RL-phase contamination, our method makes detection possible.",
+          "claimed_authors": [
+            "Yongding Tao",
+            "Tian Wang",
+            "Yihong Dong",
+            "Huanyu Liu",
+            "Kechi Zhang",
+            "Xiaolong Hu",
+            "Ge Li"
+          ],
+          "claimed_title": "Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.09259"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Detecting Data Contamination from Reinforcement Learning Post-training for Large Language Models')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development and evaluation of Large Language Models (LLMs) has primarily focused on their task-solving capabilities, with recent models even surpassing human performance in some areas. However, this focus often neglects whether machine-generated language matches the human level of diversity, in terms of vocabulary choice, syntactic construction, and expression of meaning, raising questions about whether the fundamentals of language generation have been fully addressed. This paper emphasizes the importance of examining the preservation of human linguistic richness by language models, given the concerning surge in online content produced or aided by LLMs. We propose a comprehensive framework for evaluating LLMs from various linguistic diversity perspectives including lexical, syntactic, and semantic dimensions. Using this framework, we benchmark several state-of-the-art LLMs across all diversity dimensions, and conduct an in-depth case study for syntactic diversity. Finally, we analyze how different development and deployment choices impact the linguistic diversity of LLM outputs.",
+          "claimed_authors": [
+            "Yanzhu Guo",
+            "Guokan Shang",
+            "Chloé Clavel"
+          ],
+          "claimed_title": "Benchmarking Linguistic Diversity of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.10271"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Benchmarking Linguistic Diversity of Large Language Models')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Voice-based AI development faces unique challenges in processing both linguistic and paralinguistic information. This study compares how large audio-language models (LALMs) and humans integrate speaker characteristics during speech comprehension, asking whether LALMs process speaker-contextualized language in ways that parallel human cognitive mechanisms. We compared two LALMs' (Qwen2-Audio and Ultravox 0.5) processing patterns with human EEG responses. Using surprisal and entropy metrics from the models, we analyzed their sensitivity to speaker-content incongruency across social stereotype violations (e.g., a man claiming to regularly get manicures) and biological knowledge violations (e.g., a man claiming to be pregnant). Results revealed that Qwen2-Audio exhibited increased surprisal for speaker-incongruent content and its surprisal values significantly predicted human N400 responses, while Ultravox 0.5 showed limited sensitivity to speaker characteristics. Importantly, neither model replicated the human-like processing distinction between social violations (eliciting N400 effects) and biological violations (eliciting P600 effects). These findings reveal both the potential and limitations of current LALMs in processing speaker-contextualized language, and suggest differences in social-linguistic processing mechanisms between humans and LALMs.",
+          "claimed_authors": [
+            "Hanlin Wu",
+            "Xufeng Duan",
+            "Zhenguang Cai"
+          ],
+          "claimed_title": "Distinct social-linguistic processing between humans and large audio-language models: Evidence from model-brain alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.19586"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='Distinct social-linguistic processing between humans and large audio-language models: Evidence from model-brain alignment')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models accumulate vast knowledge during pre-training, yet the dynamics governing this acquisition remain poorly understood. This work investigates the learning dynamics of language models on a synthetic factual recall task, uncovering three key findings: First, language models learn in three phases, exhibiting a performance plateau before acquiring precise factual knowledge. Mechanistically, this plateau coincides with the formation of attention-based circuits that support recall. Second, the training data distribution significantly impacts learning dynamics, as imbalanced distributions lead to shorter plateaus. Finally, hallucinations emerge simultaneously with knowledge, and integrating new knowledge into the model through fine-tuning is challenging, as it quickly corrupts its existing parametric memories. Our results emphasize the importance of data distribution in knowledge acquisition and suggest novel data scheduling strategies to accelerate neural network training.",
+          "claimed_authors": [
+            "Nicolas Zucchet",
+            "Jörg Bornschein",
+            "Stephanie Chan",
+            "Andrew Lampinen",
+            "Razvan Pascanu",
+            "Soham De"
+          ],
+          "claimed_title": "How do language models learn facts? Dynamics, curricula and hallucinations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.21676"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"GENEB: Why Genomic Models Are Hard to Compare\" lin', candidate_title='How do language models learn facts? Dynamics, curricula and hallucinations')",
+        "failed_at": "2026-07-19T21:48:01Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Daria Ledneva",
+            "Mikhail Nuridinov",
+            "Denis Kuznetsov"
+          ],
+          "title": "GENEB: Why Genomic Models Are Hard to Compare",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.04525",
+        "summary": "Progress in genomic foundation models is difficult to assess due to fragmented benchmarks, incompatible evaluation protocols, and task-specific reporting. As a result, claims of superiority or generality across models are often not directly comparable. We introduce GENEB, a large-scale diagnostic benchmark that evaluates frozen representations from 40 genomic foundation models across 100 tasks spanning 13 functional categories under a unified probing-based protocol, including few-shot regimes. GENEB enables controlled comparison across model scale, architecture, tokenization, and pretraining data while explicitly exposing task-level trade-offs. Our analysis shows that aggregate leaderboards are unstable: model rankings vary sharply across task categories, scale provides only modest and inconsistent gains, and architectural and pretraining alignment frequently outweigh parameter count. These results highlight limitations of current evaluation practices and position GENEB as a reference framework for principled comparison and category-aware model selection in genomic machine learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.04525",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T21:48:01Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yanis Labrak",
+            "Mickael Rouvier",
+            "Richard Dufour"
+          ],
+          "title": "A Zero-shot and Few-shot Study of Instruction-Finetuned Large Language Models Applied to Clinical and Biomedical Tasks",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2307.12114",
+        "summary": "We evaluate four state-of-the-art instruction-tuned large language models (LLMs) -- ChatGPT, Flan-T5 UL2, Tk-Instruct, and Alpaca -- on a set of 13 real-world clinical and biomedical natural language processing (NLP) tasks in English, such as named-entity recognition (NER), question-answering (QA), relation extraction (RE), etc. Our overall results demonstrate that the evaluated LLMs begin to approach performance of state-of-the-art models in zero- and few-shot scenarios for most tasks, and particularly well for the QA task, even though they have never seen examples from these tasks before. However, we observed that the classification and RE tasks perform below what can be achieved with a specifically trained model for the medical field, such as PubMedBERT. Finally, we noted that no LLM outperforms all the others on all the studied tasks, with some models being better suited for certain tasks than others.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2307.12114",
+          "http_status": 200,
+          "pdf_sample_score": 0.1987,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T21:48:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhihan Cao",
+            "Hiroaki Yamada",
+            "Simone Teufel",
+            "Takenobu Tokunaga"
+          ],
+          "title": "A Comprehensive Evaluation of Semantic Relation Knowledge of Pretrained Language Models and Humans",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2412.01131",
+        "summary": "Recently, much work has concerned itself with the enigma of what exactly pretrained language models~(PLMs) learn about different aspects of language, and how they learn it. One stream of this type of research investigates the knowledge that PLMs have about semantic relations. However, many aspects of semantic relations were left unexplored. Generally, only one relation has been considered, namely hypernymy. Furthermore, previous work did not measure humans' performance on the same task as that performed by the PLMs. This means that at this point in time, there is only an incomplete view of the extent of these models' semantic relation knowledge. To address this gap, we introduce a comprehensive evaluation framework covering five relations beyond hypernymy, namely hyponymy, holonymy, meronymy, antonymy, and synonymy. We use five metrics (two newly introduced here) for recently untreated aspects of semantic relation knowledge, namely soundness, completeness, symmetry, prototypicality, and distinguishability. Using these, we can fairly compare humans and models on the same task. Our extensive experiments involve six PLMs, four masked and two causal language models. The results reveal a significant knowledge gap between humans and models for all semantic relations. In general, causal language models, despite their wide use, do not always perform significantly better than masked language models. Antonymy is the outlier relation where all models perform reasonably well. The evaluation materials can be found at https://github.com/hancules/ProbeResponses.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2412.01131",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T21:48:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Changchuan Yin",
+            "Xuemeng E. Yin",
+            "Jiasong Wang"
+          ],
+          "title": "A Novel Method for Comparative Analysis of DNA Sequences by Ramanujan-Fourier Transform",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1403.1523",
+        "summary": "Alignment-free sequence analysis approaches provide important alternatives over multiple sequence alignment (MSA) in biological sequence analysis because alignment-free approaches have low computation complexity and are not dependent on high level of sequence identity, however, most of the existing alignment-free methods do not employ true full information content of sequences and thus can not accurately reveal similarities and differences among DNA sequences. We present a novel alignment-free computational method for sequence analysis based on Ramanujan-Fourier transform (RFT), in which complete information of DNA sequences is retained. We represent DNA sequences as four binary indicator sequences and apply RFT on the indicator sequences to convert them into frequency domain. The Euclidean distance of the complete RFT coefficients of DNA sequences are used as similarity measure. To address the different lengths in Euclidean space of RFT coefficients, we pad zeros to short DNA binary sequences so that the binary sequences equal the longest length in the comparison sequence data. Thus, the DNA sequences are compared in the same dimensional frequency space without information loss. We demonstrate the usefulness of the proposed method by presenting experimental results on hierarchical clustering of genes and genomes. The proposed method opens a new channel to biological sequence analysis, classification, and structural module identification.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1403.1523",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T21:48:13Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"geneb: why genomic models are hard to compare\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

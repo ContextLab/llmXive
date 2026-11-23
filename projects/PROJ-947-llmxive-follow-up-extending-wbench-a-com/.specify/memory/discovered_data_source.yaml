@@ -1,0 +1,15 @@
+status: none
+intent: WBench interaction log dataset download command line sequences python package
+  dataset
+required_fields:
+- case_id
+- session_id
+- timestamp
+- command
+- arguments
+- interaction_sequence
+- user_intent
+- semantic_intent
+cache_key: a8f8812e1a9dd20dfd419f10c202bdd53538f33cd7f7daa4403d7a3687bea550
+searched_at: '2026-10-11T17:34:10.755397+00:00'
+retry_count: 1

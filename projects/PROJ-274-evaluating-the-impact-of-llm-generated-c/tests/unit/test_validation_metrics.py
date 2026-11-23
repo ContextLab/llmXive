@@ -1,127 +1,81 @@
-"""
-Unit tests for validation.py metrics and rubric logic.
-Ensures LOC, CC, and rubric evaluation work correctly on real code structures.
-"""
-
-import ast
 import os
+import json
 import tempfile
 import shutil
 import pytest
-import sys
+from validation import calculate_loc, calculate_cyclomatic_complexity, analyze_file_metrics, collect_metrics_for_covariates
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+class TestValidationMetrics:
+    """Unit tests for metric collection functions in validation.py."""
 
-from validation import (
-    calculate_loc,
-    calculate_cyclomatic_complexity,
-    analyze_file_metrics,
-    check_documentation_criteria,
-    evaluate_repository_rubric
-)
+    def setup_method(self):
+        """Create a temporary directory for test files."""
+        self.test_dir = tempfile.mkdtemp()
 
-class TestLocCalculation:
-    def test_simple_function_loc(self):
-        code = """
-def hello():
-    print("world")
-"""
-        tree = ast.parse(code)
-        loc = calculate_loc(tree)
+    def teardown_method(self):
+        """Clean up temporary directory."""
+        shutil.rmtree(self.test_dir)
+
+    def test_calculate_loc_simple(self):
+        """Test LOC calculation on a simple Python file."""
+        file_path = os.path.join(self.test_dir, 'simple.py')
+        with open(file_path, 'w') as f:
+            f.write("x = 1\ny = 2\n# comment\n\nz = 3\n")
+        
+        loc = calculate_loc(file_path)
+        # 3 code lines, 1 comment, 1 blank -> 3 LOC
         assert loc == 3
 
-    def test_class_with_methods_loc(self):
-        code = """
-class MyClass:
-    def method1(self):
-  pass
-    
-    def method2(self):
-  pass
-"""
-        tree = ast.parse(code)
-        loc = calculate_loc(tree)
-        # Should span from class def to last method
-        assert loc >= 6
+    def test_calculate_loc_empty(self):
+        """Test LOC calculation on an empty file."""
+        file_path = os.path.join(self.test_dir, 'empty.py')
+        with open(file_path, 'w') as f:
+            f.write("")
+        
+        loc = calculate_loc(file_path)
+        assert loc == 0
 
-class TestCyclomaticComplexity:
-    def test_simple_function_cc(self):
-        code = """
-def simple():
-    return 1
-"""
-        tree = ast.parse(code)
-        cc = calculate_cyclomatic_complexity(tree)
-        assert cc == 1
+    def test_calculate_cc_simple(self):
+        """Test CC calculation on a simple file."""
+        file_path = os.path.join(self.test_dir, 'cc_simple.py')
+        with open(file_path, 'w') as f:
+            f.write("def foo():\n    if True:\n        pass\n")
+        
+        cc = calculate_cyclomatic_complexity(file_path)
+        # Base 1 + 1 for if = 2
+        assert cc == 2
 
-    def test_if_else_cc(self):
-        code = """
-def check(x):
-    if x > 0:
-  return 1
-    else:
-  return 0
-"""
-        tree = ast.parse(code)
-        cc = calculate_cyclomatic_complexity(tree)
-        assert cc == 2  # 1 base + 1 if
+    def test_collect_metrics_for_covariates(self):
+        """Test the full metric collection pipeline."""
+        # Create a test repo structure
+        repo_path = os.path.join(self.test_dir, 'test_repo')
+        os.makedirs(repo_path)
+        
+        # Create a Python file
+        with open(os.path.join(repo_path, 'main.py'), 'w') as f:
+            f.write("x = 1\nif x > 0:\n    print(x)\n")
+        
+        output_path = os.path.join(self.test_dir, 'metrics.json')
+        
+        result = collect_metrics_for_covariates([repo_path], output_path)
+        
+        assert 'repositories' in result
+        assert len(result['repositories']) == 1
+        assert result['repositories'][0]['path'] == repo_path
+        assert result['repositories'][0]['total_loc'] > 0
+        assert result['repositories'][0]['total_cc'] > 0
+        
+        # Verify file was written
+        assert os.path.exists(output_path)
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        assert data == result
 
-    def test_loop_and_exception_cc(self):
-        code = """
-def process(items):
-    try:
-  for i in items:
-      if i:
-          print(i)
-    except:
-  pass
-"""
-        tree = ast.parse(code)
-        cc = calculate_cyclomatic_complexity(tree)
-        # 1 base + 1 for + 1 if + 1 except = 4
-        assert cc == 4
-
-class TestFileMetrics:
-    def test_analyze_real_file(self):
-        # Create a temp file with known content
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write("""
-def add(a, b):
-    if a > 0:
-  return a + b
-    return 0
-""")
-            temp_path = f.name
-
-        try:
-            metrics = analyze_file_metrics(temp_path)
-            assert metrics is not None
-            assert "loc" in metrics
-            assert "cyclomatic_complexity" in metrics
-            assert metrics["cyclomatic_complexity"] >= 2
-        finally:
-            os.unlink(temp_path)
-
-class TestRubricEvaluation:
-    def test_full_rubric_pass(self):
-        criteria = {
-            "has_readme": True,
-            "has_setup_instructions": True,
-            "has_api_reference": True,
-            "details": {}
-        }
-        result = evaluate_repository_rubric(criteria)
-        assert result["final_score"] == 1.0
-        assert result["passed_threshold"] is True
-
-    def test_partial_rubric_fail(self):
-        criteria = {
-            "has_readme": True,
-            "has_setup_instructions": False,
-            "has_api_reference": False,
-            "details": {}
-        }
-        result = evaluate_repository_rubric(criteria)
-        assert result["final_score"] == 1.0 / 3.0
-        assert result["passed_threshold"] is False
+    def test_collect_metrics_no_repos(self):
+        """Test behavior when no repositories are provided."""
+        output_path = os.path.join(self.test_dir, 'metrics_empty.json')
+        result = collect_metrics_for_covariates([], output_path)
+        
+        assert result['summary']['total_repos'] == 0
+        assert len(result['repositories']) == 0
+        assert os.path.exists(output_path)

@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelValidation"
+description: "Schema for model validation report including uncertainty metrics."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample"
+  predicted_bulk:
+    type: "number"
+    description: "Predicted Bulk Modulus"
+  predicted_shear:
+    type: "number"
+    description: "Predicted Shear Modulus"
+  actual_bulk:
+    type: "number"
+    description: "Actual Bulk Modulus"
+    minimum: 0
+  actual_shear:
+    type: "number"
+    description: "Actual Shear Modulus"
+    minimum: 0
+  uncertainty_variance:
+    type: "number"
+    description: "Variance across LOSO-CV splits"
+    minimum: 0
+  hull_distance:
+    type: "number"
+    description: "Distance from convex hull centroid"
+    minimum: 0
+  is_boundary:
+    type: "boolean"
+    description: "Within 5% of hull radius"
+  is_valid_composition:
+    type: "boolean"
+    description: "Passed simplex projection check"
+required:
+  - sample_id
+  - predicted_bulk
+  - predicted_shear
+  - actual_bulk
+  - actual_shear
+  - uncertainty_variance
+  - hull_distance
+  - is_boundary
+  - is_valid_composition
+additionalProperties: false

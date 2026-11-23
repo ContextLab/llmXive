@@ -1,0 +1,111 @@
+{
+  "trace_id": "training_42_03562",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "insert_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 44.5386,
+        "y": 21.0593,
+        "length": 84.993
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 33.1328,
+        "padding": 79.8378
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 56.7773,
+        "padding": 58.0173
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 26.4949,
+        "padding": 75.9794
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 75.3119,
+        "padding": 37.2379
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 96.3663,
+        "padding": 50.6194
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 55.3216,
+        "padding": 79.8355
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 9.2951,
+        "padding": 92.0696
+      }
+    },
+    {
+      "step": 8,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 75.8863,
+        "height": 24.7778
+      }
+    },
+    {
+      "step": 9,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 81.5736,
+        "height": 99.1279
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.801819,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 693.086408
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 3,
+    "layout_hash": "42-3562-update_layout"
+  }
+}

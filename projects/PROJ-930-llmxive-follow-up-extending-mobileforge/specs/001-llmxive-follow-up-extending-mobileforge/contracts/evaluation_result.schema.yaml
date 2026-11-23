@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult (McNemar)"
+description: "Schema for the evaluation results using a paired McNemar test."
+type: "object"
+properties:
+  metrics:
+    type: "object"
+    properties:
+      success_rate_distilled:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      baseline_metrics:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+            success_rate:
+              type: "number"
+              minimum: 0
+              maximum: 1
+            step_efficiency:
+              type: "number"
+          required:
+            - name
+            - success_rate
+            - step_efficiency
+    required:
+      - success_rate_distilled
+      - baseline_metrics
+  statistical_test:
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        const: "mcnemar"
+      chi2:
+        type: "number"
+        description: "McNemar chi‑square statistic"
+      p_value:
+        type: "number"
+        description: "Two‑tailed p‑value"
+      corrected_p_value:
+        type: "number"
+        description: "Bonferroni‑adjusted p‑value"
+      significant:
+        type: "boolean"
+      effect_size_odds_ratio:
+        type: "number"
+        description: "Odds‑ratio effect size"
+    required:
+      - test_type
+      - chi2
+      - p_value
+      - corrected_p_value
+      - significant
+      - effect_size_odds_ratio
+required:
+  - metrics
+  - statistical_test
+additionalProperties: false

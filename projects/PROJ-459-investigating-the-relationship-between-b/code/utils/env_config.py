@@ -1,248 +1,180 @@
 """
 Environment configuration management for memory limits and runtime caps.
 
-This module provides utilities to check system memory availability and
-set runtime resource limits for long-running processes like fMRIPrep.
+This module provides utilities to check available system memory, enforce
+memory limits, and set runtime resource caps to prevent OOM crashes during
+heavy fMRI processing tasks.
 """
 import os
 import sys
 import resource
 from typing import Optional, Tuple
+import logging
 
-# Default constants (in bytes)
-DEFAULT_MEMORY_LIMIT_GB = 16
-DEFAULT_RUNTIME_LIMIT_HOURS = 24
-MEMORY_WARNING_THRESHOLD = 0.9  # 90% of limit triggers warning
+logger = logging.getLogger(__name__)
 
-def _get_available_memory_gb() -> float:
+# Default constants
+DEFAULT_MEMORY_LIMIT_GB = 12.0
+DEFAULT_RUNTIME_CAP_SECONDS = 3600  # 1 hour
+MEMORY_WARNING_THRESHOLD = 0.85  # Warn if usage > 85% of limit
+MEMORY_FAIL_THRESHOLD = 0.95     # Fail if usage > 95% of limit
+
+def get_available_memory_gb() -> float:
     """
-    Detect available system memory in GB.
-    
+    Detect available physical memory in GB.
+
     Returns:
-        Available memory in GB. Returns a safe default if detection fails.
+        float: Available memory in GB.
     """
-    if sys.platform.startswith("linux"):
-        try:
-            with open("/proc/meminfo", "r") as f:
-                lines = f.readlines()
-            mem_total = None
-            mem_avail = None
-            for line in lines:
-                if line.startswith("MemTotal:"):
-                    mem_total = int(line.split()[1])
-                elif line.startswith("MemAvailable:"):
-                    mem_avail = int(line.split()[1])
-            
-            if mem_total is not None and mem_avail is not None:
-                # Convert kB to GB
-                return mem_avail / (1024 ** 2)
-            elif mem_total is not None:
-                # Fallback: assume 70% available if MemAvailable not found
-                return (mem_total * 0.7) / (1024 ** 2)
-        except Exception:
-            pass
-    elif sys.platform == "darwin":
-        try:
-            import subprocess
-            result = subprocess.run(
-                ["sysctl", "-n", "hw.memsize"],
-                capture_output=True,
-                text=True
-            )
-            if result.returncode == 0:
-                mem_bytes = int(result.stdout.strip())
-                return mem_bytes / (1024 ** 3)
-        except Exception:
-            pass
-    
-    # Safe default for unknown systems
-    return 8.0
-
-def _get_current_memory_usage_gb() -> float:
-    """
-    Get current process memory usage in GB.
-    
-    Returns:
-        Current memory usage in GB.
-    """
-    if sys.platform.startswith("linux"):
-        try:
-            pid = os.getpid()
-            with open(f"/proc/{pid}/status", "r") as f:
-                for line in f:
-                    if line.startswith("VmRSS:"):
-                        rss_kb = int(line.split()[1])
-                        return rss_kb / (1024 ** 2)
-        except Exception:
-            pass
-    elif sys.platform == "darwin":
-        try:
-            import subprocess
-            result = subprocess.run(
-                ["ps", "-o", "rss=", "-p", str(os.getpid())],
-                capture_output=True,
-                text=True
-            )
-            if result.returncode == 0:
-                rss_kb = int(result.stdout.strip())
-                return rss_kb / (1024 ** 2)
-        except Exception:
-            pass
-    
-    return 0.0
-
-def check_memory_limit(limit_gb: Optional[float] = None) -> Tuple[bool, str]:
-    """
-    Check if the system has sufficient available memory.
-    
-    Args:
-        limit_gb: Required memory limit in GB. If None, uses DEFAULT_MEMORY_LIMIT_GB.
-    
-    Returns:
-        Tuple of (is_sufficient: bool, message: str)
-    
-    Raises:
-        None: Returns status tuple instead of raising.
-    """
-    if limit_gb is None:
-        limit_gb = DEFAULT_MEMORY_LIMIT_GB
-    
-    available_gb = _get_available_memory_gb()
-    current_usage_gb = _get_current_memory_usage_gb()
-    
-    # Check if available memory is sufficient
-    if available_gb < limit_gb:
-        return (
-            False,
-            f"Insufficient memory: Available {available_gb:.2f}GB < Required {limit_gb:.2f}GB"
-        )
-    
-    # Check if current usage is too high
-    usage_ratio = current_usage_gb / limit_gb
-    if usage_ratio > MEMORY_WARNING_THRESHOLD:
-        return (
-            True,
-            f"Warning: Current memory usage {current_usage_gb:.2f}GB is {usage_ratio:.1%} of limit"
-        )
-    
-    return (True, f"Memory check passed: Available {available_gb:.2f}GB >= Required {limit_gb:.2f}GB")
-
-def set_runtime_cap(hours: Optional[float] = None) -> Tuple[bool, str]:
-    """
-    Set a runtime cap for the current process.
-    
-    This function attempts to set the CPU time limit for the process.
-    On Unix-like systems, it uses resource.setrlimit. On Windows, it
-    logs a warning as hard limits are not available.
-    
-    Args:
-        hours: Maximum runtime in hours. If None, uses DEFAULT_RUNTIME_LIMIT_HOURS.
-    
-    Returns:
-        Tuple of (success: bool, message: str)
-    """
-    if hours is None:
-        hours = DEFAULT_RUNTIME_LIMIT_HOURS
-    
-    if sys.platform.startswith("win"):
-        return (
-            False,
-            "Runtime limits not supported on Windows. Consider using external process managers."
-        )
-    
     try:
-        # Convert hours to seconds
-        seconds = int(hours * 3600)
-        
-        # Set both soft and hard limits
-        resource.setrlimit(resource.RLIMIT_CPU, (seconds, seconds))
-        
-        return (
-            True,
-            f"Runtime cap set to {hours} hours ({seconds} seconds)"
-        )
-    except (ValueError, resource.error) as e:
-        return (
-            False,
-            f"Failed to set runtime cap: {str(e)}"
-        )
+        if sys.platform == "darwin" or sys.platform == "linux":
+            # Use resource.getrusage for RSS or os.sysconf for total
+            # For a robust check of *available* memory, we check /proc/meminfo on Linux
+            if sys.platform == "linux" and os.path.exists("/proc/meminfo"):
+                with open("/proc/meminfo", "r") as f:
+                    lines = f.readlines()
+                mem_info = {}
+                for line in lines:
+                    parts = line.split()
+                    if len(parts) >= 2:
+                        key = parts[0].rstrip(":")
+                        val = int(parts[1])  # in kB
+                        mem_info[key] = val
+                
+                # Available memory (Linux 3.14+ has MemAvailable)
+                if "MemAvailable" in mem_info:
+                    avail_kb = mem_info["MemAvailable"]
+                elif "MemFree" in mem_info and "Buffers" in mem_info and "Cached" in mem_info:
+                    avail_kb = mem_info["MemFree"] + mem_info["Buffers"] + mem_info["Cached"]
+                else:
+                    # Fallback: Total - Used (RSS of current process approx)
+                    avail_kb = mem_info.get("MemTotal", 0) - mem_info.get("MemFree", 0)
+                
+                return avail_kb / (1024 * 1024)
+            else:
+                # macOS or fallback: use resource.getrusage (approximate max RSS of current)
+                # This is less accurate for *system* available, but safe for process limits
+                usage = resource.getrusage(resource.RUSAGE_SELF)
+                # maxrss is in KB on macOS, bytes on some Linux configs? 
+                # Actually on macOS it's KB. On Linux getrusage returns KB in ru_maxrss.
+                # To get system total, we might need psutil, but sticking to stdlib:
+                # We will estimate system total if possible, otherwise return a safe default
+                # Let's try to get total system memory via os.sysconf if available
+                if hasattr(os, 'sysconf') and hasattr(os.sysconf, 'SC_PHYS_PAGES'):
+                    page_size = os.sysconf('SC_PAGE_SIZE')
+                    total_pages = os.sysconf('SC_PHYS_PAGES')
+                    return (total_pages * page_size) / (1024 * 1024 * 1024)
+                else:
+                    logger.warning("Could not determine system memory precisely. Defaulting to 16GB.")
+                    return 16.0
+        else:
+            # Windows fallback
+            logger.warning("Memory detection not implemented for Windows. Defaulting to 16GB.")
+            return 16.0
+    except Exception as e:
+        logger.error(f"Error detecting memory: {e}")
+        return 16.0
 
-def get_env_config() -> dict:
+def check_memory_limit(limit_gb: Optional[float] = None, fail_fast: bool = True) -> Tuple[bool, float, float]:
     """
-    Get current environment configuration summary.
-    
+    Check if the system has enough available memory for the requested limit.
+
+    Args:
+        limit_gb: Required memory in GB. If None, uses DEFAULT_MEMORY_LIMIT_GB.
+        fail_fast: If True, raises RuntimeError if limit is insufficient.
+
     Returns:
-        Dictionary with memory and runtime configuration details.
+        Tuple[bool, float, float]: (is_ok, available_gb, limit_gb)
+
+    Raises:
+        RuntimeError: If fail_fast is True and memory is insufficient.
     """
-    available_mem = _get_available_memory_gb()
-    current_mem = _get_current_memory_usage_gb()
+    limit = limit_gb if limit_gb is not None else DEFAULT_MEMORY_LIMIT_GB
+    available = get_available_memory_gb()
     
+    is_ok = available >= limit
+    
+    logger.info(f"Memory Check: Available {available:.2f} GB, Required {limit:.2f} GB. Status: {'OK' if is_ok else 'FAIL'}")
+    
+    if not is_ok and fail_fast:
+        raise RuntimeError(
+            f"Insufficient memory. Available: {available:.2f} GB, Required: {limit:.2f} GB. "
+            "Cannot proceed with fMRI processing."
+        )
+    
+    return is_ok, available, limit
+
+def set_runtime_cap(seconds: Optional[int] = None, memory_mb: Optional[int] = None) -> None:
+    """
+    Set hard limits on runtime and memory for the current process.
+
+    This uses `resource.setrlimit` to enforce constraints. If the process
+    exceeds these limits, the OS will terminate it (SIGXCPU or SIGSEGV).
+
+    Args:
+        seconds: Maximum CPU time in seconds. If None, uses DEFAULT_RUNTIME_CAP_SECONDS.
+        memory_mb: Maximum virtual memory in MB. If None, no memory limit is set via this function
+                   (rely on check_memory_limit or container limits).
+    """
+    if sys.platform == "win32":
+        logger.warning("set_runtime_cap not supported on Windows (resource module unavailable).")
+        return
+
+    cap_time = seconds if seconds is not None else DEFAULT_RUNTIME_CAP_SECONDS
+    
+    # Set CPU time limit (soft and hard)
+    try:
+        resource.setrlimit(resource.RLIMIT_CPU, (cap_time, cap_time))
+        logger.info(f"Set CPU time limit: {cap_time} seconds.")
+    except (ValueError, resource.error) as e:
+        logger.warning(f"Could not set CPU time limit: {e}")
+
+    if memory_mb is not None:
+        try:
+            # RLIMIT_AS: maximum address space size
+            resource.setrlimit(resource.RLIMIT_AS, (memory_mb * 1024 * 1024, memory_mb * 1024 * 1024))
+            logger.info(f"Set memory limit: {memory_mb} MB.")
+        except (ValueError, resource.error) as e:
+            logger.warning(f"Could not set memory limit: {e}")
+
+def get_env_config() -> Dict[str, any]:
+    """
+    Retrieve current environment configuration status.
+
+    Returns:
+        Dict containing memory status and configured limits.
+    """
     return {
-        "available_memory_gb": round(available_mem, 2),
-        "current_memory_usage_gb": round(current_mem, 2),
+        "available_memory_gb": get_available_memory_gb(),
         "default_memory_limit_gb": DEFAULT_MEMORY_LIMIT_GB,
-        "default_runtime_limit_hours": DEFAULT_RUNTIME_LIMIT_HOURS,
-        "platform": sys.platform,
-        "memory_warning_threshold": MEMORY_WARNING_THRESHOLD
+        "default_runtime_cap_seconds": DEFAULT_RUNTIME_CAP_SECONDS,
+        "platform": sys.platform
     }
 
 def main():
-    """CLI entry point for environment configuration checks."""
-    import argparse
-    import json
+    """
+    CLI entry point for environment configuration checks.
+    """
+    logging.basicConfig(level=logging.INFO)
     
-    parser = argparse.ArgumentParser(
-        description="Check and configure environment resource limits"
-    )
-    parser.add_argument(
-        "--memory-limit",
-        type=float,
-        default=DEFAULT_MEMORY_LIMIT_GB,
-        help=f"Memory limit in GB (default: {DEFAULT_MEMORY_LIMIT_GB})"
-    )
-    parser.add_argument(
-        "--runtime-limit",
-        type=float,
-        default=DEFAULT_RUNTIME_LIMIT_HOURS,
-        help=f"Runtime limit in hours (default: {DEFAULT_RUNTIME_LIMIT_HOURS})"
-    )
-    parser.add_argument(
-        "--check-only",
-        action="store_true",
-        help="Only check limits without setting them"
-    )
-    parser.add_argument(
-        "--json",
-        action="store_true",
-        help="Output results as JSON"
-    )
+    print("=== Environment Configuration Check ===")
+    config = get_env_config()
+    print(f"Platform: {config['platform']}")
+    print(f"Available Memory: {config['available_memory_gb']:.2f} GB")
+    print(f"Default Memory Limit: {config['default_memory_limit_gb']} GB")
+    print(f"Default Runtime Cap: {config['default_runtime_cap_seconds']} seconds")
     
-    args = parser.parse_args()
+    print("\nRunning check_memory_limit()...")
+    try:
+        is_ok, avail, lim = check_memory_limit(fail_fast=True)
+        print(f"Result: OK (Available: {avail:.2f} GB >= Limit: {lim:.2f} GB)")
+    except RuntimeError as e:
+        print(f"Result: FAILED - {e}")
+        sys.exit(1)
     
-    # Check memory
-    mem_ok, mem_msg = check_memory_limit(args.memory_limit)
-    
-    if args.check_only:
-        result = {
-            "memory_check": {"status": "ok" if mem_ok else "fail", "message": mem_msg}
-        }
-    else:
-        # Set runtime cap
-        runtime_ok, runtime_msg = set_runtime_cap(args.runtime_limit)
-        result = {
-            "memory_check": {"status": "ok" if mem_ok else "fail", "message": mem_msg},
-            "runtime_cap": {"status": "ok" if runtime_ok else "fail", "message": runtime_msg}
-        }
-    
-    if args.json:
-        print(json.dumps(result, indent=2))
-    else:
-        print(f"Memory Check: {mem_msg}")
-        if not args.check_only:
-            print(f"Runtime Cap: {runtime_msg}")
-        
-        if not mem_ok:
-            sys.exit(1)
+    print("\nSetting runtime caps...")
+    set_runtime_cap(seconds=300, memory_mb=8000)
+    print("Caps set successfully.")
 
 if __name__ == "__main__":
     main()

@@ -1,30 +1,56 @@
 """
-Pytest configuration and shared fixtures for the project.
+Pytest configuration and shared fixtures for all tests.
+
+This file provides:
+- Global test configuration
+- Shared fixtures for common test data
+- Test setup/teardown hooks
 """
-import os
-import sys
+
 import pytest
+import numpy as np
+import pandas as pd
 from pathlib import Path
 
-# Ensure the project root is in the path for imports
-# Assumes this file is at: projects/PROJ-713-.../tests/conftest.py
-# and we need to add: projects/PROJ-713-.../code to sys.path
-@pytest.fixture(scope="session", autouse=True)
-def add_project_root_to_path():
-    """Add the project root to sys.path to allow imports from code/."""
-    current_dir = Path(__file__).parent
-    project_root = current_dir.parent
-    code_path = project_root / "code"
-    
-    if str(code_path) not in sys.path:
-        sys.path.insert(0, str(code_path))
-    
+# Ensure consistent random state for reproducibility
+@pytest.fixture(autouse=True)
+def set_seed():
+    """Set random seed for reproducibility."""
+    np.random.seed(42)
     yield
+    # No cleanup needed
 
-# Example fixture for a temporary data directory
+@pytest.fixture
+def sample_time_series_data():
+    """Generate sample time series data for testing."""
+    np.random.seed(42)
+    n = 1000
+    dates = pd.date_range(start="2020-01-01", periods=n, freq="H")
+    # AR(1) process with seasonality
+    values = np.cumsum(np.random.normal(0, 1, n)) + 10 * np.sin(2 * np.pi * np.arange(n) / 24)
+    return pd.DataFrame({"timestamp": dates, "value": values})
+
+@pytest.fixture
+def sample_forecast_data():
+    """Generate sample forecast data for testing."""
+    np.random.seed(42)
+    n = 1000
+    y_true = np.random.normal(100, 10, n)
+    y_pred = y_true + np.random.normal(0, 1, n)
+    lower_bound = y_pred - 1.5 * 10
+    upper_bound = y_pred + 1.5 * 10
+    return y_true, y_pred, lower_bound, upper_bound
+
 @pytest.fixture
 def temp_data_dir(tmp_path):
-    """Provide a temporary directory for data processing tests."""
+    """Create a temporary directory for test data."""
     data_dir = tmp_path / "data"
     data_dir.mkdir()
     return data_dir
+
+@pytest.fixture
+def temp_results_dir(tmp_path):
+    """Create a temporary directory for test results."""
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    return results_dir

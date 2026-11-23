@@ -1,7 +1,4 @@
-"""
-Metadata manager for simulation runs and dataset checksums.
-Provides schema and utilities for data/simulation_metadata.json.
-"""
+"""Metadata manager for simulation runs and dataset checksums."""
 import os
 import json
 import hashlib
@@ -12,134 +9,131 @@ import uuid
 METADATA_FILE_PATH = "data/simulation_metadata.json"
 
 def ensure_metadata_file_exists() -> str:
-    """
-    Ensures the metadata JSON file exists. If not, creates it with an empty schema.
-    Returns the path to the file.
-    """
+    """Ensure the metadata file exists, creating it with an empty structure if not."""
     os.makedirs(os.path.dirname(METADATA_FILE_PATH), exist_ok=True)
     if not os.path.exists(METADATA_FILE_PATH):
-        initial_schema = {
-            "schema_version": "1.0",
-            "created_at": datetime.utcnow().isoformat(),
+        initial_data = {
             "runs": [],
             "datasets": [],
-            "config": {}
+            "config": {},
+            "last_updated": datetime.utcnow().isoformat()
         }
-        with open(METADATA_FILE_PATH, 'w') as f:
-            json.dump(initial_schema, f, indent=2)
+        with open(METADATA_FILE_PATH, 'w', encoding='utf-8') as f:
+            json.dump(initial_data, f, indent=2)
     return METADATA_FILE_PATH
 
 def load_simulation_metadata() -> Dict[str, Any]:
-    """Loads the current metadata file content."""
+    """Load the current simulation metadata from disk."""
     ensure_metadata_file_exists()
-    with open(METADATA_FILE_PATH, 'r') as f:
+    with open(METADATA_FILE_PATH, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def save_simulation_metadata(data: Dict[str, Any]) -> None:
-    """Saves the metadata dictionary back to the file."""
+    """Save the simulation metadata to disk."""
+    data["last_updated"] = datetime.utcnow().isoformat()
     ensure_metadata_file_exists()
-    with open(METADATA_FILE_PATH, 'w') as f:
+    with open(METADATA_FILE_PATH, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
 
-def compute_file_checksum(file_path: str, algorithm: str = 'sha256') -> str:
-    """Computes the checksum of a file."""
+def compute_file_checksum(filepath: str, algorithm: str = "sha256") -> str:
+    """Compute the checksum of a file."""
     hasher = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
+    with open(filepath, 'rb') as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hasher.update(chunk)
     return hasher.hexdigest()
 
-def verify_checksum(file_path: str, expected_checksum: str, algorithm: str = 'sha256') -> bool:
-    """Verifies a file's checksum against an expected value."""
-    if not os.path.exists(file_path):
-        return False
-    actual = compute_file_checksum(file_path, algorithm)
-    return actual == expected_checksum
+def verify_checksum(filepath: str, expected_checksum: str, algorithm: str = "sha256") -> bool:
+    """Verify a file's checksum against an expected value."""
+    actual_checksum = compute_file_checksum(filepath, algorithm)
+    return actual_checksum == expected_checksum
 
-def register_run(run_params: Dict[str, Any]) -> str:
-    """
-    Registers a new simulation run in the metadata file.
-    Returns the run_id.
-    """
-    data = load_simulation_metadata()
-    run_id = str(uuid.uuid4())
-    run_record = {
+def register_run(run_id: Optional[str] = None, parameters: Optional[Dict[str, Any]] = None, status: str = "started") -> str:
+    """Register a new simulation run in the metadata file."""
+    metadata = load_simulation_metadata()
+    run_id = run_id or str(uuid.uuid4())
+    run_entry = {
         "run_id": run_id,
         "timestamp": datetime.utcnow().isoformat(),
-        "params": run_params,
-        "status": "started",
-        "outputs": []
+        "parameters": parameters or {},
+        "status": status,
+        "checksums": []
     }
-    data["runs"].append(run_record)
-    save_simulation_metadata(data)
+    metadata["runs"].append(run_entry)
+    save_simulation_metadata(metadata)
     return run_id
 
-def update_run_status(run_id: str, status: str, outputs: Optional[List[str]] = None) -> None:
-    """Updates the status of a specific run."""
-    data = load_simulation_metadata()
-    for run in data["runs"]:
+def update_run_status(run_id: str, status: str, output_files: Optional[List[str]] = None) -> None:
+    """Update the status of a specific run."""
+    metadata = load_simulation_metadata()
+    for run in metadata["runs"]:
         if run["run_id"] == run_id:
             run["status"] = status
-            if outputs:
-                run["outputs"] = outputs
-            run["completed_at"] = datetime.utcnow().isoformat()
+            if output_files:
+                run["output_files"] = output_files
             break
-    save_simulation_metadata(data)
+    save_simulation_metadata(metadata)
 
 def get_run_history() -> List[Dict[str, Any]]:
-    """Returns the list of all registered runs."""
-    data = load_simulation_metadata()
-    return data.get("runs", [])
+    """Retrieve the history of all registered runs."""
+    metadata = load_simulation_metadata()
+    return metadata.get("runs", [])
 
-def register_dataset_checksum(dataset_name: str, file_path: str, algorithm: str = 'sha256') -> None:
-    """
-    Registers a dataset checksum in the metadata file.
-    """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Dataset file not found: {file_path}")
+def register_dataset_checksum(dataset_name: str, filepath: str, checksum: Optional[str] = None, source: Optional[str] = None) -> None:
+    """Register a dataset and its checksum in the metadata file."""
+    metadata = load_simulation_metadata()
+    if checksum is None:
+        checksum = compute_file_checksum(filepath)
     
-    checksum = compute_file_checksum(file_path, algorithm)
-    data = load_simulation_metadata()
+    dataset_entry = {
+        "name": dataset_name,
+        "filepath": filepath,
+        "checksum": checksum,
+        "source": source or "unknown",
+        "registered_at": datetime.utcnow().isoformat()
+    }
     
-    # Check if dataset already registered
-    for ds in data.get("datasets", []):
+    # Check if dataset already exists and update, otherwise append
+    found = False
+    for ds in metadata["datasets"]:
         if ds["name"] == dataset_name:
-            ds["checksum"] = checksum
-            ds["last_verified"] = datetime.utcnow().isoformat()
-            ds["file_path"] = file_path
+            ds.update(dataset_entry)
+            found = True
             break
-    else:
-        data["datasets"].append({
-            "name": dataset_name,
-            "file_path": file_path,
-            "checksum": checksum,
-            "algorithm": algorithm,
-            "registered_at": datetime.utcnow().isoformat(),
-            "last_verified": datetime.utcnow().isoformat()
-        })
     
-    save_simulation_metadata(data)
+    if not found:
+        metadata["datasets"].append(dataset_entry)
+    
+    save_simulation_metadata(metadata)
 
 def main() -> None:
-    """
-    CLI entry point to initialize or inspect metadata.
-    """
+    """Main entry point for CLI usage."""
     import argparse
     parser = argparse.ArgumentParser(description="Manage simulation metadata")
-    parser.add_argument('--init', action='store_true', help='Initialize metadata file')
-    parser.add_argument('--show', action='store_true', help='Show current metadata')
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
+
+    # Register run
+    p_run = subparsers.add_parser("register_run", help="Register a new run")
+    p_run.add_argument("--id", type=str, help="Custom run ID")
+    p_run.add_argument("--params", type=str, help="JSON string of parameters")
+
+    # Register dataset
+    p_ds = subparsers.add_parser("register_dataset", help="Register a dataset")
+    p_ds.add_argument("--name", type=str, required=True, help="Dataset name")
+    p_ds.add_argument("--path", type=str, required=True, help="Filepath to dataset")
+    p_ds.add_argument("--source", type=str, help="Source URL or description")
+
     args = parser.parse_args()
 
-    if args.init:
-        ensure_metadata_file_exists()
-        print(f"Metadata file initialized at {METADATA_FILE_PATH}")
-    elif args.show:
-        data = load_simulation_metadata()
-        print(json.dumps(data, indent=2))
+    if args.command == "register_run":
+        params = json.loads(args.params) if args.params else {}
+        rid = register_run(run_id=args.id, parameters=params)
+        print(f"Registered run: {rid}")
+    elif args.command == "register_dataset":
+        register_dataset_checksum(args.name, args.path, source=args.source)
+        print(f"Registered dataset: {args.name}")
     else:
-        # Default to init if no args
-        ensure_metadata_file_exists()
-        print(f"Metadata file ready at {METADATA_FILE_PATH}")
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

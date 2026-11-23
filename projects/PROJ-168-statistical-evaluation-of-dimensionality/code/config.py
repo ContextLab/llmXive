@@ -1,66 +1,63 @@
 """
-Configuration management for the gene expression dimensionality study.
-Defines paths, seeds, and dataset accessions.
+Configuration module for the project.
+
+This file defines the Config class, which provides paths and settings
+used throughout the pipeline. It reads environment variables where
+appropriate, and supplies sensible defaults.
 """
+
 import os
 from pathlib import Path
 import logging
 import random
 import numpy as np
 
-# Base project directory (assumed to be the root where this script is run)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
 class Config:
-    def __init__(self):
-        # Directories
-        self.data_dir = PROJECT_ROOT / "data"
-        self.data_raw = self.data_dir / "raw"
-        self.data_processed = self.data_dir / "processed"
-        self.results_dir = PROJECT_ROOT / "results"
-        self.figures_dir = self.results_dir / "figures"
-        
-        # Create directories if they don't exist
-        self.data_raw.mkdir(parents=True, exist_ok=True)
-        self.data_processed.mkdir(parents=True, exist_ok=True)
-        self.results_dir.mkdir(parents=True, exist_ok=True)
-        self.figures_dir.mkdir(parents=True, exist_ok=True)
+    """
+    Central configuration holder.
 
-        # Logging
-        self.log_file = self.results_dir / "pipeline.log"
+    Attributes:
+        RAW_DATA_DIR (Path): Directory where raw GEO files are stored.
+        PROCESSED_DATA_DIR (Path): Directory for processed data.
+        EMBEDDINGS_DIR (Path): Directory for embedding outputs.
+        CLUSTERING_DIR (Path): Directory for clustering results.
+        METRICS_DIR (Path): Directory for metric files.
+        RESULTS_DIR (Path): Directory for final result artifacts.
+        FIGURES_DIR (Path): Directory for generated figures.
+        ACCESSIONS (list): List of GEO accession IDs to resolve.
+        N_CORES (int): Number of CPU cores to allocate to Snakemake.
+        SEED (int): Global random seed for reproducibility.
+        SAMPLE_CELLS_THRESHOLD (int): Cell count above which deterministic
+            subsampling is performed (FR‑002 / FR‑003 requirement).
+        SAMPLE_SIZE (int): Number of cells to retain when subsampling
+            (deterministic, seed‑controlled).
+    """
 
-        # Random Seeds
-        self.random_seed = 42
-        self._set_global_seeds()
+    # Base project root – the toolkit provides helpers to build paths.
+    # These helpers automatically create parent directories when used.
+    from llmxive_toolkit import paths
 
-        # Dataset Accessions
-        self.accessions = ["GSE131907", "GSE111322", "GSE150728"]
+    # Directories (Path objects)
+    RAW_DATA_DIR: Path = paths.data("raw")
+    PROCESSED_DATA_DIR: Path = paths.data("processed")
+    EMBEDDINGS_DIR: Path = paths.data("embeddings")
+    CLUSTERING_DIR: Path = paths.data("clustering")
+    METRICS_DIR: Path = paths.data("metrics")
+    RESULTS_DIR: Path = paths.results()
+    FIGURES_DIR: Path = paths.figures()
 
-        # Analysis Parameters
-        self.hvg_top_n = 2000
-        # Sampling threshold configured as order of magnitude (10^4 = 10,000 cells)
-        # If a dataset exceeds this, deterministic sampling is applied.
-        self.sampling_threshold = 10000 
-        self.n_pcs = 50
-        self.leiden_resolutions = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    # GEO accessions required for the study.
+    ACCESSIONS = ["GSE131907", "GSE111322", "GSE150728"]
 
-        # Resource Limits
-        self.max_ram_gb = 7.0
-        self.max_runtime_hours = 6.0
+    # Number of cores for Snakemake – default to 2 if not set.
+    N_CORES: int = int(os.getenv("N_CORES", "2"))
 
-    def _set_global_seeds(self):
-        """Set global random seeds for reproducibility."""
-        random.seed(self.random_seed)
-        np.random.seed(self.random_seed)
-        # If TensorFlow or PyTorch were used, we would set seeds there too.
-        # os.environ['PYTHONHASHSEED'] = str(self.random_seed)
+    # Global random seed for reproducibility.
+    SEED: int = int(os.getenv("GLOBAL_SEED", "42"))
 
-# Global instance
-CONFIG = Config()
+    # Deterministic subsampling parameters (FR‑002, FR‑003)
+    SAMPLE_CELLS_THRESHOLD: int = 10000   # if >10 000 cells, subsample
+    SAMPLE_SIZE: int = 5000               # number of cells to keep
 
-# Setup basic logging format for the module
-if not logging.getLogger().handlers:
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
+    # Logging configuration (optional, can be overridden elsewhere)
+    LOG_LEVEL = logging.INFO

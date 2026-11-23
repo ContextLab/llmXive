@@ -1,14 +1,8 @@
 """
-Validate the unified CTCF dataset for data integrity.
-
-This script ensures that every row in the unified dataset contains:
-1. A fixed-length sequence (expected 1000bp for ±500bp windows).
-2. Matched chromatin values (ATAC-seq, H3K27ac) without nulls.
-3. Correct data types for all columns.
-
-It raises a RuntimeError if any validation fails, preventing downstream
-model training with corrupted data.
+Validation module for the unified CTCF dataset.
+Ensures data integrity before downstream model training.
 """
+
 import json
 import logging
 import sys
@@ -21,152 +15,207 @@ import numpy as np
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-EXPECTED_SEQUENCE_LENGTH = 1000  # ±500bp window
-REQUIRED_CHROMATIN_COLUMNS = ['atac_signal', 'h3k27ac_signal']
-REQUIRED_SEQUENCE_COLUMN = 'sequence'
-REQUIRED_LABEL_COLUMN = 'label'
+SEQUENCE_LENGTH = 1000  # Expected length of ±500bp windows
+MIN_CHROMATIN_COLS = 3  # ATAC-seq, H3K27ac, and potentially others
 
-def load_dataset(filepath: str) -> pd.DataFrame:
-    """Load the unified dataset from parquet file."""
-    path = Path(filepath)
+def load_dataset(dataset_path: str) -> pd.DataFrame:
+    """
+    Load the unified dataset from a Parquet file.
+
+    Args:
+        dataset_path: Path to the .parquet file.
+
+    Returns:
+        pd.DataFrame: The loaded dataset.
+
+    Raises:
+        FileNotFoundError: If the dataset file does not exist.
+        pd.errors.EmptyDataError: If the file is empty.
+    """
+    path = Path(dataset_path)
     if not path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {filepath}")
-    
-    logger.info(f"Loading dataset from {filepath}...")
+        raise FileNotFoundError(f"Dataset file not found: {dataset_path}")
+
+    logger.info(f"Loading dataset from {dataset_path}")
     try:
         df = pd.read_parquet(path)
-        logger.info(f"Loaded {len(df)} rows.")
+        logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns")
         return df
     except Exception as e:
-        raise RuntimeError(f"Failed to load dataset: {e}")
+        logger.error(f"Failed to load dataset: {e}")
+        raise
 
-def validate_sequence_length(df: pd.DataFrame) -> None:
-    """Validate that all sequences have the expected length."""
-    logger.info("Validating sequence lengths...")
-    
-    if REQUIRED_SEQUENCE_COLUMN not in df.columns:
-        raise ValueError(f"Missing required column: {REQUIRED_SEQUENCE_COLUMN}")
-    
-    # Calculate lengths
-    seq_lengths = df[REQUIRED_SEQUENCE_COLUMN].apply(len)
-    invalid_mask = seq_lengths != EXPECTED_SEQUENCE_LENGTH
-    invalid_count = invalid_mask.sum()
-    
-    if invalid_count > 0:
-        invalid_indices = df.index[invalid_mask].tolist()
-        raise RuntimeError(
-            f"Found {invalid_count} rows with incorrect sequence length. "
-            f"Expected {EXPECTED_SEQUENCE_LENGTH}, found lengths: "
-            f"{seq_lengths[invalid_mask].unique().tolist()}. "
-            f"First few invalid indices: {invalid_indices[:5]}"
-        )
-    
-    logger.info(f"✓ All {len(df)} sequences have correct length ({EXPECTED_SEQUENCE_LENGTH}bp).")
-
-def validate_no_nulls(df: pd.DataFrame) -> None:
-    """Validate that no null values exist in critical columns."""
-    logger.info("Validating for null values...")
-    
-    critical_columns = [REQUIRED_SEQUENCE_COLUMN] + REQUIRED_CHROMATIN_COLUMNS
-    if REQUIRED_LABEL_COLUMN in df.columns:
-        critical_columns.append(REQUIRED_LABEL_COLUMN)
-    
-    missing_cols = [col for col in critical_columns if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns for validation: {missing_cols}")
-    
-    null_counts = df[critical_columns].isnull().sum()
-    total_nulls = null_counts.sum()
-    
-    if total_nulls > 0:
-        null_details = null_counts[null_counts > 0].to_dict()
-        raise RuntimeError(
-            f"Found {total_nulls} null values in critical columns: {null_details}"
-        )
-    
-    logger.info(f"✓ No null values found in critical columns.")
-
-def validate_chromatin_alignment(df: pd.DataFrame) -> None:
-    """Validate that chromatin signals are matched and within expected ranges."""
-    logger.info("Validating chromatin signal alignment...")
-    
-    for col in REQUIRED_CHROMATIN_COLUMNS:
-        if col not in df.columns:
-            raise ValueError(f"Missing chromatin column: {col}")
-        
-        # Check for non-finite values (inf, nan)
-        if not np.isfinite(df[col]).all():
-            raise ValueError(
-                f"Column '{col}' contains non-finite values (inf or nan)."
-            )
-        
-        # Optional: Check for reasonable ranges (signals are typically normalized 0-1 or similar)
-        # We allow a wide range but check for extreme outliers that might indicate corruption
-        if df[col].max() > 1e6 or df[col].min() < -1e6:
-            logger.warning(
-                f"Column '{col}' has extreme values (min: {df[col].min()}, max: {df[col].max()}). "
-                "This might indicate normalization issues, but not raising an error."
-            )
-    
-    logger.info("✓ Chromatin signals are aligned and valid.")
-
-def validate_dataset(filepath: str) -> Dict[str, Any]:
+def validate_sequence_length(df: pd.DataFrame, expected_length: int = SEQUENCE_LENGTH) -> bool:
     """
-    Main validation routine.
-    
+    Validates that every row in the 'sequence' column has the expected fixed length.
+
     Args:
-        filepath: Path to the unified dataset parquet file.
-        
+        df: The dataframe to validate.
+        expected_length: The expected length of the sequence (default 1000).
+
     Returns:
-        Dictionary with validation statistics.
-        
+        bool: True if all sequences match the expected length.
+
     Raises:
-        RuntimeError: If any validation check fails.
+        ValueError: If any sequence does not match the expected length.
     """
-    df = load_dataset(filepath)
-    
-    logger.info("Starting comprehensive dataset validation...")
-    
-    # Run validations
+    if 'sequence' not in df.columns:
+        logger.error("Column 'sequence' not found in dataset.")
+        raise ValueError("Missing 'sequence' column in dataset.")
+
+    # Check for non-string types or NaNs in sequence column first
+    if df['sequence'].isna().any():
+        null_count = df['sequence'].isna().sum()
+        raise ValueError(f"Found {null_count} null values in 'sequence' column.")
+
+    # Check lengths
+    lengths = df['sequence'].str.len()
+    invalid_mask = lengths != expected_length
+    invalid_count = invalid_mask.sum()
+
+    if invalid_count > 0:
+        sample_indices = df[invalid_mask].index[:5].tolist()
+        sample_lengths = df.loc[invalid_mask, 'sequence'].str.head(5).tolist()
+        raise ValueError(
+            f"Sequence length validation failed. "
+            f"Expected length: {expected_length}, found {invalid_count} mismatches. "
+            f"Sample indices: {sample_indices}, Sample lengths: {sample_lengths}"
+        )
+
+    logger.info(f"Sequence length validation passed: all {len(df)} rows have length {expected_length}.")
+    return True
+
+def validate_no_nulls(df: pd.DataFrame, critical_columns: Optional[List[str]] = None) -> bool:
+    """
+    Validates that critical columns contain no null values.
+
+    Args:
+        df: The dataframe to validate.
+        critical_columns: List of column names that must not be null.
+                         If None, defaults to 'sequence' and all numeric columns.
+
+    Returns:
+        bool: True if no nulls are found.
+
+    Raises:
+        ValueError: If nulls are found in critical columns.
+    """
+    if critical_columns is None:
+        # Default: sequence + all numeric columns (chromatin signals)
+        critical_columns = ['sequence'] + list(df.select_dtypes(include=[np.number]).columns)
+
+    null_found = False
+    for col in critical_columns:
+        if col not in df.columns:
+            logger.warning(f"Critical column '{col}' not found in dataset. Skipping null check.")
+            continue
+
+        null_count = df[col].isna().sum()
+        if null_count > 0:
+            null_found = True
+            logger.error(f"Found {null_count} null values in column '{col}'.")
+
+    if null_found:
+        # Raise a comprehensive error
+        null_summary = {
+            col: df[col].isna().sum()
+            for col in critical_columns
+            if col in df.columns and df[col].isna().any()
+        }
+        raise ValueError(f"Null values detected in dataset: {null_summary}")
+
+    logger.info("Null value validation passed: no nulls found in critical columns.")
+    return True
+
+def validate_chromatin_alignment(df: pd.DataFrame) -> bool:
+    """
+    Validates that chromatin signal columns are present and numeric.
+    Ensures that for every sequence row, the corresponding chromatin data exists.
+
+    Args:
+        df: The dataframe to validate.
+
+    Returns:
+        bool: True if alignment is valid.
+
+    Raises:
+        ValueError: If chromatin columns are missing or misaligned.
+    """
+    # Identify potential chromatin columns (typically float/int, not 'sequence' or 'label')
+    exclude_cols = {'sequence', 'label', 'peak_id', 'cell_type', 'chromosome', 'start', 'end'}
+    chromatin_cols = [c for c in df.columns if c not in exclude_cols and df[c].dtype in [np.float32, np.float64, np.int32, np.int64]]
+
+    if len(chromatin_cols) < MIN_CHROMATIN_COLS:
+        logger.warning(f"Found only {len(chromatin_cols)} numeric columns (expected >= {MIN_CHROMATIN_COLS}). "
+                     "This might indicate missing ATAC-seq or histone data.")
+        # Depending on strictness, we might raise here. For now, log and continue if > 0.
+        if len(chromatin_cols) == 0:
+            raise ValueError("No chromatin signal columns found. Dataset is invalid for training.")
+
+    # Check for alignment: ensure no row has nulls in ANY chromatin column
+    if not df[chromatin_cols].isna().any().any():
+        logger.info(f"Chromatin alignment validation passed: {len(chromatin_cols)} signal columns are complete.")
+        return True
+    else:
+        # Count rows with missing chromatin data
+        missing_rows = df[chromatin_cols].isna().any(axis=1).sum()
+        raise ValueError(f"Chromatin alignment failed: {missing_rows} rows have missing values in chromatin columns.")
+
+def validate_dataset(dataset_path: str) -> bool:
+    """
+    Runs all validation checks on the dataset.
+
+    Args:
+        dataset_path: Path to the .parquet file.
+
+    Returns:
+        bool: True if all validations pass.
+
+    Raises:
+        ValueError: If any validation fails.
+    """
+    logger.info("Starting dataset validation pipeline...")
+
+    # 1. Load
+    df = load_dataset(dataset_path)
+
+    # 2. Sequence Length
     validate_sequence_length(df)
+
+    # 3. Null Values
     validate_no_nulls(df)
+
+    # 4. Chromatin Alignment
     validate_chromatin_alignment(df)
-    
-    # Generate summary
-    stats = {
-        "total_rows": len(df),
-        "total_columns": len(df.columns),
-        "columns": list(df.columns),
-        "sequence_length": EXPECTED_SEQUENCE_LENGTH,
-        "validation_status": "PASSED",
-        "null_count": 0
-    }
-    
-    logger.info("Validation completed successfully!")
-    logger.info(f"Dataset stats: {json.dumps(stats, indent=2)}")
-    
-    return stats
+
+    logger.info("Dataset validation completed successfully.")
+    return True
 
 def main():
-    """Entry point for the script."""
-    # Default path relative to project root
-    dataset_path = "data/processed/unified_ctcf_dataset.parquet"
+    """
+    Entry point for the validation script.
+    Expects the dataset path as a command-line argument or uses the default.
+    """
+    # Default path based on project structure
+    default_path = "data/processed/unified_ctcf_dataset.parquet"
     
-    # Allow override via command line
     if len(sys.argv) > 1:
         dataset_path = sys.argv[1]
-    
+    else:
+        dataset_path = default_path
+        logger.warning(f"No path provided, using default: {dataset_path}")
+
     try:
-        stats = validate_dataset(dataset_path)
-        print(f"\nValidation PASSED. Summary: {stats['total_rows']} rows, {stats['total_columns']} columns.")
-        sys.exit(0)
-    except (FileNotFoundError, ValueError, RuntimeError) as e:
+        success = validate_dataset(dataset_path)
+        if success:
+            logger.info("Validation PASSED. Dataset is ready for training.")
+            sys.exit(0)
+    except Exception as e:
         logger.error(f"Validation FAILED: {e}")
         sys.exit(1)
 

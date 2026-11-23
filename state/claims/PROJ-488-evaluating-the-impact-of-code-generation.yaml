@@ -2567,43 +2567,6 @@
   updated_at: '2026-07-15T04:17:09Z'
 - artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: Total snippets limited to 10,000 to comply with 14 GB disk limit
-  claim_id: c_7f1e696c
-  context: "T015 [US1] Implement streaming and sampling to ensure total snippets \u2264\
-    \ 10,000 to comply with 14 GB disk limit; use datasets.load_dataset(..., streaming=True)\
-    \ with [deferred] sample fraction."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement streaming and sampling to ensure total snippets \u2264 10,000\
-    \ to comply with 14 GB disk limit"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T04:17:09Z'
-- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: Median length difference between groups limited to 20%
-  claim_id: c_c59cbd89
-  context: "T017 [US1] Implement function-length filtering to achieve median length\
-    \ difference \u2264 20 % between groups (binary search algorithm, max 5 iterations,\
-    \ abort with error 103 after max attempts)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement function-length filtering to achieve median length difference\
-    \ \u2264 20 % between groups (binary search algorithm, max 5 iterations, abort\
-    \ with error 103 after max attempts)"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-15T04:17:10Z'
-- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
   canonical: AST parsing validation requires at least 95% successful parses
   claim_id: c_c6e053be
   context: "T018 [US1] Implement AST parsing validation: parse each snippet, log invalid\
@@ -2679,3 +2642,148 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T04:18:59Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: Total snippets limited to 10,000 to comply with 14 GB disk limit
+  claim_id: c_7f1e696c
+  context: "T015 [US1] Implement streaming and sampling to ensure total snippets \u2264\
+    \ 10,000 to comply with 14 GB disk limit; use datasets.load_dataset(..., streaming=True)\
+    \ with [deferred] sample fraction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement streaming and sampling to ensure total snippets \u2264 10,000\
+    \ to comply with 14 GB disk limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:39:45Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: Median length difference between groups limited to 20%
+  claim_id: c_c59cbd89
+  context: "T017 [US1] Implement function-length filtering to achieve median length\
+    \ difference \u2264 20 % between groups (binary search algorithm, max 5 iterations,\
+    \ abort with error 103 after max attempts)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement function-length filtering to achieve median length difference\
+    \ \u2264 20 % between groups (binary search algorithm, max 5 iterations, abort\
+    \ with error 103 after max attempts)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:39:45Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: AST parsing success rate requirement of 95%
+  claim_id: c_27add48a
+  context: "T018 [US1] Implement AST parsing validation: parse each snippet, log invalid\
+    \ IDs, require \u226595% successful parses; abort with error 102 if threshold\
+    \ not met."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "require \u226595% successful parses"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:39:46Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Minimum 1000 valid Python snippets required per group
+  claim_id: c_3a1728dc
+  context: "T019 [US1] Verify snippet count: ensure \u2265 1000 valid Python snippets\
+    \ per group; abort with error 104 if not met."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "ensure \u2265 1000 valid Python snippets per group"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:39:46Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Abort if 5% of snippets fail validation
+  claim_id: c_85f92024
+  context: "T022 [US2] Validate extracted scores: detect NaN or out-of-range values;\
+    \ if \u22655% of snippets fail, abort with error 102 and generate diagnostic report."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "if \u22655% of snippets fail, abort with error 102"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:39:47Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Statistical power requirement of 0.8
+  claim_id: c_0f708940
+  context: "T026 [US3] [SC-003] Implement power-analysis module in code/statistical_analysis.py\
+    \ to compute achieved power given observed effect size and sample size; enforce\
+    \ \u2265 0.8 power and log warnings otherwise."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "enforce \u2265 0.8 power"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:39:47Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeReviewDataset from HuggingFace contains at least 50 snippets
+  claim_id: c_c4974427
+  context: "T034 [US3] Conduct pilot-study validation OR cite peer-reviewed source\
+    \ per FR-011: (A) Load external human-reviewed snippet set (CodeReviewDataset\
+    \ from HuggingFace, n\u226550), compute Pearson r between static metric and recorded\
+    \ review effort; require r \u2265 0.5; OR (B) cite peer-reviewed source establishing\
+    \ correlation..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CodeReviewDataset_from_HuggingFace_contains_at_least_50_snip
+  kind: magnitude
+  raw_text: "Load external human-reviewed snippet set (CodeReviewDataset from HuggingFace,\
+    \ n\u226550)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:40:08Z'
+- artifact_path: projects/PROJ-488-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Title overlap requirement of 0.7 for peer-reviewed source verification
+  claim_id: c_574c3954
+  context: "T034 [US3] Conduct pilot-study validation OR cite peer-reviewed source\
+    \ per FR-011: (A) Load external human-reviewed snippet set (CodeReviewDataset\
+    \ from HuggingFace, n\u226550), compute Pearson r between static metric and recorded\
+    \ review effort; require r \u2265 0.5; OR (B) cite peer-reviewed source establishing\
+    \ correlation, then run Reference-Validator Agent verification per Constitution\
+    \ Principle II (title overlap \u22650.7)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "title overlap \u22650.7"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T18:40:09Z'

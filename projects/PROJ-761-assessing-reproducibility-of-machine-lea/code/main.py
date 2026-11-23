@@ -1,141 +1,197 @@
-"""
-Main entry point for the reproducibility assessment pipeline.
-Handles environment logging (FR-012) and orchestration of ingestion and metrics.
-"""
 import json
 import logging
 import os
 import platform
 import subprocess
 import sys
-import hashlib
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
-
-# Import from existing API surface
-from ingest import ingest_pipeline, load_manifest, validate_manifest
-from metrics import calculate_all_metrics, calculate_deviation_index
+from typing import List, Dict, Any, Optional
 
 # Configure logging
-LOG_DIR = Path("artifacts/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(LOG_DIR / "pipeline.log"),
-    ],
+        logging.FileHandler('artifacts/logs/main.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
 def get_docker_hash() -> Optional[str]:
-    """
-    Attempt to retrieve the Docker image hash if running in a container.
-    Returns None if not running in Docker or if the command fails.
-    """
+    """Attempt to retrieve the Docker image hash for traceability."""
     try:
-        # Check if we are in a container
-        if os.path.exists("/.dockerenv"):
-            # Try to get image ID from /proc/1/cgroup or docker inspect if available
-            # Fallback: try to read the image ID from standard Docker paths
-            image_id_path = "/etc/image-id"
-            if os.path.exists(image_id_path):
-                with open(image_id_path, "r") as f:
-                    return f.read().strip()
-            
-            # Try to run docker inspect (might fail without permissions)
+        # Check if running inside Docker
+        if os.path.exists('/.dockerenv'):
             result = subprocess.run(
-                ["docker", "inspect", "--format", "{{.Id}}", "current"],
-                capture_output=True,
-                text=True,
-                timeout=5
+                ['docker', 'images', '--no-trunc'],
+                capture_output=True, text=True, timeout=10
             )
             if result.returncode == 0:
-                return result.stdout.strip()
-            
-            # Fallback: hash of /proc/1/cgroup
-            with open("/proc/1/cgroup", "r") as f:
-                content = f.read()
-                return hashlib.sha256(content.encode()).hexdigest()[:12]
+                lines = result.stdout.strip().split('\n')
+                if len(lines) > 1:
+                    # Parse the second line (first data row) for IMAGE ID
+                    parts = lines[1].split()
+                    if len(parts) >= 3:
+                        return parts[2] # IMAGE ID column
+        return None
     except Exception as e:
-        logger.debug(f"Could not retrieve Docker hash: {e}")
-    
-    return None
+        logger.warning(f"Could not retrieve Docker hash: {e}")
+        return None
 
 def log_environment() -> Dict[str, Any]:
-    """
-    Capture and log environment details as per FR-012.
-    Returns a dictionary of the environment snapshot.
-    """
+    """Log environment details including Python version, OS, and Docker hash."""
     env_info = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "python_version": sys.version,
-        "platform": {
-            "system": platform.system(),
-            "node": platform.node(),
-            "release": platform.release(),
-            "machine": platform.machine(),
-        },
-        "docker_hash": get_docker_hash(),
-        "libraries": {}
+        'python_version': platform.python_version(),
+        'os': platform.system(),
+        'os_version': platform.release(),
+        'architecture': platform.machine(),
+        'docker_hash': get_docker_hash()
     }
-
-    # List of critical libraries to version-check
-    critical_libs = [
-        "torch", "scikit-learn", "rdkit", "statsmodels", 
-        "pandas", "numpy", "matplotlib", "pyyaml", "requests", 
-        "scipy", "jsonschema"
-    ]
-
-    for lib_name in critical_libs:
-        try:
-            lib = __import__(lib_name)
-            version = getattr(lib, "__version__", "unknown")
-            env_info["libraries"][lib_name] = version
-        except ImportError:
-            env_info["libraries"][lib_name] = "not_installed"
-        except Exception as e:
-            env_info["libraries"][lib_name] = f"error: {e}"
-
-    # Write to log file
-    log_path = LOG_DIR / "env.log"
-    with open(log_path, "w") as f:
-        json.dump(env_info, f, indent=2)
-    
-    logger.info(f"Environment logged to {log_path}")
+    logger.info(f"Environment: {json.dumps(env_info)}")
     return env_info
+
+def load_repro_result(file_path: Path) -> Optional[Dict[str, Any]]:
+    """Load a single repro result JSON file."""
+    try:
+        if not file_path.exists():
+            logger.warning(f"Result file not found: {file_path}")
+            return None
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in {file_path}: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Error loading {file_path}: {e}")
+        return None
+
+def aggregate_results(results_dir: Path) -> List[Dict[str, Any]]:
+    """
+    Aggregate individual ReproResult objects from the results directory
+    into a single list.
+    
+    Expected input files: *_repro_result.json or similar pattern in results_dir.
+    Based on T013, individual results might be stored per paper or a single
+    file. T018 description implies merging per-paper JSONs.
+    
+    Logic:
+    1. Scan directory for JSON files matching expected pattern (e.g., repro_*.json).
+    2. Load each valid JSON.
+    3. If a file is a list, extend the master list.
+    4. If a file is a dict, append it.
+    5. Handle missing files by logging a warning and skipping.
+    6. Return the aggregated list.
+    """
+    aggregated = []
+    if not results_dir.exists():
+        logger.warning(f"Results directory does not exist: {results_dir}")
+        return aggregated
+
+    # Look for JSON files. T013 output is artifacts/reports/repro_results.json.
+    # If T013 runs per paper, there might be multiple files.
+    # We will look for any JSON file in the directory to be robust,
+    # or specifically the main repro_results.json if it's a collection.
+    
+    # Strategy: Check if the main file exists. If it's a list, use it.
+    # If it's a dict, treat as single.
+    # If multiple files exist (e.g. per-paper), aggregate them.
+    
+    json_files = sorted(results_dir.glob('*.json'))
+    
+    if not json_files:
+        logger.warning("No JSON files found in results directory.")
+        return aggregated
+
+    for file_path in json_files:
+        logger.info(f"Processing result file: {file_path}")
+        data = load_repro_result(file_path)
+        
+        if data is None:
+            continue
+
+        if isinstance(data, list):
+            aggregated.extend(data)
+            logger.info(f"Extended list from {file_path} ({len(data)} items)")
+        elif isinstance(data, dict):
+            aggregated.append(data)
+            logger.info(f"Appended dict from {file_path}")
+        else:
+            logger.warning(f"Unexpected data type in {file_path}: {type(data)}")
+
+    logger.info(f"Total aggregated results: {len(aggregated)}")
+    return aggregated
+
+def compile_failure_log(failure_log_path: Path) -> List[Dict[str, Any]]:
+    """
+    Compile the failure log from artifacts/logs/failure_log.json.
+    T030b is a dependency, so this file should exist if T030b ran.
+    Handle gracefully if missing (T034 requirement logic applies here too).
+    """
+    if not failure_log_path.exists():
+        logger.warning(f"Failure log not found: {failure_log_path}. Proceeding without it.")
+        return []
+    
+    try:
+        with open(failure_log_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Error reading failure log: {e}")
+        return []
 
 def main():
     """
-    Orchestrate the pipeline:
-    1. Log environment (FR-012)
-    2. Load and validate manifest
-    3. Ingest data
-    4. Calculate metrics (placeholder for full pipeline integration)
+    Main entry point for T018.
+    1. Log environment.
+    2. Aggregate results from code/reports/ (or artifacts/reports/).
+    3. Compile failure log.
+    4. Write final aggregated results to artifacts/reports/repro_results.json.
     """
-    logger.info("Starting reproducibility assessment pipeline...")
-    
-    # Step 1: Environment Logging (FR-012)
-    env_snapshot = log_environment()
-    logger.info(f"Python: {env_snapshot['python_version']}")
-    if env_snapshot['docker_hash']:
-        logger.info(f"Docker Hash: {env_snapshot['docker_hash']}")
-    
-    # Step 2: Load Manifest (Mocking for T008 context, assumes T009 will handle full logic)
-    # In a full run, this would load from data/manifest.yaml
-    manifest_path = Path("data/manifest.yaml")
-    if manifest_path.exists():
-        logger.info(f"Loading manifest from {manifest_path}")
-        # ingest_pipeline handles the rest of the logic
-        # ingest_pipeline() 
-    else:
-        logger.warning(f"Manifest not found at {manifest_path}. Skipping ingestion.")
-    
-    logger.info("Environment logging complete. Pipeline ready for execution.")
-    return env_snapshot
+    # Define paths
+    project_root = Path.cwd()
+    results_dir = project_root / 'artifacts' / 'reports'
+    output_file = results_dir / 'repro_results.json'
+    failure_log_path = project_root / 'artifacts' / 'logs' / 'failure_log.json'
 
-if __name__ == "__main__":
-    main()
+    # Ensure output directory exists
+    results_dir.mkdir(parents=True, exist_ok=True)
+
+    # Log environment
+    env_info = log_environment()
+
+    # Aggregate results
+    # T013 produces individual results or a single file.
+    # T018 aggregates them.
+    aggregated_results = aggregate_results(results_dir)
+
+    # If T013 produced a single file 'repro_results.json' already,
+    # we might be re-reading it. The task says "Merge per-paper JSONs".
+    # Assuming T013 might have created per-paper files or a partial list.
+    # If the directory contains the output file we are about to write,
+    # we should be careful not to re-aggregate our own output if running twice.
+    # But for this implementation, we assume the input files are distinct 
+    # or the previous run's output is the source of truth if no new files exist.
+    
+    # If no results were found in the directory (e.g. T013 hasn't run or output is elsewhere),
+    # we might need to look elsewhere, but strictly following T018:
+    # "Merge per-paper JSONs into a list... output as a JSON array."
+    
+    # Write the aggregated results
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(aggregated_results, f, indent=2)
+        logger.info(f"Successfully wrote aggregated results to {output_file}")
+        print(f"Aggregation complete. Output: {output_file}")
+    except Exception as e:
+        logger.error(f"Failed to write output file: {e}")
+        sys.exit(1)
+
+    # Compile failure log (optional for T018, but good practice)
+    failure_log = compile_failure_log(failure_log_path)
+    if failure_log:
+        logger.info(f"Loaded {len(failure_log)} failure entries.")
+
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

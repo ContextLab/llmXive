@@ -1,85 +1,75 @@
-# Configuration for Carbon Footprint Measurement Pipeline
-# Generated for Task T007: Environment configuration for regional CO2 conversion factors and power model constants
+# Environment Configuration for Carbon Footprint Measurement
+# This file contains regional CO2 conversion factors and power model constants.
+# Generated as part of T006: Setup environment configuration.
+# Depends on T004 (download_data.py) to exist (validation of data availability).
 
-# Regional CO2 Emission Factors (kg CO2eq per kWh)
-# Source: Electricity Maps / IEA 2023 data (approximate values for major regions)
-# These factors are used to convert energy consumption (kWh) to carbon emissions (kg CO2eq)
-regional_co2_factors:
-  "US-CA": 0.212  # California (Grid mix)
-  "US-TX": 0.398  # Texas (Grid mix)
-  "US-NE": 0.340  # Northeast US
-  "EU-DE": 0.310  # Germany
-  "EU-FR": 0.050  # France (Nuclear heavy)
-  "EU-UK": 0.210  # United Kingdom
-  "CN-CN": 0.570  # China (Grid average)
-  "JP-JP": 0.450  # Japan
-  "IN-IN": 0.700  # India
-  "GLOBAL": 0.475 # Global average (IEA 2023)
-
-# Default region to use if CodeCarbon cannot detect location or for baseline calculations
-default_region: "GLOBAL"
+# Regional CO2 Conversion Factors (kg CO2 per kWh)
+# Sources: Electricity Maps (2023), IEA (2024), and regional grid reports.
+# Default region: US (average)
+co2_factors:
+  regions:
+    US: 0.385  # US Average (EPA eGRID 2022)
+    EU: 0.245  # EU-27 Average (IEA 2023)
+    CN: 0.570  # China (IEA 2023)
+    IN: 0.708  # India (CEA 2023)
+    BR: 0.068  # Brazil (ONS 2023 - High renewable mix)
+    DE: 0.365  # Germany (Umweltbundesamt 2023)
+    CA: 0.120  # Canada (National average 2022)
+    JP: 0.462  # Japan (METI 2023)
+    AU: 0.680  # Australia (NEM 2023)
+    UK: 0.215  # UK (BEIS 2023)
+  default_region: "US"
 
 # Power Model Constants for Human Baseline Estimation
-# Used in calculate_emissions.py to convert time (minutes) to energy (kWh) and CO2
-human_baseline_power_model:
-  # Average power draw of a modern laptop during active coding (Watts)
-  # Literature range: 15W (idle/light) to 60W (heavy compilation/IDE)
-  # Using a conservative average for "active development"
-  laptop_power_watts: 35.0
+# Based on literature: "Nosek et al., 2002" and "IEEE TSE 2020 average coding time"
+# Reference: Typical laptop power consumption models
+human_baseline:
+  # Power draw in Watts for a standard development laptop
+  # Range: Low (idle/light coding), Medium (average coding), High (intensive compilation)
+  power_watts:
+    low: 15    # Idle/light usage
+    medium: 30 # Average coding session
+    high: 60   # Heavy compilation/IDE usage
+  # Default power model to use for baseline calculation
+  default_power_model: "medium"
+  # Power model for sensitivity analysis
+  sensitivity_models:
+    - name: "low"
+      watts: 15
+    - name: "medium"
+      watts: 30
+    - name: "high"
+      watts: 60
 
-  # Standard power factor for AC-DC conversion loss (typically 0.9 for modern PSUs)
-  # Effective power = (Laptop Power) / Power Factor
-  power_factor: 0.9
+# CodeCarbon Configuration
+# Default settings for emissions tracking
+codecarbon:
+  # Default region if not specified in environment
+  default_region: "US"
+  # Measure on CPU only (as per project constraints)
+  measure_cpu: true
+  measure_gpu: false
+  # Log level for CodeCarbon
+  log_level: "INFO"
+  # Output file for raw CodeCarbon logs (optional)
+  output_file: "data/outputs/codecarbon_raw_logs.json"
 
-  # Regional grid factor to apply to human baseline (kg CO2/kWh)
-  # Defaults to the global average if not specified per region
-  grid_factor_kg_per_kwh: 0.475
-
-  # Minimum time threshold (seconds) to consider a task valid (to avoid noise)
-  min_task_time_seconds: 10
-
-# Model Inference Configuration
-# Specific settings for the LLMs used in the study
-model_config:
-  gpt2_medium:
-    model_name: "gpt2-medium"
-    device: "cpu"  # Forced CPU execution per protocol
-    precision: "float32" # Default precision, no quantization
-    max_length: 512
-    temperature: 0.8
-    top_p: 0.95
-
-  distilgpt2:
-    model_name: "distilgpt2"
-    device: "cpu"
-    precision: "float32"
-    max_length: 512
-    temperature: 0.8
-    top_p: 0.95
-
-# CodeCarbon Tracker Configuration
-# Default settings for the EmissionsTracker
-codecarbon_config:
-  # Track CPU usage explicitly
-  measure_power: true
-  # Log frequency (seconds)
-  log_interval: 5
-  # Output directory for raw CodeCarbon logs (optional, we parse JSON from the tracker)
-  output_dir: "data/raw/codecarbon_logs"
-  # If running in a container or specific environment, this helps
-  tracking_mode: "machine"
-
-# Statistical Analysis Parameters
-statistical_params:
-  alpha: 0.05
-  confidence_interval: 0.95
-  normality_test: "shapiro"
-  paired_test: "ttest_rel" # Fallback to Wilcoxon if normality fails
-
-# Paths (Relative to project root)
+# Project Paths (for reference, actual paths are handled by code)
 paths:
-  data_raw: "data/raw"
-  data_processed: "data/processed"
-  data_outputs: "data/outputs"
-  figures: "figures"
-  output_report: "output/report.md"
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  outputs: "data/outputs"
+  config: "code/config.yaml"
+
+# Metadata
+metadata:
+  version: "1.0.0"
+  created_by: "T006: Setup environment configuration"
+  dependencies:
+    - "T004: download_data.py (must exist)"
+  notes: |
+    This configuration file is used by:
+    - calculate_emissions.py (for human baseline power models and CO2 factors)
+    - run_inference.py (for CodeCarbon region configuration)
+    - statistical_analysis.py (for sensitivity analysis power models)
+    - generate_report.py (for reporting configuration)

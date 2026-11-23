@@ -1,0 +1,101 @@
+# Research: Predicting Reaction Mechanisms from Spectroscopic Data with Machine Learning
+
+## Overview
+
+This research phase investigates the feasibility of distinguishing between SN1, SN2, and E1 reaction mechanisms using only IR and NMR spectral data. The core hypothesis is that specific spectral fingerprints (peaks and shifts) contain sufficient information to classify the mechanism with statistical significance, even without explicit structural descriptors.
+
+## Dataset Strategy
+
+The project relies on open, directly downloadable datasets. Based on the "Verified datasets" block provided in the spec, the following strategy is adopted:
+
+| Dataset Role | Source Name | Verified URL | Load Method | Notes |
+|:--- |:--- |:--- |:---:--- |
+| **NMR Spectra** | `Marshtomp/chemistry_nmr_demo` | ` | `pandas.read_csv` | Contains NMR data. Must be filtered for mechanism labels. |
+| **NIST Data** | `NIST Chemistry WebBook (Verified Mirror)` | ` (Programmatic access) | `requests` + Parsing | **REPLACED**: `rkreddyp/nist_800_53` removed due to name mismatch (Security vs Chemistry). |
+| **PubChem Data** | `sagawa/pubchem-10m-canonicalized` | ` | `datasets.load_dataset` | Large scale. Will be sampled/streamed for mechanism-labeled entries. |
+
+**Removed Datasets**:
+- `rkreddyp/nist_800_53`: Name implies NIST Security (800-53), not Chemistry.
+- `sn2k/distilabel-gpt-example`: Synthetic LLM data violates FR-008 (kinetic provenance).
+- `Elzorro99/DTS-SN1-15-01-2024`: Unverified user upload, no provenance guarantee.
+
+**Dataset Fit & Mismatch Analysis**:
+- **Variable Fit**: The spec requires IR (4000-400 cm-1) and NMR (0-12 ppm) data. The `Marshtomp` dataset is explicitly NMR. The NIST WebBook contains both. We will merge sources only if they share a common reaction ID or can be linked via SMILES.
+- **Label Provenance (Critical)**: FR-008 requires labels derived from *kinetic studies* or *validated intermediates*, not just product structure.
+ - *Risk*: Most public datasets label mechanisms based on product structure (e.g., "primary alkyl halide -> SN2").
+ - *Mitigation*: The ingestion script will check for a `provenance` field. **If absent**, the dataset is **excluded** from the "Kinetic" set.
+ - *Fallback Pivot*: If no dataset provides kinetic-validated labels (expected), the study explicitly pivots to a **"Structure-Verified" Baseline**. In this pivot, the research question is reframed to: "Can spectral data distinguish mechanisms *as labeled by standard structural rules*?" This is a valid scientific question, but the report will explicitly state that the "Kinetic" hypothesis could not be tested due to data gaps.
+
+**Data Access Strategy**:
+- **Streaming**: For large datasets like `sagawa/pubchem-10m-canonicalized`, the implementation will use `datasets.load_dataset(..., streaming=True)` to avoid loading >7GB into RAM.
+- **Sampling**: If the total count of valid, labeled reactions exceeds 5,000, a stratified random sample (seed=42) will be taken to meet the computational constraint (Principle VII).
+- **No Gated Data**: No datasets requiring credentials are used. All sources are public.
+
+## Statistical Methodology
+
+### Model Selection
+- **Random Forest (RF)**: Chosen for robustness to noise and inherent feature importance metrics.
+- **XGBoost**: Chosen for high performance on tabular data and speed.
+- **Hyperparameters**: Default grids will be used initially, with `max_depth` capped at 10 to prevent overfitting and ensure speed. `n_estimators` will be set to 100.
+
+### Cross-Validation & Batch Effect Control
+- **Method**: **Source-Stratified 5-fold Cross-Validation**.
+- **Rationale**: Standard stratified CV by label is insufficient if SN1 data comes from Source A and SN2 from Source B. The model would learn "Source A = SN1" rather than "Spectrum = SN1".
+- **Implementation**: Each sample is assigned a `source_id` (derived from `provenance` field if present, otherwise the dataset URL). The 5-fold split ensures that samples from the same `source_id` are not split across train/test folds (or are balanced across folds if the source is large).
+
+### Significance Testing (Permutation Test)
+- **Procedure**:
+ 1. Train the model on the **training fold** of the CV split.
+ 2. Evaluate on the **test fold** to get $S_{true}$.
+ 3. **Within the same test fold**, shuffle the labels $N=200$ times.
+ 4. For each shuffle, re-evaluate the **frozen** model (no retraining) to get $S_{shuffled}$.
+ 5. Calculate p-value: $P(S_{shuffled} \ge S_{true})$.
+- **Justification**: N=200 provides >95% statistical power to detect p<0.05 for large effect sizes (Cohen's d > 0.8) while keeping the 5-fold x 200 = 1000 evaluations feasible within 6 hours. Retraining 5000 times is avoided by using the "frozen model" approximation on the test set.
+- **Threshold**: $\alpha = 0.05$.
+
+### Multiple Comparison Correction
+- **Method**: Benjamini-Hochberg (BH) procedure.
+- **Application**: Applied to the p-values generated by **per-bin permutation tests** (testing each bin's null hypothesis of no predictive power), not raw importance scores.
+
+### Interpretability & Validation
+- **Feature Importance**: Extracted from RF/XGBoost.
+- **Structure Decoupling (FR-009)**: To verify features are not proxies for product structure:
+ 1. Train a "Structure-Only" model using SMILES-based descriptors.
+ 2. Train a "Spectrum+Structure" model.
+ 3. Compare feature importance of spectral bins in both. If spectral importance drops to near zero in the combined model, the features are identified as proxies.
+- **Literature Cross-Reference (FR-010)**:
+ 1. Map top 10 bins to frequency ranges (e.g., 1700 cm-1).
+ 2. Compare against a curated lookup table of known **intermediate** and **reactant/product** vibrational modes (NOT transition states, which are unobservable).
+ 3. **Match Rate**: A match is counted if the bin's range is within ±10 cm-1 of a known mode.
+- **Collinearity Check**: If spectral bins are highly correlated, aggregate them or report the cluster.
+
+## Decision/Rationale: CPU vs. GPU
+
+- **Choice**: **CPU-First**.
+- **Rationale**:
+ 1. **Model Type**: Random Forest and XGBoost are classical tree-based models that run efficiently on CPU. They do not require GPU acceleration.
+ 2. **Dataset Size**: The dataset is capped at < 5,000 samples. This is trivial for CPU-based tree algorithms.
+ 3. **Constraints**: The GitHub Actions free tier (standard CPU and memory allocation) is sufficient for this workload.
+ 4. **No GPU Need**: There is no requirement for deep learning (Transformers, CNNs) or large-scale matrix multiplication that would necessitate the "GPU escape hatch."
+- **Conclusion**: The entire pipeline (ingestion, preprocessing, training, permutation testing) will run on the CPU runner. No CUDA dependencies are planned.
+
+## Edge Case Handling
+
+1. **Under-sampled Classes (< 50 samples)**:
+ - *Action*: The ingestion script will count samples per class. If any class (SN1, SN2, E1) has < 50 samples, it will be flagged.
+ - *Outcome*: The model will be trained on the remaining classes, or if a class is critical to the research question, the run will abort with a "Data Insufficiency" error, logging the exact counts.
+2. **Missing Labels**:
+ - *Action*: Rows with `NaN` or missing mechanism labels are dropped immediately during ingestion.
+ - *Logging*: A warning is logged for each dropped row.
+3. **Spectral Noise**:
+ - *Action*: Preprocessing calculates the variance of each spectrum. Spectra with variance > 3 standard deviations from the mean are flagged as outliers and excluded.
+4. **Marginal Significance (p ~ 0.05)**:
+ - *Action*: The report will explicitly state the exact p-value (e.g., "p = 0.051") and label it "marginally significant" rather than a binary pass/fail.
+5. **Provenance Field Absence**:
+ - *Action*: If the `provenance` field is missing from all datasets, the pipeline triggers the "Structure-Verified" pivot. The final report will explicitly state: "Kinetic validation data was not available; results reflect structure-based labels."
+
+## References
+
+- **NMR Data**: Marshtomp/chemistry_nmr_demo (Hugging Face)
+- **NIST Data**: NIST Chemistry WebBook (Verified Mirror)
+- **PubChem Data**: sagawa/pubchem-10m-canonicalized (Hugging Face)

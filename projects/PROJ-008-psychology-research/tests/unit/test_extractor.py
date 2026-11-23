@@ -1,134 +1,148 @@
 """
 Unit tests for the data extractor module.
-
-Tests regex pattern matching for mindfulness components, delivery formats,
-and social skill domains.
 """
-
 import pytest
 from code.data.extractor import (
-    extract_mindfulness_components,
+    extract_intervention_components,
+    extract_social_skill_domain,
     extract_delivery_format,
-    extract_social_skill_domains,
+    extract_blinding_status,
     extract_study_metadata
 )
-from code.data.models import MindfulnessComponent, DeliveryFormat, SocialSkillDomain
 
-class TestMindfulnessComponentExtraction:
-    def test_breathing_pattern(self):
-        text = "The intervention included breathing exercises and meditation."
-        components = extract_mindfulness_components(text)
-        assert MindfulnessComponent.BREATHING in components
-        assert MindfulnessComponent.MEDITATION in components
+class TestExtractInterventionComponents:
+    def test_detects_breathing(self):
+        text = "The intervention includes daily breathing exercises."
+        result = extract_intervention_components(text)
+        assert "breathing" in result
 
-    def test_body_scan_pattern(self):
-        text = "Participants practiced body scan meditation daily."
-        components = extract_mindfulness_components(text)
-        assert MindfulnessComponent.BODY_SCAN in components
+    def test_detects_body_scan(self):
+        text = "Participants engaged in body scan meditation."
+        result = extract_intervention_components(text)
+        assert "body scan" in result
 
-    def test_yoga_pattern(self):
-        text = "The program incorporated yoga and mindful movement."
-        components = extract_mindfulness_components(text)
-        assert MindfulnessComponent.YOGA in components
-        assert MindfulnessComponent.MINDFUL_MOVEMENT in components
+    def test_detects_mindful_movement(self):
+        text = "The program features mindful movement practices."
+        result = extract_intervention_components(text)
+        assert "mindful movement" in result
 
-    def test_loving_kindness_pattern(self):
-        text = "Loving kindness meditation was a key component."
-        components = extract_mindfulness_components(text)
-        assert MindfulnessComponent.LOVING_KINDNESS in components
+    def test_detects_mindful_eating(self):
+        text = "Mindful eating techniques were taught to participants."
+        result = extract_intervention_components(text)
+        assert "mindful eating" in result
 
-    def test_generic_fallback(self):
-        text = "This mindfulness program was effective."
-        components = extract_mindfulness_components(text)
-        assert MindfulnessComponent.GENERIC in components
+    def test_detects_multiple_components(self):
+        text = "The intervention combines breathing exercises and body scan meditation."
+        result = extract_intervention_components(text)
+        assert "breathing" in result
+        assert "body scan" in result
 
-    def test_no_components(self):
-        text = "This is a control group with no mindfulness intervention."
-        components = extract_mindfulness_components(text)
-        assert len(components) == 0
+    def test_empty_text(self):
+        result = extract_intervention_components(None)
+        assert result == []
 
-class TestDeliveryFormatExtraction:
-    def test_individual_format(self):
-        text = "The intervention was delivered on a one-on-one basis."
-        formats = extract_delivery_format(text)
-        assert DeliveryFormat.INDIVIDUAL in formats
+    def test_no_match(self):
+        text = "The study focused on general health outcomes."
+        result = extract_intervention_components(text)
+        assert result == []
 
-    def test_group_format(self):
-        text = "Participants attended group sessions twice weekly."
-        formats = extract_delivery_format(text)
-        assert DeliveryFormat.GROUP in formats
-
-    def test_online_format(self):
-        text = "The program was delivered via an online platform."
-        formats = extract_delivery_format(text)
-        assert DeliveryFormat.ONLINE in formats
-
-    def test_hybrid_format(self):
-        text = "A hybrid model combining in-person and virtual sessions."
-        formats = extract_delivery_format(text)
-        assert DeliveryFormat.HYBRID in formats
-
-class TestSocialSkillDomainExtraction:
+class TestExtractSocialSkillDomain:
     def test_communication_domain(self):
-        text = "The study measured improvements in communication skills."
-        domains = extract_social_skill_domains(text)
-        assert SocialSkillDomain.COMMUNICATION in domains
+        text = "The study measured improvements in speech and language skills."
+        result = extract_social_skill_domain(text)
+        assert result == "communication"
 
-    def test_empathy_domain(self):
-        text = "Participants showed increased empathetic responses."
-        domains = extract_social_skill_domains(text)
-        assert SocialSkillDomain.EMPATHY in domains
-
-    def test_peer_relationships_domain(self):
-        text = "Peer relationships were assessed through observation."
-        domains = extract_social_skill_domains(text)
-        assert SocialSkillDomain.PEER_RELATIONSHIPS in domains
+    def test_peer_interaction_domain(self):
+        text = "Participants showed improved peer interaction and group play."
+        result = extract_social_skill_domain(text)
+        assert result == "peer interaction"
 
     def test_emotional_regulation_domain(self):
-        text = "Emotional regulation was a primary outcome measure."
-        domains = extract_social_skill_domains(text)
-        assert SocialSkillDomain.EMOTIONAL_REGULATION in domains
+        text = "The intervention targeted emotion regulation and tantrum reduction."
+        result = extract_social_skill_domain(text)
+        assert result == "emotional regulation"
 
-class TestStudyMetadataExtraction:
-    def test_complete_study_extraction(self):
-        study_data = {
-            "nct_id": "NCT01234567",
-            "title": "Mindfulness for ASD",
-            "abstract": "This study examines mindfulness effects on social skills.",
-            "intervention_description": "Breathing exercises and group sessions.",
-            "age_criteria": "6 to 12 years",
-            "source": "ClinicalTrials.gov"
+    def test_mixed_domain(self):
+        text = "The study assessed both speech skills and peer interaction abilities."
+        result = extract_social_skill_domain(text)
+        assert result == "mixed"
+
+    def test_other_domain(self):
+        text = "The study focused on general social skill development."
+        result = extract_social_skill_domain(text)
+        assert result == "other"
+
+    def test_empty_text(self):
+        result = extract_social_skill_domain(None)
+        assert result == "other"
+
+class TestExtractDeliveryFormat:
+    def test_caregiver_mediated(self):
+        text = "The intervention was caregiver-mediated with parent involvement."
+        result = extract_delivery_format(text)
+        assert result == "caregiver-mediated"
+
+    def test_child_led(self):
+        text = "The program was child-led and self-directed."
+        result = extract_delivery_format(text)
+        assert result == "child-led"
+
+    def test_mixed_format(self):
+        text = "The study included both caregiver-mediated and child-led components."
+        result = extract_delivery_format(text)
+        assert result == "mixed"
+
+    def test_not_reported(self):
+        text = "The study did not specify the delivery format."
+        result = extract_delivery_format(text)
+        assert result == "not-reported"
+
+    def test_empty_text(self):
+        result = extract_delivery_format(None)
+        assert result == "not-reported"
+
+class TestExtractBlindingStatus:
+    def test_blinded(self):
+        record = {
+            "rater_type": "blinded",
+            "blinded_assessment_flag": True
         }
-        
-        study = extract_study_metadata(study_data)
-        
-        assert study is not None
-        assert study.nct_id == "NCT01234567"
-        assert study.title == "Mindfulness for ASD"
-        assert MindfulnessComponent.BREATHING in study.mindfulness_components
-        assert DeliveryFormat.GROUP in study.delivery_formats
-        assert study.min_age == 6
-        assert study.max_age == 12
+        result = extract_blinding_status(record)
+        assert result["rater_type"] == "blinded"
+        assert result["blinded_assessment_flag"] is True
 
-    def test_missing_fields(self):
-        study_data = {
-            "nct_id": "NCT01234567",
-            "title": "Incomplete Study",
-            # Missing other fields
+    def test_unblinded(self):
+        record = {
+            "rater_type": "unblinded",
+            "blinded_assessment_flag": False
         }
-        
-        study = extract_study_metadata(study_data)
-        
-        assert study is not None
-        assert study.nct_id == "NCT01234567"
-        assert study.mindfulness_components == []
-        assert study.delivery_formats == []
+        result = extract_blinding_status(record)
+        assert result["rater_type"] == "unblinded"
+        assert result["blinded_assessment_flag"] is False
 
-    def test_invalid_data(self):
-        study_data = {}
-        study = extract_study_metadata(study_data)
-        
-        assert study is None
+    def test_unknown(self):
+        record = {
+            "rater_type": "unknown",
+            "blinded_assessment_flag": False
+        }
+        result = extract_blinding_status(record)
+        assert result["rater_type"] == "unknown"
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+class TestExtractStudyMetadata:
+    def test_full_extraction(self):
+        record = {
+            "id": "test-001",
+            "description": "A breathing and body scan intervention for peer interaction.",
+            "abstract": "This study focuses on speech and language skills.",
+            "intervention_components": ["breathing", "body scan"],
+            "delivery_format": "caregiver-mediated",
+            "rater_type": "blinded",
+            "blinded_assessment_flag": True
+        }
+        result = extract_study_metadata(record)
+        assert "breathing" in result["intervention_components"]
+        assert "body scan" in result["intervention_components"]
+        assert result["social_skill_domain"] in ["communication", "peer interaction", "mixed"]
+        assert result["delivery_format"] == "caregiver-mediated"
+        assert result["rater_type"] == "blinded"
+        assert result["blinded_assessment_flag"] is True

@@ -8,6 +8,7 @@ resolver behavior the librarian now subsumes.
 from __future__ import annotations
 
 import os
+from typing import ClassVar
 
 import pytest
 
@@ -165,14 +166,13 @@ def test_direct_403_is_present_not_unreachable(monkeypatch):
     e.g. a publisher page, OEIS behind Cloudflare, KnotInfo) must classify as
     present_ambiguous (the reference EXISTS), NOT unreachable. The old code
     required a redirect chain and hard-blocked these real-but-bot-hostile refs."""
-    import requests as _rq
 
     from llmxive.librarian import verify as _v
 
     class _Resp:
         status_code = 403
         url = "https://www.worldscientific.com/doi/abs/10.1142/X"
-        history: list = []  # NO redirect
+        history: ClassVar[list] = []  # NO redirect
 
     monkeypatch.setattr(_v.requests, "head", lambda *a, **k: _Resp())
     out = _v.resolve_reference("url", "https://www.worldscientific.com/doi/abs/10.1142/X")
@@ -189,7 +189,7 @@ def test_direct_404_is_still_unreachable(monkeypatch):
     class _Resp:
         status_code = 404
         url = "https://example.com/fabricated-path"
-        history: list = []
+        history: ClassVar[list] = []
 
     monkeypatch.setattr(_v.requests, "head", lambda *a, **k: _Resp())
     out = _v.resolve_reference("url", "https://example.com/fabricated-path")

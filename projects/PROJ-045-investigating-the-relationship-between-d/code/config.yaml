@@ -1,0 +1,60 @@
+# Project Configuration for PROJ-045
+# This file controls environment-specific settings for the analysis pipeline.
+# Can be overridden by environment variables (e.g., LOG_LEVEL=DEBUG).
+
+project:
+  name: "PROJ-045-investigating-the-relationship-between-d"
+  version: "1.0.0"
+  root_dir: "."
+
+logging:
+  # Valid levels: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  # Default log file for the main pipeline
+  file: "data/processed/pipeline.log"
+
+data:
+  # Paths relative to project root
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  results_dir: "data/results"
+  figures_dir: "figures"
+
+# External API Configuration
+# These can be set via environment variables: OBELIX_API_KEY, MP_API_KEY
+apis:
+  obelix:
+    base_url: "https://api.obelix-db.org/v1"
+    timeout_seconds: 30
+    retry_attempts: 5
+  materials_project:
+    base_url: "https://materialsproject.org/rest/v2"
+    timeout_seconds: 30
+    retry_attempts: 5
+
+# Analysis Parameters
+analysis:
+  # BVS Validation Threshold (FR-002)
+  bvs_deviation_threshold: 0.10  # 10%
+  # Crystallographic Constraints
+  li_o_distance_min: 2.0  # Angstroms
+  li_o_distance_max: 2.2  # Angstroms
+  # Regression Settings
+  regression_alpha: 0.05
+  vif_threshold: 5.0
+  # Defect Density
+  defect_density_unit: "defects/A^3"
+
+# Execution Constraints
+execution:
+  # CPU-only limits (as per plan.md)
+  max_cores: 4
+  max_memory_gb: 16
+  timeout_seconds: 3600  # 1 hour default job timeout
+  # DFT Settings (Hybrid Strategy)
+  dft:
+    supercell_min_size: "2x2x2"
+    supercell_fallback_size: "3x3x3"
+    k_mesh_density: 0.03  # k-points per reciprocal atom
+    energy_cutoff_eV: 500

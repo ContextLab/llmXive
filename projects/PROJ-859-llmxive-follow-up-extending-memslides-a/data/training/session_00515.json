@@ -1,0 +1,218 @@
+{
+  "trace_id": "training_42_00515",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "resize_element",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_text",
+    "format_text",
+    "format_text",
+    "insert_chart",
+    "insert_chart",
+    "update_layout",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 5.7803
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 34.2102
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 58.9854
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 3.1351,
+        "height": 99.3528
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 71.9921,
+        "y": 66.5808,
+        "length": 58.6149
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 55.0561,
+        "y": 20.8781,
+        "length": 84.6636
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 40.1462,
+        "y": 45.8248,
+        "length": 52.0428
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 47.831,
+        "padding": 30.9856
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 9.7397,
+        "padding": 21.4555
+      }
+    },
+    {
+      "step": 9,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 20.2198,
+        "padding": 79.3554
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 28.2098,
+        "padding": 52.6152
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 77.2447,
+        "y": 5.9439,
+        "length": 2.9909
+      }
+    },
+    {
+      "step": 12,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 7.9468,
+        "x": 22.3402,
+        "y": 15.7388
+      }
+    },
+    {
+      "step": 13,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 30.7213,
+        "x": 93.6838,
+        "y": 98.5916
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 49.1719,
+        "y": 97.3658,
+        "width": 27.798,
+        "height": 43.7683,
+        "data_points": 56.8139
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 96.1774,
+        "y": 41.2777,
+        "width": 99.037,
+        "height": 41.3312,
+        "data_points": 38.7486
+      }
+    },
+    {
+      "step": 16,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 51.1985,
+        "padding": 49.6531
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 19.4651,
+        "y": 9.9776,
+        "width": 60.5635,
+        "height": 37.7592,
+        "data_points": 14.5272
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 15.5203,
+        "y": 77.7989,
+        "width": 63.1836,
+        "height": 5.5687,
+        "data_points": 16.5934
+      }
+    },
+    {
+      "step": 19,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 24.9812,
+        "y": 12.9639,
+        "width": 89.664,
+        "height": 28.697,
+        "data_points": 37.228
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.679648,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 813.936843
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 18,
+    "layout_hash": "42-515-update_layout"
+  }
+}

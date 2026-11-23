@@ -1,0 +1,38 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Prediction Output Schema
+description: Schema for model predictions and errors
+type: object
+properties:
+  mol_id:
+    type: string
+    description: Unique molecule identifier
+  true_mu:
+    type: number
+    minimum: 0
+    description: Ground truth dipole moment (Debye)
+  pred_mu_gnn:
+    type: number
+    description: SchNet GNN prediction
+  pred_mu_rf:
+    type: number
+    description: Random Forest prediction
+  error_gnn:
+    type: number
+    minimum: 0
+    description: Absolute error for GNN
+  error_rf:
+    type: number
+    minimum: 0
+    description: Absolute error for Random Forest
+  seed:
+    type: integer
+    description: Random seed used for this prediction
+required:
+  - mol_id
+  - true_mu
+  - pred_mu_gnn
+  - pred_mu_rf
+  - error_gnn
+  - error_rf
+  - seed
+additionalProperties: false

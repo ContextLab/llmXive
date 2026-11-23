@@ -1,0 +1,2 @@
+# This directory is for raw and processed data.
+# Data files should be tracked via DVC or Git LFS, not standard git.

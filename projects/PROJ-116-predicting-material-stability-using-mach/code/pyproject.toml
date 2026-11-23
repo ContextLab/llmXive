@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "material-stability-pipeline"
+version = "0.1.0"
+description = "Predicting material stability using machine learning and DFT"
+requires-python = ">=3.11"
+dependencies = [
+    "pymatgen",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "seaborn",
+    "requests",
+    "datasets",
+    "shap",
+    "matminer",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["utils", "scripts"]
+known_third_party = ["pymatgen", "sklearn", "pandas", "numpy", "matplotlib", "seaborn", "requests", "datasets", "shap", "matminer"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

@@ -1,0 +1,66 @@
+# Configuration for llmXive Physics Filter Pipeline
+# This file defines the schema and parameters for the project.
+# The 'filter' section contains the experimental parameter for the percentile-based filter.
+
+project:
+  name: "PROJ-951-llmxive-follow-up-extending-physisforcin"
+  version: "0.1.0"
+  root_dir: "."
+
+environment:
+  cpu_only: true
+  seed: 42
+  max_memory_gb: 7.0
+
+data:
+  raw_dir: "data/raw"
+  curated_dir: "data/curated"
+  eval_dir: "data/eval"
+  validation_dir: "data/validation"
+  control_dir: "data/control"
+  prompts_file: "data/prompts.jsonl"
+
+generation:
+  model_id: "Wan-AI/Wan2.1-Turbo"
+  batch_size: 1
+  offload_enabled: true
+  offload_kaggle_key: null # Set via environment variable or secret manager
+
+filter:
+  # The percentage of videos to discard from the bottom of the score distribution.
+  # Example: 40 means discard the bottom 40% of videos.
+  # The actual score threshold is calculated dynamically as the `discard_percentile`
+  # percentile of the current batch's score distribution.
+  discard_percentile: 40
+  continuity_weight: 0.5
+  contact_weight: 0.5
+  min_score_threshold: 0.0
+
+training:
+  model_type: "unet"
+  base_channels: 64
+  down_blocks: 3
+  up_blocks: 3
+  attention_heads: 8
+  batch_size: 2
+  learning_rate: 1.0e-4
+  max_epochs: 10
+  patience: 2
+  quantization_8bit: true
+  gradient_checkpointing: true
+  timeout_seconds: 14400  # 4 hours
+
+evaluation:
+  r_bench_enabled: true
+  pai_bench_enabled: true
+  tost_margin: 0.15
+  power_analysis_alpha: 0.05
+  power_analysis_power: 0.80
+  eval_sample_size: 30
+
+logging:
+  level: "INFO"
+  log_dir: "logs"
+  json_logs: true
+  rotation_max_mb: 100
+  rotation_backup_count: 5

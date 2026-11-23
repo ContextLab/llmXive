@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-08-24T10:11:08.674759+00:00'
+issue_number: 1319
+project_id: PROJ-434-predicting-plant-root-architecture-from-

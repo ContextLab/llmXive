@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+
+# Data
+data/raw/
+data/interim/
+# Keep processed data for CI, but ignore large binaries if needed
+# data/processed/*.nii
+# data/processed/*.dcm
+
+# Reports
+reports/*.pdf
+reports/*.png
+reports/*.jpg
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

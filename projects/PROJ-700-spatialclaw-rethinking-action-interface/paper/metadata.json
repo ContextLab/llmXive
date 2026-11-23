@@ -84,5 +84,15 @@
     "tables/ablation_components.tex",
     "tables/main_results.tex",
     "tables/ablation_action_interface.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "0cf5cecd2ed9fbaabdab5e1aeb7f99ce8df3b7f823e4fbfa85e83450196ec8f1",
+      "bytes": 1633776
+    },
+    "original.pdf": {
+      "sha256": "4ab67eb5730e708f9db9ccd2757c950fc04dd0d97b8703f9b7494da0dc6b7d97",
+      "bytes": 1599337
+    }
+  }
 }

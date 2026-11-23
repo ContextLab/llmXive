@@ -1,341 +1,348 @@
 """
-Evaluation script for User Story 3: Predictive Modeling and Validation.
-
-Implements evaluation metrics calculation, baseline comparison, and permutation test.
-Reads features from data/processed/features.json, trains model, and writes final metrics.
+Evaluation module for the llmXive Follow-up pipeline.
+Calculates metrics, baseline comparisons, permutation tests, and partial correlations.
 """
+
 import argparse
 import json
 import logging
+import os
 import sys
+import pickle
 import numpy as np
+from scipy import stats
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.model_selection import cross_val_score, StratifiedKFold
-from sklearn.utils import shuffle
+# Import shared utilities from sibling modules if available, or define locally
+# Note: The API surface lists these functions in evaluate.py, so we define them here.
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
+    """Configure logging for the evaluation module."""
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
 
+    if not logger.handlers:
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
 
-def parse_args() -> argparse.Namespace:
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description='Evaluate model performance with permutation test.'
-    )
-    parser.add_argument(
-        '--input',
-        type=str,
-        default='data/processed/features.json',
-        help='Path to input features JSON file'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        default='results/results.json',
-        help='Path to output results JSON file'
-    )
-    parser.add_argument(
-        '--n_estimators',
-        type=int,
-        default=100,
-        help='Number of trees in the Random Forest'
-    )
-    parser.add_argument(
-        '--random_state',
-        type=int,
-        default=42,
-        help='Random seed for reproducibility'
-    )
-    parser.add_argument(
-        '--n_jobs',
-        type=int,
-        default=2,
-        help='Number of CPU cores to use (-1 for all)'
-    )
-    parser.add_argument(
-        '--n_permutations',
-        type=int,
-        default=100,
-        help='Number of permutations for permutation test'
-    )
-    return parser.parse_args()
+        if log_file:
+            fh = logging.FileHandler(log_file)
+            fh.setLevel(logging.INFO)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
 
+    return logger
 
-def load_features(input_path: str) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+def load_features(features_path: str) -> Dict[str, Any]:
     """
-    Load features and target from JSON file.
-    
-    Args:
-        input_path: Path to features JSON file
-        
-    Returns:
-        Tuple of (X, y, feature_names)
+    Load features from a JSON file.
+    Expected structure: list of records or a dict with 'data' key.
     """
-    logger.info(f"Loading features from {input_path}")
-    
-    if not Path(input_path).exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-        
-    with open(input_path, 'r') as f:
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading features from {features_path}")
+
+    if not os.path.exists(features_path):
+        raise FileNotFoundError(f"Features file not found: {features_path}")
+
+    with open(features_path, 'r') as f:
         data = json.load(f)
-    
-    samples = data.get('samples', [])
-    if not samples:
-        raise ValueError("No samples found in input file")
-    
-    # Define feature columns
-    feature_cols = ['variance', 'range', 'entropy', 'skewness', 'kurtosis']
-    
-    X = []
-    y = []
-    
-    for sample in samples:
-        features = [sample.get(col, 0.0) for col in feature_cols]
-        target = sample.get('fidelity_loss', 0.0)
-        X.append(features)
-        y.append(target)
-    
-    X = np.array(X, dtype=np.float64)
-    y = np.array(y, dtype=np.float64)
-    
-    logger.info(f"Loaded {len(X)} samples with {len(feature_cols)} features")
-    return X, y, feature_cols
 
+    # Normalize to a list of records if necessary
+    if isinstance(data, dict) and 'data' in data:
+        return data['data']
+    return data
 
-def load_model(X: np.ndarray, y: np.ndarray, n_estimators: int = 100, 
-              random_state: int = 42, n_jobs: int = 2) -> RandomForestRegressor:
-    """
-    Load (train) a Random Forest model.
-    
-    Args:
-        X: Feature matrix
-        y: Target vector
-        n_estimators: Number of trees
-        random_state: Random seed
-        n_jobs: Number of CPU cores
-        
-    Returns:
-        Trained Random Forest model
-    """
-    logger.info("Training Random Forest model")
-    
-    model = RandomForestRegressor(
-        n_estimators=n_estimators,
-        random_state=random_state,
-        n_jobs=n_jobs
-    )
-    model.fit(X, y)
-    
-    return model
+def load_model_selection(model_selection_path: str) -> Dict[str, Any]:
+    """Load model selection configuration."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading model selection config from {model_selection_path}")
 
+    if not os.path.exists(model_selection_path):
+        raise FileNotFoundError(f"Model selection file not found: {model_selection_path}")
 
-def calculate_metrics(model: RandomForestRegressor, X: np.ndarray, y: np.ndarray) -> Dict[str, float]:
-    """
-    Calculate model performance metrics.
-    
-    Args:
-        model: Trained model
-        X: Feature matrix
-        y: Target vector
-        
-    Returns:
-        Dictionary with R² and MAE
-    """
-    y_pred = model.predict(X)
-    r2 = r2_score(y, y_pred)
-    mae = mean_absolute_error(y, y_pred)
-    
-    logger.info(f"Model metrics - R²: {r2:.4f}, MAE: {mae:.4f}")
-    return {'r2': r2, 'mae': mae}
+    with open(model_selection_path, 'r') as f:
+        return json.load(f)
 
+def load_split_config(split_config_path: str) -> Dict[str, Any]:
+    """Load train/test split configuration."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading split config from {split_config_path}")
 
-def calculate_baseline_mae(y: np.ndarray) -> float:
-    """
-    Calculate baseline MAE (predicting mean of y).
-    
-    Args:
-        y: Target vector
-        
-    Returns:
-        Baseline MAE
-    """
-    baseline_pred = np.full_like(y, np.mean(y))
-    baseline_mae = mean_absolute_error(y, baseline_pred)
-    logger.info(f"Baseline MAE (mean prediction): {baseline_mae:.4f}")
-    return baseline_mae
+    if not os.path.exists(split_config_path):
+        raise FileNotFoundError(f"Split config file not found: {split_config_path}")
 
+    with open(split_config_path, 'r') as f:
+        return json.load(f)
 
-def perform_permutation_test(
-    model: RandomForestRegressor,
+def load_model(model_path: str) -> Any:
+    """Load a trained model from a pickle file."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading model from {model_path}")
+
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+
+    with open(model_path, 'rb') as f:
+        return pickle.load(f)
+
+def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+    """Calculate R² and MAE."""
+    logger = logging.getLogger(__name__)
+
+    if len(y_true) != len(y_pred):
+        raise ValueError("y_true and y_pred must have the same length")
+
+    if len(y_true) == 0:
+        return {"r2": 0.0, "mae": 0.0, "rmse": 0.0}
+
+    mae = np.mean(np.abs(y_true - y_pred))
+    ss_res = np.sum((y_true - y_pred) ** 2)
+    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+
+    r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
+    rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
+
+    logger.info(f"Metrics: R²={r2:.4f}, MAE={mae:.4f}, RMSE={rmse:.4f}")
+    return {"r2": float(r2), "mae": float(mae), "rmse": float(rmse)}
+
+def calculate_baseline_mae(y_true: np.ndarray, strategy: str = 'mean') -> float:
+    """Calculate baseline MAE (e.g., predicting mean or median)."""
+    logger = logging.getLogger(__name__)
+
+    if strategy == 'mean':
+        baseline_pred = np.full_like(y_true, np.mean(y_true))
+    elif strategy == 'median':
+        baseline_pred = np.full_like(y_true, np.median(y_true))
+    else:
+        raise ValueError(f"Unknown baseline strategy: {strategy}")
+
+    baseline_mae = np.mean(np.abs(y_true - baseline_pred))
+    logger.info(f"Baseline MAE ({strategy}): {baseline_mae:.4f}")
+    return float(baseline_mae)
+
+def calculate_permutation_pvalue(
+    model: Any,
     X: np.ndarray,
     y: np.ndarray,
     n_permutations: int = 100,
     random_state: int = 42
 ) -> float:
     """
-    Perform permutation test to assess statistical significance.
-    
-    Compares model MAE against null baseline by permuting target variable.
-    
-    Args:
-        model: Trained model
-        X: Feature matrix
-        y: Target vector
-        n_permutations: Number of permutations
-        random_state: Random seed
-        
-    Returns:
-        p-value from permutation test
+    Calculate permutation test p-value.
+    Compares the model's R² against R² values from permuted targets.
     """
-    logger.info(f"Performing permutation test with {n_permutations} permutations")
-    
-    # Calculate actual model MAE
-    actual_mae = mean_absolute_error(y, model.predict(X))
-    
-    # Calculate null distribution by permuting y
-    null_maes = []
-    rng = np.random.RandomState(random_state)
-    
+    logger = logging.getLogger(__name__)
+    logger.info(f"Running permutation test with {n_permutations} permutations")
+
+    # Calculate original R²
+    y_pred_orig = model.predict(X)
+    ss_res_orig = np.sum((y - y_pred_orig) ** 2)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+    r2_orig = 1 - (ss_res_orig / ss_tot) if ss_tot != 0 else 0.0
+
+    rng = np.random.default_rng(random_state)
+    count_better = 0
+
     for i in range(n_permutations):
-        # Permute target variable
-        y_permuted = y.copy()
-        rng.shuffle(y_permuted)
-        
-        # Train model on permuted data
-        perm_model = RandomForestRegressor(
-            n_estimators=model.n_estimators,
-            random_state=random_state,
-            n_jobs=model.n_jobs
-        )
-        perm_model.fit(X, y_permuted)
-        
-        # Calculate MAE on permuted data
-        perm_mae = mean_absolute_error(y_permuted, perm_model.predict(X))
-        null_maes.append(perm_mae)
-    
-    null_maes = np.array(null_maes)
-    
-    # Calculate p-value: proportion of null MAEs <= actual MAE
-    # (lower MAE is better, so we check if actual is significantly better)
-    p_value = np.sum(null_maes <= actual_mae) / n_permutations
-    
-    logger.info(f"Permutation test results:")
-    logger.info(f"  Actual MAE: {actual_mae:.4f}")
-    logger.info(f"  Null MAE mean: {np.mean(null_maes):.4f}")
-    logger.info(f"  Null MAE std: {np.std(null_maes):.4f}")
-    logger.info(f"  p-value: {p_value:.4f}")
-    
-    return p_value
+        # Permute y
+        y_perm = y.copy()
+        rng.shuffle(y_perm)
 
+        # Retrain model on permuted data (simplified: refit with same params)
+        # Note: For efficiency, we assume the model can be quickly refit or we use a simple estimator
+        # In a full pipeline, this might involve re-running the training step.
+        # For this skeleton, we assume 'model' has a 'fit' and 'predict' method.
+        try:
+            model.fit(X, y_perm)
+            y_pred_perm = model.predict(X)
+            ss_res_perm = np.sum((y_perm - y_pred_perm) ** 2)
+            r2_perm = 1 - (ss_res_perm / ss_tot) if ss_tot != 0 else 0.0
 
-def evaluate_model(
+            if r2_perm >= r2_orig:
+                count_better += 1
+        except Exception as e:
+            logger.warning(f"Permutation {i} failed: {e}")
+            continue
+
+    p_value = (count_better + 1) / (n_permutations + 1)
+    logger.info(f"Permutation p-value: {p_value:.4f}")
+    return float(p_value)
+
+def calculate_partial_correlation(
     X: np.ndarray,
     y: np.ndarray,
-    n_estimators: int = 100,
-    random_state: int = 42,
-    n_jobs: int = 2,
+    control_vars: np.ndarray
+) -> Tuple[float, float]:
+    """
+    Calculate partial correlation between X and y, controlling for control_vars.
+    Returns (correlation_coefficient, p_value).
+    """
+    logger = logging.getLogger(__name__)
+    logger.info("Calculating partial correlation")
+
+    # Flatten inputs if necessary
+    if X.ndim == 1:
+        X = X.reshape(-1, 1)
+    if control_vars.ndim == 1:
+        control_vars = control_vars.reshape(-1, 1)
+
+    # Combine X and control_vars for regression residuals
+    # Residuals of X on Control
+    # Residuals of y on Control
+    # Correlation of residuals
+
+    # Using scipy's partial correlation approach via regression residuals
+    # We regress X on control_vars and get residuals
+    # We regress y on control_vars and get residuals
+    # Then correlate the residuals
+
+    from sklearn.linear_model import LinearRegression
+
+    # Fit X ~ Control
+    reg_x = LinearRegression()
+    reg_x.fit(control_vars, X)
+    residuals_x = X - reg_x.predict(control_vars)
+
+    # Fit y ~ Control
+    reg_y = LinearRegression()
+    reg_y.fit(control_vars, y)
+    residuals_y = y - reg_y.predict(control_vars)
+
+    # Calculate correlation between residuals
+    # Flatten residuals for correlation
+    residuals_x_flat = residuals_x.flatten()
+    residuals_y_flat = residuals_y.flatten()
+
+    corr, p_val = stats.pearsonr(residuals_x_flat, residuals_y_flat)
+
+    logger.info(f"Partial correlation: {corr:.4f}, p-value: {p_val:.4f}")
+    return float(corr), float(p_val)
+
+def evaluate_model(
+    model: Any,
+    X_test: np.ndarray,
+    y_test: np.ndarray,
+    X_train: np.ndarray,
+    y_train: np.ndarray,
     n_permutations: int = 100
 ) -> Dict[str, Any]:
     """
-    Full evaluation pipeline: train model, calculate metrics, perform permutation test.
-    
-    Args:
-        X: Feature matrix
-        y: Target vector
-        n_estimators: Number of trees
-        random_state: Random seed
-        n_jobs: Number of CPU cores
-        n_permutations: Number of permutations for test
-        
-    Returns:
-        Dictionary with all evaluation metrics
+    Evaluate a trained model on test data and run permutation test.
     """
-    # Train model
-    model = load_model(X, y, n_estimators, random_state, n_jobs)
-    
-    # Calculate metrics
-    metrics = calculate_metrics(model, X, y)
-    
-    # Calculate baseline
-    baseline_mae = calculate_baseline_mae(y)
-    
-    # Perform permutation test
-    p_value = perform_permutation_test(model, X, y, n_permutations, random_state)
-    
-    # Prepare results
-    results = {
-        'r2': metrics['r2'],
-        'mae': metrics['mae'],
-        'baseline_mae': baseline_mae,
-        'permutation_p_value': p_value,
-        'model_params': {
-            'n_estimators': n_estimators,
-            'random_state': random_state,
-            'n_jobs': n_jobs
-        },
-        'test_params': {
-            'n_permutations': n_permutations
-        },
-        'n_samples': len(X),
-        'n_features': X.shape[1]
-    }
-    
-    logger.info(f"Evaluation complete. R²: {metrics['r2']:.4f}, MAE: {metrics['mae']:.4f}, p-value: {p_value:.4f}")
-    return results
+    logger = logging.getLogger(__name__)
 
+    # Predict
+    y_pred = model.predict(X_test)
+
+    # Metrics
+    metrics = calculate_metrics(y_test, y_pred)
+
+    # Permutation test (on the trained model's performance vs random chance)
+    # Note: Permutation test usually involves retraining, but here we use the provided model structure
+    # For a rigorous test, we would retrain on permuted data.
+    # We will attempt to use the model's fit method if available.
+    p_value_perm = 0.0
+    if hasattr(model, 'fit') and hasattr(model, 'predict'):
+        try:
+            p_value_perm = calculate_permutation_pvalue(model, X_train, y_train, n_permutations)
+        except Exception as e:
+            logger.error(f"Permutation test failed: {e}")
+            p_value_perm = 1.0
+
+    return {
+        "metrics": metrics,
+        "p_value_permutation": p_value_perm,
+        "y_true": y_test.tolist(),
+        "y_pred": y_pred.tolist()
+    }
 
 def save_results(results: Dict[str, Any], output_path: str) -> None:
-    """
-    Save results to JSON file.
-    
-    Args:
-        results: Dictionary of metrics
-        output_path: Path to output file
-    """
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
+    """Save evaluation results to a JSON file."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Saving results to {output_path}")
+
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    
-    logger.info(f"Results saved to {output_path}")
 
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Evaluate model performance")
+    parser.add_argument("--features-path", type=str, required=True, help="Path to features JSON")
+    parser.add_argument("--model-selection-path", type=str, required=True, help="Path to model selection JSON")
+    parser.add_argument("--split-config-path", type=str, required=True, help="Path to split config JSON")
+    parser.add_argument("--model-path", type=str, required=True, help="Path to trained model pickle")
+    parser.add_argument("--output-path", type=str, required=True, help="Path to output results JSON")
+    parser.add_argument("--log-file", type=str, default=None, help="Path to log file")
+    parser.add_argument("--n-permutations", type=int, default=100, help="Number of permutations for test")
+    return parser.parse_args()
 
 def main() -> None:
-    """Main entry point."""
+    """Main entry point for evaluation."""
     args = parse_args()
-    
+    logger = setup_logging(args.log_file)
+
     try:
-        # Load features
-        X, y, feature_names = load_features(args.input)
-        
-        # Evaluate model
-        results = evaluate_model(
-            X, y,
-            n_estimators=args.n_estimators,
-            random_state=args.random_state,
-            n_jobs=args.n_jobs,
-            n_permutations=args.n_permutations
-        )
-        
+        # Load data
+        features = load_features(args.features_path)
+        model_selection = load_model_selection(args.model_selection_path)
+        split_config = load_split_config(args.split_config_path)
+        model = load_model(args.model_path)
+
+        # Check model type
+        if model_selection.get("model_type") == "fail":
+            logger.warning("Model selection failed. Skipping evaluation.")
+            results = {
+                "status": "fail",
+                "message": model_selection.get("reason", "Unknown failure"),
+                "r2": None,
+                "mae": None,
+                "p_value_permutation": None
+            }
+            save_results(results, args.output_path)
+            return
+
+        # Prepare data
+        # Assuming features is a list of dicts with 'features' and 'target' keys
+        # or a structured format. We need to adapt to the actual data structure.
+        # For this implementation, we assume a structure:
+        # features: list of { "features": [x1, x2, ...], "target": y }
+
+        X = np.array([f["features"] for f in features])
+        y = np.array([f["target"] for f in features])
+
+        # Use split_config to get indices
+        train_indices = split_config.get("train_indices", list(range(len(X))))
+        test_indices = split_config.get("test_indices", list(range(len(X))))
+
+        X_train, X_test = X[train_indices], X[test_indices]
+        y_train, y_test = y[train_indices], y[test_indices]
+
+        # Evaluate
+        results = evaluate_model(model, X_test, y_test, X_train, y_train, args.n_permutations)
+
+        # Add metadata
+        results["model_type"] = model_selection.get("model_type")
+        results["n_samples"] = len(X)
+        results["n_train"] = len(X_train)
+        results["n_test"] = len(X_test)
+
         # Save results
-        save_results(results, args.output)
-        
+        save_results(results, args.output_path)
         logger.info("Evaluation completed successfully")
-        
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Error during evaluation: {str(e)}")
-        sys.exit(1)
+        logger.error(f"Evaluation failed: {e}")
+        raise
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

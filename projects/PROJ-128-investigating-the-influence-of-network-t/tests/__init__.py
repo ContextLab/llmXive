@@ -1,3 +1,5 @@
-# llmXive Project: Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
-# Package: tests
-pass
+"""
+Tests package for llmXive project.
+
+This directory contains all unit and integration tests.
+"""

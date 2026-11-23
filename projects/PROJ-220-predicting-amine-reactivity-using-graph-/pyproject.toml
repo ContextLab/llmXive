@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-amine-reactivity"
+version = "0.1.0"
+description = "Predicting Amine Reactivity Using Graph Neural Networks"
+requires-python = ">=3.11"
+dependencies = [
+    "rdkit",
+    "torch",
+    "torch-geometric",
+    "scikit-learn",
+    "shap",
+    "pandas",
+    "datasets",
+    "chembl-webresource-client",
+    "mordred",
+    "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+    "pre-commit",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

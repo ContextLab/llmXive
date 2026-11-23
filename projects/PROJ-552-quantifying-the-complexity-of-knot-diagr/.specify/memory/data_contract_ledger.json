@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "data_file": "data/processed/knots_cleaned.csv",
+    "required": []
+  }
+]

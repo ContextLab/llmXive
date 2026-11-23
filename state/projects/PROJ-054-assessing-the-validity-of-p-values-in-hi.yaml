@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-054-assessing-the-validity-of-p-values-in-hi
-last_run_id: 5f4c7d37-32fc-49ae-995c-d1e276b76696
+last_run_id: 83dcce24-8266-433b-ac2a-a3f6f3d04218
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-054-assessing-the-validity-of-p-values-in-hi/specs/001-assessing-the-validity-of-p-values-in-hi
 title: Assessing the Validity of p-Values in High-Dimensional Data
-updated_at: '2026-07-04T18:14:29.757551Z'
+updated_at: '2026-09-22T15:21:42.873529Z'

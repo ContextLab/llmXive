@@ -1,0 +1,28 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the three required directories (`data/raw/`, `data/processed/`,
+    `data/human/`) or the placeholder `.gitkeep` files was provided; without these
+    artifacts the task of initializing the data folders cannot be confirmed as done.
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided material contains only feature specifications and user stories;
+    there is no `tests/` directory, no `pytest` configuration file (e.g., `pytest.ini`,
+    `conftest.py`), nor any test files. Consequently the required test infrastructure
+    is missing.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were supplied that add logging to the data
+    ingestion, filtering, and stratification pipeline. The claim lacks any concrete
+    artifact (e.g., Python module with logging statements, log output examples, or
+    documentation of the logging setup), so the requirement is not met.
+T051:
+  c: false
+  h: cd24156c63b63a0ecdbdf17dcea0f2583d25f00b3e3672b3e144b9309f13e0dd
+  r: The repository lacks any code that computes or logs the mean VADER sentiment
+    difference and writes `data/processed/stratification_report.json`. `code/analysis/stats.py`
+    contains unrelated statistical utilities, and `code/data/stimuli.py` does not
+    exist, nor is the required JSON report present. Implement the validation logic
+    (in either file) and generate the JSON report.

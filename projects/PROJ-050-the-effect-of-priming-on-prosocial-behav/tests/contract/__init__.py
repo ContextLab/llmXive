@@ -1,1 +1,1 @@
-"""Contract tests for schema and interface validation."""
+# Contract test package initialization

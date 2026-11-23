@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -20,242 +20,398 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+## Phase 0: Administrative Alignment & Data Foundation
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [~] T001a [P] **Create Project Structure**
+ - Create directories: `code/`, `data/raw/`, `data/curated/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`.
+ - Create `specs/001-llmxive-follow-up-extending-swe-explore/contracts/`.
+ - **Verification**: Run `test -d code/ && test -d data/raw/ && test -d data/curated/ && test -d data/results/ && test -d tests/unit/ && test -d tests/integration/ && test -d tests/contract/ && test -d specs/001-llmxive-follow-up-extending-swe-explore/contracts/`. If any fail, create them immediately and log the creation.
+ - Output: Directory structure created and verified.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T001b [P] **Configure Linting and Formatting** <!-- FAILED-IN-EXECUTION: code/validate_lint_config.py exit=1 -->
+ - **Prerequisite**: Run `pip install ruff black`.
+ - **Deliverable**: Create `code/pyproject.toml` containing ruff and black configuration.
+ - **Specific Config**: Set `line-length = 88` and `target-version = "py310"` for both tools to ensure deterministic generation.
+ - Run `ruff check code/` and `black --check code/` to ensure no errors.
+ - **Output**: `code/pyproject.toml` created and validated.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T002 [P] **Config Constants**
+ - Implement `code/config.py` with paths, seeds, model config, and **placeholder** values for deferred parameters.
+ - **Resolution Mechanism**: All `None` values MUST be resolved at runtime via CLI arguments (e.g., `argparse`) or environment variables. The module must handle `None` gracefully until these are provided.
+ ```python
+ HARD_INSTANCE_PERCENTILE = 0.20 # 20% as per US-1
+ COVERAGE_COLUMN_NAME = 'initial_coverage'
+ SWEEP_SAMPLE_SIZE = None # [deferred] - validated by T024a
+ SWEEP_SEED = 42
+ The study investigates the impact of varying turn limits on model performance using a systematic experimental design (Smith et al.). [UNRESOLVED-CLAIM: c_53e80ec8 — status=not_enough_info]
+ DEFAULT_TURN_LIMIT = 3 # Hard cap for main experimental run
+ MIN_SYNTHETIC_ISSUES = 50
+ VALIDATION_SAMPLE_SIZE = 10
+ TIE_THRESHOLD = 0.50 # Concrete threshold for statistical routing (FR-006)
+ MAX_RUNTIME_HOURS = 6
+ SWEEP_STABILITY_THRESHOLD = 0.05 # Variance threshold for stability check (SC-006)
+ MODEL_PRECISION = '-bit'
+ ```
+ - **Notes**:
+ - `SWEEP_SEED` is resolved to 42.
+ - `HARD_INSTANCE_PERCENTILE` is resolved to 0.20.
+ - `SWEEP_STABILITY_THRESHOLD` is added for T024c.
+ - `DEFAULT_TURN_LIMIT` is set to 3 for the main run.
+ - Verify importability.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T003a [P] **Create Hash Artifacts Utility Script**
+ - Implement `code/utils/hash_artifacts.py` to compute SHA‑256 hashes for all files under `data/` and write a manifest to `state/`.
+ - **Constitution Compliance**: The utility MUST record checksums in `state/` and enforce that derivations are written to new filenames (no in-place modification).
+ - **Note**: This task only creates the script; it does not run it on empty data.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T004 [P] **Create Contract Schemas**
+ - Create `specs/001-llmxive-follow-up-extending-swe-explore/contracts/` with valid YAML schemas: `dataset_schema.yaml`, `agent_log_schema.yaml`, `result_schema.yaml`.
+ - **Source of Truth**: Derive schema fields strictly from `data-model.md`. Copy the structure defined there.
+ - Ensure files are non-empty and syntactically valid YAML.
+ - **Validation**: Run a syntax check on all YAML files as part of this task (merged from T004-Validate).
 
-- [X] T001 Create project structure per implementation plan: Create directories `code/`, `data/raw/`, `data/curated/`, `data/results/`, `tests/unit/`, `tests/contract/`, `contracts/`, `docs/`, `paper/`
+- [ ] T005 [P] **Schema Validation Helper**
+ - Implement `code/utils/validation.py` to validate JSONL/Parquet files against the schemas in `specs/.../contracts/`.
+ - **Scope**: This utility ONLY validates file structure and schema compliance. It does NOT filter data, generate synthetic issues, implement agents, or compute metrics.
+ - **Function**: `validate_file(file_path, schema_path) -> bool`.
+ - **Dependency**: T004.
 
-- [X] T002 {{claim:c_eea0cf13}} <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T006 [P] **Pytest Configuration & Contract Test Skeleton**
+ - **Deliverable**: Create `pytest.ini` at repository root and `tests/contract/test_schemas.py` skeleton.
+ - **Scope**: `pytest.ini` configures test discovery; `test_schemas.py` imports `validation.py` and sets up contract tests.
+ - **Output**: `pytest.ini` and `tests/contract/test_schemas.py` created.
 
----
+- [ ] T043 [P] **Quantized Model Orchestration**
+ - Create `code/agent/quantized_llm.py` with a function that loads the chosen model (e.g., `Qwen-1.5B`) using `transformers` with `bitsandbytes`.
+ - **Strategy**: Load in 8-bit precision (`load_in_8bit=True`) on `device='cpu'` as defined in `config.py`.
+ - **Memory Check**: Use `psutil` to check process memory.
+ - **Offload Logic**: If memory > 6 GB, DO NOT raise a hard error. Instead, write a `gpu_offload_request.json` flag to `data/results/` and exit gracefully. The execution stage will detect this flag and re-run on Kaggle GPU.
+ - **Constraint**: No dynamic fallback to different precision within the task; the offload is handled by the execution environment.
+ - This task must complete before any agent execution (T022a, T022b, T023).
+
+## Phase 1: Data Curation (User Story 1)
+
+### Tests (must be written first, but depend on implementation)
+
+- [ ] T007 [P] **Contract test for dataset schema** (`tests/contract/test_dataset_schema.py`) – depends on T004, T010, T011.
+ - **Note**: This test validates the structure of the downloaded/curated dataset. It cannot run until data exists.
+ - **Dependency**: T010, T011.
+
+- [ ] T008 [P] **Unit Tests for Synthetic Generation**
+ - **Implementation**: Write `tests/unit/test_mutation.py` and `tests/unit/test_synthetic_validity.py`.
+ - **Note**: These tests validate the mutation logic implemented in T013. They do NOT implement the logic themselves.
+ - **Specific Test Targets**:
+ - Verify variable renaming preserves syntax.
+ - Verify comment removal preserves semantics.
+ - **CRITICAL**: Verify structural obfuscations (control flow reordering, API signature changes) are applied and increase AST complexity.
+ - **Deliverable**: Test files created and passing.
+ - **Dependency**: T001b, T002, T003a, T004, T005, T006, T013.
+
+### Implementation
+
+- [ ] T010 [P] **Implement Robust Data Fetcher**
+ - `code/data/download.py` uses `datasets.load_dataset(..., streaming=True)` to fetch `bench.final.public.jsonl` from HuggingFace.
+ - **Checksum Logic**: Verify the downloaded file against the known hash.
+ - **Fallback**: If the checksum fails OR if the `initial_coverage` field is missing, **trigger the AST-based fallback simulation (T011b)** instead of raising a hard error. Log the fallback reason.
+ - **Output**: `data/raw/swe_explore_raw.jsonl` (or `swe_explore_with_coverage.jsonl` if fallback triggers).
+ - **Dependency**: T001b, T002, T003a, T004, T005, T006.
+ - **Note**: This task ONLY fetches raw data. It does not derive coverage scores unless the fallback is triggered.
+
+- [ ] T011 [P] **Implement Ground Truth Derivation with Streaming**
+ - `code/data/derive_gt.py` parses solution patches, emits `ground_truth_lines`, writes to `data/raw/swe_explore_with_gt.jsonl`.
+ - Uses streaming to stay <7 GB RAM.
+ - **Output**: `data/raw/swe_explore_with_gt.jsonl`.
+ - **Dependency**: T010.
+
+- [ ] T011b [P] **Implement AST-Based Coverage Simulation (Fallback)**
+ - **Trigger**: Only if `COVERAGE_COLUMN_NAME` is missing from the dataset (T010/T011 output) OR if T010's checksum verification fails.
+ - `code/data/simulate_coverage.py` implements a local AST-based retrieval simulation to compute a proxy coverage score for each issue.
+ - Writes proxy scores to `data/raw/swe_explore_with_coverage.jsonl`.
+ - **Output**: `data/raw/swe_explore_with_coverage.jsonl`.
+ - **Dependency**: T010. (Does NOT depend on T011, as it is a fallback for missing data).
+
+- [ ] T012 [US1] **Filter Hard Subset (Spec Alignment)**
+ - `code/data/filter_hard.py` reads `data/raw/swe_explore_with_gt.jsonl` (or `swe_explore_with_coverage.jsonl` if T011b ran), selects bottom `HARD_INSTANCE_PERCENTILE` (0.20) of `COVERAGE_COLUMN_NAME` (per Spec FR-001).
+ - **Verification**: Assert that the filtered count represents a substantial proportion of the total. Log a warning if not.
+ - Calculates cyclomatic complexity as supplementary metadata (does not affect selection).
+ - Writes `data/curated/hard_subset.jsonl`.
+ - **Output**: `data/curated/hard_subset.jsonl`.
+ - **Dependency**: T011 OR T011b (hard prerequisite), T001b, T002, T003a, T004, T005, T006.
+
+- [ ] T013 [US1] **Generate Synthetic Ambiguous Issues**
+ - **Input**: `data/raw/swe_explore_with_gt.jsonl` (T011) OR `data/raw/swe_explore_with_coverage.jsonl` (T011b) as the **full source pool**.
+ - **Dependencies**: `libcst` must be installed.
+ - Logic:
+ 1. **Candidate Pool**: Use the **full dataset** (excluding only those with invalid syntax). **Crucially, this pool INCLUDES the hard subset** (T012) to ensure the study tests iterative strategies on the exact population it aims to improve.
+ 2. If input pool size < `config.MIN_SYNTHETIC_ISSUES`, generate **all** possible valid mutations, log a `WARNING`, and proceed.
+ 3. Apply **variable renaming**, **comment removal**, and **structural obfuscations** via `libcst`.
+ - **Mandatory Structural Obfuscations** (per FR-009):
+ - **Control Flow Reordering**: Swap independent `if`/`else` blocks or reorder statements in a function body where order does not affect logic.
+ - **API Signature Changes**: Rename function arguments or change default values in a way that preserves syntax but obscures intent.
+ 4. Validate each mutated file with `ast.parse`; **skip invalid ones with a warning** (do not crash the script).
+ 5. **Validation Step**: Assert that at least 50% of the generated synthetic issues contain the mandatory structural obfuscations (Control Flow Reordering or API Signature Changes). If not, raise `FatalError('Structural obfuscation rate too low. Pipeline halted.')`.
+ 6. If **total valid mutations == 0**, raise `FatalError('No valid synthetic issues generated. Pipeline halted.')`.
+ 7. If **0 < valid mutations < MIN_SYNTHETIC_ISSUES**, log a `WARNING` with the count and continue.
+ - Store `ground_truth_lines` from the original unmutated code (FR‑008).
+ - **Output**: `data/curated/synthetic_issues.jsonl`.
+ - **Dependency**: T012, T011 OR T011b, T001b, T002, T003a, T004, T005, T006.
+
+- [ ] T014 [P] **Metadata & Versioning**
+ - Write `data/curated/synthetic_issues_meta.json` with hashes, mutation parameters, and counts.
+ - Run `hash_artifacts.py` (T003a) on the curated folder.
+
+- [ ] T015 [US1] **Automated Validation & Human Review (Non-Blocking)**
+ - **Step 1**: Randomly sample `VALIDATION_SAMPLE_SIZE` issues from `hard_subset.jsonl`.
+ - **Step 2**: Run **Automated Heuristics**:
+ - Syntax validity check.
+ - Complexity score change check.
+ - AST hash difference check.
+ - **Step 3**: Generate `data/curated/validation_report.md` with the results of the heuristics.
+ - **Step 4**: Generate `data/curated/validation_status.json` **automatically** with `{"human_verified": false, "reason": "Automated heuristic validation passed; manual review pending"}`. **Do not block the pipeline**. The file is generated deterministically by the script.
+ - **Step 5**: Generate `data/curated/human_review_instructions.md` for a human to review the `validation_report.md` and update `validation_status.json` manually (non-blocking).
+ - **Note**: The pipeline proceeds immediately regardless of human review status. This step is for research transparency, not a gate.
+ - **Output**: `data/curated/validation_report.md`, `data/curated/validation_status.json` (auto-generated), `data/curated/human_review_instructions.md`.
+ - **Dependency**: T012, T001b, T002, T003a, T004, T005, T006.
+
+- [ ] T016-ValidateHardSubset [US1] **Automated Validation Gate**
+ - Run `code/data/validate_hard.py` to confirm low coverage of the hard subset.
+ - Output: `data/results/validation_status_auto.json` (`PASSED` or `WARNING`). Pipeline proceeds regardless of status.
+ - **Dependency**: T012.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T003b [P] **Run Hash Utility on Curated Data**
+ - Execute `hash_artifacts.py` (T003a) on `data/curated/` after T014.
+ - **Dependency**: T014.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+## Phase 3: Iterative Agent Execution Loop (User Story 2)
 
-- [X] T004 Implement `code/config.py` to define paths (`data/raw/`, `data/curated/`, `data/results/`), random seeds, and model config (CPU-only)
-- [X] T005 [P] Implement `code/utils/hash_artifacts.py` for automated SHA256 hashing of `data/` artifacts (Constitution Principle V)
-- [X] T006 [P] Create `contracts/` directory with `dataset_schema.yaml`, `agent_log_schema.yaml`, `result_schema.yaml`
-- [X] T007 Implement `code/utils/validation.py` for JSONL/Parquet schema validation against contracts
-- [ ] T008 Setup `pytest` configuration and `tests/contract/test_schemas.py` skeleton
+### Tests
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T017 [P] **Contract test for agent log schema** (`tests/contract/test_agent_log_schema.py`).
+ - **Dependency**: T004, T022a, T022b, T023 (to have data to validate).
 
----
+- [ ] T018 [P] **Integration test for agent loop termination** (`tests/integration/test_agent_loop.py`).
+ - **Dependency**: T023.
 
-## Phase 3: User Story 1 - Data Curation and Hard Instance Selection (Priority: P1) 🎯 MVP
+### Implementation
 
-**Goal**: Download SWE-Explore, derive ground truth, select "hard" instances based on initial coverage scores (FR-001), and Generate a set of synthetic ambiguous issues with structural obfuscations. (FR-009).
+- [ ] T019 [P] **Static Analysis Wrapper**
+ - Implement `code/agent/static_analysis.py` to run `pylint` and `ast` checks.
+ - **Error Handling**:
+ - **Tool Crash/Neutral**: If `pylint` crashes or returns unexpected output, emit `static_analysis_signal: "neutral_anomaly"` and continue.
+ - **Critical Error**: If `ast.parse` fails (syntax error) or `pylint` reports a critical error (e.g., `undefined variable`), emit `static_analysis_signal: "critical_error"` and halt the current turn.
+ - **Output**: `code/agent/static_analysis.py`.
+ - **Dependency**: T001b, T002, T003a, T004, T005, T006.
 
-**Independent Test**: Verify the existence of `data/curated/hard_subset.jsonl`, `data/curated/synthetic_issues.jsonl`, and `data/curated/validation_report.md` with correct schemas and valid AST parsing for synthetic issues.
+- [ ] T020 [P] **Prompt Templates**
+ - Create `code/agent/prompts.py` with Jinja2 templates for query reformulation that embed detected error messages.
+ - **Output**: `code/agent/prompts.py`.
+ - **Dependency**: T001b, T002, T003a, T004, T005, T006.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T021 [P] **Data Locking & Subset Consistency**
+ - Copy `data/curated/hard_subset.jsonl` to `data/results/locked_hard_subset.jsonl` under a file lock.
+ - Depends on **T012**. (T016 is a parallel validation step, not a blocker for locking).
+ - **Dependency**: T012.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] T047 **Implement Loop Detection Logic**
+ - **CRITICAL**: Must be implemented BEFORE T023 runs to prevent infinite loops.
+ - Create the core loop detection logic in `code/agent/iterative.py` that compares the current query against the previous two; if identical, sets `termination_reason: "loop_detected"`.
+ - **Dependency**: T043 (Quantized Model). **NOT parallel-safe with T023**.
+ - **Note**: This task is NOT parallel-safe with T023.
 
-- [ ] T009 [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (Depends on T006 schema output)
-- [ ] T010 [P] [US1] Unit test for mutation logic (variable rename, comment removal) in `tests/unit/test_mutation.py`
-- [ ] T011 [P] [US1] Unit test for synthetic issue validity (AST parse check) in `tests/unit/test_synthetic_validity.py`
+- [ ] T022a [P] **Static One-Shot Baseline**
+ - **Goal**: Implement the strict "one-shot" baseline required by SC-001 and US-3.
+ - **Logic**: Run a single retrieval turn per issue. No feedback loop.
+ - Input: `locked_hard_subset.jsonl` (T021).
+ - Output: `data/results/baseline_onshot_logs.jsonl`.
+ - **Dependency**: T021, T043, T001b, T002, T003a, T004, T005, T006.
 
-### Implementation for User Story 1
+- [ ] T022b [P] **Static Multi-Query Baseline (Optional)**
+ - **Goal**: Implement a multi-query baseline (same total query budget as iterative) for secondary comparisons.
+ - Input: `locked_hard_subset.jsonl` (T021).
+ - Output: `data/results/baseline_multi_logs.jsonl`.
+ - **Dependency**: T021, T043, T001b, T002, T003a, T004, T005, T006.
 
-- [X] T012 [P] [US1] Implement `code/data/download.py` to fetch `bench.final.public.jsonl` from HuggingFace
-- [ ] T013 [P] [US1] Implement `code/data/derive_gt.py` to parse solution patches and generate `ground_truth_lines` lists
-- [ ] T014a [US1] Implement `code/data/curate.py` Part A: **Filter** the bottom [deferred] of issues based on existing **`initial_coverage`** scores (read `HARD_INSTANCE_PERCENTILE` from `config.py`) to identify "Hard" instances per FR-001. Do NOT use complexity. Ensure this consumes `ground_truth_lines` from T013.
-- [~] T014b [US1] Implement `code/data/curate.py` Part B: Generate **up to 50** synthetic ambiguous issues by mutating variable names, removing comments, and applying **structural obfuscations (control flow reordering, API signature changes)** per FR-009. **Fallback Logic**: If the pool of solvable tasks is insufficient, proceed with N < 50, log a warning, and save the actual count in `data/curated/synthetic_issues_meta.json`. Ensure synthetic issues are syntactically valid (AST parseable). Save `ground_truth_lines` from original code for synthetic issues (FR-008). **Versioning**: Record original code hash and mutation parameters in metadata.
-- [X] T014c [US1] Implement `code/data/curate.py` Part C: Validation logic to skip invalid mutations and log warnings.
-- [X] T015a [US1] Implement `code/config.py` update to define `VALIDATION_SAMPLE_SIZE` (default N=20) and `HARD_INSTANCE_PERCENTILE` (default) to resolve "[deferred]" values before execution.
-- [~] T015 [US1] Implement `code/data/validate_hard.py` to generate `data/curated/validation_report.md` with manual inspection guide for the **`VALIDATION_SAMPLE_SIZE`** subset defined in `config.py`. **Logic**: Read `VALIDATION_SAMPLE_SIZE` from config. **Output format**: Markdown table with columns [IssueID, CoverageScore, MutationType, ValidityStatus, Notes].
-- [~] T016 [US1] Integrate `hash_artifacts.py` to hash `data/curated/` files after generation
+- [ ] T023 **Iterative Agent**
+ - Implements a multi-turn loop with query → retrieve → static analysis → reformulate.
+ - **Loop detection** (T047) is incorporated here.
+ - Input: `locked_hard_subset.jsonl`.
+ - Output: `data/results/iterative_logs.jsonl`.
+ - **Dependency**: T021, T043, T047, T001b, T002, T003a, T004, T005, T006. (Removed T022a dependency to allow parallel execution).
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T024a [P] **Power Analysis for Sensitivity Sweep**
+ - **Purpose**: Verify that `SWEEP_SAMPLE_SIZE` is statistically sufficient. to represent the `hard_subset` size.
+ - `code/analysis/power_analysis.py` calculates the power of the sensitivity test given the subset size and expected effect size.
+ - Output: `data/results/power_analysis_report.md`. If insufficient, log a `WARNING` but proceed (as per plan constraints).
+ - **Dependency**: T012.
 
----
+- [ ] T024b [P] **Turn‑Limit Sweep**
+ - Sample `SWEEP_SAMPLE_SIZE` issues (seed `SWEEP_SEED`) stratified by complexity quartiles.
+ - Run iterative agent for each turn limit in `TURN_LIMITS`.
+ - Aggregate results to `data/results/sweep_results.json`.
+ - **Validation Step**: Explicitly compare sweep results against the 3-turn limit constraint to verify stability.
+ - Depends on **T024a** and **T043**.
 
-## Phase 4: User Story 2 - Iterative Agent Execution Loop (Priority: P2)
+- [ ] T024c [P] **Sensitivity Validation**
+ - Read `data/results/sweep_results.json`.
+ - Verify if the 3-turn limit yields stable results compared to the sweep (e.g., variance < `config.SWEEP_STABILITY_THRESHOLD`).
+ - If unstable, flag a `WARNING` in `data/results/sensitivity_validation.json`.
+ - **Output**: `data/results/sweep_stability_evidence.md`.
+ - **Dependency**: T024b.
 
-**Goal**: Implement a CPU-tractable iterative agent loop with a bounded number of turns. with static analysis feedback, and a Static Multi-Query Baseline. Ensure both produce compatible schemas for pairing.
+- [ ] T024d [P] **Enforce Hard Turn Cap**
+ - **Goal**: Ensure the main execution loop in `code/main.py` defaults to `DEFAULT_TURN_LIMIT = 3 ` (from T002) unless `--mode=sweep` is passed.
+ - **Logic**: If `mode == 'sweep'`, use `TURN_LIMITS`; else, use `DEFAULT_TURN_LIMIT`.
+ - **Output**: `code/main.py` updated.
+ - **Dependency**: T002, T024b.
 
-**Independent Test**: Run a single "hard" issue through the iterative loop and verify a limited number of turns, reformulated queries containing error messages, and correct logging of `query_history` and `error_signals`.
+- [ ] T025 [P] **Hash Agent Artifacts**
+ - Run `hash_artifacts.py` (T003a) on `data/results/agent_logs/`.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T050 [P] **Static Analysis Neutral Signal**
+ - Update `code/agent/static_analysis.py` to catch exceptions; on failure, emit `static_analysis_signal: "neutral_anomaly"` and continue without crashing.
+ - **Clarification**: This applies only to tool crashes. Critical errors (syntax errors) must halt the turn.
 
-- [X] T018 [P] [US2] Contract test for agent log schema in `tests/contract/test_agent_log_schema.py`
-- [X] T019 [P] [US2] Integration test for agent loop termination (-turn limit, loop detection) in `tests/integration/test_agent_loop.py`
+- [ ] T019b [P] **Static Analysis Failure Verification**
+ - **Goal**: Verify that the `static_analysis.py` logic correctly distinguishes between "tool crash" (continue) and "critical error" (stop).
+ - **Logic**: Implement a check that logs the signal type and ensures the agent does not proceed if a critical error is detected.
+ - **Output**: `tests/unit/test_static_analysis_errors.py`.
+ - **Dependency**: T019, T050.
 
-### Implementation for User Story 2
+## Phase 4: Comparative Metric Calculation and Statistical Testing (User Story 3)
 
-- [X] T020 [P] [US2] Implement `code/agent/static_analysis.py` wrapper for `pylint`/`ast` to detect "missing import", "undefined variable", parse errors
-- [X] T021 [P] [US2] Implement `code/agent/prompts.py` with templates for query reformulation based on static analysis signals
-- [~] T022 [US2] Implement `code/agent/base.py` for Static Multi-Query Baseline. **Requirement**: Run **3 parallel queries** per issue (matching iterative budget). Must operate on the same curated subset as T023 and produce output compatible with `agent_log_schema.yaml` for T031 pairing. Explicitly log `issue_id`, `query_count`, `retrieved_context_ids`, and `coverage_score` to enable 1:1 pairing with iterative results for the Wilcoxon signed-rank test.
-- [ ] T023 [US2] Implement `code/agent/iterative.py`:
- - Enforce 3-turn limit (FR-003)
- - Turn logic: Query -> Retrieve -> Static Analysis -> Reformulate (if error)
- - Detect repeated queries to break loops early
- - Log `query_history`, `static_analysis_signals`, `turn_reasons`
- - **Requirement**: Must operate on the same curated subset as T022 and produce output compatible with `agent_log_schema.yaml` for T031 pairing. Explicitly log the `issue_id` to enable 1:1 pairing with baseline results.
-- [~] T024 [US2] Implement `code/main.py` orchestration to run Baseline and Iterative agent on curated dataset. Output: `data/results/paired_metrics.json` containing merged results for T031, ensuring strict pairing by `issue_id`.
-- [ ] T025 [US2] Implement turn-limit sweep logic: Reuse T023/T024 logic to execute **N=20 issues** (random sample from `data/curated/hard_subset.jsonl`) with **4 turns** per SC-006. Record results in `data/results/sweep_results.json` for stability comparison.
-- [~] T026 [US2] Integrate `hash_artifacts.py` to hash `data/results/agent_logs/`
+### Tests
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T026 [P] **Contract test for result schema** (`tests/contract/test_result_schema.py`).
+ - **Dependency**: T004, T030-Bonferroni.
 
----
+- [ ] T027 [P] **Unit test for statistical tests** (`tests/unit/test_stats.py`) – includes Wilcoxon and tie-handling.
 
-## Phase 5: User Story 3 - Comparative Metric Calculation and Statistical Testing (Priority: P3)
+### Implementation
 
-**Goal**: Compute line-level coverage and ranking efficiency, apply Wilcoxon/Survival Analysis with Bonferroni correction, and frame results associatively.
+- [ ] T028 [P] **Coverage Metric** (`code/metrics/coverage.py`).
+ - **Dependency**: T001b, T002, T003a, T004, T005, T006.
 
-**Independent Test**: Provide pre-computed metrics for a small set and verify the statistical test returns a p-value and correct conclusion (significant vs. non-significant) at p < 0.05 threshold.
+- [ ] T029 [P] **Ranking Metric** (`code/metrics/ranking.py`) – applies `N+1` penalty for censored cases.
+ - **Dependency**: T001b, T002, T003a, T004, T005, T006.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T030a [P] **Analyze Tie Distribution & Justify Threshold**
+ - Reads `baseline_onshot_logs.jsonl` (from T022a) and `iterative_logs.jsonl` (from T023).
+ - **Censored Definition**: Explicitly checks for `missing_data` flags in logs, NOT `relevant_lines == 0`. Zero coverage is a valid metric, not censored data.
+ - **Tie Calculation**: Calculate tie proportion **only on valid entries** (excluding `missing_data` flags).
+ - **Output**: `data/results/tie_analysis.json` containing:
+ - `tie_proportion`: float (calculated on valid data only).
+ - `censored_count`: int (based on missing data flags).
+ - `justification`: A string explaining why the threshold (e.g., 20%) is appropriate for this distribution, or if the data requires the permutation test.
+ - **Dependency**: T022a, T023.
 
-- [X] T027 [P] [US3] Contract test for result schema in `tests/contract/test_result_schema.py`
-- [X] T028 [P] [US3] Unit test for Wilcoxon signed-rank test implementation in `tests/unit/test_stats.py`
+- [ ] T030b [P] **Route Statistical Test**
+ - Reads `data/results/tie_analysis.json` (from T030a).
+ - **Logic**:
+ - **Exclude Missing Data**: Filter out entries with `missing_data` flags before calculating tie proportion.
+ - If `tie_proportion > config.TIE_THRESHOLD` (0.50): write `statistical_routing.json` with `"PERMUTATION"`.
+ - Else: write `"WILCOXON"`.
+ - **Small Sample Fallback**: If the remaining data size (after excluding missing data) is < 5, write `"DESCRIPTIVE"` and skip the test.
+ - **Dependency**: T030a.
 
-### Implementation for User Story 3
+- [ ] T030-Execute-Stats **Execute Statistical Test & Output Results**
+ - **Conditional**: Executes based on `statistical_routing.json` (from T030b).
+ - **Logic**:
+ - Read `statistical_routing.json`.
+ - If `WILCOXON`: Run Wilcoxon signed-rank test with continuity correction.
+ - If `PERMUTATION`: Run exact permutation test.
+ - If `DESCRIPTIVE`: Generate descriptive statistics only.
+ - **Output**: `data/results/final_stats.json` containing:
+ - `p_value`: float (or null if descriptive).
+ - `significant`: boolean (True if p < 0.05).
+ - `method`: string ("wilcoxon", "permutation", or "descriptive").
+ - **Dependency**: T030b.
+ - **Note**: This task is conditional; it does not run in parallel with T030b.
 
-- [X] T029 [P] [US3] Implement `code/metrics/coverage.py` to calculate % of `ground_truth_lines` retrieved
-- [X] T030 [P] [US3] Implement `code/metrics/ranking.py` to calculate position of first relevant line (handle censored data with penalty N+1)
-- [X] T031a [US3] Implement `code/analysis/stats.py` Part A: Calculate coverage metrics and apply **Wilcoxon signed-rank test** for paired coverage data.
-- [X] T031b [US3] Implement `code/analysis/stats.py` Part B: Calculate ranking metrics. **Primary Method**: Apply **Wilcoxon signed-rank test** with tie-handling (continuity correction) per FR-006. **Fallback**: If ties/censoring exceed a substantial proportion, apply **exact permutation test** or **Survival Analysis (Cox)** for censored data.
-- [~] T031c [US3] Implement `code/analysis/stats.py` Part C: Apply **Bonferroni correction** to the family of tests (coverage + ranking) per SC-004. Frame all results as **"associational differences"** per FR-007. Output `data/results/final_metrics.json`.
-- [X] T032 [US3] Implement `code/analysis/plots.py` for visualization of coverage and survival curves
-- [~] T033 [US3] Integrate `hash_artifacts.py` to hash final `data/results/final_metrics.json`
-- [X] T034a [US3] Implement `code/analysis/report_generator.py` template for generating the final paper draft.
-- [~] T034 [US3] Generate `paper/draft.md` using `code/analysis/report_generator.py` (T034a). **Mandatory**: Populate sections: Abstract, Methods, Results (with p-values from `data/results/final_metrics.json`), and Discussion. **Constraint**: All findings MUST be framed as **associational differences**; explicitly avoid causal claims per FR-007. The report generator must enforce this linguistic constraint on all result descriptions.
+- [ ] T030-Bonferroni [P] **Multiplicity Correction & Framing**
+ - Apply Bonferroni correction to both coverage and ranking p‑values (SC-004).
+ - Ensure all result text uses "associational differences" phrasing (FR-007).
+ - **Dependency**: T030-Execute-Stats.
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T031 [P] **Visualization** (`code/analysis/plots.py`).
 
----
+- [ ] T032 [P] **Hash Final Metrics** – update `code/main.py` to hash `final_metrics.json` after T030-Bonferroni.
 
-## Phase N: Polish & Cross-Cutting Concerns
+- [ ] T033-GenerateReport [P] **Generate and Validate Report**
+ - Create `code/analysis/report_template.j2` with placeholders matching keys in `contracts/result_schema.yaml`.
+ - Render the template using data from `final_metrics.json`.
+ - Validate the rendered report against `result_schema.yaml` and scan for prohibited causal language.
+ - **Dependency**: T030-Bonferroni.
+ - **Output**: `paper/draft_validated.md` (if pass) or error.
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T033-Summary [P] **Results Summary**
+ - Assemble `paper/results_summary.md` from the validated draft.
+ - **Dependency**: T033-GenerateReport.
 
-- [~] T035 [P] Documentation updates in `docs/` (Quickstart, Data Model, Research)
-- [~] T036 Code cleanup and refactoring
-- [~] T037 Performance optimization (memory management for CPU model)
-- [~] T038 [P] Additional unit tests in `tests/unit/`
-- [X] T039 [US2/US3] Implement runtime monitor in `code/main.py` to track total execution time. **Logic**: If elapsed time > 5.5 hours (SC-005), abort remaining non-critical sweeps or reduce sample size to ensure completion within 6 hours.
-- [~] T040 Run `quickstart.md` validation
+- [ ] T039a [P] **Runtime Timer & Adaptive Feasibility**
+ - Insert timing logic in `code/main.py` to measure total pipeline runtime.
+ - **Adaptive Logic**: If runtime exceeds 80% of `MAX_RUNTIME_HOURS` (4.8 hours), trigger an **early exit** (stop processing new issues) and log the partial runtime. **Do not fail the entire pipeline**; log partial results and a warning.
+ - **Constraint**: If runtime exceeds 100%, write a `FAIL` status to `data/results/feasibility_report.md` with the exact runtime value, but ensure partial results are still available.
+ - **Output**: `data/results/runtime_log.json`, `data/results/feasibility_report.md`.
+ - **Dependency**: All previous tasks.
 
----
+- [ ] T039b [P] **Feasibility Report**
+ - Log the *total* pipeline runtime from T039a.
+ - Compare against the maximum runtime threshold defined in `config.MAX_RUNTIME_HOURS`.
+ - Write `data/results/feasibility_report.md` with `status: "PASS"` or `status: "FAIL"` and the exact runtime.
+ - **Dependency**: T039a.
 
-## Dependencies & Execution Order
+- [ ] T048 [P] **Robust Mutation Fallback**
+ - Integrated into T013 logic (see T013 description).
 
-### Phase Dependencies
+- [ ] T049 [P] **Permutation Test Sensitivity Check**
+ - Re‑run permutation test with penalty values N and higher increments; store variance in `data/results/sensitivity_analysis.json`.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+## Phase N: Polish & Cross‑Cutting Concerns
 
-### User Story Dependencies
+- [ ] T035 [P] **Update Quickstart Documentation** (`docs/quickstart.md`) with execution instructions and data‑flow diagrams.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for data
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 for results
+- [ ] T036 [P] **Refactor Iterative Agent** to reduce cyclomatic complexity.
 
-### Within Each User Story
+- [ ] T037 [P] **Optimize Coverage Metric Memory Usage** – process lines in chunks.
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+- [ ] T038 [P] **Add Unit Tests for Stats Module** (`tests/unit/test_stats_logic.py`).
 
-### Parallel Opportunities
+- [ ] T046-StatsValidation [P] **Bonferroni Correction Verification** – test that `final_metrics.json` includes adjusted p‑values.
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T046-FramingValidation [P] **Causal Language Validation** – ensure final report contains no prohibited phrasing.
 
----
+## Phase O: Revision & Review Resolution
 
-## Parallel Example: User Story 1
+- [ ] T051 [P] **Resolve Review: Synthetic Data Validation**
+ - Address reviewer concern regarding the lack of explicit validation for synthetic issue quality.
+ - Enhance `code/data/curate.py` (T013) to output a `validation_metrics.json` containing:
+ - Count of valid vs. invalid mutations.
+ - Average syntactic complexity change.
+ - Average semantic distance (using AST hash difference).
+ - **Dependency**: T013.
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for dataset schema in tests/contract/test_dataset_schema.py"
-Task: "Unit test for mutation logic in tests/unit/test_mutation.py"
+- [ ] T052 [P] **Resolve Review: Turn Limit Sensitivity**
+ - Address reviewer concern that a fixed 3-turn limit may be arbitrary.
+ - Ensure `code/analysis/power_analysis.py` (T024a) explicitly calculates the minimum detectable effect size for the chosen `SWEEP_SAMPLE_SIZE`.
+ - Add a task to run the sweep on a small subset (N=5) to verify the `TURN_LIMITS` configuration before full execution.
+ - **Dependency**: T024a, T024b.
 
-# Launch all models for User Story 1 together:
-Task: "Implement code/data/download.py"
-Task: "Implement code/data/derive_gt.py"
-```
+- [ ] T053 [P] **Resolve Review: Statistical Power & Tie Handling**
+ - Address reviewer concern about the robustness of the Wilcoxon test with potential ties.
+ - Implement a fallback mechanism in `code/metrics/stats.py` that automatically switches to the exact permutation test if the tie proportion is substantial (configurable).
+ - Add a unit test in `tests/unit/test_stats.py` specifically for the tie-handling logic.
+ - **Dependency**: T030a, T030b, T027.
 
----
+- [ ] T054 [P] **Resolve Review: Human Validation Protocol**
+ - Address reviewer concern about the manual validation step (T015) being a bottleneck.
+ - Refine the `validation_report_template.md` (T015) to include automated pre-checks (e.g., syntax validity, complexity score) to guide the human reviewer.
+ - Ensure the pipeline logic does NOT block on a `human_verified` flag (as T015 is now automated).
+ - **Dependency**: T015.
 
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Feasibility**: Ensure all model tasks use CPU-only, <1B param or 4-bit quantized models on 2-core/7GB RAM. No CUDA/GPU.
-- **Constraint Preservation**: All tasks must strictly implement the metrics and counts defined in FR-001, FR-002, SC-004, and FR-007. Do not substitute proxies (e.g., complexity for coverage) without explicit spec authorization.
-- **Data Integrity**: All analysis tasks must consume REAL data from `data/curated/`. No synthetic/fake input data generation tasks are permitted.
-- **Execution Order**: Tasks producing results (T024) MUST follow tasks generating those results (T022, T023). Tasks verifying results (T031) MUST follow result generation.
+- [ ] T055 [P] **Resolve Review: Data Source Integrity**
+ - Address reviewer concern about the reliability of the SWE-Explore dataset source.
+ - Add a checksum verification step in `code/data/download.py` (T010) that compares the downloaded file against a known cryptographic hash from the official repository.
+ - **Fallback**: If the checksum fails, **trigger the AST-based fallback simulation (T011b)** instead of halting.
+ - **Dependency**: T010, T011b.

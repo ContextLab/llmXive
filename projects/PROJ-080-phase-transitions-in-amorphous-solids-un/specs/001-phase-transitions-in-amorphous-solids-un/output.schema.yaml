@@ -1,0 +1,155 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Output Schema
+description: |
+  Schema for processed analysis outputs including precursor metrics, yield flags,
+  and statistical test results.
+type: object
+required:
+  - precursor_metrics
+  - yield_flags
+properties:
+  precursor_metrics:
+    type: object
+    required:
+      - schema_version
+      - data_type
+      - columns
+      - rows
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      data_type:
+        type: string
+        const: "precursor_metrics"
+      columns:
+        type: array
+        items:
+          type: string
+        enum:
+          - particle_id
+          - timestep
+          - d2_min
+          - local_shear_strain
+          - shear_band_id
+      rows:
+        type: integer
+        minimum: 1
+        description: Total number of records in the output
+  yield_flags:
+    type: object
+    required:
+      - schema_version
+      - data_type
+      - yield_onset
+      - is_indeterminate
+      - max_stress
+      - yield_strain
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      data_type:
+        type: string
+        const: "yield_flags"
+      yield_onset:
+        type: integer
+        minimum: 0
+        description: Timestep index of the first significant stress drop
+      is_indeterminate:
+        type: boolean
+        description: True if no sharp stress peak was detected
+      max_stress:
+        type: number
+        description: Maximum stress value observed in GPa
+      yield_strain:
+        type: number
+        minimum: 0
+        description: Strain at yield onset
+  shear_band_stats:
+    type: object
+    required:
+      - schema_version
+      - data_type
+      - columns
+      - rows
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      data_type:
+        type: string
+        const: "shear_band_stats"
+      columns:
+        type: array
+        items:
+          type: string
+        enum:
+          - shear_band_id
+          - mean_D2_min
+          - particle_count
+      rows:
+        type: integer
+        minimum: 1
+  permutation_test_results:
+    type: object
+    required:
+      - schema_version
+      - data_type
+      - observed_statistic
+      - p_value
+      - n_permutations
+      - method
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      data_type:
+        type: string
+        const: "permutation_test_results"
+      observed_statistic:
+        type: number
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+      n_permutations:
+        type: integer
+        minimum: 1000
+      method:
+        type: string
+        const: "permutation_test"
+      amendment_note:
+        type: string
+        const: "Permutation Test applied per amended FR-003 to address clustered data dependencies, superseding original KS-test text."
+  sensitivity_table:
+    type: object
+    required:
+      - schema_version
+      - data_type
+      - columns
+      - rows
+    properties:
+      schema_version:
+        type: string
+        const: "1.0.0"
+      data_type:
+        type: string
+        const: "sensitivity_table"
+      columns:
+        type: array
+        items:
+          type: string
+        enum:
+          - threshold
+          - tp
+          - tn
+          - fp
+          - fn
+          - fpr
+          - fnr
+          - f1_score
+      rows:
+        type: integer
+        minimum: 1
+additionalProperties: false

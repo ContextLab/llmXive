@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metric Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["clip_id", "divergence", "timestamp"],
+  "properties": {
+    "clip_id": {
+      "type": "string",
+      "description": "Unique identifier of the video clip."
+    },
+    "divergence": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Flow‑map divergence metric (non‑negative)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the metric was computed."
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-192-the-impact-of-environmental-factors-on-f",
+  "ok": false,
+  "reason": "3 command(s) failed: python code/utils/checksums.py --verify (rc=2); python -m src.cli.main --run-full (rc=2); python -m src.cli.main --run-full --stratify-by biome --sweep-thresholds (rc=2); 1 declared deliverable(s) absent: data/metadata/harmonized_matrix.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/utils/checksums.py --verify -> rc=2\n    usage: checksums.py [-h] [--verify] [--file FILE] [--checksum CHECKSUM]\n                    {verify,calculate,generate} ...\nchecksums.py: error: --verify requires --file and --checksum",
+    "python -m src.cli.main --run-full -> rc=2\n    usage: main.py [-h] [--mode {validation,research}] [--stratify-by STRATIFY_BY]\n               [--sweep-thresholds]\nmain.py: error: unrecognized arguments: --run-full",
+    "python -m src.cli.main --run-full --stratify-by biome --sweep-thresholds -> rc=2\n    usage: main.py [-h] [--mode {validation,research}] [--stratify-by STRATIFY_BY]\n               [--sweep-thresholds]\nmain.py: error: unrecognized arguments: --run-full"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-30T21:40:59Z"
+}

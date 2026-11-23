@@ -1,0 +1,103 @@
+T001:
+  c: true
+  h: 35a0a9df53e17bde9a5fe15df9775733755feea154ec508b40f142074ccb1aac
+  r: 'The required `code/`, `data/`, and `tests/` directories all exist with substantive
+    contents (12, 7, and 3 entries respectively, including subdirectories like `utils/`,
+    `raw/`, `processed/`, `models/`, `figures/`, `unit/`, `integration/`), and the
+    setup script `code/setup_project_structure.py` executed successfully (exit 0)
+    writing a structure manifest. The lint_config_summary.json showing `ruff_check_passed:
+    false` pertains to a later lint task, not this structural task, so it does not
+    affect this verdict.'
+  sig: 1b38fae5dd352c181c49d657202fc60dd088ca186a7d27804b64bd999a36bc0a
+T002:
+  c: true
+  h: 7e338ea9c1da424b9446a695653f9e78877d62315647da3f3d4ea72c7af7b84e
+  r: The `requirements.txt` exists at the project root (280 bytes) and contains all
+    eight required packages (scikit-learn, pandas, numpy, scipy, statsmodels, ruptures,
+    requests, pyyaml) with version constraints, plus reasonable extras (matplotlib,
+    seaborn, pytest, ruff, black). The task only asked for project initialization
+    with this requirements file, and the artifact matches that requirement.
+  sig: 844c79e930f9fd262507d3e9145ca1bdd60fcfe54351691f6866c85cebbbc5b0
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings, or related CI scripts) were provided or
+    referenced, so the required artifact for configuring ruff/flake8 and Black is
+    missing. The task therefore remains incomplete.
+T004:
+  c: true
+  h: 7beeb4a03facb9d039899f9729ab1e2a4f37592959408f076cf4b3db6c8a8101
+  r: The file `contracts/dataset_schema.yaml` exists (1320 bytes) and defines all
+    12 required columns (age, workclass, education, occupation, relationship, race,
+    sex, capital-gain, capital-loss, hours-per-week, native-country, income) with
+    the specified types (int, str, float), plus consistent target/feature column lists.
+  sig: 878eb5624e114cb231c7898da7e5989a7fc9f8d8cda243e110cee0f607b7b2f9
+T005:
+  c: true
+  h: acdefa9647d271398566baff18753da83ae749f88dcbc9def585b31212cdd6f7
+  r: "The file `contracts/metric_record_schema.yaml` exists (1826 bytes) and defines\
+    \ all 16 required fields \u2014 year, model_type, ece_5/10/20, brier, pca_shift,\
+    \ key_feature_shift, rho_5/10/20, rho_diff_5_10, rho_diff_10_20, max_rho_diff,\
+    \ p_value_wls, change_point_year \u2014 each with type and description, matching\
+    \ the task's stated JSON structure requirement."
+  sig: 855ca4b442589bd09e0f9ff64ab6d575c1c306247d728cc282207aa6a06588a8
+T006:
+  c: true
+  h: 43a51f13d25fa8cab54398711f49e208ecfb20cfda9e8dc42bf8f4b602a14bde
+  r: 'The artifact `code/utils/config.py` exists (2315 bytes) and implements path
+    and parameter configuration: project-root resolution, YAML config loading with
+    defaults, dot-key path resolution (`get_path`), and directory creation (`ensure_directories`).
+    No stubs, TODOs, or placeholders; content matches the task''s requirement.'
+  sig: 36f5ff70c480f6191ac84f29fb23626ff653d2e72a547174b7cf820c3d4e3620
+T007:
+  c: true
+  h: 1554f306a98b31bd5761356b8a177acb73303d1ca5ded41ea0c9d4ac63a6e3c2
+  r: '`code/utils/metrics.py` exists (5764 bytes) with fully implemented `pca_shift(train_features,
+    test_features, n_components=0.95)` and `key_feature_shift(train_features, test_features,
+    feature_names=...)` operating on raw feature vectors, including formula references
+    in docstrings, and no `wasserstein_dist` function. The extra ECE/Brier/Spearman
+    functions are real implementations, not stubs, and don''t conflict with the task''s
+    requirements.'
+  sig: 6c3733eff837ce73dfe2adc3f257be23010abdfb431bfbc4d6a41d775faccb6e
+T014:
+  c: false
+  h: d3d00afd8bfc39be0f9d0aa9e62f6ace82b303bcaefdd05526961bbf48e843d4
+  r: "The repository contains `code/01_data_acquisition.py`, but the shown portion\
+    \ stops before any schema\u2011alignment logic and does not include code that\
+    \ intersects training and test feature columns, checks the 90\u202F% threshold,\
+    \ or writes `aligned_features.json`. Moreover, the required output file `data/processed/aligned_features.json`\
+    \ is absent from the project. The task\u2019s core requirement is therefore not\
+    \ satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data files were presented that implement the splitting of
+    yearly test data and saving it under `data/processed/`. Consequently, there is
+    no artifact to verify that the required logic exists or that any test splits were
+    actually created. The task remains unfinished.
+T024:
+  c: false
+  h: 4e2727eec06e41b54705669df918d448e7ef18ca43ebadce4ebe79f504dd628d
+  r: "The repository contains a partially shown `code/03_evaluation.py`, but the script\
+    \ never reaches the part where it computes the required metrics (ECE_5, ECE_10,\
+    \ ECE_20, Brier, PCA_Shift, Key_Feature_Shift, the various Spearman \u03C1 values)\
+    \ nor writes them to `data/processed/metrics_records.json`. Moreover, the expected\
+    \ output file `data/processed/metrics_records.json` is absent. Consequently the\
+    \ task\u2019s core requirement\u2014computing and storing the full set of metrics\
+    \ for each year\u2014is not fulfilled."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or documentation were presented that shows logic for detecting
+    missing yearly snapshots, logging a warning, and skipping processing for those
+    years. The required artifact (implementation of graceful handling of missing years)
+    is absent, so the task is not satisfied.
+T026:
+  c: false
+  h: 3e0bda6f323c7a811934ab2979ab739a6e61361d0ac8244289182aa5b985f655
+  r: "The repository contains a non\u2011empty `code/04_statistical_analysis.py`,\
+    \ but the required output file `data/processed/regression_results.json` is absent,\
+    \ and the shown portion of the script does not demonstrate that it writes the\
+    \ WLS results (slope, intercept, p\u2011value, r\u2011squared) to that file. The\
+    \ missing artifact means the task\u2019s core requirement is not satisfied."

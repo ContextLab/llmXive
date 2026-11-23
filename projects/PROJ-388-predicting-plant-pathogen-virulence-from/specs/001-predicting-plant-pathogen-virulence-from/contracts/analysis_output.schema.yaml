@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the correlation results table output."
+type: "object"
+properties:
+  feature_id:
+    type: "string"
+    description: "Unique identifier for the genomic feature."
+  feature_type:
+    type: "string"
+    description: "Type of feature (gene_presence or tf_binding_count)."
+    enum:
+      - "gene_presence"
+      - "tf_binding_count"
+  correlation_coefficient:
+    type: "number"
+    description: "Spearman correlation coefficient (ρ)."
+    minimum: -1.0
+    maximum: 1.0
+  p_value:
+    type: "number"
+    description: "Raw p-value from the correlation test."
+    minimum: 0.0
+    maximum: 1.0
+  adjusted_p_value:
+    type: ["number", "null"]
+    description: "Benjamini-Hochberg corrected p-value. Null if N < 10."
+    minimum: 0.0
+    maximum: 1.0
+  is_significant:
+    type: "boolean"
+    description: "True if adjusted_p_value < 0.05. False if N < 10."
+  effect_size_category:
+    type: "string"
+    description: "Category based on |ρ|."
+    enum:
+      - "Weak"
+      - "Moderate"
+      - "Strong"
+  analysis_mode:
+    type: "string"
+    description: "Mode of analysis (Isolate_Level or Species_Aggregate_Descriptive)."
+    enum:
+      - "Isolate_Level"
+      - "Species_Aggregate_Descriptive"
+required:
+  - feature_id
+  - feature_type
+  - correlation_coefficient
+  - p_value
+  - is_significant
+  - effect_size_category
+  - analysis_mode
+additionalProperties: false

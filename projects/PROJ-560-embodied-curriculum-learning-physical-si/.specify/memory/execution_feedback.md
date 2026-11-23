@@ -1,0 +1,65 @@
+# Execution failures — fix these before the analysis can run
+
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
+
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
+
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
+
+- code/src/synthetic_gen.py: metric `gain_embodied` assigned from an RNG draw (line 47)
+- code/src/synthetic_gen.py: metric `gain_static` assigned from an RNG draw (line 48)
+
+The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
+
+**Summary**: 2 fabricated/simulated-result signal(s) — results are not real measurements: code/src/synthetic_gen.py: metric `gain_embodied` assigned from an RNG draw (line 47); code/src/synthetic_gen.py: metric `gain_static` assigned from an RNG draw (line 48); 3 command(s) failed: python code/src/cli.py  --mode=secondary_analysis  --input=data/raw/public_dataset.csv  --output=data/processed/analysis_result.json (rc=1); python code/src/cli.py  --mode=synthetic  --n_participants=100  --effect_size=0.5  --output=data/synthetic/generated_dataset.csv (rc=1); python code/src/cli.py  --mode=secondary_analysis  --input=data/raw/public_dataset.csv  --sweep_thresholds=0.01,0.05,0.10  --output=data/processed/full_report.json (rc=1); 1 declared deliverable(s) absent: data/synthetic/generated_data.csv
+
+## Failing / missing run-book commands
+
+- python code/src/cli.py  --mode=secondary_analysis  --input=data/raw/public_dataset.csv  --output=data/processed/analysis_result.json -> rc=1
+2026-10-19 17:16:15,647 - __main__ - INFO - Starting secondary analysis on data/raw/public_dataset.csv
+2026-10-19 17:16:15,647 - data_loader - ERROR - Input file not found: data/raw/public_dataset.csv
+2026-10-19 17:16:15,647 - __main__ - ERROR - Gain‑score calculation failed: 'NoneType' object has no attribute 'columns'
+
+
+- python code/src/cli.py  --mode=synthetic  --n_participants=100  --effect_size=0.5  --output=data/synthetic/generated_dataset.csv -> rc=1
+2026-10-19 17:16:16,325 - __main__ - INFO - Starting synthetic data generation with n=1000, seed=42
+2026-10-19 17:16:16,326 - root - INFO - Random seed set to 42
+2026-10-19 17:16:16,326 - root - INFO - Random seed set to 42
+
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py", line 263, in <module>
+    sys.exit(main() or 0)
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py", line 252, in main
+    return run_synthetic_generation(args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py", line 141, in run_synthetic_generation
+    df.to_csv(csv_path, index=False)
+    ^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'to_csv'
+
+- python code/src/cli.py  --mode=secondary_analysis  --input=data/raw/public_dataset.csv  --sweep_thresholds=0.01,0.05,0.10  --output=data/processed/full_report.json -> rc=1
+2026-10-19 17:16:17,006 - __main__ - INFO - Starting secondary analysis on data/raw/public_dataset.csv
+2026-10-19 17:16:17,006 - data_loader - ERROR - Input file not found: data/raw/public_dataset.csv
+2026-10-19 17:16:17,006 - __main__ - ERROR - Gain‑score calculation failed: 'NoneType' object has no attribute 'columns'
+
+
+
+## Declared deliverables still missing
+
+- data/synthetic/generated_data.csv
+
+## Declared deliverables NOT produced — make the run-book produce them
+
+Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
+
+- `data/synthetic/generated_data.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/src/cli.py` — IS a run-book command
+  Make ONE of these WRITE `data/synthetic/generated_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

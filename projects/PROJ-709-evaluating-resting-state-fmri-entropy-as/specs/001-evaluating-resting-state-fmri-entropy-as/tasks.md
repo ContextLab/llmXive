@@ -1,6 +1,10 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Evaluating Resting‑State fMRI Entropy as a Biomarker for Attention‑Deficit Traits
 
-**Input**: Design documents from `/specs/001-evaluating-resting-state-fmri-entropy-as-biomarker/`
+**Input**: Design documents from `/specs/001-evaluating-resting-state-fmri-as-biomarker/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -10,7 +14,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -43,25 +47,32 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Initialize project directory structure: Create `code/`, `data/raw/`, `data/processed/`, `data/derived/`, `tests/`, and `docs/` directories; create `code/__init__.py` and `.gitkeep` files in data directories.
+- [ ] T001 [P] Initialize project directory structure: Create `code/`, `data/raw/`, `data/processed/`, `data/derived/`, `code/logs/`, `tests/`, and `docs/` directories; create `code/__init__.py` and `.gitkeep` files in data directories.
 - [X] T002a [P] Create `code/requirements.txt` with pinned versions: `antropy`, `scikit-learn`, `nibabel`, `nilearn`, `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `statsmodels`, `openneuro-py`, `pyyaml`.
-- [ ] T002b [P] Initialize a Python virtual environment (`python -m venv.venv`) and install dependencies from `code/requirements.txt` (`pip install -r code/requirements.txt`). <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T002b [P] [Depends: T002a] Verify environment pinning: Create `code/.venv` and verify the interpreter version is >=3.11 by running `code/.venv/bin/python --version`.
+- [ ] T003a [P] Configure environment pinning: Create `code/.env.example` with `CUDA_VISIBLE_DEVICES=` and `code/requirements.txt` with pinned versions to satisfy Constitution Principle I (Reproducibility).
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/config.py` defining hyperparameters: `m=2`, `r_factor=0.2`, `fd_threshold=0.2`, `target_length=120`, `atlas_n=200`, `dataset_id="ds000305"`.
-- [ ] T005 [P] Implement `code/data_loader.py` to fetch ADHD dataset `ds000305` from OpenNeuro; verify checksums using SHA256 and write `data/raw/checksums.sha256`; implement logic to filter subjects with < 100 time points (post-scrubbing simulation) and log exclusions to `data/raw/exclusions.log` with headers: subject_id, reason, fd_mean; **MUST write the filtered list of valid subjects to `data/derived/valid_subjects.csv` to satisfy Constitution Principle III (Data Hygiene)**.
-- [X] T006 [P] Implement `code/utils.py` for logging, exclusion handling, and basic plotting utilities
-- [ ] T007 Create base data structures: `Subject` (NIfTI path, phenotypic data), `Parcel` (index, mask), `EntropyFeature`
-- [~] T008 Configure environment configuration management for CPU-only execution (no CUDA flags)
-- [X] T009 Setup `code/preprocessing.py` skeleton for motion scrubbing and time-series standardization
+- [ ] T004 [P] Create `code/config.py` defining hyperparameters: `m=2`, `r_factor=0.2`, `fd_threshold=0.2`, `target_length=120`, `atlas_n=200`, `dataset_id="ds000305"`, and `SAMPLE_SIZE_N=50`. **Explicit Logic**: Assert that the loaded dataset contains at least 50 valid subjects; if fewer, raise a `RuntimeError`. **Verification**: Assert `config.dataset_id` is exactly "ds000305". **Note**: `SAMPLE_SIZE_N=50` is a resource-constrained subset of the Spec's Assumption (n≥100); this configuration is explicitly validated to prevent silent failure.
+- [ ] T005a [P] [Depends: T004] Implement `code/data_loader.py` to fetch the ADHD dataset from OpenNeuro (ds000305). **Use `datasets.load_dataset("openneuro/ds000305", split="train", streaming=True)` to stream metadata** and identify subjects. **Crucially**, for each subject identified, download the corresponding NIfTI file to `data/raw/` and write a SHA256 checksum to `data/raw/checksums.sha256` before processing. This ensures memory efficiency while satisfying Constitution Principle III (Data Hygiene) by preserving checksummed local files.
+- [ ] T005b [P] [Depends: T005a] Verify checksums using SHA256 and write `data/raw/checksums.sha256`.
+- [~] T005c [P] [Depends: T005b] Implement `code/data_loader.py` to write the filtered list of valid subjects to `data/derived/valid_subjects.csv` with schema: `subject_id` (str), `site` (str), `diagnosis` (str).
+- [~] T013a [P] [Depends: T005c] Implement `code/preprocessing.py`: Calculate Framewise Displacement (FD) for each volume using `nilearn` and `config.py` parameters.
+- [~] T013b [P] [Depends: T013a] Implement `code/preprocessing.py`: Scrub volumes with FD > 0.2mm.
+- [~] T013c [P] [Depends: T013b] Implement `code/preprocessing.py`: **Compute and save FD statistics for ALL subjects (included and excluded) to `data/derived/subject_fd_stats.csv`**. Schema: `subject_id`, `mean_fd`, `max_fd`, `scrub_fraction`. This artifact is required for SC-006 (Motion Confound Check) to ensure correlation is calculated on the full cohort.
+- [~] T013d [Depends: T013b] Implement `code/preprocessing.py`: **Calculate the standard deviation (SD) for the entropy tolerance `r` using ONLY the time points remaining after motion scrubbing** (pre-truncation). **Output**: `data/derived/subject_sd_values.csv`. **Constraint**: This MUST happen BEFORE T014 (truncation) to comply with FR-010.
+- [~] T005d [Depends: T013d, T013b] Implement exclusion logging in `code/data_loader.py`: Filter subjects with < 100 time points (post-scrubbing, pre-truncation) and log exclusions to `code/logs/exclusions.log` with headers: `subject_id`, `reason` (fixed string: "insufficient_time_points"), `time_point_count`. **Note**: This task MUST run AFTER scrubbing (T013b) and SD calculation (T013d) but BEFORE truncation (T014) to accurately capture the post-scrubbing count.
+- [~] T014 [P] [Depends: T013d, T005d] Implement `code/preprocessing.py`: **Subsample/Truncate valid subjects to exactly N=120 volumes (FR-011)**. **Input**: Scrubbed time series and pre-calculated SD. **Output**: `data/processed/scrubbed_truncated_{subject_id}.nii.gz`. **Constraint**: This MUST happen AFTER SD calculation (T013d) to ensure consistent length bias without affecting the `r` parameter.
+- [~] T005e [P] [Depends: T005d] Verify `data/derived/valid_subjects.csv` exists and contains only subjects not in `code/logs/exclusions.log`.
+- [~] T007 [P] Create base data structures: Implement `code/models.py` with `dataclasses`: `Subject` (attributes: `id`, `nifti_path`, `phenotype`), `Parcel` (attributes: `index`, `mask_path`), `EntropyFeature` (attributes: `subject_id`, `parcel_index`, `value`). Use these for type hinting in downstream modules.
+- [~] T008 [P] Configure environment for CPU-only execution: Create `code/.env` setting `CUDA_VISIBLE_DEVICES=` and update `code/config.py` to set `device="cpu"` explicitly; verify `CUDA_VISIBLE_DEVICES` is unset in the environment.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,25 +82,22 @@
 
 **Goal**: Compute the primary feature matrix (Subject x Variable Parcels) of Sample Entropy values from preprocessed fMRI data.
 
-**Independent Test**: Run on 5 subjects; verify output `subject_entropy_features.csv` is (5, 201) numeric matrix (no NaN), values in range [lower bound, upper threshold].
+**Independent Test**: Run on multiple subjects; verify output `subject_entropy_features.csv` is a numeric matrix with dimensions corresponding to the number of subjects and A set of features. (no NaN), values in range [lower bound, upper threshold].
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for motion scrubbing logic in `tests/unit/test_preprocessing.py` (verify FD > 0.2mm removal)
-- [X] T011 [P] [US1] Unit test for entropy calculation in `tests/unit/test_entropy.py` (verify m=2, r=0.2*SD on synthetic data)
-- [~] T012 [P] [US1] Integration test for full US1 pipeline on 2 subjects in `tests/integration/test_us1_pipeline.py`
+- [~] T010 [P] [US1] Unit test for motion scrubbing logic in `tests/unit/test_preprocessing.py`: Verify FD > 0.2mm removal using a synthetic time series with known FD values (e.g., [0.1, 0.3, 0.1]) and assert the output list of removed indices matches [1].
+- [~] T011 [P] [US1] Unit test for entropy calculation in `tests/unit/test_entropy.py`: Verify m=2, r=0.2*SD on synthetic data (e.g., white noise) and assert the computed entropy falls within the theoretical bounds.
+- [~] T012 [P] [US1] Integration test for full US1 pipeline on 2 subjects (sub-001, sub-002) in `tests/integration/test_us1_pipeline.py`. Verify output file path `data/processed/subject_entropy_features.csv` exists and has correct schema.
 
 ### Implementation for User Story 1
 
-- [~] T013 [P] [US1] Implement `code/preprocessing.py`: Calculate Framewise Displacement (FD), scrub volumes > 0.2mm, log exclusions to `data/raw/exclusions.log`. <!-- ATOMIZE: requested -->
-- [X] T014 [US1] Implement `code/preprocessing.py`: Subsample/Truncate valid subjects to exactly N=120 volumes (FR-011).
-- [ ] T015 [US1] Implement `code/entropy_engine.py`: **Read scrubbed time series from `data/processed/scrubbed_*.nii.gz`, FIRST truncate to N=120, THEN compute SD on the truncated series**, then calculate SampEn (m=2, r=0.2*SD) for each parcel (FR-001, FR-010). Output `data/processed/truncated_*.nii.gz` if needed for downstream steps.
-- [ ] T016 [US1] Implement `code/entropy_engine.py`: Handle zero-variance parcels by imputing with cohort median (FR-009).
-- [~] T018a [US1] Implement `code/main.py`: Orchestrate subject-loop, skipping subjects in `exclusions.log`, to generate `data/processed/subject_entropy_features.csv`.
-- [ ] T018b [US1] Verify output file `data/processed/subject_entropy_features.csv` exists with shape (N, 201) and no NaN values.
-- [~] T019 [US1] Add validation: Ensure no NaN values in final CSV; verify biologically plausible range.
+- [~] T015a [Depends: T014, T013d] Implement `code/entropy_engine.py`: **Compute Sample Entropy (m=2, r=0.2*SD) for each parcel using the TRUNCATED N=120 time series** (from T014) and the **pre-calculated SD from T013d**. **Constraint**: Load the pre-calculated SD values from `data/derived/subject_sd_values.csv` (generated in T013d) and use them for the `r` parameter. **Output**: `data/processed/subject_entropy_features.csv`. Verification: Assert SD is taken from T013d, and values are within biological range.
+- [~] T015c [US1] [Depends: T015a] Implement `code/entropy_engine.py`: **Calculate the cohort-wide median entropy value for EACH of the parcels** across all valid subjects. **Output**: `data/derived/cohort_entropy_medians.csv` (parcel_index, median_value). This is required for FR-009 imputation.
+- [~] T015d [US1] [Depends: T015c] Implement `code/entropy_engine.py`: **Handle zero-variance parcels by imputing with the cohort median** (from T015c). **Output**: `data/processed/subject_entropy_features.csv`. Verification: Assert no NaN values remain and imputed values match the cohort median.
+- [~] T018 [US1] [Depends: T015d] Implement `code/main.py`: Orchestrate subject-loop, skipping subjects in `code/logs/exclusions.log`, to generate `data/processed/subject_entropy_features.csv`. **Function signature: `def run_pipeline() -> str` returning path to CSV.** **Verification**: `assert os.path.exists(output_path)`, `assert not df.isnull().any().any()`, `assert df.shape[1] == 201`, `assert list(df.columns) == ['subject_id'] + [f'parcel_{i:03d}' for i in range(1, 201)]`. **Add Data Provenance Check**: Verify that `data/raw/checksums.sha256` exists and matches current state of `data/raw/`; if mismatched, raise `RuntimeError`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,20 +111,25 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Unit test for 5-fold stratified CV split in `tests/unit/test_modeling.py`
-- [ ] T021 [P] [US2] Integration test for model training on small feature matrix in `tests/integration/test_us2_modeling.py`
+- [~] T020 [P] [US2] Unit test for 5-fold stratified CV split in `tests/unit/test_modeling.py`: Verify split logic using mock labels [0,0,1,1] and assert each fold maintains the exact class ratio.
+- [~] T021 [P] [US2] Integration test for model training on small feature matrix in `tests/integration/test_us2_modeling.py`: Use input matrix x200 and assert output metrics (Pearson r, AUC) are generated.
 
 ### Implementation for User Story 2
 
-- [ ] T022a [P] [US2] Implement `code/connectivity_engine.py`: Compute full 200x200 functional connectivity matrix for each subject using chunked processing; **Write the single 200x200 matrix per subject to `data/processed/connectivity_matrix_{subject_id}.npy`** (FR-008); **ensure the entropy feature set construction strictly excludes motion covariates (e.g., scrub_fraction)**.
-- [ ] T022b [US2] Implement aggregation logic in `code/connectivity_engine.py`: If multiple runs are merged, combine matrices from `data/processed/` into a unified list; ensure the Single Source of Truth is the individual subject matrix file.
-- [ ] T023a [US2] Implement `code/connectivity_engine.py`: Apply PCA to reduce the 200x200 connectivity matrix to **200 components** (no reduction) as the intermediate baseline representation (FR-008).
-- [ ] T023c [US2] Implement `code/connectivity_engine.py`: **Perform Feature Selection (RFE or L) on the 200 PCA components to reduce the feature space to a stable subset (20-50 features)** to address the N=100, p=200 underpowered ratio. Output `data/derived/connectivity_features_reduced.csv`.
-- [ ] T024 [P] [US2] Implement `code/modeling.py`: Train Ridge Regression for ADHD-RS prediction using **Entropy-only**, **Connectivity-only (using reduced features from T023c)**, and **Combined** models (FR-003); **ensure the Entropy-only feature set strictly excludes motion covariates**.
-- [ ] T025 [US2] Implement `code/modeling.py`: Train Logistic Ridge for binary diagnosis (Entropy-only, Connectivity-only, Combined) (FR-003).
-- [ ] T026 [US2] Implement `code/modeling.py`: Execute k-fold stratified cross-validation preserving label balance (FR-002).
-- [ ] T027 [US2] Implement `code/modeling.py`: Calculate mean Pearson r and AUC with standard deviations for all models.
-- [ ] T028 [US2] Implement `code/modeling.py`: Perform Nested Model Comparison (Likelihood Ratio Test) to verify unique value of entropy (FR-003).
+- [~] T022a [P] [US2] [Depends: T014] Implement `code/connectivity_engine.py`: Compute full 200x200 functional connectivity matrix for each subject using the **truncated N=120 time series** (from T014) to ensure fair comparison with entropy features. Use chunked processing.
+- [~] T022b [P] [Depends: T022a] Implement `code/connectivity_engine.py`: Write the single 200x200 matrix per subject to `data/processed/connectivity_matrix_{subject_id}.npy` (FR-008).
+- [~] T022c [P] [US2] Implement aggregation logic in `code/connectivity_engine.py`: If multiple runs are merged, combine matrices from `data/processed/` into a unified list; ensure the Single Source of Truth is the individual subject matrix file.
+- [~] T023a [Depends: T022a] Implement `code/connectivity_engine.py`: Apply PCA to reduce the 200x200 connectivity matrix to **exactly 200 components** as the intermediate baseline representation (FR-008).
+- [~] T023b [P] [Depends: T023a] Implement `code/connectivity_engine.py`: Write the PCA output to `data/derived/connectivity_features_baseline.csv`. **This is the PRIMARY baseline for SC-001/SC-002. NO OTHER ARTIFACT MAY BE USED FOR PRIMARY CLAIMS.**
+- [~] T024a [US2] [Depends: T018, T023b] Implement `code/modeling.py`: Train Ridge Regression for ADHD-RS prediction using the **Entropy-only** model. **This is the PRIMARY analysis for SC-001/SC-002.** Ensure the Entropy-only feature set strictly excludes motion covariates.
+- [~] T024b [US2] [Depends: T018, T023b] Implement `code/modeling.py`: Train Ridge Regression for ADHD-RS prediction using the **Connectivity-only** model (using 200 components from T023b).
+- [~] T024c [US2] [Depends: T018, T023b] Implement `code/modeling.py`: Train Ridge Regression for ADHD-RS prediction using the **Combined Entropy+Connectivity-Baseline** model.
+- [~] T024d [P] [Depends: T024a, T024b, T024c] Implement `code/modeling.py`: **Assert the feature set** for each model. Raise `ValueError` if any motion covariates (e.g., `scrub_fraction`) are detected in the Entropy-only model.
+- [~] T025 [US2] Implement `code/modeling.py`: Train Logistic Ridge for binary diagnosis (Entropy-only, Connectivity-Baseline, Combined) (FR-003).
+- [~] T026 [US2] Implement `code/modeling.py`: Execute k-fold stratified cross-validation preserving label balance (FR-002).
+- [~] T027 [US2] Implement `code/modeling.py`: Calculate mean Pearson r and AUC with standard deviations for all models.
+- [~] T028 [US2] Implement `code/modeling.py`: Perform Nested Model Comparison (Likelihood Ratio Test) to verify unique value of entropy (FR-003).
+- [~] T047 [US2] [Depends: T024a] Implement `code/modeling.py`: **Add explicit assertion in the Entropy-only model training pipeline that the feature matrix columns contain ONLY entropy values and NO motion covariates.** Raise a `ValueError` if any of the following columns are detected: `scrub_fraction`, `FD_mean`, `FD_std`, `motion_params`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,24 +139,38 @@
 
 **Goal**: Validate results via permutation testing, sensitivity analysis on `r`, and FDR correction.
 
-**Independent Test**: Run permutation (1000 iter) and sensitivity sweep; verify p-value < 0.05 and stability plot.
+**Independent Test**: Run permutation (1000 iters) and sensitivity sweep; verify p-value < 0.05 and stability plot.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Unit test for permutation logic in `tests/unit/test_validation.py`
-- [ ] T031 [P] [US3] Unit test for FDR logic and verify count > 0 logic (SC-005) in `tests/unit/test_validation.py`
+- [~] T030 [P] [US3] Unit test for permutation logic in `tests/unit/test_validation.py`: Verify logic using a mock dataset with a known null distribution and assert the empirical p-value calculation matches the expected fraction of permuted models outperforming the observed.
+- [~] T031 [P] [US3] Unit test for FDR logic in `tests/unit/test_validation.py`: Verify logic using a mock set of p-values with known significant indices and assert the count of significant features matches the expected result. **Add unit test for motion confound**: Create a mock dataset where entropy and FD are perfectly correlated (r=1.0) and verify that the motion confound check correctly flags the result as potentially confounded.
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Implement `code/validation.py`: Perform a sufficient number of permutations of outcome labels to derive empirical p-values (FR-004).
-- [ ] T033 [US3] Implement `code/validation.py`: Sweep `r` ∈ {0.15, 0.20, 0.25} and calculate performance variance (FR-005).
-- [ ] T034 [US3] Implement `code/validation.py`: Apply FDR correction to parcel-level coefficients; output `significant_parcels.csv`; **record the count of significant parcels (even if zero) and flag the result in the report; do NOT raise an exception** (FR-006, SC-005).
-- [ ] T035 [US3] Implement `code/validation.py`: Calculate correlation between mean entropy and mean FD; flag if |r| ≥ 0.3 (SC-006).
-- [ ] T036a [US3] Implement `code/validation.py`: **Calculate the raw difference in mean Pearson correlation (Δr) between Entropy-only and Connectivity-only models; verify if Δr ≥ 0.05 and record the result in model_metrics.json** (SC-001).
-- [ ] T036b [US3] Implement `code/validation.py`: Perform paired t-test on fold differences (Entropy vs Connectivity) to assess statistical significance of Δr (separate from the effect size check).
-- [ ] T037 [US3] Implement `code/validation.py`: Calculate confidence interval for ΔAUC (using bootstrapping; **if bootstrapping exceeds time budget, use standard error approximation**). **Extract the lower bound of the 95% CI and verify if it is ≥ 0.05** (SC-002).
-- [ ] T038 [US3] Generate `data/derived/model_metrics.json` aggregating all success criteria metrics from T024, T025, T027, T032, T033, T036a, T037 with schema: `delta_r` (float), `delta_auc_ci_lower` (float), `p_value_permutation` (float), `sensitivity_variance_r` (float), `sensitivity_variance_auc` (float), `significant_parcels_count` (int).
-- [ ] T039 [US3] Generate `data/derived/motion_confound_report.json` and sensitivity plots.
+- [~] T032a [P] [US3] Implement `code/validation.py`: **Perform a sufficient number of permutations of outcome labels** to ensure robust statistical inference (FR-004, SC-003). **Set `np.random.seed(42)` (or configurable seed) BEFORE the permutation loop starts**. Add a verification step that re-runs the permutation with the same seed and asserts the `p_value_permutation` is identical.
+- [~] T032b [P] [Depends: T032a] Implement `code/validation.py`: **Write the empirical p-value** to `data/derived/permutation_p_value.txt`. Verification: Assert the log shows that the full set of iterations has been completed.
+- [~] T033 [US3] Implement `code/validation.py`: **Sweep `r` across a range of representative values** (0.15, 0.20, 0.25) and calculate performance variance (FR-005). **Output**: `data/derived/sensitivity_analysis.csv`.
+- [~] T034 [US3] Implement `code/validation.py`: Apply FDR correction to parcel-level coefficients; output `significant_parcels.csv`; **record the count of significant parcels (even if zero) and flag the result in the report; do NOT raise an exception** (FR-006, SC-005).
+- [~] T035 [US3] [Depends: T013c, T015d] Implement `code/validation.py`: Calculate correlation between mean entropy and mean FD using `data/derived/subject_fd_stats.csv` and `data/processed/subject_entropy_features.csv`. **Logic**: `if abs(corr) >= 0.3: flag = True; write to motion_confound_report.json`. Flag if |r| ≥ 0.3 (SC-006).
+- [~] T036a [US3] [Depends: T027, T024a, T023b] Implement `code/validation.py`: **Calculate the raw difference in mean Pearson correlation (Δr) between Entropy-only and Connectivity-Baseline (200 components from T023b) models; output `delta_r` to `model_metrics.json`** (SC-001).
+- [~] T036b [US3] [Depends: T027, T024a, T023b] Implement `code/validation.py`: Perform paired t-test on fold differences (Entropy vs Connectivity) to assess statistical significance of Δr.
+- [~] T037 [US3] [Depends: T027, T024a, T023b] Implement `code/validation.py`: **Calculate the 95% confidence interval lower bound for ΔAUC using the percentile method with 1000 bootstrap iterations**. Extract the lower bound and verify if it is ≥ 0.05 (SC-002).
+- [~] T038a [US3] [Depends: T036a, T036b, T037, T032b, T033, T034, T035] Implement `code/validation.py`: **Calculate and aggregate all validation metrics** (delta_r, delta_auc_ci_lower, p_value_permutation, sensitivity_variance_r, sensitivity_variance_auc, significant_parcels_count, motion_confound_flag) into `data/derived/model_metrics.json`.
+- [~] T039a [P] [US3] Implement `code/validation.py`: **Aggregate the `code/logs/exclusions.log`** into a structured format.
+- [~] T039b [P] [Depends: T035, T039a] Implement `code/validation.py`: **Generate `data/derived/motion_confound_report.json`** containing the motion correlation result and exclusion summary.
+- [~] T048 [US3] [Depends: T015d, T032a] Implement `code/validation.py`: **Ensure permutation testing uses the EXACT same feature matrix and preprocessing pipeline as the primary model (T024a) to guarantee statistical validity.** Verification: **Compute SHA256 hash of feature matrix used in T024a and T048; assert hashes match.**
+- [~] T051 [P] [US3] **Implement a verification step in `code/validation.py` that asserts the permutation count is exactly 1,000 in the final log.** If the count is less, raise a `RuntimeError`.
+
+**Success Criteria Verification Tasks**
+
+- [~] T043a [US3] [Depends: T038a] Implement `code/validation.py`: **Verify SC-001**: Assert `delta_r >= 0.05`. Output `sc001_passed` (bool) to `final_success_report.json`.
+- [~] T043b [US3] [Depends: T038a] Implement `code/validation.py`: **Verify SC-002**: Assert `delta_auc_ci_lower >= 0.05`. Output `sc002_passed` (bool) to `final_success_report.json`.
+- [~] T043c [US3] [Depends: T038a] Implement `code/validation.py`: **Verify SC-003**: Assert `p_value_permutation < 0.05`. Output `sc003_passed` (bool) to `final_success_report.json`.
+- [~] T043d [US3] [Depends: T038a] Implement `code/validation.py`: **Verify SC-004**: Assert `|perf(0.20) - mean(perf)| / mean(perf) <= 0.10`. Output `sc004_passed` (bool) to `final_success_report.json`.
+- [~] T043e [US3] [Depends: T038a] Implement `code/validation.py`: **Verify SC-005**: **Calculate** `significant_parcels_count`. **Record** the count in `final_success_report.json` (do NOT assert > 0). The spec requires measuring the count, not enforcing a positive result.
+- [~] T043f [US3] [Depends: T035] Implement `code/validation.py`: **Verify SC-006**: Assert `abs(corr_entropy_fd) < 0.3`. Output `sc006_passed` (bool) to `final_success_report.json`.
+- [~] T043g [P] [Depends: T043a, T043b, T043c, T043d, T043e, T043f] Implement `code/validation.py`: **Generate `data/derived/final_success_report.json`** containing all boolean flags: `sc001_passed`, `sc002_passed`, `sc003_passed`, `sc004_passed`, `sc005_passed`, `sc006_passed`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,102 +180,34 @@
 
 **Purpose**: Improvements that affect multiple user stories and final reporting
 
-- [ ] T040 [P] Documentation updates in `docs/` and `README.md`; **Add a Quickstart section with a single command to run the full pipeline**
-- [ ] T041 Code cleanup and refactoring of `code/` modules
-- [ ] T042 [P] Performance optimization: **Run `code/main.py --subset` on 50 subjects, measure wall-clock time, record in `data/derived/runtime_log.txt`; fail if > 6h** (Plan: 'Performance Goals').
-- [ ] T043 [P] Run full integration test suite on the complete dataset subset
-- [ ] T044 Finalize `paper/` draft with all verified metrics from `model_metrics.json`
-- [ ] T045 Run quickstart.md validation
+- [~] T040 [P] Documentation updates: Update `README.md` with a **Quickstart section** containing a single command to run the full pipeline (`python code/main.py`), and verify execution with `--help` to assert it displays usage information without errors.
+- [~] T041 [P] Code cleanup: Run `black` and `isort` on `code/` and `tests/`; verify with `black --check` and `isort --check-only`.
+- [~] T042a [P] [US3] Implement `tests/integration/test_performance.py`: Run `code/main.py --subset=50` (where 50 means A cohort of subjects) and assert `runtime < 6h`.
+- [~] T042b [P] [Depends: T042a] Record runtime in `data/derived/runtime_log.txt`.
+- [~] T044a [P] [US3] Implement `tests/unit/` execution: Run `pytest tests/unit/` and assert exit code 0.
+- [~] T044b [P] [US3] Implement `tests/integration/` execution: Run `pytest tests/integration/` and assert exit code 0.
+- [~] T044c [P] [US3] Implement `tests/` full suite execution: Run `pytest tests/` and assert exit code 0.
+- [~] T045a [P] [US3] Implement `code/validation.py`: Verify `python code/main.py --help` output contains "Usage".
+- [~] T045b [P] [US3] Implement `code/validation.py`: Verify `python code/main.py --help` output contains "Options".
+- [~] T049 [P] [US1] **Implement robust error handling in `code/data_loader.py` to ensure that if the OpenNeuro fetch fails, the script raises a clear `RuntimeError` and does NOT fall back to synthetic data generation.** Verify by simulating a network failure and asserting the process halts with an appropriate error message.
+- [~] T050 [P] [US2] **Add explicit logging in `code/modeling.py` to record the exact number of samples (N) and features (P) used in each model training run, and verify that N < P triggers a warning log entry regarding potential overfitting.**
+- [~] T053 [P] [US1] **Add a verification step in `code/entropy_engine.py` to ensure that the entropy calculation does not produce NaN or Inf values for any parcel, and log the specific subject/parcel combination if such values occur, triggering an exclusion.**
+- [~] T054 [P] [US2] **Implement a robust check in `code/modeling.py` to ensure that the stratified cross-validation splits maintain a minimum of samples per class in each fold, raising a `ValueError` if the class distribution is too imbalanced for valid stratification.**
+- [~] T055 [P] [US1] **Implement unit test in `tests/unit/test_entropy.py`**: Create a synthetic white noise signal and verify biological plausibility by asserting the computed entropy falls within the expected theoretical bounds.
+- [~] T056 [P] [US2] **Implement unit test in `tests/unit/test_modeling.py`**: Create a mock dataset with a known class imbalance (e.g., a skewed ratio). and verify that stratified CV logic maintains the exact ratio of classes in each fold.
+- [~] T057 [P] [US3] **Implement unit test in `tests/unit/test_validation.py`**: Create a mock set of p-values with known significant and non-significant values and verify that the FDR correction correctly identifies the significant ones.
+- [~] T058 [P] [US3] **Implement unit test in `tests/unit/test_validation.py`**: Create a mock dataset where entropy and FD are perfectly correlated (r=1.0) and verify that the motion confound check correctly flags the result as potentially confounded.
+- [~] T059 [P] [US3] **Implement unit test in `tests/unit/test_validation.py`**: Create a mock dataset and verify that the sensitivity analysis logic correctly calculates the performance variance across different `r` values.
+- [~] T060 [P] [US3] **Implement unit test in `tests/unit/test_validation.py`**: Create a mock dataset with a known null distribution and verify that the permutation testing logic correctly calculates the empirical p-value.
+
+**Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Dependencies & Execution Order
+## Phase 7: Revision & Data Integrity (Addressing Review Concerns)
 
-### Phase Dependencies
+**Purpose**: Address specific reviewer concerns regarding data streaming, sample size justification, and reproducibility of the permutation test.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+(No tasks remain in this phase; all logic has been moved to earlier phases as per ordering corrections.)
 
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for motion scrubbing logic in tests/unit/test_preprocessing.py"
-Task: "Unit test for entropy calculation in tests/unit/test_entropy.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/preprocessing.py: Calculate Framewise Displacement"
-Task: "Implement code/entropy_engine.py: Compute SD and SampEn"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Entropy Pipeline)
- - Developer B: User Story 2 (Modeling & Connectivity)
- - Developer C: User Story 3 (Validation & Stats)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+**Checkpoint**: All user stories should now be independently functional

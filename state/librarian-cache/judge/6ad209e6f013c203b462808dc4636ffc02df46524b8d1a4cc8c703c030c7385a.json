@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.04233",
+  "judged_at": "2026-08-15T09:35:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"vidu s1: a real-time interactive video generation model\" computer science",
+  "rationale": "This paper is the foundational work introducing the \"Vidu\" model, which is the specific subject of the user's follow-up research question regarding \"Vidu S1.\" It satisfies category (d) as the canonical reference for the model architecture and capabilities that the user's new research aims to extend.",
+  "relevant": true
+}

@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-17T05:24:51.465339+00:00'
+issue_number: 1392
+project_id: PROJ-830-llmxive-follow-up-extending-gatemem-benc

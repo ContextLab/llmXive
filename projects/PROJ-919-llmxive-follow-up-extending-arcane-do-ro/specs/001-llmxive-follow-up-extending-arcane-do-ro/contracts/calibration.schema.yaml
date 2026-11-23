@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Calibration Record Schema"
+description: "Schema for calibration data used in Judge model evaluation against human annotations."
+type: "object"
+required:
+  - "character"
+  - "scenario"
+  - "ground_truth_score"
+  - "ground_truth_phase"
+properties:
+  character:
+    type: "string"
+    description: "The name of the character being evaluated (e.g., 'Harry Potter', 'Elizabeth Bennet')."
+    minLength: 1
+  scenario:
+    type: "string"
+    description: "The textual description of the scenario or prompt presented to the model."
+    minLength: 1
+  ground_truth_score:
+    type: "integer"
+    description: "The human-annotated ground truth score on a Likert scale."
+    minimum: 1
+    maximum: 5
+  ground_truth_phase:
+    type: "string"
+    description: "The specific phase of the character arc associated with this annotation."
+    minLength: 1
+additionalProperties: false

@@ -1,6 +1,3 @@
 """
-Training pipeline modules.
+Training package containing training loops, datasets, and checkpoint management.
 """
-from .train import train_models
-
-__all__ = ["train_models"]

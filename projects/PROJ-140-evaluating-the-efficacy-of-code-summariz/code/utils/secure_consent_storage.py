@@ -1,173 +1,154 @@
-"""
-Secure storage logic for raw consent forms.
-Implements Constitution Principle VI: Non-public storage with access control.
-
-This module ensures:
-1. Consent forms are stored in a non-public directory (`data/consent/`).
-2. File permissions are set to `chmod 600` (owner read/write only).
-3. The directory is explicitly excluded from version control via `.gitignore`.
-"""
 import os
 import stat
 import logging
 from pathlib import Path
 from typing import Optional
 
-# Import logging setup from existing utils
-from utils.logging_utils import setup_logging, get_logger
+from utils.logging_utils import get_logger
 
-# Configure logger
-logger = get_logger(__name__)
-
+# Constants
 CONSENT_DIR = Path("data/consent")
 GITIGNORE_PATH = Path(".gitignore")
-GITIGNORE_RULE = "data/consent/"
+PERMISSION_MODE = stat.S_IRUSR | stat.S_IWUSR  # 0o600 (rw-------)
+DIRECTORY_PERMISSION_MODE = stat.S_IRWXU  # 0o700 (rwx------)
 
-def ensure_consent_directory() -> Path:
-    """
-    Creates the consent directory if it does not exist.
-    Returns the path to the directory.
-    """
-    if not CONSENT_DIR.exists():
-        CONSENT_DIR.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created consent directory: {CONSENT_DIR}")
-    else:
-        logger.debug(f"Consent directory already exists: {CONSENT_DIR}")
-    return CONSENT_DIR
+logger = get_logger(__name__)
 
-def enforce_file_permissions(file_path: Path) -> bool:
+def ensure_consent_directory(directory: Optional[Path] = None) -> Path:
     """
-    Sets file permissions to 600 (owner read/write only) for a specific file.
+    Ensure the consent directory exists. Creates it with restricted permissions if missing.
     
     Args:
-        file_path: Path to the file to secure.
+        directory: Optional custom path. Defaults to data/consent.
         
     Returns:
-        True if permissions were successfully set, False otherwise.
+        Path to the consent directory.
+    """
+    target_dir = directory if directory else CONSENT_DIR
+    
+    if not target_dir.exists():
+        target_dir.mkdir(parents=True, mode=DIRECTORY_PERMISSION_MODE)
+        logger.info(f"Created consent directory: {target_dir} with permissions 0o700")
+    else:
+        logger.debug(f"Consent directory already exists: {target_dir}")
+        
+    return target_dir
+
+def enforce_file_permissions(file_path: Path) -> None:
+    """
+    Set file permissions to 0o600 (read/write for owner only).
+    
+    Args:
+        file_path: Path to the file.
     """
     if not file_path.exists():
-        logger.error(f"File not found for permission enforcement: {file_path}")
-        return False
+        logger.warning(f"Cannot enforce permissions on non-existent file: {file_path}")
+        return
 
     try:
-        # Calculate the desired mode: read/write for owner, nothing for others
-        desired_mode = stat.S_IRUSR | stat.S_IWUSR
-        
-        # Get current mode
-        current_mode = file_path.stat().st_mode
-        
-        if current_mode != desired_mode:
-            file_path.chmod(desired_mode)
-            logger.info(f"Enforced permissions 600 on: {file_path}")
-            return True
-        else:
-            logger.debug(f"Permissions already correct for: {file_path}")
-            return True
+        # Remove all permissions first, then set owner read/write
+        os.chmod(file_path, PERMISSION_MODE)
+        logger.debug(f"Enforced permissions 0o600 on: {file_path}")
     except PermissionError as e:
-        logger.error(f"Permission denied while setting permissions on {file_path}: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Unexpected error setting permissions on {file_path}: {e}")
-        return False
+        logger.error(f"Permission denied while setting file permissions: {file_path} - {e}")
+        raise
+    except OSError as e:
+        logger.error(f"OS error while setting file permissions: {file_path} - {e}")
+        raise
 
-def enforce_directory_permissions(dir_path: Path) -> bool:
+def enforce_directory_permissions(directory: Path) -> None:
     """
-    Sets directory permissions to 700 (owner read/write/execute only) 
-    and recursively secures all files within to 600.
+    Set directory permissions to 0o700 (read/write/execute for owner only).
     
     Args:
-        dir_path: Path to the directory to secure.
-        
-    Returns:
-        True if all operations succeeded, False otherwise.
+        directory: Path to the directory.
     """
-    if not dir_path.exists():
-        logger.error(f"Directory not found: {dir_path}")
-        return False
+    if not directory.exists():
+        logger.warning(f"Cannot enforce permissions on non-existent directory: {directory}")
+        return
 
-    success = True
     try:
-        # Set directory permissions to 700 (rwx for owner)
-        dir_path.chmod(stat.S_IRWXU)
-        logger.info(f"Enforced permissions 700 on directory: {dir_path}")
-    except Exception as e:
-        logger.error(f"Failed to set directory permissions on {dir_path}: {e}")
-        success = False
+        os.chmod(directory, DIRECTORY_PERMISSION_MODE)
+        logger.debug(f"Enforced permissions 0o700 on: {directory}")
+    except PermissionError as e:
+        logger.error(f"Permission denied while setting directory permissions: {directory} - {e}")
+        raise
+    except OSError as e:
+        logger.error(f"OS error while setting directory permissions: {directory} - {e}")
+        raise
 
-    # Secure all files inside
-    for file_path in dir_path.rglob("*"):
-        if file_path.is_file():
-            if not enforce_file_permissions(file_path):
-                success = False
-        
-    return success
-
-def ensure_gitignore_exclusion() -> bool:
+def ensure_gitignore_exclusion() -> None:
     """
-    Ensures the `.gitignore` file exists and contains the exclusion rule for `data/consent/`.
+    Ensure that 'data/consent/' is excluded in .gitignore.
+    Adds the rule if it does not exist.
+    """
+    if not GITIGNORE_PATH.exists():
+        GITIGNORE_PATH.touch()
+        logger.info("Created .gitignore file.")
+
+    current_content = GITIGNORE_PATH.read_text()
+    consent_rule = "data/consent/"
+
+    if consent_rule not in current_content:
+        # Ensure there's a newline before appending if file isn't empty
+        if current_content and not current_content.endswith('\n'):
+            current_content += '\n'
+        
+        with open(GITIGNORE_PATH, 'a') as f:
+            f.write(f"{consent_rule}\n")
+        
+        logger.info(f"Added '{consent_rule}' to .gitignore")
+    else:
+        logger.debug(f"'{consent_rule}' already present in .gitignore")
+
+def secure_consent_storage(base_dir: Optional[Path] = None) -> Path:
+    """
+    Main entry point to secure the consent storage.
     
+    1. Ensures the directory exists with restricted permissions.
+    2. Ensures all existing files inside have restricted permissions.
+    3. Ensures .gitignore excludes the directory.
+    
+    Args:
+        base_dir: Optional base directory override.
+        
     Returns:
-        True if the rule is present or added successfully, False otherwise.
+        Path to the secured consent directory.
     """
-    try:
-        if not GITIGNORE_PATH.exists():
-            GITIGNORE_PATH.touch()
-            logger.info("Created new .gitignore file.")
-        
-        current_content = GITIGNORE_PATH.read_text()
-        
-        if GITIGNORE_RULE not in current_content:
-            with open(GITIGNORE_PATH, "a") as f:
-                f.write(f"\n# Secure consent forms (Principle VI)\n{GITIGNORE_RULE}\n")
-            logger.info(f"Added exclusion rule '{GITIGNORE_RULE}' to .gitignore")
-            return True
-        else:
-            logger.debug(f"Exclusion rule '{GITIGNORE_RULE}' already present in .gitignore")
-            return True
-    except Exception as e:
-        logger.error(f"Failed to update .gitignore: {e}")
-        return False
+    target_dir = base_dir if base_dir else CONSENT_DIR
+    
+    # 1. Ensure directory exists and has correct permissions
+    ensure_consent_directory(target_dir)
+    enforce_directory_permissions(target_dir)
+    
+    # 2. Enforce permissions on all existing files in the directory
+    if target_dir.exists():
+        for item in target_dir.iterdir():
+            if item.is_file():
+                enforce_file_permissions(item)
+            elif item.is_dir():
+                # Recursively secure subdirectories if any
+                for sub_item in item.rglob('*'):
+                    if sub_item.is_file():
+                        enforce_file_permissions(sub_item)
+    
+    # 3. Ensure gitignore exclusion
+    ensure_gitignore_exclusion()
+    
+    logger.info(f"Secure consent storage initialized at {target_dir}")
+    return target_dir
 
-def secure_consent_storage() -> bool:
+def main() -> None:
     """
-    Main entry point to secure the consent storage infrastructure.
-    
-    1. Ensures the directory exists.
-    2. Ensures .gitignore excludes the directory.
-    3. Enforces permissions on the directory and all existing files.
-    
-    Returns:
-        True if all steps completed successfully, False otherwise.
+    CLI entry point to run the secure consent storage setup.
     """
     logger.info("Starting secure consent storage setup...")
-    
-    # 1. Ensure directory exists
-    ensure_consent_directory()
-    
-    # 2. Ensure gitignore exclusion
-    if not ensure_gitignore_exclusion():
-        logger.warning("Could not ensure .gitignore exclusion, but continuing with permissions.")
-    
-    # 3. Enforce permissions
-    if not enforce_directory_permissions(CONSENT_DIR):
-        logger.error("Failed to enforce directory permissions.")
-        return False
-    
-    logger.info("Secure consent storage setup completed successfully.")
-    return True
-
-def main():
-    """
-    CLI entry point for securing consent storage.
-    """
-    setup_logging()
-    success = secure_consent_storage()
-    if success:
-        print("Secure consent storage logic applied successfully.")
-        exit(0)
-    else:
-        print("Failed to apply secure consent storage logic. Check logs.")
-        exit(1)
+    try:
+        secure_consent_storage()
+        logger.info("Secure consent storage setup completed successfully.")
+    except Exception as e:
+        logger.error(f"Failed to setup secure consent storage: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

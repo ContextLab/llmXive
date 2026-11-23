@@ -1,0 +1,25 @@
+type: object
+properties:
+  power:
+    type: number
+  pulse_duration:
+    type: number
+  scanning_speed:
+    type: number
+  pattern_geometry:
+    type: string
+  hardness:
+    type: number
+  elastic_modulus:
+    type: number
+  wear_rate:
+    type: number
+  contact_load:
+    type: number
+  sliding_speed:
+    type: number
+  density:
+    type: number
+  geometry:
+    type: string
+required: []

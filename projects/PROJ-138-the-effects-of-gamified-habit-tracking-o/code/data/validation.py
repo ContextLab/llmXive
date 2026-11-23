@@ -1,139 +1,152 @@
-"""
-Data validation and consent checking.
-"""
 import os
+import sys
 import json
 import pandas as pd
 import pingouin as pg
-from typing import List, Optional
-from code.utils.logging import pipeline_logger
+import yaml
+from typing import Optional
 
-CONSENT_DIR = "data/consent"
+# Add project root to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-def check_consent() -> bool:
+from code.utils.logging import setup_logger, log_pipeline_stage
+
+logger = setup_logger("validation")
+
+def check_consent():
     """
-    Verify consent artifacts exist.
+    Check for consent documentation.
+    If synthetic mode, generate placeholder.
+    If real data, verify consent exists.
+    """
+    marker_path = "data/raw/synthetic_data_marker.json"
+    consent_dir = "data/consent"
     
-    Logic:
-    - If real data is present, halt if `data/consent/` is missing (FR-010).
-    - If synthetic data is used, generate a synthetic consent artifact.
-    
-    Returns:
-        True if consent is verified or generated.
+    if os.path.exists(marker_path):
+        # Synthetic mode
+        logger.info("Synthetic data detected. Generating consent placeholder.")
+        os.makedirs(consent_dir, exist_ok=True)
+        placeholder_path = os.path.join(consent_dir, "simulation_consent_placeholder.json")
         
-    Raises:
-        FileNotFoundError: If real data is expected but consent is missing.
-    """
-    # Ensure the consent directory exists
-    if not os.path.exists(CONSENT_DIR):
-        os.makedirs(CONSENT_DIR, exist_ok=True)
-    
-    consent_file = os.path.join(CONSENT_DIR, "consent_record.json")
-    synthetic_file = os.path.join(CONSENT_DIR, "synthetic_consent_record.json")
-    
-    # Check if a synthetic consent record already exists
-    if os.path.exists(synthetic_file):
-        pipeline_logger.info("Synthetic consent record found.")
-        return True
-    
-    # Check if a real consent record already exists
-    if os.path.exists(consent_file):
-        pipeline_logger.info("Real consent record found.")
-        return True
-    
-    # If no consent file exists, determine if we are in a synthetic context
-    # based on environment variable. If so, generate the artifact.
-    if os.getenv("USE_SYNTHETIC_DATA", "false").lower() == "true":
-        record = {
-            "type": "synthetic",
-            "description": "This dataset is synthetically generated for research purposes.",
-            "approval": "Research ethics approval for synthetic data simulation (FR-010)",
-            "generated_at": pd.Timestamp.now().isoformat(),
-            "approved_by": "Automated Pipeline (Synthetic Mode)"
+        placeholder = {
+            "type": "simulation",
+            "timestamp": pd.Timestamp.now().isoformat(),
+            "note": "No human subjects; synthetic data generated per Plan.md scope."
         }
-        with open(synthetic_file, "w") as f:
-            json.dump(record, f, indent=2)
-        pipeline_logger.info(f"Generated synthetic consent record at {synthetic_file}")
+        
+        with open(placeholder_path, 'w') as f:
+            json.dump(placeholder, f, indent=2)
+        
+        logger.info(f"Created consent placeholder at {placeholder_path}")
         return True
     
-    # If we are here, no consent exists and we are not in synthetic mode.
-    # Per FR-010, halt execution if real data is expected but consent is missing.
-    pipeline_logger.error("Consent record missing. Halting execution as per FR-010.")
-    raise FileNotFoundError(
-        f"Consent record not found in {CONSENT_DIR}. "
-        "Set USE_SYNTHETIC_DATA=true to generate a synthetic consent record, "
-        "or provide a valid consent_record.json for real data."
-    )
-
-def calculate_cronbach_alpha(df: pd.DataFrame, item_columns: List[str]) -> float:
-    """
-    Calculate Cronbach's alpha for a set of items.
+    # Real data mode
+    consent_files = [f for f in os.listdir(consent_dir) if f.endswith('.json') or f.endswith('.pdf')] if os.path.exists(consent_dir) else []
     
-    This function calculates the internal consistency reliability (Cronbach's alpha)
-    for a set of scale items using the `pingouin` library. It handles missing data
-    by excluding rows with any missing values in the specified item columns from the
-    calculation, and logs the count of excluded rows.
+    if not consent_files:
+        logger.error("Missing consent documentation for real data.")
+        sys.exit(1)
+    
+    # Verify consent file structure
+    for f in consent_files:
+        if f.endswith('.json'):
+            with open(os.path.join(consent_dir, f), 'r') as file:
+                data = json.load(file)
+                if 'timestamp' not in data or 'signature' not in data:
+                    logger.error(f"Invalid consent file structure: {f}")
+                    sys.exit(1)
+    
+    logger.info("Consent verification passed.")
+    return True
+
+def validate_schema(df: pd.DataFrame):
+    """Validate DataFrame against schema."""
+    schema_path = "contracts/dataset.schema.yaml"
+    
+    if not os.path.exists(schema_path):
+        logger.warning(f"Schema file not found at {schema_path}. Skipping validation.")
+        return True
+    
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
+    
+    required_columns = schema.get('required_columns', [])
+    
+    missing = [col for col in required_columns if col not in df.columns]
+    
+    if missing:
+        logger.error(f"Missing required columns: {missing}")
+        # Generate mismatch report
+        report = {
+            "error": "Schema mismatch",
+            "missing_columns": missing
+        }
+        os.makedirs("data/reports", exist_ok=True)
+        with open("data/reports/data_schema_mismatch_report.json", 'w') as f:
+            json.dump(report, f, indent=2)
+        sys.exit(1)
+    
+    logger.info("Schema validation passed.")
+    return True
+
+def calculate_cronbach_alpha(df: pd.DataFrame, item_columns: list) -> float:
+    """
+    Calculate Cronbach's Alpha for personality scales.
     
     Args:
-        df: DataFrame containing the item columns.
-        item_columns: List of column names representing scale items.
+        df: DataFrame containing item scores
+        item_columns: List of column names representing scale items
         
     Returns:
-        Cronbach's alpha value (float). Returns 0.0 if insufficient data remains
-        after excluding missing values.
-        
-    Raises:
-        ValueError: If `item_columns` is empty or contains columns not in `df`.
+        Cronbach's Alpha value
     """
-    if not item_columns:
-        raise ValueError("item_columns list cannot be empty.")
+    if len(item_columns) < 2:
+        logger.warning("Not enough items to calculate Cronbach's Alpha.")
+        return 0.0
     
-    missing_cols = set(item_columns) - set(df.columns)
-    if missing_cols:
-        raise ValueError(f"Columns not found in DataFrame: {missing_cols}")
-    
-    # Filter out rows with missing data for these columns
-    # dropna() on the subset excludes any row with NaN in any of the item_columns
-    subset = df[item_columns].dropna()
-    excluded_count = len(df) - len(subset)
+    # Handle missing data by excluding rows with any missing items
+    items_df = df[item_columns].dropna()
+    excluded_count = len(df) - len(items_df)
     
     if excluded_count > 0:
-        pipeline_logger.warning(f"Excluded {excluded_count} rows due to missing values in Cronbach's alpha calculation.")
+        logger.info(f"Excluded {excluded_count} rows with missing items for Cronbach's Alpha calculation.")
     
-    if subset.empty:
-        pipeline_logger.warning("No valid data remaining for Cronbach's alpha calculation after excluding missing values.")
+    if len(items_df) < 2:
+        logger.warning("Insufficient data after excluding missing items.")
         return 0.0
     
     try:
-        result = pg.cronbach_alpha(data=subset)
-        # pg.cronbach_alpha returns a tuple (alpha, ci) or a scalar depending on version,
-        # but typically returns a scalar alpha in recent versions or a dict-like object.
-        # Checking the return type to be safe.
-        if isinstance(result, tuple):
-            alpha_val = result[0]
-        elif isinstance(result, dict):
-            alpha_val = result['alpha']
-        else:
-            alpha_val = float(result)
-        
-        pipeline_logger.info(f"Cronbach's alpha calculated: {alpha_val:.4f} (excluded {excluded_count} rows)")
-        return alpha_val
+        alpha_result = pg.cronbach_alpha(data=items_df)
+        alpha = alpha_result[0]
+        logger.info(f"Cronbach's Alpha calculated: {alpha:.4f}")
+        return alpha
     except Exception as e:
-        pipeline_logger.error(f"Error calculating Cronbach's alpha: {e}")
-        raise
+        logger.error(f"Error calculating Cronbach's Alpha: {e}")
+        return 0.0
 
-def validate_schema(df: pd.DataFrame, required_columns: List[str]) -> None:
-    """
-    Validate that a DataFrame contains all required columns.
+def main():
+    parser = argparse.ArgumentParser(description="Run validation checks")
+    args = parser.parse_args()
     
-    Args:
-        df: DataFrame to validate.
-        required_columns: List of required column names.
+    log_pipeline_stage(logger, "START", "Validation")
+    
+    try:
+        # Check consent
+        check_consent()
         
-    Raises:
-        ValueError: If any required column is missing.
-    """
-    missing = set(required_columns) - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
-    pipeline_logger.info("Schema validation passed.")
+        # Load data for schema validation
+        input_path = "data/raw/synthetic_data.csv"
+        if os.path.exists(input_path):
+            df = pd.read_csv(input_path)
+            validate_schema(df)
+        
+        log_pipeline_stage(logger, "SUCCESS", "Validation Complete")
+        return 0
+        
+    except Exception as e:
+        log_pipeline_stage(logger, "ERROR", str(e))
+        return 1
+
+if __name__ == "__main__":
+  import argparse
+  sys.exit(main())

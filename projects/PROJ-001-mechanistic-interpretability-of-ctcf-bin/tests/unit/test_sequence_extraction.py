@@ -37,18 +37,6 @@ def test_extract_window_positive():
     # We need a sequence of at least 1001 bases to center at 500
     seq = "A" * 1001
     center_idx = 500
-    window_size = 1000  # ±500 means 500 on left, 500 on right, total 1001? 
-    # Wait, the task says "±500 bp windows". Usually this means 500 upstream + 500 downstream + 1 center = 1001.
-    # Or it could mean 500 total (250 each side). 
-    # Let's look at T013 description: "extract 1000bp windows (±500bp)". 
-    # 1000bp usually implies 500 left + 500 right. If center is inclusive, it's 1001. 
-    # Let's assume the implementation in extract_features.py handles the math.
-    # For this test, we verify the logic of slicing.
-    
-    # Let's assume the function signature is extract_window(sequence, center, half_window=500)
-    # If half_window is 500, start = center - 500, end = center + 500 + 1 (if inclusive) or center + 500.
-    # Standard bioinformatics: ±500bp usually means 1001bp total (500 upstream, 1 base, 500 downstream).
-    # Let's test a helper that mimics the extraction logic.
     
     half_window = 500
     start = center_idx - half_window
@@ -79,7 +67,7 @@ def test_extract_window_boundary():
     # This test verifies the slicing logic works without IndexError
     assert len(window) <= 1001
     assert start <= 0 # Verify start is negative
-    
+
 def test_filter_low_complexity():
     """
     Test that low complexity sequences (entropy < threshold) are filtered out.

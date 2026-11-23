@@ -10,7 +10,7 @@ properties:
         type: array
         items:
           type: integer
-        description: "Expected shape [batch_size, N_blocks, N_routes]"
+        description: "Expected shape [num_timesteps, num_targets]"
       dtype:
         type: string
         const: "float32"

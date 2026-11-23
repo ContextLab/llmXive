@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DensityFeatureSet"
+description: "Schema for density features and residuals"
+type: "object"
+properties:
+  n:
+    type: "integer"
+    minimum: 1
+    description: "The integer"
+  R_n:
+    type: "number"
+    description: "Log‑residual (must not be null; sentinel -9999 indicates undefined)."
+  pi_n:
+    type: "integer"
+    minimum: 0
+    description: "Prime‑counting function π(n)"
+  inv_log_n:
+    type: "number"
+    exclusiveMinimum: 0
+    description: "Inverse natural logarithm 1/ln(n)"
+  cum_density:
+    type: "number"
+    minimum: 0
+    description: "Cumulative sum of 1/p for p <= n"
+required:
+  - n
+  - R_n
+  - pi_n
+  - inv_log_n
+  - cum_density
+additionalProperties: false

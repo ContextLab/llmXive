@@ -6,20 +6,21 @@ properties:
   generation_id:
     type: "string"
     description: "FK to generation output"
-  consistency_score:
+  logical_coherence:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Internal consistency score from NLI model"
-  stability_score:
+    description: "Logical coherence score from NLI model (secondary)"
+  output_reproducibility:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Semantic stability score from embeddings"
-  marker_density:
+    description: "Output reproducibility score from embeddings (aggregated per prompt)"
+  marker_specificity:
     type: "number"
     minimum: 0.0
-    description: "Phenomenological marker density"
+    maximum: 1.0
+    description: "Marker specificity (targeted/total ratio)"
   validity_score:
     type: "number"
     minimum: 0.0
@@ -28,18 +29,22 @@ properties:
   weights:
     type: "object"
     properties:
-      consistency:
+      coherence:
         type: "number"
-      stability:
+      reproducibility:
         type: "number"
       markers:
         type: "number"
     description: "Weights used for aggregation"
+  model_id:
+    type: "string"
+    description: "Model checkpoint ID (used for random effect in LMM)"
 required:
   - generation_id
-  - consistency_score
-  - stability_score
-  - marker_density
+  - logical_coherence
+  - output_reproducibility
+  - marker_specificity
   - validity_score
   - weights
+  - model_id
 additionalProperties: false

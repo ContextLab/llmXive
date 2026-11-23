@@ -1,68 +1,82 @@
-# Data Model: llmXive follow-up: extending "Mellum2 Technical Report"
+# Data Model: llmXive follow‑up – extending "Mellum2 Technical Report"
 
-## 1. Entities & Relationships
+## Overview
+All intermediate and final artifacts are stored as columnar Parquet (Snappy) or JSON files. Schemas are defined in `contracts/` and validated with `jsonschema`. Deterministic file naming and checksums guarantee reproducibility.
 
-### 1.1 CodeChunk
-A segment of source code with associated static analysis labels and LLM inference metrics.
-- **ID**: Unique string (hash of content + repo ID).
-- **RepositoryID**: String (e.g., `username/repo-name`).
-- **Language**: Enum (`python`, `java`, `other`).
-- **StaticLabels**:
-  - `cyclomatic_complexity`: Integer.
-  - `nesting_depth`: Integer.
-  - `repetition_ratio`: Float.
-- **InferenceMetrics**:
-  - `per_token_loss`: Float (log loss).
-  - `prediction_entropy`: Float.
-  - `normalized_loss`: Float (loss adjusted by 5-gram baseline).
-- **Metadata**:
-  - `token_count`: Integer.
-  - `parse_success`: Boolean.
-  - `baseline_model`: String (e.g., "5gram_kneser_ney_disjoint").
+## Entities
 
-### 1.2 RepositoryAggregate
-Aggregated metrics per repository (primary unit for correlation analysis).
-- **RepositoryID**: String.
-- **Language**: String.
-- **MeanComplexity**: Float (average of chunk complexities).
-- **MeanLoss**: Float (average of chunk losses).
-- **MeanNormalizedLoss**: Float.
-- **N_Chunks**: Integer (number of chunks in repo).
+### 1. CodeChunk
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string | Unique identifier (`repo:file:chunk_index`). |
+| `repo_name` | string | Source repository name. |
+| `language` | string (`"python"` | `"java"` | `"other"` ) | Programming language. |
+| `content` | string | Raw source code. |
+| `cyclomatic_complexity` | integer ≥ 0 | From CodeQL. |
+| `nesting_depth` | integer ≥ 0 | From tree‑sitter. |
+| `repetition_ratio` | number ∈ [0, 1] | Token‑level repetition. |
+| `token_count` | integer ≥ 1 | Number of tokens (confounder). |
+| `ngram_probability` | number > 0 | KenLM estimate (FR‑010). |
+| `per_token_loss` | number | Average cross‑entropy loss. |
+| `entropy` | number | Average prediction entropy. |
+| `inference_time_ms` | integer ≥ 0 | Latency per chunk (ms). |
+| `status` | string (`"success"` | `"timeout"` | `"parse_error"` | `"oom"` ) | Processing outcome. |
+| **Optional** `comment_density` | number ≥ 0 | Ratio of comment tokens to total tokens (additional confound). |
+| **Optional** `file_length` | integer ≥ 0 | Number of lines in the source file (additional confound). |
+| **Optional** `repo_popularity` | number ≥ 0 | Normalized star count or fork count of the repository (additional confound). |
 
-### 1.3 CorrelationResult
-Statistical output describing the relationship between a complexity metric and prediction difficulty.
-- **Metric**: String (e.g., `cyclomatic_complexity`).
-- **Language**: String.
-- **Coefficient**: Float (Pearson/Spearman).
-- **PValue**: Float.
-- **AdjustedPValue**: Float (after FDR correction).
-- **N**: Integer (number of repositories, not chunks).
-- **Method**: String (`pearson`, `spearman`).
+### 2. RepositoryAggregate
+| Field | Type | Description |
+|-------|------|-------------|
+| `repo_name` | string | Repository identifier. |
+| `language` | string | Language of repo. |
+| `mean_cyclomatic_complexity` | float | Repo‑level mean. |
+| `mean_nesting_depth` | float | Repo‑level mean. |
+| `mean_per_token_loss` | float | Raw loss mean. |
+| `mean_normalized_loss` | float | Loss after regression‑residual normalization. |
+| `mean_token_count` | float | Mean token count. |
+| `chunk_count` | integer ≥ 1 | Number of processed chunks. |
 
-### 1.4 ThresholdResult
-Output of piecewise regression/change-point detection.
-- **Metric**: String.
-- **Language**: String.
-- **ThresholdValue**: Float.
-- **SlopeBefore**: Float.
-- **SlopeAfter**: Float.
-- **ModelFit**: String (e.g., `piecewise`, `linear`).
-- **AICDifference**: Float.
-- **SensitivityRange**: List of Floats (sweep results).
-- **BootstrapStability**: Float (max shift across bootstrap samples).
+### 3. CorrelationResult
+| Field | Type | Description |
+|-------|------|-------------|
+| `metric_name` | string |
+| `language` | string |
+| `method` | string (`"pearson"` | `"spearman"` ) |
+| `correlation_coefficient` | float ∈ [‑1, 1] |
+| `p_value` | float ∈ [0, 1] |
+| `p_value_adjusted` | float ∈ [0, 1] |
+| `sample_size` | integer ≥ 1 |
 
-## 2. Data Flow
+### 4. ThresholdResult
+| Field | Type | Description |
+|-------|------|-------------|
+| `metric_name` | string |
+| `language` | string |
+| `threshold_value` | float |
+| `slope_before` | float |
+| `slope_after` | float |
+| `model_fit` | string (`"piecewise"` | `"linear"` ) |
+| `aic_difference` | float |
+| `significance` | boolean |
+| `bootstrap_stability` | float |
+| `confidence_interval_width` | float |
+| `sensitivity_range` | array of float |
 
-1.  **Raw Data**: Parquet files from `codeparrot/github-code`.
-2.  **Processed Data**: `data/processed/chunks_annotated.parquet` (CodeChunk entity).
-3.  **Aggregation**: `data/processed/repo_aggregates.parquet` (RepositoryAggregate entity).
-4.  **Results**: `data/results/correlation_stats.json`, `data/results/threshold_analysis.json`.
-5.  **Artifacts**: `data/results/plots/correlation_scatter.png`, `data/results/plots/threshold_sensitivity.png`.
+### 5. FinalReport (output.schema.yaml)
+See `contracts/output.schema.yaml` for the full JSON schema.
 
-## 3. Constraints & Validation
+## Data Flow Diagram
+1. **Download** → `raw_samples.parquet` (`Dataset` schema).  
+2. **Static analysis** → `code_chunks.parquet` (`CodeChunk` schema).  
+3. **KenLM** → adds `ngram_probability`.  
+4. **Inference** → adds `per_token_loss`, `entropy`, `inference_time_ms`, `status`.  
+5. **Normalization** → regression residuals produce `normalized_loss`.  
+6. **Aggregation** → `repository_aggregates.parquet`.  
+7. **Statistical analysis** → `correlation_results.parquet`, `threshold_results.parquet`.  
+8. **Report** → `final_report.json` + figures.
 
-- **Integrity**: `CodeChunk.ID` must be unique.
-- **Range**: `cyclomatic_complexity` >= 0; `nesting_depth` >= 0.
-- **Missing Data**: If `parse_success` is False, `InferenceMetrics` are NULL.
-- **Normalization**: `normalized_loss` must be computed only if `ngram_prob` > 0.
-- **Unit of Analysis**: Correlation results must be based on `RepositoryAggregate`, not raw `CodeChunk` rows, to avoid pseudoreplication.
+All files are listed in `data/checksums.txt` with SHA‑family hashes.
+
+---
+

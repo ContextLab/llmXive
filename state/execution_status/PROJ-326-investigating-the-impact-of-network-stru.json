@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-326-investigating-the-impact-of-network-stru",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/main.py --phase generate --config code/config.yaml (rc=1); python code/main.py --phase simulate --config code/config.yaml (rc=1); python code/main.py --phase sensitivity --config code/config.yaml (rc=1); 6 declared deliverable(s) absent: data/analysis/aggregated_results.json; data/analysis/final_results.json; data/analysis/sensitivity_sweep.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --phase generate --config code/config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/main.py\", line 13, in <module>\n    from code.src.generators.batch_runner import main as run_batch_generation\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/src/generators/batch_runner.py\", line 25, in <module>\n    from code.src.utils.logging import log_metric, log_run\nImportError: cannot import name 'log_run' from 'code.src",
+    "python code/main.py --phase simulate --config code/config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/main.py\", line 13, in <module>\n    from code.src.generators.batch_runner import main as run_batch_generation\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/src/generators/batch_runner.py\", line 25, in <module>\n    from code.src.utils.logging import log_metric, log_run\nImportError: cannot import name 'log_run' from 'code.src",
+    "python code/main.py --phase sensitivity --config code/config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/main.py\", line 13, in <module>\n    from code.src.generators.batch_runner import main as run_batch_generation\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/src/generators/batch_runner.py\", line 25, in <module>\n    from code.src.utils.logging import log_metric, log_run\nImportError: cannot import name 'log_run' from 'code.",
+    "python code/main.py --phase analyze --config code/config.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/main.py\", line 13, in <module>\n    from code.src.generators.batch_runner import main as run_batch_generation\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-326-investigating-the-impact-of-network-stru/code/src/generators/batch_runner.py\", line 25, in <module>\n    from code.src.utils.logging import log_metric, log_run\nImportError: cannot import name 'log_run' from 'code.src."
+  ],
+  "fix_rounds": 6,
+  "model_tier": 0,
+  "total_attempts": 6,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-30T20:15:08Z"
+}

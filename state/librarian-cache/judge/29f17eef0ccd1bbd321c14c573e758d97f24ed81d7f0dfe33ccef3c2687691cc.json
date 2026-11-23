@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.19930",
+  "judged_at": "2026-07-19T10:04:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mobileforge: annotation-free adaptation for mobile gui agents with hie\" computer science",
+  "rationale": "This paper is the foundational work describing the \"MobileForge\" system explicitly referenced in the user's question (\"llmXive follow-up: extending 'MobileForge...'\"), making it the canonical prior work required for any literature review on this specific topic (Category d). It establishes the baseline methodology and empirical results that the user's proposed \"follow-up\" research intends to extend.",
+  "relevant": true
+}

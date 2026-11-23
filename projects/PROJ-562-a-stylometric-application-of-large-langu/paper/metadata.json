@@ -31,5 +31,11 @@
   "original_pdf_engine": "pdflatex",
   "llmxive_restyle": "main-llmxive.tex (xelatex + papers/.style/llmxive.cls)",
   "notes": "Re-styled excerpt only; full paper available at arXiv. Submitter is one of the authors; redistribution of the source is permitted under the arXiv non-exclusive license. The llmXive-restyled version is a derivative for the llmXive archive.",
-  "abstract": "We show that large language models (LLMs) can be used to distinguish the writings of different authors. Specifically, an individual GPT-2 model, trained from scratch on the works of one author, will predict held-out text from that author more accurately than held-out text from other authors. We suggest that, in this way, a model trained on one author's works embodies the unique writing style of that author. We first demonstrate our approach on books written by eight different (known) authors. We also use this approach to confirm R. P. Thompson's authorship of the well-studied 15th book of the Oz series, originally attributed to F. L. Baum."
+  "abstract": "We show that large language models (LLMs) can be used to distinguish the writings of different authors. Specifically, an individual GPT-2 model, trained from scratch on the works of one author, will predict held-out text from that author more accurately than held-out text from other authors. We suggest that, in this way, a model trained on one author's works embodies the unique writing style of that author. We first demonstrate our approach on books written by eight different (known) authors. We also use this approach to confirm R. P. Thompson's authorship of the well-studied 15th book of the Oz series, originally attributed to F. L. Baum.",
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "ebcdad94f16972e83772067244d5d40e422dfdc6b5d1f61ee284e72ca79212ea",
+      "bytes": 1451661
+    }
+  }
 }

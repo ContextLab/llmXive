@@ -1,0 +1,11 @@
+# Existing dependencies
+rdkit
+pandas
+numpy
+pydantic
+scikit-learn
+torch
+torch-geometric
+
+# New dependency for T018: Power Analysis
+statsmodels

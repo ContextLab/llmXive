@@ -3,30 +3,33 @@ from pathlib import Path
 
 def setup_results_directories():
     """
-    Create the required directory structure for results:
-    - results/plots/
-    - results/reports/
-
-    This function ensures the directories exist, creating parent directories
-    if necessary. It does not create any files, only the directory structure.
+    Create the required results directory structure for the project.
+    
+    This function creates:
+    - results/plots/ : For storing generated visualization images (PNGs)
+    - results/reports/ : For storing Markdown reports, JSON statistics, and benchmark logs
+    
+    This satisfies task T001c in the project pipeline.
     """
     base_dir = Path("results")
     plots_dir = base_dir / "plots"
     reports_dir = base_dir / "reports"
 
-    # Create directories if they don't exist
     plots_dir.mkdir(parents=True, exist_ok=True)
     reports_dir.mkdir(parents=True, exist_ok=True)
 
-    # Verify creation (optional logging)
-    created = []
-    if plots_dir.exists() and plots_dir.is_dir():
-        created.append(str(plots_dir))
-    if reports_dir.exists() and reports_dir.is_dir():
-        created.append(str(reports_dir))
+    # Create a .gitkeep file in each directory to ensure they are tracked by git
+    # even if they are initially empty.
+    (plots_dir / ".gitkeep").touch()
+    (reports_dir / ".gitkeep").touch()
 
-    return created
+    return {
+        "plots": str(plots_dir.absolute()),
+        "reports": str(reports_dir.absolute())
+    }
 
 if __name__ == "__main__":
-    created_dirs = setup_results_directories()
-    print(f"Created directories: {', '.join(created_dirs)}")
+    result = setup_results_directories()
+    print(f"Results directories created:")
+    print(f"  Plots: {result['plots']}")
+    print(f"  Reports: {result['reports']}")

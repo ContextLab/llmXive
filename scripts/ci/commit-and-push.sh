@@ -19,11 +19,9 @@
 #
 # THE FIX
 # -------
-# * Rebase our single tick-commit onto the latest origin/main with `-X theirs`
-#   — during a rebase git reverses ours/theirs, so "theirs" is OUR replayed
-#   commit; conflicts resolve toward THIS tick deterministically (no conflict
-#   markers ever reach the tree). The only routine conflict is the regenerated
-#   web/data/* which is rebuilt next tick regardless.
+# * Rebase our tick-commit onto the latest origin/main. Never resolve a project
+#   conflict automatically: a second worker may have advanced the same project,
+#   and choosing this stale tick would silently overwrite that newer work.
 # * Always `git rebase --abort` before each attempt so we NEVER operate on a
 #   conflicted tree.
 # * VERIFY the push landed (issue #1139): after a "successful" push, re-fetch
@@ -40,16 +38,22 @@
 # Emits `pushed=true|false` to $GITHUB_OUTPUT (for the pages-deploy gate).
 set -uo pipefail
 
-msg="${1:?usage: commit-and-push.sh <commit-message>}"
+msg="${1:?usage: commit-and-push.sh <commit-message> [research|pages]}"
+profile="${2:-research}"
 
 emit() { [ -n "${GITHUB_OUTPUT:-}" ] && echo "pushed=$1" >> "$GITHUB_OUTPUT"; return 0; }
 
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-# Stage every pipeline output present in this fresh CI checkout. -A is safe
-# here: the only working-tree changes are what this run produced.
-git add -A
+# Generated research is not authorized to modify the platform itself. An August
+# data-source probe overwrote README/LICENSE and the old `git add -A` published it.
+# Refuse unexpected paths BEFORE staging; retain the working tree as evidence.
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# Profile validation and staging share one fixed allowlist. Research stays the
+# default; only the trusted static Pages workflow opts into docs-only writes.
+python -B "$script_dir/../../src/llmxive/checks/pipeline_writes.py" \
+  --profile "$profile" --stage || exit 1
 
 # Size guard: GitHub's pre-receive hook HARD-REJECTS any file >100MB, which
 # fails the ENTIRE push and loses this worker's whole tick (observed: a 260MB
@@ -76,7 +80,7 @@ if git diff --cached --quiet; then
   exit 0
 fi
 
-git commit -m "$msg"
+git commit -m "$msg" || exit 1
 
 # Retry budget: a long-running tick (e.g. the reprocess drain, which holds the
 # tree for minutes running review panels) starts its push AFTER many concurrent
@@ -90,7 +94,7 @@ for i in $(seq 1 "$ATTEMPTS"); do
   if ! git fetch origin main --quiet; then
     echo "fetch failed (attempt $i); retrying" >&2; sleep $((2 + RANDOM % 5)); continue
   fi
-  if git rebase -X theirs origin/main >/dev/null 2>&1; then
+  if git rebase origin/main >/dev/null 2>&1; then
     head_sha="$(git rev-parse HEAD)"
     if git push origin HEAD:main --quiet; then
       # VERIFY the push actually landed (issue #1139 — concurrent persistence
@@ -110,6 +114,11 @@ for i in $(seq 1 "$ATTEMPTS"); do
     fi
   else
     git rebase --abort 2>/dev/null || true
+    recovery="${RUNNER_TEMP:-/tmp}/llmxive-unpushed.patch"
+    git format-patch -1 --stdout > "$recovery"
+    echo "ERROR: concurrent changes conflict; refusing to overwrite newer work. Tick saved to $recovery" >&2
+    emit false
+    exit 1
   fi
   echo "push attempt $i failed; retrying..." >&2
   sleep $((2 + RANDOM % 5))   # 2-6s jitter; desyncs concurrent runners

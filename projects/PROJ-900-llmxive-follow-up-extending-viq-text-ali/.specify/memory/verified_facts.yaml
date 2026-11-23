@@ -1,0 +1,14 @@
+'|calculation index measure similarity size structural use window':
+  quote: "In order to evaluate the image quality, this formula is usually applied\
+    \ only on luma, although it may also be applied on color (e.g., RGB) values or\
+    \ chromatic (e.g. YCbCr) values. The resultant SSIM index is a decimal value between\
+    \ -1 and 1, where 1 indicates perfect similarity, 0 indicates no similarity, and\
+    \ -1 indicates perfect anti-correlation. For an image, it is typically calculated\
+    \ using a sliding Gaussian window of size 11\xD711 or a block window of size 8\xD7\
+    8. The window can be displaced pixel-by-pixel on the image to create an SSIM quality\
+    \ map of the image. In the case of video quality assessment, the authors propose\
+    \ to use only a subgroup of the possible windows to reduce the complexity of the\
+    \ calculation."
+  source_id: Structural similarity index measure
+  url: https://en.wikipedia.org/wiki/Structural_similarity_index_measure
+  value: "11\xD711"

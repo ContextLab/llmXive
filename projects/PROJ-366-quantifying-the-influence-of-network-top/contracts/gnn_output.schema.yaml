@@ -1,78 +1,36 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: GNNOutput
-description: Schema for GNN model training outputs, predictions, and feature importance.
+title: GNN Output Schema
+description: >
+  Schema for the output of the Graph Neural Network training stage.
+  Defines the structure for predicted local heat flux, training loss, and epoch count.
+  Used to validate artifacts produced by code/model/trainer.py and code/model/gnn.py.
 type: object
 required:
-  - model_id
-  - predictions
-  - feature_importance
-  - metrics
+  - predicted_flux
+  - loss
+  - epoch
 properties:
-  model_id:
-    type: string
-    description: Unique identifier for the trained model.
-  predictions:
+  predicted_flux:
     type: array
-    description: List of prediction results per sample.
+    description: >
+      Predicted local heat flux vector for each atom in the graph.
+      Each element corresponds to the flux magnitude or vector component
+      for a specific node.
     items:
-      type: object
-      required:
-        - sample_id
-        - predicted_value
-        - true_value
-      properties:
-        sample_id:
-          type: string
-        predicted_value:
-          type: number
-        true_value:
-          type: number
-        residual:
-          type: number
-  feature_importance:
-    type: object
-    required:
-      - feature_names
-      - importance_scores
-      - method
-    properties:
-      feature_names:
-        type: array
-        items:
-          type: string
-      importance_scores:
-        type: array
-        items:
-          type: number
-      method:
-        type: string
-        description: Method used for importance extraction (e.g., "shap", "permutation").
-  metrics:
-    type: object
-    required:
-      - mse
-      - r2
-    properties:
-      mse:
-        type: number
-        description: Mean Squared Error.
-      r2:
-        type: number
-        description: R-squared score.
-      mae:
-        type: number
-        description: Mean Absolute Error.
-  training_config:
-    type: object
-    description: Optional training configuration snapshot.
-    properties:
-      epochs:
-        type: integer
-      learning_rate:
-        type: number
-      batch_size:
-        type: integer
-      hidden_dims:
-        type: array
-        items:
-          type: integer
+      type: number
+      format: float64
+    minItems: 1
+  loss:
+    type: number
+    format: float64
+    description: >
+      The final training loss value (e.g., Mean Squared Error) achieved
+      at the end of the specified epoch.
+    minimum: 0
+  epoch:
+    type: integer
+    description: >
+      The epoch number at which this output was generated.
+      Corresponds to the training iteration count.
+    minimum: 1
+additionalProperties: false

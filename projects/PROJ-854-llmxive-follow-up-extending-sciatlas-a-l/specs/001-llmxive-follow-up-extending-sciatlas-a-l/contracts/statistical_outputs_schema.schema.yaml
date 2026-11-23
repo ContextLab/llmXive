@@ -1,0 +1,101 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Outputs Schema"
+description: "Schema for artifacts/results/statistical_outputs.json"
+type: "object"
+properties:
+  correlation_citations:
+    type: "object"
+    properties:
+      rho:
+        type: "number"
+        description: "Spearman correlation coefficient"
+      p_value:
+        type: "number"
+        description: "Raw p-value"
+      p_adj:
+        type: "number"
+        description: "FDR-adjusted p-value"
+      correction_method:
+        type: "string"
+        description: "Method used (Bonferroni or BH)"
+    required:
+      - rho
+      - p_value
+      - p_adj
+      - correction_method
+  correlation_novelty:
+    type: "object"
+    properties:
+      rho:
+        type: "number"
+        description: "Spearman correlation coefficient"
+      p_value:
+        type: "number"
+        description: "Raw p-value"
+      p_adj:
+        type: "number"
+        description: "FDR-adjusted p-value"
+      correction_method:
+        type: "string"
+        description: "Method used (Bonferroni or BH)"
+    required:
+      - rho
+      - p_value
+      - p_adj
+      - correction_method
+  regression_citations:
+    type: "object"
+    properties:
+      coef:
+        type: "number"
+        description: "Regression coefficient for bridging coefficient"
+      p_value:
+        type: "number"
+        description: "P-value for the coefficient"
+      vif:
+        type: "number"
+        description: "Variance Inflation Factor"
+    required:
+      - coef
+      - p_value
+      - vif
+  regression_novelty:
+    type: "object"
+    properties:
+      coef:
+        type: "number"
+        description: "Regression coefficient for novelty score"
+      p_value:
+        type: "number"
+        description: "P-value for the coefficient"
+      vif:
+        type: "number"
+        description: "Variance Inflation Factor"
+    required:
+      - coef
+      - p_value
+      - vif
+  k_selection_stability:
+    type: "object"
+    description: "Stability analysis for Louvain clustering resolution"
+    properties:
+      resolution:
+        type: "number"
+        description: "The selected resolution parameter"
+      mean_vi:
+        type: "number"
+        description: "Mean Variation of Information across seeds"
+      variance_vi:
+        type: "number"
+        description: "Variance of VI across seeds"
+    required:
+      - resolution
+      - mean_vi
+      - variance_vi
+required:
+  - correlation_citations
+  - correlation_novelty
+  - regression_citations
+  - regression_novelty
+  - k_selection_stability
+additionalProperties: false

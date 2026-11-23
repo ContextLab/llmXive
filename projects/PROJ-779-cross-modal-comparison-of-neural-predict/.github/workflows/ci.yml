@@ -1,0 +1,99 @@
+name: CI - Full Pipeline Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+# Constraints per task T036: 2 CPU, 7GB RAM, < 6h runtime
+# Using ubuntu-latest (usually 2 vCPU, ~7GB RAM on free tier)
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+
+    - name: Cache pip packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        # Ensure MNE and dependencies are installed correctly
+        python -c "import mne; print(f'MNE version: {mne.__version__}')"
+
+    - name: Run Full Pipeline
+      id: pipeline
+      run: |
+        echo "Starting pipeline execution..."
+        # Set environment variables for CI to minimize logging verbosity if needed
+        export PYTHONPATH="${{ github.workspace }}"
+        
+        # Run the main orchestration script
+        # This script is expected to call download, preprocess, analysis, and validation
+        # It will fail loudly if real data cannot be fetched or processed
+        python code/main.py
+        
+        echo "Pipeline execution completed."
+
+    - name: Verify Artifacts
+      run: |
+        echo "Verifying required output artifacts..."
+        
+        # Check for cleaned data
+        if [ ! -f "data/processed/cleaned_data.fif" ]; then
+          echo "ERROR: data/processed/cleaned_data.fif not found"
+          exit 1
+        fi
+        
+        # Check for metrics summary
+        if [ ! -f "data/results/metrics_summary.json" ]; then
+          echo "ERROR: data/results/metrics_summary.json not found"
+          exit 1
+        fi
+        
+        # Check for sensitivity analysis (T039)
+        if [ ! -f "data/results/sensitivity_analysis.csv" ]; then
+          echo "ERROR: data/results/sensitivity_analysis.csv not found"
+          exit 1
+        fi
+        
+        # Check for final report (T049)
+        if [ ! -f "data/results/final_report.md" ]; then
+          echo "ERROR: data/results/final_report.md not found"
+          exit 1
+        fi
+
+        echo "All required artifacts verified."
+
+    - name: Upload Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: pipeline-results
+        path: |
+          data/
+          logs/
+          code/reports/
+
+    - name: Resource Usage Report
+      run: |
+        echo "Pipeline completed successfully within resource constraints."
+        # The CI runner naturally enforces the 6h timeout and memory limits.
+        # If the script exceeds these, the job will be killed by GitHub Actions.
+        # Explicit check not needed as the job status reflects this.

@@ -55,28 +55,3 @@ The system MUST implement a sensitivity analysis for the anomaly detection thres
 **Acceptance Scenarios**:
 
 1. **Given** a detection threshold (default 95th percentile of score distribution), **When** running the sensitivity analysis, **Then** the system re-evaluates detection performance at absolute cutoff values of 0.01, 0.05, and 0.1 on normalized reconstruction error (MSE) scaled to [0,1].
-2. **Given** the results of the sensitivity sweep, **When** generating the report, **Then** the system includes the baseline community-standard justification for the default threshold (citing Cohen, 1988) in the methodology section and lists the observed range (max - min) of false-positive rates across the sweep.
-3. **Given** the sensitivity results, **When** the system detects a threshold where error rates spike, **Then** it flags this instability in the final analysis report.
-
----
-
-### User Story 4 - Resource Constraint Validation and CPU Feasibility (Priority: P3)
-
-The system MUST validate that the entire analysis pipeline (data loading, sliding window inference, baseline comparison, and statistical testing) completes within the GitHub Actions free-tier constraints: ≤2 CPU cores, ~7 GB RAM, and ≤6 hours total runtime.
-
-**Why this priority**: The project cannot reach `research_complete` if the analysis fails to run on the target hardware; this ensures the methodology is computationally feasible without GPU acceleration.
-
-**Independent Test**: Can be fully tested by executing the full pipeline on a standard GitHub Actions runner and verifying that peak memory usage stays <7 GB and total runtime is <6 hours.
-
-**Acceptance Scenarios**:
-
-1. **Given** the largest supported dataset (e.g., Electricity Load Diagrams), **When** running the full pipeline, **Then** peak RAM usage remains <7 GB throughout execution (measured as max(rss) observed during the entire pipeline execution via `psutil.Process().memory_info().rss`).
-2. **Given** the full pipeline execution, **When** measuring total runtime, **Then** the job completes in <6 hours without timing out.
-3. **Given** the inference engine, **When** running on the CPU-only runner, **Then** the system never attempts to load CUDA libraries or request GPU memory, and outputs a validation report confirming compliance or failing the run if limits are exceeded.
-
----
-
-### Edge Cases
-
-- What happens when a dataset has <1,000 observations? → System MUST reject with a validation error stating the dataset size is insufficient for the sliding window analysis (minItems: 1000).
-- How does the system handle non-convergent ADVI runs? → If the ELBO fails to converge (delta > 0.01 for 10 iterations) within 500 iterations, the model for that specific window is excluded from the trajectory, and a warning is logged (logs string "WARNING: ADVI did not converge" to stderr); the analysis proceeds with available data.

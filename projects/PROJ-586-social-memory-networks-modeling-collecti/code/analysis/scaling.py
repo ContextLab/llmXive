@@ -1,8 +1,6 @@
-"""
-Scaling analysis for social memory networks.
+"""Scaling analysis for multi-agent social memory networks.
 
 Implements power-law fitting for metric trends vs. agent count.
-Fits log-log curves for specialization index and retrieval efficiency.
 """
 from __future__ import annotations
 
@@ -11,14 +9,12 @@ import csv
 import json
 import math
 import pathlib
-import warnings
-from dataclasses import dataclass, asdict
+import sys
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-from scipy import optimize
 
-# Import from existing project modules
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -26,419 +22,419 @@ logger = get_logger(__name__)
 
 @dataclass
 class PowerLawFitResult:
-    """Result of a power-law fit: y = a * x^b"""
-    exponent: float  # b in x^b
-    coefficient: float  # a
+    """Result of a power-law fit: y = a * x^b."""
+    exponent: float
+    coefficient: float
     r_squared: float
-    standard_error: Optional[float] = None
-    n_points: int = 0
-    success: bool = True
-    message: str = ""
+    std_err_exponent: Optional[float] = None
+    std_err_coefficient: Optional[float] = None
 
 
 @dataclass
 class ScalingAnalysisResult:
-    """Complete scaling analysis results"""
-    specialization_fit: PowerLawFitResult
-    retrieval_fit: PowerLawFitResult
-    raw_data: List[Dict[str, Any]]
+    """Full scaling analysis results."""
     agent_counts: List[int]
-    specialization_values: List[float]
-    retrieval_values: List[float]
+    specialization_means: List[float]
+    specialization_stds: List[float]
+    retrieval_means: List[float]
+    retrieval_stds: List[float]
+    specialization_fit: Optional[PowerLawFitResult] = None
+    retrieval_fit: Optional[PowerLawFitResult] = None
+    raw_data_path: Optional[str] = None
 
 
 def power_law(x: np.ndarray, a: float, b: float) -> np.ndarray:
-    """Power law function: y = a * x^b"""
+    """Compute y = a * x^b."""
     return a * np.power(x, b)
 
 
 def fit_power_law(
     x: np.ndarray,
     y: np.ndarray,
-    p0: Optional[Tuple[float, float]] = None
-) -> PowerLawFitResult:
-    """
-    Fit a power law y = a * x^b to data using non-linear least squares.
-    
+    min_x: float = 1.0,
+) -> Optional[PowerLawFitResult]:
+    """Fit a power-law model y = a * x^b using log-log linear regression.
+
     Args:
-        x: Independent variable values (agent counts)
-        y: Dependent variable values (metrics)
-        p0: Initial guess for (a, b)
-        
+        x: Independent variable (agent counts).
+        y: Dependent variable (metric values).
+        min_x: Minimum x value to include (filter out zeros/negatives).
+
     Returns:
-        PowerLawFitResult with fitted parameters and statistics
+        PowerLawFitResult if fit succeeds, None otherwise.
     """
-    if len(x) < 3:
-        # Need at least 3 points for meaningful fit
-        return PowerLawFitResult(
-            exponent=0.0,
-            coefficient=1.0,
-            r_squared=0.0,
-            n_points=len(x),
-            success=False,
-            message="Insufficient data points (need >= 3)"
-        )
-    
-    # Filter out non-positive values for log transformation
+    if len(x) < 2:
+        logger.log("fit_power_law_skip", reason="insufficient_data_points")
+        return None
+
+    # Filter out non-positive values
     mask = (x > 0) & (y > 0)
-    x_valid = x[mask]
-    y_valid = y[mask]
-    
-    if len(x_valid) < 3:
-        return PowerLawFitResult(
-            exponent=0.0,
-            coefficient=1.0,
-            r_squared=0.0,
-            n_points=len(x),
-            success=False,
-            message="Insufficient positive data points for log transformation"
-        )
-    
-    # Initial guess: use log-log linear regression for starting values
-    log_x = np.log(x_valid)
-    log_y = np.log(y_valid)
-    
-    # Linear fit on log-log scale: log(y) = log(a) + b * log(x)
-    slope, intercept = np.polyfit(log_x, log_y, 1)
-    a_init = np.exp(intercept)
-    b_init = slope
-    
-    if p0 is None:
-        p0 = (a_init, b_init)
-    
-    try:
-        # Fit using non-linear least squares
-        popt, pcov = optimize.curve_fit(
-            power_law,
-            x_valid,
-            y_valid,
-            p0=p0,
-            bounds=(0, [np.inf, np.inf]),  # a > 0, b can be any value
-            maxfev=10000
-        )
-        
-        a_fit, b_fit = popt
-        
-        # Calculate R-squared
-        y_pred = power_law(x_valid, a_fit, b_fit)
-        ss_res = np.sum((y_valid - y_pred) ** 2)
-        ss_tot = np.sum((y_valid - np.mean(y_valid)) ** 2)
-        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
-        
-        # Calculate standard error
-        if pcov is not None:
-            perr = np.sqrt(np.diag(pcov))
-            standard_error = perr[1]  # Standard error of exponent
-        else:
-            standard_error = None
-        
-        return PowerLawFitResult(
-            exponent=b_fit,
-            coefficient=a_fit,
-            r_squared=r_squared,
-            standard_error=standard_error,
-            n_points=len(x_valid),
-            success=True,
-            message="Fit successful"
-        )
-        
-    except Exception as e:
-        logger.log("fit_power_law_error", error=str(e))
-        return PowerLawFitResult(
-            exponent=0.0,
-            coefficient=1.0,
-            r_squared=0.0,
-            n_points=len(x),
-            success=False,
-            message=f"Fit failed: {str(e)}"
-        )
+    x_filtered = x[mask]
+    y_filtered = y[mask]
+
+    if len(x_filtered) < 2:
+        logger.log("fit_power_law_skip", reason="no_valid_points_after_filter")
+        return None
+
+    # Log-transform
+    log_x = np.log(x_filtered)
+    log_y = np.log(y_filtered)
+
+    # Linear regression on log-log
+    n = len(log_x)
+    sum_x = np.sum(log_x)
+    sum_y = np.sum(log_y)
+    sum_xy = np.sum(log_x * log_y)
+    sum_x2 = np.sum(log_x ** 2)
+
+    denom = n * sum_x2 - sum_x ** 2
+    if abs(denom) < 1e-10:
+        logger.log("fit_power_law_skip", reason="singular_matrix")
+        return None
+
+    # Slope (exponent) and intercept
+    b = (n * sum_xy - sum_x * sum_y) / denom
+    a = (sum_y - b * sum_x) / n
+
+    # R-squared
+    y_pred = a + b * log_x
+    ss_res = np.sum((log_y - y_pred) ** 2)
+    ss_tot = np.sum((log_y - np.mean(log_y)) ** 2)
+    r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+
+    # Standard errors (simplified)
+    std_err_b = None
+    std_err_a = None
+    if n > 2 and ss_res > 0:
+        mse = ss_res / (n - 2)
+        std_err_b = math.sqrt(mse / sum((log_x - np.mean(log_x)) ** 2))
+        std_err_a = math.sqrt(mse * (1/n + sum_x**2 / denom))
+
+    return PowerLawFitResult(
+        exponent=float(b),
+        coefficient=float(math.exp(a)),
+        r_squared=float(r_squared),
+        std_err_exponent=std_err_b,
+        std_err_coefficient=std_err_a,
+    )
 
 
 def load_scaling_data(
-    input_path: str,
-    specialization_col: str = "specialization_index",
-    retrieval_col: str = "retrieval_efficiency",
-    agent_count_col: str = "agent_count"
-) -> Tuple[List[int], List[float], List[float], List[Dict[str, Any]]]:
-    """
-    Load scaling data from CSV file.
-    
-    Args:
-        input_path: Path to CSV file with results
-        specialization_col: Column name for specialization index
-        retrieval_col: Column name for retrieval efficiency
-        agent_count_col: Column name for agent count
-        
+    csv_path: pathlib.Path,
+) -> Tuple[List[int], List[float], List[float], List[float], List[float]]:
+    """Load scaling data from a CSV file.
+
+    Expected columns: agent_count, specialization_index, retrieval_efficiency
+    (and optionally game_id, context_condition, etc.)
+
     Returns:
-        Tuple of (agent_counts, spec_values, ret_values, raw_rows)
+        Tuple of (agent_counts, spec_means, spec_stds, ret_means, ret_stds)
+        aggregated by agent_count.
     """
-    agent_counts: List[int] = []
-    spec_values: List[float] = []
-    ret_values: List[float] = []
-    raw_rows: List[Dict[str, Any]] = []
-    
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Scaling data file not found: {csv_path}")
+
+    agent_data: Dict[int, List[Tuple[float, float]]] = {}
+
+    with open(csv_path, "r", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
             try:
-                n = int(row[agent_count_col])
-                spec = float(row[specialization_col])
-                ret = float(row[retrieval_col])
-                
-                agent_counts.append(n)
-                spec_values.append(spec)
-                ret_values.append(ret)
-                raw_rows.append(row)
-            except (ValueError, KeyError) as e:
-                logger.log("load_scaling_data_skip_row", error=str(e), row=row)
+                agent_count = int(row["agent_count"])
+                spec_idx = float(row["specialization_index"])
+                ret_eff = float(row["retrieval_efficiency"])
+
+                if agent_count not in agent_data:
+                    agent_data[agent_count] = []
+                agent_data[agent_count].append((spec_idx, ret_eff))
+            except (KeyError, ValueError) as e:
+                logger.log("load_scaling_data_skip_row", reason=str(e))
                 continue
-    
-    return agent_counts, spec_values, ret_values, raw_rows
+
+    if not agent_data:
+        raise ValueError("No valid data rows found in scaling CSV")
+
+    # Aggregate by agent count
+    agent_counts = sorted(agent_data.keys())
+    spec_means = []
+    spec_stds = []
+    ret_means = []
+    ret_stds = []
+
+    for ac in agent_counts:
+        values = agent_data[ac]
+        specs = [v[0] for v in values]
+        rets = [v[1] for v in values]
+
+        spec_means.append(float(np.mean(specs)))
+        spec_stds.append(float(np.std(specs, ddof=1)) if len(specs) > 1 else 0.0)
+        ret_means.append(float(np.mean(rets)))
+        ret_stds.append(float(np.std(rets, ddof=1)) if len(rets) > 1 else 0.0)
+
+    return agent_counts, spec_means, spec_stds, ret_means, ret_stds
 
 
 def aggregate_by_agent_count(
-    agent_counts: List[int],
-    spec_values: List[float],
-    ret_values: List[float]
-) -> Tuple[List[int], List[float], List[float]]:
-    """
-    Aggregate metrics by agent count (compute mean for each unique count).
-    
+    raw_csv_path: pathlib.Path,
+) -> ScalingAnalysisResult:
+    """Aggregate raw game results by agent count.
+
     Args:
-        agent_counts: List of agent counts
-        spec_values: List of specialization indices
-        ret_values: List of retrieval efficiencies
-        
+        raw_csv_path: Path to the raw results CSV (e.g., results_scaling_raw.csv)
+
     Returns:
-        Tuple of (unique_counts, mean_spec, mean_ret)
+        ScalingAnalysisResult with aggregated means/stds.
     """
-    from collections import defaultdict
-    
-    spec_by_n: Dict[int, List[float]] = defaultdict(list)
-    ret_by_n: Dict[int, List[float]] = defaultdict(list)
-    
-    for n, spec, ret in zip(agent_counts, spec_values, ret_values):
-        spec_by_n[n].append(spec)
-        ret_by_n[n].append(ret)
-    
-    unique_counts = sorted(spec_by_n.keys())
-    mean_spec = [np.mean(spec_by_n[n]) for n in unique_counts]
-    mean_ret = [np.mean(ret_by_n[n]) for n in unique_counts]
-    
-    return unique_counts, mean_spec, mean_ret
+    (
+        agent_counts,
+        spec_means,
+        spec_stds,
+        ret_means,
+        ret_stds,
+    ) = load_scaling_data(raw_csv_path)
+
+    # Fit power laws
+    x_arr = np.array(agent_counts, dtype=float)
+    y_spec = np.array(spec_means, dtype=float)
+    y_ret = np.array(ret_means, dtype=float)
+
+    spec_fit = fit_power_law(x_arr, y_spec)
+    ret_fit = fit_power_law(x_arr, y_ret)
+
+    return ScalingAnalysisResult(
+        agent_counts=agent_counts,
+        specialization_means=spec_means,
+        specialization_stds=spec_stds,
+        retrieval_means=ret_means,
+        retrieval_stds=ret_stds,
+        specialization_fit=spec_fit,
+        retrieval_fit=ret_fit,
+        raw_data_path=str(raw_csv_path),
+    )
 
 
 def run_scaling_analysis(
-    input_path: str,
-    output_path: Optional[str] = None
+    input_path: pathlib.Path,
+    output_path: pathlib.Path,
 ) -> ScalingAnalysisResult:
-    """
-    Run complete scaling analysis: load data, aggregate, fit power laws.
-    
+    """Run full scaling analysis and write results to JSON.
+
     Args:
-        input_path: Path to CSV with experiment results
-        output_path: Optional path to write JSON results
-        
+        input_path: Path to raw scaling data CSV.
+        output_path: Path to write JSON results.
+
     Returns:
-        ScalingAnalysisResult with all computed values
+        ScalingAnalysisResult.
     """
-    # Load data
-    agent_counts, spec_values, ret_values, raw_rows = load_scaling_data(input_path)
-    
-    if len(agent_counts) < 3:
-        logger.log("run_scaling_analysis_insufficient_data", count=len(agent_counts))
-        # Create minimal result with failure indicators
-        result = ScalingAnalysisResult(
-            specialization_fit=PowerLawFitResult(
-                exponent=0.0, coefficient=1.0, r_squared=0.0,
-                n_points=len(agent_counts), success=False,
-                message="Insufficient data points"
+    result = aggregate_by_agent_count(input_path)
+
+    # Prepare output dict
+    output_dict: Dict[str, Any] = {
+        "input_file": result.raw_data_path,
+        "agent_counts": result.agent_counts,
+        "specialization": {
+            "means": result.specialization_means,
+            "stds": result.specialization_stds,
+        },
+        "retrieval": {
+            "means": result.retrieval_means,
+            "stds": result.retrieval_stds,
+        },
+        "power_law_fits": {
+            "specialization": (
+                {
+                    "exponent": result.specialization_fit.exponent,
+                    "coefficient": result.specialization_fit.coefficient,
+                    "r_squared": result.specialization_fit.r_squared,
+                    "std_err_exponent": result.specialization_fit.std_err_exponent,
+                    "std_err_coefficient": result.specialization_fit.std_err_coefficient,
+                }
+                if result.specialization_fit
+                else None
             ),
-            retrieval_fit=PowerLawFitResult(
-                exponent=0.0, coefficient=1.0, r_squared=0.0,
-                n_points=len(agent_counts), success=False,
-                message="Insufficient data points"
+            "retrieval": (
+                {
+                    "exponent": result.retrieval_fit.exponent,
+                    "coefficient": result.retrieval_fit.coefficient,
+                    "r_squared": result.retrieval_fit.r_squared,
+                    "std_err_exponent": result.retrieval_fit.std_err_exponent,
+                    "std_err_coefficient": result.retrieval_fit.std_err_coefficient,
+                }
+                if result.retrieval_fit
+                else None
             ),
-            raw_data=raw_rows,
-            agent_counts=agent_counts,
-            specialization_values=spec_values,
-            retrieval_values=ret_values
-        )
-        
-        if output_path:
-            with open(output_path, 'w', encoding='utf-8') as f:
-                json.dump(asdict(result), f, indent=2)
-        
-        return result
-    
-    # Aggregate by agent count
-    unique_counts, mean_spec, mean_ret = aggregate_by_agent_count(
-        agent_counts, spec_values, ret_values
-    )
-    
-    # Fit power laws
-    x = np.array(unique_counts)
-    y_spec = np.array(mean_spec)
-    y_ret = np.array(mean_ret)
-    
-    spec_fit = fit_power_law(x, y_spec)
-    ret_fit = fit_power_law(x, y_ret)
-    
+        },
+    }
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(output_dict, f, indent=2)
+
     logger.log(
         "scaling_analysis_complete",
-        n_points=len(unique_counts),
-        spec_exponent=spec_fit.exponent,
-        ret_exponent=ret_fit.exponent,
-        spec_r_squared=spec_fit.r_squared,
-        ret_r_squared=ret_fit.r_squared
+        input_file=str(input_path),
+        output_file=str(output_path),
+        agent_count=len(result.agent_counts),
     )
-    
-    result = ScalingAnalysisResult(
-        specialization_fit=spec_fit,
-        retrieval_fit=ret_fit,
-        raw_data=raw_rows,
-        agent_counts=unique_counts,
-        specialization_values=mean_spec,
-        retrieval_values=mean_ret
-    )
-    
-    if output_path:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(asdict(result), f, indent=2)
-    
+
     return result
 
 
 def generate_scaling_plot(
     result: ScalingAnalysisResult,
-    output_path: str,
-    dpi: int = 150
+    output_path: pathlib.Path,
 ) -> None:
-    """
-    Generate a scaling plot with fitted power-law curves.
-    
+    """Generate a scaling plot with fitted power-law curves.
+
     Args:
-        result: ScalingAnalysisResult with fitted parameters
-        output_path: Path to save the plot (PDF/PNG)
-        dpi: Resolution for the plot
+        result: ScalingAnalysisResult with fit results.
+        output_path: Path to write the PDF plot.
     """
-    import matplotlib
-    matplotlib.use('Agg')  # Non-interactive backend
-    import matplotlib.pyplot as plt
-    
-    if not result.specialization_fit.success or not result.retrieval_fit.success:
-        logger.log("generate_scaling_plot_skip", reason="Fit failed")
-        # Create a minimal plot showing the issue
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.text(0.5, 0.5, "Fit failed - insufficient data", 
-               transform=ax.transAxes, ha='center', va='center', fontsize=14)
-        ax.set_title("Scaling Analysis - Fit Failed")
-        fig.savefig(output_path, dpi=dpi, bbox_inches='tight')
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError as e:
+        raise RuntimeError(
+            "matplotlib is required for plot generation. Install with: pip install matplotlib"
+        ) from e
+
+    if len(result.agent_counts) < 2:
+        logger.log(
+            "generate_scaling_plot_skip",
+            reason="insufficient_data_points_for_plot",
+            agent_count=len(result.agent_counts),
+        )
+        # Still create a minimal PDF with a note
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.text(
+            0.5, 0.5,
+            "Insufficient data points for scaling plot (need >= 2 agent counts)",
+            ha="center", va="center", transform=ax.transAxes, fontsize=12
+        )
+        ax.set_title("Scaling Analysis")
+        fig.savefig(output_path, dpi=150, bbox_inches="tight")
         plt.close(fig)
         return
-    
-    fig, ax = plt.subplots(figsize=(12, 6))
-    
-    x = np.array(result.agent_counts)
-    y_spec = np.array(result.specialization_values)
-    y_ret = np.array(result.retrieval_values)
-    
-    # Plot raw data points
-    ax.scatter(x, y_spec, color='blue', label='Specialization Index (measured)', alpha=0.7, s=80)
-    ax.scatter(x, y_ret, color='red', label='Retrieval Efficiency (measured)', alpha=0.7, s=80)
-    
-    # Generate smooth curve for fits
-    x_smooth = np.linspace(min(x), max(x), 100)
-    
-    # Specialization fit curve
-    a_spec = result.specialization_fit.coefficient
-    b_spec = result.specialization_fit.exponent
-    y_spec_fit = power_law(x_smooth, a_spec, b_spec)
-    ax.plot(x_smooth, y_spec_fit, 'b--', linewidth=2, 
-           label=f'Specialization fit: y = {a_spec:.3f} * x^{b_spec:.3f}')
-    
-    # Retrieval fit curve
-    a_ret = result.retrieval_fit.coefficient
-    b_ret = result.retrieval_fit.exponent
-    y_ret_fit = power_law(x_smooth, a_ret, b_ret)
-    ax.plot(x_smooth, y_ret_fit, 'r--', linewidth=2,
-           label=f'Retrieval fit: y = {a_ret:.3f} * x^{b_ret:.3f}')
-    
-    # Add note about data limitations
-    note_text = f"Note: {len(x)} data points limit power-law reliability"
-    ax.text(0.02, 0.02, note_text, transform=ax.transAxes, 
-           fontsize=10, verticalalignment='bottom',
-           bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-    
-    ax.set_xlabel('Number of Agents', fontsize=12)
-    ax.set_ylabel('Metric Value', fontsize=12)
-    ax.set_title('Scaling of Collective Remembering Metrics with Agent Count', fontsize=14)
-    ax.legend(loc='best', fontsize=10)
-    ax.grid(True, alpha=0.3)
-    
-    # Set log scale for x-axis if appropriate
-    if min(x) > 0:
-        ax.set_xscale('log')
-    
-    fig.savefig(output_path, dpi=dpi, bbox_inches='tight')
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+    x = np.array(result.agent_counts, dtype=float)
+    y_spec = np.array(result.specialization_means, dtype=float)
+    y_ret = np.array(result.retrieval_means, dtype=float)
+
+    # Plot specialization
+    ax1.errorbar(
+        x, y_spec,
+        yerr=result.specialization_stds,
+        fmt="o-", capsize=5, label="Specialization Index"
+    )
+    if result.specialization_fit:
+        x_fit = np.linspace(min(x), max(x), 100)
+        y_fit = result.specialization_fit.coefficient * np.power(x_fit, result.specialization_fit.exponent)
+        ax1.plot(x_fit, y_fit, "r--", label=f"Fit: y = {result.specialization_fit.coefficient:.3f} * x^{result.specialization_fit.exponent:.3f}")
+        ax1.text(
+            0.05, 0.95,
+            f"R² = {result.specialization_fit.r_squared:.3f}",
+            transform=ax1.transAxes, fontsize=10, verticalalignment="top",
+            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5)
+        )
+    ax1.set_xlabel("Number of Agents")
+    ax1.set_ylabel("Specialization Index")
+    ax1.set_title("Specialization vs. Agent Count")
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+
+    # Plot retrieval
+    ax2.errorbar(
+        x, y_ret,
+        yerr=result.retrieval_stds,
+        fmt="s-", capsize=5, label="Retrieval Efficiency"
+    )
+    if result.retrieval_fit:
+        x_fit = np.linspace(min(x), max(x), 100)
+        y_fit = result.retrieval_fit.coefficient * np.power(x_fit, result.retrieval_fit.exponent)
+        ax2.plot(x_fit, y_fit, "r--", label=f"Fit: y = {result.retrieval_fit.coefficient:.3f} * x^{result.retrieval_fit.exponent:.3f}")
+        ax2.text(
+            0.05, 0.95,
+            f"R² = {result.retrieval_fit.r_squared:.3f}",
+            transform=ax2.transAxes, fontsize=10, verticalalignment="top",
+            bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5)
+        )
+    ax2.set_xlabel("Number of Agents")
+    ax2.set_ylabel("Retrieval Efficiency")
+    ax2.set_title("Retrieval Efficiency vs. Agent Count")
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+
+    # Add note about data points
+    fig.suptitle(
+        "Scaling Analysis: Collective Remembering in Multi-Agent Networks",
+        fontsize=14
+    )
+    fig.text(
+        0.5, 0.02,
+        "Note: a limited number of data points limits power-law reliability",
+        ha="center", fontsize=10, style="italic"
+    )
+
+    plt.tight_layout()
+    fig.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
-    
-    logger.log("generate_scaling_plot_complete", output_path=output_path)
+
+    logger.log(
+        "scaling_plot_generated",
+        output_path=str(output_path),
+        agent_count=len(result.agent_counts),
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
     """Build argument parser for scaling analysis CLI."""
     parser = argparse.ArgumentParser(
-        description="Analyze scaling of memory metrics with agent count"
+        description="Analyze scaling of collective remembering metrics vs. agent count."
     )
     parser.add_argument(
         "--input",
-        type=str,
+        type=pathlib.Path,
         required=True,
-        help="Input CSV file with experiment results"
+        help="Path to raw scaling results CSV (e.g., results_scaling_raw.csv)",
     )
     parser.add_argument(
         "--output-json",
-        type=str,
-        default=None,
-        help="Output JSON file for analysis results"
+        type=pathlib.Path,
+        default=pathlib.Path("results/scaling_analysis.json"),
+        help="Path to write JSON analysis results",
     )
     parser.add_argument(
         "--output-plot",
-        type=str,
-        default=None,
-        help="Output plot file (PDF/PNG)"
-    )
-    parser.add_argument(
-        "--dpi",
-        type=int,
-        default=150,
-        help="Plot resolution (default: 150)"
+        type=pathlib.Path,
+        default=pathlib.Path("results/scaling_plot.pdf"),
+        help="Path to write scaling plot (PDF)",
     )
     return parser
 
 
 def main() -> None:
-    """Main entry point for scaling analysis."""
+    """Main entry point for scaling analysis CLI."""
     parser = build_parser()
     args = parser.parse_args()
-    
-    logger.log("scaling_analysis_start", input=args.input)
-    
-    result = run_scaling_analysis(
-        input_path=args.input,
-        output_path=args.output_json
-    )
-    
-    if args.output_plot:
-        generate_scaling_plot(result, args.output_plot, dpi=args.dpi)
-    
+
+    if not args.input.exists():
+        logger.log("main_error", reason="input_file_not_found", path=str(args.input))
+        sys.exit(1)
+
+    # Ensure output directories exist
+    args.output_json.parent.mkdir(parents=True, exist_ok=True)
+    args.output_plot.parent.mkdir(parents=True, exist_ok=True)
+
+    result = run_scaling_analysis(args.input, args.output_json)
+    generate_scaling_plot(result, args.output_plot)
+
     logger.log(
-        "scaling_analysis_end",
-        spec_exponent=result.specialization_fit.exponent,
-        ret_exponent=result.retrieval_fit.exponent,
-        spec_success=result.specialization_fit.success,
-        ret_success=result.retrieval_fit.success
+        "main_complete",
+        input=str(args.input),
+        json_output=str(args.output_json),
+        plot_output=str(args.output_plot),
     )
 
 

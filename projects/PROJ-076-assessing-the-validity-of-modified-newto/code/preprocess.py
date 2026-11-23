@@ -5,348 +5,232 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Any
 
-from config import load_config, get_config, ensure_dirs
-from utils import get_logger, log_stage, ensure_directory
-from download import download_sparc_data
+from utils import get_logger, ensure_directory
+from config import get_config, load_config
+from aggregate import update_metadata
 
-# Constants for quality filtering
-MAX_INCLINATION_UNCERTAINTY = 10.0  # degrees
-MIN_ROTATION_CURVE_POINTS = 15
+logger = get_logger(__name__)
 
 def parse_sparc_file(file_path: Path) -> Optional[Dict[str, Any]]:
     """
     Parse a single SPARC galaxy data file.
-    
-    Expected format:
-    - Header lines starting with '#'
-    - Data columns: R (kpc), V (km/s), sigma_V (km/s), L (Lsun), sigma_L (Lsun), etc.
-    - Inclination info in header or separate metadata
-    
-    Returns a dictionary with galaxy metadata and rotation curve data.
-    """
-    logger = get_logger(__name__)
-    
-    try:
-        with open(file_path, 'r') as f:
-            lines = f.readlines()
-    except Exception as e:
-        logger.error(f"Failed to read file {file_path}: {e}")
-        return None
-    
-    # Parse header for metadata
-    metadata = {}
-    data_lines = []
-    
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-        
-        if line.startswith('#'):
-            # Parse header metadata
-            if 'galaxy' in line.lower() or 'name' in line.lower():
-                # Extract galaxy name
-                parts = line.split(':')
-                if len(parts) > 1:
-                    metadata['name'] = parts[1].strip()
-            elif 'inclination' in line.lower():
-                # Parse inclination and uncertainty
-                # Format: Inclination: 45.0 +/- 5.0 deg
-                parts = line.split()
-                try:
-                    for i, part in enumerate(parts):
-                        if '+' in part or '-' in part:
-                            # Found +/- indicator
-                            if i > 0:
-                                inclination = float(parts[i-1])
-                                uncertainty = float(part.replace('+', '').replace('-', ''))
-                                metadata['inclination'] = inclination
-                                metadata['inclination_uncertainty'] = uncertainty
-                                break
-                except (ValueError, IndexError):
-                    pass
-            elif 'distance' in line.lower():
-                parts = line.split(':')
-                if len(parts) > 1:
-                    try:
-                        metadata['distance'] = float(parts[1].strip().split()[0])
-                    except (ValueError, IndexError):
-                        pass
-        else:
-            data_lines.append(line)
-    
-    # Parse rotation curve data
-    if not data_lines:
-        logger.warning(f"No data lines found in {file_path}")
-        return None if not metadata.get('name') else {'name': 'Unknown', 'data': pd.DataFrame()}
-    
-    # Determine column structure (SPARC typically has: R, V, sigma_V, ...)
-    first_data = data_lines[0].split()
-    if len(first_data) < 3:
-        logger.warning(f"Insufficient columns in {file_path}")
-        return None
-    
-    # Extract radial distance, velocity, and uncertainty
-    rotation_data = []
-    for line in data_lines:
-        parts = line.split()
-        if len(parts) >= 3:
-            try:
-                r = float(parts[0])  # Radial distance in kpc
-                v = float(parts[1])  # Velocity in km/s
-                sigma_v = float(parts[2])  # Velocity uncertainty in km/s
-                rotation_data.append({'r': r, 'v': v, 'sigma_v': sigma_v})
-            except ValueError:
-                continue
-    
-    if not rotation_data:
-        logger.warning(f"No valid data points in {file_path}")
-        return None
-    
-    # Create DataFrame
-    df = pd.DataFrame(rotation_data)
-    
-    # Add metadata
-    if 'name' not in metadata:
-        metadata['name'] = file_path.stem
-    
-    return {
-        'name': metadata['name'],
-        'data': df,
-        'inclination': metadata.get('inclination'),
-        'inclination_uncertainty': metadata.get('inclination_uncertainty'),
-        'distance': metadata.get('distance')
-    }
 
-def parse_galaxy_directory(directory: Path) -> List[Dict[str, Any]]:
+    Expects columns:
+    R (kpc), V (km/s), V_err (km/s), inclination, inclination_err
     """
-    Parse all galaxy files in a directory.
-    
-    Args:
-        directory: Path to directory containing SPARC galaxy files
-        
-    Returns:
-        List of parsed galaxy dictionaries
+    logger.info(f"Parsing SPARC file: {file_path}")
+
+    try:
+        df = pd.read_csv(
+            file_path,
+            delim_whitespace=True,
+            comment="#",
+            header=None,
+        )
+        if df.shape[1] < 5:
+            logger.warning(f"File {file_path} has fewer than 5 columns, skipping.")
+            return None
+
+        rotation_data = {
+            "r": df.iloc[:, 0].values,
+            "v": df.iloc[:, 1].values,
+            "v_err": df.iloc[:, 2].values,
+            "inclination": df.iloc[:, 3].values,
+            "inclination_err": df.iloc[:, 4].values,
+        }
+
+        galaxy_name = file_path.stem
+
+        return {
+            "name": galaxy_name,
+            "file_path": str(file_path),
+            "rotation_data": rotation_data,
+            "n_points": len(rotation_data["r"]),
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to parse {file_path}: {e}")
+        return None
+
+
+def parse_galaxy_directory(data_dir: Path) -> List[Dict[str, Any]]:
     """
-    logger = get_logger(__name__)
+    Parse all SPARC files in ``data_dir``.
+    """
+    logger.info(f"Parsing galaxy directory: {data_dir}")
+
+    if not data_dir.exists():
+        logger.error(f"Directory does not exist: {data_dir}")
+        return []
+
     galaxies = []
-    
-    if not directory.exists():
-        logger.error(f"Directory does not exist: {directory}")
-        return galaxies
-    
-    # Find all data files (common SPARC extensions)
-    file_extensions = ['.dat', '.txt', '.csv']
-    files = []
-    for ext in file_extensions:
-        files.extend(directory.glob(f'*{ext}'))
-    
-    # Also check for files without extension that might be data files
-    for item in directory.iterdir():
-        if item.is_file() and item.suffix not in file_extensions:
-            # Check if it looks like a data file (has numeric content)
-            try:
-                with open(item, 'r') as f:
-                    first_line = f.readline().strip()
-                    if first_line and first_line[0].isdigit():
-                        files.append(item)
-            except:
-                continue
-    
-    logger.info(f"Found {len(files)} potential data files in {directory}")
-    
-    for file_path in files:
-        logger.debug(f"Parsing {file_path}")
-        result = parse_sparc_file(file_path)
-        if result and result.get('data') is not None and len(result['data']) > 0:
-            galaxies.append(result)
-    
+    for file_path in data_dir.iterdir():
+        if file_path.suffix.lower() in {".txt", ".dat"}:
+            galaxy_data = parse_sparc_file(file_path)
+            if galaxy_data:
+                galaxies.append(galaxy_data)
+
+    logger.info(f"Parsed {len(galaxies)} galaxies from {data_dir}")
     return galaxies
 
-def apply_quality_filters(galaxies: List[Dict[str, Any]], 
-                          max_inclination_uncertainty: float = MAX_INCLINATION_UNCERTAINTY,
-                          min_points: int = MIN_ROTATION_CURVE_POINTS) -> List[Dict[str, Any]]:
-    """
-    Apply quality filters to exclude low-quality galaxies.
-    
-    Filters:
-    1. Exclude galaxies with inclination uncertainty >= max_inclination_uncertainty degrees
-    2. Exclude galaxies with fewer than min_points rotation curve measurements
-    
-    Args:
-        galaxies: List of parsed galaxy dictionaries
-        max_inclination_uncertainty: Maximum allowed inclination uncertainty (degrees)
-        min_points: Minimum number of rotation curve points required
-        
-    Returns:
-        Filtered list of galaxies
-    """
-    logger = get_logger(__name__)
-    filtered_galaxies = []
-    excluded_reasons = []
-    
-    for galaxy in galaxies:
-        name = galaxy.get('name', 'Unknown')
-        data = galaxy.get('data')
-        inclination_uncertainty = galaxy.get('inclination_uncertainty')
-        
-        # Check number of points
-        if data is None or len(data) < min_points:
-            reason = f"Insufficient points ({len(data) if data is not None else 0} < {min_points})"
-            excluded_reasons.append((name, reason))
-            continue
-        
-        # Check inclination uncertainty
-        if inclination_uncertainty is None:
-            # If uncertainty is not available, we might want to exclude or include based on policy
-            # For now, we'll exclude if uncertainty is missing as we can't verify quality
-            reason = "Missing inclination uncertainty"
-            excluded_reasons.append((name, reason))
-            continue
-        
-        if inclination_uncertainty >= max_inclination_uncertainty:
-            reason = f"Inclination uncertainty too high ({inclination_uncertainty} >= {max_inclination_uncertainty})"
-            excluded_reasons.append((name, reason))
-            continue
-        
-        # Galaxy passes all filters
-        filtered_galaxies.append(galaxy)
-    
-    # Log summary
-    logger.info(f"Quality filtering: {len(filtered_galaxies)} passed, {len(excluded_reasons)} excluded")
-    for name, reason in excluded_reasons:
-        logger.debug(f"Excluded {name}: {reason}")
-    
-    return filtered_galaxies
 
-def extract_rotation_curves(galaxies: List[Dict[str, Any]]) -> pd.DataFrame:
+def apply_quality_filters(
+    galaxies: List[Dict[str, Any]],
+    min_points: int = 15,
+    max_inclination_err: float = 10.0,
+) -> List[Dict[str, Any]]:
     """
-    Extract rotation curve data into a unified DataFrame.
-    
-    Args:
-        galaxies: List of parsed galaxy dictionaries
-        
-    Returns:
-        DataFrame with columns: galaxy_name, r, v, sigma_v, inclination, inclination_uncertainty
+    Apply the quality criteria required by FR‑003.
     """
-    logger = get_logger(__name__)
-    
-    all_rows = []
-    
-    for galaxy in galaxies:
-        name = galaxy.get('name', 'Unknown')
-        data = galaxy.get('data')
-        inclination = galaxy.get('inclination')
-        inclination_uncertainty = galaxy.get('inclination_uncertainty')
-        
-        if data is None or len(data) == 0:
-            continue
-        
-        for _, row in data.iterrows():
-            all_rows.append({
-                'galaxy_name': name,
-                'r': row['r'],
-                'v': row['v'],
-                'sigma_v': row['sigma_v'],
-                'inclination': inclination,
-                'inclination_uncertainty': inclination_uncertainty
-            })
-    
-    if not all_rows:
-        logger.warning("No rotation curve data extracted")
-        return pd.DataFrame(columns=['galaxy_name', 'r', 'v', 'sigma_v', 'inclination', 'inclination_uncertainty'])
-    
-    return pd.DataFrame(all_rows)
-
-def main():
-    """
-    Main pipeline for downloading, parsing, and filtering SPARC data.
-    
-    This function:
-    1. Downloads SPARC data (if not already present)
-    2. Parses all galaxy files
-    3. Applies quality filters (inclination uncertainty < 10°, points >= 15)
-    4. Saves filtered data to data/processed/filtered_galaxies.csv
-    5. Updates data/metadata.yaml with processing timestamp
-    """
-    logger = setup_logging()
-    log_stage(logger, "START", "T014: Quality Filtering Pipeline")
-    
-    # Load configuration
-    config = load_config()
-    data_dir = Path(config.get('data_dir', 'data'))
-    raw_dir = data_dir / 'raw'
-    processed_dir = data_dir / 'processed'
-    
-    # Ensure directories exist
-    ensure_dirs([raw_dir, processed_dir])
-    
-    # Step 1: Download SPARC data if needed
-    sparc_url = config.get('sparc_url', 'https://bitbucket.org/kyleohayden/sparc/raw/master/')
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Check if data already exists
-    galaxy_files = list(raw_dir.glob('*'))
-    if not galaxy_files:
-        logger.info("Downloading SPARC data...")
-        download_sparc_data(sparc_url, raw_dir)
-    else:
-        logger.info(f"Found {len(galaxy_files)} existing files in {raw_dir}")
-    
-    # Step 2: Parse all galaxy files
-    logger.info("Parsing galaxy files...")
-    galaxies = parse_galaxy_directory(raw_dir)
-    logger.info(f"Parsed {len(galaxies)} galaxies")
-    
-    if not galaxies:
-        logger.error("No galaxies parsed. Exiting.")
-        return
-    
-    # Step 3: Apply quality filters
-    logger.info("Applying quality filters...")
-    filtered_galaxies = apply_quality_filters(
-        galaxies,
-        max_inclination_uncertainty=MAX_INCLINATION_UNCERTAINTY,
-        min_points=MIN_ROTATION_CURVE_POINTS
+    logger.info(
+        f"Applying quality filters: min_points={min_points}, "
+        f"max_inclination_err={max_inclination_err}"
     )
-    logger.info(f"Quality filter result: {len(filtered_galaxies)} galaxies passed")
-    
-    # Step 4: Extract rotation curves and save
-    logger.info("Extracting rotation curves...")
-    rotation_df = extract_rotation_curves(filtered_galaxies)
-    
-    output_file = processed_dir / 'filtered_galaxies.csv'
-    rotation_df.to_csv(output_file, index=False)
-    logger.info(f"Saved filtered data to {output_file}")
-    logger.info(f"Total points: {len(rotation_df)}, Total galaxies: {rotation_df['galaxy_name'].nunique()}")
-    
-    # Step 5: Update metadata
-    from utils import get_timestamp
-    metadata_file = data_dir / 'metadata.yaml'
-    
-    if metadata_file.exists():
-        import yaml
-        with open(metadata_file, 'r') as f:
-            metadata = yaml.safe_load(f) or {}
-    else:
-        metadata = {}
-    
-    metadata['last_processed'] = get_timestamp()
-    metadata['filter_criteria'] = {
-        'max_inclination_uncertainty': MAX_INCLINATION_UNCERTAINTY,
-        'min_points': MIN_ROTATION_CURVE_POINTS
-    }
-    metadata['statistics'] = {
-        'total_galaxies_parsed': len(galaxies),
-        'galaxies_after_filter': len(filtered_galaxies),
-        'total_data_points': len(rotation_df)
-    }
-    
-    with open(metadata_file, 'w') as f:
-        yaml.dump(metadata, f, default_flow_style=False)
-    
-    logger.info(f"Updated metadata in {metadata_file}")
-    log_stage(logger, "SUCCESS", "T014: Quality Filtering Pipeline completed")
+
+    filtered = []
+    rejected = 0
+    reasons = {"low_points": 0, "high_inclination_err": 0}
+
+    for galaxy in galaxies:
+        n_points = galaxy["n_points"]
+        inc_err = galaxy["rotation_data"]["inclination_err"]
+        if n_points < min_points:
+            reasons["low_points"] += 1
+            rejected += 1
+            continue
+
+        # inclination_err may be an array – use the mean.
+        mean_err = np.mean(inc_err) if isinstance(inc_err, np.ndarray) else inc_err
+        if mean_err >= max_inclination_err:
+            reasons["high_inclination_err"] += 1
+            rejected += 1
+            continue
+
+        filtered.append(galaxy)
+
+    logger.info(
+        f"Quality filter complete: {len(filtered)} passed, {rejected} rejected "
+        f"(low points: {reasons['low_points']}, high inc err: {reasons['high_inclination_err']})"
+    )
+    return filtered
+
+
+def extract_rotation_curves(
+    filtered_galaxies: List[Dict[str, Any]]
+) -> pd.DataFrame:
+    """
+    Flatten the filtered galaxy list into a single DataFrame.
+    """
+    logger.info(f"Extracting rotation curves from {len(filtered_galaxies)} galaxies")
+    rows = []
+    for galaxy in filtered_galaxies:
+        name = galaxy["name"]
+        rd = galaxy["rotation_data"]
+        n = len(rd["r"])
+        for i in range(n):
+            rows.append(
+                {
+                    "galaxy": name,
+                    "r": rd["r"][i],
+                    "v": rd["v"][i],
+                    "v_err": rd["v_err"][i],
+                    "inclination": rd["inclination"][i],
+                    "inclination_err": rd["inclination_err"][i],
+                }
+            )
+    df = pd.DataFrame(rows)
+    logger.info(f"Extracted {len(df)} data points")
+    return df
+
+
+def _load_config_with_defaults() -> Dict[str, Any]:
+    """
+    Load configuration, falling back to sensible defaults for missing keys.
+    """
+    try:
+        cfg = get_config()
+    except Exception:
+        cfg = {}
+
+    # Ensure the top‑level 'data' dict exists
+    data_cfg = cfg.get("data", {})
+    # Provide defaults required by this script
+    data_cfg.setdefault("source_dir", "data/raw")
+    data_cfg.setdefault("processed_dir", "data/processed")
+    data_cfg.setdefault("metadata_path", "data/metadata.yaml")
+    cfg["data"] = data_cfg
+    return cfg
+
+
+def main() -> int:
+    """
+    End‑to‑end preprocessing pipeline (T013 → T014 → T015).
+
+    1. Load configuration (fallback to sensible defaults if missing).
+    2. Parse raw SPARC files.
+    3. Apply quality filters.
+    4. Write ``filtered_galaxies.csv``.
+    5. Update ``metadata.yaml`` with processing timestamp and version.
+    """
+    cfg = _load_config_with_defaults()
+
+    raw_dir = Path(cfg["data"]["source_dir"])
+    processed_dir = Path(cfg["data"]["processed_dir"])
+    metadata_path = Path(cfg["data"]["metadata_path"])
+
+    ensure_directory(processed_dir)
+
+    # --------------------------------------------------------------
+    # Step 1 – parse raw files
+    # --------------------------------------------------------------
+    galaxies = parse_galaxy_directory(raw_dir)
+    if not galaxies:
+        logger.error("No galaxy files found – aborting preprocessing.")
+        return 1
+
+    # --------------------------------------------------------------
+    # Step 2 – quality filtering (T014)
+    # --------------------------------------------------------------
+    filtered = apply_quality_filters(
+        galaxies, min_points=15, max_inclination_err=10.0
+    )
+    if not filtered:
+        logger.error("All galaxies filtered out – aborting.")
+        return 1
+
+    # --------------------------------------------------------------
+    # Step 3 – flatten to DataFrame
+    # --------------------------------------------------------------
+    df = extract_rotation_curves(filtered)
+
+    # --------------------------------------------------------------
+    # Step 4 – write CSV (T015 artifact)
+    # --------------------------------------------------------------
+    output_file = processed_dir / "filtered_galaxies.csv"
+    df.to_csv(output_file, index=False)
+    logger.info(f"Filtered data written to {output_file}")
+
+    # --------------------------------------------------------------
+    # Step 5 – update metadata (T015 requirement)
+    # --------------------------------------------------------------
+    timestamp = pd.Timestamp.utcnow().isoformat()
+    version = "1.1"
+    try:
+        update_metadata(
+            metadata_path=str(metadata_path),
+            output_path=str(output_file),
+            timestamp=timestamp,
+            version=version,
+        )
+        logger.info(
+            f"metadata.yaml updated with timestamp {timestamp} and version {version}"
+        )
+    except Exception as e:
+        logger.error(f"Failed to update metadata: {e}")
+        return 1
+
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())

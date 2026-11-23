@@ -1,0 +1,31 @@
+T001:
+  c: true
+  h: 3666d2987a903bddf0b2c85616bca048946cf1173ba6ea6309252e79fb844a6b
+  r: "All required directories (`code/`, `code/data/`, `code/modeling/`, `code/utils/`,\
+    \ `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`) are\
+    \ present in the repository as confirmed by the collector\u2019s directory listings."
+  sig: 4a2acbab0f648a438d5e3b758a1b92531d4ffdad6d432d8afd5e966011ab7c0f
+T002:
+  c: false
+  h: 10305e05136660497a85762c6420a1002215e78c74fa7636cee67777ebd47d70
+  r: "The evidence includes `.ruff.toml` and `pyproject.toml`, but the required `.flake8`\
+    \ file and `.env.example` (with the placeholder keys) are missing, so the linting/formatting\
+    \ and env\u2011variable template requirements are not fully satisfied."
+  sig: 2466507659b498ac610e94f7fcc81c60083c36fc0186e723f9bbdc02bf0e4f27
+T003:
+  c: true
+  h: 936c3795ceb91afdd591d33e7637cb3cce12007e19f46e4ff766c501eada730c
+  r: "Checked `code/models/schemas.py` (6384\u202Fbytes) \u2013 it exists, is non\u2011\
+    empty, and defines the four required Pydantic models (Species, BGCFeature, Metabolite,\
+    \ ModelOutput) with appropriate fields and validators. No required artifact is\
+    \ missing or stubbed."
+  sig: 7d7be216875efdf6426973a2bb36a98310d88d476aa585ebfc7616e861985843
+T004:
+  c: true
+  h: d625a9c21d1230f6970addd98a6b9b19cca342ea2f33c0cf201a25e73d794f6c
+  r: "Checked `code/config.py` and `code/utils/logging.py` for proper seed handling\
+    \ and logging setup, and the execution record `code/.tasks/T004.code_utils_verify_t004.py.log`\
+    \ which confirms seed reproducibility and that INFO\u2011level messages were written\
+    \ (evidenced by the logged \u201CConfiguration loaded\u201D lines and the script\u2019\
+    s \u201CLogging output verified\u201D message)."
+  sig: 88350ad818013739fccdd40dd02b309c85c9b4d8c95525d80d809c154aef4c35

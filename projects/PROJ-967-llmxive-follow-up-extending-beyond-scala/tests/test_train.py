@@ -1,57 +1,90 @@
 """
-Tests for the train module (User Story 3).
+Unit tests for the training module (code/train.py).
 """
+import os
 import json
-import tempfile
-from pathlib import Path
-
 import pytest
+from pathlib import Path
+import pandas as pd
+import numpy as np
 
-from train import parse_args, load_features, train_and_evaluate
+# Ensure imports from code/ work
+from train import (
+    setup_directories,
+    load_features,
+    load_model_selection,
+    prepare_data,
+    train_model,
+    run_cross_validation,
+    calculate_permutation_pvalue,
+    evaluate_model,
+    save_results,
+    save_model,
+    parse_args,
+    main
+)
 
+def test_load_model_selection(tmp_path):
+    """Test loading model selection configuration."""
+    config = {"model_type": "ridge", "n_samples": 100}
+    path = tmp_path / "model_selection.json"
+    with open(path, "w") as f:
+        json.dump(config, f)
 
-class TestLoadFeatures:
-    """Tests for loading features from JSON."""
+    result = load_model_selection(path)
+    assert result["model_type"] == "ridge"
 
-    def test_load_valid_json(self, tmp_path):
-        """Test loading a valid features JSON file."""
-        features_file = tmp_path / "features.json"
-        data = {
-            "samples": [
-                {"id": 1, "features": [0.1, 0.2, 0.3], "target": 0.5},
-                {"id": 2, "features": [0.4, 0.5, 0.6], "target": 0.8}
-            ]
-        }
-        features_file.write_text(json.dumps(data))
+def test_prepare_data():
+    """Test data preparation for training."""
+    features = pd.DataFrame({
+        "variance": [1.0, 2.0, 3.0],
+        "entropy": [0.5, 0.6, 0.7],
+        "fidelity_loss": [0.1, 0.2, 0.3]
+    })
 
-        X, y = load_features(str(features_file))
-        assert len(X) == 2
-        assert len(y) == 2
-        assert X[0] == [0.1, 0.2, 0.3]
+    X, y = prepare_data(features)
 
-    def test_missing_file(self, tmp_path):
-        """Test loading from a non-existent file."""
-        with pytest.raises(FileNotFoundError):
-            load_features(str(tmp_path / "nonexistent.json"))
+    assert X.shape == (3, 2)
+    assert y.shape == (3,)
 
+def test_train_model_ridge():
+    """Test Ridge Regression training."""
+    X = np.array([[1, 0], [0, 1], [1, 1]])
+    y = np.array([1, 2, 3])
 
-class TestTrainAndEvaluate:
-    """Tests for the training and evaluation logic."""
+    model = train_model(X, y, "ridge")
 
-    def test_training_runs(self):
-        """Test that training runs without crashing on small data."""
-        # Create mock data
-        X = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0]]
-        y = [1.0, 2.0, 3.0, 4.0]
+    assert model is not None
+    assert model.coef_.shape == (2,)
 
-        # This is a simplified test; the actual function might require file paths
-        # We assume the core logic can be tested with in-memory data or mocked file I/O
-        # For now, we verify the function exists and accepts arguments
-        # A full integration test would require a real file
-        pass
+def test_train_model_rf():
+    """Test Random Forest training."""
+    X = np.array([[1, 0], [0, 1], [1, 1], [0, 0], [1, 0.5]])
+    y = np.array([1, 2, 3, 0, 1.5])
 
-    def test_cv_split(self):
-        """Test that cross-validation splits are generated correctly."""
-        # Verify that the logic handles stratified splitting if applicable
-        # This is more of a logic verification
-        pass
+    model = train_model(X, y, "rf")
+
+    assert model is not None
+    assert model.n_estimators == 100
+
+def test_run_cross_validation():
+    """Test cross-validation execution."""
+    X = np.array([[1, 0], [0, 1], [1, 1], [0, 0], [1, 0.5], [0.5, 0.5]])
+    y = np.array([1, 2, 3, 0, 1.5, 1.0])
+
+    metrics = run_cross_validation(X, y, "ridge", cv=3)
+
+    assert "r2_mean" in metrics
+    assert "mae_mean" in metrics
+    assert isinstance(metrics["r2_mean"], float)
+
+def test_evaluate_model():
+    """Test model evaluation."""
+    X = np.array([[1, 0], [0, 1], [1, 1]])
+    y = np.array([1, 2, 3])
+
+    model = train_model(X, y, "ridge")
+    metrics = evaluate_model(model, X, y)
+
+    assert "r2" in metrics
+    assert "mae" in metrics

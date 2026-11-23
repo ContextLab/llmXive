@@ -1,0 +1,135 @@
+T001:
+  c: false
+  h: 1f933eeb5239750d6023b9cbe352832ba7e3fabdcb3e6f7ea7dee2403e7957b4
+  r: "Checked the project root `projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/`\
+    \ and its sub\u2011folders. The required directories `data/raw/`, `data/synthetic/`,\
+    \ `data/processed/`, and `results/reports/` are missing, so the prescribed directory\
+    \ structure is not fully created."
+  sig: 210e97e048fe012756c5387b6e954070714cc45e5de4a0d3b62c27f6afbf8d2a
+T002:
+  c: false
+  h: 788e210bfba99b46f05c49f9ba25fa51671cf11bba105a33074f3ce9191ff663
+  r: "The only artifact found is `code/requirements.txt`, which does contain the required\
+    \ packages (pandas, numpy, statsmodels, scikit-learn, seaborn, pyyaml, pytest)\
+    \ but also adds extra entries (black, ruff) and there is no evidence of a Python\u202F\
+    3.11 project initialization file (e.g., `pyproject.toml`, `setup.cfg`, or a version\u2011\
+    specifying configuration). Without such a manifest specifying Python\u202F3.11,\
+    \ the claim that the project has been initialized for that interpreter cannot\
+    \ be verified. Adding a proper project configuration file that declares `requires-python\
+    \ = \">=3.11\"` (and optionally the requir"
+  sig: b3ac2ee9fd3c4262787de53a416474c72dda07bec3ee1c191eec0b38b31fca74
+T003:
+  c: false
+  h: ec5f89f2e5cbb6f30f7f469f412a2fb0d98cce1d5d701d5517dd1e26f11a579e
+  r: "Checked the project root `projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre`\
+    \ for any linting/formatting configuration artifacts (e.g., `pyproject.toml` with\
+    \ Black settings, `.ruff.toml`, `ruff.toml`, or a pre\u2011commit hook file) and\
+    \ found none; no evidence of ruff or Black being installed or configured. The\
+    \ required configuration files or scripts are missing, so the task is not satisfied."
+  sig: a906458f3a83261de11841da6920098869dc0d14609866337b38c3d84fd427bc
+T004:
+  c: true
+  h: 588fcd11913b579e7b3fcf769f4735d26dd135e1d0c105302e5152422d6b30c9
+  r: "Checked the presence and content of `data/ethics/ethics-waiver.md` (3134\u202F\
+    bytes) which provides the required synthetic\u2011data ethics waiver placeholder.\
+    \ The file exists and fulfills the task\u2019s specification."
+  sig: 53eabd93b3e72ecea0815e92503539f4b0ef541ab9087825258ff86c82f44b7d
+T005:
+  c: true
+  h: be4ef3c4dd2062d9d5b3f157fb1964724b6c57574ba0fa5036ed7aca23a4e1bf
+  r: "Checked `data/protocols/protocol.yaml` (846\u202Fbytes) which contains the exact\
+    \ threshold label strings, N\u202F=\u202F200, the three effect size entries (\u201C\
+    moderate positive\u201D, \u201Cnull\u201D, \u201Cmoderate negative\u201D), and\
+    \ ICC\u202F=\u202F0.3 as required."
+  sig: ad3a80456ca2032edf83f5c64e09eb4f136126ccb2b94bee6aa390f54952abf4
+T006:
+  c: false
+  h: f853c1441e7c3898ce4a9396cac2abffa38afae34054976cd5be01e4fb9e3603
+  r: "The `contracts/` directory is present, but both required files `dataset.schema.yaml`\
+    \ and `model-output.schema.yaml` are missing, so the task\u2019s core deliverables\
+    \ were not created."
+  sig: 763a7a79f62feef78856646294b06000df9da2ba338fef084c6739be604187dd
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data file was provided that demonstrates saving generated\
+    \ synthetic data to the `data/synthetic/` directory, nor any evidence that the\
+    \ saved files include metadata flags indicating they are simulation\u2011based.\
+    \ The required artifact is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data file was provided that creates a `condition` column
+    from deprivation intensity thresholds and writes the resulting dataframe to `data/processed/`.
+    Without such an artifact, the requirement cannot be verified as met.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, test, or documentation was provided that adds or demonstrates\
+    \ validation of the `recall` column as binary (0/1) and the `bizarreness` column\
+    \ as an integer between 1 and 7 in the final dataframe. The required artifact\
+    \ (e.g., a data\u2011validation function, unit tests, or updated pipeline) is\
+    \ missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided showing that logging of data
+    generation parameters and the ingestion source (real vs. synthetic) has been added.
+    The claim lacks any concrete artifact to verify the required logging functionality.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or notebook implementing the required mixed\u2011effects models\
+    \ (logistic and linear) with `participant_id` as a random intercept using statsmodels\
+    \ is present. The claim lacks any artifact (e.g., Python file, function, or example\
+    \ output) demonstrating that the logic has been added, so the requirement is not\
+    \ satisfied."
+T022a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No design waiver document was provided; the claim lacks any artifact that describes\
+    \ the deviation from FR\u2011008, specifies the fallback to a Fixed\u2011Effects\
+    \ OrderedModel, or presents validation results against the synthetic random\u2011\
+    intercept ground truth. The required written documentation and validation evidence\
+    \ are missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact was presented \u2013 there is no file or directory under `results/models/`\
+    \ containing the serialized results (fixed\u2011effects estimates, standard errors,\
+    \ degrees of freedom, and p\u2011values). Without that output, the requirement\
+    \ is not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided that implements the required\
+    \ logic to check for a sample size\u202F<\u202F10 and either issue a warning or\
+    \ fall back to a fixed\u2011effects model. The claim lacks any artifact (e.g.,\
+    \ function, unit test, or log output) demonstrating that this behavior exists,\
+    \ so the requirement is not satisfied."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only a textual description of the task and specifications;\
+    \ there is no code, data file, or output metadata shown that demonstrates results\
+    \ being labeled as \u201Cassociational\u201D and free of causal language. Consequently,\
+    \ the required artifact (output metadata with associational framing) is missing."
+T030:
+  c: false
+  h: e684beeda256c362ab3882285a92e71094bf7ddff4eda456cff1fd3202c9f4a0
+  r: "The provided `code/sensitivity.py` does not contain a `run_threshold_sweep`\
+    \ implementation (the file is truncated and ends mid\u2011function without such\
+    \ a definition), and the required `protocol.yaml` file is absent, so the script\
+    \ cannot read the threshold labels as specified."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or notebook implementing the comparison of bootstrap confidence\
+    \ intervals to parametric ones (including the zero\u2011crossing check and \u201C\
+    unstable\u201D flag) was provided; the claim lacks any tangible artifact to verify."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or directories were presented under `results/models/`, and there is
+    no evidence of variation tables for odds ratios across thresholds. The required
+    aggregation output is missing, so the task is not satisfied.

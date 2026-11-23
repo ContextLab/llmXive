@@ -1,38 +1,41 @@
 """
 Unit tests for gap calculation logic.
-
-This module verifies the normalized gap formula:
-    normalized_gap = delta / log(p)
-where delta = p_next - p.
 """
-
 import math
+import sys
+import os
 import pytest
 
+# Ensure the project's ``code`` directory is on the import path.
+code_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "code"))
+if code_dir not in sys.path:
+    sys.path.insert(0, code_dir)
+
+# Import the function that computes the normalized gap.
+from generate_primes import normalized_gap
 
 def test_normalized_gap_formula():
     """
-    Verify the normalized gap calculation for a specific twin prime pair.
-
-    Input: p = 3, p_next = 5 (the first twin prime pair)
-    Expected:
-        delta = 5 - 3 = 2
-        log(p) = log(3)
-        normalized_gap = 2 / log(3) ≈ 1.820478...
-
-    The task requires asserting the result is within 1e-4 of 1.8205.
+    Verify the normalized gap formula: delta / log(p).
+    Specific test case: p=3, p_next=5.
+    Expected delta = 2.
+    Expected normalized_gap = 2 / log(3).
     """
     p = 3
     p_next = 5
-
     delta = p_next - p
-    log_p = math.log(p)
-    normalized_gap = delta / log_p
 
-    expected = 1.8205
-    tolerance = 1e-4
+    # Expected value computed independently.
+    expected_normalized = delta / math.log(p)
 
-    assert abs(normalized_gap - expected) < tolerance, (
-        f"Expected normalized_gap ≈ {expected} ± {tolerance}, "
-        f"but got {normalized_gap}"
+    # Actual value using the library function.
+    actual_normalized = normalized_gap(p, p_next)
+
+    # Assert with tolerance for floating point precision
+    assert abs(actual_normalized - expected_normalized) < 1e-4, (
+        f"Normalized gap calculation failed: {actual_normalized} != {expected_normalized}"
     )
+
+    # Specific checks
+    assert actual_normalized > 0, "Normalized gap must be positive for p > 1"
+    assert math.isfinite(actual_normalized), "Normalized gap must be finite"

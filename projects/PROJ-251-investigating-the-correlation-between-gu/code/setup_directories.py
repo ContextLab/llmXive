@@ -1,48 +1,61 @@
 import os
 import sys
 from pathlib import Path
+import logging
+from utils.logging_config import get_logger
 
-def create_directories():
+def create_directories(base_path: Path) -> None:
     """
-    Create the project directory structure required for the llmXive pipeline.
+    Create the required project directory structure.
     
-    Creates:
-      - code/
-      - data/raw
-      - data/processed
-      - data/results
-      - specs/contracts/
-    
-    Returns a list of created paths for verification.
+    Directories created:
+    - code/
+    - data/raw
+    - data/processed
+    - data/results
+    - data/research
+    - tests/
     """
-    project_root = Path(__file__).resolve().parent.parent
+    logger = get_logger(__name__)
     
     directories = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "specs/contracts"
+        base_path / "code",
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+        base_path / "data" / "research",
+        base_path / "tests",
     ]
     
-    created_paths = []
-    
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_paths.append(str(full_path))
+    created_count = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {directory}")
+            created_count += 1
         else:
-            created_paths.append(str(full_path))
-            # Optional: log that it already exists if needed
+            logger.debug(f"Directory already exists: {directory}")
     
-    # Print summary for verification
-    print(f"Directory creation complete for project: {project_root}")
-    print("Created/Verified directories:")
-    for p in created_paths:
-        print(f"  - {p}")
+    logger.info(f"Directory setup complete. Created {created_count} new directories.")
+
+def main() -> int:
+    """
+    Main entry point for directory setup.
     
-    return created_paths
+    Returns:
+        int: Exit code (0 for success, 1 for failure)
+    """
+    logger = get_logger(__name__)
+    logger.info("Starting directory setup...")
+    
+    try:
+        base_path = Path(__file__).resolve().parent.parent
+        create_directories(base_path)
+        logger.info("Directory setup completed successfully.")
+        return 0
+    except Exception as e:
+        logger.error(f"Directory setup failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    create_directories()
+    sys.exit(main())

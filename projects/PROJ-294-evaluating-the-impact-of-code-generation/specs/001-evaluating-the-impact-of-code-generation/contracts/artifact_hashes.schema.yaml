@@ -1,0 +1,16 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Artifact Hash"
+type: "object"
+properties:
+  file_path:
+    type: "string"
+  checksum:
+    type: "string"
+  timestamp:
+    type: "string"
+    format: "date-time"
+required:
+  - file_path
+  - checksum
+  - timestamp
+additionalProperties: false

@@ -1,0 +1,62 @@
+# Ruff configuration for PROJ-761
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "B008",  # Do not perform function call in argument defaults (common in dataclasses)
+]
+
+# Allow autofix for all enabled rules.
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "artifacts",
+    "contracts",
+]
+
+# Same as the default per-file-ignores.
+per-file-ignores = {}
+
+# Assume Python 3.11.
+target-version = "py311"
+
+# Allow unused variables starting with underscore.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"

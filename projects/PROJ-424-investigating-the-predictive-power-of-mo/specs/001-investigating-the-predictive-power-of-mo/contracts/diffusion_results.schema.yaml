@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Diffusion Results Schema"
+description: "Schema for one row of data/processed/diffusion_results.csv (validated as JSON objects after CSV parsing)."
+type: "object"
+properties:
+  solvent:
+    type: "string"
+    enum: ["water", "ethanol", "acetone"]
+  duration_ns:
+    type: "number"
+    enum: [1, 5, 10]
+  seed:
+    type: "integer"
+    minimum: 0
+  msd_slope:
+    type: "number"
+    minimum: 0
+  r_squared:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "R-squared of the MSD linear fit; accepted rows must be >= 0.95 (FR-003, Constitution VI)."
+  loglog_slope:
+    type: "number"
+    description: "Slope of log(MSD) vs. log(time) after discarding the ballistic regime; must be within 1 ± 0.05."
+  d_calc_m2_s:
+    type: "number"
+    minimum: 0
+  d_corr_m2_s:
+    type: "number"
+    minimum: 0
+    description: "Diffusion coefficient after Yeh‑Hummer finite‑size correction."
+  mae:
+    type: "number"
+    minimum: 0
+    description: "Absolute error |D_corr - D_exp| for this trajectory."
+  status:
+    type: "string"
+    enum: ["accepted", "convergence_failed"]
+required:
+  - solvent
+  - duration_ns
+  - seed
+  - msd_slope
+  - r_squared
+  - loglog_slope
+  - d_calc_m2_s
+  - d_corr_m2_s
+  - mae
+  - status
+additionalProperties: false

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1203.5452",
+  "judged_at": "2026-09-24T09:33:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of cognitive load on decision-making accuracy in simulated environments psychology",
+  "rationale": "The paper focuses on organizational knowledge management and collaboration modes (individual vs. collective) without measuring cognitive load, decision-making accuracy, or simulated environments, thus failing to address the specific variables or mechanisms in the user's question. It falls under the rejection rule for \"distinct construct sharing only homonym keywords\" (using \"decision making\" in a management context rather than a cognitive psychology context) and is off-domain regarding the speci",
+  "relevant": false
+}

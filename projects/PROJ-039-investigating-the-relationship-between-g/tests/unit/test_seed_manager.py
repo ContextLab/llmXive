@@ -1,212 +1,239 @@
 """
-Unit tests for the seed manager module.
-
-Tests verify:
-- Seed generation from project structure
-- Seed setting across different libraries
-- Context manager functionality
-- Configuration save/load
+Unit tests for the seed management utility.
 """
 import os
-import sys
+import json
 import tempfile
 from pathlib import Path
-import json
+import pytest
+import numpy as np
 import random
-import hashlib
 
-# Add code directory to path
-code_dir = Path(__file__).parent.parent.parent / 'code'
-sys.path.insert(0, str(code_dir))
-
+# Import the module under test
 from seed_manager import (
-    set_seed, get_seed, generate_seed, 
-    save_seed_config, load_seed_config,
-    SeedContext, SeedManager, get_random_state
+    SeedManager, set_seed, get_seed, generate_seed,
+    save_seed_config, load_seed_config, SeedContext, get_random_state
 )
 
-try:
-    import numpy as np
-    HAS_NUMPY = True
-except ImportError:
-    HAS_NUMPY = False
+@pytest.fixture
+def temp_seed_file():
+    """Create a temporary file for seed configuration."""
+    fd, path = tempfile.mkstemp(suffix=".json")
+    os.close(fd)
+    yield path
+    # Cleanup
+    if os.path.exists(path):
+        os.remove(path)
 
-try:
-    import torch
-    HAS_TORCH = True
-except ImportError:
-    HAS_TORCH = False
+@pytest.fixture
+def initialized_manager(temp_seed_file):
+    """Initialize a SeedManager instance."""
+    manager = SeedManager()
+    manager.initialize(seed=42, seed_file=temp_seed_file)
+    return manager
 
+class TestSeedManager:
+    """Tests for the SeedManager class."""
+    
+    def test_singleton_pattern(self):
+        """Test that SeedManager follows the singleton pattern."""
+        manager1 = SeedManager()
+        manager2 = SeedManager()
+        assert manager1 is manager2
+    
+    def test_initialize_with_seed(self, initialized_manager):
+        """Test initialization with a specific seed."""
+        assert initialized_manager.get_seed() == 42
+    
+    def test_initialize_with_generated_seed(self, temp_seed_file):
+        """Test initialization generates a seed if none provided."""
+        manager = SeedManager()
+        # Reset the singleton for this test
+        manager._initialized = False
+        manager._seed = None
+        manager._seed_file = None
+        
+        manager.initialize(seed_file=temp_seed_file)
+        seed = manager.get_seed()
+        assert isinstance(seed, int)
+        assert seed > 0
+    
+    def test_set_seed(self, initialized_manager):
+        """Test setting a new seed."""
+        initialized_manager.set_seed(12345)
+        assert initialized_manager.get_seed() == 12345
+    
+    def test_get_seed_not_initialized(self):
+        """Test that get_seed raises error when not initialized."""
+        manager = SeedManager()
+        # Ensure not initialized
+        manager._initialized = False
+        manager._seed = None
+        
+        with pytest.raises(RuntimeError, match="not initialized"):
+            manager.get_seed()
+    
+    def test_save_seed_config(self, initialized_manager, temp_seed_file):
+        """Test saving seed configuration."""
+        metadata = {"test_key": "test_value"}
+        initialized_manager.save_seed_config(metadata)
+        
+        with open(temp_seed_file, 'r') as f:
+            config = json.load(f)
+        
+        assert config["seed"] == 42
+        assert config["test_key"] == "test_value"
+        assert "generated_at" in config
+    
+    def test_load_seed_config(self, initialized_manager, temp_seed_file):
+        """Test loading seed configuration."""
+        # First save
+        initialized_manager.save_seed_config()
+        
+        # Create a new manager and load
+        new_manager = SeedManager()
+        new_manager._initialized = False
+        new_manager._seed = None
+        new_manager._seed_file = temp_seed_file
+        
+        loaded_seed = load_seed_config(temp_seed_file)
+        assert loaded_seed == 42
 
-class TestSeedGeneration:
-    """Test seed generation functionality."""
-
-    def test_generate_seed_deterministic(self):
-        """Test that generate_seed produces deterministic results."""
-        seed1 = generate_seed("test_salt")
-        seed2 = generate_seed("test_salt")
-        assert seed1 == seed2, "Seed generation should be deterministic"
-
-    def test_generate_seed_different_salt(self):
-        """Test that different salts produce different seeds."""
-        seed1 = generate_seed("salt1")
-        seed2 = generate_seed("salt2")
-        assert seed1 != seed2, "Different salts should produce different seeds"
-
-    def test_generate_seed_no_salt(self):
-        """Test seed generation without salt."""
-        seed = generate_seed()
-        assert isinstance(seed, int), "Seed should be an integer"
-        assert seed >= 0, "Seed should be non-negative"
-
-
-class TestSeedSetting:
-    """Test seed setting functionality."""
-
-    def test_set_seed_integer(self):
-        """Test setting seed with an integer."""
-        set_seed(42)
-        assert get_seed() == 42, "Seed should be set to 42"
-
-    def test_set_seed_string(self):
-        """Test setting seed with a string."""
-        set_seed("test_string")
-        assert get_seed() is not None, "Seed should be set from string"
-
-    def test_set_seed_none(self):
-        """Test setting seed with None (auto-generate)."""
-        set_seed(None)
-        assert get_seed() is not None, "Seed should be auto-generated"
-
-    def test_seed_reproducibility(self):
-        """Test that setting the same seed produces same results."""
-        set_seed(12345)
+class TestSetSeed:
+    """Tests for the set_seed function."""
+    
+    def test_sets_numpy_seed(self):
+        """Test that set_seed affects numpy random."""
+        set_seed(123)
+        val1 = np.random.rand()
+        
+        set_seed(123)
+        val2 = np.random.rand()
+        
+        assert val1 == val2
+    
+    def test_sets_random_seed(self):
+        """Test that set_seed affects random module."""
+        set_seed(456)
         val1 = random.random()
         
-        set_seed(12345)
+        set_seed(456)
         val2 = random.random()
         
-        assert val1 == val2, "Same seed should produce same random values"
+        assert val1 == val2
+    
+    def test_invalid_seed_type(self):
+        """Test that non-integer seed raises TypeError."""
+        with pytest.raises(TypeError):
+            set_seed("not an integer")
 
-    def test_numpy_seed_reproducibility(self):
-        """Test numpy seed reproducibility."""
-        if not HAS_NUMPY:
-            return
+class TestGenerateSeed:
+    """Tests for the generate_seed function."""
+    
+    def test_generates_integer(self):
+        """Test that generate_seed returns an integer."""
+        seed = generate_seed()
+        assert isinstance(seed, int)
+        assert seed > 0
+    
+    def test_generates_unique_seeds(self):
+        """Test that multiple calls generate different seeds."""
+        seeds = [generate_seed() for _ in range(100)]
+        # With high probability, all seeds should be unique
+        assert len(set(seeds)) == len(seeds)
 
-        set_seed(54321)
-        arr1 = np.random.rand(5)
-        
-        set_seed(54321)
-        arr2 = np.random.rand(5)
-        
-        assert np.array_equal(arr1, arr2), "Numpy should be reproducible with same seed"
-
-
-class TestContextManager:
-    """Test SeedContext functionality."""
-
-    def test_context_manager_sets_seed(self):
-        """Test that context manager sets the seed."""
-        set_seed(999)
-        with SeedContext(111):
-            assert get_seed() == 111, "Context should set seed to 111"
-        # After context, seed should be restored
-        assert get_seed() == 999, "Seed should be restored after context"
-
-    def test_context_manager_nested(self):
-        """Test nested context managers."""
+class TestSeedContext:
+    """Tests for the SeedContext context manager."""
+    
+    def test_temporarily_sets_seed(self):
+        """Test that SeedContext temporarily sets and restores seed."""
+        # Set initial seed
         set_seed(100)
+        initial_val = random.random()
+        
+        # Use context manager
         with SeedContext(200):
-            assert get_seed() == 200
-            with SeedContext(300):
-                assert get_seed() == 300
-            assert get_seed() == 200
-        assert get_seed() == 100
-
-    def test_context_manager_exception(self):
-        """Test that context manager restores seed even on exception."""
-        set_seed(400)
+            context_val = random.random()
+            assert context_val != initial_val
+        
+        # After context, seed should be restored
+        restored_val = random.random()
+        set_seed(100)
+        expected_restored = random.random()
+        assert restored_val == expected_restored
+    
+    def test_restores_seed_after_exception(self):
+        """Test that SeedContext restores seed even after exception."""
+        set_seed(300)
+        initial_val = random.random()
+        
         try:
-            with SeedContext(500):
-                assert get_seed() == 500
+            with SeedContext(400):
+                _ = random.random()
                 raise ValueError("Test exception")
         except ValueError:
             pass
-        assert get_seed() == 400, "Seed should be restored even after exception"
-
-
-class TestConfiguration:
-    """Test seed configuration save/load."""
-
-    def test_save_and_load_config(self):
-        """Test saving and loading seed configuration."""
-        set_seed(777)
         
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            temp_path = f.name
+        # Seed should be restored
+        restored_val = random.random()
+        set_seed(300)
+        expected_restored = random.random()
+        assert restored_val == expected_restored
 
-        try:
-            save_seed_config(temp_path)
-            loaded_seed = load_seed_config(temp_path)
-            assert loaded_seed == 777, "Loaded seed should match saved seed"
-        finally:
-            os.unlink(temp_path)
-
-    def test_save_config_creates_directory(self):
-        """Test that save_config creates directory if needed."""
-        set_seed(888)
+class TestGetRandomState:
+    """Tests for the get_random_state function."""
+    
+    def test_returns_random_state(self):
+        """Test that get_random_state returns a numpy RandomState."""
+        state = get_random_state(555)
+        assert isinstance(state, np.random.RandomState)
+    
+    def test_reproducible_with_seed(self):
+        """Test that RandomState produces reproducible results."""
+        state1 = get_random_state(777)
+        val1 = state1.rand()
         
-        with tempfile.TemporaryDirectory() as temp_dir:
-            config_path = Path(temp_dir) / 'subdir' / 'config.json'
-            save_seed_config(config_path)
-            assert config_path.exists(), "Config file should be created"
-
-    def test_load_nonexistent_config(self):
-        """Test loading a nonexistent configuration file."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            nonexistent = Path(temp_dir) / 'nonexistent.json'
-            try:
-                load_seed_config(nonexistent)
-                assert False, "Should raise FileNotFoundError"
-            except FileNotFoundError:
-                pass  # Expected
-
-
-class TestRandomState:
-    """Test random state generation."""
-
-    def test_get_random_state_with_seed(self):
-        """Test getting random state with explicit seed."""
-        rs = get_random_state(999)
-        assert rs is not None, "Random state should be created"
-
-    def test_random_state_reproducibility(self):
-        """Test that random state produces reproducible results."""
-        rs1 = get_random_state(123)
-        val1 = rs1.random() if HAS_NUMPY else rs1.random()
+        state2 = get_random_state(777)
+        val2 = state2.rand()
         
-        rs2 = get_random_state(123)
-        val2 = rs2.random() if HAS_NUMPY else rs2.random()
+        assert val1 == val2
+    
+    def test_uses_global_seed(self):
+        """Test that get_random_state uses global seed if none provided."""
+        set_seed(999)
+        state = get_random_state()
+        val = state.rand()
         
-        assert val1 == val2, "Same seed should produce same random values"
-
-class TestSeedManagerSingleton:
-    """Test SeedManager singleton behavior."""
-
-    def test_singleton_instance(self):
-        """Test that SeedManager returns same instance."""
-        manager1 = SeedManager()
-        manager2 = SeedManager()
-        assert manager1 is manager2, "SeedManager should be a singleton"
-
-    def test_seed_history(self):
-        """Test seed history tracking."""
-        set_seed(10)
-        set_seed(20)
-        set_seed(30)
+        set_seed(999)
+        state2 = get_random_state()
+        val2 = state2.rand()
         
-        history = SeedManager().get_seed_history()
-        assert len(history) >= 3, "Should track seed history"
+        assert val == val2
+
+class TestLoadSeedConfigErrors:
+    """Tests for error conditions in load_seed_config."""
+    
+    def test_file_not_found(self, temp_seed_file):
+        """Test that FileNotFoundError is raised for missing file."""
+        # Ensure file doesn't exist
+        if os.path.exists(temp_seed_file):
+            os.remove(temp_seed_file)
         
-        seeds = [h['seed'] for h in history]
-        assert 10 in seeds and 20 in seeds and 30 in seeds, "All seeds should be in history"
+        with pytest.raises(FileNotFoundError):
+            load_seed_config(temp_seed_file)
+    
+    def test_invalid_json(self, temp_seed_file):
+        """Test that JSONDecodeError is raised for invalid JSON."""
+        with open(temp_seed_file, 'w') as f:
+            f.write("not valid json")
+        
+        with pytest.raises(json.JSONDecodeError):
+            load_seed_config(temp_seed_file)
+    
+    def test_missing_seed_key(self, temp_seed_file):
+        """Test that ValueError is raised if 'seed' key is missing."""
+        with open(temp_seed_file, 'w') as f:
+            json.dump({"other_key": "value"}, f)
+        
+        with pytest.raises(ValueError, match="'seed' key missing"):
+            load_seed_config(temp_seed_file)

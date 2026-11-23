@@ -1,0 +1,2 @@
+# This file ensures the figures directory exists
+# Figure files will be generated during pipeline execution

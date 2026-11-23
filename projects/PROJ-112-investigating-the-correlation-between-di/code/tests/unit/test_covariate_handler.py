@@ -1,12 +1,9 @@
 import pytest
 import pandas as pd
 import numpy as np
-import json
+import tempfile
 import os
 from pathlib import Path
-import tempfile
-import shutil
-
 from src.preprocessing.covariate_handler import (
     calculate_missing_ratio,
     exclude_high_missingness,
@@ -17,122 +14,126 @@ from src.preprocessing.covariate_handler import (
 @pytest.fixture
 def sample_df():
     """Create a sample DataFrame with missing values."""
-    data = {
-        'age': [25.0, 30.0, np.nan, 40.0, 50.0],
-        'bmi': [22.0, np.nan, 24.0, 26.0, np.nan],
-        'antibiotics': [0, 1, 0, np.nan, 1],
-        'high_missing_col': [np.nan, np.nan, np.nan, np.nan, np.nan], # 100% missing
-        'normal_col': [1, 2, 3, 4, 5]
-    }
-    return pd.DataFrame(data)
+    return pd.DataFrame({
+        'sample_id': ['S1', 'S2', 'S3', 'S4', 'S5'],
+        'age': [25, 30, np.nan, 40, 35],
+        'bmi': [22.5, np.nan, 24.0, 26.0, np.nan],
+        'antibiotic_use': [0, 1, 0, np.nan, 1],
+        'fiber_g_day': [15.0, 20.0, 18.0, 22.0, 10.0]
+    })
 
 @pytest.fixture
 def temp_dir():
-    """Create a temporary directory for file I/O tests."""
-    tmp = tempfile.mkdtemp()
-    yield tmp
-    shutil.rmtree(tmp, ignore_errors=True)
+    """Create a temporary directory for test outputs."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
 def test_calculate_missing_ratio(sample_df):
-    """Test calculation of missing ratios."""
-    ratios = calculate_missing_ratio(sample_df)
-    
-    # age: 1/5 = 0.2
-    assert ratios['age'] == 0.2
-    # bmi: 2/5 = 0.4
-    assert ratios['bmi'] == 0.4
-    # antibiotics: 1/5 = 0.2
-    assert ratios['antibiotics'] == 0.2
-    # high_missing_col: 5/5 = 1.0
-    assert ratios['high_missing_col'] == 1.0
-    # normal_col: 0/5 = 0.0
-    assert ratios['normal_col'] == 0.0
+    """Test missing ratio calculation."""
+    ratio = calculate_missing_ratio(sample_df, ['age', 'bmi', 'antibiotic_use'])
+    assert ratio['age'] == 0.2  # 1/5
+    assert ratio['bmi'] == 0.2  # 1/5
+    assert ratio['antibiotic_use'] == 0.2  # 1/5
 
 def test_exclude_high_missingness(sample_df):
-    """Test exclusion of columns with >20% missing."""
-    filtered_df, excluded = exclude_high_missingness(sample_df, threshold=0.20)
-    
-    # 'high_missing_col' (100%) should be excluded
-    assert 'high_missing_col' in excluded
-    assert 'high_missing_col' not in filtered_df.columns
-    
-    # 'bmi' (40%) should be excluded
-    assert 'bmi' in excluded
-    assert 'bmi' not in filtered_df.columns
-    
-    # Others should remain
-    assert 'age' in filtered_df.columns
-    assert 'antibiotics' in filtered_df.columns
+    """Test exclusion of high missingness rows."""
+    # S3 has 1/3 missing (33%), S4 has 1/3 missing (33%), S5 has 1/3 missing (33%)
+    # With threshold 0.20, all should be excluded if we check age, bmi, antibiotic_use
+    filtered_df, excluded_ids = exclude_high_missingness(
+        sample_df, 
+        threshold=0.20, 
+        columns=['age', 'bmi', 'antibiotic_use']
+    )
+    # S1 and S2 have 0 and 1 missing respectively (0% and 33%)
+    # Actually S2 has 1/3 missing (33%) -> excluded
+    # S1 has 0/3 missing (0%) -> kept
+    assert len(filtered_df) == 1
+    assert 'S1' in filtered_df['sample_id'].values
 
 def test_exclude_high_missingness_threshold_adjusted(sample_df):
     """Test exclusion with a higher threshold."""
-    # Set threshold to 0.50 (50%)
-    filtered_df, excluded = exclude_high_missingness(sample_df, threshold=0.50)
-    
-    # Only 'high_missing_col' (100%) should be excluded
-    assert 'high_missing_col' in excluded
-    assert 'bmi' not in excluded # 40% < 50%
-    assert 'bmi' in filtered_df.columns
+    # With threshold 0.5, only rows with >50% missing are excluded
+    # None of our rows have >50% missing in the 3 columns
+    filtered_df, excluded_ids = exclude_high_missingness(
+        sample_df, 
+        threshold=0.50, 
+        columns=['age', 'bmi', 'antibiotic_use']
+    )
+    assert len(filtered_df) == 5  # All kept
 
 def test_impute_with_mice_no_missing():
     """Test imputation on data with no missing values."""
-    df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
+    df = pd.DataFrame({
+        'age': [25, 30, 35],
+        'bmi': [22.5, 24.0, 26.0]
+    })
     result = impute_with_mice(df)
-    pd.testing.assert_frame_equal(result, df)
+    assert result.equals(df)
 
 def test_impute_with_mice_basic(sample_df):
-    """Test basic MICE imputation functionality."""
-    # Select columns that actually have missing data
-    cols = ['age', 'bmi']
-    result = impute_with_mice(sample_df, columns=cols)
+    """Test basic MICE imputation."""
+    # Select only numeric columns with missing values
+    numeric_cols = ['age', 'bmi', 'antibiotic_use']
+    result = impute_with_mice(sample_df, columns=numeric_cols, n_iterations=2)
     
-    # Check that result has no NaN in specified columns
+    # Check that no NaN values remain in the imputed columns
     assert not result['age'].isna().any()
     assert not result['bmi'].isna().any()
+    assert not result['antibiotic_use'].isna().any()
     
-    # Check that original shape is preserved
-    assert result.shape == sample_df.shape
+    # Check that original values are preserved where not missing
+    assert result.loc[0, 'age'] == 25
+    assert result.loc[0, 'bmi'] == 22.5
 
-def test_process_covariates_full_pipeline(sample_df):
-    """Test the full covariate processing pipeline."""
-    cols = ['age', 'bmi', 'antibiotics', 'high_missing_col']
+def test_process_covariates_full_pipeline(sample_df, temp_dir):
+    """Test the full processing pipeline."""
+    input_path = os.path.join(temp_dir, 'input.tsv')
+    output_path = os.path.join(temp_dir, 'output.tsv')
+    exclusion_log_path = os.path.join(temp_dir, 'exclusion_log.txt')
     
-    processed_df, summary = process_covariates(
-        sample_df,
-        covariate_columns=cols,
-        missing_threshold=0.20,
+    # Write input
+    sample_df.to_csv(input_path, sep='\t', index=False)
+    
+    # Run processing
+    stats = process_covariates(
+        input_path=input_path,
+        output_path=output_path,
+        exclusion_log_path=exclusion_log_path,
+        threshold=0.30,  # Allow up to 30% missing
         impute=True,
-        num_iterations=2 # Fewer iterations for faster test
+        columns=['age', 'bmi', 'antibiotic_use']
     )
     
-    # Verify summary structure
-    assert 'original_columns' in summary
-    assert 'excluded_columns' in summary
-    assert 'imputed_columns' in summary
-    assert 'final_columns' in summary
+    # Verify outputs exist
+    assert os.path.exists(output_path)
+    assert os.path.exists(exclusion_log_path)
     
-    # Verify high_missing_col was excluded
-    assert 'high_missing_col' in summary['excluded_columns']
-    assert 'high_missing_col' not in processed_df.columns
+    # Verify stats
+    assert stats['original_count'] == 5
+    assert stats['remaining_count'] <= 5
+    assert stats['imputed'] == True
     
-    # Verify remaining columns have no missing values (due to imputation)
-    for col in summary['final_columns']:
-        assert not processed_df[col].isna().any()
+    # Verify output has no NaN in imputed columns
+    output_df = pd.read_csv(output_path, sep='\t')
+    assert not output_df['age'].isna().any()
+    assert not output_df['bmi'].isna().any()
 
-def test_process_covariates_no_impute(sample_df):
-    """Test pipeline with imputation disabled."""
-    cols = ['age', 'bmi', 'antibiotics']
+def test_process_covariates_no_impute(sample_df, temp_dir):
+    """Test processing without imputation."""
+    input_path = os.path.join(temp_dir, 'input.tsv')
+    output_path = os.path.join(temp_dir, 'output.tsv')
+    exclusion_log_path = os.path.join(temp_dir, 'exclusion_log.txt')
     
-    processed_df, summary = process_covariates(
-        sample_df,
-        covariate_columns=cols,
-        missing_threshold=0.50, # Higher threshold so nothing excluded
-        impute=False
+    sample_df.to_csv(input_path, sep='\t', index=False)
+    
+    stats = process_covariates(
+        input_path=input_path,
+        output_path=output_path,
+        exclusion_log_path=exclusion_log_path,
+        threshold=0.0,  # Exclude any missing
+        impute=False,
+        columns=['age', 'bmi', 'antibiotic_use']
     )
     
-    # Since impute=False, missing values should remain
-    assert processed_df['age'].isna().any()
-    assert processed_df['bmi'].isna().any()
-    
-    # Summary should reflect no imputation
-    assert len(summary['imputed_columns']) == 0
+    assert stats['imputed'] == False
+    assert os.path.exists(output_path)

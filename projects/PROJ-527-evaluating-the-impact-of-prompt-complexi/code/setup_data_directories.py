@@ -1,39 +1,29 @@
-"""
-Data Directory Setup Utility.
-
-Creates the required data directory structure for the project:
-- data/raw/
-- data/processed/
-- data/results/
-"""
-
 import os
 from pathlib import Path
 
-# Project root is the parent of the 'code/' directory
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-
-def create_data_directories() -> None:
+def create_data_directories():
     """
-    Create the standard data directory structure if it does not exist.
-
-    Directories created:
-    - data/raw
-    - data/processed
-    - data/results
+    Create the data directory structure.
+    Helper function called by setup_project_structure.
     """
-    data_base = _PROJECT_ROOT / "data"
-    directories = [
-        data_base / "raw",
-        data_base / "processed",
-        data_base / "results",
+    project_root = Path(__file__).resolve().parent.parent
+    
+    data_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/results",
     ]
+    
+    for dir_path in data_dirs:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+    
+    return True
 
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created/Verified directory: {directory}")
-
+def main():
+    """Entry point for data directory creation."""
+    create_data_directories()
+    print("Data directories created successfully.")
 
 if __name__ == "__main__":
-    create_data_directories()
+    main()

@@ -1,0 +1,103 @@
+T001b:
+  c: true
+  h: 37c69f8a5109bf959521f0abbcbe3783c2f5577bce0bd0a2f5615e9067d4adbd
+  r: '`code/main.py` exists with all four required flags (`--full-pipeline`, `--include-mp`,
+    `--fallback-mode`, `--streaming`) implemented via argparse, and execution logs
+    show `python -m code.main --help` printing usage (exit 0) and `tests/unit/test_main_cli.py::test_cli_parsing`
+    passing (3 passed, exit 0). The test file genuinely exercises flag parsing and
+    fallback-override semantics, matching the task''s verification criteria.'
+  sig: efd2fc10a42eb7f4ae481bef9ceddfc212d716d0a37bf81899cefc9f7b65fa47
+T002:
+  c: true
+  h: 9e42ab1982fc448dcd95d45285c143629871b857b8e0f90fbc740cdfd822c5f1
+  r: The file `code/requirements.txt` exists (457 bytes) and contains all nine required
+    pins exactly as specified (pandas==2.2.*, scikit-learn==1.5.*, shap==0.45.*, magpie==0.2.*,
+    datasets==2.19.*, numpy==1.26.*, scipy==1.13.*, pyyaml==6.0.*, cvxpy==1.5.*),
+    plus additional supporting pins which don't conflict with the requirement. The
+    verification criterion (fresh venv install) cannot be re-executed here, but the
+    artifact content fully matches the task's stated deliverable.
+  sig: af13a8cae77d0936c6ae5c5f2eda1ea53f9541c7312e8e039018552b565b9249
+T003:
+  c: true
+  h: b74b4b4e225ae4f2bb84c93e4f195b4e770d41efa5ed51fbbfb27298637befe9
+  r: The `pyproject.toml` exists with substantive `[tool.ruff]` (including lint, isort,
+    per-file-ignores) and `[tool.black]` sections, and the recorded execution of `tests/unit/test_pyproject_config.py`
+    (exit 0, 7 passed) confirms the config parses and the sections are present. The
+    verification criterion (`ruff check .` and `black --check .` exit 0) is not directly
+    evidenced by a recorded run of those commands, but the config content fully matches
+    the task's requirement of adding the sections.
+  sig: e6a15f41e73c5518eb79ab308c801115e91272428a54b6c015ab25d3aaa82f96
+T007:
+  c: false
+  h: e0a554a2d1a19301a1d06d98450a7acead427b6ec2e1d4b0a1ed2a78e39f6033
+  r: "The repository contains a partially\u2011implemented `code/descriptors.py` that\
+    \ defines `compute_descriptors` (and is truncated), but it does not provide the\
+    \ required `compute_magpie` function nor does it write the L2\u2011normalized\
+    \ descriptors to `data/processed/descriptors.parquet`. The expected output file\
+    \ is absent. The task therefore remains unfinished."
+T008a:
+  c: false
+  h: 69d55c353f6d291c9036dc410b0b91c75b7114a107fbb17a840d580c5726a589
+  r: The `code/imbalance.py` file ends abruptly inside `calculate_target_imbalance`
+    (the function is not fully implemented and contains a stray `ret`), and the required
+    output file `results/target_imbalance_scores.csv` does not exist. Both the core
+    function and its expected CSV result are missing, so the task is not satisfied.
+T008b:
+  c: false
+  h: 388044e730e13c759b1d501371279700ae4416f094a73ed1a040765b9c2863fc
+  r: "The repository lacks the required `data/processed/descriptors.parquet` input\
+    \ and the `results/compositional_imbalance_score.csv` output, and the provided\
+    \ `code/imbalance.py` is truncated and does not contain a `calculate_compositional_imbalance`\
+    \ implementation that performs K\u2011Means clustering and computes the Gini coefficient\
+    \ as specified."
+T012:
+  c: false
+  h: f2f95e851d0c12649e883e71a34387b9418c18b94cd4df6257e368ddf5459319
+  r: The test file `tests/contract/test_dataset_schema.py` is present, but the required
+    schema file `contracts/dataset.schema.yaml` does not exist, causing the core validation
+    test to fail (or be skipped). Without this schema, the contract test cannot actually
+    validate the processed data against the defined schema. The missing `contracts/dataset.schema.yaml`
+    must be added for the task to be complete.
+T016:
+  c: false
+  h: b4d110c78a40240838c03ba667ac338bc85f4f0fa1a6282b6fafea8d14ef9c9d
+  r: The provided `code/evaluation.py` defines helper functions but does not contain
+    a runnable entry that loads models and calls `generate_report` with the required
+    `results/baseline_report.csv` path, and the expected CSV file is absent from the
+    repository. Consequently the baseline performance report has not been produced
+    as the task demands.
+T035:
+  c: false
+  h: 9d0344957e6e4fe22d2c53cbe2d05679ff9f133e65464bbe5237643265bd6102
+  r: The required file `tests/integration/test_shap_validation.py` does not exist
+    in the repository, so the integration test has not been defined as requested.
+    The task remains incomplete until the file is created with the appropriate test
+    implementation.
+T043a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md file or its contents were provided for inspection, so we cannot\
+    \ confirm that it contains the required setup instructions, directory layout description,\
+    \ and quick\u2011start command examples. The implementer must supply the updated\
+    \ README.md (non\u2011empty) showing those sections."
+T044a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No ruff check output, no list of fixed files, and no evidence that any Python
+    files in `code/` were linted or modified; the required artifact is missing.
+T044b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing that `black` was executed on the Python files in `code/`\
+    \ (e.g., formatted files, a diff, or a command\u2011line report) is present. Without\
+    \ such evidence we cannot confirm the code has been formatted as required."
+T045:
+  c: false
+  h: 204e8b6950dbb949d548e91b526de8b232d31c568d5517b30487a902fbd6a0c1
+  r: "The repository contains modified `training.py` and `shap_analysis.py` that import\
+    \ a `profile_memory` decorator, but there is no evidence that the decorator actually\
+    \ writes to `results/memory_profile.csv`, and the required CSV file is missing\
+    \ entirely. The task also demands specific columns (`timestamp, peak_memory_mb,\
+    \ function_name`) which cannot be verified without the file. The implementer must\
+    \ ensure the profiling runs and produces the correctly\u2011formatted CSV at the\
+    \ specified location."

@@ -3,10 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "poissons-ratio-prediction"
+name = "alloy-poissons-ratio"
 version = "0.1.0"
 description = "Predicting the Effect of Alloying on the Poisson's Ratio of Aluminum Alloys"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "pandas",
     "numpy",
@@ -17,34 +17,101 @@ dependencies = [
     "matplotlib",
     "compositional",
     "statsmodels",
-    "pydantic",
+    "datasets",
+    "periodictable",
+    "joblib",
+    "pytest",
+    "pytest-cov",
+    "ruff==0.1.6",
+    "black==23.12.1",
+    "shap"
 ]
+
+[tool.ruff]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "W"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# A list of file patterns to exclude from analysis.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as above, but for per-file ignores.
+per-file-ignores = {}
+
+# Assume Python 3.9
+target-version = "py39"
+
+# Line length for formatting (black compatible)
+line-length = 88
+
+[tool.ruff.per-file-ignores]
+# Ignore imports in __init__.py files
+"__init__.py" = ["E402", "F401"]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
+    \.bzr
+    | \.direnv
+    | \.eggs
     | \.git
+    | \.git-rewrite
     | \.hg
     | \.mypy_cache
+    | \.nox
+    | \.pants.d
+    | \.pytype
+    | \.ruff_cache
+    | \.svn
     | \.tox
     | \.venv
+    | \__pypackages__
     | _build
     | buck-out
     | build
     | dist
+    | node_modules
+    | venv
 )/
 '''
 
-[tool.ruff]
-# This file can also contain ruff config if preferred, but .ruff.toml is used above
-# to keep root clean. If you prefer pyproject.toml for ruff, move the config from .ruff.toml here.
-line-length = 88
-target-version = "py311"
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --cov=code --cov-report=term-missing"
 
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4"]
-ignore = ["E501"]
+[tool.setuptools]
+packages = ["code", "code.data", "code.cli", "code.utils", "code.schemas"]
+
+[tool.setuptools.package-dir]
+"" = "code"

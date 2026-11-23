@@ -1,0 +1,211 @@
+{
+  "trace_id": "training_42_02767",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "resize_element",
+    "insert_chart",
+    "apply_theme",
+    "insert_image",
+    "insert_image",
+    "insert_text",
+    "insert_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 93.2559,
+        "y": 38.4324,
+        "length": 13.2756
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 72.321,
+        "y": 97.1605,
+        "length": 25.3127
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 65.0031,
+        "y": 81.0873,
+        "length": 65.0888
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 60.1154,
+        "y": 45.2488,
+        "length": 22.9524
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 10.6555,
+        "y": 70.4114,
+        "width": 40.8084,
+        "height": 3.1282
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 30.4084,
+        "y": 72.7506,
+        "width": 69.5022,
+        "height": 26.7311
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 14.5105,
+        "y": 38.5295,
+        "width": 70.8735,
+        "height": 64.9091
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 60.9207,
+        "saturation": 52.0399
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 45.9791,
+        "saturation": 12.5179
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 93.938,
+        "saturation": 94.3105
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 35.7013,
+        "saturation": 27.4176
+      }
+    },
+    {
+      "step": 11,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 78.7145,
+        "height": 33.237
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 3.1813,
+        "y": 34.0557,
+        "width": 66.3224,
+        "height": 53.522,
+        "data_points": 33.6277
+      }
+    },
+    {
+      "step": 13,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 60.6116,
+        "saturation": 98.9905
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 17.9574,
+        "y": 69.3241,
+        "width": 66.5419,
+        "height": 71.2472
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 1.4347,
+        "y": 89.4427,
+        "width": 63.9072,
+        "height": 35.7517
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 67.1438,
+        "y": 18.3764,
+        "length": 4.5892
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 16.6889,
+        "y": 48.3347,
+        "length": 54.9077
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 57.0892,
+        "y": 10.7503,
+        "length": 86.6638
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.380452,
+    "tool_repetition_freq": 0.736842,
+    "arg_semantic_variance": 753.039081
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 5,
+    "layout_hash": "42-2767-insert_text"
+  }
+}

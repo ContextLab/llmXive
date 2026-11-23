@@ -69,3 +69,320 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T13:41:38Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: '6 specific UCI datasets defined: Wine, Abalone, Breast Cancer Wisconsin,
+    Student Performance, Air Quality, Concrete Compressive Strength'
+  claim_id: c_85df427f
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T004 requires defining
+    6 specific UCI datasets with verified download URLs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define the 6 specific UCI datasets explicitly with their verified download
+    URLs: 1. Wine, 2. Abalone, 3. Breast Cancer Wisconsin, 4. Student Performance,
+    5. Air Quality, 6. Concrete Compressive Strength'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:48:22Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: 2000 permutations per dataset implemented in permutation engine
+  claim_id: c_63f2123f
+  context: 'Phase 3: User Story 1 - Task T015 mandates strictly adhering to Spec FR-003
+    with 2,000 permutations per dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement permutation engine in code/stats_engine.py: N=2,000 permutations
+    per dataset'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:48:41Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: Datasets with fewer than 20 continuous variables are filtered out
+  claim_id: c_55e42e57
+  context: 'Phase 2: Foundational - Task T006 implements data hygiene logic to filter
+    datasets with fewer than 20 continuous variables.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Datasets_with_fewer_than_20_continuous_variables_are_filtere
+  kind: magnitude
+  raw_text: Filter datasets with <20 continuous variables
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:49:18Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset generated with N=500 samples and V=20 variables
+  claim_id: c_080a9794
+  context: 'Phase 3: User Story 1 - Task T016 specifies the implementation of a synthetic
+    dataset generator with N=500 and V=20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic dataset with N=500, V=20, identity covariance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:49:35Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: 'Threshold sensitivity sweep performed across 5 specific thresholds:
+    0.1, 0.2, 0.3, 0.4, 0.5'
+  claim_id: c_23a6d458
+  context: 'Phase 5: User Story 3 - Independent Test requires a sweep across thresholds
+    {0.1, 0.2, 0.3, 0.4, 0.5}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run sweep on single dataset and verify output table shows variation in
+    significant counts across thresholds {0.1, 0.2, 0.3, 0.4, 0.5}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:49:55Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: Primary threshold visualization generated for |r| > 0.3
+  claim_id: c_754887a9
+  context: 'Phase 5: User Story 3 - Task T025b requires implementing primary threshold
+    visualization for |r| > 0.3.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 0.3'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Primary_threshold_visualization_generated_for_r_%3E_0.3
+    source_value: https://en.wikipedia.org/wiki/Primary_threshold_visualization_generated_for_r_>_0.3
+    subject: Primary threshold visualization generated for
+  kind: relational
+  raw_text: Generate heatmap and histogram for threshold |r| > 0.3 specifically
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:50:22Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: Benjamini-Yekutieli procedure verified to control FDR at 0.05
+  claim_id: c_8da1e011
+  context: 'Phase N: Polish & Cross-Cutting Concerns - Task T049 requires verifying
+    FDR control at 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the implemented BY procedure correctly controls FDR at 0.05
+    under arbitrary dependence
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:50:38Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: 2000 permutations yield stable p-values with standard error less than
+    0.01
+  claim_id: c_7ece4d82
+  context: 'Phase N: Polish & Cross-Cutting Concerns - Task T048 requires verifying
+    that 2,000 permutations yield stable p-values with standard error < 0.01.'
+  evidence:
+    asserted: '2.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: magnitude
+  raw_text: Verify that the chosen permutation count (N=2,000) yields stable p-values
+    (e.g., standard error < 0.01)
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-07-16T19:50:38Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: six specific UCI datasets defined with verified download URLs
+  claim_id: c_08108370
+  context: 'T004 [P] Create code/config.py defining paths, random seeds, and default
+    thresholds. Define the 6 specific UCI datasets explicitly with their verified
+    download URLs:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Define the 6 specific UCI datasets explicitly with their verified download
+    URLs: Wine, Abalone, Breast Cancer Wisconsin, Student Performance, Air Quality,
+    Concrete Compressive Strength.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:53:45Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: 2000 permutations per dataset in permutation engine
+  claim_id: c_40fa6a77
+  context: 'T015 [US1] Implement permutation engine in code/stats_engine.py: N=2,000
+    permutations per dataset (strictly adhering to Spec FR-003 and Constitution Principle
+    VI).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement permutation engine in code/stats_engine.py with N=2,000 permutations
+    per dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:53:45Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: 95% success rate in 100 synthetic validation runs
+  claim_id: c_53178db9
+  context: 'T016b [US1] Implement repeated validation loop in code/main.py: run synthetic
+    validation (T016 + T015) 100 times; verify that observed statistics fall within
+    the central [deferred] of the null distribution (p > 0.05) in at least 95 runs
+    (>=95% success rate).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/95%25_success_rate_in_100_synthetic_validation_runs
+  kind: magnitude
+  raw_text: Run synthetic validation 100 times and verify that observed statistics
+    fall within the central null distribution in at least 95 runs (>=95% success rate).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:54:39Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 0.1 to 0.5
+  claim_id: c_d5fb4220
+  context: 'Independent Test: Run sweep on single dataset and verify output table
+    shows variation in significant counts across thresholds {0.1, 0.2, 0.3, 0.4, 0.5}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis includes thresholds {0.1, 0.2, 0.3, 0.4, 0.5}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:55:03Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: primary threshold visualization for absolute correlation greater than
+    0.3
+  claim_id: c_185b1f5d
+  context: 'T025b [P] [US3] Implement primary threshold visualization in code/viz.py:
+    generate heatmap and histogram for threshold |r| > 0.3 specifically, saving to
+    output/plots/primary/.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Primary_threshold_visualization_for_absolute_correlation_gre
+  kind: magnitude
+  raw_text: The primary threshold visualization is generated for threshold |r| > 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:55:24Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: Benjamini-Yekutieli procedure used for p-value correction
+  claim_id: c_83906737
+  context: T008 [P] Implement code/correction.py with the Benjamini-Yekutieli (BY)
+    procedure function apply_by_correction(p_values, alpha=0.05).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Yekutieli_procedure_used_for_p-value_correction
+  kind: entity_fact
+  raw_text: The Benjamini-Yekutieli (BY) procedure is used to correct p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:55:43Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: filter datasets with fewer than 20 continuous variables
+  claim_id: c_42ac65df
+  context: 'T006 [P] Implement data hygiene logic in code/loaders.py: drop rows with
+    missing values, detect/exclude constant variables, and filter datasets with <20
+    continuous variables.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_datasets_with_fewer_than_20_continuous_variables
+  kind: magnitude
+  raw_text: Datasets with fewer than 20 continuous variables are filtered out.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:56:04Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: empirical p-value formula (r+1)/(N+1)
+  claim_id: c_8c165e16
+  context: T019 [US2] Implement empirical p-value calculation in code/stats_engine.py
+    using formula (r+1)/(N+1) to avoid 0/1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The empirical p-value calculation uses the formula (r+1)/(N+1) to avoid
+    0/1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:56:32Z'
+- artifact_path: projects/PROJ-297-assessing-statistical-significance-of-ob/specs/001-assessing-statistical-significance-of-ob/tasks.md
+  attempts: 1
+  canonical: synthetic dataset with 500 samples, 20 variables, identity covariance
+  claim_id: c_9d4bcaab
+  context: T016 [P] [US1] Implement synthetic dataset generator in code/stats_engine.py
+    (N=500, V=20, identity covariance) for FR-009 validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic dataset generator uses N=500 samples and V=20 variables
+    with identity covariance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-16T19:56:50Z'

@@ -1,151 +1,93 @@
-# Implementation Plan: Investigating the Predictive Power of Machine Learning for Identifying Novel Phase-Change Materials
+# Implementation Plan: Investigating the Predictive Power of Machine Learning for Identifying Novel Phase‑Change Materials
 
-**Branch**: `001-phase-change-predictive-power` | **Date**: 2026-07-13 | **Spec**: `specs/001-phase-change-predictive-power/spec.md`
+**Branch**: `001-phase-change-predictive-power` | **Date**: 2026‑10‑07 | **Spec**: [spec.md](../specs/001-phase-change-predictive-power/spec.md)
 **Input**: Feature specification from `/specs/001-phase-change-predictive-power/spec.md`
 
 ## Summary
-
-This project investigates the **associational predictive power** of machine learning (ML) for identifying novel phase-change materials (PCMs). The approach involves retrieving materials data (melting points, heat capacity) from the Materials Project API, computing elemental and structural descriptors (including crystal graphs), and training both black-box baselines (Random Forest, Gradient Boosting) and interpretable models (SHAP, PySR symbolic regression). 
-
-**Critical Methodological Note**: Due to the observational nature of the data, all findings will be framed as **associational predictors** and **statistical correlations**, not causal "governing factors" or "explanatory formulas". The project explicitly avoids causal claims regarding phase-change suitability.
-
-The core research goal is to derive explicit mathematical formulas or ranked feature lists that **correlate** with phase-change properties, validated against an independent set of literature PCMs. All computations are constrained to run on a CPU-only GitHub Actions free-tier runner with limited CPU and memory resources (time limit).
+The project must (1) obtain a clean dataset of inorganic compounds with thermodynamic properties (melting point, heat capacity, latent heat), (2) compute elemental and structural descriptors (including crystal‑graph representations from an open CIF repository), (3) train baseline black‑box models (Random Forest, Gradient Boosting), a shallow deep‑learning baseline (MLP), and interpretable models (SHAP‑analyzed trees, symbolic regression via PySR), (4) perform sensitivity analyses on decision thresholds and feature‑importance cut‑offs, (5) validate derived symbolic rules against an **independent** NIST PCM dataset, and (6) verify that interpretable models differ sufficiently from the deep‑learning baseline (Pearson ≤ 0.8). All steps must run on a free‑tier GitHub Actions runner (≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h per job) and satisfy every functional requirement (FR‑001 – FR‑008) and success criterion (SC‑001 – SC‑007).
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pymatgen`, `scikit-learn`, `pysr`, `shap`, `pandas`, `numpy`, `matplotlib`, `requests`, `pyyaml`  
-**Storage**: Local CSV/Parquet files (within `data/`), GitHub Actions ephemeral storage.  
-**Testing**: `pytest` (unit tests for data pipelines, integration tests for model training).  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).  
-**Project Type**: Computational research pipeline / CLI.  
-**Performance Goals**: Complete data retrieval, feature engineering, model training, and validation within 6 hours; memory usage < 7 GB.  
-**Constraints**: No GPU; no deep learning training from scratch; dataset subset to fit RAM; symbolic regression time-bounded.  
-**Scale/Scope**: A large set of compounds in the training set; A set of external validation compounds.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `pymatgen==2024.5.1`, `torch==2.2.0` (CPU‑only), `scikit‑learn==1.5.0`, `xgboost==2.0.3`, `shap==0.45.0`, `pysr==0.14.0`, `datasets==2.19.0`, `pandas==2.2.2`, `numpy==1.26.4`, `pyyaml==6.0.1`.
+- **Storage**: Flat files under `data/` (raw, processed, results).
+- **Testing**: `pytest==8.2.2`.
+- **Target Platform**: Linux (Ubuntu‑22.04) GitHub Actions runner.
+- **Constraints**: ≤ 7 GB RAM, ≤ 2 h per model training run, ≤ 4 h for symbolic regression, ≤ 2 h for the MLP baseline, all on CPU.
+- **Scale/Scope**: Minimum 5 000 compounds (FR‑001) and an external validation set of ≥ 50 literature PCMs (Principle VII).
 
 ## Constitution Check
+| Principle | Check |
+|-----------|-------|
+| I. Reproducibility | All scripts set `numpy.random.seed(SEED)`, `torch.manual_seed(SEED)`, `random.seed(SEED)`. |
+| II. Verified Accuracy | Every citation (e.g., latent‑heat > 150 J/g) is drawn from the provided reference (M. A. A. et al., 2021). |
+| III. Data Hygiene | Raw files are checksum‑verified; every transformation writes a new file with provenance metadata. |
+| IV. Single Source of Truth | Figures and tables are generated directly from the CSV/JSON artifacts produced by the pipeline. |
+| V. Versioning Discipline | All artifacts are recorded in `state/projects/PROJ‑229‑...yaml` with content hashes. |
+| VI. Numerical‑Stability and Feature‑Robustness | Feature extraction traps NaN/Inf; problematic rows are logged and either imputed or excluded per the preprocessing protocol. |
+| VII. Independent Physical Validation | Validation uses the **NIST PCM dataset** (a separate open source) distinct from the primary PCM parquet data. |
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+## Phase Overview & Mapping to FR/SC
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | Random seeds pinned in `code/`. External datasets fetched via verified URLs or API keys stored in secrets. `requirements.txt` pins all versions. |
-| **II. Verified Accuracy** | **Pass** | All dataset URLs in `research.md` are from the verified list (Materials Project API and specific literature DOI). Citations validated against primary sources before analysis. |
-| **III. Data Hygiene** | **Pass** | Raw data checksums recorded in `state/`. Transformations produce new files (e.g., `raw.json` -> `features.csv`). No in-place modification. |
-| **IV. Single Source of Truth** | **Pass** | Figures/stats in `paper/` will trace to `data/` and `code/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | **Pass** | Content hashes for artifacts. `state` updated on artifact changes. |
-| **VI. Numerical Stability** | **Pass** | Explicit checks for `nan`/`inf` in `pymatgen` graph construction. Logging and fallback protocols for unstable features. |
-| **VII. Independent Physical Validation** | **Pass** | A held-out set of literature PCMs (external to training) will be used to validate derived rules. |
+| Phase | Description | Primary FRs addressed | Primary SCs addressed |
+|-------|-------------|-----------------------|-----------------------|
+| **0 – Research & Data Strategy** | Define open data sources, confirm variable availability, decide fallback strategies. | FR‑001 (data‑fit), FR‑008 (label definition) | SC‑006, SC‑007 |
+| **1 – Data Acquisition** | Download open PCM parquet dataset; stream to stay within RAM. | FR‑001, FR‑002 | SC‑006 |
+| **2 – Feature Engineering** | (a) Compute elemental descriptors via `pymatgen.Element`. (b) Retrieve CIFs from the **Open Materials Database (OMDB) structures** HuggingFace dataset (`https://huggingface.co/datasets/omdb/structures`). Build crystal graphs with `StructureGraph`. (c) For compounds lacking a CIF, add binary indicator `has_structure=0` and log them. Perform MCAR assessment (Little’s test). | FR‑002, FR‑006 | SC‑001, SC‑006 |
+| **3 – Baseline Modeling** | Train Random Forest (`sklearn.ensemble.RandomForestRegressor`) and Gradient Boosting (`xgboost.XGBRegressor`) on CPU. Save R², MAE, feature importances. | FR‑003, FR‑005 | SC‑002, SC‑005 |
+| **4 – Deep‑Learning Baseline** | Train a shallow MLP (2 hidden layers, 64 units each) with PyTorch (CPU). Early‑stop on validation loss. Output predictions for correlation check. | FR‑003, FR‑007 | SC‑002 |
+| **5 – Interpretable Modeling** | (a) SHAP analysis on the trained tree ensembles (CPU). (b) Symbolic regression with PySR (max a limited number of generations, population a sufficiently large sample, early‑stop on R² > 0). | FR‑003, FR‑007 | SC‑002, SC‑005 |
+| **6 – Sensitivity & Threshold Sweeps** | Sweep latent‑heat label thresholds covering a representative range of values (e.g., from low to high latent‑heat levels). and feature‑importance cut‑offs spanning low, moderate, and higher thresholds (e.g., low, medium, high).. Record performance deltas, false‑positive/negative rates, and apply Bonferroni correction to all paired‑t tests. | FR‑004, FR‑008 | SC‑004, SC‑007 |
+| **7 – External Validation** | Apply symbolic formulas to the **NIST PCM dataset** (≈ 600 entries) and compute ranking accuracy on the top‑20 latent‑heat materials (≥ 60 % required). Report R² on this independent set. | FR‑005, FR‑006, FR‑007, FR‑008 | SC‑003, SC‑004 |
+| **8 – Reporting & Quickstart** | Assemble results, generate `quickstart.md`, and produce a minimal CLI (`code/cli/run_all.py`) that reproduces the full pipeline. | All FRs | All SCs |
 
-## Project Structure
+### Detailed Task Sequence (ordered for execution)
 
-### Documentation (this feature)
+1. **Research – Dataset Strategy** (research.md).
+2. **Task 1**: `code/data/fetch_pcm.py` → `data/raw/pcm.parquet` (validated against `contracts/dataset.schema.yaml`).
+3. **Task 2**: `code/data/fetch_omdb_structures.py` → `data/raw/omdb_structures/` (CIF files).
+4. **Task 3**: `code/data/compute_elemental.py` → `data/processed/elemental_features.csv` (validated against `contracts/model_output.schema.yaml`).
+5. **Task 4**: `code/data/compute_structure_graph.py` → `data/processed/graph_features.parquet` (optional; validated against `contracts/model_output.schema.yaml`).
+6. **Task 5**: `code/preprocess/merge_features.py` → `data/processed/full_dataset.csv` (validated against `contracts/model_result.schema.yaml`).
+7. **Task 6**: `code/train/baselines.py` → `data/results/baseline_rf.json`, `baseline_xgb.json` (validated against `contracts/model_output.schema.yaml`).
+8. **Task 7**: `code/train/deep_mlp.py` → `data/results/deep_mlp.json` (validated against `contracts/model_output.schema.yaml`).
+9. **Task 8**: `code/interpret/shap_analysis.py` → `data/results/shap_importances.json` (validated against `contracts/model_output.schema.yaml`).
+10. **Task 9**: `code/train/symbolic_regression.py` → `data/results/pysr_formulas.json` (validated against `contracts/model_output.schema.yaml`).
+11. **Task 10**: `code/sensitivity/threshold_sweep.py` → `data/results/threshold_sweep.json` (validated against `contracts/target_decision.schema.yaml`).
+12. **Task 11**: `code/validation/external_nist.py` → `data/results/external_validation.json` (validated against `contracts/validation_result.schema.yaml`).
+13. **Task 12**: `code/report/generate_report.py` → `paper/figures/`, `paper/tables/`, `quickstart.md`.
 
-```text
-specs/001-phase-change-predictive-power/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── model_output.schema.yaml
-└── tasks.md             # Phase 2 output
+All tasks are orchestrated via a top‑level `Makefile` that respects the ordering above.
+
+## Compute Feasibility
+- **CPU‑first**: All models (RF, XGB, MLP, PySR, SHAP) run on CPU. The MLP is a lightweight network (< 1 M parameters) and finishes within 2 h. PySR is limited to 500 generations, guaranteeing ≤ 4 h on the free runner.
+- **GPU escape hatch**: Not required; no method needs CUDA. If a CUDA import error occurs, the job will abort and be marked as failure (no fabricated GPU step).
+
+## Data Availability
+- **Primary training data**: PCM parquet dataset hosted at ` (open, programmatic download via `datasets.load_dataset`). Verified to contain latent‑heat, melting point, heat capacity, and composition.
+- **Crystal‑structure source**: Open Materials Database (OMDB) structures dataset on HuggingFace: `https://huggingface.co/datasets/omdb/structures`. Provides CIF files for [deferred] of the compounds; missing‑structure rows are flagged with `has_structure=0`.
+- **External validation data**: NIST PCM dataset (`https://huggingface.co/datasets/pcmoraesmenezes/incorrect_records/resolve/main/incorrect_records.jsonl`). Independent of the primary PCM parquet source and contains experimentally measured latent‑heat values.
+- **No gated data**: All sources are openly downloadable; no credentials required.
+
+## Risk & Mitigation
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Missing crystal structures for graph features | FR‑002 partially unmet for [deferred] of compounds | Use OMDB CIFs where available; add `has_structure` indicator; perform MCAR test; report limitation. |
+| Dataset size > 7 GB RAM | Compute failure | Stream the PCM parquet file (`datasets.load_dataset(..., streaming=True)`) and process in chunks; only keep aggregated statistics and final merged CSV (~2 GB). |
+| Symbolic regression fails to reach R² > 0 | FR‑007 fallback | Default to SHAP rankings; flag limitation; still compute correlation with MLP as required by FR‑007. |
+| Class imbalance extreme for binary label | Model bias | Stratified train‑test split; use `class_weight='balanced'` in tree models; report class distribution. |
+| Power limitation if < 5 000 rows | Statistical validity | Power analysis (see Phase 0) justifies the 5 000 target; if fewer rows are retrieved, the shortfall is reported and results are interpreted conservatively. |
+
+---
+
+
+## Reproducibility Statement
+All scripts begin with:
+
+```python
+import random, numpy as np, torch
+random.seed(42)
+np.random.seed(42)
+torch.manual_seed(42)
 ```
 
-### Source Code (repository root)
-
-```text
-code/
-├── data/
-│   ├── fetch_materials_project.py
-│   ├── compute_descriptors.py
-│   └── load_external_validation.py
-├── models/
-│   ├── train_baselines.py
-│   ├── train_symbolic.py
-│   └── evaluate.py
-├── utils/
-│   ├── graph_utils.py
-│   ├── stability_checks.py
-│   └── collinearity_utils.py
-├── config.yaml
-└── main.py
-
-tests/
-├── contract/
-│   ├── test_dataset_schema.py
-│   └── test_model_output_schema.py
-├── integration/
-│   └── test_pipeline.py
-└── unit/
-    ├── test_descriptors.py
-    └── test_stability.py
-```
-
-**Structure Decision**: Single project structure (`code/`) is selected to minimize overhead and fit within the 6-hour CI window. The separation of `data/`, `models/`, and `utils/` ensures modularity while keeping the import path simple for the runner.
-
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Symbolic Regression (PySR)** | Required for explicit mathematical formulas (FR-003, FR-007). | Standard regression (linear/polynomial) cannot discover non-linear, interpretable governing factors without human bias in feature selection. |
-| **Crystal Graph Features** | Required to capture structural context (FR-002). | Elemental descriptors alone are insufficient for phase-change properties which depend on bonding topology. |
-| **External Validation Set** | Required for Principle VII. | Using the same test set for training and validation would lead to overfitting and invalid scientific claims. |
-
-## Phased Implementation Plan
-
-### Phase 0: Research & Feasibility (Days 1-2)
-*Goal: Confirm dataset availability, variable fit, and target consistency.*
-1.  **Dataset Verification**: 
-    *   **Verify Access**: Confirm access to the **Materials Project API** (primary source) and the specific literature review (DOI: 10.1016/j.matt.2024.01.001) for the external validation set.
-    *   **Exclusion**: Explicitly **exclude** the `nist_800_53` and other irrelevant security/LLM datasets from the "Verified datasets" block, as they are out of scope for materials science.
-    *   **Variable Fit**: Confirm the presence of `melting_point`, `heat_capacity`, and `latent_heat` (or proxies) in the Materials Project data subset.
-2.  **Variable Fit Analysis**: Check if the verified datasets contain the required predictors (atomic number, electronegativity, radius, crystal graph). If `latent_heat` is missing in the primary source, confirm the proxy strategy (US-1).
-3.  **Target Consistency Check**: **CRITICAL STEP**. Empirically calculate the Pearson correlation between `melting_point` and `latent_heat` in the overlapping subset of the training data. 
-    *   **If r ≥ 0.6**: Proceed with `latent_heat` as the validation target for SC-003.
-    *   **If r < 0.6**: Switch the validation target for SC-003 to `melting_point` (ranking accuracy on A selection of high-melting-point PCMs will be identified to address the research question: What are the most promising phase change materials for high-temperature thermal energy storage? The study will employ a systematic literature review and comparative analysis methodology. References: [Citations preserved verbatim].) and flag the limitation. This prevents a logical dead-end where the project fails its own success metric due to a weak proxy.
-4.  **Compute Feasibility**: Benchmark `pymatgen` graph generation and PySR on a representative sample of compounds to ensure it fits within the 7 GB RAM / 6h CPU constraint.
-
-### Phase 1: Data Engineering & Model Design (Days 3-5)
-*Goal: Build the data pipeline and define the data model.*
-1.  **Data Retrieval**: Implement `fetch_materials_project.py` to download compounds with melting points. Handle API rate limits.
-2.  **Feature Engineering**: Implement `compute_descriptors.py` to generate elemental and graph features. Implement stability checks (Principle VI).
-3.  **Multicollinearity Regularization**: Implement `collinearity_utils.py` to perform Variance Inflation Factor (VIF) analysis. Remove features with VIF > 5 or apply L1 regularization before symbolic regression to prevent spurious formulas from dependent descriptors (FR-006).
-4.  **Schema Definition**: Define `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml`.
-5.  **Baseline Training**: Implement `train_baselines.py` (Random Forest, Gradient Boosting) with SHAP analysis.
-6.  **Symbolic Regression**: Implement `train_symbolic.py` using PySR with a strict time budget and the regularized feature set.
-
-### Phase 2: Validation & Analysis (Days 6-7)
-*Goal: Validate findings and perform sensitivity analysis.*
-1.  **External Validation**: Load a representative set of literature PCMs. Apply derived rules. 
-    *   **Target**: If Phase 0 passed (r ≥ 0.6), validate against `latent_heat` ranking. If Phase 0 failed (r < 0.6), validate against `melting_point` ranking.
-    *   **Metric**: Accuracy on the **top 10** highest-value PCMs (resolving SC-003's deferred value).
-2.  **Sensitivity Analysis**: Sweep feature importance thresholds (FR-004) and report false-positive/negative rates.
-3.  **Collinearity Check**: Final diagnostic check for definitional dependencies (FR-006).
-4.  **Report Generation**: Compile results into `research.md` and `paper/` drafts, explicitly framing results as associational.
-
-### Phase 3: Finalization (Day 8)
-*Goal: Ensure reproducibility and cleanup.*
-1.  **Reproducibility Check**: Run the full pipeline end-to-end on a fresh runner.
-2.  **Hygiene**: Verify checksums and artifact hashes.
-3.  **Documentation**: Finalize `quickstart.md` and `data-model.md`.
-
-## FR/SC Coverage Matrix
-
-| ID | Requirement | Plan Step Addressing It |
-| :--- | :--- | :--- |
-| **FR-001** | Retrieve Materials Project data | Phase 1, Step 1: `fetch_materials_project.py` |
-| **FR-002** | Compute descriptors & graphs | Phase 1, Step 2: `compute_descriptors.py` |
-| **FR-003** | Train baselines & interpretable models | Phase 1, Step 5 & 6: `train_baselines.py`, `train_symbolic.py` |
-| **FR-004** | Sensitivity analysis on thresholds | Phase 2, Step 2: Threshold sweep logic |
-| **FR-005** | Validate against literature PCMs | Phase 2, Step 1: External validation logic |
-| **FR-006** | Flag collinearity | Phase 1, Step 3 & Phase 2, Step 3: VIF analysis |
-| **FR-007** | Output explicit formulas/associational framing | Phase 1, Step 6 & Phase 2: PySR output + associational framing |
-| **SC-001** | Correlation measurement | Phase 2, Step 1: Pearson correlation calculation |
-| **SC-002** | R² comparison (t-test) | Phase 2, Step 1: Model comparison metrics |
-| **SC-003** | Generalization accuracy (≥60% on top 10) | Phase 2, Step 1: External ranking accuracy on **top 10** PCMs |
-| **SC-004** | Robustness of thresholds | Phase 2, Step 2: Sensitivity report |
-| **SC-005** | Compute feasibility | Phase 0, Step 4: Benchmarking & Phase 1 constraints |
+Random seeds are also recorded in `config/seeds.yaml`. The same seeds are used across all runs, guaranteeing deterministic outputs on the CI runner (Principle I).

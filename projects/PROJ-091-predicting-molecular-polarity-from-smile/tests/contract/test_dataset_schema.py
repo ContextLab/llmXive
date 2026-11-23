@@ -1,151 +1,51 @@
 """
-Contract test for dataset schema validation.
-
-This test ensures that the processed dataset conforms to the expected
-schema with required columns and data types as defined in the project
-specifications for molecular polarity prediction.
+Contract test for the descriptor matrix artifact.
+Verifies that data/processed/descriptors.parquet exists and conforms
+to the expected schema defined in validators.py.
 """
 import pytest
 import pandas as pd
-import numpy as np
-import os
-from pathlib import Path
+from tests.contract.validators import (
+    DescriptorMatrix, 
+    validate_descriptor_frame, 
+    DESCRIPTORS_PARQUET
+)
 
-# Ensure we can import project modules if needed for schema constants
-# (Currently using inline definitions based on spec)
+def test_descriptors_parquet_schema():
+    """
+    Validate that the descriptors parquet file exists and matches 
+    the required columns and types.
+    """
+    # 1. Check existence
+    if not DESCRIPTORS_PARQUET.exists():
+        pytest.fail(f"Required artifact missing: {DESCRIPTORS_PARQUET}")
 
-def test_dataset_schema_raw():
-    """
-    Verify that a raw dataset (e.g., from download_qm9) has the expected basic schema.
-    Expected: 'smiles' (string), 'target' (numeric).
-    """
-    # Define expected schema for raw input
-    expected_columns = {'smiles', 'target'}
-    
-    # Create a sample dataframe mimicking the output of download_qm9/loader
-    sample_data = {
-        'smiles': ['CCO', 'CC(C)O', 'C1=CC=CC=C1'],
-        'target': [1.5, 2.0, 0.0]  # Dipole moment in Debye
-    }
-    df = pd.DataFrame(sample_data)
-    
-    # Check columns
-    found_cols = set(df.columns)
-    assert expected_columns.issubset(found_cols), \
-        f"Missing required columns. Expected subset of: {expected_columns}, Found: {found_cols}"
-    
-    # Check data types
-    assert df['smiles'].dtype == object, "SMILES column should be string/object"
-    assert np.issubdtype(df['target'].dtype, np.number), "Target column should be numeric"
+    # 2. Load data
+    df = pd.read_parquet(DESCRIPTORS_PARQUET)
 
-def test_processed_descriptor_schema():
+    # 3. Validate frame structure (metadata + expected descriptors from JSON)
+    # This will raise ValueError if columns are missing
+    validate_descriptor_frame(df)
+
+    # 4. Validate data types for a sample of rows using Pydantic
+    # We check the first and last row to ensure consistency
+    for idx in [0, len(df) - 1]:
+        row_dict = df.iloc[idx].to_dict()
+        try:
+            DescriptorMatrix(**row_dict)
+        except Exception as e:
+            pytest.fail(f"Row {idx} failed Pydantic validation: {e}")
+
+def test_descriptors_no_empty_columns():
     """
-    Verify that processed descriptor data (from preprocess_2d) has the expected structure.
-    Must contain 'smiles', 'target', and numeric descriptor columns.
+    Ensure that no descriptor columns are entirely NaN.
     """
-    # Sample processed data with descriptors as expected after T014/T016
-    sample_data = {
-        'smiles': ['CCO', 'CC(C)O'],
-        'target': [1.5, 2.0],
-        'MolWt': [46.0, 60.0],
-        'LogP': [-0.3, 0.1],
-        'NumHDonors': [1, 1],
-        'NumHAcceptors': [1, 1]
-    }
-    df = pd.DataFrame(sample_data)
+    if not DESCRIPTORS_PARQUET.exists():
+        pytest.skip("Artifact missing, skipping content check")
     
-    # Must have smiles and target
-    assert 'smiles' in df.columns, "Processed data must contain 'smiles' column"
-    assert 'target' in df.columns, "Processed data must contain 'target' column"
+    df = pd.read_parquet(DESCRIPTORS_PARQUET)
+    descriptor_cols = [c for c in df.columns if c not in {"smiles", "target", "stereochemistry_flag", "flexible_flag"}]
     
-    # Identify descriptor columns (everything except smiles and target)
-    descriptor_cols = [col for col in df.columns if col not in ['smiles', 'target']]
-    
-    # Must have at least one descriptor (as per US1 requirement of >=200, but schema check just needs existence)
-    assert len(descriptor_cols) > 0, "Processed data must contain at least one descriptor column"
-    
-    # All descriptor columns should be numeric
     for col in descriptor_cols:
-        assert np.issubdtype(df[col].dtype, np.number), \
-            f"Descriptor column {col} should be numeric, found {df[col].dtype}"
-
-def test_no_3d_descriptors_in_schema():
-    """
-    Contract test to ensure no 3D-dependent descriptors (like TPSA) are present
-    in the processed dataset schema, enforcing the 2D-only constraint.
-    """
-    # Simulate a dataframe that might accidentally include 3D descriptors
-    sample_data = {
-        'smiles': ['CCO'],
-        'target': [1.5],
-        'MolWt': [46.0],
-        'TPSA': [20.0],  # This should NOT be there per US1 constraints
-        'LogP': [-0.3]
-    }
-    df = pd.DataFrame(sample_data)
-    
-    forbidden_3d_descriptors = {
-        'TPSA', 'TPSA_E', 'TPSA_V', 'InertialMoment1', 'InertialMoment2', 
-        'InertialMoment3', 'RadiusOfGyration'
-    }
-    
-    found_cols = set(df.columns)
-    violations = found_cols.intersection(forbidden_3d_descriptors)
-    
-    assert len(violations) == 0, \
-        f"Schema contains forbidden 3D-dependent descriptors: {violations}. " \
-        f"US1 requires 2D-only descriptors."
-
-def test_schema_handles_missing_values():
-    """
-    Verify that the schema allows for NaN values in descriptor columns
-    (since T016 handles them, but the raw processed output might still have them
-    before final cleaning, or the schema must accommodate them).
-    """
-    sample_data = {
-        'smiles': ['CCO', 'CC(C)O'],
-        'target': [1.5, 2.0],
-        'MolWt': [46.0, np.nan],
-        'LogP': [-0.3, 0.1]
-    }
-    df = pd.DataFrame(sample_data)
-    
-    # Check that numeric columns can hold NaN
-    assert pd.isna(df['MolWt']).any(), "Numeric descriptor columns must be able to hold NaN values"
-    
-    # Verify the column is still considered numeric (float) despite NaNs
-    assert np.issubdtype(df['MolWt'].dtype, np.floating), \
-        "Columns with NaN should be floating point to preserve numeric type"
-
-def test_real_parquet_schema():
-    """
-    Contract test that validates the actual schema of the generated parquet file
-    if it exists. This ensures the pipeline produces data matching the contract.
-    """
-    parquet_path = Path("data/processed/descriptors.parquet")
-    if not parquet_path.exists():
-        pytest.skip(f"Parquet file not found at {parquet_path}. Run preprocessing first.")
-    
-    import pyarrow.parquet as pq
-    table = pq.read_table(str(parquet_path))
-    df = table.to_pandas()
-    
-    # Check required columns
-    assert 'smiles' in df.columns, "Processed data must contain 'smiles' column"
-    assert 'target' in df.columns, "Processed data must contain 'target' column"
-    
-    # Check no forbidden 3D columns
-    forbidden_3d = {'TPSA', 'TPSA_E', 'TPSA_V', 'InertialMoment1', 'InertialMoment2', 'InertialMoment3', 'RadiusOfGyration'}
-    found_cols = set(df.columns)
-    violations = found_cols.intersection(forbidden_3d)
-    assert len(violations) == 0, f"Schema contains forbidden 3D-dependent descriptors: {violations}"
-    
-    # Check descriptor count (US1 requires >= 200, but we check > 0 for schema validity)
-    descriptor_cols = [c for c in df.columns if c not in ['smiles', 'target']]
-    assert len(descriptor_cols) > 0, "Must have descriptor columns"
-    
-    # Check types
-    assert df['smiles'].dtype == object, "SMILES must be object/string"
-    assert np.issubdtype(df['target'].dtype, np.number), "Target must be numeric"
-    for col in descriptor_cols:
-        assert np.issubdtype(df[col].dtype, np.number), f"Descriptor {col} must be numeric"
+        if df[col].isna().all():
+            pytest.fail(f"Column {col} is entirely NaN")

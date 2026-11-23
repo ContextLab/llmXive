@@ -1,0 +1,45 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Synthetic Image Annotation
+description: Schema for synthetic image annotations containing bounding boxes and derived spatial relations.
+type: object
+required:
+  - image_path
+  - bounding_boxes
+  - derived_relations
+properties:
+  image_path:
+    type: string
+    description: Relative or absolute path to the generated synthetic image file.
+  bounding_boxes:
+    type: array
+    description: List of bounding boxes placed on the image.
+    items:
+      type: object
+      required:
+        - x
+        - y
+        - w
+        - h
+        - id
+      properties:
+        x:
+          type: number
+          description: X-coordinate of the top-left corner.
+        y:
+          type: number
+          description: Y-coordinate of the top-left corner.
+        w:
+          type: number
+          description: Width of the bounding box.
+        h:
+          type: number
+          description: Height of the bounding box.
+        id:
+          type: integer
+          description: Unique identifier for the region/object.
+  derived_relations:
+    type: array
+    description: List of spatial relations derived from the bounding box geometry (e.g., "left of", "above").
+    items:
+      type: string
+additionalProperties: false

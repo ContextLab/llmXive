@@ -32,22 +32,23 @@ DIRECTORIES = [
     "tests/integration",
     "tests/contract",
     "docs",
-    "reports"
+    "reports",
 ]
+
 
 def create_directories():
     """Create the directory structure and .gitkeep files."""
     created_count = 0
     for dir_path in DIRECTORIES:
         full_path = PROJECT_ROOT / dir_path
-        
+
         if full_path.exists():
             print(f"Directory exists: {full_path.relative_to(PROJECT_ROOT)}")
         else:
             full_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {full_path.relative_to(PROJECT_ROOT)}")
             created_count += 1
-        
+
         # Create a .gitkeep file to ensure the directory is tracked
         gitkeep_path = full_path / ".gitkeep"
         if not gitkeep_path.exists():
@@ -56,11 +57,13 @@ def create_directories():
 
     return created_count
 
+
 def main():
     print(f"Initializing project structure at: {PROJECT_ROOT}")
     created = create_directories()
     print(f"\nSetup complete. Created {created} new directories.")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

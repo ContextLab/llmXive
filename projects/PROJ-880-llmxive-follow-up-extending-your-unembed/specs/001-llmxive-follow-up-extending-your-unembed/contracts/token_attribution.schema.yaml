@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Token Attribution Schema
+type: object
+required:
+  - model_id
+  - top_tokens
+properties:
+  model_id:
+    type: string
+  top_tokens:
+    type: array
+    items:
+      type: object
+      required:
+        - token_id
+        - logit_weight
+      properties:
+        token_id:
+          type: integer
+        logit_weight:
+          type: number
+  vocab_mapping:
+    type: object
+    additionalProperties:
+      type: integer

@@ -5,7 +5,7 @@ type: object
 properties:
   dataset_id:
     type: string
-    description: "Unique identifier for the dataset (e.g., 'elastic_modulus')."
+    description: "Unique identifier for the dataset (e.g., 'band_gap')."
   source_url:
     type: string
     format: uri
@@ -16,30 +16,30 @@ properties:
   n_samples:
     type: integer
     minimum: 1
-    description: "Total number of samples."
+    description: "Total number of rows after loading."
   n_train:
     type: integer
     minimum: 1
-    description: "Number of training samples."
+    description: "Number of training rows (capped at 2000)."
   n_val:
     type: integer
     minimum: 0
-    description: "Number of validation samples."
+    description: "Number of validation rows."
   n_test:
     type: integer
-    minimum: 1
-    description: "Number of test samples."
+    minimum: 200
+    description: "Number of test rows (≥ 200)."
   features:
     type: array
     items:
       type: string
-    description: "List of feature column names."
+    description: "List of feature column names after featurisation."
   target:
     type: string
     description: "Name of the target column."
   checksum:
     type: string
-    description: "SHA256 checksum of the processed file."
+    description: "SHA256 of the processed file."
 required:
   - dataset_id
   - source_url

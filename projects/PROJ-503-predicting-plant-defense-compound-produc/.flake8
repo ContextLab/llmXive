@@ -1,8 +1,27 @@
 [flake8]
 max-line-length = 88
 extend-ignore = E203, W503
-exclude = .git,__pycache__,build,dist,.eggs
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .eggs,
+    *.egg-info,
+    venv,
+    .venv
 per-file-ignores =
-    # Allow longer lines in docstrings or specific config-heavy files if needed
-    */__init__.py:F401
+    # Allow longer lines in test assertions and docstrings
+    tests/*:E501
+    # Allow unused imports in __init__.py if we add them later
+    code/__init__.py:F401
 max-complexity = 15
+inline-quotes = single
+multiline-quotes = double
+docstring-quotes = double
+docstring-convention = google
+count = True
+show-source = True
+statistics = True
+# Ensure flake8 reports errors even if they are just whitespace
+ignore-when-checking =

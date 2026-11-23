@@ -1,64 +1,49 @@
 # Data Model: llmXive Follow-up: Teacher Entanglement vs. Scalar Distillation Loss
 
-## Overview
-This document defines the data structures used throughout the `llmXive-entanglement-analysis` feature. It covers the raw input schema, the engineered feature schema, and the final output schema.
+## 1. Data Entities
 
-## Raw Data Schema (Input)
-Derived from the Z-Reward evaluation dataset.
+### 1.1 Raw Sample (OxfordPets)
+-   `sample_id`: Unique identifier (string).
+-   `prompt`: Text prompt (string).
+-   `image_url`: Path to image (string).
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `sample_id` | string | Unique identifier for the prompt/image pair. | Dataset Metadata |
-| `prompt` | string | The text prompt used for generation. | Dataset |
-| `teacher_scores` | array[float] | 4-element array: [Alignment, Realism, Aesthetics, Plausibility]. | Pre-computed Teacher Output |
-| `student_score` | float | Single scalar score from the student model. | Pre-computed Student Output |
-| `human_annotations` | array[float] | 4-element array: [Alignment, Realism, Aesthetics, Plausibility]. | Human Annotators |
-| `primary_dimension` | string | The dimension ID (e.g., "alignment") to use for fidelity loss calculation. Defaults to "alignment" if missing. | Metadata / Fixed Rule |
+### 1.2 Synthetic Teacher/Student Record
+-   `sample_id`: Reference to Raw Sample.
+-   `teacher_scores`: Object containing 4 floats: `alignment`, `realism`, `aesthetics`, `plausibility`. (Generated).
+-   `student_scalar`: Single float (student's scalar reward). (Generated).
+-   `human_annotations`: Object containing 4 floats (or null). (Generated).
+-   `training_dimension`: String (e.g., "alignment").
+-   `target_dimension`: String (e.g., "realism").
 
-## Engineered Feature Schema (Intermediate)
-Output of `features.py`.
+### 1.3 Feature Record
+Derived from Synthetic Record.
+-   `sample_id`: Reference.
+-   `teacher_variance`: Float.
+-   `teacher_entropy`: Float.
+-   `teacher_skewness`: Float.
+-   `teacher_kurtosis`: Float.
+-   `mean_teacher_score`: Float.
+-   `theoretical_baseline_error`: Float (Analytical derivation).
+-   `observed_mae`: Float (MAE between student and target dimension).
+-   `residual_error`: Float (Observed MAE - Theoretical Baseline).
+-   `is_valid`: Boolean.
+-   `vif_filtered_features`: Array of strings (features retained after VIF check).
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `sample_id` | string | Foreign key to raw data. |
-| `variance` | float | Variance of `teacher_scores`. |
-| `range` | float | Max - Min of `teacher_scores` (replaces Entropy). |
-| `std_dev` | float | Standard deviation of `teacher_scores`. |
-| `skewness` | float | Skewness of `teacher_scores`. |
-| `kurtosis` | float | Kurtosis of `teacher_scores`. |
-| `global_eigenvalue` | float | Dominant eigenvalue of the *dataset-wide* covariance matrix (constant per sample). |
-| `is_constant` | boolean | True if variance is 0 (all scores identical). |
+### 1.4 Global Entanglement Report
+-   `global_covariance_matrix`: 4x4 array.
+-   `global_dominant_eigenvalue`: Float.
+-   `dataset_id`: String.
+-   `timestamp`: ISO8601.
 
-## Target Variable Schema (Intermediate)
-Computed in `features.py`.
+## 2. Data Flow
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `sample_id` | string | Foreign key. |
-| `fidelity_loss` | float | MAE: $|student\_score - human\_annotations[target\_dimension]|$. |
-| `excluded` | boolean | True if human annotation for target dimension was missing. |
+1.  **Ingest**: `code/ingest.py` reads raw parquet -> validates schema -> writes `data/processed/raw_samples.parquet`.
+2.  **Simulate**: `code/simulate.py` generates teacher/student scores -> writes `data/processed/synthetic_records.parquet`.
+3.  **Feature Eng**: `code/features.py` computes stats, VIF, and theoretical baseline -> writes `data/processed/features.parquet` and `data/processed/global_entanglement_report.json`.
+4.  **Train**: `code/model.py` trains model on `residual_error` -> writes `data/processed/predictions.parquet` and `data/processed/metrics.json`.
 
-## Final Output Schema (Results)
-Output of `evaluate.py`.
+## 3. Storage Format
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `r2_score` | float | Coefficient of determination from 5-fold CV. |
-| `mae` | float | Mean Absolute Error from 5-fold CV. |
-| `p_value` | float | P-value from permutation test. |
-| `feature_importance` | object | Map of feature name to importance score (after PCA). |
-| `cv_std` | float | Standard deviation of R² across folds. |
-| `n_samples` | integer | Number of samples used in training. |
-| `timestamp` | string | ISO 8601 timestamp of execution. |
-| `config` | object | Configuration used for the run (n_estimators, random_state, etc.). |
-
-## Data Flow Diagram
-```mermaid
-graph TD
-    A[Z-Reward Raw Data] -->|Ingest | B(Aligned DataFrame)
-    B -->|Filter Missing | C(Cleaned DataFrame)
-    C -->|Feature Eng + Target Calc | D[Entanglement Features + Loss]
-    D -->|PCA | E[Reduced Features]
-    E -->|Train RF | G[Model]
-    G -->|Evaluate | H[results/results.json]
-```
+-   **Raw**: Parquet (compressed).
+-   **Processed**: Parquet (compressed) for tabular data; JSON for metrics and covariance matrices.
+-   **Checksums**: SHA-256 recorded in `state/projects/...yaml`.

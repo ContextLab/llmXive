@@ -1,54 +1,56 @@
 # Data Model: The Influence of Chatbot Politeness on User-Perceived Quality
 
-## 1. Conceptual Model
+## Overview
 
-The data model represents the relationship between Users, their Dialogues, and the computed Politeness/Quality metrics.
+This document defines the data structures for the project, ensuring alignment with the "Data Hygiene" and "Single Source of Truth" principles of the project constitution. All data flows from `data/raw` (immutable) to `data/processed` (derived).
 
-### Entities
+## Entity Definitions
 
-1.  **User**: A participant in the dataset.
-    -   `user_id`: Unique identifier.
-    -   `age`: Age of the user (numeric, optional).
-    -   `gender`: Gender of the user (categorical, optional).
-    -   `num_dialogues`: Count of dialogues (derived).
-2.  **Dialogue**: A single conversation.
-    -   `dialogue_id`: Unique identifier.
-    -   `user_id`: Foreign key to User.
-    -   `quality_rating`: Ordinal rating (1-5).
-    -   `conversation_length`: Word count or utterance count.
-    -   `mean_politeness_score`: Z-scored mean of utterance scores.
-    -   `raw_politeness_mean`: Raw mean before z-scoring.
-3.  **Utterance**: A single message.
-    -   `utterance_id`: Unique identifier.
-    -   `dialogue_id`: Foreign key to Dialogue.
-    -   `speaker_role`: 'user' or 'chatbot'.
-    -   `text_content`: The message text.
-    -   `politeness_score`: Score from `jfiedler/politeness-bert`.
+### 1. Dialogue (Primary Unit of Analysis)
+A single conversation between a user and a chatbot.
+- **Dialogue ID**: Unique identifier (string).
+- **User ID**: Unique identifier for the participant (string).
+- **Mean Politeness Score**: Z-scored mean of politeness scores of all chatbot utterances in the dialogue (float).
+- **Quality Rating**: User-reported rating (integer, 1-5).
+- **Conversation Length**: Total word count or utterance count (integer).
+- **Demographics**: Age (integer/float), Gender (categorical).
+- **Status**: Included/Excluded (reason).
 
-### Relationships
--   **User** 1:N **Dialogue**
--   **Dialogue** 1:N **Utterance**
+### 2. Utterance
+A single message within a dialogue.
+- **Utterance ID**: Unique identifier (string).
+- **Dialogue ID**: Foreign key to Dialogue.
+- **Speaker Role**: `user` or `chatbot` (categorical).
+- **Text Content**: Raw text (string).
+- **Politeness Score**: Raw score from BERT model (float).
 
-## 2. Data Flow
+### 3. User
+A participant in the dataset.
+- **User ID**: Unique identifier (string).
+- **Age**: (integer/float).
+- **Gender**: (categorical).
+- **Number of Dialogues**: (integer).
 
-1.  **Raw Data**: Downloaded from HuggingFace (Parquet/CSV).
-    -   *Fields*: `dialogue_id`, `user_id`, `utterances` (list), `metadata` (age, gender, rating).
-2.  **Processed Data**:
-    -   Filtered for completeness (rating present, chatbot utterances exist).
-    -   Scores computed per utterance.
-    -   Aggregated to mean per dialogue.
-    -   Z-scored.
-3.  **Output Data**:
-    -   Model coefficients, p-values, confidence intervals.
+## Data Flow
 
-## 3. Schema Definitions
+1.  **Raw**: Downloaded datasets (Parquet/CSV) stored in `data/raw/`.
+2.  **Validation**: `validate_data.py` checks schema and logs errors.
+3.  **Transformation**:
+    - Filter incomplete dialogues (missing quality rating).
+    - Compute utterance-level politeness scores.
+    - Aggregate to dialogue-level mean.
+    - Z-score the mean.
+4.  **Merge**: Combine Persona-Chat and EmpatheticDialogues (if both valid) into a single `data/processed/dialogues_merged.csv`.
+5.  **Analysis**: `run_clmm.py` reads `dialogues_merged.csv` and outputs `data/processed/model_results.csv`.
 
-The following schemas are defined in `contracts/`:
--   `dataset.schema.yaml`: Structure of the processed dialogue data.
--   `output.schema.yaml`: Structure of the statistical results.
+## Schema Definitions
 
-## 4. Data Hygiene & Versioning
+The project uses the following YAML schemas for validation (see `contracts/`):
+- `dataset.schema.yaml`: Validates the `dialogues_merged.csv` structure.
+- `model_output.schema.yaml`: Validates the `model_results.csv` structure.
 
--   **Checksums**: All raw files under `data/raw/` are checksummed (SHA-256).
--   **Immutability**: Raw files are never modified. Derivations are written to `data/processed/`.
--   **PII**: No personally identifiable information (names, emails) is stored in `data/processed/`. `user_id` is an anonymized hash.
+## Assumptions & Constraints
+
+- **Missing Data**: Dialogues with missing quality ratings are excluded. Dialogues with missing demographics are retained for main analysis but excluded from subgroup analysis.
+- **Data Volume**: Streaming is used for initial loading to avoid RAM overflow.
+- **PII**: No Personally Identifiable Information (names, emails) is stored. User IDs are anonymized hashes.

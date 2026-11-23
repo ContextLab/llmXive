@@ -1,224 +1,129 @@
-"""
-Structured logging infrastructure for the alloy design pipeline.
-
-Provides centralized configuration for JSON-formatted logs with
-correlation IDs, severity levels, and structured context.
-"""
 import logging
 import json
 import sys
 import uuid
+import os
 from datetime import datetime
 from typing import Optional, Dict, Any
-from pathlib import Path
+from logging.handlers import RotatingFileHandler
 
-# Default log format configuration
-DEFAULT_LOG_LEVEL = "INFO"
-LOG_FILE_DIR = Path("data/logs")
-LOG_FILE_PATTERN = "pipeline_{date}.jsonl"
-
-# Global logger registry
-_loggers: Dict[str, logging.Logger] = {}
-_configured = False
-
+# Global logger instance
+_logger: Optional[logging.Logger] = None
 
 class StructuredFormatter(logging.Formatter):
-    """
-    Custom formatter that outputs logs as JSON lines (JSONL).
-    Includes correlation IDs, timestamps, and custom context fields.
-    """
-    
-    def __init__(self, service_name: str = "alloy-pipeline"):
-        super().__init__()
-        self.service_name = service_name
+    """Custom formatter that outputs JSON structured logs."""
 
     def format(self, record: logging.LogRecord) -> str:
-        # Ensure extra fields exist
-        if not hasattr(record, "extra_data"):
-            record.extra_data = {}
-
         log_entry = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
-            "service": self.service_name,
-            "correlation_id": getattr(record, "correlation_id", None),
+            "logger": record.name,
+            "message": record.getMessage(),
             "module": record.module,
             "function": record.funcName,
             "line": record.lineno,
-            "message": record.getMessage(),
-            "context": record.extra_data,
+            "trace_id": getattr(record, "trace_id", None),
+            "context": getattr(record, "context", {}),
         }
-
-        # Add exception info if present
         if record.exc_info:
             log_entry["exception"] = self.formatException(record.exc_info)
-
         return json.dumps(log_entry)
 
-
 class ContextFilter(logging.Filter):
-    """
-    Filter that injects correlation IDs and global context into log records.
-    """
-    
-    def __init__(self, correlation_id: Optional[str] = None):
+    """Filter to add context to log records."""
+
+    def __init__(self, context: Optional[Dict[str, Any]] = None):
         super().__init__()
-        self.correlation_id = correlation_id or str(uuid.uuid4())
+        self.context = context or {}
 
     def filter(self, record: logging.LogRecord) -> bool:
-        if not hasattr(record, "correlation_id"):
-            record.correlation_id = self.correlation_id
-        if not hasattr(record, "extra_data"):
-            record.extra_data = {}
+        record.context = {**self.context, **getattr(record, "context", {})}
         return True
 
+def get_logger(name: str = "llmXive") -> logging.Logger:
+    """Get or create a logger with the specified name."""
+    global _logger
+    if _logger is None:
+        _logger = configure_root_logger()
+    return logging.getLogger(name)
 
-def get_logger(name: str, correlation_id: Optional[str] = None) -> logging.Logger:
-    """
-    Retrieves or creates a named logger with structured formatting.
-    
-    Args:
-        name: Logger name (typically __name__ of the calling module)
-        correlation_id: Optional ID to track requests across modules
-        
-    Returns:
-        Configured logger instance
-    """
-    if name in _loggers:
-        return _loggers[name]
-
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)  # Capture all, filter at handler level
-
-    # Add context filter
-    context_filter = ContextFilter(correlation_id)
-    logger.addFilter(context_filter)
-
-    # Console handler (JSON)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(StructuredFormatter())
-    console_handler.setLevel(logging.INFO)
-    logger.addHandler(console_handler)
-
-    # File handler (JSONL)
-    LOG_FILE_DIR.mkdir(parents=True, exist_ok=True)
-    date_str = datetime.now().strftime("%Y%m%d")
-    log_file = LOG_FILE_DIR / LOG_FILE_PATTERN.format(date=date_str)
-    
-    file_handler = logging.FileHandler(log_file, mode='a')
-    file_handler.setFormatter(StructuredFormatter())
-    file_handler.setLevel(logging.DEBUG)
-    logger.addHandler(file_handler)
-
-    _loggers[name] = logger
-    return logger
-
-
-def configure_root_logger(level: str = DEFAULT_LOG_LEVEL, service_name: str = "alloy-pipeline") -> None:
-    """
-    Configures the root logger with structured formatting.
-    Must be called once at application startup.
-    
-    Args:
-        level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        service_name: Name to include in log entries
-    """
-    global _configured
-    if _configured:
-        return
-
+def configure_root_logger(
+    log_level: int = logging.INFO,
+    log_file: Optional[str] = None,
+    max_bytes: int = 10 * 1024 * 1024,  # 10MB
+    backup_count: int = 5,
+) -> logging.Logger:
+    """Configure the root logger with JSON formatting and file rotation."""
     root_logger = logging.getLogger()
-    root_logger.setLevel(getattr(logging, level.upper()))
+    root_logger.setLevel(log_level)
 
     # Clear existing handlers
     root_logger.handlers.clear()
 
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(StructuredFormatter(service_name))
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(log_level)
+    console_handler.setFormatter(StructuredFormatter())
     root_logger.addHandler(console_handler)
 
-    # File handler
-    LOG_FILE_DIR.mkdir(parents=True, exist_ok=True)
-    date_str = datetime.now().strftime("%Y%m%d")
-    log_file = LOG_FILE_DIR / LOG_FILE_PATTERN.format(date=date_str)
-    
-    file_handler = logging.FileHandler(log_file, mode='a')
-    file_handler.setFormatter(StructuredFormatter(service_name))
-    file_handler.setLevel(logging.DEBUG)
-    root_logger.addHandler(file_handler)
+    # File handler with rotation if log_file is provided
+    if log_file:
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+        file_handler = RotatingFileHandler(
+            log_file, maxBytes=max_bytes, backupCount=backup_count
+        )
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(StructuredFormatter())
+        root_logger.addHandler(file_handler)
 
-    _configured = True
-
-
-def log_error_with_context(
-    logger: logging.Logger,
-    message: str,
-    error: Exception,
-    context: Optional[Dict[str, Any]] = None,
-    correlation_id: Optional[str] = None
-) -> None:
-    """
-    Logs an error with structured context and exception details.
-    
-    Args:
-        logger: Logger instance
-        message: Error message
-        error: Exception object
-        context: Additional context dictionary
-        correlation_id: Optional correlation ID
-    """
-    extra = context or {}
-    extra["error_type"] = type(error).__name__
-    extra["error_message"] = str(error)
-    
-    logger.error(
-        message,
-        exc_info=True,
-        extra={"extra_data": extra, "correlation_id": correlation_id}
-    )
-
-
-def log_warning_with_context(
-    logger: logging.Logger,
-    message: str,
-    context: Optional[Dict[str, Any]] = None,
-    correlation_id: Optional[str] = None
-) -> None:
-    """
-    Logs a warning with structured context.
-    
-    Args:
-        logger: Logger instance
-        message: Warning message
-        context: Additional context dictionary
-        correlation_id: Optional correlation ID
-    """
-    extra = context or {}
-    logger.warning(
-        message,
-        extra={"extra_data": extra, "correlation_id": correlation_id}
-    )
-
+    return root_logger
 
 def log_info_with_context(
     logger: logging.Logger,
     message: str,
     context: Optional[Dict[str, Any]] = None,
-    correlation_id: Optional[str] = None
+    trace_id: Optional[str] = None,
 ) -> None:
-    """
-    Logs an info message with structured context.
-    
-    Args:
-        logger: Logger instance
-        message: Info message
-        context: Additional context dictionary
-        correlation_id: Optional correlation ID
-    """
-    extra = context or {}
-    logger.info(
-        message,
-        extra={"extra_data": extra, "correlation_id": correlation_id}
-    )
+    """Log an info message with optional context and trace ID."""
+    extra = {"context": context or {}, "trace_id": trace_id or str(uuid.uuid4())}
+    logger.info(message, extra=extra)
+
+def log_warning_with_context(
+    logger: logging.Logger,
+    message: str,
+    context: Optional[Dict[str, Any]] = None,
+    trace_id: Optional[str] = None,
+) -> None:
+    """Log a warning message with optional context and trace ID."""
+    extra = {"context": context or {}, "trace_id": trace_id or str(uuid.uuid4())}
+    logger.warning(message, extra=extra)
+
+def log_error_with_context(
+    logger: logging.Logger,
+    message: str,
+    context: Optional[Dict[str, Any]] = None,
+    trace_id: Optional[str] = None,
+) -> None:
+    """Log an error message with optional context and trace ID."""
+    extra = {"context": context or {}, "trace_id": trace_id or str(uuid.uuid4())}
+    logger.error(message, extra=extra)
+
+def log_critical_with_context(
+    logger: logging.Logger,
+    message: str,
+    context: Optional[Dict[str, Any]] = None,
+    trace_id: Optional[str] = None,
+) -> None:
+    """Log a critical message with optional context and trace ID."""
+    extra = {"context": context or {}, "trace_id": trace_id or str(uuid.uuid4())}
+    logger.critical(message, extra=extra)
+
+def log_debug_with_context(
+    logger: logging.Logger,
+    message: str,
+    context: Optional[Dict[str, Any]] = None,
+    trace_id: Optional[str] = None,
+) -> None:
+    """Log a debug message with optional context and trace ID."""
+    extra = {"context": context or {}, "trace_id": trace_id or str(uuid.uuid4())}
+    logger.debug(message, extra=extra)

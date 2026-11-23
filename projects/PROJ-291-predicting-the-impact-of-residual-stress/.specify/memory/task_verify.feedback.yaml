@@ -1,0 +1,68 @@
+T001:
+  reason: "The `env_check.py` script fails the test (`test_env_check_exits_successfully`)\
+    \ because it cannot import the required package `ucimlrepo`, causing a non\u2011\
+    zero exit code. Consequently the pytest suite reports a failure, and the task\u2019\
+    s verification condition is not met. Additionally, `config.py` lacks any defined\
+    \ path constants, which the task specification also requires. The implementer\
+    \ must ensure all listed packages (including `ucimlrepo`) are importable in the\
+    \ environment and add the necessary path constant definitions."
+  task: 75a0997476de49fa9387130e186621ec6a6f9d977dbafcd7a699d07a0617a4c0
+T001-1:
+  task: 573607ac5758e24529dbec5797c38352b5e2a362f932876d6c7c65fe372f6f0e
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/ingest/ingest.py
+    exit=1'
+  task: 4e9cbab298474745c77113a6704b35b28094fad48bb71fed06f82fb742221136
+T003:
+  reason: "The e2e pipeline fails during the ingestion phase because the expected\
+    \ raw file `raw/pipeline_verification.csv` is not present, so `proxy_agreement.csv`\
+    \ and `e2e_summary.json` are never created. Additionally, `proxy_agreement.py`\
+    \ writes a different caveat string than the required \u201Cdeterministic (linear)\
+    \ proxy \u2013 descriptive only\u201D. Both issues must be fixed for the task\
+    \ to be considered complete."
+  task: 9e24cd4ea4ffc0f66c2c5ab5f2651ed20072e7d3421bab68ff88947f9101869c
+T004:
+  reason: "Checked `code/src/build_features.py` (present) but the required output\
+    \ artifacts \u2013 `data/processed/balanced_measured.csv`, `feature_set_A.csv`,\
+    \ `feature_set_B.csv`, `feature_set_B_full.csv`, `feature_set_C.csv`, the scaler\
+    \ files under `code/models/scalers/`, and the verification test `code/tests/test_features.py`\
+    \ \u2013 are all missing. Without these files and tests, the task\u2019s core\
+    \ deliverables are not present."
+  task: 63419f35076eb3afac97b4e87bd6f02ec25191680cefccfa84c870de5449dd23
+T005:
+  reason: 'The repository contains the training script and test suite, but the required
+    output artifacts are absent: `data/results/model_performance.csv` does not exist,
+    and no model files were created under `code/models/<feature_set>/<algorithm>/`
+    (the entire `code/models/` directory is missing). Without these files the verification
+    tests cannot pass, so the task is not fully completed.'
+  task: 2bdc5dd6f709f7e0a103191c04045e85202c8dbcb038532a75366bc8e9546f5d
+T006:
+  reason: 'Requested task execution failed; rerun successfully: code/src/wilcoxon_compare.py
+    exit=1'
+  task: e4b76ec99f072fd3dde22be7e4bc8d59bffb472e7bdd0e1d1d2cd95b86b33261
+T007:
+  task: fcf05f697e63529fb26d14c38c7827b766a51c385fc168402a8f9c3e5c7643e5
+T008:
+  task: fbe4c80e03729aa26b59b23bc18a698b87d7385ba1017997f727254d9ae02b5e
+T009:
+  task: 0be3ca4699b93c59cccbd5cd9988d1a418e92c21c8f9815dda53b88a92deb33f
+T010:
+  task: b3b4b63da17b24dabf4ebd453cc61ef0700d45fd73e4964c0935e6f70e949a94
+T010-1:
+  task: 8c86975732e3b07af2c20cf1d7c339f982f19ddcc423144fc7abd9b7f3f4529e
+T011:
+  task: 7d77b76a7d3b03e79924a492626d8f835d3a7f6f227bef68b7af3c53510f3f89
+T012:
+  task: 6da2cc500ff6fc10619ce2d423b628ac5a29c390db1dd291aa4dccf26178bc07
+T014:
+  reason: 'Requested task execution failed; rerun successfully: code/src/acquire_external.py
+    exit=1'
+  task: 664edf4b1dd80070d84ab344274472a7b70c04aa935cefcffc8fe6bbc50235b0
+T015:
+  reason: The repository contains the generator code (`src/data/gen_synthetic.py`
+    and its wrapper) which uses `np.random.default_rng(42)` and writes the CSV and
+    updates `data/raw/checksums.json` when executed, but the required output file
+    `data/raw/synthetic_fatigue.csv` is missing and `data/raw/checksums.json` is still
+    empty. The task demands these artifacts to exist in the project, so they must
+    be generated and committed.
+  task: 379bf376feb7dd703dd72385050e5e15317b52abb9f4a6645e8e2c4026bd7b70

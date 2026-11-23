@@ -1,0 +1,24 @@
+{
+  "project_id": "PROJ-964-llmxive-follow-up-extending-wan-streamer",
+  "ok": false,
+  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/inference/hybrid_sim.py: metric `latency_reduction` assigned from an RNG draw (line 206); code/models/gru_estimator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026n{model}\")          # 3. Dummy Data Generation for Verificat\u2026\u201d; code/utils/inference_optimizer.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026...\")          # Prepare dummy input based on sample data str\u2026\u201d; 7 run-book script(s) missing (plan/impl path mismatch): python code/data/fetch_data.py; python code/data/extract_turn_taking.py; python code/model/estimator_train.py; 5 declared deliverable(s) absent: data/metrics/power_analysis_final.json; data/metrics/theoretical_defaults.json; data/processed/filtered.parquet",
+  "artifacts": [
+    "data/metrics/mos_validation_status.json"
+  ],
+  "failures": [
+    "python code/data/fetch_data.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/data/fetch_data.py': [Errno 2] No such file or directory",
+    "python code/data/extract_turn_taking.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/data/extract_turn_taking.py': [Errno 2] No such file or directory",
+    "python code/model/estimator_train.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/model/estimator_train.py': [Errno 2] No such file or directory",
+    "python code/model/hybrid_simulate.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/model/hybrid_simulate.py': [Errno 2] No such file or directory",
+    "python code/metrics/calculate_fid_stability.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/metrics/calculate_fid_stability.py': [Errno 2] No such file or directory",
+    "python code/metrics/statistical_tests.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/metrics/statistical_tests.py': [Errno 2] No such file or directory",
+    "python code/utils/state_manager.py --update -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/code/utils/state_manager.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-01T23:10:18Z"
+}

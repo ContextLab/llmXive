@@ -1,19 +1,21 @@
-# Data directories - keep structure but ignore content
-# Raw data: downloaded from external sources (large files)
-raw/
-# Derived data: processed datasets
-derived/
-# Validation data: manual annotations and ground truth
-validation/
+# Ignore all data files by default
+# Specific files must be explicitly kept via .gitkeep in subdirectories
 
-# Exclude all files except this .gitignore
-!**/.gitkeep
+# Raw data: Ignore all generated raw data
+raw/*
+!raw/.gitkeep
 
-# Optional: ignore common temporary files
-*.tmp
-*.temp
-.DS_Store
-Thumbs.db
+# Derived data: Ignore all processed data
+derived/*
+!derived/.gitkeep
 
-# Ignore parquet files if they grow too large (optional)
-# *.parquet
+# Validation data: Ignore all validation files
+validation/*
+!validation/.gitkeep
+
+# Logs: Ignore all log files
+logs/*
+!logs/.gitkeep
+
+# Explicitly keep placeholder files
+**/.gitkeep

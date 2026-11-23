@@ -1,1 +1,5 @@
-# Package marker for contract tests module
+# tests/contract package
+"""
+Contract tests to verify interfaces, schemas, and data contracts.
+Ensures components adhere to defined specifications.
+"""

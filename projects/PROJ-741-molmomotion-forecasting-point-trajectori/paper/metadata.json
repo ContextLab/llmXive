@@ -87,5 +87,15 @@
     "sections/3_method.tex",
     "sections/5_appendix.tex",
     "t1manrope.fd"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "7a4fc76178d91730d150681903d631067e38c65d5c125740b419d9fb89a9959a",
+      "bytes": 22724798
+    },
+    "original.pdf": {
+      "sha256": "7bccc1444e0a0ca1b9670fc90bf1167c2836c8a32364b694545ba2e3c94091b5",
+      "bytes": 22669727
+    }
+  }
 }

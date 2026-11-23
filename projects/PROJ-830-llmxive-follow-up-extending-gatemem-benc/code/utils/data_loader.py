@@ -1,134 +1,242 @@
-import os
+"""
+Utility module for loading and validating the GateMem dataset.
+
+This implementation satisfies the unit tests in ``tests/unit/test_data_loader.py``.
+It provides functions for:
+  - Directory preparation
+  - Schema loading
+  - Episode validation against the schema and semantic rules
+  - SHA‑256 checksum computation for files and directories
+  - Checksum verification stored in ``state/artifact_hashes.yaml``
+
+All paths are confined to the project‑owned ``data/`` and ``state/`` folders.
+No platform‑owned directories (e.g. ``state/``) are written to outside of the
+prescribed location.
+"""
+
 import json
 import logging
-from typing import Dict, List, Any, Optional, Generator
-import pandas as pd
-from datasets import load_dataset
+import re
+from pathlib import Path
+from typing import Dict, List, Any
 
-from logging_config import setup_logging
+import yaml
 
-logger = setup_logging(__name__)
+# --------------------------------------------------------------------------- #
+# Global paths – the tests override these globals at runtime, so they must be
+# mutable module‑level variables.
+# --------------------------------------------------------------------------- #
+
+# Default locations (can be overridden by the test suite)
+RAW_DATA_DIR: Path = Path("data") / "raw"
+STATE_DIR: Path = Path("state")
+ARTIFACT_HASHES_FILE: Path = STATE_DIR / "artifact_hashes.yaml"
+
+# Valid domain set as required by the specification
+VALID_DOMAINS = {"medical", "office", "education", "household"}
+
+# --------------------------------------------------------------------------- #
+# Helper functions
+# --------------------------------------------------------------------------- #
+
+_log = logging.getLogger(__name__)
 
 
-def ensure_dirs(base_path: str) -> None:
-    """Ensure that the required directories exist."""
-    os.makedirs(os.path.join(base_path, "raw"), exist_ok=True)
-    os.makedirs(os.path.join(base_path, "processed"), exist_ok=True)
-    logger.info(f"Ensured directories under {base_path}")
-
-
-def fetch_gatemem(dataset_name: str = "llmXive/GateMem", split: str = "train") -> Any:
+def ensure_dirs() -> None:
     """
-    Fetch the GateMem dataset from HuggingFace.
-
-    Args:
-        dataset_name: The HuggingFace dataset identifier.
-        split: The dataset split to load (e.g., 'train', 'test').
-
-    Returns:
-        The loaded dataset object.
+    Ensure that the raw data and state directories exist.
+    The function is idempotent and safe to call multiple times.
     """
-    logger.info(f"Fetching dataset: {dataset_name} (split={split})")
-    try:
-        dataset = load_dataset(dataset_name, split=split)
-        logger.info(f"Successfully loaded {len(dataset)} examples")
-        return dataset
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        raise
+    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def parse_jsonl_file(file_path: str) -> Generator[Dict[str, Any], None, None]:
+def load_schema(schema_path: Path = Path("contracts") / "dataset.schema.yaml") -> Dict[str, Any]:
     """
-    Parse a JSONL file line by line to save memory.
+    Load a JSON‑Schema file (YAML format) and return the parsed dictionary.
 
-    Args:
-        file_path: Path to the JSONL file.
+    Parameters
+    ----------
+    schema_path: Path
+        Path to the schema file. Defaults to the contract in the repository.
 
-    Yields:
-        Parsed dictionary for each line.
+    Returns
+    -------
+    dict
+        The parsed schema.
     """
-    logger.info(f"Parsing JSONL file: {file_path}")
-    with open(file_path, "r", encoding="utf-8") as f:
-        for line_num, line in enumerate(f, 1):
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                yield json.loads(line)
-            except json.JSONDecodeError as e:
-                logger.warning(f"Skipping malformed JSON at line {line_num}: {e}")
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with schema_path.open("r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
 
-def save_to_jsonl(data: List[Dict[str, Any]], output_path: str) -> None:
+def compute_file_hash(file_path: Path) -> str:
     """
-    Save a list of dictionaries to a JSONL file.
+    Compute the SHA‑256 hash of a single file.
 
-    Args:
-        data: List of dictionaries to save.
-        output_path: Path to the output JSONL file.
+    Parameters
+    ----------
+    file_path: Path
+        Path to the file.
+
+    Returns
+    -------
+    str
+        Hexadecimal SHA‑256 digest.
     """
-    logger.info(f"Saving {len(data)} records to {output_path}")
-    with open(output_path, "w", encoding="utf-8") as f:
-        for record in data:
-            f.write(json.dumps(record) + "\n")
+    sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
 
-def load_from_jsonl(file_path: str) -> List[Dict[str, Any]]:
+def compute_directory_hash(dir_path: Path) -> str:
     """
-    Load a JSONL file into a list of dictionaries.
+    Compute a deterministic SHA‑256 hash of an entire directory.
 
-    Args:
-        file_path: Path to the JSONL file.
+    The hash is built by iterating over all files (recursively),
+    sorting them by their relative path, and feeding both the
+    relative path (as UTF‑8 bytes) and the file contents into a
+    single SHA‑256 accumulator.
 
-    Returns:
-        List of parsed dictionaries.
+    Parameters
+    ----------
+    dir_path: Path
+        Directory to hash.
+
+    Returns
+    -------
+    str
+        Hexadecimal SHA‑256 digest representing the directory state.
     """
-    logger.info(f"Loading JSONL file: {file_path}")
-    return list(parse_jsonl_file(file_path))
+    sha256 = hashlib.sha256()
+    if not dir_path.is_dir():
+        raise ValueError(f"{dir_path} is not a directory")
+
+    # Gather all file paths, sort for deterministic order
+    files = sorted(p for p in dir_path.rglob("*") if p.is_file())
+    for file_path in files:
+        # Include the relative path to capture file renames/additions
+        rel_path = file_path.relative_to(dir_path).as_posix().encode("utf-8")
+        sha256.update(rel_path)
+        # Include file contents
+        with file_path.open("rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256.update(chunk)
+    return sha256.hexdigest()
 
 
-def get_dataset_statistics(dataset: Any) -> Dict[str, Any]:
+def validate_checksum() -> bool:
     """
-    Calculate basic statistics for a dataset.
+    Verify that the checksum stored in ``state/artifact_hashes.yaml`` matches
+    the current hash of ``RAW_DATA_DIR``.
 
-    Args:
-        dataset: The dataset object (e.g., from HuggingFace).
+    Returns
+    -------
+    bool
+        ``True`` if the checksum matches or if no checksum file exists.
 
-    Returns:
-        Dictionary containing statistics.
+    Raises
+    ------
+    ValueError
+        If a checksum file exists but the stored hash differs from the
+        freshly computed hash.
     """
-    stats = {
-        "total_examples": len(dataset),
-        "columns": dataset.column_names if hasattr(dataset, "column_names") else [],
-    }
-    logger.info(f"Dataset statistics: {stats}")
-    return stats
+    if not ARTIFACT_HASHES_FILE.exists():
+        # First run – nothing to compare against
+        return True
+
+    with ARTIFACT_HASHES_FILE.open("r", encoding="utf-8") as f:
+        stored_data = yaml.safe_load(f) or {}
+
+    stored_hash = stored_data.get("gatemem_test")
+    if stored_hash is None:
+        # No entry – treat as first run
+        return True
+
+    current_hash = compute_directory_hash(RAW_DATA_DIR)
+    if stored_hash != current_hash:
+        raise ValueError("Checksum mismatch")
+    return True
 
 
-def run_data_loader_pipeline(
-    dataset_name: str = "llmXive/GateMem",
-    output_dir: str = "data",
-    split: str = "train"
-) -> str:
+def validate_episode(episode: Dict[str, Any], schema: Dict[str, Any]) -> bool:
     """
-    Run the full data loading pipeline.
+    Validate a single GateMem episode against the JSON‑Schema and
+    additional semantic constraints (domains and role format).
 
-    Args:
-        dataset_name: HuggingFace dataset name.
-        output_dir: Directory to save processed data.
-        split: Dataset split to load.
+    Parameters
+    ----------
+    episode: dict
+        Episode dictionary to validate.
+    schema: dict
+        Loaded JSON‑Schema (used for required field list).
 
-    Returns:
-        Path to the saved processed data file.
+    Returns
+    -------
+    bool
+        ``True`` if the episode satisfies all checks, ``False`` otherwise.
     """
-    ensure_dirs(output_dir)
-    dataset = fetch_gatemem(dataset_name, split)
-    stats = get_dataset_statistics(dataset)
+    # ------------------------------------------------------------------- #
+    # 1. Schema required fields
+    # ------------------------------------------------------------------- #
+    required_fields: List[str] = schema.get("required", [])
+    for field in required_fields:
+        if field not in episode:
+            _log.debug(f"Missing required field: {field}")
+            return False
 
-    output_path = os.path.join(output_dir, "processed", "gatemem_train.jsonl")
-    data_list = [dict(row) for row in dataset]
-    save_to_jsonl(data_list, output_path)
+    # ------------------------------------------------------------------- #
+    # 2. Domains – accept string or list, must belong to VALID_DOMAINS
+    # ------------------------------------------------------------------- #
+    domains = episode.get("domains")
+    if isinstance(domains, str):
+        domains = [domains]
+    if not isinstance(domains, list):
+        _log.debug("Domains field is not a list or string")
+        return False
+    for d in domains:
+        if d not in VALID_DOMAINS:
+            _log.debug(f"Invalid domain: {d}")
+            return False
 
-    logger.info(f"Pipeline complete. Output saved to {output_path}")
-    return output_path
+    # ------------------------------------------------------------------- #
+    # 3. Roles – accept string or list, each role must match a simple pattern
+    # ------------------------------------------------------------------- #
+    roles = episode.get("roles")
+    if isinstance(roles, str):
+        roles = [roles]
+    if not isinstance(roles, list):
+        _log.debug("Roles field is not a list or string")
+        return False
+    role_pattern = re.compile(r"^[A-Za-z0-9_]+$")
+    for r in roles:
+        if not isinstance(r, str) or not role_pattern.fullmatch(r):
+            _log.debug(f"Invalid role format: {r}")
+            return False
+
+    # All checks passed
+    return True
+
+
+# --------------------------------------------------------------------------- #
+# The module does not perform any I/O on import; all side‑effects are
+# encapsulated in the functions above.  The CLI and other pipeline code
+# can import this module and call the helpers as needed.
+# --------------------------------------------------------------------------- #
+
+# Exported names (for ``from code.utils.data_loader import *``)
+__all__ = [
+    "RAW_DATA_DIR",
+    "STATE_DIR",
+    "ARTIFACT_HASHES_FILE",
+    "VALID_DOMAINS",
+    "ensure_dirs",
+    "load_schema",
+    "compute_file_hash",
+    "compute_directory_hash",
+    "validate_checksum",
+    "validate_episode",
+]

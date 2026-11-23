@@ -1,0 +1,12 @@
+# Core dependencies
+torch --index-url https://download.pytorch.org/whl/cpu
+scikit-learn
+datasets
+mujoco
+pybullet
+numpy
+pandas
+psutil
+pydantic
+ruff
+black

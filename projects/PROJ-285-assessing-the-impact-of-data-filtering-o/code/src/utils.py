@@ -1,286 +1,156 @@
-"""
-Coordinate matching utilities for gravitational lens detection analysis.
-
-Provides functions to match Right Ascension (RA) and Declination (Dec)
-coordinates between different catalogs with a specified angular tolerance.
-"""
 import numpy as np
 import logging
 from typing import Tuple, Optional
+from .logging_config import get_logger, CoordinateMatchError
 
-logger = logging.getLogger(__name__)
-
-# Conversion constants
-ARCSEC_TO_DEG = 1.0 / 3600.0
-DEG_TO_RADIANS = np.pi / 180.0
-
+logger = get_logger(__name__)
 
 def angular_distance(ra1: float, dec1: float, ra2: float, dec2: float) -> float:
     """
-    Calculate the angular distance between two celestial coordinates in degrees.
-    
-    Uses the Haversine formula for accurate small-angle calculations on a sphere.
-    
+    Calculate the angular distance between two points on a sphere (in arcseconds).
+
+    Uses the Haversine formula for accurate small-angle calculations.
+
     Args:
-        ra1: Right Ascension of point 1 (degrees)
-        dec1: Declination of point 1 (degrees)
-        ra2: Right Ascension of point 2 (degrees)
-        dec2: Declination of point 2 (degrees)
-        
+        ra1: Right ascension of point 1 (degrees).
+        dec1: Declination of point 1 (degrees).
+        ra2: Right ascension of point 2 (degrees).
+        dec2: Declination of point 2 (degrees).
+
     Returns:
-        Angular distance in degrees
+        float: Angular distance in arcseconds.
     """
-    # Convert to radians
-    ra1_rad = ra1 * DEG_TO_RADIANS
-    dec1_rad = dec1 * DEG_TO_RADIANS
-    ra2_rad = ra2 * DEG_TO_RADIANS
-    dec2_rad = dec2 * DEG_TO_RADIANS
-    
+    # Convert degrees to radians
+    ra1_rad = np.radians(ra1)
+    dec1_rad = np.radians(dec1)
+    ra2_rad = np.radians(ra2)
+    dec2_rad = np.radians(dec2)
+
     # Haversine formula
     d_ra = ra2_rad - ra1_rad
     d_dec = dec2_rad - dec1_rad
-    
-    a = np.sin(d_dec / 2.0)**2 + np.cos(dec1_rad) * np.cos(dec2_rad) * np.sin(d_ra / 2.0)**2
-    c = 2.0 * np.arcsin(np.sqrt(a))
-    
-    # Convert back to degrees
-    return c * (180.0 / np.pi)
+
+    a = np.sin(d_dec / 2)**2 + np.cos(dec1_rad) * np.cos(dec2_rad) * np.sin(d_ra / 2)**2
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
+
+    # Convert radians to arcseconds (1 radian = 206265 arcseconds)
+    distance_arcsec = c * 206265
+
+    return distance_arcsec
 
 
 def match_coordinates(
-    catalog_a: np.ndarray,
-    catalog_b: np.ndarray,
-    tolerance_arcsec: float = 1.0,
-    col_ra_a: str = 'RA',
-    col_dec_a: str = 'Dec',
-    col_ra_b: str = 'RA',
-    col_dec_b: str = 'Dec'
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    catalog1: np.ndarray,
+    catalog2: np.ndarray,
+    tolerance_arcsec: float = 1.0
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Match coordinates between two catalogs within a specified angular tolerance.
-    
-    This function performs a nearest-neighbor search to find matches between
-    coordinates in catalog_a and catalog_b. For each row in catalog_a, it finds
-    the closest row in catalog_b and checks if the angular distance is within
-    the specified tolerance.
-    
+    Match coordinates between two catalogs within a given tolerance.
+
     Args:
-        catalog_a: 2D numpy array or pandas DataFrame for the first catalog
-        catalog_b: 2D numpy array or pandas DataFrame for the second catalog
-        tolerance_arcsec: Matching tolerance in arcseconds (default: 1.0)
-        col_ra_a: Column name for RA in catalog_a (default: 'RA')
-        col_dec_a: Column name for Dec in catalog_a (default: 'Dec')
-        col_ra_b: Column name for RA in catalog_b (default: 'RA')
-        col_dec_b: Column name for Dec in catalog_b (default: 'Dec')
-        
+        catalog1: Nx2 array of (RA, Dec) for catalog 1.
+        catalog2: Nx2 array of (RA, Dec) for catalog 2.
+        tolerance_arcsec: Matching tolerance in arcseconds.
+
     Returns:
-        Tuple of (indices_a, indices_b, distances_degrees):
-            - indices_a: Array of indices from catalog_a that have matches
-            - indices_b: Array of indices from catalog_b that are matched
-            - distances_degrees: Array of angular distances for matched pairs (in degrees)
+        Tuple of (indices1, indices2) where matches were found.
+
+    Raises:
+        CoordinateMatchError: If inputs are invalid.
     """
-    # Convert tolerance to degrees
-    tolerance_deg = tolerance_arcsec * ARCSEC_TO_DEG
-    
-    # Extract coordinates
-    if hasattr(catalog_a, 'columns'):
-        # Handle pandas DataFrame
-        ra_a = catalog_a[col_ra_a].values
-        dec_a = catalog_a[col_dec_a].values
-    else:
-        # Assume numpy array or list
-        ra_a = np.asarray(catalog_a)[:, 0] if catalog_a.ndim > 1 else np.asarray(catalog_a)
-        dec_a = np.asarray(catalog_a)[:, 1] if catalog_a.ndim > 1 else np.asarray(catalog_a)
-        
-    if hasattr(catalog_b, 'columns'):
-        # Handle pandas DataFrame
-        ra_b = catalog_b[col_ra_b].values
-        dec_b = catalog_b[col_dec_b].values
-    else:
-        # Assume numpy array or list
-        ra_b = np.asarray(catalog_b)[:, 0] if catalog_b.ndim > 1 else np.asarray(catalog_b)
-        dec_b = np.asarray(catalog_b)[:, 1] if catalog_b.ndim > 1 else np.asarray(catalog_b)
-    
-    # Handle empty catalogs
-    if len(ra_a) == 0 or len(ra_b) == 0:
-        logger.warning("One of the catalogs is empty. No matches possible.")
-        return np.array([]), np.array([]), np.array([])
-    
-    # Initialize result arrays
-    matches_a = []
-    matches_b = []
-    distances = []
-    
-    # For small catalogs, use brute force
-    if len(ra_a) * len(ra_b) < 10_000_000:  # ~10M comparisons threshold
-        for i in range(len(ra_a)):
-            # Calculate distances to all points in catalog_b
-            dists = angular_distance(
-                ra_a[i], dec_a[i],
-                ra_b, dec_b
-            )
-            
-            # Find the minimum distance
-            min_idx = np.argmin(dists)
-            min_dist = dists[min_idx]
-            
-            # Check if within tolerance
-            if min_dist <= tolerance_deg:
-                matches_a.append(i)
-                matches_b.append(min_idx)
-                distances.append(min_dist)
-    else:
-        # For larger catalogs, use a more efficient approach with vectorization
-        # Convert to radians for efficient calculation
-        ra_a_rad = ra_a * DEG_TO_RADIANS
-        dec_a_rad = dec_a * DEG_TO_RADIANS
-        ra_b_rad = ra_b * DEG_TO_RADIANS
-        dec_b_rad = dec_b * DEG_TO_RADIANS
-        
-        # Calculate cosine of angular distance using dot product
-        # cos(d) = sin(dec1)sin(dec2) + cos(dec1)cos(dec2)cos(ra1-ra2)
-        # This is more efficient for vectorized operations
-        
-        # Precompute trigonometric values
-        sin_dec_a = np.sin(dec_a_rad)
-        cos_dec_a = np.cos(dec_a_rad)
-        sin_dec_b = np.sin(dec_b_rad)
-        cos_dec_b = np.cos(dec_b_rad)
-        
-        for i in range(len(ra_a)):
-            # Calculate cos(d) for all points in catalog_b
-            cos_d = (
-                sin_dec_a[i] * sin_dec_b +
-                cos_dec_a[i] * cos_dec_b * np.cos(ra_a_rad[i] - ra_b_rad)
-            )
-            
-            # Handle numerical errors
-            cos_d = np.clip(cos_d, -1.0, 1.0)
-            
-            # Calculate angular distance
-            dists = np.arccos(cos_d)
-            
-            # Find the minimum distance
-            min_idx = np.argmin(dists)
-            min_dist = dists[min_idx]
-            
-            # Check if within tolerance
-            if min_dist <= tolerance_deg * DEG_TO_RADIANS:
-                matches_a.append(i)
-                matches_b.append(min_idx)
-                distances.append(min_dist * (180.0 / np.pi))
-    
-    # Convert to numpy arrays
-    indices_a = np.array(matches_a)
-    indices_b = np.array(matches_b)
-    distances_deg = np.array(distances)
-    
-    logger.info(f"Found {len(indices_a)} matches within {tolerance_arcsec} arcsec tolerance")
-    
-    return indices_a, indices_b, distances_deg
+    if catalog1.shape[1] != 2 or catalog2.shape[1] != 2:
+        raise CoordinateMatchError("Catalogs must have exactly 2 columns (RA, Dec)")
+
+    matches1 = []
+    matches2 = []
+
+    for i, (ra1, dec1) in enumerate(catalog1):
+        for j, (ra2, dec2) in enumerate(catalog2):
+            dist = angular_distance(ra1, dec1, ra2, dec2)
+            if dist <= tolerance_arcsec:
+                matches1.append(i)
+                matches2.append(j)
+                break  # First match only
+
+    return np.array(matches1), np.array(matches2)
 
 
 def find_matches_in_catalog(
-    query_coords: dict,
-    target_catalog,
+    catalog_df,
+    reference_df,
+    ra_col: str = 'RA',
+    dec_col: str = 'Dec',
     tolerance_arcsec: float = 1.0
-) -> Optional[int]:
+) -> pd.DataFrame:
     """
-    Find the index of the closest match for a single coordinate in a target catalog.
-    
+    Find matches between two DataFrames based on coordinates.
+
     Args:
-        query_coords: Dictionary with 'RA' and 'Dec' keys
-        target_catalog: Catalog to search (pandas DataFrame or numpy array)
-        tolerance_arcsec: Matching tolerance in arcseconds (default: 1.0)
-        
+        catalog_df: DataFrame with candidate coordinates.
+        reference_df: DataFrame with reference coordinates.
+        ra_col: Name of RA column.
+        dec_col: Name of Dec column.
+        tolerance_arcsec: Matching tolerance in arcseconds.
+
     Returns:
-        Index of the matching row in target_catalog, or None if no match found
+        DataFrame with matched rows from catalog_df and their reference matches.
     """
-    if not query_coords:
-        logger.error("Query coordinates are empty")
-        return None
-        
-    ra_q = query_coords.get('RA')
-    dec_q = query_coords.get('Dec')
+    import pandas as pd
     
-    if ra_q is None or dec_q is None:
-        logger.error(f"Missing RA or Dec in query coordinates: {query_coords}")
-        return None
-        
-    if hasattr(target_catalog, 'columns'):
-        # Handle pandas DataFrame
-        ra_t = target_catalog['RA'].values
-        dec_t = target_catalog['Dec'].values
-    else:
-        # Assume numpy array
-        ra_t = np.asarray(target_catalog)[:, 0]
-        dec_t = np.asarray(target_catalog)[:, 1]
-        
-    if len(ra_t) == 0:
-        logger.warning("Target catalog is empty")
-        return None
-        
-    # Calculate distances
-    dists = angular_distance(ra_q, dec_q, ra_t, dec_t)
+    matches = []
     
-    # Find minimum
-    min_idx = np.argmin(dists)
-    min_dist = dists[min_idx]
+    for idx, row in catalog_df.iterrows():
+        ra_cand, dec_cand = row[ra_col], row[dec_col]
+        
+        for ref_idx, ref_row in reference_df.iterrows():
+            ra_ref, dec_ref = ref_row[ra_col], ref_row[dec_col]
+            
+            dist = angular_distance(ra_cand, dec_cand, ra_ref, dec_ref)
+            
+            if dist <= tolerance_arcsec:
+                match_row = row.copy()
+                match_row['matched_ref_id'] = ref_idx
+                match_row['angular_distance'] = dist
+                matches.append(match_row)
+                break  # First match only
     
-    # Check tolerance
-    tolerance_deg = tolerance_arcsec * ARCSEC_TO_DEG
-    if min_dist <= tolerance_deg:
-        return min_idx
-    else:
-        return None
+    return pd.DataFrame(matches) if matches else pd.DataFrame(columns=catalog_df.columns.tolist() + ['matched_ref_id', 'angular_distance'])
 
 
 def calculate_recovery_rate(
-    injected_coords: dict,
-    recovered_coords: dict,
+    detected_df: pd.DataFrame,
+    ground_truth_df: pd.DataFrame,
+    ra_col: str = 'RA',
+    dec_col: str = 'Dec',
     tolerance_arcsec: float = 1.0
 ) -> float:
     """
-    Calculate the recovery rate of injected lenses based on coordinate matching.
-    
+    Calculate the recovery rate of detected objects against ground truth.
+
     Args:
-        injected_coords: Dictionary mapping injected_id to {'RA': float, 'Dec': float}
-        recovered_coords: Dictionary mapping recovered_id to {'RA': float, 'Dec': float}
-        tolerance_arcsec: Matching tolerance in arcseconds (default: 1.0)
-        
+        detected_df: DataFrame with detected coordinates.
+        ground_truth_df: DataFrame with ground truth coordinates.
+        ra_col: Name of RA column.
+        dec_col: Name of Dec column.
+        tolerance_arcsec: Matching tolerance in arcseconds.
+
     Returns:
-        Recovery rate as a float between 0.0 and 1.0
+        float: Recovery rate (0.0 to 1.0).
     """
-    if not injected_coords:
-        logger.warning("No injected coordinates provided")
+    if len(ground_truth_df) == 0:
         return 0.0
+
+    recovered = 0
+    for idx, row in ground_truth_df.iterrows():
+        ra_gt, dec_gt = row[ra_col], row[dec_col]
         
-    if not recovered_coords:
-        logger.warning("No recovered coordinates provided")
-        return 0.0
-        
-    recovered_count = 0
-    
-    for inj_id, inj_coords in injected_coords.items():
-        # Try to find a match in recovered coordinates
-        best_match = None
-        best_dist = float('inf')
-        
-        for rec_id, rec_coords in recovered_coords.items():
-            dist = angular_distance(
-                inj_coords['RA'], inj_coords['Dec'],
-                rec_coords['RA'], rec_coords['Dec']
-            )
-            if dist < best_dist:
-                best_dist = dist
-                best_match = rec_id
-                
-        # Check if within tolerance
-        tolerance_deg = tolerance_arcsec * ARCSEC_TO_DEG
-        if best_dist <= tolerance_deg:
-            recovered_count += 1
+        for det_idx, det_row in detected_df.iterrows():
+            ra_det, dec_det = det_row[ra_col], det_row[dec_col]
             
-    recovery_rate = recovered_count / len(injected_coords)
-    logger.info(f"Recovery rate: {recovery_rate:.4f} ({recovered_count}/{len(injected_coords)})")
-    
-    return recovery_rate
+            dist = angular_distance(ra_gt, dec_gt, ra_det, dec_det)
+            
+            if dist <= tolerance_arcsec:
+                recovered += 1
+                break  # Count each ground truth object only once
+
+    return recovered / len(ground_truth_df)

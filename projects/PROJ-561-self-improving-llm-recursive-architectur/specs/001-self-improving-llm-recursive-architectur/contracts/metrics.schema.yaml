@@ -12,22 +12,18 @@ properties:
     enum:
       - "GSM8K"
       - "ARC-Challenge"
-      - "Wikitext-2"
+      - "BoolQ"
     description: "The benchmark being evaluated."
-  accuracy:
+  accuracy_or_ECE:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Accuracy or ECE value (0.0 to 1.0)."
-  samples_evaluated:
-    type: "integer"
-    minimum: 1
-    description: "Number of samples used for evaluation."
+    description: "Accuracy (GSM8K/ARC) or ECE (BoolQ)."
   p_value_vs_baseline:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "P-value from paired bootstrap test vs baseline."
+    description: "P-value from bootstrap test vs baseline."
   is_significant:
     type: "boolean"
     description: "Whether the improvement is statistically significant (p < 0.05)."
@@ -37,10 +33,17 @@ properties:
   bootstrapped_ci_upper:
     type: "number"
     description: "Upper bound of 95% confidence interval."
+  effect_size_cohen_d:
+    type: "number"
+    description: "Cohen's d effect size."
+  samples_evaluated:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples used for evaluation."
 required:
   - "cycle_number"
   - "benchmark_name"
-  - "accuracy"
+  - "accuracy_or_ECE"
   - "samples_evaluated"
   - "p_value_vs_baseline"
   - "is_significant"

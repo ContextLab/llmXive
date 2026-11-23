@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.02228",
+  "judged_at": "2026-10-12T00:46:11Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anti-self-distillation for reasoning rl via pointwise mutual informati\" computer science",
+  "rationale": "The paper studies how language‑model reasoning performance (a dependent variable of interest) changes after a targeted fine‑tuning intervention, thus providing empirical data on the same dependent variable (reasoning ability) within the same domain (transformer LMs) that the user’s work on anti‑self‑distillation for reasoning RL concerns (criterion b).",
+  "relevant": true
+}

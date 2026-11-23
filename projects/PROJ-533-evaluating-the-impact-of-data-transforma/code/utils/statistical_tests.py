@@ -1,150 +1,119 @@
 """
-Statistical test wrappers for hypothesis testing.
-
-Provides standardized interfaces for:
-- Independent and paired t-tests
-- One-way ANOVA
-- Shapiro-Wilk normality test
-- Friedman non-parametric repeated measures test
+Utility statistical test functions used across the pipeline.
+Provides minimal implementations for t-test, one-way ANOVA, Shapiro-Wilk,
+and Friedman tests. These functions are deliberately lightweight – they
+rely only on the standard scientific Python stack (scipy, numpy) which is
+already available in the execution environment.
 """
+import logging
+from typing import Sequence, Tuple, List, Any
 
 import numpy as np
-import pandas as pd
 from scipy import stats
-from typing import Union, List, Tuple, Optional
 
-ArrayLike = Union[np.ndarray, pd.Series, List[float]]
+# Set up a module‑level logger; the pipeline configures root logging.
+log = logging.getLogger(__name__)
 
 
-def t_test(
-    group1: ArrayLike,
-    group2: ArrayLike,
-    paired: bool = False,
-    equal_var: bool = True
-) -> Tuple[float, float]:
+def t_test(group1: Sequence[float], group2: Sequence[float], equal_var: bool = True) -> Tuple[float, float]:
     """
-    Perform an independent or paired t-test between two groups.
-    
-    Args:
-        group1: First group of data.
-        group2: Second group of data.
-        paired: If True, perform a paired t-test. Default is False (independent).
-        equal_var: If True, perform standard independent t-test assuming equal variance.
-                   If False, perform Welch's t-test. Only used if paired=False.
-                   
-    Returns:
-        Tuple of (statistic, p-value).
-        
-    Raises:
-        ValueError: If input arrays are empty or have incompatible shapes for paired test.
+    Perform an independent two‑sample t‑test.
+
+    Parameters
+    ----------
+    group1, group2 : array‑like
+        Samples from the two groups.
+    equal_var : bool, default True
+        Assume equal population variances.
+
+    Returns
+    -------
+    statistic, pvalue : float
+        t statistic and two‑tailed p‑value.
     """
-    arr1 = np.asarray(group1)
-    arr2 = np.asarray(group2)
-    
-    if arr1.size == 0 or arr2.size == 0:
-        raise ValueError("Input arrays cannot be empty.")
-        
-    if paired:
-        if arr1.shape != arr2.shape:
-            raise ValueError("For paired t-test, both groups must have the same shape.")
-        stat, p_val = stats.ttest_rel(arr1, arr2)
-    else:
-        stat, p_val = stats.ttest_ind(arr1, arr2, equal_var=equal_var)
-        
-    return float(stat), float(p_val)
+    try:
+        stat, p = stats.ttest_ind(group1, group2, equal_var=equal_var, nan_policy='omit')
+        return float(stat), float(p)
+    except Exception as e:
+        log.error(f"t_test failed: {e}")
+        raise
 
 
-def anova_one_way(groups: List[ArrayLike]) -> Tuple[float, float]:
+def anova_one_way(*groups: Sequence[float]) -> Tuple[float, float]:
     """
-    Perform a one-way ANOVA to test if there are statistically significant 
-    differences between the means of three or more independent groups.
-    
-    Args:
-        groups: List of arrays, where each array represents a group's data.
-                
-    Returns:
-        Tuple of (F-statistic, p-value).
-        
-    Raises:
-        ValueError: If fewer than 2 groups are provided or if any group is empty.
+    One‑way ANOVA across two or more groups.
+
+    Parameters
+    ----------
+    *groups : sequence of float arrays
+        Each argument represents a group.
+
+    Returns
+    -------
+    statistic, pvalue : float
+        F statistic and p‑value.
     """
-    if len(groups) < 2:
-        raise ValueError("At least two groups are required for ANOVA.")
-        
-    np_groups = [np.asarray(g) for g in groups]
-    
-    if any(g.size == 0 for g in np_groups):
-        raise ValueError("All groups must contain data.")
-        
-    stat, p_val = stats.f_oneway(*np_groups)
-    
-    return float(stat), float(p_val)
+    try:
+        # Convert each group to a NumPy array, dropping NaNs
+        cleaned = [np.asarray(g, dtype=float)[~np.isnan(g)] for g in groups]
+        stat, p = stats.f_oneway(*cleaned)
+        return float(stat), float(p)
+    except Exception as e:
+        log.error(f"anova_one_way failed: {e}")
+        raise
 
 
-def shapiro_test(data: ArrayLike) -> Tuple[float, float]:
+def shapiro_test(data: Sequence[float]) -> Tuple[float, float]:
     """
-    Perform the Shapiro-Wilk test for normality.
-    
-    The null hypothesis is that the data is normally distributed.
-    A small p-value (< 0.05) suggests the data is NOT normally distributed.
-    
-    Args:
-        data: Array of data values.
-        
-    Returns:
-        Tuple of (statistic, p-value).
-        
-    Raises:
-        ValueError: If data has fewer than 3 observations or more than 5000 
-                    (scipy limit for older versions, though newer handles more).
+    Shapiro‑Wilk normality test.
+
+    Returns
+    -------
+    statistic, pvalue : float
+        Test statistic and p‑value.
     """
-    arr = np.asarray(data)
-    
-    if arr.size < 3:
-        raise ValueError("Shapiro-Wilk test requires at least 3 observations.")
-        
-    if arr.size > 5000:
-        # For very large samples, Shapiro-Wilk can be computationally expensive
-        # We proceed but scipy might have limits depending on version.
-        pass
-        
-    stat, p_val = stats.shapiro(arr)
-    
-    return float(stat), float(p_val)
+    try:
+        stat, p = stats.shapiro(data)
+        return float(stat), float(p)
+    except Exception as e:
+        log.error(f"shapiro_test failed: {e}")
+        raise
 
 
-def friedman_test(groups: List[ArrayLike]) -> Tuple[float, float]:
+def friedman_test(*samples: Sequence[float]) -> Tuple[float, float]:
     """
-    Perform the Friedman test for comparing related samples (repeated measures).
-    
-    This is a non-parametric alternative to repeated measures ANOVA.
-    The null hypothesis is that the related samples come from the same distribution.
-    
-    Args:
-        groups: List of arrays, where each array represents a condition/group.
-                All groups must have the same number of observations (subjects).
-                
-    Returns:
-        Tuple of (Chi-squared statistic, p-value).
-        
-    Raises:
-        ValueError: If fewer than 2 groups are provided or if groups have 
-                    inconsistent lengths.
+    Friedman chi‑square test for repeated measures.
+
+    Parameters
+    ----------
+    *samples : sequence of float arrays
+        Each array corresponds to a condition (e.g., baseline,
+        box‑cox, yeo‑johnson, rank‑normal). All arrays must have the
+        same length.
+
+    Returns
+    -------
+    statistic, pvalue : float
+        Friedman chi‑square statistic and p‑value.
     """
-    if len(groups) < 2:
-        raise ValueError("At least two groups are required for Friedman test.")
-        
-    np_groups = [np.asarray(g) for g in groups]
-    
-    # Check for consistent lengths (subjects)
-    first_len = len(np_groups[0])
-    for i, g in enumerate(np_groups[1:], 1):
-        if len(g) != first_len:
-            raise ValueError(
-                f"All groups must have the same number of observations. "
-                f"Group 0 has {first_len}, Group {i} has {len(g)}."
-            )
-            
-    stat, p_val = stats.friedmanchisquare(*np_groups)
-    
-    return float(stat), float(p_val)
+    try:
+        # Ensure all samples have the same length
+        lengths = [len(s) for s in samples]
+        if len(set(lengths)) != 1:
+            raise ValueError("All samples must have the same length for Friedman test")
+
+        # Convert to list of arrays for scipy
+        arrays = [np.asarray(s, dtype=float) for s in samples]
+        stat, p = stats.friedmanchisquare(*arrays)
+        return float(stat), float(p)
+    except Exception as e:
+        log.error(f"friedman_test failed: {e}")
+        raise
+
+
+__all__: List[str] = [
+    "t_test",
+    "anova_one_way",
+    "shapiro_test",
+    "friedman_test",
+]

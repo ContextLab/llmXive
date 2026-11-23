@@ -1,20 +1,29 @@
+# Schema for injection metadata files produced by ``code/inject.py``.
+# The metadata JSON is written alongside each injected CSV (same basename,
+# ``.json`` extension) and must conform to this schema.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: InjectionMetadata
 type: object
-properties:
-  error_rates:
-    type: array
-    items:
-      type: number
-    minItems: 1
-  error_types:
-    type: array
-    items:
-      type: string
-    enum:
-      - replacement
-      - misclassification
-      - MCAR
-    minItems: 1
-required:
-  - error_rates
-  - error_types
 additionalProperties: false
+required:
+  - error_type
+  - error_rate
+  - total_rows
+  - injected_rows
+properties:
+  error_type:
+    type: string
+    enum:
+      - random_replacement
+      - category_misclassification
+      - mcar_missingness
+  error_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+  total_rows:
+    type: integer
+    minimum: 0
+  injected_rows:
+    type: integer
+    minimum: 0

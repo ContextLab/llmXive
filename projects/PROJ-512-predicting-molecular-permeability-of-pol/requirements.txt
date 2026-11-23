@@ -1,35 +1,30 @@
-# Python 3.11 Project Dependencies
-# Pinned versions for reproducibility and CPU-only execution
-# Generated for PROJ-512: Predicting Molecular Permeability of Polymers
+# Pinned dependencies for PROJ-512 (Python 3.11, CPU-only CI)
+# All versions are exactly pinned (==) for reproducibility.
 
-# Core Data Science & ML
+# Core scientific stack
 numpy==1.26.4
-pandas==2.2.1
-scipy==1.13.0
-
-# Machine Learning
-scikit-learn==1.4.2
-
-# Deep Learning (CPU-only build compatible)
-torch==2.2.1
-torch-geometric==2.5.3
-torch-scatter==2.1.2
-torch-sparse==0.6.18
-torch-spline-conv==1.2.2
-
-# Chemistry & Graph Processing
-rdkit==2024.3.1
-
-# Data Handling
+scipy==1.11.4
+pandas==2.1.4
 h5py==3.10.0
-pyarrow==15.0.2
+matplotlib==3.8.2
+seaborn==0.13.2
 
-# Utilities
-tqdm==4.66.2
-pyyaml==6.0.1
+# ML & Graph
+torch==2.1.2
+torch-geometric==2.4.0
+scikit-learn==1.3.2
+rdkit==2023.9.5
 
-# Development & Linting (Optional for runtime, required for CI)
-ruff==0.3.4
-black==24.3.0
-pytest==8.1.1
-pytest-cov==5.0.0
+# Data fetching
+datasets==2.16.1
+requests==2.31.0
+pyarrow==14.0.2
+
+# Development & Linting
+ruff==0.1.13
+black==23.12.1
+pre-commit==3.6.0
+pytest==7.4.4
+PyYAML==6.0.1
+jsonschema==4.21.1
+psutil==5.9.8

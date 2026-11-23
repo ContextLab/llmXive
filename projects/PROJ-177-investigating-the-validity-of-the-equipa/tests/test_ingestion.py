@@ -2,153 +2,220 @@ import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import tempfile
 import os
+import sys
+import tempfile
+import shutil
 
-from ingestion import handle_missing_frames, IngestionError
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+
+from ingestion import (
+    ingest_driving_logs,
+    handle_missing_frames,
+    calculate_tracking_failure_rate,
+    compute_velocity_angular_velocity,
+    handle_non_stationary_segments,
+    detect_non_stationary_segments,
+    DataIngestionError
+)
 
 @pytest.fixture
-def sample_tracking_data():
-    """Create a sample DataFrame with intentional gaps."""
-    data = {
-        'timestamp': [1.0, 2.0, 3.0, 4.0, 5.0, 10.0, 11.0, 12.0],  # Gap between 5 and 10
-        'particle_id': [1, 1, 1, 1, 1, 1, 1, 1],
-        'x': [1.0, 2.0, 3.0, 4.0, 5.0, np.nan, np.nan, 12.0],
-        'y': [1.0, 2.0, 3.0, 4.0, 5.0, np.nan, np.nan, 12.0],
-        'z': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    }
-    return pd.DataFrame(data)
-
-@pytest.fixture
-def multi_particle_data():
-    """Create data with multiple particles and different gap patterns."""
-    data = {
-        'timestamp': [
-            1.0, 2.0, 3.0, 4.0, 5.0,  # Particle 1 (no gap)
-            1.0, 2.0, 10.0, 11.0, 12.0,  # Particle 2 (gap between 2 and 10)
-            1.0, 2.0, 3.0, 15.0, 16.0, 17.0  # Particle 3 (gap between 3 and 15)
-        ],
-        'particle_id': [
-            1, 1, 1, 1, 1,
-            2, 2, 2, 2, 2,
-            3, 3, 3, 3, 3, 3
-        ],
-        'x': [
-            1.0, 2.0, 3.0, 4.0, 5.0,
-            1.0, 2.0, np.nan, np.nan, 4.0,
-            1.0, 2.0, 3.0, np.nan, np.nan, 6.0
-        ],
-        'y': [
-            1.0, 2.0, 3.0, 4.0, 5.0,
-            1.0, 2.0, np.nan, np.nan, 4.0,
-            1.0, 2.0, 3.0, np.nan, np.nan, 6.0
-        ]
-    }
-    return pd.DataFrame(data)
-
-def test_missing_frames_linear_interpolation(sample_tracking_data):
-    """Test that missing frames are correctly interpolated linearly."""
-    # Gap is 4 frames (timestamps 6, 7, 8, 9 missing, so 5->10 is a jump)
-    # Actually, the gap is between 5.0 and 10.0, which is 5.0 seconds.
-    # The function should interpolate the NaNs at timestamps 10.0 and 11.0 
-    # if we consider the gap size based on the step.
-    # Let's adjust the test data to be clearer.
+def temp_input_dir():
+    """Create a temporary directory with sample log files."""
+    temp_dir = tempfile.mkdtemp()
+    input_path = Path(temp_dir)
     
-    # Create a clearer gap: 1, 2, 3, 4, 5, [gap], 10, 11
-    # The gap is 5 steps (6, 7, 8, 9, 10? No, 10 is present).
-    # Let's assume the gap is the missing rows between 5 and 10.
-    # In the provided data, rows 5 and 6 (0-indexed) have NaNs.
-    # The function should interpolate these.
-    
-    result = handle_missing_frames(sample_tracking_data, max_gap_frames=10)
-    
-    # Check that the NaN values in the gap were interpolated
-    # The gap is at indices 5 and 6 (timestamps 10.0 and 11.0 in the original data)
-    # Wait, the original data has NaNs at rows 5 and 6.
-    # The function should fill them.
-    assert not result['x'].isna().any(), "Interpolation failed to fill missing x values"
-    assert not result['y'].isna().any(), "Interpolation failed to fill missing y values"
-    
-    # Check that the flag is set for interpolated rows
-    # The original NaN rows should be flagged
-    # In this specific dataset, rows 5 and 6 were NaN.
-    # After interpolation, they should be filled and flagged.
-    assert result.loc[5, 'missing_frame_flag'] == True, "Interpolated row should be flagged"
-    assert result.loc[6, 'missing_frame_flag'] == True, "Interpolated row should be flagged"
-    
-    # Check linearity: x at t=10 should be approx 10.0 (if linear from 5.0 to 12.0 over 7 steps)
-    # Actually, let's just check that the values are filled and reasonable
-    assert result.loc[5, 'x'] > 5.0 and result.loc[5, 'x'] < 12.0
-    assert result.loc[6, 'x'] > 5.0 and result.loc[6, 'x'] < 12.0
-
-def test_missing_frames_large_gap_flagging(multi_particle_data):
-    """Test that large gaps are flagged but not interpolated."""
-    # Particle 2 has a gap of 7 time units (2 to 10) -> 8 frames if step=1
-    # Particle 3 has a gap of 12 time units (3 to 15) -> 13 frames if step=1
-    # With max_gap_frames=10, Particle 2's gap might be interpolated (8 <= 10)
-    # Particle 3's gap should be flagged (13 > 10) and remain NaN or handled differently.
-    
-    # Let's set max_gap_frames=5 to ensure both are flagged
-    result = handle_missing_frames(multi_particle_data, max_gap_frames=5)
-    
-    # Particle 3's gap (indices 9, 10) should be flagged and NOT interpolated
-    # The x values at indices 9 and 10 should remain NaN or be handled as missing
-    # The flag should be True
-    assert result.loc[9, 'missing_frame_flag'] == True
-    assert result.loc[10, 'missing_frame_flag'] == True
-    
-    # Check that the values are still NaN (not interpolated) for the large gap
-    # Note: The implementation sets them to NaN explicitly if the gap is too large
-    # but in the provided code, it sets them to NaN only if the gap is too large?
-    # Actually, the code sets them to NaN if the gap is too large.
-    # Let's verify the behavior:
-    # If gap_size > max_gap_frames, we set numeric_cols to NaN.
-    # So they should be NaN.
-    assert pd.isna(result.loc[9, 'x']) or result.loc[9, 'x'] == np.nan
-    assert pd.isna(result.loc[10, 'x']) or result.loc[10, 'x'] == np.nan
-
-def test_missing_frames_per_particle_isolation(multi_particle_data):
-    """Test that gaps are handled independently per particle."""
-    result = handle_missing_frames(multi_particle_data, max_gap_frames=10)
-    
-    # Particle 1 (indices 0-4) should have no flags
-    p1_flags = result.loc[result['particle_id'] == 1, 'missing_frame_flag']
-    assert not p1_flags.any(), "Particle 1 should have no missing frames"
-    
-    # Particle 2 (indices 5-9) has a gap
-    p2_flags = result.loc[result['particle_id'] == 2, 'missing_frame_flag']
-    assert p2_flags.any(), "Particle 2 should have flagged frames"
-    
-    # Particle 3 (indices 10-15) has a gap
-    p3_flags = result.loc[result['particle_id'] == 3, 'missing_frame_flag']
-    assert p3_flags.any(), "Particle 3 should have flagged frames"
-
-def test_missing_frames_no_gap():
-    """Test that data without gaps passes through unchanged (except for flag column)."""
+    # Create sample CSV log
     data = {
         'timestamp': [1.0, 2.0, 3.0, 4.0, 5.0],
-        'particle_id': [1, 1, 1, 1, 1],
-        'x': [1.0, 2.0, 3.0, 4.0, 5.0],
-        'y': [1.0, 2.0, 3.0, 4.0, 5.0]
+        'signal': [10.0, 12.0, 11.0, 13.0, 14.0],
+        'x': [0.1, 0.2, 0.3, 0.4, 0.5],
+        'y': [0.1, 0.2, 0.3, 0.4, 0.5],
+        'z': [0.1, 0.2, 0.3, 0.4, 0.5],
+        'theta': [0.0, 0.1, 0.2, 0.3, 0.4]
     }
     df = pd.DataFrame(data)
+    csv_path = input_path / "test_log.csv"
+    df.to_csv(csv_path, index=False)
+    
+    yield temp_dir
+    
+    # Cleanup
+    shutil.rmtree(temp_dir)
+
+@pytest.fixture
+def sample_dataframe():
+    """Create a sample dataframe for testing."""
+    data = {
+        'timestamp': [1.0, 2.0, 3.0, 4.0, 5.0],
+        'signal': [10.0, 12.0, 11.0, 13.0, 14.0],
+        'x': [0.1, 0.2, 0.3, 0.4, 0.5],
+        'y': [0.1, 0.2, 0.3, 0.4, 0.5],
+        'z': [0.1, 0.2, 0.3, 0.4, 0.5],
+        'theta': [0.0, 0.1, 0.2, 0.3, 0.4]
+    }
+    return pd.DataFrame(data)
+
+def test_ingest_driving_logs(temp_input_dir):
+    """Test ingestion of driving logs."""
+    output_path = "data/derived/test_driving_signals.csv"
+    try:
+        df = ingest_driving_logs(input_dir=temp_input_dir, output_path=output_path)
+        assert df is not None
+        assert 'timestamp' in df.columns
+        assert 'signal' in df.columns
+        assert Path(output_path).exists()
+    finally:
+        if Path(output_path).exists():
+            Path(output_path).unlink()
+
+def test_handle_missing_frames(sample_dataframe):
+    """Test handling of missing frames with explicit linear interpolation logic."""
+    # Introduce a gap by setting a timestamp far away to simulate a missing frame window
+    # and setting the values to NaN to represent the missing data state
+    df = sample_dataframe.copy()
+    
+    # Simulate a missing frame at index 2 (timestamp jumps from 2.0 to 10.0)
+    # We set the position values to NaN to represent the missing data that needs interpolation
+    df.loc[2, 'timestamp'] = 10.0
+    df.loc[2, 'x'] = np.nan
+    df.loc[2, 'y'] = np.nan
+    df.loc[2, 'z'] = np.nan
+    df.loc[2, 'theta'] = np.nan
+    
+    # Also set the next frame to have a gap flag if needed, but primarily test the interpolation
+    result = handle_missing_frames(df)
+    
+    # Assert the gap_flag column exists
+    assert 'gap_flag' in result.columns
+    
+    # Assert the specific row with the gap is flagged
+    # The logic in handle_missing_frames flags rows where the time delta is large
+    # or where data was missing and interpolated
+    assert result.loc[2, 'gap_flag'] == True
+    
+    # CRITICAL: Verify linear interpolation actually occurred
+    # The value at index 2 should be interpolated between index 1 (0.2) and index 3 (0.4)
+    # Expected value for linear interpolation: (0.2 + 0.4) / 2 = 0.3
+    assert not np.isnan(result.loc[2, 'x']), "Interpolation failed: x is still NaN"
+    assert np.isclose(result.loc[2, 'x'], 0.3, atol=1e-6), f"Linear interpolation failed: expected 0.3, got {result.loc[2, 'x']}"
+    
+    # Verify other columns too
+    assert not np.isnan(result.loc[2, 'y'])
+    assert not np.isnan(result.loc[2, 'z'])
+    assert not np.isnan(result.loc[2, 'theta'])
+
+def test_calculate_tracking_failure_rate(sample_dataframe):
+    """Test tracking failure rate calculation."""
+    df = sample_dataframe.copy()
+    df['gap_flag'] = [False, False, True, False, False]
+    
+    rate = calculate_tracking_failure_rate(df)
+    # 1 gap out of 5 rows = 0.2
+    assert rate == 0.2
+
+def test_compute_velocity_angular_velocity(sample_dataframe):
+    """Test velocity and angular velocity computation."""
+    result = compute_velocity_angular_velocity(sample_dataframe)
+    # The function should compute velocity (v) or components (vx, vy) and angular velocity (omega)
+    assert 'v' in result.columns or ('vx' in result.columns and 'vy' in result.columns)
+    assert 'omega' in result.columns
+
+def test_detect_non_stationary_segments(sample_dataframe):
+    """Test detection of non-stationary segments."""
+    # Create a signal with a clear chirp
+    data = sample_dataframe.copy()
+    data['signal'] = [10, 20, 30, 40, 50] # Linearly increasing (chirp-like)
+    
+    result = detect_non_stationary_segments(data, signal_col='signal')
+    assert 'is_non_stationary' in result.columns
+
+def test_handle_non_stationary_segments_exclude(sample_dataframe, temp_input_dir):
+    """Test handling non-stationary signals with exclude strategy."""
+    # Create a dataset with non-stationary signal
+    data = sample_dataframe.copy()
+    data['signal'] = [10, 20, 30, 40, 50]
+    data['timestamp'] = [1, 2, 3, 4, 5]
+    
+    output_path = "artifacts/test_chirp_result.csv"
+    try:
+        result_df = handle_non_stationary_segments(
+            data,
+            strategy='exclude',
+            signal_col='signal',
+            output_path=output_path
+        )
+        assert Path(output_path).exists()
+        # Check that non-stationary rows are excluded or marked
+        assert 'is_non_stationary' in result_df.columns
+    finally:
+        if Path(output_path).exists():
+            Path(output_path).unlink()
+
+def test_handle_non_stationary_segments_bin(sample_dataframe, temp_input_dir):
+    """Test handling non-stationary signals with bin strategy."""
+    data = sample_dataframe.copy()
+    data['signal'] = [10, 20, 30, 40, 50]
+    data['timestamp'] = [1, 2, 3, 4, 5]
+    data['frequency'] = [10.5, 11.2, 12.1, 13.0, 14.5]
+    
+    output_path = "artifacts/test_chirp_result_bin.csv"
+    try:
+        result_df = handle_non_stationary_segments(
+            data,
+            strategy='bin',
+            signal_col='signal',
+            output_path=output_path
+        )
+        assert Path(output_path).exists()
+        assert 'frequency_bin' in result_df.columns
+    finally:
+        if Path(output_path).exists():
+            Path(output_path).unlink()
+
+def test_handle_non_stationary_segments_invalid_strategy(sample_dataframe):
+    """Test error handling for invalid strategy."""
+    with pytest.raises(ValueError):
+        handle_non_stationary_segments(
+            sample_dataframe,
+            strategy='invalid',
+            signal_col='signal'
+        )
+
+def test_interpolation_edge_cases():
+    """Test interpolation when missing data is at the start or end."""
+    df = pd.DataFrame({
+        'timestamp': [1.0, 2.0, 3.0, 4.0, 5.0],
+        'x': [0.1, np.nan, np.nan, 0.4, 0.5],
+        'y': [0.1, 0.2, 0.3, 0.4, 0.5]
+    })
+    
+    # Add a gap flag for the missing rows
+    df['gap_flag'] = [False, True, True, False, False]
     
     result = handle_missing_frames(df)
     
-    assert not result['missing_frame_flag'].any(), "No frames should be flagged in gapless data"
-    assert result['x'].equals(df['x']), "Data should be unchanged"
+    # Interpolation should work for the middle values (between 0.1 and 0.4)
+    # Index 1: (0.1 + 0.4)/2 = 0.25 (roughly, depending on exact interpolation logic)
+    # Index 2: (0.1 + 0.4)/2 = 0.25
+    # Note: Pandas interpolate defaults to linear
+    assert not np.isnan(result.loc[1, 'x'])
+    assert not np.isnan(result.loc[2, 'x'])
 
-def test_missing_frames_invalid_columns():
-    """Test that missing required columns raise an error."""
-    data = {
-        'time': [1.0, 2.0, 3.0],
-        'pid': [1, 1, 1],
-        'x': [1.0, 2.0, 3.0]
-    }
-    df = pd.DataFrame(data)
+def test_no_interpolation_needed():
+    """Test that data without gaps passes through correctly."""
+    df = pd.DataFrame({
+        'timestamp': [1.0, 2.0, 3.0],
+        'x': [0.1, 0.2, 0.3],
+        'y': [0.1, 0.2, 0.3]
+    })
+    df['gap_flag'] = [False, False, False]
     
-    with pytest.raises(IngestionError, match="Missing required time column"):
-        handle_missing_frames(df, time_col='timestamp')
+    result = handle_missing_frames(df)
     
-    with pytest.raises(IngestionError, match="Missing required ID column"):
-        handle_missing_frames(df, time_col='time', id_col='particle_id')
+    # Values should be identical
+    assert result.loc[0, 'x'] == 0.1
+    assert result.loc[1, 'x'] == 0.2
+    assert result.loc[2, 'x'] == 0.3
+    assert 'gap_flag' in result.columns

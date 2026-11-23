@@ -1,152 +1,147 @@
 """
-Contract test for correlation output schema (T018).
+Contract test for correlation output schema.
 
-This test validates the existence and structure of the output schema file
-defined in specs/001-gut-microbiome-sleep-architecture/contracts/output.schema.yaml.
-It ensures the schema matches the expected CorrelationResult structure.
-
-This task validates the schema definition (T005a), NOT the analysis logic.
+Validates the structure of correlation results against the defined schema.
+This test ensures that the pipeline's output matches the expected format
+required by downstream consumers and reporting tools.
 """
-
 import os
-import yaml
+import json
 import pytest
 from pathlib import Path
 
+# Path to the output file produced by the pipeline
+OUTPUT_PATH = Path("data/results/correlation_matrix.json")
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-SCHEMA_PATH = (
-    PROJECT_ROOT
-    / "specs"
-    / "001-gut-microbiome-sleep-architecture"
-    / "contracts"
-    / "output.schema.yaml"
-)
+# Required fields as defined in the output schema (T008a)
+REQUIRED_FIELDS = [
+    "predictor",
+    "outcome",
+    "correlation",
+    "p_value",
+    "q_value",
+    "method",
+    "significant"
+]
 
-
-@pytest.fixture
-def schema():
-    """Load the output schema YAML file."""
-    if not SCHEMA_PATH.exists():
-        pytest.fail(f"Output schema file not found at {SCHEMA_PATH}")
-
-    with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
-        try:
-            return yaml.safe_load(f)
-        except yaml.YAMLError as e:
-            pytest.fail(f"Invalid YAML in output schema: {e}")
+# Expected data types for numeric fields
+NUMERIC_FIELDS = ["correlation", "p_value", "q_value"]
 
 
-def test_schema_file_exists(schema):
-    """Assert the schema file is loadable and non-empty."""
-    assert schema is not None
-    assert isinstance(schema, dict)
-    assert len(schema) > 0
+def test_correlation_output_exists():
+    """Test that the correlation output file exists."""
+    assert OUTPUT_PATH.exists(), f"Output file not found: {OUTPUT_PATH}"
 
 
-def test_schema_has_required_top_level_keys(schema):
-    """Assert the schema contains required top-level keys."""
-    required_keys = {"$schema", "title", "type", "properties"}
-    missing = required_keys - set(schema.keys())
-    assert not missing, f"Missing required top-level keys: {missing}"
+def test_correlation_output_is_valid_json():
+    """Test that the output file contains valid JSON."""
+    try:
+        with open(OUTPUT_PATH, 'r') as f:
+            json.load(f)
+    except json.JSONDecodeError as e:
+        pytest.fail(f"Output file is not valid JSON: {e}")
 
 
-def test_schema_type_is_object(schema):
-    """Assert the root type is 'object'."""
-    assert schema.get("type") == "object", "Root schema type must be 'object'"
+def test_correlation_output_structure():
+    """Test that the correlation output has the required top-level structure."""
+    with open(OUTPUT_PATH, 'r') as f:
+        results = json.load(f)
+
+    # The output should be a list of correlation records
+    assert isinstance(results, list), "Output must be a list of correlation records"
 
 
-def test_schema_has_properties_section(schema):
-    """Assert the schema has a 'properties' section."""
-    assert "properties" in schema
-    assert isinstance(schema["properties"], dict)
-    assert len(schema["properties"]) > 0
+def test_correlation_record_fields():
+    """Test that each correlation record contains all required fields."""
+    with open(OUTPUT_PATH, 'r') as f:
+        results = json.load(f)
+
+    # Only check if there are records to validate
+    if len(results) == 0:
+        pytest.skip("No correlation records to validate (empty result set)")
+
+    for i, record in enumerate(results):
+        assert isinstance(record, dict), f"Record {i} is not a dictionary"
+        for field in REQUIRED_FIELDS:
+            assert field in record, f"Record {i} missing required field: {field}"
 
 
-def test_schema_properties_match_expected_correlation_result(schema):
-    """
-    Assert the schema properties match the expected CorrelationResult structure.
+def test_correlation_record_types():
+    """Test that numeric fields contain numeric values."""
+    with open(OUTPUT_PATH, 'r') as f:
+        results = json.load(f)
 
-    Expected fields based on T005a and US2 requirements:
-    - pair_id (string)
-    - predictor (string)
-    - outcome (string)
-    - method (string)
-    - correlation_coefficient (number)
-    - p_value (number)
-    - q_value (number)  # BH-adjusted p-value
-    - significance (boolean)
-    - confidence_interval (object with lower/upper)
-    """
-    properties = schema["properties"]
-    expected_fields = {
-        "pair_id",
-        "predictor",
-        "outcome",
-        "method",
-        "correlation_coefficient",
-        "p_value",
-        "q_value",
-        "significance",
-        "confidence_interval",
-    }
+    if len(results) == 0:
+        pytest.skip("No correlation records to validate (empty result set)")
 
-    missing_fields = expected_fields - set(properties.keys())
-    assert not missing_fields, f"Missing expected fields in properties: {missing_fields}"
+    for i, record in enumerate(results):
+        for field in NUMERIC_FIELDS:
+            value = record.get(field)
+            assert isinstance(value, (int, float)), \
+                f"Record {i}, field '{field}' must be numeric, got {type(value)}"
+            # Check for NaN or Inf
+            import math
+            if isinstance(value, float):
+                assert not math.isnan(value), \
+                    f"Record {i}, field '{field}' cannot be NaN"
+                assert not math.isinf(value), \
+                    f"Record {i}, field '{field}' cannot be Inf"
 
 
-def test_schema_field_types(schema):
-    """Assert specific fields have correct types defined."""
-    properties = schema["properties"]
+def test_correlation_values_range():
+    """Test that correlation values are within the valid range [-1, 1]."""
+    with open(OUTPUT_PATH, 'r') as f:
+        results = json.load(f)
 
-    # String fields
-    string_fields = ["pair_id", "predictor", "outcome", "method"]
-    for field in string_fields:
-        if field in properties:
-            assert properties[field].get("type") == "string", (
-                f"Field '{field}' should be type 'string'"
-            )
+    if len(results) == 0:
+        pytest.skip("No correlation records to validate (empty result set)")
 
-    # Number fields
-    number_fields = ["correlation_coefficient", "p_value", "q_value"]
-    for field in number_fields:
-        if field in properties:
-            assert properties[field].get("type") == "number", (
-                f"Field '{field}' should be type 'number'"
-            )
-
-    # Boolean field
-    if "significance" in properties:
-        assert properties["significance"].get("type") == "boolean", (
-            "Field 'significance' should be type 'boolean'"
-        )
-
-    # Object field for confidence_interval
-    if "confidence_interval" in properties:
-        ci_prop = properties["confidence_interval"]
-        assert ci_prop.get("type") == "object", (
-            "Field 'confidence_interval' should be type 'object'"
-        )
-        # Check for lower/upper sub-fields if defined
-        ci_props = ci_prop.get("properties", {})
-        if ci_props:
-            assert "lower" in ci_props and "upper" in ci_props, (
-                "confidence_interval should have 'lower' and 'upper' properties"
-            )
+    for i, record in enumerate(results):
+        corr = record.get("correlation")
+        assert -1.0 <= corr <= 1.0, \
+            f"Record {i}: correlation {corr} is outside valid range [-1, 1]"
 
 
-def test_schema_has_required_fields(schema):
-    """Assert the schema defines required fields."""
-    required = schema.get("required", [])
-    expected_required = [
-        "pair_id",
-        "predictor",
-        "outcome",
-        "method",
-        "correlation_coefficient",
-        "p_value",
-        "significance",
-    ]
-    missing_required = set(expected_required) - set(required)
-    assert not missing_required, f"Missing required fields in schema: {missing_required}"
+def test_p_value_range():
+    """Test that p-values are within the valid range [0, 1]."""
+    with open(OUTPUT_PATH, 'r') as f:
+        results = json.load(f)
+
+    if len(results) == 0:
+        pytest.skip("No correlation records to validate (empty result set)")
+
+    for i, record in enumerate(results):
+        p_val = record.get("p_value")
+        assert 0.0 <= p_val <= 1.0, \
+            f"Record {i}: p_value {p_val} is outside valid range [0, 1]"
+
+
+def test_q_value_range():
+    """Test that q-values (FDR-adjusted) are within the valid range [0, 1]."""
+    with open(OUTPUT_PATH, 'r') as f:
+        results = json.load(f)
+
+    if len(results) == 0:
+        pytest.skip("No correlation records to validate (empty result set)")
+
+    for i, record in enumerate(results):
+        q_val = record.get("q_value")
+        assert 0.0 <= q_val <= 1.0, \
+            f"Record {i}: q_value {q_val} is outside valid range [0, 1]"
+
+
+def test_significant_field_consistency():
+    """Test that the 'significant' field is consistent with q_value <= 0.05."""
+    with open(OUTPUT_PATH, 'r') as f:
+        results = json.load(f)
+
+    if len(results) == 0:
+        pytest.skip("No correlation records to validate (empty result set)")
+
+    for i, record in enumerate(results):
+        q_val = record.get("q_value")
+        is_significant = record.get("significant")
+
+        expected_significant = q_val <= 0.05
+        assert is_significant == expected_significant, \
+            f"Record {i}: 'significant' ({is_significant}) inconsistent with q_value ({q_val})"

@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Metrics"
+type: object
+required:
+  - r2
+  - pearson_r
+  - p_value
+  - r2_ci
+  - pearson_r_ci
+properties:
+  r2:
+    type: number
+    description: "Coefficient of determination on the test set."
+  pearson_r:
+    type: number
+    description: "Pearson correlation coefficient on the test set."
+  p_value:
+    type: number
+    description: "Two‑tailed p‑value for Pearson r."
+  r2_ci:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "Bootstrap confidence interval (e.g., at a conventional confidence level) for R²."
+  pearson_r_ci:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "A bootstrap confidence interval (at a conventional confidence level) for Pearson r."

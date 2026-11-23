@@ -1,0 +1,8 @@
+{
+  "effect_size": 0.25,
+  "alpha": 0.05,
+  "power": 0.8,
+  "num_groups": 3,
+  "n_per_group": 52,
+  "total_n": 156
+}

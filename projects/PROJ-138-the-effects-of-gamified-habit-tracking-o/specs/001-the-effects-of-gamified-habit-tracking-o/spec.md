@@ -28,7 +28,7 @@ The research pipeline MUST ingest data from a verified longitudinal source (e.g.
 
 ### User Story 2 - Statistical Modeling and Interaction Analysis (Priority: P2)
 
-The system MUST fit a mixed-effects logistic regression model to predict weekly adherence, including fixed effects for gamification, personality traits (Conscientiousness, and "need for achievement" if available), and their interaction, along with random intercepts for users. The system MUST define "dropout" as 3 consecutive weeks of non-adherence to distinguish from temporary lapses.
+The system MUST fit a mixed-effects logistic regression model to predict weekly adherence, including fixed effects for gamification, personality traits (Conscientiousness, and "need for achievement" if available), and their interaction, along with random intercepts for users. The system MUST define "dropout" as a sustained period of consecutive weeks of non-adherence to distinguish from temporary lapses.
 
 **Why this priority**: This is the core analytical engine that directly addresses the research question regarding the moderation effect of personality on gamification efficacy.
 
@@ -50,7 +50,7 @@ The system MUST execute internal robustness checks (bootstrapping) to validate f
 **Independent Test**: The validation script can be tested by running the analysis pipeline on a bootstrapped sample and verifying that the generated report includes a section comparing effect sizes across bootstrap iterations.
 
 **Acceptance Scenarios**:
-1. **Given** the merged dataset, **When** the bootstrapping procedure is executed, **Then** a comparison table is generated showing the distribution of the gamification effect size across 1,000 bootstrap samples.
+1. **Given** the merged dataset, **When** the bootstrapping procedure is executed, **Then** A comparison table is generated showing the distribution of the gamification effect size across multiple bootstrap samples..
 2. **Given** the final model results, **When** the report generation script is executed, **Then** a PDF/HTML report is produced containing a Kaplan-Meier survival curve (based on the 3-week dropout definition) stratified by personality quartiles and a line plot of weekly adherence trajectories.
 3. **Given** the full analysis, **When** the sensitivity analysis for the adherence threshold is run, **Then** the report includes a table showing the stability of the effect size (coefficient variance) across a range of thresholds for the primary outcome definition.
 
@@ -76,7 +76,7 @@ The system MUST execute internal robustness checks (bootstrapping) to validate f
 - **FR-001b**: System MUST aggregate daily event logs into weekly bins, generating a `week_number` column (sequential integers ≥ 1) and a `weekly_adherence_flag` (binary) for each user, ensuring the data structure supports longitudinal modeling (See US-1).
 - **FR-002**: System MUST fit a mixed-effects logistic regression model predicting weekly adherence with fixed effects for gamification, conscientiousness, and the interaction terms. If "need for achievement" is available in the dataset, it MUST be included as a fixed effect; otherwise, the system MUST log the omission and proceed with Conscientiousness only (See US-2).
 - **FR-003**: System MUST perform survival analysis (Kaplan-Meier and Cox proportional hazards) to compare time-to-dropout (defined as 3 consecutive weeks of non-adherence) between gamified and non-gamified groups, stratified by Conscientiousness quartiles (and "need for achievement" quartiles if available) (See US-2).
-- **FR-004**: System MUST perform leave-one-user-out cross-validation on the predictive models and execute a bootstrapping procedure (1,000 iterations) to validate robustness. External validation on a compatible dataset is OPTIONAL (See US-3).
+- **FR-004**: System MUST perform leave-one-user-out cross-validation on the predictive models and execute a bootstrapping procedure (sufficient iterations) to validate robustness. External validation on a compatible dataset is OPTIONAL (See US-3).
 - **FR-005**: System MUST generate a final report containing visualizations of usage trajectories, survival curves (based on the 3-week dropout definition), and a sensitivity analysis table for the adherence decision threshold (See US-3).
 - **FR-006**: System MUST frame all reported findings as associational rather than causal, explicitly noting the observational nature of the data in the final output (See US-2).
 - **FR-007**: System MUST implement a multiple-comparison correction (e.g., Bonferroni or FDR) for all hypothesis tests involving multiple personality traits or interaction terms. Correction MUST NOT be applied to time points (weeks) as they are modeled as repeated measures within the hierarchical framework (See US-2).
@@ -97,7 +97,7 @@ The system MUST execute internal robustness checks (bootstrapping) to validate f
 - **SC-001**: The merged dataset MUST contain a minimum of 100 valid user records with non-null values for all primary variables, measured against the input dataset sizes (See US-1).
 - **SC-002**: The system MUST calculate and report the p-value for the interaction term between gamification and conscientiousness, measured against the null hypothesis of no interaction (See US-2).
 - **SC-003**: The system MUST perform the Log-rank test comparing time-to-dropout between high-conscientiousness users in gamified vs. non-gamified conditions and report the test statistic and p-value, provided there are ≥ 10 events per group (See US-2).
-- **SC-004**: The bootstrapping procedure MUST generate 1,000 resamples and report the 95% confidence interval for the gamification effect size, with a coefficient variance < 0.01 across samples (See US-3).
+- **SC-004**: The bootstrapping procedure MUST generate a sufficient number of resamples. and report the 95% confidence interval for the gamification effect size, with a coefficient variance < 0.01 across samples (See US-3).
 - **SC-005**: The sensitivity analysis MUST report the stability of the effect size (coefficient variance) across a set of representative thresholds, measured against the baseline effect size at the standard threshold (See US-3).
 
 ## Assumptions

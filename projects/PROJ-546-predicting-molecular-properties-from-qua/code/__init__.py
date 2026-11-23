@@ -1,3 +1,3 @@
 """
-Core module for the molecular properties prediction pipeline.
+Code package for PROJ-546: Predicting Molecular Properties from Quantum Chemical Calculations.
 """

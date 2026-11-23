@@ -1,64 +1,67 @@
+"""
+Module to create the required project directory structure.
+Implements T004: Create all project directories.
+"""
 import os
 import sys
 from pathlib import Path
 
-def create_directories():
+def create_directories(base_path: Path = None) -> None:
     """
-    Create the required project directory structure.
+    Creates the required project directory structure.
     
-    Creates the following directories relative to the project root:
-    - code/
-    - tests/
-    - data/raw/
-    - data/processed/
-    - data/simulations/
-    - data/reports/
-    - docs/
+    Directories created:
+    - data/raw
+    - data/processed
+    - data/simulations
+    - data/reports
+    - code (if not already present)
+    - tests (if not already present)
     
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    Args:
+        base_path: Base path for the project. Defaults to current working directory.
     """
-    # Determine project root (parent of the code/ directory)
-    # Assuming this script is run from the project root or code/ directory
-    if 'code' in Path(__file__).parts:
-        # Script is inside code/ directory
-        project_root = Path(__file__).parent.parent
-    else:
-        # Script is in project root
-        project_root = Path(__file__).parent
-
-    # Define the required directories
-    required_dirs = [
-        "code",
-        "tests",
+    if base_path is None:
+        base_path = Path.cwd()
+    
+    # Define the directory structure relative to base_path
+    directories = [
         "data/raw",
         "data/processed",
         "data/simulations",
         "data/reports",
-        "docs"
+        "code",
+        "tests"
     ]
-
+    
     created_count = 0
-    for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        if not dir_path.exists():
-            try:
-                dir_path.mkdir(parents=True, exist_ok=True)
-                print(f"Created directory: {dir_path}")
-                created_count += 1
-            except OSError as e:
-                print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
-                return False
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
+            print(f"Directory already exists: {full_path}")
+    
+    print(f"\nDirectory creation complete. {created_count} new directories created.")
+    
+    # Verification step: list the structure
+    print("\nVerification: Current directory structure:")
+    print("-" * 40)
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        if full_path.exists():
+            print(f"[OK] {full_path}")
+        else:
+            print(f"[MISSING] {full_path}")
+    print("-" * 40)
 
-    if created_count > 0:
-        print(f"Successfully created {created_count} directory/directories.")
-    else:
-        print("All directories already existed.")
-
-    return True
+def main():
+    """Main entry point for directory creation."""
+    print("Starting project directory setup (Task T004)...")
+    create_directories()
+    print("Setup complete.")
 
 if __name__ == "__main__":
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    main()

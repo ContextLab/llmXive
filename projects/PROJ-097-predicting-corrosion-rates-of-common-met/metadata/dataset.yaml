@@ -1,0 +1,15 @@
+{
+  "url": "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv",
+  "download_timestamp_utc": "2026-10-26T05:47:42.561032+00:00",
+  "sha256": "e07636bd8af74260099ea2f8678e2eabbf35def579940cc76f67061ee16c06c1",
+  "n_records": 344,
+  "columns": [
+    "species",
+    "island",
+    "bill_length_mm",
+    "bill_depth_mm",
+    "flipper_length_mm",
+    "body_mass_g",
+    "sex"
+  ]
+}

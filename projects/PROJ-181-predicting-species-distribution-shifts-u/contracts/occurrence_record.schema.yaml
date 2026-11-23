@@ -1,0 +1,29 @@
+type: object
+properties:
+  gbif_key:
+    type: integer
+  source:
+    type: string
+  download_timestamp:
+    type: string
+    format: date-time
+  dataset_name:
+    type: string
+  species:
+    type: string
+  decimalLatitude:
+    type: number
+  decimalLongitude:
+    type: number
+  eventDate:
+    type: string
+    format: date
+required:
+  - gbif_key
+  - source
+  - download_timestamp
+  - dataset_name
+  - species
+  - decimalLatitude
+  - decimalLongitude
+  - eventDate

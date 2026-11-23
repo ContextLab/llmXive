@@ -1,0 +1,6 @@
+data/raw/*
+!data/raw/checksums.json
+!data/raw/source_log.txt
+data/derived/*
+__pycache__/
+.env

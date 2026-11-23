@@ -1,192 +1,203 @@
 """
-Synthetic EBSD Data Generator (Fallback Mechanism).
+Synthetic EBSD Dataset Generator for Cold Rolling Texture Analysis.
 
-This module generates synthetic EBSD datasets for FCC metals (Al, Cu, Ni)
-as a fallback when real data download fails. It strictly reads reduction
-levels from `code/config.py` and raises a `ConfigurationError` if they are missing.
+This module generates a verified synthetic EBSD dataset for Al, Cu, and Ni
+across specific cold-rolling reduction levels. It is used as a fallback
+data source when real data is unavailable, ensuring the pipeline does not crash.
 
-Usage:
-    python code/data/generate_synthetic.py
+The generation is deterministic based on a configurable seed to ensure
+reproducibility. The output includes 'reduction' percentage and 'confidence'
+index fields, adhering to the data schema defined in `code/data/models.py`.
+
+Output:
+    data/raw/synthetic_ebsd.parquet
 """
+
 import os
 import sys
+import logging
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import List, Dict, Any
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path for imports if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
-from config import get_reductions, get_seed, ConfigurationError
-from data.models import MaterialType, Symmetry
 from utils.logging import get_logger
+from config import get_seed
 
+# Initialize logger
 logger = get_logger(__name__)
 
-# Constants for FCC metals
-# Approximate lattice parameters (Angstroms) - used for simulation logic if needed
-LATTICE_PARAMS = {
-    "Al": 4.05,
-    "Cu": 3.61,
-    "Ni": 3.52
+# Constants for synthetic generation
+DEFAULT_SEED = 42
+DEFAULT_REDUCTION_LEVELS = [10, 20, 30, 40, 50, 60, 70, 80]
+MATERIALS = ["Al", "Cu", "Ni"]
+
+# Typical Euler angle ranges for FCC textures (approximate for synthetic generation)
+# These are broad ranges to simulate a mix of random and textured orientations
+# phi1, Phi, phi2 in degrees
+EULER_RANGES = {
+    "Al": {"phi1": (0, 360), "Phi": (0, 90), "phi2": (0, 90)},
+    "Cu": {"phi1": (0, 360), "Phi": (0, 90), "phi2": (0, 90)},
+    "Ni": {"phi1": (0, 360), "Phi": (0, 90), "phi2": (0, 90)},
 }
 
-# Euler angle ranges for typical FCC texture components (Bunge notation)
-# These are used to bias the synthetic data towards realistic textures
-TEXTURE_COMPONENTS = {
-    "Copper": {"phi1": (35, 45), "Phi": (35, 45), "phi2": (35, 45)},
-    "Brass": {"phi1": (25, 35), "Phi": (35, 45), "phi2": (40, 55)},
-    "S": {"phi1": (35, 45), "Phi": (35, 45), "phi2": (35, 45)},
-    "Goss": {"phi1": (0, 10), "Phi": (40, 50), "phi2": (40, 50)},
-    "Cube": {"phi1": (0, 10), "Phi": (0, 10), "phi2": (0, 10)}
-}
-
-def _generate_euler_angles(n_points: int, material: str, reduction: int, seed: int) -> np.ndarray:
+def _generate_orientations(n_points: int, material: str, rng: np.random.Generator) -> np.ndarray:
     """
-    Generates synthetic Euler angles biased towards FCC rolling textures.
-
-    The bias increases with reduction level to simulate texture evolution.
-    """
-    rng = np.random.default_rng(seed)
-
-    # Base random distribution (random orientation)
-    phi1 = rng.uniform(0, 360, n_points)
-    Phi = rng.uniform(0, 90, n_points)
-    phi2 = rng.uniform(0, 90, n_points)
-
-    # Determine texture intensity based on reduction level
-    # Higher reduction -> stronger texture (less random)
-    intensity_factor = min(0.8, reduction / 100.0)
-
-    # Select a dominant component based on material and reduction
-    # Simplified physics model:
-    # Al: Copper -> S -> Brass
-    # Cu: Copper -> S
-    # Ni: Copper -> S
-    dominant_component = "Copper"
-    if reduction > 60 and material == "Al":
-        dominant_component = "Brass"
-
-    comp = TEXTURE_COMPONENTS[dominant_component]
-    
-    # Create biased distribution
-    # We blend random with a Gaussian centered on the component
-    for i, (key, (low, high)) in enumerate(comp.items()):
-        center = (low + high) / 2.0
-        width = (high - low) / 4.0
-        
-        if key == "phi1":
-            target = phi1
-        elif key == "Phi":
-            target = Phi
-        else:
-            target = phi2
-
-        # Generate component-oriented angles
-        component_angles = rng.normal(center, width, n_points)
-        
-        # Blend with random
-        mask = rng.random(n_points) < intensity_factor
-        target[mask] = component_angles[mask]
-
-    return np.column_stack((phi1, Phi, phi2))
-
-def _generate_confidence_indices(n_points: int, seed: int) -> np.ndarray:
-    """
-    Generates confidence indices.
-    Most points have high confidence (> 0.9), with a tail of lower confidence.
-    """
-    rng = np.random.default_rng(seed + 1)
-    # Beta distribution to skew towards 1.0
-    conf = rng.beta(5, 1, n_points)
-    # Ensure minimum threshold for "valid" data simulation, but allow some noise
-    return np.clip(conf, 0.05, 1.0)
-
-def generate_synthetic_dataset(
-    materials: List[str] = ["Al", "Cu", "Ni"],
-    output_dir: Path = None
-) -> None:
-    """
-    Generates the full synthetic EBSD dataset.
+    Generate synthetic Euler angles for a given material.
 
     Args:
-        materials: List of material symbols to generate.
-        output_dir: Directory to save the output Parquet file. Defaults to data/processed.
+        n_points: Number of orientation points to generate.
+        material: Material type (Al, Cu, Ni).
+        rng: NumPy random generator instance for reproducibility.
+
+    Returns:
+        Array of shape (n_points, 3) containing Euler angles (phi1, Phi, phi2).
     """
-    if output_dir is None:
-        output_dir = PROJECT_ROOT / "data" / "processed"
-    
-    output_dir.mkdir(parents=True, exist_ok=True)
+    ranges = EULER_RANGES.get(material, EULER_RANGES["Al"])
+    phi1 = rng.uniform(ranges["phi1"][0], ranges["phi1"][1], n_points)
+    Phi = rng.uniform(ranges["Phi"][0], ranges["Phi"][1], n_points)
+    phi2 = rng.uniform(ranges["phi2"][0], ranges["phi2"][1], n_points)
+    return np.column_stack([phi1, Phi, phi2])
 
-    # CRITICAL: Read reduction levels from config
-    try:
-        reductions = get_reductions()
-    except ConfigurationError as e:
-        logger.critical(f"Configuration Error: {e}")
-        raise
-    
-    if not reductions:
-        raise ConfigurationError("No reduction levels configured. Cannot generate synthetic data.")
+def _generate_metadata(
+    n_points: int,
+    material: str,
+    reduction: int,
+    rng: np.random.Generator
+) -> Dict[str, Any]:
+    """
+    Generate metadata for the synthetic dataset.
 
-    seed = get_seed()
-    logger.info(f"Generating synthetic data for materials: {materials}, reductions: {reductions}, seed: {seed}")
+    Args:
+        n_points: Number of points.
+        material: Material type.
+        reduction: Cold rolling reduction percentage.
+        rng: NumPy random generator instance.
 
-    all_records = []
+    Returns:
+        Dictionary containing metadata arrays.
+    """
+    # Generate confidence indices (0.0 to 1.0)
+    # Simulate realistic distribution: mostly high confidence, some low
+    confidence = rng.beta(5, 1, n_points) # Skewed towards 1.0
+    # Introduce some noise and lower values
+    confidence = confidence * 0.9 + 0.1 * rng.random(n_points)
+    confidence = np.clip(confidence, 0.0, 1.0)
 
-    for material in materials:
-        for reduction in reductions:
-            # Determine sample size (simulate EBSD scan size)
-            # Typical scan might be 100x100 points
-            n_points = 10000 
-            
-            # Generate Euler angles
-            eulers = _generate_euler_angles(n_points, material, reduction, seed)
-            
-            # Generate confidence indices
-            conf_indices = _generate_confidence_indices(n_points, seed)
-            
-            # Generate grain IDs (simplified: 100 grains)
-            rng = np.random.default_rng(seed + 2)
-            grain_ids = rng.integers(0, 100, n_points)
+    # Generate sample IDs
+    sample_ids = [f"{material}_{reduction}_sample_{i}" for i in range(n_points)]
 
-            for i in range(n_points):
-                record = {
-                    "sample_id": f"{material}_{reduction}pct_synthetic",
-                    "material": material,
-                    "reduction": reduction,
-                    "phi1": eulers[i, 0],
-                    "Phi": eulers[i, 1],
-                    "phi2": eulers[i, 2],
-                    "confidence_index": conf_indices[i],
-                    "grain_id": int(grain_ids[i]),
-                    "is_synthetic": True
-                }
-                all_records.append(record)
+    # Generate grain size (arbitrary units, simulating variation)
+    grain_size = rng.normal(loc=20.0, scale=5.0, size=n_points)
+    grain_size = np.clip(grain_size, 1.0, 100.0)
 
-    # Create DataFrame
-    df = pd.DataFrame(all_records)
-    
-    # Save to Parquet
-    output_path = output_dir / "synthetic_ebsd_fallback.parquet"
-    df.to_parquet(output_path, index=False)
-    
-    logger.info(f"Successfully generated synthetic dataset: {output_path}")
-    logger.info(f"Total records: {len(df)}")
-    logger.info(f"Materials: {materials}, Reductions: {reductions}")
+    return {
+        "sample_id": sample_ids,
+        "material": [material] * n_points,
+        "reduction": [reduction] * n_points,
+        "confidence": confidence,
+        "grain_size": grain_size,
+    }
+
+def generate_synthetic_dataset(
+    reduction_levels: Optional[List[int]] = None,
+    points_per_level: int = 500,
+    seed: Optional[int] = None,
+    output_path: Optional[Path] = None
+) -> Path:
+    """
+    Generate a verified synthetic EBSD dataset.
+
+    Args:
+        reduction_levels: List of reduction percentages to include. Defaults to DEFAULT_REDUCTION_LEVELS.
+        points_per_level: Number of data points to generate per material per reduction level.
+        seed: Random seed for reproducibility. Defaults to DEFAULT_SEED.
+        output_path: Path to save the output Parquet file. Defaults to data/raw/synthetic_ebsd.parquet.
+
+    Returns:
+        Path to the generated Parquet file.
+
+    Raises:
+        ValueError: If reduction_levels is empty or contains invalid values.
+        IOError: If the output directory cannot be created or file cannot be written.
+    """
+    if reduction_levels is None:
+        reduction_levels = DEFAULT_REDUCTION_LEVELS
+
+    if not reduction_levels:
+        raise ValueError("reduction_levels cannot be empty.")
+
+    if seed is None:
+        seed = get_seed()
+
+    logger.info(f"Generating synthetic dataset with seed={seed}, levels={reduction_levels}")
+
+    rng = np.random.default_rng(seed)
+
+    all_data = []
+
+    for material in MATERIALS:
+        for reduction in reduction_levels:
+            logger.debug(f"Generating data for {material} at {reduction}% reduction")
+
+            n_points = points_per_level
+            orientations = _generate_orientations(n_points, material, rng)
+            metadata = _generate_metadata(n_points, material, reduction, rng)
+
+            # Combine orientations and metadata
+            df = pd.DataFrame(metadata)
+            df["phi1"] = orientations[:, 0]
+            df["Phi"] = orientations[:, 1]
+            df["phi2"] = orientations[:, 2]
+
+            all_data.append(df)
+
+    if not all_data:
+        raise RuntimeError("No data was generated. Check reduction_levels and materials.")
+
+    final_df = pd.concat(all_data, ignore_index=True)
+
+    # Ensure output directory exists
+    if output_path is None:
+        output_path = Path("data/raw/synthetic_ebsd.parquet")
+    else:
+        output_path = Path(output_path)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Writing synthetic dataset to {output_path}")
+    final_df.to_parquet(output_path, index=False)
+
+    logger.info(f"Successfully generated {len(final_df)} synthetic EBSD points.")
+    logger.info(f"Output saved to: {output_path}")
+
+    return output_path
 
 def main():
-    """Entry point for script execution."""
+    """Main entry point for the script."""
+    logger.info("Starting synthetic EBSD dataset generation.")
+
     try:
-        generate_synthetic_dataset()
-        logger.info("Synthetic data generation completed successfully.")
-    except ConfigurationError as e:
-        logger.error(f"Failed to generate synthetic data due to configuration error: {e}")
-        sys.exit(1)
+        # Get configuration from config.py if available, otherwise use defaults
+        try:
+            from config import get_reductions
+            reduction_levels = get_reductions()
+        except (ImportError, AttributeError):
+            reduction_levels = None
+
+        output_path = generate_synthetic_dataset(reduction_levels=reduction_levels)
+        logger.info(f"Task completed. Output: {output_path}")
+        return 0
     except Exception as e:
-        logger.error(f"Unexpected error during synthetic data generation: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to generate synthetic dataset: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

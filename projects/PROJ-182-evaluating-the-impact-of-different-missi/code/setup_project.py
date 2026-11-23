@@ -1,50 +1,61 @@
-"""
-Script to initialize the project directory structure for llmXive PROJ-182.
-This script creates the necessary folders as defined in T001.
-"""
 import os
 import sys
+from pathlib import Path
 
 def main():
-    # Define the root directory (current working directory or project root)
-    # The task assumes we are running from the project root
-    base_dirs = [
+    """
+    Create the project directory structure as defined in T001.
+    This script ensures all required folders exist relative to the project root.
+    """
+    # Define the project root (assumed to be the directory containing this script or parent of 'code')
+    # We will create directories relative to the current working directory to ensure they land in the project root.
+    base_path = Path.cwd()
+
+    # Define the required directory hierarchy
+    directories = [
         "code/src/generators",
         "code/src/estimators",
         "code/src/metrics",
         "code/src/viz",
         "code/tests/unit",
         "code/tests/integration",
-        "data",
-        "results",
-        "contracts",
-        "config"
+        "data/",
+        "results/",
+        "contracts/",
+        "config/"
     ]
 
     created_count = 0
-    skipped_count = 0
-
-    for dir_path in base_dirs:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {dir_path}")
-            skipped_count += 1
+            print(f"Directory already exists: {full_path}")
 
-    print(f"\nSetup complete. Created: {created_count}, Skipped: {skipped_count}")
+    # Create __init__.py files to make them Python packages where applicable
+    # We only need __init__.py in the code/src subfolders and test folders for imports to work cleanly
+    python_packages = [
+        "code/src/generators",
+        "code/src/estimators",
+        "code/src/metrics",
+        "code/src/viz",
+        "code/tests/unit",
+        "code/tests/integration"
+    ]
 
-    # Verify structure
-    print("\nVerifying structure:")
-    for dir_path in base_dirs:
-        exists = os.path.isdir(dir_path)
-        status = "✓" if exists else "✗"
-        print(f"  {status} {dir_path}")
+    for pkg_path in python_packages:
+        full_path = base_path / pkg_path / "__init__.py"
+        if not full_path.exists():
+            # Create an empty init file or with a simple docstring
+            full_path.write_text("# Auto-generated package initializer\n")
+            print(f"Created package init: {full_path}")
+            created_count += 1
 
-    if not all(os.path.isdir(d) for d in base_dirs):
-        print("\nError: Some directories failed to create.")
-        sys.exit(1)
+    print(f"\nProject structure setup complete. {created_count} items created/verified.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

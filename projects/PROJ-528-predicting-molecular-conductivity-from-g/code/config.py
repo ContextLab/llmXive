@@ -1,11 +1,17 @@
-import os
+"""
+Central configuration constants used throughout the pipeline.
+"""
 
-# Base paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_PATH = os.path.join(BASE_DIR, 'data')
+from pathlib import Path
 
-# Constants
+# Base data directory (managed by llmxive_toolkit)
+from llmxive_toolkit import paths
+
+# Resolve the absolute data root – this is used by many modules.
+DATA_PATH = str(paths.data())
+
+# Random seed for reproducibility
 SEED = 42
-OUTLIER_SIGMA = 3.0
-VIF_THRESHOLD = 10.0
-TARGET_VAR = 'conductivity'
+
+# Sensitivity analysis outlier thresholds (σ multiples)
+SENSITIVITY_THRESHOLDS = [2.5, 3.0, 3.5]

@@ -1,1 +1,1 @@
-"""Unit tests for the llmXive research pipeline."""
+"""Unit tests package."""

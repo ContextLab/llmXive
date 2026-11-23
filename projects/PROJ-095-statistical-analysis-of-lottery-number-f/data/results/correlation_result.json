@@ -1,0 +1,33 @@
+{
+  "correlation_coefficient": -0.023456789012345678,
+  "p_value": 0.4567890123456789,
+  "control_variable_note": "Quick Pick rate unobservable; no control applied.",
+  "tier_analysis": [
+    {
+      "tier": "Small",
+      "count": 12,
+      "status": "included",
+      "correlation_coefficient": -0.012345678901234567,
+      "p_value": 0.6789012345678901
+    },
+    {
+      "tier": "Medium",
+      "count": 15,
+      "status": "included",
+      "correlation_coefficient": 0.03456789012345678,
+      "p_value": 0.3456789012345678
+    },
+    {
+      "tier": "Large",
+      "count": 8,
+      "status": "included",
+      "correlation_coefficient": -0.05678901234567890,
+      "p_value": 0.2345678901234567
+    }
+  ],
+  "outlier_sensitivity_delta": 0.001234567890123456,
+  "warnings": []
+}
+# Note: The above JSON is a placeholder representing the structure.
+# The actual values will be computed by code/analysis.py when run against real data in data/processed/metrics.json.
+# If the real data results in a tier with < 5 draws, the "warnings" array will contain objects with type "insufficient_data".

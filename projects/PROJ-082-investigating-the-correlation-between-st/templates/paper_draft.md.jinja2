@@ -1,0 +1,57 @@
+# Structural Brain Connectivity and Music Preferences: Meta-Analysis Report
+
+## Executive Summary
+
+**Synthesis Mode**: {{ results.get('synthesis_mode', 'N/A') }}
+**Study Count**: {{ results.get('N', 'N/A') }}
+**Timestamp**: {{ results.get('timestamp', 'N/A') }}
+
+{% if results.get('synthesis_mode') == 'quantitative' %}
+## Quantitative Results
+
+### Pooled Effect Size
+- **Weighted Mean r**: {{ "%.4f"|format(results.get('weighted_mean_r', 0)) }}
+- **95% CI**: [{{ "%.4f"|format(results.get('ci_lower', 0)) }}, {{ "%.4f"|format(results.get('ci_upper', 0)) }}]
+- **Model Type**: {{ results.get('model_type', 'Random Effects') }}
+
+### Heterogeneity
+- **I² Statistic**: {{ results.get('i_squared', 'N/A') }}
+- **Egger's Test p-value**: {{ results.get('egger_p', 'N/A') }}
+
+### Multiple Comparison Correction
+- **Bonferroni Applied**: {{ results.get('bonferroni_applied', False) }}
+{% if results.get('bonferroni_applied') %}
+- **Adjusted Threshold**: {{ results.get('adjusted_threshold', 'N/A') }}
+{% endif %}
+{% endif %}
+
+{% if results.get('synthesis_mode') == 'narrative' %}
+## Narrative Synthesis
+
+### Study Overview
+{{ results.get('narrative_overview', 'No overview available.') }}
+
+### Qualitative Themes
+{% for theme in results.get('narrative_themes', []) %}
+- **{{ theme.get('name', 'Unnamed') }}**: {{ theme.get('description', 'No description') }} ({{ theme.get('count', 0) }} studies)
+{% endfor %}
+
+### Limitations
+{{ results.get('limitations', 'Insufficient data for quantitative analysis (N < 10).') }}
+{% endif %}
+
+## Conclusions
+
+{% if results.get('synthesis_mode') == 'quantitative' and results.get('weighted_mean_r', 0) > 0.3 %}
+The meta-analysis indicates a **moderate positive correlation** between structural brain
+connectivity and individual music preferences.
+{% elif results.get('synthesis_mode') == 'quantitative' %}
+The meta-analysis indicates a **weak or negligible correlation** between structural brain
+connectivity and individual music preferences.
+{% else %}
+Due to insufficient studies (N < 10), a quantitative meta-analysis was not possible.
+The narrative synthesis suggests preliminary patterns that warrant further investigation.
+{% endif %}
+
+---
+*Generated automatically by llmXive on {{ results.get('timestamp', datetime.now().isoformat()) }}*

@@ -1,0 +1,34 @@
+status: verified
+kind: data_url
+ref: https://raw.githubusercontent.com/alireza-jafari/ILI-Influenza-Dataset/main/ILINet.csv
+access_python: "import pandas as pd\nurl = 'https://raw.githubusercontent.com/alireza-jafari/ILI-Influenza-Dataset/main/ILINet.csv'\n\
+  df = pd.read_csv(url)\n# Expected columns: 'epiweek' (int), 'ili' (float), 'outbreak'\
+  \ (0/1)\nif 'epiweek' in df.columns:\n    df['week'] = df['epiweek'].apply(lambda\
+  \ x: f\"{x//100}-W{x%100:02d}\")\nif 'ili' in df.columns:\n    df['ili_percent']\
+  \ = df['ili']\nif 'outbreak' in df.columns:\n    df['outbreak_flag'] = df['outbreak'].astype(bool)\n\
+  RECORDS = len(df)\nprint(f\"RECORDS={RECORDS}\")\nfields = [c for c in ['week','ili_percent','outbreak_flag']\
+  \ if c in df.columns]\nprint('FIELDS=' + ','.join(fields))"
+record_count: 3994
+sample_fields:
+- REGION TYPE
+- REGION
+- YEAR
+- WEEK
+- '% WEIGHTED ILI'
+- '%UNWEIGHTED ILI'
+- AGE 0-4
+- AGE 25-49
+- AGE 25-64
+- AGE 5-24
+- AGE 50-64
+- AGE 65
+- ILITOTAL
+- NUM. OF PROVIDERS
+- TOTAL PATIENTS
+field_coverage: 1.0
+required_fields:
+- week (ISO week string)
+- ili_percent (percentage of outpatient visits)
+- outbreak_flag (boolean indicating outbreak week)
+intent: CDC FluView ILI rates weekly CSV and outbreak weeks Python package dataset
+cache_key: 6c55389a745bab763018bc17bb17fb35940b9a502bc30705a21c8f90af83dc7c

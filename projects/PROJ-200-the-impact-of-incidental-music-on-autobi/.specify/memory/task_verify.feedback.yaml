@@ -1,0 +1,48 @@
+T000:
+  reason: "The provided `state.yaml` exists and contains the three required top\u2011\
+    level keys, but it is written in YAML syntax (unquoted keys) and therefore is\
+    \ **not valid JSON** as the task specifies. Moreover, `tests/unit/test_state_manager.py`\
+    \ never checks that the on\u2011disk `state.yaml` file is valid JSON or that it\
+    \ contains those keys; the tests only exercise the `state_manager` functions.\
+    \ To satisfy the task, the file must be formatted as valid JSON (e.g., `{\"artifact_hashes\"\
+    :{}, \"updated_at\":\"2024-01-01T00:00:00\", \"config\":{}}`) and a test should\
+    \ verify this."
+  task: 667ad150128be2bd543adfe2b1e10139349bcaec8db0f33f55963949472f8525
+T001:
+  reason: The `quickstart.md` does contain the required `python -m code.main --demo`
+    line, but the CI test `tests/unit/test_quickstart.py` fails (see the log showing
+    an INTERNALERROR caused by a `pyarrow` import error), so the required CI check
+    does not succeed. The task therefore lacks a passing CI verification of the quickstart
+    command. Fix the import/requirements issue (e.g., pin a compatible `pyarrow` version)
+    so that `pip install -r requirements.txt` works and the test runs and passes.
+  task: c6d23c0e3b96240b9e0ba39926bb704ab4b9a58e488506e4ccebf23ad30b5762
+T002:
+  reason: "The two schema files (`contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`)\
+    \ are present and contain plausible JSON\u2011Schema definitions, but there is\
+    \ no evidence that they were actually used to validate the generated parquet/CSV\
+    \ files. The only test log shows a pytest run that crashes before any validation\
+    \ occurs, so the required \u201Cjsonschema validation passes for every generated\
+    \ file\u201D requirement is not demonstrated."
+  task: c3da8e4dd9572ee7c420f289241f4e54dd94180a25e8b54425db80f8735b54f6
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/simulate_demo.py
+    exit=1'
+  task: 659a8a53fab612b18af5d64a530aa8ec0a2157d55c9452299c46af9d21c09258
+T004:
+  task: 2b8b41eb3095942d7e2f2d9420471e102146a6c51be9c8d5d7c0085a31325ee0
+T005:
+  task: 2ba50175a7ae0a61d266ffac9141fb5be17fd4f0d969286a26f83fb67afac5b4
+T006:
+  task: acec28520d913eb226d970a9b8599dd0ebbf56fd263cfbc13b3e55f644f3c877
+T007:
+  task: 8ce1f6892a54932baa4c88c95054aa3695e69167f5337c8f5bafbbfd0088c24e
+T008:
+  task: 6f6831ee7b564b8430f1714364a2a72af3bc578d21ce64e7541495157933bae9
+T009:
+  task: 82c03e251fcf484dad52914e923f6004d10bdad26e75437022b1ad065005cc1a
+T010:
+  task: 97ef543e7ac844526eff16eeb04cdfa6c8faa3bcdc9803c915ee3887e1b0589d
+T011:
+  task: 099c1914b0c61f35a1604350178069b8a2d62b59afdbeb7337bc3bc7c6005e79
+T014:
+  task: 83af31683800137d53c1cb2d5b1c02d3e4398e220a65807772e70e370ebd1f98

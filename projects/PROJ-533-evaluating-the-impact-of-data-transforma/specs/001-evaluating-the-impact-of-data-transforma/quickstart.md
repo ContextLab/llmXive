@@ -1,113 +1,77 @@
 # Quickstart: Evaluating the Impact of Data Transformation on Statistical Test Sensitivity
 
 ## Prerequisites
-
-- Python 3.11+
-- pip
-- Git
-- Sufficient disk space for data storage and processing requirements will be allocated.
-- Internet access (for dataset downloads)
+- Python 3.11+  
+- `pip` (standard Python package manager)  
+- Internet access (to download the verified OpenML datasets and the six HuggingFace URLs)  
+- At least **5 GB** free disk space  
 
 ## Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-533-evaluating-the-impact-of-data-transforma
-   ```
-
-2. **Create virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-
-## Running the Pipeline
-
-### Full Pipeline (End-to-End)
-
 ```bash
-python code/main_pipeline.py
+# 1. Clone the repository
+git clone https://github.com/your-org/PROJ-533-evaluating-the-impact-of-data-transforma.git
+cd PROJ-533-evaluating-the-impact-of-data-transforma
+
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install pinned dependencies
+pip install -r requirements.txt
 ```
 
-This executes:
-1. Dataset download (FR-001)
-2. Filtering (FR-002)
-3. Transformation (FR-003)
-4. Type I error simulation (FR-004)
-5. Power simulation (FR-005, FR-006)
-6. Aggregation & reporting (FR-007–FR-009)
+## Running the Full Pipeline
+```bash
+python -m src.main --stage all
+```
 
-### Individual Steps
+### What the command does
+1. **Download & checksum**: Queries OpenML for classification datasets meeting the size/feature criteria, streams them, computes SHA‑256, and records metadata in `data/datasets.csv`. If the OpenML pool is insufficient, the six verified HuggingFace URLs are inspected and added when they satisfy the same criteria.  
+2. **Impute & filter**: Applies mean/median imputation (primary) and logs the method per variable; also runs a K‑NN‑imputation sensitivity branch. Filters out datasets failing Shapiro‑Wilk (*p* ≥ 0.05), *N* < 30, or missing > 10 %.  
+3. **Simulate null & power datasets**: Generates synthetic data preserving each real dataset’s skewness/kurtosis and embeds Cohen’s *d* = 0.2, 0.5, 0.8 for power estimation.  
+4. **Apply transformations**: Baseline, Box‑Cox, Yeo‑Johnson, rank‑inverse‑normal (log‑shift applied automatically when needed).  
+5. **Estimate Type I error**: Stratified label shuffling (5 000 permutations, seed = 42) and parametric testing.  
+6. **Estimate power**: Runs the same tests on simulated data; compares empirical power to analytical power from `statsmodels`.  
+7. **Aggregate & infer**: Hierarchical bootstrap (target CI half‑width ≤ 0.07), Friedman test, Bonferroni‑corrected Wilcoxon post‑hoc, α‑sensitivity sweep.  
+8. **Produce outputs**: `results/aggregated_results.csv`, `results/sensitivity_results.csv`, and figures in `results/figures/`.  
 
-- **Download datasets**:
-  ```bash
-  python code/download_datasets.py
-  ```
-- **Filter datasets**:
-  ```bash
-  python code/filter_datasets.py
-  ```
-- **Apply transformations**:
-  ```bash
-  python code/apply_transformations.py
-  ```
-- **Run Type I error simulation**:
-  ```bash
-  python code/simulate_null.py
-  ```
-- **Run power simulation**:
-  ```bash
-  python code/simulate_power.py
-  ```
-- **Aggregate results**:
-  ```bash
-  python code/aggregate_results.py
-  ```
+### Step‑by‑step (optional)
+| Step | Command |
+|------|---------|
+| Download & checksum | `python src/data/download_datasets.py` |
+| Impute & filter | `python src/data/impute_and_filter.py` |
+| Simulate null & power datasets | `python src/data/simulate_datasets.py` |
+| Transform & test (null) | `python src/analysis/null_simulation.py` |
+| Transform & test (power) | `python src/analysis/power_estimation.py` |
+| Aggregate & infer | `python src/analysis/aggregation.py && python src/analysis/inference.py` |
+| Visualize | `python src/analysis/visualization.py` |
 
-## Output Locations
+## Checkpointing & Resumption
+If the run is interrupted (e.g., CI timeout), a checkpoint is written after each dataset in `results/checkpoints/`. To resume:
+```bash
+python -m src.main --stage all --resume
+```
 
-- **Raw data**: `data/raw/`
-- **Filtered data**: `data/processed/filtered/`
-- **Transformed data**: `data/processed/transformations/`
-- **Type I error results**: `results/type1_error/`
-- **Power results**: `results/power/`
-- **Aggregated tables**: `results/aggregated/summary.csv`
-- **Plots**: `results/aggregated/` (matplotlib/seaborn bar plots)
-- **Logs**: `logs/` (exclusions, transformation failures, checkpoints)
+## Verifying Outputs
+```bash
+# Log
+cat results/pipeline.log
 
-## Verification
+# Aggregated statistics (first few rows)
+head -n 20 results/aggregated_results.csv
 
-1. **Check dataset count**:
-   ```bash
-   python -c "import pandas as pd; df = pd.read_csv('data/datasets.csv'); print(f'Included datasets: {df[df.included].shape[0]}')"
-   ```
-   Expected: ≥50 datasets with `included=True`.
-
-2. **Verify checksums**:
-   ```bash
-   python code/utils/checksums.py --verify
-   ```
-
-3. **Reproduce a single dataset**:
-   ```bash
-   python code/main_pipeline.py --dataset-id uci_har --skip-download
-   ```
+# Figures
+display results/figures/error_rates.png
+display results/figures/power_curves.png
+display results/figures/alpha_sweep.png
+```
 
 ## Troubleshooting
+- **Download failures** – Verify network connectivity; the OpenML query is deterministic and does not rely on hard‑coded URLs.  
+- **Transformation errors** – Check `data/imputation_log.csv` for any log‑shift interventions.  
+- **Memory errors** – The pipeline streams data; ensure at least 4 GB RAM is free.  
+- **Friedman test ties** – See `results/friedman_summary.txt`; the fallback Wilcoxon analysis runs automatically.  
+- **Missing group label** – Dataset will be excluded and recorded in `data/exclusions.csv`.  
+- **Imputation impact** – Review `data/imputation_log.csv`; you can rerun with `--impute-method knn` to compare.  
 
-- **Transformation fails**: Check `logs/transformation_errors.log` for variable-specific interventions.
-- **Runtime exceeds 6 hours**: Ensure checkpointing is enabled; reduce iterations if necessary.
-- **Memory error**: Stream data; process one dataset at a time.
-- **Missing datasets**: Verify internet connectivity; check `data/datasets.csv` for excluded entries.
-
-## Next Steps
-
-- Review `results/aggregated/summary.csv` for mean Type I error and power.
-- Inspect bar plots in `results/aggregated/` for visual comparison.
-- Read `paper/` draft for interpretation of results.
+---

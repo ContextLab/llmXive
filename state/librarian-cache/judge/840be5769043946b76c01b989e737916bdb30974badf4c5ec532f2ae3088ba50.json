@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.12538",
+  "judged_at": "2026-08-22T04:20:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"openthoughts-agent: data recipes for agentic models\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for \"agentic reasoning\" and \"agentic models,\" which are the core mechanisms and vocabulary clusters directly relevant to the user's question about extending data recipes for agentic models. It provides the necessary theoretical framework and state-of-the-art landscape that a literature review on this specific topic would require.",
+  "relevant": true
+}

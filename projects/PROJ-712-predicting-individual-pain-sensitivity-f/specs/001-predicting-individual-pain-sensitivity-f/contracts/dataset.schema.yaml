@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProcessedFeatureMatrixSchema"
+description: "Schema for the processed CSV containing microstate features and pain threshold."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique participant identifier."
+    minLength: 1
+  heat_pain_threshold:
+    type: "number"
+    description: "Heat‑pain threshold in degrees Celsius."
+    minimum: 35
+    maximum: 55
+  MS_A_Duration:
+    type: "number"
+  MS_B_Duration:
+    type: "number"
+  MS_C_Duration:
+    type: "number"
+  MS_D_Duration:
+    type: "number"
+  MS_A_Occurrence:
+    type: "number"
+  MS_B_Occurrence:
+    type: "number"
+  MS_C_Occurrence:
+    type: "number"
+  MS_D_Occurrence:
+    type: "number"
+  MS_A_B_A:
+    type: "number"
+  MS_A_B_C:
+    type: "number"
+  MS_A_B_D:
+    type: "number"
+  MS_A_C_A:
+    type: "number"
+  MS_A_C_B:
+    type: "number"
+  MS_A_C_D:
+    type: "number"
+  MS_A_D_A:
+    type: "number"
+  MS_A_D_B:
+    type: "number"
+  MS_A_D_C:
+    type: "number"
+  MS_B_A_B:
+    type: "number"
+  MS_B_A_C:
+    type: "number"
+  MS_B_A_D:
+    type: "number"
+  MS_B_C_A:
+    type: "number"
+  MS_B_C_B:
+    type: "number"
+  MS_B_C_D:
+    type: "number"
+  MS_B_D_A:
+    type: "number"
+  MS_B_D_B:
+    type: "number"
+  MS_B_D_C:
+    type: "number"
+  MS_C_A_C:
+    type: "number"
+  MS_C_B_C:
+    type: "number"
+  MS_C_D_C:
+    type: "number"
+  Spectral_Delta_Power:
+    type: "number"
+  Spectral_Theta_Power:
+    type: "number"
+  Spectral_Alpha_Power:
+    type: "number"
+  Spectral_Beta_Power:
+    type: "number"
+  Spectral_LowGamma_Power:
+    type: "number"
+  Spectral_HighGamma_Power:
+    type: "number"
+required:
+  - participant_id
+  - heat_pain_threshold
+additionalProperties: false

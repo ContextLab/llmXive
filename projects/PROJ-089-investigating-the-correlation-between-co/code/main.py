@@ -1,19 +1,19 @@
+"""
+Main orchestration script for the Code Churn vs Technical Debt pipeline.
+Implements T007b (Skeleton & Timeout) and T007c (Error Handling).
+"""
 import argparse
 import logging
 import signal
 import sys
 import time
 import os
-import hashlib
-import yaml
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, Any, Optional, Callable
+from typing import Optional, Callable, Any
 
-from utils import get_logger, calculate_checksum
+# Import public names from sibling modules as per API surface
 from config import ensure_directories, get_config_summary
-
-# Import pipeline step wrappers
+from utils import setup_logging, get_logger, calculate_checksum
 from data_extraction import run_data_extraction_wrapper
 from static_analysis import run_static_analysis
 from preprocessing import run_preprocessing
@@ -21,221 +21,244 @@ from analysis import run_analysis
 from visualization import run_visualization
 from reporting import run_reporting
 
-logger = get_logger(__name__)
+# Global timeout state
+_timeout_active = False
+_timeout_start_time = None
+_timeout_duration = 3600 * 6  # 6 hours in seconds
 
-# Configuration for state tracking
-STATE_DIR = Path("state/projects")
-PROJECT_ID = "PROJ-089-investigating-the-correlation-between-co"
+# Custom TimeoutError to match API surface expectation
+class TimeoutError(Exception):
+    """Custom timeout exception for pipeline enforcement."""
+    pass
 
 def timeout_handler(signum, frame):
-    """Signal handler for pipeline timeout."""
-    logger.error("Pipeline execution timed out. Terminating.")
-    sys.exit(1)
+    """Signal handler for timeout enforcement."""
+    global _timeout_active
+    if _timeout_active:
+        logger = get_logger("pipeline")
+        logger.critical("TIMEOUT: Pipeline exceeded 6-hour limit. Aborting.")
+        # Log to file specifically
+        log_file = Path("data/logs/pipeline.log")
+        if log_file.exists():
+            with open(log_file, "a") as f:
+                f.write(f"TIMEOUT: Pipeline exceeded 6-hour limit. Aborting.\n")
+        raise TimeoutError("Pipeline execution exceeded 6-hour limit.")
 
-def run_pipeline_step(step_name: str, func: Callable, timeout_seconds: Optional[int] = None) -> bool:
+def setup_timeout(duration_seconds: int = 3600 * 6):
     """
-    Execute a pipeline step with optional timeout and error handling.
-    
-    Args:
-        step_name: Human-readable name of the step
-        func: Function to execute
-        timeout_seconds: Optional timeout in seconds
+    Setup global watchdog for pipeline execution.
+    Uses signal.SIGALRM on Linux, or a thread-based fallback on other platforms.
+    """
+    global _timeout_active, _timeout_duration, _timeout_start_time
+    _timeout_duration = duration_seconds
+    _timeout_start_time = time.time()
+    _timeout_active = True
+
+    if sys.platform == 'linux':
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(duration_seconds)
+    else:
+        # Cross-platform fallback: Thread-based watchdog
+        # Note: This is a soft check; signal-based is preferred on Linux
+        import threading
+        def watchdog():
+            start = time.time()
+            while time.time() - start < duration_seconds:
+                time.sleep(60)
+            if _timeout_active:
+                logger = get_logger("pipeline")
+                logger.critical("TIMEOUT: Pipeline exceeded 6-hour limit. Aborting.")
+                log_file = Path("data/logs/pipeline.log")
+                if log_file.exists():
+                    with open(log_file, "a") as f:
+                        f.write(f"TIMEOUT: Pipeline exceeded 6-hour limit. Aborting.\n")
+                raise TimeoutError("Pipeline execution exceeded 6-hour limit.")
         
-    Returns:
-        True if step completed successfully, False otherwise
+        thread = threading.Thread(target=watchdog, daemon=True)
+        thread.start()
+
+def clear_timeout():
+    """Clear the active timeout state."""
+    global _timeout_active
+    _timeout_active = False
+    if sys.platform == 'linux':
+        signal.alarm(0)
+
+def get_logger_for_pipeline(name: str = "pipeline") -> logging.Logger:
+    """Get a logger instance for pipeline operations."""
+    return get_logger(name)
+
+def log_pipeline_start(logger: logging.Logger, start_time: float):
+    """Log the start of the pipeline."""
+    logger.info(f"Pipeline started at {time.strftime('%Y-%m-%d %H:%M:%S')}")
+    log_file = Path("data/logs/pipeline.log")
+    with open(log_file, "a") as f:
+        f.write(f"START: {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+
+def log_pipeline_end(logger: logging.Logger, start_time: float):
+    """Log the end of the pipeline and total duration."""
+    end_time = time.time()
+    duration = end_time - start_time
+    logger.info(f"Pipeline completed at {time.strftime('%Y-%m-%d %H:%M:%S')}. Total time: {duration:.2f}s")
+    log_file = Path("data/logs/pipeline.log")
+    with open(log_file, "a") as f:
+        f.write(f"TOTAL_TIME: {duration:.2f}s\n")
+
+def run_pipeline_step(step_name: str, step_func: Callable[[], Any], logger: logging.Logger) -> bool:
     """
-    logger.info(f"Starting step: {step_name}")
-    start_time = time.time()
-    
+    Execute a pipeline step with error handling (T007c).
+    Wraps execution in try/except to ensure the pipeline continues on failure.
+    Logs errors in the format: ERROR: {repo_id}: {message} (or generic step failure).
+    """
     try:
-        if timeout_seconds:
-            signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(timeout_seconds)
-        
-        func()
-        
-        elapsed = time.time() - start_time
-        logger.info(f"Completed step: {step_name} in {elapsed:.2f}s")
-        
-        if timeout_seconds:
-            signal.alarm(0)  # Cancel alarm
-            
+        logger.info(f"Starting step: {step_name}")
+        result = step_func()
+        logger.info(f"Step {step_name} completed successfully.")
         return True
-        
+    except TimeoutError as te:
+        logger.critical(f"TIMEOUT in step {step_name}: {te}")
+        clear_timeout()
+        raise  # Re-raise timeout to stop the pipeline immediately
     except Exception as e:
-        logger.error(f"Step failed: {step_name} with error: {str(e)}")
-        if timeout_seconds:
-            signal.alarm(0)
+        # T007c Requirement: Log exception and continue
+        error_msg = str(e)
+        # If the error context contains a repo_id, use it. Otherwise use generic.
+        # Since this is a general step wrapper, we log the step name and error.
+        # If the step function processes specific repos internally, those should log their own repo-specific errors.
+        logger.error(f"ERROR: {step_name}: {error_msg}")
+        
+        # Ensure logging to the specific pipeline.log file as well
+        log_file = Path("data/logs/pipeline.log")
+        with open(log_file, "a") as f:
+            f.write(f"ERROR: {step_name}: {error_msg}\n")
+        
         return False
 
 def execute_data_extraction():
-    """Run data extraction pipeline."""
+    """Wrapper for data extraction step."""
+    # T010/T011/T014 logic is encapsulated here
     run_data_extraction_wrapper()
 
 def execute_static_analysis():
-    """Run static analysis pipeline."""
+    """Wrapper for static analysis step."""
     run_static_analysis()
 
 def execute_preprocessing():
-    """Run preprocessing pipeline."""
+    """Wrapper for preprocessing step."""
     run_preprocessing()
 
 def execute_analysis():
-    """Run statistical analysis pipeline."""
+    """Wrapper for analysis step."""
     run_analysis()
 
 def execute_visualization():
-    """Run visualization pipeline."""
+    """Wrapper for visualization step."""
     run_visualization()
 
 def execute_reporting():
-    """Run reporting pipeline."""
+    """Wrapper for reporting step."""
     run_reporting()
 
-def compute_file_checksums(file_paths: list) -> Dict[str, str]:
+def run_extraction():
     """
-    Compute SHA256 checksums for a list of files.
-    
-    Args:
-        file_paths: List of file paths to checksum
-        
-    Returns:
-        Dictionary mapping file paths to their checksums
+    T007b: Run the extraction pipeline.
+    Calls the data extraction wrapper.
     """
-    checksums = {}
-    for file_path in file_paths:
-        path = Path(file_path)
-        if path.exists():
-            checksums[str(path)] = calculate_checksum(path)
-        else:
-            logger.warning(f"File not found for checksum: {path}")
-    return checksums
+    execute_data_extraction()
 
-def update_project_state(checksums: Dict[str, str], execution_time: float, success: bool):
+def run_analysis_task():
     """
-    Update the project state YAML file with execution metadata and checksums.
-    
-    Args:
-        checksums: Dictionary of file checksums
-        execution_time: Total pipeline execution time in seconds
-        success: Whether the pipeline completed successfully
+    T007b: Run the analysis pipeline.
+    Calls the analysis module.
     """
-    ensure_directories()
-    
-    state_path = STATE_DIR / f"{PROJECT_ID}.yaml"
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    current_state = {}
-    if state_path.exists():
-        try:
-            with open(state_path, 'r') as f:
-                current_state = yaml.safe_load(f) or {}
-        except yaml.YAMLError as e:
-            logger.warning(f"Could not parse existing state file: {e}")
-            current_state = {}
-    
-    # Update state
-    state_data = {
-        "project_id": PROJECT_ID,
-        "last_run": datetime.now().isoformat(),
-        "execution_time_seconds": execution_time,
-        "status": "completed" if success else "failed",
-        "checksums": checksums,
-        "config_summary": get_config_summary()
-    }
-    
-    # Merge with existing state if needed
-    if current_state:
-        state_data["previous_runs"] = current_state.get("previous_runs", [])
-        state_data["previous_runs"].append({
-            "timestamp": state_data["last_run"],
-            "execution_time": state_data["execution_time_seconds"],
-            "status": state_data["status"]
-        })
-    
-    with open(state_path, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"Project state updated: {state_path}")
+    execute_analysis()
+
+def run_reporting_task():
+    """
+    T007b: Run the reporting pipeline.
+    Calls the reporting module.
+    """
+    execute_reporting()
+
+def run_pipeline():
+    """
+    T007d: Orchestration function.
+    Runs the full pipeline end-to-end with error handling.
+    """
+    logger = get_logger("pipeline")
+    start_time = time.time()
+    log_pipeline_start(logger, start_time)
+
+    # Setup timeout (T007b/T043)
+    setup_timeout(_timeout_duration)
+
+    try:
+        # Step 1: Data Extraction
+        if not run_pipeline_step("Data Extraction", execute_data_extraction, logger):
+            logger.warning("Data Extraction failed. Continuing to next steps if possible.")
+            # Depending on strictness, we might stop here. 
+            # T007c says "continues execution after a repo failure", implying robustness.
+            # However, if extraction fails entirely, downstream steps might crash.
+            # We proceed but downstream steps will likely fail gracefully too.
+
+        # Step 2: Static Analysis
+        if not run_pipeline_step("Static Analysis", execute_static_analysis, logger):
+            logger.warning("Static Analysis failed. Continuing...")
+
+        # Step 3: Preprocessing
+        if not run_pipeline_step("Preprocessing", execute_preprocessing, logger):
+            logger.warning("Preprocessing failed. Continuing...")
+
+        # Step 4: Analysis
+        if not run_pipeline_step("Analysis", execute_analysis, logger):
+            logger.warning("Analysis failed. Continuing...")
+
+        # Step 5: Visualization
+        if not run_pipeline_step("Visualization", execute_visualization, logger):
+            logger.warning("Visualization failed. Continuing...")
+
+        # Step 6: Reporting
+        if not run_pipeline_step("Reporting", execute_reporting, logger):
+            logger.warning("Reporting failed. Continuing...")
+
+    except TimeoutError:
+        # Timeout already logged in handler
+        raise
+    finally:
+        clear_timeout()
+        log_pipeline_end(logger, start_time)
 
 def main():
-    """
-    Main entry point for the pipeline orchestrator.
-    Executes the full pipeline and finalizes with checksums and state update.
-    """
+    """Main entry point."""
     parser = argparse.ArgumentParser(description="Code Churn vs Technical Debt Pipeline")
-    parser.add_argument("--timeout", type=int, default=3600, help="Pipeline timeout in seconds")
-    parser.add_argument("--steps", type=str, default="all", 
-                      help="Comma-separated list of steps to run (default: all)")
+    parser.add_argument("--full", action="store_true", help="Run full pipeline")
+    parser.add_argument("--mock", action="store_true", help="Run with mock data (for testing)")
     args = parser.parse_args()
-    
+
     # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('data/logs/pipeline.log')
-        ]
-    )
+    setup_logging()
+    logger = get_logger("pipeline")
     
-    logger.info("Starting Code Churn vs Technical Debt Pipeline")
-    start_time = time.time()
+    # Ensure directories exist
+    ensure_directories()
+
+    logger.info("Pipeline initialization complete.")
+
+    if args.mock:
+        logger.warning("Mock mode is not fully implemented for this pipeline. Running full pipeline with error handling.")
     
-    # Define pipeline steps
-    steps = {
-        "data_extraction": (execute_data_extraction, 1800),
-        "static_analysis": (execute_static_analysis, 1800),
-        "preprocessing": (execute_preprocessing, 600),
-        "analysis": (execute_analysis, 900),
-        "visualization": (execute_visualization, 600),
-        "reporting": (execute_reporting, 300)
-    }
-    
-    # Determine which steps to run
-    if args.steps == "all":
-        step_order = list(steps.keys())
-    else:
-        step_order = [s.strip() for s in args.steps.split(",")]
-    
-    success = True
-    for step_name in step_order:
-        if step_name not in steps:
-            logger.error(f"Unknown step: {step_name}")
-            success = False
-            break
-        
-        func, timeout = steps[step_name]
-        if not run_pipeline_step(step_name, func, timeout):
-            success = False
-            break
-    
-    total_time = time.time() - start_time
-    
-    # Finalize: Compute checksums and update state
-    if success:
-        # Define output files to checksum
-        output_files = [
-            "data/processed/unified_metrics.csv",
-            "data/results/correlation_results.csv",
-            "data/results/sensitivity_analysis.csv",
-            "data/results/meta_analysis_results.csv",
-            "data/results/summary_report.txt",
-            "data/logs/tool_validation_log.csv"
-        ]
-        
-        # Add plot files if they exist
-        plots_dir = Path("data/results/plots")
-        if plots_dir.exists():
-            for plot_file in plots_dir.glob("*.png"):
-                output_files.append(str(plot_file))
-        
-        checksums = compute_file_checksums(output_files)
-        update_project_state(checksums, total_time, True)
-        logger.info(f"Pipeline completed successfully in {total_time:.2f}s")
-    else:
-        update_project_state({}, total_time, False)
-        logger.error("Pipeline failed. State updated with failure status.")
+    try:
+        run_pipeline()
+        logger.info("Pipeline execution finished.")
+    except TimeoutError:
+        logger.critical("Pipeline terminated due to timeout.")
+        sys.exit(1)
+    except Exception as e:
+        logger.critical(f"Pipeline crashed with unhandled exception: {e}")
+        # Log to pipeline.log specifically
+        log_file = Path("data/logs/pipeline.log")
+        with open(log_file, "a") as f:
+            f.write(f"FATAL: {e}\n")
         sys.exit(1)
 
 if __name__ == "__main__":

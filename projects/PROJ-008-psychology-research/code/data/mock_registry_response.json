@@ -1,0 +1,74 @@
+[
+  {
+    "id": "NCT01234567",
+    "title": "Mindfulness-Based Intervention for Social Skills in Children with ASD",
+    "registry": "ClinicalTrials.gov",
+    "age_range": {
+      "min": 8,
+      "max": 12
+    },
+    "diagnosis": "ASD",
+    "outcomes": ["social skill improvement", "communication skills"],
+    "abstract": "This study investigates the effects of a breathing and body scan mindfulness intervention on social skills in children aged 8-12 with Autism Spectrum Disorder. The intervention includes daily breathing exercises and weekly body scan sessions.",
+    "intervention_components": ["breathing", "body scan"],
+    "delivery_format": "caregiver-mediated",
+    "social_skill_domain": "communication",
+    "follow_up": "3 months",
+    "rater_type": "blinded",
+    "blinded_assessment_flag": true
+  },
+  {
+    "id": "NCT07654321",
+    "title": "Child-Led Mindfulness Movement for Peer Interaction",
+    "registry": "OSF",
+    "age_range": {
+      "min": 9,
+      "max": 11
+    },
+    "diagnosis": "ASD",
+    "outcomes": ["peer interaction", "group play skills"],
+    "abstract": "An investigation into child-led mindful movement practices to enhance peer interaction and group play skills in children with ASD. The program emphasizes autonomous participation and peer-guided activities.",
+    "intervention_components": ["mindful movement"],
+    "delivery_format": "child-led",
+    "social_skill_domain": "peer interaction",
+    "follow_up": "6 months",
+    "rater_type": "unblinded",
+    "blinded_assessment_flag": false
+  },
+  {
+    "id": "NCT09876543",
+    "title": "Mindful Eating Intervention for Emotional Regulation in ASD",
+    "registry": "ClinicalTrials.gov",
+    "age_range": {
+      "min": 15,
+      "max": 18
+    },
+    "diagnosis": "ASD",
+    "outcomes": ["emotional regulation", "tantrum reduction"],
+    "abstract": "This study explores the impact of mindful eating practices on emotional regulation and reduction of tantrum behaviors in adolescents with ASD.",
+    "intervention_components": ["mindful eating"],
+    "delivery_format": "mixed",
+    "social_skill_domain": "emotional regulation",
+    "follow_up": "3 months",
+    "rater_type": "mixed",
+    "blinded_assessment_flag": true
+  },
+  {
+    "id": "NCT05555555",
+    "title": "Study with Missing Abstract",
+    "registry": "ClinicalTrials.gov",
+    "age_range": {
+      "min": 8,
+      "max": 10
+    },
+    "diagnosis": "ASD",
+    "outcomes": ["social skill assessment"],
+    "abstract": null,
+    "intervention_components": [],
+    "delivery_format": "caregiver-mediated",
+    "social_skill_domain": "mixed",
+    "follow_up": "3 months",
+    "rater_type": "blinded",
+    "blinded_assessment_flag": true
+  }
+]

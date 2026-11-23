@@ -67,25 +67,16 @@ venv.bak/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
-.python-version
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Project specific
-data/raw/*
+# Data (keep raw, ignore processed for git)
+data/raw/**/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+data/splits/*
+!data/splits/.gitkeep
 results/*
 !results/.gitkeep
+
+# Logs
+*.log
+logs/

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.14523",
+  "judged_at": "2026-08-05T04:28:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"vla-corrector: lightweight detect-and-correct inference for adaptive a\" computer science",
+  "rationale": "The paper addresses \"adaptive optics\" in the context of astronomical telescope systems (MORFEO/ELT), which is a distinct physical domain from \"adaptive inference\" or \"detect-and-correct\" mechanisms in Large Language Models (LLMs). This is a case of distinct constructs sharing only homonym keywords (\"adaptive\"), failing the requirement for a measurable connection to the user's mechanism, domain, or variables.",
+  "relevant": false
+}

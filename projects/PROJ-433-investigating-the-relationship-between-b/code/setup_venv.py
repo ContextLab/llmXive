@@ -1,13 +1,15 @@
+"""
+Script to create a Python virtual environment for the project.
+Executes: python3.11 -m venv venv
+"""
 import os
 import subprocess
 import sys
 from pathlib import Path
 
+
 def main():
-    """
-    Creates a Python virtual environment in the repository root.
-    Uses python3.11 if available, otherwise falls back to the current python interpreter.
-    """
+    """Create the virtual environment in the repository root."""
     root_dir = Path(__file__).resolve().parent.parent
     venv_path = root_dir / "venv"
 
@@ -15,23 +17,33 @@ def main():
         print(f"Virtual environment already exists at {venv_path}. Skipping creation.")
         return
 
-    python_exe = "python3.11"
+    python_executable = sys.executable
+    # Ensure we are using python 3.11 if available, otherwise fall back to current
+    # The task specifically requested python3.11
+    if "3.11" not in python_executable:
+        # Try to find python3.11 explicitly
+        try:
+            subprocess.run(["python3.11", "--version"], check=True, capture_output=True)
+            python_executable = "python3.11"
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            print("Warning: python3.11 not found in PATH. Using current interpreter.")
+            print(f"Current interpreter: {python_executable}")
+
+    print(f"Creating virtual environment at {venv_path} using {python_executable}...")
     try:
-        # Check if python3.11 exists
-        subprocess.run([python_exe, "--version"], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print(f"python3.11 not found. Using current interpreter: {sys.executable}")
-        python_exe = sys.executable
-
-    print(f"Creating virtual environment at {venv_path} using {python_exe}...")
-    result = subprocess.run([python_exe, "-m", "venv", str(venv_path)])
-
-    if result.returncode != 0:
-        print(f"Error: Failed to create virtual environment (exit code {result.returncode})")
+        result = subprocess.run(
+            [python_executable, "-m", "venv", str(venv_path)],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        print("Virtual environment created successfully.")
+        print(f"Activate it with: source {venv_path / 'bin' / 'activate'} (Linux/Mac)")
+        print(f"Activate it with: {venv_path / 'Scripts' / 'activate.bat'} (Windows)")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to create virtual environment: {e.stderr}")
         sys.exit(1)
 
-    print("Virtual environment created successfully.")
-    print("Activate it with: source venv/bin/activate (Linux/Mac) or venv\\Scripts\\activate (Windows)")
 
 if __name__ == "__main__":
     main()

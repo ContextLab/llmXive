@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 7d2cf1955b12010e3e18d38fd35c8d0333bf298a49b377c6dd86770921cb8908
+  artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/meta-llama/Llama-3-8B-Instruct`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/meta-llama/Llama-3-8B-Instruct
+  verified_at: '2026-07-17T19:22:21.567235Z'
+- artifact_hash: 7d2cf1955b12010e3e18d38fd35c8d0333bf298a49b377c6dd86770921cb8908
+  artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "microsoft/Phi-3-mini-4k-instruct \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/microsoft/Phi-3-mini-4k-instruct`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/microsoft/Phi-3-mini-4k-instruct
+  verified_at: '2026-07-17T19:22:21.567235Z'

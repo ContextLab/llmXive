@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project extends the MulTaBench benchmark by implementing a "CPU-Conditioned" multimodal learning approach. The core technical strategy involves generating frozen embeddings for unstructured data (images/text) using CLIP ViT-B/32 and Sentence-BERT on a CPU-only environment, then training a lightweight, trainable projection module (MLP or attention) that uses normalized tabular features as a query to modulate these embeddings. The goal is to recover performance lost by not fine-tuning the backbone, specifically analyzing the correlation between recovery efficacy and tabular structural properties (cardinality, sparsity, missingness). The entire pipeline is constrained to run on GitHub Actions free-tier runners (limited CPU and RAM resources, time-limited execution) without GPU acceleration.
+This project extends the MulTaBench benchmark by implementing a "CPU-Conditioned" multimodal learning approach. The core technical strategy involves generating frozen embeddings for unstructured data (images/text) using CLIP ViT-B and Sentence-BERT on a CPU-only environment., then training a lightweight, trainable projection module (MLP or attention) that uses normalized tabular features as a query to modulate these embeddings. The goal is to recover performance lost by not fine-tuning the backbone, specifically analyzing the correlation between recovery efficacy and tabular structural properties (cardinality, sparsity, missingness). The entire pipeline is constrained to run on GitHub Actions free-tier runners (limited CPU and RAM resources, time-limited execution) without GPU acceleration.
 
 ## Technical Context
 
@@ -26,10 +26,10 @@ This project extends the MulTaBench benchmark by implementing a "CPU-Conditioned
 
 - **I. Reproducibility**: Plan mandates pinned seeds (`random_seed=42` for primary, specific seeds for sensitivity) in all scripts and explicit version pinning in `pyproject.toml`. External data fetching logic is deterministic based on local file presence.
 - **II. Verified Accuracy**: The plan explicitly cites the MulTaBench paper (arXiv:2605.10616). It acknowledges the lack of a public URL and mandates a local SHA-256 checksum verification step in `data/README.md` to satisfy 'Data Hygiene' conditionally. All "GPU-Tuned" baselines are treated as constants from the paper.
-- **III. Data Hygiene**: The plan includes a `data/` directory structure with checksum validation steps (Phase 0) and mandates that raw data is never modified in place; all transformations produce new files (e.g., `embeddings_v1.parquet`).
+- **III. Data Hygiene**: The plan includes a `data/` directory structure with checksum validation steps (initial phase) and mandates that raw data is never modified in place; all transformations produce new files (e.g., `embeddings_v1.parquet`).
 - **IV. Single Source of Truth**: The `data-model.md` defines strict schemas for `FrozenEmbedding` and `TabularMetadata`. A global `run_id` is generated at the start of the pipeline and injected into the `FrozenEmbedding` parquet files. This `run_id` is propagated to `EvaluationMetrics`, ensuring every metric row traces back to a specific embedding row via the shared ID.
-- **V. Versioning Discipline**: The plan explicitly schedules Phase 4: "Update State". This phase executes `code/pipelines/update_state.py` to calculate SHA-256 hashes of all generated artifacts and update `state/projects/PROJ-823-llmxive-follow-up-extending-multabench-b.yaml` with the new `updated_at` timestamp and `artifact_hashes`.
-- **VI. Frozen-Backbone Integrity**: The implementation strategy explicitly disables gradient tracking (`torch.no_grad()`) for CLIP and BERT backbones. A concrete unit test `tests/test_projection.py::test_frozen_backbone_gradients` is scheduled in Phase 2 to verify zero weight updates during the projection training.
+- **V. Versioning Discipline**: The plan explicitly schedules Phase: "Update State". This phase executes `code/pipelines/update_state.py` to calculate SHA-256 hashes of all generated artifacts and update `state/projects/PROJ-823-llmxive-follow-up-extending-multabench-b.yaml` with the new `updated_at` timestamp and `artifact_hashes`.
+- **VI. Frozen-Backbone Integrity**: The implementation strategy explicitly disables gradient tracking (`torch.no_grad()`) for CLIP and BERT backbones. A concrete unit test `tests/test_projection.py::test_frozen_backbone_gradients` is scheduled in A subsequent phase will verify zero weight updates during the projection training.
 - **VII. Tabular Feature Conditionability Analysis**: The plan explicitly schedules the computation of cardinality, missingness, sparsity, and variance as a distinct phase (FR-003) prior to model training, ensuring the correlation analysis (FR-006) has the necessary inputs.
 
 ## Project Structure
@@ -39,14 +39,14 @@ This project extends the MulTaBench benchmark by implementing a "CPU-Conditioned
 ```text
 specs/001-llmxive-mulTabench-extension/
 ├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
+├── research.md          # Phase output
+├── data-model.md        # Phase output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   ├── frozen_embedding.schema.yaml
 │   ├── tabular_metadata.schema.yaml
 │   └── evaluation_metrics.schema.yaml
-└── tasks.md             # Phase 2 output (not created here)
+└── tasks.md             # Phase output (not created here)
 ```
 
 ### Source Code (repository root)
@@ -107,5 +107,5 @@ requirements.txt         # Generated from pyproject.toml for CI
 1.  **Phase 0: Research & Data Validation**: Verify local data checksums, confirm dataset structure.
 2.  **Phase 1: Frozen Embedding Generation**: Generate embeddings for images/text (CLIP/SBERT) with `random_seed=42` and 4 additional seeds for sensitivity. Output `FrozenEmbedding` parquet files with `run_id`.
 3.  **Phase 2: Tabular-Conditioned Projection**: Train the projection layer. Verify frozen backbone integrity via `tests/test_projection.py`.
-4.  **Phase 3: Statistical Analysis**: Compute metadata stats, recovery ratios (averaged over 5 seeds), and perform correlation analysis with Bayesian estimation.
-5.  **Phase 4: Update State**: Execute `update_state.py` to hash artifacts and update `state/projects/...yaml`.
+4.  **Phase 3: Statistical Analysis**: Compute metadata stats, recovery ratios (averaged over multiple seeds), and perform correlation analysis with Bayesian estimation.
+5.  **Phase: Update State**: Execute `update_state.py` to hash artifacts and update `state/projects/...yaml`.

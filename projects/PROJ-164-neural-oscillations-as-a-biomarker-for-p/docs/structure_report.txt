@@ -1,0 +1,55 @@
+T001a project structure creation report
+========================================
+Project root: /home/runner/work/llmXive/llmXive/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p
+
+Required directories and their existence:
+  code                 exists=True
+  code/utils           exists=True
+  tests                exists=True
+  data/raw             exists=True
+  data/processed       exists=True
+  data/synthetic       exists=True
+  models               exists=True
+  docs                 exists=True
+  docs/contracts       exists=True
+  state/projects       exists=True
+
+Directory listing of project root:
+  [DIR ] .runtime-home
+  [DIR ] .specify
+  [FILE] activity.jsonl
+  [DIR ] code
+  [DIR ] data
+  [DIR ] docs
+  [DIR ] idea
+  [DIR ] logs
+  [DIR ] models
+  [FILE] pyproject.toml
+  [FILE] requirements.txt
+  [DIR ] specs
+  [DIR ] state
+  [DIR ] tests
+
+Directory listing of code/:
+  [FILE] 00_create_project_structure.py
+  [FILE] 01_ingest_preprocess.py
+  [FILE] 01_setup_permissions.py
+  [FILE] 02_feature_extraction.py
+  [FILE] 02_initialize_dependencies.py
+  [FILE] 03_data_download.py
+  [FILE] 03_source_verification.py
+  [FILE] 04_mode_check.py
+  [FILE] 05_data_alignment_check.py
+  [FILE] 05_power_analysis.py
+  [FILE] 06_checksum_verification.py
+  [FILE] 07_dataset_representativeness_check.py
+  [FILE] 08_normality_check.py
+  [FILE] 08_preprocess_pipeline.py
+  [FILE] 09_permutation_testing.py
+  [FILE] __init__.py
+  [FILE] run_tests.py
+  [FILE] setup_permissions.py
+  [FILE] setup_project.py
+  [DIR ] utils
+
+ALL_REQUIRED_DIRS_PRESENT: True

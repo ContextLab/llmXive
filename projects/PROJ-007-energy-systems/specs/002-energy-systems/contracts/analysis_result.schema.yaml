@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+type: "object"
+properties:
+  att_estimate:
+    type: "number"
+    description: "Estimated Average Treatment Effect on the Treated"
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value from OLS regression"
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval [lower, upper]"
+  methodology_used:
+    type: "string"
+    enum:
+      - "PSM"
+      - "DiD_Fallback_Not_Available"
+    description: "Methodology used for estimation"
+  sensitivity_sweep_data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        caliper:
+          type: "number"
+        att_estimate:
+          type: "number"
+        p_value:
+          type: "number"
+      required:
+        - "caliper"
+        - "att_estimate"
+        - "p_value"
+    description: "Results from sensitivity analysis across calipers"
+  balance_status:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Standardized mean difference (SMD) for each covariate"
+  placebo_test_result:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value from placebo test on pre-treatment covariate"
+required:
+  - "att_estimate"
+  - "p_value"
+  - "confidence_interval"
+  - "methodology_used"
+  - "sensitivity_sweep_data"
+  - "balance_status"
+  - "placebo_test_result"
+additionalProperties: false

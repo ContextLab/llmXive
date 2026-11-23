@@ -1,0 +1,6 @@
+# Project dependencies
+# Core scientific stack (pre‑installed in the execution environment):
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, psutil
+#
+# Additional dependency required for the test runner to accept coverage options
+pytest-cov>=4.0

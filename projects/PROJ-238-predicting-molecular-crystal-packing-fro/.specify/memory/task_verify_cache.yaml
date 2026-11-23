@@ -1,0 +1,94 @@
+T001.1:
+  c: true
+  h: fef9dbd692a40a5588109218e4145765b851f13786f6f2a8a2c70efc014eaf20
+  r: "The repository contains the four required top\u2011level directories (`code/`,\
+    \ `data/`, `results/`, `state/`), each present with files inside, confirming the\
+    \ task of creating the root directories has been fulfilled."
+T001.2:
+  c: true
+  h: 6e5b9e8446c43e36bcfc268c33aaabc941fa6f5b5f3490be643514184c071938
+  r: The repository contains the `code/utils/` and `code/tests/` directories with
+    multiple files (e.g., `__init__.py`, `config.py`, `.gitkeep`), confirming the
+    required subdirectories were created.
+T001.3:
+  c: true
+  h: c7be1bf36bb3be965f6cfdfb30156a1e7c210ed565fd26686c5f51b23191ad3e
+  r: The three required subdirectories (`data/raw/`, `data/descriptors/`, `data/processed/`)
+    are present in the repository and each contains a `.gitkeep` placeholder file,
+    confirming they were created as specified.
+T002:
+  c: true
+  h: d6c1e6c335ab3a13f668a5c2458ed5d5de643777a31962a4c40376a80ac796e1
+  r: "The provided `requirements.txt` exists, is non\u2011empty, and contains the\
+    \ exact required entries with the specified version pins for `rdkit` and `scikit-learn`.\
+    \ No placeholders or missing lines are present."
+T003:
+  c: false
+  h: c2d5a8b0fd02da096f9d677d8cb27a783ee062fdef52659030c1611c52fd2df4
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) are present, nor any script/instructions\
+    \ showing flake8 and black have been installed and integrated into the project.\
+    \ These artifacts are required to satisfy the \u201Cconfigure linting (flake8)\
+    \ and formatting (black) tools\u201D task."
+T005:
+  c: false
+  h: 6d07a414ffcf17b33920b030a8b7bbc64d9c2b85728fb0f185812618eaad61dc
+  r: "No `utils/descriptors.py` file or `compute_descriptors` implementation was provided,\
+    \ and there is no evidence (code, tests, or output) showing that the function\
+    \ returns the required descriptor dictionary or that it yields a benzene volume\
+    \ between 50\u202F\xC5\xB3 and 150\u202F\xC5\xB3. The required artifact is missing."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifact_hashes` file (or any SHA\u2011256 checksum listings) was presented,\
+    \ and there is no evidence that checksums were generated for the raw CIFs or derived\
+    \ CSV/JSON files. The required artifact is missing, so the task is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No training script, model checkpoint, or evaluation output is present; the claim
+    provides no code, logs, or results demonstrating that a Random Forest regressor
+    was actually trained with default hyperparameters and `random_state=42`. The required
+    artifact (e.g., a Python script/notebook and/or saved model file with accompanying
+    performance metrics) is missing.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, log, model file, or evaluation output showing a Gradient Boosting
+    regressor trained with default hyperparameters and `random_state=42` is present.
+    The required artifact (training script/model and its results) is missing, so the
+    task is not satisfied.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or model artifact that computes and returns the training\u2011\
+    set mean of `packing_coefficient` was presented. Without a concrete implementation\
+    \ (e.g., a function/class, saved model file, or pipeline step) the requirement\
+    \ of providing a working mean\u2011predictor baseline is not satisfied. The next\
+    \ implementer must add the actual implementation and ensure it is accessible."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, model files, training logs, or analysis results were provided; the implementer
+    did not supply the secondary Random Forest/Gradient Boosting models trained without
+    Volume and Surface Area descriptors, nor any evidence (e.g., performance metrics,
+    feature importance plots) demonstrating the control analysis. These artifacts
+    are required to satisfy the task.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only the task description and specifications; there are no\
+    \ actual evaluation results, scripts, or output files showing R\xB2, MAE, or RMSE\
+    \ for the models on the test set. Consequently, the required artifacts are missing."
+T036:
+  c: false
+  h: ef61876e269d9d02f56755cb9be5150c5ff6dfbd916f169c98be59efb758130b
+  r: "The required `results/interaction_benchmark.log` file is absent, so no evidence\
+    \ of the benchmark evaluation or logging is present. The task\u2019s core deliverable\
+    \ is missing."
+T038:
+  c: false
+  h: 1e5913fa4a49c57f9625664dc530c0a33ec6466de912adc734dbb6045a40af9c
+  r: The required artifact `results/metrics.json` does not exist, so there is no file
+    to check for required fields or the Bonferroni flag. The task cannot be considered
+    satisfied until the JSON file is present and contains the specified content.

@@ -50,5 +50,15 @@
     "sec_method.tex",
     "sec_problem_setting.tex",
     "sec_related_work.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "e17ca00e8d03d515be0e41e79f82256eb3bea7ee3910fab9e101db5467095415",
+      "bytes": 1130244
+    },
+    "original.pdf": {
+      "sha256": "75b126a2a6350e8ff58c0e6c7f3366894e23f0610f533ac533fc3e3214aa7cd4",
+      "bytes": 1267774
+    }
+  }
 }

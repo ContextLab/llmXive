@@ -2,71 +2,61 @@
 
 ## Prerequisites
 
-- **Python**: Version 3.11 or higher.
-- **Java**: JDK 11 or higher (required for Defects4J framework).
-- **Git**: To clone the Defects4J repository.
-- **Defects4J CLI**: Installed and configured (see `).
-- **Memory**: At least 7 GB available RAM.
-- **Disk**: At least 14 GB free space.
+* **Python**: 3.11+
+* **Java**: JDK 11+ (required for Defects4J and PMD)
+* **Git**: Installed and configured
+* **Memory**: Minimum 8 GB RAM recommended (though pipeline targets 7 GB)
+* **Disk**: Minimum 10 GB free space
 
 ## Installation
 
 1. **Clone the Repository**:
  ```bash
- git clone <repository-url>
- cd <project-root>
+ git clone https://github.com/your-org/your-repo.git
+ cd your-repo
  ```
 
 2. **Create Virtual Environment**:
  ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
  ```
 
 3. **Install Dependencies**:
  ```bash
  pip install -r code/requirements.txt
  ```
- *Note: Ensure `defects4j` is installed on your system and in your PATH.*
+
+4. **Install Defects4J CLI**:
+ Follow the official instructions at ` to install the `defects4j` command-line tool globally or in the project path.
 
 ## Running the Pipeline
 
-The pipeline is executed via a single orchestration script that handles data ingestion, metric extraction, analysis, and modeling.
+Execute the full end-to-end pipeline:
 
 ```bash
-# Run the full pipeline
-python code/run_pipeline.py
+./code/run_pipeline.sh
 ```
 
-### Expected Output
+This script performs the following steps in order:
+1. **Ingest**: Clones Defects4J, selects 5-10 projects, and extracts source code.
+2. **Metrics**: Calculates Cyclomatic Complexity, Halstead Volume, and LOC for all files.
+3. **Label**: Tags files as buggy/clean based on commit history.
+4. **Analyze**: Runs correlation analysis (including VIF), baseline modeling, and Sign-Flip Permutation Test.
+5. **Report**: Generates `correlation_report.json`, `model_results.csv`, and `output.json`.
 
-Upon successful completion, the following artifacts will be generated in `code/data/processed/`:
+## Expected Outputs
 
-- `features.csv`: The labeled feature matrix.
-- `correlation_report.json`: Point-Biserial and Spearman correlation results, including VIF scores.
-- `model_performance.json`: ROC-AUC and F1 scores from cross-validation.
-- `statistical_test.json`: P-values from the Paired Permutation Test.
-- `feature_importance.json`: Ranked list of metrics from Random Forest.
-- `plots/`: Directory containing generated bar charts and correlation heatmaps.
+After successful execution, check the `code/data/results/` directory:
 
-### Verification
-
-To verify the pipeline ran correctly:
-
-1. Check that `features.csv` exists and has no null values in the metric columns.
-2. Ensure the `is_buggy` column contains only 0s and 1s.
-3. Confirm that `statistical_test.json` contains a p-value (result of the permutation test).
-4. Verify that `correlation_report.json` includes VIF scores.
+* `features.csv`: The labeled feature matrix.
+* `exclusions.log`: Log of files skipped (syntax errors, etc.).
+* `correlation_report.json`: Correlation coefficients, p-values, VIF, and partial correlations.
+* `model_results.csv`: Model performance metrics (ROC-AUC, F1).
+* `output.json`: Final results including the `p_value` for SC-003.
 
 ## Troubleshooting
 
-- **Memory Error**: If the script crashes due to memory, reduce the number of selected projects in `code/src/ingest.py` (e.g., from 10 to 5).
-- **Parsing Errors**: Check `code/data/processed/exclusion_log.txt` for files that failed to parse.
-- **Defects4J Not Found**: Ensure `defects4j` is installed and `JAVA_HOME` is set correctly.
-- **Labeling Error**: Verify that the `defects4j` framework is correctly configured and can retrieve bug info.
-
-## Next Steps
-
-- Review `research.md` for detailed methodology.
-- Examine `data-model.md` for schema details.
-- Run `pytest tests/` to validate individual components.
+* **Memory Error**: If the pipeline fails with OOM, reduce the number of selected projects in `code/src/config.py` (variable `MAX_PROJECTS`).
+* **Java Errors**: Ensure `JAVA_HOME` is set correctly and points to JDK 11+.
+* **Defects4J Missing**: Verify that the `defects4j` command is in your `PATH`.

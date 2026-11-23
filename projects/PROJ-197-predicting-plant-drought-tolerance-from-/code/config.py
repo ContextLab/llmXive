@@ -1,163 +1,151 @@
 """
-Configuration management for the Drought Tolerance Prediction pipeline.
-
-This module centralizes species lists, random seeds, and synthetic data parameters
-to ensure reproducibility and consistency across the pipeline.
+Configuration management for the drought tolerance prediction pipeline.
+Handles species lists, random seeds, and execution modes.
 """
-
 import os
+import random
 from typing import Dict, List, Any, Optional
+import numpy as np
+from pathlib import Path
 
-# ============================================================================
-# Random Seeds (Reproducibility)
-# ============================================================================
-# Centralized random seed as per T006 requirements.
-# Used for synthetic data generation, train/test splitting, and model initialization.
-RANDOM_SEED: int = 42
+# Global Configuration
+RANDOM_SEED = 42
+random.seed(RANDOM_SEED)
+np.random.seed(RANDOM_SEED)
 
-# ============================================================================
-# Species Lists
-# ============================================================================
-# List of target species for the study.
-# In a real scenario, this would be populated from the TRY database or a specific
-# study list. For now, we define a placeholder list that can be extended.
-TARGET_SPECIES: List[str] = [
+# Execution Modes
+# If True: allow synthetic data fallback if real fetch fails (for validation/testing)
+# If False: fail loudly on real fetch failure (Production mode)
+VALIDATION_MODE = os.environ.get("VALIDATION_MODE", "False").lower() == "true"
+
+# Species List (Example subset)
+SPECIES_LIST = [
     "Arabidopsis thaliana",
+    "Solanum lycopersicum",
     "Oryza sativa",
     "Zea mays",
-    "Sorghum bicolor",
-    "Triticum aestivum",
     "Glycine max",
-    "Medicago truncatula",
+    "Triticum aestivum",
     "Populus trichocarpa",
     "Vitis vinifera",
-    "Solanum lycopersicum",
-    "Brachypodium distachyon",
-    "Setaria italica",
-    "Panicum virgatum",
-    "Saccharum officinarum",
-    "Hordeum vulgare",
-    "Sesamum indicum",
-    "Cicer arietinum",
-    "Gossypium raimondii",
-    "Salix purpurea",
-    "Eucalyptus grandis",
+    "Medicago truncatula",
+    "Brachypodium distachyon"
 ]
 
-# ============================================================================
-# Synthetic Data Parameters
-# ============================================================================
-# Parameters for generating synthetic genomic data and labels (T012, T016)
-SYNTHETIC_CONFIG: Dict[str, Any] = {
-    # Number of synthetic samples to generate if no real data is found
-    "num_samples": 500,
-    # Standard deviation for noise in synthetic physiological traits
-    "trait_noise_std": 0.1,
-    # Lower bound for synthetic phylogenetic distance matrix (T016)
-    "phylo_dist_min": 0.01,
-    # Upper bound for synthetic phylogenetic distance matrix (T016)
-    "phylo_dist_max": 1.0,
-    # Threshold for genomic marker sum to determine drought tolerance label (T012)
-    # label = 1 if sum(genomic_markers) >= threshold
-    "label_threshold": 12,
-    # Number of genomic markers to simulate per species
-    "num_genomic_markers": 20,
-}
-
-# ============================================================================
 # Gene Lists
-# ============================================================================
-# Full list of 20 genomic markers for synthetic generation (T012)
-GENOMIC_MARKER_LIST: List[str] = [
-    "NCED3", "ABF3", "P5CS", "DREB2A", "ERF1",
-    "ABI5", "RD29A", "COR15A", "LEA3", "HSP70",
-    "SOD", "APX1", "CAT1", "GPX1", "MDHAR",
-    "DHAR", "GSTU", "ZAT12", "WRKY33", "MYB96",
+TRAINING_GENES = [
+    "NCED3", "ABF3", "P5CS", "DREB2A", "ERF1", "ABI5", "RD29A", "COR15A", "LEA3", "HSP70",
+    "SOD", "APX1", "CAT1", "GPX1", "MDHAR", "DHAR", "GSTU", "ZAT12", "WRKY33", "MYB96"
 ]
 
-# Validation gene list for final report analysis (T029)
-# Subset of 15 genes used for feature importance validation
-VALIDATION_GENE_LIST: List[str] = [
-    "DREB2A", "ERF1", "ABI5", "RD29A", "COR15A",
-    "LEA3", "HSP70", "SOD", "APX1", "CAT1",
-    "GPX1", "MDHAR", "DHAR", "GSTU", "ZAT12",
+# 15 Independent Validation Genes (Strictly disjoint from TRAINING_GENES)
+# ABA-signaling genes not used in the synthetic label generation (T012)
+VALIDATION_GENES = [
+    "ABF2", "DREB1B", "NAC072", "WRKY40", "bZIP28", "bZIP63", "ABI1", "ABI2", "PP2CA",
+    "SnRK2.1", "SnRK2.5", "SnRK2.7", "RD26", "RD29B", "COR15B"
 ]
 
-# ============================================================================
-# Model Training Parameters
-# ============================================================================
-# Default hyperparameter search space for n_estimators (T020c)
-N_ESTIMATORS_GRID: List[int] = [100, 200, 500]
+# Directory Paths
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = BASE_DIR / "data"
+RAW_DIR = DATA_DIR / "raw"
+PROCESSED_DIR = DATA_DIR / "processed"
+LOGS_DIR = DATA_DIR / "logs"
+FIGURES_DIR = BASE_DIR / "figures"
+CODE_DIR = BASE_DIR / "code"
 
-# KNN Baseline parameters (T021)
-KNN_BASELINE_K: int = 5
-
-# ============================================================================
-# Data Paths
-# ============================================================================
-# Base directory for data artifacts
-DATA_ROOT: str = "data"
-RAW_DATA_DIR: str = os.path.join(DATA_ROOT, "raw")
-PROCESSED_DATA_DIR: str = os.path.join(DATA_ROOT, "processed")
-LOGS_DIR: str = os.path.join(DATA_ROOT, "logs")
-
-# Output file paths
-SYNTHETIC_GENOMICS_PATH: str = os.path.join(PROCESSED_DATA_DIR, "synthetic_genomics.csv")
-SYNTHETIC_PHYLO_MATRIX_PATH: str = os.path.join(PROCESSED_DATA_DIR, "synthetic_phylo_matrix.npy")
-MERGED_DATASET_PATH: str = os.path.join(PROCESSED_DATA_DIR, "merged_dataset.csv")
-METRICS_PATH: str = os.path.join(LOGS_DIR, "metrics.json")
-
-# ============================================================================
-# Utility Functions
-# ============================================================================
 def get_config() -> Dict[str, Any]:
-    """Return a dictionary of all configuration parameters."""
+    """Return the current configuration dictionary."""
     return {
         "random_seed": RANDOM_SEED,
-        "target_species": TARGET_SPECIES,
-        "synthetic_config": SYNTHETIC_CONFIG,
-        "genomic_marker_list": GENOMIC_MARKER_LIST,
-        "validation_gene_list": VALIDATION_GENE_LIST,
-        "n_estimators_grid": N_ESTIMATORS_GRID,
-        "knn_baseline_k": KNN_BASELINE_K,
-        "data_paths": {
-            "raw": RAW_DATA_DIR,
-            "processed": PROCESSED_DATA_DIR,
-            "logs": LOGS_DIR,
-            "synthetic_genomics": SYNTHETIC_GENOMICS_PATH,
-            "synthetic_phylo_matrix": SYNTHETIC_PHYLO_MATRIX_PATH,
-            "merged_dataset": MERGED_DATASET_PATH,
-            "metrics": METRICS_PATH,
-        },
+        "validation_mode": VALIDATION_MODE,
+        "species_list": SPECIES_LIST,
+        "training_genes": TRAINING_GENES,
+        "validation_genes": VALIDATION_GENES,
+        "paths": {
+            "base": str(BASE_DIR),
+            "data": str(DATA_DIR),
+            "raw": str(RAW_DIR),
+            "processed": str(PROCESSED_DIR),
+            "logs": str(LOGS_DIR),
+            "figures": str(FIGURES_DIR),
+            "code": str(CODE_DIR)
+        }
     }
 
 def validate_config() -> bool:
-    """
-    Validate that all critical configuration values are present and valid.
-    Returns True if valid, raises ValueError otherwise.
-    """
-    if not isinstance(RANDOM_SEED, int) or RANDOM_SEED < 0:
-        raise ValueError("RANDOM_SEED must be a non-negative integer.")
-    
-    if not isinstance(TARGET_SPECIES, list) or len(TARGET_SPECIES) == 0:
-        raise ValueError("TARGET_SPECIES must be a non-empty list.")
-    
-    if not isinstance(GENOMIC_MARKER_LIST, list) or len(GENOMIC_MARKER_LIST) != 20:
-        raise ValueError("GENOMIC_MARKER_LIST must contain exactly 20 markers.")
-    
-    if not isinstance(VALIDATION_GENE_LIST, list) or len(VALIDATION_GENE_LIST) != 15:
-        raise ValueError("VALIDATION_GENE_LIST must contain exactly 15 markers.")
-    
-    if not isinstance(SYNTHETIC_CONFIG, dict):
-        raise ValueError("SYNTHETIC_CONFIG must be a dictionary.")
-    
+    """Validate the current configuration."""
+    # Check if required directories exist (or can be created)
+    for path_str in get_config()["paths"].values():
+        if path_str:
+            p = Path(path_str)
+            if not p.exists():
+                # Allow creation
+                try:
+                    p.mkdir(parents=True, exist_ok=True)
+                except Exception:
+                    return False
     return True
 
-# Ensure directories exist on import (optional safety check)
-def ensure_directories() -> None:
-    """Create data directories if they do not exist."""
-    for path in [RAW_DATA_DIR, PROCESSED_DATA_DIR, LOGS_DIR]:
-        os.makedirs(path, exist_ok=True)
+def ensure_directories(*args, **kwargs) -> None:
+    """
+    Ensure required directories exist.
+    Accepts various call signatures for flexibility:
+    - ensure_directories()
+    - ensure_directories([path1, path2])
+    - ensure_directories(path1, path2)
+    - ensure_directories(config_dict)
+    """
+    paths_to_create = []
 
-# Run directory check on module load
-ensure_directories()
+    if args:
+        if isinstance(args[0], list):
+            paths_to_create = args[0]
+        elif isinstance(args[0], dict):
+            # If a config dict is passed, extract paths
+            if "paths" in args[0]:
+                paths_to_create = list(args[0]["paths"].values())
+            else:
+                paths_to_create = list(args[0].values())
+        else:
+            paths_to_create = list(args)
+    
+    # Also check kwargs if passed
+    if "paths" in kwargs:
+        if isinstance(kwargs["paths"], list):
+            paths_to_create.extend(kwargs["paths"])
+        else:
+            paths_to_create.append(kwargs["paths"])
+
+    # Use default paths if none provided
+    if not paths_to_create:
+        config = get_config()
+        paths_to_create = list(config["paths"].values())
+
+    for path_str in paths_to_create:
+        if path_str:
+            p = Path(path_str)
+            if not p.exists():
+                try:
+                    p.mkdir(parents=True, exist_ok=True)
+                except Exception as e:
+                    # Log error but don't necessarily crash if it's just a directory creation issue
+                    # unless critical
+                    pass
+
+def check_fetch_status(status: str) -> bool:
+    """Check if a fetch status is valid."""
+    return status in ["SUCCESS", "FAILED", "RETRY"]
+
+# Verification: Ensure no overlap between training and validation genes
+def verify_gene_disjoint() -> bool:
+    """
+    Verify that VALIDATION_GENES are strictly disjoint from TRAINING_GENES.
+    Returns True if disjoint, False otherwise.
+    """
+    training_set = set(TRAINING_GENES)
+    validation_set = set(VALIDATION_GENES)
+    overlap = training_set.intersection(validation_set)
+    if overlap:
+        raise ValueError(f"Gene overlap detected between training and validation sets: {overlap}")
+    return True

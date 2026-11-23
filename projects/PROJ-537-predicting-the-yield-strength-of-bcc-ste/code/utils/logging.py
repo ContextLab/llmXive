@@ -1,108 +1,107 @@
-import json
+"""
+Utility logging module for the project.
+
+Provides a configurable logger and simple provenance/event logging functions.
+The implementation is intentionally lightweight and does not depend on any
+external packages beyond the Python standard library.
+"""
+
 import logging
-import os
-import sys
-from datetime import datetime
+import json
 from pathlib import Path
-from typing import Optional, Dict, Any
-from .checksums import get_logger as _get_checksum_logger
+from datetime import datetime
+from typing import Any, Dict
 
-# Ensure the logs directory exists
-LOGS_DIR = Path("data/provenance")
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+# Base logger configuration – each module can obtain a child logger via get_logger(__name__)
+_logger = None
 
-# Global logger instance
-_logger: Optional[logging.Logger] = None
-
-class StructuredFormatter(logging.Formatter):
-    """Custom formatter that outputs structured JSON logs for provenance."""
-
-    def format(self, record: logging.LogRecord) -> str:
-        log_entry = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "level": record.levelname,
-            "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno,
-        }
-
-        # Add extra fields if present
-        if hasattr(record, "extra_data"):
-            log_entry.update(record.extra_data)
-
-        return json.dumps(log_entry)
-
-def get_logger(name: str = "llmXive") -> logging.Logger:
-    """
-    Get a configured logger instance.
-    Returns a singleton logger configured with the StructuredFormatter.
-    """
+def _ensure_logger():
     global _logger
     if _logger is None:
-        _logger = logging.getLogger(name)
+        _logger = logging.getLogger("llmXive")
         _logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        handler.setFormatter(formatter)
+        _logger.addHandler(handler)
 
-        # Remove existing handlers to avoid duplicates
-        if _logger.handlers:
-            _logger.handlers.clear()
-
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(StructuredFormatter())
-        _logger.addHandler(console_handler)
-
-        # File handler for general logs (optional, can be toggled)
-        # log_file = LOGS_DIR / "pipeline.log"
-        # file_handler = logging.FileHandler(log_file)
-        # file_handler.setFormatter(StructuredFormatter())
-        # _logger.addHandler(file_handler)
-
-    return _logger
-
-def log_provenance_event(event_type: str, details: Dict[str, Any]) -> None:
+def get_logger(name: str = __name__) -> logging.Logger:
     """
-    Log a generic provenance event to the console and optionally to a file.
-    """
-    logger = get_logger()
-    extra = {"event_type": event_type, **details}
-    logger.info("Provenance Event", extra={"extra_data": extra})
+    Return a logger instance for the given module name.
 
-def log_api_query(service: str, query_params: Dict[str, Any], success: bool, response_time: float, error: Optional[str] = None) -> None:
+    The root logger is configured once; subsequent calls return child loggers.
     """
-    Log API query details specifically to `data/provenance/dft_queries.jsonl`.
-    This function appends a JSON line for every API interaction.
+    _ensure_logger()
+    return logging.getLogger(name)
+
+# ----------------------------------------------------------------------
+# Simple provenance / event logging utilities
+# ----------------------------------------------------------------------
+_PROVENANCE_DIR = Path(__file__).resolve().parents[2] / "data" / "provenance"
+_PROVENANCE_DIR.mkdir(parents=True, exist_ok=True)
+
+def _write_event(event_type: str, details: Dict[str, Any]) -> None:
     """
-    log_entry = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "service": service,
-        "query_params": query_params,
-        "success": success,
-        "response_time_seconds": response_time,
-        "error": error,
-        "type": "api_query"
-    }
+    Append a JSON line to the provenance log.
 
-    # Write to the specific JSONL file for DFT queries
-    output_path = Path("data/provenance/dft_queries.jsonl")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(log_entry) + "\n")
-
-    # Also log to the main logger for visibility
-    logger = get_logger()
-    status = "SUCCESS" if success else "FAILED"
-    logger.info(f"API Query: {service} -> {status}", extra={"extra_data": {"service": service, "success": success, "response_time": response_time}})
-
-def log_data_artifact(artifact_path: str, operation: str, checksum: Optional[str] = None) -> None:
+    Args:
+        event_type: Short identifier for the kind of event.
+        details: Arbitrary dictionary of event‑specific data.
     """
-    Log data artifact creation or modification.
+    timestamp = datetime.utcnow().isoformat() + "Z"
+    entry = {"timestamp": timestamp, "event_type": event_type, "details": details}
+    log_path = _PROVENANCE_DIR / "provenance.log"
+    with log_path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(entry) + "\n")
+
+def log_provenance_event(event_type: str, **details: Any) -> None:
     """
-    logger = get_logger()
-    extra = {
-        "artifact_path": artifact_path,
-        "operation": operation,
-        "checksum": checksum
-    }
-    logger.info("Data Artifact Event", extra={"extra_data": extra})
+    Public helper used throughout the pipeline to record high‑level events.
+
+    Example:
+        log_provenance_event("data_download", source=url, rows=123)
+    """
+    _write_event(event_type, details)
+
+def log_api_query(service: str, query_params: Dict[str, Any], success: bool,
+                  response_time: float, error: str = "") -> None:
+    """
+    Record an API request – used by the Materials Project fetcher.
+
+    Args:
+        service: Name of the external service (e.g., "Materials Project Elasticity").
+        query_params: Dictionary of parameters sent to the service.
+        success: Whether the request succeeded (HTTP 200).
+        response_time: Elapsed time in seconds.
+        error: Optional error message if the request failed.
+    """
+    _write_event(
+        "api_query",
+        {
+            "service": service,
+            "query_params": query_params,
+            "success": success,
+            "response_time_s": response_time,
+            "error": error,
+        },
+    )
+
+def log_data_artifact(artifact_path: Path, action: str = "created") -> None:
+    """
+    Record creation/modification of a data artifact.
+
+    Args:
+        artifact_path: Path to the file that was written.
+        action: Description of the action (e.g., "created", "updated").
+    """
+    _write_event(
+        "data_artifact",
+        {
+            "path": str(artifact_path),
+            "action": action,
+            "size_bytes": artifact_path.stat().st_size if artifact_path.exists() else None,
+        },
+    )

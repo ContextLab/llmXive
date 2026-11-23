@@ -1,0 +1,43 @@
+# Schema for Required Variables Configuration
+# This file defines the *structure* (shape) of the required variables configuration.
+# It is NOT the instance data itself. The actual list of required variables
+# must be provided in data/config/research_design.yaml.
+#
+# Addresses FR-001: The system must validate that all required predictors and outcomes
+# are present in the dataset before proceeding with analysis.
+#
+# Schema Definition:
+# - required_predictors: A list of strings, where each string is a taxa name.
+# - required_outcomes: A list of strings, where each string is a sleep metric name.
+#
+# Example valid instance (for reference only, NOT the actual data):
+# required_predictors:
+#   - "Bacteroides"
+#   - "Firmicutes"
+# required_outcomes:
+#   - "SWS duration"
+#   - "REM latency"
+
+$schema: "http://yaml.org/yaml/1.2"
+type: object
+properties:
+  required_predictors:
+    type: array
+    description: "List of required taxa names (predictors) that must be present in the dataset."
+    items:
+      type: string
+      description: "A single taxa name."
+    minItems: 1
+    uniqueItems: true
+  required_outcomes:
+    type: array
+    description: "List of required sleep metric names (outcomes) that must be present in the dataset."
+    items:
+      type: string
+      description: "A single sleep metric name."
+    minItems: 1
+    uniqueItems: true
+required:
+  - required_predictors
+  - required_outcomes
+additionalProperties: false

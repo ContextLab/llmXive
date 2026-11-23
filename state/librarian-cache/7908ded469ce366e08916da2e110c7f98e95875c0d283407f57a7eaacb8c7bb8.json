@@ -1,0 +1,574 @@
+{
+  "fetched_at": "2026-10-22T12:27:18Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Exploring the Statistical Significance of Fine-Structure Constant Variations",
+      "target_n": 5
+    },
+    "duration_seconds": 66.986,
+    "ended_at": "2026-10-22T12:27:18Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "statistical analysis of fine‑structure constant variability"
+        ],
+        [
+          2,
+          "constraints on temporal variations of the electromagnetic coupling α"
+        ],
+        [
+          3,
+          "spatial anisotropy of the fine‑structure constant in quasar spectra"
+        ],
+        [
+          4,
+          "Bayesian inference of α drift across cosmological distances"
+        ],
+        [
+          5,
+          "Monte Monte Carlo assessment of α variation significance"
+        ],
+        [
+          6,
+          "limits on α evolution from high‑redshift absorption systems"
+        ],
+        [
+          7,
+          "observational tests of fundamental constant stability"
+        ],
+        [
+          8,
+          "spectroscopic measurements of α at early cosmic epochs"
+        ],
+        [
+          9,
+          "cosmological implications of a time‑varying fine‑structure constant"
+        ],
+        [
+          10,
+          "global fitting of fine‑structure constant variation data sets"
+        ],
+        [
+          11,
+          "quasar absorption line studies of α heterogeneity"
+        ],
+        [
+          12,
+          "anisotropic models for fine‑structure constant fluctuations"
+        ],
+        [
+          13,
+          "statistical significance of α deviations in astrophysical observations"
+        ],
+        [
+          14,
+          "theoretical frameworks for varying electromagnetic coupling"
+        ],
+        [
+          15,
+          "anthropic constraints on the constancy of the fine‑structure constant"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Exploring the Statistical Significance of Fine-Structure Constant Variations physics": 0,
+        "statistical analysis of fine‑structure constant variability": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "alpha variation fundamental constant drift",
+      "quasar absorption spectra",
+      "many-multiplet Δα/α",
+      "Bayesian evidence confidence interval",
+      "scalar field coupling"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2410.00684"
+      ]
+    },
+    "per_query_hit_count": {
+      "Bayesian evidence confidence interval": 3,
+      "Exploring the Statistical Significance of Fine-Structure Constant Variations physics": 3,
+      "alpha variation fundamental constant drift": 3,
+      "many-multiplet Δα/α": 3,
+      "quasar absorption spectra": 3,
+      "scalar field coupling": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "physics/0703151",
+          "rationale": "The paper presents a theoretical calculation of the fine‑structure constant’s value, without measuring or analyzing any spatial/temporal variations or their statistical significance, and thus does not address the user’s question about the statistical significance of fine‑structure constant variations.",
+          "title": "Physics based calculation of the fine structure constant"
+        },
+        {
+          "primary_pointer": "hep-ph/0306230",
+          "rationale": "The paper presents a theoretical representation of how the fine‑structure constant could vary, but it does not provide statistical analysis, significance testing, or empirical measurements of α‑variations. Consequently, it does not satisfy any inclusion criteria (a‑f) for a literature review focused on the statistical significance of fine‑structure constant variations.",
+          "title": "Global Representation of the Fine Structure Constant and its Variation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-10-22T12:26:11Z",
+    "term_input": {
+      "normalized": "exploring the statistical significance of fine-structure constant variations physics",
+      "raw": "Exploring the Statistical Significance of Fine-Structure Constant Variations physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The European Particle Physics Strategy Update (EPPSU) process takes a bottom-up approach, whereby the community is first invited to submit proposals (also called inputs) for projects that it would like to see realised in the near-term, mid-term and longer-term future. National inputs as well as inputs from National Laboratories are also an important element of the process. All these inputs are then reviewed by the Physics Preparatory Group (PPG), whose role is to organize a Symposium around the submitted ideas and to prepare a community discussion on the importance and merits of the various proposals. The results of these discussions are then concisely summarised in this Briefing Book, prepared by the Conveners, assisted by Scientific Secretaries, and with further contributions provided by the Contributors listed on the title page. This constitutes the basis for the considerations of the European Strategy Group (ESG), consisting of scientific delegates from CERN Member States, Associate Member States, directors of major European laboratories, representatives of various European organizations as well as invitees from outside the European Community. The ESG has the mission to formulate the European Strategy Update for the consideration and approval of the CERN Council.",
+          "claimed_authors": [
+            " European Strategy for Particle Physics Preparatory Group"
+          ],
+          "claimed_title": "Physics Briefing Book",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.11775"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Physics Briefing Book')",
+        "failed_at": "2026-10-22T12:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the current expectations for the design and physics program of an e+e- linear collider of center of mass energy 500 GeV -- 1 TeV. We review the experiments that would be carried out at this facility and demonstrate its key role in exploring physics beyond the Standard Model over the full range of theoretical possibilities. We then show the feasibility of constructing this machine, by reviewing the current status of linear collider technology and by presenting a precis of our `zeroth-order' design.",
+          "claimed_authors": [
+            " NLC ZDR Design Group",
+            " NLC Physics Working Group",
+            "S. Kuhlman"
+          ],
+          "claimed_title": "Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1996,
+          "primary_pointer": "hep-ex/9605011"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title=\"Physics and Technology of the Next Linear Collider: A Report Submitted to Snowmass '96\")",
+        "failed_at": "2026-10-22T12:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There is no doubt that the field of Fundamental Constants in Physics and Their Time Variation is one of the hottest subjects in modern theoretical and experimental physics, with potential implications in all fundamental areas of physics research, such as particle physics, gravitation, astrophysics and cosmology. In this Special Issue, the state-of-the-art in the field is presented in detail.",
+          "claimed_authors": [
+            "Joan Solà"
+          ],
+          "claimed_title": "Fundamental Constants in Physics and Their Time Variation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1507.02229"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Fundamental Constants in Physics and Their Time Variation')",
+        "failed_at": "2026-10-22T12:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Review of recent works devoted to the variation of the fundamental constants is presented including atomic clocks, quasar absorption spectra, and Oklo natural nuclear reactor data. Assuming linear variation with time we can compare different results. From the quasar absorption spectra:\n  $\\dotμ/μ=(1 \\pm 3) \\times 10^{-16}$ yr$^{-1}$. A combination of this result and the atomic clock results gives the best limt on variation of $α$: $\\dotα/α=(-0.8 \\pm 0.8) \\times 10^{-16}$ yr$^{-1}$. The Oklo natural reactor gives the best limit on the variation of $m_s/Λ_{QCD}$ where $m_s$ is the strange quark mass.\n  Huge enhancement of the relative variation effects happens in transitions between close atomic, molecular and nuclear energy levels. We suggest several new cases where the levels are very narrow. Large enhancement of the variation effects is also possible in cold atomic and molecular collisions near Feshbach resonance. Massive bodies (stars or galaxies) can also affect physical constants. They have large scalar charge $S$ proportional to number of particles which produces a Coulomb-like scalar field $U=S/r$. This leads to a variation of the fundamental constants proportional to the gravitational potential, e.g. $δα/ α= k_αδ(GM/ r c^2)$. We compare different manifestations of this effect.The strongest limit\n  $k_α+0.17 k_e= (-3.5\\pm 6) \\times 10^{-7}$.",
+          "claimed_authors": [
+            "V. V. Flambaum"
+          ],
+          "claimed_title": "Variation of fundamental constants: theory and observations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0705.3704"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Variation of fundamental constants: theory and observations')",
+        "failed_at": "2026-10-22T12:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We discuss aspects of antihydrogen studies, that relate to particle physics ideas and techniques, within the context of the ALPHA experiment at CERN's Antiproton Decelerator facility. We review the fundamental physics motivations for antihydrogen studies, and their potential physics reach. We argue that initial spectroscopy measurements, once antihydrogen is trapped, could provide competitive tests of CPT, possibly probing physics at the Planck Scale. We discuss some of the particle detection techniques used in ALPHA. Preliminary results from commissioning studies of a partial system of the ALPHA Si vertex detector are presented, the results of which highlight the power of annihilation vertex detection capability in antihydrogen studies.",
+          "claimed_authors": [
+            " ALPHA Collaboration",
+            "M. C. Fujiwara",
+            "G. B. Andresen",
+            "W. Bertsche",
+            "P. D. Bowe",
+            "C. C. Bray",
+            "E. Butler",
+            "C. L. Cesar",
+            "S. Chapman",
+            "M. Charlton",
+            "J. Fajans",
+            "R. Funakoshi",
+            "D. R. Gill",
+            "J. S. Hangst",
+            "W. N. Hardy",
+            "R. S. Hayano",
+            "M. E. Hayden",
+            "A. J. Humphries",
+            "R. Hydomako",
+            "M. J. Jenkins",
+            "L. V. Jorgensen",
+            "L. Kurchaninov",
+            "W. Lai",
+            "R. Lambo",
+            "N. Madsen",
+            "P. Nolan",
+            "K. Olchanski",
+            "A. Olin",
+            "A. Povilus",
+            "P. Pusa",
+            "F. Robicheaux",
+            "E. Sarid",
+            "S. Seif El Nasr",
+            "D. M. Silveira",
+            "J. W. Storey",
+            "R. I. Thompson",
+            "D. P. van der Werf",
+            "L. Wasilenko",
+            "J. S. Wurtele",
+            "Y. Yamazaki"
+          ],
+          "claimed_title": "Particle Physics Aspects of Antihydrogen Studies with ALPHA at CERN",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0805.4082"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Particle Physics Aspects of Antihydrogen Studies with ALPHA at CERN')",
+        "failed_at": "2026-10-22T12:26:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present high signal-to-noise, 5 A resolution (FWHM) spectra of 66 z \\ga 4 bright quasars obtained with the 4 m Cerro Tololo Inter-American Observatory and 4.2 m William Hershel telescopes. The primary goal of these observations was to undertake a new survey for intervening absorption systems detected in the spectra of background quasars. We look for both Lyman-limit systems (column densities N(HI) > 1.6 * 10^{17} atoms cm-2) and damped Ly-alpha systems (column densities N(HI) > 2 * 10^{20} atoms cm-2). This work resulted in the discovery of 49 Lyman-limit systems, 15 of which are within 3000 km s-1 of the quasar emission and thus might be associated with the quasar itself, 26 new damped Ly-alpha absorption candidates, 15 of which have z>3.5 and numerous metal absorption systems. In addition ten of the quasars presented here exhibit intrinsic broad absorption lines.",
+          "claimed_authors": [
+            "Celine Peroux",
+            "Lisa J. Storrie-Lombardi",
+            "Richard G. McMahon",
+            "Mike Irwin",
+            "Isobel M. Hook"
+          ],
+          "claimed_title": "Absorption Systems in the Spectra of 66 z > 4 Quasars",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "astro-ph/0101179"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Absorption Systems in the Spectra of 66 z > 4 Quasars')",
+        "failed_at": "2026-10-22T12:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We have used the VLA FIRST survey and the APM catalog of the POSS-I plates as the basis for constructing a new radio-selected sample of optically bright quasars. This is the first radio-selected sample that is competitive in size with current optically selected quasar surveys. Using only two basic criteria, radio-optical positional coincidence and optical morphology, quasars and BL Lacs can be identified with 60% selection efficiency; the efficiency increases to 70% for objects fainter than magnitude 17. We show that a more sophisticated selection scheme can predict with better than 85% reliability which candidates will turn out to be quasars.\n  This paper presents the second installment of the FIRST Bright Quasar Survey with a catalog of 636 quasars distributed over 2682 square degrees. The quasar sample is characterized and all spectra are displayed. The FBQS detects both radio-loud and radio-quiet quasars out to a redshift z>3. We find a large population of objects of intermediate radio-loudness; there is no evidence in our sample for a bimodal distribution of radio characteristics. The sample includes ~29 broad absorption line quasars, both high and low ionization, and a number of new objects with remarkable optical spectra.",
+          "claimed_authors": [
+            "R. L. White",
+            "R. H. Becker",
+            "M. D. Gregg",
+            "S. A. Laurent-Muehleisen",
+            "M. S. Brotherton",
+            "C. D. Impey",
+            "C. E. Petry",
+            "C. B. Foltz",
+            "F. H. Chaffee",
+            "G. T. Richards",
+            "W. R. Oegerle",
+            "D. J. Helfand",
+            "R. G. McMahon",
+            "J. E. Cabanela"
+          ],
+          "claimed_title": "The FIRST Bright Quasar Survey. II. 60 Nights and 1200 Spectra Later",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1999,
+          "primary_pointer": "astro-ph/9912215"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='The FIRST Bright Quasar Survey. II. 60 Nights and 1200 Spectra Later')",
+        "failed_at": "2026-10-22T12:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The measurement of $Δα/α$ from the QSO absorption lines of Fe_II taken at two different redshifts (Quast et al, Levshakov et al) is compared with the result based on the 23 data points also obtained from VLT/UVES (Chand et al), to demonstrate that the apparent oscillatory time-dependence fitting the latter taken at face value is reinforced by the former claimed to be of much better accuracy.",
+          "claimed_authors": [
+            "Yasunori Fujii"
+          ],
+          "claimed_title": "A possible new interpretation of the results of $Δα/α$ from QSO absorption lines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0502191"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='A possible new interpretation of the results of $Δα/α$ from QSO absorption lines')",
+        "failed_at": "2026-10-22T12:26:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The phase III BNT162b2 mRNA COVID-19 vaccine trial is based on a Bayesian design and analysis, and the main evidence of vaccine efficacy is presented in Bayesian statistics. Confusion and mistakes are produced in the presentation of the Bayesian results. Some key statistics, such as Bayesian credible intervals, are mislabeled and stated as confidence intervals. Posterior probabilities of the vaccine efficacy are not reported as the main results. We illustrate the main differences in the reporting of Bayesian analysis results for a clinical trial and provide four recommendations. We argue that statistical evidence from a Bayesian trial, when presented properly, is easier to interpret and directly addresses the main clinical questions, thereby better supporting regulatory decision making. We also recommend using abbreviation \"BI\" to represent Bayesian credible intervals as a differentiation to \"CI\" which stands for confidence interval.",
+          "claimed_authors": [
+            "Yuan Ji",
+            "Shijie Yuan"
+          ],
+          "claimed_title": "Lessons Learned from the Bayesian Design and Analysis for the BNT162b2 COVID-19 Vaccine Phase 3 Trial",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.05499"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Lessons Learned from the Bayesian Design and Analysis for the BNT162b2 COVID-19 Vaccine Phase 3 Trial')",
+        "failed_at": "2026-10-22T12:26:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consider a linear regression model with independent and identically normally distributed random errors. Suppose that the parameter of interest is a specified linear combination of the regression parameters. We prove that the usual confidence interval for this parameter is admissible within a broad class of confidence intervals.",
+          "claimed_authors": [
+            "Paul Kabaila",
+            "Khageswor Giri",
+            "Hannes Leeb"
+          ],
+          "claimed_title": "Admissibility of the usual confidence interval in linear regression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1001.2939"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Admissibility of the usual confidence interval in linear regression')",
+        "failed_at": "2026-10-22T12:26:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Normalised citation counts are routinely used to assess the average impact of research groups or nations. There is controversy over whether confidence intervals for them are theoretically valid or practically useful. In response, this article introduces the concept of a group's underlying research capability to produce impactful research. It then investigates whether confidence intervals could delimit the underlying capability of a group in practice. From 123120 confidence interval comparisons for the average citation impact of the national outputs of ten countries within 36 individual large monodisciplinary journals, moderately fewer than 95% of subsequent indicator values fall within 95% confidence intervals from prior years, with the percentage declining over time. This is consistent with confidence intervals effectively delimiting the research capability of a group, although it does not prove that this is the cause of the results. The results are unaffected by whether internationally collaborative articles are included.",
+          "claimed_authors": [
+            "Mike Thelwall"
+          ],
+          "claimed_title": "Confidence intervals for normalised citation counts: Can they delimit underlying research capability?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.08708"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Confidence intervals for normalised citation counts: Can they delimit underlying research capability?')",
+        "failed_at": "2026-10-22T12:26:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-10-22T12:26:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time-domain simulation of wave phenomena on a finite computational domain often requires a fictitious outer boundary. An important practical issue is the specification of appropriate boundary conditions on this boundary, often conditions of complete transparency. Attention to this issue has been paid elsewhere, and here we consider a different, although related, issue: far-field signal recovery. Namely, from smooth data recorded on the outer boundary we wish to recover the far-field signal which would reach arbitrarily large distances. These signals encode information about interior scatterers and often correspond to actual measurements. This article expresses far-field signal recovery in terms of time-domain convolutions, each between a solution multipole moment recorded at the boundary and a sum-of-exponentials kernel. Each exponential corresponds to a pole term in the Laplace transform of the kernel, a finite sum of simple poles. Greengard, Hagstrom, and Jiang have derived the large-$\\ell$ (spherical-harmonic index) asymptotic expansion for the pole residues, and their analysis shows that, when expressed in terms of the exact sum-of-exponentials, large-$\\ell$ signal recovery is plagued by cancellation errors. Nevertheless, through an alternative integral representation of the kernel and its subsequent approximation by a {\\em smaller} number of exponential terms (kernel compression), we are able to alleviate these errors and achieve accurate signal recovery. We empirically examine scaling relations between the parameters which determine a compressed kernel, and perform numerical tests of signal \"teleportation\" from one radial value $r_1$ to another $r_2$, including the case $r_2=\\infty$. We conclude with a brief discussion on application to other hyperbolic equations posed on non-flat geometries where waves undergo backscatter.",
+          "claimed_authors": [
+            "Scott E. Field",
+            "Stephen R. Lau"
+          ],
+          "claimed_title": "Fast evaluation of far-field signals for time-domain wave propagation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1409.5893"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Fast evaluation of far-field signals for time-domain wave propagation')",
+        "failed_at": "2026-10-22T12:26:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is demonstrated how the right hand sides of the Lorentz Transformation equations may be written, in a Lorentz invariant manner, as 4--vector scalar products. This implies the existence of invariant length intervals analogous to invariant proper time intervals. This formalism, making essential use of the 4-vector electromagnetic potential concept, provides a short derivation of the Lorentz force law of classical electrodynamics, the conventional definition of the magnetic field, in terms of spatial derivatives of the 4--vector potential and the Faraday-Lenz Law. An important distinction between the physical meanings of the space-time and energy-momentum 4--vectors is pointed out.",
+          "claimed_authors": [
+            "J. H. Field"
+          ],
+          "claimed_title": "Derivation of the Lorentz Force Law, the Magnetic Field Concept and the Faraday-Lenz Law using an Invariant Formulation of the Lorentz Transformation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "physics/0409103"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Exploring the Statistical Significance of Fine-Structure Constant Variations phy', candidate_title='Derivation of the Lorentz Force Law, the Magnetic Field Concept and the Faraday-Lenz Law using an Invariant Formulation of the Lorentz Transformation')",
+        "failed_at": "2026-10-22T12:26:44Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "D. F. Mota",
+            "J. D. Barrow"
+          ],
+          "title": "Local and Global Variations of The Fine Structure Constant",
+          "venue": "arXiv",
+          "year": 2003
+        },
+        "primary_pointer": "astro-ph/0309273",
+        "summary": "Using the BSBM varying-alpha theory, with dark matter dominated by magnetic energy, and the spherical collapse model for cosmological structure formation, we have studied the effects of the dark-energy equation of state and the coupling of alpha to the matter fields on the space and time evolution of alpha. We have compared its evolution inside virialised overdensities with that in the cosmological background, using the standard ($% Λ=0$) $CDM$ model of structure formation and the dark-energy modification, $wCDM$. We find that, independently of the model of structure formation one considers, there is always a difference between the value of alpha in an overdensity and in the background. In a $SCDM$ model, this difference is the same, independent of the virialisation redshift of the overdense region. In the case of a $wCDM$ model, especially at low redshifts, the difference depends on the time when virialisation occurs and the equation of state of the dark energy. At high redshifts, when the $wCDM$ model becomes asymptotically equivalent to the $SCDM$ one, the difference is constant. At low redshifts, when dark energy starts to dominate the cosmological expansion, the difference between alpha in a cluster and in the background grows. The inclusion of the effects of inhomogeneity leads naturally to no observable local time variations of alpha on Earth and in our Galaxy even though time variations can be significant on quasar scales. The inclusion of the effects of inhomogeneous cosmological evolution are necessary if terrestrial and solar-system bounds on the time variation of the fine structure 'constant' are to be correctly compared with extragalactic data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/astro-ph/0309273",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-22T12:26:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Srđan M. Kotuš",
+            "Michael T. Murphy",
+            "Robert F. Carswell"
+          ],
+          "title": "High-precision limit on variation in the fine-structure constant from a single quasar absorption system",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1609.03860",
+        "summary": "The brightest southern quasar above redshift $z=1$, HE 0515$-$4414, with its strong intervening metal absorption-line system at $z_{abs}=1.1508$, provides a unique opportunity to precisely measure or limit relative variations in the fine-structure constant ($Δα/α$). A variation of just $\\sim$3 parts per million (ppm) would produce detectable velocity shifts between its many strong metal transitions. Using new and archival observations from the Ultraviolet and Visual Echelle Spectrograph (UVES) we obtain an extremely high signal-to-noise ratio spectrum (peaking at S/N $\\approx250$ pix$^{-1}$). This provides the most precise measurement of $Δα/α$ from a single absorption system to date, $Δα/α=-1.42\\pm0.55_{\\rm stat}\\pm0.65_{\\rm sys}$ ppm, comparable with the precision from previous, large samples of $\\sim$150 absorbers. The largest systematic error in all (but one) previous similar measurements, including the large samples, was long-range distortions in the wavelength calibration. These would add a $\\sim$2 ppm systematic error to our measurement and up to $\\sim$10 ppm to other measurements using Mg and Fe transitions. However, we corrected the UVES spectra using well-calibrated spectra of the same quasar from the High Accuracy Radial velocity Planet Searcher (HARPS), leaving a residual 0.59 ppm systematic uncertainty, the largest contribution to our total systematic error. A similar approach, using short observations on future, well-calibrated spectrographs to correct existing, high S/N spectra, would efficiently enable a large sample of reliable $Δα/α$ measurements. The high S/N UVES spectrum also provides insights into analysis difficulties, detector artifacts and systematic errors likely to arise from 25-40-m telescopes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1609.03860",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-22T12:26:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "John K. Webb",
+            "Chung-Chi Lee",
+            "Dinko Milaković",
+            "Darren Dougan",
+            "Vladimir A. Dzuba",
+            "Victor V. Flambaum"
+          ],
+          "title": "Searching for new physics using high precision absorption spectroscopy; continuum placement uncertainties and $Δα/α$ towards the quasar PHL957",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.00684",
+        "summary": "Detecting or placing upper limits on spacetime variations of fundamental constants requires quantifying every potential source of uncertainty. We continue our previous study into the impact of continuum variations on measurements of the fine structure constant, here in the context of quasar absorption systems. An automated (hence objective and reproducible) continuum modelling method is reported in an accompanying paper. We apply the method to the $z_{abs}=1.7975$ absorption system towards the quasar PHL957. Multiple continuum fits are generated, and for each, we derive independent models of the system, each giving its own measurement of the fine structure constant $α$. This process isolates and quantifies the error contribution associated with continuum placement uncertainty. This source of uncertainty, ignored in many previous measurements, arises in two ways: (i) slight local continuum tilt uncertainty generates small line shifts, and (ii) different continuum estimates produce slightly different kinematic structures in the absorption system model. Taking continuum placement uncertainty into account, the new PHL957 measurement we obtain is $Δα/α= -0.53^{+5.45}_{-5.51} \\times 10^{-6}$. This measurement assumes terrestrial magnesium isotopic abundances. Recommendations are provided for future $α$ measurements. Finally, we also note the potential importance of the effects identified here for future redshift drift experiments.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.00684",
+          "http_status": 200,
+          "pdf_sample_score": 0.2765,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-22T12:26:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ulf-G. Meißner",
+            "Bernard Ch. Metsch",
+            "Helen Meyer"
+          ],
+          "title": "Fine-tunings in radiative $α$-particle capture on $^{12}$C at astrophysical energies",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.11180",
+        "summary": "We investigate the fine-tuning of radiative alpha-particle capture on carbon, $α(^{12}{\\rm C},^{16}{\\rm O})γ$, at astrophysical energies. Utilizing results from cluster effective field theory for this reaction, we find that the low-energy data of the astrophysical S-factor allow for only very small variations in the electromagnetic fine-structure constant $α$, namely $|δα/α| \\leq 0.2\\,$ per mille, in both the $E1$ and the $E2$ radiative capture.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.11180",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-22T12:26:44Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ralf Quast",
+            "Dieter Reimers",
+            "Sergei A. Levshakov"
+          ],
+          "title": "Probing the variability of the fine-structure constant with the VLT/UVES",
+          "venue": "arXiv",
+          "year": 2003
+        },
+        "primary_pointer": "astro-ph/0311280",
+        "summary": "We assess the cosmological variability of the fine-structure constant from the analysis of an ensemble of Fe II absorption lines at the redshift z=1.15 toward the QSO HE 0515-4414 by means of the standard many-multiplet (MM) technique and its revision based on linear regression (RMM). This is the first time the MM technique is applied to exceptional high-resolution and high signal-to-noise QSO spectra recorded with the UV-Visual Echelle Spectrograph (UVES) at the ESO Very Large Telescope (VLT). Our analysis results in the most stringent bounds hitherto infered from QSO absorption lines. Our results support the null hypothesis of a non-varying fine-structure constant at a significance level of 91 percent, whereas the support for the results presented in former MM studies indicating a variation in the fine-structure constant is 12 percent.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/astro-ph/0311280",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-22T12:26:49Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "exploring the statistical significance of fine-structure constant variations physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "status": "success",
+  "pairing_rate": 0.95,
+  "threshold": 0.95,
+  "geo_unique_biosamples": 20,
+  "mw_unique_biosamples": 20,
+  "matched_biosamples_count": 19,
+  "matched_ids": [
+    "SAMN001", "SAMN002", "SAMN003", "SAMN004", "SAMN005",
+    "SAMN006", "SAMN007", "SAMN008", "SAMN009", "SAMN010",
+    "SAMN011", "SAMN012", "SAMN013", "SAMN014", "SAMN015",
+    "SAMN016", "SAMN017", "SAMN018", "SAMN019"
+  ],
+  "total_expression_samples": 20,
+  "total_metabolite_samples": 20,
+  "recommendation": "PROCEED",
+  "message": "Pairing rate 95.00% meets the threshold of 95%."
+}

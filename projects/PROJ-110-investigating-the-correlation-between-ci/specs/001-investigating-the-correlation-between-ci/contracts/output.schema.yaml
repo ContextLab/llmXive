@@ -1,0 +1,81 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for statistical analysis results and model outputs."
+type: object
+properties:
+  statistical_results:
+    type: array
+    items:
+      type: object
+      properties:
+        gene_symbol:
+          type: string
+        tissue:
+          type: string
+        test_type:
+          type: string
+          enum: ["ANCOVA", "logistic_regression", "correlation"]
+        statistic:
+          type: number
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        adj_p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        effect_size:
+          type: number
+        significant:
+          type: boolean
+      required:
+        - gene_symbol
+        - tissue
+        - test_type
+        - p_value
+        - adj_p_value
+        - significant
+  model_metrics:
+    type: object
+    properties:
+      auc_mean:
+        type: number
+        minimum: 0
+        maximum: 1
+      auc_std:
+        type: number
+        minimum: 0
+      cv_folds:
+        type: integer
+        minimum: 1
+      odds_ratios:
+        type: object
+        additionalProperties:
+          type: object
+          properties:
+            or:
+              type: number
+            se:
+              type: number
+            p_value:
+              type: number
+            ci_lower:
+              type: number
+            ci_upper:
+              type: number
+          required:
+            - or
+            - se
+            - p_value
+            - ci_lower
+            - ci_upper
+    required:
+      - auc_mean
+      - auc_std
+      - cv_folds
+      - odds_ratios
+required:
+  - statistical_results
+  - model_metrics
+additionalProperties: false

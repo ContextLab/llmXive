@@ -1,0 +1,210 @@
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Generate fixed sorted list of 1000 image IDs with seed 42 from verified
+    source
+  claim_id: c_3af6209f
+  context: 'T053-GEN [P] [US1] Generate deterministic dataset ID list. Logic: Generate
+    data/raw/selected_ids.json containing a fixed, sorted list of 1000 image IDs (seed=42)
+    derived from a verified source (e.g., specific commit hash or checksum of the
+    MoralD/Visual Genome subset).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/raw/selected_ids.json containing a fixed, sorted list of
+    1000 image IDs (seed=42) derived from a verified source.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:39:32Z'
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Filter scenarios mean ambiguity 3.5 Cohen kappa 0.6
+  claim_id: c_713e2199
+  context: "T015d [US1] Implement Human Coding Protocol & Interface... Calculate Cohen's\
+    \ \u03BA for each scenario. Filter scenarios with mean ambiguity \u2265 3.5 AND\
+    \ \u03BA \u2265 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter scenarios with mean ambiguity \u2265 3.5 AND \u03BA \u2265 0.6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:39:32Z'
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Verify ROI cosine similarity 0.95 original versus manipulated
+  claim_id: c_67071e70
+  context: "T017 [US1] Implement semantic preservation verification... (1) Crop target\
+    \ region using bounding box; compute CLIP embedding for ROI in original vs ROI\
+    \ in manipulated; verify cosine similarity \u2265 0.95."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify cosine similarity \u2265 0.95 for ROI in original vs ROI in manipulated."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:39:32Z'
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Verify background cosine similarity 0.99 original versus manipulated
+  claim_id: c_b02f1de4
+  context: "T017 [US1] Implement semantic preservation verification... (2) Crop background\
+    \ region (non-ROI); compute CLIP embedding for background in original vs manipulated;\
+    \ verify cosine similarity \u2265 0.99 (to ensure background is unchanged)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify cosine similarity \u2265 0.99 for background region in original\
+    \ vs manipulated."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:39:32Z'
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Verify ROI Laplacian variance change less than 0.05
+  claim_id: c_21e29c49
+  context: T017 [US1] Implement semantic preservation verification... (3) Compute
+    texture and edge density changes (Laplacian variance) in ROI using cv2.Laplacian;
+    verify change < 0.05 (Stimulus-Control Integrity).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_ROI_Laplacian_variance_change_less_than_0.05
+  kind: magnitude
+  raw_text: Verify texture and edge density changes (Laplacian variance) in ROI <
+    0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:42:22Z'
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Exclude scenarios manipulation check agreement less than 0.80
+  claim_id: c_43dd8623
+  context: 'T019-EXEC [US1] Enforce Pilot Human Manipulation Check Threshold. Logic:
+    (1) Read raw coder data... (2) Calculate agreement... (3) If agreement < 0.80,
+    flag scenario as failed and exclude from final manifest.'
+  evidence:
+    asserted: '0.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'Enforce Pilot Human Manipulation Check Threshold: If agreement < 0.80,
+    flag scenario as failed and exclude from final manifest.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T03:42:22Z'
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Exclude participants variance less than 0.1 or 90 percent identical ratings
+  claim_id: c_7cd0e9e0
+  context: 'T045 [US3] Execute Data Cleaning... Logic: Exclude if variance < 0.1 OR
+    >90% identical ratings.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_variance_less_than_0.1_or_90_percent_id
+  kind: magnitude
+  raw_text: Exclude participants with variance < 0.1 or >90% identical ratings.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:47:07Z'
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Exclude participants 90 percent identical ratings
+  claim_id: c_86c6aa0f
+  context: 'T045 [US3] Execute Data Cleaning... Logic: Exclude if variance < 0.1 OR
+    >90% identical ratings.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants with >90% identical ratings.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:47:07Z'
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Write warning and set power adequate false if power less than 0.80
+  claim_id: c_1b122289
+  context: 'T047 [US3] Implement Post-Hoc Power Analysis... Logic: Use observed effect
+    size to calculate power. If calculated power < 0.80, write a warning to the report
+    and set power_adequate=false in data/analysis/power_results.json.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Write_warning_and_set_power_adequate_false_if_power_less_tha
+  kind: magnitude
+  raw_text: If calculated power < 0.80, write a warning to the report and set power_adequate=false.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:49:41Z'
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Verify cleaning routine excludes participants variance less than 0.1
+    or 90 percent identical ratings
+  claim_id: c_2f385382
+  context: 'T056 [US3] Implement ''Straight-lining'' detection unit test... Logic:
+    Verify that the cleaning routine correctly identifies and excludes participants
+    with variance < 0.1 or >90% identical ratings, ensuring the analysis only includes
+    valid data.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_cleaning_routine_excludes_participants_variance_less
+  kind: magnitude
+  raw_text: Verify that the cleaning routine correctly identifies and excludes participants
+    with variance < 0.1 or >90% identical ratings.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:51:30Z'
+- artifact_path: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora/tasks.md
+  attempts: 1
+  canonical: Verify cleaning routine excludes participants 90 percent identical ratings
+  claim_id: c_696d8020
+  context: 'T056 [US3] Implement ''Straight-lining'' detection unit test... Logic:
+    Verify that the cleaning routine correctly identifies and excludes participants
+    with variance < 0.1 or >90% identical ratings, ensuring the analysis only includes
+    valid data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the cleaning routine correctly identifies and excludes participants
+    with >90% identical ratings.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:51:30Z'

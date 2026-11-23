@@ -1,0 +1,20 @@
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the four required prompt files (`zero_shot_basic.txt`, `zero_shot_style.txt`,\
+    \ `few_shot_basic.txt`, `few_shot_style.txt`) was provided; the claim lacks the\
+    \ actual files or their contents, so the task is not satisfied. The implementer\
+    \ must add these files in `data/prompts/` with complete, non\u2011placeholder\
+    \ prompt text as specified."
+T011:
+  c: false
+  h: 57f27f36a709bc1394616354a37541cf29ba5018689f3035fe8eac88435bc197
+  r: The required artifact `tests/contract/test_dataset_fetch.py` does not exist in
+    the repository, so the contract test for dataset fetch is missing. The task cannot
+    be considered completed until this file is created with appropriate test code.
+T018:
+  c: false
+  h: 81e84048ae210a339f880f7a468014d3997345efc94d7b23edeb155a35460e2b
+  r: "The required artifact `tests/contract/test_api_client.py` does not exist in\
+    \ the repository, so the contract test for the API client is missing entirely.\
+    \ Without this file, the task\u2019s deliverable is not provided."

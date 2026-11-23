@@ -1,0 +1,4 @@
+subtle_cue_subset:
+  file_path: data/processed/subtle_cue_subset.parquet
+  checksum: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+  algorithm: sha256

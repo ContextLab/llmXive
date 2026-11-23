@@ -1,18 +1,13 @@
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-]
-ignore = [
-    "E501", # line too long (handled by black)
-]
+# Ruff configuration file
+# Extends settings from pyproject.toml if needed, or stands alone
+# This file ensures ruff can be run explicitly via `ruff check .`
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+extend = "pyproject.toml"
+
+# Specific overrides for this project if needed
+# Example: ignore specific rules for specific directories
+# [tool.ruff]
+# ignore = []
+
+# Ensure output is compatible with CI
+output-format = "full"

@@ -1,0 +1,70 @@
+- artifact_path: projects/PROJ-399-the-impact-of-framing-on-perceived-sever/specs/001-the-impact-of-framing-on-perceived-sever/tasks.md
+  attempts: 1
+  canonical: Generate synthetic dataset of N=300 sampling 10 unique stimuli
+  claim_id: c_145ffdbf
+  context: 'Implement code/01_data_prep.R: Generate synthetic dataset (N=300) by sampling
+    10 unique stimuli. For each stimulus, generate 15 ''harm'' and 15 ''fact'' responses
+    (Total N=300, between-subjects design).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic dataset (N=300) by sampling 10 unique stimuli.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T03:53:07Z'
+- artifact_path: projects/PROJ-399-the-impact-of-framing-on-perceived-sever/specs/001-the-impact-of-framing-on-perceived-sever/tasks.md
+  attempts: 1
+  canonical: Verify N=300 detects d=0.3 with >= 80% power
+  claim_id: c_f374588a
+  context: "Goal: Perform an a priori power analysis to VERIFY that the planned sample\
+    \ size (N=300) is sufficient to detect a small-to-medium effect size (d=0.3) with\
+    \ \u226580% power."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform an a priori power analysis to VERIFY that the planned sample\
+    \ size (N=300) is sufficient to detect a small-to-medium effect size (d=0.3) with\
+    \ \u226580% power."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T03:54:13Z'
+- artifact_path: projects/PROJ-399-the-impact-of-framing-on-perceived-sever/specs/001-the-impact-of-framing-on-perceived-sever/tasks.md
+  attempts: 1
+  canonical: Confirm N=300 achieves >= 80% power
+  claim_id: c_47d3694a
+  context: "Implement code/02_power_analysis.R: Confirm that N=300 achieves \u2265\
+    80% power; if not, flag a warning in logs and halt execution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confirm that N=300 achieves \u226580% power; if not, flag a warning in\
+    \ logs and halt execution."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T03:54:57Z'
+- artifact_path: projects/PROJ-399-the-impact-of-framing-on-perceived-sever/specs/001-the-impact-of-framing-on-perceived-sever/tasks.md
+  attempts: 1
+  canonical: Ensure memory usage < 2GB for N=300 processing
+  claim_id: c_61dfc790
+  context: 'Performance optimization: Ensure memory usage stays < 2GB during peak
+    processing (validate synthetic N=300 limits)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure memory usage stays < 2GB during peak processing (validate synthetic
+    N=300 limits)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T03:55:40Z'

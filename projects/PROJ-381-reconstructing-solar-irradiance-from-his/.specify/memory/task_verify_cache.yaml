@@ -1,0 +1,20 @@
+T014c:
+  c: false
+  h: db0c193c629a83c022b2f981a667c3034c68baa419dded0bbc9713d0050f7a8d
+  r: The repository contains `code/data/preprocessing.py`, but the file is truncated
+    and does not show any logic that writes the combined, preprocessed dataset to
+    `data/processed/preprocessed_data.parquet`. Moreover, the expected parquet file
+    is absent from the filesystem. Consequently, the required output artifact is missing
+    and the implementation is not demonstrably complete.
+T024:
+  c: false
+  h: baa7b0bde8138d5fe0fb948423589c848475851e36342994ecf4e95b69cd744b
+  r: The required artifact `tests/test_comparison.py` does not exist on disk, so no
+    unit test for error reduction calculation is present. The task cannot be considered
+    completed until the file is created with appropriate test code.
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` file or modification is presented, and there is no evidence that\
+    \ the installation section now contains environment\u2011setup instructions. The\
+    \ required artifact is missing, so the task is not satisfied."

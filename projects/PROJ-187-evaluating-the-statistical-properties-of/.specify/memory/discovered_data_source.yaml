@@ -1,0 +1,12 @@
+status: none
+intent: OpenML python package dataset Adult Credit Card Fraud Covertype Higgs HAR
+  Shopper python package dataset
+required_fields:
+- numeric feature columns
+- categorical feature columns
+- target label column
+- missing value indicators
+- row identifier (optional)
+cache_key: a478234285cb170bbade764c66975067e0d5b9d8e4f981e7fd4aaf2a5a444184
+searched_at: '2026-10-26T04:11:53.912085+00:00'
+retry_count: 1

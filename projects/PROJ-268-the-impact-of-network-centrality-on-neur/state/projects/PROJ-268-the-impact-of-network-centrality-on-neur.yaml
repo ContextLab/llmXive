@@ -1,0 +1,39 @@
+# Project State: PROJ-268-the-impact-of-network-centrality-on-neur
+# Generated: 2024-01-01T00:00:00Z
+# Purpose: Store checksums, timestamps, and processing metadata for data artifacts.
+#
+# Format:
+#   artifact_path: <relative_path_to_data>
+#     sha256: <checksum>
+#     timestamp: <ISO8601>
+#     status: <raw|processed|verified>
+#
+# Example:
+#   data/raw/ds000224.parquet:
+#     sha256: abc123...
+#     timestamp: 2024-01-01T12:00:00Z
+#     status: raw
+
+metadata:
+  project_id: "PROJ-268-the-impact-of-network-centrality-on-neur"
+  created_at: "2024-01-01T00:00:00Z"
+  last_updated: "2024-01-01T00:00:00Z"
+  version: "0.1.0"
+  dependencies:
+    - nibabel
+    - numpy
+    - scipy
+    - pandas
+    - networkx
+    - scikit-learn
+    - matplotlib
+    - seaborn
+    - datasets
+    - nilearn
+    - brainsmash
+    - tqdm
+
+artifacts:
+  # Initialize empty artifact registry.
+  # Entries will be added by download_data.py and compute_metrics.py.
+  pass: true

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.21730",
+  "judged_at": "2026-08-01T04:24:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"$π$-bench: evaluating proactive personal assistant agents in long-hori\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same core constructs (proactive and personalized AI assistants) and operates within the same domain (LLM-based personal agents) as the user's question, providing essential prior work on the specific combination of proactivity and personalization that the user's benchmark likely aims to evaluate.",
+  "relevant": true
+}

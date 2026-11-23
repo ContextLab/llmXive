@@ -1,0 +1,11 @@
+{
+  "vif_warning": [
+    {
+      "feature": "size_mismatch",
+      "vif_value": 6.5,
+      "threshold": 5.0,
+      "action": "retained_per_constitution_principle_vi",
+      "reason": "Multicollinearity between mean_atomic_radius and size_mismatch is expected in metallic glasses; size_mismatch is retained for physical interpretability."
+    }
+  ]
+}

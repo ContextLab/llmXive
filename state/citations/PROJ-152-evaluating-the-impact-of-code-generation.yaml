@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 7cdcaf2f14d972b73b58a057c0eab61f617401ba27ec7b90a3762c74ef1dae42
+  artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: CodeQL - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q93480303
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q93480303
+  verified_at: '2026-10-14T15:28:25.794801Z'

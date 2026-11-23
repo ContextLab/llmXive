@@ -1,53 +1,40 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ModelResult"
 description: "Schema for the output of a trained regression model."
-type: "object"
+type: object
 required:
-  - "model_type"
-  - "target_variable"
-  - "r2_cv"
-  - "mae_cv"
-  - "f_statistic"
-  - "p_value"
-  - "feature_importance"
-  - "bootstrap_ci_lower"
-  - "bootstrap_ci_upper"
+  - model_type
+  - target_variable
+  - r2_cv
+  - mae_cv
+  - f_statistic
+  - p_value
+  - feature_importance
+  - bootstrap_ci_lower
+  - bootstrap_ci_upper
+  - notes
 properties:
   model_type:
-    type: "string"
+    type: string
     enum:
-      - "Linear"
-      - "RandomForest"
+      - Linear
+      - RandomForest
     description: "Type of model used."
   target_variable:
-    type: "string"
+    type: string
     enum:
-      - "coercivity"
-      - "saturation"
-    description: "The hysteresis parameter being predicted."
+      - coercivity
+      - saturation
+    description: "The hysterivity (typo) target variable being predicted."
   r2_cv:
-    type: "number"
+    type: number
     description: "Mean R-squared from 5-fold cross-validation."
   mae_cv:
-    type: "number"
-    description: "Mean Absolute Error from 5-fold cross-validation."
-  f_statistic:
-    type: "number"
-    description: "F-statistic from the comparison against the null model."
-  p_value:
-    type: "number"
-    description: "P-value from the F-test. Must be < 0.05 for significance."
-  feature_importance:
-    type: "object"
-    description: "Ranking of top 3 features by permutation importance."
-    additionalProperties:
-      type: "number"
-  bootstrap_ci_lower:
-    type: "number"
-    description: "Lower bound of the 95% confidence interval for R² (1000 resamples)."
-  bootstrap_ci_upper:
-    type: "number"
-    description: "Upper bound of the 95% confidence interval for R² (1000 resamples)."
-  notes:
-    type: "string"
-    description: "Additional notes on model limitations or microstructural confounders."
+    type: number
+    description: "Mean Absolute Error from 5..."
+  mae_cv:
+    correct: 1
+  mae_:
+    **** **
+
+

@@ -1,0 +1,27 @@
+[
+  {
+    "path": "data/analysis/correlation_effects.json",
+    "sha256": "d3fcc0b468b45d1e5a212b4e6f710fc77903b5b5c3f3756cf9962f91c830a887",
+    "size": 775
+  },
+  {
+    "path": "data/plots/correlation_metrics.json",
+    "sha256": "5246d13fef8c38c9048fd54d6a9d087ac5f1dcb4bd14cd5a064f4221ba0434db",
+    "size": 190
+  },
+  {
+    "path": "data/plots/regression_metrics.json",
+    "sha256": "cda2d29fba4742b0f8c7f78aab5a257f6300bd7c68eed931add80e4f1a8f795e",
+    "size": 424
+  },
+  {
+    "path": "data/plots/complexity_visualization_examples.png",
+    "sha256": "5062101942b272d00c257c5fdd60b661f44c283135b8e8be4849846a78bb2931",
+    "size": 170053
+  },
+  {
+    "path": "data/plots/crossing_vs_braid.png",
+    "sha256": "9ccb4635bfbd22bc36a3c1b37de15caaa97da06cd6a80c95fbf17a4b934e4c31",
+    "size": 30973
+  }
+]

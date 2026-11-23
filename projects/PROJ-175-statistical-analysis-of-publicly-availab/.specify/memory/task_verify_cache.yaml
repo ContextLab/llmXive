@@ -1,16 +1,73 @@
-T008a:
+T001a:
+  c: true
+  h: 31007ab7b21d525ef32622a86bb484e99f3c11eac8829be0f5292061fe162442
+  r: "Checked that `projects/PROJ-175-statistical-analysis-of-publicly-availab/code/`,\
+    \ `data/`, and `tests/` directories exist and that `data/setup_log.json` contains\
+    \ a SUCCESS status with the required `paths_verified` list and an ISO\u20118601\
+    \ timestamp."
+  sig: a33b6a935e471061673f0a5f8ef727867798dddbde713a690326d5c8fc5838d3
+T001b:
+  c: true
+  h: f0435afed2a59144b1f60e02bde1e644a7c4009d41ca3e2a59c72e6482836f64
+  r: All three required files (`code/__init__.py`, `tests/__init__.py`, `code/data/__init__.py`)
+    exist at their resolved paths and are non-empty, each containing a docstring as
+    the task's verification criterion specifies.
+  sig: bf321b35c4ab0a4e975ea6095429643e4d42d11f344cacc7fb8f72752a743639
+T013a:
   c: false
-  h: e192b437d426ff164c6dcd9214c2719a7e17e50bc2476b6114125ac6aa64d5ea
-  r: "The provided `code/models/diagnostics.py` contains only a Bayesian convergence\
-    \ power analysis and is truncated before any logistic\u2011regression power analysis\
-    \ or JSON\u2011writing logic. Moreover, the required output file `data/power_analysis_logistic.json`\
-    \ does not exist. Both the function to compute `N_logistic` and the artifact it\
-    \ should produce are missing."
-T008b:
+  h: c7138c5d5debff7c089cdd70aa3475155be78749c3a63deef0b5fb4c7edc6cdc
+  r: "The `recipe1m_processed.parquet` file is only a placeholder (144\u202Fbytes\
+    \ of dummy text) and does not contain the streamed dataset with the required schema,\
+    \ and the required `data/logs/recipe1m_validation.json` file is missing entirely.\
+    \ Both the output data and the validation log are absent, so the task is not genuinely\
+    \ fulfilled."
+T014a:
   c: false
-  h: 124889af09908927af0b035bac668ec12d966dce8881a2c7ba7738025ddb402c
-  r: "The `diagnostics.py` file only defines a function that computes a sample\u2011\
-    size dictionary and does not write the result to `data/power_analysis_bayesian.json`.\
-    \ Moreover, the required JSON file is absent from the repository. The task\u2019\
-    s core requirement\u2014outputting `N_bayesian` to the specified JSON file\u2014\
-    is therefore unmet."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data file, or mapping artifact for ingredient name normalization and
+    canonical ID mapping was provided. The task required a concrete implementation
+    (e.g., a script or dataset) that normalizes raw ingredient strings and produces
+    a canonical ID mapping, but the evidence contains only a placeholder comment and
+    no tangible output.
+T016a:
+  c: true
+  h: 59138de6844a1f1de497d339030466d70ed2766e75b37c553279fe42a94e61a0
+  r: "The amendment log shows the methodology is \u201CCorrelational Analysis\u201D\
+    , which according to the task\u2019s constraint means the chemical similarity\
+    \ step should be skipped, and consequently the expected Parquet file is correctly\
+    \ absent."
+T016b:
+  c: false
+  h: e212f963917952369f6f4fed9a697c86fbd1bd46b3ff8a6518e96dacad44414a
+  r: The required output file `data/processed/similarity_scores_embedding.parquet`
+    does not exist, and there is no evidence that the embedding model was run on the
+    normalized ingredients CSV. The task therefore was not completed.
+T019a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, CSV output, model fitting results, or figures were supplied;
+    the claim contains only the specification text without any tangible artifacts
+    to verify that the data pipeline or statistical models were actually built and
+    executed. The required deliverables (e.g., a validated CSV of ingredient pairs,
+    model coefficient plots, test statistics) are missing.
+T019b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No concrete artifacts (e.g., preprocessing scripts, generated CSV with ingredient
+    pair statistics, model fitting code, coefficient plots, or validation reports)
+    were supplied. Without these files or outputs, the required data pipeline and
+    statistical modeling steps cannot be verified as completed. The implementer must
+    provide the actual code, generated dataset, and model evaluation artifacts to
+    satisfy the task.
+T025:
+  c: false
+  h: e0757b8f7578f83bcc46345f8ec9724122d725ac7502ec0565f91839a8b7d2cc
+  r: "The required output file `data/logs/bayesian_results.json` is missing, so the\
+    \ hierarchical Bayesian model fitting result was not produced. Without this artifact,\
+    \ the task\u2019s core requirement is not satisfied."
+T038:
+  c: false
+  h: b33fed31ef935bed54cf471b740f02c09ae2a8f56ed2c2c4ed05e8ec02f52fa5
+  r: The `download.py` still uses a generic `except Exception` block and does not
+    show specific HTTP error handling or logging of the URL and error code to `data/download_errors.log`.
+    Moreover, the required `data/download_errors.log` file is missing.

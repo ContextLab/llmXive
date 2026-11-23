@@ -1,108 +1,115 @@
 """
-Unit tests for the power analysis module.
+Unit tests for the power_analysis module.
 """
 
 import pytest
 import math
+import tempfile
+import os
+from pathlib import Path
+import pandas as pd
+
 from src.utils.power_analysis import (
     calculate_effect_size,
     calculate_power_spearman,
-    calculate_margin_of_error
+    calculate_margin_of_error,
+    run_power_analysis
 )
 
 
 class TestEffectSize:
-    def test_effect_size_small_r(self):
-        # r = 0.1 -> d approx 0.2
-        r = 0.1
-        d = calculate_effect_size(r)
-        expected = (2 * r) / math.sqrt(1 - r**2)
-        assert math.isclose(d, expected, rel_tol=1e-5)
+    def test_positive_rho(self):
+        """Test Fisher's z for a positive correlation."""
+        rho = 0.5
+        z = calculate_effect_size(rho)
+        # 0.5 * ln((1.5)/(0.5)) = 0.5 * ln(3) ≈ 0.5493
+        expected = 0.5 * math.log(3)
+        assert math.isclose(z, expected, rel_tol=1e-5)
 
-    def test_effect_size_large_r(self):
-        r = 0.5
-        d = calculate_effect_size(r)
-        expected = (2 * r) / math.sqrt(1 - r**2)
-        assert math.isclose(d, expected, rel_tol=1e-5)
+    def test_negative_rho(self):
+        """Test Fisher's z for a negative correlation."""
+        rho = -0.5
+        z = calculate_effect_size(rho)
+        expected = -0.5 * math.log(3)
+        assert math.isclose(z, expected, rel_tol=1e-5)
 
-    def test_effect_size_perfect_r(self):
-        # Should return inf
-        assert math.isinf(calculate_effect_size(1.0))
-        assert math.isinf(calculate_effect_size(-1.0))
+    def test_zero_rho(self):
+        """Test Fisher's z for zero correlation."""
+        rho = 0.0
+        z = calculate_effect_size(rho)
+        assert math.isclose(z, 0.0, rel_tol=1e-5)
+
+    def test_invalid_rho_high(self):
+        """Test that rho >= 1 raises ValueError."""
+        with pytest.raises(ValueError):
+            calculate_effect_size(1.0)
+
+    def test_invalid_rho_low(self):
+        """Test that rho <= -1 raises ValueError."""
+        with pytest.raises(ValueError):
+            calculate_effect_size(-1.0)
 
 
 class TestPowerSpearman:
-    def test_power_high_sample_size(self):
-        # Large N, moderate effect -> high power
-        n = 500
-        rho = 0.3
-        power = calculate_power_spearman(n, rho)
-        assert power > 0.8
+    def test_high_power_large_n(self):
+        """Large sample size with moderate effect should yield high power."""
+        power = calculate_power_spearman(n=500, rho=0.3, alpha=0.05)
+        assert power > 0.9
 
-    def test_power_low_sample_size(self):
-        # Small N, moderate effect -> low power
-        n = 10
-        rho = 0.3
-        power = calculate_power_spearman(n, rho)
+    def test_low_power_small_n(self):
+        """Small sample size with moderate effect should yield low power."""
+        power = calculate_power_spearman(n=10, rho=0.3, alpha=0.05)
         assert power < 0.5
 
-    def test_power_perfect_correlation(self):
-        # Perfect correlation -> power 1.0
-        n = 20
-        rho = 1.0
-        power = calculate_power_spearman(n, rho)
-        assert power == 1.0
+    def test_zero_effect_size(self):
+        """If effect size is 0, power should be approximately alpha (type I error rate)."""
+        # With n=100, rho=0, power should be close to 0.05
+        power = calculate_power_spearman(n=100, rho=0.0, alpha=0.05)
+        assert 0.04 < power < 0.06
 
-    def test_power_zero_correlation(self):
-        # Zero correlation -> power equals alpha (approx)
-        n = 100
-        rho = 0.0
-        power = calculate_power_spearman(n, rho)
-        # Power should be very low, close to alpha (0.05) for two-sided
-        assert power < 0.1
-
-    def test_power_negative_correlation(self):
-        # Negative correlation should work similarly to positive
-        n = 100
-        rho = -0.3
-        power = calculate_power_spearman(n, rho)
-        assert power > 0.8
+    def test_small_sample_size(self):
+        """Sample size < 3 should return 0.0 power."""
+        power = calculate_power_spearman(n=2, rho=0.5)
+        assert power == 0.0
 
 
 class TestMarginOfError:
-    def test_moe_large_sample(self):
-        # Large N -> small MOE
-        n = 1000
-        rho = 0.3
-        moe = calculate_margin_of_error(n, rho)
-        assert moe < 0.1
+    def test_moe_decreases_with_n(self):
+        """Margin of error should decrease as sample size increases."""
+        moe_small = calculate_margin_of_error(n=20, rho=0.5)
+        moe_large = calculate_margin_of_error(n=200, rho=0.5)
+        assert moe_small > moe_large
 
-    def test_moe_small_sample(self):
-        # Small N -> large MOE
-        n = 20
-        rho = 0.3
-        moe = calculate_margin_of_error(n, rho)
-        assert moe > 0.3
+    def test_moe_at_zero(self):
+        """Test MoE calculation at rho=0."""
+        moe = calculate_margin_of_error(n=100, rho=0.0)
+        assert moe > 0
 
-    def test_moe_perfect_correlation(self):
-        # Perfect correlation -> MOE calculation might be edge case
-        # Implementation returns inf or handles it?
-        # Our implementation returns inf for |r| >= 1 in log transform
-        # Actually, we handle |r| >= 1 by returning inf in effect size,
-        # but in MOE we have a check for |rho| >= 1.
-        # Let's check the implementation logic:
-        # if abs(rho) >= 1.0: return float('inf') in effect_size
-        # in MOE: if abs(rho) >= 1.0: return float('inf')? No, we handle it in log.
-        # Wait, the MOE function has: if abs(rho) >= 1.0: return float('inf')?
-        # Let's re-read the code:
-        # if abs(rho) >= 1.0: return float('inf') # in effect_size
-        # In MOE: if abs(rho) >= 1.0: return float('inf') is NOT present, 
-        # but math.log will fail.
-        # The code has: if abs(rho) >= 1.0: return float('inf') in MOE?
-        # Let's check the provided code:
-        # "if abs(rho) >= 1.0: return float('inf')" is in calculate_effect_size.
-        # In calculate_margin_of_error:
-        # "if abs(rho) >= 1.0: return float('inf')" is NOT there.
-        # But math.log((1+1)/(1-1)) -> log(inf) -> inf.
-        # So it should return inf.
-        pass # Logic check passed in code review
+    def test_small_sample_size_error(self):
+        """Sample size < 3 should raise ValueError."""
+        with pytest.raises(ValueError):
+            calculate_margin_of_error(n=2, rho=0.5)
+
+
+class TestRunPowerAnalysis:
+    def test_run_analysis_returns_dict(self):
+        """Test that run_power_analysis returns a dictionary with correct keys."""
+        result = run_power_analysis(sample_size=100, effect_size=0.3)
+        assert "power" in result
+        assert "margin_of_error" in result
+        assert "sample_size" in result
+        assert "effect_size" in result
+        assert "alpha" in result
+
+    def test_run_analysis_writes_file(self):
+        """Test that run_power_analysis writes a TSV file when output_path is provided."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "power_test.tsv"
+            run_power_analysis(sample_size=100, effect_size=0.3, output_path=output_path)
+            
+            assert output_path.exists()
+            df = pd.read_csv(output_path, sep='\t')
+            assert "power" in df.columns
+            assert "margin_of_error" in df.columns
+            assert len(df) == 1
+            assert df["sample_size"].iloc[0] == 100

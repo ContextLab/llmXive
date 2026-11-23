@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistics Output Schema"
+description: "Schema for the final statistics output including correlations, regression, and multiplicity corrections."
+type: "object"
+properties:
+  correlations:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        predictor:
+          type: "string"
+        outcome:
+          type: "string"
+        r_value:
+          type: "number"
+        p_value:
+          type: "number"
+        p_value_holm_corrected:
+          type: "number"
+      required:
+        - predictor
+        - outcome
+        - r_value
+        - p_value
+        - p_value_holm_corrected
+  regression:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        predictor:
+          type: "string"
+        outcome:
+          type: "string"
+        beta_coefficient:
+          type: "number"
+        ci_lower:
+          type: "number"
+        ci_upper:
+          type: "number"
+        vif:
+          type: "number"
+        pca_applied:
+          type: "boolean"
+      required:
+        - predictor
+        - outcome
+        - beta_coefficient
+        - ci_lower
+        - ci_upper
+        - vif
+        - pca_applied
+  bootstrap_ci:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        predictor:
+          type: "string"
+        outcome:
+          type: "string"
+        r_mean:
+          type: "number"
+        r_ci_lower:
+          type: "number"
+        r_ci_upper:
+          type: "number"
+      required:
+        - predictor
+        - outcome
+        - r_mean
+        - r_ci_lower
+        - r_ci_upper
+  p_threshold_justification:
+    type: "string"
+    description: "Explicit justification for the p<0.05 threshold, citing community standards (e.g., ASA Statement)."
+required:
+  - correlations
+  - regression
+  - bootstrap_ci
+  - p_threshold_justification
+additionalProperties: false

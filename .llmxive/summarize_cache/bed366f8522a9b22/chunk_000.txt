@@ -1,0 +1,68 @@
+# Feature Specification: llmXive follow-up: extending "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil"
+
+**Feature Branch**: `001-llmxive-follow-up-extending-anyflow-any`  
+**Created**: 2026-08-22  
+**Status**: Draft  
+**Input**: User description: "llmXive follow-up: extending 'AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distil'"
+
+## User Scenarios & Testing
+
+### User Story 1 - Data Curation and Ground-Truth Annotation (Priority: P1)
+
+As a researcher, I need to curate a dataset of short video clips containing a verified balanced mix of continuous motion and abrupt scene cuts, and manually annotate each with a temporal continuity score (0.0 to 1.0), so that I have a labeled ground truth to evaluate model stability against.
+
+**Why this priority**: Without a labeled dataset distinguishing "stable" (continuous) from "unstable" (discontinuous) segments, no metric can be validated. This is the foundational ground-truth layer required for all subsequent correlation analysis.
+
+**Independent Test**: A script can be run to ingest raw video URLs, download a representative sample of video clips (a sequence of frames at 30fps), and output a CSV file where every row contains a video ID and a manual score between 0.0 and 1.0. Verification requires:
+1. Running a pre-screening tool (PySceneDetect) with threshold=25.0 to identify candidate cuts.
+2. Manually verifying a subset of candidates (cut and continuous) to establish ground-truth labels.
+3. Randomly sampling a subset of clips from the final dataset (stratified: 25 cut, 25 continuous) and confirming ≥ 90% match (scores within ±1 point on the 5-point Likert scale) against a re-annotation rubric (Cohen's Kappa ≥ 0.81) using two independent annotators.
+4. If two annotators' scores differ by > 1 point on the 5-point Likert scale, a third expert adjudicator (ID must match an entry in `experts.json`) resolves the disagreement.
+5. If Cohen's Kappa < 0.81, the system MUST halt and report "Insufficient Annotation Agreement".
+
+**Acceptance Scenarios**:
+1. **Given** a list of public video repository URLs (e.g., UCF101, Kinetics), **When** the curation script runs, **Then** a set of unique video clips of a fixed number of frames at 30fps is downloaded and stored locally, ensuring a 50/50 mix of continuous motion and scene cuts via stratified sampling from a *manually verified* pool of clips that pass a scene-cut detection threshold.
+2. **Given** a downloaded video clip, **When** a human annotator reviews it, **Then** a numeric score between 0.0 (perfect continuity) and 1.0 (maximum discontinuity) is recorded in the ground-truth CSV.
+3. **Given** the ground-truth CSV, **When** the system validates the data, **Then** every entry has a valid video path, a score within the [0.0, 1.0] range, and the distribution of scores shows a minimal variance. (unless the distribution is bimodal with sample size ≥ 50, in which case the system MUST proceed with binary analysis (Logistic Regression or Mann-Whitney U test)).
+
+---
+
+### User Story 2 - CPU-Tractable Latent Divergence Calculation (Priority: P2)
+
+As a researcher, I need to load a frozen AnyFlow model in a CPU-optimized format (ONNX Runtime) and compute a "flow-map divergence" metric for every video clip without using a GPU, so that I can generate a predictive feature vector for the entire dataset within the 6-hour CI budget.
+
+**Why this priority**: This is the core experimental engine. If the metric cannot be computed on CPU within the time limit, the study cannot proceed. It transforms raw video into the quantitative variable needed for correlation.
+
+**Independent Test**: A script processes a set of video clips on a standard GitHub Actions free-tier runner (ubuntu-LTS, 2-core vCPU, 7GB RAM) and outputs a CSV with divergence scores, completing within ≤ 6 hours and consuming <7GB peak RAM. The output divergence score for a known static clip (a sequence of uniform zero-valued frames) must match a pre-computed golden value within an absolute tolerance consistent with floating-point precision requirements.
+
+**Acceptance Scenarios**:
+1. **Given** a video clip and the frozen AnyFlow model, **When** the inference script runs on a CPU-only environment, **Then** the script completes without CUDA/GPU errors and produces a latent trajectory divergence score.
+2. **Given** the full dataset of a substantial number of clips, **When** the batch processing job runs, **Then** the total execution time is ≤ 6 hours and peak memory usage remains ≤ 7 GB.
+3. **Given** a clip with a known scene cut and a clip with continuous motion, **When** the metric is computed for both, **Then** the system outputs valid numerical scores for both, allowing the subsequent analysis to determine if they are distinct.
+
+---
+
+### User Story 3 - Correlation Analysis and Threshold Sensitivity (Priority: P3)
+
+As a researcher, I need to perform a Pearson and Spearman correlation analysis, a multivariate logistic regression, and a sensitivity analysis on the classification threshold, so that I can quantify the relationship and validate the metric's robustness as a predictive signature.
+
+**Why this priority**: This delivers the final scientific result (the correlation coefficient and regression model) and addresses the methodological requirement for threshold justification, turning raw numbers into a publishable finding.
+
+**Independent Test**: A statistical script reads the two CSVs (ground truth and divergence), outputs a Pearson $r$ and Spearman $\rho$ value with a p-value, a multivariate logistic regression model, and generates a sensitivity report showing how classification rates change across three specific thresholds. The false-positive and false-negative rates must match a manual calculation on a synthetic subset of clips with known labels (derived from physical modification) within an acceptable tolerance (absolute error < 0.01).
+
+**Acceptance Scenarios**:
+1. **Given** the ground-truth scores and divergence metrics, **When** the analysis script runs, **Then** it outputs a Pearson correlation coefficient ($r$), a Spearman rank correlation ($\rho$), and a p-value indicating statistical significance.
+2. **Given** a proposed divergence threshold (e.g., 0.05), **When** the sensitivity analysis runs, **Then** the system reports the false-positive and false-negative rates for thresholds {0.01, 0.05, 0.1}.
+3. **Given** the correlation result, **When** the report is generated, **Then** it contains a statement explicitly framing the relationship as associational and not causal.
+4. **Given** the divergence pattern features, **When** the multivariate model runs, **Then** it outputs a prediction accuracy for discontinuity type (cut vs. continuous) that is significantly better than random chance.
+
+### Edge Cases
+
+- What happens when a video clip contains no motion at all (static image)? The system must assign a divergence score and a continuity score (0.0) that reflect a valid baseline condition.
+- How does the system handle a video clip where the AnyFlow model fails to extract latent representations (e.g., corrupted file)? The system must log the error, skip the clip, and flag it in the final report without crashing the batch job.
+- What if the manual annotation scores are bimodal (only 0.0 or 1.0) rather than continuous? If the distribution is bimodal and the sample size is ≥ 50, the system MUST proceed with binary analysis (Logistic Regression or Mann-Whitney U test) instead of Pearson/Spearman correlation, regardless of the variance value.
+
+## Requirements
+
+### Functional Requirements
+

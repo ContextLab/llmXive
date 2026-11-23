@@ -1,0 +1,98 @@
+# This file is a reference copy of the schema for testing purposes
+# In a real scenario, this would be loaded from contracts/metrics.schema.yaml
+type: object
+required:
+  - correlation_coefficients
+  - regression_metrics
+  - corrected_p_values
+  - correction_method
+  - power_analysis
+  - metadata
+properties:
+  correlation_coefficients:
+    type: object
+    properties:
+      flare_flux_dst:
+        type: object
+        properties:
+          spearman_r:
+            type: number
+          p_value:
+            type: number
+      cme_speed_dst:
+        type: object
+        properties:
+          spearman_r:
+            type: number
+          p_value:
+            type: number
+  regression_metrics:
+    type: object
+    properties:
+      joint_model:
+        type: object
+        properties:
+          r_squared:
+            type: number
+          vif_flare:
+            type: number
+          vif_cme:
+            type: number
+      selected_model_r2:
+        type: number
+      selected_model_strategy:
+        type: string
+  corrected_p_values:
+    type: object
+    additionalProperties:
+      type: number
+  correction_method:
+    type: string
+  power_analysis:
+    type: object
+    properties:
+      effect_size_r:
+        type: number
+      sample_size:
+        type: integer
+      min_detectable_effect_size:
+        type: number
+      power_warning_flag:
+        type: boolean
+  non_linear_analysis:
+    type: object
+    properties:
+      piecewise_r2_improvement:
+        type: number
+      improvement_significant:
+        type: boolean
+  threshold_analysis:
+    type: object
+    properties:
+      threshold_candidates:
+        type: array
+        items:
+          type: object
+          properties:
+            cme_speed_kms:
+              type: number
+            detection_rate:
+              type: number
+      threshold_citation_url:
+        type: string
+  performance:
+    type: object
+    properties:
+      total_time_seconds:
+        type: number
+      peak_ram_mb:
+        type: number
+  metadata:
+    type: object
+    properties:
+      timestamp:
+        type: string
+      pipeline_version:
+        type: string
+      data_checksum:
+        type: string

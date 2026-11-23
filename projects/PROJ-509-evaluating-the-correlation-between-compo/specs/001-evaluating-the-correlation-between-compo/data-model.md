@@ -1,56 +1,69 @@
-# Data Model: Evaluating the Correlation Between Compositional Features and Predicted Formation Energy
+# Data Model: Evaluating the Correlation Between Compositional Features and Predicted Formation Energy in Inorganic Materials
 
-## Entities
+## Entity Definitions
 
-### 1. Compound
-Represents a single inorganic material entry.
-- **ID**: `material_id` (string, e.g., "mp-1234")
-- **Formula**: `composition` (string, e.g., "SiO2")
-- **Formation Energy**: `formation_energy_per_atom` (float, eV/atom)
-- **Crystal System**: `crystal_system` (string, e.g., "cubic", "tetragonal")
-- **Chemical Family**: `chemical_family` (string, e.g., "Fe", "Si" - most abundant element)
-- **Descriptors**:
-  - `mean_electronegativity` (float)
-  - `var_electronegativity` (float)
-  - `mean_atomic_radius` (float)
-  - `var_atomic_radius` (float)
-  - `mean_valence_electrons` (float)
-  - `var_valence_electrons` (float)
-  - `mean_melting_point` (float)
-  - `var_melting_point` (float)
-  - `mean_ionization_energy` (float)
-  - `var_ionization_energy` (float)
+### Compound
+Represents an inorganic material entry.
+- `formula`: str (e.g., "LiFePO4")
+- `formation_energy_per_atom`: float (eV/atom)
+- `crystal_system`: str (e.g., "cubic")
+- `chemical_family`: str (e.g., "Binary", "Alkali", "Transition", "Oxide")
+- `is_inorganic`: bool
 
-### 2. ModelOutput
-Stores the result of a training run.
-- **Model Type**: `model_name` (string: "RandomForest" or "GradientBoosting")
-- **Metrics**:
-  - `r2_score` (float)
-  - `mae` (float)
-  - `rmse` (float)
-  - `train_r2` (float)
-  - `null_model_r2` (float) - Baseline from shuffled properties
-- **Feature Importance**: List of `{feature: str, importance: float}`.
-- **Permutation Importance**: List of `{feature: str, importance: float, std: float}`.
-- **VIF Scores**: List of `{feature: str, vif: float}`.
+### DescriptorSet
+Computed features for a Compound.
+- `mean_electronegativity`: float
+- `var_electronegativity`: float
+- `mean_atomic_radius`: float
+- `var_atomic_radius`: float
+- `mean_valence_electrons`: float
+- `var_valence_electrons`: float
+- `mean_melting_point`: float
+- `var_melting_point`: float
+- `mean_ionization_energy`: float
+- `var_ionization_energy`: float
 
-### 3. PDPData
-Stores data for Partial Dependence Plots.
-- **Feature**: `feature_name` (string)
-- **Feature Values**: `values` (list of floats)
-- **Predicted Energy**: `predictions` (list of floats)
-- **Standard Deviation**: `std` (list of floats)
+### ModelOutput
+Results of model training and evaluation.
+- `model_type`: str ("RandomForest" or "GradientBoosting")
+- `train_r2`: float
+- `val_r2`: float
+- `train_mae`: float
+- `val_mae`: float
+- `train_rmse`: float
+- `val_rmse`: float
+- `overfitting_ratio`: float (train_r2 - val_r2)
+- `feature_importances`: dict (feature_name -> importance_score)
+- `permutation_importances`: dict (feature_name -> score)
+- `vif_scores`: dict (feature_name -> VIF_score)
+- `ale_plots`: list of paths (str)
+- `ale_non_linearity_score`: float (|R²_quad - R²_lin|)
 
 ## Data Flow
 
-1. **Raw Ingestion**: `data/raw/mp-2020.12.1.parquet` -> Filtered -> `data/processed/compounds_clean.csv`
-2. **Descriptor Computation**: `compounds_clean.csv` -> `data/processed/compounds_descriptors.csv`
-3. **Model Training**: `compounds_descriptors.csv` (Split) -> `data/evaluation/model_metrics.json`
-4. **Analysis**: `model_metrics.json` -> `data/evaluation/pdp_data.json`
+1. **Raw Data**: `data/raw/mp-2020.csv` (Downloaded, checksummed).
+2. **Cleaned Data**: `data/processed/cleaned_compounds.csv` (Filtered, outliers capped).
+3. **Feature Data**: `data/processed/with_descriptors.csv` (Compound + DescriptorSet + chemical_family).
+4. **Model Artifacts**: `data/evaluation/model_rf.pkl`, `model_gb.pkl`.
+5. **Metrics**: `data/evaluation/model_metrics.json`, `feature_ranking.json`, `permutation_importance.json`, `vif_scores.json`, `ale_metrics.json`, `statistical_tests.json`.
+6. **Visuals**: `data/evaluation/ale_*.png`.
 
-## Constraints
+## Schema Evolution
 
-- **Missing Values**: Rows with missing `formation_energy_per_atom` or missing elemental properties are excluded.
-- **Outliers**: Formation energy values outside the 1st-99th percentile are capped before training.
-- **Determinism**: All random seeds are fixed (e.g., `random_state=42`).
-- **Single Source of Truth**: `data/evaluation/model_metrics.json` is the sole authoritative source for all metrics. Logs and stdout are for debugging only.
+- **v1.0**: Initial schema with 5 descriptors (mean/var).
+- **v1.1**: Added `chemical_family` for stratification.
+- **v1.2**: Added `vif_scores`, `permutation_importances`, `ale_non_linearity_score`, and `statistical_tests` for robustness checks.
+
+## Data Hygiene & Versioning
+
+- All data files in `data/` are checksummed (SHA-256) and recorded in `state/...yaml`.
+- Raw data is never modified. Derived files have `_v1`, `_v2` suffixes if schema changes.
+- `data/elemental_properties/` contains the versioned reference table for elemental properties.
+
+## Assumptions & Constraints
+
+- **Missing Data**: Rows with missing elemental properties are excluded.
+- **Collinearity**: VIF > 10 is logged but does not trigger feature removal.
+- **Negative R²**: Valid and recorded.
+- **Stratification**: By `chemical_family`, not `crystal_system`.
+- **Interpretation**: Feature rankings reflect predictive contribution, not necessarily independent physical causation due to mathematical coupling of Mean/Var descriptors.

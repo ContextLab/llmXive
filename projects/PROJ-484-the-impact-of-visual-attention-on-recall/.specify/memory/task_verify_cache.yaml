@@ -1,0 +1,88 @@
+T001:
+  c: false
+  h: 939e0f1d1ca7272f0cd5aab7d0896cd9b2a7a0cafd07e649520fcd41e16f640d
+  r: "Checked the top\u2011level project directory `projects/PROJ-484-the-impact-of-visual-attention-on-recall/`\
+    \ and found the required subfolders `code/`, `data/` and `tests/`. Inside `data/`\
+    \ the `raw/` folder exists, but `processed/` is absent, and there is no `artifacts/`\
+    \ directory at all (hence missing `artifacts/figures` and `artifacts/logs`). The\
+    \ required directory structure is therefore incomplete."
+T001b:
+  c: false
+  h: 2a4fa1a6b350ca1c09bb4205a0c186082cddc17e8f2a1c7f16e8e1cd96bc6e5c
+  r: The README.md file is present and meets the content requirements, but the required
+    `.gitignore` file is missing from the project root (or its contents are not provided).
+    The task is not fully satisfied until a `.gitignore` with the specified exclusions
+    is added.
+T002:
+  c: false
+  h: 2ce774c15d86dbf4e17f1fae3c9e72aca5a58839f363ce696db5dfdbe22e8f14
+  r: "The `requirements.txt` file exists, but most listed packages (pandas, numpy,\
+    \ scipy, matplotlib, seaborn, tqdm, huggingface_hub) are not version\u2011pinned,\
+    \ violating the \u201CPin versions where possible\u201D requirement. Version specifiers\
+    \ need to be added for these dependencies."
+T003:
+  c: true
+  h: 2db0986f95b59e4200c9db3de4c509e153350881e8c81db50f6d37cab1275270
+  r: "The provided `pyproject.toml` exists, is non\u2011empty, and contains the required\
+    \ `[tool.black]`, `[tool.flake8]`, and `[tool.isort]` sections with line\u2011\
+    length settings and `skip_gitignore = true` for isort, fulfilling the task specification."
+T004:
+  c: false
+  h: 45e63d8524757ccb731451df4daaa301daf454e9872b67013b3b080975a7c046
+  r: The `data/processed/` directory does not exist, and there is no evidence of the
+    required `artifacts/figures/` and `artifacts/logs/` directories. The task demands
+    all four directories be created; only `data/raw/` is present.
+T005:
+  c: false
+  h: 4bc5541287cab81f2abeb9113a31ac54a2c28615dbcf7742fec9c6b42db9bc6c
+  r: The provided `logging_config.py` does not create a rotating file handler at the
+    required path (`artifacts/logs/app.log`) nor enforce DEBUG level, and its JSON
+    formatter outputs `logger` instead of the required `module` field. The implementation
+    therefore does not satisfy the task specifications.
+T006a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `specs/001-visual-attention-recall/data-model.md` file or its contents were
+    provided; thus the required schema document for Participant, Stimulus, and Trial
+    entities is missing. The implementer must create and supply this markdown artifact.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/logs/data_verification_report.json` file was presented, and no\
+    \ contents were shown that contain the required `success`, `variable_presence`,\
+    \ and `geometry_status` fields. The task\u2019s primary deliverable is therefore\
+    \ missing."
+T070:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `download_data.py` file (or any code changes) was provided, nor any evidence\
+    \ that the script now queries `verified_sources_hypothetical.json` or `verified_sources.json`,\
+    \ enforces the strict verified\u2011source check, halts with the required error,\
+    \ or logs the hypothetical\u2011mode warning. The required artifact is missing,\
+    \ so the task is not satisfied."
+T070a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `verified_sources_hypothetical.json` file is present in the indicated directory,
+    nor any content showing a JSON listing for `ds001435` with status `hypothetical`
+    and a mock data path. The required artifact is missing, so the task is not satisfied.
+T071:
+  c: false
+  h: 972599fb4c5febe875a4f7f304d39c2ed064c3a99386988dfe1bccfaaef9ab98
+  r: "The required `config.yaml` file is missing, and there is no evidence that `verify_data.py`\
+    \ was updated to perform the strict geometry calibration check or that a `verified_sources_hypothetical.json`\
+    \ file exists. Without these artifacts the task\u2019s requirements are not satisfied."
+T071b:
+  c: false
+  h: cb975c25abf458286c96cedb197910c9bca4c640dd8f71c06ab94bd121859b23
+  r: "The `verify_data.py` file is truncated and never contains the logic to check\
+    \ `verified_sources_hypothetical.json` for a \u2018hypothetical\u2019 flag nor\
+    \ to load defaults from a `config.yaml`. Moreover, the required `config.yaml`\
+    \ file is missing entirely. The fallback behavior therefore is not implemented."
+T072:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `model_fit.py` file containing the required warning logic or the generated\
+    \ `power_warning.json` was provided. The evidence lacks any code changes, log\
+    \ output, or JSON file demonstrating that a low\u2011power warning is logged and\
+    \ saved as specified."

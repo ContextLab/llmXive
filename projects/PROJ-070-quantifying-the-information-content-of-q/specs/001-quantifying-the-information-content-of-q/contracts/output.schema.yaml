@@ -1,0 +1,126 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisOutput"
+description: "Schema for computed metrics and statistical results"
+type: "object"
+properties:
+  metrics:
+    type: "array"
+    description: "List of computed metrics for each state"
+    items:
+      type: "object"
+      properties:
+        state_id:
+          type: "string"
+        system_type:
+          type: "string"
+        spin_count:
+          type: "integer"
+        entanglement_entropy:
+          type: "number"
+        entropy_per_spin:
+          type: "number"
+        compression_ratio_gzip:
+          type: "number"
+        compression_ratio_lzma:
+          type: "number"
+        compression_ratio_bzip2:
+          type: "number"
+        ncd_gzip:
+          type: "number"
+        ncd_lzma:
+          type: "number"
+        ncd_bzip2:
+          type: "number"
+        representation_type:
+          type: "string"
+          enum: ["singular_values", "subsystem_vector"]
+        is_valid:
+          type: "boolean"
+          description: "True if no NaN/Inf detected"
+      required:
+        - state_id
+        - system_type
+        - spin_count
+        - entanglement_entropy
+        - entropy_per_spin
+        - compression_ratio_gzip
+        - ncd_gzip
+        - is_valid
+  correlation_results:
+    type: "object"
+    description: "Aggregated statistical results"
+    properties:
+      physical_states:
+        type: "object"
+        properties:
+          pearson_r:
+            type: "number"
+          spearman_r:
+            type: "number"
+          p_value_pearson:
+            type: "number"
+          p_value_spearman:
+            type: "number"
+          partial_corr_n:
+            type: "number"
+            description: "Partial correlation controlling for system size N"
+          ci_lower_95:
+            type: "number"
+          ci_upper_95:
+            type: "number"
+          n_samples:
+            type: "integer"
+          stratification:
+            type: "string"
+            description: "Method used (e.g., 'within_N', 'partial_N')"
+        required:
+          - pearson_r
+          - p_value_pearson
+          - ci_lower_95
+          - ci_upper_95
+      null_models:
+        type: "object"
+        properties:
+          random_product:
+            type: "object"
+            properties:
+              mean_entropy:
+                type: "number"
+              mean_complexity:
+                type: "number"
+              mean_ncd:
+                type: "number"
+          haar_mixed:
+            type: "object"
+            properties:
+              mean_entropy:
+                type: "number"
+              mean_complexity:
+                type: "number"
+              mean_ncd:
+                type: "number"
+        required:
+          - random_product
+          - haar_mixed
+      comparison_test:
+        type: "object"
+        properties:
+          test_type:
+            type: "string"
+            enum: ["welch_t", "anova"]
+          p_value:
+            type: "number"
+          is_significant:
+            type: "boolean"
+        required:
+          - test_type
+          - p_value
+          - is_significant
+    required:
+      - physical_states
+      - null_models
+      - comparison_test
+required:
+  - metrics
+  - correlation_results
+additionalProperties: false

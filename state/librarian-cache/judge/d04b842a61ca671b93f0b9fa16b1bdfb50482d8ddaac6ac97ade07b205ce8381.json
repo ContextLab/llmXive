@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1111.7026",
+  "judged_at": "2026-10-08T00:59:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+  "rationale": "The paper focuses on solar flare particle acceleration mechanisms and does not address Lorentz Invariance Violation (LIV) or use Fermi Gamma-Ray Burst (GRB) spectra to constrain LIV parameters. While it shares the \"Fermi\" instrument and \"gamma-ray\" domain, it studies a distinct physical construct (solar flare dynamics) rather than the specific mechanism (LIV constraints) or population (GRBs) required by the user's question, failing all inclusion criteria (a-f).",
+  "relevant": false
+}

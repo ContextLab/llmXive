@@ -1,0 +1,31 @@
+version: "1.0"
+name: result_schema
+description: Schemas for result JSON and CSV files
+files:
+  model_results.json:
+    required_keys:
+      - adjusted_r2
+      - optimal_lambda
+      - rmse
+      - test_r2
+      - test_rmse
+  correlations_corrected.csv:
+    required_columns:
+      - band
+      - r_value
+      - p_value
+      - n
+      - significant
+  non_linear_comparison.json:
+    required_keys:
+      - linear_r2
+      - polynomial_r2
+      - f_statistic
+      - p_value
+      - significant_at_0p05
+      - interpretation
+  permutation_results.json:
+    required_keys:
+      - observed_r2
+      - p_value
+      - null_distribution_path

@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Explainability Score Schema
+description: Schema for explainability metrics (attention, saliency, coherence).
+type: object
+required:
+  - bug_id
+  - patch_id
+properties:
+  bug_id:
+    type: string
+    description: Reference to the associated bug
+    pattern: "^[a-zA-Z]+-\\d+$"
+  patch_id:
+    type: string
+    description: Reference to the associated patch
+  attention_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Aggregated attention weight from the last decoder layer
+  saliency_score:
+    type: number
+    minimum: 0
+    description: Summed magnitude of Integrated Gradients saliency
+  coherence_score:
+    type:
+      - number
+      - "null"
+    minimum: 0
+    maximum: 1
+    description: Cosine similarity between rationale text and code change semantics. Null if rationale is missing.
+  artifacts:
+    type: object
+    properties:
+      attention_heatmap:
+        type: string
+        description: Path to the attention heatmap image file
+      saliency_map:
+        type: string
+        description: Path to the saliency map numpy file
+      rationale_file:
+        type: string
+        description: Path to the rationale text file
+    required:
+      - attention_heatmap
+      - saliency_map
+      - rationale_file
+additionalProperties: false

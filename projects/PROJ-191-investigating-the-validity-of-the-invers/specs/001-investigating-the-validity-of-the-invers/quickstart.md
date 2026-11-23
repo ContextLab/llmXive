@@ -1,82 +1,60 @@
 # Quickstart: Investigating the Validity of the Inverse‑Square Law at Sub‑Millimeter Scales
 
 ## Prerequisites
-
 -   Python 3.11+
 -   `pip`
--   Access to arXiv supplementary materials (assumed accessible per spec).
+-   Access to a terminal with internet connectivity (for arXiv downloads).
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
+1.  **Clone and Setup Environment**
     ```bash
-    git clone <repo-url>
-    cd projects/PROJ-191-investigating-the-validity-of-the-invers
-    ```
-
-2.  **Create a virtual environment** and install dependencies.
-    ```bash
+    cd projects/PROJ-191-investigating-the-validity-of-the-invers/code/
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
+    ```
+
+2.  **Verify Dependencies**
+    ```bash
+    python -c "import emcee, dynesty, numpy; print('All dependencies OK')"
     ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the main entry script `code/run_pipeline.py`.
-
-### Step 1: Download and Harmonize Data
+### Step 1: Data Download & Harmonization
+Download raw data and generate the harmonized dataset with covariance matrix.
 ```bash
-python code/run_pipeline.py --step download_harmonize
+python main.py --step download_harmonize
 ```
--   Downloads raw data from arXiv.
--   Converts units to SI.
--   Constructs covariance matrix.
--   Outputs: `data/processed/harmonized_dataset.*`
+*Output*: `data/harmonized/dataset_v1.csv`, `data/harmonized/covariance_v1.npz`.
 
-### Step 2: Run Inference (MCMC + Nested Sampling)
+### Step 2: Bayesian Inference
+Run MCMC and Nested Sampling.
 ```bash
-python code/run_pipeline.py --step inference
+python main.py --step infer
 ```
--   Runs `emcee` (a sufficient number of walkers, 5000 steps).
--   Runs `dynesty` for evidence.
--   Outputs: `data/results/posterior_samples.*`, `data/results/evidence.json`.
+*Output*: `results/inference_run_001.json`, `results/samples_run_001.h5`.
 
-### Step 3: Run Robustness & Validation
+### Step 3: Robustness Analysis
+Run LOO, Injection-Recovery, and Null-Simulation.
 ```bash
-python code/run_pipeline.py --step robustness
+python main.py --step robustness
 ```
--   Performs leave-one-out, uncertainty inflation, injection-recovery, and null-simulation.
--   Outputs: `data/results/robustness_summary.json`.
+*Output*: `results/robustness_report.json`.
 
-### Step 4: Full Pipeline (End-to-End)
+### Step 4: Full Pipeline (Recommended)
+Run all steps in sequence.
 ```bash
-python code/run_pipeline.py --step all
+python main.py --all
 ```
--   Executes all steps in order.
 
-## Verification
-
-1.  **Check Convergence**:
-    ```bash
-    python code/run_pipeline.py --check convergence
-    ```
-    Verifies Gelman-Rubin < 1.01.
-
-2.  **Validate Schemas**:
-    ```bash
-    pytest tests/contract/
-    ```
-    Ensures output files match `contracts/` schemas.
-
-3.  **Reproducibility Check**:
-    ```bash
-    python code/run_pipeline.py --repro-check
-    ```
-    Re-runs with fixed seeds and compares checksums.
+## Validation
+Run the test suite to ensure correctness.
+```bash
+pytest tests/
+```
 
 ## Troubleshooting
-
--   **Runtime Error**: If the pipeline exceeds a reasonable duration threshold, reduce the number of robustness iterations in `code/config.py`.
--   **Covariance Error**: If the covariance matrix is not positive-definite, check the systematic error inputs in the raw data.
--   **Data Missing**: If arXiv downloads fail, verify network access and the specific arXiv supplementary URLs.
+-   **Memory Error**: If the covariance matrix is too large, the pipeline will automatically subsample the data points to fit 7GB RAM. Check `logs/memory_log.txt` for details.
+-   **Convergence Warning**: If Gelman-Rubin > 1.01 after 5000 steps, the pipeline will extend the run. If it exceeds 5.5 hours, it will log a warning and proceed.

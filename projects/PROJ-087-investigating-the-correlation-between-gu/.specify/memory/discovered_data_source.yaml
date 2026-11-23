@@ -1,0 +1,16 @@
+status: none
+intent: American Gut Project 16S OTU count tables and metadata download python package
+  dataset
+required_fields:
+- sample_id
+- antibiotic_use_last_3m
+- sleep_efficiency
+- sleep_duration_hours
+- shannon_diversity
+- simpson_diversity
+- observed_otus
+- age
+- bmi
+cache_key: 647f2dcff4c700075fbf725a29f616541879ec1cbcf102d9f9d93c253731b1d0
+searched_at: '2026-09-02T03:26:52.281485+00:00'
+retry_count: 1

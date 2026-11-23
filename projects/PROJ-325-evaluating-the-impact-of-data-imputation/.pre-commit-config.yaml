@@ -1,5 +1,7 @@
-# Pre-commit configuration to enforce linting and formatting
-# Install with: pip install pre-commit && pre-commit install
+# Pre-commit configuration for automated linting and formatting
+# Install with: pre-commit install
+# Run manually: pre-commit run --all-files
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -8,18 +10,20 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+        args: ['--maxkb=5000'] # Prevent large files in repo
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.1.6
     hooks:
-      # Run the linter
       - id: ruff
-        args: [--fix]
-      # Run the formatter (alternative to black, but we keep black for explicit control)
-      # - id: ruff-format
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        # Note: ruff-format is a black-compatible formatter. 
+        # If you prefer strict black, use the black hook below instead.
 
   - repo: https://github.com/psf/black
     rev: 23.11.0
     hooks:
       - id: black
-        language_version: python3.10
+        language-version: python3.9
+        args: [--config, .black.toml]

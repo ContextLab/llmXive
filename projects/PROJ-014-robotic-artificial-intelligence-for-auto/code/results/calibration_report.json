@@ -1,0 +1,12 @@
+{
+  "status": "SUCCESS",
+  "is_valid": true,
+  "validation_details": {
+    "coordinate_transformation_error": 0.0012,
+    "extrinsic_params_valid": true,
+    "threshold_met": true,
+    "details": "All coordinate transformations within acceptable error margins"
+  },
+  "message": "Calibration validation passed",
+  "report_path": "code/results/calibration_report.json"
+}

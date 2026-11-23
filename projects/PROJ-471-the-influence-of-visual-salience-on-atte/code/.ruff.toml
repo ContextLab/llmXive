@@ -1,0 +1,19 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP", "RUF"]
+ignore = ["E501", "E731", "E741"]
+fixable = ["ALL"]
+unfixable = []
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["S101", "ARG"]
+
+[format]
+line-length = 88
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true

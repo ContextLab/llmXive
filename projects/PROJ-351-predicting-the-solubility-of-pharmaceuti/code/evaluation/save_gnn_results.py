@@ -1,9 +1,9 @@
 """
 Task T024: Save GNN predictions and metrics to results/gnn_metrics.json.
 
-This script loads the trained GNN model, evaluates it on the test set,
-and saves the detailed metrics and predictions to `results/gnn_metrics.json`.
-It relies on the existing `code/evaluation/metrics.py` module for evaluation logic.
+This script loads the trained GNN model, runs inference on the test set,
+calculates RMSE and R-squared, and saves the results to a JSON file.
+It relies on the metrics logic from code/evaluation/metrics.py.
 """
 import os
 import sys
@@ -12,82 +12,120 @@ import logging
 import argparse
 from pathlib import Path
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path to allow imports from code/
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
 
-from evaluation.metrics import evaluate_gnn_on_test_set, save_metrics_and_predictions
-from setup_logging import setup_logger
+from evaluation.metrics import evaluate_gnn_on_test_set, calculate_rmse, calculate_r2
+from config.seeds import ensure_seeded, get_seed
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Save GNN predictions and metrics.")
     parser.add_argument(
-        "--model_path",
+        "--model-path",
         type=str,
-        default=str(PROJECT_ROOT / "models" / "gnn_mpnn.pth"),
+        default="models/gnn_model.pth",
         help="Path to the trained GNN model file."
     )
     parser.add_argument(
-        "--data_path",
+        "--data-path",
         type=str,
-        default=str(PROJECT_ROOT / "data" / "processed"),
-        help="Path to the processed data directory containing split indices."
+        default="data/processed",
+        help="Path to the processed data directory containing train/val/test splits."
     )
     parser.add_argument(
-        "--output_path",
+        "--output-path",
         type=str,
-        default=str(PROJECT_ROOT / "results" / "gnn_metrics.json"),
-        help="Path to save the output JSON file."
+        default="results/gnn_metrics.json",
+        help="Path to save the output JSON metrics file."
     )
     parser.add_argument(
-        "--device",
-        type=str,
-        default="cpu",
-        help="Device to use for evaluation (cpu or cuda)."
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility."
     )
     return parser.parse_args()
 
 def main():
     args = parse_args()
-    
-    # Setup logging
-    logger = setup_logger("gnn_results_saver", log_file=str(PROJECT_ROOT / "data" / "logs" / "gnn_results.log"))
-    logger.info(f"Starting GNN results save task (T024).")
-    logger.info(f"Model path: {args.model_path}")
-    logger.info(f"Data path: {args.data_path}")
-    logger.info(f"Output path: {args.output_path}")
 
     # Ensure output directory exists
-    output_dir = Path(args.output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = Path(args.output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    try:
-        # Evaluate the model
-        # This function internally loads data, model, runs inference, and calculates metrics
-        metrics_dict = evaluate_gnn_on_test_set(
-            model_path=args.model_path,
-            data_dir=args.data_path,
-            device=args.device,
-            logger=logger
-        )
+    logger.info(f"Starting GNN results saving process.")
+    logger.info(f"Model path: {args.model_path}")
+    logger.info(f"Data path: {args.model_path}")
+    logger.info(f"Output path: {args.output_path}")
 
-        if metrics_dict is None:
-            logger.error("Evaluation failed to produce metrics. Check logs for details.")
-            sys.exit(1)
+    # Set seeds
+    ensure_seeded(args.seed)
+    logger.info(f"Random seeds set to {args.seed}")
 
-        # Save the metrics and predictions to the specified JSON file
-        save_metrics_and_predictions(
-            metrics=metrics_dict,
-            output_path=args.output_path,
-            logger=logger
-        )
-
-        logger.info(f"Successfully saved GNN metrics and predictions to {args.output_path}")
-        print(f"Task T024 Complete: Results saved to {args.output_path}")
-
-    except Exception as e:
-        logger.error(f"Error during GNN results saving: {e}", exc_info=True)
+    # Check if model exists
+    if not os.path.exists(args.model_path):
+        logger.error(f"Model file not found at {args.model_path}. "
+                     "Please ensure the GNN model has been trained (T021).")
         sys.exit(1)
 
+    # Check if processed data exists
+    processed_data_dir = Path(args.data_path)
+    if not processed_data_dir.exists():
+        logger.error(f"Processed data directory not found at {args.data_path}. "
+                     "Please ensure data preprocessing (T005) and splitting (T006) are complete.")
+        sys.exit(1)
+
+    # Load data and evaluate
+    # This function handles loading the test set, running the model, and calculating metrics
+    logger.info("Evaluating GNN model on test set...")
+    
+    try:
+        metrics, predictions_df = evaluate_gnn_on_test_set(
+            model_path=args.model_path,
+            data_dir=args.data_path,
+            seed=args.seed
+        )
+    except Exception as e:
+        logger.error(f"Error during evaluation: {e}")
+        logger.error("Ensure that the GNN model architecture matches the saved weights "
+                     "and that the data preprocessing steps are consistent.")
+        sys.exit(1)
+
+    # Prepare the result dictionary
+    result = {
+        "model_type": "GNN_MPNN",
+        "model_path": args.model_path,
+        "seed": args.seed,
+        "metrics": {
+            "rmse": float(metrics["rmse"]),
+            "r_squared": float(metrics["r2"])
+        },
+        "num_samples": len(predictions_df),
+        "timestamp": str(Path(args.output_path).parent.parent / "data/logs") # Just a placeholder for now, actual timestamp logic could be added
+    }
+    
+    # Add a specific timestamp
+    from datetime import datetime
+    result["timestamp"] = datetime.now().isoformat()
+
+    # Save to JSON
+    logger.info(f"Saving metrics to {args.output_path}")
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+
+    logger.info("Successfully saved GNN predictions and metrics.")
+    logger.info(f"RMSE: {metrics['rmse']:.4f}")
+    logger.info(f"R-squared: {metrics['r2']:.4f}")
+
+    return 0
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

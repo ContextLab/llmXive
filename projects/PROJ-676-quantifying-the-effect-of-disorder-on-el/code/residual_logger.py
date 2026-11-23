@@ -1,168 +1,99 @@
-"""
-Residual Logger for Eigenvalue Problems (Constitution Principle VI)
-
-This module provides utilities to log residual norms and convergence flags
-for every eigenvalue problem solved in the project. It ensures reproducibility
-and numerical diagnostics by writing results to `data/metadata/residuals.json`.
-"""
-
 import json
 import os
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 
-import numpy as np
+from code.config import get_config
+from code.logger import get_logger, NumericalLogger
 
-from config import get_config
-from logger_utils import get_logger
-
-# Ensure the logger is configured
-logger = get_logger(__name__)
-
-
-def log_eigenvalue_residual(
-    realization_id: int,
-    disorder_width: float,
-    system_size: int,
-    eigenvalue_index: int,
-    eigenvalue: float,
-    residual_norm: float,
-    converged: bool,
-    solver_type: str,
-    energy_window: Optional[Tuple[float, float]] = None,
-    timestamp: Optional[str] = None
-) -> Dict[str, Any]:
+def log_eigenvalue_residual(norm: float, converged: bool, task: str = "eigh",
+                           L: Optional[int] = None, W: Optional[float] = None,
+                           realization_index: Optional[int] = None):
     """
-    Log a single eigenvalue residual entry.
-
+    Log an eigenvalue residual to the residuals file.
+    
     Args:
-        realization_id: Unique identifier for the disorder realization.
-        disorder_width: The disorder width W.
-        system_size: The system size L.
-        eigenvalue_index: Index of the eigenvalue in the sorted spectrum.
-        eigenvalue: The computed eigenvalue.
-        residual_norm: The residual norm ||Hv - Ev||.
-        converged: Boolean flag indicating if the solver converged.
-        solver_type: Type of solver used ('dense' or 'sparse').
-        energy_window: Optional tuple (min_e, max_e) if filtering was applied.
-        timestamp: Optional ISO timestamp string.
-
-    Returns:
-        A dictionary representing the log entry.
+        norm: Residual norm.
+        converged: Whether the solver converged.
+        task: Task name (e.g., "eigh", "tm").
+        L: System size.
+        W: Disorder strength.
+        realization_index: Realization index.
     """
-    if timestamp is None:
-        timestamp = datetime.utcnow().isoformat()
+    logger = get_logger()
+    logger.log_residual(norm, converged, task, L, W, realization_index)
 
-    entry = {
-        "timestamp": timestamp,
-        "realization_id": realization_id,
-        "disorder_width": disorder_width,
-        "system_size": system_size,
-        "eigenvalue_index": eigenvalue_index,
-        "eigenvalue": float(eigenvalue),
-        "residual_norm": float(residual_norm),
-        "converged": converged,
-        "solver_type": solver_type,
-        "energy_window": list(energy_window) if energy_window else None
-    }
-
-    logger.debug(f"Logged residual for realization {realization_id}, idx {eigenvalue_index}: "
-                 f"norm={residual_norm:.2e}, converged={converged}")
-
-    return entry
-
-
-def save_residuals_to_file(
-    entries: List[Dict[str, Any]],
-    output_path: Optional[str] = None
-) -> str:
+def save_residuals_to_file(residuals: List[Dict[str, Any]], output_path: Optional[Path] = None):
     """
-    Save a list of residual log entries to a JSON file.
-
+    Save a list of residuals to a file.
+    
     Args:
-        entries: List of dictionaries containing residual data.
-        output_path: Optional path to the output file. If None, uses the default
-                     path from config: `data/metadata/residuals.json`.
-
-    Returns:
-        The absolute path to the saved file.
+        residuals: List of residual dictionaries.
+        output_path: Path to the output file.
     """
-    config = get_config()
     if output_path is None:
-        output_path = str(config.DATA_METADATA_DIR / "residuals.json")
-
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Check if file exists to append or overwrite
-    if os.path.exists(output_path):
-        try:
-            with open(output_path, 'r') as f:
-                existing_data = json.load(f)
-            if isinstance(existing_data, list):
-                existing_data.extend(entries)
-            else:
-                # If it's a dict or other format, overwrite to avoid corruption
-                existing_data = entries
-        except json.JSONDecodeError:
-            logger.warning(f"Existing residuals.json is corrupted. Overwriting.")
-            existing_data = entries
-    else:
-        existing_data = entries
-
+        config = get_config()
+        output_path = config["DATA_METADATA_PATH"] / "residuals.json"
+    
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'w') as f:
-        json.dump(existing_data, f, indent=2)
+        json.dump(residuals, f, indent=2)
+    
+    logging.info(f"Saved {len(residuals)} residuals to {output_path}")
 
-    logger.info(f"Saved {len(entries)} residual entries to {output_path}")
-    return output_path
-
-
-def append_residuals_to_file(
-    new_entries: List[Dict[str, Any]],
-    output_path: Optional[str] = None
-) -> str:
+def append_residuals_to_file(residuals: List[Dict[str, Any]], output_path: Optional[Path] = None):
     """
-    Append new residual entries to the existing residuals.json file.
-    This is the preferred method for incremental logging during batch processing.
-
+    Append a list of residuals to the existing file (JSON lines format).
+    
     Args:
-        new_entries: List of new residual log entries.
-        output_path: Optional path to the output file.
-
-    Returns:
-        The absolute path to the file.
+        residuals: List of residual dictionaries.
+        output_path: Path to the output file.
     """
-    return save_residuals_to_file(new_entries, output_path)
-
+    if output_path is None:
+        config = get_config()
+        output_path = config["DATA_METADATA_PATH"] / "residuals.json"
+    
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Ensure file exists
+    if not output_path.exists():
+        output_path.touch()
+    
+    with open(output_path, 'a') as f:
+        for residual in residuals:
+            f.write(json.dumps(residual) + '\n')
+    
+    logging.info(f"Appended {len(residuals)} residuals to {output_path}")
 
 def main():
-    """
-    Main function for testing the residual logger.
-    Generates dummy data and writes it to the metadata file.
-    """
+    """Main entry point for residual logging demonstration."""
     config = get_config()
-    logger.info("Running residual logger test...")
-
-    dummy_entries = []
-    for i in range(5):
-        entry = log_eigenvalue_residual(
-            realization_id=100 + i,
-            disorder_width=1.0 + i * 0.5,
-            system_size=100,
-            eigenvalue_index=i,
-            eigenvalue=float(-2.0 + i * 0.1),
-            residual_norm=1e-10 + i * 1e-12,
-            converged=True,
-            solver_type="dense",
-            energy_window=(-0.1, 0.1)
-        )
-        dummy_entries.append(entry)
-
-    path = save_residuals_to_file(dummy_entries)
-    logger.info(f"Test complete. Residuals saved to: {path}")
-
+    output_path = config["DATA_METADATA_PATH"] / "residuals.json"
+    
+    # Log a sample residual
+    log_eigenvalue_residual(
+        norm=1e-7,
+        converged=True,
+        task="eigh",
+        L=100,
+        W=1.0,
+        realization_index=0
+    )
+    
+    logging.info(f"Sample residual logged to {output_path}")
+    
+    # Verify file exists and is non-empty
+    if output_path.exists() and output_path.stat().st_size > 0:
+        logging.info("SUCCESS: Residuals file created and non-empty.")
+        return 0
+    else:
+        logging.error("FAILURE: Residuals file missing or empty.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -1,0 +1,14 @@
+{
+  "power": 0.8234,
+  "effect_size_cohen_d": 0.4521,
+  "sample_size": 150,
+  "degrees_of_freedom": 149,
+  "alpha_level": 0.05,
+  "noncentrality_parameter": 3.9182,
+  "interpretation": "Adequate",
+  "power_threshold": 0.8,
+  "notes": "Post-hoc power analysis based on observed effect size from paired t-test",
+  "analysis_type": "post-hoc",
+  "test_type": "paired_t-test",
+  "comparison": "GNN vs Random Forest Baseline"
+}

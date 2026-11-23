@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.03700",
+  "judged_at": "2026-07-19T10:04:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"mobileforge: annotation-free adaptation for mobile gui agents with hie\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (e) as it presents a foundational mobile GUI agent framework with a scalable data pipeline and reinforcement fine-tuning, which constitutes the canonical prior work and empirical baseline for extending or comparing against \"MobileForge\" in the domain of annotation-free mobile GUI adaptation.",
+  "relevant": true
+}

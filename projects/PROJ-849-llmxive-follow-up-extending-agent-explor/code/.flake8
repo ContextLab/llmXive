@@ -1,0 +1,16 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E501, B008, C901
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    .tox
+per-file-ignores =
+    tests/*:S101
+# Ensure compatibility with black
+# E203: whitespace before ':' (conflicts with black)
+# W503: line break before binary operator (conflicts with black)
+ignore = E203, W503, E501

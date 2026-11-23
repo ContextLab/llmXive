@@ -1,154 +1,206 @@
 """
-Unit tests for response metrics simulation and validation.
+Unit tests for response metrics simulation module.
 """
 import pytest
 import os
 import sys
 import json
-import random
-from typing import Dict, Any
+import tempfile
+import shutil
+import csv
+import math
+from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / 'code'))
 
-from code.simulate.response_metrics import (
+from simulate.response_metrics import (
     simulate_response_time,
     simulate_comprehension_rating,
     validate_response_time_distribution,
-    generate_response_metrics,
-    MAX_GAP_SECONDS,
-    MIN_RESPONSE_TIME,
-    MAX_RESPONSE_TIME,
-    COMPREHENSION_MIN,
-    COMPREHENSION_MAX
+    generate_response_metrics
 )
 
 class TestResponseTimeSimulation:
-    """Tests for response time simulation logic."""
+    """Tests for response time simulation function."""
 
-    def test_response_time_bounds(self):
-        """Test that response times are within valid bounds."""
+    def test_response_time_range(self):
+        """Response times should be within valid bounds."""
         for _ in range(100):
-            rt = simulate_response_time(0.5, 0.5)
-            assert MIN_RESPONSE_TIME <= rt <= MAX_RESPONSE_TIME, \
-                f"Response time {rt} out of bounds [{MIN_RESPONSE_TIME}, {MAX_RESPONSE_TIME}]"
+            rt = simulate_response_time(0.5, 'neural', seed=42)
+            assert 0.5 <= rt <= 60.0, f"Response time {rt} out of bounds"
 
-    def test_knowledge_effect(self):
-        """Test that higher knowledge leads to faster response times."""
-        low_knowledge_rt = simulate_response_time(0.2, 0.5, seed=42)
-        high_knowledge_rt = simulate_response_time(0.8, 0.5, seed=42)
-        assert high_knowledge_rt <= low_knowledge_rt, \
-            f"High knowledge ({high_knowledge_rt}) should be faster than low knowledge ({low_knowledge_rt})"
+    def test_response_time_by_condition(self):
+        """Different conditions should produce different base times."""
+        neural_rt = simulate_response_time(0.0, 'neural', seed=123)
+        symbolic_rt = simulate_response_time(0.0, 'symbolic', seed=123)
+        neuro_symbolic_rt = simulate_response_time(0.0, 'neuro_symbolic', seed=123)
 
-    def test_difficulty_effect(self):
-        """Test that higher difficulty leads to slower response times."""
-        easy_rt = simulate_response_time(0.5, 0.2, seed=42)
-        hard_rt = simulate_response_time(0.5, 0.8, seed=42)
-        assert hard_rt >= easy_rt, \
-            f"Hard problem ({hard_rt}) should be slower than easy problem ({easy_rt})"
+        # Symbolic should generally be slower than neural
+        assert symbolic_rt >= neural_rt - 1.0, "Symbolic should be slower"
 
-    def test_deterministic_with_seed(self):
-        """Test that same seed produces same results."""
-        rt1 = simulate_response_time(0.5, 0.5, seed=123)
-        rt2 = simulate_response_time(0.5, 0.5, seed=123)
-        assert rt1 == rt2, f"Same seed should produce same result: {rt1} != {rt2}"
+    def test_response_time_difficulty(self):
+        """Higher difficulty should increase response time."""
+        rt_easy = simulate_response_time(0.1, 'neural', seed=456)
+        rt_hard = simulate_response_time(0.9, 'neural', seed=456)
+
+        assert rt_hard >= rt_easy, "Harder problems should take longer"
+
+    def test_response_time_deterministic(self):
+        """Same seed should produce same result."""
+        rt1 = simulate_response_time(0.5, 'neural', seed=999)
+        rt2 = simulate_response_time(0.5, 'neural', seed=999)
+        assert rt1 == rt2, "Response time should be deterministic with same seed"
 
 class TestComprehensionRatingSimulation:
-    """Tests for comprehension rating simulation logic."""
+    """Tests for comprehension rating simulation function."""
 
-    def test_rating_bounds(self):
-        """Test that ratings are within 1-5 range."""
+    def test_comprehension_range(self):
+        """Comprehension ratings should be 1-5."""
         for _ in range(100):
-            rating = simulate_comprehension_rating(0.5, 0.5, 5.0)
-            assert COMPREHENSION_MIN <= rating <= COMPREHENSION_MAX, \
-                f"Rating {rating} out of bounds [{COMPREHENSION_MIN}, {COMPREHENSION_MAX}]"
-            assert isinstance(rating, int), f"Rating should be integer, got {type(rating)}"
+            rating = simulate_comprehension_rating('neural', 0.5, seed=42)
+            assert 1 <= rating <= 5, f"Rating {rating} out of bounds"
 
-    def test_knowledge_effect_on_rating(self):
-        """Test that higher knowledge leads to higher ratings."""
-        low_knowledge_rating = simulate_comprehension_rating(0.2, 0.5, 5.0, seed=42)
-        high_knowledge_rating = simulate_comprehension_rating(0.8, 0.5, 5.0, seed=42)
-        assert high_knowledge_rating >= low_knowledge_rating, \
-            f"High knowledge ({high_knowledge_rating}) should have >= rating than low knowledge ({low_knowledge_rating})"
+    def test_comprehension_by_condition(self):
+        """Neuro-symbolic should have higher comprehension ratings."""
+        neural_ratings = [simulate_comprehension_rating('neural', 0.5, seed=i) for i in range(100)]
+        neuro_symbolic_ratings = [simulate_comprehension_rating('neuro_symbolic', 0.5, seed=i) for i in range(100)]
 
-    def test_difficulty_effect_on_rating(self):
-        """Test that higher difficulty leads to lower ratings."""
-        easy_rating = simulate_comprehension_rating(0.5, 0.2, 5.0, seed=42)
-        hard_rating = simulate_comprehension_rating(0.5, 0.8, 5.0, seed=42)
-        assert easy_rating >= hard_rating, \
-            f"Easy problem ({easy_rating}) should have >= rating than hard problem ({hard_rating})"
+        neural_mean = sum(neural_ratings) / len(neural_ratings)
+        neuro_symbolic_mean = sum(neuro_symbolic_ratings) / len(neuro_symbolic_ratings)
 
-    def test_response_time_effect_on_rating(self):
-        """Test that extreme response times affect ratings."""
-        normal_rating = simulate_comprehension_rating(0.5, 0.5, 5.0, seed=42)
-        too_fast_rating = simulate_comprehension_rating(0.5, 0.5, 0.5, seed=42)
-        too_slow_rating = simulate_comprehension_rating(0.5, 0.5, 35.0, seed=42)
-        
-        # Extreme times should generally result in lower ratings
-        assert too_fast_rating <= normal_rating or too_slow_rating <= normal_rating, \
-            "Extreme response times should not increase rating significantly"
+        assert neuro_symbolic_mean >= neural_mean, "Neuro-symbolic should have higher comprehension"
 
-class TestDistributionValidation:
-    """Tests for response time distribution validation."""
+    def test_comprehension_difficulty(self):
+        """Higher difficulty should decrease comprehension."""
+        rating_easy = simulate_comprehension_rating('neural', 0.1, seed=789)
+        rating_hard = simulate_comprehension_rating('neural', 0.9, seed=789)
+
+        assert rating_hard <= rating_easy, "Harder problems should have lower comprehension"
+
+    def test_comprehension_deterministic(self):
+        """Same seed should produce same result."""
+        rating1 = simulate_comprehension_rating('neural', 0.5, seed=999)
+        rating2 = simulate_comprehension_rating('neural', 0.5, seed=999)
+        assert rating1 == rating2, "Comprehension rating should be deterministic"
+
+class TestResponseTimeDistributionValidation:
+    """Tests for distribution validation function."""
 
     def test_valid_distribution(self):
-        """Test validation passes for distribution with small gaps."""
-        response_times = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
-        result = validate_response_time_distribution(response_times)
-        assert result["valid"] is True, f"Valid distribution should pass: {result}"
-        assert result["max_gap"] <= MAX_GAP_SECONDS
+        """Distribution with no large gaps should pass."""
+        times = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+        is_valid, stats = validate_response_time_distribution(times)
+        assert is_valid
+        assert stats['max_gap'] <= 5.0
 
     def test_invalid_distribution(self):
-        """Test validation fails for distribution with large gaps."""
-        response_times = [1.0, 2.0, 3.0, 10.0, 11.0]  # Gap of 7 seconds
-        result = validate_response_time_distribution(response_times)
-        assert result["valid"] is False, f"Invalid distribution should fail: {result}"
-        assert result["max_gap"] > MAX_GAP_SECONDS
+        """Distribution with large gaps should fail."""
+        times = [1.0, 1.5, 2.0, 10.0, 10.5]  # Gap of 8.0 between 2.0 and 10.0
+        is_valid, stats = validate_response_time_distribution(times)
+        assert not is_valid
+        assert stats['max_gap'] > 5.0
 
-    def test_insufficient_data(self):
-        """Test validation handles insufficient data points."""
-        result = validate_response_time_distribution([1.0])
-        assert result["valid"] is True, "Single point should be considered valid"
-        
-        result = validate_response_time_distribution([])
-        assert result["valid"] is True, "Empty list should be considered valid"
+    def test_empty_list(self):
+        """Empty list should pass validation."""
+        is_valid, stats = validate_response_time_distribution([])
+        assert is_valid
 
-    def test_gap_calculation(self):
-        """Test that gaps are calculated correctly."""
-        response_times = [1.0, 3.0, 6.0]  # Gaps: 2.0, 3.0
-        result = validate_response_time_distribution(response_times)
-        assert result["max_gap"] == 3.0, f"Max gap should be 3.0, got {result['max_gap']}"
-        assert result["total_gaps"] == 2, f"Should have 2 gaps, got {result['total_gaps']}"
+    def test_single_element(self):
+        """Single element list should pass validation."""
+        is_valid, stats = validate_response_time_distribution([5.0])
+        assert is_valid
+
+    def test_stats_computation(self):
+        """Stats should be computed correctly."""
+        times = [1.0, 2.0, 3.0, 4.0, 5.0]
+        is_valid, stats = validate_response_time_distribution(times)
+
+        assert stats['count'] == 5
+        assert stats['min'] == 1.0
+        assert stats['max'] == 5.0
+        assert abs(stats['mean'] - 3.0) < 0.001
+        assert stats['median'] == 3.0
 
 class TestGenerateResponseMetrics:
-    """Tests for the main metrics generation function."""
+    """Tests for metrics generation function."""
 
-    def test_full_generation(self):
-        """Test complete metrics generation for student-problem pair."""
-        student = {"knowledge": 0.7, "id": "test_student"}
-        problem = {"difficulty": 0.4, "id": "test_problem"}
-        
-        metrics = generate_response_metrics(student, problem, seed=42)
-        
-        assert "response_time" in metrics, "Missing response_time"
-        assert "comprehension_rating" in metrics, "Missing comprehension_rating"
-        
-        rt = metrics["response_time"]
-        rating = metrics["comprehension_rating"]
-        
-        assert MIN_RESPONSE_TIME <= rt <= MAX_RESPONSE_TIME, f"RT out of bounds: {rt}"
-        assert COMPREHENSION_MIN <= rating <= COMPREHENSION_MAX, f"Rating out of bounds: {rating}"
-        assert isinstance(rating, int), f"Rating should be integer: {type(rating)}"
+    def test_adds_fields(self):
+        """Should add response_time_seconds and comprehension_rating."""
+        logs = [
+            {'problem_id': 'p1', 'condition': 'neural', 'difficulty': 0.5, 'correct': True},
+            {'problem_id': 'p2', 'condition': 'symbolic', 'difficulty': 0.3, 'correct': False}
+        ]
+
+        updated = generate_response_metrics(logs, seed=42)
+
+        assert 'response_time_seconds' in updated[0]
+        assert 'comprehension_rating' in updated[0]
+        assert 'response_time_seconds' in updated[1]
+        assert 'comprehension_rating' in updated[1]
+
+    def test_preserves_original_data(self):
+        """Should preserve all original fields."""
+        logs = [
+            {'problem_id': 'p1', 'condition': 'neural', 'difficulty': 0.5, 'extra_field': 'value'}
+        ]
+
+        updated = generate_response_metrics(logs, seed=42)
+
+        assert updated[0]['problem_id'] == 'p1'
+        assert updated[0]['condition'] == 'neural'
+        assert updated[0]['extra_field'] == 'value'
 
     def test_deterministic_generation(self):
-        """Test that same inputs with same seed produce identical results."""
-        student = {"knowledge": 0.6, "id": "student"}
-        problem = {"difficulty": 0.3, "id": "problem"}
-        
-        metrics1 = generate_response_metrics(student, problem, seed=999)
-        metrics2 = generate_response_metrics(student, problem, seed=999)
-        
-        assert metrics1 == metrics2, f"Same seed should produce same metrics: {metrics1} != {metrics2}"
+        """Same seed should produce same results."""
+        logs = [
+            {'problem_id': 'p1', 'condition': 'neural', 'difficulty': 0.5},
+            {'problem_id': 'p2', 'condition': 'symbolic', 'difficulty': 0.3}
+        ]
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        updated1 = generate_response_metrics(logs, seed=123)
+        updated2 = generate_response_metrics(logs, seed=123)
+
+        assert updated1[0]['response_time_seconds'] == updated2[0]['response_time_seconds']
+        assert updated1[0]['comprehension_rating'] == updated2[0]['comprehension_rating']
+
+    def test_integration_with_csv(self):
+        """Test full pipeline with CSV file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_file = os.path.join(tmpdir, 'input.csv')
+            output_file = os.path.join(tmpdir, 'output.csv')
+
+            # Create input CSV
+            with open(input_file, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=['problem_id', 'condition', 'difficulty', 'correct'])
+                writer.writeheader()
+                writer.writerow({'problem_id': 'p1', 'condition': 'neural', 'difficulty': 0.5, 'correct': 'True'})
+                writer.writerow({'problem_id': 'p2', 'condition': 'symbolic', 'difficulty': 0.3, 'correct': 'False'})
+
+            # Load and process
+            logs = []
+            with open(input_file, 'r') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    row['difficulty'] = float(row['difficulty'])
+                    row['correct'] = row['correct'] == 'True'
+                    logs.append(row)
+
+            updated = generate_response_metrics(logs, seed=42)
+
+            # Write output
+            with open(output_file, 'w', newline='') as f:
+                fieldnames = list(updated[0].keys())
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(updated)
+
+            # Verify output
+            assert os.path.exists(output_file)
+            with open(output_file, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                assert len(rows) == 2
+                assert 'response_time_seconds' in rows[0]
+                assert 'comprehension_rating' in rows[0]

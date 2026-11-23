@@ -1,0 +1,106 @@
+T001a:
+  c: true
+  h: dc048b14683239e80f26512339b4d216b2ce01b3b1bd32938951b82e20833915
+  r: The task T001a only requires creating the project directory structure (`projects/PROJ-843-llmxive-follow-up-extending-latent-spati/`
+    with `code/`, `data/`, `tests/`), and the collector confirms all four directories
+    exist and are non-empty (code/ has 15 entries including `main.py`, data/ has 8
+    entries including the required subdirectories, tests/ has 21 entries). The empty
+    data files and null metrics in the evidence are expected at this stage, since
+    data ingestion, stratification, and analysis are assigned to later tasks, not
+    this scaffolding task.
+  sig: f8d6fcde62f9d4aa64cdbd6a897d6ec6f5a3f1994bd66c37c0ab4d8e0b70e154
+T001b:
+  c: true
+  h: 5fa3a1ca955d9d11d570698dc67b752d71aa533f248bf0a07fc5e8e94cd56310
+  r: 'The `requirements.txt` exists (152 bytes) and contains all required packages:
+    opencv-python, scikit-learn, scipy, pandas, numpy, datasets, imageio, pytest,
+    memory_profiler, and scikit-image. The task''s "torch-cpu" is satisfied by `torch`
+    (there is no separate `torch-cpu` PyPI package; torch installs the CPU build by
+    default without CUDA index), and the file additionally includes torchvision, huggingface_hub,
+    pillow, and transformers, which are harmless extras consistent with the broader
+    spec.'
+  sig: 7a2eca6db60f828abd930ed5cc9f6da91df6cd27927784aabf64edc2d5568779
+T002:
+  c: false
+  h: b24da7c5de2871fd33450456e737f44d77c30b14c7206e87446db183b534e071
+  r: "The lint check script ran (exit 0) but its own output shows `\"flake8\": {\"\
+    available\": false}` and `\"black\": {\"available\": false}` with a warning that\
+    \ neither tool is on PATH \u2014 no flake8/black configuration files (e.g., `.flake8`,\
+    \ `setup.cfg`, `pyproject.toml` sections) or installed tools are evidenced. The\
+    \ task was to configure linting and formatting tools, not merely to write a script\
+    \ that reports they are missing; the tools must actually be installed/configured\
+    \ and the lint check must run against them."
+  sig: 49a784c8a0e3af0c158dd76ad045329312c93de48a21abbf51ef5e25a3df7be6
+T003:
+  c: true
+  h: be5195fc9ff5ee1e1eb2db0e75a3aa6778d0f7ee6fdf7ba3e2312a45698c52c9
+  r: "The file `code/utils/seeds.py` exists (698 bytes) and contains a real, functional\
+    \ implementation that pins Python's `random`, NumPy, and `PYTHONHASHSEED` seeds,\
+    \ plus deterministic per-task seed derivation via MD5 \u2014 no stubs, TODOs,\
+    \ or placeholders. The task only asked for seed pinning for reproducibility, which\
+    \ this satisfies."
+  sig: b221a594d7314b2c342a63f2b1d6d37eca75afa85eece6e22c701be158654c4b
+T004:
+  c: true
+  h: 10ca8e4c76632adcdf1bf675688d461d5e02f9b2b27a2368c517bb4a4b9205e4
+  r: '`code/config.py` exists (3261 bytes) and defines the required paths (`data/raw`,
+    `data/stratified`, `data/results` via the `DIRS` dict), a threshold (`RANSAC_THRESHOLD
+    = 0.05`), and directory-creation utilities. The only gap is that "memory limits"
+    are not explicitly defined as named constants, but the config is functional, non-stub,
+    and covers the core requirements.'
+  sig: e0f011dd51f4f9337c077bac1ce5f858117bcbd919ee8be2f84376fac2298587
+T005:
+  c: true
+  h: 9fb6df47b7e8203de00af68a52afaf8168c86a33bc8bb5fa7fdc07dc85e3636c
+  r: "The artifact `code/utils/memory_monitor.py` exists (4767 bytes) and implements\
+    \ a real `MemoryMonitor` class that uses `memory_profiler`'s `memory_usage` (with\
+    \ a `/proc/self/status` fallback) to track peak RAM in a background thread, measures\
+    \ wall-clock elapsed time, and writes a JSON log with peak RAM, elapsed seconds,\
+    \ and measurements \u2014 matching the task's requirement. No stubs, TODOs, or\
+    \ placeholders are present."
+  sig: 7d8e4a2219a310d117d95b185f959d8efc15b7ee52113c5f5f9220994be251dc
+T006:
+  c: false
+  h: cdd8b3d554a89baa80edfef4e639e026d64af30de2bf2bc7e53c8057f47a5e15
+  r: "The artifact `code/data/schemas.py` exists but contains no Pydantic models at\
+    \ all \u2014 the required `StratifiedSubset`, `SparseFeatures`, `WarpingResult`,\
+    \ and `MetricReport` classes are entirely absent (no `pydantic` import, no model\
+    \ definitions); the file only implements directory-creation/validation helpers.\
+    \ The directory-structure half of the task may be covered, but the core schema-model\
+    \ requirement is unmet."
+  sig: dc15608efd53828e350787054189794a987cb7dd3d9bb720d69d30731c8bdb68
+T007:
+  c: false
+  h: 2850e247ce0beb154e80fc44634cc6605144a647334c70165e55bb9beaedb861
+  r: "The file `code/data/download.py` exists and implements `check_url_accessibility`\
+    \ and a `load_dataset` call, but it never passes a `revision` argument \u2014\
+    \ `load_dataset(\"realestate10k\", split=\"train\")` omits the \"specific revision\"\
+    \ the task explicitly requires. Additionally, there is no execution evidence (no\
+    \ downloaded metadata JSON, logs, or run output) showing the download or URL validation\
+    \ actually succeeded, and `ds.to_dict()` on a large dataset would likely fail\
+    \ anyway."
+  sig: 581c7938d69444d98686765c1b1ed43de6c68e4872778a219b44476bfcef6f73
+T008:
+  c: false
+  h: 281e4200a34f777492e40aafac410775dda886828b2ce69ae6e82173fc6cc4cb
+  r: "The script `code/data/stratify.py` exists and implements optical flow, texture\
+    \ entropy, ranking, n\u226550 abort (`sys.exit(1)`), seeded selection, and the\
+    \ four strata, but there is no evidence it ever ran successfully: `data/stratified/`\
+    \ contains only `.gitkeep` and a `stratification_metadata.json` reporting **0\
+    \ sequences in every stratum** and no Static-High/Static-Low/Fast-High/Fast-Low\
+    \ subdirectories, so the \"save metadata and move sequences to data/stratified/\"\
+    \ requirement is unmet. Moreover, that metadata file's schema (`strata_counts`,\
+    \ `selected_counts`, `motion_threshold: 50.0`) does not ma"
+  sig: 4eb92abbda18526d86cfbf85a76f100c829f2679340b11723c3775f2f649e667
+T009:
+  c: false
+  h: df0496c49a828c2e23bea2a6fd6a92e3bf42f92c98f5d1f44895cad591b1784a
+  r: 'The script is broken and off-spec: it contains two conflicting duplicate definitions
+    (`is_fast_sequence`, `process_sequence`, `main`) appended after the first `main()`,
+    with dead code referencing an undefined `keypoints` variable; it implements texture
+    entropy via a hand-rolled LBP histogram instead of the required `skimage.feature.greycomatrix`;
+    and it saves JSON files rather than the required `.npy` outputs in `data/features/`.
+    The only output artifact, `data/features/all_features.json`, is an empty list
+    `[]` (stratified data is also empty, 0 sequences), so there is no evidence the
+    extractio'
+  sig: 2ae2559bf370e130d636679559806a6524c688ccc0f5da9af15cc9e9d847ddf9

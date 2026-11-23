@@ -1,0 +1,47 @@
+# Pipeline Configuration
+# Generated for PROJ-500-neural-correlates-of-predictive-error-si
+
+# Paths
+project_root: ./code
+data_dir: ./code/data
+analysis_dir: ./code/analysis
+results_dir: ./code/analysis/results
+cache_dir: ./code/data/cache
+
+# Filtering parameters (FR-002)
+filter_low_freq_hz: 1.0
+filter_high_freq_hz: 40.0
+
+# MMN analysis parameters (FR-004)
+mmn_window_start_ms: -250
+mmn_window_end_ms: 0
+
+# Behavioral analysis parameters (FR-005)
+accuracy_block_size: 50
+min_trials_per_block: 10
+
+# Lagged alignment parameters
+lag_source_window_size: 50
+
+# Exclusion thresholds (Constitution Principle VII)
+subject_exclusion_threshold: 20
+trial_exclusion_threshold: 500
+
+# Reproducibility
+random_seed: 42
+
+# Resource management (FR-009)
+ram_limit_gb: 7.0
+max_runtime_hours: 6.0
+
+# Target electrodes for MMN calculation (FR-004)
+target_electrodes:
+  - CP3
+  - CP4
+  - C3
+  - C4
+
+# Statistical analysis parameters
+permutation_test_n: 1000
+permutation_pilot_n: 100
+fdr_method: fdr_bh

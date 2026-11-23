@@ -1,0 +1,16 @@
+# Core ML & Data Processing
+transformers==4.40.0
+datasets==2.19.1
+accelerate==0.30.1
+scikit-learn==1.4.2
+pandas==2.2.2
+numpy==1.26.4
+torch --index-url https://download.pytorch.org/whl/cpu
+# Visualization & Statistics
+matplotlib==3.9.0
+seaborn==0.13.2
+statsmodels==0.14.2
+# Testing & Profiling
+pytest==8.2.0
+pytest-timeout==2.3.1
+memory-profiler==0.61.0

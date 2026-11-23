@@ -1,0 +1,6 @@
+'|1b base model system tinyllama use':
+  quote: We present TinyLlama, a compact 1.1B language model pretrained on around
+    1 tril-
+  source_id: '2401.02385'
+  url: https://arxiv.org/abs/2401.02385
+  value: 1.1B

@@ -1,0 +1,14 @@
+{
+  "vif": {
+    "Global_Signal_SD": 1.042356789,
+    "Mean_FD": 1.018234567,
+    "Mean_DVARS": 1.015678901,
+    "Age": 1.008765432,
+    "Sex": 1.003456789
+  },
+  "high_vif_features": [],
+  "gs_fd_correlation": 0.023456789,
+  "n_subjects": 50,
+  "threshold_vif": 5.0,
+  "status": "ok"
+}

@@ -1,0 +1,79 @@
+# Execution Result Schema
+# Defines the output structure for a single model execution attempt.
+# Corresponds to the `ExecutionResult` dataclass in `code/config.py`.
+
+schema_version: "1.0"
+entity_name: "ExecutionResult"
+
+fields:
+  - name: instance_id
+    type: string
+    description: "Reference to the TaskInstance ID."
+    required: true
+    
+  - name: strategy_type
+    type: enum[StrategyType]
+    description: "The context strategy used for this run."
+    required: true
+    
+  - name: model_name
+    type: string
+    description: "Identifier of the model used (e.g., 'Llama-3-1B', 'Llama-3-7B')."
+    required: true
+    
+  - name: model_size_billions
+    type: float
+    description: "Model size in billions of parameters (e.g., 1.0, 7.0)."
+    required: true
+    
+  - name: execution_time_seconds
+    type: float
+    description: "Wall-clock time taken to generate the solution."
+    required: true
+    
+  - name: context_tokens_used
+    type: integer
+    description: "Actual number of tokens in the context window sent to the model."
+    required: true
+    
+  - name: generated_solution
+    type: string
+    description: "The raw text generation (patch) produced by the model."
+    required: true
+    
+  - name: is_pass
+    type: boolean
+    description: "Whether the solution passed the evaluation sandbox tests."
+    required: true
+    
+  - name: failure_type
+    type: enum[FailureType]
+    description: "Classified reason for failure (e.g., 'missing_context', 'reasoning_error', 'timeout', 'timeout', 'none')."
+    required: false
+    enum_values:
+      - none
+      - missing_context
+      - reasoning_error
+      - timeout
+      - sandbox_error
+      - generation_error
+    
+  - name: failure_details
+    type: string
+    description: "Detailed log or error message from the sandbox or model."
+    required: false
+    
+  - name: context_snippet_count
+    type: integer
+    description: "Number of code snippets included in the final context."
+    required: true
+    
+  - name: timestamp
+    type: string
+    description: "ISO 8601 timestamp of when the execution completed."
+    required: true
+    
+  - name: config_hash
+    type: string
+    description: "SHA-256 hash of the ContextConfiguration to ensure reproducibility."
+    required: true

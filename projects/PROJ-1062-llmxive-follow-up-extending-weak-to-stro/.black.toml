@@ -1,0 +1,4 @@
+# Explicit configuration for black if standalone is preferred.
+# Usually black reads from pyproject.toml, but this ensures presence.
+line-length = 88
+target-version = ['py311']

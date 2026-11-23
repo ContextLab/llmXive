@@ -1,0 +1,278 @@
+# Output Schema for llmXive Automated Science Pipeline
+# Defines the structure of the final report and intermediate artifacts
+# File: code/contracts/output.schema.yaml
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LLMXive Final Report Output"
+description: "Schema for the final aggregated output of the complexity-loss correlation study"
+
+type: object
+properties:
+  metadata:
+    type: object
+    description: "Study execution metadata"
+    properties:
+      project_id:
+        type: string
+        description: "Project identifier (e.g., PROJ-877-llmxive-follow-up-extending-mellum2-tech)"
+      version:
+        type: string
+        description: "Schema version"
+      timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of report generation"
+      pipeline_status:
+        type: string
+        enum: ["completed", "partial", "failed"]
+        description: "Overall execution status"
+      config_snapshot:
+        type: object
+        description: "Snapshot of configuration used for this run"
+        properties:
+          seed:
+            type: integer
+          languages:
+            type: array
+            items:
+              type: string
+          model_primary:
+            type: string
+          model_fallback:
+            type: string
+
+  feasibility_summary:
+    type: object
+    description: "Summary from T011 Feasibility Analysis"
+    properties:
+      status:
+        type: string
+        enum: ["feasible", "capped"]
+      capped_N:
+        type: integer
+        description: "Final sample size used"
+      power_limitation:
+        type: string
+        nullable: true
+        description: "Message if power was limited by constraints"
+      perturbation_magnitude:
+        type: number
+        description: "Magnitude used for sensitivity analysis"
+      bootstrap_count:
+        type: integer
+        description: "Number of bootstrap iterations performed"
+      proceed_flag:
+        type: boolean
+        description: "Whether the pipeline proceeded past feasibility"
+
+  variance_check:
+    type: object
+    description: "Summary from T011b Variance Detection"
+    properties:
+      status:
+        type: string
+        enum: ["passed", "null_variance"]
+      metrics:
+        type: object
+        properties:
+          cyclomatic_complexity:
+            type: object
+            properties:
+              variance:
+                type: number
+              mean:
+                type: number
+              std:
+                type: number
+          nesting_depth:
+            type: object
+            properties:
+              variance:
+                type: number
+              mean:
+                type: number
+              std:
+                type: number
+          repetition_ratio:
+            type: object
+            properties:
+              variance:
+                type: number
+              mean:
+                type: number
+              std:
+                type: number
+
+  correlation_results:
+    type: object
+    description: "Results from T019/T020 Correlation Analysis"
+    properties:
+      python_subset:
+        type: object
+        properties:
+          pearson_r:
+            type: number
+          pearson_p:
+            type: number
+          spearman_rho:
+            type: number
+          spearman_p:
+            type: number
+          n_samples:
+            type: integer
+          correlation_plot_path:
+            type: string
+            description: "Relative path to the generated plot"
+      java_subset:
+        type: object
+        properties:
+          pearson_r:
+            type: number
+          pearson_p:
+            type: number
+          spearman_rho:
+            type: number
+          spearman_p:
+            type: number
+          n_samples:
+            type: integer
+          correlation_plot_path:
+            type: string
+            nullable: true
+      cross_language_comparison:
+        type: object
+        properties:
+          pearson_diff:
+            type: number
+          spearman_diff:
+            type: number
+          significance_of_diff:
+            type: boolean
+
+  threshold_detection:
+    type: object
+    description: "Results from T024-T027 Threshold Analysis"
+    properties:
+      candidates:
+        type: array
+        items:
+          type: object
+          properties:
+            metric:
+              type: string
+            threshold_value:
+              type: number
+            confidence_interval:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+      model_preference:
+        type: string
+        enum: ["linear", "piecewise_linear", "non_linear"]
+      sensitivity_analysis:
+        type: object
+        properties:
+          threshold_shifts_by_magnitude:
+            type: array
+            items:
+              type: object
+          dataset_perturbation_shifts:
+            type: array
+            items:
+              type: number
+      report_path:
+        type: string
+        description: "Relative path to the markdown report"
+
+  statistical_significance:
+    type: object
+    description: "Results from T029-T031 Statistical Validation"
+    properties:
+      permutation_test:
+        type: object
+        properties:
+          p_value:
+            type: number
+          observed_statistic:
+            type: number
+          null_distribution_mean:
+            type: number
+          null_distribution_std:
+            type: number
+      multiple_comparison_correction:
+        type: object
+        properties:
+          method:
+            type: string
+            enum: ["bonferroni", "fdr"]
+          corrected_p_values:
+            type: array
+            items:
+              type: number
+      power_analysis:
+        type: object
+        properties:
+          achieved_power:
+            type: number
+          observed_effect_size:
+            type: number
+          sample_size:
+            type: integer
+          limitation_notes:
+            type: string
+            nullable: true
+      external_validation:
+        type: object
+        properties:
+          benchmark:
+            type: string
+            description: "Name of the benchmark used (e.g., CodeXGLUE)"
+          status:
+            type: string
+            enum: ["validated", "failed", "skipped"]
+          correlation_with_benchmark:
+            type: number
+            nullable: true
+          limitation_report_path:
+            type: string
+            nullable: true
+
+  artifacts_manifest:
+    type: object
+    description: "List of all generated artifacts with checksums"
+    properties:
+      data_files:
+        type: array
+        items:
+          type: object
+          properties:
+            path:
+              type: string
+            checksum_sha256:
+              type: string
+      figures:
+        type: array
+        items:
+          type: object
+          properties:
+            path:
+              type: string
+            checksum_sha256:
+              type: string
+      reports:
+        type: array
+        items:
+          type: object
+          properties:
+            path:
+              type: string
+            checksum_sha256:
+              type: string
+
+required:
+  - metadata
+  - feasibility_summary
+  - correlation_results
+  - artifacts_manifest

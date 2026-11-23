@@ -1,0 +1,90 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results Schema"
+type: "object"
+description: "Schema for final evaluation results JSON."
+properties:
+  threshold_value:
+    type: "number"
+    description: "The optimized threshold value used."
+  threshold_percentile:
+    type: "integer"
+    description: "The percentile used (e.g., 10, 20, 30)."
+  precision:
+    type: "number"
+    description: "Precision of the predictor."
+  recall:
+    type: "number"
+    description: "Recall of the predictor."
+  f1_score:
+    type: "number"
+    description: "F1-score of the predictor."
+  confusion_matrix:
+    type: "object"
+    description: "Confusion matrix counts."
+    properties:
+      tp:
+        type: "integer"
+        description: "True Positives."
+      fp:
+        type: "integer"
+        description: "False Positives."
+      tn:
+        type: "integer"
+        description: "True Negatives."
+      fn:
+        type: "integer"
+        description: "False Negatives."
+    required:
+      - "tp"
+      - "fp"
+      - "tn"
+      - "fn"
+  baseline_mean_connectivity_success:
+    type: "number"
+    description: "Mean connectivity of the success class."
+  correlation_coefficient:
+    type: "number"
+    description: "Spearman/Pearson correlation between connectivity and collapse."
+  p_value:
+    type: "number"
+    description: "P-value for the correlation test."
+  sensitivity_analysis:
+    type: "array"
+    description: "Results for threshold sweeps."
+    items:
+      type: "object"
+      properties:
+        percentile:
+          type: "integer"
+          description: "Percentile used (e.g., 10, 20, 30)."
+        f1_score:
+          type: "number"
+          description: "F1-score at this threshold."
+      required:
+        - "percentile"
+        - "f1_score"
+  linear_reasoning_analysis:
+    type: "object"
+    description: "Results for linear reasoning index analysis."
+    properties:
+      mean_index_success:
+        type: "number"
+        description: "Mean linear reasoning index for success class."
+      mean_index_failure:
+        type: "number"
+        description: "Mean linear reasoning index for failure class."
+    required:
+      - "mean_index_success"
+      - "mean_index_failure"
+required:
+  - "threshold_value"
+  - "threshold_percentile"
+  - "precision"
+  - "recall"
+  - "f1_score"
+  - "confusion_matrix"
+  - "baseline_mean_connectivity_success"
+  - "correlation_coefficient"
+  - "p_value"
+  - "sensitivity_analysis"
+  - "linear_reasoning_analysis"

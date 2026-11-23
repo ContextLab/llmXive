@@ -1,0 +1,6 @@
+numpy>=2.0.0
+pytesseract
+pyarrow
+jsonschema
+pandas
+Pillow

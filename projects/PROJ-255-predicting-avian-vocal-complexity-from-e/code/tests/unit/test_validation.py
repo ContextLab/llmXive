@@ -1,129 +1,121 @@
 import pytest
-import pandas as pd
+import csv
 import tempfile
-import os
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from src.analysis.validation import validate_osm_proxies, load_csv, save_csv
 
-import sys
-# Ensure src is in path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from src.analysis.validation import validate_osm_proxies, fetch_global_soundscapes_data
-
-class TestValidationLogic:
-    """Tests for the validation logic of OSM proxies."""
-
-    def test_no_global_soundscapes_justification(self, tmp_path):
-        """Test that if Global Soundscapes is unavailable, a justification is logged."""
-        # Mock the fetch function to return None
-        with patch('src.analysis.validation.fetch_global_soundscapes_data', return_value=None):
-            # Create a dummy input file
-            input_file = tmp_path / "noise_mapped.csv"
-            input_file.write_text("latitude,longitude,noise_level_db\n40.7128,-74.0060,60.0\n")
-            
-            output_file = tmp_path / "validation_log.csv"
-            
-            validate_osm_proxies(input_file, output_file)
-            
-            assert output_file.exists()
-            df_log = pd.read_csv(output_file)
-            
-            # Check that a justification was logged
-            assert 'SKIPPED' in df_log['status'].values
-            assert any('OSM-only' in str(x) or 'justification' in str(x) for x in df_log['details'])
-
-    def test_validation_with_matches(self, tmp_path):
-        """Test validation when Global Soundscapes data is available and matches exist."""
-        # Mock Global Soundscapes data
-        mock_gs_data = pd.DataFrame({
-            'latitude': [40.7128],
-            'longitude': [-74.0060],
-            'noise_db': [58.0]  # 2 dB difference from OSM (60.0) -> PASS (<=2)
-        })
+def test_validate_osm_proxies_interpolated():
+    """Test that interpolated records are marked as INTERPOLATED."""
+    # Create temporary files
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        noise_mapped_path = tmpdir / "noise_mapped.csv"
         
-        with patch('src.analysis.validation.fetch_global_soundscapes_data', return_value=mock_gs_data):
-            input_file = tmp_path / "noise_mapped.csv"
-            input_file.write_text("latitude,longitude,noise_level_db\n40.7128,-74.0060,60.0\n")
-            
-            output_file = tmp_path / "validation_log.csv"
-            
-            validate_osm_proxies(input_file, output_file)
-            
-            assert output_file.exists()
-            df_log = pd.read_csv(output_file)
-            
-            # Should have a summary row
-            summary_row = df_log[df_log['status'] == 'PASSED']
-            assert len(summary_row) > 0
-            assert 'Max Deviation: 2.00 dB' in summary_row.iloc[0]['details']
+        # Create noise_mapped.csv with an interpolated record
+        records = [
+            {'recording_id': 'rec1', 'source': 'interpolated', 'noise_level_db': '50.0'},
+            {'recording_id': 'rec2', 'source': 'primary', 'noise_level_db': '55.0'}
+        ]
+        with open(noise_mapped_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=records[0].keys())
+            writer.writeheader()
+            writer.writerows(records)
+        
+        # Create empty reference data
+        reference_data = []
+        
+        # Run validation
+        logs = validate_osm_proxies(noise_mapped_path, reference_data)
+        
+        # Check results
+        assert len(logs) == 2
+        assert logs[0]['status'] == 'INTERPOLATED'
+        assert logs[0]['recording_id'] == 'rec1'
+        assert logs[0]['deviation'] is None
 
-    def test_validation_failure_high_deviation(self, tmp_path):
-        """Test validation when deviation exceeds threshold."""
-        mock_gs_data = pd.DataFrame({
-            'latitude': [40.7128],
-            'longitude': [-74.0060],
-            'noise_db': [55.0]  # 5 dB difference -> FAIL
-        })
+def test_validate_osm_proxies_pass():
+    """Test that records with deviation <= 2 are marked as PASS."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        noise_mapped_path = tmpdir / "noise_mapped.csv"
+        ref_path = tmpdir / "reference.csv"
         
-        with patch('src.analysis.validation.fetch_global_soundscapes_data', return_value=mock_gs_data):
-            input_file = tmp_path / "noise_mapped.csv"
-            input_file.write_text("latitude,longitude,noise_level_db\n40.7128,-74.0060,60.0\n")
-            
-            output_file = tmp_path / "validation_log.csv"
-            
-            validate_osm_proxies(input_file, output_file)
-            
-            assert output_file.exists()
-            df_log = pd.read_csv(output_file)
-            
-            # Should have a FAILED status
-            assert 'FAILED' in df_log['status'].values
-            assert any('5.00' in str(x) for x in df_log['details']) # Check for 5.00 deviation
+        # Create noise_mapped.csv
+        noise_records = [
+            {'recording_id': 'rec1', 'source': 'primary', 'noise_level_db': '50.0'}
+        ]
+        with open(noise_mapped_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=noise_records[0].keys())
+            writer.writeheader()
+            writer.writerows(noise_records)
+        
+        # Create reference data with close value
+        ref_records = [
+            {'recording_id': 'rec1', 'noise_level_db': '51.0'} # Deviation = 1.0
+        ]
+        with open(ref_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=ref_records[0].keys())
+            writer.writeheader()
+            writer.writerows(ref_records)
+        
+        reference_data = load_csv(ref_path)
+        logs = validate_osm_proxies(noise_mapped_path, reference_data)
+        
+        assert len(logs) == 1
+        assert logs[0]['status'] == 'PASS'
+        assert logs[0]['deviation'] == 1.0
 
-    def test_missing_input_file(self, tmp_path):
-        """Test behavior when input file does not exist."""
-        input_file = tmp_path / "nonexistent.csv"
-        output_file = tmp_path / "validation_log.csv"
+def test_validate_osm_proxies_warn():
+    """Test that records with deviation > 2 are marked as WARN."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        noise_mapped_path = tmpdir / "noise_mapped.csv"
+        ref_path = tmpdir / "reference.csv"
         
-        validate_osm_proxies(input_file, output_file)
+        # Create noise_mapped.csv
+        noise_records = [
+            {'recording_id': 'rec1', 'source': 'primary', 'noise_level_db': '50.0'}
+        ]
+        with open(noise_mapped_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=noise_records[0].keys())
+            writer.writeheader()
+            writer.writerows(noise_records)
         
-        assert output_file.exists()
-        df_log = pd.read_csv(output_file)
-        assert 'error' in df_log['status'].values
-        assert 'Input file not found' in df_log['message'].values
+        # Create reference data with far value
+        ref_records = [
+            {'recording_id': 'rec1', 'noise_level_db': '55.0'} # Deviation = 5.0
+        ]
+        with open(ref_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=ref_records[0].keys())
+            writer.writeheader()
+            writer.writerows(ref_records)
+        
+        reference_data = load_csv(ref_path)
+        logs = validate_osm_proxies(noise_mapped_path, reference_data)
+        
+        assert len(logs) == 1
+        assert logs[0]['status'] == 'WARN'
+        assert logs[0]['deviation'] == 5.0
 
-class TestFetchGlobalSoundscapes:
-    """Tests for the fetch function."""
-
-    @patch('src.analysis.validation.requests.get')
-    def test_successful_fetch(self, mock_get, tmp_path):
-        """Test successful fetch and parsing."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.text = "latitude,longitude,noise_db\n40.0,-74.0,50.0\n"
-        mock_get.return_value = mock_response
+def test_validate_osm_proxies_no_reference():
+    """Test that records without reference are marked as WARN."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        noise_mapped_path = tmpdir / "noise_mapped.csv"
         
-        df = fetch_global_soundscapes_data()
+        # Create noise_mapped.csv
+        noise_records = [
+            {'recording_id': 'rec1', 'source': 'primary', 'noise_level_db': '50.0'}
+        ]
+        with open(noise_mapped_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=noise_records[0].keys())
+            writer.writeheader()
+            writer.writerows(noise_records)
         
-        assert df is not None
-        assert len(df) == 1
-        assert 'noise_db' in df.columns
-
-    @patch('src.analysis.validation.requests.get')
-    def test_failed_fetch(self, mock_get):
-        """Test failed fetch (404)."""
-        mock_response = MagicMock()
-        mock_response.status_code = 404
-        mock_get.return_value = mock_response
+        # Empty reference
+        reference_data = []
+        logs = validate_osm_proxies(noise_mapped_path, reference_data)
         
-        df = fetch_global_soundscapes_data()
-        assert df is None
-
-    @patch('src.analysis.validation.requests.get')
-    def test_network_error(self, mock_get):
-        """Test network exception."""
-        mock_get.side_effect = Exception("Network Error")
-        
-        df = fetch_global_soundscapes_data()
-        assert df is None
+        assert len(logs) == 1
+        assert logs[0]['status'] == 'WARN'
+        assert logs[0]['deviation'] is None

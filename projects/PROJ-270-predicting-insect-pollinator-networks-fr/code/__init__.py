@@ -1,3 +1,1 @@
-"""
-LlmXive Project: Predicting Insect Pollinator Networks
-"""
+# llmXive project package

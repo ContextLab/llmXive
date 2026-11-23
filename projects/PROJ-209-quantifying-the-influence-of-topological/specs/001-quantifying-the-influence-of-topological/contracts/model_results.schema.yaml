@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionModel"
+description: "Schema for the output of the Random Forest modeling phase."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model."
+  target_property:
+    type: "string"
+    description: "Name of the target property."
+    enum:
+      - "conductivity"
+      - "youngs_modulus"
+      - "fracture_energy"
+  hyperparameters:
+    type: "object"
+    description: "Hyperparameters used for training."
+    additionalProperties: true
+  seed:
+    type: "integer"
+    description: "Random seed used."
+    const: 42
+  r2_score:
+    type: "number"
+    description: "R² score on the test set."
+  mape:
+    type: "number"
+    description: "Mean Absolute Percentage Error."
+  cv_std:
+    type: "number"
+    description: "Standard deviation of R² across 5 folds."
+  feature_importance:
+    type: "object"
+    description: "Map of feature names to importance scores."
+    additionalProperties:
+      type: "number"
+  goodness_of_fit:
+    type: "number"
+    description: "R² against known analytical formula (for synthetic data)."
+  collinearity_flags:
+    type: "array"
+    description: "List of features excluded due to VIF > 5."
+    items:
+      type: "string"
+required:
+  - model_id
+  - target_property
+  - hyperparameters
+  - seed
+  - r2_score
+  - mape
+  - cv_std
+  - feature_importance
+  - goodness_of_fit
+  - collinearity_flags
+additionalProperties: false

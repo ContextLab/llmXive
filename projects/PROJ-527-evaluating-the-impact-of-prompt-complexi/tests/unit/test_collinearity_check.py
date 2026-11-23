@@ -1,148 +1,114 @@
 """
-Unit tests for T020: Collinearity Check.
-
-Tests the correlation calculation logic between token count and structural element count.
+Unit tests for the collinearity check module (T020a).
 """
-import pytest
-import pandas as pd
-import numpy as np
+import os
+import tempfile
 from pathlib import Path
-import csv
+import pandas as pd
+import pytest
+from scipy import stats
 
 from analysis.collinearity_check import calculate_collinearity, write_summary_to_csv
 
+@pytest.fixture
+def mock_variants_file(tmp_path):
+    """Create a mock parquet file with test data."""
+    # Create a dataset where token_count and structural_element_count are perfectly correlated
+    # to ensure a known correlation coefficient
+    data = {
+        "problem_id": ["p1", "p2", "p3", "p4", "p5"],
+        "variant_label": ["simple", "moderate", "complex", "very_complex", "degenerate"],
+        "token_count": [100, 200, 300, 400, 500],
+        "structural_element_count": [10, 20, 30, 40, 50],
+        "dependency_depth": [1, 2, 3, 4, 5]
+    }
+    df = pd.DataFrame(data)
+    file_path = tmp_path / "mock_variants.parquet"
+    df.to_parquet(file_path)
+    return file_path
 
-class TestCalculateCollinearity:
-    """Tests for the calculate_collinearity function."""
+@pytest.fixture
+def mock_variants_file_low_corr(tmp_path):
+    """Create a mock parquet file with low/no correlation."""
+    # Create a dataset with no correlation
+    data = {
+        "problem_id": ["p1", "p2", "p3", "p4", "p5"],
+        "variant_label": ["simple", "moderate", "complex", "very_complex", "degenerate"],
+        "token_count": [100, 200, 300, 400, 500],
+        "structural_element_count": [50, 10, 40, 20, 30], # Randomized
+        "dependency_depth": [1, 2, 3, 4, 5]
+    }
+    df = pd.DataFrame(data)
+    file_path = tmp_path / "mock_variants_low_corr.parquet"
+    df.to_parquet(file_path)
+    return file_path
 
-    def test_perfect_positive_correlation(self, tmp_path):
-        """Test with perfectly correlated data."""
-        data = {
-            "prompt_token_count": [10, 20, 30, 40, 50],
-            "structural_element_count": [1, 2, 3, 4, 5]
-        }
-        df = pd.DataFrame(data)
-        
-        result = calculate_collinearity(df)
-        
-        assert result["status"] == "success"
-        assert result["sample_size"] == 5
-        assert abs(result["correlation"] - 1.0) < 1e-6
-        assert result["p_value"] < 0.05  # Significant
+def test_calculate_collinearity_perfect_correlation(mock_variants_file):
+    """Test that perfectly correlated data yields r=1.0."""
+    results = calculate_collinearity(mock_variants_file)
+    assert abs(results["pearson_r"] - 1.0) < 1e-5
+    assert results["p_value"] < 0.05
+    assert results["n_samples"] == 5
 
-    def test_no_correlation(self):
-        """Test with uncorrelated data."""
-        # Create data where tokens and structure are not correlated
-        np.random.seed(42)
-        data = {
-            "prompt_token_count": np.random.randint(10, 100, 50),
-            "structural_element_count": np.random.randint(1, 10, 50)
-        }
-        df = pd.DataFrame(data)
-        
-        result = calculate_collinearity(df)
-        
-        assert result["status"] == "success"
-        assert result["sample_size"] == 50
-        # Correlation should be close to 0, but not necessarily exactly 0
-        assert abs(result["correlation"]) < 0.3
+def test_calculate_collinearity_low_correlation(mock_variants_file_low_corr):
+    """Test that uncorrelated data yields r close to 0."""
+    results = calculate_collinearity(mock_variants_file_low_corr)
+    # With this specific small dataset, r might not be exactly 0, but should be low
+    # and p-value should be high (not significant)
+    assert abs(results["pearson_r"]) < 0.5
+    assert results["n_samples"] == 5
 
-    def test_negative_correlation(self):
-        """Test with negatively correlated data."""
-        data = {
-            "prompt_token_count": [50, 40, 30, 20, 10],
-            "structural_element_count": [1, 2, 3, 4, 5]
-        }
-        df = pd.DataFrame(data)
-        
-        result = calculate_collinearity(df)
-        
-        assert result["status"] == "success"
-        assert abs(result["correlation"] - (-1.0)) < 1e-6
+def test_calculate_collinearity_missing_file(tmp_path):
+    """Test that FileNotFoundError is raised for missing file."""
+    with pytest.raises(FileNotFoundError):
+        calculate_collinearity(tmp_path / "nonexistent.parquet")
 
-    def test_insufficient_data(self):
-        """Test with insufficient data points."""
-        data = {
-            "prompt_token_count": [10],
-            "structural_element_count": [1]
-        }
-        df = pd.DataFrame(data)
-        
-        result = calculate_collinearity(df)
-        
-        assert result["status"] == "insufficient_data"
-        assert result["correlation"] is None
+def test_calculate_collinearity_missing_columns(tmp_path):
+    """Test that ValueError is raised for missing columns."""
+    data = {
+        "problem_id": ["p1"],
+        "token_count": [100]
+        # Missing 'structural_element_count'
+    }
+    df = pd.DataFrame(data)
+    file_path = tmp_path / "missing_cols.parquet"
+    df.to_parquet(file_path)
 
-    def test_missing_columns(self):
-        """Test with missing required columns."""
-        df = pd.DataFrame({"other_col": [1, 2, 3]})
-        
-        with pytest.raises(ValueError, match="Required columns not found"):
-            calculate_collinearity(df)
+    with pytest.raises(ValueError):
+        calculate_collinearity(file_path)
 
-    def test_missing_values_handling(self):
-        """Test that rows with NaN are dropped."""
-        data = {
-            "prompt_token_count": [10, 20, np.nan, 40],
-            "structural_element_count": [1, np.nan, 3, 4]
-        }
-        df = pd.DataFrame(data)
-        
-        result = calculate_collinearity(df)
-        
-        # Only 1 valid pair remains: (10, 1) -> wait, (40, 4) is the only full pair?
-        # Actually: (10, 1), (20, NaN), (NaN, 3), (40, 4) -> 2 valid pairs
-        # (10, 1) and (40, 4)
-        assert result["sample_size"] == 2
+def test_write_summary_to_csv_creates_file(tmp_path):
+    """Test that write_summary_to_csv creates the file with headers."""
+    output_path = tmp_path / "analysis_summary.csv"
+    results = {
+        "pearson_r": 0.95,
+        "p_value": 0.001,
+        "n_samples": 10
+    }
 
+    written_path = write_summary_to_csv(results, output_path)
 
-class TestWriteSummaryToCSV:
-    """Tests for the write_summary_to_csv function."""
+    assert written_path.exists()
+    df = pd.read_csv(written_path)
+    assert len(df) == 1
+    assert df["test_type"].iloc[0] == "collinearity_check"
+    assert abs(df["correlation_coefficient"].iloc[0] - 0.95) < 1e-5
 
-    def test_writes_correct_format(self, tmp_path):
-        """Test that the CSV is written with correct headers and values."""
-        result = {
-            "correlation": 0.85,
-            "p_value": 0.001,
-            "sample_size": 100,
-            "status": "success"
-        }
-        output_path = tmp_path / "analysis_summary.csv"
-        
-        write_summary_to_csv(result, output_path)
-        
-        assert output_path.exists()
-        
-        with open(output_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
-        assert len(rows) == 1
-        row = rows[0]
-        assert row["metric"] == "prompt_token_vs_structural_element_correlation"
-        assert float(row["correlation_coefficient"]) == 0.85
-        assert float(row["p_value"]) == 0.001
-        assert int(row["sample_size"]) == 100
-        assert row["status"] == "success"
+def test_write_summary_to_csv_appends(tmp_path):
+    """Test that write_summary_to_csv appends to existing file."""
+    output_path = tmp_path / "analysis_summary.csv"
 
-    def test_appends_to_existing_file(self, tmp_path):
-        """Test that new results are appended to existing CSV."""
-        # Create initial file
-        initial_path = tmp_path / "analysis_summary.csv"
-        initial_path.parent.mkdir(parents=True)
-        
-        # Write first result
-        result1 = {"correlation": 0.5, "p_value": 0.05, "sample_size": 50, "status": "success"}
-        write_summary_to_csv(result1, initial_path)
-        
-        # Write second result
-        result2 = {"correlation": 0.6, "p_value": 0.04, "sample_size": 60, "status": "success"}
-        write_summary_to_csv(result2, initial_path)
-        
-        with open(initial_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        
-        assert len(rows) == 2
-        assert float(rows[0]["correlation_coefficient"]) == 0.5
-        assert float(rows[1]["correlation_coefficient"]) == 0.6
+    # Write first row
+    write_summary_to_csv(
+        {"pearson_r": 0.5, "p_value": 0.1, "n_samples": 5},
+        output_path
+    )
+    # Write second row
+    write_summary_to_csv(
+        {"pearson_r": 0.8, "p_value": 0.01, "n_samples": 8},
+        output_path
+    )
+
+    df = pd.read_csv(output_path)
+    assert len(df) == 2
+    assert df["test_type"].tolist() == ["collinearity_check", "collinearity_check"]

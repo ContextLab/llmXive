@@ -1,63 +1,68 @@
 # Data Model: Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics
 
-## 1. Overview
+## Overview
+The model defines immutable entities that trace every derived result back to raw inputs, satisfying the “Single Source of Truth” principle.
 
-This document defines the data structures and schemas used throughout the pipeline. All data is derived from the raw OpenNeuro source and transformed through the QC and analysis stages. The pipeline uses memory-mapped loading for raw NIfTI data to respect RAM constraints.
-
-## 2. Entity Definitions
+## Entities
 
 ### Subject
-Represents a single participant.
-- `subject_id`: Unique string identifier.
-- `motion_displacement`: Float (mm), maximum displacement.
-- `qc_status`: Enum ["passed", "failed"].
-- `has_inclusion`: Boolean.
-- `has_exclusion`: Boolean.
-- `inclusion_time_series`: 2D Array (Time x Nodes) or `null`. (Stored in memory/intermediate file).
-- `exclusion_time_series`: 2D Array (Time x Nodes) or `null`. (Stored in memory/intermediate file).
-- `raw_nifti_path`: String (Path to memory-mapped source file).
+| Field | Type | Description |
+|-------|------|-------------|
+| `subject_id` | string | Unique identifier. |
+| `motion_mean` | number | Mean framewise displacement (mm). |
+| `qc_status` | string (`"passed"`/`"failed"`) | Result of motion QC (threshold 0.2 mm). |
+| `conditions` | array[string] | Available conditions (`"Inclusion"`, `"Exclusion"`). |
+
+### TimeSeries
+| Field | Type | Description |
+|-------|------|-------------|
+| `subject_id` | string | FK to Subject. |
+| `roi` | string | One of `PCC`, `mPFC`, `ANG` (bilateral Angular Gyrus). |
+| `condition` | string | `"Inclusion"` or `"Exclusion"`. |
+| `data` | array[number] | BOLD signal values after any optional preprocessing. |
+| `tr` | number | Repetition time (seconds). |
 
 ### ConnectivityMatrix
-Represents the correlation matrix for a specific condition.
-- `subject_id`: String.
-- `condition`: Enum ["inclusion", "exclusion"].
-- `nodes`: List of strings ["PCC", "mPFC", "Angular"].
-- `matrix`: 2D Array (Nodes x Nodes) of correlation coefficients.
-- `mean_absolute_correlation`: Float.
+| Field | Type | Description |
+|-------|------|-------------|
+| `subject_id` | string | FK to Subject. |
+| `condition` | string | `"Inclusion"` / `"Exclusion"`. |
+| `nodes` | array[string] | Ordered ROI names (`["PCC","mPFC","ANG"]`). |
+| `matrix` | array[array[number]] | 3 × 3 Pearson correlation matrix (including self‑correlations). |
+| `strength_absolute` | number | **Primary metric** – mean absolute correlation across the three ROI‑pair edges. |
+| `strength_signed` | number | Mean **signed** correlation (optional, for descriptive purposes). |
+| `edges` | object | Mapping `"{ROI1}-{ROI2}" → correlation` for each of the three unique edges. |
+
+### DynamicSeries
+| Field | Type | Description |
+|-------|------|-------------|
+| `subject_id` | string | FK to Subject. |
+| `condition` | string | `"Inclusion"` / `"Exclusion"`. |
+| `window_center` | array[number] | Center time (seconds) of each sliding window. |
+| `strength_series` | array[number] | Mean **absolute** connectivity strength for each window (descriptive). |
+| `mean_strength` | number | Mean of `strength_series`. |
+| `std_strength` | number | Standard deviation of `strength_series`. |
 
 ### Result
-Aggregated statistical results.
-- `metric`: String (e.g., "mean_absolute_correlation").
-- `condition_comparison`: String ("inclusion vs exclusion").
-- `p_value`: Float.
-- `effect_size`: Float (e.g., Cohen's d or permutation-based).
-- `confidence_interval`: Tuple (lower, upper).
-- `is_associational`: Boolean.
-- `edge_p_values`: Dict {edge_name: p_value}.
-- `edge_p_values_fdr`: Dict {edge_name: adjusted_p_value}.
-- `n_subjects`: Integer.
-- `motion_threshold`: Float (mm).
-- `sensitivity_curve`: List of {threshold: float, p_value: float} (Optional, for SC-005).
+| Field | Type | Description |
+|-------|------|-------------|
+| `test_type` | string | `"paired_permutation"`. |
+| `metric` | string | `"mean_absolute_correlation"` (primary DMN strength metric). |
+| `p_value` | number | Two‑tailed permutation p‑value. |
+| `effect_size` | number | Cohen’s d. |
+| `confidence_interval` | array[number] (len 2) | 95 % CI for the mean difference. |
+| `framing` | string (`"associational"`/`"causal"`) | Interpretation framing. |
+| `n_subjects` | integer | Number of subjects included. |
+| `motion_threshold` | number | Motion exclusion threshold (mm). |
+| `sensitivity_curve` | array[object] | `{threshold, p_value}` for each motion‑threshold run. |
 
-## 3. File Formats
+## Data Flow
+1. **Raw**: `data/raw/` (downloaded NIfTI, JSON side‑cars).  
+2. **Processed**: `data/processed/` – Parquet files for `TimeSeries`, `ConnectivityMatrix`, and `DynamicSeries`.  
+3. **Results**: `results/` – JSON/CSV for `Result` plus PNG figures.
 
-### Input: Raw Data (BIDS)
-Source: OpenNeuro dataset.
-- Files: `sub-<id>/func/sub-<id>_task-cyberball_run-<id>_space-MNI_desc-preproc_bold.nii.gz`, `events.tsv`.
-- Format: NIfTI-1 (4D), JSON sidecars, TSV events.
+## Schema Definitions
+Concrete JSON‑Schema files reside in `contracts/` and are referenced by the implementation for validation.
 
-### Intermediate: QC Report (JSON)
-- List of subjects with `qc_status` and `motion_displacement`.
+---
 
-### Intermediate: Time-Series (NPY/PKL)
-- Memory-mapped or temporary files storing extracted 1D/2D arrays per subject.
-
-### Output: Results (JSON/YAML)
-- Final statistical findings, including p-values, effect sizes, and framing.
-
-## 4. Constraints
-
-- **Motion Threshold**: `motion_displacement` > 3.0 → `qc_status` = "failed".
-- **Condition Completeness**: Both `has_inclusion` and `has_exclusion` must be true for inclusion in paired analysis.
-- **Subject Count**: Valid subjects < 10 → Halt.
-- **Memory**: Raw 4D data is never fully loaded into RAM; only time-series (1D/2D) are held in memory.

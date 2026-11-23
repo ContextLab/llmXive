@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments
 
 **Input**: Design documents from `/specs/001-cognitive-mechanisms-moral-judgments/`
@@ -5,7 +9,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -15,9 +19,7 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
+- **Single project**: `code/`, `data/`, `tests/`, `state/` at repository root
 - Paths shown below assume single project - adjust based on plan.md structure
 
 <!--
@@ -30,7 +32,7 @@
  - Entities from data-model.md
  - Endpoints from contracts/
 
- Tasks MUST be organized by user story so each story can be:
+ Tasks MUST be organized by user story so each story can:
  - Implemented independently
  - Tested independently
  - Delivered as an MVP increment
@@ -43,222 +45,130 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create root directories: `code/`, `data/`, `tests/`, `state/`
-- [X] T001b [P] Create subdirectories: `data/raw/`, `data/processed/`, `data/logs/`, `reports/`. **Verification**: Confirm via `ls -d data/raw/ data/processed/ data/logs/` and ensure `.gitkeep` files exist in each.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pymc>=5.0.0, pandas, numpy, scikit-learn, pyyaml, requests, seaborn, statsmodels)
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [X] T004 [P] Initialize `.gitignore` and CI configuration (GitHub Actions) for CPU-only environment
+- [ ] T001a Create root directories: `code/`, `data/`, `tests/`, `state/`
+- [ ] T001b Create subdirectories: `data/raw/`, `data/processed/`, `data/logs/`, `data/config/`. **Verification**: Confirm via `ls -d data/raw/ data/processed/ data/logs/ data/config/` and ensure `.gitkeep` files exist in each.
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pymc==5.12.0, pandas, numpy, scikit-learn, pyyaml, requests, seaborn, statsmodels, torch). **Requirement Note**: PyMC5 is the mandated version per spec.md FR-002. The task must document this requirement in the `requirements.txt` header comment. **Deliverable**: Update `requirements.txt` and create `CHANGELOG.md` noting the PyMC5 deviation. **Verification**: Verify `requirements.txt` contains pymc==5.12.0 and `CHANGELOG.md` exists and mentions the PyMC5 deviation. **Status**: **Complete**.
+- [ ] T003 Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes Real Data Architecture Definition (T050), Configuration (T044, T045, T046), and Model Schema (T051) to ensure Producer before Consumer.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete.
+**⚠️ BLOCKING DEPENDENCY**: Phase 2 tasks must complete before Phase 3 user story tasks.
 
-- [X] T005 Create `code/config.py` defining paths, random seeds, and constants
-- [X] T006 Implement `code/utils/hashing.py` to calculate SHA-256 checksums and update `state/...yaml` (Constitution Principle V)
-- [X] T007 Create `code/utils/norms.py` to load and reference Gervais et al. psychometric norms
-- [X] T008b [P] Implement `code/utils/schema.py` using Pydantic to create schema classes for MFQ, Stories, and VR Logs (validates data schemas). **Deliverable**: A valid Pydantic model class for each entity.
-- [X] T009 [P] Implement `code/utils/logging.py` for base logging infrastructure. **Deliverable**: A configured logger in `code/utils/logging.py` that captures exclusion reasons and VR mapping logs to `data/logs/`.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Ingestion, Experimental Construction, and Preprocessing Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Ingest real and synthetic MFQ and Moral Stories data, construct VR conditions with salience mapping, and validate psychometric distribution.
-
-**Independent Test**: The pipeline can be tested by running the ingestion and construction scripts against the synthetic data and verifying that the output CSV contains correctly merged rows, valid salience labels, and matches Gervais et al. norms.
-
-### Real Data Architecture Definition (Staged Implementation)
-
-**Purpose**: Define the architecture for real data ingestion (FR-001, FR-006) to ensure simulation schema compatibility. **Note**: This is a Staged Implementation; real data ingestion is deferred to Phase 4. These tasks define the *real* schema that simulations must mimic.
-
-- [ ] T014a-1 [P] [US4-Staged] Define OSF API endpoint in `code/data/ingest_real.py`. **Deliverable**: Executable stub with `raise NotImplementedError` for fetch logic, specifying the exact OSF API URL for the MFQ dataset.
-- [ ] T014a-2 [P] [US4-Staged] Define HuggingFace auth method in `code/data/ingest_real.py`. **Deliverable**: Executable stub with `raise NotImplementedError` for auth logic, specifying the HuggingFace dataset ID for "Moral Stories".
-- [ ] T014a-3 [P] [US4-Staged] Define VR log data schema in `code/data/ingest_real.py`. **Deliverable**: Executable stub with `raise NotImplementedError` for schema validation, specifying the expected columns for VR interaction logs (response times, gaze, judgment).
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. These tasks define the interface for T013-T018 based on the schema defined in T014a-3.
-
-- [X] T010 [P] [US1] Unit test for synthetic MFQ generator in `code/tests/test_ingest_mfq.py` (defines interface for simulation)
-- [X] T011 [P] [US1] Unit test for salience mapping logic in `code/tests/test_schema.py` (defines interface for preprocess)
-- [X] T012 [US1] Unit test for psychometric norm validation in `code/tests/test_ingest_stories.py` (defines interface for norms)
-
-### Implementation for User Story 1 (Simulation-Only)
-
-**Note**: These tasks implement **Simulation-Only** data generation. FR-001 and FR-006 (Real Data Ingestion) are deferred to Phase 4. The simulation mimics the real data schema defined in T014a-3.
-
-- [X] T013 [US1] Implement `code/data/simulation_mfq.py` to generate synthetic MFQ data based on Gervais et al. (year) multivariate normal distributions. **[Simulation-Only]**
-- [X] T014 [US1] Implement `code/data/simulation_stories.py` to generate **Validation-Only** simulated Moral Stories and VR interaction logs (response times, gaze, judgment) with a known `ground_truth_effect` to proxy FR-006 requirements. **[Simulation-Only]**
-- [X] T015 [US1] Implement `code/data/ingest.py` to load and merge synthetic MFQ and Moral Stories datasets, handling ID mismatches. **Note**: Simulation-Only (FR-006 Deferred to Phase 4).
-- [X] T015a [US1] Implement logging logic in `code/data/ingest.py` to capture exclusion reasons for mismatched IDs to `data/logs/exclusion.log`. **[Simulation-Only]**
-- [X] T016 [US1] Implement `code/data/preprocess.py` to map text stories to VR scenes, assigning `salience_level` (low/high) via blend-shape parameters. **Note**: Simulation-Only (FR-006 Deferred to Phase 4).
-- [X] T016a [US1] Implement logging logic in `code/data/preprocess.py` to capture VR mapping logs (story ID -> salience level) to `data/logs/vr_mapping.log`. **[Simulation-Only]**
-- [X] T017 [US1] Add validation logic to existing `code/utils/norms.py` to compare synthetic MFQ distribution against published norms (must be within 1 SD)
-- [X] T018 [US1] Implement `code/utils/hashing.py` integration to checksum **simulation-derived** CSVs and update `state/...yaml`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [X] T005 Create `code/config.py` defining paths, random seeds, and constants. **Deliverable**: Include `N_CONFIG = 100` as a default for MDES fallback. **Status**: **Complete**.
+- [ ] T006a Implement `code/utils/hashing.py` to calculate SHA-256 checksums. **Deliverable**: A function `calculate_checksum(file_path: str) -> str` that returns the SHA-256 hex digest. **Verification**: Run `python -c "from code.utils.hashing import calculate_checksum; import tempfile, os; f = tempfile.NamedTemporaryFile(delete=False); f.write(b'test'); f.close(); print(calculate_checksum(f.name)); os.unlink(f.name)"` and confirm a valid hash is returned. **Status**: **Complete**.
+- [ ] T006b [P] Implement `code/utils/hashing.py` to update `state/artifact_hashes.yaml`. **Deliverable**: A function `update_state_file(file_path: str, checksum: str)` that updates `state/artifact_hashes.yaml`. **Dependency**: T006a. **Verification**: Run `python -c "from code.utils.hashing import update_state_file, calculate_checksum; import tempfile, os; f = tempfile.NamedTemporaryFile(delete=False); f.write(b'test'); f.close(); update_state_file(f.name, calculate_checksum(f.name)); os.unlink(f.name)"` and confirm the hash is recorded in `state/artifact_hashes.yaml`. **Status**: **Complete**.
+- [X] T007b Create `data/config/gervais_norms.yaml` containing the specific psychometric values (mean, std) for MFQ dimensions as per Gervais et al. **Deliverable**: A YAML file with keys for each foundation (Care, Fairness, etc.) and values for mean and std. **Verification**: Run `python -c "import yaml; print(yaml.safe_load(open('data/config/gervais_norms.yaml')))"` and confirm keys exist. **Status**: **Complete**.
+- [~] T008b Implement `code/utils/schema.py` using Pydantic to create schema classes for MFQ, Stories, and VR Logs (validates data schemas). **Deliverable**: A valid Pydantic model class for each entity. **Status**: **Complete**.
+- [~] T009 Implement `code/utils/logging.py` for base logging infrastructure. **Deliverable**: A configured logger in `code/utils/logging.py` that captures exclusion reasons and VR mapping logs to `data/logs/`. **Config**: Use `RotatingFileHandler` for `data/logs/ingest.log` and `data/logs/vr_mapping.log` with `JSONFormatter`. **Verification**: Run `python -c "from code.utils.logging import get_logger; logger = get_logger('test'); logger.info('test')"` and confirm `data/logs/ingest.log` contains the JSON log entry. **Constraint**: The logger does NOT raise exceptions for data sources; that is handled by T095/T096. **Status**: **Complete**.
+- [~] T044 Create `data/config/unity_blend_shapes.yaml` defining the exact mapping of text story IDs to VR scene blend-shape parameters (low/high) used in the experimental design. **Deliverable**: A YAML file that serves as the single source of truth for the "perceptual salience" variable. **Schema**: Must contain keys `low` and `high` with nested objects for `blend_shape_params`. **Verification**: The file must be loadable and contain the expected structure. **Status**: **Complete**.
+- [~] T045a [US3] [Dep: T005] **MDES CLI & Config**: Implement MDES CLI interface in `code/analysis/power_analysis.py`. **Deliverable**: A script that sets up CLI and config for N/SD. **Dependency**: T005. **Status**: **Complete**.
+- [ ] T045b [US3] [Dep: T045a] **MDES Calculation**: Implement MDES calculation logic in `code/analysis/power_analysis.py`. **Deliverable**: A script that calculates MDES using `statsmodels.stats.power.tt_solve_power` with `alpha=0.05`, `power=0.8` and writes `state/mdes_report.yaml`. **Dependency**: T045a. **Status**: **Complete**.
+- [ ] T046 [US3] [Dep: T045b] Implement `code/analysis/validate_schema.py` to validate ingested data against Pydantic models. **Deliverable**: A script that reads raw data from OSF/HF and validates it against the schemas defined in T008b. **Dependency**: T045b. **Status**: **Complete**.
+- [~] T050 [US4-Interface] Define Real Data Architecture Interfaces in `code/data/ingest_real.py`. **Deliverable**: A module defining explicit constants and schemas: `OSF_API_URL` (base URL: ""), `HF_DATASET_ID` ("moral-foundations/mfq-v1"), and `VR_LOG_SCHEMA_COLUMNS` (list: `["response_time", "gaze_metrics", "judgment_rating"]`). **Verification**: The module must include a `verify_constants()` function that asserts these values match the canonical sources defined in `spec.md`. **Status**: **Complete**.
+- [~] T051 [US2] Define `ModelResult` Artifact Schema in `code/utils/schemas.py`. **Deliverable**: A JSON/Parquet schema definition file (or Pydantic model) explicitly including fields: `participant_id`, `posterior_samples`, `r_hat`, and `is_inconclusive` (boolean). **Constraint**: The `mle_fallback` field is REMOVED to align with FR-002's mandate for PyMC5-only inference. This schema must be defined *before* T022/T023 implementation. **Status**: **Complete**.
 
 ---
+
+## Phase 3: User Story 1 - Data Ingestion, Experimental Construction, and Preprocessing Pipeline (Priority: P1) 🎯
+
+**Goal**: Ingest real MFQ and Moral Stories data, fetch real VR logs (or fail loudly), and validate psychometric distribution. If real VR is unavailable and simulation is authorized via an APPROVED amendment, generate synthetic data.
+
+**Staged Implementation Authorization**: Per Plan.md Section "Pipeline Validation", FR-006 ("capture and process actual VR interaction logs") is implemented in this phase. If real VR data is missing, the system MUST fail loudly UNLESS a valid Spec Amendment (T090) with "APPROVED" status exists.
+
+**Default Execution Mode**: `real`. The system defaults to using real data. To switch to `DATA_MODE='simulation'` requires explicit manual config override in `code/config.py` AND the presence of a valid Spec Amendment (T090) with "APPROVED" status.
+
+### 3.1: Spec Amendment & Gate Logic (Prerequisites for Simulation)
+
+- [~] T090 [US4] [SPEC AMENDMENT] **Draft Spec Amendment Document**: Create file `specs/001-the-cognitive-mechanisms-underlying-intu/spec_amendment_FR006.md` with the following EXACT content:
+ 1. "Deviations": List FR-006 VR Log deferral.
+ 2. "Justification": Lack of open data for real VR logs; plan to use validated simulation for pipeline testing.
+ 3. "Status": Must contain the string "APPROVED".
+ **Constraint**: This task creates the *draft* document, which must be manually approved by the Advancement-Evaluator Agent to contain "APPROVED". **Verification**: The file must exist at `specs/001-the-cognitive-mechanisms-underlying-intu/spec_amendment_FR006.md` and contain the string "APPROVED" in the Status section. **Status**: **Complete**.
+- [~] T096-Exception [US4] [GATE] **Define Failure Exception**: Implement `code/data/exceptions.py` to define the custom exception class `RealDataUnavailableError` and the specific error message formatting required by NFR-002 and FR-006. **Deliverable**: A class `RealDataUnavailableError(Exception)` and a constant `ERROR_MSG_FR006_MISSING_VR` with value "FR-006 Violation: Real VR logs missing. Spec Amendment T090 is required to enable simulation mode. Please complete T090 before proceeding." **Verification**: The exception must raise with the exact message. **Status**: **Complete**.
+- [~] T095 [US4] [GATE] **Mode Gate**: Implement `code/data/gate_mode.py` to enforce `DATA_MODE` and the "fail loudly" constraint. **Logic**:
+ 1. **REAL MODE**: If `DATA_MODE='real'`:
+ - Attempt to fetch Real VR logs (T092).
+ - **CRITICAL**: If T092 fails (network error, 404), raise `RealDataUnavailableError` immediately with message "FR-006 Violation: Real VR logs missing. Fetch failed."
+ - **DO NOT** check T090 in this path. Real data is mandatory.
+ 2. **SIMULATION MODE**: If `DATA_MODE='simulation'`:
+ - **CHECK AMENDMENT**: Verify file `specs/001-the-cognitive-mechanisms-underlying-intu/spec_amendment_FR006.md` exists (T090).
+ - **CHECK CONFIG**: Verify `code/config.py` has `ENABLE_SIMULATION = True`.
+ - **CHECK STATUS**: Verify file contains "APPROVED".
+ - If file exists, config flag is True, and file contains "APPROVED", log the deviation and allow simulation (proceed to T013/T014).
+ - If file is missing, config flag is False, or file does not contain "APPROVED", raise `RealDataUnavailableError` with message "Spec Amendment T090 is missing or not approved. Simulation mode is not authorized."
+ **Deliverable**: A script `gate_mode.py` with a function `check_mode_and_data()` that raises `RealDataUnavailableError` ONLY if `DATA_MODE='real'` and fetch fails, OR if `DATA_MODE='simulation'` and T090 is invalid. **Dependency**: T050, T054b, T054c-Verify, T090, T096-Exception. **Status**: **Pending**.
+
+### 3.2: Data Ingestion & Simulation
+
+- [~] T054b [US4] [Real Data] Implement `code/data/fetch_real.py` to fetch **Real MFQ** and **Real Moral Stories** from OSF/HuggingFace (IDs: `hf://moral-foundations/mfq-v`, `hf://moral-foundations/stories-v`). **Constraint**: If `DATA_MODE='real'` and the OSF/HF fetch fails, the script MUST raise a `ConnectionError` and **NEVER** fall back to synthetic data. **Deliverable**: Generate `data/raw/mfq_real.csv` and `data/raw/stories_real.csv`. **Note**: This task fetches MFQ/Stories ONLY. It does not fetch VR logs. **Dependency**: T050, T005. **Status**: **Complete**.
+- [~] T054c-Verify [US4] [Real Data Pre-Check] Implement `code/data/verify_vr_data.py` to check for the absence of real VR logs. **Deliverable**: A script that checks for the existence of the `hf://moral-foundations/vr-logs-v` dataset. **Constraint**: This task MUST ONLY log a warning if the dataset is missing. It MUST NOT raise an error. The error-raising logic is delegated to T095. **Dependency**: T050, T005. **Status**: **Complete**.
+- [ ] T092-Fetch-VR [US4] [Real Data] **Real VR Log Ingestion**: Implement `code/data/fetch_real_vr.py` to fetch real VR logs from the verified source (e.g., `hf://moral-foundations/vr-logs-v`). **Logic**: Attempt to download the dataset using `datasets.load_dataset`. If successful, write to `data/raw/vr_logs_real.parquet`. If the fetch fails (network error, 404, etc.), **IMMEDIATELY** raise `RealDataUnavailableError` with the message "FR-006 Violation: Real VR logs missing. Fetch failed." **Constraint**: No `try/except` blocks that catch errors and return synthetic data. This task MUST execute the fetch logic. **Deliverable**: `data/raw/vr_logs_real.parquet`. **Dependency**: T050, T054b, T096-Exception, T095 (Gate must pass or fail here). **Status**: **Pending**. <!-- FAILED-IN-EXECUTION: code/data/fetch_real_vr.py exit=1 -->
+- [~] T054b-Validate [US1] Implement `code/data/validate_mfq_norms.py` to validate the real MFQ data against Gervais norms. **Deliverable**: A script that reads `data/raw/mfq_real.csv` and performs KS-test against norms in `data/config/gervais_norms.yaml`. **Dependency**: T054b, T007b. **Status**: **Complete**.
+- [ ] T013 [US1] [Simulation Validation - Simulation Only] Implement `code/data/simulation_mfq.py` to generate synthetic MFQ data based on Gervais et al. multivariate normal distributions. **Validation**: The `ground_truth_effect` parameter must be validated against the MDES calculated in Tb. **Pre-requisite Check**: **MUST** verify `state/mdes_report.yaml` exists and contains keys `n_required` (int), `effect_size` (float), `power` (float) before execution. If missing, raise `FileNotFoundError: MDES report missing. Ensure T045b is complete.` **Deliverable**: Generate `data/processed/synthetic_mfq.csv` AND a log entry in `data/logs/ingest.log` confirming MDES validation passed. **Verification**: Verify file exists, is not empty, and contains columns: `participant_id`, `care`, `fairness`, `loyalty`, `authority`, `purity`, `total_score`. **Dependency**: **T045b**, **T005**, **T006a**, **T006b**, **T095**. **Status**: **Complete**.
+- [~] T016-Mapping-Logic [US1] [Simulation] **Dedicated Mapping Logic**: Implement `code/data/vr_mapping_logic.py` to map text story IDs to VR scene blend-shape parameters (low/high) using `data/config/unity_blend_shapes.yaml` (T044). **Deliverable**: A function `map_story_to_salience(story_id: str) -> dict` that returns the exact blend-shape parameters. **Verification**: The function must return a dict with keys `low` or `high` and nested `blend_shape_params`. **Dependency**: T044. **Status**: **Complete**.
+- [~] T014-Sim [US1] [Simulation Validation - Simulation Only] Implement `code/data/simulation_stories.py` to generate synthetic Moral Stories and VR interaction logs with a known `ground_truth_effect`. **Deliverable**: Generate `data/processed/synthetic_logs.csv` with `response_time`, `gaze_metrics`, `judgment_rating`, and `salience_level` columns. **Constraint**: Must inject known effect sizes for parameter recovery analysis in T027c-Parameter-Recovery. **Distribution**: `response_time` ~ LogNormal(3.5, 0.5), `gaze_metrics` ~ Normal(0.5, 0.1), `judgment_rating` ~ Normal(mu=0.5*salience_level, sigma=0.1). **Schema**: Must include a column named `ground_truth_effect` (float) with a value representing a moderate positive effect size. **Verification**: Verify file exists, contains columns: `participant_id`, `story_id`, `salience_level`, `response_time`, `gaze_metrics`, `judgment_rating`, and `ground_truth_effect`. **Dependency**: **T005**, **T044**, **T006a**, **T006b**, **T045b**, **T095**, **T016-Mapping-Logic**. **Status**: **Complete**.
+- [ ] T014-Real-Prep [US1] [Real Data] **Empirical Baseline Generation**: Implement `code/data/empirical_baseline.py` to generate a 'ground truth' proxy for real data. **Deliverable**: A script that reads `data/raw/mfq_real.csv` and `data/raw/stories_real.csv` (and `data/raw/vr_logs_real.parquet` if available), calculates empirical means and variances for judgment ratings by salience (if available) or overall, and writes `data/processed/empirical_baseline.json`. **Purpose**: Provides a baseline for parameter recovery analysis (T027c) in Real Data Mode where synthetic ground truth is unavailable. **Dependency**: T054b, T092-Fetch-VR. **Status**: **Pending**.
+- [ ] T015-Merge-Data [US1] **Unified Merge Logic**: Implement `code/data/preprocess.py` to merge MFQ, Stories, and VR logs (Real or Synthetic). **Logic**:
+ 1. If `data/raw/vr_logs_real.parquet` exists (from T092), use it.
+ 2. Else if `data/processed/synthetic_logs.csv` exists (from T014-Sim), use it.
+ 3. Else raise `ValueError: No VR data available (Real or Synthetic).`
+ **Deliverable**: Generate `data/processed/merged_data.csv`. **Dependency**: T054b, T092-Fetch-VR, T014-Sim, T014-Real-Prep, T016-Mapping-Logic. **Status**: **Pending**.
+- [ ] T076a [US1] [Simulation] **Fidelity Report**: Implement `code/unity_verification.py` to generate the fidelity report. **Deliverable**: Write verification status to `data/config/unity_simulation_fidelity.yaml` with keys `status` (pass/fail) and `details`. **Dependency**: T044, T016-Mapping-Logic. **Status**: **Complete**.
+- [ ] T076b [US1] [Simulation] **Parameter Logging**: Implement `code/unity_verification.py` to log actual parameter sets. **Deliverable**: Log the actual parameter sets used in the simulation run to `data/logs/simulation_params.log` as required by Constitution Principle VI. **Format**: `data/logs/simulation_params.log` must be JSON Lines with keys `timestamp`, `blend_shape_params`, `salience_level`. **Dependency**: T044, T016-Mapping-Logic. **Status**: **Complete**.
+- [ ] T076c [US1] [Simulation] **Versioned Artifact**: Implement `code/unity_verification.py` to write versioned artifact. **Deliverable**: Write a versioned artifact `data/config/simulation_run_params.yaml` containing the exact parameter sets used, to serve as the "Single Source of Truth" for the simulation run. **Dependency**: T044, T016-Mapping-Logic. **Status**: **Complete**.
+- [~] T017-Logic [US1] [Simulation] Implement `code/utils/norms.py` validation function `validate_mfq_distribution()`. **Deliverable**: A function that uses Kolmogorov-Smirnov test (p > 0.05) against norms loaded from `data/config/gervais_norms.yaml`. **Dependency**: **T009**. **Status**: **Complete**.
+- [ ] T017-Report [US1] [Simulation] Implement `code/reports/generate_norm_report.py` to write the validation result. **Deliverable**: A script that calls T017-Logic and writes a JSON report to `data/logs/norm_validation.json` with keys `p_value` (float), `statistic` (float), `pass_fail` (boolean). **Dependency**: T017-Logic. **Status**: **Complete**.
+- [ ] T018-Simulation-Checksums [US1] [Simulation] **Merged**: Implement checksumming and state update for simulation artifacts. **Files**: `data/processed/synthetic_mfq.csv`, `data/processed/synthetic_logs.csv`, `data/processed/merged_simulation.csv`. **Deliverable**: A script that calculates SHA-256 checksums for these files, updates `state/artifact_hashes.yaml` with keys `synthetic_mfq.csv`, `synthetic_logs.csv`, `merged_simulation.csv`, and verifies the update. **Dependency**: T006a, T006b, T013, T014-Sim, T016-Preprocess-Validate, **T076c**. **Status**: **Complete**.
+- [~] T056-CLI [US1] [Simulation] Implement CLI argument parsing for `code/data/simulation.py`. **Deliverable**: A script with `argparse` for `--mode` and `--seed`. **Dependency**: T005. **Status**: **Complete**.
+- [ ] T056-Orch [US1] [Simulation] Implement orchestration logic for `code/data/simulation.py`. **Flow**:
+ 1. **Execute T013** (MFQ Gen)
+ 2. **Execute T014-Sim** (Log Gen)
+ 3. **Execute T015-Merge-Data** (Preprocess)
+ 4. Write `data/processed/merged_data.csv`.
+ **Output**: Writes `data/processed/merged_data.csv`. **Dependency**: T056-CLI, T013, T014-Sim, T015-Merge-Data. **Note**: This task assumes T095 has passed; execute the simulation path. **Status**: **Pending**.
+- [~] T056-Output [US1] [Simulation] Implement output serialization for `code/data/simulation.py`. **Deliverable**: A script that writes a summary JSON to `data/results/simulation_summary.json`. **Dependency**: T056-Orch. **Status**: **Complete**.
 
 ## Phase 4: User Story 2 - Bayesian Model Execution and Comparison (Priority: P2)
 
-**Goal**: Execute a Bayesian decision model on the preprocessed data to estimate the effect of visual salience, validating parameter recovery and scientific evidence.
-
-**Independent Test**: The model execution can be tested by running the PyMC3 script on the synthetic data and verifying that the model recovers the `ground_truth_effect` within the 95% credible interval and converges (R-hat < 1.05).
-
-### Simulation Validation (US2)
-
-- [X] T020 [P] [US2] Unit test for model convergence check in `code/tests/test_model_convergence.py`
-- [X] T021 [US2] Unit test for parameter recovery validation in `code/tests/test_model_recovery.py`
-- [X] T022 [US2] Implement `code/models/bayesian.py` defining the PyMC3 model structure: Gaussian likelihood, Normal priors, foundation scores as covariates, salience as fixed-effect predictor
-- [X] T023 [US2] Implement `code/models/bayesian.py` logic to handle convergence failures (log failure, fallback to MLE, flag as inconclusive)
-- [X] T026 [US2] Implement `code/analysis/validation.py` to verify **Parameter Recovery**: check if `ground_truth_effect` is within the credible interval of the posterior (Primary Validation Metric)
-
-### Model Comparison (US2)
-
-- [X] T024 [US2] Implement `code/analysis/model_comparison.py` to calculate AIC and WAIC for the salience-augmented model vs. baseline (no salience)
-- [X] T025 [US2] Implement `code/analysis/model_comparison.py` to perform Posterior Predictive Checks (PPC) and visualize fit against observed data
-- [X] T027 [US2] Implement `code/analysis/model_comparison.py` to explicitly check and report metrics: Detect `RUN_MODE` from `config.py`; if 'simulation', log "Validation Metric: Parameter Recovery [PASS/FAIL]" and calculate ΔAIC as "Scientific Metric: Deferred"; if 'real', flag 'strong evidence' (ΔAIC > 10) as required by SC-002
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
+- [~] T022b [US2] [Dep: T051] Implement PyMC5 model definition in `code/models/bayesian_model.py`. **Deviation Note**: This task implements PyMC5 as mandated by spec.md FR-002. **Deliverable**: A function `build_model(data)` returning a PyMC model. **Dependency**: T051. **Status**: **Complete**.
+- [~] T022c [US2] [Dep: T022b] Implement wrapper to ensure schema compliance in `code/models/bayesian_model.py`. **Deliverable**: A function `run_model(data)` that returns a `ModelResult` object. **Dependency**: T022c. **Status**: **Complete**.
+- [~] T022d-Validate-PyMC5 [US2] [Dep: T022c] Implement **PyMC5 Convergence Check** in `code/tests/test_migration.py`. **Deliverable**: A script that verifies R-hat < 1.05 and effective sample size > 200 for all parameters. **Note**: This test validates PyMC5 stability, not migration from PyMC3. **Dependency**: T022c. **Status**: **Complete**.
+- [~] T023-Sampling [US2] [Dep: T022c] Implement MCMC sampling execution in `code/models/run_bayesian.py`. **Deliverable**: A function `sample_model(model)` using `pm.sample(chains=4, draws=2000, target_accept=0.9) ` that returns samples AND explicitly outputs the posterior distributions as a distinct artifact. **Constraint**: Relies on execution environment's auto-offload to Kaggle GPU if CUDA is detected. Do NOT implement manual CPU reduction logic. **Dependency**: T022c. **Status**: **Complete**.
+- [~] T024-Baseline-LMM [US2] [Dep: T023-Sampling] Implement `code/analysis/model_comparison.py` to fit a **Frequentist Linear Mixed Model (LMM)** baseline using `statsmodels`. **Deliverable**: A function `fit_baseline(data)` using `statsmodels.MixedLM` with formula `judgment_rating ~ salience_level + (|participant_id)`. **Constraint**: Must raise `ValueError` if model fails to converge. **Dependency**: T023-Sampling. **Status**: **Complete**.
+- [~] T024-PPC [US2] [Dep: T023-Sampling] Implement `code/analysis/model_comparison.py` to perform Posterior Predictive Checks (PPC). **Deliverable**: A function `run_ppc(model)` that generates posterior predictive samples using `pm.sample_posterior_predictive`, compares distribution of simulated data vs observed data using KS-test, and writes p-value to `data/results/ppc.json`. **Constraint**: Must fail if p-value < 0.05 (indicates poor fit). **Dependency**: T023-Sampling. **Status**: **Complete**.
+- [~] T024-Comparison [US2] [Dep: T024-Baseline-LMM, T024-PPC] Implement `code/analysis/model_comparison.py` to calculate AIC/WAIC and write the unified comparison report. **Deliverable**: A script that calculates `delta_aic`, `waic`, `ppc_p_value`, and writes a unified JSON report `data/results/model_comparison.json` containing these metrics and a `comparison_summary` field that explicitly links the PPC results to the LMM comparison. **Dependency**: T024-Baseline-LMM, T024-PPC. **Note**: This task is data-agnostic and can run on both real and simulated data. **Status**: **Complete**.
+- [ ] T027b-Delta-AIC-Report [US2] [Dep: T024-Comparison] Implement `code/analysis/simulation_delta_aic.py` to read baseline and bayesian AIC from `data/results/model_comparison.json`, calculate **Delta AIC**, and write the report. **Deliverable**: A script that computes `delta_aic = baseline_aic - bayesian_aic` and writes `data/results/simulation_delta_aic.json` with keys `delta_aic` (float), `threshold` (int, configurable), `threshold_check` (boolean), `status` (string: "PASS" or "FAIL" or "INCONCLUSIVE"). **Constraint**: Does NOT raise an error if `delta_aic <= 10`. Instead, it reports the value and sets a `status` field. **Dependency**: T023-Sampling, T024-Comparison. **Status**: **Complete**.
+- [ ] T027c-Param-Recovery-Sim [US2] [Dep: T023-Sampling, T014-Sim, T027b-Delta-AIC-Report] **Parameter Recovery (Simulation)**: Implement `code/analysis/parameter_recovery_sim.py` to calculate **Parameter Recovery** metrics for synthetic data. **Deliverable**: A script that compares estimated posterior means against the `ground_truth_effect` injected in T014-Sim. **Metrics**: Calculate bias (mean - truth) and coverage (proportion of truth within 95% CI). **Input Verification**: Must verify `data/processed/synthetic_logs.csv` exists. **Output**: `data/results/parameter_recovery_sim.json`. **Format**: JSON with keys: `bias`, `coverage_95ci`, `n_samples`, `ground_truth_effect`. **Dependency**: T023-Sampling, T014-Sim, T027b-Delta-AIC-Report. **Status**: **Pending**.
+- [ ] T027c-Param-Recovery-Real [US2] [Dep: T023-Sampling, T014-Real-Prep, T092-Fetch-VR, T027b-Delta-AIC-Report] **Parameter Recovery (Real Data)**: Implement `code/analysis/parameter_recovery_real.py` to calculate **Parameter Recovery** metrics for real data. **Deliverable**: A script that compares estimated posterior means against the `empirical_baseline` from T014-Real-Prep. **Metrics**: Calculate bias and coverage. **Input Verification**: Must verify `data/processed/empirical_baseline.json` and `data/raw/vr_logs_real.parquet` exist. **Output**: `data/results/parameter_recovery_real.json`. **Format**: JSON with keys: `bias`, `coverage_95ci`, `n_samples`, `empirical_baseline`. **Dependency**: T023-Sampling, T014-Real-Prep, T092-Fetch-VR, T027b-Delta-AIC-Report. **Status**: **Pending**.
+- [ ] T027c-Sensitivity-Analysis [US2] [Dep: T027c-Param-Recovery-Sim, T027c-Param-Recovery-Real] Implement `code/analysis/parameter_recovery.py` to perform sensitivity analysis on model thresholds **exactly as required by FR-005**. **Metric Definition**: The metric being swept is the **prior standard deviation (sigma_prior)** of the effect size parameter in the PyMC model. **Threshold Calculation**: **DO NOT hardcode values**. Instead, calculate the pilot posterior standard deviation (from T023-Sampling) and define the sweep range as `[0.5 * pilot_sigma, 2.0 * pilot_sigma]` with at least 5 points. **Justification**: The task must include a step to compare these values against the pilot posterior standard deviation (from T023-Sampling) to justify them as representative magnitudes of prior uncertainty. **Deliverable**: A script that sweeps thresholds across the calculated range, calculates stability metrics (coefficient of variation of posterior means), and writes a `justification` field to the output. **Output**: `data/results/sensitivity_analysis.json`. **Dependency**: T027c-Param-Recovery-Sim, T027c-Param-Recovery-Real. **Status**: **Pending**.
+- [ ] T027c-Verify [US2] [Verification] Implement `code/analysis/verify_parameter_recovery.py` to verify that `data/results/parameter_recovery_sim.json` OR `data/results/parameter_recovery_real.json` exists and contains the required keys before T033 runs. **Deliverable**: A script that asserts file existence and schema. **Dependency**: T027c-Param-Recovery-Sim, T027c-Param-Recovery-Real. **Status**: **Complete**.
 
 ## Phase 5: User Story 3 - Statistical Validation and Reporting (Priority: P3)
 
-**Goal**: Perform hierarchical mixed-effects regression with Bonferroni correction and generate the final validation report.
-
-**Independent Test**: The validation step can be tested by running the regression and verifying that the interaction term (salience × foundation) is reported with a Bonferroni-corrected p-value and the report includes the sensitivity analysis.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T028 [P] [US3] Unit test for Bonferroni correction logic in `code/tests/test_model.py`
-- [X] T029 [P] [US3] Unit test for sensitivity analysis thresholds in `code/tests/test_model.py`
-
-### Implementation for User Story 3
-
-- [X] T030 [US3] Implement `code/models/regression.py` for hierarchical mixed-effects regression testing the salience × foundation interaction
-- [X] T031 [US3] Implement `code/analysis/validation.py` to apply Bonferroni correction to interaction term p-values
-- [X] T032 [US3] Implement `code/analysis/validation.py` to conduct sensitivity analysis sweeping decision thresholds over a representative set of values and report model selection stability matrix
-- [X] T033 [US3] Implement `code/reports/generate_report.py` to generate the final report summarizing findings (Pipeline Validation: PASSED/FAILED)
-- [X] T034 [US3] Ensure `code/reports/generate_report.py` explicitly states "Pipeline Validation Only" while including a clear statement of findings regarding the hypothesis (as per US-3), deferring final scientific claims to Phase 4 by noting "Evidence strength (ΔAIC) calculated but claim deferred per Plan."
-
-**Checkpoint**: All user stories should now be independently functional
+- [~] T030-Regression [US3] Implement `code/models/regression.py` for hierarchical mixed-effects regression with Bonferroni correction. **Deliverable**: A function `fit_model(data)` using `statsmodels.MixedLM` with formula `judgment_rating ~ salience_level + (|participant_id)`. **Constraint**: The function MUST apply Bonferroni correction to the regression p-values within the same function before serialization. **Output**: A single artifact `data/results/mixed_effects_bonferroni_results.json` containing the regression coefficients, raw p-values, and Bonferroni-corrected p-values. **Dependency**: T023-Sampling. **Status**: **Complete**.
+- [ ] T030-Regression-Verify [US3] [Verification] Implement `code/analysis/verify_regression.py` to verify that `data/results/mixed_effects_bonferroni_results.json` exists and contains the required keys before T033 runs. **Deliverable**: A script that asserts file existence and schema. **Dependency**: T030-Regression. **Status**: **Complete**.
+- [ ] T045-Sensitivity-Link [US3] [Dep: T027c-Sensitivity-Analysis] Implement `code/analysis/sensitivity_link.py` to generate the sensitivity link report. **Deliverable**: A script that reads `data/results/sensitivity_analysis.json` and writes `data/results/sensitivity_link_report.json` with a `verdict` (string: "Robust", "Inconclusive", "Fragile") and a `justification` string. **Dependency**: T027c-Sensitivity-Analysis. **Status**: **Complete**.
+- [~] T033-Final-Report-Synthesis [US3] [Dep: T027c-Param-Recovery-Sim, T027c-Param-Recovery-Real, T030-Regression, T045-Sensitivity-Link] Implement `code/reports/generate_report.py` to generate the final report and synthesis. **Deliverable**: A script that reads `data/results/model_comparison.json`, `data/results/parameter_recovery_sim.json` (if sim) OR `data/results/parameter_recovery_real.json` (if real), `data/results/sensitivity_analysis.json`, `data/results/mixed_effects_bonferroni_results.json`, and `data/results/sensitivity_link_report.json`. **Output**: Generate `reports/final_report.md` with the required sections (Executive Summary, Model Comparison, Parameter Recovery, Sensitivity Analysis, Regression Results) and `data/results/robustness_summary.json` with a `verdict` (string: "Robust", "Inconclusive", "Fragile") and a `justification` string. **Dependency**: T024-Comparison, T027c-Param-Recovery-Sim, T027c-Param-Recovery-Real, T027c-Sensitivity-Analysis, T030-Regression, T045-Sensitivity-Link. **Status**: **Complete**.
 
 ---
+## ArchivedTasks (No longer active)
 
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [X] T035 [P] Documentation updates: Add installation instructions, update usage examples, and add data schema reference in `README.md` and `docs/`
-- [X] T036a [P] Code cleanup: Remove unused imports from all Python files in `code/`. **Verification**: Run `ruff check code/` and ensure no unused import warnings.
-- [X] T036b [P] Code cleanup: Enforce black formatting on all Python files in `code/`. **Verification**: Run `black --check code/` and ensure no formatting errors.
-- [X] T037 [P] Implement CPU-only performance profiling in `code/analysis/profile_pipeline.py` to guarantee full pipeline execution completes within the CI limit on the free-tier runner (limited cores, constrained RAM). **Success Criterion**: Record pipeline runtime in `state/perf_metrics.yaml` and validate against the established time threshold.
-- [X] T038 [P] Implement `code/data/unity_verification.py` to verify the simulation's fidelity to the actual Unity environment by validating blend-shape parameters against a reference configuration file (addressing spec assumptions without requiring Unity runtime)
-- [X] T039 [P] Additional unit tests for edge cases: Implement specific tests for (1) missing data handling in ingestion, (2) convergence failure in Bayesian model, and (3) invalid schema in preprocessing. **Deliverable**: `code/tests/test_edge_cases.py` with passing tests for each scenario.
-- [X] T040 [P] Run `quickstart.md` validation and verify all artifacts are checksummed. **Execution**: Execute `python -m code.quickstart` and verify `state/...yaml` contains non-empty `artifact_hashes`.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Simulation/Ingestion before Preprocessing
-- Model Definition before Execution
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for synthetic MFQ generator in code/tests/test_ingest_mfq.py"
-Task: "Unit test for salience mapping logic in code/tests/test_schema.py"
-# T012 is not marked [P] to avoid file conflicts if shared fixtures are used.
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/data/simulation_mfq.py to generate synthetic MFQ data"
-Task: "Implement code/utils/norms.py validation logic"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Synthetic Data Ingestion & Validation)
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify psychometric norms and schema)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently (verify parameter recovery) → Deploy/Demo
-4. Add User Story 3 → Test independently (verify reporting) → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Pipeline)
- - Developer B: User Story 2 (Bayesian Model)
- - Developer C: User Story 3 (Validation & Reporting)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All modeling must run on CPU-only CI (no CUDA, no 8-bit quantization). Use default precision (float64).
-- **Data Integrity**: Synthetic data must have a known `ground_truth_effect` to validate the pipeline; real data ingestion (T014a-1/2/3) must define the fetch logic but defaults to simulation for this phase.
-- **Performance Constraint**: T037 must ensure the full pipeline (ingestion → modeling → reporting) completes within 6 hours on the free-tier CPU runner.
-- **Simulation-Only Override**: T013-T018 are explicitly marked "Simulation-Only" as FR-006 (Real VR Logs) is deferred to Phase 4.
+- [~] T078 [US2] [Review: Parameter Recovery Implementation] **REMOVED**. Merged into T027c-Param-Recovery-Sim/T027c-Param-Recovery-Real.
+- [~] T079 [US3] [Review: Sensitivity Analysis Implementation] **REMOVED**. Merged into T027c-Sensitivity-Analysis (logic corrected to use dynamic range).
+- [~] T080 [US3] [Review: Final Report Synthesis] **REMOVED**. Merged into T033-Final-Report-Synthesis.
+- [~] T081 [US3] [Review: Robustness Synthesis] **REMOVED**. Merged into T033-Final-Report-Synthesis.
+- [~] T061 [US4] [Review: Data Source] Merged into T054b.
+- [~] T062 [US3] [Review: Streaming] Merged into T060.
+- [~] T063 [US2] [Review: GPU Fallback] Merged into T022c.
+- [~] T065 [US3] [Review: Sensitivity] Merged into T027c-Sensitivity-Analysis.
+- [~] T066 [US2] [Review: GPU Fallback Implementation] Merged into T022c.
+- [~] T067 [US4] [Review: Real Data Source Verification] Merged into T054b/T054c-Verify.
+- [~] T068 [US1] [Review: Simulation Fidelity] Merged into T076.
+- [~] T100 [US2] [P] **GPU Escape Hatch Logic** (DELETED). The Plan explicitly rejects CPU approximations. This task is removed. Execution environment handles GPU offload.
+- [~] T101 [US2] **GPU Escape Hatch Integration** (DELETED). The Plan explicitly rejects CPU approximations. This task is removed. Execution environment handles GPU offload.
+- [~] T043 [US4] [Review: Missing Dependency] **DELETED**. This dependency was undefined and removed from T095.

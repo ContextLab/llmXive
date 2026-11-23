@@ -1,45 +1,34 @@
-# Quick Start Guide
+# Quickstart: Assessing the Impact of Data Ordering on Bootstrapping
 
 ## Prerequisites
-
-- Python 3.11 or higher
-- pip package manager
+- Python 3.11+
+- pip
 
 ## Installation
-
-1. Clone the repository
+1. Clone the repository.
 2. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
+ ```bash
+ pip install -r requirements.txt
+ ```
 
 ## Running the Simulation
-
-To run the full simulation batch:
-
+To run the full synthetic simulation (US1 + US2):
 ```bash
 python code/runner.py --full
 ```
 
-To run a single simulation:
-
-```bash
-python code/runner.py --phi 0.8 --n 100
-```
+**Note**: This command executes the full batch for phi in [0.0, 0.9] and N in [50, 100, 200] with 1000 trials.
+The output will be written to `results/simulation_logs.json` and `results/coverage_metrics.csv`.
 
 ## Expected Output
-
-After running the full simulation:
-
-- `results/simulation_logs.json` - Raw simulation results
-- `results/coverage_metrics.csv` - Aggregated metrics
-- `results/sensitivity_analysis.md` - Sensitivity report
-- `results/summary_report.md` - Summary report
-- `results/stratified_report.md` - Stratified analysis
+- `results/simulation_logs.json`: Detailed JSON log of all simulation runs.
+- `results/coverage_metrics.csv`: Aggregated CSV with coverage metrics and p-values.
+- `results/sensitivity_analysis.md`: Generated report on sensitivity to N.
+- `results/summary_report.md`: Final summary report.
 
 ## Verification
-
-{{claim:c_2cfa5ada}}
-Shuffled baselines should maintain coverage near 0.95. [UNRESOLVED-CLAIM: c_d974f58a — status=not_enough_info]
-{{claim:c_e01dcd96}}
+To verify reproducibility:
+```bash
+python code/runner.py --full --seed 42
+pytest tests/test_reproducibility.py::verify_reproducibility
+```

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.08302",
+  "judged_at": "2026-08-03T18:55:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"search beyond what can be taught: evolving the knowledge boundary in a\" computer science",
+  "rationale": "This paper belongs in the literature review because it provides the foundational roadmap and canonical frameworks (KG-enhanced LLMs, LLM-augmented KGs) for extending LLM knowledge boundaries, which directly addresses the user's goal of \"evolving the knowledge boundary\" mentioned in their follow-up question (Category d). Additionally, it covers the specific mechanism of integrating structured external knowledge to overcome the limitations of what LLMs can learn from training data alone (Category ",
+  "relevant": true
+}

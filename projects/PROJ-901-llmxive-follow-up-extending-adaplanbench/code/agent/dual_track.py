@@ -1,3 +1,13 @@
+"""
+Dual-Track Agent Orchestration Module.
+
+Implements the Dual-Track architecture:
+1. Generator (SLM) proposes a plan.
+2. Constraint Store (Deterministic) holds active constraints.
+3. Resolver (Rule-based) checks for violations and forces revisions.
+
+Logs "false_negative" if intent parsing fails (FR-008).
+"""
 import os
 import sys
 import json
@@ -5,220 +15,229 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
+import uuid
 
-# Project imports
-from config import Paths
-from agent.base import ViolationType, ExecutionResult, TaskContext, BaseAgent
+# Import from local project modules
+from agent.base import ViolationType, ExecutionResult, TaskContext
 from agent.constraint_store import Constraint, ConstraintStore
 from agent.resolver import ConstraintResolver, ResolutionLog
-from agent.monolithic import MonolithicAgent
+from agent.monolithic import MonolithicAgent, MonolithicAgentConfig
+from config import get_dataset_config, get_model_config, get_paths
 
-# Local imports relative to code/
-from dataset.loader import load_adaplanbench, filter_progressive_constraints
+# Ensure paths are set up if not already
+try:
+    from config import ensure_directories
+    ensure_directories()
+except Exception:
+    pass
 
-class DualTrackAgent(BaseAgent):
+class DualTrackAgent:
     """
-    Orchestrates the dual-track architecture:
-    1. Generator (SLM) proposes a plan.
-    2. ConstraintStore tracks active constraints.
-    3. Resolver (Deterministic) checks for violations and corrects.
-
-    Logs "false_negative" if intent parsing fails (FR-008).
+    Orchestrates the generator, store, and resolver for the dual-track architecture.
     """
-
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self.config = config or {}
+    def __init__(self, model_config: MonolithicAgentConfig = None):
+        self.model_config = model_config or MonolithicAgentConfig()
+        self.generator = MonolithicAgent(self.model_config)
         self.store = ConstraintStore()
         self.resolver = ConstraintResolver()
-        # Using MonolithicAgent as the SLM Generator for this implementation
-        self.generator = MonolithicAgent()
-        self.execution_logs: List[Dict[str, Any]] = []
-
-    def _parse_intent(self, task_description: str) -> Optional[Dict[str, Any]]:
-        """
-        Parses the task description to extract intent.
-        Returns None if parsing fails (triggers false_negative log).
-        """
-        # Simple heuristic: if description is empty or too short, parsing fails.
-        # In a real scenario, this might call an LLM to extract structured intent.
-        if not task_description or len(task_description.strip()) < 5:
-            return None
         
-        # Basic extraction: assume the whole description is the intent for now
-        # or split by specific keywords if the dataset format dictates.
-        # For AdaPlanBench, we treat the 'instruction' as the intent.
-        return {
-            "raw_intent": task_description,
-            "parsed_successfully": True
-        }
-
-    def _log_false_negative(self, task_id: str, reason: str) -> None:
-        """Logs a false_negative event as per FR-008."""
-        log_entry = {
-            "timestamp": datetime.now().isoformat(),
-            "task_id": task_id,
-            "event_type": "false_negative",
-            "reason": reason,
-            "architecture": "dual_track"
-        }
-        self.execution_logs.append(log_entry)
-
-    def _log_violation(self, task_id: str, constraint: Constraint, resolution: Optional[ResolutionLog]) -> None:
-        """Logs a constraint violation event."""
-        log_entry = {
-            "timestamp": datetime.now().isoformat(),
-            "task_id": task_id,
-            "event_type": "violation_detected",
-            "constraint_id": constraint.id,
-            "constraint_text": constraint.text,
-            "resolution_status": "resolved" if resolution else "unresolved",
-            "resolution_details": resolution.to_dict() if resolution else None,
-            "architecture": "dual_track"
-        }
-        self.execution_logs.append(log_entry)
-
-    def execute(self, task: Dict[str, Any]) -> ExecutionResult:
+    def process_task(self, task: Dict[str, Any]) -> ExecutionResult:
         """
-        Executes the dual-track logic for a single task.
+        Process a single task through the dual-track pipeline.
         
         Args:
-            task: Dictionary containing 'id', 'instruction', 'constraints', etc.
-        
-        Returns:
-            ExecutionResult with status and metrics.
-        """
-        task_id = task.get('id', 'unknown')
-        instruction = task.get('instruction', '')
-        constraints_data = task.get('constraints', [])
-        
-        # 1. Parse Intent
-        intent = self._parse_intent(instruction)
-        if not intent:
-            self._log_false_negative(task_id, "Intent parsing failed: empty or invalid instruction")
-            return ExecutionResult(
-                task_id=task_id,
-                status="failed",
-                violation_count=0,
-                final_score=0.0,
-                log=self.execution_logs[-1]
-            )
-
-        # 2. Load Constraints into Store
-        # The dataset provides constraints. We load them into the store.
-        # Assuming constraints_data is a list of dicts or strings.
-        for idx, c_data in enumerate(constraints_data):
-            if isinstance(c_data, dict):
-                text = c_data.get('text', c_data.get('constraint', ''))
-            else:
-                text = str(c_data)
+            task: Dictionary containing 'task_id', 'raw_prompt', 'progressive_constraints', etc.
             
-            if text:
-                self.store.add_constraint(text, source="dataset")
-
-        # 3. Generator (SLM) produces a plan
-        # We simulate the generator step. In a full run, this calls the LLM.
-        # For this implementation, we assume the generator produces a plan string.
-        # If the generator fails, we handle it similarly to intent parsing.
+        Returns:
+            ExecutionResult object.
+        """
+        task_id = task.get('task_id', str(uuid.uuid4()))
+        raw_prompt = task.get('raw_prompt', '')
+        progressive_constraints = task.get('progressive_constraints', [])
+        
+        # 1. Initialize Context
+        context = TaskContext(
+            task_id=task_id,
+            prompt=raw_prompt,
+            constraints=progressive_constraints,
+            timestamp=datetime.now()
+        )
+        
+        # 2. Load Constraints into Store
+        for c_text in progressive_constraints:
+            self.store.add_constraint(task_id, c_text)
+        
+        # 3. Generate Initial Plan
         try:
-            generated_plan = self.generator.generate_plan(instruction, self.store.get_active_constraints())
+            initial_plan = self.generator.generate_plan(context)
         except Exception as e:
-            self._log_false_negative(task_id, f"Generator failed: {str(e)}")
+            # Intent parsing failure -> Log false_negative
             return ExecutionResult(
                 task_id=task_id,
-                status="failed",
-                violation_count=0,
-                final_score=0.0,
-                log=self.execution_logs[-1]
+                success=False,
+                plan="",
+                violation_status="false_negative",
+                violation_reason=f"Generator failed: {str(e)}",
+                final_score=0.0
             )
-
-        # 4. Resolver checks for violations
-        violations_found = 0
-        resolution_attempts = []
         
-        # Check the generated plan against the store
-        # The resolver iterates over active constraints and checks the plan.
-        active_constraints = self.store.get_active_constraints()
+        # 4. Check for Violations and Resolve
+        current_plan = initial_plan
+        violation_log = []
+        final_violation_status = None
+        final_violation_reason = None
+        is_violated = False
+        
+        # Check against all constraints
+        active_constraints = self.store.get_active_constraints(task_id)
         
         for constraint in active_constraints:
-            resolution = self.resolver.check_and_resolve(generated_plan, constraint)
+            violation = self.resolver.check_violation(task_id, current_plan, constraint)
             
-            if resolution and resolution.is_violation:
-                violations_found += 1
-                self._log_violation(task_id, constraint, resolution)
-                resolution_attempts.append(resolution.to_dict())
-            elif resolution and not resolution.is_violation:
-                # Constraint satisfied or not applicable
-                pass
+            if violation:
+                is_violated = True
+                final_violation_status = violation.get('status', 'violation')
+                final_violation_reason = violation.get('reason', 'Unknown constraint violation')
+                
+                # FR-003: Force Revision
+                # Attempt to generate a corrected plan
+                corrected_plan = self.resolver.force_revision(
+                    task_id, 
+                    current_plan, 
+                    violation, 
+                    active_constraints
+                )
+                
+                if corrected_plan:
+                    current_plan = corrected_plan
+                    # Re-check the corrected plan against remaining constraints
+                    # (Simplified: in a full loop we'd re-verify all, but here we log the fix attempt)
+                else:
+                    # Could not fix
+                    pass
+                
+                violation_log.append(violation)
+            else:
+                # Check for implicit/unverified constraints (FR-009)
+                # If resolver couldn't match explicitly but we suspect a constraint exists
+                # The resolver returns None if no match. We log "implicit_unverified" if
+                # the constraint text was non-empty but no specific rule matched.
+                if constraint.text and not self.resolver.has_explicit_rule(constraint.text):
+                    # Log as implicit_unverified (per T024/T026c requirements)
+                    # Note: This does NOT set is_violated=True for the primary metric,
+                    # but we record it in the log.
+                    log_entry = {
+                        "task_id": task_id,
+                        "constraint": constraint.text,
+                        "status": "implicit_unverified",
+                        "reason": "No explicit rule matched for constraint"
+                    }
+                    violation_log.append(log_entry)
+                    # We do NOT set final_violation_status to 'implicit_unverified' 
+                    # if a real violation was already found, to preserve the primary metric.
+                    # If no real violation found, we might flag it, but per FR-009 
+                    # we exclude these from the primary violation rate.
+                    if not is_violated:
+                        final_violation_status = "implicit_unverified"
+                        final_violation_reason = "Unverified implicit constraint detected"
 
-        # 5. Compute Final Score
-        # Simple heuristic: 1.0 if no violations, reduced by violation count
-        total_constraints = len(active_constraints)
-        if total_constraints == 0:
-            final_score = 1.0
-        else:
-            final_score = max(0.0, 1.0 - (violations_found / total_constraints))
-
+        # 5. Calculate Final Score
+        # Simple heuristic: 1.0 if no violation, 0.0 if violation, partial if corrected?
+        # For now, binary based on final state
+        final_score = 0.0 if is_violated else 1.0
+        
+        # If we had an implicit_unverified but no hard violation, score might still be 1.0
+        # but the status reflects the ambiguity.
+        if final_violation_status == "implicit_unverified" and not is_violated:
+            final_score = 1.0 # Still counts as success for the primary metric per FR-009
+        
         return ExecutionResult(
             task_id=task_id,
-            status="completed",
-            violation_count=violations_found,
+            success=not is_violated,
+            plan=current_plan,
+            violation_status=final_violation_status,
+            violation_reason=final_violation_reason,
             final_score=final_score,
-            log=self.execution_logs
+            logs=violation_log
         )
 
-def run_dual_track_experiment():
+def run_dual_track_experiment(
+    input_path: str, 
+    output_path: str
+) -> None:
     """
-    Main entry point to run the dual-track agent on the filtered dataset.
-    Reads from data/processed/filtered_tasks.csv and writes to data/processed/execution_traces.csv
+    Runs the dual-track agent on a filtered dataset and writes logs to JSON.
+    
+    Args:
+        input_path: Path to the filtered_tasks.csv
+        output_path: Path to write dual_track_logs.json
     """
-    paths = Paths()
-    input_path = paths.processed_dir / "filtered_tasks.csv"
-    output_path = paths.processed_dir / "execution_traces.csv"
-
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}. Run dataset preparation first.")
-
-    print(f"Loading tasks from {input_path}...")
-    df = load_adaplanbench() # Reusing loader logic or reading CSV directly
-    # Since we need to read the CSV specifically created by T014
-    import pandas as pd
-    tasks_df = pd.read_csv(input_path)
-
+    paths = get_paths()
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+        
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        
     agent = DualTrackAgent()
     results = []
-
-    print(f"Processing {len(tasks_df)} tasks...")
-    for idx, row in tasks_df.iterrows():
-        task_dict = row.to_dict()
-        # Ensure constraints are parsed if they are stringified lists
-        if isinstance(task_dict.get('constraints'), str):
-            import ast
-            try:
-                task_dict['constraints'] = ast.literal_eval(task_dict['constraints'])
-            except:
-                task_dict['constraints'] = []
-
-        result = agent.execute(task_dict)
+    
+    # Load CSV
+    with open(input_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        tasks = list(reader)
         
-        # Flatten result for CSV
-        result_row = {
+    if not tasks:
+        print("No tasks found in input file.")
+        return
+
+    print(f"Processing {len(tasks)} tasks with Dual-Track Agent...")
+    
+    for i, task in enumerate(tasks):
+        # Ensure constraint lists are parsed if they are string representations of lists
+        pc = task.get('progressive_constraints', '[]')
+        if isinstance(pc, str):
+            try:
+                import ast
+                task['progressive_constraints'] = ast.literal_eval(pc)
+            except:
+                task['progressive_constraints'] = []
+                
+        result = agent.process_task(task)
+        
+        # Convert result to dict for JSON serialization
+        log_entry = {
             "task_id": result.task_id,
-            "architecture": "dual_track",
-            "constraint_count": task_dict.get('constraint_count', len(task_dict.get('constraints', []))),
-            "violation_count": result.violation_count,
+            "constraint_count": len(task.get('progressive_constraints', [])),
+            "generated_plan": result.plan,
+            "violation_boolean": not result.success,
+            "violation_reason": result.violation_reason,
+            "violation_status": result.violation_status,
             "final_score": result.final_score,
-            "status": result.status,
-            "timestamp": datetime.now().isoformat()
+            "detailed_logs": result.logs
         }
-        results.append(result_row)
+        results.append(log_entry)
+        
+        if (i + 1) % 10 == 0:
+            print(f"Processed {i + 1}/{len(tasks)} tasks.")
+            
+    # Write output
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+        
+    print(f"Dual-Track execution complete. Results written to {output_path}")
 
-        if (idx + 1) % 10 == 0:
-            print(f"Processed {idx + 1}/{len(tasks_df)} tasks.")
-
-    print(f"Writing results to {output_path}...")
-    output_df = pd.DataFrame(results)
-    output_df.to_csv(output_path, index=False)
-    print(f"Done. Results saved to {output_path}")
+def main():
+    """CLI entry point for dual-track execution."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Run Dual-Track Agent Experiment")
+    parser.add_argument("--input", type=str, required=True, help="Path to filtered_tasks.csv")
+    parser.add_argument("--output", type=str, required=True, help="Path to output JSON logs")
+    args = parser.parse_args()
+    
+    run_dual_track_experiment(args.input, args.output)
 
 if __name__ == "__main__":
-    run_dual_track_experiment()
+    main()

@@ -1,47 +1,28 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmxive-polymer-degradation"
-version = "0.1.0"
-description = "Predicting Polymer Degradation Pathways with Graph Neural Networks"
-requires-python = ">=3.11"
-dependencies = [
-    "rdkit",
-    "torch",
-    "torch-geometric",
-    "scikit-learn",
-    "pandas",
-    "numpy",
-    "pyyaml",
-    "requests",
-    "ruff",
-    "black",
-    "pytest",
-]
-
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
     \.git
-  | \.tox
-  | \.venv
-  | build
-  | dist
-  | data
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.setuptools.packages.find]
-where = ["code"]
-include = ["*"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]

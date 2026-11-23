@@ -1,9 +1,4 @@
-pandas
-numpy
-scipy
-scikit-learn
-statsmodels
-matplotlib
-seaborn
-python-dotenv
-pytest
+# Project dependencies
+# Existing dependencies (if any) are retained; pyarrow is added to enable
+# parquet support required by OpenML dataset downloads.
+pyarrow>=12.0.0

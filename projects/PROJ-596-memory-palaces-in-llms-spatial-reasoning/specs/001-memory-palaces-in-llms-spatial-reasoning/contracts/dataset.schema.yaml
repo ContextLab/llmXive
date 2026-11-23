@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Name of the dataset (e.g., 'babi_task3')"
+  source_url:
+    type: string
+    description: "Verified URL or Hugging Face ID"
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the raw file"
+  num_samples:
+    type: integer
+    description: "Total number of samples in the dataset"
+required:
+  - dataset_name
+  - source_url
+  - checksum
+  - num_samples

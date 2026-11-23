@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Structural Alerts Schema
+description: >
+  Schema for the structural alerts configuration file. Defines the expected
+  format for SMARTS patterns, weights, and metadata required for the rule-based
+  toxicity prediction model.
+type: object
+required:
+  - patterns
+properties:
+  patterns:
+    type: array
+    description: "List of structural alert definitions"
+    minItems: 1
+    items:
+      type: object
+      required:
+        - pattern_id
+        - smarts_string
+        - weight
+        - source
+        - description
+      properties:
+        pattern_id:
+          type: string
+          pattern: "^[A-Z0-9_]+$"
+          description: "Unique identifier for the pattern (e.g., NITRO_AROMATIC_01)"
+        smarts_string:
+          type: string
+          description: "SMARTS string defining the structural motif"
+        weight:
+          type: number
+          minimum: 0.0
+          description: "Weight assigned to this alert (higher = more toxic)"
+        source:
+          type: string
+          description: "Source of the alert (e.g., 'Brenk Set', 'ToxCast')"
+        description:
+          type: string
+          description: "Human-readable description of the structural alert"
+      additionalProperties: false
+additionalProperties: false

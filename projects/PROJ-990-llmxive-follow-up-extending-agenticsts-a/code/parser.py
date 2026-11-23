@@ -1,283 +1,260 @@
 """
-Parser module for extracting per-turn metrics from raw trajectory logs.
+parser.py
 
-This module implements the core parsing logic to extract health, threat,
-and deck size metrics from raw trajectory logs located in data/raw/.
+Implements T006a: Extract per-turn metrics from raw trajectory logs.
+
+Input:
+    data/raw/agenticsts_trajectories.jsonl (from T005b)
+    contracts/trajectory.schema.yaml (from T003a)
+
+Output:
+    data/processed/metrics_with_moves.csv (columns: trajectory_id, turn, health_ratio, enemy_threat, deck_size, move_entropy, layer_name)
+
+Constraints:
+    - Must validate against schema. Raise ValueError on mismatch.
+    - Raise FileNotFoundError if input data is missing.
+    - NO synthetic fallback.
+    - Uses streaming (ijson) to handle large files.
 """
-
 import os
+import sys
 import json
 import logging
-from pathlib import Path
-from typing import Dict, List, Optional, Any
+import hashlib
+import ijson
 import pandas as pd
+import yaml
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Iterator
+import math
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-RAW_DATA_DIR = Path("data/raw")
-PROCESSED_DATA_DIR = Path("data/processed")
-TRAJECTORIES_FILE = "trajectories.csv"
-OUTPUT_FILE = "per_turn_metrics.csv"
+# Paths
+BASE_DIR = Path(__file__).resolve().parent.parent
+RAW_DATA_PATH = BASE_DIR / "data" / "raw" / "agenticsts_trajectories.jsonl"
+SCHEMA_PATH = BASE_DIR / "contracts" / "trajectory.schema.yaml"
+OUTPUT_PATH = BASE_DIR / "data" / "processed" / "metrics_with_moves.csv"
 
-def parse_turn_data(turn_record: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def compute_file_checksum(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load the YAML schema definition."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+def validate_trajectory_against_schema(trajectory: Dict[str, Any], schema: Dict[str, Any]) -> bool:
     """
-    Parse a single turn record to extract metrics.
-
-    Args:
-        turn_record: Dictionary containing turn data with keys like
-                    'turn_id', 'health', 'threat_level', 'deck_size', etc.
-
-    Returns:
-        Dictionary with extracted metrics or None if record is invalid.
+    Validate a single trajectory record against the schema.
+    Raises ValueError if validation fails.
     """
-    if not isinstance(turn_record, dict):
-        logger.warning(f"Invalid turn record type: {type(turn_record)}")
-        return None
+    required_fields = schema.get("required", [])
+    properties = schema.get("properties", {})
 
-    # Extract required fields with defaults
-    try:
-        metrics = {
-            'turn_id': turn_record.get('turn_id', turn_record.get('turn', -1)),
-            'health': float(turn_record.get('health', 0)),
-            'threat_level': float(turn_record.get('threat_level', turn_record.get('threat', 0))),
-            'deck_size': int(turn_record.get('deck_size', turn_record.get('deck', 0))),
-            'agent_id': turn_record.get('agent_id', 'unknown'),
-            'trajectory_id': turn_record.get('trajectory_id', turn_record.get('trajectory', 'unknown')),
-            'timestamp': turn_record.get('timestamp', None)
+    # Check required fields
+    for field in required_fields:
+        if field not in trajectory:
+            raise ValueError(f"Missing required field '{field}' in trajectory. Schema: {schema.get('title', 'unknown')}")
+
+    # Type checking for known fields if defined in properties
+    for field, spec in properties.items():
+        if field in trajectory:
+            expected_type = spec.get("type")
+            value = trajectory[field]
+            
+            # Simple type validation
+            if expected_type == "integer" and not isinstance(value, int):
+                if not isinstance(value, float) or not value.is_integer():
+                    raise ValueError(f"Field '{field}' expected integer, got {type(value)}")
+            elif expected_type == "number" and not isinstance(value, (int, float)):
+                raise ValueError(f"Field '{field}' expected number, got {type(value)}")
+            elif expected_type == "string" and not isinstance(value, str):
+                raise ValueError(f"Field '{field}' expected string, got {type(value)}")
+            elif expected_type == "array" and not isinstance(value, list):
+                raise ValueError(f"Field '{field}' expected array, got {type(value)}")
+            elif expected_type == "object" and not isinstance(value, dict):
+                raise ValueError(f"Field '{field}' expected object, got {type(value)}")
+
+    return True
+
+def extract_move_entropy(legal_moves: List[str]) -> float:
+    """
+    Calculate Shannon entropy of the legal move distribution.
+    Assumes uniform probability for available moves if no probabilities provided.
+    Returns float('nan') if list is empty or entropy is undefined.
+    """
+    if not legal_moves or len(legal_moves) == 0:
+        return float('nan')
+    
+    n = len(legal_moves)
+    if n == 1:
+        return 0.0
+    
+    # Assuming uniform distribution over legal moves
+    p = 1.0 / n
+    entropy = -sum(p * math.log2(p) for _ in range(n))
+    return entropy
+
+def extract_metrics_from_trajectory(trajectory: Dict[str, Any]) -> Iterator[Dict[str, Any]]:
+    """
+    Extract per-turn metrics from a single trajectory.
+    Yields one dict per turn.
+    """
+    traj_id = trajectory.get("trajectory_id", "unknown")
+    turns = trajectory.get("turns", [])
+    
+    if not isinstance(turns, list):
+        logger.warning(f"Trajectory {traj_id} has no 'turns' list or invalid format. Skipping.")
+        return
+
+    for turn_idx, turn_data in enumerate(turns):
+        if not isinstance(turn_data, dict):
+            continue
+
+        # Extract fields with defaults
+        health_ratio = turn_data.get("health_ratio", 0.0)
+        enemy_threat = turn_data.get("enemy_threat", 0.0)
+        deck_size = turn_data.get("deck_size", 0)
+        
+        # Move entropy
+        legal_moves = turn_data.get("legal_moves", [])
+        move_entropy = extract_move_entropy(legal_moves)
+        
+        # Layer name (from trajectory level or turn level if available)
+        layer_name = trajectory.get("layer_name", "unknown")
+        
+        yield {
+            "trajectory_id": traj_id,
+            "turn": turn_idx,
+            "health_ratio": health_ratio,
+            "enemy_threat": enemy_threat,
+            "deck_size": deck_size,
+            "move_entropy": move_entropy,
+            "layer_name": layer_name
         }
 
-        # Validate extracted values
-        if metrics['turn_id'] == -1:
-            logger.warning(f"Invalid turn_id in record: {turn_record}")
-            return None
-
-        return metrics
-
-    except (ValueError, TypeError) as e:
-        logger.error(f"Failed to parse turn record: {turn_record}, error: {e}")
-        return None
-
-def extract_metrics_from_trajectory(trajectory_data: List[Dict[str, Any]], trajectory_id: str) -> List[Dict[str, Any]]:
+def validate_data_source(raw_path: Path) -> None:
     """
-    Extract per-turn metrics from a complete trajectory.
-
-    Args:
-        trajectory_data: List of turn records for a single trajectory.
-        trajectory_id: Unique identifier for the trajectory.
-
-    Returns:
-        List of parsed turn metric dictionaries.
+    Validate that the raw data source exists and is not empty.
+    Raises FileNotFoundError if missing.
     """
-    if not isinstance(trajectory_data, list):
-        logger.error(f"Expected list of turns, got {type(trajectory_data)}")
-        return []
+    if not raw_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {raw_path}")
+    
+    # Check file size > 0
+    if raw_path.stat().st_size == 0:
+        raise FileNotFoundError(f"Raw data file is empty: {raw_path}")
 
-    parsed_turns = []
-    for idx, turn_record in enumerate(trajectory_data):
-        # Ensure trajectory_id is set in each record
-        if isinstance(turn_record, dict):
-            turn_record['trajectory_id'] = trajectory_id
-
-        parsed = parse_turn_data(turn_record)
-        if parsed is not None:
-            parsed_turns.append(parsed)
-        else:
-            logger.debug(f"Skipped invalid turn {idx} in trajectory {trajectory_id}")
-
-    logger.info(f"Extracted {len(parsed_turns)} valid turns from trajectory {trajectory_id}")
-    return parsed_turns
-
-def parse_trajectories(raw_dir: Optional[Path] = None) -> pd.DataFrame:
+def parse_trajectories(input_path: Path, schema: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Parse all trajectory files from the raw data directory.
-
-    This function:
-    1. Reads trajectory files from data/raw/
-    2. Extracts per-turn metrics (health, threat, deck size)
-    3. Returns a consolidated DataFrame
-
-    Args:
-        raw_dir: Optional path to raw data directory. Defaults to data/raw/.
-
-    Returns:
-        pandas DataFrame with columns: turn_id, health, threat_level,
-        deck_size, agent_id, trajectory_id, timestamp
+    Parse the JSONL file using streaming (ijson) and extract metrics.
+    Validates each record against the schema.
     """
-    if raw_dir is None:
-        raw_dir = RAW_DATA_DIR
+    records = []
+    total_count = 0
+    valid_count = 0
+    error_count = 0
 
-    if not raw_dir.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
+    logger.info(f"Starting streaming parse of: {input_path}")
+    
+    try:
+        with open(input_path, "rb") as f:
+            # ijson.items yields each top-level object in the JSONL stream
+            # We assume the file is a sequence of JSON objects, one per line (JSONL)
+            # ijson.items(f, '') works for a stream of objects
+            parser = ijson.items(f, "")
+            
+            for obj in parser:
+                total_count += 1
+                try:
+                    # Validate against schema
+                    validate_trajectory_against_schema(obj, schema)
+                    
+                    # Extract metrics
+                    for metric_row in extract_metrics_from_trajectory(obj):
+                        records.append(metric_row)
+                        valid_count += 1
+                except ValueError as e:
+                    error_count += 1
+                    logger.warning(f"Validation error in record {total_count}: {e}")
+                    # Continue processing other records
+                except Exception as e:
+                    error_count += 1
+                    logger.error(f"Unexpected error processing record {total_count}: {e}")
+                    
+    except ijson.JSONError as e:
+        logger.error(f"JSON parsing error: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error reading file: {e}")
+        raise
 
-    all_metrics = []
-
-    # Handle both CSV and JSONL/JSON formats
-    csv_file = raw_dir / TRAJECTORIES_FILE
-    if csv_file.exists():
-        logger.info(f"Reading trajectories from CSV: {csv_file}")
-        try:
-            df = pd.read_csv(csv_file)
-
-            # Handle different data structures
-            # Case 1: Each row is a turn (already flat)
-            if 'turn_id' in df.columns or 'turn' in df.columns:
-                logger.info("Detected flat trajectory format (one row per turn)")
-                # Convert to list of dicts for consistent processing
-                records = df.to_dict('records')
-                for record in records:
-                    parsed = parse_turn_data(record)
-                    if parsed:
-                        all_metrics.append(parsed)
-
-            # Case 2: Nested structure (trajectory_id with nested turns)
-            elif 'trajectory_id' in df.columns and 'turns' in df.columns:
-                logger.info("Detected nested trajectory format")
-                for _, row in df.iterrows():
-                    traj_id = str(row['trajectory_id'])
-                    turns_data = row['turns']
-
-                    # Parse turns from string or list
-                    if isinstance(turns_data, str):
-                        try:
-                            turns_list = json.loads(turns_data)
-                        except json.JSONDecodeError:
-                            logger.error(f"Invalid JSON in turns column for trajectory {traj_id}")
-                            continue
-                    elif isinstance(turns_data, list):
-                        turns_list = turns_data
-                    else:
-                        logger.error(f"Unexpected turns data type: {type(turns_data)}")
-                        continue
-
-                    parsed_turns = extract_metrics_from_trajectory(turns_list, traj_id)
-                    all_metrics.extend(parsed_turns)
-
-            # Case 3: Single column with JSON strings
-            elif 'data' in df.columns or 'json' in df.columns:
-                json_col = 'data' if 'data' in df.columns else 'json'
-                logger.info(f"Detected JSON string format in column: {json_col}")
-                for _, row in df.iterrows():
-                    traj_id = str(row.get('trajectory_id', f"unknown_{_}"))
-                    try:
-                        turns_data = json.loads(row[json_col])
-                        if isinstance(turns_data, list):
-                            parsed_turns = extract_metrics_from_trajectory(turns_data, traj_id)
-                            all_metrics.extend(parsed_turns)
-                    except (json.JSONDecodeError, KeyError) as e:
-                        logger.error(f"Failed to parse JSON for trajectory {traj_id}: {e}")
-
-        except pd.errors.EmptyDataError:
-            logger.error(f"Empty CSV file: {csv_file}")
-        except Exception as e:
-            logger.error(f"Error reading CSV file: {e}")
-            raise
-
-    # Check for JSONL files
-    for jsonl_file in raw_dir.glob("*.jsonl"):
-        logger.info(f"Reading trajectories from JSONL: {jsonl_file}")
-        try:
-            with open(jsonl_file, 'r', encoding='utf-8') as f:
-                for line_num, line in enumerate(f):
-                    line = line.strip()
-                    if not line:
-                        continue
-                    try:
-                        record = json.loads(line)
-                        parsed = parse_turn_data(record)
-                        if parsed:
-                            all_metrics.append(parsed)
-                    except json.JSONDecodeError as e:
-                        logger.error(f"Invalid JSON on line {line_num} in {jsonl_file}: {e}")
-        except Exception as e:
-            logger.error(f"Error reading JSONL file {jsonl_file}: {e}")
-            raise
-
-    # Check for JSON directory with individual files
-    json_dir = raw_dir / "trajectories"
-    if json_dir.exists() and json_dir.is_dir():
-        logger.info(f"Reading trajectory files from directory: {json_dir}")
-        for json_file in json_dir.glob("*.json"):
-            try:
-                with open(json_file, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-
-                traj_id = json_file.stem
-                if isinstance(data, list):
-                    parsed_turns = extract_metrics_from_trajectory(data, traj_id)
-                    all_metrics.extend(parsed_turns)
-                elif isinstance(data, dict) and 'turns' in data:
-                    parsed_turns = extract_metrics_from_trajectory(data['turns'], traj_id)
-                    all_metrics.extend(parsed_turns)
-            except Exception as e:
-                logger.error(f"Error reading JSON file {json_file}: {e}")
-
-    if not all_metrics:
-        logger.warning("No valid turn metrics extracted. Check input data format.")
-        # Return empty DataFrame with expected schema
-        return pd.DataFrame(columns=[
-            'turn_id', 'health', 'threat_level', 'deck_size',
-            'agent_id', 'trajectory_id', 'timestamp'
-        ])
-
-    # Create DataFrame
-    df = pd.DataFrame(all_metrics)
-
-    # Ensure correct data types
-    df['turn_id'] = df['turn_id'].astype(int)
-    df['health'] = df['health'].astype(float)
-    df['threat_level'] = df['threat_level'].astype(float)
-    df['deck_size'] = df['deck_size'].astype(int)
-
-    # Sort by trajectory_id and turn_id
-    df = df.sort_values(['trajectory_id', 'turn_id']).reset_index(drop=True)
-
-    logger.info(f"Successfully parsed {len(df)} turns from raw trajectory logs")
-    return df
+    logger.info(f"Parsing complete. Total records: {total_count}, Valid: {valid_count}, Errors: {error_count}")
+    return records
 
 def main():
-    """
-    Main entry point for parsing raw trajectory logs.
+    """Main entry point for T006a."""
+    logger.info("Starting T006a: Parse Trajectories and Extract Metrics")
 
-    Reads from data/raw/trajectories.csv (or other formats in data/raw/)
-    and outputs per-turn metrics to data/processed/per_turn_metrics.csv
-    """
-    logger.info("Starting trajectory parsing...")
+    # Ensure output directory exists
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
+    # 1. Validate Data Source (Fail loudly if missing)
     try:
-        # Ensure output directory exists
-        PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        validate_data_source(RAW_DATA_PATH)
+        logger.info(f"Data source validated: {RAW_DATA_PATH}")
+    except FileNotFoundError as e:
+        logger.critical(str(e))
+        sys.exit(1)
 
-        # Parse trajectories
-        df = parse_trajectories()
+    # 2. Load Schema
+    try:
+        schema = load_schema(SCHEMA_PATH)
+        logger.info(f"Schema loaded: {SCHEMA_PATH}")
+    except FileNotFoundError as e:
+        logger.critical(str(e))
+        sys.exit(1)
 
-        # Save output
-        output_path = PROCESSED_DATA_DIR / OUTPUT_FILE
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved parsed metrics to: {output_path}")
-
-        # Print summary
-        logger.info(f"Summary:")
-        logger.info(f"  - Total turns: {len(df)}")
-        if 'trajectory_id' in df.columns:
-            logger.info(f"  - Unique trajectories: {df['trajectory_id'].nunique()}")
-        if 'health' in df.columns:
-            logger.info(f"  - Health range: [{df['health'].min():.2f}, {df['health'].max():.2f}]")
-        if 'threat_level' in df.columns:
-            logger.info(f"  - Threat range: [{df['threat_level'].min():.2f}, {df['threat_level'].max():.2f}]")
-        if 'deck_size' in df.columns:
-            logger.info(f"  - Deck size range: [{df['deck_size'].min()}, {df['deck_size'].max()}]")
-
-        return df
-
+    # 3. Parse and Extract
+    try:
+        metrics_data = parse_trajectories(RAW_DATA_PATH, schema)
     except Exception as e:
-        logger.error(f"Failed to parse trajectories: {e}")
-        raise
+        logger.critical(f"Failed to parse trajectories: {e}")
+        sys.exit(1)
+
+    if not metrics_data:
+        logger.warning("No valid metrics extracted. Outputting empty CSV.")
+
+    # 4. Save to CSV
+    df = pd.DataFrame(metrics_data)
+    
+    # Ensure column order as specified
+    expected_cols = ["trajectory_id", "turn", "health_ratio", "enemy_threat", "deck_size", "move_entropy", "layer_name"]
+    if not df.empty:
+        # Reindex to ensure order, filling missing with NaN if any (though logic should produce all)
+        df = df.reindex(columns=expected_cols)
+    
+    df.to_csv(OUTPUT_PATH, index=False)
+    logger.info(f"Metrics saved to: {OUTPUT_PATH}")
+    logger.info(f"Total rows written: {len(df)}")
+
+    # Compute checksum of output for verification
+    checksum = compute_file_checksum(OUTPUT_PATH)
+    logger.info(f"Output checksum: {checksum}")
 
 if __name__ == "__main__":
     main()

@@ -1,40 +1,24 @@
-# Project Configuration
 seed: 42
 split_ratio: [0.8, 0.1, 0.1]
-split_type: stratified
+split_type: "stratified"
 timeout_hours: 5.0
-
-# Model Hyperparameters
-baseline:
-  hidden_layers: [64, 64]
-  dropout_rate: 0.0
-  lr: 0.001
-  batch_size: 256
-  epochs: 100
-
-deep_ensemble:
-  n_models: 5
-  hidden_layers: [64, 64]
-  lr: 0.001
-  batch_size: 256
-  epochs: 100
-
-mc_dropout:
+screening_recall_target: 0.95
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  download_url: "https://huggingface.co/datasets/materials-toolkits/oqmd"
+model:
+  hidden_dims: [64, 32]
   dropout_rate: 0.2
-  n_stochastic_passes: 30
-  hidden_layers: [64, 64]
+training:
+  epochs: 100
   lr: 0.001
-  batch_size: 256
-  epochs: 100
-
-sparse_gp:
-  n_inducing_points: 50
-  kernel: RBF
-  lr: 0.01
-  epochs: 100
-
-# Evaluation
-confidence_intervals:
-  - 0.5
-  - 0.9
-ece_bins: 15
+  batch_size: 64
+uq:
+  mc_dropout_passes: 30
+  mc_dropout_dropout_rate: 0.2
+  ensemble_size: 5
+  gp_inducing_points: 500
+paths:
+  results_dir: "results"
+  logs_dir: "logs"

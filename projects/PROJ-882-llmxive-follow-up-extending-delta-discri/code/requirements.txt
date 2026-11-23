@@ -1,0 +1,11 @@
+torch
+transformers
+datasets
+scikit-learn
+pandas
+numpy
+spacy
+sentence-transformers
+pytest
+jsonschema
+pyyaml

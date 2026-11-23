@@ -1,0 +1,32 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+include = ["src/**/*.py", "scripts/**/*.py", "tests/**/*.py"]
+exclude = ["venv", ".venv", "data", "artifacts"]
+
+[tool.ruff.lint]
+# E9: syntax/runtime-breaking errors; F: pyflakes (undefined names etc.)
+select = ["E9", "F"]
+# F401/F811/F841 are common in research scripts with intentional
+# re-exports and exploratory bindings; keep the config pragmatic.
+ignore = ["F401", "F811", "F841"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | data
+  | artifacts
+)/
+'''

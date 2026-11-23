@@ -53,5 +53,15 @@
     "main.tex",
     "mellum_logo.pdf",
     "references.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "3e4dc3a04dfeb16597cfb7e95ad0a03bb0dced08f3f8596bc447aa21fb542ccb",
+      "bytes": 1718667
+    },
+    "original.pdf": {
+      "sha256": "b19e68fdef592cf39ea4634899c956bfceaf5b02e06299aee192aae0116b352f",
+      "bytes": 1683454
+    }
+  }
 }

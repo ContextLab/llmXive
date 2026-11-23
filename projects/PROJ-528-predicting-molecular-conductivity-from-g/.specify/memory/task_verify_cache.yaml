@@ -1,0 +1,60 @@
+T001:
+  c: true
+  h: 2b1ddbc805ecd2e99c4dedbe0bafed1460698306f27e8676e9171f3ef36eded8
+  r: 'The required artifacts exist and meet the specifications: `code/requirements.txt`
+    contains exact version pins, `code/validators.py` implements the requested schema
+    validation, and `code/split.py` implements scaffold-based partitioning. Execution
+    logs confirm that the validators successfully verified the contracts in `specs/001-predicting-molecular-conductivity-from-g/contracts/`
+    and that unit tests for the scaffold splitting logic passed.'
+  sig: eb7b12798ed01b7d9a6246ff456affd6ece38acf1e8c0e1bb18d4365c2577c1a
+T010:
+  c: false
+  h: bb662c28f28f9ee3e5e448948eb5a211594f5ca1f0b17ce93eae59b26a9156e6
+  r: The unit test suite is not fully passing, and there is no evidence of the required
+    coverage ($\ge 90\%$). Specifically, `tests/unit/test_statistics.py` failed with
+    an exit code of 1 (despite a confusing `assert True is True` error message in
+    the log).
+  sig: fd2fb6abd194930b3ff7719f2a34a37edaf21cb0daf7b60fc5393309f7a63940
+T011:
+  c: true
+  h: 490d63901a9e6c003cf80673d508b918173ef6997cf75ab26c3755768c8742c4
+  r: The script `code/preprocessing.py` implements the required dynamic-range check
+    (aborts with exit 1 and a clear error if `range_log10 < 3.0`, otherwise writes
+    JSON with `min`, `max`, `range_log10`), and `data/processed/target_dynamic_range.json`
+    exists with consistent values (1e-05 to 0.1, range_log10 = 4.0, which is arithmetically
+    correct). The one failing unit test fails due to a bug in the test itself (mismatched
+    array lengths in the test's DataFrame construction), not in the preprocessing
+    implementation, whose abort logic is correctly coded.
+  sig: 5195fea5ad9e1a87255d5658fb37d908c2f5afc809b9cb7bebff579bbb06f5b0
+T012:
+  c: false
+  h: b863f031fd4f30e6d6b077614ee154c7192ae07cb32ba8c89fcce89ca9f612d0
+  r: "The unit tests for this task's exclusion logic fail (2 failed, 4 passed): `test_invalid_descriptors_counted`\
+    \ expects 2 invalid-descriptor exclusions but got 1, and `test_clean_rows_are_valid`\
+    \ shows `filtered_train` retains a row with invalid descriptors (2 rows instead\
+    \ of 1), so the core requirement \u2014 excluding molecules with invalid descriptors\
+    \ \u2014 is demonstrably broken. Additionally, the actual `exclusion_log.json`\
+    \ reflects a 2-row input with `descriptor_columns_checked: []`, meaning no real\
+    \ descriptor dataset was processed and the \"resulting training CSV contains only\
+    \ valid rows\" claim is un"
+  sig: 39d0833f98059fa47ac3e4c361b7d6ef1e00bdb1e0bbc04a8fea57e9ee213f6c
+T013:
+  c: false
+  h: ebc034931f12f31de743a5db05946bc34e0b50d9ea1293abf3a3a84dce6a159f
+  r: "The unit test run for T013 failed (3 failures: conjugation path length wrong\
+    \ for benzene and butadiene, and only 7 numeric descriptor columns vs the required\
+    \ \u226510), and `data/processed/descriptors.csv` contains just 2 trivial molecules\
+    \ (\"C\" and \"CC\") from a 2-row `data/raw/input.csv` \u2014 not a real PubChem/HMaterials\
+    \ dataset, and it lacks the \"full RDKit descriptor set\" the task requires. The\
+    \ quantum proxy report is consistent with that tiny input, but the core deliverables\
+    \ (real data loading, \u226510 numeric descriptors per molecule, passing validation)\
+    \ are not met."
+  sig: 9d427ed82da54fe14eef06388b355f7fff55e773af1314c9bc8959cc2e25df72
+T014:
+  c: true
+  h: 1bda64be4fdcd0ee9187dff050c3c05686a819e2adc372efc24ee5c759338be0
+  r: The implementer provided `code/target_proxy.py` which contains the detection
+    logic and report generation, and the resulting `data/processed/quantum_proxy_report.json`
+    contains the required `"homo_lumo_present"` and `"fallback_used"` fields. Unit
+    tests for the detection and reporting logic passed successfully.
+  sig: 1b6ec6a356bfda3851b745bbe390b9824676b684596baa0a12a3f2de0d07fd3d

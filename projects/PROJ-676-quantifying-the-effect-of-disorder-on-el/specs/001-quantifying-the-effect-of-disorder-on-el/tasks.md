@@ -1,248 +1,63 @@
 # Tasks: Quantifying the Effect of Disorder on Electronic Transport in 1D Chains
 
-**Input**: Design documents from `/specs/001-quantifying-disorder-effect/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-quantifying-disorder-effect/spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/`, original idea, and reviewer feedback (Feynman: worked physical examples of localization).
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure.
-- **Note**: All paths in tasks refer to the project root `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/`.
+**Re-plan note (R2)**: This revision splits over-coarse tasks into module-scoped, independently verifiable tasks (T010–T020), inserts the Principle-VI ill-conditioned exclusion filter (T012) BEFORE all scaling analyses (T013/T014/T005), adds the SC-003 power analysis (T017), exercises L=1600 (FR-008), and removes verifications that depend on prose in other documents. All prior T### ids in scope are preserved; new ids T010–T020 are appended. No FR/SC is weakened. Plan-vs-spec contradictions (FR-003, FR-009, FR-010 wording, SC-001/SC-002/SC-003 deferrals, FR-007/FR-008 threshold reconciliation, garbled performance goal) are flagged for plan.md kickback; tasks implement the SPEC-level constraints throughout.
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a Create project directory structure: `code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `tests/`, `docs/`, `specs/` inside `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/` <!-- FAILED: unspecified -->
-- [ ] T001b Initialize `requirements.txt` in `projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/` with pinned versions for `numpy`, `scipy`, `matplotlib`, `pandas`, `h5py`, `pytest`, `joblib`
-- [ ] T003a Configure linting tools (flake8/pylint) and create `.flake8` and `.pylintrc` in project root
-- [ ] T003b Configure formatting tool (black) and create `pyproject.toml` for black settings in project root
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T004 Setup `code/config.py` with hyperparameters, random seeds, and path constants
-- [X] T005 [P] Implement `code/generate_hamiltonian.py` (FR-001) to generate 1D tight-binding matrices $L \times L$ with hopping $t=1$ and on-site $\epsilon_i \sim U(-W/2, W/2)$
-- [ ] T006a Create directory structure `data/raw/`, `data/processed/`, `data/metadata/` and `data/metadata/provenance.json` schema file
-- [X] T006b Implement `code/storage_utils.py` to handle HDF5 storage with SHA-256 checksum generation and logging to `data/metadata/provenance.json`
-- [~] T007a Create base data schemas in `specs/001-quantifying-disorder-effect/contracts/` for Hamiltonian (`hamiltonian_schema.json`), Eigenstate (`eigenstate_schema.json`), and Localization Length (`localization_length_schema.json`)
-- [~] T007b Create `disorder_realization_schema.json` in `specs/001-quantifying-disorder-effect/contracts/` for the 'Disorder Realization' entity (W, L, realization_index)
-- [~] T008 Implement error handling and logging infrastructure in `code/` to capture numerical residuals and convergence flags for *every* eigenvalue problem (Constitution Principle VI; exceeds Spec's minimal 'warning' requirement for reproducibility)
-- [X] T009 Implement `code/main.py` orchestration skeleton using `joblib` for parallel disorder realization execution (FR-011), specifically targeting a sufficient number of realizations (multiple widths × 100 samples)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Compute Localization Length via Participation Ratio (Priority: P1) 🎯 MVP
-
-**Goal**: Generate disordered 1D Hamiltonians and compute localization lengths via PR finite-size scaling to quantify disorder effects.
-
-**Independent Test**: Run on a single realization (L=400, W=1.0), compute eigenstates, extract PR for $|E|<0.1$, and verify PR decreases with increasing W.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T010 [P] [US1] Contract test for PR calculation output schema in `tests/contract/test_pr_schema.py`
-- [X] T011 [P] [US1] Integration test for finite-size scaling workflow in `tests/integration/test_pr_scaling.py`
-
-### Implementation for User Story 1
-
-- [X] T012 [P] [US1] Implement `code/analyze_pr.py` to compute Participation Ratio $PR = (\sum|\psi_i|^2)^2 / \sum|\psi_i|^4$ for eigenstates within $|E|<0.1$ (FR-002)
-- [~] T013 [US1] Implement finite-size scaling by fitting PR(L) saturation across a range of system sizes L to extract ξ. This implements the corrected methodology defined in Plan.md, section Complexity Tracking (dual-method validation requires finite-size scaling saturation, not simple proportionality), which supersedes the simplified proportionality in FR-003. Output a `dict` with keys `xi`, `uncertainty`, and `fit_params` (FR-003, Plan correction)
-- [X] T014 [US1] Implement `code/stats.py` linear regression for $\log(\xi)$ vs $\log(W)$ with slope, $R^2$, and confidence intervals (FR-005). **Depends on T013 output**
-- [~] T015 [US1] Aggregate results from T014 for *all* disorder widths, then apply Bonferroni correction for FWER across the full family of tests (FR-010, SC-005). Note: The Plan's 'pairwise' summary refers to result interpretation, but the correction scope must be global to satisfy SC-005. **Depends on T014 output**
-- [~] T015b [US1] Perform a priori power analysis to verify 100 realizations provide ≥80% power to detect slope deviation from -2 at α=0.05 (SC-003). Log results to `data/metadata/power_analysis.json`.
-- [X] T016 [US1] Add fallback mechanism in `code/analyze_pr.py` to use `scipy.sparse.linalg.eigsh` if `scipy.linalg.eigh` exceeds 6GB RAM for $L=1600$ (FR-008)
-- [ ] T017 [US1] Add logging for residual norms and convergence flags for every eigenvalue problem to `data/metadata/residuals.json` (Constitution Principle VI)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Verify with Transfer Matrix Method (Priority: P2)
-
-**Goal**: Implement Transfer Matrix Method with QR orthogonalization to independently validate PR results.
-
-**Independent Test**: Run TM on same realizations as PR, compute Lyapunov exponents, and verify $\xi_{TM} \approx \xi_{PR}$ within 10% for $L \ge 400$.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T018 [P] [US2] Contract test for TM output schema in `tests/contract/test_tm_schema.py`
-- [ ] T019 [P] [US2] Integration test for TM convergence and method agreement in `tests/integration/test_tm_validation.py`
-
-### Implementation for User Story 2
-
-- [ ] T020a [P] [US2] Research Task: Determine the iteration count for Transfer Matrix products based on convergence studies in literature. Document the chosen count and rationale in `docs/research_notes.md`.
-- [ ] T020b [US2] Implement `code/analyze_tm.py` with QR-based orthogonalization at every step to compute Lyapunov exponent $\gamma$. Stopping Criterion: Iterate until relative change in γ < 1e-4 for 3 consecutive steps OR max 2000 iterations. (FR-004, FR-009)
-- [ ] T021 [US2] Implement logarithmic accumulation in `code/analyze_tm.py` to prevent numerical underflow for large $L$ (FR-009)
-- [ ] T022 [US2] Add convergence monitoring logic to track relative change in $\gamma$ between consecutive size doublings ($L=100 \to 800$)
-
-**Checkpoint**: US2 core logic complete. Validation against US1 requires Phase 4.5.
-
----
-
-## Phase 4.5: Cross-Story Validation (Blocking)
-
-**Purpose**: Validate US2 results against US1 results. Requires both US1 and US2 to be complete.
-
-- [ ] T023 [US2] Implement `code/compare_methods.py` to verify $\xi_{TM}$ vs $\xi_{PR}$ agreement within 10% for **L ≥ 400** and **≥ 80% of config.NUM_REALIZATIONS realizations** (calculated as `int(0.8 * config.NUM_REALIZATIONS)`). Generate `data/processed/method_agreement_report.json` (US-2 Acceptance Scenario 3). **Input: data/processed/localization_lengths.json (aggregated from T014/T015)**. **Depends on: T015 (aggregated results)**
-
-**Checkpoint**: US1 and US2 validated against each other.
-
----
-
-## Phase 5: User Story 3 - Visualize Eigenstate Localization Patterns (Priority: P3)
-
-**Goal**: Visualize individual eigenstate probability densities to provide a physical picture of localization (addressing Feynman's review).
-
-**Independent Test**: Generate a single eigenstate visualization ($L=200, W=2.0, E \approx 0$), confirm exponential decay, and verify decay length matches computed $\xi$.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T024 [P] [US3] Contract test for visualization output format in `tests/contract/test_viz_schema.py`
-- [ ] T025 [P] [US3] Integration test for decay length consistency in `tests/integration/test_viz_validation.py`
-
-### Implementation for User Story 3
-
-- [ ] T026 [P] [US3] Implement `code/visualize.py` to plot $|\psi_i|^2$ vs site index for eigenstates near $E=0$ (FR-006)
-- [ ] T027 [US3] Implement log-linear fit logic in `code/visualize.py` to calculate decay length and $R^2$ from probability density (US-3 Acceptance Scenario 1)
-- [ ] T028 [US3] Add comparison visualization logic to overlay $W=0.5$ and $W=2.0$ states and verify FWHM reduction (US-3 Acceptance Scenario 3)
-- [ ] T029 [US3] **Address Feynman Review**: Implement a "worked example" generator in `code/visualize.py` that identifies the specific site index where amplitude drops by half, calculates the decay length, and writes a **human-readable summary string** (e.g., 'At site {site_idx}, amplitude drops to {value:.4f}') to `docs/physical_interpretation.md` (US-3, Feynman Review)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories and address specific reviewer concerns
-
-- [ ] T030 [P] Documentation updates: Create `docs/physical_interpretation.md` including a "Physical Interpretation" section explaining the electron's behavior without equations (Addressing Reviewer Feynman)
-- [ ] T031 Code cleanup and refactoring to ensure modular separation of PR and TM logic
-- [ ] T032 Performance optimization: Tune `joblib` parallelization to ensure 1000 realizations complete within 6 hours on 2 CPU cores. Generate `data/metadata/performance_benchmark.json` with wall-clock time and peak RAM metrics (FR-007, SC-006)
-- [ ] T033 [P] Additional unit tests for edge cases: $W=0$ (delocalized), large $L$ memory limits, and transfer matrix underflow handling
-- [ ] T034 Run `quickstart.md` validation to ensure end-to-end reproducibility
-- [ ] T035 [US3] **Address Feynman Review (Physical Picture)**: Implement a script in `code/physical_narrative.py` that iterates through a representative set of disorder widths ($W=0.1, 1.0, 10.0$) and generates a **qualitative narrative** describing the electron's "wiggling" behavior, explicitly identifying the transition from "wandering" (delocalized) to "trapped" (localized) based on the computed localization length, and writes this narrative to `docs/physical_narrative.md` (Feynman Review: "Can you sketch what happens... without the math?")
-- [ ] T036 [US3] **Address Feynman Review (Anderson's Argument)**: Implement a verification task in `code/verify_anderson_1958.py` that explicitly checks if the strong-disorder limit (simulated by W=100.0) recovers the interference-based suppression of diffusion predicted by Anderson (1958), and logs a "Pass/Fail" status with a brief textual explanation to `data/metadata/anderson_verification.json` (Feynman Review: "Does your work recover that picture?")
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Cross-Story Validation (Phase 4.5)**: Depends on completion of Phase 3 (US1) and Phase 4 (US2)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for PR calculation output schema in tests/contract/test_pr_schema.py"
-Task: "Integration test for finite-size scaling workflow in tests/integration/test_pr_scaling.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/analyze_pr.py to compute Participation Ratio"
-# Note: T013 (Scaling) depends on T012, so T013 cannot run in parallel with T012.
-# T014 (Stats) depends on T013, so it cannot run in parallel with T013.
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Run Phase 4.5: Cross-Story Validation → Verify agreement
-5. Add User Story 3 → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently (Phase 4.5 validates US1+US2)
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Crucial**: All data generation must use real random seeds logged in `provenance.json`; no synthetic/fake data allowed.
-- **Crucial**: Task T029 specifically addresses the "Feynman" review by demanding a physical, non-equation explanation of the electron's behavior.
-- **Crucial**: T013 overrides the simplified FR-003 proportionality to implement the correct finite-size scaling saturation logic as per the Plan.
-- **Crucial**: T015 applies Bonferroni correction for FWER across all widths, aligning with SC-005.
-- **Crucial**: T035 and T036 directly address the specific "physical picture" and "Anderson's 1958 argument" concerns raised by the Feynman reviewer, ensuring the project delivers a conceptual understanding beyond numerical fitting.
+## Phase 1: Setup and first end-to-end analysis
+
+**Goal**: A runnable PR-based localization analysis on a small real case, producing checkable numerical outputs.
+
+- [ ] T001 [P] Establish project layout, configuration, and data contracts. `code/config.py` defines `W_LIST` (10 widths spanning weak to strong disorder, including 0.5, 1.0, 2.0), `L_LIST = [100, 200, 400, 800, 1600]` (L=1600 included per FR-008 and the spec's large-L edge case), `NUM_REALIZATIONS` (100 per W, per SC-003/SC-006), `SEED`, `WEAK_DISORDER_CUTOFF` (1.0), `NUMERICAL_RESIDUAL_THRESHOLD` (1e-6), `MAX_TM_ITERATIONS` (justified in `research.md`). Contracts exist in `specs/001-quantifying-disorder-effect/contracts/`. A runnable command is documented in `quickstart.md`. **Verification**: config-load assertion script passes; all contract files parse as valid JSON/YAML; `L_LIST` contains 1600 and `NUM_REALIZATIONS == 100`. <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+- [ ] T002 [US1] Implement Hamiltonian generation and HDF5 storage with provenance. `code/generate_hamiltonian.py` (FR-001: L×L, t=1, ε_i ~ U(-W/2, W/2), open boundaries, pinned seeds per `disorder_realization_schema.json`). `code/storage_utils.py` writes HDF5 to `data/raw/` with SHA-256 checksums in `data/metadata/checksums.json` and provenance (`realization_index`, `seed`, `W`, `L`) in `data/metadata/provenance.json` (Principle VII). **Verification**: unit tests cover seed reproducibility (same seed → identical on-site energies), U(-W/2, W/2) bounds, and open-boundary structure (zero off-tridiagonal entries); provenance records validate against `disorder_realization_schema.json`.
+- [ ] T011 [US1] Implement the JSON-lines numerical logger. `code/logger.py` provides `NumericalLogger.log_residual` and `log_convergence`, streaming JSON lines to `data/metadata/residuals.json` and convergence traces to `data/metadata/convergence_trace.json` (Principle VI). **Verification**: unit tests confirm every logged record contains `realization_id`, `W`, `L`, `residual_norm`, and a timestamp; logger appends without corrupting prior lines.
+- [ ] T010 [US1] Implement PR analysis with exact diagonalization and sparse fallback. `code/analyze_pr.py` (FR-002: PR = (∑|ψ_i|²)²/∑|ψ_i|⁴ for eigenstates with |E| < 0.1; FR-008: `scipy.linalg.eigh` for L ≤ 800; `scipy.sparse.linalg.eigsh` targeting states near E=0 when the dense solve would exceed ~6 GB, i.e., at L=1600 — the 6 GB trigger is the conservative inner budget inside the 7 GB FR-007 cap). Residual norms for every solve are logged via T011's logger. **Verification**: unit tests cover PR of a known uniform state (PR = L), W=0 delocalization (PR extensive in L), and the eigsh fallback path at L=1600 returning states with residual norms below `NUMERICAL_RESIDUAL_THRESHOLD`. <!-- FAILED-IN-EXECUTION: code/generate_multiL_pr_dataset.py exit=1; code/visualize.py exit=2 -->
+- [ ] T003 [US1] Run a small end-to-end PR case and produce real result rows. Single realization (L=400, W=1.0): generate, diagonalize, extract PR for |E|<0.1, write `data/processed/pr_raw.json` matching `localization_length_schema.json`. **Verification**: `pytest code/tests/contract/test_pr_schema.py` passes against the written file; PR values are finite, positive, and < L.
+
+**Checkpoint**: The documented command executes end-to-end on real (seeded-simulation) inputs; numerical outputs are checkable.
+
+## Phase 2: Complete the study and validate its evidence
+
+- [ ] T004 [US1] Run the full PR parameter domain sweep. Loop over all `W_LIST` × `L_LIST` (including L=1600, exercising the FR-008 sparse fallback) × `NUM_REALIZATIONS`, joblib-parallelized (FR-011, `n_jobs=2, backend='loky'`), writing per-realization PR records and residual norms to `data/processed/pr_raw_multiL.json` and `data/metadata/residuals.json`. **Verification**: `pr_raw_multiL.json` contains exactly `len(W_LIST) × len(L_LIST) × NUM_REALIZATIONS` records, each with finite PR and a logged residual norm; the L=1600 subset used the eigsh path.
+- [ ] T012 [US1] Apply the Principle-VI ill-conditioned exclusion filter. `code/filter_ill_conditioned.py` reads `data/processed/pr_raw_multiL.json` and `data/metadata/residuals.json`, flags every realization whose residual norm exceeds `NUMERICAL_RESIDUAL_THRESHOLD`, triggers a warning logged to `data/metadata/warnings.json`, records excluded instances in `data/processed/skipped_realizations.json`, and writes the filtered dataset `data/processed/pr_filtered.json`. This filtered dataset is the sole input to ALL downstream scaling analyses (T013, T014, T005). **Verification**: every record in `pr_filtered.json` has residual norm ≤ `NUMERICAL_RESIDUAL_THRESHOLD`; `skipped_realizations.json` + `pr_filtered.json` account for all T004 records; a warning exists in `warnings.json` for each exclusion.
+- [ ] T013 [US1] Fit PR(L) saturation to extract localization lengths. `code/analyze_pr.py` (scaling module) reads the FILTERED `data/processed/pr_filtered.json` (not the raw sweep output), fits PR(L) saturation per W across L ∈ {100, 200, 400, 800, 1600} to extract ξ (FR-003 as implemented per plan methodology; spec FR-003 wording flagged for plan kickback), and writes per-W entries (`disorder_width`, `xi`, `uncertainty`, `n_realizations`) to `data/processed/xi_pr_unfiltered_w.json` for W > 0. Failed fits are logged to `data/metadata/warnings.json`. **Verification**: integration test asserts ξ decreases monotonically with W over W ∈ {0.5, 1.0, 2.0}; standard error ≤ 10% of the mean at W=1.0; every fit consumes only filtered records.
+- [ ] T014 [US1] Handle the W=0 edge case and merge scaling results. Using the filtered dataset `data/processed/pr_filtered.json`, verify W=0 PR scales extensively with L (delocalized), write `data/processed/w0_results.json` with `is_delocalized: true`, exclude W=0 from the regression, and merge W > 0 entries from T013 into `data/processed/scaling_fits.json` (entries: `disorder_width`, `xi`, `uncertainty`, `is_delocalized`). **Verification**: `scaling_fits.json` validates against the localization-length schema; W=0 entry flagged `is_delocalized` and absent from the regression input; `w0_results.json` documents extensive PR(L) scaling.
+- [ ] T005 [US1] Perform global regression and Bonferroni-corrected statistics. `code/stats.py` (FR-005) reads `data/processed/scaling_fits.json` (already filtered by T012), regresses log(ξ) vs log(W) restricted to W < `WEAK_DISORDER_CUTOFF`, and tests SC-001: fitted slope within its 95% CI of -2. Writes slope, intercept, R², p-value, 95% CI, t-statistic to `data/processed/global_regression.json` and `data/processed/t_statistic.json`. Bonferroni correction (FR-010) is applied across the full family `len(config.W_LIST)` tests per SC-005, with corrected p-value and significance flag in `data/processed/bonferroni_results.json` (keys: `slope`, `p_value`, `bonferroni_p_value`, `is_significant`). **Verification**: regression outputs contain all required keys; `bonferroni_p_value == min(p_value * len(W_LIST), 1.0)`; SC-001 outcome (slope CI vs -2) and SC-005 outcome (FWER ≤ 0.05) are recorded as booleans in the outputs. No verification depends on prose in other documents.
+- [ ] T006 [US2] Implement and run the transfer matrix method with QR orthogonalization and log-accumulation. `code/analyze_tm.py` (FR-004, FR-009) reads the same Hamiltonian realizations from `data/raw/`, builds transfer matrices with QR orthogonalization each step AND logarithmic accumulation of singular values (both mechanisms implemented: FR-009's log-accumulation is satisfied; QR orthogonalization guarantees convergence to the true Lyapunov exponent per Oseledec's theorem), computes γ over `MAX_TM_ITERATIONS` iterations, ξ_TM = 1/γ. Convergence monitoring per US-2 scenario 2 (relative change in γ between consecutive size doublings L=100→800 ≤ 5% at L=800) is written to `data/metadata/tm_convergence.json`; final lengths to `data/processed/lyapunov_exponents.json` matching the localization-length schema, including the mandatory `convergence_trace`. **Verification**: `pytest code/tests/contract/test_tm_schema.py code/tests/integration/test_tm_validation.py` pass; trace exists for every measurement; no underflow (all accumulated log-singular-values finite).
+- [ ] T007 [US1+US2] Cross-method agreement check (SC-002). Load `data/processed/scaling_fits.json` and `data/processed/lyapunov_exponents.json` (abort with a clear error if the latter is missing); compare ξ_TM vs ξ_PR per disorder width across realizations. **Acceptance** (SC-002, concrete spec thresholds): ≥ 80% of realizations with L ≥ 400 agree within 10% relative error. **Output**: `data/processed/method_agreement_report.json`. **Verification**: report exists, contains per-W agreement fractions, and states whether the ≥80%-within-10% criterion is met.
+- [ ] T008 [US3] Visualize eigenstate localization and fit decay profiles. `code/visualize.py` (FR-006) plots |ψ_i|² vs site index for eigenstates near E=0 for representative widths W ∈ {0, 0.5, 1.0, 2.0, 5.0} (W=5.0 included to address the Feynman reviewer's strong-disorder worked example; scope noted as reviewer-driven). For each: identify the localization center (half-amplitude site), perform log-linear fits of |ψ_i|² vs distance, compute decay length, R², and FWHM. Plots saved under `data/processed/visualizations/` (e.g., `eigenstate_W2.0_L200.png`); quantitative fit summaries written to `data/processed/viz_fit_summary.json`. This task does NOT consume ξ. **Verification**: `pytest code/tests/contract/test_viz_schema.py code/tests/integration/test_viz_validation.py` pass; log-linear fits achieve R² ≥ 0.95 for localized states (US-3 scenario 1); W=2.0 FWHM ≤ 60% of W=0.5 FWHM (US-3 scenario 3).
+- [ ] T018 [US3] Validate decay lengths against computed ξ (SC-004). Runs AFTER T013 (which produces `data/processed/scaling_fits.json`): load `data/processed/viz_fit_summary.json` and `data/processed/scaling_fits.json`, compare each fitted decay length to the computed ξ for the corresponding W. **Acceptance** (SC-004, US-3 scenario 2): decay lengths within 20% of ξ. **Output**: `data/processed/viz_xi_agreement.json`. **Verification**: report exists and states whether the 20% criterion is met per W.
+- [ ] T015 [US3] Write the physical-interpretation document. `docs/physical_interpretation.md` consumes `data/processed/viz_fit_summary.json` and the PNGs from T008: sections "Worked Example: W=2.0", "Strong Disorder Limit: W=5.0", "Clean Limit: W=0", "Evolution of Localization: W=0 to W=5.0", plus a plain-prose physical narrative ("At W={W}, the electron is trapped at site {site}…"). **Verification**: every number in the doc traces to `viz_fit_summary.json` or a file under `data/processed/`; no invented values.
+- [ ] T017 [US1] Perform the SC-003 statistical power analysis. `code/stats.py` (power module) computes, from `data/processed/global_regression.json` and the realized sample sizes, the power to detect a slope deviation from -2 at α=0.05 (post-hoc power via the non-centrality parameter of the slope t-test; a priori power for the planned NUM_REALIZATIONS=100 per W documented alongside). Writes `data/processed/power_analysis.json` (keys: `achieved_power`, `target_power` (0.80), `alpha` (0.05), `n_per_W`, `meets_criterion`). **Verification**: output exists with all keys; `meets_criterion` states whether ≥80% power is achieved (SC-003); if power < 80%, the limitation is recorded in the output file (per spec Assumptions) rather than silently dropped.
+- [ ] T009 [US1] Edge-case unit tests. `code/tests/unit/test_edge_cases.py` covers W=0 delocalization (extensive PR), large-L memory behavior (L=1600 sparse path), and TM underflow handling (log-accumulation yields finite values where direct products underflow). **Verification**: all unit tests pass.
+- [ ] T019 [P] Performance benchmark and FR-008 large-L verification. Record wall-clock time and peak RAM for the full run (`data/metadata/performance_benchmark.json`, FR-007/SC-006: ≤7 GB peak RAM, ≤6 h total, `n_jobs=2, backend='loky'`), and explicitly verify the L=1600 sparse-solver fallback executed successfully within the RAM budget (exercising FR-008's acceptance, per the spec's large-L edge case). **Verification**: benchmark file exists with `wall_clock_seconds`, `peak_ram_gb`, `l1600_solver` ("eigsh"), `l1600_ram_gb`; all within caps.
+- [ ] T020 [P] End-to-end validation report. Re-run the `quickstart.md` workflow from its declared inputs; produce `data/processed/validation_report.json` with pass/fail status per SC-001–SC-006, drawing each status from the corresponding `data/processed/` artifact. **Verification**: report exists, names each SC and its source artifact path, and every referenced artifact exists.
+
+## Phase 3: Reproducible results and paper handoff
+
+- [ ] T021 [US1] Write the methods/results account linked to actual outputs. A concise account in `docs/` (or `research.md` results section) describing: Hamiltonian construction, PR finite-size scaling methodology, TM validation, regression results with the fitted slope, its 95% CI, and comparison to the weak-disorder theoretical prediction (SC-001); the method-agreement outcome (SC-002); the power-analysis outcome (SC-003); and the worked localization examples. Negative findings, failed fits, skipped/ill-conditioned realizations, and power/representativeness limitations are reported honestly, referencing `data/processed/` artifacts by path. **Verification**: every number in the account traces to a file under `data/processed/` or `data/metadata/`; no invented values.
+- [ ] T022 Re-run the documented workflow from its declared inputs and document the paper-stage handoff. Execute the `quickstart.md` command sequence from a clean environment; confirm `code/tests/` pass and all required artifacts (`scaling_fits.json`, `global_regression.json`, `bonferroni_results.json`, `power_analysis.json`, `lyapunov_exponents.json`, `method_agreement_report.json`, `viz_fit_summary.json`, `viz_xi_agreement.json`, visualization PNGs, `physical_interpretation.md`) regenerate identically from pinned seeds. Record a paper-stage handoff listing: the result tables and figures to include (ξ vs W table, log-log scaling plot, method-agreement summary, eigenstate visualizations), the SC-001–SC-006 outcomes, and open limitations for the paper stage. **Verification**: regeneration reproduces checksummed outputs; handoff document exists and names each artifact path.
+
+## Dependencies and requirement coverage
+
+- **Order**: T001 → T002 → T011 → T010 → T003 → T004 → T012 → T013 → T014 → T005 → T006 → T007 → T017; T008 depends on T010 (parallel with T004–T007); T018 after T008 AND T013; T015 after T008; T009 after T010/T006; T019 after T004; T020 after T005/T007/T017/T018; T021 after T005/T007/T015/T017/T018; T022 last. The ill-conditioned filter T012 runs immediately after the T004 sweep and BEFORE every scaling analysis (T013, T014, T005), so no unfiltered record reaches any final scaling analysis (Principle VI).
+- **FR-001**: T002; **FR-002**: T010; **FR-003**: T013 (per plan methodology; spec wording flagged for kickback); **FR-004/FR-009**: T006; **FR-005/FR-010**: T005; **FR-006**: T008; **FR-007**: T019; **FR-008**: T010 (implementation), T004/T019 (L=1600 exercised); **FR-011**: T004. **SC-001/SC-005**: T005; **SC-002**: T007; **SC-003**: T017; **SC-004**: T018; **SC-006**: T019.
+- **Demonstrating commands**: `pytest code/tests/` (all suites); the `quickstart.md` pipeline invocation.
+
+## Plan-root causes flagged for kickback (not editable in this revision)
+
+- spec FR-003 (ξ = C × PR) vs plan's finite-size-scaling correction — plan.md must be reconciled with the spec (or the spec amended through governance).
+- plan.md "Bonferroni for pairwise comparisons only" vs spec FR-010/SC-005 full-family correction — plan text must be updated.
+- plan coverage matrix weakens SC-001 — must restore "fitted slope within 95% CI of -2".
+- plan defers SC-002/SC-003 thresholds despite concrete spec values (10% / ≥80% / ≥80% power at α=0.05) — must be restated.
+- FR-007 (7 GB) vs FR-008 (6 GB trigger) — plan must state the 6 GB trigger is the conservative inner budget within the 7 GB cap (as tasks now assume).
+- plan's L ∈ {100, 200, 400, 800} omits L=1600 required by FR-008/edge case — plan must include 1600 (tasks already do).
+- spec FR-009 wording (log-accumulation) vs plan's QR orthogonalization — T006 implements both; plan/spec reconciliation needed.
+- plan's garbled performance goal must state 10 widths × 100 realizations.
+- T008's W=5.0 scope is reviewer-driven (Feynman) and not traceable to an FR — noted, retained for the reviewer request.
+
+## Revision behavior
+
+All prior task identities in scope are preserved (T001–T009 keep their ids; their contents were split or narrowed, and no completed acceptance criterion was weakened). New ids T010–T022 carry the split deliverables, the Principle-VI filter (T012, ordered before all scaling analyses), the SC-003 power analysis (T017), the SC-004 validation split (T018), and the doc/benchmark/validation splits (T015, T019, T020). All tasks are unchecked pending independent verification.

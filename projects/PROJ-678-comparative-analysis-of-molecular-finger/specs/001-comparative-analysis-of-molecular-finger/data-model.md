@@ -1,107 +1,128 @@
-# Data Model Specification
+# Data Model: Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction
 
-This document defines the core data entities, their schemas, and relationships for the comparative analysis of molecular fingerprints for pesticide toxicity prediction.
+This document defines the core data entities and their schemas for the molecular
+fingerprint analysis pipeline. It is a hard gate for Phase 1 and a prerequisite
+for T011 (dataset download) and T012 (organophosphate filtering).
 
-## Entity: Compound
+## 1. Entity: Compound
 
-Represents a unique chemical compound with its molecular structure and toxicity labels.
+Represents a chemical compound from the source dataset (Tox21).
 
-| Field | Type | Description | Constraints |
-|:--- |:--- |:--- |:--- |
-| `compound_id` | str | Unique identifier (e.g., Tox21 ID) | Primary Key, Non-null |
-| `smiles` | str | Canonical SMILES string representation | Non-null, Valid chemical structure |
-| `molecular_weight` | float | Calculated molecular weight (g/mol) | Nullable |
-| `is_organophosphate` | bool | Flag indicating if compound matches the SMARTS pattern for organophosphates | Non-null (derived) |
-| `labels` | dict | Dictionary of toxicity endpoints (e.g., `{"NR-AR": 1.0, "NR-AR-LBD": 0.0}`) | Non-null, Keys correspond to dataset columns |
-
-**Schema Example (JSON):**
+**Schema:**
 ```json
 {
- "compound_id": "TOX21_100001",
- "smiles": "CC(=O)OC1=CC=CC=C1",
- "molecular_weight": 136.08,
- "is_organophosphate": false,
- "labels": {
- "NR-AR": 0.0,
- "NR-AR-LBD": 0.0,
- "NR-AhR": 1.0
- }
+  "smiles": "str",
+  "mol_id": "str",
+  "toxicity_labels": "dict"
 }
 ```
 
-## Entity: Fingerprint
+| Field | Type | Description | Constraints |
+|:---|:---|:---|:---|
+| `smiles` | str | Canonical SMILES string of the molecular structure | Non-null, RDKit-parseable |
+| `mol_id` | str | Unique identifier for the compound (e.g., DSSTox ID) | Primary Key, Non-null |
+| `toxicity_labels` | dict | Dictionary of binary toxicity endpoint labels, e.g. `{"NR-AR": 0, "SR-p53": 1}` | Values in a binary set; keys are the 12 Tox21 endpoints |
 
-Represents a vectorized representation of a compound's molecular structure used for similarity calculation and model training.
+**Source:** `data/raw/tox21_raw.csv` (via T011)
+**Derived File:** `data/processed/organophosphates_filtered.csv` (via T012)
+
+## 2. Entity: Fingerprint
+
+Represents a binary vector encoding the structural features of a compound.
+
+**Schema:**
+```json
+{
+  "type": "str (morgan/maccs)",
+  "bits": "int",
+  "vector": "list"
+}
+```
 
 | Field | Type | Description | Constraints |
-|:--- |:--- |:--- |:--- |
-| `compound_id` | str | Reference to the parent Compound | Foreign Key, Non-null |
-| `fingerprint_type` | str | Type of fingerprint (e.g., "Morgan", "MACCS") | Enum: ["Morgan", "MACCS"] |
-| `radius` | int | Radius parameter (for Morgan fingerprints) | Nullable (0 for MACCS) |
-| `n_bits` | int | Number of bits in the fingerprint vector | Non-null |
-| `vector` | np.ndarray | Binary vector representation | Shape: (n_bits,), dtype: bool or int |
-| `bit_info` | dict | Mapping of bit indices to atom indices (for interpretability) | Nullable |
+|:---|:---|:---|:---|
+| `type` | str | Fingerprint type | Enum: `morgan` or `maccs` |
+| `bits` | int | Number of bits in the fingerprint | 2048 (Morgan), 166 (MACCS) |
+| `vector` | list | The fingerprint bit vector (list of ints) | Length equals `bits`; values in {0, 1} |
 
-**Relationships:**
-- One Compound can have multiple Fingerprints (one per type).
+**Constants (from `code/constants.py`):**
+- Morgan: `radius=2` (`MORGAN_RADIUS`), `bits=2048` (`MORGAN_BITS`)
+- MACCS: `bits=166` (`MACCS_BITS`)
 
-## Entity: Model
+**Derived Files:** `data/processed/fingerprints_morgan.pkl`, `data/processed/fingerprints_maccs.pkl` (via T017)
 
-Represents a trained machine learning model (Random Forest) for a specific fold and fingerprint type.
+## 3. Entity: Model
 
-| Field | Type | Description | Constraints |
-|:--- |:--- |:--- |:--- |
-| `model_id` | str | Unique identifier (e.g., `fold-0_morgan_rf`) | Primary Key |
-| `fold_index` | int | The cross-validation fold index (0-4) | Non-null |
-| `fingerprint_type` | str | Type of fingerprint used for training | Enum: ["Morgan", "MACCS"] |
-| `n_estimators` | int | Number of trees in the Random Forest | Non-null (Default: 100) |
-| `max_depth` | int | Maximum depth of the tree | Non-null (Default: 15) |
-| `artifact_path` | str | Filesystem path to the pickled model object | Non-null |
-| `feature_importance` | np.ndarray | Gini importance of each feature (bit) | Shape: (n_bits,) |
+Represents a trained Random Forest classifier for a specific fingerprint type and endpoint.
 
-**Relationships:**
-- One Model is trained on one specific Fingerprint type.
-- One Model corresponds to one specific Fold split.
-
-## Entity: PerformanceMetric
-
-Stores the evaluation results for a specific model on a specific fold.
+**Schema:**
+```json
+{
+  "type": "str",
+  "fingerprint_type": "str",
+  "endpoint": "str",
+  "metrics": "dict"
+}
+```
 
 | Field | Type | Description | Constraints |
-|:--- |:--- |:--- |:--- |
-| `metric_id` | str | Unique identifier (e.g., `fold-0_morgan_roc_auc`) | Primary Key |
-| `model_id` | str | Reference to the trained Model | Foreign Key, Non-null |
-| `metric_name` | str | Name of the metric | Enum: ["ROC-AUC", "PR-AUC", "Balanced Accuracy"] |
-| `value` | float | The calculated metric score | Non-null, Range [0.0, 1.0] |
-| `fold_index` | int | The fold index associated with this metric | Non-null |
-| `confidence_interval` | dict | Bootstrap confidence interval (e.g., `{"lower": 0.75, "upper": 0.85}`) | Nullable |
+|:---|:---|:---|:---|
+| `type` | str | Algorithm type (e.g., `RandomForestClassifier`) | Non-null |
+| `fingerprint_type` | str | Fingerprint used for training | Enum: `morgan` or `maccs` |
+| `endpoint` | str | Toxicity endpoint the model predicts (e.g., `NR-AR`) | Non-null |
+| `metrics` | dict | Evaluation metrics for this model (e.g., `{"roc_auc": 0.82, "pr_auc": 0.41}`) | Values are floats in [0.0, 1.0] |
 
-**Relationships:**
-- One PerformanceMetric belongs to one Model.
-- One Model has multiple PerformanceMetrics (one per metric type).
+**Hyperparameters (fixed per FR-003):** `n_estimators=100`, `max_depth=15`, CPU-only.
 
-## Derived Entities / Aggregates
+**Derived File:** `data/processed/final_models.pkl` (via T020a)
 
-### SplitConfiguration
-Defines the parameters for the Greedy Maximal Dissimilarity Split.
-- `threshold`: float (Tanimoto similarity threshold, e.g., 0.85)
-- `min_test_size`: int (Minimum required test set size, e.g., 20)
-- `n_folds`: int (Number of folds, e.g., 5)
+## 4. Entity: PerformanceMetric
 
-### StatisticalTestResult
-Aggregates the results of comparative statistical tests.
-- `test_type`: str (e.g., "Paired t-test")
-- `metric`: str (e.g., "ROC-AUC")
-- `p_value`: float
-- `significant`: bool (p < 0.05)
-- `comparison`: str (e.g., "Morgan vs MACCS")
+Represents a quantitative evaluation result of a model.
+
+**Schema:**
+```json
+{
+  "name": "str",
+  "value": "float",
+  "ci": "tuple"
+}
+```
+
+| Field | Type | Description | Constraints |
+|:---|:---|:---|:---|
+| `name` | str | Metric name (e.g., `roc_auc`, `pr_auc`) | Non-null |
+| `value` | float | Calculated metric value | Range: [0.0, 1.0] |
+| `ci` | tuple | (lower, upper) confidence interval bounds, derived via bootstrap | Optional; floats |
+
+**Derived Files:**
+- `data/processed/final_test_metrics.json` (Single Split, via T020b)
+- `data/processed/kfold_scores.json` (K-Fold CV, via T019)
+- `data/processed/test_set_descriptive.json` (via T024b)
+- `data/processed/sc003_analysis.json` (Feature Importance, via T025c3)
+
+## Relationships
+
+1. **Compound 1..* Fingerprint**: Each compound generates one Morgan and one MACCS fingerprint.
+2. **Compound 1..* Model**: A compound's labels and fingerprints are used to train models.
+3. **Model 1..* PerformanceMetric**: A model is evaluated on multiple splits (K-Fold) or a single held-out test set.
+4. **PerformanceMetric *..1 Model**: Each metric record belongs to exactly one model instance.
 
 ## Data Flow
 
-1. **Ingestion**: Raw data (Tox21) -> `Compound` entities.
-2. **Filtering**: `Compound` -> Filtered `Compound` (Organophosphates only).
-3. **Feature Engineering**: Filtered `Compound` -> `Fingerprint` entities.
-4. **Splitting**: `Fingerprint` -> `SplitConfiguration` -> Train/Test indices.
-5. **Training**: Train indices + `Fingerprint` -> `Model` entities.
-6. **Evaluation**: Test indices + `Model` -> `PerformanceMetric` entities.
-7. **Analysis**: `PerformanceMetric` -> `StatisticalTestResult`.
+1. **Raw Data** -> `Compound` (T011: download)
+2. **Compound** -> filtered `Compound` set (T012: SMARTS filter)
+3. **Compound** -> `Fingerprint` (T017: Morgan + MACCS generation)
+4. **Fingerprint + Compound labels** -> `Model` (T019, T020a: Random Forest training)
+5. **Model + test data** -> `PerformanceMetric` (T019, T020b)
+6. **PerformanceMetric aggregation** -> statistical reports (T025a2, T025b, T029a3)
+
+## Notes
+
+- Toxicity labels are treated as ground-truth binary values; no measurement
+  uncertainty (standard deviation) is recalculated, per the Spec Assumptions
+  ("Instrument Precision").
+- RDKit default implementations of Morgan and MACCS fingerprints constitute the
+  standard calibration; no external calibration is applied, per the Spec
+  Assumptions ("Algorithm Calibration").
+- The study is observational and correlational; no causal claims are made.

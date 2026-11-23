@@ -1,0 +1,12 @@
+code/analysis
+code/data_ingestion
+code/scoring
+code/statistics
+code/utils
+code/visualization
+data/derived
+data/raw
+data/results
+tests/contract
+tests/integration
+tests/unit

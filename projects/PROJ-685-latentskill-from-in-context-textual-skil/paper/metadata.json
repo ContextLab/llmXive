@@ -58,5 +58,15 @@
     "sections/limitation.tex",
     "sections/further_analysis.tex",
     "sections/experiments.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "3ceca638efa5b579a0083cf17bff4963d5c7b0395c1faad24f7814bf1ce49c62",
+      "bytes": 2516215
+    },
+    "original.pdf": {
+      "sha256": "6c9d364b937a1ca1303da01e038c8b2cb7369d0bbc3d3768d74bbb597dc6e5df",
+      "bytes": 2467035
+    }
+  }
 }

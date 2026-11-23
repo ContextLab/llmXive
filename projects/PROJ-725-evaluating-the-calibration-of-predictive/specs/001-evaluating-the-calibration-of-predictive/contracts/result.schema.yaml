@@ -1,0 +1,85 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Calibration Result Schema"
+description: "Schema for the final aggregated results of the calibration evaluation."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Identifier of the dataset."
+  method:
+    type: "string"
+    enum:
+      - "QuantileRegression"
+      - "BayesianLinearRegression"
+      - "GaussianProcessRegression"
+      - "SplitConformalPrediction"
+    description: "The UQ method used."
+  nominal_coverage:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Target coverage level (e.g., 0.90)."
+  empirical_coverage:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Observed proportion of intervals covering the true target."
+  coverage_deviation:
+    type: "number"
+    description: "Difference between empirical and nominal coverage."
+  mis_calibrated:
+    type: "boolean"
+    description: "True if deviation exceeds the ±2% threshold."
+  binomial_test:
+    type: "object"
+    properties:
+      p_value:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+      null_hypothesis:
+        type: "string"
+        description: "H0: coverage == nominal (Beta-Binomial)."
+      fwer_corrected:
+        type: "boolean"
+        description: "Whether Bonferroni correction was applied."
+      dispersion_parameter:
+        type: "number"
+        minimum: 0.0
+        description: "Estimated dispersion parameter (phi) for the Beta-Binomial model."
+  interval_score:
+    type: "number"
+    description: "Mean Interval Score (lower is better)."
+  avg_interval_width:
+    type: "number"
+    minimum: 0.0
+    description: "Average width of the prediction intervals."
+  heteroscedasticity_analysis:
+    type: "object"
+    properties:
+      variance_bins:
+        type: "array"
+        items:
+          type: "string"
+          enum:
+            - "low"
+            - "medium"
+            - "high"
+      stratified_coverage:
+        type: "object"
+        additionalProperties:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+        description: "Coverage rates for each variance bin."
+required:
+  - dataset_id
+  - method
+  - nominal_coverage
+  - empirical_coverage
+  - coverage_deviation
+  - mis_calibrated
+  - binomial_test
+  - interval_score
+  - avg_interval_width
+  - heteroscedasticity_analysis

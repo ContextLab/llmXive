@@ -1,90 +1,46 @@
-# Snakefile for Statistical Evaluation of Dimensionality Reduction
-# Rule: preprocess
-# Implements T013: QC (<5% gene filter) and dynamic HVG selection
-
-import os
-import sys
-from pathlib import Path
-
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent / "code"))
-
-from config import Config
-from utils import time_wrapper
-
-# Configuration
-RAW_DIR = Config.RAW_DIR
-PROCESSED_DIR = Config.PROCESSED_DIR
-RESULTS_DIR = Config.RESULTS_DIR
-
-# Ensure directories exist
-os.makedirs(PROCESSED_DIR, exist_ok=True)
-os.makedirs(RESULTS_DIR, exist_ok=True)
-
-# Get list of accessions from config or data gap report
-# Assuming data_gap_report.json exists from T044
 import json
-try:
-    with open(Path(RESULTS_DIR) / "data_gap_report.json", 'r') as f:
-        report = json.load(f)
-        accessions = [d['accession'] for d in report.get('datasets', []) if d.get('status') == 'found']
-except FileNotFoundError:
-    # Fallback to config list if report missing (though T044 should have run)
-    accessions = Config.DATASETS
+import os
 
+# Default target for the pipeline
 rule all:
     input:
-        expand(f"{PROCESSED_DIR}/{{accession}}_processed.h5ad", accession=accessions)
+        "data/manifest.json"
 
-rule preprocess:
-    input:
-        raw = lambda wildcards: f"{RAW_DIR}/{wildcards.accession}_counts.csv", # Assuming CSV format from download
-        # In a real scenario, the extension might vary based on download.py output
-        # We assume download.py standardizes to CSV or we check for .csv/.mtx
-        # For robustness, we can use a wildcard or specific check, but Snakefile needs explicit input
-        # Let's assume download.py produces a file named {accession}_counts.csv as per T012/T013 context
-        # If download.py produces .h5ad or .mtx, we need to adjust.
-        # Given T012 says "fetch raw count matrices", and T013 says "QC", we assume a standard format.
-        # To be safe, we can check for multiple extensions in the rule or use a wildcard.
-        # However, Snakefile input must be explicit. Let's assume the download rule produces {accession}_counts.csv
-        # If the download rule produces something else, this needs adjustment.
-        # Let's assume the download rule produces a file that preprocess.py can handle.
-        # We will assume the file is named {accession}_raw_counts.csv for now.
-        # Actually, let's make the input flexible by checking for the file in the directory.
-        # But Snakefile requires explicit input.
-        # We will assume the download rule produces: {RAW_DIR}/{accession}_counts.csv
-        # If the actual file is different, the download rule must be consistent.
-        # Let's assume the download rule produces: {RAW_DIR}/{accession}_counts.csv
-        raw = lambda wildcards: f"{RAW_DIR}/{wildcards.accession}_counts.csv"
+# T006: Minimal data_gap_resolver rule that calls the resolver script
+rule data_gap_resolver:
     output:
-        processed = f"{PROCESSED_DIR}/{{accession}}_processed.h5ad",
-        log = f"{RESULTS_DIR}/preprocess_{wildcards.accession}.log"
-    params:
-        gene_threshold = 5.0,
-        max_cells = 10000
+        "data/manifest.json"
     shell:
-        """
-        python code/preprocess.py \
-            --accession {wildcards.accession} \
-            --input {input.raw} \
-            --output {PROCESSED_DIR} \
-            --gene-threshold {params.gene_threshold} \
-            --max-cells {params.max_cells} \
-            2> {output.log}
-        """
-        # Note: The log redirection in shell might be tricky with Python's logging.
-        # A better approach is to let Python write to the log file directly.
-        # But for Snakefile, we can just run the script.
-        # Let's adjust the command to ensure logs are captured.
-        # Actually, the script writes to stdout/stderr. We can redirect.
-        # However, the script also writes the plot to RESULTS_DIR.
-        # We need to ensure the script runs successfully.
+        "python code/data_gap_resolver.py"
+
+# T006: verify_data_availability rule
+# Reads the manifest and aborts the workflow if all datasets are Unavailable.
+rule verify_data_availability:
+    input:
+        "data/manifest.json"
+    output:
+        "data/.availability_verified"
+    run:
+        import json
+        import os
         
-        # Re-running with proper logging to file
-        python code/preprocess.py \
-            --accession {wildcards.accession} \
-            --input {input.raw} \
-            --output {PROCESSED_DIR} \
-            --gene-threshold {params.gene_threshold} \
-            --max-cells {params.max_cells} \
-            > {output.log} 2>&1
+        with open(input[0], 'r') as f:
+            manifest = json.load(f)
+        
+        # Condition: Abort if ALL datasets are marked "Unavailable"
+        # We check if the manifest is empty or if every entry has status == "Unavailable"
+        if not manifest or all(d.get('status') == 'Unavailable' for d in manifest):
+            # Raising an exception in a 'run' block aborts the Snakemake workflow
+            raise Exception("All datasets unavailable – aborting.")
+        
+        # If at least one is available, create the sentinel file to allow downstream rules
+        with open(output[0], 'w') as f:
+            f.write("verified")
+
+# T006: download rule
+# The verify_data_availability rule is a prerequisite for this rule.
+rule download:
+    input:
+        "data/.availability_verified"
+    shell:
+        "python code/download.py"

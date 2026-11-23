@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "TimeSeriesDataset"
-description: "Schema for input time series data (M4, UCI HAR, etc.)"
+description: "Schema for input time series data (M4, UCI Electricity, etc.)"
 type: object
 properties:
   series_id:
@@ -26,10 +26,10 @@ properties:
     properties:
       source:
         type: string
-        description: "Source dataset name (e.g., 'M4', 'UCI_HAR')"
+        description: "Source dataset name (e.g., 'M4', 'UCI_Electricity')"
       split_ratio:
         type: number
-        description: "Training split ratio (e.g., 0.8)"
+        description: "Training split ratio (e.g., 0.8"
     required:
       - source
       - split_ratio

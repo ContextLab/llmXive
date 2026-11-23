@@ -1,0 +1,19 @@
+# Project Configuration for llmXive
+# Defines dataset sources and processing limits
+
+# Dataset Configuration
+# Primary: ds000224 (Resting state fMRI with Fluid Intelligence scores)
+# Fallback: ds000230 (Alternative dataset, used only if primary fails)
+datasets:
+  primary: "ds000224"
+  fallback_only: "ds000230"
+
+# Sample Limit
+# Maximum number of subjects to process per run (N=10 baseline)
+sample_limit: 10
+
+# Processing Settings
+processing:
+  motion_threshold_translation_mm: 3.0
+  motion_threshold_rotation_mm: 2.0
+  bonferroni_correction: true

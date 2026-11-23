@@ -1,5 +1,7 @@
-T001b Create `tests/` directory (`tests/__init__.py`): 1
-T001c Create `tests/unit/` directory: 1
-T001d Create `tests/contract/` directory: 1
-T001e Create `tests/integration/` directory: 1
-T001f Create `data/` directory (`data/raw/`, `data/processed/`): 1
+T001c: 2
+T001d: 2
+T001e: 2
+T001f: 1
+T001g: 2
+T002b: 2
+T003: 1

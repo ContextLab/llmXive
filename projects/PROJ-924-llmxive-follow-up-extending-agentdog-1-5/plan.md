@@ -1,91 +1,74 @@
 # Project Plan: llmXive Follow-up - Extending AgentDoG 1.5 with Zero-Shot Drift Detection
 
 ## Overview
-This project extends the AgentDoG 1.5 framework with zero-shot drift detection capabilities.
-The system will analyze LLM interaction logs to detect novel attack patterns by measuring
-semantic distance from known benign taxonomy centroids.
+This project extends the AgentDoG 1.5 framework to include zero-shot drift detection capabilities.
+The system will compute drift scores for incoming logs by comparing them against a pre-built
+taxonomy of known safety patterns using cosine distance metrics.
 
-## Objectives
-1. Implement zero-shot drift scoring using cosine distance to taxonomy centroids
-2. Create human-in-the-loop validation pipeline for stratified log analysis
-3. Compare drift-based detection against zero-shot LLM classifier baselines
-4. Ensure all processing respects memory constraints (<7GB RAM) and reproducibility
+## Goals
+1. Implement a robust drift scoring mechanism based on cosine distance to taxonomy centroids.
+2. Enable human-in-the-loop validation for edge cases and novel attacks.
+3. Compare the drift-based detector against a standard zero-shot LLM classifier (gpt-4o-mini).
+4. Ensure the system operates within strict memory limits (<7GB RAM) and completes large benchmarks in <30 minutes.
 
-## Project Structure
+## Architecture
+- **Data Layer**: Raw data fetching (AdvBench, HF4, Taxonomy), checksum verification, and preprocessing.
+- **Core Logic**: Taxonomy centroid generation, drift score computation, batch processing with memory monitoring.
+- **Validation**: Statistical testing (Cohen's d, p-values), human annotation ingestion, inter-annotator agreement (Kappa).
+- **Comparison**: Baseline comparison with API-based LLM classifier.
+
+## Directory Structure
 ```
 projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/
 ├── code/
-│ ├── config.py # Configuration management
-│ ├── data_loader.py # Data fetching and validation
+│ ├── config.py # Configuration management (seeds, paths, batch sizes)
+│ ├── data_loader.py # Data fetching and integrity verification
+│ ├── taxonomy_builder.py # Centroid generation and memory profiling
 │ ├── drift_scoring.py # Core drift scoring logic
-│ ├── taxonomy_builder.py # Centroid generation
-│ ├── validation.py # Statistical validation
-│ ├── annotator_interface.py # Human annotation workflow
-│ ├── comparison.py # Baseline comparison
-│ ├── utils.py # Utility functions
-│ └── main.py # Orchestration script
+│ ├── annotator_interface.py # Human annotation preparation
+│ ├── validation.py # Statistical validation and Kappa calculation
+│ ├── comparison.py # Baseline LLM comparison
+│ ├── utils.py # Schema validation and file I/O helpers
+│ ├── main.py # Orchestration script
+│ └── generate_test_fixture.py # Test data generation
 ├── data/
-│ ├── raw/ # Raw downloaded data
-│ │ ├── taxonomy.json # AgentDoG taxonomy definition
-│ │ └── logs/ # Raw log data
-│ ├── processed/ # Processed output files
-│ │ ├── drift_scores.csv # Drift scores per log
-│ │ ├── merged_annotations.csv
-│ │ ├── simulated_ground_truth.csv
-│ │ └── validation_stats.json
-│ ├── test_static_logs.json # Static test fixtures
-│ └── checksums.json # Data integrity tracking
-├── tests/
-│ ├── unit/ # Unit tests
-│ │ ├── test_contracts.py
-│ │ ├── test_drift_scoring.py
-│ │ ├── test_validation.py
-│ │ └── test_comparison.py
-│ └── integration/ # Integration tests
-│ └── test_end_to_end.py
-├── contracts/
-│ ├── drift_result.schema.yaml
-│ └── safety_prompt_v1.txt
+│ ├── raw/ # Downloaded raw datasets
+│ ├── processed/ # Intermediate and final processed data
+│ ├── test/ # Test fixtures and mock data
+│ └── checksums.json # Integrity tracking for raw data
 ├── specs/
 │ └── 001-llmxive-drift-detection/
 │ ├── spec.md
-│ └── data-model.md
+│ ├── data-model.md
+│ └──...
+├── contracts/
+│ └── drift_result.schema.yaml # Output schema definition
+├── tests/
+│ ├── unit/
+│ └── integration/
 ├── docs/
 │ ├── quickstart.md
-│ └── api.md
+│ └── data-model.md
 ├── requirements.txt
-├── pyproject.toml # Tooling config (ruff, black)
-├──.ruff.toml # Linting rules
-└──.pre-commit-config.yaml # Pre-commit hooks
+├──.ruff.toml
+└── pyproject.toml
 ```
 
-## Dependencies
-- Python 3.11+
-- sentence-transformers (embeddings)
-- scikit-learn (metrics, clustering)
-- pandas, numpy (data processing)
-- datasets (Hugging Face data loading)
-- statsmodels (statistical tests)
-- jsonschema (contract validation)
-- pytest (testing)
-- ruff, black (code quality)
+## Data Sources
+- **AdvBench**: HuggingFace dataset for adversarial examples.
+- **HF4**: HuggingFace dataset for benign logs.
+- **Taxonomy**: AgentDoG 1.5 taxonomy definition (canonical source).
 
 ## Constraints
-- Memory: Max 7GB RAM during batch processing
-- Compute: CPU-first (all-MiniLM-L6-v2), GPU fallback only if necessary
-- Data: Real data only, no synthetic fallbacks
-- Reproducibility: Deterministic seeds, cached responses
+- **Memory**: Peak RAM usage must not exceed 7GB during batch processing.
+- **Time**: Large-scale benchmarks must complete within 30 minutes.
+- **Data Integrity**: All raw data must be verified against checksums.
+- **Reproducibility**: All random seeds must be configurable; no synthetic data fallbacks.
 
 ## Milestones
-1. **Foundation**: Project structure, data loading, taxonomy building
-2. **US1 MVP**: Drift scoring pipeline with statistical validation
-3. **US2**: Human-in-the-loop annotation workflow
-4. **US3**: Baseline comparison and performance metrics
-5. **Polish**: Documentation, benchmarks, CI integration
-
-## Success Criteria
-- Drift scores distinguish benign vs novel attacks (p < 0.05, Cohen's d ≥ 0.5)
-- Inter-annotator agreement (Kappa) > 0.6
-- |AUC_drift - AUC_llm| ≤ 0.10 for efficient alternative claim
-- All tests pass, code passes linting/formatting
-- Full pipeline reproducible on clean environment
+1. **Setup**: Project structure, requirements, linting configuration.
+2. **Foundational**: Data loading, taxonomy building, utility functions.
+3. **User Story 1**: Drift scoring implementation and statistical validation.
+4. **User Story 2**: Human-in-the-loop validation and annotation interface.
+5. **User Story 3**: Baseline comparison with LLM classifier.
+6. **Polish**: Documentation, performance benchmarking, and final testing.

@@ -1,0 +1,7 @@
+# Cognitive Instrument Registry
+# FR-007: Valid cognitive instruments for the study
+valid_instruments:
+  - "MMSE"
+  - "MoCA"
+description: "List of valid cognitive assessment instruments that can be used for correlation analysis"
+reference: "FR-007: Cognitive Data Validation"

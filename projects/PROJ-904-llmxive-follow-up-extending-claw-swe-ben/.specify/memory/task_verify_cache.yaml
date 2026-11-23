@@ -1,0 +1,74 @@
+T001:
+  c: false
+  h: 1bc413de8f4ac9114911a9ecdb046dee2cf3876cd9a9b5d80b071e01e761706e
+  r: "The `requirements.txt` does not list `pyyaml`, and the required sub\u2011directories\
+    \ `tests/unit` and `tests/integration` (and their `__init__.py` files) are absent,\
+    \ causing the verification script to fail the directory and init\u2011file checks.\
+    \ Adding `pyyaml` to `requirements.txt` and creating the missing test subfolders\
+    \ with `__init__.py` will satisfy the task."
+  sig: 40fe02dc253af04b0a2de2bccbebb074fa6146a54a261cc37de3cf6521d28328
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree, file list, or count of `__init__.py` files was provided, so
+    we cannot confirm that every new directory under `projects/PROJ-llmxive-follow-up-extending-claw-swe-ben/code/`
+    now contains an `__init__.py`. The required artifact (the created `__init__.py`
+    files and matching count) is missing.
+T003:
+  c: false
+  h: 5feead8fda2bde5c72d710d0264c171d69dafb1205317609a4c90e16ed1bf3f0
+  r: The required file `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/requirements.txt`
+    does not exist, so the project has not been initialized as specified. The existing
+    `code/requirements.txt` is at a different location and does not satisfy the path
+    requirement.
+T005:
+  c: false
+  h: ae8779cd785f17b42c34e78d43b46ddcb9a70b419612fe66651a3a9c506fb4c1
+  r: "The provided `logger.py` stops mid\u2011implementation (file\u2011handler code\
+    \ is truncated) and does not contain a `log_error()` function at all. Moreover,\
+    \ the required unit test `tests/unit/test_logger.py` is absent, so the verification\
+    \ command cannot run. The task\u2019s required artifacts are missing or incomplete."
+T016b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `batch_executor.py` file (or its contents) was presented for the path `projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/code/experiments/`,\
+    \ and thus there is no evidence of implemented per\u2011instance hard timeout\
+    \ or a total wall\u2011clock limit of \u226472\u202Fhours. The required artifact\
+    \ is missing."
+T017b:
+  c: false
+  h: 91066ef87c5be85a521911d3343c2bff94672bfa0fd790a96ec894b3679676ff
+  r: "The required artifact `data/intermediate/baseline_run.jsonl` is missing, so\
+    \ no annotations or fallback handling can be verified. The task\u2019s core output\
+    \ does not exist."
+T017c:
+  c: false
+  h: 0a89c117c130271ec9c4c6ae68b00bdd51c7449db7a53f3ad05ba22b480af761
+  r: "The required input file `data/intermediate/hf_run_1b.jsonl` is missing, so there\
+    \ is no evidence that `failure_classifier.py` was run or that any annotated failure\u2011\
+    mode output was produced. Without the source data and resulting annotations, the\
+    \ task is not satisfied."
+T023:
+  c: false
+  h: f4b3fcc5c4083aff517bf46d6bee7f98192e1e42c5b0a16b56e52132e5fb500f
+  r: "The repository lacks the required `data/intermediate/hf_run_1b.jsonl` file (it\
+    \ is missing) and the `execution_result.schema.yaml` needed for validation. Moreover,\
+    \ the provided `run_high_fidelity.py` does not show an implemented `run_strategy()`\
+    \ function (the file is truncated and no such function is present). These missing\
+    \ artifacts mean the task\u2019s requirements are not satisfied."
+T045:
+  c: false
+  h: b29309d3ad5410d33202a8406e49d4bcc6364f79b3f50835d7952bca4b4fa544
+  r: "The `threshold_validator.py` script is present and implements the required logic,\
+    \ but the required dataset file `data/filtered_swe_bench_v1.parquet` is missing,\
+    \ so the script cannot actually count rows or produce the expected log/exit behavior.\
+    \ Additionally, the `main()` function is truncated, leaving it unclear whether\
+    \ it exits with code\u202F0 on success. The missing parquet file (and incomplete\
+    \ entry\u2011point) must be provided/fixed for the task to be considered complete."
+T054:
+  c: false
+  h: 77210f3399e055f256c91e0710c2d407bd6bb5883f044709d70f39ec38078870
+  r: "The repository contains the `representativeness_validator.py` script, but the\
+    \ required input file `data/filtered_swe_bench_v1.parquet` is missing, so the\
+    \ script cannot be executed to produce the KS statistic, p\u2011value, or the\
+    \ warning. Consequently the verification step cannot be satisfied."

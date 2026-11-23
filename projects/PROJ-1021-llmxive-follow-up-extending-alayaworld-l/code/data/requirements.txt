@@ -1,0 +1,4 @@
+# No additional dependencies required for checksum_manager.py
+# It relies on standard library: hashlib, json, os, pathlib, typing
+# The main project dependencies are in code/requirements.txt
+pass

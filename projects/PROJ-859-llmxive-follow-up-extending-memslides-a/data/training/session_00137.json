@@ -1,0 +1,105 @@
+{
+  "trace_id": "training_42_00137",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "insert_image",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "resize_element",
+    "resize_element",
+    "apply_theme",
+    "apply_theme",
+    "insert_image"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 48.1176,
+        "y": 30.9702,
+        "width": 45.2374,
+        "height": 33.7823
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 37.7306,
+        "padding": 83.446
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 83.3683,
+        "padding": 13.281
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 13.8522,
+        "padding": 63.646
+      }
+    },
+    {
+      "step": 4,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 76.1679,
+        "height": 66.7221
+      }
+    },
+    {
+      "step": 5,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 14.8983,
+        "height": 72.7864
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 8.9315,
+        "saturation": 62.477
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 62.3589,
+        "saturation": 38.7235
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 90.0244,
+        "y": 33.8998,
+        "width": 4.582,
+        "height": 67.0444
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.368922,
+    "tool_repetition_freq": 0.555556,
+    "arg_semantic_variance": 673.774715
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 8,
+    "layout_hash": "42-137-update_layout"
+  }
+}

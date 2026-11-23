@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data/raw
+    | data/processed
+    | outputs
+)/
+'''
+
+[tool.ruff]
+# This section is redundant if .ruff.toml exists, but good for IDE fallback
+line-length = 88
+target-version = "py39"
+select = ["E", "W", "F", "I", "C", "B", "UP"]
+ignore = ["E501", "B008"]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "data/raw",
+    "data/processed",
+    "outputs",
+]

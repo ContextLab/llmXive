@@ -1,0 +1,110 @@
+T001a:
+  task: 397d1e03e49469e87bba706ce6fcefeef65a4db92502160a7645f89618495ef5
+T001b:
+  reason: "Checked the `requirements.txt` file (found non\u2011empty with package\
+    \ list) and found no `README.md` or `.gitignore` files in the project root. The\
+    \ task required empty placeholder files for all three, so the required artifacts\
+    \ are missing or incorrectly populated."
+  task: 30daf2b0d7caab7ed907cb3e46686b5c7ed74ef3e7379b1f235fcb0eaab20a0d
+T002a:
+  task: ef03607c17906af136164b0e94187f1081ef59f6515f23fe6b47e0bcc05d2f24
+T002b:
+  reason: "The project directory `projects/PROJ-037-investigating-the-correlation-between-gu/`\
+    \ does not contain a `venv` folder (no virtual\u2011environment files such as\
+    \ `bin/`, `Scripts/`, or `pyvenv.cfg`). The required virtual environment created\
+    \ by `python -m venv venv` is therefore missing."
+  task: 9448f2d4495bc2aedfa493fac0d9f0df822b68d3efb86e2c859f2195c9f753e3
+T002c:
+  reason: "Checked the presence of `requirements.txt`, but there is no evidence of\
+    \ a created `venv` directory, activation script, or any logs/output showing that\
+    \ `pip install -r requirements.txt` was run and succeeded. The task\u2019s core\
+    \ requirement\u2014installing the listed packages into a virtual environment\u2014\
+    is not demonstrated."
+  task: 7f260c5f1964a21a2da4cc1ddc50d19aad342f6f17150d94cc4f2679cc6ff893
+T003:
+  task: 54441209461b20ceb67717d3895124fa33754b7462d53d38af1918535df21b5b
+T004:
+  task: 10f99706326089316e2adfaa318ab7d1d07005a394b82e33ee93e56377b52f73
+T005:
+  task: 7ededa91d7d274be05784f952da66eb3efe3471ba12802ebf99d240a677625cf
+T005a:
+  task: 548c8a330ec10e0dd59cbc12a48361a18b739523f1734df2ef7d9371a0ce9312
+T006a:
+  task: 01de7d1e00f29454eb0da8bc5831e198fff6da236b747663e4b85234bdf28d87
+T006b:
+  task: a1eb734a9634bee4f98de0cc8d38d4d7af1e5b7ea622a165613373887d9afa62
+T007:
+  task: 55170908d250630da6f0870df486a06ddaf39619def4206f5a971125731026ec
+T008:
+  task: 5a59b81e85aa3805e5bc21aba2884de39b2bde2406d5fd60aab1610ffb3b7c14
+T009:
+  task: 9a94f9d61f46edd7d435247916c2fd22677e549fc1d42902efda4458b592a037
+T010:
+  task: 6c07f86316a209e5d77ae12dcdda5270ab07da903f8652ec3daf3898cd523358
+T011:
+  task: 9299cf8bc6060f9e84f73a8b0e7bdb47b7addade8ad5f87e0ad27b33953a7546
+T012:
+  task: 9eeb3ea217680c72ebd2e99ec4be8613383a9353b40498a95dd095a2c2f9feda
+T013:
+  task: fb836dbfca516181e9c38deca8964e8f92fcb2c7b2cae2137accd41e2584a51d
+T014:
+  task: df703fad866924731b51867aaec0d26e6ccc284cf6cf7c5bc7e8af7e5fb8da3a
+T015:
+  task: 3f9d961a2be7776beb271ad6857f97def93169e14989ce490e9f0f7881cb11cf
+T016:
+  task: 38b99ab87de7bd0a37ef36a142cea2bc2205481ee953ea5f05b7ef544955ad48
+T017:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  task: ea384c0676aed8a7e7c9ad9d429b136d06c0678c132289e660a38a10a269999b
+T018:
+  task: f5f70224c87272edc097eb56501d2cd5fad2683d5c9b9c99da0cfc3f318835ef
+T019:
+  task: 5697f85ade7d2dd8e8a1afe255da23b165c3ed1734418a0c4e6d424cdd5f7392
+T020:
+  task: 97884733c665fafb4e08f8bfec503fe1e7d126db434f6a6b1815137b4fc273bc
+T021:
+  task: ca1ef19a0c58acac154e9e53c4ca85cc34563832c92bdd8a7f904da604265aff
+T022:
+  task: 1460e7f01f02c48ad5886d172fc144e8838c85fcfb9f00339bb1aec929e5df32
+T023:
+  task: c8ad0680db80d3383762280baf09875b06e904beaf7fc1d81f88693d2fb1768d
+T024:
+  task: a8c6473bf0bc6490950a1c7e1515917d396260b244f1695524dc73a1de292d0b
+T025:
+  task: ababfab6c17b0b8ebbdbeed7c4d66d5b75b773fce5a8b26397702e1195f117cb
+T026:
+  task: 28fb5c206157421c1c12d889b3ca1292df9bb8ced4e140b133285c6c410558c8
+T027:
+  task: eca79e1607bf52f990552ce60d7764cf6af204f443fdbc2961634694fd84cc60
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: data/outputs/correlation_results.csv'
+  task: 5c48f6c7295e10812c3a272d17fc84721fb2e0ada21ce3394fd84e182df828a3
+T029:
+  task: 9f6bddcf2a3beb4fa73233a54f5d856213b0a2981854cd3af0af8db215dcdb70
+T030:
+  task: 8681a981ed107994cd8724f2743d1c61cb0cfe648e4d0de2c8b19752cc2c6b50
+T031:
+  task: 7f130a6b536b40cda0218ae2cf3cdcf65ccbe800c428dff78df8e7413a39bee7
+T032:
+  task: e6c8143ae273c32fbcca41951bcdb73d826a689de657da28e727704d727ca72b
+T033:
+  task: 93e011faaa8e74033fc2c13d6510fb7161b28b3604a2e8f8a2438349c4571017
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: data/outputs/sensitivity_report.csv'
+  task: 342f68005aebe84d6c92d2b7e07da6b75c1e2f56c088a8a4dbafe02d9fa1d37d
+T035:
+  task: 79e5e9f49e17bbc974cf8bc2988c3d42574d3ddf005c949e5310aa274c469ce0
+T043:
+  task: 01323466e984296b2045de996e5a8937e67ba45c6cdbd8a8fe5857bc94292482
+T044:
+  task: 4f01b3e4315c33340b0622921bed74dab64c5002d5b3c11215b6a256b1584417
+T045:
+  task: 83c73b1126c53c36093bf34fad5ec9719006939da8645c81925ea2ba0e766f8a
+T046:
+  task: 9e4b92fdf5b269fcdbd54e447e88839cef96ecdd8158919befaa0f9710f05942
+T047:
+  task: a2deaa0e3f92b5853bfc44677bdfd2863e58a6b83a60f782e8881b469d3176b2
+T048:
+  task: 65fbc7e243521977da6cbdd1b4ec146c2eff80377f8940cc4950748a5f8c0c3c
+T049:
+  task: b49c5b58823e4a88fdd7b80d519754abbb58dedd41fc2eb8e43e8f1d4f826227

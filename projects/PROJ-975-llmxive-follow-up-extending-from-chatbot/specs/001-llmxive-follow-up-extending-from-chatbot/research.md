@@ -1,86 +1,105 @@
-# Research: llmXive follow-up: extending "From Chatbot to Digital Colleague"
+# Research: llmXive follow-up: extending “From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent”
 
-## Executive Summary
-
-This research investigates the "tipping point" where increasing library size in a "Digital Colleague" agent leads to retrieval noise that degrades task success. We utilize a synthetic environment to control semantic overlap and ground-truth validity, allowing for causal inference regarding the interaction between library size, redundancy, and pruning interventions. The study is designed to run entirely on CPU-constrained CI infrastructure.
-
-**Methodological Correction**: To address statistical validity concerns with discrete predictors, this study replaces the originally proposed Piecewise Linear Regression with **Logistic Regression with a Quadratic Term** (and categorical factors) to model the non-linear decline in success rates.
-
-## Dataset Strategy
-
-Since this project relies on a **synthetic dataset** generated programmatically, no external URL is required. The data generation process is the source of truth.
-
-| Dataset Name | Source/Loader | Variables | Validation Status |
-|--------------|---------------|-----------|-------------------|
-| Synthetic Tasks | `code/generate_data.py` | `task_id`, `description`, `ground_truth_path` (list of skill_ids), `complexity` | Generated internally; ground-truth is deterministic and independent of retrieval (dual-seed mechanism). |
-| Synthetic Skills | `code/generate_data.py` | `skill_id`, `code_snippet`, `embedding_vector`, `semantic_group` | Generated internally; overlap controlled via cosine similarity constraints. |
-| Experiment Logs | `code/agent.py` | `run_id`, `task_id`, `library_size`, `pruning_enabled`, `execution_success`, `retrieval_precision`, `pruning_risk_count` | Logged during execution; validated against `contracts/experiment_log.schema.yaml`. |
-
-**Dataset-variable fit**: The synthetic generator explicitly constructs every variable required for the analysis (task complexity, skill overlap, ground-truth paths). There are no missing variables.
+## Objective
+Identify the library‑size “tipping point” where retrieval noise degrades the Digital Colleague agent, and evaluate whether the **Skill‑Pruning** heuristic restores performance, while controlling for semantic overlap.
 
 ## Methodology
 
-### 1. Pilot Study (New Phase)
-Before the full experiment, a **Pilot Study** with 50 tasks will be executed across all library sizes.
-- **Purpose**: Estimate variance and effect size to confirm the 500-task sample size is sufficient.
-- **Action**: If the pilot shows ceiling effects (success rate > 95%) or floor effects (< 5%), task complexity parameters (e.g., number of steps, semantic noise) will be adjusted before the full run.
-- **Outcome**: Validated parameters for the main experiment.
+### 1. Synthetic Environment Construction (FR‑001, FR‑002)
 
-### 2. Data Generation (FR-001, FR-002)
-- **Task Generation**: A set of tasks is generated. Each task is a multi-step problem requiring several deterministic actions.
-- **Skill Library**: A set of Python functions is generated. Embeddings are created using `sentence-transformers/all-MiniLM-L6-v2` (CPU).
-- **Overlap Control**:
-  - **Low**: Mean pairwise cosine similarity < 0.30.
- - **Medium**: Mean > 0.50, of pairs > 0.50.
- - **High**: Mean > 0.80, of pairs > 0.80.
-- **Ground Truth Independence**: Two distinct random seeds are used. Seed A generates the skill embeddings. Seed B assigns the ground-truth solution paths. This ensures no correlation between the retrieval space and the solution space.
+| Step | Detail |
+|------|--------|
+| **Random Seeds** | `random.seed(42)`, `np.random.seed(42)` for full reproducibility. |
+| **Skill Generation** | Auto‑generate a sizable collection of Python functions (simple arithmetic, string ops, list manipulation). Each receives a short NL description; embeddings computed with `sentence‑transformers/all-MiniLM-L6-v2` (384‑dim). Overlap levels enforced by iteratively adjusting descriptions until pairwise cosine‑similarity statistics meet the thresholds (Low < 0.30; Medium > 0.50 with ≥30 % > 0.50; High > 0.80 with ≥30 % > 0.80). |
+| **Task Generation** | Create **5,000** synthetic multi‑step tasks; each task randomly selects 3‑5 distinct skills as its **ground_truth_skills** and stores an ordered **solution_path** of function calls. |
+| **Checksums** | SHA‑256 of `tasks.json` and `skills.json` written to `data/checksums.json`. |
+| **Memory Guard** | `generate_data.py` monitors RAM; if usage would exceed 6 GB it aborts with a clear `Memory Limit Exceeded` error (fulfills SC‑005). |
 
-### 3. Agent Execution (FR-003, FR-006)
-- **Configurations**: Library sizes of, 30, 50, 100.
-- **Retrieval**: Top-k (k=5) skills retrieved via cosine similarity.
-- **Execution**: The agent attempts to execute the retrieved code snippets.
-- **Metrics Recorded**:
-  - **Execution Fidelity**: Binary (1 if retrieved code runs without error and matches expected output, 0 otherwise). **This is the primary outcome metric, distinct from retrieval precision.**
-  - **Retrieval Precision**: Jaccard similarity between retrieved set and ground-truth set. (Secondary diagnostic metric).
-  - **Retrieval Diversity**: Inverse variance of cosine similarities of top-k skills.
-  - **Latency/Token Usage**: Measured per task.
-  - **Pruning Risk Count**: Number of skills pruned that had high similarity to ground-truth skills (indicating potential harm).
+### 2. Agent Execution Loop (FR‑003, FR‑006)
 
-### 4. Safe Pruning Intervention (FR-004, US-3)
-- **Heuristic**: After a periodic interval of tasks, scan library.
-- **Logic**: Remove skill if `usage_count == 0` AND `min_cosine_similarity_to_any_other_skill < 0.70`.
-- **Risk Logging**: If a removed skill has a high cosine similarity (> 0.85) to any skill in the *ground-truth path of a recent task*, increment `pruning_risk_count`.
-- **Analysis Strategy**: Instead of treating Pruning as an independent variable, the analysis will stratify results by `pruning_risk_count` to account for the causal entanglement where noise triggers pruning of useful skills.
+**Configurations**  
+- Library sizes = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100}.  
+- Overlap levels = {low, medium, high}.  
+- Pruning = {on, off}.  
 
-### 5. Statistical Analysis (Corrected Methodology)
-- **Tipping Point Detection**: **Logistic Regression** with `execution_success` as the dependent variable.
-  - **Predictors**: `library_size` (categorical), `library_size^2` (quadratic term), `pruning_enabled` (binary), `pruning_risk_count` (continuous).
-  - **Rationale**: Piecewise Linear Regression is invalid for 4 discrete points. Logistic regression with a quadratic term captures the non-linear decline (tipping point) appropriate for discrete experimental levels.
-- **Collinearity Check**: Calculate Variance Inflation Factor (VIF) for predictors.
-- **Significance**: P-values reported for the effect of pruning and library size on Execution Fidelity.
+**Per‑Task Process** (executed independently for each configuration)  
 
-## Statistical Rigor & Assumptions
+1. **Independent Sampling** – For each configuration a fresh random seed is set and **≈125 tasks** are drawn **without replacement** from the large master pool of [deferred] tasks. This guarantees statistical independence across factorial cells (addresses methodology‑5add40b1).
+2. Retrieve top‑k = 5 skills by cosine similarity to the task description.  
+3. **Retrieval Precision** = Jaccard(`retrieved_ids`, `ground_truth_skills`).  
+4. **Retrieval Diversity** = `1 / variance(cosine_similarities_to_ground_truth)`.  
+5. **Exact‑Match Success**: `True` if the executed trace **exactly** matches `solution_path`; otherwise `False`. This binary outcome is the dependent variable for breakpoint analysis.  
+6. Record latency (ms) and estimated token usage (`len(description.split())*2 + Σ len(code.split())`).  
+7. Append a row to `metrics.csv` with the exact header required by the spec.  
 
-- **Multiple Comparisons**: If multiple statistical tests are run (e.g., for each library size), a Bonferroni correction or False Discovery Rate (FDR) control will be applied to the p-values.
-- **Power Justification**: The sample size is determined by the Pilot Study variance estimates. If the pilot indicates low variance, the sample size is sufficient for medium effect sizes. If variance is high, the complexity parameters are adjusted to increase effect size before the full run.
-- **Causal Inference**: Because the environment is synthetic and tasks are randomly assigned to library configurations, the study supports **causal claims** regarding the effect of library size and pruning *within the simulation*. Generalization to real-world chaotic environments remains **associational**.
-- **Measurement Validity**: `sentence-transformers` embeddings are used as a proxy for semantic overlap. **Execution Fidelity** is validated against the deterministic ground-truth output, not just the retrieval set.
-- **Collinearity**: "Library size" and "semantic overlap" are treated as distinct factors. If they become correlated (e.g., larger libraries naturally drift to higher overlap), the VIF diagnostic will flag this. If VIF > 5.0, the model will be adjusted or the interpretation qualified.
+**Edge‑Case Handling**  
+- **Missing Skill** → `edge_case="missing_skill"`; `success=False`.  
+- **Memory Pressure** → `generate_data.py` aborts with “Memory Limit Exceeded”.  
+- **Maximal Overlap** (`mean cosine ≥ 0.95`) → ties may occur; Jaccard will be 0 if none of the top‑5 match ground truth; `edge_case="max_overlap"` logged.  
 
-## Compute Feasibility
+### 3. Skill‑Pruning Heuristic (FR‑004)
 
-- **Memory**: The dataset (a set of tasks, 100 skills) is small. Embeddings (a set of vectors with a moderate dimensionality) are negligible. The primary memory load is the Python process and `sentence-transformers` model (~100MB). Total RAM usage expected < 2 GB.
-- **CPU**: Embedding a representative set of skills once, then executing a larger batch of tasks (or retrieving from cache) is trivial for 2 vCPU. The bottleneck is the agent execution loop, which is deterministic and fast.
-- **Time**: Estimated runtime < 2 hours for full experiment, well within the CI limit.
-- **No GPU**: `sentence-transformers` is configured to run on CPU. No CUDA dependencies.
+Implemented in `pruning.py` as `prune_fr04(library)`. After **every 10 tasks** (if pruning enabled):
 
-## Decision Log
+1. Identify **unused** skills (`usage_count == 0`).  
+2. For each unused skill compute its **minimum** cosine similarity to any other skill in the *active* library.  
+3. **Remove** the skill **if** this minimum similarity **is below** `0.70` **and** the skill does **not** appear in any task’s `ground_truth_skills`.  
+4. Update `usage_count` and `last_used` metadata accordingly.  
 
-| Decision | Rationale | Alternative Rejected |
-|----------|-----------|----------------------|
-| **Synthetic Data** | Allows precise control over overlap and ground truth, impossible with real-world data. | Real-world datasets lack ground-truth "solution paths" for multi-step code tasks. |
-| **Logistic Regression (Quadratic)** | Statistically valid for discrete predictors (10, 30, 50, 100) and models non-linear decline. | Piecewise Linear Regression is underpowered and produces artifact breakpoints on sparse data. |
-| **Execution Fidelity Metric** | Measures actual task success (code execution) independent of retrieval set. | Retrieval Precision alone is circular and confounded with the retrieval mechanism. |
-| **Safe Pruning with Risk Logging** | Acknowledges the causal entanglement of pruning and noise; allows stratified analysis. | Blind pruning treats the intervention as independent, which is methodologically unsound. |
-| **CPU-only `sentence-transformers`** | Ensures compatibility with GitHub Actions free tier. | GPU-accelerated models are unnecessary for 100-500 vectors and would violate constraints. |
-| **Pilot Study** | Ensures sample size is adequate for observed variance, avoiding ceiling/floor effects. | Fixed 500-task run without pilot risks being underpowered or uninformative. |
+*Rationale*: This removes **redundant** skills (highly similar to others) while preserving unique capabilities, directly addressing the reviewer‑identified flaw in the original FR‑004 definition.
+
+### 4. A‑Prior Power Analysis (SC‑005)
+
+Using `statsmodels.stats.proportion.proportion_effectsize` with an assumed medium effect size (Cohen’s h = 0.5) and α = 0.05, a sample of **≈125 tasks per condition** (total [deferred] observations across the full factorial design) yields an estimated power of **~0.65** to detect the expected breakpoint and pruning effects. The limitation is explicitly noted in `analysis_report.json` under `power_analysis`.
+
+### 5. Statistical Analysis (FR‑005, FR‑006, FR‑007, SC‑001 – SC‑006)
+
+| Component | Method | Details |
+|-----------|--------|---------|
+| **Predictor Set** | Raw (no orthogonalization) | Predictors: `library_size` (continuous), `overlap_level` (categorical), `pruning_enabled` (binary), plus two‑way interactions (`library_size*pruning_enabled`, `overlap_level*pruning_enabled`). VIF computed on these raw predictors (must be < 5). |
+| **Total Redundancy** | Measured | For each run, compute the **observed** mean pairwise cosine similarity among the active library’s embeddings after pruning. This metric varies with random skill generation and pruning, satisfying independence from `library_size`. |
+| **Piecewise Logistic Regression (PLR)** | `statsmodels` GLM (Binomial) + breakpoint optimization via `pwlf`. Fit a two‑segment logistic model on **binary exact‑match success** vs. `library_size` while controlling for overlap and pruning. Breakpoint `x₀` is the “tipping point”. |
+| **Bootstrap CI** | 1 000 resamples of task‑level data → 95 % CI for `x₀`. |
+| **Likelihood‑Ratio Test** | Compare PLR vs. single‑segment logistic model → p‑value for breakpoint significance (replaces invalid permutation test). |
+| **Mediation Analysis** | Test indirect effect of pruning via change in `total_redundancy` using `statsmodels` mediation utilities. Uses the **raw** predictor set; VIF already verified. |
+| **Multiple‑Comparison** | Only one family of tests (breakpoint, pruning direct, mediation); no correction required. |
+| **Post‑Hoc Power Check** | Compute achieved power on the binary outcome; if < 0.80, note limitation in `analysis_report.json`. |
+| **Runtime Profiling** | Total wall‑clock time recorded in `data/results/runtime_report.json` (Phase 6) to satisfy SC‑005. |
+
+All results are written to `data/results/analysis_report.json` with fields:
+
+- `breakpoint_estimate`, `breakpoint_ci`
+- `vif_library_size`, `vif_total_redundancy`, `vif_overlap_level`, `vif_pruning_enabled`
+- `pruning_direct_pvalue`, `pruning_direct_effect_size`
+- `pruning_mediation_pvalue`, `pruning_mediation_effect_size`
+- `likelihood_ratio_pvalue`
+- `power_analysis` (sample size, effect size, achieved power)
+- `runtime_seconds`
+- `sensitivity_analysis` (optional dense‑grid sweep results)
+
+### 6. Compute Feasibility & Data Strategy
+
+- **CPU‑First**: All embeddings computed with the CPU‑only MiniLM model; peak RAM < 2 GB; total wall‑clock < 1 h on a comparable runner.  
+- **No External Data**: Synthetic generation avoids gated datasets; everything is programmatically downloadable.  
+- **Scalability**: If memory pressure is detected, `generate_data.py` aborts cleanly rather than crashing (fulfills SC‑005).  
+
+### 7. Decision Rationale
+
+| Decision | Reason |
+|----------|--------|
+| **Synthetic data** | Guarantees deterministic ground truth; sidesteps gated data restrictions. |
+| **CPU‑only MiniLM** | Fits within free‑tier compute budget; no GPU escape needed. |
+| **Expanded library grid** | Provides finer granularity for breakpoint detection (addresses scientific_soundness‑4628d221). |
+| **Independent per‑condition sampling** | Removes correlation across factorial cells (addresses methodology‑5add40b1). |
+| **Pruning based on high similarity** | Aligns with FR‑004 and reviewer feedback; removes redundant skills. |
+| **Piecewise logistic regression** | Provides a statistically principled breakpoint for a binary outcome. |
+| **Exact‑match success only** | Ensures breakpoint reflects true execution fidelity. |
+| **Raw predictor VIF & mediation** | Guarantees collinearity diagnostics are meaningful and mediation coefficients interpretable. |
+| **Likelihood‑ratio test & bootstrap CI** | Valid inference for breakpoint without invalid permutation. |
+| **Runtime logging** | Satisfies SC‑005 by explicitly recording total compute time. |
+| **Contract validation at every stage** | Guarantees compliance with Constitution III & IV and resolves T001–T009 failures. |
+| **Import `Tuple` and other typing objects** | Fixes NameError that caused T008. |
+| **Unified logging header (`LOG_COLUMNS`)** | Guarantees `metrics.csv` conforms to `experiment_log.schema.yaml` (addresses T005). |
+
+---
+

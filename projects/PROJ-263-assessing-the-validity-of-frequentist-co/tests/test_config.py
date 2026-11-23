@@ -1,277 +1,173 @@
-import os
-import json
-import random
-import numpy as np
+"""
+Tests for configuration management module.
+"""
 import pytest
-from pathlib import Path
+import json
 import tempfile
+from pathlib import Path
 import sys
 
 # Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
 from config import (
     load_config,
+    save_config,
     get_random_seed,
+    set_random_seed,
+    initialize_random_state,
     get_data_dir,
+    get_raw_data_dir,
+    get_processed_data_dir,
+    get_figures_dir,
     get_output_dir,
     get_log_level,
     get_simulation_config,
-    save_config,
-    set_random_seed,
-    initialize_random_state,
+    get_random_generator,
+    get_np_random_generator,
     DEFAULT_CONFIG
 )
 
-@pytest.fixture
-def temp_config_file():
-    """Create a temporary config file for testing."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        temp_path = f.name
-    yield temp_path
-    # Cleanup
-    if os.path.exists(temp_path):
-        os.remove(temp_path)
 
-def test_load_config_creates_default(temp_config_file):
-    """Test that load_config creates a default config if file doesn't exist."""
-    # Remove the file if it exists
-    if os.path.exists(temp_config_file):
-        os.remove(temp_config_file)
+class TestConfigLoading:
+    """Test configuration loading and saving."""
 
-    config = load_config(temp_config_file)
+    def test_load_default_config(self, tmp_path):
+        """Test loading default config when file doesn't exist."""
+        config_path = tmp_path / "nonexistent" / "config.json"
 
-    assert "random_seed" in config
-    assert "data_dir" in config
-    assert "output_dir" in config
-    assert "simulation" in config
-    assert config["random_seed"] == DEFAULT_CONFIG["random_seed"]
+        config = load_config(config_path)
 
-def test_load_config_loads_existing(temp_config_file):
-    """Test that load_config loads an existing config."""
-    test_config = {
-        "random_seed": 12345,
-        "data_dir": "custom_data",
-        "output_dir": "custom_outputs",
-        "log_level": "DEBUG",
-        "simulation": {
-            "num_replications": 5000
+        assert config["random_seed"] == 42
+        assert config["log_level"] == "INFO"
+        assert "simulation" in config
+        assert "datasets" in config
+
+    def test_save_and_load_config(self, tmp_path):
+        """Test saving and loading a custom config."""
+        config_path = tmp_path / "config.json"
+        custom_config = {
+            "random_seed": 123,
+            "log_level": "DEBUG",
+            "simulation": {
+                "n_replications": 500
+            }
         }
-    }
 
-    with open(temp_config_file, 'w') as f:
-        json.dump(test_config, f)
+        save_config(custom_config, config_path)
+        loaded_config = load_config(config_path)
 
-    config = load_config(temp_config_file)
+        assert loaded_config["random_seed"] == 123
+        assert loaded_config["log_level"] == "DEBUG"
+        assert loaded_config["simulation"]["n_replications"] == 500
+        # Default values should be preserved
+        assert loaded_config["simulation"]["confidence_levels"] == DEFAULT_CONFIG["simulation"]["confidence_levels"]
 
-    assert config["random_seed"] == 12345
-    assert config["data_dir"] == "custom_data"
-    assert config["log_level"] == "DEBUG"
-    # Default values should be filled for missing keys
-    assert config["simulation"]["sample_sizes"] == DEFAULT_CONFIG["simulation"]["sample_sizes"]
-
-def test_save_config(temp_config_file):
-    """Test that save_config writes the config correctly."""
-    test_config = {
-        "random_seed": 99999,
-        "data_dir": "test_data",
-        "output_dir": "test_outputs",
-        "log_level": "WARNING",
-        "simulation": DEFAULT_CONFIG["simulation"].copy()
-    }
-
-    save_config(test_config, temp_config_file)
-
-    # Verify file exists
-    assert os.path.exists(temp_config_file)
-
-    # Verify content
-    with open(temp_config_file, 'r') as f:
-        loaded = json.load(f)
-
-    assert loaded["random_seed"] == 99999
-    assert loaded["data_dir"] == "test_data"
-
-def test_get_random_seed(temp_config_file):
-    """Test that get_random_seed returns the correct seed."""
-    test_config = {
-        "random_seed": 77777,
-        "data_dir": "data",
-        "output_dir": "outputs",
-        "simulation": DEFAULT_CONFIG["simulation"].copy()
-    }
-
-    with open(temp_config_file, 'w') as f:
-        json.dump(test_config, f)
-
-    config = load_config(temp_config_file)
-    seed = get_random_seed(config)
-
-    assert seed == 77777
-
-def test_get_random_seed_default():
-    """Test that get_random_seed returns default when not specified."""
-    config = {
-        "data_dir": "data",
-        "output_dir": "outputs",
-        "simulation": DEFAULT_CONFIG["simulation"].copy()
-    }
-
-    seed = get_random_seed(config)
-    assert seed == DEFAULT_CONFIG["random_seed"]
-
-def test_set_random_seed():
-    """Test that set_random_seed actually sets the seed."""
-    # Set seed to a specific value
-    set_random_seed(42)
-
-    # Generate some random numbers
-    val1 = random.random()
-    arr1 = np.random.random(5)
-
-    # Reset seed to the same value
-    set_random_seed(42)
-
-    # Generate the same random numbers
-    val2 = random.random()
-    arr2 = np.random.random(5)
-
-    # They should be identical
-    assert val1 == val2
-    np.testing.assert_array_equal(arr1, arr2)
-
-def test_initialize_random_state(temp_config_file):
-    """Test that initialize_random_state sets the seed correctly."""
-    test_config = {
-        "random_seed": 88888,
-        "data_dir": "data",
-        "output_dir": "outputs",
-        "simulation": DEFAULT_CONFIG["simulation"].copy()
-    }
-
-    with open(temp_config_file, 'w') as f:
-        json.dump(test_config, f)
-
-    config = load_config(temp_config_file)
-    seed = initialize_random_state(config)
-
-    assert seed == 88888
-
-    # Verify randomness is deterministic
-    val1 = random.random()
-    val2 = random.random()
-
-    # Re-initialize
-    initialize_random_state(config)
-
-    assert random.random() == val1
-    assert random.random() == val2
-
-def test_get_data_dir(temp_config_file):
-    """Test that get_data_dir returns the correct path."""
-    test_config = {
-        "random_seed": 42,
-        "data_dir": "my_data_dir",
-        "output_dir": "outputs",
-        "simulation": DEFAULT_CONFIG["simulation"].copy()
-    }
-
-    with open(temp_config_file, 'w') as f:
-        json.dump(test_config, f)
-
-    config = load_config(temp_config_file)
-    data_dir = get_data_dir(config)
-
-    assert data_dir == "my_data_dir"
-
-def test_get_output_dir(temp_config_file):
-    """Test that get_output_dir returns the correct path."""
-    test_config = {
-        "random_seed": 42,
-        "data_dir": "data",
-        "output_dir": "my_outputs",
-        "simulation": DEFAULT_CONFIG["simulation"].copy()
-    }
-
-    with open(temp_config_file, 'w') as f:
-        json.dump(test_config, f)
-
-    config = load_config(temp_config_file)
-    output_dir = get_output_dir(config)
-
-    assert output_dir == "my_outputs"
-
-def test_get_log_level(temp_config_file):
-    """Test that get_log_level returns the correct level."""
-    test_config = {
-        "random_seed": 42,
-        "data_dir": "data",
-        "output_dir": "outputs",
-        "log_level": "ERROR",
-        "simulation": DEFAULT_CONFIG["simulation"].copy()
-    }
-
-    with open(temp_config_file, 'w') as f:
-        json.dump(test_config, f)
-
-    config = load_config(temp_config_file)
-    log_level = get_log_level(config)
-
-    assert log_level == "ERROR"
-
-def test_get_simulation_config(temp_config_file):
-    """Test that get_simulation_config returns the correct config."""
-    test_config = {
-        "random_seed": 42,
-        "data_dir": "data",
-        "output_dir": "outputs",
-        "simulation": {
-            "num_replications": 2000,
-            "sample_sizes": [5, 15, 25],
-            "confidence_levels": [0.90, 0.95, 0.99],
-            "bootstrap_resamples": 2000
+    def test_merge_defaults_with_custom(self, tmp_path):
+        """Test that missing keys are filled with defaults."""
+        config_path = tmp_path / "config.json"
+        partial_config = {
+            "random_seed": 999
         }
-    }
 
-    with open(temp_config_file, 'w') as f:
-        json.dump(test_config, f)
+        save_config(partial_config, config_path)
+        loaded_config = load_config(config_path)
 
-    config = load_config(temp_config_file)
-    sim_config = get_simulation_config(config)
+        assert loaded_config["random_seed"] == 999
+        assert loaded_config["log_level"] == "INFO"  # Default
+        assert "simulation" in loaded_config  # Default section
 
-    assert sim_config["num_replications"] == 2000
-    assert sim_config["sample_sizes"] == [5, 15, 25]
-    assert sim_config["confidence_levels"] == [0.90, 0.95, 0.99]
 
-def test_deterministic_seed_across_modules(temp_config_file):
-    """Test that the seed management works consistently across multiple calls."""
-    test_config = {
-        "random_seed": 12345,
-        "data_dir": "data",
-        "output_dir": "outputs",
-        "simulation": DEFAULT_CONFIG["simulation"].copy()
-    }
+class TestRandomSeedManagement:
+    """Test random seed management functionality."""
 
-    with open(temp_config_file, 'w') as f:
-        json.dump(test_config, f)
+    def test_get_random_seed_default(self):
+        """Test getting default random seed."""
+        # Reset to default by initializing with default config
+        initialize_random_state(42)
+        assert get_random_seed() == 42
 
-    config = load_config(temp_config_file)
+    def test_set_random_seed(self):
+        """Test setting random seed."""
+        set_random_seed(12345)
+        assert get_random_seed() == 12345
 
-    # First run
-    initialize_random_state(config)
-    run1 = [random.random() for _ in range(5)]
-    run1_np = np.random.random(5).tolist()
+    def test_initialize_random_state(self):
+        """Test random state initialization."""
+        initialize_random_state(42)
+        rng = get_random_generator()
+        np_rng = get_np_random_generator()
 
-    # Second run with same seed
-    initialize_random_state(config)
-    run2 = [random.random() for _ in range(5)]
-    run2_np = np.random.random(5).tolist()
+        # Should produce deterministic results
+        assert rng.random() == 0.6394267984578837
+        assert np_rng.random() == 0.6394267984578837
 
-    # Third run with same seed
-    initialize_random_state(config)
-    run3 = [random.random() for _ in range(5)]
-    run3_np = np.random.random(5).tolist()
+    def test_reproducible_randomness(self):
+        """Test that same seed produces same results."""
+        initialize_random_state(42)
+        rng1 = get_random_generator()
+        val1 = rng1.random()
 
-    # All runs should be identical
-    assert run1 == run2 == run3
-    assert run1_np == run2_np == run3_np
+        initialize_random_state(42)
+        rng2 = get_random_generator()
+        val2 = rng2.random()
+
+        assert val1 == val2
+
+
+class TestDirectoryPaths:
+    """Test directory path getters."""
+
+    def test_get_data_dir(self):
+        """Test getting data directory."""
+        path = get_data_dir()
+        assert path.exists() or str(path).endswith("data")
+
+    def test_get_raw_data_dir(self):
+        """Test getting raw data directory."""
+        path = get_raw_data_dir()
+        assert "raw" in str(path)
+
+    def test_get_processed_data_dir(self):
+        """Test getting processed data directory."""
+        path = get_processed_data_dir()
+        assert "processed" in str(path)
+
+    def test_get_figures_dir(self):
+        """Test getting figures directory."""
+        path = get_figures_dir()
+        assert "figures" in str(path)
+
+    def test_get_output_dir(self):
+        """Test getting output directory."""
+        path = get_output_dir()
+        assert "outputs" in str(path)
+
+
+class TestConfigurationAccessors:
+    """Test configuration accessor functions."""
+
+    def test_get_log_level(self):
+        """Test getting log level."""
+        level = get_log_level()
+        assert level in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+    def test_get_simulation_config(self):
+        """Test getting simulation config."""
+        sim_config = get_simulation_config()
+        assert "n_replications" in sim_config
+        assert "confidence_levels" in sim_config
+        assert "sample_sizes" in sim_config
+        assert "bootstrap_resamples" in sim_config
+
+    def test_get_random_generator(self):
+        """Test getting random generator."""
+        rng = get_random_generator()
+        assert rng is not None
+        assert rng.random() is not None
+
+    def test_get_np_random_generator(self):
+        """Test getting numpy random generator."""
+        rng = get_np_random_generator()
+        assert rng is not None
+        assert rng.random() is not None

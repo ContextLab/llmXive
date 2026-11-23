@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Entanglement Features Schema"
+description: "Schema for the per-sample entanglement features and batch metadata."
+type: "object"
+required:
+  - "sample_id"
+  - "features"
+  - "batch_stats"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample."
+  features:
+    type: "object"
+    description: "Per-sample statistical features."
+    required:
+      - "variance"
+      - "entropy"
+      - "skewness"
+      - "kurtosis"
+    properties:
+      variance:
+        type: "number"
+        description: "Variance of the teacher scores."
+      entropy:
+        type: "number"
+        description: "Entropy of the teacher scores."
+      skewness:
+        type: "number"
+        description: "Skewness of the teacher scores."
+      kurtosis:
+        type: "number"
+        description: "Kurtosis of the teacher scores."
+  batch_stats:
+    type: "object"
+    description: "Batch-level statistics (shared across all samples in the batch)."
+    required:
+      - "covariance_matrix"
+      - "dominant_eigenvalue"
+    properties:
+      covariance_matrix:
+        type: "array"
+        description: "4x4 covariance matrix of teacher scores."
+        items:
+          type: "array"
+          items:
+            type: "number"
+        minItems: 4
+        maxItems: 4
+      dominant_eigenvalue:
+        type: "number"
+        description: "The largest eigenvalue of the covariance matrix."
+  fidelity_loss:
+    type: "number"
+    description: "Target variable: MAE between student and human."
+    minimum: 0
+additionalProperties: false

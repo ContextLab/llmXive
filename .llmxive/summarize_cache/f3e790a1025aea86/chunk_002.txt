@@ -1,0 +1,23 @@
+- **Version tracking** – All software versions recorded in the log; command line invocation captured.  
+
+## Computational Feasibility
+- **Memory management** – Correlations computed block‑wise (10 000 pairs per block) and streamed to gzipped TSV; peak RAM < 4 GB.  
+- **Runtime** – Empirically estimated: data download ([deferred]), normalization/filtering ([deferred]), correlation (≈ 2 h), mapping ([deferred]), evaluation ([deferred]), enrichment ([deferred]), reporting (≈ 10 min). Total < 6 h on the CI runner.
+- **CPU usage** – All steps rely on vectorized NumPy/Pandas operations and R packages that run on CPU; no GPU or heavy deep‑learning components.  
+
+## Decision/Rationale Summary
+| Decision | Rationale |
+|----------|-----------|
+| Use VST as default normalization | Provides variance‑stabilized data suitable for Pearson correlation; widely accepted in RNA‑seq pipelines. |
+| Cap gene set at 5 000 | Guarantees tractable pairwise computation on CI hardware while preserving most informative genes (high variance). |
+| Apply BH correction to correlation p‑values | Controls false discovery rate across millions of tests (FR‑045). |
+| Exclude STRING co‑expression channel from benchmark | Prevents circular validation (co‑expression used both for prediction and as evidence). |
+| Use degree‑preserving rewiring for baseline | Provides a realistic null model that respects network topology while being independent of the observed correlations (FR‑007). |
+| Include sensitivity analysis across thresholds 0.75‑0.90 and optional alternative network methods | Demonstrates robustness of findings and satisfies FR‑023; optional partial correlation / graphical lasso analyses can be added for exploratory validation. |
+| Log all actions in JSON‑Line format | Enables automated verification and reproducibility (FR‑010, FR‑034). |
+| Generate construct‑validity justification in summary reports | Cites literature (Zhang et al., Nat Commun. 2020; Lee et al., Plant Cell 2021) and includes sensitivity analysis results, fulfilling FR‑026. |
+| **Mitigate label‑noise in evaluation** | Multiple balanced negative samplings, median AUROC/AUPRC, PR‑AUC reporting, and explicit discussion of STRING incompleteness provide a conservative performance estimate. |
+
+---
+
+

@@ -1,5 +1,5 @@
 """
-Unit tests for cross-validation and model validation logic.
+Unit tests for the model validation module (T029, T030).
 """
 import pytest
 import pandas as pd
@@ -7,150 +7,167 @@ import numpy as np
 from pathlib import Path
 import tempfile
 import json
+from unittest.mock import patch, MagicMock
 
 from src.models.validate import (
+    load_model_results,
+    load_processed_data,
+    prepare_features_and_target,
     perform_kfold_cross_validation,
-    run_validation_pipeline,
-    SC003_THRESHOLD
+    calculate_cv_metrics,
+    run_validation_pipeline
 )
-from src.models.fit import prepare_features_for_modeling
 
 @pytest.fixture
 def sample_data():
-    """Create a sample dataset for testing."""
+    """Create sample data for testing."""
     np.random.seed(42)
-    n_samples = 200
+    n_samples = 100
     
-    # Create synthetic but realistic features
-    data = {
-        'eco_code': np.random.choice(['B00', 'B10', 'C00', 'D00'], n_samples),
-        'avg_move_time_white': np.random.uniform(5.0, 20.0, n_samples),
-        'avg_move_time_black': np.random.uniform(5.0, 20.0, n_samples),
-        'material_imbalance_move5': np.random.uniform(-2.0, 2.0, n_samples),
-        'elo_expected_prob': np.random.uniform(0.1, 0.9, n_samples),
-    }
-    
-    # Create a target that has some correlation with features
-    df = pd.DataFrame(data)
-    df['outcome_deviation'] = (
-        0.3 * (df['avg_move_time_white'] - 12.5) / 7.5 +
-        0.2 * (df['avg_move_time_black'] - 12.5) / 7.5 +
-        0.1 * df['material_imbalance_move5'] +
-        np.random.normal(0, 0.1, n_samples)
-    )
+    df = pd.DataFrame({
+        'material_imbalance_move10': np.random.randn(n_samples),
+        'avg_move_time_white': np.random.uniform(5, 30, n_samples),
+        'avg_move_time_black': np.random.uniform(5, 30, n_samples),
+        'white_rating': np.random.uniform(1200, 2000, n_samples),
+        'black_rating': np.random.uniform(1200, 2000, n_samples),
+        'outcome_deviation': np.random.uniform(-0.5, 0.5, n_samples)
+    })
     
     return df
 
-class TestCrossValidation:
-    def test_perform_kfold_ridge_basic(self, sample_data):
-        """Test basic Ridge cross-validation execution."""
-        result = perform_kfold_cross_validation(
-            sample_data, model_type='ridge', n_folds=3, random_state=42
-        )
-        
-        assert 'model_type' in result
-        assert result['model_type'] == 'ridge'
-        assert 'mean_r2' in result
-        assert 'std_r2' in result
-        assert 'r2_scores' in result
-        assert len(result['r2_scores']) == 3
-        assert result['sc003_passed'] is True
-        
-        # Check R2 is in reasonable range (can be negative, but usually > -1 for real data)
-        assert result['mean_r2'] > -1.0
-        assert result['mean_r2'] <= 1.0
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-    def test_perform_kfold_glm_basic(self, sample_data):
-        """Test basic GLM cross-validation execution."""
-        result = perform_kfold_cross_validation(
-            sample_data, model_type='glm', n_folds=3, random_state=42
-        )
-        
-        assert 'model_type' in result
-        assert result['model_type'] == 'glm'
-        assert 'mean_r2' in result
-        assert 'std_r2' in result
-        assert 'r2_scores' in result
-        assert len(result['r2_scores']) == 3
+def test_load_processed_data_parquet(temp_dir, sample_data):
+    """Test loading parquet file."""
+    file_path = temp_dir / "test_data.parquet"
+    sample_data.to_parquet(file_path)
+    
+    loaded_df = load_processed_data(str(file_path))
+    assert loaded_df is not None
+    assert len(loaded_df) == len(sample_data)
+    assert list(loaded_df.columns) == list(sample_data.columns)
 
-    def test_sc003_threshold_enforcement(self, sample_data):
-        """Test that SC-003 threshold is properly enforced."""
-        # Create data with high variance to potentially trigger SC-003
-        # We use a very small dataset with high noise to force instability
-        np.random.seed(123)
-        unstable_data = pd.DataFrame({
-            'eco_code': ['B00'] * 10,
-            'avg_move_time_white': np.random.uniform(5, 20, 10),
-            'avg_move_time_black': np.random.uniform(5, 20, 10),
-            'material_imbalance_move5': np.random.uniform(-2, 2, 10),
-            'elo_expected_prob': np.random.uniform(0.1, 0.9, 10),
-            'outcome_deviation': np.random.uniform(-1, 1, 10) * 10  # High noise
-        })
-        
-        # This might or might not trigger SC-003 depending on the split
-        # but the function should handle it gracefully
-        try:
-            result = perform_kfold_cross_validation(
-                unstable_data, model_type='ridge', n_folds=3, random_state=42
-            )
-            # If it doesn't raise, SC-003 was passed
-            assert result['sc003_passed'] is True
-        except RuntimeError as e:
-            assert "SC-003" in str(e)
+def test_load_processed_data_csv(temp_dir, sample_data):
+    """Test loading CSV file."""
+    file_path = temp_dir / "test_data.csv"
+    sample_data.to_csv(file_path, index=False)
+    
+    loaded_df = load_processed_data(str(file_path))
+    assert loaded_df is not None
+    assert len(loaded_df) == len(sample_data)
 
-    def test_empty_dataset_raises_error(self):
-        """Test that empty dataset raises appropriate error."""
-        empty_df = pd.DataFrame(columns=['eco_code', 'outcome_deviation'])
-        
-        with pytest.raises(ValueError):
-            perform_kfold_cross_validation(empty_df, model_type='ridge')
+def test_load_processed_data_not_found(temp_dir):
+    """Test loading non-existent file."""
+    file_path = temp_dir / "nonexistent.parquet"
+    loaded_df = load_processed_data(str(file_path))
+    assert loaded_df is None
 
-    def test_missing_target_column_raises_error(self, sample_data):
-        """Test that missing target column raises error."""
-        df = sample_data.drop(columns=['outcome_deviation'])
-        
-        with pytest.raises(ValueError):
-            perform_kfold_cross_validation(df, model_type='ridge')
+def test_prepare_features_and_target(sample_data):
+    """Test feature and target preparation."""
+    X, y = prepare_features_and_target(sample_data)
+    
+    assert isinstance(X, np.ndarray)
+    assert isinstance(y, np.ndarray)
+    assert X.ndim == 2
+    assert y.ndim == 1
+    assert len(X) == len(y)
+    assert X.shape[1] <= 5  # Number of features
 
-class TestValidationPipeline:
-    def test_run_validation_pipeline(self, sample_data):
-        """Test full validation pipeline execution."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            data_path = Path(tmpdir) / "test_games.parquet"
-            output_path = Path(tmpdir) / "test_validation.json"
-            
-            # Save sample data
-            sample_data.to_parquet(data_path)
-            
-            # Run pipeline
-            results = run_validation_pipeline(
-                data_path=str(data_path),
-                output_path=str(output_path),
-                n_folds=3
-            )
-            
-            # Check results structure
-            assert 'ridge' in results
-            assert 'glm' in results
-            
-            # Check output file was created
-            assert output_path.exists()
-            
-            # Check JSON content
-            with open(output_path, 'r') as f:
-                saved_results = json.load(f)
-            
-            assert 'ridge' in saved_results
-            assert 'glm' in saved_results
+def test_prepare_features_and_target_missing_columns(sample_data):
+    """Test feature preparation with missing columns."""
+    df = sample_data.drop(columns=['material_imbalance_move10'])
+    
+    with pytest.raises(ValueError, match="No valid feature columns"):
+        prepare_features_and_target(df)
 
-    def test_missing_data_file_raises_error(self):
-        """Test that missing data file raises error."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test.json"
-            missing_data = Path(tmpdir) / "missing.parquet"
-            
-            with pytest.raises(FileNotFoundError):
-                run_validation_pipeline(
-                    data_path=str(missing_data),
-                    output_path=str(output_path)
-                )
+def test_perform_kfold_cross_validation_ridge(sample_data):
+    """Test K-fold CV for Ridge regression."""
+    X, y = prepare_features_and_target(sample_data)
+    
+    cv_results = perform_kfold_cross_validation(X, y, model_type="Ridge", k=3)
+    
+    assert 'r2_scores' in cv_results
+    assert 'mse_scores' in cv_results
+    assert len(cv_results['r2_scores']) == 3
+    assert len(cv_results['mse_scores']) == 3
+    assert all(isinstance(score, float) for score in cv_results['r2_scores'])
+
+def test_calculate_cv_metrics_success(sample_data):
+    """Test CV metrics calculation when threshold is met."""
+    X, y = prepare_features_and_target(sample_data)
+    cv_results = perform_kfold_cross_validation(X, y, model_type="Ridge", k=5)
+    
+    metrics = calculate_cv_metrics(cv_results, model_type="Ridge")
+    
+    assert 'cv_summary' in metrics
+    assert 'validation_status' in metrics
+    assert metrics['validation_status']['passed'] is True
+    assert 'mean_r2' in metrics['cv_summary']
+    assert 'std_r2' in metrics['cv_summary']
+
+def test_calculate_cv_metrics_threshold_failure(temp_dir):
+    """Test CV metrics calculation when threshold is exceeded."""
+    # Create data with high variance
+    np.random.seed(42)
+    n_samples = 50
+    df = pd.DataFrame({
+        'material_imbalance_move10': np.random.randn(n_samples) * 10,
+        'outcome_deviation': np.random.uniform(-10, 10, n_samples)
+    })
+    
+    X, y = prepare_features_and_target(df)
+    cv_results = perform_kfold_cross_validation(X, y, model_type="Ridge", k=3)
+    
+    # Force high variance by manipulating scores
+    cv_results['r2_scores'] = [0.1, 0.9, 0.2]  # High std dev
+    
+    with pytest.raises(ValueError, match="SC-003 Validation Failed"):
+        calculate_cv_metrics(cv_results, model_type="Ridge")
+
+def test_run_validation_pipeline(temp_dir, sample_data):
+    """Test full validation pipeline."""
+    # Save test data
+    data_path = temp_dir / "test_games.parquet"
+    sample_data.to_parquet(data_path)
+    
+    results = run_validation_pipeline(
+        data_path=str(data_path),
+        k=3,
+        model_types=["Ridge"]
+    )
+    
+    assert 'Ridge' in results
+    assert 'cv_summary' in results['Ridge']
+    assert 'validation_status' in results['Ridge']
+
+def test_run_validation_pipeline_missing_data(temp_dir):
+    """Test pipeline with missing data file."""
+    with pytest.raises(FileNotFoundError):
+        run_validation_pipeline(data_path="nonexistent.parquet")
+
+def test_load_model_results_not_found(temp_dir):
+    """Test loading non-existent model results."""
+    file_path = temp_dir / "nonexistent.json"
+    results = load_model_results(str(file_path))
+    assert results is None
+
+def test_load_model_results_valid(temp_dir):
+    """Test loading valid model results."""
+    file_path = temp_dir / "test_results.json"
+    test_data = {
+        "model_type": "Ridge",
+        "coefficients": [0.1, 0.2],
+        "r_squared": 0.85
+    }
+    
+    with open(file_path, 'w') as f:
+        json.dump(test_data, f)
+    
+    results = load_model_results(str(file_path))
+    assert results is not None
+    assert results['model_type'] == "Ridge"
+    assert results['r_squared'] == 0.85

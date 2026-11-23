@@ -1,0 +1,3 @@
+# This file ensures the root directory is tracked by git if it were empty.
+# It is kept here for project consistency.
+.

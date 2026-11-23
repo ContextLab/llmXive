@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trajectory Schema"
+description: "Schema for raw CHERRL trajectory data and derived divergence signals."
+type: "object"
+properties:
+  seed_id:
+    type: "string"
+    description: "Unique identifier for the random seed."
+  bias_type:
+    type: "string"
+    enum: ["Lexical", "Format", "Tone", "Self-praise"]
+    description: "Category of bias applied."
+  timestep:
+    type: "integer"
+    description: "Integer index of the training step."
+  J_biased:
+    type: "number"
+    description: "Biased reward score."
+  J_unbiased:
+    type: "number"
+    description: "Unbiased reward score."
+  J_gold:
+    type: "number"
+    description: "Gold reward score."
+  G_t:
+    type: "number"
+    description: "Divergence gap |J_biased - J_unbiased|."
+  dG_t:
+    type: "number"
+    description: "Rate of change of G(t)."
+  z_G_t:
+    type: "number"
+    description: "Rolling z-score of G(t)."
+  hacked_label:
+    type: "boolean"
+    description: "Flag indicating if hacking is suspected."
+required:
+  - seed_id
+  - bias_type
+  - timestep
+  - J_biased
+  - J_unbiased
+  - J_gold
+  - G_t
+  - dG_t
+  - z_G_t
+  - hacked_label
+additionalProperties: false

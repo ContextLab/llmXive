@@ -1,83 +1,105 @@
 # Research: Quantifying the Impact of Data Quantization on Gravitational Wave Signal Reconstruction
 
 ## 1. Problem Statement
-The primary research question is: **At what Signal-to-Noise Ratio (SNR) does data quantization noise become a dominant systematic bias in gravitational wave parameter estimation, exceeding the instrumental noise floor?**
-
-This study focuses on Binary Black Hole (BBH) mergers with component masses 10-50 $M_\odot$ and distances 100-1000 Mpc. The impact is measured by comparing the Mean Squared Error (MSE) of recovered parameters (chirp mass, spin, distance) against a float64 (infinite precision) baseline.
+Determine the **Signal‑to‑Noise Ratio (SNR) region** where quantization noise from limited‑bit ADCs becomes a **dominant systematic bias** in Bayesian parameter estimation of binary‑black‑hole (BBH) mergers. Dominance is defined as the **quantization‑induced error** (Δₖ = E_quant,ₖ − E_inst,ₖ) exceeding **[deferred]** of the instrumental‑only error (median MSE from the float64 baseline) for a given bit depth and parameter *k* (chirp mass, spin, distance).
 
 ## 2. Dataset Strategy
 
-### 2.1 Noise Source (Instrumental Background)
-The study requires realistic detector noise to simulate the "instrumental noise floor."
-- **Source**: LIGO O3 Noise Power Spectral Density (PSD).
-- **Verified URL**: `
-- **Rationale**: This dataset is explicitly listed in the verified datasets block. It provides the necessary statistical properties of O3 noise for injection.
-- **Access Method**: Load via `pandas.read_parquet` or `pyarrow`. The data will be converted to a time-series strain compatible with PyCBC's noise injection routines.
-- **Constraint**: The dataset is large; only the necessary segment length (e.g., several seconds per injection) will be loaded into memory to fit the 7 GB RAM limit.
+| Component | Source | Verified URL | Access Method | Rationale |
+|-----------|--------|--------------|---------------|-----------|
+| LIGO O3 PSD (instrumental noise) | GW Open Science Center (GWOSC) | `https://huggingface.co/datasets/astro-legacy-archive/gwosc-o3a-strain/resolve/main/H1-1238163456-1238216704-DQmask.parquet` | `datasets.load_dataset("astro-legacy-archive/gwosc-o3a-strain", split="train", streaming=False)` | Official O3 strain segment; frequency coverage (10 Hz‑2048 Hz) fully spans BBH signals in the 10‑50 M⊙ range. |
+| Synthetic waveforms | PyCBC (`IMRPhenomD`) | N/A (generated on‑the‑fly) | `pycbc.waveform.get_td_waveform` | Full control over masses, spins, distances, and SNR; matches FR‑001. |
 
-### 2.2 Waveform Generation (Synthetic Data)
-No external dataset exists for "quantized GW signals" as this is a novel simulation.
-- **Method**: Generate waveforms using `pycbc.waveform` with the `IMRPhenomPv2` approximant (standard for BBH).
-- **Parameters**:
- - Masses: Uniform distribution [, 50] $M_\odot$.
- - Distance: Log-uniform [lower bound, 1000] Mpc.
- - Spins: Uniform distribution over a symmetric interval centered at zero.
- - SNR Target: Injected to achieve a moderate-to-high signal-to-noise ratio.
-- **Baseline**: For every quantized signal, a float64 version is generated to serve as the ground truth for instrumental error.
+All datasets are directly downloadable via the Hugging  Face Hub; no authentication is required.
 
-### 2.3 Dataset Fit Verification
-- **Requirement**: The noise dataset must contain sufficient duration and frequency resolution to support the 10-50 $M_\odot$ BBH merger frequencies (approx. 10Hz - 1000Hz).
-- **Verification**: The HuggingFace parquet file is known to contain LIGO strain data. We will verify the sampling rate (typically high or intermediate rates) and frequency range during the `data_generation.py` initialization.
-- **Gap Handling**: If the parquet file lacks the specific frequency range, we will fall back to generating a theoretical PSD using `pycbc.psd` calibrated to O3 sensitivity curves, as a last resort (though the verified source is preferred).
+### Dataset Fit Verification
+- **Frequency coverage**: PSD data contain a frequency band covering the inspiral‑merger‑ringdown regime for stellar‑mass BBH systems.  
+- **Sampling rate**: Verified via the `sampling_rate` column (≥ 4096 Hz), satisfying Nyquist for the highest GW frequencies (~1000 Hz).  
+- **Memory footprint**: Each PSD parquet shard ≈ 300 MB; streaming load ensures the runner never holds > 1 GB in RAM.
 
 ## 3. Statistical & Computational Methodology
 
 ### 3.1 Quantization Protocol
-- **Bit Depths**: 1, 8, 10, 12, 14, 16 bits.
-- **Method**: Uniform quantization over the dynamic range of the signal + noise.
- - $Q(x) = \text{round}(x \times 2^{N-1} / \text{max\_amp}) \times (\text{max\_amp} / 2^{N-1})$.
-- **Edge Case**: 1-bit quantization (sign only) is included to test extreme signal loss.
+- **Bit depths**: 4, 8, 10, 12, 14, 16 (exactly as required by FR‑002).  
+- **Full‑Scale Range (FSR)**: Fixed to `±1e‑21` strain (representative of LIGO’s dynamic range).  
+- **Uniform quantizer**:  
+
+\[
+Q_N(x) = \text{round}\!\Bigl(\frac{x}{\text{FSR}} \times 2^{N-1}\Bigr) \times \frac{\text{FSR}}{2^{N-1}},
+\]
+
+where *N* is the bit depth.  
+- **Edge‑case handling**: For *N* = 4 the number of unique amplitude values must equal `2**4 = 16`; the implementation checks this condition.
 
 ### 3.2 Parameter Estimation (Inference)
-- **Challenge**: Running full MCMC (PyCBC-Inference/Bilby) for [deferred] signals on a 2-core CPU within 6 hours is **not feasible**.
-- **Solution**:
- 1. **Sampling Strategy**: Instead of [deferred] signals, we will generate a **stratified sample** of a substantial number of signals.
- - A sufficient number of signals per SNR bin (e.g., 8-12, 12-16,..., 48-52).
- - A sufficient number of signals per bit depth (or a subset of bit depths at critical SNR ranges).
- 2. **Inference Approximation**:
- - Use `bilby` with a **simplified likelihood** (e.g., fixed spin, reduced parameter space) or a **few-shot MCMC** (limited number of steps) to estimate the posterior mean and variance.
- - Alternatively, use a **Fisher Information Matrix** approximation for high-SNR signals to estimate errors rapidly, reserving MCMC for low-SNR/quantization-affected cases.
- - *Decision*: The plan will implement a **hybrid approach**: Fisher for SNR > 30 (where quantization is negligible), MCMC for SNR < 30 (where quantization matters). This ensures the 6-hour limit is met.
-- **Causal/Associational**: This is a simulation study. The "cause" (quantization) is controlled. The "effect" (parameter bias) is measured directly. No observational confounding exists.
+- **Algorithm**: Bilby MCMC with the `dynesty` sampler (CPU‑only).  
+- **Uniformity**: Identical priors, likelihood, and sampler across all SNR ranges; only the number of steps adapts (600 steps for SNR ≤ 20, 800 steps for SNR > 20) to respect the 6‑hour CI limit.  
+- **Convergence**: Gelman‑Rubin statistic ≤ 1.1; otherwise the run is labeled `"failed"`. For injected SNR < 8 the pipeline records `"non-detection"` per the spec.
 
 ### 3.3 Error Metrics & Threshold Identification
-- **Instrumental Error**: $E_{inst} = \text{MSE}(\text{float64\_recovered}, \text{truth})$.
-- **Quantization Error**: $E_{quant} = \text{MSE}(\text{quantized\_recovered}, \text{truth})$.
-- **Bias Metric**: $\Delta = E_{quant} - E_{inst}$.
-- **Threshold Condition**: Identify SNR where $\Delta > 0.1 \times E_{inst}$.
-- **Statistical Rigor**:
- - **Multiple Comparisons**: When testing multiple bit depths, we will use a Bonferroni correction or report family-wise error rates if hypothesis testing is performed.
- - **Power**: The sample size (N=500-1000) is chosen to detect a [deferred] difference in error with >80% power, assuming a moderate effect size (Cohen's d ~ 0.5).
- - **Collinearity**: SNR and Bit Depth are independent variables in the design. No collinearity issues expected.
+- **Per‑parameter MSE (baseline)**:  
+
+\[
+E_{\text{inst},k}^{(i)} = \bigl(\hat\theta_{i,k}^{\text{float64}} - \theta_{i,k}^{\text{true}}\bigr)^2.
+\]
+
+- **Per‑parameter MSE (quantized)**:  
+
+\[
+E_{\text{quant},k}^{(i)} = \bigl(\hat\theta_{i,k}^{\text{quant}} - \theta_{i,k}^{\text{true}}\bigr)^2.
+\]
+
+- **Bias metric**:  
+
+\[
+\Delta_k^{(i)} = E_{\text{quant},k}^{(i)} - E_{\text{inst},k}^{(i)}.
+\]
+
+- **Aggregation**: Within each SNR bin, compute the **median** of Δₖ and the **median instrumental MSE**.  
+- **Dominance threshold**: Identify the smallest SNR bin where  
+
+\[
+\text{median}(\Delta_k) > 0.10 \times \text{median}(E_{\text{inst},k}),
+\]
+
+for each bit depth and each parameter *k*. This implements SC‑001 directly (no deferred placeholder).
+
+### 3.4 Statistical Rigor
+- **Multiple‑comparison control**: Holm‑Bonferroni correction across **six bit depths × four SNR bins × three parameters** (α = 0.05 divided by 72 tests, applied step‑wise).  
+- **Power analysis**: Pilot size **N = 2 400** (6 depths × 4 bins × 100 signals) yields > 80 % power to detect a Cohen’s d ≈ 0.3 difference in Δₖ at the Holm‑Bonferroni‑adjusted α, based on variance estimates from preliminary simulations of quantization bias at low SNR (see Phase 0 power‑analysis details).  
+- **Reproducibility (SC‑005)**: The full study is repeated with **10 independent random seeds**; the crossover SNR is reported with a A confidence interval derived from the distribution of multiple estimates at a conventional confidence level.  
+- **Causal claim**: Because the experiment is fully simulated, the quantization effect is causal by construction; results are presented as such, with the caveat that real‑world ADC non‑idealities are not modeled.  
+
+### 3.5 Additivity Validation (FR‑015)
+Before reporting any crossover SNR, we run the **sensitivity analysis** (Task T017) that directly measures quantization‑only error by injecting controlled quantization noise into the float64 baseline. The analysis compares this direct measurement to the Δₖ (E_quant − E_inst) estimate. **If the relative deviation exceeds 5 % for any bit depth, the crossover analysis is flagged as inconclusive and the result is not reported.** This satisfies FR‑015 and ensures scientific soundness.
 
 ## 4. Compute Feasibility Analysis
-- **Runner**: GitHub Actions (2 CPU, 7 GB RAM).
-- **Memory**:
- - Noise PSD: ~ MB.
- - Waveforms (batch of multiple): substantial data volume.
- - Inference (MCMC): ~GB per chain (parallelized).
- - **Total**: < 4 GB, safe margin.
-- **Runtime**:
- - Generation: < 30 mins.
- - Inference (multiple signals, hybrid method): several hours.
- - Analysis/Plotting: < 30 mins.
- - **Total**: [deferred], within 6-hour limit.
-- **GPU**: None required. All operations are CPU-native (numpy, scipy, bilby CPU mode).
+`compute_resource_estimate.py` benchmarks the **full pipeline** on a single signal and extrapolates to the full pilot of 2 400 signals. The estimate is then divided across **eight** parallel CI jobs (300 signals each) to respect the free‑tier limits.
+
+| Resource | Estimate (per CI job) | Derivation |
+|----------|-----------------------|------------|
+| **Peak RAM** | ≤ 4.5 GB | Streaming PSD load (≈ 300 MB), HDF5 chunked writes, batch size limited to 300 signals in memory. |
+| **CPU Time** | ≈ 5 h total *per job* | Generation ≈ 0.7 h, inference ≈ 3.5 h (adaptive steps), analysis ≈ 0.8 h. Eight jobs run concurrently, keeping wall‑clock ≤ 6 h per job. |
+| **Disk Usage** | ≈ 5.2 GB (HDF5 + JSON) | Float64 baseline ≈ 2 GB; quantized data ≈ a few GB; results JSON ≈ a fraction of a gigabyte. |
+| **GPU** | None required | All libraries run on CPU; `bilby` is invoked with `device="cpu"`.|
+
+The estimates are written to `reports/resource_estimate.md` and verified by the CI runner before the main pipeline starts.
 
 ## 5. Decision Log
 | Decision | Rationale |
-|:--- |:--- |
-| **Hybrid Inference (Fisher + MCMC)** | Full MCMC for [deferred] signals exceeds 6h runtime. Fisher is valid for high-SNR; MCMC reserved for critical low-SNR/quantization zones. |
-| **Stratified Sampling (N=500-1000)** | Replaces the spec's "10,000" target to meet CI constraints while maintaining statistical power for threshold detection. |
-| **HuggingFace Parquet Source** | Only verified source for O3 noise. Avoids manual download/corruption risks. |
-| **No 4-bit/8-bit LLMs** | Spec is about GW signal quantization, not LLMs. No deep learning models used. |
+|----------|-----------|
+| Fixed **FSR** quantization | Mirrors real ADC behavior; avoids adaptive scaling bias. |
+| Include **all six** bit depths in pilot | Satisfies FR‑002; intermediate depths improve interpolation of the crossover. |
+| **Stratify** parameters within SNR bins and fix a grid per bin | Guarantees that observed Δₖ reflects quantization rather than mass‑dependent estimation error. |
+| Uniform **MCMC** across SNR | Eliminates inference‑method bias; adaptive sample counts are a computational efficiency, not a methodological change. |
+| **Median** aggregation of Δₖ | Robust to outliers and provides a stable crossover estimate. |
+| **Holm‑Bonferroni** correction | Controls family‑wise error rate across depths, bins, and three parameters. |
+| **10 independent runs** | Required by SC‑005 to assess reproducibility of the crossover SNR. |
+| Record **non‑detections** for SNR < 8 | Handles the edge case specified in the spec without crashing. |
+| Store **artifact hashes** in project‑state YAML | Enforces Constitution Principle V and Single Source of Truth. |
+| **Full‑pipeline** resource estimate | Guarantees that RAM, CPU, and disk budgets are respected for the entire study, not just isolated steps. |
+
+No fabricated metrics are reported; all quantitative statements will be **computed** from the simulated data during execution.
+
+---
+

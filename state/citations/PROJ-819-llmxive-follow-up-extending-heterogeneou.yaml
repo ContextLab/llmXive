@@ -1,4 +1,15 @@
-- artifact_hash: 8664f72a514fbb32d50bc5e5db08c6f94b35334b8f2ae9e77b3b50e190b65687
+- artifact_hash: af7bd6eb32b62ed94fbb65d5b443861a9fe0322d2eddc5771ab41a729b056856
+  artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2604.27351'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-09T11:11:15.918908Z'
+- artifact_hash: 0da39402c27c86d3876da0c938145572481bd60742cc2dfd3abe987de9602c14
   artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -6,6 +17,28 @@
   fetched_title: '[2509.23775] NeuSO: Neural Optimizer for Subgraph Queries'
   kind: url
   value: https://arxiv.org/abs/2509.23775
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://arxiv.org/abs/2509.23775
-  verified_at: '2026-07-12T22:26:37.346628Z'
+  verified_at: '2026-10-09T11:16:28.722344Z'
+- artifact_hash: 0da39402c27c86d3876da0c938145572481bd60742cc2dfd3abe987de9602c14
+  artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://oeis.org/A000012
+  verification_status: pending
+  verified_against_url: https://oeis.org/A000012
+  verified_at: '2026-10-09T11:16:28.722344Z'
+- artifact_hash: 0da39402c27c86d3876da0c938145572481bd60742cc2dfd3abe987de9602c14
+  artifact_path: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2509.23775'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-09T11:16:28.722344Z'

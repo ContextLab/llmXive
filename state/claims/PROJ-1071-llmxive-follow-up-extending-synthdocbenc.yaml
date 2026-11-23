@@ -1,0 +1,273 @@
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Generate 200 synthetic long documents with middle-third metadata
+  claim_id: c_ed39cdce
+  context: 'T007 [P] Implement code/doc_generator.py to GENERATE exactly 200 synthetic
+    long documents with precise ''middle-third'' metadata. The task must: 1. Generate
+    a set of valid PDFs...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a set of valid PDFs and corresponding metadata files (JSON/Parquet)
+    containing page-level layout and text density info.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:08:57Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Log latency and memory usage to data/derived/perf_metrics.json
+  claim_id: c_2513287f
+  context: T010 [US1] Implement code/baseline_eval.py... Include profiling hooks to
+    log latency and memory usage to data/derived/perf_metrics.json (SC-004, SC-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_latency_and_memory_usage_to_data/derived/perf_metrics.js
+  kind: entity_fact
+  raw_text: Include profiling hooks to log latency and memory usage to data/derived/perf_metrics.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:09:25Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Calculate delta_middle_vs_others and bias_threshold_met where threshold
+    is 5 percent
+  claim_id: c_96c85495
+  context: "T011 [US1] Implement logic in code/baseline_eval.py to split questions\
+    \ into first, middle, and last thirds and compute per-third accuracy. ... It MUST\
+    \ calculate the delta_middle_vs_others metric and a boolean bias_threshold_met\
+    \ (true if delta \u2265 5%)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The code must calculate the delta_middle_vs_others metric and a boolean\
+    \ bias_threshold_met (true if delta \u2265 5%)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:09:25Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Generate baseline_metrics.json with per-model accuracy and bias metrics
+  claim_id: c_c2b2d2d1
+  context: T012 [US1] Generate data/derived/baseline_metrics.json containing per-model
+    accuracy tables, positional bias trends, the delta_middle_vs_others value, and
+    the bias_threshold_met flag.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_baseline_metrics.json_with_per-model_accuracy_and_b
+  kind: entity_fact
+  raw_text: Generate data/derived/baseline_metrics.json containing per-model accuracy
+    tables, positional bias trends, the delta_middle_vs_others value, and the bias_threshold_met
+    flag.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:09:52Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Perform OCR with Tesseract and build FAISS CPU index
+  claim_id: c_9f795de6
+  context: T014 [US2] Implement code/retrieval_index.py to perform OCR on generated
+    documents using Tesseract and build a FAISS CPU index.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_OCR_with_Tesseract_and_build_FAISS_CPU_index
+  kind: entity_fact
+  raw_text: Perform OCR on generated documents using Tesseract and build a FAISS CPU
+    index.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:10:12Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Log latency and memory usage to data/derived/perf_metrics.json for retrieval
+  claim_id: c_b73fd52f
+  context: T014 [US2] ... Include profiling hooks to log latency and memory usage
+    to data/derived/perf_metrics.json (SC-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_latency_and_memory_usage_to_data/derived/perf_metrics.js
+  kind: entity_fact
+  raw_text: Include profiling hooks to log latency and memory usage to data/derived/perf_metrics.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:10:13Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Implement token limiting at 2048 tokens and retrieval precision recall
+    calculation
+  claim_id: c_ac7f3754
+  context: "T017 [US2] Implement semantic similarity scoring, token limiting (\u2264\
+    \ 2048 tokens), and retrieval precision/recall calculation in code/retrieval_eval.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement semantic similarity scoring, token limiting (\u2264 2048 tokens),\
+    \ and retrieval precision/recall calculation"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:10:13Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Compute accuracy deltas for middle-third questions
+  claim_id: c_b0273c98
+  context: T022 [US3] Implement code/stats_analysis.py to load data/derived/baseline_metrics.json
+    and data/derived/retrieval_metrics.json and compute accuracy deltas for 'middle-third'
+    questions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_accuracy_deltas_for_middle-third_questions
+  kind: entity_fact
+  raw_text: Compute accuracy deltas for 'middle-third' questions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:10:35Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Perform statistical test for zero correlation and calculate p-value
+  claim_id: c_9f800651
+  context: 'T024 [US3] Implement Spearman rank correlation analysis in code/stats_analysis.py
+    between recovery deltas and native context window sizes. **CRITICAL**: Must perform
+    a formal statistical test against the null hypothesis of zero correlation, calculating
+    the p-value.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "which evaluates to \u03C1 = \u221229/165 = \u22120.175757575... with\
+        \ a p-value = 0.627188 (using the t-distribution)."
+      source_id: Spearman's rank correlation coefficient
+      url: https://en.wikipedia.org/wiki/Spearman's_rank_correlation_coefficient
+      value: '0.627188'
+    filled: true
+  kind: entity_fact
+  raw_text: Perform a formal statistical test against the null hypothesis of zero
+    correlation, calculating the p-value
+  resolved_value: '0.627188'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T07:10:49Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Output statistical_results.json with Spearman r, p-value, and classification
+    string
+  claim_id: c_51c07d5d
+  context: T025 [US3] ... The output artifact data/derived/statistical_results.json
+    MUST contain the raw Spearman r value, the p-value, and the classification string.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_statistical_results.json_with_Spearman_r,_p-value,_an
+  kind: entity_fact
+  raw_text: The output artifact data/derived/statistical_results.json MUST contain
+    the raw Spearman r value, the p-value, and the classification string
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:12:07Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Generate 200 synthetic long documents with precise middle-third metadata
+  claim_id: c_0c9e4026
+  context: T007 [P] Implement `code/doc_generator.py` to GENERATE exactly 200 synthetic
+    long documents with precise 'middle-third' metadata.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a set of valid PDFs and corresponding metadata files (JSON/Parquet)
+    containing page-level layout and text density info.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:13:50Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Every synthetic document has a valid middle-third region with sufficient
+    text density
+  claim_id: c_b297b7fc
+  context: T007 [P] Implement `code/doc_generator.py`... Ensure every document has
+    a valid 'middle-third' region with sufficient text density to support the bias
+    hypothesis (SC-001).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Every_synthetic_document_has_a_valid_middle-third_region_wit
+  kind: entity_fact
+  raw_text: Ensure every document has a valid 'middle-third' region with sufficient
+    text density to support the bias hypothesis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:14:34Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Calculate delta_middle_vs_others metric and bias_threshold_met flag with
+    5% threshold
+  claim_id: c_f22e0a83
+  context: "T011 [US1] Implement logic in `code/baseline_eval.py`... It must NOT enforce,\
+    \ assert, or ensure that the delta is \u2265 5%. However, it MUST calculate the\
+    \ `delta_middle_vs_others` metric and a boolean `bias_threshold_met` (true if\
+    \ delta \u2265 5%)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The code must calculate the `delta_middle_vs_others` metric and a boolean\
+    \ `bias_threshold_met` (true if delta \u2265 5%)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:14:34Z'
+- artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/specs/001-llmxive-follow-up-extending-synthdocbenc/tasks.md
+  attempts: 1
+  canonical: Implement token limiting with 2048 token maximum
+  claim_id: c_5d90668a
+  context: "T017 [US2] Implement semantic similarity scoring, token limiting (\u2264\
+    \ 2048 tokens), and retrieval precision/recall calculation in `code/retrieval_eval.py`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement semantic similarity scoring, token limiting (\u2264 2048 tokens),\
+    \ and retrieval precision/recall calculation in `code/retrieval_eval.py`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T07:14:34Z'

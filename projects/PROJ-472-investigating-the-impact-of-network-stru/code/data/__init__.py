@@ -1,95 +1,40 @@
-"""
-Data package for the llmXive research pipeline.
-
-This package contains modules for data acquisition, preprocessing,
-simulation, quality control, and storage.
-"""
-from .models import (
-    Participant,
-    StructuralConnectome,
-    AvalancheRecord
-)
-
+from .models import Participant, StructuralConnectome, AvalancheRecord
 from .download import (
-    download_dMRI_data,
-    run_download_pipeline,
-    main
+    download_dMRI,
+    download_EEG,
+    fetch_openneuro_dataset
 )
-
 from .preprocess_dMRI import (
     download_parcellation,
     load_tractography,
     generate_connectome_matrix,
     save_connectome_matrix,
     run_preprocessing_for_subject,
-    run_pipeline,
-    main
+    run_pipeline as run_dMRI_pipeline
 )
-
-from .simulate_EEG import (
-    WilsonCowanSimulator,
-    load_connectome,
-    simulate_eeg_for_subject,
-    main
+from .preprocess_EEG import (
+    load_eeg_data,
+    preprocess_eeg,
+    save_preprocessed_eeg,
+    run_pipeline as run_EEG_pipeline
 )
-
 from .quality_control import (
     calculate_snr,
     check_graph_connectivity,
     run_qc_for_subject,
     generate_qc_report,
-    calculate_pipeline_completeness,
-    main
+    calculate_pipeline_completeness
 )
-
 from .store import (
     load_connectome_matrix,
     load_eeg_time_series,
     store_structural_connectome,
     store_cleaned_eeg,
-    run_store_pipeline,
-    main
+    run_store_pipeline
 )
-
-__all__ = [
-    # Models
-    'Participant',
-    'StructuralConnectome',
-    'AvalancheRecord',
-    
-    # Download
-    'download_dMRI_data',
-    'run_download_pipeline',
-    'main',
-    
-    # Preprocessing
-    'download_parcellation',
-    'load_tractography',
-    'generate_connectome_matrix',
-    'save_connectome_matrix',
-    'run_preprocessing_for_subject',
-    'run_pipeline',
-    'main',
-    
-    # Simulation
-    'WilsonCowanSimulator',
-    'load_connectome',
-    'simulate_eeg_for_subject',
-    'main',
-    
-    # Quality Control
-    'calculate_snr',
-    'check_graph_connectivity',
-    'run_qc_for_subject',
-    'generate_qc_report',
-    'calculate_pipeline_completeness',
-    'main',
-    
-    # Storage
-    'load_connectome_matrix',
-    'load_eeg_time_series',
-    'store_structural_connectome',
-    'store_cleaned_eeg',
-    'run_store_pipeline',
-    'main'
-]
+from .simulate_EEG import (
+    WilsonCowanSimulator,
+    load_connectome,
+    simulate_eeg_for_subject,
+    run_pipeline as run_simulate_pipeline
+)

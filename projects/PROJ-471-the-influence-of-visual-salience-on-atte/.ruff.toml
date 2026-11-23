@@ -1,0 +1,10 @@
+[line-length]
+max-length = 100
+
+[format]
+indent-style = "space"
+indent-width = 4
+
+[lint]
+select = ["E", "F", "W", "C90"]
+ignore = ["E501"]  # line length handled above

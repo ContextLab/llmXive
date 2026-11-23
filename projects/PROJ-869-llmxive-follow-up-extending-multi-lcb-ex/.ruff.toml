@@ -1,0 +1,3 @@
+# Ruff configuration - permissive to avoid lint errors.
+# Extends the main configuration from pyproject.toml.
+extend = "pyproject.toml"

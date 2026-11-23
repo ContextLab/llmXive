@@ -1,217 +1,131 @@
-# Tasks: Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
+# Tasks: Predicting the Yield Strength of High‑Entropy Alloys
 
-**Input**: Design documents from `/specs/001-predict-hea-yield-strength/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+**Inputs**: `spec.md`, `plan.md`, JSON‑schema contracts in `specs/001-predicting-the-yield-strength-of-high-en/contracts/`.  
+**Goal**: Deliver a complete, reproducible study that satisfies every functional requirement (FR‑001 – FR‑024) and success criterion (SC‑001 – SC‑011) in the specification. All data are fetched from the authorized Zenodo archive; no synthetic fall‑backs are permitted. Every numeric value in the final markdown report must be generated programmatically and linked to a provenance ID.
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 0 – Project setup  
 
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a Create directory structure: `code/`, `data/raw`, `data/processed`, `output/`, `tests/`, `output/plots`
-- [ ] T001b Create `__init__.py` files in all `code/` and `tests/` subdirectories
-- [ ] T001c Create `requirements.txt` and `README.md` scaffolding
+- [~] T000 **Project environment setup** – create a virtual environment, install pinned dependencies from `requirements.txt`, and validate the environment against the schema.  
+  - **Implementation**: `code/setup/setup_env.py`  
+  - **Verification**: `code/tests/test_setup_env.py` asserts that the virtualenv is created, all packages install without error, and the schema validation passes.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Data acquisition & descriptor calculation  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T001 **Download curated HEA dataset from Zenodo** – fetch the dataset from the verified Zenodo DOI (as listed in the specification), write to `data/raw/heas_raw.csv`, and validate each record against `contracts/dataset.schema.yaml`. Abort with a clear error if any required field is missing.   <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_pipeline_with_checksum.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1; code/data/fetch_heas_test_runner.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/fetch_heas.py exit=1 -->
+  - **Implementation**: `code/data/fetch_heas.py`  
+  - **Verification**: `code/tests/test_fetch_heas.py` checks that a record missing `yield_strength` raises `ValueError` and that the produced CSV passes schema validation.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T002 **Compute composition‑based descriptors** – read `data/raw/heas_raw.csv`, use the frozen elemental‑property table `data/raw/elemental_properties.csv` to calculate mixing entropy, atomic‑size mismatch (δ), electronegativity variance (Δχ), VEC, and melting‑point variance; write the result to `data/processed/hea_descriptors.csv` and validate against `contracts/descriptor.schema.yaml` **and** `contracts/hea_schema.schema.yaml`.   <!-- FAILED-IN-EXECUTION: code/run_pipeline_with_checksum.py exit=1 -->
+  - **Implementation**: `code/data/descriptors.py`  
+  - **Verification**: `code/tests/test_descriptors.py` contains known‑value checks (e.g., CoCrFeMnNi) and asserts that a missing element symbol raises a clear `KeyError`.  
 
-- [X] T004 Setup deterministic logging and random seed management in `code/utils/logging.py`
-- [X] T005 [P] Create base data schemas and validation logic in `code/data/__init__.py`
-- [X] T006 Implement unit normalization utility (MPa conversion) in `code/utils/unit_utils.py`
-- [X] T007 Setup environment configuration management for verified dataset URLs in `code/utils/config.py`
+- [ ] T003 **Validate user‑provided composition CSV** – accept a CSV at `data/input/compositions.csv`, validate each record against `contracts/hea_composition.schema.yaml`; abort with an informative error if any required field is absent.  
+  - **Implementation**: `code/data/validate_user_composition.py`  
+  - **Verification**: `code/tests/test_user_composition.py` asserts that missing fields raise `ValueError` with an informative message.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Acquisition and Descriptor Engineering (Priority: P1) 🎯 MVP
-
-**Goal**: Download HEA data from verified repositories, calculate compositional descriptors (δ, Δχ, VEC, entropy, melting var), and filter to single-phase room-temperature alloys.
-
-**Independent Test**: Execute data pipeline; verify output CSV exists with count of single-phase HEA compositions and complete descriptor values.
-
-### Implementation for User Story 1
-
-- [ ] T014 [US1] Implement pipeline orchestrator in `code/data/pipeline.py` to define the sequence: download -> preprocess (filter) -> normalize -> descriptors -> filter_missing. **Depends on T005, T006, T007**.
-- [ ] T008 [P] [US1] Implement data downloader in `code/data/download.py` to fetch from `research.verified_datasets['hea_compositions']` in `research.md`. If no verified URL exists, the system MUST terminate immediately with error code `DATA_SOURCE_MISSING` and log the specific missing requirement. **DO NOT** attempt fallback public search or local file loading. **Depends on T005, T007**.
-- [ ] T009 [P] [US1] Implement data preprocessor in `code/data/preprocess.py` to filter single-phase, room-temp (20-25°C), and handle missing yield strength values. **Depends on T005, T008**.
-- [X] T010 [US1] Implement unit normalizer in `code/data/preprocess.py` to convert all yield strength to MPa. **Depends on T009**.
-- [X] T011 [P] [US1] Implement elemental property loader in `code/data/descriptors.py` (atomic radii, electronegativity, valence counts) with fallback to standard databases. **Depends on T005**.
-- [X] T012 [US1] Implement descriptor calculator in `code/data/descriptors.py` for δ, Δχ, VEC, mixing entropy, and melting temperature variance. **Depends on T010, T011**.
-- [X] T013 [US1] Implement composition filter in `code/data/descriptors.py` to exclude entries with missing elemental properties. **Depends on T012**.
-- [ ] T015 [US1] Generate `data/processed/hea_descriptors.csv` and write `output/data_status.json` with `count_warning` if N < 500 (data limitation) AND `power_status` flag if N < 50 (insufficient power). **Depends on T014**.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T016 **Verify dataset availability before proceeding** – confirm that `data/raw/heas_raw.csv` exists and contains at least the minimum number of records required by the power analysis (FR‑015). If the file is missing or insufficient, abort with a clear, spec‑compliant error message explaining that the required open Zenodo dataset is unavailable. This task enforces the scope assumption in the spec and removes the undocumented conditional in the original plan.   <!-- FAILED-IN-EXECUTION: code/data/verify_dataset_presence.py exit=1 -->
+  - **Implementation**: `code/data/verify_dataset_presence.py`  
+  - **Verification**: `code/tests/test_verify_dataset_presence.py` checks that the task aborts when the file is absent or when record count < required N.
 
 ---
 
-## Phase 4: User Story 2 - Model Training and Predictive Performance Evaluation (Priority: P2)
+## Phase 2 – Power analysis, modeling, validation, and stability  
 
-**Goal**: Train Random Forest and Gradient Boosting models (5-fold CV, hyperparameter tuning ≤50 trees, depth ≤10), evaluate on hold-out test set, and compare against Linear Regression baseline.
+- [ ] T004 **Statistical power analysis** – target power ≥ 0.80, α = 0.05, effect size derived from R² ≥ 0.6; write `data/results/power_analysis.json` (`required_n`, `achieved_power`); abort if actual N < required N.  
+  - **Implementation**: `code/analysis/power.py` (uses `statsmodels.stats.power.FTestPower`).  
+  - **Verification**: `code/tests/test_power.py` asserts that the abort path triggers when a deliberately truncated CSV is supplied.  
 
-**Independent Test**: Execute training script; verify `output/metrics.json` contains R², MAE, RMSE for all models; confirm runtime ≤ 3 hours on CPU.
+- [ ] T005 **Train‑test split, VIF handling, and Random Forest training** – 80/20 split (seed 42) → `data/processed/train.parquet` / `data/processed/test.parquet`; compute VIF for each descriptor, drop any with VIF > 5 and record `data/results/vif_summary.json`; train `RandomForestRegressor(n_estimators=500, max_features='sqrt', random_state=42)` with 5‑fold CV; persist model to `data/results/model_rf.joblib` and CV scores to `data/results/cv_metrics.json`.  
+  - **Implementation**: `code/models/train_full.py`.  
+  - **Verification**: `code/tests/test_train_full.py` checks that no descriptor with VIF > 5 remains and that re‑running with the same seed yields identical CV metrics.  
 
-### Implementation for User Story 2
+- [ ] T006 **Test‑set evaluation & descriptor‑target correlation** – load the trained model, predict on `data/processed/test.parquet`, compute R², Pearson r, two‑tailed p‑value, MAE, RMSE, and 95 % bootstrap CIs (1 000 resamples); write `data/results/metrics.json` (validated against `contracts/metrics.schema.yaml`).  
+  - Using **only the training data**, compute Pearson r and p‑value for each descriptor, flag those with |r| > 0.5 & p < 0.01, and write `data/results/descriptor_correlation.json`.  
+  - **Implementation**: `code/analysis/evaluate.py`.  
+  - **Verification**: `code/tests/test_evaluate.py` validates schema compliance and asserts that at least two descriptors meet the significance thresholds (or logs an honest failure).  
 
-- [X] T016 [P] [US2] Implement data splitter in `code/models/train.py` to create stratified train/test splits with fixed seed. **Depends on T015**.
-- [X] T017 [P] [US2] Implement Linear Regression baseline trainer in `code/models/train.py`. **Depends on T016**.
-- [X] T018 [P] [US2] Implement Random Forest trainer with 5-fold CV and grid search (trees ≤ 50, depth ≤ 10) in `code/models/train.py`. **Depends on T016**.
-- [X] T019 [P] [US2] Implement Gradient Boosting trainer with 5-fold CV and grid search (trees ≤ 50, depth ≤ 10) in `code/models/train.py`. **Depends on T016**.
-- [X] T020 [US2] Implement evaluation runner in `code/models/evaluate.py` to compute R², MAE, RMSE on held-out test set. **Depends on T017, T018, T019**.
-- [~] T021 [US2] Create `output/metrics.json` writer to record metrics for all models (RF, GB, Linear). **Depends on T020**.
-- [X] T022 [US2] Add runtime tracker in `code/models/train.py` to enforce ≤ 3 hour limit and log warnings if exceeded. **Depends on T018, T019**.
-- [X] T029a [P] [US2] Implement plot disclaimer injector in `code/utils/plot_utils.py` to append "Associational analysis only; no causal inference" to all generated matplotlib/seaborn figures. **Depends on T004**.
-- [X] T029b [P] [US2] Implement report disclaimer injector in `code/utils/report_utils.py` to append the mandatory disclaimer to report markdown text. **Depends on T004**.
+- [ ] T007 **Permutation importance with Holm–Bonferroni correction** – run `sklearn.inspection.permutation_importance` on the held‑out test set with ≥ 1 000 permutations per feature; perform a non‑parametric permutation test, apply Holm‑Bonferroni correction (α = 0.05); write `data/results/perm_importance.json` (validated against `contracts/importance.schema.yaml`).  
+  - **Implementation**: `code/analysis/importance.py`.  
+  - **Verification**: `code/tests/test_importance.py` verifies that every feature record contains `importance_score`, `raw_p_value`, and `holm_bonferroni_p`, and that the correction matches a hand‑computed example.  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T008 **External validation dataset acquisition & evaluation** – download the second, disjoint Zenodo release (FR‑017), save to `data/external/validation.csv`, validate against `contracts/dataset.schema.yaml`; compute descriptors (`data/external/validation_descriptors.csv`) using the same descriptor code; evaluate the trained model, write `data/results/external_metrics.json`; document measurement‑protocol differences in `data/results/external_provenance.md`.  
+  - **Implementation**: `code/data/fetch_external.py`.  
+  - **Verification**: `code/tests/test_external.py` asserts that `validation.csv` shares no `alloy_id` with the primary data and that the metrics file passes schema validation.  
 
----
+- [ ] T009 **Stability assessment across three seeds** – repeat the full pipeline (T005 → T006 → T008) for seeds 111, 222, 333; record top‑5 feature rankings per run in `data/results/stability_rankings_seed{XXX}.json`; aggregate into `data/results/stability_rankings.json` and compute the maximum rank difference, requiring ≤ 1 (as mandated by FR‑021).  
+  - **Implementation**: `code/analysis/stability.py`.  
+  - **Verification**: `code/tests/test_stability.py` checks that three ranking lists exist and that the reported `max_rank_difference` matches the raw rankings.  
 
-## Phase 5: User Story 3 - Statistical Validation and Significance Reporting (Priority: P3)
-
-**Goal**: Perform permutation testing (1000 perms), bootstrap resampling (1000 resamples), multiple-comparison correction, sensitivity analysis on α, and VIF diagnostics.
-
-**Independent Test**: Execute validation script; verify report contains p-values, confidence intervals, corrected significance levels, and VIF flags.
-
-### Implementation for User Story 3
-
-- [X] T023 [US3] Implement VIF calculator in `code/models/evaluate.py` for the **Linear Regression baseline ONLY**. Calculate VIF for all descriptors in the linear model and flag any VIF > 10. **DO NOT** calculate VIF for RF or GB models. **Depends on T017**.
-- [X] T024 [US3] Implement permutation importance tester in `code/models/evaluate.py` (1000 permutations) to calculate p-values for all descriptors. **If N < 50, SKIP this test entirely** and write `output/power_analysis.json` with `status: 'insufficient_power'`. **Depends on T018, T019**.
-- [X] T025 [US3] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) in `code/models/evaluate.py`. **Depends on T024**.
-- [X] T026 [US3] Implement bootstrap resampling in `code/models/evaluate.py` (1000 resamples) for the full model (RF/GB) to calculate 95% CI for R². **If N < 50, SKIP this test entirely** and ensure `output/power_analysis.json` reflects `status: 'insufficient_power'`. **Depends on T018, T019**.
-- [X] T027 [US3] Implement sensitivity analysis runner in `code/models/evaluate.py` to sweep α over the discrete set **{0.01, 0.05, 0.1}** and report how the count of significant descriptors and R² values vary. **Depends on T024, T025**.
-- [~] T030 [US3] Handle edge case: if N < 50, ensure `output/power_analysis.json` is written with `status: 'insufficient_power'` and log message `'INSUFFICIENT_POWER: N={n} < 50'` at WARNING level. **Depends on T024, T026**.
-- [~] T028 [US3] Create statistical report generator in `output/report.md` including all p-values, CIs, VIF flags, and integrating disclaimers from T029a/T029b. **Depends on T023, T024, T025, T026, T027, T029a, T029b**.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T010 **Comprehensive contract validation** – run `jsonschema` validation on **all** generated artifacts (raw dataset, descriptor table, VIF summary, metrics, importance, stability rankings, manifest, runtime summary); abort on any validation failure.  
+  - **Implementation**: `code/validation/contract_check.py`.  
+  - **Verification**: `code/tests/test_contracts.py` ensures every artifact passes its respective schema.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 3 – Reporting, verification, and handoff  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T011 **Figure generation** – produce PNGs directly from validated JSON artifacts:  
+  1. `figures/pred_vs_meas.png` (predicted vs measured scatter with 1:1 line and bootstrap CI band)  
+  2. `figures/descriptor_corr.png` (bar chart of descriptor‑target Pearson r with p‑value annotations)  
+  3. `figures/perm_importance.png` (ranked permutation‑importance plot with corrected‑p‑value markers)  
+  - **Implementation**: `code/reporting/figures.py`.  
+  - **Verification**: `code/tests/test_figures.py` asserts each PNG is non‑empty and that re‑generation with unchanged inputs yields identical byte streams (hash comparison).  
 
-- [~] T031 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T032a Run `ruff check` and fix all linting errors in `code/`
-- [ ] T032b Run `black` and format all Python files in `code/`
-- [ ] T033a Profile execution with `cProfile`, generate `output/profile.log` identifying top 3 bottlenecks
-- [ ] T033b Refactor code based on `output/profile.log` to reduce runtime by at least 10%
-- [ ] T034 [P] Unit tests for descriptor math in `tests/unit/test_descriptors.py`
-- [ ] T035 [P] Integration tests for full pipeline in `tests/integration/test_pipeline.py`
-- [ ] T036 Run quickstart.md validation
+- [ ] T012 **Provenance‑tracked markdown report** – assemble `paper/report.md` containing the mandatory sections (dataset statistics, power‑analysis justification, VIF summary, model performance with CIs, descriptor‑target correlations, permutation importance with corrected p‑values, external‑validation results & protocol, stability assessment, provenance log).  
+  - Every numeric value is emitted with a provenance ID (e.g., `[PV‑r2]`) and a mapping entry in `data/results/provenance_linking.json` linking the ID to the source artifact and code block.  
+  - Write `data/results/manifest.json` (run_id, timestamp, seeds, package_versions, SHA‑256 checksums of **all** input and output files) validated against `contracts/manifest.schema.yaml`.  
+  - **Implementation**: `code/reporting/report.py`.  
+  - **Verification**: `code/tests/test_report.py` uses regexes to confirm all required section headings exist, that each numeric token has a matching entry in `provenance_linking.json`, and that manifest checksums are correct.  
 
----
+- [ ] T013 **Success‑criteria verification & handoff** – parse every artifact under `data/results/` and produce `data/results/verification_report.json` with pass/fail for each SC‑001 – SC‑011 (including honest failure messages if thresholds are not met).  
+  - Update `quickstart.md` with the exact runnable command sequence and the location of `paper/report.md`.  
+  - Create `data/results/final_handoff.json` containing artifact paths, their manifest hashes, and a pointer to `paper/report.md` for the downstream paper stage.  
+  - **Implementation**: `code/verify_success_criteria.py`.  
+  - **Verification**: `code/tests/test_handoff.py` ensures that all criteria report “pass” and that the hashes in `final_handoff.json` match those recorded in `manifest.json`.  
 
-## Dependencies & Execution Order
+- [ ] T014 **Full reproducibility check** – execute the documented workflow from a fresh clone via `python -m code.pipeline.full_run`; then re‑run the verification step; confirm that **all** generated files (`*.csv`, `*.json`, `*.joblib`, `*.png`, `report.md`) have SHA‑256 checksums identical to those recorded in `manifest.json`.  
+  - **Implementation**: `code/pipeline/full_run.py`.  
+  - **Verification**: CI step runs this task; success is required for the pipeline to be marked “pass”.  
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T015 **Citation verification (Principle II)** – invoke the Reference‑Validator Agent on every external citation present in `spec.md`, `plan.md`, `code/`, and `report.md`; ensure title‑token overlap ≥ 0.7; abort the pipeline if any citation fails validation.  
+  - **Implementation**: `code/validation/citation_check.py`.  
+  - **Verification**: `code/tests/test_citation_validation.py` confirms that a deliberately mismatched citation triggers pipeline abort.  
+  - **Note**: This task no longer references a non‑existent FR‑030; it is a principle‑level check and therefore does not appear in the Requirement Mapping Table.
 
 ---
 
-## Parallel Example: User Story 1
+### Dependency & Requirement Mapping  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+| Requirement | Task(s) | Demonstrating command |
+|-------------|---------|-----------------------|
+| FR‑001 (data acquisition) | T001, T016 | `python -m code.data.fetch_heas` |
+| FR‑002 (descriptor calculation) | T002 | `python -m code.data.descriptors` |
+| FR‑003 (model training) | T005 | `python -m code.models.train_full` |
+| FR‑004 (test evaluation) | T006 | `python -m code.analysis.evaluate` |
+| FR‑005 / FR‑006 (permutation importance) | T007 | `python -m code.analysis.importance` |
+| FR‑007 → **FR‑017** (external validation) | T008 | `python -m code.data.fetch_external` |
+| FR‑008 / FR‑010 / FR‑024 (report & provenance) | T012 | `python -m code.reporting.report` |
+| FR‑009 (missing‑field abort) | T003 | `python -m code.data.validate_user_composition` |
+| FR‑014 (descriptor‑target correlation) | T006 | `data/results/descriptor_correlation.json` |
+| FR‑015 / FR‑022 / FR‑023 (power analysis) | T004 | `python -m code.analysis.power` |
+| FR‑016 (VIF) | T005 | `data/results/vif_summary.json` |
+| FR‑017 (external validation) | T008 | `data/results/external_metrics.json` |
+| FR‑018 (contract validation) | T010 | `pytest code/tests/test_contracts.py` |
+| FR‑021 (stability) | T009 | `data/results/stability_rankings.json` |
+| FR‑030 (citation verification) – **removed** (principle‑level only) | T015 | `python -m code.validation.citation_check` |
+| SC‑001 – SC‑011 (success criteria) | T013 | `python -m code.verify_success_criteria` |
+| SC‑013 (CI success) – out‑of‑scope | — | — |
 
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
+**Execution order**:  
 
----
+T000 → T001 → T016 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → T015.  
 
-## Implementation Strategy
+All downstream tasks depend only on artifacts produced by their predecessors; ordering respects data flow and the specification’s scientific dependencies.  
 
-### MVP First (User Story 1 Only)
+---  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+*All tasks are unchecked (`[ ]`) until the corresponding implementation passes its verification step. Checked boxes will be added automatically by the CI system once artifact validation succeeds.* 

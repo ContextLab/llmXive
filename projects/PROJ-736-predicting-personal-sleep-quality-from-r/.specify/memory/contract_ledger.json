@@ -2,5 +2,9 @@
   {
     "symbol": "log_stage_start",
     "owner": null
+  },
+  {
+    "symbol": "setup_logging",
+    "owner": null
   }
 ]

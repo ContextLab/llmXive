@@ -1,0 +1,5 @@
+# DropoutEvent JSON Schema
+# Minimal schema for contract validation tests.
+type: object
+additionalProperties: true
+required: []

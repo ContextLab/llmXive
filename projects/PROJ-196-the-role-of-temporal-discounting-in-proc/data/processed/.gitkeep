@@ -1,2 +1,2 @@
 # This directory stores processed/analysis-ready data files.
-# Generated artifacts will be written here.
+# Do not commit large data files; use .gitkeep to preserve directory structure.

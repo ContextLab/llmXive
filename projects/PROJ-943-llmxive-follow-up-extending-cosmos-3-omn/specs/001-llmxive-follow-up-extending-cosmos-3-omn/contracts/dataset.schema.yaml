@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Bridge Symbolic Dataset Schema"
+description: "Schema for the transformed dataset with symbolic and physics labels"
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample"
+  text_description:
+    type: "string"
+    description: "Natural language description of the scene"
+  action_vector:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 3
+    description: "Continuous action vector (e.g., [x, y, z, ...]) with at least 3 dimensions"
+  vector_norm:
+    type: "number"
+    description: "Calculated L2 norm of the first 3 dimensions of the action vector"
+  context_match:
+    type: "boolean"
+    description: "Indicates if the text description matched safety constraint keywords"
+  symbolic_label:
+    type: "string"
+    enum:
+      - "constraint_satisfied"
+      - "constraint_violated"
+    description: "Discrete token assigned based on composite rule (norm > 0.5 AND context match)"
+  rule_applied:
+    type: "string"
+    description: "The specific rule used for labeling (e.g., 'L2 norm of first 3 dims > 0.5 AND context match')"
+  physics_reward_value:
+    type: "number"
+    description: "Original physics reward value from the dataset"
+  physics_label:
+    type: "string"
+    enum:
+      - "success"
+      - "failure"
+    description: "Discrete token assigned based on physics_reward > 0.5 rule (Physics Task)"
+  safety_constraint:
+    type: "boolean"
+    description: "Indicates if the composite safety constraint was violated"
+required:
+  - sample_id
+  - text_description
+  - action_vector
+  - vector_norm
+  - context_match
+  - symbolic_label
+  - rule_applied
+  - physics_reward_value
+  - physics_label
+additionalProperties: false

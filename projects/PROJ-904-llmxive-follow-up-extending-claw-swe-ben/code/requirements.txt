@@ -1,0 +1,10 @@
+transformers
+datasets
+scikit-learn
+statsmodels
+networkx
+pytest
+ruff
+black
+huggingface_hub
+pyyaml

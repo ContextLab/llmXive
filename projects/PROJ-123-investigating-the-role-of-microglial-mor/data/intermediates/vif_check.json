@@ -1,0 +1,10 @@
+{
+  "vif_scores": {
+    "branch_points": 1.0,
+    "total_length": 1.0,
+    "soma_area": 1.0,
+    "sholl_intersections": 1.0
+  },
+  "max_vif": 1.0,
+  "trigger_pca": false
+}

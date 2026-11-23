@@ -1,53 +1,51 @@
-"""
-Script to initialize the project directory structure for the solar irradiance reconstruction project.
-This script creates the necessary directories and placeholder files to ensure the project is ready for development.
-"""
 import os
 from pathlib import Path
+from typing import List
 
-def create_structure():
-    """Create the required project directory structure."""
-    # Define the root directories
-    root_dirs = [
-        "code",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "code/models",
-        "code/analysis"
+def create_structure() -> List[str]:
+    """
+    Creates the required project directory structure for the solar irradiance
+    reconstruction pipeline.
+
+    Creates:
+      - code/
+      - code/models/
+      - code/models/artifacts/
+      - code/analysis/
+      - code/data/
+      - tests/
+      - data/raw/
+      - data/processed/
+
+    Returns:
+        List[str]: List of created directory paths.
+    """
+    base_dir = Path(".")
+    directories = [
+        base_dir / "code",
+        base_dir / "code" / "models",
+        base_dir / "code" / "models" / "artifacts",
+        base_dir / "code" / "analysis",
+        base_dir / "code" / "data",
+        base_dir / "tests",
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
     ]
 
-    # Create directories
-    for dir_path in root_dirs:
-        Path(dir_path).mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
+    created_paths = []
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        created_paths.append(str(directory))
 
-    # Create __init__.py files in code/ subdirectories and tests/
-    init_dirs = [
-        "code",
-        "code/data",
-        "code/models",
-        "code/analysis",
-        "tests"
-    ]
+    return created_paths
 
-    for dir_path in init_dirs:
-        init_file = Path(dir_path) / "__init__.py"
-        init_file.touch(exist_ok=True)
-        print(f"Created __init__.py in: {dir_path}")
-
-    # Create .gitkeep files in data directories
-    gitkeep_dirs = [
-        "data/raw",
-        "data/processed"
-    ]
-
-    for dir_path in gitkeep_dirs:
-        gitkeep_file = Path(dir_path) / ".gitkeep"
-        gitkeep_file.touch(exist_ok=True)
-        print(f"Created .gitkeep in: {dir_path}")
-
-    print("\nProject structure initialization complete.")
+def main():
+    """Entry point for directory structure creation."""
+    print("Creating project directory structure...")
+    paths = create_structure()
+    for path in paths:
+        print(f"  Created: {path}")
+    print("Directory structure creation complete.")
 
 if __name__ == "__main__":
-    create_structure()
+    main()

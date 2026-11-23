@@ -1,0 +1,240 @@
+T001:
+  reason: "The `data/metrics_log.txt` file is missing, and there is no evidence that\
+    \ the required directories (`data/raw`, `data/processed`, `data/results`, `code`,\
+    \ `tests`, `contracts`) were actually created. The task\u2019s directory\u2011\
+    structure requirement is therefore not fully satisfied."
+  task: 5ea10b5446e9f1219081664926252cf303f092d306d6855285dcb239f4839333
+T002:
+  reason: No artifact (e.g., test script, log output, or directory listing) was provided
+    to demonstrate that the required folders have been created and asserted. Without
+    concrete evidence of directory existence checks, the claim cannot be verified.
+    The implementer must supply the code or output that creates the directories and
+    asserts their presence.
+  task: 7fbe7c1c44f6e1a3e794c951023c99b2d1da46ab14e592ea05fb739476ab96b3
+T003:
+  reason: No `README.md` file or its contents were provided; without the actual placeholder
+    document we cannot confirm that installation, usage, and reproducibility sections
+    exist. The required artifact is missing.
+  task: a4e2cfe6a9c1b61f0992053546bdde556fd1de07991405ab9d4d2540dbf6f405
+T004:
+  reason: No `venv/` directory or activation script (e.g., `venv/bin/activate` or
+    `venv/Scripts/activate`) was presented in the provided artifacts, so the required
+    virtual environment cannot be confirmed as created. The implementer must supply
+    the actual `venv/` folder with the activation script.
+  task: 9c4871b767380dc14c19e34979ea8c8dc02b1f45a1b1eb787357d9e59f37bcaf
+T005:
+  task: fde89280fca874702752fe5b00dd53bfcbe27d3935fecd6415849744fa6d7931
+T006:
+  reason: The repository contains `data/preprocess_log.txt` and `data/analysis_log.txt`,
+    but both files are populated with log entries rather than being empty, and the
+    required `data/metrics_log.txt` file is completely missing. The task demanded
+    three empty log files, which is not satisfied.
+  task: 5c93767c6926b901d9b0a26aa776d0bfd53454428b58d59bc1f57d84eaecd068
+T007:
+  reason: "The `contracts/` directory with the three `.schema.yaml` files exists,\
+    \ but no evidence is provided showing the files contain actual JSON\u2011Schema\
+    \ skeletons (they could be empty or placeholders). The implementer must supply\
+    \ the file contents to confirm they define minimal JSON\u2011Schema structures\
+    \ for dataset, metric, and result."
+  task: 319400620019a4d5a9ba0f5770553b8c70dc680ae88b4ea68f568b632ea849e2
+T008:
+  reason: "The provided `requirements.txt` contains the correct pinned versions, but\
+    \ it resides in `code/requirements.txt` rather than at the repository\u2019s top\
+    \ level as the task specifies. Relocate or duplicate the file to the project root\
+    \ so it is truly top\u2011level."
+  task: 88c9bf855bcb7f451915b0ce0cec09b7ff57ec777e33653eb54e58782961d5e2
+T009:
+  reason: "The provided `requirements.txt` exists, is non\u2011empty, and all dependencies\
+    \ are pinned with `==` versions. However, there is no evidence that the implementer\
+    \ actually ran `pip install -r requirements.txt` and confirmed that `import nilearn`\
+    \ (or other imports) succeeds, which is a required part of the task. The import\u2011\
+    success verification is missing."
+  task: 7aaa05a1687308c938eab361ac6cdb1da1e964fc48cb83566b102d74b8f19568
+T010:
+  reason: "No linting or formatting configuration files (e.g.,\u202F`.ruff.toml`,\
+    \ `pyproject.toml` with Black settings) or installation scripts are present in\
+    \ the provided evidence, so the requirement to install ruff/black and ensure their\
+    \ config files exist is not satisfied."
+  task: 6fc320e4b0cf6147b12f13a727b911334075d57ce6660da20eea44a4b2c9bbc6
+T011:
+  task: 2ff2e3bf23485f75cea3cc7863febc1530f80bd47c64ac2ee80f0960c9e42ca1
+T012:
+  task: 12235f25ac5a4b46326dd42b830eaf13b4f39da096d822adfcf9958f1b55c5bf
+T013:
+  task: c84064b4c27215cb5bcc641d5a0121b3523694b06299e20f2ca4ba34c09f3635
+T014:
+  task: e9a9cab83f989580c288b88a9981b069d97cf0b739758369b64adc4465678d3c
+T015:
+  task: d795c4370153fc8a86944c5f405f765800f5d5234df88564558f1000c4003168
+T016:
+  task: b0ec7605cacd6a6793a94a47dc9668605f58a2def256932d3bc09d5b95b065bc
+T017:
+  task: 9a5b0ca71f1cf3a82844c9cf7e344d05de0cd555ad0e3dcb0bbaaf5cfabbc3e1
+T018:
+  task: 5713ece4385ebd7ae50380c05152508b28dcbd87851790cff5c60823795c7fea
+T019:
+  task: 8aa543212cc598adb594ddb48e5d6457fba076191f04f5f7c229ff0bd3f10b10
+T020:
+  task: 164a70b2394a841d8c12df5e0d095989a2ec1b8fe7879b703c19bb4d0fe2128f
+T021:
+  task: c43d3db1d70add0c380021c9acf984e4289d5afdd20a39fd0b36bb548addc54b
+T022:
+  task: 6335bbc4c0aceaa69dc2172924c6c82c4e385e28a10b67718010811d7a528f70
+T023:
+  task: f8bc71505d71841f60e29e0ef6cdd74fd950298fabe366a9cd5b04b0d5db1090
+T024:
+  task: 2d744157ced39c15031cbc13abce53708ec1b27b1efbc5d10856129ddd019fa3
+T025:
+  task: b86862a6714113ee721edc7fdc889f1d69c11f2a72d28c680d5cfa4ffee3da21
+T026:
+  task: 7bf959fba32a4f35aa4804cf654c2f4be85452e2f555848ee11a8aec908f8e90
+T027:
+  task: 6e923c78dc17b6a6248cf01ac719c8ff2f83802c211690fd28772ac7c9322ea3
+T028:
+  task: f6033da965c728542c8c838161a0973ac9696751dc54afcd0c5a2799c900b9a0
+T029:
+  task: c94b53be6e59caf1ef39d74462b82d452345a8c40e878d45816857495ca62e09
+T030:
+  task: 15150b15e0b740b60a0e13b7c62fa107fbec4a55ec3df10c4d85a4102317ee60
+T031:
+  task: 8a4ca27b426753e607a2dcd94d70557785bb324330cf7452b53a3d2cfac481e7
+T032:
+  task: d30ec154361d1020c897273973285f997432a590d84d7c8fd1aeeff3396f0fd5
+T033:
+  task: f945cb64aa5200615c5cd3ce12dbdd357d79071b4328c861c36a83cfc66b4314
+T034:
+  task: 26ba4dde11009b1eaa2103724a2eba135adac3d5c97fc12c7b278984617dbfac
+T035:
+  task: e54acff9c48fd2fc9e4ebbd5bf7e4f23c78df3ffd2ec81a53c99e9a8c4f84c67
+T036:
+  reason: 'declared artifact(s) missing/empty/invalid: data/analysis_log.txt'
+  task: 81c1ca9248767dffe0d51edca78d68c1210665d90c3f3f7e82638108edbb96f7
+T037:
+  task: eda9a2dab8e57649024ebd64cbaf4c26a075b0ec82f9eb74dd196424d37eaf74
+T038:
+  task: 0b0b4cddebc99edda8bb4c2b954ae203ca75171920c4044747abefcb98de1165
+T039:
+  task: 22cc57d3cf68b9bba5f7ea84e7534d95d938ffd77edecda2acaf5f677d99b732
+T040:
+  task: c13657151146c80be2f9fcfe1f92782f973bcdaf1dbf2fcbf918e5c0cf446fe0
+T041:
+  task: f316756d2a3445130fcd10ae8b59ad762b129d478392d89f6adb5073914868d4
+T042:
+  task: 48b2d1c1ef612e8cc6b39e6fe21ab4003d193580670ed6224a58390460830ce1
+T043:
+  task: 152f44bc950dce897c27e9b8aefc20c05f10b524f91642721754b7884925f67f
+T044:
+  task: 1059f17d5b1bf9ab6f9d5a4e8129d2d7071d456481e21ec6a61cb9ab6b3f46b6
+T045:
+  task: 513e9cee30fcb9b8157a6f4c6b799af683748693677726e0cfb3187fd29a20e5
+T046:
+  task: 58872d76c455b83ac7ac2eaf9eec34f73941043666de7f00cd3126dfa1fee0ec
+T047:
+  task: 832ad6253f126f9e8c00fbe764133c6255b4a0660aac0757104efd3c9ce22c72
+T048:
+  task: dad2077d88167332d26cedf3a7bf8d2e553765718b08e1517c19c08a430008c6
+T049:
+  task: 331a8b8a166eaab27be8151dd00ac6ca6388d12e3815b3fd2e6fa60be4025d80
+T050:
+  task: 07d599eb4045db85d3fd54740dd1b4bc99bd08aab233e5178b63564e9d49dd0f
+T051:
+  reason: 'declared artifact(s) missing/empty/invalid: data/metrics_log.txt'
+  task: 0e42f300a2b6862b435f6f1e713edf5eccbdd985957ecc569cb3fad946e1275e
+T052:
+  task: daf58c89ac9b107532e602eec2f2fb77fea969cb562cd6e69304119fae14f423
+T053:
+  task: e2e123d514de362b6ab97947181433ac1a916a64370f7d1a9b7448afc659ceb2
+T054:
+  task: ebfb1e4d7b02582b6e7e397e0dba46569d64eff78c7b526c5011e06b1755213a
+T055:
+  task: c58851b9c3417a6a0129d4fd49eb8440ceac7f5dbc0a567f0d9037c29970248f
+T056:
+  task: 17acb08cae96194cb592a6ec1ab7e82eebb5fab9d47fa83771b03b80a88214f7
+T057:
+  task: cf2cac3f114d3c06317c9979957c657c77733f0637ecf5b1955f37db04a003cf
+T058:
+  task: 1fe97b5530d56ffe3ff91435cc7ea43995155b3376670266a24a696853ebcbf5
+T059:
+  reason: 'declared artifact(s) missing/empty/invalid: data/analysis_log.txt'
+  task: 42d434bab151536bd484cfddd5035229ad56d31dd3df7b0ac52b997abbca55f8
+T060:
+  task: e7af5cbd80a6c226729b90f90dd0d63602d156b2c0cec81d8d9f3b515c67f88a
+T061:
+  task: 1232701a79aa0734679c0eeb6371366bb956070871cf2f189052497e0b1e2b79
+T062:
+  task: ba625d5a3155195072e83485bc929d88a335ef5d94e1d1cad4dbbe8dc8d055e8
+T063:
+  reason: 'declared artifact(s) missing/empty/invalid: data/analysis_results.tsv'
+  task: cec2c7f43bfc169bf957ffa929c8f8bf26654cbaa342cea857cae975caf60f5d
+T064:
+  task: f5e0710016fe04d732bd1bf7c0fffd25473159a390450e780ea3a3a58455e425
+T065:
+  task: cafaf50140b6e4da1dd422e287912c0e9874061dd03c4415394b13f3f9a0619c
+T066:
+  task: f47486531f3dbfecc442225b4db0222f9a20d3b12c1005731269c2da0e9f8c9b
+T067:
+  task: edfbd96123cb5551c02826492fddc449aaf187c718225042185b6a4fbaead869
+T068:
+  task: 3b913b87fd346861b80228b364d2bc2705a660c17e47561d4e4d990f3c37918d
+T069:
+  reason: 'declared artifact(s) missing/empty/invalid: data/analysis_log.txt'
+  task: 1cd7d010d0e4fa1e3aabb88eb4b680995b02dc0b8569920715e9ce924077ea89
+T070:
+  task: b7978199ec72d9bcdba8d021b129fdbe5f8b0b18985bdf46bf2432acecb60b4e
+T071:
+  task: 25d1e0e7ddb50990c312c959a0a40066a20dfb78d4865bdba22d6a667c60ce71
+T072:
+  task: e5aa26db49ca437289a77e23b111518c8f0d9e843b1d213bc2e23a944b7a023c
+T073:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/permutation_results.tsv'
+  task: 5e63f3b6865c9c8fcc3580679cf14e51cff29bb2df3b9656ccaae973c54c4190
+T074:
+  task: 8261ef4e72e07f51fdd41b94ed8e456bc5f776e30dd59afe94c5ea51613cc005
+T075:
+  task: 21d5a3eda6a4aa2d639239737b3700e1ac561c7468142b536ca4d9941b774cbc
+T076:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/permutation_report.png'
+  task: cde76fc96af785a694dba8652bd7c8ad63d71ce17910de311d43547128c82abd
+T077:
+  task: 74048a720c09df8c9c33b16ba1210d3cf40870d9010cd66dc7683625f497556b
+T078:
+  reason: 'declared artifact(s) missing/empty/invalid: data/analysis_log.txt'
+  task: 43a9266cdabec3f279645d291d118ce9c31e10028f10b5dc52c8abbb6b73d98b
+T079:
+  task: 0fbce72ced9a75f1d841b1d73646d7db766d6ccb0894164ea1f5cd398a14146c
+T080:
+  task: 53b03f1b9aba96cdb60ca8d6e8685ad8ed2a37e12c97aed96f4d1b3e6b04381d
+T081:
+  task: b86c821a498520a794c99624ed27edb5a24f96f0389fd09e1a491d45b9f5dc54
+T082:
+  task: 8ca4691ed09cb4b0a72a3078325e2554d4de702d2a9b9a6f9076b502cc7fbb49
+T083:
+  task: bb7f65c0820ed4501466251c7f4967f6e7ce64558f58a008aee83b9bec9271ec
+T084:
+  task: bee6116844b6a49cc8429ca59963b32459185da864a6993248cc7eca2320e170
+T085:
+  task: b40e3818f8ab5408ab2923367429c3950cb9a9ae2a6eb575fa077a107bf1942c
+T086:
+  task: edf49bfd893e7b93dc16504c14591491314c21223197b08bbff642fb017ec100
+T087:
+  task: ff77c3d193b3030a5240fb5c02ac7e22428a271325c819accfc46d565cf31231
+T088:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/edge_cases/'
+  task: ce41cadbbe87d1f406c826add12152a118a3cc6cec375f6d4028ef57ff5f800f
+T089:
+  task: 39f86ac40bbef03d1f905e2d5816819e03d7a7019adfc6ed61ab2318760f540e
+T090:
+  task: 0197ec5fd671cdd6788ccb909938ccd72c2542ad056a1e6bf3a11897c9c13d91
+T091:
+  reason: 'declared artifact(s) missing/empty/invalid: .github/workflows/ci.yml'
+  task: 248e406086e1518cd8348da577d689c61a31bfabfb438581a4ea737e480ce5ad
+T092:
+  task: 20aa04c86535f17eaa31f5a89f9c7e00bbcc4f7cd44c350b748b3349a7522a21
+T093:
+  task: fecbad0ff6902276b9d9252285c49d24e9c8700b10de0ad223ec0b2b94df4a04
+T094:
+  task: c0304d09843962820c0704934d835ee4d3cec6719bec40acbd4ef4b5f2e17893
+T095:
+  task: fe6f41ef06f3a96ec8f2667f9d843811880ed83132b47824ff8ee9d69530055f
+T096:
+  task: 6cc72a217da2e2ac7ec32c83dcc2163b52865fae39e2e00ddabbf45ee5d7847e

@@ -1,0 +1,96 @@
+T001:
+  task: 02fc1ea10cb207ab27df11e22050a1a4808b2ac6fd0b5768f80868f831d46f58
+T002:
+  task: 2fe47a24f3e683757ed983dbe4910c4e7d9de4931c2367537de155ffef92ac56
+T003:
+  reason: The current `code/requirements.txt` exists with all required pinned packages
+    (including `opencv-python-headless==4.7.0.72`, which appears to be a fix for the
+    earlier failing `4.8.0` pin), but the only execution evidence is a historical
+    `pip install -r requirements.txt` run that FAILED (exit 1, "No matching distribution
+    found for opencv-python-headless==4.8.0"). There is no evidence that the corrected
+    file was ever re-installed successfully in a clean venv, which is the task's explicit
+    verification criterion. The implementer should re-run the install test against
+    the updated file (and confirm t
+  task: bc1c83c1850a6df5b05b0291a7794f6b315208f040ba934a644fc5c8e19f78a6
+T004:
+  task: 1df21e36bf604ed8652b8eacfb74603ede7f36991b4478955c5ba71e73604e36
+T005:
+  reason: "`code/config.py` exists with the required constants (`SEED=42`, `RAM_LIMIT_GB=6.5`,\
+    \ `MODEL_PATHS`), but importing `code.config` cannot succeed: it imports `code.utils.errors`,\
+    \ which imports `utils.logging`, a shim that re-exports `log_event`, `fail_loudly`,\
+    \ and `JsonFormatter` from `code.utils.logging` \u2014 symbols that module does\
+    \ not define (it only defines `JsonLogFormatter` and logger-first wrappers), so\
+    \ the import chain raises `ImportError`. Additionally, `config.py` calls `log_error(msg)`/`log_info(msg)`\
+    \ with a single string argument, while the logging wrappers require a logger as\
+    \ the first"
+  task: ca578e619785b71f4ffd658007d99143ac54eb558493bb762901911eb7694006
+T006:
+  reason: 'Requested task execution failed; rerun successfully: code/utils/dummy_logger_test.py
+    exit=5'
+  task: 797b112af7ace3cf48bbfae69e2c5a72023b76f5c50dc2fd7c745b94bfacc472
+T007:
+  task: e88617f9242fea002b3959136b188b9fecf84396d2fbde456496f66eb66f9543
+T008:
+  task: 167bf9c426cf98233291e7cea3a06f1ea9be2b9c67772b350ed11590f8b2362b
+T009:
+  task: 509b8a346eda0ec62911e535801a9947b05ebab27d644a3018d6aa38b6e0acc8
+T010:
+  task: 5c2578435b59f6f919f6cdd0e48aca772d10079beb9174c11fe52994f29b076a
+T011:
+  task: 5195e65722d33f22e53020a90aa88dff0c87e4431833ea985badd5648b27c934
+T012:
+  task: c585269279174e2611d9a5d89937f407faab2edc10691f7e3ad697e15c5d13b9
+T013:
+  task: 5869cb8d6c65f60a84d812feaab16ef736259164830298e6460c5f193d826fce
+T014:
+  task: a7c2a944a9c61dd8e95cd1a047a418bc10afe88e4a8f2c7c5c94be727f2eec0f
+T015:
+  task: 3e69346a735dc48db96d7789c4261476f6d42a25eae7ffaaedf5f39229868ce9
+T016:
+  task: cb07e95797f18f3cef6dab91a08ce5682ef091acd94c31ab4f21aaccf82c3976
+T017:
+  task: 0b05a6ff95c64880bce9bcd6ba3992054ec66735d707d509cd995ab1e7e6daa0
+T018:
+  task: 885ce998eda1fd96af075a2a9854ccec8789f8db0a6fa961325a87aa96175a64
+T019:
+  task: cab629e56c1ff1ae28cbd5dac28ea0e0fd8df4b9509079ebb4b3138653a9ae6a
+T020:
+  task: 783369d179465626b06172fdd670cef11a42b92170a9eb0688f6cab25d79c743
+T021:
+  task: cfe794d7d8b55a34ef0b8092e7ee162710234b627b034798fd80f5ab251b2416
+T022:
+  task: e4cd2f87fabf9abba814d2820b429b71cc89b0dad1d96a4d770df94411f263d1
+T023:
+  task: 929e6d545196b6179680110d0e11a993e65c373d590694603be0270ddee56bbb
+T024:
+  task: 4f8129e9ad6c93eeaa964515badff7ddc4e321e863f18c6a72f4d26d0dd0cb97
+T025a:
+  task: 185c150e1093b2ebca3fa84d65efbae9d4b0f3c6ca56b6be2c64c5a141717e3e
+T025b:
+  task: 95dfa89d9e034faa1024dcbfaf2f2efa684e3afc1248045bd0518f5e57773416
+T026:
+  task: 8bf37c35a93cebce91897d7e30d1fccef9d4c46852e4bfcfc1c0fe70577dd6c0
+T027:
+  task: e662c09dd9d3746053d2c28d13c2cd08ce9e1f11e54f2e79176cdfac0fc94d4d
+T027a:
+  task: 4042279e268a5ebf9c33e62b3d166c05420ad1fb5279399f78c82de9928a6596
+T028:
+  task: 11c8a1988039f4125f73ce245aabf2ac0fee3b4a35816199f060600bc21effb1
+T029a:
+  task: 5eeb8c5ca6dad9f34ddfa07a835a41d196a542e1598805d5f88a87eb09c9fb42
+T029b:
+  task: a7b4256ee07ad5e2300647d84e86384c70185676b20ca0c79f60d2037b69d9d3
+T030:
+  task: c2563c19646acd05e8cbbbdb711bdfcf6fbf4beaea12e26271cecbb1b10a19b6
+T030a:
+  task: 487edd90db303eb3df91edb4d2c4156ace2650b702f2cc6b2f37ac3779d91f6b
+T031:
+  task: b74cc29527f673ebbed2b6b16ec25f9c516d3a58bc21dfa549d394db9cf5c1b1
+T032:
+  task: 185cc30ca0cf59e8009d9226e1ddd2db2e7749bed24b16c0deff48d54060d445
+T033:
+  task: ebe0da71b4050bcffe969781940d4aad59c17ad4cf0f6b17699f44a15fed7c2e
+T034:
+  task: 8909b01ff73bcb924f49965b45371fe976f43b03e507bf843d474d28c5db5369
+T035:
+  task: 93e3f9754201018be990266ae8c6c93138648343eec085c1e167106efbbb4557

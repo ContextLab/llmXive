@@ -1,0 +1,33 @@
+[MAIN]
+init-hook=import sys; sys.path.append('code')
+
+[MESSAGES CONTROL]
+disable =
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0903,  # too-few-public-methods
+    R0913,  # too-many-arguments
+    R0914,  # too-many-locals
+    R0915,  # too-many-statements
+    W0511,  # fixme
+    E1101,  # no-member (dynamic imports often trigger false positives)
+    W0613,  # unused-argument
+    W0621,  # redefined-outer-name
+
+[FORMAT]
+max-line-length = 88
+
+[DESIGN]
+max-args = 10
+max-locals = 20
+max-returns = 6
+max-branches = 15
+max-statements = 60
+max-attributes = 15
+max-public-methods = 20
+
+[SIMILARITIES]
+min-similarity-lines = 6
+ignore-comments = yes
+ignore-docstrings = yes

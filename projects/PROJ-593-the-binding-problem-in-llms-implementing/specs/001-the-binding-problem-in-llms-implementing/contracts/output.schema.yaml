@@ -1,0 +1,86 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for final results and statistical reports. Validates FR‑005 – FR‑006."
+type: "object"
+properties:
+  results_summary:
+    type: "object"
+    properties:
+      frequency_sweep:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            frequency_hz:
+              type: "integer"
+              description: "Relative frequency tested (cycles per sequence)."
+            mean_snr:
+              type: "number"
+              description: "Mean Signal‑to‑Noise Ratio across seeds."
+            mean_plv:
+              type: "number"
+              description: "Mean Phase‑Locking Value across seeds."
+            p_value:
+              type: "number"
+              description: "Bonferroni‑corrected p‑value for PLV vs. baseline."
+            significance:
+              type: "boolean"
+              description: "True if corrected p < 0.05."
+          required: ["frequency_hz", "mean_snr", "mean_plv", "p_value", "significance"]
+      benchmark_performance:
+        type: "object"
+        properties:
+          clutrr:
+            type: "object"
+            properties:
+              accuracy:
+                type: "number"
+              f1_score:
+                type: "number"
+              p_value:
+                type: "number"
+            required: ["accuracy", "f1_score", "p_value"]
+          babi:
+            type: "object"
+            properties:
+              accuracy:
+                type: "number"
+              f1_score:
+                type: "number"
+              p_value:
+                type: "number"
+            required: ["accuracy", "f1_score", "p_value"]
+        required: ["clutrr", "babi"]
+    required: ["frequency_sweep", "benchmark_performance"]
+  statistical_report:
+    type: "object"
+    properties:
+      permutation_test:
+        type: "object"
+        properties:
+          n_permutations:
+            type: "integer"
+            description: "Number of permutations performed (≥ 1000)."
+          null_distribution:
+            type: "array"
+            items:
+              type: "number"
+          observed_value:
+            type: "number"
+            description: "Observed PLV similarity score."
+          p_value:
+            type: "number"
+            description: "Uncorrected p‑value from permutation test."
+        required: ["n_permutations", "null_distribution", "observed_value", "p_value"]
+      correction_method:
+        type: "string"
+        description: "Multiple‑comparison correction method (e.g., 'bonferroni')."
+      assumptions:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of methodological assumptions (e.g., 'Associational Similarity')."
+    required: ["permutation_test", "correction_method", "assumptions"]
+required:
+  - results_summary
+  - statistical_report

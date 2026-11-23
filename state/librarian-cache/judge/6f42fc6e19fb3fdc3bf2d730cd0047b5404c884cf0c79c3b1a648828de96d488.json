@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.19958",
+  "judged_at": "2026-08-02T12:35:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"qwen-vla: unifying vision-language-action modeling across tasks, envir\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same core domain (Vision-Language-Action models for robotics) and provides an empirical baseline for a critical capability (long-horizon task performance) that the user's follow-up research on \"Qwen-VLA\" would need to contextualize, satisfying criteria (a) and (c). While the user's question is a follow-up to a specific paper, this candidate represents the canonical prior work on the specific problem of extending VLA capabilitie",
+  "relevant": true
+}

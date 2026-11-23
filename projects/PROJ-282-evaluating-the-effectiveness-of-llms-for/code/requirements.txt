@@ -1,0 +1,17 @@
+transformers
+scikit-learn
+pandas
+tree-sitter
+networkx
+requests
+pyyaml
+bitsandbytes
+sentence-transformers
+pytest
+radon
+statsmodels
+ruff
+black
+mypy
+types-requests
+types-PyYAML

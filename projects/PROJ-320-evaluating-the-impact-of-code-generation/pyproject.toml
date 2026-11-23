@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-evaluating-llm-code-review-impact"
+version = "0.1.0"
+description = "Evaluating the Impact of Code Generation on Code Review Quality Using LLMs"
+requires-python = ">=3.11"
+dependencies = [
+    "requests",
+    "pandas",
+    "scipy",
+    "networkx",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "statsmodels",
+    "pytest",
+    "pycodestyle",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+skip-string-normalization = false
+skip-magic-trailing-comma = true
+
+[tool.ruff]
+# Same line length as Black for consistency
+line-length = 100
+target-version = "py311"
+
+# Exclude directories that should not be linted
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "UP", "B", "C4"]
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "W191", # Indentation contains tabs (handled by Black)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "tests", "specs"]
+force-sort-within-sections = true
+lines-after-imports = 2
+combine-as-imports = true

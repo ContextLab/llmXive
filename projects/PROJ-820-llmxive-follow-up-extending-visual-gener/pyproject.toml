@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up"
+version = "0.1.0"
+description = "Visual Generation in the New Era: An Evolution from Atomic Mapping"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pymunk",
+    "diffusers",
+    "torch",
+    "ultralytics",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "pyyaml",
+    "pillow",
+    "scikit-image",
+    "ruff",
+    "black",
+    "pytest",
+    "scipy",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+
+[tool.black]
+# Black configuration
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | specs
+)/
+'''
+
+[tool.isort]
+# isort configuration (compatible with Black)
+profile = "black"
+line_length = 88
+skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist", "data", "specs"]
+
+[tool.pytest.ini_options]
+# Pytest configuration
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning:ultralytics.*",
+    "ignore::UserWarning:diffusers.*",
+]
+
+[tool.mypy]
+# MyPy configuration (optional but good practice)
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = ["data", "specs"]

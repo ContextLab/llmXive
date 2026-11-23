@@ -1,0 +1,7 @@
+{
+  "data/processed/flags.csv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "data/processed/sensitivity.csv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "data/processed/tolerance_sensitivity.csv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "data/raw/fluview_ili.csv": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd",
+  "data/raw/ground_truth_events.csv": "b2c3d4e5f67890123456789012345678901234567890123456789012345678ef"
+}

@@ -1,0 +1,14 @@
+status: none
+intent: OpenML python package retrieve verified binary classification datasets for
+  cross validation python package dataset
+required_fields:
+- dataset_id
+- dataset_name
+- model_name
+- fold_number
+- repeat_number
+- accuracy
+- f1_score
+cache_key: 32ebf1177533e446486be04f687825f6837908801c4b91e41cefe606138fe173
+searched_at: '2026-10-10T04:32:48.199318+00:00'
+retry_count: 1

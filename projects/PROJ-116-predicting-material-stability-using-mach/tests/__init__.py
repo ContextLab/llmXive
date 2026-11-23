@@ -1,3 +1,3 @@
 """
-Test suite for the Material Stability Prediction Pipeline.
+Test suite for the material stability prediction pipeline.
 """

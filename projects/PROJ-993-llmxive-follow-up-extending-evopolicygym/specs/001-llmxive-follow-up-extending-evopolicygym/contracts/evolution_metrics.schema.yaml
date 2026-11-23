@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvolutionMetrics"
+description: "Schema for aggregated metrics from the evolutionary harness."
+type: "object"
+required:
+  - run_id
+  - condition
+  - env_id
+  - pre_shift_score
+  - post_shift_score
+  - generalization_score
+  - complexity_cyclomatic
+  - complexity_branches
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the evolutionary run."
+  seed:
+    type: "integer"
+    description: "Random seed used for this run."
+  condition:
+    type: "string"
+    enum:
+      - "baseline"
+      - "counterfactual"
+    description: "Experimental condition."
+  env_id:
+    type: "string"
+    description: "Environment identifier."
+  pre_shift_score:
+    type: "number"
+    description: "Average score before the dynamic shift."
+  post_shift_score:
+    type: "number"
+    description: "Average score after the dynamic shift."
+  generalization_score:
+    type: "number"
+    description: "Ratio of post-shift to pre-shift score (retention)."
+  complexity_cyclomatic:
+    type: "integer"
+    description: "Cyclomatic complexity of the evolved policy."
+  complexity_branches:
+    type: "integer"
+    description: "Number of conditional branches in the policy."
+  explanation_success_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Rate of successful explanation generations (valid text / total failures)."

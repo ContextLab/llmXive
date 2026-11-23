@@ -1,57 +1,79 @@
 """
-Module to create the required data directory structure for the project.
-Ensures data/raw, data/processed, and data/results directories exist.
+Script to create required data directories for the project.
+
+This module provides a `create_data_directories` function that ensures the
+following sub‑directories exist under the repository's top‑level ``data`` folder:
+
+- data/raw
+- data/processed
+- data/results
+- data/external
+
+The function is idempotent (it will not raise an error if the directories already exist)
+and returns a list of the created ``Path`` objects.
+
+The module also defines a ``main`` entry point so it can be executed directly:
+``python -m code.setup_data_dirs`` or ``python code/setup_data_dirs.py``.
 """
-import os
+
+import logging
 from pathlib import Path
+from typing import List
+
 from config import get_config
 from code.utils.logger import get_pipeline_logger
-from code.utils.error_handling import handle_error, ConfigError
 
-def create_data_directories():
+# ----------------------------------------------------------------------
+# Helper function
+# ----------------------------------------------------------------------
+def create_data_directories(base_path: Path = Path.cwd() / "data") -> List[Path]:
     """
-    Creates the standard data directory structure under the project root.
-    
-    Directories created:
-    - data/raw: For raw, unprocessed data downloads
-    - data/processed: For cleaned and feature-engineered data
-    - data/results: For model outputs, metrics, and analysis reports
-    
-    Returns:
-        bool: True if all directories were created or already existed, False on error.
+    Create the standard data sub‑directories required by the project.
+
+    Parameters
+    ----------
+    base_path : Path, optional
+        The root ``data`` directory. Defaults to ``<repo_root>/data``.
+
+    Returns
+    -------
+    List[Path]
+        List of ``Path`` objects pointing to the created (or already existing)
+        sub‑directories.
     """
-    logger = get_pipeline_logger()
-    logger.info("Starting data directory creation...")
-    
+    subdirs = ["raw", "processed", "results", "external"]
+    created_paths: List[Path] = []
+
+    for sub in subdirs:
+        dir_path = base_path / sub
+        dir_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(dir_path)
+
+    return created_paths
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    CLI entry point that creates the data directories and logs the outcome.
+    """
+    logger = get_pipeline_logger(__name__)
+
+    # Load configuration (may be used in the future; kept for consistency)
     try:
-        config = get_config()
-        base_dir = Path(config.get('paths', {}).get('project_root', '.'))
-        data_root = base_dir / 'data'
-        
-        required_dirs = [
-            data_root / 'raw',
-            data_root / 'processed',
-            data_root / 'results'
-        ]
-        
-        for dir_path in required_dirs:
-            if not dir_path.exists():
-                dir_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {dir_path}")
-            else:
-                logger.info(f"Directory already exists: {dir_path}")
-        
-        logger.info("Data directory structure setup complete.")
-        return True
-        
+        _ = get_config()
+    except Exception as exc:
+        logger.warning(f"Could not load config (non‑critical for directory creation): {exc}")
+
+    try:
+        created = create_data_directories()
+        logger.info("Data directories ensured:")
+        for p in created:
+            logger.info(f"  - {p}")
     except Exception as e:
-        handle_error(e, "Failed to create data directories", logger)
-        return False
+        logger.error(f"Failed to create data directories: {e}")
+        raise
 
 if __name__ == "__main__":
-    success = create_data_directories()
-    if success:
-        print("Data directories created successfully.")
-    else:
-        print("Failed to create data directories. Check logs for details.")
-        exit(1)
+    main()

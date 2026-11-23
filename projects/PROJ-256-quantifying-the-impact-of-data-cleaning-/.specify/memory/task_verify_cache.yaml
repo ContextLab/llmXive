@@ -1,0 +1,27 @@
+T002:
+  c: true
+  h: d1823338d5b3b35388c69cc81fbecd80110bbce295b3d2a0f93579bb24bc1b1a
+  r: "The `power_analysis.txt` file (385\u202FB) contains the required sample\u2011\
+    size calculations, achieved power values of 0.801 and 0.808 (both \u2265\u202F\
+    0.80), and a brief justification under 150\u202Fwords. The unit test `tests/unit/test_power_analysis.py`\
+    \ runs the script, confirms the file\u2019s creation, extracts the two power values,\
+    \ and passes successfully. The implementation script `code/power_analysis.py`\
+    \ correctly computes the powers using statsmodels and writes the report."
+  sig: 62f2ea9bf6aeefa3aba0131c21ab1a92985272a78d26d0d83467b4fff1884d70
+T004:
+  c: true
+  h: 2ebd24b7a13450492ca6008508e6fba1f4b85ad4df8deffc177a484031cb20b2
+  r: "The `contracts/cleaned_metrics.schema.yaml` file exists, contains the required\
+    \ and optional fields (including `cohens_d`, `r_squared`, `effect_size_cv`), and\
+    \ the accompanying test `tests/contract/test_cleaned_schema.py` successfully validates\
+    \ the schema against a minimal compliant instance and checks required\u2011field\
+    \ omissions. The test log shows all 17 assertions passed."
+  sig: 15c92937f2dbe63d2c86b952e29161e0ff4724b33d631e7a3bd5a133710d14e7
+T019:
+  c: true
+  h: eadb9e2452e5c8bd5fd068dc4d139cc52c4f872bc0cb22856f88f21be864d83d
+  r: "Checked `code/random_seeds.py` (sets NumPy and Python RNG seeds, defines `RANDOM_STATE\
+    \ = 42`) and its import in `code/main.py`; the unit test `tests/unit/test_random_seeds.py`\
+    \ runs and all four assertions pass, confirming deterministic behavior for NumPy,\
+    \ `random`, and scikit\u2011learn estimators."
+  sig: 2f9681eed187ebc6783648f79573e507b1284ac9ef937a33c2860f29a8bc72b5

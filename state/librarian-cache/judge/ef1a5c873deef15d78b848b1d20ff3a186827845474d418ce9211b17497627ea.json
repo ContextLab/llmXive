@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.12209",
+  "judged_at": "2026-07-17T04:11:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the correlation between gut microbiome composition and parkinson’s disease progression biology",
+  "rationale": "The paper investigates the correlation between gut microbiome composition and gastric cancer, which is a distinct disease construct from Parkinson's Disease; while it shares the \"gut microbiome\" domain, it fails to address the specific dependent variable (Parkinson's progression) or the specific disease mechanism required by the user's question, falling under the \"Distinct construct\" rejection rule.",
+  "relevant": false
+}

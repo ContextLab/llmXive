@@ -1,0 +1,56 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Results
+description: Schema for the statistical evaluation results on the LogiQA benchmark.
+type: object
+required:
+  - models
+  - scores
+  - statistical_test
+properties:
+  models:
+    type: array
+    description: List of models evaluated.
+    items:
+      type: string
+      enum:
+        - FIM
+        - NL-Control
+        - Baseline
+  scores:
+    type: object
+    description: Accuracy scores per model.
+    additionalProperties:
+      type: object
+      properties:
+        accuracy:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        count:
+          type: integer
+          minimum: 0
+  statistical_test:
+    type: object
+    description: Results of the statistical significance test (FIM vs NL-Control).
+    required:
+      - test_type
+      - p_value
+      - statistic
+      - is_significant
+    properties:
+      test_type:
+        type: string
+        description: Name of the test used (e.g., "paired_t_test", "wilcoxon").
+      p_value:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      statistic:
+        type: number
+      is_significant:
+        type: boolean
+        description: True if p_value < 0.05.
+      comparison:
+        type: string
+        description: Description of the comparison (e.g., "FIM vs NL-Control").
+additionalProperties: true

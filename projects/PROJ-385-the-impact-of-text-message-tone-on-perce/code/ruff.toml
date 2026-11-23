@@ -1,0 +1,21 @@
+[tool.ruff]
+# Same default as Black
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+# Only error on code that is strictly worse than Black's defaults
+select = ["E4", "E7", "F", "W"]
+ignore = []
+
+[tool.ruff.lint.per-flake]
+# No per-flake rules needed for basic style
+
+[tool.ruff.lint.pysimpl]
+# No specific simplification rules
+
+[tool.ruff.format]
+# Matches Black defaults
+quote-style = "double"
+indent-width = 4
+line-ending = "auto"

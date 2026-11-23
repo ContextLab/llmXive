@@ -1,176 +1,267 @@
 """
-Unit tests for GLMM model fitting in code/analysis/glmm.py.
-
-This module performs a sanity check on synthetic data to ensure the GLMM
-fitting logic (using statsmodels) works correctly before running on real data.
-
-The test generates synthetic binary outcomes based on known parameters,
-fits the model, and verifies that the recovered coefficients are within
-a reasonable tolerance of the ground truth.
+Unit tests for GLMM model fitting (T028).
+Performs a sanity check on synthetic data to ensure the model fitting logic works.
 """
+import json
+import math
+import os
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from typing import List, Dict, Any
 
-import pytest
-import numpy as np
-import pandas as pd
-from statsmodels.genmod.generalized_linear_model import GLM
-from statsmodels.genmod import families
-from statsmodels.base.model import BFGS
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-# We will import the specific fitting function if it exists, 
-# or test the logic directly here to ensure the module is runnable.
-# Since T028 (glmm.py) is not yet implemented, we test the *logic* 
-# that T028 will implement using a local helper.
+from analysis.glmm import (
+    load_execution_traces,
+    prepare_data_for_glmm,
+    fit_glmm,
+    calculate_effect_sizes,
+    run_statistical_analysis
+)
+from config import ensure_directories
 
-def generate_synthetic_glmm_data(n_samples=1000, n_groups=50, random_seed=42):
-    """
-    Generates synthetic data for a binary outcome GLMM.
-    
-    Model: logit(p) = beta0 + beta1 * x + u_group
-    where u_group ~ N(0, sigma^2)
-    
-    Returns:
-        df: DataFrame with 'outcome', 'x', 'group_id'
-        true_params: dict with ground truth coefficients
-    """
-    rng = np.random.default_rng(random_seed)
-    
-    # Ground truth parameters
-    beta0 = -0.5
-    beta1 = 1.5
-    sigma_u = 0.8
-    
-    # Group assignments
-    group_ids = rng.integers(0, n_groups, size=n_samples)
-    unique_groups = np.unique(group_ids)
-    
-    # Random effects per group
-    u = rng.normal(0, sigma_u, size=n_groups)
-    u_group = u[group_ids]
-    
-    # Predictor (simulating 'number of constraints')
-    x = rng.normal(0, 1, size=n_samples)
-    
-    # Linear predictor
-    linear_pred = beta0 + beta1 * x + u_group
-    
-    # Probability via logistic function
-    p = 1 / (1 + np.exp(-linear_pred))
-    
-    # Binary outcome
-    y = rng.binomial(1, p, size=n_samples)
-    
-    df = pd.DataFrame({
-        'outcome': y,
-        'x': x,
-        'group_id': group_ids
-    })
-    
-    return df, {'beta0': beta0, 'beta1': beta1, 'sigma_u': sigma_u}
+class TestGLMMFitting(unittest.TestCase):
+    """Unit tests for GLMM model fitting on synthetic data."""
 
-def fit_glmm_fixed_effects(df, outcome_col='outcome', pred_col='x', group_col='group_id'):
-    """
-    Fits a GLM with binomial family and logit link.
-    Note: statsmodels GLM does not natively support random effects (mixed models)
-    without the `statsmodels` mixedlm module or `pymer4`. 
-    For this sanity check, we fit a fixed-effects GLM to verify the 
-    binomial link and convergence logic works. 
-    
-    In a full implementation (T028), we would use a proper MixedLM or 
-    GEE approach for the random effects. This test ensures the 
-    data loading and model fitting pipeline is robust.
-    """
-    # Prepare data
-    y = df[outcome_col]
-    X = df[[pred_col]]
-    # Add intercept
-    X = sm.add_constant(X)
-    
-    model = GLM(y, X, family=families.Binomial())
-    result = model.fit()
-    
-    return result
+    def setUp(self):
+        """Set up test fixtures."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.test_input_path = os.path.join(self.temp_dir, "test_execution_traces.csv")
+        self.test_output_path = os.path.join(self.temp_dir, "test_statistical_results.json")
+        ensure_directories()
 
-import statsmodels.api as sm
+    def tearDown(self):
+        """Clean up temporary files."""
+        if os.path.exists(self.test_input_path):
+            os.remove(self.test_input_path)
+        if os.path.exists(self.test_output_path):
+            os.remove(self.test_output_path)
 
-class TestGLMMFitting:
-    """Test suite for GLMM fitting logic."""
-
-    def test_synthetic_data_generation(self):
-        """Verify synthetic data generation produces expected distributions."""
-        df, params = generate_synthetic_glmm_data(n_samples=1000)
-        
-        assert len(df) == 1000
-        assert df['outcome'].dtype in [np.int64, np.int32]
-        assert df['outcome'].isin([0, 1]).all()
-        assert df['x'].dtype in [np.float64, np.float32]
-        assert len(df['group_id'].unique()) > 0
-    
-    def test_glmm_convergence_on_synthetic(self):
-        """Test that the GLM converges on synthetic data."""
-        df, _ = generate_synthetic_glmm_data(n_samples=2000)
-        
-        # Fit model
-        result = fit_glmm_fixed_effects(df)
-        
-        # Check convergence
-        assert result.converged, "GLM did not converge on synthetic data"
-        assert result.status == 0, "GLM optimization status is not 0"
-    
-    def test_coefficient_recovery(self):
+    def _create_synthetic_traces(self, rows: int = 100, architecture_split: float = 0.5):
         """
-        Test that the estimated coefficients are reasonably close to truth.
-        Note: Since we are fitting a fixed-effects model on data with random effects,
-        the estimate for beta1 might be slightly attenuated or biased, but it 
-        should be statistically significant and in the correct direction.
+        Create a synthetic execution_traces.csv file for testing.
+        
+        Args:
+            rows: Number of rows to generate
+            architecture_split: Proportion of 'dual_track' vs 'monolithic'
         """
-        df, true_params = generate_synthetic_glmm_data(n_samples=5000, n_groups=200)
+        import pandas as pd
+        import random
         
-        result = fit_glmm_fixed_effects(df)
+        random.seed(42)
         
-        # Extract coefficients
-        # Index 0 is intercept (const), Index 1 is 'x'
-        estimated_beta1 = result.params['x']
-        estimated_beta0 = result.params['const']
+        data = []
+        for i in range(rows):
+            task_id = f"task_{i:04d}"
+            # Split architectures
+            if random.random() < architecture_split:
+                architecture = "dual_track"
+            else:
+                architecture = "monolithic"
+            
+            # Constraint count: 5 to 10
+            constraint_count = random.randint(5, 10)
+            
+            # Generate a violation status based on architecture and constraint count
+            # Dual track should have fewer violations, especially at high constraint counts
+            base_violation_prob = 0.3
+            if architecture == "dual_track":
+                base_violation_prob = 0.15
+            
+            # Increase probability with constraint count
+            violation_prob = base_violation_prob + (constraint_count - 5) * 0.02
+            
+            violation_boolean = random.random() < violation_prob
+            violation_reason = "constraint_violation" if violation_boolean else None
+            
+            # Violation status: mostly null, some specific cases
+            if violation_boolean:
+                violation_status = random.choice([None, "false_negative", "implicit_unverified"])
+            else:
+                violation_status = None
+            
+            # Final score: 0.0 to 1.0, correlated with violations
+            if violation_boolean:
+                final_score = random.uniform(0.0, 0.6)
+            else:
+                final_score = random.uniform(0.7, 1.0)
+            
+            data.append({
+                "task_id": task_id,
+                "architecture": architecture,
+                "constraint_count": constraint_count,
+                "violation_boolean": violation_boolean,
+                "violation_reason": violation_reason,
+                "violation_status": violation_status,
+                "final_score": final_score
+            })
         
-        # Check direction (should be positive as true beta1 is 1.5)
-        assert estimated_beta1 > 0, "Estimated beta1 should be positive"
+        df = pd.DataFrame(data)
+        df.to_csv(self.test_input_path, index=False)
+        return df
+
+    def test_load_execution_traces(self):
+        """Test loading execution traces from CSV."""
+        df = self._create_synthetic_traces(50)
         
-        # Check magnitude (allow for some bias due to unmodeled random effects)
-        # With large sample, it should be within 50% of true value at least
-        assert abs(estimated_beta1 - true_params['beta1']) < 1.0, \
-            f"Estimated beta1 ({estimated_beta1}) too far from truth ({true_params['beta1']})"
+        loaded_df = load_execution_traces(self.test_input_path)
         
-        # Check p-value for x is significant
-        p_value = result.pvalues['x']
-        assert p_value < 0.05, f"Predictor x should be significant (p={p_value})"
-    
-    def test_empty_data_handling(self):
-        """Test that the function handles empty data gracefully."""
-        df_empty = pd.DataFrame({'outcome': [], 'x': [], 'group_id': []})
+        self.assertEqual(len(loaded_df), 50)
+        self.assertIn("task_id", loaded_df.columns)
+        self.assertIn("architecture", loaded_df.columns)
+        self.assertIn("constraint_count", loaded_df.columns)
+        self.assertIn("violation_boolean", loaded_df.columns)
+        self.assertIn("final_score", loaded_df.columns)
+
+    def test_prepare_data_for_glmm(self):
+        """Test data preparation for GLMM."""
+        df = self._create_synthetic_traces(100)
         
-        with pytest.raises(Exception):
-            # GLM should fail on empty data
-            fit_glmm_fixed_effects(df_empty)
-    
-    def test_invalid_outcome_values(self):
-        """Test that non-binary outcomes raise an error or are handled."""
-        df_invalid = pd.DataFrame({
-            'outcome': [0, 1, 2], 
-            'x': [0.1, 0.2, 0.3]
-        })
+        prepared_data = prepare_data_for_glmm(df)
         
-        # Binomial family expects 0/1. 2 might cause issues or be treated as 1 in some contexts,
-        # but strictly it should fail or warn.
-        # We expect an error or a warning depending on statsmodels version.
-        # For safety, we check that it doesn't silently produce a valid model for bad data.
-        try:
-            result = fit_glmm_fixed_effects(df_invalid)
-            # If it runs, the fit should likely be bad or raise a warning during fit
-            # But for this test, we just ensure the code path doesn't crash unexpectedly
-            # without a clear error.
-        except ValueError:
-            # Expected: ValueError for non-binary outcomes in Binomial family
-            pass
-        except Exception:
-            # Other exceptions are also acceptable as long as it fails loudly
-            pass
+        # Check that binary outcome is created
+        self.assertIn("outcome", prepared_data.columns)
+        self.assertIn("architecture_encoded", prepared_data.columns)
+        self.assertIn("constraint_count", prepared_data.columns)
+        
+        # Check that outcome is binary (0 or 1)
+        self.assertTrue(all(prepared_data["outcome"].isin([0, 1])))
+        
+        # Check that architecture is encoded
+        self.assertTrue(all(prepared_data["architecture_encoded"].isin([0, 1])))
+
+    def test_fit_glmm(self):
+        """Test GLMM model fitting."""
+        df = self._create_synthetic_traces(200)
+        
+        prepared_data = prepare_data_for_glmm(df)
+        
+        # Fit the model
+        model, results = fit_glmm(prepared_data)
+        
+        # Check that results contain expected fields
+        self.assertIn("coefficients", results)
+        self.assertIn("p_values", results)
+        self.assertIn("interaction_p_value", results)
+        
+        # Check that coefficients are present
+        self.assertIn("architecture_encoded", results["coefficients"])
+        self.assertIn("constraint_count", results["coefficients"])
+        self.assertIn("architecture_encoded:constraint_count", results["coefficients"])
+        
+        # Check that p-values are valid numbers
+        self.assertIsInstance(results["p_values"]["architecture_encoded"], float)
+        self.assertIsInstance(results["p_values"]["constraint_count"], float)
+        self.assertIsInstance(results["p_values"]["interaction_p_value"], float)
+
+    def test_calculate_effect_sizes(self):
+        """Test effect size calculation."""
+        df = self._create_synthetic_traces(200)
+        
+        prepared_data = prepare_data_for_glmm(df)
+        model, glmm_results = fit_glmm(prepared_data)
+        
+        effect_sizes = calculate_effect_sizes(prepared_data, glmm_results)
+        
+        self.assertIn("cohen_f_squared", effect_sizes)
+        self.assertIn("interaction_effect_size", effect_sizes)
+        
+        # Check that effect sizes are non-negative
+        self.assertGreaterEqual(effect_sizes["cohen_f_squared"], 0)
+        self.assertGreaterEqual(effect_sizes["interaction_effect_size"], 0)
+
+    def test_run_statistical_analysis(self):
+        """Test full statistical analysis pipeline."""
+        df = self._create_synthetic_traces(300)
+        
+        results = run_statistical_analysis(self.test_input_path, self.test_output_path)
+        
+        # Check that results file was written
+        self.assertTrue(os.path.exists(self.test_output_path))
+        
+        # Check that results contain expected fields
+        with open(self.test_output_path, 'r') as f:
+            saved_results = json.load(f)
+        
+        self.assertIn("interaction_p_value", saved_results)
+        self.assertIn("interaction_coefficient", saved_results)
+        self.assertIn("cohen_f_squared", saved_results)
+        self.assertIn("model_converged", saved_results)
+        
+        # Check that p-value is a valid number
+        self.assertIsInstance(saved_results["interaction_p_value"], float)
+        self.assertGreater(saved_results["interaction_p_value"], 0)
+        self.assertLess(saved_results["interaction_p_value"], 1)
+
+    def test_interaction_effect_detection(self):
+        """Test that the model can detect an interaction effect when present."""
+        # Create data with a clear interaction effect
+        rows = 500
+        data = []
+        
+        for i in range(rows):
+            task_id = f"task_{i:04d}"
+            architecture = "dual_track" if i < rows // 2 else "monolithic"
+            constraint_count = random.randint(5, 10)
+            
+            # Strong interaction: dual track maintains high scores even at high constraints
+            # monolithic scores drop significantly at high constraints
+            if architecture == "dual_track":
+                base_score = 0.9 - (constraint_count - 5) * 0.02
+            else:
+                base_score = 0.9 - (constraint_count - 5) * 0.12
+            
+            final_score = max(0.0, min(1.0, base_score + random.uniform(-0.1, 0.1)))
+            violation_boolean = 0 if final_score > 0.7 else 1
+            
+            data.append({
+                "task_id": task_id,
+                "architecture": architecture,
+                "constraint_count": constraint_count,
+                "violation_boolean": violation_boolean,
+                "violation_reason": "constraint_violation" if violation_boolean else None,
+                "violation_status": None,
+                "final_score": final_score
+            })
+        
+        import pandas as pd
+        df = pd.DataFrame(data)
+        df.to_csv(self.test_input_path, index=False)
+        
+        results = run_statistical_analysis(self.test_input_path, self.test_output_path)
+        
+        # The interaction effect should be detectable (p < 0.05)
+        self.assertLess(results["interaction_p_value"], 0.05, 
+                      "Interaction effect should be significant in this synthetic data")
+
+    def test_empty_dataset_handling(self):
+        """Test handling of empty dataset."""
+        import pandas as pd
+        empty_df = pd.DataFrame(columns=["task_id", "architecture", "constraint_count", 
+                                        "violation_boolean", "violation_reason", 
+                                        "violation_status", "final_score"])
+        empty_df.to_csv(self.test_input_path, index=False)
+        
+        with self.assertRaises(ValueError):
+            run_statistical_analysis(self.test_input_path, self.test_output_path)
+
+    def test_single_architecture_handling(self):
+        """Test handling of dataset with only one architecture type."""
+        df = self._create_synthetic_traces(100, architecture_split=1.0)
+        
+        # All should be dual_track
+        self.assertTrue(all(df["architecture"] == "dual_track"))
+        
+        # This should still run but may not have a meaningful interaction effect
+        results = run_statistical_analysis(self.test_input_path, self.test_output_path)
+        
+        # Should still produce valid results
+        self.assertIn("interaction_p_value", results)
+        self.assertIsInstance(results["interaction_p_value"], float)
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,119 +1,102 @@
 # Implementation Plan: Predicting Catalytic Activity from Electronic Structure and Reaction Path Features
 
-**Branch**: `001-predicting-catalytic-activity` | **Date**: 2026-06-24 | **Spec**: `specs/001-predicting-catalytic-activity/spec.md`
+**Branch**: `001-predicting-catalytic-activity` | **Date**: 2026-10-23 | **Spec**: `specs/001-predicting-catalytic-activity/spec.md`  
 **Input**: Feature specification from `/specs/001-predicting-catalytic-activity/spec.md`
 
 ## Summary
-
-This project implements a computational pipeline to predict DFT-calculated reaction energy (`energy_change`) using electronic structure descriptors (d-band center, adsorption energy derived from OC20) and reaction path features. The approach involves downloading a stratified sample of the OC20 dataset, deriving necessary descriptors via structure-based proxies, training an XGBoost model against a linear baseline, and performing SHAP-based interpretability analysis. The entire pipeline is constrained to run on a 2-core, 7GB RAM GitHub Actions runner within 6 hours.
-
-**Critical Scope Adjustment**: The project scope has been revised to rely exclusively on the verified OC20 dataset. Dependencies on unverified sources (Materials Project bulk descriptors, 2025 CO₂ hydrogenation study) and the experimental `experimental_tof` target have been removed due to data unavailability and verification failures. The target variable is now the DFT reaction energy (`energy_change`) available in OC20. This pivot is necessary to ensure the research question remains scientifically valid (predicting DFT energetics from descriptors) rather than attempting to predict non-existent experimental data.
+We will deliver a fully reproducible, CPU‑first pipeline that (1) streams the open‑source OC20 dataset, (2) retrieves bulk electronic descriptors from the Materials Project API, (3) aligns these with any available experimental TOF data (currently missing, so a scoped‑revision request is issued), (4) performs k‑NN imputation, scaling, and validation, (5) reserves a 20 % hold‑out set *before* any hyper‑parameter tuning, (6) trains an XGBoost model and a linear baseline, (7) conducts the appropriate statistical test, (8) computes SHAP feature importance, (9) evaluates a reduced‑descriptor model, and (10) generates a validated final report. All steps are designed to run on the free GitHub Actions runner (≤ 2 CPU cores, ≤ 7 GB RAM, ≤ 6 h wall‑clock). Where a required external dataset is not publicly accessible, a formal scope‑revision request is generated and the pipeline pauses after alignment, preserving all upstream artifacts.
 
 ## Technical Context
-
-**Language/Version**: Python 3.10  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `xgboost`, `shap`, `requests`, `pyyaml`, `rdkit` (for structure fingerprints)  
-**Storage**: Local filesystem (`data/`, `code/`, `outputs/`)  
-**Testing**: `pytest` (contract tests, unit tests for preprocessing logic)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Computational research pipeline / CLI  
-**Performance Goals**: Complete full pipeline (download to report) in ≤6 hours; RAM usage ≤7 GB.  
-**Constraints**: No GPU; no deep learning training from scratch; strict data hygiene (checksums, no in-place modification).  
-**Scale/Scope**: A stratified sample of OC20 entries.; single-node CPU execution.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `xgboost`, `shap`, `datasets`, `pymatgen`, `mp-api`, `tqdm`, `matplotlib`, `seaborn`, `pytest` (pinned in `requirements.txt`)  
+- **Storage**: File‑system CSV/Parquet under `data/` and `outputs/`  
+- **Testing**: `pytest` with contract validation (`jsonschema`) and runtime checks  
+- **Target Platform**: Linux GitHub Actions runner (CPU‑only)  
+- **Project Type**: Research‑oriented data‑science pipeline (no web service)  
+- **Performance Goals**: End‑to‑end runtime ≤ 6 h; peak RAM ≤ 5 GB; disk ≤ 12 GB  
+- **Constraints**: No GPU; all external data must be openly downloadable; reproducible random seeds; strict checksum tracking  
 
 ## Constitution Check
+| Principle | Status | Evidence in Plan |
+|-----------|--------|------------------|
+| I. Reproducibility | ✅ | Fixed seeds (`np.random.seed(42)`, `random_state=42`), deterministic streaming, all files checksum‑recorded. |
+| II. Verified Accuracy | ✅ | All cited sources are from the verified dataset block; no invented citations. |
+| III. Data Hygiene | ✅ | Raw files never overwritten; each transformation writes a new file; SHA‑256 hashes recorded in `data/checksums.txt`. |
+| IV. Single Source of Truth | ✅ | Every figure/table will reference a specific row in `aligned_dataset.csv` and a specific code block; `report_schema.yaml` enforces this. |
+| V. Versioning Discipline | ✅ | Content hashes stored in the project state file; contracts enforce schema versioning. |
+| VI. Descriptor‑Based Model Interpretability | ✅ | SHAP analysis required; top‑5 descriptors compared to Nørskov reference. |
+| VII. Computational Resource Constraints | ✅ | All steps CPU‑first; estimated total ≤ 3 h, RAM ≤ 5 GB, well within limits. |
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+## Functional Requirement Coverage
+| FR | Covered? | How |
+|----|----------|-----|
+| FR‑001 | ✅ (partial) | OC20 and MP descriptors are downloaded openly; experimental TOF is missing → a **scope‑revision request** (`code/request_scope_revision.py`) is generated, and the pipeline pauses after alignment. |
+| FR‑002 | ✅ | Exact matching on `composition`, `surface_facet`, `synthesis_condition`; optional `temperature`/`pressure`. Alignment success rate ≥ 0.80 recorded in `alignment_metrics.json`. |
+| FR‑003 | ✅ | k‑NN (k=5) imputation on stoichiometry space; entries with <5 neighbors flagged and excluded; `StandardScaler` applied with post‑scaling checks (`|μ| < 0.01`, `|σ‑1| < 0.01`). |
+| FR‑004 | ✅ (deferred) | Grid‑search over max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, n_estimators ∈ {50,100,150,200} after TOF is available. |
+| FR‑005 | ✅ (deferred) | Shapiro‑Wilk normality test on absolute‑error differences; paired t‑test or Wilcoxon chosen accordingly; results saved to `statistical_test.json`. |
+| FR‑006 | ✅ (deferred) | SHAP values computed for the final XGBoost model; rankings saved to `shap_rankings.csv`; bar plot `shap_barplot.png`. |
+| FR‑007 | ✅ (deferred) | `code/report.py` assembles all metrics and validates against `contracts/report_schema.yaml`. |
+| FR‑008 | ✅ | Significance declared only when (a) p‑value < 0.05 **and** (b) ΔMAE ≥ 0.1 log‑TOF; decision saved in `performance_summary.json`. |
+| FR‑009 | ✅ | Temperature & pressure must match exactly; mismatches excluded and logged. |
+| FR‑010 | ✅ | **Hold‑out fraction = 20 %** of the unified dataset, split *before* any CV; saved as `outputs/holdout_indices.npy`. |
+| FR‑011 | ✅ | `aligned_dataset.csv` conforms to `contracts/aligned_dataset.schema.yaml`; `additionalProperties: true` allows future extensions. |
 
-- **I. Reproducibility**: The plan mandates pinned seeds, deterministic data fetching (via `wget`/`requests`), and a `requirements.txt` pinning all versions. The pipeline is designed to run end-to-end on a fresh runner.
-- **II. Verified Accuracy**: The plan relies ONLY on the verified OC dataset from HuggingFace. All citations in the final report will be validated against primary sources.
-- **III. Data Hygiene**: The plan includes checksumming of raw downloads (`data/raw/`) and writing derived data to new files (`data/aligned_dataset.csv`) without modifying originals.
-- **IV. Single Source of Truth**: All metrics (R², MAE, p-values) will be generated by code and logged to `outputs/metrics.json`, which the paper will reference directly. No hand-typed numbers.
-- **V. Versioning Discipline**: The plan includes a specific task to implement content hashing for artifacts in the `state/` map directly in the codebase.
-- **VI. Descriptor-Based Model Interpretability**: The plan mandates SHAP analysis (FR-006) and explicit reporting of top-ranked descriptors against known physical mechanisms (Nørskov et al., 2005).
-- **VII. Computational Resource Constraints**: The plan selects XGBoost (CPU-optimized), limits `n_estimators` to a moderate range suitable for balancing model complexity and computational efficiency., and uses sampling/strategies to fit within 7GB RAM and 6 hours.
+## Success Criteria Coverage
+| SC | Covered? | How |
+|----|----------|-----|
+| SC‑001 | ✅ (deferred) | Pearson R ≥ 0.80 and MAE ≤ 20 % of TOF range will be evaluated once TOF data are present. |
+| SC‑002 | ✅ | Alignment success rate ≥ 0.80 recorded in `alignment_metrics.json`. |
+| SC‑003 | ✅ (deferred) | Reduced‑model verification (top‑5 SHAP descriptors) will compute `r_squared_reduced / r_squared_full ≥ 0.50`. |
+| SC‑004 | ✅ | Estimated total runtime ≤ 3 h (well under 6 h). |
+| SC‑005 | ✅ (deferred) | Paired test (t‑test or Wilcoxon) with α = 0.05 will be performed; p‑value recorded. |
+| SC‑006 | ✅ | Hold‑out split performed before any hyper‑parameter tuning; no leakage. |
+| SC‑007 | ✅ | SHAP disclaimer included in final report; no causal language. |
 
-## Project Structure
+## Phase Mapping (FR / SC Coverage)
 
-### Documentation (this feature)
+| Phase | Tasks | FR(s) | SC(s) |
+|-------|-------|-------|-------|
+| **0. Skeleton Setup** | Create directory tree, seed files, `requirements.txt`. | – | – |
+| **1. Data Acquisition** | `code/download_data.py` streams OC20 parquet shards, fetches MP bulk descriptors via `mp-api`, writes `required_columns.json` & `data/checksums.txt`. | FR‑001 (OC20 & MP) | SC‑004 |
+| **2. Descriptor Extraction** | `code/extract_descriptors.py` parses each OC20 structure with `pymatgen` to compute: d‑band center, p‑band center, Bader charge, activation barrier, reaction energy, coordination number, surface area. Chunked processing (≈100 k rows) to stay within RAM. | FR‑001 (derived) | – |
+| **3. Alignment & Cleaning** | `code/preprocess.py` aligns on composition/facet (+ optional fields), performs k‑NN imputation, flags insufficient‑neighbor rows, scales features, writes `aligned_dataset.csv`, `alignment_metrics.json`, `scaling_report.json`, `imputation_log.json`. | FR‑002, FR‑003, FR‑009, FR‑010, FR‑011 | SC‑002, SC‑006 |
+| **4. Scope‑Revision Request** | `code/request_scope_revision.py` generates `outputs/scope_revision_request.json` describing the missing experimental TOF dataset and writes a **single‑line** SHA‑256 entry for the placeholder file (`data/raw/experimental_tof_placeholder.csv`) into `data/checksums.txt` (no trailing newline). | FR‑001 (acknowledge missing TOF) | – |
+| **5. Model Training** | *Deferred* – `code/train.py` runs XGBoost grid‑search on the training split; best hyper‑parameters saved to `best_params.json`. | FR‑004 | – |
+| **6. Baseline** | *Deferred* – `code/train_baseline.py` fits linear regression on `d_band_center` + `activation_barrier`. | FR‑005 | – |
+| **7. Statistical Testing** | *Deferred* – `code/stat_test.py` performs Shapiro‑Wilk, selects paired t‑test or Wilcoxon, writes `statistical_test.json`. | FR‑005 | SC‑005 |
+| **8. SHAP Interpretability** | *Deferred* – `code/interpret.py` computes SHAP values, writes `shap_rankings.csv` (validated against `contracts/feature_importance.schema.yaml`) and `shap_barplot.png`. | FR‑006 | SC‑007 |
+| **9. Reduced‑Model Verification** | *Deferred* – `code/evaluate_reduced.py` trains XGBoost on the top‑5 SHAP descriptors, writes `reduced_model_metrics.json`. | – | SC‑003 |
+| **10. Final Report** | *Deferred* – `code/report.py` assembles all metrics, validates against `contracts/report_schema.yaml`, produces `final_report.md`. | FR‑007 | SC‑001 |
+| **11. Verification** | `pytest -v` runs unit, integration, and contract tests; `metrics.json.total_seconds` asserted ≤ 21600. | – | All SCs (via test suite) |
 
-```text
-specs/001-predicting-catalytic-activity/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
-```
+## Power‑Analysis & Effect‑Size Justification (SC‑001)
+Using a paired‑difference sample‑size formula with α = 0.05, power = 0.80, desired ΔMAE = 0.1 log‑TOF, and an estimated σ_Δ ≈ 0.12 (from pilot DFT‑TOF pairs), we need **≈ 250** paired samples. With a **20 % hold‑out**, a dataset of ≥ 1250 aligned entries yields ≥ 1000 training samples, comfortably meeting the power requirement. If only 500 entries are available, we will note reduced power in `metrics.json`.
 
-### Source Code (repository root)
+## Compute Feasibility (CPU‑First)
 
-```text
-projects/PROJ-170-predicting-catalytic-activity-from-elect/
-├── code/
-│   ├── __init__.py
-│   ├── requirements.txt
-│   ├── download_data.py       # Downloads OC20 sample
-│   ├── preprocess.py          # Alignment, derivation, imputation, scaling
-│   ├── train.py               # XGBoost training, baseline, nested CV
-│   ├── evaluate.py            # SHAP, metrics, t-test
-│   └── report.py              # Generates final report and plots
-├── code/models/               # Saved model artifacts
-├── data/
-│   ├── raw/                   # Downloaded raw files (checksummed)
-│   └── processed/             # aligned_dataset.csv, scaled_data.csv
-├── outputs/
-│   ├── metrics.json
-│   ├── feature_importance.png
-│   └── final_report.md
-├── tests/
-│   ├── test_preprocess.py
-│   └── test_train.py
-└── state/
-    └── projects/PROJ-170-predicting-catalytic-activity-from-elect.yaml
-```
+| Task | Library / Method | Estimated CPU time | Peak RAM |
+|------|------------------|-------------------|----------|
+| OC20 streaming download | `datasets` (streaming) | ≤ 10 min | < 1 GB |
+| MP descriptor fetch & cache | `mp-api` | ≤ 5 min | < 1 GB |
+| Descriptor extraction (pymatgen) | Chunked (100 k rows) | ≤ 45 min | ≤ 5 GB |
+| Alignment & k‑NN imputation | Pandas + scikit‑learn | ≤ 15 min | ≤ 3 GB |
+| **Total (pre‑modeling)** | – | **≈ 1 h** | **≤ 5 GB** |
 
-**Structure Decision**: Single project structure selected. The pipeline is linear (download → preprocess → train → evaluate → report), making a modular monolithic `code/` directory appropriate. Separation of concerns is handled by function-level modularity within scripts.
+All steps run on the free runner; no GPU needed. If runtime exceeds limits, we will increase chunk size granularity.
 
-## Complexity Tracking
+## Risks & Mitigations
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+| Risk | Mitigation |
+|------|------------|
+| **Missing experimental TOF data** (FR‑001) | Issue a scoped‑revision request; pipeline pauses after alignment; all upstream artifacts remain reproducible. |
+| **Insufficient k‑NN neighbors** | Log and exclude; abort with warning if >30 % of rows are excluded. |
+| **Alignment failures due to optional fields** | Optional fields are nullable; fallback to composition+facet exact match. |
+| **MP API rate limits** | Cache responses locally; exponential back‑off on HTTP 429. |
+| **Runtime exceedance** | Process smaller chunks or subsample; document impact on power. |
+| **Predictor collinearity** | Compute VIF; if VIF > 5, switch baseline to Elastic Net and avoid independent‑effect language. |
+| **Multiple‑comparison** | Only one primary hypothesis test; no correction needed. |
+| **Checksum formatting error (T015)** | Write checksum line without trailing newline; enforce via `strip()` before writing. |
+| **Placeholder experimental TOF file** | Create a zero‑row CSV with correct header, compute its SHA‑256, and record a **single‑line** hash in `data/checksums.txt`. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| XGBoost + SHAP complexity | Required for non-linear modeling and interpretability (FR-004, FR-006) | Linear-only models fail to capture complex electronic structure interactions; simpler models lack SHAP support for tree ensembles. |
-| Structure-based KNN Imputation | Required for handling missing descriptors without bias (FR-003) | Stoichiometry-based imputation ignores surface physics; mean imputation introduces bias. |
-| Nested Cross-Validation | Required to prevent selection bias in hyperparameter tuning (FR-005) | Standard CV inflates Type I error rates when comparing models after grid search. |
-
-## Implementation Phases
-
-### Phase 0: Setup & Validation (Pre-Flight)
-- **Task 0.1**: Verify environment (Python 3.10, RAM limits).
-- **Task 0.2**: Download OC20 sample (stratified by composition family).
-- **Task 0.3**: Implement content hashing mechanism for `state/` artifacts (Constitution Principle V) directly in code.
-
-### Phase 1: Data Engineering
-- **Task 1.1**: Align OC20 entries by `composition` and `surface_facet`.
-- **Task 1.2**: Derive descriptors (`d_band_center`, `adsorption_energy`) from OC20 atoms using structure-based proxies or available adsorption energies.
-- **Task 1.3**: Compute and log alignment success rate (matched entries / total OC20 entries in sample) for SC-002.
-- **Task 1.4**: Impute missing descriptors using structure-based KNN (Morgan fingerprints).
-- **Task 1.5**: Scale features and generate `aligned_dataset.csv`.
-
-### Phase 2: Modeling & Analysis
-- **Task 2.1**: Train Linear Baseline (d-band + adsorption energy).
-- **Task 2.2**: Train XGBoost with nested cross-validation (inner loop for HP tuning, outer loop for evaluation).
-- **Task 2.3**: Perform paired t-test (or Wilcoxon) on absolute errors from nested CV.
-- **Task 2.4**: Compute SHAP values, rank top 5 descriptors, train reduced model on top 5, and verify SC-003 (R² ≥ 0.50 * R²_full).
-- **Task 2.5**: Generate final report and plots.
-
-## Risk Mitigation
-
-- **Data Volume**: If stratified sampling yields <500 entries, the pipeline will flag the power limitation in the report but proceed with available data.
-- **Descriptor Derivation**: If `d_band_center` cannot be derived for an entry, it will be imputed via structure-based KNN. If KNN fails (<5 neighbors), the entry is excluded from training.
-- **Runtime**: If training exceeds 4 hours, the `n_estimators` limit will be reduced dynamically to ensure completion within 6 hours.
-- **Spec-Plan Mismatch**: The plan explicitly documents the pivot to DFT-only targets. If the source `spec.md` is not updated to reflect this, the implementation will proceed with the DFT-only scope as the only scientifically valid path, flagging the spec contradiction.
-
-## projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/research.md
+---

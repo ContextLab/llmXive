@@ -1,245 +1,185 @@
-# Tasks: llmXive follow-up: extending "Multi-LCB: Extending LiveCodeBench to Multiple Programming Languages"
-
-**Input**: Design documents from `/specs/001-llmxive-multilingual-logic-transfer/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/`
-- [ ] T002 Initialize Python project with `requirements.txt` dependencies (llama-cpp-python, datasets, scipy, pandas, pyyaml, pytest, joblib)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 [P] Create `code/config.py` to manage paths, random seeds, and model configurations
-- [ ] T005 [P] Implement `code/dataset.py` for loading Multi-LCB parquet files from HuggingFace and verifying checksums
-- [ ] T006 [P] Implement `code/dataset.py` stratification logic (Difficulty, Topic, Language Pair) per FR-006
-- [ ] T007 Create `data/raw/` and `data/processed/` directory structure with checksum tracking
-- [ ] T008 [P] Setup error logging infrastructure in `code/utils/logger.py`
-- [ ] T009 [P] Implement `code/sandbox.py` skeleton with subprocess execution and 10s timeout enforcement (FR-003)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Core Logic Anchor Inference (Priority: P1) 🎯 MVP
-
-**Goal**: Extract Partial Logic Traces from Python ground truth and construct guided prompts for target languages.
-
-**Independent Test**: The system can be tested by running the inference pipeline on a single, **pre-filtered or mocked** task from the dataset, verifying that the model outputs a syntactically valid code snippet in the target language when provided the Partial Logic Trace. (Note: The full filtering logic is implemented in Phase 4).
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T010 [P] [US1] Unit test for AST parsing logic in `tests/unit/test_logic_anchor.py`
-- [ ] T011 [P] [US1] Unit test for prompt construction in `tests/unit/test_prompt_builder.py`
-
-### Implementation for User Story 1
-
-- [ ] T012 [P] [US1] Implement `code/logic_anchor.py`: Parse ground-truth Python solutions into AST and extract first 3 algorithmic steps (FR-001.1)
-- [ ] T013 [P] [US1] Implement `code/logic_anchor.py`: Serialize extracted steps into pseudo-code/Python anchor strings
-- [ ] T014 [US1] Implement `code/prompt_builder.py`: Construct few-shot prompts including problem statement, failed output, and Partial Logic Trace (FR-001)
-- [ ] T015 [US1] Implement `code/inference.py`: Load **standard CPU quantization model (e.g., GGUF q4_0 via llama-cpp-python)** and generate target language code given the prompt. **NO bitsandbytes/8-bit/4-bit CUDA quantization allowed.**
-
-**Checkpoint**: At this point, User Story 1 (excluding the stochasticity filter) should be fully functional and testable with mocked data
-
----
-
-## Phase 4: User Story 2 - Automated Execution & Pass@1 Verification (Priority: P2)
-
-**Goal**: Execute generated code in a sandboxed environment, apply the stochasticity filter, and verify correctness against test suites.
-
-**Independent Test**: The system can be tested by feeding a known correct Rust solution into the execution harness and verifying that the test suite passes, and conversely, that a syntactically broken solution fails the harness.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [P] [US2] Unit test for timeout enforcement in `tests/unit/test_sandbox.py`
-- [ ] T019 [P] [US2] Unit test for error log parsing (Syntax, Runtime, Library) in `tests/unit/test_sandbox.py`
-
-### Implementation for User Story 2
-
-- [ ] T020 [P] [US2] Implement `code/sandbox.py`: Full execution harness for Rust/Kotlin/Go with strict 10s timeout per test case (FR-003)
-- [ ] T021 [US2] Implement `code/sandbox.py`: Parse execution logs to detect "Compile Error", "Runtime Error", "Timeout", "Segmentation fault"
-- [ ] T016 [US2] Implement `code/dataset.py`: **Full filtering logic (Static + Stochastic)** - Select tasks where model failed in target language but succeeded in Python, then **re-run blind condition 3 times** and include only if fails **≥2/3 runs** (FR-006, FR-006.2)
-- [ ] T017 [US2] Implement `code/dataset.py`: **Stochasticity Filter Execution** - Orchestrate the 3 blind runs and apply the ≥2/3 failure filter logic to produce the final task set (FR-006.2)
-- [ ] T039 [US2] Implement `code/stats.py`: **Record empirical baseline Pass@1** metrics for the filtered dataset to `data/blind_baseline.yaml` (FR-006.1, SC-001)
-- [ ] T022 [US2] Implement `code/sandbox.py`: Logic Transfer Failure detection: Verify generated code implements anchor steps via **keyword/control-flow matching** against the Partial Logic Trace artifact produced by **T012/T013** (FR-004)
-- [ ] T023 [US2] Implement `code/stats.py`: Binary Pass/Fail determination logic based on test suite outcomes
-- [ ] T024 [US2] Implement `code/main.py` orchestration: Run blind and guided conditions on the **final filtered dataset** (from T016/T017) (200 tasks target)
-- [ ] T025 [US2] Implement `code/main.py`: Parallelize execution using `joblib` to maximize CPU usage within 6h limit
-- [ ] T040 [US2] Implement `code/main.py`: **Orchestration logic for time/resource management** (dynamic task skipping, resource monitoring, parallelization tuning) to ensure ≤6h runtime (SC-004)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Significance & Error Categorization (Priority: P3)
-
-**Goal**: Compare Pass@1 rates using paired statistical tests and categorize failure modes.
-
-**Independent Test**: The system can be tested by feeding it a pre-computed dataset of paired Pass/Fail results and verifying that the statistical test returns a p-value and that error categories are assigned based on the failure logs.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T026 [P] [US3] Unit test for McNemar's test implementation in `tests/unit/test_stats.py`
-- [ ] T027 [P] [US3] Unit test for error categorization logic in `tests/unit/test_stats.py`
-
-### Implementation for User Story 3
-
-- [ ] T028 [P] [US3] Implement `code/stats.py`: Categorize failures into Syntax, Library Misuse, Runtime Error, Logic Transfer Failure (FR-004)
-- [ ] T029 [US3] Implement `code/stats.py`: Perform paired McNemar's test on blind vs. guided Pass/Fail outcomes (FR-005)
-- [ ] T030 [US3] Implement `code/stats.py`: Calculate LC-Pass@1 metrics (Passes / Total) excluding Logic Transfer Failures
-- [ ] T031 [US3] Implement `code/main.py`: Generate `data/statistical_report.yaml` with p-values, metrics, and error distribution
-- [ ] T032 [US3] Implement `code/main.py`: Generate `data/results.csv` mapping task IDs to blind/guided status and error types
-- [ ] T033 [US3] Validate execution time: Verify total pipeline runtime ≤ 6 hours on GitHub Actions free-tier (SC-004) (Depends on T040)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T034 [P] Documentation updates: Update `README.md` with run instructions and fallback strategy details
-- [ ] T035 Code cleanup and refactoring for `code/` directory
-- [ ] T036 [P] Run full integration test suite in `tests/integration/test_pipeline.py`
-- [ ] T037 Verify data hygiene: Ensure `data/raw/` checksums match source and `data/processed/` are derived correctly
-- [ ] T038 Run quickstart.md validation
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories (uses **mocked/pre-filtered** data for initial test)
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for prompt generation and logic anchor artifacts (T012/T013) and **includes the filtering logic** (T016/T017)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 for execution results and baseline metrics
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for AST parsing logic in tests/unit/test_logic_anchor.py"
-Task: "Unit test for prompt construction in tests/unit/test_prompt_builder.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/logic_anchor.py: Parse ground-truth Python solutions..."
-Task: "Implement code/logic_anchor.py: Serialize extracted steps into pseudo-code..."
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (using **mocked/pre-filtered** data)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Data Flow**: T012/T013 (Anchor) -> T020/T021 (Harness) -> **T016/T017 (Filter)** -> T024 (Final Runs) -> **T039 (Baseline Record)** -> T029 (Stats)
+# Tasks: llmXive follow‑up – extending “Multi‑LCB: Extending LiveCodeBench to Multiple Programming Languages”
+
+**Inputs**: `specs/001-llmxive-multilingual-logic-transfer/spec.md`, `plan.md`, data‑model, contracts, and any existing verified artifacts.  
+**Goal**: Implement a reproducible end‑to‑end pipeline that (1) selects a stratified set of 200 tasks, (2) extracts a Partial Logic Trace from the Python ground‑truth, (3) runs blind and guided code generation, (4) executes the generated snippets in a sandbox with strict timeouts, (5) classifies failures, and (6) produces a statistically‑rigorous report.
+
+---  
+
+## Phase 0 – Project scaffolding & feasibility
+
+- [~] **T001** [US0] Create the project root `projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/` with the canonical layout  
+  `code/src/`, `code/tests/`, `data/raw/`, `data/processed/`, `results/`, `requirements.txt`, `README.md`.  
+  **Verification**: `tree` output contains all directories; `git status` shows them as untracked.
+
+- [~] **T002** [US0] Populate `requirements.txt` with exact, pinned versions of all scientific dependencies (`datasets`, `transformers`, `torch`, `scikit-learn`, `pandas`, `pytest`, `pyyaml`).
+  **Verification**: `pip install -r requirements.txt` succeeds in a fresh venv; `pip freeze` matches the pinned list.
+
+- [X] **T003** [US0] Add linting/formatting configuration files `.ruff.toml` and `pyproject.toml` (Black settings).  
+  **Verification**: `ruff .` returns no errors; `black --check .` returns “All done!”.
+
+- [~] **T004** [US0] Implement `code/src/feasibility_gate.py`
+  * Loads a small GGUF model with `llama_cpp` (CPU‑only).  
+  * Runs a 10‑token sample prompt 5 times, measures average tokens‑per‑second.  
+  * Writes `data/feasibility_log.json` containing `{ "throughput_tps": <float>, "decision": "proceed" | "gpu_offload", "adjusted_N": <int|null> }`.  
+  * If OOM or throughput < 2 tps, sets `"decision": "gpu_offload"` and suggests a GPU run; otherwise `"proceed"`.  
+  **Verification**: File exists, JSON schema matches, and the script exits with status 0.
+
+---  
+
+## Phase 1 – Data preparation & filtering  
+
+- [ ] **T005** [US1] Implement `code/src/data_loader.py`   <!-- FAILED-IN-EXECUTION: code/src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/feasibility_gate.py exit=1 -->
+  * Streams the Multi‑LCB dataset from HuggingFace (`datasets.load_dataset("multilcb", split="train", streaming=True)`).  
+  * Writes raw parquet shards to `data/raw/` and creates `data/raw/manifest.json` with SHA‑256 checksums for each shard.  
+  **Verification**: Manifest file lists all downloaded files; checksum verification script passes for every shard.
+
+- [ ] **T006** [US1] Implement `code/src/pool_selector.py`  
+  * Reads the raw tasks, filters to tasks where the model previously **failed** in the target language (blind Pass@1 = 0) *and* the Python solution passes its own tests.  
+  * Outputs `data/processed/initial_pool.json` (list of task IDs and minimal metadata).  
+  **Verification**: File exists; a spot‑check of 5 random entries confirms both conditions hold.
+
+- [ ] **T007** [US1] Implement `code/src/stochastic_filter.py`  
+  * Executes the **blind** generation three times on every task in `initial_pool.json` using a fixed seed (`42`) and temperature (`0.0`).  
+  * Aggregates failure counts; retains tasks with `blind_fail_count ≥ 2`.  
+  * Writes `data/processed/blind_filter_runs.json` (raw logs of the three runs) and `data/processed/filtered_tasks.json` (IDs of selected tasks).  
+  **Verification**: `filtered_tasks.json` length ≥ 0; each entry’s `blind_fail_count` field in the logs is ≥ 2.
+
+- [ ] **T008** [US1] Implement `code/src/attrition_handler.py`  
+  * If `filtered_tasks.json` contains < 200 tasks, samples replacement tasks from the next‑available pool while preserving the stratification constraints (≤ 30 % per topic, balanced difficulty).  
+  * Writes the final, stratified set to `data/processed/final_tasks_enriched.json` (full task objects).  
+  **Verification**: File contains exactly 200 tasks; topic‑percentage and difficulty‑balance checks pass (simple script prints “Stratification OK”).
+
+- [ ] **T009** [US1] Implement `code/src/anchor_extractor.py`  
+  * Parses each task’s `python_solution` with the `ast` module, extracts the first three distinct algorithmic operations (e.g., variable init, loop entry, recursive call).  
+  * Serialises each step as **pseudo‑code** (pure Python‑style, no target‑language keywords).  
+  * Writes `data/processed/anchors.json` adhering to `anchor.schema.yaml`.  
+  * Logs tasks where extraction fails as `"status": "Failed"` and records them in `data/processed/anchor_extraction_errors.log`.  
+  **Verification**: JSON validates against the schema; at least 190 anchors have `"status": "Success"`.
+
+---  
+
+## Phase 2 – Inference, execution, and classification  
+
+- [ ] **T010** [US2] Implement `code/src/blind_inference.py`  
+  * Loads the CPU‑quantised model (as verified by `feasibility_gate.py`).  
+  * Generates code for each task in `final_tasks_enriched.json` **without** any anchor.  
+  * Writes per‑task generation objects to `data/results/blind_results.json` (conforms to `generation-result.schema.yaml`).  
+  * Also emits a summary `data/results/blind_summary.yaml` containing `{ "total_tasks": 200, "pass_count": <int>, "pass_rate": <float> }`.  
+  * **Reproducibility**: Records the fixed random seed (`42`) and temperature (`0.0`) in `results/inference_metadata.yaml`.  
+  **Verification**: JSON schema validation passes; summary pass_rate equals `pass_count / total_tasks`; metadata file exists with the correct seed.
+
+- [ ] **T011** [US3] Implement `code/src/power_check.py`  
+  * Reads `data/results/blind_summary.yaml`.  
+  * Declares the study **powered** if `pass_rate ≥ 0.05` **and** `total_tasks ≥ 50`; otherwise **underpowered**.  
+  * Writes `data/results/power_check.yaml` with `{ "status": "powered" | "underpowered", "reason": "<text>" }`.  
+  * Writes `data/results/pipeline_state.json` with `{ "mode": "proceed" | "fallback" }` (fallback if under‑powered).  
+  **Verification**: Files exist; a sanity‑check script prints the mode.
+
+- [ ] **T012** [US2] Implement `code/src/guided_inference.py`  
+  * Builds prompts that include the problem statement, the model’s previous failed output (if any), and the Partial Logic Trace from `anchors.json`.  
+  * Generates target‑language code for each task using the same model configuration as the blind run.  
+  * Writes `data/results/guided_results.json` (schema‑compliant).  
+  * **Gate**: Must abort unless `pipeline_state.json` reports `"mode": "proceed"`; otherwise logs “Guided run skipped – study underpowered”.  
+  **Verification**: When powered, file contains 200 entries; when fallback, file is absent and log entry exists. Seed metadata is also recorded in `results/inference_metadata.yaml` (same seed as blind).
+
+- [ ] **T013** [US2] Implement `code/src/sandbox_runner.py`  
+  * For every generation (blind + guided) executes the code in the official Multi‑LCB sandbox (language‑specific compile + run).  
+  * Enforces a hard **10 s** timeout per test case; captures stdout, stderr, exit code.  
+  * Writes `data/results/execution_logs.json` mapping `task_id` → `condition` → `{ "status": "...", "log": "...", "runtime_ms": <int> }`.  
+  **Verification**: All entries contain a `"status"` field that is one of the allowed values; at least one entry shows a timeout case.
+
+- [ ] **T014** [US3] Implement `code/src/error_classifier.py`  
+  * Consumes `execution_logs.json` and `anchors.json`.  
+  * Applies the deterministic rules from **FR‑004** to assign `error_type` (`Syntax`, `Library`, `Runtime`, `Logic Transfer Failure`, **Logic Drift**).  
+  * For passes, verifies that all anchor steps appear in the generated code (simple keyword/control‑flow matching) and sets `anchor_verification: true/false`.  
+  * Writes `data/results/classified_results.json` conforming to `generation-result.schema.yaml`.  
+  **Verification**: JSON schema validation; a spot‑check shows at least one entry of each error category, including “Logic Drift”.
+
+- [ ] **T015** [US3] Implement `code/src/stats_analyzer.py`  
+  * Reads `classified_results.json` for both conditions, builds paired Pass/Fail vectors.  
+  * Performs **McNemar’s test** (SciPy) and a bootstrap resampling (10 000 samples) to obtain a 95 % CI for the improvement.  
+  * Computes the error‑type distribution for the guided condition.  
+  * Writes `results/statistical_report.json` adhering to `statistical-report.schema.yaml`.  
+  **Verification**: JSON validates; `p_value` field is present and between 0 and 1.
+
+- [ ] **T016** [US3] Generate human‑readable summary `results/summary.md`  
+  * Includes total tasks, blind & guided Pass@1 rates, improvement, p‑value, significance flag, and the error distribution table.  
+  * If `pipeline_state.json` is `"fallback"`, adds a “Limitations” section explaining the under‑powered study and omits the p‑value.  
+  **Verification**: Markdown renders without broken links; contains the required fields.
+
+- [ ] **T039** [US2] **Re‑run blind inference on the final filtered set**  
+  * Executes the blind generation (same seed/temperature as T010) on `final_tasks_enriched.json` to obtain an empirical baseline for the paired test.  
+  * Writes `data/results/blind_rebaseline.json` (schema‑compliant) and updates `data/results/blind_summary.yaml` accordingly.  
+  **Verification**: Output file exists, passes `generation-result.schema.yaml`, and summary reflects the new counts.
+
+- [ ] **T040** [US0] **Measure total pipeline wall‑clock time**  
+  * Wraps the entire end‑to‑end run (from T005 through T016) with a timer.  
+  * Writes `results/runtime_log.txt` containing the total elapsed seconds.  
+  * Fails the pipeline if the total exceeds 21 600 seconds (6 hours).  
+  **Verification**: Log file exists; a check asserts the recorded seconds ≤ 21600.
+
+- [ ] **T041** [US0] **Compute Sandbox Stability Rate**  
+  * Parses `execution_logs.json` to count tasks where the sandbox completed without a crash or hang.  
+  * Calculates `stability_rate = successful_tasks / total_tasks`.  
+  * Writes `results/stability_report.md` with the rate and asserts it is ≥ 0.99.  
+  **Verification**: Report file exists; a check confirms the rate meets the threshold.
+
+---  
+
+## Phase 3 – Unit & integration tests (verification‑first)  
+
+- [ ] **T017** [US1] Add `code/tests/test_anchor_extractor.py`  
+  * Tests that `anchor_extractor` returns exactly three pseudo‑code steps for a known simple Python solution.  
+  * Checks that the output schema fields (`task_id`, `anchor_steps`, `extraction_method`, `status`) are present.  
+  **Verification**: `pytest -q code/tests/test_anchor_extractor.py` fails before implementation and passes after.
+
+- [ ] **T018** [US2] Add `code/tests/test_sandbox_runner.py`  
+  * Supplies a tiny Rust program that loops forever; asserts the sandbox marks it as `Timeout`.  
+  * Supplies a syntactically invalid Kotlin file; asserts `Syntax` error detection.  
+  **Verification**: Same pytest workflow; tests must fail initially and succeed after `sandbox_runner.py` is complete.
+
+- [ ] **T019** [US3] Add `code/tests/test_error_classifier.py`  
+  * Provides a mock execution log with a passing run that omits one anchor step; expects `error_type` = `Logic Drift`.  
+  * Provides a compile‑error log; expects `error_type` = `Syntax`.  
+  **Verification**: Tests follow the fail‑then‑pass pattern.
+
+---  
+
+## Phase 4 – Polish & CI integration  
+
+- [ ] **T020** [US0] Update `README.md` with a “Quick‑Start” section that lists the exact command sequence to run the full pipeline from data download to final report (e.g., `python -m code.src.feasibility_gate && python -m code.src.data_loader && …`).  
+  **Verification**: The commands execute without error on a fresh clone.
+
+- [ ] **T021** [US0] Add a GitHub Actions workflow (`.github/workflows/ci.yml`) that  
+  * Installs dependencies, runs the feasibility gate, executes the full pipeline, and fails if `results/summary.md` does not contain the string “p‑value”.  
+  * Enforces the **6‑hour** runtime budget by aborting if any step exceeds its expected wall‑clock (using `timeout` utility).  
+  **Verification**: Workflow passes on a successful run; fails on intentional timeout injection.
+
+---  
+
+### Dependency & execution order  
+
+| Task | Depends on |
+|------|------------|
+| T001‑T004 | – |
+| T005 | T001‑T004 |
+| T006 | T005 |
+| T007 | T006 |
+| T008 | T007 |
+| T009 | T008 |
+| T010 | T009, T004 |
+| T011 | T010 |
+| T012 | T011, T009 |
+| T013 | T010, T012 |
+| T014 | T013, T009 |
+| T015 | T014 |
+| T016 | T015, T011 |
+| T039 | T008, T004 |
+| T040 | T016, T039 |
+| T041 | T013 |
+| T017‑T019 | T009‑T014 (provide mock data) |
+| T020‑T021 | All above (documentation & CI) |
+
+---  
+
+*All tasks are expressed as check‑box items with unique IDs, include the required story label (`[US1]`, `[US2]`, `[US3]`, or `[US0]` for infrastructure), and specify exact artifact paths. The pipeline can be run incrementally, and each task’s verification step guarantees that a real, verifiable artifact is produced before downstream work proceeds.*  

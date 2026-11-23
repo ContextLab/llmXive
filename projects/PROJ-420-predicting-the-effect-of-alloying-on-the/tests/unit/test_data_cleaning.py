@@ -1,133 +1,182 @@
 import pytest
-import json
-import tempfile
-import os
-from pathlib import Path
+import pandas as pd
 import numpy as np
-
-from code.data_cleaning import (
+from pathlib import Path
+import tempfile
+import json
+from data_cleaning import (
     load_raw_data,
-    verify_measurement_independence,
-    filter_monolithic_alloys,
-    check_major_element_sum,
+    apply_schema_validation,
+    apply_independence_filter,
+    apply_monolithic_filter,
     normalize_units,
-    clean_data
+    apply_major_element_filter,
+    apply_ilr_transformation,
+    run_cleaning_pipeline
 )
-from code.config import get_config
 
 @pytest.fixture
-def sample_raw_data():
-    return [
-        {
-            "material_id": "mp-1",
-            "elements": {"Al": 0.90, "Cu": 0.05, "Mg": 0.03, "Si": 0.02},
-            "poissons_ratio": 0.34,
-            "youngs_modulus": 70000000000, # 70 GPa in Pa
-            "bulk_modulus": 75000000000,   # 75 GPa in Pa
-            "measurement_method": "experiment",
-            "measurement_source": "MP"
-        },
-        {
-            "material_id": "mp-2",
-            "elements": {"Al": 0.92, "Mg": 0.04, "Zn": 0.04},
-            "poissons_ratio": 0.33,
-            "youngs_modulus": 72, # Already GPa
-            "bulk_modulus": 78,
-            "measurement_method": "calculated",
-            "measurement_source": "MP"
-        },
-        {
-            "material_id": "mp-3",
-            "elements": {"Al": 0.80, "Cu": 0.10, "Mg": 0.05},
-            "poissons_ratio": 0.35,
-            "youngs_modulus": 68,
-            "bulk_modulus": 70,
-            "measurement_method": "", # Missing method
-            "measurement_source": "Unknown"
-        }
-    ]
+def sample_data():
+    """Create sample data for testing."""
+    return {
+        'poisson_ratio': [0.33, 0.34, 0.35, 0.36, 0.37],
+        'young_modulus': [70, 72, 74, 76, 78],
+        'Cu': [1.0, 2.0, 3.0, 4.0, 5.0],
+        'Mg': [2.0, 3.0, 4.0, 5.0, 6.0],
+        'Si': [1.0, 1.5, 2.0, 2.5, 3.0],
+        'Zn': [0.5, 1.0, 1.5, 2.0, 2.5],
+        'Mn': [0.5, 1.0, 1.5, 2.0, 2.5],
+        'measurement_method': ['Ultrasonic', 'Independent', 'Direct Measurement', 'Ultrasonic', 'Independent']
+    }
 
 @pytest.fixture
-def temp_raw_file(sample_raw_data):
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump(sample_raw_data, f)
-        path = f.name
-    yield path
-    os.unlink(path)
+def temp_dir():
+    """Create a temporary directory for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-def test_load_raw_data(temp_raw_file):
-    data = load_raw_data([temp_raw_file])
-    assert len(data) == 3
-
-def test_verify_measurement_independence(sample_raw_data):
-    # mp-1: experiment -> keep
-    # mp-2: calculated -> exclude
-    # mp-3: missing method, but check derived logic
-    # nu = 0.5 * (1 - E/3K) = 0.5 * (1 - 68/210) = 0.5 * (1 - 0.3238) = 0.338
-    # reported 0.35. Diff = 0.012. 0.012/0.35 = 3.4% > 1%. So it should NOT be excluded as derived.
-    # However, task T014 says "if method is missing... exclude".
-    # Let's re-read T014: "if method is missing... calculate... if matches exclude... if Bulk missing exclude".
-    # It doesn't explicitly say to exclude if it doesn't match, but T014 says "query measurement_method... exclude if missing".
-    # Actually T014 says: "exclude entries where the method is ... missing/unknown".
-    # So mp-3 should be excluded because method is missing.
+def test_load_raw_data_json(temp_dir):
+    """Test loading raw data from JSON."""
+    # Create sample JSON file
+    data = {
+        'poisson_ratio': [0.33, 0.34],
+        'young_modulus': [70, 72],
+        'Cu': [1.0, 2.0],
+        'Mg': [2.0, 3.0],
+        'Si': [1.0, 1.5],
+        'Zn': [0.5, 1.0],
+        'Mn': [0.5, 1.0],
+        'measurement_method': ['Ultrasonic', 'Independent']
+    }
     
-    filtered = verify_measurement_independence(sample_raw_data)
-    # mp-2 excluded (calculated)
-    # mp-3 excluded (missing method)
-    # mp-1 kept
-    assert len(filtered) == 1
-    assert filtered[0]["material_id"] == "mp-1"
-
-def test_filter_monolithic_alloys(sample_raw_data):
-    # Assumes independence already checked
-    # We need to pass data that has passed independence check
-    # Let's simulate data with required fields
-    data = [
-        {
-            "poissons_ratio": 0.34,
-            "youngs_modulus_gpa": 70.0,
-            "Cu": 0.05, "Mg": 0.03, "Si": 0.02, "Zn": 0.0, "Mn": 0.0, "Al": 0.90
-        },
-        {
-            "poissons_ratio": 0.33,
-            "youngs_modulus_gpa": 72.0,
-            "Cu": None, "Mg": 0.04, "Si": 0.0, "Zn": 0.04, "Mn": 0.0, "Al": 0.92
-        }
-    ]
-    filtered = filter_monolithic_alloys(data)
-    assert len(filtered) == 1
-    assert filtered[0]["material_id"] is None # We didn't set ID in this snippet
-
-def test_check_major_element_sum():
-    data = [
-        {"Cu": 0.1, "Mg": 0.1, "Si": 0.1, "Zn": 0.1, "Mn": 0.1, "Al": 0.6}, # Sum = 1.0
-        {"Cu": 0.1, "Mg": 0.1, "Si": 0.1, "Zn": 0.1, "Mn": 0.1, "Al": 0.4}  # Sum = 0.9
-    ]
-    valid = check_major_element_sum(data)
-    assert len(valid) == 1
-    assert valid[0]["Al"] == 0.6
-
-def test_normalize_units():
-    data = [
-        {
-            "youngs_modulus": 70000000000, # Pa
-            "bulk_modulus": 75000000000,   # Pa
-            "Cu": 5.0, "Mg": 3.0, "Si": 2.0, "Zn": 0.0, "Mn": 0.0, "Al": 90.0 # Percent, sum=100
-        },
-        {
-            "youngs_modulus": 70.0, # GPa
-            "bulk_modulus": 75.0,
-            "Cu": 0.05, "Mg": 0.03, "Si": 0.02, "Zn": 0.0, "Mn": 0.0, "Al": 0.90 # Fractions
-        }
-    ]
-    normalized = normalize_units(data)
+    input_path = temp_dir / "test_data.json"
+    with open(input_path, 'w') as f:
+        json.dump(data, f)
     
-    # Check first record
-    assert normalized[0]["youngs_modulus_gpa"] == 70.0
-    assert normalized[0]["Cu"] == 0.05 # 5/100
-    assert abs(sum([normalized[0][k] for k in ["Cu", "Mg", "Si", "Zn", "Mn", "Al"]]) - 1.0) < 1e-6
+    # Load data
+    df = load_raw_data(input_path)
+    
+    # Verify
+    assert len(df) == 2
+    assert 'poisson_ratio' in df.columns
+    assert df['poisson_ratio'].iloc[0] == 0.33
 
-    # Check second record
-    assert normalized[1]["youngs_modulus_gpa"] == 70.0
-    assert normalized[1]["Cu"] == 0.05
-    assert abs(sum([normalized[1][k] for k in ["Cu", "Mg", "Si", "Zn", "Mn", "Al"]]) - 1.0) < 1e-6
+def test_apply_schema_validation(sample_data):
+    """Test schema validation."""
+    df = pd.DataFrame(sample_data)
+    
+    # Valid data should pass
+    result = apply_schema_validation(df)
+    assert len(result) == 5
+    
+    # Missing field should raise error
+    invalid_data = sample_data.copy()
+    del invalid_data['Cu']
+    df_invalid = pd.DataFrame(invalid_data)
+    
+    with pytest.raises(ValueError):
+        apply_schema_validation(df_invalid)
+
+def test_apply_independence_filter(sample_data):
+    """Test independence filtering."""
+    df = pd.DataFrame(sample_data)
+    
+    # Add a derived measurement
+    df.loc[0, 'measurement_method'] = 'Derived'
+    
+    result = apply_independence_filter(df)
+    
+    # Should exclude the derived measurement
+    assert len(result) == 4
+    assert 'Derived' not in result['measurement_method'].values
+
+def test_apply_monolithic_filter(sample_data):
+    """Test monolithic filtering."""
+    df = pd.DataFrame(sample_data)
+    
+    # Add a record with missing composition
+    df.loc[5] = [0.33, 70, np.nan, 2.0, 1.0, 0.5, 0.5, 'Ultrasonic']
+    
+    result = apply_monolithic_filter(df)
+    
+    # Should exclude the record with missing composition
+    assert len(result) == 5
+
+def test_normalize_units(sample_data):
+    """Test unit normalization."""
+    df = pd.DataFrame(sample_data)
+    
+    # Set high Young's modulus to simulate Pa
+    df['young_modulus'] = 70e9  # 70 GPa in Pa
+    
+    result = normalize_units(df)
+    
+    # Should convert to GPa
+    assert result['young_modulus'].iloc[0] == 70.0
+    
+    # Check atomic fractions sum to 1
+    composition_cols = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
+    for idx, row in result.iterrows():
+        total = row[composition_cols].sum()
+        assert abs(total - 1.0) < 0.01
+
+def test_apply_major_element_filter(sample_data):
+    """Test major element filtering."""
+    df = pd.DataFrame(sample_data)
+    
+    # Normalize to atomic fractions first
+    composition_cols = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
+    total = df[composition_cols].sum(axis=1)
+    for col in composition_cols:
+        df[col] = df[col] / total
+    
+    # Set a record with low major element sum
+    df.loc[0, composition_cols] = [0.1, 0.1, 0.1, 0.1, 0.1]  # Sum = 0.5
+    
+    result = apply_major_element_filter(df)
+    
+    # Should exclude the record with low major element sum
+    assert len(result) == 4
+
+def test_apply_ilr_transformation(sample_data):
+    """Test ILR transformation."""
+    df = pd.DataFrame(sample_data)
+    
+    # Normalize to atomic fractions
+    composition_cols = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
+    total = df[composition_cols].sum(axis=1)
+    for col in composition_cols:
+        df[col] = df[col] / total
+    
+    result = apply_ilr_transformation(df)
+    
+    # Check that ILR features are created
+    ilr_cols = [f'ilr_{col}' for col in composition_cols[:-1]]
+    for col in ilr_cols:
+        assert col in result.columns
+    
+    # Check that ILR features have reasonable values
+    for col in ilr_cols:
+        assert not result[col].isnull().any()
+
+def test_run_cleaning_pipeline(sample_data, temp_dir):
+    """Test the full cleaning pipeline."""
+    # Create input file
+    input_path = temp_dir / "input.json"
+    with open(input_path, 'w') as f:
+        json.dump(sample_data, f)
+    
+    output_path = temp_dir / "output.csv"
+    
+    # Run pipeline
+    result = run_cleaning_pipeline(input_path, output_path)
+    
+    # Verify output file exists
+    assert output_path.exists()
+    
+    # Verify result
+    assert len(result) == 5
+    assert 'ilr_Cu' in result.columns
+    assert 'ilr_Mg' in result.columns
+    assert 'ilr_Si' in result.columns
+    assert 'ilr_Zn' in result.columns

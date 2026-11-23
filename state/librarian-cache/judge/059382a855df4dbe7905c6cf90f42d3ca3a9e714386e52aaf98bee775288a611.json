@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.18471",
+  "judged_at": "2026-09-25T12:52:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"playful agentic robot learning\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the core mechanism of \"continual robot learning\" and \"agentic adaptation\" within the robotics domain, which are the fundamental components of the user's query regarding \"Playful Agentic Robot Learning.\" Although the specific \"playful\" aspect (often implying intrinsic motivation or exploration) is not explicitly named, the paper's focus on efficient data collection, exploration-exploitation balancing, and online adaptation provides the nec",
+  "relevant": true
+}

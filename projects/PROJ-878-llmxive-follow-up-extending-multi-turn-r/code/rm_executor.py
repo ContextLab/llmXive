@@ -1,0 +1,322 @@
+import os
+import sys
+import json
+import csv
+import logging
+import time
+import argparse
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+
+import torch
+from transformers import AutoModelForMaskedLM, AutoTokenizer
+from dotenv import load_dotenv
+
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from utils.logging_utils import configure_logging
+from utils.graph_utils import is_dag, nesting_depth, branching_factor, longest_path
+
+load_dotenv()
+
+logger = logging.getLogger(__name__)
+
+class ReflectiveMaskingExecutor:
+    """
+    Executes the Reflective Masking loop on a CPU‑feasible baseline.
+    Loads a pre‑trained Mask Diffusion Model (or equivalent MDM) and
+    performs token‑level masking, prediction, and unmasking to solve logical puzzles.
+    """
+
+    def __init__(self, model_path: str, device: str = "cpu", max_turns: int = 50):
+        """
+        Initialize the executor with the model and tokenizer.
+
+        Args:
+            model_path: HuggingFace repo ID or local path to the model.
+            device: Device to run inference on ('cpu' or 'cuda').
+            max_turns: Maximum number of reflective turns allowed per instance.
+        """
+        self.device = torch.device(device)
+        self.max_turns = max_turns
+        self.model_path = model_path
+
+        logger.info(f"Loading model from {model_path} on {device}...")
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+            self.model = AutoModelForMaskedLM.from_pretrained(model_path)
+            self.model.to(self.device)
+            self.model.eval()
+            logger.info("Model loaded successfully.")
+        except Exception as e:
+            logger.error(f"Failed to load model: {e}")
+            raise
+
+    def _mask_tokens(self, input_ids: torch.Tensor, mask_indices: List[int]) -> torch.Tensor:
+        """
+        Apply masking to specific token indices.
+
+        Args:
+            input_ids: Tensor of token IDs.
+            mask_indices: List of indices to mask.
+
+        Returns:
+            Tensor with masked tokens replaced by mask token ID.
+        """
+        masked_ids = input_ids.clone()
+        mask_token_id = self.tokenizer.mask_token_id
+        if mask_token_id is None:
+            raise ValueError("Tokenizer does not have a mask token.")
+
+        for idx in mask_indices:
+            if 0 <= idx < masked_ids.shape[1]:
+                masked_ids[0, idx] = mask_token_id
+        return masked_ids
+
+    def _predict_tokens(self, input_ids: torch.Tensor, mask_indices: List[int]) -> List[int]:
+        """
+        Predict tokens at masked positions.
+
+        Args:
+            input_ids: Tensor of token IDs (with mask tokens).
+            mask_indices: List of indices that are masked.
+
+        Returns:
+            List of predicted token IDs for the masked positions.
+        """
+        with torch.no_grad():
+            outputs = self.model(input_ids)
+            logits = outputs.logits
+
+        predictions = []
+        for idx in mask_indices:
+            if 0 <= idx < logits.shape[1]:
+                token_logits = logits[0, idx, :]
+                predicted_token = torch.argmax(token_logits).item()
+                predictions.append(predicted_token)
+            else:
+                predictions.append(self.tokenizer.unk_token_id)
+
+        return predictions
+
+    def _extract_path_from_output(self, output_text: str) -> List[str]:
+        """
+        Extract the logical path from the model's output text.
+        This is a placeholder implementation; real logic depends on the prompt template.
+        """
+        words = output_text.split()
+        path_elements = [w.strip(".,") for w in words if w.strip(".,").lower().startswith(('step', 'node', 'path'))]
+        return path_elements if path_elements else ["unknown_path"]
+
+    def execute_turn(self, text: str, current_path: List[str], turn: int) -> Dict[str, Any]:
+        """
+        Perform a single turn of the reflective masking loop.
+
+        Args:
+            text: The puzzle text.
+            current_path: The path accumulated so far.
+            turn: Current turn number.
+
+        Returns:
+            Dictionary containing the new path, status, and intermediate data.
+        """
+        prompt = f"Current Path: {', '.join(current_path)}\\nSolve the puzzle: {text}"
+        inputs = self.tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
+        input_ids = inputs["input_ids"].to(self.device)
+
+        seq_len = input_ids.shape[1]
+        mask_count = max(1, seq_len // 10)
+        mask_indices = list(range(seq_len - mask_count, seq_len))
+
+        masked_input_ids = self._mask_tokens(input_ids, mask_indices)
+        predicted_tokens = self._predict_tokens(masked_input_ids, mask_indices)
+
+        new_input_ids = masked_input_ids.clone()
+        for i, idx in enumerate(mask_indices):
+            if i < len(predicted_tokens):
+                new_input_ids[0, idx] = predicted_tokens[i]
+
+        output_text = self.tokenizer.decode(new_input_ids[0], skip_special_tokens=True)
+        new_path = self._extract_path_from_output(output_text)
+
+        converged = (
+            len(new_path) > len(current_path) and
+            (new_path[-1] != current_path[-1] if current_path else True)
+        )
+
+        return {
+            "turn": turn,
+            "output_text": output_text,
+            "path": new_path,
+            "converged": converged
+        }
+
+    def run(self, puzzle_text: str, ground_truth_path: List[str], nesting_depth: int) -> Dict[str, Any]:
+        """
+        Run the full reflective masking loop for a single puzzle.
+
+        Args:
+            puzzle_text: The text of the puzzle.
+            ground_truth_path: The expected ground truth path.
+            nesting_depth: The puzzle's nesting depth (included for downstream analysis).
+
+        Returns:
+            Dictionary with execution results.
+        """
+        current_path: List[str] = []
+        turns = 0
+        status = "timeout"
+        final_path: List[str] = []
+
+        for turn in range(1, self.max_turns + 1):
+            result = self.execute_turn(puzzle_text, current_path, turn)
+            current_path = result["path"]
+            turns = turn
+
+            if result["converged"]:
+                status = "success"
+                final_path = current_path
+                break
+
+        if status == "timeout":
+            final_path = current_path
+
+        return {
+            "turns_to_converge": turns,
+            "convergence_status": status,
+            "final_path": final_path,
+            "ground_truth_path": ground_truth_path,
+            "nesting_depth": nesting_depth,
+            "path_coverage": 0.0  # Placeholder – real ILV can compute later
+        }
+
+def load_puzzles(input_path: str) -> List[Dict[str, Any]]:
+    """
+    Load puzzles from a JSONL file.
+    """
+    puzzles = []
+    with open(input_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.strip():
+                puzzles.append(json.loads(line))
+    return puzzles
+
+def write_results(results: List[Dict[str, Any]], output_path: str):
+    """
+    Write execution results to a CSV file.
+    """
+    if not results:
+        logger.warning("No results to write.")
+        return
+
+    fieldnames = [
+        "instance_id",
+        "turns_to_converge",
+        "convergence_status",
+        "nesting_depth",
+        "path_coverage",
+        "divergence_from_ground_truth"
+    ]
+
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for res in results:
+            row = {
+                "instance_id": res.get("instance_id", "unknown"),
+                "turns_to_converge": res["turns_to_converge"],
+                "convergence_status": res["convergence_status"],
+                "nesting_depth": res.get("nesting_depth", ""),
+                "path_coverage": res.get("path_coverage", 0.0),
+                "divergence_from_ground_truth": (
+                    1.0 - len(set(res.get("ground_truth_path", []))
+                                .intersection(set(res.get("final_path", [])))) /
+                    max(1, len(set(res.get("ground_truth_path", []))
+                                .union(set(res.get("final_path", [])))))
+                )
+            }
+            writer.writerow(row)
+
+def _write_smoke_csv(results: List[Dict[str, Any]], smoke_path: str, limit: int = 10):
+    """
+    Write a smoke CSV containing the first `limit` results.
+    """
+    smoke_results = results[:limit]
+    write_results(smoke_results, smoke_path)
+
+def main():
+    parser = argparse.ArgumentParser(description="Reflective Masking Executor")
+    parser.add_argument("--input", type=str, required=True, help="Path to input JSONL file")
+    parser.add_argument("--output", type=str, required=True, help="Path to output CSV file")
+    parser.add_argument("--max-turns", type=int, default=50, help="Maximum turns per instance")
+    parser.add_argument("--batch-size", type=int, default=4, help="Batch size (not used in CPU single‑threaded)")
+    parser.add_argument("--device", type=str, default="cpu", help="Device to run on")
+    args = parser.parse_args()
+
+    configure_logging()
+
+    model_path = os.getenv("MODEL_PATH")
+    if not model_path:
+        logger.error("MODEL_PATH not found in .env. Please set it.")
+        sys.exit(1)
+
+    logger.info(f"Starting execution with model: {model_path}, device: {args.device}")
+
+    if not os.path.exists(args.input):
+        logger.error(f"Input file not found: {args.input}")
+        sys.exit(1)
+
+    executor = ReflectiveMaskingExecutor(
+        model_path=model_path,
+        device=args.device,
+        max_turns=args.max_turns
+    )
+
+    puzzles = load_puzzles(args.input)
+    logger.info(f"Loaded {len(puzzles)} puzzles.")
+
+    results = []
+    start_time = time.time()
+
+    for i, puzzle in enumerate(puzzles):
+        instance_id = puzzle.get("instance_id", f"puzzle_{i}")
+        text = puzzle.get("text", "")
+        ground_truth_path = puzzle.get("ground_truth_path", [])
+        nesting_depth = puzzle.get("nesting_depth", 0)
+
+        logger.info(f"Processing {instance_id} ({i+1}/{len(puzzles)})")
+
+        try:
+            result = executor.run(text, ground_truth_path, nesting_depth)
+            result["instance_id"] = instance_id
+            results.append(result)
+        except Exception as e:
+            logger.error(f"Error processing {instance_id}: {e}")
+            results.append({
+                "instance_id": instance_id,
+                "turns_to_converge": 0,
+                "convergence_status": "failure",
+                "final_path": [],
+                "ground_truth_path": ground_truth_path,
+                "nesting_depth": nesting_depth,
+                "path_coverage": 0.0
+            })
+
+    end_time = time.time()
+    logger.info(f"Execution completed in {end_time - start_time:.2f} seconds.")
+
+    write_results(results, args.output)
+    logger.info(f"Full results written to {args.output}")
+
+    # Write smoke CSV (first 10 rows) to the conventional location
+    smoke_path = Path("data/processed/execution_log_smoke.csv")
+    _write_smoke_csv(results, str(smoke_path))
+    logger.info(f"Smoke results written to {smoke_path}")
+
+if __name__ == "__main__":
+    main()

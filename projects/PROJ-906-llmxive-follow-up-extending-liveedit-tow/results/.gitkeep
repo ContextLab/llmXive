@@ -1,1 +1,2 @@
-# Final results and reports
+# This directory is for generated results and reports.
+# Files here are not tracked by git but are essential for the pipeline.

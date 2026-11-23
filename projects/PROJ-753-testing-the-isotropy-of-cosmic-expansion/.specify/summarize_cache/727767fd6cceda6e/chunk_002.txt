@@ -1,0 +1,111 @@
+- **Power analysis**: Quantifies the ability of the ~1500‑SN sample to detect realistic dipole amplitudes, satisfying methodological rigor (methodology‑d20a50db).  
+- **CPU‑only feasibility**: All libraries (`healpy`, `scipy`) run efficiently on the GitHub Actions runner; the simulation loop includes an early‑stop convergence criterion to respect the 6 h runtime budget (SC‑004).  
+
+## References
+1. Pantheon+ Collaboration, *The Pantheon+ Analysis: Cosmological Constraints* (2021). Official repository: https://github.com/PantheonPlusSH0ES/DataRelease  
+2. Healpy Documentation – Spherical Harmonic Analysis. https://healpy.readthedocs.io/  
+3. Hivon et al. (2002), “MASTER of the CMB Anisotropy Power Spectrum”, *ApJ*, 567, 2.  
+4. Schlegel, D. J., Finkbeiner, D. P., Davis, M. (1998), “Maps of Dust Infrared Emission for Use in Estimation of Reddening and CMB Foregrounds”, *ApJ*, 500, 525.  
+5. 2M++ Flow Model (Carrick et al. 2015).  
+6. Planck Collaboration (2018), *Planck 2018 results. VI. Cosmological parameters*.  
+
+---===END_ARTIFACT===
+
+===BEGIN_ARTIFACT projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/quickstart.md===
+# Quickstart: Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data
+
+## Prerequisites
+- Python 3.11 or newer
+- Git
+- ~8 GB free disk space (for dataset and intermediate files)
+
+## Installation
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion
+
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install pinned dependencies
+pip install -r requirements.txt
+```
+
+## Data Setup
+
+1. **Obtain Pantheon+**  
+   - Visit the official Pantheon+ repository (https://github.com/PantheonPlusSH0ES/DataRelease).  
+   - Download the file `Pantheon+_SH0ES.dat` (or the latest CSV equivalent).  
+   - Place the file in `data/raw/`.  
+2. **Verify integrity** (the SHA‑256 hash is recorded in `data/raw/manifest.json`):
+   ```bash
+   python code/ingestion.py --verify-only
+   ```
+
+## Run the Full Analysis
+
+```bash
+python code/analysis.py
+```
+
+The script performs the following automatically:
+1. Ingests and filters the Pantheon+ data, writes `residuals.csv`.  
+2. Projects residuals onto a HEALPix grid (`healpix_map.fits`).  
+3. Computes dipole and quadrupole amplitudes via a **primary weighted‑least‑squares fit** and a **secondary pseudo‑Cℓ cross‑check**.  
+4. Generates isotropic mock catalogs via **mask‑aware random rotations**, monitors convergence, and writes `simulation_results.csv`.  
+5. Calculates p‑values, validates `final_report.txt` against `final_report.schema.yaml`, and writes `analysis_result.json` validated against `analysis_result.schema.yaml`.
+
+## Outputs
+
+- `data/processed/residuals.csv` – cleaned supernova table with residuals.  
+- `data/processed/healpix_map.fits` – HEALPix map of mean residuals.  
+- `data/processed/simulation_results.csv` – dipole/quadrupole amplitudes from each mock catalog.  
+- `data/reports/final_report.txt` – human‑readable summary of the dipole/quadrupole amplitudes, p‑values, and significance flag (validated against schema).  
+- `analysis_result.json` – machine‑readable result validated against `contracts/analysis_result.schema.yaml`.
+
+## Validation (Synthetic Test)
+
+To confirm the pipeline can recover a known signal:
+
+```bash
+python code/analysis.py --synthetic --inject-dipole 0.04
+```
+
+This creates a synthetic supernova sample with an injected dipole of a low magnitude (mag), runs the full pipeline, and prints the recovered amplitude and p‑value.
+
+## Troubleshooting
+
+- **MemoryError** – Reduce the number of simulations by editing `code/simulations.py` (`MAX_SIMULATIONS = 2000`).  
+- **Missing columns** – Ensure the raw Pantheon+ file contains the required columns (`RA`, `DEC`, `z`, `mu`, `muerr`).  
+- **Runtime > 6 h** – The script automatically stops the simulation loop once the convergence criterion (Δmean < 0.001 mag over last 1 000 sims) is met; you can also lower `MAX_SIMULATIONS` manually.
+
+---===END_ARTIFACT===
+
+===BEGIN_ARTIFACT projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion/specs/001-testing-the-isotropy-of-cosmic-expansion/contracts/simulation_output.schema.yaml===
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Output"
+description: "Deprecated schema – the project now uses `simulation_results.schema.yaml`. Retained for backward compatibility only; no tasks reference this schema."
+type: "object"
+properties:
+  run_id:
+    type: "integer"
+    description: "Unique iteration ID."
+  dipole_amplitude:
+    type: "number"
+    description: "Dipole amplitude for this simulation run."
+  quadrupole_amplitude:
+    type: "number"
+    description: "Quadrupole amplitude for this simulation run."
+  seed:
+    type: "integer"
+    description: "Random seed used for this iteration (always 42)."
+required:
+  - run_id
+  - dipole_amplitude
+  - quadrupole_amplitude
+  - seed
+additionalProperties: false
+## NOTE: This schema is deprecated and intentionally not used by any pipeline step.

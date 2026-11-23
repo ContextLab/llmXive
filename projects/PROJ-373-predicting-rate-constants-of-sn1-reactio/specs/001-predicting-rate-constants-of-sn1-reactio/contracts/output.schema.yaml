@@ -1,0 +1,90 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model evaluation and interpretability outputs"
+type: object
+properties:
+  metrics:
+    type: object
+    properties:
+      r2:
+        type: number
+        description: "R-squared score"
+      mae:
+        type: number
+        description: "Mean Absolute Error"
+    required:
+      - r2
+      - mae
+  comparisons:
+    type: array
+    items:
+      type: object
+      properties:
+        model_a:
+          type: string
+        model_b:
+          type: string
+        metric:
+          type: string
+        p_value:
+          type: number
+        significant:
+          type: boolean
+      required:
+        - model_a
+        - model_b
+        - metric
+        - p_value
+        - significant
+  shap_summary:
+    type: object
+    description: "SHAP feature importance summary"
+    properties:
+      top_features:
+        type: array
+        items:
+          type: string
+        description: "Top 10 features by absolute SHAP value"
+  sensitivity:
+    type: object
+    description: "Sensitivity analysis results"
+    properties:
+      variance:
+        type: number
+        description: "Variance of R² across sweep"
+  vif_report:
+    type: array
+    items:
+      type: object
+      properties:
+        descriptor_a:
+          type: string
+        descriptor_b:
+          type: string
+        vif_score:
+          type: number
+        flag_reason:
+          type: string
+      required:
+        - descriptor_a
+        - descriptor_b
+        - vif_score
+        - flag_reason
+  consistency:
+    type: object
+    description: "SHAP consistency across seeds"
+    properties:
+      seeds_used:
+        type: array
+        items:
+          type: integer
+      rank_correlation:
+        type: number
+        description: "Average Spearman correlation of ranks across seeds"
+required:
+  - metrics
+  - comparisons
+  - shap_summary
+  - sensitivity
+  - vif_report
+  - consistency

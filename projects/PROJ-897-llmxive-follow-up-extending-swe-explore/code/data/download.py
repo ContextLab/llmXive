@@ -1,83 +1,129 @@
 """
-Download the SWE-Explore benchmark dataset from HuggingFace.
-
-This script fetches 'bench.final.public.jsonl' from the
-'princeton-nlp/SWE-bench' dataset repository on HuggingFace and saves it
-to the project's data/raw directory as defined in config.py.
+T010: Implement Robust Data Fetcher.
+Downloads the SWE-Explore benchmark dataset from HuggingFace using streaming.
+Writes the raw data to data/raw/swe_explore_raw.jsonl.
 """
-
 import json
 import os
 import sys
 from pathlib import Path
+from typing import Optional, Dict, Any
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from config import get_config_summary
-from datasets import load_dataset
+from config import get_path, get_config_summary, DATA_RAW
 
+# Constants for the dataset
+HF_DATASET_NAME = "bench.final.public"
+HF_DATASET_SPLIT = "train"
+TARGET_FILENAME = "swe_explore_raw.jsonl"
 
-def download_benchmark_dataset(output_dir: Path) -> None:
+def download_benchmark_dataset(
+    dataset_name: str = HF_DATASET_NAME,
+    split: str = HF_DATASET_SPLIT,
+    output_dir: Optional[Path] = None,
+    streaming: bool = True
+) -> Path:
     """
-    Fetch the SWE-Explore benchmark dataset from HuggingFace and save to disk.
+    Fetches the SWE-Explore dataset from HuggingFace.
 
     Args:
-        output_dir: Directory where the dataset file will be saved.
-    """
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "bench.final.public.jsonl"
+        dataset_name: The HuggingFace dataset identifier.
+        split: The dataset split to load (e.g., 'train').
+        output_dir: Directory to write the output file.
+        streaming: If True, streams data to avoid loading full dataset into RAM.
 
-    print(f"Loading dataset 'princeton-nlp/SWE-bench' from HuggingFace...")
+    Returns:
+        Path to the written JSONL file.
+
+    Raises:
+        ConnectionError: If the dataset cannot be fetched or is unavailable.
+        FileNotFoundError: If the dataset does not contain the expected file structure.
+    """
+    # Import datasets here to fail fast if missing, before other logic
+    try:
+        from datasets import load_dataset
+    except ImportError:
+        raise ImportError(
+            "The 'datasets' library is required. "
+            "Please install it: pip install datasets"
+        )
+
+    if output_dir is None:
+        output_dir = get_path(DATA_RAW)
+    
+    # Ensure output directory exists
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    output_file = output_path / TARGET_FILENAME
+
+    print(f"Fetching dataset: {dataset_name} (split={split})...")
     
     try:
-        # Load the specific dataset split
-        # The SWE-bench dataset contains the 'bench.final.public' split
-        dataset = load_dataset("princeton-nlp/SWE-bench", split="test")
-        
-        if len(dataset) == 0:
-            raise ValueError("Dataset loaded but contains no records.")
-
-        print(f"Dataset loaded: {len(dataset)} records.")
-        print(f"Saving to {output_file}...")
-
-        # Write as JSONL
-        with open(output_file, "w", encoding="utf-8") as f:
-            for record in dataset:
-                # Ensure the record is JSON serializable
-                # Some fields might be complex types, convert to string if needed
-                json_record = {}
-                for k, v in record.items():
-                    if isinstance(v, (list, dict, str, int, float, bool, type(None))):
-                        json_record[k] = v
-                    else:
-                        json_record[k] = str(v)
-                f.write(json.dumps(json_record, ensure_ascii=False) + "\n")
-
-        print(f"Successfully saved {len(dataset)} records to {output_file}")
-        
-        # Verify file size
-        file_size = output_file.stat().st_size
-        print(f"Output file size: {file_size / (1024*1024):.2f} MB")
-
+        # Load dataset in streaming mode to handle large sizes
+        dataset = load_dataset(
+            dataset_name,
+            split=split,
+            streaming=streaming,
+            trust_remote_code=True
+        )
     except Exception as e:
-        print(f"Error downloading dataset: {e}")
-        raise
+        raise ConnectionError(
+            f"Failed to fetch dataset '{dataset_name}' from HuggingFace: {e}"
+        ) from e
 
+    print(f"Dataset loaded. Writing to {output_file}...")
 
-def main() -> None:
-    """Main entry point for the download script."""
-    config = get_config_summary()
-    raw_data_dir = Path(config["paths"]["data_raw"])
+    # Write data to JSONL
+    # We iterate through the streaming dataset
+    written_count = 0
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            for item in dataset:
+                # Ensure the item is serializable
+                # The SWE-Explore dataset typically has fields like 'problem', 'id', etc.
+                # We write the raw record as JSON
+                json_line = json.dumps(item, ensure_ascii=False)
+                f.write(json_line + '\n')
+                written_count += 1
+                
+                # Optional: progress indicator every 1000 items
+                if written_count % 1000 == 0:
+                    print(f"  Written {written_count} records...", end='\r')
+        
+        print(f"\nSuccessfully wrote {written_count} records to {output_file}.")
+        
+    except IOError as e:
+        # Clean up partial file on write failure
+        if output_file.exists():
+            output_file.unlink()
+        raise IOError(f"Failed to write output file {output_file}: {e}") from e
+
+    return output_file
+
+def main():
+    """
+    Main entry point for the download script.
+    """
+    print("--- T010: Robust Data Fetcher ---")
     
-    print(f"Configuration loaded. Data root: {config['paths']['data_root']}")
-    print(f"Target directory: {raw_data_dir}")
-    
-    download_benchmark_dataset(raw_data_dir)
+    # Get configuration
+    config_summary = get_config_summary()
+    print(f"Using config: {config_summary}")
 
+    try:
+        output_file = download_benchmark_dataset()
+        print(f"Task T010 Complete. Output: {output_file}")
+    except (ConnectionError, ImportError, IOError) as e:
+        print(f"Task T010 Failed: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Task T010 Unexpected Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

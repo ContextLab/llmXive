@@ -1,0 +1,5 @@
+'|complexity cyclomatic verify':
+  quote: "1\u201310: Simple procedure, little risk"
+  source_id: Cyclomatic complexity
+  url: https://en.wikipedia.org/wiki/Cyclomatic_complexity
+  value: '10'

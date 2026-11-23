@@ -1,0 +1,108 @@
+T004:
+  c: false
+  h: df4fccaea3f53363fca8f204f5106aaf6c3d3754a10bfe3fb2689185dfd464f7
+  r: The required source file `docs/NEUTRAL_TEXT_V1.txt` is missing, so the content
+    in `code/stimuli/text_content.txt` cannot be verified as the correct neutral text.
+    Moreover, the existing text appears unrelated to the expected neutral source,
+    indicating the task was not fulfilled.
+T012:
+  c: false
+  h: 97c66457007ddf2a70ac74f4d2b2e4f4fdab9431d1be9f51b2fbfdb5f3dd10ca
+  r: "The `code/survey/app.py` contains a consent form that attempts to read the consent\
+    \ text, but the required source file `data/consent/irb_approved.txt` does not\
+    \ exist, so the app falls back to a placeholder message instead of displaying\
+    \ the actual IRB\u2011approved text. Consequently the task\u2019s core requirement\
+    \ (displaying the IRB text from that file) is not satisfied. The missing consent\
+    \ file must be added (and the path verified) for the implementation to be complete."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation showing that the \u201CI Do Not Agree\u201D\
+    \ button now redirects to a withdrawal page was provided; the required implementation\
+    \ artifact is missing. The task cannot be verified as completed."
+T022h:
+  c: false
+  h: 649058377d4b01ff1b789ff042abeceaa0b4a8257c7e7557bec1d7f85189eb48
+  r: "The provided `code/utils/dedup.py` does not match the unit\u2011test expectations\
+    \ (its `load_submissions_data` takes no path argument and `detect_duplicates`\
+    \ returns only duplicates, while the test expects a `(unique, dups)` tuple). The\
+    \ test file is truncated and imports `utils.dedup` which does not correspond to\
+    \ the actual module location. Moreover, the required input CSV (`data/raw/submissions.csv`)\
+    \ and the generated report (`data/processed/dedup_report.csv`) are absent. The\
+    \ implementation therefore does not fulfill the task\u2019s specification."
+T024a:
+  c: false
+  h: e1dcbd205d25051ce080ecc0f24c4e8ec92f8a4dcb50d5ece9d1df7c82792174
+  r: The `code/analysis/00_preprocess.py` file exists but the shown code never invokes
+    `verify_checksum()` before loading `data/raw/submissions.csv`, and the required
+    `data/raw/submissions.csv` file is absent from the repository. Both the mandatory
+    checksum call and the input data file are missing, so the task is not truly completed.
+T024b:
+  c: false
+  h: ed367d57b681e44b5f14d47fd5a9132679ffd4d87d0a212596ae2c828aa3a89f
+  r: The provided `00_verify_dependencies.py` script exists, but it does not verify
+    the checksum of `data/processed/clean_data.csv` as required, and the necessary
+    data files (`clean_data.csv` and `submissions.csv`) are missing, so the script
+    cannot perform the full dependency check. The implementation must be extended
+    to compute and compare the checksum of `clean_data.csv` (or the appropriate recorded
+    value) and ensure the required files are present.
+T025a:
+  c: false
+  h: 596709a24fd8028846801d36b0f2cbe60b903ad8cbec5109dd9e34f383b3f65c
+  r: "The `code/analysis/01_anova.py` file exists but is only a partial, placeholder\
+    \ implementation (truncated and lacking the full ANOVA, post\u2011hoc, effect\u2011\
+    size calculations, and JSON output). Moreover, the required input `data/processed/clean_data.csv`\
+    \ is missing, so the script cannot be run as specified."
+T025b:
+  c: false
+  h: 29571ec4e4555f1f84603cff37500e8a26ab5d45e2ce3e5a9d43daea77140ddb
+  r: The repository contains the ANOVA script, but the required unit test `tests/unit/test_anova_output.py`
+    is absent, and there is no evidence that the script was actually executed on sample
+    data or that its output was verified. The missing test file prevents the verification
+    step from being satisfied.
+T043b:
+  c: false
+  h: 8257fbf57bd7cf23f7fc58f1f028fa2309c256d5b8934c581e38a8be0afa5ffc
+  r: "The repository lacks the required `data/raw/submissions.csv` file, and the shown\
+    \ `generate_mock_data.py` does not contain any `numpy.random.seed()` call nor\
+    \ logic to compute and store a SHA\u2011256 checksum in the project YAML. Consequently,\
+    \ the core requirements of the task are not met."
+T043c:
+  c: false
+  h: e89b741df82c106b0ea39edaae28796ebcdc0405d51f8bd3f05582715079220a
+  r: "The test `tests/benchmark/test_runtime.py` contains the required size assertion,\
+    \ but the dependent file `data/raw/submissions.csv` is absent, so the assertion\
+    \ cannot be evaluated and the task\u2019s prerequisite is unmet. The missing CSV\
+    \ file must be provided for the task to be considered complete."
+T057a:
+  c: false
+  h: e00b57fa7420687149e63b30ff14e9f4b54e12960debfab886aa50e5024bd8b3
+  r: The `code/utils/checksums.py` file is missing a complete implementation of `verify_checksum`
+    (the code cuts off at `stored_chec`). Additionally, no unit test artifacts are
+    present to demonstrate that the functions compute valid hashes, persist them,
+    and verify correctly. The required verification step is therefore not satisfied.
+T064:
+  c: false
+  h: 16a3c2f5886e278af6ca4fe22d2f8402a6d9efe1063d41f912319fa2eccd0fb1
+  r: "The `code/analysis/04_power_analysis.py` file exists but is truncated, contains\
+    \ errors (e.g., `np.stats.norm`), and does not demonstrably write the required\
+    \ `data/processed/power_analysis_report.json`. Moreover, the JSON report file\
+    \ is missing from the repository. The task\u2019s output artifact is therefore\
+    \ not present or correctly generated."
+T071:
+  c: false
+  h: dce7576165cafab95cd68216333e7623288f743b397c693789b6097e6034cfe4
+  r: "The provided `app.py` snippet stops mid\u2011function and does not show a complete\
+    \ `check_session_timeout` implementation nor the `log_abandonment` function that\
+    \ writes to `data/processed/abandonment_log.csv`. The actual `abandonment_log.csv`\
+    \ file is absent, and the unit tests only verify behavior against a patched temporary\
+    \ path, not the real log location. Consequently the required timeout handling,\
+    \ session clearing, and persistent logging are not demonstrably present."
+T072:
+  c: false
+  h: 25ece9570e63483191724d378dc0a92f5395dc55c6b322f19d1edf4970ca563e
+  r: The repository contains `code/utils/backup.py`, but the required source file
+    `data/raw/submissions.csv` is missing, so the backup function cannot run, and
+    no unit test is present to verify backup creation or content matching. Additionally,
+    the module does not include any mechanism to automatically trigger after a write
+    operation. These gaps must be addressed for the task to be considered complete.

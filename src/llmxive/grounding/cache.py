@@ -22,7 +22,9 @@ def _dir(repo_root: Path, sub: str) -> Path:
 
 
 def _key(*parts: str) -> str:
-    return hashlib.sha256(" ".join(parts).encode("utf-8")).hexdigest()
+    # Older retrieval admitted error-page bodies and entailment did not check
+    # that its quoted evidence was actually present in those source passages.
+    return hashlib.sha256(" ".join(("http-and-quote-v2", *parts)).encode("utf-8")).hexdigest()
 
 
 def _now() -> float:

@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-10-06T22:27:17.583085+00:00'
+issue_number: 1464
+project_id: PROJ-861-llmxive-follow-up-extending-appo-agentic

@@ -1,0 +1,10 @@
+status: none
+intent: CAMI scale mental illness stigma dataset python package
+required_fields:
+- participant_id
+- condition
+- cami_score
+- help_seeking_intent
+cache_key: 3e730019356c6248fc5553f9751281343248603fc3597633ca432f3c2287bbfd
+searched_at: '2026-10-21T15:33:28.055887+00:00'
+retry_count: 1

@@ -1,0 +1,14 @@
+status: none
+intent: matminer perovskite ABX3 dataset Materials Project OQMD python package dataset
+required_fields:
+- material_id
+- formula
+- space_group
+- tolerance_factor
+- octahedral_factor
+- ionic_radius_mismatch
+- electronegativity_difference
+- energy_above_hull
+cache_key: 5725992ceca7a63a9c6dc7a4876ea632f2bd3d4e178cb7d3caa926eb91987685
+searched_at: '2026-08-29T13:28:09.896880+00:00'
+retry_count: 1

@@ -1,3 +1,3 @@
 """
-Model architectures and training utilities.
+Model definitions and training package.
 """

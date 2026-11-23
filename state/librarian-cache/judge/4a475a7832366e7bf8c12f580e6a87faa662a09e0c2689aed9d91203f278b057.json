@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.12023",
+  "judged_at": "2026-07-20T10:13:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the validity of statistical significance in randomized controlled trials with missing data statistics",
+  "rationale": "The paper focuses on change-point detection in conditional distributions and model validity under temporal covariate shift, which is a distinct statistical problem from assessing the validity of statistical significance in randomized controlled trials (RCTs) specifically caused by missing data. While both involve \"validity\" and \"power,\" the paper does not address the mechanisms of missing data (e.g., imputation, attrition bias) or the specific context of RCTs, failing to meet the criteria for sa",
+  "relevant": false
+}

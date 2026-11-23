@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ROI Timeseries per Subject"
+type: object
+required:
+  - subject_id
+  - timepoint
+  - roi_id
+  - value
+properties:
+  subject_id:
+    type: string
+    description: "Participant identifier."
+  timepoint:
+    type: integer
+    description: "Timepoint index (starting at 0)."
+  roi_id:
+    type: string
+    description: "ROI identifier (e.g., roi_1 … roi_100)."
+  value:
+    type: number
+    description: "Mean BATCH ???"
+additionalProperties: false

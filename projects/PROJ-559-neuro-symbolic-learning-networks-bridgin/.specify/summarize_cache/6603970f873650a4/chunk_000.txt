@@ -1,0 +1,59 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T012** — The repository contains the `fetch_assistments.py` script, but the required output file `data/raw/assistments.csv` (and its checksum file) are absent. Without these deliverables, the task’s primary requirement is not satisfied.
+- **T012c** — The required output file `data/raw/khan_academy.csv` (and its checksum) is missing, so the deliverable is not present. Additionally, the provided script is truncated and does not show the logic that exits with code 1 and logs the exact required error message on timeout. The task therefore remains unfinished.
+- **T012e** — The required source files `data/raw/assistments.csv` and `data/raw/khan_academy.csv` are absent, and the expected output `data/raw/unified_problems.csv` (with its checksum) was not generated. Additionally, the provided `unify_datasets.py` script is truncated and contains a syntax error (`return Fal`). The task’s deliverables are therefore not satisfied.
+- **T012a** — The `validate_unified_schema.py` file is present but ends abruptly (truncated code) and lacks a complete implementation (e.g., main entry point, full row validation, exit handling). Moreover, the required data files `data/raw/unified_problems.csv` and `contracts/problem.schema.yaml` are missing, so the script cannot be executed to verify the schema as specified. The task’s deliverable is therefore not satisfied.
+- **T012b** — declared artifact(s) missing/empty/invalid: code/download/verify_timeout_handling.py
+- **T030a** — The `synthetic_pilot_generator.py` script is present and appears to implement deterministic data generation, but the required output file `data/pilot/real_pilot_data.csv` does not exist in the repository. The task’s deliverable is missing, so the requirement is not satisfied.
+- **T030b** — declared artifact(s) missing/empty/invalid: data/pilot/real_pilot_data.csv
+- **T030c** — The required `data/pilot/real_pilot_data.csv` file is absent, so the deliverable “validated CSV with checksum” is not present. Consequently the script cannot be demonstrated to produce the specified error message or checksum, and the task’s core requirement is unmet.
+
+# Recent reviewer / personality comments
+
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `stephen-wolfram-simulated__2026-06-13__research.md`
+
+---
+action_items: []
+artifact_hash: b11d07ad0a3356e7bc79572d8db0b89bde4ea33cb2b465cc8a0f45b4c0bed13f
+artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/idea/research_question_validation.md
+backend: dartmouth
+feedback: 'It is now nearly twenty years since I began the project that became A New
+  Kind of Science, and the central insight remains: what looks like complexity in
+  nature often arises from simple underlying rules. The proposal to combine neural
+  intuition with symbolic reasoning is of the right order, but I find myself asking
+  whether the project has been properly *run* rather than only analyzed.
+
+
+  The research question frames this as a pedagogical relationship between two kinds
+  of explanations. But here is '
+github_authenticated: false
+model_name: qwen.qwen3.5-122b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-13T23:52:50.920734Z'
+reviewer_kind: llm
+reviewer_name: stephen-wolfram-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+It is now nearly twenty years since I began the project that became A New Kind of Science, and the central insight remains: what looks like complexity in nature often arises from simple underlying rules. The proposal to combine neural intuition with symbolic reasoning is of the right order, but I find myself asking whether the project has been properly *run* rather than only analyzed.
+
+The research question frames this as a pedagogical relationship between two kinds of explanations. But here is what I would want to
+
+*[truncated]*
+
+## `stephen-wolfram-simulated__2026-05-26__research.md`
+
+---
+action_items: []
+artifact_hash: 8feea6cc53eee8da86ae650030070ff3120a8d085dd8d52b84d956c6b11bbfa2
+artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/idea/neuro-symbolic-learning-networks-bridgin.md
+backend: dartmouth
+feedback: "It is now nearly twenty years since I began the project that became A New\
+  \ Kind of Science, and one of the central conclusions was that the computational\
+  \ universe is full of phenomena that cannot be predicted by analysis alone\u2014\

@@ -1,200 +1,142 @@
 """
-Configuration management for the statistical analysis pipeline.
+Utility configuration helpers for the project (T002).
 
-Handles seed pinning for reproducibility and path resolution for data/state directories.
+Provides:
+- ``set_seed()``: pins global random seeds for ``random``, ``numpy``
+  and PyMC to guarantee absolute reproducibility (Constitution I).
+- Path helpers (project root, data root).
+- SHA-256 hashing of files.
 """
+
+import hashlib
 import os
 import random
-import hashlib
 from pathlib import Path
-from typing import Any, Dict, Optional
-import yaml
+from typing import Any, Dict
 
-# Project root is the parent of the 'src' directory
-PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent.parent
-DATA_DIR: Path = PROJECT_ROOT / "data"
-STATE_DIR: PROJECT_ROOT / "state"
-RAW_DATA_DIR: Path = DATA_DIR / "raw"
-PROCESSED_DATA_DIR: Path = DATA_DIR / "processed"
-FIGURES_DIR: Path = DATA_DIR / "figures"
+import numpy as np
 
-# Default configuration
-DEFAULT_SEED: int = 42
-CONFIG_FILE_NAME: str = "project_config.yaml"
+# ----------------------------------------------------------------------
+# Reproducibility: global seed pinning (Constitution I)
+# ----------------------------------------------------------------------
+# Single global default seed used by every script in the pipeline.
+GLOBAL_SEED = 20240521
 
+# Track the seed(s) that have been applied so scripts can assert that
+# ``set_seed`` was actually called before any stochastic work.
+_SEED_STATE: Dict[str, Any] = {"seed": None}
 
-def get_config_path() -> Path:
-    """Return the path to the project configuration file."""
-    return PROJECT_ROOT / CONFIG_FILE_NAME
-
-
-def load_config() -> Dict[str, Any]:
+def set_seed(seed: int = GLOBAL_SEED) -> int:
     """
-    Load configuration from the YAML file.
-    
-    Returns:
-        Dictionary containing configuration settings.
-    """
-    config_path = get_config_path()
-    if config_path.exists():
-        with open(config_path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f) or {}
-    return {}
+    Pin the global random seeds for ``random``, ``numpy`` and PyMC.
 
+    This function MUST be called at the start of every script in the
+    pipeline to ensure absolute reproducibility (Constitution I).
 
-def save_config(config: Dict[str, Any]) -> None:
-    """
-    Save configuration to the YAML file.
-    
-    Args:
-        config: Dictionary of configuration settings to save.
-    """
-    config_path = get_config_path()
-    with open(config_path, "w", encoding="utf-8") as f:
-        yaml.dump(config, f, default_flow_style=False)
+    Parameters
+    ----------
+    seed: int
+        The seed value to use for all random number generators.
 
+    Returns
+    -------
+    int
+        The seed that was applied.
+    """
+    if not isinstance(seed, int):
+        raise TypeError(f"seed must be an int, got {type(seed).__name__}")
 
-def get_seed() -> int:
-    """
-    Get the random seed for reproducibility.
-    
-    Reads the seed from config if available, otherwise uses the default.
-    
-    Returns:
-        Integer seed value.
-    """
-    config = load_config()
-    return config.get("seed", DEFAULT_SEED)
-
-
-def set_seed(seed: Optional[int] = None) -> int:
-    """
-    Set the random seed for the entire pipeline.
-    
-    This function:
-    1. Updates the global seed in the configuration file.
-    2. Seeds Python's random module.
-    3. Seeds numpy (if available).
-    4. Seeds PyMC (if available).
-    
-    Args:
-        seed: Optional integer seed. If None, uses DEFAULT_SEED.
-    
-    Returns:
-        The seed value that was set.
-    """
-    if seed is None:
-        seed = DEFAULT_SEED
-    
-    # Update config
-    config = load_config()
-    config["seed"] = seed
-    save_config(config)
-    
-    # Seed Python random
+    # 1. Python stdlib RNG
     random.seed(seed)
-    
-    # Seed numpy
+
+    # 2. NumPy legacy global RNG
+    np.random.seed(seed)
+
+    # 3. PyMC / Aesara-PyTensor RNG: set the module-level seed so that
+    #    ``pm.sample`` (which uses ``numpy.random`` for its initial
+    #    points) and any random-variable draws are reproducible.
     try:
-        import numpy as np
-        np.random.seed(seed)
+        import pymc as _pm  # noqa: N813
+
+        # PyMC v5 exposes ``pm.pytensor_random`` / randomstream seeding
+        # via the shared RandomState/Generator. The canonical way is:
+        if hasattr(_pm, "set_at_rng") and hasattr(_pm, "at_rng"):
+            _rng = _pm.at_rng(seed)
+            _pm.set_at_rng(_rng)
     except ImportError:
+        # PyMC is not installed in this environment (e.g. lightweight
+        # unit-test runs); numpy/random seeding above is still applied.
         pass
-    
-    # Seed PyMC
-    try:
-        import pymc as pm
-        pm.set_rng_seed(seed)
-    except ImportError:
-        pass
-    
+
+    _SEED_STATE["seed"] = seed
     return seed
 
+def get_last_seed():
+    """Return the last seed applied via :func:`set_seed` (or None)."""
+    return _SEED_STATE["seed"]
 
-def resolve_data_path(sub_path: str) -> Path:
+def assert_seeded() -> None:
     """
-    Resolve a relative path within the data directory.
-    
-    Args:
-        sub_path: Relative path string (e.g., "raw/polls.csv").
-    
-    Returns:
-        Absolute Path object within the data directory.
-    """
-    full_path = DATA_DIR / sub_path
-    full_path.parent.mkdir(parents=True, exist_ok=True)
-    return full_path
+    Fail loudly if :func:`set_seed` has not been called yet.
 
+    Scripts should call ``assert_seeded()`` right after their first
+    stochastic operation (or simply call ``set_seed()`` at startup).
+    """
+    if _SEED_STATE["seed"] is None:
+        raise RuntimeError(
+            "Reproducibility violation (Constitution I): set_seed() has "
+            "not been called. Call src.utils.config.set_seed() at the "
+            "start of every script before any stochastic computation."
+        )
 
-def resolve_processed_path(sub_path: str) -> Path:
+# ----------------------------------------------------------------------
+# Path helpers
+# ----------------------------------------------------------------------
+def get_project_root() -> Path:
     """
-    Resolve a relative path within the processed data directory.
-    
-    Args:
-        sub_path: Relative path string (e.g., "poll_data_cleaned.csv").
-    
-    Returns:
-        Absolute Path object within the processed data directory.
-    """
-    full_path = PROCESSED_DATA_DIR / sub_path
-    full_path.parent.mkdir(parents=True, exist_ok=True)
-    return full_path
+    Returns the absolute Path to the project root directory.
 
+    The function assumes this file lives in <project_root>/src/utils/.
+    """
+    return Path(__file__).resolve().parents[2]
 
-def resolve_state_path(sub_path: str) -> Path:
+def get_data_root() -> Path:
     """
-    Resolve a relative path within the state directory.
-    
-    Args:
-        sub_path: Relative path string (e.g., "projects/PROJ-206.yaml").
-    
-    Returns:
-        Absolute Path object within the state directory.
+    Returns the absolute Path to the top-level data directory
+    (<project_root>/data).
     """
-    full_path = STATE_DIR / sub_path
-    full_path.parent.mkdir(parents=True, exist_ok=True)
-    return full_path
+    return get_project_root() / "data"
 
+def get_state_root() -> Path:
+    """
+    Returns the absolute Path to the state directory (<project_root>/state).
+    """
+    return get_project_root() / "state"
 
-def compute_file_hash(file_path: Path) -> str:
+# ----------------------------------------------------------------------
+# Filesystem helpers
+# ----------------------------------------------------------------------
+def ensure_dir(p: Path) -> None:
     """
-    Compute SHA-256 hash of a file.
-    
-    Args:
-        file_path: Path to the file to hash.
-    
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
+    Ensures the directory represented by ``p`` exists.
+    Creates parent directories as needed.
     """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Cannot compute hash: file not found at {file_path}")
-    
-    sha256_hash = hashlib.sha256()
+    p.mkdir(parents=True, exist_ok=True)
+
+# ----------------------------------------------------------------------
+# Hashing helper
+# ----------------------------------------------------------------------
+def compute_file_hash(file_path: str) -> str:
+    """
+    Computes the SHA-256 hash of the file at ``file_path`` and returns
+    the hexadecimal digest string.
+    """
+    sha256 = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-
-def get_project_id() -> str:
-    """
-    Get the project ID from environment or defaults.
-    
-    Returns:
-        Project ID string.
-    """
-    return os.getenv("PROJECT_ID", "PROJ-206-statistical-analysis-of-publicly-availab")
-
-
-def ensure_directories() -> None:
-    """Ensure all required directories exist."""
-    dirs = [
-        DATA_DIR,
-        RAW_DATA_DIR,
-        PROCESSED_DATA_DIR,
-        FIGURES_DIR,
-        STATE_DIR,
-        STATE_DIR / "projects"
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+# Apply the global seed on import so that merely importing this module
+# already yields a deterministic environment for every script.
+set_seed(GLOBAL_SEED)

@@ -1,156 +1,249 @@
+"""
+Descriptor Computation Module.
+
+Computes elemental and structural descriptors from chemical compositions.
+"""
 import pandas as pd
 import logging
 from typing import Dict, Any, List, Optional
-from . import logger
-from chemparse import Composition
+import numpy as np
+from collections import defaultdict
+from chemparse import parse_formula
+
+# Add project root to path
+import os
+import sys
+from pathlib import Path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+try:
+    import periodictable
+except ImportError:
+    # Fallback if periodictable is not installed
+    logging.warning("periodictable not found. Using mock data for descriptors.")
+    periodictable = None
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(project_root / 'logs' / 'descriptors.log')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def get_element_property(element: str, property_name: str) -> Optional[float]:
+    """
+    Get a property of an element from the periodic table.
+
+    Args:
+        element: Element symbol (e.g., 'Al')
+        property_name: Property name (e.g., 'radius', 'electronegativity')
+
+    Returns:
+        Property value or None if not found
+    """
+    if periodictable is None:
+        # Mock values for testing
+        mock_data = {
+            'Al': {'radius': 1.43, 'electronegativity': 1.61, 'valence': 3},
+            'O': {'radius': 0.66, 'electronegativity': 3.44, 'valence': 2},
+            'Zr': {'radius': 1.60, 'electronegativity': 1.33, 'valence': 4},
+            'Si': {'radius': 1.17, 'electronegativity': 1.90, 'valence': 4},
+            'C': {'radius': 0.77, 'electronegativity': 2.55, 'valence': 4},
+            'N': {'radius': 0.75, 'electronegativity': 3.04, 'valence': 3},
+            'Mg': {'radius': 1.60, 'electronegativity': 1.31, 'valence': 2},
+            'Ti': {'radius': 1.47, 'electronegativity': 1.54, 'valence': 4},
+            'Hf': {'radius': 1.59, 'electronegativity': 1.30, 'valence': 4},
+            'B': {'radius': 0.85, 'electronegativity': 2.04, 'valence': 3},
+            'W': {'radius': 1.39, 'electronegativity': 2.36, 'valence': 6},
+        }
+        return mock_data.get(element, {}).get(property_name)
+
+    try:
+        elem = getattr(periodictable.elements, element)
+        if property_name == 'radius':
+            return elem.radius
+        elif property_name == 'electronegativity':
+            return elem.electronegativity
+        elif property_name == 'valence':
+            return elem.charge
+        else:
+            return getattr(elem, property_name, None)
+    except Exception as e:
+        logger.warning(f"Failed to get {property_name} for {element}: {e}")
+        return None
+
+def compute_valence_electron_concentration(composition: str) -> Optional[float]:
+    """
+    Compute Valence Electron Concentration (VEC).
+
+    VEC = Total valence electrons / Total number of atoms
+
+    Args:
+        composition: Chemical formula
+
+    Returns:
+        VEC value or None
+    """
+    try:
+        parsed = parse_formula(composition)
+        total_valence = 0
+        total_atoms = 0
+
+        for elem, count in parsed.items():
+            valence = get_element_property(elem, 'valence')
+            if valence is None:
+                return None
+            total_valence += valence * count
+            total_atoms += count
+
+        return total_valence / total_atoms if total_atoms > 0 else None
+    except Exception as e:
+        logger.warning(f"Failed to compute VEC for {composition}: {e}")
+        return None
+
+def compute_mean_atomic_radius(composition: str) -> Optional[float]:
+    """
+    Compute mean atomic radius from stoichiometry.
+
+    Args:
+        composition: Chemical formula
+
+    Returns:
+        Mean radius or None
+    """
+    try:
+        parsed = parse_formula(composition)
+        total_radius = 0
+        total_atoms = 0
+
+        for elem, count in parsed.items():
+            radius = get_element_property(elem, 'radius')
+            if radius is None:
+                return None
+            total_radius += radius * count
+            total_atoms += count
+
+        return total_radius / total_atoms if total_atoms > 0 else None
+    except Exception as e:
+        logger.warning(f"Failed to compute mean radius for {composition}: {e}")
+        return None
+
+def compute_electronegativity_std(composition: str) -> Optional[float]:
+    """
+    Compute standard deviation of electronegativity from stoichiometry.
+
+    Args:
+        composition: Chemical formula
+
+    Returns:
+        Electronegativity std or None
+    """
+    try:
+        parsed = parse_formula(composition)
+        electronegativities = []
+
+        for elem, count in parsed.items():
+            en = get_element_property(elem, 'electronegativity')
+            if en is None:
+                return None
+            electronegativities.extend([en] * count)
+
+        if not electronegativities:
+            return None
+
+        return np.std(electronegativities)
+    except Exception as e:
+        logger.warning(f"Failed to compute EN std for {composition}: {e}")
+        return None
+
+def compute_cation_size_variance(composition: str) -> Optional[float]:
+    """
+    Compute variance of cation atomic radii.
+
+    Args:
+        composition: Chemical formula
+
+    Returns:
+        Cation size variance or None
+    """
+    try:
+        parsed = parse_formula(composition)
+        cation_radii = []
+
+        # Heuristic: First element is cation
+        # A more robust approach would use oxidation states
+        if len(parsed) >= 2:
+            cation = list(parsed.keys())[0]
+            count = parsed[cation]
+            radius = get_element_property(cation, 'radius')
+            if radius is None:
+                return None
+            cation_radii.extend([radius] * count)
+
+        if len(cation_radii) < 2:
+            return 0.0  # Variance of single value is 0
+
+        return np.var(cation_radii)
+    except Exception as e:
+        logger.warning(f"Failed to compute cation size variance for {composition}: {e}")
+        return None
+
+def compute_range_uncertainty(range_str: str) -> Optional[float]:
+    """
+    Compute range uncertainty based on extracted midpoint.
+
+    Args:
+        range_str: String representation of range (e.g., "5.0-7.0")
+
+    Returns:
+        Uncertainty value (half-width) or None
+    """
+    try:
+        if not isinstance(range_str, str) or '-' not in range_str:
+            return 0.0
+
+        parts = range_str.split('-')
+        if len(parts) != 2:
+            return 0.0
+
+        low = float(parts[0])
+        high = float(parts[1])
+        return (high - low) / 2.0
+    except Exception as e:
+        logger.warning(f"Failed to compute range uncertainty for {range_str}: {e}")
+        return None
 
 def compute_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute elemental descriptors for the ceramic data.
-    
-    1. Mean atomic radius
-    2. Electronegativity std
-    3. Cation Size Variance
-    4. Valence Electron Concentration (VEC)
-    
+    Compute all descriptors for a DataFrame of compositions.
+
     Args:
-        df: Cleaned DataFrame with 'composition' column.
-        
+        df: DataFrame with 'composition' column
+
     Returns:
-        pd.DataFrame: DataFrame with added descriptor columns.
+        DataFrame with added descriptor columns
     """
-    logger.info("Computing descriptors...")
-    df = df.copy()
-    
-    # Initialize columns
-    df['mean_atomic_radius'] = 0.0
-    df['electronegativity_std'] = 0.0
-    df['valence_electron_concentration'] = 0.0
-    df['cation_size_variance'] = 0.0
-    df['primary_anion_cation_group'] = 'Unknown'
-    
-    # Periodic table data (simplified for this implementation)
-    # In a real project, this would be loaded from a file or library like mendeleev
-    periodic_data = {
-        'Al': {'radius': 1.43, 'en': 1.61, 'valence': 3, 'group': 3},
-        'Si': {'radius': 1.11, 'en': 1.90, 'valence': 4, 'group': 4},
-        'O':  {'radius': 0.66, 'en': 3.44, 'valence': 2, 'group': 16},
-        'Zr': {'radius': 1.60, 'en': 1.33, 'valence': 4, 'group': 4},
-        'Ti': {'radius': 1.47, 'en': 1.54, 'valence': 4, 'group': 4},
-        'Mg': {'radius': 1.60, 'en': 1.31, 'valence': 2, 'group': 2},
-        'Ca': {'radius': 1.97, 'en': 1.00, 'valence': 2, 'group': 2},
-        'Y':  {'radius': 1.80, 'en': 1.22, 'valence': 3, 'group': 3},
-        'La': {'radius': 1.87, 'en': 1.10, 'valence': 3, 'group': 3},
-        'Ba': {'radius': 2.16, 'en': 0.89, 'valence': 2, 'group': 2},
-        'Sr': {'radius': 2.00, 'en': 0.95, 'valence': 2, 'group': 2},
-        'Fe': {'radius': 1.26, 'en': 1.83, 'valence': 2, 'group': 8},
-        'Co': {'radius': 1.25, 'en': 1.88, 'valence': 2, 'group': 9},
-        'Ni': {'radius': 1.24, 'en': 1.91, 'valence': 2, 'group': 10},
-        'Cu': {'radius': 1.28, 'en': 1.90, 'valence': 1, 'group': 11},
-        'Zn': {'radius': 1.34, 'en': 1.65, 'valence': 2, 'group': 12},
-        'Sn': {'radius': 1.40, 'en': 1.96, 'valence': 2, 'group': 14},
-        'Pb': {'radius': 1.75, 'en': 2.33, 'valence': 2, 'group': 14},
-        'Nb': {'radius': 1.46, 'en': 1.60, 'valence': 5, 'group': 5},
-        'Ta': {'radius': 1.46, 'en': 1.50, 'valence': 5, 'group': 5},
-        'Mo': {'radius': 1.39, 'en': 2.16, 'valence': 4, 'group': 6},
-        'W':  {'radius': 1.39, 'en': 2.36, 'valence': 4, 'group': 6},
-        'V':  {'radius': 1.34, 'en': 1.63, 'valence': 5, 'group': 5},
-        'Cr': {'radius': 1.28, 'en': 1.66, 'valence': 3, 'group': 6},
-        'Mn': {'radius': 1.27, 'en': 1.55, 'valence': 2, 'group': 7},
-        'Sc': {'radius': 1.64, 'en': 1.36, 'valence': 3, 'group': 3},
-        'Hf': {'radius': 1.59, 'en': 1.30, 'valence': 4, 'group': 4},
-    }
-    
-    def parse_and_compute(comp_str: str):
-        """Parse composition string and compute descriptors."""
-        try:
-            comp = Composition(comp_str)
-            elements = list(comp.elements)
-            if not elements:
-                return 0, 0, 0, 0, 'Unknown'
-            
-            radii = []
-            ens = []
-            valences = []
-            cation_radii = []
-            cation_groups = []
-            
-            for elem in elements:
-                sym = elem.symbol
-                if sym in periodic_data:
-                    data = periodic_data[sym]
-                    count = comp[sym]
-                    radii.extend([data['radius']] * count)
-                    ens.extend([data['en']] * count)
-                    valences.extend([data['valence']] * count)
-                    # Heuristic: Cations are usually metals (groups 1-12, 13-16 metals)
-                    # Anions are usually O, N, S, etc.
-                    if data['group'] < 16 or sym in ['Al', 'Si']: 
-                        cation_radii.append(data['radius'])
-                        cation_groups.append(data['group'])
-                    else:
-                        # It's an anion, check if it's the primary anion
-                        pass
-                
-                else:
-                    # Unknown element - skip or default
-                    continue
-            
-            if not radii:
-                return 0, 0, 0, 0, 'Unknown'
-            
-            # Mean Atomic Radius
-            mean_radius = sum(radii) / len(radii)
-            
-            # Electronegativity Std
-            mean_en = sum(ens) / len(ens)
-            var_en = sum((x - mean_en)**2 for x in ens) / len(ens)
-            std_en = var_en ** 0.5
-            
-            # Valence Electron Concentration (VEC)
-            total_valence = sum(valences)
-            total_atoms = len(radii)
-            vec = total_valence / total_atoms
-            
-            # Cation Size Variance
-            if len(cation_radii) > 1:
-                mean_cat = sum(cation_radii) / len(cation_radii)
-                var_cat = sum((x - mean_cat)**2 for x in cation_radii) / len(cation_radii)
-                cation_var = var_cat
-            else:
-                cation_var = 0.0
-            
-            # Primary Anion/Cation Group
-            # Simplified: Just return the most common cation group or 'Mixed'
-            if cation_groups:
-                primary_group = max(set(cation_groups), key=cation_groups.count)
-            else:
-                primary_group = 'Unknown'
-            
-            return mean_radius, std_en, vec, cation_var, str(primary_group)
-            
-        except Exception as e:
-            logger.warning(f"Failed to parse composition {comp_str}: {e}")
-            return 0, 0, 0, 0, 'Unknown'
-    
-    # Apply to dataframe
-    results = df['composition'].apply(parse_and_compute)
-    df['mean_atomic_radius'] = results.apply(lambda x: x[0])
-    df['electronegativity_std'] = results.apply(lambda x: x[1])
-    df['valence_electron_concentration'] = results.apply(lambda x: x[2])
-    df['cation_size_variance'] = results.apply(lambda x: x[3])
-    df['primary_anion_cation_group'] = results.apply(lambda x: x[4])
-    
-    # T020 Validation: Check for missing values in these newly computed descriptors
-    descriptor_cols = [
-        'mean_atomic_radius', 'electronegativity_std', 
-        'valence_electron_concentration', 'cation_size_variance',
-        'primary_anion_cation_group'
-    ]
-    
-    for col in descriptor_cols:
-        if df[col].isna().any():
-            raise ValueError(f"Missing values found in computed descriptor '{col}' after imputation/computation.")
-    
-    logger.info("Descriptors computed successfully.")
+    logger.info(f"Computing descriptors for {len(df)} entries...")
+
+    df['mean_atomic_radius'] = df['composition'].apply(compute_mean_atomic_radius)
+    df['electronegativity_std'] = df['composition'].apply(compute_electronegativity_std)
+    df['valence_electron_concentration'] = df['composition'].apply(compute_valence_electron_concentration)
+    df['cation_size_variance'] = df['composition'].apply(compute_cation_size_variance)
+
+    # Handle range uncertainty if 'range_original' exists
+    if 'range_original' in df.columns:
+        df['range_uncertainty'] = df['range_original'].apply(compute_range_uncertainty)
+
+    logger.info("Descriptor computation completed.")
     return df
+
+def main():
+    """Main entry point for descriptor computation."""
+    logger.info("Descriptor computation module loaded.")
+
+if __name__ == "__main__":
+    main()

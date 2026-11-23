@@ -1,0 +1,12 @@
+status: none
+intent: Download USPTO-MIT and full USPTO reaction dataset with reaction_id reactants
+  products yield category python package dataset
+required_fields:
+- reaction_id
+- reactants
+- products
+- yield
+- category
+cache_key: ecdcee2b755eb8c1a56da09d075db3f7090db239a3817a8e69b6de3ae56d6aa5
+searched_at: '2026-09-20T08:10:28.224805+00:00'
+retry_count: 1

@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeSample"
+type: object
+required:
+  - sample_id
+  - source
+  - functionality_id
+  - syntax_valid
+  - functional_equivalence_verified
+  - raw_content
+  - language
+properties:
+  sample_id:
+    type: string
+    format: uuid
+    description: "Unique identifier for the code sample."
+  source:
+    type: string
+    enum: ["human", "llm"]
+    description: "Origin of the sample."
+  functionality_id:
+    type: string
+    description: "Stable identifier linking paired human/LLM samples."
+  syntax_valid:
+    type: boolean
+    description: "Result of syntax parsing."
+  functional_equivalence_verified:
+    type: boolean
+    description: "True if unit‑test coverage ≥ 90 % **and** semantic similarity ≥ 0.85 **and** security‑focused pattern test passes."
+  raw_content:
+    type: string
+    description: "The actual source code."
+  language:
+    type: string
+    description: "Programming language (e.g., python, c)."
+  lines_of_code:
+    type: integer
+    minimum: 0
+    description: "Lines of code (LOC) metric required by FR‑011."
+  cyclomatic_complexity:
+    type: integer
+    minimum: 0
+    description: "Cyclomatic complexity computed via radon (optional confounder metric)."
+  length:
+    type: integer
+    minimum: 0
+    description: "Token count of the source code (optional secondary metric)."

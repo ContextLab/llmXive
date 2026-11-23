@@ -1,247 +1,167 @@
 """
-Structured logging utility for the llmXive pipeline.
-
-Provides a singleton logger configuration that outputs JSON-formatted logs
-to both a file (under data/logs/) and stdout, ensuring pipeline traceability.
+Structured logging module with JSON output for pipeline traceability.
 """
 import json
 import logging
 import os
 import sys
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Import the config singleton to ensure consistent paths
-from .config import Config
+# Thread-local storage for loggers
+_logger_registry = threading.local()
 
-_logger_instance: Optional[logging.Logger] = None
-_lock = threading.Lock()
 
-class JSONFormatter(logging.Formatter):
+class JsonFormatter(logging.Formatter):
     """Custom formatter that outputs log records as JSON."""
 
     def format(self, record: logging.LogRecord) -> str:
-        log_data: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
-            "level": record.levelname,
-            "logger": record.name,
-            "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno,
+        """Format log record as JSON."""
+        log_data = {
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'level': record.levelname,
+            'logger': record.name,
+            'message': record.getMessage(),
+            'module': record.module,
+            'function': record.funcName,
+            'line': record.lineno,
         }
 
         # Add extra fields if present
-        if hasattr(record, "task_id"):
-            log_data["task_id"] = record.task_id
-        if hasattr(record, "subject_id"):
-            log_data["subject_id"] = record.subject_id
-        if hasattr(record, "error_code"):
-            log_data["error_code"] = record.error_code
+        if hasattr(record, 'event_type'):
+            log_data['event_type'] = record.event_type
+        if hasattr(record, 'data'):
+            log_data['data'] = record.data
 
         # Add exception info if present
         if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
+            log_data['exception'] = self.formatException(record.exc_info)
 
         return json.dumps(log_data)
 
-def get_logger(task_id: Optional[str] = None) -> logging.Logger:
+
+class PipelineLogger:
     """
-    Returns a configured singleton logger instance.
+    Thread-safe logger wrapper for pipeline operations.
+    """
+
+    def __init__(self, name: str, log_dir: Optional[Path] = None):
+        """
+        Initialize the pipeline logger.
+
+        Args:
+            name: Logger name
+            log_dir: Directory for log files
+        """
+        self.name = name
+        self.log_dir = log_dir or Path('logs')
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+
+        # Get or create logger
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(logging.DEBUG)
+
+        # Remove existing handlers to avoid duplicates
+        self.logger.handlers = []
+
+        # Console handler
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(JsonFormatter())
+        self.logger.addHandler(console_handler)
+
+        # File handler
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        log_file = self.log_dir / f'{name}_{timestamp}.log'
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(JsonFormatter())
+        self.logger.addHandler(file_handler)
+
+    def log(self, level: int, message: str, **kwargs):
+        """
+        Log a message with optional extra fields.
+
+        Args:
+            level: Logging level
+            message: Log message
+            **kwargs: Extra fields to include in JSON
+        """
+        extra = kwargs.copy()
+        extra['event_type'] = kwargs.pop('event_type', None)
+        self.logger.log(level, message, extra=extra)
+
+    def info(self, message: str, **kwargs):
+        """Log INFO level message."""
+        self.log(logging.INFO, message, **kwargs)
+
+    def warning(self, message: str, **kwargs):
+        """Log WARNING level message."""
+        self.log(logging.WARNING, message, **kwargs)
+
+    def error(self, message: str, **kwargs):
+        """Log ERROR level message."""
+        self.log(logging.ERROR, message, **kwargs)
+
+    def debug(self, message: str, **kwargs):
+        """Log DEBUG level message."""
+        self.log(logging.DEBUG, message, **kwargs)
+
+
+def get_logger(name: str = __name__) -> PipelineLogger:
+    """
+    Get or create a pipeline logger.
 
     Args:
-        task_id: Optional task identifier to attach to all log records.
+        name: Logger name
 
     Returns:
-        A logging.Logger instance configured for JSON output.
+        PipelineLogger instance
     """
-    global _logger_instance
+    if not hasattr(_logger_registry, 'loggers'):
+        _logger_registry.loggers = {}
 
-    if _logger_instance is None:
-        with _lock:
-            if _logger_instance is None:
-                _init_logger(task_id)
+    if name not in _logger_registry.loggers:
+        _logger_registry.loggers[name] = PipelineLogger(name)
 
-    return _logger_instance
+    return _logger_registry.loggers[name]
 
-def _init_logger(task_id: Optional[str] = None) -> None:
+
+def log_event(event_type: str, message: str, **kwargs):
     """
-    Initializes the logger with JSON formatting and file handlers.
+    Convenience function to log an event.
 
     Args:
-        task_id: Optional task identifier to attach to all log records.
+        event_type: Type of event
+        message: Log message
+        **kwargs: Extra fields
     """
-    global _logger_instance
+    logger = get_logger()
+    logger.info(message, event_type=event_type, **kwargs)
 
-    config = Config.get_instance()
-    log_dir = Path(config.log_dir)
-    log_dir.mkdir(parents=True, exist_ok=True)
 
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(logging.DEBUG)
-
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        logger.handlers.clear()
-
-    # Console handler (stdout)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(JSONFormatter())
-    logger.addHandler(console_handler)
-
-    # File handler (pipeline traceability)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_file = log_dir / f"pipeline_{timestamp}.jsonl"
-    file_handler = logging.FileHandler(log_file, mode='a')
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(JSONFormatter())
-    logger.addHandler(file_handler)
-
-    _logger_instance = logger
-
-    if task_id:
-        # We attach the task_id to the logger's extra context via a filter
-        # rather than modifying the logger name, to keep it generic but traceable.
-        class TaskIdFilter(logging.Filter):
-            def __init__(self, tid: str):
-                super().__init__()
-                self.tid = tid
-
-            def filter(self, record: logging.LogRecord) -> bool:
-                record.task_id = self.tid
-                return True
-
-        logger.addFilter(TaskIdFilter(task_id))
-
-def log_event(
-    message: str,
-    level: str = "INFO",
-    task_id: Optional[str] = None,
-    **extra_fields: Any
-) -> None:
+def log_error(message: str, **kwargs):
     """
-    Convenience function to log an event with optional extra fields.
+    Convenience function to log an error.
 
     Args:
-        message: The log message.
-        level: Log level string ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL').
-        task_id: Optional task ID to override the default.
-        **extra_fields: Additional key-value pairs to include in the JSON log.
+        message: Error message
+        **kwargs: Extra fields
     """
-    logger = get_logger(task_id)
-    log_method = getattr(logger, level.lower(), logger.info)
+    logger = get_logger()
+    logger.error(message, **kwargs)
 
-    # Create a record with extra fields attached
-    # We use a custom LogRecord to inject extra fields
-    record = logger.makeRecord(
-        logger.name,
-        getattr(logging, level),
-        "",
-        0,
-        message,
-        (),
-        None
-    )
 
-    # Attach extra fields
-    for key, value in extra_fields.items():
-        setattr(record, key, value)
-
-    logger.handle(record)
-
-def log_error(
-    message: str,
-    error_code: Optional[str] = None,
-    task_id: Optional[str] = None,
-    **extra_fields: Any
-) -> None:
+def log_progress(stage: str, message: str, **kwargs):
     """
-    Logs an error with optional error code and extra context.
+    Convenience function to log pipeline progress.
 
     Args:
-        message: The error message.
-        error_code: Optional error code string.
-        task_id: Optional task ID.
-        **extra_fields: Additional context fields.
+        stage: Current stage
+        message: Progress message
+        **kwargs: Extra fields
     """
-    logger = get_logger(task_id)
-    record = logger.makeRecord(
-        logger.name,
-        logging.ERROR,
-        "",
-        0,
-        message,
-        (),
-        None
-    )
-
-    if error_code:
-        setattr(record, "error_code", error_code)
-
-    for key, value in extra_fields.items():
-        setattr(record, key, value)
-
-    logger.handle(record)
-
-def log_progress(
-    message: str,
-    task_id: Optional[str] = None,
-    **extra_fields: Any
-) -> None:
-    """
-    Logs a progress update (INFO level).
-
-    Args:
-        message: Progress message.
-        task_id: Optional task ID.
-        **extra_fields: Additional context fields.
-    """
-    log_event(message, level="INFO", task_id=task_id, **extra_fields)
-
-def log_debug(
-    message: str,
-    task_id: Optional[str] = None,
-    **extra_fields: Any
-) -> None:
-    """
-    Logs a debug message.
-
-    Args:
-        message: Debug message.
-        task_id: Optional task ID.
-        **extra_fields: Additional context fields.
-    """
-    log_event(message, level="DEBUG", task_id=task_id, **extra_fields)
-
-def log_warning(
-    message: str,
-    task_id: Optional[str] = None,
-    **extra_fields: Any
-) -> None:
-    """
-    Logs a warning message.
-
-    Args:
-        message: Warning message.
-        task_id: Optional task ID.
-        **extra_fields: Additional context fields.
-    """
-    log_event(message, level="WARNING", task_id=task_id, **extra_fields)
-
-def log_critical(
-    message: str,
-    task_id: Optional[str] = None,
-    **extra_fields: Any
-) -> None:
-    """
-    Logs a critical message.
-
-    Args:
-        message: Critical message.
-        task_id: Optional task ID.
-        **extra_fields: Additional context fields.
-    """
-    log_event(message, level="CRITICAL", task_id=task_id, **extra_fields)
+    logger = get_logger()
+    logger.info(message, event_type=f'progress_{stage}', **kwargs)

@@ -1,16 +1,17 @@
 """
-Script to initialize the project directory structure for PROJ-386.
-Creates the required directories as per plan.md and tasks.md specifications.
+Project Structure Initialization Script.
+Creates the required directory hierarchy for the llmXive science pipeline.
 """
 import os
 import sys
+from pathlib import Path
 
 def main():
-    # Define the base directory (project root)
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    """Create the project directory structure as defined in plan.md."""
+    project_root = Path(__file__).resolve().parent.parent
     
-    # Define the required directory structure relative to the base
-    directories = [
+    # Define the required directories relative to project root
+    required_dirs = [
         "code",
         "data/raw",
         "data/processed",
@@ -20,25 +21,17 @@ def main():
     ]
 
     created_count = 0
-    skipped_count = 0
-
-    print(f"Initializing project structure in: {base_dir}")
-
-    for dir_path in directories:
-        full_path = os.path.join(base_dir, dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            print(f"Created directory: {dir_path}")
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            # Check if it's actually a directory
-            if os.path.isdir(full_path):
-                skipped_count += 1
-            else:
-                print(f"Error: Path exists but is not a directory: {full_path}")
-                sys.exit(1)
+            print(f"Directory exists: {full_path}")
 
-    print(f"Structure initialization complete. Created: {created_count}, Skipped (exists): {skipped_count}")
+    print(f"\nProject structure initialization complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

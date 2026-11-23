@@ -1,0 +1,29 @@
+1.0.1 2024-04-23
+  - Update the `IntendedFor` field in `_coordsystem.json` file to be relative to the subject directory
+1.0.0 2021-02-15
+  - - Anonymize datasets: set date equal to 1925 (instead of 1800) to prevent errors  when converted into fif. 	  * sub-0001/meg/sub-0001_task-AEF_run-01_meg.ds 	  * sub-0001/meg/sub-0001_task-AEF_run-02_meg.ds 	  * sub-0001/meg/sub-0001_task-noise_run-01_meg.ds
+  - - Update corresponding scans.tsv accordingly 
+  - - Update metadata json files to conform with BIDS specs version 1.4.1 (e.g. ctf -> CTF) and readability (e.g. each parameter in a new line)
+1.0.1	2021-02-15
+
+	- Anonymize datasets: set date equal to 1925 (instead of 1800) to prevent errors  when converted into fif.
+	  * sub-0001/meg/sub-0001_task-AEF_run-01_meg.ds
+	  * sub-0001/meg/sub-0001_task-AEF_run-02_meg.ds
+	  * sub-0001/meg/sub-0001_task-noise_run-01_meg.ds
+
+	- Update corresponding scans.tsv accordingly 
+		
+
+	2021-02-03
+
+	- Update metadata json files to conform with BIDS specs version 1.4.1 (e.g. ctf -> CTF) and readability (e.g. each parameter in a new line)
+
+ 
+1.0.0	2018-04-03
+
+	- Initial release at Open Neuro of the Brainstorm_Auditory_dataset
+  
+
+1.0.0   2017-11-08
+
+	- Initial release at OpenfMRI: dataset ds000246

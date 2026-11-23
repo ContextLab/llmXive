@@ -1,0 +1,16 @@
+status: none
+intent: Granular Tracking Data Set v1 Zenodo download python package dataset
+required_fields:
+- timestamp
+- particle_id
+- x
+- y
+- z
+- theta
+- material_type
+- driving_timestamp
+- driving_frequency
+- driving_amplitude
+cache_key: b033b4c6ba09ebfa731efafb6b6096161ce021533a36955bb9ea9bed23b36f9b
+searched_at: '2026-09-09T17:47:36.939482+00:00'
+retry_count: 1

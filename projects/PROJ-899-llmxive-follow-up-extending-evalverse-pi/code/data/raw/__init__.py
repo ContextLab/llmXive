@@ -1,0 +1,1 @@
+"""Raw data storage (populated by download scripts)."""

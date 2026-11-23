@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1303.0093",
+  "judged_at": "2026-09-06T18:54:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of simulated social comparison on self-evaluation in online environments psychology",
+  "rationale": "The paper focuses on the structural engineering of social networks for recommendation algorithms (identifying layers, measuring density, and generating suggestions) rather than the psychological mechanism of \"simulated social comparison\" or its impact on \"self-evaluation.\" It falls under the rejection rule for distinct constructs sharing only homonym keywords (\"social network\" in a computer science context vs. \"social comparison\" in a psychology context) and lacks any measurable connection to th",
+  "relevant": false
+}

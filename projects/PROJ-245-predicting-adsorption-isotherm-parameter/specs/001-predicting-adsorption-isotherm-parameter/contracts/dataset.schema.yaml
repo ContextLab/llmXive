@@ -1,97 +1,59 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AdsorptionDatasetSchema
-description: Schema for the processed adsorption dataset used in training and testing.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Adsorption Dataset Schema"
+description: "Schema for the cleaned and imputed dataset used in model training. This is the Single Source of Truth (SSoT)."
 type: object
 properties:
-  metadata:
-    type: object
-    properties:
-      source:
-        type: string
-        description: "Source of the data (e.g., 'synthetic', 'nist', 'mof1000', 'literature')"
-      version:
-        type: string
-        description: "Version of the dataset schema"
-      generated_at:
-        type: string
-        format: date-time
-        description: "Timestamp of dataset generation"
-    required:
-      - source
-      - version
-      - generated_at
-  columns:
-    type: array
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-          description: "Column name"
-        dtype:
-          type: string
-          enum:
-            - float64
-            - int64
-            - object
-            - bool
-          description: "Data type"
-        description:
-          type: string
-          description: "Human-readable description"
-        unit:
-          type: string
-          description: "Physical unit if applicable"
-        nullable:
-          type: boolean
-          description: "Whether the column allows null values"
-      required:
-        - name
-        - dtype
-        - description
-        - nullable
-    description: "List of column definitions"
-  constraints:
-    type: object
-    properties:
-      is_type_i_only:
-        type: boolean
-        description: "True if only Type I isotherms are included"
-      no_missing_targets:
-        type: boolean
-        description: "True if langmuir_capacity and henry_constant are not null"
-      material_split:
-        type: boolean
-        description: "True if train/test split is by material_id"
-    required:
-      - is_type_i_only
-      - no_missing_targets
-      - material_split
+  entry_id:
+    type: string
+    description: "Unique identifier for the adsorption entry."
+  adsorbent_id:
+    type: string
+    description: "Identifier for the adsorbent material (used for grouping and splitting)."
+  molecular_weight:
+    type: number
+    description: "Molecular weight of the adsorbate in g/mol."
+  polarizability:
+    type: number
+    description: "Polarizability of the adsorbate in Å³."
+  van_der_waals_volume:
+    type: number
+    description: "Van der Waals volume in Å³."
+  polar_surface_area:
+    type: number
+    description: "Polar surface area in Å²."
+  h_bond_donors:
+    type: integer
+    description: "Number of hydrogen bond donors."
+  h_bond_acceptors:
+    type: integer
+    description: "Number of hydrogen bond acceptors."
+  surface_area_m2_g:
+    type: number
+    description: "Surface area of adsorbent in m²/g."
+  pore_volume_cm3_g:
+    type: number
+    description: "Pore volume of adsorbent in cm³/g."
+  target_henry:
+    type: number
+    description: "Henry's constant (K_H) for the isotherm."
+  target_langmuir:
+    type: number
+    description: "Langmuir capacity (Q_max) for the isotherm."
+  target_henry_se:
+    type: number
+    description: "Standard error of Henry's constant (for uncertainty weighting)."
+  target_langmuir_se:
+    type: number
+    description: "Standard error of Langmuir capacity (for uncertainty weighting)."
+  is_valid:
+    type: boolean
+    description: "Flag indicating if the row passed all validation checks."
 required:
-  - metadata
-  - columns
-  - constraints
-examples:
-  - metadata:
-      source: "synthetic"
-      version: "1.0.0"
-      generated_at: "2026-07-14T12:00:00Z"
-    columns:
-      - name: "smiles"
-        dtype: "object"
-        description: "SMILES string of the adsorbate"
-        nullable: false
-      - name: "polarizability"
-        dtype: "float64"
-        description: "Polarizability"
-        unit: "Å³"
-        nullable: false
-      - name: "langmuir_capacity"
-        dtype: "float64"
-        description: "Langmuir capacity"
-        unit: "mmol/g"
-        nullable: false
-    constraints:
-      is_type_i_only: true
-      no_missing_targets: true
-      material_split: true
+  - entry_id
+  - adsorbent_id
+  - molecular_weight
+  - polarizability
+  - van_der_waals_volume
+  - surface_area_m2_g
+  - is_valid
+additionalProperties: false

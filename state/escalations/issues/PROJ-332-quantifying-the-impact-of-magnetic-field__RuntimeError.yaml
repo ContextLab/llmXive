@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-21T01:40:14.200548+00:00'
+issue_number: 1403
+project_id: PROJ-332-quantifying-the-impact-of-magnetic-field

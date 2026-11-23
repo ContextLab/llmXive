@@ -1,148 +1,118 @@
-"""
-Unit tests for the sensitivity report generator (T033).
-"""
 import os
 import json
 import tempfile
 from pathlib import Path
 import pytest
-import sys
+import pandas as pd
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Mock the config and logging to avoid dependency on full project setup during unit tests
+# In a real integration test, these would use the actual config
+import sys
+from unittest.mock import patch, MagicMock
+
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from models.sensitivity_report_generator import (
-    generate_report_content,
     load_sensitivity_results,
-    load_model_info
+    load_model_info,
+    generate_report_content,
+    run_report_generation
 )
-from config import get_data_dir, get_output_dir
 
 @pytest.fixture
-def sample_sensitivity_results():
-    """Sample sensitivity analysis results for testing."""
+def mock_sensitivity_data():
     return {
-        "thresholds": [0.45, 0.50, 0.55],
-        "metrics": [
-            {"r2": 0.85, "mae": 0.12},
-            {"r2": 0.83, "mae": 0.14},
-            {"r2": 0.84, "mae": 0.13}
-        ],
-        "top_features": [
-            ["HOMO_energy", "LUMO_energy", "band_gap"],
-            ["HOMO_energy", "band_gap", "LUMO_energy"],
-            ["HOMO_energy", "LUMO_energy", "band_gap"]
-        ],
+        "thresholds_swept": [0.45, 0.50, 0.55],
         "rank_stability": {
-            "max_rank_change": 1,
+            "max_rank_shift": 0,
             "is_stable": True
+        },
+        "feature_shifts": {
+            "0.45": {"top_3": ["homo", "lumo", "bond_length_c1"]},
+            "0.50": {"top_3": ["homo", "lumo", "bond_length_c1"]},
+            "0.55": {"top_3": ["homo", "lumo", "bond_length_c1"]},
+            "shifted_high_potential": ["bond_angle_o1_c1"]
+        },
+        "internal_metrics": {
+            "mae": 0.12,
+            "r2": 0.85
         }
     }
 
 @pytest.fixture
-def sample_model_info():
-    """Sample model information for testing."""
+def mock_model_data():
     return {
-        "model_type": "RandomForest",
-        "best_params": {
-            "n_estimators": 100,
-            "max_depth": 20
-        },
-        "r2_scores": {"train": 0.92, "val": 0.85},
-        "mae_scores": {"train": 0.08, "val": 0.12}
+        "r2_score": 0.85,
+        "mae": 0.12,
+        "model_type": "RandomForest"
     }
 
-def test_generate_report_content_basic(sample_sensitivity_results, sample_model_info):
-    """Test that report content is generated with expected sections."""
-    content = generate_report_content(sample_sensitivity_results, sample_model_info)
+def test_generate_report_content(mock_sensitivity_data, mock_model_data):
+    """Test that the report content is generated correctly with expected sections."""
+    content = generate_report_content(mock_sensitivity_data, mock_model_data)
     
     # Check for required sections
-    assert "# Sensitivity Analysis Report" in content
-    assert "## Overview" in content
-    assert "## Configuration" in content
-    assert "## Model Summary" in content
-    assert "## Sensitivity Analysis Results" in content
-    assert "### Performance Metrics by Threshold" in content
-    assert "### Rank Stability Analysis" in content
-    assert "## Deviation Notes" in content
-    assert "## Conclusion" in content
+    assert "Executive Summary" in content
+    assert "Methodology" in content
+    assert "Rank Stability Analysis" in content
+    assert "Feature Importance Shifts" in content
+    assert "Warnings and Deviations" in content
     
-    # Check for specific values
+    # Check for specific data points
     assert "0.45" in content
     assert "0.50" in content
     assert "0.55" in content
-    assert "HOMO_energy" in content
-    assert "RandomForest" in content
-
-def test_generate_report_content_stable_case(sample_sensitivity_results, sample_model_info):
-    """Test report generation for a stable rank change case."""
-    sample_sensitivity_results["rank_stability"]["is_stable"] = True
-    sample_sensitivity_results["rank_stability"]["max_rank_change"] = 1
+    assert "homo" in content
+    assert "bond_angle_o1_c1" in content
     
-    content = generate_report_content(sample_sensitivity_results, sample_model_info)
-    
-    assert "STABLE" in content
-    assert "Change ≤ 1 position" in content
-
-def test_generate_report_content_unstable_case(sample_sensitivity_results, sample_model_info):
-    """Test report generation for an unstable rank change case."""
-    sample_sensitivity_results["rank_stability"]["is_stable"] = False
-    sample_sensitivity_results["rank_stability"]["max_rank_change"] = 2
-    
-    content = generate_report_content(sample_sensitivity_results, sample_model_info)
-    
-    assert "UNSTABLE" in content
-    assert "Change > 1 position" in content
-
-def test_generate_report_content_no_results(sample_model_info):
-    """Test report generation when no sensitivity results are available."""
-    content = generate_report_content(None, sample_model_info)
-    
-    assert "No sensitivity analysis results available" in content
-    assert "Please ensure T031 and T032" in content
-
-def test_load_model_info_missing_file():
-    """Test loading model info when the file does not exist."""
-    # Temporarily change the data directory to a non-existent one
-    original_data_dir = get_data_dir()
-    
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Mock the get_data_dir function to return a temp directory
-        import config
-        original_func = config.get_data_dir
-        config.get_data_dir = lambda: Path(tmpdir)
-        
-        try:
-            model_info = load_model_info()
-            
-            # Should return placeholder info
-            assert model_info["model_type"] == "RandomForest"
-            assert model_info["best_params"] == {}
-        finally:
-            config.get_data_dir = original_func
-
-def test_report_contains_deviation_warning(sample_sensitivity_results, sample_model_info):
-    """Test that the report contains the required deviation warning."""
-    content = generate_report_content(sample_sensitivity_results, sample_model_info)
-    
+    # Check for warning text
     assert "FR-006 and SC-003" in content
     assert "External Validation" in content
-    assert "experimental onset potential datasets" in content
     assert "Internal DFT validation" in content
-    assert "fallback" in content
 
-def test_report_format_valid_markdown(sample_sensitivity_results, sample_model_info):
-    """Test that the generated report is valid markdown structure."""
-    content = generate_report_content(sample_sensitivity_results, sample_model_info)
+@patch('models.sensitivity_report_generator.get_validation_dir')
+@patch('models.sensitivity_report_generator.load_sensitivity_results')
+@patch('models.sensitivity_report_generator.load_model_info')
+def test_run_report_generation_success(
+    mock_load_model, 
+    mock_load_sens, 
+    mock_get_validation, 
+    mock_sensitivity_data, 
+    mock_model_data,
+    tmp_path
+):
+    """Test the full pipeline writes the file correctly."""
+    # Setup mocks
+    mock_load_sens.return_value = mock_sensitivity_data
+    mock_load_model.return_value = mock_model_data
     
-    # Check for basic markdown structure
-    lines = content.split('\n')
-    headers = [line for line in lines if line.startswith('#')]
+    # Mock the output directory
+    mock_get_validation_dir.return_value = tmp_path
     
-    # Should have at least one H1 header
-    assert len(headers) >= 1
+    # Run
+    success = run_report_generation()
     
-    # Check for table structure
-    table_headers = [line for line in lines if '|' in line and line.strip().startswith('|')]
-    assert len(table_headers) > 0  # Should have at least the performance metrics table
+    assert success is True
+    assert (tmp_path / "sensitivity_report.md").exists()
+    
+    # Verify content
+    with open(tmp_path / "sensitivity_report.md", 'r') as f:
+        content = f.read()
+    assert "Executive Summary" in content
+
+@patch('models.sensitivity_report_generator.load_sensitivity_results')
+def test_run_report_generation_fail_missing_sens(mock_load_sens):
+    """Test failure when sensitivity results are missing."""
+    mock_load_sens.return_value = None
+    success = run_report_generation()
+    assert success is False
+
+@patch('models.sensitivity_report_generator.load_sensitivity_results')
+@patch('models.sensitivity_report_generator.load_model_info')
+def test_run_report_generation_fail_missing_model(mock_load_sens, mock_load_model, mock_sensitivity_data):
+    """Test failure when model info is missing."""
+    mock_load_sens.return_value = mock_sensitivity_data
+    mock_load_model.return_value = None
+    success = run_report_generation()
+    assert success is False

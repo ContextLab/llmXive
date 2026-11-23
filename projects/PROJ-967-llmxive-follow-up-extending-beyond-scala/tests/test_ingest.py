@@ -1,155 +1,103 @@
-"""
-Tests for the ingest module (User Story 1).
-"""
 import os
 import tempfile
-from pathlib import Path
-import csv
-
 import pytest
+import pandas as pd
+import numpy as np
+from pathlib import Path
 
-# Import the module under test
-# Note: We are testing within the project root where ingest.py is located.
-# The import assumes the test runner is invoked from the project root or code/ is in sys.path.
-# To ensure robustness in the test environment, we attempt to import from 'code.ingest' if 'ingest' fails,
-# or rely on the user adding 'code' to sys.path. However, per the prompt's existing test file,
-# it assumes 'from ingest import ...'. We will maintain this assumption but ensure the test
-# handles the scenario where the data file has missing values (the core of T011).
-try:
-    from ingest import parse_args, setup_directories, validate_schema
-except ImportError:
-    # Fallback for if tests are run from a different directory structure
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-    from ingest import parse_args, setup_directories, validate_schema
+# Add parent directory to path for imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
+from ingest import load_and_align_data, setup_logging, setup_directories
 
-class TestSetupDirectories:
-    """Tests for the setup_directories function."""
+@pytest.fixture
+def sample_dataframe():
+    """Create a valid sample dataframe matching the expected schema."""
+    n = 10
+    return pd.DataFrame({
+        "image_path": [f"img_{i}.jpg" for i in range(n)],
+        "species_id": [1, 2, 3, 1, 2, 3, 1, 2, 3, 1],
+        "prompt_text": [f"Describe image {i}" for i in range(n)],
+        "teacher_scores": [
+            [0.1, 0.2, 0.3, 0.4] for _ in range(n)
+        ],
+        "student_scalar": [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4],
+        "human_annotations": [
+            [0.2, 0.3, 0.4, 0.5] for _ in range(n)
+        ],
+        "primary_dimension": [0, 1, 2, 3, 0, 1, 2, 3, 0, 1]
+    })
 
-    def test_creates_required_directories(self, tmp_path):
-        """Test that setup_directories creates the expected directory structure."""
-        # Define expected directories
-        expected_dirs = ["data/raw", "data/processed", "results"]
+@pytest.fixture
+def temp_output_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-        # Run setup
-        setup_directories(tmp_path)
+def test_load_and_align_valid_data(sample_dataframe, temp_output_dir):
+    """Test that valid data loads and writes correctly."""
+    input_path = temp_output_dir / "input.parquet"
+    output_path = temp_output_dir / "output.parquet"
+    
+    sample_dataframe.to_parquet(input_path)
+    
+    logger = setup_logging()
+    df_out, flags = load_and_align_data(logger, str(input_path), str(output_path))
+    
+    assert df_out.shape == sample_dataframe.shape
+    assert os.path.exists(output_path)
+    assert len(flags) == 0
 
-        # Verify directories exist
-        for dir_name in expected_dirs:
-            dir_path = tmp_path / dir_name
-            assert dir_path.exists(), f"Directory {dir_path} was not created"
-            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory"
+def test_load_and_align_missing_columns(sample_dataframe, temp_output_dir):
+    """Test that missing columns raise an error."""
+    input_path = temp_output_dir / "input_missing.parquet"
+    output_path = temp_output_dir / "output.parquet"
+    
+    # Remove a required column
+    df_missing = sample_dataframe.drop(columns=["student_scalar"])
+    df_missing.to_parquet(input_path)
+    
+    logger = setup_logging()
+    
+    with pytest.raises(ValueError, match="Missing required columns"):
+        load_and_align_data(logger, str(input_path), str(output_path))
 
-    def test_does_not_fail_if_directories_exist(self, tmp_path):
-        """Test that setup_directories handles existing directories gracefully."""
-        # Pre-create a directory
-        existing_dir = tmp_path / "data" / "raw"
-        existing_dir.mkdir(parents=True)
+def test_load_and_align_invalid_primary_dimension(sample_dataframe, temp_output_dir):
+    """Test that invalid primary_dimension values are flagged."""
+    input_path = temp_output_dir / "input_invalid.parquet"
+    output_path = temp_output_dir / "output.parquet"
+    
+    # Inject an invalid primary_dimension
+    df_invalid = sample_dataframe.copy()
+    df_invalid.loc[0, "primary_dimension"] = 99
+    df_invalid.to_parquet(input_path)
+    
+    logger = setup_logging()
+    df_out, flags = load_and_align_data(logger, str(input_path), str(output_path))
+    
+    assert len(flags) > 0
+    assert any(f["column"] == "primary_dimension" for f in flags)
 
-        # Should not raise an exception
-        setup_directories(tmp_path)
-        assert existing_dir.exists()
+def test_load_and_align_null_values(sample_dataframe, temp_output_dir):
+    """Test that null values in critical columns are flagged."""
+    input_path = temp_output_dir / "input_null.parquet"
+    output_path = temp_output_dir / "output.parquet"
+    
+    df_null = sample_dataframe.copy()
+    df_null.loc[0, "student_scalar"] = np.nan
+    df_null.to_parquet(input_path)
+    
+    logger = setup_logging()
+    df_out, flags = load_and_align_data(logger, str(input_path), str(output_path))
+    
+    assert len(flags) > 0
+    assert any(f["column"] == "student_scalar" for f in flags)
 
-
-class TestValidateSchema:
-    """Tests for the validate_schema function."""
-
-    def test_valid_schema(self, tmp_path):
-        """Test validation passes with a correctly structured file."""
-        # Create a mock CSV with required columns
-        csv_path = tmp_path / "valid.csv"
-        content = "sample_id,alignment,realism,aesthetics,plausibility,human_score\n1,0.5,0.6,0.7,0.8,0.9\n"
-        csv_path.write_text(content)
-
-        # Should not raise
-        result = validate_schema(str(csv_path))
-        assert result is True
-
-    def test_missing_required_column(self, tmp_path):
-        """Test validation fails if a required rubric dimension is missing."""
-        csv_path = tmp_path / "invalid.csv"
-        # Missing 'alignment' column
-        content = "sample_id,realism,aesthetics,plausibility,human_score\n1,0.5,0.6,0.7,0.9\n"
-        csv_path.write_text(content)
-
-        with pytest.raises(ValueError, match="Missing required columns"):
-            validate_schema(str(csv_path))
-
-    def test_empty_file(self, tmp_path):
-        """Test validation fails on an empty file."""
-        csv_path = tmp_path / "empty.csv"
-        csv_path.write_text("")
-
-        with pytest.raises(ValueError):
-            validate_schema(str(csv_path))
-
-
-    def test_missing_data_handling_and_exclusion_logic(self, tmp_path):
-        """
-        Integration test for missing data handling and exclusion logic.
-        
-        Verifies that:
-        1. validate_schema does NOT crash on rows with missing values (empty strings or 'NaN').
-        2. The function correctly identifies the presence of the schema.
-        3. The logic implies that downstream processing (T012/T016) will need to exclude these,
-           but the schema validator itself should only care about column headers and data type presence.
-           
-        Note: Based on T038, the schema validation checks for the *presence* of columns.
-        T011 specifically tests the behavior when data *within* those columns is missing,
-        ensuring the pipeline doesn't crash and flags these rows for exclusion later.
-        """
-        csv_path = tmp_path / "missing_data.csv"
-        # Create a CSV with valid headers but missing values in the data rows
-        # Row 2 has missing 'alignment'
-        # Row 3 has missing 'human_score'
-        content = (
-            "sample_id,alignment,realism,aesthetics,plausibility,human_score\n"
-            "1,0.5,0.6,0.7,0.8,0.9\n"
-            "2,,0.6,0.7,0.8,0.9\n"
-            "3,0.5,0.6,0.7,0.8,\n"
-        )
-        csv_path.write_text(content)
-
-        # Schema validation should pass because columns exist
-        # It does NOT check for missing values in rows (that is a data cleaning step)
-        # However, if the implementation of validate_schema is too strict and checks for non-empty rows,
-        # we need to ensure it handles this gracefully or raises a specific warning.
-        # Per T038, it verifies presence of dimensions.
-        
-        # We expect validate_schema to return True (schema is valid)
-        # The actual exclusion of missing rows is a downstream concern (T016/T024),
-        # but T011 ensures the system doesn't crash here.
-        result = validate_schema(str(csv_path))
-        assert result is True
-
-        # Additional check: ensure the file can be read and missing values detected
-        # This simulates the "flagging" logic mentioned in T011 description
-        with open(csv_path, 'r', newline='') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-            
-        # Verify we have 3 rows
-        assert len(rows) == 3
-        
-        # Verify row 2 has missing alignment
-        assert rows[1]['alignment'] == ''
-        
-        # Verify row 3 has missing human_score
-        assert rows[2]['human_score'] == ''
-
-class TestParseArgs:
-    """Tests for the argument parser."""
-
-    def test_default_values(self):
-        """Test that parse_args returns correct default values."""
-        args = parse_args([])
-        assert args.input_url is None
-        assert args.output_dir == Path("data/raw")
-        assert args.validate_only is False
-
-    def test_custom_output_dir(self):
-        """Test that custom output directory is parsed correctly."""
-        test_dir = "/tmp/test_output"
-        args = parse_args(["--output-dir", test_dir])
-        assert args.output_dir == Path(test_dir)
+def test_file_not_found(temp_output_dir):
+    """Test that missing input file raises FileNotFoundError."""
+    logger = setup_logging()
+    input_path = temp_output_dir / "nonexistent.parquet"
+    output_path = temp_output_dir / "output.parquet"
+    
+    with pytest.raises(FileNotFoundError):
+        load_and_align_data(logger, str(input_path), str(output_path))

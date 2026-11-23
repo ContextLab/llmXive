@@ -1,211 +1,149 @@
-"""
-Unit tests for CIF parsing functionality.
-
-Tests cover:
-- Valid CIF parsing
-- Disconnected graph handling
-- Invalid CIF handling
-- Feature extraction correctness
-"""
-
-import os
+import json
 import tempfile
 from pathlib import Path
-import numpy as np
 import pytest
+import numpy as np
 
-from code.ingest.parse_cif import parse_cif_to_graph, parse_multiple_cifs
+from code.ingest.parse_cif import parse_cif_file, parse_cif_directory, get_atomic_properties
 from code.data_models.material_graph import MaterialGraph
 
 
-@pytest.fixture
-def sample_cif_content():
-    """Sample CIF content for a simple 2D material (graphene-like)."""
-    return """
-    data_sample_graphene
-    _chemical_formula_sum 'C2'
-    _cell_length_a 2.46
-    _cell_length_b 2.46
-    _cell_length_c 10.0
-    _cell_angle_alpha 90
-    _cell_angle_beta 90
-    _cell_angle_gamma 120
-    _symmetry_space_group_name_H-M 'P6/mmm'
+# Sample CIF content for a simple 2D-like structure (graphene sheet approximation)
+SAMPLE_CIF_CONTENT = """
+data_test_graphene
+_chemical_formula_sum 'C2'
+_cell_length_a 2.46
+_cell_length_b 2.46
+_cell_length_c 10.0
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 120
+_symmetry_space_group_name_H-M 'P6/mmm'
 
-    loop_
-    _atom_site_label
-    _atom_site_type_symbol
-    _atom_site_fract_x
-    _atom_site_fract_y
-    _atom_site_fract_z
-    C1 C 0.0 0.0 0.0
-    C2 C 0.333 0.667 0.0
-    """
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+C1 C 0.0 0.0 0.0
+C2 C 0.333333 0.666667 0.0
+"""
 
-@pytest.fixture
-def sample_cif_disconnected():
-    """Sample CIF with disconnected components (molecules far apart)."""
-    return """
-    data_disconnected
-    _chemical_formula_sum 'C2 O2'
-    _cell_length_a 10.0
-    _cell_length_b 10.0
-    _cell_length_c 10.0
-    _cell_angle_alpha 90
-    _cell_angle_beta 90
-    _cell_angle_gamma 90
-    _symmetry_space_group_name_H-M 'P1'
+# Sample CIF with disconnected atoms (far apart) to test edge handling
+SAMPLE_CIF_DISCONNECTED = """
+data_test_disconnected
+_chemical_formula_sum 'C2'
+_cell_length_a 20.0
+_cell_length_b 20.0
+_cell_length_c 20.0
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 90
+_symmetry_space_group_name_H-M 'P1'
 
-    loop_
-    _atom_site_label
-    _atom_site_type_symbol
-    _atom_site_fract_x
-    _atom_site_fract_y
-    _atom_site_fract_z
-    C1 C 0.1 0.1 0.5
-    C2 C 0.15 0.15 0.5
-    O1 O 0.8 0.8 0.5
-    O2 O 0.85 0.85 0.5
-    """
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+C1 C 0.0 0.0 0.0
+C2 C 0.9 0.9 0.9
+"""
 
-@pytest.fixture
-def invalid_cif_content():
-    """Invalid CIF content (missing required fields)."""
-    return """
-    data_invalid
-    _chemical_formula_sum 'C'
-    _cell_length_a -1.0
-    _cell_length_b 2.46
-    _cell_length_c 10.0
-    """
+def test_get_atomic_properties_valid():
+    props = get_atomic_properties("C")
+    assert "atomic_number" in props
+    assert "atomic_mass" in props
+    assert props["atomic_number"] == 6  # Carbon
 
-def test_parse_valid_cif(sample_cif_content, tmp_path):
-    """Test parsing a valid CIF file."""
-    cif_file = tmp_path / "graphene.cif"
-    cif_file.write_text(sample_cif_content)
+def test_get_atomic_properties_invalid():
+    props = get_atomic_properties("X")
+    # Should return defaults (0.0) without crashing
+    assert props["atomic_number"] == 0
+    assert props["atomic_mass"] == 0.0
 
-    graph = parse_cif_to_graph(cif_file)
+def test_parse_cif_file_success():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cif_path = Path(tmpdir) / "test.cif"
+        cif_path.write_text(SAMPLE_CIF_CONTENT)
 
-    assert graph is not None
-    assert graph.material_id is not None
-    assert len(graph.node_features) == 2
-    assert graph.composition == "C2"
-    assert graph.structure_info["num_atoms"] == 2
-    assert "lattice_parameters" in graph.structure_info
+        graph = parse_cif_file(cif_path)
 
+        assert graph is not None
+        assert graph.source_id == "test"
+        assert len(graph.node_features) == 2
+        assert len(graph.edge_indices) > 0  # Should have edges
+        assert graph.node_features.shape[1] > 0  # Features exist
 
-def test_parse_disconnected_graph(sample_cif_disconnected, tmp_path):
-    """Test handling of disconnected graph (molecules far apart)."""
-    cif_file = tmp_path / "disconnected.cif"
-    cif_file.write_text(sample_cif_disconnected)
+def test_parse_cif_file_disconnected_graph():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cif_path = Path(tmpdir) / "test_disconnected.cif"
+        cif_path.write_text(SAMPLE_CIF_DISCONNECTED)
 
-    graph = parse_cif_to_graph(cif_file)
+        graph = parse_cif_file(cif_path)
 
-    # Should still parse, but may have disconnected components
-    assert graph is not None
-    assert len(graph.node_features) == 4
+        assert graph is not None
+        # With a 20x20x20 cell and atoms at corners, distance is large (~17 Angstroms)
+        # If cutoff is 5.0, there should be NO edges
+        assert len(graph.node_features) == 2
+        # Edge Indices should be empty or very small if cutoff is strict
+        # Our implementation uses a 5.0 Angstrom cutoff.
+        # Distance in Cartesian:
+        # frac (0,0,0) -> cart (0,0,0)
+        # frac (0.9, 0.9, 0.9) -> cart (18, 18, 18) approx
+        # Dist ~ 31 Angstroms. No edges expected.
+        assert len(graph.edge_indices) == 0
 
-    # Check that adjacency matrix reflects connectivity
-    # In a disconnected system, some nodes may have no edges
-    assert graph.adjacency_matrix.shape == (4, 4)
-
-
-def test_parse_invalid_cif(invalid_cif_content, tmp_path, caplog):
-    """Test parsing an invalid CIF file."""
-    cif_file = tmp_path / "invalid.cif"
-    cif_file.write_text(invalid_cif_content)
-
-    graph = parse_cif_to_graph(cif_file)
-
-    # Should return None for invalid structure
+def test_parse_cif_file_missing_file():
+    graph = parse_cif_file(Path("non_existent.cif"))
     assert graph is None
 
+def test_parse_cif_directory():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        (tmp_path / "a.cif").write_text(SAMPLE_CIF_CONTENT)
+        (tmp_path / "b.cif").write_text(SAMPLE_CIF_CONTENT)
+        (tmp_path / "c.txt").write_text("not a cif")
 
-def test_parse_nonexistent_file(tmp_path):
-    """Test parsing a non-existent file."""
-    non_existent = tmp_path / "does_not_exist.cif"
+        graphs = parse_cif_directory(tmp_path)
 
-    graph = parse_cif_to_graph(non_existent)
+        assert len(graphs) == 2
+        for g in graphs:
+            assert isinstance(g, MaterialGraph)
 
-    assert graph is None
+def test_parse_cif_directory_recursive():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        subdir = tmp_path / "sub"
+        subdir.mkdir()
+        (subdir / "a.cif").write_text(SAMPLE_CIF_CONTENT)
 
+        graphs = parse_cif_directory(tmp_path, recursive=True)
+        assert len(graphs) == 1
 
-def test_node_features_structure(sample_cif_content, tmp_path):
-    """Test that node features have correct structure and types."""
-    cif_file = tmp_path / "graphene.cif"
-    cif_file.write_text(sample_cif_content)
+def test_parse_cif_file_invalid_content():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cif_path = Path(tmpdir) / "invalid.cif"
+        cif_path.write_text("This is not a valid CIF file content")
 
-    graph = parse_cif_to_graph(cif_file)
+        graph = parse_cif_file(cif_path)
+        assert graph is None
 
-    assert graph.node_features is not None
-    assert len(graph.node_features) == 2
+def test_material_graph_structure():
+    """Verify that the generated MaterialGraph has correct numpy types and shapes."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        cif_path = Path(tmpdir) / "test.cif"
+        cif_path.write_text(SAMPLE_CIF_CONTENT)
 
-    # Check first node features
-    node = graph.node_features[0]
-    assert "atomic_number" in node
-    assert "atomic_mass" in node
-    assert "electronegativity" in node
-    assert "covalent_radius" in node
-    assert "coordination_number" in node
-    assert "fractional_x" in node
+        graph = parse_cif_file(cif_path)
 
-    # Verify numeric types
-    assert isinstance(node["atomic_number"], float)
-    assert isinstance(node["fractional_x"], float)
-
-
-def test_edge_features_exist(sample_cif_content, tmp_path):
-    """Test that edge features are extracted when bonds exist."""
-    cif_file = tmp_path / "graphene.cif"
-    cif_file.write_text(sample_cif_content)
-
-    graph = parse_cif_to_graph(cif_file)
-
-    # Graphene should have bonds
-    assert graph.edge_indices is not None
-    assert graph.edge_features is not None
-
-
-def test_multiple_cif_parsing(sample_cif_content, tmp_path):
-    """Test parsing multiple CIF files."""
-    # Create multiple CIF files
-    for i in range(3):
-        cif_file = tmp_path / f"graphene_{i}.cif"
-        cif_file.write_text(sample_cif_content)
-
-    graphs = parse_multiple_cifs(tmp_path)
-
-    assert len(graphs) == 3
-    assert all(isinstance(g, MaterialGraph) for g in graphs)
-
-
-def test_empty_directory(tmp_path):
-    """Test parsing from an empty directory."""
-    graphs = parse_multiple_cifs(tmp_path)
-
-    assert len(graphs) == 0
-
-
-def test_max_files_limit(sample_cif_content, tmp_path):
-    """Test max_files parameter limits parsing."""
-    for i in range(5):
-        cif_file = tmp_path / f"graphene_{i}.cif"
-        cif_file.write_text(sample_cif_content)
-
-    graphs = parse_multiple_cifs(tmp_path, max_files=2)
-
-    assert len(graphs) == 2
-
-
-def test_coordination_number_computation(sample_cif_content, tmp_path):
-    """Test that coordination numbers are computed correctly."""
-    cif_file = tmp_path / "graphene.cif"
-    cif_file.write_text(sample_cif_content)
-
-    graph = parse_cif_to_graph(cif_file)
-
-    # Graphene carbon atoms should have coordination number of 3
-    for node in graph.node_features:
-        assert "coordination_number" in node
-        # In graphene, each C has 3 neighbors
-        assert node["coordination_number"] == 3.0
+        assert isinstance(graph.node_features, np.ndarray)
+        assert isinstance(graph.edge_indices, np.ndarray)
+        assert isinstance(graph.edge_features, np.ndarray)
+        
+        # Check dtypes
+        assert graph.node_features.dtype == np.float32
+        assert graph.edge_indices.dtype == np.int64
+        assert graph.edge_features.dtype == np.float32

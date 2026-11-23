@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.15880",
+  "judged_at": "2026-07-19T19:01:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it is a foundational survey on \"open vocabulary learning,\" which is the core methodological framework and canonical alternative vocabulary cluster for the user's specific task of \"Open-Vocabulary Industrial Anomaly Detection.\" Even though the paper is a general survey rather than an industrial-specific study, it provides the essential background and comparative analysis of the mechanism (open vocabulary settings vs. close-set) that the user's follow-u",
+  "relevant": true
+}

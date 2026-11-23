@@ -1,166 +1,164 @@
+"""
+Preprocess raw data: clean, filter, and save features.
+
+This script performs the following steps:
+1. Loads raw data from `data/processed/raw_features.csv` (output of descriptors.py).
+2. Validates the schema against `specs/001-predicting-the-stability-of-perovskite-s/contracts/data-schema.yaml`.
+3. Cleans data:
+   - Drops rows where `decomposition_energy` is null.
+   - Drops rows where ANY feature column (`tolerance_factor`, `octahedral_factor`,
+     `ionic_radius_mismatch`, `electronegativity_diff`) is null.
+4. Logs excluded rows to `logs/pipeline.log`.
+5. Saves the cleaned dataframe to `data/processed/features.csv`.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import List, Optional, Dict, Any, Tuple
-
 import pandas as pd
-from sklearn.model_selection import train_test_split
+import yaml
 
-# Ensure project root is in path for imports if running as script
-_project_root = Path(__file__).resolve().parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
 
 from utils.logging_config import get_logger, log_exclusion_reason, log_pipeline_event
 
+# Configure logger
 logger = get_logger(__name__)
 
-# Constants
-DATA_DIR = _project_root / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-RAW_FILE = PROCESSED_DIR / "features.csv"
-TRAIN_FILE = PROCESSED_DIR / "train_set.csv"
-TEST_FILE = PROCESSED_DIR / "test_set.csv"
+# Define paths relative to project root
+RAW_DATA_PATH = project_root / "data" / "processed" / "raw_features.csv"
+OUTPUT_PATH = project_root / "data" / "processed" / "features.csv"
+SCHEMA_PATH = project_root / "specs" / "001-predicting-the-stability-of-perovskite-s" / "contracts" / "data-schema.yaml"
 
-def load_raw_data(filepath: Optional[Path] = None) -> pd.DataFrame:
-    """Load the raw features CSV."""
-    path = filepath or RAW_FILE
-    if not path.exists():
-        raise FileNotFoundError(f"Raw data file not found: {path}")
-    logger.info(f"Loading raw data from {path}")
-    df = pd.read_csv(path)
-    logger.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
-    return df
+# Feature columns required for the model
+FEATURE_COLUMNS = [
+    "tolerance_factor",
+    "octahedral_factor",
+    "ionic_radius_mismatch",
+    "electronegativity_diff"
+]
+TARGET_COLUMN = "decomposition_energy"
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Clean data: handle missing values, remove duplicates, ensure types.
-    For this specific task, we assume the data is already cleaned by T018/T019
-    (zero nulls in target), but we perform a final check and drop rows with
-    any NaNs in the feature columns or target.
-    """
-    logger.info("Cleaning data...")
-    initial_count = len(df)
+def load_raw_data() -> pd.DataFrame:
+    """Load raw data from the CSV file."""
+    if not RAW_DATA_PATH.exists():
+        raise FileNotFoundError(
+            f"Raw data file not found at {RAW_DATA_PATH}. "
+            "Ensure code/data/descriptors.py has been run successfully."
+        )
     
-    # Drop rows with any NaNs in the target column (decomposition_energy)
-    target_col = "decomposition_energy"
-    if target_col in df.columns:
-        nulls_before = df[target_col].isnull().sum()
-        if nulls_before > 0:
-            log_exclusion_reason(f"Removing {nulls_before} rows with null target values")
-        df = df.dropna(subset=[target_col])
-    
-    # Drop rows with any NaNs in feature columns
-    df = df.dropna()
-    
-    # Drop duplicates
-    df = df.drop_duplicates()
-    
-    final_count = len(df)
-    logger.info(f"Cleaned data: {initial_count} -> {final_count} rows")
+    logger.info(f"Loading raw data from {RAW_DATA_PATH}")
+    df = pd.read_csv(RAW_DATA_PATH)
+    log_pipeline_event(f"Loaded {len(df)} rows from raw data")
     return df
 
 def validate_schema(df: pd.DataFrame) -> bool:
-    """
-    Validate that the dataframe has the expected columns.
-    Expected: formula, space_group, tolerance_factor, octahedral_factor,
-              ionic_radius_mismatch, electronegativity_diff, decomposition_energy
-    """
-    required_cols = [
-        "formula", "space_group", "tolerance_factor", "octahedral_factor",
-        "ionic_radius_mismatch", "electronegativity_diff", "decomposition_energy"
-    ]
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        logger.error(f"Missing required columns: {missing}")
-        return False
+    """Validate the dataframe against the expected schema."""
+    if not SCHEMA_PATH.exists():
+        logger.warning(f"Schema file not found at {SCHEMA_PATH}. Skipping schema validation.")
+        return True
+
+    with open(SCHEMA_PATH, 'r') as f:
+        schema = yaml.safe_load(f)
+
+    required_columns = set(schema.get('required_columns', []))
+    actual_columns = set(df.columns)
+
+    missing_columns = required_columns - actual_columns
+    if missing_columns:
+        error_msg = f"Schema validation failed: Missing required columns: {missing_columns}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+
+    logger.info("Schema validation passed.")
     return True
 
-def split_data(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Perform an 80/20 stratified split into train_set and test_set.
+    Clean the dataframe by dropping rows with missing target or feature values.
     
-    Stratification is performed on the target variable (decomposition_energy)
-    by binning it to ensure classes exist for stratify=y, as required by the
-    nested CV description in the plan.
-    
-    Args:
-        df: Input dataframe with features and target.
-        test_size: Proportion of data to include in the test split (default 0.2).
-        random_state: Random seed for reproducibility.
-        
-    Returns:
-        Tuple of (train_set, test_set) dataframes.
+    Steps:
+    1. Drop rows where `decomposition_energy` is null.
+    2. Drop rows where ANY of the feature columns are null.
+    3. Log exclusion reasons.
     """
-    logger.info(f"Splitting data into train/test sets (test_size={test_size})")
-    
-    if "decomposition_energy" not in df.columns:
-        raise ValueError("Column 'decomposition_energy' not found for stratification.")
-    
-    y = df["decomposition_energy"]
-    X = df.drop(columns=["decomposition_energy"])
-    
-    # For stratification on a continuous target, we bin the target values
-    # to create discrete classes. Using 5 bins is a common heuristic.
-    y_binned = pd.qcut(y, q=5, duplicates="drop")
-    
-    # Ensure we have at least 2 classes for stratification
-    if y_binned.nunique() < 2:
-        logger.warning("Not enough unique binned classes for stratification. Falling back to random split.")
-        train_set, test_set = train_test_split(
-            df, 
-            test_size=test_size, 
-            random_state=random_state
-        )
-    else:
-        train_set, test_set = train_test_split(
-            df, 
-            test_size=test_size, 
-            random_state=random_state, 
-            stratify=y_binned
-        )
-    
-    logger.info(f"Train set size: {len(train_set)}, Test set size: {len(test_set)}")
-    logger.info(f"Train set target stats: mean={train_set['decomposition_energy'].mean():.4f}, std={train_set['decomposition_energy'].std():.4f}")
-    logger.info(f"Test set target stats: mean={test_set['decomposition_energy'].mean():.4f}, std={test_set['decomposition_energy'].std():.4f}")
-    
-    return train_set, test_set
+    initial_count = len(df)
+    logger.info(f"Starting data cleaning. Initial rows: {initial_count}")
 
-def save_processed_data(df: pd.DataFrame, filepath: Path) -> None:
-    """Save a dataframe to CSV."""
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(filepath, index=False)
-    logger.info(f"Saved processed data to {filepath}")
+    # Step 1: Drop rows where target is null
+    target_null_mask = df[TARGET_COLUMN].isnull()
+    if target_null_mask.any():
+        count = target_null_mask.sum()
+        log_exclusion_reason(f"Missing {TARGET_COLUMN}", count)
+        df = df.dropna(subset=[TARGET_COLUMN])
+    
+    # Step 2: Drop rows where ANY feature column is null
+    feature_null_mask = df[FEATURE_COLUMNS].isnull().any(axis=1)
+    if feature_null_mask.any():
+        count = feature_null_mask.sum()
+        log_exclusion_reason(f"Missing any feature in {FEATURE_COLUMNS}", count)
+        df = df.dropna(subset=FEATURE_COLUMNS)
+
+    final_count = len(df)
+    excluded_count = initial_count - final_count
+    
+    log_pipeline_event(f"Data cleaning complete. Excluded {excluded_count} rows. Final rows: {final_count}")
+    
+    return df.reset_index(drop=True)
+
+def save_processed_data(df: pd.DataFrame) -> None:
+    """Save the processed dataframe to CSV."""
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Saving processed data to {OUTPUT_PATH}")
+    df.to_csv(OUTPUT_PATH, index=False)
+    
+    log_pipeline_event(f"Successfully saved {len(df)} rows to {OUTPUT_PATH}")
+    logger.info(f"Output file created: {OUTPUT_PATH}")
 
 def main():
-    """Main entry point for the preprocessing script."""
-    logger.info("Starting preprocessing pipeline...")
-    
-    # 1. Load raw data
+    """Main entry point for the preprocessing pipeline."""
     try:
+        # Load raw data
         df = load_raw_data()
+        
+        # Validate schema
+        validate_schema(df)
+        
+        # Clean data
+        df_clean = clean_data(df)
+        
+        if len(df_clean) == 0:
+            raise RuntimeError("Dataset empty after cleaning")
+
+        # Verify no nulls in critical columns
+        if df_clean[TARGET_COLUMN].isnull().any():
+            raise ValueError(f"Target column '{TARGET_COLUMN}' still contains nulls after cleaning.")
+        
+        null_features = df_clean[FEATURE_COLUMNS].isnull().sum()
+        if null_features.any():
+            raise ValueError(f"Feature columns still contain nulls after cleaning:\n{null_features[null_features > 0]}")
+
+        # Save processed data
+        save_processed_data(df_clean)
+        
+        logger.info("Preprocessing pipeline completed successfully.")
+        
     except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    
-    # 2. Validate schema
-    if not validate_schema(df):
-        logger.error("Schema validation failed.")
-        sys.exit(1)
-    
-    # 3. Clean data
-    df_clean = clean_data(df)
-    
-    # 4. Split data (T022 Implementation)
-    train_set, test_set = split_data(df_clean)
-    
-    # 5. Save splits
-    save_processed_data(train_set, TRAIN_FILE)
-    save_processed_data(test_set, TEST_FILE)
-    
-    logger.info("Preprocessing pipeline completed successfully.")
-    log_pipeline_event("Preprocessing", "Completed", {"train_size": len(train_set), "test_size": len(test_set)})
+        logger.error(f"File not found: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Validation or cleaning error: {e}")
+        raise
+    except RuntimeError as e:
+        logger.error(f"Runtime error: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during preprocessing: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

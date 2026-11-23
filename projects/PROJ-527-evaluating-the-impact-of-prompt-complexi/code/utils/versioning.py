@@ -1,137 +1,182 @@
 """
-Artifact versioning utility for managing project state files.
+Artifact versioning utility for llmXive research pipeline.
 
-This module provides functionality to update the project state YAML file
-after data generation, tracking artifacts and their checksums.
+This module manages the state of the project by computing cryptographic hashes
+of all files in the data directory and updating the project state YAML file.
 """
 import os
 import yaml
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-from config import get_project_id, Paths
-from utils.hash_artifacts import calculate_sha256
+
+from config import Paths, get_project_id
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def load_state_file(state_path: Path) -> Dict[str, Any]:
-    """Load the existing state file or return a default structure if it doesn't exist."""
-    if state_path.exists():
-        with open(state_path, 'r', encoding='utf-8') as f:
-            return yaml.safe_load(f) or {}
-    
-    # Initialize default state structure
-    project_id = get_project_id()
-    return {
-        "project_id": project_id,
-        "state": "initializing",
-        "created_at": datetime.utcnow().isoformat() + "Z",
-        "updated_at": None,
-        "artifacts": {},
-        "metadata": {
-            "version": "1.0.0",
-            "pipeline": "llmXive"
-        }
-    }
-
-def compute_artifact_checksums(artifact_paths: List[Path]) -> Dict[str, str]:
-    """Compute SHA-256 checksums for a list of artifact paths."""
-    checksums = {}
-    for path in artifact_paths:
-        if path.exists():
-          checksums[str(path)] = calculate_sha256(path)
-        else:
-            logger.warning(f"Artifact path does not exist: {path}")
-    return checksums
-
-def update_state_file(
-    state_path: Path,
-    new_artifacts: Optional[List[Path]] = None,
-    status: Optional[str] = None,
-    metadata_updates: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
-    """
-    Update the project state YAML file with new artifact information.
-    
-    Args:
-        state_path: Path to the state YAML file
-        new_artifacts: List of new artifact paths to record
-        status: Optional new status string (e.g., 'data_generated', 'analysis_complete')
-        metadata_updates: Optional dict of additional metadata to merge
-    
-    Returns:
-        The updated state dictionary
-    """
-    state = load_state_file(state_path)
-    
-    # Update timestamp
-    state["updated_at"] = datetime.utcnow().isoformat() + "Z"
-    
-    # Update status if provided
-    if status:
-        state["state"] = status
-    
-    # Process new artifacts
-    if new_artifacts:
-        existing_artifacts = state.get("artifacts", {})
-        new_checksums = compute_artifact_checksums(new_artifacts)
-        
-        for path_str, checksum in new_checksums.items():
-            existing_artifacts[path_str] = {
-                "checksum": checksum,
-                "updated_at": datetime.utcnow().isoformat() + "Z"
-            }
-        
-        state["artifacts"] = existing_artifacts
-        logger.info(f"Recorded {len(new_checksums)} new artifacts in state file")
-    
-    # Apply metadata updates
-    if metadata_updates:
-        if "metadata" not in state:
-            state["metadata"] = {}
-        state["metadata"].update(metadata_updates)
-    
-    # Ensure state directory exists
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write updated state
-    with open(state_path, 'w', encoding='utf-8') as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-    
-    logger.info(f"Updated state file: {state_path}")
-    return state
 
 def get_state_file_path() -> Path:
     """
-    Construct the path to the project state YAML file.
-    
+    Get the path to the project state YAML file.
+
     Returns:
-        Path to the state file under state/projects/<project_id>.yaml
+        Path: Absolute path to the state file.
     """
     project_id = get_project_id()
-    # Sanitize project_id for filesystem (remove invalid characters)
-    safe_project_id = "".join(c if c.isalnum() or c in "-_" else "_" for c in project_id)
-    return Paths.STATE_DIR / "projects" / f"{safe_project_id}.yaml"
+    state_dir = Paths.STATE_DIR / "projects"
+    # CRITICAL: Ensure directory exists before writing file
+    state_dir.mkdir(parents=True, exist_ok=True)
+    return state_dir / f"{project_id}.yaml"
 
-def record_data_generation_state(
-    generated_files: List[Path],
-    status: str = "data_generated"
-) -> Dict[str, Any]:
+
+def load_state_file() -> Dict[str, Any]:
     """
-    Convenience function to update state after data generation phase.
-    
-    Args:
-        generated_files: List of paths to files generated in this phase
-        status: Status string (defaults to 'data_generated')
-    
+    Load the current state file or create a new one if it doesn't exist.
+
     Returns:
-        The updated state dictionary
+        Dict[str, Any]: The state dictionary.
     """
     state_path = get_state_file_path()
-    return update_state_file(
-        state_path=state_path,
-        new_artifacts=generated_files,
-        status=status,
-        metadata_updates={"last_phase": "data_generation"}
-    )
+    if state_path.exists():
+        with open(state_path, 'r', encoding='utf-8') as f:
+            state = yaml.safe_load(f) or {}
+    else:
+        # Initialize with required structure per task spec
+        state = {
+            "project_id": get_project_id(),
+            "version": "1.0.0",
+            "created_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.utcnow().isoformat(),
+            "artifact_hashes": {}
+        }
+    return state
+
+
+def compute_sha256(file_path: Path) -> str:
+    """
+    Compute the SHA-256 hash of a file.
+
+    Args:
+        file_path: Path to the file to hash.
+
+    Returns:
+        str: Hexadecimal SHA-256 hash string.
+    """
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def compute_artifact_checksums(data_dir: Optional[Path] = None) -> Dict[str, str]:
+    """
+    Compute cryptographic hashes for all files in the data directory.
+
+    Excludes temporary files and raw datasets (focus on processed and result artifacts).
+
+    Args:
+        data_dir: Optional path to data directory. Defaults to Paths.DATA_DIR.
+
+    Returns:
+        Dict[str, str]: Dictionary mapping relative file paths to their SHA-256 hashes.
+    """
+    if data_dir is None:
+        data_dir = Paths.DATA_DIR
+
+    if not data_dir.exists():
+        logger.warning(f"Data directory does not exist: {data_dir}")
+        return {}
+
+    hashes = {}
+    for root, _, files in os.walk(data_dir):
+        for file in files:
+            file_path = Path(root) / file
+            relative_path = file_path.relative_to(Paths.PROJECT_ROOT)
+            
+            # Exclude raw datasets and temporary files
+            if "data/raw" in str(relative_path):
+                continue
+            if file.endswith('.tmp') or file.endswith('.log'):
+                continue
+
+            try:
+                file_hash = compute_sha256(file_path)
+                hashes[str(relative_path)] = file_hash
+                logger.debug(f"Hashed {relative_path}: {file_hash[:16]}...")
+            except Exception as e:
+                logger.error(f"Failed to hash {relative_path}: {e}")
+
+    return hashes
+
+
+def update_state_file(state: Dict[str, Any], new_hashes: Dict[str, str]) -> Path:
+    """
+    Update the state file with new artifact hashes and timestamp.
+
+    Args:
+        state: Current state dictionary.
+        new_hashes: New artifact hashes to write.
+
+    Returns:
+        Path: Path to the updated state file.
+    """
+    state_path = get_state_file_path()
+    
+    # Update hashes
+    state["artifact_hashes"] = new_hashes
+    # Update timestamp on every run
+    state["updated_at"] = datetime.utcnow().isoformat()
+
+    with open(state_path, 'w', encoding='utf-8') as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+
+    logger.info(f"Updated state file at {state_path}")
+    return state_path
+
+
+def record_data_generation_state() -> Dict[str, Any]:
+    """
+    Main entry point to compute hashes and update the state file after data generation.
+
+    This function:
+    1. Loads the current state file (or creates a new one).
+    2. Computes SHA-256 hashes for all files in the data directory.
+    3. Updates the state file with the new hashes and timestamp.
+
+    Returns:
+        Dict[str, Any]: The updated state dictionary.
+    """
+    logger.info("Starting artifact versioning update...")
+
+    state = load_state_file()
+    new_hashes = compute_artifact_checksums()
+
+    if not new_hashes:
+        logger.warning("No artifacts found to hash. State file may be updated with empty hashes.")
+
+    update_state_file(state, new_hashes)
+
+    logger.info(f"Versioning complete. Recorded {len(new_hashes)} artifact hashes.")
+    return state
+
+
+def main() -> None:
+    """
+    CLI entry point for the versioning utility.
+
+    This script can be run directly to update the project state file
+    with current artifact hashes.
+    """
+    try:
+        state = record_data_generation_state()
+        print(f"State updated successfully. Total artifacts tracked: {len(state.get('artifact_hashes', {}))}")
+    except Exception as e:
+        logger.error(f"Versioning update failed: {e}", exc_info=True)
+        raise
+
+
+if __name__ == "__main__":
+    main()

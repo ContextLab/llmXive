@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.01563",
+  "judged_at": "2026-08-12T07:37:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kwai keye-vl-2.0 technical report\" computer science",
+  "rationale": "This paper is the direct foundational predecessor to the \"Kwai Keye-VL-2.0\" mentioned in the user's question, establishing the empirical baseline and technical lineage (category c and d) required for a literature review on the evolution of this specific model family. It details the core mechanisms (Slow-Fast encoding, progressive pre-training) that the follow-up report would logically extend or compare against.",
+  "relevant": true
+}

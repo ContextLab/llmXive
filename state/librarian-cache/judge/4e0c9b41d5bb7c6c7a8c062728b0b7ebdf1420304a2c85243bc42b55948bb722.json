@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.14019",
+  "judged_at": "2026-08-13T12:37:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"embodied.cpp: a portable inference runtime of embodied ai models on he\" computer science",
+  "rationale": "The paper focuses on using LLMs to *generate* hardware designs (Verilog code) from natural language, which is a distinct construct from the user's question about *running* (inference) embodied AI models on hardware. While both involve LLMs and hardware, the paper addresses the \"design automation\" domain rather than the \"portable inference runtime\" domain, failing to satisfy the same-mechanism or variable overlap criteria.",
+  "relevant": false
+}

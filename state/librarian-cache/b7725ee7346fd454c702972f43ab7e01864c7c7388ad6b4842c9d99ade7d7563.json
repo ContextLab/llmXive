@@ -1,0 +1,505 @@
+{
+  "fetched_at": "2026-07-22T22:07:35Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting Glass Transition Temperature from Compositional Descriptors with Explainable Boosting Machines",
+      "target_n": 5
+    },
+    "duration_seconds": 60.98,
+    "ended_at": "2026-07-22T22:07:35Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning prediction of glass transition temperature"
+        ],
+        [
+          2,
+          "explainable boosting for Tg estimation"
+        ],
+        [
+          3,
+          "compositional descriptors for polymer Tg"
+        ],
+        [
+          4,
+          "glass transition temperature modeling with boosting algorithms"
+        ],
+        [
+          5,
+          "interpretable machine learning for material property prediction"
+        ],
+        [
+          6,
+          "predicting Tg from chemical composition"
+        ],
+        [
+          7,
+          "glass transition temperature regression models"
+        ],
+        [
+          8,
+          "feature importance in Tg prediction"
+        ],
+        [
+          9,
+          "data-driven prediction of amorphous material properties"
+        ],
+        [
+          10,
+          "composition-property relationships in glasses"
+        ],
+        [
+          11,
+          "ensemble learning for glass transition temperature"
+        ],
+        [
+          12,
+          "interpretable Tg models for polymer design"
+        ],
+        [
+          13,
+          "glass transition temperature from molecular descriptors"
+        ],
+        [
+          14,
+          "machine learning for Tg in inorganic glasses"
+        ],
+        [
+          15,
+          "explainable AI for materials science property prediction"
+        ],
+        [
+          16,
+          "boosting algorithms for thermal property estimation"
+        ],
+        [
+          17,
+          "computational prediction of Tg from composition"
+        ],
+        [
+          18,
+          "structure-property modeling of glass transition"
+        ],
+        [
+          19,
+          "glass transition temperature via interpretable algorithms"
+        ],
+        [
+          20,
+          "high-throughput screening of Tg using machine learning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Glass Transition Temperature from Compositional Descriptors with Explainable Boosting Machines materials science": 0,
+        "machine learning prediction of glass transition temperature": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "glass transition temperature Tg prediction compositional descriptors",
+      "amorphous alloys polymer blends Tg machine learning regression",
+      "explainable boosting EBM materials informatics feature importance",
+      "Tg prediction accuracy descriptor selection benchmark datasets",
+      "structure-property relationship composition Tg model interpretability"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2111.01037"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Glass Transition Temperature from Compositional Descriptors with Explainable Boosting Machines materials science": 3,
+      "Tg prediction accuracy descriptor selection benchmark datasets": 3,
+      "amorphous alloys polymer blends Tg machine learning regression": 3,
+      "explainable boosting EBM materials informatics feature importance": 3,
+      "glass transition temperature Tg prediction compositional descriptors": 2,
+      "structure-property relationship composition Tg model interpretability": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources in the context of official statistics and policy-making, which is an entirely different domain from materials science and the prediction of glass transition temperatures. It does not measure the relevant physical properties, use the specific machine learning technique (Explainable Boosting Machines) for this material property, or provide a baseline for the specific scientific mechanism requested.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper is rejected because it is off-domain entirely (biology vs. materials science) and addresses a distinct construct (general ML validation guidelines) rather than the specific mechanism of predicting glass transition temperature or the use of Explainable Boosting Machines in materials science. It fails to satisfy any inclusion criteria (a-f) as it does not measure the target variables, establish an empirical baseline for the specific property, or provide the foundational methodology for t",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on learning curves for algorithm selection and resource management in machine learning, which does not address the specific domain of materials science, the prediction of glass transition temperature, or the use of Explainable Boosting Machines for compositional descriptors. It fails to meet any inclusion criteria (a-f) as it lacks the specific mechanism, variables, domain, or empirical population required by the user's question.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of materials science, the prediction of glass transition temperature, or the use of Explainable Boosting Machines for compositional descriptors. It fails to meet any inclusion criteria (a-f) as it lacks the necessary mechanism, domain variables, empirical population, or specific methodological application required for the user's literature review.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper proposes a general methodology for interpreting machine learning models using energy landscape concepts but does not measure glass transition temperature, use compositional descriptors, or apply Explainable Boosting Machines to materials science data. It fails to satisfy criteria (a) or (b) because it lacks the specific dependent variable (Tg) and domain (materials science) required for inclusion, and it is not the foundational paper for the specific technique (EBM) mentioned in the us",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-22T22:06:34Z",
+    "term_input": {
+      "normalized": "predicting glass transition temperature from compositional descriptors with explainable boosting machines materials science",
+      "raw": "Predicting Glass Transition Temperature from Compositional Descriptors with Explainable Boosting Machines materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide here a brief perspective on the glass transition field. It is an assessment, written from the point of view of theory, of where the field is and where it seems to be heading. We first give an overview of the main phenomenological characteristics, or \"stylised facts\", of the glass transition problem, i.e. the central observations that a theory of the physics of glass formation should aim to explain in a unified manner. We describe recent developments, with a particular focus on real space properties, including dynamical heterogeneity and facilitation, the search for underlying spatial or structural correlations, and the relation between the thermal glass transition and athermal jamming. We then discuss briefly how competing theories of the glass transition have adapted and evolved to account for such real space issues. We consider in detail two conceptual and methodological approaches put forward recently, that aim to access the fundamental critical phenomenon underlying the glass transition, be it thermodynamic or dynamic in origin, by means of biasing of ensembles, of configurations in the thermodynamic case, or of trajectories in the dynamic case. We end with a short outlook.",
+          "claimed_authors": [
+            "Giulio Biroli",
+            "Juan P. Garrahan"
+          ],
+          "claimed_title": "Perspective: The Glass Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.3542"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='Perspective: The Glass Transition')",
+        "failed_at": "2026-07-22T22:07:03Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Maximum likelihood estimation is widely used in training Energy-based models (EBMs). Training requires samples from an unnormalized distribution, which is usually intractable, and in practice, these are obtained by MCMC algorithms such as Langevin dynamics. However, since MCMC in high-dimensional space converges extremely slowly, the current understanding of maximum likelihood training, which assumes approximate samples from the model can be drawn, is problematic. In this paper, we try to understand this training procedure by replacing Langevin dynamics with deterministic solutions of the associated gradient descent ODE. Doing so allows us to study the density induced by the dynamics (if the dynamics are invertible), and connect with GANs by treating the dynamics as generator models, the initial values as latent variables and the loss as optimizing a critic defined by the very same energy that determines the generator through its gradient. Hence the term - self-adversarial loss. We show that reintroducing the noise in the dynamics does not lead to a qualitative change in the behavior, and merely reduces the quality of the generator. We thus show that EBM training is effectively a self-adversarial procedure rather than maximum likelihood estimation.",
+          "claimed_authors": [
+            "Zhisheng Xiao",
+            "Qing Yan",
+            "Yali Amit"
+          ],
+          "claimed_title": "EBMs Trained with Maximum Likelihood are Generator Models Trained with a Self-adverserial Loss",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.11757"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='EBMs Trained with Maximum Likelihood are Generator Models Trained with a Self-adverserial Loss')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When used in the context of decision theory, feature importance expresses how much changing the value of a feature can change the model outcome (or the utility of the outcome), compared to other features. Feature importance should not be confused with the feature influence used by most state-of-the-art post-hoc Explainable AI methods. Contrary to feature importance, feature influence is measured against a reference level or baseline. The Contextual Importance and Utility (CIU) method provides a unified definition of global and local feature importance that is applicable also for post-hoc explanations, where the value utility concept provides instance-level assessment of how favorable or not a feature value is for the outcome. The paper shows how CIU can be applied to both global and local explainability, assesses the fidelity and stability of different methods, and shows how explanations that use contextual importance and contextual utility can provide more expressive and flexible explanations than when using influence only.",
+          "claimed_authors": [
+            "Kary Främling"
+          ],
+          "claimed_title": "Feature Importance versus Feature Influence and What It Signifies for Explainable AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.03589"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='Feature Importance versus Feature Influence and What It Signifies for Explainable AI')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Two-dimensional (2D) magnetism in atomically thin van der Waals (vdW) monolayers and heterostructures has attracted significant attention due to its promising potential for next-generation spintronic and quantum technologies. A key factor in stabilizing long-range magnetic order in these systems is magnetic anisotropy, which plays a crucial role in overcoming the limitations imposed by the Mermin-Wagner theorem. This review provides a comprehensive theoretical and experimental overview of the importance of magnetic anisotropy in enabling intrinsic 2D magnetism and shaping the electronic, magnetic, and topological properties of 2D vdW materials. We begin by summarizing the fundamental mechanisms that determine magnetic anisotropy, emphasizing the contributions from strong ligand spin-orbit coupling of ligand atoms and unquenched orbital magnetic moments. We then examine a range of material engineering approaches, including alloying, doping, electrostatic gating, strain, and pressure, that have been employed to effectively tune magnetic anisotropy in these materials. Finally, we discuss open challenges and promising future directions in this rapidly advancing field. By presenting a broad perspective on the role of magnetic anisotropy in 2D magnetism, this review aims to stimulate ongoing efforts and new ideas toward the realization of robust, room-temperature applications based on 2D vdW magnetic materials and their heterostructures.",
+          "claimed_authors": [
+            "Yusheng Hou",
+            "Ruqian Wu"
+          ],
+          "claimed_title": "Magnetic Anisotropy in Two-dimensional van der Waals Magnetic Materials and Their Heterostructures: Importance, Mechanisms, and Opportunities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.04952"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='Magnetic Anisotropy in Two-dimensional van der Waals Magnetic Materials and Their Heterostructures: Importance, Mechanisms, and Opportunities')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge Graph Completion (KGC) attempts to predict missing facts in a Knowledge Graph (KG). Recently, there's been an increased focus on designing KGC methods that can excel in the inductive setting, where a portion or all of the entities and relations seen in inference are unobserved during training. Numerous benchmark datasets have been proposed for inductive KGC, all of which are subsets of existing KGs used for transductive KGC. However, we find that the current procedure for constructing inductive KGC datasets inadvertently creates a shortcut that can be exploited even while disregarding the relational information. Specifically, we observe that the Personalized PageRank (PPR) score can achieve strong or near SOTA performance on most datasets. In this paper, we study the root cause of this problem. Using these insights, we propose an alternative strategy for constructing inductive KGC datasets that helps mitigate the PPR shortcut. We then benchmark multiple popular methods using the newly constructed datasets and analyze their performance. The new benchmark datasets help promote a better understanding of the capabilities and challenges of inductive KGC by removing any shortcuts that obfuscate performance. The code and dataset and can be found at https://github.com/HarryShomer/Better-Inductive-KGC.",
+          "claimed_authors": [
+            "Harry Shomer",
+            "Jay Revolinsky",
+            "Jiliang Tang"
+          ],
+          "claimed_title": "Towards Better Benchmark Datasets for Inductive Knowledge Graph Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.11898"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='Towards Better Benchmark Datasets for Inductive Knowledge Graph Completion')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automatic singing evaluation independent of reference melody is a challenging task due to its subjective and multi-dimensional nature. As an essential attribute of singing voices, vocal timbre has a non-negligible effect and influence on human perception of singing quality. However, no research has been done to include timbre information explicitly in singing evaluation models. In this paper, a data-driven model TG-Critic is proposed to introduce timbre embeddings as one of the model inputs to guide the evaluation of singing quality. The trunk structure of TG-Critic is designed as a multi-scale network to summarize the contextual information from constant-Q transform features in a high-resolution way. Furthermore, an automatic annotation method is designed to construct a large three-class singing evaluation dataset with low human-effort. The experimental results show that the proposed model outperforms the existing state-of-the-art models in most cases.",
+          "claimed_authors": [
+            "Xiaoheng Sun",
+            "Yuejie Gao",
+            "Hanyao Lin",
+            "Huaping Liu"
+          ],
+          "claimed_title": "TG-Critic: A Timbre-Guided Model for Reference-Independent Singing Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.09127"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='TG-Critic: A Timbre-Guided Model for Reference-Independent Singing Evaluation')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Garments are ubiquitous in both real and many of the virtual worlds. They are highly deformable objects, exhibit an immense variety of designs and shapes, and yet, most garments are created from a set of regularly shaped flat pieces. Exploration of garment structure presents a peculiar case for an object structure estimation task and might prove useful for downstream tasks of neural 3D garment modeling and reconstruction by providing strong prior on garment shapes. To facilitate research in these directions, we propose a method for generating large synthetic datasets of 3D garment designs and their sewing patterns. Our method consists of a flexible description structure for specifying parametric sewing pattern templates and the automatic generation pipeline to produce garment 3D models with little-to-none manual intervention. To add realism, the pipeline additionally creates corrupted versions of the final meshes that imitate artifacts of 3D scanning.\n  With this pipeline, we created the first large-scale synthetic dataset of 3D garment models with their sewing patterns. The dataset contains more than 20000 garment design variations produced from 19 different base types. Seven of these garment types are specifically designed to target evaluation of the generalization across garment sewing pattern topologies.",
+          "claimed_authors": [
+            "Maria Korosteleva",
+            "Sung-Hee Lee"
+          ],
+          "claimed_title": "Generating Datasets of 3D Garments with Sewing Patterns",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.05633"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='Generating Datasets of 3D Garments with Sewing Patterns')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "3D Gaussian Splatting (3DGS) has revolutionized 3D scene representation with superior efficiency and quality. While recent adaptations for computed tomography (CT) show promise, they struggle with severe artifacts under highly sparse-view projections and dynamic motions. To address these challenges, we propose Tomographic Geometry Field (TG-Field), a geometry-aware Gaussian deformation framework tailored for both static and dynamic CT reconstruction. A multi-resolution hash encoder is employed to capture local spatial priors, regularizing primitive parameters under ultra-sparse settings. We further extend the framework to dynamic reconstruction by introducing time-conditioned representations and a spatiotemporal attention block to adaptively aggregate features, thereby resolving spatiotemporal ambiguities and enforcing temporal coherence. In addition, a motion-flow network models fine-grained respiratory motion to track local anatomical deformations. Extensive experiments on synthetic and real-world datasets demonstrate that TG-Field consistently outperforms existing methods, achieving state-of-the-art reconstruction accuracy under highly sparse-view conditions.",
+          "claimed_authors": [
+            "Yuxiang Zhong",
+            "Jun Wei",
+            "Chaoqi Chen",
+            "Senyou An",
+            "Hui Huang"
+          ],
+          "claimed_title": "TG-Field: Geometry-Aware Radiative Gaussian Fields for Tomographic Reconstruction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.11705"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='TG-Field: Geometry-Aware Radiative Gaussian Fields for Tomographic Reconstruction')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Establishing reliable and interpretable structure-property relationships in glasses is a longstanding challenge in condensed matter physics. While modern data-driven machine learning techniques have proven highly effective in establishing structure-property correlations, many models are criticized for lacking physical interpretability and being task-specific. In this work, we identify an approximate linear relation between structure profiles and disorder-induced responses of glass properties based on first order perturbation theory. We analytically demonstrate that this relationship holds universally across glassy systems with varying dimensions and distinct interaction types. This robust theoretical relationship motivates the adoption of linear machine learning models, which we show numerically to achieve surprisingly high predictive accuracy for structure-property mapping in a wide variety of glassy materials. We further devise regularization analysis to further enhance the interpretability of our model, bridging the gap between predictive performance and physical insight. Overall, this linear relation establishes a simple yet powerful connection between structural disorder and spectral properties in glasses, opening a new avenue for advancing their studies.",
+          "claimed_authors": [
+            "Chenyan Wang",
+            "Mouyang Cheng",
+            "Ji Chen"
+          ],
+          "claimed_title": "Beyond overcomplication: a linear model suffices to decode hidden structure-property relationships in glasses",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.05313"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Glass Transition Temperature from Compositional Descriptors with Expl', candidate_title='Beyond overcomplication: a linear model suffices to decode hidden structure-property relationships in glasses')",
+        "failed_at": "2026-07-22T22:07:04Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fatemeh Mahmoudi"
+          ],
+          "title": "A Machine Learning Framework for Predicting Glass-Forming Ability in Ternary Alloy Systems",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.05895",
+        "summary": "Predicting the glass-forming ability (GFA) of chemical compositions remains a fundamental challenge in materials science, especially for oxide glasses with broad compositional diversity. Traditional empirical and thermodynamic approaches often fail to capture the complex, nonlinear factors governing vitrification. In this study, we applied two ensemble machine learning algorithms-Random Forest (RF) and Extreme Gradient Boosting (XGB)-to the glass_ternary_hipt dataset to predict the GFA of ternary oxide glasses directly from composition-derived descriptors. Both models achieved excellent predictive accuracy (R^2 > 0.92, MAE < 0.04), confirming that GFA is learnable from compositional features alone. Feature importance analysis revealed that electronegativity variance, atomic size mismatch, and valence electron descriptors are the most influential factors, while cohesive energy and ionic radius provided secondary contributions. These chemically interpretable features align with established theories of glass formation, thereby bridging predictive performance with physical understanding. The novelty of this work lies in systematically extending ML-based predictive modeling to ternary oxide glasses, a class less studied compared to metallic and binary systems. Our results demonstrate that ensemble learning not only enables accurate GFA prediction but also provides actionable insights for designing new glass compositions with enhanced stability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.05895",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-22T22:07:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felipe Oviedo",
+            "Juan Lavista Ferres",
+            "Tonio Buonassisi",
+            "Keith Butler"
+          ],
+          "title": "Interpretable and Explainable Machine Learning for Materials Science and Chemistry",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.01037",
+        "summary": "While the uptake of data-driven approaches for materials science and chemistry is at an exciting, early stage, to realise the true potential of machine learning models for successful scientific discovery, they must have qualities beyond purely predictive power. The predictions and inner workings of models should provide a certain degree of explainability by human experts, permitting the identification of potential model issues or limitations, building trust on model predictions and unveiling unexpected correlations that may lead to scientific insights. In this work, we summarize applications of interpretability and explainability techniques for materials science and chemistry and discuss how these techniques can improve the outcome of scientific studies. We discuss various challenges for interpretable machine learning in materials science and, more broadly, in scientific settings. In particular, we emphasize the risks of inferring causation or reaching generalization by purely interpreting machine learning models and the need of uncertainty estimates for model explanations. Finally, we showcase a number of exciting developments in other fields that could benefit interpretability in material science and chemistry problems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.01037",
+          "http_status": 200,
+          "pdf_sample_score": 0.1979,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-22T22:07:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Robert Felix Tournier"
+          ],
+          "title": "Fragile-to-fragile Liquid Transition at Tg and Stable-Glass Phase Nucleation Rate Maximum at the Kauzmann Temperature TK",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1404.2860",
+        "summary": "An undercooled liquid is unstable. The driving force of the glass transition at Tg is a change of the undercooled-liquid Gibbs free energy. The classical Gibbs free energy change for a crystal formation is completed including an enthalpy saving. The crystal growth critical nucleus is used as a probe to observe the Laplace pressure change Dp accompanying the enthalpy change -Vm *Dp at Tg where Vm is the molar volume. A stable glass-liquid transition model predicts the specific heat jump of fragile liquids at temperatures smaller than Tg, the Kauzmann temperature TK where the liquid entropy excess with regard to crystal goes to zero, the equilibrium enthalpy between TK and Tg, the maximum nucleation rate at TK of superclusters containing magic atom numbers, and the equilibrium latent heats at Tg and TK. Strong-to-fragile and strong-to-strong liquid transitions at Tg are also described and all their thermodynamic parameters are determined from their specific heat jumps. The existence of fragile liquids quenched in the amorphous state, which do not undergo liquid-liquid transition during heating preceding their crystallization, is predicted. Long ageing times leading to the formation at TK of a stable glass composed of superclusters containing up to 147 atoms, touching and interpenetrating, are evaluated from nucleation rates. A fragile-to-fragile liquid transition occurs at Tg without stable-glass formation while a strong glass is stable after transition.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1404.2860",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-22T22:07:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jia-Lin Wu"
+          ],
+          "title": "Eight-order mosaic structure theory of the glass transition and macromolecular motion",
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1005.2143",
+        "summary": "A universal theoretical framework has been proposed that the solid-to-liquid glass transition and macromolecular motion within the entire temperature range from Tg to Tm and the liquid flow are absolutely determined by the intrinsic 8 orders of transient 2-D mosaic geometric structures formed by exciting interfaces. Interface excitations are cross-coupled electron pairs, which attribute to the Van der Waals repulsion electron-electron pairs with 2-D self-avoiding closed loops existing in any random system at any temperature. An interface excitation state is a vector with 8 orders of additional restoring torque, 8 orders of relaxation times, quantized energies and extra volumes. Dynamics occurred by the slow inverse cascade generates the 8 orders of potential loop-flows while the fast cascade rearranges the structure. The delocalization mode is solitary wave along the 8 orders of geodesic. Solitary wave is derived from the balance between inverse cascade and cascade. Increasing temperature only increases the number of inverse cascade and cascade. This model provides a unified mechanism to interpret ripplon, reptation, Boson peak, Ising model, non-ergodic, free volume, hard-sphere, tunneling, cage, compacting cluster, jamming behaviors, breaking solid lattice, geometrical frustration, potential energy landscape, flow-percolation, thermo-disorder-induced localized energy, average energy of cooperative migration along one direction, critical entanglement chain length, and Reynolds number, solitary wave, heteroclinic orbit in hydrodynamics. This model also directly deduces the Lindemann ratio, the famous 3.4 power law of viscosity of entangled macromolecules and the well-known WLF equation and shows that the Clapeyron equation governing all first order phase transitions in thermodynamics only holds true in each subsystem, instead of the system in glass transition.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1005.2143",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-22T22:07:03Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting glass transition temperature from compositional descriptors with explainable boosting machines materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

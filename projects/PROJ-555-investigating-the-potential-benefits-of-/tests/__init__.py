@@ -1,3 +1,1 @@
-"""
-Test suite for the llmXive ecotourism regeneration pipeline.
-"""
+# Test package

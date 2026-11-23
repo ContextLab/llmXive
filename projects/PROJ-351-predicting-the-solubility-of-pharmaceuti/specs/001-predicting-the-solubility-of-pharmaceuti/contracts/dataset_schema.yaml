@@ -1,0 +1,15 @@
+type: object
+properties:
+  smiles:
+    type: string
+    pattern: "^[A-Za-z0-9@#$%&*\\-+=\\[\\]{}<>~!]+$"
+  measured log solubility in mols per litre:
+    type: number
+    minimum: -10.0
+    maximum: 10.0
+  Compound ID:
+    type: string
+required:
+  - smiles
+  - measured log solubility in mols per litre
+  - Compound ID

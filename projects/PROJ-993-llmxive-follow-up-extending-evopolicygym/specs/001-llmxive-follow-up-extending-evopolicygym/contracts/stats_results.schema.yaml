@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StatisticalAnalysisResults
+type: object
+description: Final results from the mixed-effects model analysis.
+required:
+  - model_id
+  - p_value
+  - effect_size
+  - significant
+  - complexity_coefficient
+  - random_effect_variance
+  - explanation_success_rate
+properties:
+  model_id:
+    type: string
+    description: Unique ID for the analysis run.
+  p_value:
+    type: number
+    description: p-value from the mixed-effects model.
+  effect_size:
+    type: number
+    description: Effect size (e.g., Cohen's d).
+  significant:
+    type: boolean
+    description: True if p < 0.05 (one-tailed) and effect > 0.
+  complexity_coefficient:
+    type: number
+    description: Coefficient for the complexity covariate.
+  random_effect_variance:
+    type: number
+    description: Variance attributed to the random effect (seeds).
+  explanation_success_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Rate of successful explanation generations (valid text / total failures).

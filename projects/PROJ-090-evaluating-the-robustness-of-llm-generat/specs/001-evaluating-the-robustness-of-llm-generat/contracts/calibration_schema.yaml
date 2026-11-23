@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Calibration Report Schema"
+type: "object"
+required:
+  - "baseline_pass_rate"
+  - "perturbation_results"
+  - "statistical_tests"
+  - "sensitivity_analysis"
+properties:
+  baseline_pass_rate:
+    type: "number"
+    description: "Pass@1 rate for original prompts"
+  perturbation_results:
+    type: "object"
+    description: "Pass@1 rates for each perturbation type"
+    additionalProperties:
+      type: "object"
+      properties:
+        pass_rate:
+          type: "number"
+        sample_size:
+          type: "integer"
+  statistical_tests:
+    type: "object"
+    description: "Results of McNemar and Mixed-Effects tests"
+    properties:
+      mcnemar:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            comparison:
+              type: "string"
+            p_value:
+              type: "number"
+            corrected_p_value:
+              type: "number"
+            significant:
+              type: "boolean"
+      mixed_effects:
+        type: "object"
+        properties:
+          fixed_effects:
+            type: "object"
+          random_effects_variance:
+            type: "number"
+  sensitivity_analysis:
+    type: "array"
+    description: "Pass@1 rates across different similarity thresholds"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+        pass_rate:
+          type: "number"
+        absolute_difference:
+          type: "number"
+  metadata:
+    type: "object"
+    properties:
+      generated_at:
+        type: "string"
+        format: "date-time"
+      seed:
+        type: "integer"

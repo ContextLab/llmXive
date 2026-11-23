@@ -1,0 +1,7 @@
+T009:
+  c: false
+  h: cdc194aad4405fb93cdcaa3abbeb4f5f343f10d498a37a037e2794838ec2ed59
+  r: "The required `state/projects/PROJ-227-assessing-the-trade-offs-between-static-.yaml`\
+    \ file does not exist, and there is no evidence that `code/hash_artifacts.py`\
+    \ was executed to populate a `tool_versions` block. Without the YAML file containing\
+    \ version strings and timestamps, the task\u2019s requirement is unmet."

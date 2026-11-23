@@ -1,0 +1,71 @@
+T000:
+  c: false
+  h: 05a03433aa382226f7e6c832a558ddcd5321bb020adcaac04649c123ab41d6c1
+  r: The required `data/raw/uci_citation_verified.json` file does not exist, and the
+    YAML file updates the wrong key (`citation_verification` instead of `uci_citation_verified`)
+    and lack the required URL field. There is also no evidence that the Reference-Validator
+    Agent was used. The task therefore fails to meet the specified artifacts and schema.
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for the required directory tree and the `tree_manifest.json` file that\
+    \ should contain a JSON list of absolute paths, but no such directories or manifest\
+    \ file are present in the provided evidence. The task\u2019s core deliverable\
+    \ is missing."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the three required directories (`data/raw/`, `data/simulated/`,\
+    \ `data/results/`) or the `.gitkeep` placeholder files is provided; without visible\
+    \ artifacts the task\u2019s requirement is not satisfied."
+T026:
+  c: false
+  h: 4f019cb75e8288ddbe33a79b30f72af8ba4c5b8c4ebb6e5561e5122652c0eebe
+  r: "The repository contains a partial `code/main.py` that defines `run_single_replication`\
+    \ but does not show the required orchestration loop or logic that aggregates results\
+    \ and writes them to `data/results/coverage_metrics.json` with the specified schema\
+    \ keys. Moreover, the expected output file `data/results/coverage_metrics.json`\
+    \ is missing entirely. The task\u2019s core requirements are therefore not satisfied."
+T027:
+  c: false
+  h: 067424f339d5f91fe5f5c3221f7148a31b95d450fecf256b437a9ef5b524b456
+  r: "The repository lacks the required `data/results/filtered_metrics.json` file,\
+    \ and the provided `code/main.py` excerpt does not show the logic that aggregates\
+    \ filtered runs and writes this JSON output (nor any check that T026 has completed).\
+    \ Consequently the task\u2019s output artifact and full filtering implementation\
+    \ are missing."
+T030:
+  c: false
+  h: 4c5b33504d579448c8e097b3d27ce0efb03226093fce716b506cedb3dac25738
+  r: "The required output file `data/raw/uci_subsampled.csv` is absent, and the provided\
+    \ `uci_runner.py` snippet is truncated before any subsampling, validation, or\
+    \ skip\u2011logic can be verified. Without the CSV (and evidence that the script\
+    \ implements the specified stratified sampling, predictor\u2011count check, and\
+    \ warning behavior), the task is not fulfilled."
+T036:
+  c: false
+  h: a3e2a69c77ea25b00876aa4dcbfbdec50a7cedb40a8f9b7aa5d6b371bcbbb735
+  r: The provided `verify_runtime.py` is incomplete (truncated) and does not show
+    logic that writes a `runtime_log.json` containing a `total_duration` field. Moreover,
+    the required `data/results/runtime_log.json` file is missing, and there is no
+    evidence that `run_full_simulation.sh` was updated to log a warning when the threshold
+    is exceeded. These essential artifacts are absent, so the task is not satisfied.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` was provided; there is no evidence of Installation, Usage,
+    Data Flow instructions, nor a Mermaid diagram of the data flow. The required documentation
+    artifact is missing.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest execution logs, test result files, or reported pass rate are present.
+    The claim provides no evidence that any unit or integration tests were run, nor
+    that a pass percentage was achieved. The required artifact (pytest output showing
+    pass/fail statistics) is missing.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file was provided, nor any content showing the required sections\
+    \ (Abstract, Methods, Results, Discussion). The implementer\u2019s claim cannot\
+    \ be verified because the artifact is missing."

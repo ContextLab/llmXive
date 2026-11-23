@@ -103,5 +103,15 @@
     "tables/table-ablation-task-filter.tex",
     "tables/table-ablation-evaluator-model.tex",
     "tables/table-related-work-comparison.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "56d9224b5c963d3a5327b7d9b574c5e5d3f56952557d501cdbaa488ec3318786",
+      "bytes": 31936424
+    },
+    "original.pdf": {
+      "sha256": "e6379c41fddf32b44839b7529f44478b2a24b60a56d18cc61f2800780fc8587f",
+      "bytes": 31939446
+    }
+  }
 }

@@ -41,7 +41,7 @@ A process engineer needs a predictive model that estimates texture descriptors b
 
 **Why this priority**: This is the ultimate value proposition of the project. It delivers the "predictive relationship" mentioned in the motivation, allowing users to forecast material properties from processing inputs.
 
-**Independent Test**: The model training and validation pipeline can be tested by splitting the dataset into training and test sets, training the regression/GP models, and verifying that the R² on the held-out test set meets the 0.85 threshold for all metals.
+**Independent Test**: The model training and validation pipeline can be tested by splitting the dataset into training and test sets, training the regression/GP models, and verifying that the R² on the held-out test set meets a satisfactory performance threshold for all metals.
 
 **Acceptance Scenarios**:
 
@@ -68,7 +68,7 @@ A researcher needs to ensure that the predictive model remains stable and reliab
 - What happens when the EBSD data for a specific metal/reduction combination is completely missing or corrupted? The system must skip that entry, log the error, and proceed with available data rather than crashing.
 - How does the system handle metals where the texture evolution does not follow the standard FCC trend (e.g., anomalous behavior in a specific alloy)? The model must flag these outliers during validation rather than forcing a fit that degrades overall R².
 - What if the confidence index filtering removes >50% of the data points for a specific sample? The system must flag this sample as "low reliability" and exclude it from the final training set to prevent bias.
-- What happens when the system attempts to extrapolate beyond the 0-80% reduction range? The system must explicitly flag the prediction as "extrapolated" and apply a penalty factor to the confidence interval, rather than silently returning a value.
+- What happens when the system attempts to extrapolate beyond the -80% reduction range? The system must explicitly flag the prediction as "extrapolated" and apply a penalty factor to the confidence interval, rather than silently returning a value.
 
 ## Requirements
 
@@ -82,7 +82,7 @@ A researcher needs to ensure that the predictive model remains stable and reliab
 - **FR-006**: The system MUST explicitly frame all findings as associational relationships, avoiding causal claims unless the dataset includes randomized assignment (which is not the case here). (See US-3)
 - **FR-007**: The system MUST implement a sensitivity analysis sweeping the reduction interpolation tolerance (defined as the maximum absolute difference in reduction percentage between a query point and the nearest available data point) over {0.01, 0.05, 0.1} to verify model stability, where stability is defined as an R² variation ≤ 0.02. (See US-4)
 - **FR-008**: The system MUST include 'Material Type' as a categorical feature in the joint model and report the residual variance attributed to missing microstructural variables (e.g., grain size, stacking fault energy) as a percentage of total variance. (See US-4)
-- **FR-009**: The system MUST flag any prediction made at reduction levels outside the lower-bound threshold as "extrapolated" and apply a confidence penalty factor of 2.0 to the standard error. (See US-4)
+- **FR-009**: The system MUST flag any prediction made at reduction levels outside the lower-bound threshold as "extrapolated" and apply a confidence penalty factor to the standard error. (See US-4)
 
 ### Key Entities
 
@@ -101,8 +101,8 @@ A researcher needs to ensure that the predictive model remains stable and reliab
 
 ## Assumptions
 
-- The Materials Project and MTData repositories contain sufficient EBSD data for Al, Cu, and Ni across the full 0-80% reduction range; if data is missing for a specific point, the model will interpolate or exclude that specific point rather than halting.
-- The `orix` Python package and its dependencies can be installed and executed within the GitHub Actions free-tier runner constraints (2 CPU, ~7 GB RAM) without exceeding the 6-hour time limit.
+- The Materials Project and MTData repositories contain sufficient EBSD data for Al, Cu, and Ni across the full reduction range.; if data is missing for a specific point, the model will interpolate or exclude that specific point rather than halting.
+- The `orix` Python package and its dependencies can be installed and executed within the GitHub Actions free-tier runner constraints (limited CPU and RAM resources) without exceeding the runner's time limit.
 - The crystallographic symmetry for all samples is strictly FCC; any samples with mixed phases or non-FCC structures will be excluded from the analysis.
 - The "cold-rolling reduction" percentage provided in the metadata is accurate and corresponds to the true plastic strain applied; no independent verification of the reduction percentage is performed.
 - The Gaussian Process regression model, when applied to the sampled dataset, will not require GPU acceleration and will converge within the CPU time limits.

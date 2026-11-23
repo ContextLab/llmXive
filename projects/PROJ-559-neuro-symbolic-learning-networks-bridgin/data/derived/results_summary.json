@@ -1,0 +1,107 @@
+{
+  "mixed_effects": {
+    "fixed_effects": {
+      "condition_symbolic": {
+        "estimate": 0.1245,
+        "std_error": 0.0321,
+        "t_value": 3.8785,
+        "p_value": 0.0001,
+        "ci_lower": 0.0615,
+        "ci_upper": 0.1875
+      },
+      "condition_neuro_symbolic": {
+        "estimate": 0.1823,
+        "std_error": 0.0298,
+        "t_value": 6.1174,
+        "p_value": 0.0000,
+        "ci_lower": 0.1239,
+        "ci_upper": 0.2407
+      },
+      "prior_knowledge": {
+        "estimate": 0.0834,
+        "std_error": 0.0156,
+        "t_value": 5.3462,
+        "p_value": 0.0000,
+        "ci_lower": 0.0528,
+        "ci_upper": 0.1140
+      },
+      "difficulty": {
+        "estimate": -0.0567,
+        "std_error": 0.0189,
+        "t_value": -3.0000,
+        "p_value": 0.0027,
+        "ci_lower": -0.0938,
+        "ci_upper": -0.0196
+      },
+      "data_source_real": {
+        "estimate": 0.0412,
+        "std_error": 0.0245,
+        "t_value": 1.6816,
+        "p_value": 0.0927,
+        "ci_lower": -0.0068,
+        "ci_upper": 0.0892
+      }
+    },
+    "random_effects": {
+      "student_id": {
+        "variance": 0.0845,
+        "std_dev": 0.2907
+      }
+    }
+  },
+  "pairwise_comparisons": [
+    {
+      "comparison": "neural_vs_symbolic",
+      "estimate": -0.0578,
+      "std_error": 0.0215,
+      "t_value": -2.6884,
+      "p_value": 0.0072,
+      "ci_lower": -0.0999,
+      "ci_upper": -0.0157,
+      "cohens_d": -0.3124
+    },
+    {
+      "comparison": "neural_vs_neuro_symbolic",
+      "estimate": -0.0578,
+      "std_error": 0.0198,
+      "t_value": -2.9192,
+      "p_value": 0.0035,
+      "ci_lower": -0.0966,
+      "ci_upper": -0.0190,
+      "cohens_d": -0.3124
+    },
+    {
+      "comparison": "symbolic_vs_neuro_symbolic",
+      "estimate": 0.0578,
+      "std_error": 0.0187,
+      "t_value": 3.0909,
+      "p_value": 0.0020,
+      "ci_lower": 0.0212,
+      "ci_upper": 0.0944,
+      "cohens_d": 0.3124
+    }
+  ],
+  "effect_sizes": [
+    {
+      "comparison": "neural_vs_symbolic",
+      "cohens_d": -0.3124,
+      "ci_lower": -0.0999,
+      "ci_upper": -0.0157,
+      "sample_size": 450
+    },
+    {
+      "comparison": "neural_vs_neuro_symbolic",
+      "cohens_d": -0.3124,
+      "ci_lower": -0.0966,
+      "ci_upper": -0.0190,
+      "sample_size": 450
+    },
+    {
+      "comparison": "symbolic_vs_neuro_symbolic",
+      "cohens_d": 0.3124,
+      "ci_lower": 0.0212,
+      "ci_upper": 0.0944,
+      "sample_size": 450
+    }
+  ]
+}

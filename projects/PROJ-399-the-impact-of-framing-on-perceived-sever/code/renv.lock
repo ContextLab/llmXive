@@ -1,0 +1,35 @@
+{
+  "R": {
+    "Version": "4.3.0"
+  },
+  "Packages": {
+    "lme4": {
+      "Package": "lme4",
+      "Version": "1.1-31"
+    },
+    "lmerTest": {
+      "Package": "lmerTest",
+      "Version": "3.1-3"
+    },
+    "pwr": {
+      "Package": "pwr",
+      "Version": "1.3-0"
+    },
+    "dplyr": {
+      "Package": "dplyr",
+      "Version": "1.1.0"
+    },
+    "ggplot2": {
+      "Package": "ggplot2",
+      "Version": "3.4.0"
+    },
+    "tidyr": {
+      "Package": "tidyr",
+      "Version": "1.3.0"
+    },
+    "data.table": {
+      "Package": "data.table",
+      "Version": "1.14.0"
+    }
+  }
+}

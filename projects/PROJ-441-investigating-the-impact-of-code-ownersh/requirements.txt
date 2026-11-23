@@ -8,3 +8,7 @@ scipy
 pyyaml
 statsmodels
 bitsandbytes-cpu
+datasets
+accelerate
+black
+ruff

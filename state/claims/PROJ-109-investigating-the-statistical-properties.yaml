@@ -718,3 +718,1977 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T09:50:13Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: two-sample KS tests for shape, spin, and concentration between low/high
+    environmental bins
+  claim_id: c_0468fe28
+  context: "Phase 5: User Story 3 - Statistical Hypothesis Testing (Priority: P3);\
+    \ Goal: Perform Kolmogorov-Smirnov tests and Spearman correlations to assess deviations\
+    \ from NFW/\u039BCDM predictions across mass and environment bins."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two-sample_KS_tests_for_shape,_spin,_and_concentration_betwe
+  kind: entity_fact
+  raw_text: Implement two-sample KS tests between low/high environmental bins for
+    shape, spin, and concentration
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:43:15Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction for multiple hypothesis testing across
+    at least 9 KS tests
+  claim_id: c_18806617
+  context: "Phase 5: User Story 3 - Statistical Hypothesis Testing (Priority: P3);\
+    \ Implementation for User Story 3; T033 [P] [US3] Implement Benjamini-Hochberg\
+    \ correction for multiple hypothesis testing across \u22659 KS tests in code/analysis/stats.py\
+    \ (FR-009)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_for_multiple_hypothesis_testin
+  kind: magnitude
+  raw_text: "Implement Benjamini-Hochberg correction for multiple hypothesis testing\
+    \ across \u22659 KS tests"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:43:52Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 analytic fit c(M) = c_200 * (M/M_200)^alpha with
+    c_200=10
+  claim_id: c_70550fbf
+  context: 'Phase 5: User Story 3 - Statistical Hypothesis Testing (Priority: P3);
+    Implementation for User Story 3; T036 [US3] Implement Bullock et al. (2001) analytic
+    fit using the standard form c(M) = c_200 * (M/M_200)^alpha with c_200=10 and alpha
+    is set to a negative value'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Bullock et al. (2001) analytic fit using the standard form c(M)
+    = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:44:08Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: default Bullock et al. 2001 parameters c_200=10 and alpha=-0.1
+  claim_id: c_88cbbcda
+  context: 'Phase 5: User Story 3 - Statistical Hypothesis Testing (Priority: P3);
+    Implementation for User Story 3; T035 [P] [US3] ... include fallback behavior
+    if citation validation fails: default to standard Bullock et al. 2001 parameters
+    (c_200 = 10, alpha = -0.1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha
+    = -0.1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:44:21Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: filter halos with at least 300 particles
+  claim_id: c_30951b39
+  context: "Phase 3: User Story 1 - Data Acquisition and Pre-processing (Priority:\
+    \ P1) \U0001F3AF MVP; Independent Test: Can be fully tested by ... filtering for\
+    \ halos with \u2265300 particles"
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Among them, only those halos comprising more than 300 dark matter particles
+        were selected
+      source_id: '0906.5166'
+      url: https://arxiv.org/abs/0906.5166
+      value: '300'
+    filled: true
+  kind: magnitude
+  raw_text: "filtering for halos with \u2265300 particles"
+  resolved_value: '300'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T18:44:39Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Subsampled Plummer-Softened Potential with 500 particles
+  claim_id: c_73bcc2d9
+  context: 'Phase 4: User Story 2 - Structural Metric Computation (Priority: P2);
+    Implementation for User Story 2; T023 [US2] ... using Subsampled Plummer-Softened
+    Potential (N=500 particles) via T007C'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Subsampled Plummer-Softened Potential (N=500 particles) via
+    T007C
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:44:54Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: 5 Mpc radius calculation validity on subsample
+  claim_id: c_9c359ca7
+  context: "Phase 3: User Story 1 - Data Acquisition and Pre-processing (Priority:\
+    \ P1) \U0001F3AF MVP; Implementation for User Story 1; T017 [US1] ... document\
+    \ how the 5 Mpc radius calculation remains statistically valid on a subsample"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: document how the 5 Mpc radius calculation remains statistically valid
+    on a subsample
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:45:56Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: save filtered data with chunk size 10000 and snappy compression
+  claim_id: c_50d918dc
+  context: "Phase 3: User Story 1 - Data Acquisition and Pre-processing (Priority:\
+    \ P1) \U0001F3AF MVP; Implementation for User Story 1; T014 [US1] ... save filtered\
+    \ data as data/processed/filtered_halos_{timestamp}.parquet (chunk_size=10k, compression=snappy)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: save filtered data as data/processed/filtered_halos_{timestamp}.parquet
+    (chunk_size=10k, compression=snappy)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:46:25Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Download IllustrisTNG TNG100-1 and Millennium catalogs for halo dataset
+  claim_id: c_063e5dc1
+  context: 'Goal: Download and filter public cosmological simulation catalogs (IllustrisTNG
+    TNG100-1 and Millennium) to produce a validated halo dataset ready for structural
+    analysis. If real data is unavailable, generate synthetic data with controlled
+    deviations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download and filter public cosmological simulation catalogs (IllustrisTNG
+    TNG100-1 and Millennium) to produce a validated halo dataset ready for structural
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:47:01Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Retain halos with at least 300 particles
+  claim_id: c_6537bd22
+  context: "Implement halo filtering logic in code/data/preprocess.py to retain only\
+    \ halos with \u2265300 particles and log filtered count (FR-002)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Retain_halos_with_at_least_300_particles
+  kind: magnitude
+  raw_text: "Implement halo filtering logic in code/data/preprocess.py to retain only\
+    \ halos with \u2265300 particles"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:47:06Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Save filtered data with chunk size 10k and snappy compression
+  claim_id: c_0d71bcad
+  context: Implement chunked streaming writer in code/data/preprocess.py to save filtered
+    data as data/processed/filtered_halos_{timestamp}.parquet (chunk_size=10k, compression=snappy)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement chunked streaming writer in code/data/preprocess.py to save
+    filtered data as data/processed/filtered_halos_{timestamp}.parquet (chunk_size=10k,
+    compression=snappy)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:47:08Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Use 5 Mpc radius for local overdensity calculation
+  claim_id: c_78f53d7e
+  context: Implement local overdensity calculation in code/data/compute_metrics.py
+    using cKDTree with periodic boundary wrapping, spherical top-hat of a characteristic
+    radius, using simulation box size from T004; explicitly use Memory-Mapped Sparse
+    Particle Stream and Subsampled strategy (% random sample) as defined in Plan Phase
+    1, Complexity Tracking; process on synthetic/filtered particle stream after filtering;
+    document how the 5 Mpc radius calculation remains statistically valid on a subsample
+    (FR-003)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process on synthetic/filtered particle stream after filtering; document
+    how the 5 Mpc radius calculation remains statistically valid on a subsample
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:47:10Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Compute shape s=c/a, spin lambda, and concentration c for halos
+  claim_id: c_052953bf
+  context: "Goal: Compute shape (s=c/a), spin parameter (\u03BB), and concentration\
+    \ index (c) for each halo using validated physical formulas."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_shape_s=c/a,_spin_lambda,_and_concentration_c_for_ha
+  kind: entity_fact
+  raw_text: "Compute shape (s=c/a), spin parameter (\u03BB), and concentration index\
+    \ (c) for each halo using validated physical formulas."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:47:18Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Calculate spin parameter using 500 particles subsample
+  claim_id: c_e0225b9e
+  context: Implement spin parameter calculation in code/data/compute_metrics.py using
+    Subsampled Plummer-Softened Potential (N=500 particles) via T007C; this is the
+    ONLY valid implementation due to memory constraints (See Plan Phase 1, Complexity
+    Tracking); document deviation from 'direct summation' in code comments and log
+    in Data Gap Report (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement spin parameter calculation using Subsampled Plummer-Softened
+    Potential (N=500 particles) via T007C
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:47:20Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Perform two-sample KS tests for shape, spin, and concentration
+  claim_id: c_663db11d
+  context: Implement two-sample KS tests between low/high environmental bins for shape,
+    spin, and concentration in code/analysis/stats.py (FR-008)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_two-sample_KS_tests_for_shape,_spin,_and_concentrati
+  kind: entity_fact
+  raw_text: Implement two-sample KS tests between low/high environmental bins for
+    shape, spin, and concentration
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:47:22Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg correction across 9 KS tests
+  claim_id: c_19214664
+  context: "Implement Benjamini-Hochberg correction for multiple hypothesis testing\
+    \ across \u22659 KS tests in code/analysis/stats.py (FR-009); use threshold from\
+    \ code/config.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Benjamini-Hochberg correction for multiple hypothesis testing\
+    \ across \u22659 KS tests"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:47:22Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Use Bullock et al. 2001 fit with c_200=10
+  claim_id: c_8fcdd15b
+  context: Implement Bullock et al. (2001) analytic fit using the standard form c(M)
+    = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value.;
+    validate these hardcoded parameters against the spec's intent; if the spec's citation
+    year is ambiguous, use these default values and log the resolution; do NOT attempt
+    to fetch external sources (FR-011)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Bullock et al. (2001) analytic fit using the standard form c(M)
+    = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:47:22Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution within 6 hours on GitHub Actions
+  claim_id: c_2f4bc1f4
+  context: 'Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner (command: python code/main.py --run-all; output:
+    results/timing.json)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify pipeline execution within 6 hours on GitHub Actions free-tier runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:47:56Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: download IllustrisTNG TNG100-1 and Millennium catalogs including particle
+    data
+  claim_id: c_8ce0fff1
+  context: 'Independent Test: Can be fully tested by successfully downloading both
+    catalogs (including particle data) or generating synthetic data, {{claim:c_30951b39}}
+    (0906.5166, https://arxiv.org/abs/0906.5166), and producing a consolidated dataset
+    file that contains all required columns (mass, position, velocity, particle counts).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: download both catalogs (including particle data) or generating synthetic
+    data, (0906.5166, https://arxiv.org/abs/0906.5166)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:48:26Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: 5 Mpc radius calculation remains statistically valid on a subsample
+  claim_id: c_b3e4895c
+  context: Implement local overdensity calculation in code/data/compute_metrics.py
+    using cKDTree with periodic boundary wrapping, spherical top-hat of a characteristic
+    radius, using simulation box size from T004; explicitly use Memory-Mapped Sparse
+    Particle Stream and Subsampled strategy (% random sample) as defined in Plan Phase
+    1, Complexity Tracking; process on synthetic/filtered particle stream after filtering;
+    document how the 5 Mpc radius calculation remains statistically valid on a subsample
+    (FR-003)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: process on synthetic/filtered particle stream after filtering; document
+    how the 5 Mpc radius calculation remains statistically valid on a subsample
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:48:26Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: spin parameter calculation using Subsampled Plummer-Softened Potential
+    with 500 particles
+  claim_id: c_a10ebd0a
+  context: Implement spin parameter calculation in code/data/compute_metrics.py using
+    Subsampled Plummer-Softened Potential (N=500 particles) via T007C; this is the
+    ONLY valid implementation due to memory constraints (See Plan Phase 1, Complexity
+    Tracking); document deviation from 'direct summation' in code comments and log
+    in Data Gap Report (FR-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: implement spin parameter calculation using Subsampled Plummer-Softened
+    Potential (N=500 particles)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:48:28Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction for multiple hypothesis testing across
+    9 KS tests
+  claim_id: c_0a0e5b45
+  context: "Implement Benjamini-Hochberg correction for multiple hypothesis testing\
+    \ across \u22659 KS tests in code/analysis/stats.py (FR-009); use threshold from\
+    \ code/config.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "implement Benjamini-Hochberg correction for multiple hypothesis testing\
+    \ across \u22659 KS tests"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:48:29Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 parameters with c_200 of 10 and alpha of -0.1
+  claim_id: c_4a189548
+  context: 'Implement Bullock comparison logic in code/analysis/stats.py (FR-011);
+    include fallback behavior if citation validation fails: default to standard Bullock
+    et al. 2001 parameters (c_200 = 10, alpha = -0.1) and log the fallback event'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'include fallback behavior if citation validation fails: default to standard
+    Bullock et al. 2001 parameters (c_200 = 10, alpha = -0.1)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:48:34Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 analytic fit with c_200 of 10 and negative alpha
+  claim_id: c_f63aae8b
+  context: Implement Bullock et al. (2001) analytic fit using the standard form c(M)
+    = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value.;
+    validate these hardcoded parameters against the spec's intent; if the spec's citation
+    year is ambiguous, use these default values and log the resolution; do NOT attempt
+    to fetch external sources (FR-011)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Bullock et al. (2001) analytic fit using the standard form c(M)
+    = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:48:34Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Download of IllustrisTNG TNG100-1 and Millennium catalogs referenced
+    by 0906.5166
+  claim_id: c_254ef99e
+  context: 'Phase 3: User Story 1 - Data Acquisition and Pre-processing (Priority:
+    P1) Goal description.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Independent Test: Can be fully tested by successfully downloading both
+    catalogs (including particle data) or generating synthetic data, {{claim:c_30951b39}}
+    (0906.5166, https://arxiv.org/abs/0906.5166), and producing a consolidated dataset
+    file that contains all required columns (mass, position, velocity, particle counts).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:51:42Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Filter halos retaining only those with at least 300 particles
+  claim_id: c_379a7fb4
+  context: 'Phase 3: Implementation for User Story 1, Task T013.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_halos_retaining_only_those_with_at_least_300_particle
+  kind: magnitude
+  raw_text: "Implement halo filtering logic in `code/data/preprocess.py` to retain\
+    \ only halos with \u2265300 particles"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:51:44Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Save filtered halo data with chunk size of 10000
+  claim_id: c_88b4208b
+  context: 'Phase 3: Implementation for User Story 1, Task T014.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement chunked streaming writer in `code/data/preprocess.py` to save
+    filtered data as `data/processed/filtered_halos_{timestamp}.parquet` (chunk_size=10k,
+    compression=snappy)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:51:44Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Local overdensity calculation uses a 5 Mpc radius
+  claim_id: c_b5dc7e75
+  context: 'Phase 3: Implementation for User Story 1, Task T017.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: document how the 5 Mpc radius calculation remains statistically valid
+    on a subsample
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:51:44Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Shape parameter s calculated as c/a from inertia tensor
+  claim_id: c_5bc34982
+  context: 'Phase 4: Implementation for User Story 2, Task T022.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shape_parameter_s_calculated_as_c/a_from_inertia_tensor
+  kind: entity_fact
+  raw_text: Implement shape parameter s=c/a calculation from inertia tensor of particle
+    positions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:52:04Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Spin parameter calculation uses 500 particles subsample
+  claim_id: c_dfb5d0a8
+  context: 'Phase 4: Implementation for User Story 2, Task T023.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement spin parameter calculation using Subsampled Plummer-Softened
+    Potential (N=500 particles) via T007C
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:52:04Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied across at least 9 KS tests
+  claim_id: c_211943c0
+  context: 'Phase 5: Implementation for User Story 3, Task T033.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_across_at_least_9_KS_t
+  kind: magnitude
+  raw_text: "Implement Benjamini-Hochberg correction for multiple hypothesis testing\
+    \ across \u22659 KS tests"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:52:10Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 fit uses c_200 equal to 10
+  claim_id: c_caedc5de
+  context: 'Phase 5: Implementation for User Story 3, Task T036.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Bullock et al. (2001) analytic fit using the standard form c(M)
+    = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:52:10Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit is 6 hours on GitHub Actions free-tier
+  claim_id: c_d8e96d28
+  context: 'Phase N: Polish & Cross-Cutting Concerns, Task T043.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:52:31Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. (2001) parameters c_200 and alpha used for verification
+  claim_id: c_96bcba85
+  context: 'Also include: Bullock et al. parameters (c_200, alpha) for verification
+    in T036A.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bullock et al. (2001) parameters (c_200, alpha) are used for verification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:41:55Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Halo filtering retains halos with >= 300 particles
+  claim_id: c_dc9caec5
+  context: "Implement halo filtering logic in code/data/preprocess.py to retain only\
+    \ halos with \u2265300 particles."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halo_filtering_retains_halos_with_%3E=_300_particles
+  kind: magnitude
+  raw_text: Halo filtering logic retains only halos with at least 300 particles.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:42:39Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Subsampled Plummer-Softened Potential uses 500 particles
+  claim_id: c_80c73925
+  context: Use 'Subsampled Plummer-Softened Potential' (N=500) as the CPU-feasible
+    approximation to satisfy the scientific intent within memory constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic data generator uses a subsample of 500 particles for the
+    Plummer-Softened Potential.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:43:18Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Mass binning boundaries 10^10, 10^11, 10^12 M_sun h^-1
+  claim_id: c_a021822c
+  context: "Implement mass binning with specific boundaries (^10, 10^11, 10^12 M\u2299\
+    \ h\u207B\xB9) and environment binning (\u0394 < 200 vs \u2265 200)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mass binning boundaries are set at 10^10, 10^11, and 10^12 M\u2299 h\u207B\
+    \xB9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:43:53Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Environment binning threshold delta 200
+  claim_id: c_48652f39
+  context: "Implement mass binning with specific boundaries (^10, 10^11, 10^12 M\u2299\
+    \ h\u207B\xB9) and environment binning (\u0394 < 200 vs \u2265 200)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Environment binning uses an overdensity threshold of 200 (\u0394 < 200\
+    \ vs \u2265 200)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:44:11Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time <= 6 hours on GitHub Actions free-tier (2 cores,
+    7GB RAM) with 10^5 halos
+  claim_id: c_0e781667
+  context: Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner (2 cores, 7GB RAM) using full synthetic dataset
+    (~10^5 halos).
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline is verified to execute within 6 hours on a GitHub Actions
+    free-tier runner with 2 cores and 7GB RAM using a synthetic dataset of approximately
+    10^5 halos.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-30T04:44:11Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. parameters c_200 and alpha used for verification
+  claim_id: c_0056c489
+  context: 'T004 Create code/config.py with pinned random seeds, file paths, simulation
+    box size, and critical density constants. Also include: Bullock et al. parameters
+    (c_200, alpha) for verification in T036A.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bullock_et_al._parameters_c_200_and_alpha_used_for_verificat
+  kind: entity_fact
+  raw_text: Bullock et al. parameters (c_200, alpha) are used for verification in
+    T036A.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:47:06Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Halo filtering retains halos with 300 or more particles
+  claim_id: c_34709394
+  context: "T013 Implement halo filtering logic in code/data/preprocess.py to retain\
+    \ only halos with \u2265300 particles. Verification: Assert output dataset contains\
+    \ only rows where particle_count >= 300."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Halo filtering logic retains only halos with \u2265300 particles."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:47:06Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Overdensity calculated as ratio of local density to critical density
+  claim_id: c_d821207c
+  context: "T017 Implement local overdensity calculation in code/data/compute_metrics.py\
+    \ using cKDTree with periodic boundary wrapping. Statistical Validity: Overdensity\
+    \ calculated as \u0394 = \u03C1_local / \u03C1_critical."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Overdensity_calculated_as_ratio_of_local_density_to_critical
+  kind: entity_fact
+  raw_text: "Overdensity is calculated as \u0394 = \u03C1_local / \u03C1_critical."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:47:56Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Subsampled Plummer-Softened Potential uses 500 particles
+  claim_id: c_04baa908
+  context: "T023 Implement spin parameter \u03BB calculation in code/data/compute_metrics.py.\
+    \ Implementation: Use 'Subsampled Plummer-Softened Potential' (N=500) as the CPU-feasible\
+    \ approximation to satisfy the scientific intent within memory constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subsampled Plummer-Softened Potential uses N=500 particles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:49:03Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Mass binning boundaries at 10^10, 10^11, and 10^12 solar masses h inverse
+  claim_id: c_4b8aa7f9
+  context: "T031 Implement mass binning with specific boundaries (^10, 10^11, 10^12\
+    \ M\u2299 h\u207B\xB9) and environment binning (\u0394 < 200 vs \u2265 200) in\
+    \ code/analysis/stats.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mass binning boundaries are 10^10, 10^11, and 10^12 M\u2299 h\u207B\xB9\
+    ."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:49:45Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Environment binning threshold at overdensity 200
+  claim_id: c_a1b8fcbf
+  context: "T031 Implement mass binning with specific boundaries (^10, 10^11, 10^12\
+    \ M\u2299 h\u207B\xB9) and environment binning (\u0394 < 200 vs \u2265 200) in\
+    \ code/analysis/stats.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Environment binning threshold is \u0394 = 200."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:50:37Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time within 6 hours on 2 core 7GB RAM GitHub runner
+  claim_id: c_480d0286
+  context: T043 Run quickstart.md validation and verify pipeline execution within
+    6 hours on GitHub Actions free-tier runner (2 cores, 7GB RAM) using full synthetic
+    dataset (~10^5 halos).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is expected to execute within 6 hours on a GitHub Actions
+    free-tier runner with 2 cores and 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:51:13Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Full synthetic dataset contains 100000 halos
+  claim_id: c_1b999121
+  context: T043 Run quickstart.md validation and verify pipeline execution within
+    6 hours on GitHub Actions free-tier runner (2 cores, 7GB RAM) using full synthetic
+    dataset (~10^5 halos).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full synthetic dataset contains approximately 10^5 halos.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:51:49Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Performance optimization targets 50 percent I/O reduction
+  claim_id: c_95f2d44d
+  context: 'T041A Performance optimization: Implement memory-mapped array access for
+    particle stream in code/data/compute_metrics.py (target: reduce I/O by at least
+    50% or achieve high throughput).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_targets_50_percent_I/O_reduction
+  kind: magnitude
+  raw_text: Performance optimization targets a reduction in I/O by at least 50%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:53:09Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Analysis compares results against Bullock et al. 2001 analytic fit
+  claim_id: c_73c59a9b
+  context: 'T035 Implement comparison against Bullock et al. (2001) analytic fit in
+    code/analysis/stats.py. Dependency: Requires parameters verified in T036A.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Bullock et al. (2001) accurately predicts the median concentration s
+        of haloes over the
+      source_id: astro-ph/0402210
+      url: https://arxiv.org/abs/astro-ph/0402210
+      value: Bullock et al. (2001)
+    filled: true
+  kind: numeric
+  raw_text: The analysis compares results against the Bullock et al. (2001) analytic
+    fit.
+  resolved_value: Bullock et al. (2001)
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-30T04:53:41Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Chunked streaming writer uses chunk size of 10000
+  claim_id: c_ffb30a5e
+  context: T014 Implement chunked streaming writer in code/data/preprocess.py to save
+    filtered data as data/processed/filtered_halos_{timestamp}.parquet. (chunk_size=10k,
+    compression=snappy).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Chunked streaming writer uses a chunk size of 10k.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:54:22Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic data generator uses fixed random seed
+  claim_id: c_17f97c22
+  context: 'T007B Implement synthetic data generator with controlled deviations in
+    code/data/synthetic_generator.py. Primary Execution Path: This task generates
+    the synthetic data with controlled deviations required for the current ''Pipeline
+    Validation'' scope. ... use a fixed random seed, path: data/raw/synthetic_halos.h5.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_generator_uses_fixed_random_seed
+  kind: entity_fact
+  raw_text: The synthetic data generator uses a fixed random seed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T04:55:01Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. parameters used for halo concentration verification
+  claim_id: c_2bda76f3
+  context: 'Create `code/config.py` with pinned random seeds, file paths, simulation
+    box size... Also include: Bullock et al. parameters (c_200, alpha) for verification
+    in T036A.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bullock_et_al._parameters_used_for_halo_concentration_verifi
+  kind: entity_fact
+  raw_text: The pipeline uses Bullock et al. parameters (c_200, alpha) for verification
+    in T036A.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:38:46Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Halo filtering retains halos with 300 or more particles
+  claim_id: c_3a830e92
+  context: "Implement halo filtering logic in `code/data/preprocess.py` to retain\
+    \ only halos with \u2265300 particles. Verification: Assert output dataset contains\
+    \ only rows where particle_count >= 300."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Halo filtering logic retains only halos with \u2265300 particles."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:38:46Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Overdensity defined as local density divided by critical density
+  claim_id: c_4fa93e02
+  context: "Statistical Validity: Overdensity calculated as \u0394 = \u03C1_local\
+    \ / \u03C1_critical."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Overdensity_defined_as_local_density_divided_by_critical_den
+  kind: entity_fact
+  raw_text: "The overdensity is calculated as \u0394 = \u03C1_local / \u03C1_critical."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:39:08Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Shape parameter s equals c over a
+  claim_id: c_4e021a3d
+  context: "Goal: Compute shape (s=c/a), spin parameter (\u03BB), and concentration\
+    \ index (c) for each halo using validated physical formulas."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shape_parameter_s_equals_c_over_a
+  kind: entity_fact
+  raw_text: Shape parameter s is defined as the ratio c/a.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:41:13Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Shape parameter s range is 0 to 1
+  claim_id: c_b07c537b
+  context: "Independent Test: Can be fully tested by running the metric computation\
+    \ on a a sample of halos and verifying that output distributions match expected\
+    \ physical ranges (shape s \u2208 [0,1]...)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shape parameter s is expected to be in the range [0,1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:43:04Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Spin parameter lambda range is 0 to 1
+  claim_id: c_8ed2db06
+  context: "Independent Test: Can be fully tested by running the metric computation\
+    \ on a a sample of halos and verifying that output distributions match expected\
+    \ physical ranges (...spin \u03BB \u2208 [0,1]...)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Spin parameter \u03BB is expected to be in the range [0,1]."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:43:23Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Concentration parameter c is greater than 0
+  claim_id: c_9d811189
+  context: 'Independent Test: Can be fully tested by running the metric computation
+    on a a sample of halos and verifying that output distributions match expected
+    physical ranges (...concentration c > 0).'
+  evidence:
+    asserted: '0.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: magnitude
+  raw_text: Concentration index c is expected to be greater than 0.
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T12:43:23Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Spin parameter calculation uses subsampled potential with 500 particles
+  claim_id: c_b7ec086f
+  context: 'Implementation: Use ''Subsampled Plummer-Softened Potential'' (N=500)
+    as the CPU-feasible approximation to satisfy the scientific intent within memory
+    constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The spin parameter calculation uses a 'Subsampled Plummer-Softened Potential'
+    with N=500 particles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:44:09Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Mass binning boundaries at 10^10, 10^11, and 10^12 solar masses
+  claim_id: c_6b0bdfbd
+  context: "Implement mass binning with specific boundaries (^10, 10^11, 10^12 M\u2299\
+    \ h\u207B\xB9) and environment binning..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mass binning boundaries are set at 10^10, 10^11, and 10^12 M\u2299 h\u207B\
+    \xB9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:45:50Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Environment binning threshold at overdensity 200
+  claim_id: c_50d0a261
+  context: "Implement mass binning... and environment binning (\u0394 < 200 vs \u2265\
+    \ 200) in `code/analysis/stats.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Environment binning distinguishes between overdensity \u0394 < 200 and\
+    \ \u0394 \u2265 200."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:45:50Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset size is 100000 halos
+  claim_id: c_1303d632
+  context: Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner... using full synthetic dataset (~10^5 halos).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic dataset contains approximately 10^5 halos.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:46:10Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time is under 6 hours on GitHub Actions free tier
+  claim_id: c_a755b989
+  context: Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner (2 cores, 7GB RAM) using full synthetic dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline execution is verified to complete within 6 hours on a GitHub
+    Actions free-tier runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:46:27Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free tier runner has 2 cores and 7GB RAM
+  claim_id: c_1a88a84b
+  context: verify pipeline execution within 6 hours on GitHub Actions free-tier runner
+    (2 cores, 7GB RAM)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GitHub Actions free-tier runner used for testing has 2 cores and 7GB
+    RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T12:46:42Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: 'Install Python dependencies: pandas, numpy, scipy, scikit-learn, matplotlib,
+    seaborn, requests, h5py, astropy, numba, pytest'
+  claim_id: c_f86ca0ae
+  context: 'T002A Install Python dependencies: `pip install pandas numpy scipy scikit-learn
+    matplotlib seaborn requests h5py astropy numba pytest`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Install_Python_dependencies:_pandas,_numpy,_scipy,_scikit-le
+  kind: entity_fact
+  raw_text: pip install pandas numpy scipy scikit-learn matplotlib seaborn requests
+    h5py astropy numba pytest
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:31:21Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Configure black formatter with line-length 88
+  claim_id: c_91ca6ffd
+  context: T003 [P] Configure linting (flake8/pylint) and formatting (black) tools
+    in `pyproject.toml` (black --line-length 88, flake8 max-line-length=100)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: black --line-length 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:31:45Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Configure flake8 with max-line-length 100
+  claim_id: c_500a8ac2
+  context: T003 [P] Configure linting (flake8/pylint) and formatting (black) tools
+    in `pyproject.toml` (black --line-length 88, flake8 max-line-length=100)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flake8 max-line-length=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:32:10Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Include Bullock et al. parameters c_200 and alpha for verification
+  claim_id: c_452f9268
+  context: 'T004 [P] Create `code/config.py` with pinned random seeds, file paths,
+    simulation box size (suitable for capturing large-scale structure), and critical
+    density constants. **Also include**: Bullock et al. parameters (c_200, alpha)
+    for verification in T036A.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Include_Bullock_et_al._parameters_c_200_and_alpha_for_verifi
+  kind: entity_fact
+  raw_text: Bullock et al. parameters (c_200, alpha)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:32:33Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Configure significance threshold alpha at 0.05
+  claim_id: c_eb9e63b2
+  context: T005A [P] Configure significance threshold (alpha=0.05) and correction
+    method (Benjamini-Hochberg) in `code/config.py` as parameters for the analysis
+    logic
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: significance threshold (alpha=0.05)
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T18:32:46Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Configure Benjamini-Hochberg correction method
+  claim_id: c_243ea95f
+  context: T005A [P] Configure significance threshold (alpha=0.05) and correction
+    method (Benjamini-Hochberg) in `code/config.py` as parameters for the analysis
+    logic
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: "Benjamini\u2013Hochberg procedure"
+      source_id: Q136366870
+      url: https://www.wikidata.org/wiki/Q136366870
+      value: "Benjamini\u2013Hochberg procedure"
+    filled: true
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg
+  resolved_value: "Benjamini\u2013Hochberg procedure"
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T18:32:57Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Setup logging with format asctime-levelname-message, level INFO, output
+    to logs/pipeline.log
+  claim_id: c_b1514ee1
+  context: 'T006 [P] Setup logging infrastructure in `code/utils/logging.py` (format:
+    `%(asctime)s - %(levelname)s - %(message)s`, level: INFO, output: `logs/pipeline.log`)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Setup_logging_with_format_asctime-levelname-message,_level_I
+  kind: entity_fact
+  raw_text: 'logging format: `%(asctime)s - %(levelname)s - %(message)s`, level: INFO,
+    output: `logs/pipeline.log`'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:33:30Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Implement stream_halos function with default chunk_size 10000
+  claim_id: c_76fb9486
+  context: 'T007A [P] [US1] Implement streaming infrastructure in `code/data/streaming.py`:
+    1. Class `ChunkedHDF5Reader` with `__init__(path, chunk_size)` and `__iter__`
+    methods 2. Function `stream_halos(chunk_size=10000)` returning generator of halo
+    dictionaries'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stream_halos(chunk_size=10000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:33:56Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Generate synthetic data with controlled deviations offsetting NFW concentration
+  claim_id: c_5763751d
+  context: 'T007B [P] [US1] Implement synthetic data generator with controlled deviations
+    in `code/data/synthetic_generator.py`. **Primary Execution Path**: This task generates
+    the synthetic data with controlled deviations required for the current "Pipeline
+    Validation" scope. It must also be triggerable as a fallback if the real data
+    download (T012) fails. Output schema: HDF5, deviation: offset NFW concentration
+    by a small magnitude, use a fixed random seed, path: `data/raw/synthetic_halos.h5`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_synthetic_data_with_controlled_deviations_offsettin
+  kind: entity_fact
+  raw_text: offset NFW concentration by a small magnitude
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:34:29Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Download IllustrisTNG TNG100-1 and Millennium catalogs
+  claim_id: c_b6ca5b68
+  context: T012 [US1] Implement `code/data/download.py` to fetch IllustrisTNG TNG100-1
+    and Millennium catalogs via API.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: IllustrisTNG TNG100-1 and Millennium
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:35:02Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Filter halos to retain only those with 300 or more particles
+  claim_id: c_f5e81021
+  context: "T013 [US1] Implement halo filtering logic in `code/data/preprocess.py`\
+    \ to retain only halos with \u2265300 particles. **Verification**: Assert output\
+    \ dataset contains only rows where `particle_count >= 300`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "retain only halos with \u2265300 particles"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:35:02Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Save filtered data with chunk_size 10000
+  claim_id: c_5cd500fd
+  context: 'T014 [US1] Implement chunked streaming writer in `code/data/preprocess.py`
+    to save filtered data as `data/processed/filtered_halos_{timestamp}.parquet`.
+    **Schema**: Output must contain columns [mass, position, velocity, particle_count,
+    overdensity, shape, spin, concentration, fit_status]. (chunk_size=10k, compression=snappy)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: chunk_size=10k
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:35:24Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Save filtered data with snappy compression
+  claim_id: c_0c35cf94
+  context: 'T014 [US1] Implement chunked streaming writer in `code/data/preprocess.py`
+    to save filtered data as `data/processed/filtered_halos_{timestamp}.parquet`.
+    **Schema**: Output must contain columns [mass, position, velocity, particle_count,
+    overdensity, shape, spin, concentration, fit_status]. (chunk_size=10k, compression=snappy)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_filtered_data_with_snappy_compression
+  kind: entity_fact
+  raw_text: compression=snappy
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:35:51Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Calculate overdensity as local density divided by critical density
+  claim_id: c_3c4826b8
+  context: "T017 [US1] Implement local overdensity calculation in `code/data/compute_metrics.py`\
+    \ using cKDTree with periodic boundary wrapping. **Specification**: Use a spherical\
+    \ top-hat of a characteristic radius. **Method**: cKDTree neighbor counting on\
+    \ the memory-mapped particle stream produced by T007C. **Statistical Validity**:\
+    \ Overdensity calculated as \u0394 = \u03C1_local / \u03C1_critical. (FR-003)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_overdensity_as_local_density_divided_by_critical_d
+  kind: entity_fact
+  raw_text: "Overdensity calculated as \u0394 = \u03C1_local / \u03C1_critical"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:36:14Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify shape parameter s is in range 0 to 1
+  claim_id: c_28d64884
+  context: "Goal: Compute shape (s=c/a), spin parameter (\u03BB), and concentration\
+    \ index (c) for each halo using validated physical formulas. **Independent Test**:\
+    \ Can be fully tested by running the metric computation on a a sample of halos\
+    \ and verifying that output distributions match expected physical ranges (shape\
+    \ s \u2208 [0,1], spin \u03BB \u2208 [0,1], concentration c > 0)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "shape s \u2208 [0,1]"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:38:23Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify spin parameter lambda is in range 0 to 1
+  claim_id: c_24ebadd0
+  context: "Goal: Compute shape (s=c/a), spin parameter (\u03BB), and concentration\
+    \ index (c) for each halo using validated physical formulas. **Independent Test**:\
+    \ Can be fully tested by running the metric computation on a a sample of halos\
+    \ and verifying that output distributions match expected physical ranges (shape\
+    \ s \u2208 [0,1], spin \u03BB \u2208 [0,1], concentration c > 0)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "spin \u03BB \u2208 [0,1]"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:38:51Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify concentration index c is greater than 0
+  claim_id: c_2b839fc0
+  context: "Goal: Compute shape (s=c/a), spin parameter (\u03BB), and concentration\
+    \ index (c) for each halo using validated physical formulas. **Independent Test**:\
+    \ Can be fully tested by running the metric computation on a a sample of halos\
+    \ and verifying that output distributions match expected physical ranges (shape\
+    \ s \u2208 [0,1], spin \u03BB \u2208 [0,1], concentration c > 0)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_concentration_index_c_is_greater_than_0
+  kind: magnitude
+  raw_text: concentration c > 0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:39:50Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Implement mass binning with boundaries 10, 10^11, 10^12 solar masses
+    per h
+  claim_id: c_44699e76
+  context: "T031 [US3] Implement mass binning with specific boundaries (^10, 10^11,\
+    \ 10^12 M\u2299 h\u207B\xB9) and environment binning (\u0394 < 200 vs \u2265 200)\
+    \ in `code/analysis/stats.py` (FR-007)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "mass binning with specific boundaries (^10, 10^11, 10^12 M\u2299 h\u207B\
+    \xB9)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:40:14Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Implement environment binning with threshold 200
+  claim_id: c_c287a4b5
+  context: "T031 [US3] Implement mass binning with specific boundaries (^10, 10^11,\
+    \ 10^12 M\u2299 h\u207B\xB9) and environment binning (\u0394 < 200 vs \u2265 200)\
+    \ in `code/analysis/stats.py` (FR-007)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "environment binning (\u0394 < 200 vs \u2265 200)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:40:15Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Implement comparison against Bullock et al. 2001 analytic fit
+  claim_id: c_20fe2b2f
+  context: 'T035 [US3] Implement comparison against Bullock et al. (2001) analytic
+    fit in `code/analysis/stats.py`. **Dependency**: Requires parameters verified
+    in T036A. (FR-011)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bullock et al. (2001) analytic fit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:40:36Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Verify pipeline execution within 6 hours on GitHub Actions free-tier
+    runner
+  claim_id: c_b0468f97
+  context: 'T043 [US3] Run quickstart.md validation and verify pipeline execution
+    within 6 hours on GitHub Actions free-tier runner (2 cores, 7GB RAM) using full
+    synthetic dataset (~10^5 halos). (command: `python code/main.py --run-all`; output:
+    `results/timing.json`)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify pipeline execution within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:41:14Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Use full synthetic dataset of approximately 100000 halos
+  claim_id: c_fc5bb8e3
+  context: 'T043 [US3] Run quickstart.md validation and verify pipeline execution
+    within 6 hours on GitHub Actions free-tier runner (2 cores, 7GB RAM) using full
+    synthetic dataset (~10^5 halos). (command: `python code/main.py --run-all`; output:
+    `results/timing.json`)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ~10^5 halos
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T18:41:41Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: halo filtering threshold 300 particles
+  claim_id: c_aac28606
+  context: "Implement halo filtering logic in code/data/preprocess.py to retain only\
+    \ halos with \u2265300 particles. Verification: Assert output dataset contains\
+    \ only rows where particle_count >= 300."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Retain only halos with \u2265300 particles."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:47:24Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: overdensity calculation spherical top-hat radius 5 Mpc h-1
+  claim_id: c_bcc228c7
+  context: "Implement local overdensity calculation in code/data/compute_metrics.py\
+    \ using cKDTree with periodic boundary wrapping. Specification: Use a spherical\
+    \ top-hat of 5 Mpc h\u207B\xB9 radius (constant R_TOP_HAT = 5.0)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use a spherical top-hat of 5 Mpc h\u207B\xB9 radius for local overdensity\
+    \ calculation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:47:42Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: spin parameter calculation subsample 500 particles
+  claim_id: c_665e7ba2
+  context: "Due to O(N\xB2) computational complexity of full direct summation being\
+    \ infeasible on CPU-only CI, this task implements a Subsampled Plummer-Softened\
+    \ Potential using N=500 random particles per halo. Algorithm: Randomly select\
+    \ N=500 particles from the halo's particle set (or all if <500)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate potential energy using a subsample of 500 particles per halo.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:48:20Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Plummer softening parameter epsilon 0.01 halo radius
+  claim_id: c_52b8ce9e
+  context: "Calculate potential energy E_pot using the Plummer-softened formula: E_pot\
+    \ = -G * \u03A3_i \u03A3_j (m_i * m_j) / sqrt(r_ij\xB2 + \u03B5\xB2), where \u03B5\
+    \ = 0.01 * halo_radius."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Plummer softening parameter epsilon equal to 0.01 times halo radius.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:48:45Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction for multiple hypothesis testing
+  claim_id: c_e39d917e
+  context: Implement Benjamini-Hochberg correction for multiple hypothesis testing
+    across multiple KS tests (multiple metrics x multiple bins) in code/analysis/stats.py
+    (FR-009).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_for_multiple_hypothesis_testin
+  kind: entity_fact
+  raw_text: Perform Benjamini-Hochberg correction for multiple hypothesis testing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:49:14Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. 2001 analytic fit mass-concentration relation
+  claim_id: c_3a4365f6
+  context: 'Implement comparison against Bullock et al. (2001) analytic fit in code/analysis/stats.py.
+    Dependency: Requires parameters verified in T036A and fit function from T036B.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Bullock et al. (2001) analytic fit for mass-concentration relation
+    comparison.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:49:31Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: pipeline execution time limit 6 hours GitHub Actions free-tier
+  claim_id: c_7b0a60a3
+  context: Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner (limited cores, 7GB RAM) using the stratified
+    sample size defined in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute pipeline within 6 hours on GitHub Actions free-tier runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:49:56Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier runner memory 7GB
+  claim_id: c_629e591a
+  context: Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner (limited cores, 7GB RAM) using the stratified
+    sample size defined in code/config.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_runner_memory_7GB
+  kind: entity_fact
+  raw_text: GitHub Actions free-tier runner has 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:50:25Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction method configured for analysis
+  claim_id: c_5756aacb
+  context: T005A [P] Configure Benjamini-Hochberg correction method in code/config.py
+    as parameters for the analysis logic (See T033 for implementation).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_method_configured_for_analysis
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg correction method is configured as parameters for
+    the analysis logic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:52:27Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bullock et al. (2001) parameters defined as constants
+  claim_id: c_ed04f6c8
+  context: 'T004D [P] [US1] Define Bullock et al. (2001) analytic fit parameters as
+    numerical constants in code/config.py (variables: BULLOCK_C200, BULLOCK_ALPHA).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bullock et al. (2001) analytic fit parameters are defined as numerical
+    constants in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:52:46Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic data generator output path
+  claim_id: c_64c33f03
+  context: 'Output: HDF5 file at data/raw/synthetic_halos.h5 with controlled deviations
+    (offset NFW concentration).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_generator_output_path
+  kind: entity_fact
+  raw_text: The synthetic data generator creates an HDF5 file at data/raw/synthetic_halos.h5.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:53:08Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Halo filtering threshold 300 particles
+  claim_id: c_1719ce94
+  context: "T013 [US1] Implement halo filtering logic in code/data/preprocess.py to\
+    \ retain only halos with \u2265300 particles."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The halo filtering logic retains only halos with 300 or more particles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:53:33Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Chunked streaming writer chunk size 10000
+  claim_id: c_47529cde
+  context: 'Note: Derived metrics (overdensity, shape, spin, concentration) are NOT
+    included in this US1 output. (chunk_size=10k, compression=snappy)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The chunked streaming writer saves filtered data with a chunk size of
+    10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:54:05Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Overdensity calculation top-hat radius 5 Mpc h-1
+  claim_id: c_6fa66297
+  context: "Specification: Use a spherical top-hat of 5 Mpc h\u207B\xB9 radius (constant\
+    \ R_TOP_HAT = 5.0)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The local overdensity calculation uses a spherical top-hat of 5 Mpc h\u207B\
+    \xB9 radius."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:54:05Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Spin parameter calculation subsample size 500
+  claim_id: c_c8b4eb83
+  context: "Due to O(N\xB2) computational complexity of full direct summation being\
+    \ infeasible on CPU-only CI, this task implements a Subsampled Plummer-Softened\
+    \ Potential using N=500 random particles per halo."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The spin parameter calculation uses a subsample of 500 random particles
+    per halo.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:54:34Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Plummer softening length 0.01 halo radius
+  claim_id: c_68b91951
+  context: "Calculate potential energy E_pot using the Plummer-softened formula: E_pot\
+    \ = -G * \u03A3_i \u03A3_j (m_i * m_j) / sqrt(r_ij\xB2 + \u03B5\xB2), where \u03B5\
+    \ = 0.01 * halo_radius"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Plummer-softened potential formula uses a softening length epsilon
+    equal to 0.01 times the halo radius.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:55:02Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Spin parameter formula lambda J E M
+  claim_id: c_fdddb0d4
+  context: "Compute spin parameter \u03BB = J * |E|^(1/2) / (G * M^(5/2))."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The spin parameter is calculated using the formula lambda = J * |E|^(1/2)
+    / (G * M^(5/2)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:56:56Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Mass binning environment threshold 200
+  claim_id: c_2d767c36
+  context: "Implement mass binning with specific boundaries across multiple orders\
+    \ of magnitude in stellar mass and environment binning (\u0394 < 200 vs \u2265\
+    \ 200) in code/analysis/stats.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mass binning uses an environment threshold of overdensity 200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:57:19Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 6 hours
+  claim_id: c_0143286f
+  context: Run quickstart.md validation and verify pipeline execution within 6 hours
+    on GitHub Actions free-tier runner (limited cores, 7GB RAM) using the stratified
+    sample size defined in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline execution is required to complete within 6 hours on a GitHub
+    Actions free-tier runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:57:44Z'
+- artifact_path: projects/PROJ-109-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline execution duration limit 21600 seconds
+  claim_id: c_da2827e7
+  context: 'Assertion: Assert duration < 21600s based on the generated results/timing.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_duration_limit_21600_seconds
+  kind: magnitude
+  raw_text: The pipeline execution duration is asserted to be less than 21,600 seconds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T18:58:04Z'

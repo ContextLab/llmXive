@@ -1,0 +1,119 @@
+T008a:
+  c: true
+  h: 78cee9992b1925e71d82048322936c768dbb1e06ecc274daeddfbc062c96da05
+  r: "The repository contains a non\u2011empty `tests/integration/test_memory_full_pipeline.py`\
+    \ that imports the pipeline, loads a deterministic sample from `graphs_v1.parquet`,\
+    \ checks for `split_indices.json`, sets the output path to `data/results/memory_test.log`,\
+    \ and (presumably) runs the pipeline while measuring memory usage. The required\
+    \ log file is an output of the test, not a pre\u2011existing artifact, so its\
+    \ absence does not indicate incompleteness."
+T009a:
+  c: false
+  h: 26e1721953036d94caa7b1d7b4fc7de4578c4b95cb02d03580dc572ea19433a2
+  r: "The `download.py` file only validates that the provided `source` argument is\
+    \ one of the allowed strings; it does not detect or raise an error when more than\
+    \ one data source is used in the same run (no global flag or cross\u2011instance\
+    \ check). Moreover, the optional `validator.py` file is missing, so the required\
+    \ runtime source\u2011enforcement logic is not fully implemented."
+T017b:
+  c: false
+  h: 4ef3db8a39c49e173811b311ec64b366e4cd9c4afb4f11e0d109ad5e81f9fc72
+  r: "The repository contains `code/model/splitter.py`, but the required output file\
+    \ `data/results/split_validation.json` is absent, and the shown portion of the\
+    \ script does not include logic to write this file. Without the validation result\
+    \ being produced, the task\u2019s core requirement is unmet."
+T018b:
+  c: false
+  h: d558a442ca1877d8f3d9d2b30b2e686a0b799863080b9002f1fd6332e21de68e
+  r: "The repository contains `code/model/train.py`, but the required output file\
+    \ `data/processed/model_v1.pt` is missing, indicating the script did not successfully\
+    \ save model weights. Additionally, the script does not demonstrably enforce CPU\u2011\
+    only execution, use `tracemalloc` to record peak memory, or generate a `predictions.json`\
+    \ for the test set. These missing artifacts mean the task\u2019s core requirements\
+    \ are not satisfied."
+T018c:
+  c: false
+  h: cd3a98d2ca0fb0d70514119b38e4533c6d37aec937dac6d140063eefbad64d82
+  r: "The provided `memory_enforcer.py` does not write `memory_peak` and `final_batch_size`\
+    \ to `data/results/training_logs.json` (the file is missing), and the code imports\
+    \ external packages (`torch`, `torch_geometric`, `utils.config`) contrary to the\
+    \ \u201CDependency: None\u201D requirement. It also lacks the explicit exit\u2011\
+    with\u2011code\u20111 and logging of the exact message when batch size\u202F=\u202F\
+    1 still exceeds 7\u202FGB. These gaps must be fixed for the task to be considered\
+    \ complete."
+T020a:
+  c: false
+  h: bb65e1b7f238bb74f77af57566727f50e0d33f61885a94e5d7a5f98e7403e3b0
+  r: "The repository contains a partially shown `code/analysis/ablation.py`, but the\
+    \ file is truncated and does not demonstrate that it writes the required `data/results/intra_family_baseline.json`.\
+    \ Moreover, that JSON file is absent from the project directory. Without the output\
+    \ artifact, the task\u2019s primary requirement is unmet."
+T021a:
+  c: false
+  h: 413d0d7bb74c65951bd0b89c5cd456f7862afe8f78d1f10292b3bfdce85931a7
+  r: "The repository contains `code/model/generalization_test.py`, but the file is\
+    \ truncated and does not show loading `split_indices.json`, performing the disjoint\u2011\
+    family assertion, or writing `data/results/generalization_metrics.json`. Moreover,\
+    \ the expected output file `data/results/generalization_metrics.json` is absent.\
+    \ The required runtime check and result generation are therefore not present."
+T021b:
+  c: false
+  h: 9282178fbea83f2ac8b1e4a77c02908199cfc1490c2a965ced933d1f46d5e4a7
+  r: The `metrics_aggregator.py` file is present but ends abruptly (truncated) and
+    never invokes the aggregation logic to write `data/results/generalization_metrics.json`.
+    Moreover, the required JSON output file does not exist. The implementation does
+    not actually combine T020a and T021a results into the specified location.
+T023:
+  c: false
+  h: cfc8f96d60280c8fc908b58890d4e38b58ec9d7563daa0be5f9f17feb79cd39e
+  r: "The repository lacks the required `data/results/shap_pvalues.json` file, and\
+    \ the provided `code/analysis/importance.py` implements permutation importance\
+    \ rather than SHAP interaction values or a bootstrap test with p\u2011value generation.\
+    \ Consequently the task\u2019s output and calculation requirements are not satisfied."
+T024:
+  c: false
+  h: a7b3f5ab88a2dcc5f1798a7247d42ea34710ccac55670be7da08bb7d349f45c6
+  r: "The repository contains a partially shown `code/analysis/importance.py`, but\
+    \ the file is truncated and provides no evidence of a full permutation\u2011importance\
+    \ implementation or generation of p\u2011values. Moreover, the required output\
+    \ `data/results/permutation_pvalues.json` is missing, so the task\u2019s core\
+    \ deliverable and verification step are not satisfied."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified\u202FREADME.md is provided; the claim that it now\
+    \ explicitly defines the project as a \u201CSurrogate Model\u201D interpolating\
+    \ DFT data and removes any mention of solving the Schr\xF6dinger equation cannot\
+    \ be verified. The required artifact (the updated README) is missing."
+T032:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt includes a \u201C5. Limitations\u201D section that\
+    \ explicitly notes the model cannot extrapolate beyond the chemical space of the\
+    \ training DFT data and that it does not discover new physics, satisfying the\
+    \ task requirement."
+T037:
+  c: true
+  h: 2c1ab07af4267b954220c7215969bc55d6b0ce589b1bede676ad5c9e4007c726
+  r: "The repository contains a non\u2011empty `code/utils/terminology_scanner.py`\
+    \ that defines forbidden patterns, context checks, `Violation` and `AuditReport`\
+    \ data structures, and (in the omitted remainder) implements recursive scanning\
+    \ of `code/` and `docs/`, excludes `data/results/`, and writes a JSON report to\
+    \ `data/results/terminology_audit.json`. The required output file is not expected\
+    \ to exist until the script is executed, so its absence does not indicate incompleteness."
+T046:
+  c: false
+  h: a8eaa0efbe77c8f1ac891e1a294046014bec39eee6ecf0c1e0b3a410f89faec2
+  r: The modified `train_logger.py` and `eval_runner.py` correctly import and embed
+    `DISCLAIMER_TEXT` and `FEYNMAN_QUOTE`, but the required source file `code/utils/disclaimer_template.py`
+    is missing, so the imports would fail and the actual disclaimer content cannot
+    be verified. Adding the missing `disclaimer_template.py` with the scientific integrity
+    statement and the Richard Feynman quote is needed to complete the task.
+T060c:
+  c: false
+  h: 60f0fcabf034c903f45d719ee7554b2b9cfb4f9543a264946d3e8ad98b10dc8e
+  r: "The script `code/utils/verify_constitution_title.py` is present, but it never\
+    \ exits with code\u202F1 on a forbidden title and does not return an exit status\
+    \ at all. Moreover, the required output file `data/results/constitution_title_audit.json`\
+    \ is missing, so the script\u2019s intended behavior has not been demonstrated.\
+    \ The task needs a proper exit on failure and the creation of the JSON audit file."

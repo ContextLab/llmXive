@@ -1,0 +1,48 @@
+T001a:
+  c: true
+  h: b5db58527be00913ca00afe9b2c1f55ad7fff0a84f65a0fc661e8127fb4ac56c
+  r: "Checked the repository\u2011root `code/`, `data/`, `tests/`, and `outputs/`\
+    \ directories listed by the collector; all four directories exist (and contain\
+    \ files/sub\u2011folders), satisfying the task\u2019s requirement to create them."
+  sig: 565c7c209de0b52878fec2bfe088bf7d3eb636d38941fc1426eba8ef046baca2
+T001b:
+  c: true
+  h: a23e4b1ebb22ca82f20deec6028125f603bc71b683e6c0f1008d5a2204fd7052
+  r: "Checked the collector\u2011confirmed entries showing that `data/benchmarks/`,\
+    \ `data/benchmarks/raw/`, `data/benchmarks/processed/`, `data/generated/`, `data/coverage_reports/`,\
+    \ `data/processed/`, and `outputs/` all exist (each contains a `.gitkeep` placeholder)."
+  sig: af0e06fb9df335679cea9e3cdfeab79c9502dbb89b4be0f5c4b33490c7156284
+T002a:
+  c: false
+  h: fa73e64ccd651a38c290510b54ac9ffd596d74bd893b6fae78bff5255039c281
+  r: "The provided `requirements.txt` exists, but it does not contain pinned (exact)\
+    \ version specifications for the listed packages\u2014most entries lack any version\
+    \ constraint and `pytest`/`pytest-cov` use `>=` instead of `==`. To satisfy the\
+    \ task, each dependency must be pinned to a specific version (e.g., `pytest==7.4.0`,\
+    \ `pandas==2.2.1`, etc.)."
+  sig: 45c435c5c4abc354525b9dc067e562f43ea392ece230e4697bbc071d8a2c7d4c
+T002b:
+  c: false
+  h: 56ec07d01cb0c18273e6fdcf7caea9642637aab0dc3272c2cb37c9641f2e5bdc
+  r: The only artifact provided is the `requirements.txt` file; there is no evidence
+    that a virtual environment was created (e.g., a `venv/` directory, activation
+    script, or `pyvenv.cfg`) nor any logs or records showing that `pip install -r
+    requirements.txt` was executed. Without such proof, the task of creating a virtualenv
+    and installing the listed dependencies is not satisfied.
+  sig: 8c0007053c5168b700cc1d3f57e03b91b5465300d9c41802dd53c1ccb088c602
+T003:
+  c: false
+  h: c369a5db848d61ee5a6cf883b6d44e5af1ca2292dcea8150cb34db3c11d5799c
+  r: No configuration files or scripts for ruff or black (e.g., `pyproject.toml`,
+    `.ruff.toml`, `black.toml`, or CI setup) are present in the provided artifact
+    list, so the required linting/formatting setup cannot be confirmed. The implementer
+    must add the appropriate configuration files and any integration steps.
+  sig: 1eb2ef72846b3aa28320359c783fdecef7b23c3ddb15a37aa5e683cb2daf9555
+T005:
+  c: true
+  h: 06970cbd0b6928eff0211a17a3e8e94e02f7a462e6f251f46ab9afa715777d94
+  r: "Checked `code/utils.py` (3509\u202Fbytes) which defines `exponential_backoff_retry`\
+    \ with default `initial_wait=1.0`, `backoff_factor=2.0`, and `max_attempts=3`,\
+    \ implementing the required exponential backoff retry logic. The file exists,\
+    \ is non\u2011empty, and meets the specified behavior."
+  sig: 191ee55c19005743a1b400daed1fa373cda0416dd85a3e9279ae1872faa7f374

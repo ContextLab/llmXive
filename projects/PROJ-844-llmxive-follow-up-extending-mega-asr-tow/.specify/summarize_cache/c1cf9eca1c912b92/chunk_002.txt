@@ -1,0 +1,7 @@
+15. **Validation & Export (FR‑030, FR‑031, FR‑034)** – Write `collapse_points.parquet` and `critical_vector.parquet`; validate against respective JSON schemas; abort on any violation.  
+16. **Reporting (Phase 7, FR‑007)** – Generate figures, tables, and a Markdown report. All statements use associational phrasing only (FR‑007). Report metrics: R², MAE, sensitivity CV, interaction FDR‑corrected p‑values, partial‑correlation coefficients, universality similarity, human‑validation AUC‑ROC, precision/recall for collapse‑point identification, etc. All metric computations are logged per FR‑026.  
+
+All steps are fully scripted, reproducible, and logged (`FR‑026`).  
+
+---
+

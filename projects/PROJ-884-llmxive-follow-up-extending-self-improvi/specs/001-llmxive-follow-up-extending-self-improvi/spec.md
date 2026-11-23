@@ -87,7 +87,7 @@ The researcher must be able to record success rates and computational costs (wal
 ## Assumptions
 
 - The curated dataset of logic puzzles contains sufficient variability in complexity to support a statistically valid comparison (sample size assumed adequate for z-test with p < 0.05).
-- The "small pre-trained LLM" selected for the forward step is capable of running on a standard CPU-only environment with minimal resource requirements within the 6-hour CI job limit, without requiring GPU acceleration or 8-bit quantization.
+- The "small pre-trained LLM" selected for the forward step is capable of running on a standard CPU-only environment with minimal resource requirements within the CI job time limit, without requiring GPU acceleration or low-bit quantization.
 - The symbolic planner's rule set covers all constraint types present in the curated dataset; any puzzle type outside this rule set is excluded from the symbolic-guided run.
 - The deterministic Python verification scripts for the puzzles are computationally lightweight (executing in <100ms) to prevent the verification step from becoming the bottleneck in the evolutionary loop.
 - The neural-verifier baseline cost is measured as wall-clock time on comparable hardware or energy consumption (Joules) to ensure a valid comparison of computational efficiency, rather than converting GPU-hours to CPU-seconds.

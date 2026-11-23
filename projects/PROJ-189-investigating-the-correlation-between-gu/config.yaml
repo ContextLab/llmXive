@@ -1,0 +1,32 @@
+# Project Configuration for Gut Microbiome and Cognitive Decline Analysis
+# This file can be edited to override default settings
+# All paths are relative to the project root
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  data_models: data/models
+  figures: figures
+  logs: logs
+
+seeds:
+  random: 42
+  numpy: 42
+  tensorflow: null
+  pytorch: null
+
+resources:
+  max_memory_mb: 7000
+  max_time_hours: 6
+  cpu_only: true
+
+analysis:
+  rarefaction_depth: null
+  min_samples: 500
+  alpha_fdr: 0.05
+  min_genera: 5
+  min_cognitive_cols: 1
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

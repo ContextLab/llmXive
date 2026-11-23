@@ -1,83 +1,70 @@
 # Data Model Specification
 
-This document defines the core data entities used throughout the `llmXive` project for predicting the impact of alloying on creep resistance. It serves as the authoritative schema definition for data acquisition, preprocessing, modeling, and reporting artifacts.
+This document defines the core data entities used in the `PROJ-137-predicting-the-impact-of-alloying-on-creep-resistance` pipeline.
+It explicitly aligns with the validation schema defined in `../contracts/dataset.schema.yaml`.
 
-## Alignment with Contracts
+## 1. AlloySample
 
-This model explicitly aligns with the validation contracts defined in `contracts/dataset.schema.yaml`. All data artifacts produced by the pipeline (e.g., `data/processed_dataset.csv`) must strictly adhere to the field names, data types, and constraints outlined in that schema file.
+The primary unit of analysis representing a specific alloy composition tested under defined thermodynamic conditions.
+This entity corresponds to a single row in the processed dataset (`data/processed/creep_dataset.csv`).
 
----
+### Schema Attributes
 
-## Entity: AlloySample
-
-**Description**: Represents a single experimental or synthetic data point describing an alloy's composition and its corresponding creep performance under specific thermodynamic conditions. This is the primary row-level unit in the processed dataset.
-
-**Source**: Aggregated from NIMS (real) or generated via `src/data/generate.py` (synthetic) and merged with thermodynamic descriptors.
-
-### Schema Definition
-
-| Field Name | Type | Description | Constraints |
+| Field | Type | Description | Source/Constraint |
 |:--- |:--- |:--- |:--- |
-| `alloy_id` | `string` | Unique identifier for the alloy sample. | Format: `ALLOY_{hash}` or `NIMS_{id}`. Must be unique. |
-| `composition_str` | `string` | Normalized chemical formula string. | Alphabetically sorted elements (e.g., `Al0.1Fe0.9`). No spaces. |
-| `temperature` | `float` | Test temperature in Kelvin. | `> 0.0`. Unit: K. |
-| `stress` | `float` | Applied stress during test. | `> 0.0`. Unit: MPa. |
-| `rupture_time` | `float` | Time to rupture. | `> 0.0`. Unit: hours. |
-| `mixing_enthalpy` | `float` | Enthalpy of mixing (thermodynamic descriptor). | Unit: kJ/mol. |
-| `radius_mismatch` | `float` | Atomic radius mismatch parameter (thermodynamic descriptor). | Unit: dimensionless (fraction). |
-| `source` | `string` | Origin of the data point. | Enum: `["NIMS", "SYNTHETIC"]`. |
+| `alloy_id` | `string` | Unique identifier for the alloy instance. Format: `ALLOY_{hash}`. | Generated from composition + conditions. |
+| `composition_str` | `string` | Normalized composition string. Elements sorted alphabetically, atomic fractions rounded to 4 decimals. Format: `Al:0.5,Cr:0.5`. | `src/data/preprocess.py` |
+| `temperature` | `float` | Test temperature in Kelvin (K). | NIMS / Synthetic |
+| `stress` | `float` | Applied stress in MPa. | NIMS / Synthetic |
+| `rupture_time` | `float` | Time to rupture in hours. | NIMS / Synthetic |
+| `mixing_enthalpy` | `float` | Average mixing enthalpy (kJ/mol) calculated via Miedema or DFT (Materials Project). | `src/data/merge.py` |
+| `radius_mismatch` | `float` | Atomic radius mismatch parameter (dimensionless). | `src/data/merge.py` |
 
-### Processing Logic
-- **Composition Parsing**: Raw input strings are normalized by sorting element symbols alphabetically and rounding atomic fractions to 4 decimal places.
-- **Unit Conversion**: Weight percentages (if provided in raw input) are converted to atomic percentages before calculating descriptors.
-- **Exclusion**: Rows with missing `temperature`, `stress`, or `rupture_time` are excluded. Rows missing thermodynamic data (after merge) are logged and excluded.
+### Validation Rules
+- **Temperature**: Must be > 0 and < 3000 K.
+- **Stress**: Must be > 0.
+- **Rupture Time**: Must be > 0.
+- **Composition**: Sum of atomic fractions must be within `[0.99, 1.01]`.
 
----
+## 2. ThermodynamicDescriptor
 
-## Entity: ThermodynamicDescriptor
-
-**Description**: A collection of calculated physicochemical properties derived from the alloy composition, used to enhance model features beyond simple elemental fractions.
-
-**Source**: Calculated via `pymatgen` using `src/data/merge.py`.
+A derived entity representing the calculated physical properties used as features for the machine learning models.
+These are merged into the `AlloySample` during the preprocessing phase.
 
 ### Attributes
 
-| Attribute | Type | Calculation Method |
+| Field | Type | Description | Calculation Method |
+|:--- |:--- |:--- |:--- |
+| `mixing_enthalpy` | `float` | Enthalpy of mixing. | Weighted average of binary enthalpies or DFT values. |
+| `radius_mismatch` | `float` | Variance in atomic radii. | $\sum c_i (1 - r_i / \bar{r})^2$ |
+| `electronegativity_diff` | `float` | Difference in electronegativity. | Optional extension for future models. |
+| `valence_electron_conc` | `float` | Average valence electron concentration. | Optional extension. |
+
+### Relationship
+- **One-to-One** with `AlloySample` (after merging).
+- **Source**: `src/data/merge.py` uses `pymatgen` to fetch/calculate these values based on `composition_str`.
+
+## 3. ModelPerformance
+
+An entity representing the aggregate metrics and statistical results from the model training and evaluation phase (User Story 2).
+This is not a row in the dataset but a summary object generated by `src/models/evaluate.py`.
+
+### Attributes
+
+| Field | Type | Description |
 |:--- |:--- |:--- |
-| `mixing_enthalpy` | `float` | Calculated using the Miedema model or Materials Project formation energy data. Represents the energy change upon mixing elements. |
-| `radius_mismatch` | `float` | Calculated as $\delta = \sqrt{\sum c_i (1 - r_i/\bar{r})^2}$, where $c_i$ is atomic fraction, $r_i$ is atomic radius, and $\bar{r}$ is the average radius. |
-| `electronegativity_diff` | `float` | *Optional/Reserved*: Standard deviation of Pauling electronegativities. |
+| `model_type` | `string` | Identifier: `Thermodynamic_GBR` or `Composition_Only_GBR`. |
+| `r2_score` | `float` | Coefficient of determination from Nested Cross-Validation. |
+| `rmse` | `float` | Root Mean Squared Error from Nested Cross-Validation. |
+| `statistical_test` | `object` | Results of the significance test (Permutation or Bootstrap). |
+| `p_value` | `float` | (If Permutation) Probability that the observed delta occurred by chance. |
+| `ci_bounds` | `list[float]` | (If Bootstrap) [Lower, Upper] 95% Confidence Interval for R² delta. |
+| `feature_importance` | `dict` | Top 5 features and their SHAP-based importance scores. |
 
-### Integration
-These descriptors are joined to the `AlloySample` entity via the `composition_str` key during the `merge` phase. They become input features for the `Thermodynamic GBR` model (User Story 2).
+## Alignment with Contracts
 
----
+This document serves as the human-readable specification for the machine-readable schema defined in:
+- `contracts/dataset.schema.yaml` (Validates `AlloySample` + `ThermodynamicDescriptor` merged rows)
+- `contracts/output.schema.yaml` (Validates `ModelPerformance` outputs)
 
-## Entity: ModelPerformance
-
-**Description**: Aggregated metrics representing the performance of a trained machine learning model, including statistical significance tests and feature importance rankings.
-
-**Source**: Generated by `src/models/evaluate.py` and `src/models/interpret.py`.
-
-### Schema Definition
-
-| Field Name | Type | Description |
-|:--- |:--- |:--- |
-| `model_type` | `string` | Identifier of the model (e.g., `Thermodynamic_GBR`, `Composition_Only_GBR`). |
-| `metric_name` | `string` | Name of the metric (e.g., `R2`, `RMSE`, `Permutation_PValue`). |
-| `value` | `float` | The measured value of the metric. |
-| `confidence_interval` | `list[float]` | Optional 95% CI bounds `[lower, upper]` if applicable (e.g., Bootstrap). |
-| `sample_count` | `int` | Number of samples used in this evaluation. |
-| `statistical_test` | `string` | The test used (e.g., `Permutation_Test`, `Bootstrap_CI`). |
-
-### Reporting
-This entity is serialized into the final report (`docs/reports/final_report.md`) and used to populate the comparison table in the user story outputs. It directly feeds into the `ModelPerformance` section of the research output.
-
----
-
-## Reference to Validation Contracts
-
-The `AlloySample` entity structure is strictly validated against `contracts/dataset.schema.yaml`. Any deviation in field types or missing columns during the pipeline execution (T019) will result in a schema validation error, halting the process to ensure data integrity.
-
-**Contract Path**: `contracts/dataset.schema.yaml`
-**Validation Module**: `src/utils/validators.py` (T010)
+Any change to the fields in this document must be reflected in the corresponding YAML contract files to ensure pipeline integrity.

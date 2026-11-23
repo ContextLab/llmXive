@@ -1,3 +1,2 @@
-"""
-Integration tests for end-to-end workflows.
-"""
+"""Integration tests package."""
+pass

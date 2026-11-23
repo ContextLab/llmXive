@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Gold Standard Calibration Schema"
+description: "Schema for human-annotated calibration data used in ArcANE evaluation."
+type: object
+required:
+  - character
+  - scenario
+  - ground_truth_score
+  - ground_truth_phase
+properties:
+  character:
+    type: string
+    description: "The specific ArcANE character associated with this sample (e.g., 'Harry Potter', 'Elizabeth Bennet')."
+  scenario:
+    type: string
+    description: "The scenario text extracted from the prompt."
+  ground_truth_score:
+    type: integer
+    minimum: 1
+    maximum: 5
+    description: "The human-annotated score (1-5) representing the quality or adherence of the response."
+  ground_truth_phase:
+    type: string
+    description: "The specific character phase or arc stage associated with the sample."
+additionalProperties: false

@@ -1,0 +1,65 @@
+T001:
+  c: true
+  h: e0921955d229bbab2406fca62b17955341e9f4cb99cecc3fa1148a1d41eae226
+  r: The `contracts/` directory contains verbatim copies of the five schema files
+    from `specs/.../contracts/`, `code/copy_contracts.py` performs the copy and writes
+    `contract_hashes.json`, and the JSON mapping shows identical `src_hash` and `dst_hash`
+    for each file. The test `tests/contract/test_contract_copy.py` loads this mapping
+    and asserts the hashes match, which it does. All required artifacts exist and
+    meet the specification.
+  sig: fc058b884fedf05460cbf9e55427ceab226debf9a9bf3de1fc17fda96dd43e32
+T003:
+  c: true
+  h: 01d4ce2e103cc15c81108e53a4f0a2c3b0a48930d73d476fedfcf772dcb89a4a
+  r: "Checked `code/write_checksums.py` (full implementation that recomputes SHA\u2011\
+    256 for `data/raw/tasks.json` and `data/raw/skills.json` and overwrites `data/raw/checksums.json`),\
+    \ the existing `data/raw/checksums.json` (which the test overwrites via the script),\
+    \ and `tests/contract/test_checksums.py` (fixture runs the script\u2019s `main()`\
+    \ then asserts the stored hashes match the freshly computed ones). All required\
+    \ artifacts exist and behave as specified."
+  sig: 42ba25dc10a97db817bfb95833fc6ffa387bbdf009dff929e58ebbb148356c3a
+T005:
+  c: true
+  h: 5daa80514658a0514619736f04cb9eb86f1999016daebd79f3070a0896b0eed6
+  r: Checked `code/logging_config.py` for correct LOG_COLUMNS and CSV logger implementation,
+    and verified that `tests/contract/test_logging_schema.py` passed (header order,
+    schema compliance, and file creation) as shown in the execution logs, confirming
+    the logger writes a compliant CSV file at `data/results/experiment_log.csv`.
+  sig: d9add65ccccb5f16fa2c0ff6fe1d4449d1fd982a992a9279f4d41fd2ed26f914
+T006:
+  c: false
+  h: 6b6142aa5fac7f73aa4b11e655855fc5e0008f67ca65983faedcf33a186d7776
+  r: "Checked `code/agent.py` (has the Tuple import and CLI parsing) and the `data/results/execution_logs/`\
+    \ JSON\u2011L files (run_50_off_HIGH.jsonl exists). However, the required CSV\
+    \ log `data/results/experiment_log.csv` is missing, the script never imports `experiment_log.schema.yaml`\
+    \ for validation, and the integration test `tests/integration/test_agent_small_run.py`\
+    \ is absent. These missing artifacts prevent the task\u2019s requirement from\
+    \ being satisfied."
+  sig: d1125a2e257dbfaed5a5c61721d086a629e222150f1b29138f274a641b2b360c
+T007:
+  c: false
+  h: b40b0f820119e75d6f9c1abbf4ef3531a38322395a469bcad0de02fe57c03cbf
+  r: "The provided `code/pruning.py` implements removal when the **maximum** cosine\
+    \ similarity to any other skill exceeds\u202F0.70, and the unit tests in `tests/unit/test_pruning.py`\
+    \ assert exactly this behavior. The task specification, however, requires pruning\
+    \ when the **minimum** cosine similarity is **below**\u202F0.70 (i.e., the opposite\
+    \ condition). Consequently the function\u2019s logic and its tests do not match\
+    \ the stated requirement, so the task is not correctly fulfilled."
+  sig: d62c6c2f0b1a9df5214e73bc11648059727ab0743f6f1ee7f2037efaab33fbdd
+T008:
+  c: false
+  h: df7482de0922d54beeacf8f88765772e8db0bf3a3c44d680746322ebaedb7e94
+  r: The integration test `test_full_sweep.py` expects the schema file `contracts/experiment_log.schema.yaml`
+    to exist and be loaded for row validation, but this file is missing, causing the
+    test to error before any assertions are checked. Without the schema, the required
+    verification step cannot succeed. Adding the missing schema file (matching the
+    column definitions) is needed for the task to be considered complete.
+  sig: d460e75bff7fd84c9956928b8cb0de5efa9b68a18090c1a6270d507b28b92cb7
+T015:
+  c: true
+  h: dbd3411bf34a0261f05ee454e257016594becb16525c804a938d1edb9f840acd
+  r: "Checked the presence and content of `specs/001-llmxive-follow-up-extending-from-chatbot/contracts/experiment_log.schema.yaml`\
+    \ (1659\u202Fbytes, valid JSON schema) and the passing of `tests/contract/test_schemas.py::test_experiment_log_schema_compliance`.\
+    \ The required schema file exists, is non\u2011empty, and the test suite validates\
+    \ it successfully."
+  sig: ec9df84d99ea6451ac55dfd980b256e1dcd346b0d738ec81107758cc39286331

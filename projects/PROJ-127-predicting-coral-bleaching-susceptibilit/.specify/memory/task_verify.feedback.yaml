@@ -1,0 +1,86 @@
+T001:
+  reason: The evidence shows the `code/` and `results/` directories exist, and a `requirements.txt`
+    with the required pinned packages is present, but the required `data/raw`, `data/processed`,
+    `data/models` (only a file inside is shown, the directory itself is not confirmed),
+    `tests/unit`, `tests/integration`, `state/` directories are missing, as is a `.gitignore`
+    file and `__init__.py` files in all Python directories (e.g., `tests/`). These
+    omissions mean the prescribed project structure is not fully created.
+  task: 548a117fc7c200268f2ba6e3789283bd7eb700e88881ea7cd26fd0fe2a7119fd
+T002A:
+  task: 7a48e763f6744620885545712b487037ef796e624b1c2e71fe882f8b251da719
+T002B:
+  task: 41ef4043b4670647050cbbe0d6c3dd432f49fdc87c9c45252f408886faeace8d
+T003:
+  reason: "The `code/config.py` file is present but lacks the required `IMPUTATION_THRESHOLD_DAYS`\
+    \ and `MAX_RAM_GB` variables, does not perform any reachability checks on the\
+    \ URLs, and uses an incorrect variable name (`UNEP_REEFS_URL` instead of `UNEP_URL`).\
+    \ Moreover, the URLs are generic placeholders rather than verified, working endpoints.\
+    \ These omissions mean the task\u2019s specifications are not satisfied."
+  task: 3e260c1ba63a3619d36d7abc13ec273b6376eb279b71db7eeb509d0591b48ab6
+T004:
+  task: 0838590152394328d64e852beb6f2ed61c005c508244d52ba8aa441cb9ea8abc
+T005:
+  reason: "The repository contains `code/data_gap_report.py`, but the script only\
+    \ writes a markdown report and never creates the required `data_gap_status.json`\
+    \ with the `status` and `missing_sources` fields. No execution logs or generated\
+    \ JSON file are present, so the task\u2019s success criteria and blocking\u2011\
+    gate behavior are not demonstrated. The implementer must add code to produce `data_gap_status.json`\
+    \ (PASS/FAIL) and provide evidence of a run that creates this file and halts the\
+    \ pipeline on FAIL."
+  task: 6eaadbc711fa3fed44b0efde5bec6a3d547019d4a9676c0362b0f5b3d3f926d7
+T006:
+  task: 8df2dcb7cccfae8b216ae4be3317479e40ad5b4f2959f007374fe3ac880a4bca
+T009:
+  task: 38a1dda9f16afa41cfd9869e8673ce7d569391e24e82b74b5c5328d34704f704
+T009A:
+  reason: 'Requested task execution failed; rerun successfully: code/ingest.py exit=1'
+  task: fb501d6267fd58396453b7e0d867850c87a177793721685b3581d88c7f0a6fcd
+T009B:
+  task: ddab37c0a86b6705cec604859cbb2d59c29e94da111479bbed967d58fc319106
+T009C:
+  task: ad6ffef48730aa08706cfa730fc9fce5751b169e9d346b38686d4887e7c7d9f4
+T010:
+  task: 20979fef7a8113aba007ded3e489b9a146ad8a58ff50c635506a7e1bc45aec1d
+T011:
+  task: 4f558da8edebee4639f4460703cd45f159f18422bac44f0e405022d4b8273b06
+T012:
+  task: f8b8b5e4828d94353d86867d9da3e1b23885e8f6e179d026905925843ab78a11
+T013:
+  task: a530682c174bd818a96229ca650911d614d9675f1d6ac6afd34d8c54f29985b8
+T014:
+  task: a356c53f65fea2203cf26ede2c88560be2922cba66086be9bd510f7910aa2cab
+T015:
+  task: 411ee398d723d34685134cf4c934542864744c1e2fbfae53d32811159df445ec
+T016:
+  task: ac9208661442a6380ab6688747b8f9565acd674fca954c0cdb5df93890fbdbac
+T017:
+  task: 610db88bf9dc77cb2fd13b25342655ab8c6b6fa892d424fa2ad19d8805bd9f59
+T019A:
+  task: ba2620ea736c4ad17289e7742e4873ce9cc0258cb751b84c3c634f832af1e93f
+T019B:
+  task: 6f0a70113649286ee5e6c1ec8b104e2f352b27a5d90738549265269d544d4291
+T020:
+  task: d9f05ac43c4c9fc8e145b08864669887ea69e741452076c809f3b661c49b8407
+T021:
+  task: fc3477e4662ed7abc18e8d004fe234660117c6d2ad88d1a739dea7a758867b2f
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/2024/sst.tif, data/raw/2024/dhw.tif'
+  task: cac7a84166008a15071541a46a4fe94b310626181abbce9789ec29807e30e5b9
+T023:
+  task: 67e370f815787df7c9aaf8cff60672ee12fa44cf1ddcb6565a8b6fbf0b6cb783
+T024:
+  task: 7a07b55b4f1c747d1ce76195beb0ba38ba12948cdcb746f7b616f4c570cf88ec
+T025:
+  task: 2f902e4009c83e87875bbe4eccd803d27e026b5d56a10673b5c5f6980b3ea8e2
+T027:
+  task: 293f9d1ca52c3d03020bc1c0938773a6ca61bd39f56eebf1996c4461ca3be86a
+T028:
+  task: f60203649146031bbaf0234f6f97af0489bd6e893306ebc470b11ce5459eab37
+T029:
+  task: cadce6b65021f8579c739781444818e5cabeccc0eb477489517088a60c18c079
+T030:
+  task: 274f248c1f85f0fc4b1f0c085967c5103bad85253bb09b8f86683bc1dd2aea2f
+T031:
+  task: 36336810ff3d4a238c736784c104be6088880d1697b71f00d4cff730362b407b
+T032:
+  task: e786ad574445c643296ff438eaf5472851edca717965c46cd21989856d53a938

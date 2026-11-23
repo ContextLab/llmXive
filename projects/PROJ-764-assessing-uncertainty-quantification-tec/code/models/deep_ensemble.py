@@ -4,135 +4,129 @@ import json
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
-import yaml
-import pandas as pd
-import time
+from pathlib import Path
 import logging
-
-from utils.timing_logger import timing_logger
-
-CONFIG_PATH = "code/config.yaml"
-PROCESSED_DATA_PATH = "data/processed/features_20pca.csv"
-ENSEMBLE_DIR = "results/models/ensemble_models"
-NUM_MODELS = 5
-
-os.makedirs(ENSEMBLE_DIR, exist_ok=True)
+import numpy as np
+import pandas as pd
+import yaml
 
 logger = logging.getLogger(__name__)
 
 class HeteroscedasticNN(nn.Module):
-    def __init__(self, input_dim, hidden_dims=[64, 32]):
+    def __init__(self, input_dim: int, hidden_dims: list = [64, 32]):
         super().__init__()
         layers = []
         prev_dim = input_dim
-        for h_dim in hidden_dims:
-            layers.append(nn.Linear(prev_dim, h_dim))
+        for h in hidden_dims:
+            layers.append(nn.Linear(prev_dim, h))
             layers.append(nn.ReLU())
-            prev_dim = h_dim
-        self.backbone = nn.Sequential(*layers)
+            prev_dim = h
+        self.fc = nn.Sequential(*layers)
         self.mean_head = nn.Linear(prev_dim, 1)
-        self.log_var_head = nn.Linear(prev_dim, 1)
+        self.var_head = nn.Linear(prev_dim, 1)
 
     def forward(self, x):
-        h = self.backbone(x)
+        h = self.fc(x)
         mean = self.mean_head(h)
-        log_var = self.log_var_head(h)
-        return mean, log_var
+        var = torch.exp(self.var_head(h))
+        return mean, var
 
-def load_config():
-    with open(CONFIG_PATH, 'r') as f:
+def load_config(config_path: str = "code/config.yaml"):
+    with open(config_path) as f:
         return yaml.safe_load(f)
 
-def load_data():
-    df = pd.read_csv(PROCESSED_DATA_PATH)
-    feature_cols = [col for col in df.columns if col.startswith('feature_')]
-    X = df[feature_cols].values
-    y = df['target'].values
-    return torch.tensor(X, dtype=torch.float32), torch.tensor(y, dtype=torch.float32)
+def load_data(split: str = "train"):
+    path = Path(f"data/processed/features_{split}_20pca.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"Required data file not found: {path}. Ensure T006b3 has completed.")
+    df = pd.read_csv(path)
+    # Ensure we select exactly 20 PCA columns
+    pca_cols = [f'pca_{i}' for i in range(20)]
+    if not all(col in df.columns for col in pca_cols):
+        missing = set(pca_cols) - set(df.columns)
+        raise ValueError(f"Missing PCA columns in {path}: {missing}")
+    
+    X = torch.tensor(df[pca_cols].values, dtype=torch.float32)
+    y = torch.tensor(df['formation_energy'].values, dtype=torch.float32).unsqueeze(1)
+    return X, y
 
-def train_single_model(model_idx, X, y, config):
-    seed = config.get('seed', 42)
-    torch.manual_seed(seed + model_idx)
-    np.random.seed(seed + model_idx)
-
-    input_dim = X.shape[1]
+def train_single_model(input_dim: int, seed: int, epochs: int = 100):
+    torch.manual_seed(seed)
+    np.random.seed(seed)
     model = HeteroscedasticNN(input_dim)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    X, y = load_data("train")
+    train_dataset = torch.utils.data.TensorDataset(X, y)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True)
 
-    model.train()
-    epochs = 100
-    batch_size = 64
-    n_samples = X.shape[0]
-
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    
     for epoch in range(epochs):
-        indices = torch.randperm(n_samples)
-        X_shuffled = X[indices]
-        y_shuffled = y[indices]
-
-        for i in range(0, n_samples, batch_size):
-            batch_X = X_shuffled[i:i+batch_size]
-            batch_y = y_shuffled[i:i+batch_size]
-
+        model.train()
+        total_loss = 0.0
+        for X_batch, y_batch in train_loader:
             optimizer.zero_grad()
-            mean, log_var = model(batch_X)
-            precision = torch.exp(-log_var)
-            loss = precision * (batch_y.unsqueeze(1) - mean) ** 2 + log_var
-            loss = loss.mean()
+            mean, var = model(X_batch)
+            # Heteroscedastic loss: 0.5 * (log(var) + (y - mean)^2 / var)
+            loss = 0.5 * torch.mean(torch.log(var) + ((y_batch - mean) ** 2) / var)
             loss.backward()
             optimizer.step()
-
+            total_loss += loss.item()
+        
+        if (epoch + 1) % 10 == 0:
+            logger.info(f"Seed {seed}, Epoch {epoch+1}/{epochs}, Loss: {total_loss/len(train_loader):.4f}")
+    
     return model
 
-def train_ensemble():
-    config = load_config()
-    X, y = load_data()
-
-    timing_logger.start("deep_ensemble_training")
-
+def train_ensemble(input_dim: int, n_models: int = 5, base_seed: int = 42):
     models = []
-    for i in range(NUM_MODELS):
-        logger.info(f"Training ensemble member {i+1}/{NUM_MODELS}")
-        model = train_single_model(i, X, y, config)
-        path = os.path.join(ENSEMBLE_DIR, f"model_{i}.pt")
-        torch.save(model.state_dict(), path)
+    seeds = [base_seed + i for i in range(n_models)]
+    for i, seed in enumerate(seeds):
+        logger.info(f"Training ensemble model {i+1}/{n_models} with seed {seed}")
+        model = train_single_model(input_dim, seed, epochs=100)
         models.append(model)
-
-    timing_logger.stop("deep_ensemble_training")
-    timing_logger.save_report()
-    logger.info(f"Ensemble trained and saved to {ENSEMBLE_DIR}")
+    return models
 
 class DeepEnsemble:
-    def __init__(self, models):
+    def __init__(self, models: list):
         self.models = models
 
-    def predict(self, X):
+    def predict(self, X: torch.Tensor):
         means = []
-        log_vars = []
+        vars_list = []
         for model in self.models:
             model.eval()
             with torch.no_grad():
-                m, lv = model(X)
-                means.append(m)
-                log_vars.append(lv)
+                mean, var = model(X)
+                means.append(mean)
+                vars_list.append(var)
         
-        means = torch.stack(means, dim=0) # [N_models, N_samples, 1]
-        log_vars = torch.stack(log_vars, dim=0)
-
-        # Epistemic: variance of means
-        mean_of_means = means.mean(dim=0)
-        epistemic_var = means.var(dim=0)
+        means = torch.stack(means, dim=1)  # (N, n_models)
+        vars_list = torch.stack(vars_list, dim=1)
         
-        # Aleatoric: mean of variances
-        aleatoric_var = torch.exp(log_vars).mean(dim=0)
-        
-        total_var = epistemic_var + aleatoric_var
+        return means, vars_list
 
-        return mean_of_means, total_var
-
-def main():
-    logging.basicConfig(level=logging.INFO)
-    train_ensemble()
+def main(seed: int = 42):
+    config = load_config()
+    input_dim = 20
+    # Task T013 requires exactly 5 models with seeds [42, 43, 44, 45, 46]
+    n_models = 5
+    
+    logger.info(f"Starting Deep Ensemble training with {n_models} models, base seed {seed}")
+    models = train_ensemble(input_dim, n_models=n_models, base_seed=seed)
+    
+    out_dir = Path("results/models/ensemble")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    
+    for i, model in enumerate(models):
+        current_seed = seed + i
+        save_path = out_dir / f"ensemble_seed_{current_seed}.pt"
+        torch.save({
+            'model_state_dict': model.state_dict(),
+            'seed': current_seed,
+            'input_dim': input_dim
+        }, save_path)
+        logger.info(f"Saved model {i+1} (seed {current_seed}) to {save_path}")
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     main()

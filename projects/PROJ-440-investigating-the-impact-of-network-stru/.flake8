@@ -1,0 +1,9 @@
+[flake8]
+max-line-length = 88
+exclude = .git,__pycache__,build,dist,.eggs
+ignore = E203, E266, E501, W503
+max-complexity = 18
+select = B,C,E,F,W,T4,B9
+per-file-ignores =
+    tests/*:S101
+    code/utils/diagnostics.py:E501

@@ -5,31 +5,76 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents"
 
-## Summary of the prior work
-The paper introduces TUA-Bench, a comprehensive benchmark comprising 120 real-world terminal tasks that span routine digital activities and specialized scientific workflows, designed to evaluate general-purpose terminal-use agents (TUAs) beyond narrow coding assistants. By utilizing execution-based scoring in a deterministic environment, the authors demonstrate that even frontier models like Claude Code achieve only moderate success (65.8%), revealing significant performance gaps in handling non-programming, general-purpose terminal operations. The work establishes a critical gap between current agent capabilities and the requirements for reliable, general-purpose terminal automation.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Does providing agents with "procedural memory" of common terminal command sequences (e.g., a curated library of `git`, `ssh`, and `vim` workflow patterns) significantly improve success rates on TUA-Bench's scientific workflow tasks compared to relying solely on in-context prompting?
+## Research question
 
-This matters because TUA-Bench reveals that agents often struggle with multi-step, specialized shell workflows not due to a lack of reasoning, but due to the difficulty of synthesizing complex, domain-specific command chains from scratch; testing whether explicit procedural scaffolding bridges this gap could inform efficient, CPU-tractable agent architectures that do not require massive model retraining.
+Does augmenting terminal-use agents with a retrievable "procedural memory" of verified command sequences significantly improve their success rates on complex, multi-step scientific workflow tasks compared to standard in-context prompting alone?
+
+## Motivation
+
+TUA-Bench demonstrates that current frontier agents struggle with specialized, multi-step shell workflows despite strong reasoning capabilities, suggesting a gap in synthesizing domain-specific command chains from scratch. This research addresses whether explicit, deterministic scaffolding of common operational patterns can bridge this gap more efficiently than scaling model parameters or retraining, offering a compute-tractable path toward reliable general-purpose terminal automation.
+
+## Related work
+
+- [Evaluating LLM-Based 0-to-1 Software Generation in End-to-End CLI Tool Scenarios](https://arxiv.org/abs/2604.06742) — Establishes the current state of intent-driven CLI agents but focuses on software generation rather than the execution of pre-defined scientific workflows, highlighting a gap in evaluating procedural scaffolding for specific task domains.
+- [Your Harness is Not Secure: Benchmarking Real-world Threat of Command Line Interface Agent](https://arxiv.org/abs/2510.06607) — Provides a benchmark for CLI agent security and robustness but does not address performance improvements via procedural memory retrieval for complex, non-malicious scientific tasks.
+
+## Expected results
+
+We expect the agent augmented with a procedural memory bank to achieve a statistically significant increase in success rates (e.g., +15% absolute accuracy) specifically on complex scientific workflow tasks, while showing negligible improvement on routine, single-step tasks. This would confirm that the primary bottleneck for these agents is the synthesis of known command sequences rather than a lack of reasoning capability, validating retrieval-augmented generation as a high-leverage intervention.
 
 ## Methodology sketch
-**Data:** Select the 24 scientific and engineering workflow tasks from TUA-Bench that involve multi-step tool usage (e.g., data extraction, format conversion, and plotting) and pair them with a "Procedural Memory Bank" containing 50 verified, human-written command sequences for common shell operations relevant to these tasks.
-**Procedure:** Run the strongest open-source agent (e.g., a distilled Llama 3.1 8B model) on these tasks under two conditions: (1) standard prompting with the TUA-Bench environment, and (2) augmented prompting where the agent can query the Procedural Memory Bank via a deterministic retrieval step before generating actions; evaluate both using TUA-Bench's execution-based scoring protocol on a standard CPU cluster.
-**Expected result:** We hypothesize that the augmented agent will show a statistically significant performance increase (e.g., +15% absolute accuracy) specifically on the complex scientific workflow tasks, while showing negligible change on routine tasks, thereby validating that procedural memory is a high-leverage, compute-efficient intervention for terminal agents.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Selection**: Curate the 24 scientific and engineering workflow tasks from TUA-Bench that involve multi-step tool usage (e.g., data extraction, format conversion, plotting) and exclude routine single-command tasks.
+- **Memory Bank Construction**: Compile a "Procedural Memory Bank" containing 50 verified, human-written command sequences for common shell operations (e.g., `git` branching, `ssh` tunneling, `vim` macros) relevant to the selected scientific tasks.
+- **Baseline Execution**: Run a distilled open-source agent (Llama 3.1 8B) on the selected tasks using standard TUA-Bench in-context prompting; record execution success rates and failure modes.
+- **Augmented Execution**: Run the same agent on the same tasks with an added retrieval step: before generating an action, the agent queries the memory bank for relevant command patterns based on the task description and appends them to the context.
+- **Evaluation Protocol**: Use TUA-Bench's deterministic execution-based scoring to compare success rates between the baseline and augmented conditions.
+- **Statistical Analysis**: Apply a McNemar's test (or paired t-test on per-task success indicators) to determine if the performance difference is statistically significant, ensuring the evaluation metric (execution success) is independent of the retrieval mechanism's internal logic.
+- **Resource Constraints**: Execute all runs on a standard CPU environment (simulating GitHub Actions free-tier limits) with a timeout of 6 hours per task batch to ensure feasibility.
 
-- **TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents** — Shoufa Chen, Luyuan Wang, Xuan Yang, Zhiheng Liu, Yuren Cong, Yuanfeng Ji, Feiyan Zhou, Xiaohui Zhang, Fanny Yang, Belinda Zeng. https://arxiv.org/abs/2606.28480.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_28480,
-  title = {TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents},
-  author = {Shoufa Chen and Luyuan Wang and Xuan Yang and Zhiheng Liu and Yuren Cong and Yuanfeng Ji and Feiyan Zhou and Xiaohui Zhang and Fanny Yang and Belinda Zeng},
-  year = {2026},
-  eprint = {2606.28480},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.28480},
-  url = {https://arxiv.org/abs/2606.28480}
-}
-```
+- Reviewed existing ideas: None found in the immediate corpus (this is a follow-up to a specific preprint).
+- Closest match: None (The literature search identified security and software generation benchmarks, but no work specifically testing procedural memory retrieval for scientific workflow scaffolding in terminal agents).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-02T21:20:48Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents" computer science
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents" computer science | 0 |
+| 1 | terminal-based autonomous agents | 3 |
+| 2 | command-line interface agents | 2 |
+| 3 | shell automation with large language models | 0 |
+| 4 | interactive CLI agent benchmarks | 0 |
+| 5 | natural language to shell command generation | 0 |
+| 6 | LLM-driven terminal task execution | 0 |
+| 7 | evaluation of AI agents in Linux environments | 0 |
+| 8 | text-based agent interaction benchmarks | 0 |
+| 9 | autonomous system administration with LLMs | 0 |
+| 10 | general-purpose terminal agent evaluation | 0 |
+| 11 | command-line agent reasoning | 0 |
+| 12 | LLM performance on shell scripting tasks | 0 |
+| 13 | agent-based terminal workflow automation | 0 |
+| 14 | benchmarking AI for operating system control | 0 |
+| 15 | natural language interface to terminal emulators | 0 |
+| 16 | multi-step terminal task planning | 0 |
+| 17 | LLM error recovery in shell environments | 0 |
+| 18 | human-in-the-loop terminal agent evaluation | 0 |
+| 19 | autonomous code execution in CLI | 0 |
+| 20 | text-based UI agent benchmarks | 0 |
+
+### Verified citations
+
+1. **Evaluating LLM-Based 0-to-1 Software Generation in End-to-End CLI Tool Scenarios** (2026). Ruida Hu, Xinchen Wang, Chao Peng, Cuiyun Gao, David Lo. arXiv. [2604.06742](https://arxiv.org/abs/2604.06742). PDF-sampled: No.
+2. **Your Harness is Not Secure: Benchmarking Real-world Threat of Command Line Interface Agent** (2025). Weidi Luo, Qiming Zhang, Tianyu Lu, Xiaogeng Liu, Bin Hu, et al.. arXiv. [2510.06607](https://arxiv.org/abs/2510.06607). PDF-sampled: No.

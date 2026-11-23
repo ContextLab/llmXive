@@ -1,0 +1,2 @@
+(This file is intentionally NOT generated because the dataset meets the power requirement.
+ The script check_power_limitation.py will only generate this file if the check fails.)

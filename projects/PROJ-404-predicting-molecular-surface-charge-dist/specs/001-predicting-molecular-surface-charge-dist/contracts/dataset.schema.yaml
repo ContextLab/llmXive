@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "QM9 Molecular Dataset Schema"
+description: "Schema for the QM9 dataset subset used in molecular charge prediction."
+type: "object"
+properties:
+  molecule_id:
+    type: "string"
+    description: "Unique identifier for the molecule."
+  atom_types:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of atomic numbers (e.g., 6 for Carbon, 1 for Hydrogen)."
+  positions:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+      minItems: 3
+      maxItems: 3
+    description: "3D Cartesian coordinates in Angstroms. Shape: (N_atoms, 3)."
+  bonds:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "integer"
+      minItems: 2
+      maxItems: 2
+    description: "List of edge indices representing bonds. Shape: (N_bonds, 2)."
+  charge:
+    type: "array"
+    items:
+      type: "number"
+    description: "Ground-truth Merz-Kollman partial charges. Shape: (N_atoms,)."
+required:
+  - "molecule_id"
+  - "atom_types"
+  - "positions"
+  - "bonds"
+  - "charge"
+additionalProperties: false

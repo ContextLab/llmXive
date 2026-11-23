@@ -1,103 +1,55 @@
-"""
-Utility functions for periodic table property retrieval.
-"""
+"""Utility functions for periodic table properties and configuration."""
 from pymatgen.core import Element
-from typing import Optional
+from typing import Optional, Dict, List, Any
+import logging
+import yaml
+import os
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 def get_atomic_radius(symbol: str) -> float:
-    """Retrieve the atomic radius (pm) for a given element symbol.
-    
-    Args:
-        symbol: Element symbol (e.g., 'Fe', 'C').
-        
-    Returns:
-        Atomic radius in picometers (pm). Returns float('nan') if unavailable.
-    """
+    """Get atomic radius for an element symbol."""
     try:
-        el = Element(symbol)
-        radius = el.atomic_radius
-        return float(radius) if radius is not None else float('nan')
-    except Exception:
-        return float('nan')
+        elem = Element(symbol)
+        return elem.atomic_radius
+    except Exception as e:
+        logger.warning(f"Could not get atomic radius for {symbol}: {e}")
+        return 0.0
 
 def get_vec(symbol: str) -> float:
-    """Retrieve the valence electron count (VEC) for a given element symbol.
-    
-    The VEC is determined by the number of valence electrons in the neutral atom.
-    For transition metals, this is typically the sum of s and d electrons in the 
-    outermost shells.
-    
-    Args:
-        symbol: Element symbol (e.g., 'Fe', 'C').
-        
-    Returns:
-        Valence electron count. Returns float('nan') if unavailable.
-    """
+    """Get valence electron count for an element symbol."""
     try:
-        el = Element(symbol)
-        # Use the number of valence electrons from the electronic structure
-        # pymatgen's Element class provides 'valence' which is the number of 
-        # valence electrons based on the element's group
-        if hasattr(el, 'valence') and el.valence is not None:
-            return float(el.valence)
-        
-        # Fallback: use periodic table group number for main group elements
-        # or calculate based on electron configuration for transition metals
-        # pymatgen's Element class has 'group_number' which can be used
-        group = el.group_number
-        if group is not None:
-            # For main group elements (groups 1, 2, 13-18)
-            if group <= 2:
-                return float(group)
-            elif group <= 12:
-                # Transition metals: group number - 10 for d-electrons + 2 for s-electrons
-                # But this is a simplification; use the valence property if available
-                return float(group - 10) if group > 10 else float(group)
-            else:
-                return float(group - 10)
-        
-        return float('nan')
-    except Exception:
-        return float('nan')
+        elem = Element(symbol)
+        return elem.valence
+    except Exception as e:
+        logger.warning(f"Could not get VEC for {symbol}: {e}")
+        return 0.0
 
 def get_electronegativity(symbol: str) -> float:
-    """Retrieve the electronegativity (Pauling scale) for a given element symbol.
-    
-    Args:
-        symbol: Element symbol (e.g., 'Fe', 'C').
-        
-    Returns:
-        Electronegativity on the Pauling scale. Returns float('nan') if unavailable.
-    """
+    """Get electronegativity for an element symbol."""
     try:
-        el = Element(symbol)
-        en = el.electronegativity
-        return float(en) if en is not None else float('nan')
-    except Exception:
-        return float('nan')
+        elem = Element(symbol)
+        return elem.electronegativity
+    except Exception as e:
+        logger.warning(f"Could not get electronegativity for {symbol}: {e}")
+        return 0.0
 
-def get_properties(symbol: str) -> dict:
-    """Retrieve all periodic table properties for a given element.
-    
-    Args:
-        symbol: Element symbol (e.g., 'Fe', 'C').
-        
-    Returns:
-        Dictionary containing atomic_radius, vec, and electronegativity.
-    """
+def get_properties_batch(elements: List[str]) -> Dict[str, List[float]]:
+    """Get properties for a batch of elements."""
     return {
-        'atomic_radius': get_atomic_radius(symbol),
-        'vec': get_vec(symbol),
-        'electronegativity': get_electronegativity(symbol)
+        'radius': [get_atomic_radius(e) for e in elements],
+        'vec': [get_vec(e) for e in elements],
+        'electronegativity': [get_electronegativity(e) for e in elements]
     }
 
-def get_properties_batch(symbols: list) -> list:
-    """Retrieve periodic table properties for a list of element symbols.
+def load_config_value(config_path: str, key: str) -> Any:
+    """Load a value from the config YAML file."""
+    path = Path(config_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
     
-    Args:
-        symbols: List of element symbols (e.g., ['Fe', 'C', 'Cr']).
-        
-    Returns:
-        List of dictionaries, each containing atomic_radius, vec, and electronegativity.
-    """
-    return [get_properties(symbol) for symbol in symbols]
+    with open(path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    return config.get(key)

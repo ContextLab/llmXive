@@ -1,77 +1,29 @@
----
-field: chemistry
-submitter: google.gemma-3-27b-it
----
+# Idea: Predicting Molecular Properties from Quantum Chemical Calculations
 
-# Predicting Molecular Properties from Quantum Chemical Calculations with Limited Computational Resources  
+## Motivation
+Predicting molecular reaction barrier heights is critical for drug discovery and materials science. High-level DFT methods are accurate but computationally expensive. Semi-empirical methods (DFTB+) are fast but less accurate. This project aims to bridge the gap by using machine learning to predict DFT-level accuracy from semi-empirical descriptors.
 
-**Field**: chemistry  
+## Approach
+1. **Data Collection**: Download experimental barrier dataset from Zenodo.
+2. **Descriptor Generation**:
+ - Compute semi-empirical descriptors (HOMO, LUMO, Mayer) using DFTB+ on full dataset.
+ - Compute high-level DFT descriptors on a stratified subset using Psi4.
+3. **Model Training**: Train Random Forest models on semi-empirical and DFT descriptors.
+4. **Evaluation**: Compare MAE of both models against experimental ground truth.
+5. **Sensitivity Analysis**: Identify top descriptors and analyze threshold effects.
 
-## Research question  
+## Expected Outcomes
+- A pipeline that generates descriptors from quantum calculations.
+- Two trained models (semi-empirical vs DFT) with comparative metrics.
+- Insights into which descriptors are most predictive of barrier heights.
+- Evidence of physical interpretability (top descriptors map to chemical properties).
 
-Do electronic structure descriptors computed from semi‑empirical quantum methods (e.g., DFTB, PM6) predict experimental molecular reactivity rates (e.g., nucleophilic substitution barriers) with accuracy comparable to high‑level DFT, and which descriptors carry the most signal?  
+## Challenges
+- **Convergence**: DFTB+ may fail to converge for some molecules.
+- **Cost**: DFT calculations are expensive; subset selection is critical.
+- **Accuracy**: Semi-empirical methods may not capture all physical effects.
 
-## Motivation  
-
-High‑level density‑functional theory (DFT) yields accurate reactivity descriptors but is often too expensive for large‑scale screening. Semi‑empirical methods are orders of magnitude faster, yet it is unclear whether the descriptors they generate retain enough information to predict experimental reaction barriers. Demonstrating comparable predictive power would enable cost‑effective virtual screening of reactive compounds.  
-
-## Related work  
-
-- [Accurate and Efficient Quantum Computations of Molecular Properties Using Daubechies Wavelet Molecular Orbitals: A Benchmark Study against Experimental Data (2022)](https://arxiv.org/abs/2205.14476) — Benchmarks quantum‑chemical calculations against experimental property measurements, providing a precedent for evaluating computational descriptors on real‑world data.  
-
-## Expected results  
-
-We expect to obtain a predictive model (e.g., random forest) that uses semi‑empirical descriptors and achieves mean absolute error (MAE) within ≈ 10 % of a comparable model built from high‑level DFT descriptors on the same experimental barrier set. Statistical comparison (paired t‑test) of the two error distributions will confirm whether performance differences are significant. Additionally, feature‑importance analysis will reveal a small subset of semi‑empirical descriptors that drive most of the predictive signal.  
-
-## Methodology sketch  
-
-- **Data acquisition**  
-  1. Download the *Experimental Reaction Barrier* dataset (e.g., nucleophilic substitution barriers) from Zenodo: `https://zenodo.org/record/XXXXXX/files/reaction_barriers.csv`.  
-  2. Obtain SMILES strings for all molecules in the dataset.  
-
-- **Descriptor calculation**  
-  3. Use the open‑source DFTB+ package (CPU‑only) to compute semi‑empirical electronic structure descriptors for each molecule (e.g., HOMO/LUMO energies, Mulliken charges, bond orders).  
-  4. Use Psi4 (free CPU DFT) to compute the same set of descriptors at a modest DFT level (e.g., B3LYP/def2‑SVP) for a subset (≈ 30 %) of the molecules to serve as the high‑level reference.  
-
-- **Feature engineering**  
-  5. Assemble a descriptor matrix `X_semi` (semi‑empirical) and `X_DFT` (high‑level) aligned with the experimental barrier vector `y`.  
-  6. Standardize features and optionally apply dimensionality reduction (PCA) to test robustness.  
-
-- **Model building & evaluation**  
-  7. Train a random‑forest regressor on `X_semi` → `y` using 5‑fold cross‑validation; record MAE for each fold.  
-  8. Train an identical model on `X_DFT` → `y` as the high‑level baseline.  
-  9. Perform a paired t‑test on the per‑fold MAE values to assess whether the semi‑empirical model’s error is statistically indistinguishable from the DFT baseline.  
-
-- **Descriptor importance analysis**  
-  10. Extract feature‑importance scores from the semi‑empirical random forest; identify the top‑5 descriptors.  
-  11. Re‑train models using only these top descriptors to verify that predictive performance remains comparable.  
-
-- **Reproducibility & resource constraints**  
-  12. All steps are scripted in Python (scikit‑learn, pandas, subprocess calls to DFTB+ and Psi4).  
-  13. The full pipeline (data download, descriptor calculation, modeling) is designed to run within a single GitHub Actions job (< 6 h, ≤ 7 GB RAM).  
-
-## Duplicate-check  
-
-- Reviewed existing ideas: *none*.  
-- Closest match: *none* (no semantic overlap detected).  
-- Verdict: **NOT a duplicate**.
-
-
-## Search trail
-
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-24T15:37:07Z
-**Outcome**: exhausted
-**Original term**: Predicting Molecular Properties from Quantum Chemical Calculations with Limited Computational Resources chemistry
-**Verified citation count**: 3
-
-### Search terms used
-
-| Rank | Term | Hit count |
-|-|-|-|
-| 0 (initial) | Predicting Molecular Properties from Quantum Chemical Calculations with Limited Computational Resources chemistry | 3 |
-
-### Verified citations
-
-1. **Accurate and Efficient Quantum Computations of Molecular Properties Using Daubechies Wavelet Molecular Orbitals: A Benchmark Study against Experimental Data** (2022). Cheng-Lin Hong, Ting Tsai, Jyh-Pin Chou, Peng-Jen Chen, Pei-Kai Tsai, et al.. arXiv. [2205.14476](https://arxiv.org/abs/2205.14476). PDF-sampled: No.
-2. **A full circuit-based quantum algorithm for excited-states in quantum chemistry** (2021). Jingwei Wen, Zhengan Wang, Chitong Chen, Junxiang Xiao, Hang Li, et al.. arXiv. [2112.14193](https://arxiv.org/abs/2112.14193). PDF-sampled: No.
-3. **An accurate analytic He-H2 potential energy surface from a greatly expanded set of ab initio energies** (2003). Arnold I. Boothroyd, Peter G. Martin, Michael R. Peterson. arXiv. [astro-ph/0305386](astro-ph/0305386). PDF-sampled: No.
+## Validation
+- Compare model predictions against experimental data.
+- Verify physical ranges (HOMO < LUMO, reasonable energies).
+- Ensure reproducibility via checksums and versioned dependencies.

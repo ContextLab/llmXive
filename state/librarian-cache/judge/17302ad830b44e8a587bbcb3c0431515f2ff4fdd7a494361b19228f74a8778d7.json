@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.16700",
+  "judged_at": "2026-07-17T19:15:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"multi-turn reflective masking elicits reasoning in mask diffusion mode\" linguistics",
+  "rationale": "This paper is the foundational methods paper (category d) and the primary source of the specific mechanism (\"Multi-Turn Reflective Masking\") that the user's research question explicitly seeks to extend. It establishes the baseline technique and empirical results that any follow-up work in this specific niche must cite and build upon.",
+  "relevant": true
+}

@@ -1,217 +1,115 @@
 """
-Base data model classes for the corrosion potential prediction pipeline.
+Data model classes for the corrosion prediction pipeline.
 
-Defines structured records for Alloy composition, Environmental conditions,
-and Corrosion measurements. These classes enforce strict typing and
-basic validation to ensure data integrity before processing.
+Uses Pydantic v2 for strict schema enforcement as required by T007.
 """
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
-from datetime import datetime
-import json
+from typing import Dict, Optional
+from pydantic import BaseModel, Field, field_validator, ConfigDict
+from utils.exceptions import DataInsufficientError, SchemaMismatchError
+from utils.logging import get_logger
 
-@dataclass
-class AlloyRecord:
+logger = get_logger(__name__)
+
+
+class AlloyRecord(BaseModel):
     """
-    Represents a specific alloy composition.
+    Represents an alloy record with its composition and designation.
     
-    Attributes:
-        alloy_id: Unique identifier for the alloy (e.g., from NIST database).
-        designation: Commercial or standard designation (e.g., "304L", "Inconel 625").
-        composition: Dictionary mapping element symbol to weight fraction (0.0-1.0).
-        source: Reference to the source of the composition data.
-        created_at: Timestamp of record creation.
+    Fields:
+        alloy_id: Unique identifier for the alloy.
+        composition: Dictionary mapping element names to weight fractions.
+        specific_alloy_designation: Specific name/designation of the alloy (e.g., "304 Stainless Steel").
     """
-    alloy_id: str
-    designation: str
-    composition: Dict[str, float]
-    source: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    model_config = ConfigDict(strict=True, frozen=True)
 
-    def __post_init__(self) -> None:
-        """Validate composition data after initialization."""
-        if not self.alloy_id:
-            raise ValueError("alloy_id cannot be empty")
-        if not self.designation:
-            raise ValueError("designation cannot be empty")
-        if not self.composition:
-            raise ValueError("composition dictionary cannot be empty")
-        
-        # Validate weight fractions are within [0, 1]
-        for element, fraction in self.composition.items():
+    alloy_id: str = Field(..., description="Unique identifier for the alloy")
+    composition: Dict[str, float] = Field(..., description="Mapping of element name to weight fraction")
+    specific_alloy_designation: str = Field(..., description="Specific alloy designation name")
+
+    @field_validator('composition')
+    @classmethod
+    def validate_composition(cls, v: Dict[str, float]) -> Dict[str, float]:
+        if not v:
+            raise SchemaMismatchError("Composition dictionary cannot be empty")
+        for element, fraction in v.items():
+            if not isinstance(element, str) or not element:
+                raise SchemaMismatchError(f"Invalid element name in composition: {element}")
             if not isinstance(fraction, (int, float)):
-                raise TypeError(f"Composition fraction for {element} must be numeric")
+                raise SchemaMismatchError(f"Composition value must be a number, got {type(fraction)} for {element}")
             if fraction < 0.0 or fraction > 1.0:
-                raise ValueError(f"Composition fraction for {element} must be between 0.0 and 1.0")
-        
-        # Ensure total composition is reasonable (allow small floating point errors)
-        total = sum(self.composition.values())
-        if total < 0.99 or total > 1.01:
-            # Log warning or raise error depending on strictness requirements
-            # For now, we allow it but note it
-            pass
+                # Allow > 1.0 if it represents percentage (0-100) but warn? 
+                # Strictly, weight fraction is 0-1. If input is 0-100, preprocessing should handle it.
+                # For strict schema, we enforce 0-1.
+                raise SchemaMismatchError(f"Weight fraction for {element} must be between 0 and 1, got {fraction}")
+        return v
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert record to dictionary for serialization."""
-        return {
-            "alloy_id": self.alloy_id,
-            "designation": self.designation,
-            "composition": self.composition,
-            "source": self.source,
-            "created_at": self.created_at.isoformat()
-        }
-
+    @field_validator('alloy_id', 'specific_alloy_designation')
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AlloyRecord":
-        """Create an AlloyRecord from a dictionary."""
-        # Handle datetime parsing if needed
-        if isinstance(data.get("created_at"), str):
-            data["created_at"] = datetime.fromisoformat(data["created_at"])
-        return cls(**data)
+    def validate_non_empty_string(cls, v: str, info) -> str:
+        if not v or not v.strip():
+            field_name = info.field_name
+            raise SchemaMismatchError(f"{field_name} cannot be empty")
+        return v.strip()
 
 
-@dataclass
-class EnvironmentRecord:
+class EnvironmentRecord(BaseModel):
     """
-    Represents the environmental conditions of a corrosion test.
+    Represents the environmental conditions for a corrosion measurement.
     
-    Attributes:
-        env_id: Unique identifier for the environment condition.
-        ph: pH value of the solution.
-        temperature_c: Temperature in Celsius.
-        solution_composition: Dictionary of solution components (e.g., {"Cl-": 0.5, "SO4--": 0.1}).
-        aeration: Description of aeration state (e.g., "aerated", "deaerated").
-        source: Reference to the source of the environmental data.
-        created_at: Timestamp of record creation.
+    Fields:
+        ph: pH value of the electrolyte.
+        temperature: Temperature in Celsius.
+        electrolyte_type: Type of electrolyte (e.g., "NaCl", "H2SO4").
     """
-    env_id: str
-    ph: Optional[float] = None
-    temperature_c: Optional[float] = None
-    solution_composition: Dict[str, float] = field(default_factory=dict)
-    aeration: Optional[str] = None
-    source: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    model_config = ConfigDict(strict=True, frozen=True)
 
-    def __post_init__(self) -> None:
-        """Validate environment data after initialization."""
-        if not self.env_id:
-            raise ValueError("env_id cannot be empty")
-        
-        # Validate pH if present
-        if self.ph is not None:
-            if not isinstance(self.ph, (int, float)):
-                raise TypeError("pH must be numeric")
-            # pH is typically 0-14, but extreme conditions exist. We allow >14 or <0 with a note.
-            if self.ph < 0.0 or self.ph > 14.0:
-                # Log warning or raise error depending on strictness
-                pass
+    ph: float = Field(..., description="pH value of the electrolyte")
+    temperature: float = Field(..., description="Temperature in Celsius")
+    electrolyte_type: str = Field(..., description="Type of electrolyte")
 
-        # Validate temperature if present
-        if self.temperature_c is not None:
-            if not isinstance(self.temperature_c, (int, float)):
-                raise TypeError("temperature must be numeric")
-            if self.temperature_c < -273.15:
-                raise ValueError("Temperature cannot be below absolute zero")
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert record to dictionary for serialization."""
-        return {
-            "env_id": self.env_id,
-            "ph": self.ph,
-            "temperature_c": self.temperature_c,
-            "solution_composition": self.solution_composition,
-            "aeration": self.aeration,
-            "source": self.source,
-            "created_at": self.created_at.isoformat()
-        }
-
+    @field_validator('ph')
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "EnvironmentRecord":
-        """Create an EnvironmentRecord from a dictionary."""
-        if isinstance(data.get("created_at"), str):
-            data["created_at"] = datetime.fromisoformat(data["created_at"])
-        return cls(**data)
+    def validate_ph(cls, v: float) -> float:
+        if v < 0.0 or v > 14.0:
+            # Strictly, pH can be outside 0-14 in extreme cases, but typically 0-14 in standard tests.
+            # If the spec implies standard ranges, we might enforce 0-14. 
+            # However, to be safe against real data outliers, we might just warn or allow.
+            # Given the task says "strict schema", we allow real values but could add a constraint if spec demands.
+            # Let's allow any float but log a warning if out of typical range.
+            logger.warning(f"pH value {v} is outside typical 0-14 range.")
+        return v
+
+    @field_validator('temperature')
+    @classmethod
+    def validate_temperature(cls, v: float) -> float:
+        if v < -273.15:
+            raise SchemaMismatchError(f"Temperature cannot be below absolute zero: {v}")
+        return v
+
+    @field_validator('electrolyte_type')
+    @classmethod
+    def validate_electrolyte_type(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise SchemaMismatchError("Electrolyte type cannot be empty")
+        return v.strip()
 
 
-@dataclass
-class CorrosionMeasurement:
+class CorrosionMeasurement(BaseModel):
     """
-    Represents a single corrosion measurement result.
+    Represents a corrosion measurement result.
     
-    This class links an AlloyRecord and an EnvironmentRecord to a specific
-    measurement result (e.g., corrosion potential, corrosion rate).
-    
-    Attributes:
-        measurement_id: Unique identifier for the measurement.
-        alloy_id: Reference to the alloy used.
-        env_id: Reference to the environment condition.
-        corrosion_potential_mv: Measured corrosion potential in millivolts (vs. reference).
-        corrosion_rate_mpy: Corrosion rate in mils per year (optional).
-        corrosion_rate_mm_y: Corrosion rate in mm/year (optional).
-        method: Measurement method used (e.g., "potentiodynamic polarization", "EIS").
-        reference_electrode: Reference electrode used (e.g., "SCE", "Ag/AgCl").
-        source: Reference to the source of the measurement data.
-        created_at: Timestamp of record creation.
+    Fields:
+        record_id: Unique identifier linking to the alloy/environment record.
+        potential_mV: Corrosion potential in millivolts.
     """
-    measurement_id: str
-    alloy_id: str
-    env_id: str
-    corrosion_potential_mv: Optional[float] = None
-    corrosion_rate_mpy: Optional[float] = None
-    corrosion_rate_mm_y: Optional[float] = None
-    method: Optional[str] = None
-    reference_electrode: Optional[str] = None
-    source: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    model_config = ConfigDict(strict=True, frozen=True)
 
-    def __post_init__(self) -> None:
-        """Validate measurement data after initialization."""
-        if not self.measurement_id:
-            raise ValueError("measurement_id cannot be empty")
-        if not self.alloy_id:
-            raise ValueError("alloy_id reference cannot be empty")
-        if not self.env_id:
-            raise ValueError("env_id reference cannot be empty")
+    record_id: str = Field(..., description="Unique identifier for the measurement record")
+    potential_mV: float = Field(..., description="Corrosion potential in millivolts")
 
-        # Validate potential if present
-        if self.corrosion_potential_mv is not None:
-            if not isinstance(self.corrosion_potential_mv, (int, float)):
-                raise TypeError("corrosion_potential_mv must be numeric")
-
-        # Validate rates if present
-        if self.corrosion_rate_mpy is not None and self.corrosion_rate_mpy < 0:
-            raise ValueError("corrosion_rate_mpy cannot be negative")
-        if self.corrosion_rate_mm_y is not None and self.corrosion_rate_mm_y < 0:
-            raise ValueError("corrosion_rate_mm_y cannot be negative")
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert record to dictionary for serialization."""
-        return {
-            "measurement_id": self.measurement_id,
-            "alloy_id": self.alloy_id,
-            "env_id": self.env_id,
-            "corrosion_potential_mv": self.corrosion_potential_mv,
-            "corrosion_rate_mpy": self.corrosion_rate_mpy,
-            "corrosion_rate_mm_y": self.corrosion_rate_mm_y,
-            "method": self.method,
-            "reference_electrode": self.reference_electrode,
-            "source": self.source,
-            "created_at": self.created_at.isoformat()
-        }
-
+    @field_validator('record_id')
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CorrosionMeasurement":
-        """Create a CorrosionMeasurement from a dictionary."""
-        if isinstance(data.get("created_at"), str):
-            data["created_at"] = datetime.fromisoformat(data["created_at"])
-        return cls(**data)
-
-    def to_json(self) -> str:
-        """Serialize the record to a JSON string."""
-        return json.dumps(self.to_dict())
-
-    @classmethod
-    def from_json(cls, json_str: str) -> "CorrosionMeasurement":
-        """Deserialize a JSON string to a CorrosionMeasurement."""
-        data = json.loads(json_str)
-        return cls.from_dict(data)
+    def validate_record_id(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise SchemaMismatchError("Record ID cannot be empty")
+        return v.strip()

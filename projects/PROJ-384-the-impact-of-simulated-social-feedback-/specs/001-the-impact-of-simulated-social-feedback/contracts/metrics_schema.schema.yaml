@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "User Metrics Schema"
+description: "Schema for the aggregated user metrics derived from interactions."
+type: object
+properties:
+  user_id:
+    type: string
+    description: "Unique identifier for the user."
+  interaction_count:
+    type: integer
+    minimum: 0
+    description: "Total number of interactions for the user."
+  mean_reply_valence:
+    type: number
+    description: "Mean sentiment of replies (excluding -999.0)."
+    minimum: -1.0
+    maximum: 1.0
+  reply_volatility_std:
+    type: number
+    description: "Standard deviation of rolling window reply valence. -999.0 if insufficient data."
+  reply_volatility_sign_change:
+    type: number
+    description: "Frequency of sign changes in the reply sequence."
+  mean_post_valence:
+    type: number
+    description: "Mean sentiment of posts (control variable for reciprocity)."
+    minimum: -1.0
+    maximum: 1.0
+  self_esteem_indicator:
+    type: number
+    description: "Lexicon-derived self-esteem indicator from post text (Outcome)."
+  post_length_avg:
+    type: number
+    description: "Average character length of user's posts."
+  reply_volatility_std_window_3:
+    type: number
+    description: "Volatility metric calculated with window size 3."
+  reply_volatility_std_window_7:
+    type: number
+    description: "Volatility metric calculated with window size 7."
+required:
+  - user_id
+  - interaction_count
+  - mean_reply_valence
+  - reply_volatility_std
+  - mean_post_valence
+  - self_esteem_indicator

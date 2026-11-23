@@ -2,74 +2,55 @@
 
 ## 1. Entity Definitions
 
-### 1.1 SolarCycle
-Logical entity representing a specific solar activity cycle.
-*   **cycle_id**: Integer (e.g., 1, 2, ..., 25).
-*   **start_year**: Integer (approximate start).
-*   **end_year**: Integer (approximate end).
-*   **peak_year**: Integer (year of maximum activity).
-*   **avg_gsn**: Float (average sunspot number over the cycle).
-
-### 1.2 SunspotRecord
-Time-series entity for Group Sunspot Number.
-*   **date**: Date (YYYY-MM-DD).
-*   **gsn**: Float (Group Sunspot Number).
-*   **quality_flag**: String (e.g., "raw", "interpolated", "proxy").
-*   **cycle_phase**: Float (sin/cos of day-of-year).
-
-### 1.3 TSIRecord
-Time-series entity for Total Solar Irradiance.
-*   **date**: Date (YYYY-MM-DD).
-*   **tsi_value**: Float (W/m²).
-*   **tsi_lower**: Float (Lower bound of uncertainty).
-*   **tsi_upper**: Float (Upper bound of uncertainty).
-*   **source**: String ("satellite", "reconstruction", "synthetic").
-
-### 1.4 ModelArtifact
-Trained model metadata.
-*   **model_type**: String ("RandomForest", "GaussianProcess").
-*   **validation_rmse**: Float (Time-Block CV).
-*   **r_squared**: Float.
-*   **pkl_path**: String (path to pickled model).
+| Entity | Attributes | Description |
+|---|---|---|
+| **SolarCycle** | `cycle_id` (int), `start_date` (date), `end_date` (date), `peak_date` (date), `avg_gsn` (float) | Derived from SILSO records; stored in `data/processed/solar_cycles.parquet`. |
+| **SunspotRecord** | `date` (date), `gsn` (float, nullable), `quality_flag` (enum: `raw`/`interpolated`/`proxy`), `cycle_id` (int, nullable), `gsn_lag1` (float, nullable) | Preprocessed GSN series; if GSN is unavailable the fields are left null and the record still exists for alignment with SILSO cycle information. Stored in `data/processed/preprocessed_data.parquet`. |
+| **TSIProxyRecord** | `time` (date), `solar_forcing` (float) | CMIP6 solar forcing; merged for comparison only. |
+| **ModelArtifact** | `model_type` (str), `validation_rmse` (float, nullable), `validation_r2` (float, nullable), `artifact_path` (str) | Serialized model + metrics; present only when TSI training succeeded. |
+| **ReconstructionRecord** | `date` (date), `tsi_reconstructed` (float), `tsi_lower` (float), `tsi_upper` (float), `cycle_id` (int), `model_used` (enum: `cycle_specific`/`cycle_agnostic`) | Final 1610‑2002 reconstruction with uncertainty; written only if a model was trained. |
+| **BootstrapStat** | `solar_minimum` (str), `variance_mean` (float), `variance_ci_lower` (float), `variance_ci_upper` (float), `p_value_corrected` (float) | Variance comparison across Maunder, Dalton, Modern minima. |
+| **SensitivityResult** | `threshold` (float ∈ {0.01, 0.05, 0.1}), `rmse_variation` (float, nullable), `coefficient_stability` (float) | Result of the tolerance‑threshold sweep (only when a model exists). |
 
 ## 2. Data Flow
 
-1.  **Ingestion**: Raw GSN (SILSO) and TSI (Satellite) loaded.
-2.  **Preprocessing**:
-    *   Gap filling (Linear/Proxy GSN=0).
-    *   Cycle detection (SILSO boundaries).
-    *   Feature engineering (Cycle_Phase).
-    *   Output: `preprocessed_data.parquet` (SunspotRecord + TSIRecord).
-3.  **Training**:
-    *   Split by Time-Block (Train: 2003-2015, Test: 2016-Present).
-    *   Train RF/GP.
-    *   Output: `model_artifact.pkl` + `cv_report.json`.
-4.  **Sensitivity Analysis**:
-    *   Sweep inconsistency tolerance threshold.
-    *   Output: `sensitivity_report.json`.
-5.  **Reconstruction**:
-    *   Apply model to pre-satellite GSN.
-    *   Generate uncertainty bands.
-    *   Output: `tsi_reconstruction_1610_2002.parquet`.
-6.  **Comparison**:
-    *   Compare with baseline/CMIP6.
-    *   Output: `comparison_report.json`.
+1. `code/data/ingestion.py` → raw parquet files in `data/raw/` + `checksums.json`.  
+2. `code/data/preprocessing.py` → `solar_cycles.parquet` and `preprocessed_data.parquet`.  
+3. `code/models/train.py` (conditional) → `data/artifacts/model_*.pkl` + `cv_report.json`.  
+4. `code/analysis/sensitivity.py` (conditional) → `sensitivity_report.json`.  
+5. `code/models/predict.py` (conditional) → `tsi_reconstruction_1610_2002.parquet` + `figures/reconstruction.png`.  
+6. `code/analysis/comparison.py` → `comparison_report.json` (RMSE, bias, bootstrap stats, framing statements).  
+
+Every step writes a **new** file; raw data is never overwritten (Principle III).
 
 ## 3. Storage Layout
 
 ```text
 data/
 ├── raw/
-│   ├── silso_sunspot.parquet          # Source GSN
-│   ├── tsi_satellite.parquet          # Source TSI
-│   └── cmip6_baseline.parquet         # Source CMIP6
+│   ├── .gitkeep
+│   ├── silso.parquet
+│   ├── cmip6_solar_forcing.parquet
+│   └── checksums.json
 ├── processed/
-│   ├── preprocessed_data.parquet      # Joined, gap-filled, phase-labeled
-│   └── tsi_reconstruction_1610_2002.parquet # Final output
+│   ├── .gitkeep
+│   ├── solar_cycles.parquet
+│   ├── preprocessed_data.parquet
+│   └── tsi_reconstruction_1610_2002.parquet   # only if a model was trained
 └── artifacts/
-    ├── model_rf.pkl
-    ├── model_gp.pkl
     ├── cv_report.json
     ├── sensitivity_report.json
-    └── comparison_report.json
+    ├── comparison_report.json
+    └── figures/
+        └── reconstruction.png               # only if a model was trained
 ```
+
+All files are SHA‑256‑checked and recorded in the project state YAML (Principle V).
+
+## 4. Facular Baseline Note
+The facular offset (≈ 0.5 W/m²) is a **constant** defined in `code/config.py`. It is applied during model prediction to avoid zero TSI when GSN ≈ 0. It is **not persisted** in any output file; its value is documented in the configuration file.
+
+---
+
+
+

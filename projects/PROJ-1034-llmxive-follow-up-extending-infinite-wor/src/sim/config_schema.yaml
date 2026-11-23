@@ -1,0 +1,148 @@
+# CA Engine Parameter Schema for llmXive Eco-Director
+# Defines locality, memory, and non-linearity constraints for the Cellular Automata simulation.
+# This file serves as the configuration template and validation schema.
+
+version: "1.0.0"
+description: "Configuration schema for the CA Engine (Eco-Director)"
+
+# Root schema structure
+schema:
+  type: object
+  required:
+    - engine
+    - locality
+    - memory
+    - non_linearity
+    - simulation
+  properties:
+    engine:
+      type: object
+      description: "Core engine settings"
+      required:
+        - type
+        - grid_type
+      properties:
+        type:
+          type: string
+          const: "ca"
+        grid_type:
+          type: string
+          enum: ["2d", "3d", "hex"]
+          default: "2d"
+        boundary_condition:
+          type: string
+          enum: ["periodic", "fixed", "reflective"]
+          default: "periodic"
+
+    locality:
+      type: object
+      description: "Spatial interaction radius and kernel settings"
+      required:
+        - radius
+        - kernel_type
+      properties:
+        radius:
+          type: integer
+          minimum: 1
+          maximum: 10
+          description: "Moore or Von Neumann neighborhood radius"
+        kernel_type:
+          type: string
+          enum: ["moore", "von_neumann", "custom"]
+          default: "moore"
+        weight_decay:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.0
+          description: "Exponential decay factor for distance weighting"
+
+    memory:
+      type: object
+      description: "Temporal memory and state persistence settings"
+      required:
+        - history_depth
+        - persistence_threshold
+      properties:
+        history_depth:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: "Number of previous steps to consider for state transition"
+        persistence_threshold:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.5
+          description: "Threshold for state stability (0.0 = volatile, 1.0 = static)"
+        decay_factor:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.9
+          description: "Exponential decay for older memory steps"
+
+    non_linearity:
+      type: object
+      description: "Non-linear activation and interaction functions"
+      required:
+        - activation
+        - sensitivity
+      properties:
+        activation:
+          type: string
+          enum: ["sigmoid", "tanh", "relu", "step", "gaussian"]
+          default: "sigmoid"
+        sensitivity:
+          type: number
+          minimum: 0.01
+          maximum: 10.0
+          default: 1.0
+          description: "Gain factor for the activation function"
+        noise_scale:
+          type: number
+          minimum: 0.0
+          default: 0.0
+          description: "Additive Gaussian noise scale"
+
+    simulation:
+      type: object
+      description: "Global simulation control parameters"
+      required:
+        - steps
+        - seed
+      properties:
+        steps:
+          type: integer
+          minimum: 1
+          default: 1000
+        seed:
+          type: integer
+          description: "Random seed for reproducibility"
+          default: 42
+        verbose:
+          type: boolean
+          default: false
+
+# Default configuration instance (validates against the schema above)
+config:
+  engine:
+    type: "ca"
+    grid_type: "2d"
+    boundary_condition: "periodic"
+  locality:
+    radius: 1
+    kernel_type: "moore"
+    weight_decay: 0.0
+  memory:
+    history_depth: 3
+    persistence_threshold: 0.5
+    decay_factor: 0.9
+  non_linearity:
+    activation: "sigmoid"
+    sensitivity: 1.0
+    noise_scale: 0.0
+  simulation:
+    steps: 10000
+    seed: 42
+    verbose: false

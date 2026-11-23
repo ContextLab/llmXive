@@ -1,67 +1,81 @@
 # Quickstart: Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals
 
 ## Prerequisites
-- Python 3.11+
-- Git
-- (Optional) Conda or venv for environment management
-- **API Access**: Ensure you have an API key for Materials Project (if used) or network access to NIST mirrors.
+- Python 3.11 or newer  
+- Git  
+- Access to a **verified** NIST SRD 150 dataset (or a pre‑cached copy in `data/raw/`).  
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project directory).
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+1. **Clone the repository**  
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-415-predicting-the-impact-of-alloying-on-the
+   ```
 
-## Data Preparation
-*Note: This project requires **real** data from NIST or Materials Project. Synthetic data is not supported.*
+2. **Create and activate a virtual environment**  
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
 
-1.  **Fetch Data**: Run the acquisition script to download the verified dataset.
-    ```bash
-    python code/data/acquisition.py
-    ```
-    This will fetch data from the verified NIST/Materials Project source and save it to `data/raw/`. If the fetch fails, the script will exit with an error.
-2.  **Verify**: Ensure `data/raw/diffusion_data.csv` exists and is checksummed.
+3. **Install dependencies**  
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Data Setup
+
+1. **Verify Data Availability**  
+   Ensure `data/raw/nist_diffusion_raw.csv` (or the file referenced by `NIST_SRD150_URL`) exists.  
+   *If the file is missing, the pipeline will abort with*  
+   `"ERROR: No verified real dataset found. Synthetic data is not permitted for this research goal."`
+
+2. **Run the Ingestion & Availability Check**  
+   ```bash
+   python code/data/streaming_loader.py
+   ```
+   This script:
+   - Checks for at least one FCC self‑diffusion row **and** one FCC solute‑diffusion row.  
+   - Writes `data/curated/baselines.csv`, `data/curated/filtered.csv`, and `data/curated/data_provenance.json`.  
 
 ## Running the Pipeline
 
-Execute the full pipeline (Acquisition -> Ingestion -> Feature Engineering -> Training -> Validation):
-
+### 1. Feature Engineering
 ```bash
-python code/main.py
+python code/processing/feature_engineering.py
+```
+Generates atomic descriptors and `baseline_shift_eV`.
+
+### 2. Model Training
+```bash
+# Random Forest
+python code/models/train_rf.py
+
+# Gradient Boosting
+python code/models/train_gb.py
+
+# Linear Regression (statistical inference)
+python code/models/train_linear.py
 ```
 
-This will:
-1.  Acquire data from verified sources.
-2.  Ingest and filter data (FCC, Self-diffusion).
-3.  Compute `size_mismatch` using Metallic Radii.
-4.  Train RF, GB, and Linear models (with Host Metal fixed effects).
-5.  Perform threshold sensitivity analysis and Power Analysis.
-6.  Save results to `models/` and `reports/`.
+### 3. Validation & Sensitivity Analysis
+```bash
+python code/validation/sensitivity_analysis.py
+```
+Creates `validation/stability_index_report.json` and associated plots.
 
-## Running Tests
-
-Run the unit and integration tests:
-
+## Verification
+Run the test suite to ensure all components work:
 ```bash
 pytest tests/ -v
 ```
 
-To check contract validation:
-
-```bash
-pytest tests/contract/test_schema.py -v
-```
-
 ## Expected Outputs
-- `models/final_rf.pkl`: Trained Random Forest model.
-- `models/final_gb.pkl`: Trained Gradient Boosting model.
-- `models/linear_coef.json`: Linear regression coefficients and p-values.
-- `reports/validation_report.json`: Full statistical validation report (including Power Analysis).
-- `data/curated/features.csv`: Final dataset with engineered features.
+- `data/curated/filtered.csv` – curated training dataset.  
+- `data/curated/baselines.csv` – pure‑host baseline energies.  
+- `models/final_rf.pkl`, `models/final_gb.pkl`, `models/linear_coef.json` – trained model artifacts.  
+- `validation/stability_index_report.json` – threshold sweep results and Stability Index.  
+- `plots/` – figures for feature importance, threshold sensitivity, etc.
+
+---

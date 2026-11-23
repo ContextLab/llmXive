@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -20,50 +20,63 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `code/` directory structure under `projects/PROJ-903-llmxive-follow-up-extending-data-journal/`
-- [ ] T001b [P] Create `tests/` directory structure (`unit/`, `integration/`, `contract/`) under `projects/PROJ-903-llmxive-follow-up-extending-data-journal/`
-- [ ] T001c [P] Create `data/` and `output/` directory structures under `projects/PROJ-903-llmxive-follow-up-extending-data-journal/`
-- [ ] T002 Initialize Python 3.11 project with `pandas`, `scipy`, `scikit-learn`, `pgmpy`, `transformers`, `pydantic`, `pytest` dependencies in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-
----
+- [X] T001a [P] Create `projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/__init__.py`
+- [X] T001b [P] Create `projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/data/__init__.py`
+- [X] T001c [P] Create `projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/analysis/__init__.py`
+- [X] T001d [P] Create `projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/narrative/__init__.py` <!-- FAILED: unspecified -->
+- [X] T001e [P] Create `projects/PROJ-903-llmxive-follow-up-extending-data-journal/code/evaluation/__init__.py` <!-- FAILED: unspecified -->
+- [X] T001f [P] Create `projects/PROJ-903-llmxive-follow-up-extending-data-journal/tests/unit/__init__.py` <!-- FAILED: unspecified -->
+- [X] T001g [P] Create `projects/PROJ-903-llmxive-follow-up-extending-data-journal/tests/integration/__init__.py`
+- [X] T001h [P] Create `projects/PROJ-903-llmxive-follow-up-extending-data-journal/tests/contract/__init__.py`
+- [ ] T001i [P] Create `projects/PROJ-903-llmxive-follow-up-extending-data-journal/data/raw/`, `data/processed/`, and `output/` directories
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **Includes all data loading, streaming, and error handling logic.**
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004a [P] Select and verify initial public policy datasets (California Housing, Crime and Communities) for inclusion in the registry
-- [ ] T004b [P] Create `data/registry.yaml` with verified entries and validation logic for a target dataset collection.
-- [ ] T005 [P] Implement `code/data/loader.py` to fetch datasets from UCI/Kaggle/HF URLs, validate numeric columns (≥5) and row counts (≥30), and checksum raw files
-- [ ] T006 [P] Implement `code/data/processor.py` for data cleaning, missing value imputation (per `llmXive` protocol), and basic statistical summaries
-- [ ] T007 Create base configuration in `code/config.py` for execution constraints (CPU-only, time limit, RAM limit) and random seeds
-- [ ] T008 Setup `tests/unit/` and `tests/integration/` directory structure with `pytest` configuration
-- [ ] T009 Implement `code/main.py` CLI entry point with argument parsing for dataset selection and pipeline stages
+- [ ] T002a [P] Create `requirements.txt` with pinned versions for `pandas`, `scipy`, `scikit-learn`, `transformers`, `pydantic`, `pytest`, `statsmodels`
+- [ ] T002b [P] Create `venv` and install dependencies from `requirements.txt`
+- [ ] T002c [P] Configure linting (ruff) and formatting (black) tools
+- [~] T004a [P] Select and verify initial public policy datasets (California Housing, Crime and Communities) and record exact file paths and SHA256 checksums in `data/dataset_registry.yaml`. Verification criteria: Match checksum against known values in registry.
+- [~] T004b [P] Implement `code/data/validate_registry.py` to validate entries in `data/dataset_registry.yaml` and produce `validation_log.txt` in JSON-lines format.
+- [~] T005a [P] Implement `code/data/loader.py` to fetch datasets from UCI/Kaggle/HF URLs, validate numeric columns (≥5), and checksum raw files. **On fetch failure, the loader MUST raise a `DataFetchError` exception.** The pipeline orchestration (`main.py`) MUST catch this exception, log the error, and **skip** the dataset, proceeding to the next one. (Addresses "fail loudly" at loader level, "skip" at pipeline level).
+- [~] T005b [P] **CRITICAL**: Implement dataset sample size validation in `code/data/loader.py` to detect if `n < 30`. (Wikipedia: Principal component analysis, https://en.wikipedia.org/wiki/Principal_component_analysis) If invalid, **set a `low_power_flag` in the global context and log a warning**, but **SKIP downstream counterfactual generation** (do not run the inspector agent). **PROPAGATE the flag** to the final story structure so T029 can append the cautionary note. This allows the baseline story to proceed but prevents invalid counterfactual claims.
+- [~] T005c [P] Implement `code/data/loader.py` streaming logic: For datasets exceeding available RAM, implement `datasets.load_dataset(..., streaming=True)` to process in chunks without loading the full dataset into memory, accumulating statistics online. **This task includes a comment block specifying the chunk size (e.g., a substantial batch of rows) and the accumulation method (e.g., Welford's online algorithm for variance/correlation).** (Addresses "Large real datasets: STREAM" rule).
+- [~] T005d [P] Implement logic to propagate the "Low Power" flag from T005b into the final story structure and report (Edge Cases). This task ensures the story explicitly states "Low Power - Interpret with Caution" when the flag is set.
+- [~] T006a [P] Implement `code/data/processor.py` cleaning logic (missing value handling)
+- [~] T006b [P] Implement `code/data/processor.py` imputation logic (per `llmXive` protocol)
+- [~] T006c [P] Implement `code/data/processor.py` basic statistical summaries
+- [~] T007 [P] Create base configuration in `code/config.py` for execution constraints (CPU-only, time limit, RAM limit) and random seeds
+- [~] T008 [P] Setup `tests/unit/` and `tests/integration/` directory structure with `pytest` configuration
+- [~] T009 [P] Implement `code/main.py` CLI entry point with argument parsing for dataset selection and pipeline stages, including exception handling for `DataFetchError` to skip datasets.
+- [~] T050 [P] **CRITICAL**: Update `code/data/loader.py` to explicitly document the streaming strategy for large datasets (e.g., California Housing, Adult Income). If `streaming=True` is used, add logic to accumulate statistics (mean, variance, correlation) in an online fashion without materializing the full DataFrame. Add a comment block specifying the chunk size and accumulation method. (Addresses "Large real datasets: STREAM" rule).
+- [~] T053 [P] Add unit tests in `tests/unit/test_loader.py` to verify that `loader.py` raises an exception (does not return synthetic data) when a mock `requests.get` or `datasets.load_dataset` call is forced to fail. (Addresses "Loader must fail loudly" rule).
+- [~] T054 [P] Add integration tests in `tests/integration/test_streaming.py` to verify that the streaming loader processes a large CSV in chunks and produces the same aggregate statistics as the full in-memory version (within floating point tolerance). (Addresses "Large real datasets: STREAM" rule).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,16 +92,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for baseline correlation detection in `tests/unit/test_baseline.py`
-- [ ] T011 [P] [US1] Integration test for full baseline pipeline on a sample CSV in `tests/integration/test_baseline_pipeline.py`
+- [~] T010 [P] [US1] Unit test for baseline correlation detection in `tests/unit/test_baseline.py`
+- [~] T011 [P] [US1] Integration test for full baseline pipeline on a sample CSV in `tests/integration/test_baseline_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012a [US1] Validate sample size (n < 30) for the baseline narrative; if invalid, flag as "Low Power" and halt baseline generation per FR-006.
-- [ ] T012 [P] [US1] Implement `code/narrative/baseline.py` to compute pairwise correlations and identify the strongest statistically significant relationship; output JSON schema MUST include keys: `r_value`, `p_value`, `var_x`, `var_y`, `significance`.
-- [ ] T015 [US1] Implement JSON output schema in `code/narrative/baseline.py` matching the acceptance criteria (primary_narrative, supporting metrics) - THIS TASK MUST PRECEDE T013.
-- [ ] T013 [US1] Implement narrative generation logic in `code/narrative/baseline.py` using a lightweight LLM (or API) to summarize the top correlation into a textual story (depends on T012a, T015, T002, T007).
-- [ ] T016 [US1] Add logging for baseline narrative generation steps in `code/main.py`
+- [~] T012 [US1] Implement `code/narrative/baseline.py` to compute pairwise correlations, identify the strongest statistically significant relationship, and output a JSON object. The JSON schema MUST include keys: `r_value`, `p_value`, `var_x`, `var_y`, `significance`, and `primary_narrative`. This task includes schema definition inline (no external task dependency) and logging.
+- [~] T013 [US1] Implement narrative generation logic in `code/narrative/baseline.py` using a lightweight LLM (or API) to summarize the top correlation into a textual story. **This task MUST consume the `low_power_flag` from T005b and append the "Low Power - Interpret with Caution" warning if the flag is set.** (Depends on T012, T002, T007, T005b, T005d).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -102,19 +112,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for partial correlation and confounder adjustment logic in `tests/unit/test_inspector.py`
-- [ ] T019 [P] [US2] Integration test for counterfactual query generation and execution in `tests/integration/test_inspector_pipeline.py`
+- [~] T018 [P] [US2] Unit test for partial correlation and confounder adjustment logic in `tests/unit/test_inspector.py`
+- [~] T019 [P] [US2] Integration test for counterfactual query generation and execution in `tests/integration/test_inspector_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/narrative/inspector.py` with logic to compute partial correlations and adjust for confounders using `pgmpy` or `scipy`
-- [ ] T021a [US2] Implement threshold sensitivity analysis in `code/narrative/inspector.py` sweeping correlation and p-value thresholds; create a list data structure to hold per-configuration results (keys: `correlation_threshold`, `p_value_threshold`, `variable_pair`, `r_value`, `p_value`, `is_significant`) to ensure FR-003 compliance.
-- [ ] T021b [US2] Implement aggregation and reporting logic to write per-configuration findings to `output/sensitivity_report.json` as a list of objects (one per threshold pair) from the raw list generated in T021a, ensuring the breakdown is preserved for verification. The JSON schema MUST include: `correlation_threshold`, `p_value_threshold`, `variable_pair`, `r_value`, `p_value`, `is_significant`.
-- [ ] T021c [US2] (Optional) Implement optional aggregation logic to summarize the sensitivity report if needed for high-level views, without losing the per-configuration detail in T021b.
-- [ ] T023 [US2] Implement logic to detect sample size < 30 and flag results as "Low Power - Interpret with Caution" per Edge Cases - MUST PRECEDE T022.
-- [ ] T022 [US2] Implement counterfactual query generation (SQL/Python) using the LLM, with retry logic for syntax errors or timeouts (depends on T023 validation).
-- [ ] T024 [US2] Implement logic to explicitly report "No significant counterfactuals found" when no valid alternative correlations exist, avoiding hallucination
-- [ ] T025 [US2] Ensure all counterfactual findings are framed as associational observations (FR-007) in the generated text
+- [~] T020 [US2] Implement `code/narrative/inspector.py` core logic (consolidated from T020a/b/c). This task includes: (1) Computing partial correlations, (2) Adjusting for confounders, (3) Generating candidate confounders. (Depends on T012, T005b).
+- [~] T021a [US2] Implement sensitivity analysis in `code/narrative/inspector.py`: **Compute** partial correlation controlling for the top-2 baseline drivers for each candidate variable. **Apply Bonferroni correction** to the p-value threshold based on the number of candidate variables tested. **Filter** results strictly by the corrected static thresholds defined in FR-003 (`p_value < 0.05` AND `|partial_r| > 0.15`). **Output** a JSON array of results. **Mandatory Schema**: Each object MUST contain `threshold_config` (string, fixed to "FR-003"), `claim` (string or the literal string "NO_SIGNIFICANT_COUNTERFACTUAL"), `p_value` (float), and `partial_r` (float). Validity is strictly defined by `p_value < 0.05` AND `|partial_r| > 0.15`. (Depends on T012, T020).
+- [~] T021b [US2] Implement aggregation and reporting logic to write the FR-003 compliant JSON array to `output/sensitivity_report.json`. **This task includes the schema definition for the output, which MUST match `contracts/counterfactual_report.schema.yaml`**. **Consumes output from T021a**. Ensure the schema includes `threshold_config`, `claim`, `p_value`, and `partial_r`. (Depends on T021a).
+- [~] T024 [US2] Implement counterfactual query generation (SQL/Python) using the LLM, with retry logic for syntax errors or timeouts (limited retries). **On failure after a limited number of retries, log the error and proceed without generating a query artifact**, ensuring the data flow to T021b is clear (no query = no counterfactual claim). (Depends on T020, T021a).
+- [~] T025 [US2] Implement logic to explicitly report "No significant counterfactuals found" when no valid alternative correlations exist, avoiding hallucination
+- [~] T026 [US2] Ensure all counterfactual findings are framed as associational observations (FR-007) in the generated text
+- [ ] T045 [US2] Implement LLM inference fallback mechanism in `code/narrative/llm_client.py`: wrap inference calls in a reasonable timeout. If exceeded, automatically switch to `phi3-mini` (local) or batched API calls (capped at a fixed time limit) and log the switch. (Depends on T002, T007).
+- [~] T047 [US2] Add robust error handling in `code/main.py` (orchestration) to catch `DataFetchError` from `loader.py`, log the error, and skip the dataset. (Depends on T005a).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,20 +138,21 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for narrative synthesis logic in `tests/unit/test_synthesizer.py`
-- [ ] T027 [P] [US3] Integration test for full pipeline (Baseline + Inspector + Synthesis) in `tests/integration/test_full_pipeline.py`
+- [~] T026a [P] [US3] Unit test for narrative synthesis logic in `tests/unit/test_synthesizer.py`
+- [~] T026b [P] [US3] Integration test for full pipeline (Baseline + Inspector + Synthesis) in `tests/integration/test_full_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028a [P] [US3] Implement `code/narrative/synthesizer.py` to generate raw synthesis text merging baseline and counterfactual objects.
-- [ ] T029 [US3] Implement citation generation logic to embed verifiable data query references (e.g., `SELECT corr(A, C)...`) in the story text.
-- [ ] T029c [US3] Implement a sanitization step to audit and rewrite any causal language (e.g., "causes", "drives") to associational terms (e.g., "associated with", "correlates with") to satisfy FR-007.
-- [ ] T028b [US3] Finalize synthesis in `code/narrative/synthesizer.py`: integrate T029 (citations) and T029c (sanitization) into the final story output, ensuring the result is both cited and associational.
-- [ ] T029b [US3] Implement logic to propagate the "Low Power" flag from T023 into the final story structure and report (Edge Cases).
-- [ ] T030 [US3] Implement neutrality logic in `code/narrative/synthesizer.py` to ensure conflicting narratives are presented without dismissing the baseline
-- [ ] T031 [US3] Add evaluation metrics calculation in `code/evaluation/bias.py` to measure Confirmation Bias (SC-002); logic MUST explicitly exclude variable pairs already in the top 3 absolute correlations of the dataset.
-- [ ] T032a [US3] Implement metadata stripping logic in `code/evaluation/blinding.py` to remove source labels (Baseline/Inspector) from stories before scoring, satisfying Constitution Principle VII and SC-001.
-- [ ] T032 [US3] Implement blinded rubric scoring logic in `code/evaluation/rubric.py` for Narrative Depth (SC-001) using paired t-tests (depends on T032a).
+- [~] T028a [P] [US3] Implement `code/narrative/synthesizer.py` to generate raw synthesis text merging baseline and counterfactual objects.
+- [~] T028b [US3] Implement citation generation logic to embed verifiable data query references (e.g., `SELECT corr(A, C)...`) in the story text.
+- [~] T028c [US3] Implement a sanitization step to audit and rewrite any causal language (e.g., "causes", "drives") to associational terms (e.g., "associated with", "correlates with") to satisfy FR-007.
+- [~] T029 [US3] Finalize synthesis in `code/narrative/synthesizer.py`: integrate T028a (raw text), T028b (citations), and T028c (sanitization) into the final story output. **Must also consume the `low_power_flag` from T005d/T005b** to insert the "Low Power - Interpret with Caution" warning if applicable. (Depends on T028a, T028b, T028c, T005d).
+- [~] T030 [US3] Implement neutrality logic in `code/narrative/synthesizer.py` to ensure conflicting narratives are presented without dismissing the baseline. **Depends on T028c** to ensure language is first sanitized. (Depends on T028c).
+- [ ] T031 [US3] Add evaluation metrics calculation in `code/evaluation/bias.py` to measure Confirmation Bias (SC-002); logic MUST explicitly calculate the proportion of generated claims that pass the FR-003 statistical test (p < 0.05 AND |partial_r| > 0.15). **Depends on T012** (for baseline context) and T021b (for counterfactual validity).
+- [~] T032a [US3] Implement metadata stripping logic in `code/evaluation/blinding.py` to remove source labels (Baseline/Inspector) from stories. **Generate** blinded story pairs from T029 output.
+- [ ] T032b_sim [US3] Implement a **deterministic simulation interface** in `code/evaluation/simulate_experts.py` to model human expert scoring for Narrative Depth (SC-001). This interface MUST simulate human judgment (e.g., via a UI or scripted heuristic) and **NOT** generate scores algorithmically without a model. Run `run_kappa_check.py` on the scores. If Kappa < 0.6, trigger `engage_4th_expert.py` (simulation), re-calculate. If Kappa < 0.6 after 2 re-runs, halt with "Kappa Failure". **This task replaces T032b_real to ensure reproducibility in CI/CD.** (Depends on T032a, T032d).
+- [ ] T032d [US3] Create `code/evaluation/run_kappa_check.py` and `code/evaluation/engage_4th_expert.py` scripts. Implement the logic to dispatch stories to the simulation interface.
+- [ ] T032c [US3] Implement blinded rubric scoring logic in `code/evaluation/rubric.py` for Narrative Depth (SC-001). Calculate arithmetic mean of valid expert scores. (Depends on T032b_sim).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,10 +162,10 @@
 
 **Goal**: Execute the full pipeline on the comprehensive dataset registry and generate final evaluation reports.
 
-- [ ] T033 [P] Script to run the full pipeline against all valid datasets in `data/registry.yaml`
-- [ ] T034 Implement report generation to aggregate metrics (SC-001, SC-002, SC-003, SC-004) across the 50 datasets; specifically include the Verification Traceability calculation.
-- [ ] T035 [P] Calculate "Verification Traceability" (SC-004) by auditing counterfactual claims in `output/synthesis_story.json` for valid, executable data query citations; write the percentage result to `output/traceability_metrics.json`.
-- [ ] T036 Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub Actions free-tier runner for the full batch
+- [~] T033 [P] Script to run the full pipeline against all valid datasets in `data/dataset_registry.yaml`
+- [~] T034 Implement report generation to aggregate metrics (SC-001, SC-002, SC-003, SC-004) across the 50 datasets. **Mandatory**: Use arithmetic mean for expert scores (SC-001) and write to `output/metrics_report.json`.
+- [~] T035 [P] Calculate "Verification Traceability" (SC-004) by auditing counterfactual claims in `output/synthesis_story.json` for valid, executable data query citations. **Valid** means matching regex `SELECT\s+corr\(.*\)` or `pd\.corr\(.*\)`. **Executable** means the query parses without syntax error. Write the percentage result to `output/traceability_metrics.json`.
+- [~] T036 Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub Actions free-tier runner for the full batch
 
 ---
 
@@ -162,12 +173,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `docs/` including `quickstart.md` and API usage examples
-- [ ] T038 Code cleanup and refactoring to ensure modularity
-- [ ] T039 Performance optimization for data loading and correlation computation
-- [ ] T040 [P] Additional unit tests for edge cases (empty datasets, single column, etc.) in `tests/unit/`
-- [ ] T041 Security hardening for external URL fetching in `code/data/loader.py`
-- [ ] T042 Run `quickstart.md` validation to ensure all steps execute correctly
+- [~] T037 [P] Documentation updates in `docs/` including `quickstart.md` and API usage examples
+- [~] T038 Code cleanup and refactoring to ensure modularity
+- [~] T039 Performance optimization for data loading and correlation computation
+- [~] T040 [P] Additional unit tests for edge cases (empty datasets, single column, etc.) in `tests/unit/`
+- [~] T041 Security hardening for external URL fetching in `code/data/loader.py`
+- [~] T042 Run `quickstart.md` validation to ensure all steps execute correctly
 
 ---
 
@@ -178,8 +189,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Evaluation (Phase 6)**: Depends on all User Stories being complete
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
@@ -204,6 +215,7 @@
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase N tasks can run in parallel with Phase 6, but must finish before final report.
 
 ---
 
@@ -245,9 +257,10 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
+ - Developer D: Phase N (Polish)
 3. Stories complete and integrate independently
 
 ---
@@ -261,3 +274,16 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Schema Compliance**: All JSON outputs must strictly adhere to FR-003 and SC-001 schemas.
+- **Validation**: Sample size checks (n < 30) are performed in Phase 2 (T005b) before any analysis.
+- **Data Integrity**: Real data streaming (T005c) and strict failure modes (T005a, T053) are enforced to prevent fabrication.
+- **RAM Handling**: Datasets exceeding substantial RAM requirements are streamed (T005c) or skipped (T005a) to align with Plan Risk Mitigation.
+- **Low Power Handling**: T005b sets a flag instead of halting; T005d and T029 ensure the flag is propagated to the final story.
+- **Thresholds**: T021a uses static thresholds (FR-003) with Bonferroni correction only; no sweeping.
+- **Retry Logic**: T024 includes 2-retry logic for query generation.
+- **Validity Status**: T021b defines output schema strictly per `contracts/counterfactual_report.schema.yaml`.
+- **Reproducibility**: T032b_sim ensures expert scoring is reproducible in CI/CD.
+- **Loader Failure**: T005a/T047 ensure graceful degradation at the pipeline level while T053 ensures the loader fails loudly.
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [~] T055 Reconcile run-book vs implementation for `code/data_loader.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/data_loader.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

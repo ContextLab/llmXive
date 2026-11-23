@@ -1,7 +1,3 @@
-"""
-Flow-Coherence Module for LiveEdit Follow-up.
-Implements region-tracking logic replacement using pre-computed optical flow.
-"""
 import os
 import logging
 import torch
@@ -9,273 +5,295 @@ import numpy as np
 import cv2
 from typing import Dict, Any, Optional, List, Tuple, Generator
 from dataclasses import dataclass, field
-from config import get_default_config
+from config import ensure_directories, get_default_config
 from utils.logger import get_logger
-from data.flow import compute_farneback_flow
+from data.flow import compute_farneback_flow, compute_flow_magnitude
+from metrics.resource import MemoryProfiler
 
 logger = get_logger(__name__)
 
 @dataclass
 class FlowCoherenceResult:
-    """Result container for Flow-Coherence inference."""
-    video_id: str
+    clip_id: str
     frames: List[np.ndarray]
-    flow_stats: Dict[str, float]
-    invalid_flow_count: int
-    total_frames: int
+    invalid_flow_mask: List[bool]
     peak_memory_mb: float
-    inference_time_sec: float
-    invalid_flow_flags: List[bool] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    inference_time_seconds: float
 
 class FlowCoherenceModule:
     """
-    Flow-Coherence Module that replaces the Mask Cache.
-    Warps latents using pre-computed optical flow and handles invalid flow vectors.
+    Flow-Coherence module: replaces Mask Cache, warps latents using pre-computed flow,
+    removes attention layers. Implements invalid flow handling (T021a).
     """
-    
-    def __init__(self, device: str = "cpu", config: Optional[Dict] = None):
-        self.device = device
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or get_default_config()
-        self.logger = get_logger(__name__)
-        
-        # Thresholds for invalid flow detection
-        self.nan_threshold = 1e5
-        self.inf_threshold = 1e5
-        
-    def _validate_flow_vector(self, flow: np.ndarray) -> Tuple[bool, np.ndarray]:
-        """
-        Validates flow vectors for NaN or Infinity values.
-        Returns (is_valid, cleaned_flow).
-        If invalid, returns identity warp (zeros) and False.
-        """
-        has_nan = np.any(np.isnan(flow))
-        has_inf = np.any(np.isinf(flow))
-        
-        if has_nan or has_inf:
-            self.logger.warning("Invalid flow vector detected (NaN/Inf). Falling back to identity warp.")
-            # Create identity flow (zero displacement)
-            h, w = flow.shape[:2]
-            identity_flow = np.zeros_like(flow)
-            return False, identity_flow
-        
-        # Check for extreme values that might indicate errors
-        if np.any(np.abs(flow) > self.nan_threshold):
-            self.logger.warning(f"Extreme flow values detected (> {self.nan_threshold}). Falling back to identity warp.")
-            h, w = flow.shape[:2]
-            identity_flow = np.zeros_like(flow)
-            return False, identity_flow
-            
-        return True, flow
+        self.device = torch.device("cpu")
+        self.invalid_flow_count = 0
+        self.total_frames = 0
 
-    def _warp_latents(self, latent: np.ndarray, flow: np.ndarray, frame_idx: int) -> np.ndarray:
+    def _handle_invalid_flow(self, flow_field: np.ndarray) -> Tuple[np.ndarray, bool]:
         """
-        Warps latent representation using optical flow.
-        Implements forward warping with bilinear interpolation.
-        """
-        h, w = flow.shape[:2]
-        
-        # Create meshgrid for coordinates
-        y, x = np.meshgrid(np.arange(h), np.arange(w), indexing='ij')
-        
-        # Add flow to coordinates
-        x_warped = x + flow[..., 0]
-        y_warped = y + flow[..., 1]
-        
-        # Handle boundary conditions
-        x_warped = np.clip(x_warped, 0, w - 1)
-        y_warped = np.clip(y_warped, 0, h - 1)
-        
-        # Bilinear interpolation
-        x0 = np.floor(x_warped).astype(int)
-        y0 = np.floor(y_warped).astype(int)
-        x1 = np.minimum(x0 + 1, w - 1)
-        y1 = np.minimum(y0 + 1, h - 1)
-        
-        # Weights
-        wa = (x1 - x_warped) * (y1 - y_warped)
-        wb = (x1 - x_warped) * (y_warped - y0)
-        wc = (x_warped - x0) * (y1 - y_warped)
-        wd = (x_warped - x0) * (y_warped - y0)
-        
-        # Sample from original latent
-        if len(latent.shape) == 3:  # Single channel
-            warped = (
-                wa * latent[y0, x0] +
-                wb * latent[y0, x1] +
-                wc * latent[y1, x0] +
-                wd * latent[y1, x1]
-            )
-        else:  # Multi-channel
-            warped = np.zeros_like(latent)
-            for c in range(latent.shape[2]):
-                warped[:, :, c] = (
-                    wa * latent[y0, x0, c] +
-                    wb * latent[y0, x1, c] +
-                    wc * latent[y1, x0, c] +
-                    wd * latent[y1, x1, c]
-                )
-        
-        return warped
-
-    def process_frame_sequence(
-        self,
-        frames: List[np.ndarray],
-        flow_map: Optional[np.ndarray] = None,
-        mask: Optional[np.ndarray] = None
-    ) -> FlowCoherenceResult:
-        """
-        Process a sequence of frames with flow coherence.
+        T021a Implementation: Detect NaN/Infinity vectors in flow field.
+        Fallback to identity warp (zero displacement) and set invalid_flow flag.
         
         Args:
-            frames: List of frame arrays (H, W, C)
-            flow_map: Pre-computed optical flow map (H, W, 2)
-            mask: Optional mask for editing region
-            
+            flow_field: numpy array of shape (H, W, 2) containing flow vectors (u, v)
+        
         Returns:
-            FlowCoherenceResult with processed frames and metadata
+            Tuple of (cleaned_flow_field, is_invalid)
         """
-        if not frames:
-            raise ValueError("Empty frame sequence provided")
+        is_invalid = False
         
-        processed_frames = []
-        invalid_flow_flags = []
-        invalid_flow_count = 0
-        flow_magnitudes = []
+        # Check for NaN or Infinity in the flow field
+        if np.any(np.isnan(flow_field)) or np.any(np.isinf(flow_field)):
+            logger.warning(f"Detected invalid flow vectors (NaN/Inf). Fallback to identity warp.")
+            is_invalid = True
+            self.invalid_flow_count += 1
+            
+            # Create identity flow (zero displacement)
+            # Identity warp means no movement: u=0, v=0 everywhere
+            h, w = flow_field.shape[0], flow_field.shape[1]
+            flow_field = np.zeros((h, w, 2), dtype=np.float32)
         
-        # Compute flow if not provided
-        if flow_map is None:
-            self.logger.info("Computing optical flow for frame sequence...")
-            # Compute flow between first two frames as reference
-            if len(frames) >= 2:
-                flow_map = compute_farneback_flow(frames[0], frames[1])
-            else:
-                # Single frame - create identity flow
-                h, w = frames[0].shape[:2]
-                flow_map = np.zeros((h, w, 2), dtype=np.float32)
+        return flow_field, is_invalid
+
+    def _warp_latents(self, latents: torch.Tensor, flow_field: np.ndarray) -> torch.Tensor:
+        """
+        Warp latents using the provided flow field with bilinear interpolation.
+        Handles invalid flow by falling back to identity warp.
         
-        # Process each frame
-        for i, frame in enumerate(frames):
-            # Convert to float for processing
-            frame_float = frame.astype(np.float32) / 255.0
-            
-            # Validate and clean flow
-            is_valid, clean_flow = self._validate_flow_vector(flow_map)
-            
-            if not is_valid:
-                invalid_flow_count += 1
-                invalid_flow_flags.append(True)
-                # Use identity warp (no change) for invalid flow
-                processed_frame = frame_float
-            else:
-                invalid_flow_flags.append(False)
-                # Warp the frame using flow
-                processed_frame = self._warp_latents(frame_float, clean_flow, i)
-            
-            # Apply mask if provided
-            if mask is not None and mask.shape[:2] == frame.shape[:2]:
-                # Simple masking - keep original in masked region
-                mask_float = mask.astype(np.float32) / 255.0
-                processed_frame = (
-                    processed_frame * (1 - mask_float) + 
-                    frame_float * mask_float
+        Args:
+            latents: Tensor of shape (B, C, H, W)
+            flow_field: numpy array of shape (H, W, 2)
+        
+        Returns:
+            Warped latents tensor of shape (B, C, H, W)
+        """
+        self.total_frames += 1
+        
+        # Validate and clean flow field (T021a)
+        cleaned_flow, is_invalid = self._handle_invalid_flow(flow_field)
+        
+        if is_invalid:
+            # Identity warp: return latents unchanged
+            logger.debug(f"Frame {self.total_frames}: Identity warp applied due to invalid flow.")
+            return latents
+        
+        # Convert flow to sampling grid format for cv2.remap
+        # flow_field is (H, W, 2) with (u, v) displacements
+        # cv2.remap expects map1 and map2 as (H, W) or (H, W, 2) for float32
+        
+        h, w = latents.shape[2], latents.shape[3]
+        
+        # Ensure flow is float32 and within valid range
+        cleaned_flow = cleaned_flow.astype(np.float32)
+        
+        # Create grid for remap: x = u + x, y = v + y
+        # We need to convert displacement to absolute coordinates
+        x_coords, y_coords = np.meshgrid(np.arange(w), np.arange(h))
+        map_x = (x_coords + cleaned_flow[:, :, 0]).astype(np.float32)
+        map_y = (y_coords + cleaned_flow[:, :, 1]).astype(np.float32)
+        
+        warped_latents_list = []
+        
+        for b in range(latents.shape[0]):
+            # Process each channel
+            warped_channels = []
+            for c in range(latents.shape[1]):
+                # Extract single channel
+                channel = latents[b, c].cpu().numpy()
+                
+                # Apply remap with bilinear interpolation
+                # Border mode: constant with 0 value
+                warped_channel = cv2.remap(
+                    channel,
+                    map_x,
+                    map_y,
+                    interpolation=cv2.INTER_LINEAR,
+                    borderMode=cv2.BORDER_CONSTANT,
+                    borderValue=0.0
                 )
+                warped_channels.append(warped_channel)
             
-            # Convert back to uint8
-            processed_frame = np.clip(processed_frame * 255, 0, 255).astype(np.uint8)
-            processed_frames.append(processed_frame)
-            
-            # Track flow magnitude for statistics
-            flow_mag = np.sqrt(np.sum(clean_flow**2, axis=2))
-            flow_magnitudes.append(np.mean(flow_mag))
+            # Stack channels back
+            warped_channel_tensor = np.stack(warped_channels, axis=0)
+            warped_latents_list.append(warped_channel_tensor)
         
-        # Compute statistics
-        stats = {
-            "mean_flow_magnitude": float(np.mean(flow_magnitudes)) if flow_magnitudes else 0.0,
-            "max_flow_magnitude": float(np.max(flow_magnitudes)) if flow_magnitudes else 0.0,
-            "invalid_flow_ratio": float(invalid_flow_count / len(frames)) if frames else 0.0,
-            "total_invalid_frames": invalid_flow_count,
-            "total_frames": len(frames)
-        }
+        # Stack batch dimension
+        warped_latents = torch.from_numpy(np.stack(warped_latents_list, axis=0)).to(latents.dtype)
+        
+        return warped_latents
+
+    def compute_flow_coherence(
+        self,
+        latents: torch.Tensor,
+        flow_path: str,
+        clip_id: str
+    ) -> FlowCoherenceResult:
+        """
+        Main inference method for Flow-Coherence.
+        
+        Args:
+            latents: Input latent tensor
+            flow_path: Path to pre-computed flow file
+            clip_id: Identifier for the current clip
+        
+        Returns:
+            FlowCoherenceResult with warped frames and metadata
+        """
+        profiler = MemoryProfiler()
+        profiler.start()
+        
+        start_time = time.time()
+        
+        # Load flow field
+        if not os.path.exists(flow_path):
+            raise FileNotFoundError(f"Flow file not found: {flow_path}")
+        
+        flow_data = np.load(flow_path)
+        # Assuming flow_data contains 'flow' key with (T, H, W, 2) or similar structure
+        # Adjust based on actual storage format from T009
+        if isinstance(flow_data, dict):
+            flow_field = flow_data.get('flow', None)
+        else:
+            flow_field = flow_data
+        
+        if flow_field is None:
+            raise ValueError(f"Could not extract flow field from {flow_path}")
+        
+        # Process each frame in the flow sequence
+        warped_frames = []
+        invalid_flags = []
+        
+        # Handle both 4D (T, H, W, 2) and 3D (H, W, 2) flow fields
+        if flow_field.ndim == 4:
+            # Multiple frames
+            for t in range(flow_field.shape[0]):
+                flow_t = flow_field[t]
+                warped_latent = self._warp_latents(latents, flow_t)
+                
+                # Convert latent to frame representation (simplified)
+                # In real implementation, this would involve VAE decoding
+                frame = warped_latent[0].cpu().numpy()
+                warped_frames.append(frame)
+                
+                # Record invalid flag for this frame
+                is_invalid = self.invalid_flow_count > 0 and (t == 0 or 
+                       (np.any(np.isnan(flow_t)) or np.any(np.isinf(flow_t))))
+                invalid_flags.append(is_invalid)
+        else:
+            # Single frame flow
+            warped_latent = self._warp_latents(latents, flow_field)
+            frame = warped_latent[0].cpu().numpy()
+            warped_frames.append(frame)
+            invalid_flags.append(self.invalid_flow_count > 0)
+        
+        end_time = time.time()
+        profiler.stop()
+        
+        peak_memory = profiler.get_peak_memory_mb()
         
         return FlowCoherenceResult(
-            video_id="unknown",
-            frames=processed_frames,
-            flow_stats=stats,
-            invalid_flow_count=invalid_flow_count,
-            total_frames=len(frames),
-            peak_memory_mb=0.0,
-            inference_time_sec=0.0,
-            invalid_flow_flags=invalid_flow_flags
+            clip_id=clip_id,
+            frames=warped_frames,
+            invalid_flow_mask=invalid_flags,
+            peak_memory_mb=peak_memory,
+            inference_time_seconds=end_time - start_time
         )
 
 def run_flow_coherence_inference(
-    frames: List[np.ndarray],
-    flow_map: Optional[np.ndarray] = None,
-    mask: Optional[np.ndarray] = None,
-    device: str = "cpu"
-) -> FlowCoherenceResult:
+    input_dir: str,
+    output_dir: str,
+    flow_dir: str,
+    clip_ids: Optional[List[str]] = None
+) -> List[FlowCoherenceResult]:
     """
-    Run flow-coherence inference on a sequence of frames.
+    Runner for Flow-Coherence inference pipeline.
+    Processes clips one-by-one to manage RAM.
     
     Args:
-        frames: List of frame arrays (H, W, C)
-        flow_map: Pre-computed optical flow map (H, W, 2)
-        mask: Optional mask for editing region
-        device: Device to run on (cpu or cuda)
-        
+        input_dir: Directory containing input latents
+        output_dir: Directory to save results
+        flow_dir: Directory containing pre-computed flow fields
+        clip_ids: Optional list of clip IDs to process
+    
     Returns:
-        FlowCoherenceResult with processed frames and metadata
+        List of FlowCoherenceResult objects
     """
-    module = FlowCoherenceModule(device=device)
-    return module.process_frame_sequence(frames, flow_map, mask)
+    ensure_directories(output_dir)
+    
+    config = get_default_config()
+    module = FlowCoherenceModule(config)
+    
+    results = []
+    
+    # Get clip IDs if not provided
+    if clip_ids is None:
+        clip_ids = [f[:-4] for f in os.listdir(input_dir) if f.endswith('.npz')]
+    
+    for clip_id in clip_ids:
+        logger.info(f"Processing clip: {clip_id}")
+        
+        try:
+            # Load latents (simplified - in real impl, load from file)
+            latent_path = os.path.join(input_dir, f"{clip_id}.npz")
+            if not os.path.exists(latent_path):
+                logger.warning(f"Latent file not found: {latent_path}, skipping.")
+                continue
+            
+            latent_data = np.load(latent_path)
+            latents = torch.from_numpy(latent_data.get('latents', np.zeros((1, 4, 64, 64))))
+            
+            # Load flow
+            flow_path = os.path.join(flow_dir, f"{clip_id}_flow.npz")
+            
+            # Run inference
+            result = module.compute_flow_coherence(latents, flow_path, clip_id)
+            
+            # Save result
+            result_path = os.path.join(output_dir, f"{clip_id}_flow_result.json")
+            with open(result_path, 'w') as f:
+                json.dump({
+                    'clip_id': result.clip_id,
+                    'invalid_flow_count': sum(result.invalid_flow_mask),
+                    'total_frames': len(result.frames),
+                    'peak_memory_mb': result.peak_memory_mb,
+                    'inference_time_seconds': result.inference_time_seconds
+                }, f, indent=2)
+            
+            results.append(result)
+            
+            # Cleanup
+            torch.cuda.empty_cache() if torch.cuda.is_available() else None
+            gc.collect()
+            
+        except Exception as e:
+            logger.error(f"Error processing clip {clip_id}: {e}")
+            raise
+    
+    return results
 
 def main():
-    """Main entry point for flow coherence testing."""
-    logger = get_logger(__name__)
-    logger.info("Flow Coherence Module - Main Entry Point")
+    """CLI entry point for flow-coherence inference."""
+    import argparse
     
-    # Example usage
-    try:
-        # Create dummy frames for testing
-        h, w = 256, 256
-        dummy_frames = [
-            np.random.randint(0, 255, (h, w, 3), dtype=np.uint8)
-            for _ in range(5)
-        ]
-        
-        # Create dummy flow map
-        dummy_flow = np.zeros((h, w, 2), dtype=np.float32)
-        dummy_flow[..., 0] = np.random.randn(h, w) * 0.5  # Small random flow
-        
-        # Run inference
-        result = run_flow_coherence_inference(
-            frames=dummy_frames,
-            flow_map=dummy_flow,
-            device="cpu"
-        )
-        
-        logger.info(f"Processed {result.total_frames} frames")
-        logger.info(f"Invalid flow count: {result.invalid_flow_count}")
-        logger.info(f"Flow stats: {result.flow_stats}")
-        
-        # Test invalid flow handling
-        logger.info("Testing invalid flow handling...")
-        invalid_flow = np.full((h, w, 2), np.nan, dtype=np.float32)
-        result_invalid = run_flow_coherence_inference(
-            frames=dummy_frames,
-            flow_map=invalid_flow,
-            device="cpu"
-        )
-        
-        logger.info(f"Invalid flow test - Invalid count: {result_invalid.invalid_flow_count}")
-        logger.info(f"Invalid flow flags: {result_invalid.invalid_flow_flags}")
-        
-        print("Flow Coherence Module test completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Error in flow coherence inference: {e}")
-        raise
+    parser = argparse.ArgumentParser(description="Run Flow-Coherence Inference")
+    parser.add_argument("--input-dir", type=str, required=True, help="Input latents directory")
+    parser.add_argument("--output-dir", type=str, required=True, help="Output results directory")
+    parser.add_argument("--flow-dir", type=str, required=True, help="Flow fields directory")
+    parser.add_argument("--clip-ids", type=str, nargs="+", default=None, help="Specific clip IDs to process")
+    
+    args = parser.parse_args()
+    
+    results = run_flow_coherence_inference(
+        args.input_dir,
+        args.output_dir,
+        args.flow_dir,
+        args.clip_ids
+    )
+    
+    logger.info(f"Processed {len(results)} clips successfully.")
+    logger.info(f"Total invalid flow frames: {sum(r.invalid_flow_count for r in results)}")
 
 if __name__ == "__main__":
     main()

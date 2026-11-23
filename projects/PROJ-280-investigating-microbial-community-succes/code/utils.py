@@ -1,242 +1,240 @@
-"""
-Shared utility functions for the microbial community succession project.
-Implements VIF calculation, Benjamini-Hochberg FDR, checksums, and power analysis.
-"""
 import hashlib
 import json
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple, Union
+from typing import Dict, Any, Optional, List
 
 import numpy as np
 import pandas as pd
-from scipy import stats
-from statsmodels.stats.power import FTestAnovaPower
+from scipy.stats import spearmanr
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.stats.power import FTestAnovaPower
+from statsmodels.stats.multitest import multipletests
 
-# Configure logging to stderr with a specific format
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    stream=sys.stderr
-)
-logger = logging.getLogger(__name__)
+# Global logger instance for the module
+_module_logger = None
 
-def log_data_gap_flag(message: str) -> None:
-    """Log a CRITICAL flag indicating a data gap."""
-    logger.critical(f"[DATA GAP] {message}")
+def _get_module_logger():
+    """Returns the module-level logger, initializing it if necessary."""
+    global _module_logger
+    if _module_logger is None:
+        _module_logger = logging.getLogger('utils')
+    return _module_logger
 
-def log_underpowered_flag(message: str) -> None:
-    """Log a CRITICAL flag indicating the study is underpowered."""
-    logger.critical(f"[UNDERPOWERED] {message}")
-
-def log_under_determined_flag(message: str) -> None:
-    """Log a CRITICAL flag indicating the system is under-determined."""
-    logger.critical(f"[UNDER-DETERMINED] {message}")
-
-def calculate_vif(features: pd.DataFrame) -> pd.Series:
+def get_logger(name: str) -> logging.Logger:
     """
-    Calculate Variance Inflation Factor (VIF) for each feature in a DataFrame.
+    Setup and return a logger with specific configuration for the project.
+    
+    Writes to data/processed/audit_trail.log with format:
+    ^\[(INFO|WARN|ERROR|CRITICAL)\] \[\w+\] Message$
+    
+    Configures both FileHandler and StreamHandler; default level INFO.
     
     Args:
-        features: DataFrame where columns are predictor variables (taxa abundances).
-                  Should not include the target variable.
+        name: The name for the logger (typically the module name).
+    
+    Returns:
+        A configured logging.Logger instance.
+    """
+    logger = logging.getLogger(name)
+    
+    # Avoid adding handlers if already configured (e.g. in tests or re-runs)
+    if logger.handlers:
+        return logger
+    
+    logger.setLevel(logging.INFO)
+    logger.propagate = False  # Prevent double logging to root if root is configured
+    
+    # Ensure output directory exists
+    log_dir = Path("data/processed")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file_path = log_dir / "audit_trail.log"
+    
+    # Define the custom format to match the required regex:
+    # ^\[(INFO|WARN|ERROR|CRITICAL)\] \[\w+\] Message$
+    # Note: The regex expects level in brackets, then name in brackets.
+    # Standard logging levels map: INFO, WARNING (mapped to WARN in regex?), ERROR, CRITICAL.
+    # The regex explicitly lists 'WARN'. We must ensure the level name is 'WARN' not 'WARNING'.
+    # We use a custom formatter or filter to change WARNING to WARN.
+    
+    class CustomFormatter(logging.Formatter):
+        def format(self, record):
+            # Map WARNING to WARN to satisfy the regex requirement
+            if record.levelname == 'WARNING':
+                record.levelname = 'WARN'
+            return super().format(record)
+    
+    log_format = '[%(levelname)s] [%(name)s] %(message)s'
+    
+    # File Handler
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setLevel(logging.INFO)
+    file_formatter = CustomFormatter(log_format, datefmt='%Y-%m-%d %H:%M:%S')
+    file_handler.setFormatter(file_formatter)
+    
+    # Stream Handler
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setLevel(logging.INFO)
+    stream_formatter = CustomFormatter(log_format)
+    stream_handler.setFormatter(stream_formatter)
+    
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
+    
+    return logger
+
+def log_data_gap_flag(message: str):
+    logger = _get_module_logger()
+    if not logger.handlers:
+        logger = get_logger('utils')
+    logger.critical(f"[CRITICAL DATA GAP] {message}")
+
+def log_underpowered_flag(message: str):
+    logger = _get_module_logger()
+    if not logger.handlers:
+        logger = get_logger('utils')
+    logger.warning(f"[UNDERPOWERED] {message}")
+
+def log_under_determined_flag(message: str):
+    logger = _get_module_logger()
+    if not logger.handlers:
+        logger = get_logger('utils')
+    logger.warning(f"[UNDER-DETERMINED] {message}")
+
+def calculate_vif(X: pd.DataFrame) -> pd.Series:
+    """
+    Calculates Variance Inflation Factor for each column in a DataFrame.
+    
+    This function extracts the VIF calculation logic to be reusable across
+    the pipeline (e.g., in code/05_correlation.py).
+    
+    Args:
+        X: DataFrame of predictors (no intercept column required).
     
     Returns:
         Series of VIF values indexed by column name.
-    
-    Raises:
-        ValueError: If features contain non-numeric data or constant variance columns.
     """
-    if features.empty:
-        return pd.Series(dtype=float)
+    # Add intercept for statsmodels
+    X_with_intercept = X.copy()
+    X_with_intercept['intercept'] = 1.0
     
-    # Ensure all columns are numeric
-    if not np.issubdtype(features.values.dtype, np.number):
+    vif_series = pd.Series(index=X.columns, dtype=float)
+    
+    for col in X.columns:
         try:
-            features = features.select_dtypes(include=[np.number])
+            vif = variance_inflation_factor(X_with_intercept.values, list(X_with_intercept.columns).index(col))
+            vif_series[col] = vif
         except Exception as e:
-            raise ValueError(f"Features must be numeric: {e}")
+            logger = _get_module_logger()
+            if logger:
+                logger.warning(f"Could not calculate VIF for {col}: {e}")
+            vif_series[col] = np.nan
     
-    # Handle constant variance columns (VIF is undefined)
-    # Add a small epsilon to avoid division by zero if variance is 0
-    # But first, check for zero variance columns
-    zero_var_cols = features.columns[features.var() == 0]
-    if len(zero_var_cols) > 0:
-        logger.warning(f"Removing constant variance columns for VIF calculation: {list(zero_var_cols)}")
-        features = features.drop(columns=zero_var_cols)
-    
-    if features.empty:
-        return pd.Series(dtype=float)
-    
-    # Add intercept column for the regression matrix
-    # VIF calculation: VIF_j = 1 / (1 - R_j^2) where R_j^2 is from regressing X_j on all other X
-    # statsmodels vif function handles this internally if we pass the design matrix without intercept
-    # But standard implementation:
-    
-    vif_data = []
-    for i, col in enumerate(features.columns):
-        # Create design matrix X for this iteration (all features)
-        X = features.values
-        # Calculate VIF for column i
-        try:
-            vif = variance_inflation_factor(X, i)
-            vif_data.append((col, vif))
-        except Exception as e:
-            logger.warning(f"Could not calculate VIF for {col}: {e}")
-            vif_data.append((col, np.nan))
-    
-    return pd.Series([v for _, v in vif_data], index=[c for c, _ in vif_data])
+    return vif_series
 
-def benjamini_hochberg_fdr(p_values: Union[List[float], np.ndarray]) -> List[float]:
+def fdr_correction(p_values: np.ndarray) -> np.ndarray:
     """
-    Apply Benjamini-Hochberg False Discovery Rate correction to a list of p-values.
+    Applies Benjamini-Hochberg FDR correction to an array of p-values.
     
     Args:
-        p_values: List or array of raw p-values.
+        p_values: numpy array of raw p-values.
     
     Returns:
-        List of adjusted p-values (q-values) in the same order as input.
-    
-    Note:
-        Uses the standard BH procedure. If p-values are not sorted, they are
-        sorted internally, corrected, and then returned in original order.
+        numpy array of adjusted p-values.
     """
-    p_values = np.array(p_values)
-    n = len(p_values)
-    if n == 0:
-        return []
-    
-    # Create index array to restore original order
-    indices = np.arange(n)
-    
-    # Sort p-values
-    sorted_indices = np.argsort(p_values)
-    sorted_p = p_values[sorted_indices]
-    
-    # Calculate BH adjusted p-values
-    # q_i = p_i * n / i  (where i is rank, 1-indexed)
-    # Ensure monotonicity: q_i = min(q_i, q_{i+1}, ..., q_n)
-    adjusted_p = np.zeros(n)
-    
-    # Calculate raw BH values
-    ranks = np.arange(1, n + 1)
-    adjusted_p[sorted_indices] = sorted_p * n / ranks
-    
-    # Ensure values are <= 1
-    adjusted_p = np.minimum(adjusted_p, 1.0)
-    
-    # Enforce monotonicity (cumulative min from the end)
-    # Start from the largest rank and move backwards
-    for i in range(n - 2, -1, -1):
-        if adjusted_p[sorted_indices[i]] > adjusted_p[sorted_indices[i + 1]]:
-            adjusted_p[sorted_indices[i]] = adjusted_p[sorted_indices[i + 1]]
-    
-    return adjusted_p.tolist()
+    # multipletests returns (reject, pvals_corrected, alphacSID, alphacBH)
+    # We only need the corrected p-values.
+    _, pvals_corrected, _, _ = multipletests(p_values, alpha=0.05, method='fdr_bh')
+    return pvals_corrected
 
-def generate_checksum(file_path: Union[str, Path]) -> str:
+def compute_file_hash(file_path: str) -> str:
     """
-    Generate a SHA-256 checksum for a file.
+    Computes the SHA-256 hex digest of a file.
     
     Args:
-        file_path: Path to the file to checksum.
+        file_path: Path to the file to hash.
     
     Returns:
         Hexadecimal string of the SHA-256 hash.
     
     Raises:
         FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
     """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
-    
     sha256_hash = hashlib.sha256()
-    try:
-        with open(path, "rb") as f:
-            # Read in chunks to handle large files
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
-    except Exception as e:
-        logger.error(f"Error reading file for checksum: {e}")
-        raise
-    
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def calculate_permanova_power(
-    n_groups: int,
-    n_per_group: int,
-    effect_size: float = 0.15,
-    alpha: float = 0.05
-) -> Dict[str, Any]:
+def generate_checksum(file_path: str) -> str:
+    """Generates a SHA256 checksum for a file (alias for compute_file_hash)."""
+    return compute_file_hash(file_path)
+
+def estimate_power(n_per_group: int, effect_size: float) -> float:
     """
-    Estimate statistical power for PERMANOVA using F-test approximation.
+    Estimates statistical power for an ANOVA F-test.
+    
+    Uses statsmodels FTestAnovaPower to solve for power given sample size per group
+    and effect size (Cohen's f).
     
     Args:
-        n_groups: Number of groups (e.g., wetland stages).
         n_per_group: Number of samples per group.
-        effect_size: Expected effect size (eta-squared or R-squared). Default 0.15 (medium).
+        effect_size: Cohen's f effect size.
+    
+    Returns:
+        Estimated power (float between 0 and 1). Returns 0.0 if calculation fails.
+    """
+    power_calc = FTestAnovaPower()
+    # k_groups is assumed to be 3 (Early, Intermediate, Mature) based on project context
+    k_groups = 3
+    alpha = 0.05
+    
+    try:
+        # solve_power can solve for any of: effect_size, nobs1, alpha, power, k_groups
+        # We solve for 'power'
+        power = power_calc.solve_power(
+            effect_size=effect_size,
+            nobs1=n_per_group,
+            alpha=alpha,
+            k_groups=k_groups,
+            alternative='two-sided'
+        )
+        return float(power)
+    except Exception as e:
+        logger = _get_module_logger()
+        if logger:
+            logger.warning(f"Power calculation failed: {e}")
+        return 0.0
+
+def calculate_permanova_power(n: int, effect_size: float = 0.15, alpha: float = 0.05) -> float:
+    """
+    Estimates power for PERMANOVA using F-test approximation.
+    
+    Args:
+        n: Total number of samples (or n_per_group depending on interpretation, 
+           here treated as nobs1 per group for consistency with ANOVA).
+        effect_size: Target R-squared effect size.
         alpha: Significance level.
     
     Returns:
-        Dictionary with power estimate and parameters.
+        Estimated power.
     """
-    total_n = n_groups * n_per_group
-    df1 = n_groups - 1
-    df2 = total_n - n_groups
-    
-    # Use statsmodels FTestAnovaPower
     power_calc = FTestAnovaPower()
-    
     # Effect size f^2 = R^2 / (1 - R^2)
-    # But FTestAnovaPower expects effect size 'f' (Cohen's f)
-    # Cohen's f = sqrt(R^2 / (1 - R^2))
+    f2 = (effect_size ** 2) / (1 - (effect_size ** 2))
+    # statsmodels FTestAnovaPower uses effect_size as f (Cohen's f).
+    f = np.sqrt(f2)
+    
     try:
-        f_effect = np.sqrt(effect_size / (1 - effect_size))
-        power = power_calc.solve_power(
-            effect_size=f_effect,
-            nobs1=n_per_group,
-            alpha=alpha,
-            power=None,
-            ratio=1.0,
-            alternative='larger'
-        )
-    except Exception as e:
-        logger.warning(f"Power calculation failed: {e}. Returning NaN.")
-        power = np.nan
-    
-    return {
-        "power": float(power) if not np.isnan(power) else None,
-        "n_groups": n_groups,
-        "n_per_group": n_per_group,
-        "total_n": total_n,
-        "effect_size_r2": effect_size,
-        "alpha": alpha,
-        "df1": df1,
-        "df2": df2
-    }
+        # Assuming 3 groups (Early, Intermediate, Mature)
+        power = power_calc.solve_power(effect_size=f, nobs1=n, alpha=alpha, k_groups=3)
+        return power
+    except Exception:
+        return 0.0
 
-def validate_power_requirements(
-    power_report: Dict[str, Any],
-    min_power: float = 0.8
-) -> Tuple[bool, str]:
-    """
-    Validate if the calculated power meets the minimum threshold.
-    
-    Args:
-        power_report: Output from calculate_permanova_power.
-        min_power: Minimum acceptable power (default 0.8).
-    
-    Returns:
-        Tuple of (is_valid, flag_message).
-    """
-    power = power_report.get("power")
-    if power is None:
-        return False, "UNDERPOWERED (calculation failed)"
-    
-    if power < min_power:
-        return False, f"UNDERPOWERED (power={power:.3f} < {min_power})"
-    
-    return True, "PASS"
+def validate_power_requirements(power: float, n_per_group: int) -> bool:
+    """Checks if power and sample size meet requirements."""
+    return power >= 0.8 and n_per_group >= 10

@@ -1,5 +1,5 @@
 """
-Tests for data hygiene utilities.
+Unit tests for data hygiene utilities (checksumming and integrity verification).
 """
 import os
 import tempfile
@@ -7,149 +7,170 @@ import shutil
 import hashlib
 from pathlib import Path
 import pytest
-import yaml
 
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add parent to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.data_hygiene import (
     get_data_directories,
     scan_directory_for_files,
     compute_checksums_for_directory,
-    record_directory_state,
-    verify_data_integrity
+    verify_data_integrity,
+    record_directory_state
 )
-from src.state_manager import save_state_file, load_state_file, calculate_file_hash
+from src.state_manager import save_state_file, load_state_file
 
 
 @pytest.fixture
 def temp_project_structure():
-    """Create a temporary project structure with data directories."""
+    """Creates a temporary directory structure mimicking the project data folders."""
     temp_dir = tempfile.mkdtemp()
-    project_root = Path(temp_dir)
+    data_dir = Path(temp_dir) / "data"
+    raw_dir = data_dir / "raw"
+    processed_dir = data_dir / "processed"
     
-    # Create required directories
-    (project_root / "data" / "raw").mkdir(parents=True)
-    (project_root / "data" / "processed").mkdir(parents=True)
+    raw_dir.mkdir(parents=True)
+    processed_dir.mkdir(parents=True)
     
-    yield project_root
+    # Create sample files
+    (raw_dir / "noise.h5").write_text("fake noise data")
+    (raw_dir / "config.json").write_text('{"seed": 42}')
+    (processed_dir / "waveforms.h5").write_text("fake waveform data")
     
-    # Cleanup
+    yield {
+        "root": Path(temp_dir),
+        "raw": raw_dir,
+        "processed": processed_dir,
+        "data": data_dir
+    }
+    
     shutil.rmtree(temp_dir)
 
 
 @pytest.fixture
 def sample_files(temp_project_structure):
-    """Create sample files in data directories."""
-    raw_dir = temp_project_structure / "data" / "raw"
-    processed_dir = temp_project_structure / "data" / "processed"
-    
-    # Create sample files
-    file1 = raw_dir / "test_file_1.txt"
-    file1.write_text("content 1")
-    
-    file2 = raw_dir / "subdir" / "test_file_2.txt"
-    file2.parent.mkdir(parents=True, exist_ok=True)
-    file2.write_text("content 2")
-    
-    file3 = processed_dir / "processed_data.csv"
-    file3.write_text("col1,col2\n1,2\n3,4")
-    
+    """Returns the paths of sample files created in the fixture."""
     return {
-        "raw": [file1, file2],
-        "processed": [file3]
+        "raw_noise": temp_project_structure["raw"] / "noise.h5",
+        "raw_config": temp_project_structure["raw"] / "config.json",
+        "processed_wf": temp_project_structure["processed"] / "waveforms.h5"
     }
 
 
 def test_get_data_directories(temp_project_structure):
-    dirs = get_data_directories(temp_project_structure)
-    assert len(dirs) == 2
-    assert (temp_project_structure / "data" / "raw") in dirs
-    assert (temp_project_structure / "data" / "processed") in dirs
-
-
-def test_scan_directory_for_files(sample_files):
-    raw_files = scan_directory_for_files(sample_files["raw"][0].parent.parent)
-    assert len(raw_files) == 2
+    """Test that get_data_directories finds the created directories."""
+    # Temporarily override the global constants in data_hygiene
+    import src.data_hygiene as dh
+    original_root = dh.PROJECT_ROOT
     
-    processed_files = scan_directory_for_files(sample_files["processed"][0].parent)
-    assert len(processed_files) == 1
-
-
-def test_compute_checksums_for_directory(sample_files):
-    raw_checksums = compute_checksums_for_directory(sample_files["raw"][0].parent.parent)
-    assert len(raw_checksums) == 2
+    # Mock the project root to our temp structure
+    # We need to patch the module's internal variables
+    dh.PROJECT_ROOT = temp_project_structure["root"]
+    dh.DATA_RAW_DIR = temp_project_structure["raw"]
+    dh.DATA_PROCESSED_DIR = temp_project_structure["processed"]
+    dh.DATA_RESULTS_DIR = temp_project_structure["root"] / "data" / "results" # Doesn't exist
     
-    # Verify a specific hash
-    file1 = sample_files["raw"][0]
-    expected_hash = calculate_file_hash(file1)
-    assert raw_checksums["test_file_1.txt"] == expected_hash
+    try:
+        dirs = get_data_directories()
+        assert len(dirs) == 2
+        assert temp_project_structure["raw"] in dirs
+        assert temp_project_structure["processed"] in dirs
+    finally:
+        # Restore original
+        dh.PROJECT_ROOT = original_root
+        dh.DATA_RAW_DIR = Path(original_root) / "data" / "raw"
+        dh.DATA_PROCESSED_DIR = Path(original_root) / "data" / "processed"
+        dh.DATA_RESULTS_DIR = Path(original_root) / "data" / "results"
 
 
-def test_record_directory_state(temp_project_structure, sample_files):
-    state_file = temp_project_structure / "state.yaml"
+def test_scan_directory_for_files(temp_project_structure):
+    """Test recursive file scanning."""
+    files = scan_directory_for_files(temp_project_structure["raw"])
+    assert len(files) == 2
+    assert temp_project_structure["raw"] / "noise.h5" in files
     
-    success = record_directory_state(temp_project_structure, state_file)
+    # Test extension filter
+    files_json = scan_directory_for_files(temp_project_structure["raw"], extensions=[".json"])
+    assert len(files_json) == 1
+    assert temp_project_structure["raw"] / "config.json" in files_json
+
+
+def test_compute_checksums_for_directory(temp_project_structure):
+    """Test checksum calculation."""
+    checksums = compute_checksums_for_directory(temp_project_structure["raw"])
+    assert len(checksums) == 2
+    
+    # Verify specific hash for a known string
+    expected_hash = hashlib.sha256(b"fake noise data").hexdigest()
+    assert checksums["noise.h5"] == expected_hash
+
+
+def test_record_directory_state(temp_project_structure):
+    """Test recording directory state to a YAML file."""
+    state_file = temp_project_structure["root"] / "state.yaml"
+    
+    success = record_directory_state(temp_project_structure["raw"], state_file=state_file)
     assert success
     assert state_file.exists()
     
-    state = load_state_file(state_file)
-    assert "phases" in state
-    assert len(state["phases"]) == 1
-    assert "artifacts" in state["phases"][0]
-    assert "raw" in state["phases"][0]["artifacts"]
-    assert "processed" in state["phases"][0]["artifacts"]
+    state_data = load_state_file(state_file)
+    assert "data_checksums" in state_data
+    assert "raw" in state_data["data_checksums"]
+    assert "noise.h5" in state_data["data_checksums"]["raw"]
 
 
-def test_verify_data_integrity_valid(temp_project_structure, sample_files):
-    state_file = temp_project_structure / "state.yaml"
+def test_verify_data_integrity_valid(temp_project_structure):
+    """Test verification when data matches state."""
+    state_file = temp_project_structure["root"] / "state.yaml"
     
-    # Record initial state
-    record_directory_state(temp_project_structure, state_file)
+    # Record state
+    record_directory_state(temp_project_structure["raw"], state_file=state_file)
     
-    # Verify
-    is_valid, errors = verify_data_integrity(temp_project_structure, state_file)
+    # Verify immediately (should be valid)
+    is_valid, current, expected = verify_data_integrity(temp_project_structure["raw"], state_file=state_file)
     assert is_valid
-    assert not errors
+    assert current == expected
 
 
-def test_verify_data_integrity_modified_file(temp_project_structure, sample_files):
-    state_file = temp_project_structure / "state.yaml"
+def test_verify_data_integrity_modified_file(temp_project_structure):
+    """Test verification fails when a file is modified."""
+    state_file = temp_project_structure["root"] / "state.yaml"
     
-    # Record initial state
-    record_directory_state(temp_project_structure, state_file)
+    # Record state
+    record_directory_state(temp_project_structure["raw"], state_file=state_file)
     
     # Modify a file
-    file1 = sample_files["raw"][0]
-    file1.write_text("modified content")
+    (temp_project_structure["raw"] / "noise.h5").write_text("modified data")
     
-    # Verify should fail
-    is_valid, errors = verify_data_integrity(temp_project_structure, state_file)
+    # Verify (should be invalid)
+    is_valid, current, expected = verify_data_integrity(temp_project_structure["raw"], state_file=state_file)
     assert not is_valid
-    assert "raw" in errors
-    assert any("Modified file" in err for err in errors["raw"])
+    assert current["noise.h5"] != expected["noise.h5"]
 
 
-def test_verify_data_integrity_missing_file(temp_project_structure, sample_files):
-    state_file = temp_project_structure / "state.yaml"
+def test_verify_data_integrity_missing_file(temp_project_structure):
+    """Test verification fails when a file is deleted."""
+    state_file = temp_project_structure["root"] / "state.yaml"
     
-    # Record initial state
-    record_directory_state(temp_project_structure, state_file)
+    # Record state
+    record_directory_state(temp_project_structure["raw"], state_file=state_file)
     
-    # Remove a file
-    file1 = sample_files["raw"][0]
-    file1.unlink()
+    # Delete a file
+    (temp_project_structure["raw"] / "config.json").unlink()
     
-    # Verify should fail
-    is_valid, errors = verify_data_integrity(temp_project_structure, state_file)
+    # Verify (should be invalid)
+    is_valid, current, expected = verify_data_integrity(temp_project_structure["raw"], state_file=state_file)
     assert not is_valid
-    assert "raw" in errors
-    assert any("Missing file" in err for err in errors["raw"])
+    assert "config.json" not in current
+    assert "config.json" in expected
 
 
 def test_verify_data_integrity_no_state_file(temp_project_structure):
-    state_file = temp_project_structure / "nonexistent.yaml"
-    is_valid, errors = verify_data_integrity(temp_project_structure, state_file)
+    """Test verification fails gracefully if state file is missing."""
+    fake_state = temp_project_structure["root"] / "nonexistent.yaml"
+    
+    is_valid, current, expected = verify_data_integrity(temp_project_structure["raw"], state_file=fake_state)
     assert not is_valid
-    assert "global" in errors
-    assert any("not found" in err for err in errors["global"])
+    assert expected == {}
+    assert current == {}

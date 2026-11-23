@@ -1,21 +1,21 @@
-.PHONY: lint format check
+.PHONY: lint format test clean
 
-# Run linters
 lint:
-	ruff check code/
-	flake8 code/
+    ruff check code/
+    black --check code/
 
-# Run formatter
 format:
-	black code/
-	ruff check --fix code/
+    ruff check --fix code/
+    black code/
 
-# Check formatting without modifying
-check:
-	black --check code/
-	ruff check code/
+test:
+    pytest code/tests/ -v
 
-# Install dev dependencies
-install-dev:
-	pip install -r requirements.txt
-	pip install ruff black flake8
+clean:
+    find code/ -type d -name "__pycache__" -exec rm -rf {} +
+    find code/ -type f -name "*.pyc" -delete
+    rm -rf .pytest_cache
+    rm -rf .ruff_cache
+    rm -rf htmlcov
+    rm -rf .coverage
+    rm -rf coverage.xml

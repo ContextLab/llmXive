@@ -1,0 +1,8 @@
+T006:
+  c: false
+  h: f7ab0626a90f5b902ef6570364e1ec7a0c340486f63c0f0163c838f06f5cae5a
+  r: "The repository contains a `generate_target_list.py` file, but it is truncated\
+    \ and does not show the required exponential backoff with jitter, CSV writing\
+    \ logic, or column selection (`url`, `primary_language`, `stars`, `age`). Moreover,\
+    \ the expected output file `data/raw/target_list.csv` is absent. Consequently,\
+    \ the task\u2019s functional requirements are not satisfied."

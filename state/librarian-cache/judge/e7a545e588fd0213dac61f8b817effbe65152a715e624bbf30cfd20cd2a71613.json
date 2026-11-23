@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.04143",
+  "judged_at": "2026-09-09T18:15:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "rationale": "The paper is rejected because it is off-domain entirely: it applies deep learning to medical imaging (CT scans of the brain) for clinical stroke treatment, whereas the user's question concerns materials science (predicting material strength from microstructure images). The shared keywords \"images\" and \"deep learning\" refer to distinct constructs in completely different scientific fields with no overlap in mechanism, variables, or empirical population.",
+  "relevant": false
+}

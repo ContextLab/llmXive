@@ -3,115 +3,67 @@
 ## Prerequisites
 
 - Python 3.11+
-- GitHub Personal Access Token (PAT) with `public_repo` scope
-- 14 GB available disk space (for GitHub Actions runner)
-- 7 GB available RAM (for GitHub Actions runner)
+- Git
+- GitHub Actions runner (or local environment for testing)
 
 ## Installation
 
-```bash
-# Clone the repository
-git clone <repo-url>
-cd projects/PROJ-208-statistical-analysis-of-publicly-availab
+1. **Clone the repository** and navigate to the project directory.
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` includes `datasets`, `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`.*
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+## Data Download & Processing
 
-# Install dependencies
-pip install -r requirements.txt
-```
-
-## Configuration
-
-Set environment variables:
-
-```bash
-export GITHUB_TOKEN="your-pat-token-here"
-export GITHUB_REPOS="owner/repo1,owner/repo2,..."  # Comma‑separated list of ≥100 repos
-```
-
-## Running the Pipeline
-
-### Step 1: Data Collection
+The pipeline automatically downloads the verified dataset from HuggingFace.
 
 ```bash
-python -m code.collect.github_collector
+# Run the full pipeline
+python code/main.py
 ```
 
-This collects closed issues from the specified repositories and writes to `data/raw/issues.json`.
+This script performs:
+1. **Data Ingestion**: Downloads `akhousker/github-issues`.
+2. **Cleaning**: Filters invalid timestamps, computes resolution times.
+3. **Analysis**: Runs distribution fitting, hypothesis testing, and LME.
+4. **Reporting**: Generates `data/processed/analysis_results.json` and plots.
 
-### Step 2: Preprocessing
+## Manual Steps (Optional)
 
-```bash
-python -m code.collect.preprocess
+### Load Data Manually
+```python
+from datasets import load_dataset
+ds = load_dataset("akhousker/github-issues", split="train")
+print(f"Loaded {len(ds)} records")
 ```
 
-This computes resolution times, filters invalid issues, and writes to `data/processed/issues_clean.csv`.
+### Run Specific Analysis
+```python
+# Distribution Analysis
+from code.analysis.distribution import run_distribution_analysis
+run_distribution_analysis("data/processed/cleaned_issues.csv")
 
-### Step 3: Distribution Analysis
-
-```bash
-python -m code.analysis.distribution_fitting
+# Hypothesis Testing
+from code.analysis.hypothesis import run_hypothesis_tests
+run_hypothesis_tests("data/processed/cleaned_issues.csv")
 ```
 
-This generates ECDF plots and fits log‑normal/Weibull distributions.
+## Output Artifacts
 
-### Step 4: Hypothesis Testing
-
-```bash
-python -m code.analysis.hypothesis_testing
-```
-
-This runs Kruskal‑Wallis tests with Holm‑Bonferroni correction.
-
-### Step 5: Mixed‑Effects Modeling
-
-```bash
-python -m code.analysis.mixed_effects_model
-```
-
-This fits the mixed‑effects model with leave‑one‑repository‑out cross‑validation.
-
-### Step 6: Diagnostics
-
-```bash
-python -m code.diagnostics.collinearity
-python -m code.diagnostics.sensitivity_analysis
-```
-
-These generate collinearity and sensitivity reports.
-
-## Running Tests
-
-```bash
-# Contract tests
-pytest tests/contract/
-
-# Integration tests
-pytest tests/integration/
-
-# Unit tests
-pytest tests/unit/
-```
-
-## Expected Outputs
-
-| Output | Location | Description |
-|--------|----------|-------------|
-| Raw issues | `data/raw/issues.json` | Raw GitHub API responses |
-| Clean dataset | `data/processed/issues_clean.csv` | Preprocessed analysis‑ready data |
-| Distribution metrics | `data/processed/distribution_metrics.json` | KS statistics, AIC values |
-| Test results | `data/processed/test_results.json` | Hypothesis test outcomes |
-| Model results | `data/processed/model_results.json` | Mixed‑effects model coefficients |
-| Collinearity report | `data/processed/collinearity_report.json` | VIF values per predictor |
-| Sensitivity report | `data/processed/sensitivity_report.json` | Bootstrap‑based stability metrics for each cutoff |
+- `data/raw/github_issues_raw.parquet`: Raw downloaded data.
+- `data/processed/cleaned_issues.csv`: Cleaned analysis dataset.
+- `data/processed/analysis_results.json`: Statistical test results.
+- `data/processed/plots/`: ECDF, distribution fits, and model diagnostics.
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| API rate limit exceeded | Script automatically waits ≥60 s before retry (FR‑003) |
-| Insufficient memory | Reduce repository sample size or increase CI runner resources |
-| MixedEffects model fails | Fall back to `statsmodels` MixedLM if `pymer4` unavailable |
-| No issues collected | Verify `GITHUB_REPOS` format and token permissions |
+- **Rate Limits**: Not applicable (uses static HF dataset).
+- **Memory Errors**: Dataset is small. If errors occur, check for memory leaks in other processes.
+- **Missing Fields**: If `language` is missing, the script will skip language-based analysis and log a warning.

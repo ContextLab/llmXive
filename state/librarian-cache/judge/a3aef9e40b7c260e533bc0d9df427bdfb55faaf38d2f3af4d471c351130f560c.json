@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.20902",
+  "judged_at": "2026-08-13T12:37:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"embodied.cpp: a portable inference runtime of embodied ai models on he\" computer science",
+  "rationale": "The paper focuses on UAV trajectory optimization and task offloading in medical IoT networks, which is a distinct application domain from the user's question about a portable C++ inference runtime for embodied AI models. While both mention \"embodied AI,\" the paper does not address the specific mechanism of runtime portability, the C++ implementation, or the \"Embodied.cpp\" framework, failing to meet the criteria for same-mechanism evidence or foundational methodology for the user's specific engin",
+  "relevant": false
+}

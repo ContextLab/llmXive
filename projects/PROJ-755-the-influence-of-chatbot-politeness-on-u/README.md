@@ -1,68 +1,52 @@
 # The Influence of Chatbot Politeness on User-Perceived Quality
 
-Research project investigating how chatbot politeness affects user-perceived quality using statistical modeling and NLP.
+## Project Overview
 
-## Project Structure
+This project investigates the correlation between chatbot politeness (measured via BERT-based models and lexicon dictionaries) and user-perceived quality ratings. It implements a reproducible scientific pipeline involving data acquisition from Hugging Face, politeness scoring, statistical modeling (CLMM), and robustness analysis.
 
-```
-.
-├── code/ # Implementation scripts
-│ ├── utils/ # Utility modules
-│ └── *.py # Pipeline stages
-├── data/
-│ ├── raw/ # Raw downloaded datasets
-│ └── processed/ # Processed data
-├── tests/ # Test suite
-│ ├── unit/
-│ ├── integration/
-│ └── contract/
-├── docs/ # Documentation
-├── contracts/ # Schema definitions
-├── specs/ # Feature specifications
-├── figures/ # Generated plots
-└──.github/workflows/ # CI/CD pipelines
-```
+## Prerequisites
 
-## Setup
+- Python 3.9+
+- R (with `lme4` and `ordinal` packages)
+- Hugging Face account (for dataset/model access)
 
-1. Create virtual environment:
+## Environment Configuration
+
+### Local Development
+
+1. Copy the environment template:
  ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
+ cp.env.example.env
+ ```
+2. Edit `.env` and add your Hugging Face token:
+ ```
+ HF_TOKEN=your_actual_token_here
+ ```
+3. Install Python dependencies:
+ ```bash
+ pip install -r code/requirements.txt
  ```
 
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+### CI/CD (GitHub Actions)
 
-3. Setup R packages (for CLMM analysis):
- ```bash
- R -e "install.packages(c('lme4', 'ordinal', 'EValue'), repos='https://cloud.r-project.org')"
- ```
+For automated runs, do **not** use a `.env` file. Instead, configure the Hugging Face token as a GitHub Secret:
+1. Go to Repository Settings > Secrets and variables > Actions.
+2. Create a new secret named `HF_TOKEN`.
+3. Reference it in the workflow file (e.g., `.github/workflows/ci.yml`) using `${{ secrets.HF_TOKEN }}`.
 
-## Running the Pipeline
+## Usage
 
-```bash
-# Verify demographics and data integrity
-python code/00_verify_demographics.py
+See `docs/quickstart.md` for a step-by-step guide to running the full pipeline.
 
-# Download and score dialogues
-python code/01_download_and_score.py
+## Directory Structure
 
-# Fit CLMM model
-python code/02_fit_clmm.py
-
-# Robustness analysis
-python code/03_robustness_analysis.py
-```
-
-## Testing
-
-```bash
-pytest tests/ -v
-```
+- `code/`: Python scripts and utilities
+- `data/`: Raw and processed datasets
+- `tests/`: Unit and integration tests
+- `contracts/`: Schema definitions
+- `specs/`: Research design documents
+- `state/`: Project state tracking (checksums, logs)
 
 ## License
 
-MIT License
+MIT

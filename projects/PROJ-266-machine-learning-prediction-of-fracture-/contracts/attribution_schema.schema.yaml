@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Attribution Schema
+description: >
+  Schema for storing and validating feature attribution results (Grad-CAM heatmaps)
+  and their stability metrics (IoU scores) across augmented views.
+type: object
+required:
+  - image_id
+  - heatmap_paths
+  - iou_scores
+  - stability_threshold_met
+properties:
+  image_id:
+    type: string
+    description: Unique identifier for the source image (matches metadata.json image path base name).
+    minLength: 1
+  heatmap_paths:
+    type: object
+    description: Map of attribution method names to file paths of generated heatmaps.
+    properties:
+      gradcam:
+        type: string
+        description: File path to the Grad-CAM heatmap image (PNG).
+        minLength: 1
+    required:
+      - gradcam
+  iou_scores:
+    type: array
+    description: >
+      List of Intersection-over-Union (IoU) scores calculated between the baseline
+      Grad-CAM and heatmaps generated from augmented views of the same image.
+    items:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+    minItems: 1
+  stability_threshold_met:
+    type: boolean
+    description: >
+      Boolean flag indicating whether the mean IoU score meets or exceeds the
+      configured stability threshold (default 0.75 from CONFIG).
+  mean_iou:
+    type: number
+    description: Mean of the iou_scores array.
+    minimum: 0.0
+    maximum: 1.0
+  std_iou:
+    type: number
+    description: Standard deviation of the iou_scores array.
+    minimum: 0.0
+  augmentation_params:
+    type: object
+    description: Parameters used for the augmentations that generated the IoU scores.
+    properties:
+      rotation_degrees:
+        type: array
+        items:
+          type: number
+        description: List of rotation angles applied.
+      noise_sigma:
+        type: number
+        description: Standard deviation of Gaussian noise applied.
+      brightness_jitter:
+        type: number
+        description: Brightness jitter factor applied.
+additionalProperties: false

@@ -49,7 +49,7 @@ The system must perform robustness checks, specifically bootstrapping with a suf
 
 **Acceptance Scenarios**:
 
-1. **Given** the primary OLS model results, **When** the bootstrapping routine runs (1000 resamples), **Then** a 95% confidence interval for the interaction coefficient is generated and reported.
+1. **Given** the primary OLS model results, **When** the bootstrapping routine runs (a sufficient number of resamples), **Then** A confidence interval for the interaction coefficient is generated and reported.
 2. **Given** a potential threshold for "high" vs "low" working memory load (if applied for exploratory analysis), **When** the sensitivity analysis runs, **Then** the interaction effect is re-evaluated across distinct threshold values (median, median ± 0.05*SD, median ± 0.10*SD) and the variation in effect size is reported.
 3. **Given** the full analysis pipeline, **When** executed on a standard CPU, **Then** the total runtime is ≤ 6 hours and memory usage remains ≤ 7 GB.
 
@@ -91,7 +91,7 @@ The system must perform robustness checks, specifically bootstrapping with a suf
 - **SC-001**: The primary interaction effect (log(k) × continuous WM metric) is measured against a statistical significance threshold of p < 0.05 to determine hypothesis support. (See US-2)
 - **SC-002**: The stability of the interaction effect is measured against a confidence interval derived from bootstrap resamples; the interval must not cross zero if the primary effect is significant. (See US-3)
 - **SC-003**: Multicollinearity is measured against a VIF threshold of 5; all predictors must have VIF < 5 to validate the model's independence assumptions. (See US-2)
-- **SC-004**: The sensitivity of the results is measured against the variation in the interaction p-value across the defined threshold sweeps (median, median ± 0.05*SD, median ± 0.10*SD); instability is flagged if the 95% CI for the interaction effect crosses zero in more than 50% of the swept thresholds. (See US-3)
+- **SC-004**: The sensitivity of the results is measured against the variation in the interaction p-value across the defined threshold sweeps (median, median ± 0.05*SD, median ± 0.10*SD); instability is flagged if the confidence interval for the interaction effect crosses zero in more than 50% of the swept thresholds. (See US-3)
 - **SC-005**: The total analysis runtime is measured against a practical upper-bound limit on a CPU-only GitHub Actions runner; the pipeline must complete within this bound. (See US-3)
 
 ## Assumptions

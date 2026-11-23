@@ -1,0 +1,26 @@
+# Contract for data/processed/sensitivity_analysis.json.
+type: object
+required:
+  - thresholds
+  - r2_scores
+  - mae_scores
+  - variance_r2
+properties:
+  thresholds:
+    type: array
+    items:
+      type: number
+  r2_scores:
+    type: array
+    items:
+      type: number
+  mae_scores:
+    type: array
+    items:
+      type: number
+  variance_r2:
+    type: number
+  kruskal_wallis_h:
+    type: number
+  kruskal_wallis_p:
+    type: number

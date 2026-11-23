@@ -1,0 +1,11 @@
+block_id,repo_id,label,complexity,manual_label,selected_for_ground_truth
+b1,r1,LLM,10,,True
+b2,r1,Human,12,,True
+b3,r2,LLM,8,,True
+b4,r2,Human,9,,True
+b5,r3,LLM,15,,True
+b6,r3,Human,14,,True
+b7,r4,LLM,20,,True
+b8,r4,Human,18,,True
+b9,r5,LLM,5,,True
+b10,r5,Human,6,,True

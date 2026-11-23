@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.13089",
+  "judged_at": "2026-09-06T18:56:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video generation models are general-purpose vision learners\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) by providing direct empirical evidence that large-scale video generative models function as \"general-purpose visual learners\" capable of transferring priors to diverse vision tasks (specifically image restoration), which is the core mechanism and domain the user's question investigates.",
+  "relevant": true
+}

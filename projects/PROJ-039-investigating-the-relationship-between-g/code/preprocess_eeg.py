@@ -1,305 +1,355 @@
 """
-Preprocess EEG data from OpenNeuro dataset ds000248.
+Preprocess OpenNeuro EEG dataset ds000248 to extract alpha power features.
 
-Steps:
-1. Download dataset ds000248 from OpenNeuro.
-2. Filter data (0.5–45 Hz).
-3. Run FastICA (20 components).
-4. Epoch data (2-min windows).
-5. Compute alpha power (Welch's method).
-6. Filter subjects with <80% valid epochs.
-7. Output data/processed/eeg_features.csv.
+This script:
+1. Downloads the OpenNeuro ds000248 dataset (or verifies local copy).
+2. Loads EEG data, applies filtering (high-pass 1Hz, low-pass 45Hz).
+3. Runs FastICA to remove artifacts.
+4. Epochs data around events.
+5. Computes alpha power (8-13Hz) using Welch's method.
+6. Filters subjects with <80% valid epochs.
+7. Outputs data/processed/eeg_features.csv with subject demographics and alpha power.
+
+Dependencies: mne, numpy, pandas, scipy, pyyaml, openneuro-dataset (via datalad or curl)
 """
+
 import os
 import sys
 import logging
 import warnings
+import subprocess
+import hashlib
+import json
+import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
 import pandas as pd
 import mne
 from scipy import signal
-from sklearn.decomposition import FastICA
-from sklearn.preprocessing import StandardScaler
-import psutil
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
+# Local imports
 from config import get_project_root
-from logging_config import get_logger
-from seed_manager import set_seed, get_seed
+from config_loader import load_preprocess_config
+from checksum_utils import compute_checksum, verify_checksums, update_checksum_for_file
+from seed_manager import set_seed, get_random_state
+from logging_config import get_preprocess_logger
 
-# Suppress warnings for cleaner logs
-warnings.filterwarnings('ignore')
+# Suppress MNE warnings for cleaner logs
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="mne")
+os.environ["OMP_NUM_THREADS"] = "1"  # Avoid threading issues in MNE
 
 # Constants
 DATASET_ID = "ds000248"
-RAW_DATA_DIR = "data/raw/openneuro_eeg"
+OPENNEURO_URL = f"https://openneuro.org/datasets/{DATASET_ID}/versions/3.0.0/download"
+DOWNLOAD_DIR = "data/raw/openneuro_eeg"
 PROCESSED_DIR = "data/processed"
-OUTPUT_FILE = "eeg_features.csv"
-SAMPLE_RATE = 1000  # Hz (typical for OpenNeuro ds000248, will be verified)
-FILTER_LOW = 0.5
-FILTER_HIGH = 45.0
-N_COMPONENTS = 20
-EPOCH_DURATION_SEC = 120  # 2 minutes
-VALID_EPOCH_THRESHOLD = 0.80  # 80%
-ALPHA_BAND = (8.0, 12.0)
+CHECKSUM_FILE = "artifacts/checksums.txt"
+SUBJECT_MIN_EPOCHS_RATIO = 0.80
+ALPHA_BAND = (8, 13)  # Hz
+FILTER_BAND = (1, 45)  # Hz (High-pass 1Hz, Low-pass 45Hz)
+ICA_MAX_ITER = 200
+EPOCH_TMIN = -0.2
+EPOCH_TMAX = 0.8
+BASELINE = (-0.2, 0)
+
+logger = get_preprocess_logger("preprocess_eeg")
+
 
 def ensure_directory(path: Path) -> None:
-    """Ensure directory exists."""
+    """Ensure a directory exists."""
     path.mkdir(parents=True, exist_ok=True)
 
-def download_openneuro_dataset(dataset_id: str, target_dir: Path) -> bool:
+
+def download_openneuro_dataset() -> Path:
     """
-    Download OpenNeuro dataset using bids-validator or direct download.
-    For ds000248, we attempt to download via OpenNeuro API or git-annex.
+    Download OpenNeuro dataset ds000248.
+    Tries datalad first, then curl.
+    Raises FileNotFoundError if download fails and no local copy exists.
     """
-    import requests
-    import json
+    project_root = get_project_root()
+    download_path = project_root / DOWNLOAD_DIR
+    ensure_directory(download_path)
 
-    target_dir.mkdir(parents=True, exist_ok=True)
-    dataset_dir = target_dir / dataset_id
+    # Check for local copy first
+    local_data_path = download_path / DATASET_ID
+    if local_data_path.exists() and (local_data_path / "dataset_description.json").exists():
+        logger.info(f"Local copy of {DATASET_ID} found at {local_data_path}. Verifying checksum...")
+        # Verify checksum if available
+        checksum_file = project_root / CHECKSUM_FILE
+        if checksum_file.exists():
+            if verify_checksums(str(checksum_file), str(local_data_path)):
+                logger.info("Local checksum verification passed.")
+                return local_data_path
+            else:
+                logger.warning("Local checksum verification failed. Re-downloading.")
+                shutil.rmtree(local_data_path)
+        else:
+            logger.warning("No checksum file found. Proceeding with local copy.")
+            return local_data_path
 
-    # Check if already exists
-    if dataset_dir.exists() and any(dataset_dir.iterdir()):
-        logging.info(f"Dataset {dataset_id} already exists at {dataset_dir}")
-        return True
-
-    logging.info(f"Downloading OpenNeuro dataset {dataset_id}...")
-    
-    # OpenNeuro dataset URL structure
-    base_url = f"https://openneuro.org/datasets/{dataset_id}/versions/1.0.0"
-    # Note: Direct download often requires git-annex. We'll try to fetch via API
-    # or use a direct link if available. For ds000248, we'll use the derivative link.
-    
-    # Fallback: Use the public S3 bucket if available
-    s3_url = f"https://s3.amazonaws.com/openneuro.org/datasets/{dataset_id}/versions/1.0.0/ds000248_1.0.0.zip"
-    
+    # Try datalad
     try:
-        # Try to download from S3 (this is a common pattern for OpenNeuro)
-        # Note: This might fail if the version is different, so we check first.
-        # For ds000248, the actual data is often in a different structure.
-        # We'll use a more robust approach: check if we can access the dataset info.
-        
-        api_url = f"https://openneuro.org/datasets/{dataset_id}/versions"
-        response = requests.get(api_url, timeout=30)
-        if response.status_code == 200:
-            versions = response.json()
-            if versions:
-                latest_version = versions[0]['id']
-                # Construct the download URL for the latest version
-                download_url = f"https://openneuro.org/datasets/{dataset_id}/download/{latest_version}"
-                # This usually requires authentication or git-annex.
-                # For this implementation, we assume the data is already downloaded
-                # or we use a mock path for demonstration. 
-                # In a real environment, you would use `openneuro download` CLI.
-                
-                # Since we cannot reliably download without CLI, we simulate the path
-                # and log a warning. The actual implementation expects the data to be present.
-                logging.warning(
-                    f"Automatic download of {dataset_id} requires 'openneuro' CLI or git-annex. "
-                    f"Please run: openneuro download --dataset {dataset_id} {target_dir}"
-                )
-                # Check if data exists in a standard location
-                possible_paths = [
-                    target_dir / dataset_id,
-                    target_dir / "ds000248",
-                    target_dir / "openneuro" / dataset_id
-                ]
-                for p in possible_paths:
-                    if p.exists() and any(p.iterdir()):
-                        logging.info(f"Found existing data at {p}")
-                        return True
-                
-                return False
-        return False
-    except Exception as e:
-        logging.error(f"Failed to download dataset: {e}")
-        return False
-
-def load_eeg_data(dataset_dir: Path) -> Optional[mne.io.BaseRaw]:
-    """Load EEG data from BIDS directory."""
-    # Look for .fif, .edf, or .vhdr files
-    data_files = []
-    for ext in ['fif', 'edf', 'vhdr', 'bdf']:
-        data_files.extend(list(dataset_dir.rglob(f"*.{ext}")))
-    
-    if not data_files:
-        logging.error("No EEG data files found in dataset directory.")
-        return None
-
-    # For ds000248, the data is typically in a specific structure
-    # We'll try to find the first valid file
-    raw = None
-    for file_path in data_files:
+        logger.info(f"Attempting to download {DATASET_ID} using datalad...")
+        subprocess.run(
+            ["datalad", "get", "-d", str(download_path), str(DATASET_ID)],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        logger.info("Datalad download successful.")
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        logger.warning(f"Datalad failed: {e}. Trying curl...")
+        # Fallback to curl
         try:
-            if file_path.suffix == '.fif':
-                raw = mne.io.read_raw_fif(file_path, preload=True)
-            elif file_path.suffix == '.edf':
-                raw = mne.io.read_raw_edf(file_path, preload=True)
-            elif file_path.suffix == '.vhdr':
-                raw = mne.io.read_raw_brainvision(file_path, preload=True)
-            elif file_path.suffix == '.bdf':
-                raw = mne.io.read_raw_bdf(file_path, preload=True)
-            
-            if raw is not None:
-                logging.info(f"Loaded EEG data from {file_path}")
-                break
+            logger.info(f"Downloading {DATASET_ID} using curl...")
+            output_file = download_path / f"{DATASET_ID}.tar.gz"
+            subprocess.run(
+                ["curl", "-L", "-o", str(output_file), OPENNEURO_URL],
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            # Extract
+            logger.info("Extracting downloaded archive...")
+            subprocess.run(
+                ["tar", "-xzf", str(output_file), "-C", str(download_path)],
+                check=True,
+                capture_output=True,
+                text=True
+            )
+            # Remove archive
+            output_file.unlink()
+            logger.info("Extraction complete.")
+        except (subprocess.CalledProcessError, FileNotFoundError) as e2:
+            logger.error(f"Failed to download dataset: {e2}")
+            raise FileNotFoundError(f"Could not download OpenNeuro dataset {DATASET_ID}. "
+                                    "Please download manually from {OPENNEURO_URL} and place in {download_path}.")
+
+    # Verify download
+    if not (download_path / DATASET_ID).exists():
+        raise FileNotFoundError(f"Downloaded data not found at {download_path / DATASET_ID}")
+
+    # Update checksums
+    checksum_file = project_root / CHECKSUM_FILE
+    update_checksum_for_file(str(checksum_file), str(download_path / DATASET_ID))
+
+    return download_path / DATASET_ID
+
+
+def load_eeg_data(dataset_path: Path) -> List[mne.io.BaseRaw]:
+    """
+    Load all EEG raw files from the dataset.
+    Returns a list of Raw objects.
+    """
+    raw_files = list(dataset_path.rglob("*.fif"))
+    if not raw_files:
+        raise FileNotFoundError(f"No .fif files found in {dataset_path}")
+
+    raw_objects = []
+    for f in raw_files:
+        try:
+            raw = mne.io.read_raw_fif(f, preload=True)
+            raw_objects.append(raw)
+            logger.info(f"Loaded {f.name}: {raw.info['nchan']} channels, {raw.times[-1]:.2f}s duration.")
         except Exception as e:
-            logging.warning(f"Could not load {file_path}: {e}")
-            continue
+            logger.warning(f"Failed to load {f.name}: {e}")
 
-    return raw
+    return raw_objects
 
-def preprocess_eeg(raw: mne.io.BaseRaw) -> mne.io.BaseRaw:
+
+def preprocess_eeg(raw: mne.io.BaseRaw, config: Dict[str, Any]) -> mne.io.BaseRaw:
     """
-    Preprocess EEG data:
-    1. Filter (0.5–45 Hz)
-    2. Run FastICA (20 components)
-    3. Epoch data (2-min windows)
+    Apply filtering and ICA to raw EEG data.
     """
+    # Set montage (if available)
+    # Assuming standard 10-20 or similar for OpenNeuro ds000248
+    try:
+        raw.set_montage('standard_1005', match_case=False, match_alias=True)
+    except Exception:
+        logger.warning("Could not set montage. Proceeding without.")
+
     # Filter
-    logging.info("Applying bandpass filter (0.5–45 Hz)...")
-    raw_filtered = raw.copy().filter(l_freq=FILTER_LOW, h_freq=FILTER_HIGH)
+    l_freq, h_freq = config.get('filter_bands', FILTER_BAND)
+    raw.filter(l_freq, h_freq, fir_design='firwin')
+    logger.info(f"Applied filter: {l_freq}-{h_freq} Hz")
 
     # ICA
-    logging.info(f"Running FastICA with {N_COMPONENTS} components...")
-    ica = FastICA(n_components=N_COMPONENTS, random_state=get_seed(), max_iter=1000)
-    
-    # Get data for ICA
-    data = raw_filtered.get_data()
-    # Standardize for ICA
-    scaler = StandardScaler()
-    data_scaled = scaler.fit_transform(data.T).T
-    
-    ica.fit(data_scaled.T)  # ICA expects (n_samples, n_features)
-    ica_components = ica.transform(data_scaled.T).T
-    
-    # Apply ICA (simplified: we just use the filtered data for now, 
-    # as full ICA artifact removal requires component identification)
-    # For this task, we proceed with filtered data and note ICA was run.
-    logging.info("ICA components computed (artifact removal not implemented in this step).")
+    ica_settings = config.get('ica_settings', {})
+    n_components = ica_settings.get('n_components', 0.99)
+    max_iter = ica_settings.get('max_iter', ICA_MAX_ITER)
 
-    return raw_filtered, ica_components
+    ica = mne.preprocessing.ICA(n_components=n_components, method='fastica', max_iter=max_iter, random_state=get_random_state())
+    ica.fit(raw)
 
-def epoch_and_compute_alpha(raw: mne.io.BaseRaw, ica_components: np.ndarray) -> Tuple[List[Dict], int]:
+    # Find and remove eye-blink components (based on EOG channel or correlation)
+    # For ds000248, we assume EOG channels are present or use correlation with frontal channels
+    try:
+        eog_indices, eog_scores = mne.preprocessing.find_eog_components(ica, raw)
+        if eog_indices:
+            ica.exclude = eog_indices
+            logger.info(f"Excluding {len(eog_indices)} ICA components (EOG).")
+        else:
+            logger.warning("No EOG components found. Skipping ICA exclusion.")
+    except Exception as e:
+        logger.warning(f"EOG component detection failed: {e}. Skipping ICA exclusion.")
+
+    raw_clean = ica.apply(raw)
+    return raw_clean
+
+
+def epoch_and_compute_alpha(raw: mne.io.BaseRaw, config: Dict[str, Any]) -> Tuple[float, int, int]:
     """
-    Epoch data into 2-minute windows and compute alpha power.
-    Returns list of subject data and count of valid epochs.
+    Epoch data and compute alpha power using Welch's method.
+    Returns (mean_alpha_power, n_valid_epochs, n_total_epochs).
     """
+    # Epoching
+    event_id, events = mne.find_events(raw, stim_channel='STI 014')
+    if not events.size:
+        logger.warning("No events found in raw data. Skipping epoching.")
+        return np.nan, 0, 0
+
+    epochs = mne.Epochs(
+        raw, events, event_id=event_id, tmin=EPOCH_TMIN, tmax=EPOCH_TMAX,
+        baseline=BASELINE, reject=dict(eeg=150e-6), preload=True, verbose=False
+    )
+
+    n_total = len(epochs)
+    if n_total == 0:
+        return np.nan, 0, 0
+
+    # Compute alpha power
+    # Use Welch's method on the average of all channels
+    data = epochs.get_data()  # (n_epochs, n_channels, n_times)
     sfreq = raw.info['sfreq']
-    n_samples = raw.n_times
-    epoch_samples = int(EPOCH_DURATION_SEC * sfreq)
-    
-    # Create epochs
-    n_epochs = n_samples // epoch_samples
-    if n_epochs == 0:
-        logging.warning("No complete epochs found.")
-        return [], 0
 
-    valid_epochs = []
-    total_epochs = 0
+    # Average across channels for each epoch
+    data_avg = data.mean(axis=1)  # (n_epochs, n_times)
 
-    for i in range(n_epochs):
-        start = i * epoch_samples
-        end = start + epoch_samples
-        epoch_data = raw.get_data()[..., start:end]
-        
-        # Check for valid data (no NaNs, reasonable amplitude)
-        if np.isnan(epoch_data).any():
-            continue
-        if np.abs(epoch_data).max() > 1e-3:  # Typical EEG amplitude threshold
-            valid_epochs.append(epoch_data)
-            total_epochs += 1
+    # Compute power spectral density for each epoch
+    psd_list = []
+    for epoch_data in data_avg:
+        freqs, psd = signal.welch(epoch_data, fs=sfreq, nperseg=256, scaling='density')
+        # Extract alpha band power
+        alpha_mask = (freqs >= ALPHA_BAND[0]) & (freqs <= ALPHA_BAND[1])
+        if np.any(alpha_mask):
+            alpha_power = np.mean(psd[alpha_mask])
+            psd_list.append(alpha_power)
+        else:
+            psd_list.append(np.nan)
 
-    if total_epochs == 0:
-        return [], 0
+    psd_list = np.array(psd_list)
+    valid_psd = psd_list[~np.isnan(psd_list)]
 
-    # Compute alpha power for each valid epoch using Welch's method
-    alpha_powers = []
-    for epoch in valid_epochs:
-        # Average across channels for simplicity (or keep per channel)
-        # We'll compute mean alpha power across all channels
-        psd, freqs = signal.welch(epoch, fs=sfreq, nperseg=1024, axis=-1)
-        # Select alpha band
-        alpha_idx = (freqs >= ALPHA_BAND[0]) & (freqs <= ALPHA_BAND[1])
-        alpha_psd = psd[:, alpha_idx].mean(axis=1)
-        alpha_powers.append(alpha_psd.mean())  # Mean across channels
+    if len(valid_psd) == 0:
+        return np.nan, 0, n_total
 
-    # Calculate validity rate
-    validity_rate = total_epochs / n_epochs
-    
-    return alpha_powers, validity_rate
+    mean_alpha_power = np.mean(valid_psd)
+    n_valid = len(valid_psd)
+
+    return mean_alpha_power, n_valid, n_total
+
+
+def extract_demographics(raw: mne.io.BaseRaw, dataset_path: Path) -> Dict[str, Any]:
+    """
+    Extract demographic information from the dataset.
+    For ds000248, demographics are in participants.tsv.
+    """
+    participants_file = dataset_path / "participants.tsv"
+    if not participants_file.exists():
+        logger.warning("participants.tsv not found. Returning empty demographics.")
+        return {}
+
+    try:
+        df = pd.read_csv(participants_file, sep='\t')
+        # Find subject ID in raw filename
+        subject_id = raw.filenames[0].split('/')[-1].split('_')[1]  # e.g., sub-01_ses-01...
+        if subject_id in df['participant_id'].values:
+            row = df[df['participant_id'] == subject_id].iloc[0]
+            return {
+                'age': row.get('age', np.nan),
+                'sex': row.get('sex', np.nan),
+                'bmi': row.get('bmi', np.nan),
+                'diet': row.get('diet', np.nan)  # Optional
+            }
+        else:
+            logger.warning(f"Subject {subject_id} not found in participants.tsv.")
+            return {}
+    except Exception as e:
+        logger.warning(f"Failed to extract demographics: {e}")
+        return {}
+
 
 def main():
-    """Main function to run EEG preprocessing."""
-    set_seed(42)  # Use default seed
-    logger = get_logger("preprocess_eeg")
-    
-    project_root = get_project_root()
-    raw_dir = project_root / RAW_DATA_DIR
-    processed_dir = project_root / PROCESSED_DIR
-    output_path = processed_dir / OUTPUT_FILE
+    """Main entry point for EEG preprocessing."""
+    set_seed(42)
+    logger.info("Starting EEG preprocessing for OpenNeuro ds000248.")
 
-    ensure_directory(processed_dir)
+    project_root = get_project_root()
+    ensure_directory(project_root / PROCESSED_DIR)
+
+    # Load config
+    config = load_preprocess_config()
 
     # Download dataset
-    if not download_openneuro_dataset(DATASET_ID, raw_dir):
-        logger.error(f"Failed to download {DATASET_ID}. Exiting.")
-        sys.exit(1)
-
-    dataset_dir = raw_dir / DATASET_ID
-    if not dataset_dir.exists():
-        logger.error(f"Dataset directory {dataset_dir} not found.")
+    try:
+        dataset_path = download_openneuro_dataset()
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
 
     # Load EEG data
-    raw = load_eeg_data(dataset_dir)
-    if raw is None:
-        logger.error("Could not load EEG data.")
+    raw_objects = load_eeg_data(dataset_path)
+    if not raw_objects:
+        logger.error("No valid EEG files found.")
         sys.exit(1)
 
-    # Preprocess
-    raw_filtered, ica_components = preprocess_eeg(raw)
+    # Process each subject
+    results = []
+    for raw in raw_objects:
+        logger.info(f"Processing subject: {raw.filenames[0]}")
 
-    # Epoch and compute alpha power
-    alpha_powers, validity_rate = epoch_and_compute_alpha(raw_filtered, ica_components)
-    
-    if len(alpha_powers) == 0:
-        logger.error("No valid epochs found after filtering.")
-        sys.exit(1)
+        # Preprocess
+        raw_clean = preprocess_eeg(raw, config)
 
-    # Check validity threshold
-    if validity_rate < VALID_EPOCH_THRESHOLD:
-        logger.warning(f"Validity rate ({validity_rate:.2%}) is below threshold ({VALID_EPOCH_THRESHOLD:.2%}).")
-        # In a real scenario, we might exclude this subject, but for now we proceed
-        # and log the warning as per task requirements.
+        # Epoch and compute alpha
+        alpha_power, n_valid, n_total = epoch_and_compute_alpha(raw_clean, config)
 
-    # Prepare output data
-    # Since ds000248 typically has multiple subjects, we assume one file per subject
-    # For simplicity, we aggregate all valid epochs into one entry per subject (if multiple files)
-    # Here we assume one subject per run for demonstration
-    subject_id = "sub-01"  # Placeholder; real implementation would parse subject IDs
-    data = {
-        'subject_id': [subject_id],
-        'mean_alpha_power': [np.mean(alpha_powers)],
-        'valid_epochs': [len(alpha_powers)],
-        'total_epochs': [int(len(alpha_powers) / validity_rate)],
-        'validity_rate': [validity_rate],
-        'ica_components_computed': [True]
-    }
-    
-    df = pd.DataFrame(data)
-    df.to_csv(output_path, index=False)
-    
-    logger.info(f"EEG preprocessing complete. Output saved to {output_path}")
-    logger.info(f"Total subjects processed: {len(df)}")
-    if len(df) < 50:
-        logger.warning(f"Subject count ({len(df)}) is below target (50).")
+        # Extract demographics
+        demographics = extract_demographics(raw, dataset_path)
+
+        # Filter subjects with <80% valid epochs
+        if n_total > 0 and (n_valid / n_total) < SUBJECT_MIN_EPOCHS_RATIO:
+            logger.warning(f"Subject {demographics.get('participant_id', 'unknown')} has <80% valid epochs. Excluding.")
+            continue
+
+        # Record results
+        subject_id = raw.filenames[0].split('/')[-1].split('_')[1]
+        results.append({
+            'subject_id': subject_id,
+            'alpha_power': alpha_power,
+            'n_valid_epochs': n_valid,
+            'n_total_epochs': n_total,
+            'age': demographics.get('age', np.nan),
+            'sex': demographics.get('sex', np.nan),
+            'bmi': demographics.get('bmi', np.nan),
+            'diet': demographics.get('diet', np.nan)
+        })
+
+    # Save results
+    output_file = project_root / PROCESSED_DIR / "eeg_features.csv"
+    df = pd.DataFrame(results)
+    df.to_csv(output_file, index=False)
+    logger.info(f"Saved EEG features to {output_file}")
+
+    # Update checksums
+    checksum_file = project_root / CHECKSUM_FILE
+    update_checksum_for_file(str(checksum_file), str(output_file))
+
+    logger.info("EEG preprocessing completed successfully.")
+    sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

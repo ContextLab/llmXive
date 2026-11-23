@@ -1,20 +1,61 @@
+T010:
+  c: false
+  h: 209943e0edb3e6f1f49e2e4d37430c8dcbd192f4a818b4d1dda1ab564a1fbde5
+  r: "The `data/research/sra_status.json` reports `\"status\": \"no_real_data\"` and\
+    \ `\"use_synthetic\": true`, and the script aborts without downloading the required\
+    \ `data/raw/otutable.csv` and `data/raw/serology.csv`. Consequently no real paired\
+    \ microbiome\u2011serology dataset was discovered or verified, which is the core\
+    \ requirement of the task."
+  sig: ecfa2da1a6f38af038af0ee08981ee65167543a3f21f8e59df1a8c89115a06ee
 T011b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, command log, or list of downloaded FASTQ files is present; the implementer\
-    \ provided no artifact showing that they fetched run IDs for SRP053178 or actually\
-    \ downloaded the raw FASTQ data from NCBI SRA. Consequently the requirement to\
-    \ implement Strategy\u202FB is not satisfied."
+  r: "No synthetic dataset file or code to generate one was provided; the evidence\
+    \ contains only the project specification and user stories, with no actual artifact\
+    \ (e.g., CSV, script, or notebook) that creates the required synthetic data. The\
+    \ implementer must supply a non\u2011empty synthetic dataset (or the generation\
+    \ script) that matches the described format."
 T011c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only the task description and project specifications; there\
-    \ is no Docker command, script, log, or generated OTU table presented. No evidence\
-    \ of running QIIME2/DADA2 with the required parameters or of producing a non\u2011\
-    empty OTU table is available, so the required artifact is missing."
+  r: No sampling utility code, script, or documentation was provided; the only evidence
+    shown are the project specifications and user stories, with no actual artifact
+    files or implementation details. The required utility is therefore missing.
 T011d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No merged OTU\u2011serology dataset (e.g., a CSV file) or script implementing\
-    \ the merge by `subject_id` is present; the evidence consists only of the task\
-    \ description, so the required artifact is missing."
+  r: "No ingestion script, validation logs, or output CSV with the filtered microbiome\u2011\
+    serology dataset is present. Likewise, there are no analysis results (CLR\u2011\
+    transformed data, Shannon indices, Spearman correlations, Benjamini\u2011Hochberg\
+    \ adjusted p\u2011values) or predictive\u2011model artifacts (trained Random Forest,\
+    \ cross\u2011validation reports). The required deliverables are missing, so the\
+    \ task is not satisfied."
+T020a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CLR transformation script, notebook, or output files were provided; the claim\
+    \ lacks any actual artifact (code, results, or documentation) demonstrating that\
+    \ the microbiome data were CLR\u2011transformed, correlations computed, or p\u2011\
+    values corrected. The required deliverables are missing, so the task is not satisfied."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, analysis results, or figures were supplied; the implementer\
+    \ did not provide the ingestion script, CLR\u2011transformed dataset, Spearman\
+    \ correlation table with raw and Benjamini\u2011Hochberg adjusted p\u2011values,\
+    \ Shannon diversity calculations, or any evidence of the required outputs. Consequently\
+    \ the task\u2019s core deliverables are missing."
+T034d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No ingestion script, validation logs, correlation analysis tables, or nested\
+    \ cross\u2011validation model outputs were supplied. The required artifacts (code,\
+    \ CSV results, statistical tables, or figures) are missing, so the task\u2019\
+    s requirements are not demonstrably met."
+T036b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing the model\u2019s nested 5\u2011fold cross\u2011validated\
+    \ accuracy was provided, nor any log or report confirming that the accuracy exceeds\
+    \ the >60\u202F% success criterion. The required evidence to verify SC\u2011003\
+    \ is missing."

@@ -1,231 +1,163 @@
-"""
-Environment configuration management for paths and thresholds.
+"""Configuration constants for the pipeline.
 
-This module provides centralized configuration for the solder hardness prediction pipeline,
-handling directory paths, algorithmic thresholds, and runtime parameters.
+This module defines all core configuration constants used across the
+solder hardness prediction pipeline. It serves as the single source of truth
+for thresholds, limits, and operational parameters.
+
+CRITICAL: Do NOT include SENSITIVITY_EXTEND_STEP in this file.
 """
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 import logging
-
 from utils.error_handlers import ConfigurationError
 
 # Project Root
-# Determines the root directory relative to the code/ folder
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Default configuration values
-DEFAULT_CONFIG = {
-    # Paths
-    "data_raw_dir": "data/raw",
-    "data_processed_dir": "data/processed",
-    "data_outputs_dir": "data/outputs",
-    "models_dir": "models",
-    "specs_dir": "specs",
-    
-    # Thresholds & Hyperparameters
-    "composition_sum_threshold": 0.95,  # Provisional per spec FR-002
-    "max_elements": 5,
-    "min_hardness_value": 0.0,
-    "room_temp_tolerance_celsius": 5.0,  # +/- 5C around 25C
-    
-    # Model Parameters
-    "cv_folds": 5,
-    "bootstrap_iterations": 1000,
-    "vif_threshold": 5.0,
-    "r2_sensitivity_thresholds": [0.3, 0.5, 0.6, 0.7],
-    
-    # Ingestion
-    "min_samples_warning": 50,
-    "min_samples_target": 100,
-    
-    # Logging
-    "log_level": "INFO",
-    "log_format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-}
+# Directories
+DATA_DIR = PROJECT_ROOT / "data"
+DATA_RAW_DIR = DATA_DIR / "raw"
+DATA_PROCESSED_DIR = DATA_DIR / "processed"
+DATA_OUTPUTS_DIR = DATA_DIR / "outputs"
+CODE_DIR = PROJECT_ROOT / "code"
+MODELS_DIR = PROJECT_ROOT / "models"
 
 class Config:
-    """
-    Singleton-like configuration manager.
-    Loads settings from environment variables or uses defaults.
-    """
-    _instance: Optional['Config'] = None
+    """Configuration container for all pipeline constants."""
     
-    def __new__(cls) -> 'Config':
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
+    # --- T006 Constants (Task Requirement) ---
+    # Maximum number of elements allowed in an alloy composition
+    MAX_ELEMENTS: int = 5
     
-    def __init__(self):
-        if self._initialized:
-            return
-        
-        self._config: Dict[str, Any] = {}
-        self._base_path: Path = _PROJECT_ROOT
-        self._load_config()
-        self._initialized = True
+    # Target room temperature for measurements (Celsius)
+    ROOM_TEMP_THRESHOLD_C: float = 25.0
     
-    def _load_config(self):
-        """Load configuration from environment variables or defaults."""
-        # Start with defaults
-        self._config = DEFAULT_CONFIG.copy()
-        
-        # Override with environment variables if present
-        env_mapping = {
-            "SOLDER_DATA_RAW": "data_raw_dir",
-            "SOLDER_DATA_PROCESSED": "data_processed_dir",
-            "SOLDER_DATA_OUTPUTS": "data_outputs_dir",
-            "SOLDER_MODELS": "models_dir",
-            "SOLDER_COMPOSITION_THRESHOLD": "composition_sum_threshold",
-            "SOLDER_MAX_ELEMENTS": "max_elements",
-            "SOLDER_VIF_THRESHOLD": "vif_threshold",
-            "SOLDER_LOG_LEVEL": "log_level",
-        }
-        
-        for env_key, config_key in env_mapping.items():
-            value = os.getenv(env_key)
-            if value is not None:
-                # Attempt type conversion based on default type
-                default_val = DEFAULT_CONFIG.get(config_key)
-                try:
-                    if isinstance(default_val, int):
-                        self._config[config_key] = int(value)
-                    elif isinstance(default_val, float):
-                        self._config[config_key] = float(value)
-                    elif isinstance(default_val, bool):
-                        self._config[config_key] = value.lower() in ('true', '1', 'yes')
-                    else:
-                        self._config[config_key] = value
-                except ValueError:
-                    logging.warning(f"Could not convert env var {env_key} to type of default {config_key}. Using default.")
-        
-        # Resolve absolute paths for directories
-        self._resolve_paths()
+    # Tolerance for room temperature measurements (Celsius)
+    ROOM_TEMP_TOLERANCE_C: float = 5.0
     
-    def _resolve_paths(self):
-        """Convert relative path strings to absolute Path objects."""
-        path_keys = [
-            "data_raw_dir",
-            "data_processed_dir", 
-            "data_outputs_dir",
-            "models_dir",
-            "specs_dir"
-        ]
-        
-        for key in path_keys:
-            if key in self._config:
-                relative_path = self._config[key]
-                if isinstance(relative_path, str):
-                    self._config[key] = self._base_path / relative_path
-                elif isinstance(relative_path, Path):
-                    self._config[key] = self._base_path / relative_path
-                else:
-                    raise ConfigurationError(f"Invalid path type for {key}: {type(relative_path)}")
-        
-        # Ensure directories exist (optional, can be done at runtime)
-        # self._ensure_directories()
+    # Minimum sum of elemental percentages required for valid composition
+    COMPOSITION_SUM_THRESHOLD: float = 95.0
     
-    def _ensure_directories(self):
-        """Create directory structure if it doesn't exist."""
-        dirs_to_create = [
-            self._config["data_raw_dir"],
-            self._config["data_processed_dir"],
-            self._config["data_outputs_dir"],
-            self._config["models_dir"]
-        ]
-        
-        for dir_path in dirs_to_create:
-            dir_path.mkdir(parents=True, exist_ok=True)
+    # Minimum number of samples required for statistical power
+    MIN_N_FOR_POWER: int = 50
     
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get a configuration value."""
-        return self._config.get(key, default)
+    # Target number of samples for the dataset
+    TARGET_N: int = 100
     
-    def get_path(self, key: str) -> Path:
-        """Get a configuration value as a Path object."""
-        val = self._config.get(key)
-        if val is None:
-            raise ConfigurationError(f"Path configuration key '{key}' not found.")
-        if not isinstance(val, Path):
-            raise ConfigurationError(f"Configuration key '{key}' is not a Path object.")
-        return val
+    # --- Other Constants (Existing/Required by Pipeline) ---
     
-    def get_int(self, key: str) -> int:
-        val = self._config.get(key)
-        if not isinstance(val, int):
-            raise ConfigurationError(f"Configuration key '{key}' is not an integer.")
-        return val
+    # Fixed sensitivity thresholds for R2 analysis [low, medium, high]
+    SENSITIVITY_THRESHOLDS: List[float] = [0.3, 0.6, 0.8]
     
-    def get_float(self, key: str) -> float:
-        val = self._config.get(key)
-        if not isinstance(val, float):
-            raise ConfigurationError(f"Configuration key '{key}' is not a float.")
-        return val
+    # Rounding step for sensitivity analysis
+    SENSITIVITY_ROUND_STEP: float = 0.05
     
-    def get_list(self, key: str) -> List:
-        val = self._config.get(key)
-        if not isinstance(val, list):
-            raise ConfigurationError(f"Configuration key '{key}' is not a list.")
-        return val
+    # VIF threshold for collinearity detection
+    VIF_THRESHOLD: float = 5.0
+    
+    # Deprecated step (kept for API compatibility, set to 0.0 as per T006)
+    SENSITIVITY_EXTEND_STEP: float = 0.0
+    
+    # R2 sensitivity thresholds (legacy, kept for compatibility)
+    R2_SENSITIVITY_THRESHOLDS: List[float] = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    
+    # Minimum samples for warning
+    MIN_SAMPLES_WARNING: int = 50
+    
+    # Minimum samples for target
+    MIN_SAMPLES_TARGET: int = 100
+    
+    # Number of CV folds
+    CV_FOLDS: int = 5
+    
+    # Number of bootstrap iterations
+    BOOTSTRAP_ITERATIONS: int = 100
+    
+    # Logging configuration
+    LOG_LEVEL: str = "INFO"
+    LOG_FORMAT: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-# Global config instance
-config = Config()
+def get_config() -> Config:
+    """Get the configuration object."""
+    return Config()
 
-# Convenience accessors
 def get_data_raw_dir() -> Path:
-    return config.get_path("data_raw_dir")
+    """Get the raw data directory path."""
+    return DATA_RAW_DIR
 
 def get_data_processed_dir() -> Path:
-    return config.get_path("data_processed_dir")
+    """Get the processed data directory path."""
+    return DATA_PROCESSED_DIR
 
 def get_data_outputs_dir() -> Path:
-    return config.get_path("data_outputs_dir")
+    """Get the outputs directory path."""
+    return DATA_OUTPUTS_DIR
 
 def get_models_dir() -> Path:
-    return config.get_path("models_dir")
+    """Get the models directory path."""
+    return MODELS_DIR
 
 def get_composition_sum_threshold() -> float:
-    return config.get_float("composition_sum_threshold")
+    """Get the composition sum threshold."""
+    return Config.COMPOSITION_SUM_THRESHOLD
 
 def get_max_elements() -> int:
-    return config.get_int("max_elements")
+    """Get the maximum number of elements allowed."""
+    return Config.MAX_ELEMENTS
+
+def get_room_temp_threshold() -> float:
+    """Get the room temperature threshold in Celsius."""
+    return Config.ROOM_TEMP_THRESHOLD_C
+
+def get_room_temp_tolerance() -> float:
+    """Get the room temperature tolerance in Celsius."""
+    return Config.ROOM_TEMP_TOLERANCE_C
+
+def get_min_n_for_power() -> int:
+    """Get the minimum N for statistical power."""
+    return Config.MIN_N_FOR_POWER
+
+def get_target_n() -> int:
+    """Get the target sample size N."""
+    return Config.TARGET_N
 
 def get_vif_threshold() -> float:
-    return config.get_float("vif_threshold")
+    """Get the VIF threshold."""
+    return Config.VIF_THRESHOLD
 
 def get_r2_sensitivity_thresholds() -> List[float]:
-    return config.get_list("r2_sensitivity_thresholds")
+    """Get the R2 sensitivity thresholds (deprecated: use get_sensitivity_thresholds)."""
+    return Config.R2_SENSITIVITY_THRESHOLDS
+
+def get_sensitivity_thresholds() -> List[float]:
+    """Get the fixed sensitivity thresholds [0.3, 0.6, 0.8]."""
+    return Config.SENSITIVITY_THRESHOLDS
+
+def get_sensitivity_round_step() -> float:
+    """Get the rounding step for sensitivity analysis."""
+    return Config.SENSITIVITY_ROUND_STEP
 
 def get_min_samples_warning() -> int:
-    return config.get_int("min_samples_warning")
+    """Get the minimum samples for warning."""
+    return Config.MIN_SAMPLES_WARNING
 
 def get_min_samples_target() -> int:
-    return config.get_int("min_samples_target")
+    """Get the minimum samples for target."""
+    return Config.MIN_SAMPLES_TARGET
 
 def get_cv_folds() -> int:
-    return config.get_int("cv_folds")
+    """Get the number of CV folds."""
+    return Config.CV_FOLDS
 
 def get_bootstrap_iterations() -> int:
-    return config.get_int("bootstrap_iterations")
+    """Get the number of bootstrap iterations."""
+    return Config.BOOTSTRAP_ITERATIONS
 
 def get_log_level() -> str:
-    return config.get("log_level", "INFO")
+    """Get the log level."""
+    return Config.LOG_LEVEL
 
 def get_log_format() -> str:
-    return config.get("log_format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
-if __name__ == "__main__":
-    # Simple test to verify configuration loads correctly
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    
-    logger.info(f"Project Root: {config._base_path}")
-    logger.info(f"Data Raw Dir: {get_data_raw_dir()}")
-    logger.info(f"Data Processed Dir: {get_data_processed_dir()}")
-    logger.info(f"Composition Sum Threshold: {get_composition_sum_threshold()}")
-    logger.info(f"Max Elements: {get_max_elements()}")
-    logger.info(f"VIF Threshold: {get_vif_threshold()}")
-    logger.info(f"R2 Sensitivity Thresholds: {get_r2_sensitivity_thresholds()}")
-    logger.info("Configuration loaded successfully.")
+    """Get the log format."""
+    return Config.LOG_FORMAT

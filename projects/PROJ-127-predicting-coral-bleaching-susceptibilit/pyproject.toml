@@ -3,42 +3,67 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-coral-bleaching"
+name = "llmxive-coral-bleaching"
 version = "0.1.0"
-description = "Predicting Coral Bleaching Susceptibility from Environmental Data"
+description = "Predicting Coral Bleaching Susceptibility from Environmental Data (llmXive PROJ-127)"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "llmXive PROJ-127 contributors" },
+]
 requires-python = ">=3.11"
+keywords = ["coral", "bleaching", "machine-learning", "xgboost", "remote-sensing"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: GIS",
+]
 dependencies = [
-    "xgboost>=2.0.0",
-    "scikit-learn>=1.4.0",
-    "pandas>=2.2.0",
-    "geopandas>=0.14.0",
-    "rasterio>=1.3.9",
-    "numpy>=1.26.0",
-    "requests>=2.31.0",
-    "pyyaml>=6.0.1",
-    "ruff>=0.3.0",
-    "black>=24.3.0",
+    "xgboost",
+    "scikit-learn",
+    "pandas",
+    "geopandas",
+    "rasterio",
+    "numpy",
+    "requests",
+    "pyyaml",
+    "pytest",
 ]
 
-[tool.ruff]
-# Point to the ruff config in code/ if needed, or inherit defaults
-# Since we put .ruff.toml in code/, we can run ruff from there
-# This section is for global overrides if any
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+    "pytest",
+]
+
+[project.scripts]
+coral-pipeline = "code.main:main"
+
+[tool.setuptools]
+packages = ["code"]
+
+# NOTE: Ruff configuration lives exclusively in ruff.toml (created in T002A).
+# It is intentionally NOT duplicated here: ruff refuses to run when both
+# ruff.toml and [tool.ruff] in pyproject.toml are present.
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | build
-  | dist
-)/
+# A regex preceded with ^/ will apply only to files and directories
+# in the root of the project.
+^/build/
+^/dist/
+^/venv/
+^/.venv/
 '''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

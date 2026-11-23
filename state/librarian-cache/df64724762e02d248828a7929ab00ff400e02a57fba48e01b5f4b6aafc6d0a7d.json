@@ -1,0 +1,482 @@
+{
+  "fetched_at": "2026-07-17T09:45:54Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Evaluating the Impact of Data Scaling on Statistical Test Sensitivity",
+      "target_n": 5
+    },
+    "duration_seconds": 152.267,
+    "ended_at": "2026-07-17T09:45:54Z",
+    "expansion": null,
+    "extracted_queries": [
+      "statistical power sample size effect size",
+      "asymptotic normality large sample behavior",
+      "power analysis sample size justification Type II error",
+      "detection rate sensitivity sample size scaling",
+      "consistency efficiency asymptotic variance"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2010.07147"
+      ]
+    },
+    "per_query_hit_count": {
+      "Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics": 3,
+      "asymptotic normality large sample behavior": 3,
+      "consistency efficiency asymptotic variance": 2,
+      "detection rate sensitivity sample size scaling": 2,
+      "power analysis sample size justification Type II error": 3,
+      "statistical power sample size effect size": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "1106.2895",
+          "rationale": "The paper discusses the philosophical foundations and general interpretation of statistical inference (\"statistical pragmatism\") but does not measure, analyze, or provide empirical baselines for the specific mechanism of \"data scaling\" on \"statistical test sensitivity.\" It fails to meet criteria (a) or (b) as it lacks the specific variables and domain focus required, and it is not a foundational methodology paper (d) specifically for scaling effects on sensitivity, making it a general conceptual",
+          "title": "Statistical Inference: The Big Picture"
+        },
+        {
+          "primary_pointer": "0906.3662",
+          "rationale": "The paper is a general methodological overview of fMRI data analysis and does not specifically investigate the relationship between data scaling (sample size or data volume) and the sensitivity of statistical tests, which is the core of the user's question. While it mentions statistics and fMRI, it lacks the specific empirical focus on \"data scaling\" effects required by criteria (a) or (c), and it does not serve as the foundational reference for the specific mechanism of scaling vs. sensitivity ",
+          "title": "The Statistical Analysis of fMRI Data"
+        },
+        {
+          "primary_pointer": "2005.07866",
+          "rationale": "The paper focuses on the convergence rates and robustness of distributed optimization algorithms (SGD) under Byzantine attacks, which is a machine learning systems problem, rather than evaluating the statistical power or sensitivity of hypothesis tests as a function of data scaling. While it mentions \"statistical heterogeneous data,\" it does not measure the relationship between sample size (data scaling) and the ability to detect effects (test sensitivity), failing to meet any of the inclusion c",
+          "title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data"
+        },
+        {
+          "primary_pointer": "1109.4624",
+          "rationale": "The paper focuses on asymptotic properties of combinatorial statistics (Mahonian statistics, Galois numbers) in finite vector spaces and symmetric groups, which is a topic in algebraic combinatorics rather than the empirical evaluation of statistical test sensitivity under data scaling. It does not measure statistical power, Type I/II error rates, or the impact of sample size scaling on hypothesis testing performance, failing to meet any of the inclusion criteria (a-f) for the user's specific re",
+          "title": "The number of flags in finite vector spaces: Asymptotic normality and Mahonian statistics"
+        },
+        {
+          "primary_pointer": "1910.05365",
+          "rationale": "The paper is an experimental physics study measuring particle collision luminosity and does not address the statistical methodology of how data scaling impacts the sensitivity of statistical tests. The term \"sensitivity\" in the paper refers to detector performance or measurement precision in a physics context, which is a distinct construct from the statistical power or test sensitivity the user is investigating, satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "Measurement of the integrated luminosity of the Phase 2 data of the Belle II experiment"
+        },
+        {
+          "primary_pointer": "1707.00582",
+          "rationale": "The paper discusses \"sensitivity\" in the context of radiation physics and semiconductor device failure mechanisms (specifically low-dose-rate sensitivity in transistors), which is a distinct physical construct from \"statistical test sensitivity\" (statistical power) in the field of statistics. This falls under the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "Reduced Low Dose Rate Sensitivity and its Mechanism in Bipolar Junction Transistors"
+        },
+        {
+          "primary_pointer": "1912.12937",
+          "rationale": "The paper focuses on forecasting stability and model selection for non-stationary time series rather than investigating how sample size or data scaling affects the sensitivity (statistical power) of hypothesis tests. While it mentions an \"adaptive stability test,\" this is a specific diagnostic tool for time-varying coefficients, not a study of the general relationship between data volume and test sensitivity, failing to meet the criteria for mechanism, variable, or baseline inclusion.",
+          "title": "Globally Optimal And Adaptive Short-Term Forecast of Locally Stationary Time Series And A Test for Its Stability"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-17T09:43:21Z",
+    "term_input": {
+      "normalized": "evaluating the impact of data scaling on statistical test sensitivity statistics",
+      "raw": "Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The phylogenetic effective sample size is a parameter that has as its goal the quantification of the amount of independent signal in a phylogenetically correlated sample. It was studied for Brownian motion and Ornstein-Uhlenbeck models of trait evolution. Here, we study this composite parameter when the trait is allowed to jump at speciation points of the phylogeny. Our numerical study indicates that there is a non-trivial limit as the effect of jumps grows. The limit depends on the value of the drift parameter of the Ornstein-Uhlenbeck process.",
+          "claimed_authors": [
+            "Krzysztof Bartoszek"
+          ],
+          "claimed_title": "The phylogenetic effective sample size and jumps",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.06672"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='The phylogenetic effective sample size and jumps')",
+        "failed_at": "2026-07-17T09:44:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motivation: P values derived from the null hypothesis significance testing framework are strongly affected by sample size, and are known to be irreproducible in underpowered studies, yet no suitable replacement has been proposed. Results: Here we present implementations of non-parametric standardized median effect size estimates, dNEF, for high-throughput sequencing datasets. Case studies are shown for transcriptome and tag-sequencing datasets. The dNEF measure is shown to be more reproducible and robust than P values and requires sample sizes as small as 3 to reproducibly identify differentially abundant features. Availability: Source code and binaries freely available at: https://bioconductor.org/packages/ALDEx2.html , omicplotR, and https://github.com/ggloor/CoDaSeq .",
+          "claimed_authors": [
+            "Andrew D. Fernandes",
+            "Michael T. H. Q. Vu",
+            "Lisa-Monique Edward",
+            "Jean M. Macklaim",
+            "Gregory B. Gloor"
+          ],
+          "claimed_title": "A reproducible effect size is more useful than an irreproducible hypothesis test to analyze high throughput sequencing datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.02623"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='A reproducible effect size is more useful than an irreproducible hypothesis test to analyze high throughput sequencing datasets')",
+        "failed_at": "2026-07-17T09:44:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The finite-size effect on the evolution of Griffiths phase (GP) is studied using nanoparticles of half-doped manganite Pr$_{0.5}$Sr$_{0.5}$MnO$_{3}$ with different average particle sizes but having similar structural parameters. All the samples exhibit pronounced GP behavior. With reducing particle size, the Griffiths temperature remains almost unchanged but the characteristic critical temperature $T_c^R$ decreases and the GP properties are strengthened. It is noteworthy that the shift of $T_c^R$ follows finite-size scaling with the particle size revealing an exotic interplay between the GP properties and the sample dimension. This reinforces an earlier proposal of length-scale related evolution of GP.",
+          "claimed_authors": [
+            "A. K. Pramanik",
+            "A. Banerjee"
+          ],
+          "claimed_title": "Finite-size effect on evolution of Griffiths phase in manganite nanoparticles",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.5744"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='Finite-size effect on evolution of Griffiths phase in manganite nanoparticles')",
+        "failed_at": "2026-07-17T09:44:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The asymptotic solution to the problem of comparing the means of two heteroscedastic populations, based on two random samples from the populations, hinges on the pivot underpinning the construction of the confidence interval and the test statistic being asymptotically standard Normal. The pivot is known to converge to the standard Normal distribution if the two samples are independent and the ratio of the sample sizes converges to a finite positive number. We show, without any restriction on the asymptotic behavior of the ratio of the sample sizes, that Cesaro convergence of the sequence of cross sample correlation coefficients to 0 is necessary and sufficient for the aforesaid pivotal convergence. We also obtain, without any assumption on the cross sample dependence structure, that both iterated limits of the pivot are standard Normal and if the joint distribution of the standardized sample means converges to a spherically symmetric distribution, then that distribution must be bivariate standard Normal.",
+          "claimed_authors": [
+            "Rajeshwari Majumdar",
+            "Suman Majumdar"
+          ],
+          "claimed_title": "Necessary and Sufficient Condition for Asymptotic Standard Normality of the Two Sample Pivot",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1612.01668"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='Necessary and Sufficient Condition for Asymptotic Standard Normality of the Two Sample Pivot')",
+        "failed_at": "2026-07-17T09:44:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the Helmholtz equation in an angular sector partially covered by a homogeneous layer of small thickness, denoted $\\varepsilon$. We propose in this work an asymptotic expansion of the solution with respect to $\\varepsilon$ at any order. This is done using matched asymptotic expansion, which consists here in introducing different asymptotic expansions of the solution in three subdomains: the vicinity of the corner, the layer and the rest of the domain. These expansions are linked through matching conditions. The presence of the corner makes these matching conditions delicate to derive because the fields have singular behaviors. Our approach is to reformulate these matching conditions purely algebraically by writing all asymptotic expansions as formal series. By using algebraic calculus we reduce the matching conditions to scalar relations linking the singular behaviors of the fields. These relations have a convolutive structure and involve some coefficients that can be computed analytically. Our asymptotic expansion is justified rigorously with error estimates.",
+          "claimed_authors": [
+            "Cédric Baudet"
+          ],
+          "claimed_title": "Asymptotic analysis at any order of Helmholtz's problem in a corner with a thin layer: an algebraic approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.12883"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title=\"Asymptotic analysis at any order of Helmholtz's problem in a corner with a thin layer: an algebraic approach\")",
+        "failed_at": "2026-07-17T09:44:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Origins, Spectral Interpretation, Resource Identification, and Security Regolith Explorer (OSIRIS-REx) spacecraft arrived at its target, near-Earth asteroid 101955 Bennu, in December 2018. After one year of operating in proximity, the team selected a primary site for sample collection. In October 2020, the spacecraft descended to the surface of Bennu and collected a sample. The spacecraft departed Bennu in May 2021 and will return the sample to Earth in September 2023. The analysis of the returned sample will produce key data to determine the history of this B-type asteroid and that of its components and precursor objects. The main goal of the OSIRIS-REx Sample Analysis Plan is to provide a framework for the Sample Analysis Team to meet the Level 1 mission requirement to analyze the returned sample to determine presolar history, formation age, nebular and parent-body alteration history, relation to known meteorites, organic history, space weathering, resurfacing history, and energy balance in the regolith of Bennu. To achieve this goal, this plan establishes a hypothesis-driven framework for coordinated sample analyses, defines the analytical instrumentation and techniques to be applied to the returned sample, provides guidance on the analysis strategy for baseline, overguide, and threshold amounts of returned sample, including a rare or unique lithology, describes the data storage, management, retrieval, and archiving system, establishes a protocol for the implementation of a micro-geographical information system to facilitate co-registration and coordinated analysis of sample science data, outlines the plans for Sample Analysis Readiness Testing, and provides guidance for the transfer of samples from curation to the Sample Analysis Team.",
+          "claimed_authors": [
+            "Dante S. Lauretta",
+            "Harold C. Connolly",
+            "Jeffrey N. Grossman",
+            "Anjani T. Polit",
+            "the OSIRIS-REx Sample Analysis Team"
+          ],
+          "claimed_title": "OSIRIS-REx Sample Analysis Plan -- Revision 3.0",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.11794"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='OSIRIS-REx Sample Analysis Plan -- Revision 3.0')",
+        "failed_at": "2026-07-17T09:44:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Belle II is an intensity-frontier experiment at the SuperKEKB collider in Tsukuba, Japan. Over the coming decades, it will record the decays of billions of bottom mesons, charm hadrons, and tau leptons produced in 10 GeV electron-positron collisions. The experiment's low-background environment and precisely known kinematics enable high-precision measurements of hundreds of Standard Model (SM) parameters while probing for new particles at mass scales far beyond the direct reach of high-energy colliders. We project Belle II's sensitivity for key measurements - where it will be uniquely positioned or world-leading - over datasets ranging from 1 to 50 ab${}^{-1}$. By exploring previously uncharted regions of non-SM parameter space with high precision, Belle II will either reveal new physics or set stringent constraints, guiding future experimental and theoretical efforts. Additionally, we outline near-term upgrades to the Belle II detector and SuperKEKB accelerator, which will enhance sensitivity in searches for new physics beyond the SM across flavor, tau, electroweak, and dark sector physics. These improvements will ensure that Belle II remains both complementary to and competitive with the LHC and other experiments.",
+          "claimed_authors": [
+            " The Belle II Collaboration"
+          ],
+          "claimed_title": "The Belle II Experiment at SuperKEKB -- Input to the European Particle Physics Strategy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.24155"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='The Belle II Experiment at SuperKEKB -- Input to the European Particle Physics Strategy')",
+        "failed_at": "2026-07-17T09:44:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This letter provides an adaptive resampling method. It determines the number of particles to resample so that the Kullback-Leibler distance (KLD) between distribution of particles before resampling and after resampling does not exceed a pre-specified error bound. The basis of the method is the same as Fox's KLD-sampling but implemented differently. The KLD-sampling assumes that samples are coming from the true posterior distribution and ignores any mismatch between the true and the proposal distribution. In contrast, we incorporate the KLD measure into the resampling in which the distribution of interest is just the posterior distribution. That is to say, for sample size adjustment, it is more theoretically rigorous and practically flexible to measure the fit of the distribution represented by weighted particles based on KLD during resampling than in sampling. Simulations of target tracking demonstrate the efficiency of our method.",
+          "claimed_authors": [
+            "Tiancheng Li",
+            "Shudong Sun",
+            "Tariq Pervez Sattar"
+          ],
+          "claimed_title": "Adapting sample size in particle filters through KLD-resampling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1306.3172"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='Adapting sample size in particle filters through KLD-resampling')",
+        "failed_at": "2026-07-17T09:44:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a series of user parameter-free iterative Sparse Asymptotic Minimum Variance (SAMV) approaches for array processing applications based on the asymptotically minimum variance (AMV) criterion. With the assumption of abundant snapshots in the direction-of-arrival (DOA) estimation problem, the signal powers and noise variance are jointly estimated by the proposed iterative AMV approach, which is later proved to coincide with the Maximum Likelihood (ML) estimator. We then propose a series of power-based iterative SAMV approaches, which are robust against insufficient snapshots, coherent sources and arbitrary array geometries. Moreover, to overcome the direction grid limitation on the estimation accuracy, the SAMV-Stochastic ML (SAMV-SML) approaches are derived by explicitly minimizing a closed form stochastic ML cost function with respect to one scalar parameter, eliminating the need of any additional grid refinement techniques. To assist the performance evaluation, approximate solutions to the SAMV approaches are also provided at high signal-to-noise ratio (SNR) and low SNR, respectively. Finally, numerical examples are generated to compare the performance of the proposed approaches with existing approaches.",
+          "claimed_authors": [
+            "Habti Abeida",
+            "Qilin Zhang",
+            "Jian Li",
+            "Nadjim Merabtine"
+          ],
+          "claimed_title": "Iterative Sparse Asymptotic Minimum Variance Based Approaches for Array Processing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.03070"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='Iterative Sparse Asymptotic Minimum Variance Based Approaches for Array Processing')",
+        "failed_at": "2026-07-17T09:44:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An asymptotic formula for the number of states of Boson gas whose Hamiltonian is given by a positive elliptic pseudo-differential operator of order one on a compact manifold is given under a integrality assumption on the spectrum of the Hamiltonian. This is regarded as an analogue of the Meinardus theorem on asymptotics of the number of partitions of a positive integer.",
+          "claimed_authors": [
+            "Tatsuya Tate"
+          ],
+          "claimed_title": "A spectral analogue of the Meinardus theorem on asymptotics of the number of partitions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "math/0702857"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='A spectral analogue of the Meinardus theorem on asymptotics of the number of partitions')",
+        "failed_at": "2026-07-17T09:44:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper, we propose some estimators for the parameters of a statistical model based on Kullback-Leibler divergence of the survival function in continuous setting. We prove that the proposed estimators are subclass of \"generalized estimating equations\" estimators. The asymptotic properties of the estimators such as consistency, asymptotic normality, asymptotic confidence interval and asymptotic hypothesis testing are investigated.",
+          "claimed_authors": [
+            "Yaser Mehrali",
+            "Majid Asadi"
+          ],
+          "claimed_title": "Parameter estimation based on cumulative Kullback-Leibler divergence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.09288"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='Parameter estimation based on cumulative Kullback-Leibler divergence')",
+        "failed_at": "2026-07-17T09:44:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We propose a new inferential framework for constructing confidence regions and testing hypotheses in statistical models specified by a system of high dimensional estimating equations. We construct an influence function by projecting the fitted estimating equations to a sparse direction obtained by solving a large-scale linear program. Our main theoretical contribution is to establish a unified Z-estimation theory of confidence regions for high dimensional problems.\n  Different from existing methods, all of which require the specification of the likelihood or pseudo-likelihood, our framework is likelihood-free. As a result, our approach provides valid inference for a broad class of high dimensional constrained estimating equation problems, which are not covered by existing methods.\n  Such examples include, noisy compressed sensing, instrumental variable regression, undirected graphical models, discriminant analysis and vector autoregressive models. We present detailed theoretical results for all these examples. Finally, we conduct thorough numerical simulations, and a real dataset analysis to back up the developed theoretical results.",
+          "claimed_authors": [
+            "Matey Neykov",
+            "Yang Ning",
+            "Jun S. Liu",
+            "Han Liu"
+          ],
+          "claimed_title": "A Unified Theory of Confidence Regions and Testing for High Dimensional Estimating Equations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1510.08986"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='A Unified Theory of Confidence Regions and Testing for High Dimensional Estimating Equations')",
+        "failed_at": "2026-07-17T09:44:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We study nonparametric inference for the causal dose-response (or treatment effect) curve when the treatment variable is continuous rather than binary or discrete. We do this by developing doubly robust confidence intervals for the continuous treatment effect curve (at a fixed point) under the assumption that it is monotonic, based on inverting a likelihood ratio-type test. Monotonicity of the treatment effect curve is often a very natural assumption, and this assumption removes the need to choose a smoothing or tuning parameter for the nonparametrically estimated curve. The likelihood ratio procedure is effective because it allows us to avoid estimating the curve's unknown bias, which is challenging to do. The test statistic is ``doubly robust'' in that a remainder term is the product of errors for the two so-called nuisance functions that naturally arise (the outcome regression and generalized propensity score functions), which allows one nuisance to be estimated poorly if the other is estimated well. Furthermore, we propose a version of our test or confidence interval that is adaptive to a range of the unknown curve's flatness level. We present versions with and without cross fitting. We illustrate the new methods via simulations and a study of a dataset relating the effect of nurse staffing hours on hospital performance.",
+          "claimed_authors": [
+            "Charles R. Doss"
+          ],
+          "claimed_title": "Doubly robust pointwise confidence intervals for a monotonic continuous treatment effect curve",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.08415"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='Doubly robust pointwise confidence intervals for a monotonic continuous treatment effect curve')",
+        "failed_at": "2026-07-17T09:44:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Collections of probability distributions arise in a variety of applications ranging from user activity pattern analysis to brain connectomics. In practice these distributions can be defined over diverse domain types including finite intervals, circles, cylinders, spheres, other manifolds, and graphs. This paper introduces an approach for detecting differences between two collections of distributions over such general domains. To this end, we propose the intrinsic slicing construction that yields a novel class of Wasserstein distances on manifolds and graphs. These distances are Hilbert embeddable, allowing us to reduce the distribution collection comparison problem to a more familiar mean testing problem in a Hilbert space. We provide two testing procedures one based on resampling and another on combining p-values from coordinate-wise tests. Our experiments in various synthetic and real data settings show that the resulting tests are powerful and the p-values are well-calibrated.",
+          "claimed_authors": [
+            "Raif Rustamov",
+            "Subhabrata Majumdar"
+          ],
+          "claimed_title": "Intrinsic Sliced Wasserstein Distances for Comparing Collections of Probability Distributions on Manifolds and Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.15285"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Evaluating the Impact of Data Scaling on Statistical Test Sensitivity statistics', candidate_title='Intrinsic Sliced Wasserstein Distances for Comparing Collections of Probability Distributions on Manifolds and Graphs')",
+        "failed_at": "2026-07-17T09:44:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiaoyu Hu",
+            "Jing Lei"
+          ],
+          "title": "A Two-Sample Conditional Distribution Test Using Conformal Prediction and Weighted Rank Sum",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2010.07147",
+        "summary": "We consider the problem of testing the equality of conditional distributions of a response variable given a vector of covariates between two populations. Such a hypothesis testing problem can be motivated from various machine learning and statistical inference scenarios, including transfer learning and causal predictive inference. We develop a nonparametric test procedure inspired from the conformal prediction framework. The construction of our test statistic combines recent developments in conformal prediction with a novel choice of conformity score, resulting in a weighted rank-sum test statistic that is valid and powerful under general settings. To our knowledge, this is the first successful attempt of using conformal prediction for testing statistical hypotheses beyond exchangeability. Our method is suitable for modern machine learning scenarios where the data has high dimensionality and large sample sizes, and can be effectively combined with existing classification algorithms to find good conformity score functions. The performance of the proposed method is demonstrated in various numerical examples.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2010.07147",
+          "http_status": 200,
+          "pdf_sample_score": 0.233,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-17T09:44:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alexander R. Luedtke",
+            "Marco Carone",
+            "Mark J. van der Laan"
+          ],
+          "title": "An Omnibus Nonparametric Test of Equality in Distribution for Unknown Functions",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1510.04195",
+        "summary": "We present a novel family of nonparametric omnibus tests of the hypothesis that two unknown but estimable functions are equal in distribution when applied to the observed data structure. We developed these tests, which represent a generalization of the maximum mean discrepancy tests described in Gretton et al. [2006], using recent developments from the higher-order pathwise differentiability literature. Despite their complex derivation, the associated test statistics can be expressed rather simply as U-statistics. We study the asymptotic behavior of the proposed tests under the null hypothesis and under both fixed and local alternatives. We provide examples to which our tests can be applied and show that they perform well in a simulation study. As an important special case, our proposed tests can be used to determine whether an unknown function, such as the conditional average treatment effect, is equal to zero almost surely.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1510.04195",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-17T09:44:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lixia Hu",
+            "Tao Huang",
+            "Jinhong You"
+          ],
+          "title": "Unified statistical inference for a novel nonlinear dynamic functional/longitudinal data model",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2007.01784",
+        "summary": "In light of recent work studying massive functional/longitudinal data, such as the resulting data from the COVID-19 pandemic, we propose a novel functional/longitudinal data model which is a combination of the popular varying coefficient (VC) model and additive model. We call it Semi-VCAM in which the response could be a functional/longitudinal variable, and the explanatory variables could be a mixture of functional/longitudinal and scalar variables. Notably some of the scalar variables could be categorical variables as well. The Semi-VCAM simultaneously allows for both substantial flexibility and the maintaining of one-dimensional rates of convergence. A local linear smoothing with the aid of an initial B spline series approximation is developed to estimate the unknown functional effects in the model. To avoid the subjective choice between the sparse and dense cases of the data, we establish the asymptotic theories of the resultant Pilot Estimation Based Local Linear Estimators (PEBLLE) on a unified framework of sparse, dense and ultra-dense cases of the data. Moreover, we construct unified consistent tests to justify whether a parsimony submodel is sufficient or not. These test methods also avoid the subjective choice between the sparse, dense and ultra dense cases of the data. Extensive Monte Carlo simulation studies investigating the finite sample performance of the proposed methodologies confirm our asymptotic results. We further illustrate our methodologies via analyzing the COVID-19 data from China and the CD4 data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2007.01784",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-17T09:44:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dennis Leung",
+            "Mathias Drton"
+          ],
+          "title": "Testing independence in high dimensions with sums of rank correlations",
+          "venue": "arXiv",
+          "year": 2015
+        },
+        "primary_pointer": "1501.01732",
+        "summary": "We treat the problem of testing independence between m continuous variables when m can be larger than the available sample size n. We consider three types of test statistics that are constructed as sums or sums of squares of pairwise rank correlations. In the asymptotic regime where both m and n tend to infinity, a martingale central limit theorem is applied to show that the null distributions of these statistics converge to Gaussian limits, which are valid with no specific distributional or moment assumptions on the data. Using the framework of U-statistics, our result covers a variety of rank correlations including Kendall's tau and a dominating term of Spearman's rank correlation coefficient (rho), but also degenerate U-statistics such as Hoeffding's $D$, or the $τ^*$ of Bergsma and Dassios (2014). As in the classical theory for U-statistics, the test statistics need to be scaled differently when the rank correlations used to construct them are degenerate U-statistics. The power of the considered tests is explored in rate-optimality theory under Gaussian equicorrelation alternatives as well as in numerical experiments for specific cases of more general alternatives.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1501.01732",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-17T09:44:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Eduardo García-Portugués",
+            "Rosa M. Crujeiras",
+            "Wenceslao González-Manteiga"
+          ],
+          "title": "Central limit theorems for directional and linear random variables with applications",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1402.6836",
+        "summary": "A central limit theorem for the integrated squared error of the directional-linear kernel density estimator is established. The result enables the construction and analysis of two testing procedures based on squared loss: a nonparametric independence test for directional and linear random variables and a goodness-of-fit test for parametric families of directional-linear densities. Limit distributions for both test statistics, and a consistent bootstrap strategy for the goodness-of-fit test, are developed for the directional-linear case and adapted to the directional-directional setting. Finite sample performance for the goodness-of-fit test is illustrated in a simulation study. This test is also applied to datasets from biology and environmental sciences.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1402.6836",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-17T09:44:43Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the impact of data scaling on statistical test sensitivity statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

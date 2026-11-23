@@ -1,40 +1,57 @@
 """
-Tests for T011b: Legacy metrics generation.
+Tests for T011b: Legacy Metrics Generation.
+
+Verifies that the legacy_metrics.json file is created with the correct static content
+documenting the rejection of the invalid Chi-Square metric.
 """
 import json
 import os
-import sys
+import subprocess
 import pytest
 
-# Add project root to path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
+LEGACY_FILE_PATH = "data/processed/legacy_metrics.json"
 
-from code.generate_legacy_metrics import main
+def test_legacy_metrics_file_exists():
+    """Test that the legacy_metrics.json file is created."""
+    # Run the generation script first to ensure the file exists
+    result = subprocess.run(
+        ["python", "code/generate_legacy_metrics.py"],
+        capture_output=True,
+        text=True
+    )
+    assert result.returncode == 0, f"Script failed: {result.stderr}"
+    assert os.path.exists(LEGACY_FILE_PATH), f"File {LEGACY_FILE_PATH} does not exist"
 
-@pytest.fixture
-def legacy_metrics_path():
-    return os.path.join(project_root, "data", "processed", "legacy_metrics.json")
-
-def test_legacy_metrics_file_exists(legacy_metrics_path):
-    """Test that the legacy metrics file is created."""
-    assert os.path.exists(legacy_metrics_path), f"File not found: {legacy_metrics_path}"
-
-def test_legacy_metrics_content(legacy_metrics_path):
-    """Test that the legacy metrics file contains the correct static content."""
-    with open(legacy_metrics_path, "r", encoding="utf-8") as f:
+def test_legacy_metrics_content():
+    """Test that the legacy_metrics.json file contains the correct static content."""
+    # Ensure the file exists
+    if not os.path.exists(LEGACY_FILE_PATH):
+        subprocess.run(
+            ["python", "code/generate_legacy_metrics.py"],
+            capture_output=True,
+            check=True
+        )
+    
+    with open(LEGACY_FILE_PATH, 'r', encoding='utf-8') as f:
         data = json.load(f)
-
-    assert isinstance(data, dict)
+    
+    # Verify the exact static content required by T011b
     assert data["is_legacy"] is True
     assert data["reason"] == "Chi-Square invalid for n=6; replaced by per-draw metrics"
     assert data["metric_replaced"] == "draw_uniformity_deviation"
     assert data["replacement"] == "birthday_cluster_ratio, consecutive_pattern_count"
 
-def test_legacy_metrics_json_validity(legacy_metrics_path):
-    """Test that the file is valid JSON."""
+def test_legacy_metrics_json_valid():
+    """Test that the output is valid JSON."""
+    if not os.path.exists(LEGACY_FILE_PATH):
+        subprocess.run(
+            ["python", "code/generate_legacy_metrics.py"],
+            capture_output=True,
+            check=True
+        )
+    
     try:
-        with open(legacy_metrics_path, "r", encoding="utf-8") as f:
+        with open(LEGACY_FILE_PATH, 'r', encoding='utf-8') as f:
             json.load(f)
     except json.JSONDecodeError as e:
-        pytest.fail(f"Invalid JSON in legacy_metrics.json: {e}")
+        pytest.fail(f"File {LEGACY_FILE_PATH} is not valid JSON: {e}")

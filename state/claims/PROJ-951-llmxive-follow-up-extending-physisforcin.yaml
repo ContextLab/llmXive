@@ -1,0 +1,4083 @@
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 50,000,000 parameter diffusion model architecture
+  claim_id: c_7d5b9dad
+  context: 'Phase 4: User Story 2 - Train Distilled Diffusion Model on Curated Data
+    (Priority: P2). Implementation for User Story 2 - T024 [US2]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 50M parameter diffusion model architecture DiffusionModel50M
+    in src/training/diffusion_trainer.py (CPU-optimized, no CUDA) with verification
+    count_parameters() == 50,000,000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:20:50Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: filter_discard_percent default of 0.4
+  claim_id: c_7dab5796
+  context: 'Phase 3: User Story 1 - Generate and Filter Synthetic Video Dataset. Implementation
+    for User Story 1 - T018 [US1]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement filtering logic in src/filtering/score_utils.py to read filter_discard_percent
+    from config.yaml (default 0.4), calculate the corresponding percentile threshold,
+    discard bottom videos, and save curated dataset to data/curated/
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:21:07Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 6 GB RAM limit during filtering
+  claim_id: c_a29cc059
+  context: 'Phase 3: User Story 1 - Generate and Filter Synthetic Video Dataset. Implementation
+    for User Story 1 - T020 [US1]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add memory usage monitoring to ensure < 6 GB RAM during filtering in src/utils/io_utils.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:21:07Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 6 GB RAM limit during training
+  claim_id: c_0a70f074
+  context: 'Phase 4: User Story 2 - Train Distilled Diffusion Model on Curated Data.
+    Implementation for User Story 2 - T028 [US2]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add resource monitoring to ensure < 6 GB RAM during training in src/utils/io_utils.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:21:07Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: stratified sampling evaluation set size of 30
+  claim_id: c_e53103ff
+  context: 'Phase 5: User Story 3 - Evaluate and Compare Performance on Benchmarks.
+    Implementation for User Story 3 - T034 [US3]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling for evaluation set (n=30) in src/evaluation/stats.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:21:21Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: verify correlation less than 0.95 for non-circularity
+  claim_id: c_796c11dc
+  context: 'Phase 5: User Story 3 - Evaluate and Compare Performance on Benchmarks.
+    Implementation for User Story 3 - T038 [US3]'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_correlation_less_than_0.95_for_non-circularity
+  kind: magnitude
+  raw_text: Implement correlation analysis in src/evaluation/stats.py comparing PyBullet
+    scores (on CV-extracted trajectories) vs MuJoCo scores (on distinct ground truth
+    from T037a or real-world data from T037b) to verify correlation < 0.95 (non-circularity)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:22:23Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 15% threshold check for performance gap
+  claim_id: c_a12f3423
+  context: 'Phase 5: User Story 3 - Evaluate and Compare Performance on Benchmarks.
+    Implementation for User Story 3 - T036 [US3]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement performance gap calculation and 15% threshold check in src/evaluation/stats.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:22:23Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: reduce processing time per video to less than 2 minutes
+  claim_id: c_00d64c45
+  context: 'Phase 6: Polish & Cross-Cutting Concerns. T043'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_processing_time_per_video_to_less_than_2_minutes
+  kind: magnitude
+  raw_text: Performance optimization for CV pipeline (SAM2/ZoeDepth) to reduce processing
+    time per video to < 2 minutes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:22:55Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Stratified sampling evaluation set size 30
+  claim_id: c_e9581182
+  context: T034 [US3] Implement stratified sampling for evaluation set (n=30) in src/evaluation/stats.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation set uses stratified sampling with n=30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:21:10Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Wan2.1 model family source huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_18661f58
+  context: 'T012b [US1] Verify Wan2.1 model availability. Logic: Verify availability
+    of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Wan2.1 model family is sourced from huggingface.co/Wan-AI/Wan2.1-Turbo.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:21:26Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Baseline comparison uses PhysisForcing paper results
+  claim_id: c_ca1a54be
+  context: 'T033a [US3] Load PhysisForcing Baseline Results. Logic: Fetch verified
+    results from the PhysisForcing paper...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_comparison_uses_PhysisForcing_paper_results
+  kind: entity_fact
+  raw_text: The baseline comparison uses results from the PhysisForcing paper.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:21:48Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: RobotBench dataset accessed via datasets.load_dataset RobotBench
+  claim_id: c_cdbbde8c
+  context: 'T037b [US3] Fetch real-world data. Logic: ...or fetch from RobotBench
+    dataset via datasets.load_dataset("RobotBench").'
+  evidence:
+    entailment_evidence: RobotBench dataset accessed via datasets.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/RobotBench_dataset_accessed_via_datasets.load_dataset_RobotB
+  kind: entity_fact
+  raw_text: The RobotBench dataset is accessed via datasets.load_dataset("RobotBench").
+  resolved_value: RobotBench dataset accessed via datasets.load_dataset RobotBench
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T07:21:49Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Physics filter assigns score 0.0 on PyBullet simulation failure
+  claim_id: c_89725e2f
+  context: 'T015 [US1] ...Constraint: DO NOT use optical flow as a fallback. If PyBullet
+    simulation fails, assign a score of 0.0 and log the error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The physics filter assigns a score of 0.0 if PyBullet simulation fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:22:22Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Physics filter assigns score 0.0 on frame decoding failure
+  claim_id: c_42b3104f
+  context: 'T019 [US1] ...Logic: If frame decoding fails, assign score 0.0, log error,
+    and exclude from dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The physics filter assigns a score of 0.0 if frame decoding fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:22:49Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Training loop retries learning rate adjustment 3 times on NaN
+  claim_id: c_b0f76fc7
+  context: T025 [US2] ...Implement training loop ... with NaN detection (abort if
+    loss is NaN), learning rate adjustment (retry up to 3 times)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop retries learning rate adjustment up to 3 times on NaN
+    detection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:23:03Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Integration test User Story 1 verify generation of 10 samples
+  claim_id: c_92a86b75
+  context: 'T011a [US1] Integration test: Verify generation of 10 samples and discard
+    rate is within 5% of config.yaml value...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The integration test for User Story 1 verifies generation of 10 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:23:24Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Integration test User Story 2 uses 60 videos
+  claim_id: c_455939ea
+  context: 'T022 [US2] Integration test for training on curated samples. Input: 60
+    videos from data/curated/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The integration test for User Story 2 uses 60 videos from the curated
+    dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:23:43Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Correlation analysis verify correlation less than 0.95 between PyBullet
+    and MuJoCo scores
+  claim_id: c_9376ecf6
+  context: T038 [US3] ...comparing PyBullet scores ... vs MuJoCo scores ... to verify
+    correlation < 0.95 (non-circularity).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_analysis_verify_correlation_less_than_0.95_betwe
+  kind: magnitude
+  raw_text: The correlation analysis verifies correlation < 0.95 between PyBullet
+    scores and MuJoCo scores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:24:07Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Physics scoring output columns video_id continuity_score contact_score
+  claim_id: c_96327c70
+  context: 'T015 [US1] ...Output: data/curated/scores.parquet with columns video_id,
+    continuity_score, contact_score.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Physics_scoring_output_columns_video_id_continuity_score_con
+  kind: entity_fact
+  raw_text: The physics scoring output includes columns video_id, continuity_score,
+    and contact_score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:24:41Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Default filter discard percent config.yaml 0.4
+  claim_id: c_abf00b0f
+  context: 'T007b [P] Create config.yaml with default key filter_discard_percent:
+    0.4...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default filter discard percent in config.yaml is 0.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:24:54Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 2
+  canonical: UNet architecture target parameter count 50M plus or minus 10 percent
+  claim_id: c_8b05ca2b
+  context: "T024 [US2] Implement UNet-based diffusion model... Configure UNet architecture...\
+    \ such that the total parameter count is approximately 50M (\xB110%)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The UNet architecture is configured such that the total parameter count\
+    \ is approximately 50M (\xB110%)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:30:55Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify Wan2.1 model availability at huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_6c473233
+  context: 'T012b [US1] Verify Wan2.1 model availability. Logic: Verify availability
+    of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Wan2.1 model availability from huggingface.co/Wan-AI/Wan2.1-Turbo.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:31:08Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use Wan-Turbo distilled 100M model from huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_8854be08
+  context: 'T013 [US1] Implement Wan2.1 video generation wrapper... Spec: Use ''Wan-Turbo
+    (distilled 100M)'' from huggingface.co/Wan-AI/Wan2.1-Turbo.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Wan-Turbo (distilled 100M) from huggingface.co/Wan-AI/Wan2.1-Turbo.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:32:03Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Memory usage during filtering less than 6 GB
+  claim_id: c_d10c0ee2
+  context: T020 [US1] Add memory usage monitoring to ensure < 6 GB RAM during filtering
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_during_filtering_less_than_6_GB
+  kind: magnitude
+  raw_text: Ensure < 6 GB RAM during filtering.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:32:28Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Memory usage during training less than 6 GB
+  claim_id: c_45de98d2
+  context: T028 [US2] Add resource monitoring to ensure < 6 GB RAM during training
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_during_training_less_than_6_GB
+  kind: magnitude
+  raw_text: Ensure < 6 GB RAM during training.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:32:52Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Evaluate model on R-Bench and PAI-Bench with statistical significance
+    testing
+  claim_id: c_1ae8d4dd
+  context: 'Phase 5: User Story 3 - Evaluate and Compare Performance on Benchmarks...
+    on R-Bench and PAI-Bench with statistical significance testing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluate_model_on_R-Bench_and_PAI-Bench_with_statistical_sig
+  kind: entity_fact
+  raw_text: Verify performance gap calculation with p-values on R-Bench and PAI-Bench.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:33:10Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Correlation between PyBullet scores and MuJoCo scores less than 0.95
+  claim_id: c_53e7f5c8
+  context: T038 [US3] Implement correlation analysis... to verify correlation < 0.95
+    (non-circularity).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_between_PyBullet_scores_and_MuJoCo_scores_less_t
+  kind: magnitude
+  raw_text: Verify correlation < 0.95 between PyBullet scores and MuJoCo scores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:33:30Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Reduce peak RAM usage to less than 5.5 GB
+  claim_id: c_7cb96f61
+  context: T042 Code cleanup and refactoring for memory efficiency across all modules
+    to reduce peak RAM to < 5.5 GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_peak_RAM_usage_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: Reduce peak RAM to < 5.5 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:33:54Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Load RobotBench dataset using datasets.load_dataset RobotBench
+  claim_id: c_29d08182
+  context: T037b [US3] Fetch real-world data... or fetch from RobotBench dataset via
+    datasets.load_dataset('RobotBench').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_RobotBench_dataset_using_datasets.load_dataset_RobotBen
+  kind: entity_fact
+  raw_text: Use RobotBench dataset via datasets.load_dataset('RobotBench').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:34:31Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Ground truth simulation uses SI units origin 0 0 0 Z-up axis s timestep
+  claim_id: c_0bad3b3a
+  context: 'T037a [US3] Implement distinct ground truth simulation... Details: SI
+    units, origin (0,0,0), Z-up axis, s timestep.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use SI units, origin (0,0,0), Z-up axis, s timestep for ground truth simulation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:34:44Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use Wan-Turbo distilled 100M model from huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_bbba3482
+  context: 'T013 [US1] Implement Wan2.1 video generation wrapper in src/generation/wan21_generator.py.
+    Spec: Use ''Wan-Turbo (distilled 100M)'' from huggingface.co/Wan-AI/Wan2.1-Turbo.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 'Wan-Turbo (distilled 100M)' from huggingface.co/Wan-AI/Wan2.1-Turbo
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:40:59Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: "Configure UNet architecture with approximately 50M parameters (\xB1\
+    10%)"
+  claim_id: c_9bf6cd4c
+  context: "T024 [US2] Implement UNet-based diffusion model in src/training/diffusion_trainer.py\
+    \ (CPU-optimized). Spec: Target a compact diffusion model (target a large-scale\
+    \ parameter count). Logic: Configure UNet architecture (channels, down/up blocks,\
+    \ attention heads) such that the total parameter count is approximately 50M (\xB1\
+    10%) and peak RAM usage remains within acceptable limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "configure UNet architecture such that the total parameter count is approximately\
+    \ 50M (\xB110%)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:41:15Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify performance gap calculation in evaluation report
+  claim_id: c_a122ff1e
+  context: 'Independent Test: Run evaluation suite, generate JSON report with scores
+    and p-values, and verify performance gap calculation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_performance_gap_calculation_in_evaluation_report
+  kind: entity_fact
+  raw_text: verify performance gap calculation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:41:29Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify correlation between PyBullet and MuJoCo scores is less than 0.95
+  claim_id: c_f6a75710
+  context: T038 [US3] Implement correlation analysis in src/evaluation/stats.py comparing
+    PyBullet scores (on CV-extracted trajectories) vs MuJoCo scores (on distinct ground
+    truth) to verify correlation < 0.95 (non-circularity).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_correlation_between_PyBullet_and_MuJoCo_scores_is_les
+  kind: magnitude
+  raw_text: verify correlation < 0.95
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:41:46Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Ensure RAM usage during filtering is less than 6 GB
+  claim_id: c_9f9ea510
+  context: T020 [US1] Add memory usage monitoring to ensure < 6 GB RAM during filtering
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_RAM_usage_during_filtering_is_less_than_6_GB
+  kind: magnitude
+  raw_text: ensure < 6 GB RAM during filtering
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:41:51Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Ensure RAM usage during training is less than 6 GB
+  claim_id: c_b30e8d76
+  context: T028 [US2] Add resource monitoring to ensure < 6 GB RAM during training
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_RAM_usage_during_training_is_less_than_6_GB
+  kind: magnitude
+  raw_text: ensure < 6 GB RAM during training
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:41:52Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Retry learning rate adjustment up to 3 times
+  claim_id: c_0b572d8d
+  context: T025 [US2] Implement training loop in src/training/diffusion_trainer.py
+    with NaN detection (abort if loss is NaN), learning rate adjustment (retry up
+    to 3 times), and Timeout enforcement (hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retry up to 3 times
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:42:12Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify discard rate is within 5% of config.yaml value
+  claim_id: c_183d15d7
+  context: 'T011a [US1] Integration test: Verify generation of 10 samples and discard
+    rate is within 5% of config.yaml value (A threshold will be established during
+    the implementation phase.).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: discard rate is within 5% of config.yaml value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:42:12Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify physics filter assigns score less than 0.1 to corrupted frames
+  claim_id: c_91b660d2
+  context: 'T011b [US1] Integration test: Verify physics filter assigns low score
+    to corrupted frames. Input: Inject a corrupted frame into a video. Output: Verify
+    score < 0.1 and video is excluded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_physics_filter_assigns_score_less_than_0.1_to_corrupt
+  kind: magnitude
+  raw_text: score < 0.1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:42:30Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Fetch verified results from the PhysisForcing paper
+  claim_id: c_4c1d52ac
+  context: 'T033a [US3] Load PhysisForcing Baseline Results. Logic: Fetch verified
+    results from the PhysisForcing paper (or a pre-computed artifact if available
+    in data/baseline/).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_verified_results_from_the_PhysisForcing_paper
+  kind: entity_fact
+  raw_text: fetch verified results from the PhysisForcing paper
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:43:23Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Load RobotBench dataset via datasets.load_dataset(RobotBench)
+  claim_id: c_2b4b18d3
+  context: 'T037b [US3] Fetch real-world data. Logic: Load data/raw/real_subset (if
+    available) or fetch from RobotBench dataset via datasets.load_dataset(''RobotBench'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_RobotBench_dataset_via_datasets.load_dataset(RobotBench
+  kind: entity_fact
+  raw_text: load RobotBench dataset via datasets.load_dataset('RobotBench')
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:43:44Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Apply augmentation only if dataset size is less than 30
+  claim_id: c_8461cb23
+  context: 'T023 [P] [US2] Implement data augmentation module in src/training/augmentation.py
+    (temporal jittering, geometric flipping) for FR-009. Logic: Apply augmentation
+    only if dataset size < 30.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_augmentation_only_if_dataset_size_is_less_than_30
+  kind: magnitude
+  raw_text: apply augmentation only if dataset size < 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:44:05Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Augment dataset to reach size of 30
+  claim_id: c_fdcfc706
+  context: 'T019b [US2] Augment Curated Dataset if size < 30. Logic: Check len(data/curated/).
+    If < 30, apply augmentation from T023 to reach n=30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: augment dataset to reach n=30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:44:19Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Implement stratified sampling for evaluation set with n=30
+  claim_id: c_3a9bcf3b
+  context: T034 [US3] Implement stratified sampling for evaluation set (n=30) in src/evaluation/stats.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stratified sampling for evaluation set (n=30)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:44:32Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Trigger data augmentation if evaluation subset size is less than 30
+  claim_id: c_80b1129f
+  context: 'T040 [US3] Add logic to trigger data augmentation if eval subset n < 30
+    before statistical testing in src/evaluation/stats.py. Logic: If eval subset <
+    30, trigger T019b augmentation logic.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_data_augmentation_if_evaluation_subset_size_is_less
+  kind: magnitude
+  raw_text: trigger data augmentation if eval subset n < 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:45:18Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Run generation on a small subset of 10 samples
+  claim_id: c_0734acdd
+  context: 'Independent Test: Run generation on a small subset (n=10), verify physics
+    filtering discards the bottom [deferred] of the distribution based on score distribution,
+    and ensure remaining videos pass continuity checks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run generation on a small subset (n=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:45:29Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify generation of 10 samples
+  claim_id: c_ff1bdd08
+  context: 'T011a [US1] Integration test: Verify generation of 10 samples and discard
+    rate is within 5% of config.yaml value (A threshold will be established during
+    the implementation phase.).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify generation of 10 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:45:59Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use 60 videos from curated dataset as input for integration test
+  claim_id: c_8c109ce9
+  context: 'T022 [US2] Integration test for training on curated samples. Input: 60
+    videos from data/curated/. Output: Verify model converges (loss decreases) and
+    saves a checkpoint within 4 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Input: 60 videos from data/curated/'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:46:21Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use trained model, baseline model, and 30 sample eval set for integration
+    test
+  claim_id: c_8a8b04e6
+  context: 'T030 [US3] Integration test for full evaluation pipeline. Input: Trained
+    model, baseline model, n=30 eval set. Output: Verify data/eval/results.json contains
+    valid scores, p-values, and gap calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Input: Trained model, baseline model, n=30 eval set'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:46:55Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Assign score of 0.0 if PyBullet simulation fails
+  claim_id: c_258e6a97
+  context: 'T015 [US1] Implement physics scoring in src/filtering/pybullet_filter.py.
+    Constraint: DO NOT use optical flow as a fallback. If PyBullet simulation fails,
+    assign a score of 0.0 and log the error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assign a score of 0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:47:15Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Assign score 0.0 if frame decoding fails
+  claim_id: c_f1aec65a
+  context: 'T019 [US1] Add error handling for corrupted video frames in src/filtering/pybullet_filter.py.
+    Logic: If frame decoding fails, assign score 0.0, log error, and exclude from
+    dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assign score 0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:47:15Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use batch size of 1 for GPU offload
+  claim_id: c_d8e51476
+  context: 'T013 [US1] Implement Wan2.1 video generation wrapper in src/generation/wan21_generator.py.
+    Logic: If CPU inference fails (OOM or unsupported op), trigger offload to Kaggle
+    GPU with device=''cuda'', batch_size=1, and a strict limit on the number of videos.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: batch_size=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:47:37Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use default moderate threshold for discard rate
+  claim_id: c_db06e230
+  context: 'T016 [US1] Implement filtering logic in src/filtering/score_utils.py.
+    Logic: Read data/curated/scores.parquet. Apply discard rate defined in config.yaml
+    (default a moderate threshold). Discard a substantial portion of the lowest-quality
+    videos.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_default_moderate_threshold_for_discard_rate
+  kind: entity_fact
+  raw_text: default a moderate threshold
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:47:55Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Default filter discard percent is 0.4
+  claim_id: c_b0db66a7
+  context: 'T007b [P] Create config.yaml with default key filter_discard_percent:
+    0.4 and schema definition for all required keys'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'default key filter_discard_percent: 0.4'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:48:10Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify availability of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_8a29176d
+  context: 'T012b [US1] Verify Wan2.1 model availability. Logic: Verify availability
+    of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo. Prefer Wan-Turbo
+    (distilled a large-scale model) if available; otherwise, verify any compatible
+    Wan2.1 variant.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify availability of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:48:26Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use SI units, origin (0,0,0), Z-up axis, and s timestep for ground truth
+  claim_id: c_639efbe5
+  context: 'T037a [US3] Implement distinct ground truth simulation in src/evaluation/ground_truth_gen.py.
+    Details: SI units, origin (0,0,0), Z-up axis, s timestep.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SI units, origin (0,0,0), Z-up axis, s timestep
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:48:40Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Load real_subset from data/raw if available
+  claim_id: c_0c18f4c1
+  context: 'T037b [US3] Fetch real-world data. Logic: Load data/raw/real_subset (if
+    available) or fetch from RobotBench dataset via datasets.load_dataset(''RobotBench'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_real_subset_from_data/raw_if_available
+  kind: entity_fact
+  raw_text: Load data/raw/real_subset (if available)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:49:15Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Store real-world data in data/eval/real_world_data/
+  claim_id: c_ccd88dcb
+  context: 'T037b [US3] Fetch real-world data. Logic: Load data/raw/real_subset (if
+    available) or fetch from RobotBench dataset via datasets.load_dataset(''RobotBench'').
+    Constraint: If missing, log a warning and proceed without real-world data (do
+    NOT generate synthetic fallback for the source). Store in data/eval/real_world_data/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Store_real-world_data_in_data/eval/real_world_data/
+  kind: entity_fact
+  raw_text: store in data/eval/real_world_data/
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:49:36Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Load prompts from verified static JSON file or URL in data/prompts.json
+  claim_id: c_1a2d2f85
+  context: 'T012 [US1] Implement prompt management in src/generation/prompts.py loading
+    verified RobotBench prompts. Logic: Load prompts from a verified static JSON file
+    or URL defined in data/prompts.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_prompts_from_verified_static_JSON_file_or_URL_in_data/p
+  kind: entity_fact
+  raw_text: Load prompts from a verified static JSON file or URL defined in data/prompts.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:49:52Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify Wan-Turbo distilled large-scale model if available
+  claim_id: c_8d049659
+  context: 'T012b [US1] Verify Wan2.1 model availability. Logic: Verify availability
+    of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo. Prefer Wan-Turbo
+    (distilled a large-scale model) if available; otherwise, verify any compatible
+    Wan2.1 variant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_Wan-Turbo_distilled_large-scale_model_if_available
+  kind: entity_fact
+  raw_text: Verify Wan-Turbo (distilled a large-scale model) if available
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:50:16Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Output raw MP4s and metadata in data/raw/
+  claim_id: c_c7379c64
+  context: 'T013 [US1] Implement Wan2.1 video generation wrapper in src/generation/wan21_generator.py.
+    Output: Raw MP4s in data/raw/ and metadata in data/raw/metadata.jsonl.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_raw_MP4s_and_metadata_in_data/raw/
+  kind: entity_fact
+  raw_text: 'Output: Raw MP4s in data/raw/ and metadata in data/raw/metadata.jsonl'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:50:37Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Output scores.parquet with video_id, continuity_score, contact_score
+    columns
+  claim_id: c_9a0d3343
+  context: 'T015 [US1] Implement physics scoring in src/filtering/pybullet_filter.py.
+    Output: data/curated/scores.parquet with columns video_id, continuity_score, contact_score.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_scores.parquet_with_video_id,_continuity_score,_conta
+  kind: entity_fact
+  raw_text: 'Output: data/curated/scores.parquet with columns video_id, continuity_score,
+    contact_score'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:50:57Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Save filtered videos to data/curated/ and curated_metadata.jsonl
+  claim_id: c_e879c2fb
+  context: 'T016 [US1] Implement filtering logic in src/filtering/score_utils.py.
+    Logic: Read data/curated/scores.parquet. Apply discard rate defined in config.yaml
+    (default a moderate threshold). Discard a substantial portion of the lowest-quality
+    videos. Save remaining to data/curated/ and data/curated/curated_metadata.jsonl.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_filtered_videos_to_data/curated/_and_curated_metadata.j
+  kind: entity_fact
+  raw_text: Save remaining to data/curated/ and data/curated/curated_metadata.jsonl
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:51:25Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Output augmented dataset in data/curated_augmented/
+  claim_id: c_6bdb0c2c
+  context: 'T019b [US2] Augment Curated Dataset if size < 30. Logic: Check len(data/curated/).
+    If < 30, apply augmentation from T023 to reach n=30. Dependency: Depends on T016.
+    Output: Augmented dataset in data/curated_augmented/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_augmented_dataset_in_data/curated_augmented/
+  kind: entity_fact
+  raw_text: 'Output: Augmented dataset in data/curated_augmented/'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:51:40Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Output control model in models/control_model/
+  claim_id: c_ded5e167
+  context: 'T017 [US2] Train Randomized Control Model. Logic: Use the same training
+    script as T024/T025. Load data/raw/ using the *same split indices* as T016 (Curated)
+    but on the raw dataset (random subset of same size). Output: models/control_model/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_control_model_in_models/control_model/
+  kind: entity_fact
+  raw_text: 'Output: models/control_model/'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:52:01Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Output physisforing_baseline.json with r_bench_score and pai_bench_score
+  claim_id: c_2b033174
+  context: 'T033a [US3] Load PhysisForcing Baseline Results. Logic: Fetch verified
+    results from the PhysisForcing paper (or a pre-computed artifact if available
+    in data/baseline/). Output: data/eval/physisforing_baseline.json with r_bench_score,
+    pai_bench_score.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_physisforing_baseline.json_with_r_bench_score_and_pai
+  kind: entity_fact
+  raw_text: 'Output: data/eval/physisforing_baseline.json with r_bench_score, pai_bench_score'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:52:13Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Output JSON with trajectory, initial_pose, video_id keys
+  claim_id: c_4449c7ef
+  context: 'T037a [US3] Implement distinct ground truth simulation in src/evaluation/ground_truth_gen.py.
+    Spec: Use T015 logic (prompt-to-scene simulation) to generate ground truth from
+    *prompts*, not video extraction. Output: JSON with keys: trajectory, initial_pose,
+    video_id.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_JSON_with_trajectory,_initial_pose,_video_id_keys
+  kind: entity_fact
+  raw_text: 'Output: JSON with keys: trajectory, initial_pose, video_id'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:52:29Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Output results.json with all metrics and p-values
+  claim_id: c_d3cf5924
+  context: T039 [US3] Generate final JSON report in data/eval/results.json with all
+    metrics and p-values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_results.json_with_all_metrics_and_p-values
+  kind: entity_fact
+  raw_text: 'Output: data/eval/results.json with all metrics and p-values'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:52:52Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify results.json contains valid scores, p-values, and gap calculation
+  claim_id: c_c9153e9e
+  context: 'T030 [US3] Integration test for full evaluation pipeline. Input: Trained
+    model, baseline model, n=30 eval set. Output: Verify data/eval/results.json contains
+    valid scores, p-values, and gap calculation.'
+  evidence:
+    entailment_evidence: json contains valid scores, p-values, and gap
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Verify_results.json_contains_valid_scores,_p-values,_and_gap
+  kind: entity_fact
+  raw_text: Verify data/eval/results.json contains valid scores, p-values, and gap
+    calculation
+  resolved_value: Verify results.json contains valid scores, p-values, and gap calculation
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T07:52:53Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use verified URLs for RobotBench prompts and Wan2.1 weights
+  claim_id: c_a7c9fb1c
+  context: 'CRITICAL: All data must be real. No fabricated datasets. Use verified
+    URLs for RobotBench prompts and Wan2.1 weights.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use verified URLs for RobotBench prompts and Wan2.1 weights
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:54:50Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use RobotBench dataset
+  claim_id: c_801f9cc9
+  context: 'T037b [US3] Fetch real-world data. Logic: Load data/raw/real_subset (if
+    available) or fetch from RobotBench dataset via datasets.load_dataset(''RobotBench'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_RobotBench_dataset
+  kind: entity_fact
+  raw_text: Use RobotBench dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:55:17Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use Wan2.1 model family
+  claim_id: c_2707caac
+  context: 'T012b [US1] Verify Wan2.1 model availability. Logic: Verify availability
+    of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Wan2.1 model family
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:55:31Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use PhysisForcing paper results
+  claim_id: c_cb78586d
+  context: 'T033a [US3] Load PhysisForcing Baseline Results. Logic: Fetch verified
+    results from the PhysisForcing paper (or a pre-computed artifact if available
+    in data/baseline/).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_PhysisForcing_paper_results
+  kind: entity_fact
+  raw_text: Use PhysisForcing paper results
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:55:48Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use PyBullet headless mode
+  claim_id: c_a29d8dd5
+  context: 'T015 [US1] Implement physics scoring in src/filtering/pybullet_filter.py.
+    Logic: Load generated video from data/raw/. Simulate the scene using PyBullet
+    headless mode to extract ground truth trajectory (if prompt allows) OR score the
+    video''s extracted trajectory (via simple optical flow or frame differencing if
+    full 3D extraction is too heavy, but preferred: direct simulation comparison if
+    prompt-to-scene is skipped).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_PyBullet_headless_mode
+  kind: entity_fact
+  raw_text: Use PyBullet headless mode
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:56:02Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use MuJoCo independent validation
+  claim_id: c_fc0a5a95
+  context: 'T037 [US3] Implement MuJoCo independent validation in src/evaluation/mujoco_validator.py.
+    INPUT: Ground truth from T037a AND Real-world data from T037b (if available) OR
+    Baseline results from T033a.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_MuJoCo_independent_validation
+  kind: entity_fact
+  raw_text: Use MuJoCo independent validation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:56:21Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use t-test and Mann-Whitney U statistical testing
+  claim_id: c_1bbd3092
+  context: T035a [US3] Implement t-test and Mann-Whitney U statistical testing in
+    src/evaluation/stats.py (FR-006 compliance).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'Mann-Whitney U test and Kruskal-Wallis test should be used for comparisons
+        of differences in medians, not means: Comment on the article by van der Helm-van
+        Mil et al'
+      source_id: Q60706087
+      url: https://www.wikidata.org/wiki/Q60706087
+      value: Mann-Whitney U test
+    filled: true
+  kind: entity_fact
+  raw_text: Use t-test and Mann-Whitney U statistical testing
+  resolved_value: Mann-Whitney U test
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T07:56:29Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use stratified sampling for evaluation set with n=30
+  claim_id: c_b4d68804
+  context: T034 [US3] Implement stratified sampling for evaluation set (n=30) in src/evaluation/stats.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use stratified sampling for evaluation set (n=30)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:56:29Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use UNet-based diffusion model
+  claim_id: c_f6e0dbd9
+  context: T024 [US2] Implement UNet-based diffusion model in src/training/diffusion_trainer.py
+    (CPU-optimized).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_UNet-based_diffusion_model
+  kind: entity_fact
+  raw_text: Use UNet-based diffusion model
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:56:57Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use CPU-only versions of torch, pybullet, mujoco, diffusers, transformers,
+    scikit-learn, opencv-python, pandas, numpy, requests, datasets
+  claim_id: c_ba2a1efa
+  context: T002 Initialize Python project with CPU-only torch, pybullet, mujoco, diffusers,
+    transformers, scikit-learn, opencv-python, pandas, numpy, requests, datasets
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_CPU-only_versions_of_torch,_pybullet,_mujoco,_diffusers,
+  kind: entity_fact
+  raw_text: Use CPU-only torch, pybullet, mujoco, diffusers, transformers, scikit-learn,
+    opencv-python, pandas, numpy, requests, datasets
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:57:12Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use ruff for linting and black for formatting
+  claim_id: c_f6bc1215
+  context: T003 [P] Configure linting (ruff) and formatting (black) tools
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_ruff_for_linting_and_black_for_formatting
+  kind: entity_fact
+  raw_text: Use ruff for linting and black for formatting
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:57:30Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use JSON logging for metrics
+  claim_id: c_30e6a3ff
+  context: T006 [P] Implement logging configuration in src/utils/logging.py with file
+    rotation and JSON logging for metrics
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_JSON_logging_for_metrics
+  kind: entity_fact
+  raw_text: Use JSON logging for metrics
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:57:47Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use file rotation for logging
+  claim_id: c_4f0a51af
+  context: T006 [P] Implement logging configuration in src/utils/logging.py with file
+    rotation and JSON logging for metrics
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_file_rotation_for_logging
+  kind: entity_fact
+  raw_text: Use file rotation for logging
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:58:05Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use deterministic seed setting utility for reproducibility across batches
+  claim_id: c_41d90185
+  context: T009 [P] Implement deterministic seed setting utility in src/utils/seeding.py
+    for reproducibility across batches
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_deterministic_seed_setting_utility_for_reproducibility_a
+  kind: entity_fact
+  raw_text: Use deterministic seed setting utility for reproducibility across batches
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:58:24Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use memory profiling script to measure peak RAM usage
+  claim_id: c_5c151abc
+  context: T006b [P] Implement memory profiling script src/utils/profile_memory.py
+    to measure peak RAM usage for verification tasks
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_memory_profiling_script_to_measure_peak_RAM_usage
+  kind: entity_fact
+  raw_text: Use memory profiling script to measure peak RAM usage
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:58:41Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use checksumming utilities in src/utils/io_utils.py
+  claim_id: c_2ea790ec
+  context: 'T005 Setup data directory structure: data/raw, data/curated, data/eval,
+    data/validation with checksumming utilities in src/utils/io_utils.py.'
+  evidence:
+    entailment_evidence: Use checksumming utilities in src/utils/io utils.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Use_checksumming_utilities_in_src/utils/io_utils.py
+  kind: entity_fact
+  raw_text: Use checksumming utilities in src/utils/io_utils.py
+  resolved_value: Use checksumming utilities in src/utils/io_utils.py
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T07:58:43Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use environment validation script to ensure PyBullet/MuJoCo/PyTorch CPU
+    modes are active and no CUDA is detected
+  claim_id: c_e814c772
+  context: T008 Setup environment validation script src/utils/verify_env.py to ensure
+    PyBullet/MuJoCo/PyTorch CPU modes are active and no CUDA is detected
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_environment_validation_script_to_ensure_PyBullet/MuJoCo/
+  kind: entity_fact
+  raw_text: Use environment validation script to ensure PyBullet/MuJoCo/PyTorch CPU
+    modes are active and no CUDA is detected
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:58:58Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 'Use config.yaml with default key filter_discard_percent: 0.4'
+  claim_id: c_90eda87f
+  context: 'T007b [P] Create config.yaml with default key filter_discard_percent:
+    0.4 and schema definition for all required keys'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use config.yaml with default key filter_discard_percent: 0.4'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:59:10Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use base configuration management in src/training/config.py to handle
+    hyperparameters and CPU-only flags
+  claim_id: c_568c11da
+  context: T007 Create base configuration management in src/training/config.py to
+    handle hyperparameters and CPU-only flags
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_base_configuration_management_in_src/training/config.py
+  kind: entity_fact
+  raw_text: Use base configuration management in src/training/config.py to handle
+    hyperparameters and CPU-only flags
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:59:24Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 'Use data directory structure: data/raw, data/curated, data/eval, data/validation'
+  claim_id: c_ab6d2807
+  context: 'T005 Setup data directory structure: data/raw, data/curated, data/eval,
+    data/validation with checksumming utilities in src/utils/io_utils.py.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_data_directory_structure:_data/raw,_data/curated,_data/e
+  kind: entity_fact
+  raw_text: 'Use data directory structure: data/raw, data/curated, data/eval, data/validation'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T07:59:50Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use src/, tests/, data/ subdirectories and specific module directories
+  claim_id: c_63a7f671
+  context: T001b [P] Create src/, tests/, data/ subdirectories and specific module
+    directories (data/raw, data/curated, data/eval, data/validation, src/generation,
+    src/filtering, src/training, src/evaluation, src/utils, tests/unit, tests/integration).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_src/,_tests/,_data/_subdirectories_and_specific_module_d
+  kind: entity_fact
+  raw_text: Use src/, tests/, data/ subdirectories and specific module directories
+    (data/raw, data/curated, data/eval, data/validation, src/generation, src/filtering,
+    src/training, src/evaluation, src/utils, tests/unit, tests/integration)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:00:14Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use project root directories under projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/
+  claim_id: c_c48babfc
+  context: T001 Create project root directories under projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use project root directories under projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:01:31Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use requirements.txt with pinned versions
+  claim_id: c_a3031326
+  context: T004 [P] Create requirements.txt with pinned versions and verify pip install
+    on CPU-only runner
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_requirements.txt_with_pinned_versions
+  kind: entity_fact
+  raw_text: Use requirements.txt with pinned versions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:07:04Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify pip install on CPU-only runner
+  claim_id: c_77a9fa20
+  context: T004 [P] Create requirements.txt with pinned versions and verify pip install
+    on CPU-only runner
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_pip_install_on_CPU-only_runner
+  kind: entity_fact
+  raw_text: Verify pip install on CPU-only runner
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:07:51Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify all artifacts have content hashes recorded
+  claim_id: c_044f64c9
+  context: T046 Verify all artifacts have content hashes recorded in state/projects/PROJ-951-llmxive-follow-up-extending-physisforcin.yaml
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_all_artifacts_have_content_hashes_recorded
+  kind: entity_fact
+  raw_text: Verify all artifacts have content hashes recorded
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:08:25Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify Wan2.1 model availability
+  claim_id: c_bdc111ab
+  context: 'T012b [US1] Verify Wan2.1 model availability. Logic: Verify availability
+    of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo. Prefer Wan-Turbo
+    (distilled a large-scale model) if available; otherwise, verify any compatible
+    Wan2.1 variant. Output: Verify script in src/generation/verify_model.py. Dependency:
+    Depends on T012.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In November 2024, QwQ-32B-Preview, a model focusing on reasoning similar
+        to OpenAI's o1, was released under the Apache 2.0 License, although only the
+        weights were released, not the dataset or training method.  This model, developed
+        by Alibaba's Qwen team, can process prompts up to 32,000 words long and features
+        a unique self-fact-checking mechanism that allows it to solve complex logic
+        puzzles and mathematical problems. The model is not without limitations, as
+        it may unexpectedly switch languages, get stuck in reasoning loops, and struggle
+        with common sense reasoning. Notably, the model is available under an Apache
+        2.0 license on Hugging Face, making it commercially accessible, though only
+        certain components have been released. Its development comes amid growing
+        skepticism about traditional AI scaling laws and represents a new approach
+        to AI reasoning that involves giving models more processing time to complete
+        tasks.
+      source_id: Alibaba Group
+      url: https://en.wikipedia.org/wiki/Alibaba_Group
+      value: Apache 2.0
+    filled: true
+  kind: numeric
+  raw_text: Verify Wan2.1 model availability
+  resolved_value: Apache 2.0
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T08:08:30Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 2
+  canonical: Verify physics filter assigns low score to corrupted frames
+  claim_id: c_f5265432
+  context: 'T011b [US1] Integration test: Verify physics filter assigns low score
+    to corrupted frames. Input: Inject a corrupted frame into a video. Output: Verify
+    score < 0.1 and video is excluded.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_physics_filter_assigns_low_score_to_corrupted_frames
+  kind: entity_fact
+  raw_text: Verify physics filter assigns low score to corrupted frames
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:09:51Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 2
+  canonical: Verify curated dataset contains only videos with score >= threshold
+  claim_id: c_d69b0fef
+  context: 'T011c [US1] Integration test: Verify curated dataset contains only videos
+    with score >= threshold. Input: Run filter on known good set. Output: Verify min
+    score in data/curated/ >= 60th percentile of raw set.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_curated_dataset_contains_only_videos_with_score_%3E=_th
+  kind: entity_fact
+  raw_text: Verify curated dataset contains only videos with score >= threshold
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:09:53Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 2
+  canonical: Verify model converges (loss decreases)
+  claim_id: c_2a101d23
+  context: 'T022 [US2] Integration test for training on curated samples. Input: 60
+    videos from data/curated/. Output: Verify model converges (loss decreases) and
+    saves a checkpoint within 4 hours.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_model_converges_(loss_decreases)
+  kind: entity_fact
+  raw_text: Verify model converges (loss decreases)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:09:54Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 3
+  canonical: Verify generation of 10 samples and discard rate within 5% of config.yaml
+    value
+  claim_id: c_5d9267fe
+  context: 'T011a [US1] Integration test: Verify generation of 10 samples and discard
+    rate is within 5% of config.yaml value (A threshold will be established during
+    the implementation phase.).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify generation of 10 samples and discard rate is within 5% of config.yaml
+    value
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:09:54Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 4
+  canonical: Verify minimum score in curated dataset is at least 60th percentile of
+    raw set
+  claim_id: c_65c244ca
+  context: 'T011c [US1] Integration test: Verify curated dataset contains only videos
+    with score >= threshold. Input: Run filter on known good set. Output: Verify min
+    score in data/curated/ >= 60th percentile of raw set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_minimum_score_in_curated_dataset_is_at_least_60th_per
+  kind: magnitude
+  raw_text: min score in data/curated/ >= 60th percentile of raw set
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:09:56Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 3
+  canonical: Verify physics filter assigns score less than 0.1 and excludes video
+  claim_id: c_fb3eb496
+  context: 'T011b [US1] Integration test: Verify physics filter assigns low score
+    to corrupted frames. Input: Inject a corrupted frame into a video. Output: Verify
+    score < 0.1 and video is excluded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_physics_filter_assigns_score_less_than_0.1_and_exclud
+  kind: magnitude
+  raw_text: Verify physics filter assigns score < 0.1 and video is excluded
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:09:57Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 3
+  canonical: Verify model saves a checkpoint within 4 hours
+  claim_id: c_9c63062b
+  context: 'T022 [US2] Integration test for training on curated samples. Input: 60
+    videos from data/curated/. Output: Verify model converges (loss decreases) and
+    saves a checkpoint within 4 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: save a checkpoint within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:09:57Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 3
+  canonical: Verify all phases execute correctly on CPU-only runner
+  claim_id: c_7f615c66
+  context: T045 Run quickstart.md validation to ensure all phases execute correctly
+    on CPU-only runner
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_all_phases_execute_correctly_on_CPU-only_runner
+  kind: entity_fact
+  raw_text: Verify all phases execute correctly on CPU-only runner
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:09:59Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 3
+  canonical: Verify all artifacts have content hashes recorded in state file
+  claim_id: c_7bff4af1
+  context: T046 Verify all artifacts have content hashes recorded in state/projects/PROJ-951-llmxive-follow-up-extending-physisforcin.yaml
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify all artifacts have content hashes recorded in state/projects/PROJ-951-llmxive-follow-up-extending-physisforcin.yaml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:09:59Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 2
+  canonical: Verify Wan2.1 model availability from huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_931c900b
+  context: 'T012b [US1] Verify Wan2.1 model availability. Logic: Verify availability
+    of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo. Prefer Wan-Turbo
+    (distilled a large-scale model) if available; otherwise, verify any compatible
+    Wan2.1 variant. Output: Verify script in src/generation/verify_model.py. Dependency:
+    Depends on T012.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Wan2.1 model availability from huggingface.co/Wan-AI/Wan2.1-Turbo
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T08:09:59Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify availability of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_7658dc15
+  context: 'T012b [US1] {{claim:c_bdc111ab}} (Wikipedia: Alibaba Group, https://en.wikipedia.org/wiki/Alibaba_Group).
+    **Logic**: Verify availability of `Wan2.1` model family from `huggingface.co/Wan-AI/Wan2.1-Turbo`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prefer 'Wan-Turbo (distilled a large-scale model)' if available; otherwise,
+    verify any compatible Wan2.1 variant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:20:27Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Wan2.1 model family available at huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_46023b6d
+  context: T012b task logic to verify model availability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify availability of 'Wan2.1' model family from 'huggingface.co/Wan-AI/Wan2.1-Turbo'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:23:09Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Wan-Turbo distilled 100M model at huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_70a71c3b
+  context: T013 task specification for video generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 'Wan-Turbo (distilled 100M)' from 'huggingface.co/Wan-AI/Wan2.1-Turbo'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:23:34Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: UNet diffusion model target parameter count 50M
+  claim_id: c_cd4984b9
+  context: T024 task specification for diffusion model implementation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Configure UNet architecture such that the total parameter count is approximately\
+    \ 50M (\xB110%)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:23:57Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Physics filter discards bottom of score distribution
+  claim_id: c_80cac475
+  context: Independent test description for User Story 1.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Physics_filter_discards_bottom_of_score_distribution
+  kind: entity_fact
+  raw_text: Verify physics filtering discards the bottom of the distribution based
+    on score distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:24:38Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Data augmentation applied if dataset size less than 30
+  claim_id: c_36f7b156
+  context: T023 task logic for data augmentation module.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_augmentation_applied_if_dataset_size_less_than_30
+  kind: magnitude
+  raw_text: Apply augmentation only if dataset size < 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:25:08Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Augment dataset to 30 samples if size less than 30
+  claim_id: c_1fab5084
+  context: T019b task logic for dataset augmentation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Augment_dataset_to_30_samples_if_size_less_than_30
+  kind: magnitude
+  raw_text: Augment curated dataset if size < 30 to reach n=30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:25:33Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Memory usage during filtering less than 6 GB
+  claim_id: c_c090a0f5
+  context: T020 task constraint for memory monitoring.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_during_filtering_less_than_6_GB
+  kind: magnitude
+  raw_text: Ensure < 6 GB RAM during filtering.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:26:08Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Memory usage during training less than 6 GB
+  claim_id: c_c387f3a3
+  context: T028 task constraint for resource monitoring.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_during_training_less_than_6_GB
+  kind: magnitude
+  raw_text: Ensure < 6 GB RAM during training.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:26:37Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Minimum curated score at least 60th percentile of raw scores
+  claim_id: c_fcc6bf17
+  context: T011c integration test output verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_curated_score_at_least_60th_percentile_of_raw_scores
+  kind: magnitude
+  raw_text: Verify min score in curated dataset >= 60th percentile of raw set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:27:02Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Model convergence and checkpoint save within 4 hours
+  claim_id: c_ad8e7ff1
+  context: T022 integration test output verification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify model converges and saves a checkpoint within 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:27:25Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Correlation between PyBullet and MuJoCo scores less than 0.95
+  claim_id: c_2a6e24a9
+  context: T038 task logic for correlation analysis.
+  evidence:
+    entailment_evidence: Correlation between PyBullet and MuJoCo scores less than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Correlation_between_PyBullet_and_MuJoCo_scores_less_than_0.9
+  kind: magnitude
+  raw_text: Verify correlation < 0.95 between PyBullet scores and MuJoCo scores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-04T22:27:51Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Stratified sampling for evaluation set size 30
+  claim_id: c_b7f66e5a
+  context: T034 task implementation details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling for evaluation set (n=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:28:11Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage reduced to less than 5.5 GB
+  claim_id: c_3643d979
+  context: T042 task goal for code cleanup and refactoring.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_reduced_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: Reduce peak RAM to < 5.5 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:28:43Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: CV pipeline processing time per video less than 2 minutes
+  claim_id: c_e1811bd9
+  context: T043 task goal for performance optimization.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CV_pipeline_processing_time_per_video_less_than_2_minutes
+  kind: magnitude
+  raw_text: Reduce processing time per video to < 2 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:29:19Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Fallback to synthetic ground truth and baseline if real data unavailable
+  claim_id: c_32efcefe
+  context: T037 task logic for MuJoCo independent validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_synthetic_ground_truth_and_baseline_if_real_data
+  kind: entity_fact
+  raw_text: Use T037a and T033a only if T037b fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:29:38Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Discard rate fixed at predetermined level
+  claim_id: c_364965c6
+  context: Notes section regarding revision on discard rate.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Discard_rate_fixed_at_predetermined_level
+  kind: entity_fact
+  raw_text: Discard rate is FIXED at a predetermined level.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-04T22:30:11Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: PyBullet and MuJoCo scores correlation less than 0.95
+  claim_id: c_4f2ec18c
+  context: T018 [US1] [P] Implement MuJoCo validation and orthogonality check... ensure
+    the PyBullet filter score and MuJoCo score are not trivially correlated (correlation
+    < 0.95) *before* training.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PyBullet_and_MuJoCo_scores_correlation_less_than_0.95
+  kind: magnitude
+  raw_text: 'Verify orthogonality of PyBullet and MuJoCo scores: correlation coefficient
+    < 0.95'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:58:39Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Final evaluation orthogonality check correlation less than 0.95
+  claim_id: c_b2307392
+  context: T038 [US3] Implement correlation analysis... comparing PyBullet scores...
+    vs MuJoCo scores... to verify correlation < 0.95 (non-circularity).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_evaluation_orthogonality_check_correlation_less_than_0
+  kind: magnitude
+  raw_text: Correlation < 0.95 between PyBullet scores and MuJoCo scores
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:59:00Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: UNet diffusion model target parameter count 50 million
+  claim_id: c_61c44e1c
+  context: "T024b [US2]... Configure UNet architecture... such that the total parameter\
+    \ count is approximately 50M (\xB110%) and peak RAM usage remains within acceptable\
+    \ limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target parameter count for UNet-based diffusion model is approximately\
+    \ 50M (\xB110%)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:00:04Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Training peak RAM usage constraint
+  claim_id: c_555c5612
+  context: "T024b [US2]... total parameter count is approximately 50M (\xB110%) and\
+    \ peak RAM usage remains within acceptable limits."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_peak_RAM_usage_constraint
+  kind: entity_fact
+  raw_text: Peak RAM usage must remain within acceptable limits during training
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:00:37Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Filtering memory usage less than 6 GB
+  claim_id: c_dcb9b509
+  context: T020 [US1] Add memory usage monitoring to ensure < 6 GB RAM during filtering
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filtering_memory_usage_less_than_6_GB
+  kind: magnitude
+  raw_text: Memory usage must be < 6 GB RAM during filtering
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:01:14Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Training memory usage less than 6 GB
+  claim_id: c_c9974aea
+  context: T028 [US2] Add resource monitoring to ensure < 6 GB RAM during training
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_memory_usage_less_than_6_GB
+  kind: magnitude
+  raw_text: Memory usage must be < 6 GB RAM during training
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:01:48Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Peak RAM reduction to 5.5 GB
+  claim_id: c_3a11209a
+  context: T042 Code cleanup and refactoring for memory efficiency across all modules
+    to reduce peak RAM to < 5.5 GB (verified by src/utils/profile_memory.py)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Code cleanup and refactoring must reduce peak RAM to < 5.5 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:01:49Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: CV pipeline processing time less than 2 minutes per video
+  claim_id: c_e954261e
+  context: T043 Performance optimization for CV pipeline (if used) to reduce processing
+    time per video to < 2 minutes
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CV_pipeline_processing_time_less_than_2_minutes_per_video
+  kind: magnitude
+  raw_text: CV pipeline processing time must be < 2 minutes per video
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:02:33Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Filter discard percent default 0.4
+  claim_id: c_ae0ac812
+  context: 'T007b [P] Create config.yaml with default key filter_discard_percent:
+    0.4 and schema definition for all required keys.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Discard rate default is 0.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:02:54Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Dataset augmentation trigger size 30
+  claim_id: c_4accd05d
+  context: T023 [P] [US2] Implement data augmentation module... Apply augmentation
+    only if dataset size < 30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dataset augmentation triggers if size < 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:02:55Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Evaluation stratified sampling size 30
+  claim_id: c_8cfe9709
+  context: T034 [US3] Implement stratified sampling for evaluation set (n=30) in src/evaluation/stats.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified sampling for evaluation set uses n=30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:03:10Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Training checkpoint save time 4 hours
+  claim_id: c_d660ca55
+  context: T022 [US2] Integration test for training on curated samples... Verify model
+    converges (loss decreases) and saves a checkpoint within 4 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training checkpoint must save within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:03:30Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Learning rate adjustment retry count 3
+  claim_id: c_3b563853
+  context: T025 [US2] Implement training loop... with NaN detection... learning rate
+    adjustment (retry up to 3 times), and Timeout enforcement (hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times for learning rate adjustment
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:03:55Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Integration test sample count 10
+  claim_id: c_3dd7ab90
+  context: 'T011a [P] [US1] Integration test: Verify generation of 10 samples and
+    output format.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 10 samples for integration test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:04:29Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Corrupted frame score less than 0.1
+  claim_id: c_d8a75841
+  context: 'T011b [P] [US1] Integration test: Verify physics filter assigns low score
+    to corrupted frames... Output: Verify score < 0.1 and video is excluded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Corrupted_frame_score_less_than_0.1
+  kind: magnitude
+  raw_text: Corrupted frame score must be < 0.1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:05:03Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Curated dataset minimum score 60th percentile
+  claim_id: c_bd3c9e8b
+  context: 'T011c [P] [US1] Integration test: Verify curated dataset contains only
+    videos with score >= threshold... Output: Verify min score in data/curated/ >=
+    60th percentile of raw set.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "References 1. Walker BF. The prevalence of low back pain: a systematic\
+        \ review of the literature from 1966 to 1998. J Spinal Disord 2000;13:205\u2013\
+        17. 2. Fatoye F, Gebrye T, Mbada CE, et al. Clinical and economic burden of\
+        \ low back pain in low- and middle-income countries: a systematic review.\
+        \ BMJ Open 2023;13:e064119. 3. Herzog R, Elgort DR, Flanders AE, et al. Variability\
+        \ in diagnostic error rates of 10 MRI centers performing lumbar spine MRI\
+        \ examinations on the same patient within a 3-week period. Spine J 2017;17:554\u2013\
+        61. 4. Lurie JD, Tosteson AN, Tosteson TD, et al. Reliability of Readings\
+        \ of Magnetic Resonance Imaging Features of Lumbar Spinal Stenosis. Spine\
+        \ 2008;33:1605\u201310. 5. Won D, Lee H-J, Lee S-J, et al. Spinal Stenosis\
+        \ Grading in Magnetic Resonance Imaging Using Deep Convolutional Neural Networks.\
+        \ Spine 2020;45:804\u201312. 6. Ishimoto Y, Jamaludin A, Cooper C, et al.\
+        \ Could automated machine-learned MRI grading aid epidemiological studies\
+        \ of lumbar spinal stenosis? Validation within the Wakayama spine study. BMC\
+        \ Musculoskelet Disord 2020;21:158. 7. Hallinan JTPD, Zhu L, Yang K, et al.\
+        \ Deep Learning Model for Automated Detection and Classification of Central\
+        \ Canal, Lateral Recess, and Neural Foraminal Stenosis at Lumbar Spine MRI.\
+        \ Radiology 2021;300:130\u20138. 8. Burton CV, Kirkaldy-Willis W, Yong-Hing\
+        \ K, et al. Causes of failure of surgery on the lumbar spine. Clin Orthop\
+        \ Relat Res 1976-2007 1981;157:191\u20139. 9. Batti\xE9 MC, Laz\xE1ry A, Fairbank\
+        \ J, et al. Disc degeneration-related clinical phenotypes. Eur Spine J Off\
+        \ Publ Eur Spine Soc Eur Spinal Deform Soc Eur Sect Cerv Spine Res Soc 2014;23\
+        \ Suppl 3:S305-314."
+      source_id: '2506.09162'
+      url: https://arxiv.org/abs/2506.09162
+      value: '60'
+    filled: true
+  kind: entity_fact
+  raw_text: Curated dataset minimum score must be >= 60th percentile of raw set
+  resolved_value: '60'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T17:05:27Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Curated dataset length 60
+  claim_id: c_b3eee9f4
+  context: 'T011d [P] [US1] Integration test: Verify discard rate is within an acceptable
+    threshold... Output: Verify len(data/curated/) == 60.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Curated dataset length must be 60
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:05:42Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify Wan2.1 model family availability at huggingface.co/Wan-AI/Wan2.1-Turbo
+  claim_id: c_683e4d72
+  context: 'T012b [P] [US1] Verify availability of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo.
+    Logic: Prefer Wan-Turbo (distilled from a large-scale model) if available; otherwise,
+    verify and fallback to the base Wan2.1 model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify availability of Wan2.1 model family from huggingface.co/Wan-AI/Wan2.1-Turbo.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:07:59Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Apply augmentation only if dataset size is less than 30
+  claim_id: c_328a2f78
+  context: "T023 [P] [US2] Implement data augmentation module in src/training/augmentation.py\
+    \ (temporal jittering \xB12 frames, geometric flipping p=0.5) for FR-009. Logic:\
+    \ Apply augmentation only if dataset size < 30."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_augmentation_only_if_dataset_size_is_less_than_30
+  kind: magnitude
+  raw_text: Apply augmentation only if dataset size < 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:08:24Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Target UNet parameter count of 50M with 10% tolerance
+  claim_id: c_66eed290
+  context: "T024b [US2] Implement UNet-based diffusion model... Configure UNet architecture\
+    \ (channels, down/up blocks, attention heads) such that the total parameter count\
+    \ is approximately 50M (\xB110%) and peak RAM usage remains within acceptable\
+    \ limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Target a parameter count of approximately 50M (\xB110%)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:08:54Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify correlation coefficient between PyBullet and MuJoCo scores is
+    less than 0.95
+  claim_id: c_f7b525be
+  context: T018 [US1] [P] Implement MuJoCo validation and orthogonality check... Validate
+    a subset of curated videos against a distinct MuJoCo ground truth to ensure the
+    PyBullet filter score and MuJoCo score are not trivially correlated (correlation
+    < 0.95) before training.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_correlation_coefficient_between_PyBullet_and_MuJoCo_s
+  kind: magnitude
+  raw_text: Ensure correlation < 0.95 between PyBullet and MuJoCo scores.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:09:11Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify minimum score in curated dataset is at least 60th percentile of
+    raw set
+  claim_id: c_16cee883
+  context: 'T011c [P] [US1] Integration test: Verify curated dataset contains only
+    videos with score >= threshold. Input: Run filter on known good set. Output: Verify
+    min score in data/curated/ >= 60th percentile of raw set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_minimum_score_in_curated_dataset_is_at_least_60th_per
+  kind: magnitude
+  raw_text: Verify min score in curated dataset is >= 60th percentile of raw set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:09:31Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify curated dataset length equals 60
+  claim_id: c_6337f751
+  context: 'T011d [P] [US1] Integration test: Verify discard rate is within an acceptable
+    threshold. Input: A set of videos will be collected to investigate the research
+    question using the specified method, as outlined in the relevant references. with
+    known scores. Output: Verify len(data/curated/) == 60.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Verify_curated_dataset_length_equals_60
+  kind: causal
+  raw_text: Verify discard rate results in exactly 60 retained videos.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:09:34Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Augment dataset to size 30 if current size is less than 30
+  claim_id: c_f17a7b45
+  context: 'T019b [US2] Augment Curated Dataset if size < 30. Logic: Check len(data/curated/).
+    If < 30, apply augmentation from T023 to reach n=30.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Augment_dataset_to_size_30_if_current_size_is_less_than_30
+  kind: magnitude
+  raw_text: Augment curated dataset if size is less than 30 to reach n=30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:09:54Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Implement stratified sampling for evaluation set of size 30
+  claim_id: c_7740f91e
+  context: T034 [US3] Implement stratified sampling for evaluation set (n=30) in src/evaluation/stats.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use stratified sampling for evaluation set with n=30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:09:55Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Trigger augmentation if evaluation subset size is less than 30
+  claim_id: c_e2eb6a82
+  context: 'T040 [US3] Add logic to trigger data augmentation if eval subset n < 30
+    before statistical testing in src/evaluation/stats.py. Logic: If eval subset <
+    30, trigger T019b augmentation logic.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_augmentation_if_evaluation_subset_size_is_less_than
+  kind: magnitude
+  raw_text: Trigger data augmentation if evaluation subset n < 30 before statistical
+    testing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:11:19Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 2
+  canonical: Reduce peak RAM usage to less than 5.5 GB
+  claim_id: c_f4cb6d8a
+  context: T042 Code cleanup and refactoring for memory efficiency across all modules
+    to reduce peak RAM to < 5.5 GB (verified by src/utils/profile_memory.py)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_peak_RAM_usage_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: reduce peak RAM to < 5.5 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:12:06Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 2
+  canonical: Reduce CV pipeline processing time per video to less than 2 minutes
+  claim_id: c_b1fcc62c
+  context: T043 Performance optimization for CV pipeline (if used) to reduce processing
+    time per video to < 2 minutes
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_CV_pipeline_processing_time_per_video_to_less_than_2
+  kind: magnitude
+  raw_text: reduce processing time per video to < 2 minutes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:12:32Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Fetch real-world data from RobotBench dataset using datasets.load_dataset
+  claim_id: c_e85edfaa
+  context: 'T037b [US3] Fetch real-world data. Logic: Load data/raw/real_subset (if
+    available) or fetch from RobotBench dataset via datasets.load_dataset("RobotBench").'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_real-world_data_from_RobotBench_dataset_using_datasets
+  kind: entity_fact
+  raw_text: Fetch real-world data from RobotBench dataset via datasets.load_dataset("RobotBench").
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:12:57Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Set default filter_discard_percent to 0.4
+  claim_id: c_ecbd6f56
+  context: 'T007b [P] Create config.yaml with default key filter_discard_percent:
+    0.4 and schema definition for all required keys. Note: This value is a provisional
+    default derived from the Implementation Plan (plan.md)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use default filter_discard_percent of 0.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:13:19Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Retry learning rate adjustment up to 3 times on NaN loss
+  claim_id: c_5443f858
+  context: T025 [US2] Implement training loop in src/training/diffusion_trainer.py
+    with NaN detection (abort if loss is NaN), learning rate adjustment (retry up
+    to 3 times), and Timeout enforcement (hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry up to 3 times for learning rate adjustment on NaN loss.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:13:47Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Generate synthetic robotic manipulation videos using Wan2.1 model
+  claim_id: c_e26cb061
+  context: 'Phase 3: User Story 1 - Generate and Filter Synthetic Video Dataset (Priority:
+    P1) Goal: Generate synthetic robotic manipulation videos using Wan2.1, filter
+    them via CPU-based PyBullet simulation, and produce a curated dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic robotic manipulation videos using Wan2.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:14:08Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use OpenCV and YOLOv8 to extract 2D object centroids and optical flow
+    vectors
+  claim_id: c_7c72253c
+  context: 'T014b [US1] Implement CV Pipeline in src/filtering/cv_pipeline.py. Logic:
+    Use OpenCV + YOLOv8 (or similar lightweight detector) to extract 2D object centroids
+    and optical flow vectors from generated video frames.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_OpenCV_and_YOLOv8_to_extract_2D_object_centroids_and_opt
+  kind: entity_fact
+  raw_text: Use OpenCV and YOLOv8 to extract 2D object centroids and optical flow
+    vectors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:14:26Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Calculate continuity score and contact score from 2D trajectory comparison
+  claim_id: c_10872159
+  context: T015 [US1] Implement physics scoring... Compare the extracted 2D trajectory
+    against the simulated 2D ground truth to calculate continuity_score (trajectory
+    smoothness) and contact_score (object persistence/collision in 2D).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_continuity_score_and_contact_score_from_2D_traject
+  kind: entity_fact
+  raw_text: Calculate continuity_score and contact_score from 2D trajectory comparison.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:14:52Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Assign score 0.0 if PyBullet simulation fails
+  claim_id: c_8f422f11
+  context: 'T015 [US1] Implement physics scoring... Constraint: If PyBullet simulation
+    fails or trajectory extraction fails, assign a score of 0.0 and log the error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign a score of 0.0 if PyBullet simulation fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:15:10Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Ensure memory usage is less than 6 GB RAM during filtering
+  claim_id: c_61431d48
+  context: T020 [US1] Add memory usage monitoring to ensure < 6 GB RAM during filtering
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_is_less_than_6_GB_RAM_during_filtering
+  kind: magnitude
+  raw_text: Ensure memory usage is less than 6 GB RAM during filtering.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:15:25Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Ensure memory usage is less than 6 GB RAM during training
+  claim_id: c_f6fb2e9d
+  context: T028 [US2] Add resource monitoring to ensure < 6 GB RAM during training
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_memory_usage_is_less_than_6_GB_RAM_during_training
+  kind: magnitude
+  raw_text: Ensure memory usage is less than 6 GB RAM during training.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:15:42Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 2
+  canonical: Verify model converges and saves checkpoint within 4 hours
+  claim_id: c_1cbdb2d7
+  context: 'T022 [US2] Integration test for training on curated samples. Input: 60
+    videos from data/curated/. Output: Verify model converges (loss decreases) and
+    saves a checkpoint within 4 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify model converges (loss decreases) and saves a checkpoint within
+    4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:16:08Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Train model on 60 videos from curated dataset in integration test
+  claim_id: c_e2d49fbe
+  context: 'T022 [US2] Integration test for training on curated samples. Input: 60
+    videos from data/curated/.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train for 60 videos from data/curated/ in integration test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:16:34Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Train control model on 60 videos from raw dataset random subset
+  claim_id: c_1fc2726e
+  context: 'T022b [US2] Integration test for control model training. Input: 60 videos
+    from data/raw/ (random subset). Output: Verify control model converges.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train control model on 60 videos from data/raw/ random subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:16:51Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use distinct prompt set for ground truth trajectories in MuJoCo
+  claim_id: c_da8cdbac
+  context: 'T037a [US3] Implement distinct ground truth simulation in src/evaluation/ground_truth_gen.py.
+    Spec: Use a different prompt set (not the ones used for filtering) to generate
+    ground truth trajectories in MuJoCo.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_distinct_prompt_set_for_ground_truth_trajectories_in_MuJ
+  kind: entity_fact
+  raw_text: Use a different prompt set to generate ground truth trajectories in MuJoCo.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:17:12Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use SI units, origin (0,0,0), Z-up axis, and s timestep for ground truth
+  claim_id: c_1603c1cd
+  context: 'T037a [US3] Implement distinct ground truth simulation... Output: JSON
+    with keys: trajectory, initial_pose, video_id. Details: SI units, origin (0,0,0),
+    Z-up axis, s timestep.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use SI units, origin (0,0,0), Z-up axis, and s timestep for ground truth.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:17:25Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify correlation coefficient less than 0.95 is detected and reported
+  claim_id: c_9caf27ea
+  context: 'T030b [US3] Integration test for orthogonality check. Input: Filter scores,
+    MuJoCo scores. Output: Verify correlation < 0.95 is correctly detected and reported.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_correlation_coefficient_less_than_0.95_is_detected_an
+  kind: magnitude
+  raw_text: Verify correlation < 0.95 is correctly detected and reported in orthogonality
+    check.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:17:46Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: UNet architecture with 64 base channels, 4 down blocks, 4 up blocks,
+    8 attention heads, approximately 50M parameters
+  claim_id: c_2c095dea
+  context: "T024 [US2] Implement UNet-based diffusion model... Configure UNet architecture\
+    \ with 64 base channels, 4 down blocks, 4 up blocks, and 8 attention heads to\
+    \ achieve approximately 50M (\xB110%) parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Configure UNet architecture with 64 base channels, 4 down blocks, 4 up\
+    \ blocks, and 8 attention heads to achieve approximately 50M (\xB110%) parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:24:21Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Load RobotBench dataset version robotic-manipulation-v1 split train revision
+    main
+  claim_id: c_be05dba3
+  context: 'T037 [US3] Implement MuJoCo independent validation. Logic: Load real-world
+    data using datasets.load_dataset(''RobotBench/robotic-manipulation-v1'', split=''train'',
+    revision=''main'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_RobotBench_dataset_version_robotic-manipulation-v1_spli
+  kind: entity_fact
+  raw_text: Load real-world data using datasets.load_dataset('RobotBench/robotic-manipulation-v1',
+    split='train', revision='main').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:25:40Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify correlation between PyBullet and MuJoCo scores is less than 0.95
+  claim_id: c_72eb8d64
+  context: T038 [US3] Implement correlation analysis... comparing PyBullet scores
+    (on CV-extracted trajectories) vs MuJoCo scores (on real-world ground truth) to
+    verify correlation < 0.95 (non-circularity).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_correlation_between_PyBullet_and_MuJoCo_scores_is_les
+  kind: magnitude
+  raw_text: Verify correlation < 0.95 comparing PyBullet scores vs MuJoCo scores to
+    verify non-circularity.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:26:04Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Use Wan-AI/Wan2.1-Turbo model from HuggingFace
+  claim_id: c_70f3ec97
+  context: 'T013 [US1] Implement Wan2.1 video generation wrapper... Spec: Use ''Wan-AI/Wan2.1-Turbo''
+    from huggingface.co/Wan-AI/Wan2.1-Turbo.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Wan-AI/Wan2.1-Turbo from huggingface.co/Wan-AI/Wan2.1-Turbo.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:26:19Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Apply temporal jittering of 10% speed and horizontal geometric flipping
+  claim_id: c_75525ac3
+  context: "T023 [P] [US2] Implement data augmentation module... Specifics: Apply\
+    \ temporal jittering (\xB110% speed) and geometric flipping (horizontal) to the\
+    \ curated dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply temporal jittering (\xB110% speed) and geometric flipping (horizontal)\
+    \ to the curated dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:26:20Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Set filter discard percent to 0.4
+  claim_id: c_4788ae5d
+  context: 'T007b [P] Create config.yaml with default key filter_discard_percent:
+    0.4 and schema definition for all required keys.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set filter_discard_percent to 0.4 in config.yaml.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:26:42Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: UNet architecture 64 base channels 4 down blocks 4 up blocks 8 attention
+    heads 50M parameters
+  claim_id: c_393994a0
+  context: "T024 [US2] Implement UNet-based diffusion model... Configure UNet architecture\
+    \ with 64 base channels, 4 down blocks, 4 up blocks, and 8 attention heads to\
+    \ achieve approximately 50M (\xB110%) parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Configure UNet architecture with 64 base channels, 4 down blocks, 4 up\
+    \ blocks, and 8 attention heads to achieve approximately 50M (\xB110%) parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:29:58Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Apply temporal jittering 10% speed and geometric flipping horizontal
+  claim_id: c_abbc34cc
+  context: "T023 [P] [US2] Implement data augmentation module... Specifics: Apply\
+    \ temporal jittering (\xB110% speed) and geometric flipping (horizontal) to the\
+    \ curated dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply temporal jittering (\xB110% speed) and geometric flipping (horizontal)\
+    \ to the curated dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:29:58Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify correlation between PyBullet scores and MuJoCo scores is less
+    than 0.95
+  claim_id: c_b5a68c3e
+  context: T038 [US3] Implement correlation analysis... to verify correlation < 0.95
+    (non-circularity).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_correlation_between_PyBullet_scores_and_MuJoCo_scores
+  kind: magnitude
+  raw_text: Verify the correlation between PyBullet scores and MuJoCo scores is less
+    than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:30:33Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify discard rate matches target 0.4 within 5%
+  claim_id: c_8a598991
+  context: T016b [US1] Verify and Log Discard Rate... verify it matches the target
+    (0.4) within 5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the actual discard rate matches the target (0.4) within 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:30:45Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Ensure memory usage under 6 GB RAM during filtering
+  claim_id: c_e431f9dd
+  context: T020 [US1] Add memory usage monitoring to ensure < 6 GB RAM during filtering
+    in src/utils/io_utils.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure memory usage remains under 6 GB RAM during filtering.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:30:51Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Ensure memory usage under 6 GB RAM during training
+  claim_id: c_a627b85c
+  context: T028 [US2] Add resource monitoring to ensure < 6 GB RAM during training
+    in src/utils/io_utils.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure memory usage remains under 6 GB RAM during training.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:30:57Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Reduce peak RAM to less than 5.5 GB
+  claim_id: c_58634687
+  context: T042 Code cleanup and refactoring for memory efficiency across all modules
+    to reduce peak RAM to < 5.5 GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_peak_RAM_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: Reduce peak RAM to less than 5.5 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:31:07Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Reduce processing time per video to less than 2 minutes
+  claim_id: c_8d4aab2d
+  context: T043 Performance optimization for CV pipeline (if used) to reduce processing
+    time per video to < 2 minutes
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_processing_time_per_video_to_less_than_2_minutes
+  kind: magnitude
+  raw_text: Reduce processing time per video to less than 2 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:31:19Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify control model converges using 60 videos from raw dataset
+  claim_id: c_01b584c4
+  context: 'T022b [US2] Integration test for control model training. Input: 60 videos
+    from data/raw/ (random subset).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the control model converges using 60 videos from the raw dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:31:24Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Verify model saves a checkpoint within 4 hours
+  claim_id: c_3eb6e8fb
+  context: T022 [US2] Integration test for training on curated samples... Verify model
+    converges (loss decreases) and saves a checkpoint within 4 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the model saves a checkpoint within 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:32:03Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Load RobotBench dataset split train revision main
+  claim_id: c_5c29121d
+  context: 'T037 [US3] Implement MuJoCo independent validation. Logic: Load real-world
+    data using datasets.load_dataset(''RobotBench/robotic-manipulation-v1'', split=''train'',
+    revision=''main'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_RobotBench_dataset_split_train_revision_main
+  kind: entity_fact
+  raw_text: Load real-world data using the RobotBench dataset with split='train' and
+    revision='main'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:32:10Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: UNet architecture with 64 base channels, 4 down blocks, 4 up blocks,
+    and 8 attention heads achieving approximately 50M parameters
+  claim_id: c_3f5172b8
+  context: "Implement UNet-based diffusion model in src/training/diffusion_trainer.py\
+    \ (CPU-optimized). Spec: Target a compact diffusion model with a parameter count\
+    \ suitable for efficient deployment. Logic: Configure UNet architecture with 64\
+    \ base channels, 4 down blocks, 4 up blocks, and 8 attention heads to achieve\
+    \ approximately 50M (\xB110%) parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Configure UNet architecture with 64 base channels, 4 down blocks, 4 up\
+    \ blocks, and 8 attention heads to achieve approximately 50M (\xB110%) parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:38:58Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Wan-AI/Wan2.1-Turbo model availability on HuggingFace
+  claim_id: c_c88c41e0
+  context: 'T012b [US1] Verify Wan2.1 model availability. Logic: Verify existence
+    of Wan-AI/Wan2.1-Turbo on HuggingFace. Output: Verification script in src/generation/verify_model.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verify Wan2.1 model availability. Logic: Verify existence of Wan-AI/Wan2.1-Turbo
+    on HuggingFace.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:39:11Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Load RobotBench robotic-manipulation-v1 dataset train split main revision
+  claim_id: c_9ed69706
+  context: 'T037 [US3] Implement MuJoCo independent validation. INPUT: Real-world
+    data from RobotBench. Logic: Load real-world data using datasets.load_dataset(''RobotBench/robotic-manipulation-v1'',
+    split=''train'', revision=''main''). Run MuJoCo simulation on this real data to
+    generate ground truth.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_RobotBench_robotic-manipulation-v1_dataset_train_split
+  kind: entity_fact
+  raw_text: 'Implement MuJoCo independent validation. Logic: Load real-world data
+    using datasets.load_dataset(''RobotBench/robotic-manipulation-v1'', split=''train'',
+    revision=''main'').'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:39:41Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: PyBullet scores vs MuJoCo scores correlation less than 0.95
+  claim_id: c_ef4f6be9
+  context: T038 [US3] Implement correlation analysis in src/evaluation/stats.py comparing
+    PyBullet scores (on CV-extracted trajectories) vs MuJoCo scores (on real-world
+    ground truth) to verify correlation < 0.95 (non-circularity).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PyBullet_scores_vs_MuJoCo_scores_correlation_less_than_0.95
+  kind: magnitude
+  raw_text: Implement correlation analysis comparing PyBullet scores vs MuJoCo scores
+    to verify correlation < 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:40:09Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 2
+  canonical: Discard rate fixed at 0.4
+  claim_id: c_c052ba06
+  context: 'CRITICAL (Revision): The discard rate is FIXED at 0.4. No pilot runs or
+    dynamic thresholds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The discard rate is fixed at 0.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:40:10Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Config default filter_discard_percent value 0.4
+  claim_id: c_5a0523ac
+  context: 'T007b [P] Create config.yaml with default key filter_discard_percent:
+    0.4 and schema definition for all required keys. Note: Explicitly sets the discard
+    rate to 0.4 to resolve FR-003.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create config.yaml with default key filter_discard_percent: 0.4.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:40:26Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Temporal jittering plus or minus 10 percent speed and geometric horizontal
+    flipping augmentation
+  claim_id: c_6310b051
+  context: "T023 [P] [US2] Implement data augmentation module... Specifics: Apply\
+    \ temporal jittering (\xB110% speed) and geometric flipping (horizontal) to the\
+    \ curated dataset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply temporal jittering (\xB110% speed) and geometric flipping (horizontal)\
+    \ to the curated dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:40:26Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 6 GB RAM during filtering
+  claim_id: c_2c72a768
+  context: T020 [US1] Add memory usage monitoring to ensure < 6 GB RAM during filtering
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_6_GB_RAM_during_filtering
+  kind: magnitude
+  raw_text: Ensure < 6 GB RAM during filtering.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:40:59Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 6 GB RAM during training
+  claim_id: c_ffcf8333
+  context: T028 [US2] Add resource monitoring to ensure < 6 GB RAM during training
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_6_GB_RAM_during_training
+  kind: magnitude
+  raw_text: Ensure < 6 GB RAM during training.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:41:29Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Peak RAM reduced to less than 5.5 GB
+  claim_id: c_a95ff497
+  context: T042 Code cleanup and refactoring for memory efficiency across all modules
+    to reduce peak RAM to < 5.5 GB (verified by src/utils/profile_memory.py)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_reduced_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: Reduce peak RAM to < 5.5 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:42:02Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 2
+  canonical: CV pipeline processing time per video less than 2 minutes
+  claim_id: c_3f2b9004
+  context: T043 Performance optimization for CV pipeline (if used) to reduce processing
+    time per video to < 2 minutes
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CV_pipeline_processing_time_per_video_less_than_2_minutes
+  kind: magnitude
+  raw_text: Reduce processing time per video to < 2 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:42:31Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Generate random subset of indices matching target curated set size
+  claim_id: c_be10f748
+  context: 'T015b [US1] Generate Randomized Control Indices. Logic: Set random.seed(config.seed).
+    Generate a random subset of indices from data/raw/ matching the target size of
+    the curated set (n=curated_size) using random.sample.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_random_subset_of_indices_matching_target_curated_se
+  kind: entity_fact
+  raw_text: Generate Randomized Control Indices matching the target size of the curated
+    set (n=curated_size).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:42:55Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Run generation on small subset of 10 samples
+  claim_id: c_be5595ca
+  context: 'Independent Test: Run generation on a small subset (n=10), verify physics
+    filtering discards the bottom [deferred] of the distribution based on score distribution,
+    and ensure remaining videos pass continuity checks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run generation on a small subset (n=10).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:43:46Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Actual discard rate matches target 0.4 within 5 percent
+  claim_id: c_eb802b6c
+  context: 'T016b [US1] Verify and Log Discard Rate. Logic: Calculate the actual discard
+    rate from T016 output. Log the result and verify it matches the target (0.4) within
+    5%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify it matches the target (0.4) within 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:44:05Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Invoke augmentation utility if dataset size less than 30
+  claim_id: c_85d08b46
+  context: T016 [US1] Implement filtering logic... If the resulting dataset size is
+    < 30, invoke the augmentation utility from src/augmentation/geometric_augmenter.py
+    (T023) immediately.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Invoke_augmentation_utility_if_dataset_size_less_than_30
+  kind: magnitude
+  raw_text: If the resulting dataset size is < 30, invoke the augmentation utility.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:44:38Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Min score in curated dataset greater than or equal to 60th percentile
+    of raw set
+  claim_id: c_64d050b9
+  context: 'T011c [US1] Integration test: Verify curated dataset contains only videos
+    with score >= threshold. Input: Run filter on known good set. Output: Verify min
+    score in data/curated/ >= 60th percentile of raw set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Min_score_in_curated_dataset_greater_than_or_equal_to_60th_p
+  kind: magnitude
+  raw_text: Verify curated dataset contains only videos with score >= threshold...
+    min score in data/curated/ >= 60th percentile of raw set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:45:05Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Control model training convergence verification
+  claim_id: c_7536c36c
+  context: 'T022b [US2] Integration test for control model training. Input: 60 videos
+    from data/raw/ (random subset). Output: Verify control model converges.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_model_training_convergence_verification
+  kind: entity_fact
+  raw_text: Verify control model converges.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:45:33Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Model converges and saves checkpoint within 4 hours
+  claim_id: c_e4831321
+  context: 'T022 [US2] Integration test for training on curated samples. Input: 60
+    videos from data/curated/. Output: Verify model converges (loss decreases) and
+    saves a checkpoint within 4 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify model converges (loss decreases) and saves a checkpoint within
+    4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:45:57Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Correlation less than 0.95 detection and reporting
+  claim_id: c_39286e7c
+  context: 'T030b [US3] Integration test for orthogonality check. Input: Filter scores,
+    MuJoCo scores. Output: Verify correlation < 0.95 is correctly detected and reported.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_less_than_0.95_detection_and_reporting
+  kind: magnitude
+  raw_text: Verify correlation < 0.95 is correctly detected and reported.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:46:22Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Comparison of Filtered Model Score versus PhysisForcing Paper Report
+  claim_id: c_b3794a99
+  context: 'T022 [US3] Secondary Benchmark (PhysisForcing Comparison). Logic: Compare
+    Filtered Model Score vs. PhysisForcing Paper Report. Output: data/eval/secondary_benchmark.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparison_of_Filtered_Model_Score_versus_PhysisForcing_Pape
+  kind: entity_fact
+  raw_text: Compare Filtered Model Score vs. PhysisForcing Paper Report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T22:46:44Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: UNet architecture with 64 base channels, 4 down blocks, 4 up blocks,
+    and 8 attention heads targets approximately 50M parameters
+  claim_id: c_400aa1f2
+  context: "T024 [US2] Implement UNet-based diffusion model... Configure UNet architecture\
+    \ with 64 base channels, 4 down blocks, 4 up blocks, and 8 attention heads to\
+    \ achieve approximately 50M (\xB110%) parameters."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Configure UNet architecture with 64 base channels, 4 down blocks, 4 up\
+    \ blocks, and 8 attention heads to achieve approximately 50M (\xB110%) parameters."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:32:00Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Data augmentation applies temporal jittering of 10% speed and horizontal
+    geometric flipping
+  claim_id: c_0a07280a
+  context: "T023 [P] [US2] Define Data Augmentation Module... Specifics: Apply temporal\
+    \ jittering (\xB110% speed) and geometric flipping (horizontal)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Apply temporal jittering (\xB110% speed) and geometric flipping (horizontal)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:32:01Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Dataset augmentation is triggered if curated dataset size is less than
+    30
+  claim_id: c_4287c931
+  context: 'T016 [US1] Implement filtering logic... Conditional: If resulting dataset
+    size is < 30, invoke augmentation utility... to augment the dataset.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_augmentation_is_triggered_if_curated_dataset_size_is
+  kind: magnitude
+  raw_text: If resulting dataset size is < 30, invoke augmentation utility... to augment
+    the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:32:29Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Discard rate verification requires match within 5% of target
+  claim_id: c_e2740b7c
+  context: T016b [US1] Verify and Log Discard Rate... Log the result and verify it
+    matches the target (config value) within 5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify it matches the target (config value) within 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:32:29Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Orthogonality gate aborts pipeline if correlation coefficient is greater
+    than or equal to 0.95
+  claim_id: c_c073cb55
+  context: T038b [US1] Verify Orthogonality Gate... If correlation_coefficient >=
+    0.95, raise RuntimeError and abort pipeline.
+  evidence:
+    asserted: '0.95'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: If correlation_coefficient >= 0.95, raise RuntimeError and abort pipeline.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T21:32:30Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Physics filter assigns score less than 0.1 to corrupted frames
+  claim_id: c_8f3bb14f
+  context: 'T011b [US1] Integration test: Verify physics filter assigns low score
+    to corrupted frames... Output: Verify score < 0.1 and video is excluded.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Physics_filter_assigns_score_less_than_0.1_to_corrupted_fram
+  kind: magnitude
+  raw_text: Verify physics filter assigns low score to corrupted frames... Verify
+    score < 0.1 and video is excluded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:33:04Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Curated dataset minimum score is at least 60th percentile of raw set
+  claim_id: c_42793775
+  context: 'T011c [US1] Integration test: Verify curated dataset contains only videos
+    with score >= threshold... Output: Verify min score in data/curated/ >= 60th percentile
+    of raw set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Curated_dataset_minimum_score_is_at_least_60th_percentile_of
+  kind: magnitude
+  raw_text: Verify min score in data/curated/ >= 60th percentile of raw set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:33:26Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Model training converges and saves checkpoint within 4 hours
+  claim_id: c_583b8b6c
+  context: 'T022 [US2] Integration test for training on curated samples... Output:
+    Verify model converges (loss decreases) and saves a checkpoint within 4 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify model converges (loss decreases) and saves a checkpoint within
+    4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:33:46Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Evaluation sample size is at least 30 for statistical power
+  claim_id: c_49f18d4f
+  context: T034 [US3] Implement stratified sampling for evaluation set (n=30)... Ensure
+    sample size n >= 30 for statistical power.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Evaluation_sample_size_is_at_least_30_for_statistical_power
+  kind: magnitude
+  raw_text: Ensure sample size n >= 30 for statistical power.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:34:35Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: CV pipeline processing time per video is less than 2 minutes
+  claim_id: c_910a9b24
+  context: T043 Performance optimization for CV pipeline (if used) to reduce processing
+    time per video to < 2 minutes
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CV_pipeline_processing_time_per_video_is_less_than_2_minutes
+  kind: magnitude
+  raw_text: Process time per video reduced to < 2 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:35:02Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Code cleanup reduces peak RAM usage to less than 5.5 GB
+  claim_id: c_fb9ad0f4
+  context: T042 Code cleanup and refactoring for memory efficiency across all modules
+    to reduce peak RAM to < 5.5 GB (verified by src/utils/profile_memory.py)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Code_cleanup_reduces_peak_RAM_usage_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: Reduce peak RAM to < 5.5 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:35:40Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: Training process ensures RAM usage is less than 6 GB
+  claim_id: c_5d99ab21
+  context: T028 [US2] Add resource monitoring to ensure < 6 GB RAM during training
+    in src/utils/io_utils.py.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_process_ensures_RAM_usage_is_less_than_6_GB
+  kind: magnitude
+  raw_text: Ensure < 6 GB RAM during training.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:36:11Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: data/prompts.jsonl contains at least 10 entries
+  claim_id: c_8996df32
+  context: Phase 1 task to verify that the fetched RobotBench prompts file includes
+    a minimum number of entries.
+  evidence:
+    entailment_evidence: Data/prompts.jsonl contains at least 10 entries
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data/prompts.jsonl_contains_at_least_10_entries
+  kind: magnitude
+  raw_text: Add unit test `tests/unit/test_fetch_prompts.py` that checks `data/prompts.jsonl`
+    exists and contains at least 10 entries.
+  resolved_value: data/prompts.jsonl contains at least 10 entries
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T11:58:34Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 50M model fits within 7GB RAM
+  claim_id: c_e5465b9e
+  context: "Phase 4 memory\u2011optimization task aiming to keep the distilled diffusion\
+    \ model within a limited memory budget."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate 8-bit quantization (bitsandbytes) and gradient checkpointing
+    into the training loop to ensure the 50M model fits within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T11:58:51Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: peak RAM reduced to less than 5.5 GB
+  claim_id: c_66fd3cbb
+  context: "Phase 6 cross\u2011cutting concern to lower overall memory consumption."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_reduced_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: "Code cleanup and refactoring for memory efficiency across all modules\
+    \ to reduce peak RAM to < 5.5\u202FGB (verified by `src/utils/profile_memory.py`)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T11:59:27Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: processing time per video less than 2 minutes
+  claim_id: c_cc2d4bf8
+  context: "Phase 6 performance goal for the computer\u2011vision processing stage."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Processing_time_per_video_less_than_2_minutes
+  kind: magnitude
+  raw_text: Performance optimization for CV pipeline (if used) to reduce processing
+    time per video to < 2 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:00:10Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: training completes within 4 hours
+  claim_id: c_f0657ab7
+  context: "Phase 4 user story 2 requirement that the training pipeline finish within\
+    \ a four\u2011hour wall\u2011clock limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train distilled diffusion model on the curated dataset using CPU\u2011\
+    only optimization, ensuring feasibility within 4 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:00:59Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: training RAM usage less than 6 GB
+  claim_id: c_fcf3727a
+  context: Phase 4 task to keep training memory usage under a specified threshold.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_RAM_usage_less_than_6_GB
+  kind: magnitude
+  raw_text: "Add resource monitoring to ensure < 6\u202FGB RAM during training."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:01:39Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: evaluation set size n=30
+  claim_id: c_8f8a9185
+  context: Phase 5 task to create an evaluation dataset of at least thirty samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified sampling for evaluation set (n=30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:02:06Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 50M model fits within 7GB RAM
+  claim_id: c_70e418c7
+  context: T024d integrates 8-bit quantization and gradient checkpointing to ensure
+    the 50M model fits within 7GB RAM, verified with src/utils/profile_memory.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/50M_model_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: the 50M model fits within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:03:02Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: peak RAM reduced to less than 5.5 GB
+  claim_id: c_7011cf30
+  context: "T042 aims to reduce peak RAM usage across all modules to under 5.5\u202F\
+    GB, verified by src/utils/profile_memory.py."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_reduced_to_less_than_5.5_GB
+  kind: magnitude
+  raw_text: "peak RAM reduced to < 5.5\u202FGB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:03:45Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 50M model fits within 7GB RAM
+  claim_id: c_7fb0a3a8
+  context: Memory optimization strategy aims to ensure the 50M model fits within 7GB
+    RAM, verified with profile_memory.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate 8-bit quantization (bitsandbytes) and gradient checkpointing
+    into the training loop to ensure the 50M model fits within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:04:09Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: 50M model fits within 7GB RAM
+  claim_id: c_bb891d1b
+  context: "In Phase 4, task T024d describes memory optimization to make a 50\u2011\
+    million\u2011parameter model run within a 7\u202FGB RAM limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate 8-bit quantization (bitsandbytes) and gradient checkpointing
+    into the training loop to ensure the 50M model fits within 7GB RAM. Verify with
+    src/utils/profile_memory.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:05:22Z'
+- artifact_path: projects/PROJ-951-llmxive-follow-up-extending-physisforcin/specs/001-llmxive-follow-up-extending-physisforcin/tasks.md
+  attempts: 1
+  canonical: extract R-Bench and PAI-Bench scores from PhysisForcing paper
+  claim_id: c_caa35da0
+  context: "Task T033a-1 constructs baseline results by extracting reported R\u2011\
+    Bench and PAI\u2011Bench scores from the PhysisForcing paper."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_R-Bench_and_PAI-Bench_scores_from_PhysisForcing_pape
+  kind: entity_fact
+  raw_text: "Manually construct data/eval/physisforcing_baseline.json by extracting\
+    \ reported R\u2011Bench and PAI\u2011Bench scores from the PhysisForcing paper."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:07:19Z'

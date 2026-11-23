@@ -1,0 +1,7 @@
+{
+  "method": "Partial Correlation",
+  "p_value": null,
+  "r_value": null,
+  "reason": "Cleaned data not found at data/processed/cleaned_data.csv. Run ingestion first.",
+  "status": "skipped"
+}

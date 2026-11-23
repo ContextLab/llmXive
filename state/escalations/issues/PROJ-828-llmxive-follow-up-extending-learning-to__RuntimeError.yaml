@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-08-14T02:39:33.009781+00:00'
+issue_number: 1305
+project_id: PROJ-828-llmxive-follow-up-extending-learning-to

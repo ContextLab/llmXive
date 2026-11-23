@@ -1,0 +1,1 @@
+"""Data storage directory placeholder."""

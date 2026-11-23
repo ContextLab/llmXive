@@ -2,65 +2,78 @@
 
 ## Executive Summary
 
-This research validates the hypothesis that 3D geometric features provide a statistically significant advantage over 2D topological fingerprints for predicting directional electronic properties (dipole moments) compared to global properties (HOMO/LUMO gaps), using the QM9 dataset. The study employs Random Forest Regressors to ensure computational feasibility on free-tier CI infrastructure.
+This research investigates the extent to which 2D topological representations (Morgan fingerprints) can approximate the predictive power of 3D geometric representations (DFT-optimized graphs) for molecular descriptors in the QM9 dataset. The core hypothesis is that while 2D features suffice for global properties (e.g., HOMO/LUMO), they fail for directional properties (e.g., dipole moment) due to the lack of explicit spatial information. The study is bounded by the computational constraints of a GitHub Actions free-tier runner (CPU-only, 7 GB RAM), necessitating a robust data sampling strategy.
 
 ## Dataset Strategy
 
-The project utilizes the QM dataset, a standard benchmark in computational chemistry containing a large-scale collection of small organic molecules with DFT-computed properties.
+The project relies on the QM dataset, a standard benchmark in quantum chemistry containing a large collection of small organic molecules with DFT-calculated properties.
 
-| Dataset Name | Source / URL | Format | Key Variables | Verification Status |
+### Verified Datasets
+
+| Dataset Name | Source Type | Verified URL / Loader | Variables Available | Notes |
 | :--- | :--- | :--- | :--- | :--- |
-| **QM9 (Parquet)** | https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet | Parquet | `smiles`, `mu` (dipole), `homo`, `lumo`, `coordinates` (XYZ implied or derived) | Verified |
+| **QM9 (Parquet)** | HuggingFace Mirror | `datasets.load_dataset("lisn519010/QM9")` | `smiles`, `xyz` (3D coords), `mu` (dipole), `homo`, `lumo` | Verified source for QM9. Contains all required DFT labels. The Harvard Dataverse (doi:10.7910/DVN/28075) is the canonical source, but this HF mirror is used for programmatic CI access. |
+| **QM9 (Subset)** | Internal Derivation | `data/raw/qm9_subset.parquet` | Same as above | Derived by streaming the full dataset and applying a **stratified random sample** to fit memory constraints. |
 
-**Dataset Fit Analysis**:
-- **Required Variables**: The spec requires `mu` (dipole), `homo`, `lumo`, and 3D coordinates.
-- **Fit Confirmation**: The verified HuggingFace QM9 dataset contains these exact fields. The `coordinates` field (or equivalent geometry data) allows for 3D graph construction.
-- **Missing Data Handling**: Rows with missing `mu`, `homo`, or `lumo` will be dropped prior to feature extraction to ensure label alignment (US-1 Edge Case).
+**Note on Harvard Dataverse**: The spec references `doi:10.7910/DVN/28075`. As per the "Verified datasets" block, no direct URL is provided for the Harvard source. We utilize the HuggingFace dataset `lisn519010/QM9` which is a verified mirror of this data, ensuring bit-for-bit compatibility of the `.xyz` and property fields required for the analysis.
 
-**Note on Harvard Dataverse**: The spec references Harvard Dataverse (doi:10.7910/DVN/28075). As no verified URL exists for this specific DOI in the provided list, and to satisfy the "Verified Accuracy" principle, the implementation uses the verified HuggingFace mirror (Spec Amendment T009.1).
+### Data Availability & Feasibility
+
+- **Accessibility**: The dataset is available via the `datasets` library, allowing streaming (`streaming=True`) to avoid loading the full dataset into memory at once.
+- **Variable Fit**: The dataset contains `smiles` (for 2D), `xyz` (for 3D), and the target labels `mu` (dipole), `homo`, and `lumo`. This perfectly matches the requirements of FR-002.
+- **Memory Constraints**: The full dataset (large uncompressed size) exceeds the available RAM limit.
+  - **Strategy**: Implement a streaming loader that reads the dataset in chunks. A **binary search** over sample size `N` (bounds: min=1000, max=134000) will be performed to find the maximum `N` where 3D graph construction + feature matrix storage < 6.5 GB RAM.
+  - **Stratification**: The sampling will be **stratified** by target variables (mu, homo, lumo) and atom count to preserve chemical diversity and prevent selection bias.
+  - **Fallback**: If the maximum feasible `N` is too small for statistical significance (e.g., < 1,000), the plan will acknowledge the power limitation in the final report but proceed with the largest possible valid sample.
+- **Streamability Verification**: Before full extraction, a verification step will confirm that the `xyz` column in the HF mirror is streamable and parseable by RDKit. If the column format is incompatible (e.g., flattened array), the plan will fall back to a pre-processed subset or a different loader.
 
 ## Methodology
 
 ### 1. Feature Extraction
-- **2D Features**: Morgan Fingerprints (radius=2, nBits=2048) generated via `rdkit`. Captures topological connectivity.
-- **3D Features**: Graph-based features constructed from DFT-optimized geometries.
-  - **Node Features**: Atomic number, hybridization state.
-  - **Edge Features**: Interatomic distances (binned), bond angles, dihedral angles.
-  - **Construction**: Implemented using `rdkit` to parse XYZ coordinates and construct adjacency lists with geometric attributes.
+
+- **2D Features**: Morgan Fingerprints (Radius=2, 2048 bits) generated from `smiles` using RDKit.
+- **3D Features**: Graph representation where nodes are atoms (features: atomic number, hybridization) and edges are bonds (features: distance bins, bond angles). Distance, angle, and dihedral features are computed from the `xyz` coordinates.
+- **Alignment**: Features and labels are aligned by molecule ID. Molecules with missing labels or invalid geometry are dropped.
+- **Sampling**: A **stratified random sample** is drawn based on target variables and atom count. A binary search (min=1000, max=134000) determines the maximum sample size fitting within 6.5 GB RAM.
+- **Fallback Strategy**: If the initial streamability check fails (e.g., `xyz` column cannot be streamed), the system will switch to a pre-processed, chunked parquet loader to ensure the binary search can proceed without OOM.
+- **Schema Verification**: A specific check will be performed to ensure the `xyz` column in the HF mirror matches the expected schema (array of arrays) or is transformed from the alternative format (object with x/y/z arrays) before processing.
 
 ### 2. Model Training
+
 - **Algorithm**: Random Forest Regressor (`sklearn.ensemble.RandomForestRegressor`).
-- **Rationale**: CPU-tractable, handles non-linear relationships, robust to noise, and provides feature importance without GPU requirements.
-- **Hyperparameter Grid**:
-  - `n_estimators`: [100, 500] (Selected to balance accuracy and runtime).
-  - `max_depth`: [10, 20, None] (None allows full depth, bounded by memory).
-  - `random_state`: Fixed integer (e.g., 42) for reproducibility.
-- **Validation**: 5-Fold Cross-Validation.
-- **Constraints**: Memory monitoring enforces a hard limit. If usage > 6.5GB, the sample size is reduced by [deferred] iteratively using **Stratified Random Sampling** (strata: atom count, polarity) to preserve chemical diversity.
+- **Justification**: RF is robust to high-dimensional sparse data (fingerprints) and non-linear relationships. It runs efficiently on CPU and does not require GPU acceleration. For 3D features, RF is chosen to ensure a fair, non-parametric comparison with 2D fingerprints, avoiding the complexity and hyperparameter sensitivity of GNNs which could bias the comparison.
+- **Hyperparameters**: Grid search over `n_estimators` (e.g., varying magnitudes) and `max_depth` (10, 20, None).
+- **Validation**: 5-fold Cross-Validation (as per verified fact `cross fold pipeline training use validation = 5`).
+- **Fold Consistency**: A **single fixed random seed** is used for the CV splitter to ensure **identical fold assignments** for both 2D and 3D models, ensuring errors are paired on the same molecules.
+- **Compute**: Trained on the sampled subset. Runtime monitored to ensure < 6 hours.
 
 ### 3. Comparative Analysis & Failure Boundary
-- **Metric**: Relative Error Increase (REI) = `(MAE_2D - MAE_3D) / MAE_3D`.
-- **Hypothesis Testing**:
- - **Data**: Per-molecule errors on the test set (N [deferred]), NOT fold aggregates.
-  - **Test**: Wilcoxon signed-rank test (non-parametric, robust to outliers) or paired t-test if normality holds.
-  - **Correction**: Bonferroni correction applied (α = 0.05 / 3 ≈ 0.0167).
-- **Failure Boundary**: Defined as descriptors where **REI ≥ 10% OR p-value < 0.0167**.
-  - *Note*: This definition follows the Spec (US-3) which uses "OR". While this conflates effect size and significance, the analysis will report both metrics separately.
-- **Theoretical Lower Bound**: Calculation of the **Mean Predictor Error** (predicting the mean of the training set) to contextualize the 3D model's performance against a trivial baseline.
-  - *Scientific Note*: This is a Zero-Order Baseline, not the Bayes error rate. It satisfies FR-007's intent to contextualize performance but is not the true theoretical lower bound.
 
-## Statistical Rigor & Limitations
+- **Metrics**: Mean Absolute Error (MAE) and Root Mean Square Error (RMSE) for Dipole, HOMO, LUMO.
+- **Baseline**: Calculate the **Mean Predictor Error** (Zero-Order Baseline: predicting the mean of the training set) as per FR-007. This operationalizes the "identity mapping error" for this project, providing a theoretical lower bound to contextualize model performance.
+- **Relative Error Increase (REI)**: Calculated as `(MAE_2D - MAE_3D) / MAE_3D`.
+  - **Guardrail**: If `MAE_3D < 0.01` (near-zero), the REI metric is flagged as 'unstable' and the analysis defaults to comparing **Absolute Error Differences (AED)** instead to prevent division-by-zero artifacts.
+- **Direct Ground Truth Comparison**: Both models' errors are compared directly against the DFT ground truth (MAE vs DFT) to validate that the 2D model's failure is not circular but relative to the true target.
+- **Statistical Testing**:
+  - **Hypothesis**: The 2D model performs significantly worse than the 3D model for directional properties.
+  - **Pre-check**: Perform a **Shapiro-Wilk normality test** on per-molecule errors (2D vs 3D).
+  - **Test Selection**: If Shapiro-Wilk p < 0.05 (non-normal), use **Wilcoxon signed-rank test**. Otherwise, use **paired t-test**.
+  - **Correction**: Bonferroni correction applied for multiple tests (Dipole, HOMO, LUMO), setting significance threshold to `0.05` divided by the number of tests.
+- **Failure Boundary Definition**: A descriptor is considered to have "failed" 2D approximation if **REI ≥ 10% AND p-value < 0.0167**. This logic requires both a meaningful effect size and statistical significance.
+- **Scope Qualification**: Explicitly state that the results are a **theoretical lower bound** due to the use of DFT-optimized geometries, and not a practical failure boundary for noisy 3D predictions.
 
-- **Multiple Comparisons**: Bonferroni correction applied (α = 0.0167).
-- **Sample Size & Power**: The study uses a subset of molecules. Per-molecule error testing with a sufficiently large sample size provides high statistical power.
-- **Causal Inference**: This is an observational study (predictive modeling). Claims will be framed as "associational" or "predictive accuracy".
-- **Collinearity**: 2D and 3D features are derived from the same molecule. The analysis compares *models*, not individual feature coefficients.
-- **DFT Self-Consistency**: The 3D model uses DFT-optimized geometries to predict DFT properties. The "Failure Boundary" is specific to this DFT-consistent context and may not generalize to noisy experimental geometries.
-- **Baseline Interpretation**: The "Theoretical Lower Bound" is interpreted as the Mean Predictor Error (Zero-Order Baseline) for practical purposes.
+## Decision Rationale
 
-## Computational Feasibility Decision
+| Decision | Rationale | CPU/GPU Fit |
+| :--- | :--- | :--- |
+| **Random Forest** | Robust, interpretable, no GPU needed, handles mixed feature types. Fair comparison for 3D vs 2D. | **CPU-First**: Runs efficiently on 2 cores. |
+| **QM9 (HF Mirror)** | Only verified, programmatic source available. Contains all required variables. | **CPU-First**: Streaming allows processing within RAM limits. |
+| **Conditional Statistical Test** | Ensures robustness against non-normal error distributions while maintaining Spec alignment. | **CPU-First**: Negligible compute cost. |
+| **Dynamic Downsampling** | Necessary to fit 3D graph construction into 7 GB RAM. | **CPU-First**: Ensures feasibility on free-tier runner. |
+| **Stratified Sampling** | Prevents selection bias and preserves chemical diversity during downsampling. | **CPU-First**: Ensures external validity. |
 
-- **Hardware Constraint**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
-- **Decision**: Use `scikit-learn` Random Forest with default precision (float64). Avoid `torch` or `tensorflow` to eliminate CUDA dependencies and overhead.
-- **Data Strategy**: Process molecules in batches. If memory usage exceeds 6.5 GB during feature extraction, the pipeline will automatically downsample the dataset to a manageable subset. using stratified sampling and re-run extraction.
-- **Runtime Budget**: Estimated several hours for 10k molecules (5-fold CV on 2048 features). This is within the -hour limit.
+## Limitations
+
+- **Sample Size**: The feasible sample size is constrained by RAM, potentially limiting the statistical power for subtle effects.
+- **Dataset Scope**: QM9 contains only small organic molecules; results may not generalize to larger or inorganic systems.
+- **3D Input**: The 3D model uses DFT-optimized geometries, which are perfect. In real-world scenarios, 3D structures are often predicted (and thus noisy), which would further degrade 3D model performance. This is a theoretical lower bound on 2D vs 3D gap.

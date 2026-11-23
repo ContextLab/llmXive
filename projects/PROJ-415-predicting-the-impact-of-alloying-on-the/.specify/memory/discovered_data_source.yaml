@@ -1,0 +1,14 @@
+status: none
+intent: download NIST Standard Reference Database 150 diffusion in solids python package
+  dataset
+required_fields:
+- material_formula
+- crystal_structure
+- diffusion_mode
+- activation_energy_eV_per_atom
+- temperature_K
+- solute_concentration_at_percent
+- reference
+cache_key: 03d5743aaac7a473cf05802ebf7fbe8c93e3b762fe4139a05b471baba9288210
+searched_at: '2026-10-20T19:17:07.234550+00:00'
+retry_count: 1

@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-469-the-impact-of-repeated-exposure-to-neutr",
+  "ok": false,
+  "reason": "1 command(s) failed: python code/main.py (rc=1); 1 declared deliverable(s) absent: data/processed/imputed_data.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    05:37:27 - root - \u001b[32mINFO\u001b[0m - Logging initialized. File: logs/pipeline.log\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/main.py\", line 19, in <module>\n    from binary_model import run_binary_model_pipeline\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/binary_model.py\", line 13, in <module>\n    def fit_binary_model(data: pd.DataFrame) -> sm.OLSResults:\n                                                ^^^^^"
+  ],
+  "fix_rounds": 4,
+  "model_tier": 0,
+  "total_attempts": 4,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-23T05:37:30Z"
+}

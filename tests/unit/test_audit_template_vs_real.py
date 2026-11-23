@@ -22,6 +22,26 @@ FIXTURE_REAL = REPO_ROOT / "tests" / "fixtures" / "audit" / "speckit_real"
 FIXTURE_TEMPLATE = REPO_ROOT / "tests" / "fixtures" / "audit" / "speckit_template"
 
 
+def test_concrete_task_tags_are_not_template_slots(tmp_path):
+    artifact = tmp_path / "tasks.md"
+    labels = ["Write Script", "Execute Script", "Log Exclusion", "Power Analysis",
+              "Review Fix", "Ground Truth Generation", "Phase Timer"]
+    artifact.write_text("\n".join(
+        f"- [ ] T{i:03d} [US1] **[{label}]** Compute and export actual measured counts to data/counts.csv."
+        for i, label in enumerate(labels)
+    ))
+    assert classify(artifact)[0] == "real"
+
+
+def test_unfilled_task_tags_still_count_as_placeholders(tmp_path):
+    artifact = tmp_path / "tasks.md"
+    artifact.write_text("\n".join(
+        f"- [ ] T{i:03d} [Insert missing field {i}] Complete the missing scientific description here."
+        for i in range(7)
+    ))
+    assert classify(artifact)[0] == "template"
+
+
 class TestClassifyFixtures(unittest.TestCase):
     def test_real_fixture_classifies_as_real(self):
         path = FIXTURE_REAL / "spec.md"

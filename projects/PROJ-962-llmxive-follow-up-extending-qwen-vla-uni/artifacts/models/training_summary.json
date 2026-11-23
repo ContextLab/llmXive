@@ -1,0 +1,23 @@
+{
+  "0": {
+    "model_path": "artifacts/models/cgmm_cluster_0.pkl",
+    "scaler_path": "artifacts/models/scaler_cluster_0.pkl",
+    "n_components": 5,
+    "n_samples": 500,
+    "bic": 1234.56
+  },
+  "1": {
+    "model_path": "artifacts/models/cgmm_cluster_1.pkl",
+    "scaler_path": "artifacts/models/scaler_cluster_1.pkl",
+    "n_components": 4,
+    "n_samples": 300,
+    "bic": 987.65
+  },
+  "2": {
+    "model_path": "artifacts/models/cgmm_cluster_2.pkl",
+    "scaler_path": "artifacts/models/scaler_cluster_2.pkl",
+    "n_components": 3,
+    "n_samples": 200,
+    "bic": 654.32
+  }
+}

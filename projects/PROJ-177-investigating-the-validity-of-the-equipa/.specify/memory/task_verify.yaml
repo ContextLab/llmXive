@@ -1,6 +1,15 @@
-T001 Create project structure per implementation plan (`code/`, `data/`, `artifacts/`, `tests/`): 2
-T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, statsmodels, pyyaml, tqdm, pytest): 2
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `pyproject.toml`: 2
-? T005 [P] Implement `code/hash_artifacts.py` to generate content hashes for `artifacts/`
-  and update `state/...yaml` (Constitution Principle V)
-: 2
+T014a: 2
+T019: 2
+T020a: 2
+T020b: 2
+T021: 1
+T022: 1
+T023b: 1
+T024: 1
+T025: 2
+T026: 2
+T029: 2
+T031: 1
+T032: 1
+T035: 1
+T058: 1

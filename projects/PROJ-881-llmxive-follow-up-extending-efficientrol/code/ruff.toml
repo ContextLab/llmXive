@@ -1,0 +1,57 @@
+[tool.ruff]
+# Same target version as Black for consistency
+target-version = "py310"
+
+# Line length matches Black default
+line-length = 88
+
+# Exclude common generated or vendor directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "results",
+    "logs",
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I)
+select = ["E", "F", "I", "W"]
+
+# Ignore specific rules that conflict with Black or are too noisy
+ignore = [
+    "E501", # Line too long (handled by Black)
+]
+
+# Allow unused imports in __init__.py files if needed for package exports
+# (Ruff doesn't enforce this strictly by default, but good to be aware)
+
+[tool.ruff.lint.isort]
+# Force single-line imports for better readability in some contexts
+# (optional, but often preferred)
+lines-after-imports = 2
+
+[tool.ruff.format]
+# Ensure Ruff's formatter (if used) aligns with Black settings
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

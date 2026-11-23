@@ -1,0 +1,121 @@
+{
+  "trace_id": "training_42_01675",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 24.7569,
+        "x": 48.0055,
+        "y": 82.3452
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 57.2367,
+        "x": 65.5256,
+        "y": 50.2432
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 44.556,
+        "height": 27.9826
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 4.0209,
+        "height": 64.4403
+      }
+    },
+    {
+      "step": 4,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 7.2002,
+        "height": 52.6198
+      }
+    },
+    {
+      "step": 5,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 24.4161,
+        "height": 73.7651
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 70.1879,
+        "saturation": 17.5232
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 2.8781,
+        "saturation": 16.0473
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 36.4678,
+        "saturation": 29.688
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 3.833,
+        "saturation": 81.8295
+      }
+    },
+    {
+      "step": 10,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 24.9883,
+        "height": 81.0391
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.036199,
+    "tool_repetition_freq": 0.727273,
+    "arg_semantic_variance": 676.290926
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 9,
+    "layout_hash": "42-1675-resize_element"
+  }
+}

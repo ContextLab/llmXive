@@ -1,66 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SimulationRun"
-description: "Schema for a single instance of the autoregressive generation simulation."
+description: "Schema for a single autoregressive generation simulation result."
 type: "object"
 properties:
   run_id:
     type: "string"
-    description: "Unique identifier for the simulation run."
+    description: "Unique identifier for the run (UUID)."
   method:
     type: "string"
     enum:
-      - "KVarN"
-      - "StaticPrior"
-      - "ClosedForm"
-    description: "The quantization method used."
+      - "static_prior"
+      - "kvarn_baseline"
+    description: "Method used for scaling factor computation."
   steps:
     type: "integer"
     minimum: 1
-    description: "Number of autoregressive steps simulated."
-  metrics:
-    type: "object"
-    properties:
-      accumulated_kl_divergence:
-        type: "number"
-        description: "Sum of KL-divergence over all steps."
-      per_token_latency:
-        type: "number"
-        description: "Average wall-clock time per token."
-      final_error:
-        type: "number"
-        description: "Error at the last step."
-      theoretical_lower_bound:
-        type: "number"
-        description: "Analytical noise floor (independent ground truth)."
-    required:
-      - accumulated_kl_divergence
-      - per_token_latency
-      - final_error
-      - theoretical_lower_bound
-  parameters:
-    type: "object"
-    properties:
-      epsilon_floor:
-        type: "number"
-        description: "Epsilon floor used in the run."
-      seed:
-        type: "integer"
-        description: "Random seed for reproducibility."
-      regime_type:
-        type: "string"
-        enum:
-          - "Standard"
-          - "HighOrderMoments"
-          - "RealWorldProxy"
-        description: "The type of attention distribution used."
-    required:
-      - epsilon_floor
-      - seed
-      - regime_type
+    description: "Number of autoregressive steps."
+  accumulated_kl_divergence:
+    type: "number"
+    description: "Sum of KL-divergence over all steps."
+  per_token_latency_ms:
+    type: "number"
+    minimum: 0.0
+    description: "Average wall-clock time per token in milliseconds."
+  epsilon_floor:
+    type: "number"
+    minimum: 0.0
+    description: "Value used for variance normalization floor."
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+  kl_divergence_sequence:
+    type: "array"
+    items:
+      type: "number"
+    description: "Optional: List of KL-divergence values at each step."
+  quantization_scheme:
+    type: "string"
+    description: "The quantization scheme used (e.g., 'Uniform_INT8_Symmetric')."
 required:
-  - run_id
-  - method
-  - steps
-  - metrics
-  - parameters
+  - "run_id"
+  - "method"
+  - "steps"
+  - "accumulated_kl_divergence"
+  - "per_token_latency_ms"
+  - "epsilon_floor"
+  - "seed"
+  - "quantization_scheme"
 additionalProperties: false

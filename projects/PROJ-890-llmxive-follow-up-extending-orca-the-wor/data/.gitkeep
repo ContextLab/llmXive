@@ -1,2 +1,2 @@
-# This file ensures the data root directory is tracked by git.
-# Actual data files will be stored in subdirectories (raw/, processed/, validation/).
+# This file ensures the data directory is tracked in version control.
+# The actual data structure (raw/, processed/, validation/) is initialized by code/setup_data_dirs.py.

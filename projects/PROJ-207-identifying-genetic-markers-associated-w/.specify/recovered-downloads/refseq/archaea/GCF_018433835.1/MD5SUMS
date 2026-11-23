@@ -1,0 +1,15 @@
+62c63fa0fb1365888bad7408f64c7f39  ./annotation_hashes.txt
+e0f4219009a6211637d8ba1d11cec7f1  ./GCF_018433835.1_SM3_assembly_report.txt
+ceecb525facbcc31715944c1ff7d30b6  ./GCF_018433835.1_SM3_assembly_stats.txt
+f701292368b05b4c91a8c31ce3a17b5d  ./GCF_018433835.1_SM3_cds_from_genomic.fna.gz
+76f721f9d4c04da5845429ee62279643  ./GCF_018433835.1_SM3_feature_count.txt
+3b78b33365f0ca0e6963f0311285e060  ./GCF_018433835.1_SM3_feature_table.txt.gz
+48040aab043a33ea95d96f253ca22101  ./GCF_018433835.1_SM3_genomic.fna.gz
+b5e2852db8f66762f7ff84d825219bb2  ./GCF_018433835.1_SM3_genomic.gbff.gz
+f4c70ead311b4777be98db479b82b457  ./GCF_018433835.1_SM3_genomic.gff.gz
+991d0da2f4930bec5a2c4284e9c9b89d  ./GCF_018433835.1_SM3_genomic.gtf.gz
+64b0c18780923f89d9a2e3484719897a  ./GCF_018433835.1_SM3_protein.faa.gz
+4b4b190ad1e40d783d48aa71b83097b8  ./GCF_018433835.1_SM3_protein.gpff.gz
+2c81c8de7dfd90de130facb71b57dd30  ./GCF_018433835.1_SM3_rna_from_genomic.fna.gz
+6c0efea7c5985c1d52a117eb616fbeeb  ./GCF_018433835.1_SM3_translated_cds.faa.gz
+b96f1c345222a61192c3686451e3de8b  ./GCF_018433835.1_SM3_wgsmaster.gbff.gz

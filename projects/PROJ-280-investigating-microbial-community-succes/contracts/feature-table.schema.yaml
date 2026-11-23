@@ -1,0 +1,79 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Feature Table Schema
+description: JSON Schema for the microbial community feature table data structure.
+type: object
+required:
+  - samples
+  - taxon_ids
+  - metadata
+properties:
+  samples:
+    type: array
+    description: List of sample objects containing sample metadata and taxon abundances.
+    items:
+      type: object
+      required:
+        - id
+        - stage
+        - metadata
+        - taxa
+      properties:
+        id:
+          type: string
+          description: Unique sample identifier.
+        stage:
+          type: string
+          description: Wetland establishment stage.
+          enum:
+            - early
+            - mature
+            - transition
+            - unknown
+        metadata:
+          type: object
+          description: Dictionary containing environmental parameters.
+          additionalProperties: true
+        taxa:
+          type: array
+          description: List of taxon objects found in this sample.
+          items:
+            type: object
+            required:
+              - id
+              - abundance
+              - metadata
+            properties:
+              id:
+                type: string
+                description: Unique taxon identifier (OTU ID or ASV sequence hash).
+              abundance:
+                type: number
+                minimum: 0
+                description: Count/abundance of this taxon in the sample.
+              metadata:
+                type: object
+                description: Taxonomic classification and annotations.
+                additionalProperties: true
+  taxon_ids:
+    type: array
+    description: List of unique taxon IDs found across all samples.
+    items:
+      type: string
+  metadata:
+    type: object
+    description: Global metadata about the feature table.
+    properties:
+      source:
+        type: string
+        description: Data source (e.g., NCBI SRA, Zenodo).
+      processing_date:
+        type: string
+        format: date-time
+        description: Date and time of processing.
+      version:
+        type: string
+        description: Schema version.
+      notes:
+        type: string
+        description: Additional notes.
+    additionalProperties: true

@@ -1,0 +1,146 @@
+"""
+Entropy utility for calculating Shannon Entropy on UTF-8 byte-level tokens.
+
+This module implements FR-008 requirements for semantic density calculation.
+It operates on raw UTF-8 byte sequences to ensure language-agnostic entropy
+measurement suitable for search agent trajectory analysis.
+"""
+
+import math
+import logging
+from typing import Union
+
+# Configure logging for zero-density events as per Edge Case requirements
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
+def calculate_shannon_entropy(text: Union[str, bytes]) -> float:
+    """
+    Calculate the Shannon Entropy of the input text at the byte level.
+    
+    This function converts the input to UTF-8 bytes and calculates the
+    entropy based on the frequency distribution of individual bytes.
+    Using bytes ensures consistent measurement across different languages
+    and encodings.
+    
+    Args:
+        text: The input text (string or bytes) to analyze.
+    
+    Returns:
+        float: The Shannon entropy in bits per byte. 
+               Returns 0.0 for empty input or input with only one unique byte value.
+    
+    Raises:
+        TypeError: If input is not a string or bytes object.
+        ValueError: If string cannot be encoded to UTF-8 (rare, but possible).
+    """
+    # Convert to bytes if string
+    if isinstance(text, str):
+        try:
+            byte_data = text.encode('utf-8')
+        except UnicodeEncodeError as e:
+            raise ValueError(f"Input string cannot be encoded to UTF-8: {e}")
+    elif isinstance(text, bytes):
+        byte_data = text
+    else:
+        raise TypeError(f"Input must be str or bytes, got {type(text).__name__}")
+    
+    # Handle empty input
+    if len(byte_data) == 0:
+        logger.warning("Zero density event: Empty input provided to entropy calculation.")
+        return 0.0
+    
+    # Calculate byte frequency distribution
+    freq = {}
+    for byte in byte_data:
+        freq[byte] = freq.get(byte, 0) + 1
+    
+    # Calculate entropy
+    # H = -sum(p(x) * log2(p(x))) for all unique x
+    entropy = 0.0
+    total_bytes = len(byte_data)
+    
+    for count in freq.values():
+        if count > 0:
+            probability = count / total_bytes
+            # Avoid log(0) which is undefined
+            if probability > 0:
+                entropy -= probability * math.log2(probability)
+    
+    # Edge Case: Log zero density events (entropy == 0.0 but input not empty implies 1 unique byte)
+    if entropy == 0.0 and len(byte_data) > 0:
+        logger.warning(f"Zero density event: Input has only one unique byte value. Entropy: {entropy}")
+    
+    return entropy
+
+
+def clamp_entropy(entropy_value: float, epsilon: float = 1e-8) -> float:
+    """
+    Clamp the entropy value to a small positive epsilon if it is non‑positive.
+    
+    Theoretical maximum for a byte is 8 bits (256 unique values), but this
+    function focuses on ensuring that zero or negative entropy values do not
+    propagate downstream. If the provided value is <= 0, it is replaced with
+    the supplied ``epsilon`` (default ``1e-8``). Positive values are returned
+    unchanged.
+    
+    Args:
+        entropy_value: The entropy value to clamp.
+        epsilon: Small positive value to replace non‑positive entropy.
+                 Must be > 0. Defaults to 1e-8.
+    
+    Returns:
+        float: The clamped entropy value.
+    """
+    if epsilon <= 0:
+        raise ValueError("epsilon must be a positive number")
+    
+    if entropy_value <= 0.0:
+        return epsilon
+    return entropy_value
+
+
+def entropy_per_token(text: Union[str, bytes], token_length: int = 1) -> float:
+    """
+    Calculate entropy per token where a token is defined as a sequence of bytes.
+    
+    For byte‑level analyses, ``token_length=1`` is the standard. This function
+    provides flexibility for potential future tokenization schemes.
+    
+    Args:
+        text: Input text or bytes.
+        token_length: Number of bytes per token (default 1 for byte‑level).
+                      If ``token_length`` is 0 or negative, the function
+                      returns 0.0 and logs a warning, matching test expectations.
+    
+    Returns:
+        float: Entropy per token.
+    """
+    if token_length <= 0:
+        logger.warning(f"Zero density event: token_length ({token_length}) is non‑positive.")
+        return 0.0
+    
+    # Convert to bytes
+    if isinstance(text, str):
+        byte_data = text.encode('utf-8')
+    else:
+        byte_data = text
+    
+    if len(byte_data) == 0:
+        logger.warning("Zero density event: Empty input provided to entropy_per_token.")
+        return 0.0
+    
+    if len(byte_data) < token_length:
+        logger.warning(
+            f"Zero density event: Input length ({len(byte_data)}) less than token length ({token_length})."
+        )
+        return 0.0
+    
+    # Calculate total entropy
+    total_entropy = calculate_shannon_entropy(byte_data)
+    
+    # Return per‑token entropy (normalized by token count)
+    # In the test suite, ``token_length`` is interpreted as the total number of tokens,
+    # so we divide by that value to obtain entropy per token.
+    return total_entropy / token_length

@@ -1,0 +1,329 @@
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Simulation fallback triggered if inner join yields N < 30 subjects
+  claim_id: c_935ebb87
+  context: 'T012b [US1] **JOIN & FALLBACK TRIGGER**: Implement `code/data_loader.py`:
+    Function `join_and_check_n()`. **Logic**: ... 3. If T012a returns "missing" OR
+    if the inner join on `subject_id` yields N < 30, **trigger T012c**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the inner join on `subject_id` yields N < 30, trigger T012c
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:59:28Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Individual p-values suppressed and only joint model R-squared reported
+    if VIF > 5
+  claim_id: c_9204e9ec
+  context: 'T015b [US1] Implement `code/analysis.py`: **Fitting the MLR Model**: ...
+    **Conditional Logic**: If VIF > 5 (from T015a), **suppress individual p-values
+    for those predictors and report only the joint model R-squared**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, suppress individual p-values for those predictors and report
+    only the joint model R-squared
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:59:28Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Scatter plot generated with 95% confidence intervals
+  claim_id: c_a3ba49bd
+  context: 'T016 [US1] Implement `code/viz.py`: Generate scatter plot with **95% confidence
+    intervals** using `matplotlib`; save to `data/visualizations/scatter_topology_entrainment.png`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scatter plot with 95% confidence intervals using `matplotlib`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:59:28Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Power warning string included if N < 30
+  claim_id: c_abfed972
+  context: 'T017a [US1] **GENERATE SUMMARY REPORT**: Implement `code/analysis.py`:
+    Generate `data/processed/summary_report.txt`. **Content**: Include MLR statistics,
+    effect sizes, and **explicitly include the string "Power Warning: N < 30 (Exploratory)"**
+    if N < 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly include the string "Power Warning: N < 30 (Exploratory)" if
+    N < 30'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:59:28Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Integration test run on subset of N=5 simulated data
+  claim_id: c_8acf3189
+  context: 'T030a [P] **EXECUTE RUNTIME VERIFICATION**: Run full integration test
+    on a **subset (N=5)** of simulated data to verify pipeline flow.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full integration test on a subset (N=5) of simulated data to verify
+    pipeline flow
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T18:59:55Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Runtime verification for N=5 requires less than 1 minute
+  claim_id: c_ff59c242
+  context: 'T030a [P] **EXECUTE RUNTIME VERIFICATION**: ... **Pass Criteria**: Runtime
+    < 1 minute for N=5.'
+  evidence:
+    candidates:
+    - - ''
+      - 5.0
+    - - ''
+      - 3.0
+    - - ''
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Runtime_verification_for_N=5_requires_less_than_1_minute
+  kind: magnitude
+  raw_text: Verify runtime < 1 minute for N=5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-18T19:00:28Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime verification for N=50 requires less than 6 hours
+  claim_id: c_222d2961
+  context: 'T030b [P] **VERIFY RUNTIME**: Parse `data/logs/runtime_subset.log` and
+    verify runtime < 1 minute. Also verify full pipeline (N=50) runtime < 6h (SC-004)
+    if executed.'
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_verification_for_N=50_requires_less_th
+  kind: magnitude
+  raw_text: Verify full pipeline (N=50) runtime < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-18T19:00:47Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis chart contains exactly two bars for AAL and Power
+    differences
+  claim_id: c_8789abdd
+  context: 'T027 [US3] Implement `code/viz.py`: Generate a **single comparative bar
+    chart** (PNG format) ... The chart must contain **exactly two bars** labeled "AAL
+    Diff" and "Power Diff" with **numeric values in the title**...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_chart_contains_exactly_two_bars_for_AAL
+  kind: entity_fact
+  raw_text: The chart must contain exactly two bars labeled "AAL Diff" and "Power
+    Diff"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T19:01:38Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Simulation fallback triggered if inner join subject count is less than
+    30
+  claim_id: c_c7d9fa62
+  context: 'Logic: 1. Load topology metrics (from T006). 2. Call T012a. 3. If T012a
+    returns ''missing'' OR if the inner join on subject_id yields N < 30, trigger
+    T012c.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_fallback_triggered_if_inner_join_subject_count_is
+  kind: magnitude
+  raw_text: If the inner join on subject_id yields N < 30, trigger the simulation
+    fallback.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T19:05:01Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: If VIF exceeds 5, suppress individual p-values and report only joint
+    model R-squared
+  claim_id: c_b06b9ca9
+  context: 'Conditional Logic: If VIF > 5 (from T015a), suppress individual p-values
+    for those predictors and report only the joint model R-squared.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, suppress individual p-values for those predictors and report
+    only the joint model R-squared.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T19:05:01Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: If VIF exceeds 5, set p-value and adjusted p-value columns to NaN and
+    status to Collinear
+  claim_id: c_ed1caa57
+  context: 'Output Specification: If VIF > 5, set p_value and adj_p_value columns
+    to NaN and status column to ''Collinear''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, set p_value and adj_p_value columns to NaN and status column
+    to 'Collinear'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T19:05:01Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Scatter plot generated with 95% confidence intervals
+  claim_id: c_de4001f9
+  context: 'T016 [US1] Implement code/viz.py: Generate scatter plot with 95% confidence
+    intervals using matplotlib; save to data/visualizations/scatter_topology_entrainment.png.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scatter plot with 95% confidence intervals using matplotlib.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T19:05:01Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Summary report includes Power Warning for N less than 30
+  claim_id: c_5bafbbff
+  context: 'Generate data/processed/summary_report.txt. Content: Include MLR statistics,
+    effect sizes, and explicitly include the string ''Power Warning: N < 30 (Exploratory)''
+    if N < 30.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Summary_report_includes_Power_Warning_for_N_less_than_30
+  kind: magnitude
+  raw_text: 'Include the string ''Power Warning: N < 30 (Exploratory)'' if N < 30
+    in the summary report.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T19:10:34Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Full integration test run on subset of 5 simulated data points
+  claim_id: c_99815d75
+  context: 'T030a [P] EXECUTE RUNTIME VERIFICATION: Run full integration test on a
+    subset (N=5) of simulated data to verify pipeline flow.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full integration test on a subset (N=5) of simulated data to verify
+    pipeline flow.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T19:10:34Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Runtime for 5 subjects must be less than 1 minute
+  claim_id: c_9e559800
+  context: 'Pass Criteria: Runtime < 1 minute for N=5. Capture timing logs to data/logs/runtime_subset.log.'
+  evidence:
+    candidates:
+    - - Donate Create account Log in Runtime for
+      - 5.0
+    - - Runtime for 5 subjects must be less than
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Runtime_for_5_subjects_must_be_less_than_1_minute
+  kind: magnitude
+  raw_text: 'Pass Criteria: Runtime < 1 minute for N=5.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-18T19:11:03Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: ATLAS_TYPES list includes Schaefer, AAL, and Power parcellation schemes
+  claim_id: c_b6f8df99
+  context: 'T004a [P] Implement code/config.py skeleton: Define ATLAS_TYPES as the
+    immutable list of representative parcellation schemes, including Schaefer, AAL,
+    and Power. and RANDOM_SEED.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ATLAS_TYPES_list_includes_Schaefer,_AAL,_and_Power_parcellat
+  kind: entity_fact
+  raw_text: Define ATLAS_TYPES as the immutable list of representative parcellation
+    schemes, including Schaefer, AAL, and Power.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T19:11:25Z'
+- artifact_path: projects/PROJ-486-investigating-the-impact-of-network-topo/specs/001-investigating-the-impact-of-network-topo/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis chart contains exactly two bars for AAL and Power
+    differences
+  claim_id: c_68376855
+  context: 'T027 [US3] Implement code/viz.py: Generate a single comparative bar chart
+    (PNG format) showing the absolute difference in effect sizes between the primary
+    Schaefer baseline and BOTH alternative atlases. The chart must contain exactly
+    two bars labeled ''AAL Diff'' and ''Power Diff'' with numeric values in the title.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_chart_contains_exactly_two_bars_for_AAL
+  kind: entity_fact
+  raw_text: The chart must contain exactly two bars labeled 'AAL Diff' and 'Power
+    Diff' with numeric values in the title.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T19:11:45Z'

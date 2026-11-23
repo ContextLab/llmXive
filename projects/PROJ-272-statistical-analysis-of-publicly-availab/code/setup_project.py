@@ -1,81 +1,69 @@
-"""
-T001: Create project structure per implementation plan.
-
-This script creates the necessary directory structure for the 
-Statistical Analysis of Publicly Available Textual Data project.
-
-Directories created:
-- code/
-- data/raw/
-- data/processed/
-- data/interim/
-- data/results/
-- tests/unit/
-- tests/contract/
-- tests/integration/
-- specs/001-statistical-cognitive-decline/contracts/
-"""
-
 import os
 import sys
+from pathlib import Path
+import logging
+
+# Configure basic logging for this script
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def create_directory(path: str) -> bool:
     """
-    Create a directory if it doesn't exist.
+    Creates a directory at the specified path if it does not already exist.
     
     Args:
         path: The directory path to create.
         
     Returns:
-        True if directory was created or already exists, False on error.
+        True if the directory was created or already exists, False otherwise.
     """
+    dir_path = Path(path)
     try:
-        os.makedirs(path, exist_ok=True)
-        print(f"✓ Created/verified: {path}")
+        dir_path.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Directory created or confirmed: {dir_path}")
         return True
     except OSError as e:
-        print(f"✗ Failed to create {path}: {e}")
+        logger.error(f"Failed to create directory {dir_path}: {e}")
         return False
 
 def main():
-    """Create all required project directories."""
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
-    # Define all required directories relative to project root
-    directories = [
-        "code",
+    """
+    Main entry point to create the project directory structure.
+    """
+    # Define the required directory structure relative to project root
+    # Assuming the script is run from the project root or the path is relative to it
+    base_dirs = [
         "data/raw",
-        "data/processed",
         "data/interim",
         "data/results",
+        "data/processed",
+        "code",
         "tests/unit",
         "tests/contract",
         "tests/integration",
         "specs/001-statistical-cognitive-decline/contracts",
+        "scripts"
     ]
-    
-    print(f"Creating project structure in: {base_dir}")
-    print("-" * 50)
-    
+
+    logger.info("Starting project directory structure creation...")
     success_count = 0
-    failure_count = 0
-    
-    for dir_path in directories:
-        full_path = os.path.join(base_dir, dir_path)
-        if create_directory(full_path):
+    fail_count = 0
+
+    for dir_path in base_dirs:
+        if create_directory(dir_path):
             success_count += 1
         else:
-            failure_count += 1
-    
-    print("-" * 50)
-    print(f"Summary: {success_count} directories created/verified, {failure_count} failed")
-    
-    if failure_count > 0:
-        print("ERROR: Some directories could not be created.")
-        sys.exit(1)
-    else:
-        print("SUCCESS: Project structure created successfully.")
+            fail_count += 1
+
+    if fail_count == 0:
+        logger.info(f"Successfully created all {success_count} directories.")
         sys.exit(0)
+    else:
+        logger.error(f"Failed to create {fail_count} directories. {success_count} succeeded.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

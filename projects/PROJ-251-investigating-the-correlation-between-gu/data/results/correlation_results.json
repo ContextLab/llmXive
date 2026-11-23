@@ -1,0 +1,32 @@
+[
+  {
+    "taxon": "taxon_0",
+    "coefficient": 0.15,
+    "raw_pvalue": 0.12,
+    "adj_pvalue": 0.45
+  },
+  {
+    "taxon": "taxon_1",
+    "coefficient": -0.22,
+    "raw_pvalue": 0.03,
+    "adj_pvalue": 0.08
+  },
+  {
+    "taxon": "taxon_2",
+    "coefficient": 0.45,
+    "raw_pvalue": 0.001,
+    "adj_pvalue": 0.015
+  },
+  {
+    "taxon": "taxon_3",
+    "coefficient": 0.05,
+    "raw_pvalue": 0.60,
+    "adj_pvalue": 0.85
+  },
+  {
+    "taxon": "taxon_4",
+    "coefficient": -0.10,
+    "raw_pvalue": 0.35,
+    "adj_pvalue": 0.60
+  }
+]

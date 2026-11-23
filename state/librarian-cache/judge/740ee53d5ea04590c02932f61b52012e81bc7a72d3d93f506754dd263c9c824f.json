@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.07356",
+  "judged_at": "2026-08-08T06:36:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"humanoid-gpt: scaling data and structure for zero-shot motion tracking\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the core mechanism of \"zero-shot motion tracking\" for humanoid robots using a scalable data and structure framework (CVAE-based universal policy), which is the specific domain and technical challenge referenced in the user's question about extending \"Humanoid-GPT\".",
+  "relevant": true
+}

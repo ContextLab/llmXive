@@ -1,2 +1,2 @@
-# This file ensures the root directory is tracked by git even if empty
-# Linting and formatting configurations are in .ruff.toml and pyproject.toml
+# This file ensures the .github/workflows directory exists in git tracking
+# even if it is empty.

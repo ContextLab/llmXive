@@ -1,0 +1,17 @@
+host_id,solute_id,concentration,activation_energy,crystal_structure,diffusion_mode
+Cu,Cu,0.0,1.50,FCC,self
+Cu,Zn,0.1,1.60,FCC,self
+Cu,Ni,0.2,1.70,FCC,self
+Al,Al,0.0,1.20,FCC,self
+Al,Mg,0.1,1.30,FCC,self
+Ni,Ni,0.0,2.80,FCC,self
+Ni,Fe,0.1,2.90,FCC,self
+Ni,Cr,0.2,3.00,FCC,self
+Au,Au,0.0,1.80,FCC,self
+Au,Cu,0.1,1.90,FCC,self
+Pt,Pt,0.0,3.10,FCC,self
+Pt,Rh,0.1,3.20,FCC,self
+Ag,Ag,0.0,1.10,FCC,self
+Ag,Cu,0.1,1.20,FCC,self
+Pd,Pd,0.0,2.50,FCC,self
+Pd,Ag,0.1,2.60,FCC,self

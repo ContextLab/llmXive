@@ -1,1 +1,1 @@
-# Utilities package
+# Utility modules package initialization

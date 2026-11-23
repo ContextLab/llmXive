@@ -1,0 +1,33 @@
+type: object
+properties:
+  r:
+    type: number
+  p_value:
+    type: number
+  ci_lower:
+    type: number
+  ci_upper:
+    type: number
+  power:
+    type: number
+  hypothesis_status:
+    type: string
+    enum: ["Supported", "Not Supported", "Inconclusive due to low power"]
+  warning_flags:
+    type: array
+    items:
+      type: string
+  stratification_warning:
+    type: string
+    nullable: true
+  collinearity_flag:
+    type: boolean
+    default: false
+required:
+  - r
+  - p_value
+  - ci_lower
+  - ci_upper
+  - power
+  - hypothesis_status
+  - warning_flags

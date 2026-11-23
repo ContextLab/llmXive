@@ -1,38 +1,69 @@
+"""
+Configuration management for the project.
+"""
 import os
+import logging
 from pathlib import Path
 from typing import Optional
 
-# Project root relative to this file
-_ROOT = Path(__file__).resolve().parent.parent
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def get_materials_project_api_key() -> str:
-    """Retrieve Materials Project API key from environment variable."""
-    key = os.getenv("MATERIALS_PROJECT_API_KEY")
-    if not key:
-        raise RuntimeError(
-            "MATERIALS_PROJECT_API_KEY environment variable not set. "
-            "Please set it to your valid Materials Project API key."
-        )
-    return key
+# Load environment variables from .env if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    logger.warning("python-dotenv not installed. Environment variables must be set manually.")
+
+def get_materials_project_api_key() -> Optional[str]:
+    """Retrieve Materials Project API key from environment."""
+    return os.getenv('MATERIALS_PROJECT_API_KEY')
+
+def get_materials_project_base_url() -> str:
+    """Retrieve Materials Project API base URL."""
+    return os.getenv('MATERIALS_PROJECT_BASE_URL', 'https://api.materialsproject.org')
 
 def get_data_path() -> Path:
-    """Return the path to the data directory."""
-    return _ROOT / "data"
+    """Get base data directory."""
+    return Path(os.getenv('DATA_PATH', 'data'))
 
-def ensure_data_directories() -> None:
-    """Create raw and processed data directories if they do not exist."""
-    data_path = get_data_path()
-    (data_path / "raw").mkdir(parents=True, exist_ok=True)
-    (data_path / "processed").mkdir(parents=True, exist_ok=True)
-    (data_path / "results").mkdir(parents=True, exist_ok=True)
+def get_raw_data_path() -> Path:
+    """Get raw data directory."""
+    return get_data_path() / 'raw'
+
+def get_processed_data_path() -> Path:
+    """Get processed data directory."""
+    return get_data_path() / 'processed'
+
+def get_results_path() -> Path:
+    """Get results directory."""
+    return get_data_path() / 'results'
 
 def get_custom_dataset_path() -> Optional[Path]:
-    """Return custom dataset path if set in environment, else None."""
-    path_str = os.getenv("CUSTOM_DATASET_PATH")
-    if path_str:
-        return Path(path_str)
-    return None
+    """Get custom dataset path if defined."""
+    path_str = os.getenv('CUSTOM_DATASET_PATH')
+    return Path(path_str) if path_str else None
+
+def ensure_data_directories() -> None:
+    """Create data directories if they don't exist."""
+    get_raw_data_path().mkdir(parents=True, exist_ok=True)
+    get_processed_data_path().mkdir(parents=True, exist_ok=True)
+    get_results_path().mkdir(parents=True, exist_ok=True)
+
+def validate_environment() -> bool:
+    """
+    Validate that required environment variables are set.
+    Returns True if valid, False otherwise.
+    """
+    api_key = get_materials_project_api_key()
+    if not api_key:
+        logger.warning("Materials Project API key is not set.")
+        return False
+    return True
 
 def init_environment() -> None:
-    """Initialize project environment: ensure directories exist."""
+    """Initialize the environment (create dirs, validate)."""
     ensure_data_directories()
+    if not validate_environment():
+        logger.info("Environment validation failed. Continuing with limited functionality.")

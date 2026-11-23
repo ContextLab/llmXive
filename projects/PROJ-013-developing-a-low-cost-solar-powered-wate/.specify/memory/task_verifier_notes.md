@@ -1,0 +1,12 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — the task writes platform-owned path(s) inside the project: `state/...yaml` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T006** — The `code/config.py` file is present and loads an API key, but it does not provide any mechanism for loading simulation parameters (e.g., time step, duration, geometry settings) as required by the task. Consequently the base configuration loader is only partially implemented.
+- **T007** — I examined the repository under `projects/PROJ-013-developing-a-low-cost-solar-powered-wate` and found no `.env` file, no Python code using `python-dotenv` or similar to load NASA POWER API keys, and no documentation of environment variable handling. The required artifact for task T007—environment configuration management supporting `.env` for NASA POWER keys—is absent, so the task is not satisfied.
+- **T020b** — The `specs/.../spec.md` still contains the original wording “modeling slope variations via effective projected area” instead of the required “modeling slope variations via angle-dependent view factors and convective heat transfer coefficients”, and the required `specs/.../deviations.md` file is missing.
+- **T008** — The `code/data_ingestion.py` file exists but its `fetch_solar_irradiance` function merely returns the hard‑coded value 550 W/m² and contains no logic to call the NASA POWER API, construct the required query parameters, or evaluate the length of returned data for the < 30‑day fallback. Consequently the task’s core requirement—fetching real solar irradiance profiles with proper endpoint and fallback handling—is not fulfilled.
+- **T013** — Requested task execution failed; rerun successfully: code/data_ingestion.py exit=1
+- **T016** — declared artifact(s) missing/empty/invalid: data/processed/materials_validation.json
+- **T034** — declared artifact(s) missing/empty/invalid: data/plots/pareto_frontier.png

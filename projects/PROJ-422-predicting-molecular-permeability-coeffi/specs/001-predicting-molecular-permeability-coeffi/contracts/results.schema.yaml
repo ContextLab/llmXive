@@ -1,0 +1,106 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Evaluation Results"
+type: object
+properties:
+  gnn_metrics:
+    type: object
+    properties:
+      rmse:
+        type: number
+      mae:
+        type: number
+      r2:
+        type: number
+    required:
+      - rmse
+      - mae
+      - r2
+  rf_metrics:
+    type: object
+    properties:
+      rmse:
+        type: number
+      mae:
+        type: number
+      r2:
+        type: number
+    required:
+      - rmse
+      - mae
+      - r2
+  statistical_test:
+    type: object
+    properties:
+      p_value:
+        type: number
+      significant:
+        type: boolean
+      method:
+        type: string
+        enum: ["paired_t_test", "wilcoxon_signed_rank"]
+    required:
+      - p_value
+      - significant
+      - method
+  normality_test:
+    type: object
+    properties:
+      method:
+        type: string
+        enum: ["shapiro_wilk"]
+      p_value:
+        type: number
+      normal:
+        type: boolean
+    required:
+      - method
+      - p_value
+      - normal
+  power_analysis:
+    type: object
+    properties:
+      planned_sample_size:
+        type: integer
+      achieved_power:
+        type: number
+      sufficient:
+        type: boolean
+    required:
+      - planned_sample_size
+      - achieved_power
+      - sufficient
+  bias_check:
+    type: object
+    properties:
+      correlation_coefficient:
+        type: number
+      is_confounded:
+        type: boolean
+      bias_warning:
+        type: boolean
+        description: "True if |r| > 0.5 ? (expected for proxy target )"
+    required:
+      - correlation_coefficient
+      - is_confounded
+      - bias_warning
+  interpretability_overlap:
+    type: object
+    properties:
+      overlap_top5:
+        type: integer
+        description: "Number of overlapping features between GNN substructure mapping and SHAP descriptor ranking (0–5)."
+      overlap_meets_threshold:
+        type: boolean
+        description: "True if overlap_top5 >= 3 , satisfying SC‑003"
+    required:
+      - overlap_top5
+      - overlap_meets_threshold
+required:
+  - gnn_metrics
+  - rf_metrics
+  - statistical_test
+  - normality_test
+  - power_analysis
+  - bias_check
+  - interpretability_overlap
+additionalProperties: false

@@ -1,138 +1,105 @@
-"""
-Unit tests for retry logic with exponential backoff in code/data/download.py.
-
-This module tests the retry mechanism implemented in the download utility,
-specifically verifying that:
-1. The correct number of retries are attempted on failure
-2. Exponential backoff timings are respected (1s, 2s, 4s)
-3. Successful requests return immediately without retries
-4. Exceptions are raised after all retries are exhausted
-"""
+import pytest
 import time
-import unittest
-from unittest.mock import patch, MagicMock, Mock
+from unittest.mock import patch, MagicMock, call
 from pathlib import Path
 import sys
-import requests
+import os
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the project root to the path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from code.data.download import download_with_retry
-from code.config import get_config
+from code.data.download import download_with_retry, RETRY_DELAYS, MAX_RETRIES
+from code.utils.logging import get_logger
 
+class TestRetryLogic:
+    """Tests for the retry logic with exponential backoff in download.py"""
 
-class TestRetryLogic(unittest.TestCase):
-    """Test cases for retry logic with exponential backoff."""
+    def test_exponential_backoff_timings(self):
+        """Verify that retry delays follow the 1s, 2s, 4s pattern (FR-002)"""
+        expected_delays = [1, 2, 4]
+        assert RETRY_DELAYS == expected_delays, f"Expected {expected_delays}, got {RETRY_DELAYS}"
 
-    def setUp(self):
-        """Set up test fixtures."""
-        self.config = get_config()
-        self.max_retries = 3
-        self.base_delays = [1, 2, 4]  # Expected exponential backoff timings
+    def test_max_retries_count(self):
+        """Verify that the number of retries matches the number of delay intervals"""
+        assert MAX_RETRIES == len(RETRY_DELAYS), "MAX_RETRIES should match number of delay intervals"
 
-    @patch('code.data.download.requests.get')
-    def test_success_on_first_attempt(self, mock_get):
-        """Test that successful requests return immediately without retries."""
-        # Setup mock response
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.ok = True
-        mock_response.json.return_value = {"data": "test"}
-        mock_get.return_value = mock_response
+    @patch('code.data.download.load_dataset')
+    @patch('code.data.download.time.sleep')
+    def test_retry_on_failure_then_success(self, mock_sleep, mock_load_dataset, tmp_path):
+        """Test that the function retries on failure and succeeds on the second attempt"""
+        logger = get_logger("test_download")
+        dataset_id = "test/dataset"
+        target_path = tmp_path / "test_dataset"
 
-        # Call the function
-        result = download_with_retry("https://example.com/api", max_retries=self.max_retries)
+        # First call fails, second call succeeds
+        mock_load_dataset.side_effect = [
+            Exception("Connection timeout"),
+            MagicMock(__len__=MagicMock(return_value=10))
+        ]
 
-        # Verify request was made only once
-        mock_get.assert_called_once()
-        self.assertEqual(result.status_code, 200)
+        # Mock Path.mkdir to avoid actual file system operations
+        with patch.object(Path, 'mkdir', return_value=None):
+            result = download_with_retry(dataset_id, target_path, logger)
 
-    @patch('code.data.download.requests.get')
-    def test_retry_on_failure(self, mock_get):
-        """Test that the function retries the correct number of times on failure."""
-        # Setup mock to fail twice then succeed
-        mock_response_fail = MagicMock()
-        mock_response_fail.status_code = 500
-        mock_response_fail.ok = False
+        # Verify that sleep was called with correct delays
+        mock_sleep.assert_has_calls([call(1), call(2)])
 
-        mock_response_success = MagicMock()
-        mock_response_success.status_code = 200
-        mock_response_success.ok = True
-        mock_response_success.json.return_value = {"data": "test"}
+        # Verify that load_dataset was called twice
+        assert mock_load_dataset.call_count == 2
 
-        mock_get.side_effect = [mock_response_fail, mock_response_fail, mock_response_success]
+        # Verify that the function returned the target path on success
+        assert result == target_path
 
-        # Call the function
-        result = download_with_retry("https://example.com/api", max_retries=self.max_retries)
+    @patch('code.data.download.load_dataset')
+    @patch('code.data.download.time.sleep')
+    def test_all_retries_fail(self, mock_sleep, mock_load_dataset, tmp_path):
+        """Test that the function raises an exception after all retries fail"""
+        logger = get_logger("test_download")
+        dataset_id = "test/dataset"
+        target_path = tmp_path / "test_dataset"
 
-        # Verify request was made 3 times (2 failures + 1 success)
-        self.assertEqual(mock_get.call_count, 3)
-        self.assertEqual(result.status_code, 200)
+        # All calls fail
+        mock_load_dataset.side_effect = Exception("Connection timeout")
 
-    @patch('code.data.download.requests.get')
-    def test_exponential_backoff_timing(self, mock_get):
-        """Test that exponential backoff timings are respected."""
-        # Track call times
-        call_times = []
+        # Mock Path.mkdir
+        with patch.object(Path, 'mkdir', return_value=None):
+            with pytest.raises(Exception) as exc_info:
+                download_with_retry(dataset_id, target_path, logger)
 
-        def track_time(*args, **kwargs):
-            call_times.append(time.time())
-            mock_response = MagicMock()
-            mock_response.status_code = 500
-            mock_response.ok = False
-            return mock_response
+        # Verify that sleep was called with all delays
+        mock_sleep.assert_has_calls([call(1), call(2), call(4)])
 
-        mock_get.side_effect = track_time
+        # Verify that load_dataset was called MAX_RETRIES times
+        assert mock_load_dataset.call_count == MAX_RETRIES
 
-        # Call the function with max_retries=2 (will fail all attempts)
-        with self.assertRaises(Exception):
-            download_with_retry("https://example.com/api", max_retries=2)
+        # Verify the error message
+        assert "Connection timeout" in str(exc_info.value)
 
-        # Calculate delays between attempts
-        if len(call_times) >= 3:
-            delay1 = call_times[1] - call_times[0]
-            delay2 = call_times[2] - call_times[1]
+    @patch('code.data.download.load_dataset')
+    @patch('code.data.download.time.sleep')
+    def test_success_on_first_attempt(self, mock_sleep, mock_load_dataset, tmp_path):
+        """Test that the function succeeds on the first attempt without retries"""
+        logger = get_logger("test_download")
+        dataset_id = "test/dataset"
+        target_path = tmp_path / "test_dataset"
 
-            # Check that delays are approximately 1s and 2s (allow 20% tolerance)
-            self.assertGreaterEqual(delay1, 0.8, "First delay should be ~1s")
-            self.assertLessEqual(delay1, 1.2, "First delay should be ~1s")
-            self.assertGreaterEqual(delay2, 1.6, "Second delay should be ~2s")
-            self.assertLessEqual(delay2, 2.4, "Second delay should be ~2s")
+        # First call succeeds
+        mock_load_dataset.return_value = MagicMock(__len__=MagicMock(return_value=10))
 
-    @patch('code.data.download.requests.get')
-    def test_exception_after_max_retries(self, mock_get):
-        """Test that an exception is raised after all retries are exhausted."""
-        # Setup mock to always fail
-        mock_get.side_effect = Exception("Network error")
+        # Mock Path.mkdir
+        with patch.object(Path, 'mkdir', return_value=None):
+            result = download_with_retry(dataset_id, target_path, logger)
 
-        # Call the function and expect an exception
-        with self.assertRaises(Exception) as context:
-            download_with_retry("https://example.com/api", max_retries=3)
+        # Verify that sleep was never called
+        mock_sleep.assert_not_called()
 
-        # Verify the exception message contains retry information
-        self.assertIn("Network error", str(context.exception))
-        # Verify all retries were attempted
-        self.assertEqual(mock_get.call_count, 3)
+        # Verify that load_dataset was called once
+        assert mock_load_dataset.call_count == 1
 
-    @patch('code.data.download.requests.get')
-    def test_retry_on_timeout(self, mock_get):
-        """Test that timeouts trigger retry logic."""
-        # Setup mock to timeout twice then succeed
-        mock_response_success = MagicMock()
-        mock_response_success.status_code = 200
-        mock_response_success.ok = True
-        mock_response_success.json.return_value = {"data": "test"}
+        # Verify that the function returned the target path
+        assert result == target_path
 
-        mock_get.side_effect = [requests.exceptions.Timeout("Connection timed out"), requests.exceptions.Timeout("Connection timed out"), mock_response_success]
-
-        # Call the function
-        result = download_with_retry("https://example.com/api", max_retries=self.max_retries)
-
-        # Verify request was made 3 times
-        self.assertEqual(mock_get.call_count, 3)
-        self.assertEqual(result.status_code, 200)
-
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_retry_delays_are_increasing(self):
+        """Verify that retry delays are strictly increasing (exponential)"""
+        for i in range(1, len(RETRY_DELAYS)):
+            assert RETRY_DELAYS[i] > RETRY_DELAYS[i-1], "Retry delays should be strictly increasing"

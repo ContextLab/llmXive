@@ -114,40 +114,41 @@ def aggregate_final_metrics():
     results_dir = get_results_dir()
     ensure_directories(results_dir)
     
+    # Parse raw memory_profiler logs and aggregate
     memory_stats = parse_memory_logs()
     
-    # Load metrics (primary metrics from metrics.py)
+    # Load primary metrics from metrics.py (WorldScore, Sparse-Consistency, FID, etc.)
     metrics_path = results_dir / "metrics.json"
-    metrics = {}
+    primary_metrics = {}
     if metrics_path.exists():
         with open(metrics_path, 'r') as f:
-            metrics = json.load(f)
+            primary_metrics = json.load(f)
     
     # Load ANOVA results
     anova_path = results_dir / "anova_results.json"
-    anova = {}
+    anova_results = {}
     if anova_path.exists():
         with open(anova_path, 'r') as f:
-            anova = json.load(f)
+            anova_results = json.load(f)
     
     # Load Sensitivity Analysis results
     sens_path = results_dir / "sensitivity_analysis.json"
-    sensitivity = {}
+    sensitivity_results = {}
     if sens_path.exists():
         with open(sens_path, 'r') as f:
-            sensitivity = json.load(f)
+            sensitivity_results = json.load(f)
     
     # Compile the final report according to MetricReport schema
     final_report = {
         "memory_stats": memory_stats,
-        "metrics": metrics,
-        "anova": anova,
-        "sensitivity": sensitivity,
+        "metrics": primary_metrics,
+        "anova": anova_results,
+        "sensitivity": sensitivity_results,
         "timestamp": time.time()
     }
     
     # Write the final aggregated report to data/results/metrics.json
-    # as per task T020 requirement to parse logs and aggregate into metrics.json
+    # This overwrites the raw metrics with the full report as required by T020
     out_path = results_dir / "metrics.json"
     with open(out_path, 'w') as f:
         json.dump(final_report, f, indent=2)
@@ -157,7 +158,9 @@ def aggregate_final_metrics():
 
 def main():
     args = parse_args()
-    monitor = MemoryMonitor(log_path=get_results_dir() / "main_monitor.json")
+    results_dir = get_results_dir()
+    ensure_directories(results_dir)
+    monitor = MemoryMonitor(log_path=results_dir / "mem_main.json")
     monitor.start()
     
     try:

@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the sample"
+  text:
+    type: string
+    description: "The raw input text"
+  label:
+    type: integer
+    description: "The ground truth label (if applicable)"
+  split:
+    type: string
+    enum: ["train", "validation", "test"]
+    description: "Dataset split"
+required:
+  - id
+  - text
+  - split
+additionalProperties: false

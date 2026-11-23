@@ -1,0 +1,4 @@
+# Fixed seeds for reproducible environment rollouts
+seeds: [42, 101, 202, 303, 404]
+env_name: "PickPlace"
+max_episode_steps: 100

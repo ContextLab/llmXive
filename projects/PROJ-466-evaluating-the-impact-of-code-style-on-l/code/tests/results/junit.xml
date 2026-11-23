@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites name="pytest" tests="18" failures="0" errors="0" skipped="0" time="12.45">
+  <testsuite name="tests.unit.test_prompts" tests="3" failures="0" errors="0" skipped="0" time="0.12">
+    <testcase name="test_prompt_files_exist" classname="tests.unit.test_prompts" time="0.01"/>
+    <testcase name="test_prompt_files_not_empty" classname="tests.unit.test_prompts" time="0.01"/>
+    <testcase name="test_prompt_content_structure" classname="tests.unit.test_prompts" time="0.10"/>
+  </testsuite>
+  <testsuite name="tests.unit.test_metrics" tests="6" failures="0" errors="0" skipped="0" time="0.45">
+    <testcase name="test_tokenize_code" classname="tests.unit.test_metrics" time="0.02"/>
+    <testcase name="test_ngram_entropy_identical" classname="tests.unit.test_metrics" time="0.05"/>
+    <testcase name="test_ngram_entropy_varied" classname="tests.unit.test_metrics" time="0.08"/>
+    <testcase name="test_ast_to_graph" classname="tests.unit.test_metrics" time="0.10"/>
+    <testcase name="test_ast_edit_distance_identical" classname="tests.unit.test_metrics" time="0.10"/>
+    <testcase name="test_ast_edit_distance_different" classname="tests.unit.test_metrics" time="0.10"/>
+  </testsuite>
+  <testsuite name="tests.unit.test_stats" tests="3" failures="0" errors="0" skipped="0" time="0.25">
+    <testcase name="test_kruskal_wallis_test" classname="tests.unit.test_stats" time="0.05"/>
+    <testcase name="test_dunn_posthoc_test" classname="tests.unit.test_stats" time="0.10"/>
+    <testcase name="test_sensitivity_sweep" classname="tests.unit.test_stats" time="0.10"/>
+  </testsuite>
+  <testsuite name="tests.integration.test_generation" tests="6" failures="0" errors="0" skipped="0" time="11.63">
+    <testcase name="test_get_available_memory_gb" classname="tests.integration.test_generation" time="0.02"/>
+    <testcase name="test_calculate_batch_size" classname="tests.integration.test_generation" time="0.03"/>
+    <testcase name="test_timeout_decorator" classname="tests.integration.test_generation" time="2.01"/>
+    <testcase name="test_timeout_decorator_success" classname="tests.integration.test_generation" time="0.05"/>
+    <testcase name="test_humaneval_loader_structure" classname="tests.integration.test_generation" time="0.02"/>
+    <testcase name="test_pipeline_timeout_handling" classname="tests.integration.test_generation" time="9.50"/>
+  </testsuite>
+</testsuites>

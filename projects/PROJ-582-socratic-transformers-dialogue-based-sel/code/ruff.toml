@@ -1,0 +1,16 @@
+[tool.ruff]
+# Explicitly target source and test directories
+include = ["src/**/*.py", "tests/**/*.py"]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "C90", "I"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"src/*" = []
+"tests/*" = []

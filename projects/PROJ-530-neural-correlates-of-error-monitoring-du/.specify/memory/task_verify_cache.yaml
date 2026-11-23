@@ -1,0 +1,139 @@
+T001:
+  c: true
+  h: a9cb58bac2a99d544ff41fcf28df8ef4144f8b062210b0671e5468614a837742
+  r: The evidence shows the directory `projects/PROJ-530-neural-correlates-of-error-monitoring-du/`
+    exists (14 entries listed), satisfying the sole requirement to create the root
+    project folder.
+  sig: 2c626668a5ad81cec73977ba94258d25b4d44238bde0d953b1f0a72130ea59f9
+T002:
+  c: false
+  h: 39fd1c8b1ef2b938d865c3e50ce9d52726074051663ca291423a3cf84de9c3b3
+  r: "Checked the project\u2019s `data/raw/` directory (exists with files) and the\
+    \ `data/processed/` directory (marked MISSING). The required processed data directory\
+    \ has not been created."
+  sig: fcc9cb2153b258eaacc138a2e2edd254232f8eec17b465ab9c963ba898a93b74
+T003:
+  c: true
+  h: a78fe9dacd63fba803380d90defa40ad3d88d0daf74b8fa1def98a140a17a374
+  r: "The collector confirms that `projects/PROJ-530-neural-correlates-of-error-monitoring-du/results/models/`,\
+    \ `results/figures/`, `results/diagnostics/`, `code/`, and `tests/` directories\
+    \ all exist (each contains a `.gitkeep` or multiple source files). No further\
+    \ content is required for the directory\u2011creation task."
+  sig: 87d1ba76161e107cd3190aa7ccb5b72b56fc1833f45bbede56c8c68f7e557ba8
+T004:
+  c: false
+  h: fc0f2d2b18d43a26c3bb8735af3f221dcb248cdd40b43531f5540822d281e4af
+  r: The only artifact examined is the pytest run log (`code/.tasks/T004.tests_test_project_setup.py.log`),
+    which shows the test suite exiting with an error (ImportError due to a bad relative
+    import) and no evidence of a dependency manifest (e.g., `pyproject.toml`, `requirements.txt`,
+    or `environment.yml`) listing the required packages. Consequently the Python 3.11
+    project is not properly initialized with the specified dependencies.
+  sig: 38bb51f3569fc01aff34a5bab081ab5bcad550a99700427bf3c89310ebc1a2b0
+T005:
+  c: false
+  h: 227be96b377fd2ead568db14a506110a271717a5e75812312a609d7569e15483
+  r: "The evidence contains no linting configuration artifacts (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, `setup.cfg`, or a pre\u2011commit hook) and provides no\
+    \ proof that flake8/black have been installed or run. Without these files or execution\
+    \ logs, the requirement to \u201CConfigure linting (flake8/black) and formatting\
+    \ tools\u201D is not satisfied. Adding the appropriate config files and a demonstration\
+    \ of a successful lint/format run is needed."
+  sig: dacbd26bcc38ddb4d777cb2206750a4beedf5ece5c71d913b6bcbe35ed6d8119
+T006:
+  c: true
+  h: bfe7da49f1882418ffe0b0b0c5992a906b47edd9765a1b0abfd1d17bbbe44707
+  r: "Checked `code/__init__.py` (present, imports config loader) and `code/config_loader.py`\
+    \ (non\u2011empty implementation of loading, validation, defaults, and related\
+    \ utilities). Both required artifacts exist and contain functional code, satisfying\
+    \ the task."
+  sig: 04c026cd126a87f6f5181879e42c48b7585151db82ba466f8320007321ee3eab
+T007:
+  c: false
+  h: 250cb9b2f82cde1190c0aa1f31f0b6ed114cd2fe9d86c013a2c264a967f48013
+  r: "Checked `code/utils.py`: it sets seeds for Python\u2019s `random` and NumPy,\
+    \ but does **not** actually set a seed for PyTorch (only a commented note). The\
+    \ task required pinning the global seed for torch when it is used, which is missing."
+  sig: 8825215922c924a71372f60aae8054c0b0aaea288587169f0d5d5a660655abbf
+T009:
+  c: false
+  h: a7490479d8c6d8b2e475bb9a0f4d3cfd8d950eef12062e2628ec2fc72d0be726
+  r: "The only artifact is a static `data/preprocessing.yaml` file (1071\u202Fbytes)\
+    \ that contains no log entries (`entries: []`) and there is no accompanying code\
+    \ or execution evidence showing that logging has been configured to write to this\
+    \ YAML and to the console. Without a logging setup script or runtime logs, the\
+    \ requirement to \u201Csetup logging infrastructure to `data/preprocessing.yaml`\
+    \ and console\u201D is not satisfied."
+  sig: efe47de4735200d6c0955c00ce946c3bfe6a24210971f8c5919b61a6097f8dbc
+T010:
+  c: true
+  h: 26ea5fca12b410124597bfedfc34f2f0d10ca963c3d2a4819b5ed613b1ca686e
+  r: Checked `code/download.py` which implements Zenodo download with caching, checksum
+    logging, and a fallback that logs a warning and creates `data/raw/synthetic_navigation_data.csv`.
+    The synthetic CSV matches the expected schema and the script logs steps and artifacts
+    as required.
+  sig: 2ce70dd3340af78c84abff48d03fab4f0b1b4a703ce8cb2434135aee1d0fc3ef
+T012:
+  c: false
+  h: 445d2d266366dbcfe10c27c27beb55ef840d2ffeec5ddcf75ea31e3a616e736d
+  r: The repository contains a `code/preprocess.py` file, but the shown portion ends
+    before the `run_ica` implementation is completed, and there is no `data/preprocessing.yaml`
+    file to log removed components. Both required artifacts (full ICA removal logic
+    and the YAML log) are missing, so the task is not genuinely fulfilled.
+T018:
+  c: false
+  h: d219d6c3244a591b8ac9603b8808e3696488d74cf276c56bce9dd7ce6431b9e9
+  r: The `results/diagnostics/feasibility_report.json` file is absent, and the provided
+    portion of `code/analysis.py` shows no logic for measuring runtime/memory, saving
+    a model summary to `results/models/`, or raising `FeasibilityError` based on the
+    specified thresholds. The required artifacts and behavior are therefore missing.
+T021:
+  c: false
+  h: 06d73eb9c860469102ef318df7e9596ffd7f209b38d380ae02cdca64b1bca51c
+  r: "The repository contains the integration test file, but the required output artifacts\
+    \ are absent: `data/preprocessing.yaml` does not exist, and there is no evidence\
+    \ that `data/processed/` contains any epoch files (the test would skip or fail\
+    \ otherwise). The task\u2019s verification conditions are therefore not met."
+T025:
+  c: false
+  h: f79dc03e1405dc7b8a9abf0bf28c124a9b0b498ab7081ab0ca01d2dc267e4bd8
+  r: "The required output file `results/diagnostics/sensitivity_summary.csv` does\
+    \ not exist, and the provided `code/analysis.py` snippet shows no logic that writes\
+    \ sensitivity results to that path unconditionally. The implementation of the\
+    \ sensitivity\u2011sweep output is missing, so the task is not fulfilled."
+T027:
+  c: false
+  h: 9f56ed895f94bd3a796d63829be8759c3cbe0b25c1dd22a55ec97bd250f1be82
+  r: The integration test expects `results/diagnostics/sensitivity_summary.csv` to
+    exist and contain four rows with the required columns, but the file is missing
+    from the repository (and the test code appears truncated). Without this output
+    file, the test cannot verify the required format, so the task is not genuinely
+    completed.
+T030:
+  c: false
+  h: 6cced1571eba3b33da704ac1649c1a3be4067a3319f4d19b7a44fb64b3b13e13
+  r: "The required `results/diagnostics/validation_report.md` file does not exist,\
+    \ and the provided `code/analysis.py` (truncated) contains no logic that writes\
+    \ a diagnostic report with VIF values, corrected p\u2011values, or a Conclusion\
+    \ section containing the word \u201Cassociational\u201D. The task\u2019s deliverable\
+    \ is therefore missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` file was provided; there is no evidence that execution
+    instructions or a dependency list were added to the repository. The required artifact
+    is missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, runtime measurements, or output artifacts (e.g., correlation\
+    \ results, model summary, or plots) are provided to demonstrate that the full\
+    \ pipeline was run on a 5\u2011participant subset and completed in under 10\u202F\
+    minutes. The claim lacks any concrete evidence of the required analysis or timing,\
+    \ so the task is not satisfied."
+T037:
+  c: false
+  h: ab4395a2cfc485800aa4efb21ea2357a3dc2fc75810ae0115de731b998f7d430
+  r: "The required artifact `results/diagnostics/feasibility_report.json` does not\
+    \ exist in the repository, so there is no content to verify that RAM usage is\
+    \ under 7\u202FGB. The task cannot be considered satisfied until the file is present\
+    \ and contains the appropriate RAM usage information."

@@ -1,0 +1,95 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Empirical Results Schema"
+type: object
+properties:
+  config_id:
+    type: string
+    description: "Configuration ID"
+  N:
+    type: integer
+    description: "Number of objectives"
+  k:
+    type: number
+    description: "Window size fraction"
+  rho:
+    type: number
+    description: "Correlation coefficient"
+  distribution:
+    type: string
+    description: "Noise distribution type"
+  sample_count:
+    type: integer
+    minimum: 1
+    description: "Episodes to reach Pareto threshold"
+  distance_to_frontier:
+    type: number
+    minimum: 0
+    description: "Distance to theoretical Pareto frontier"
+  heuristic_accuracy:
+    type: number
+    minimum: 0
+    description: "Ratio of heuristic variance to true variance"
+  statistical_tests:
+    type: object
+    properties:
+      regression_slope:
+        type: number
+        description: "Slope beta from log-log regression"
+      slope_ci_lower:
+        type: number
+        description: "Lower bound of 95% CI"
+      slope_ci_upper:
+        type: number
+        description: "Upper bound of 95% CI"
+      t_test_p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "P-value from one-sample t-test"
+      fdr_q_value:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "FDR adjusted p-value"
+    required:
+      - regression_slope
+      - slope_ci_lower
+      - slope_ci_upper
+      - t_test_p_value
+      - fdr_q_value
+  coincidence_delta:
+    type: integer
+    minimum: 0
+    description: "Difference between failure point N and Pareto distance point"
+  false_positive_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Rate of false positives"
+  metadata:
+    type: object
+    properties:
+      seed:
+        type: integer
+      state_space_size:
+        type: integer
+      approximation_method:
+        type: string
+    required:
+      - seed
+      - state_space_size
+      - approximation_method
+required:
+  - config_id
+  - N
+  - k
+  - rho
+  - distribution
+  - sample_count
+  - distance_to_frontier
+  - heuristic_accuracy
+  - statistical_tests
+  - coincidence_delta
+  - false_positive_rate
+  - metadata
+additionalProperties: false

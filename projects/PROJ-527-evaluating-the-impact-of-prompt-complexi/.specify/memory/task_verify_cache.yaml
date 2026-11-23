@@ -1,0 +1,109 @@
+T018:
+  c: true
+  h: ca38b06fbcb06936d0d2d560e89a7c4b6d75fdded929d2c159840829e75d8764
+  r: "The repository contains `code/data/storage.py` (5.9\u202FKB) with a `save_variants_to_parquet`\
+    \ function that builds a DataFrame and writes it to `Paths.PROCESSED_DIR / \"\
+    prompt_variants.parquet\"` (i.e., `data/processed/prompt_variants.parquet`). This\
+    \ satisfies the requirement to implement the module that writes generated code\
+    \ and metadata to the specified Parquet file."
+T019a:
+  c: false
+  h: ee79e6de2521a056e55e9330b1d80f3408c5a0e4026fd16b490a8df726cace12
+  r: The required `data/processed/prompt_variants.parquet` file is missing, so the
+    implementer could not compute the token deltas as specified. Moreover, the produced
+    `manual_review_queue.csv` has incorrect column names and values (e.g., `sample_id`,
+    `complexity_label`, `token_delta_vs_very_complex`, `flag_reason`) instead of the
+    required `problem_id`, `variant_label`, `token_delta`, `reason`, and the reason
+    strings do not match the mandated values (`token_delta_low` or `degenerate_under_complex`).
+T027a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `static_analysis.py` file or code snippet was provided, so there is no evidence\
+    \ that cyclomatic complexity and lines\u2011of\u2011code calculations have been\
+    \ implemented as required. The required artifact is missing."
+T027b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim that `static_analysis.py` now contains comments citing McCabe (1976)
+    and Ruff Documentation, and that `research.md` includes corresponding entries,
+    cannot be verified because no such files or excerpts were provided. The required
+    documentation updates are missing from the evidence.
+T028:
+  c: true
+  h: 4ea3f43b7ec2a5523c1c1d9bfbcc11afb833902d97e94bda2cbefb99df4d2424
+  r: "The file `code/analysis/aggregator.py` is present, non\u2011empty, and contains\
+    \ a concrete `calculate_pass_rates` function that reads `data/results/execution_outcomes.csv`,\
+    \ validates required columns, groups by `complexity_label`, and returns total,\
+    \ passed, failed, and pass_rate values as specified. No placeholders or stubs\
+    \ are used. (The missing `execution_outcomes.csv` is an input produced by another\
+    \ task, not an artifact this task must deliver.)"
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `static_analysis.py` file or diff showing added vulnerability flagging (hardcoded
+    credentials, eval usage) is provided; without any code artifact we cannot confirm
+    the feature was implemented or that samples are marked for manual review instead
+    of causing test failures. The required implementation is missing.
+T033:
+  c: false
+  h: eb9ac663a40bcf20850a36bfbbf3069032d44bd56317ee68b6ea9be02a5bd5bb
+  r: "The provided `stats.py` only shows a partial LMM implementation with a random\
+    \ intercept for `problem_id`, not for problem difficulty based on canonical pass\
+    \ rates, and it lacks the required edge\u2011case exclusion logic and logging\
+    \ to `data/results/excluded_problems.csv`. The `excluded_problems.csv` file is\
+    \ missing, and there is no evidence that the fallback is documented in `research.md`."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `stats.py` file or code showing a Bonferroni or Holm\u2011Bonferroni correction\
+    \ was provided; without the actual implementation we cannot confirm that the adjusted\
+    \ significance threshold (\u03B1 \u2264 0.05\u202F/\u202Fnumber\u202Fof\u202F\
+    tests) was added. The required artifact is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or analysis output was provided that implements a\
+    \ linear mixed\u2011effects model with prompt token count as a covariate, nor\
+    \ any evidence (e.g., model specifications, fitted results, or updated evaluation\
+    \ pipeline) showing the original \u201Ccode length\u201D covariate was replaced.\
+    \ The required artifact is missing, so the task is not satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no provided `stats.py` file or any code showing the required sensitivity\u2011\
+    analysis implementation (re\u2011binning with \xB110\u2011token shifted thresholds\
+    \ and variance reporting). Without the actual artifact, the task\u2019s deliverable\
+    \ is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, module, or documentation implementing Cohen's\u202Fd or eta\u2011squared\
+    \ (with the required small/medium/large thresholds) was provided; the only evidence\
+    \ is the task description itself, which does not constitute the required artifact.\
+    \ The implementer must supply the actual implementation (e.g., a function or library\
+    \ file) and demonstrate its usage."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `stats.py` was provided, nor any code showing structural\
+    \ redundancy verification, comparison of structural element counts between \u201C\
+    degenerate\u201D and \u201Cvery complex\u201D prompts, or explicit failure\u2011\
+    flagging logic. Without these artifacts, the task\u2019s requirement cannot be\
+    \ confirmed as met."
+T062:
+  c: false
+  h: 3907e2e903f18c45efd9773a3e4487adb77f2b3b728947a37f6df08254325468
+  r: The `dependency_analyzer.py` file is present but its code is truncated, contains
+    undefined variables (e.g., `i`), and does not include the logic to compute the
+    maximum dependency chain depth or write the `dependency_depth` column to `data/processed/prompt_variants.parquet`.
+    Moreover, the required Parquet output file is missing entirely. The task therefore
+    remains unfinished.
+T063:
+  c: false
+  h: f10b40b1a95e28d1d45710e9aabb00cd5a9d0541f359858fa1d9abc2e312d053
+  r: "The repository contains `code/prompts/position_tester.py`, but the shown code\
+    \ is incomplete (truncated) and does not demonstrate that it actually generates\
+    \ the required prompt variants or writes results. Moreover, the required output\
+    \ file `data/results/positional_sensitivity.csv` is absent. The task\u2019s core\
+    \ deliverable \u2013 a populated CSV recording the positional sensitivity differences\
+    \ \u2013 is missing."

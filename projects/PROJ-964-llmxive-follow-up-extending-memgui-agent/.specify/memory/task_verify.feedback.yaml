@@ -1,0 +1,147 @@
+T001a:
+  reason: The task T001a requires creating a `code/data_generation` directory AND
+    creating an `__init__.py` file within it. However, the evidence collector has
+    provided no artifact paths or confirmation that these items exist on disk. The
+    task description itself contains no substantive requirements beyond the directory
+    and file creation, yet no resolved artifact paths are reported for `code/data_generation/`
+    or `code/data_generation/__init__.py`. Without explicit evidence that these artifacts
+    exist and are present (even if empty, as `__init__.py` is intentionally minimal),
+    the task cannot be verified as
+  task: 0049d9cd7b21616812112ccfe27d12eba74cb64776af4106908bf12ff23e7bed
+T001b:
+  reason: The task T001b requires creating a `code/agents` directory AND creating
+    an `__init__.py` file within it. However, the evidence collector has provided
+    no artifact paths or confirmation that these directories/files exist in the project.
+    The task description itself is marked as "REJECTED/Obsolete" with a note to "See
+    T001h for redo," which indicates this task has been superseded and is no longer
+    the active requirement. Without explicit evidence that the `code/agents/` directory
+    and `code/agents/__init__.py` file exist at the project root (`projects/PROJ-964-llmxive-follow-up-extending-memgui-agen
+  task: ab6fb443dad7a21b62a202f4a0c48b46ef5fea72d8c9e9b70037999ea6cb9f51
+T001c:
+  reason: The task T001c requires creating a `code/retrieval` directory AND creating
+    an `__init__.py` file within it. However, the evidence collector has provided
+    no artifact paths or confirmation that these files exist in the project. The task
+    description itself contains no substantive requirements beyond the directory and
+    file creation, yet no evidence of their existence has been presented. Additionally,
+    the task is marked as "REJECTED/Obsolete" with a note to "See T001h for redo,"
+    which indicates this task has been superseded and should not be considered complete.
+    Without explicit confirmation from t
+  task: 0928bcd49de008714d40034628d262f3770c89c667fd43aa721f815bd363ecd7
+T001d:
+  reason: The task T001d requires creating a `code/evaluation` directory AND creating
+    an `__init__.py` file within it. However, no evidence has been provided showing
+    that these artifacts exist in the project. The collector report contains no resolved
+    artifact paths for `code/evaluation` or `code/evaluation/__init__.py`, and no
+    file listing or directory structure evidence confirms their presence. Additionally,
+    the task is marked as "REJECTED/Obsolete" with a note to "See T001h for redo,"
+    indicating this task has been superseded and should not be considered complete.
+    The implementer's claim of completion
+  task: 3225a9f77358b8deb06e2f82c76476c909437ed4836b615cefa60fb35f7e2ef9
+T001e:
+  reason: The task T001e requires creating a `code/utils` directory AND creating an
+    `__init__.py` file within it. However, the evidence collector has provided no
+    artifact paths or confirmation that these directories/files exist in the project.
+    The task description itself contains no substantive requirements beyond the directory
+    and file creation, yet no resolved artifact paths are listed showing `code/utils/__init__.py`
+    or even `code/utils/` as existing. Without explicit evidence that these artifacts
+    exist at their expected locations in the project root, the task cannot be verified
+    as complete. Addition
+  task: ddaf4119764f72cec39b9949e65f5c6724419fdb7a6fc8dd98f82fabcf63c537
+T001f:
+  reason: "The task T001f is marked as \"REJECTED/Obsolete\" with an explicit instruction\
+    \ to \"See T001h for redo,\" which means this task should not be considered active\
+    \ or complete. The task itself has been superseded by T001h. Additionally, while\
+    \ a `tests/` directory structure does exist on disk with subdirectories (`contract/`,\
+    \ `integration/`, `unit/`) and some files (`__init__.py`, `conftest.py`, `test_placeholder.py`),\
+    \ the task provides no specification of what this directory structure should contain\
+    \ or how it should be organized\u2014only that it should be created. The presence\
+    \ of a placeholder test file a"
+  task: c9a9f5eb83561388e86c80c2ffd7cf264c489bc4a38bc47d35f38112a3db65d2
+T001g:
+  task: 72e58eee1bd944c23c8dbc3e196fe22024efc489eb8fff99cbc1db021ef1a744
+T001h:
+  task: c5f1c69b4af04cca5496e2d3527ffbc67cfec5bb9c7359edb0dd953099bfee47
+T002:
+  task: 181bd47ee778e6e6c927e49a483df2ea32be286dc7576cf792cc4aed3f0b8e18
+T003:
+  task: 85e5f7c50e967c22431aa4ba44beeddf60628cb86b72be2542fad336c8ada8b0
+T004:
+  task: 821da264d2bd504d7a1b67e542c2f8587e66f7daed06e7179353124249266cd4
+T005:
+  task: 2db346a21ab97a2f167685837c94abcae864ed791bf85cb5f4c06cd999af11bb
+T006:
+  task: 5a22c708ffaaa404e96407b50f9e312c5a67e1bea925d9c0732fc0f8ae7686b8
+T007:
+  task: 0e9fd4027614389bdf7984b82abd4bb0ec24dd111a31227ea9937d9252aaedba
+T008:
+  task: 643a4cadf0373f8b0b8544401b5b6e235e7cd4c71d0f1a011f01dbbebca47674
+T009:
+  task: ed94fbb202f57879339f40981725afc03041d5a326379a843aa1f98f363a5b3e
+T010:
+  task: 5c3ef209aa0da9deeb3bd8ec21a25b655e9632e0e38454234bafd9e3a8a0daf2
+T011:
+  reason: 'Requested task execution failed; rerun successfully: code/data_generation/synthetic_benchmark.py
+    exit=1'
+  task: 8488b6c5a50715ef56b520b8d34f1b8027008ede61774bee31d89da87bd7e49f
+T012:
+  task: 74d106513cfd478365b27b2ca916a6b6552adc9abd18be3e5de6ddef3426dd1f
+T013:
+  task: c0bd6dc8e365c8b0e0328dcfdbe977316869011eab36ec59696b32612e562d42
+T013b:
+  task: 87665bad0b2d07516182f6045dfc3498120ed00c45f2a14ed706d3e56609ac68
+T013c:
+  task: 03a90827c424d143a8744f3085a76108d2719c24d1ce2bb5574a81387973330e
+T014:
+  task: 02f57c2418b5a0f5899e93d43fa3dfaa8dc7334973eb649e76421b384adeda5c
+T015:
+  task: 205071b60191bc99f78fee60dd6f11b6105ff6b80cdf964da442f8a2359d6e62
+T016:
+  task: d9abd8f13aa9e7d2152fab71a045a783db71bbd60fd312d80c9b835e45ddafae
+T017:
+  task: 6917c3c94cea7ee5c2602a69d51740c8a4865ad7b8b467425a9f56a219b92f61
+T018:
+  task: ae7bce8a63978c70d5f6091edfe7417a7b16c38c105db1094a64deac908320a9
+T019:
+  task: 5baf7114cd3f5c1a8ccdee04b9e9193b785b1bac08d27420bbd220ac76dfbb73
+T020:
+  task: 9ff617102583cf30256c177ac0f2f572eb54bfe89f573e47fd770a6131e419db
+T021:
+  task: daa29da3f7d33b884d826a53a8c2cd62645241ae33aa3e4e810945645a403ebd
+T022:
+  task: 6b2ac9e21e1ba1dda6c3461101f439568a192978db6c5bdaa9590004a5e38578
+T023:
+  task: 5514de71a7e4d2010e84102808dea2ffd8ea76f600b762c3b1b6b3d16c2637ff
+T024:
+  task: 44aa97d7e32763f938a3eb882d1151e371531c37b261c123d0c11aa19e5914b5
+T025:
+  task: 7fe3698435c722a07060592f815cb46737633f2bf8ed58bf2a88444d9f5b2ae1
+T026:
+  task: 0670acbe617f4ab6aec2465ee27f2c07e7fac759bceee691307ccbac1930cc46
+T027:
+  task: 2a1a03becb35c604cf34e889490171b7020ecb940d3f671bf40b450f4c0671bf
+T028:
+  task: 876062065451c33af69dbb04f362be6919e474832ed30564e73a857c76050051
+T029:
+  task: 97d647e988d57285a487a076836688d2b657d281340852aa4e5d75826ccb0922
+T030:
+  task: ba6d3f2dd21c7df3a8f569c5b9827756340e28926c3ef079a4eb794cf2dd6507
+T031:
+  task: 771c743989cb5bb8be663b9bb1f97a0c1ef2662fb09a374fa49c92140cae6e39
+T031b:
+  task: 365ada4c937cd145310e17ebced8699bce220144fdda346b75a1f44c38342e94
+T032:
+  task: d4a08ff43a95749f70e8bfce6e63027e07ee7e96519fc421e457e6da0835e45d
+T033:
+  task: 566f29090306fa255735cf552aa13ba51626958cf9363524447b4aa8ea20b277
+T034:
+  task: 93be7f46ffbdd786a5e66744e8ce27d8f6529f16b88a13cb05cdb7449f86458e
+T035:
+  task: c7f4e83f6ddd12d49a956dbcdd1e0d3fd36a26bb9b1ff8bd2f71ef780706a06e
+T036:
+  task: a1d8e9f3ba4e0b08eb0d0c675d18088157fa9445cdcbf8912bcb5cdacb0642f2
+T037:
+  task: 8b9c326af360186bcaf12cd7c5386f08df4124eec808e3c80443f85f767974d6
+T038:
+  task: 31ff5d32276ed435ee9e48076083326e8127dd7d3436b9598b9231e266076289
+T039:
+  task: 9df98e7120dac8e90cd921f0356670692ca6b59982206a4c2b90b1437f573cc0

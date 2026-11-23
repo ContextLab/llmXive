@@ -11,10 +11,10 @@ properties:
     description: "Type of model trained"
   cross_validation_method:
     type: string
-    const: "Leave-One-Species-Out"
+    const: "Clade-Stratified Leave-One-Species-Out"
   species_count:
     type: integer
-    minimum: 15
+    minimum: 3
     description: "Number of species used in the analysis"
   performance_metrics:
     type: object
@@ -28,10 +28,16 @@ properties:
       std_r_squared:
         type: number
         description: "Standard deviation of R² across folds"
+      r_squared_ci_95:
+        type: array
+        items:
+          type: number
+        description: "95% Confidence Interval for R² (bootstrapped)"
     required:
       - mean_r_squared
       - mean_spearman_correlation
       - std_r_squared
+      - r_squared_ci_95
   significance_test:
     type: object
     properties:
@@ -70,6 +76,9 @@ properties:
     properties:
       n_species:
         type: integer
+      n_effective:
+        type: number
+        description: "Effective sample size adjusted for phylogenetic signal (lambda)"
       is_sufficient:
         type: boolean
       power_estimate:
@@ -79,6 +88,7 @@ properties:
         description: "R² value used for power calculation (e.g., 0.1, 0.2, 0.3)"
     required:
       - n_species
+      - n_effective
       - is_sufficient
       - power_estimate
       - effect_size_tested

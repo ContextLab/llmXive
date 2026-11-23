@@ -1,12 +1,13 @@
 torch==2.3.0+cpu
 --index-url https://download.pytorch.org/whl/cpu
+torchvision==0.18.0
 transformers
 diffusers
 scikit-learn
-torchmetrics
-datasets
 numpy
 pandas
 matplotlib
-scipy
+bitsandbytes
+datasets
+psutil
 pillow

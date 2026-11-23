@@ -1,0 +1,549 @@
+{
+  "fetched_at": "2026-08-29T00:57:38Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Evaluating the Statistical Validity of Crowdsourced Labels",
+      "target_n": 5
+    },
+    "duration_seconds": 100.683,
+    "ended_at": "2026-08-29T00:57:38Z",
+    "expansion": null,
+    "extracted_queries": [
+      "inter-rater reliability Cohen kappa Fleiss",
+      "Amazon Mechanical Turk labeling task validation",
+      "annotator agreement consistency bias detection",
+      "label noise robustness evaluation metrics",
+      "measurement error latent class models"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1902.06183"
+      ]
+    },
+    "per_query_hit_count": {
+      "Amazon Mechanical Turk labeling task validation": 3,
+      "Evaluating the Statistical Validity of Crowdsourced Labels statistics": 3,
+      "annotator agreement consistency bias detection": 3,
+      "inter-rater reliability Cohen kappa Fleiss": 3,
+      "label noise robustness evaluation metrics": 3,
+      "measurement error latent class models": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1106.2895",
+          "rationale": "The paper discusses the general philosophy of statistical inference and pragmatism but does not measure, analyze, or provide empirical baselines for the specific validity of crowdsourced labels or the statistical properties of crowd-sourcing data. It fails to meet criteria (a) or (b) as it lacks the specific domain (crowdsourcing) and variables (label validity) required, and it is not a foundational methodology paper (d) specifically for evaluating crowdsourced data quality.",
+          "title": "Statistical Inference: The Big Picture"
+        },
+        {
+          "primary_pointer": "1207.5103",
+          "rationale": "The paper discusses statistical concepts like causality, randomization, and post-selection in the context of quantum physics and Bell's theorem, which is a distinct domain from the user's question about the statistical validity of crowdsourced labels. It does not measure the same mechanism, variables, or empirical population (crowdsourcing) as the user's question, nor does it serve as a foundational reference for evaluating label quality in human computation systems.",
+          "title": "Statistics, Causality and Bell's Theorem"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-29T00:55:58Z",
+    "term_input": {
+      "normalized": "evaluating the statistical validity of crowdsourced labels statistics",
+      "raw": "Evaluating the Statistical Validity of Crowdsourced Labels statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inter-Rater quantifies the reliability between multiple raters who evaluate a group of subjects. It calculates the group quantity, Fleiss kappa, and it improves on existing software by keeping information about each user and quantifying how each user agreed with the rest of the group. This is accomplished through permutations of user pairs. The software was written in Python, can be run in Linux, and the code is deposited in Zenodo and GitHub. This software can be used for evaluation of inter-rater reliability in systematic reviews, medical diagnosis algorithms, education applications, and others.",
+          "claimed_authors": [
+            "Daniel J. Arenas"
+          ],
+          "claimed_title": "Inter-Rater: Software for analysis of inter-rater reliability by permutating pairs of multiple users",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.05731"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Inter-Rater: Software for analysis of inter-rater reliability by permutating pairs of multiple users')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cohen's and Fleiss' kappa are well-known measures of inter-rater agreement, but they restrict each rater to selecting only one category per subject. This limitation is consequential in contexts where subjects may belong to multiple categories, such as psychiatric diagnoses involving multiple disorders or classifying interview snippets into multiple codes of a codebook. We propose a generalized version of Fleiss' kappa, which accommodates multiple raters assigning subjects to one or more nominal categories. Our proposed $κ$ statistic can incorporate category weights based on their importance and account for hierarchical category structures, such as primary disorders with sub-disorders. The new $κ$ statistic can also manage missing data and variations in the number of raters per subject or category. We review existing methods that allow for multiple category assignments and detail the derivation of our measure, proving its equivalence to Fleiss' kappa when raters select a single category per subject. The paper discusses the assumptions, premises, and potential paradoxes of the new measure, as well as the range of possible values and guidelines for interpretation. The measure was developed to investigate the reliability of a new mathematics assessment method, of which an example is elaborated. The paper concludes with a worked-out example of psychiatrists diagnosing patients with multiple disorders. All calculations are provided as R script and an Excel sheet to facilitate access to the new $κ$ tatistic.",
+          "claimed_authors": [
+            "Filip Moons",
+            "Ellen Vandervieren"
+          ],
+          "claimed_title": "Measuring agreement among several raters classifying subjects into one or more (hierarchical) categories: A generalization of Fleiss' kappa",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12502"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title=\"Measuring agreement among several raters classifying subjects into one or more (hierarchical) categories: A generalization of Fleiss' kappa\")",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove that for all $q>61$, every non-zero element in the finite field $\\mathbb{F}_{q}$ can be written as a linear combination of two primitive roots of $\\mathbb{F}_{q}$. This resolves a conjecture posed by Cohen and Mullen.",
+          "claimed_authors": [
+            "Stephen D. Cohen",
+            "Tomás Oliveira e Silva",
+            "Tim Trudgian"
+          ],
+          "claimed_title": "A proof of the conjecture of Cohen and Mullen on sums of primitive roots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.2724"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='A proof of the conjecture of Cohen and Mullen on sums of primitive roots')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Building machine translation (MT) test sets is a relatively expensive task. As MT becomes increasingly desired for more and more language pairs and more and more domains, it becomes necessary to build test sets for each case. In this paper, we investigate using Amazon's Mechanical Turk (MTurk) to make MT test sets cheaply. We find that MTurk can be used to make test sets much cheaper than professionally-produced test sets. More importantly, in experiments with multiple MT systems, we find that the MTurk-produced test sets yield essentially the same conclusions regarding system performance as the professionally-produced test sets yield.",
+          "claimed_authors": [
+            "Michael Bloodgood",
+            "Chris Callison-Burch"
+          ],
+          "claimed_title": "Using Mechanical Turk to Build Machine Translation Evaluation Sets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.5491"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Using Mechanical Turk to Build Machine Translation Evaluation Sets')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present our system design for conducting longitudinal daily-task studies with the same workers throughout on Amazon Mechanical Turk. We implement this system to conduct a study into touch dynamics, and present our experiences, challenges and lessons learned from doing so. Study participants installed our application on their Apple iOS phones and completed two tasks daily for 31 days. Each task involves performing a series of scrolling or swiping gestures, from which behavioral information such as movement speed or pressure is extracted.\n  The completion of the daily tasks did not require extra interaction with the Mechanical Turk platform, yet paid workers through it. This differs somewhat from the typical rapid completion of one-off tasks that workers are used to on Amazon Mechanical Turk.\n  This atypical use of the platform prompted us to evaluate aspects related to long-term worker retention and engagement over the study period, in particular the impacts of payment schedule (amount and structure over time) and reminder notifications. We also investigate the specific concern of reconciling informed consent with workers' desire to complete tasks quickly.\n  We find that using the Mechanical Turk platform for conducting longitudinal daily task studies is a viable method to augment or replace traditional lab studies.",
+          "claimed_authors": [
+            "Henry Turner",
+            "Simon Eberz",
+            "Ivan Martinovic"
+          ],
+          "claimed_title": "Daily Turking: Designing Longitudinal Daily-task Studies on Mechanical Turk",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.12675"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Daily Turking: Designing Longitudinal Daily-task Studies on Mechanical Turk')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We investigate the feasibility of obtaining highly trustworthy results using crowdsourcing on complex engineering tasks. Crowdsourcing is increasingly seen as a potentially powerful way of increasing the supply of labor for solving society's problems. While applications in domains such as citizen-science, citizen-journalism or knowledge organization (e.g., Wikipedia) have seen many successful applications, there have been fewer applications focused on solving engineering problems, especially those involving complex tasks. This may be in part because of concerns that low quality input into engineering analysis and design could result in failed structures leading to loss of life. We compared the quality of work of the anonymous workers of Amazon Mechanical Turk (AMT), an online crowdsourcing service, with the quality of work of expert engineers in solving the complex engineering task of evaluating virtual wind tunnel data graphs. On this representative complex engineering task, our results showed that there was little difference between expert engineers and crowdworkers in the quality of their work and explained reasons for these results. Along with showing that crowdworkers are effective at completing new complex tasks our paper supplies a number of important lessons that were learned in the process of collecting this data from AMT, which may be of value to other researchers.",
+          "claimed_authors": [
+            "Matthew Staffelbach",
+            "Peter Sempolinski",
+            "David Hachen",
+            "Ahsan Kareem",
+            "Tracy Kijewski-Correa",
+            "Douglas Thain",
+            "Daniel Wei",
+            "Greg Madey"
+          ],
+          "claimed_title": "Lessons Learned from an Experiment in Crowdsourcing Complex Citizen Engineering Tasks with Amazon Mechanical Turk",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.7588"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Lessons Learned from an Experiment in Crowdsourcing Complex Citizen Engineering Tasks with Amazon Mechanical Turk')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Anomaly detection presents a unique challenge in machine learning, due to the scarcity of labeled anomaly data. Recent work attempts to mitigate such problems by augmenting training of deep anomaly detection models with additional labeled anomaly samples. However, the labeled data often does not align with the target distribution and introduces harmful bias to the trained model. In this paper, we aim to understand the effect of a biased anomaly set on anomaly detection. Concretely, we view anomaly detection as a supervised learning task where the objective is to optimize the recall at a given false positive rate. We formally study the relative scoring bias of an anomaly detector, defined as the difference in performance with respect to a baseline anomaly detector. We establish the first finite sample rates for estimating the relative scoring bias for deep anomaly detection, and empirically validate our theoretical results on both synthetic and real-world datasets. We also provide an extensive empirical study on how a biased training anomaly set affects the anomaly score function and therefore the detection performance on different anomaly classes. Our study demonstrates scenarios in which the biased anomaly set can be useful or problematic, and provides a solid benchmark for future research.",
+          "claimed_authors": [
+            "Ziyu Ye",
+            "Yuxin Chen",
+            "Haitao Zheng"
+          ],
+          "claimed_title": "Understanding the Effect of Bias in Deep Anomaly Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.07346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Understanding the Effect of Bias in Deep Anomaly Detection')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Verifiers--functions assigning rewards to agent behavior--have been key to AI progress in math, code, and games. However, extending gains to domains without clear-cut success criteria remains a challenge: while humans can recognize desired outcomes, translating this intuition into scalable rules is nontrivial. Multimodal LLMs (MLLMs) offer a promising solution, given their world knowledge, human-preference alignment, and reasoning capabilities. We evaluate MLLM verifiers across web navigation, computer use, and robotics, spanning 13+ models, 28+ designs, and thousands of trajectories from diverse agents. We identify a critical limitation: a strong tendency for MLLMs to over-validate agent behavior--a phenomenon we term agreement bias. This bias is pervasive, resilient to test-time scaling, and can harm applications relying on MLLM judgments/rewards (e.g., self-improvement, steering, online supervision). We discuss several considerations for evaluating and designing MLLM verifiers, and introduce SGV, a lightweight method that better leverages their capabilities by modulating (un)conditional generation. First, an MLLM is elicited to generate broad priors about desired behavior, independent of the data under evaluation. Then, conditioned on self-generated priors, it reasons over and evaluates a candidate trajectory. Our methods yield more human-aligned verifiers, improving failure detection by 25pp and accuracy by 14pp. In self-improvement and online supervision, they boost task completion of a GUI specialist in OSWorld, a diffusion policy in robomimic, and a ReAct agent in VisualWebArena--surpassing the previous state of the art by 20pp. As a byproduct, we release an update of VisualWebArena featuring strong agent baselines, more human-aligned oracles, container parallelism with high fidelity and proper resets, >10x speedups, and VWA-Lite, a 1/3 subset with comparable evaluation fidelity.",
+          "claimed_authors": [
+            "Moises Andrade",
+            "Joonhyuk Cha",
+            "Brandon Ho",
+            "Vriksha Srihari",
+            "Karmesh Yadav",
+            "Zsolt Kira"
+          ],
+          "claimed_title": "Let's Think in Two Steps: Mitigating Agreement Bias in MLLMs with Self-Grounded Verification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.11662"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title=\"Let's Think in Two Steps: Mitigating Agreement Bias in MLLMs with Self-Grounded Verification\")",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show that label noise exists in adversarial training. Such label noise is due to the mismatch between the true label distribution of adversarial examples and the label inherited from clean examples - the true label distribution is distorted by the adversarial perturbation, but is neglected by the common practice that inherits labels from clean examples. Recognizing label noise sheds insights on the prevalence of robust overfitting in adversarial training, and explains its intriguing dependence on perturbation radius and data quality. Also, our label noise perspective aligns well with our observations of the epoch-wise double descent in adversarial training. Guided by our analyses, we proposed a method to automatically calibrate the label to address the label noise and robust overfitting. Our method achieves consistent performance improvements across various models and datasets without introducing new hyper-parameters or additional tuning.",
+          "claimed_authors": [
+            "Chengyu Dong",
+            "Liyuan Liu",
+            "Jingbo Shang"
+          ],
+          "claimed_title": "Label Noise in Adversarial Training: A Novel Perspective to Study Robust Overfitting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.03135"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Label Noise in Adversarial Training: A Novel Perspective to Study Robust Overfitting')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluation methodologies for language models increasingly combine multiple signals, from automated metrics and LLM-as-judge ratings to human assessments and benchmark suite results. When these signals are aggregated via averaging, evaluation confidence can then substantially exceed the reliability of the weakest signal: a phenomenon we call trust inflation in evaluation. We argue that evaluation scores should be treated as epistemic claims with three properties: formality (human evaluation provides stronger evidence than an automated metric), scope (a benchmark result applies to the tested distribution, not universally), and validity windows (benchmark results expire as contamination accumulates and distributions shift). Several converging research traditions (chain-of-thought analysis, possibilistic logic, and algebraic theory) establish weakest-link aggregation as the conservative endpoint of a parameterized operator family controlled by a single pessimism parameter. Drawing on those traditions, and on concrete lessons from building an evaluation harness for agentic AI, we propose that evaluation results carry explicit metadata (formality tier, scope declaration, and expiration date) to make their epistemic status transparent. We illustrate the cost of mean aggregation on the public HELM leaderboard: across 54 frontier models on ten scenarios, the top-five models ranked by mean score and by weakest-link are completely disjoint.",
+          "claimed_authors": [
+            "Sankalp Gilda",
+            "Shlok Gilda"
+          ],
+          "claimed_title": "Position: Evaluation Scores Are Perishable Knowledge Claims",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.26191"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Position: Evaluation Scores Are Perishable Knowledge Claims')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery has long sought computational systems capable of designing drug-like molecules directly: developable and non-immunogenic from the start. Here we introduce Latent-X2, a frontier generative model that achieves this goal through zero-shot design of antibodies with strong binding affinities, drug-like properties, and, for the first time for any de novo generated antibody, confirmed low immunogenicity in human donor panels. Latent-X2 is an all-atom model conditioned on target structure, epitope specification, and optional antibody framework, jointly generating sequences and structures while modelling the bound complex. Testing only 4 to 24 designs per target in each modality, we successfully generated VHH and scFv antibodies against 9 of 18 evaluated targets, achieving a 50% target-level success rate with picomolar to nanomolar binding affinities. Designed molecules exhibit developability profiles that match or exceed those of approved antibody therapeutics, including expression yield, aggregation propensity, polyreactivity, hydrophobicity, and thermal stability, without optimization, filtering, or selection. In the first immunogenicity assessment of any AI-generated antibody, representative de novo VHH binders targeting TNFL9 exhibit both potent target engagement and low immunogenicity across T-cell proliferation and cytokine release assays. The model generalizes beyond antibodies: against K-Ras, long considered undruggable, we generated macrocyclic peptide binders competitive with trillion-scale mRNA display screens. These properties emerge directly from the model, demonstrating the therapeutic viability of zero-shot molecular design, now available without AI infrastructure or coding expertise at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Jonathan Crabbé",
+            "Alex Bridgland",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "James Vuckovic",
+            "Simon Mathis",
+            "Tomas Matteson",
+            "Rebecca Bartke-Croughan",
+            "Amir Motmaen",
+            "Robin Rombach",
+            "Mária Vlachynská",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.20263"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Drug-like antibodies with low immunogenicity in human panels designed with Latent-X2')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Crowdsourcing has become an effective and popular tool for human-powered computation to label large datasets. Since the workers can be unreliable, it is common in crowdsourcing to assign multiple workers to one task, and to aggregate the labels in order to obtain results of high quality. In this paper, we provide finite-sample exponential bounds on the error rate (in probability and in expectation) of general aggregation rules under the Dawid-Skene crowdsourcing model. The bounds are derived for multi-class labeling, and can be used to analyze many aggregation methods, including majority voting, weighted majority voting and the oracle Maximum A Posteriori (MAP) rule. We show that the oracle MAP rule approximately optimizes our upper bound on the mean error rate of weighted majority voting in certain setting. We propose an iterative weighted majority voting (IWMV) method that optimizes the error rate bound and approximates the oracle MAP rule. Its one step version has a provable theoretical guarantee on the error rate. The IWMV method is intuitive and computationally simple. Experimental results on simulated and real data show that IWMV performs at least on par with the state-of-the-art methods, and it has a much lower computational cost (around one hundred times faster) than the state-of-the-art methods.",
+          "claimed_authors": [
+            "Hongwei Li",
+            "Bin Yu"
+          ],
+          "claimed_title": "Error Rate Bounds and Iterative Weighted Majority Voting for Crowdsourcing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1411.4086"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Error Rate Bounds and Iterative Weighted Majority Voting for Crowdsourcing')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Crowdsourcing is a popular paradigm for effectively collecting labels at low cost. The Dawid-Skene estimator has been widely used for inferring the true labels from the noisy labels provided by non-expert crowdsourcing workers. However, since the estimator maximizes a non-convex log-likelihood function, it is hard to theoretically justify its performance. In this paper, we propose a two-stage efficient algorithm for multi-class crowd labeling problems. The first stage uses the spectral method to obtain an initial estimate of parameters. Then the second stage refines the estimation by optimizing the objective function of the Dawid-Skene estimator via the EM algorithm. We show that our algorithm achieves the optimal convergence rate up to a logarithmic factor. We conduct extensive experiments on synthetic and real datasets. Experimental results demonstrate that the proposed algorithm is comparable to the most accurate empirical approach, while outperforming several other recently proposed methods.",
+          "claimed_authors": [
+            "Yuchen Zhang",
+            "Xi Chen",
+            "Dengyong Zhou",
+            "Michael I. Jordan"
+          ],
+          "claimed_title": "Spectral Methods meet EM: A Provably Optimal Algorithm for Crowdsourcing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.3824"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Spectral Methods meet EM: A Provably Optimal Algorithm for Crowdsourcing')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In many machine learning applications, crowdsourcing has become the primary means for label collection. In this paper, we study the optimal error rate for aggregating labels provided by a set of non-expert workers. Under the classic Dawid-Skene model, we establish matching upper and lower bounds with an exact exponent $mI(π)$ in which $m$ is the number of workers and $I(π)$ the average Chernoff information that characterizes the workers' collective ability. Such an exact characterization of the error exponent allows us to state a precise sample size requirement $m>\\frac{1}{I(π)}\\log\\frac{1}ε$ in order to achieve an $ε$ misclassification error. In addition, our results imply the optimality of various EM algorithms for crowdsourcing initialized by consistent estimators.",
+          "claimed_authors": [
+            "Chao Gao",
+            "Yu Lu",
+            "Dengyong Zhou"
+          ],
+          "claimed_title": "Exact Exponent in Optimal Rates for Crowdsourcing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1605.07696"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Exact Exponent in Optimal Rates for Crowdsourcing')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Crowdsourcing has emerged as an alternative solution for collecting large scale labels. However, the majority of recruited workers are not domain experts, so their contributed labels could be noisy. In this paper, we propose a two-stage model to predict the true labels for multicategory classification tasks in crowdsourcing. In the first stage, we fit the observed labels with a latent factor model and incorporate subgroup structures for both tasks and workers through a multi-centroid grouping penalty. Group-specific rotations are introduced to align workers with different task categories to solve multicategory crowdsourcing tasks. In the second stage, we propose a concordance-based approach to identify high-quality worker subgroups who are relied upon to assign labels to tasks. In theory, we show the estimation consistency of the latent factors and the prediction consistency of the proposed method. The simulation studies show that the proposed method outperforms the existing competitive methods, assuming the subgroup structures within tasks and workers. We also demonstrate the application of the proposed method to real world problems and show its superiority.",
+          "claimed_authors": [
+            "Qi Xu",
+            "Yubai Yuan",
+            "Junhui Wang",
+            "Annie Qu"
+          ],
+          "claimed_title": "Crowdsourcing Utilizing Subgroup Structure of Latent Factor Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.02304"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Crowdsourcing Utilizing Subgroup Structure of Latent Factor Modeling')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "One of the fundamental problems in crowdsourcing is the trade-off between the number of the workers needed for high-accuracy aggregation and the budget to pay. For saving budget, it is important to ensure high quality of the crowd-sourced labels, hence the total cost on label collection will be reduced. Since the self-confidence of the workers often has a close relationship with their abilities, a possible way for quality control is to request the workers to return the labels only when they feel confident, by means of providing unsure option to them. On the other hand, allowing workers to choose unsure option also leads to the potential danger of budget waste. In this work, we propose the analysis towards understanding when providing the unsure option indeed leads to significant cost reduction, as well as how the confidence threshold is set. We also propose an online mechanism, which is alternative for threshold selection when the estimation of the crowd ability distribution is difficult.",
+          "claimed_authors": [
+            "Yao-Xiang Ding",
+            "Zhi-Hua Zhou"
+          ],
+          "claimed_title": "Crowdsourcing with Unsure Option",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.00292"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Evaluating the Statistical Validity of Crowdsourced Labels statistics', candidate_title='Crowdsourcing with Unsure Option')",
+        "failed_at": "2026-08-29T00:57:16Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Arnab Chakraborty",
+            "Soumendra Nath Lahiri",
+            "Alyson Wilson"
+          ],
+          "title": "A Statistical Analysis of Noisy Crowdsourced Weather Data",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1902.06183",
+        "summary": "Spatial prediction of weather-elements like temperature, precipitation, and barometric pressure are generally based on satellite imagery or data collected at ground-stations. None of these data provide information at a more granular or \"hyper-local\" resolution. On the other hand, crowdsourced weather data, which are captured by sensors installed on mobile devices and gathered by weather-related mobile apps like WeatherSignal and AccuWeather, can serve as potential data sources for analyzing environmental processes at a hyper-local resolution. However, due to the low quality of the sensors and the non-laboratory environment, the quality of the observations in crowdsourced data is compromised. This paper describes methods to improve hyper-local spatial prediction using this varying-quality noisy crowdsourced information. We introduce a reliability metric, namely Veracity Score (VS), to assess the quality of the crowdsourced observations using a coarser, but high-quality, reference data. A VS-based methodology to analyze noisy spatial data is proposed and evaluated through extensive simulations. The merits of the proposed approach are illustrated through case studies analyzing crowdsourced daily average ambient temperature readings for one day in the contiguous United States.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1902.06183",
+          "http_status": 200,
+          "pdf_sample_score": 0.2705,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-29T00:57:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhaowei Zhu",
+            "Tongliang Liu",
+            "Yang Liu"
+          ],
+          "title": "A Second-Order Approach to Learning with Instance-Dependent Label Noise",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.11854",
+        "summary": "The presence of label noise often misleads the training of deep neural networks. Departing from the recent literature which largely assumes the label noise rate is only determined by the true label class, the errors in human-annotated labels are more likely to be dependent on the difficulty levels of tasks, resulting in settings with instance-dependent label noise. We first provide evidences that the heterogeneous instance-dependent label noise is effectively down-weighting the examples with higher noise rates in a non-uniform way and thus causes imbalances, rendering the strategy of directly applying methods for class-dependent label noise questionable. Built on a recent work peer loss [24], we then propose and study the potentials of a second-order approach that leverages the estimation of several covariance terms defined between the instance-dependent noise rates and the Bayes optimal label. We show that this set of second-order statistics successfully captures the induced imbalances. We further proceed to show that with the help of the estimated second-order statistics, we identify a new loss function whose expected risk of a classifier under instance-dependent label noise is equivalent to a new problem with only class-dependent label noise. This fact allows us to apply existing solutions to handle this better-studied setting. We provide an efficient procedure to estimate these second-order statistics without accessing either ground truth labels or prior knowledge of the noise rates. Experiments on CIFAR10 and CIFAR100 with synthetic instance-dependent label noise and Clothing1M with real-world human label noise verify our approach. Our implementation is available at https://github.com/UCSC-REAL/CAL.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.11854",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-29T00:57:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shelby Heinecke",
+            "Lev Reyzin"
+          ],
+          "title": "Crowdsourced PAC Learning under Classification Noise",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1902.04629",
+        "summary": "In this paper, we analyze PAC learnability from labels produced by crowdsourcing. In our setting, unlabeled examples are drawn from a distribution and labels are crowdsourced from workers who operate under classification noise, each with their own noise parameter. We develop an end-to-end crowdsourced PAC learning algorithm that takes unlabeled data points as input and outputs a trained classifier. Our three-step algorithm incorporates majority voting, pure-exploration bandits, and noisy-PAC learning. We prove several guarantees on the number of tasks labeled by workers for PAC learning in this setting and show that our algorithm improves upon the baseline by reducing the total number of tasks given to workers. We demonstrate the robustness of our algorithm by exploring its application to additional realistic crowdsourcing settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/1902.04629",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-29T00:57:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the statistical validity of crowdsourced labels statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

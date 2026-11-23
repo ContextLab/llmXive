@@ -1,0 +1,121 @@
+T012:
+  c: false
+  h: 514f80790cd0d46438a90d5990f4e85df2f3aadbabe28b016e7f4e3057c52ccf
+  r: "The `data_ingestion.py` script uses hard\u2011coded example URLs, never reads\
+    \ `PLANCK_MAP_ID` or `BICEP_URL` from `config.py`, does not call `retry_download`\
+    \ or `verify_checksum`, and never writes the downloaded bytes to `data/raw/` nor\
+    \ creates `data/hashes.json` (the file is missing). Consequently the required\
+    \ download, verification, and checksum\u2011recording behavior is not implemented."
+T014:
+  c: false
+  h: e6f089d62078dc2de43ae606438280bfb93cebefc9a960d61310e39350ca1473
+  r: 'The required output artifact `data/derived/cl_bb_spectrum.json` is missing from
+    the disk, failing the explicit requirement to generate this file. Additionally,
+    the implementation in `code/spectrum_computation.py` contains a critical logic
+    error: it passes the full map (likely containing I, Q, U components) directly
+    to `hp.anafast` instead of extracting the specific B-mode component, and it attempts
+    to access `hp.UNMASK` which is not a standard healpy constant, likely causing
+    the function to return an empty array or crash before saving.'
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test artifact was provided that implements the coverage calculation
+    or raises a `ValueError` when coverage falls below 0.70; the claim is unsupported
+    by any tangible evidence. The required validation logic is missing.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were presented that add logging to the data
+    ingestion and masking steps, nor any evidence of checksum verification status
+    being recorded. The required artifact (implemented logging with checksum reporting)
+    is missing.
+T025a:
+  c: false
+  h: 22040bea6de48f2677bac30aa2c94852744c0f8df69d37e137c68a65072ea2af
+  r: The repository lacks the required `data/synthetic/inflation_synthetic.fits` input
+    file and the expected `data/synthetic/inference_results_inflation.json` output.
+    Moreover, the provided `code/inference.py` excerpt does not contain an implementation
+    of the `run_inference_synthetic` function, so the core task is unfulfilled.
+T025b:
+  c: false
+  h: 4a8524cb87a546532db64c820272ac450412d55a86fe36f70e8950b1dfdbd7f7
+  r: "The `validate_inflation_synthetic` function is only partially shown and never\
+    \ writes the constructed report to `output_file`. Moreover, the required artifact\
+    \ `data/validation/validation_report_inflation.json` does not exist on disk. The\
+    \ task\u2019s output file is missing, so the implementation is not complete."
+T025c:
+  c: false
+  h: 6c4bb68a0463c24c6eaae07b784de8b988a2afe0e790f1020ffd7646b88366eb
+  r: "The required synthetic data file `data/synthetic/pt_synthetic.fits` and the\
+    \ output JSON `data/synthetic/inference_results_pt.json` are absent, and the provided\
+    \ `code/inference.py` snippet is truncated before any `run_inference_pt_synthetic`\
+    \ implementation appears. The task\u2019s core artifacts are missing."
+T025d:
+  c: false
+  h: 168c07d7ce7e504007ca9c3c27f9ec898540c49b9cf8fee10f351628e1292d1b
+  r: "The provided `validate_pt_synthetic` implementation is incomplete (truncated\
+    \ before finishing the report dictionary and writing the JSON file) and the required\
+    \ artifact `data/validation/validation_report_pt.json` does not exist on disk.\
+    \ Both the function output and the validation report file are missing, so the\
+    \ task\u2019s requirements are not satisfied."
+T032:
+  c: false
+  h: a2401bdab85b5abf55a33f89bb3483455de95c8cc5129b328d29337792e11c1e
+  r: The repository contains a partially shown `code/utils.py` that defines a `generate_model_comparison_results`
+    stub but the implementation is truncated and does not demonstrate writing the
+    required JSON file. Moreover, the expected output file `data/derived/model_comparison_results.json`
+    is absent. Both the generation logic and the resulting artifact are missing, so
+    the task is not satisfied.
+T038b:
+  c: false
+  h: 5b57b1dda1aa8a72ce69905bbd83412d1c90dc1cbd16276412ec1f9f3c76a4e0
+  r: Both required documentation files (`docs/data-model.md` and `docs/research.md`)
+    are missing from the repository, so the claimed updates were not provided. The
+    task is not satisfied.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only the task description and project specifications; there\
+    \ is no artifact such as a log, output file, timing report, or code demonstrating\
+    \ a 1000\u2011step dynesty run on Nside\u202F=\u202F64 synthetic data completed\
+    \ within 2\u202Fhours on a CPU. Without concrete results or performance evidence,\
+    \ the deliverable is not verified."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test files or code snippets for edge cases in the `tests/unit/`\
+    \ directory were presented. Without seeing the actual test files (e.g., new test\
+    \ modules, test functions, or a listing showing they exist and are non\u2011empty),\
+    \ we cannot confirm that additional edge\u2011case tests were added. The required\
+    \ artifact is missing."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided material only contains a cosmology feature specification and user
+    stories; there is no code, configuration, or documentation showing any security
+    hardening of data download URLs. Consequently, the required artifact (e.g., hardened
+    download scripts, URL signing, TLS enforcement, access controls, or related tests)
+    is missing.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence such as execution logs, timing reports, or a completed `quickstart.md`\
+    \ run is present; the required artifact demonstrating that the end\u2011to\u2011\
+    end pipeline finished within six hours is missing. The implementer must provide\
+    \ concrete validation output (e.g., a timestamped log or summary) showing the\
+    \ pipeline execution succeeded and met the time constraint."
+T060a:
+  c: false
+  h: a3296d72f9f8c37def9959a8bb789bb0fa44a42f7089e066607e98668911a666
+  r: "The `generate_inflation_synthetic` function is implemented and would write a\
+    \ FITS map, but the required artifact `data/synthetic/inflation_synthetic.fits`\
+    \ does not exist on disk, so the task\u2019s output artifact is missing. The next\
+    \ implementer must run the function (or otherwise generate) to create the FITS\
+    \ file at the specified location."
+T061a:
+  c: false
+  h: 89f138e75e93afb92320646cb3d3192556a3c525e2980d98406d54f1983e164c
+  r: The required artifact `data/synthetic/ground_truth_inflation.json` does not exist,
+    and the provided `code/synthetic_data.py` excerpt does not contain (or show) an
+    implementation of `serialize_inflation_ground_truth` that would create that file.
+    The task therefore remains unfinished.

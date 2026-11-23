@@ -1,16 +1,14 @@
 # Quickstart: Assessing the Sensitivity of Common Statistical Tests to Dataset Size
 
 ## Prerequisites
-
 - Python 3.11+
-- `pip` (package manager)
-- Git (for cloning the repository)
+- `pip` or `conda`
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone the repository** and navigate to the project directory:
    ```bash
-   git clone <repository-url>
+   git clone <repo-url>
    cd projects/PROJ-482-assessing-the-sensitivity-of-common-stat
    ```
 
@@ -24,48 +22,49 @@
    ```bash
    pip install -r code/requirements.txt
    ```
+   *Note: `requirements.txt` is located in `projects/PROJ-482-assessing-the-sensitivity-of-common-stat/code/`.*
 
 ## Running the Simulation
 
-### Full Simulation
-To run the complete Monte Carlo study (all sample sizes, distributions, and tests):
+### Step 1: Generate and Validate Data
+Run the data generator to create synthetic datasets and validate them against ground truth.
 ```bash
-python code/main.py --full
+python code/run_data_gen.py --config code/config.yaml
 ```
-This will:
-1. Generate synthetic data for all configurations.
-2. Run adaptive Monte Carlo simulations using **Clopper-Pearson** intervals for convergence.
-3. Aggregate results and compute confidence intervals.
-4. Fit a **GLM binomial regression** on the error rates.
-5. Generate visualizations.
+- This will generate `data/raw/sample_validation.csv` and verify the ground truth parameters.
+- **Expected Output**: A CSV file with columns `sample_size`, `distribution`, `mean`, `variance`, `skewness`, `ground_truth_mean`, `ground_truth_var`, `pass`.
 
-### Single Configuration (Debug)
-To test a single configuration (e.g., t-test, normal, n=50):
+### Step 2: Run Monte Carlo Simulations
+Execute the adaptive simulation loop.
 ```bash
-python code/main.py --config "sample_size=50,distribution=normal,test=ttest,effect=0.0"
+python code/simulation_runner.py --config code/config.yaml
 ```
+- This will iterate through all configurations (multiple sizes × 3 dists × 3 tests).
+- It will automatically extend replicates until the confidence interval width meets the predefined precision threshold.
+- **Output**: `data/processed/error_rates.csv`.
 
-## Output Locations
-
-- **Raw Data**: `data/raw/simulation_runs.csv`
-- **Aggregated Metrics**: `data/processed/error_metrics.csv`
-- **Regression Results**: `data/processed/regression_results.csv`
-- **Visualizations**: `data/processed/plots/` (PNG/SVG files)
+### Step 3: Analyze and Visualize
+Generate plots and fit the regression model.
+```bash
+python code/analyzers.py --input data/processed/error_rates.csv --output data/analysis/
+```
+- **Outputs**:
+  - `data/visualizations/error_rate_curves.png`
+  - `data/visualizations/power_curves.png`
+  - `data/analysis/regression_results.yaml`
 
 ## Verification
 
-To verify the simulation engine:
-```bash
-pytest tests/unit/test_data_generator.py
-pytest tests/unit/test_simulation.py
-```
-These tests ensure that:
-- Generated data matches theoretical parameters.
-- Type I error rates for normal data (n=50) are close to 0.05.
-- Confidence intervals are calculated using the **Clopper-Pearson** method.
+To verify the installation and data generation:
+1. Check that `data/raw/sample_validation.csv` exists and has the correct columns.
+2. Run the unit tests:
+   ```bash
+   pytest tests/unit/
+   ```
+3. Verify the checksum of the generated data matches the one recorded in the state file.
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce the maximum replicate count in `code/config.py` (default a sufficiently large number).
-- **Convergence Warning**: If CI width > 0.01 after max replicates, the result is flagged in the CSV. Check `convergence_achieved` column.
-- **Fisher's Exact**: If `test_used` is `fisher_exact`, the system automatically switched due to small cell counts (expected count < 5).
+- **ImportError**: Ensure you are using Python 3.11+ and the virtual environment is activated.
+- **Convergence Failure**: If the adaptive loop fails to converge for a specific configuration, check the logs in `data/logs/simulation.log`. This may indicate a numerical instability in the distribution generation.
+- **Memory Error**: The script is designed to stream data. If memory errors occur, reduce the `batch_size` in `code/config.yaml`.

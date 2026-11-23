@@ -1,59 +1,46 @@
 """
-Basic sanity tests for the project configuration.
-Ensures that config.py can be imported and provides expected attributes.
+Unit tests for the configuration module.
 """
 import pytest
 import sys
 from pathlib import Path
-
-# Ensure code directory is in path
-code_dir = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(code_dir))
-
-from config import (
-    PROJECT_ROOT,
-    DATA_DIR,
-    PROCESSED_DATA_DIR,
-    RAW_DATA_DIR,
-    CODE_DIR,
-    FIGURES_DIR,
-    SEED,
-    DEFAULT_HYPERPARAMETERS
-)
+from config import ensure_directories
 
 class TestConfig:
-    """Tests for project configuration constants."""
+    """Tests for configuration functions."""
 
-    def test_project_root_exists(self):
-        """Verify PROJECT_ROOT is a valid path."""
-        assert isinstance(PROJECT_ROOT, Path)
-        assert PROJECT_ROOT.exists()
-
-    def test_data_directories_exist(self):
-        """Verify data directories are configured correctly."""
-        assert isinstance(DATA_DIR, Path)
-        assert DATA_DIR == PROJECT_ROOT / "data"
+    def test_ensure_directories_creates_missing(self, tmp_path):
+        """Test that ensure_directories creates missing directories."""
+        test_data_dir = tmp_path / "data" / "processed"
         
-        assert isinstance(PROCESSED_DATA_DIR, Path)
-        assert PROCESSED_DATA_DIR == DATA_DIR / "processed"
+        # Directory should not exist yet
+        assert not test_data_dir.exists()
         
-        assert isinstance(RAW_DATA_DIR, Path)
-        assert RAW_DATA_DIR == DATA_DIR / "raw"
+        # Call the function
+        result = ensure_directories(test_data_dir)
+        
+        # Directory should now exist
+        assert test_data_dir.exists()
+        assert result is True
 
-    def test_code_directory(self):
-        """Verify code directory is configured correctly."""
-        assert isinstance(CODE_DIR, Path)
-        assert CODE_DIR == PROJECT_ROOT / "code"
+    def test_ensure_directories_exists(self, tmp_path):
+        """Test that ensure_directories returns True if dir exists."""
+        existing_dir = tmp_path / "already_exists"
+        existing_dir.mkdir(parents=True)
+        
+        result = ensure_directories(existing_dir)
+        
+        assert result is True
+        assert existing_dir.exists()
 
-    def test_seed_is_integer(self):
-        """Verify random seed is an integer."""
-        assert isinstance(SEED, int)
-        assert SEED > 0
-
-    def test_hyperparameters_structure(self):
-        """Verify default hyperparameters dictionary has expected keys."""
-        assert isinstance(DEFAULT_HYPERPARAMETERS, dict)
-        # Check for common keys expected in the project based on T007
-        expected_keys = ['regularization_strength', 'tree_depth', 'n_estimators']
-        for key in expected_keys:
-            assert key in DEFAULT_HYPERPARAMETERS, f"Missing key: {key}"
+    def test_ensure_directories_multiple_levels(self, tmp_path):
+        """Test creating deeply nested directories."""
+        deep_dir = tmp_path / "a" / "b" / "c" / "d"
+        
+        assert not deep_dir.exists()
+        
+        result = ensure_directories(deep_dir)
+        
+        assert result is True
+        assert deep_dir.exists()
+        assert deep_dir.is_dir()

@@ -1,0 +1,16 @@
+{
+  "status": "COMPLETE",
+  "total_tasks": 50,
+  "tasks_with_full_coverage": 50,
+  "missing_runs": [],
+  "config": {
+    "n_runs_expected": 5
+  },
+  "paths": {
+    "dataset": "data/raw/synthetic_spatialclaw_v1.json",
+    "baseline": "results/logs/baseline_run.json",
+    "runs_dir": "results/runs",
+    "config": "data/power_config.yaml",
+    "output": "results/analysis/run_integrity_report.json"
+  }
+}

@@ -1,0 +1,11 @@
+# Data directories (raw, interim, processed)
+data/raw/
+data/interim/
+data/results/*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables
+.env

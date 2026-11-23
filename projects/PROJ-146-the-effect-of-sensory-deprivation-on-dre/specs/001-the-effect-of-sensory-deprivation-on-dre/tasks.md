@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 [P] Create project directory structure per implementation plan (`projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/`) including: `data/raw/`, `data/synthetic/`, `data/processed/`, `data/protocols/`, `data/ethics/`, `code/`, `results/models/`, `results/reports/`, `tests/unit/`, `tests/contract/`, `tests/integration/`.
-- [X] T002 [P] Initialize Python 3.11 project with dependencies in `code/requirements.txt` (pandas, numpy, statsmodels, scikit-learn, seaborn, pyyaml, pytest).
-- [X] T003 [P] Configure linting and formatting tools (ruff/black)
+- [ ] T001 [P] Create project directory structure per implementation plan (`projects/PROJ-146-the-effect-of-sensory-deprivation-on-dre/`) including: `data/raw/`, `data/synthetic/`, `data/processed/`, `data/protocols/`, `data/ethics/`, `code/`, `results/models/`, `results/reports/`, `tests/unit/`, `tests/contract/`, `tests/integration/`.
+- [ ] T002 [P] Initialize Python 3.11 project with dependencies in `code/requirements.txt` (pandas, numpy, statsmodels, scikit-learn, seaborn, pyyaml, pytest).
+- [ ] T003 [P] Configure linting and formatting tools (ruff/black)
 
 ---
 
@@ -60,10 +60,10 @@
  - `strict_threshold_label: "strict (complete isolation)"`
  - `moderate_threshold_label: "moderate (partial sensory reduction)"`
  - `partial_threshold_label: "partial (minimal sensory reduction)"`
- - Also define: N=200, effect_sizes=[moderate positive, null, moderate negative] [UNRESOLVED-CLAIM: c_caa22019 — status=not_enough_info], ICC=0.3.
-- [X] T006 Create `contracts/` directory with `dataset.schema.yaml` and `model-output.schema.yaml`
-- [X] T007 Initialize `code/__init__.py` and set up logging infrastructure in `code/logging_config.py`
-- [X] T008 Setup `pytest` configuration in `tests/conftest.py` and create empty test directory structure
+ - Also define: N=200, effect_sizes=[moderate positive, null, moderate negative], ICC=0.3.
+- [ ] T006 Create `contracts/` directory with `dataset.schema.yaml` and `model-output.schema.yaml`
+- [~] T007 Initialize `code/__init__.py` and set up logging infrastructure in `code/logging_config.py`
+- [~] T008 Setup `pytest` configuration in `tests/conftest.py` and create empty test directory structure
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -79,17 +79,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Contract test for synthetic data schema in `tests/contract/test_synthetic_schema.py` <!-- FAILED: unspecified -->
-- [ ] T010 [P] [US1] Unit test for data ingestion logic with missing metadata in `tests/unit/test_ingest.py` <!-- SKIPPED: non-mapping output -->
+- [~] T009 [P] [US1] Contract test for synthetic data schema in `tests/contract/test_synthetic_schema.py` <!-- FAILED: unspecified -->
+- [~] T010 [P] [US1] Unit test for data ingestion logic with missing metadata in `tests/unit/test_ingest.py` <!-- SKIPPED: non-mapping output -->
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `code/generate_data.py` to create synthetic datasets based on `data/protocols/protocol.yaml` (N=200, 3 scenarios: d=0.5, d=0.0, d=-0.2 [UNRESOLVED-CLAIM: c_7543fa71 — status=not_enough_info])
-- [X] T012 [US1] Implement `code/ingest.py` to detect "sensory deprivation" tags in CSVs: check for column 'condition' containing 'sensory_deprivation' OR 'deprivation' string. If absent, auto-trigger `generate_data.py` with parameters from `protocol.yaml` (N=200, d=0.5).
+- [~] T011 [P] [US1] Implement `code/generate_data.py` to create synthetic datasets based on `data/protocols/protocol.yaml` (N=200, 3 scenarios: d=0.5, d=0.0, d=-0.2)
+- [~] T012 [US1] Implement `code/ingest.py` to detect "sensory deprivation" tags in CSVs: check for column 'condition' containing 'sensory_deprivation' OR 'deprivation' string. If absent, auto-trigger `generate_data.py` with parameters from `protocol.yaml` (N=200, d=0.5).
 - [ ] T013 [US1] Implement logic to save generated synthetic data to `data/synthetic/` with clear "Simulation-based" flags in metadata
-- [~] T014 [US1] Implement logic to save processed data to `data/processed/` with derived `condition` column based on deprivation intensity thresholds (strict, moderate, partial)
-- [~] T015 [US1] Add validation to ensure `recall` is binary (0/1) and `bizarreness` is integer 1-7 in the final dataframe
-- [~] T016 [US1] Add logging for data generation parameters and ingestion source (real vs. synthetic)
+- [ ] T014 [US1] Implement logic to save processed data to `data/processed/` with derived `condition` column based on deprivation intensity thresholds (strict, moderate, partial)
+- [ ] T015 [US1] Add validation to ensure `recall` is binary (0/1) and `bizarreness` is integer 1-7 in the final dataframe
+- [ ] T016 [US1] Add logging for data generation parameters and ingestion source (real vs. synthetic)
 - [ ] T017 [US1] Implement logic to generate/iterate processed datasets for ALL three thresholds defined in `protocol.yaml` (strict, moderate, partial) and save them as distinct files: `data/processed/data_threshold_strict.csv`, `data/processed/data_threshold_moderate.csv`, `data/processed/data_threshold_partial.csv`. Each file must contain the `condition` column populated with the exact label from `protocol.yaml`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Data Pipeline Ready)
@@ -104,20 +104,20 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
-- [X] T019 [P] [US2] Unit test for logistic regression fit on known data in `tests/unit/test_models.py`
+- [~] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output_schema.py`
+- [~] T019 [P] [US2] Unit test for logistic regression fit on known data in `tests/unit/test_models.py`
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/models.py` with `fit_logistic_mixed` using `statsmodels` GLM with Firth correction (penalized likelihood) or a custom penalized likelihood wrapper to handle zero-count recall cases, as native mixed-effects Firth is unsupported.
-- [X] T021 [US2] Implement `fit_linear_mixed` in `code/models.py` for `bizarreness` scores using `statsmodels` (approximation if necessary)
-- [~] T022 [US2] Implement logic to handle `participant_id` as a random intercept (using `statsmodels` grouping) for logistic and linear models.
-- [~] T022a [US2] **Design Waiver**: Document the deviation from FR-008 (Mixed-Effects Ordinal) due to lack of CPU-tractable mixed-effects ordinal libraries in Python. Define the fallback strategy: use Fixed-Effects OrderedModel (T024) and validate its accuracy against the known random-intercept ground truth of the synthetic data (T023).
-- [X] T023 [US2] Implement `code/models.py` with `validate_ordinal_approx`: A routine that takes the synthetic data (with known random intercepts), fits the Fixed-Effects OrderedModel, and compares the recovered fixed effects against the known ground truth to quantify the approximation error. This satisfies the robustness intent of FR-008.
-- [X] T024 [US2] Implement `fit_ordinal_approx` in `code/models.py` using `statsmodels.OrderedModel` as a FIXED-EFFECTS approximation for robustness check against the linear model, strictly following the Design Waiver (T022a) and using the validation routine (T023) to confirm validity.
-- [~] T025 [US2] Implement result serialization to `results/models/` containing fixed effects estimates, standard errors, degrees of freedom, and p-values
-- [~] T026 [US2] Add logic to detect sample size < 10 and issue a warning or fallback to fixed-effects model
-- [~] T027 [US2] Ensure all results are framed as "associational" in the output metadata (no causal language)
+- [~] T020 [US2] Implement `code/models.py` with `fit_logistic_mixed` using `statsmodels` GLM with Firth correction (penalized likelihood) or a custom penalized likelihood wrapper to handle zero-count recall cases, as native mixed-effects Firth is unsupported.
+- [~] T021 [US2] Implement `fit_linear_mixed` in `code/models.py` for `bizarreness` scores using `statsmodels` (approximation if necessary)
+- [ ] T022 [US2] Implement logic to handle `participant_id` as a random intercept (using `statsmodels` grouping) for logistic and linear models.
+- [ ] T022a [US2] **Design Waiver**: Document the deviation from FR-008 (Mixed-Effects Ordinal) due to lack of CPU-tractable mixed-effects ordinal libraries in Python. Define the fallback strategy: use Fixed-Effects OrderedModel (T024) and validate its accuracy against the known random-intercept ground truth of the synthetic data (T023).
+- [~] T023 [US2] Implement `code/models.py` with `validate_ordinal_approx`: A routine that takes the synthetic data (with known random intercepts), fits the Fixed-Effects OrderedModel, and compares the recovered fixed effects against the known ground truth to quantify the approximation error. This satisfies the robustness intent of FR-008.
+- [~] T024 [US2] Implement `fit_ordinal_approx` in `code/models.py` using `statsmodels.OrderedModel` as a FIXED-EFFECTS approximation for robustness check against the linear model, strictly following the Design Waiver (T022a) and using the validation routine (T023) to confirm validity.
+- [ ] T025 [US2] Implement result serialization to `results/models/` containing fixed effects estimates, standard errors, degrees of freedom, and p-values
+- [ ] T026 [US2] Add logic to detect sample size < 10 and issue a warning or fallback to fixed-effects model
+- [ ] T027 [US2] Ensure all results are framed as "associational" in the output metadata (no causal language)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Data + Modeling Ready)
 
@@ -131,16 +131,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T028 [P] [US3] Integration test for sensitivity sweep in `tests/integration/test_sensitivity.py`
-- [X] T029 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_sensitivity.py`
+- [~] T028 [P] [US3] Integration test for sensitivity sweep in `tests/integration/test_sensitivity.py`
+- [~] T029 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [~] T030 [US3] Implement `code/sensitivity.py` with `run_threshold_sweep` to iterate over the three distinct datasets generated in T017 (`data_threshold_strict.csv`, `data_threshold_moderate.csv`, `data_threshold_partial.csv`). Read the exact threshold labels from `protocol.yaml` and use them in the report.
-- [X] T031 [US3] Implement `run_bootstrap` in `code/sensitivity.py` with a dynamic resample loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard cap of 5,000 resamples is reached [UNRESOLVED-CLAIM: c_8fc7da0a — status=not_enough_info]. If the cap is hit, use the last stable CI and log a warning.
-- [~] T032 [US3] Implement logic to compare bootstrap CIs against original parametric CIs AND explicitly check if the confidence interval crosses zero.; flag as 'unstable' if it does, satisfying SC-003.
-- [~] T033 [US3] Implement result aggregation to `results/models/` containing variation tables for odds ratios across thresholds
-- [ ] T034 [US3] Add logic to generate a "Robustness" summary section in the final report data
+- [ ] T030 [US3] Implement `code/sensitivity.py` with `run_threshold_sweep` to iterate over the three distinct datasets generated in T017 (`data_threshold_strict.csv`, `data_threshold_moderate.csv`, `data_threshold_partial.csv`). Read the exact threshold labels from `protocol.yaml` and use them in the report.
+- [~] T031 [US3] Implement `run_bootstrap` in `code/sensitivity.py` with a dynamic resample loop: start at 1,000, increase until the 95% CI width variance < 1% OR a hard cap of 5,000 resamples is reached. If the cap is hit, use the last stable CI and log a warning.
+- [ ] T032 [US3] Implement logic to compare bootstrap CIs against original parametric CIs AND explicitly check if the confidence interval crosses zero.; flag as 'unstable' if it does, satisfying SC-003.
+- [ ] T033 [US3] Implement result aggregation to `results/models/` containing variation tables for odds ratios across thresholds
+- [~] T034 [US3] Add logic to generate a "Robustness" summary section in the final report data
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -150,13 +150,13 @@
 
 **Purpose**: Generate the final report and ensure all constraints are met
 
-- [ ] T035 [P] Implement `code/report.py` to compile model results, sensitivity analysis, and bootstrap findings into a final JSON/HTML report
-- [ ] T036 [P] Ensure the report explicitly frames findings as "associational" and flags simulation-based results
-- [ ] T037 [P] Add a "Data Hygiene" section in the report confirming synthetic data usage and protocol adherence
+- [~] T035 [P] Implement `code/report.py` to compile model results, sensitivity analysis, and bootstrap findings into a final JSON/HTML report
+- [~] T036 [P] Ensure the report explicitly frames findings as "associational" and flags simulation-based results
+- [~] T037 [P] Add a "Data Hygiene" section in the report confirming synthetic data usage and protocol adherence
 - [ ] T038 [P] Run full pipeline end-to-end test to verify completion within 6 hours on GitHub Actions free-tier runner. **CRITICAL**: This task MUST generate `results/timing_log.json` containing `total_duration_seconds` to serve as the artifact for SC-005.
-- [ ] T039 [P] Update `quickstart.md` with instructions for running the simulation study
-- [ ] T040 [P] Validate all output schemas against `contracts/` definitions
-- [ ] T041 [P] Document the deviation from FR-008 in `docs/technical_constraints.md` and the final report, explicitly stating that `statsmodels.OrderedModel` (fixed-effects) was used as a proxy for the required ordinal mixed-effects model due to library limitations, and referencing the validation performed in T023.
+- [~] T039 [P] Update `quickstart.md` with instructions for running the simulation study
+- [~] T040 [P] Validate all output schemas against `contracts/` definitions
+- [~] T041 [P] Document the deviation from FR-008 in `docs/technical_constraints.md` and the final report, explicitly stating that `statsmodels.OrderedModel` (fixed-effects) was used as a proxy for the required ordinal mixed-effects model due to library limitations, and referencing the validation performed in T023.
 
 ---
 

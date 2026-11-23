@@ -1,0 +1,32 @@
+- Task T033 'Code cleanup and refactoring' is too coarse. It targets `src/analysis/aggregation.py` but does not specify the exact refactoring (e.,g., 'replace manual loops with pandas groupby'). This is a vague instruction that requires interpretation.
+- Task T035 'Add unit tests' is too coarse. It lists two test files but does not specify the exact test functions or scenarios to be covered (e.,g., 'test_inject_logic', 'test_entropy_variance'). The task lacks the concrete deliverable of specific test cases.
+- Task T030 explicitly implements the 'distillation cost-benefit ratio' using the FULL `episode_results.csv` and notes a conflict with the spec's requirement for a 'held-out validation set' (SC-002). This is a semantic weakening of SC-002. The task must either implement the held-out split as required by SC-002 or the spec/plan must be amended to explicitly allow the full dataset approach. A task cannot silently override a Success Criterion.
+- Task T027c implements a 'linear regression' of entropy vs threshold to calculate residuals for 'policy rigidity' (FR-004). However, FR-004 defines rigidity as the residual variance after regressing out the 'deterministic effect' of the threshold. If the relationship is non-monotonic (as hypothesized in SC-001), a simple linear regression fails to capture the 'deterministic effect' correctly, leading to incorrect residuals. The task must specify a regression model that accounts for the non-monotonic nature (e., quadratic or interaction terms) to satisfy FR-004's definition.
+- Task T004b implements a feasibility check that raises a `RuntimeError` if estimated time > 6 hours. While this enforces the constraint, it creates a 'binary fail-or-run' condition that risks stalling the project without a mechanism to adapt (e., reducing N or adjusting tiers) as implied by SC-005's goal of 'ensuring the experiment completes'. The task should include logic to attempt parameter adjustment or explicitly document the hard-stop as a known limitation, rather than just failing.
+- Tasks T018-T020 implement the OPIDRouter logic but lack a corresponding task to verify the interaction with the 'Stochastic Softmax Policy Head' (required by Plan.md to ensure non-zero entropy variance). Without a task to validate that the router actually 'over-constrains' the stochastic policy (reducing its entropy), the implementation of FR-002 and the measurement of FR-004 (rigidity) is incomplete. A task must be added to verify the entropy variance reduction.
+
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No directory listings or other proof were provided showing that the required folders (`src/`, `src/environment/`, `src/agent/`, `src/simulation/`, `src/analysis/`, `tests/`, `data/raw/synthetic_graphs/`, `data/processed/`) actually exist; without such evidence the task cannot be confirmed as completed.
+- **T004** — declared artifact(s) missing/empty/invalid: src/config.py
+- **T004b** — declared artifact(s) missing/empty/invalid: src/config.py
+- **T005** — declared artifact(s) missing/empty/invalid: src/utils/metrics.py
+- **T006** — declared artifact(s) missing/empty/invalid: src/simulation/runner.py
+- **T007** — declared artifact(s) missing/empty/invalid: src/environment/state_graph.py
+- **T008** — declared artifact(s) missing/empty/invalid: src/seed.py
+- **T009** — declared artifact(s) missing/empty/invalid: src/utils/metrics.py
+- **T014** — declared artifact(s) missing/empty/invalid: src/environment/validator.py
+- **T011a** — declared artifact(s) missing/empty/invalid: src/environment/graph_generator.py
+- **T011b** — declared artifact(s) missing/empty/invalid: src/environment/graph_generator.py
+- **T011c** — declared artifact(s) missing/empty/invalid: src/environment/graph_generator.py
+- **T012a** — declared artifact(s) missing/empty/invalid: src/environment/graph_generator.py
+- **T012b** — declared artifact(s) missing/empty/invalid: src/environment/graph_generator.py
+- **T012c** — declared artifact(s) missing/empty/invalid: src/environment/graph_generator.py
+- **T013a** — declared artifact(s) missing/empty/invalid: src/environment/graph_generator.py
+- **T013b** — declared artifact(s) missing/empty/invalid: src/environment/graph_generator.py
+- **T013c** — declared artifact(s) missing/empty/invalid: src/environment/graph_generator.py
+- **T017** — declared artifact(s) missing/empty/invalid: src/agent/opid_router.py
+- **T018** — No code artifact showing the `OPIDRouter.should_inject` method was provided, nor any evidence (e.g., unit tests, documentation, or commit diff) that the Bernoulli‑trial logic with probability = 1 − threshold has been added. The required implementation is missing.
+- **T019** — declared artifact(s) missing/empty/invalid: src/agent/opid_router.py

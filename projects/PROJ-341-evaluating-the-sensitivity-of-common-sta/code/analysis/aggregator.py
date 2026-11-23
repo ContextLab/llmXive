@@ -1,8 +1,9 @@
-"""Aggregator module to calculate error rates and save aggregated results.
+"""
+Aggregator module for calculating empirical error rates and confidence intervals.
 
-This module reads raw p-values from the simulation output and calculates
-empirical Type I and Type II error rates based on the hypothesis state and
-significance threshold.
+Reads p-values from raw CSV, groups by experimental conditions, calculates
+Type I and Type II error rates, computes Wilson score intervals, and saves
+the summary to a new CSV file.
 """
 import os
 import csv
@@ -11,173 +12,312 @@ from typing import List, Dict, Any, Optional
 import pandas as pd
 import numpy as np
 
+# Import from existing API surface
 from code.simulation.logging_config import get_logger, log_operation
-from code.simulation.output_writer import load_p_values_raw
+from code.simulation.output_writer import load_p_values_raw, load_p_values_raw_safe
 
 logger = get_logger(__name__)
+
+
+def wilson_score_interval(
+    successes: int,
+    n: int,
+    confidence: float = 0.95
+) -> tuple[float, float]:
+    """
+    Calculate the Wilson score interval for a proportion.
+    
+    Args:
+        successes: Number of successful outcomes (e.g., rejections)
+        n: Total number of trials
+        confidence: Confidence level (default 0.95 for 95% CI)
+        
+    Returns:
+        Tuple of (lower_bound, upper_bound)
+    """
+    if n == 0:
+        return 0.0, 1.0
+        
+    z = stats.norm.ppf(1 - (1 - confidence) / 2)
+    p_hat = successes / n
+    
+    denominator = 1 + z**2 / n
+    centre_adjusted_probability = p_hat + z**2 / (2 * n)
+    adjusted_standard_deviation = np.sqrt(
+        (p_hat * (1 - p_hat) + z**2 / (4 * n)) / n
+    )
+    
+    lower = (centre_adjusted_probability - z * adjusted_standard_deviation) / denominator
+    upper = (centre_adjusted_probability + z * adjusted_standard_deviation) / denominator
+    
+    # Clamp to [0, 1]
+    lower = max(0.0, min(1.0, lower))
+    upper = max(0.0, min(1.0, upper))
+    
+    return float(lower), float(upper)
 
 
 def calculate_error_rates(
     p_values_df: pd.DataFrame,
     alpha: float = 0.05
 ) -> pd.DataFrame:
-    """Calculate empirical Type I and Type II error rates from raw p-values.
-
+    """
+    Calculate Type I and Type II error rates grouped by experimental conditions.
+    
+    Type I error: Rejecting null when it is true (p < alpha when hypothesis_state == 'H0')
+    Type II error: Failing to reject null when alternative is true (p > alpha when hypothesis_state == 'H1')
+    
     Args:
-        p_values_df: DataFrame containing simulation results with columns:
-            - sample_size
-            - effect_size
-            - test_type
-            - p_value
-            - hypothesis (True for alternative, False for null)
+        p_values_df: DataFrame with columns including 'p_value', 'hypothesis_state',
+                    'sample_size', 'effect_size', 'test_type'
         alpha: Significance threshold (default 0.05)
-
+        
     Returns:
-        DataFrame with aggregated error rates per condition (sample_size,
-        effect_size, test_type) including:
-            - type_i_error_rate: Proportion of rejections when null is true
-            - type_ii_error_rate: Proportion of non-rejections when alt is true
-            - power: 1 - type_ii_error_rate
-            - n_simulations: Number of simulations for this condition
+        DataFrame with aggregated error rates and confidence intervals
     """
     if p_values_df.empty:
-        logger.log("error_rates_empty", parameters={"alpha": alpha})
+        logger.log("aggregator_empty_input", message="No data to aggregate")
         return pd.DataFrame()
-
-    # Ensure numeric columns
-    p_values_df = p_values_df.copy()
-    p_values_df['p_value'] = pd.to_numeric(p_values_df['p_value'], errors='coerce')
-    p_values_df = p_values_df.dropna(subset=['p_value'])
-
-    # Group by condition
-    grouped = p_values_df.groupby(['sample_size', 'effect_size', 'test_type'])
-
+    
+    # Ensure we have the required columns
+    required_cols = ['p_value', 'hypothesis_state', 'sample_size', 'effect_size', 'test_type']
+    missing_cols = [c for c in required_cols if c not in p_values_df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
+    
+    # Group by experimental conditions
+    groupby_cols = ['test_type', 'sample_size', 'effect_size']
+    
     results = []
-    for (sample_size, effect_size, test_type), group in grouped:
-        n_sim = len(group)
-        if n_sim == 0:
+    
+    for (test_type, sample_size, effect_size), group in p_values_df.groupby(groupby_cols):
+        # Count total iterations
+        n = len(group)
+        if n == 0:
             continue
-
-        # Type I error: null is true (hypothesis=False), but we reject (p < alpha)
-        null_mask = (group['hypothesis'] == False) | (group['hypothesis'] == 'False')
-        null_data = group[null_mask]
-        if len(null_data) > 0:
-            rejections_null = (null_data['p_value'] < alpha).sum()
-            type_i_rate = rejections_null / len(null_data)
-        else:
-            type_i_rate = np.nan
-
-        # Type II error: alternative is true (hypothesis=True), but we fail to reject (p >= alpha)
-        alt_mask = (group['hypothesis'] == True) | (group['hypothesis'] == 'True')
-        alt_data = group[alt_mask]
-        if len(alt_data) > 0:
-            non_rejections_alt = (alt_data['p_value'] >= alpha).sum()
-            type_ii_rate = non_rejections_alt / len(alt_data)
-            power = 1.0 - type_ii_rate
-        else:
-            type_ii_rate = np.nan
-            power = np.nan
-
+        
+        # Calculate Type I error (when H0 is true)
+        h0_mask = group['hypothesis_state'] == 'H0'
+        h0_group = group[h0_mask]
+        n_h0 = len(h0_group)
+        type1_rejections = 0
+        if n_h0 > 0:
+            type1_rejections = (h0_group['p_value'] < alpha).sum()
+        
+        # Calculate Type II error (when H1 is true)
+        h1_mask = group['hypothesis_state'] == 'H1'
+        h1_group = group[h1_mask]
+        n_h1 = len(h1_group)
+        type2_failures = 0
+        if n_h1 > 0:
+            type2_failures = (h1_group['p_value'] > alpha).sum()
+        
+        # Calculate rates
+        type1_rate = type1_rejections / n_h0 if n_h0 > 0 else 0.0
+        type2_rate = type2_failures / n_h1 if n_h1 > 0 else 0.0
+        
+        # Calculate Wilson score intervals
+        ci_lower_1, ci_upper_1 = wilson_score_interval(type1_rejections, n_h0)
+        ci_lower_2, ci_upper_2 = wilson_score_interval(type2_failures, n_h1)
+        
         results.append({
+            'test_type': test_type,
             'sample_size': sample_size,
             'effect_size': effect_size,
-            'test_type': test_type,
-            'type_i_error_rate': type_i_rate,
-            'type_ii_error_rate': type_ii_rate,
-            'power': power,
-            'n_simulations': n_sim,
-            'alpha_threshold': alpha
+            'n_iterations': n,
+            'n_h0': n_h0,
+            'n_h1': n_h1,
+            'type1_error_rate': type1_rate,
+            'type2_error_rate': type2_rate,
+            'type1_ci_lower': ci_lower_1,
+            'type1_ci_upper': ci_upper_1,
+            'type2_ci_lower': ci_lower_2,
+            'type2_ci_upper': ci_upper_2,
+            'type1_rejections': type1_rejections,
+            'type2_failures': type2_failures
         })
-
+    
     result_df = pd.DataFrame(results)
-    logger.log(
-        "error_rates_calculated",
-        parameters={
-            "alpha": alpha,
-            "n_conditions": len(result_df),
-            "total_rows_processed": len(p_values_df)
-        }
-    )
     return result_df
 
 
 def save_aggregated_results(
-    error_rates_df: pd.DataFrame,
-    output_path: str
+    df: pd.DataFrame,
+    output_path: str,
+    alpha: float = 0.05
 ) -> None:
-    """Save aggregated error rates to a CSV file.
-
-    Args:
-        error_rates_df: DataFrame containing error rate calculations
-        output_path: Path to save the CSV file
     """
-    if error_rates_df.empty:
-        logger.log("no_data_to_save", parameters={"output_path": output_path})
-        # Still create an empty file with headers to satisfy the contract
-        error_rates_df.to_csv(output_path, index=False)
-        return
-
-    # Ensure output directory exists
+    Save aggregated error rates to CSV file.
+    
+    Args:
+        df: DataFrame with aggregated results
+        output_path: Path to save the CSV file
+        alpha: Significance threshold used for calculation
+    """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    error_rates_df.to_csv(output_path, index=False)
+    
+    # Select and order columns for the output
+    output_cols = [
+        'test_type', 'sample_size', 'effect_size',
+        'type1_error_rate', 'type2_error_rate',
+        'ci_lower', 'ci_upper',
+        'n_iterations', 'n_h0', 'n_h1'
+    ]
+    
+    # Filter to only existing columns
+    existing_cols = [c for c in output_cols if c in df.columns]
+    
+    # For the main summary, we need to decide which CI to use
+    # The task asks for 'ci_lower' and 'ci_upper' - we'll use Type I CI as primary
+    # but include both in the detailed output
+    summary_cols = ['test_type', 'sample_size', 'effect_size', 
+                   'type1_error_rate', 'type2_error_rate']
+    
+    # Add CI for Type I error as the primary CI
+    if 'type1_ci_lower' in df.columns and 'type1_ci_upper' in df.columns:
+        df['ci_lower'] = df['type1_ci_lower']
+        df['ci_upper'] = df['type1_ci_upper']
+        summary_cols.extend(['ci_lower', 'ci_upper'])
+    
+    # Add counts for verification
+    summary_cols.extend(['n_iterations', 'n_h0', 'n_h1'])
+    
+    summary_df = df[summary_cols]
+    
+    # Write to CSV
+    summary_df.to_csv(output_path, index=False)
+    
     logger.log(
-        "aggregated_results_saved",
-        parameters={
-            "output_path": output_path,
-            "row_count": len(error_rates_df)
-        }
+        "aggregator_results_saved",
+        path=output_path,
+        rows=len(summary_df),
+        alpha=alpha
+    )
+    
+    print(f"Aggregated error rates saved to: {output_path}")
+    print(f"Total conditions: {len(summary_df)}")
+    print(f"Columns: {list(summary_df.columns)}")
+
+
+def load_error_rates(input_path: str) -> pd.DataFrame:
+    """
+    Load aggregated error rates from CSV file.
+    
+    Args:
+        input_path: Path to the CSV file
+        
+    Returns:
+        DataFrame with error rates
+    """
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Error rates file not found: {input_path}")
+    
+    df = pd.read_csv(input_path)
+    logger.log("aggregator_loaded", path=input_path, rows=len(df))
+    return df
+
+
+@log_operation
+def main(alpha: float = 0.05) -> None:
+    """
+    Main entry point for the aggregator.
+    
+    Reads p-values from raw CSV, calculates error rates, and saves the summary.
+    
+    Args:
+        alpha: Significance threshold (default 0.05)
+    """
+    # Define paths
+    raw_pvalues_path = "data/simulation/p_values_raw.csv"
+    output_path = "data/simulation/error_rates_summary.csv"
+    
+    # Check if raw data exists
+    if not os.path.exists(raw_pvalues_path):
+        logger.log(
+            "aggregator_missing_input",
+            path=raw_pvalues_path,
+            message="Raw p-values file not found. Run simulation first."
+        )
+        raise FileNotFoundError(
+            f"Raw p-values file not found: {raw_pvalues_path}. "
+            "Please run the simulation first to generate data/simulation/p_values_raw.csv"
+        )
+    
+    # Load raw p-values
+    print(f"Loading raw p-values from: {raw_pvalues_path}")
+    p_values_df = load_p_values_raw_safe(raw_pvalues_path)
+    
+    if p_values_df is None or p_values_df.empty:
+        logger.log(
+            "aggregator_empty_data",
+            path=raw_pvalues_path,
+            message="Raw p-values file is empty or could not be loaded."
+        )
+        raise ValueError(
+            f"Raw p-values file is empty or invalid: {raw_pvalues_path}"
+        )
+    
+    print(f"Loaded {len(p_values_df)} p-values")
+    print(f"Columns: {list(p_values_df.columns)}")
+    
+    # Calculate error rates
+    print(f"Calculating error rates with alpha={alpha}...")
+    error_rates_df = calculate_error_rates(p_values_df, alpha=alpha)
+    
+    if error_rates_df.empty:
+        logger.log(
+            "aggregator_no_results",
+            message="No error rates could be calculated."
+        )
+        raise ValueError("No error rates could be calculated from the data.")
+    
+    print(f"Calculated error rates for {len(error_rates_df)} conditions")
+    
+    # Save results
+    print(f"Saving aggregated results to: {output_path}")
+    save_aggregated_results(error_rates_df, output_path, alpha=alpha)
+    
+    # Verify output
+    if os.path.exists(output_path):
+        output_df = pd.read_csv(output_path)
+        print(f"\nVerification:")
+        print(f"Output file exists: True")
+        print(f"Output rows: {len(output_df)}")
+        print(f"Output columns: {list(output_df.columns)}")
+        
+        # Check required columns
+        required_cols = ['test_type', 'sample_size', 'effect_size', 
+                       'type1_error_rate', 'type2_error_rate', 'ci_lower', 'ci_upper']
+        missing = [c for c in required_cols if c not in output_df.columns]
+        if missing:
+            print(f"WARNING: Missing required columns: {missing}")
+        else:
+            print("All required columns present: True")
+        
+        # Print sample of results
+        print("\nSample results (first 5 rows):")
+        print(output_df.head())
+    else:
+        raise RuntimeError(f"Failed to write output file: {output_path}")
+    
+    logger.log(
+        "aggregator_complete",
+        input_path=raw_pvalues_path,
+        output_path=output_path,
+        alpha=alpha
     )
 
 
-@log_operation("main_aggregator")
-def main() -> None:
-    """Main entry point for the aggregator script.
-
-    Reads raw p-values, calculates error rates, and saves the summary.
-    This script is designed to be called by the run-book or pipeline.
-    """
-    # Default paths
-    input_path = "data/simulation/p_values_raw.csv"
-    output_path = "data/simulation/error_rates_summary.csv"
-    alpha = 0.05
-
-    # Check if input file exists
-    if not os.path.exists(input_path):
-        logger.log("input_file_missing", parameters={"path": input_path})
-        # Create empty output file to prevent downstream failures
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        pd.DataFrame(columns=[
-            'sample_size', 'effect_size', 'test_type',
-            'type_i_error_rate', 'type_ii_error_rate', 'power',
-            'n_simulations', 'alpha_threshold'
-        ]).to_csv(output_path, index=False)
-        return
-
-    logger.log("loading_raw_pvalues", parameters={"path": input_path})
-    df = load_p_values_raw(input_path)
-
-    if df is None or df.empty:
-        logger.log("no_data_loaded", parameters={"path": input_path})
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        pd.DataFrame(columns=[
-            'sample_size', 'effect_size', 'test_type',
-            'type_i_error_rate', 'type_ii_error_rate', 'power',
-            'n_simulations', 'alpha_threshold'
-        ]).to_csv(output_path, index=False)
-        return
-
-    logger.log("calculating_error_rates", parameters={"alpha": alpha})
-    error_rates = calculate_error_rates(df, alpha=alpha)
-
-    logger.log("saving_results", parameters={"path": output_path})
-    save_aggregated_results(error_rates, output_path)
-
-    print(f"Aggregated error rates saved to {output_path}")
-    print(f"Total conditions: {len(error_rates)}")
-    if not error_rates.empty:
-        print(f"Sample of results:\n{error_rates.head()}")
-
-
 if __name__ == "__main__":
-    main()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Aggregate p-values into error rates")
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=0.05,
+        help="Significance threshold (default: 0.05)"
+    )
+    
+    args = parser.parse_args()
+    main(alpha=args.alpha)

@@ -1,40 +1,44 @@
-"""
-Main entry point for running the full EvoMem experiment.
-Executes the runner script with the 'full' configuration.
-"""
 import sys
 import os
 import argparse
 from pathlib import Path
 
-# Add project root to path to allow imports
-project_root = Path(__file__).parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Ensure the project root is in the path
+sys.path.insert(0, str(Path(__file__).parent))
 
 from src.analysis.runner import main as run_experiment_main
+from src.utils.seeding import set_deterministic_seed
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the full EvoMem experiment.")
+    """
+    Entry point for running the full experiment.
+    Sets deterministic seeds before executing the experiment.
+    """
+    # Set deterministic seed for reproducible results
+    set_deterministic_seed()
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Run EvoMem experiment")
     parser.add_argument(
         "--config",
         type=str,
         default="full",
-        choices=["full", "quick"],
-        help="Configuration mode: 'full' for complete run, 'quick' for subset."
+        help="Configuration name (e.,g., 'full', 'minimal')"
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Override the default random seed"
     )
     args = parser.parse_args()
 
-    # Set environment variable for the runner to pick up the config mode
-    os.environ["EXPERIMENT_CONFIG"] = args.config
+    # If a specific seed is provided, use it
+    if args.seed is not None:
+        set_deterministic_seed(args.seed)
 
-    print(f"Starting experiment with config: {args.config}")
-    try:
-        run_experiment_main()
-        print("Experiment completed successfully.")
-    except Exception as e:
-        print(f"Experiment failed with error: {e}")
-        sys.exit(1)
+    # Run the experiment
+    run_experiment_main(config_name=args.config)
 
 if __name__ == "__main__":
     main()

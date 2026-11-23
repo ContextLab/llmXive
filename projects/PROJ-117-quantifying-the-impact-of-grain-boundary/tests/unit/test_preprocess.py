@@ -1,29 +1,22 @@
 """
-Unit tests for code/preprocess.py functionality.
-
-Tests cover:
-1. Feature engineering validation
-2. Σ value extraction/calculation logic
-3. Missing value handling and data insufficiency checks
-4. Sampling application
-5. Exclusion report generation
+Unit tests for code/preprocess.py
+Tests feature engineering, Σ value extraction/calculation logic, and missing value handling.
 """
-
-import pytest
-import pandas as pd
-import numpy as np
-import json
 import os
 import sys
+import json
+import tempfile
+import shutil
+import unittest
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
-from dataclasses import dataclass
-from typing import Dict, Any, List, Optional, Tuple
+from unittest.mock import patch, MagicMock
+import pandas as pd
+import numpy as np
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from preprocess import (
+from code.preprocess import (
     load_parsed_data,
     validate_features,
     tag_metadata_features,
@@ -32,586 +25,371 @@ from preprocess import (
     write_exclusion_report,
     save_cleaned_data
 )
-from error_handling import DataInsufficiencyError
-from models.grain_boundary_record import GrainBoundaryRecord
+from code.models.grain_boundary_record import GrainBoundaryRecord
+from code.error_handling import DataInsufficiencyError
 
+class TestPreprocess(unittest.TestCase):
+    """Unit tests for preprocessing functions."""
 
-class TestLoadParsedData:
-    """Tests for load_parsed_data function."""
+    def setUp(self):
+        """Set up test fixtures."""
+        self.test_dir = tempfile.mkdtemp()
+        self.data_dir = Path(self.test_dir) / "data" / "processed"
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.artifacts_dir = Path(self.test_dir) / "artifacts" / "reports"
+        self.artifacts_dir.mkdir(parents=True, exist_ok=True)
 
-    def test_load_parquet_success(self, tmp_path):
-        """Test successful loading of parquet file."""
-        # Create test data
-        test_df = pd.DataFrame({
-            'misorientation_angle': [10.5, 20.3, 15.7],
-            'sigma_value': [5, 3, 7],
-            'diffusivity': [1e-10, 2e-10, 1.5e-10],
-            'temperature': [800, 900, 850]
-        })
+    def tearDown(self):
+        """Clean up test fixtures."""
+        shutil.rmtree(self.test_dir)
 
-        output_path = tmp_path / "test_parsed.parquet"
-        test_df.to_parquet(output_path)
+    def _create_mock_parsed_data(self, n_records=100, include_sigma=True, include_misorientation=True, include_boundary_plane=True):
+        """Create a mock DataFrame simulating parsed geometry data."""
+        data = {
+            'structure_id': [f'struct_{i}' for i in range(n_records)],
+            'temperature': np.random.uniform(300, 1500, n_records),
+            'composition': ['CeO2'] * n_records,
+            'diffusivity': np.random.uniform(1e-12, 1e-8, n_records),
+            'boundary_width': np.random.uniform(1.0, 5.0, n_records),
+            'excess_volume': np.random.uniform(0.1, 0.5, n_records),
+            'simulation_method': ['DFT'] * n_records,
+            'potential_id': ['PBE'] * n_records,
+        }
 
-        # Load and verify
-        loaded_df = load_parsed_data(str(output_path))
+        if include_misorientation:
+            data['misorientation_angle'] = np.random.uniform(0, 60, n_records)
+        else:
+            data['misorientation_angle'] = [np.nan] * n_records
 
-        assert loaded_df is not None
-        assert len(loaded_df) == 3
-        assert list(loaded_df.columns) == list(test_df.columns)
-        assert loaded_df['misorientation_angle'].iloc[0] == 10.5
+        if include_sigma:
+            # Some valid, some NaN to test filtering
+            sigma_values = np.random.choice([1, 3, 5, 7, 9, 13, np.nan], n_records, p=[0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.10])
+            data['sigma_value'] = sigma_values
+        else:
+            data['sigma_value'] = [np.nan] * n_records
 
-    def test_load_parquet_file_not_found(self):
-        """Test handling of missing parquet file."""
-        with pytest.raises(FileNotFoundError):
-            load_parsed_data("nonexistent/file.parquet")
+        if include_boundary_plane:
+            data['boundary_plane_h'] = np.random.randint(1, 5, n_records)
+            data['boundary_plane_k'] = np.random.randint(0, 5, n_records)
+            data['boundary_plane_l'] = np.random.randint(0, 5, n_records)
+        else:
+            data['boundary_plane_h'] = [np.nan] * n_records
+            data['boundary_plane_k'] = [np.nan] * n_records
+            data['boundary_plane_l'] = [np.nan] * n_records
 
-    def test_load_parquet_empty_file(self, tmp_path):
-        """Test loading empty parquet file."""
-        output_path = tmp_path / "empty.parquet"
-        pd.DataFrame().to_parquet(output_path)
+        return pd.DataFrame(data)
 
-        loaded_df = load_parsed_data(str(output_path))
-        assert loaded_df is not None
-        assert len(loaded_df) == 0
+    def test_load_parsed_data_success(self):
+        """Test loading parsed data from parquet file."""
+        df = self._create_mock_parsed_data()
+        parquet_path = self.data_dir / "parsed_geometry.parquet"
+        df.to_parquet(parquet_path)
 
+        loaded_df = load_parsed_data(str(parquet_path))
 
-class TestValidateFeatures:
-    """Tests for validate_features function."""
+        self.assertIsInstance(loaded_df, pd.DataFrame)
+        self.assertEqual(len(loaded_df), len(df))
+        self.assertTrue(all(col in loaded_df.columns for col in df.columns))
 
-    def test_all_features_present(self):
+    def test_load_parsed_data_file_not_found(self):
+        """Test loading from non-existent file raises error."""
+        with self.assertRaises(FileNotFoundError):
+            load_parsed_data("non_existent_file.parquet")
+
+    def test_validate_features_all_present(self):
         """Test validation when all required features are present."""
-        df = pd.DataFrame({
-            'misorientation_angle': [10.0, 20.0],
-            'rodrigues_vector': [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]],
-            'boundary_plane_normal': [[1, 0, 0], [0, 1, 0]],
-            'sigma_value': [5, 3],
-            'boundary_width': [5.0, 6.0],
-            'excess_volume': [0.1, 0.2],
-            'temperature': [800, 900],
-            'composition': ['CeO2', 'CeO2'],
-            'diffusivity': [1e-10, 2e-10],
-            'simulation_method': ['DFT', 'MD'],
-            'potential_id': ['pot1', 'pot2']
-        })
-
+        df = self._create_mock_parsed_data()
         required_features = [
-            'misorientation_angle', 'rodrigues_vector', 'boundary_plane_normal',
-            'sigma_value', 'boundary_width', 'excess_volume', 'temperature',
-            'composition', 'diffusivity', 'simulation_method', 'potential_id'
+            'misorientation_angle', 'boundary_plane_h', 'boundary_plane_k', 'boundary_plane_l',
+            'sigma_value', 'temperature', 'composition', 'diffusivity',
+            'boundary_width', 'excess_volume'
         ]
 
         valid_df, missing_features = validate_features(df, required_features)
 
-        assert len(missing_features) == 0
-        assert len(valid_df) == 2
+        self.assertIsInstance(valid_df, pd.DataFrame)
+        self.assertIsInstance(missing_features, list)
+        self.assertEqual(len(missing_features), 0)
+        # All rows should be valid since we created valid data
+        self.assertEqual(len(valid_df), len(df))
 
-    def test_missing_required_features(self):
-        """Test validation when some required features are missing."""
-        df = pd.DataFrame({
-            'misorientation_angle': [10.0, 20.0],
-            'temperature': [800, 900],
-            'diffusivity': [1e-10, 2e-10]
-        })
-
-        required_features = [
-            'misorientation_angle', 'rodrigues_vector', 'boundary_plane_normal',
-            'sigma_value', 'boundary_width', 'excess_volume', 'temperature',
-            'composition', 'diffusivity', 'simulation_method', 'potential_id'
-        ]
+    def test_validate_features_missing_misorientation(self):
+        """Test validation when misorientation is missing (NaN)."""
+        df = self._create_mock_parsed_data(include_misorientation=False)
+        required_features = ['misorientation_angle', 'sigma_value', 'temperature', 'diffusivity']
 
         valid_df, missing_features = validate_features(df, required_features)
 
-        assert len(missing_features) == 8  # All except misorientation_angle, temperature, diffusivity
-        assert 'rodrigues_vector' in missing_features
-        assert 'sigma_value' in missing_features
-        assert len(valid_df) == 0
+        self.assertEqual(len(valid_df), 0)
+        self.assertIn('misorientation_angle', missing_features)
 
-    def test_null_values_in_features(self):
-        """Test validation with null values in required features."""
-        df = pd.DataFrame({
-            'misorientation_angle': [10.0, np.nan, 20.0],
-            'rodrigues_vector': [[0.1, 0.2, 0.3], None, [0.4, 0.5, 0.6]],
-            'boundary_plane_normal': [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-            'sigma_value': [5, 3, np.nan],
-            'boundary_width': [5.0, 6.0, 7.0],
-            'excess_volume': [0.1, 0.2, 0.3],
-            'temperature': [800, 900, 850],
-            'composition': ['CeO2', 'CeO2', 'CeO2'],
-            'diffusivity': [1e-10, 2e-10, 1.5e-10],
-            'simulation_method': ['DFT', 'MD', 'KMC'],
-            'potential_id': ['pot1', 'pot2', 'pot3']
-        })
-
-        required_features = [
-            'misorientation_angle', 'rodrigues_vector', 'boundary_plane_normal',
-            'sigma_value', 'boundary_width', 'excess_volume', 'temperature',
-            'composition', 'diffusivity', 'simulation_method', 'potential_id'
-        ]
+    def test_validate_features_missing_sigma(self):
+        """Test validation when sigma value is missing (NaN)."""
+        df = self._create_mock_parsed_data(include_sigma=False)
+        required_features = ['sigma_value', 'temperature', 'diffusivity']
 
         valid_df, missing_features = validate_features(df, required_features)
 
-        # Should filter out rows with null values
-        assert len(valid_df) < len(df)
-        assert valid_df['misorientation_angle'].isnull().sum() == 0
+        self.assertEqual(len(valid_df), 0)
+        self.assertIn('sigma_value', missing_features)
 
+    def test_validate_features_partial_validity(self):
+        """Test validation with some rows having valid data and some missing."""
+        df = self._create_mock_parsed_data(n_records=100)
+        # Set first 50 rows to have NaN in sigma_value
+        df.loc[:49, 'sigma_value'] = np.nan
 
-class TestTagMetadataFeatures:
-    """Tests for tag_metadata_features function."""
+        required_features = ['sigma_value', 'temperature', 'diffusivity']
 
-    def test_tag_simulation_method(self):
-        """Test tagging of simulation method."""
-        df = pd.DataFrame({
-            'simulation_method': ['DFT', 'MD', 'KMC', 'DFT'],
-            'other_feature': [1, 2, 3, 4]
-        })
+        valid_df, missing_features = validate_features(df, required_features)
 
-        tagged_df = tag_metadata_features(df)
+        self.assertEqual(len(valid_df), 50)
+        self.assertEqual(len(missing_features), 0)  # No missing features in the valid set
 
-        # Check that simulation_method is present and tagged
-        assert 'simulation_method' in tagged_df.columns
-        assert set(tagged_df['simulation_method'].unique()) == {'DFT', 'MD', 'KMC'}
-
-    def test_tag_potential_id(self):
-        """Test tagging of potential ID."""
-        df = pd.DataFrame({
-            'potential_id': ['pot1', 'pot2', 'pot1'],
-            'other_feature': [1, 2, 3]
-        })
+    def test_tag_metadata_features(self):
+        """Test tagging of metadata features."""
+        df = self._create_mock_parsed_data()
 
         tagged_df = tag_metadata_features(df)
 
-        assert 'potential_id' in tagged_df.columns
-        assert set(tagged_df['potential_id'].unique()) == {'pot1', 'pot2'}
+        self.assertIn('simulation_method', tagged_df.columns)
+        self.assertIn('potential_id', tagged_df.columns)
+        # Verify the values are preserved
+        self.assertTrue(all(tagged_df['simulation_method'] == 'DFT'))
+        self.assertTrue(all(tagged_df['potential_id'] == 'PBE'))
 
-    def test_missing_metadata_features(self):
-        """Test handling when metadata features are missing."""
-        df = pd.DataFrame({
-            'other_feature': [1, 2, 3]
-        })
+    def test_apply_sampling_deterministic(self):
+        """Test that sampling is deterministic with a fixed seed."""
+        df = self._create_mock_parsed_data(n_records=1000)
 
-        tagged_df = tag_metadata_features(df)
+        # Sample with seed=42
+        sampled_df_1 = apply_sampling(df, sample_size=100, seed=42)
+        sampled_df_2 = apply_sampling(df, sample_size=100, seed=42)
 
-        # Should still work, just without the metadata columns
-        assert 'other_feature' in tagged_df.columns
+        self.assertEqual(len(sampled_df_1), len(sampled_df_2))
+        # Check if indices are the same (deterministic)
+        pd.testing.assert_frame_equal(sampled_df_1.reset_index(drop=True), sampled_df_2.reset_index(drop=True))
 
+    def test_apply_sampling_no_sampling_needed(self):
+        """Test that no sampling occurs when dataset is smaller than sample_size."""
+        df = self._create_mock_parsed_data(n_records=50)
 
-class TestApplySampling:
-    """Tests for apply_sampling function."""
+        sampled_df = apply_sampling(df, sample_size=100, seed=42)
 
-    def test_sampling_with_config(self, tmp_path):
-        """Test sampling using sample_config.yaml."""
-        # Create sample config
-        config = {
-            'sampling': {
-                'enabled': True,
-                'strategy': 'first_n',
-                'n': 100
-            }
-        }
+        self.assertEqual(len(sampled_df), 50)
+        pd.testing.assert_frame_equal(sampled_df.reset_index(drop=True), df.reset_index(drop=True))
 
-        config_path = tmp_path / "sample_config.yaml"
-        import yaml
-        with open(config_path, 'w') as f:
-            yaml.dump(config, f)
+    def test_enforce_minimum_records_sufficient(self):
+        """Test that no error is raised when sufficient records are available."""
+        df = self._create_mock_parsed_data(n_records=600)
+        required_count = 500
 
-        # Create large dataset
-        df = pd.DataFrame({
-            'feature': list(range(1000))
-        })
+        # Should not raise
+        result_df = enforce_minimum_records(df, required_count, "test_source")
 
-        sampled_df = apply_sampling(df, str(config_path))
+        self.assertEqual(len(result_df), 600)
 
-        assert len(sampled_df) == 100
-        assert list(sampled_df['feature']) == list(range(100))
+    def test_enforce_minimum_records_insufficient(self):
+        """Test that DataInsufficiencyError is raised when records are insufficient."""
+        df = self._create_mock_parsed_data(n_records=400)
+        required_count = 500
 
-    def test_sampling_disabled(self, tmp_path):
-        """Test when sampling is disabled."""
-        config = {
-            'sampling': {
-                'enabled': False
-            }
-        }
+        with self.assertRaises(DataInsufficiencyError):
+            enforce_minimum_records(df, required_count, "test_source")
 
-        config_path = tmp_path / "sample_config.yaml"
-        import yaml
-        with open(config_path, 'w') as f:
-            yaml.dump(config, f)
-
-        df = pd.DataFrame({
-            'feature': list(range(1000))
-        })
-
-        sampled_df = apply_sampling(df, str(config_path))
-
-        assert len(sampled_df) == 1000
-
-    def test_random_sampling(self, tmp_path):
-        """Test random sampling strategy."""
-        config = {
-            'sampling': {
-                'enabled': True,
-                'strategy': 'random',
-                'n': 50,
-                'seed': 42
-            }
-        }
-
-        config_path = tmp_path / "sample_config.yaml"
-        import yaml
-        with open(config_path, 'w') as f:
-            yaml.dump(config, f)
-
-        df = pd.DataFrame({
-            'feature': list(range(1000))
-        })
-
-        sampled_df = apply_sampling(df, str(config_path))
-
-        assert len(sampled_df) == 50
-        # With fixed seed, should be reproducible
-        sampled_df2 = apply_sampling(df, str(config_path))
-        assert list(sampled_df['feature']) == list(sampled_df2['feature'])
-
-
-class TestEnforceMinimumRecords:
-    """Tests for enforce_minimum_records function."""
-
-    def test_sufficient_records(self):
-        """Test when record count meets minimum."""
-        df = pd.DataFrame({
-            'feature': list(range(500))
-        })
-
-        result_df = enforce_minimum_records(df, min_records=500)
-
-        assert len(result_df) == 500
-
-    def test_insufficient_records_raises_error(self):
-        """Test that insufficient records raise DataInsufficiencyError."""
-        df = pd.DataFrame({
-            'feature': list(range(499))
-        })
-
-        with pytest.raises(DataInsufficiencyError):
-            enforce_minimum_records(df, min_records=500)
-
-    def test_insufficient_records_with_missing_features(self):
-        """Test error message includes missing features."""
-        df = pd.DataFrame({
-            'feature': list(range(100))
-        })
-
-        # Create a mock to capture the error
-        with pytest.raises(DataInsufficiencyError) as exc_info:
-            enforce_minimum_records(df, min_records=500)
-
-        error_msg = str(exc_info.value)
-        assert "Data Insufficiency" in error_msg
-        assert "100" in error_msg  # Retrieved count
-        assert "500" in error_msg  # Required count
-
-
-class TestWriteExclusionReport:
-    """Tests for write_exclusion_report function."""
-
-    def test_write_report_success(self, tmp_path):
-        """Test successful writing of exclusion report."""
-        report_path = tmp_path / "exclusion_report.json"
-
-        excluded_records = 50
-        missing_features = ['sigma_value', 'boundary_plane_normal']
+    def test_write_exclusion_report(self):
+        """Test writing exclusion report to JSON file."""
         total_records = 1000
+        valid_records = 600
+        missing_features = ['sigma_value', 'boundary_plane_normal']
+        exclusion_reasons = {
+            'sigma_value': 200,
+            'boundary_plane_normal': 150,
+            'other': 50
+        }
+
+        report_path = self.artifacts_dir / "exclusion_report.json"
 
         write_exclusion_report(
-            str(report_path),
-            excluded_records,
-            missing_features,
-            total_records
+            report_path=str(report_path),
+            total_records=total_records,
+            valid_records=valid_records,
+            missing_features=missing_features,
+            exclusion_reasons=exclusion_reasons
         )
 
-        assert report_path.exists()
+        self.assertTrue(report_path.exists())
 
         with open(report_path, 'r') as f:
             report = json.load(f)
 
-        assert report['excluded_count'] == 50
-        assert report['total_records'] == 1000
-        assert set(report['missing_features']) == {'sigma_value', 'boundary_plane_normal'}
+        self.assertEqual(report['total_records'], total_records)
+        self.assertEqual(report['valid_records'], valid_records)
+        self.assertEqual(len(report['missing_features']), len(missing_features))
+        self.assertEqual(report['exclusion_reasons'], exclusion_reasons)
 
-    def test_write_report_empty_missing_features(self, tmp_path):
-        """Test writing report with no missing features."""
-        report_path = tmp_path / "exclusion_report.json"
-
-        write_exclusion_report(
-            str(report_path),
-            0,
-            [],
-            1000
-        )
-
-        with open(report_path, 'r') as f:
-            report = json.load(f)
-
-        assert report['excluded_count'] == 0
-        assert report['missing_features'] == []
-
-    def test_write_report_creates_directory(self, tmp_path):
-        """Test that report creation handles missing directories."""
-        report_path = tmp_path / "subdir" / "exclusion_report.json"
-
-        write_exclusion_report(
-            str(report_path),
-            10,
-            ['feature1'],
-            100
-        )
-
-        assert report_path.exists()
-
-
-class TestSaveCleanedData:
-    """Tests for save_cleaned_data function."""
-
-    def test_save_parquet_success(self, tmp_path):
-        """Test successful saving of cleaned data."""
-        df = pd.DataFrame({
-            'feature1': [1, 2, 3],
-            'feature2': ['a', 'b', 'c']
-        })
-
-        output_path = tmp_path / "cleaned.parquet"
+    def test_save_cleaned_data(self):
+        """Test saving cleaned data to parquet file."""
+        df = self._create_mock_parsed_data()
+        output_path = self.data_dir / "cleaned_dataset.parquet"
 
         save_cleaned_data(df, str(output_path))
 
-        assert output_path.exists()
+        self.assertTrue(output_path.exists())
 
+        # Verify we can load it back
         loaded_df = pd.read_parquet(output_path)
-        assert len(loaded_df) == 3
-        assert list(loaded_df.columns) == ['feature1', 'feature2']
+        self.assertEqual(len(loaded_df), len(df))
+        self.assertTrue(all(col in loaded_df.columns for col in df.columns))
 
-    def test_save_empty_dataframe(self, tmp_path):
-        """Test saving empty dataframe."""
-        df = pd.DataFrame()
+    def test_full_preprocess_pipeline_integration(self):
+        """Test a full preprocessing pipeline with mock data."""
+        # Create mock data with some invalid records
+        df = self._create_mock_parsed_data(n_records=1000)
+        # Make 200 records missing sigma
+        df.loc[:199, 'sigma_value'] = np.nan
+        # Make 100 records missing misorientation
+        df.loc[:299, 'misorientation_angle'] = np.nan  # Overlaps with above
 
-        output_path = tmp_path / "empty_cleaned.parquet"
+        parquet_path = self.data_dir / "parsed_geometry.parquet"
+        df.to_parquet(parquet_path)
 
-        save_cleaned_data(df, str(output_path))
+        # Step 1: Load
+        loaded_df = load_parsed_data(str(parquet_path))
+        self.assertEqual(len(loaded_df), 1000)
 
-        assert output_path.exists()
-        loaded_df = pd.read_parquet(output_path)
-        assert len(loaded_df) == 0
-
-
-class TestSigmaValueHandling:
-    """Specific tests for Σ value extraction and calculation logic."""
-
-    def test_sigma_value_in_metadata(self):
-        """Test handling when Σ value is present in metadata."""
-        df = pd.DataFrame({
-            'sigma_value': [5, 3, 7, np.nan],
-            'other_feature': [1, 2, 3, 4]
-        })
-
-        required_features = ['sigma_value']
-        valid_df, missing_features = validate_features(df, required_features)
-
-        # Should filter out the row with NaN sigma_value
-        assert len(valid_df) == 3
-        assert all(valid_df['sigma_value'].notna())
-
-    def test_sigma_value_calculation_logic(self):
-        """Test that missing sigma values are properly identified."""
-        df = pd.DataFrame({
-            'sigma_value': [np.nan, np.nan, np.nan],
-            'other_feature': [1, 2, 3]
-        })
-
-        required_features = ['sigma_value']
-        valid_df, missing_features = validate_features(df, required_features)
-
-        assert len(valid_df) == 0
-        assert 'sigma_value' in missing_features
-
-    def test_sigma_value_with_misorientation(self):
-        """Test relationship between sigma and misorientation in validation."""
-        df = pd.DataFrame({
-            'misorientation_angle': [10.0, 20.0, 30.0],
-            'sigma_value': [5, np.nan, 3],
-            'other_feature': [1, 2, 3]
-        })
-
-        required_features = ['misorientation_angle', 'sigma_value']
-        valid_df, missing_features = validate_features(df, required_features)
-
-        # Should keep only rows with both features valid
-        assert len(valid_df) == 2
-        assert valid_df['sigma_value'].isnull().sum() == 0
-
-
-class TestMissingValueHandling:
-    """Comprehensive tests for missing value handling."""
-
-    def test_multiple_missing_features(self):
-        """Test handling when multiple features have missing values."""
-        df = pd.DataFrame({
-            'feature1': [1, np.nan, 3, 4],
-            'feature2': [np.nan, 2, 3, 4],
-            'feature3': [1, 2, np.nan, 4]
-        })
-
-        required_features = ['feature1', 'feature2', 'feature3']
-        valid_df, missing_features = validate_features(df, required_features)
-
-        # Should only keep rows with all features present
-        assert len(valid_df) == 1
-        assert valid_df.iloc[0]['feature1'] == 4
-        assert valid_df.iloc[0]['feature2'] == 4
-        assert valid_df.iloc[0]['feature3'] == 4
-
-    def test_all_values_missing(self):
-        """Test when all values in a required feature are missing."""
-        df = pd.DataFrame({
-            'feature1': [np.nan, np.nan, np.nan],
-            'feature2': [1, 2, 3]
-        })
-
-        required_features = ['feature1', 'feature2']
-        valid_df, missing_features = validate_features(df, required_features)
-
-        assert len(valid_df) == 0
-        assert 'feature1' in missing_features
-
-    def test_string_features_with_nulls(self):
-        """Test handling of string features with null values."""
-        df = pd.DataFrame({
-            'simulation_method': ['DFT', None, 'MD'],
-            'potential_id': ['pot1', 'pot2', None],
-            'feature': [1, 2, 3]
-        })
-
-        required_features = ['simulation_method', 'potential_id']
-        valid_df, missing_features = validate_features(df, required_features)
-
-        # Should filter out rows with any null in required string features
-        assert len(valid_df) == 0
-
-
-class TestIntegrationScenarios:
-    """Integration-style tests for common preprocessing scenarios."""
-
-    def test_full_preprocessing_pipeline(self, tmp_path):
-        """Test end-to-end preprocessing with all components."""
-        # Create sample data
-        df = pd.DataFrame({
-            'misorientation_angle': [10.0, 20.0, 30.0, 40.0, 50.0],
-            'rodrigues_vector': [[0.1, 0.2, 0.3]] * 5,
-            'boundary_plane_normal': [[1, 0, 0]] * 5,
-            'sigma_value': [5, 3, 7, 5, 3],
-            'boundary_width': [5.0, 6.0, 7.0, 8.0, 9.0],
-            'excess_volume': [0.1, 0.2, 0.3, 0.4, 0.5],
-            'temperature': [800, 900, 850, 900, 800],
-            'composition': ['CeO2'] * 5,
-            'diffusivity': [1e-10, 2e-10, 1.5e-10, 1.8e-10, 1.2e-10],
-            'simulation_method': ['DFT', 'MD', 'KMC', 'DFT', 'MD'],
-            'potential_id': ['pot1', 'pot2', 'pot3', 'pot1', 'pot2']
-        })
-
-        # Save to temp file
-        input_path = tmp_path / "parsed.parquet"
-        df.to_parquet(input_path)
-
-        # Load and validate
-        loaded_df = load_parsed_data(str(input_path))
+        # Step 2: Validate features
         required_features = [
-            'misorientation_angle', 'rodrigues_vector', 'boundary_plane_normal',
-            'sigma_value', 'boundary_width', 'excess_volume', 'temperature',
-            'composition', 'diffusivity', 'simulation_method', 'potential_id'
+            'misorientation_angle', 'boundary_plane_h', 'boundary_plane_k', 'boundary_plane_l',
+            'sigma_value', 'temperature', 'composition', 'diffusivity',
+            'boundary_width', 'excess_volume'
         ]
         valid_df, missing_features = validate_features(loaded_df, required_features)
 
-        # Tag metadata
+        # We expect ~700 valid records (1000 - 300 invalid due to overlapping NaNs)
+        # The exact count depends on the overlap logic in validate_features
+        self.assertGreater(len(valid_df), 0)
+        self.assertEqual(len(missing_features), 0)
+
+        # Step 3: Tag metadata (already done in create_mock, but test the function)
         tagged_df = tag_metadata_features(valid_df)
+        self.assertIn('simulation_method', tagged_df.columns)
 
-        # Apply sampling (disable for this test)
-        config_path = tmp_path / "sample_config.yaml"
-        import yaml
-        with open(config_path, 'w') as f:
-            yaml.dump({'sampling': {'enabled': False}}, f)
+        # Step 4: Apply sampling (downsample to 500 for testing)
+        sampled_df = apply_sampling(tagged_df, sample_size=500, seed=42)
+        self.assertEqual(len(sampled_df), 500)
 
-        sampled_df = apply_sampling(tagged_df, str(config_path))
+        # Step 5: Enforce minimum (should pass with 500 records)
+        final_df = enforce_minimum_records(sampled_df, required_count=500, source="test")
+        self.assertEqual(len(final_df), 500)
 
-        # Enforce minimum (should pass with 5 records if min is 5)
-        final_df = enforce_minimum_records(sampled_df, min_records=5)
+        # Step 6: Write exclusion report
+        exclusion_path = self.artifacts_dir / "exclusion_report.json"
+        write_exclusion_report(
+            report_path=str(exclusion_path),
+            total_records=1000,
+            valid_records=len(valid_df),
+            missing_features=['sigma_value', 'misorientation_angle'],
+            exclusion_reasons={'sigma_value': 200, 'misorientation_angle': 100}
+        )
+        self.assertTrue(exclusion_path.exists())
 
-        # Write exclusion report
-        report_path = tmp_path / "exclusion_report.json"
-        write_exclusion_report(str(report_path), 0, [], len(df))
-
-        # Save cleaned data
-        output_path = tmp_path / "cleaned.parquet"
+        # Step 7: Save cleaned data
+        output_path = self.data_dir / "cleaned_dataset.parquet"
         save_cleaned_data(final_df, str(output_path))
+        self.assertTrue(output_path.exists())
 
-        # Verify outputs
-        assert output_path.exists()
-        assert report_path.exists()
+    def test_sigma_value_calculation_logic(self):
+        """Test that sigma values are correctly handled (present vs calculated vs missing)."""
+        # Create data with mixed sigma values (some from metadata, some calculated, some missing)
+        df = self._create_mock_parsed_data(n_records=100)
 
-        final_loaded = pd.read_parquet(output_path)
-        assert len(final_loaded) == 5
+        # Simulate: 70 valid sigma, 20 calculated (marked somehow), 10 missing
+        # In real data, this would be differentiated, but here we just test the filtering logic
+        valid_mask = ~df['sigma_value'].isna()
+        self.assertEqual(valid_mask.sum(), 90)  # 100 - 10 NaN
 
-    def test_data_insufficiency_scenario(self, tmp_path):
-        """Test scenario where data is insufficient."""
-        # Create small dataset
-        df = pd.DataFrame({
-            'misorientation_angle': [10.0, 20.0],
-            'rodrigues_vector': [[0.1, 0.2, 0.3]] * 2,
-            'boundary_plane_normal': [[1, 0, 0]] * 2,
-            'sigma_value': [5, 3],
-            'boundary_width': [5.0, 6.0],
-            'excess_volume': [0.1, 0.2],
-            'temperature': [800, 900],
-            'composition': ['CeO2', 'CeO2'],
-            'diffusivity': [1e-10, 2e-10],
-            'simulation_method': ['DFT', 'MD'],
-            'potential_id': ['pot1', 'pot2']
-        })
-
-        with pytest.raises(DataInsufficiencyError):
-            enforce_minimum_records(df, min_records=500)
-
-    def test_exclusion_report_with_missing_features(self, tmp_path):
-        """Test exclusion report generation when features are missing."""
-        df = pd.DataFrame({
-            'misorientation_angle': [10.0, np.nan, 30.0],
-            'rodrigues_vector': [[0.1, 0.2, 0.3], None, [0.4, 0.5, 0.6]],
-            'boundary_plane_normal': [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-            'sigma_value': [5, 3, np.nan],
-            'boundary_width': [5.0, 6.0, 7.0],
-            'excess_volume': [0.1, 0.2, 0.3],
-            'temperature': [800, 900, 850],
-            'composition': ['CeO2', 'CeO2', 'CeO2'],
-            'diffusivity': [1e-10, 2e-10, 1.5e-10],
-            'simulation_method': ['DFT', 'MD', 'KMC'],
-            'potential_id': ['pot1', 'pot2', 'pot3']
-        })
-
-        required_features = [
-            'misorientation_angle', 'rodrigues_vector', 'boundary_plane_normal',
-            'sigma_value', 'boundary_width', 'excess_volume', 'temperature',
-            'composition', 'diffusivity', 'simulation_method', 'potential_id'
-        ]
-
+        required_features = ['sigma_value']
         valid_df, missing_features = validate_features(df, required_features)
 
-        report_path = tmp_path / "exclusion_report.json"
-        write_exclusion_report(
-            str(report_path),
-            len(df) - len(valid_df),
-            missing_features,
-            len(df)
-        )
+        self.assertEqual(len(valid_df), 90)
+        self.assertNotIn('sigma_value', missing_features)
 
-        with open(report_path, 'r') as f:
-            report = json.load(f)
+    def test_boundary_plane_normal_handling(self):
+        """Test that boundary plane normal (h, k, l) is correctly validated."""
+        df = self._create_mock_parsed_data()
 
-        assert report['excluded_count'] == 2
-        assert len(report['missing_features']) > 0
+        # Test with valid boundary plane
+        required_features = ['boundary_plane_h', 'boundary_plane_k', 'boundary_plane_l']
+        valid_df, missing_features = validate_features(df, required_features)
+        self.assertEqual(len(valid_df), 100)
+
+        # Test with missing boundary plane normal
+        df_missing_plane = df.copy()
+        df_missing_plane['boundary_plane_h'] = np.nan
+        df_missing_plane['boundary_plane_k'] = np.nan
+        df_missing_plane['boundary_plane_l'] = np.nan
+
+        valid_df_missing, missing_features_missing = validate_features(df_missing_plane, required_features)
+        self.assertEqual(len(valid_df_missing), 0)
+        self.assertIn('boundary_plane_h', missing_features_missing)
+
+    def test_missing_value_handling_edge_cases(self):
+        """Test edge cases for missing value handling."""
+        # All NaN
+        df_all_nan = pd.DataFrame({
+            'sigma_value': [np.nan] * 10,
+            'temperature': [np.nan] * 10,
+            'diffusivity': [np.nan] * 10
+        })
+
+        required_features = ['sigma_value', 'temperature', 'diffusivity']
+        valid_df, missing_features = validate_features(df_all_nan, required_features)
+        self.assertEqual(len(valid_df), 0)
+        self.assertEqual(len(missing_features), 3)
+
+        # No NaN
+        df_no_nan = pd.DataFrame({
+            'sigma_value': [1.0] * 10,
+            'temperature': [300.0] * 10,
+            'diffusivity': [1e-10] * 10
+        })
+
+        valid_df, missing_features = validate_features(df_no_nan, required_features)
+        self.assertEqual(len(valid_df), 10)
+        self.assertEqual(len(missing_features), 0)
+
+        # Mixed: some columns all NaN, some mixed
+        df_mixed = pd.DataFrame({
+            'sigma_value': [np.nan] * 10,  # All NaN
+            'temperature': [300.0] * 10,   # All valid
+            'diffusivity': [1e-10] * 5 + [np.nan] * 5  # Mixed
+        })
+
+        valid_df, missing_features = validate_features(df_mixed, required_features)
+        self.assertEqual(len(valid_df), 0)  # sigma_value is all NaN, so no valid rows
+        self.assertIn('sigma_value', missing_features)
+
+    def test_feature_engineering_preservation(self):
+        """Test that feature engineering preserves all necessary columns."""
+        df = self._create_mock_parsed_data()
+
+        required_features = [
+            'misorientation_angle', 'boundary_plane_h', 'boundary_plane_k', 'boundary_plane_l',
+            'sigma_value', 'temperature', 'composition', 'diffusivity',
+            'boundary_width', 'excess_volume', 'simulation_method', 'potential_id'
+        ]
+
+        valid_df, _ = validate_features(df, required_features)
+
+        # Check that all required features are present in the valid dataframe
+        for feature in required_features:
+            self.assertIn(feature, valid_df.columns)
+
+        # Check that no extra columns were removed (except potentially index)
+        original_cols = set(df.columns)
+        valid_cols = set(valid_df.columns)
+        self.assertEqual(original_cols, valid_cols)
+
+if __name__ == '__main__':
+    unittest.main()

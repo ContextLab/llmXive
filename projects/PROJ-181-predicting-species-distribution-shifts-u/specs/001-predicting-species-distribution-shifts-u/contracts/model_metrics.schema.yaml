@@ -1,58 +1,75 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Model Metrics Schema"
-description: "Schema for output metrics from SDM training and evaluation."
-type: object
+description: "Schema for model performance metrics and statistical tests."
+type: "object"
 properties:
-  species_name:
-    type: string
-    description: "Species for which metrics are calculated."
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model artifact"
+  species:
+    type: "string"
+    description: "Target species name"
   algorithm:
-    type: string
-    enum:
-      - "Random Forest"
-      - "Bioclim"
-      - "Regularized Logistic Regression (PB)"
-    description: "Algorithm used for the model. Note: 'Regularized Logistic Regression (PB)' is a Presence-Background method using L2 regularization, distinct from the MaxEnt algorithm."
-  split_type:
-    type: string
-    enum:
-      - "spatial_block_cv"
-      - "temporal_validation"
-      - "future_projection"
-    description: "Type of validation or projection."
+    type: "string"
+    enum: ["RF", "Bioclim", "MaxEnt"]
+    description: "Algorithm used for training"
+  test_set_period:
+    type: "string"
+    description: "Time period of the test set (e.g., '2005-2020')"
   auc:
-    type: number
-    description: "Area Under the ROC Curve."
+    type: "number"
     minimum: 0
     maximum: 1
+    description: "Area Under the ROC Curve"
   tss:
-    type: number
-    description: "True Skill Statistic."
+    type: "number"
     minimum: -1
     maximum: 1
+    description: "True Skill Statistic"
+  threshold:
+    type: "number"
+    description: "Probability threshold used for TSS calculation"
   sample_size:
-    type: integer
-    description: "Number of occurrence records used."
+    type: "integer"
+    minimum: 0
+    description: "Number of records in the test set"
   status:
-    type: string
-    enum:
-      - "SUCCESS"
-      - "UNDERPOWERED"
-      - "INSUFFICIENT_DATA"
-      - "ERROR"
-    description: "Status of the model run."
+    type: "string"
+    enum: ["PASS", "INSUFFICIENT_DATA"]
+    description: "Status flag based on sample size sufficiency"
+  delta_auc:
+    type: "number"
+    description: "Difference in AUC between historical and future projection"
+  calibration_brier:
+    type: "number"
+    description: "Brier score on recent test set"
+  mop_proportion:
+    type: "number"
+    description: "Proportion of future pixels within analogous climate space (MESS)"
+  composite_stability:
+    type: "number"
+    description: "Weighted combination of calibrated AUC change and MOP proportion"
   p_value:
-    type: number
-    description: "P-value from statistical comparison (if applicable)."
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value from hierarchical bootstrap (FR-018)"
   effect_size:
-    type: number
-    description: "Effect size from statistical comparison (if applicable)."
+    type: "number"
+    description: "Effect size (Cohen's h = 0.50, source verified)"
+  corrected_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value after Benjamini-Hochberg correction (FR-009)"
 required:
-  - species_name
+  - model_id
+  - species
   - algorithm
-  - split_type
+  - test_set_period
   - auc
   - tss
+  - threshold
   - sample_size
   - status
 additionalProperties: false

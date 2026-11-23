@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.00970",
+  "judged_at": "2026-08-07T12:57:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating correlations between molecular descriptors and drug-likeness scores chemistry",
+  "rationale": "This paper satisfies criterion (b) as it explicitly utilizes \"molecular descriptors\" to predict biological activities (a core component of drug-likeness) within the QSAR domain, establishing the empirical baseline for how these descriptors are currently modeled and evaluated. Additionally, it fits criterion (f) by addressing the canonical alternative-vocabulary cluster of \"QSAR\" and \"molecular descriptors\" which are the standard terms for the user's inquiry into structure-property relationships.",
+  "relevant": true
+}

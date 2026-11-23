@@ -1,0 +1,14 @@
+status: none
+intent: AlayaWorld interactive video and symbolic action dataset download python package
+  dataset
+required_fields:
+- video_file_path
+- action_sequence
+- action_timestamps
+- symbolic_state_per_timestamp
+- object_id
+- object_attributes (e.g., hp, position, status)
+- frame_timestamp
+cache_key: c361c5b44464910adb55f3d5beddb78eb9933ffff365f28894ce938d27cc2abb
+searched_at: '2026-09-09T11:41:55.659288+00:00'
+retry_count: 1

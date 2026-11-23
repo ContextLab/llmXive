@@ -1,0 +1,25 @@
+[lint]
+# Select specific error codes
+select = ["E", "F", "W", "I"]
+
+# Ignore specific rules
+ignore = ["E501"]
+
+# Maximum line length
+line-length = 100
+
+# Allow unused variables in certain contexts if needed (optional, default behavior)
+# dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Line ending style
+line-ending = "auto"

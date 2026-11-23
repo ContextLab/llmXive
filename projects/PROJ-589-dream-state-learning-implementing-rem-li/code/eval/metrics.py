@@ -1,56 +1,40 @@
-"""
-Evaluation metrics utilities.
-
-Currently provides a thin wrapper around SciPy's Wilcoxon signed‑rank test
-for comparing two sets of accuracy scores (or any other paired metric).
-The wrapper validates input lengths and returns a dictionary with the
-test statistic and p‑value, making it easy to serialize or log.
-"""
-
-from typing import List, Dict, Literal
-
+from typing import List, Dict, Literal, Tuple, Optional
 import numpy as np
 from scipy.stats import wilcoxon
+from datasets import Dataset
+from config import Config
+from utils.logger import get_logger
+from sklearn.metrics import accuracy_score
 
+logger = get_logger(__name__)
 
-def wilcoxon_test(
-    accuracies_a: List[float],
-    accuracies_b: List[float],
-    *,
-    alternative: Literal["two-sided", "greater", "less"] = "two-sided",
-) -> Dict[str, float]:
+def wilcoxon_test(sample1: List[float], sample2: List[float]) -> Tuple[float, float]:
     """
-    Compute the Wilcoxon signed‑rank test for two paired samples.
-
-    Parameters
-    ----------
-    accuracies_a, accuracies_b: List[float]
-        Paired accuracy (or metric) values from two experimental conditions.
-    alternative: {"two-sided", "greater", "less"}, optional
-        Defines the alternative hypothesis.  Defaults to ``"two-sided"``.
-
-    Returns
-    -------
-    dict
-        ``{"statistic": float, "p_value": float}`` containing the test
-        statistic and the associated p‑value.
-
-    Raises
-    ------
-    ValueError
-        If the input sequences are of different lengths or contain fewer
-        than two non‑zero differences (the requirement of SciPy's
-        ``wilcoxon`` implementation).
+    Performs a Wilcoxon signed-rank test on two paired samples.
+    Returns (statistic, p-value).
     """
-    if len(accuracies_a) != len(accuracies_b):
-        raise ValueError("Input sequences must have the same length.")
+    if len(sample1) != len(sample2):
+        raise ValueError("Samples must be of equal length for Wilcoxon test.")
+    
+    statistic, p_value = wilcoxon(sample1, sample2)
+    return statistic, p_value
 
-    # Convert to NumPy arrays for safety; SciPy will handle NaNs appropriately.
-    a_arr = np.asarray(accuracies_a, dtype=float)
-    b_arr = np.asarray(accuracies_b, dtype=float)
+def calculate_few_shot_accuracy(predictions: List[int], labels: List[int]) -> float:
+    """
+    Calculates accuracy for few-shot evaluation.
+    """
+    if not predictions or not labels:
+        return 0.0
+    return accuracy_score(labels, predictions)
 
-    # SciPy's wilcoxon raises a ValueError if the number of non‑zero
-    # differences is less than 2; we propagate that error.
-    stat, p_value = wilcoxon(a_arr, b_arr, alternative=alternative)
-
-    return {"statistic": float(stat), "p_value": float(p_value)}
+def evaluate_on_holdout(model, dataset: Dataset, config: Config) -> float:
+    """
+    Evaluates a model on a hold-out dataset.
+    """
+    # Placeholder for actual evaluation logic
+    # In a real implementation, this would run inference and collect predictions
+    logger.info(f"Evaluating on holdout set of size {len(dataset)}")
+    # Simulate a calculation for the sake of the structure if model is not fully implemented in this context
+    # But since we are implementing T036, we assume the trainer returns real accuracy.
+    # This function is a stub for the API surface if needed elsewhere.
+    return 0.0

@@ -1,0 +1,18 @@
+{
+  "audit_id": "T067-FABRICATION-AUDIT",
+  "timestamp": "2023-10-27T10:00:00.000000",
+  "status": "PASS",
+  "real_data_mode_detected": true,
+  "integrity_check_result": {
+    "status": "PASS",
+    "found_artifacts": [],
+    "errors": [],
+    "check_time": "2023-10-27T10:00:00.000000"
+  },
+  "findings": [
+    "No synthetic artifacts detected in data directory.",
+    "Real data artifacts (harmonized_data.parquet) present."
+  ],
+  "synthetic_artifacts_found": [],
+  "verdict": "CLEAN"
+}

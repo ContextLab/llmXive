@@ -54,5 +54,15 @@
     "latex/table/same_data_abl.tex",
     "README",
     "README.md"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "bf035f68b376112859c52e636665201af858271ce095437a55705d9b73f711f4",
+      "bytes": 1086887
+    },
+    "original.pdf": {
+      "sha256": "321128dbada12c8dd7c41b497a031d1b34929d81ceb88ef95266cbba8ed24ade",
+      "bytes": 1050491
+    }
+  }
 }

@@ -1,40 +1,74 @@
 # Configuration for Quantization Robustness of Multi-Effect LoRA Adapters
-# This file contains distinct effect prompts and seed values for deterministic generation.
-# Prompts are designed to test specific visual effects (lighting, texture, style)
-# to measure concept adherence and bleeding during quantization.
+# This file is the single source of truth for test prompts and seeds.
+# Implemented by T004.
+#
+# VALIDATION LOGIC:
+# This configuration is validated against data/subspace_ranks.json at runtime.
+# Each prompt MUST start with one of the effect names defined in subspace_ranks.json.
+# If a prompt does not map to a known effect, the pipeline will raise a ValueError.
 
-# Seed for deterministic generation across all runs
-base_seed: 42
+# EXACT, FIXED list of test prompts (10 items)
+# These map to the 5 distinct effects required by the specification.
+# Mapping:
+# - "oil painting", "acrylic", "pastel" -> "oil_painting" (Effect 1)
+# - "watercolor", "ink wash" -> "watercolor" (Effect 2)
+# - "cyberpunk", "digital art", "concept art" -> "cyberpunk" (Effect 3)
+# - "pencil sketch", "charcoal" -> "pencil_sketch" (Effect 4)
+# - "ink wash" is also used for watercolor, but here we ensure distinct mapping.
+# Note: The exact mapping logic is implemented in code/main.py and code/data_loader.py
+# to check prefix matches against data/subspace_ranks.json keys.
 
-# List of distinct effect prompts
-# Each prompt targets a specific visual effect to be controlled by a LoRA adapter
 prompts:
-  - "a portrait of a woman, cinematic lighting, volumetric fog, 8k"
-  - "a landscape of mountains, heavy rainstorm, wet surfaces, dramatic clouds"
-  - "a close-up of a robot, rusted metal texture, peeling paint, industrial decay"
-  - "a fantasy creature, glowing bioluminescent patterns, dark forest background"
-  - "an abstract composition, oil painting style, thick impasto brushstrokes, vibrant colors"
-  - "a cyberpunk city street, neon signs, rain-slicked pavement, night time"
-  - "a medieval knight, chainmail armor, weathered steel, battlefield dust"
-  - "a watercolor painting of flowers, soft edges, pastel colors, paper texture"
-  - "a sci-fi spaceship, metallic hull, engine glow, space debris background"
-  - "a surreal dream scene, melting clocks, floating objects, impossible geometry"
+  - "oil painting style"
+  - "watercolor style"
+  - "cyberpunk style"
+  - "pencil sketch style"
+  - "ink wash style"
+  - "acrylic style"
+  - "charcoal style"
+  - "pastel style"
+  - "digital art style"
+  - "concept art style"
 
-# Generation parameters
-generation_params:
-  width: 512
+# Seed values for deterministic generation (FR-003, FR-009)
+seeds:
+  - 42
+  - 123
+  - 456
+  - 789
+  - 101112
+
+# Reference generation settings (used for baseline comparisons)
+reference:
+  seed: 42
+  prompt: "a simple test object"
+  output_path: "data/references/baseline_ref.png"
+
+# Generation settings (default parameters for image generation)
+generation:
+  num_inference_steps: 30
   height: 512
-  num_inference_steps: 20
-  guidance_scale: 7.5
+  width: 512
+  dtype: "float16"
 
-# Quantization levels to test
-quantization_levels:
-  - fp16
-  - int8
-  - int4
+# Quantization settings
+quantization:
+  enabled: true
+  modes:
+    - "int8"
+    - "int4"
+  backend: "cpu"
 
-# Output directories
-output_dirs:
-  generated_images: "data/generated"
-  references: "data/references"
-  results: "data/results.csv"
+# Analysis settings
+analysis:
+  subspace_rank_tolerance: 1e-5
+  cesr_exclusion: true
+  bayesian_priors:
+    fixed_effect: "Normal(0, 1)"
+    random_effect: "HalfNormal(0.5)"
+
+# Streaming/Sampling Rule (FR-001, Constitution Principle: Real Data)
+# If the full dataset cannot be processed due to memory constraints,
+# this pipeline will process the first N seeds/prompts defined above.
+# It will NOT generate synthetic data. If memory is exceeded, it will fail loudly.
+sampling_rule: "process_all_defined_prompts_and_seeds"

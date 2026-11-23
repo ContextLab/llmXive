@@ -1,0 +1,33 @@
+T012b:
+  c: false
+  h: 0a09232e68af8882e484eb32e155252864422bd2ecebf1627117558c96583ba8
+  r: "The `loader.py` file is truncated and does not contain the full fetch\u2011\
+    or\u2011proxy workflow (no function that calls `fetch_dataset_from_url`, checks\
+    \ `verify_progressive_constraints`, and writes either `data/raw/adaplanbench.jsonl`\
+    \ or `data/raw/synthetic_proxy.jsonl`). Moreover, the required output files `data/raw/synthetic_proxy.jsonl`\
+    \ and `data/raw/adaplanbench.jsonl` are absent, so the verification test cannot\
+    \ succeed. The missing orchestration logic and data files must be added to satisfy\
+    \ the task."
+T013:
+  c: false
+  h: 41103c277d7e99369175b026df4d618d4855c2bfe24770a77565c9a412dbe0db
+  r: "The repository lacks the required `data/processed/filtered_tasks.csv` file,\
+    \ and `code/dataset/loader.py` does not contain implementations of `filter_progressive_constraints`\
+    \ or `save_filtered_dataset` (the file is truncated and ends mid\u2011definition).\
+    \ Consequently the filtering logic and CSV output are not present, so the task\u2019\
+    s requirements are unmet."
+T033b:
+  c: false
+  h: 04e32838dcc665288206de9043ae102ab5d6e4f8f14112dcaf675f93cccf7613
+  r: The script `code/dataset/generate_ground_truth.py` is present and correctly implements
+    the placeholder columns, but the required output file `data/processed/annotation_labels.csv`
+    does not exist, so the verification step (existence of the CSV with correct rows)
+    fails. The implementer must run the script (or otherwise create the CSV) so that
+    the file is present with the placeholder columns.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run, CI logs, timing measurements,\
+    \ or any artifact showing that all steps completed within the 6\u2011hour limit\
+    \ is provided. The only material present is a unrelated feature specification,\
+    \ so the required validation artifact is missing."

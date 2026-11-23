@@ -1,21 +1,75 @@
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data file, or JSON output was presented. The required artifact\u2014\
-    a JSON file containing the raw help\u2011request logs (timestamp and content)\
-    \ and the computed composite \u201CCognitive Load Proxy\u201D score\u2014is missing,\
-    \ so the task\u2019s functional requirements have not been demonstrated."
 T020:
+  c: true
+  h: 46f56fe0588eed034caa90ec4bb352cefaaaddebb25e0a0857577a8b12b7e0cd
+  r: "The file `code/data_collection.py` defines `save_logs` which writes JSON to\
+    \ `data/raw/participant_logs.json` and generates a SHA\u2011256 checksum recorded\
+    \ in `checksums.txt`. The constants point to the required path, satisfying the\
+    \ export and checksum requirements. (The output file itself need not exist until\
+    \ the function is invoked.)"
+T021a:
   c: false
-  h: 829ba4dab3e6bba3f182ec9d78e7338469c9c4163e61e9f65b42f86f44c28f5b
-  r: "The required `data/raw/participant_logs.json` file does not exist, so the raw\
-    \ data export artifact is missing. While `code/data_collection.py` contains `save_logs`\
-    \ and checksum logic, the export file itself was never created, failing the task\u2019\
-    s core requirement."
+  h: ff3a1380bcb827a3e1b8784ed07c588183018a205fbc4f1078a394c210d36a7e
+  r: The `config/candidate_repos.yaml` file is present, but the required output `data/raw/repo_cc_raw.json`
+    does not exist, so the cyclomatic complexity metrics were never generated or saved.
+    Without this file the verification step cannot be satisfied. The missing JSON
+    file must be created with CC data for every repository listed.
+T021b:
+  c: false
+  h: 2c527d78350760ecd1612c6db798e4ef3d588ed8e03dd8bf7f049887ffa0098a
+  r: "The required output file `data/raw/repo_loc_raw.json` is missing, so no LOC\
+    \ metrics are provided for the candidate repositories. Without this file the task\u2019\
+    s verification condition cannot be satisfied."
 T021c:
   c: false
-  h: 5afcd58a10bd2da04efc415ff24cd9c1e4e4cef427de90c12118fd7d33c0fa66
-  r: "The repository contains `code/validation.py`, but it only defines metric\u2011\
-    calculation functions and does not write the required `data/raw/repo_covariates.json`.\
-    \ Moreover, the expected output file is absent from the project. The task\u2019\
-    s core deliverable\u2014producing the covariate JSON file\u2014is missing."
+  h: 087407aeb676dc3d62e9a5e4d88952efe8e22f25c460458f26d11797a3c78a4a
+  r: "The repository lacks the required `data/raw/doc_quality_scores.json` file, so\
+    \ the rubric\u2019s scores are never produced. Moreover, the shown portion of\
+    \ `code/validation.py` does not contain any logic that applies the specified regex\
+    \ to the README files or computes/documentation quality scores. The task\u2019\
+    s core output and functionality are therefore missing."
+T021d:
+  c: false
+  h: ce27ae4278de4325922a7ae6bfae49ec46a656c7219fead1744d8e6076b94dbf
+  r: "The required output file `data/raw/repo_selection_rubric.json` does not exist,\
+    \ and the provided `code/validation.py` (truncated) shows no implementation of\
+    \ the high\u2011quality doc filtering, \xB115\u202F% LOC/CC tolerance checks,\
+    \ or saving of the specified JSON schema. The task\u2019s core logic and output\
+    \ are therefore missing."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or logs were provided that implement the required fallback\
+    \ to the local CPU\u2011optimized phi (int4) model, pin it to a specific HuggingFace\
+    \ commit, or record generation config and checksums. The evidence consists only\
+    \ of the task description and spec excerpt, which does not satisfy the implementation\
+    \ requirement."
+T030a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `contracts/dataset.schema.json` file was provided, nor any\
+    \ JSON content to validate against the data model. Without the file\u2019s existence\
+    \ and its correctness, the task requirement is not satisfied."
+T033:
+  c: false
+  h: afbd3c7a3c82f0345097f313e4b17a97c8976f42c93c5c5f19098703a573f99f
+  r: "The validation report exists and indicates success, but the required schema\
+    \ file `contracts/dataset.schema.yaml` is missing, so the validation could not\
+    \ have actually been performed against the specified schema. The task\u2019s prerequisite\
+    \ (ensuring the schema file exists) is not satisfied."
+T070:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a file at `specs/001-evaluating-the-impact-of-llm-generated-c/research.md`\
+    \ was provided, nor any excerpt showing the required sections (pre\u2011specified\
+    \ analysis approach, diagnostics, power analysis) or the explicit statement that\
+    \ the decision\u2011tree for test selection is removed and assumption p\u2011\
+    values are ignored. The task\u2019s core deliverable is therefore missing."
+T070c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no evidence of a `research.md` file being examined, no `state/methodology_validation.json`\
+    \ output, and no `state/methodology_valid.lock` file. Without these artifacts,\
+    \ we cannot verify that the decision\u2011tree reference was removed, Welch\u2019\
+    s ANOVA was pre\u2011specified, or that the validation result was recorded as\
+    \ required. The implementer must supply the mentioned files with the appropriate\
+    \ content and lock file."

@@ -1,111 +1,151 @@
-"""
-Structured logging utilities for the llmXive pipeline.
-"""
-import logging
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
+
+import functools
 import json
-import sys
+import logging as stdlib_logging
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional
-from pathlib import Path
+from typing import Any
 
-class StructuredFormatter(logging.Formatter):
+# Standard library logger for actual output
+_STD_LOGGER = stdlib_logging.getLogger("llmXive")
+_STD_LOGGER.setLevel(stdlib_logging.INFO)
+if not _STD_LOGGER.handlers:
+    handler = stdlib_logging.StreamHandler()
+    formatter = stdlib_logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    _STD_LOGGER.addHandler(handler)
+
+
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
-    Custom formatter that outputs log records as JSON.
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        # Also log to stdlib logger for visibility
+        _STD_LOGGER.info(f"[{self.name}] {op}: {kwargs}")
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op or delegation
+    def __getattr__(self, name: str):
+        def _handler(*args: Any, **kwargs: Any) -> Any:
+            # Defer to stdlib logger for actual output
+            if hasattr(_STD_LOGGER, name):
+                getattr(_STD_LOGGER, name)(*args, **kwargs)
+            return None
+        return _handler
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
-    def format(self, record: logging.LogRecord) -> str:
-        log_data = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "level": record.levelname,
-            "logger": record.name,
-            "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno
-        }
-        if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
-        return json.dumps(log_data)
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
 
-def setup_logging(
-    name: str,
-    level: int = logging.INFO,
-    log_file: Optional[Path] = None,
-    use_json: bool = True
-) -> logging.Logger:
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
+
+
+# Backward compatibility wrappers for the specific signatures used in the codebase
+def log_info(*args: Any, **kwargs: Any) -> None:
     """
-    Set up a logger with optional file and console handlers.
-    
-    Args:
-        name: Name of the logger.
-        level: Logging level.
-        log_file: Optional path to a log file.
-        use_json: If True, use JSON formatting.
-    
-    Returns:
-        Configured logger instance.
+    Tolerant log_info that accepts:
+    1. log_info(logger, message) -> uses logger.info
+    2. log_info(message) -> uses global logger
+    3. log_info(operation, **params) -> uses log_operation
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    
-    # Avoid adding handlers multiple times
-    if logger.handlers:
-        return logger
+    if len(args) == 0:
+        return
 
-    formatter = StructuredFormatter() if use_json else logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    # Case 1: log_info(logger, message)
+    if len(args) >= 2 and hasattr(args[0], 'info'):
+        logger = args[0]
+        message = args[1]
+        logger.info(message)
+        return
 
-    # Console Handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setFormatter(formatter)
-    ch.setLevel(level)
-    logger.addHandler(ch)
+    # Case 2: log_info(message)
+    if len(args) == 1 and isinstance(args[0], str):
+        _STD_LOGGER.info(args[0])
+        return
 
-    # File Handler (optional)
-    if log_file:
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        fh = logging.FileHandler(log_file)
-        fh.setFormatter(formatter)
-        fh.setLevel(level)
-        logger.addHandler(fh)
+    # Case 3: log_info(operation, **params)
+    if len(args) >= 1:
+        op = args[0]
+        log_operation(op, **kwargs)
+        return
 
-    return logger
+    # Fallback
+    _STD_LOGGER.info(str(args) if args else str(kwargs))
 
-def get_logger(name: str) -> logging.Logger:
-    """
-    Get a logger instance, creating it if it doesn't exist.
-    """
-    return logging.getLogger(name)
 
-def log_info(logger: logging.Logger, message: str, **kwargs):
-    """Log an info message with optional extra context."""
-    extra = {"context": kwargs} if kwargs else {}
-    logger.info(message, extra=extra)
+def log_warning(*args: Any, **kwargs: Any) -> None:
+    """Tolerant log_warning."""
+    if len(args) >= 2 and hasattr(args[0], 'warning'):
+        args[0].warning(args[1])
+    elif len(args) == 1 and isinstance(args[0], str):
+        _STD_LOGGER.warning(args[0])
+    else:
+        _STD_LOGGER.warning(str(args) if args else str(kwargs))
 
-def log_warning(logger: logging.Logger, message: str, **kwargs):
-    """Log a warning message with optional extra context."""
-    extra = {"context": kwargs} if kwargs else {}
-    logger.warning(message, extra=extra)
 
-def log_error(logger: logging.Logger, message: str, **kwargs):
-    """Log an error message with optional extra context."""
-    extra = {"context": kwargs} if kwargs else {}
-    logger.error(message, extra=extra)
+def log_error(*args: Any, **kwargs: Any) -> None:
+    """Tolerant log_error."""
+    if len(args) >= 2 and hasattr(args[0], 'error'):
+        args[0].error(args[1])
+    elif len(args) == 1 and isinstance(args[0], str):
+        _STD_LOGGER.error(args[0])
+    else:
+        _STD_LOGGER.error(str(args) if args else str(kwargs))
 
-def log_debug(logger: logging.Logger, message: str, **kwargs):
-    """Log a debug message with optional extra context."""
-    extra = {"context": kwargs} if kwargs else {}
-    logger.debug(message, extra=extra)
 
-def log_critical(logger: logging.Logger, message: str, **kwargs):
-    """Log a critical message with optional extra context."""
-    extra = {"context": kwargs} if kwargs else {}
-    logger.critical(message, extra=extra)
-
-def log_exception(logger: logging.Logger, message: str, exc_info: bool = True):
-    """Log an exception message."""
-    logger.exception(message, exc_info=exc_info)
-
-def log_event(logger: logging.Logger, event_type: str, data: Dict[str, Any]):
-    """Log a structured event."""
-    logger.info(json.dumps({"event": event_type, "data": data}))
+def log_debug(*args: Any, **kwargs: Any) -> None:
+    """Tolerant log_debug."""
+    if len(args) >= 2 and hasattr(args[0], 'debug'):
+        args[0].debug(args[1])
+    elif len(args) == 1 and isinstance(args[0], str):
+        _STD_LOGGER.debug(args[0])
+    else:
+        _STD_LOGGER.debug(str(args) if args else str(kwargs))

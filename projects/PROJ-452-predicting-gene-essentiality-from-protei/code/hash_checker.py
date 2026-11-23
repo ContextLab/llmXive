@@ -12,7 +12,7 @@ import os
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-
+import datetime
 import yaml
 
 from utils import compute_sha256, safe_join, setup_logging
@@ -110,7 +110,8 @@ def update_hash_state() -> None:
     target_dirs = ['data', 'results']
     
     # Initialize state structure
-    state = load_current_state(get_path('state/hash_state.yaml'))
+    state_path = get_path('state/hash_state.yaml')
+    state = load_current_state(state_path)
     
     # Ensure state directory exists
     ensure_dirs(Path('state'))
@@ -141,13 +142,12 @@ def update_hash_state() -> None:
             logger.info(f"No changes detected in {dir_name}.")
     
     # Update timestamp if any changes occurred or if state is new
-    import datetime
     if state_updated or 'last_updated' not in state:
         state['last_updated'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
         state_updated = True
     
     if state_updated:
-        save_state(state, get_path('state/hash_state.yaml'))
+        save_state(state, state_path)
         logger.info("Hash state update completed successfully.")
     else:
         logger.info("No changes to save.")

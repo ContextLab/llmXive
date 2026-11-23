@@ -1,0 +1,42 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory tree was provided\u2014there are no listings,\
+    \ screenshots, or command outputs showing that `projects/PROJ-043-leveraging-large-language-models-for-aut/`\
+    \ contains the `code/`, `data/`, `tests/`, `paper/`, `contracts/` subfolders and\
+    \ the deeper sub\u2011directories (`code/data/`, `code/llm/`, `code/models/`,\
+    \ `code/utils/`, `data/raw/`, `data/processed/`, `data/cache/`, `data/results/`).\
+    \ Without such proof, the verification command cannot be confirmed to succeed.\
+    \ The implementer must supply concrete proof (e.g., `tree` output, `ls` listings,\
+    \ or test command exit status"
+T005:
+  c: false
+  h: c89c235018eb1b6ed0e38b5d22710f0e893b4d795e0e488266d8469ef2a5c96e
+  r: The repository lacks the required `contracts/config.schema.yaml` and `contracts/output.schema.yaml`
+    files, and the provided `validation.py` does not expose a `validate` function
+    as the verification expects (it only defines `validate_config`/`validate_output`
+    and is truncated). Consequently the schema validation logic cannot be exercised
+    as specified.
+T011:
+  c: false
+  h: 084f1758e87e8cf49723cdfa8be4bc071132316ff955da2d6dd4f371d5654fe6
+  r: "The integration test file exists but is truncated and does not show the final\
+    \ assertions that `data/processed/raw_metrics.json` is created and contains the\
+    \ required keys. Moreover, the expected output file `data/processed/raw_metrics.json`\
+    \ is absent from the repository. The task\u2019s core requirement\u2014producing\
+    \ and verifying that JSON file\u2014is therefore not fulfilled."
+T014:
+  c: false
+  h: 02643298a27885aa6407b600e84f3ea3ea66472db89bea7fccb609baafba0ca7
+  r: "The `processor.py` file is truncated and does not contain the full orchestration\
+    \ logic, schema validation, or SC\u2011003 compliance logging, and the required\
+    \ output files (`data/processed/raw_metrics.json`, `data/results/efficiency_report.json`)\
+    \ and the schema file (`contracts/output.schema.yaml`) are absent. The task\u2019\
+    s core artifacts are missing or incomplete."
+T018:
+  c: false
+  h: cfd198c02874cc5872fbe2ff842ff50d5a36032515da0f19a3e3815aec26db71
+  r: The required artifact `tests/integration/test_refactoring_pipeline.py` does not
+    exist in the repository, so the integration test for the refactoring batch processing
+    is missing. The task cannot be considered complete until this file is created
+    with appropriate test code.

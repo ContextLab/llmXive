@@ -1,260 +1,165 @@
-"""
-Alignment utilities for code review effectiveness evaluation.
-
-This module provides functions for:
-1. AST-based diff matching (skeleton provided in T008a)
-2. CPU-optimized embedding similarity using sentence-transformers
-"""
-
 import logging
 from typing import List, Tuple, Optional, Dict, Any
 import numpy as np
-
-try:
-    from sentence_transformers import SentenceTransformer
-    SENTENCE_TRANSFORMERS_AVAILABLE = True
-except ImportError:
-    SENTENCE_TRANSFORMERS_AVAILABLE = False
+from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
-# Default model as per task specification and project constraints (CPU-only)
-DEFAULT_MODEL_NAME = "all-MiniLM-L6-v2"
-_model_cache: Optional[Any] = None
+# Global model cache
+_embedding_model = None
 
-
-def get_embedding_model(model_name: str = DEFAULT_MODEL_NAME) -> Any:
+def get_embedding_model(model_name: str = "all-MiniLM-L6-v2") -> SentenceTransformer:
     """
-    Retrieve or initialize the SentenceTransformer model.
-    
-    Uses a global cache to avoid reloading the model on every call,
-    optimizing for repeated similarity checks during alignment.
+    Get or create the embedding model.
+    Uses all-MiniLM-L6-v2 as specified in the project requirements.
     
     Args:
-        model_name: The HuggingFace model identifier. Defaults to all-MiniLM-L6-v2.
-        
+        model_name: Name of the sentence-transformers model to use
+    
     Returns:
-        The initialized SentenceTransformer model.
-        
-    Raises:
-        ImportError: If sentence-transformers is not installed.
+        SentenceTransformer model instance
     """
-    global _model_cache
+    global _embedding_model
     
-    if not SENTENCE_TRANSFORMERS_AVAILABLE:
-        raise ImportError(
-            "sentence-transformers is required for embedding alignment. "
-            "Install via: pip install sentence-transformers"
-        )
-    
-    if _model_cache is None:
+    if _embedding_model is None:
         logger.info(f"Loading embedding model: {model_name}")
-        # Load on CPU explicitly as per project constraints
-        _model_cache = SentenceTransformer(model_name, device="cpu")
-        logger.info("Model loaded successfully.")
+        _embedding_model = SentenceTransformer(model_name)
+        logger.info("Embedding model loaded successfully")
     
-    return _model_cache
+    return _embedding_model
 
-
-def compute_embeddings(
-    texts: List[str], 
-    model_name: str = DEFAULT_MODEL_NAME,
-    batch_size: int = 32
-) -> np.ndarray:
+def compute_embeddings(model: SentenceTransformer, texts: List[str]) -> np.ndarray:
     """
-    Compute embeddings for a list of text strings.
+    Compute embeddings for a list of texts.
     
     Args:
-        texts: List of text strings to embed (e.g., code snippets, comments).
-        model_name: The model to use for embeddings.
-        batch_size: Number of texts to process in a single batch.
-        
+        model: SentenceTransformer model instance
+        texts: List of text strings to embed
+    
     Returns:
-        A numpy array of shape (len(texts), embedding_dim).
-        
-    Raises:
-        ImportError: If sentence-transformers is not installed.
+        numpy array of embeddings with shape (n_texts, embedding_dim)
     """
     if not texts:
         return np.array([])
     
-    model = get_embedding_model(model_name)
-    embeddings = model.encode(
-        texts, 
-        batch_size=batch_size, 
-        show_progress_bar=False,
-        convert_to_numpy=True
-    )
+    embeddings = model.encode(texts, show_progress_bar=False, convert_to_numpy=True)
     return embeddings
 
-
-def cosine_similarity_matrix(embeddings: np.ndarray) -> np.ndarray:
+def cosine_similarity_matrix(embeddings_a: np.ndarray, embeddings_b: np.ndarray) -> np.ndarray:
     """
-    Compute the cosine similarity matrix for a set of embeddings.
+    Compute cosine similarity matrix between two sets of embeddings.
     
     Args:
-        embeddings: Array of shape (n_samples, embedding_dim).
-        
+        embeddings_a: First set of embeddings (n_a, dim)
+        embeddings_b: Second set of embeddings (n_b, dim)
+    
     Returns:
-        Array of shape (n_samples, n_samples) containing pairwise cosine similarities.
+        Similarity matrix of shape (n_a, n_b)
     """
-    if embeddings.size == 0:
+    if embeddings_a.size == 0 or embeddings_b.size == 0:
         return np.array([])
     
-    # Normalize embeddings to unit length for cosine similarity
-    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+    # Normalize embeddings
+    norm_a = np.linalg.norm(embeddings_a, axis=1, keepdims=True)
+    norm_b = np.linalg.norm(embeddings_b, axis=1, keepdims=True)
+    
     # Avoid division by zero
-    norms = np.where(norms == 0, 1, norms)
-    normalized = embeddings / norms
+    norm_a = np.where(norm_a == 0, 1, norm_a)
+    norm_b = np.where(norm_b == 0, 1, norm_b)
     
-    # Matrix multiplication gives cosine similarity
-    similarity = np.dot(normalized, normalized.T)
+    normalized_a = embeddings_a / norm_a
+    normalized_b = embeddings_b / norm_b
     
-    # Clip to [-1, 1] to handle floating point errors
-    return np.clip(similarity, -1.0, 1.0)
+    # Compute cosine similarity
+    similarity_matrix = np.dot(normalized_a, normalized_b.T)
+    
+    return similarity_matrix
 
-
-def find_best_matches(
-    query_texts: List[str],
-    candidate_texts: List[str],
-    threshold: float = 0.5,
-    top_k: int = 1
-) -> List[List[Tuple[int, float]]]:
+def find_best_matches(similarities: np.ndarray, top_k: int = 5) -> List[Tuple[int, float]]:
     """
-    Find the best matching candidates for each query text based on embedding similarity.
-    
-    This function computes embeddings for both queries and candidates, calculates
-    the similarity matrix, and returns the top-k matches above a threshold.
+    Find the top-k best matches for a set of similarities.
     
     Args:
-        query_texts: List of query strings (e.g., tool issues descriptions).
-        candidate_texts: List of candidate strings (e.g., human annotations).
-        threshold: Minimum similarity score to consider a match valid.
-        top_k: Number of top matches to return per query.
-        
+        similarities: 1D array of similarity scores
+        top_k: Number of top matches to return
+    
     Returns:
-        A list of lists of tuples (candidate_index, similarity_score).
-        Each inner list corresponds to a query and contains its best matches.
-        
-    Raises:
-        ImportError: If sentence-transformers is not installed.
+        List of (index, score) tuples for top matches
     """
-    if not query_texts or not candidate_texts:
-        return [[] for _ in query_texts]
+    if similarities.size == 0:
+        return []
     
-    # Compute embeddings
-    query_emb = compute_embeddings(query_texts)
-    candidate_emb = compute_embeddings(candidate_texts)
+    # Get top-k indices
+    top_indices = np.argsort(similarities)[::-1][:top_k]
     
-    # Compute similarity matrix (Queries x Candidates)
-    # Normalize both
-    q_norms = np.linalg.norm(query_emb, axis=1, keepdims=True)
-    q_norms = np.where(q_norms == 0, 1, q_norms)
-    q_norm = query_emb / q_norms
-    
-    c_norms = np.linalg.norm(candidate_emb, axis=1, keepdims=True)
-    c_norms = np.where(c_norms == 0, 1, c_norms)
-    c_norm = candidate_emb / c_norms
-    
-    similarity_matrix = np.dot(q_norm, c_norm.T)
-    
-    results = []
-    for i, row in enumerate(similarity_matrix):
-        # Get indices sorted by similarity descending
-        sorted_indices = np.argsort(row)[::-1]
-        
-        matches = []
-        for idx in sorted_indices:
-            score = row[idx]
-            if score >= threshold:
-                matches.append((int(idx), float(score)))
-                if len(matches) >= top_k:
-                    break
-        results.append(matches)
-        
-    return results
+    # Return (index, score) pairs
+    return [(int(idx), float(similarities[idx])) for idx in top_indices]
 
-
-def align_by_semantic_similarity(
-    tool_issues: List[Dict[str, Any]],
-    ground_truth_items: List[Dict[str, Any]],
-    text_key: str = "description",
-    threshold: float = 0.6
-) -> List[Dict[str, Any]]:
+def align_by_semantic_similarity(source_texts: List[str], 
+                                target_texts: List[str],
+                                threshold: float = 0.65,
+                                model_name: str = "all-MiniLM-L6-v2") -> List[Dict[str, Any]]:
     """
-    Align tool issues with ground truth items using semantic similarity.
-    
-    This is the CPU-optimized interface required by T008b. It extracts text
-    descriptions from the input dictionaries, computes embeddings, and returns
-    alignment pairs where similarity exceeds the threshold.
+    Align source texts to target texts using semantic similarity.
     
     Args:
-        tool_issues: List of dicts representing tool issues (must contain text_key).
-        ground_truth_items: List of dicts representing ground truth (must contain text_key).
-        text_key: The key in the dicts containing the text to embed.
-        threshold: Similarity threshold for a valid alignment.
-        
+        source_texts: List of source text strings
+        target_texts: List of target text strings
+        threshold: Minimum similarity threshold for a match
+        model_name: Name of the sentence-transformers model
+    
     Returns:
-        List of alignment records containing tool_id, ground_truth_id, and score.
+        List of alignment dictionaries with source_idx, target_idx, and similarity
     """
-    if not tool_issues or not ground_truth_items:
-        return []
+    logger.info(f"Aligning {len(source_texts)} source texts to {len(target_texts)} target texts")
     
-    # Extract texts
-    query_texts = [item.get(text_key, "") for item in tool_issues]
-    candidate_texts = [item.get(text_key, "") for item in ground_truth_items]
+    model = get_embedding_model(model_name)
     
-    # Filter empty texts to avoid embedding errors
-    valid_query_indices = [i for i, t in enumerate(query_texts) if t.strip()]
-    valid_candidate_indices = [i for i, t in enumerate(candidate_texts) if t.strip()]
+    source_embeddings = compute_embeddings(model, source_texts)
+    target_embeddings = compute_embeddings(model, target_texts)
     
-    if not valid_query_indices or not valid_candidate_indices:
-        logger.warning("No valid text content found for alignment.")
-        return []
-    
-    # Compute embeddings only for valid items
-    valid_query_texts = [query_texts[i] for i in valid_query_indices]
-    valid_candidate_texts = [candidate_texts[i] for i in valid_candidate_indices]
-    
-    query_emb = compute_embeddings(valid_query_texts)
-    candidate_emb = compute_embeddings(valid_candidate_texts)
-    
-    # Similarity matrix
-    q_norms = np.linalg.norm(query_emb, axis=1, keepdims=True)
-    q_norms = np.where(q_norms == 0, 1, q_norms)
-    q_norm = query_emb / q_norms
-    
-    c_norms = np.linalg.norm(candidate_emb, axis=1, keepdims=True)
-    c_norms = np.where(c_norms == 0, 1, c_norms)
-    c_norm = candidate_emb / c_norms
-    
-    similarity_matrix = np.dot(q_norm, c_norm.T)
+    similarity_matrix = cosine_similarity_matrix(source_embeddings, target_embeddings)
     
     alignments = []
-    for i, q_idx in enumerate(valid_query_indices):
-        for j, c_idx in enumerate(valid_candidate_indices):
-            score = float(similarity_matrix[i, j])
+    for source_idx in range(len(source_texts)):
+        similarities = similarity_matrix[source_idx]
+        best_matches = find_best_matches(similarities, top_k=1)
+        
+        if best_matches:
+            target_idx, score = best_matches[0]
             if score >= threshold:
                 alignments.append({
-                    "tool_issue_index": q_idx,
-                    "tool_issue_id": tool_issues[q_idx].get("id", q_idx),
-                    "ground_truth_index": c_idx,
-                    "ground_truth_id": ground_truth_items[c_idx].get("id", c_idx),
-                    "similarity_score": score
+                    'source_idx': source_idx,
+                    'target_idx': target_idx,
+                    'similarity': score,
+                    'source_text': source_texts[source_idx][:100] + "...",
+                    'target_text': target_texts[target_idx][:100] + "..."
                 })
     
-    logger.info(f"Generated {len(alignments)} semantic alignments above threshold {threshold}.")
+    logger.info(f"Found {len(alignments)} semantic alignments above threshold {threshold}")
     return alignments
 
-
-# Placeholder for AST alignment (implemented in T008a)
-def align_by_ast_diffs(tool_issues: List[Dict], ground_truth_items: List[Dict]) -> List[Dict]:
+def align_by_ast_diffs(source_code: str, target_code: str) -> Dict[str, Any]:
     """
-    Placeholder for AST-based alignment logic.
+    Align code snippets using AST-based diff matching.
+    This is a placeholder implementation - actual AST diff logic would go here.
     
-    This function is a stub to satisfy the interface requirement for T008a.
-    The actual implementation of AST parsing and diff matching belongs in T008a.
+    Args:
+        source_code: Source code string
+        target_code: Target code string
+    
+    Returns:
+        Alignment dictionary with match information
     """
-    # This is intentionally a stub as per task separation.
-    # T008a will implement the real logic here.
-    return []
+    # Placeholder: In a real implementation, this would:
+    # 1. Parse both code snippets into ASTs
+    # 2. Compute the diff between ASTs
+    # 3. Identify matching nodes
+    # 4. Return alignment information
+    
+    return {
+        'matched': False,
+        'confidence': 0.0,
+        'diff_nodes': [],
+        'message': 'AST diff not implemented in this version'
+    }

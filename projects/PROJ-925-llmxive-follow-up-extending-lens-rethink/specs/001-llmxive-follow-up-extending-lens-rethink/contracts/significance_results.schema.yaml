@@ -1,74 +1,49 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Significance and Stability Results
-description: >
-  Schema for the aggregated results of the XGBoost training,
-  permutation importance, and sensitivity analysis.
+title: Significance Results Schema
+description: Schema for the output of permutation tests and feature importance ranking.
 type: object
 required:
-  - run_id
-  - model_metrics
-  - feature_importance
-  - stability_metrics
+  - features
+  - p_values
+  - is_significant
+  - method
+  - n_iterations
+  - alpha
 properties:
-  run_id:
-    type: string
-    description: Unique identifier for the training run.
-  model_metrics:
-    type: object
-    properties:
-      mean_r2:
-        type: number
-      mean_mse:
-        type: number
-      pearson_correlation:
-        type: number
-    required:
-      - mean_r2
-      - mean_mse
-  feature_importance:
+  features:
     type: array
-    description: List of features ranked by importance.
     items:
-      type: object
-      required:
-        - feature_name
-        - importance_score
-        - rank
-      properties:
-        feature_name:
-          type: string
-        importance_score:
-          type: number
-        rank:
-          type: integer
-        p_value:
-          type: number
-        is_significant:
-          type: boolean
+      type: string
+    description: List of feature names in order.
+  p_values:
+    type: array
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+    description: P-values for each feature.
+  is_significant:
+    type: array
+    items:
+      type: boolean
+    description: Boolean flag indicating significance after BH correction.
+  method:
+    type: string
+    description: Name of the correction method used (e.g., Benjamini-Hochberg).
+  n_iterations:
+    type: integer
+    minimum: 1
+    description: Number of permutation iterations.
+  alpha:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Significance threshold.
   stability_metrics:
     type: object
-    description: >
-      Aggregated stability metrics across multiple seeds.
-      Keys are feature names, values are stats.
-    additionalProperties:
-      type: object
-      required:
-        - mean_rank
-        - std_dev
-      properties:
-        mean_rank:
-          type: number
-        std_dev:
-          type: number
-  configuration:
-    type: object
-    description: Snapshot of the configuration used for this run.
+    description: Optional metrics for seed/threshold sensitivity.
     properties:
-      seeds_used:
-        type: array
-        items:
-          type: integer
-      n_folds:
-        type: integer
-      alpha_fdr:
-        type: number
+      alpha_sweep_results:
+        type: object
+      seed_sweep_results:
+        type: object

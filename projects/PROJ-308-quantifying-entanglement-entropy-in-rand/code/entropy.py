@@ -1,256 +1,291 @@
 """
-Entanglement Entropy Computation Module
+Entanglement entropy computation module for 1D quantum spin chains.
 
-Computes von Neumann entanglement entropy S(l) for all bipartitions
-l in {1, ..., L-1} for a given ground state realization.
+This module implements the calculation of von Neumann entanglement entropy
+S(l) = -Tr(rho_l * log(rho_l)) for all bipartitions l across a system of size L,
+given a ground state wavefunction.
 
-Implements FR-004: Compute von Neumann entropy S(l) for all bipartitions.
+It supports both exact diagonalization (for small systems) and TEBD-derived
+matrix product states (for larger systems).
+
+FR-004: Compute von Neumann entropy S(l) for all bipartitions l across the system per realization.
 """
 
 import numpy as np
 from typing import Tuple, List, Dict, Optional
 from scipy.sparse import csr_matrix, kron, identity, diags
 from scipy.sparse.linalg import eigs
+from scipy.linalg import eigvalsh
+import warnings
 
-from config import ConfigError
-from ground_state import is_numerically_unresolved
 
-
-class EntropyError(ConfigError):
+class EntropyError(Exception):
     """Custom exception for entropy computation errors."""
     pass
 
 
-def _compute_reduced_density_matrix(psi: np.ndarray, L: int, l: int) -> csr_matrix:
+def _compute_reduced_density_matrix(psi: np.ndarray, L: int, l: int) -> np.ndarray:
     """
     Compute the reduced density matrix for a bipartition at cut l.
 
-    For a 1D spin-1/2 chain of length L, the state psi is a vector of size 2^L.
-    We reshape it into a tensor of shape (2, 2, ..., 2) and trace out the
-    right subsystem (sites l to L-1, 0-indexed) to get the reduced density
-    matrix for the left subsystem (sites 0 to l-1).
+    Parameters
+    ----------
+    psi : np.ndarray
+        Ground state wavefunction as a 1D array of length 2^L (for spin-1/2).
+    L : int
+        Total system size.
+    l : int
+        Size of the subsystem (cut after site l, so subsystem has sites 0..l-1).
 
-    Args:
-        psi: Ground state wavefunction as a 1D numpy array of size 2^L.
-        L: Total chain length.
-        l: Bipartition cut (compute entropy for subsystem of size l).
-
-    Returns:
-        Reduced density matrix as a sparse CSR matrix of shape (2^l, 2^l).
+    Returns
+    -------
+    np.ndarray
+        Reduced density matrix of shape (2^l, 2^l).
     """
-    if l < 1 or l >= L:
-        raise EntropyError(f"Invalid bipartition cut l={l} for chain length L={L}. "
-                           f"Must have 1 <= l < L.")
+    if l <= 0 or l >= L:
+        raise EntropyError(f"Invalid bipartition size l={l} for system L={L}. Must have 0 < l < L.")
 
-    # Reshape psi into a tensor of shape (2, 2, ..., 2) with L dimensions
-    psi_tensor = psi.reshape([2] * L)
+    dim_A = 2 ** l
+    dim_B = 2 ** (L - l)
 
-    # Permute indices to group left and right subsystems
-    # Left: sites 0 to l-1, Right: sites l to L-1
-    left_indices = list(range(l))
-    right_indices = list(range(l, L))
-    perm = left_indices + right_indices
+    # Reshape psi into a matrix of shape (dim_A, dim_B)
+    psi_matrix = psi.reshape((dim_A, dim_B))
 
-    psi_tensor = np.transpose(psi_tensor, perm)
-
-    # Reshape into a matrix of shape (2^l, 2^(L-l))
-    left_dim = 2 ** l
-    right_dim = 2 ** (L - l)
-    psi_matrix = psi_tensor.reshape(left_dim, right_dim)
-
-    # Compute reduced density matrix: rho_A = psi_matrix @ psi_matrix.T
-    # For large systems, use sparse operations if possible
-    # Here we use dense for simplicity since 2^l can be large but we handle L <= 40
-    # and typically l <= L/2 for entropy calculation
-    if left_dim > 2048:  # Threshold for dense vs sparse
-        # For very large left_dim, use sparse
-        psi_sparse = csr_matrix(psi_matrix)
-        rho_A = psi_sparse @ psi_sparse.T
-    else:
-        rho_A = psi_matrix @ psi_matrix.T.conj()
-
-    # Ensure it's sparse for consistency
-    if not isinstance(rho_A, csr_matrix):
-        rho_A = csr_matrix(rho_A)
+    # rho_A = psi_matrix @ psi_matrix.T (trace out B)
+    rho_A = psi_matrix @ psi_matrix.T
 
     return rho_A
 
 
-def _compute_von_neumann_entropy(rho: csr_matrix, epsilon: float = 1e-15) -> float:
+def _compute_entropy_from_densities(eigenvalues: np.ndarray) -> float:
     """
-    Compute von Neumann entropy S = -Tr(rho log rho).
+    Compute von Neumann entropy from eigenvalues of the reduced density matrix.
 
-    Args:
-        rho: Reduced density matrix as a sparse CSR matrix.
-        epsilon: Small constant to avoid log(0).
+    S = - sum(lambda_i * log(lambda_i)) for lambda_i > 0.
 
-    Returns:
-        von Neumann entropy in bits (log base 2).
+    Parameters
+    ----------
+    eigenvalues : np.ndarray
+        Eigenvalues of the reduced density matrix.
+
+    Returns
+    -------
+    float
+        Von Neumann entropy.
     """
-    # Get eigenvalues of the density matrix
-    # For sparse matrices, we can use eigs to get a subset, but for entropy
-    # we need all eigenvalues. For small enough matrices, use dense eigenvalue solver.
-    if rho.shape[0] <= 2048:
-        # Convert to dense for eigenvalue computation
-        rho_dense = rho.toarray()
-        # Ensure Hermitian
-        rho_dense = (rho_dense + rho_dense.T.conj()) / 2
-        eigenvalues = np.linalg.eigvalsh(rho_dense)
-    else:
-        # For larger matrices, use sparse eigenvalue solver
-        # This is approximate but necessary for very large systems
-        k = min(rho.shape[0] - 1, 100)
-        try:
-            eigenvalues, _ = eigs(rho, k=k, which='LM')
-            eigenvalues = np.real(eigenvalues)
-        except Exception:
-            # Fallback: assume uniform distribution (max entropy)
-            return np.log2(rho.shape[0])
+    # Filter out zero or negative eigenvalues (numerical noise)
+    pos_eigs = eigenvalues[eigenvalues > 1e-12]
 
-    # Filter out negative eigenvalues (numerical errors)
-    eigenvalues = eigenvalues[eigenvalues > 0]
+    if len(pos_eigs) == 0:
+        warnings.warn("All eigenvalues are zero or negative. Returning 0 entropy.")
+        return 0.0
 
-    # Normalize eigenvalues to sum to 1 (in case of numerical drift)
-    eigenvalues = eigenvalues / np.sum(eigenvalues)
+    # S = - sum(p log p)
+    entropy = -np.sum(pos_eigs * np.log(pos_eigs))
 
-    # Compute entropy: S = -sum(p * log2(p))
-    entropy = -np.sum(eigenvalues * np.log2(eigenvalues + epsilon))
+    return float(entropy)
+
+
+def compute_entanglement_entropy(
+    psi: np.ndarray,
+    L: int,
+    l: int,
+    method: str = "exact"
+) -> float:
+    """
+    Compute the von Neumann entanglement entropy S(l) for a single bipartition.
+
+    Parameters
+    ----------
+    psi : np.ndarray
+        Ground state wavefunction. For exact diagonalization, shape (2^L,).
+        For MPS, this would be the full wavefunction reconstructed or accessed via MPS.
+    L : int
+        Total system size.
+    l : int
+        Size of the subsystem (cut after site l).
+    method : str
+        Computation method. Currently only "exact" is supported.
+
+    Returns
+    -------
+    float
+        Von Neumann entropy S(l).
+
+    Raises
+    ------
+    EntropyError
+        If input dimensions are inconsistent or method is unsupported.
+    """
+    if method != "exact":
+        raise EntropyError(f"Unsupported method '{method}'. Only 'exact' is implemented.")
+
+    expected_dim = 2 ** L
+    if psi.shape[0] != expected_dim:
+        raise EntropyError(
+            f"Wavefunction dimension mismatch: expected {expected_dim}, got {psi.shape[0]}"
+        )
+
+    rho_A = _compute_reduced_density_matrix(psi, L, l)
+
+    # Compute eigenvalues of the reduced density matrix
+    eigenvalues = np.linalg.eigvalsh(rho_A)
+
+    entropy = _compute_entropy_from_densities(eigenvalues)
 
     return entropy
 
 
-def compute_entanglement_entropy(psi: np.ndarray, L: int) -> Tuple[List[int], List[float], bool]:
-    """
-    Compute von Neumann entanglement entropy S(l) for all bipartitions l.
-
-    This function computes the entropy for each cut l in {1, ..., L-1},
-    returning the entanglement profile across the chain.
-
-    Args:
-        psi: Ground state wavefunction as a 1D numpy array of size 2^L.
-        L: Total chain length.
-
-    Returns:
-        Tuple of:
-            - cuts: List of bipartition cuts [1, 2, ..., L-1]
-            - entropies: List of von Neumann entropies S(l) for each cut
-            - is_unresolved: Boolean flag indicating if computation failed
-    """
-    if psi.size != 2 ** L:
-        raise EntropyError(f"Wavefunction size {psi.size} does not match "
-                           f"expected size 2^{L}={2**L} for chain length L={L}.")
-
-    cuts = []
-    entropies = []
-    is_unresolved = False
-
-    for l in range(1, L):
-        try:
-            rho_A = _compute_reduced_density_matrix(psi, L, l)
-            S_l = _compute_von_neumann_entropy(rho_A)
-            cuts.append(l)
-            entropies.append(S_l)
-        except Exception as e:
-            # Mark as unresolved and stop
-            is_unresolved = True
-            break
-
-    return cuts, entropies, is_unresolved
-
-
 def compute_entanglement_entropy_batch(
-    psi_list: List[np.ndarray],
-    L_list: List[int],
-    delta: float,
-    realization_ids: List[int]
-) -> Dict:
+    psi: np.ndarray,
+    L: int,
+    cuts: Optional[List[int]] = None
+) -> Dict[int, float]:
     """
-    Compute entanglement entropy for a batch of ground state realizations.
+    Compute entanglement entropy for all (or specified) bipartitions.
 
-    Args:
-        psi_list: List of ground state wavefunctions.
-        L_list: List of chain lengths (should all equal L).
-        delta: Disorder strength parameter.
-        realization_ids: List of realization IDs.
+    Parameters
+    ----------
+    psi : np.ndarray
+        Ground state wavefunction of shape (2^L,).
+    L : int
+        Total system size.
+    cuts : list of int, optional
+        List of bipartition sizes l to compute. If None, computes for all 1 <= l < L.
 
-    Returns:
-        Dictionary containing:
-            - 'cuts': List of bipartition cuts (common to all)
-            - 'entropies': 2D array of shape (N_real, L-1) with entropies
-            - 'unresolved_ids': List of realization IDs that failed
-            - 'metadata': Dict with computation details
+    Returns
+    -------
+    dict
+        Dictionary mapping cut size l to entropy S(l).
+
+    Raises
+    ------
+    EntropyError
+        If psi dimension is invalid.
     """
-    if len(psi_list) != len(L_list) or len(psi_list) != len(realization_ids):
-        raise EntropyError("Input lists must have the same length.")
+    expected_dim = 2 ** L
+    if psi.shape[0] != expected_dim:
+        raise EntropyError(
+            f"Wavefunction dimension mismatch: expected {expected_dim}, got {psi.shape[0]}"
+        )
 
-    L = L_list[0]
-    if not all(l == L for l in L_list):
-        raise EntropyError("All chain lengths must be equal.")
+    if cuts is None:
+        cuts = list(range(1, L))
 
-    cuts = list(range(1, L))
-    N_real = len(psi_list)
-    entropies = np.zeros((N_real, L - 1))
-    unresolved_ids = []
-
-    for i, (psi, rid) in enumerate(zip(psi_list, realization_ids)):
+    results = {}
+    for l in cuts:
         try:
-            _, S_list, is_unresolved = compute_entanglement_entropy(psi, L)
-            if is_unresolved:
-                unresolved_ids.append(rid)
-                # Fill with NaN to indicate missing data
-                entropies[i, :] = np.nan
-            else:
-                entropies[i, :] = S_list
-        except Exception as e:
-            unresolved_ids.append(rid)
-            entropies[i, :] = np.nan
+            entropy = compute_entanglement_entropy(psi, L, l, method="exact")
+            results[l] = entropy
+        except EntropyError as e:
+            warnings.warn(f"Failed to compute entropy for l={l}: {e}")
+            results[l] = np.nan
+
+    return results
+
+
+def get_entropy_statistics(
+    entropy_values: List[float]
+) -> Dict[str, float]:
+    """
+    Compute summary statistics for a list of entropy values.
+
+    Parameters
+    ----------
+    entropy_values : list of float
+        List of entropy values (e.g., from multiple realizations).
+
+    Returns
+    -------
+    dict
+        Dictionary with keys: 'mean', 'std', 'min', 'max', 'count', 'nan_count'.
+    """
+    arr = np.array(entropy_values)
+    non_nan = arr[~np.isnan(arr)]
+
+    if len(non_nan) == 0:
+        return {
+            'mean': np.nan,
+            'std': np.nan,
+            'min': np.nan,
+            'max': np.nan,
+            'count': 0,
+            'nan_count': len(arr)
+        }
 
     return {
-        'cuts': cuts,
-        'entropies': entropies,
-        'unresolved_ids': unresolved_ids,
-        'metadata': {
-            'L': L,
-            'delta': delta,
-            'N_real': N_real,
-            'N_unresolved': len(unresolved_ids),
-            'computation_type': 'von_neumann_entropy'
-        }
+        'mean': float(np.mean(non_nan)),
+        'std': float(np.std(non_nan)),
+        'min': float(np.min(non_nan)),
+        'max': float(np.max(non_nan)),
+        'count': len(non_nan),
+        'nan_count': int(np.sum(np.isnan(arr)))
     }
 
 
-def get_entropy_statistics(entropies: np.ndarray) -> Dict[str, np.ndarray]:
+def verify_scaling_ansatz(
+    l_values: List[int],
+    s_values: List[float],
+    model: str = "log"
+) -> Dict[str, float]:
     """
-    Compute statistics over realizations for each bipartition cut.
+    Verify the scaling ansatz S(l) ~ c * log(l) or S(l) ~ constant (area law).
 
-    Args:
-        entropies: 2D array of shape (N_real, L-1) with entanglement entropies.
+    Parameters
+    ----------
+    l_values : list of int
+        List of bipartition sizes.
+    s_values : list of float
+        Corresponding entropy values.
+    model : str
+        Model to fit: 'log' for logarithmic scaling, 'const' for area law.
 
-    Returns:
-        Dictionary with:
-            - 'mean': Mean entropy for each cut
-            - 'std': Standard deviation for each cut
-            - 'min': Minimum entropy for each cut
-            - 'max': Maximum entropy for each cut
+    Returns
+    -------
+    dict
+        Dictionary with fit parameters and goodness-of-fit metrics.
     """
-    # Filter out NaN values (unresolved realizations)
-    valid_mask = ~np.isnan(entropies)
-    valid_entropies = entropies[valid_mask]
+    l_arr = np.array(l_values)
+    s_arr = np.array(s_values)
 
-    if valid_entropies.size == 0:
-        return {
-            'mean': np.full(entropies.shape[1], np.nan),
-            'std': np.full(entropies.shape[1], np.nan),
-            'min': np.full(entropies.shape[1], np.nan),
-            'max': np.full(entropies.shape[1], np.nan)
-        }
+    # Filter out NaNs
+    valid_mask = ~np.isnan(s_arr)
+    l_valid = l_arr[valid_mask]
+    s_valid = s_arr[valid_mask]
 
-    # Reshape for statistics computation
-    valid_entropies = valid_entropies.reshape(-1, entropies.shape[1])
+    if len(l_valid) < 2:
+        raise EntropyError("Not enough valid data points to fit scaling ansatz.")
+
+    if model == "log":
+        # Fit S = c * log(l) + b
+        log_l = np.log(l_valid)
+        A = np.vstack([log_l, np.ones(len(log_l))]).T
+        try:
+            coeffs, residuals, rank, s = np.linalg.lstsq(A, s_valid, rcond=None)
+            c_eff, b = coeffs
+            # Compute R^2
+            s_pred = c_eff * log_l + b
+            ss_res = np.sum((s_valid - s_pred) ** 2)
+            ss_tot = np.sum((s_valid - np.mean(s_valid)) ** 2)
+            r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+        except Exception as e:
+            raise EntropyError(f"Log fit failed: {e}")
+
+    elif model == "const":
+        # Fit S = b (constant)
+        b = np.mean(s_valid)
+        s_pred = np.full_like(s_valid, b)
+        ss_res = np.sum((s_valid - s_pred) ** 2)
+        ss_tot = np.sum((s_valid - np.mean(s_valid)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+        c_eff = 0.0
+    else:
+        raise EntropyError(f"Unknown model '{model}'. Use 'log' or 'const'.")
 
     return {
-        'mean': np.mean(valid_entropies, axis=0),
-        'std': np.std(valid_entropies, axis=0),
-        'min': np.min(valid_entropies, axis=0),
-        'max': np.max(valid_entropies, axis=0)
+        'c_eff': float(c_eff),
+        'intercept': float(b),
+        'r_squared': float(r_squared),
+        'model': model,
+        'n_points': len(l_valid)
     }

@@ -1,4 +1,4 @@
-# Configuration for reproducible seeds
+# Reproducibility Seeds for the Social Support Resilience Pipeline
+# All random operations (imputation, bootstrapping, sampling) must use this seed.
 random_seed: 42
-bootstrap_seed: 12345
-# Other seeds for specific tasks can be added here
+bootstrap_seed: 42

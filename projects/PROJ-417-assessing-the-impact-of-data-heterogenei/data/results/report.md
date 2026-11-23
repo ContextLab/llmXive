@@ -1,0 +1,1 @@
+# Heterogeneity Impact Report\n\nFraming: associational\n\nThis report summarises the results of the dry‑run pipeline.\nSee the generated CSVs and PNGs for detailed metrics.\n

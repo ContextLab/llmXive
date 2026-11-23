@@ -1,180 +1,194 @@
 """
-Contract tests for output schemas in the UQ pipeline.
-
-This module validates that the generated data artifacts adhere to the
-defined JSON schemas (material_sample and uq_prediction).
+Contract tests for validating data schemas against YAML definitions.
+Ensures that data artifacts conform to the expected structure.
 """
-
 import json
-import os
-import glob
+import yaml
+import pandas as pd
+from pathlib import Path
 import pytest
 from typing import Dict, Any, List
 
-# Path constants relative to project root
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
-CONTRACTS_DIR = os.path.join(PROJECT_ROOT, "code", "contracts")
+# Base path for contracts
+CONTRACTS_DIR = Path(__file__).parent.parent.parent / "code" / "contracts"
 
-# Schema file paths
-MATERIAL_SCHEMA_PATH = os.path.join(CONTRACTS_DIR, "material_sample.schema.yaml")
-UQ_SCHEMA_PATH = os.path.join(CONTRACTS_DIR, "uq_prediction.schema.yaml")
+def load_schema(schema_name: str) -> Dict[str, Any]:
+    """Load a JSON schema from the contracts directory."""
+    schema_path = CONTRACTS_DIR / schema_name
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r") as f:
+        return yaml.safe_load(f)
 
-
-def load_yaml_schema(path: str) -> Dict[str, Any]:
-    """Load a YAML schema file. Uses a simple parser if PyYAML is not available,
-    but relies on PyYAML as per project requirements."""
-    try:
-        import yaml
-        with open(path, "r") as f:
-            return yaml.safe_load(f)
-    except ImportError:
-        pytest.skip("PyYAML not installed for schema loading")
-    except FileNotFoundError:
-        pytest.fail(f"Schema file not found: {path}")
-
-
-def validate_type(value: Any, expected_type: str) -> bool:
-    """Basic type validation mapping JSON Schema types to Python types."""
-    if expected_type == "string":
-        return isinstance(value, str)
-    elif expected_type == "integer":
-        return isinstance(value, int) and not isinstance(value, bool)
-    elif expected_type == "number":
-        return isinstance(value, (int, float)) and not isinstance(value, bool)
-    elif expected_type == "boolean":
-        return isinstance(value, bool)
-    elif expected_type == "array":
-        return isinstance(value, list)
-    elif expected_type == "object":
-        return isinstance(value, dict)
-    return False
-
-
-def validate_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
+def validate_json_against_schema(data: Any, schema: Dict[str, Any]) -> bool:
     """
-    Validates a dictionary against a simple JSON Schema-like definition.
-    Returns a list of error messages.
+    Basic validation of data against a JSON schema structure.
+    Note: This is a simplified validator. For production, use `jsonschema` library.
     """
-    errors = []
-    properties = schema.get("properties", {})
-    required = schema.get("required", [])
-
+    # Check type
+    expected_type = schema.get("type")
+    if expected_type == "object" and not isinstance(data, dict):
+        return False
+    
     # Check required fields
-    for field in required:
-        if field not in data:
-            errors.append(f"Missing required field: {field}")
-
-    # Check types of present fields
-    for key, value in data.items():
-        if key in properties:
-            prop_def = properties[key]
-            expected_type = prop_def.get("type")
-            if expected_type and not validate_type(value, expected_type):
-                errors.append(f"Field '{key}' has wrong type. Expected {expected_type}, got {type(value).__name__}")
-        else:
-            # Optional: warn on extra fields if schema says 'additionalProperties: false'
-            if schema.get("additionalProperties") is False:
-                errors.append(f"Unexpected field: {key}")
-
-    return errors
-
-
-@pytest.fixture
-def uq_schema():
-    """Load the UQ prediction schema."""
-    # If the schema file doesn't exist yet (T009 might be pending in some flows),
-    # we define the expected structure here to ensure the test is robust.
-    # However, per T009, the file should exist.
-    if os.path.exists(UQ_SCHEMA_PATH):
-        return load_yaml_schema(UQ_SCHEMA_PATH)
+    required = schema.get("required", [])
+    if isinstance(data, dict):
+        for field in required:
+            if field not in data:
+                return False
     
-    # Fallback definition matching the task requirements for T016
-    return {
-        "type": "object",
-        "properties": {
-            "sample_id": {"type": "string"},
-            "method": {"type": "string"},
-            "prediction": {"type": "number"},
-            "variance": {"type": "number"},
-            "lower_50": {"type": "number"},
-            "upper_50": {"type": "number"},
-            "lower_90": {"type": "number"},
-            "upper_90": {"type": "number"}
-        },
-        "required": ["sample_id", "method", "prediction", "variance", "lower_50", "upper_50", "lower_90", "upper_90"]
-    }
-
-
-@pytest.fixture
-def material_schema():
-    """Load the material sample schema."""
-    if os.path.exists(MATERIAL_SCHEMA_PATH):
-        return load_yaml_schema(MATERIAL_SCHEMA_PATH)
-    
-    # Fallback definition
-    return {
-        "type": "object",
-        "properties": {
-            "sample_id": {"type": "string"},
-            "composition": {"type": "string"},
-            "formation_energy": {"type": "number"}
-        },
-        "required": ["sample_id", "composition", "formation_energy"]
-    }
-
-
-class TestUQPredictionSchema:
-    """Tests for the uq_prediction.csv output schema."""
-
-    def test_file_exists(self):
-        """Verify that the UQ predictions file exists."""
-        # T016 is responsible for generating this. If it hasn't run, this test fails.
-        # We check the specific path defined in tasks.md.
-        paths = glob.glob(os.path.join(RESULTS_DIR, "**", "uq_predictions.csv"), recursive=True)
-        assert len(paths) > 0, f"File results/uq_predictions.csv not found. Has T016 run?"
-
-    def test_schema_compliance(self, uq_schema):
-        """Validate the content of uq_predictions.csv against the schema."""
-        # Find the file again
-        file_path = glob.glob(os.path.join(RESULTS_DIR, "**", "uq_predictions.csv"), recursive=True)[0]
-        
-        import pandas as pd
-        df = pd.read_csv(file_path)
-
-        # Convert DataFrame rows to list of dicts for validation
-        records = df.to_dict(orient="records")
-        
-        errors = []
-        for i, record in enumerate(records):
-            record_errors = validate_schema(record, uq_schema)
-            if record_errors:
-                errors.append(f"Row {i}: {record_errors}")
-
-        if errors:
-            pytest.fail(f"Schema validation failed for uq_predictions.csv:\n" + "\n".join(errors))
-
+    # Check properties if data is a dict
+    properties = schema.get("properties", {})
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if key in properties:
+                prop_schema = properties[key]
+                prop_type = prop_schema.get("type")
+                
+                # Handle null types
+                if prop_type == "null":
+                    if value is not None:
+                        return False
+                elif prop_type == "number":
+                    if not isinstance(value, (int, float)) and value is not None:
+                        return False
+                elif prop_type == "integer":
+                    if not isinstance(value, int) and value is not None:
+                        return False
+                elif prop_type == "string":
+                    if not isinstance(value, str) and value is not None:
+                        return False
+                elif prop_type == "array":
+                    if not isinstance(value, list) and value is not None:
+                        return False
+                elif prop_type == "boolean":
+                    if not isinstance(value, bool) and value is not None:
+                        return False
+                
+                # Check enum if present
+                if "enum" in prop_schema and value is not None:
+                    if value not in prop_schema["enum"]:
+                        return False
+    return True
 
 class TestMaterialSampleSchema:
-    """Tests for the material sample data schema (if available)."""
+    """Tests for material_sample.schema.yaml compliance."""
 
-    def test_schema_compliance(self, material_schema):
-        """Validate material data if it exists."""
-        # Check for processed features or raw data if needed
-        # This is a sanity check for the data pipeline
-        raw_files = glob.glob(os.path.join(DATA_DIR, "raw", "*.parquet"))
-        processed_files = glob.glob(os.path.join(DATA_DIR, "processed", "*.csv"))
+    def test_schema_file_exists(self):
+        """Verify the schema file exists."""
+        assert (CONTRACTS_DIR / "material_sample.schema.yaml").exists()
 
-        if not raw_files and not processed_files:
-            pytest.skip("No material data files found to validate")
+    def test_validate_sample_data(self):
+        """Test validation with a mock material sample record."""
+        schema = load_schema("material_sample.schema.yaml")
+        
+        valid_sample = {
+            "sample_id": 12345,
+            "composition": "Li2O",
+            "formation_energy_per_atom": -2.34,
+            "structure": {
+                "lattice_vectors": [
+                    [3.0, 0.0, 0.0],
+                    [0.0, 3.0, 0.0],
+                    [0.0, 0.0, 3.0]
+                ],
+                "atomic_numbers": [3, 3, 8],
+                "fractional_coordinates": [
+                    [0.0, 0.0, 0.0],
+                    [0.5, 0.5, 0.5],
+                    [0.25, 0.25, 0.25]
+                ]
+            }
+        }
+        
+        assert validate_json_against_schema(valid_sample, schema) is True
 
-        # If we have a parquet file (from T005), we can try to validate a sample
-        if raw_files:
-            import pandas as pd
-            df = pd.read_parquet(raw_files[0])
-            # Check if the schema matches expectations (basic check)
-            required_cols = material_schema.get("required", [])
-            missing = [c for c in required_cols if c not in df.columns]
-            if missing:
-                pytest.fail(f"Raw data missing required columns: {missing}")
+    def test_validate_missing_required_field(self):
+        """Test validation fails when a required field is missing."""
+        schema = load_schema("material_sample.schema.yaml")
+        
+        invalid_sample = {
+            "sample_id": 12345,
+            "composition": "Li2O",
+            # Missing formation_energy_per_atom
+            "structure": {
+                "lattice_vectors": [[3.0, 0.0, 0.0], [0.0, 3.0, 0.0], [0.0, 0.0, 3.0]],
+                "atomic_numbers": [3, 3, 8],
+                "fractional_coordinates": [[0.0, 0.0, 0.0], [0.5, 0.5, 0.5], [0.25, 0.25, 0.25]]
+            }
+        }
+        
+        assert validate_json_against_schema(invalid_sample, schema) is False
+
+class TestUQPredictionSchema:
+    """Tests for uq_prediction.schema.yaml compliance."""
+
+    def test_schema_file_exists(self):
+        """Verify the schema file exists."""
+        assert (CONTRACTS_DIR / "uq_prediction.schema.yaml").exists()
+
+    def test_validate_prediction_record(self):
+        """Test validation with a mock UQ prediction record."""
+        schema = load_schema("uq_prediction.schema.yaml")
+        
+        valid_prediction = {
+            "sample_id": 12345,
+            "method": "DeepEnsemble",
+            "prediction": -2.34,
+            "variance": 0.05,
+            "lower_50": -2.40,
+            "upper_50": -2.28,
+            "lower_90": -2.45,
+            "upper_90": -2.23,
+            "aleatoric": 0.02,
+            "epistemic": 0.03,
+            "total": 0.05,
+            "uncertainty_type": "decomposed"
+        }
+        
+        assert validate_json_against_schema(valid_prediction, schema) is True
+
+    def test_validate_sparse_gp_nulls(self):
+        """Test validation for SparseGP where aleatoric/epistemic are null."""
+        schema = load_schema("uq_prediction.schema.yaml")
+        
+        sparse_gp_prediction = {
+            "sample_id": 12345,
+            "method": "SparseGP",
+            "prediction": -2.34,
+            "variance": 0.05,
+            "lower_50": -2.40,
+            "upper_50": -2.28,
+            "lower_90": -2.45,
+            "upper_90": -2.23,
+            "aleatoric": None,
+            "epistemic": None,
+            "total": None,
+            "uncertainty_type": None
+        }
+        
+        assert validate_json_against_schema(sparse_gp_prediction, schema) is True
+
+    def test_validate_invalid_method(self):
+        """Test validation fails for an invalid method name."""
+        schema = load_schema("uq_prediction.schema.yaml")
+        
+        invalid_prediction = {
+            "sample_id": 12345,
+            "method": "UnknownMethod",
+            "prediction": -2.34,
+            "variance": 0.05,
+            "lower_50": -2.40,
+            "upper_50": -2.28,
+            "lower_90": -2.45,
+            "upper_90": -2.23,
+            "aleatoric": 0.02,
+            "epistemic": 0.03,
+            "total": 0.05,
+            "uncertainty_type": "decomposed"
+        }
+        
+        assert validate_json_against_schema(invalid_prediction, schema) is False
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

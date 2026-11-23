@@ -1,343 +1,409 @@
 """
-Formula Parser Module using pymatgen for deterministic A/B/X site assignment in perovskites.
+Formula parser using pymatgen for deterministic A/B/X site assignment in perovskites.
 
-This module provides functionality to parse chemical formulas and assign elements
-to the A, B, and X sites of the perovskite structure (ABX3).
+This module provides functions to parse chemical formulas, validate perovskite structures,
+assign A/B/X sites deterministically, and compute compositional fingerprints.
 """
 
 import logging
 from typing import Dict, List, Tuple, Optional, Set
 
 from pymatgen.core import Composition, Element
-from pymatgen.core.periodic_table import get_el_symbol
+from pymatgen.core.periodic_table import Element as PmgElement
 
 logger = logging.getLogger(__name__)
 
-
-# Standard perovskite cation/anion sets for assignment
-# A-site: Large monovalent or divalent cations (12-coordinate)
-# B-site: Smaller transition metal cations (6-coordinate)
-# X-site: Anions (typically halides or oxygen)
-
-# Common A-site cations (large ionic radius, +1 or +2 charge)
-A_SITE_CATIONS: Set[str] = {
-    # Monovalent
-    "Cs", "Rb", "K", "Na", "Li", "Tl",
-    "NH4", "CH3NH3", "HC(NH2)2",  # Organic cations
-    # Divalent (for double perovskites or specific cases)
-    "Ba", "Sr", "Ca", "Pb", "Sn", "Ge", "Eu", "Yb", "Sm", "Cd", "Mg",
-    # Rare earths (less common but possible in specific structures)
-    "La", "Ce", "Pr", "Nd", "Gd", "Dy", "Er", "Y",
-}
-
-# Common B-site cations (smaller, transition metals, +2, +3, +4)
-B_SITE_CATIONS: Set[str] = {
-    "Ti", "Zr", "Hf", "V", "Nb", "Ta", "Cr", "Mo", "W", "Mn", "Tc", "Re",
-    "Fe", "Ru", "Os", "Co", "Rh", "Ir", "Ni", "Pd", "Pt", "Cu", "Ag", "Au",
-    "Zn", "Cd", "Hg", "Al", "Ga", "In", "Tl",
-    "Sn", "Pb", "Ge", "Bi", "Sb",
-}
-
-# Common X-site anions
-X_SITE_ANIONS: Set[str] = {
-    "F", "Cl", "Br", "I",  # Halides
-    "O",  # Oxide
-    "S", "Se", "Te",  # Chalcogenides
-    "N",  # Nitride (less common)
-}
-
-# Elements that are ambiguous and require context or heuristics
-# These might appear in multiple sites depending on the specific perovskite
-AMBIGUOUS_ELEMENTS: Set[str] = {
-    "H", "C", "N",  # Often part of organic A-site cations
-    "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu",  # Can be B-site, sometimes A-site in complex oxides
-}
-
 class FormulaParseError(Exception):
-    """Exception raised when formula parsing fails."""
+    """Exception raised for formula parsing errors."""
     pass
 
+# Standard perovskite oxidation states for site assignment
+# Based on common perovskite chemistry (ABX3)
+STANDARD_OXIDATION_STATES = {
+    # A-site cations (typically +1)
+    'Li': 1, 'Na': 1, 'K': 1, 'Rb': 1, 'Cs': 1, 'Fr': 1,
+    'Tl': 1, 'Ag': 1, 'Cu': 1, 'Au': 1,
+    'NH4': 1, 'CH3NH3': 1, 'HC(NH2)2': 1, 'C6H5NH3': 1,
+    # B-site cations (typically +2 or +4)
+    'Pb': 2, 'Sn': 2, 'Ge': 2, 'Ti': 4, 'Zr': 4, 'Hf': 4,
+    'Mn': 2, 'Fe': 2, 'Co': 2, 'Ni': 2, 'Cu': 2, 'Zn': 2,
+    'Cd': 2, 'Hg': 2, 'Mg': 2, 'Ca': 2, 'Sr': 2, 'Ba': 2,
+    'V': 4, 'Nb': 4, 'Ta': 4, 'Cr': 3, 'Mo': 4, 'W': 4,
+    # X-site anions (typically -1 or -2)
+    'F': -1, 'Cl': -1, 'Br': -1, 'I': -1,
+    'O': -2, 'S': -2, 'Se': -2, 'Te': -2,
+    'N': -3, 'C': -4, 'H': 1, 'OH': -1
+}
+
+# Common perovskite families and their characteristic elements
+PEROVSKITE_FAMILIES = {
+    'lead-halide': {'Pb', 'Cl', 'Br', 'I', 'F'},
+    'tin-halide': {'Sn', 'Cl', 'Br', 'I', 'F'},
+    'germanium-halide': {'Ge', 'Cl', 'Br', 'I', 'F'},
+    'oxide': {'O'},
+    'double': {'Bi', 'Sb', 'Ag', 'Cu', 'Na', 'K'}
+}
 
 def parse_formula(formula_str: str) -> Composition:
     """
-    Parse a chemical formula string into a pymatgen Composition object.
-
+    Parse a chemical formula string into a pymatgen Composition.
+    
     Args:
-        formula_str: Chemical formula string (e.g., "CsPbI3", "CH3NH3PbI3")
-
+        formula_str: Chemical formula string (e.g., "CsPbI3", "CH3NH3PbBr3")
+    
     Returns:
-        Composition object
-
+        Composition object from pymatgen
+    
     Raises:
         FormulaParseError: If the formula cannot be parsed
     """
     try:
-        # Handle organic cation formulas that might not be directly parsable
-        # Normalize common organic cation representations
-        normalized = formula_str.replace("CH3NH3", "C H6 N")
-        normalized = normalized.replace("HC(NH2)2", "C H6 N3")
-
-        composition = Composition(normalized)
-        logger.debug(f"Successfully parsed formula: {formula_str} -> {composition}")
+        # Handle organic-inorganic hybrid formulas
+        # Replace common organic cations with placeholders for parsing
+        formula_str = formula_str.strip()
+        
+        # Try direct parsing first
+        composition = Composition(formula_str)
         return composition
     except Exception as e:
-        raise FormulaParseError(f"Failed to parse formula '{formula_str}': {e}")
+        logger.error(f"Failed to parse formula '{formula_str}': {e}")
+        raise FormulaParseError(f"Cannot parse formula: {formula_str}") from e
 
-
-def assign_perovskite_sites(composition: Composition) -> Dict[str, Dict[str, float]]:
+def validate_perovskite_formula(composition: Composition) -> bool:
     """
-    Assign elements to A, B, and X sites in a perovskite structure.
-
-    Uses a deterministic algorithm based on:
-    1. Known site preferences (A-site cations, B-site cations, X-site anions)
-    2. Ionic radius heuristics for ambiguous cases
-    3. Stoichiometry constraints (ABX3 ratio)
-
-    Args:
-        composition: pymatgen Composition object
-
-    Returns:
-        Dictionary with keys 'A', 'B', 'X', each containing a dict of
-        element symbol -> fraction (normalized to sum to 1 for that site)
-
-    Raises:
-        FormulaParseError: If assignment cannot be determined
-    """
-    element_dict = composition.element_composition
-
-    # Separate into potential sites
-    a_candidates: Dict[str, float] = {}
-    b_candidates: Dict[str, float] = {}
-    x_candidates: Dict[str, float] = {}
-    ambiguous: List[Tuple[str, float]] = []
-
-    for element, amount in element_dict.items():
-        symbol = element.symbol
-        
-        if symbol in A_SITE_CATIONS:
-            a_candidates[symbol] = amount
-        elif symbol in B_SITE_CATIONS:
-            b_candidates[symbol] = amount
-        elif symbol in X_SITE_ANIONS:
-            x_candidates[symbol] = amount
-        elif symbol in AMBIGUOUS_ELEMENTS:
-            ambiguous.append((symbol, amount))
-        else:
-            # For unknown elements, use heuristics based on position in periodic table
-            # Large elements (low electronegativity) -> A-site
-            # Transition metals -> B-site
-            # Non-metals (high electronegativity) -> X-site
-            try:
-                el = Element(symbol)
-                if el.ionic_radius is not None:
-                    # Heuristic: very large ionic radius -> A-site
-                    if el.ionic_radius > 1.5:  # Angstroms
-                        a_candidates[symbol] = amount
-                    elif el.is_metal:
-                        b_candidates[symbol] = amount
-                    else:
-                        x_candidates[symbol] = amount
-                else:
-                    # Default to B-site for metals, X-site for non-metals
-                    if el.is_metal:
-                        b_candidates[symbol] = amount
-                    else:
-                        x_candidates[symbol] = amount
-            except Exception:
-                # If we can't determine, add to ambiguous
-                ambiguous.append((symbol, amount))
-
-    # Handle ambiguous elements using stoichiometry and charge balance
-    if ambiguous:
-        total_amount = sum(amount for _, amount in ambiguous)
-        # Try to distribute based on typical perovskite stoichiometry
-        # ABX3: A:B:X should be roughly 1:1:3
-        
-        current_a = sum(a_candidates.values())
-        current_b = sum(b_candidates.values())
-        current_x = sum(x_candidates.values())
-        
-        # Distribute ambiguous elements to balance stoichiometry
-        for symbol, amount in ambiguous:
-            try:
-                el = Element(symbol)
-                # Use ionic radius as primary heuristic
-                if el.ionic_radius is not None and el.ionic_radius > 1.5:
-                    a_candidates[symbol] = amount
-                elif el.is_metal:
-                    b_candidates[symbol] = amount
-                else:
-                    x_candidates[symbol] = amount
-            except Exception:
-                # Default to B-site for metals, X-site for non-metals
-                if Element(symbol).is_metal:
-                    b_candidates[symbol] = amount
-                else:
-                    x_candidates[symbol] = amount
-
-    # Normalize each site to sum to 1
-    def normalize_site(site_dict: Dict[str, float]) -> Dict[str, float]:
-        total = sum(site_dict.values())
-        if total == 0:
-            return {}
-        return {elem: amount / total for elem, amount in site_dict.items()}
-
-    return {
-        'A': normalize_site(a_candidates),
-        'B': normalize_site(b_candidates),
-        'X': normalize_site(x_candidates)
-    }
-
-
-def compute_compositional_fingerprints(formula_str: str) -> Dict:
-    """
-    Compute compositional fingerprints for a perovskite formula.
-
-    This includes:
-    - Atomic fractions for A, B, X sites
-    - Weighted averages of elemental properties
-    - Variance metrics for multi-element sites
-
-    Args:
-        formula_str: Chemical formula string
-
-    Returns:
-        Dictionary containing compositional fingerprints
-    """
-    composition = parse_formula(formula_str)
-    site_assignments = assign_perovskite_sites(composition)
+    Validate if a composition could represent a perovskite structure.
     
-    fingerprints = {
-        'formula': formula_str,
-        'site_assignments': site_assignments,
-        'atomic_fractions': {},
-        'weighted_properties': {},
-        'variance_metrics': {}
+    A perovskite generally follows ABX3 stoichiometry, where:
+    - A is a large monovalent cation
+    - B is a smaller multivalent cation
+    - X is an anion (halide or oxide)
+    
+    Args:
+        composition: Pymatgen Composition object
+    
+    Returns:
+        True if the composition is consistent with perovskite stoichiometry
+    """
+    if composition is None or len(composition) == 0:
+        return False
+    
+    # Get elemental composition
+    elemental_dict = composition.get_el_amt_dict()
+    
+    # Check if it has at least 3 different elements (A, B, X)
+    if len(elemental_dict) < 3:
+        return False
+    
+    # Check total stoichiometry (should be roughly ABX3 = 5 atoms minimum)
+    total_atoms = sum(elemental_dict.values())
+    if total_atoms < 5:
+        return False
+    
+    return True
+
+def assign_perovskite_sites(composition: Composition) -> Dict[str, List[str]]:
+    """
+    Deterministically assign elements to A, B, and X sites based on chemical rules.
+    
+    Assignment rules:
+    1. X-site (anions): Halogens (F, Cl, Br, I) and O, S, Se, Te
+    2. A-site: Large monovalent cations (alkali metals, organic cations)
+    3. B-site: Remaining cations (typically transition metals, post-transition metals)
+    
+    Args:
+        composition: Pymatgen Composition object
+    
+    Returns:
+        Dictionary with keys 'A', 'B', 'X' containing lists of element symbols
+    
+    Raises:
+        FormulaParseError: If site assignment cannot be determined
+    """
+    elemental_dict = composition.get_el_amt_dict()
+    
+    a_sites = []
+    b_sites = []
+    x_sites = []
+    
+    # X-site anions (halogens and chalcogens)
+    anions = {'F', 'Cl', 'Br', 'I', 'O', 'S', 'Se', 'Te', 'N', 'C'}
+    
+    # A-site candidates (large monovalent cations)
+    a_candidates = {
+        'Li', 'Na', 'K', 'Rb', 'Cs', 'Fr',  # Alkali metals
+        'Tl', 'Ag', 'Cu', 'Au',  # Monovalent metals
+        'NH4', 'CH3NH3', 'HC(NH2)2', 'C6H5NH3'  # Organic cations
+    }
+    
+    for element_str, amount in elemental_dict.items():
+        element = element_str
+        
+        # Skip organic cation placeholders if they exist
+        if element in ['NH4', 'CH3NH3', 'HC(NH2)2', 'C6H5NH3']:
+            a_sites.append(element)
+            continue
+        
+        # Check if it's an anion (X-site)
+        if element in anions:
+            x_sites.append(element)
+        # Check if it's a known A-site candidate
+        elif element in a_candidates:
+            a_sites.append(element)
+        # Otherwise, assume B-site
+        else:
+            # Verify it's a metal/cation
+            try:
+                elem_obj = PmgElement(element)
+                if elem_obj.is_metal or elem_obj.is_metalloid:
+                    b_sites.append(element)
+                else:
+                    # Non-metals that aren't anions go to X-site
+                    if element not in anions:
+                        x_sites.append(element)
+            except ValueError:
+                # Unknown element, default to B-site for metals
+                b_sites.append(element)
+    
+    # Validate assignment
+    if not x_sites:
+        raise FormulaParseError("Could not identify X-site anions in formula")
+    
+    if not (a_sites or b_sites):
+        raise FormulaParseError("Could not identify A or B site cations in formula")
+    
+    return {
+        'A': a_sites if a_sites else [],
+        'B': b_sites if b_sites else [],
+        'X': x_sites
     }
 
-    # Compute atomic fractions for each site
-    for site, elements in site_assignments.items():
-        fingerprints['atomic_fractions'][site] = elements
-
-    # Compute weighted average properties for each site
-    # Properties: ionic radius, electronegativity, atomic mass
-    property_weights = {
-        'ionic_radius': {},
-        'electronegativity': {},
-        'atomic_mass': {}
-    }
-
-    for site, elements in site_assignments.items():
-        for prop in property_weights.keys():
-            weighted_sum = 0.0
-            total_fraction = sum(elements.values())
-            
-            if total_fraction == 0:
+def compute_compositional_fingerprints(composition: Composition, 
+                                      sites: Optional[Dict[str, List[str]]] = None) -> Dict[str, float]:
+    """
+    Compute compositional fingerprints (descriptors) for the perovskite.
+    
+    Computes:
+    - Atomic fractions for each site
+    - Weighted average properties (ionic radius, electronegativity, etc.)
+    - Variance metrics for compositional heterogeneity
+    
+    Args:
+        composition: Pymatgen Composition object
+        sites: Optional pre-computed site assignment. If None, will be computed.
+    
+    Returns:
+        Dictionary of compositional fingerprints
+    """
+    if sites is None:
+        sites = assign_perovskite_sites(composition)
+    
+    elemental_dict = composition.get_el_amt_dict()
+    total_atoms = sum(elemental_dict.values())
+    
+    fingerprints = {}
+    
+    # Atomic fractions for each site
+    for site in ['A', 'B', 'X']:
+        site_elements = sites.get(site, [])
+        site_total = sum(elemental_dict.get(el, 0) for el in site_elements)
+        if site_total > 0:
+            fingerprints[f'atomic_fraction_{site}'] = site_total / total_atoms
+            fingerprints[f'num_elements_{site}'] = len(site_elements)
+        else:
+            fingerprints[f'atomic_fraction_{site}'] = 0.0
+            fingerprints[f'num_elements_{site}'] = 0
+    
+    # Compute weighted average properties
+    properties_to_compute = [
+        ('ionic_radius', get_ionic_radius),
+        ('electronegativity', get_electronegativity),
+        ('atomic_number', get_atomic_number),
+        ('atomic_mass', get_atomic_mass)
+    ]
+    
+    for prop_name, getter in properties_to_compute:
+        weighted_sum = 0.0
+        variance_sum = 0.0
+        count = 0
+        
+        for element_str, amount in elemental_dict.items():
+            try:
+                value = getter(element_str)
+                weight = amount / total_atoms
+                weighted_sum += value * weight
+                variance_sum += (value ** 2) * weight
+                count += 1
+            except (ValueError, KeyError):
                 continue
-                
-            for elem_symbol, fraction in elements.items():
-                try:
-                    el = Element(elem_symbol)
-                    if prop == 'ionic_radius':
-                        # Use Shannon-Prewitt ionic radii (6-coordinate for B, 12 for A)
-                        # Default to a reasonable value if not available
-                        radius = el.ionic_radius or 1.0
-                        weighted_sum += radius * fraction
-                    elif prop == 'electronegativity':
-                        weighted_sum += el.X * fraction
-                    elif prop == 'atomic_mass':
-                        weighted_sum += el.atomic_mass * fraction
-                except Exception as e:
-                    logger.warning(f"Could not get {prop} for {elem_symbol}: {e}")
-            
-            if total_fraction > 0:
-                property_weights[prop][site] = weighted_sum / total_fraction
-
-    fingerprints['weighted_properties'] = property_weights
-
-    # Compute variance metrics for multi-element sites
-    for site, elements in site_assignments.items():
-        if len(elements) > 1:
-            # Variance in ionic radius
-            radii = []
-            fractions = []
-            for elem_symbol, fraction in elements.items():
-                try:
-                    el = Element(elem_symbol)
-                    radii.append(el.ionic_radius or 1.0)
-                    fractions.append(fraction)
-                except Exception:
-                    pass
-            
-            if radii:
-                mean_radius = sum(r * f for r, f in zip(radii, fractions)) / sum(fractions)
-                variance = sum(f * (r - mean_radius)**2 for r, f in zip(radii, fractions)) / sum(fractions)
-                fingerprints['variance_metrics'][f'{site}_radius_variance'] = variance
-
+        
+        if count > 0:
+            fingerprints[f'weighted_{prop_name}'] = weighted_sum
+            fingerprints[f'variance_{prop_name}'] = max(0, variance_sum - weighted_sum ** 2)
+    
     return fingerprints
 
-
-def validate_perovskite_formula(formula_str: str) -> Tuple[bool, str]:
+def get_ionic_radius(element_str: str) -> float:
     """
-    Validate if a formula can represent a perovskite structure.
-
-    Checks:
-    - Contains elements that can form A, B, and X sites
-    - Reasonable stoichiometry (approximately ABX3)
-    - Charge balance (simplified check)
-
+    Get ionic radius for an element (in Angstroms).
+    
+    Uses typical oxidation states for perovskite chemistry.
+    
     Args:
-        formula_str: Chemical formula string
-
+        element_str: Element symbol
+    
     Returns:
-        Tuple of (is_valid, message)
+        Ionic radius in Angstroms
+    
+    Raises:
+        ValueError: If ionic radius is not available
+    """
+    # Typical ionic radii for common perovskite elements (coordination number 6)
+    # Source: Shannon radii
+    ionic_radii = {
+        # A-site cations
+        'Li': 0.76, 'Na': 1.02, 'K': 1.38, 'Rb': 1.52, 'Cs': 1.67,
+        'Tl': 1.50, 'Ag': 1.15, 'Cu': 0.77,
+        # B-site cations
+        'Pb': 1.19, 'Sn': 1.18, 'Ge': 0.73, 'Ti': 0.605, 'Zr': 0.72, 'Hf': 0.71,
+        'Mn': 0.83, 'Fe': 0.785, 'Co': 0.745, 'Ni': 0.69, 'Cu': 0.73, 'Zn': 0.74,
+        'Cd': 0.95, 'Mg': 0.72, 'Ca': 1.00, 'Sr': 1.18, 'Ba': 1.35,
+        'V': 0.58, 'Nb': 0.64, 'Ta': 0.64, 'Cr': 0.615, 'Mo': 0.65, 'W': 0.60,
+        'Bi': 1.03, 'Sb': 0.76, 'Ag': 1.15,
+        # X-site anions
+        'F': 1.33, 'Cl': 1.81, 'Br': 1.96, 'I': 2.20,
+        'O': 1.40, 'S': 1.84, 'Se': 1.98, 'Te': 2.21
+    }
+    
+    if element_str in ionic_radii:
+        return ionic_radii[element_str]
+    
+    raise ValueError(f"Ionic radius not available for {element_str}")
+
+def get_electronegativity(element_str: str) -> float:
+    """
+    Get electronegativity (Pauling scale) for an element.
+    
+    Args:
+        element_str: Element symbol
+    
+    Returns:
+        Electronegativity value
+    
+    Raises:
+        ValueError: If electronegativity is not available
+    """
+    electronegativities = {
+        'Li': 0.98, 'Na': 0.93, 'K': 0.82, 'Rb': 0.82, 'Cs': 0.79,
+        'Tl': 1.62, 'Ag': 1.93, 'Cu': 1.90, 'Au': 2.54,
+        'Pb': 1.87, 'Sn': 1.96, 'Ge': 2.01, 'Ti': 1.54, 'Zr': 1.33, 'Hf': 1.30,
+        'Mn': 1.55, 'Fe': 1.83, 'Co': 1.88, 'Ni': 1.91, 'Cu': 1.90, 'Zn': 1.65,
+        'Cd': 1.69, 'Mg': 1.31, 'Ca': 1.00, 'Sr': 0.95, 'Ba': 0.89,
+        'V': 1.63, 'Nb': 1.60, 'Ta': 1.50, 'Cr': 1.66, 'Mo': 2.16, 'W': 2.36,
+        'Bi': 2.02, 'Sb': 2.05, 'Ag': 1.93,
+        'F': 3.98, 'Cl': 3.16, 'Br': 2.96, 'I': 2.66,
+        'O': 3.44, 'S': 2.58, 'Se': 2.55, 'Te': 2.10,
+        'N': 3.04, 'C': 2.55, 'H': 2.20
+    }
+    
+    if element_str in electronegativities:
+        return electronegativities[element_str]
+    
+    try:
+        elem_obj = PmgElement(element_str)
+        return elem_obj.X
+    except ValueError:
+        raise ValueError(f"Electronegativity not available for {element_str}")
+
+def get_atomic_number(element_str: str) -> int:
+    """
+    Get atomic number for an element.
+    
+    Args:
+        element_str: Element symbol
+    
+    Returns:
+        Atomic number
+    
+    Raises:
+        ValueError: If element is not found
     """
     try:
-        composition = parse_formula(formula_str)
-        site_assignments = assign_perovskite_sites(composition)
-        
-        # Check if all three sites have elements
-        if not site_assignments['A'] or not site_assignments['B'] or not site_assignments['X']:
-            return False, "Formula missing elements for one or more perovskite sites (A, B, or X)"
-        
-        # Check stoichiometry ratio (approximately 1:1:3)
-        a_total = sum(site_assignments['A'].values())
-        b_total = sum(site_assignments['B'].values())
-        x_total = sum(site_assignments['X'].values())
-        
-        if a_total == 0 or b_total == 0 or x_total == 0:
-            return False, "Invalid site totals"
-        
-        # Normalize to B-site = 1
-        a_ratio = a_total / b_total
-        x_ratio = x_total / b_total
-        
-        # Allow some flexibility in stoichiometry (0.8-1.2 for A:B, 2.5-3.5 for X:B)
-        if not (0.8 <= a_ratio <= 1.2):
-            return False, f"A:B ratio {a_ratio:.2f} outside acceptable range (0.8-1.2)"
-        
-        if not (2.5 <= x_ratio <= 3.5):
-            return False, f"X:B ratio {x_ratio:.2f} outside acceptable range (2.5-3.5)"
-        
-        return True, "Valid perovskite formula"
-        
-    except FormulaParseError as e:
-        return False, f"Formula parsing error: {e}"
-    except Exception as e:
-        return False, f"Validation error: {e}"
+        elem_obj = PmgElement(element_str)
+        return elem_obj.Z
+    except ValueError:
+        raise ValueError(f"Unknown element: {element_str}")
 
-
-def get_deterministic_assignment(formula_str: str) -> Dict[str, Dict[str, float]]:
+def get_atomic_mass(element_str: str) -> float:
     """
-    Get a deterministic assignment of elements to perovskite sites.
+    Get atomic mass for an element (in amu).
     
-    This is the main entry point for the formula parser, providing a consistent
-    assignment algorithm that can be used for feature engineering.
+    Args:
+        element_str: Element symbol
+    
+    Returns:
+        Atomic mass
+    
+    Raises:
+        ValueError: If element is not found
+    """
+    try:
+        elem_obj = PmgElement(element_str)
+        return elem_obj.atomic_mass
+    except ValueError:
+        raise ValueError(f"Unknown element: {element_str}")
+
+def get_deterministic_assignment(formula_str: str) -> Dict[str, any]:
+    """
+    Perform complete deterministic site assignment and fingerprint computation.
     
     Args:
         formula_str: Chemical formula string
-        
+    
     Returns:
-        Dictionary with site assignments (A, B, X) and element fractions
+        Dictionary containing:
+        - 'composition': Parsed Composition object
+        - 'sites': Site assignment (A, B, X lists)
+        - 'fingerprints': Compositional fingerprints
+        - 'valid': Whether the formula is a valid perovskite
     """
-    return assign_perovskite_sites(parse_formula(formula_str))
+    composition = parse_formula(formula_str)
+    valid = validate_perovskite_formula(composition)
+    sites = assign_perovskite_sites(composition) if valid else {}
+    fingerprints = compute_compositional_fingerprints(composition, sites) if valid else {}
+    
+    return {
+        'composition': composition,
+        'sites': sites,
+        'fingerprints': fingerprints,
+        'valid': valid
+    }
+
+def main():
+    """
+    Main function for testing the formula parser.
+    """
+    test_formulas = [
+        "CsPbI3",
+        "CH3NH3PbBr3",
+        "FAPbI3",
+        "CsSnI3",
+        "BaTiO3",
+        "NaNbO3"
+    ]
+    
+    logger.info("Testing formula parser with sample perovskites:")
+    for formula in test_formulas:
+        try:
+            result = get_deterministic_assignment(formula)
+            logger.info(f"\nFormula: {formula}")
+            logger.info(f"  Valid perovskite: {result['valid']}")
+            logger.info(f"  Sites: A={result['sites'].get('A', [])}, "
+                      f"B={result['sites'].get('B', [])}, "
+                      f"X={result['sites'].get('X', [])}")
+            logger.info(f"  Fingerprints: {result['fingerprints']}")
+        except FormulaParseError as e:
+            logger.error(f"Failed to parse {formula}: {e}")
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    main()

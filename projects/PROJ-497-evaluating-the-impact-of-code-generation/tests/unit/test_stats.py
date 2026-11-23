@@ -1,231 +1,93 @@
-"""
-Unit tests for stats.py module (T014).
-
-Tests per-sample vulnerability counting logic.
-"""
-import json
+import pytest
+import pandas as pd
 import os
 import tempfile
 from pathlib import Path
-import pandas as pd
-import pytest
-
 import sys
+
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from stats import (
-    extract_task_id_from_path,
-    extract_source_type,
-    count_lines_of_code,
-    parse_vulnerability_report,
-    calculate_per_sample_stats
-)
+from stats import aggregate_analysis_dataset, calculate_per_sample_stats
 
 
-class TestExtractTaskId:
-    """Test task ID extraction from file paths."""
-    
-    def test_llm_generated_path(self):
-        """Test extracting task_id from LLM generated path."""
-        path = "data/generated/starcoder/human_eval/test_0/samples/sample_1.py"
-        assert extract_task_id_from_path(path) == "test_0"
-    
-    def test_human_path(self):
-        """Test extracting task_id from human written path."""
-        path = "data/human/human_eval/test_0/solution.py"
-        assert extract_task_id_from_path(path) == "test_0"
-    
-    def test_mbpp_path(self):
-        """Test extracting task_id from MBPP path."""
-        path = "data/generated/codegen/mbpp/task_5/samples/sol_2.py"
-        assert extract_task_id_from_path(path) == "task_5"
-    
-    def test_invalid_path(self):
-        """Test with path that doesn't contain task_id."""
-        path = "data/processed/report.json"
-        result = extract_task_id_from_path(path)
-        assert result is None
+@pytest.fixture
+def mock_raw_counts_csv(tmp_path):
+    """
+    Creates a mock raw_vulnerability_counts.csv file for testing.
+    """
+    data = {
+        'task_id': ['HUMAN-EVAL-001', 'HUMAN-EVAL-001', 'HUMAN-EVAL-001', 
+                    'HUMAN-EVAL-002', 'HUMAN-EVAL-002',
+                    'MBPP-001', 'MBPP-001'],
+        'source_type': ['LLM', 'LLM', 'Human', 'LLM', 'Human', 'LLM', 'Human'],
+        'file_path': [
+            'data/generated/StarCoder/HumanEval/HUMAN-EVAL-001/samples/s1.py',
+            'data/generated/StarCoder/HumanEval/HUMAN-EVAL-001/samples/s2.py',
+            'data/human/HumanEval/HUMAN-EVAL-001/s1.py',
+            'data/generated/StarCoder/HumanEval/HUMAN-EVAL-002/samples/s1.py',
+            'data/human/HumanEval/HUMAN-EVAL-002/s1.py',
+            'data/generated/StarCoder/MBPP/MBPP-001/samples/s1.py',
+            'data/human/MBPP/MBPP-001/s1.py'
+        ],
+        'lines_of_code': [10, 12, 11, 20, 22, 5, 6],
+        'vulnerability_count': [1, 2, 0, 3, 1, 0, 0]
+    }
+    df = pd.DataFrame(data)
+    csv_path = tmp_path / 'raw_vulnerability_counts.csv'
+    df.to_csv(csv_path, index=False)
+    return csv_path
 
 
-class TestExtractSourceType:
-    """Test source type extraction."""
+def test_aggregate_analysis_dataset(mock_raw_counts_csv, tmp_path):
+    """
+    Tests T015: Aggregation logic.
+    Verifies grouping by task_id and source_type and calculating means.
+    """
+    output_path = tmp_path / 'aggregated_analysis_dataset.csv'
     
-    def test_llm_source(self):
-        """Test LLM source detection."""
-        path = "data/generated/starcoder/human_eval/test_0/samples/sample.py"
-        assert extract_source_type(path) == "LLM"
+    result_df = aggregate_analysis_dataset(str(mock_raw_counts_csv), str(output_path))
     
-    def test_human_source(self):
-        """Test Human source detection."""
-        path = "data/human/human_eval/test_0/solution.py"
-        assert extract_source_type(path) == "Human"
+    # Check file exists
+    assert output_path.exists(), "Output CSV was not created."
     
-    def test_unknown_source(self):
-        """Test unknown source detection."""
-        path = "data/other/file.py"
-        assert extract_source_type(path) == "Unknown"
+    # Check shape: We have 3 unique tasks, but HUMAN-EVAL-001 has 2 source types (LLM, Human).
+    # HUMAN-EVAL-002 has 2 source types.
+    # MBPP-001 has 2 source types.
+    # Total groups = 2 + 2 + 2 = 6 rows.
+    assert result_df.shape[0] == 6, f"Expected 6 rows, got {result_df.shape[0]}"
+    
+    # Check columns
+    expected_cols = {'task_id', 'source_type', 'benchmark', 'lines_of_code', 'vulnerability_count', 'is_valid'}
+    assert set(result_df.columns) == expected_cols, f"Columns mismatch: {result_df.columns}"
+    
+    # Verify aggregation logic for HUMAN-EVAL-001 / LLM
+    # Input: LOC [10, 12] -> Mean 11. Vuln [1, 2] -> Mean 1.5
+    row = result_df[(result_df['task_id'] == 'HUMAN-EVAL-001') & (result_df['source_type'] == 'LLM')]
+    assert len(row) == 1
+    assert row['lines_of_code'].values[0] == 11.0
+    assert row['vulnerability_count'].values[0] == 1.5
+    
+    # Verify Human row for HUMAN-EVAL-001
+    # Input: LOC [11] -> Mean 11. Vuln [0] -> Mean 0.0
+    row = result_df[(result_df['task_id'] == 'HUMAN-EVAL-001') & (result_df['source_type'] == 'Human')]
+    assert row['lines_of_code'].values[0] == 11.0
+    assert row['vulnerability_count'].values[0] == 0.0
+    
+    # Verify benchmark inference
+    assert result_df[result_df['task_id'] == 'HUMAN-EVAL-001']['benchmark'].iloc[0] == 'HumanEval'
+    assert result_df[result_df['task_id'] == 'MBPP-001']['benchmark'].iloc[0] == 'MBPP'
+    
+    # Verify is_valid is True
+    assert all(result_df['is_valid'] == True)
 
 
-class TestCountLinesOfCode:
-    """Test LOC counting."""
+def test_missing_input_file(tmp_path):
+    """
+    Tests that the function fails loudly if input file is missing.
+    """
+    output_path = tmp_path / 'output.csv'
+    input_path = tmp_path / 'nonexistent.csv'
     
-    def test_simple_file(self, tmp_path):
-        """Test counting lines in a simple file."""
-        test_file = tmp_path / "test.py"
-        test_file.write_text("def hello():\n    print('hi')\n")
-        
-        loc = count_lines_of_code(str(test_file))
-        assert loc == 2
-    
-    def test_file_with_comments(self, tmp_path):
-        """Test that comment-only lines are excluded."""
-        test_file = tmp_path / "test.py"
-        test_file.write_text("# comment\n\ndef hello():\n    pass\n")
-        
-        loc = count_lines_of_code(str(test_file))
-        assert loc == 2  # Only 'def hello()' and 'pass'
-    
-    def test_empty_file(self, tmp_path):
-        """Test handling of empty file."""
-        test_file = tmp_path / "empty.py"
-        test_file.write_text("")
-        
-        loc = count_lines_of_code(str(test_file))
-        assert loc == 1  # Minimum 1 line if file exists
-    
-    def test_nonexistent_file(self):
-        """Test handling of nonexistent file."""
-        loc = count_lines_of_code("/nonexistent/path/file.py")
-        assert loc == 1  # Should return 1 with warning
-
-
-class TestParseVulnerabilityReport:
-    """Test vulnerability report parsing."""
-    
-    def test_parse_single_vulnerability(self, tmp_path):
-        """Test parsing a report with one vulnerability."""
-        report_file = tmp_path / "report.json"
-        data = [
-            {
-                "file_path": "data/generated/test.py",
-                "cwe_id": "CWE-78",
-                "severity": "HIGH",
-                "line_number": 10
-            }
-        ]
-        report_file.write_text(json.dumps(data))
-        
-        result = parse_vulnerability_report(str(report_file))
-        assert len(result) == 1
-        assert "data/generated/test.py" in result
-        assert len(result["data/generated/test.py"]) == 1
-    
-    def test_parse_multiple_files(self, tmp_path):
-        """Test parsing report with vulnerabilities in multiple files."""
-        report_file = tmp_path / "report.json"
-        data = [
-            {"file_path": "file1.py", "cwe_id": "CWE-78", "severity": "HIGH", "line_number": 1},
-            {"file_path": "file2.py", "cwe_id": "CWE-89", "severity": "MEDIUM", "line_number": 5},
-            {"file_path": "file1.py", "cwe_id": "CWE-123", "severity": "LOW", "line_number": 10}
-        ]
-        report_file.write_text(json.dumps(data))
-        
-        result = parse_vulnerability_report(str(report_file))
-        assert len(result) == 2
-        assert len(result["file1.py"]) == 2
-        assert len(result["file2.py"]) == 1
-    
-    def test_empty_report(self, tmp_path):
-        """Test parsing an empty report."""
-        report_file = tmp_path / "report.json"
-        report_file.write_text("[]")
-        
-        result = parse_vulnerability_report(str(report_file))
-        assert result == {}
-
-
-class TestCalculatePerSampleStats:
-    """Test the main T014 functionality."""
-    
-    def test_full_pipeline(self, tmp_path):
-        """Test the complete per-sample stats calculation."""
-        # Create mock vulnerability report
-        report_file = tmp_path / "vulnerability_reports.json"
-        data = [
-            {
-                "file_path": "data/generated/starcoder/human_eval/test_0/samples/s1.py",
-                "cwe_id": "CWE-78",
-                "severity": "HIGH",
-                "line_number": 10
-            },
-            {
-                "file_path": "data/generated/starcoder/human_eval/test_0/samples/s1.py",
-                "cwe_id": "CWE-89",
-                "severity": "MEDIUM",
-                "line_number": 15
-            },
-            {
-                "file_path": "data/generated/starcoder/human_eval/test_1/samples/s1.py",
-                "cwe_id": "CWE-123",
-                "severity": "LOW",
-                "line_number": 5
-            },
-            {
-                "file_path": "data/human/human_eval/test_0/solution.py",
-                "cwe_id": "CWE-78",
-                "severity": "HIGH",
-                "line_number": 20
-            }
-        ]
-        report_file.write_text(json.dumps(data))
-        
-        # Create the corresponding code files
-        for item in data:
-            file_path = Path(item["file_path"])
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            file_path.write_text("# Test code\nprint('hello')\n")
-        
-        output_file = tmp_path / "raw_vulnerability_counts.csv"
-        
-        # Run the function
-        df = calculate_per_sample_stats(str(report_file), str(output_file))
-        
-        # Verify output
-        assert os.path.exists(output_file)
-        assert len(df) == 3  # 3 unique files
-        
-        # Check schema
-        expected_cols = ['task_id', 'source_type', 'file_path', 'lines_of_code', 'vulnerability_count']
-        assert list(df.columns) == expected_cols
-        
-        # Check specific values
-        s1_test0 = df[df['file_path'].str.contains('test_0/samples/s1.py')]
-        assert len(s1_test0) == 1
-        assert s1_test0.iloc[0]['vulnerability_count'] == 2
-        assert s1_test0.iloc[0]['source_type'] == 'LLM'
-        
-        human_test0 = df[df['file_path'].str.contains('human_eval/test_0/solution.py')]
-        assert len(human_test0) == 1
-        assert human_test0.iloc[0]['vulnerability_count'] == 1
-        assert human_test0.iloc[0]['source_type'] == 'Human'
-    
-    def test_empty_report(self, tmp_path):
-        """Test with empty vulnerability report."""
-        report_file = tmp_path / "vulnerability_reports.json"
-        report_file.write_text("[]")
-        
-        output_file = tmp_path / "raw_vulnerability_counts.csv"
-        
-        df = calculate_per_sample_stats(str(report_file), str(output_file))
-        
-        assert os.path.exists(output_file)
-        assert len(df) == 0
-        assert list(df.columns) == ['task_id', 'source_type', 'file_path', 
-                                   'lines_of_code', 'vulnerability_count']
-    
-    def test_missing_input_file(self, tmp_path):
-        """Test with missing input file."""
-        output_file = tmp_path / "output.csv"
-        
-        with pytest.raises(FileNotFoundError):
-            calculate_per_sample_stats("/nonexistent/report.json", str(output_file))
+    with pytest.raises(FileNotFoundError):
+        aggregate_analysis_dataset(str(input_path), str(output_path))

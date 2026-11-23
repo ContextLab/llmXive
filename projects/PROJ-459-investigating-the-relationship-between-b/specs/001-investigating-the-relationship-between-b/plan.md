@@ -16,7 +16,7 @@ This project implements a computational pipeline to investigate the relationship
 **External System Dependency**: **fMRIPrep** (Docker Image, not a pip package). The Docker daemon must be running.  
 **Storage**: Local file system (`data/`), JSON/Parquet intermediate files.  
 **Testing**: `pytest` (unit, integration, contract), `black`/`flake8` for linting  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, No GPU)  
+**Target Platform**: Linux (GitHub Actions Free Tier: Limited CPU resources, 7GB RAM, No GPU)  
 **Project Type**: Computational Neuroscience Pipeline / CLI  
 **Performance Goals**: Full pipeline (N=85 subjects) ≤ 6 hours on CPU is **INFEASIBLE** with current hardware. **Revised Goal**: Pipeline must complete for N=85 subjects, but runtime may exceed 6 hours. If runtime > 6h, the job will fail, and the plan recommends running on a larger runner or splitting the job. **Alternative**: If N=85 is not feasible within 6h, the study must be re-scoped to a smaller effect size or lower power, which requires a spec amendment.  
 **Constraints**: No GPU/CUDA; No large-LLM inference; fMRIPrep must run in Docker with memory limits; All statistical tests must include multiple-comparison correction.  

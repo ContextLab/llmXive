@@ -1,0 +1,48 @@
+{
+  "project_id": "PROJ-227-assessing-the-trade-offs-between-static-",
+  "tasks": [
+    {
+      "task_key": "T001a",
+      "reject_count": 1,
+      "last_reason": "No directory listing or other evidence was provided to show that the required folders (`projects/PROJ-227-assessing-the-trade-offs-between-static-/data/raw/`, `data/processed/`, `state/`, `code/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`) actually exist. The implementer must supply an `ls -R` (or equivalent) output confirming the full directory tree.",
+      "first_seen": "2026-10-03T20:45:33.068411+00:00",
+      "last_seen": "2026-10-03T20:45:33.068411+00:00"
+    },
+    {
+      "task_key": "T001b",
+      "reject_count": 1,
+      "last_reason": "No `.gitignore` file content or location is provided, and there is no output showing `git check-ignore` confirming the specified paths are ignored. The required artifact is missing, so the task is not satisfied.",
+      "first_seen": "2026-10-03T20:45:33.069379+00:00",
+      "last_seen": "2026-10-03T20:45:33.069379+00:00"
+    },
+    {
+      "task_key": "T002a",
+      "reject_count": 1,
+      "last_reason": "No evidence of a Python\u202f3.11 virtual environment was provided (no `.venv` directory, activation script, or command output showing `python --version`), so the required artifact is missing. The implementer must create the virtualenv in the specified path and supply verification that activation yields Python\u202f3.11.x.",
+      "first_seen": "2026-10-03T20:45:33.070236+00:00",
+      "last_seen": "2026-10-03T20:45:33.070236+00:00"
+    },
+    {
+      "task_key": "T002b",
+      "reject_count": 1,
+      "last_reason": "The required file `projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt` is missing, and no evidence is provided that `pip install -r requirements.txt` runs successfully. The existing `requirements.txt` in the repository root does not satisfy the specified path requirement.",
+      "first_seen": "2026-10-03T20:45:34.847551+00:00",
+      "last_seen": "2026-10-03T20:45:34.847551+00:00"
+    },
+    {
+      "task_key": "T004",
+      "reject_count": 1,
+      "last_reason": "The required file at `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/config.yaml` is missing, and no evidence of the Python type\u2011checking verification is provided. The existing `code/config.yaml` does not satisfy the specified path requirement.",
+      "first_seen": "2026-10-03T20:45:34.849038+00:00",
+      "last_seen": "2026-10-03T20:45:34.849038+00:00"
+    },
+    {
+      "task_key": "T005",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-10-03T20:45:34.849906+00:00",
+      "last_seen": "2026-10-03T20:45:34.849906+00:00"
+    }
+  ],
+  "updated_at": "2026-10-03T20:45:34.849906+00:00"
+}

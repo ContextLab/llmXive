@@ -1,0 +1,18 @@
+status: none
+intent: Python package synthetic AR(1) time series generator UCI Power Consumption
+  dataset python package dataset
+required_fields:
+- timestamp
+- value
+- Date
+- Time
+- Global_active_power
+- Global_reactive_power
+- Voltage
+- Global_intensity
+- Sub_metering_1
+- Sub_metering_2
+- Sub_metering_3
+cache_key: 64388dfe75d338a6aafce48eb63db31ad8803721b17c94f451c9fd707e22861c
+searched_at: '2026-07-20T05:25:08.802976+00:00'
+retry_count: 1

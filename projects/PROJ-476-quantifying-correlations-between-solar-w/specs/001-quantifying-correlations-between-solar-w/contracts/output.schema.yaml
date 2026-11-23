@@ -1,66 +1,73 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Correlation Analysis Results
-description: "Schema for the output of the lagged correlation analysis."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResult"
+description: "Schema for rows of correlation result files matching the spec‑backed analysis (plain Bonferroni, Pyper & Peterman N_eff for Pearson; permutation test for Spearman)."
 type: object
 properties:
-  param_name:
+  composition_parameter:
     type: string
-    description: "Name of the solar wind parameter (e.g., 'helium_abundance')."
     enum:
       - proton_density
       - temperature
       - helium_abundance
-  index_name:
+    description: "Solar wind composition variable under test."
+  geomagnetic_index:
     type: string
-    description: "Name of the geomagnetic index."
     enum:
-      - kp_index
-      - dst_index
+      - Kp
+      - Dst
+    description: "Geomagnetic index under test."
   lag_hours:
     type: integer
-    description: "Time lag in hours."
     enum:
       - 0
       - 1
       - 2
       - 3
       - 6
+    description: "Lag in hours (composition leading the index)."
   pearson_r:
     type: number
+    minimum: -1
+    maximum: 1
     description: "Pearson correlation coefficient."
   spearman_rho:
     type: number
+    minimum: -1
+    maximum: 1
     description: "Spearman rank correlation coefficient."
-  n_raw:
-    type: integer
-    description: "Raw sample size."
-    minimum: 1
   n_eff:
     type: number
-    description: "Effective sample size after autocorrelation adjustment (calculated on full series)."
-    minimum: 1
+    exclusiveMinimum: 2
+    description: "Pyper & Peterman effective sample size for this pair (used for Pearson significance)."
   p_raw:
     type: number
-    description: "Raw p-value."
     minimum: 0
     maximum: 1
+    description: "Raw p-value: Pearson via t‑approximation with df = n_eff - 2; Spearman via permutation test."
   p_bonferroni:
     type: number
-    description: "Bonferroni-corrected p-value (global threshold)."
     minimum: 0
     maximum: 1
-  is_significant:
+    description: "Bonferroni‑corrected p‑value, min(1, 30 * p_raw)."
+  significant:
     type: boolean
     description: "True if p_bonferroni < 0.05."
+  effect_size_large:
+    type: boolean
+    description: "True if abs(pearson_r) > 0.5."
+  evaluability_flag:
+    type: boolean
+    description: "False if valid observations < 30 or n_eff < 30 (data_resources‑9faf82e0)."
 required:
-  - param_name
-  - index_name
+  - composition_parameter
+  - geomagnetic_index
   - lag_hours
   - pearson_r
   - spearman_rho
-  - n_raw
   - n_eff
   - p_raw
   - p_bonferroni
-  - is_significant
+  - significant
+  - effect_size_large
+  - evaluability_flag
 additionalProperties: false

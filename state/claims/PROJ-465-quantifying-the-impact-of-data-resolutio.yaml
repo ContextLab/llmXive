@@ -1,23 +1,5 @@
 - artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
   attempts: 1
-  canonical: fetch high-SNR strain data with SNR >= 20 from GWOSC
-  claim_id: c_d6dfe882
-  context: "T013 [US1] Implement code/data/download.py to fetch high-SNR strain data\
-    \ (SNR \u2265 20) from GWOSC using gwpy. Must fetch SNR from GWOSC catalog metadata\
-    \ (FR-001)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Implement code/data/download.py to fetch high-SNR strain data (SNR \u2265\
-    \ 20) from GWOSC using gwpy."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T05:40:37Z'
-- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
-  attempts: 1
   canonical: run bilby parameter estimation with max 5000 steps and dlogz threshold
     0.1
   claim_id: c_bf7571ac
@@ -309,3 +291,859 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T05:56:51Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Fetch high-SNR gravitational wave strain data with SNR >= 20 from GWOSC
+  claim_id: c_395064b2
+  context: "T013 [US1] Implement code/data/download.py to fetch high-SNR strain data\
+    \ (SNR \u2265 20) from GWOSC using gwpy. Must fetch SNR from GWOSC catalog metadata\
+    \ (FR-001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/data/download.py to fetch high-SNR strain data (SNR \u2265\
+    \ 20) from GWOSC using gwpy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:53:44Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Downsample strain data to 4096 Hz, 2048 Hz, and 1024 Hz using scipy.signal.decimate
+  claim_id: c_a1af3ec2
+  context: T014 [US1] Implement code/data/transform.py to downsample to 4096 Hz, 2048
+    Hz, and 1024 Hz using scipy.signal.decimate with anti-aliasing (FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downsample to 4096 Hz, 2048 Hz, and 1024 Hz using scipy.signal.decimate
+    with anti-aliasing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:54:00Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Quantize data to 16-bit and 32-bit float representations
+  claim_id: c_0e011e67
+  context: T015 [US1] Implement code/data/transform.py to quantize data to 16-bit
+    and 32-bit float representations to simulate storage constraints (FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: quantize data to 16-bit and 32-bit float representations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:54:36Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Run parameter estimation with maximum 5000 steps and dlogz threshold
+    of 0.1
+  claim_id: c_db9f2a3e
+  context: T017 [US1] Implement code/inference/run_bilby.py to execute parameter estimation
+    using bilby with dynesty (nested sampling) and IMRPhenomPv2, running with a maximum
+    of 5000 steps (hard limit) and a dlogz threshold of 0.1 (FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: running with a maximum of 5000 steps (hard limit) and a dlogz threshold
+    of 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:54:52Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Exclude events where posterior width exceeds 50% of prior width
+  claim_id: c_3383bff2
+  context: 'T019 [US1] Add logic to code/inference/run_bilby.py to: (1) record the
+    ''inconclusive'' status in the posterior file metadata and run log, and (2) exclude
+    events where the posterior width is > 50% of the prior width (Edge Case, FR-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exclude events where the posterior width is > 50% of the prior width
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:54:52Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Retrieve intrinsic statistical uncertainty baseline as 90% CI width from
+    4096 Hz baseline posterior
+  claim_id: c_296197fe
+  context: T023.1 [US2] Implement helper function in code/analysis/metrics.py to retrieve
+    the intrinsic statistical uncertainty baseline (defined as the 90% CI width from
+    the 4096 Hz baseline posterior) and cache it for downstream tasks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retrieve the intrinsic statistical uncertainty baseline (defined as the
+    90% CI width from the 4096 Hz baseline posterior)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:54:52Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Scale catalog-reported uncertainty to 90% CI using 1 sigma times 1.645
+  claim_id: c_767d3c36
+  context: "T025 [US2] Implement logic to scale catalog-reported uncertainty to a\
+    \ 90% confidence interval using the standard normality assumption (1\u03C3 * 1.645)\
+    \ as per spec.md Assumptions (FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "scale catalog-reported uncertainty to a 90% confidence interval using\
+    \ the standard normality assumption (1\u03C3 * 1.645)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:54:52Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Calculate resolution threshold where bias exceeds uncertainty for at
+    least 50% of valid events
+  claim_id: c_c6419c18
+  context: "T029 [US3] Implement code/analysis/aggregate.py to load results from multiple\
+    \ events and resolution configurations. Majority Rule Logic: ... Calculated: The\
+    \ threshold is the lowest rate where (Count of 'Bias Exceeded' / Total Valid Events)\
+    \ \u2265 50%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calculate_resolution_threshold_where_bias_exceeds_uncertaint
+  kind: magnitude
+  raw_text: "Calculate the threshold as the lowest rate where (Count of 'Bias Exceeded'\
+    \ / Total Valid Events) \u2265 50%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:55:18Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: fetch high-SNR strain data with SNR >= 20 from GWOSC
+  claim_id: c_08667536
+  context: "Implement code/data/download.py to fetch high-SNR strain data (SNR \u2265\
+    \ 20) from GWOSC using gwpy. Must fetch SNR from GWOSC catalog metadata (FR-001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/data/download.py to fetch high-SNR strain data (SNR \u2265\
+    \ 20) from GWOSC using gwpy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:59:05Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: downsample to 4096 Hz, 2048 Hz, and 1024 Hz
+  claim_id: c_bc9104cc
+  context: "Implement code/data/transform.py to downsample to 4096 Hz, 2048 Hz, and\
+    \ 1024 Hz using scipy.signal.decimate with anti\u2011aliasing (FR-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downsample to 4096 Hz, 2048 Hz, and 1024 Hz using scipy.signal.decimate
+    with anti-aliasing
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:59:05Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: quantize data to 16-bit and 32-bit float representations
+  claim_id: c_be537bee
+  context: Implement code/data/transform.py to quantize data to 16-bit and 32-bit
+    float representations to simulate storage constraints (FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: quantize data to 16-bit and 32-bit float representations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:59:05Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: maximum of 5000 steps and dlogz threshold of 0.1
+  claim_id: c_fe3eb91a
+  context: Execute parameter estimation using bilby with dynesty and IMRPhenomPv2,
+    running with a maximum of 5000 steps (hard limit) and a dlogz threshold of 0.1
+    (FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: running with a maximum of 5000 steps and a dlogz threshold of 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:59:05Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: exclude events where posterior width > 50% of prior width
+  claim_id: c_47f5ef48
+  context: Add logic to code/inference/run_bilby.py to exclude events where the posterior
+    width is > 50% of the prior width (Edge Case, FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exclude events where the posterior width is > 50% of the prior width
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:59:05Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: retrieve 90% CI width from 4096 Hz baseline posterior
+  claim_id: c_b4e64e3f
+  context: "Retrieve the intrinsic statistical uncertainty baseline (defined as the\
+    \ 90% CI width from the 4096 Hz baseline posterior), and calculate Hellinger distance\
+    \ between a downsampled posterior and this baseline/ground truth (FR\u2011005,\
+    \ SC\u2011001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retrieve the intrinsic statistical uncertainty baseline defined as the
+    90% CI width from the 4096 Hz baseline posterior
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:59:06Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: scale uncertainty to 90% CI using 1 sigma * 1.645
+  claim_id: c_a59b6a6c
+  context: "Implement logic to scale catalog\u2011reported uncertainty to a 90% confidence\
+    \ interval using the standard normality assumption (1\u03C3 * 1.645) as per spec.md\
+    \ Assumptions (FR\u2011006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "scale catalog\u2011reported uncertainty to a 90% confidence interval\
+    \ using the standard normality assumption (1\u03C3 * 1.645)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:59:06Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: bias < 1e-6 in injected data scenarios
+  claim_id: c_cd87d575
+  context: "Implement validation for injected data scenarios where bias should be\
+    \ effectively zero (< 1e\u20116) (US\u20112, Scenario 3)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "bias should be effectively zero (< 1e\u20116) in injected data scenarios"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:59:06Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: threshold is lowest rate where bias exceeded count / total valid events
+    >= 50%
+  claim_id: c_d2b8587c
+  context: "The threshold is the lowest rate where (Count of 'Bias Exceeded' / Total\
+    \ Valid Events) \u2265 50%. (Majority Rule Logic)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threshold_is_lowest_rate_where_bias_exceeded_count_/_total_v
+  kind: magnitude
+  raw_text: "threshold is the lowest rate where (Count of 'Bias Exceeded' / Total\
+    \ Valid Events) \u2265 50%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:59:26Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: completion within 4-hour goal to meet 6-hour constraint
+  claim_id: c_81b90c86
+  context: "Performance optimization for MCMC runs to ensure completion within the\
+    \ 4-hour performance goal defined in plan.md to comfortably meet the 6-hour constraint\
+    \ (SC\u2011003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure completion within the 4-hour performance goal defined in plan.md
+    to comfortably meet the 6-hour constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T12:59:42Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: "Fetch high-SNR gravitational wave strain data with SNR \u2265 20 from\
+    \ GWOSC"
+  claim_id: c_f08a6723
+  context: "T013 [US1] Implement code/data/download.py to fetch high-SNR strain data\
+    \ (SNR \u2265 20) from GWOSC using gwpy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/data/download.py to fetch high-SNR strain data (SNR \u2265\
+    \ 20) from GWOSC using gwpy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:00:48Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Downsample gravitational wave strain data to 4096 Hz, 2048 Hz, and 1024
+    Hz
+  claim_id: c_8f330c38
+  context: T014 [US1] Implement code/data/transform.py to downsample to 4096 Hz, 2048
+    Hz, and 1024 Hz using scipy.signal.decimate with anti-aliasing (FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/transform.py to downsample to 4096 Hz, 2048 Hz, and
+    1024 Hz using scipy.signal.decimate with anti-aliasing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:01:04Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Quantize gravitational wave strain data to 16-bit and 32-bit float representations
+  claim_id: c_326639f3
+  context: T015 [US1] Implement code/data/transform.py to quantize data to 16-bit
+    and 32-bit float representations to simulate storage constraints (FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/transform.py to quantize data to 16-bit and 32-bit
+    float representations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:01:32Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Run Bayesian parameter estimation with 5000 maximum steps and 0.1 dlogz
+    threshold
+  claim_id: c_3ee38a76
+  context: T017 [US1] Implement code/inference/run_bilby.py to execute parameter estimation
+    using bilby with dynesty (nested sampling) and IMRPhenomPv2, running with a maximum
+    of 5000 steps (hard limit) and a dlogz threshold of 0.1 (FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run parameter estimation using bilby with dynesty and IMRPhenomPv2, running
+    with a maximum of 5000 steps and a dlogz threshold of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:01:47Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Exclude events with posterior width exceeding 50% of prior width
+  claim_id: c_682878cd
+  context: 'T019 [US1] Add logic to code/inference/run_bilby.py to: ... (2) exclude
+    events where the posterior width is > 50% of the prior width (Edge Case, FR-004).'
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Exclude_events_with_posterior_width_exceeding_50%25_of_prior_w
+  kind: magnitude
+  raw_text: Exclude events where the posterior width is greater than 50% of the prior
+    width.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-20T13:02:11Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Scale catalog uncertainty to 90% confidence interval using 1.645 factor
+  claim_id: c_71811c74
+  context: "T025 [US2] Implement logic to scale catalog-reported uncertainty to a\
+    \ 90% confidence interval using the standard normality assumption (1\u03C3 * 1.645)\
+    \ as per spec.md Assumptions (FR-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Scale catalog-reported uncertainty to a 90% confidence interval using\
+    \ the standard normality assumption (1\u03C3 * 1.645)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:02:11Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Flag configurations where bias exceeds catalog-reported confidence interval
+  claim_id: c_f9fd70e6
+  context: T026 [US2] Add flagging mechanism for configurations where bias exceeds
+    the catalog-reported confidence interval threshold (FR-006)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flag_configurations_where_bias_exceeds_catalog-reported_conf
+  kind: entity_fact
+  raw_text: Flag configurations where bias exceeds the catalog-reported confidence
+    interval threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:02:30Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Validate injected data scenarios with bias less than 1e-6
+  claim_id: c_b0f4993a
+  context: T027 [US2] Implement validation for injected data scenarios where bias
+    should be effectively zero (< 1e-6) (US-2, Scenario 3)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_injected_data_scenarios_with_bias_less_than_1e-6
+  kind: magnitude
+  raw_text: Validate injected data scenarios where bias should be effectively zero
+    (less than 1e-6).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:02:51Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: Identify resolution threshold where bias exceeds limit for 50% of events
+  claim_id: c_9a4d80f6
+  context: "T029 [US3] Implement code/analysis/aggregate.py ... (3) Calculated: The\
+    \ threshold is the lowest rate where (Count of 'Bias Exceeded' / Total Valid Events)\
+    \ \u2265 50%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_resolution_threshold_where_bias_exceeds_limit_for_5
+  kind: magnitude
+  raw_text: Calculate the threshold as the lowest rate where the count of 'Bias Exceeded'
+    divided by Total Valid Events is greater than or equal to 50%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:03:38Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 2
+  canonical: Optimize MCMC runs to complete within 4 hours to meet 6-hour constraint
+  claim_id: c_c5d623b5
+  context: T040 [P] Performance optimization for MCMC runs to ensure completion within
+    the 4-hour performance goal defined in plan.md to comfortably meet the 6-hour
+    constraint (SC-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimizing for a reduced duration goal ensures the success criterion (feasibility)
+    is met comfortably within the 6-hour constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:03:38Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 2
+  canonical: fetch high-SNR strain data with SNR >= 20 from GWOSC
+  claim_id: c_d6dfe882
+  context: "T013 [US1] Implement code/data/download.py to fetch high-SNR strain data\
+    \ (SNR \u2265 20) from GWOSC using gwpy. Must fetch SNR from GWOSC catalog metadata\
+    \ (FR-001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/data/download.py to fetch high-SNR strain data (SNR \u2265\
+    \ 20) from GWOSC using gwpy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:12:19Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: downsample strain data to 4096 Hz, 2048 Hz, and 1024 Hz
+  claim_id: c_38132872
+  context: T014 [US1] Implement code/data/transform.py to downsample to 4096 Hz, 2048
+    Hz, and 1024 Hz using scipy.signal.decimate with anti-aliasing (FR-002).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/transform.py to downsample to 4096 Hz, 2048 Hz, and
+    1024 Hz using scipy.signal.decimate with anti-aliasing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:12:19Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: quantize data to 16-bit and 32-bit float representations
+  claim_id: c_889f07c3
+  context: T015 [US1] Implement code/data/transform.py to quantize data to 16-bit
+    and 32-bit float representations to simulate storage constraints (FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data/transform.py to quantize data to 16-bit and 32-bit
+    float representations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:12:19Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: configure IMRPhenomPv2 waveform model
+  claim_id: c_74787633
+  context: T016 [US1] Implement code/inference/models.py to configure IMRPhenomPv2
+    waveform model (FR-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configure_IMRPhenomPv2_waveform_model
+  kind: entity_fact
+  raw_text: Configure IMRPhenomPv2 waveform model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:12:41Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: run parameter estimation with max 5000 steps and dlogz threshold 0.1
+  claim_id: c_d0fffd73
+  context: T017 [US1] Implement code/inference/run_bilby.py to execute parameter estimation
+    using bilby with dynesty (nested sampling) and IMRPhenomPv2, running with a maximum
+    of 5000 steps (hard limit) and a dlogz threshold of 0.1 (FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run parameter estimation with a maximum of 5000 steps and a dlogz threshold
+    of 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:12:55Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: flag runs as inconclusive if dlogz exceeds 0.1
+  claim_id: c_c79bd11c
+  context: T017 [US1] ... If dlogz > 0.1 after max steps, flag as 'inconclusive'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag runs as inconclusive if dlogz exceeds 0.1 after max iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:13:11Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: exclude events where posterior width > 50% of prior width
+  claim_id: c_8f5bed85
+  context: 'T019 [US1] Add logic to code/inference/run_bilby.py to: ... (2) exclude
+    events where the posterior width is > 50% of the prior width (Edge Case, FR-004).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/exclude_events_where_posterior_width_%3E_50%25_of_prior_width
+  kind: magnitude
+  raw_text: Exclude events where the posterior width is greater than 50% of the prior
+    width.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:13:13Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: validate baseline posterior width < 50% prior width
+  claim_id: c_f37163ed
+  context: T019.1 [P] [US1] Implement Baseline Validation ... to ensure the baseline
+    (4096 Hz) posterior is not flagged 'inconclusive' and has a valid posterior width
+    < 50% prior width before being used as ground truth.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/validate_baseline_posterior_width_%3C_50%25_prior_width
+  kind: magnitude
+  raw_text: Verify the baseline posterior is not flagged 'inconclusive' and has a
+    valid posterior width less than 50% prior width.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:13:43Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: retrieve 90% CI width from 4096 Hz baseline posterior
+  claim_id: c_b8d1a642
+  context: T023.1 [US2] Implement helper function ... to retrieve the intrinsic statistical
+    uncertainty baseline (defined as the 90% CI width from the 4096 Hz baseline posterior)
+    and cache it for downstream tasks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retrieve the intrinsic statistical uncertainty baseline defined as the
+    90% CI width from the 4096 Hz baseline posterior.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:13:44Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: scale uncertainty to 90% CI using 1 sigma * 1.645
+  claim_id: c_a37d93db
+  context: "T025 [US2] Implement logic to scale catalog\u2011reported uncertainty\
+    \ to a 90% confidence interval using the standard normality assumption (1\u03C3\
+    \ * 1.645) as per spec.md Assumptions (FR\u2011006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Scale catalog-reported uncertainty to a 90% confidence interval using\
+    \ the standard normality assumption (1\u03C3 * 1.645)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:13:44Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: flag configurations where bias exceeds catalog 90% CI
+  claim_id: c_41da9483
+  context: "T026 [US2] Add flagging mechanism for configurations where bias exceeds\
+    \ the catalog\u2011reported confidence interval threshold (FR\u2011006)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag configurations where bias exceeds the catalog-reported confidence
+    interval threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:13:44Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: validate injected data bias < 1e-6
+  claim_id: c_9201caa0
+  context: "T027 [US2] Implement validation for injected data scenarios where bias\
+    \ should be effectively zero (< 1e\u20116) (US\u20112, Scenario 3)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/validate_injected_data_bias_%3C_1e-6
+  kind: magnitude
+  raw_text: Implement validation for injected data scenarios where bias should be
+    effectively zero (less than 1e-6).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:14:04Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: identify threshold where bias exceeded ratio >= 50%
+  claim_id: c_eab55ade
+  context: "T029 [US3] ... (3) Calculated: The threshold is the lowest rate where\
+    \ (Count of 'Bias Exceeded' / Total Valid Events) \u2265 50%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/identify_threshold_where_bias_exceeded_ratio_%3E=_50%25
+  kind: magnitude
+  raw_text: Identify the threshold as the lowest rate where the count of 'Bias Exceeded'
+    divided by total valid events is greater than or equal to 50%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:14:51Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: calculate standard deviation of resolution thresholds across events
+  claim_id: c_1f4a7fe5
+  context: T030 [US3] Implement logic to calculate the standard deviation of the identified
+    resolution thresholds across the POPULATION of events.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_standard_deviation_of_resolution_thresholds_across
+  kind: entity_fact
+  raw_text: Calculate the standard deviation of the identified resolution thresholds
+    across the population of events.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:15:19Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/tasks.md
+  attempts: 1
+  canonical: optimize MCMC runs to complete within 4 hours
+  claim_id: c_0ec1f042
+  context: "T040 [P] Performance optimization for MCMC runs to ensure completion within\
+    \ the 4-hour performance goal defined in plan.md to comfortably meet the 6-hour\
+    \ constraint (SC\u2011003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize MCMC runs to ensure completion within a 4-hour performance goal
+    to meet a 6-hour constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:15:43Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/quickstart.md
+  attempts: 1
+  canonical: GW150914 has high signal-to-noise ratio of at least 20
+  claim_id: c_e5c24290
+  context: "This script performs the following steps sequentially: 1. Data Acquisition:\
+    \ Fetches high-SNR (\u2265 20) strain data for GW150914 from GWOSC."
+  evidence:
+    candidates:
+    - - ''
+      - 150914.0
+    - - ''
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/GW150914_has_high_signal-to-noise_ratio_of_at_least_20
+  kind: magnitude
+  raw_text: "Fetches high-SNR (\u2265 20) strain data for GW150914 from GWOSC."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-20T13:28:54Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/quickstart.md
+  attempts: 1
+  canonical: Data is downsampled to 4096 Hz, 2048 Hz, and 1024 Hz and quantized to
+    16-bit and 32-bit
+  claim_id: c_e30fc6c7
+  context: 'Transformation: Downsamples to 4096 Hz, 2048 Hz, and 1024 Hz; quantizes
+    to 16-bit and 32-bit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Downsamples to 4096 Hz, 2048 Hz, and 1024 Hz; quantizes to 16-bit and
+    32-bit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:29:24Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/quickstart.md
+  attempts: 1
+  canonical: Bilby runs with IMRPhenomPv2 and dynesty for each resolution
+  claim_id: c_6c20f6fb
+  context: 'Inference: Runs Bilby with IMRPhenomPv2 and dynesty (nested sampling)
+    for each resolution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bilby_runs_with_IMRPhenomPv2_and_dynesty_for_each_resolution
+  kind: entity_fact
+  raw_text: Runs Bilby with IMRPhenomPv2 and dynesty (nested sampling) for each resolution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:29:41Z'
+- artifact_path: projects/PROJ-465-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio/quickstart.md
+  attempts: 1
+  canonical: Majority of events (50% or more) exhibit bias exceeding catalog 90% confidence
+    interval
+  claim_id: c_54b7e003
+  context: "The primary output is results/aggregation/summary_table.csv, which identifies\
+    \ the lowest sampling rate where the majority of events (\u2265 50%) exhibit bias\
+    \ exceeding the catalog-reported 90% confidence interval."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The majority of events (\u2265 50%) exhibit bias exceeding the catalog-reported\
+    \ 90% confidence interval."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T13:29:41Z'

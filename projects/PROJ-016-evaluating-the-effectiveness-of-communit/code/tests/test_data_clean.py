@@ -1,193 +1,209 @@
 import pytest
-import time
-import requests
-from unittest.mock import patch, MagicMock, mock_open
-from pathlib import Path
-import sys
-import json
-import tempfile
-import os
-
-# Ensure code directory is in path for imports
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from data.classify import load_metadata, classify_regime, convert_to_binary
-from data.clean import apply_fr007_exclusion, clean_and_merge_data
 import pandas as pd
+import numpy as np
+import tempfile
+import json
+import time
+import sys
+import os
+from pathlib import Path
+from unittest.mock import patch, MagicMock, Mock
 
-# Fixtures and Helpers
+# Add code directory to path for imports
+def add_code_to_path():
+    code_dir = Path(__file__).parent.parent
+    if str(code_dir) not in sys.path:
+        sys.path.insert(0, str(code_dir))
+
 @pytest.fixture
-def temp_metadata_dir():
-    """Create a temporary directory with a valid metadata file for testing."""
+def temp_data_dir():
+    """Create a temporary directory for test data."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        metadata = {
-            "indicator_code": "AG.LND.FRST.ZS",
-            "source": "World Bank",
-            "thresholds": {
-                "cbnrm_min": 0.15,
-                "cbnrm_max": 0.85,
-                "state_led_min": 0.0,
-                "state_led_max": 0.15,
-                "community_led_min": 0.85,
-                "community_led_max": 1.0
-            },
-            "description": "Test metadata for regime classification"
-        }
-        metadata_file = tmp_path / "cbnrm_proxy_metadata.json"
-        with open(metadata_file, 'w') as f:
-            json.dump(metadata, f)
-        yield tmp_path
+        yield Path(tmpdir)
 
 @pytest.fixture
 def sample_dataframe():
-    """Create a sample DataFrame with proxy values to test classification."""
+    """Create a sample dataframe for testing."""
     data = {
-        'country': ['USA', 'BRA', 'IND', 'ZAF', 'CAN'],
-        'year': [2000, 2000, 2000, 2000, 2000],
-        'cbnrm_proxy': [0.05, 0.50, 0.90, 0.10, 0.20], # State, Mixed, Community, State, State
-        'gdp_per_capita': [50000, 8000, 2000, 6000, 40000],
-        'population_density': [35, 25, 400, 45, 4]
+        'country_code': ['USA', 'CAN', 'MEX', 'BRA', 'ARG'],
+        'year': [2010, 2010, 2010, 2010, 2010],
+        'land_use_change_rate': [0.5, 0.3, 0.2, 0.4, 0.1],
+        'gdp_per_capita': [50000.0, 45000.0, np.nan, 15000.0, 12000.0],
+        'population_density': [35.0, 4.0, 65.0, 25.0, 15.0],
+        'regime_type': [0, 0, 1, 1, 0]
     }
     return pd.DataFrame(data)
 
-class TestRegimeClassificationLogic:
-    """
-    Unit tests for regime classification logic (threshold mapping).
-    Tests the mapping of CBNRM proxy values to binary/multi-class regime types
-    based on thresholds loaded from metadata.
-    """
+class TestDataCleaningLogic:
+    """Tests for data cleaning and exclusion logic."""
 
-    def test_load_metadata_valid_file(self, temp_metadata_dir):
-        """Test that load_metadata correctly reads and parses the JSON file."""
-        metadata_path = temp_metadata_dir / "cbnrm_proxy_metadata.json"
-        metadata = load_metadata(metadata_path)
+    def test_excludes_row_when_gdp_missing(self, temp_data_dir, sample_dataframe):
+        """
+        T019a: Unit test for row exclusion.
+        Verifies a row is excluded if GDP is null and logged correctly.
+        """
+        # Import the function to test
+        from data.clean import apply_fr007_exclusion
+        import logging
+
+        # Setup logging to capture output
+        log_capture_string = io.StringIO()
+        ch = logging.StreamHandler(log_capture_string)
+        ch.setLevel(logging.WARNING)
         
-        assert metadata is not None
-        assert "thresholds" in metadata
-        assert metadata["indicator_code"] == "AG.LND.FRST.ZS"
-        assert "state_led_min" in metadata["thresholds"]
+        logger = logging.getLogger('data.clean')
+        logger.addHandler(ch)
+        logger.setLevel(logging.WARNING)
 
-    def test_load_metadata_missing_file(self):
-        """Test that load_metadata raises FileNotFoundError for missing file."""
-        with pytest.raises(FileNotFoundError):
-            load_metadata(Path("/nonexistent/path/file.json"))
+        # Create a temporary output file path
+        output_path = temp_data_dir / "cleaned_panel.csv"
 
-    def test_classify_regime_state_led(self, temp_metadata_dir, sample_dataframe):
-        """
-        Test classification of 'State-Led' regime.
-        Values: 0.05 (USA), 0.10 (ZAF), 0.20 (CAN - wait, 0.20 is > 0.15? Let's check thresholds).
-        Thresholds in fixture: state_led_max = 0.15.
-        So 0.05 -> State, 0.10 -> State. 0.20 -> Mixed (since > 0.15 and < 0.85).
-        """
-        metadata_path = temp_metadata_dir / "cbnrm_proxy_metadata.json"
-        metadata = load_metadata(metadata_path)
+        # Apply FR-007 exclusion (GDP missing)
+        result_df = apply_fr007_exclusion(sample_dataframe, str(output_path))
+
+        # Assert the row with missing GDP (MEX) was excluded
+        assert 'MEX' not in result_df['country_code'].values, "Row with missing GDP should be excluded"
         
-        # Test USA (0.05) -> State Led
-        result_usa = classify_regime(sample_dataframe.loc[0, 'cbnrm_proxy'], metadata)
-        assert result_usa == "State-Led", f"Expected 'State-Led', got {result_usa}"
-
-        # Test ZAF (0.10) -> State Led
-        result_zaf = classify_regime(sample_dataframe.loc[3, 'cbnrm_proxy'], metadata)
-        assert result_zaf == "State-Led", f"Expected 'State-Led', got {result_zaf}"
-
-    def test_classify_regime_community_led(self, temp_metadata_dir, sample_dataframe):
-        """
-        Test classification of 'Community-Led' regime.
-        Value: 0.90 (IND). Threshold: community_led_min = 0.85.
-        """
-        metadata_path = temp_metadata_dir / "cbnrm_proxy_metadata.json"
-        metadata = load_metadata(metadata_path)
-
-        result_ind = classify_regime(sample_dataframe.loc[2, 'cbnrm_proxy'], metadata)
-        assert result_ind == "Community-Led", f"Expected 'Community-Led', got {result_ind}"
-
-    def test_classify_regime_mixed(self, temp_metadata_dir, sample_dataframe):
-        """
-        Test classification of 'Mixed' regime.
-        Value: 0.50 (BRA). Threshold: 0.15 < 0.50 < 0.85.
-        """
-        metadata_path = temp_metadata_dir / "cbnrm_proxy_metadata.json"
-        metadata = load_metadata(metadata_path)
-
-        result_bra = classify_regime(sample_dataframe.loc[1, 'cbnrm_proxy'], metadata)
-        assert result_bra == "Mixed", f"Expected 'Mixed', got {result_bra}"
+        # Assert other rows are present
+        assert 'USA' in result_df['country_code'].values
+        assert 'CAN' in result_df['country_code'].values
         
-        # Test CAN (0.20) -> Mixed (since > 0.15)
-        result_can = classify_regime(sample_dataframe.loc[4, 'cbnrm_proxy'], metadata)
-        assert result_can == "Mixed", f"Expected 'Mixed', got {result_can}"
+        # Assert the count is correct (5 original - 1 excluded = 4)
+        assert len(result_df) == 4
 
-    def test_classify_regime_boundary_values(self, temp_metadata_dir):
-        """
-        Test classification exactly at boundaries.
-        Thresholds: State max 0.15, Mixed max 0.85.
-        """
-        metadata_path = temp_metadata_dir / "cbnrm_proxy_metadata.json"
-        metadata = load_metadata(metadata_path)
+        # Verify log message was generated
+        log_contents = log_capture_string.getvalue()
+        assert 'GDP' in log_contents, "Log should mention missing GDP"
+        assert 'excluded' in log_contents.lower(), "Log should indicate exclusion"
 
-        # Exactly at state_led_max (0.15) -> Should be State-Led (inclusive lower, exclusive upper usually, but logic defines ranges)
-        # Based on typical logic: [0.0, 0.15] -> State, (0.15, 0.85) -> Mixed, [0.85, 1.0] -> Community
-        # Let's verify the implementation handles the boundary as defined in classify.py logic
-        # Assuming classify.py uses: if val <= state_max: State; elif val < comm_min: Mixed; else: Community
+        # Verify the output file was created
+        assert output_path.exists(), "Output CSV should be created"
         
-        # Test 0.15 (Boundary State/Mixed)
-        # If logic is <= 0.15 -> State
-        result_boundary_1 = classify_regime(0.15, metadata)
-        assert result_boundary_1 == "State-Led", f"Boundary 0.15 expected State-Led, got {result_boundary_1}"
+        # Verify the file content matches the dataframe
+        saved_df = pd.read_csv(output_path)
+        assert len(saved_df) == 4
+        assert 'MEX' not in saved_df['country_code'].values
 
-        # Test 0.1500001 (Just above State)
-        result_above_1 = classify_regime(0.1500001, metadata)
-        assert result_above_1 == "Mixed", f"Just above 0.15 expected Mixed, got {result_above_1}"
-
-        # Test 0.85 (Boundary Mixed/Community)
-        # If logic is < 0.85 -> Mixed, >= 0.85 -> Community
-        result_boundary_2 = classify_regime(0.85, metadata)
-        assert result_boundary_2 == "Community-Led", f"Boundary 0.85 expected Community-Led, got {result_boundary_2}"
-
-    def test_convert_to_binary_state_vs_community(self, temp_metadata_dir):
+    def test_merge_handles_missing_keys(self, temp_data_dir):
         """
-        Test binary conversion logic.
-        Typically: State-Led -> 0, Community-Led/Mixed -> 1 (or similar).
-        We need to verify the specific mapping defined in convert_to_binary.
-        Assuming: State-Led = 0, others = 1 for binary comparison.
+        T018a: Unit test for data merge logic.
+        Verifies row exclusion when ISO codes mismatch.
         """
-        metadata_path = temp_metadata_dir / "cbnrm_proxy_metadata.json"
-        metadata = load_metadata(metadata_path)
-
-        # State-Led
-        assert convert_to_binary("State-Led") == 0
-        # Mixed
-        assert convert_to_binary("Mixed") == 1
-        # Community-Led
-        assert convert_to_binary("Community-Led") == 1
-
-    def test_convert_to_binary_invalid(self, temp_metadata_dir):
-        """Test that invalid regime types raise an error or return a specific value."""
-        with pytest.raises(ValueError):
-            convert_to_binary("Invalid_Regime_Type")
-
-    def test_full_pipeline_classification(self, temp_metadata_dir, sample_dataframe):
-        """
-        Test the full pipeline: Load metadata -> Classify -> Convert to Binary.
-        """
-        metadata_path = temp_metadata_dir / "cbnrm_proxy_metadata.json"
-        metadata = load_metadata(metadata_path)
-
-        # Apply classification to the dataframe
-        sample_dataframe['regime_type'] = sample_dataframe['cbnrm_proxy'].apply(
-            lambda x: classify_regime(x, metadata)
-        )
+        from data.clean import merge_datasets
         
-        # Verify specific rows
-        assert sample_dataframe.loc[0, 'regime_type'] == "State-Led"
-        assert sample_dataframe.loc[1, 'regime_type'] == "Mixed"
-        assert sample_dataframe.loc[2, 'regime_type'] == "Community-Led"
-
-        # Convert to binary
-        sample_dataframe['regime_binary'] = sample_dataframe['regime_type'].apply(convert_to_binary)
+        fao_data = pd.DataFrame({
+            'country_code': ['USA', 'CAN'],
+            'year': [2010, 2010],
+            'land_use_change_rate': [0.5, 0.3]
+        })
         
-        assert sample_dataframe.loc[0, 'regime_binary'] == 0
-        assert sample_dataframe.loc[1, 'regime_binary'] == 1
-        assert sample_dataframe.loc[2, 'regime_binary'] == 1
+        wb_data = pd.DataFrame({
+            'country_code': ['USA', 'MEX'],  # MEX mismatch
+            'year': [2010, 2010],
+            'gdp_per_capita': [50000.0, 15000.0]
+        })
+        
+        output_path = temp_data_dir / "merged.csv"
+        
+        result = merge_datasets(fao_data, wb_data, str(output_path))
+        
+        # Only USA should be in the result (common key)
+        assert len(result) == 1
+        assert result.iloc[0]['country_code'] == 'USA'
+        assert 'MEX' not in result['country_code'].values
+
+    def test_classifies_cbnrm_when_proxy_above_threshold(self, temp_data_dir):
+        """
+        T020a: Unit test for threshold mapping.
+        Verifies regime_type is 1 when proxy > threshold.
+        """
+        from data.classify import classify_regime
+        
+        # Simulate metadata with a threshold
+        metadata = {
+            'indicator': 'AG.LND.FRST.CF',
+            'threshold': 0.5,
+            'status': 'success'
+        }
+        
+        # Test value above threshold
+        proxy_value = 0.75
+        regime = classify_regime(proxy_value, metadata)
+        
+        assert regime == 1, "Regime should be 1 when proxy > threshold"
+
+    def test_classifies_state_led_when_proxy_below_threshold(self, temp_data_dir):
+        """
+        T020b: Unit test for edge cases.
+        Verifies regime_type is 0 when proxy <= threshold.
+        """
+        from data.classify import classify_regime
+        
+        metadata = {
+            'indicator': 'AG.LND.FRST.CF',
+            'threshold': 0.5,
+            'status': 'success'
+        }
+        
+        # Test value below threshold
+        proxy_value = 0.3
+        regime = classify_regime(proxy_value, metadata)
+        
+        assert regime == 0, "Regime should be 0 when proxy <= threshold"
+
+class TestDownloadRetryLogic:
+    """Tests for download retry logic (T017a)."""
+
+    @patch('data.download.time.sleep')
+    @patch('data.download.requests.get')
+    def test_download_exponential_backoff(self, mock_get, mock_sleep, temp_data_dir):
+        """
+        T017a: Unit test for API retry logic.
+        Mocks server errors and verifies multiple retries with specific sleep intervals.
+        """
+        from data.download import fetch_with_backoff
+        
+        # Setup mock to fail twice then succeed
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {'data': 'test'}
+        
+        error_response = Mock()
+        error_response.status_code = 500
+        
+        mock_get.side_effect = [
+            requests.exceptions.RequestException("Server Error"),
+            requests.exceptions.RequestException("Server Error"),
+            mock_response
+        ]
+        
+        # Call the function
+        result = fetch_with_backoff("http://test.com/api", max_retries=3)
+        
+        # Verify requests were made 3 times
+        assert mock_get.call_count == 3
+        
+        # Verify sleep was called twice (between retries)
+        assert mock_sleep.call_count == 2
+
+    @patch('data.download.requests.get')
+    def test_synthetic_data_not_generated_on_failure(self, mock_get, temp_data_dir):
+        """
+        T065: Unit Test for "Fail Loud" Behavior.
+        Mocks a persistent API failure and asserts that the script raises an exception.
+        """
+        from data.download import fetch_with_backoff
+        
+        # Setup mock to fail continuously
+        mock_get.side_effect = requests.exceptions.RequestException("Persistent Failure")
+        
+        # Verify that an exception is raised and no synthetic data is returned
+        with pytest.raises(SystemExit):
+            fetch_with_backoff("http://test.com/api", max_retries=2)
+
+# Additional imports needed for the test above
+import io
+import requests
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-111-exploring-the-potential-for-machine-lear
-last_run_id: 0519ab09-d97e-4ce2-940f-df5dea9155e9
+last_run_id: 6e608a0d-12fc-4c15-a9a2-d827142a03e6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-111-exploring-the-potential-for-machine-lear/specs/001-exploring-the-potential-for-machine-lear
 title: Exploring the Potential for Machine Learning to Identify Novel Phase Transitions
   in Isotropic Systems
-updated_at: '2026-07-15T05:22:26.049805Z'
+updated_at: '2026-08-11T01:19:35.692524Z'

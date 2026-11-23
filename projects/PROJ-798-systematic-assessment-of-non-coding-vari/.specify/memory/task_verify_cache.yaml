@@ -1,0 +1,7 @@
+T001:
+  c: true
+  h: 9262bab8be91656a16fb6264f6726e70a61e707b9b09961b3bda740a7196a342
+  r: "Checked that all required directories exist and that `data/results/structure_manifest.txt`\
+    \ lists 12 directory paths (\u2265\u202F11), confirming the layout creation command\
+    \ succeeded."
+  sig: 847a076b20d94d58cb1b8367d8a67d4deaab6c81cd1fa785d790fac708a94153

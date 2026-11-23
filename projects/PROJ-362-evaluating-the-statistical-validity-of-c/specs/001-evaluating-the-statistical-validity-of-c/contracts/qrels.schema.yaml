@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TREC QREL Schema"
+description: "Schema for TREC relevance judgment records"
+type: object
+properties:
+  query_id:
+    type: integer
+    description: "Unique query identifier"
+  doc_id:
+    type: string
+    description: "Document identifier"
+  relevance:
+    type: integer
+    description: "Relevance score (e.g., 0-3)"
+  iteration:
+    type: string
+    description: "Iteration identifier (usually '0')"
+required:
+  - query_id
+  - doc_id
+  - relevance
+additionalProperties: false

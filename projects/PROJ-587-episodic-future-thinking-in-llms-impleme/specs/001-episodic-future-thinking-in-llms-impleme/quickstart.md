@@ -1,93 +1,85 @@
-# Quickstart: Episodic Future Thinking in LLMs
+# Quickstart: Episodic Future Thinking
 
-## Prerequisites
+## 1. Prerequisites
 
 - Python 3.11+
-- 7GB+ RAM available
+- 7GB+ RAM
+- 14GB+ Disk Space
 - Git
-- Access to HuggingFace (for datasets)
 
-## Installation
+## 2. Installation
 
-1. **Clone the repository**:
- ```bash
- git clone
- cd llm-episodic-thinking/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code
- ```
+1. **Clone the repository** and navigate to the project directory:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code
+   ```
 
 2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
 3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- *Note: `requirements.txt` pins `torch` to a CPU-only version, `faiss-cpu`, and `statsmodels` for LMM.*
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Data Setup
+## 3. Data Download
 
-1. **Download Datasets**:
- The `data/setup.sh` script will download and verify checksums for ALFWorld and TextWorld datasets from their **official** repositories.
- ```bash
- bash data/setup.sh
- ```
- *This script fetches data from the verified official HuggingFace/GitHub URLs and records SHA256 checksums.*
+Run the data download script to fetch ALFWorld and TextWorld datasets. This step ensures data is checksummed and stored in `data/raw/`.
 
-2. **Verify Data Integrity**:
- ```bash
- python utils/verify_data.py
- ```
-
-## Running the Baseline
-
-Run the standard transformer baseline on a subset of tasks:
 ```bash
-python experiments/run_baseline.py --tasks 10 --seed 42
+python src/utils/loaders.py --fetch
 ```
 
-## Running the Episodic Model
+*Note: This script uses the verified URLs from `research.md` and records checksums in `state/`.*
 
-Run the episodic-augmented model:
+## 4. Configuration
+
+Ensure `config.yaml` exists in the `code/` directory. If missing, run:
+
 ```bash
-python experiments/run_episodic.py --tasks 10 --seed 42 --threshold 0.75
+python src/utils/init_config.py
 ```
 
-## Running the Validation Protocol
+This creates `config.yaml` with default log levels and the fixed cosine threshold (0.75).
 
-Execute the counterfactual confidence calibration:
+## 5. Running the Experiment
+
+### 5.1 Build Episodic Memory
 ```bash
-python validation/counterfactual_gen.py --perturbations 100
-python validation/confidence_calib.py
+python src/episodic_memory/store.py --build
+```
+This extracts trajectories, generates embeddings, and builds the FAISS HNSW index.
+
+### 5.2 Run Baseline & Episodic Models
+```bash
+python src/planning/generator.py --mode baseline --tasks 50
+python src/planning/generator.py --mode episodic --tasks 50
 ```
 
-## Sensitivity Analysis
-
-Sweep retrieval thresholds to test robustness:
+### 5.3 Sensitivity Sweep (FR-006)
 ```bash
-python experiments/sensitivity_analysis.py --thresholds 0.70 0.75 0.80
+python src/evaluation/sensitivity.py --thresholds 0.70 0.75 0.80
 ```
 
-## Statistical Analysis
-
-Run the Linear Mixed-Effects Modeling and FDR correction:
+### 5.4 Evaluation & Analysis
 ```bash
-python utils/stats.py --input data/logs/episodic_results.json --variant 10 --fdr
+python src/evaluation/accuracy.py --mixed-effects
+python src/evaluation/confidence.py --counterfactual
 ```
 
-## Expected Outputs
+## 6. Verification
 
-- `data/logs/baseline_results.json`: Accuracy metrics for baseline.
-- `data/logs/episodic_results.json`: Accuracy metrics for episodic model.
-- `data/logs/confidence_calibration.json`: Confidence scores for known/unknown details.
-- `reports/statistical_analysis.pdf`: Mixed-effects modeling results and power analysis.
+To verify the results:
+1. Check `data/results/evaluation_results.jsonl` for accuracy metrics.
+2. Verify `data/processed/index.faiss` exists and is non-empty.
+3. Run `pytest tests/` to ensure all contract tests pass.
 
-## Troubleshooting
+## 7. Troubleshooting
 
-- **OOM Error**: Reduce `--tasks` or batch size. Ensure you are using the CPU version of PyTorch.
-- **Retrieval Slow**: Check FAISS index construction parameters. Ensure `state_embedding` dimension matches the model.
-- **Data Mismatch**: Verify checksums in `data/checksums.txt` match the downloaded files.
-- **Model Fails to Load**: Ensure `statsmodels` is installed for LMM functionality.
-
+- **Memory Error**: Ensure `streaming=True` is used in dataset loading. Reduce batch size in `config.yaml`.
+- **Retrieval Timeout**: Check FAISS index configuration; ensure HNSW is used, not brute-force.
+- **Missing Config**: Run `src/utils/init_config.py` to generate `config.yaml`.

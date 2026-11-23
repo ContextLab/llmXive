@@ -1,0 +1,19 @@
+status: none
+intent: OpenML dataset 2352 surface roughness tribology NIST Materials Data Repository
+  python package dataset
+required_fields:
+- Sa
+- Sq
+- Ssk
+- Sku
+- Sp
+- Sv
+- coefficient_of_friction
+- wear_rate
+- material_id
+- material_name
+- density
+- elastic_modulus
+cache_key: e80b294f1a4970daee332c92dfe31d240305b9b4a33834f6cb9338910cae0b3d
+searched_at: '2026-10-26T03:47:45.769698+00:00'
+retry_count: 1

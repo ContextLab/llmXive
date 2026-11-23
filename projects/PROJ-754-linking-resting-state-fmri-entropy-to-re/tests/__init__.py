@@ -1,1 +1,1 @@
-"""Test suite for llmXive project."""
+# Ensure the tests package is recognised by pytest.

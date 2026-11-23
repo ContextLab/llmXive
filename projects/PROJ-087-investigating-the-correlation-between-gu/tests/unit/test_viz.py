@@ -1,212 +1,178 @@
 import pytest
 import pandas as pd
 import numpy as np
-import os
+import matplotlib.pyplot as plt
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from src.viz import generate_scatterplot_with_regression, generate_boxplot_by_quartile
 
-# Import the visualization module functions we are testing.
-# Based on the API surface, the module is expected to be src/viz.py.
-# We import the functions that would generate the plots.
-try:
-    from src.viz import generate_scatterplot, generate_boxplot, plot_correlation_summary
-except ImportError:
-    # Fallback if src/viz.py is not yet created or has different names,
-    # but per task T027, we expect these functions to exist or be created.
-    # For this test task, we assume the implementation follows the spec.
-    # If src/viz.py doesn't exist yet, this test will fail to import,
-    # which is expected behavior before implementation.
-    # However, the task is to write the TEST that verifies the plot generation.
-    # We will mock the dependencies to ensure the test logic is sound.
-    pass
-
-# Fixture: Sample data mimicking the output of T024 (correlation_results.csv)
 @pytest.fixture
-def sample_correlation_data():
+def sample_data():
     """
-    Creates a DataFrame similar to data/processed/correlation_results.csv
-    with known correlations for testing.
-    """
-    data = {
-        'diversity_metric': ['Shannon', 'Shannon', 'Simpson', 'Observed_OTUs'],
-        'sleep_metric': ['sleep_efficiency', 'sleep_duration_hours', 'sleep_efficiency', 'sleep_duration_hours'],
-        'r_value': [0.45, -0.12, 0.42, -0.10],
-        'p_value': [0.001, 0.35, 0.003, 0.40],
-        'q_value': [0.005, 0.50, 0.010, 0.55],
-        'is_moderate': [True, False, True, False],
-        'is_meaningful': [True, False, False, False]
-    }
-    return pd.DataFrame(data)
-
-# Fixture: Sample data for boxplot (diversity by sleep quartile)
-@pytest.fixture
-def sample_boxplot_data():
-    """
-    Creates a DataFrame with diversity metrics and sleep quartiles.
+    Create a small, deterministic dataframe for testing visualization functions.
+    This data is synthetic but mathematically consistent for testing purposes.
     """
     np.random.seed(42)
-    n = 200
+    n_samples = 50
     data = {
-        'sleep_quartile': np.random.choice(['Q1', 'Q2', 'Q3', 'Q4'], n),
-        'Shannon': np.random.normal(3.5, 0.5, n),
-        'Simpson': np.random.normal(0.85, 0.05, n)
+        'sample_id': [f'Sample_{i:03d}' for i in range(n_samples)],
+        'shannon_diversity': np.random.normal(3.5, 0.5, n_samples),
+        'simpson_diversity': np.random.normal(0.85, 0.05, n_samples),
+        'observed_otus': np.random.normal(150, 20, n_samples),
+        'sleep_efficiency': np.random.normal(85, 5, n_samples),
+        'sleep_duration_hours': np.random.normal(7.5, 0.8, n_samples),
+        'sleep_quartile': np.random.choice([1, 2, 3, 4], n_samples)
     }
     return pd.DataFrame(data)
 
-def test_scatterplot_generation(sample_correlation_data):
+@pytest.fixture
+def sample_correlation_results():
     """
-    Test that generate_scatterplot creates a valid plot file for a significant correlation.
-    Verifies:
-    1. The function runs without error.
-    2. The output file exists on disk.
-    3. The file is not empty.
-    4. The filename matches the expected pattern.
+    Create a small dataframe mimicking correlation results output from T024.
     """
-    # Select a meaningful correlation to plot
-    significant_row = sample_correlation_data[sample_correlation_data['is_meaningful'] == True].iloc[0]
+    data = {
+        'diversity_metric': ['shannon_diversity', 'simpson_diversity', 'observed_otus'],
+        'sleep_metric': ['sleep_efficiency', 'sleep_duration_hours', 'sleep_efficiency'],
+        'r': [0.45, -0.12, 0.38],
+        'p': [0.001, 0.45, 0.008],
+        'q': [0.003, 0.60, 0.015],
+        'is_moderate': [True, False, True],
+        'is_meaningful': [True, False, True],
+        'status': ['significant', 'not_significant', 'significant']
+    }
+    return pd.DataFrame(data)
+
+def test_scatterplot_generation(sample_data, sample_correlation_results):
+    """
+    Test that generate_scatterplot_with_regression creates a valid plot file
+    with correct axis labels and regression line for a significant correlation.
     
-    diversity_metric = significant_row['diversity_metric']
-    sleep_metric = significant_row['sleep_metric']
+    This test verifies:
+    1. The function executes without error
+    2. The output file is created on disk
+    3. The file is a valid image (non-zero size)
+    4. The function handles significant correlations correctly
+    """
+    # Filter for significant correlations only (as the function would do)
+    sig_corrs = sample_correlation_results[
+        (sample_correlation_results['is_moderate'] == True) & 
+        (sample_correlation_results['is_meaningful'] == True)
+    ]
     
-    # Create a temporary directory for output
+    assert len(sig_corrs) > 0, "Test requires at least one significant correlation"
+    
+    # Pick the first significant correlation
+    corr_row = sig_corrs.iloc[0]
+    x_col = corr_row['diversity_metric']
+    y_col = corr_row['sleep_metric']
+    
+    # Verify columns exist in sample data
+    assert x_col in sample_data.columns, f"Column {x_col} not found in sample data"
+    assert y_col in sample_data.columns, f"Column {y_col} not found in sample data"
+    
+    # Create a temporary directory for the plot
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / f"scatterplot_{diversity_metric}_vs_{sleep_metric}.png"
+        output_path = Path(tmpdir) / "test_scatterplot.png"
         
-        # Mock the actual plotting backend if necessary to avoid display issues in CI,
-        # but we need to verify the file creation logic.
-        # We assume src.viz.generate_scatterplot takes:
-        # (data, x_col, y_col, output_path, title)
+        # Call the function
+        result_path = generate_scatterplot_with_regression(
+            data=sample_data,
+            x_column=x_col,
+            y_column=y_col,
+            output_path=str(output_path),
+            title=f"Test: {x_col} vs {y_col}"
+        )
         
-        try:
-            # Attempt to call the function. 
-            # If src/viz.py is not implemented yet, this will raise ImportError or AttributeError,
-            # which is the correct "fail loudly" behavior for the test runner.
-            # However, since T027 is the implementation task, we assume T027 exists for this test to be valid.
-            # If T027 is not done, this test will fail, which is expected.
-            # We will use a mock to simulate the successful generation if the module is missing,
-            # but the requirement is to test REAL plot generation.
-            # Therefore, we assert the existence of the function.
-            
-            from src.viz import generate_scatterplot
-            
-            # Call the function
-            generate_scatterplot(
-                data=sample_correlation_data,
-                x_col=sleep_metric,
-                y_col=diversity_metric, # Note: correlation data is summary, but plot needs raw data?
-                # Actually, T027 likely plots against raw data. 
-                # The test description says "Unit test for plot generation".
-                # We need raw data to plot a scatter. 
-                # Let's assume the function signature is:
-                # generate_scatterplot(raw_data, x_col, y_col, output_path)
-                # But we only have summary data here.
-                # Let's adjust: The test should verify the function handles the data correctly.
-                # We will construct a small raw dataset for the test.
-                output_path=str(output_path),
-                title=f"{diversity_metric} vs {sleep_metric}"
-            )
-            
-            # If we got here, the function exists. Now verify file.
-            assert output_path.exists(), f"Output file {output_path} was not created."
-            assert output_path.stat().st_size > 0, f"Output file {output_path} is empty."
-            
-        except ImportError:
-            # If the module is not implemented yet, the test fails.
-            # This is acceptable if T027 is not done, but the task T026 is to write the test.
-            # The test is valid code, it just expects the implementation.
-            pytest.skip("src.viz module not implemented yet (T027 pending). Test logic is correct.")
-        except Exception as e:
-            # If the function exists but fails (e.g., wrong data shape), the test fails.
-            pytest.fail(f"Scatterplot generation failed: {str(e)}")
+        # Verify the file was created
+        assert result_path is not None, "Function returned None for output path"
+        assert Path(result_path).exists(), f"Output file was not created at {result_path}"
+        assert Path(result_path).stat().st_size > 0, "Output file is empty"
+        
+        # Verify the filename matches expected pattern
+        assert "test_scatterplot.png" in str(result_path), "Filename does not match expected pattern"
+        
+        # Clean up matplotlib
+        plt.close('all')
 
-def test_scatterplot_regression_line_present(sample_correlation_data):
+def test_boxplot_generation(sample_data):
     """
-    Test that the generated scatterplot contains a regression line.
-    This requires inspecting the plot content, which is hard without image processing.
-    Instead, we test that the function accepts the parameter to draw a regression line
-    and that it doesn't crash when requested.
+    Test that generate_boxplot_by_quartile creates a valid plot file
+    with correct axis labels and quartile grouping.
+    
+    This test verifies:
+    1. The function executes without error
+    2. The output file is created on disk
+    3. The file is a valid image (non-zero size)
     """
+    x_col = 'sleep_quartile'
+    y_col = 'shannon_diversity'
+    
+    # Verify columns exist in sample data
+    assert x_col in sample_data.columns, f"Column {x_col} not found in sample data"
+    assert y_col in sample_data.columns, f"Column {y_col} not found in sample data"
+    
+    # Create a temporary directory for the plot
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "test_regression.png"
+        output_path = Path(tmpdir) / "test_boxplot.png"
         
-        try:
-            from src.viz import generate_scatterplot
-            
-            # We need raw data for a real scatterplot.
-            # Create synthetic raw data for this specific test case.
-            # This is allowed for unit tests as long as it's not the main production data.
-            # The constraint "NEVER generate synthetic/fake INPUT data" applies to the
-            # main pipeline processing real datasets. Unit tests can use synthetic data
-            # to verify logic.
-            raw_data = pd.DataFrame({
-                'sleep_efficiency': np.random.uniform(50, 100, 50),
-                'Shannon': np.random.uniform(2.0, 4.0, 50)
-            })
-            
-            generate_scatterplot(
-                data=raw_data,
-                x_col='sleep_efficiency',
-                y_col='Shannon',
-                output_path=str(output_path),
-                title="Test Regression",
-                add_regression_line=True
-            )
-            
-            assert output_path.exists()
-            assert output_path.stat().st_size > 0
-            
-        except ImportError:
-            pytest.skip("src.viz module not implemented yet.")
-        except Exception as e:
-            pytest.fail(f"Regression line test failed: {str(e)}")
+        # Call the function
+        result_path = generate_boxplot_by_quartile(
+            data=sample_data,
+            x_column=x_col,
+            y_column=y_col,
+            output_path=str(output_path),
+            title="Test: Shannon Diversity by Sleep Quartile"
+        )
+        
+        # Verify the file was created
+        assert result_path is not None, "Function returned None for output path"
+        assert Path(result_path).exists(), f"Output file was not created at {result_path}"
+        assert Path(result_path).stat().st_size > 0, "Output file is empty"
+        
+        # Verify the filename matches expected pattern
+        assert "test_boxplot.png" in str(result_path), "Filename does not match expected pattern"
+        
+        # Clean up matplotlib
+        plt.close('all')
 
-def test_boxplot_generation(sample_boxplot_data):
+def test_boxplot_missing_column(sample_data):
     """
-    Test that generate_boxplot creates a valid plot file for diversity by sleep quartile.
+    Test that generate_boxplot_by_quartile raises appropriate error when
+    required column is missing.
     """
+    x_col = 'nonexistent_column'
+    y_col = 'shannon_diversity'
+    
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "boxplot_shannon_by_quartile.png"
+        output_path = Path(tmpdir) / "test_error.png"
         
-        try:
-            from src.viz import generate_boxplot
-            
-            generate_boxplot(
-                data=sample_boxplot_data,
-                x_col='sleep_quartile',
-                y_col='Shannon',
-                output_path=str(output_path),
-                title="Shannon Index by Sleep Quartile"
+        with pytest.raises((KeyError, ValueError)):
+            generate_boxplot_by_quartile(
+                data=sample_data,
+                x_column=x_col,
+                y_column=y_col,
+                output_path=str(output_path)
             )
-            
-            assert output_path.exists(), f"Output file {output_path} was not created."
-            assert output_path.stat().st_size > 0, f"Output file {output_path} is empty."
-            
-        except ImportError:
-            pytest.skip("src.viz module not implemented yet.")
-        except Exception as e:
-            pytest.fail(f"Boxplot generation failed: {str(e)}")
+        
+        plt.close('all')
 
-def test_plot_correlation_summary(sample_correlation_data):
+def test_scatterplot_missing_column(sample_data, sample_correlation_results):
     """
-    Test that plot_correlation_summary creates a summary plot (e.g., bar chart of correlations).
+    Test that generate_scatterplot_with_regression raises appropriate error when
+    required column is missing.
     """
+    x_col = 'nonexistent_column'
+    y_col = 'sleep_efficiency'
+    
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "correlation_summary.png"
+        output_path = Path(tmpdir) / "test_error.png"
         
-        try:
-            from src.viz import plot_correlation_summary
-            
-            plot_correlation_summary(
-                data=sample_correlation_data,
-                output_path=str(output_path),
-                title="Correlation Summary"
+        with pytest.raises((KeyError, ValueError)):
+            generate_scatterplot_with_regression(
+                data=sample_data,
+                x_column=x_col,
+                y_column=y_col,
+                output_path=str(output_path)
             )
-            
-            assert output_path.exists(), f"Output file {output_path} was not created."
-            assert output_path.stat().st_size > 0, f"Output file {output_path} is empty."
-            
-        except ImportError:
-            pytest.skip("src.viz module not implemented yet.")
-        except Exception as e:
-            pytest.fail(f"Correlation summary plot failed: {str(e)}")
+        
+        plt.close('all')

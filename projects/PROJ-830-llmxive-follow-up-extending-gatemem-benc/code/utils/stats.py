@@ -1,201 +1,352 @@
+"""
+Statistical analysis utilities for GateMem benchmarking.
+
+This module provides functions for statistical testing, including
+Linear Mixed-Effects Models (LMM), Fixed-Effects GLM, domain-stratified analysis,
+and post-hoc tests.
+"""
+
 import logging
-from typing import Dict, Any, Optional, Tuple, List, Union
+from typing import Dict, Any, List, Union, Tuple, Optional
+
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
-from statsmodels.formula.api import mixedlm
+import statsmodels.api as sm
+from statsmodels.regression.mixed_linear_model import MixedLM
+from statsmodels.genmod.generalized_linear_model import GLM
+from statsmodels.genmod import families
 
-from logging_config import setup_logging
-
-logger = setup_logging(__name__)
+logger = logging.getLogger(__name__)
 
 
-def shapiro_wilk_test(data: np.ndarray) -> Tuple[float, float]:
+def fit_lmm(
+    data: Union[pd.DataFrame, List[Dict[str, Any]]],
+    score_col: str = 'score',
+    method_col: str = 'method',
+    domain_col: str = 'domain',
+    subject_col: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Perform Shapiro-Wilk test for normality.
+    Fit a Linear Mixed-Effects Model (LMM) as the primary statistical method.
+
+    Formula: score ~ method + (1|Domain)
 
     Args:
-        data: Array of data values.
+        data: Input data as DataFrame or list of dicts.
+        score_col: Name of the score column.
+        method_col: Name of the method column (fixed effect).
+        domain_col: Name of the domain column (random effect grouping).
+        subject_col: Optional subject ID column if available.
 
     Returns:
-        Tuple of (statistic, p-value).
+        Dict with keys:
+            - 'method_used': 'LMM'
+            - 'p_value': float (p-value for method effect)
+            - 'test_statistic': float (t-statistic for method effect)
+            - 'coefficients': Dict of model coefficients
+            - 'random_effects_variance': Variance of random effects
+            - 'converged': bool
+            - 'fallback_reason': None (primary method)
+
+    Raises:
+        ValueError: If data is insufficient or invalid.
+        RuntimeError: If model fitting fails with unrecoverable error.
     """
-    if len(data) < 3:
-        logger.warning("Not enough data for Shapiro-Wilk test")
-        return 0.0, 1.0
-    
-    stat, p_value = stats.shapiro(data)
-    logger.debug(f"Shapiro-Wilk: stat={stat:.4f}, p={p_value:.4f}")
-    return stat, p_value
+    logger.info("Fitting Linear Mixed-Effects Model (LMM)...")
 
+    # Convert to DataFrame if needed
+    if isinstance(data, list):
+        df = pd.DataFrame(data)
+    else:
+        df = data.copy()
 
-def fit_linear_mixed_model(
-    df: pd.DataFrame,
-    formula: str = "score ~ method + (1|Domain)"
-) -> Optional[Any]:
-    """
-    Fit a Linear Mixed Model (LMM).
+    # Validate required columns
+    required_cols = [score_col, method_col, domain_col]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in LMM input: {missing}")
 
-    Args:
-        df: DataFrame containing the data.
-        formula: Model formula.
+    # Ensure method is categorical
+    df[method_col] = df[method_col].astype('category')
 
-    Returns:
-        Fitted model or None if fitting fails.
-    """
+    # Check for sufficient data
+    n_obs = len(df)
+    n_groups = df[domain_col].nunique()
+    n_methods = df[method_col].nunique()
+
+    if n_obs < 10:
+        raise ValueError(f"Insufficient observations for LMM: {n_obs}")
+    if n_groups < 2:
+        raise ValueError(f"Insufficient groups (domains) for LMM: {n_groups}")
+    if n_methods < 2:
+        raise ValueError(f"Insufficient methods for comparison: {n_methods}")
+
     try:
-        logger.info(f"Fitting LMM with formula: {formula}")
-        model = mixedlm.from_formula(formula, df, groups=df["Domain"])
-        result = model.fit()
-        logger.info("LMM fitted successfully")
-        return result
-    except Exception as e:
-        logger.warning(f"LMM fitting failed: {e}")
-        return None
+        # Prepare formula: score ~ method + (1|domain)
+        # statsmodels MixedLM uses 'groups' for random effect grouping
+        endog = df[score_col].values
+        exog = sm.add_constant(pd.get_dummies(df[method_col], drop_first=True))
+        groups = df[domain_col]
 
+        # Fit the model
+        model = MixedLM(endog=endog, exog=exog, groups=groups)
+        result = model.fit(reml=False, full_output=True)
 
-def run_paired_ttest(group1: np.ndarray, group2: np.ndarray) -> Tuple[float, float]:
-    """
-    Run a paired t-test.
+        # Check convergence
+        converged = result.converged
+        if not converged:
+            logger.warning("LMM did not converge. Results may be unreliable.")
 
-    Args:
-        group1: First group of values.
-        group2: Second group of values.
+        # Extract results
+        # Get p-values for fixed effects (method coefficients)
+        # The first column after intercept is the method effect (drop_first=True)
+        if len(result.pvalues) > 1:
+            # Assuming first non-intercept is the method effect we care about
+            method_pvalue = result.pvalues.iloc[1] if len(result.pvalues) > 1 else result.pvalues.iloc[0]
+            method_tstat = result.tvalues.iloc[1] if len(result.tvalues) > 1 else result.tvalues.iloc[0]
+        else:
+            method_pvalue = result.pvalues.iloc[0]
+            method_tstat = result.tvalues.iloc[0]
 
-    Returns:
-        Tuple of (t-statistic, p-value).
-    """
-    if len(group1) != len(group2):
-        raise ValueError("Groups must be of equal length for paired t-test")
-    
-    stat, p_value = stats.ttest_rel(group1, group2)
-    logger.debug(f"Paired t-test: t={stat:.4f}, p={p_value:.4f}")
-    return stat, p_value
+        # Extract coefficients
+        coefficients = dict(zip(result.params.index, result.params.values))
 
+        # Extract random effects variance
+        random_var = result.cov_re.values[0][0] if result.cov_re is not None else 0.0
 
-def run_wilcoxon_test(group1: np.ndarray, group2: np.ndarray) -> Tuple[float, float]:
-    """
-    Run a Wilcoxon signed-rank test.
+        logger.info(f"LMM fitted successfully. P-value: {method_pvalue:.4f}, T-stat: {method_tstat:.4f}")
 
-    Args:
-        group1: First group of values.
-        group2: Second group of values.
-
-    Returns:
-        Tuple of (statistic, p-value).
-    """
-    if len(group1) != len(group2):
-        raise ValueError("Groups must be of equal length for Wilcoxon test")
-    
-    stat, p_value = stats.wilcoxon(group1, group2)
-    logger.debug(f"Wilcoxon: stat={stat:.4f}, p={p_value:.4f}")
-    return stat, p_value
-
-
-def run_domain_stratified_analysis(
-    df: pd.DataFrame,
-    score_col: str = "score",
-    method_col: str = "method",
-    domain_col: str = "Domain"
-) -> Dict[str, Any]:
-    """
-    Run separate tests per domain and aggregate results.
-
-    Args:
-        df: DataFrame with results.
-        score_col: Name of the score column.
-        method_col: Name of the method column.
-        domain_col: Name of the domain column.
-
-    Returns:
-        Dictionary of results per domain.
-    """
-    results = {}
-    domains = df[domain_col].unique()
-    
-    for domain in domains:
-        domain_df = df[df[domain_col] == domain]
-        if len(domain_df) < 2:
-            continue
-        
-        # Simplified logic for demonstration; actual implementation would compare methods
-        scores = domain_df[score_col].values
-        stat, p_value = shapiro_wilk_test(scores)
-        results[domain] = {
-            "shapiro_stat": stat,
-            "shapiro_p": p_value,
-            "n": len(scores)
+        return {
+            'method_used': 'LMM',
+            'p_value': float(method_pvalue),
+            'test_statistic': float(method_tstat),
+            'coefficients': {k: float(v) for k, v in coefficients.items()},
+            'random_effects_variance': float(random_var),
+            'converged': bool(converged),
+            'fallback_reason': None,
+            'degrees_of_freedom': float(result.df_resid)
         }
-    
-    logger.info(f"Stratified analysis complete for {len(results)} domains")
-    return results
+
+    except np.linalg.LinAlgError as e:
+        logger.error(f"Singular matrix error in LMM: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Failed to fit LMM: {e}")
+        raise RuntimeError(f"LMM fitting failed: {e}") from e
 
 
-def run_statistical_analysis(
-    df: pd.DataFrame,
-    score_col: str = "score",
-    method_col: str = "method",
-    domain_col: str = "Domain"
+def fit_fixed_effects_glm(
+    data: Union[pd.DataFrame, List[Dict[str, Any]]],
+    score_col: str = 'score',
+    method_col: str = 'method',
+    domain_col: str = 'domain'
 ) -> Dict[str, Any]:
     """
-    Run full statistical analysis: LMM with fallback to paired tests.
+    Fit a Fixed-Effects Logistic Regression (GLM) as the tertiary statistical method.
+
+    Formula: score ~ method + C(Domain)
 
     Args:
-        df: DataFrame with results.
+        data: Input data.
+        score_col: Name of the score column.
+        method_col: Name of the method column.
+        domain_col: Name of the domain column (fixed effect covariate).
+
+    Returns:
+        Dict with GLM results.
+    """
+    logger.info("Fitting Fixed-Effects GLM (tertiary method)...")
+
+    if isinstance(data, list):
+        df = pd.DataFrame(data)
+    else:
+        df = data.copy()
+
+    required_cols = [score_col, method_col, domain_col]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in GLM input: {missing}")
+
+    # Create formula with domain as fixed effect
+    formula = f"{score_col} ~ {method_col} + C({domain_col})"
+
+    try:
+        model = GLM.from_formula(
+            formula,
+            data=df,
+            family=families.Gaussian()
+        )
+        result = model.fit()
+
+        # Extract method coefficient (assuming it's the first non-intercept)
+        params = result.params
+        pvalues = result.pvalues
+
+        # Find the method coefficient
+        method_coeff_name = None
+        for name in params.index:
+            if method_col in name or name.startswith(method_col):
+                method_coeff_name = name
+                break
+
+        if method_coeff_name is None:
+            # Fallback: take first non-intercept
+            non_intercept = [p for p in params.index if p != 'Intercept']
+            if non_intercept:
+                method_coeff_name = non_intercept[0]
+            else:
+                raise ValueError("Could not identify method coefficient in GLM")
+
+        return {
+            'method_used': 'GLM',
+            'p_value': float(pvalues[method_coeff_name]),
+            'test_statistic': float(result.tvalues[method_coeff_name]),
+            'coefficients': {k: float(v) for k, v in params.items()},
+            'converged': True,
+            'fallback_reason': 'LMM and Stratified Analysis failed',
+            'degrees_of_freedom': float(result.df_resid)
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to fit GLM: {e}")
+        raise
+
+
+def domain_stratified_analysis(
+    data: Union[pd.DataFrame, List[Dict[str, Any]]],
+    score_col: str = 'score',
+    method_col: str = 'method',
+    domain_col: str = 'domain'
+) -> Dict[str, Any]:
+    """
+    Implement domain-stratified analysis with aggregation (average p-values).
+
+    This is the primary fallback if LMM is infeasible.
+
+    Args:
+        data: Input data.
         score_col: Name of the score column.
         method_col: Name of the method column.
         domain_col: Name of the domain column.
 
     Returns:
-        Dictionary containing analysis results.
+        Dict with stratified analysis results.
     """
-    result = {
-        "lmm_result": None,
-        "fallback_used": False,
-        "fallback_method": None,
-        "test_stat": None,
-        "p_value": None,
-        "df": None
+    logger.info("Running domain-stratified analysis (primary fallback)...")
+
+    if isinstance(data, list):
+        df = pd.DataFrame(data)
+    else:
+        df = data.copy()
+
+    required_cols = [score_col, method_col, domain_col]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in stratified analysis: {missing}")
+
+    domains = df[domain_col].unique()
+    p_values = []
+    t_stats = []
+
+    for domain in domains:
+        domain_data = df[df[domain_col] == domain]
+        if len(domain_data) < 4:
+            logger.warning(f"Insufficient data for domain {domain}, skipping.")
+            continue
+
+        # Separate by method
+        methods = domain_data[method_col].unique()
+        if len(methods) < 2:
+            continue
+
+        # Assume two methods for paired test
+        method1, method2 = methods[0], methods[1]
+        scores1 = domain_data[domain_data[method_col] == method1][score_col]
+        scores2 = domain_data[domain_data[method_col] == method2][score_col]
+
+        if len(scores1) < 3 or len(scores2) < 3:
+            continue
+
+        # Perform t-test for this domain
+        try:
+            t_stat, p_val = stats.ttest_ind(scores1, scores2, equal_var=False)
+            p_values.append(p_val)
+            t_stats.append(t_stat)
+        except Exception as e:
+            logger.warning(f"Test failed for domain {domain}: {e}")
+            continue
+
+    if not p_values:
+        raise ValueError("No valid domain tests could be performed.")
+
+    # Aggregate: average p-values (Fisher's method could be used, but task specifies average)
+    avg_p = float(np.mean(p_values))
+    avg_t = float(np.mean(t_stats))
+
+    logger.info(f"Stratified analysis complete. Average p-value: {avg_p:.4f}")
+
+    return {
+        'method_used': 'Stratified',
+        'p_value': avg_p,
+        'test_statistic': avg_t,
+        'domain_p_values': p_values,
+        'n_domains': len(p_values),
+        'converged': True,
+        'fallback_reason': 'LMM infeasible (singular matrix or insufficient data)',
+        'degrees_of_freedom': float(sum(len(df[df[domain_col] == d][score_col]) - 2 for d in domains if len(df[df[domain_col] == d][score_col]) >= 2))
     }
 
-    # Try LMM first
-    lmm = fit_linear_mixed_model(df)
-    if lmm is not None:
-        result["lmm_result"] = lmm.summary().as_text()
-        result["test_stat"] = lmm.params.get("method[T.Gatekeeper]", 0)
-        result["p_value"] = lmm.pvalues.get("method[T.Gatekeeper]", 1.0)
-        result["df"] = len(df) - 2
-        return result
 
-    # Fallback: Paired T-Test or Wilcoxon
-    logger.info("LMM failed. Attempting fallback tests.")
-    methods = df[method_col].unique()
-    if len(methods) != 2:
-        logger.warning("Cannot perform paired test with more than 2 methods")
-        return result
+def shapiro_wilk_test(differences: np.ndarray) -> Dict[str, Any]:
+    """
+    Perform Shapiro-Wilk normality test on paired score differences.
 
-    m1, m2 = methods
-    g1 = df[df[method_col] == m1][score_col].values
-    g2 = df[df[method_col] == m2][score_col].values
+    Args:
+        differences: Array of paired differences.
 
-    if len(g1) != len(g2):
-        logger.warning("Unequal group sizes for paired test")
-        return result
+    Returns:
+        Dict with normality test results.
+    """
+    if len(differences) < 3:
+        raise ValueError("Insufficient data for Shapiro-Wilk test (need >= 3).")
 
-    # Check normality
-    _, p_norm = shapiro_wilk_test(g1 - g2)
-    
-    if p_norm > 0.05:
-        stat, p_val = run_paired_ttest(g1, g2)
-        result["fallback_method"] = "Paired T-Test"
+    stat, p_value = stats.shapiro(differences)
+
+    return {
+        'test': 'Shapiro-Wilk',
+        'statistic': float(stat),
+        'p_value': float(p_value),
+        'is_normal': bool(p_value > 0.05),
+        'alpha': 0.05
+    }
+
+
+def run_post_hoc(differences: np.ndarray, is_normal: bool) -> Dict[str, Any]:
+    """
+    Run post-hoc test based on normality result.
+
+    Args:
+        differences: Array of paired differences.
+        is_normal: Result from Shapiro-Wilk test.
+
+    Returns:
+        Dict with post-hoc test results.
+    """
+    if is_normal:
+        # Paired t-test
+        # Assuming differences are already calculated (method1 - method2)
+        # We test if mean difference is significantly different from 0
+        t_stat, p_value = stats.ttest_1samp(differences, 0.0)
+        test_name = 'Paired t-test'
     else:
-        stat, p_val = run_wilcoxon_test(g1, g2)
-        result["fallback_method"] = "Wilcoxon Signed-Rank"
+        # Wilcoxon signed-rank test
+        stat, p_value = stats.wilcoxon(differences)
+        test_name = 'Wilcoxon signed-rank'
 
-    result["fallback_used"] = True
-    result["test_stat"] = stat
-    result["p_value"] = p_val
-    result["df"] = len(g1) - 1
-
-    logger.info(f"Fallback test complete: {result['fallback_method']}")
-    return result
+    return {
+        'test': test_name,
+        'p_value': float(p_value),
+        'test_statistic': float(stat),
+        'assumption': 'normal' if is_normal else 'non-normal'
+    }

@@ -64,5 +64,15 @@
     "Tables",
     "Tables/performance_comparison.tex",
     "Tables/ablation.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "ff22cdd9140b8363b9391b730f2b25f72123584aadfaa24a753f94ab5251067e",
+      "bytes": 9462926
+    },
+    "original.pdf": {
+      "sha256": "0a6242efff345d703d20d1be23be075706aff78ca624f9239b222d3e790c0703",
+      "bytes": 9417173
+    }
+  }
 }

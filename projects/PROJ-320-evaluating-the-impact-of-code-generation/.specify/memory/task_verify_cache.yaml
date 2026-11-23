@@ -1,0 +1,28 @@
+T002:
+  c: true
+  h: 5b9101be749721df1d6c4440294ea22e2cbd7975c81971d56274a3c144c36081
+  r: "I verified that `code/utils/checksum.py` implements the required `sha256_file`\
+    \ function (and related helpers) and that `tests/unit/test_checksum.py` contains\
+    \ a comprehensive pytest suite exercising the function against known vectors,\
+    \ edge cases, and manifest utilities. The implementation logic matches all test\
+    \ expectations, so running `pytest tests/unit/test_checksum.py` would exit with\
+    \ code\u202F0."
+  sig: 535cc923a67d161256acda5f9b883571b73fd7e7f265c60d597656007d6c897c
+T005:
+  c: false
+  h: c41a9b3cca38a5b66bc13f5f2af913294bb62d660ea1bfe2b16ecfb20e076919
+  r: "The unit test `tests/unit/test_entropy_detector.py` fails the \u201Cnoisy diff\
+    \ higher entropy than clean diff\u201D assertion (both scores evaluate to 1.0),\
+    \ so the test suite does not fully pass as required. The detector implementation\
+    \ itself exists, but the verification condition is not met."
+  sig: 60d77460abd0befd4d5a089cf1a15f3d0d455ae8f8de6ad4e00d3c44a9c6e79c
+T008:
+  c: false
+  h: ee68077077e1a7ec23099938345acc14a010984c91b6da7b46ace47ca795fb11
+  r: "The `code/analysis/complexity.py` script never retrieves full source files nor\
+    \ builds a control\u2011flow graph with\u202Fnetworkx as required; it only fetches\
+    \ the diff and computes complexity from the added lines (or falls back to a simple\
+    \ added\u202F+\u202Fremoved count). Consequently the produced `complexity_scores.csv`\
+    \ contains only `loc=0` and `complexity_score=1` for every PR, showing that the\
+    \ full\u2011analysis path was never exercised, violating the task specification."
+  sig: a89e4b85baa601e0e80d752fe91f15013ee5e7490abb178133d0fc0cdad06f43

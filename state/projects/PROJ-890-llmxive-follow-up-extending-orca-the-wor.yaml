@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-890-llmxive-follow-up-extending-orca-the-wor
-last_run_id: 5481fd2b-9342-4a4c-8cf5-82714ecee458
+last_run_id: 0f338feb-4c22-448f-a32c-3d7420a86619
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-890-llmxive-follow-up-extending-orca-the-wor/specs/001-llmxive-follow-up-extending-orca-the-wor
 title: 'llmXive follow-up: extending "Orca: The World is in Your Mind"'
-updated_at: '2026-07-11T04:19:53.252702Z'
+updated_at: '2026-08-21T23:14:46.680663Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.00426",
+  "judged_at": "2026-08-05T04:28:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"vla-corrector: lightweight detect-and-correct inference for adaptive a\" computer science",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology and canonical reference that provides the explicit mathematical framework for LLM inference and alignment, which is essential for any research extending or correcting adaptive inference mechanisms like \"VLA-Corrector.\" Additionally, it satisfies category (a) by analyzing the specific computational mechanisms (autoregressive generation, attention dependencies) and inference-time phenomena (hallucination, alignment behaviors) th",
+  "relevant": true
+}

@@ -1,32 +1,66 @@
-"""
-Integration test to verify the project directory structure exists.
-"""
 import pytest
+import os
+import tempfile
+import shutil
 from pathlib import Path
+from src.setup_data_structure import setup_directories, get_project_root
 
-def test_required_directories_exist(project_root, data_dir, processed_dir, results_dir):
-    """Verify that all required directories exist."""
+@pytest.fixture
+def temp_root():
+    """Create a temporary directory to simulate a project root."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    shutil.rmtree(temp_dir)
+
+def test_required_directories_exist(temp_root, monkeypatch):
+    """Test that setup_directories creates the required structure."""
+    # Monkeypatch get_project_root to return our temp directory
+    def mock_get_project_root():
+        return temp_root
+    
+    monkeypatch.setattr("src.setup_data_structure.get_project_root", mock_get_project_root)
+    
+    # Run the setup
+    success = setup_directories()
+    
+    assert success is True, "setup_directories should return True"
+    
     required_dirs = [
-        project_root,
-        data_dir,
-        processed_dir,
-        results_dir,
-        project_root / "src",
-        project_root / "tests",
-        project_root / "docs",
-        project_root / "state",
+        "src",
+        "src/ingestion",
+        "src/preprocessing",
+        "src/analysis",
+        "src/utils",
+        "tests",
+        "tests/contract",
+        "tests/integration",
+        "tests/unit",
+        "data/raw",
+        "data/processed",
+        "data/processed/results",
+        "docs",
+        "state",
     ]
-    for d in required_dirs:
-        assert d.exists(), f"Directory {d} does not exist"
-        assert d.is_dir(), f"{d} exists but is not a directory"
+    
+    for dir_name in required_dirs:
+        dir_path = temp_root / dir_name
+        assert dir_path.is_dir(), f"Directory {dir_path} should exist after setup"
 
-def test_test_directories_exist(project_root):
-    """Verify that test subdirectories exist."""
-    test_dirs = [
-        project_root / "tests" / "unit",
-        project_root / "tests" / "integration",
-        project_root / "tests" / "contract",
+def test_test_directories_exist(temp_root, monkeypatch):
+    """Test that specific test subdirectories are created."""
+    def mock_get_project_root():
+        return temp_root
+    
+    monkeypatch.setattr("src.setup_directories.get_project_root", mock_get_project_root)
+    
+    setup_directories()
+    
+    test_subdirs = [
+        "tests/contract",
+        "tests/integration",
+        "tests/unit"
     ]
-    for d in test_dirs:
-        assert d.exists(), f"Test directory {d} does not exist"
-        assert d.is_dir(), f"{d} exists but is not a directory"
+    
+    for subdir in test_subdirs:
+        path = temp_root / subdir
+        assert path.is_dir(), f"Test subdirectory {path} should exist"

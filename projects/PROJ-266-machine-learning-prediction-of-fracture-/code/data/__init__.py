@@ -1,3 +1,1 @@
-"""
-Data ingestion, preprocessing, and generation modules.
-"""
+"""Data processing modules."""

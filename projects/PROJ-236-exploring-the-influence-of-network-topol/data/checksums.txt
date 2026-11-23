@@ -1,0 +1,6 @@
+# This file is populated by ``code/fetch_atomic_seeds.py``.
+# Each line contains the relative path to a seed file followed by its SHA‑256 checksum.
+# Example (generated after the script runs):
+# data/raw/atomic_seeds/AlCu_500.xyz <checksum>
+# data/raw/atomic_seeds/CuZr_500.xyz <checksum>
+# (The actual checksum values are written at runtime.)

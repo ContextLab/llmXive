@@ -1,3 +1,10 @@
+"""
+Base Agent Module
+
+Defines the abstract interface for LLM agents in the EvoMem pipeline.
+Includes retrieval strategy hooks and context building utilities.
+"""
+
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
@@ -5,95 +12,155 @@ import random
 import numpy as np
 import torch
 
-# Import seeding utility
-try:
-    from src.utils.seeding import set_deterministic_seed
-except ImportError:
-    import sys
-    sys.path.append(str(Path(__file__).parent.parent))
-    from utils.seeding import set_deterministic_seed
+from src.utils.seeding import set_deterministic_seed
 
-# Set seed at module load time
-set_deterministic_seed(42)
-
-from src.utils.logging import get_logger, ExecutionTimer
 
 class BaseAgent(ABC):
-    """Abstract base class for all agents in the EvoArena system."""
+    """
+    Abstract base class for all agents in the EvoMem pipeline.
 
-    def __init__(self, name: str, config: Optional[Dict[str, Any]] = None):
+    Defines the standard interface for:
+    - Retrieval strategies (how to select memory patches)
+    - Context building (how to construct the prompt)
+    - Task execution (how to run the task and log results)
+    """
+
+    def __init__(self, agent_name: str, seed: int = 42):
         """
         Initialize the base agent.
-        
+
         Args:
-            name: The name of the agent variant
-            config: Optional configuration dictionary
+            agent_name: Name identifier for this agent variant
+            seed: Random seed for reproducibility
         """
-        self.name = name
-        self.config = config or {}
-        self.logger = get_logger(name)
-        self.logger.info(f"Initialized {name} agent")
+        self.agent_name = agent_name
+        self.seed = seed
+        self._set_seeds(seed)
+
+    def _set_seeds(self, seed: int) -> None:
+        """Set deterministic seeds for reproducibility."""
+        set_deterministic_seed(seed)
 
     @abstractmethod
-    def retrieve_patches(self, task_id: str, history: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def retrieve_patches(
+        self,
+        task_id: str,
+        memory_store: List[Dict[str, Any]],
+        max_patches: int = 10,
+        **kwargs
+    ) -> List[Dict[str, Any]]:
         """
-        Retrieve relevant patches for the given task and history.
-        
+        Retrieve relevant memory patches for the current task.
+
+        This is the core retrieval strategy hook that each agent variant
+        must implement.
+
         Args:
-            task_id: The ID of the current task
-            history: List of previous state patches
-        
+            task_id: Identifier of the current task
+            memory_store: List of all available memory patches
+            max_patches: Maximum number of patches to retrieve
+            **kwargs: Additional strategy-specific parameters
+
         Returns:
-            List of patches to include in the context
+            List of selected memory patches to include in context
         """
         pass
 
     @abstractmethod
-    def build_context(self, task: Dict[str, Any], patches: List[Dict[str, Any]]) -> str:
+    def build_context(
+        self,
+        task_description: str,
+        retrieved_patches: List[Dict[str, Any]],
+        **kwargs
+    ) -> str:
         """
-        Build the context string for the LLM.
-        
+        Build the final prompt context from task description and retrieved patches.
+
         Args:
-            task: The current task description
-            patches: List of retrieved patches
-        
+            task_description: The current task instruction
+            retrieved_patches: List of patches selected by retrieve_patches()
+            **kwargs: Additional context-building parameters
+
         Returns:
-            Formatted context string
+            Formatted context string ready for LLM input
         """
         pass
 
     @abstractmethod
-    def execute(self, task: Dict[str, Any], history: List[Dict[str, Any]]) -> Tuple[str, Dict[str, Any]]:
+    def execute_task(
+        self,
+        task_description: str,
+        context: str,
+        **kwargs
+    ) -> Dict[str, Any]:
         """
-        Execute the agent on a task.
-        
+        Execute the task using the built context.
+
         Args:
-            task: The task to execute
-            history: Previous execution history
-        
+            task_description: The current task instruction
+            context: Formatted context string
+            **kwargs: Execution parameters
+
         Returns:
-            Tuple of (result, metrics)
+            Dictionary containing execution results including:
+            - success: bool
+            - output: str
+            - context_tokens: int
+            - inference_time: float
         """
         pass
 
-    def _count_tokens(self, text: str) -> int:
+    def run(
+        self,
+        task: Dict[str, Any],
+        memory_store: List[Dict[str, Any]],
+        **kwargs
+    ) -> Dict[str, Any]:
         """
-        Estimate the number of tokens in a text.
-        
-        Args:
-            text: The text to count tokens for
-        
-        Returns:
-            Estimated token count
-        """
-        # Simple approximation: 1 token ≈ 4 characters
-        return len(text) // 4
+        Full pipeline execution: retrieve, build context, execute.
 
-    def log_metrics(self, metrics: Dict[str, Any]) -> None:
-        """
-        Log execution metrics.
-        
         Args:
-            metrics: Dictionary of metrics to log
+            task: Task dictionary with at least 'task_id' and 'description'
+            memory_store: List of all available memory patches
+            **kwargs: Passed to retrieve_patches, build_context, execute_task
+
+        Returns:
+            Execution results dictionary
         """
-        self.logger.info(f"Metrics: {metrics}")
+        task_id = task.get("task_id", "unknown")
+        task_description = task.get("description", "")
+
+        # Retrieve relevant patches
+        retrieved_patches = self.retrieve_patches(
+            task_id=task_id,
+            memory_store=memory_store,
+            **kwargs
+        )
+
+        # Build context
+        context = self.build_context(
+            task_description=task_description,
+            retrieved_patches=retrieved_patches,
+            **kwargs
+        )
+
+        # Execute task
+        result = self.execute_task(
+            task_description=task_description,
+            context=context,
+            **kwargs
+        )
+
+        # Add metadata
+        result["agent_variant"] = self.agent_name
+        result["task_id"] = task_id
+        result["patches_retrieved"] = len(retrieved_patches)
+
+        return result
+
+    def get_config(self) -> Dict[str, Any]:
+        """Return agent configuration as a dictionary."""
+        return {
+            "agent_name": self.agent_name,
+            "seed": self.seed,
+        }

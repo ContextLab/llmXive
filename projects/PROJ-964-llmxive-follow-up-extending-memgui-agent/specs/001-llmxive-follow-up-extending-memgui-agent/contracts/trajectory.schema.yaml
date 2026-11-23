@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SyntheticTrajectory"
+description: "Schema for a synthetic ultra-long-horizon mobile GUI trajectory with dependency annotations."
+type: "object"
+required:
+  - "id"
+  - "steps"
+  - "dependency_links"
+properties:
+  id:
+    type: "string"
+    description: "Unique UUID for the trajectory."
+  steps:
+    type: "array"
+    description: "Ordered list of steps in the trajectory."
+    items:
+      type: "object"
+      required:
+        - "index"
+        - "state"
+        - "action"
+        - "output"
+        - "success"
+      properties:
+        index:
+          type: "integer"
+          description: "Step index (0-based)."
+        state:
+          type: "string"
+          description: "Text description of the GUI state."
+        action:
+          type: "string"
+          description: "Ground truth action."
+        output:
+          type: "string"
+          description: "Agent's predicted action."
+        success:
+          type: "boolean"
+          description: "True if output matches action."
+        latency:
+          type: "number"
+          description: "Time taken for this step in seconds."
+        memory_footprint:
+          type: "number"
+          description: "Peak memory usage in MB for this step."
+  dependency_links:
+    type: "array"
+    description: "Annotated links between distant steps."
+    items:
+      type: "object"
+      required:
+        - "source_step_index"
+        - "target_step_index"
+        - "info_snippet"
+      properties:
+        source_step_index:
+          type: "integer"
+          description: "Index of the step where info was introduced."
+        target_step_index:
+          type: "integer"
+          description: "Index of the step where info is needed."
+        info_snippet:
+          type: "string"
+          description: "The text content that must be retained."
+        distance:
+          type: "integer"
+          description: "Difference between target and source indices."
+  source:
+    type: "string"
+    description: "Origin of the trajectory (e.g., 'Proc-Gen-001')."
+  plausibility_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Human review score for semantic plausibility."

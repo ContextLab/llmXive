@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DialoguePair"
+description: "Schema for a single dialogue turn with partner context and computed metrics."
+type: "object"
+properties:
+  conversation_id:
+    type: "string"
+    description: "Unique identifier for the dialogue session."
+  turn_index:
+    type: "integer"
+    description: "Sequential index of the turn within the conversation."
+  speaker_role:
+    type: "string"
+    description: "Role of the speaker (e.g., 'Speaker_A')."
+  text:
+    type: "string"
+    description: "Normalized text of the turn (Unicode NFKC)."
+  partner_text:
+    type: "string"
+    description: "Normalized text of the partner turn."
+  dialogue_emotion_label:
+    type: "string"
+    description: "Original emotion label from the dataset (per dialogue)."
+  lexical_overlap:
+    type: "number"
+    description: "Jaccard similarity of token sets (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  syntactic_similarity:
+    type: "number"
+    description: "Jaccard similarity of POS tag sets (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  sentence_length_variance:
+    type: "number"
+    description: "Standard deviation of sentence lengths in words."
+  emotional_intensity:
+    type: "integer"
+    description: "Mapped intensity score (1-5)."
+    minimum: 1
+    maximum: 5
+  is_valid:
+    type: "boolean"
+    description: "True if all metrics and intensity were successfully computed."
+required:
+  - conversation_id
+  - turn_index
+  - text
+  - partner_text
+  - lexical_overlap
+  - syntactic_similarity
+  - emotional_intensity
+  - is_valid
+additionalProperties: false

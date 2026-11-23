@@ -1,36 +1,37 @@
 # Implementation Plan: Assessing the Stability of Statistical Model Performance Across Data Subsets
 
-**Branch**: `001-assess-model-stability` | **Date**: 2026-06-27 | **Spec**: `specs/001-assessing-the-stability-of-statistical-m/spec.md`
+**Branch**: `001-assess-model-stability` | **Date**: 2026-06-27 | **Spec**: `specs/001-assess-model-stability/spec.md`
+**Input**: Feature specification from `/specs/001-assess-model-stability/spec.md`
 
 ## Summary
 
-This feature implements a rigorous statistical pipeline to assess the stability of three standard machine learning models (Logistic Regression, Random Forest, Linear SVM) across multiple binary classification datasets. The system executes a repeated k-fold cross-validation protocol (multiple evaluations per model-dataset pair) to generate performance distributions. It then quantifies stability via the Coefficient of Variation (CV), correlates CV with dataset properties (sample size, feature count) using a **log-log transformation** to linearize the power-law relationship, and performs a **paired-difference permutation test** to determine if variance differences between models are statistically significant. The entire pipeline is constrained to run on a GitHub Actions free-tier runner (CPU-only, limited RAM, 6h limit).
+This feature implements a computational pipeline to assess the stability of three standard machine learning models (Logistic Regression, Random Forest, Linear SVM) across multiple binary classification datasets. The core methodology involves executing multiple evaluations (10-fold CV × 10 repeats = 100 runs) per model-dataset pair to generate a distribution of performance metrics (Accuracy, F1). The system quantifies stability via the Coefficient of Variation (CV) and correlates these metrics with dataset properties (sample size, feature count) using **Log-Log linear regression** to address non-linearity and mean-variance dependency. The hypothesis test specifically checks for deviation from the theoretical scaling slope, not zero. Finally, a **Permutation Test** (comparing variances directly) determines if variance differences between models are statistically significant, with **Holm-Bonferroni** multiple-comparison corrections applied to control the Family-Wise Error Rate (FWER).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `requests`, `pyyaml`, `openml`  
-**Storage**: Local filesystem (`data/` for raw datasets, `results/` for outputs); no external DB.  
-**Testing**: `pytest` (unit tests for statistical logic, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest`).  
-**Project Type**: Statistical analysis CLI / Pipeline.  
-**Performance Goals**: Complete 15 datasets × 3 models × 100 repeats within 6 hours on 2 CPU cores.  
-**Constraints**: CPU-only execution; no GPU; memory footprint < 7GB; strict adherence to data hygiene (checksums); **hardcoded dataset IDs** to eliminate selection bias.  
-**Scale/Scope**: A set of binary classification datasets (sample size -100k), 3 models, [deferred] total evaluation runs.
+**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `scipy`, `requests`  
+**Storage**: Local filesystem (`data/` for cached datasets, `results/` for CSV outputs)  
+**Testing**: `pytest` (unit tests for statistical functions, integration tests for pipeline)  
+**Target Platform**: GitHub Actions `ubuntu-latest` runner (CPU-only, 2 cores, ~7GB RAM)  
+**Project Type**: Data Science Pipeline / CLI  
+**Performance Goals**: Complete full pipeline (datasets × 3 models × 100 runs) within 6 hours. (Cites **SC-004**, **FR-006**)  
+**Constraints**: No GPU usage; datasets must be streamed or sampled if >7GB RAM; no data leakage during preprocessing.  
+**Scale/Scope**: A set of binary classification datasets (OpenML source), 3 models, [deferred] total evaluation runs.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Method |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `code/` will pin `random_seed=42` in all sklearn estimators and numpy. Datasets are cached in `data/` with checksums recorded in `state/`. **Hardcoded dataset IDs** ensure consistent selection. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` are restricted to the verified dataset list provided in the prompt (via OpenML IDs). No fabricated URLs. |
-| **III. Data Hygiene** | **PASS** | Raw data in `data/` is read-only. All transformations (imputation, scaling) occur in memory or write to new derived files. PII scan passed (binary classification datasets used). |
-| **IV. Single Source of Truth** | **PASS** | All metrics (CV, correlations, p-values) will be derived strictly from `results/raw_evaluations.csv` and `results/aggregated_metrics.csv`. No hand-typed stats in `paper/`. |
-| **V. Versioning Discipline** | **PASS** | `state/` JSON will track `artifact_hashes` for all data and code artifacts. |
-| **VI. Statistical Power Adequacy** | **PASS** | Plan explicitly enforces multiple resampling evaluations (multiple folds × multiple repeats) per model-dataset pair as mandated. |
-| **VII. Dataset Diversity** | **PASS** | **Task T005b** explicitly validates that the hardcoded dataset list spans the 100-100k sample size range. If the list fails this check, the pipeline halts. |
+- **I. Reproducibility**: Random seeds will be pinned in `code/`. Datasets fetched from canonical sources (verified OpenML IDs) and cached with checksums.
+- **II. Verified Accuracy**: All dataset references in `research.md` cite the specific OpenML IDs listed in the "Verified Datasets" table. These IDs serve as the canonical, verified sources for programmatic loading via `sklearn.datasets.fetch_openml`.
+- **III. Data Hygiene**: Raw data will be stored in `data/` with checksums recorded in `state/`. No in-place modification.
+- **IV. Single Source of Truth**: All results (CSVs) generated by `code/` scripts will be the sole source for `docs/report_template.md`.
+- **V. Versioning Discipline**: Artifacts will carry content hashes; `updated_at` timestamps will be managed by the Advancement-Evaluator.
+- **VI. Statistical Power Adequacy**: The plan explicitly mandates a sufficient number of resampling evaluations (Multiple folds × multiple repeats) per pair, satisfying the minimum threshold.
+- **VII. Dataset Diversity Requirements**: The dataset selection strategy targets a scalable sample size range and varying feature dimensions. **Specific OpenML IDs are listed in research.md to ensure compliance.** The datasets listed in `research.md` have been verified to span this range and are strictly binary classification tasks.
 
 ## Project Structure
 
@@ -42,88 +43,43 @@ specs/001-assess-model-stability/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    ├── evaluation_run.schema.yaml
-    └── metrics.schema.yaml
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-264-assessing-the-stability-of-statistical-m/
-├── code/
-│   ├── __init__.py
-│   ├── config.py              # Paths, seeds, hyperparameters, HARD CODED DATASET IDS
-│   ├── dataset_loader.py      # Fetches/caches specific datasets, validates sample size (Constitution VII)
-│   ├── evaluator.py           # Repeated K-Fold logic (FR-002)
-│   ├── analyser.py            # CV calculation, Log-Log regression, Spearman Correlation, Permutation tests (FR-003, FR-004, FR-005)
-│   └── main.py                # Orchestrator
-├── data/
-│   ├── raw/                   # Cached datasets (checksummed)
-│   └── processed/             # Intermediate derived data (if any)
-├── results/
-│   ├── raw_evaluations.csv    # 4,500 rows (15*3*100)
-│   ├── aggregated_metrics.csv # 45 rows (15*3)
-│   └── statistical_tests.json # Correlations and p-values
-├── tests/
-│   ├── unit/
-│   │   ├── test_evaluator.py
-│   │   └── test_analyser.py
-│   └── integration/
-│       └── test_pipeline.py
-└── requirements.txt
+code/
+├── __init__.py
+├── download_data.py     # Fetches and caches datasets
+├── run_evaluation.py    # Repeated CV execution
+├── analyze_stability.py # CV, Correlation (Log-Log), Permutation tests
+├── report_generator.py  # Aggregates CSVs into final report
+├── utils.py             # Statistical helpers, seeding
+└── requirements.txt     # Pinned dependencies
+
+data/
+├── raw/                 # Cached datasets with checksums
+└── processed/           # Imputed/scaled data (if needed)
+
+results/
+├── stability_metrics.csv
+├── correlation_results.csv
+├── permutation_results.csv
+└── final_report.md
+
+docs/
+└── report_template.md
 ```
 
-**Structure Decision**: Single project structure selected to minimize overhead. The pipeline is linear: Load -> Evaluate -> Analyze. Separation of `evaluator.py` and `analyser.py` ensures the heavy computation (evaluation) is decoupled from the statistical inference, allowing the analysis to be re-run if parameters change without re-computing the [deferred] folds.
-
-## Storage & Schema Alignment
-
-- `dataset_loader.py` validates downloaded data against `contracts/dataset.schema.yaml` (integer `dataset_id`).
-- `evaluator.py` writes `results/raw_evaluations.csv` adhering strictly to `contracts/evaluation_run.schema.yaml` (integer `dataset_id`).
-- `analyser.py` reads these schemas to compute metrics, ensuring type consistency throughout the pipeline.
-
-## Implementation Tasks (Phased)
-
-### Phase 1: Data Preparation & Validation
-- **T001**: Setup environment and dependencies (`requirements.txt`).
-- **T002**: Implement `dataset_loader.py` to fetch specific OpenML IDs (Hardcoded).
-- **T003**: Implement checksumming and caching logic (Constitution III).
-- **T004**: Implement preprocessing (imputation, scaling) inside CV loop.
-- **T005**: **Hard Filter**: Validate that the 15 selected datasets fall within 100-100k samples.
-- **T005b**: **Spectrum Validation**: Verify the Multiple datasets collectively span the full 100-100k range. If not, raise error. (Addresses Constitution VII).
-
-### Phase 2: Evaluation Engine
-- **T014**: Implement `evaluator.py` for Multiple folds × multiple repeats per model.
-- **T015**: Write `raw_evaluations.csv` (Schema: `evaluation_run.schema.yaml`).
-- **T016**: Unit test: Verify a representative sample of rows per dataset across multiple models.
-
-### Phase 3: Aggregation & Stability Metrics
-- **T018**: Implement `analyser.py` aggregation logic (Mean, Std, CV).
-  - *Dependency*: Must wait for T014 (Raw Evaluation). **NOT Parallel**.
-- **T019**: Implement **Log-Log transformation** and correlation logic.
-  - *Note*: Transformation applied to `log(CV)` vs `log(n_samples)` to linearize power-law.
-- **T020**: Extract residuals from the theoretical slope.
-
-### Phase 4: Statistical Inference
-- **T021**: Compute **Spearman Rank Correlations** (Primary test).
-  - *Note*: Spearman used due to small N=15 and non-normal CV distribution. Pearson on log-transformed data is secondary.
-- **T022**: **Deviation Analysis**: Calculate observed slope vs theoretical prediction; compute bootstrap CI.
-- **T025**: Implement **Paired-Difference Permutation Test** (Variance of differences between models).
-  - *Note*: Tests if variance of `|Acc_A - Acc_B|` differs significantly between model pairs.
-  - *Dependency*: Must wait for T020 (Residuals/Variance distributions). **NOT Parallel**.
-- **T026**: Apply Benjamini-Hochberg correction to all p-values (Correlations & Permutation Tests).
-  - *Dependency*: Must wait for T021 and T025. **NOT Parallel**.
-- **T027**: Write `statistical_tests.json`.
-  - *Dependency*: Must wait for T026. **NOT Parallel**.
-- **T028**: Generate final report.
-  - *Dependency*: Must wait for T027. **NOT Parallel**.
-
-### Phase 5: Verification
-- **T030**: Run full pipeline on GitHub Actions.
-- **T031**: Verify runtime < 6h.
-- **T032**: Verify reproducibility (re-run, compare checksums).
+**Structure Decision**: Single-project structure selected to minimize overhead. All data science logic resides in `code/` with clear separation between data acquisition, evaluation, analysis, and reporting.
 
 ## Complexity Tracking
 
-No violations detected. The single-project structure is appropriate for a self-contained statistical pipeline. The separation of concerns (Loading, Evaluation, Analysis) addresses the complexity of managing [deferred] evaluation runs while maintaining code clarity. The strict sequential ordering of Phase 4 ensures statistical dependencies are respected.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Log-Log Regression | Required to linearize the relationship between CV and Sample Size (CV ∝ 1/√n) and satisfy linearity assumptions. The hypothesis tests for deviation from the theoretical slope, not zero, avoiding tautology. | Direct Pearson correlation on raw CV vs. n is mathematically tautological and violates assumptions. |
+| Holm-Bonferroni | Required by FR-007 and SC-005 to control Family-Wise Error Rate (FWER). | Benjamini-Hochberg controls FDR, which is insufficient for the strict error control required by the spec. |
+| Permutation Test on Variances | Required by FR-005 to compare variance distributions non-parametrically using a variance-difference statistic. | Standard F-test assumes normality of variance distributions which may not hold; permutation is more robust. |
+| Repeated CV (100 runs) | Required by Constitution Principle VI to distinguish algorithmic differences from sampling noise. | Single 10-fold CV is insufficient to estimate the variance of the estimator itself; 100 runs are needed for a stable CV calculation. |

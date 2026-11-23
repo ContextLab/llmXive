@@ -1,232 +1,243 @@
 # Tasks: The Influence of Social Media "Doomscrolling" on Anticipatory Anxiety
 
-**Input**: Design documents from `/specs/001-doomscrolling-anxiety/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: Design documents from `/specs/001-doomscrolling-anxiety/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL – only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- **[P]**: Can run in parallel (different files, no dependencies)  
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)  
+- Include exact file paths in descriptions.
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- **Single project**: `src/`, `tests/` at repository root  
+- **Web app**: `backend/src/`, `frontend/src/`  
+- **Mobile**: `api/src/`, `ios/src/` or `android/src/`  
 
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a [P] Create directory structure: `data/raw/`, `data/processed/`, `code/`, `outputs/`, `tests/`
-- [ ] T001b [P] Create source structure: `projects/PROJ-540-the-influence-of-social-media-doomscroll/` with `__init__.py` files
+Paths shown below assume a single‑project layout – adjust based on `plan.md` structure.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0: Project Initialization (Setup)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Basic project structure and dependencies.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T002 [P] Initialize Python 3.11 project with dependencies in `requirements.txt` (e.g., `pandas==2.0.3`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `requests==2.31.0`, `pyyaml==6.0.1`)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
-- [X] T004 [P] Implement environment configuration management for dataset URLs and random seeds (`code/config.py`)
-- [ ] T004b [P] Implement random seed verification and logging in `code/config.py` (or `code/utils.py`) to ensure seeds are actively applied and logged at runtime, satisfying Constitution Principle I (Reproducibility). Log a warning if a seed is not set.
-- [X] T005 [P] Setup error handling infrastructure for custom exceptions (`PowerLimitationError`, `MathematicalCouplingError`) in `code/exceptions.py`
-- [X] T006 [P] Create base data models/entities (`SurveyResponse`, `RegressionModel`) in `code/models.py`
-- [ ] T007 [P] Configure logging infrastructure to `outputs/analysis.log`
-- [X] T019a [P] [Foundational] Implement construct validity check in `code/validity.py` to verify `baseline_anxiety` and `anxiety_score` are distinct constructs; MUST raise `MathematicalCouplingError` and HALT if coupling detected (Per Plan Phase 1.5). This function must be callable by US2 tasks.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T001b-i [P] Create root directory: `projects/PROJ-540-the-influence-of-social-media-doomscroll/`.
+- [ ] T001b-ii BLOCKED BY T001b-i Create subdirectories: `code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `outputs/`.
+- [ ] T001b-iii BLOCKED BY T001b-i Create `__init__.py` in the root directory `projects/PROJ-540-the-influence-of-social-media-doomscroll/`.
+- [ ] T001b-iv BLOCKED BY T001b-i Create `__init__.py` in every immediate subdirectory (`code/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `outputs/`).
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Variable Extraction (Priority: P1) 🎯 MVP
+## Phase 1: Foundational (Blocking Prerequisites)
 
-**Goal**: Download a public survey dataset, validate schema, and extract required variables.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story or data ingestion can begin.
 
-**Independent Test**: The pipeline can be tested by verifying that the output CSV/JSON contains the exact columns defined in the schema with no null values for the primary predictor and outcome variables after cleaning.
+- [ ] T002 [P] Initialize Python 3.11 project with dependencies in `requirements.txt` (e.g., `pandas>=2.0.3`, `statsmodels>=0.14.0`, `scikit-learn>=1.3.0`, `matplotlib>=3.7.0`, `seaborn>=0.12.0`, `requests>=2.31.0`, `pyyaml>=6.0.1`, `flake8>=6.1.0`, `black>=23.12.1`).
+- [ ] T003a [P] Configure linting: Create `.flake8` config file at repository root with `max-line-length = 88` and `exclude = .git,__pycache__,build,dist`. **BLOCKED BY**: T002.
+- [ ] T003b [P] Configure formatting: Create `pyproject.toml` at repository root with `[tool.black]` section setting `line-length = 88` and `target-version = ['py311']`. **BLOCKED BY**: T002.
+- [ ] T004 [P] **Implement environment configuration management** in `code/config.py`:
+  1. Create function to load dataset URLs and random seeds.
+  2. **MUST** verify `seed` variable is not `None` and raise `ValueError` if missing.
+  3. **MUST** log the seed at runtime to satisfy Constitution Principle I (Reproducibility). Use format: `LOG: SEED={seed_value} (INFO)` or `LOG: SEED NOT SET (WARNING)`.
+  4. **MUST** explicitly pass the seed to `np.random.seed(seed)` for any stochastic preprocessing steps.
+  5. **MUST** write the seed to `data/processed/metadata.json` with the exact key `random_seed` (e.g., `{"random_seed": 12345}`) to ensure persistence (Constitution Principle V).
+- [ ] T005 [P] Setup error‑handling infrastructure for custom exceptions (`PowerLimitationError`, `MathematicalCouplingError`, `DataAvailabilityError`, `DataIntegrityError`) in `code/exceptions.py`.
+- [ ] T006 [P] Create base data models/entities (`SurveyResponse`, `RegressionModel`) in `code/models.py`. **MUST** include fields `instrument_source` and `measurement_timepoint` in `SurveyResponse` to support T019a's schema validation and metadata checks.
+- [ ] T007 [P] Configure logging infrastructure to `outputs/analysis.log`.
+- [ ] T001c-impl BLOCKED BY T002 **Implement Orchestration Script** in `code/main.py`:
+  1. Create the entry point that imports `ingest`, `clean`, `model`, `viz`, and `config`.
+  2. **MUST** execute the pipeline in order: `ingest` → `clean` → `model` → `viz`.
+  3. **MUST** handle exceptions from any module and log them to `outputs/analysis.log`.
+  4. **MUST** return exit code 0 on success, non‑zero on failure.
 
-### Tests for User Story 1
-
-> **NOTE: Write these tests FIRST (Scaffolding only), ensure they FAIL before implementation**
-
-- [X] T008 [P] [US1] Unit test scaffolding in `tests/test_ingest.py`: Define class `TestIngestion` and function `test_schema_validation_raises_error_on_missing_column` with `pytest.skip("Implementation pending")` and assert structure. Do not import implementation logic yet.
-- [X] T009 [P] [US1] Unit test scaffolding in `tests/test_clean.py`: Define class `TestCleaning` and function `test_listwise_deletion_halts_on_low_power` with `pytest.skip("Implementation pending")` and assert structure. Do not import implementation logic yet.
-
-### Implementation for User Story 1
-
-- [X] T010 [US1] Implement data ingestion script `code/ingest.py` to download data from verified URL (e.g., GSS/Pew) and parse to `data/raw/`
-- [X] T011 [US1] Implement schema validation in `code/ingest.py` to ensure columns `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, `gender` exist
-- [X] T012 [US1] Implement listwise deletion in `code/clean.py` for missing predictor/outcome values. **MUST enforce Spec FR-002**: HALT with `PowerLimitationError` if resulting N < 30. If 30 <= N < 100, log 'Low Power' warning and proceed. (Note: The Plan suggests N < 130 for higher power, but the Spec requires N < 30; implement Spec logic and log the Plan's stricter guideline as a comment).
-- [ ] T013 [US1] Save cleaned dataset to `data/processed/analysis_data.csv`
-- [~] T014 [US1] Add logging for row counts, missing value statistics, and power check results
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Statistical Modeling and Association Estimation (Priority: P2)
-
-**Goal**: Fit a multiple linear regression model, verify construct validity, and calculate correlations.
-
-**Independent Test**: The model can be tested by running the regression on a synthetic dataset with known coefficients and verifying that the estimated coefficients match the expected values within a small tolerance.
-
-### Tests for User Story 2
-
-- [X] T015 [P] [US2] Unit test in `tests/test_model.py`: Define function `test_pearson_correlation_matches_manual_calculation` to verify correlation logic against hardcoded synthetic values.
-- [X] T016 [P] [US2] Unit test in `tests/test_validity.py`: Define function `test_coupling_detection_raises_error_on_identical_variables` to verify the `validity.py` module raises `MathematicalCouplingError` when inputs are identical.
-
-### Implementation for User Story 2
-
-- [X] T017 [US2] Implement Pearson/Spearman correlation calculation in `code/model.py` (FR-004)
-- [X] T018 [US2] Implement OLS regression fitting in `code/model.py` with formula `anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender`. Create a reusable function `fit_regression_model`.
-- [X] T019 [US2] Implement assumption checks in `code/model.py`:
- 1. **Invoke** the distinct construct validation function from `code/validity.py` (T019a) to ensure `baseline_anxiety` and `anxiety_score` are distinct.
- 2. Implement Linearity, Homoscedasticity (Breusch-Pagan), Normality (Shapiro-Wilk), and VIF checks as separate functions.
- 3. Output diagnostic metrics and pass/fail status.
-- [~] T020 [US2] Implement proxy flagging logic for `general_anxiety` vs `anticipatory_anxiety` (FR-008)
-- [ ] T021 [US2] Save regression results to `outputs/regression_results.json` (coefficients, p-values, diagnostics)
-- [ ] T022 [US2] Save correlation results to `outputs/correlation_results.json`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: Foundation ready – data ingestion and user‑story implementation can now begin.
 
 ---
 
-## Phase 5: User Story 3 - Robustness Check and Visualization (Priority: P3)
+## Phase 2: Data Ingestion & Verification (US1)
 
-**Goal**: Generate visualizations and perform conditional robustness check on high-engagement subset.
+**Purpose**: Download a public survey dataset, validate schema, and extract required variables.
 
-**Independent Test**: The visualization can be tested by generating a plot file and verifying the regression line passes through the centroid of the data points. The robustness check is tested by comparing the coefficient sign and significance between the full sample and the high-engagement subset.
+- [ ] T037a [US1] **Implement Streaming Data Loader** in `code/ingest.py`.
+  1. Create function `stream_data_source(url)` using `datasets.load_dataset(..., streaming=True)`.
+  2. **MUST** yield the first chunk of data (e.g., first 100 rows) for schema inspection without downloading the full dataset.
+  3. **MUST** raise `DataAvailabilityError` on connection errors.
+- [ ] T037b [US1] **Implement Schema Validator** in `code/ingest.py`.
+  1. Create function `validate_schema(chunk_df, required_columns)` that checks presence of required columns.
+  2. **REQUIRED COLUMNS**: `news_exposure_freq`, `anxiety_score`, `baseline_anxiety`, `age`, `gender`.
+  3. **MAPPING RULES**: (NHANES, GSS, Pew, YouGov) – see original spec.
+  4. Return a boolean and list of missing columns.
+- [ ] T037c-1 [US1] **Implement Source Iterator** in `code/ingest.py`.
+  1. Function `get_fallback_sources()` returns ordered list: `['Pew', 'GSS', 'NHANES_2017_2018', 'YouGov']`.
+- [ ] T037c-2 [US1] **Implement Schema Validation Loop** in `code/ingest.py`.
+  1. Iterate through sources from T037c-1.
+  2. Stream first chunk, validate schema, estimate sample size.
+  3. **HALT** with `PowerLimitationError` if estimated N < 30 for the current source.
+  4. **HALT** with `DataAvailabilityError` only if *all* sources fail schema or power checks.
+  5. **OUTPUT**: `data/processed/metadata.json` with `source_url`, `verified_columns`, and `random_seed`.
+- [ ] T037c-3 [US1] **Write Metadata Output** in `code/ingest.py`.
+  1. Write final `metadata.json` containing `source_url`, `verified_columns`, and `random_seed`.
+- [ ] T010a [US1] Implement data download in `code/ingest.py`: function `download_data(url, output_path)` that fetches data to `data/raw/` and raises on 404/timeout. **NO** synthetic fallback.
+- [ ] T010b [US1] Implement data parsing & schema validation in `code/ingest.py`: function `parse_and_validate(raw_path)` that reads the file, checks required columns, raises `ValueError` if missing, and writes to `data/raw/parsed_data.csv`.
+- [ ] T012 [US1] **Implement listwise deletion and power check** in `code/clean.py`.
+  - Remove rows with missing `news_exposure_freq` or `anxiety_score`.
+  - **HARD STOP** with `PowerLimitationError` if resulting N < 30.
+  - Log a **Low Power** warning if 30 ≤ N < 100.
+- [ ] T013 [US1] Save cleaned dataset to `data/processed/analysis_data.csv`.
+- [ ] T014 [US1] Add logging for row counts, missing‑value stats, and power‑check results (info/warning/error as specified).
 
-### Tests for User Story 3
-
-- [X] T023 [P] [US3] Unit test in `tests/test_robustness.py`: Define function `test_subset_selection_filters_top_25_percentile` to verify the filtering logic for the high-engagement subset.
-- [X] T024 [P] [US3] Integration test in `tests/test_viz.py`: Define function `test_plot_file_exists_and_contains_regression_line` to verify the plot file exists and contains the expected regression line.
-
-### Implementation for User Story 3
-
-- [X] T025 [US3] Implement robustness check logic in `code/robustness.py`:
- 1. Calculate correlation between `social_media_engagement` and `news_exposure_freq`.
- 2. **IF** correlation > 0.3, select the top 25th percentile of `social_media_engagement` from `data/processed/analysis_data.csv`.
- 3. **IF** correlation <= 0.3, skip the check and log a warning (Per Spec FR-006).
-- [~] T026 [US3] Re-fit regression on the high-engagement subset defined in T025 by **calling** the `fit_regression_model` function created in T018 (do not duplicate code). Compare coefficients/significance with full model.
-- [ ] T027 [US3] Save robustness results to `outputs/robustness_results.json`
-- [X] T028 [US3] Implement scatter plot generation in `code/viz.py` with regression line and 95% CI (FR-005)
-- [ ] T029 [US3] Save plot to `outputs/plot.png`
-- [ ] T030 [US3] Generate `outputs/final_report.md` summarizing findings, limitations, and associational nature
-
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: User Story 1 fully functional and testable.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 3: Statistical Modeling (US2)
 
-**Purpose**: Improvements that affect multiple user stories
+**Goal**: Fit a multiple linear regression, verify construct validity, compute correlations, and run diagnostics.
 
-- [ ] T031 [P] Documentation updates in `README.md` and `docs/`
-- [ ] T032 [P] Code cleanup and refactoring: Remove unused imports, extract helper functions
-- [ ] T033 [P] Performance optimization: Vectorize pandas operations, use chunking for large files (ensure < 60s on 10k records)
-- [ ] T034 [P] Add specific unit tests for `code/config.py` (seed verification) and `code/robustness.py` (conditional logic) to ensure coverage of new logic.
-- [ ] T035 [P] Run `quickstart.md` validation
+- [ ] T015 [P] [US2] Unit test in `tests/test_model.py`: verify Pearson correlation logic against a handcrafted synthetic dataset.
+- [ ] T016 [P] [US2] Unit test in `tests/test_validity.py`: verify `MathematicalCouplingError` is raised when `baseline_anxiety` and `anxiety_score` share the same instrument/timepoint.
+- [ ] T019a [US2] Implement construct‑validity check in `code/validity.py`.
+  - Read `metadata.json`, detect coupling.
+  - If coupling detected, **DROP** `baseline_anxiety`, set `coupling_risk = true`, log warning, and write `formula_variables` to `metadata.json`.
+- [ ] T017 [US2] Implement Pearson/Spearman correlation calculation in `code/model.py`.
+- [ ] T018a [US2] **Implement Formula Construction** in `code/model.py`.
+  - Read `formula_variables` from `metadata.json`.
+  - Build formula string dynamically (e.g., `anxiety_score ~ news_exposure_freq + age + gender`).
+- [ ] T018b [US2] **Implement OLS Regression Fitting** in `code/model.py`.
+  - Reusable `fit_regression_model(formula, df)` using `statsmodels.formula.api.ols`.
+- [ ] T019b [US2] Implement assumption checks in `code/model.py`.
+  - Linearity (scatter), Homoscedasticity (Breusch‑Pagan), Normality (Shapiro‑Wilk).
+  - Output diagnostic metrics and PASS/FAIL status.
+- [ ] T047a [US2] **Implement VIF Flagging Logic** in `code/model.py`.
+  - Compute VIF for each predictor.
+  - If any VIF > 10, add `"High VIF"` to `flags`, set the offending coefficient to `null` in the output JSON, and log details.
+- [ ] T020 [US2] Implement proxy‑flagging logic in `code/model.py` for use of `general_anxiety` as a proxy. Add `"Proxy Used"` to `flags`.
+- [ ] T021 [US2] Save regression results to `outputs/regression_results.json` (conforms to `contracts/output.schema.yaml`) including `flags`, VIF scores, and assumption checks.
+- [ ] T022 [US2] Save correlation results to `outputs/correlation_results.json`.
+- [ ] T022b [US2] Generate diagnostic plots (`outputs/diagnostics_residuals.png`, `outputs/diagnostics_qq.png`) with test statistics in titles/legends.
+
+**Checkpoint**: User Stories 1 & 2 operational.
+
+---
+
+## Phase 4: Robustness Check & Visualization (US3)
+
+**Goal**: Produce final visualizations and a conditional robustness analysis.
+
+- [ ] T023 [P] [US3] Unit test in `tests/test_robustness.py`: verify top‑25 percentile filtering logic.
+- [ ] T024 [P] [US3] Integration test in `tests/test_viz.py`: verify plot file exists and contains regression line.
+- [ ] T025b-1 [US3] **Check Correlation Condition** in `code/robustness.py`.
+  - If `social_media_engagement` exists, compute `r = corr(social_media_engagement, news_exposure_freq)`.
+  - Proceed only if `r > 0.3`; otherwise log warning and set `"Robustness Skipped (r ≤ 0.3)"` flag.
+- [ ] T025b-2 [US3] **Run Subset Model** in `code/robustness.py` (only when condition met).
+  - Select top 25 percentile of `social_media_engagement`.
+  - Re‑fit OLS using formula from T018a.
+- [ ] T025b-3 [US3] **Generate Comparison Output** in `code/robustness.py`.
+  - Write `outputs/robustness_results.json` with `status` (`RUN`, `SKIPPED_R_LOW`, etc.), `subset_n`, `coefficient`, `p_value`.
+- [ ] T028 [US3] Implement scatter plot with regression line & 95 % CI in `code/viz.py`.
+- [ ] T029 [US3] Save plot to `outputs/plot.png`.
+- [ ] T030 [US3] **Generate Final Report** in `code/viz.py`.
+  - Sections: Executive Summary, Methods, Results (regression, correlation, VIF flags), Robustness Check (results or skip reason), Limitations, Conclusion.
+  - Cite JSON outputs and include metadata from `metadata.json`.
+- [ ] T029b [US3] Implement robustness visualization in `code/viz.py` → `outputs/robustness_comparison.png` (only if robustness run).
+
+**Checkpoint**: All user stories now independently functional.
+
+---
+
+## Phase 5: Polish & Cross‑Cutting Concerns
+
+- [ ] T031 [P] **Documentation updates** in `README.md` and `docs/`.
+  1. Usage section with command `python code/main.py`.
+  2. Data section describing expected schema and verified dataset source.
+  3. Generation of `quickstart.md` with step‑by‑step instructions.
+- [ ] T032 [P] Code cleanup and refactoring: remove unused imports, extract helper functions. **Verification**: Run `flake8` and `black --check` on `code/` and verify 0 errors/violations.
+- [ ] T033 [P] **Performance Benchmark (Real Data Only)**:
+  1. Function `run_benchmark` in `code/main.py` runs the full pipeline on a streamed sample (first 10 000 rows) of the verified dataset.
+  2. Measures total runtime, writes `benchmark.log`.
+  3. Verifies `"PASS: Runtime < 60s"` in the log.
+- [ ] T034 [P] Add unit tests for `code/config.py` (seed verification) and `code/robustness.py` (conditional logic).
+- [ ] T041-impl [P] **Implement Validation Script** in `code/validation.py`:
+  1. Reads `outputs/success_criteria_validation.json`, `outputs/regression_results.json`, `outputs/robustness_results.json`, and `benchmark.log`.
+  2. **ASSERT SC-001**: `p_values['news_exposure_freq'] < 0.05`.
+  3. **ASSERT SC-003**: Check that `sign(coefficients['news_exposure_freq']) == sign(robustness_result['coefficient'])` AND `robustness_result['p_value'] < 0.05`.
+  4. Check SC‑002, SC‑004, SC‑005.
+  5. Outputs a JSON report with PASS/FAIL for each.
+  6. Handles missing files gracefully (reports FAIL).
+- [ ] T035 [P] **Run quickstart.md validation**: execute the steps in `quickstart.md` and verify the pipeline runs without manual intervention. **Deliverable**: Generate `outputs/quickstart_validation.log`.
+
+---
+
+## Phase 6: Execution Verification & Final Audit (Blocking Completion)
+
+- [ ] T038 [US1] **Execute Full Pipeline on Verified Dataset**:
+  1. Run `python code/main.py`.
+  2. Verify dataset download & streaming, schema validation, regression output, robustness (or skip) output, all plots, and final report `outputs/final_report.md`.
+- [ ] T039 [US1] **Audit for Fabrication**:
+  1. Inspect all JSON result files to ensure no hard‑coded or synthetic values.
+  2. Verify `flags` correctly list `"Proxy Used"` when applicable and any other limitations.
+- [ ] T040 [US1] **Verify Reproducibility**:
+  1. Re‑run pipeline with same seed.
+  2. Confirm bitwise (or tolerance‑based) equality of `outputs/regression_results.json`, `outputs/correlation_results.json`, `outputs/robustness_results.json`.
+
+---
+
+## Phase 7: Final Validation & Sign‑off
+
+- [ ] T046 [P] **Validate Success Criteria**  
+  Run `code/validation.py` (implemented in T041‑impl) to programmatically check SC‑001 – SC‑005 against generated artifacts.  
+  - **Output**: `outputs/success_criteria_validation.json` containing `{ "SC-001": {"status":"PASS","value":…}, … }`.  
+  - **Verification**: The JSON file exists, each criterion has a `"PASS"` or `"FAIL"` status, and the script logs its actions to `outputs/validation.log`.  
+  - **Path**: `code/validation.py`, `outputs/success_criteria_validation.json`, `outputs/validation.log`.
+
+- [ ] T042 [P] **Automated Fabrication Audit**  
+  Implement fabrication-detection script in `code/audit.py` that scans all files in `code/` for banned patterns (e.g., `mock_`, `synthetic_`, `random.uniform` used in analysis, or hard-coded result arrays).  
+  - **Verification**: `outputs/fabrication_audit.log` exists and reports `"NO FABRICATION DETECTED"`.  
+  - **Path**: `code/audit.py`, `outputs/fabrication_audit.log`.
+
+- [ ] T047 [P] **Generate Final Documentation**  
+  Update `README.md` with a concise **Results Summary** (key regression coefficient, p‑value, R², any flags), known limitations (e.g., proxy use, low power), and reproducibility instructions (seed, command, data source).  
+  - **Verification**: The README contains a **Results Summary** section that references values from `outputs/regression_results.json` and `outputs/robustness_results.json`.  
+  - **Path**: `README.md`.
+
+- [ ] T048 [P] **Archive Artifacts**  
+  Create a zip archive `artifacts/project_artifact.zip` containing the directories `data/processed/`, `outputs/`, and `code/`.  
+  - **Verification**: The zip file exists, can be opened, and includes the three top‑level directories with their contents.  
+  - **Path**: `artifacts/project_artifact.zip`.
+
+- [ ] T045 [P] **Sign‑off**  
+  1. Generate `outputs/sign_off_report.md` that lists the status of all prior tasks (read from `outputs/task_status_log.json`).  
+  2. Determine **Final project state**: `'Success'` if T046 reports all SCs as PASS; otherwise `'Documented Failure'`.  
+  3. Include a brief statement of overall outcome and any outstanding limitations.  
+  - **Verification**: `sign_off_report.md` exists, contains the task‑status table, and correctly reflects the success/failure outcome.  
+  - **Path**: `outputs/sign_off_report.md`.
 
 ---
 
 ## Dependencies & Execution Order
 
-### Phase Dependencies
+| Phase | Depends on |
+|------|-------------|
+| 0 – Setup | – |
+| 1 – Foundational | Phase 0 |
+| 2 – Data Ingestion | Phase 1 |
+| 3 – Modeling | Phase 2 |
+| 4 – Robustness & Viz | Phase 3 |
+| 5 – Polish | Phases 0‑4 |
+| 6 – Execution Audit | Phases 0‑5 |
+| 7 – Final Validation & Sign‑off | Phases 0‑6 |
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+**Parallel Opportunities**
 
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1 and validity check (T019a)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on model results from US2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written as scaffolding (empty files with TODOs) before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- All `[P]` tasks within a phase can run concurrently as long as they touch different files.
+- Different user‑story phases can be worked on in parallel by separate contributors.
 
 ---
 
-## Parallel Example: User Story 1
-
-```bash
-# Launch all scaffolding for User Story 1 together:
-Task: "Unit test scaffolding in tests/test_ingest.py: Define class TestIngestion and function test_schema_validation_raises_error_on_missing_column"
-Task: "Unit test scaffolding in tests/test_clean.py: Define class TestCleaning and function test_listwise_deletion_halts_on_low_power"
-
-# Launch all implementation for User Story 1 together:
-Task: "Implement data ingestion script code/ingest.py"
-Task: "Implement schema validation in code/ingest.py"
-Task: "Implement listwise deletion and power check in code/clean.py (Spec N < 30 hard stop)"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing (Scaffolding first)
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+*All tasks obey the platform’s constitution: real data only, no synthetic fall‑backs, CPU‑only execution (except where conditional GPU off‑load is automatically handled by the platform), and strict adherence to the specification’s functional requirements.*

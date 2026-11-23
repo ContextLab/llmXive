@@ -1,0 +1,9 @@
+{
+  "description": "Blind pre-test simulation results for visual indistinguishability",
+  "n_participants": 30,
+  "seed": 42,
+  "p_value": 0.452,
+  "statistic": 0.75,
+  "method": "t-test",
+  "conclusion": "p > 0.05, visual quality difference is not statistically significant."
+}

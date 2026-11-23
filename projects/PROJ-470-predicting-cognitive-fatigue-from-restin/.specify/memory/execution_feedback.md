@@ -1,86 +1,124 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
-
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
-
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
-
-- every produced artifact is gitignored (data/processed/validation_report.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
-
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: every produced artifact is gitignored (data/processed/validation_report.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 4 command(s) failed: python code/download.py (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 2 declared deliverable(s) absent: data/processed/lzc_metrics.csv; data/processed/pe_metrics.csv
+**Summary**: 5 command(s) failed: python code/download.py --validate (rc=1); python code/preprocess.py (rc=1); python code/features.py (rc=1); 8 declared deliverable(s) absent: data/analysis/complexity_metrics.csv; data/analysis/raw_correlation_results.csv; data/analysis/resource_usage.json
 
 ## Failing / missing run-book commands
 
-- python code/download.py -> rc=1
-    2026-07-15 08:33:30,626 - download - INFO - Starting data retrieval and validation pipeline.
-2026-07-15 08:33:30,628 - download - INFO - Attempting to fetch Sleep-EDF dataset...
-2026-07-15 08:33:30,628 - download - ERROR - Failed to fetch Sleep-EDF: No module named 'datasets'
-2026-07-15 08:33:30,628 - download - INFO - Attempting to fetch SHHS dataset as fallback...
-2026-07-15 08:33:30,628 - download - ERROR - Failed to fetch SHHS: No module named 'datasets'
-2026-07-15 08:33:30,629 - download - INFO - Validation report written to /home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/data/processed/validation_report.json
-2026-07-15 08:33:30,629 - download - ERROR - Validation failed for all sources.
-2026-07-15 08:33:30,629 - download - ERROR - Halting with exit code 1.
-- python code/preprocess.py -> rc=1
-    2026-07-15 08:33:30,844 - preprocess - INFO - Starting preprocessing pipeline
+- python code/download.py --validate -> rc=1
+2026-10-14 16:33:51,327 - download - INFO - Checking metadata availability at https://physionet.org/api/files/sleep-edfx/1.0.0/...
+2026-10-14 16:33:52,483 - download - ERROR - HTTP error checking metadata: 404 Not Found
+2026-10-14 16:33:52,484 - download - ERROR - Metadata check failed. Aborting.
 
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/preprocess.py", line 310, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/preprocess.py", line 281, in main
-    processed_data, summary = process_eeg_stream(stream, config, logger)
-                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/preprocess.py", line 214, in process_eeg_stream
-    for filename, raw in stream:
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-470-predicting-cognitive-fatigue-from-restin/code/preprocess.py", line 25, in stream_eeg_files
-    raise FileNotFoundError(f"Data directory not found: {data_dir}")
-FileNotFoundError: Data directory not found: data/raw
+
+- python code/preprocess.py -> rc=1
+
+
 - python code/features.py -> rc=1
-    2026-07-15 08:33:31,149 - features - INFO - Starting feature extraction pipeline
-2026-07-15 08:33:31,149 - features - INFO - Input: data/processed/preprocessed_eeg.npy
-2026-07-15 08:33:31,149 - features - INFO - Output LZC: data/processed/lzc_metrics.csv
-2026-07-15 08:33:31,149 - features - INFO - Output PE: data/processed/pe_metrics.csv
-2026-07-15 08:33:31,149 - features - INFO - Loading preprocessed EEG data from data/processed/preprocessed_eeg.npy
-2026-07-15 08:33:31,149 - features - ERROR - Data file not found: Preprocessed data not found at data/processed/preprocessed_eeg.npy
+
+
 - python code/analysis.py -> rc=1
-    2026-07-15 08:33:32,182 - __main__ - INFO - Starting analysis pipeline.
-2026-07-15 08:33:32,184 - __main__ - ERROR - Complexity metrics file not found: data/processed/complexity_metrics.csv
+2026-10-14 16:33:53,334 - __main__ - INFO - Starting analysis pipeline.
+2026-10-14 16:33:53,334 - __main__ - INFO - Starting input validation for analysis pipeline.
+2026-10-14 16:33:53,334 - __main__ - ERROR - CRITICAL: Required data files are missing. Analysis cannot proceed.
+Missing files:
+  - cleaned_eeg_dir: data/processed/cleaned_eeg/
+  - complexity_metrics: data/analysis/complexity_metrics.csv
+  - fatigue_scores: data/processed/fatigue_scores.csv
+
+Available files:
+
+
+CRITICAL: Required data files are missing. Analysis cannot proceed.
+Missing files:
+  - cleaned_eeg_dir: data/processed/cleaned_eeg/
+  - complexity_metrics: data/analysis/complexity_metrics.csv
+  - fatigue_scores: data/processed/fatigue_scores.csv
+
+Available files:
+
+
+- python -m pytest tests/ -v -> rc=2
+rt test summary info ============================
+ERROR tests/test_features.py
+ERROR tests/test_t012_preprocess.py
+ERROR tests/integration/test_analysis.py
+ERROR tests/integration/test_features.py
+ERROR tests/integration/test_features_integration.py
+ERROR tests/integration/test_preprocess.py
+ERROR tests/integration/test_preprocess_artifacts.py
+ERROR tests/unit/test_analysis.py
+ERROR tests/unit/test_analysis_mode_failures.py
+ERROR tests/unit/test_artifact_rejection.py
+ERROR tests/unit/test_delta_scores.py
+ERROR tests/unit/test_download.py
+ERROR tests/unit/test_download_validation.py
+ERROR tests/unit/test_edge_cases.py
+ERROR tests/unit/test_edge_cases_integration.py
+ERROR tests/unit/test_features_lzc.py
+ERROR tests/unit/test_logging.py
+ERROR tests/unit/test_missing_data.py
+ERROR tests/unit/test_preprocess.py
+ERROR tests/unit/test_preprocess_artifacts.py
+ERROR tests/unit/test_report.py
+ERROR tests/unit/test_segment_length_validation.py
+ERROR tests/unit/test_t014_segment_validation.py
+ERROR tests/unit/test_validation_gate.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 24 errors during collection !!!!!!!!!!!!!!!!!!!
+======================== 5 warnings, 24 errors in 0.86s ========================
+
+
 
 ## Declared deliverables still missing
 
-- data/processed/lzc_metrics.csv
-- data/processed/pe_metrics.csv
+- data/analysis/complexity_metrics.csv
+- data/analysis/raw_correlation_results.csv
+- data/analysis/resource_usage.json
+- data/analysis/vif_valid_predictors.json
+- data/processed/exclusion_log.csv
+- data/processed/fatigue_scores.csv
+- data/processed/validation_report.json
+- data/raw/download_manifest.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/lzc_metrics.csv` is declared but was NOT written. Scripts referencing it:
+- `data/analysis/complexity_metrics.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis.py` — IS a run-book command
     - `code/collinearity.py` — NOT invoked by the run-book
     - `code/features.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/lzc_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/pe_metrics.csv` is declared but was NOT written. Scripts referencing it:
+  Make ONE of these WRITE `data/analysis/complexity_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/analysis/raw_correlation_results.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/benjamini_hochberg.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/analysis/raw_correlation_results.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/analysis/resource_usage.json` is declared but was NOT written. Scripts referencing it:
+    - `code/utils/monitor.py` — NOT invoked by the run-book
+    - `code/verify_memory.py` — NOT invoked by the run-book
+    - `code/verify_runtime.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/analysis/resource_usage.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/analysis/vif_valid_predictors.json` is declared but was NOT written. Scripts referencing it:
     - `code/collinearity.py` — NOT invoked by the run-book
-    - `code/features.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/pe_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-
-## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
-
-One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
-
-**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
-
-### `data/processed/complexity_metrics.csv`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/analysis.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/complexity_metrics.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/analysis.py`.
-
-### `data/processed/preprocessed_eeg.npy`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/profile_memory.py`, `code/features.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/preprocessed_eeg.npy`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/profile_memory.py`, `code/features.py`.
+    - `code/report.py` — IS a run-book command
+  Make ONE of these WRITE `data/analysis/vif_valid_predictors.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/exclusion_log.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/preprocess.py` — IS a run-book command
+    - `code/sensitivity_analysis.py` — NOT invoked by the run-book
+    - `code/utils/logging.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/exclusion_log.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/fatigue_scores.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/analysis.py` — IS a run-book command
+    - `code/extract_fatigue.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/fatigue_scores.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/validation_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/check_sample_size.py` — NOT invoked by the run-book
+    - `code/download.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/validation_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/raw/download_manifest.json` is declared but was NOT written. Scripts referencing it:
+    - `code/check_sample_size.py` — NOT invoked by the run-book
+    - `code/create_sample_verification.py` — NOT invoked by the run-book
+    - `code/download.py` — IS a run-book command
+    - `code/extract_fatigue.py` — NOT invoked by the run-book
+    - `code/preprocess.py` — IS a run-book command
+  Make ONE of these WRITE `data/raw/download_manifest.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.

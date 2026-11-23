@@ -1,0 +1,13 @@
+rdkit
+pandas
+scikit-learn
+matplotlib
+seaborn
+requests
+numpy
+scipy
+statsmodels
+nolds
+pyvib
+pytest
+pyyaml

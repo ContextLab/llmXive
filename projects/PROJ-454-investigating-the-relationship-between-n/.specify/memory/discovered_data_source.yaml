@@ -1,0 +1,16 @@
+status: none
+intent: OpenNeuro ds000246 ds003104 resting state EEG dataset download python package
+  dataset
+required_fields:
+- participant_id
+- age
+- eeg_signal
+- sampling_rate
+- channel_names
+- timestamps
+- wcst_total_correct
+- wcst_categories_completed
+- wcst_perseverative_errors
+cache_key: 18900912eac1356009ac64069335c431802129acbba1d5d3d0b3393d49f2c095
+searched_at: '2026-10-11T03:35:35.002082+00:00'
+retry_count: 1

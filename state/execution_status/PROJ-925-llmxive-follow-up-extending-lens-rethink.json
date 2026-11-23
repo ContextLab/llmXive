@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-925-llmxive-follow-up-extending-lens-rethink",
+  "ok": false,
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/train.py: self-declared fabricated metric \u2014 \u201c\u2026shuffling y and calculating a dummy score (e.g., 0 or random).\u2026\u201d; code/data/train.py: self-declared fabricated metric \u2014 \u201c\u2026Actually, let's just return a mock result structure to satisfy the sign\u2026\u201d; 3 command(s) failed: python code/data/features.py (rc=1); python code/data/preprocess.py (rc=1); python code/data/train.py (rc=1); 4 declared deliverable(s) absent: data/processed/deviation.csv; data/processed/exclusion_summary.json; data/processed/features.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/data/features.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/code/data/features.py\", line 19, in <module>\n    from features import extract_features_batch\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/code/data/features.py\", line 19, in <module>\n    from features import extract_features_batch\nImportError: cannot import name 'extract_features_batch' from partially initialized module 'features' (most likely due to a circular imp",
+    "python code/data/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/code/data/preprocess.py\", line 241, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/code/data/preprocess.py\", line 197, in main\n    os.makedirs(paths.processed, exist_ok=True)\n                ^^^^^^^^^^^^^^^\nAttributeError: 'ProjectPaths' object has no attribute 'processed'",
+    "python code/data/train.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/code/data/train.py\", line 395, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/code/data/train.py\", line 359, in main\n    seeds = config.get(\"seeds\", [42, 123, 456, 789, 101112])\n            ^^^^^^^^^^\nAttributeError: 'RunConfig' object has no attribute 'get'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-29T20:49:31Z"
+}

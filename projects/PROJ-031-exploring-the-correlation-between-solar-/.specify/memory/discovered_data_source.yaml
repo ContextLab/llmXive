@@ -1,0 +1,18 @@
+status: none
+intent: sunpy GOES flare catalog and CDAWeb LASCO CME and NOAA Dst python package
+  dataset
+required_fields:
+- dst_timestamp
+- dst_minimum
+- flare_timestamp
+- flare_class
+- flare_peak_flux
+- cme_timestamp
+- cme_speed
+- cme_width
+- solar_event_match_flag
+- missing_flare_flag
+- missing_cme_flag
+cache_key: dfc0cf0e2d38185f18f8c556bd4e82b3e2b27820d5d09e96a16a8be6dbc504c2
+searched_at: '2026-09-23T04:23:58.280643+00:00'
+retry_count: 1

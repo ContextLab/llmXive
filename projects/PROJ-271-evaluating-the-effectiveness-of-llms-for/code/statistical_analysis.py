@@ -4,374 +4,388 @@ import logging
 import pandas as pd
 import numpy as np
 from typing import Dict, Any, List, Optional, Tuple
+import statsmodels.api as sm
 from scipy import stats
-from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import confusion_matrix, classification_report
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 from config import get_path, get_data_path, get_processed_path, get_results_path, setup_logging
+from helpers import (
+    calculate_statistics, parse_smell_labels, create_detection_matrix,
+    validate_dataset_completeness, safe_divide
+)
 
-logger = logging.getLogger(__name__)
+logger = setup_logging(__name__)
 
 def load_static_baseline(filepath: Optional[str] = None) -> pd.DataFrame:
-    """Load the static baseline CSV."""
+    """Loads the static baseline CSV file."""
     if filepath is None:
-        filepath = get_data_path("static_baseline.csv")
+        filepath = str(get_data_path("static_baseline.csv"))
+    
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Static baseline not found at {filepath}")
-    return pd.read_csv(filepath)
+        raise FileNotFoundError(f"Static baseline file not found: {filepath}")
+    
+    df = pd.read_csv(filepath)
+    logger.info(f"Loaded static baseline with {len(df)} rows")
+    return df
 
-def load_semantic_results(filepath: Optional[str] = None) -> pd.DataFrame:
-    """Load the semantic results JSON as a DataFrame."""
+def load_semantic_results(filepath: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Loads the semantic results JSON file."""
     if filepath is None:
-        filepath = get_processed_path("semantic_results.json")
+        filepath = str(get_processed_path("semantic_results.json"))
+    
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Semantic results not found at {filepath}")
+        raise FileNotFoundError(f"Semantic results file not found: {filepath}")
+    
     with open(filepath, 'r') as f:
         data = json.load(f)
-    return pd.DataFrame(data)
+    
+    logger.info(f"Loaded semantic results with {len(data)} entries")
+    return data
 
-def merge_datasets(static_df: pd.DataFrame, semantic_df: pd.DataFrame) -> pd.DataFrame:
-    """Merge static and semantic datasets on function_id."""
-    # Ensure function_id is string for consistent joining
-    static_df = static_df.copy()
-    semantic_df = semantic_df.copy()
+def merge_datasets(static_df: pd.DataFrame, semantic_data: List[Dict[str, Any]]) -> pd.DataFrame:
+    """Merges static baseline and semantic results into a unified dataset."""
+    # Convert semantic data to DataFrame
+    semantic_rows = []
+    for item in semantic_data:
+        row = {
+            'code': item.get('code'),
+            'static_labels': item.get('static_labels', []),
+            'llm_labels': item.get('llm_labels', []),
+            'embedding': item.get('embedding'),
+            'static_only': len(set(item.get('static_labels', [])) - set(item.get('llm_labels', []))),
+            'llm_only': len(set(item.get('llm_labels', [])) - set(item.get('static_labels', []))),
+            'both': len(set(item.get('static_labels', [])) & set(item.get('llm_labels', [])))
+        }
+        
+        # Calculate mean semantic embedding
+        embedding = item.get('embedding')
+        if embedding and isinstance(embedding, list):
+            row['semantic_mean'] = float(np.mean(embedding))
+        else:
+            row['semantic_mean'] = 0.0
+        
+        semantic_rows.append(row)
     
-    if 'function_id' not in static_df.columns or 'function_id' not in semantic_df.columns:
-        # Fallback if column names differ, assuming 'id' or index
-        if 'id' in static_df.columns:
-            static_df = static_df.rename(columns={'id': 'function_id'})
-        if 'id' in semantic_df.columns:
-            semantic_df = semantic_df.rename(columns={'id': 'function_id'})
+    semantic_df = pd.DataFrame(semantic_rows)
     
-    merged = pd.merge(static_df, semantic_df, on='function_id', how='inner')
-    logger.info(f"Merged dataset shape: {merged.shape}")
+    # Merge on code (assuming code is unique or we use index)
+    # For simplicity, we'll assume the order matches or we merge by index
+    if len(static_df) == len(semantic_df):
+        merged = pd.concat([static_df.reset_index(drop=True), semantic_df.reset_index(drop=True)], axis=1)
+    else:
+        # Fallback: try to merge by code if available in both
+        if 'code' in static_df.columns and 'code' in semantic_df.columns:
+            merged = pd.merge(static_df, semantic_df, on='code', how='inner')
+        else:
+            logger.warning("Cannot merge datasets: mismatched lengths and no common key")
+            merged = pd.concat([static_df, semantic_df], axis=1)
+    
+    logger.info(f"Merged dataset has {len(merged)} rows")
     return merged
 
-def validate_merged_dataset(df: pd.DataFrame, min_completeness: float = 0.95) -> bool:
-    """Validate that the merged dataset has sufficient completeness."""
-    required_cols = ['code', 'loc', 'cyclomatic_complexity', 'static_smell_labels', 'llm_labels']
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
-        return False
+def validate_merged_dataset(df: pd.DataFrame, threshold: float = 0.95) -> bool:
+    """Validates the merged dataset has required fields and completeness."""
+    required_cols = ['code', 'loc', 'cyclomatic_complexity', 'nesting_depth', 
+                   'static_labels', 'llm_labels', 'semantic_mean']
     
-    # Check for nulls in key columns
-    null_counts = df[required_cols].isnull().sum()
-    if null_counts.any():
-        logger.warning(f"Null values found in required columns: {null_counts[null_counts > 0].to_dict()}")
-    
-    non_null_rows = df[required_cols].dropna().shape[0]
-    completeness = non_null_rows / len(df)
-    logger.info(f"Dataset completeness: {completeness:.2%}")
-    return completeness >= min_completeness
+    return validate_dataset_completeness(df, required_cols, threshold)
 
-def parse_smell_labels(labels_str: str) -> List[str]:
-    """Parse a string representation of labels into a list."""
-    if pd.isna(labels_str) or not isinstance(labels_str, str):
-        return []
-    # Handle various formats: "['smell1', 'smell2']", "smell1, smell2", etc.
-    labels_str = labels_str.strip("[]").strip("'\"").strip()
-    if not labels_str:
-        return []
-    # Split by comma or space, handling quotes
-    parts = [p.strip().strip("'\"") for p in labels_str.split(',')]
-    return [p for p in parts if p]
+def run_mcnemar_test(static_labels: List[str], llm_labels: List[str]) -> Dict[str, float]:
+    """
+    Runs McNemar's test for paired nominal data.
+    
+    Compares detection outcomes between static and LLM analysis.
+    
+    Args:
+        static_labels: List of labels from static analysis.
+        llm_labels: List of labels from LLM analysis.
+    
+    Returns:
+        Dictionary with 'chi2' statistic and 'pvalue'.
+    """
+    # Create contingency table
+    # a = both detected, b = static only, c = llm only, d = neither
+    a = len(set(static_labels) & set(llm_labels))
+    b = len(set(static_labels) - set(llm_labels))
+    c = len(set(llm_labels) - set(static_labels))
+    d = 0 # Neither is context dependent, usually not counted in McNemar for this use case
+    
+    # McNemar's test requires b and c
+    if b + c == 0:
+        return {'chi2': 0.0, 'pvalue': 1.0}
+    
+    chi2, pvalue = stats.binom_test(min(b, c), n=b+c, p=0.5, alternative='two-sided')
+    
+    return {'chi2': float(chi2), 'pvalue': float(pvalue)}
 
-def create_detection_matrix(df: pd.DataFrame) -> pd.DataFrame:
+def calculate_vif(features: pd.DataFrame) -> Dict[str, float]:
     """
-    Create a binary detection matrix for each smell category.
-    Columns: 'smell_<category>_static', 'smell_<category>_llm'
-    Values: 1 if detected, 0 otherwise.
+    Calculates Variance Inflation Factor (VIF) for each feature.
+    
+    Args:
+        features: DataFrame with numeric features.
+    
+    Returns:
+        Dictionary mapping feature names to VIF scores.
     """
-    all_smells = set()
-    for labels in df['static_smell_labels'].dropna():
-        all_smells.update(parse_smell_labels(labels))
-    for labels in df['llm_labels'].dropna():
-        all_smells.update(parse_smell_labels(labels))
+    if features.empty:
+        return {}
     
-    smell_categories = sorted(list(all_smells))
-    logger.info(f"Found {len(smell_categories)} unique smell categories: {smell_categories}")
-    
-    matrix_data = []
-    for _, row in df.iterrows():
-        static_labels = parse_smell_labels(row['static_smell_labels'])
-        llm_labels = parse_smell_labels(row['llm_labels'])
-        
-        row_data = {'function_id': row.get('function_id', -1)}
-        for smell in smell_categories:
-            row_data[f'smell_{smell}_static'] = 1 if smell in static_labels else 0
-            row_data[f'smell_{smell}_llm'] = 1 if smell in llm_labels else 0
-        matrix_data.append(row_data)
-    
-    return pd.DataFrame(matrix_data)
-
-def run_mcnemar_test(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Perform McNemar's test for each smell category.
-    Returns a dictionary of results per category.
-    """
-    results = {}
-    matrix_df = create_detection_matrix(df)
-    
-    smell_cols = [c for c in matrix_df.columns if c.startswith('smell_') and c.endswith('_static')]
-    
-    for col in smell_cols:
-        smell_name = col.replace('smell_', '').replace('_static', '')
-        llm_col = col.replace('_static', '_llm')
-        
-        if llm_col not in matrix_df.columns:
-            logger.warning(f"Skipping {smell_name}: {llm_col} not found")
-            continue
-        
-        static_col_data = matrix_df[col]
-        llm_col_data = matrix_df[llm_col]
-        
-        # Create contingency table:
-        # Rows: Static (0, 1)
-        # Cols: LLM (0, 1)
-        # We need counts of (0,0), (0,1), (1,0), (1,1)
-        # McNemar's test focuses on discordant pairs: (0,1) and (1,0)
-        
-        contingency = pd.crosstab(static_col_data, llm_col_data)
-        
-        # Ensure 2x2 table
-        if contingency.shape != (2, 2):
-            # Reindex to ensure 0 and 1 exist
-            contingency = contingency.reindex([0, 1], fill_value=0)
-        
-        b = contingency.loc[0, 1]  # Static=0, LLM=1
-        c = contingency.loc[1, 0]  # Static=1, LLM=0
-        
-        if b + c == 0:
-            results[smell_name] = {
-                "p_value": None,
-                "statistic": None,
-                "discordant_pairs": 0,
-                "message": "No discordant pairs found"
-            }
-            logger.info(f"McNemar for {smell_name}: No discordant pairs")
-            continue
-        
-        # McNemar's test (exact or asymptotic)
-        # Using scipy.stats.mcnemar
-        try:
-            stat, p_val = stats.mcnemar(contingency, exact=False) # asymptotic
-            results[smell_name] = {
-                "p_value": float(p_val),
-                "statistic": float(stat),
-                "discordant_pairs": int(b + c),
-                "contingency_table": contingency.to_dict(),
-                "significant": p_val < 0.05
-            }
-            logger.info(f"McNemar for {smell_name}: p={p_val:.4f}, stat={stat:.4f}")
-        except Exception as e:
-            logger.error(f"Error running McNemar for {smell_name}: {e}")
-            results[smell_name] = {
-                "p_value": None,
-                "statistic": None,
-                "error": str(e)
-            }
-    
-    return results
-
-def calculate_vif(df: pd.DataFrame, feature_cols: List[str]) -> Dict[str, float]:
-    """Calculate Variance Inflation Factor for given features."""
-    X = df[feature_cols].dropna()
-    if X.shape[0] < 2:
-        return {col: float('inf') for col in feature_cols}
+    # Add constant for intercept
+    X = sm.add_constant(features)
     
     vif_data = {}
-    for i, col in enumerate(X.columns):
-        vif = variance_inflation_factor(X.values, i)
-        vif_data[col] = vif
+    for i, col in enumerate(features.columns):
+        vif = variance_inflation_factor(X.values, i + 1) # +1 because of constant
+        vif_data[col] = float(vif)
+    
     return vif_data
 
-def fit_logistic_regression(df: pd.DataFrame, target_col: str, feature_cols: List[str], vif_threshold: float = 5.0) -> Dict[str, Any]:
-    """Fit logistic regression, excluding high VIF features."""
-    # Filter rows with complete data
-    valid_df = df.dropna(subset=[target_col] + feature_cols)
-    if valid_df.empty:
-        return {"error": "No valid data for regression"}
+def run_logistic_regression_with_vif_filter(
+    features: pd.DataFrame, 
+    target: pd.Series, 
+    vif_threshold: float = 5.0
+) -> Dict[str, Any]:
+    """
+    Runs logistic regression with VIF-based feature filtering.
     
-    # Calculate VIF
-    vif_scores = calculate_vif(valid_df, feature_cols)
-    logger.info(f"VIF scores: {vif_scores}")
+    Excludes predictors with VIF >= threshold, prioritizing exclusion of highest VIF.
     
-    # Filter features
-    safe_features = [f for f, v in vif_scores.items() if v < vif_threshold]
-    high_vif = [f for f, v in vif_scores.items() if v >= vif_threshold]
+    Args:
+        features: DataFrame of features.
+        target: Target variable series.
+        vif_threshold: Maximum allowed VIF.
     
-    if not safe_features:
-        return {"error": "All features have VIF >= threshold", "vif_scores": vif_scores}
+    Returns:
+        Dictionary with coefficients, excluded features, and model metrics.
+    """
+    excluded_features = []
+    current_features = features.copy()
     
-    if safe_features != feature_cols:
-        logger.warning(f"Excluding high VIF features: {high_vif}")
+    while True:
+        vif_scores = calculate_vif(current_features)
+        if not vif_scores:
+            break
+        
+        max_vif_feature = max(vif_scores, key=vif_scores.get)
+        max_vif = vif_scores[max_vif_feature]
+        
+        if max_vif >= vif_threshold:
+            logger.warning(f"Excluding '{max_vif_feature}' with VIF={max_vif:.2f} >= {vif_threshold}")
+            excluded_features.append({
+                'feature': max_vif_feature,
+                'vif': max_vif,
+                'reason': f"VIF >= {vif_threshold}"
+            })
+            current_features = current_features.drop(columns=[max_vif_feature])
+        else:
+            break
     
-    X = valid_df[safe_features]
-    y = valid_df[target_col]
+    if current_features.empty:
+        logger.error("All features excluded due to high VIF")
+        return {
+            'coefficients': {},
+            'excluded_features': excluded_features,
+            'model': None,
+            'warning': "No features remaining for regression"
+        }
     
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
+    # Fit logistic regression
+    X = sm.add_constant(current_features)
+    model = sm.Logit(target, X).fit(disp=0)
     
-    model = LogisticRegression(max_iter=1000)
-    model.fit(X_scaled, y)
+    coefficients = {}
+    for param in model.params.index:
+        if param != 'const':
+            coefficients[param] = float(model.params[param])
     
     return {
-        "coefficients": dict(zip(safe_features, model.coef_[0].tolist())),
-        "intercept": float(model.intercept_[0]),
-        "vif_scores": vif_scores,
-        "excluded_features": high_vif,
-        "included_features": safe_features,
-        "model_score": float(model.score(X_scaled, y))
+        'coefficients': coefficients,
+        'excluded_features': excluded_features,
+        'model': model,
+        'vif_scores': calculate_vif(current_features),
+        'pvalues': {param: float(model.pvalues[param]) for param in model.pvalues.index if param != 'const'}
     }
 
-def run_sensitivity_analysis(df: pd.DataFrame, loc_thresholds: List[int] = [50, 100, 150]) -> Dict[str, Any]:
-    """Run sensitivity analysis sweeping LOC thresholds."""
-    results = {}
-    for threshold in loc_thresholds:
-        subset = df[df['loc'] >= threshold]
-        if subset.empty:
-            results[str(threshold)] = {"message": "No data points above threshold"}
-            continue
-        
-        # Compare static vs LLM detection on this subset
-        # We'll count agreement/disagreement
-        agreement = 0
-        total = len(subset)
-        
-        for _, row in subset.iterrows():
-            static_set = set(parse_smell_labels(row['static_smell_labels']))
-            llm_set = set(parse_smell_labels(row['llm_labels']))
-            if static_set == llm_set:
-                agreement += 1
-        
-        results[str(threshold)] = {
-            "sample_size": total,
-            "agreement_rate": agreement / total if total > 0 else 0,
-            "agreement_count": agreement
-        }
-    return results
+def generate_vif_report(excluded_features: List[Dict], vif_scores: Dict[str, float], output_path: str):
+    """Generates a markdown report for VIF analysis."""
+    report_lines = [
+        "# VIF Analysis Report\n",
+        "## Excluded Features\n",
+        "| Feature | VIF Score | Reason |\n",
+        "|---------|-----------|--------|\n"
+    ]
+    
+    for item in excluded_features:
+        report_lines.append(f"| {item['feature']} | {item['vif']:.2f} | {item['reason']} |\n")
+    
+    report_lines.append("\n## Remaining Feature VIF Scores\n")
+    for feat, vif in vif_scores.items():
+        report_lines.append(f"- {feat}: {vif:.2f}\n")
+    
+    with open(output_path, 'w') as f:
+        f.writelines(report_lines)
+    
+    logger.info(f"VIF report saved to {output_path}")
 
-def generate_sensitivity_report(df: pd.DataFrame, loc_thresholds: List[int] = [50, 100, 150]) -> str:
-    """Generate a markdown report for sensitivity analysis."""
-    lines = ["# Sensitivity Analysis Report", ""]
+def run_sensitivity_analysis(
+    df: pd.DataFrame, 
+    loc_thresholds: List[int],
+    target_col: str = 'llm_only'
+) -> List[Dict[str, Any]]:
+    """
+    Runs sensitivity analysis across different LOC thresholds.
     
-    # Unique smells
-    all_smells = set()
-    for labels in df['static_smell_labels'].dropna():
-        all_smells.update(parse_smell_labels(labels))
-    for labels in df['llm_labels'].dropna():
-        all_smells.update(parse_smell_labels(labels))
+    Calculates false-positive and false-negative rates for static-only detection.
     
-    lines.append(f"### Smell Categories Analyzed: {sorted(all_smells)}")
-    lines.append("")
+    Args:
+        df: Merged dataset.
+        loc_thresholds: List of LOC thresholds to test.
+        target_col: Column name for LLM-only detection flag.
     
-    # Static only vs LLM only
-    static_only = set()
-    llm_only = set()
-    both = set()
+    Returns:
+        List of dictionaries with threshold, fp_rate, and fn_rate.
+    """
+    results = []
     
-    for _, row in df.iterrows():
-        s_set = set(parse_smell_labels(row['static_smell_labels']))
-        l_set = set(parse_smell_labels(row['llm_labels']))
-        static_only.update(s_set - l_set)
-        llm_only.update(l_set - s_set)
-        both.update(s_set & l_set)
+    for threshold in loc_thresholds:
+        # Static detected: loc >= threshold
+        static_detected = df['loc'] >= threshold
+        # LLM detected: llm_only > 0 or both > 0 (simplified)
+        llm_detected = (df['llm_only'] > 0) | (df['both'] > 0)
+        
+        # True positives: both detected
+        tp = (static_detected & llm_detected).sum()
+        # False positives: static detected but not LLM
+        fp = (static_detected & ~llm_detected).sum()
+        # False negatives: LLM detected but not static
+        fn = (~static_detected & llm_detected).sum()
+        # Total static detected
+        total_static = static_detected.sum()
+        # Total LLM detected
+        total_llm = llm_detected.sum()
+        
+        fp_rate = safe_divide(fp, total_static)
+        fn_rate = safe_divide(fn, total_llm)
+        
+        results.append({
+            'threshold': threshold,
+            'fp_rate': fp_rate,
+            'fn_rate': fn_rate,
+            'tp': int(tp),
+            'fp': int(fp),
+            'fn': int(fn)
+        })
     
-    lines.append("### Detection Patterns")
-    lines.append(f"- Detected only by Static Analysis: {sorted(static_only)}")
-    lines.append(f"- Detected only by LLM: {sorted(llm_only)}")
-    lines.append(f"- Detected by Both: {sorted(both)}")
-    lines.append("")
-    
-    # Threshold analysis
-    lines.append("### LOC Threshold Sensitivity")
-    sens_results = run_sensitivity_analysis(df, loc_thresholds)
-    for thresh, res in sens_results.items():
-        lines.append(f"- LOC >= {thresh}: Agreement = {res.get('agreement_rate', 0):.2%} (n={res.get('sample_size', 0)})")
-    
-    return "\n".join(lines)
+    return results
 
 def run_statistical_analysis(
     static_baseline_path: Optional[str] = None,
     semantic_results_path: Optional[str] = None,
-    results_dir: Optional[str] = None
+    output_dir: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Orchestrates the full statistical analysis pipeline.
-    1. Load and merge data.
-    2. Run McNemar's test.
-    3. Run VIF and Logistic Regression.
-    4. Run Sensitivity Analysis.
-    5. Save results.
+    Runs the full statistical analysis pipeline.
+    
+    Args:
+        static_baseline_path: Path to static baseline CSV.
+        semantic_results_path: Path to semantic results JSON.
+        output_dir: Directory for output files.
+    
+    Returns:
+        Dictionary with analysis results.
     """
-    if results_dir is None:
-        results_dir = get_results_path()
+    if output_dir is None:
+        output_dir = str(get_results_path())
     
-    logger.info("Starting Statistical Analysis Pipeline")
-    
-    # Load Data
+    # Load data
     static_df = load_static_baseline(static_baseline_path)
-    semantic_df = load_semantic_results(semantic_results_path)
-    merged_df = merge_datasets(static_df, semantic_df)
+    semantic_data = load_semantic_results(semantic_results_path)
     
-    if not validate_merged_dataset(merged_df):
-        logger.error("Validation failed. Aborting analysis.")
-        return {"error": "Validation failed"}
+    # Merge datasets
+    merged_df = merge_datasets(static_df, semantic_data)
     
-    # 1. McNemar's Test
-    logger.info("Running McNemar's Test...")
-    mcnemar_results = run_mcnemar_test(merged_df)
+    # Validate
+    is_valid = validate_merged_dataset(merged_df)
+    if not is_valid:
+        logger.error("Merged dataset validation failed")
+        return {'error': 'Dataset validation failed'}
     
-    # Save McNemar results
-    mcnemar_path = os.path.join(results_dir, "statistical_significance.json")
-    with open(mcnemar_path, 'w') as f:
-        json.dump(mcnemar_results, f, indent=2, default=str)
-    logger.info(f"Saved McNemar results to {mcnemar_path}")
+    # Prepare features for regression
+    feature_cols = ['loc', 'cyclomatic_complexity', 'nesting_depth', 'semantic_mean']
+    available_cols = [col for col in feature_cols if col in merged_df.columns]
     
-    # 2. Logistic Regression (Example: Predicting 'Complexity' or a specific smell)
-    # For demonstration, we'll predict a synthetic 'high_complexity' target based on LOC
-    merged_df['high_complexity'] = (merged_df['loc'] > 100).astype(int)
+    if len(available_cols) < len(feature_cols):
+        logger.warning(f"Missing feature columns: {set(feature_cols) - set(available_cols)}")
     
-    features = ['loc', 'cyclomatic_complexity']
-    if 'semantic_mean' in merged_df.columns:
-        features.append('semantic_mean')
+    X = merged_df[available_cols].fillna(0)
+    # Create target: 1 if LLM detected any smell, 0 otherwise
+    y = ((merged_df['llm_only'] > 0) | (merged_df['both'] > 0)).astype(int)
     
-    logger.info(f"Running Logistic Regression with features: {features}...")
-    lr_results = fit_logistic_regression(merged_df, 'high_complexity', features)
+    # Run VIF and regression
+    regression_results = run_logistic_regression_with_vif_filter(X, y)
     
-    # Save LR results
-    lr_path = os.path.join(results_dir, "logistic_regression.json")
-    with open(lr_path, 'w') as f:
-        json.dump(lr_results, f, indent=2, default=str)
-    logger.info(f"Saved Logistic Regression results to {lr_path}")
+    # Generate VIF report
+    vif_report_path = os.path.join(output_dir, "vif_report.md")
+    if regression_results.get('excluded_features'):
+        generate_vif_report(
+            regression_results['excluded_features'],
+            regression_results.get('vif_scores', {}),
+            vif_report_path
+        )
     
-    # 3. Sensitivity Analysis
-    logger.info("Running Sensitivity Analysis...")
-    report_md = generate_sensitivity_report(merged_df)
-    report_path = os.path.join(results_dir, "sensitivity_report.md")
-    with open(report_path, 'w') as f:
-        f.write(report_md)
-    logger.info(f"Saved Sensitivity Report to {report_path}")
+    # Run McNemar's test
+    mcnemar_results = run_mcnemar_test(
+        merged_df['static_labels'].iloc[0] if isinstance(merged_df['static_labels'].iloc[0], list) else [],
+        merged_df['llm_labels'].iloc[0] if isinstance(merged_df['llm_labels'].iloc[0], list) else []
+    )
     
+    # Sensitivity analysis
+    loc_thresholds = [50, 100, 200, 500]
+    sensitivity_results = run_sensitivity_analysis(merged_df, loc_thresholds)
+    
+    # Prepare final output
     return {
-        "mcnemar": mcnemar_results,
-        "logistic_regression": lr_results,
-        "report_path": report_path
+        'merged_dataset_info': {
+            'rows': len(merged_df),
+            'columns': list(merged_df.columns),
+            'valid': is_valid
+        },
+        'regression': {
+            'coefficients': regression_results['coefficients'],
+            'excluded_features': regression_results['excluded_features'],
+            'vif_scores': regression_results.get('vif_scores', {})
+        },
+        'mcnemar': mcnemar_results,
+        'sensitivity': sensitivity_results,
+        'vif_report_path': vif_report_path if regression_results.get('excluded_features') else None
     }
 
 def main():
-    """Entry point for the script."""
-    setup_logging()
+    """Main entry point for statistical analysis."""
+    logger.info("Starting statistical analysis")
+    
     try:
-        result = run_statistical_analysis()
-        print("Analysis completed successfully.")
-        print(f"McNemar results count: {len(result['mcnemar'])}")
-        print(f"Logistic Regression features used: {result['logistic_regression'].get('included_features', [])}")
+        results = run_statistical_analysis()
+        
+        # Save results
+        results_path = get_results_path("statistical_significance.json")
+        with open(results_path, 'w') as f:
+            # Convert non-serializable objects
+            serializable_results = {
+                k: v for k, v in results.items() if k != 'regression' or k != 'model'
+            }
+            if 'regression' in serializable_results:
+                serializable_results['regression'] = {
+                    k: v for k, v in serializable_results['regression'].items() if k != 'model'
+                }
+            json.dump(serializable_results, f, indent=2, default=str)
+        
+        logger.info(f"Analysis complete. Results saved to {results_path}")
+        
     except Exception as e:
-        logger.exception("Analysis failed")
+        logger.error(f"Statistical analysis failed: {e}")
         raise
 
 if __name__ == "__main__":

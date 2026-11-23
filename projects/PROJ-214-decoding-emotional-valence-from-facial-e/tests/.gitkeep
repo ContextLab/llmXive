@@ -1,2 +1,4 @@
-# This directory exists to satisfy T001a.
-# Test files are placed here.
+# This directory is part of the llmXive automated science pipeline.
+# It serves as the root for all unit and integration tests.
+# Directory creation is tracked via this placeholder file to ensure
+# version control systems (which ignore empty directories) recognize it.

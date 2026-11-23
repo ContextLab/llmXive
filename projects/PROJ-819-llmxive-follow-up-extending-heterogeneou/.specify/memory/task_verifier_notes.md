@@ -2,6 +2,16 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T005a [P] Extend `code/data/generator.py` to generate the **Warm-up Set** (100 queries) for FR-007. **Deliverable**: Create `data/derived/synthetic_queries_warmup.json` with the same schema as T005.** — The repository contains `code/data/generator.py` which defines a `WARMUP_SET_PATH`, but the provided snippet shows no logic that writes the warm‑up set and the required file `data/derived/synthetic_queries_warmup.json` is absent from the disk. Consequently the deliverable JSON file does not exist, so the task is not satisfied.
-- **T006 [P] Define `BenchmarkQuery` entity schema (dataclass/pydantic model) and create stub `code/data/loaders.py` with placeholder functions for loading the schema.** — The provided `code/data/loaders.py` exists and implements loading functions, but the required `BenchmarkQuery` entity schema (e.g., a dataclass or Pydantic model) is not present in the evidence. Without the schema definition file (e.g., `code/data/schema.py` containing the `BenchmarkQuery` model), the task is not fully satisfied. The next implementer must add the missing schema definition.
-- **T008 Implement `code/cache/utils.py`: Cosine similarity calculation and thresholding logic.** — The provided `code/cache/utils.py` contains a full `cosine_similarity` implementation but the file is truncated before the `threshold_check` function (and any further required logic) is defined. The thresholding logic required by the task is missing, so the artifact does not fully satisfy the specification.
+- **T001b** — The provided tree only contains top‑level `__init__.py` files; none of the newly created sub‑directories under `code/` (e.g., `analysis/`, `cache/`, `data/`, `pipeline/`, `reproducibility/`) or under `tests/` (`integration/`, `unit/`) have an `__init__.py`. Empty `__init__.py` files must be added to each of those directories to satisfy the task.
+- **T002** — The provided `requirements.txt` exists but lists the packages without version pins and includes an extra `pytest-benchmark` entry not requested. The task explicitly required a pinned `requirements.txt` for the specified seven packages.
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or a `ruff.toml` section, or a pre‑commit hook file) were provided, nor any evidence that `ruff` and `black` have been installed or run. Without these artifacts the requirement to configure linting (ruff) and formatting (black) is not satisfied.
+- **T004** — No pytest configuration files (e.g., `pytest.ini` or `conftest.py`) or any evidence of the `pytest-benchmark` plugin being added to the test environment are present, so the required setup is missing.
+- **T024** — declared artifact(s) missing/empty/invalid: code/analysis/metrics.py
+- **T025** — declared artifact(s) missing/empty/invalid: code/analysis/stats.py, data/derived/statistics.json
+- **T030** — declared artifact(s) missing/empty/invalid: data/derived/results.csv
+- **T031** — declared artifact(s) missing/empty/invalid: data/derived/statistics.json
+- **T033** — declared artifact(s) missing/empty/invalid: code/analysis/visualization.py
+- **T034** — declared artifact(s) missing/empty/invalid: code/main.py
+- **T035** — declared artifact(s) missing/empty/invalid: data/derived/sensitivity_analysis.csv
+- **T037** — declared artifact(s) missing/empty/invalid: data/derived/trade_off_curve.png
+- **T041** — Requested task execution failed; rerun successfully: code/verify_final.py exit=1

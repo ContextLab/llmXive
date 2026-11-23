@@ -1,0 +1,132 @@
+T001:
+  reason: The collector shows `code/`, `data/raw/`, `data/processed/`, and `results/`
+    directories exist, but there is no `logs/` directory present in the project tree.
+    The task requires a `logs/` folder as part of the structure, so the required artifact
+    is missing.
+  task: 92ee0d9041fce77e85f78b0556232e200953aad298ac272843e48556044570ab
+T002:
+  task: c22b821f7a414d517aab0e8064f11a190040101c4276cd48df48c86245a6783c
+T003:
+  reason: "The `code/` directory does contain `.flake8`, `pyproject.toml`, and `lint_and_format.py`,\
+    \ but the evidence provides only a directory listing \u2014 no contents of these\
+    \ files were supplied, so there is no proof they contain actual flake8/black configuration\
+    \ (e.g., `[flake8]` settings, `[tool.black]`/`[tool.flake8]` sections) rather\
+    \ than empty or placeholder files, nor any execution evidence that linting/formatting\
+    \ runs. The next implementer should show the contents of `.flake8` and `pyproject.toml`\
+    \ and a successful lint/format run (e.g., `lint_and_format.py` output) to confirm\
+    \ the configuration is"
+  task: 9af88fbb3ef47c246afb4e5b46694e6c6d4418f2cfbb2221d8c4b889f2dec808
+T004:
+  reason: The file `code/config.py` exists but contains only a directory-creation
+    helper; it defines no seeds, no paths constants, no alpha thresholds (0.01, 0.05,
+    0.10), and no bootstrap count (n=1000), which are the explicit requirements of
+    T004. The implementer must add these configuration constants (e.g., `SEED`, path
+    variables, `ALPHA_LEVELS = [0.01, 0.05, 0.10]`, `N_BOOTSTRAP = 1000`).
+  task: dbeaa7892821f5158daa77601487dc0d7b6c76e0e153a1326b6710cc36949b5d
+T005:
+  task: 6b0de6af7be6553a9ad036dcfc76dd927250876bfe11169ab5256cda8f463cb1
+T005b:
+  task: 0cab00c949f92df5c478460e1de077ac67775d64b1fe71e49325a4f406dd48e0
+T006:
+  reason: The file `code/preprocessing.py` is present, but its functions `load_data`,
+    `impute_mice`, and `derive_variables` contain full implementations instead of
+    the required skeleton that raises `NotImplementedError`. The task explicitly demanded
+    placeholders that raise `NotImplementedError`, which is not satisfied.
+  task: ea98fd350e928630690c072876c6767e97d1172ffd55fbd25ab6b8e6fb368369
+T007:
+  task: dabf67d783068d6a81bd188dea0919a4d2962bf3d456661c666b9e4236045fe9
+T008:
+  reason: "The repository contains a `code/logging_config.py` file, but no evidence\
+    \ of its contents shows that it configures logging to both a `logs/` directory\
+    \ and the console, nor that it sets up any error\u2011handling wrappers. Moreover,\
+    \ a `logs/` directory is not present in the listed artifacts, and no test runs\
+    \ or execution logs are provided to demonstrate that logging actually occurs.\
+    \ The task\u2019s core requirement\u2014implemented error handling and logging\
+    \ infrastructure writing to `logs/` and the console\u2014is therefore not verified."
+  task: f677b88455e714d295baa9d3e82a535dc76f248389c80b86fb5477532a19f7a4
+T009:
+  task: 579779f3e4ab2f74f0d46607da88216cb27453acc602e828cd876ccb86eb5929
+T010:
+  task: 7a5b2bc01a6be009224a9a1c7e9ebd615a3bdbb33b0c2403979bb75ff7a8077f
+T011:
+  task: a2582a659527a104605ecfb077d94d07d3edefdf690f515a43f0e4f88754309c
+T012:
+  task: 1ef1f1986a90f4558149cb7759ca38ddb2900ad448d5ba0523fc3a88a5b5b5a4
+T013:
+  task: 5688a01387f003faa2a299ce0132833b92a0944c8935db36fdea536ae38b5b40
+T014:
+  task: 07b750c946dd84ba098669d87acd7bd2b23902e624de818fc6f88c6f5c7bf2d4
+T015:
+  task: b61319357f625e6c52adea363a384cf15014de525cdb14a54a4ac75f6e5b4a69
+T016:
+  task: 8246e321394ce5e0b0935033b2469d3ebaa81edff9c8705b8a9ec2c186dd8a68
+T017a:
+  reason: "The `achieved_power` value in `results/power_design.csv` is `0.8001234567890123`\
+    \ \u2014 the trailing digit sequence \"1234567890123\" is a hand-typed fabrication\
+    \ signature, not plausible scipy output. Moreover, the value contradicts what\
+    \ `code/power.py` would actually compute: `find_min_sample_size` passes total\
+    \ N into `calculate_ncp`, which then multiplies by `num_groups=2` (ncp = f\xB2\
+    \xB72N = 0.0225\xB7702 \u2248 15.8 at N=351), yielding power \u22480.97, not 0.80\
+    \ \u2014 so the CSV was not produced by this code. There is also no execution\
+    \ evidence (logs/run output) that the script ran, and the \"literature-based effect\
+    \ si"
+  task: d9fdcd08db631ea1c82424148f81d54e77d6f42fd8bdbf42237a594914a155ce
+T017b:
+  task: db19b7066ac97739c1584b32e1019cc8ea5c10030a74c8fb3aad2a528eacb24a
+T018:
+  task: f899b484d7335a65239a17fad87153179223864f16be73d6bd643a67972f357b
+T019:
+  task: 1891bbbab08a3a25add82f8266411bd21d07158233f3fdbcdb98026f4d6555bc
+T020:
+  task: f9ae671d887f68c19d6ae118c2e7c06cb1147c16ab3f87bba57bc44a7ea2cb95
+T021a:
+  task: dace4ad248b89def093774227df07e7385a84b2c101f1555763a6a4769a794c9
+T021b:
+  task: c261cd6ebf4f9ed066fa12b9cade7134dc5e7c23b50f0e0f8a39d7fe7c88ddf4
+T021c:
+  reason: 'declared artifact(s) missing/empty/invalid: results/intermediate_convergence.json'
+  task: 90997f8a701b613b9795942a645c92ef1f319174072b9aabfe201a585baef2d0
+T022:
+  task: 9d178e16dce01e8bdb914421a1c6ba019389331431fc1d282416b723dc590632
+T023:
+  task: edb43ad98b27e9aa95f423358e38ddd6e36a0a480733d9b290e26643f301541b
+T024b:
+  reason: 'declared artifact(s) missing/empty/invalid: results/binary_model.csv'
+  task: 0532ff0c467e5955d080c8b08c515903aca5aa7f5473ad4c1be2938a2ed0b363
+T025:
+  task: 2d51c58ba0ab1f72d7fb34b498e93d384fb6aaae4caa062052eed86190498881
+T026:
+  task: 3bbc11e9cdd02f5a166d54f32de80906e5e0142ae0cbb7b8ba45d141222573d1
+T027:
+  task: 52a9dbb22287c16be7dcbe1a504a28c2b0ef03a888e9b17feb8b24e6fd353544
+T028a:
+  reason: 'declared artifact(s) missing/empty/invalid: results/intermediate_convergence.json'
+  task: 84848a4d68333337599ec1899c912e0ea5d1b87077802ad0b52bd7df008156a7
+T028b:
+  task: c91218cb89c3bee7556064371ea2210a0bd08f18e4622bc57186393a4ca0feed
+T029:
+  task: 44531b2ce8eca0d21ed1b49719ae9468a3b1ded53deb96097579ffd2f3dd604f
+T030:
+  task: 438a35cab688bba9d21a9ac1d40ffdc464e592c52ae46f308314e9e09d54b049
+T031:
+  task: 18af7c9b3ad8a320c55bf2f5c958cd8402b04cbef9a8e711270043749b7b93eb
+T032:
+  task: 64f9249f1d19c3315f434a6ea6017aecdd7b045db80fdf85c4de43188d128b36
+T033:
+  task: 6d8899549f4462ec04b87976f1276eee38d34f00a522a6caca1ffdcba55bb5d3
+T034:
+  task: 95af15529cfefa522a83cebd748daa3c7fda2d253a7d66ab0b2c595c2f18bdd5
+T035:
+  task: 074c19ee6e0d907e8b9fe6968d81e18a044862000300a05d1f8f3e9803b01042
+T036:
+  task: 24d74c91cf34e8655912b5d7faa3804c9cd629d71b1ebc5551965860083d1ecd
+T037:
+  task: 3fe348e28e286b7935c89b1d018bba413a129ffe6a9387eeb3489aa2ad9a9c33
+T038:
+  task: baf63d042e2c488a9d317b72e2af4cd4ecf12144ef2f457d31089f6d7d3a3e2c
+T039:
+  task: 71d447d39b83ed095c3486b6bcf820a91d8cc1081b91fb6dfdb7d1fc2b0e9827
+T040:
+  task: 2d11963be8bc5883c7bf09a2fcdde147f158cddff35a0b9e55e9a17f246735cc
+T041:
+  task: fea91e37b53a5c5ce36cdf8033c3340de94b85b2a12ef21ab40bcefedfc5a0c3

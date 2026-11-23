@@ -1,48 +1,69 @@
-"""
-Unit tests for configuration management.
+"""Unit tests for src/utils/config.py (T002)."""
 
-These tests verify that the configuration system correctly:
-- Loads configuration from YAML files
-- Resolves paths relative to the project root
-- Handles seed pinning for reproducibility
-"""
+import random
 
-import os
-import tempfile
-import yaml
-import pytest
+import numpy as np
 
-# We'll test the existence of the config module structure
-# Actual implementation will be done in T005
+from src.utils.config import (
+    GLOBAL_SEED,
+    assert_seeded,
+    compute_file_hash,
+    get_data_root,
+    get_project_root,
+    get_last_seed,
+    set_seed,
+)
 
-def test_config_module_structure():
-    """Verify that the config module can be imported when implemented."""
+
+def test_set_seed_is_deterministic():
+    set_seed(123)
+    a = [random.random() for _ in range(5)]
+    b = np.random.rand(5)
+    set_seed(123)
+    c = [random.random() for _ in range(5)]
+    d = np.random.rand(5)
+    assert a == c
+    np.testing.assert_array_equal(b, d)
+
+
+def test_set_seed_records_state():
+    set_seed(42)
+    assert get_last_seed() == 42
+    assert_seeded()  # must not raise
+
+
+def test_assert_seeded_fails_loudly(monkeypatch):
+    import src.utils.config as cfg
+
+    monkeypatch.setattr(cfg, "_SEED_STATE", {"seed": None})
     try:
-        from src.utils.config import get_config, resolve_path, get_seed
-        assert callable(get_config)
-        assert callable(resolve_path)
-        assert callable(get_seed)
-    except ImportError:
-        # Config module not yet implemented - this is expected for T001b
-        pytest.skip("Configuration module not yet implemented (T005)")
+        assert_seeded()
+    except RuntimeError as e:
+        assert "set_seed" in str(e)
+    else:
+        raise AssertionError("assert_seeded should raise RuntimeError")
 
-def test_temp_config_creation():
-    """Test that we can create temporary config files."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        config_data = {
-            'seed': 42,
-            'paths': {
-                'data': 'data/',
-                'output': 'data/processed/'
-            }
-        }
-        yaml.dump(config_data, f)
-        temp_path = f.name
-    
+
+def test_set_seed_rejects_bad_type():
     try:
-        with open(temp_path, 'r') as f:
-            loaded = yaml.safe_load(f)
-            assert loaded['seed'] == 42
-            assert loaded['paths']['data'] == 'data/'
-    finally:
-        os.unlink(temp_path)
+        set_seed("not-an-int")
+    except TypeError:
+        pass
+    else:
+        raise AssertionError("set_seed should reject non-int seeds")
+
+
+def test_default_seed_constant():
+    assert isinstance(GLOBAL_SEED, int)
+
+
+def test_path_and_hash_helpers(tmp_path):
+    root = get_project_root()
+    assert root.exists()
+    assert get_data_root() == root / "data"
+
+    f = tmp_path / "f.txt"
+    f.write_bytes(b"hello")
+    assert compute_file_hash(str(f)) == (
+        "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+    )

@@ -1,0 +1,2 @@
+- The time series lengths in the selected public datasets are sufficient (≥ 100 points) to reliably estimate the Hurst exponent and ACF up to lag 20.
+- The "shuffling" method (random permutation) is an appropriate method for breaking temporal dependence to create a null distribution, and the comparison of observed statistics against this null distribution is a valid method for isolating the inflation caused by non-independence.

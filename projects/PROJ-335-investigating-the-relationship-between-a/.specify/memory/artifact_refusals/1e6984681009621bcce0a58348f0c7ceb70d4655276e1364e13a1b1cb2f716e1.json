@@ -1,0 +1,7 @@
+{
+  "task_id": "T016",
+  "fingerprint": "6eea628e1bca8ca886de5d8c447d6879dee1b85d0e76d5f37c7d5667bf0ee115",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/unit/test_validation_logic.py': imports nonexistent names from sibling files: `from code import _01_download_preprocess` (available: 00_setup_bids, 01_download_preprocess, 01_save_epochs, 02_extract_metrics, 02_store_plv, 03_correlation_analysis, 04_threshold_analysis, 05_generate_report...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

@@ -1,14 +1,30 @@
 [lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+# Enable error (E), warning (W), and pyflakes (F) rules
+# Enable isort (I) for import sorting
+# Enable pydocstyle (D) for documentation string compliance
+# Enable PII (PI) rules to satisfy Constitution Principle III (Data Hygiene)
+select = ["E", "F", "W", "I", "D", "PI"]
+
+# Ignore specific rules if necessary (currently none ignored to enforce strict hygiene)
 ignore = []
-fixable = ["ALL"]
-unfixable = []
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Allow unused variables in certain contexts if needed (currently enforcing all)
+# dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# PII specific settings
+# Ensure no PII is left in the codebase
+allowed-names = []
+
+[lint.per-file-ignores]
+# If specific files need to ignore D (docstrings) or PI (PII) checks, define them here.
+# For example, test files might not need full docstring coverage.
+"tests/*" = ["D100", "D101", "D102", "D103"]
 
 [format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-docstring-code-format = false
-docstring-code-line-length = "dynamic"
+# Ensure formatting matches the line length set in lint
+line-length = 88
+target-version = "py311"
+
+[lint.pydocstyle]
+# Enforce Google style docstrings as is common in scientific Python projects
+convention = "google"

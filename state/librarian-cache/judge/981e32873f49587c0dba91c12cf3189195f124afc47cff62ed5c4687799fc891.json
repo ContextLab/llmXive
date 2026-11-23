@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.12940",
+  "judged_at": "2026-08-13T07:03:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"causal forcing++: scalable few-step autoregressive diffusion distillat\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (autoregressive diffusion) and domain (scalable generation with memory constraints) as the user's query, specifically addressing the \"few-step\" and \"distillation\" challenges through a novel recurrent framework that serves as a canonical prior work for extending autoregressive diffusion models.",
+  "relevant": true
+}

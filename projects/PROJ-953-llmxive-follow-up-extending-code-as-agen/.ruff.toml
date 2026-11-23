@@ -1,0 +1,36 @@
+# This file provides an alternative entry point for ruff if needed,
+# though pyproject.toml is the primary configuration source.
+# It mirrors the settings in pyproject.toml for environments that
+# prefer a dedicated config file.
+
+line-length = 88
+target-version = "py311"
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+
+exclude = [
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+    "__pycache__",
+]
+
+[isort]
+known-first-party = ["code", "scripts", "config"]
+force-sort-within-sections = false
+lines-after-imports = 2
+combine-as-imports = true

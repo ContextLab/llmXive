@@ -6,3 +6,4 @@ statsmodels
 pandas
 pyyaml
 pydantic
+requests

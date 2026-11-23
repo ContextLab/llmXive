@@ -1,151 +1,69 @@
 # Implementation Plan: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
-**Branch**: `001-urban-heat-osm` | **Date**: 2024-05-21 | **Spec**: `specs/001-urban-heat-osm/spec.md`
-**Input**: Feature specification from `/specs/001-urban-heat-osm/spec.md`
+**Branch**: `PROJ-125-statistical-analysis-of-openstreetmap-da` | **Date**: 2026-10-21 | **Spec**: `specs/001-statistical-analysis-of-openstreetmap-da/spec.md`
+**Input**: Feature specification from `specs/001-statistical-analysis-of-openstreetmap-da/spec.md`
 
 ## Summary
 
-This project implements a reproducible statistical pipeline to analyze the relationship between OpenStreetMap (OSM) derived urban features and Land Surface Temperature (LST). The system ingests vector and raster data, aligns them to a 30m common CRS, performs exploratory spatial analysis (Moran's I, variograms), and fits spatial regression models (OLS, SAR, GWR). The pipeline includes spatial cross-validation using fixed grid blocks, multiple-comparison correction using permutation-based FDR (with Meff adjustment for collinearity), and a sensitivity analysis for proxy validity (FR-010). All operations are constrained to run on CPU-only, free-tier GitHub Actions runners (≤7 GB RAM) via strict memory safety fallbacks and mandatory spatial block sampling.
+The pipeline first verifies that a programmatically downloadable, cloud‑screened Landsat LST product is available (Phase 0). Only after this **data‑availability check** passes will any ingestion, preprocessing, or modeling steps run. If the LST asset is missing, the pipeline aborts with a clear `DATA_GAP` error, satisfying SC‑002. All subsequent phases are **conditionally gated** on successful completion of Phase 0.
 
-## Technical Context
+The pipeline then ingests verified OpenStreetMap (Geofabrik US PBF) vectors for up to ten configured cities, aligns them with the LST raster on a deterministic 30 m grid, computes exploratory spatial statistics, applies a memory governor, fits spatial regression models (OLS, SAR, GWR) when resources allow, performs spatial 5‑fold cross‑validation, applies permutation‑FDR correction with spatially‑constrained permutations, and conducts sensitivity analyses (GWR bandwidth sweep or OLS coefficient‑stability sweep). Results are written to CSV/JSON artifacts and visualized in a final report.
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `osmnx`, `geopandas`, `rasterio`, `xarray`, `scikit-learn`, `pysal` (for OLS, SAR, and GWR), `statsmodels`, `numpy`, `pandas`, `joblib`.  
-**Excluded Dependencies**: `mgwr`, `pygeoda` (removed due to memory overhead and CPU feasibility risks).  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/interim/`). No external database.  
-**Testing**: `pytest` (unit tests for data ingestion, integration tests for pipeline flow), `pytest-cov`.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, No GPU).  
-**Project Type**: Data Science Pipeline / CLI Tool.  
-**Performance Goals**: Process a single city (e.g., NYC) within 4 hours on free-tier CI. Memory usage < 6 GB during peak raster processing.  
-**Constraints**: No GPU acceleration. No large-LLM inference. Data must be subsampled using **Spatial Block Sampling** if it exceeds RAM limits. All random seeds must be pinned.  
-**Scale/Scope**: Analysis of representative cities (e.g., New York, Chicago, Phoenix) at 30m resolution.
+**Memory‑governor**: `psutil` monitors peak RSS. If usage exceeds **5 GB**, the pipeline degrades to OLS‑only mode (`model_type: OLS_DEGRADED`), logs a bias warning, and continues (FR‑005). If usage exceeds **6 GB**, the run aborts with exit code 99 (SC‑005). The governor runs before model fitting (Phase 5).
 
-### Memory Safety Constraint & Fallback
-To guarantee execution on 7 GB RAM:
-1.  **Spatial Block Sampling (Mandatory)**: Data is reduced to a maximum of **[deferred]** spatial blocks (1km x 1km grid) for model fitting. **Random pixel sampling is explicitly forbidden** as it destroys spatial autocorrelation structure required for Moran's I and variogram estimation.
-2.  **Matrix Size Check**: Before fitting SAR/GWR, the pipeline estimates the memory footprint of the spatial weights matrix ($W$).
-    -   If $N_{samples} > 500,000$ or estimated $W$ size > 5 GB, the pipeline **automatically degrades** to OLS with HAC standard errors.
-    -   GWR/SAR are skipped, and the output schema records `model_type: "OLS_DEGRADED"`.
-3.  **Library Choice**: `pysal` is the **sole** spatial engine. `mgwr` and `pygeoda` are excluded to avoid memory overhead. `pysal`'s `spreg` and `spweights` modules are used for all models.
+**Key revisions**:
+- Explicit LST data‑availability gating (Phase 0) and ordering.
+- Provisional handling of the Unexplained Variance Gap (FR‑010) – the metric is optional and not required by any contract.
+- Spatially‑constrained permutation scheme for FDR correction (FR‑008).
+- Heuristic nature of the effective sample size formula `N_eff = N/(1+Moran’s I)` is now documented as a descriptive approximation (not a power analysis).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+## Implementation Phases & FR/SC Coverage
+
+| Phase | Tasks | FR IDs | SC IDs | Contract |
+|-------|-------|--------|--------|----------|
+| **0. Data‑availability & Spec Amendment Check** | Verify presence of LST GeoTIFFs that satisfy FR‑002; if absent, abort with `DATA_GAP`. Also verify that the literature ceiling citation for FR‑010 is a verified reference; if not, flag the metric as provisional. | FR-002, FR-010 | SC-001, SC-002 | — |
+| **1. Configuration & scaffolding** | `config.py` (seeds, `CITY_LIST` ≤ 10, `MAX_MEMORY_GB=6`, `DEGRADE_GB=5`, `MAX_SAMPLES=500_000`, tuned `MAX_BLOCKS`), `requirements.txt` pins. | FR-012 | SC-001 | — |
+| **2. Data ingestion** | Download city boundaries and OSM vectors from **verified Geofabrik US PBF**. LST ingestion performed by `ingest_lst.py` under the contract defined in Phase 0. Checksums + fetch timestamps recorded in `data/raw/manifest.json`. | FR-001, FR-002, FR-012 | SC-001, SC-002 | `contracts/dataset.schema.yaml` |
+| **3. Preprocessing & alignment** | Deterministic UTM CRS selection (EPSG:3857 fallback), 30 m resampling (nearest‑neighbor for categorical rasters, bilinear for continuous), rasterize vectors (mean aggregation), mask LST gaps; log all methods (Principle VI) in `data/processed/alignment_log.json`. | FR-003, FR-011 | SC-001, SC-002 | `contracts/dataset.schema.yaml` |
+| **4. Exploratory statistics** | Pearson correlation matrix; Moran’s I per variable (999 permutations) → `data/results/exploratory.csv`. | FR-004 | SC-001 | — |
+| **5. Memory governor & sampling** | psutil peak‑RSS monitor; if peak > 5 GB → set `memory_status: DEGRADED`, fit OLS only, log `model_type: OLS_DEGRADED`. If peak > 6 GB → abort with exit 99. Spatial block sampling reduces cells to **N < 500 k**; `MAX_BLOCKS` tuned to keep RSS ≤ 6 GB. | FR-005 (Memory rule) | SC-005 | `contracts/metrics.schema.yaml` |
+| **6. Model fitting** | OLS with spatially clustered SE; SAR (spatial lag, `spreg`); GWR (`mgwr`, AICc bandwidth). In degraded mode only OLS is fitted, Moran’s I is still reported, and a bias warning is emitted. | FR-005, FR-007 | SC-001, SC-005 | `contracts/model_output.schema.yaml` |
+| **7. Spatial cross‑validation** | 5‑fold spatial block CV (k‑means on coordinates); compute RMSE, MAE, R² per model → `data/results/metrics.csv`. | FR-006, FR-007 | SC-001 | `contracts/model_output.schema.yaml` |
+| **8. Multiple‑comparison correction** | Permutation‑FDR (α = 0.05) **using spatially constrained permutations within the CV blocks**; add column `correction_method = "permutation-FDR"`. | FR-008 | SC-003 | `contracts/metrics.schema.yaml` |
+| **9. Sensitivity & proxy validity** | GWR bandwidth sweep 50–500 m (step 25) **or** OLS coefficient‑stability sweep over block sizes in degraded mode; generate R²‑vs‑bandwidth (or block‑size) plot; **provisionally** compute Unexplained Variance Gap = 0.68 − Observed_R² (flagged as provisional; a negative gap signals the literature ceiling may be invalid). | FR-009, FR-010 (provisional) | SC-004 | `contracts/model_output.schema.yaml` |
+| **10. Reporting & export** | Assemble `metrics.csv`, model JSON, plots, markdown report referencing all artifacts; include caveats about the provisional gap metric and the N_eff heuristic. | FR-004–FR-010 | SC-001, SC-003, SC-004 | `contracts/output.schema.yaml` |
+| **11. Quality assurance** | Run `ruff` + `black` on `code/`; store lint report at `data/results/qa/lint_report.txt`. Execute pytest unit tests (`tests/unit/`) and contract tests (`tests/contract/`); store logs at `data/results/qa/test_report.txt`. | FR-005 | SC-001, SC-005 | all contracts |
+
+## Statistical Rigor
+
+- **Multiple comparisons**: permutation‑FDR with **spatially constrained permutations** (Phase 8).  
+- **Power / sample size**: report raw `N` and heuristic `N_eff = N/(1+Moran’s I)` **as a descriptive lower‑bound only**; **do not** use it for formal power claims.  
+- **Causal framing**: observational, associational design — all results labelled descriptive; degraded‑mode results additionally labelled `descriptive‑only`.  
+- **Measurement validity**: LST provenance and cloud‑screening method recorded in `data/raw/manifest.json`; OSM feature definitions recorded per layer.  
+- **Collinearity**: correlation matrix and VIF diagnostics reported; coefficients are not interpreted as independent effects when high collinearity is present.
+
+## Compute Feasibility & Strategy (Decision/Rationale)
+
+- **CPU‑first**: all libraries (`statsmodels`, `spreg`, `mgwr`, `esda`) are NumPy‑based and run comfortably on the GitHub Actions free‑tier runner. No GPU escape hatch is required.  
+- **Memory governor**: tuned `MAX_BLOCKS` (≈ 250) keeps peak RSS ≤ 5 GB for typical US city extents; fallback to OLS_DEGRADED above 5 GB; hard abort above 6 GB (SC‑005).  
+- **Sampling**: spatial block sampling using `MAX_BLOCKS` ensures real data (not synthetic) is used while respecting the 500 k cell limit.  
+- **Runtime budget**: per‑city end‑to‑end run expected < 4 h; full 10‑city batch < 6 h.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+| Principle | Status | Action |
+|-----------|--------|--------|
+| I. Reproducibility | PASS | Fixed seeds, deterministic downloads, manifest timestamps. |
+| II. Verified Accuracy | FLAGGED | FR‑010 ceiling citation and LST source need verified references (see Phase 0). |
+| III. Data Hygiene | PASS | Checksums recorded; all transformations write new files. |
+| IV. Single Source of Truth | PASS | All numbers trace to rows in `metrics.csv` and JSON model outputs. |
+| V. Versioning Discipline | PASS | Artifact hashes updated on each change. |
+| VI. Spatial Resolution Integrity | PASS | Reprojection/aggregation methods logged per layer. |
+| VII. Proxy Validity Boundaries | PASS | Sensitivity analyses quantify stability; missing‑factor limitations documented. |
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `requirements.txt` pins all versions. `code/` scripts use fixed random seeds. Data fetched from canonical Overpass API and AWS Open Data (MODIS/Landsat) with fetch timestamps recorded in `data/metadata.json`. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` will be restricted to the verified dataset URLs provided in the spec block. No fabricated URLs. |
-| **III. Data Hygiene** | **PASS** | Raw data stored in `data/raw/` (read-only). Checksums recorded in `state/...yaml`. Derived rasters written to `data/processed/` with new filenames. PII scan enforced via pre-commit hook. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (RMSE, R², Moran's I) generated by `code/` scripts are automatically exported to `data/results/metrics.csv`. The paper will pull directly from this CSV. |
-| **V. Versioning Discipline** | **PASS** | Content hashes for all artifacts in `data/` and `code/` will be updated in the project state file upon any change. |
-| **VI. Spatial Resolution Integrity** | **PASS** | The pipeline explicitly documents reprojection (to EPSG:3857 or local UTM) and resampling (bilinear/nearest) methods in `data-model.md`. |
-| **VII. Proxy Validity Boundaries** | **PASS** | **FR-010** (Proxy Validity Sensitivity) explicitly quantifies the "Unexplained Variance Gap" by comparing observed R² against literature-derived upper bounds for OSM-only models. This step is distinct from the GWR bandwidth sweep (FR-009). |
+## Scope Clarifications
 
-## Project Structure
+- Phases 1‑10 are **conditionally executed** only after Phase 0 confirms LST availability and a verified R² ceiling. This resolves the previous ordering inconsistency.  
+- The Unexplained Variance Gap is reported **provisionally**; a negative gap indicates that the literature ceiling may be invalid, not that the model “exceeds literature”.  
 
-### Documentation (this feature)
-
-```text
-specs/001-urban-heat-osm/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output (generated by this agent)
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output
-```
-
-### Source Code (repository root)
-
-```text
-projects/PROJ-125-statistical-analysis-of-openstreetmap-da/
-├── code/
-│   ├── __init__.py
-│   ├── config.py              # Paths, CRS settings, city definitions
-│   ├── ingest.py              # FR-001, FR-002, FR-003: Overpass + Satellite
-│   ├── eda.py                 # FR-004: Moran's I, Variograms, Correlation
-│   ├── modeling.py            # FR-005, FR-006, FR-007, FR-008, FR-010: OLS, GWR, SAR, CV
-│   ├── sensitivity.py         # FR-009: GWR bandwidth sweep
-│   └── main.py                # Pipeline orchestrator
-├── data/
-│   ├── raw/                   # Downloaded vectors/rasters (immutable)
-│   ├── processed/             # Aligned rasters, derived covariates
-│   └── results/               # Metrics, plots, model artifacts
-├── tests/
-│   ├── unit/
-│   │   ├── test_ingest.py
-│   │   └── test_eda.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
-└── README.md
-```
-
-**Structure Decision**: A modular Python CLI structure within `code/` is selected. This allows for isolated unit testing of ingestion and modeling logic, which is critical for the reproducibility principle. The separation of `ingest`, `eda`, and `modeling` ensures that data preparation errors can be caught before expensive modeling steps.
-
-## Complexity Tracking
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Spatial Cross-Validation** | Essential to prevent spatial leakage (FR-006). | Standard k-fold CV assumes i.i.d. data, which is invalid for spatial data (Moran's I > 0). |
-| **GWR + SAR + OLS** | Required to compare local vs. global effects (FR-005). | Using only OLS would miss spatial heterogeneity; using only GWR would lack a global baseline. |
-| **Multiple Comparison Correction** | Required by FR-008 to control Type I error in spatial regression. | Standard p-values in spatial models are often inflated due to autocorrelation; correction is necessary for scientific validity. |
-| **Proxy Validity Sensitivity (FR-010)** | Required by Constitution Principle VII. | Standard R² reporting does not quantify the impact of missing confounds (albedo, heat islands). |
-| **Spatial Block Sampling** | Required to preserve autocorrelation structure (Methodology Concern). | Random pixel sampling destroys spatial dependence, invalidating Moran's I and variograms. |
-
-## Functional Requirements Update (Derived from Spec)
-
-- **FR-001**: System MUST download OSM vector data (buildings, land-use, trees, roads) via the Overpass API for specified city boundaries.
-- **FR-002**: System MUST ingest satellite thermal data (MODIS/Landsat) and compute daytime land-surface temperature composites for the most recent multi-year period available.
-- **FR-003**: System MUST reproject all raster layers to a common CRS and resample them to a uniform spatial resolution.
-- **FR-004**: System MUST calculate spatial autocorrelation (Moran's I) and variograms for the target temperature variable.
-- **FR-005**: System MUST fit at least three distinct spatial models: Ordinary Least Squares (OLS), Geographically Weighted Regression (GWR), and a Spatial Lag/Error model (SAR).
-- **FR-006**: System MUST perform k-fold spatial cross-validation using spatial blocks to prevent data leakage.
-- **FR-007**: System MUST report model performance metrics (RMSE, MAE, R²) for each fitted model AND output adjusted p-values for all predictors.
-- **FR-008**: System MUST apply multiple-comparison correction (Permutation-based FDR with Meff adjustment) to predictor significance using spatially robust standard errors (HAC).
-- **FR-009**: System MUST conduct a sensitivity analysis on the spatial bandwidth parameter for GWR, sweeping over a configurable set of values defined in the implementation plan to assess stability.
-- **FR-010**: System MUST estimate the "Unexplained Variance Gap" by comparing observed R² against literature-derived upper bounds for OSM-only models to quantify the impact of missing factors (albedo, anthropogenic heat).
-
-## Implementation Phases
-
-### Phase 1: Data Ingestion & Alignment
-- Download OSM vectors and Landsat thermal rasters.
-- Reproject to common CRS (EPSG:3857 or local UTM).
-- Resample to 30m resolution.
-- Generate aligned GeoTIFF stack.
-
-### Phase 2: Exploratory Spatial Analysis (EDA)
-- Compute Moran's I and Variograms.
-- Generate correlation matrices.
-- **Confounding Check**: Attempt to ingest socioeconomic proxies (WorldPop/OSM height). If unavailable, flag as limitation.
-
-### Phase 3: Spatial Modeling
-- **Sampling**: Apply Spatial Block Sampling (1km grid) to reduce N.
-- **Fit Models**: OLS (baseline), SAR (Lag/Error), GWR (local).
-- **Fallback**: If memory > 5GB or N > 500k, skip SAR/GWR and run OLS with HAC.
-- **Diagnostics**: LM tests (Lag vs Error), RESET test (misspecification), Moran's I on residuals.
-
-### Phase 4: Validation & Inference
-- **Spatial CV**: 5-fold spatial blocking.
-- **Correction**: Apply HAC standard errors, then Permutation-based FDR (Meff) for p-values.
-- **Proxy Validity**: Compute "Unexplained Variance Gap" (FR-010).
-
-### Phase 5: Sensitivity Analysis
-- Sweep GWR bandwidth parameters.
-- Report stability of R² across bandwidths.
-
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Data Volume > 7GB RAM** | Pipeline crash. | **Mandatory Spatial Block Sampling**. Automatic degradation to OLS if N > 500k. |
-| **Cloud Cover in Landsat** | Missing LST values. | Use multi-date composites (FR-002) and cloud masking algorithms. |
-| **GWR Convergence Failure** | Model not fit. | Use a grid search for bandwidth with fallback to global OLS if local fit fails. |
-| **Overpass API Rate Limits** | Ingestion timeout. | Retry logic with exponential backoff; cache raw OSM JSON locally. |
-| **Collinearity in Predictors** | Invalid p-values. | Use Meff adjustment for FDR; report VIF; if VIF > 5, report descriptive stats only. |
-| **Missing Confounds (Albedo)** | Spurious correlations. | FR-010 explicitly quantifies "Unexplained Variance Gap" to avoid overclaiming. |
+--- 

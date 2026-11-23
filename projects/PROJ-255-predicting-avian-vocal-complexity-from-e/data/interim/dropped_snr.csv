@@ -1,0 +1,3 @@
+record_id,species_id,snr_db,noise_level_db,drop_reason
+2,sp_B,5.0,70,SNR below threshold (5.0 < 10.0)
+4,sp_C,8.0,65,SNR below threshold (8.0 < 10.0)

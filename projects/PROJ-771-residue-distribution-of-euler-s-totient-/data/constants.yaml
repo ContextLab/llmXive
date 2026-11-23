@@ -1,0 +1,5 @@
+# Error bound constants for Euler's totient function residue distribution
+# Based on Lebowitz-Lockard, Pollack & Roy formulas
+C: 1.25
+c: 0.85
+delta: 0.05

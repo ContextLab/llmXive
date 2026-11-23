@@ -1,0 +1,9 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Differential Expression Results Schema (Deprecated)
+description: "This { ? }"
+type: object
+properties:
+  deprecated:
+    type: "boolean"
+    description: "Always { ? "
+additionalProperties: false

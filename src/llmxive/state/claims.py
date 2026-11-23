@@ -45,6 +45,13 @@ def _claim_to_dict(c: Claim) -> dict[str, Any]:
 
 
 def _dict_to_claim(d: dict[str, Any]) -> Claim:
+    status = ClaimStatus(d["status"])
+    evidence = d.get("evidence") or {}
+    if (status == ClaimStatus.VERIFIED and evidence.get("entailment_status") == "grounded"
+            and evidence.get("source_validation_version") != 2):
+        # Legacy grounding could verify an HTTP error body or a fabricated
+        # evidence quote. Such receipts must be checked again before reuse.
+        status = ClaimStatus.PENDING
     return Claim(
         claim_id=d["claim_id"],
         kind=ClaimKind(d["kind"]),
@@ -53,7 +60,7 @@ def _dict_to_claim(d: dict[str, Any]) -> Claim:
         context=d["context"],
         artifact_path=d["artifact_path"],
         source_type=d["source_type"],
-        status=ClaimStatus(d["status"]),
+        status=status,
         resolved_value=d.get("resolved_value"),
         evidence=d.get("evidence"),
         resolver=d.get("resolver"),

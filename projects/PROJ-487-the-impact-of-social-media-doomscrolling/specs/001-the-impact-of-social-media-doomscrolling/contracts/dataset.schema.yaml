@@ -1,22 +1,54 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Time Series Dataset Schema"
+title: "AlignedTimeSeriesSchema"
+description: "Schema for the processed, aligned time-series data used in analysis."
 type: "object"
 properties:
-  date:
-    type: "string"
-    format: "date"
-    description: "Calendar date (YYYY-MM-DD)"
-  value:
-    type: "number"
-    description: "Aggregated metric value (news volume or search index)"
-  source:
-    type: "string"
-    enum:
-      - "gdelt"
-      - "google_trends"
-    description: "Data source identifier"
+  metadata:
+    type: "object"
+    properties:
+      start_date:
+        type: "string"
+        description: "Start date of the time series (YYYY-MM-DD)"
+      end_date:
+        type: "string"
+        description: "End date of the time series (YYYY-MM-DD)"
+      source_gdelt:
+        type: "string"
+        description: "Source identifier for GDELT data"
+      source_trends:
+        type: "string"
+        description: "Source identifier for Google Trends data"
+      completeness_target:
+        type: "string"
+        description: "Target completeness threshold (target: >=95%)"
+  data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        date:
+          type: "string"
+          pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          description: "Date of the record"
+        news_volume:
+          type: "number"
+          description: "Aggregated negative news volume (EventCount)"
+        anxiety_index:
+          type: "number"
+          description: "Aggregated anxiety search volume index"
+        is_stationary:
+          type: "boolean"
+          description: "Indicates if the series is stationary after processing"
+        difference_order:
+          type: "integer"
+          description: "Number of differences applied to achieve stationarity"
+      required:
+        - date
+        - news_volume
+        - anxiety_index
+        - is_stationary
+        - difference_order
 required:
-  - "date"
-  - "value"
-  - "source"
+  - metadata
+  - data
 additionalProperties: false

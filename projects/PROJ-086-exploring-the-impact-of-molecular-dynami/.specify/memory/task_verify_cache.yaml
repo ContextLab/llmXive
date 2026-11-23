@@ -1,0 +1,7 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure (`code/simulation`, `code/analysis`, `data/raw`, `data/processed`,
+    `results`) was presented or listed, so the required project folders do not appear
+    to exist. The implementer must create and show these folders (with at least placeholder
+    files) to satisfy the task.

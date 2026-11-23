@@ -1,0 +1,7 @@
+convergence_status: success
+fallback_reason: ''
+fallback_status: none
+fdr_threshold: 0.05
+generated_at: '2026-10-09T07:26:23.575550'
+model_type: GLMM
+seed: 42

@@ -1,31 +1,15 @@
-# llmXive Follow-up: Extending Moebius 0.2B
+# Project: llmXive Follow-up: Extending Moebius 0.2B
 
-This project implements a dynamic rank adjustment mechanism for the Moebius 0.2B lightweight image inpainting framework.
+This project implements the dynamic rank adjustment mechanism for the Moebius 0.2B image inpainting framework.
 
-## Quick Start
+## Structure
 
-1. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+- `code/`: Source code
+- `data/`: Data and artifacts
+- `tests/`: Test suite
+- `projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/`: This directory
 
-2. Configure environment (optional, defaults to CI mode):
- ```bash
- export MODE=ci # or 'research'
- ```
+## Setup
 
-3. Run the data pipeline:
- ```bash
- python code/data/annotator.py
- ```
-
-4. Validate proxy:
- ```bash
- python code/eval/stats.py --mode ci
- ```
-
-## Project Structure
-See `structure.txt` for the full directory layout.
-
-## License
-Research use only.
+1. Install dependencies: `pip install -r requirements.txt`
+2. Run configuration: `python code/config.py` (if needed)

@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model metrics, feature importance, and evaluation results."
+type: object
+required:
+  - baseline_rmse
+  - model_lr_rmse
+  - model_rf_rmse
+  - model_lr_r
+  - model_rf_r
+  - pipeline_time_seconds
+  - peak_memory_mb
+  - plot_scatter_path
+  - plot_importance_path
+properties:
+  baseline_rmse:
+    type: number
+    description: "RMSE of the mean predictor baseline on the test set."
+    minimum: 0
+  model_lr_rmse:
+    type: number
+    description: "Root Mean Squared Error of the Linear Regression model on the test set."
+    minimum: 0
+  model_rf_rmse:
+    type: number
+    description: "Root Mean Squared Error of the Random Forest model on the test set."
+    minimum: 0
+  model_lr_r:
+    type: number
+    description: "Pearson correlation coefficient (r) of the Linear Regression model on the test set."
+    minimum: -1
+    maximum: 1
+  model_rf_r:
+    type: number
+    description: "Pearson correlation coefficient (r) of the Random Forest model on the test set."
+    minimum: -1
+    maximum: 1
+  pipeline_time_seconds:
+    type: number
+    description: "Total execution time of the pipeline in seconds."
+    minimum: 0
+  peak_memory_mb:
+    type: number
+    description: "Peak memory usage of the pipeline in Megabytes."
+    minimum: 0
+  plot_scatter_path:
+    type: string
+    description: "Relative path to the scatter plot of predicted vs. experimental values."
+    pattern: "^data/processed/plot_scatter\\.png$"
+  plot_importance_path:
+    type: string
+    description: "Relative path to the bar chart of feature importances."
+    pattern: "^data/processed/plot_importance\\.png$"
+  feature_importance:
+    type: array
+    description: "List of feature importance rankings from the Random Forest model."
+    items:
+      type: object
+      required:
+        - feature_name
+        - importance_score
+      properties:
+        feature_name:
+          type: string
+          description: "Name of the molecular descriptor."
+        importance_score:
+          type: number
+          description: "Importance score (0.0 to 1.0)."
+          minimum: 0
+          maximum: 1
+additionalProperties: false

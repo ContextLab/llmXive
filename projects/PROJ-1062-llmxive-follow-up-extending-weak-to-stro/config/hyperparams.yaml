@@ -1,0 +1,71 @@
+# Hyperparameters and Configuration for llmXive Weak-to-Strong Generalization
+# Generated for Task T004
+# This file must be validated by src/core/config_validator.py (T004.1) before execution
+
+# --- General Settings ---
+seed: 42
+project_name: "llmxive-follow-up-extending-weak-to-strong"
+run_id: "auto-generated" # Will be set by runner if not specified
+
+# --- Paths (Relative to project root) ---
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_results: "data/results"
+  data_checkpoints: "data/checkpoints"
+  models_cache: "artifacts/models"
+  logs: "logs"
+
+# --- Memory Constraints (Hard Limits) ---
+# Critical: Must adhere to CPU-only, <=7GB RAM constraint (FR-007)
+memory:
+  max_ram_gb: 7.0
+  batch_size: 1  # Hard floor enforced by T011.6
+  gradient_accumulation_steps: 32  # Effective batch size = 32
+  # accumulation_steps will be dynamically adjusted by T011.9 based on memory profiling
+  # Default provided here as a starting point, but T011.9 output takes precedence.
+
+# --- Reward Smoothing (Critical for Stability) ---
+# Pinned epsilon value to prevent numerical instability in log-ratio computation
+reward:
+  epsilon: 1e-6  # Small positive constant for smoothing (T010 dependency)
+  smoothing_type: "log_ratio" # "log_ratio" or "kl_divergence"
+
+# --- Training Hyperparameters ---
+training:
+  learning_rate: 2e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.05
+  max_steps: 500  # Dynamic limit based on time budget (T011.8)
+  save_steps: 50
+  eval_steps: 25
+  # Model specific
+  teacher_model_id: "HuggingFaceH4/zephyr-7b-beta" # Placeholder, verified in T007
+  moe_student_model_id: "mistral-community/Mixtral-8x2B-v0.1" # Placeholder, verified in T008
+  ssm_student_model_id: "state-spaces/mamba-130m" # Placeholder, verified in T009
+
+# --- Dataset Configuration ---
+dataset:
+  source: "HuggingFaceH4/aime_2024"
+  split_train: 0.8
+  split_holdout: 0.2
+  # Stratification logic handled in T006.1a (hash-based if fields missing)
+
+# --- Statistical Analysis ---
+statistics:
+  test_type: "paired_ttest" # Auto-switch to Wilcoxon if normality fails (T058)
+  correction_method: "holm_bonferroni" # Bonferroni or Holm-Bonferroni
+  alpha: 0.05
+  power_target: 0.8
+
+# --- Time Budget ---
+time:
+  max_duration_seconds: 14400  # 4 hours default
+  checkpoint_on_timeout: true
+
+# --- Verification Flags ---
+verify:
+  check_memory_before_load: true
+  check_dataset_labels: true
+  check_tokenizer_vocab: true
+  enforce_hard_floor: true

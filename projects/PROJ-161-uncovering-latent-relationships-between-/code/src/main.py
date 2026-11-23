@@ -1,178 +1,171 @@
 """
-Main orchestration script for the llmXive research pipeline.
-Implements logging infrastructure to track data versions and pipeline execution.
+Main orchestration script for the molecular descriptor analysis pipeline.
+Implements logging infrastructure to write to data_version.json.
 """
 import json
 import os
 import sys
 import time
 from datetime import datetime, timezone
-from typing import Optional, Dict, Any
+from pathlib import Path
+import logging
 
-# Add project root to path for imports
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Add project root to path to allow imports
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from data.schema import DataVersion
+from src.config import get_project_root, get_data_processed_path, get_logs_path
+from src.data.schema import (
+    DataVersion,
+    save_data_version_to_file,
+    load_data_version_from_file,
+    create_empty_data_version
+)
 
+# Configure logging
+def setup_logging():
+    """Configure logging to write to a file in the logs directory."""
+    logs_path = get_logs_path()
+    logs_path.mkdir(parents=True, exist_ok=True)
+    
+    log_file = logs_path / "pipeline.log"
+    
+    # Create logger
+    logger = logging.getLogger("pipeline")
+    logger.setLevel(logging.INFO)
+    
+    # Clear existing handlers to avoid duplicates
+    logger.handlers.clear()
+    
+    # File handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+    
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+    
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    
+    return logger
 
-def ensure_data_directory() -> str:
-    """Ensure the data directory exists and return its path."""
-    data_dir = os.path.join(project_root, 'data')
-    os.makedirs(data_dir, exist_ok=True)
-    return data_dir
+def get_data_version_path():
+    """Get the path to the data_version.json file."""
+    processed_path = get_data_processed_path()
+    processed_path.mkdir(parents=True, exist_ok=True)
+    return processed_path / "data_version.json"
 
+def load_data_version():
+    """Load existing data version from file, or return empty version if not exists."""
+    version_path = get_data_version_path()
+    if version_path.exists():
+        return load_data_version_from_file(version_path)
+    return create_empty_data_version()
 
-def get_data_version_path() -> str:
-    """Return the path to the data_version.json file."""
-    data_dir = ensure_data_directory()
-    return os.path.join(data_dir, 'data_version.json')
+def save_data_version(version: DataVersion):
+    """Save data version to file."""
+    version_path = get_data_version_path()
+    save_data_version_to_file(version, version_path)
 
-
-def load_data_version() -> Dict[str, Any]:
-    """
-    Load existing data version records from data_version.json.
-    Returns an empty dict if the file doesn't exist or is empty.
-    """
-    path = get_data_version_path()
-    if not os.path.exists(path):
-        return {}
-
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read().strip()
-            if not content:
-                return {}
-            return json.loads(content)
-    except (json.JSONDecodeError, IOError) as e:
-        print(f"Warning: Could not load {path}: {e}. Starting fresh.")
-        return {}
-
-
-def save_data_version(data_version: Dict[str, Any]) -> None:
-    """
-    Save data version records to data_version.json.
-    Ensures the file is written atomically and formatted nicely.
-    """
-    path = get_data_version_path()
-    # Write to a temp file first, then rename (atomic on most systems)
-    temp_path = path + '.tmp'
-    try:
-        with open(temp_path, 'w', encoding='utf-8') as f:
-            json.dump(data_version, f, indent=2, default=str)
-        os.replace(temp_path, path)
-    except IOError as e:
-        # Clean up temp file if it exists
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-        raise IOError(f"Failed to write {path}: {e}") from e
-
-
-def log_data_version(
-    source_url: str,
-    checksum_sha256: str,
-    description: Optional[str] = None
-) -> Dict[str, Any]:
+def log_data_version(source_url: str, checksum_sha256: str, logger: logging.Logger):
     """
     Log a new data version entry to data_version.json.
-
+    
     Args:
-        source_url: The URL or identifier of the data source.
-        checksum_sha256: SHA256 checksum of the data file.
-        description: Optional description of the data version.
-
-    Returns:
-        The full updated data version dictionary.
+        source_url: URL of the data source
+        checksum_sha256: SHA256 checksum of the downloaded file
+        logger: Logger instance to use for logging
     """
-    existing = load_data_version()
-
-    # Create a unique key based on source_url and checksum
-    version_key = f"{source_url}:{checksum_sha256}"
-
-    # If this exact version already exists, just return it
-    if version_key in existing:
-        print(f"Data version already logged: {version_key}")
-        return existing
-
+    version = load_data_version()
+    
     # Create new entry
-    timestamp = datetime.now(timezone.utc).isoformat()
+    from datetime import datetime
     new_entry = {
         "source_url": source_url,
         "checksum_sha256": checksum_sha256,
-        "timestamp": timestamp
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
+    
+    # Append to versions list
+    if "versions" not in version:
+        version["versions"] = []
+    version["versions"].append(new_entry)
+    
+    # Save back to file
+    save_data_version(version)
+    logger.info(f"Logged data version: {source_url} -> {checksum_sha256[:16]}...")
 
-    if description:
-        new_entry["description"] = description
+def log_pipeline_start(logger: logging.Logger, pipeline_name: str = "main"):
+    """Log the start of a pipeline execution."""
+    timestamp = datetime.now(timezone.utc).isoformat()
+    logger.info(f"Pipeline '{pipeline_name}' started at {timestamp}")
+    return timestamp
 
-    existing[version_key] = new_entry
+def log_pipeline_end(logger: logging.Logger, pipeline_name: str = "main", start_time: float = None):
+    """Log the end of a pipeline execution."""
+    timestamp = datetime.now(timezone.utc).isoformat()
+    duration = None
+    if start_time:
+        duration = time.time() - start_time
+        logger.info(f"Pipeline '{pipeline_name}' completed at {timestamp} (duration: {duration:.2f}s)")
+    else:
+        logger.info(f"Pipeline '{pipeline_name}' completed at {timestamp}")
 
-    save_data_version(existing)
-    print(f"Logged data version: {version_key}")
-    return existing
+def ensure_data_directory():
+    """Ensure all required data directories exist."""
+    processed_path = get_data_processed_path()
+    processed_path.mkdir(parents=True, exist_ok=True)
+    
+    raw_path = Path(get_project_root()) / "data" / "raw"
+    raw_path.mkdir(parents=True, exist_ok=True)
+    
+    logs_path = get_logs_path()
+    logs_path.mkdir(parents=True, exist_ok=True)
 
-
-def log_pipeline_start(pipeline_name: str) -> str:
-    """
-    Log the start of a pipeline run.
-
-    Args:
-        pipeline_name: Name/identifier for the pipeline run.
-
-    Returns:
-        A unique run ID for this execution.
-    """
-    run_id = f"{pipeline_name}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
-    print(f"Pipeline '{pipeline_name}' started at {datetime.now(timezone.utc).isoformat()}")
-    return run_id
-
-
-def log_pipeline_end(run_id: str, success: bool, duration_seconds: float) -> None:
-    """
-    Log the end of a pipeline run.
-
-    Args:
-        run_id: The run ID returned by log_pipeline_start.
-        success: Whether the pipeline completed successfully.
-        duration_seconds: Total execution time in seconds.
-    """
-    status = "SUCCESS" if success else "FAILED"
-    print(f"Pipeline '{run_id}' ended at {datetime.now(timezone.utc).isoformat()}")
-    print(f"Status: {status}, Duration: {duration_seconds:.2f}s")
-
-
-def main() -> int:
-    """
-    Main entry point for the pipeline.
-    Demonstrates the logging infrastructure.
-    """
+def main():
+    """Main entry point for the pipeline."""
+    # Setup logging
+    logger = setup_logging()
+    
+    # Ensure directories exist
+    ensure_data_directory()
+    
+    logger.info("Molecular Descriptor Analysis Pipeline")
+    logger.info("=" * 50)
+    
+    # Log pipeline start
     start_time = time.time()
-    run_id = log_pipeline_start("llmXive_pipeline")
-
+    log_pipeline_start(logger)
+    
     try:
-        # Example: Log a data version (this would normally be called after data download)
-        # For demonstration, we'll log a placeholder that shows the infrastructure works
-        # In real usage, this would be called with actual data from T013/T017
-        log_data_version(
-            source_url="https://example.com/mock_data",
-            checksum_sha256="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            description="Example data version logging"
-        )
-
-        # Simulate some work
-        time.sleep(0.1)
-
-        duration = time.time() - start_time
-        log_pipeline_end(run_id, True, duration)
+        # Placeholder for actual pipeline steps
+        # These would be implemented in subsequent tasks
+        logger.info("Pipeline steps to be implemented:")
+        logger.info("  1. Data acquisition (T013)")
+        logger.info("  2. Descriptor computation (T014)")
+        logger.info("  3. Data merging (T015)")
+        logger.info("  4. Dimensionality reduction (T022)")
+        logger.info("  5. Clustering and enrichment (T024-T028)")
+        logger.info("  6. Statistical analysis (T034-T040)")
+        
+        # Log pipeline end
+        log_pipeline_end(logger, start_time=start_time)
+        
+        logger.info("Pipeline execution complete.")
         return 0
-
+        
     except Exception as e:
-        duration = time.time() - start_time
-        log_pipeline_end(run_id, False, duration)
-        print(f"Pipeline failed: {e}")
+        logger.error(f"Pipeline failed with error: {str(e)}", exc_info=True)
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

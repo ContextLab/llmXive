@@ -1,0 +1,1002 @@
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: baseline truncation set to 2048 lines
+  claim_id: c_479bf4f0
+  context: 'Verification: Verify streaming=True is set, filtered file exists, derivation
+    path is recorded, and N=2048 for baseline truncation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=2048 for baseline truncation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:28:11Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: total wall-clock duration limit of 72 hours
+  claim_id: c_afe692a8
+  context: "Constraint: Enforce a fixed runtime budget of 60 minutes per instance\
+    \ and a total wall-clock duration of \u226472 hours via GlobalTimeBudgetEnforcer\
+    \ (T043)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "total wall-clock duration of \u226472 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:28:11Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: statistical power threshold of 0.8
+  claim_id: c_72ba9e2c
+  context: logging a warning if power < 0.8 to address the 'Insufficient Context-Bound
+    Data' assumption.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power < 0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:28:11Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test p-value threshold of 0.05
+  claim_id: c_53f8ff8b
+  context: 'Constraint: If KS-test p-value < 0.05, the run MUST fail with ''Insufficient
+    Context-Bound Data'' error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: KS-test p-value < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:28:11Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: correlation coefficient threshold of 0.3
+  claim_id: c_2dd383c0
+  context: 'Constraint: If correlation >= 0.3, the run MUST fail with ''Circularity
+    Detected'' error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: correlation >= 0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:28:35Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: quantization performance drop threshold of 5%
+  claim_id: c_e950d4cd
+  context: calculating the performance drop; if >5%, set Quantization_Penalty flag
+    (0/1) for the GLM model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: performance drop >5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:28:35Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: 7B model fits within 7GB RAM
+  claim_id: c_077d76e8
+  context: Verify the 7B model loads successfully with Q4_K_M quantization and fits
+    within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_model_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: fits within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:28:57Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: retrieve top 5 files via similarity
+  claim_id: c_ed28cb1f
+  context: use a frozen generic CodeBERT-base model to embed the description and retrieve
+    top-5 files via similarity
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: top-5 files via similarity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:29:44Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: cyclomatic complexity threshold of 10
+  claim_id: c_36a0fb30
+  context: Extract load_model function; verify cyclomatic complexity < 10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: cyclomatic complexity < 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:29:44Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Filter Claw-SWE-Bench instances where sum of relevant file lines exceeds
+    500
+  claim_id: c_d6e5d19d
+  context: 'T012: Implement ClawSweBenchLoader... 4) Filter for instances where sum
+    > 500; 5) Write filtered dataset to data/filtered_swe_bench_v1.parquet'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter for instances where sum > 500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:30:36Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Baseline truncation uses N=2048 lines
+  claim_id: c_67808da5
+  context: 'T012: ...6) Record checksum and derivation in state/...yaml. Verification:
+    Verify ... and N=2048 for baseline truncation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=2048 for baseline truncation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:30:36Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test p-value threshold for failure is 0.05
+  claim_id: c_1a04c11c
+  context: 'T040: ...perform a Kolmogorov-Smirnov (KS) test... Constraint: If KS-test
+    p-value < 0.05, the run MUST fail with ''Insufficient Context-Bound Data'' error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If KS-test p-value < 0.05, the run MUST fail
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:30:36Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Correlation threshold for circularity detection failure is 0.3
+  claim_id: c_62c589be
+  context: 'T041: ...calculate the correlation between the generic retriever''s scores...
+    and the experimental strategies... Constraint: If correlation >= 0.3, the run
+    MUST fail with ''Circularity Detected'' error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation >= 0.3, the run MUST fail
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:31:01Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Total wall-clock duration limit is 72 hours
+  claim_id: c_0fdf7bdd
+  context: "T016: ...and a total wall-clock duration of \u226472 hours via GlobalTimeBudgetEnforcer\
+    \ (T043)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "total wall-clock duration of \u226472 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:31:01Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Log warning if statistical power is less than 0.8
+  claim_id: c_87e2f3af
+  context: 'T030d: ...calculate the statistical power of the experiment... logging
+    a warning if power < 0.8 to address the ''Insufficient Context-Bound Data'' assumption.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_statistical_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: log a warning if power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:31:56Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity threshold for code cleanup is less than 10
+  claim_id: c_44693fe7
+  context: 'T036: Code cleanup and refactoring of context_processors.py. Verification:
+    Extract load_model function; verify cyclomatic complexity < 10.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "1\u201310: Simple procedure, little risk"
+      source_id: Cyclomatic complexity
+      url: https://en.wikipedia.org/wiki/Cyclomatic_complexity
+      value: '10'
+    filled: true
+  kind: magnitude
+  raw_text: verify cyclomatic complexity < 10
+  resolved_value: '10'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T18:32:09Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: 7B model with Q4_K_M quantization fits within 7GB RAM
+  claim_id: c_20f4c8da
+  context: 'T026a: ...Verify the 7B model loads successfully with Q4_K_M quantization
+    and fits within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_model_with_Q4_K_M_quantization_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: 7B model loads successfully with Q4_K_M quantization and fits within 7GB
+    RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:32:35Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Quantization penalty flag set to 1 if performance drop exceeds 5%
+  claim_id: c_a2c2ed00
+  context: 'T042: ...calculating the performance drop; if >5%, set Quantization_Penalty
+    flag (0/1) for the GLM model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if >5%, set Quantization_Penalty flag (0/1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:32:35Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: QuantizationCalibration outputs quantization_penalty boolean and logs
+    performance drop
+  claim_id: c_91b4447e
+  context: 'T042 [P] [Plan] [FR-006] Implement QuantizationCalibration... if >5%,
+    set Quantization_Penalty flag (0/1) for the GLM model... Verification: Verify
+    the script outputs a quantization_penalty boolean and logs the performance drop
+    percentage.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/QuantizationCalibration_outputs_quantization_penalty_boolean
+  kind: entity_fact
+  raw_text: The script outputs a quantization_penalty boolean and logs the performance
+    drop percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:33:26Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: KS-test p-value less than 0.05 triggers Insufficient Context-Bound Data
+    error
+  claim_id: c_53bff440
+  context: 'T040 [FR-001] [Plan] [P] Implement RepresentativenessValidator... Constraint:
+    If KS-test p-value < 0.05, the run MUST fail with ''Insufficient Context-Bound
+    Data'' error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS-test_p-value_less_than_0.05_triggers_Insufficient_Context
+  kind: magnitude
+  raw_text: If KS-test p-value < 0.05, the run MUST fail with 'Insufficient Context-Bound
+    Data' error.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:33:58Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Correlation greater than or equal to 0.3 triggers Circularity Detected
+    error
+  claim_id: c_71d0e27a
+  context: 'T041 [FR-001] [Plan] [P] Implement ConstructValidityAudit... Constraint:
+    If correlation >= 0.3, the run MUST fail with ''Circularity Detected'' error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_greater_than_or_equal_to_0.3_triggers_Circularit
+  kind: magnitude
+  raw_text: If correlation >= 0.3, the run MUST fail with 'Circularity Detected' error.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:35:07Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Filter instances where sum of file lines is greater than 500
+  claim_id: c_bd672f57
+  context: T012 [FR-001] [US1] Implement ClawSweBenchLoader... 4) Filter for instances
+    where sum > 500...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_instances_where_sum_of_file_lines_is_greater_than_500
+  kind: magnitude
+  raw_text: Filter for instances where sum > 500 lines of relevant file history.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:35:44Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Baseline truncation set to N equals 2048
+  claim_id: c_dbb47719
+  context: 'T012 [FR-001] [US1] Implement ClawSweBenchLoader... Verification: ...and
+    N=2048 for baseline truncation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=2048 for baseline truncation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:35:44Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: 7B model with Q4_K_M quantization fits within 7GB RAM
+  claim_id: c_cc049b6e
+  context: 'T026a [P] [US1, US2, US3] Implement load_model_q4_k_m()... Verification:
+    Verify the 7B model loads successfully with Q4_K_M quantization and fits within
+    7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_model_with_Q4_K_M_quantization_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: Verify the 7B model loads successfully with Q4_K_M quantization and fits
+    within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:36:07Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: 7B Q4_K_M model dry-run stays within 7GB RAM without OOM
+  claim_id: c_f05a7fff
+  context: 'T026b [P] [US1, US2, US3] [FR-007] Implement memory pressure handling
+    logic... Verification: Run a dry-run load of a 7B Q4_K_M model and verify it stays
+    within 7GB RAM and does not OOM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_Q4_K_M_model_dry-run_stays_within_7GB_RAM_without_OOM
+  kind: entity_fact
+  raw_text: Run a dry-run load of a 7B Q4_K_M model and verify it stays within 7GB
+    RAM and does not OOM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:36:45Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: 7B model with Q4_K_M quantization fits within 7GB RAM
+  claim_id: c_d356e278
+  context: 'T026c [P] [US1, US2, US3] [FR-002, FR-004] Implement generic ModelRunner
+    class... Verification: Verify the 7B model loads successfully with Q4_K_M quantization
+    and fits within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_model_with_Q4_K_M_quantization_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: Verify the 7B model loads successfully with Q4_K_M quantization and fits
+    within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:36:46Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Retrieve top 5 files via similarity
+  claim_id: c_eab9d807
+  context: 'T012 [FR-001] [US1] Implement ClawSweBenchLoader... 2) Hybrid IR-Seeding:
+    ...retrieve top-5 files via similarity...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retrieve top-5 files via similarity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:37:19Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Log warning if statistical power is less than 0.8
+  claim_id: c_adc6d23e
+  context: T030d [P] [US3] [FR-006] Add a power_analysis() function... logging a warning
+    if power < 0.8 to address the 'Insufficient Context-Bound Data' assumption.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_statistical_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: Log a warning if power < 0.8 to address the 'Insufficient Context-Bound
+    Data' assumption.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:38:18Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Run terminates with clear error if retrieval module fails
+  claim_id: c_6aee62f4
+  context: T024a [P] [US2] [FR-008] Refactor context_processors.py to remove any try/except
+    blocks that might silently fall back... ensuring the 'Fail Loudly' rule is enforced
+    and the run terminates with a clear error.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_terminates_with_clear_error_if_retrieval_module_fails
+  kind: entity_fact
+  raw_text: The run terminates with a clear error if a retrieval module fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:38:37Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: filter instances where sum of lines and dependencies exceeds 500
+  claim_id: c_286d301e
+  context: T012 [FR-001] [US1] Implement `ClawSweBenchLoader`... 4) Filter for instances
+    where sum > 500
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter for instances where sum > 500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:41:28Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: baseline truncation set to N equals 2048
+  claim_id: c_dc458c76
+  context: 'T012... **Verification**: Verify `streaming=True` is set, filtered file
+    exists, derivation path is recorded, and N=2048 for baseline truncation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=2048 for baseline truncation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:41:28Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: retrieve top 5 files via similarity using frozen generic CodeBERT-base
+    model
+  claim_id: c_394ae53c
+  context: 'T012... 2) **Hybrid IR-Seeding**: Parse `issue_description` for file paths;
+    if none, use a **frozen generic CodeBERT-base** model to embed the description
+    and retrieve **top-5 files** via similarity'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retrieve top-5 files via similarity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:41:28Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: total wall-clock duration less than or equal to 72 hours
+  claim_id: c_8dcb20bc
+  context: "T016... **Constraint**: Enforce a fixed runtime budget of 60 minutes per\
+    \ instance and a **total wall-clock duration of \u226472 hours**"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_wall-clock_duration_less_than_or_equal_to_72_hours
+  kind: magnitude
+  raw_text: "total wall-clock duration of \u226472 hours"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:41:53Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: 7B model with Q4_K_M quantization fits within 7GB RAM
+  claim_id: c_6cc665ce
+  context: 'T026a... **Verification**: Verify the 7B model loads successfully with
+    Q4_K_M quantization and fits within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_model_with_Q4_K_M_quantization_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: fits within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:41:55Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test p-value less than 0.05 triggers failure
+  claim_id: c_feed9ada
+  context: 'T040... **Constraint**: If KS-test p-value < 0.05, the run MUST fail with
+    ''Insufficient Context-Bound Data'' error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test_p-value_less_than_0.05_triggers_fail
+  kind: magnitude
+  raw_text: p-value < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:42:23Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: correlation between generic retriever scores and experimental strategies
+    greater than or equal to 0.3 triggers failure
+  claim_id: c_e5654adf
+  context: 'T041... **Constraint**: If correlation >= 0.3, the run MUST fail with
+    ''Circularity Detected'' error.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_between_generic_retriever_scores_and_experimenta
+  kind: magnitude
+  raw_text: correlation >= 0.3
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:42:25Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: performance drop greater than 5 percent sets Quantization_Penalty flag
+  claim_id: c_e235238e
+  context: T042... calculating the performance drop; if >5%, set `Quantization_Penalty`
+    flag (0/1) for the GLM model.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_drop_greater_than_5_percent_sets_Quantization_Pe
+  kind: magnitude
+  raw_text: performance drop >5%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:42:44Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: statistical power less than 0.8 triggers warning
+  claim_id: c_a7279925
+  context: T030d... logging a warning if power < 0.8 to address the 'Insufficient
+    Context-Bound Data' assumption.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_less_than_0.8_triggers_warning
+  kind: magnitude
+  raw_text: power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:43:14Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: baseline truncation N equals 2048
+  claim_id: c_58b30134
+  context: 'This task MUST implement: ... 4) Filter for instances where sum > 500;
+    5) Write filtered dataset to `data/filtered_swe_bench_v1.parquet`; 6) Record checksum
+    and derivation in `state/...yaml`. **Verification**: Verify `streaming=True` is
+    set, filtered file exists, derivation path is recorded, and N=2048 for baseline
+    truncation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=2048 for baseline truncation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:44:13Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: total wall-clock duration 72 hours
+  claim_id: c_a6876015
+  context: "Enforce a **fixed runtime budget of 60 minutes per instance** and a **total\
+    \ wall-clock duration of \u226472 hours ** via `GlobalTimeBudgetEnforcer` (T043)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "total wall-clock duration of \u226472 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:44:13Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: 7B model Q4_K_M quantization fits within 7GB RAM
+  claim_id: c_ffd70d35
+  context: 'Implement `load_model_q4_k_m()` helper ... to handle the specific loading
+    logic for Q4_K_M quantization on CPU. **Verification**: Verify the 7B model loads
+    successfully with Q4_K_M quantization and fits within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_model_Q4_K_M_quantization_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: 7B model loads successfully with Q4_K_M quantization and fits within 7GB
+    RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:44:15Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: KS-test p-value less than 0.05 triggers failure
+  claim_id: c_a698aa22
+  context: 'Perform a Kolmogorov-Smirnov (KS) test comparing the distribution of line
+    counts and issue types in the filtered dataset vs. the full raw dataset. **Constraint**:
+    If KS-test p-value < 0.05, the run MUST fail with ''Insufficient Context-Bound
+    Data'' error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/KS-test_p-value_less_than_0.05_triggers_failure
+  kind: magnitude
+  raw_text: If KS-test p-value < 0.05, the run MUST fail
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:44:41Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: correlation greater than or equal to 0.3 triggers failure
+  claim_id: c_2899157a
+  context: 'Calculate the correlation between the generic retriever''s scores (used
+    for filtering) and the experimental strategies (TF-IDF, etc.). **Constraint**:
+    If correlation >= 0.3, the run MUST fail with ''Circularity Detected'' error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_greater_than_or_equal_to_0.3_triggers_failure
+  kind: magnitude
+  raw_text: If correlation >= 0.3, the run MUST fail
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:44:43Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: quantization penalty set if performance drop greater than 5 percent
+  claim_id: c_cd57f463
+  context: calculating the performance drop; if >5%, set `Quantization_Penalty` flag
+    (0/1) for the GLM model.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quantization_penalty_set_if_performance_drop_greater_than_5
+  kind: magnitude
+  raw_text: if >5%, set `Quantization_Penalty` flag
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:45:26Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: power less than 0.8 triggers warning
+  claim_id: c_7a866db7
+  context: calculate the statistical power of the experiment given the expected effect
+    size and sample count, logging a warning if power < 0.8 to address the 'Insufficient
+    Context-Bound Data' assumption.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_less_than_0.8_triggers_warning
+  kind: magnitude
+  raw_text: power < 0.8 to address the 'Insufficient Context-Bound Data' assumption
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:46:13Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: filter instances with total file history lines greater than 500
+  claim_id: c_448f1240
+  context: T012 [FR-001] [US1] Implement ClawSweBenchLoader... 4) Filter for instances
+    where sum > 500
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_instances_with_total_file_history_lines_greater_than
+  kind: magnitude
+  raw_text: Filter for instances where sum > 500 lines of relevant file history
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:46:37Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: baseline truncation set to 2048 lines
+  claim_id: c_c55fed54
+  context: 'T012... Verification: Verify... and N=2048 for baseline truncation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=2048 for baseline truncation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:46:37Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: retrieve top-5 files using frozen CodeBERT-base model
+  claim_id: c_2dbd7db4
+  context: 'T012... 2) Hybrid IR-Seeding: Parse issue_description... if none, use
+    a frozen generic CodeBERT-base model to embed the description and retrieve top-5
+    files via similarity'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a frozen generic CodeBERT-base model to embed the description and
+    retrieve top-5 files via similarity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:46:56Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: run fails if Kolmogorov-Smirnov test p-value is less than 0.05
+  claim_id: c_b52cd28c
+  context: 'T040... Constraint: If KS-test p-value < 0.05, the run MUST fail with
+    ''Insufficient Context-Bound Data'' error.'
+  evidence:
+    entailment_evidence: Run fails if Kolmogorov-Smirnov test p-value is less than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Run_fails_if_Kolmogorov-Smirnov_test_p-value_is_less_than_0.
+  kind: magnitude
+  raw_text: If KS-test p-value < 0.05, the run MUST fail with 'Insufficient Context-Bound
+    Data' error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-22T18:46:58Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: run fails if correlation between retriever scores and experimental strategies
+    is greater than or equal to 0.3
+  claim_id: c_7fcca182
+  context: 'T041... Constraint: If correlation >= 0.3, the run MUST fail with ''Circularity
+    Detected'' error.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_fails_if_correlation_between_retriever_scores_and_experi
+  kind: magnitude
+  raw_text: If correlation >= 0.3, the run MUST fail with 'Circularity Detected' error
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:47:00Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: enforce 72 hour total wall-clock duration limit
+  claim_id: c_cfcace0e
+  context: "T016... and a total wall-clock duration of \u226472 hours via GlobalTimeBudgetEnforcer"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce a total wall-clock duration of \u226472 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:47:00Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: 7B model with Q4_K_M quantization fits within 7GB RAM
+  claim_id: c_ee220d78
+  context: 'T026a... Verification: Verify the 7B model loads successfully with Q4_K_M
+    quantization and fits within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7B_model_with_Q4_K_M_quantization_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The 7B model loads successfully with Q4_K_M quantization and fits within
+    7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:47:02Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: set quantization penalty flag if performance drop exceeds 5 percent
+  claim_id: c_888faa54
+  context: T042... calculating the performance drop; if >5%, set Quantization_Penalty
+    flag (0/1) for the GLM model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If performance drop >5%, set Quantization_Penalty flag (0/1) for the GLM
+    model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:47:02Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: flag missing context for specific log patterns
+  claim_id: c_9b9f7413
+  context: 'T017a... explicit rule-based logic: flag ''missing context'' if log contains
+    ''file not found'', ''cannot locate'', or references a file not in input context'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flag_missing_context_for_specific_log_patterns
+  kind: entity_fact
+  raw_text: Flag 'missing context' if log contains 'file not found', 'cannot locate',
+    or references a file not in input context
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:47:28Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: extract first sentence of paragraphs and last sentence of function blocks
+    for summarization
+  claim_id: c_94fb524f
+  context: 'T022... Logic: Extract the first sentence of every paragraph and the last
+    sentence of every function block'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_first_sentence_of_paragraphs_and_last_sentence_of_fu
+  kind: entity_fact
+  raw_text: Extract the first sentence of every paragraph and the last sentence of
+    every function block
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:48:14Z'
+- artifact_path: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben/tasks.md
+  attempts: 1
+  canonical: log warning if statistical power is less than 0.8
+  claim_id: c_e74bbf47
+  context: T030d... logging a warning if power < 0.8 to address the 'Insufficient
+    Context-Bound Data' assumption.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_statistical_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: Log a warning if statistical power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T18:49:13Z'

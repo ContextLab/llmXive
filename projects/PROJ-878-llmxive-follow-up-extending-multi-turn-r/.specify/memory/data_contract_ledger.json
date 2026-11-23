@@ -1,0 +1,10 @@
+[
+  {
+    "data_file": "data/raw/logical_puzzles.json",
+    "required": []
+  },
+  {
+    "data_file": "data/raw/synthetic_puzzles.json",
+    "required": []
+  }
+]

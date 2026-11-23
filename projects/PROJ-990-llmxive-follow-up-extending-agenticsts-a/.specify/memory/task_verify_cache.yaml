@@ -1,0 +1,60 @@
+T005b:
+  c: false
+  h: 32bb3c97f53a3d7eda061d8cdad287a38f9aacd8d034e4df0da6a974eed6a44e
+  r: "The required output file `data/raw/agenticsts_trajectories.jsonl` is missing,\
+    \ and no evidence of checksum verification or error handling is provided. The\
+    \ task\u2019s core artifact does not exist, so the ingestion step is not fulfilled."
+T008#1:
+  c: false
+  h: a038dda50c7bd920cfff998f51cbaba8ae659adf0eddb8221b76a8bd51abeef2
+  r: The required baseline data file `data/processed/baseline_win_rates_train.json`
+    does not exist, and the expected output file `data/processed/ablation_labels_train.json`
+    is also missing. Without these artifacts, the ablation label generation cannot
+    have been performed.
+T008#2:
+  c: false
+  h: faa826ccaedf834df1ac65689da80f36bc3283df2ed4f3d43f3ff85862027cee
+  r: "The required input artifacts `data/processed/train_set.csv` and `data/processed/baseline_win_rates_train.json`\
+    \ are absent, and the expected output `data/processed/ablation_labels_train.json`\
+    \ was not generated. Without these files the script cannot be run nor produce\
+    \ the ground\u2011truth labels."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a high\u2011level feature description and user\
+    \ stories; no code, tests, or other artifacts implementing the required \u201C\
+    proxy validation logic\u201D are present. Consequently there is no concrete implementation\
+    \ to verify against the task\u2019s specifications."
+T014a:
+  c: false
+  h: e35559d8d6d567a61f24e38f914fcefd42bde60826d9d4485314a5e9a7c8bd97
+  r: "The repository contains a `code/splitter.py` file, but the required data files\
+    \ (`data/processed/metrics_with_moves.csv`) and the expected output artifacts\
+    \ (`train_set.csv`, `ablation_train_set.csv`, `validation_set.csv`, `test_set.csv`,\
+    \ `config_state.json`, and the edge\u2011case warning log) are all absent. Consequently\
+    \ the splitting logic cannot be exercised, and the edge\u2011case handling (warning\
+    \ log and config update) is not demonstrated. The missing files must be provided\
+    \ and the script must generate the specified outputs for the task to be considered\
+    \ complete."
+T019:
+  c: false
+  h: 2670e60399db6dc98a56654862429c5cddc267a31e6a594ad370021cf6d2cbef
+  r: "The required output file `data/processed/simulation_logs_static.json` is absent,\
+    \ and `code/main.py` is truncated and lacks any handling for a `--mode static`\
+    \ run that would generate that file. Consequently the static all\u2011layers baseline\
+    \ has not been executed as specified."
+T055:
+  c: false
+  h: 00c0b44413860687f2a3c3da719c74f938f19d46ad3f1c036a638806b0df7b8b
+  r: "The required `data/processed/edge_case_warnings.log` file is missing, so the\
+    \ implementer could not review the actual warnings. Moreover, the provided `docs/edge_cases.md`\
+    \ only covers NaN entropy and small sample size; there is no evident section on\
+    \ the \u201Chomogeneity\u201D warning, which the task explicitly requires. Both\
+    \ artifacts need to be present and complete."
+T057c:
+  c: false
+  h: eabe3992d31b2d49d81e98efbb9a844358caaa80fb6fa820e2d8729711dae522
+  r: The required source data files `data/processed/agg_stats.json` and `data/processed/success_criteria_report.json`
+    are missing, and the final report `data/processed/statistical_analysis_report.md`
+    was not generated. Without these inputs the template cannot be populated, so the
+    task is not fulfilled.

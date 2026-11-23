@@ -1,0 +1,8 @@
+{
+  "harmonized_count": 0,
+  "synthetic_count": 0,
+  "overlap_count": 0,
+  "discordant_pairs": [],
+  "statistical_artifacts_detected": false,
+  "summary": "OK: No obvious statistical artifacts detected. (Note: This is a placeholder result until the full pipeline is executed on real harmonized data.)"
+}

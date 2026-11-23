@@ -1,0 +1,18 @@
+status: none
+intent: "TCGA GDC API python package download RNA\u2011seq HTSeq\u2011Counts and GEO\
+  \ GSE25055 GSE42752 dataset python package dataset"
+required_fields:
+- sample_id
+- tumor_type
+- gene_symbol
+- raw_count
+- cpm
+- variance_stabilized_expression
+- clinical_age
+- clinical_gender
+- clinical_stage
+- clinical_response
+- source_repository
+cache_key: eb3f868862df05a71946bd95e75e6c74ecb184bbf89693fe6535da8e03f79d65
+searched_at: '2026-10-15T12:32:50.597738+00:00'
+retry_count: 1

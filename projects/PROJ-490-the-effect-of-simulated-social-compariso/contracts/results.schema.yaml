@@ -1,114 +1,55 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Final Results Report Schema
-description: |
-  Schema for the comprehensive final report aggregating model results,
-  bootstrap stability, sensitivity analysis, and data provenance.
+# Results Schema: Regression Output Validation
+# Task T002c - Schema for statistical analysis results (FR-008, FR-010)
 type: object
 required:
-  - project_id
-  - data_path
+  - coefficients
+  - assumptions
   - data_source_type
-  - model_results
-  - bootstrap_stability
-  - sensitivity_findings
-  - final_conclusion
 properties:
-  project_id:
-    type: string
-    const: "PROJ-490-the-effect-of-simulated-social-compariso"
-  data_path:
-    type: string
-    description: Relative path to the processed dataset used (data/processed/...).
+  coefficients:
+    type: array
+    description: Array of regression coefficients from the ANCOVA model
+    items:
+      type: object
+      required:
+        - name
+        - estimate
+        - std_err
+        - p_value
+      properties:
+        name:
+          type: string
+          description: Coefficient name (e.g., intercept, avatar_condition, comparison_tendency, interaction)
+        estimate:
+          type: number
+          description: Estimated coefficient value
+        std_err:
+          type: number
+          description: Standard error of the estimate
+        p_value:
+          type: number
+          description: P-value for the hypothesis test of the coefficient
+          minimum: 0
+          maximum: 1
+  assumptions:
+    type: object
+    description: Model assumption diagnostic results (FR-004)
+    properties:
+      shapiro_p:
+        type: number
+        description: Shapiro-Wilk test p-value for normality of residuals
+        minimum: 0
+        maximum: 1
+      breusch_pagan_p:
+        type: number
+        description: Breusch-Pagan test p-value for homoscedasticity
+        minimum: 0
+        maximum: 1
+      vif_max:
+        type: number
+        description: Maximum Variance Inflation Factor across predictors (flag if >= 5)
+        minimum: 0
   data_source_type:
     type: string
+    description: Whether the analysis used real or synthetic data (FR-010, FR-011)
     enum: ["real", "synthetic"]
-  model_results:
-    $ref: '#/definitions/output_schema'
-    description: Embedded output schema (see output.schema.yaml)
-  bootstrap_stability:
-    type: object
-    description: Results from bootstrap resampling analysis.
-    required:
-      - iterations
-      - interaction_effect_ci
-      - ci_width_variance
-      - stability_flag
-    properties:
-      iterations:
-        type: integer
-        minimum: 1000
-        description: Number of bootstrap iterations performed.
-      interaction_effect_ci:
-        type: object
-        description: 95% Confidence Interval for the interaction term.
-        required: [lower, upper]
-        properties:
-          lower: { type: number }
-          upper: { type: number }
-      ci_width_variance:
-        type: number
-        description: Variance of CI widths across bootstrap samples.
-      stability_flag:
-        type: boolean
-        description: True if ci_width_variance < 0.01 (SC-004).
-  sensitivity_findings:
-    type: object
-    description: Results from threshold sensitivity sweeps and parameter recovery.
-    required:
-      - threshold_sweep
-      - imputation_sensitivity
-      - parameter_recovery
-    properties:
-      threshold_sweep:
-        type: array
-        description: Stability of significance across different p-value thresholds.
-        items:
-          type: object
-          properties:
-            threshold: { type: number }
-            significant: { type: boolean }
-      imputation_sensitivity:
-        type: object
-        description: Impact of different imputation limits on results.
-        properties:
-          low: { type: object }
-          moderate: { type: object }
-          high: { type: object }
-      parameter_recovery:
-        type: object
-        description: Only present for synthetic data.
-        properties:
-          beta_interaction_true: { type: number }
-          beta_interaction_estimated: { type: number }
-          bias: { type: number }
-          relative_error: { type: number }
-  final_conclusion:
-    type: object
-    description: High-level summary of findings.
-    required:
-      - main_effect_significant
-      - interaction_effect_significant
-      - robustness_assessment
-      - limitations
-    properties:
-      main_effect_significant: { type: boolean }
-      interaction_effect_significant: { type: boolean }
-      robustness_assessment: { type: string }
-      limitations: { type: array, items: { type: string } }
-  execution_metadata:
-    type: object
-    properties:
-      timestamp: { type: string, format: date-time }
-      seed: { type: integer }
-      pipeline_version: { type: string }
-definitions:
-  output_schema:
-    type: object
-    description: Reference to the structure defined in output.schema.yaml
-    properties:
-      model_type: { type: string }
-      coefficients: { type: object }
-      diagnostics: { type: object }
-      assumptions_valid: { type: boolean }
-      interpretation_label: { type: string }
-additionalProperties: false

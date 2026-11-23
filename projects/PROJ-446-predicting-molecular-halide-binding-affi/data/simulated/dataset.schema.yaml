@@ -1,0 +1,31 @@
+name: halide_binding_dataset
+version: 1.0.0
+description: Schema for halide binding affinity data
+fields:
+  - name: host_id
+    type: string
+    required: true
+  - name: smiles
+    type: string
+    required: true
+  - name: halide_identity
+    type: string
+    required: true
+    enum:
+      - F-
+      - Cl-
+      - Br-
+      - I-
+  - name: log_k
+    type: float
+    required: true
+  - name: solvent
+    type: string
+    required: true
+  - name: source
+    type: string
+    required: false
+constraints:
+  log_k:
+    min: -10.0
+    max: 20.0

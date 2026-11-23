@@ -1,0 +1,14 @@
+data/raw/
+  .gitkeep
+data/processed/
+  .gitkeep
+data/results/
+  .gitkeep
+data/logs/
+  .gitkeep
+  api_log.jsonl
+  structure_T001.txt
+contracts/
+  .gitkeep
+  dataset.schema.yaml
+  results.schema.yaml

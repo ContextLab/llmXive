@@ -1,0 +1,46 @@
+# Ruff configuration for llmXive project
+target-version = "py310"
+line-length = 88
+extend-exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "__pycache__",
+    "*.pyc"
+]
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflake
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "N",   # flake8-bandit
+    "UP",  # pyupgrade
+    "A",   # flake8-annotations
+    "B",   # flake8-bandit
+    "SIM", # flake8-simplify
+    "RET", # flake8-return
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+]
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "B008",  # Do not perform function call in argument defaults
+    "B904",  # Within an except clause, raise exceptions with raise ... from ...
+    "ARG001", # Unused function argument (sometimes needed for interface compliance)
+    "PTH100", # `os.path.abspath()` should be replaced by `Path.resolve()`
+    "PTH109", # `os.getcwd()` should be replaced by `Path.cwd()`
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "ARG001"] # Allow assert in tests, allow unused args in fixtures
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

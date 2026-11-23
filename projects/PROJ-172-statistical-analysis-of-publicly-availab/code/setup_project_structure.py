@@ -4,7 +4,7 @@ from pathlib import Path
 
 def main():
     """
-    Creates the project directory structure as defined in the plan.
+    Create the project directory structure as defined in plan.md.
     Directories created:
     - code/
     - data/raw/
@@ -14,13 +14,11 @@ def main():
     - artifacts/figures/
     - state/
     """
-    # Determine project root (assuming this script is in code/, root is parent)
-    # However, to be robust, we assume the script is run from the project root
-    # or we calculate relative to this file's location.
-    # Standard convention: run from root.
-    project_root = Path.cwd()
-
-    directories = [
+    # Define the base directory (project root)
+    base_dir = Path(__file__).resolve().parent.parent
+    
+    # Define the required directories relative to the project root
+    required_dirs = [
         "code",
         "data/raw",
         "data/processed",
@@ -29,19 +27,23 @@ def main():
         "artifacts/figures",
         "state"
     ]
-
+    
     created_count = 0
-    for dir_path in directories:
-        full_path = project_root / dir_path
+    existing_count = 0
+    
+    for dir_path in required_dirs:
+        full_path = base_dir / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {full_path}")
             created_count += 1
         else:
             print(f"Directory already exists: {full_path}")
-
-    print(f"Project structure setup complete. {created_count} new directories created.")
-    return 0
+            existing_count += 1
+    
+    print(f"\nProject structure setup complete.")
+    print(f"Created: {created_count} new directories.")
+    print(f"Existing: {existing_count} directories.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

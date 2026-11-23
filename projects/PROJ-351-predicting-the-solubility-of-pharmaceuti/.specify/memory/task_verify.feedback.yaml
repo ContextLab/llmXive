@@ -1,0 +1,109 @@
+T001:
+  task: b1399db8a05446a7ed3d7487d17b8374f5fa36a7c9f0e14b05965c8fb3aa2374
+T002:
+  task: 8d73566e03bce6a3d11e259b14e7c16cc26dca1fb88b185518fe26ff017280d5
+T003:
+  reason: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black\
+    \ settings, or pre\u2011commit hooks) are present in the provided artifacts, so\
+    \ the requirement to configure flake8/black is not satisfied."
+  task: 8b1c6529ddcdf661b2eb411c0fd735b2f646d5a6be12a762963e97fa54eb5632
+T003b:
+  reason: "The `contracts/model_output.schema.yaml` file is present, but its contents\
+    \ only define `status`, `artifacts`, and `errors`; it does not define the required\
+    \ structures for `metrics`, `statistical_test`, or `viz_manifest` as the task\
+    \ specifies. The schema therefore does not satisfy the task\u2019s requirement."
+  task: 89327449cff56e177be5ff0c55af9be7d4a707c6b15fc185ae023355b7971936
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download_esol.py
+    exit=1'
+  task: 6e64b538376cd0e2fe88fd19ba595d8e14b66f7a1f2b8efe23aecc86b1d85d9c
+T005:
+  reason: The script does not produce the required `data/processed/cleaned_graphs.pkl`
+    (file is missing) and its output dictionaries lack the mandated keys (`mol` and
+    a combined `features` dict) while also omitting SMILES canonicalization. Additionally,
+    the exclusion log is written to the output directory rather than `data/logs/exclusions.log`,
+    violating the logging location requirement.
+  task: 9a0ef13e9bd36d7797077fd20b4af574683f80a84781f35146156942af03c75b
+T005b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/graph_tensorizer.py,
+    data/processed/cleaned_graphs.pkl, data/processed/graph_tensors.pt'
+  task: 307cf61f4014b2dc1177b3235ba9cd07a6633b090e720cc37c2f11b5688f4aac
+T006:
+  task: 11ad94bff0ff5f1944e96e120ae6ec592daa453e629749b2eb950af8644e8ddc
+T007:
+  task: 0db52294834cbbcab05fbdc533d190e5f6101e6712448a8938086e832c05a9e9
+T008:
+  task: a97be7dcdfda966cad843e7e6da2d7729871f59211a1d8fdb04edc4baf494c1d
+T009:
+  reason: 'declared artifact(s) missing/empty/invalid: code/config.py'
+  task: 761ce5f80024efeef6fbfc4ee4f6217c92fe79e575508c9ebf1c5b1b06472a62
+T010:
+  task: 1117e0f5415a4440c473a776cf7258547552816696f5cd74952cb704b1943b25
+T011:
+  task: 80aeac1f11fdde515f4722afce0dac9e117972bde6fee35dfa47cec25cf7d2b6
+T012:
+  task: 81a14de8dc2987ff556062dd109bdeaf6bae24715e8ff09623d00330cddaa872
+T012a:
+  task: 8b02488942f35379dde860ecc52ee3f2ae943c6f8728235b39c8fd36ac1d3fe1
+T013:
+  task: 5da141e18daa1fb18c27dd5438b17e001147ee3b7c27f29117aca2c296ff0dd3
+T015:
+  task: 878921cbbf65f69b118380d18aad49dd9abe977bdaeca86d1a1bcea5cf260c8f
+T016:
+  task: 2f631194085b78767b6b8929fe6b4484929daf52d3498c19de33124b79b2c462
+T016a:
+  task: e44defd147ebf659e95a098a373ce8c184963a5370bc1a40919b12a39d897108
+T018:
+  task: e8503be591cd564ba8533c15ece52b0480511a881b0e5e63a74370dc538f5985
+T019:
+  task: a75333d4f70ca9ff2c2d28ef1fb0348d6e7c8b9da0ed4434fd47849cca3f755a
+T020:
+  task: 2bc0dd7216febf52fd32e460652344676a6f1bbfe8ba24e52b579d8b3d9f43a9
+T021:
+  task: 557896120cd1fccb633721cdea7a8328389e0d9082d4bed39608ea7221bd4c8d
+T023:
+  task: b8dc35a4cb0bb5b0306cbd8cdf27c2bf485ae7fef238e1b90c32f9d26311e222
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: results/gnn_predictions.csv,
+    results/gnn_metrics.json'
+  task: 0ee5698e5e2d05114fbf9fee9ac802baf22604684b6a752cf6d5ea1c5085908e
+T025:
+  task: 26adeaf25f703f679cb09b52007845391a6f6ea1cfebc422a99db5504fa88e73
+T026:
+  task: 10f53dd1f7fdbe9761a99907a6353fcb7362af75d9e97f2f7aee9e7c8b1d26e7
+T027b:
+  task: e02c4fc0253ee42fc7d0188dd0d01f151755977d3ff2b3d93524ffdaa62783f7
+T028:
+  task: 982778bd43d575e4a9d04b1b366e36ef1207ac32b6a21f56a958513b7078bdb8
+T029:
+  task: 009832a32ec41266856c4e76e48f5084f2f3ac96d8e1732f4a85d5ff85d55a1b
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: code/evaluation/visualize_molecules.py,
+    data/processed/aggregated_predictions.json, code/config.py, docs/reports/interpretability_plots/,
+    results/viz_manifest.json'
+  task: 774148282a8f331a12ca36f3d432fd59c3d339a950385ed1718484416ea621b8
+T031:
+  task: 388f2bcb68472e76999ad3b8b569aa70c366c2325d62c91f3eebfc78920a241a
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: code/evaluation/write_metrics.py,
+    results/metrics.json'
+  task: 3aadd628d94df6915810ca6425cf724340b186731682cd3602103f97836b23b1
+T033:
+  task: 142932b802d64b0b4a1fce0ae75f75a2e57b320c2941360a93adf406c681464d
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: results/final_report.json'
+  task: a00d50f252fc7d82d8dd1a18e95cbde08f1e76a0bcebd38dc0d6e7a3a1538968
+T035:
+  task: 224b21a41112be6b0e8e66fd38aa0bec880fea0592b4e29e43d66d75759eeb57
+T036:
+  task: c1c7237fbe6cdf7eb950445cd897a9292d70d619fcfd23c68a836dcb58b01b69
+T037:
+  task: f4d36c4e69043263ee1fc5646fc67dc7f4785deead1d47faafed7438a1681f86
+T038:
+  task: 28591871d9bc4240a519c2fb01f59571339ad036b0411ef4518ce902194be9a0
+T045:
+  task: 9af4b5fa6ff608915c407d08b1e6252966233e8716f4f2ece2b6e20861b80923
+T046:
+  task: 909578d88d363dfa7d5245d6c69bf09e84eb9b0ac475949a647415340f24fbc7
+T048:
+  task: b0b7bf48566fb926837596850ccb32df6d6c20ac8a58599dea375b46d545014a

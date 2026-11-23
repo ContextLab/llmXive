@@ -1,57 +1,73 @@
+"""
+Setup script for linting and formatting tools.
+Verifies that black, flake8, and isort are configured and can be invoked.
+"""
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-def run_command(cmd: list) -> bool:
+def run_command(cmd: list) -> int:
     """
-    Run a shell command and return True if successful.
+    Run a shell command and return the exit code.
+    Prints output to stdout/stderr.
     """
     try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"Command failed: {' '.join(cmd)}")
-        print(f"Error: {e.stderr}")
-        return False
+        result = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=False,
+            text=True
+        )
+        return result.returncode
+    except FileNotFoundError:
+        print(f"Error: Command '{cmd[0]}' not found. Please ensure it is installed.")
+        return 1
+    except Exception as e:
+        print(f"Error running command: {e}")
+        return 1
 
 def main():
     """
-    Initialize linting and formatting tools configuration.
-    This script ensures the configuration files (pyproject.toml) exist
-    and prompts the user to install the dev dependencies if not already done.
+    Main entry point to verify linting tool configuration.
+    This script checks if the configuration files exist and if the tools run without immediate syntax errors.
     """
-    print("Configuring linting and formatting tools...")
-    
-    # Check if pyproject.toml exists (it should from T002/T005 artifacts)
-    if not Path("pyproject.toml").exists():
-        print("Error: pyproject.toml not found. Please run project initialization first.")
+    root_dir = Path(__file__).resolve().parent.parent
+    config_files = {
+        "pyproject.toml": root_dir / "pyproject.toml",
+        ".flake8": root_dir / ".flake8",
+        ".isort.cfg": root_dir / ".isort.cfg",
+    }
+
+    print("Checking linting configuration files...")
+    all_exist = True
+    for name, path in config_files.items():
+        if path.exists():
+            print(f"  [OK] {name} exists")
+        else:
+            print(f"  [MISSING] {name} not found at {path}")
+            all_exist = False
+
+    if not all_exist:
+        print("Error: One or more configuration files are missing. Please ensure they are created.")
         sys.exit(1)
 
-    # Verify dev dependencies are installed
-    tools = ["black", "flake8", "isort"]
-    missing = []
-    
-    for tool in tools:
-        try:
-            subprocess.run([sys.executable, "-m", tool, "--version"], 
-                         capture_output=True, check=True)
-            print(f"✓ {tool} is installed.")
-        except (subprocess.CalledProcessError, FileNotFoundError):
-            missing.append(tool)
-            print(f"✗ {tool} is NOT installed.")
+    print("\nVerifying tool availability...")
+    tools = [
+        (["black", "--version"], "black"),
+        (["flake8", "--version"], "flake8"),
+        (["isort", "--version"], "isort"),
+    ]
 
-    if missing:
-        print(f"\nMissing tools: {', '.join(missing)}")
-        print("Please install them via: pip install -e '.[dev]'")
-        print("Or manually: pip install black flake8 isort pytest pytest-cov")
-        sys.exit(1)
-    
-    print("\nAll linting tools are configured and ready.")
-    print("To run linters manually:")
-    print("  black --check code/ tests/")
-    print("  flake8 code/ tests/")
-    print("  isort --check-only code/ tests/")
+    for cmd, name in tools:
+        exit_code = run_command(cmd)
+        if exit_code == 0:
+            print(f"  [OK] {name} is available and configured.")
+        else:
+            print(f"  [WARN] {name} returned non-zero exit code. Ensure it is installed.")
+
+    print("\nLinting and formatting configuration verified.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

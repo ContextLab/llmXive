@@ -42,7 +42,7 @@ projects/PROJ-413-predicting-molecular-interactions-in-pol/
 │   │   └── train.py         # Training loop, checkpointing, seed fixed
 │   ├── analysis/
 │   │   ├── perm_test.py     # **Full re-training** permutation test (100 iters, A representative sample size will be selected to ensure statistical validity and generalizability of the findings., 10 epochs)
-│   │   ├── attribution.py   # Gradient‑based Integrated Gradients on 100 test samples
+│   │   ├── attribution.py   # Gradient‑based Integrated Gradients on test samples
 │   │   └── collinearity.py  # VIF on handcrafted descriptors (degree, density, etc.)
 │   └── utils/
 │       ├── metrics.py
@@ -93,7 +93,7 @@ projects/PROJ-413-predicting-molecular-interactions-in-pol/
 
 1. **Permutation Test** (`analysis/perm_test.py`):  
    - **Methodology**: Full re-training of the GAT on **permuted labels** (not frozen model evaluation) to establish a valid null distribution.  
-   - **Feasibility**: Reduced to **A fixed number of iterations sufficient for convergence will be employed.** on a **reduced subset (100 samples)** for **10 epochs** per iteration. Total epochs = 1000. This fits the -hour limit.  
+   - **Feasibility**: Reduced to **A fixed number of iterations sufficient for convergence will be employed.** on a **reduced subset (a sample of manageable size)** for **10 epochs** per iteration. Total epochs = 1000. This fits the -hour limit.  
    - Compute observed MSE from the full‑data trained model; p‑value = proportion of permuted MSE ≤ observed MSE.  
 
 2. **Multiple‑Comparison Correction**:  
@@ -131,7 +131,7 @@ All results (`performance.json`, `stats.csv`, `attribution.json`, `topology_audi
 |----|-------------|------------|
 | FR‑001 | Download & cross‑reference data | Phase 0 |
 | FR‑002 | Heterogeneous graph construction | Phase 1 |
-| FR‑003 | 3‑layer GAT (CPU) | Phase 2 |
+| FR‑ | 3‑layer GAT (CPU) | Phase 2 |
 | FR‑004 | Train with /20 split, MSE, batch ≤32 | Phase 3 |
 | FR‑005 | Permutation test (re‑trains, reduced subset) | Phase 4 |
 | FR‑006 | Gradient‑based attribution | Phase 4 |

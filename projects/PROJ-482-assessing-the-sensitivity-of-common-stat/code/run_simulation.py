@@ -1,129 +1,200 @@
 """
-Simulation Runner Script.
+Orchestrator script for the full simulation batch.
+Implements Task T022: Create code/run_simulation.py to orchestrate the full batch.
 
-Orchestrates the full batch of simulations across sample sizes,
-distributions, and test types, saving intermediate results.
+Responsibilities:
+1. Verify input files from T018 (raw_pvalues.csv) and T021c (validation_report.csv).
+2. Run the full batch of simulations (Multiple sample sizes × distributions × 3 tests).
+3. Save intermediate results to data/processed/.
+4. Handle missing inputs by exiting with code 1 and logging 'ERROR: Missing input files'.
 """
 import os
 import sys
 import csv
 import logging
+import time
 from datetime import datetime
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Optional
 
-# Import from sibling modules
+# Add project root to path for imports if running as script
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from config import get_simulation_grid, SimulationConfig
-from data_generator import generate_data
-from simulation_engine import run_adaptive_simulation
+from simulation_engine import run_full_simulation_batch, save_raw_pvalues
+from analyzer import analyze_and_export, load_simulation_results, aggregate_results
+from utils.file_lock import write_pvalue_batch
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(os.path.join(project_root, 'logs', 'simulation.log')),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger(__name__)
 
-def run_full_batch(
-    output_dir: str = "data/processed",
-    save_raw_pvalues: bool = True
-) -> List[Dict[str, Any]]:
+# Define paths relative to project root
+DATA_PROCESSED_DIR = os.path.join(project_root, 'data', 'processed')
+RAW_PVALUES_PATH = os.path.join(DATA_PROCESSED_DIR, 'raw_pvalues.csv')
+VALIDATION_REPORT_PATH = os.path.join(DATA_PROCESSED_DIR, 'validation_report.csv')
+STABILITY_TREND_PATH = os.path.join(DATA_PROCESSED_DIR, 'stability_trend.csv')
+ERROR_RATES_PATH = os.path.join(DATA_PROCESSED_DIR, 'error_rates.csv')
+INTERMEDIATE_RESULTS_PATH = os.path.join(DATA_PROCESSED_DIR, 'intermediate_results.csv')
+
+def ensure_output_dirs():
+    """Ensure all necessary output directories exist."""
+    os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
+    os.makedirs(os.path.join(project_root, 'logs'), exist_ok=True)
+    logger.info(f"Ensured output directories: {DATA_PROCESSED_DIR}")
+
+def verify_input_files():
     """
-    Execute the full simulation grid.
+    Verify that required input files from T018 and T021c exist.
+    Exits with code 1 and logs 'ERROR: Missing input files' if any are missing.
+    """
+    missing_files = []
     
-    Args:
-        output_dir: Directory to save results.
-        save_raw_pvalues: Whether to save raw p-values for regression analysis.
-        
-    Returns:
-        List of result dictionaries.
+    if not os.path.exists(RAW_PVALUES_PATH):
+        missing_files.append(RAW_PVALUES_PATH)
+    
+    if not os.path.exists(VALIDATION_REPORT_PATH):
+        missing_files.append(VALIDATION_REPORT_PATH)
+    
+    if missing_files:
+        error_msg = "ERROR: Missing input files"
+        logger.error(error_msg)
+        for f in missing_files:
+            logger.error(f"  Missing: {f}")
+        print(error_msg)
+        sys.exit(1)
+    
+    logger.info("Input files verified successfully.")
+    return True
+
+def run_full_batch():
     """
+    Execute the full simulation batch across all configurations.
+    This function orchestrates the simulation engine to run all scenarios.
+    """
+    logger.info("Starting full simulation batch...")
+    start_time = time.time()
+    
+    # Get simulation grid from config
     grid = get_simulation_grid()
-    results = []
+    logger.info(f"Simulation grid contains {len(grid)} configurations.")
     
-    os.makedirs(output_dir, exist_ok=True)
+    # Run the full batch
+    results = run_full_simulation_batch(grid)
     
-    if save_raw_pvalues:
-        pval_path = os.path.join(output_dir, "raw_pvalues.csv")
-        # Write header
-        with open(pval_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                "sample_size", "distribution", "test_type", 
-                "effect_size", "replicate_id", "p_value"
-            ])
+    elapsed = time.time() - start_time
+    logger.info(f"Full batch completed in {elapsed:.2f} seconds.")
     
-    logger.info(f"Starting simulation batch. Total scenarios: {len(grid)}")
-    
-    for i, scenario in enumerate(grid):
-        logger.info(f"Scenario {i+1}/{len(grid)}: n={scenario['sample_size']}, "
-                    f"dist={scenario['distribution']}, test={scenario['test_type']}, "
-                    f"effect={scenario['effect_size']}")
-                    
-        # Generate data
-        s1, s2 = generate_data(
-            n=scenario['sample_size'],
-            distribution=scenario['distribution'],
-            effect_size=scenario['effect_size'],
-            seed=scenario['seed']
-        )
-        
-        # Run simulation
-        sim_result = run_adaptive_simulation(
-            sample1=s1,
-            sample2=s2,
-            test_type=scenario['test_type'],
-            alpha=scenario['alpha'],
-            min_reps=scenario['n_replicates']
-        )
-        
-        # Store aggregated result
-        result_record = {
-            "sample_size": scenario['sample_size'],
-            "distribution": scenario['distribution'],
-            "test_type": scenario['test_type'],
-            "effect_size": scenario['effect_size'],
-            "error_rate": sim_result['error_rate'],
-            "ci_lower": sim_result['ci_lower'],
-            "ci_upper": sim_result['ci_upper'],
-            "n_reps": sim_result['n_reps']
-        }
-        results.append(result_record)
-        
-        # Save raw p-values if requested
-        if save_raw_pvalues:
-            with open(pval_path, 'a', newline='') as f:
-                writer = csv.writer(f)
-                for idx, p_val in enumerate(sim_result['p_values']):
-                    writer.writerow([
-                        scenario['sample_size'],
-                        scenario['distribution'],
-                        scenario['test_type'],
-                        scenario['effect_size'],
-                        idx,
-                        p_val
-                    ])
-                    
     return results
 
-def save_intermediate_results(results: List[Dict[str, Any]], filepath: str):
-    """Save current results to a CSV file."""
+def save_intermediate_results(results: List[Dict[str, Any]]):
+    """
+    Save intermediate results to data/processed/intermediate_results.csv.
+    Also updates the raw_pvalues.csv if new data was generated.
+    """
     if not results:
+        logger.warning("No results to save.")
         return
-        
-    with open(filepath, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=results[0].keys())
-        writer.writeheader()
-        writer.writerows(results)
-        
+    
+    # Save aggregated intermediate results
+    with open(INTERMEDIATE_RESULTS_PATH, 'w', newline='') as f:
+        if results:
+            writer = csv.DictWriter(f, fieldnames=results[0].keys())
+            writer.writeheader()
+            writer.writerows(results)
+    
+    logger.info(f"Intermediate results saved to {INTERMEDIATE_RESULTS_PATH}")
+
+def run_analysis_pipeline():
+    """
+    Run the analysis pipeline to generate stability trends and error rates.
+    This consumes the raw p-values generated by the simulation.
+    """
+    logger.info("Running analysis pipeline...")
+    
+    # Load simulation results
+    df = load_simulation_results(RAW_PVALUES_PATH)
+    
+    # Aggregate results
+    aggregated = aggregate_results(df)
+    
+    # Analyze stability trend (T026b requirement)
+    # This function internally calls analyze_stability_trend and exports to stability_trend.csv
+    analyze_and_export(df, aggregated, output_dir=DATA_PROCESSED_DIR)
+    
+    # Ensure error_rates.csv is written (T029 requirement, handled by export_results logic)
+    # The analyze_and_export function should handle this via the analyzer module
+    
+    logger.info("Analysis pipeline completed.")
+
 def main():
-    """Entry point for the simulation runner."""
-    logging.basicConfig(level=logging.INFO)
-    
-    output_dir = "data/processed"
-    os.makedirs(output_dir, exist_ok=True)
-    
-    results = run_full_batch(output_dir=output_dir)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    final_path = os.path.join(output_dir, f"simulation_results_{timestamp}.csv")
-    save_intermediate_results(results, final_path)
-    
-    logger.info(f"Simulation complete. Results saved to {final_path}")
+    """
+    Main entry point for the orchestration script.
+    1. Ensure output directories exist.
+    2. Verify input files (T018, T021c outputs).
+    3. Run full simulation batch.
+    4. Save intermediate results.
+    5. Run analysis pipeline to generate final reports.
+    """
+    try:
+        ensure_output_dirs()
+        
+        # Verify inputs exist before proceeding
+        # Note: If this is the first run, T018 and T021c might not have produced files yet.
+        # However, the task spec says T022 MUST consume them. 
+        # If they are missing, we exit 1 as per spec.
+        # In a real pipeline, T018/T021c would run before T022.
+        # We assume the pipeline runner ensures order, but we verify here.
+        verify_input_files()
+        
+        # Run the full simulation batch
+        # Note: If inputs are verified, we assume T018 ran. 
+        # However, to be robust, we might re-run simulation if raw_pvalues is empty or missing key columns.
+        # For this task, we assume the inputs are valid and proceed to orchestrate.
+        # If the simulation needs to be re-run to populate raw_pvalues, 
+        # we would call run_full_batch() here. 
+        # Given the dependency T018 -> T022, we assume T018 has run.
+        # But to ensure data exists for analysis, we check if raw_pvalues has data.
+        
+        if os.path.exists(RAW_PVALUES_PATH):
+            with open(RAW_PVALUES_PATH, 'r') as f:
+                reader = csv.reader(f)
+                header = next(reader, None)
+                if header is None:
+                    logger.warning("raw_pvalues.csv is empty. Running simulation batch.")
+                    run_full_batch()
+                else:
+                    rows = sum(1 for _ in reader)
+                    if rows == 0:
+                        logger.warning("raw_pvalues.csv has no data rows. Running simulation batch.")
+                        run_full_batch()
+        else:
+            logger.warning("raw_pvalues.csv not found. Running simulation batch.")
+            run_full_batch()
+        
+        # Save intermediate results
+        # We reload to get the latest state if we just ran the batch
+        if os.path.exists(RAW_PVALUES_PATH):
+            results = load_simulation_results(RAW_PVALUES_PATH).to_dict('records')
+            save_intermediate_results(results)
+        
+        # Run analysis pipeline to generate stability_trend.csv and error_rates.csv
+        run_analysis_pipeline()
+        
+        logger.info("T022 Orchestration completed successfully.")
+        sys.exit(0)
+        
+    except Exception as e:
+        logger.error(f"Orchestration failed: {str(e)}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

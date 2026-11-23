@@ -116,7 +116,7 @@ class Stage(StrEnum):
     # the sole inter-stage revision driver: every non-convergence emits
     # a ``KickbackRecord`` whose ``to_stage`` is a regular (stable)
     # stage like ``tasked`` / ``clarified`` / ``brainstormed``, and the
-    # auto-revisions directory (specs/auto-revisions/<id>/round-N/)
+    # auto-revisions directory (projects/<id>/.specify/auto-revisions/round-N/)
     # carries the per-concern work for the implementer agent to pick
     # up. See ``llmxive.convergence.revision_adapter`` for the bridge.
     RESEARCH_FULL_REVISION = "research_full_revision"
@@ -249,7 +249,7 @@ class Project(_Strict):
     revision_round: int = Field(default=0, ge=0)
     human_escalation_reason: str | None = None
     # Spec 015 T042: points to the most-recent auto-revisions directory
-    # (specs/auto-revisions/<id>/round-N/) written by
+    # (projects/<id>/.specify/auto-revisions/round-N/) written by
     # ``llmxive.convergence.revision_adapter.kickback_to_revision_spec``
     # whenever the convergence engine emits a KickbackRecord. The
     # implementer agent polls projects with this set + a non-empty
@@ -375,7 +375,7 @@ _POSITIVE_OBS = re.compile(
 # work that never moves the verdict. (The unanimous gate is unaffected: these
 # items were never blocking.)
 _NONBLOCKING_RE = re.compile(
-    r"non[\s‐-―-]?blocking|\boptional\b|\bnice[\s-]to[\s-]have\b"
+    r"non[\s\u2010-―-]?blocking|\boptional\b|\bnice[\s-]to[\s-]have\b"
     r"|\bcould\s+be\b|\bwould\s+(?:be\s+\w+|improve|help|simplify|reduce)\b",
     re.I,
 )
@@ -798,7 +798,7 @@ class ImplementerLogEntry(_Strict):
 
 
 class ImplementerLog(_Strict):
-    """`specs/auto-revisions/<PROJ-ID>/round-<N>/implementer-log.yaml`."""
+    """`projects/<PROJ-ID>/.specify/auto-revisions/round-<N>/implementer-log.yaml`."""
 
     schema_version: Literal["1"] = "1"
     round_number: int = Field(ge=1)

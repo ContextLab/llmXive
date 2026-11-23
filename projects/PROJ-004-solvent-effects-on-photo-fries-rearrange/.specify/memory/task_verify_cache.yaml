@@ -1,0 +1,191 @@
+T001:
+  c: true
+  h: 6efc1eac516a93a6af776d97e002a4f7dd5bca751c15e8cbb1ffacc92a6a8be2
+  r: The collector confirms that the project root contains the required directories
+    `code/`, `data/`, `tests/`, and `docs/`, each present with multiple entries. This
+    satisfies the sole requirement of creating the specified project structure.
+  sig: b1d3e604d1f90b9d3c48801016dcf1284b8a4c422c85c9841d062e473c18bb9b
+T002:
+  c: true
+  h: 6aa1462bf4c589c7494d007b2aa3829345f863f1efbf81032d04b3b6a1f82605
+  r: 'The `requirements.txt` file exists, is non-empty, and contains all eight required
+    packages with pinned versions as specified: `numpy==1.26.4`, `scipy==1.11.4`,
+    `pandas==2.1.4`, `scikit-learn==1.3.2`, `pymc==5.10.4`, `statsmodels==0.14.1`,
+    `pyyaml==6.0.1`, and `rdkit==2023.09.1`. The file also includes reasonable additional
+    dependencies (pytest, matplotlib) appropriate for a research project. The task
+    requirement is satisfied.'
+  sig: 1c6d0a8486edab3dd47a9be571658dad9f61464a2e6088fc7bc9a0a49dc2a197
+T002b:
+  c: true
+  h: 74ca6fad4d0063f538d53f912a5b4da997030d6f186eab4fc737d991b4520207
+  r: 'The task requires pinning `rdkit==2023.9.1` (or latest) in `requirements.txt`.
+    The evidence shows `requirements.txt` exists at the project root with the line
+    `rdkit==2023.09.1` present. This matches the requirement: the version specified
+    (2023.09.1) is the September 2023 release, which corresponds to the requested
+    `2023.9.1` pinning (the dot notation difference is a standard formatting variation
+    for the same release). The dependency is properly pinned and non-empty.'
+  sig: a52b4c4ec8a298b86aec4f8e4e79dba75c7fa975ef82e4857b0221006eca759e
+T003:
+  c: true
+  h: 9e68654b9cdbe77074662e4443513381457562443d96b0e2370ec3a34dd5bfb6
+  r: "The `pyproject.toml` exists and contains valid `[tool.black]` (line-length 88,\
+    \ py39 target) and `[tool.ruff]` (line-length 88, py39 target, rule selections/ignores)\
+    \ configuration sections, plus dev dependencies for both tools \u2014 exactly\
+    \ what T003 asked for."
+  sig: 0f7698c54c2895933f4a275f0e0b4bd9e67e92a0cccc7296106e6ced8a75633d
+T004:
+  c: true
+  h: 3ed05f5673a5a8968495071ccce5f67f3d93f5819e9e9be079efc900c8c3b7f1
+  r: "The artifact `code/utils/seeds.py` exists (2113 bytes) and contains a real,\
+    \ functional `set_seed` implementation covering Python's `random`, numpy, torch\
+    \ (with CUDA determinism flags), and tensorflow (each guarded for availability),\
+    \ plus helper functions `get_seed_hash` and `reset_seeds_to_default` \u2014 no\
+    \ stubs, TODOs, or placeholders. The content directly matches the task's requirement\
+    \ of a global seed utility for reproducibility."
+  sig: 1d68249afdb4d61f05cd94b9420cbd35e888b10eaea88a4732108f3455cd2361
+T005:
+  c: true
+  h: 85e47cd757bac53cfdf16eeef1ac3879ab47040efcbd84376502faaa7729d860
+  r: "Checked `code/utils/logging.py` (2042\u202Fbytes) which defines `setup_logging`,\
+    \ `log_operation`, and `log_environmental_params` to configure logging and record\
+    \ environmental parameters as required. The module is present, non\u2011empty,\
+    \ and implements the logging of temperature, humidity, etc., satisfying the task."
+  sig: e89249f9233c0cdce616dc900c33b1588b6015b36a9aa3707fb2b51d9b3c6179
+T006a:
+  c: true
+  h: cdbb2373b7af26ce761c026a9aa9726350fd590a4c3126993ead480cf8e9a143
+  r: The `contracts/solvent.schema.yaml` file exists and defines an object with the
+    required properties `name`, `dielectric_constant`, `source_id`, and `citation_url`,
+    marks them as required, and disallows additional properties.
+  sig: 73b866d6bd91ee5c1fc0afdeec4abbada69b01d0b4bfb502ad2c544753792b26
+T006b:
+  c: true
+  h: 68786754119246c6ff142582ec2054be630d1fbab3d2397085ba66bef69bcf9d
+  r: "The `data/chemicals/solvents.yaml` file (650\u202Fbytes, sha256=9b0825\u2026\
+    ) exists and lists the five required solvents\u2014cyclohexane, toluene, acetonitrile,\
+    \ methanol, and water\u2014each with a dielectric constant sourced from NIST and\
+    \ a citation URL. This satisfies the \u22655\u2011solvent requirement and the\
+    \ NIST dielectric constant specification."
+  sig: f744bf35ca7e7250ff13d0e6fafcf36c49aa16bd96dd68df3f743345e9350486
+T007:
+  c: true
+  h: e582c805e09cf9fe19c1994d690a7f7859ef8ab0351bbef6d3812efd58ec1fad
+  r: "Checked the `contracts/kinetic_trace.schema.yaml` file (9792\u202Fbytes) \u2013\
+    \ it exists, is non\u2011empty, and provides a complete JSON\u2011Schema definition\
+    \ covering all required trace metadata, environmental context, calibration info,\
+    \ and quality metrics as demanded by the task."
+  sig: a8f19f44daf77433ed3045e8bc75def00f015b94002e818de89e3582a9f77064
+T008:
+  c: false
+  h: cf2ef4c0fe5618506bb13b0d3de9056cce76d8597a3114232753ec75049f12c0
+  r: The `code/data/loaders.py` implementation is present, but the required `solvents.yaml`
+    lookup table is missing, so the loader cannot actually read and validate any records.
+    Without this file the functions will raise `SolventDataError`, failing the core
+    requirement of reading and returning validated solvent records. Adding the `solvents.yaml`
+    file (with the expected structure) is needed to complete the task.
+  sig: 6aedc23ca75e915a9d891d55837ef471d473c53c2ad717aba928fa227fcf62c0
+T009a:
+  c: false
+  h: 0ae9b3224ea69ceb97a930764cc741a156b97bd441106ccfe67da452234cabc1
+  r: "The provided `code/config.py` defines directory paths and CPU\u2011only environment\
+    \ settings, but it does **not** declare the required constants (e.g., default\
+    \ substrate mass and integration time set to `None`) nor any logic to load or\
+    \ override them from a `config.yaml` or CLI arguments. Additionally, the `config.yaml`\
+    \ file is missing entirely. These omissions mean the task\u2019s core requirements\
+    \ are not met."
+  sig: f8f7a07bdaa2db4b84b94d81054acb39d7aa84127144f64c310c612aa0e5489f
+T009b:
+  c: false
+  h: 701f52e95a1990196aa1805fe4ac6538a86915800a59b63e8432d2fded5014b7
+  r: "The provided `code/config.py` file exists (2829\u202Fbytes) but does not define\
+    \ an `EXPLICIT_SOLVENTS` list as required by task T009b. Adding a variable such\
+    \ as `EXPLICIT_SOLVENTS = ['water', 'methanol']` (or any appropriate list) is\
+    \ needed to satisfy the requirement."
+  sig: 0cceb8599766e51f2cfba91851e7db7dca254af377a571ec950e8796cf3a5f23
+T010:
+  c: true
+  h: ac087d70f43b1ad01928e4e3808b0aa5de819b206c0acc1048287fe8f1f6bbf3
+  r: "Checked the presence and content of `tests/unit/test_loaders.py`, which contains\
+    \ non\u2011empty unit tests that load the solvent manifest, verify the lookup\
+    \ file exists, and assert correct dielectric constants (e.g., Hexane\u202F=\u202F\
+    1.88, Acetonitrile\u202F=\u202F37.5) and range calculations, thereby satisfying\
+    \ the requirement to validate dielectric constants against the versioned lookup\
+    \ table."
+  sig: f92083947d33cd0cd65befc132fe4a7ce10479464574bab32272b64c6b5d2e50
+T014:
+  c: false
+  h: 99b21398d8e9b318a5972837614b7217c8964916938f5ca7d22bf4d41e81f1de
+  r: "The repository contains the `code/analysis/environment.py` module that can write\
+    \ logs, but the required output file `data/processed/environment_logs.json` is\
+    \ missing and no execution evidence is provided to show that the script has been\
+    \ run and produced the log. The task\u2019s core deliverable \u2013 the actual\
+    \ environment log file \u2013 is absent."
+  sig: 56729b5b996d318007e913ee323f5bb624f10d7b3e8f5387b9f391cc28b3e32a
+T015b:
+  c: false
+  h: 0bc5c25504b4d155eb0c221483025d8cde92d5944f04a522826801d2b1cea2a0
+  r: "The provided `code/data/ingest.py` aborts when `USE_REAL_DATA=True` and the\
+    \ file is missing, but it does **not** read the data path from a `config.py` setting\
+    \ (it uses an environment variable) and it only handles CSV files, not JSON as\
+    \ required. These deviations mean the task\u2019s specification is not fully satisfied."
+  sig: 6be9c6be6ef039045798d243d2f8e592592ac4ef9a236885a1cad327734f0b19
+T015c:
+  c: false
+  h: 8c817c62049a9c81efbbc2393b0a3550e777fcf8f16c1fb865e3770dccf488f4
+  r: "The `generate_synthetic.py` script exists but it neither accepts a seed argument\
+    \ nor has been shown to actually produce the required `data/raw/synthetic_traces.csv`\
+    \ file (the file is missing). Consequently the task\u2019s core requirement\u2014\
+    deterministic synthetic trace generation with a seed and output path\u2014is not\
+    \ met."
+  sig: b7cd44806680d5c7c0bb5af864ab508f1189b2d497e276f9cfdc306eea8eda4f
+T015e:
+  c: false
+  h: e037004bd855e12d49b6a6a906db8fae30b565a89dd3e09e38545e52d77786f7
+  r: "The required file `code/data/instrument_interface.py` is missing, so the `capture_transient_data()`\
+    \ API cannot be verified to exist or to raise `NotImplementedError` as specified.\
+    \ The task\u2019s core deliverable is absent."
+  sig: 5a42e9bc235f493a4cfe3ac07ac138dc514c1710281fcf16c98e799d58176aa8
+T016:
+  c: false
+  h: 6a6f17309c8c570f7ad39dc668ad36e0caccbec9aeba2e3f6f5c79170d97f7f0
+  r: "The repository contains `code/analysis/calibration.py`, which applies calibration\
+    \ factors, but it writes its log to `data/processed/calibration_log.json` and\
+    \ saves calibrated traces as a CSV. The required output file `data/processed/calibration_record.json`\
+    \ is missing, and the script never creates it. The task\u2019s specification is\
+    \ therefore not satisfied."
+  sig: c0cbea2425be289042b6845f8a43d1896da055a081be455c547272e52fc76b92
+T017a:
+  c: false
+  h: c8e3558bfcbcbd66c9f1f0cecb5f8bb686f6eb6433c05a765420f809d30907cc
+  r: "Checked `code/analysis/validation.py` (exists) and the required data files.\
+    \ The script does not compute the overall percentage of compliant runs nor enforce\
+    \ the 98\u202F% compliance threshold, and the required input `data/processed/environment_logs.json`\
+    \ (and consequently the output `validation_flags.json`) are missing. Both the\
+    \ missing input file and the absent compliance\u2011percentage logic must be added\
+    \ to satisfy T017a."
+  sig: 110ae9c2997f3c0a1ae448a833577da2c3d0e425127ecebf57aaf41ef6cc605a
+T017b:
+  c: false
+  h: 9579edca0a61ddf6a6ff4428621371314299c046d1a02d175c2a4610aeee4f29
+  r: "The repository contains the implementation `code/analysis/compliance.py`, but\
+    \ the required output artifact `data/processed/compliance_report.json` is missing,\
+    \ and there is no evidence that the script was run or that \u226595\u202F% of\
+    \ runs met all tolerances. The task is not fulfilled until the compliance report\
+    \ file is generated (with a compliance percentage \u22650.95) and the file is\
+    \ present in the expected location."
+  sig: dd05e5838f1fda23eabe4a5f8c4d2d70cd03cdfae99d4312b8c618d2c24f36fb
+T021:
+  c: false
+  h: c4e526b805d68afd4f2f59fa47a20e04401abec8e34e76d4c83ddf05f96d549f
+  r: The repository contains a partially shown `code/analysis/kinetic_fit.py` but
+    the file is truncated and does not demonstrate full global kinetic analysis or
+    handling of the required input file. Moreover, the required data file `data/processed/calibrated_traces.csv`
+    is absent, and no synthetic equivalent is provided. The task therefore lacks the
+    necessary input artifact and a complete implementation.
+T035:
+  c: true
+  h: 886eabc2e4e0256c8c5c64aa93460da6849f071ac5116646ac5855232079c62b
+  r: "The `code/analysis/instrument_registry.py` file exists, is fully implemented,\
+    \ and contains logic to load the instrument model from `data/chemicals/instrument_config.yaml`,\
+    \ falling back to the required generic model when the file or the model key is\
+    \ missing. This matches the task\u2019s constraints."

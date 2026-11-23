@@ -1,0 +1,30 @@
+{
+  "task": "T001",
+  "root": "/home/runner/work/llmXive/llmXive/projects/PROJ-147-uncovering-correlations-between-processi",
+  "directories": [
+    "code",
+    "code/data",
+    "code/models",
+    "code/utils",
+    "code/tests",
+    "data",
+    "data/raw",
+    "data/processed",
+    "data/models",
+    "data/reports",
+    "data/figures",
+    "tests",
+    "docs",
+    "docs/contracts",
+    "docs/research"
+  ],
+  "directories_created": [
+    "code/tests",
+    "data/models",
+    "data/reports",
+    "data/figures",
+    "docs/research"
+  ],
+  "package_markers_created": [],
+  "all_directories_exist": true
+}

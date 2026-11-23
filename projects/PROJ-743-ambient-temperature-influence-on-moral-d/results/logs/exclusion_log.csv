@@ -1,1 +1,7 @@
-record_id,exclusion_reason,timestamp
+record_id,exclusion_reason,details
+3,missing_location,lat=None, lon=-73.9352
+4,missing_location,lat=48.8566, lon=None
+5,missing_location,lat=0.0, lon=0.0
+2,invalid_response_time,response_time=15000ms
+6,invalid_response_time,response_time=50ms
+7,invalid_response_time,response_time=100000ms

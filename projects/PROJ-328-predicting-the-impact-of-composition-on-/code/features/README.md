@@ -1,43 +1,30 @@
-# Feature Engineering Module
+# Features Module
 
-This directory contains the code for transforming raw solder alloy compositions
-into predictive descriptors and managing feature engineering pipelines.
+This directory contains the descriptor engineering pipeline for solder alloy composition analysis.
 
 ## Components
 
-### Transformer (`transformer.py`)
-- `CLRTransformer`: Implements the Centered Log-Ratio (CLR) transformation
- to handle the compositional nature of alloy data (closure problem).
-
-### Descriptor Engine (`descriptor_engine.py`)
-- `DescriptorEngine`: Calculates physical and chemical descriptors from
- CLR-transformed compositions, including:
- - Weighted mean atomic mass
- - Electronegativity variance
- - Atomic radius variance
- - Weighted average melting point
- - Valence electron concentration
-
-### Collinearity (`collinearity.py`)
-- `calculate_vif`: Computes Variance Inflation Factors to detect
- multicollinearity among engineered features.
+- `transformer.py`: CLR (Centered Log-Ratio) transformation for compositional data
+- `descriptor_engine.py`: Computation of physical/chemical descriptors from elemental compositions
+- `collinearity.py`: Variance Inflation Factor (VIF) calculation and collinearity detection
+- `__init__.py`: Module initialization and public API exports
 
 ## Usage
 
 ```python
 from features import CLRTransformer, DescriptorEngine
 
-# Transform compositions
+# Transform compositional data
 transformer = CLRTransformer()
-clr_data = transformer.transform(raw_compositions)
+clr_data = transformer.fit_transform(composition_df)
 
-# Engineer descriptors
+# Compute descriptors
 engine = DescriptorEngine()
-descriptors = engine.compute(clr_data, elemental_properties)
+descriptors = engine.compute_descriptors(composition_df)
 ```
 
 ## Dependencies
 
-- `compositional`: For CLR transformation
-- `numpy`, `pandas`: Data manipulation
-- `statsmodels`: VIF calculation
+- `compositional` library for CLR transformation
+- `numpy`, `pandas` for data manipulation
+- `statsmodels` for VIF calculation

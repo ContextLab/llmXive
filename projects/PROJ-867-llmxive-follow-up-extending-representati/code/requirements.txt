@@ -5,5 +5,6 @@ scikit-learn
 jsonschema
 pyyaml
 psutil
+pandas
+pyarrow
 Pillow
-numpy

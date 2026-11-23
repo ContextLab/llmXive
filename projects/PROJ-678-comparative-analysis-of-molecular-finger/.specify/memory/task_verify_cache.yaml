@@ -1,0 +1,170 @@
+T001a:
+  c: false
+  h: dfbb8557bd0a2d37eb86c0023265cf4b87fe7fd43a68b0e3c44b1ba942b11ecc
+  r: 'The required directory `projects/PROJ-678-comparative-analysis-of-molecular-fingerprints/`
+    is reported MISSING by the collector, and the setup script''s own logs show it
+    created the structure at a nested wrong path (`.../molecular-finger/projects/...fingerprints/`)
+    instead of the project root. The unit test `tests/unit/test_setup_dirs.py::test_directory_creation`
+    FAILED (exit 1, "Missing directory: data/raw"), confirming the directories were
+    not created where required.'
+  sig: 66fc5dca1303d9b988d1309996bba96485699d696ca6a5b7f260bbdbe8bb5021
+T001b:
+  c: true
+  h: ca3db7b0b06102ca44db8d76bc020d1f1a7cde7b57f3d059d348f96d31a9ec7b
+  r: "Checked the three required artifacts in the project root: `requirements.txt`\
+    \ (pinned rdkit, scikit-learn, pandas, numpy, requests, pytest), `pyproject.toml`\
+    \ (includes Black and Flake8 linting configuration), and `README.md` (non\u2011\
+    empty). All files exist and contain the expected content."
+  sig: a6e6eed40d24620b417e613011373e5e7e53bc0ee1c67c32005121a0d2548596
+T002:
+  c: true
+  h: 3a9d36a19e5634d7e109091f0d0c7747ed1a4fcd9ed68ff0f66d042a4da9dad2
+  r: "Checked `requirements.txt` (pinned rdkit, scikit-learn, pandas, numpy, requests,\
+    \ pytest), `pyproject.toml` (contains linting configuration), and `README.md`;\
+    \ all three files exist, are non\u2011empty, and meet the specified content requirements."
+  sig: 47052578d7a9fb84b3826ff00287eea879c00e5c9b0ea372bd70af0029f0a9f6
+T003:
+  c: true
+  h: 0afcb44e9be860826af2c2b602085946d7cf7831ea99996ec5dd82a127933ef7
+  r: "The provided `pyproject.toml` (1164\u202Fbytes) contains both a `[tool.black]`\
+    \ section with line\u2011length, target version, include/exclude patterns, and\
+    \ a `[tool.flake8]` section with max line length, ignored codes, and exclude settings,\
+    \ fulfilling the requirement to configure linting and formatting tools."
+  sig: 59c84640a38b39bef03ec640786b9736dadb88e41df260e1d4629135012eae6b
+T004:
+  c: true
+  h: 2d60285e26db39690120581073863964f93f6b3cfd641c48a77bbf8402288d3b
+  r: "Checked that `data/raw/` and `data/processed/` directories exist and each contains\
+    \ a non\u2011empty `.gitkeep` file (`data/raw/.gitkeep` and `data/processed/.gitkeep`).\
+    \ The verification command would succeed."
+  sig: a0ffea29b00f20909ab0b90da754cc2dba1117dc2ca9eff3ef074d1ad9a924c8
+T005:
+  c: true
+  h: 954b10b30839ddc0d649ffd65f67eec22d173b802086d22ca536becb6b955555
+  r: "Checked `code/utils.py` (2001\u202Fbytes) which defines `setup_logging`, `init_random_seed`\
+    \ (default seed\u202F42) and sets the `PYTHONHASHSEED` environment variable, fulfilling\
+    \ the required logging, seed initialization, and environment\u2011variable handling."
+  sig: 611d37727658a1c891f6c4038d44305969608d9fddbbbfe4fa33281162a9928b
+T006:
+  c: true
+  h: 42b12aee9de6c9309db3ef93bb02dc81641e94a7e9868c41ceff2dbdf3690aa7
+  r: "Checked `code/constants.py` \u2013 it defines all required variables with the\
+    \ exact values. Verified `code/filter.py` imports `SMARTS_PATTERN` from `constants.py`\
+    \ and uses it (no hard\u2011coded pattern). Both files exist and contain the correct,\
+    \ non\u2011placeholder implementations."
+  sig: ce3b649bf48cbddf98dfbc930b4594c69dd3b4047efcc0a04c1106fe080f65c2
+T007:
+  c: true
+  h: 1f40447734e7e19d0cc72769847ecfe2bcefcbd18e2c64fe4b0b748bca0ddf71
+  r: "Checked the `tests/` directory (sha256\u202F8dca8062\u2026) which contains the\
+    \ required `unit/` and `integration/` sub\u2011directories, along with supporting\
+    \ files (`__init__.py`, `conftest.py`). The directory structure demanded by task\
+    \ T007 is present."
+  sig: bf95ffe2a58176a0b3af874d81240d8cb33ab797b928a19a8e0fc57037ac9d3d
+T008:
+  c: true
+  h: 9333435ae80841b5ff8a77f328d2285ef3f3d36cc56f34baf8a0c3db394a8bf6
+  r: "Checked the file `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md`\
+    \ (4744\u202Fbytes) which defines the Compound, Fingerprint, Model, and PerformanceMetric\
+    \ entities and includes the exact schemas `{smiles: str, mol_id: str, toxicity_labels:\
+    \ dict}`, `{type: str (morgan/maccs), bits: int, vector: list}`, `{type: str,\
+    \ fingerprint_type: str, endpoint: str, metrics: dict}`, and `{name: str, value:\
+    \ float, ci: tuple}` as required."
+  sig: e878eb630a6d05ba286bf76c58456c2242ec51651fd4a8491fbec77b65a515f8
+T009:
+  c: true
+  h: d88861a958cf061b490db3bb2de61350cad894f7caf2032063497c9399db2b0d
+  r: "Checked `tests/unit/test_filter.py` which contains the `test_smarts_filter_returns_empty_on_no_match`\
+    \ pytest function that creates a mock DataFrame with non\u2011matching SMILES,\
+    \ calls `apply_smarts_filter`, and asserts the result is an empty DataFrame. The\
+    \ test file exists, is non\u2011empty, and implements the required behavior."
+  sig: 02b602855755e3eaa4d3a6621a20c042047974b1924016974d1bb43012002a12
+T010:
+  c: false
+  h: e268712dd7e0f15608ad8efa77049dcce2fda031006c865bc6b76a5deae2af64
+  r: 'The test exists but the recorded execution log shows it FAILS: `fetch_tox21_dataset`
+    returns a pandas DataFrame (via the S3 fallback), yet the test calls `df.column_names`
+    (a HuggingFace `Dataset` API), raising `AttributeError` at line 91. Additionally,
+    `calculate_checksum`/`verify_checksum` in `code/download.py` ignore the `algorithm`
+    argument and always compute SHA-256, so the test''s `algorithm="md5"` request
+    is not honored. The test must be fixed to use `df.columns` (and the checksum functions
+    should respect the algorithm parameter), and a passing run must be evidenced.'
+  sig: 707bbd1a49dc004583e0ce90b8640f5308dce1f07060d0ea59dc141b7602e3ea
+T011:
+  c: false
+  h: 3ebaebda643f2a90fbd9f1754e2241cd6ccfdd3c620412918e7932879d6aee72
+  r: "The file exists and is non-trivial, but two core requirements are unmet: (1)\
+    \ checksum verification is never actually performed \u2014 `calculate_checksum`/`verify_checksum`\
+    \ are defined but never called in the download path, and no expected checksum\
+    \ constant is provided, so verification is dead code; (2) the task specifies `load_dataset(\"\
+    deepchem/tox\")` while the code defaults to `\"deepchem/tox21\"` (arguably matching\
+    \ the spec's Tox21 dataset, but the primary HF route silently falls back to an\
+    \ S3 CSV with no evidence either route was executed). Additionally, there is no\
+    \ execution evidence (no downloa"
+  sig: 61406c281df2c50d31888c5c5bb393ae6411eca17d3a34b9c30e3f5719be4ece
+T012:
+  c: true
+  h: 72218909b092187041687f53ded5d7ab62a3c8a8785fe1076b3b8198b82fa250
+  r: '`code/filter.py` exists and implements all five required steps (load raw CSV,
+    MolFromSmiles conversion, MolFromSmarts with the exact `[P](=O)([O,SC])[O,SC]`
+    pattern from constants.py, filter matched rows, save CSV), and `data/processed/organophosphates_filtered.csv`
+    is a non-empty output with the 12 Tox21 endpoint columns, mol_id, and SMILES that
+    visibly contain P=O motifs with O/S substituents, with non-zero label counts across
+    endpoints. The output content is consistent with a real filter run rather than
+    a placeholder.'
+  sig: 936603e4ce25fe6c8420217dbb07ddde0c00a5c56445f77bf3721940ffad514d
+T013a:
+  c: true
+  h: 205d7c8e16d5cf29c9f3c06c9fed1e1a14518f80612d3601076aaf0e042b93b1
+  r: "`code/filter.py` implements `validate_endpoints` counting rows per endpoint\
+    \ and the sample-size branch logic, and the executed output `data/processed/filter_log.txt`\
+    \ exists with per-endpoint counts (12 endpoints plus mol_id) and, since filtered_count=131\
+    \ \u2265 50, contains \"status: OK\" as required by the success path. The log's\
+    \ timestamp and consistent counts (e.g., mol_id: 131 matching filtered_count)\
+    \ indicate a real run rather than a fabricated artifact."
+  sig: 362e5a6e78a971270ceabab4da1710836fd366fcc40003f77fbc2cd9dabc7263
+T013b:
+  c: true
+  h: 53446620be87025850630d56b4375d3427e6a1cbd095e48857d91dcc5d7cc1f1
+  r: '`code/filter.py` contains `write_sample_size_status` implementing the exact
+    threshold logic (`"SKIP_STATS" if count < 50 else "OK"`) and writes it to `data/processed/sample_size_status.json`,
+    which exists on disk with valid JSON `{"status": "OK"}` (16 bytes), matching the
+    verification requirement. The status is derived from the actual filtered count
+    in `main()`, consistent with the T013a dependency.'
+  sig: f5ea719366a59738652ff1747157ece245584ce9d4a3ba92eaa8e0214fc1f6a8
+T020b:
+  c: false
+  h: 05703c0b7bec84e5c4055c6f4e6e81223b77151ca70c2c864bdd4547ed5dc2c9
+  r: "The required `data/processed/final_test_metrics.json` file is missing, and `code/train.py`\
+    \ does not contain logic to evaluate a final model on the test set or to write\
+    \ the specified ROC\u2011AUC and PR\u2011AUC metrics for Morgan and MACCS fingerprints.\
+    \ The script is focused on training with K\u2011Fold CV and is incomplete/truncated."
+T024a:
+  c: false
+  h: 35872b55635098d483c4fecc86a0cc65d230fc1552ace28414e002faa59fa032
+  r: "The required `data/processed/final_test_metrics.json` file is absent, and `code/evaluate.py`\
+    \ contains no logic to read that file or compute ROC\u2011AUC/PR\u2011AUC specifically\
+    \ for the single held\u2011out test set (FR\u2011004). The script only defines\
+    \ generic evaluation utilities for K\u2011fold folds. Consequently the task\u2019\
+    s core requirement is not satisfied."
+T024b:
+  c: false
+  h: 9820f8cb49db3252b36b24c161848f7d6d1e4438111bba26dd0821052b9073e5
+  r: The required output file `data/processed/test_set_descriptive.json` does not
+    exist, and the provided `code/evaluate.py` (as shown) contains no logic that writes
+    a JSON with the specified schema. Consequently the task of generating the descriptive
+    metrics file has not been fulfilled.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, commit diff, or documentation was provided showing that random seeds
+    were set or that the codebase was refactored for reproducibility. Without any
+    artifact demonstrating seed handling (e.g., updated scripts, configuration files,
+    or a test confirming identical results across runs), the claim cannot be verified.
+    The required evidence of reproducible random seed implementation is missing.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run, CI logs, or timing results\
+    \ is provided; the required artifact demonstrating that the full pipeline completes\
+    \ within 60\u202Fminutes on CI is missing."

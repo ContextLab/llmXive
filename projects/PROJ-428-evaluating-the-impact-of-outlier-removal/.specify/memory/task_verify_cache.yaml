@@ -1,0 +1,35 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-428-evaluating-the-impact-of-outlier-removal/`
+    directory (or any subfolders/files) is provided; the implementer did not supply
+    the project structure or any contents, so the task is not satisfied.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black/Ruff settings, or CI scripts) are present, and the provided evidence\
+    \ only describes unrelated data\u2011analysis user stories. The required artifacts\
+    \ to configure flake8/ruff/black are missing."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory hierarchy (`data/raw/`, `data/processed/`,\
+    \ `data/results/`, `state/`) or a script that creates them atomically with `mkdir\
+    \ -p` was provided. The implementer\u2019s claim cannot be verified because the\
+    \ artifacts are missing."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required files is present: there are no `data/raw/uci_*.csv`\
+    \ downloads, no `data/processed/uci_clean_*.csv` outputs containing identified\
+    \ continuous variables and baseline variance values, and no code or logs showing\
+    \ the processing steps. The task\u2019s deliverables are missing."
+T011b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required CSV files in `data/raw/` nor the JSON file in `state/`\
+    \ was provided; without these artifacts the task of generating synthetic clean\
+    \ distributions with known variance parameters is not satisfied. The implementer\
+    \ must create and commit the `synthetic_clean_*.csv` files and the `synthetic_params.json`\
+    \ containing the ground\u2011truth parameters."

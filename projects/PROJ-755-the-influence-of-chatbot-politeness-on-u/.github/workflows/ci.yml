@@ -4,55 +4,51 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
-  build-and-test:
+  setup-and-test:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v5
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.11'
-
-    - name: Install R-base
-      uses: r-lib/actions/setup-r@v2
-      with:
-        r-version: 'release'
-        use-public-rspm: true
-
-    - name: Install R packages (lme4, ordinal)
-      run: |
-        Rscript -e 'install.packages("lme4", repos="https://cloud.r-project.org")'
-        Rscript -e 'install.packages("ordinal", repos="https://cloud.r-project.org")'
+        python-version: '3.9'
 
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then
-          pip install -r requirements.txt
-        else
-          echo "requirements.txt not found. Installing core dependencies."
-          pip install transformers datasets statsmodels pandas scikit-learn numpy pyyaml tqdm rpy2 textstat evalue
-        fi
+        pip install -r code/requirements.txt
 
-    - name: Verify R packages installation
-      run: |
-        Rscript -e 'library(lme4)'
-        Rscript -e 'library(ordinal)'
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: '4.3.0'
 
-    - name: Run linting (ruff)
+    - name: Install R system dependencies for lme4 and ordinal
       run: |
-        ruff check code/ tests/ || true
+        sudo apt-get update
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
 
-    - name: Run formatting check (black)
+    - name: Install R packages lme4 and ordinal
       run: |
-        black --check code/ tests/ || true
+        Rscript -e "install.packages('remotes')"
+        Rscript -e "remotes::install_cran('lme4')"
+        Rscript -e "remotes::install_cran('ordinal')"
+        Rscript -e "if (!require('lme4')) stop('lme4 installation failed')"
+        Rscript -e "if (!require('ordinal')) stop('ordinal installation failed')"
 
-    - name: Run unit tests
+    - name: Verify R packages are available
       run: |
-        python -m pytest tests/ -v --tb=short || true
+        Rscript -e "library(lme4); cat('lme4 loaded successfully\n')"
+        Rscript -e "library(ordinal); cat('ordinal loaded successfully\n')"
+
+    - name: Run basic sanity checks
+      run: |
+        python code/utils/setup_dirs.py
+        python code/utils/schema_validator.py --help || true
+        echo "CI Setup and R Environment Check Completed"

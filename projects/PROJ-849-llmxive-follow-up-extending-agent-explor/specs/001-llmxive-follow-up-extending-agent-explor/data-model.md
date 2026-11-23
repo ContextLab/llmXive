@@ -1,57 +1,76 @@
-# Data Model: llmXive Follow-up: Semantic Divergence Diagnostic for Agentic Reasoning
+# Data Model: llmXive Follow-up: Semantic Divergence Diagnostic
 
-## 1. Entity Relationship Diagram (Conceptual)
+## 1. Overview
 
-```mermaid
-erDiagram
-    ProblemInstance ||--o{ ToolMapping : "has"
-    ProblemInstance ||--o{ ToolDistribution : "retrieves"
-    ProblemInstance ||--o{ DivergenceMetric : "calculates"
-    ProblemInstance ||--o{ RLOutcome : "correlates_with"
-    DivergenceMetric ||--o{ Prediction : "predicts"
+This document defines the data structures used in the Semantic Divergence Diagnostic pipeline. All data is stored in `data/` and processed in `src/`.
 
-    ProblemInstance {
-        string problem_id PK
-        string thinking_prefix
-        string[] ground_truth_tools
-        number difficulty "Normalized difficulty score (0‑1) from MathVista metadata."
-    }
-    ToolMapping {
-        string problem_id PK
-        string[] ground_truth_tools
-    }
-    ToolDistribution {
-        string[] retrieved_tool_ids
-        number[] bm25_scores
-        number[] centroid_embedding "DistilBERT 768‑dim vector."
-    }
-    DivergenceMetric {
-        number cosine_similarity "∈ [‑1, 1]"
-        number semantic_divergence_score "1 - cosine_similarity"
-    }
-    RLOutcome {
-        number failure_rate "∈ [0, 1]"
-        string success_failure "Derived: Failure if failure_rate ≥ 0.5"
-    }
-    Prediction {
-        string predicted_outcome "Success | Failure"
-        number prediction_probability "∈ [0, 1]"
-    }
-```
+## 2. Core Entities
 
-## 2. Data Flow
+### 2.1 ProblemInstance
+Represents a single multimodal reasoning task.
+- `problem_id` (str): Unique identifier for the problem.
+- `thinking_prefix` (str): The extracted "thinking" trace from the agent (or static stub).
+- `question` (str): The raw question text.
+- `answer` (str): The ground truth answer.
+- `simulated_failure` (bool): Result of the Oracle (True = Failure). Derived from ground truth answer comparison.
+- `divergence_score` (float): Calculated semantic divergence (0.0 to 1.0).
+- `cosine_similarity` (float): Raw cosine similarity.
+- `centroid_validity` (bool): Whether the tool centroid was valid (low variance).
+- `tool_variance` (float): Variance of retrieved tool embeddings.
 
-1. **Ingestion**: `ProblemInstance` loaded from MathVista (Parquet).  
-2. **Tool Mapping**: `ToolMapping` CSV (checksum‑verified) supplies `ground_truth_tools`. **If missing**, a deterministic synthetic mapping based on `difficulty` is generated (see Research.md).  
-3. **Retrieval**: `ToolDistribution` generated via BM25 over `tool_descriptions.csv`. **If missing**, a synthetic tool corpus is generated (see Research.md).  
-4. **Embedding**: `thinking_prefix` and each retrieved tool description → DistilBERT vectors.  
-5. **Metric Calculation**: `DivergenceMetric` derived from vectors.  
-6. **Enrichment**: `RLOutcome` joined from external `rl_failure_rates.csv`. **If missing**, synthetic failure rates are generated independently from the tool mapping (see Research.md).  
-7. **Analysis**: Logistic regression → `Prediction`. (K‑Means clustering is used only for risk‑group labeling, not as a predictor.)
+### 2.2 ToolDistribution
+Represents the set of tools retrieved for a problem.
+- `problem_id` (str): Foreign key to ProblemInstance.
+- `retrieved_tool_descriptions` (list[str]): List of tool description strings.
+- `centroid_embedding` (list[float]): Vector representation of the centroid.
+- `retrieval_count` (int): Number of tools retrieved.
+- `lexical_overlap_flag` (bool): True if a tool name was found in the thinking trace (masked).
 
-All transformations produce new files; original raw files remain unchanged, satisfying Constitution Principle III.
+### 2.3 DivergenceMetric
+Derived metrics for analysis.
+- `problem_id` (str): Foreign key.
+- `thinking_embedding` (list[float]): Vector representation of the thinking prefix.
+- `tool_centroid_embedding` (list[float]): Vector representation of the tool centroid.
+- `cosine_similarity` (float): Cosine similarity between thinking and tool vectors.
+- `semantic_divergence_score` (float): `1 - cosine_similarity`.
+- `centroid_validity` (bool): Whether the centroid was valid.
+- `tool_variance` (float): Variance of retrieved tool embeddings.
 
-## 3. Schema Definitions (refer to contracts)
+## 3. File Formats
 
-- `ProblemInstance` → `contracts/dataset.schema.yaml` (includes optional `difficulty`).  
-- `ToolDistribution`, `DivergenceMetric`, `RLOutcome`, `Prediction` → `contracts/output.schema.yaml`.
+### 3.1 Raw Data
+- **Format**: JSONL (JSON Lines).
+- **Path**: `data/raw/mathvista_subset.jsonl`
+- **Schema**: `ProblemInstance` (partial, without scores).
+
+### 3.2 Tool Mappings
+- **Format**: JSON.
+- **Path**: `data/processed/tool_mappings.json`
+- **Schema**: `{"problem_id": ["tool_desc_1", "tool_desc_2", ...]}`
+
+### 3.3 Processed Data
+- **Format**: Parquet.
+- **Path**: `data/processed/divergence_scores.parquet`
+- **Schema**: `ProblemInstance` (full, including scores and embeddings).
+
+### 3.4 Cache
+- **Format**: JSONL.
+- **Path**: `data/cache/axpo_simulated_outcomes.jsonl`
+- **Schema**: `{"problem_id": "success" | "failure"}` (Generated by Oracle).
+
+## 4. Data Flow
+
+1.  **Load**: `data_loader.py` reads MathVista (streaming) and `tool_mappings.json`.
+2.  **Extract**: Thinking prefixes and problem IDs are extracted.
+3.  **Retrieve**: BM25 index built from tool mappings; top tools retrieved per problem. **Lexical overlap masking** applied.
+4.  **Embed**: Thinking and tool descriptions embedded via DistilBERT.
+5.  **Compute**: Divergence scores calculated. **Centroid validity** and **variance** checked.
+6.  **Merge**: Simulated outcomes merged from Oracle.
+7.  **Output**: Final dataset saved to `divergence_scores.parquet`.
+
+## 5. Constraints
+
+- **Embedding Dimension**: 384 (for `all-MiniLM-L6-v2`).
+- **Max Records**: 500 (hard limit), 300 (soft limit for memory).
+- **Null Handling**: Missing thinking prefix -> use static stub. Missing tools -> score = 1.0.
+- **Lexical Overlap**: If tool name is in thinking trace, flag as `lexical_overlap_flag=True` and mask in retrieval.

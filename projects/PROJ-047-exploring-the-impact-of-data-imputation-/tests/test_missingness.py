@@ -24,7 +24,7 @@ class TestTuneAlpha:
             f"Calculated rate {calculated_rate:.4f} does not match target {target_rate}"
 
     def test_tune_alpha_various_rates(self):
-        """Test tuning for various target rates."""
+        """Test for various target rates."""
         beta = 0.8
         for target in [0.1, 0.5, 0.9]:
             alpha = tune_alpha(beta, target)
@@ -49,6 +49,32 @@ class TestTuneAlpha:
 
         with pytest.raises(ValueError):
             tune_alpha(0.5, 1.5)
+
+    def test_tune_alpha_extreme_beta_values(self):
+        """Test that tune_alpha correctly converges for extreme beta values (0.0 and 1.0)."""
+        target_rate = 0.3
+        rng = np.random.RandomState(42)
+        y_sample = rng.normal(loc=0.0, scale=1.0, size=100000)
+        from scipy.special import expit
+
+        # Test beta = 0.0 (Missingness independent of Y, purely determined by alpha)
+        # In this case, P(M=1) = sigmoid(alpha), so alpha should be close to sigmoid^-1(0.3)
+        alpha_zero = tune_alpha(0.0, target_rate)
+        logits_zero = alpha_zero + 0.0 * y_sample
+        probs_zero = expit(logits_zero)
+        calculated_rate_zero = np.mean(probs_zero)
+        
+        assert abs(calculated_rate_zero - target_rate) < 0.01, \
+            f"Failed for beta=0.0: target {target_rate}, got {calculated_rate_zero:.4f}"
+
+        # Test beta = 1.0 (Strong MNAR effect)
+        alpha_one = tune_alpha(1.0, target_rate)
+        logits_one = alpha_one + 1.0 * y_sample
+        probs_one = expit(logits_one)
+        calculated_rate_one = np.mean(probs_one)
+        
+        assert abs(calculated_rate_one - target_rate) < 0.01, \
+            f"Failed for beta=1.0: target {target_rate}, got {calculated_rate_one:.4f}"
 
 class TestInjectMNAR:
     def test_inject_mnar_creates_nan(self):

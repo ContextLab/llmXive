@@ -1,0 +1,12 @@
+# Contract for the raw input file (data/raw/input.csv).
+type: object
+required:
+  - smiles
+  - conductivity
+properties:
+  smiles:
+    type: array
+    description: SMILES strings, one per molecule.
+  conductivity:
+    type: array
+    description: Measured conductivity values (positive floats).

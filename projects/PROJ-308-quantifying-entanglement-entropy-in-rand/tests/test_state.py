@@ -1,126 +1,180 @@
 """
-Tests for state management and metadata logging functionality.
+Tests for state management and metadata logging (T011).
 """
 import json
 import os
-import pytest
+import tempfile
+import shutil
 from pathlib import Path
+import pytest
 
-# Import the module under test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# We need to mock the paths since the code uses relative paths
+# We will patch the module's path constants before importing
+import code.state_manager as state_manager
 
-from state_manager import (
-    log_unresolved_realization,
-    log_unresolved_batch,
-    get_unresolved_summary,
-    clear_unresolved_log,
-    METADATA_FILE,
-    UNRESOLVED_LOG_FILE,
-    STATE_DIR,
-    DATA_RAW_DIR
-)
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to act as project root."""
+    temp_dir = tempfile.mkdtemp()
+    original_cwd = os.getcwd()
+    os.chdir(temp_dir)
 
-@pytest.fixture(autouse=True)
-def setup_and_teardown():
-    """Clean up before and after each test."""
-    # Clean up before test
-    clear_unresolved_log()
-    yield
-    # Clean up after test
-    clear_unresolved_log()
+    # Create necessary directories
+    Path("data/raw").mkdir(parents=True, exist_ok=True)
+    Path("state").mkdir(parents=True, exist_ok=True)
 
-class TestUnresolvedLogging:
-    """Tests for unresolved realization logging functionality."""
+    yield temp_dir
 
-    def test_unresolved_log_creation(self):
-        """Test that unresolved log files are created when logging."""
-        log_unresolved_realization(
-            realization_id=1,
-            delta=0.5,
-            reason="TEBD did not converge",
-            details={"iterations": 100, "final_energy": 0.123}
-        )
+    os.chdir(original_cwd)
+    shutil.rmtree(temp_dir)
 
-        assert METADATA_FILE.exists(), "metadata.json should be created"
-        assert UNRESOLVED_LOG_FILE.exists(), "unresolved_realizations.json should be created"
+def test_unresolved_log(temp_project_root):
+    """
+    Verify that unresolved realizations are logged correctly to
+    data/raw/metadata.json and state/unresolved_log.json.
+    """
+    # Reset state
+    state_manager._METADATA_FILE = Path("data/raw/metadata.json")
+    state_manager._UNRESOLVED_LOG_FILE = Path("state/unresolved_log.json")
 
-    def test_unresolved_log_content(self):
-        """Test that unresolved log contains correct data."""
-        log_unresolved_realization(
-            realization_id=42,
-            delta=0.3,
-            reason="Numerical instability",
-            details={"error": "divergence detected"}
-        )
+    # Log a single unresolved realization
+    state_manager.log_unresolved_realization(
+        realization_id=1,
+        delta=0.5,
+        L=20,
+        reason="Convergence failure: TEBD did not converge within max iterations"
+    )
 
-        metadata = json.loads(METADATA_FILE.read_text())
-        assert metadata["unresolved_count"] == 1
-        assert len(metadata["unresolved_realizations"]) == 1
-        
-        entry = metadata["unresolved_realizations"][0]
-        assert entry["realization_id"] == 42
-        assert entry["delta"] == 0.3
-        assert entry["reason"] == "Numerical instability"
-        assert "details" in entry
-        assert entry["details"]["error"] == "divergence detected"
-        assert "logged_at" in entry
+    # Verify data/raw/metadata.json
+    metadata_path = Path("data/raw/metadata.json")
+    assert metadata_path.exists(), "metadata.json was not created"
 
-    def test_multiple_unresolved_realizations(self):
-        """Test logging multiple unresolved realizations."""
-        log_unresolved_realization(1, 0.2, "Convergence failure")
-        log_unresolved_realization(2, 0.2, "Energy divergence")
-        log_unresolved_realization(3, 0.2, "Bond dimension exceeded")
+    with open(metadata_path, 'r') as f:
+        metadata = json.load(f)
 
-        metadata = json.loads(METADATA_FILE.read_text())
-        assert metadata["unresolved_count"] == 3
-        assert len(metadata["unresolved_realizations"]) == 3
+    assert "unresolved_realizations" in metadata
+    assert len(metadata["unresolved_realizations"]) == 1
 
-    def test_batch_logging(self):
-        """Test batch logging of unresolved realizations."""
-        unresolved_list = [
-            {"realization_id": 10, "reason": "Test reason 1", "details": {"code": "ERR1"}},
-            {"realization_id": 11, "reason": "Test reason 2"},
-            {"realization_id": 12, "reason": "Test reason 3", "details": {"code": "ERR3"}}
-        ]
+    entry = metadata["unresolved_realizations"][0]
+    assert entry["realization_id"] == 1
+    assert entry["delta"] == 0.5
+    assert entry["L"] == 20
+    assert "Convergence failure" in entry["reason"]
+    assert "timestamp" in entry
 
-        log_unresolved_batch(unresolved_list, delta=0.5)
+    # Verify state/unresolved_log.json
+    state_log_path = Path("state/unresolved_log.json")
+    assert state_log_path.exists(), "unresolved_log.json was not created"
 
-        metadata = json.loads(METADATA_FILE.read_text())
-        assert metadata["unresolved_count"] == 3
-        
-        unresolved_log = json.loads(UNRESOLVED_LOG_FILE.read_text())
-        assert len(unresolved_log) == 3
-        
-        # Verify all deltas are set correctly
-        for entry in unresolved_log:
-            assert entry["delta"] == 0.5
+    with open(state_log_path, 'r') as f:
+        state_log = json.load(f)
 
-    def test_summary_function(self):
-        """Test get_unresolved_summary returns correct data."""
-        log_unresolved_realization(1, 0.1, "Reason A")
-        log_unresolved_realization(2, 0.1, "Reason B")
+    assert "entries" in state_log
+    assert len(state_log["entries"]) == 1
+    assert state_log["entries"][0]["realization_id"] == 1
+    assert "last_updated" in state_log
 
-        summary = get_unresolved_summary()
-        
-        assert summary["unresolved_count"] == 2
-        assert len(summary["unresolved_realizations"]) == 2
-        assert "created_at" in summary
+def test_batch_logging(temp_project_root):
+    """Test batch logging of unresolved realizations."""
+    state_manager._METADATA_FILE = Path("data/raw/metadata.json")
+    state_manager._UNRESOLVED_LOG_FILE = Path("state/unresolved_log.json")
 
-    def test_directory_structure(self):
-        """Test that required directories are created."""
-        log_unresolved_realization(1, 0.0, "Test")
-        
-        assert DATA_RAW_DIR.exists(), "data/raw directory should exist"
-        assert STATE_DIR.exists(), "state directory should exist"
+    # Clear previous logs
+    state_manager.clear_unresolved_log()
 
-    def test_json_format_validity(self):
-        """Test that logged files are valid JSON."""
-        log_unresolved_realization(1, 0.0, "Test")
-        
-        # Should not raise any exceptions
-        metadata = json.loads(METADATA_FILE.read_text())
-        unresolved_log = json.loads(UNRESOLVED_LOG_FILE.read_text())
-        
-        assert isinstance(metadata, dict)
-        assert isinstance(unresolved_log, list)
+    # Log a batch
+    state_manager.log_unresolved_batch(
+        batch_id="batch_001",
+        deltas=[0.1, 0.2, 0.3],
+        L=30,
+        reasons=["Convergence failure", "Memory limit", "Convergence failure"],
+        count=3
+    )
+
+    # Check metadata
+    with open(Path("data/raw/metadata.json"), 'r') as f:
+        metadata = json.load(f)
+
+    assert "unresolved_batches" in metadata
+    assert len(metadata["unresolved_batches"]) == 1
+    assert metadata["unresolved_batches"][0]["batch_id"] == "batch_001"
+    assert metadata["unresolved_batches"][0]["count"] == 3
+
+    # Check state log
+    with open(Path("state/unresolved_log.json"), 'r') as f:
+        state_log = json.load(f)
+
+    assert "batches" in state_log
+    assert len(state_log["batches"]) == 1
+
+def test_summary_generation(temp_project_root):
+    """Test that summary statistics are generated correctly."""
+    state_manager._METADATA_FILE = Path("data/raw/metadata.json")
+    state_manager._UNRESOLVED_LOG_FILE = Path("state/unresolved_log.json")
+
+    state_manager.clear_unresolved_log()
+
+    # Add some data
+    state_manager.log_unresolved_realization(1, 0.5, 20, "Reason A")
+    state_manager.log_unresolved_realization(2, 0.5, 20, "Reason A")
+    state_manager.log_unresolved_realization(3, 0.8, 20, "Reason B")
+
+    summary = state_manager.get_unresolved_summary()
+
+    assert summary["total_unresolved"] == 3
+    assert summary["count_by_reason"]["Reason A"] == 2
+    assert summary["count_by_reason"]["Reason B"] == 1
+    assert summary["count_by_delta"][0.5] == 2
+    assert summary["count_by_delta"][0.8] == 1
+
+def test_filtering_by_delta(temp_project_root):
+    """Test filtering unresolved entries by delta."""
+    state_manager._METADATA_FILE = Path("data/raw/metadata.json")
+    state_manager._UNRESOLVED_LOG_FILE = Path("state/unresolved_log.json")
+
+    state_manager.clear_unresolved_log()
+
+    state_manager.log_unresolved_realization(1, 0.5, 20, "Reason A")
+    state_manager.log_unresolved_realization(2, 0.8, 20, "Reason B")
+    state_manager.log_unresolved_realization(3, 0.5, 20, "Reason C")
+
+    filtered = state_manager.get_unresolved_by_delta(0.5)
+    assert len(filtered) == 2
+
+    filtered_other = state_manager.get_unresolved_by_delta(0.8)
+    assert len(filtered_other) == 1
+
+def test_filtering_by_reason(temp_project_root):
+    """Test filtering unresolved entries by reason."""
+    state_manager._METADATA_FILE = Path("data/raw/metadata.json")
+    state_manager._UNRESOLVED_LOG_FILE = Path("state/unresolved_log.json")
+
+    state_manager.clear_unresolved_log()
+
+    state_manager.log_unresolved_realization(1, 0.5, 20, "Reason A")
+    state_manager.log_unresolved_realization(2, 0.8, 20, "Reason B")
+    state_manager.log_unresolved_realization(3, 0.5, 20, "Reason A")
+
+    filtered = state_manager.get_unresolved_by_reason("Reason A")
+    assert len(filtered) == 2
+    assert all(e["reason"] == "Reason A" for e in filtered)
+
+def test_clear_log(temp_project_root):
+    """Test clearing the unresolved log."""
+    state_manager._METADATA_FILE = Path("data/raw/metadata.json")
+    state_manager._UNRESOLVED_LOG_FILE = Path("state/unresolved_log.json")
+
+    # Add data
+    state_manager.log_unresolved_realization(1, 0.5, 20, "Reason A")
+
+    # Clear
+    state_manager.clear_unresolved_log()
+
+    # Verify empty
+    with open(Path("data/raw/metadata.json"), 'r') as f:
+        metadata = json.load(f)
+    assert len(metadata["unresolved_realizations"]) == 0
+
+    with open(Path("state/unresolved_log.json"), 'r') as f:
+        state_log = json.load(f)
+    assert len(state_log["entries"]) == 0

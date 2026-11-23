@@ -1,139 +1,98 @@
 # Implementation Plan: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
 
-**Branch**: `PROJ-511-predicting-molecular-packing-efficiency` | **Date**: 2026-06-29 | **Spec**: `spec.md`
+**Branch**: `PROJ-511-predicting-molecular-packing-efficiency`  
+**Date**: 2026-10-11  
+**Spec**: `specs/PROJ-511-predicting-molecular-packing-efficiency/spec.md`  
+**Input**: Feature specification from `/specs/PROJ-511-predicting-molecular-packing-efficiency/spec.md`
 
 ## Summary
-
-This project implements a CPU-only pipeline to predict the **Composition-Adjusted Packing Efficiency (CAPE)** of organic crystals from SMILES representations. The approach involves downloading a pre-filtered subset of the Crystallography Open Database (COD), generating canonical SMILES via RDKit, and training three distinct models to isolate the predictive signal of topology versus 3D geometry:
-
-1.  **Baseline Model (Primary)**: Trains a 2-layer MLP using **only** frozen SMILES-transformer embeddings to predict **CAPE**. This directly answers the research question: "Can SMILES topology predict CAPE?"
-2.  **3D-Only Control Model**: Trains a 2-layer MLP using **only** 3D geometric descriptors (derived from CIF) to predict **CAPE**. This isolates the signal available purely from 3D geometry, serving as a control to quantify the specific contribution of SMILES.
-3.  **Upper Bound Model (Diagnostic)**: Trains a 2-layer MLP using **both** SMILES embeddings and 3D geometric descriptors to predict **CAPE**. This establishes the theoretical maximum predictability when all available geometric information is used.
-
-The pipeline rigorously validates statistical significance via a conditional two-stage permutation test (A substantial number of shuffles initially; if significant, proceeds to [deferred] shuffles for high resolution) and assesses robustness across packing thresholds.
-
-The research question and method will be addressed using a permutation test with a sufficiently large number of resamples to ensure robust statistical inference, following established protocols (per Constitution Principle VII) and assessing robustness across packing thresholds.
+Build a **CPU‑only** end‑to‑end pipeline that (1) downloads organic crystal entries from the Crystallography Open Database (COD), (2) extracts or generates canonical SMILES strings, (3) computes the packing coefficient (PC) from Bondi van der Waals volumes, (4) encodes SMILES with a frozen pre‑trained SMILES‑Transformer, (5) trains a lightweight 2‑layer MLP (≤ 100 k parameters, dropout = 0.1), (6) evaluates the model with MAE, Spearman ρ, Pearson r, Shapiro‑Wilk on residuals, and a **full** 10 000‑shuffle permutation test, (7) performs diagnostic VIF analyses on a PCA‑reduced fingerprint, (8) runs a Bonferroni‑corrected sensitivity sweep over high‑packing thresholds {0.5, 0.6, 0.7}, and (9) generates a reproducible HTML report validated against `contracts/validation_report.schema.yaml`. All steps must complete on a GitHub Actions free‑tier runner (2 CPU cores, ~7 GB RAM, ≤ 6 h). No GPU escape hatch is used; if memory pressure occurs during SMILES encoding, the batch size is automatically reduced (64 → 32 → 16) to stay within the 6 GB RAM limit.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `rdkit`, `torch` (CPU-only), `scikit-learn`, `pandas`, `pyyaml`, `jinja2`, `matplotlib`, `seaborn`, `numpy`
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `models`, `results`)
-**Testing**: `pytest` with contract validation against YAML schemas
-**Target Platform**: GitHub Actions Free Tier (Linux, CPU, 7GB RAM, no GPU)
-**Project Type**: Computational Research Pipeline
-**Performance Goals**: End-to-end runtime ≤ 6 hours; Dataset generation ≥ 500 records.
-**Constraints**: No GPU/CUDA; No large-LLM training; Memory usage < 6GB; Strict adherence to Bondi radii.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `rdkit`, `torch` (CPU‑only), `transformers`, `scikit-learn`, `pandas`, `numpy`, `joblib`, `datasets`, `jinja2`, `pyyaml`, `scipy`, `statsmodels`  
+- **Storage**: File‑based hierarchy under `data/` (`raw/`, `processed/`, `artifacts/`)  
+- **Testing**: `pytest` (unit + integration)  
+- **Target Platform**: Linux CI runner (GitHub Actions)  
+- **Performance Goals**: End‑to‑end ≤ 6 h; model training ≤ 30 min; permutation test ≤ 2 h (hard timeout removed – full extensive shuffles guaranteed).  
+- **Constraints**: CPU‑first; no GPU fallback to preserve deterministic embeddings; streaming inference to keep RAM ≤ 6 GB.  
+- **Scale/Scope**: Minimum 500 valid records after filtering; ≤ 100 k trainable parameters per model  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-- **Principle I (Reproducibility)**: All random seeds pinned in `code/`. COD data fetched via verified URLs. `requirements.txt` pins versions.
-- **Principle II (Verified Accuracy)**: COD source URL and Bondi (year) citation verified. `data_provenance.json` records source version.
-- **Principle III (Data Hygiene)**: Raw CIFs preserved; derived CSVs checksummed. No in-place modification.
-- **Principle IV (Single Source of Truth)**: All metrics in `report.html` generated directly from `results/validation_report.json` (validated against schema).
-- **Principle V (Versioning)**: Artifacts hashed; `state` updated on change.
-- **Principle VI (Open Crystallographic Data Integrity)**: Data sourced strictly from COD Organic Subset; provenance tags (COD ID) retained in CSV.
-- **Principle VII (Model Transparency)**: 2-layer MLP (<100k params) architecture committed; permutation test (sufficient iterations) logged.
+| Principle | Compliance Statement |
+|-----------|----------------------|
+| **I. Reproducibility** | All random seeds (`numpy`, `torch`, `random`) are pinned in `code/utils/random.py`. External datasets are fetched deterministically from the same URL on every run. |
+| **II. Verified Accuracy** | Bondi radii are cited from DOI 10.1021/j100785a001 (verified fact). The COD source URL is **missing** from the verified‑datasets block, which violates Principle VI. The pipeline is therefore **blocked** until a verified COD mirror URL is supplied; all downstream phases are marked as pending. |
+| **III. Data Hygiene** | Raw downloads are stored unchanged under `data/raw/`. Every derived file is checksum‑verified (SHA‑256) and accompanied by a provenance JSON (`source_verification.json`). |
+| **IV. Single Source of Truth** | Every figure, table, and statistic in `report.html` is generated programmatically from validated CSVs; no hand‑typed numbers appear. |
+| **V. Versioning Discipline** | Content hashes for all artifacts are recorded in `state/projects/PROJ-511-predicting-molecular-packing-efficiency-.yaml`. |
+| **VI. Open Crystallographic Data Integrity** | **Blocking issue** – No verified COD download URL is currently available. The pipeline will not commence until such a URL is provided, satisfying Principle VI. |
+| **VII. Model Transparency and Statistical Validation** | Model architecture, hyper‑parameters, and training script are committed. Permutation test now always runs the full 10 000 shuffles; VIF diagnostics are performed on a PCA‑reduced fingerprint (≤ 20 components) to avoid multicollinearity instability. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
-specs/PROJ-511-predicting-molecular-packing-efficiency/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    ├── model.schema.yaml
-    └── validation_report.schema.yaml
-```
-
-### Source Code (repository root)
-
-```text
-projects/PROJ-511-predicting-molecular-packing-efficiency-/
+projects/PROJ-511-predicting-molecular-packing-efficiency/
 ├── code/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── data/
-│   │   ├── download_cod.py       # FR-001, FR-017
-│   │   ├── generate_smiles.py    # FR-002, FR-003
-│   │   └── compute_features.py   # FR-004, FR-011, FR-012, FR-013
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── trainer.py            # FR-005, FR-006
-│   │   └── architecture.py       # FR-005, FR-019
-│   ├── analysis/
-│   │   ├── robustness.py         # FR-007, FR-008
-│   │   └── diagnostics.py        # FR-009, FR-014, FR-015
-│   └── report/
-│       └── generate_report.py    # FR-010
+│   ├── utils/
+│   │   ├── random.py               # Seed management
+│   │   ├── rdkit_helpers.py        # SMILES extraction/generation, 3‑D descriptors
+│   │   └── stats.py                # VIF, permutation test, Shapiro‑Wilk
+│   ├── download_cod.py             # FR‑001, FR‑011
+│   ├── generate_smiles.py          # FR‑002
+│   ├── compute_descriptors.py      # FR‑003, FR‑009
+│   ├── encode_smiles.py            # FR‑004 (streaming, CPU‑only, batch‑size fallback)
+│   ├── train_model.py              # FR‑005
+│   ├── evaluate_model.py           # FR‑006, FR‑007, FR‑013, FR‑014, FR‑015, SC‑003
+│   ├── sensitivity_analysis.py    # FR‑008
+│   ├── report_generator.py         # FR‑010, FR‑018
+│   └── requirements.txt
 ├── data/
-│   ├── raw/                      # Downloaded CIFs
-│   ├── processed/                # dataset.csv, features.parquet
-│   └── checksums.json            # PR-003
-├── models/
-│   ├── baseline_checkpoint.pt    # SMILES -> CAPE
-│   ├── control_3d_checkpoint.pt  # 3D -> CAPE
-│   └── upper_bound_checkpoint.pt # SMILES+3D -> CAPE
-├── results/
-│   └── validation_report.json    # FR-006, FR-010
+│   ├── raw/                         # Unmodified COD files (or substitute once URL provided)
+│   ├── processed/                   # CSVs, feature matrix
+│   └── artifacts/                   # Model checkpoints, reports, logs
+├── contracts/
+│   ├── dataset.schema.yaml
+│   ├── model.schema.yaml
+│   └── validation_report.schema.yaml
 └── tests/
-    ├── contract/
-    │   └── test_schemas.py       # Validates against contracts/
+    ├── unit/
     └── integration/
-        └── test_pipeline.py      # End-to-end sanity check
 ```
 
-**Structure Decision**: Single-project structure with distinct `data`, `code`, `models`, and `results` directories to enforce separation of concerns and data hygiene (Constitution Principle III).
+## Phase Execution Order & FR Mapping
+| Phase | Description | Script(s) | FR(s) Covered |
+|-------|-------------|-----------|----------------|
+| **Phase 0 – Data Acquisition & Feature Engineering** | Download COD, filter organic ≤ 50 non‑H atoms, extract/generate SMILES, compute PC, compute 3‑D geometry descriptors, encode SMILES, add confounder metadata, merge into full feature matrix. | `download_cod.py`, `generate_smiles.py`, `compute_descriptors.py`, `encode_smiles.py` | FR‑001, FR‑002, FR‑003, FR‑004, FR‑011, FR‑009 |
+| **Phase 1 – Data Validation & Hygiene** | Verify schema compliance (`contracts/dataset.schema.yaml`), compute SHA‑256 checksums, log download statistics, abort on missing mandatory fields. | `validate_dataset.py` (to be implemented) | FR‑011, FR‑012, Principle III |
+| **Phase 2 – Model Training** | Train Primary SMILES‑only MLP on an 80/20 split; optionally train Full model with geometry descriptors. | `train_model.py` | FR‑005 |
+| **Phase 3 – Evaluation & Robustness** | Compute MAE, Spearman ρ, Pearson r, Shapiro‑Wilk test on residuals, **full** 10 000‑shuffle permutation test, VIF diagnostics on PCA‑reduced fingerprint, residual‑composition correlation, enforce SC‑003 via automated check. | `evaluate_model.py` | FR‑006, FR‑007, FR‑013, FR‑014, FR‑015, SC‑003 |
+| **Phase 4 – Sensitivity Analysis** | Sweep high‑packing thresholds {0.5, 0.6, 0.7}, compute metrics, apply Bonferroni correction (α_adj ≈ 0.0167). | `sensitivity_analysis.py` | FR‑008 |
+| **Phase 5 – Reporting** | Assemble reproducible HTML report, embed provenance JSON, model hashes, full‑source‑code git commit, and validate against `contracts/validation_report.schema.yaml`. | `report_generator.py` | FR‑010, FR‑018, SC‑005, SC‑002, SC‑003 |
 
-## Phase Plan
+All **Success Criteria** (SC‑001 – SC‑005) are verified in the final `validation_report.json` and `report.html`.
 
-### Phase 0: Data Acquisition & Validation
-1.  **Download COD Organic Subset**: Fetch the "COD Organic Subset" (pre-filtered for organic molecules) via the official COD FTP/HTTP endpoint. Filter locally for entries with ≤50 non-H atoms. Log statistics and generate `data_provenance.json` (URL, version, checksum) to satisfy FR-017.
-2.  **SMILES Generation**: Parse CIFs. Extract `_chemical_structure_SMILES` if present; else generate canonical SMILES from 3D coordinates using RDKit (FR-002). Flag source.
-3.  **Target Calculation**: Compute Unit-Cell Volume and Sum of VdW Volumes (Bondi radii, FR-018). Calculate **Raw PC** (diagnostic only, NOT a regression target per FR-003) and **CAPE** (FR-011).
-4.  **Feature Engineering**: Extract 3D descriptors (Radius of Gyration, Asphericity, Moments) (FR-012). Extract confounders (Lattice, Temp, Solvent) (FR-013). **Crucial**: For the CAPE model, explicitly EXCLUDE `sum_vdw_volume` and `n_atoms` from the feature set to prevent circularity.
-5.  **Validation**: Verify dataset size ≥500 (SC-001). Check for missing values. Generate `dataset.csv`.
+## Compute Feasibility & Data Strategy
+1. **CPU‑First**  
+   - SMILES‑Transformer inference runs on `device="cpu"` with batch size 64; if memory usage exceeds 6 GB, the script automatically halves the batch size (64 → 32 → 16) and retries. This guarantees successful encoding without GPU fallback, preserving deterministic embeddings.  
+   - MLP training uses PyTorch CPU tensors; total training time ≤ 30 min on 2 cores.  
+   - Permutation test parallelized via `joblib.Parallel(n_jobs=-1)` and guaranteed to complete the full 10 000 shuffles within the 2‑hour window (no timeout).  
 
-### Phase 1: Model Training & Evaluation
-1.  **Encoding**: Load frozen pre-trained SMILES Transformer. Encode SMILES to fixed-length vectors (FR-004). Use `torch.inference_mode` and batched processing to stay within 7GB RAM.
-2.  **Dataset Split**: A standard train/validation split ratio will be employed. with fixed seed (FR-005).
-3.  **Model Training**:
-    -   **Baseline Model (Primary)**: Train a 2-layer MLP (≤100k params) on **SMILES embeddings ONLY** to predict **CAPE**. This isolates the SMILES topology signal for the primary research question.
-    -   **3D-Only Control Model**: Train a 2-layer MLP on **3D descriptors ONLY** (excluding SMILES) to predict **CAPE**. This quantifies the baseline predictability of 3D geometry alone.
-    -   **Upper Bound Model (Diagnostic)**: Train a 2-layer MLP on **SMILES embeddings + 3D descriptors** (excluding denominator terms) to predict **CAPE**. This quantifies the combined signal.
-4.  **Evaluation**: Compute MAE, Pearson r, Spearman ρ for all three models (FR-006).
-5.  **Significance**: Run a **conditional permutation test** on the Baseline Model's Pearson r (FR-006, FR-016):
-    -   Stage 1: Run a sufficient number of shuffles.
-    -   If p-value ≥ 0.05: Report p-value and stop (not significant).
-    -   If p-value < 0.05: Immediately run the full set of shuffles to achieve high resolution for the significant claim.
-6.  **Diagnostics**:
-    -   Shapiro-Wilk test on CAPE residuals (FR-015).
-    -   **Spearman's rho on CAPE residuals** (FR-015).
-    -   VIF analysis on all features (FR-009).
-    -   Partial correlation analysis controlling for atom-type composition (FR-014).
-7.  **Comparative Analysis**: Compare Baseline vs. Control vs. Upper Bound performance to determine the specific contribution of SMILES vs. 3D geometry to CAPE prediction.
+2. **Data Availability**  
+   - **Verified COD source**: *None* appears in the “Verified datasets” block. This is a **blocking issue**.  
+   - **Proposed resolution**:  
+     - **Option A** – Provide a verified COD mirror URL (e.g., a HuggingFace dataset that contains the raw CIF files).  
+     - **Option B** – Adopt an open substitute that supplies equivalent crystallographic metadata (e.g., a curated subset of the Materials Project that is openly downloadable).  
+   - Until a verified source is supplied, Phases 0‑5 remain **pending**. The plan explicitly documents this gap to avoid hidden assumptions.  
 
-### Phase 2: Robustness & Reporting
-0. **Runtime Validation**: Benchmark the pipeline on a [deferred] subset. If estimated runtime > 4 hours, abort with a clear error message to ensure SC-005 compliance.
-1.  **Threshold Sweep**: Evaluate the Baseline, Control, and Upper Bound models at PC thresholds {, 0.6, 0.7} (FR-007).
-2.  **Correction**: Apply Bonferroni correction to the three threshold-specific p-values (FR-008).
-3.  **Report Generation**: Compile HTML report with all metrics, figures, and provenance. Ensure `validation_report.json` includes `residual_spearman_rho` and `partial_corr` (FR-010, FR-014, FR-015).
-4.  **Contract Validation**: Ensure `validation_report.json` matches `contracts/validation_report.schema.yaml` (FR-019).
-
-## Compute Feasibility Strategy
-
--   **Memory**: Dataset subset to ~ rows. RDKit and PyTorch CPU used in default precision. **Batched Inference**: SMILES transformer inference is performed in batches. to prevent OOM. `torch.inference_mode()` used to reduce memory overhead.
-- **Runtime**: Permutation test optimized via conditional logic: [deferred] shuffles for non-significant results; [deferred] shuffles only for significant results. This ensures high resolution for claims while minimizing runtime for null results. Estimated runtime < 4 hours.
--   **Dependencies**: `torch` installed from CPU wheel only. `rdkit` via conda/pip binary.
--   **Data Download**: Use the "COD Organic Subset" (approx. moderate size) instead of the full COD archive to avoid I/O bottlenecks.
-
-## Constitution Principle VII Alignment
-
-Constitution Principle VII mandates a permutation test with **1,000 iterations**. The Spec (FR-016) mentions [deferred] but implies a high-resolution test. Per Constitution Principle IV (Single Source of Truth), the plan implements a **conditional two-stage test**. If the initial [deferred]-shuffle test yields a p-value < 0.05, a full [deferred]-shuffle test is executed to ensure the resolution (0.0001) required for robust significance claims. This balances computational feasibility with statistical rigor.
+## Risk Mitigation
+| Risk | Mitigation |
+|------|------------|
+| Missing verified COD data (Principle VI) | Flag as blocking; pipeline will not start until a verified COD mirror URL is provided. |
+| OOM during `encode_smiles.py` | Batch size too large for available RAM; script automatically reduces the batch size (64 → 32 → 16) and retries. |
+| Permutation test exceeds timeout | Full 10 000 shuffles are guaranteed; algorithmic optimizations and parallelization ensure completion within 2 h. |
+| Fewer than 500 valid records | Abort with clear warning if `< 500`; power analysis (FR‑019) will have already flagged low power. |
+| Collinearity among fingerprint dimensions | Apply PCA to reduce the SMILES‑Transformer fingerprint to ≤ 20 orthogonal components before VIF calculation; flag any remaining high‑VIF features. |
+| Non‑normal residuals | Use Spearman ρ as primary metric; Pearson r is reported regardless of normality to quantify linear association. |
+| Multiple‑comparison inflation | Apply Bonferroni correction to the three threshold tests (α_adj ≈ 0.0167). |
+| Data‑hygiene violations | Schema validation aborts on any missing required column; checksums recorded for all files. |

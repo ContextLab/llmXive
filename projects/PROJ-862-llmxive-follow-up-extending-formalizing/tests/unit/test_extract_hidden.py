@@ -1,172 +1,225 @@
 """
-Unit tests for hidden state extraction logic in code/model_utils.py.
+Unit tests for hidden state extraction logic (US1).
 
-Tests cover:
-1. Correct extraction of hidden state at specified token position.
-2. Dimensionality validation (output matches model hidden size).
-3. Handling of edge cases (padding, multiple layers if applicable).
-4. Integration with the frozen model loading (CPU-only).
+Tests the `extract_thought_vector` function in `code/model_utils.py` to ensure:
+1. It correctly extracts the hidden state at the specified token position.
+2. The output vector matches the model's hidden dimension.
+3. It handles edge cases (e.g., out-of-bounds positions) gracefully.
 """
 import pytest
 import torch
 import numpy as np
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+from pathlib import Path
+import sys
 
-# Import the function under test
-from code.model_utils import load_frozen_model, extract_hidden_state
-from code.config import ModelConfig, NoiseSweepConfig, ValidityConfig, MemoryConfig, DataConfig, OutputPaths, PipelineConfig
-from code.memory_monitor import MemoryLimitExceeded
+# Ensure code/ is in the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Mock configuration for testing
-@pytest.fixture
-def mock_model_config():
-    return ModelConfig(
-        model_name_or_path="hf-internal-testing/tiny-random-LlamaForCausalLM", # Small model for testing
-        hidden_size=32, # Tiny model hidden size
-        num_hidden_layers=2,
-        use_cpu=True
-    )
+from model_utils import extract_thought_vector, load_frozen_model
+from config import ModelConfig
+from memory_monitor import MemoryLimitExceeded
 
-@pytest.fixture
-def mock_tokenizer():
-    # Using a tiny tokenizer for testing
-    from transformers import AutoTokenizer
-    return AutoTokenizer.from_pretrained("hf-internal-testing/tiny-random-LlamaForCausalLM")
+class TestExtractThoughtVector:
+    """Unit tests for the extract_thought_vector function."""
 
-@pytest.fixture
-def mock_model(mock_model_config):
-    # Load a real tiny model to ensure the extraction logic works with actual tensors
-    model = load_frozen_model(mock_model_config)
-    model.eval()
-    return model
+    @pytest.fixture
+    def mock_model(self):
+        """Create a mock model with a defined hidden size."""
+        mock_model = MagicMock()
+        # Simulate a model with hidden size 768 (typical for BERT-like)
+        mock_model.config.hidden_size = 768
+        mock_model.device = torch.device('cpu')
+        
+        # Mock the forward pass to return a dummy output
+        # Shape: (batch_size, seq_len, hidden_size)
+        batch_size, seq_len, hidden_size = 1, 10, 768
+        mock_hidden_states = torch.randn(batch_size, seq_len, hidden_size)
+        
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = mock_hidden_states
+        mock_model.return_value = mock_output
+        mock_model.forward = lambda *args, **kwargs: mock_output
+        
+        return mock_model
 
-def test_extract_hidden_state_basic(mock_model, mock_tokenizer, mock_model_config):
-    """Test basic extraction of hidden state at a specific token position."""
-    text = "The quick brown fox jumps over the lazy dog."
-    inputs = mock_tokenizer(text, return_tensors="pt", padding=True)
-    
-    input_ids = inputs["input_ids"]
-    attention_mask = inputs["attention_mask"]
-    
-    # Extract hidden state for the last token (before padding if any)
-    # We'll pick a specific position, e.g., the 3rd token
-    token_pos = 3
-    
-    if token_pos >= input_ids.shape[1]:
-        pytest.skip("Token position out of bounds for this input length")
-    
-    hidden_state = extract_hidden_state(mock_model, input_ids, attention_mask, token_pos)
-    
-    # Assertions
-    assert hidden_state is not None, "Hidden state should not be None"
-    assert isinstance(hidden_state, torch.Tensor), "Hidden state should be a torch.Tensor"
-    
-    # Check dimensionality: should be [batch_size, hidden_size]
-    # Since we are extracting for a specific position, the output should be [1, hidden_size]
-    expected_shape = (1, mock_model_config.hidden_size)
-    assert hidden_state.shape == expected_shape, f"Expected shape {expected_shape}, got {hidden_state.shape}"
-    
-    # Check for NaN or Inf values
-    assert not torch.isnan(hidden_state).any(), "Hidden state should not contain NaN values"
-    assert not torch.isinf(hidden_state).any(), "Hidden state should not contain Inf values"
+    @pytest.fixture
+    def mock_tokenizer(self):
+        """Create a mock tokenizer."""
+        mock_tokenizer = MagicMock()
+        mock_tokenizer.pad_token_id = 0
+        return mock_tokenizer
 
-def test_extract_hidden_state_padding_handling(mock_model, mock_tokenizer, mock_model_config):
-    """Test extraction when input has padding."""
-    text = "Short"
-    inputs = mock_tokenizer(text, return_tensors="pt", padding="max_length", max_length=10)
-    
-    input_ids = inputs["input_ids"]
-    attention_mask = inputs["attention_mask"]
-    
-    # Extract hidden state for a valid token position (not padding)
-    token_pos = 1 # First real token after special tokens
-    
-    hidden_state = extract_hidden_state(mock_model, input_ids, attention_mask, token_pos)
-    
-    assert hidden_state is not None
-    assert hidden_state.shape[0] == 1
-    assert hidden_state.shape[1] == mock_model_config.hidden_size
+    def test_extract_single_token_hidden_state(self, mock_model):
+        """Test extraction of a single token's hidden state."""
+        # Setup
+        batch_size, seq_len, hidden_size = 1, 10, 768
+        input_ids = torch.randint(100, 1000, (batch_size, seq_len))
+        thought_token_pos = 5  # Extract from index 5
+        
+        # Mock the model to return specific hidden states
+        expected_states = torch.randn(batch_size, seq_len, hidden_size)
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = expected_states
+        mock_model.return_value = mock_output
+        mock_model.forward = lambda *args, **kwargs: mock_output
 
-def test_extract_hidden_state_invalid_position(mock_model, mock_tokenizer, mock_model_config):
-    """Test extraction with an invalid token position (out of bounds)."""
-    text = "Test"
-    inputs = mock_tokenizer(text, return_tensors="pt")
-    
-    input_ids = inputs["input_ids"]
-    attention_mask = inputs["attention_mask"]
-    
-    # Position out of bounds
-    token_pos = input_ids.shape[1] + 5
-    
-    with pytest.raises((IndexError, ValueError)):
-        extract_hidden_state(mock_model, input_ids, attention_mask, token_pos)
+        # Execute
+        result = extract_thought_vector(mock_model, input_ids, thought_token_pos)
 
-def test_extract_hidden_state_batch(mock_model, mock_tokenizer, mock_model_config):
-    """Test extraction with a batch of inputs."""
-    texts = ["First sentence.", "Second sentence."]
-    inputs = mock_tokenizer(texts, return_tensors="pt", padding=True)
-    
-    input_ids = inputs["input_ids"]
-    attention_mask = inputs["attention_mask"]
-    
-    token_pos = 2 # A valid position for both sentences
-    
-    hidden_states = extract_hidden_state(mock_model, input_ids, attention_mask, token_pos)
-    
-    # Should return [batch_size, hidden_size]
-    assert hidden_states.shape[0] == len(texts)
-    assert hidden_states.shape[1] == mock_model_config.hidden_size
+        # Assert
+        assert result is not None, "Result should not be None"
+        assert result.shape == (hidden_size,), f"Expected shape ({hidden_size},), got {result.shape}"
+        assert torch.allclose(result, expected_states[0, thought_token_pos]), "Extracted vector should match model output"
 
-def test_extract_hidden_state_with_cpu_only(mock_model, mock_tokenizer, mock_model_config):
-    """Ensure extraction works in CPU-only mode."""
-    text = "CPU only test."
-    inputs = mock_tokenizer(text, return_tensors="pt")
-    
-    input_ids = inputs["input_ids"]
-    attention_mask = inputs["attention_mask"]
-    
-    token_pos = 1
-    
-    # Ensure model is on CPU
-    assert next(mock_model.parameters()).device.type == "cpu"
-    
-    hidden_state = extract_hidden_state(mock_model, input_ids, attention_mask, token_pos)
-    
-    assert hidden_state.device.type == "cpu"
-    assert hidden_state.shape == (1, mock_model_config.hidden_size)
+    def test_extract_batch_hidden_states(self, mock_model):
+        """Test extraction of hidden states for a batch of inputs."""
+        # Setup
+        batch_size, seq_len, hidden_size = 4, 20, 512
+        mock_model.config.hidden_size = hidden_size
+        input_ids = torch.randint(100, 1000, (batch_size, seq_len))
+        thought_token_pos = 10
+        
+        # Mock model output
+        expected_states = torch.randn(batch_size, seq_len, hidden_size)
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = expected_states
+        mock_model.return_value = mock_output
+        mock_model.forward = lambda *args, **kwargs: mock_output
 
-def test_extract_hidden_state_numerical_stability(mock_model, mock_tokenizer, mock_model_config):
-    """Test that extraction produces numerically stable results."""
-    text = "Stability check."
-    inputs = mock_tokenizer(text, return_tensors="pt")
-    
-    input_ids = inputs["input_ids"]
-    attention_mask = inputs["attention_mask"]
-    
-    token_pos = 1
-    
-    # Run multiple times to check for consistency (no random ops in forward pass for frozen model)
-    hidden_state_1 = extract_hidden_state(mock_model, input_ids, attention_mask, token_pos)
-    hidden_state_2 = extract_hidden_state(mock_model, input_ids, attention_mask, token_pos)
-    
-    assert torch.allclose(hidden_state_1, hidden_state_2, atol=1e-6), "Results should be deterministic"
+        # Execute
+        result = extract_thought_vector(mock_model, input_ids, thought_token_pos)
 
-def test_extract_hidden_state_layer_selection(mock_model, mock_tokenizer, mock_model_config):
-    """
-    Test extraction from a specific layer if the model supports it.
-    Note: The current extract_hidden_state implementation might default to last layer.
-    This test ensures we can access layer outputs if the function signature is extended.
-    For now, it verifies the basic extraction works as expected.
-    """
-    text = "Layer test."
-    inputs = mock_tokenizer(text, return_tensors="pt")
-    
-    input_ids = inputs["input_ids"]
-    attention_mask = inputs["attention_mask"]
-    
-    token_pos = 1
-    
-    # This test primarily ensures the function doesn't crash and returns correct shape
-    hidden_state = extract_hidden_state(mock_model, input_ids, attention_mask, token_pos)
-    
-    assert hidden_state.shape == (1, mock_model_config.hidden_size)
+        # Assert
+        assert result.shape == (batch_size, hidden_size), f"Expected shape ({batch_size}, {hidden_size}), got {result.shape}"
+        assert torch.allclose(result, expected_states[:, thought_token_pos, :]), "Batch extraction should match model output"
+
+    def test_extract_at_sequence_boundary(self, mock_model):
+        """Test extraction at the last valid token position."""
+        # Setup
+        batch_size, seq_len, hidden_size = 1, 5, 256
+        mock_model.config.hidden_size = hidden_size
+        input_ids = torch.randint(100, 1000, (batch_size, seq_len))
+        thought_token_pos = seq_len - 1  # Last token
+        
+        expected_states = torch.randn(batch_size, seq_len, hidden_size)
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = expected_states
+        mock_model.return_value = mock_output
+        mock_model.forward = lambda *args, **kwargs: mock_output
+
+        # Execute
+        result = extract_thought_vector(mock_model, input_ids, thought_token_pos)
+
+        # Assert
+        assert result.shape == (hidden_size,), "Should extract correctly at boundary"
+        assert torch.allclose(result, expected_states[0, thought_token_pos]), "Boundary extraction correct"
+
+    def test_extract_out_of_bounds_position(self, mock_model):
+        """Test that extraction raises an error for out-of-bounds positions."""
+        # Setup
+        batch_size, seq_len, hidden_size = 1, 5, 256
+        input_ids = torch.randint(100, 1000, (batch_size, seq_len))
+        thought_token_pos = seq_len + 1  # Invalid position
+        
+        expected_states = torch.randn(batch_size, seq_len, hidden_size)
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = expected_states
+        mock_model.return_value = mock_output
+        mock_model.forward = lambda *args, **kwargs: mock_output
+
+        # Execute & Assert
+        with pytest.raises(IndexError, match="thought_token_pos"):
+            extract_thought_vector(mock_model, input_ids, thought_token_pos)
+
+    def test_extract_negative_position(self, mock_model):
+        """Test extraction using negative indexing (Python style)."""
+        # Setup
+        batch_size, seq_len, hidden_size = 1, 5, 256
+        input_ids = torch.randint(100, 1000, (batch_size, seq_len))
+        thought_token_pos = -1  # Last token
+        
+        expected_states = torch.randn(batch_size, seq_len, hidden_size)
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = expected_states
+        mock_model.return_value = mock_output
+        mock_model.forward = lambda *args, **kwargs: mock_output
+
+        # Execute
+        result = extract_thought_vector(mock_model, input_ids, thought_token_pos)
+
+        # Assert
+        assert result.shape == (hidden_size,), "Negative indexing should work"
+        assert torch.allclose(result, expected_states[0, -1]), "Negative index extraction correct"
+
+    def test_extract_with_padding_tokens(self, mock_model):
+        """Test extraction when input contains padding tokens (should still extract at pos)."""
+        # Setup
+        batch_size, seq_len, hidden_size = 2, 10, 512
+        mock_model.config.hidden_size = hidden_size
+        
+        # Create input with padding (0) at the end
+        input_ids = torch.tensor([
+            [101, 200, 300, 0, 0],
+            [101, 200, 300, 400, 0]
+        ])
+        thought_token_pos = 2  # Valid token in both
+        
+        expected_states = torch.randn(batch_size, seq_len, hidden_size)
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = expected_states
+        mock_model.return_value = mock_output
+        mock_model.forward = lambda *args, **kwargs: mock_output
+
+        # Execute
+        result = extract_thought_vector(mock_model, input_ids, thought_token_pos)
+
+        # Assert
+        assert result.shape == (batch_size, hidden_size), "Should handle padding in batch"
+        # The function extracts based on position index, regardless of padding content
+        assert torch.allclose(result, expected_states[:, thought_token_pos, :]), "Extraction at valid pos correct"
+
+    def test_extract_returns_torch_tensor(self, mock_model):
+        """Ensure the output is a torch.Tensor, not numpy or list."""
+        # Setup
+        batch_size, seq_len, hidden_size = 1, 5, 256
+        input_ids = torch.randint(100, 1000, (batch_size, seq_len))
+        thought_token_pos = 2
+        
+        expected_states = torch.randn(batch_size, seq_len, hidden_size)
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = expected_states
+        mock_model.return_value = mock_output
+        mock_model.forward = lambda *args, **kwargs: mock_output
+
+        # Execute
+        result = extract_thought_vector(mock_model, input_ids, thought_token_pos)
+
+        # Assert
+        assert isinstance(result, torch.Tensor), "Result must be a torch.Tensor"
+        assert result.dtype == torch.float32, "Result dtype should be float32"
+
+    def test_extract_dtype_consistency(self, mock_model):
+        """Test that output dtype matches model config expectations (float32)."""
+        # Setup
+        batch_size, seq_len, hidden_size = 1, 5, 256
+        input_ids = torch.randint(100, 1000, (batch_size, seq_len))
+        thought_token_pos = 2
+        
+        # Simulate model returning float16 (common in quantization)
+        expected_states = torch.randn(batch_size, seq_len, hidden_size, dtype=torch.float16)
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = expected_states
+        mock_model.return_value = mock_output
+        mock_model.forward = lambda *args, **kwargs: mock_output
+
+        # Execute
+        result = extract_thought_vector(mock_model, input_ids, thought_token_pos)
+
+        # Assert
+        # The function should preserve the model's output dtype or cast to float32 if needed
+        # Based on typical implementation, it returns as-is or casts to float32 for stability
+        assert result.dtype in [torch.float32, torch.float16], f"Unexpected dtype: {result.dtype}"
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

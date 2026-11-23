@@ -1,0 +1,15 @@
+captured:
+  path: results/perf_log.json
+  sha256: c62643c2acc2e4af701d536e483ad663932e4f50ce49e39dffc8c98f9060e47e
+created_at: '2026-10-11T22:37:38Z'
+env_sha: c62643c2acc2e4af
+hmac: 1693c508823a810e9c337320ed53f0a16153ec39f5dcd6b863d1f472d0cf24ff
+inputs:
+  command: quickstart run-book
+kind: table
+output_sha256: c638dbac0d1fcca5a7b84a057a1511c3ec7fe71000bf0ac5b53d3608322959fe
+producer:
+  artifact: results/perf_log.json
+  stage: implementation_preview
+result_id: r_c638dbac
+value: results/perf_log.json

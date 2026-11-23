@@ -1,12 +1,13 @@
-pandas
-numpy
-scikit-learn
-nibabel
-requests
-pyyaml
-statsmodels
-scipy
-ruff>=0.1.0
-black>=23.0.0
-pytest
-pytest-cov
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.0
+nibabel==5.2.1
+requests==2.32.3
+pyyaml==6.0.2
+statsmodels==0.14.2
+scipy==1.14.1
+matplotlib==3.9.2
+seaborn==0.13.2
+# NOTE: ``datasets`` (HuggingFace) and ``pyarrow`` are intentionally omitted
+# because they require a newer NumPy version than the CI environment provides.
+# The ingestion script now fails loudly if those libraries are needed.

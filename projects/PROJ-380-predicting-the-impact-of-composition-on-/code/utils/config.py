@@ -1,59 +1,57 @@
-"""
-Configuration module for the BMG Shear Modulus prediction pipeline.
-
-This module provides:
-- Random seed management for reproducibility
-- Path constants for the project directory structure
-- Hyperparameter defaults and other configuration values
-"""
 import os
 import random
 from pathlib import Path
 from typing import Dict, Any, Optional
 import numpy as np
 
-# Project root is assumed to be the parent of the 'code' directory
-# If running as a script, we try to resolve relative to __file__
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Project Root (assumed to be the parent of the 'code' directory)
+# If run as a script, __file__ is code/utils/config.py
+# If imported, we try to locate the project root dynamically.
+_CURRENT_FILE = Path(__file__).resolve()
+PROJECT_ROOT = _CURRENT_FILE.parent.parent.parent
 
-# === Path Constants ===
-# Data directories
-DATA_DIR = _PROJECT_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-ARTIFACTS_DIR = DATA_DIR / "artifacts"
-FIGURES_DIR = DATA_DIR / "figures"
+# Constants for directory structure
+DIRS: Dict[str, Path] = {
+    "code": PROJECT_ROOT / "code",
+    "data": PROJECT_ROOT / "data",
+    "tests": PROJECT_ROOT / "tests",
+    "docs": PROJECT_ROOT / "docs",
+    "state": PROJECT_ROOT / "state",
+    "artifacts": PROJECT_ROOT / "artifacts",
+    "contracts": PROJECT_ROOT / "contracts",
+    "raw": PROJECT_ROOT / "data" / "raw",
+    "processed": PROJECT_ROOT / "data" / "processed",
+    "figures": PROJECT_ROOT / "figures",
+}
 
-# Code directories
-CODE_DIR = _PROJECT_ROOT / "code"
-DATA_MODULE_DIR = CODE_DIR / "data"
-MODELS_MODULE_DIR = CODE_DIR / "models"
-VIZ_MODULE_DIR = CODE_DIR / "viz"
-UTILS_MODULE_DIR = CODE_DIR / "utils"
-
-# Specs and Contracts
-SPECS_DIR = _PROJECT_ROOT / "specs"
-CONTRACTS_DIR = _PROJECT_ROOT / "contracts"
-
-# State and Provenance
-STATE_DIR = _PROJECT_ROOT / "state"
-PROJECTS_STATE_DIR = STATE_DIR / "projects"
-
-# Output defaults
-DEFAULT_OUTPUT_CSV = PROCESSED_DATA_DIR / "bmg_processed.csv"
-DEFAULT_MODEL_REPORT = ARTIFACTS_DIR / "model_report.json"
-DEFAULT_IMPORTANCE_REPORT = ARTIFACTS_DIR / "importance_report.json"
-
-# === Random Seed Management ===
-# Default seed for reproducibility across experiments
+# Default Random Seed
 DEFAULT_SEED = 42
 
-def set_random_seed(seed: Optional[int] = None) -> None:
+
+def get_paths() -> Dict[str, Path]:
     """
-    Set random seeds for reproducibility across Python, NumPy, and random modules.
+    Returns a dictionary of absolute paths to key project directories.
+    """
+    return DIRS.copy()
+
+
+def ensure_directories() -> None:
+    """
+    Creates all required project directories if they do not exist.
+    """
+    for path in DIRS.values():
+        path.mkdir(parents=True, exist_ok=True)
+
+
+def set_random_seed(seed: Optional[int] = None) -> int:
+    """
+    Sets the random seed for reproducibility across Python, NumPy, and random modules.
     
     Args:
-        seed: The random seed to use. Defaults to DEFAULT_SEED if None.
+        seed: The seed value. If None, uses DEFAULT_SEED (42).
+    
+    Returns:
+        The seed value that was set.
     """
     if seed is None:
         seed = DEFAULT_SEED
@@ -61,93 +59,34 @@ def set_random_seed(seed: Optional[int] = None) -> None:
     random.seed(seed)
     np.random.seed(seed)
     
-    # Optional: If torch/tensorflow are used later, they can be seeded here
-    # try:
-    #     import torch
-    #     torch.manual_seed(seed)
-    #     if torch.cuda.is_available():
-    #         torch.cuda.manual_seed_all(seed)
-    # except ImportError:
-    #     pass
-
-def get_paths() -> Dict[str, Path]:
-    """
-    Return a dictionary of all major path constants for convenience.
+    # Note: If using torch/tensorflow, seeds would be set here too,
+    # but per constraints we are on CPU-only and standard libraries.
     
-    Returns:
-        Dict mapping logical names to Path objects.
-    """
-    return {
-        "project_root": _PROJECT_ROOT,
-        "data": DATA_DIR,
-        "raw": RAW_DATA_DIR,
-        "processed": PROCESSED_DATA_DIR,
-        "artifacts": ARTIFACTS_DIR,
-        "figures": FIGURES_DIR,
-        "code": CODE_DIR,
-        "specs": SPECS_DIR,
-        "contracts": CONTRACTS_DIR,
-        "state": STATE_DIR,
-        "projects_state": PROJECTS_STATE_DIR,
-    }
+    return seed
 
-def ensure_directories() -> None:
+
+def main() -> None:
     """
-    Create all required data directories if they do not exist.
+    CLI entry point for configuration setup.
+    Creates directories and prints the active configuration.
+    """
+    print("Initializing project configuration...")
     
-    This should be called once at the start of the pipeline to ensure
-    the file system structure is ready for reading/writing.
-    """
-    for path in get_paths().values():
-        if path != _PROJECT_ROOT:
-            path.mkdir(parents=True, exist_ok=True)
+    # Ensure directories exist
+    ensure_directories()
+    
+    # Set seed
+    seed = set_random_seed()
+    print(f"Random seed set to: {seed}")
+    
+    # Print paths
+    paths = get_paths()
+    print("\nProject Paths:")
+    for name, path in paths.items():
+        print(f"  {name}: {path}")
+    
+    print("\nConfiguration initialized successfully.")
 
-# === Hyperparameter Defaults ===
-MODEL_CONFIG = {
-    "linear_regression": {
-        "fit_intercept": True,
-        "normalize": False,
-    },
-    "random_forest": {
-        "n_estimators": 100,
-        "max_depth": None,
-        "min_samples_split": 2,
-        "min_samples_leaf": 1,
-        "random_state": DEFAULT_SEED,
-    },
-    "gradient_boosting": {
-        "n_estimators": 100,
-        "learning_rate": 0.1,
-        "max_depth": 3,
-        "random_state": DEFAULT_SEED,
-    }
-}
 
-GRID_SEARCH_CONFIG = {
-    "max_combinations": 50,
-    "cv_folds": 5,
-    "scoring": "r2",
-}
-
-FEATURE_CONFIG = {
-    "vif_threshold": 5.0,
-    "descriptors": ["delta", "delta_hmix", "vec", "delta_chi"],
-}
-
-SPLIT_CONFIG = {
-    "test_size": 0.2,
-    "random_state": DEFAULT_SEED,
-    "stratify_by": "alloy_family",
-}
-
-STATISTICAL_TEST_CONFIG = {
-    "primary_method": "corrected_resampled_t_test",
-    "fallback_method": "wilcoxon_signed_rank",
-    "bayes_factor_fallback": True,
-    "confidence_level": 0.95,
-}
-
-# === Initialization ===
-# Ensure directories exist when the module is imported (optional but convenient)
-# Uncomment if automatic directory creation is desired on import
-# ensure_directories()
+if __name__ == "__main__":
+    main()

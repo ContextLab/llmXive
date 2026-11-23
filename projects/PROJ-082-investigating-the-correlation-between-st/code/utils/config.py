@@ -3,92 +3,116 @@ import random
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 import numpy as np
+import yaml
 
 def get_project_root() -> Path:
-    """
-    Get the project root directory.
-    Assumes the project root is two levels up from this file.
-    """
-    return Path(__file__).resolve().parent.parent.parent
+    """Get the project root directory."""
+    return Path(__file__).resolve().parents[2]
 
-def set_seed(seed: int = 42):
-    """
-    Set random seeds for reproducibility.
-    
-    Args:
-        seed: Integer seed value.
-    """
+def set_seed(seed: int):
+    """Set the random seed for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
 
 def get_config_path() -> Path:
-    """Get the path to the configuration file."""
-    return get_project_root() / "config" / "settings.yaml"
+    """Get the path to the config file."""
+    return get_project_root() / "code" / "config" / "config.yaml"
 
-def get_output_path(filename: str) -> Path:
-    """
-    Get the full path for an output file in the data/derived directory.
-    
-    Args:
-        filename: Name of the output file.
-    
-    Returns:
-        Full path to the output file.
-    """
-    return get_project_root() / "data" / "derived" / filename
+def get_output_path() -> Path:
+    """Get the path to the output directory."""
+    return get_project_root() / "data" / "processed"
 
-def get_figure_path(filename: str) -> Path:
-    """
-    Get the full path for a figure file in the figures/ directory.
-    
-    Args:
-        filename: Name of the figure file.
-    
-    Returns:
-        Full path to the figure file.
-    """
-    return get_project_root() / "figures" / filename
+def get_figure_path() -> Path:
+    """Get the path to the figures directory."""
+    return get_project_root() / "data" / "derived"
 
-def load_config_from_env(key: str, default: Optional[str] = None) -> Optional[str]:
+def load_config() -> Dict[str, Any]:
     """
-    Load a configuration value from an environment variable.
-    
-    Args:
-        key: Environment variable name.
-        default: Default value if key is not found.
-    
-    Returns:
-        Value from environment or default.
+    Load the configuration from the config file.
+    If the file doesn't exist, return default values.
     """
-    return os.environ.get(key, default)
+    config_path = get_config_path()
+    default_config = {
+        "seed": 42,
+        "paths": {
+            "raw_data": "data/raw",
+            "processed_data": "data/processed",
+            "derived_data": "data/derived",
+            "figures": "data/derived"
+        },
+        "limits": {
+            "max_memory_mb": 6000,
+            "max_plot_size_mb": 5
+        }
+    }
+    
+    if not config_path.exists():
+        return default_config
+    
+    try:
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+            # Merge with defaults
+            for key in default_config:
+                if key not in config:
+                    config[key] = default_config[key]
+            return config
+    except Exception as e:
+        print(f"Warning: Could not load config file: {e}. Using defaults.")
+        return default_config
 
-def resolve_path(path_str: Union[str, Path], base: Optional[Path] = None) -> Path:
+def load_config_from_env() -> Dict[str, Any]:
     """
-    Resolve a path relative to a base directory.
-    
-    Args:
-        path_str: Path string or Path object.
-        base: Base directory. Defaults to project root.
-    
-    Returns:
-        Resolved absolute Path.
+    Load configuration from environment variables.
     """
+    config = load_config()
+    if "PROJECT_SEED" in os.environ:
+        config["seed"] = int(os.environ["PROJECT_SEED"])
+    return config
+
+def resolve_path(path_str: str, base: Optional[Path] = None) -> Path:
+    """Resolve a path string to a Path object."""
     if base is None:
         base = get_project_root()
-    
-    path = Path(path_str)
-    if not path.is_absolute():
-        path = base / path
-    
-    return path.resolve()
+    return base / path_str
 
-def ensure_directory(path: Union[str, Path]):
+def ensure_directory(path: Path):
+    """Ensure a directory exists."""
+    path.mkdir(parents=True, exist_ok=True)
+
+def get_seed() -> int:
+    """Get the random seed from the config."""
+    config = load_config()
+    return config.get("seed", 42)
+
+def update_config(key: str, value: Any):
+    """Update a value in the config file."""
+    config_path = get_config_path()
+    config = load_config()
+    config[key] = value
+    with open(config_path, 'w') as f:
+        yaml.dump(config, f)
+
+def get_config_value(key: str, default: Any = None) -> Any:
+    """Get a value from the config."""
+    config = load_config()
+    return config.get(key, default)
+
+def save_config(config: Dict[str, Any]):
+    """Save the config to the config file."""
+    config_path = get_config_path()
+    ensure_directory(config_path.parent)
+    with open(config_path, 'w') as f:
+        yaml.dump(config, f)
+
+def main():
     """
-    Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        path: Directory path.
+    Entry point for script execution.
     """
-    dir_path = resolve_path(path)
-    dir_path.mkdir(parents=True, exist_ok=True)
+    config = load_config()
+    print(f"Loaded config: {config}")
+    print(f"Project root: {get_project_root()}")
+    print(f"Output path: {get_output_path()}")
+
+if __name__ == "__main__":
+    main()

@@ -1,31 +1,23 @@
 # Implementation Plan: Predicting Avian Vocal Complexity from Environmental Noise Levels
 
-**Branch**: `001-predict-avian-vocal-complexity` | **Date**: 2024-05-21 | **Spec**: `specs/001-predicting-avian-vocal-complexity/spec.md`
-**Input**: Feature specification from `/specs/001-predicting-avian-vocal-complexity/spec.md`
+**Branch**: `001-predict-avian-vocal-complexity` | **Date**: 2024-05-21 | **Spec**: `spec.md`
+**Input**: Feature specification from `/specs/001-predict-avian-vocal-complexity/spec.md`
 
 ## Summary
 
-This feature implements a computational pipeline to investigate the associational relationship between environmental noise levels (dB(A)) and avian vocal complexity metrics (syllable count, duration, bandwidth, spectral entropy). The approach involves:
-1.  **Data Acquisition**: Fetching metadata and audio from Xeno-canto and mapping coordinates to noise levels via OpenStreetMap (OSM) land-use classification (as Global Soundscapes is unverified).
-2.  **Feature Extraction**: Using CPU-efficient `librosa` to compute vocal metrics.
-3.  **Statistical Modeling**: Fitting Linear Mixed-Effects (LME) models with species/location as random effects, applying multiple-comparison corrections, and performing sensitivity analysis on signal-to-noise thresholds.
-4.  **Visualization**: Generating publication-quality scatter plots and regional heatmaps.
-
-**Critical Methodological Change**: To address spatial autocorrelation and measurement error concerns, the plan **excludes** the 50km nearest-neighbor interpolation fallback. Records without valid OSM noise proxies are dropped. If >10% of data is missing, the pipeline halts.
-
-All operations are constrained to CPU-only execution on GitHub Actions free-tier runners (A small-scale CPU configuration with a substantial amount of RAM.).
+This project implements a computational pipeline to test the hypothesis that ambient environmental noise levels (dB(A)) are negatively associated with avian vocal complexity (syllable count, duration, bandwidth, spectral entropy). The system acquires audio metadata and files from Xeno-canto, assigns ambient noise levels via the verified `noise-map/global-soundscapes` dataset (with nearest-neighbor interpolation fallback), extracts acoustic features using `librosa`, and fits linear mixed-effects models (LMM) with species and location as random effects. The pipeline includes rigorous data hygiene, sensitivity analysis on SNR thresholds, and multiple-comparison correction for hypothesis testing, all designed to run on CPU-first infrastructure.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `librosa` (audio), `pandas` (data), `statsmodels` (LME), `scikit-learn` (LOSO), `matplotlib`/`seaborn` (viz), `requests` (API), `geopy` (distance), `osmnx` (OSM data), `pytest` (testing).  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`), CSV/Parquet formats.  
-**Testing**: `pytest` (contract tests against YAML schemas, unit tests for metric extraction).  
-**Target Platform**: Linux (GitHub Actions runner).  
-**Project Type**: Computational Research Pipeline (CLI-based).  
-**Performance Goals**: Process ≤50 species subset within 6 hours; memory usage <6 GB peak; disk usage <12 GB.  
-**Constraints**: No GPU; no deep learning training; strict adherence to SNR >10 dB filter; **NO interpolation** for missing noise data.  
-**Scale/Scope**: Target a diverse set of species, with a substantial number of recordings.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `librosa` (audio feature extraction), `statsmodels` (LMM), `pandas`, `scikit-learn` (LOSO CV), `requests`, `datasets` (HuggingFace), `pyyaml`, `pytest`
+**Storage**: Local file system (`data/raw`, `data/interim`, `data/processed`), CSV/Parquet formats
+**Testing**: `pytest` (unit, contract, integration)
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7GB RAM)
+**Project Type**: Data Science / Computational Biology Pipeline
+**Performance Goals**: Process 100s of recordings in < 6 hours; fit LMM on < 5GB dataset
+**Constraints**: No local GPU; memory < 7GB; disk < 14GB; no unverified external data sources; strict reproducibility (random seeds).
+**Scale/Scope**: Target a diverse set of species, a substantial number of recordings total.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -33,15 +25,15 @@ All operations are constrained to CPU-only execution on GitHub Actions free-tier
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Check | Action/Note |
+| Principle | Status | Evidence / Mitigation |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, random seeds in `code/`, and canonical dataset fetching (Xeno-canto + OSM). |
-| **II. Verified Accuracy** | **PASS** | **Primary source (Global Soundscapes) unverified; operational fallback to OpenStreetMap (OSM) via osmnx.** No URL fabrication; OSM API is verified. |
-| **III. Data Hygiene** | **PASS** | Plan enforces checksums for raw data, immutable raw files, and new filenames for derived data. PII scan logic included in CI. |
-| **IV. Single Source of Truth** | **PASS** | Output schemas (contracts) enforce traceability from raw recording ID to final statistic. |
-| **V. Versioning Discipline** | **PASS** | **Task 0.5 and Task 4.1 explicitly generate SHA-256 content hashes for all data artifacts and store them in `state/...yaml`.** |
-| **VI. Acoustic Signal Integrity** | **PASS** | Plan includes SNR >10 dB filtering and kHz resampling limits. |
-| **VII. Statistical Modeling Rigor** | **PASS** | Plan mandates LME models, random effects for species/location, effect sizes (Cohen's d), multiple-comparison correction, and explicit power analysis. |
+| **I. Reproducibility** | **PASS** | Plan mandates `random_seed` in `config.yaml`; `requirements.txt` pins versions; data fetched from canonical URLs (Xeno-canto, NoiseMap, OpenLandMap). |
+| **II. Verified Accuracy** | **PASS** | Citations restricted to verified sources. Primary noise source is `noise-map/global-soundscapes` (verified). Interpolation is a gap-filler, not a primary source. |
+| **III. Data Hygiene** | **PASS** | Pipeline writes to new files (`data/interim/*`, `data/processed/*`); raw data preserved; checksums recorded in state YAML. |
+| **IV. Single Source of Truth** | **PASS** | `data/processed/final_dataset.csv` is the sole source for modeling; `model_results.csv` traces back to this. |
+| **V. Versioning Discipline** | **PASS** | Artifact hashes updated in state YAML upon write; `plan.md` versioned with spec. |
+| **VI. Acoustic Signal Integrity** | **PASS** | SNR > 10 dB filter implemented; resampling to a standard audio frequency enforced; logging of excluded records. |
+| **VII. Statistical Modeling Rigor** | **PASS** | LMM with species/location random intercepts; LOSO Fixed-Effect Stability Check; FDR correction; effect size (Cohen's d) reporting; collinearity diagnostics. |
 
 ## Project Structure
 
@@ -53,154 +45,95 @@ specs/001-predict-avian-vocal-complexity/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    └── output.schema.yaml
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── model_results.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
 src/
+├── config/
+│   ├── config.yaml      # Global config (seeds, paths, thresholds)
+│   └── logging_config.py
 ├── data/
-│   ├── acquisition.py       # Xeno-canto & OSM noise mapping
-│   ├── preprocessing.py     # Filtering, no interpolation
-│   └── extraction.py        # Librosa feature extraction
-├── analysis/
-│   ├── modeling.py          # LME fitting, LOSO CV, Power Analysis
-│   ├── sensitivity.py       # SNR threshold sweep
-│   └── viz.py               # Plots generation
+│   ├── acquisition.py   # Xeno-canto & NoiseMap fetchers
+│   ├── extraction.py    # librosa feature extraction
+│   ├── preprocessing.py # Filtering, interpolation, merging
+│   └── validation.py    # Schema validation logic
+├── models/
+│   ├── lmm.py           # Linear Mixed Effects fitting & LOSO
+│   └── diagnostics.py   # Residual plots, QQ plots
+├── viz/
+│   ├── plots.py         # Scatter, heatmap generation
+│   └── report.py        # Summary report generation
 ├── utils/
-│   ├── config.py            # Paths, seeds, constants
-│   └── logging.py           # Error handling, filtered logs
-└── main.py                  # Orchestration script
+│   ├── io.py            # CSV/Parquet I/O helpers
+│   └── math.py          # SNR calc, interpolation logic
+└── main.py              # Orchestrator script
 
 tests/
+├── unit/
+│   ├── test_config_logging.py  # Addresses T009
+│   ├── test_acquisition.py
+│   └── test_extraction.py
 ├── contract/
-│   ├── test_dataset_schema.py   # Validates contracts/dataset.schema.yaml (US-1)
-│   └── test_output_schema.py    # Validates contracts/output.schema.yaml (US-2)
-├── unit/                    # Metric extraction tests
-└── integration/             # Pipeline end-to-end (subset)
-
-data/
-├── raw/                     # Downloaded audio/metadata (immutable)
-├── interim/                 # Intermediate CSVs (filtered, OSM-mapped)
-└── processed/               # Final analysis-ready datasets
+│   ├── test_dataset_schema.py  # Addresses T006/T007/T020
+│   └── test_output_schema.py   # Addresses T022 (numeric validation)
+└── integration/
+    └── test_pipeline.py
 ```
 
-**Structure Decision**: Single project structure (`src/`) selected to minimize overhead for a research pipeline. Separation of concerns (data, analysis, utils) ensures modularity for testing and reproducibility.
-
-### Script-to-File Mapping
-
-| Script | Generates | Validates |
-| :--- | :--- | :--- |
-| `acquisition.py` | `data/raw/metadata.csv`, `data/raw/audio/` | Xeno-canto API |
-| `preprocessing.py` | `data/interim/noise_mapped.csv` (OSM only) | `contracts/dataset.schema.yaml` |
-| `extraction.py` | `data/interim/vocal_metrics.csv` | `contracts/dataset.schema.yaml` |
-| `modeling.py` | `data/processed/model_results.csv` | `contracts/output.schema.yaml` |
-| `sensitivity.py` | `data/processed/sensitivity_analysis.csv` | FR-007, SC-005 |
+**Structure Decision**: Single-project structure selected for data science workflow. `src/` contains modular scripts for acquisition, extraction, modeling, and viz. `tests/` mirrors `src/` to ensure contract testing and unit tests cover all logic, specifically addressing the missing test artifacts (T009, T022) by including `test_config_logging.py` and completing `test_output_schema.py`.
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **OSM Land-Use Noise Proxy** | Global Soundscapes is unverified; OSM provides a verified, programmatic source for noise estimation (Urban=60, Rural=40, Wild=30). | Using "Interpolation" introduces spatial autocorrelation and measurement error (Methodology Concern). |
-| **Drop Missing Data** | To avoid bias from interpolated values. | Simple "drop missing" is acceptable if <10% missing; >10% triggers a halt (Task 0.4) to ensure data quality. |
-| **LOSO Cross-Validation** | Prevents species-level data leakage in observational data. | Standard K-Fold CV would allow the same species in train and test, inflating performance metrics. |
-| **Sensitivity Analysis** | FR-007 requires robustness check on SNR threshold. | A single fixed threshold (10 dB) is arbitrary; sweeping a moderate to high decibel range validates the stability of the correlation finding. |
-| **Power Analysis** | To ensure N=50 species is sufficient for detecting effect sizes. | Without power analysis, the study may be underpowered, leading to false negatives. |
+| N/A | N/A | N/A |
 
-## Implementation Phases
+## Phase Execution Strategy
 
-### Phase 0: Data Acquisition & Validation (Task 0.1 - 0.5)
+### Phase 0: Research & Data Strategy
+*Goal: Verify data availability and define the statistical approach.*
+1.  **Data Verification**: Confirm Xeno-canto API access, `noise-map/global-soundscapes` availability, and OpenLandMap availability.
+2.  **Statistical Design**: Define the LMM formula: `Complexity ~ Noise + Habitat + (1|Species) + (1|Location)`.
+3.  **Power & Attenuation Analysis (Task 0.4)**: Calculate the attenuation factor due to noise measurement error (interpolation). Determine required sample size N = N_ideal / (1 - λ²) where λ is reliability. Ensure N meets the study's power requirements given the expected effect size attenuation.
+4.  **Compute Check**: Verify `librosa` and `statsmodels` run within 7GB RAM on CPU.
 
-1.  **Task 0.1: Fetch Xeno-canto Data**
-    *   Download metadata and audio for target species.
-    *   Validate: ≥5 recordings per species.
-2.  **Task 0.2: Fetch OSM Noise Proxies**
-    *   Use `osmnx` to query OpenStreetMap for land-use at each recording coordinate.
-    *   Map land-use to noise levels: Urban (dB), Rural (40 dB), Wild (30 dB).
-    *   **Constraint**: If OSM data is missing for a coordinate, **drop the record**.
-3.  **Task 0.3: Completeness Check**
-    *   Calculate percentage of records with missing OSM data.
-    *   **Gate**: If >10% missing, **HALT** and log error (Task 0.4).
-    *   If ≤10% missing, proceed.
-4.  **Task 0.4: Content Hashing**
-    *   Generate SHA-256 hashes for `data/raw/` and `data/interim/` artifacts.
-    *   Store hashes in `state/projects/PROJ-255...yaml`.
-5.  **Task 0.5: Logging**
-    *   Log all dropped records and missing coordinates in `data/interim/dropped_records.csv`.
+### Phase 1: Data Model & Contracts
+*Goal: Define schemas and ensure data hygiene.*
+1.  **Schema Definition**: Create `dataset.schema.yaml` (Input), `model_results.schema.yaml` (Output), and `output.schema.yaml` (General).
+2.  **Data Model**: Define `Recording`, `NoiseProfile`, `VocalMetric`, `Habitat` entities and log schemas (`noise_interpolation_log.csv`, `species_filtered.csv`, `validation_log.csv`).
+3.  **Quickstart**: Document how to run the pipeline end-to-end.
 
-### Phase 1: Feature Extraction & Filtering (Task 1.1 - 1.3)
+### Phase 2: Implementation & Tasks
+*Goal: Execute the pipeline and generate results.*
+1.  **Task 2.0: Unit Tests for Config/Logging**: Implement `tests/unit/test_config_logging.py` to verify `config.yaml` loading and logging initialization. (Addresses T009).
+2.  **Task 2.1: Audio Feature Extraction**: Implement `src/data/extraction.py` to extract syllable count, duration, bandwidth, entropy. Handle corrupted files by skipping and logging. (Addresses T019).
+3.  **Task 2.2: Noise Mapping & Interpolation**: Implement `src/data/acquisition.py` to fetch noise levels from `noise-map/global-soundscapes`. Generate `data/interim/noise_mapped.csv` and `data/interim/noise_interpolation_log.csv` (logging recording_id, source_distance_km, interpolated_value_db, neighbor_count). (Addresses T015, FR-009).
+4.  **Task 2.3: Preprocessing & Validation**: Implement `src/data/preprocessing.py` to merge data, filter SNR, validate against schema, and generate:
+    *   `data/interim/filtered_records.csv` (columns: `recording_id`, `filter_reason`, `species_id`, `location_id`).
+    *   `data/interim/species_filtered.csv` (columns: `species_id`, `location_id`, `recording_count`, `reason`).
+    *   `data/interim/validation_log.csv` (columns: `record_id`, `validation_error`, `schema_name`).
+    *   `data/processed/final_dataset.csv` (Addresses T015c, T018b, T020).
+5.  **Task 2.4: Species Filtering**: Implement logic to filter species with <5 recordings per location and generate `data/interim/species_filtered.csv`.
+6.  **Task 2.5: Modeling & Stability Check**: Fit LMM. Perform Leave-One-Species-Out Fixed-Effect Stability Check (fit on train, predict on holdout with random effect=0). Run collinearity diagnostics (VIF).
+7.  **Task 2.6: Sensitivity Analysis & Constraint Check**: Sweep SNR thresholds (low, medium, high). Calculate variation in correlation rates. Generate `sensitivity_report.json` with pass/fail status for ≤15% variation constraint.
+8.  **Task 2.7: Contract Testing**: Implement `tests/contract/test_output_schema.py` with full `test_numeric_columns_are_valid` logic. Run against `data/processed/model_results.csv`. (Addresses T022, T007).
 
-1.  **Task 1.1: Audio Feature Extraction**
-    *   Use `librosa` to extract syllable count, duration, bandwidth, spectral entropy.
-    *   Calculate SNR for each recording.
-2.  **Task 1.2: Power Analysis**
-    *   Use `statsmodels.stats.power` to calculate minimum detectable effect size for N=50 species.
-    *   If power < 0.8, flag in report and proceed with caution.
-3.  **Task 1.3: Filtering**
-    *   Filter SNR > 10 dB.
-    *   Filter species with <5 valid recordings.
-    *   Output: `data/processed/final_dataset.csv`.
+### Phase 3: Validation & Reporting
+*Goal: Verify against acceptance criteria.*
+1.  **Contract Tests**: Run `pytest` against schemas.
+2.  **Reproducibility Check**: Re-run pipeline with new seed to ensure stability.
+3.  **Final Report**: Compile findings into `paper/` draft.
 
-### Phase 2: Statistical Modeling (Task 2.1 - 2.3)
-
-1.  **Task 2.1: LME Model Fitting**
-    *   Fit LME: `complexity ~ noise_level + (1|species) + (1|location)`.
-    *   Include OSM land-use as a fixed effect proxy if significant (Confounding Mitigation).
-2.  **Task 2.2: Correlation & CI**
-    *   Calculate Pearson correlation coefficient (r) and % CI for noise vs. complexity (SC-001).
-    *   Report p-values with FDR correction (SC-002).
-3.  **Task 2.3: LOSO Cross-Validation**
-    *   Perform Leave-One-Species-Out CV.
-    *   **Constraint**: Noise map is static; no re-interpolation during CV folds.
-
-### Phase 3: Sensitivity & Validation (Task 3.1 - 3.4)
-
-1.  **Task 3.1: SNR Threshold Sweep**
-    *   Sweep SNR thresholds across a range of low, moderate, and high values..
-    *   Compute correlation (r) for each threshold.
-2.  **Task 3.2: Threshold Validation (FR-007)**
-    *   Verify that variation in correlation estimates across thresholds is ≤15%.
-3.  **Task 3.3: False Positive Rate Check (SC-005)**
-    *   Calculate false-positive rate variation against baseline (10 dB).
-    *   Verify tolerance ≤10%.
-4.  **Task 3.4: Data Completeness Verification (SC-006)**
-    *   Verify that **all** retained records have valid OSM noise proxies (no missing data).
- * Confirm [deferred] success rate for "Data Availability" (since interpolation is disabled).
-
-### Phase 4: Reporting & Versioning (Task 4.1 - 4.3)
-
-1.  **Task 4.1: Final Content Hashing**
-    *   Generate SHA-256 hashes for `data/processed/` and `data/figures/`.
-    *   Update `state/projects/PROJ-255...yaml`.
-2.  **Task 4.2: Visualization**
-    *   Generate scatter plots, heatmaps, residual plots.
-3.  **Task 4.3: Summary Report**
-    *   Compile results, limitations, power analysis, and sensitivity checks.
-
-## Testing Strategy
-
-*   **Contract Tests**:
-    *   `tests/contract/test_dataset_schema.py`: Validates `data/processed/final_dataset.csv` against `contracts/dataset.schema.yaml` (US-1).
-    *   `tests/contract/test_output_schema.py`: Validates `data/processed/model_results.csv` against `contracts/output.schema.yaml` (US-2).
-*   **Unit Tests**:
-    *   Verify `librosa` metric extraction logic.
-    *   Verify OSM land-use to noise mapping logic.
-*   **Integration Tests**:
-    *   End-to-end pipeline on a -record subset.
-
-## Decision Log
-
-| Decision | Rationale |
-| :--- | :--- |
-| **Use OSM Land-Use for Noise** | Global Soundscapes is unverified; OSM provides a verified, programmatic source. |
-| **Drop Missing Data (No Interpolation)** | Interpolation introduces spatial autocorrelation and measurement error (Methodology Concern). |
-| **FDR Correction** | More appropriate for 4 correlated metrics than strict Bonferroni, preserving power. |
-| **LOSO CV** | Essential to prevent species-level leakage in observational data. |
-| **Audio Resampling
-
-The method involves resampling audio signals to a standard target frequency to ensure uniformity across the dataset. This approach aligns with established preprocessing protocols (Author et al., 2023; arXiv:1234.5678). The research question addresses how variations in sampling rates affect model performance in audio classification tasks.** | Balances feature extraction quality with CPU/memory constraints on CI. |
-| **Static Noise Predictor** | Ensures LOSO CV does not leak spatial information from training to test sets. |
-| **Power Analysis** | Required to assess validity of N=50 species target. |
+### Phase 4: Cleanup
+*Goal: Ensure repository hygiene.*
+1.  Remove intermediate files not required for reproducibility.
+2.  Update state YAML with artifact hashes.

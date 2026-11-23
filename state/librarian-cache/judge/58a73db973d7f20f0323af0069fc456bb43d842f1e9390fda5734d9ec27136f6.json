@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.07214",
+  "judged_at": "2026-09-07T08:24:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ace-ego-0: unifying egocentric human and robotic data for vla pretrain\" computer science",
+  "rationale": "This paper satisfies criteria (b) and (e) by measuring the integration of Large Language Models (LLMs) into human-robot teaming environments, which directly addresses the \"Robotic Data\" and \"Human\" components of the user's question regarding VLA (Vision-Language-Action) pretraining and egocentric interaction. Although it focuses on a VR testbed and verbal communication rather than the specific \"ACE-Ego-0\" dataset, it provides essential empirical evidence on the mechanism of LLM-driven variable a",
+  "relevant": true
+}

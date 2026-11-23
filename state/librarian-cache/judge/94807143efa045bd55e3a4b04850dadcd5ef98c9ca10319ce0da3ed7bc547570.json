@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1909.06684",
+  "judged_at": "2026-09-09T18:14:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "rationale": "The paper focuses on medical image segmentation of kidney tumors using 3D CT scans, which is an entirely different domain (biomedical imaging) and objective (semantic segmentation) from the user's question regarding predicting material strength from microstructure images in materials science. This falls under the rejection rule for \"Off-domain entirely\" and \"Distinct construct sharing only homonym keywords\" (both use CNNs and images, but the physical mechanisms, data types, and target variables ",
+  "relevant": false
+}

@@ -1,30 +1,47 @@
-"""
-Configuration management for the project.
-Handles random seeds and path definitions.
-"""
 import os
 from pathlib import Path
+import random
+import numpy as np
 
-# Random seed for reproducibility
-RANDOM_SEED = 42
+# Project root directory
+PROJECT_ROOT = Path(__file__).parent.parent
 
 def get_config():
+    """
+    Get the configuration dictionary for the project.
+    """
     return {
-        "random_seed": RANDOM_SEED,
-        "data_dir": str(get_data_dir()),
-        "code_dir": "code",
-        "output_dir": "data/processed",
-        "figures_dir": "figures"
+        "random_seed": 42,
+        "max_trials": 5000,
+        "laplace_alpha": 1.0,
+        "bootstrap_n_jobs": 2,
+        "power_target": 0.8,
+        "chunk_size": 10000
     }
 
 def get_data_dir() -> Path:
-    """Returns the project data directory."""
-    return Path("data")
+    """
+    Get the data directory path.
+    """
+    return PROJECT_ROOT / "data"
 
-def set_seed(seed: int):
-    global RANDOM_SEED
-    RANDOM_SEED = seed
-    import random
-    import numpy as np
+def get_processed_dir() -> Path:
+    """
+    Get the processed data directory path.
+    """
+    return get_data_dir() / "processed"
+
+def get_figures_dir() -> Path:
+    """
+    Get the figures directory path.
+    """
+    return PROJECT_ROOT / "figures"
+
+def set_seed(seed: int = 42):
+    """
+    Set random seeds for reproducibility.
+    """
     random.seed(seed)
     np.random.seed(seed)
+    if hasattr(os, 'environ'):
+        os.environ['PYTHONHASHSEED'] = str(seed)

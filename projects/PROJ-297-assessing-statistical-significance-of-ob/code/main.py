@@ -1,129 +1,248 @@
-"""Main entry point for the statistical significance analysis pipeline.
-
-Orchestrates the full pipeline including data loading, analysis,
-visualization, and reporting.
-"""
 import os
 import sys
 import json
-import numpy as np
+import time
+import argparse
+import logging
 import pandas as pd
-from typing import Dict, List, Any, Tuple
-import config
-import loaders
-import stats_engine
-import viz
-import correction
+import numpy as np
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+import yaml
+import joblib
+from datetime import datetime
 
+# Import local modules
+from config import get_config, ensure_dirs
+from constitution import check_by_amendment_ratification, enforce_gate, ConstitutionalError
+from loaders import load_all_datasets, apply_hygiene_pipeline, extract_metadata, ensure_output_dirs
+from stats_engine import (
+    compute_correlation, construct_graph, calculate_stats, 
+    run_permutations_for_threshold, calculate_empirical_p_value
+)
+from correction import benjamini_yekutieli, apply_correction_to_results
+from viz import plot_heatmap, plot_histogram, plot_primary_threshold_visualizations
 
-def integrate_visualizations(
-    results: Dict[str, Any], output_dir: str
-) -> None:
-    """Integrate and save visualization outputs.
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-    Args:
-        results: Dictionary containing analysis results.
-        output_dir: Directory to save the plots.
-    """
-    os.makedirs(output_dir, exist_ok=True)
+def compute_file_hash(filepath: str) -> str:
+    """Compute SHA256 hash of a file."""
+    import hashlib
+    hasher = hashlib.sha256()
+    with open(filepath, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
-    corr_matrix = results["corr_matrix"]
-    null_dist = results["null_dist"]
-    observed_stats = results["observed_stats"]
+def verify_data_integrity(data_dir: str) -> bool:
+    """Verify integrity of processed data files."""
+    files = list(Path(data_dir).glob("*.csv"))
+    if not files:
+        logger.warning(f"No CSV files found in {data_dir}")
+        return False
+    for f in files:
+        try:
+            compute_file_hash(str(f))
+        except Exception as e:
+            logger.error(f"Integrity check failed for {f}: {e}")
+            return False
+    return True
 
-    # Generate primary threshold visualizations
-    viz.plot_primary_threshold_visualizations(
-        corr_matrix, null_dist, observed_stats, output_dir
-    )
+def analyze_pvalue_distribution(pvalues: List[float]) -> Dict[str, float]:
+    """Analyze the distribution of p-values."""
+    if not pvalues:
+        return {'mean': 0.0, 'median': 0.0, 'min': 0.0, 'max': 0.0}
+    arr = np.array(pvalues)
+    return {
+        'mean': float(np.mean(arr)),
+        'median': float(np.median(arr)),
+        'min': float(np.min(arr)),
+        'max': float(np.max(arr))
+    }
 
+def validate_threshold_range(thresholds: List[float]) -> bool:
+    """Validate that thresholds are in (0, 1)."""
+    return all(0 < t < 1 for t in thresholds)
 
-def generate_sensitivity_report(
-    results_list: List[Dict[str, Any]], thresholds: List[float], output_path: str
-) -> None:
-    """Generate a sensitivity report table.
+def check_threshold_sweep_edge_cases(thresholds: List[float]) -> bool:
+    """Check for edge cases in threshold sweep."""
+    if not thresholds:
+        return False
+    if min(thresholds) <= 0 or max(thresholds) >= 1:
+        logger.warning("Thresholds outside (0, 1) range detected.")
+        return False
+    return True
 
-    Args:
-        results_list: List of result dictionaries from threshold sweeps.
-        thresholds: List of thresholds used.
-        output_path: Path to save the CSV report.
-    """
-    report_data = []
-    for res in results_list:
-        report_data.append({
-            "threshold": res["threshold"],
-            "significant_count": res["significant_count"],
-        })
+def run_sensitivity_analysis(data_dir: str, output_dir: str, config: Dict[str, Any]):
+    """Run sensitivity analysis across thresholds."""
+    thresholds = config.get('thresholds', [0.3, 0.5, 0.7])
+    if not validate_threshold_range(thresholds):
+        raise ValueError("Invalid threshold range")
+    
+    # Load processed data
+    datasets = []
+    for csv_file in Path(data_dir).glob("dataset_*.csv"):
+        df = pd.read_csv(csv_file)
+        # Filter numeric columns only for correlation
+        num_df = df.select_dtypes(include=[np.number])
+        if num_df.shape[1] >= 2:
+            datasets.append(num_df)
+    
+    results = []
+    for i, df in enumerate(datasets):
+        logger.info(f"Running sensitivity analysis on dataset {i+1}...")
+        for thresh in thresholds:
+            corr_matrix = compute_correlation(df, method='pearson')
+            # Filter matrix by threshold
+            mask = np.abs(corr_matrix) >= thresh
+            # Count significant edges
+            edges = np.sum(mask) - np.sum(np.eye(mask.shape[0], dtype=int)) # subtract diagonal
+            results.append({
+                'dataset_id': i+1,
+                'threshold': thresh,
+                'significant_edges': int(edges)
+            })
+    
+    # Save results
+    results_df = pd.DataFrame(results)
+    output_path = os.path.join(output_dir, 'sensitivity_analysis.csv')
+    results_df.to_csv(output_path, index=False)
+    logger.info(f"Sensitivity analysis saved to {output_path}")
+    return results_df
 
-    df_report = pd.DataFrame(report_data)
-    df_report.to_csv(output_path, index=False)
+def generate_final_report(results_dir: str, output_path: str):
+    """Generate a final report summarizing findings."""
+    # Aggregate all results
+    report = {
+        'timestamp': datetime.now().isoformat(),
+        'summary': 'Analysis complete.',
+        'files_generated': [f for f in os.listdir(results_dir) if f.endswith('.csv') or f.endswith('.png')]
+    }
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Final report saved to {output_path}")
 
+def verify_variable_counts(data_dir: str, min_count: int = 20) -> bool:
+    """Verify that all datasets have >= min_count continuous variables."""
+    for csv_file in Path(data_dir).glob("dataset_*.csv"):
+        df = pd.read_csv(csv_file)
+        num_cols = df.select_dtypes(include=[np.number]).shape[1]
+        if num_cols < min_count:
+            logger.warning(f"Dataset {csv_file} has only {num_cols} continuous variables.")
+            return False
+    return True
 
-def main() -> None:
-    """Main execution function."""
-    # Ensure directories exist
-    config.ensure_dirs()
+def verify_master_seed_reproducibility(config: Dict[str, Any]) -> bool:
+    """Verify that the master seed is set correctly."""
+    seed = config.get('random_seed')
+    if seed is None:
+        logger.warning("Random seed not set in config.")
+        return False
+    logger.info(f"Master seed verified: {seed}")
+    return True
 
-    # Load configuration
-    cfg = config.get_config()
-    thresholds = cfg["thresholds"]
-    n_permutations = cfg["n_permutations"]
-    random_seed = cfg["random_seed"]
+def verify_threshold_baseline(config: Dict[str, Any]) -> bool:
+    """Verify baseline threshold configuration."""
+    thresholds = config.get('thresholds', [])
+    if not thresholds:
+        logger.warning("No thresholds configured.")
+        return False
+    return True
 
-    # Example: Run analysis on a synthetic dataset for demonstration
-    # In a real run, this would load from data/raw
-    df = stats_engine.generate_synthetic_dataset(
-        n_samples=500, n_vars=20, random_seed=random_seed
-    )
+def main():
+    """Main entry point for the analysis pipeline."""
+    parser = argparse.ArgumentParser(description="Run the statistical significance analysis pipeline.")
+    parser.add_argument('--config', type=str, default='config.yaml', help='Path to config file')
+    parser.add_argument('--permutations', type=int, default=None, help='Number of permutations')
+    parser.add_argument('--threshold', type=float, default=None, help='Correlation threshold')
+    parser.add_argument('--sweep', action='store_true', help='Run sensitivity analysis sweep')
+    args = parser.parse_args()
 
-    # Run full analysis pipeline for each threshold
-    all_results = []
-    sensitivity_data = []
+    # Load config
+    config = get_config(args.config)
+    if args.permutations:
+        config['permutations'] = args.permutations
+    if args.threshold:
+        config['thresholds'] = [args.threshold]
+    
+    ensure_dirs(config)
+    
+    # Constitutional Gate Check
+    try:
+        enforce_gate(config)
+    except ConstitutionalError as e:
+        logger.critical(f"Constitutional Gate Failed: {e}")
+        sys.exit(1)
 
-    for threshold in thresholds:
-        results = stats_engine.run_full_analysis_pipeline(
-            df, threshold=threshold, n_permutations=n_permutations, random_seed=random_seed
-        )
+    # Verify seed
+    verify_master_seed_reproducibility(config)
+    verify_threshold_baseline(config)
 
-        # Calculate significant edges
-        graph = results["graph"]
-        significant_count = graph.number_of_edges()
+    # Load and process data
+    data_processed_dir = config['paths']['data_processed']
+    datasets = load_all_datasets(config, data_processed_dir)
+    
+    if not datasets:
+        logger.error("No valid datasets loaded.")
+        sys.exit(1)
 
-        sensitivity_data.append({
-            "threshold": threshold,
-            "significant_count": significant_count,
-        })
-
-        # Save exploratory Spearman matrices
-        exploratory_path = os.path.join(
-            cfg["paths"]["output_exploratory"],
-            f"spearman_matrix_{threshold}.csv"
-        )
-        stats_engine.save_exploratory_spearman_matrices(df, exploratory_path)
-
-        # Integrate visualizations for primary threshold
-        if abs(threshold - cfg["default_threshold"]) < 1e-6:
-            primary_plots_dir = os.path.join(cfg["paths"]["output_plots"], "primary")
-            integrate_visualizations(results, primary_plots_dir)
-
-        all_results.append({
-            "threshold": threshold,
-            "results": results,
-        })
-
-    # Generate sensitivity report
-    report_path = os.path.join(cfg["paths"]["output_reports"], "sensitivity_report.csv")
-    generate_sensitivity_report(sensitivity_data, thresholds, report_path)
-
-    # Generate general visualizations
-    plots_dir = cfg["paths"]["output_plots"]
-    os.makedirs(plots_dir, exist_ok=True)
-
-    # Example: Plot sensitivity sweep
-    sweep_plot_path = os.path.join(plots_dir, "sensitivity_sweep.png")
-    viz.plot_sensitivity_sweep(sensitivity_data, sweep_plot_path)
-
-    print("Analysis complete. Results saved to output/ directories.")
-
+    # Run Permutations and Compute Statistics
+    # We run the permutation engine for each dataset
+    results = []
+    for i, df in enumerate(datasets):
+        logger.info(f"Processing dataset {i+1}...")
+        
+        # Compute observed correlation
+        corr_matrix = compute_correlation(df, method='pearson')
+        
+        # Determine thresholds to use
+        thresholds = config['thresholds'] if args.sweep else [config['thresholds'][0]]
+        
+        for thresh in thresholds:
+            logger.info(f"Running permutations for threshold {thresh}...")
+            # Run permutations
+            null_dist, obs_stats = run_permutations_for_threshold(
+                df, 
+                n_permutations=config['permutations'], 
+                threshold=thresh,
+                method='pearson'
+            )
+            
+            # Calculate empirical p-values
+            p_values = [calculate_empirical_p_value(obs, null) for obs, null in zip(obs_stats, null_dist)]
+            
+            # Apply BY correction
+            corrected_p = benjamini_yekutieli(p_values)
+            
+            # Identify significant edges
+            significant = [i for i, p in enumerate(corrected_p) if p < 0.05]
+            
+            results.append({
+                'dataset_id': i+1,
+                'threshold': thresh,
+                'significant_edges': len(significant),
+                'total_edges': len(p_values)
+            })
+            
+            # Generate visualizations
+            plot_heatmap(corr_matrix, f"output/plots/corr_heatmap_ds{i+1}_t{thresh}.png")
+            plot_histogram(null_dist[0], f"output/plots/null_hist_ds{i+1}_t{thresh}.png")
+    
+    # Save results
+    results_df = pd.DataFrame(results)
+    results_path = os.path.join(config['paths']['output_results'], 'analysis_results.csv')
+    results_df.to_csv(results_path, index=False)
+    
+    # Run sensitivity analysis if requested
+    if args.sweep:
+        run_sensitivity_analysis(data_processed_dir, config['paths']['output_results'], config)
+    
+    # Generate final report
+    generate_final_report(config['paths']['output_results'], 'output/reports/final_report.json')
+    
+    logger.info("Pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

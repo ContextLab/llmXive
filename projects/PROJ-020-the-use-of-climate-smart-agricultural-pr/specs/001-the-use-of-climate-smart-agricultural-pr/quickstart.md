@@ -1,88 +1,153 @@
-# Quickstart: The Use of Climate-Smart Agricultural Practices in Rural Areas to Improve Food Security and Livelihoods
+# Quickstart Guide: Climate-Smart Agricultural Practices Analysis
+
+This guide provides step-by-step instructions to reproduce the full analysis pipeline from raw data download to final visualization and robustness reporting.
 
 ## Prerequisites
 
--   Python 3.14.6 (Source: History of Python, https://en.wikipedia.org/wiki/History_of_Python).
-    *Note: The Spec and Verified Facts mandate Python 3.14.6. The implementation MUST use this exact version. No fallback is permitted.*
--   `pip` and `venv`.
--   Access to Hugging Face Hub (for dataset downloads) and World Bank LSMS Portal (for LSMS microdata).
+- Python 3.12.0
+- Access to the required data sources (LSMS, FAOSTAT, NASA POWER)
+- Sufficient disk space (~15GB for raw data, ~5GB for processed data)
+- CPU-only execution environment (no GPU required)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-020-the-use-of-climate-smart-agricultural-pr
-    ```
+1. Clone the repository and navigate to the project root.
+2. Create a virtual environment and install dependencies:
 
-2.  **Create and activate virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+```bash
+python -m venv code/.venv
+source code/.venv/bin/activate # On Windows: code\.venv\Scripts\activate
+pip install -r code/requirements.txt
+```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+## Configuration
 
-## Running the Pipeline
+Set the target countries and years in `code/utils/config.py` or via environment variables:
 
-1.  **Download and Process Data**:
-    ```bash
-    python code/ingestion.py
-    python code/preprocessing.py
-    ```
+- `TARGET_COUNTRIES`: "Kenya,India,Vietnam"
+- `TARGET_YEARS`: "2015,2016,2017,2018,2019,2020"
 
-2.  **Fit Models**:
-    ```bash
-    python code/modeling.py
-    ```
+Ensure the configuration file `specs/001-csa-food-security/config.yaml` exists with appropriate settings.
 
-3.  **Run Robustness Checks**:
-    ```bash
-    python code/robustness.py
-    ```
+## Execution Pipeline
 
-4.  **Generate Visualizations**:
-    ```bash
-    python code/viz.py
-    ```
+The full analysis pipeline is executed via the following wrapper scripts. Run them in order:
 
-5.  **Verify Reproducibility**:
-    ```bash
-    python code/verify_reproducibility.py
-    ```
-    *This script generates `reproducibility_report.md` confirming the pipeline ran successfully on a fresh environment.*
+### Step 1: Data Ingestion
 
-## Expected Output
+Download raw data from LSMS, FAOSTAT, and NASA POWER, then clean and merge into a single dataset.
 
--   `data/processed/analysis_dataset.parquet`
--   `output/model_results.json`
--   `output/figures/` (Scatter, Coefficient, Map, Distribution plots)
--   `reproducibility_report.md`
+```bash
+python code/ingestion.py
+```
 
-## Verification
+This script:
+- Downloads raw data for target countries and years
+- Cleans and merges data sources
+- Applies stratified sampling if necessary
+- Outputs `data/processed/merged_sample.parquet` and `data/processed/ipw_weights.parquet`
 
-To verify the pipeline:
-1.  Run `python tests/test_ingestion.py`.
-2.  Run `python tests/test_modeling.py`.
-3.  Check `output/figures/` for the presence of 4 distinct plot types.
-4.  Verify that `output/model_results.json` contains `p_value_corrected` and `significance` fields.
-5.  Confirm that the `provenance_id` field in `analysis_dataset.parquet` maps to raw survey IDs (or composite key).
-6.  **Execution Logs**: Verify that `logs/pipeline.log` contains entries confirming:
-    -   Successful download of LSMS data for KEN, IND, VNM.
-    -   Successful spatial merge (radius-based proximity).
-    -   CSA Index construction including digital/finance variables.
-    -   Fixed-Effects model fit with Country Dummies.
-    -   Bonferroni correction applied.
-    -   Sensitivity analysis range executed.
-7.  **Reproducibility Report**: Verify that `reproducibility_report.md` exists and confirms successful end-to-end execution.
+### Step 2: Preprocessing (Optional)
+
+If additional preprocessing is required beyond the ingestion step:
+
+```bash
+python code/preprocessing.py
+```
+
+### Step 3: Statistical Modeling
+
+Fit Fixed-Effects Regression models and perform mediation analysis.
+
+```bash
+python code/modeling.py
+```
+
+This script:
+- Constructs the CSA Index
+- Runs Fixed-Effects Regression (OLS with Country Dummies)
+- Performs mediation analysis
+- Applies multiple hypothesis correction (Bonferroni)
+- Outputs `data/processed/model_results.json` and `data/processed/model_diagnostics.json`
+
+### Step 4: Robustness Checks
+
+Perform leave-one-country-out cross-validation and bootstrap resampling.
+
+```bash
+python code/analysis/robustness.py --data data/processed/merged_sample.parquet --formula "hdds ~ csa_index + digital_access + finance_access + (digital_access * finance_access)"
+```
+
+This script:
+- Runs leave-one-country-out cross-validation
+- Performs bootstrap resampling (default: 1000 iterations)
+- Outputs `data/processed/robustness_results.json` and `data/processed/loco_stability_report.json`
+
+### Step 5: Visualization
+
+Generate scatter plots, coefficient plots, regional maps, and distribution plots.
+
+```bash
+python code/viz.py
+```
+
+This script:
+- Creates scatter plots (CSA Index vs. Food Security)
+- Generates coefficient plots with confidence intervals
+- Produces regional maps of CSA adoption
+- Outputs plots to `output/plots/` and `output/maps/`
+
+### Step 6: Reproducibility Verification
+
+Validate the full pipeline reproducibility by checking checksums, artifact existence, and log consistency.
+
+```bash
+python code/verify_reproducibility.py
+```
+
+This script:
+- Verifies checksums of all output files
+- Checks existence of declared deliverables
+- Validates log consistency
+- Outputs `data/reproducibility_report.json`
+
+## Expected Deliverables
+
+After running the full pipeline, the following files should exist:
+
+- `data/processed/merged_sample.parquet` - Cleaned, merged, and sampled dataset
+- `data/processed/ipw_weights.parquet` - Inverse probability weighting factors
+- `data/processed/model_results.json` - Model coefficients, p-values, and diagnostics
+- `data/processed/robustness_results.json` - Robustness check results
+- `data/processed/loco_stability_report.json` - Leave-one-country-out stability metrics
+- `output/plots/scatter_plot.png` - Scatter plot of CSA Index vs. Food Security
+- `output/plots/coefficients_plot.png` - Coefficient plot with confidence intervals
+- `output/maps/csa_adoption_map.png` - Regional map of CSA adoption
+- `data/reproducibility_report.json` - Reproducibility verification report
 
 ## Troubleshooting
 
-- **Timeout**: If the model fitting exceeds 6 hours, the script will automatically reduce the sample size by [deferred] and retry. If timeout persists, reduce by [deferred] (as per FR-010).
--   **Missing Data**: If climate data gaps are > 3 months, the script will log a warning and skip imputation.
--   **VIF Warning**: If VIF > 5.0, the script will log a warning but continue (as per Constitution Principle VII).
--   **N < 5000**: If sample size < 5000, the script will log a warning and proceed (as per Spec Edge Cases).
--   **Python Version**: If Python 3.14.6 is not found, the script will raise a critical error and exit (as per Verified Facts constraint).
+### Missing Data
+
+If data download fails, ensure network connectivity and check that the target countries and years are valid. The script will log errors and skip unavailable datasets.
+
+### Memory Issues
+
+If the pipeline runs out of memory, reduce the sample size in `code/utils/config.py` by adjusting `MAX_RAM_GB` or enabling stratified sampling with a smaller target.
+
+### Model Convergence
+
+If the model fails to converge, check for collinearity using the VIF diagnostics in `data/processed/model_diagnostics.json`. Remove or combine highly correlated predictors if necessary.
+
+### CLI Argument Errors
+
+Ensure all required arguments are provided when running scripts. For example, `robustness.py` requires `--data` to specify the input dataset.
+
+## Notes
+
+- All findings are framed as **associational** relationships, not causal effects.
+- The Fixed-Effects Regression approach is used instead of Mixed-Effects due to the small number of countries (N=3). [UNRESOLVED-CLAIM: c_8f19ca86 — status=not_enough_info]
+- The CSA Index includes digital and finance access as per the specification, with equal weighting (0.2 each) as the default. [UNRESOLVED-CLAIM: c_ad11e13c — status=not_enough_info]
+- Bonferroni correction is applied for multiple hypothesis testing.
+
+For more details, refer to the design documents in `specs/001-csa-food-security/`.

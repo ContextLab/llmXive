@@ -1,0 +1,78 @@
+T001a:
+  c: true
+  h: a6d7cfa0b19d6cf84a89dde85dfb09a20cd591ede45b9cc552a9721bf87d6874
+  r: The required directory structure (`data/raw`, `data/processed`, `results/models`,
+    `results/reports`, `results/plots`, `code`, `tests`) is confirmed to exist via
+    the `results/reports/directory_manifest.json` and the execution log for `T001a`.
+  sig: b575c585d85427939fb118cb5e5a3827fa6a48b8d0e10868f53c3e974a80be29
+T001b:
+  c: true
+  h: 21af65a603866aa56a694c30bca655b2b054ea9564a31d61b26a9e128e493ab6
+  r: The artifact `scripts/init_structure.sh` exists and contains a complete bash
+    script that automates the creation of the required project directory structure
+    (`data/raw`, `data/processed`, `results/models`, `results/reports`, `results/plots`,
+    `code`, `tests`) and scaffolds necessary initial files (`__init__.py` and `.gitkeep`).
+  sig: 59a5ffe38d74873590afc9179b4cdb2a9cfa63ebb451a3d55aecb4b624790eff
+T002:
+  c: true
+  h: 23537abffb1aeda3dd812586d335186730a2305d6aa64cbb485d7fdcc7082fe0
+  r: 'The `code/requirements.txt` file exists and contains pinned versions for all
+    requested libraries: rdkit, pandas, numpy, scikit-learn, matplotlib, and pyyaml.'
+  sig: 96487cae297b82588f72b502408973861a164e737d4b3688829a5a5a58c26789
+T003:
+  c: false
+  h: fb618b6a87b8588b35a9c20a91347aab51908f2121a44605fd721fc8d763c810
+  r: The evidence only shows `flake8` being executed via a setup script; there is
+    no evidence that `black` was configured or run, despite being explicitly required
+    by the task. Additionally, the `flake8` output reveals numerous linting errors
+    in `code/baseline.py` that remain unaddressed.
+  sig: 08b6a54f3be9c64e9fbcde245d2edcf26a546191cc1e2b871c056a39dedbf352
+T004:
+  c: true
+  h: 844dd6646095d43fe27df45e4916dbbe50ae7abbda46b86fdcd3efbc8d4c0b94
+  r: 'The `code/utils.py` file is fully implemented and contains all required components:
+
+    1.  **Logging**: `setup_logging` provides configurable console and file logging.
+
+    2.  **SMILES Validation**: `validate_smiles` and `validate_smiles_column` use
+    RDKit''s `Chem.MolFromSmiles` for validation.
+
+    3.  **File I/O**: `load_and_verify_dataset`, `save_dataframe`, and `ensure_directory`
+    handle CSV and directory operations.
+
+    4.  **Dataset Verification Hard Gate**: `verify_dataset_columns` (called by `load_and_verify_dataset`)
+    explicitly checks for the mandatory `smiles`, `logS`, and `logP` columns and raises
+    a '
+  sig: f4d3aec9cd9ef4f7149c9fcee713170f2ad1be24f0db8836d570cc01546563db
+T005:
+  c: true
+  h: a143b7e8e70a6d49f3b2df543cee9bae767e401166c24b3e15e33fa8a840a899
+  r: The artifact `code/entropy.py` exists and contains the required function signatures
+    for `compute_atom_entropy` and `compute_bond_entropy`, along with their full implementations.
+  sig: 85b7089de345108a5cbd56b56cb4cb72601674a3ac2788fd6d806668c2ee0648
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directory hierarchy (`data/raw`, `data/processed`,
+    `results/models`, `results/reports`, `results/plots`) is present in the provided
+    artifacts; the implementer did not supply any files or listings showing these
+    folders exist. The task therefore remains unfulfilled.
+T019:
+  c: false
+  h: 5951cb6e0a2261bc09c43e0fcfbc4dd0d6111155b28f3a5a484ffcb23cbb5466
+  r: "The required artifact `tests/unit/test_model.py` does not exist on disk, so\
+    \ no unit test for the Bonferroni and Benjamini\u2011Hochberg correction logic\
+    \ is provided. The task therefore remains unfinished."
+T023:
+  c: false
+  h: a8837afbaefb5266e994bcf60f1e5099b713dcfc6d081e6cf8f695ac7bf6539d
+  r: The repository lacks the required `data/processed/enriched.csv` file, and `code/model.py`
+    does not contain a `train_model` CLI command (only helper functions are present).
+    Both the input data and the specified CLI entry point are missing, so the task
+    is not fulfilled.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `ridge_logS.pkl` or `ridge_logP.pkl` files, nor any JSON/report containing\
+    \ RMSE and Pearson\u202Fr values, are present. Consequently the required calculation\
+    \ of metrics on the test set and saving of the model artifacts has not been demonstrated."

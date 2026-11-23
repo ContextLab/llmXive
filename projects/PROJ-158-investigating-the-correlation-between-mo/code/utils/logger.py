@@ -1,55 +1,40 @@
+"""
+Logger setup for the project.
+"""
 import logging
 import os
 from pathlib import Path
+from utils.config import LOGS_DIR
 
-def setup_logger(name: str = "dssc_research", level: int = logging.INFO) -> logging.Logger:
+def setup_logger(name: str = "dssc_project") -> logging.Logger:
     """
-    Configure and return a logger that writes to both:
-    1. A file at `code/logs/app.log`
-    2. stdout (console)
-
-    The logger uses the provided name and level. It ensures the log directory
-    exists before attempting to write.
-
-    Args:
-        name: The name of the logger instance.
-        level: The logging level (default: INFO).
-
-    Returns:
-        A configured logging.Logger instance.
+    Sets up a logger that writes to code/logs/app.log and stdout.
     """
+    # Ensure log directory exists
+    if not LOGS_DIR.exists():
+        LOGS_DIR.mkdir(parents=True)
+
+    log_file = LOGS_DIR / "app.log"
+
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+    logger.setLevel(logging.INFO)
 
-    # Prevent adding handlers multiple times if called repeatedly
+    # Remove existing handlers to avoid duplicates
     if logger.handlers:
-        return logger
+        logger.handlers.clear()
 
-    # Ensure the log directory exists
-    log_dir = Path("code/logs")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / "app.log"
-
-    # Create formatters
-    file_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    console_formatter = logging.Formatter(
-        "%(levelname)s: %(message)s"
-    )
-
-    # File Handler
+    # File handler
     file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(level)
+    file_handler.setLevel(logging.INFO)
+    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(file_formatter)
 
-    # Console Handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter('%(levelname)s: %(message)s')
     console_handler.setFormatter(console_formatter)
 
-    # Add handlers to logger
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
 

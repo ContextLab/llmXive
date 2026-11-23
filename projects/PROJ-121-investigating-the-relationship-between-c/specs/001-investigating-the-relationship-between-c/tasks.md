@@ -79,16 +79,16 @@ Examples of foundational tasks (adjust based on your project):
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T011 [P] [US1] Contract test for data download integrity in `tests/contract/test_data_download.py`
-- [ ] T012 [P] [US1] Integration test for full pipeline flow in `tests/integration/test_pipeline_flow.py`
+- [ ] T012 [P] [US1] Integration test for full pipeline flow in `tests/integration/test_pipeline_flow.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement `src/binning.py` to convert timestamps to UTC Julian dates and bin events into configurable intervals (FR-010)
-- [ ] T013 [P] [US1] Implement `src/anisotropy.py` to generate HEALPix maps at an appropriate resolution and fit spherical harmonic coefficients (ℓ≤2)
-- [ ] T014 [US1] Implement `src/pipeline.py` to orchestrate download, binning, and map generation per interval
+- [ ] T013 [P] [US1] Implement `src/anisotropy.py` to generate HEALPix maps at an appropriate resolution and fit spherical harmonic coefficients (ℓ≤2) <!-- ATOMIZE: requested -->
+- [ ] T014 [US1] Implement `src/pipeline.py` to orchestrate download, binning, and map generation per interval <!-- ATOMIZE: requested -->
 - [ ] T015 [US1] Implement `run_pipeline.sh` wrapper script that calls `src/pipeline.py` with `--bin-size` argument
-- [~] T016 [US1] Add logic to handle partial intervals (last bin) and explicitly **set the `partial_interval` boolean flag to `true` in the output CSV** if the final interval is shorter than the bin size, as required by FR-003
-- [~] T017 [US1] Implement `run_all.sh` orchestrator that calls `run_pipeline.sh`, logs "Data acquisition completed", and **handles missing sources by logging a warning and proceeding with available data** (e.g., Auger-only) to ensure the output CSV contains ≥90% of expected rows, satisfying US-1 Acceptance Scenario 2
+- [ ] T016 [US1] Add logic to handle partial intervals (last bin) and explicitly **set the `partial_interval` boolean flag to `true` in the output CSV** if the final interval is shorter than the bin size, as required by FR-003
+- [ ] T017 [US1] Implement `run_all.sh` orchestrator that calls `run_pipeline.sh`, logs "Data acquisition completed", and **handles missing sources by logging a warning and proceeding with available data** (e.g., Auger-only) to ensure the output CSV contains ≥90% of expected rows, satisfying US-1 Acceptance Scenario 2
 - [ ] T018 [US1] Create `data/results/dipole_timeseries.csv` with columns: `interval_start, dipole_amp, dipole_phase, quad_amp, partial_interval`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -103,14 +103,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T019 [P] [US2] Contract test for statistical methods in `tests/contract/test_stats.py`
+- [ ] T019 [P] [US2] Contract test for statistical methods in `tests/contract/test_stats.py`
 - [X] T020 [P] [US2] Integration test for correlation analysis in `tests/integration/test_correlation.py`
 
 ### Implementation for User Story 2
 
 - [ ] T021 [P] [US2] Implement `src/stats.py` with Lomb-Scargle periodogram function (using `astropy.timeseries`)
 - [ ] T022 [US2] Implement block-bootstrap resampling in `src/stats.py` with **conditional logic**: if the number of independent blocks is < 30, reduce block length to **1 × bin_size**; otherwise use **2 × bin_size**, ensuring compliance with FR-005
-- [~] T023 [US2] Implement Monte-Carlo shuffle test (sufficient permutations) shuffling solar proxy series relative to anisotropy, **and ensure the block-bootstrap logic in T022 is fully integrated here** with the conditional fallback (if blocks < 30, use 1x bin_size) to satisfy FR-005
+- [ ] T023 [US2] Implement Monte-Carlo shuffle test (sufficient permutations) shuffling solar proxy series relative to anisotropy, **and ensure the block-bootstrap logic in T022 is fully integrated here** with the conditional fallback (if blocks < 30, use 1x bin_size) to satisfy FR-005
 - [ ] T024 [US2] Implement Bonferroni correction logic (α=0.0017) and "positive result" flagging in `src/stats.py`
 - [~] T025 [US2] Create `analyze_correlation.py` entry point to run all statistical tests per detector (IceCube, Auger)
 - [~] T026 [US2] Generate PDF output with periodogram plots, correlation heatmaps, and FAP reports

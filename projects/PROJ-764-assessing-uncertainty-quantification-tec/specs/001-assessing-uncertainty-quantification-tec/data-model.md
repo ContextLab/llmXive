@@ -1,69 +1,83 @@
 # Data Model: Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted Material Properties
 
-## 1. Overview
-This document defines the data structures used throughout the pipeline, from raw ingestion to final UQ predictions and evaluation metrics. All data is stored in CSV or JSON format, with strict schema validation via YAML contracts.
+## 1. Entity Relationship Overview
 
-## 2. Entity Definitions
+The data flow consists of:
+1.  **Raw Data**: OQMD subset (Parquet/CSV) containing composition, structure, and targets.
+2.  **Processed Data**: Cleaned, split (Train/Val/Test), and PCA-transformed features.
+3.  **Model Artifacts**: Saved checkpoints for Baseline, Ensemble, MC-Dropout, and Sparse GP.
+4.  **Prediction Data**: CSVs containing predictions, bounds, and variance for each method.
+5.  **Evaluation Data**: Metrics (ECE, Interval Score) and screening results.
 
-### 2.1 MaterialSample
-Represents a single inorganic compound from the dataset.
+## 2. Key Entities & Attributes
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `material_id` | string | Unique identifier from Materials Project | Required |
-| `composition` | object | Element fractions (e.g., `{"Fe": 0.5, "O": 0.5}`) | Required |
-| `structural_features` | object | Descriptors (packing, radius, etc.) | Required |
-| `formation_energy` | float | Target property 1 | Required (no nulls) |
-| `bulk_modulus` | float | Target property 2 | Optional |
-| `band_gap` | float | Target property 3 | Optional |
-| `is_stable` | boolean | Derived from formation energy threshold | Calculated |
+### MaterialSample
+*Represents a single inorganic compound.*
+*   `material_id` (str): Unique identifier.
+*   `composition` (dict): Elemental fractions (e.g., `{"Fe": 0.5, "O": 0.5}`).
+*   `structural_descriptors` (dict): `atomic_radius`, `packing_fraction`.
+*   `formation_energy` (float): Target 1.
+*   `bulk_modulus` (float): Target 2.
+*   `band_gap` (float): Target 3.
+*   `excluded` (bool): True if missing critical features.
 
-### 2.2 UQPrediction
-Output of a UQ method for a single sample.
+### UQPrediction
+*Output of a UQ method for a single sample.*
+*   `material_id` (str)
+*   `method` (str): "ensemble", "mc_dropout", "sparse_gp".
+*   `prediction` (float): Point estimate.
+*   `lower_bound_50` (float): 50% CI lower.
+*   `upper_bound_50` (float): 50% CI upper.
+*   `lower_bound_90` (float): 90% CI lower.
+*   `upper_bound_90` (float): 90% CI upper.
+*   `variance` (float): Predictive variance.
+*   `uncertainty_type` (str): "aleatoric", "epistemic", or "total".
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `material_id` | string | Reference to MaterialSample | Required |
-| `method` | string | "deep_ensemble", "mc_dropout", "sparse_gp" | Enum |
-| `prediction` | float | Point estimate (mean) | Required |
-| `variance` | float | Predictive variance | Required |
-| `lower_50` | float | Lower bound of 50% CI | Required |
-| `upper_50` | float | Upper bound of 50% CI | Required |
-| `lower_90` | float | Lower bound of 90% CI | Required |
-| `upper_90` | float | Upper bound of 90% CI | Required |
-| `uncertainty_type` | string | "aleatoric", "epistemic", or "total" | Required |
+### CalibrationMetric
+*Evaluation result for a method.*
+*   `method` (str)
+*   `metric_name` (str): "ECE", "Interval_Score_50", "Interval_Score_90", "Sharpness".
+*   `value` (float)
+* `confidence_level` (str): "50%", "[deferred]".
 
-### 2.3 CalibrationMetric
-Aggregated evaluation results.
+## 3. File Specifications
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `method` | string | Method name | Required |
-| `confidence_level` | float | 0.5 or 0.9 | Required |
-| `ece` | float | Expected Calibration Error | Required |
-| `interval_score` | float | Proper interval score | Required |
-| `sharpness` | float | Mean interval width | Required |
-| `coverage` | float | Empirical coverage percentage | Required |
+### `data/raw/oqmd_subset.parquet`
+*   **Source**: Hugging Face (verified URL).
+*   **Format**: Parquet.
+*   **Schema**: Matches OQMD standard (columns: `formation_energy_per_atom`, `bulk_modulus`, `band_gap`, `composition`, etc.).
 
-### 2.4 ScreeningResult
-Results of the downstream screening task.
+### `data/processed/raw_train.csv`, `raw_val.csv`, `raw_test.csv`
+*   **Split**: 80/10/10 stratified by `formation_energy` quantiles.
+*   **Columns**: `material_id`, `feature_vector` (array or flattened columns), `formation_energy`, `bulk_modulus`, `band_gap`, `target_bin` (for stratification).
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `method` | string | Method used for filtering | Required |
-| `recall_target` | float | Target recall (e.g., 0.9) | Required |
-| `precision` | float | Achieved precision | Required |
-| `num_selected` | int | Number of candidates selected | Required |
-| `num_true_stable` | int | True stable candidates in selected | Required |
+### `data/processed/pca_transformer.pkl`
+*   **Type**: Pickled `sklearn.decomposition.PCA` object.
+*   **Usage**: Transforms raw features to reduced space for Sparse GP.
 
-## 3. Data Flow
-1.  **Ingestion**: `Materials Project` -> `MaterialSample` (filtered for nulls).
-2.  **Training**: `MaterialSample` -> `Baseline Model` -> `UQPrediction` (per method).
-3.  **Evaluation**: `UQPrediction` + `MaterialSample` (targets) -> `CalibrationMetric`.
-4.  **Screening**: `UQPrediction` -> `ScreeningResult`.
+### `data/validation_report.json`
+*   **Schema**:
+    ```json
+    {
+      "excluded_count": 123,
+      "missing_columns": ["packing_fraction"],
+      "total_raw_rows": 50000,
+      "remaining_rows": 49877
+    }
+    ```
 
-## 4. Validation Rules
-- **Null Handling**: Any `MaterialSample` with null `formation_energy` is excluded and logged.
-- **Range Checks**: `lower_50` < `prediction` < `upper_50`.
-- **Enum Checks**: `method` must be one of the three defined techniques.
-- **Consistency**: `CalibrationMetric` must exist for every method and confidence level.
+### `results/predictions/uq_predictions_*.csv`
+*   **Columns**: `material_id`, `method`, `prediction`, `lower_bound_50`, `upper_bound_50`, `lower_bound_90`, `upper_bound_90`, `variance`, `uncertainty_type`.
+
+### `results/metrics/calibration_summary.csv`
+*   **Columns**: `method`, `metric_name`, `confidence_level`, `value`.
+
+## 4. Data Lineage & Integrity
+
+1.  **Download**: `download.py` fetches data from HF, computes SHA256 checksum, stores in `data/raw/`.
+2.  **Validation**: `validation.py` checks for nulls in targets/features, logs to `validation_report.json`, excludes bad rows.
+3.  **Split**: `preprocess.py` performs stratified split, saves CSVs.
+4.  **Transformation**: `preprocess.py` fits PCA on Train, saves to `pca_transformer.pkl`, transforms Train/Val/Test.
+5.  **Training**: Models trained on processed data, saved to `results/models/`.
+6.  **Inference**: Predictions generated, saved to `results/predictions/`.
+7.  **Evaluation**: Metrics computed from predictions and ground truth, saved to `results/metrics/`.

@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results Schema"
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Identifier of the VLM used."
+  context_size:
+    type: "integer"
+    description: "Native context window size (4000, 8000, 32000)."
+  condition:
+    type: "string"
+    enum:
+      - "baseline"
+      - "retrieval_augmented"
+    description: "Evaluation condition."
+  question_position:
+    type: "string"
+    enum:
+      - "first"
+      - "middle"
+      - "last"
+    description: "Position of the question."
+  total_questions:
+    type: "integer"
+    description: "Count of questions evaluated."
+  correct_count:
+    type: "integer"
+    description: "Count of correct answers."
+  accuracy:
+    type: "number"
+    description: "Accuracy score (0.0 to 1.0)."
+  retrieval_precision:
+    type: "number"
+    description: "Precision of the retrieval mechanism."
+  retrieval_recall:
+    type: "number"
+    description: "Recall of the retrieval mechanism."
+  retrieval_latency_ms:
+    type: "number"
+    description: "Average retrieval latency in milliseconds."
+required:
+  - model_name
+  - context_size
+  - condition
+  - question_position
+  - total_questions
+  - correct_count
+  - accuracy
+  - retrieval_latency_ms
+additionalProperties: false

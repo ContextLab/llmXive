@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Data Schema"
+description: "Schema for the merged participant data including cognitive metrics and visual complexity metrics."
+type: "object"
+properties:
+  participant_id:
+    type: "integer"
+    description: "Unique identifier for the participant."
+  reaction_time:
+    type: "number"
+    description: "Mean reaction time in milliseconds."
+  accuracy:
+    type: "number"
+    description: "Proportion of correct trials (0.0 to 1.0)."
+  error_rate:
+    type: "number"
+    description: "1 minus accuracy."
+  edge_density:
+    type: "number"
+    description: "Normalized edge density value in [0, 1]."
+  color_entropy:
+    type: "number"
+    description: "Color entropy value (non-negative)."
+  object_count:
+    type: ["integer", "null"]
+    description: "Number of detected objects (may be null if detection failed)."
+  workspace_image_path:
+    type: "string"
+    description: "Path to the workspace image (sanitized, e.g., img_<hash>.jpg)."
+  environment_tag:
+    type: "string"
+    description: "Environment tag used for proxy linkage."
+required:
+  - participant_id
+  - reaction_time
+  - accuracy
+  - edge_density
+  - color_entropy
+  - workspace_image_path
+  - environment_tag
+additionalProperties: false

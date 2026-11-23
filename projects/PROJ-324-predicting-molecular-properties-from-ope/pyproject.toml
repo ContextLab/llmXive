@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "molecular-properties-pipeline"
+name = "proj-324-predicting-molecular-properties"
 version = "0.1.0"
-description = "Predicting Molecular Properties from Open Babel Fingerprints with Random Forests"
+description = "Predicting molecular properties from Open Babel fingerprints with Random Forests"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -16,73 +16,37 @@ dependencies = [
     "numpy",
     "datasets",
     "requests",
-    "obabel-wrapper",
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.0.0",
-]
-
-[tool.ruff]
-# Target Python version
-target-version = "py310"
-
-# Line length configuration
-line-length = 100
-
-# Enable specific linting rules
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-
-# Ignore specific rules if needed
-ignore = [
-    "E501", # Line too long (handled by black)
-]
-
-# Exclude directories
-exclude = [
-    ".git",
-    "__pycache__",
-    "data",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
+    "pubchempy",
+    "matplotlib",
+    "openpyxl",
 ]
 
 [tool.black]
-# Line length configuration
-line-length = 100
+line-length = 88
 target-version = ['py310']
-
-# Exclude directories
+include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
 )/
 '''
+
+[tool.ruff]
+# Inherits from code/.ruff.toml if run from root, or can be defined here
+line-length = 88
+target-version = "py310"
+src = ["code", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"

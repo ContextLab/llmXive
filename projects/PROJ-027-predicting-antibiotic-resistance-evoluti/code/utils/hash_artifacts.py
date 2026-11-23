@@ -1,219 +1,93 @@
 """
-Artifact Hashing Module for llmXive Pipeline.
+Updated hash_artifacts utility.
 
-Implements Constitution Principle V: Reproducibility via Artifact Hashing.
-Computes SHA256 hashes for all files in 'code/' and 'data/' directories
-and updates the project state file (state/state.json) with these checksums.
+The original version attempted to write a platform‑owned state file
+under `state/`, which is prohibited.  This revision computes SHA‑256
+hashes for all files under the `data/` and `code/` directories and
+writes the resulting mapping to a JSON file inside the project’s
+own data area: `data/processed/artifact_hashes.json`.
+
+The script exits with status 0 on success and non‑zero on failure.
 """
+
 import hashlib
 import json
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, List, Optional
 
-# Import existing project utilities
-from .logging import get_logger
-from .config import get_paths
+# Use the project‑wide logger
+from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Directories to hash relative to project root
-TARGET_DIRS = ['code', 'data']
-STATE_FILE_NAME = 'state.json'
-HASH_ALGORITHM = 'sha256'
-
-
 def compute_file_hash(file_path: Path) -> str:
-    """
-    Compute SHA256 hash of a single file.
+    """Compute SHA‑256 hash of a file."""
+    sha256 = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-    Args:
-        file_path: Path to the file to hash.
-
-    Returns:
-        Hexadecimal string of the SHA256 hash.
-    """
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
-        return sha256_hash.hexdigest()
-    except (IOError, OSError) as e:
-        logger.error(f"Failed to read file {file_path}: {e}")
-        raise
-
-
-def collect_files(directory: Path) -> List[Path]:
-    """
-    Recursively collect all files in a directory, excluding hidden files/dirs.
-
-    Args:
-        directory: Root directory to scan.
-
-    Returns:
-        List of Path objects for all regular files.
-    """
-    if not directory.exists():
-        logger.warning(f"Directory does not exist: {directory}")
-        return []
-
-    files = []
-    for root, dirs, filenames in os.walk(directory):
-        # Filter out hidden directories
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
-        
-        for filename in filenames:
-            if filename.startswith('.'):
-                continue
-            file_path = Path(root) / filename
-            if file_path.is_file():
-                files.append(file_path)
-    
+def collect_files(root: Path, extensions: Optional[List[str]] = None) -> List[Path]:
+    """Recursively collect files under *root* optionally filtered by *extensions*."""
+    files: List[Path] = []
+    for dirpath, _, filenames in os.walk(root):
+        for fn in filenames:
+            p = Path(dirpath) / fn
+            if extensions is None or p.suffix in extensions:
+                files.append(p)
     return sorted(files)
 
-
-def hash_directory(directory_name: str, project_root: Path) -> Dict[str, str]:
+def hash_directory(root: Path, extensions: Optional[List[str]] = None) -> Dict[str, str]:
     """
-    Compute hashes for all files in a specific directory.
+    Compute SHA‑256 hashes for all files under *root*.
 
-    Args:
-        directory_name: Name of the directory relative to project root.
-        project_root: Root path of the project.
-
-    Returns:
-        Dictionary mapping relative file paths to their SHA256 hashes.
+    Returns a mapping from path‑relative‑to‑project‑root to hex digest.
     """
-    target_dir = project_root / directory_name
-    file_hashes = {}
-    
-    files = collect_files(target_dir)
-    logger.info(f"Hashing {len(files)} files in '{directory_name}/'...")
-    
-    for file_path in files:
-        relative_path = file_path.relative_to(project_root)
-        try:
-            file_hash = compute_file_hash(file_path)
-            file_hashes[str(relative_path)] = file_hash
-        except Exception as e:
-            logger.error(f"Skipping {relative_path} due to error: {e}")
-            continue
-    
-    return file_hashes
-
-
-def load_state(state_path: Path) -> Dict[str, Any]:
-    """
-    Load existing state file or return a new empty structure.
-
-    Args:
-        state_path: Path to the state.json file.
-
-    Returns:
-        Dictionary containing the state data.
-    """
-    if state_path.exists():
-        try:
-            with open(state_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not read existing state file: {e}. Starting fresh.")
-    
-    return {
-        "version": "1.0",
-        "last_updated": None,
-        "artifacts": {}
-    }
-
-
-def save_state(state: Dict[str, Any], state_path: Path) -> None:
-    """
-    Save the state dictionary to the JSON file.
-
-    Args:
-        state: The state dictionary to save.
-        state_path: Path to the state.json file.
-    """
-    # Ensure directory exists
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(state_path, 'w', encoding='utf-8') as f:
-        json.dump(state, f, indent=2, sort_keys=True)
-    
-    logger.info(f"State saved to {state_path}")
-
-
-def update_state_with_hashes(state: Dict[str, Any], hashes: Dict[str, Dict[str, str]]) -> None:
-    """
-    Update the state dictionary with new artifact hashes.
-
-    Args:
-        state: The state dictionary to update (modified in place).
-        hashes: Dictionary of directory names to file-hash mappings.
-    """
-    import datetime
-    state["last_updated"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    state["artifacts"] = hashes
-    logger.info("State dictionary updated with new hashes.")
-
+    hashes: Dict[str, str] = {}
+    for file_path in collect_files(root, extensions):
+        # Path relative to the project root (two levels up from this file)
+        rel_path = file_path.relative_to(Path(__file__).parents[2])
+        hashes[str(rel_path)] = compute_file_hash(file_path)
+        logger.debug(f"Hashed {rel_path}")
+    return hashes
 
 def main() -> int:
     """
-    Main entry point for the hash_artifacts script.
-    
-    Returns:
-        0 on success, 1 on failure.
+    Entry point: hash the ``data`` and ``code`` trees and write the
+    results to ``data/processed/artifact_hashes.json``.
     """
-    logger.info("Starting artifact hashing process...")
-    
+    project_root = Path(__file__).resolve().parents[2]
+
+    data_dir = project_root / "data"
+    code_dir = project_root / "code"
+
     try:
-        # Get project root from config
-        paths = get_paths()
-        project_root = paths.get('project_root', Path.cwd())
-        
-        if not isinstance(project_root, Path):
-            project_root = Path(project_root)
-        
-        logger.info(f"Project root detected at: {project_root}")
-        
-        # Initialize state
-        state_file = project_root / 'state' / STATE_FILE_NAME
-        state = load_state(state_file)
-        
-        all_hashes = {}
-        
-        # Hash each target directory
-        for dir_name in TARGET_DIRS:
-            dir_hashes = hash_directory(dir_name, project_root)
-            if dir_hashes:
-                all_hashes[dir_name] = dir_hashes
-            else:
-                logger.warning(f"No files found to hash in '{dir_name}/'. Skipping.")
-        
-        if not all_hashes:
-            logger.warning("No artifacts were hashed. Ensure 'code/' and 'data/' directories exist and contain files.")
-            # We don't fail here, just update state with empty artifacts if needed
-        
-        # Update state
-        update_state_with_hashes(state, all_hashes)
-        
-        # Save state
-        save_state(state, state_file)
-        
-        logger.info("Artifact hashing completed successfully.")
+        logger.info("Hashing data directory")
+        data_hashes = hash_directory(data_dir, extensions=[
+            ".csv", ".json", ".nwk", ".pkl", ".png", ".txt", ".log"
+        ])
+
+        logger.info("Hashing code directory")
+        code_hashes = hash_directory(code_dir, extensions=[
+            ".py", ".sh", ".yaml", ".yml", ".toml"
+        ])
+
+        all_hashes = {**data_hashes, **code_hashes}
+
+        output_path = project_root / "data" / "processed" / "artifact_hashes.json"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(all_hashes, f, indent=2)
+
+        logger.info(f"Artifact hashes written to {output_path}")
         return 0
-        
     except Exception as e:
-        logger.error(f"Fatal error during hashing: {e}", exc_info=True)
+        logger.error(f"Failed to compute artifact hashes: {e}")
         return 1
 
-
 if __name__ == "__main__":
-    # Initialize logging before running main
-    # Assuming init_pipeline_logging is called elsewhere or we do it here for CLI usage
-    from .logging import init_pipeline_logging
-    init_pipeline_logging()
-    
     sys.exit(main())

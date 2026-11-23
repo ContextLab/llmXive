@@ -1,255 +1,254 @@
+"""
+Visualization utilities for the GTEx circadian-metabolic project.
+
+This module provides functions to generate:
+- Scatter plots for significant gene‑trait correlations.
+- A heatmap of core circadian gene expression stratified by MetS status.
+- An ROC curve visualising logistic‑regression model performance.
+"""
+
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
-from scipy import stats
+from sklearn.metrics import auc, roc_curve
 
-from utils.logging import get_logger
+logger = logging.getLogger(__name__)
 
-# Ensure the viz directory exists in the import path if not already
-try:
-    import code
-except ImportError:
-    pass
-
-logger = get_logger(__name__)
-
-
+# ----------------------------------------------------------------------
+# Scatter plot for significant correlations
+# ----------------------------------------------------------------------
 def plot_scatter_significant(
-    correlation_results: pd.DataFrame,
-    gene: str,
-    clinical_trait: str,
-    output_path: str,
-    tissue: Optional[str] = None,
-    fdr_threshold: float = 0.05
-) -> Path:
+    correlation_df: pd.DataFrame,
+    expression_df: pd.DataFrame,
+    phenotype_df: pd.DataFrame,
+    significance_level: float = 0.05,
+    output_dir: Union[str, Path] = "docs",
+) -> None:
     """
-    Generate a scatter plot for a significant correlation between a gene and a clinical trait.
-
-    This function creates a publication-quality scatter plot with a regression line,
-    confidence interval, and statistical annotations (r, p-value, N) for a specific
-    gene-trait pair identified as significant in the correlation analysis.
+    Generate scatter plots for each gene‑trait pair that passes a
+    significance threshold.
 
     Parameters
     ----------
-    correlation_results : pd.DataFrame
-        DataFrame containing correlation results with columns:
-        ['gene', 'trait', 'r', 'p', 'significance_flag', 'tissue', ...].
-        Must contain the specific gene and trait combination.
-    gene : str
-        The gene symbol to plot (e.g., 'PER3').
-    clinical_trait : str
-        The clinical trait to plot (e.g., 'BMI', 'Glucose').
-    output_path : str
-        Full file path (including .png extension) where the plot will be saved.
-    tissue : str, optional
-        If provided, filters the data to only this tissue type before plotting.
-        If None, plots all tissues combined (assuming results are already stratified).
-    fdr_threshold : float, default=0.05
-        The FDR threshold used to determine significance. Used for annotation.
-
-    Returns
-    -------
-    Path
-        The path to the saved plot file.
-
-    Raises
-    ------
-    ValueError
-        If the gene-trait combination is not found in the results or is not significant.
-    FileNotFoundError
-        If the input data is missing or invalid.
+    correlation_df : pd.DataFrame
+        DataFrame containing at least the columns ``gene``, ``trait``,
+        ``r`` (correlation coefficient) and ``p_adj`` (FDR‑adjusted p‑value).
+    expression_df : pd.DataFrame
+        Gene‑expression matrix where rows are genes and columns are sample IDs.
+    phenotype_df : pd.DataFrame
+        Clinical phenotype table indexed by the same sample IDs as ``expression_df``.
+    significance_level : float, optional
+        Maximum adjusted p‑value to consider a correlation significant.
+    output_dir : str or Path, optional
+        Directory where the PNG files will be written.
     """
-    logger.info(f"Generating scatter plot for {gene} vs {clinical_trait}")
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
 
-    # Validate input
-    if correlation_results.empty:
-        raise ValueError("correlation_results DataFrame is empty.")
+    # Filter for significant correlations
+    sig_mask = correlation_df["p_adj"] <= significance_level
+    sig_pairs = correlation_df[sig_mask]
 
-    # Filter for the specific gene and trait
-    mask = (correlation_results['gene'] == gene) & (correlation_results['trait'] == clinical_trait)
-    if tissue:
-        mask = mask & (correlation_results['tissue'] == tissue)
+    if sig_pairs.empty:
+        logger.info("No significant gene‑trait pairs found (p_adj <= %s).", significance_level)
+        return
 
-    result_row = correlation_results[mask]
+    for _, row in sig_pairs.iterrows():
+        gene = row["gene"]
+        trait = row["trait"]
+        r_val = row["r"]
+        p_adj = row["p_adj"]
 
-    if result_row.empty:
-        raise ValueError(f"No correlation result found for gene={gene}, trait={clinical_trait}"
-                         f"{' and tissue=' + tissue if tissue else ''}.")
+        # Extract expression for the gene and phenotype for the trait
+        if gene not in expression_df.index:
+            logger.warning("Gene %s not found in expression matrix; skipping.", gene)
+            continue
+        if trait not in phenotype_df.columns:
+            logger.warning("Trait %s not found in phenotype table; skipping.", trait)
+            continue
 
-    if result_row['significance_flag'].iloc[0] != "significant":
-        logger.warning(f"Result for {gene} vs {clinical_trait} is marked as '{result_row['significance_flag'].iloc[0]}'. "
-                       f"Plotting anyway but flagging as non-significant.")
+        expr_series = expression_df.loc[gene]
+        trait_series = phenotype_df[trait]
 
-    r_val = result_row['r'].iloc[0]
-    p_val = result_row['p'].iloc[0]
-    n_samples = result_row['n'].iloc[0] if 'n' in result_row.columns else "N/A"
+        # Align the two series on sample identifiers
+        common_idx = expr_series.dropna().index.intersection(trait_series.dropna().index)
+        if common_idx.empty:
+            logger.warning(
+                "No overlapping samples for gene %s and trait %s; skipping.", gene, trait
+            )
+            continue
 
-    # Retrieve raw data for plotting
-    # We assume the correlation_results DataFrame or a linked source has the raw data
-    # If the DataFrame only has stats, we need to fetch raw data from the source.
-    # However, typically in this pipeline, correlation_results is derived from a source df.
-    # To make this robust, we expect the correlation_results to be joined with the raw data
-    # or we need to pass the raw data.
-    # Since the task implies generating the plot from the analysis results,
-    # we assume the input DataFrame (or a related one) has the columns needed for plotting.
-    # Let's assume the correlation_results passed here is actually the joined result
-    # containing the raw values 'x' and 'y' for the plot, or we need to reconstruct.
+        x = expr_series.loc[common_idx]
+        y = trait_series.loc[common_idx]
 
-    # Correction: The function signature implies we are plotting based on the analysis.
-    # To plot a scatter, we need the actual data points.
-    # If the input 'correlation_results' is just the summary stats (from T026),
-    # we cannot plot without the source data.
-    # Assumption: The caller passes the full dataset used for correlation, or the
-    # correlation_results includes the raw data columns.
-    # Given the constraints, I will assume the input DataFrame contains the raw data
-    # columns corresponding to the gene and trait, or we need to fetch them.
-    # Let's assume the input DataFrame `correlation_results` has the raw data columns
-    # named exactly as the gene and trait, plus a 'tissue' column if stratified.
+        plt.figure(figsize=(6, 4))
+        sns.regplot(x=x, y=y, scatter_kws={"s": 20}, line_kws={"color": "red"})
+        plt.title(f"{gene} vs {trait}\nPearson r={r_val:.3f}, FDR‑adj p={p_adj:.3e}")
+        plt.xlabel("Expression (log2 TPM)")
+        plt.ylabel(trait.replace("_", " ").title())
 
-    if gene not in correlation_results.columns or clinical_trait not in correlation_results.columns:
-        # Try to find the raw data source if not in the summary
-        # This is a fallback logic: if the summary doesn't have raw data, we can't plot.
-        # We will raise an error if raw data columns are missing.
-        raise ValueError(f"Input DataFrame must contain columns for '{gene}' and '{clinical_trait}' to generate scatter plot.")
+        fname = output_path / f"scatter_{gene}_{trait}.png"
+        plt.tight_layout()
+        plt.savefig(fname, dpi=150)
+        plt.close()
+        logger.info("Saved scatter plot for %s‑%s to %s", gene, trait, fname)
 
-    plot_data = correlation_results[mask].copy()
-
-    if plot_data.empty:
-        raise ValueError(f"No data points found for plotting {gene} vs {clinical_trait}.")
-
-    # Setup plot
-    plt.style.use('seaborn-v0_8-whitegrid')
-    fig, ax = plt.subplots(figsize=(10, 8))
-
-    # Scatter plot
-    sns.scatterplot(
-        data=plot_data,
-        x=gene,
-        y=clinical_trait,
-        ax=ax,
-        alpha=0.7,
-        edgecolor='k',
-        linewidth=0.5,
-        s=60,
-        label='Samples'
-    )
-
-    # Regression line
-    sns.regplot(
-        data=plot_data,
-        x=gene,
-        y=clinical_trait,
-        ax=ax,
-        scatter=False,
-        color='red',
-        line_kws={'linewidth': 2, 'label': f'Regression (r={r_val:.3f})'}
-    )
-
-    # Annotate
-    annotation_text = (
-        f"Gene: {gene}\n"
-        f"Trait: {clinical_trait}\n"
-        f"r = {r_val:.3f}\n"
-        f"p = {p_val:.4e}\n"
-        f"N = {len(plot_data)}\n"
-        f"Significance: {result_row['significance_flag'].iloc[0]}"
-    )
-    if tissue:
-        annotation_text += f"\nTissue: {tissue}"
-
-    ax.text(
-        0.05, 0.95, annotation_text,
-        transform=ax.transAxes,
-        fontsize=11,
-        verticalalignment='top',
-        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    )
-
-    ax.set_title(f"Correlation: {gene} Expression vs {clinical_trait}", fontsize=14, fontweight='bold')
-    ax.set_xlabel(f"{gene} Expression (TPM)", fontsize=12)
-    ax.set_ylabel(f"{clinical_trait}", fontsize=12)
-
-    # Legend
-    ax.legend(loc='upper left')
-
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Save
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close(fig)
-
-    logger.info(f"Scatter plot saved to {output_path}")
-    return Path(output_path)
-
-
-def plot_correlation_heatmap(
-    correlation_results: pd.DataFrame,
-    output_path: str,
-    top_n: int = 20
-) -> Path:
+# ----------------------------------------------------------------------
+# Heatmap of core circadian gene expression by MetS status
+# ----------------------------------------------------------------------
+def generate_heatmap(
+    expression_df: pd.DataFrame,
+    label_df: pd.DataFrame,
+    output_path: Union[str, Path] = "docs/heatmap.png",
+    cmap: str = "viridis",
+) -> None:
     """
-    Generate a heatmap of the top significant correlations.
+    Create a clustered heatmap of core circadian gene expression,
+    annotated by MetS / Control status.
 
     Parameters
     ----------
-    correlation_results : pd.DataFrame
-        DataFrame with columns ['gene', 'trait', 'r', 'p', 'significance_flag'].
-    output_path : str
-        Path to save the heatmap image.
-    top_n : int, default=20
-        Number of top correlations to display.
-
-    Returns
-    -------
-    Path
-        Path to the saved file.
+    expression_df : pd.DataFrame
+        Gene‑expression matrix (genes × samples). Rows must be genes,
+        columns must be sample identifiers.
+    label_df : pd.DataFrame
+        DataFrame with at least a column ``label`` containing the strings
+        ``MetS`` or ``Control``. Index must match the sample identifiers
+        of ``expression_df``.
+    output_path : str or Path, optional
+        File path where the PNG image will be saved.
+    cmap : str, optional
+        Matplotlib colormap name.
     """
-    logger.info(f"Generating correlation heatmap (top {top_n})")
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Filter significant and sort by absolute r
-    sig_df = correlation_results[correlation_results['significance_flag'] == 'significant'].copy()
-    if sig_df.empty:
-        logger.warning("No significant correlations found for heatmap.")
-        # Create a placeholder plot
-        fig, ax = plt.subplots(figsize=(10, 8))
-        ax.text(0.5, 0.5, "No significant correlations found",
-                ha='center', va='center', transform=ax.transAxes, fontsize=16)
-        ax.set_title("Correlation Heatmap")
-        plt.savefig(output_path, dpi=300)
-        plt.close(fig)
-        return Path(output_path)
+    # Align expression matrix and labels
+    common_samples = expression_df.columns.intersection(label_df.index)
+    if common_samples.empty:
+        raise ValueError("No overlapping samples between expression matrix and label table.")
 
-    sig_df['abs_r'] = sig_df['r'].abs()
-    top_df = sig_df.nlargest(top_n, 'abs_r')
+    expr_aligned = expression_df[common_samples]
+    labels_aligned = label_df.loc[common_samples, "label"]
 
-    # Pivot for heatmap (Gene vs Trait)
-    # Note: This assumes one value per gene-trait pair. If multiple (e.g. by tissue),
-    # we might need to aggregate or pick one. Assuming one pair per gene-trait for this view.
-    pivot_data = top_df.pivot(index='gene', columns='trait', values='r')
+    # Create a colour bar for the phenotype
+    phenotype_palette = {"MetS": "#d73027", "Control": "#1a9850"}
+    col_colors = labels_aligned.map(phenotype_palette)
 
-    plt.figure(figsize=(12, 10))
-    sns.heatmap(
-        pivot_data,
-        annot=True,
-        fmt=".2f",
-        cmap='coolwarm',
-        center=0,
-        square=True,
-        linewidths=.5,
-        cbar_kws={"shrink": .5}
+    # Generate clustered heatmap
+    sns.clustermap(
+        expr_aligned,
+        cmap=cmap,
+        figsize=(10, 12),
+        row_cluster=True,
+        col_cluster=True,
+        col_colors=col_colors,
+        xticklabels=False,
+        yticklabels=True,
     )
-    plt.title(f"Top {top_n} Significant Correlations (Gene vs Trait)", fontsize=14)
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close()
+    logger.info("Heatmap saved to %s", output_path)
 
-    logger.info(f"Heatmap saved to {output_path}")
-    return Path(output_path)
+# ----------------------------------------------------------------------
+# ROC curve for logistic‑regression model performance
+# ----------------------------------------------------------------------
+def plot_roc_curve(
+    y_true: Union[pd.Series, str, Path],
+    y_score: Union[pd.Series, str, Path],
+    output_path: Union[str, Path] = "docs/roc_curve.png",
+    pos_label: int = 1,
+) -> None:
+    """
+    Plot an ROC curve given true binary labels and predicted scores.
+
+    The function accepts either raw pandas Series objects or file paths
+    (CSV/TSV) that contain a single column of values. When a path is
+    supplied, the file is read with ``pandas.read_csv``; the column name
+    is inferred automatically.
+
+    Parameters
+    ----------
+    y_true : pandas.Series or str or pathlib.Path
+        Ground‑truth binary labels (0/1 or ``Control``/``MetS``). If a
+        string/Path is supplied, the file is loaded.
+    y_score : pandas.Series or str or pathlib.Path
+        Predicted probability (or any continuous score) for the positive
+        class. If a string/Path is supplied, the file is loaded.
+    output_path : str or Path, optional
+        Destination PNG file for the ROC plot.
+    pos_label : int, optional
+        The label considered the positive class (default ``1``). If the
+        labels are strings, they will be mapped to ``0``/``1`` based on
+        ``pos_label`` after conversion.
+    """
+    # Helper to load a Series from a path or Series
+    def _load_series(data):
+        if isinstance(data, pd.Series):
+            return data
+        path = Path(data)
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {path}")
+        df = pd.read_csv(path)
+        if df.shape[1] != 1:
+            raise ValueError(f"Expected a single‑column file at {path}, got {df.shape[1]} columns.")
+        return df.iloc[:, 0]
+
+    y_true_series = _load_series(y_true)
+    y_score_series = _load_series(y_score)
+
+    # Align indexes if they exist
+    if hasattr(y_true_series, "index") and hasattr(y_score_series, "index"):
+        common_idx = y_true_series.dropna().index.intersection(y_score_series.dropna().index)
+        if common_idx.empty:
+            raise ValueError("No overlapping indices between y_true and y_score.")
+        y_true_series = y_true_series.loc[common_idx]
+        y_score_series = y_score_series.loc[common_idx]
+
+    # Convert string labels to binary if necessary
+    if y_true_series.dtype.kind in {"O", "U"}:
+        # Assume values are "MetS"/"Control" or similar
+        unique_vals = sorted(y_true_series.dropna().unique())
+        if len(unique_vals) != 2:
+            raise ValueError(f"Expected exactly two distinct label values, got {unique_vals}")
+        mapping = {unique_vals[0]: 0, unique_vals[1]: 1}
+        y_true_binary = y_true_series.map(mapping)
+    else:
+        y_true_binary = y_true_series.astype(int)
+
+    # Compute ROC curve
+    fpr, tpr, _ = roc_curve(y_true_binary, y_score_series, pos_label=pos_label)
+    roc_auc = auc(fpr, tpr)
+
+    # Plot
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    plt.figure(figsize=(6, 6))
+    plt.plot(fpr, tpr, color="darkorange", lw=2, label=f"ROC curve (AUC = {roc_auc:.3f})")
+    plt.plot([0, 1], [0, 1], color="navy", lw=2, linestyle="--")
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("Receiver Operating Characteristic")
+    plt.legend(loc="lower right")
+    plt.grid(alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()
+    logger.info("ROC curve saved to %s (AUC = %.3f)", output_path, roc_auc)
+
+# ----------------------------------------------------------------------
+# Public API
+# ----------------------------------------------------------------------
+__all__ = [
+    "plot_scatter_significant",
+    "generate_heatmap",
+    "plot_roc_curve",
+]

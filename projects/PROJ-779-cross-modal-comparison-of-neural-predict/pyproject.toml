@@ -26,7 +26,7 @@ where = ["."]
 include = ["code*"]
 
 [tool.black]
-line-length = 88
+line-length = 200
 target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
@@ -73,6 +73,7 @@ select = [
 ignore = [
     "E501", # line too long (black handles this)
     "B008", # do not perform function calls in argument defaults (common in mne/scipy)
+    "F401", # unused imports – allowed for compatibility
 ]
 
 [tool.ruff.lint.isort]

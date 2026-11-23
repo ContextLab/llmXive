@@ -1,63 +1,47 @@
-# Data Schema Definitions for Perovskite Stability Pipeline
-# This file defines the expected structure and types for all data artifacts.
+# contracts/data-schema.yaml
+# Defines the expected schema for processed data artifacts.
 
+name: perovskite_features
+version: "1.0"
+description: "Schema for the processed perovskite stability dataset."
+
+columns:
+  material_id:
+    type: string
+    nullable: false
+    description: "Unique identifier from Materials Project."
+  formula:
+    type: string
+    nullable: false
+    description: "Chemical formula (e.g., ABX3)."
+  space_group:
+    type: integer
+    nullable: false
+    description: "Space group number."
+  decomposition_energy:
+    type: float
+    nullable: false
+    description: "Decomposition energy per atom (eV/atom)."
+  tolerance_factor:
+    type: float
+    nullable: false
+    description: "Goldschmidt tolerance factor."
+  octahedral_factor:
+    type: float
+    nullable: false
+    description: "Octahedral factor."
+  ionic_radius_mismatch:
+    type: float
+    nullable: false
+    description: "Calculated ionic radius mismatch."
+  electronegativity_diff:
+    type: float
+    nullable: false
+    description: "Electronegativity difference."
+
+target_column: decomposition_energy
 features:
-  description: "Processed features for machine learning (data/processed/features.csv)"
-  required_columns:
-    - material_id
-    - formula
-    - space_group
-    - tolerance_factor
-    - octahedral_factor
-    - ionic_radius_mismatch
-    - electronegativity_difference
-    - decomposition_energy
-  allowed_columns:
-    - material_id
-    - formula
-    - space_group
-    - tolerance_factor
-    - octahedral_factor
-    - ionic_radius_mismatch
-    - electronegativity_difference
-    - decomposition_energy
-    - is_stable
-  column_types:
-    material_id: string
-    formula: string
-    space_group: int
-    tolerance_factor: float
-    octahedral_factor: float
-    ionic_radius_mismatch: float
-    electronegativity_difference: float
-    decomposition_energy: float
-    is_stable: boolean
-
-raw_materials_project:
-  description: "Raw data downloaded from Materials Project API"
-  required_columns:
-    - material_id
-    - formula
-    - space_group
-    - structure
-    - decomposition_energy
-
-raw_oqmd:
-  description: "Raw data downloaded from OQMD"
-  required_columns:
-    - formula
-    - space_group
-    - decomposition_energy
-
-model_metrics:
-  description: "Model performance metrics (results/metrics.json)"
-  required_keys:
-    - test_rmse
-    - cv_mean_rmse
-    - best_params
-    - dft_functional
-  key_types:
-    test_rmse: float
-    cv_mean_rmse: float
-    best_params: dict
-    dft_functional: string
+  - tolerance_factor
+  - octahedral_factor
+  - ionic_radius_mismatch
+  - electronegativity_diff

@@ -71,6 +71,7 @@ from llmxive.speckit.paper_tasks_cmd import PaperTaskerAgent
 from llmxive.speckit.plan_cmd import PlannerAgent
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
 from llmxive.speckit.specify_cmd import SpecifierAgent
+from llmxive.speckit.task_lines import TaskFormatError
 from llmxive.speckit.tasks_cmd import TaskerAgent
 from llmxive.state import execution_status
 from llmxive.state import project as project_store
@@ -254,7 +255,13 @@ _TASK_LINE_RE = re.compile(r"^\s*-\s*\[([ xX~])\]\s", re.MULTILINE)
 
 def _task_marks(text: str) -> list[str]:
     """The mark of every real checkbox task line: ``' '`` | ``'x'`` | ``'X'`` | ``'~'``."""
-    return _TASK_LINE_RE.findall(text)
+    from llmxive.speckit.task_lines import TaskFormatError, mask_fenced_code
+    try:
+        return _TASK_LINE_RE.findall(mask_fenced_code(text))
+    except TaskFormatError:
+        # A malformed document is never complete. Let the implementer's format
+        # validator report the exact issue through the normal replan route.
+        return [" "]
 
 
 def _tasks_all_done(text: str) -> bool:
@@ -319,6 +326,7 @@ def _run_task_verification(
     tasks_path = _active_tasks_md(project_dir, track="research")
     if tasks_path is None:
         return
+    already_verified = already_verified & _tv.verified_done_keys(project_dir, tasks_path)
     spec_context = ""
     try:
         spec_context = (tasks_path.parent / "spec.md").read_text(encoding="utf-8")
@@ -373,6 +381,10 @@ def _paper_complete_preconditions_met(
     list is empty.
     """
     if not _all_paper_tasks_done(project_dir):
+        return False
+    from llmxive.speckit.paper_implement_cmd import paper_implementation_review_current
+    tasks_path = _active_tasks_md(project_dir, track="paper")
+    if tasks_path is None or not paper_implementation_review_current(project_dir, tasks_path.parent):
         return False
     # F-18 hard-block: a paper artifact that still carries an
     # ``[UNVERIFIED: ...]`` citation-guard marker (a fabricated / unverifiable
@@ -526,6 +538,15 @@ def run_one_step(
     # implementation from reaching review (PROJ-552: 68/68 'done' but empty
     # data/figures).
     _exec_project_dir = repo / "projects" / project.id
+    if project.current_stage == Stage.IN_PROGRESS and _all_tasks_done(_exec_project_dir):
+        # Recover interrupted batches and invalidate reviews of overwritten code.
+        from llmxive.agents.task_verifier import verified_done_keys
+
+        _tasks = _active_tasks_md(_exec_project_dir, track="research")
+        if _tasks is not None:
+            _run_task_verification(
+                _exec_project_dir, verified_done_keys(_exec_project_dir, _tasks), repo_root=repo
+            )
     if (
         project.current_stage == Stage.IN_PROGRESS
         and _all_tasks_done(_exec_project_dir)
@@ -735,25 +756,20 @@ def run_one_step(
             or (agent_name == "paper_implementer"
                 and project.current_stage in {Stage.PAPER_ANALYZED, Stage.PAPER_IN_PROGRESS})
         )
-        _paper_track = agent_name == "paper_implementer"
+        _paper_track = project.current_stage.value.startswith("paper_")
         _batch_cap = IMPLEMENT_TASK_BATCH if _is_implement_batch else 1
         _deadline = time.monotonic() + IMPLEMENT_BATCH_BUDGET_SECONDS
         _processed = 0
-        # TASK-VERIFIER snapshot (spec-contract consistency): the implement batch
-        # below marks tasks ``[X]`` on the implementer's OWN say-so. Snapshot which
-        # tasks are ALREADY verifier-accepted (``[X]`` before this tick) so the
-        # post-batch verify pass independently judges ONLY the tasks claimed THIS
-        # tick (plus any prior-tick ``[~]`` deferrals) — never re-judging settled work.
+        # Snapshot evidence-backed acceptances, not unchecked self-reports.
+        # The post-batch pass also invalidates receipts for code edited this tick.
         _verify_already_done: set[str] = set()
         if _is_implement_batch:
-            from llmxive.agents.task_verifier import claimed_done_keys
+            from llmxive.agents.task_verifier import verified_done_keys
             _vt_tasks = _active_tasks_md(
                 project_dir, track="paper" if _paper_track else "research"
             )
             if _vt_tasks is not None:
-                _verify_already_done = claimed_done_keys(
-                    _vt_tasks.read_text(encoding="utf-8")
-                )
+                _verify_already_done = verified_done_keys(project_dir, _vt_tasks)
         # MODEL-TIER ESCALATION (autonomous exhaustion handling — SHARED ladder).
         # The per-project ``model_tier`` (execution_status) is the SSoT escalation
         # ladder for BOTH autonomous loops (the execution fix-loop implementer at
@@ -765,7 +781,10 @@ def run_one_step(
         # projected onto ``ctx.profile`` — the registered profile always flows
         # through unchanged; the escalated tier narrows the ROUTER's choice.
         _req_overrides = None
-        _exec_fix = agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS
+        _exec_fix = (
+            (agent_name == "implementer" and project.current_stage == Stage.IN_PROGRESS)
+            or (agent_name == "paper_implementer" and project.current_stage in {Stage.PAPER_ANALYZED, Stage.PAPER_IN_PROGRESS})
+        )
         _panel_stage = project.current_stage in _STAGE_PANEL_LABEL
         if _exec_fix or _panel_stage:
             _req_overrides = execution_status.tier_overrides(project.id, repo_root=repo)
@@ -796,6 +815,17 @@ def run_one_step(
             )
             try:
                 speckit_agent.run(sk_ctx)
+            except TaskFormatError as exc:
+                # A malformed task list is actionable Tasker input, not a no-op
+                # implementation run. Preserve artifacts and regenerate identities.
+                _write_unverifiable_replan_feedback(project_dir, [{
+                    "task_key": "task-format", "last_reason": str(exc), "reject_count": 1,
+                }], paper=_paper_track)
+                target = Stage.PAPER_PLANNED if _paper_track else Stage.PLANNED
+                repaired = project.model_copy(update={"current_stage": target,
+                    "updated_at": datetime.now(UTC), "last_run_id": run_id})
+                project_store.save(repaired, repo_root=repo)
+                return repaired
             except StagePanelKickback as exc:
                 # CONTROLLED non-convergence: the panel already wrote its
                 # convergence_kickback.yaml sentinel. Do NOT propagate — fall through
@@ -856,6 +886,14 @@ def run_one_step(
             # self-reported-but-undone task from advancing the project (research
             # track only; paper tasks have their own finalize gates).
             if not _paper_track:
+                # Output tasks need their generators to run BEFORE verification.
+                # The final execution gate still runs after every task passes.
+                try:
+                    from llmxive.execution.stage import run_implementation_preview
+
+                    run_implementation_preview(project_dir)
+                except Exception as exc:
+                    logger.warning("implementation preview failed for %s: %s", project.id, exc)
                 try:
                     _run_task_verification(
                         project_dir, _verify_already_done, repo_root=repo
@@ -1112,7 +1150,7 @@ def _write_convergence_replan_feedback(
 
 
 def _write_unverifiable_replan_feedback(
-    project_dir: Path, entries: list[dict[str, Any]]
+    project_dir: Path, entries: list[dict[str, Any]], *, paper: bool = False
 ) -> str:
     """DETERMINISTIC re-plan note (NO LLM) for tasks the implementer repeatedly
     could not make pass verification (issue #1139 D6). Written to the SAME
@@ -1149,7 +1187,7 @@ def _write_unverifiable_replan_feedback(
         "",
     ]
     text = "\n".join(lines) + "\n"
-    memory_dir = project_dir / ".specify" / "memory"
+    memory_dir = (project_dir / "paper" if paper else project_dir) / ".specify" / "memory"
     memory_dir.mkdir(parents=True, exist_ok=True)
     (memory_dir / KICKBACK_FEEDBACK_FILENAME).write_text(text, encoding="utf-8")
     return text
@@ -1433,7 +1471,7 @@ def process_scope_rejection(project: Project, project_dir: Path) -> Stage | None
 
 
 def _reset_revision_rounds(project_id: str, *, repo_root: Path) -> None:
-    """Clear a project's auto-revisions round dirs + revision_history so its NEXT
+    """Archive a project's auto-revisions rounds + revision_history so its NEXT
     review cycle starts with a fresh ``MAX_REVISION_ROUNDS`` budget.
 
     Called on a FULL-revision kickback (the analysis is being redone from an
@@ -1443,23 +1481,12 @@ def _reset_revision_rounds(project_id: str, *, repo_root: Path) -> None:
     straight to human escalation, never getting to address concerns that only
     surfaced AFTER the early rounds (the PROJ-552 layered-review stall: rounds
     1-3 spent on placeholder docs, the real data-quality defect surfaced only at
-    round 4). Bounded by the convergence-kickback cap. Never raises."""
-    import shutil
-
-    from llmxive.state import revision_history as _rh
+    round 4). Bounded by the convergence-kickback cap. Unsafe paths are refused;
+    filesystem failures are logged without deleting the surviving provenance."""
+    from llmxive.state.revision_paths import archive_revision_cycle
 
     try:
-        ar = repo_root / "specs" / "auto-revisions" / project_id
-        if ar.is_dir():
-            shutil.rmtree(ar, ignore_errors=True)
-        hist = _rh._hist_path(project_id, repo_root=repo_root)
-        if hist.is_file():
-            hist.unlink()
-        # The implementer's consecutive-zero-success failsafe counter is also
-        # per-version — reset it so the fresh cycle starts clean.
-        czr = repo_root / "state" / f"{project_id}.implementer.yaml"
-        if czr.is_file():
-            czr.unlink()
+        archive_revision_cycle(repo_root, project_id)
     except OSError as exc:
         logger.warning("revision-round reset failed for %s: %s", project_id, exc)
 
@@ -1716,27 +1743,41 @@ def _decide_next_stage(
         # next tick observe IN_PROGRESS + all-tasks-done → RESEARCH_COMPLETE.
         return Stage.IN_PROGRESS
     if cur == Stage.IN_PROGRESS:
-        # issue #1139 D6: a task the implementer repeatedly cannot make pass is
-        # recorded UNVERIFIABLE by the task-verifier (reopened `[ ]`, NEVER
-        # force-accepted to `[X]`). Left alone, that reopened task keeps
-        # _all_tasks_done False forever and the project wedges at in_progress. So
-        # RE-PLAN the approach (a legal IN_PROGRESS→PLANNED edge, the same target
-        # as execution exhaustion), write a deterministic note naming the tasks,
-        # and clear the store so the re-planned cycle starts clean. This is the
-        # honest loop-breaker that replaced the fail-open force-accept.
+        # Repeated task-verifier rejection is first a code-repair signal. Keep
+        # the reviewed task definitions and rejection notes while trying the
+        # next free implementation model. Only re-plan after that bounded
+        # ladder is exhausted; never force-accept a rejected task.
         from llmxive.state import unverifiable as _unverifiable
 
-        if _unverifiable.has_unverifiable(project.id, repo_root=repo_root):
-            _entries = _unverifiable.load(project.id, repo_root=repo_root)
-            _write_unverifiable_replan_feedback(project_dir, _entries)
-            _unverifiable.clear(project.id, repo_root=repo_root)
-            logger.warning(
-                "%s has %d repeatedly-unverifiable task(s) the implementer could "
-                "not make pass — re-planning (IN_PROGRESS→PLANNED; NOT "
-                "force-accepting incomplete work) [issue #1139 D6]",
-                project.id, len(_entries),
+        _entries = [e for e in _unverifiable.load(project.id, repo_root=repo_root)
+                    if not str(e.get("task_key", "")).startswith("paper:")]
+        if _entries:
+            try:
+                new_tier = execution_status.bump_model_tier(
+                    project.id, repo_root=repo_root, free_only=True
+                )
+            except ValueError:
+                _write_unverifiable_replan_feedback(project_dir, _entries)
+                if (execution_status.replan_rounds(project.id, repo_root=repo_root)
+                        >= execution_status.MAX_REPLAN_ROUNDS):
+                    return Stage.AGENT_BLOCKED
+                execution_status.reset_fix_loop(project.id, repo_root=repo_root)
+                _unverifiable.clear(project.id, repo_root=repo_root, track="research")
+                logger.warning(
+                    "%s: task verification exhausted free models; re-planning",
+                    project.id,
+                )
+                # Stages name completed work: CLARIFIED dispatches the planner;
+                # PLANNED dispatches the tasker and would leave the failed plan intact.
+                return Stage.CLARIFIED
+            _unverifiable.clear(project.id, repo_root=repo_root, track="research")
+            logger.info(
+                "%s: %d repeatedly rejected tasks; retrying implementation with "
+                "free model tier %d (%s), preserving task definitions and feedback",
+                project.id, len(_entries), new_tier,
+                execution_status.tier_model(new_tier),
             )
-            return Stage.PLANNED
+            return Stage.IN_PROGRESS
         # Spec 023 defect #25: research_complete now requires the analysis to
         # have actually RUN and produced real artifacts (execution_status.ok),
         # not just all task checkboxes ticked. Until the dedicated execution
@@ -1759,7 +1800,7 @@ def _decide_next_stage(
             #      model override into the implementer call.
             #   2. ALL TIERS EXHAUSTED — RE-PLAN: write a DETERMINISTIC report
             #      (no LLM) of what worked + what failed + adjust-the-approach,
-            #      reset BOTH fix_rounds and model_tier, and route to PLANNED.
+            #      reset BOTH fix_rounds and model_tier, and route to CLARIFIED (the planner).
             # FABRICATION does not escalate onto a PAID tier: the deterministic
             # fabrication guard fires on the code's OUTPUT regardless of which model
             # wrote it, so paying for a stronger model to re-fabricate is pure waste
@@ -1816,16 +1857,33 @@ def _decide_next_stage(
                 logger.info(
                     "execution fix-loop exhausted ALL model tiers for %s — "
                     "re-planning (deterministic report written; routing to "
-                    "PLANNED; NOT human_input_needed)",
+                    "CLARIFIED (planner); NOT human_input_needed)",
                     project.id,
                 )
-                return Stage.PLANNED
+                # Stages name completed work: CLARIFIED dispatches the planner;
+                # PLANNED dispatches the tasker and would leave the failed plan intact.
+                return Stage.CLARIFIED
         return Stage.IN_PROGRESS
 
     # Paper-Implementer special-case: stay paper_in_progress until ALL
     # preconditions are met (tasks done + LaTeX builds + citations
     # verified + proofreader clean).
     if cur in {Stage.PAPER_ANALYZED, Stage.PAPER_IN_PROGRESS}:
+        from llmxive.state import unverifiable as _unverifiable
+        entries = [e for e in _unverifiable.load(project.id, repo_root=repo_root)
+                   if str(e.get("task_key", "")).startswith("paper:")]
+        if entries:
+            try:
+                execution_status.bump_model_tier(project.id, repo_root=repo_root, free_only=True)
+            except ValueError:
+                _write_unverifiable_replan_feedback(project_dir, entries, paper=True)
+                if execution_status.replan_rounds(project.id, repo_root=repo_root) >= execution_status.MAX_REPLAN_ROUNDS:
+                    return Stage.AGENT_BLOCKED
+                execution_status.reset_fix_loop(project.id, repo_root=repo_root)
+                _unverifiable.clear(project.id, repo_root=repo_root, track="paper")
+                return Stage.PAPER_CLARIFIED
+            _unverifiable.clear(project.id, repo_root=repo_root, track="paper")
+            return Stage.PAPER_IN_PROGRESS
         if _paper_complete_preconditions_met(project.id, project_dir, repo_root=repo_root):
             return Stage.PAPER_COMPLETE
         return Stage.PAPER_IN_PROGRESS

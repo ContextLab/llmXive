@@ -1,0 +1,74 @@
+# Ruff configuration for PROJ-127 (Predicting Coral Bleaching Susceptibility)
+# Task T002A: linting rules for the project.
+
+# Target Python version (project uses Python 3.11)
+target-version = "py311"
+
+# Line length configuration
+line-length = 88
+
+# Exclude common directories that should not be linted
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    "data",
+    "venv",
+    ".venv",
+    "build",
+    "dist",
+    "state",
+    "results",
+    "figures",
+]
+
+[lint]
+# Select specific rule families
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+
+# Ignore specific rules
+ignore = [
+    "E501", # line too long (handled by formatter)
+    "B904", # raise-without-from-inside-except (optional)
+]
+
+[lint.isort]
+known-first-party = [
+    "config",
+    "ingest",
+    "features",
+    "train",
+    "evaluate",
+    "map",
+    "main",
+    "data_gap_report",
+    "data_gap_verification",
+    "constitutional_gate",
+    "acquire_2024_rasters",
+    "generate_research_report",
+    "generate_schemas",
+    "setup_project",
+    "setup_linting",
+]
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Unix line endings
+line-ending = "lf"

@@ -1,0 +1,13 @@
+status: none
+intent: download MulTaBench multimodal benchmark as python package dataset
+required_fields:
+- id
+- image_path
+- image_bytes
+- text
+- label
+- split
+- dataset_name
+cache_key: aab8e6fc3afc40900eee7ac00d2f1961f4934d71f4ecc37c1ce13454dfddf6dc
+searched_at: '2026-09-04T20:49:41.909180+00:00'
+retry_count: 1

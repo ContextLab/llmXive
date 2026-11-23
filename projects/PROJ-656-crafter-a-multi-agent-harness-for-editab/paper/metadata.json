@@ -44,5 +44,15 @@
     "neurips_2026.tex",
     "references.bib",
     "ssz_natbib.bst"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "79c47e813a2a865691d9e5836807dd4d8fa23c9109fee30244629997590164bf",
+      "bytes": 23370668
+    },
+    "original.pdf": {
+      "sha256": "3d9ee0406438133c4417737ed0aaf50d3962a7f0ae0a04e640a0c8b1aa74fefb",
+      "bytes": 23327097
+    }
+  }
 }

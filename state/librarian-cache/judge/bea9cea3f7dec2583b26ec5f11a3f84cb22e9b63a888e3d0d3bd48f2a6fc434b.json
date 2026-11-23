@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.11886",
+  "judged_at": "2026-08-22T12:34:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"read it back: pretrained mllms are zero-shot reward models for text-to\" computer science",
+  "rationale": "This paper is the foundational source for the \"Read It Back\" mechanism mentioned in the user's query, establishing the empirical baseline and methodology for using pretrained MLLMs as zero-shot reward models via prompt recovery likelihood. It satisfies criteria (d) as the canonical reference for the technique and (a) by measuring the exact same biological/algorithmic mechanism (image-conditioned prompt log-likelihood as a reward signal) that the user's follow-up research intends to extend.",
+  "relevant": true
+}

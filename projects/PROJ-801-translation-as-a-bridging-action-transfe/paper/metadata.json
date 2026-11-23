@@ -58,5 +58,15 @@
     "seed/bytesans.tfm",
     "seed/HKU_MMLAB_logo.png",
     "seed/seed_logo.png"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "1b86f45d591830c375112647cd5c8920acd25168e968bb4e796b4841a04a09cf",
+      "bytes": 7850562
+    },
+    "original.pdf": {
+      "sha256": "23455085f72e40870b67c039bf9900d54ff94bcb6d093af786f280e1752e5b99",
+      "bytes": 7802735
+    }
+  }
 }

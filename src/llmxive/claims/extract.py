@@ -18,7 +18,8 @@ from typing import Any
 
 from llmxive.backends.router import reasoning_chat
 from llmxive.claims.classify import classify
-from llmxive.claims.models import Claim, ClaimStatus, compute_claim_id
+from llmxive.claims.models import Claim, ClaimKind, ClaimStatus, compute_claim_id
+from llmxive.speckit.yaml_extract import outer_fenced_body
 
 logger = logging.getLogger(__name__)
 
@@ -122,7 +123,7 @@ def _strip_outer_quotes(value: str) -> str:
 
 # Recognized field keys in the extraction contract (Output format §).
 _FIELD_RE = re.compile(
-    r"^\s*-?\s*(claim_text|canonical|context|number|source)\s*:\s*(.*)$"
+    r"^\s*-?\s*(claim_text|canonical|context|number|source|evidence_scope)\s*:\s*(.*)$"
 )
 
 
@@ -151,7 +152,7 @@ def tolerant_field_entries(raw: str) -> list[dict[str, str]]:
         if not m:
             continue
         key, val = m.group(1), _strip_outer_quotes(m.group(2))
-        if key == "number":
+        if key in {"number", "evidence_scope"}:
             # The prompt's example carries an inline "# ..." comment; strip it
             # ONLY here (claim_text/canonical/context may legitimately contain #).
             val = val.split("#", 1)[0].strip()
@@ -183,7 +184,9 @@ def _tolerant_parse_claims(raw: str, artifact_path: str) -> list[Claim]:
             continue
         canonical = (entry.get("canonical") or claim_text).strip()
         context = (entry.get("context") or "").strip()
-        kind = classify(claim_text, canonical)
+        kind = (ClaimKind.RESULT if entry.get("evidence_scope") == "project_result"
+                else classify(claim_text, canonical,
+                              allow_result=entry.get("evidence_scope") != "external"))
         claim_id = compute_claim_id(kind, canonical, context)
         out.append(Claim(
             claim_id=claim_id,
@@ -192,7 +195,7 @@ def _tolerant_parse_claims(raw: str, artifact_path: str) -> list[Claim]:
             canonical=canonical,
             context=context,
             artifact_path=artifact_path,
-            source_type="external",
+            source_type="result" if kind == ClaimKind.RESULT else "external",
             status=ClaimStatus.PENDING,
             resolved_value=None,
             evidence=None,
@@ -215,14 +218,7 @@ def _parse_extraction_reply(reply_text: str, artifact_path: str) -> list[Claim]:
     """
     import yaml
 
-    raw = (reply_text or "").strip()
-    if raw.startswith("```"):
-        lines = raw.splitlines()
-        if lines and lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].strip() == "```":
-            lines = lines[:-1]
-        raw = "\n".join(lines).strip()
+    raw = outer_fenced_body(reply_text)
 
     try:
         obj = yaml.safe_load(raw)
@@ -249,7 +245,9 @@ def _parse_extraction_reply(reply_text: str, artifact_path: str) -> list[Claim]:
             continue
         canonical = str(entry.get("canonical") or claim_text).strip()
         context = str(entry.get("context") or "").strip()
-        kind = classify(claim_text, canonical)
+        kind = (ClaimKind.RESULT if entry.get("evidence_scope") == "project_result"
+                else classify(claim_text, canonical,
+                              allow_result=entry.get("evidence_scope") != "external"))
         claim_id = compute_claim_id(kind, canonical, context)
         out.append(Claim(
             claim_id=claim_id,
@@ -258,7 +256,7 @@ def _parse_extraction_reply(reply_text: str, artifact_path: str) -> list[Claim]:
             canonical=canonical,
             context=context,
             artifact_path=artifact_path,
-            source_type="external",
+            source_type="result" if kind == ClaimKind.RESULT else "external",
             status=ClaimStatus.PENDING,
             resolved_value=None,
             evidence=None,
@@ -367,12 +365,14 @@ _PLANNING_RECALL_ADDENDUM = (
     "In ADDITION to the usual check-worthy claims, ALSO extract any SPECIFIC "
     "EMPIRICAL VALUE stated as scope, metadata, or a goal — an exact count of "
     "things (e.g. \"27,635 prime knots at 13 crossings\"), a dataset size, a "
-    "measured quantity or duration (e.g. \"within 15 minutes\"), or a percentage "
-    "target (e.g. \"≥95% completeness\") — even when it appears in a Scale/Scope, "
+    "measured quantity, observed percentage, or observed duration — even when it appears in a Scale/Scope, "
     "Performance Goals, or Constraints line rather than as a prose assertion. These "
     "specific values belong to the implementation/research phase and MUST be "
     "detected here. Emit each as a NUMERIC (or MAGNITUDE) claim whose text is the "
     "verbatim sentence/line containing it.\n"
+    "Do NOT extract CHOSEN study parameters, parameter domains such as p in {5, 7, 11}, "
+    "runtime budgets such as within 15 minutes, or acceptance targets such as >=95% completeness. "
+    "These define what to compute or test; they are not observed findings. "
     "Do NOT extract purely STRUCTURAL numbers: phase/section/step/version numbers, "
     "dates, identifiers (e.g. SHA-256, a DOI), or scope BOUNDS that merely qualify "
     "the subject (e.g. \"≤13 crossings\", \"Phase 1\", a range like \"1-10\")."
@@ -429,7 +429,7 @@ def extract_claims(
         ChatMessage(
             role="system",
             content=(
-                "You extract check-worthy, externally-attributable claims "
+                "You extract check-worthy external facts and project-result claims "
                 "from scientific documents.\n\n" + prompt_block
             ),
         ),

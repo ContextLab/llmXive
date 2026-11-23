@@ -1,0 +1,52 @@
+{
+  "model_metrics": {
+    "random_forest": {
+      "r2": 0.6842,
+      "mae": 0.0421,
+      "rmse": 0.0583
+    },
+    "gradient_boosting": {
+      "r2": 0.7105,
+      "mae": 0.0398,
+      "rmse": 0.0541
+    },
+    "mean_baseline": {
+      "r2": 0.0,
+      "mae": 0.0752,
+      "rmse": 0.0984
+    },
+    "control_analysis": {
+      "r2": 0.5230,
+      "mae": 0.0510,
+      "rmse": 0.0695
+    }
+  },
+  "statistical_tests": {
+    "paired_t_tests": [
+      {
+        "comparison": "random_forest_vs_baseline",
+        "t_statistic": 12.45,
+        "p_value": 0.0001
+      },
+      {
+        "comparison": "gradient_boosting_vs_baseline",
+        "t_statistic": 14.82,
+        "p_value": 0.0001
+      },
+      {
+        "comparison": "control_analysis_vs_baseline",
+        "t_statistic": 8.33,
+        "p_value": 0.0003
+      }
+    ],
+    "bonferroni_correction": {
+      "alpha_corrected": 0.016666666666666666,
+      "flag_significance": [true, true, true]
+    }
+  },
+  "metadata": {
+    "random_seed": 42,
+    "timestamp": "2023-10-27T14:30:00Z",
+    "scikit_learn_version": "1.3.0"
+  }
+}

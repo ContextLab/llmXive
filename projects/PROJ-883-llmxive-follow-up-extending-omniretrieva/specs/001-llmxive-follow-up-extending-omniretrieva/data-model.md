@@ -1,84 +1,66 @@
-# Data Model: llmXive Follow-up: Structural Mismatch Cost in Heterogeneous Retrieval
+# Data Model: Structural Mismatch Cost in Heterogeneous Retrieval
 
 ## Overview
+Defines every persistent artifact produced by the benchmarking pipeline. All files live under `data/` and are validated against the YAML‑Schema contracts in `contracts/` (each contract is a single, valid YAML document).
 
-This document defines the data structures used for synthetic query generation, execution logging, and statistical analysis. All data is stored in `data/` (raw/processed) and `data/results/`. Artifact hashes for these files are tracked in `state/state.yaml` (Constitution Principle V).
+## Core Entities
 
-## Entity Definitions
+### 1. Query Instance (Intermediate SSoT)
+| Field | Type | Description |
+|-------|------|-------------|
+| `query_id` | UUID (string) | Unique identifier. |
+| `source_type` | enum(`text`,`relational`,`graph`) | Category of the data source. |
+| `complexity_level` | integer (≥ 1) | Exact plan depth (plan hops). |
+| `logical_plan` | object `{ "steps": [string, …] }` | Ordered list of logical operations. |
+| `reference_plan_id` | string | Identifier of the deterministic greedy plan (`greedy_plan_<8hex>`). |
+| `synthetic_flag` | boolean | `true` if the query topology was synthetically generated. |
 
-### 1. Query Instance
-Represents a single synthetic retrieval request.
+### 2. Execution Metric (Final SSoT)
+| Field | Type | Description |
+|-------|------|-------------|
+| `query_id` | UUID (string) | FK to Query Instance. |
+| `latency_ms` | float | Baseline‑corrected wall‑clock latency (ms). |
+| `translation_error` | boolean | **Only** for queries with an optimal ground‑truth (sampled subset): `true` if the router’s plan deviates from the optimal plan. |
+| `reference_deviation` | boolean | `true` if the router’s plan deviates from the greedy reference plan (for non‑sampled queries). |
+| `precision_at_10` | float (0 – 1) | Precision@10 for the query. |
+| `timeout_flag` | boolean | `true` if execution exceeded the 60 s wall‑clock limit. |
+| `success_flag` | boolean | `true` if execution completed without error. |
+| `synthetic_flag` | boolean | Propagated from the originating Query Instance. |
+| `throttling_mode` | enum(`cgroups`,`failed`) | How CPU limits were enforced. |
+| `timestamp` | ISO‑8601 string | When the measurement was taken. |
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `query_id` | `str` | Unique UUID for the query. | Generated |
-| `source_type` | `str` | One of: `text`, `relational`, `graph`. | Generated |
-| `complexity_level` | `int` | Exact plan depth (1, 2, 3, 4+). | Generated |
-| `logical_plan` | `list[str]` | Sequence of operations (e.g., `["join", "filter"]`). | Generated |
-| `ground_truth_plan` | `list[str]` | Optimal plan from CBO (full lookahead). | Generated |
-| `sut_plan` | `list[str]` | Plan from SUT (limited lookahead heuristic). | Generated |
-| `parameters` | `dict` | Query-specific args (e.g., `{"tables": ["A", "B"]}`). | Generated |
+### 3. Statistical Result
+| Field | Type | Description |
+|-------|------|-------------|
+| `test_type` | string (`anova`, `tukey`, `chi2`, `sensitivity`, `slope_ratio`) | Analysis performed. |
+| `parameters` | object | e.g., `{ "cutoff": 3 }`. |
+| `statistics` | object | Test‑specific numbers (F, p, χ², slope values, etc.). |
+| `interpretation` | string | Human‑readable summary of the result. |
 
-### 2. Execution Metric
-Represents the outcome of a single query run.
+## File Formats & Contracts
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `query_id` | `str` | FK to Query Instance. | From Query |
-| `latency_ms` | `float` | Wall-clock time in milliseconds. | Measured |
-| `mismatch_flag` | `bool` | `True` if SUT selected a wrong source type. | Computed |
-| `delta_latency` | `float` | `Latency_Mismatched - Latency_Optimal` (if mismatch). | Computed |
-| `translation_error` | `bool` | `True` if `sut_plan` != `ground_truth_plan`. | Computed |
-| `timeout_flag` | `bool` | `True` if execution > 60s. | Measured |
-| `success_flag` | `bool` | `True` if `not timeout_flag` and no exception. | Computed |
-| `timestamp` | `str` | ISO 8601 timestamp. | System |
+| File | Format | Contract |
+|------|--------|----------|
+| `data/processed/generation_log.json` | JSON array of **Query Instance** objects | `contracts/query_instance.schema.yaml` |
+| `data/processed/optimal_ground_truth.json` | JSON mapping `query_id → optimal_plan_id` | No separate contract (derived from `query_instance`). |
+| `data/processed/execution_logs.csv` | CSV (header row) | `contracts/execution_log.schema.yaml` |
+| `data/processed/execution_metric.json` | JSON array of **Execution Metric** objects | `contracts/execution_metric.schema.yaml` |
+| `data/processed/baseline_overhead.json` | JSON `{ "bm25": float, "sqlite": float, "rdflib": float }` | No separate contract (simple config). |
+| `data/results/anova_results.json` | JSON (see `research.md` for structure) | No separate contract (consumed by visualisation). |
+| `data/results/sensitivity_analysis.json` | JSON array of **Statistical Result** objects (type `sensitivity`) | `contracts/statistics_result.schema.yaml` |
+| `data/results/statistics_results.json` | JSON (precision@10 summary, slope ratio, etc.) | No separate contract. |
+| `data/results/interaction_plot.png` | PNG image | No contract (binary artifact). |
 
-### 3. Statistical Summary
-Aggregated results for ANOVA and visualization.
+## Data Flow Diagram
+1. **Data Loader** → downloads raw datasets → `data/raw/`.  
+2. **Query Generator** → creates `generation_log.json`.  
+3. **Reference Engine** → adds `reference_plan_id` to each query.  
+4. **Optimal Planner** (sampled) → produces `optimal_ground_truth.json`.  
+5. **Baseline Overhead** → writes `baseline_overhead.json`.  
+6. **Benchmark Runner** → reads `generation_log.json`, enforces cgroups, writes `execution_logs.csv` and `execution_metric.json`.  
+7. **Stats Module** → consumes `execution_logs.csv`, outputs statistical JSON files.  
+8. **Visualization** → consumes `execution_logs.csv` → `interaction_plot.png`.  
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `source_type` | `str` | Grouping variable. | Aggregated |
-| `complexity_level` | `int` | Grouping variable. | Aggregated |
-| `mean_delta_latency` | `float` | Average mismatch cost for group. | Calculated |
-| `std_delta_latency` | `float` | Standard deviation. | Calculated |
-| `n_samples` | `int` | Count of queries in group. | Calculated |
-| `knee_point` | `float` | Identified complexity level of spike (from Segmented Regression). | Calculated |
+All transformations are pure functions; no in‑place mutation of source files (Constitution Principle III).  
 
-## File Formats
-
-### Raw Logs (JSONL)
-Stored in `data/results/raw_logs.jsonl`.
-```json
-{"query_id": "uuid-1", "source_type": "graph", "complexity_level": 3, "latency_ms": 120.5, "mismatch_flag": true, "delta_latency": 45.2, "translation_error": true, "timeout_flag": false, "success_flag": true}
-```
-
-### Statistical Output (CSV)
-Stored in `data/results/analysis_summary.csv`.
-```csv
-source_type,complexity_level,mean_delta_latency,std_delta_latency,n_samples,knee_point
-graph,1,5.2,1.1,100,3.0
-graph,2,12.4,2.5,100,3.0
-graph,3,55.1,8.2,100,3.0
-graph,4,120.5,15.0,100,3.0
-```
-
-## Data Flow
-
-1. **Generation**: `synthetic_queries.py` creates `QueryInstance` objects -> Saved to `data/processed/queries.jsonl`.
-2. **Execution**: `main.py` loops through queries -> Measures latency -> Saves `ExecutionMetric` to `data/results/raw_logs.jsonl`.
-3. **Analysis**: `latency_analyzer.py` reads logs -> Computes aggregates and Segmented Regression -> Saves `StatisticalSummary` to `data/results/analysis_summary.csv`.
-4. **State Tracking**: `state/state.yaml` is updated with checksums of all generated files (Constitution Principle V).
-5. **Visualization**: `visualizer.py` reads CSV -> Generates `figures/latency_interaction.png`.
-
-## State Tracking (Constitution Principle V)
-
-The `state/state.yaml` file tracks artifact hashes to ensure reproducibility.
-```yaml
-artifacts:
-  data/processed/queries.jsonl: <sha256_hash>
-  data/results/raw_logs.jsonl: <sha256_hash>
-  data/results/analysis_summary.csv: <sha256_hash>
-  code/generators/synthetic_queries.py: <sha256_hash>
-updated_at: "2026-07-10T12:00:00Z"
-```
+---

@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-554-characterization-of-exoplanetary-atmosph",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 3 command(s) failed: python code/download.py --output data/raw (rc=1); python code/retrieval.py --input data/raw --output data/processed (rc=1); python code/analysis.py --input data/processed/analysis_dataset.csv --output results (rc=2); 7 declared deliverable(s) absent: data/processed/analysis_results.json; data/processed/bootstrap_ci.json; data/processed/correlation_stats.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/main.py': [Errno 2] No such file or directory",
+    "python code/download.py --output data/raw -> rc=1\n    st recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/download.py\", line 191, in main\n    count = count_unique_planets()\n            ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/download.py\", line 57, in count_unique_planets\n    if isinstance(config.data_dir, dict):\n                  ^^^^^^^^^^^^^^^\nAttributeError: 'dict' object has no attribute 'data_dir'\nTraceback (most recent call l",
+    "python code/retrieval.py --input data/raw --output data/processed -> rc=1\n    Retrieval process failed: Input directory not found: data/raw\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/retrieval.py\", line 273, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-554-characterization-of-exoplanetary-atmosph/code/retrieval.py\", line 266, in main\n    results = process_retrieval_results(args.input, args.output)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  ",
+    "python code/analysis.py --input data/processed/analysis_dataset.csv --output results -> rc=2\n    usage: analysis.py [-h] --retrieval-results RETRIEVAL_RESULTS --bootstrap-ci\n                   BOOTSTRAP_CI --output OUTPUT\nanalysis.py: error: the following arguments are required: --retrieval-results, --bootstrap-ci"
+  ],
+  "fix_rounds": 4,
+  "model_tier": 0,
+  "total_attempts": 4,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-25T11:36:56Z"
+}

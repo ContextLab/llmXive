@@ -1,20 +1,60 @@
-# This file is a legacy alias for ruff.toml if ruff is invoked without pyproject.toml
-# The primary configuration is in pyproject.toml [tool.ruff]
-# This file ensures compatibility with older ruff invocations that look for .ruff.toml
-extend = "pyproject.toml"
-target-version = "py311"
-line-length = 88
+[lint]
 select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
-    "N",
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "I",  # isort
+    "UP", # pyupgrade
+    "W",  # pycodestyle warnings
 ]
-ignore = [
-    "E501",
-    "B008",
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific files/directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "results",
+    "archive"
 ]
+
+# Same as Black
+line-length = 88
+
+# Allow unused variables when underscore-prefixed
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# Ignore import sorting in __init__.py files
+"__init__.py" = ["E402", "F401"]
+# Ignore specific rules in test files if needed
+"code/tests/*.py" = ["S101"]
+
+[format]
+# Enable Black-compatible formatting
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

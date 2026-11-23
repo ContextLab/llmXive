@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1909.11723",
+  "judged_at": "2026-08-13T14:33:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"weak-to-strong generalization via direct on-policy distillation\" computer science",
+  "rationale": "This paper belongs in the literature review because it provides foundational theoretical analysis and empirical evidence on the mechanisms of knowledge distillation (specifically the relationship between soft targets, label smoothing, and student-teacher dynamics), which directly addresses the \"Direct On-Policy Distillation\" mechanism central to the user's question about Weak-to-Strong Generalization (Category a). Additionally, it serves as a canonical reference for the distillation framework an",
+  "relevant": true
+}

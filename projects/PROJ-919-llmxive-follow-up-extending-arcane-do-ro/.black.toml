@@ -1,0 +1,3 @@
+# This file is deprecated in favor of pyproject.toml [tool.black] section.
+# Keeping for legacy compatibility only.
+extend = "pyproject.toml"

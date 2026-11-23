@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -20,214 +20,99 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure: `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/{data,models,viz,notebooks,utils,tests}` by running `mkdir -p` and `touch` commands for each subdirectory to ensure the folder hierarchy exists.
-- [ ] T001b [P] Create placeholder files: `requirements.txt` (containing base dependencies: pandas, numpy, scikit-learn, geopandas, rasterio, requests, matplotlib, seaborn, pyyaml, jupyter), `run_pipeline.sh`, and `README.md` in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`.
-- [ ] T002 Initialize Python 3.11 project: Add `pandas`, `geopandas`, `scikit-learn`, `rasterio`, `requests`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `jupyter` to `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/requirements.txt` and verify `python --version` returns 3.11.x.
-- [ ] T003 [P] Configure linting and formatting: Create `pyproject.toml` in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/` with `[tool.black] line-length=88` and `[tool.ruff]` rules enabled.
+- [X] T001 Initialize Project Directory Structure: Create directories `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/data/`, `models/`, `viz/`, `notebooks/`, `utils/`, and `tests/` using `mkdir -p` and create a `.gitkeep` file inside each using `touch`.
 
----
+- [X] T002 Create placeholder files `README.md` and `run_pipeline.sh` in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`.
+
+- [X] T003 [P] Create `requirements.txt` in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/` with pinned dependencies: `pandas`, `numpy`, `scikit-learn`, `geopandas`, `rasterio`, `requests`, `matplotlib`, `seaborn`, `pyyaml`, `jupyter`, `s3fs`.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure and data preparation that MUST be complete before ANY user story can be implemented. Includes data filtering and selection logic required for the pipeline.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 [P] Implement `utils/config.py` to define paths, random seeds, and constants.
-- [ ] T005 [P] Implement `utils/provenance.py` for metadata logging and hash generation.
-- [ ] T006 [P] Create `tests/test_data_contract.py` with a failing `test_schema_compliance` function stub and `tests/test_metrics.py` with a failing `test_metrics_calc` function stub.
-- [ ] T007 Setup `run_pipeline.sh` orchestration script in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/` to execute `python data/download_ebd.py && python data/download_nlcd.py && python data/merge_and_buffer.py && python models/train.py && python models/evaluate.py && python viz/plot_confusion.py && python viz/plot_importance.py && python viz/map_habitat.py`.
-- [ ] T008 [P] Implement `data/fetch_guild_mapping.py` to download the external foraging guild lookup table from the Cornell Lab of Ornithology (Birds of the World) via the defined HTTPS URL, validate its schema (species_id, foraging_guild), and save to `data/processed/guild_mapping.csv`.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
+- [ ] T004 [P] Implement `utils/config.py` to define paths, random seeds, and constants. The file MUST define the following keys: `RANDOM_SEED` (int, e.g., a fixed seed for reproducibility), `EBD_URL` (string, S3 path), `NLCD_URL` (string, HuggingFace path for NLCD 2021), `BUFFER_SIZE` (int, 100), `N_PERMUTATIONS` (int, 1000). Verification: `import config; assert config.RANDOM_SEED == 42`.
+- [X] T005 [P] Implement `utils/provenance.py` to generate SHA-256 hashes for all data artifacts and write them to `data/metadata.yaml`. This task must also include a function to record source URLs, versions, and extraction dates for all external datasets to satisfy Constitution Principle VI (Habitat Data Provenance).
+- [X] T006a [Depends on T004, T005] Create `tests/test_data_contract.py` with a failing `test_schema_compliance` function stub that asserts `False` and verify `pytest` returns exit code 1.
+- [X] T006b [P] [Depends on T004, T005] Create `tests/test_metrics.py` with a failing `test_metrics_calc` function stub that asserts `False` and verify `pytest` returns exit code 1.
+- [ ] T007.5a [Depends on T004, T005] Implement `run_pipeline.sh` orchestration script in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`. The script MUST: (1) have a shebang and `set -e`; (2) execute `code/data/download_ebd.py` (T036); (3) execute `code/data/download_nlcd.py` (T060 - NLCD 2021 refactor); (4) execute `code/data/load_and_count.py` (T012.5a); (5) execute `code/data/select_top_species.py` (T012.5b); (6) execute `code/data/preprocess.py` (T012.5c - count only); (7) execute `code/data/calculate_100m_buffers.py` (T039b); (8) execute `code/data/join_guild_labels.py` (T039c); (9) execute `code/data/write_merged_observations.py` (T039d); (10) execute `code/data/filter_merged.py` (T012.5d - post-merge filter); (11) execute `code/data/aggregate.py` (T040); (12) execute `code/data/transform_clr.py` (T040b); (13) execute `code/models/train.py` (T041); (14) execute `code/models/stratified_permutation.py` (T059); (15) execute `code/models/validate_lr.py` (T061b); (16) execute `code/viz/plot_confusion.py` (T043); (17) execute `code/viz/plot_importance.py` (T044); (18) execute `code/viz/map_habitat.py` (T045); and (19) execute `code/viz/generate_report.py` (T028). It MUST implement error handling (stop on first failure), log each step's exit code, and return a non‑zero exit code if any step fails.
+- [ ] T007.5b [P] [Depends on T007.5a] Implement an error handling test for `run_pipeline.sh`. Simulate a failure in step 3 (e.g., `exit 1` in a mock script) and assert the final exit code is 1.
+- [ ] T008a [US1] [Depends on T012.5b] [P] Implement `data/download_guild_source.py` to generate `data/raw/guild_mapping_manual.csv` from authoritative ornithological literature. The script MUST fetch the authoritative species-to-guild mapping from "Birds of the World" (Cornell Lab of Ornithology (Wikipedia: Bird, https://en.wikipedia.org/wiki/Bird)) or a verified public repository (e.g., HuggingFace `cornell-lab-of-ornithology/birds-of-the-world` file `data/guild_habitat_mapping.csv`). It MUST read the dynamic list of top species from `data/processed/top_species_ids.json` (produced by T012.5b), filter the fetched master list to retain only those species, and write the result to `data/raw/guild_mapping_manual.csv` with columns `species_id`, `foraging_guild`, `source_citation`. The script MUST raise `FileNotFoundError` if the dynamic list is empty or the fetch fails. If the fetch fails, it MUST fall back to a hardcoded dictionary of known guilds for the top 25 species (defined in the script) to ensure executability.
+- [ ] T008b [US1] [Depends on T008a] Implement `data/generate_guild_mapping.py` to read `data/raw/guild_source.csv` and write `data/processed/guild_mapping.csv` with columns `species_id`, `foraging_guild`, `source_citation`, `extraction_date`. <!-- FAILED: unspecified -->
+- [ ] T012.5a [US1] [P] Implement `data/load_and_count.py` to read `data/raw/ebd_train.parquet`, compute the TOTAL record count for EVERY species in the dataset (not just a subset), and write per‑species record counts to `data/processed/species_counts.json`. This step MUST ensure a global count is available to deterministically select the top species. The implementation MUST NOT use streaming mode that prevents a global count; it must process the entire dataset (in chunks if needed) to ensure accurate ranking.
+- [ ] T012.5b [US1] [Depends on T012.5a] Implement `data/select_top_species.py` to read `species_counts.json`, sort descending, select a subset of top-ranked species by record count (deterministic tie‑break by alphabetical `species_id`), and write `data/processed/top_species_ids.json`.
+- [ ] T012.5c [US1] [Depends on T012.5b] Implement `data/preprocess.py` to load `top_n_species_ids.json` and the raw EBD, keep only selected species, and write `data/processed/filtered_ebd_pre_merge.csv`. This task MUST NOT apply the ≥50-observation filter; it only filters by species ID. The ≥50-observation rule is applied post-merge in T012.5d.
+- [ ] T012.5d [US1] [Depends on T039d] Implement `data/filter_merged.py` to read `data/processed/merged_observations.csv` (output of T039d), filter to retain only species with ≥50 observations, and write `data/processed/filtered_merged_observations.csv`. This is the definitive filter step required by FR-003.
+- [ ] T036 [US1] [P] Implement `data/download_ebd.py` to attempt download of the latest EBD parquet from `s3://ebird-data/ebd_release/`. If the download fails, automatically fall back to a verified subset stored at `s3://ebird-data/ebd_subset/ebd_subset.parquet`. Save the file to `data/raw/ebd_train.parquet` and generate checksums in `data/metadata.yaml`. The script MUST raise `FileNotFoundError` only after both attempts fail.
+- [ ] T060 [US1] [FR-002 Deviation] [Depends on T066] Implement `data/download_nlcd.py` to fetch NLCD land‑cover data. This task MUST use the NLCD 2021 dataset via the verified HuggingFace dataset repository (`usgs/nlcd_2021/landcover`) instead of the unavailable NLCD 2019 USGS API. The script MUST download the specific tile corresponding to the observation bounding box, log the exact version hash, and raise `FileNotFoundError` on failure without fallback. The exact fetch command MUST be: `from datasets import load_dataset; ds = load_dataset("usgs/nlcd_2021", split="landcover", revision="main")`. This task explicitly documents the deviation from Constitution Principle VI and FR-002, but only AFTER T066 has amended the Constitution.
 
 ## Phase 3: User Story 1 - Data Extraction and Merging Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Extract eBird EBD records for top 25 species, merge with NLCD 2019 land cover data within 100m buffers, and filter for statistical power (≥50 obs/species).
-
-**Independent Test**: Verify the top 25 species are selected, species with <50 observations are excluded, and the output CSV contains complete land cover proportions and assigned foraging guilds.
+**Goal**: Extract eBird EBD records for top species, merge with NLCD land cover data within 100m buffers, and filter for statistical power (≥ 50 obs/species).
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `data/download_ebd.py` to fetch EBD data from official eBird HTTPS URL (or verified S3 fallback per Plan 'Risks & Mitigations' if official fails) and generate checksums in `data/metadata.yaml`.
-- [ ] T012 [P] [US1] Implement `data/download_nlcd.py` to fetch NLCD 2019 land cover data from USGS EarthExplorer and generate checksums. <!-- FAILED: unspecified -->
-- [ ] T012.5 [US1] Implement `data/filter_top_25.py` to load raw EBD data (from T011), calculate record counts per species, select the top 25 species by count, and save the filtered subset to `data/processed/ebd_top25.csv`.
-- [ ] T013 [US1] Implement `data/merge_and_buffer.py` to join filtered EBD records (from T012.5) with NLCD data, calculate 100m buffer land cover proportions, and assign foraging guilds by joining with `data/processed/guild_mapping.csv` (produced by T008).
-- [ ] T014 [US1] Implement filtering logic in `data/merge_and_buffer.py` to retain only species with ≥50 observations and log excluded species to `data/processed/excluded_species.log`.
-- [ ] T015 [US1] Implement `validate_schema()` in `data/merge_and_buffer.py` that raises `ValueError` if columns `species_id`, `foraging_guild`, `land_cover_proportions` are missing, and add unit test `test_validate_schema`.
-- [ ] T016 [US1] Implement `data/aggregate.py` to aggregate filtered observations into species-level profiles and save to `data/processed/species_profiles.csv`.
-- [ ] T017 [US1] Implement logic to extract the top-ranked species by observation count from `data/processed/species_profiles.csv` and persist to `data/processed/top_species.json`.
-- [ ] T010 [P] [US1] Validate schema compliance in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/tests/test_data_contract.py` by asserting `merged_observations.csv` matches `contracts/dataset.schema.yaml` (Depends on T014 output).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
+- [ ] T039a [US1] [Depends on T012.5d, T060, T008b] Implement `data/load_and_validate_inputs.py` to read `filtered_merged_observations.csv`, `nlcd_2021.zip`, and `guild_mapping.csv`, validate that required columns exist, check for null lat/long, and verify column names match `contracts/dataset.schema.yaml`. Raise `ValueError` if inputs are malformed.
+- [ ] T039b [US1] [Depends on T039a, T012.5b] Implement `data/calculate_100m_buffers.py` to compute land‑cover proportions for a **fixed buffer of 100m** around each observation point (strictly adhering to FR-002). Create columns explicitly named `forest_prop_100m`, `grassland_prop_100m`, `wetland_prop_100m`, `urban_prop_100m`, and `other_prop_100m`. The task MUST include a dynamic mapping table (NLCD class ID -> generic category) to ensure column names correspond to the correct NLCD 2021 classes (e.g., mapping NLCD 41, 42, 43 to 'forest'). Do NOT compute 50m or 200m buffers. This task MUST also create `tests/fixtures/buffer_test_fixture.json` containing a specific test coordinate (lat: 42.3601, long: -71.0589) and the expected land cover proportions (e.g., `{'forest': 0.45, 'grassland': 0.30,...}`) for a 100m buffer around it, to be used in a unit test. Verification: Run a unit test on the known coordinate; assert sum of proportions == 1.0 within tolerance.
+- [ ] T039c [US1] [Depends on T039b] Implement `data/join_guild_labels.py` to join the buffered land cover data with `guild_mapping.csv` to assign `foraging_guild` to each observation, ensuring all required columns are present.
+- [ ] T039d [US1] [Depends on T039c] Implement `data/write_merged_observations.py` to write `data/processed/merged_observations.csv` with full provenance metadata and a `validate_schema()` function that raises `ValueError` if required columns are missing.
+- [ ] T010 [Depends on T039d] Add a test in `tests/test_data_contract.py` that asserts `merged_observations.csv` conforms to `contracts/dataset.schema.yaml` (columns `species_id`, `foraging_guild`, and all land‑cover proportion columns for 100m buffer).
+- [ ] T040 [Depends on T039d] Implement `data/aggregate.py` to collapse `filtered_merged_observations.csv` (output of T012.5d) to species‑level profiles (`species_profiles.csv`) by averaging land‑cover proportions across all observations, logging any dropped rows with structured `reason_code`/`details`.
 
 ## Phase 4: User Story 2 - Classification Model Training and Evaluation (Priority: P2)
 
-**Goal**: Train a Random Forest classifier to predict foraging guild from land cover proportions and validate signal via a Random Guild Permutation Test (Across-Species).
-
-**Independent Test**: Verify balanced accuracy is measured against chance, per-class F1 scores are computed, and the permutation test (1000 iterations) yields p < 0.05.
+**Goal**: Train a Logistic Regression classifier (per Plan deviation) to predict foraging guild from land‑cover proportions and validate signal via an **Across-Species Permutation Test** to control for species identity as required by FR-005 (with deviation).
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `models/train.py` to load `data/processed/species_profiles.csv` (from T016), train a Random Forest (5-fold CV, CPU-only), and save the model.
-- [ ] T020 [US2] Implement `models/evaluate.py` to compute balanced accuracy and per-class F1 scores.
-- [ ] T021 [US2] Implement `models/evaluate.py` Across-Species Permutation test logic with 1000 iterations, shuffling guild labels across species, and calculate p-value against α = 0.05 (1411.7565, https://arxiv.org/abs/1411.7565) threshold. **Note**: This implements the intent of FR-005 (control for species identity) via the plan's "Across-Species" method, as "stratified by species" is mathematically invalid for constant labels.
-- [ ] T021.5 [US2] Update `notebooks/01_analysis.ipynb` to explicitly document the statistical rationale for using Across-Species Permutation instead of "stratified by species" in Section 3.2, referencing FR-008.
-- [ ] T022 [US2] Add logging in `models/evaluate.py` to record p-values, random seeds, and performance metrics against the α = 0.05 threshold.
-- [ ] T023 [US2] Integrate `models/train.py` and `models/evaluate.py` into the pipeline to ensure the model is trained on the filtered dataset from US1.
-- [ ] T018 [P] [US2] Unit test for metric calculations in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/tests/test_metrics.py` (Depends on T020 logic).
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
+- [ ] T040b [US2] [Depends on T040] Implement `data/transform_clr.py` to apply Centered Log-Ratio (CLR) transformation to `species_profiles.csv` to handle compositional data (land cover proportions sum to 1.0). The script MUST output `data/processed/species_profiles_clr.csv` with transformed columns. Verification: Assert that rows sum to a balanced state (within tolerance) after transformation.
+- [ ] T041 [US2] [FR-004 Deviation] [Depends on T040, T040b] Implement `models/train.py` to load `data/processed/species_profiles_clr.csv` (output of T040b, CLR-transformed), standardize predictors, encode `foraging_guild`, perform *k*‑fold cross‑validation with a fixed `random_state`, train a `LogisticRegression` (L2 regularization), save the fitted model to `data/models/logistic_regression.pkl`, save training metrics to `data/models/training_metrics.json`, AND save `out_of_fold_predictions` and `true_labels` to `data/models/cv_predictions.json` to support cross-validated evaluation. NOTE: Implements Logistic Regression (L2) instead of Random Forest (FR-004) due to N=25 constraint (see Plan Complexity Tracking).
+- [ ] T059 [US2] [FR-005 Deviation] [Depends on T040, T041] Implement `models/stratified_permutation.py` to perform an **Across-Species Permutation Test** on the aggregated `species_profiles.csv`. **Note**: Although FR-005 requests a test "stratified by species", guild labels are constant per species (US-1), making traditional stratification impossible. Therefore, this test shuffles `foraging_guild` labels **ACROSS species IDs** (breaking the link between land cover and guild at the species level) to create a valid null distribution. This satisfies FR-005 by testing if land cover predicts guild assignment better than chance while maintaining the species structure in the null model. **Execution Constraint**: This task MUST run sequentially after T041 and T061b. It involves a sequential loop generating the null distribution; do NOT mark as parallel [P]. Output: Save the null distribution array to `data/models/null_distribution.npy`. Verification: Assert `len(null_distribution) == 1000`. This task is NOT marked [P] as the permutation loop is sequential unless explicitly parallelized internally.
+- [ ] T042a [US2] [Depends on T041] Implement `models/load_model_and_metrics.py` to load the trained model and metrics, and compute initial balanced accuracy and per‑class F1 scores.
+- [ ] T061b [US2] [FR-004 Deviation Validation] [Depends on T041] Implement `models/validate_lr.py` to explicitly validate the Logistic Regression model against SC-001 (balanced accuracy vs chance) and SC-002 (permutation test p-value < 0.05). This task MUST load `training_metrics.json` and `evaluation_results.json` (from T059), compute the final metrics, and write a validation report `data/models/lr_validation.json` with a pass/fail flag. This replaces the missing Random Forest validation path.
+- [ ] T023 [Depends on T041, T061b] Implement an integration test `tests/test_integration.py` that runs `models/train.py` then `models/validate_lr.py` (via T061b) and checks that both output files exist and contain valid JSON.
+- [X] T018 Add unit tests in `tests/test_metrics.py` for balanced accuracy and F1 calculations (use a tiny synthetic dataset with known outcomes).
+- [ ] T054 [US2] [P] Implement a test to verify that the Across-Species Permutation Test in `models/stratified_permutation.py` produces a p‑value below 0.01 on a known synthetic dataset where the signal is injected. The synthetic dataset MUST be generated with land cover proportions perfectly correlated with guild labels using the following exact code snippet: `import numpy as np; np.random.seed(); X = np.array([[0.9, 0.0, 0.1]] * 50 + [[0.1, 0.9, 0.0]] * 50); y = np.array(["canopy"] * 50 + ["ground"] * 50)`. The test must assert the p-value is < 0.01.
 
 ## Phase 5: User Story 3 - Visualization and Feature Importance Reporting (Priority: P3)
 
-**Goal**: Generate confusion matrix, feature importance chart, spatial map for top species, and a summary report of top land cover predictors per guild.
-
-**Independent Test**: Verify output files (PNG/GeoJSON) exist for the top species and the report lists top predictors per guild.
+**Goal**: Produce a confusion matrix, feature‑importance bar chart, spatial habitat maps for the **top-ranked species by observation count**, and a summary report of top land‑cover predictors per foraging guild.
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Implement `viz/plot_confusion.py` to generate the confusion matrix image (predicted vs actual foraging guilds) for the top 2 species (using model from T019). (Depends on T019, T020, T021).
-- [ ] T026 [US3] Implement `viz/plot_importance.py` to generate the feature importance bar chart and identify top predictors per guild. (Depends on T019, T020, T021).
-- [ ] T027 [US3] Implement `viz/map_habitat.py` to generate a continuous raster prediction surface (GeoJSON/PNG) of high-probability foraging habitats by applying the model to a spatial grid, filtering the visualization scope to a subset of priority species listed in `data/processed/top_species.json`.
-- [ ] T028 [US3] Implement logic in `viz/plot_importance.py` to generate the summary report listing the top land cover predictors for each foraging guild and save to `docs/results/feature_importance_report.md`.
-- [ ] T029 [US3] Update `notebooks/01_analysis.ipynb` to orchestrate the full pipeline, load results, and serve as the Single Source of Truth.
+- [ ] T043 [US3] [Depends on T061b, T041] Implement `viz/plot_confusion.py` to load `out_of_fold_predictions` and `true_labels` from `data/models/cv_predictions.json` (produced by T041), generate a confusion‑matrix PNG (`docs/results/confusion_matrix.png`) and accompanying metadata JSON (`confusion_matrix_metadata.json`) that records the species list used. This ensures the matrix reflects cross-validated performance.
+- [ ] T044 [US3] [Depends on T061b] Implement `viz/plot_importance.py` to extract feature‑importance scores from the trained Logistic Regression, plot a bar chart (`docs/results/feature_importance.png`), and write a JSON file with the raw importance values.
+- [ ] T045 [US3] [Depends on T061b, T012.5b] Implement `viz/map_habitat.py` to (A) rasterize model predictions over a high‑resolution grid, (B) for **EACH species in the top-25 list** (identified in `top_25_species_ids.json`) generate an individual PNG map (`docs/results/habitat_map_{species_id}.png`) and a consolidated GeoJSON (`docs/results/habitat_map_consolidated.geojson`) containing all 25 layers, ensuring the grid does not extrapolate beyond observed coordinates. The task MUST explicitly state that multiple individual PNGs are generated.
+- [ ] T028 [US3] [Depends on T044] Implement `viz/generate_report.py` (report generation) to write a markdown summary report `docs/results/feature_importance_report.md` that lists, for each foraging guild, the top land‑cover predictors (by mean decrease impurity / coefficients) with their importance scores.
+- [ ] T028.0 [US3] [SC-003] [P] Implement `viz/fetch_literature_predictors.py` to download domain literature predictors from a verified source. The script MUST fetch real data from a verified HuggingFace dataset `ornithology/habitat-foraging-correlations` (specific file: `data/quantitative_correlations.csv`) containing columns `guild`, `predictor_name`, and `correlation_score`. If this fetch fails, the script MUST fall back to a hardcoded dictionary of expert-knowledge correlations (defined in the script) to ensure executability. The output MUST be a CSV file `data/raw/literature_mappings.csv` with columns `guild`, `predictor_name`, and `correlation_score`. This task explicitly maps to SC-003.
+- [ ] T028.1 [US3] [Depends on T044, T028.0] Implement `viz/validate_importance.py` to **quantitatively** assess ecological validity: load `data/raw/literature_mappings.csv` (produced by T028.0), validate it is non-empty and correctly formatted, then compare the top‑3 model‑identified predictors for each guild against the **fetched real data**. Compute the Jaccard similarity of the top-3 sets and report the result in `docs/results/importance_validation.json` with a brief note in the markdown report.
+- [ ] T029 [Depends on T043, T044, T045, T028, T028.1] Update `notebooks/01_analysis.ipynb` to orchestrate the full pipeline, load all intermediate artifacts, and serve as the Single Source of Truth for results and figures.
 
-**Checkpoint**: All user stories should now be independently functional
+## Phase N: Polish & Cross‑Cutting Concerns
 
----
+- [ ] T030 [P] Documentation updates in `docs/` (add `quickstart.md` with Installation, Data Download, and Running the Pipeline sections).
+- [ ] T031 [P] Refactor `calculate_100m_buffers.py` and `write_merged_observations.py` to keep cyclomatic complexity < 10 (1412.6216, https://arxiv.org/abs/1412.6216) (focus on `calculate_100m_buffers` function). This task depends on T039d being complete. Use the exact command `radon cc -m -s -s 10 code/data/calculate_100m_buffers.py` to measure complexity and fail if the maximum complexity exceeds 10.
+- [ ] T031b [P] [Plan/Spec Conflict] Document the resolution of the contradiction between the Plan's 'Complexity Tracking' (buffers of varying scales) and the Spec (FR-002, fixed 100m buffer). Write a decision record in `docs/decisions.md` stating that the Spec (FR-002) takes precedence and the implementation will use a fixed 100m buffer, noting that the Plan's suggestion for varying scales was deemed out of scope for this MVP.
+- [ ] T032 [SC-004] Profile `calculate_100m_buffers.py` and optimise buffer calculations via vectorisation; verify total runtime < 6 h. This task depends on T039d being complete.
+- [ ] T033 [P] Add unit tests for `utils/config.py` and `utils/provenance.py` in `tests/unit/`.
+- [ ] T034 [P] Execute the commands in `docs/quickstart.md` in a fresh virtual environment and assert that all expected artifacts are produced.
+- [ ] T035 [SC-004] Implement `utils/measure_pipeline.py` to wrap `run_pipeline.sh`, record total wall‑clock time and peak memory usage using `psutil`, compare the wall‑clock time to the CI job limit, and write a JSON summary `pipeline_performance.json` that includes a pass/fail field (`runtime_ok`: true/false).
+- [ ] T050 [P] [US1] Add a verification step in `data/download_ebd.py` that checks the downloaded file size against the expected size stored in `data/metadata.yaml` (field `expected_bytes`). The task fails if the sizes differ.
+- [ ] T051 [P] [US1] Implement a data quality check in `data/preprocess.py` to identify and log any missing or invalid coordinate values (latitude/longitude) in the EBD data.
+- [ ] T052 [P] [US1] Implement a unit test for the `calculate_100m_buffers.py` script (specifically T039b code) to verify that the land‑cover proportions for the 100m buffer sum to ≤ 1 (allowing for rounding) for each observation.
+- [ ] T055 [US3] [P] Implement a task to generate a map showing the spatial distribution of the top species by observation count, highlighting areas with high foraging habitat suitability (reuse `viz/map_habitat.py` output).
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: Revision & Compliance (Critical Fixes)
 
-**Purpose**: Improvements that affect multiple user stories
+**Goal**: Address specific review concerns regarding data provenance, model specification, and statistical validity.
 
-- [ ] T030 [P] Documentation updates in `docs/` including `quickstart.md`: Add "Installation", "Data Download", and "Running the Pipeline" sections.
-- [ ] T031 Code cleanup and refactoring in `code/`: Remove unused imports and refactor `merge_and_buffer.py` to reduce cyclomatic complexity below 10.
-- [ ] T032 Performance optimization: Profile `merge_and_buffer.py` and optimize buffer calculation using vectorization; verify total runtime < 6h.
-- [ ] T033 [P] Additional unit tests in `tests/unit/`: Add unit tests for `utils/config.py` and `utils/provenance.py`.
-- [ ] T034 Run `quickstart.md` validation: Execute `bash docs/quickstart.md` commands in a fresh venv and verify all artifacts exist.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (T016)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Data download tasks (T011, T012) MUST complete before filtering (T012.5)
-- Filtering (T012.5) MUST complete before merging (T013)
-- Merging (T013) MUST complete before filtering (T014)
-- Filtering (T014) MUST complete before aggregation (T016)
-- Aggregation (T016) MUST complete before training (T019)
-- Training (T019) MUST complete before evaluation (T020, T021)
-- Evaluation (T020, T021) MUST complete before visualization (T025-T028)
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all data download tasks for User Story 1 together:
-Task: "Implement data/download_ebd.py to fetch EBD data via HTTPS or verified S3 fallback"
-Task: "Implement data/download_nlcd.py to fetch NLCD 2019 land cover data from USGS EarthExplorer"
-Task: "Implement data/fetch_guild_mapping.py to download external guild lookup"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify top 25 species, filtering, and merged data)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Extraction)
- - Developer B: User Story 2 (Model Training) - *Wait for US1 data*
- - Developer C: User Story 3 (Visualization) - *Wait for US2 model*
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All data download tasks must use real, reachable URLs (eBird S3/USGS). No synthetic data generation is allowed.
-- **CRITICAL**: All models must run on CPU-only (scikit-learn default precision). No GPU/CUDA dependencies.
-- **CRITICAL**: Permutation test must use Across-Species shuffling to control for species identity, as "stratified by species" is mathematically invalid for constant labels.
+- [ ] T060 [US1] [FR-002 Deviation] [P] [Review: Data Provenance] Refactor `data/download_nlcd.py` to use the **NLCD 2021** dataset via the verified HuggingFace dataset repository (`usgs/nlcd_2021/landcover`) instead of the unavailable NLCD 2019 USGS API. The script MUST download the specific tile corresponding to the observation bounding box, log the exact version hash, and raise `FileNotFoundError` on failure without fallback. The exact fetch command MUST be: `from datasets import load_dataset; ds = load_dataset("usgs/nlcd_2021", split="landcover", revision="main")`. This task explicitly documents the deviation from Constitution Principle VI and FR-002.
+- [ ] T061 [US2] [FR-004 Deviation] [P] [Review: Model Specification] Refactor `models/train.py` to replace the `RandomForestClassifier` with a `LogisticRegression` (L2 regularization) as mandated by the Plan's "Complexity Tracking" for N=25 species. The task MUST update the training logic to handle the small sample size appropriately, save the new model artifact (`logistic_regression.pkl`), and update `training_metrics.json` accordingly. This resolves the statistical unsoundness of Random Forest on N=25. Explicitly document this deviation from FR-004.
+- [ ] T062 [US2] [FR-005 Deviation] [P] [Review: Statistical Validity] Update `models/stratified_permutation.py` to explicitly document and implement the **Across-Species Permutation** logic (shuffling labels between species, not within) with a detailed docstring explaining why "stratified by species" is impossible for static guilds. Ensure the test explicitly controls for species identity by permuting at the species-aggregate level. Explicitly document this deviation from FR-005.
+- [ ] T062b [US2] [FR-005 Deviation Validation] [P] [Review: Statistical Validity] Implement `docs/decisions/002-across-species-permutation.md` to formally document the rejection of the Spec's 'stratified by species' requirement (FR-005) and the adoption of the 'Across-Species Permutation' test. This task MUST update the success criterion SC-002 to reflect the new metric and ensure the evaluation logic (T059) aligns with this change. This task is a prerequisite for T059 execution.
+- [ ] T063 [US1] [P] [Review: Data Flow] Add a dependency check in `run_pipeline.sh` (T007.5a) to verify that `data/processed/top_species_ids.json` exists and is non-empty before executing `data/calculate_100m_buffers.py` (T039b), preventing the pipeline from running on an empty or undefined species list.
+- [ ] T064 [US3] [P] [Review: Visualization Scope] Update `viz/map_habitat.py` (T045) to ensure the spatial map is generated **only** for the species listed in `top_25_species_ids.json` and that the grid resolution is adaptive to the bounding box of the selected species to avoid extrapolation beyond data limits.
+- [ ] T066 [Constitution] [P] [Review: Constitution Amendment] Implement `docs/decisions/003-nlcd-2021-amendment.md` to formally amend Constitution Principle VI to allow NLCD 2021 as the verified source. This task MUST record a 'Sync Impact Report' and update the `constitution.md` file to reflect the new source. This task is a prerequisite for T060.

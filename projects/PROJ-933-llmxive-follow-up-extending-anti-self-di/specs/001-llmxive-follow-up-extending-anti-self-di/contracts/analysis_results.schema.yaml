@@ -1,0 +1,149 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final statistical analysis results."
+type: object
+properties:
+  sample_size:
+    type: integer
+    minimum: 1
+    description: "Total number of prompts processed."
+  power_analysis:
+    type: object
+    properties:
+      power:
+        type: number
+        description: "Calculated statistical power."
+      effect_size:
+        type: number
+        description: "Observed effect size (Cohen's d)."
+      n:
+        type: integer
+        description: "Sample size used in power calculation."
+    required:
+      - power
+      - effect_size
+      - n
+  metrics:
+    type: object
+    properties:
+      anti_sd:
+        type: object
+        properties:
+          mean_deliberation_freq:
+            type: number
+          mean_bleu:
+            type: number
+          mean_semantic_similarity:
+            type: number
+          mean_quality_score:
+            type: number
+          mean_entropy:
+            type: number
+        required:
+          - mean_deliberation_freq
+          - mean_bleu
+          - mean_semantic_similarity
+          - mean_quality_score
+          - mean_entropy
+      standard_sd:
+        type: object
+        properties:
+          mean_deliberation_freq:
+            type: number
+          mean_bleu:
+            type: number
+          mean_semantic_similarity:
+            type: number
+          mean_quality_score:
+            type: number
+          mean_entropy:
+            type: number
+        required:
+          - mean_deliberation_freq
+          - mean_bleu
+          - mean_semantic_similarity
+          - mean_quality_score
+          - mean_entropy
+    required:
+      - anti_sd
+      - standard_sd
+  wilcoxon_results:
+    type: object
+    properties:
+      deliberation_freq:
+        type: object
+        properties:
+          p_value:
+            type: number
+          statistic:
+            type: number
+          effect_size:
+            type: number
+        required:
+          - p_value
+          - statistic
+          - effect_size
+      bleu:
+        type: object
+        properties:
+          p_value:
+            type: number
+          statistic:
+            type: number
+          effect_size:
+            type: number
+        required:
+          - p_value
+          - statistic
+          - effect_size
+      semantic_similarity:
+        type: object
+        properties:
+          p_value:
+            type: number
+          statistic:
+            type: number
+          effect_size:
+            type: number
+        required:
+          - p_value
+          - statistic
+          - effect_size
+      quality_score:
+        type: object
+        properties:
+          p_value:
+            type: number
+          statistic:
+            type: number
+          effect_size:
+            type: number
+        required:
+          - p_value
+          - statistic
+          - effect_size
+      entropy:
+        type: object
+        properties:
+          p_value:
+            type: number
+          statistic:
+            type: number
+          effect_size:
+            type: number
+        required:
+          - p_value
+          - statistic
+          - effect_size
+    required:
+      - deliberation_freq
+      - bleu
+      - semantic_similarity
+      - quality_score
+      - entropy
+required:
+  - sample_size
+  - power_analysis
+  - metrics
+  - wilcoxon_results
+additionalProperties: false

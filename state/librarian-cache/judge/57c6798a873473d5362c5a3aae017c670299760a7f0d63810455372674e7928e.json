@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.17044",
+  "judged_at": "2026-08-26T12:50:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"lance: unified multimodal modeling by multi-task synergy\" computer science",
+  "rationale": "This paper belongs in the literature review because it provides a foundational empirical study on the specific mechanism of \"multi-task synergy\" and gradient interference in unified multimodal models, which is the core technical challenge implied by extending the \"Lance\" framework. It satisfies criteria (a) by measuring the same biological/algorithmic mechanism (gradient orthogonality and magnitude imbalance between understanding and generation tasks) and (b) by establishing an empirical baselin",
+  "relevant": true
+}

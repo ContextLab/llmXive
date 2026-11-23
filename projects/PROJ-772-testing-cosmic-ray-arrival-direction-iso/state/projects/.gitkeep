@@ -1,0 +1,3 @@
+# Keep this directory to ensure state/projects exists for checksum files
+# This file is tracked to prevent the directory from being removed by git.
+# All *.yaml files in this directory are excluded by .gitignore.

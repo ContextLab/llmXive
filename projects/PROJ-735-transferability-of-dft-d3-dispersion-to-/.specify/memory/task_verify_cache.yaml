@@ -1,0 +1,8 @@
+T023:
+  c: true
+  h: ec895f698ff89d703ff9295bcc1055c26fdcf10f168b14b489a8ad13609ef405
+  r: The raw metadata (5 rows, all with non-null reference_energy and unique pair_ids)
+    matches the cleaned output `data/processed/validated_metadata.csv` exactly, and
+    `code/validation.log` correctly records that no records were omitted, consistent
+    with the exit-0 execution log of `code/validate_benchmark.py`.
+  sig: afee329974833a5873a378bd5ec4efcf00a891aa284b46aa5b035e2b5eb3833c

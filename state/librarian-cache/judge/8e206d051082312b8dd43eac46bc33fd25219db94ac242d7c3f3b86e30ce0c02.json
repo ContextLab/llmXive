@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.02690",
+  "judged_at": "2026-08-04T19:00:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting avian migration patterns from publicly available ebird data biology",
+  "rationale": "This paper directly addresses the user's question by utilizing the exact same data source (eBird) and population (migratory birds) to model spatial distribution and migration patterns, satisfying criteria (a) for same-mechanism evidence and (b) for measuring the dependent variable on the user's specific domain.",
+  "relevant": true
+}

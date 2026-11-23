@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cyberbullying Survey 2021 Dataset Schema"
+description: "Schema for the raw and processed Cyberbullying Survey 2021 dataset."
+type: "object"
+properties:
+  respondent_id:
+    type: "string"
+    description: "Unique identifier for the respondent."
+  social_support:
+    type: "number"
+    description: "Perceived social support score."
+    minimum: 0
+  harassment_severity:
+    type: "number"
+    description: "Continuous harassment severity score."
+    minimum: 0
+  depression:
+    type: "number"
+    description: "CES-D total score."
+    minimum: 0
+  anxiety:
+    type: "number"
+    description: "GAD-7 total score."
+    minimum: 0
+  ptsd:
+    type: "number"
+    description: "PCL-5 total score (optional)."
+    minimum: 0
+  platform:
+    type: "string"
+    description: "Social media platform used."
+  age:
+    type: "integer"
+    description: "Age in years."
+    minimum: 0
+  gender:
+    type: "string"
+    description: "Gender identity."
+  education:
+    type: "string"
+    description: "Education level."
+  income:
+    type: "number"
+    description: "Income level."
+required:
+  - respondent_id
+  - social_support
+  - harassment_severity
+  - depression
+  - anxiety
+  - platform
+  - age
+  - gender
+  - education
+  - income
+additionalProperties: true

@@ -1,42 +1,61 @@
-# Quickstart: Quantifying the Impact of Data Cleaning on Statistical Inference
+# Quickstart: Quantifying the Impact of Data Cleaning
+
+The quickstart shows how to run the full analysis on a fresh GitHub Actions runner.
 
 ## Prerequisites
-- Python 3.11+
-- `pip` or `venv`
+* Python 3.11 (provided by the CI runner)
+* `pip install -r requirements.txt` (see `requirements.txt` at the repository root)
 
-## Installation
+## Step‑by‑Step Guide
 
-1. **Clone and Setup Environment**
+1. **Clone the repository**  
+   (GitHub Actions does this automatically.)
+
+2. **Install dependencies**  
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r code/requirements.txt
+   pip install -r requirements.txt
    ```
 
-2. **Verify Datasets**
-   The script will automatically download the two verified datasets (UCI HAR, UCI Shopper) on first run. No manual download required.
+3. **Download and verify raw datasets**  
+   ```bash
+   python -m src.data_loader download_all
+   ```
+   This script:
+   * Pulls each dataset from the verified URLs (see `research.md`) or from OpenML.
+   * Computes SHA‑256 checksums and writes `data/hashes.json`.
+   * Writes `data/processed/dataset_metadata.json` with outcome column name, sample size, missingness proportion, and checksum.
+   * Aborts with a non‑zero exit code if any download fails or checksum mismatches.
 
-## Running the Analysis
+4. **Run the full pipeline**  
+   ```bash
+   python -m src.main run_all
+   ```
+   `src.main` orchestrates the phases defined in `plan.md`:
+   * Baseline analysis → `baseline_metrics.json`
+   * Cleaning variants (outlier, imputation, recoding) → `cleaned_metrics.json`
+   * Permutation FPR & synthetic benchmarks → `null_fpr_metrics.json`
+   * Bootstrap variance → `bootstrap_metrics.json`
+   * Sensitivity ANOVA (with assumption checks) → `sensitivity_metrics.json`
+   * Wilcoxon hypothesis test (raw p‑values) → `hypothesis_test_results.json`
+   * Comparison report & figures → `comparison_report.json`, `output/figures/*.png`
+   * Power‑analysis generation → `power_analysis.txt`
+   * Citation‑validation → runs the reference‑validator script.
 
-Execute the main pipeline:
-```bash
-python code/main.py
-```
+5. **Validate contracts** (optional but recommended)  
+   ```bash
+   pytest -m contract
+   ```
+   The test suite loads each schema from `contracts/` and validates the corresponding JSON artefact, including the newly added `bootstrap_metrics.json`, `sensitivity_metrics.json`, and `hypothesis_test_results.json`.
 
-This will:
-1. Download and checksum raw data.
-2. Run baseline analysis.
-3. Apply cleaning strategies (Outlier, Imputation, Recoding).
-4. Compute metrics and bootstrap variances.
-5. Generate visualizations and reports in `output/`.
+6. **Inspect results**  
+   * Open `data/processed/comparison_report.json` for aggregated numbers.  
+   * View visualisations in `output/figures/`.  
+   * Review `power_analysis.txt` for the a‑priori justification.  
 
-## Output Artifacts
-- `output/reports/summary.json`: Raw metrics and comparisons.
-- `output/figures/forest_plot.png`: P-value shifts.
-- `output/figures/heatmap.png`: CI width changes.
-- `output/reports/sensitivity_analysis.md`: Textual summary of binning results.
+All random seeds are fixed (`numpy.random.seed(42)`, `random_state=42`), guaranteeing reproducibility (Constitution Principle I).
 
-## Troubleshooting
-- **Runtime Error**: If the job exceeds a substantial duration, the bootstrap iterations will automatically reduce to 500. Check `output/logs/runtime.log`.
-- **Missing Data**: If a dataset has >80% missing outcome, it is skipped. Check `output/logs/warnings.log`.
-- **Memory Error**: If RAM usage > 7 GB, the script samples rows ([deferred] random sample) and logs a warning.
+## Debugging / Sub‑setting
+For faster debugging you can limit the dataset list via the environment variable `DATASET_SUBSET` (comma‑separated dataset IDs). The pipeline respects the subset while still performing all phases.
+
+---
+

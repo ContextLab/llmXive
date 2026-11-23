@@ -1,78 +1,64 @@
-# Research: Investigating Loss Functions on Small-World Graphs
+# Research Documentation: Investigating Loss Functions on Small-World Graphs
 
-## Overview
+## Project Overview
+This research project investigates the effectiveness of different loss functions, specifically **InfoNCE** (contrastive) versus **Cross-Entropy (CE)**, in training Graph Neural Networks (GNNs) on small-world graph topologies. The study focuses on how the rewiring probability ($\beta$) in Watts-Strogatz graphs influences convergence speed and final model performance.
 
-This research phase validates the feasibility of the experimental design, confirms dataset availability (synthetic), and outlines the statistical strategy for the interaction analysis.
+## Primary Hypothesis
+**H1**: The contrastive loss function (InfoNCE) will demonstrate significantly faster convergence (fewer epochs to reach the accuracy threshold) compared to Cross-Entropy (CE) loss as the small-world parameter $\beta$ increases.
 
-## Dataset Strategy
+**H0**: There is no significant difference in the convergence speed between InfoNCE and CE loss functions across the spectrum of $\beta$ values.
 
-Since the study relies on **synthetic** data generated via the Watts-Strogatz model, no external dataset URLs are required or cited. The "dataset" is procedurally generated at runtime.
+## Research Questions
+1. How does the rewiring probability $\beta$ (ranging from 0.0 to 1.0) affect the number of epochs required for a GCN to converge on a node classification task?
+2. Is there a statistically significant interaction effect between the loss function type (InfoNCE vs. CE) and the graph topology parameter $\beta$ on convergence steps?
+3. Does the contrastive nature of InfoNCE provide a robustness advantage in highly randomized (high $\beta$) graph structures compared to standard supervised learning?
 
-| Dataset Name | Source/Loader | Variables | Verification |
-| :--- | :--- | :--- | :--- |
-| **Synthetic Watts-Strogatz** | `networkx.generators.random_graphs.watts_strogatz_graph` | `rewiring_probability` ($\beta$), `clustering_coefficient`, `node_count`, `edge_list`, `community_labels` | Verified via `networkx` documentation and theoretical properties of WS graphs. |
+## Methodology
 
-**Dataset Variable Fit**:
-- **Required**: Rewiring probability ($\beta$), Clustering coefficient, Community labels, Node features (degree/position).
-- **Available**: `networkx` generates $\beta$ and the graph structure. Clustering coefficient is computed post-generation. Labels are derived from the initial ring lattice indices (before rewiring), ensuring a known ground truth that degrades in separability as $\beta$ increases.
-- **Fit**: Perfect. The synthetic generator allows precise control over $\beta$ (0.0 to 1.0) which is the primary independent variable.
+### 1. Data Generation
+- **Graph Model**: Watts-Strogatz small-world network.
+- **Parameters**:
+ - $N = 110$ (Total sample size, derived from power analysis).
+ - $k$ (Initial neighbors): Fixed based on standard small-world construction.
+ - $\beta$ (Rewiring probability): Explicitly enumerated levels: `[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]`.
+ - **Sampling**: 10 graphs generated per $\beta$ level.
+- **Labels**: Community labels derived from the initial ring lattice before rewiring.
+- **Validation**: Graphs are validated for connectivity and clustering coefficient bounds. Disconnected graphs are regenerated.
 
-## Methodology & Statistical Rigor
+### 2. Experimental Protocol
+- **Model**: Multi-layer Graph Convolutional Network (GCN).
+- **Training**:
+ - Two separate training runs per graph: one with Cross-Entropy loss, one with InfoNCE loss.
+ - **Seed Control**: Random seeds are reset to a common value between loss types for the same graph to isolate the loss function effect.
+ - **Convergence Threshold**: Accuracy $\ge 0.90$.
+ - **Max Epochs**: 1000.
+- **Censoring**: Runs that do not reach the convergence threshold within `MAX_EPOCHS` are marked as "censored" (right-censored data).
 
-### Experimental Design
-1.  **Independent Variables**:
-    -   `loss_type`: Categorical (Cross-Entropy, InfoNCE).
-    -   `beta`: Continuous (0.0, 0.1, ..., 1.0).
-2.  **Dependent Variable**:
- - `steps_to_convergence`: Number of epochs to reach $\ge$ [deferred] accuracy (censored at 1000).
-3.  **Model**:
-    -   **ANCOVA**: `steps ~ loss_type * beta + covariates`.
-    -   **Interaction Term**: `loss_type * beta` tests if the slope of convergence speed vs. $\beta$ differs between loss functions.
+### 3. Statistical Analysis
+The analysis employs survival analysis techniques to handle the censored data naturally arising from the max-epoch limit.
 
-### Statistical Rigor (Addressing Methodological Panel Concerns)
+#### A. Tobit Regression
+- **Purpose**: To model the latent "true" convergence time while accounting for the upper censoring limit.
+- **Model**: `steps_to_convergence ~ C(loss_type) * beta`
+- **Censoring Bounds**: Lower = 0, Upper = `MAX_EPOCHS` (1000).
+- **Library**: `lifelines.TobitFitter`.
+- **Target Metric**: The p-value of the interaction term between `loss_type` and `beta`.
 
-1.  **Multiple-Comparison Correction (FR-008)**:
-    -   We perform two Pearson correlations (one per loss type) and one ANCOVA interaction test.
-    -   **Method**: Bonferroni correction will be applied to the set of primary tests.
-    -   **Threshold**: $\alpha_{corrected} = 0.05 / 3 \approx 0.0167$.
-    -   **Implementation**: `statsmodels.stats.multitest.multipletests` (method='bonferroni').
+#### B. Cox Proportional Hazards Model
+- **Purpose**: To estimate the hazard ratio of converging at any given step, comparing the two loss functions across varying topologies.
+- **Model**: `steps_to_convergence ~ C(loss_type) * beta`
+- **Event Definition**: `event = 1` if converged, `event = 0` if censored.
+- **Library**: `lifelines.CoxPHFitter`.
+- **Target Metric**: The p-value of the interaction term hazard ratio.
 
-2.  **Sample Size / Power Justification (FR-010)**:
-    -   **Target**: Detect a moderate interaction effect ($f^2 = 0.15$) with power $1-\beta = 0.80$.
-    -   **Calculation**: Using G*Power logic for ANCOVA (Interaction: Fixed effects, special, main effects and interaction).
-    -   **Parameters**: $\alpha = 0.05$, 2 groups (loss types), 1 covariate ($\beta$).
-    -   **Result**: $N \approx 40$ is required for moderate effect. We plan for **50 graphs** (25 per loss type distribution across $\beta$) to provide a buffer for censored runs (non-convergence).
-    -   **Limitation Acknowledgement**: If the effect is small ($f^2 < 0.05$), 50 samples may be underpowered. The report will explicitly state the achieved power for the observed effect size.
+### 4. Significance Testing
+- **Multiple Comparison Correction**: Bonferroni correction will be applied to the interaction p-values from both models ($n=2$ tests).
+- **Significance Level**: $\alpha = 0.05$.
+- **Decision Rule**: If the corrected minimum p-value is $< 0.05$, we reject the null hypothesis and conclude that the effectiveness of the loss function depends on the graph topology ($\beta$).
 
-3.  **Causal Inference & Observational Nature**:
-    -   This is a **controlled simulation**, not an observational study. The "randomization" is the random seed for graph generation and the assignment of $\beta$.
-    -   Claims are limited to the synthetic domain: "In Watts-Strogatz graphs, X loss converges faster as $\beta$ increases." No causal claims about real-world social networks are made.
-
-4.  **Measurement Validity**:
- - **Convergence**: Defined as $\ge$ [deferred] accuracy. This is a standard proxy for "learning" in classification tasks.
-    -   **Topology**: Clustering coefficient is the canonical metric for small-worldness.
-    -   **Loss Functions**: Cross-Entropy is the standard supervised baseline. InfoNCE is the standard contrastive objective.
-
-5.  **Predictor Collinearity**:
-    -   $\beta$ and Clustering Coefficient are definitionally related (higher $\beta$ $\to$ lower clustering).
-    -   **Handling**: We use $\beta$ as the primary continuous predictor in the ANCOVA. We will **not** include both $\beta$ and clustering coefficient as simultaneous predictors to avoid perfect multicollinearity. We will report the correlation between $\beta$ and clustering as a descriptive statistic.
-
-## Compute Feasibility
-
--   **Hardware**: 2 CPU cores, 7GB RAM.
--   **Load**: 50 graphs $\times$ 2 losses = 100 training runs.
--   **Model**: 2-layer GCN, $N=100$ nodes.
-    -   Parameters: $\approx 100 \times 16 \times 2 + 16 \times 2 \approx 3.2k$ params. Extremely lightweight.
--   **Runtime Estimate**:
-    -   Each epoch: < 0.1s (CPU).
-    -   Max epochs: A sufficient number to ensure convergence.
-    -   Worst case per run: bounded by a constant duration.
-    -   Total worst case: $100 \times 100s = 10,000s \approx 2.7$ hours.
-    -   **Buffer**: Fits comfortably within the GitHub Actions time limit.
--   **Memory**: Graphs are tiny (100 nodes). Tensors are small. Total memory usage < 500MB.
-
-## Decision Rationale
-
--   **Why InfoNCE?** It is the standard contrastive loss for graph embeddings. It forces the model to learn structural invariances without explicit labels during the encoder phase.
--   **Why Linear Probe?** To fairly compare with Cross-Entropy (which uses labels during training), we must evaluate the *quality* of the InfoNCE embeddings using a supervised head.
--   **Why Watts-Strogatz?** It provides a continuous, controllable knob ($\beta$) to transition from a regular lattice (high clustering) to a random graph (low clustering), exactly matching the research question's need to isolate topology effects.
+## Expected Deliverables
+1. **Raw Data**: `data/raw/graphs.jsonl` containing 110 annotated graphs.
+2. **Training Trajectories**: Per-run JSON files in `data/processed/trajectories/`.
+3. **Aggregated Results**: `data/processed/convergence_logs.csv`.
+4. **Statistical Results**: `data/analysis_results.json` containing interaction p-values and significance flags.
+5. **Final Report**: `data/report.md` summarizing the findings regarding the hypothesis.

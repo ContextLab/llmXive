@@ -9,8 +9,10 @@ import pytest
 from unittest.mock import patch, MagicMock
 import requests
 import json
+import logging
 
 # Import the specific exceptions defined in the project API
+# Using the path provided in the API surface list
 from code.src.exceptions import (
     DataIngestionError,
     SourceConnectionError,
@@ -21,6 +23,7 @@ from code.src.exceptions import (
 )
 
 # Import the error handler to be tested
+# Using the path provided in the API surface list
 from code.src.utils.error_handler import handle_ingestion_errors
 
 class MockIngestor:
@@ -36,9 +39,17 @@ class MockIngestor:
         elif self.behavior == "timeout":
             raise requests.exceptions.Timeout("Request timed out")
         elif self.behavior == "auth":
-            raise requests.exceptions.HTTPError(response=MagicMock(status_code=401, reason="Unauthorized"))
+            # Create a mock response object for HTTPError
+            mock_response = MagicMock()
+            mock_response.status_code = 401
+            mock_response.reason = "Unauthorized"
+            raise requests.exceptions.HTTPError(response=mock_response)
         elif self.behavior == "not_found":
-            raise requests.exceptions.HTTPError(response=MagicMock(status_code=404, reason="Not Found"))
+            # Create a mock response object for HTTPError
+            mock_response = MagicMock()
+            mock_response.status_code = 404
+            mock_response.reason = "Not Found"
+            raise requests.exceptions.HTTPError(response=mock_response)
         elif self.behavior == "bad_json":
             raise json.JSONDecodeError("Expecting value", "doc", 0)
         elif self.behavior == "value_error":
@@ -131,5 +142,36 @@ class TestIngestionErrorHandling:
         assert "mock_source" in str(exc_info.value)
         assert "RuntimeError" in str(exc_info.value)
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_ingest_handles_missing_api_key(self):
+        """
+        Specific test for T011: Verify that a 401 HTTPError (missing/invalid API key)
+        raises DataIngestionError with the message 'API key invalid or missing'.
+        
+        Note: The existing error handler maps 401 to SourceAuthenticationError.
+        This test asserts the specific behavior required by the task description.
+        To satisfy the task requirement strictly, we verify that the exception
+        raised contains the required message substring, even if the exception
+        type is SourceAuthenticationError (which is a subclass of DataIngestionError).
+        """
+        ingestor = MockIngestor(behavior="auth")
+        with pytest.raises(Exception) as exc_info:
+            ingestor.run()
+        
+        # The task requires the message "API key invalid or missing"
+        # The current implementation raises SourceAuthenticationError with a generic message.
+        # We check if the exception is a DataIngestionError (or subclass) and contains the message.
+        # If the message is not exactly as requested, we assert the failure to highlight the gap.
+        # However, per task T011, we must implement the test that asserts the condition.
+        # Since the error handler logic is in T048/T053 (hardening) and T012-T014,
+        # and the task T011 specifically asks to assert the message "API key invalid or missing",
+        # we assert that the exception message contains this string.
+        # If the current handler raises "Authentication failed for mock_source", this test will fail,
+        # indicating the handler needs adjustment to match the specific task requirement.
+        
+        # Check if it is a DataIngestionError (SourceAuthenticationError is one)
+        assert isinstance(exc_info.value, DataIngestionError), f"Expected DataIngestionError, got {type(exc_info.value)}"
+        
+        # Assert the specific message required by T011
+        error_message = str(exc_info.value)
+        assert "API key invalid or missing" in error_message, \
+            f"Expected 'API key invalid or missing' in error message, got: {error_message}"

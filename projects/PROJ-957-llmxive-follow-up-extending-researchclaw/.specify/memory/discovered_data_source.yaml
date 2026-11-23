@@ -1,0 +1,12 @@
+status: none
+intent: ResearchClawBench dataset download Curated Template Set v1.0 python package
+required_fields:
+- task_id
+- task_description
+- experimental_protocol_mismatch_flag
+- curated_template_id
+- input_variables
+- expected_output
+cache_key: 862e1e5e99af12117b54222a8c64a60bc9e64a70478f8dd6adda14f4243751c2
+searched_at: '2026-08-02T14:09:17.530958+00:00'
+retry_count: 1

@@ -48,7 +48,7 @@ properties:
     description: "Whether MLE optimization succeeded."
   is_valid_tail:
     type: "boolean"
-    description: "True if the model passed the Bootstrap GoF test (p >= 0.1)."
+    description: "True if the model passed the tail diagnostics."
   causality_disclaimer:
     type: "string"
     description: "Mandatory disclaimer: 'Associational only'."

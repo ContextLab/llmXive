@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-25T20:39:43Z",
+  "fetched_at": "2026-08-18T16:06:18Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,15 @@
       "idea_body_excerpt": "Leveraging LLMs to Generate Unit Tests from API Documentation",
       "target_n": 5
     },
-    "duration_seconds": 582.403,
-    "ended_at": "2026-06-25T20:39:43Z",
-    "expansion": {
-      "expanded_terms_ranked": [
-        [
-          1,
-          "Large Language Models for automated unit test generation"
-        ],
-        [
-          2,
-          "AI-driven test case synthesis from API specifications"
-        ],
-        [
-          3,
-          "OpenAPI specification to unit test conversion"
-        ],
-        [
-          4,
-          "Transformer models for software testing automation"
-        ],
-        [
-          5,
-          "Automated test generation from REST API documentation"
-        ],
-        [
-          6,
-          "Natural language to test code translation"
-        ],
-        [
-          7,
-          "Generative AI in software engineering testing"
-        ],
-        [
-          8,
-          "Swagger documentation based test suite creation"
-        ],
-        [
-          9,
-          "Program synthesis for unit testing"
-        ],
-        [
-          10,
-          "LLM-based API contract testing"
-        ],
-        [
-          11,
-          "Specification-driven test generation using deep learning"
-        ],
-        [
-          12,
-          "Automated test oracle generation from documentation"
-        ],
-        [
-          13,
-          "Code generation models for testing frameworks"
-        ],
-        [
-          14,
-          "Neural approaches to software test case creation"
-        ],
-        [
-          15,
-          "Prompt engineering for automated test generation"
-        ],
-        [
-          16,
-          "Semantic analysis of API interfaces for testing"
-        ],
-        [
-          17,
-          "AI-assisted software quality assurance pipelines"
-        ],
-        [
-          18,
-          "Documentation to executable test conversion"
-        ],
-        [
-          19,
-          "Language model evaluation of generated unit tests"
-        ],
-        [
-          20,
-          "Automated regression test creation from specs"
-        ]
-      ],
-      "original_term": "",
-      "per_term_hit_count": {
-        "Large Language Models for automated unit test generation": 5,
-        "Leveraging LLMs to Generate Unit Tests from API Documentation computer science": 0
-      },
-      "total_queries_issued": 1
-    },
+    "duration_seconds": 35.647,
+    "ended_at": "2026-08-18T16:06:18Z",
+    "expansion": null,
     "extracted_queries": [
-      "specification driven unit test synthesis",
-      "API documentation test dataset benchmark",
-      "natural language to code generation",
-      "test execution pass rate coverage",
-      "in-context learning retrieval augmentation"
+      "API specification test case generation",
+      "OpenAPI Swagger unit test synthesis",
+      "code generation documentation-to-test",
+      "test coverage mutation score API",
+      "hallucination test oracle correctness"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,51 +31,31 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2305.04764"
+        "2604.19400"
       ]
     },
     "per_query_hit_count": {
-      "API documentation test dataset benchmark": 3,
+      "API specification test case generation": 3,
       "Leveraging LLMs to Generate Unit Tests from API Documentation computer science": 3,
-      "in-context learning retrieval augmentation": 3,
-      "natural language to code generation": 3,
-      "specification driven unit test synthesis": 3,
-      "test execution pass rate coverage": 3
+      "OpenAPI Swagger unit test synthesis": 3,
+      "code generation documentation-to-test": 3,
+      "hallucination test oracle correctness": 3,
+      "test coverage mutation score API": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 5,
+      "rejected_count": 1,
       "rejections": [
         {
           "primary_pointer": "2501.16945",
           "rationale": "This paper addresses a different task than the user's research question. While both involve LLMs processing API documentation, the user asks about generating **unit tests** (code that verifies API functionality), whereas this paper focuses on generating **AI tools/agents** (code that enables API interaction). This represents a distinct construct sharing only homonym keywords (LLM, API documentation) without addressing the same mechanism, variables, or empirical setting required for inclusion in ",
           "title": "ToolFactory: Automating Tool Generation by Leveraging LLM to Understand REST API Documentations"
-        },
-        {
-          "primary_pointer": "2603.23611",
-          "rationale": "This paper is about testing LLMs themselves (evaluating LLM reliability using metamorphic testing), whereas the user's question is about using LLMs as tools to generate unit tests for software/APIs. This is a distinct construct sharing only homonym keywords (\"LLM\" and \"testing\") but with fundamentally different research directions - the paper tests LLMs, while the user wants to use LLMs to test other code.",
-          "title": "LLMORPH: Automated Metamorphic Testing of Large Language Models"
-        },
-        {
-          "primary_pointer": "2311.04589",
-          "rationale": "The paper focuses on multi-modal LLMs handling non-textual inputs (image/audio) rather than the software engineering task of generating unit tests from API documentation, constituting a distinct construct that does not address the user's specific variables or mechanism.",
-          "title": "TEAL: Tokenize and Embed ALL for Multi-modal Large Language Models"
-        },
-        {
-          "primary_pointer": "2501.05032",
-          "rationale": "The paper focuses on conversational coherence and emotional intelligence rather than code generation or software testing, sharing only the general keyword \"LLMs\" without addressing the specific task or variables of the user's question. This falls under the rejection rule for distinct constructs sharing only homonym keywords.",
-          "title": "Enhancing Human-Like Responses in Large Language Models"
-        },
-        {
-          "primary_pointer": "2503.16581",
-          "rationale": "This paper is off-domain entirely, as it investigates LLMs for religious text analysis (Quranic studies) rather than software engineering tasks like unit test generation from API documentation. It shares the general tool (LLMs) but lacks any measurable connection to the specific mechanism, domain, or variables required for the user's literature review.",
-          "title": "Investigating Retrieval-Augmented Generation in Quranic Studies: A Study of 13 Open-Source Large Language Models"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-25T20:30:01Z",
+    "started_at": "2026-08-18T16:05:43Z",
     "term_input": {
       "normalized": "leveraging llms to generate unit tests from api documentation computer science",
       "raw": "Leveraging LLMs to Generate Unit Tests from API Documentation computer science"
@@ -186,7 +77,24 @@
           "primary_pointer": "2409.09288"
         },
         "details": "query-relevance 0.222 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Generating API Parameter Security Rules with LLM for API Misuse Detection')",
-        "failed_at": "2026-06-25T20:32:39Z",
+        "failed_at": "2026-08-18T16:06:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the advent of WWW and outburst in technology and software development, testing the software became a major concern. Due to the importance of the testing phase in a software development life cycle, testing has been divided into graphical user interface (GUI) based testing, logical testing, integration testing, etc.GUI Testing has become very important as it provides more sophisticated way to interact with the software. The complexity of testing GUI increased over time. The testing needs to be performed in a way that it provides effectiveness, efficiency, increased fault detection rate and good path coverage. To cover all use cases and to provide testing for all possible (success/failure) scenarios the length of the test sequence is considered important. Intent of this paper is to study some techniques used for test case generation and process for various GUI based software applications.",
+          "claimed_authors": [
+            "A. Isabella",
+            "Emi Retna"
+          ],
+          "claimed_title": "Study Paper on Test Case generation for GUI Based Testing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1202.4527"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Study Paper on Test Case generation for GUI Based Testing')",
+        "failed_at": "2026-08-18T16:06:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -204,7 +112,7 @@
           "primary_pointer": "1004.4609"
         },
         "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
-        "failed_at": "2026-06-25T20:32:39Z",
+        "failed_at": "2026-08-18T16:06:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -222,191 +130,26 @@
           "primary_pointer": "2107.14449"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images')",
-        "failed_at": "2026-06-25T20:32:39Z",
+        "failed_at": "2026-08-18T16:06:11Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Comprehending natural language instructions is a charming property for both 2D and 3D layout synthesis systems. Existing methods implicitly model object joint distributions and express object relations, hindering generation's controllability. We introduce InstructLayout, a novel generative framework that integrates a semantic graph prior and a layout decoder to improve controllability and fidelity for 2D and 3D layout synthesis. The proposed semantic graph prior learns layout appearances and object distributions simultaneously, demonstrating versatility across various downstream tasks in a zero-shot manner. To facilitate the benchmarking for text-driven 2D and 3D scene synthesis, we respectively curate two high-quality datasets of layout-instruction pairs from public Internet resources with large language and multimodal models. Extensive experimental results reveal that the proposed method outperforms existing state-of-the-art approaches by a large margin in both 2D and 3D layout synthesis tasks. Thorough ablation studies confirm the efficacy of crucial design components.",
+          "claimed_abstract": "We present a novel model-driven approach for testing RESTful applications. We introduce a (i) domain-specific language for OpenAPI specifications and (ii) a tool to support our methodology. Our DSL is inspired by session types and enables the modelling of communication protocols between a REST client and server. Our tool, dubbed COTS, generates (randomised) model-based test executions and reports software defects. We evaluate the effectiveness of our approach by applying it to test several open source applications. Our findings indicate that our methodology can identify nuanced defects in REST APIs and achieve comparable or superior code coverage when compared to much larger handcrafted test suites.",
           "claimed_authors": [
-            "Chenguo Lin",
-            "Yuchen Lin",
-            "Panwang Pan",
-            "Xuanyang Zhang",
-            "Yadong Mu"
+            "Christian Bartolo Burlò",
+            "Adrian Francalanza",
+            "Alceste Scalas",
+            "Emilio Tuosto"
           ],
-          "claimed_title": "InstructLayout: Instruction-Driven 2D and 3D Layout Synthesis with Semantic Graph Prior",
+          "claimed_title": "COTS: Connected OpenAPI Test Synthesis for RESTful Applications",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2407.07580"
+          "primary_pointer": "2404.19614"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='InstructLayout: Instruction-Driven 2D and 3D Layout Synthesis with Semantic Graph Prior')",
-        "failed_at": "2026-06-25T20:32:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
-          "claimed_authors": [
-            "Jeffrey D. Rudie",
-            "Hui-Ming Lin",
-            "Robyn L. Ball",
-            "Sabeena Jalal",
-            "Luciano M. Prevedello",
-            "Savvas Nicolaou",
-            "Brett S. Marinelli",
-            "Adam E. Flanders",
-            "Kirti Magudia",
-            "George Shih",
-            "Melissa A. Davis",
-            "John Mongan",
-            "Peter D. Chang",
-            "Ferco H. Berger",
-            "Sebastiaan Hermans",
-            "Meng Law",
-            "Tyler Richards",
-            "Jan-Peter Grunz",
-            "Andreas Steven Kunz",
-            "Shobhit Mathur",
-            "Sandro Galea-Soler",
-            "Andrew D. Chung",
-            "Saif Afat",
-            "Chin-Chi Kuo",
-            "Layal Aweidah",
-            "Ana Villanueva Campos",
-            "Arjuna Somasundaram",
-            "Felipe Antonio Sanchez Tijmes",
-            "Attaporn Jantarangkoon",
-            "Leonardo Kayat Bittencourt",
-            "Michael Brassil",
-            "Ayoub El Hajjami",
-            "Hakan Dogan",
-            "Muris Becircic",
-            "Agrahara G. Bharatkumar",
-            "Eduardo Moreno Júdice de Mattos Farina",
-            "Dataset Curator Group",
-            "Dataset Contributor Group",
-            "Dataset Annotator Group",
-            "Errol Colak"
-          ],
-          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2405.19595"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
-        "failed_at": "2026-06-25T20:32:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
-          "claimed_authors": [
-            "Tyler J. Richards",
-            "Adam E. Flanders",
-            "Errol Colak",
-            "Luciano M. Prevedello",
-            "Robyn L. Ball",
-            "Felipe Kitamura",
-            "John Mongan",
-            "Maryam Vazirabad",
-            "Hui-Ming Lin",
-            "Anne Kendell",
-            "Thanat Kanthawang",
-            "Salita Angkurawaranon",
-            "Emre Altinmakas",
-            "Hakan Dogan",
-            "Paulo Eduardo de Aguiar Kuriki",
-            "Arjuna Somasundaram",
-            "Christopher Ruston",
-            "Deniz Bulja",
-            "Naida Spahovic",
-            "Jennifer Sommer",
-            "Sirui Jiang",
-            "Eduardo Moreno Judice de Mattos Farina",
-            "Eduardo Caminha Nunes",
-            "Michael Brassil",
-            "Megan McNamara",
-            "Johanna Ortiz",
-            "Jacob Peoples",
-            "Vinson L. Uytana",
-            "Anthony Kam",
-            "Venkata N. S. Dola",
-            "Daniel Murphy",
-            "David Vu",
-            "Dataset Contributor Group",
-            "Dataset Annotator Group",
-            "Competition Data Notebook Group",
-            "Jason F. Talbott"
-          ],
-          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2506.09162"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
-        "failed_at": "2026-06-25T20:32:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The past decade has witnessed great strides in video recovery by specialist technologies, like video inpainting, completion, and error concealment. However, they typically simulate the missing content by manual-designed error masks, thus failing to fill in the realistic video loss in video communication (e.g., telepresence, live streaming, and internet video) and multimedia forensics. To address this, we introduce the bitstream-corrupted video (BSCV) benchmark, the first benchmark dataset with more than 28,000 video clips, which can be used for bitstream-corrupted video recovery in the real world. The BSCV is a collection of 1) a proposed three-parameter corruption model for video bitstream, 2) a large-scale dataset containing rich error patterns, multiple corruption levels, and flexible dataset branches, and 3) a plug-and-play module in video recovery framework that serves as a benchmark. We evaluate state-of-the-art video inpainting methods on the BSCV dataset, demonstrating existing approaches' limitations and our framework's advantages in solving the bitstream-corrupted video recovery problem. The benchmark and dataset are released at https://github.com/LIUTIGHE/BSCV-Dataset.",
-          "claimed_authors": [
-            "Tianyi Liu",
-            "Kejun Wu",
-            "Yi Wang",
-            "Wenyang Liu",
-            "Kim-Hui Yap",
-            "Lap-Pui Chau"
-          ],
-          "claimed_title": "Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2309.13890"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Bitstream-Corrupted Video Recovery: A Novel Benchmark Dataset and Method')",
-        "failed_at": "2026-06-25T20:32:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Java Code Generation consists in generating automatically Java code from a Natural Language Text. This NLP task helps in increasing programmers' productivity by providing them with immediate solutions to the simplest and most repetitive tasks. Code generation is a challenging task because of the hard syntactic rules and the necessity of a deep understanding of the semantic aspect of the programming language. Many works tried to tackle this task using either RNN-based, or Transformer-based models. The latter achieved remarkable advancement in the domain and they can be divided into three groups: (1) encoder-only models, (2) decoder-only models, and (3) encoder-decoder models. In this paper, we provide a comprehensive review of the evolution and progress of deep learning models in Java code generation task. We focus on the most important methods and present their merits and limitations, as well as the objective functions used by the community. In addition, we provide a detailed description of datasets and evaluation metrics used in the literature. Finally, we discuss results of different models on CONCODE dataset, then propose some future directions.",
-          "claimed_authors": [
-            "Jessica López Espejel",
-            "Mahaman Sanoussi Yahaya Alassan",
-            "El Mehdi Chouham",
-            "Walid Dahhane",
-            "El Hassane Ettifouri"
-          ],
-          "claimed_title": "A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2306.06371"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='A Comprehensive Review of State-of-The-Art Methods for Java Code Generation from Natural Language Text')",
-        "failed_at": "2026-06-25T20:32:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Automatic multiple-choice question generation (MCQG) is a useful yet challenging task in Natural Language Processing (NLP). It is the task of automatic generation of correct and relevant questions from textual data. Despite its usefulness, manually creating sizeable, meaningful and relevant questions is a time-consuming and challenging task for teachers. In this paper, we present an NLP-based system for automatic MCQG for Computer-Based Testing Examination (CBTE).We used NLP technique to extract keywords that are important words in a given lesson material. To validate that the system is not perverse, five lesson materials were used to check the effectiveness and efficiency of the system. The manually extracted keywords by the teacher were compared to the auto-generated keywords and the result shows that the system was capable of extracting keywords from lesson materials in setting examinable questions. This outcome is presented in a user-friendly interface for easy accessibility.",
-          "claimed_authors": [
-            "Chidinma A. Nwafor",
-            "Ikechukwu E. Onyenwe"
-          ],
-          "claimed_title": "An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2103.14757"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='An Automated Multiple-Choice Question Generation Using Natural Language Processing Techniques')",
-        "failed_at": "2026-06-25T20:32:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='COTS: Connected OpenAPI Test Synthesis for RESTful Applications')",
+        "failed_at": "2026-08-18T16:06:11Z",
         "reason": "query_irrelevant"
       },
       {
@@ -425,118 +168,145 @@
           "primary_pointer": "2303.12869"
         },
         "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
-        "failed_at": "2026-06-25T20:32:39Z",
+        "failed_at": "2026-08-18T16:06:11Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Speculative execution attacks leverage the speculative and out-of-order execution features in modern computer processors to access secret data or execute code that should not be executed. Secret information can then be leaked through a covert channel. While software patches can be installed for mitigation on existing hardware, these solutions can incur big performance overhead. Hardware mitigation is being studied extensively by the computer architecture community. It has the benefit of preserving software compatibility and the potential for much smaller performance overhead than software solutions.\n  This paper presents a systematization of the hardware defenses against speculative execution attacks that have been proposed. We show that speculative execution attacks consist of 6 critical attack steps. We propose defense strategies, each of which prevents a critical attack step from happening, thus preventing the attack from succeeding. We then summarize 20 hardware defenses and overhead-reducing features that have been proposed. We show that each defense proposed can be classified under one of our defense strategies, which also explains why it can thwart the attack from succeeding. We discuss the scope of the defenses, their performance overhead, and the security-performance trade-offs that can be made.",
+          "claimed_abstract": "Recently the retrieval-augmented generation (RAG) has been successfully applied in code generation. However, existing pipelines for retrieval-augmented code generation (RACG) employ static knowledge bases with a single source, limiting the adaptation capabilities of Large Language Models (LLMs) to domains they have insufficient knowledge of. In this work, we develop a novel pipeline, EVOR, that employs the synchronous evolution of both queries and diverse knowledge bases. On two realistic settings where the external knowledge is required to solve code generation tasks, we compile four new datasets associated with frequently updated libraries and long-tail programming languages, named EVOR-BENCH. Extensive experiments demonstrate that EVOR achieves two to four times of execution accuracy compared to other methods such as Reflexion (Shinn et al., 2024), DocPrompting (Zhou et al., 2023), etc. We demonstrate that EVOR is flexible and can be easily combined with them to achieve further improvement. Further analysis reveals that EVOR benefits from the synchronous evolution of queries and documents and the diverse information sources in the knowledge base. We hope that our studies will inspire more insights into the design of advanced RACG pipelines in future research. Our model, code, and data are available at https://arks-codegen.github.io.",
           "claimed_authors": [
-            "Guangyuan Hu",
-            "Zecheng He",
-            "Ruby Lee"
+            "Hongjin Su",
+            "Shuyang Jiang",
+            "Yuhang Lai",
+            "Haoyuan Wu",
+            "Boao Shi",
+            "Che Liu",
+            "Qian Liu",
+            "Tao Yu"
           ],
-          "claimed_title": "SoK: Hardware Defenses Against Speculative Execution Attacks",
+          "claimed_title": "EVOR: Evolving Retrieval for Code Generation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2301.03724"
+          "claimed_year": 2024,
+          "primary_pointer": "2402.12317"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='SoK: Hardware Defenses Against Speculative Execution Attacks')",
-        "failed_at": "2026-06-25T20:32:39Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='EVOR: Evolving Retrieval for Code Generation')",
+        "failed_at": "2026-08-18T16:06:11Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Consider a linear regression model with regression parameter beta=(beta_1,..., beta_p) and independent normal errors. Suppose the parameter of interest is theta = a^T beta, where a is specified. Define the s-dimensional parameter vector tau = C^T beta - t, where C and t are specified. Suppose that we carry out a preliminary F test of the null hypothesis H_0: tau = 0 against the alternative hypothesis H_1: tau not equal to 0. It is common statistical practice to then construct a confidence interval for theta with nominal coverage 1-alpha, using the same data, based on the assumption that the selected model had been given to us a priori(as the true model). We call this the naive 1-alpha confidence interval for theta. This assumption is false and it may lead to this confidence interval having minimum coverage probability far below 1-alpha, making it completely inadequate. Our aim is to compute this minimum coverage probability. It is straightforward to find an expression for the coverage probability of this confidence interval that is a multiple integral of dimension s+1. However, we derive a new elegant and computationally-convenient formula for this coverage probability. For s=2 this formula is a sum of a triple and a double integral and for all s>2 this formula is a sum of a quadruple and a double integral. This makes it easy to compute the minimum coverage probability of the naive confidence interval, irrespective of how large s is. A very important practical application of this formula is to the analysis of covariance. In this context,  tau can be defined so that H_0 expresses the hypothesis of \"parallelism\". Applied statisticians commonly recommend carrying out a preliminary F test of this hypothesis. We illustrate the application of our formula with a real-life analysis of covariance data set and a preliminary F test for \"parallelism\". We show that the naive 0.95 confidence interval has minimum coverage probability 0.0846, showing that it is completely inadequate.",
+          "claimed_abstract": "Smart contract is a special program that manages digital assets on blockchain. It is difficult to recover the loss if users make transactions through buggy smart contracts, which cannot be directly fixed. Hence, it is important to ensure the correctness of smart contracts before deploying them. This paper proposes a systematic framework to mutation testing for smart contracts on Ethereum, which is currently the most popular open blockchain for deploying and running smart contracts. Fifteen novel mutation operators have been designed for Ethereum Smart Contracts (ESC), in terms of keyword, global variable/function, variable unit, and error handling. An empirical study on 26 smart contracts in four Ethereum DApps has been conducted to evaluate the effectiveness of mutation testing. The experimental results show that our approach can outperform the coverage-based approach on defect detection rate (96.01% vs. 55.68%). The ESC mutation operators are effective to reveal real defects and we found 117 out of 729 real bug reports are related to our operators. These show the great potential of using mutation testing for quality assurance of ESC.",
           "claimed_authors": [
-            "Paul Kabaila",
-            "Davide Farchione"
+            "Haoran Wu",
+            "Xingya Wang",
+            "Jiehui Xu",
+            "Weiqin Zou",
+            "Lingming Zhang",
+            "Zhenyu Chen"
           ],
-          "claimed_title": "The coverage probabililty of confidence intervals in regression after a preliminary F test",
+          "claimed_title": "Mutation Testing for Ethereum Smart Contract",
           "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1003.2439"
+          "claimed_year": 2019,
+          "primary_pointer": "1908.03707"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='The coverage probabililty of confidence intervals in regression after a preliminary F test')",
-        "failed_at": "2026-06-25T20:32:39Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Mutation Testing for Ethereum Smart Contract')",
+        "failed_at": "2026-08-18T16:06:12Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Using high-resolution spectra from the Tillinghast Reflector Echelle Spectrograph (TRES) and photometry from sector 56 of the Transiting Exoplanet Survey Satellite (TESS), we report that the nearby M dwarf G 68-34 is a double-lined eclipsing binary. The pair is spin-orbit synchronized with a period of 0.655 days. The light curve shows significant spot modulation with a larger photometric amplitude than that of the grazing eclipses. We perform a joint fit to the spectroscopic and photometric data, obtaining masses of $0.3280\\pm 0.0034$M$_\\odot$ and $0.3207\\pm 0.0036$M$_\\odot$ and radii of $0.345\\pm 0.014$R$_\\odot$ and $0.342\\pm 0.014$R$_\\odot$ after marginalizing over unknowns in the starspot distribution. This system adds to the small but growing population of fully convective M dwarfs with precisely measured masses and radii that can be used to test models of stellar structure. The pair also has a white dwarf primary at 9\" separation, with the system known to be older than 5 Gyr from the white-dwarf cooling age. The binarity of G 68-34 confirms our hypothesis from Pass et al. (2022): in that work, we noted that G 68-34 was both rapidly rotating and old, highly unusual given our understanding of the spindown of M dwarfs, and that a close binary companion may be responsible.",
+          "claimed_abstract": "Mutation testing is the state-of-the-art technique for assessing the fault-detection capacity of a test suite. Unfortunately, mutation testing consumes enormous computing resources because it runs the whole test suite for each and every injected mutant. In this paper we explore fine-grained traceability links at method level (named focal methods), to reduce the execution time of mutation testing and to verify the quality of the test cases for each individual method, instead of the usually verified overall test suite quality. Validation of our approach on the open source Apache Ant project shows a speed-up of 573.5x for the mutants located in focal methods with a quality score of 80%.",
           "claimed_authors": [
-            "Emily K Pass",
-            "David Charbonneau"
+            "Sten Vercammen",
+            "Mohammad Ghafari",
+            "Serge Demeyer",
+            "Markus Borg"
           ],
-          "claimed_title": "G 68-34: A Double-Lined M-Dwarf Eclipsing Binary in a Hierarchical Triple System",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2304.02466"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='G 68-34: A Double-Lined M-Dwarf Eclipsing Binary in a Hierarchical Triple System')",
-        "failed_at": "2026-06-25T20:32:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large language models are able to exploit in-context learning to access external knowledge beyond their training data through retrieval-augmentation. While promising, its inner workings remain unclear. In this work, we shed light on the mechanism of in-context retrieval augmentation for question answering by viewing a prompt as a composition of informational components. We propose an attribution-based method to identify specialized attention heads, revealing in-context heads that comprehend instructions and retrieve relevant contextual information, and parametric heads that store entities' relational knowledge. To better understand their roles, we extract function vectors and modify their attention weights to show how they can influence the answer generation process. Finally, we leverage the gained insights to trace the sources of knowledge used during inference, paving the way towards more safe and transparent language models.",
-          "claimed_authors": [
-            "Patrick Kahardipraja",
-            "Reduan Achtibat",
-            "Thomas Wiegand",
-            "Wojciech Samek",
-            "Sebastian Lapuschkin"
-          ],
-          "claimed_title": "The Atlas of In-Context Learning: How Attention Heads Shape In-Context Retrieval Augmentation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2505.15807"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='The Atlas of In-Context Learning: How Attention Heads Shape In-Context Retrieval Augmentation')",
-        "failed_at": "2026-06-25T20:32:39Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Many questions cannot be answered simply; their answers must include numerous nuanced details and additional context. Complex Answer Retrieval (CAR) is the retrieval of answers to such questions. In their simplest form, these questions are constructed from a topic entity (e.g., `cheese') and a facet (e.g., `health effects'). While topic matching has been thoroughly explored, we observe that some facets use general language that is unlikely to appear verbatim in answers. We call these low-utility facets. In this work, we present an approach to CAR that identifies and addresses low-utility facets. We propose two estimators of facet utility. These include exploiting the hierarchical structure of CAR queries and using facet frequency information from training data. To improve the retrieval performance on low-utility headings, we also include entity similarity scores using knowledge graph embeddings. We apply our approaches to a leading neural ranking technique, and evaluate using the TREC CAR dataset. We find that our approach perform significantly better than the unmodified neural ranker and other leading CAR techniques. We also provide a detailed analysis of our results, and verify that low-utility facets are indeed more difficult to match, and that our approach improves the performance for these difficult queries.",
-          "claimed_authors": [
-            "Sean MacAvaney",
-            "Andrew Yates",
-            "Arman Cohan",
-            "Luca Soldaini",
-            "Kai Hui",
-            "Nazli Goharian",
-            "Ophir Frieder"
-          ],
-          "claimed_title": "Overcoming low-utility facets for complex answer retrieval",
+          "claimed_title": "Goal-Oriented Mutation Testing with Focal Methods",
           "claimed_venue": "arXiv",
           "claimed_year": 2018,
-          "primary_pointer": "1811.08772"
+          "primary_pointer": "1807.10953"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Overcoming low-utility facets for complex answer retrieval')",
-        "failed_at": "2026-06-25T20:32:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Goal-Oriented Mutation Testing with Focal Methods')",
+        "failed_at": "2026-08-18T16:06:12Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Retrieval-augmented generation (RAG) has become a transformative approach for enhancing large language models (LLMs) by grounding their outputs in external knowledge sources. Yet, a critical question persists: how can vast volumes of external knowledge be managed effectively within the input constraints of LLMs? Traditional methods address this by chunking external documents into smaller, fixed-size segments. While this approach alleviates input limitations, it often fragments context, resulting in incomplete retrieval and diminished coherence in generation. To overcome these shortcomings, two advanced techniques, late chunking and contextual retrieval, have been introduced, both aiming to preserve global context. Despite their potential, their comparative strengths and limitations remain unclear. This study presents a rigorous analysis of late chunking and contextual retrieval, evaluating their effectiveness and efficiency in optimizing RAG systems. Our results indicate that contextual retrieval preserves semantic coherence more effectively but requires greater computational resources. In contrast, late chunking offers higher efficiency but tends to sacrifice relevance and completeness.",
+          "claimed_abstract": "An \"adequate\" test suite should effectively find all inconsistencies between a system's requirements/specifications and its implementation. Practitioners frequently use code coverage to approximate adequacy, while academics argue that mutation score may better approximate true (oracular) adequacy coverage. High code coverage is increasingly attainable even on large systems via automatic test generation, including fuzzing. In light of all of these options for measuring and improving testing effort, how should a QA engineer spend their time? We propose a new framework for reasoning about the extent, limits, and nature of a given testing effort based on an idea we call the oracle gap, or the difference between source code coverage and mutation score for a given software element. We conduct (1) a large-scale observational study of the oracle gap across popular Maven projects, (2) a study that varies testing and oracle quality across several of those projects and (3) a small-scale observational study of highly critical, well-tested code across comparable blockchain projects. We show that the oracle gap surfaces important information about the extent and quality of a test effort beyond either adequacy metric alone. In particular, it provides a way for practitioners to identify source files where it is likely a weak oracle tests important code.",
           "claimed_authors": [
-            "Carlo Merola",
-            "Jaspinder Singh"
+            "Kush Jain",
+            "Goutamkumar Tulajappa Kalburgi",
+            "Claire Le Goues",
+            "Alex Groce"
           ],
-          "claimed_title": "Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation",
+          "claimed_title": "Mind the Gap: The Difference Between Coverage and Mutation Score Can Guide Testing Efforts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.02395"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Mind the Gap: The Difference Between Coverage and Mutation Score Can Guide Testing Efforts')",
+        "failed_at": "2026-08-18T16:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Language models exhibit remarkable natural language generation capabilities but remain prone to hallucinations, generating factually incorrect information despite producing syntactically coherent responses. This study introduces the Licensing Oracle, an architectural solution designed to stem hallucinations in LMs by enforcing truth constraints through formal validation against structured knowledge graphs. Unlike statistical approaches that rely on data scaling or fine-tuning, the Licensing Oracle embeds a deterministic validation step into the model's generative process, ensuring that only factually accurate claims are made. We evaluated the effectiveness of the Licensing Oracle through experiments comparing it with several state-of-the-art methods, including baseline language model generation, fine-tuning for factual recall, fine-tuning for abstention behavior, and retrieval-augmented generation (RAG). Our results demonstrate that although RAG and fine-tuning improve performance, they fail to eliminate hallucinations. In contrast, the Licensing Oracle achieved perfect abstention precision (AP = 1.0) and zero false answers (FAR-NE = 0.0), ensuring that only valid claims were generated with 89.1% accuracy in factual responses. This work shows that architectural innovations, such as the Licensing Oracle, offer a necessary and sufficient solution for hallucinations in domains with structured knowledge representations, offering guarantees that statistical methods cannot match. Although the Licensing Oracle is specifically designed to address hallucinations in fact-based domains, its framework lays the groundwork for truth-constrained generation in future AI systems, providing a new path toward reliable, epistemically grounded models.",
+          "claimed_authors": [
+            "Simeon Emanuilov",
+            "Richard Ackermann"
+          ],
+          "claimed_title": "Stemming Hallucination in Language Models Using a Licensing Oracle",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2504.19754"
+          "primary_pointer": "2511.06073"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Reconstructing Context: Evaluating Advanced Chunking Strategies for Retrieval-Augmented Generation')",
-        "failed_at": "2026-06-25T20:32:39Z",
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Stemming Hallucination in Language Models Using a Licensing Oracle')",
+        "failed_at": "2026-08-18T16:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Vision-Language Models (LVLMs) still struggle with vision hallucination, where generated responses are inconsistent with the visual input. Existing methods either rely on large-scale annotated data for fine-tuning, which incurs massive computational overhead, or employ static post-hoc strategies that overlook the dynamic nature of hallucination emergence. To address these, we introduce a new self-rewarding framework, enabling dynamic hallucination mitigation at inference time without external supervision. On the empirical side, we reveal that visual hallucination exhibits phase-wise dynamic patterns, peaking at the onset of each semantic phase. Drawing on these insights, we propose \\textbf{PSRD} (\\textbf{Phase-wise \\textbf{S}elf-\\textbf{R}eward \\textbf{D}ecoding) for online hallucination correction guided by phase-wise self-reward signals. To reduce the cost of repeated self-evaluation during decoding, we distill the hallucination guidance signal from LVLMs into a lightweight reward model. The reward model subsequently provides on-the-fly guidance for targeted intervention during the decoding process, enabling precise hallucination suppression. The proposed PSRD significantly reduces the hallucination rate of LLaVA-1.5-7B by 50.0% and consistently outperforms existing post-hoc methods across five hallucination evaluation benchmarks for four LVLMs. Further analysis confirms that PSRD effectively mitigates hallucination propagation and achieves a highly controllable trade-off between strong performance and inference efficiency.",
+          "claimed_authors": [
+            "Yu Zhang",
+            "Chuyang Sun",
+            "Kehai Chen",
+            "Xuefeng Bai",
+            "Yang Xiang",
+            "Min Zhang"
+          ],
+          "claimed_title": "Mitigating Multimodal Hallucination via Phase-wise Self-reward",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.17982"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Mitigating Multimodal Hallucination via Phase-wise Self-reward')",
+        "failed_at": "2026-08-18T16:06:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Oracle pruning, which selects unimportant weights by minimizing the pruned train loss, has served as the foundation for most neural network pruning methods for over thirty-five years, while few (if any) have thought about how much the foundation really holds. This paper, for the first time, attempts to systematically examine its validity on deep neural networks through empirical correlation analyses and provides meta-framework reflections on the field of neural network pruning. Specifically, this paper focuses on the pruning algorithms with three stages: training, pruning, and retraining. We analyze the correlation in model performance before and after the retraining stage. Extensive experiments (37K models are trained) across a wide spectrum of models (LeNet5, VGG, ResNets, ViT, MLLM) and datasets (MNIST, CIFAR10/CIFAR100, ImageNet-1K, MLLM data) are conducted. For large-scale experiments, we adopt approximate oracle pruning due to the prohibitive cost of exact oracle pruning. The results point to a counterintuitive conclusion: for deep learning models of nontrivial size (already at the scale of ResNet56 on CIFAR-10), pre-retraining performance is negligibly correlated with post-retraining performance. In other words, the weights identified by oracle pruning can scarcely guarantee strong performance following retraining. This further suggests that existing works that derive pruning criteria from oracle pruning may rest on a questionable foundational premise. Further studies suggest that rising task complexity is a primary factor behind the invalidity of oracle pruning nowadays. Finally, given the evidence, we argue that the retraining stage in a pruning algorithm should be accounted for when developing pruning criteria.",
+          "claimed_authors": [
+            "Sicheng Feng",
+            "Keda Tao",
+            "Huan Wang"
+          ],
+          "claimed_title": "Is Oracle Pruning the True Oracle?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.00143"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Leveraging LLMs to Generate Unit Tests from API Documentation computer science', candidate_title='Is Oracle Pruning the True Oracle?')",
+        "failed_at": "2026-08-18T16:06:12Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -566,37 +336,92 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-25T20:32:39Z"
+          "verified_at": "2026-08-18T16:06:10Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Yinghao Chen",
-            "Zehao Hu",
-            "Chen Zhi",
-            "Junxiao Han",
-            "Shuiguang Deng",
-            "Jianwei Yin"
+            "S M Sadrul Islam Asif",
+            "James Chen",
+            "Kennett Puerto Diaz",
+            "Earl T. Barr",
+            "Mark Marron"
           ],
-          "title": "ChatUniTest: A Framework for LLM-Based Test Generation",
+          "title": "Independent Test Generation for RESTful APIs",
           "venue": "arXiv",
-          "year": 2023
+          "year": 2025
         },
-        "primary_pointer": "2305.04764",
-        "summary": "Unit testing is an essential yet frequently arduous task. Various automated unit test generation tools have been introduced to mitigate this challenge. Notably, methods based on large language models (LLMs) have garnered considerable attention and exhibited promising results in recent years. Nevertheless, LLM-based tools encounter limitations in generating accurate unit tests. This paper presents ChatUniTest, an LLM-based automated unit test generation framework. ChatUniTest incorporates an adaptive focal context mechanism to encompass valuable context in prompts and adheres to a generation-validation-repair mechanism to rectify errors in generated unit tests. Subsequently, we have developed ChatUniTest Core, a common library that implements core workflow, complemented by the ChatUniTest Toolchain, a suite of seamlessly integrated tools enhancing the capabilities of ChatUniTest. Our effectiveness evaluation reveals that ChatUniTest outperforms TestSpark and EvoSuite in half of the evaluated projects, achieving the highest overall line coverage. Furthermore, insights from our user study affirm that ChatUniTest delivers substantial value to various stakeholders in the software testing domain. ChatUniTest is available at https://github.com/ZJU-ACES-ISE/ChatUniTest, and the demo video is available at https://www.youtube.com/watch?v=GmfxQUqm2ZQ.",
+        "primary_pointer": "2510.19777",
+        "summary": "Modern REST API testing relies on brittle sequences of calls to build system state. These multi-step tests suffer from non-determinism, poor scalability, and a \"reachability tax\" where a single failed setup step invalidates the entire test. We introduce TECTON, which breaks this cycle by replacing implicit state construction with explicit state synthesis of both the request payload and mock data it depends on.\n  TECTON achieves this through two complementary mechanisms: it generates diverse, valid payloads directly, and it augments existing test mocks with realistic data so those payloads have valid system state to reference. Both mechanisms apply combinatorial testing to a new domain: the nested property space of Abstract Data Types (ADTs). TECTON decomposes complex API requests into primitive components to unleash LLMs on the more tractable subtasks of identifying equivalence classes of these primitives and generating representative values for them. It then uses LLMs to extract and inject state values via test mocks, enabling payloads to reference valid state. It recomposes these values into covering combinations to directly produce high-coverage test payloads.\n  On standard RESTful benchmarks, TECTON achieves 70% average line coverage - a 20% absolute increase over sequence-based generators. It exposes 2x more runtime errors than any prior tool, including assertions and data constraint failures. TECTON's shift from sequencing API calls to synthesized payloads advances the state of the art in automated API validation.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2305.04764",
+          "final_url": "https://arxiv.org/abs/2510.19777",
           "http_status": 200,
-          "pdf_sample_score": 0.2485,
-          "query_relevance_score": 1.0,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-25T20:34:14Z"
+          "verified_at": "2026-08-18T16:06:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "André Pereira",
+            "Bruno Lima",
+            "João Pascoal Faria"
+          ],
+          "title": "APITestGenie: Automated API Test Generation through Generative AI",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.03838",
+        "summary": "Intelligent assistants powered by Large Language Models (LLMs) can generate program and test code with high accuracy, boosting developers' and testers' productivity. However, there is a lack of studies exploring LLMs for testing Web APIs, which constitute fundamental building blocks of modern software systems and pose significant test challenges. Hence, in this article, we introduce APITestGenie, an approach and tool that leverages LLMs to generate executable API test scripts from business requirements and API specifications. In experiments with 10 real-world APIs, the tool generated valid test scripts 57% of the time. With three generation attempts per task, this success rate increased to 80%. Human intervention is recommended to validate or refine generated scripts before integration into CI/CD pipelines, positioning our tool as a productivity assistant rather than a replacement for testers. Feedback from industry specialists indicated a strong interest in adopting our tool for improving the API test process.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.03838",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-18T16:06:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Tobias Kiecker",
+            "Jan Arne Sparka",
+            "Martin Reuter",
+            "Albert Ziegler",
+            "Lars Grunske"
+          ],
+          "title": "CASCADE: Detecting Inconsistencies between Code and Documentation with Automatic Test Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.19400",
+        "summary": "Maintaining consistency between code and documentation is a crucial yet frequently overlooked aspect of software development. Even minor mismatches can confuse API users, introduce new bugs, and increase overall maintenance effort. This creates demand for automated solutions that can assist developers in identifying code-documentation inconsistencies. However, since automatic reports still require human confirmation, false positives carry serious consequences: wasting developer time and discouraging practical adoption.\n  We introduce CASCADE (Consistency Analysis for Source Code And Documentation through Execution), a novel tool for detecting inconsistencies with a strong emphasis on reducing false positives. CASCADE leverages Large Language Models (LLMs) to generate unit tests directly from natural-language documentation. Since these tests are derived from the documentation, any failure during execution indicates a potential mismatch between the documented and actual behavior of the code. To minimize false positives, CASCADE also generates code from the documentation to cross-check the generated tests. By design, an inconsistency is reported only when two conditions are met: the existing code fails a test, while the code generated from the documentation passes the same test.\n  We evaluated CASCADE on a novel dataset of 71 inconsistent and 814 consistent code-documentation pairs drawn from open-source Java projects. Further, we applied CASCADE to additional Java, C#, and Rust repositories, where we uncovered 13 previously unknown inconsistencies, of which 10 have subsequently been fixed, demonstrating both CASCADE's precision and its applicability to real-world codebases.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.19400",
+          "http_status": 200,
+          "pdf_sample_score": 0.3229,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-18T16:06:11Z"
         }
       }
     ]

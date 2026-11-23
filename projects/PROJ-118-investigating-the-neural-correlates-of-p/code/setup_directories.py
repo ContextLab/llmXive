@@ -1,42 +1,34 @@
-"""
-Task T006: Setup directory structure for the project.
-
-Ensures the following directories exist relative to the project root:
-- data/raw
-- data/processed
-- results
-- results/plots
-
-This script is idempotent and safe to run multiple times.
-"""
 import os
 from pathlib import Path
 
 def setup_directories():
-    """Create required project directories if they do not exist."""
-    # Define the base directory (project root)
-    # We assume this script is run from the project root or that the root is the parent of 'code'
-    base_dir = Path(__file__).resolve().parent.parent
+    """
+    Creates the required directory structure for the project:
+    - data/raw
+    - data/processed
     
-    required_dirs = [
-        "data/raw",
-        "data/processed",
-        "results",
-        "results/plots"
-    ]
-    
-    created_count = 0
-    for dir_path in required_dirs:
-        full_path = base_dir / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-    
-    print(f"Directory setup complete. {created_count} new directories created.")
-    return True
+    Ensures that .gitkeep files are present in each directory to preserve
+    them in version control.
+    """
+    # Determine the project root based on the known structure
+    # We assume this script runs from the project root or the code/ directory
+    current_dir = Path(__file__).resolve().parent
+    project_root = current_dir.parent if current_dir.name == 'code' else current_dir
+
+    data_root = project_root / 'data'
+    raw_dir = data_root / 'raw'
+    processed_dir = data_root / 'processed'
+
+    # Create directories
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create .gitkeep files
+    (raw_dir / '.gitkeep').touch()
+    (processed_dir / '.gitkeep').touch()
+
+    print(f"Created directories: {raw_dir}, {processed_dir}")
+    print("Created .gitkeep files to preserve directory structure.")
 
 if __name__ == "__main__":
     setup_directories()

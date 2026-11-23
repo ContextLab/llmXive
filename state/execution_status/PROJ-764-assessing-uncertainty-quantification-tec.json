@@ -1,0 +1,22 @@
+{
+  "project_id": "PROJ-764-assessing-uncertainty-quantification-tec",
+  "ok": false,
+  "reason": "7 command(s) failed: python code/main.py (rc=1); python code/data/download.py (rc=1); python code/data/preprocess.py (rc=1); 6 declared deliverable(s) absent: data/processed/features_test_20pca.csv; data/processed/features_train_20pca.csv; data/processed/features_val_20pca.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    2026-10-03 15:16:38,630 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported\n2026-10-03 15:16:38,700 - matplotlib.font_manager - INFO - generated new fontManager\n2026-10-03 15:16:38 - pipeline - INFO - Starting main pipeline with timeout=5.0 hours\n2026-10-03 15:16:38,902 - pipeline - INFO - Starting main pipeline with timeout=5.0 hours\n2026-10-03 15:16:38 - pipeline - INFO - --- PIPELINE START ---\n2026-10-03 15:16:38,902 - pipeline - INFO - --- PIPELINE S",
+    "python code/data/download.py -> rc=1\n    2026-10-03 15:16:40,335 - __main__ - ERROR - Data file not found: data/raw/oqmd.parquet. Run T005a first.",
+    "python code/data/preprocess.py -> rc=1\n    [0.8, 0.1, 0.1], 'split_type': 'stratified', 'timeout_hours': 5.0, 'data': {'raw_dir': 'data/raw', 'processed_dir': 'data/processed', 'download_url': 'https://huggingface.co/datasets/materials-toolkits/oqmd'}, 'model': {'hidden_dims': [64, 32], 'dropout_rate': 0.2}, 'training': {'epochs': 100, 'lr': 0.001, 'batch_size': 64}, 'uq': {'mc_dropout_passes': 30, 'mc_dropout_dropout_rate': 0.2, 'ensemble_size': 5, 'gp_inducing_points': 500}, 'paths': {'results_dir': 'results', 'logs_dir': 'logs'}}\nLoading data...\n\nTraceback (most recent call last):\n  File \"/",
+    "python code/models/deep_ensemble.py --seed <random_seed> -> rc=1\n    132, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-764-assessing-uncertainty-quantification-tec/code/models/deep_ensemble.py\", line 115, in main\n    models = train_ensemble(input_dim, n_models=n_models, base_seed=seed)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-764-assessing-uncertainty-quantification-tec/code/models/deep_ensemble.py\", line 85, in train_ensemble\n    model = train_single_model(input_dim, seed",
+    "python code/models/sparse_gp.py --seed -> rc=1\n    2026-10-03 15:16:44,943 - ERROR - Required artifact missing: data/processed/pca_transformer.pkl\n2026-10-03 15:16:44,943 - sparse_gp - CRITICAL - CRITICAL: Missing required artifacts: ['data/processed/features_train_20pca.csv', 'data/processed/features_test_20pca.csv', 'data/processed/pca_transformer.pkl']. T015a verification failed. Cannot proceed to training (T015b).\n2026-10-03 15:16:44,943 - CRITICAL - CRITICAL: Missing required artifacts: ['data/processed/features_train_20pca.csv', 'data/processed/features_test_20pca.csv', 'data/processed/p",
+    "python code/uq/compute_calibration_report.py -> rc=1\n    pute_calibration_report.py\", line 148, in main\n    df = load_predictions(input_path)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-764-assessing-uncertainty-quantification-tec/code/uq/compute_calibration_report.py\", line 34, in load_predictions\n    raise FileNotFoundError(f\"Input file not found: {input_path}\")\nFileNotFoundError: Input file not found: results/uq_predictions_decomposed.csv\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-764-assessin",
+    "python code/uq/screening.py -> rc=1\n    2026-10-03 15:16:46,369 - __main__ - INFO - Starting screening process\n2026-10-03 15:16:46,370 - __main__ - INFO - Input file: results/uq_predictions.csv\n2026-10-03 15:16:46,370 - __main__ - INFO - Methods: ['deep_ensemble', 'mc_dropout']\n2026-10-03 15:16:46,370 - __main__ - INFO - Risk aversion: 1.0\n2026-10-03 15:16:46,370 - __main__ - ERROR - File not found: Input file not found: results/uq_predictions.csv"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-03T15:16:49Z"
+}

@@ -1,0 +1,13 @@
+pandas
+scipy
+numpy
+requests
+pdfplumber
+datasets
+regex
+rapidfuzz
+pytest
+statsmodels
+pypcurve
+black
+ruff

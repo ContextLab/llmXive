@@ -97,5 +97,15 @@
     "TencentSans-W7.ttf",
     "youtu_bib.bib",
     "youtu.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "d22b90c61debe0438fd7bb0e702b5998a19e7aad9c18225878183a20aef92257",
+      "bytes": 20602635
+    },
+    "original.pdf": {
+      "sha256": "b0cbf6d32ea68618eac1ed11c77b197d30b3cf9f2fbbdfe65c6c85c68c1bd4c7",
+      "bytes": 20603508
+    }
+  }
 }

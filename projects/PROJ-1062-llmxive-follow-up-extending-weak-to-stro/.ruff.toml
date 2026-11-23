@@ -1,0 +1,3 @@
+# Explicit configuration for ruff to ensure it works alongside pyproject.toml
+# or as a standalone file if preferred by the runner.
+extend = "pyproject.toml"

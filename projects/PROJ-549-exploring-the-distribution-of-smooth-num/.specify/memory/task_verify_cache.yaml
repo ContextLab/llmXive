@@ -1,0 +1,76 @@
+T001:
+  c: false
+  h: c669e586b89414a2981745733680235d65235911eba1a79b935e3590fd103775
+  r: The provided evidence shows the `code` and `tests` directories with the required
+    files, but there is no proof that the `data`, `state`, and `docs` directories
+    were created (they are not listed or contain any files). These missing directories
+    mean the full project structure task is not satisfied.
+T002:
+  c: false
+  h: 48179f05125a922d97cd99e97380d5e92831de6fb6bd51e7e787edb5f70a19a4
+  r: The provided `requirements.txt` lists numpy, scipy, matplotlib, pytest, black,
+    and flake8, but it does **not** contain the required `sympy` package. Consequently
+    the file does not meet the task specification.
+T003:
+  c: false
+  h: b23cf1b4d9e5f6e9afff1f4853ec7c4ee295540766d964765c8fd9e475dfb0d1
+  r: The repository contains a correct `pyproject.toml` with the required Black and
+    pytest sections, but there is no `.flake8` file (or its contents) present to satisfy
+    the linting configuration requirement. The missing `.flake8` file must be added
+    with the specified `[flake8] max-line-length = 100` content.
+T004:
+  c: false
+  h: 3263cfd092b98fd6b579d39313dd95dc1a7aa3320ea5fb808fafd25fbf07add2
+  r: The provided `code/dickman.py` does not use `scipy.integrate.odeint` at all,
+    nor does it set the required tolerances (`rtol=1e-6`, `atol=1e-9`). Instead it
+    implements a custom trapezoidal integration with NumPy, which fails the core specification.
+    The task therefore remains unfinished.
+T005:
+  c: true
+  h: 27d1762d857580f4566e022c7787fbc29c1752f8ba303bee950229a6f747c347
+  r: "The `code/utils.py` file is present (1833\u202Fbytes) and implements `setup_logging`\
+    \ (logging helper), `generate_checksum` (checksum generation), and `set_deterministic_seed`\
+    \ (deterministic random seed management), satisfying the task\u2019s specifications."
+T006:
+  c: true
+  h: 6efd8cbd1d3db6f1bf0c66b28624edc0a4bce934dd41d7a731427f9a05bcfb08
+  r: "The provided `code/config.py` file exists, defines dataclasses for CI constraints\
+    \ and the $x$, $y$, $h$ parameter grids, and includes a `load_config` function\
+    \ (returning defaults) plus a simple CLI entry point, satisfying the task\u2019\
+    s requirement."
+T020:
+  c: true
+  h: acf160f5b4ae69f142a417c5844beaadcb982729bf9fe77fa11c038dde053f80
+  r: "The repository contains a non\u2011empty `code/smoothness.py` (\u224819\u202F\
+    KB) that defines `load_primes_from_csv`, `is_y_smooth`, and related functions,\
+    \ implementing trial\u2011division factorization against the primes loaded from\
+    \ `data/primes_1e9.csv`. The missing `data/primes_1e9.csv` is an external dependency,\
+    \ not part of the required code artifact."
+T027b:
+  c: false
+  h: 9a2517df2c09d06ad4f37965e8f4a67bbbd75d51588d958446ee1c84dab87a85
+  r: "The provided `code/analysis.py` contains functions for loading data, power\u2011\
+    law fitting, etc., but no implementation of the required chi\u2011square goodness\u2011\
+    of\u2011fit test against Dickman expectations, nor any code that writes results\
+    \ to `data/model_fits.json`. Moreover, the `data/model_fits.json` file is absent.\
+    \ The task\u2019s mandatory output is therefore missing."
+T029:
+  c: false
+  h: fbcf4fd14e7543ba0bf20aeafddc0ae71690d8995304dd5407de647e380d68f5
+  r: "The repository lacks the required `data/model_fits.json` file, and the provided\
+    \ `code/main.py` excerpt does not show any logic that writes raw density and deviation\u2011\
+    ratio fits together with KS and Chi\u2011Square p\u2011values to that JSON file.\
+    \ The task\u2019s core output is missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No documentation files were presented in a `docs/` directory, nor any text describing\
+    \ the methodology or the dual-test (Chi\u2011Square and Kolmogorov\u2011Smirnov)\
+    \ approach. Without such artifacts, the requirement cannot be confirmed as satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or updated Section\u202F4 containing the requested \u201C\
+    forest density\u201D metaphor and \u201Cmoment of tension\u201D framing was provided;\
+    \ the claim lacks any tangible artifact to verify that the narrative integration\
+    \ was actually written."

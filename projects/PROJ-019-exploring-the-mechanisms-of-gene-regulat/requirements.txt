@@ -6,4 +6,6 @@ seaborn
 matplotlib
 biopython
 pytest
-scikit-learn
+psutil
+joblib
+# Note: joblib added to satisfy downstream scripts that depend on it.

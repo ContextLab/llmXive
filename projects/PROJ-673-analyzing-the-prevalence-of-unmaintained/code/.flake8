@@ -1,0 +1,18 @@
+# Flake8 configuration (optional, for tools that prefer it)
+# Note: Ruff is the primary linter for this project
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    build,
+    dist,
+    data,
+    docs,
+    node_modules,
+    venv,
+per-file-ignores =
+    tests/*:S101
+    code/setup_project_structure.py:INP001

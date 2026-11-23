@@ -1,51 +1,49 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Harmonized Dataset Schema"
-description: "Schema for the merged, filtered, and harmonized dataset output."
+description: "Schema for the harmonized dataset after filtering and imputation."
 type: object
 properties:
   sample_id:
     type: string
-    description: "Unique sample identifier (SHA256(cohort + original_id))."
-  cohort:
-    type: string
-    enum:
-      - "AGP"
-      - "UKBB"
-    description: "Source cohort."
-  fiber_intake_g_day:
+    description: "Unique identifier for the sample."
+  fiber_intake_g:
     type: number
-    minimum: 0.0
-    maximum: 200.0
-    description: "Self-reported dietary fiber intake in grams per day."
-  read_depth:
-    type: integer
-    minimum: 5000
-    description: "Total sequencing reads."
+    description: "Daily fiber intake in grams. Range: 0 to 200."
+    minimum: 0
+    maximum: 200
   age:
     type: number
     description: "Age in years."
+  sex:
+    type: string
+    enum: ["M", "F"]
+    description: "Sex of the participant."
   bmi:
     type: number
     description: "Body Mass Index."
   antibiotic_use:
-    type: boolean
-    description: "Recent antibiotic use."
-  sex:
     type: string
-    description: "Sex of the participant."
+    enum: ["Yes", "No"]
+    description: "Antibiotic use in the last 3 months."
   batch:
     type: string
-    description: "Sequencing batch ID."
-  taxon_abundances:
-    type: object
-    description: "Map of taxon IDs to raw counts."
-    additionalProperties:
-      type: integer
-      minimum: 0
+    description: "Sequencing batch identifier (non‑empty)."
+  read_depth:
+    type: integer
+    description: "Total sequencing reads. Minimum 5000."
+    minimum: 5000
+  cohort:
+    type: string
+    enum: ["AGP", "UKBB", "User"]
+    description: "Source cohort."
 required:
   - sample_id
-  - cohort
-  - fiber_intake_g_day
+  - fiber_intake_g
+  - age
+  - sex
+  - bmi
+  - antibiotic_use
+  - batch
   - read_depth
-  - taxon_abundances
+  - cohort
 additionalProperties: false

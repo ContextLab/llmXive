@@ -1,0 +1,81 @@
+T001a:
+  c: true
+  h: f4f1d7567c232c04ce4b0e3962751d7a9fd0dff5b34ac003a647dde4c1186d92
+  r: The pytest run for `tests/test_project_structure.py` passed (exit 0, 5/5 tests),
+    confirming the raw data, processed data, models, and evaluation results directories
+    all exist, and the setup script ran idempotently with "Project directory structure
+    verified OK." The created structure matches the task's requirement to establish
+    the standard directory layout from `plan.md`.
+  sig: c2640a638ee8ba09c3d245c27eb120fce190358def08997ad5b27a32cae1a61a
+T001b:
+  c: true
+  h: d18c6f2e69a4009a1570ec4c8e6d28c2315e06bc5daf506f2d8f7d01e624a803
+  r: The `code/` directory listing confirms both required artifacts exist there (`main.py`
+    and `requirements.txt`), and the resolved `requirements.txt` contains genuine,
+    fully pinned dependencies appropriate to the project (torch, torch-geometric,
+    rdkit, etc.), not a placeholder. The task only asked for initial file creation,
+    and no stub/empty-file indicators are present for these artifacts.
+  sig: 0321d1684410636c9397e6416758c0b9d514e2b388c86755d5cc43dbad540019
+T002:
+  c: true
+  h: e46f0fa9669a9fff804d5dab52c0c5f2b614a1634577490e499e75a5462a5238
+  r: The `requirements.txt` exists at the project root (520 bytes) with all dependencies
+    exactly pinned (`==`) for Python 3.11 CPU-only CI, covering the scientific stack,
+    GNN/ML libraries, data fetching, and dev tooling as the task required. No stubs,
+    placeholders, or unpinned entries are present.
+  sig: 1d44d2efb7770b3b998bbe2c45d4b8176bddbd52a2f564128fdf35a3dd68a243
+T003:
+  c: true
+  h: b707084d56a895b6d00755154ca6936ad3af6b4762d25f5c70fd880d4a3bf87c
+  r: 'Both files exist and are non-empty: `.ruff.toml` sets `target-version = "py311"`,
+    `line-length = 100`, and `select = ["E", "F", "W", "I"]`, and `pyproject.toml`
+    configures `[tool.black]` with `line-length = 100` (plus matching py311 target),
+    exactly matching the task''s stated configuration requirements.'
+  sig: ebd6bacba2c4bb1bae3da4d7c80ea0176fcac4f089e2f24d480f49b4560fb423
+T004:
+  c: true
+  h: 86cd0f9df3fdda8a2eb6aae43f1192ae537367557b0287a68eb0b60b769dd3aa
+  r: Checked `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/utils.py`,
+    which defines `_SEED`, `_SEED_HASH`, `set_seed`, `get_seed`, `get_seed_hash`,
+    and `ensure_seed_initialized`, and pins random state for `random`, `numpy`, and
+    `torch` when those modules are loaded. This fulfills the seed management and random
+    state pinning requirement.
+  sig: 6441b8c3e6cd532022a1f72b4a0aa9be48c95fa6552186394f41e09c5c1afa3e
+T005:
+  c: true
+  h: 9778852f400cc0fa2b6f483cbbdd2781d403fa4009169e7b4a1800a0584dd00e
+  r: "Checked `projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/utils.py`\
+    \ (6221\u202Fbytes) which defines a `setup_logging` function that accepts a log\
+    \ level string, converts it to a numeric level, and calls the standardized `configure_logging`\
+    \ from `data.logging_config`. This provides configurable logging infrastructure\
+    \ as required."
+  sig: 7ba9c3fcd74a3033b2a841da4295d04bf9e317ee941b2a9544690b339be9cec7
+T006:
+  c: false
+  h: e791fe7bd79d53071b39cc86a9d522d05c230a5d58f743a7e99327acd84430cc
+  r: "The file `code/models/polymer_graph.py` exists but is only a bare dataclass\
+    \ container (`nodes`, `edges` as generic lists) with no node/edge feature schemas\
+    \ at all \u2014 no atom type, hybridization, or bond type feature definitions,\
+    \ encodings, or validation, which the task explicitly requires. It is effectively\
+    \ a placeholder that does not implement the required schemas (though it does correctly\
+    \ omit 3D features per FR-001)."
+  sig: df51ad69a51b41d741319d17c8bda517315ba61ea8b0df934ae5572a21058402
+T007:
+  c: true
+  h: 4ec631d7770fc76f7c606c8467377d23d6a6fc73697eae1fa9df439e1f6d83e5
+  r: "The file `code/models/permeability_record.py` exists (3039 bytes) and contains\
+    \ a fully implemented `PermeabilityRecord` dataclass with the required target\
+    \ variable (log-transformed permeability as float), metadata fields (source, temperature,\
+    \ pressure, gas_species), validation in `__post_init__`, and `to_dict`/`from_dict`\
+    \ serialization methods \u2014 no stubs, TODOs, or placeholders. The content matches\
+    \ the task's requirement for a data model encapsulating permeability measurements."
+  sig: b9493d03d5c878a463a0204385b1bf1f70d110522eb825e669abda1e22b6793f
+T012:
+  c: false
+  h: 24a95bc1e12d89385a269a151f7dfcf5542f864ebaa0dfba9aa4c9a7da52c7da
+  r: "The provided `ingestion.py` snippet stops after the `smiles_to_polymer_graph`\
+    \ function and never shows any implementation of the required data\u2011cleaning\
+    \ steps (missing permeability exclusion, duplicate handling, MW check, or logging).\
+    \ Moreover, the required `review_log.csv` file is absent, so the script cannot\
+    \ record the mandated exclusion and conflict flags. The task\u2019s core logic\
+    \ and logging artifact are therefore missing."

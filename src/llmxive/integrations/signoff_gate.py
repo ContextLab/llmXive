@@ -451,8 +451,7 @@ def poll_project(
         datetime.fromisoformat(str(r)) for r in ledger.get("reminders_sent") or []
     ]
     anchor = max(
-        reminders
-        + [datetime.fromisoformat(str(ledger.get("opened_at", now.isoformat())))]
+        [*reminders, datetime.fromisoformat(str(ledger.get("opened_at", now.isoformat())))]
     )
     if (now - anchor) >= timedelta(hours=REMINDER_INTERVAL_HOURS):
         maint_tags = " ".join(f"@{m}" for m in sorted(maint))

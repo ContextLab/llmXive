@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.08896",
+  "judged_at": "2026-08-10T12:46:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "The paper explicitly proposes a framework that \"expands the standard doubly robust treatment effect estimation\" to handle spatiotemporal complexities, directly addressing the user's interest in doubly robust methods for causal inference on observational data (specifically in biomedical contexts). This satisfies acceptance criteria (a) for measuring the same causal mechanism and (b) for addressing the dependent variable (treatment effect estimation) within a relevant domain.",
+  "relevant": true
+}

@@ -13,7 +13,7 @@ The research team MUST be able to manage the assignment of recruited volunteers 
 
 **Why this priority**: This is the core experimental mechanism. Without a controlled, randomized execution flow that captures time and interaction data, no comparative analysis can be performed.
 
-**Independent Test**: The system can be tested by running a mock study with 3 simulated participants across the 3 conditions, verifying that task start/end times are logged, clarification questions are counted, and the study concludes without data loss.
+**Independent Test**: The system can be tested by running a mock study with a small number of simulated participants across the conditions., verifying that task start/end times are logged, clarification questions are counted, and the study concludes without data loss.
 
 **Acceptance Scenarios**:
 
@@ -77,8 +77,8 @@ The system MUST be able to aggregate the collected study data (time, questions, 
     4. If data is non-normal (Shapiro-Wilk p < 0.05) AND variances are unequal, perform the Welch-James test (or a permutation test) to handle both violations.
     5. Apply appropriate post-hoc corrections (Tukey HSD for ANOVA, Games-Howell for Welch's, or permutation-based CI for Welch-James) (See US-3).
 - **FR-006**: The system MUST apply a family-wise error rate correction (Tukey HSD for ANOVA, Games-Howell for Welch's, or permutation-based correction for Welch-James) when conducting multiple pairwise comparisons to maintain the validity of the statistical inference (See US-3).
-- **FR-007**: The system MUST execute the entire data analysis pipeline (including statistical tests) on a standardized CPU-only environment (AWS t3.medium, Intel Xeon Platinum 8275CL, 2 vCPU, 4GB RAM, unlimited credits) within ≤ 6 hours runtime and ≤ 7GB RAM peak memory usage (See US-3).
-- **FR-008**: The system MUST implement model selection logic that attempts a primary API model and falls back to a local model if the API fails (HTTP 5xx error or latency > 300s). The fallback model MUST be 'phi-2 (quantized int4)' pinned to a specific HuggingFace commit hash (See US-2).
+- **FR-007**: The system MUST execute the entire data analysis pipeline (including statistical tests) on a standardized CPU-only environment (AWS t.medium, Intel Xeon Platinum 8275CL, 2 vCPU, 4GB RAM, unlimited credits) within ≤ 6 hours runtime and ≤ 7GB RAM peak memory usage (See US-3).
+- **FR-008**: The system MUST implement model selection logic that attempts a primary API model and falls back to a local model if the API fails (HTTP 5xx error or latency > 300s). The fallback model MUST be 'phi (quantized int4)' pinned to a specific HuggingFace commit hash (See US-2).
 - **FR-009**: The system MUST enforce repository selection criteria: selected repositories must have existing, high-quality human documentation verified by a rubric. The rubric requires:
     1. Presence of Setup, API, and Architecture sections (≥ 3/4 sections).
     2. Quantitative matching of repositories across conditions based on Lines of Code (LOC) and Cyclomatic Complexity (CC) with a tolerance of ±15% to minimize confounding (See US-2).
@@ -102,8 +102,8 @@ The system MUST be able to aggregate the collected study data (time, questions, 
 - **SC-001**: Task completion time is measured against the baseline established by the "No Documentation" condition to determine the absolute time savings of LLM vs. Human docs (See US-1, US-3).
 - **SC-002**: The number of clarification questions is measured against the "No Documentation" condition to assess the reduction in cognitive load or ambiguity (See US-1, US-3).
 - **SC-003**: Subjective helpfulness ratings (Likert scale) are measured against the "Human Documentation" condition to evaluate user-perceived quality parity (See US-1, US-3).
-- **SC-004**: Statistical significance (p-value) is measured against the alpha threshold of 0.05 to determine if observed differences are not due to random chance (See US-3).
-- **SC-005**: The analysis pipeline execution time is measured against a 6-hour threshold using `time`, and peak memory usage is measured against a 7GB threshold using `psutil` to ensure the study is reproducible without GPU resources (See US-3).
+- **SC-004**: Statistical significance (p-value) is measured against a predetermined alpha threshold to determine if observed differences are not due to random chance. (See US-3).
+- **SC-005**: The analysis pipeline execution time is measured against a predefined threshold using `time`, and peak memory usage is measured against a 7GB threshold using `psutil` to ensure the study is reproducible without GPU resources (See US-3).
 
 ## Assumptions
 
@@ -111,6 +111,6 @@ The system MUST be able to aggregate the collected study data (time, questions, 
 - **Assumption about methodology**: The 'Human Documentation' condition relies on existing documentation which varies in quality; therefore, the 'LLM vs. Human' comparison is treated as a 'Real-World Baseline' (associational), while the 'LLM vs. None' comparison remains causal due to random assignment. The 'Human' group is treated as a secondary comparison to avoid confounding in the primary causal claim.
 - **Assumption about participant behavior**: Participants will follow the standardized onboarding tasks without external assistance other than the provided documentation and the moderator.
 - **Assumption about LLM access**: The LLM API (or local model) used for documentation generation will be available and stable during the data generation phase, with a fallback to a smaller local model if the primary API fails.
-- **Assumption about statistical power**: A sample size of 15-20 participants is sufficient to estimate variance for a future power-adequate study (Feasibility Pilot), but is acknowledged to have <20% power to detect a medium effect size (Cohen's f ≈ a small-to-medium effect size) for the primary impact hypothesis.
+- **Assumption about statistical power**: A sample size of a small cohort is sufficient to estimate variance for a future power-adequate study (Feasibility Pilot), but is acknowledged to have <20% power to detect a medium effect size (Cohen's f ≈ a small-to-medium effect size) for the primary impact hypothesis.
 - **Assumption about threshold justification**: The decision to use a p-value threshold is based on the standard community convention in computer science and social science research, and a sensitivity analysis will sweep this threshold across a range of conventional values to report stability of results.
 - **Assumption about Repository Complexity**: Repository complexity is defined as a composite of Lines of Code (LOC) and Cyclomatic Complexity (CC), and matching within ±15% tolerance is assumed to mitigate confounding in the 'Human' condition.

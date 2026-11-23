@@ -1,0 +1,19 @@
+# Core Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Machine Learning & Imputation
+scikit-learn>=1.2.0
+statsmodels>=0.14.0
+
+# Configuration & Utilities
+pyyaml>=6.0
+requests>=2.28.0
+
+# Dataset Loading (if using HuggingFace or similar)
+# datasets>=2.14.0  # Uncomment if using HF datasets
+
+# Testing & Linting (Optional for pipeline run, required for dev)
+# pytest>=7.0.0
+# ruff>=0.0.290

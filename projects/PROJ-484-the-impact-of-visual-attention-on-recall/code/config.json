@@ -1,0 +1,9 @@
+{
+  "bids_directory": "data/raw/ds001435",
+  "dataset_id": "ds001435",
+  "hypothetical_mode": false,
+  "default_screen_width_px": 1920,
+  "default_viewing_distance_mm": 600,
+  "default_sampling_rate_hz": 1000,
+  "stimulus_duration_ms": 200
+}

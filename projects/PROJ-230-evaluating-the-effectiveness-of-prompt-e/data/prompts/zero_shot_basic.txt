@@ -1,4 +1,6 @@
-Translate the following Python code to JavaScript. Ensure the logic and functionality remain identical.
+Translate the following Python code into equivalent JavaScript code.
+Maintain the original logic, variable names, and structure as closely as possible.
+Do not include any explanation or comments outside the code block.
 
 Python Code:
 {python_code}

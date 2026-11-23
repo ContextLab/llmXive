@@ -1,4 +1,6 @@
-Translate the following Python code to JavaScript.
+Translate the following Python code into equivalent JavaScript code.
+Maintain the original logic, variable names, and structure as closely as possible.
+Do not include any explanation or comments outside the code block.
 
 Example 1:
 Python:
@@ -12,12 +14,14 @@ function add(a, b) {
 
 Example 2:
 Python:
-def greet(name):
-    print(f"Hello, {name}")
+x = [1, 2, 3]
+for i in x:
+    print(i)
 
 JavaScript:
-function greet(name) {
-    console.log(`Hello, ${name}`);
+var x = [1, 2, 3];
+for (var i = 0; i < x.length; i++) {
+    console.log(x[i]);
 }
 
 Now translate this:

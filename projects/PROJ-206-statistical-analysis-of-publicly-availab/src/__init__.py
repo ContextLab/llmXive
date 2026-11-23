@@ -1,3 +1,1 @@
-"""
-llmXive Statistical Analysis Project Source Package.
-"""
+# Core source package for the statistical analysis of election poll aggregates.

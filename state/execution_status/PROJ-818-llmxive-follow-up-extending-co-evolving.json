@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-818-llmxive-follow-up-extending-co-evolving",
+  "ok": false,
+  "reason": "3 command(s) failed: python src/cli.py generate --logic 100 --grid 50 --seed 42 --output data/synthetic_dataset.json (rc=1); python src/cli.py run --conditions sequential,mixed,coevolving --generations 50 --runs-per-condition 30 --seed 42 (rc=1); python src/cli.py analyze --input results/forgetting_metrics.csv --output results/statistical_report.json (rc=1); 7 declared deliverable(s) absent: data/batch_config.json; data/checksums.json; data/generated_grids.json",
+  "artifacts": [],
+  "failures": [
+    "python src/cli.py generate --logic 100 --grid 50 --seed 42 --output data/synthetic_dataset.json -> rc=1\n    ym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.\nPlease upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.\nUsers of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.\nSee the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additional inform",
+    "python src/cli.py run --conditions sequential,mixed,coevolving --generations 50 --runs-per-condition 30 --seed 42 -> rc=1\n    ym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.\nPlease upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.\nUsers of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.\nSee the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for",
+    "python src/cli.py analyze --input results/forgetting_metrics.csv --output results/statistical_report.json -> rc=1\n    ym has been unmaintained since 2022 and does not support NumPy 2.0 amongst other critical functionality.\nPlease upgrade to Gymnasium, the maintained drop-in replacement of Gym, or contact the authors of your software and request that they upgrade.\nUsers of this version of Gym should be able to simply replace 'import gym' with 'import gymnasium as gym' in the vast majority of cases.\nSee the migration guide at https://gymnasium.farama.org/introduction/migration_guide/ for additio"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-23T03:42:30Z"
+}

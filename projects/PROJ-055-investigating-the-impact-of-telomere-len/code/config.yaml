@@ -1,0 +1,12 @@
+# Configuration for the Telomere‑Lifespan Impact project
+#
+# This file centralises all external endpoints, dataset identifiers,
+# random seeds and statistical thresholds used throughout the pipeline.
+# Scripts should obtain these values via `yaml.safe_load(open("code/config.yaml"))`
+# rather than hard‑coding them.
+dryad_api_base: "https://datadryad.org/api/v2"
+dataset_ids: []        # populated automatically by 01_discover_data.py
+anage_url: "https://genomics.senescence.info/species/animalia.csv"
+random_seed: 42
+alpha: 0.05
+chunk_size: 100000

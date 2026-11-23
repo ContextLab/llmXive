@@ -1,0 +1,6 @@
+# Window-specific stopwords for 2010-2014
+# Example: domain-specific terms common in early 2010s abstracts
+study
+data
+method
+approach

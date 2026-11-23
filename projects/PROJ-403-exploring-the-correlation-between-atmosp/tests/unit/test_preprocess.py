@@ -1,150 +1,144 @@
+"""
+Unit tests for data preprocessing utilities in src.data.preprocess.
+"""
 import os
 import tempfile
 import numpy as np
 import pytest
 import xarray as xr
 from pathlib import Path
-
-from src.data.preprocess import detect_ar_events, aggregate_monthly_frequency, save_processed_dataset
-
+from src.data.preprocess import (
+    load_chunked_netcdf,
+    slice_regional_domain,
+    compute_monthly_climatology,
+    compute_anomalies,
+    detect_ar_events,
+    aggregate_monthly_frequency,
+    save_processed_dataset
+)
 
 @pytest.fixture
 def sample_netcdf_file():
-    """Create a temporary NetCDF file with mock IVT data for AR detection testing."""
-    # Mock data dimensions: time (months), lat, lon
-    # Regional domain: 20°N-60°N, 100°E-60°W
-    time = np.arange('1979-01-01', '1979-13-01', dtype='datetime64[M]')
-    lat = np.linspace(20, 60, 41)
-    lon = np.linspace(-160, 60, 221)  # 100°E to 60°W wraps around, simplified for test
-
-    # Create mock IVT data (kg m⁻¹ s⁻¹)
-    # Shape: (time, lat, lon)
-    np.random.seed(42)
-    ivt_data = np.random.uniform(0, 10, size=(len(time), len(lat), len(lon)))
-
-    # Inject a strong AR event: contiguous high values for 3 months
-    # at lat=40 (index ~20), lon=0 (index ~110)
-    start_lat_idx = 20
-    end_lat_idx = 25
-    start_lon_idx = 100
-    end_lon_idx = 120
-    start_time_idx = 6  # July
-    end_time_idx = 9    # October
-
-    ivt_data[start_time_idx:end_time_idx, start_lat_idx:end_lat_idx, start_lon_idx:end_lon_idx] = 25.0
-
-    ds = xr.Dataset(
-        {
-            'ivt': (['time', 'lat', 'lon'], ivt_data)
-        },
-        coords={
-            'time': time,
-            'lat': lat,
-            'lon': lon
-        }
-    )
-
-    with tempfile.NamedTemporaryFile(suffix='.nc', delete=False) as tmp:
+    """Create a temporary NetCDF file with sample data."""
+    with tempfile.NamedTemporaryFile(suffix=".nc", delete=False) as tmp:
+        time = np.arange("2020-01-01", "2020-12-31", dtype="datetime64[D]")
+        lat = np.linspace(20, 60, 10)
+        lon = np.linspace(100, 300, 10)
+        
+        data = np.random.rand(len(time), len(lat), len(lon))
+        
+        ds = xr.Dataset(
+            {"ivt": (("time", "lat", "lon"), data)},
+            coords={"time": time, "lat": lat, "lon": lon}
+        )
         ds.to_netcdf(tmp.name)
-        return tmp.name
+        yield tmp.name
+        os.unlink(tmp.name)
 
+@pytest.fixture
+def sample_z500_file():
+    """Create a temporary NetCDF file with Z500 data."""
+    with tempfile.NamedTemporaryFile(suffix=".nc", delete=False) as tmp:
+        time = np.arange("2020-01-01", "2020-12-31", dtype="datetime64[D]")
+        lat = np.linspace(20, 60, 10)
+        lon = np.linspace(100, 300, 10)
+        
+        # Create data with some seasonal pattern for climatology testing
+        time_days = np.arange(len(time))
+        data = np.sin(2 * np.pi * time_days / 365) + np.random.rand(len(time), len(lat), len(lon)) * 0.1
+        
+        ds = xr.Dataset(
+            {"z500": (("time", "lat", "lon"), data)},
+            coords={"time": time, "lat": lat, "lon": lon}
+        )
+        ds.to_netcdf(tmp.name)
+        yield tmp.name
+        os.unlink(tmp.name)
 
 @pytest.fixture
 def sample_ar_data():
-    """Return a dictionary representing expected AR detection results structure."""
-    return {
-        'ar_frequency': None,
-        'ar_start_time': None,
-        'ar_end_time': None
-    }
-
-
-def test_detect_ar_events(sample_netcdf_file):
-    """Test AR detection logic with mock IVT data.
+    """Create a temporary dataset with AR-like data."""
+    time = np.arange("2020-01-01", "2020-01-10", dtype="datetime64[D]")
+    lat = np.linspace(20, 60, 5)
+    lon = np.linspace(100, 300, 5)
     
-    Validates that:
-    1. The function correctly identifies contiguous AR events.
-    2. Events meet the duration threshold (>24h, here >1 month in monthly data).
-    3. Events meet the magnitude threshold (>10 kg m⁻¹ s⁻¹).
-    4. Output includes start and end times of events.
-    """
-    threshold = 10.0  # kg m⁻¹ s⁻¹
-    min_duration = 1  # months (since data is monthly, 1 month > 24h)
+    # Create a block of high values
+    data = np.zeros((len(time), len(lat), len(lon)))
+    data[2:5, 2:4, 2:4] = 300.0  # Above threshold
     
-    # Run detection
-    result = detect_ar_events(sample_netcdf_file, threshold, min_duration)
-    
-    # Assertions
-    assert 'ar_frequency' in result
-    assert 'ar_start_time' in result
-    assert 'ar_end_time' in result
-    
-    # Check that frequency is a DataArray
-    assert isinstance(result['ar_frequency'], xr.DataArray)
-    
-    # Verify that we detected the injected event (frequency > 0 in the region)
-    # The injected event was at lat ~40, lon ~0
-    # We check if there are any non-zero frequencies in the dataset
-    assert result['ar_frequency'].sum() > 0, "Expected at least one AR event to be detected."
-    
-    # Check dimensions
-    assert 'time' in result['ar_frequency'].dims
-    assert 'lat' in result['ar_frequency'].dims
-    assert 'lon' in result['ar_frequency'].dims
-
-
-def test_aggregate_monthly_frequency(sample_netcdf_file):
-    """Test monthly frequency aggregation from detected AR events."""
-    threshold = 10.0
-    min_duration = 1
-    
-    # Detect events
-    events = detect_ar_events(sample_netcdf_file, threshold, min_duration)
-    
-    # Aggregate to monthly frequency
-    monthly_freq = aggregate_monthly_frequency(events['ar_frequency'])
-    
-    # Assertions
-    assert isinstance(monthly_freq, xr.DataArray)
-    assert 'time' in monthly_freq.dims
-    assert 'lat' in monthly_freq.dims
-    assert 'lon' in monthly_freq.dims
-    
-    # Verify that frequency counts are non-negative integers
-    assert (monthly_freq >= 0).all()
-    
-    # Verify shape matches expected (time, lat, lon)
-    assert monthly_freq.shape == events['ar_frequency'].shape
-
-
-def test_save_processed_dataset(sample_netcdf_file, tmp_path):
-    """Test saving processed AR data to NetCDF."""
-    threshold = 10.0
-    min_duration = 1
-    
-    # Detect events
-    events = detect_ar_events(sample_netcdf_file, threshold, min_duration)
-    
-    # Aggregate frequency
-    monthly_freq = aggregate_monthly_frequency(events['ar_frequency'])
-    
-    # Prepare dataset for saving
-    output_path = tmp_path / "test_ar_freq.nc"
-    save_processed_dataset(
-        output_path,
-        monthly_freq,
-        events['ar_start_time'],
-        events['ar_end_time']
+    ds = xr.Dataset(
+        {"ivt": (("time", "lat", "lon"), data)},
+        coords={"time": time, "lat": lat, "lon": lon}
     )
+    return ds
+
+def test_load_chunked_netcdf(sample_netcdf_file):
+    """Test loading a NetCDF file with Dask."""
+    ds = load_chunked_netcdf(sample_netcdf_file, chunks={"time": 5})
+    assert "ivt" in ds.data_vars
+    assert isinstance(ds["ivt"].data, xr.core.dask.array.Array)
+    assert ds.sizes["time"] == 366
+
+def test_load_chunked_netcdf_nonexistent():
+    """Test loading a non-existent file raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        load_chunked_netcdf("/nonexistent/path/file.nc")
+
+def test_slice_regional_domain(sample_netcdf_file):
+    """Test slicing the dataset to a regional domain."""
+    ds = load_chunked_netcdf(sample_netcdf_file)
+    sliced = slice_regional_domain(ds, lat_min=30, lat_max=50, lon_min=120, lon_max=280)
+    assert sliced.sizes["lat"] < ds.sizes["lat"]
+    assert sliced.sizes["lon"] < ds.sizes["lon"]
+    assert sliced.sizes["lat"] > 0
+    assert sliced.sizes["lon"] > 0
+
+def test_compute_monthly_climatology(sample_z500_file):
+    """Test computing monthly climatology."""
+    ds = load_chunked_netcdf(sample_z500_file)
+    clim = compute_monthly_climatology(ds, var_name="z500")
+    assert clim.sizes["month"] == 12
+    assert clim.sizes["lat"] == ds.sizes["lat"]
+    assert clim.sizes["lon"] == ds.sizes["lon"]
+
+def test_compute_anomalies(sample_z500_file):
+    """Test computing anomalies (climatology subtraction)."""
+    ds = load_chunked_netcdf(sample_z500_file)
+    clim = compute_monthly_climatology(ds, var_name="z500")
+    anom = compute_anomalies(ds, var_name="z500", climatology=clim)
+    assert anom.sizes == ds["z500"].sizes
+    # Anomalies should be centered around 0 (roughly)
+    assert np.abs(anom.mean().values) < 1.0
+
+def test_detect_ar_events(sample_ar_data):
+    """Test AR event detection."""
+    ds = sample_ar_data
+    result = detect_ar_events(ds, var_name="ivt", threshold=250.0, min_duration=1)
+    assert "ar_mask" in result.data_vars
+    assert "ar_event_id" in result.data_vars
+    # Check that the high values are detected
+    assert result["ar_mask"].sum().values > 0
+
+def test_aggregate_monthly_frequency(sample_ar_data):
+    """Test monthly frequency aggregation."""
+    # First detect events
+    ds = sample_ar_data
+    ar_ds = detect_ar_events(ds, var_name="ivt", threshold=250.0, min_duration=1)
     
-    # Verify file exists
-    assert output_path.exists()
-    
-    # Verify contents
-    ds = xr.open_dataset(output_path)
-    assert 'ar_frequency' in ds
-    assert 'ar_start_time' in ds
-    assert 'ar_end_time' in ds
-    
-    # Clean up
-    ds.close()
+    # Aggregate
+    freq_ds = aggregate_monthly_frequency(ar_ds, event_id_var="ar_event_id")
+    assert "ar_frequency" in freq_ds.data_vars
+    # Since all data is in Jan, we expect 1 month
+    assert freq_ds.sizes["time"] == 1
+
+def test_save_processed_dataset(sample_ar_data):
+    """Test saving a processed dataset."""
+    ds = sample_ar_data
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, "test_output.nc")
+        save_processed_dataset(ds, output_path)
+        assert os.path.exists(output_path)
+        
+        # Verify it can be loaded back
+        loaded = xr.open_dataset(output_path)
+        assert "ivt" in loaded.data_vars

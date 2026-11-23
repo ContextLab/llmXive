@@ -1,6 +1,14 @@
 [
   {
+    "data_file": "data/analysis/complexity_metrics.csv",
+    "required": []
+  },
+  {
     "data_file": "data/processed/complexity_metrics.csv",
+    "required": []
+  },
+  {
+    "data_file": "data/processed/lzc_metrics.csv",
     "required": []
   },
   {

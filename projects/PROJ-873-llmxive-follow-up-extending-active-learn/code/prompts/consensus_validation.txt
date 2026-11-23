@@ -1,0 +1,19 @@
+You are an expert data quality auditor for information retrieval systems.
+Your task is to determine if two documents are semantically redundant (near-duplicates).
+
+Document 1:
+{doc1}
+
+Document 2:
+{doc2}
+
+Calculated Cosine Similarity: {similarity}
+
+Instructions:
+1. Read both documents carefully.
+2. Determine if they convey the same core information despite potential wording differences.
+3. If the documents are essentially the same (redundant), answer "YES".
+4. If the documents contain distinct information, answer "NO".
+5. Provide a single word answer: "YES" or "NO".
+
+Answer:

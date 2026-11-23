@@ -1,0 +1,9 @@
+status: none
+intent: download mutagenicity dataset PubChem BioAssay ToxCast MoleculeNet python
+  package dataset
+required_fields:
+- SMILES
+- mutagenicity_label
+cache_key: d442ceb85161c522199789e911b4ea0822fdaf2a9860738bfd7de7c6b64a59e6
+searched_at: '2026-10-10T15:44:05.279244+00:00'
+retry_count: 1

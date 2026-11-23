@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "e641c7b9ce98e9cc82863c898fc382bd1c71965937f0bbb21fefd924084573c1",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused empty contents without execution: 'data/raw/checksums_schema.yaml'"
+}

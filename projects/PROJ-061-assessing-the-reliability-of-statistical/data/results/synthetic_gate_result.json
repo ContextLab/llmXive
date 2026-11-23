@@ -1,0 +1,10 @@
+{
+  "task_id": "T031b",
+  "status": "passed",
+  "true_power": 0.6943,
+  "empirical_power": 0.6920,
+  "absolute_error": 0.0023,
+  "recovery_rate": 1.0,
+  "message": "Recovery within 5.0%: Yes",
+  "timestamp": null
+}

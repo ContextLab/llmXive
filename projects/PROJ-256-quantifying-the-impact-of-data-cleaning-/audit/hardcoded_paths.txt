@@ -1,0 +1,2 @@
+No hardcoded paths detected after refactoring.
+All path references now use config.py constants.

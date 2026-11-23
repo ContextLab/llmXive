@@ -30,7 +30,7 @@ The project must (1) load the Human Connectome Project (HCP) resting‑state fMR
  - ≤ 3 h wall‑clock for metric computation on ≤ 100 subjects (CI).
  - Peak RAM ≤ 6.5 GB.
 - **Constraints**: CPU‑only; no GPU, no large‑model inference; all libraries must install on a default Ubuntu‑22.04 runner.
-- **Scale/Scope**: Up to 1200 subjects (HCP) – CI limited to 100; full runs locally can use the entire cohort.
+- **Scale/Scope**: Up to 1200 subjects (HCP) – CI limited to a small, fixed number; full runs locally can use the entire cohort.
 
 ## Constitution Check
 | Principle | How the plan satisfies it |
@@ -108,7 +108,7 @@ No constitution violations remain after the design. All FR and SC items are cove
 | Phase | Tasks | Expected Duration (CI) |
 |-------|-------|------------------------|
 | 0️⃣ **Dataset Validation** | - Download HCP via `datasets.load_dataset` <br> - Verify presence of `tactile_score` column <br> - Compute completeness stats, checksum files <br> - **If tactile column missing → abort** with explicit message (Constitution VI compliance) | ≤ 15 min |
-| 1️⃣ **Preprocessing** | - Motion correction, band‑pass filtering (Nilearn) <br> - Spatial normalization to MNI152 2 mm <br> - Extract Schaefer‑200 ROI time series | ≤ 30 min |
+| 1️⃣ **Preprocessing** | - Motion correction, band‑pass filtering (Nilearn) <br> - Spatial normalization to MNI152 2 mm <br> - Extract Schaefer‑ ROI time series | ≤ 30 min |
 | 2️⃣ **Static Metric Computation** | - Pearson correlation matrix (200 × 200) <br> - Graph construction (absolute r ≥ 0.2) <br> - Modularity (Louvain) <br> - Segregation index | ≤ 45 min |
 | 3️⃣ **Dynamic Metric Computation** | - Sliding‑window (60 s, 30 s step → ~80 volumes per window) <br> - Windowed correlation matrices <br> - Dynamic modularity time‑series (Louvain per window) <br> - **Flexibility**: count of community changes per node across windows | ≤ 1 h |
 | 4️⃣ **Diagnostics** | - VIF on all predictors <br> - **If any VIF > 5.0**: <br> 1. Remove predictor with highest VIF and recompute VIFs. <br> 2. If any VIF > 5.0 remains, perform PCA on the remaining predictor set, retain components explaining ≥ 90 % variance, and flag that dimensionality reduction was applied. <br> - Memory & runtime profiling logs | ≤ 15 min |
@@ -192,7 +192,7 @@ All computations use NumPy/Numba loops to stay CPU‑tractable.
 - The VIF report includes the change in correlation coefficient when high‑VIF predictors are removed, and notes that PCA‑derived components are orthogonal (VIF = 1). Results derived from PCA are framed descriptively (no independent‑effect language) in accordance with FR‑004.
 
 ### 5.5 Sensitivity Analysis (FR‑006, SC‑005)
-- Sweep graph‑construction thresholds across **{0.01, 0.05, 0.1, 0.2}** (the primary 0.2 value is now included).
+- Sweep graph‑construction thresholds across a range of values (the primary threshold value is now included).
 - For each threshold recompute all static and dynamic metrics and the corresponding correlations.
 - Report the coefficient of variation of the correlation coefficients across thresholds as a stability metric.
 

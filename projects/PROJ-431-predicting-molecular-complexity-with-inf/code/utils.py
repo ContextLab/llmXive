@@ -1,10 +1,9 @@
 """
-Utility functions for the Molecular Complexity Prediction pipeline.
+Utility functions for the molecular complexity prediction pipeline.
 
 Provides logging setup, SMILES validation, file I/O helpers, and
-mandatory dataset verification with a hard gate for required columns.
+mandatory dataset verification to ensure input data integrity.
 """
-
 import logging
 import os
 import sys
@@ -13,294 +12,253 @@ from typing import List, Optional, Tuple, Dict, Any, Callable
 
 import pandas as pd
 from rdkit import Chem
-from rdkit.Chem import AllChem
+from rdkit.Chem import rdMolDescriptors
+
+# Constants for required columns
+REQUIRED_COLUMNS = ['smiles', 'logS', 'logP']
+REQUIRED_ENTROPY_COLUMNS = ['atom_entropy', 'bond_entropy']
 
 
-# --- Logging Configuration ---
-
-def setup_logging(
-    log_level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    log_format: Optional[str] = None
-) -> logging.Logger:
+def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configure the root logger and return a project-specific logger.
-
+    Configure and return a logger for the pipeline.
+    
     Args:
-        log_level: Logging level (e.g., logging.INFO, logging.DEBUG).
+        log_level: Logging level (e.g., logging.INFO, logging.DEBUG)
         log_file: Optional path to a log file. If None, logs only to console.
-        log_format: Optional custom format string. Defaults to a standard format.
-
+        
     Returns:
-        A configured logger instance.
+        Configured logger instance.
     """
-    if log_format is None:
-        log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
-    logger = logging.getLogger("molecular_complexity")
+    logger = logging.getLogger('molecular_complexity')
     logger.setLevel(log_level)
-
-    # Clear existing handlers to avoid duplicates on re-calls
-    logger.handlers.clear()
-
+    
+    # Avoid adding duplicate handlers if called multiple times
+    if logger.handlers:
+        return logger
+    
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(log_level)
-    console_handler.setFormatter(logging.Formatter(log_format))
+    console_format = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    console_handler.setFormatter(console_format)
     logger.addHandler(console_handler)
-
+    
     # File handler (optional)
     if log_file:
-        # Ensure directory exists
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(log_level)
-        file_handler.setFormatter(logging.Formatter(log_format))
+        file_handler.setFormatter(console_format)
         logger.addHandler(file_handler)
-
+    
     return logger
 
 
-# --- SMILES Validation ---
-
-def validate_smiles(smiles: str) -> Tuple[bool, Optional[Chem.Mol]]:
+def validate_smiles(smiles: str) -> bool:
     """
     Validate a single SMILES string using RDKit.
-
+    
     Args:
-        smiles: The SMILES string to validate.
-
+        smiles: SMILES string to validate.
+        
     Returns:
-        A tuple (is_valid, mol_object).
-        - is_valid: True if the SMILES parses correctly and is not empty.
-        - mol_object: The RDKit Mol object if valid, otherwise None.
+        True if valid, False otherwise.
     """
-    if not smiles or not isinstance(smiles, str):
-        return False, None
-
+    if not isinstance(smiles, str) or not smiles.strip():
+        return False
     try:
         mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            return False, None
-        # Optional: Sanitize to catch deeper issues
-        Chem.SanitizeMol(mol)
-        return True, mol
+        return mol is not None
     except Exception:
-        return False, None
+        return False
 
 
-def validate_smiles_column(
-    df: pd.DataFrame,
-    smiles_col: str = "smiles",
-    log: Optional[logging.Logger] = None
-) -> Tuple[pd.DataFrame, int]:
+def validate_smiles_column(df: pd.DataFrame, smiles_col: str = 'smiles') -> Tuple[int, int]:
     """
-    Validate the SMILES column in a DataFrame and drop invalid rows.
-
+    Validate all SMILES strings in a DataFrame column.
+    
     Args:
-        df: The input DataFrame.
+        df: Input DataFrame.
         smiles_col: Name of the column containing SMILES strings.
-        log: Optional logger instance.
-
+        
     Returns:
-        A tuple (cleaned_df, invalid_count).
-        - cleaned_df: DataFrame with invalid SMILES rows removed.
-        - invalid_count: Number of rows dropped due to invalid SMILES.
+        Tuple of (valid_count, invalid_count).
     """
-    if log is None:
-        log = logging.getLogger("molecular_complexity")
-
-    valid_indices = []
+    valid_count = 0
     invalid_count = 0
-
-    for idx, row in df.iterrows():
-        smiles_val = row[smiles_col]
-        is_valid, _ = validate_smiles(smiles_val)
-        if is_valid:
-            valid_indices.append(idx)
+    
+    for idx, smiles in enumerate(df[smiles_col]):
+        if validate_smiles(smiles):
+            valid_count += 1
         else:
             invalid_count += 1
-            log.warning(f"Invalid SMILES at index {idx}: '{smiles_val}'")
-
-    cleaned_df = df.loc[valid_indices].reset_index(drop=True)
-    log.info(f"Validated SMILES: {invalid_count} invalid rows dropped. {len(cleaned_df)} valid rows remaining.")
-
-    return cleaned_df, invalid_count
+            logging.warning(f"Invalid SMILES at row {idx}: {smiles[:50]}...")
+            
+    return valid_count, invalid_count
 
 
-# --- Dataset Verification Hard Gate (FR-008) ---
-
-REQUIRED_COLUMNS = {"smiles", "logS", "logP"}
-
-def verify_dataset_columns(
-    df: pd.DataFrame,
-    required_cols: Optional[set] = None,
-    log: Optional[logging.Logger] = None
-) -> None:
+def verify_dataset_columns(df: pd.DataFrame, required_cols: List[str] = None) -> bool:
     """
     Verify that a DataFrame contains all required columns.
-
-    This function implements the **mandatory dataset verification hard gate**.
-    If required columns are missing, it logs a critical error and raises
-    a RuntimeError to abort execution immediately.
-
+    
+    This is a HARD GATE: if required columns are missing, the function
+    raises a ValueError to abort execution.
+    
     Args:
-        df: The DataFrame to verify.
-        required_cols: Set of required column names. Defaults to REQUIRED_COLUMNS
-                       (smiles, logS, logP).
-        log: Optional logger instance.
-
+        df: Input DataFrame.
+        required_cols: List of required column names. Defaults to REQUIRED_COLUMNS.
+        
+    Returns:
+        True if all required columns are present.
+        
     Raises:
-        RuntimeError: If any required columns are missing.
+        ValueError: If any required column is missing.
     """
     if required_cols is None:
         required_cols = REQUIRED_COLUMNS
-
-    if log is None:
-        log = logging.getLogger("molecular_complexity")
-
-    actual_cols = set(df.columns)
-    missing = required_cols - actual_cols
-
-    if missing:
-        error_msg = f"CRITICAL: Dataset is missing required columns: {sorted(missing)}. " \
-                    f"Required columns are: {sorted(required_cols)}. " \
-                    f"Execution aborted as per FR-008."
-        log.critical(error_msg)
-        raise RuntimeError(error_msg)
-
-    log.info(f"Dataset verification passed. All required columns present: {sorted(required_cols)}")
+        
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    
+    if missing_cols:
+        error_msg = (
+            f"Mandatory dataset verification failed: Missing required columns: {missing_cols}. "
+            f"Required columns are: {required_cols}. "
+            f"Please ensure the input CSV contains 'smiles', 'logS', and 'logP' columns."
+        )
+        logging.error(error_msg)
+        raise ValueError(error_msg)
+        
+    logging.info(f"Dataset verification passed: All required columns present {required_cols}")
+    return True
 
 
 def load_and_verify_dataset(
-    file_path: str,
-    required_cols: Optional[set] = None,
-    log: Optional[logging.Logger] = None
+    file_path: str, 
+    required_cols: List[str] = None,
+    smiles_col: str = 'smiles',
+    validate_smiles: bool = True
 ) -> pd.DataFrame:
     """
-    Load a CSV dataset and verify it contains required columns.
-
-    This is a convenience function combining loading and hard-gate verification.
-
+    Load a CSV dataset and perform mandatory verification checks.
+    
+    This function enforces:
+    1. File existence
+    2. Required column presence (HARD GATE)
+    3. Optional SMILES validation
+    
     Args:
-        file_path: Path to the CSV file.
-        required_cols: Set of required columns. Defaults to REQUIRED_COLUMNS.
-        log: Optional logger.
-
+        file_path: Path to the input CSV file.
+        required_cols: List of required column names.
+        smiles_col: Name of the SMILES column.
+        validate_smiles: If True, validate SMILES strings and log warnings.
+        
     Returns:
-        The loaded and verified DataFrame.
-
+        Validated DataFrame.
+        
     Raises:
         FileNotFoundError: If the file does not exist.
-        RuntimeError: If required columns are missing (FR-008 hard gate).
+        ValueError: If required columns are missing or SMILES validation fails critically.
     """
-    if log is None:
-        log = logging.getLogger("molecular_complexity")
-
     path = Path(file_path)
     if not path.exists():
-        error_msg = f"File not found: {file_path}"
-        log.error(error_msg)
+        error_msg = f"Dataset file not found: {file_path}"
+        logging.error(error_msg)
         raise FileNotFoundError(error_msg)
-
-    log.info(f"Loading dataset from {file_path}...")
-    try:
-        df = pd.read_csv(file_path)
-    except Exception as e:
-        error_msg = f"Failed to load CSV {file_path}: {e}"
-        log.error(error_msg)
-        raise RuntimeError(error_msg)
-
-    log.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
-    verify_dataset_columns(df, required_cols, log)
-
+    
+    logging.info(f"Loading dataset from: {file_path}")
+    df = pd.read_csv(file_path)
+    logging.info(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
+    
+    # HARD GATE: Verify required columns
+    verify_dataset_columns(df, required_cols)
+    
+    # Optional SMILES validation
+    if validate_smiles:
+        valid_count, invalid_count = validate_smiles_column(df, smiles_col)
+        logging.info(f"SMILES validation: {valid_count} valid, {invalid_count} invalid")
+        if invalid_count > 0:
+            logging.warning(f"Found {invalid_count} invalid SMILES strings. "
+                          "These rows may be skipped in downstream processing.")
+    
     return df
 
-
-# --- File I/O Helpers ---
 
 def ensure_directory(dir_path: str) -> Path:
     """
     Ensure a directory exists, creating it if necessary.
-
+    
     Args:
         dir_path: Path to the directory.
-
+        
     Returns:
-        The Path object for the directory.
+        Path object for the directory.
     """
     path = Path(dir_path)
     path.mkdir(parents=True, exist_ok=True)
     return path
 
 
-def save_dataframe(
-    df: pd.DataFrame,
-    file_path: str,
-    log: Optional[logging.Logger] = None
-) -> None:
+def save_dataframe(df: pd.DataFrame, file_path: str, index: bool = False) -> None:
     """
-    Save a DataFrame to a CSV file, ensuring the directory exists.
-
+    Save a DataFrame to a CSV file.
+    
     Args:
-        df: The DataFrame to save.
-        file_path: Output file path (CSV).
-        log: Optional logger.
+        df: DataFrame to save.
+        file_path: Output file path.
+        index: Whether to write the row index.
     """
-    if log is None:
-        log = logging.getLogger("molecular_complexity")
-
     path = Path(file_path)
     ensure_directory(path.parent)
+    df.to_csv(file_path, index=index)
+    logging.info(f"Saved {len(df)} rows to: {file_path}")
 
-    log.info(f"Saving DataFrame to {file_path} ({len(df)} rows)...")
-    df.to_csv(file_path, index=False)
-    log.info("Save complete.")
-
-
-# --- Metadata Join Helper ---
 
 def join_metadata_with_entropy(
-    entropy_df: pd.DataFrame,
-    metadata_df: pd.DataFrame,
-    smiles_col: str = "smiles",
-    log: Optional[logging.Logger] = None
+    entropy_df: pd.DataFrame, 
+    metadata_df: pd.DataFrame, 
+    on: str = 'smiles'
 ) -> pd.DataFrame:
     """
-    Join an entropy-enriched DataFrame with a metadata DataFrame (containing logS/logP).
-
+    Join an entropy-enriched DataFrame with metadata (logS, logP).
+    
+    This function merges the entropy results with the original metadata,
+    ensuring that the final dataset contains all required columns for modeling.
+    
     Args:
-        entropy_df: DataFrame with computed entropy columns (must have 'smiles').
-        metadata_df: DataFrame with 'smiles', 'logS', 'logP' columns.
-        smiles_col: Key column name for joining.
-        log: Optional logger.
-
+        entropy_df: DataFrame with entropy columns (atom_entropy, bond_entropy).
+        metadata_df: DataFrame with metadata columns (logS, logP).
+        on: Column name to join on (default: 'smiles').
+        
     Returns:
-        Joined DataFrame.
-
+        Merged DataFrame with both entropy and metadata columns.
+        
     Raises:
-        RuntimeError: If join results in loss of rows (indicates mismatched data).
+        ValueError: If the join results in an empty DataFrame.
     """
-    if log is None:
-        log = logging.getLogger("molecular_complexity")
-
-    # Ensure we are joining on the correct column names
-    # Assuming both have 'smiles' as the key, or we map them if needed.
-    # For this implementation, we assume both use 'smiles'.
+    # Ensure both dataframes have the join key
+    if on not in entropy_df.columns:
+        raise ValueError(f"Join key '{on}' not found in entropy_df columns: {list(entropy_df.columns)}")
+    if on not in metadata_df.columns:
+        raise ValueError(f"Join key '{on}' not found in metadata_df columns: {list(metadata_df.columns)}")
+        
     merged = pd.merge(
-        entropy_df,
-        metadata_df,
-        on=smiles_col,
-        how='inner'
+        entropy_df, 
+        metadata_df, 
+        on=on, 
+        how='inner'  # Only keep rows present in both
     )
-
-    if len(merged) != len(entropy_df):
-        log.warning(
-            f"Join resulted in {len(merged)} rows from {len(entropy_df)} entropy rows. "
-            f"Some molecules were not found in metadata. "
-            f"This may be expected if metadata was filtered."
+    
+    if len(merged) == 0:
+        error_msg = (
+            f"Join resulted in an empty DataFrame. "
+            f"Entropy rows: {len(entropy_df)}, Metadata rows: {len(metadata_df)}. "
+            f"No matching '{on}' values found between the two datasets."
         )
-
-    log.info(f"Joined metadata with entropy data. Result: {len(merged)} rows.")
+        logging.error(error_msg)
+        raise ValueError(error_msg)
+        
+    logging.info(f"Joined datasets: {len(merged)} rows (from {len(entropy_df)} entropy + {len(metadata_df)} metadata)")
     return merged

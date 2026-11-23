@@ -1,0 +1,43 @@
+{
+  "vif_results": [
+    {
+      "feature": "metabolite_001",
+      "vif": 1.23,
+      "high_collinearity": false
+    },
+    {
+      "feature": "metabolite_002",
+      "vif": 2.45,
+      "high_collinearity": false
+    },
+    {
+      "feature": "metabolite_003",
+      "vif": 5.67,
+      "high_collinearity": true
+    },
+    {
+      "feature": "metabolite_004",
+      "vif": 1.89,
+      "high_collinearity": false
+    },
+    {
+      "feature": "metabolite_005",
+      "vif": 3.21,
+      "high_collinearity": false
+    }
+  ],
+  "high_vif_features": [
+    "metabolite_003"
+  ],
+  "summary": {
+    "total_features": 5,
+    "high_collinearity_count": 1,
+    "threshold": 5.0,
+    "max_vif": 5.67,
+    "mean_vif": 2.89,
+    "median_vif": 2.45,
+    "features_flagged": [
+      "metabolite_003"
+    ]
+  }
+}

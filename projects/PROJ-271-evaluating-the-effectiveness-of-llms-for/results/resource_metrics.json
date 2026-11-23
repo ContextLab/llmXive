@@ -1,0 +1,18 @@
+[
+  {
+    "batch_idx": 0,
+    "batch_size": 10,
+    "time_sec": 0.7007310390472412,
+    "ram_mb": 144.04296875,
+    "cpu_pct": 0.0,
+    "timestamp": 1792293900.786153
+  },
+  {
+    "batch_idx": 1,
+    "batch_size": 10,
+    "time_sec": 0.6948184967041016,
+    "ram_mb": 144.05859375,
+    "cpu_pct": 0.0,
+    "timestamp": 1792293901.5817866
+  }
+]

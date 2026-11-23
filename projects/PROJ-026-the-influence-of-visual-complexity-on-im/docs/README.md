@@ -1,113 +1,101 @@
 # The Influence of Visual Complexity on Implicit Bias
 
-Automated research pipeline for quantifying visual complexity and analyzing its impact on implicit bias scores (D-scores) using Permutation Tests.
+## Overview
+This project investigates how the visual complexity of background stimuli influences implicit bias scores (D-scores) in an Implicit Association Test (IAT) setting.
+The pipeline automates the extraction of visual complexity metrics, experimental data processing, statistical analysis (Permutation Test), and visualization.
 
 ## Project Structure
-
 ```
 .
 ├── code/ # Source code
-│ ├── analysis/ # Statistical analysis (Permutation, PCA, Power)
-│ ├── data/ # Data loading, processing, and aggregation
-│ ├── stimuli/ # Image complexity metrics (Edge, Entropy, Fractal)
-│ ├── utils/ # Logging and utilities
-│ ├── viz/ # Visualization (Plots)
-│ ├── config.py # Configuration and path management
-│ └── main.py # Pipeline orchestration
-├── data/
+│ ├── analysis/ # Statistical analysis (PCA, Permutation, Sensitivity)
+│ ├── data/ # Data loading, processing, and counterbalancing
+│ ├── stimuli/ # Image metrics (Edge Density, Entropy, Fractal Dimension)
+│ ├── utils/ # Logging, configuration
+│ ├── viz/ # Plotting and report generation
+│ ├── config.py # Project configuration
+│ ├── main.py # Pipeline orchestration
+│ └──...
+├── data/ # Data directory
 │ ├── raw/
 │ │ ├── stimuli/ # Input background images
 │ │ └── responses/ # Raw IAT response logs
-│ ├── processed/ # Intermediate data (complexity scores, D-scores)
-│ └── results/ # Final analysis outputs (JSON, plots)
-├── tests/ # Test suite
+│ ├── processed/ # Intermediate and final processed data
+│ └── results/ # Final analysis outputs (JSON, PNG, MD)
 ├── docs/ # Documentation
-└── requirements.txt # Python dependencies
+├── tests/ # Test suite
+└── logs/ # Execution logs
 ```
-
-## Prerequisites
-
-- Python 3.11+
-- System dependencies for OpenCV (e.g., `libgl1`, `libglib2.0-0` on Linux)
 
 ## Installation
-
-1. Clone the repository.
+1. Ensure Python >= 3.11 is installed.
 2. Install dependencies:
-
-```bash
-cd code
-pip install -r requirements.txt
-```
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
 ## Usage
-
-### Running the Full Pipeline
-
-Execute the main script to run the entire analysis pipeline:
-
+Run the full pipeline:
 ```bash
-cd code
-python main.py
+python code/main.py
+```
+For CI/testing with synthetic data (null-effect mode):
+```bash
+python code/main.py --null-effect
 ```
 
-This will:
-1. Load and validate stimuli images.
-2. Compute visual complexity metrics (Edge Density, Entropy, Fractal Dimension).
-3. Process raw IAT response logs into D-scores.
-4. Run Permutation Tests with LOIO sensitivity analysis.
-5. Generate publication-quality plots and save results to `data/results/`.
+## Data Flow
+This section details the dependency chain for assigning stimulus sets to complexity conditions, ensuring reproducibility and methodological integrity.
 
-### Command Line Arguments
+### Step 1: Complexity Quantification (T017a-3)
+**Input**: Validated images from `data/raw/stimuli/`.
+**Process**:
+1. Calculate metrics: Edge Density, Entropy, Fractal Dimension (`code/stimuli/metrics.py`).
+2. Perform PCA to derive a single complexity score (PC1).
+3. Apply Median Split (q=2) on PC1 scores to categorize images.
+ - **Tie-Breaking**: Values equal to the median are assigned to 'Low'.
+**Output**: `data/processed/complexity_scores.csv`
+**Columns**: `filename`, `edge_density`, `entropy`, `fractal_dim`, `complexity_category` (values: 'Low', 'High').
 
-```bash
-python main.py [--null-effect] [--seed SEED]
-```
+### Step 2: Stimulus-to-Set Mapping (T027a-Map)
+**Input**: `data/processed/complexity_scores.csv`.
+**Process**:
+1. Iterate through the complexity categories.
+2. Map 'Low' complexity images to `stimulus_set_id` = 'SetA'.
+3. Map 'High' complexity images to `stimulus_set_id` = 'SetB'.
+**Output**: `data/processed/stimulus_set_mapping.csv`
+**Columns**: `filename`, `stimulus_set_id`.
 
-- `--null-effect`: Run in synthetic mode for CI/testing (generates dummy data).
-- `--seed`: Set random seed for reproducibility (default: 42).
+### Step 3: Counterbalance Assignment (T027a)
+**Input**:
+1. `data/processed/stimulus_set_mapping.csv` (derived from Step 2).
+2. `data/raw/responses/participants.csv` (or synthetic IDs if `--null-effect`).
+**Process**:
+1. Generate a list of participant IDs.
+2. Apply a seeded random shuffle (seed=42).
+3. Assign `session_order` ('Low-High' or 'High-Low') and `stimulus_set_id` based on the shuffle.
+ - **Constraint**: The `stimulus_set_id` assignment MUST align with the mapping from Step 2.
+ - Participants assigned to 'SetA' will encounter 'Low' complexity stimuli in their first session (if order is Low-High) or second (if High-Low).
+ - Participants assigned to 'SetB' will encounter 'High' complexity stimuli.
+**Output**: `data/processed/counterbalance_assignment.csv`
+**Columns**: `participant_id`, `session_order`, `stimulus_set_id`.
 
-### Running Specific Modules
+### Step 4: Aggregation (T026b-3)
+**Input**:
+1. `data/processed/d_scores_raw.csv` (Calculated D-scores).
+2. `data/processed/counterbalance_assignment.csv`.
+3. `data/processed/complexity_scores.csv`.
+**Process**:
+1. Join D-scores with Counterbalance data on `participant_id` to retrieve `stimulus_set_id`.
+2. Join with Complexity Scores to resolve `complexity_condition` (Low/High) based on the `stimulus_set_id`.
+**Output**: `data/processed/aggregated_d_scores.csv`
+**Usage**: This final dataset drives the Permutation Test (T033) and Visualization (T037).
 
-**Stimuli Processing:**
-```bash
-python -m stimuli.process
-```
-
-**Data Aggregation:**
-```bash
-python -m data.process
-```
-
-**Statistical Analysis:**
-```bash
-python -m analysis.permutation
-```
-
-## Output Artifacts
-
-Upon successful completion, the following files are generated:
-
-- `data/processed/complexity_scores.csv`: Visual complexity metrics per image.
-- `data/processed/aggregated_d_scores.csv`: Participant D-scores per session.
-- `data/results/permutation_results.json`: Statistical test results (p-value, effect size).
-- `data/results/sensitivity_results.json`: LOIO and threshold sensitivity data.
-- `data/results/power_analysis.json`: Post-hoc power calculation.
-- `figures/`: Publication-quality plots (Boxplots, Sensitivity curves).
-
-## Testing
-
-Run the test suite using pytest:
-
-```bash
-cd code
-pytest tests/ -v
-```
-
-## Methodology Note
-
-This project employs a **Permutation Test** (rather than ANOVA) to assess the influence of visual complexity on implicit bias. This methodological choice, documented in `docs/research.md`, is designed to handle stimulus-set confounds and provide robust p-value estimation without strict parametric assumptions.
+## API Reference
+See individual module docstrings in `code/` for detailed function signatures.
+- `code/analysis/permutation.py`: `run_permutation_test`, `calculate_effect_size`
+- `code/data/process.py`: `filter_trials`, `calculate_d_score`
+- `code/stimuli/metrics.py`: `calculate_edge_density`, `calculate_entropy`, `calculate_fractal_dim`
 
 ## License
-
-[Insert License Here]
+MIT License

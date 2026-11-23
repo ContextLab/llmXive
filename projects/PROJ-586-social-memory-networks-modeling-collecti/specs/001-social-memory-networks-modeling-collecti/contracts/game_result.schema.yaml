@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GameResult"
+description: "Schema for the output CSV containing game metrics."
+type: "object"
+properties:
+  game_id:
+    type: "string"
+    description: "Unique identifier for the game."
+  specialization_index:
+    type: "number"
+    description: "Distribution-based metric of per-agent fact contribution. Bounded between 0 and log2(N_agents)."
+    minimum: 0
+  retrieval_efficiency:
+    type: "number"
+    description: "Proportion of successful fact-retrieval queries relative to uniform chance baseline."
+    minimum: 0
+    maximum: 1
+  context_condition:
+    type: "string"
+    enum:
+      - "full"
+      - "limited"
+    description: "Context window condition used for the game."
+  agent_count:
+    type: "integer"
+    description: "Number of agents in the simulation."
+    minimum: 2
+  token_limit:
+    type: "integer"
+    description: "Token limit used (if limited). 'unlimited' for full context."
+    minimum: 0
+required:
+  - game_id
+  - specialization_index
+  - retrieval_efficiency
+  - context_condition
+  - agent_count
+  - token_limit
+additionalProperties: false

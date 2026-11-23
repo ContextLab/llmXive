@@ -1,0 +1,2 @@
+# Code package initialization
+pass

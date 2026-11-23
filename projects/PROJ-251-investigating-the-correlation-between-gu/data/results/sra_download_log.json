@@ -1,0 +1,6 @@
+{
+  "study_accession": "SRP053178",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "status": "pending",
+  "message": "Strategy B implementation ready. Run code/utils/sra_downloader.py --study SRP053178 to execute."
+}

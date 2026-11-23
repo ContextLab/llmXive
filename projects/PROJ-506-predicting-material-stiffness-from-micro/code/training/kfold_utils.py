@@ -1,257 +1,296 @@
 """
-K-Fold Cross-Validation Utilities for Stratified Sampling.
+K-Fold Cross-Validation Utilities with Stratification.
 
-This module provides utilities for performing stratified k-fold cross-validation
-on the microstructure dataset. The stratification is based on both inclusion
-density and topological features (clustering coefficient) to ensure balanced
-distribution across folds.
-
-Dependencies:
-  - numpy
-  - scikit-learn (KFold, StratifiedKFold)
+Supports stratified splitting based on density and topological features.
+Ensures that training and validation sets maintain consistent distributions
+of inclusion density and topology type, which is critical for unbiased
+generalization estimates in material stiffness prediction.
 """
+
 import numpy as np
 from typing import List, Tuple, Generator, Optional, Dict
 from sklearn.model_selection import StratifiedKFold
 import json
 from pathlib import Path
+import logging
 
+logger = logging.getLogger(__name__)
 
-def load_dataset_metadata(metadata_path: str) -> Tuple[np.ndarray, np.ndarray]:
+def load_dataset_metadata(metadata_path: Path) -> List[Dict]:
     """
-    Load dataset metadata to extract stratification features.
+    Load dataset metadata from JSON file.
 
     Args:
-        metadata_path: Path to the JSON metadata file containing
-                       'inclusion_density' and 'clustering_coefficient'.
+        metadata_path: Path to the metadata JSON file (e.g., data/processed/derivation_log.json or a combined metadata file).
 
     Returns:
-        Tuple of (densities, clustering_coeffs) as numpy arrays.
+        List of metadata dictionaries, each representing a sample.
+
+    Raises:
+        FileNotFoundError: If the metadata file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
+    if not metadata_path.exists():
+        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+    
     with open(metadata_path, 'r') as f:
         data = json.load(f)
-
-    densities = np.array([item['inclusion_density'] for item in data])
-    # If clustering coefficient is missing, use density as proxy
-    if 'clustering_coefficient' in data[0]:
-        clustering_coeffs = np.array([item['clustering_coefficient'] for item in data])
+    
+    # Handle case where data might be a single dict or a list
+    if isinstance(data, dict):
+        # If it's a log with a 'samples' key, use that
+        if 'samples' in data:
+            return data['samples']
+        # Otherwise, assume the dict itself is a single sample (unlikely for dataset)
+        return [data]
+    elif isinstance(data, list):
+        return data
     else:
-        clustering_coeffs = densities
-
-    return densities, clustering_coeffs
-
+        raise ValueError(f"Unexpected metadata format: {type(data)}")
 
 def create_stratification_bins(
-    values: np.ndarray,
-    n_bins: int = 5,
-    bin_type: str = 'quantile'
+    values: np.ndarray, 
+    n_bins: int = 5
 ) -> np.ndarray:
     """
     Create stratification bins from continuous values.
 
+    This function discretizes continuous variables (like inclusion density)
+    into a fixed number of bins to enable stratified sampling.
+
     Args:
-        values: Array of continuous values (density or clustering).
+        values: Array of continuous values to bin.
         n_bins: Number of bins to create.
-        bin_type: 'quantile' (equal frequency) or 'uniform' (equal width).
 
     Returns:
-        Array of bin labels (integers) for each value.
+        Array of bin indices (integers) corresponding to each value.
+    
+    Raises:
+        ValueError: If n_bins is less than 1 or if values array is empty.
     """
-    if bin_type == 'quantile':
-        # Use percentiles to ensure roughly equal number of samples per bin
-        bins = np.percentile(values, np.linspace(0, 100, n_bins + 1))
-        # Ensure unique bins
-        bins = np.unique(bins)
-        if len(bins) < 2:
-            bins = np.array([values.min() - 1, values.max() + 1])
-        bin_labels = np.digitize(values, bins[:-1])
-    else:
-        # Uniform binning
-        min_val, max_val = values.min(), values.max()
-        bins = np.linspace(min_val, max_val, n_bins + 1)
-        bin_labels = np.digitize(values, bins[:-1])
-
-    return bin_labels
-
+    if n_bins < 1:
+        raise ValueError("n_bins must be at least 1")
+    if len(values) == 0:
+        return np.array([], dtype=int)
+    
+    # Ensure values is a numpy array
+    values = np.asarray(values)
+    
+    # Calculate bin edges, ensuring we cover the full range
+    min_val, max_val = values.min(), values.max()
+    
+    # Handle case where all values are the same
+    if min_val == max_val:
+        return np.zeros(len(values), dtype=int)
+    
+    # Create bin edges
+    edges = np.linspace(min_val, max_val, n_bins + 1)
+    
+    # Digitize returns bin indices (1-based), convert to 0-based
+    bins = np.digitize(values, edges[1:-1])
+    
+    # Ensure all values fall within valid bin range [0, n_bins-1]
+    bins = np.clip(bins, 0, n_bins - 1)
+    
+    return bins
 
 def create_combined_stratification(
     densities: np.ndarray,
-    clustering_coeffs: np.ndarray,
-    n_density_bins: int = 5,
-    n_clustering_bins: int = 5
+    topologies: np.ndarray,
+    density_bins: int = 3,
+    topology_bins: int = 3
 ) -> np.ndarray:
     """
-    Create combined stratification labels based on density and clustering.
+    Create combined stratification labels from multiple features.
 
-    This creates a multi-dimensional stratification by combining binned
-    density and clustering coefficient values into a single label.
+    This function combines multiple continuous/categorical features into
+    a single stratification label by creating a unique identifier for
+    each combination of binned features.
 
     Args:
-        densities: Array of inclusion densities.
-        clustering_coeffs: Array of clustering coefficients.
-        n_density_bins: Number of bins for density.
-        n_clustering_bins: Number of bins for clustering coefficient.
+        densities: Inclusion density values (continuous).
+        topologies: Topological feature values (can be continuous or categorical codes).
+        density_bins: Number of bins for density.
+        topology_bins: Number of bins for topology.
 
     Returns:
-        Array of combined stratification labels.
+        Combined stratification labels (integers representing unique combinations).
+    
+    Example:
+        If density_bins=3 and topology_bins=3, labels will range from 0 to 8,
+        where label = density_bin * 3 + topology_bin.
     """
-    density_bins = create_stratification_bins(densities, n_density_bins)
-    clustering_bins = create_stratification_bins(clustering_coeffs, n_clustering_bins)
-
-    # Combine into a single label by treating (density_bin, clustering_bin) as a tuple
-    # Encode as: density_bin * n_clustering_bins + clustering_bin
-    combined_labels = (density_bins - 1) * n_clustering_bins + clustering_bins
-
+    if len(densities) != len(topologies):
+        raise ValueError("densities and topologies must have the same length")
+    
+    if len(densities) == 0:
+        return np.array([], dtype=int)
+    
+    # Convert topologies to numeric if they are categorical strings
+    if topologies.dtype.kind in ['U', 'S', 'O']:
+        # Create a mapping from unique values to integers
+        unique_topo = np.unique(topologies)
+        topo_map = {val: i for i, val in enumerate(unique_topo)}
+        topo_numeric = np.array([topo_map[val] for val in topologies])
+    else:
+        topo_numeric = np.asarray(topologies)
+    
+    # Create bins for both features
+    d_bins = create_stratification_bins(densities, density_bins)
+    t_bins = create_stratification_bins(topo_numeric, topology_bins)
+    
+    # Combine into unique labels using a base that ensures no collisions
+    # Using a base larger than the maximum possible topology bin count
+    max_t_bins = max(topology_bins, len(np.unique(topo_numeric)))
+    combined_labels = d_bins * max_t_bins + t_bins
+    
     return combined_labels
 
-
 def stratified_k_fold_split(
-    metadata_path: str,
+    indices: np.ndarray,
+    densities: np.ndarray,
+    topologies: np.ndarray,
     n_splits: int = 5,
-    n_density_bins: int = 5,
-    n_clustering_bins: int = 5,
-    shuffle: bool = True,
-    random_state: Optional[int] = None
-) -> Generator[Tuple[List[int], List[int]], None, None]:
+    random_state: int = 42
+) -> Generator[Tuple[np.ndarray, np.ndarray], None, None]:
     """
-    Generate stratified k-fold splits for the dataset.
+    Generate stratified k-fold splits based on density and topology.
 
-    Stratification is performed on a combination of inclusion density
-    and clustering coefficient to ensure each fold has a representative
-    distribution of both features.
+    This function creates train/validation splits that maintain the same
+    distribution of density-topology combinations across all folds, ensuring
+    that the model is evaluated on a representative sample of the data
+    distribution.
 
     Args:
-        metadata_path: Path to the dataset metadata JSON file.
-        n_splits: Number of folds.
-        n_density_bins: Number of bins for density stratification.
-        n_clustering_bins: Number of bins for clustering coefficient stratification.
-        shuffle: Whether to shuffle the data before splitting.
+        indices: Array of sample indices to split.
+        densities: Inclusion density values for each sample.
+        topologies: Topological feature values for each sample.
+        n_splits: Number of folds (must be <= number of unique stratification groups).
         random_state: Random seed for reproducibility.
 
     Yields:
-        Tuples of (train_indices, test_indices) for each fold.
+        Tuple of (train_indices, val_indices) for each fold.
+    
+    Raises:
+        ValueError: If n_splits is invalid or if there are insufficient stratification groups.
     """
-    # Load metadata
-    densities, clustering_coeffs = load_dataset_metadata(metadata_path)
-    n_samples = len(densities)
-
+    if n_splits < 2:
+        raise ValueError("n_splits must be at least 2")
+    if len(indices) == 0:
+        return
+    
+    indices = np.asarray(indices)
+    densities = np.asarray(densities)
+    topologies = np.asarray(topologies)
+    
+    if len(indices) != len(densities) or len(indices) != len(topologies):
+        raise ValueError("indices, densities, and topologies must have the same length")
+    
     # Create combined stratification labels
-    strat_labels = create_combined_stratification(
-        densities, clustering_coeffs,
-        n_density_bins, n_clustering_bins
-    )
-
-    # Use StratifiedKFold from scikit-learn
+    labels = create_combined_stratification(densities, topologies)
+    
+    # Check if we have enough unique groups for the requested splits
+    n_unique_groups = len(np.unique(labels))
+    if n_unique_groups < n_splits:
+        logger.warning(
+            f"Number of unique stratification groups ({n_unique_groups}) is less than "
+            f"requested splits ({n_splits}). Using {n_unique_groups} splits instead."
+        )
+        n_splits = n_unique_groups
+    
+    # Initialize StratifiedKFold
     skf = StratifiedKFold(
-        n_splits=n_splits,
-        shuffle=shuffle,
+        n_splits=n_splits, 
+        shuffle=True, 
         random_state=random_state
     )
-
-    for train_idx, test_idx in skf.split(np.zeros(n_samples), strat_labels):
-        yield train_idx.tolist(), test_idx.tolist()
-
+    
+    # Generate splits
+    for train_idx, val_idx in skf.split(indices, labels):
+        yield indices[train_idx], indices[val_idx]
 
 def get_fold_sizes(
-    metadata_path: str,
-    n_splits: int = 5,
-    n_density_bins: int = 5,
-    n_clustering_bins: int = 5,
-    random_state: Optional[int] = None
-) -> List[Dict[str, int]]:
+    n_samples: int,
+    n_splits: int
+) -> List[int]:
     """
-    Calculate the size of each fold for reporting purposes.
+    Calculate fold sizes ensuring balanced splits.
+
+    This function computes the size of each fold when splitting n_samples
+    into n_splits folds, distributing any remainder samples across the
+    first few folds.
 
     Args:
-        metadata_path: Path to the dataset metadata JSON file.
+        n_samples: Total number of samples.
         n_splits: Number of folds.
-        n_density_bins: Number of bins for density stratification.
-        n_clustering_bins: Number of bins for clustering coefficient stratification.
-        random_state: Random seed for reproducibility.
 
     Returns:
-        List of dictionaries containing fold statistics.
+        List of fold sizes (integers).
+    
+    Example:
+        n_samples=10, n_splits=3 -> [4, 3, 3]
     """
-    folds_info = []
-    densities, clustering_coeffs = load_dataset_metadata(metadata_path)
-    strat_labels = create_combined_stratification(
-        densities, clustering_coeffs,
-        n_density_bins, n_clustering_bins
-    )
-
-    skf = StratifiedKFold(
-        n_splits=n_splits,
-        shuffle=True,
-        random_state=random_state
-    )
-
-    for fold_idx, (train_idx, test_idx) in enumerate(skf.split(np.zeros(len(densities)), strat_labels)):
-        folds_info.append({
-            'fold': fold_idx + 1,
-            'train_size': len(train_idx),
-            'test_size': len(test_idx),
-            'train_mean_density': float(np.mean(densities[train_idx])),
-            'test_mean_density': float(np.mean(densities[test_idx])),
-            'train_mean_clustering': float(np.mean(clustering_coeffs[train_idx])),
-            'test_mean_clustering': float(np.mean(clustering_coeffs[test_idx]))
-        })
-
-    return folds_info
-
+    if n_samples < n_splits:
+        raise ValueError(f"n_samples ({n_samples}) must be >= n_splits ({n_splits})")
+    
+    base_size = n_samples // n_splits
+    remainder = n_samples % n_splits
+    
+    sizes = [base_size] * n_splits
+    for i in range(remainder):
+        sizes[i] += 1
+    
+    return sizes
 
 def main():
     """
-    Main function to demonstrate k-fold split functionality.
+    Test the k-fold utilities with synthetic data.
+    
+    This function demonstrates the functionality of the k-fold utilities
+    by creating a small synthetic dataset and performing stratified splits.
     """
-    import argparse
+    logging.basicConfig(level=logging.INFO)
+    
+    # Create synthetic test data
+    n_samples = 100
+    np.random.seed(42)
+    
+    indices = np.arange(n_samples)
+    densities = np.random.uniform(0.1, 0.9, n_samples)
+    topologies = np.random.choice(['random', 'clustered', 'aligned'], n_samples)
+    
+    print(f"Testing with {n_samples} samples")
+    print(f"Density range: {densities.min():.3f} to {densities.max():.3f}")
+    print(f"Topology distribution: {dict(zip(*np.unique(topologies, return_counts=True)))}")
+    
+    # Test stratified k-fold split
+    n_splits = 5
+    print(f"\nPerforming {n_splits}-fold stratified split...")
+    
+    fold_sizes = get_fold_sizes(n_samples, n_splits)
+    print(f"Expected fold sizes: {fold_sizes}")
+    
+    fold_num = 0
+    for train_idx, val_idx in stratified_k_fold_split(
+        indices, densities, topologies, n_splits=n_splits
+    ):
+        print(f"\nFold {fold_num + 1}:")
+        print(f"  Train size: {len(train_idx)}, Val size: {len(val_idx)}")
+        
+        # Verify stratification
+        train_dens = densities[train_idx]
+        val_dens = densities[val_idx]
+        train_topo = topologies[train_idx]
+        val_topo = topologies[val_idx]
+        
+        print(f"  Train density mean: {train_dens.mean():.3f}, Val density mean: {val_dens.mean():.3f}")
+        print(f"  Train topology dist: {dict(zip(*np.unique(train_topo, return_counts=True)))}")
+        print(f"  Val topology dist: {dict(zip(*np.unique(val_topo, return_counts=True)))}")
+        
+        fold_num += 1
+    
+    print(f"\nCompleted {fold_num} folds successfully.")
+    print("K-Fold Utilities loaded and tested successfully.")
 
-    parser = argparse.ArgumentParser(description='K-Fold Cross-Validation Utilities')
-    parser.add_argument('--metadata', type=str, default='data/processed/derivation_log.json',
-                        help='Path to dataset metadata JSON file')
-    parser.add_argument('--n-splits', type=int, default=5, help='Number of folds')
-    parser.add_argument('--n-density-bins', type=int, default=5, help='Number of density bins')
-    parser.add_argument('--n-clustering-bins', type=int, default=5, help='Number of clustering bins')
-    parser.add_argument('--report', action='store_true', help='Print fold statistics')
-
-    args = parser.parse_args()
-
-    # Check if metadata file exists
-    if not Path(args.metadata).exists():
-        print(f"Error: Metadata file not found: {args.metadata}")
-        print("Please run the data generation pipeline first to create the metadata file.")
-        return 1
-
-    if args.report:
-        folds_info = get_fold_sizes(
-            args.metadata,
-            n_splits=args.n_splits,
-            n_density_bins=args.n_density_bins,
-            n_clustering_bins=args.n_clustering_bins
-        )
-
-        print(f"K-Fold Split Report ({args.n_splits} folds):")
-        print("-" * 60)
-        for fold in folds_info:
-            print(f"Fold {fold['fold']}:")
-            print(f"  Train size: {fold['train_size']}, Test size: {fold['test_size']}")
-            print(f"  Train mean density: {fold['train_mean_density']:.4f}")
-            print(f"  Test mean density: {fold['test_mean_density']:.4f}")
-            print(f"  Train mean clustering: {fold['train_mean_clustering']:.4f}")
-            print(f"  Test mean clustering: {fold['test_mean_clustering']:.4f}")
-            print("-" * 60)
-    else:
-        # Demonstrate iteration
-        print(f"Iterating through {args.n_splits} stratified folds...")
-        for i, (train_idx, test_idx) in enumerate(stratified_k_fold_split(
-            args.metadata,
-            n_splits=args.n_splits,
-            n_density_bins=args.n_density_bins,
-            n_clustering_bins=args.n_clustering_bins
-        )):
-            print(f"Fold {i+1}: Train={len(train_idx)}, Test={len(test_idx)}")
-
-    return 0
-
-
-if __name__ == '__main__':
-    exit(main())
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,18 @@
+{
+  "generated_at": "2024-01-15T10:30:00Z",
+  "files": [
+    {
+      "hash": "a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd",
+      "path": "code/src/pipeline/manifest.py",
+      "size_bytes": 8500
+    },
+    {
+      "hash": "b2c3d4e5f67890123456789012345678901234567890123456789012345678ef",
+      "path": "code/scripts/generate_manifest.py",
+      "size_bytes": 1200
+    }
+  ],
+  "root_path": "/project/root",
+  "total_files": 2,
+  "version": "1.0"
+}

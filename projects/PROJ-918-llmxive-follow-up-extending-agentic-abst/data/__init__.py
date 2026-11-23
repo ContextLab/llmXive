@@ -1,3 +1,3 @@
 """
-Data module for raw and processed datasets.
+Data module for llmXive pipeline.
 """

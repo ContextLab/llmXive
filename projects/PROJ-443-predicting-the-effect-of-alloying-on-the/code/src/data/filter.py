@@ -1,216 +1,207 @@
 """
-Filtering logic for High-Entropy Alloy (HEA) data.
+Filtering logic for High-Entropy Alloy (HEA) samples.
 
 Retains samples with:
-1. >= 5 principal elements
-2. Valid (non-null) Bulk Modulus values
+- At least 5 principal elements (composition >= 0.05 or >= 0.01 depending on definition, here >= 0.05 for 'principal')
+- Valid Bulk Modulus (non-null, positive)
 """
+
 import logging
 import pandas as pd
 import numpy as np
 from typing import Tuple, Optional, List, Dict, Any
 
-from utils.logging_config import get_logger
+from src.utils.logging_config import get_logger
+
+# Configuration constants
+MIN_PRINCIPAL_ELEMENTS = 5
+MIN_COMPOSITION_THRESHOLD = 0.05  # 5% atomic fraction to be considered a principal element
+BULK_MODULUS_COLUMN = "Bulk_Modulus"  # Adjust if column name differs in raw data
+COMPOSITION_PREFIX = "element_"  # Prefix for element composition columns (e.g., element_Fe, element_Cr)
 
 logger = get_logger(__name__)
 
-def count_principal_elements(composition: Any) -> int:
+
+def count_principal_elements(row: pd.Series, composition_cols: List[str], threshold: float = MIN_COMPOSITION_THRESHOLD) -> int:
     """
-    Count the number of elements in a composition.
-    
-    Handles various composition formats:
-    - Dict: {'Fe': 0.25, 'Ni': 0.25, ...}
-    - String: 'Fe0.25Ni0.25Co0.25Mn0.25' or 'Fe,Ni,Co,Mn'
-    - List: ['Fe', 'Ni', 'Co', 'Mn']
-    
+    Count the number of elements in a sample with atomic fraction >= threshold.
+
     Args:
-        composition: The composition data to parse
-        
+        row: A pandas Series representing a single sample.
+        composition_cols: List of column names containing element compositions.
+        threshold: Minimum atomic fraction to count as a principal element.
+
     Returns:
-        Number of elements in the composition
+        Integer count of principal elements.
     """
-    if isinstance(composition, dict):
-        return len([k for k, v in composition.items() if v > 0])
-    elif isinstance(composition, str):
-        # Try to parse string format
-        # Handle formats like "Fe0.25Ni0.25" or "Fe,Ni,Co,Mn"
-        if ',' in composition:
-            # Comma-separated list
-            elements = [e.strip() for e in composition.split(',') if e.strip()]
-            return len(elements)
-        else:
-            # Try to extract element symbols (simplified approach)
-            # This is a heuristic and may not be perfect for all formats
-            import re
-            # Match capital letter followed by optional lowercase letter
-            elements = re.findall(r'[A-Z][a-z]?', composition)
-            return len(elements)
-    elif isinstance(composition, list):
-        return len([e for e in composition if e])
-    else:
-        logger.warning(f"Unknown composition format: {type(composition)}")
+    if not composition_cols:
         return 0
+    
+    # Extract composition values for this row, handling potential NaNs
+    compositions = row[composition_cols].fillna(0.0)
+    
+    # Count elements >= threshold
+    count = (compositions >= threshold).sum()
+    return int(count)
+
 
 def filter_hea_samples(
     df: pd.DataFrame,
-    min_elements: int = 5,
-    bulk_modulus_col: str = 'bulk_modulus',
-    composition_col: str = 'composition'
-) -> Tuple[pd.DataFrame, Dict[str, int]]:
+    min_elements: int = MIN_PRINCIPAL_ELEMENTS,
+    composition_threshold: float = MIN_COMPOSITION_THRESHOLD,
+    bulk_modulus_col: str = BULK_MODULUS_COLUMN,
+    composition_prefix: str = COMPOSITION_PREFIX
+) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Filter HEA samples to retain only those with >= min_elements principal
-    elements and valid Bulk Modulus values.
-    
+    Filter a DataFrame of HEA samples to retain only valid entries.
+
+    Criteria:
+    1. At least `min_elements` principal elements (composition >= `composition_threshold`)
+    2. Valid Bulk Modulus (not null, > 0)
+
     Args:
-        df: Input DataFrame with HEA samples
-        min_elements: Minimum number of principal elements required (default: 5)
-        bulk_modulus_col: Name of the Bulk Modulus column
-        composition_col: Name of the composition column
-        
+        df: Input DataFrame with composition and property columns.
+        min_elements: Minimum number of principal elements required.
+        composition_threshold: Atomic fraction threshold for principal elements.
+        bulk_modulus_col: Name of the column containing Bulk Modulus values.
+        composition_prefix: Prefix for element composition columns.
+
     Returns:
-        Tuple of (filtered DataFrame, statistics dict)
-        
-    Raises:
-        ValueError: If required columns are missing
+        Tuple of (filtered_df, stats_dict)
+        stats_dict contains counts of dropped rows and reasons.
     """
-    if not isinstance(df, pd.DataFrame):
-        raise ValueError("Input must be a pandas DataFrame")
-        
-    if bulk_modulus_col not in df.columns:
-        raise ValueError(f"Required column '{bulk_modulus_col}' not found in DataFrame")
-    if composition_col not in df.columns:
-        raise ValueError(f"Required column '{composition_col}' not found in DataFrame")
-        
-    logger.info(f"Starting filtering: min_elements={min_elements}, bulk_modulus_col={bulk_modulus_col}")
+    if df.empty:
+        logger.warning("Input DataFrame is empty. Returning empty DataFrame.")
+        return df, {"total_input": 0, "total_output": 0, "dropped_by_elements": 0, "dropped_by_bulk_modulus": 0}
+
+    logger.info(f"Starting filter: min_elements={min_elements}, threshold={composition_threshold}")
+
+    # Identify composition columns dynamically
+    all_cols = df.columns.tolist()
+    composition_cols = [c for c in all_cols if c.startswith(composition_prefix)]
     
-    initial_count = len(df)
-    logger.info(f"Initial sample count: {initial_count}")
+    if not composition_cols:
+        # Fallback: try to find columns that look like element compositions if prefix doesn't match
+        # This might be needed if the data source uses different naming conventions
+        logger.warning(f"No columns found with prefix '{composition_prefix}'. Attempting to detect composition columns...")
+        # Simple heuristic: columns that are not standard metadata and have numeric values between 0 and 1
+        # This is a fallback and might need adjustment based on actual data
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        potential_comp_cols = [c for c in numeric_cols if c.lower() not in ['bulk_modulus', 'formation_energy', 'density']]
+        if potential_comp_cols:
+            composition_cols = potential_comp_cols
+            logger.info(f"Detected potential composition columns: {composition_cols[:5]}...")
+        else:
+            logger.error("Could not identify any composition columns. Cannot filter by element count.")
+            raise ValueError("No composition columns found in the DataFrame.")
+
+    logger.info(f"Identified {len(composition_cols)} composition columns.")
+
+    # Create a copy to avoid SettingWithCopyWarning
+    filtered_df = df.copy()
+
+    # Step 1: Filter by Bulk Modulus validity
+    initial_count = len(filtered_df)
     
-    # Count elements for each sample
-    logger.info(f"Counting elements in composition column '{composition_col}'...")
-    df['_element_count'] = df[composition_col].apply(count_principal_elements)
+    # Check if bulk modulus column exists
+    if bulk_modulus_col not in filtered_df.columns:
+        logger.warning(f"Bulk Modulus column '{bulk_modulus_col}' not found. Skipping bulk modulus filter.")
+        bulk_modulus_valid_mask = pd.Series([True] * len(filtered_df), index=filtered_df.index)
+    else:
+        # Filter for non-null and positive Bulk Modulus
+        bulk_modulus_valid_mask = filtered_df[bulk_modulus_col].notna() & (filtered_df[bulk_modulus_col] > 0)
+        filtered_df = filtered_df[bulk_modulus_valid_mask]
     
-    # Filter for >= min_elements
-    element_filter = df['_element_count'] >= min_elements
-    element_filtered_count = element_filter.sum()
-    logger.info(f"Samples with >= {min_elements} elements: {element_filtered_count}")
+    dropped_by_bulk_modulus = initial_count - len(filtered_df)
+    logger.info(f"Dropped {dropped_by_bulk_modulus} samples due to invalid Bulk Modulus.")
+
+    # Step 2: Filter by number of principal elements
+    # Calculate count of principal elements for each row
+    element_counts = filtered_df.apply(
+        lambda row: count_principal_elements(row, composition_cols, composition_threshold),
+        axis=1
+    )
     
-    # Filter for valid Bulk Modulus (not NaN, not None, and positive if applicable)
-    bulk_modulus_filter = df[bulk_modulus_col].notna()
-    # Also ensure Bulk Modulus is positive (physical constraint)
-    bulk_modulus_positive = df[bulk_modulus_col] > 0
-    bulk_modulus_valid = bulk_modulus_filter & bulk_modulus_positive
+    valid_elements_mask = element_counts >= min_elements
+    filtered_df = filtered_df[valid_elements_mask]
     
-    bulk_filtered_count = bulk_modulus_valid.sum()
-    logger.info(f"Samples with valid Bulk Modulus: {bulk_filtered_count}")
-    
-    # Apply both filters
-    combined_filter = element_filter & bulk_modulus_valid
-    filtered_df = df[combined_filter].copy()
-    
+    dropped_by_elements = initial_count - dropped_by_bulk_modulus - len(filtered_df)
+    logger.info(f"Dropped {dropped_by_elements} samples due to < {min_elements} principal elements.")
+
     final_count = len(filtered_df)
-    logger.info(f"Final sample count after filtering: {final_count}")
-    
-    # Calculate statistics
+    logger.info(f"Filter complete. Input: {initial_count}, Output: {final_count} samples.")
+
     stats = {
-        'initial_count': initial_count,
-        'element_filtered_count': element_filtered_count,
-        'bulk_modulus_filtered_count': bulk_filtered_count,
-        'final_count': final_count,
-        'removed_by_element_count': initial_count - element_filtered_count,
-        'removed_by_bulk_modulus': initial_count - bulk_filtered_count,
-        'removed_by_both': initial_count - final_count
+        "total_input": initial_count,
+        "total_output": final_count,
+        "dropped_by_bulk_modulus": dropped_by_bulk_modulus,
+        "dropped_by_elements": dropped_by_elements,
+        "composition_columns_used": composition_cols,
+        "min_elements_threshold": min_elements,
+        "composition_threshold": composition_threshold
     }
-    
-    # Log summary
-    logger.info("Filtering complete:")
-    logger.info(f"  - Removed {stats['removed_by_element_count']} samples due to < {min_elements} elements")
-    logger.info(f"  - Removed {stats['removed_by_bulk_modulus']} samples due to invalid Bulk Modulus")
-    logger.info(f"  - Total removed: {stats['removed_by_both']}")
-    logger.info(f"  - Retention rate: {final_count/initial_count*100:.2f}%")
-    
-    # Drop the temporary element count column
-    filtered_df = filtered_df.drop(columns=['_element_count'])
-    
+
     return filtered_df, stats
+
 
 def main():
     """
-    Main entry point for standalone execution.
-    Reads raw data, applies filtering, and saves processed data.
+    Main entry point for running the filter script.
+    Expects input data in 'data/raw/hea_raw.csv' and outputs to 'data/processed/hea_filtered.csv'.
     """
-    import argparse
-    import json
+    import os
     import sys
     from pathlib import Path
-    
-    parser = argparse.ArgumentParser(description='Filter HEA samples')
-    parser.add_argument('--input', type=str, required=True, help='Input data file (CSV/JSON)')
-    parser.add_argument('--output', type=str, required=True, help='Output data file (CSV)')
-    parser.add_argument('--min-elements', type=int, default=5, help='Minimum number of principal elements')
-    parser.add_argument('--bulk-modulus-col', type=str, default='bulk_modulus', help='Bulk Modulus column name')
-    parser.add_argument('--composition-col', type=str, default='composition', help='Composition column name')
-    parser.add_argument('--stats-output', type=str, default=None, help='Output file for filtering statistics (JSON)')
-    parser.add_argument('--log-level', type=str, default='INFO', help='Logging level')
-    
-    args = parser.parse_args()
-    
+
     # Setup logging
-    logging.basicConfig(
-        level=getattr(logging, args.log_level.upper()),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    init_logger = get_logger(__name__)
+    init_logger.setLevel(logging.INFO)
     
-    input_path = Path(args.input)
-    output_path = Path(args.output)
+    # Define paths
+    project_root = Path(__file__).resolve().parent.parent.parent
+    input_path = project_root / "data" / "raw" / "hea_raw.csv"
+    output_path = project_root / "data" / "processed" / "hea_filtered.csv"
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
+        logger.error("Please ensure raw data has been fetched and placed at the expected location.")
         sys.exit(1)
-        
-    # Load data
-    logger.info(f"Loading data from {input_path}")
-    if input_path.suffix.lower() == '.csv':
+    
+    logger.info(f"Loading data from {input_path}...")
+    try:
         df = pd.read_csv(input_path)
-    elif input_path.suffix.lower() in ['.json', '.js']:
-        df = pd.read_json(input_path)
-    else:
-        logger.error(f"Unsupported input format: {input_path.suffix}")
+        logger.info(f"Loaded {len(df)} rows.")
+    except Exception as e:
+        logger.error(f"Failed to load data: {e}")
         sys.exit(1)
+    
+    logger.info("Applying filters...")
+    filtered_df, stats = filter_hea_samples(df)
+    
+    if filtered_df.empty:
+        logger.warning("No samples passed the filters. Check your data and thresholds.")
+    
+    logger.info(f"Saving filtered data to {output_path}...")
+    try:
+        filtered_df.to_csv(output_path, index=False)
+        logger.info("Saved successfully.")
         
-    logger.info(f"Loaded {len(df)} samples")
-    
-    # Apply filtering
-    filtered_df, stats = filter_hea_samples(
-        df,
-        min_elements=args.min_elements,
-        bulk_modulus_col=args.bulk_modulus_col,
-        composition_col=args.composition_col
-    )
-    
-    # Save filtered data
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    filtered_df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(filtered_df)} filtered samples to {output_path}")
-    
-    # Save statistics if requested
-    if args.stats_output:
-        stats_path = Path(args.stats_output)
-        stats_path.parent.mkdir(parents=True, exist_ok=True)
+        # Save stats to a JSON file for downstream tasks
+        stats_path = project_root / "data" / "processed" / "filter_stats.json"
+        import json
         with open(stats_path, 'w') as f:
             json.dump(stats, f, indent=2)
-        logger.info(f"Saved filtering statistics to {stats_path}")
-    
-    # Print summary
-    print("\n=== Filtering Summary ===")
-    print(f"Initial samples: {stats['initial_count']}")
-    print(f"Samples with >= {args.min_elements} elements: {stats['element_filtered_count']}")
-    print(f"Samples with valid Bulk Modulus: {stats['bulk_modulus_filtered_count']}")
-    print(f"Final samples: {stats['final_count']}")
-    print(f"Retention rate: {stats['final_count']/stats['initial_count']*100:.2f}%")
-    print("=========================\n")
-    
-    return 0
+        logger.info(f"Saved filter statistics to {stats_path}")
+        
+    except Exception as e:
+        logger.error(f"Failed to save filtered data: {e}")
+        sys.exit(1)
 
-if __name__ == '__main__':
-    sys.exit(main())
+    logger.info("Filtering process completed.")
+
+
+if __name__ == "__main__":
+    main()

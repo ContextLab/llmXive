@@ -6,7 +6,7 @@ failed_stage: null
 field: mathematics
 human_escalation_reason: null
 id: PROJ-729-empirical-analysis-of-twin-prime-gaps-up
-last_run_id: b0fdb1f1-9367-409c-8019-af58c6a1ce6f
+last_run_id: 981bc7b5-b9e8-4890-8d9c-c1432d49ef4b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up
 title: "Empirical Analysis of Twin Prime Gaps up to\u202F10\u2079"
-updated_at: '2026-07-03T05:54:49.598031Z'
+updated_at: '2026-09-20T08:43:08.880612Z'

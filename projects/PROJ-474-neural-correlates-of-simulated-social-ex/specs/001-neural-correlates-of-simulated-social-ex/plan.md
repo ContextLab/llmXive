@@ -1,116 +1,91 @@
 # Implementation Plan: Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics
 
-**Branch**: `001-neural-correlates-social-exclusion` | **Date**: 2026-07-01 | **Spec**: `specs/001-neural-correlates-social-ex/spec.md`
-**Input**: Feature specification from `/specs/001-neural-correlates-social-ex/spec.md`
+**Branch**: `001-neural-correlates-of-simulated-social-ex` | **Date**: 2026-10-18 | **Spec**: `specs/001-neural-correlates-of-simulated-social-ex/spec.md`  
+**Input**: Feature specification from `/specs/001-neural-correlates-of-simulated-social-ex/spec.md`
 
 ## Summary
+The project will test whether acute simulated social exclusion (Cyberball) modulates functional connectivity within the Default Mode Network (DMN). The pipeline will:
 
-This project implements a computational pipeline to investigate how acute simulated social exclusion (Cyberball task) modulates functional connectivity dynamics within the Default Mode Network (DMN). The system ingests **preprocessed fMRI data (NIfTI format)** from **OpenNeuro ds000030**, performs rigorous motion QC (FR-002) on the raw signal, extracts BOLD time-series from PCC, mPFC, and angular gyrus (FR-003), computes condition-specific connectivity strength metrics (FR-004, FR-005), and executes a non-parametric paired permutation test (FR-006) to determine statistical significance. All findings are framed as associational unless randomization is verified (FR-007). The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners (2 CPU, 7GB RAM) using memory-mapped data processing.
+1. Download the verified OpenNeuro Cyberball dataset (`ds000030`).
+2. Perform motion QC (exclude subjects with mean FD > 0.2 mm) and verify presence of “Inclusion” and “Exclusion” event markers.
+3. Extract mean BOLD time‑series from **three** DMN ROIs (PCC, mPFC, bilateral Angular Gyrus) using the Harvard‑Oxford atlas (the angular mask is combined bilateral to yield a single ROI).
+4. Compute Pearson correlation matrices **separately** for Inclusion and Exclusion conditions.
+5. Derive a “connectivity strength” metric per condition by **averaging the absolute Pearson correlations** across the three unique ROI‑pair edges. The primary outcome is the **difference** (Exclusion – Inclusion) in connectivity strength.
+6. Perform sliding‑window (30 s window, 5 s step) correlation analysis, producing a time‑resolved connectivity‑strength series for each condition (no multiple‑comparison correction across windows; series are reported descriptively).
+7. Run a non‑parametric paired permutation test (using a sufficiently large number of permutations) on the per‑subject strength differences (Exclusion – Inclusion), reporting a two‑tailed p‑value, Cohen’s d effect size, and 95 % CI.
+8. Generate required visualizations: null‑distribution histogram, bar plot of mean difference with 95 % CI, and ROI‑wise correlation‑matrix heatmaps for each condition.
+9. Conduct a sensitivity analysis over motion thresholds (0.2 mm, 0.3 mm, 0.4 mm, 0.5 mm).
+
+All steps run on a CPU‑only GitHub Actions free‑tier runner.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `scipy`, `pandas`, `nibabel`, `nilearn` (CPU-only build, memory-mapping enabled), `scikit-learn`, `pyyaml`, `bids`  
-**Storage**: Local filesystem (temporary data in `data/`, derived artifacts in `data/derived/`)  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Computational Neuroscience Pipeline / CLI  
-**Performance Goals**: Complete pipeline run within 6 hours; memory usage < 7GB; disk usage < 14GB.  
-**Constraints**: No GPU; no large model training; dataset must be sampled or processed in chunks if necessary; strict motion exclusion (>3mm).  
-**Scale/Scope**: Single dataset (OpenNeuro ds000030), N subjects (target N≥10 for valid test).
-
-### Memory Management Strategy
-To satisfy the 7GB RAM constraint while processing 4D NIfTI data:
-- **Memory Mapping**: The pipeline uses `nilearn.image.load_img` with `mmap=True` (or equivalent `nibabel` memory mapping) to stream data from disk rather than loading full 4D volumes into RAM.
-- **Chunked Processing**: ROI extraction and correlation calculation are performed subject-by-subject or in small batches. Intermediate time-series (1D arrays) are stored in memory, but raw 4D volumes remain on disk.
-- **Garbage Collection**: Explicit `gc.collect()` calls are inserted between subject iterations to reclaim memory.
-
-### Dataset Variable Fit & Failure Logic
-- **Source**: OpenNeuro ds000030 (BIDS format, NIfTI + JSON + TSV).
-- **Verification**: Upon download, the system checks for the presence of `events.tsv` files containing "Inclusion" and "Exclusion" trial types.
-- **Failure Handling**:
-  - If `events.tsv` is missing or lacks required conditions: Halt with `ERR_DATA_UNAVAILABLE`.
-  - If the number of valid subjects (after QC) is < 10: Halt with `ERR_N_INSUFFICIENT`.
-  - The plan does **not** assume the dataset contains pre-extracted time-series; it extracts them dynamically.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `nibabel`, `numpy`, `pandas`, `scipy`, `nilearn`, `matplotlib`, `seaborn`, `tqdm`, `jsonschema`  
+- **Storage**: `data/` for raw/processed files; `results/` for figures and reports  
+- **Testing**: `pytest` + JSON‑Schema validation (`jsonschema`)  
+- **Target Platform**: Linux CI runner (several CPU cores, ~7 GB RAM, ~14 GB disk)  
+- **Constraints**: CPU‑first; motion threshold 0.2 mm; minimum retained subjects ≥ 10  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Status | Verification / Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, random seed setting, and fetching from canonical OpenNeuro ds000030. |
-| **II. Verified Accuracy** | **PASS** | All dataset citations restricted to the "Verified datasets" block; no invented URLs. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming steps for raw data and derivation logging. |
-| **IV. Single Source of Truth** | **PASS** | Pipeline architecture ensures all stats flow from `data/` to `results/` without manual entry. |
-| **V. Versioning Discipline** | **PASS** | **Phase 5 Step 5** explicitly generates SHA-256 hashes of outputs and updates the project state YAML. |
-| **VI. fMRI Motion Artifact Exclusion** | **PASS** | Explicit implementation of >3mm threshold (FR-002) and exclusion logic (FR-010). |
-| **VII. State-Dependent Connectivity** | **PASS** | Metric definition (Mean Absolute Correlation) strictly follows FR-005 and SC-002. |
-
-## Project Structure
-
-### Documentation (this feature)
-
-```text
-specs/001-neural-correlates-social-ex/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
-```
-
-### Source Code (repository root)
-
-```text
-src/
-├── __init__.py
-├── config.py            # Paths, seeds, constants (DEFAULT 3mm threshold, DMN ROIs)
-├── data_ingestion.py    # OpenNeuro download, checksum, integrity check (FR-001)
-├── motion_qc.py         # Displacement calculation, subject exclusion (FR-002)
-├── roi_extraction.py    # BOLD time-series extraction from AAL/Harvard-Oxford (FR-003)
-├── connectivity.py      # Segmentation, correlation matrices, strength metrics (FR-004, FR-005)
-├── stats.py             # Permutation test, FDR correction, effect size (FR-006, FR-008, FR-011)
-├── viz.py               # Visualization (null distribution, CI bars, sensitivity curve) (FR-006)
-└── main.py              # Orchestration script
-```
-
-**Structure Decision**: Single project structure selected to minimize overhead. `src/` contains all logic; `tests/` mirrors structure. This aligns with the "computational pipeline" nature and simplifies dependency management for the CI runner.
-
-## Implementation Phases
-
-### Phase 1: Data Ingestion & QC (FR-001, FR-002, FR-009, FR-010)
-1. **Download**: Fetch ds000030 from OpenNeuro. Verify checksums.
-2. **QC**: Calculate motion displacement for each subject. Exclude >3mm.
-3. **Validate**: Ensure `events.tsv` contains "Inclusion" and "Exclusion".
-4. **Check Count**: If valid subjects < 10, halt with `ERR_N_INSUFFICIENT`.
-
-### Phase 2: Feature Extraction (FR-003, FR-004, FR-005)
-1. **Extract**: Load 4D NIfTI (memory-mapped). Extract time-series for PCC, mPFC, Angular.
-2. **Segment**: Split time-series into "Inclusion" and "Exclusion" segments based on `events.tsv`.
-3. **Compute**: Calculate Pearson correlation matrices for each condition.
-4. **Aggregate**: Compute Mean Absolute Correlation (MAC) for each condition per subject.
-
-### Phase 3: Statistical Analysis (FR-006, FR-008, FR-011)
-1. **Global Test**: Paired permutation test on MAC values (Inclusion vs Exclusion).
-2. **Edge-wise Test**: Paired permutation test for each of the 3 edges (PCC-mPFC, etc.).
-3. **Correction**: Apply FDR (q ≤ 0.05) to edge-wise p-values.
-4. **Framing**: Set `is_associational` flag based on metadata `randomization_verified`.
-
-### Phase 4: Sensitivity & Visualization (SC-005)
-1. **Sensitivity Curve**: Re-calculate MAC and p-values for the *fixed set of retained subjects* using alternative motion thresholds (mm, 4mm) for reporting purposes only. **Note**: This does not re-include subjects excluded by the 3mm rule.
-2. **Visualize**: Generate null distribution, CI bar plots, and sensitivity curve.
-
-### Phase 5: Reporting & Versioning (Constitution Principle V)
-1. **Compile**: Generate `results.json` and markdown report.
-2. **Hash**: Compute cryptographic hashes for all output artifacts..
-3. **Update State**: Write hashes and `updated_at` timestamp to `state/projects/PROJ-474-neural-correlates-of-simulated-social-ex.yaml`.
+| Principle | Reference in Plan | Compliance |
+|-----------|-------------------|------------|
+| **I. Reproducibility** | Random seeds pinned (`--seed` flag); `requirements.txt` version‑locked; deterministic streaming download. | PASS |
+| **II. Verified Accuracy** | Dataset URL for `ds000030` drawn from the verified‑datasets block. | PASS |
+| **III. Data Hygiene** | Raw files immutable under `data/raw/`; checksums recorded; derived artifacts written to new files (`data/processed/`). | PASS |
+| **IV. Single Source of Truth** | All statistics derived from `data/processed/` Parquet files; figures reference those files only. | PASS |
+| **V. Versioning Discipline** | Artifact hashes recorded in `state/…yaml`; any change updates `updated_at`. | PASS |
+| **VI. fMRI Motion Artifact Exclusion** | Exclusion rule uses mean FD ≤ 0.2 mm (stricter than the 3 mm constitutional limit). | PASS |
+| **VII. State‑Dependent Connectivity Quantification** | Connectivity strength defined as **mean absolute correlation** across the three DMN edges (preserves sign requirement of FR‑005). | PASS |
 
 ## Complexity Tracking
+| Violation | Why Needed | Simpler Alternative Rejected |
+|-----------|------------|------------------------------|
+| **II. Verified Accuracy** | Required a verified URL for `ds000030`. | Using an unverified source would breach the constitution. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| N/A | No violations detected. The scope is strictly bounded by the spec and compute constraints. | N/A |
+## Methodology Mapping to Functional Requirements
+
+| FR | Pipeline Phase | Description |
+|----|----------------|-------------|
+| FR‑001 | `data_loader.py` | Download pre‑processed fMRI from a **verified** source (`ds000030`). |
+| FR‑002 | `qc.py` | Compute mean FD; exclude subjects with > 0.2 mm. |
+| FR‑003 | `roi_extractor.py` | Extract mean BOLD from **three** DMN ROIs (PCC, mPFC, bilateral Angular Gyrus) using Harvard‑Oxford masks. |
+| FR‑004 | `connectivity.py` | Compute Pearson correlation matrices per condition (Inclusion, Exclusion). |
+| FR‑005 | `connectivity.py` | Derive **mean absolute** connectivity strength across the three ROI‑pair edges; primary outcome is the difference (Exclusion – Inclusion). |
+| FR‑006 | `stats.py` | Paired permutation test (10 000 permutations) on strength differences. |
+| FR‑009 | `main.py` | Halt with error `101897696` if retained subjects < 10. |
+| FR‑010 | `data_loader.py` | Abort with error `101897695` if either Inclusion or Exclusion markers are missing. |
+| FR‑011 | `qc.py` | Exclude any subject lacking valid time‑series for **any** required ROI. |
+| FR‑013 | `data_loader.py` | Exponential backoff (1 s → 2 s → 4 s) up to 3 attempts; final failure emits `ERR_DATA_UNAVAILABLE`. |
+| FR‑014 | `roi_extractor.py` | Subject excluded from downstream analyses if any ROI extraction fails. |
+| FR‑015 | `viz.py` | Generate null‑distribution histogram and bar plot with 95 % CI (PNG). |
+| FR‑016 | `stats.py` | Accept explicit `--seed` argument for reproducibility. |
+| FR‑017 | `viz.py` | Produce ROI‑wise correlation‑matrix heatmaps for Inclusion and Exclusion (PNG). |
+| FR‑018 | `connectivity.py` | Sliding‑window (30 s, 5 s step) series per condition; report mean ± SD per subject (no FDR across windows). |
+
+## Success Criteria Mapping
+| SC | Verification |
+|----|--------------|
+| SC‑001 | Compute retention rate after QC; assert ≥ 80 % (checked in `qc.py`). |
+| SC‑002 | Run permutation test 5 times with different seeds; compute std ≤ 0.01 (automated in `stats_test.py`). |
+| SC‑003 | Verify existence and correct labeling of histogram & bar‑plot PNGs (unit test). |
+| SC‑004 | Ensure per‑subject strength metrics and cohort difference saved (CSV) and N ≥ 10. |
+| SC‑005 | Verify heatmaps exist, include colorbars & axis labels (visual test). |
+| SC‑006 | Compute mean ± SD of dynamic series per subject; store in `results/dynamic_summary.csv`. |
+| SC‑007 | **Power note**: With N≈10 the analysis can reliably detect large effects (Cohen’s d≈0.8) at α = 0.05; smaller effects may be under‑powered and are reported as a limitation. |
+| SC‑008 | **Dynamic multiple‑comparison control**: No formal correction across windows due to temporal autocorrelation; series are reported descriptively. |
+
+## Compute Feasibility
+All steps are CPU‑tractable. Streaming NIfTI via `nibabel` keeps RAM < 7 GB. Permutation test (≤ 10 000 permutations, N ≈ 10–30) finishes within minutes on 2 CPU cores. No GPU required.
+
+## Statistical Rigor
+- **Multiple Comparisons**: FDR applied only to the three edge‑wise correlation values *if* edge‑wise reporting is desired (optional); not applied across sliding‑window time points.
+- **Power**: Minimum retained N ≈ 10 gives [deferred] power to detect large effects (Cohen’s d≈0.8); this limitation is explicitly acknowledged (SC‑007).
+- **Causal Claims**: Results framed as *associational* (no randomization).  
+- **Collinearity**: DMN ROIs are inherently correlated; we report a single composite **mean absolute** strength metric rather than interpreting individual edges independently.  
+- **Effect Size**: Cohen’s d computed from observed difference distribution.  
+
+## Dataset Availability & Feasibility
+The required Cyberball dataset `ds000030` is **verified** (URL: https://openneuro.org/datasets/ds000030) and can be programmatically downloaded via the OpenNeuro API. If the API is unreachable, the pipeline retries up to three times with exponential backoff before raising `ERR_DATA_UNAVAILABLE`. All other resources are open‑source and CPU‑compatible.
+
+---
+

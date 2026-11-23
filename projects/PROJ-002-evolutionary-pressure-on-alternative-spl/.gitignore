@@ -34,33 +34,45 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+.tox/
 .coverage
 .coverage.*
-.tox/
-.nox/
+cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
 
-# Virtual environments
+# Translations
+*.mo
+*.pot
+
+# Environments
 .venv
+env/
 venv/
 ENV/
-env/
+env.bak/
+venv.bak/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
+
+# Data (Large files)
+data/raw/*.fastq
+data/raw/*.bam
+data/raw/*.bai
+data/processed/*.bigWig
+data/figures/*.png
+
+# Logs
+*.log
+pipeline.log
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Project specific
-data/raw/
-data/processed/
-data/interim/
-logs/
-*.log
-.hpc_config
-.env

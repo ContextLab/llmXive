@@ -2,84 +2,75 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to GitHub Actions (for CI) or a local environment with 7GB+ RAM and 2+ CPU cores.
+- Python 3.11+
+- `pip`
+- Sufficient RAM (for dataset loading and augmentation)
+- GB+ Disk space
 
 ## Installation
 
-1.  **Clone the Repository**:
+1.  **Clone and Setup**
     ```bash
     git clone <repo-url>
     cd projects/PROJ-477-predicting-material-strength-from-micros
     ```
 
-2.  **Create Virtual Environment**:
+2.  **Create Virtual Environment**
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install Dependencies**:
+3.  **Install Dependencies**
     ```bash
     pip install -r code/requirements.txt
     ```
-    *Note: Ensure `torch` is installed with the CPU-only flag (e.g., `pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu`).*
 
-## Data Setup
+## Data Preparation
 
-The project will automatically download the verified dataset from HuggingFace upon first run.
+The data download and validation are automated.
 
-1.  **Run the Data Download & Preprocessing Script**:
+1.  **Run Validation and Preprocessing**
+    This script downloads the dataset, validates it, and prepares the splits.
     ```bash
-    python code/main.py --stage download
+    python code/main.py --stage preprocess
     ```
-    *This will:*
-    *   Download `data_synth_ebsd.zip` from the verified URL.
-    *   Verify the checksum.
-    *   Preprocess images (resize to 224x224, normalize).
-    *   Split into train/val/test sets.
-    *   Generate `manifest.json`.
-    *   *Output*: `data/processed/` directory.
+    *   **Output**: `data/processed/`, `results/validation_report.json`.
+    *   **Note**: If validation fails (invalid ratio > 1%), the script exits with code 1.
 
 ## Training
 
-1.  **Run the Training Pipeline**:
+Train the MobileNetV2 model with data augmentation.
+
+1.  **Run Training**
     ```bash
     python code/main.py --stage train
     ```
-    *This will:*
-    *   Initialize MobileNetV2 with frozen weights.
-    *   Train for max 50 epochs with early stopping.
-    *   Save the best checkpoint to `results/artifacts/`.
-    *   *Output*: Model checkpoint and training logs.
+    *   **Output**: `results/models/best_model.pth`, `results/metrics.log`.
+    *   **Duration**: ~2-3 hours on CPU.
 
 ## Evaluation & Interpretability
 
-1.  **Run the Evaluation Pipeline**:
+Generate metrics, heatmaps, and sensitivity analysis.
+
+1.  **Run Evaluation**
     ```bash
-    python code/main.py --stage eval
+    python code/main.py --stage evaluate
     ```
-    *This will:*
-    *   Load the best checkpoint.
-    *   Compute MSE and R² against the naive baseline.
-    *   Perform the t-test.
-    *   Generate Grad-CAM heatmaps.
-    *   Run sensitivity analysis.
-    *   *Output*: `results/metrics.json`, `results/figures/`, `results/sensitivity_report.json`.
+    *   **Output**: `results/metrics.json`, `results/plots/gradcam/*.png`, `results/sensitivity_analysis.csv`.
 
-## Verification
+## Reproducibility
 
-To ensure reproducibility, run the full pipeline from scratch:
-
-```bash
-python code/main.py --stage full
-```
-
-This executes `download` -> `train` -> `eval` in sequence.
+To reproduce the exact results:
+1.  Ensure `code/config.py` has the same `RANDOM_SEED` (default: 42).
+2.  Use the same dataset source URL (verified in `research.md`).
+3.  Run the full pipeline:
+    ```bash
+    python code/main.py --stage full
+    ```
 
 ## Troubleshooting
 
-*   **OOM Error**: Reduce `BATCH_SIZE` in `code/utils/config.py`.
-*   **CUDA Error**: Ensure you installed the CPU version of PyTorch.
-*   **Missing Data**: Check `data/raw/` for the downloaded zip. If missing, re-run the download stage.
+- **OOM Error**: Reduce `BATCH_SIZE` in `code/config.py`.
+- **Dataset Missing**: Check network connectivity and the HuggingFace URL.
+- **Validation Fail**: Inspect `results/validation_report.json` for specific error types.

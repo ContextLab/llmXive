@@ -1,3 +1,1 @@
-"""
-Test suite for the Cognitive Load Optimization project.
-"""
+"""Tests package for cognitive-load-optimization project."""

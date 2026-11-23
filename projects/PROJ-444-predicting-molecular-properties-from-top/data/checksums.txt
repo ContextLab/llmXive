@@ -1,0 +1,1 @@
+a7c1b1800dd4673dd264410d814bc952ae14d94b114f85047f09fb2a1603232c  data/raw/lipophilicity.csv

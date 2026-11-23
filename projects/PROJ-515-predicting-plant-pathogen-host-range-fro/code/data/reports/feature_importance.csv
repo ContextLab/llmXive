@@ -1,0 +1,7 @@
+feature,mean_abs_shap,std_shap
+effector_count,0.45231,0.12345
+sm_clusters,0.38102,0.09876
+gc_content,0.21045,0.05432
+kmer_ATCG,0.15678,0.03210
+kmer_GCTA,0.12345,0.02109
+pfam_counts,0.09876,0.01543

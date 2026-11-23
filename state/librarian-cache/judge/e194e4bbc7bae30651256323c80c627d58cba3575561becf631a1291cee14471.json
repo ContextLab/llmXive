@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1805.01098",
+  "judged_at": "2026-08-02T10:00:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantitative analysis of gene expression dynamics during human brain development biology",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology and canonical reference for the statistical modelling and quantitative analysis of gene expression dynamics, which is the core methodological requirement of the user's question. Additionally, it satisfies category (a) by explicitly describing the biological processes and molecular factors (transcription, decay) that govern the gene expression dynamics the user aims to analyze.",
+  "relevant": true
+}

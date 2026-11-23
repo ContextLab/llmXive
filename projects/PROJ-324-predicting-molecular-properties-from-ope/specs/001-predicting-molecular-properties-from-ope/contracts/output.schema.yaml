@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction Output Schema"
+description: "Schema for prediction and analysis output records"
+type: object
+properties:
+  cid:
+    type: integer
+    description: "PubChem Compound ID"
+  smiles:
+    type: string
+    description: "Isomeric SMILES string"
+  target:
+    type: number
+    description: "Experimental value for the property under analysis"
+  baseline_pred:
+    type: number
+    description: "Additive baseline prediction (property‑specific)"
+  rf_pred:
+    type: number
+    description: "Random Forest prediction"
+  baseline_error:
+    type: number
+    description: "Absolute error of baseline"
+  rf_error:
+    type: number
+    description: "Absolute error of Random Forest"
+  shap_values:
+    type: array
+    items:
+      type: number
+    description: "SHAP value per fingerprint bit"
+  shap_interaction:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: "SHAP interaction matrix (saved as .npy file)"
+  local_non_additivity_index:
+    type: number
+    description: "LNAI score for a molecule"
+required:
+  - cid
+  - smiles
+  - target
+  - baseline_pred
+  - rf_pred
+  - baseline_error
+  - rf_error
+  - shap_values
+  - shap_interaction
+  - local_non_additivity_index

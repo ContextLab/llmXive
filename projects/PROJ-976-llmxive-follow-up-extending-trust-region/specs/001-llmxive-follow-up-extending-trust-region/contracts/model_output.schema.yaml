@@ -1,60 +1,282 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "AnalysisResult"
-description: "Schema for the final correlation analysis results and baseline comparisons."
-type: "object"
-properties:
-  model_type:
-    type: "string"
-    description: "Type of analysis used."
-    enum:
-      - "Correlation"
-      - "Baseline"
-  task:
-    type: "string"
-    description: "Task type."
-    enum:
-      - "correlation_analysis"
-  source_domain:
-    type: "string"
-    description: "Domain used for source analysis."
-  target_domain:
-    type: "string"
-    description: "Domain used for target analysis."
-  metrics:
-    type: "object"
-    description: "Evaluation metrics on the target domain."
-    properties:
-      pearson_correlation:
-        type: "number"
-        description: "Correlation between diversity metrics and proxy quality."
-      baseline_delta:
-        type: "number"
-        description: "Improvement over fixed-default baseline (delta in correlation or ranking)."
-      generalization_gap:
-        type: "number"
-        description: "Performance drop from source to target (Source Correlation - Target Correlation)."
-      permutation_p_value:
-        type: "number"
-        description: "P-value from permutation test."
-    required:
-      - pearson_correlation
-      - baseline_delta
-      - generalization_gap
-      - permutation_p_value
-  baseline_metrics:
-    type: "object"
-    description: "Metrics for the fixed-default baseline."
-    properties:
-      correlation:
-        type: "number"
-        description: "Correlation of baseline (e.g., mean) with proxy."
-    required:
-      - correlation
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema for Diversity Profile Analysis
+description: |
+  JSON Schema defining the structure of analysis results produced by the
+  diversity profile pipeline. This schema covers:
+  1. Feature matrices (lexical and syntactic metrics)
+  2. Correlation analysis results (Pearson/Spearman against proxy targets)
+  3. Generalization metrics (source vs. target domain performance)
+  4. Blocking gap reports and proxy strategy confirmations
+  
+  This schema validates the output of:
+  - code/pipelines/extract_features.py -> data/processed/feature_matrix_{dataset}.json
+  - code/pipelines/analyze_correlations.py -> data/results/source_metrics.json
+  - code/pipelines/analyze_correlations.py -> data/results/generalization_report.json
+type: object
 required:
-  - model_type
-  - task
-  - source_domain
-  - target_domain
-  - metrics
-  - baseline_metrics
+  - metadata
+  - analysis_results
+properties:
+  metadata:
+    type: object
+    description: Execution context and provenance information
+    required:
+      - pipeline_version
+      - timestamp
+      - dataset_name
+      - config_snapshot
+    properties:
+      pipeline_version:
+        type: string
+        description: Version of the analysis pipeline (e.g., '1.0.0')
+        pattern: '^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$'
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of analysis execution
+      dataset_name:
+        type: string
+        description: Name of the source dataset processed (e.g., 'tr-books-tokenized', 'Tr-beir-formatted')
+        enum:
+          - tr-books-tokenized
+          - Tr-beir-formatted
+      config_snapshot:
+        type: object
+        description: Snapshot of hyperparameters and configuration used
+        properties:
+          batch_size:
+            type: integer
+            minimum: 1
+          random_seed:
+            type: integer
+          ngram_n:
+            type: integer
+            description: N for distinct-N ratio and n-gram entropy
+            minimum: 1
+            maximum: 10
+          parse_model:
+            type: string
+            description: SpaCy model used for syntactic analysis
+            default: "en_core_web_sm"
+      artifact_hashes:
+        type: object
+        description: Checksums of input data and dependencies for reproducibility
+        additionalProperties:
+          type: string
+          pattern: '^[a-fA-F0-9]{64}$'
+  analysis_results:
+    type: object
+    description: Core analysis outputs
+    required:
+      - feature_statistics
+      - proxy_correlations
+    properties:
+      feature_statistics:
+        type: object
+        description: Aggregate statistics for computed diversity features
+        properties:
+          lexical:
+            type: object
+            properties:
+              distinct_4_ratio:
+                type: object
+                properties:
+                  mean:
+                    type: number
+                    minimum: 0
+                    maximum: 1
+                  std:
+                    type: number
+                    minimum: 0
+                  min:
+                    type: number
+                    minimum: 0
+                    maximum: 1
+                  max:
+                    type: number
+                    minimum: 0
+                    maximum: 1
+                  count:
+                    type: integer
+                    minimum: 0
+              ngram_entropy:
+                type: object
+                properties:
+                  mean:
+                    type: number
+                  std:
+                    type: number
+                  min:
+                    type: number
+                  max:
+                    type: number
+                  count:
+                    type: integer
+                    minimum: 0
+          syntactic:
+            type: object
+            properties:
+              parse_tree_depth_variance:
+                type: object
+                properties:
+                  mean:
+                    type: number
+                  std:
+                    type: number
+                  min:
+                    type: number
+                  max:
+                    type: number
+                  count:
+                    type: integer
+                    minimum: 0
+                  nan_count:
+                    type: integer
+                    description: Number of samples where parsing failed
+                    minimum: 0
+      proxy_correlations:
+        type: object
+        description: Correlation analysis between diversity metrics and proxy targets
+        required:
+          - method
+          - results
+        properties:
+          method:
+            type: string
+            description: Correlation method used
+            enum:
+              - pearson
+              - spearman
+          results:
+            type: array
+            description: List of correlation results for each feature against the proxy target
+            items:
+              type: object
+              required:
+                - feature_name
+                - correlation_coefficient
+                - p_value
+                - sample_size
+              properties:
+                feature_name:
+                  type: string
+                  description: Name of the diversity feature
+                  enum:
+                    - distinct_4_ratio
+                    - ngram_entropy
+                    - parse_tree_depth_variance
+                correlation_coefficient:
+                  type: number
+                  description: Pearson or Spearman correlation coefficient
+                  minimum: -1
+                  maximum: 1
+                p_value:
+                  type: number
+                  description: Two-tailed p-value for the correlation
+                  minimum: 0
+                  maximum: 1
+                sample_size:
+                  type: integer
+                  description: Number of samples used in the correlation
+                  minimum: 2
+                proxy_target:
+                  type: string
+                  description: The proxy target used for this correlation
+                  enum:
+                    - text_length
+                    - relevance_score
+                significance_level:
+                  type: number
+                  description: Significance threshold used (default 0.05)
+                  default: 0.05
+                is_significant:
+                  type: boolean
+                  description: Whether the correlation is statistically significant
+      generalization_metrics:
+        type: object
+        description: Metrics comparing source and target domain performance
+        properties:
+          source_performance:
+            type: object
+            properties:
+              best_correlation:
+                type: number
+                minimum: -1
+                maximum: 1
+              best_feature:
+                type: string
+              p_value:
+                type: number
+                minimum: 0
+                maximum: 1
+          target_performance:
+            type: object
+            properties:
+              best_correlation:
+                type: number
+                minimum: -1
+                maximum: 1
+              best_feature:
+                type: string
+              p_value:
+                type: number
+                minimum: 0
+                maximum: 1
+          generalization_gap:
+            type: number
+            description: Absolute difference between source and target best correlations
+            minimum: 0
+          permutation_test_result:
+            type: object
+            description: Result of permutation test against null distribution
+            properties:
+              observed_statistic:
+                type: number
+              p_value_permutation:
+                type: number
+                minimum: 0
+                maximum: 1
+              num_permutations:
+                type: integer
+                minimum: 100
+              is_significant_against_null:
+                type: boolean
+      blocking_gaps:
+        type: array
+        description: List of identified scope gaps and proxy strategy confirmations
+        items:
+          type: object
+          required:
+            - gap_id
+            - description
+            - impact
+            - mitigation
+          properties:
+            gap_id:
+              type: string
+              description: Unique identifier for the gap (e.g., 'SC-002')
+            description:
+              type: string
+              description: Detailed description of the missing ground truth or limitation
+            impact:
+              type: string
+              description: Impact on functional requirements
+            mitigation:
+              type: string
+              description: Proxy strategy or alternative approach used
+            confirmed:
+              type: boolean
+              description: Whether a valid proxy target was confirmed
+      validation_status:
+        type: string
+        description: Overall validation status of the analysis
+        enum:
+          - PASSED
+          - WARNING
+          - FAILED
+        enumDescriptions:
+          - All schemas and statistical checks passed
+          - Some warnings (e.g., NaN values, low sample size) but analysis proceeded
+          - Critical failure (e.g., no valid proxy, schema violation)
+        default: PASSED
 additionalProperties: false

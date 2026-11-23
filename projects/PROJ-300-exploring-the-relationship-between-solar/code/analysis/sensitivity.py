@@ -1,5 +1,5 @@
 """
-Sensitivity analysis module.
+Sensitivity analysis module for threshold filtering.
 File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/sensitivity.py
 """
 import numpy as np
@@ -8,36 +8,68 @@ from typing import Dict, List, Tuple, Optional
 from ..config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP
 from .correlation import calculate_correlation
 from .lag_search import find_optimal_lag
+import logging
 
-def analyze_thresholds(df: pd.DataFrame, thresholds: List[float]) -> List[Dict[str, Any]]:
+logger = logging.getLogger(__name__)
+
+def analyze_thresholds(x: pd.Series, y: pd.Series, thresholds: list) -> dict:
     """
-    Compute correlations for different solar wind speed thresholds.
+    Sweep thresholds T across the fixed set T ∈ {400, 500, 600} km s⁻¹ and recompute correlations.
     
     Args:
-        df: Merged DataFrame with 'Vsw' and 'Ey'.
-        thresholds: List of Vsw thresholds in km/s.
+        x: Solar wind time series (Vsw)
+        y: THEMIS time series (Ey)
+        thresholds: List of speed thresholds in km/s (MUST be [400, 500, 600] as per FR-007)
         
     Returns:
-        List of dictionaries with threshold and correlation.
+        Dictionary mapping threshold to correlation stats
     """
-    results = []
-    for t in thresholds:
-        subset = df[df['Vsw'] >= t]
-        if len(subset) < 2:
-            corr = np.nan
-        else:
-            corr, _ = calculate_correlation(subset['Vsw'], subset['Ey'], method='pearson')
+    if thresholds != [400, 500, 600]:
+        logger.warning(f"Thresholds {thresholds} differ from required [400, 500, 600]. Using provided values.")
+    
+    results = {}
+    
+    for threshold in thresholds:
+        # Filter data above threshold
+        mask = x > threshold
+        x_filtered = x[mask]
+        y_filtered = y[mask]
         
-        results.append({
-            "threshold_km_s": t,
-            "n_points": len(subset),
-            "correlation": float(corr) if not np.isnan(corr) else None
-        })
+        if len(x_filtered) < 2:
+            results[threshold] = {
+                "pearson": np.nan,
+                "spearman": np.nan,
+                "n_samples": len(x_filtered)
+            }
+            continue
+        
+        # Calculate correlation
+        corr_stats = calculate_correlation(x_filtered, y_filtered)
+        
+        # Find optimal lag for this subset
+        lag_results = find_optimal_lag(x_filtered, y_filtered, LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP)
+        
+        results[threshold] = {
+            "pearson": corr_stats['pearson'],
+            "spearman": corr_stats['spearman'],
+            "optimal_lag": lag_results['optimal_lag'],
+            "n_samples": len(x_filtered)
+        }
+        
+        logger.info(f"Threshold {threshold} km/s: Pearson={corr_stats['pearson']:.4f}, n={len(x_filtered)}")
+    
     return results
 
-def run_sensitivity_sweep(df_sw: pd.DataFrame, df_ey: pd.DataFrame, thresholds: List[float]) -> List[Dict[str, Any]]:
+def run_sensitivity_sweep(x: pd.Series, y: pd.Series) -> dict:
     """
-    Run sensitivity sweep by filtering Vsw and recomputing correlations.
+    Run full sensitivity sweep with default thresholds.
+    
+    Args:
+        x: Solar wind time series
+        y: THEMIS time series
+        
+    Returns:
+        Sensitivity analysis results
     """
-    merged = pd.merge(df_sw, df_ey, on='timestamp', how='inner')
-    return analyze_thresholds(merged, thresholds)
+    thresholds = [400, 500, 600]
+    return analyze_thresholds(x, y, thresholds)

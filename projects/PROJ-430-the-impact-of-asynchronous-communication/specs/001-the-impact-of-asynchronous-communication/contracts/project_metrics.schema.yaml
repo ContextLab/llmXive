@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Project Metrics Schema"
+description: "Schema for aggregated project-level metrics derived from GitHub events."
+type: "object"
+properties:
+  project_id:
+    type: "integer"
+    description: "Unique GitHub repository ID."
+  response_time_variance:
+    type: "number"
+    description: "Median of pair-level response time variances (seconds^2)."
+  mean_delay:
+    type: "number"
+    description: "Mean of pair-level mean delays (seconds)."
+  cohesion_proxy_score:
+    type: "number"
+    description: "Aggregated VADER compound score (range -1 to 1)."
+  team_size:
+    type: "integer"
+    description: "Number of unique contributors."
+  project_age:
+    type: "number"
+    description: "Age of the project in days."
+  total_comment_count:
+    type: "integer"
+    description: "Total number of text-based events."
+  lang_primary:
+    type: "string"
+    description: "Primary programming language detected."
+required:
+  - project_id
+  - response_time_variance
+  - mean_delay
+  - cohesion_proxy_score
+  - team_size
+  - project_age
+  - total_comment_count
+additionalProperties: false

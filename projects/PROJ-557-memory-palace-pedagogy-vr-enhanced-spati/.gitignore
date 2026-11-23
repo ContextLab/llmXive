@@ -28,13 +28,8 @@ wheels/
 *.manifest
 *.spec
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
 # Unit test / coverage reports
 htmlcov/
-.tox/
 .coverage
 .coverage.*
 .cache
@@ -45,7 +40,6 @@ coverage.xml
 .pytest_cache/
 
 # Translations
-*.mo
 *.pot
 
 # Environments
@@ -72,15 +66,20 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-.dmypy.json
-dmypy.json
 
-# Pyre type checker
-.pyre/
+# Ruff
+.ruff_cache/
 
-# Project specific
+# Data and Results (Generated artifacts)
 data/raw/
 data/derived/
 results/
 figures/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
 logs/

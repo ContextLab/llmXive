@@ -1,0 +1,37 @@
+# Configuration for Project PROJ-216-exploring-the-relationship-between-brain
+# Generated for task T008b
+#
+# Primary Dataset: OpenNeuro ds000224 (Fluid Intelligence focus)
+# Fallback Dataset: OpenNeuro ds000230 (Only if primary fails or lacks data)
+# Sample Limit: N=10 (Strict limit for CI/Resource constraints as per Plan)
+
+datasets:
+  primary:
+    id: ds000224
+    name: "OpenNeuro ds000224"
+    priority: 1
+    purpose: "Primary source for Fluid Intelligence scores"
+  fallback:
+    id: ds000230
+    name: "OpenNeuro ds000230"
+    priority: 2
+    purpose: "Fallback only if primary dataset is unavailable or lacks required data"
+    use_condition: "fallback_only"
+
+limits:
+  sample_size: 10
+  description: "Maximum number of subjects to process per run (N=10)"
+  reason: "Resource constraints for CI environment (7GB RAM, 2 cores)"
+
+execution:
+  fail_on_missing_primary: false
+  fail_on_zero_valid_subjects: true
+  motion_threshold_mm: 3.0
+  bonferroni_correction: true
+  bonferroni_override_reason: "Per Constitution Principle VII, overriding Spec FR-005 (FDR)"
+
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  reports: "reports"
+  figures: "reports"

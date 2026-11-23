@@ -140,7 +140,7 @@ code/
 
 ## Compute Feasibility & Risk Mitigation
 
-- **Memory**: Data is sampled to <2GB. Embedding model is `all-MiniLM-L-v2` (~80MB). LLM generation uses small distilled models or API calls.
+- **Memory**: Data is sampled to <2GB. Embedding model is a lightweight sentence-transformer architecture. LLM generation uses small distilled models or API calls.
 - **Time**: 60s timeout per code execution. Max 20 hypotheses/dataset × 5 datasets = 100 executions. Total estimated runtime <2 hours.
 - **GPU**: None. All operations are CPU-bound.
 - **Risk**: `MemoryError` during code execution. Mitigation: Retry with random sample (bounded by a reasonable time limit). Log as `ResourceExceeded`.

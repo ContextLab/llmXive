@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.09380",
+  "judged_at": "2026-07-31T13:16:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scaling mixture-of-experts video pretraining for embodied intelligence\" computer science",
+  "rationale": "The paper focuses on improving Video Question Answering (VideoQA) via domain-specific prompting heuristics, which is a distinct downstream task and methodology from the user's question about extending \"Scaling Mixture-of-Experts Video Pretraining for Embodied Intelligence.\" While both involve video-language models, the candidate paper does not address the specific mechanism of Mixture-of-Experts (MoE) scaling, the pretraining phase, or the embodied intelligence domain, failing to meet the criter",
+  "relevant": false
+}

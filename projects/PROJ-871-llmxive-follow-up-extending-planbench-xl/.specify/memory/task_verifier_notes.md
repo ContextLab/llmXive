@@ -2,6 +2,10 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T002 [P] Initialize Python virtual environment and install dependencies from `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt` <!-- FAILED: unspecified -->** — No virtual environment was created nor were dependencies installed; there is no artifact (e.g., a `venv` directory, activation script, or a log showing `pip install -r requirements.txt`) provided to demonstrate the required initialization. The claim itself indicates failure, and no supporting files exist.
-- **T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/`** — No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with Black settings, or a pre‑commit hook) are present in the `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/` directory, so the required linting/formatting setup has not been provided.
-- **T007 [P] Setup data directory structure (`data/raw`, `data/derived`, `data/logs`, `data/results`) and `.gitignore` for large artifacts** — No evidence of the required `data/raw`, `data/derived`, `data/logs`, `data/results` directories or a `.gitignore` entry for large artifacts was provided; without these artifacts the task is not satisfied.
+- **T001** — Requested task execution failed; rerun successfully: code/verify_scaffold.py exit=1
+- **T002** — Requested task execution failed; rerun successfully: code/setup_requirements.py exit=1
+- **T003** — The required `.gitignore` file at `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore` is not present in the provided artifacts, and therefore its contents cannot be verified. The implementer must add the file with the specified ignore patterns.
+- **T004** — The `setup_log.txt` file exists but only shows pip install output; it does not contain the required `python --version` line nor the `pip list` output showing a non‑empty package list. The verification output is therefore missing.
+- **T005** — Requested task execution failed; rerun successfully: code/dataset/loader.py exit=1
+- **T006** — Requested task execution failed; rerun successfully: code/dataset/extractor.py exit=1
+- **T010** — Requested task execution failed; rerun successfully: code/run_baseline.py exit=1; code/run_augmented.py exit=1

@@ -90,5 +90,15 @@
     "tables/dcs_res.tex",
     "tables/caus_res_disc.tex",
     "tables/c1_axiom_summary.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c0949ef6b7b2ffac00936476af3852ca3cba1294b0699f6fdc179bbc085c6e6b",
+      "bytes": 1442226
+    },
+    "original.pdf": {
+      "sha256": "75b0056c91afb0a0c351244a5a2cfb6f1421e412c72952a35a31f628c282e27f",
+      "bytes": 1411084
+    }
+  }
 }

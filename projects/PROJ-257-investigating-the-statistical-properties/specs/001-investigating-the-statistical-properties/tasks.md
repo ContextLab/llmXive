@@ -1,249 +1,156 @@
-# Tasks: Statistical Properties of Simulated Black Hole Mergers
+# Tasks: Statistical Properties of Simulated Black Hole Mergers  
 
-**Input**: Design documents from `/specs/001-statistical-properties-black-hole-mergers/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, data‑model, JSON‑Schema contracts, and reviewer feedback.  
+All artifacts are produced under `data/`, `outputs/`, or `code/` directories.  
+Tasks are ordered to respect data‑flow and the functional priorities defined in the specification.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+---  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 0 – CI/CD execution constraints (US‑0, priority P0)
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T001 [P0] [US0] **Download GWTC‑1 and GWTC‑2 posterior sample archives from Zenodo and verify SHA‑256 checksums**   <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1; code/src/data/record_availability.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1; code/src/data/record_availability.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1; code/src/data/record_availability.py exit=1 --> <!-- FAILED-IN-EXECUTION: src/data/download_gwtc.py exit=1; src/data/record_availability.py exit=1 --> <!-- FAILED-IN-EXECUTION: tests/unit/test_download_gwtc.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/data/download_gwtc.py exit=1 -->
+  *Implementation*: `code/src/data/download_gwtc.py` retrieves the HDF5 files from DOIs `10.5281/zenodo.3966973` and `10.5281/zenodo.3966974`, validates the SHA‑256 checksums obtained from Zenodo metadata, and retries up to three times with exponential back‑off (1 s, 2 s, 4 s).  
+  *Outputs*: `data/raw/gwtc1.h5`, `data/raw/gwtc2.h5`.  
+  *Verification*: `pytest tests/unit/test_download_gwtc.py` asserts both files exist, are readable as HDF5, and that their checksums match the expected values.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [~] T002 [P0] [US0] **Record data‑availability metadata and enforce free‑tier resource limits**  
+  *Implementation*: `code/src/data/record_availability_and_resources.py` (1) writes a JSON report `data/results/data_availability.json` conforming to `result.schema.yaml` with `status: "verified"` for each source; (2) wraps the pipeline start/end with `code/src/utils/resource_monitor.py` to capture `wall_time_seconds`, `peak_memory_gb`, `peak_disk_gb` in `data/results/resource_usage.json`; (3) `code/src/analysis/check_resources.py` reads the usage file and aborts with a clear error if runtime > 6 h, memory > 7 GB, or disk > 20 GB.  
+  *Outputs*: `data/results/data_availability.json`, `data/results/resource_usage.json`.  
+  *Verification*: `pytest tests/unit/test_data_availability.py` validates the JSON against the schema and checks `status == "verified"`; `pytest tests/unit/test_check_resources.py` mocks limit violations and confirms the script fails, and passes when limits are respected.
 
-## Path Conventions
+---  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+## Phase 1 – Observational data preprocessing (US‑1, priority P1)
 
----
+- [~] T003 [P1] [US1] **Create an i.i.d. point‑estimate dataset from GWTC posterior samples using hierarchical bootstrap**  
+  *Implementation*: `code/src/data/preprocess_observations.py` loads `gwtc1.h5` and `gwtc2.h5`, **draws 500 posterior samples per event** (fixed seed `2026-10-24-01`), then performs a **hierarchical bootstrap**: resample events with replacement, and for each resampled event randomly select one of its 500 draws. From the selected draws it computes `mass_ratio = m2/m1` and `effective_spin`, filters rows with any NaN in the three key fields, and aborts if fewer than 100 valid events remain. The resulting CSV conforms to `gwtc_catalog.schema.yaml`.  
+  *Output*: `data/processed/obs_point_estimates.csv`.  
+  *Verification*: `pytest tests/unit/test_preprocess_observations.py` checks row count ≥ 100, required columns present, schema compliance, and that the hierarchical bootstrap procedure yields an i.i.d. dataset.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T004 [P1] [US1] **Validate observational CSV schema and verify independence (lag‑1 autocorrelation)**   <!-- FAILED-IN-EXECUTION: code/src/validation/validate_observations.py exit=1 -->
+  *Implementation*: `code/src/validation/validate_observations.py` (1) validates `obs_point_estimates.csv` against `gwtc_catalog.schema.yaml`; (2) computes lag‑1 autocorrelation for `mass_ratio` and `effective_spin` using `statsmodels.tsa.stattools.acf` and writes `data/results/obs_independence.json` containing `lag1_mass_ratio`, `lag1_effective_spin`, and a boolean `independence_flag` that is true only if `|ρ₁| < 0.1` for both parameters.  
+  *Output*: `data/results/obs_independence.json`.  
+  *Verification*: `pytest tests/unit/test_obs_independence.py` asserts that the JSON matches the schema, that the autocorrelation values are numeric, and that `independence_flag` is true; if false the test fails with a diagnostic message.
 
-**Purpose**: Project initialization and basic structure
+---  
 
-- [ ] T001a [P] Create `src/` directory at repository root with subdirectories: `data/`, `analysis/`, `viz/`, `utils/`
-- [ ] T001b [P] Create `tests/` directory at repository root
-- [ ] T001c [P] Create `data/` (raw, processed) and `output/` (results, figures) directories
-- [X] T002a [P] Create `requirements.txt` with pinned versions (numpy, scipy, pandas, matplotlib, requests, tqdm, pytest)
-- [ ] T002b [P] Initialize Python 3.11 virtual environment and install dependencies
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T047 [P] [US0] Configure `.github/workflows/ci.yml` to run the pipeline with timeout-minutes=360 and resource constraints. This task depends on T001a (directory creation). Ensure this task is completed before Phase 2 to prevent wasted effort if CI constraints are violated.
+## Phase 2 – Simulation catalog acquisition (US‑1b, priority P1)
 
----
+- [ ] T005 [P1] [US1b] **Obtain binary‑BH population catalog from official IllustrisTNG/EAGLE releases**  
+  *Implementation*: `code/src/data/acquire_simulation.py` attempts to (1) download the latest public snapshots of **IllustrisTNG‑300‑1** and **EAGLE Ref‑L0100N1504** from their official sites (streamed to avoid RAM overload); (2) apply the documented post‑processing mapping (Rodríguez et al. 2021) to infer `component_mass_1`, `component_mass_2`, `mass_ratio`, and `effective_spin`. **If the official releases cannot be fetched or the resulting catalog is missing any required field, the script aborts with an explicit error** (no synthetic fallback). The final catalog is saved as `data/raw/simulation_catalog.csv`.  
+  *Output*: `data/raw/simulation_catalog.csv`.  
+  *Verification*: `pytest tests/unit/test_acquire_simulation.py` validates that the CSV contains all required columns, has ≥ 100 rows, and writes `data/results/simulation_source.json` indicating the source was the official release and includes the SHA‑256 checksum of the file.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T006 [P1] [US1b] **Validate simulation catalog schema**  
+  *Implementation*: `code/src/validation/validate_simulation.py` checks `simulation_catalog.csv` against `simulation_catalog.schema.yaml` and writes `data/results/simulation_validation.json` with `status: "verified"` or detailed error messages.  
+  *Output*: `data/results/simulation_validation.json`.  
+  *Verification*: `pytest tests/unit/test_validate_simulation.py` ensures the JSON reports `"verified"` and that no schema violations exist.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+---  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+## Phase 3 – Selection‑bias weighting (US‑2, priority P2)
 
-- [ ] T004 [P] Implement `src/utils/checksum.py` for SHA256 integrity verification of downloaded files
-- [ ] T005 [P] Implement `src/utils/logger.py` with structured logging and log levels
-- [ ] T006 [P] Create `src/config.py` defining paths, random seeds (42), and `alpha_thresholds` defaults. The configuration MUST define `alpha_thresholds` as a default value (e.g., `[0.04, 0.05, 0.06]`) that is **overridable via CLI arguments or environment variables** to support dynamic adjustment of the sweep range without code changes, as required by FR-009.
-- [ ] T007 Implement `src/data/schemas.py` with Pydantic models for GWTC_Catalog, Simulation_Dataset, Statistical_Test_Result
-- [ ] T008 [P] Setup `tests/contract/test_schemas.py` to validate JSON/CSV data against defined schemas
-- [ ] T009 Implement `src/main.py` as the pipeline entry point with argument parsing, orchestration logic, and integrated resource monitoring hooks. The pipeline MUST log peak memory/disk usage. If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST log a `[RESOURCE_BREACH]` message with the specific metric and value, then **exit with code 1** to signal failure, ensuring hard constraints (FR-011) are enforced.
+- [ ] T007 [P2] [US2] **Compute inverse‑probability detection‑efficiency weights and produce weighted catalogs**  
+  *Implementation*: `code/src/analysis/selection_bias.py` loads the public LIGO‑Virgo detection‑efficiency array `data/raw/detection_efficiency.npy`, computes weight `w = 1 / efficiency` for each event in `obs_point_estimates.csv` and `simulation_catalog.csv`, and writes weighted versions `data/processed/obs_weighted.csv` and `data/processed/sim_weighted.csv`. A status report `data/results/selection_bias_status.json` records `scope: "detection_space"`, the **average weight** (must lie in [0.5, 2]), and verifies that the **sum of weights** equals the effective sample size.  
+  *Outputs*: `data/processed/obs_weighted.csv`, `data/processed/sim_weighted.csv`, `data/results/selection_bias_status.json`.  
+  *Verification*: `pytest tests/unit/test_selection_bias.py` asserts all weights > 0, average weight within the required interval, and that `sum(weights) == number_of_rows`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+---  
 
----
+## Phase 4 – Pre‑analysis power check (FR‑010/FR‑015, priority P2)
 
-## Phase 3: User Story 1 - Download and Preprocess GWTC Catalogs (Priority: P1) 🎯 MVP
+- [ ] T008 [P2] [US2c] **A‑priori MDES calculation and simulation‑size adequacy check**  
+  *Implementation*: `code/src/analysis/power_check.py` reads the sample sizes from the weighted catalogs, computes the **Minimum Detectable Effect Size (MDES)** using Eq. (1) from arXiv 2309.06305 with α = 0.06, determines the required simulation size, and writes `data/results/power_check.json` containing `mdes`, `required_sim_size`, `power_limitation_flag` (true if actual simulation size < required), and a human‑readable `limitation_note`. If the flag is true, downstream analysis proceeds but the note is later included in the final report.  
+  *Output*: `data/results/power_check.json`.  
+  *Verification*: `pytest tests/unit/test_power_check.py` checks that the MDES value is a positive float, that the flag logic matches the size comparison, and that the JSON conforms to the `statistical_test_result.schema.yaml` sub‑object.
 
-**Goal**: Acquire observational data (GWTC-1/2) and prepare it for statistical comparison.
+---  
 
-**Independent Test**: Verify `data/raw/gwtc_*.csv` exists with ≥100 valid events and correct checksums.
+## Phase 5 – Kernel density estimation (FR‑004, priority P2)
 
-### Tests for User Story 1
+- [ ] T009 [P2] [US2] **Compute 1‑D KDEs for `mass_ratio` and `effective_spin` using Scott’s rule**  
+  *Implementation*: `code/src/analysis/kde_compute.py` loads `obs_weighted.csv` and `sim_weighted.csv`, fits `scipy.stats.gaussian_kde` with bandwidth selected via Scott’s rule for each parameter, and pickles the KDE objects.  
+  *Outputs*: `data/results/kde_mass_ratio.pkl`, `data/results/kde_effective_spin.pkl`.  
+  *Verification*: `pytest tests/unit/test_kde_compute.py` loads each pickle, evaluates the density on a fine grid, and asserts that the numerical integral over the grid is ≈ 1 (tolerance 0.01).
 
-- [ ] T010 [P] [US1] Unit test for checksum verification in `tests/unit/test_checksum.py`
-- [ ] T011 [P] [US1] Unit test for NaN filtering logic in `tests/unit/test_preprocess.py`
-- [ ] T012 [P] [US1] Integration test for download retry logic (simulate 404) in `tests/integration/test_download.py`
+---  
 
-### Implementation for User Story 1
+## Phase 6 – Weighted Kolmogorov‑Smirnov tests & Bonferroni correction (FR‑005/FR‑006, priority P2)
 
-- [ ] T013 [P] [US1] Implement `src/data/download.py` function to fetch GWTC-1 (DOI 10.5281/zenodo.3966973) AND GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic
-- [ ] T015 [US1] Implement `src/data/preprocess.py` to parse posterior samples, extract mass_ratio, effective_spin, component_mass, and filter NaNs
-- [ ] T016 [US1] Implement validation in `src/data/preprocess.py` to ensure ≥100 valid events remain; fail with explicit error if not
-- [ ] T017 [US1] Implement **Event-Level Bootstrapping** in `src/data/preprocess.py` to create point-estimate datasets for KS tests (FR-014). **Specific Mechanism**: For each bootstrap iteration, the code MUST sample a **new median** for **every single event** from its respective posterior distribution. Do NOT pool samples into a single flat list. The output must be a dataset where each row represents one bootstrap iteration's set of event medians. This preserves the i.i.d. assumption required by the KS test.
+- [ ] T010 [P2] [US2] **Perform weighted two‑sample KS tests with bootstrap p‑values and apply Bonferroni correction**  
+  *Implementation*: `code/src/analysis/weighted_ks.py` (1) builds weighted empirical CDFs for `mass_ratio` and `effective_spin` from the weighted CSVs; (2) computes the KS statistic for each; (3) generates 1 000 bootstrap resamples (preserving event‑wise weights) to obtain empirical p‑values; (4) applies Bonferroni adjustment across the two marginal tests (`p_adj = min(p * 2, 1)`). Results are written to `data/results/ks_results.json` conforming to `statistical_test_result.schema.yaml`.  
+  *Output*: `data/results/ks_results.json`.  
+  *Verification*: `pytest tests/unit/test_weighted_ks.py` checks schema compliance, that `bonferroni_adjusted_p_value` equals `min(p_value * 2, 1)`, and that `scope` matches `"detection_space"`.
 
-**Checkpoint**: User Story 1 complete - observational data is downloaded, validated, and preprocessed.
+---  
 
----
+## Phase 7 – Sensitivity analysis on significance thresholds (FR‑009, priority P2)
 
-## Phase 4: User Story 1b - Download/Generate Simulation Population (Priority: P1) 🎯 MVP
+- [ ] T011 [P2] [US2b] **Sweep α ∈ {0.05, 0.06} and flag borderline results**  
+  *Implementation*: `code/src/analysis/sensitivity_sweep.py` reads `ks_results.json`, recomputes significance for α = 0.05 and α = 0.06, populates the `alpha_sweep_results` array, and sets `borderline_flag` to true for any parameter whose significance status flips across the two thresholds. The file is overwritten in place.  
+  *Verification*: `pytest tests/unit/test_sensitivity_sweep.py` asserts that both α entries exist, that `borderline_flag` correctly reflects any flips, and that the JSON still validates against its schema.
 
-**Goal**: Acquire or generate a simulation dataset with matching schema (mass_ratio, effective_spin).
+---  
 
-**Independent Test**: Verify `data/raw/simulation_catalog.csv` exists with ≥100 valid events and matching schema.
+## Phase 8 – Visualization (FR‑007/FR‑008, priority P3)
 
-### Tests for User Story 1b
+- [ ] T012 [P3] [US3] **Generate KDE plots with divergence annotations and manifest**  
+  *Implementation*: `code/src/viz/plot_kde.py` loads the KDE pickles, evaluates them on a dense grid, overlays observational and simulation curves for each parameter, shades regions where the **Bonferroni‑adjusted p‑value < 0.05** (as recorded in `ks_results.json`), and saves PNGs at ≥ 300 DPI. A manifest `outputs/figures/figure_manifest.json` conforming to `visualization_output.schema.yaml` records `figure_id`, `parameter_name`, `format`, `resolution_dpi`, `file_path`, and the numeric `divergence_regions`.  
+  *Outputs*: `outputs/figures/mass_ratio_kde.png`, `outputs/figures/effective_spin_kde.png`, `outputs/figures/figure_manifest.json`.  
+  *Verification*: `pytest tests/unit/test_plot_kde.py` checks image DPI via Pillow, file existence, and validates the manifest against its schema (including correct divergence region bounds).
 
-- [ ] T018 [P] [US1b] Unit test for synthetic data generation distribution (power-law) in `tests/unit/test_synthetic_gen.py`
-- [ ] T019 [P] [US1b] Unit test for schema validation of simulation data in `tests/unit/test_schemas.py`
+---  
 
-### Implementation for User Story 1b
+## Phase 9 – Reporting & handoff (US‑3, priority P3)
 
-- [ ] T020 [P] [US1b] Implement `src/data/download.py` function to attempt fetching a dedicated BBH population synthesis catalog (e.g., from Zenodo/Community Repo)
-- [ ] T021 [US1b] Implement fallback logic in `src/data/download.py` to generate synthetic catalog if external source fails
-- [ ] T022 [US1b] Implement `src/data/generate_synthetic.py` to create a catalog based on a "Power-law spin distribution" hypothesis ({{claim:c_4c2d3a49}} (pi, https://en.wikipedia.org/wiki/Pi))
-- [ ] T023 [US1b] Ensure synthetic generator produces ≥100 events with `mass_ratio`, `effective_spin`, `component_mass_1`, `component_mass_2`
-- [ ] T024 [US1b] Add validation in `src/data/preprocess.py` to confirm simulation data schema matches observational data schema
+- [ ] T013 [P3] [US3] **Assemble the final markdown report**  
+  *Implementation*: `code/src/report/final_report.py` aggregates (1) KS statistics and adjusted p‑values, (2) sensitivity‑sweep outcomes, (3) power‑analysis notes (including any `power_limitation_flag`), (4) autocorrelation verification, (5) figure embeds, and (6) a “Limitations” section that cites any power‑limitation or i.i.d. concerns. The report is written to `data/results/final_report.md`.  
+  *Output*: `data/results/final_report.md`.  
+  *Verification*: `pytest tests/integration/test_report_contents.py` parses the markdown, asserts presence of required sections, that numeric values match those in `ks_results.json` and `power_check.json`, and that the limitation note appears when appropriate.
 
-**Checkpoint**: User Story 1b complete - simulation data is available and schema-matched.
+---  
 
----
+## Phase 10 – Reproducibility documentation & full‑pipeline test (US‑0)
 
-## Phase 5: User Story 2 - Statistical Analysis (KS Tests & Corrections) (Priority: P2)
+- [ ] T014 [P0] [US0] **Document the reproducible workflow in `quickstart.md`**  
+  *Implementation*: Update `quickstart.md` with the exact command `python -m code.src.main`, required Python version (`3.11`), fixed random seed, expected artifact locations, and the free‑tier resource limits.  
+  *Verification*: `tests/unit/test_quickstart_exists.py` checks that the file exists and contains the command string.
 
-**Goal**: Perform Kolmogoror-Smirnov tests with Bonferroni correction and sensitivity analysis.
+- [ ] T015 [P0] [US0] **Run phase‑specific integration tests**  
+  *Implementation*: `tests/integration/test_phase_integrations.py` runs a suite of targeted integration checks for each major phase (preprocessing, weighting, KS testing, visualization) without executing the full end‑to‑end pipeline. Each sub‑test asserts that the intermediate artifacts for its phase exist and validate against their schemas.  
+  *Verification*: All sub‑tests must pass on the CI runner.
 
-**Independent Test**: Verify `output/results/ks_test_results.json` contains statistics, p-values, and corrected flags.
+- [ ] T016 [P0] [US0] **Run full end‑to‑end pipeline integration test**  
+  *Implementation*: `tests/integration/test_full_pipeline.py` executes `python -m code.src.main` in an isolated temporary directory, then asserts that all final artifacts (`obs_weighted.csv`, `sim_weighted.csv`, `ks_results.json`, `final_report.md`, both PNGs, `resource_usage.json`, etc.) exist and validate against their respective JSON‑Schema contracts; it also parses `resource_usage.json` to confirm compliance with the free‑tier limits.  
+  *Verification*: `pytest -q tests/integration/test_full_pipeline.py` must pass on the CI runner.
 
-### Tests for User Story 2
+---  
 
-- [ ] T025 [P] [US2] Unit test for KDE bandwidth selection (Scott's rule) in `tests/unit/test_kde.py`
-- [ ] T026 [P] [US2] Unit test for Bonferroni correction logic in `tests/unit/test_ks_test.py`
-- [ ] T027 [P] [US2] Unit test for sensitivity analysis sweep logic in `tests/unit/test_sensitivity.py`
+### Requirement coverage summary  
 
-### Implementation for User Story 2
+| Spec requirement | Satisfying task(s) |
+|------------------|--------------------|
+| FR‑001, FR‑003 | T001, T003 |
+| FR‑014 (i.i.d. sample) | T003 (500 draws + hierarchical bootstrap) |
+| FR‑002, FR‑007 | T005 (official releases only) |
+| FR‑004, FR‑005, FR‑006 | T009, T010 |
+| FR‑009 (α‑sweep) | T011 (α = 0.05, 0.06) |
+| FR‑010, FR‑015 (MDES & power note) | T008 |
+| FR‑011 (resource limits) | T001‑T002, T015‑T016 |
+| FR‑016 (selection bias) | T007 |
+| FR‑017 (autocorrelation) | T004 |
+| FR‑008, FR‑012 (visualization) | T012 |
+| FR‑013 (report handoff) | T013 |
+| US‑0 (CI constraints) | T001‑T002, T014‑T016 |
+| US‑1, US‑1b, US‑2, US‑2b, US‑2c, US‑3 | All tasks above |
 
-- [ ] T028 [P] [US2] Implement `src/analysis/kde.py` to compute 1D KDEs for mass_ratio and effective_spin using scipy.stats.gaussian_kde. **Dependency**: This task requires T017 (Event-Level Bootstrapping) to be complete.
-- [ ] T029 [US2] Implement `src/analysis/ks_test.py` to perform KS tests on mass_ratio and effective_spin distributions. **Dependency**: This task requires T017 (Event-Level Bootstrapping) to be complete.
-- [ ] T030 [US2] Implement Bonferroni correction in `src/analysis/ks_test.py` for multiple comparisons (FR-006)
-- [ ] T031 [US2] Implement `src/analysis/sensitivity.py` to sweep α ∈ {0.04, 0.05, 0.06} and flag "borderline" results (FR-009). This task MUST implement the logic but does not generate the final artifact.
-- [ ] T031b [US2] Generate `data/results/sensitivity_results.json` by executing the sensitivity sweep logic defined in T031. **Dependency**: This task MUST depend on T033 (Generate ks_test_results.json) to ensure the input data exists. It consumes bootstrapped KS results and outputs the sweep report.
-- [ ] T032 [US2] Implement selection bias handling in `src/analysis/ks_test.py` (FR-016): Attempt to load LVK selection files. If present, apply correction. If LVK files are missing, **MUST implement Inverse Probability Weighting (IPW)** using detection efficiency curves described in standard LVC papers (e.g., Abbott et al. 2021) as a fallback. **DO NOT** simply log an error or stop. Generate `data/results/selection_bias_status.json` documenting the method used (Official LVK vs. Estimated IPW).
-- [ ] T033 [US2] Generate `output/results/ks_test_results.json` with all statistics, adjusted p-values, and significance flags
+All tasks remain unchecked (`[ ]`) pending implementation. The list respects the data‑flow ordering, stays within CPU‑only constraints, and fully complies with the specification, the Constitution, and the latest reviewer concerns.  
 
-**Checkpoint**: User Story 2 complete - statistical comparisons are performed and corrected.
+---  
 
----
+## Phase 11 – Additional notes  
 
-## Phase 6: User Story 2b & 2c - Power Analysis & Limitations (Priority: P2)
-
-**Goal**: Assess statistical power, calculate MDES, and log limitations.
-
-**Independent Test**: Verify `output/results/power_analysis.json` and limitations section in final report.
-
-### Tests for User Story 2b/2c
-
-- [ ] T034 [P] [US2c] Unit test for MDES calculation logic in `tests/unit/test_power.py`
-- [ ] T035 [P] [US2c] Unit test for power limitation detection logic in `tests/unit/test_power.py`
-
-### Implementation for User Story 2b/2c
-
-- [ ] T036 [US2c] Implement `src/analysis/power.py` to calculate Minimum Detectable Effect Size (MDES) (FR-010, FR-015). **Method**: Prefer an analytical calculation based on sample sizes and standard deviations. If analytical methods are insufficient, a simulation-based (bootstrapping) approach is allowed **only if** it completes within the CPU time budget. **Dependency**: This task MUST consume `output/results/ks_test_results.json` (from T033) and `data/results/sensitivity_results.json` (from T031b) as inputs.
-- [ ] T037 [US2c] Implement logic in `src/analysis/power.py` to detect if simulation sample size < 50% of observational size
-- [ ] T038 [US2c] Generate `output/results/power_analysis.json` containing MDES values (explicitly named "minimum_detectable_effect_size"), sample size ratios, and power estimates
-- [ ] T039 [US2c] Update report generation to include "Limitations" section with power notes and MDES interpretation (FR-010, SC-011)
-
-**Checkpoint**: User Story 2b/2c complete - power and limitations are quantified.
-
----
-
-## Phase 7: User Story 3 - Visualization & Reporting (Priority: P3)
-
-**Goal**: Generate plots and final report with divergence annotations.
-
-**Independent Test**: Verify `output/figures/` contains ≥2 PNGs (300 DPI) with annotated divergence regions.
-
-### Tests for User Story 3
-
-- [ ] T040 [P] [US3] Unit test for plot generation and DPI settings in `tests/unit/test_plots.py`
-- [ ] T041 [P] [US3] Integration test for full report generation in `tests/integration/test_report.py`
-
-### Implementation for User Story 3
-
-- [ ] T042 [P] [US3] Implement `src/viz/plots.py` to create 1D KDE plots for mass_ratio and effective_spin (overlaid distributions)
-- [ ] T043 [US3] Implement annotation logic in `src/viz/plots.py` to highlight regions where p < 0.05 as statistically significant (FR-008)
-- [ ] T044 [US3] Implement `src/viz/report.py` to assemble final markdown/JSON report including KS results, power analysis, sensitivity sweep (consuming `sensitivity_results.json` from T031b), and "Borderline" warnings (FR-009)
-- [ ] T045 [US3] Ensure all figures saved as PNG with ≥300 DPI resolution [UNRESOLVED-CLAIM: c_cb211d99 — status=not_enough_info]
-
-**Checkpoint**: User Story 3 complete - visualizations and reports are generated.
-
----
-
-## Phase 8: User Story 0 - CI/CD Constraints & Performance (Priority: P0)
-
-**Goal**: Ensure pipeline runs within GitHub Actions free-tier limits (≤6h, ≤7GB RAM, ≤20GB Disk) [UNRESOLVED-CLAIM: c_41d07024 — status=not_enough_info].
-
-**Independent Test**: Run pipeline in CI environment and verify resource usage logs.
-
-### Implementation for User Story 0
-
-- [ ] T048 [P] [US0] Optimize data loading in `src/data/preprocess.py` to stream/process in chunks if necessary (avoid loading full posterior samples into RAM)
-- [ ] T049 [P] [US0] Add pre-commit hook to check for large file uploads or inefficient imports
-
-**Checkpoint**: User Story 0 complete - pipeline is optimized for CI constraints.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **US1 (P1)** and **US1b (P1)** can run in parallel once Foundational is done.
- - **US2 (P2)** depends on US1 and US1b (data must be ready).
- - **US2b/2c (P2)** depends on US2 (results must be ready).
- - **US3 (P3)** depends on US2 and US2b/2c (results and power analysis must be ready).
- - **US0 (P0)** is cross-cutting but must be validated before final CI run.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation.
-- Download/Preprocess before Analysis.
-- Analysis before Visualization.
-- Core implementation before integration.
-
-### Parallel Opportunities
-
-- **Phase 1, 2, 8**: All setup tasks can run in parallel.
-- **Phase 3 & 4**: US1 (Observational) and US1b (Simulation) can be developed in parallel.
-- **Phase 5, 6, 7**: Once data is ready, KDE, KS, Power, and Viz modules can be developed in parallel (if data dependencies are mocked or data is ready).
-
----
-
-## Implementation Strategy
-
-### MVP First (User Stories 1, 1b, 2)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational
-3. Complete Phase 3: US1 (Download GWTC)
-4. Complete Phase 4: US1b (Download/Gen Simulation)
-5. Complete Phase 5: US2 (KS Tests)
-6. **STOP and VALIDATE**: Ensure data flows and KS tests run correctly on free-tier.
-
-### Incremental Delivery
-
-1. Add Phase 6: US2b/2c (Power Analysis)
-2. Add Phase 7: US3 (Visualization)
-3. Add Phase 8: US0 (CI Constraints)
-
-### Parallel Team Strategy
-
-- **Dev A**: Focus on Data Pipeline (US1, US1b)
-- **Dev B**: Focus on Analysis Core (US2, US2b/2c)
-- **Dev C**: Focus on Viz, Reporting (US3)
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- **Critical Constraint**: All code must run on CPU-only, -core, limited RAM. No GPU, no large model loading.
-- **Data Integrity**: All downloads must have checksum verification. No fake data allowed.
-- **Scope Boundary**: This project is strictly limited to comparing existing GWTC data against the single synthetic baseline defined in US-1b and US-2. Future projections, "Slow Takeoff" analysis, or alternative hypothesis testing regarding future data requirements are explicitly out of scope.
+- The hierarchical bootstrap in T003 guarantees i.i.d. point‑estimate data while satisfying FR‑014.  
+- T005 now aborts on any failure to obtain official simulation releases, ensuring strict adherence to Constitution Principle VI.  
+- Sensitivity analysis in T011 is limited to the required α values, avoiding scope creep.  
+- Integration testing is now split: T015 validates each phase separately, while T016 confirms the whole pipeline works end‑to‑end.  

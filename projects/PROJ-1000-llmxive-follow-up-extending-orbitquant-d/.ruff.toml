@@ -1,0 +1,4 @@
+# Extends pyproject.toml configuration for ruff
+extend = "pyproject.toml"
+# Additional overrides if needed
+line-length = 100

@@ -1,3 +1,1 @@
-"""
-Data directory initialization.
-"""
+# Data package for PROJ-451

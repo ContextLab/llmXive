@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Models Module
+Models directory for trained artifacts.
 """

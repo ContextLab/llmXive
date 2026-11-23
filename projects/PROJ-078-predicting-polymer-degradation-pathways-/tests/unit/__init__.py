@@ -1,1 +1,1 @@
-"""Unit test package for polymer degradation prediction."""
+# Unit tests package for llmXive polymer degradation project

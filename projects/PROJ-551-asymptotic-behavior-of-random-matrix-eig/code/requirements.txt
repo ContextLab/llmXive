@@ -1,12 +1,22 @@
-numpy>=1.26.0
-scipy>=1.12.0
-pandas>=2.2.0
-matplotlib>=3.8.0
-seaborn>=0.13.0
-tqdm>=4.66.0
-pytest>=8.0.0
-ruff>=0.3.0
-black>=24.0.0
-pyyaml>=6.0.1
-jsonschema>=4.21.0
-pydantic>=2.6.0
+# Core Numerical & Scientific Stack
+# Explicit version pinning for Reproducibility (Constitution Principle I)
+numpy==1.26.4
+scipy==1.13.0
+pandas==2.2.2
+
+# Data Modeling
+pydantic==2.7.0
+
+# Visualization
+matplotlib==3.9.0
+
+# Code Quality & Formatting
+ruff==0.4.0
+black==24.3.0
+
+# Analysis Dependencies
+scikit-learn==1.4.0
+
+# Profiling
+memory-profiler==0.61.0
+psutil  # auto-added: imported by run-book but missing from venv

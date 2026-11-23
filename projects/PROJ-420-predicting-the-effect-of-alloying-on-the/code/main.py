@@ -1,98 +1,167 @@
-import sys
-import logging
+from __future__ import annotations
+
+import argparse
+import json
+import os
 import re
+import sys
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import pandas as pd
 
 from config import get_config
-from logging_config import setup_logging, get_logger
-from data_extraction import run_extraction
-from data_cleaning import run_cleaning_pipeline
-from modeling import run_modeling_pipeline
-from analysis import run_importance_analysis, calculate_vif, save_vif_results, rank_and_compare_importance, save_ranking_results
+from logging_config import get_logger, log_operation
 
-logger = get_logger(__name__)
+CONFIG = get_config()
+logger = get_logger("main")
 
+def load_json_safe(path: str) -> Any:
+    """Load a JSON file, handling missing files."""
+    p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"Required JSON file not found: {path}")
+    with open(p, "r") as f:
+        return json.load(f)
 
-def generate_final_report(config: Any, metrics: Dict[str, Any], importance: Dict[str, Any], vif: Dict[str, float], output_path: Path) -> None:
-    """Generate the final report with all results."""
-    logger.info("Generating final report")
+def load_parquet_safe(path: str) -> pd.DataFrame:
+    """Load a parquet file, handling missing files."""
+    p = Path(path)
+    if not p.exists():
+        raise FileNotFoundError(f"Required parquet file not found: {path}")
+    return pd.read_parquet(p)
 
-    # Programmatic injection of associational framing
-    report_content = f"""
-# Final Report: Predicting Poisson's Ratio of Aluminum Alloys
+def generate_final_report() -> None:
+    """Generate the final report from aggregated context."""
+    context_path = Path(CONFIG.data_processed) / "report_context.json"
+    if not context_path.exists():
+        raise FileNotFoundError(f"Report context not found: {context_path}")
 
-## Executive Summary
-This study presents an associational, not causal, analysis of the effect of alloying elements on the Poisson's ratio of aluminum alloys.
+    context = load_json_safe(str(context_path))
 
-## Methodology
-- Data extraction from public repositories
-- Filtering for computational independence (FR-009)
-- ILR transformation of compositional data
-- Random Forest regression with cross-validation
-- Feature importance and VIF analysis
+    # Extract relevant sections
+    model_metrics = context.get("model_metrics", {})
+    collinearity = context.get("collinearity_diagnostic", {})
+    feature_importance = context.get("feature_importance_summary", {})
+    methodological_flags = context.get("methodological_flags", {})
 
-## Results
+    # Build report content
+    report_lines = [
+        "# Final Report: Predicting Poisson's Ratio of Aluminum Alloys",
+        "",
+        "## Summary",
+        "This report presents the results of a machine learning model trained to predict the Poisson's ratio of aluminum alloys based on their elemental composition.",
+        "",
+        "## Model Performance",
+        f"- Cross-Validation MAE: {model_metrics.get('cv_mae', 'N/A'):.4f}",
+        f"- CV 95% CI: [{model_metrics.get('cv_ci_lower', 'N/A'):.4f}, {model_metrics.get('cv_ci_upper', 'N/A'):.4f}]",
+        f"- Test Set MAE: {model_metrics.get('test_mae', 'N/A'):.4f}",
+        "",
+        "## Feature Importance",
+    ]
 
-### Model Performance
-- Training MAE: {metrics.get('train_mae', 'N/A')}
-- Test MAE: {metrics.get('test_mae', 'N/A')}
+    if feature_importance:
+        report_lines.append(f"- Top Element: {feature_importance.get('top_element', 'N/A')}")
+        report_lines.append(f"- Second Element: {feature_importance.get('second_element', 'N/A')}")
+        report_lines.append(f"- Importance Ratio: {feature_importance.get('ratio', 'N/A'):.2f}")
 
-### Feature Importance
-The following elements were identified as most influential (associational, not causal):
-"""
-    for feature, imp in rank_and_compare_importance(importance):
-        report_content += f"- **{feature}**: {imp:.4f}\n"
+    report_lines.extend(
+        [
+            "",
+            "## Collinearity Diagnostic",
+            f"- ILR VIF Pass Flag: {collinearity.get('pass_flag', 'N/A')}",
+            "",
+            "## Methodological Limitations",
+        ]
+    )
 
-    report_content += """
-### VIF Diagnostics
-The following VIF values indicate collinearity in raw compositional space (associational, not causal):
-"""
-    for feature, v in vif.items():
-        report_content += f"- **{feature}**: {v:.2f}\n"
+    if methodological_flags.get("mae_flag"):
+        report_lines.append(methodological_flags.get("narrative_limitation", ""))
 
-    report_content += """
-## Conclusion
-All findings should be interpreted as associational, not causal. Future work should explore causal mechanisms through experimental validation.
-"""
+    if not collinearity.get("pass_flag", True):
+        report_lines.append(
+            "High collinearity detected in ILR features (VIF > 5). The model uses ILR transformation to mitigate this, but interpretability is limited."
+        )
 
-    # Verify associational framing
-    if not re.search(r"associational, not causal", report_content, re.IGNORECASE):
-        raise ValueError("Associational framing missing from report!")
+    report_lines.extend(
+        [
+            "",
+            "## Disclaimer",
+            "The results presented in this report are **associational (not causal)**. The model identifies statistical patterns in the data but does not establish causal relationships between alloy composition and Poisson's ratio.",
+            "",
+        ]
+    )
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
+    report_content = "\n".join(report_lines)
+
+    # Save report
+    report_path = Path(CONFIG.results_dir) / "final_report.md"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(report_path, "w") as f:
         f.write(report_content)
-    logger.info(f"Final report saved to {output_path}")
 
+    logger.info(f"Final report saved to {report_path}")
 
-def main():
-    """Main entry point for the pipeline."""
-    config = get_config()
-    setup_logging(config.output_dir / "pipeline.log")
+def validate_report_framing() -> bool:
+    """Validate that the report contains required framing."""
+    report_path = Path(CONFIG.results_dir) / "final_report.md"
+    if not report_path.exists():
+        return False
 
-    try:
-        # Run extraction
-        run_extraction(config.raw_data_dir)
+    with open(report_path, "r") as f:
+        content = f.read()
 
-        # Run cleaning
-        elements = ["Cu", "Mg", "Si", "Zn", "Mn"]
-        cleaned_path = run_cleaning_pipeline(config.raw_data_dir, config.processed_data_dir, elements)
+    # Check for required phrases
+    has_limitations = "Methodological Limitations" in content
+    has_disclaimer = "associational (not causal)" in content.lower()
 
-        # Run modeling
-        metrics = run_modeling_pipeline(config.processed_data_dir, config.models_dir, config.output_dir)
+    return has_limitations and has_disclaimer
 
-        # Run analysis
-        # Note: X, y, feature_names should be loaded from processed data
-        # Placeholder for actual data loading
-        logger.warning("Data loading for analysis not fully implemented. Ensure X, y, feature_names are provided.")
+def aggregate_report_context() -> None:
+    """Aggregate all results into report_context.json."""
+    # Load all required artifacts
+    model_metrics = load_json_safe(str(Path(CONFIG.results_dir) / "model_metrics.json"))
+    collinearity = load_json_safe(str(Path(CONFIG.results_dir) / "collinearity_diagnostic.json"))
+    feature_importance = load_json_safe(str(Path(CONFIG.results_dir) / "feature_importance_summary.json"))
+    methodological_flags = load_json_safe(str(Path(CONFIG.results_dir) / "methodological_flags.json"))
+    residuals = load_json_safe(str(Path(CONFIG.results_dir) / "residuals.json"))
 
-        # Generate report
-        generate_final_report(config, metrics, {}, {}, config.output_dir / "final_report.md")
+    # Load model path (just the string)
+    model_path = str(Path(CONFIG.models_dir) / "rf_model.pkl")
 
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+    context = {
+        "model_metrics": model_metrics,
+        "collinearity_diagnostic": collinearity,
+        "feature_importance_summary": feature_importance,
+        "methodological_flags": methodological_flags,
+        "residuals": residuals,
+        "model_path": model_path,
+    }
 
+    context_path = Path(CONFIG.data_processed) / "report_context.json"
+    context_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(context_path, "w") as f:
+        json.dump(context, f, indent=2)
+
+    logger.info(f"Report context aggregated to {context_path}")
+
+def main() -> None:
+    """Main entry point for report generation."""
+    log_operation("report_generation_start")
+
+    # Ensure aggregated context exists
+    context_path = Path(CONFIG.data_processed) / "report_context.json"
+    if not context_path.exists():
+        # Fallback aggregation if previous step was skipped
+        aggregate_report_context()
+
+    generate_final_report()
+
+    if not validate_report_framing():
+        logger.warning("Report validation failed: missing required framing.")
+        sys.exit(1)
+
+    log_operation("report_generation_end")
 
 if __name__ == "__main__":
     main()

@@ -1,62 +1,76 @@
-# Data Model: Linguistic Accommodation & Human‑Rated Empathy
+# Data Model: Linguistic Accommodation and Speaker Emotional Intensity
 
-## 1. Entities & Relationships
+## Overview
 
-### DialoguePair
-Represents a single interaction unit from DailyDialog.
-- **Attributes**:
-  - `conversation_id` (str): Unique identifier for the dialogue session.
-  - `turn_index` (int): Index of the turn within the conversation.
-  - `user_turn` (str): Normalized text of the user input.
-  - `ai_response` (str): Normalized text of the proxy AI response (second speaker in DailyDialog).
-  - `emotion_label` (str): Raw emotion label from DailyDialog.
-  - `word_count` (int): Total words in the pair.
+This document defines the data structures, schemas, and transformation logic for the project. It ensures that the data pipeline produces consistent, valid, and verifiable artifacts. The data model reflects the pivot to **human-human dialogue** and the aggregation of emotion labels to the dialogue level.
 
-### AccommodationMetric
-Derived metrics for a `DialoguePair`.
-- **Attributes**:
-  - `lexical_overlap` (float): Jaccard similarity of token sets (0 – 1).
-  - `syntactic_similarity` (float): Jaccard similarity of POS tag sets (0 – 1).
-  - `dependency_similarity` (float): Jaccard similarity of dependency relation labels (0 – 1).
-  - `sentence_length_variance` (float): Variance of sentence lengths in the AI response.
+## Entity Definitions
 
-### HumanValidationRecord (FR‑010)
-Represents a human‑rated AI‑assistant response.
-- **Attributes**:
-  - `validation_id` (str): Unique identifier.
-  - `user_prompt` (str): Human prompt presented to the AI.
-  - `ai_response` (str): Generated AI response.
-  - `human_empathy_rating` (int): 1‑5 Likert rating of perceived empathy.
-  - `consent_id` (str): Reference to consent record (IRB‑approved).
+### 1. DialoguePair
+Represents a single interaction unit (turn pair) in the dialogue.
+- **Fields**:
+  - `conversation_id`: String (unique identifier for the dialogue session).
+  - `turn_index`: Integer (index of the first turn in the pair).
+  - `speaker_role`: String (e.g., "Speaker_A", "Speaker_B").
+  - `text`: String (normalized text of the turn).
+  - `partner_text`: String (normalized text of the adjacent turn).
+  - `dialogue_emotion_label`: String (original label from dataset, e.g., "Joy", "Neutral").
 
-### FinalDataset (merged)
-Combines metrics from `DialoguePair` with the human‑rated empathy scores where available.
-- **Attributes** (superset of columns in `final_dataset.csv`):
-  - All fields from `DialoguePair` and `AccommodationMetric`.
-  - `emotion_mapped_score` (int): Proxy score derived from `emotion_label` (Joy → 5, …, Neutral → 3) – **used only for exploratory checks**.
-  - `human_empathy_rating` (int, optional): Rating from the collected validation set; present for rows that belong to the validation subset.
-  - `lda_topic_id` (int): Dominant LDA cluster (0‑9).
-  - `is_validation_subset` (bool): `True` for the 30 manually rated records.
+### 2. AccommodationMetric
+Computed metrics for a specific `DialoguePair`.
+- **Fields**:
+  - `conversation_id`: String (FK to DialoguePair).
+  - `turn_index`: Integer (FK to DialoguePair).
+  - `lexical_overlap`: Float (Jaccard similarity of tokens, 0.0 to 1.0, 4 decimal precision).
+  - `syntactic_similarity`: Float (Jaccard similarity of POS tags, 0.0 to 1.0, 4 decimal precision).
+  - `bigram_overlap`: Float (Jaccard similarity of bigrams, 0.0 to 1.0).
+  - `sentence_length_variance`: Float (Standard deviation of sentence lengths).
+  - `dependency_similarity`: Float (Optional, for sensitivity analysis, 0.0 to 1.0).
 
-## 2. Data Flow
+### 3. EmotionalIntensity
+Mapped numeric score for a specific `DialoguePair` (derived from dialogue-level label).
+- **Fields**:
+  - `conversation_id`: String (FK).
+  - `turn_index`: Integer (FK).
+  - `original_emotion`: String.
+  - `emotional_intensity`: Integer (1-5 scale, mapped from dialogue label).
+  - `is_valid`: Boolean (True if emotion label existed and was mapped).
 
-1. **Raw Input**: `daily_dialog.parquet` (DailyDialog) and `human_empathy.csv` (collected).  
-2. **Ingestion**: `01_ingest_and_preprocess.py` → `data/raw/daily_dialog_raw.csv`.  
-3. **Human Collection**: `00_collect_human_empathy.py` → `data/raw/human_empathy/raw_responses.csv`.  
-4. **Metric Computation**: `03_compute_metrics.py` → adds accommodation columns.  
-5. **Topic Modeling**: `06_generate_topics.py` → adds `lda_topic_id`.  
-6. **Merging**: `07_analyze_correlations.py` merges DailyDialog‑derived rows with human‑rated rows on compatible fields, producing `data/processed/final_dataset.csv`.  
-7. **Analysis & Validation**: Subsequent scripts read `final_dataset.csv`.
+### 4. ValidationGroundTruth
+Human-rated intensity for a subset of dialogues (Phase 1).
+- **Fields**:
+  - `conversation_id`: String (FK).
+  - `rater_id`: String.
+  - `human_intensity`: Integer (1-5).
+  - `timestamp`: String.
 
-## 3. Schema Adjustments
+### 5. AnalysisResult
+Aggregated statistical results.
+- **Fields**:
+  - `metric_type`: String (e.g., "lexical_spearman", "syntactic_spearman").
+  - `correlation_coefficient`: Float.
+  - `p_value`: Float.
+  - `ci_lower`: Float.
+  - `ci_upper`: Float.
+  - `n_samples`: Integer.
+  - `bootstrap_iterations`: Integer.
+  - `pseudo_r2`: Float (McFadden's Pseudo-R2 for regression).
 
-- Added optional `human_empathy_rating` (int 1‑5) to the final dataset schema.  
-- Added `is_validation_subset` (bool) to flag the manually annotated records.  
-- Updated `HumanValidationRecord` entity to satisfy FR‑010.
+## Data Flow
 
-## 4. Constraints & Rules
+1. **Raw Input**: DailyDialog (JSON/Parquet).
+2. **Normalization**: NFKC applied. Empty turns filtered.
+3. **Metric Computation**: Jaccard, POS tags, Bigrams, Variance calculated for adjacent turn pairs.
+4. **Aggregation**: Dialogue-level emotion label assigned to all turn pairs in the dialogue.
+5. **Mapping**: Emotion labels converted to 1-5 intensity.
+6. **Validation**: Human ratings collected for subset.
+7. **Aggregation**: Merged into a single analysis-ready dataframe.
+8. **Statistical Output**: Correlation coefficients, CIs, regression coefficients (Odds Ratios, Pseudo-R2).
 
-- **Unicode**: All text fields must be normalized to NFKC.  
-- **Null Handling**: Records with empty `user_turn` or `ai_response` after normalization are dropped.  
-- **Range**: All similarity scores ∈ [0.0, 1.0]; `human_empathy_rating` ∈ [1, 5].  
-- **Consent**: Every row in `human_empathy.csv` must include a non‑empty `consent_id` linking to the IRB consent log.  
+## Data Hygiene Rules
+
+- **Immutability**: Raw data files in `data/raw/` are never modified.
+- **Checksums**: MD5 checksums recorded for all raw files.
+- **Null Handling**: Missing emotion labels result in `emotional_intensity = null` (excluded from correlation).
+- **Precision**: All float metrics stored with 4 decimal places.
+- **Unit of Analysis**: Emotion is dialogue-level; Accommodation is turn-pair level.

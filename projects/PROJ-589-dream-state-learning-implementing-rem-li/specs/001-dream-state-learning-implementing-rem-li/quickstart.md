@@ -1,77 +1,87 @@
-# Quickstart: Dream-State Learning: Implementing REM-like Consolidation in Language Models
+# Quickstart: Dream-State Learning
 
 ## Prerequisites
-
--   Python 3.11+
--   Git
--   Access to a GitHub Actions runner (or local machine with GB+ RAM, 2+ CPU cores).
+- Python 3.11 or newer  
+- Git  
+- A Linux environment (local VM or GitHub Actions runner) with **≥ 8 GB RAM** (allows headroom for the 7 GB limit)  
 
 ## Installation
-
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-589-dream-state-learning-implementing-rem-li
-    ```
-
-2.  **Create and activate a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: Ensure `torch` is installed as the CPU-only wheel.*
-
-## Running the Experiment
-
-### 1. Run a Single Wake/Dream Cycle
-Execute the main training script for a single seed (default steps for testing):
 ```bash
-python code/main.py --seed 42 --steps 100 --mode wake_dream
+# 1️⃣ Clone the repository
+git clone <repository-url>
+cd projects/PROJ-589-dream-state-learning-implementing-rem-li
+
+# 2️⃣ Create a virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# 3️⃣ Install pinned dependencies
+pip install -r code/requirements.txt
 ```
 
-### 2. Run the Baseline Comparison
-Execute the continuous training baseline for the same seed:
+## Step‑by‑Step Run
+
+### 1. Download GLUE data (once)
 ```bash
-python code/main.py --seed 42 --steps 100 --mode baseline
+python code/data_loader.py --download
+# Data will appear under data/raw/
 ```
 
-### 3. Run Full Statistical Evaluation (5 Seeds)
-Run the full experiment with multiple seeds and automatically compute the t-test:
+### 2. Run a **debug** experiment (fast sanity check)
 ```bash
-python code/main.py --seeds 42 123 456 789 101 --steps 500 --mode full_eval
+python code/train.py \
+  --seed 42 \
+  --total_steps 20 \
+  --warmup_steps 5 \
+  --ratio 4:1 \
+  --mode debug
 ```
-*This command will:*
--   Train Wake/Dream models.
--   Train multiple Baseline models.
--   Evaluate all on GLUE AX.
--   Generate `data/results/experiment_results.json`.
--   Print the final t-test p-value and effect size.
+*Expected*: Logs show wake → dream transitions, entropy checks, and a checkpoint saved to `checkpoints/debug.pt`.
 
-## Verifying Constraints
+### 3. Run the **pilot** experiment (primary analysis)
+```bash
+python code/train.py \
+  --seeds 0,1,2 \
+  --total_steps 100 \
+  --warmup_steps 20 \
+  --ratio 4:1 \
+  --temp 1.0 \
+  --baseline
+```
+- This launches multiple experimental runs (wake/dream) and multiple baseline runs, each respecting the memory/timeout caps.  
+- Checkpoints are stored under `checkpoints/seed_{N}_{regime}.pt`.
 
-### Memory Check
-The script includes a built-in memory monitor. If peak memory exceeds a predefined high threshold, the job will abort and save the checkpoint.
--   **Log Output**: Look for `MEMORY_MONITOR: Peak RSS = X MB`.
--   **Failure**: If `Peak RSS > 6500`, check `data/logs/abort_log.txt` for the checkpoint path.
+### 4. (Optional) Run the **temperature sweep** ablation
+```bash
+python code/train.py \
+  --seeds 3,4 \
+  --total_steps 100 \
+  --warmup_steps 20 \
+  --ratio 4:1 \
+  --temp_sweep 0.5 1.0 1.5 2.0 \
+  --baseline
+```
+- Executes up to **2** additional seeds *only if* remaining compute budget permits.  
+- Results are logged as separate ablation variants.
 
-### Time Check
-The script will print a timer at the start.
--   **Limit**: 5 hours for the full 5-seed evaluation.
--   **Monitoring**: Check `data/logs/timing.log` for step durations.
+### 5. Evaluate & compute statistics
+```bash
+python code/eval.py --results_dir data/results/
+```
+*Output*: `data/results/experiment_summary.json` containing the paired t‑test, effect size, power estimate, and any notes about insufficient power (per `statistical_report_schema.yaml`).
 
 ## Troubleshooting
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| **OOM / MemoryError** | Batch size too large or temperature causing long generations. | Reduce `--batch_size` in `code/config.py` or switch to a lower temperature. |
+| **Dream step skipped** | Entropy < 0.5 bits or perplexity > 50. | This is expected for low‑quality generations; the run will continue with a dummy wake step to keep token exposure equal. |
+| **Timeout (>5 h)** | Too many seeds or steps. | Reduce `--total_steps` or run a subset of seeds (as shown above). |
+| **Missing `statistical_report.json`** | Evaluation script failed due to < 5 evaluation samples. | Verify that `data/raw/` contains at least 5 QNLI validation examples per seed; otherwise the report will contain `"note": "insufficient power"` as designed. |
 
--   **OOM Error**: If you encounter "CUDA out of memory" (even on CPU), ensure you are not using a CUDA-enabled PyTorch build. Reinstall with `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
--   **Low Entropy**: If the dream phase collapses (entropy < 0.5), the script will retry 3 times. If it fails, it logs a warning. This is expected behavior for early training; the warm-up period (a sufficient number of steps) should mitigate this.
--   **Dataset Missing**: Ensure you have internet access to download the GLUE parquet files from HuggingFace on the first run.
+## Verification Checklist
+1. Run `debug` mode – confirm `logs/debug.log` contains `"phase": "wake"` and `"phase": "dream"` entries.  
+2. Ensure a checkpoint file (`checkpoints/debug.pt`) loads without error (`torch.load`).  
+3. After pilot run, verify that each JSON result validates against its schema (`pytest -k contract`).  
 
-## Next Steps
+---
 
--   **Analyze Results**: Inspect `data/results/experiment_results.json` to see the accuracy differences.
--   **Visualize**: (Future) Plot the loss curves for Wake vs. Dream phases.
--   **Extend**: Modify `code/config.py` to test different `dream_temperature` values (FR-006).

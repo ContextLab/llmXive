@@ -1,0 +1,19 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Generic Output Schema
+description: Generic schema for pipeline output artifacts.
+type: object
+required:
+  - status
+  - timestamp
+properties:
+  status:
+    type: string
+    enum:
+      - success
+      - failure
+  timestamp:
+    type: string
+    format: date-time
+  message:
+    type: string
+additionalProperties: true

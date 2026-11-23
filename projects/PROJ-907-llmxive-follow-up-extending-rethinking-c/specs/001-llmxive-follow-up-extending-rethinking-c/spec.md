@@ -49,7 +49,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** FID scores for the static and dynamic models generated across 5 random seeds, **When** the system analyzes the distribution, **Then** the system MUST report the mean and standard deviation of the FID scores for both models; if a significance test is performed, it MUST use a non-parametric bootstrap (1000 resamples) or explicitly state the limitation of low power (N=5) for parametric tests.
+1. **Given** FID scores for the static and dynamic models generated across 5 random seeds, **When** the system analyzes the distribution, **Then** the system MUST report the mean and standard deviation of the FID scores for both models; if a significance test is performed, it MUST use a non-parametric bootstrap (resamples) or explicitly state the limitation of low power (N=5) for parametric tests.
 2. **Given** the clustering distance threshold used to define the "dominant cluster," **When** the system sweeps the threshold over a small concrete set (e.g., {0.01, 0.05, 0.1}), **Then** the system MUST report how the headline FID score varies across these thresholds to confirm robustness.
 3. **Given** the results of the sensitivity analysis, **When** the system compares the FID scores at different thresholds, **Then** the system MUST report the range of FID degradation observed across the sweep.
 
@@ -65,13 +65,13 @@
 
 ### Functional Requirements
 
-- **FR-001**: System MUST load a pre-trained SiT-XL/2 model with DAR enabled and run inference on a subset of 100 ImageNet validation images with a fixed 100-timestep schedule, recording routing weight matrices for every block at every timestep (See US-1).
+- **FR-001**: System MUST load a pre-trained SiT-XL model with DAR enabled and run inference on a subset of ImageNet validation images with a fixed timestep schedule, recording routing weight matrices for every block at every timestep. (See US-1).
 - **FR-002**: System MUST apply k-means clustering to the recorded routing vectors; if the clustering identifies < 2 clusters or a silhouette score < 0.25, the system MUST construct the static routing map as a global average of all timesteps; otherwise, it MUST average the high-probability paths within the dominant cluster (See US-1).
 - **FR-003**: System MUST replace the dynamic DAR module in the model architecture with the computed static routing weights and remove the per-timestep softmax computation overhead (See US-2).
-- **FR-004**: System MUST measure the time-to-solution for 100 steps for both the dynamic baseline and the static approximation on a standard CPU (e.g., Intel Xeon or Apple M2) and report the percentage reduction (See US-2).
+- **FR-004**: System MUST measure the time-to-solution for a representative sequence of steps for both the dynamic baseline and the static approximation on a standard CPU (e.g., Intel Xeon or Apple M2) and report the percentage reduction (See US-2).
 - **FR-005**: System MUST compute the Fréchet Inception Distance (FID) for generated samples using a pre-trained Inception network with weights fixed and independent of the routing weights being tested, and report the absolute difference (See US-2).
-- **FR-006**: System MUST analyze FID scores across 5 random seeds by reporting the mean and standard deviation; if a significance test is required, it MUST use a non-parametric bootstrap (1000 resamples) or explicitly document the statistical limitations of N=5 (See US-3).
-- **FR-007**: System MUST perform a sensitivity analysis by sweeping the clustering distance threshold over a concrete set (e.g., {0.01, 0.05, 0.1}) and report the variation in FID scores across the sweep (See US-3).
+- **FR-006**: System MUST analyze FID scores across multiple random seeds by reporting the mean and standard deviation; if a significance test is required, it MUST use a non-parametric bootstrap (1000 resamples) or explicitly document the statistical limitations of N=5 (See US-3).
+- **FR-007**: System MUST perform a sensitivity analysis by sweeping the clustering distance threshold over a representative range of values and report the variation in FID scores across the sweep. (See US-3).
 
 ### Key Entities
 
@@ -89,7 +89,7 @@
 
 - **SC-001**: Inference latency reduction is measured against the dynamic DAR baseline to report the percentage reduction; **Hypothesis Target**: reduction ≥ 40% on CPU-only hardware (See FR-004, US-2).
 - **SC-002**: Generation quality degradation is measured against the dynamic DAR baseline via FID to report the absolute difference; **Hypothesis Target**: difference < 0.1 points (See FR-005, US-2).
-- **SC-003**: Statistical significance of the FID difference is measured by reporting mean and standard deviation across multiple random seeds, with optional non-parametric bootstrap (1000 resamples) (See FR-006, US-3).
+- **SC-003**: Statistical significance of the FID difference is measured by reporting mean and standard deviation across multiple random seeds, with optional non-parametric bootstrap (a sufficient number of resamples) (See FR-006, US-3).
 - **SC-004**: Robustness of the static map is measured against the variation in FID scores when the clustering distance threshold is swept over a range of low magnitudes. (See FR-007, US-3).
 - **SC-005**: Memory usage during tracing is measured against the available RAM limit of the GitHub Actions free-tier runner to ensure the analysis completes without OOM errors (See FR-001, Assumptions).
 

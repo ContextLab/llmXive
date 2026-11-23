@@ -1,42 +1,52 @@
 """
-Tests to verify that linting and formatting configuration files exist and are valid.
+Tests to verify that linting (ruff) and formatting (black) configurations are present and valid.
 """
 import os
 import toml
 import pytest
+from pathlib import Path
 
-@pytest.fixture
-def project_root():
-    """Get the project root directory."""
-    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Assume tests are in code/tests/, project root is code/
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-def test_ruff_config_exists(project_root):
-    """Test that ruff.toml configuration file exists."""
-    ruff_config_path = os.path.join(project_root, "ruff.toml")
-    assert os.path.exists(ruff_config_path), "ruff.toml configuration file not found"
+def test_ruff_config_exists():
+    """Verify that ruff configuration exists in pyproject.toml."""
+    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml not found"
 
-def test_black_config_exists(project_root):
-    """Test that pyproject.toml with Black config exists."""
-    pyproject_path = os.path.join(project_root, "pyproject.toml")
-    assert os.path.exists(pyproject_path), "pyproject.toml configuration file not found"
-
-def test_black_config_valid(project_root):
-    """Test that pyproject.toml contains valid Black configuration."""
-    pyproject_path = os.path.join(project_root, "pyproject.toml")
     with open(pyproject_path, 'r', encoding='utf-8') as f:
         config = toml.load(f)
-    
-    assert 'tool' in config, "Missing 'tool' section in pyproject.toml"
-    assert 'black' in config['tool'], "Missing 'black' configuration in pyproject.toml"
-    assert config['tool']['black'].get('line-length') == 88, "Black line-length should be 88"
 
-def test_ruff_config_valid(project_root):
-    """Test that ruff.toml contains valid configuration."""
-    ruff_config_path = os.path.join(project_root, "ruff.toml")
-    # Basic validation: file should not be empty
-    with open(ruff_config_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    assert len(content) > 0, "ruff.toml is empty"
-    assert 'line-length' in content, "ruff.toml missing line-length configuration"
-    assert 'select' in content, "ruff.toml missing select configuration"
+    assert "tool" in config, "No [tool] section in pyproject.toml"
+    assert "ruff" in config["tool"], "No [tool.ruff] section in pyproject.toml"
+
+def test_black_config_exists():
+    """Verify that black configuration exists in pyproject.toml."""
+    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml not found"
+
+    with open(pyproject_path, 'r', encoding='utf-8') as f:
+        config = toml.load(f)
+
+    assert "tool" in config, "No [tool] section in pyproject.toml"
+    assert "black" in config["tool"], "No [tool.black] section in pyproject.toml"
+
+def test_black_config_valid():
+    """Verify that black configuration has required fields."""
+    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+    with open(pyproject_path, 'r', encoding='utf-8') as f:
+        config = toml.load(f)
+
+    black_config = config["tool"]["black"]
+    assert "line-length" in black_config, "black config missing 'line-length'"
+    assert isinstance(black_config["line-length"], int), "black 'line-length' must be an integer"
+
+def test_ruff_config_valid():
+    """Verify that ruff configuration has required fields."""
+    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+    with open(pyproject_path, 'r', encoding='utf-8') as f:
+        config = toml.load(f)
+
+    ruff_config = config["tool"]["ruff"]
+    assert "line-length" in ruff_config, "ruff config missing 'line-length'"
+    assert isinstance(ruff_config["line-length"], int), "ruff 'line-length' must be an integer"

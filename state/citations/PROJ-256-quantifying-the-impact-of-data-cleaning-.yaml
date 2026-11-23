@@ -1,99 +1,132 @@
-- artifact_hash: f45e37b66096bf563ecbca83c627a1eabaacf967b2916a8b1df6a835d9b0c088
+- artifact_hash: 77801ba9a0c9c4fd9964b58c6769881cc8786d5bf5620817c9f8d77f93da4e59
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://doi.org/10.1101/7974338
-  verification_status: mismatch
-  verified_against_url: https://doi.org/10.1101/7974338
-  verified_at: '2026-06-28T16:21:42.386101Z'
-- artifact_hash: f45e37b66096bf563ecbca83c627a1eabaacf967b2916a8b1df6a835d9b0c088
+  value: https://archive.ics.uci.edu/ml/datasets/Wine+Quality
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/dataset/186/wine+quality
+  verified_at: '2026-10-10T06:35:04.156866Z'
+- artifact_hash: 77801ba9a0c9c4fd9964b58c6769881cc8786d5bf5620817c9f8d77f93da4e59
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: '[1907.11692] RoBERTa: A Robustly Optimized BERT Pretraining Approach'
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://doi.org/10.48550/arXiv.1907.11692
-  verification_status: verified
-  verified_against_url: https://arxiv.org/abs/1907.11692
-  verified_at: '2026-06-28T16:21:42.386101Z'
-- artifact_hash: f45e37b66096bf563ecbca83c627a1eabaacf967b2916a8b1df6a835d9b0c088
-  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
+  value: https://archive.ics.uci.edu/ml/datasets/Heart+Disease
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/dataset/45/heart+disease
+  verified_at: '2026-10-10T06:35:04.156866Z'
+- artifact_hash: e36aa0520c0998b2878370e5bd0c65f18086c9c55d31292e67d11837fd1eb713
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: UCI Machine Learning Repository
+  kind: url
+  value: https://archive.ics.uci.edu/ml/datasets/Wine+Quality`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/dataset/186/wine+quality
+  verified_at: '2026-10-14T21:33:35.029057Z'
+- artifact_hash: e36aa0520c0998b2878370e5bd0c65f18086c9c55d31292e67d11837fd1eb713
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: UCI Machine Learning Repository
+  kind: url
+  value: https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+Diagnostic`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic
+  verified_at: '2026-10-14T21:33:35.029057Z'
+- artifact_hash: e36aa0520c0998b2878370e5bd0c65f18086c9c55d31292e67d11837fd1eb713
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/plan.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1101/7974338
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1101/7974338
-  verified_at: '2026-06-28T16:21:42.386101Z'
-- artifact_hash: f45e37b66096bf563ecbca83c627a1eabaacf967b2916a8b1df6a835d9b0c088
-  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
+  fetched_title: bk0-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/mcarthuradal/malawi/resolve/main/booklets/bk0-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65cfd83998b4a470bfe544d4/6889bdf785884799107b528182efaa6f77b43120ca787de9314a86f56a353316?X-Xet-Cas-Uid=public&user_id=public&xip=_Ok_GXES05Q&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27bk0-00000-of-00001.parquet%3B+filename%3D%22bk0-00000-of-00001.parquet%22%3B&Expires=1792017216&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVjZmQ4Mzk5OGI0YTQ3MGJmZTU0NGQ0LzY4ODliZGY3ODU4ODQ3OTkxMDdiNTI4MTgyZWZhYTZmNzdiNDMxMjBjYTc4N2RlOTMxNGE4NmY1NmEzNTMzMTZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZ4aXA9X09rX0dYRVMwNVEmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2JrMC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIyYmswLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MjAxNzIxNn19fV19&Signature=MEUCIHipYqeUhtO3vmT3yYjSoa5A0ay5xGM6FMYd-2-GxKplAiEA4IC-IEqeFagxZD%7ELAaygGMg8vnqy1cUzDRvumn1ZoDA_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T21:33:35.029057Z'
+- artifact_hash: e36aa0520c0998b2878370e5bd0c65f18086c9c55d31292e67d11837fd1eb713
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/plan.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.48550/arXiv.1907.11692
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.48550/arXiv.1907.11692
-  verified_at: '2026-06-28T16:21:42.386101Z'
-- artifact_hash: f45e37b66096bf563ecbca83c627a1eabaacf967b2916a8b1df6a835d9b0c088
-  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/spec.md
+  fetched_title: output.csv
+  kind: url
+  value: https://huggingface.co/datasets/markov-ai/cad-1000-hours/resolve/main/autocad/59f5afb1-7193-4434-83ef-bad577bf09ed/output_files/output.csv`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a88290bf198e93508a91ba2/cb6609569c4c7244b1a15f7928563bcfc5e10d0336a01a0a13a88bb54ea8b62c?X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27output.csv%3B+filename%3D%22output.csv%22%3B&xip=_Ok_GXES05Q&Expires=1792017217&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE4ODI5MGJmMTk4ZTkzNTA4YTkxYmEyL2NiNjYwOTU2OWM0YzcyNDRiMWExNWY3OTI4NTYzYmNmYzVlMTBkMDMzNmEwMWEwYTEzYTg4YmI1NGVhOGI2MmNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN291dHB1dC5jc3YlM0IrZmlsZW5hbWUlM0QlMjJvdXRwdXQuY3N2JTIyJTNCJnhpcD1fT2tfR1hFUzA1USIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMDE3MjE3fX19XX0_&Signature=MEUCIDs51lChOYvmXs9aYOKIURQLM6Ki9oMoM9SEf4Rv1vnpAiEA41LRF1wBa8sVa5G45z6gis55wssc6ReKCDuMrIi5Gdk_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T21:33:35.029057Z'
+- artifact_hash: e36aa0520c0998b2878370e5bd0c65f18086c9c55d31292e67d11837fd1eb713
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/plan.md
   cite_id: c-005
   cited_authors: []
   cited_title: null
-  fetched_title: null
-  kind: doi
-  value: 10.1038/s41591-023-02382-x
-  verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.1038/s41591-023-02382-x
-  verified_at: '2026-06-28T16:21:42.386101Z'
-- artifact_hash: 06c2c3b9b18019a859fdf685dffdec6ad39963f2b5e8bdcec79ff9a1dfc73afa
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/pppereira3/HW4_CLASSIFICATION_mnar/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6794eadaa08d7b966a603690/a5227cb6b6fa83922c2fdec944da020b3236ebebeb8970ad168afdf085d5d7b0?user_id=public&X-Xet-Cas-Uid=public&xip=_Ok_GXES05Q&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1792017217&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc5NGVhZGFhMDhkN2I5NjZhNjAzNjkwL2E1MjI3Y2I2YjZmYTgzOTIyYzJmZGVjOTQ0ZGEwMjBiMzIzNmViZWJlYjg5NzBhZDE2OGFmZGYwODVkNWQ3YjBcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9X09rX0dYRVMwNVEmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMDE3MjE3fX19XX0_&Signature=MEYCIQCesEGZ9WrgSEGM6jjJjjE8LYS4YBrPW2G9pihkAqd36wIhANkc7unZIiLAx0B9FwRwUW7xM19k866FwSqUMHdfD6VE&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T21:33:35.029057Z'
+- artifact_hash: a80e5f3cc501cc1174e08996d8aa51813980cf26f9f726b1c9cd5864748f7d47
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv%60
-  verified_at: '2026-06-30T01:45:27.467581Z'
-- artifact_hash: 06c2c3b9b18019a859fdf685dffdec6ad39963f2b5e8bdcec79ff9a1dfc73afa
+  value: https://archive.ics.uci.edu/ml/datasets/Wine+Quality`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/dataset/186/wine+quality
+  verified_at: '2026-10-14T21:33:51.455005Z'
+- artifact_hash: a80e5f3cc501cc1174e08996d8aa51813980cf26f9f726b1c9cd5864748f7d47
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: UCI Machine Learning Repository
   kind: url
-  value: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet%60
-  verified_at: '2026-06-30T01:45:27.467581Z'
-- artifact_hash: bcb807718a182a4df3ea3b19af18b06da89ed6f403f4e6e462d3fe419e209800
-  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
-  cite_id: c-001
+  value: https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+Diagnostic`
+  verification_status: pending
+  verified_against_url: https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic
+  verified_at: '2026-10-14T21:33:51.455005Z'
+- artifact_hash: a80e5f3cc501cc1174e08996d8aa51813980cf26f9f726b1c9cd5864748f7d47
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/research.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: Integration - Wikidata
+  fetched_title: bk0-00000-of-00001.parquet
   kind: url
-  value: https://www.wikidata.org/wiki/Q15753935
-  verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q15753935
-  verified_at: '2026-07-15T00:09:31.042653Z'
-- artifact_hash: bcb807718a182a4df3ea3b19af18b06da89ed6f403f4e6e462d3fe419e209800
-  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
-  cite_id: c-002
+  value: https://huggingface.co/datasets/mcarthuradal/malawi/resolve/main/booklets/bk0-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65cfd83998b4a470bfe544d4/6889bdf785884799107b528182efaa6f77b43120ca787de9314a86f56a353316?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27bk0-00000-of-00001.parquet%3B+filename%3D%22bk0-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&xip=_Ok_GXES05Q&user_id=public&Expires=1792017232&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVjZmQ4Mzk5OGI0YTQ3MGJmZTU0NGQ0LzY4ODliZGY3ODU4ODQ3OTkxMDdiNTI4MTgyZWZhYTZmNzdiNDMxMjBjYTc4N2RlOTMxNGE4NmY1NmEzNTMzMTZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YmswLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJiazAtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9X09rX0dYRVMwNVEmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MjAxNzIzMn19fV19&Signature=MEUCIQDc3NGq%7EoPmUQgkAHUUYNImxoLoHSaVGOWvpsCxyFW6tgIgayVMP0A2i4ybZMjvYIlKgXEW8-f9zlCAVNM55uy0XyY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T21:33:51.455005Z'
+- artifact_hash: a80e5f3cc501cc1174e08996d8aa51813980cf26f9f726b1c9cd5864748f7d47
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/research.md
+  cite_id: c-004
   cited_authors: []
   cited_title: null
-  fetched_title: Bonferroni correction - Wikidata
+  fetched_title: output.csv
   kind: url
-  value: https://www.wikidata.org/wiki/Q385989
-  verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q385989
-  verified_at: '2026-07-15T00:09:31.042653Z'
+  value: https://huggingface.co/datasets/markov-ai/cad-1000-hours/resolve/main/autocad/59f5afb1-7193-4434-83ef-bad577bf09ed/output_files/output.csv`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6a88290bf198e93508a91ba2/cb6609569c4c7244b1a15f7928563bcfc5e10d0336a01a0a13a88bb54ea8b62c?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27output.csv%3B+filename%3D%22output.csv%22%3B&X-Xet-Cas-Uid=public&user_id=public&xip=_Ok_GXES05Q&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&Expires=1792017233&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNmE4ODI5MGJmMTk4ZTkzNTA4YTkxYmEyL2NiNjYwOTU2OWM0YzcyNDRiMWExNWY3OTI4NTYzYmNmYzVlMTBkMDMzNmEwMWEwYTEzYTg4YmI1NGVhOGI2MmNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3b3V0cHV0LmNzdiUzQitmaWxlbmFtZSUzRCUyMm91dHB1dC5jc3YlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMmeGlwPV9Pa19HWEVTMDVRJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGY3N2JTNCK2NoYXJzZXQlM0R1dGYtOCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMDE3MjMzfX19XX0_&Signature=MEUCIAMhJTrvlsNRwLqY6in082OK%7EPHPyqxFI8hUW%7EZVpb0TAiEArMNHRXIBgKXsyQVw5ap4B9m7K5xxM9WrjdmRCee3QHQ_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T21:33:51.455005Z'
+- artifact_hash: a80e5f3cc501cc1174e08996d8aa51813980cf26f9f726b1c9cd5864748f7d47
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/pppereira3/HW4_CLASSIFICATION_mnar/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6794eadaa08d7b966a603690/a5227cb6b6fa83922c2fdec944da020b3236ebebeb8970ad168afdf085d5d7b0?X-Xet-Cas-Uid=public&user_id=public&xip=_Ok_GXES05Q&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1792017233&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc5NGVhZGFhMDhkN2I5NjZhNjAzNjkwL2E1MjI3Y2I2YjZmYTgzOTIyYzJmZGVjOTQ0ZGEwMjBiMzIzNmViZWJlYjg5NzBhZDE2OGFmZGYwODVkNWQ3YjBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZ4aXA9X09rX0dYRVMwNVEmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyMDE3MjMzfX19XX0_&Signature=MEUCIFdgwB4c-xrs5vzeaPUU%7EVLkokv6RNo-U4-9gn1aUZDKAiEAp09ZdmrKzvsxisLlerDO88JxMIlpu68LsJYg13WDA%7Ew_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-14T21:33:51.455005Z'

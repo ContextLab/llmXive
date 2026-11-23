@@ -1,114 +1,127 @@
 """
-Task T033: Save power audit results to JSON.
+Task T033: Save results to data/processed/power_audit_results.json.
 
-Loads extracted parameters and computed sensitivity metrics,
-calculates threshold met status, and saves the final audit results.
+Loads computed power and MDES results, validates them, and saves the final
+audit results JSON file with the required schema:
+{dataset_id, observed_power, mdes, threshold_met, status}.
 """
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
-# Import from existing sibling module as per API surface
-from code.utils.logging_config import setup_logging
+# Import from sibling modules as per API surface
+from utils.logging_config import setup_logging
 
-# Configure logging
-logger = setup_logging()
-
-INPUT_FILE = Path("data/processed/power_audit_results_temp.json")
-OUTPUT_FILE = Path("data/processed/power_audit_results.json")
-THRESHOLD = 0.8
+logger = logging.getLogger(__name__)
 
 def load_power_results(input_path: Path) -> List[Dict[str, Any]]:
-    """Load the temporary power results computed by T031/T032."""
+    """Load the power audit results computed by 03_compute_sensitivity.py."""
     if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    with open(input_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    with open(input_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    if not isinstance(data, list):
+        raise ValueError(f"Expected a list of results in {input_path}, got {type(data)}")
+    
+    logger.info(f"Loaded {len(data)} power audit results from {input_path}")
+    return data
 
-def process_and_save_results(data: List[Dict[str, Any]], output_path: Path) -> None:
+def process_and_save_results(
+    results: List[Dict[str, Any]],
+    output_path: Path,
+    threshold: float = 0.8
+) -> List[Dict[str, Any]]:
     """
-    Process results to add threshold_met status and save to final JSON.
+    Process raw power results to match the T033 schema and save to JSON.
     
-    Schema: {dataset_id, observed_power, mdes, threshold_met, status}
+    The output schema must contain:
+    - dataset_id: int
+    - observed_power: float (clamped to [0, 1])
+    - mdes: float
+    - threshold_met: bool (observed_power >= threshold)
+    - status: str ("success" or "failed")
     """
-    final_results = []
+    processed_results = []
     
-    for record in data:
-        dataset_id = record.get("dataset_id")
-        observed_power = record.get("observed_power")
-        mdes = record.get("mdes")
-        status = record.get("status", "unknown")
+    for item in results:
+        dataset_id = item.get('dataset_id')
+        observed_power = item.get('observed_power')
+        mdes = item.get('mdes')
         
-        # Determine if threshold is met
-        threshold_met = observed_power >= THRESHOLD if observed_power is not None else False
+        if dataset_id is None:
+            logger.warning(f"Skipping result missing dataset_id: {item}")
+            continue
         
-        final_record = {
+        if observed_power is None or mdes is None:
+            logger.warning(f"Skipping result missing power or MDES for dataset {dataset_id}: {item}")
+            continue
+        
+        # Clamp observed_power to [0, 1] as per spec
+        observed_power = max(0.0, min(1.0, float(observed_power)))
+        mdes = float(mdes)
+        
+        # Determine threshold_met and status
+        threshold_met = observed_power >= threshold
+        status = "success" if threshold_met else "failed"
+        
+        processed_item = {
             "dataset_id": dataset_id,
             "observed_power": observed_power,
             "mdes": mdes,
             "threshold_met": threshold_met,
             "status": status
         }
-        final_results.append(final_record)
         
-        logger.debug(f"Processed dataset {dataset_id}: power={observed_power}, mdes={mdes}, met={threshold_met}")
-
+        processed_results.append(processed_item)
+    
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(final_results, f, indent=2)
+    # Write to JSON
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(processed_results, f, indent=2)
     
-    logger.info(f"Saved {len(final_results)} power audit results to {output_path}")
+    logger.info(f"Saved {len(processed_results)} processed results to {output_path}")
+    
+    # Log summary statistics
+    success_count = sum(1 for r in processed_results if r['status'] == 'success')
+    failure_count = len(processed_results) - success_count
+    logger.info(f"Summary: {success_count} passed threshold, {failure_count} failed")
+    
+    return processed_results
 
 def main():
     """Main entry point for T033."""
+    # Setup logging
+    log_config = setup_logging()
+    
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    input_file = project_root / 'data' / 'processed' / 'power_audit_results_raw.json'
+    output_file = project_root / 'data' / 'processed' / 'power_audit_results.json'
+    
+    logger.info(f"Starting T033: Saving power audit results")
+    logger.info(f"Input: {input_file}")
+    logger.info(f"Output: {output_file}")
+    
     try:
-        # The previous step (T031/T032) should have written to a temp file or we load from the computed results
-        # Based on the pipeline flow, T031/T032 likely output to a temp location or we need to read from extracted_params and recompute?
-        # However, T031/T032 description says "store results". Let's assume they output to a temp file or we need to read the computed state.
-        # Looking at T031: "Process all entries... and store results."
-        # Looking at T032: "Convert F to d... store results."
-        # We assume the output of T032 is the input for T033.
-        # Since T031/T032 are marked completed, they likely wrote to a file. 
-        # If they didn't specify a file, we might need to re-run the logic or assume a standard location.
-        # Let's assume the computed results are in 'data/processed/power_audit_results_temp.json' 
-        # or we need to read 'extracted_params.json' and re-run the logic if the temp file doesn't exist.
+        # Load raw results
+        results = load_power_results(input_file)
         
-        # Actually, looking at the task chain:
-        # T031 computes power/MDES and stores them.
-        # T032 converts F to d and updates.
-        # T033 saves the final schema.
-        # It is most likely that T032 wrote to a temporary file or the main output file.
-        # To be safe, let's check if the input file exists. If not, we might need to re-derive from extracted_params.json
-        # but the task T031/T032 implies the calculation is done.
+        # Process and save
+        process_and_save_results(results, output_file)
         
-        # If the previous tasks wrote to a specific file, we should use that. 
-        # Since T031/T032 are marked done, let's assume they wrote to 'data/processed/power_audit_results_temp.json'
-        # as a staging area, or perhaps they wrote directly to the final file but without the 'threshold_met' field.
+        logger.info("T033 completed successfully")
         
-        # Let's try to load from the expected temp file first.
-        if not INPUT_FILE.exists():
-            # Fallback: If the temp file doesn't exist, we assume the previous step wrote to the final file 
-            # but maybe we need to re-process? Or perhaps the previous step wrote to 'extracted_params.json' with extra fields?
-            # The task T031 says "store results". T033 says "Save results to ... with schema".
-            # This implies T031/T032 might have stored in a different format or location.
-            # Let's assume the previous step (T032) output is in 'data/processed/power_audit_results_temp.json'.
-            # If it doesn't exist, we might need to re-run the calculation logic from extracted_params.json.
-            # However, to strictly follow "Implement T033", we assume the data is available.
-            # If the file is missing, we raise an error.
-            raise FileNotFoundError(f"Intermediate results file not found: {INPUT_FILE}. Ensure T031/T032 completed successfully.")
-        
-        data = load_power_results(INPUT_FILE)
-        process_and_save_results(data, OUTPUT_FILE)
-        logger.info("T033 completed successfully.")
-        
+    except FileNotFoundError as e:
+        logger.error(f"Input file not found: {e}")
+        raise
     except Exception as e:
-        logger.error(f"T033 failed: {e}")
+        logger.error(f"Error processing results: {e}")
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

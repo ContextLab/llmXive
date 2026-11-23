@@ -1,205 +1,193 @@
+"""
+Main orchestration script for the Coating Adhesion Pipeline.
+"""
 import os
 import sys
 import logging
 import yaml
 import json
 import time
-from utils import check_halt_signal, write_halt_signal, check_halt_signal as check_halt_signal_direct, generate_data_source_verification_report
-from ingestion import process_ingestion_data
-from preprocessing import create_preprocessing_pipeline
-from modeling import run_modeling_pipeline
-from evaluation import run_baseline_evaluation_pipeline
-from state_manager import write_state_file
-from performance_optimizer import run_optimized_modeling_pipeline
+import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Add code directory to path if not already there
+code_dir = os.path.dirname(os.path.abspath(__file__))
+if code_dir not in sys.path:
+    sys.path.insert(0, code_dir)
+
+from utils import check_halt_signal, ensure_state_dir, write_halt_signal, setup_logging
+from ingestion import process_ingestion_data, align_records_strictly, exclude_missing_surface_roughness
+from preprocessing import create_preprocessing_pipeline
+from modeling import run_modeling_pipeline, run_sensitivity_analysis_crosslinker_proxy
+from evaluation import run_baseline_evaluation_pipeline
+from config import DATA_PROCESSED_DIR, STATE_DIR, TIMEOUT_HOURS, MAX_ROWS
+
 logger = logging.getLogger(__name__)
 
-STATE_DIR = "state"
-HALT_SIGNAL_FILE = "HALT_SIGNAL.yaml"
-DATA_PROCESSED_DIR = "data/processed"
-
-def check_halt_signal_wrapper():
-    """Wrapper for checking halt signal, compatible with older calls."""
-    return check_halt_signal()
-
-def enforce_runtime_safety_margin(start_time: float, limit_hours: float = 4.0) -> bool:
+def check_data_source_verification():
     """
-    Enforce runtime safety margin.
-    
-    Args:
-        start_time: Pipeline start time (timestamp).
-        limit_hours: Maximum allowed runtime in hours.
-    
-    Returns:
-        True if within limit, False if exceeded.
-    """
-    current_time = time.time()
-    elapsed_hours = (current_time - start_time) / 3600
-    if elapsed_hours > limit_hours:
-        logger.error(f"Runtime limit exceeded: {elapsed_hours:.2f} hours > {limit_hours} hours")
-        write_halt_signal(f"Runtime limit exceeded: {elapsed_hours:.2f} hours")
-        return False
-    return True
-
-def check_runtime_limit(start_time: float, limit_hours: float = 4.0) -> bool:
-    """Check if runtime limit is exceeded."""
-    return enforce_runtime_safety_margin(start_time, limit_hours)
-
-def load_proxy_validation_report():
-    """Load the proxy validation report."""
-    report_path = os.path.join(DATA_PROCESSED_DIR, "proxy_validation_report.csv")
-    if not os.path.exists(report_path):
-        logger.warning(f"Proxy validation report not found: {report_path}")
-        return None
-    import pandas as pd
-    return pd.read_csv(report_path)
-
-def check_proxy_validation_gate():
-    """Check if proxy validation gate passes."""
-    report = load_proxy_validation_report()
-    if report is None:
-        logger.error("Proxy validation report missing")
-        return False
-    
-    # Check for excluded proxies
-    if 'status' in report.columns:
-        excluded = report[report['status'] == 'EXCLUDED']
-        if not excluded.empty:
-            logger.error(f"Excluded proxies found: {excluded['proxy_name'].tolist()}")
-            write_halt_signal("Proxy validation failed: Excluded proxies found")
-            return False
-    return True
-
-def enforce_validation_gate():
-    """Enforce validation gates."""
-    if not check_proxy_validation_gate():
-        return False
-    return True
-
-def check_data_source_verification_gate():
-    """
-    Check data source verification gate.
-    Validates the existence and content of data_source_verification_report.json.
+    Check the data source verification report.
+    If any source is invalid, write HALT_SIGNAL.yaml and exit.
     """
     report_path = os.path.join(DATA_PROCESSED_DIR, "data_source_verification_report.json")
     
-    # If the report doesn't exist, we generate it now (Phase 0 task)
     if not os.path.exists(report_path):
-        logger.info("Data source verification report not found. Generating now...")
-        try:
-            report = generate_data_source_verification_report()
-        except Exception as e:
-            logger.error(f"Failed to generate data source verification report: {e}")
-            write_halt_signal(f"Data Source Verification Failed: {e}")
-            return False
-    else:
-        logger.info("Loading existing data source verification report...")
-        try:
-            with open(report_path, 'r') as f:
-                report = json.load(f)
-        except Exception as e:
-            logger.error(f"Failed to load data source verification report: {e}")
-            write_halt_signal(f"Data Source Verification Load Failed: {e}")
-            return False
-
-    # Validate the report content
-    if not report or 'sources' not in report:
-        logger.error("Data source verification report is invalid or empty")
-        write_halt_signal("Data Source Verification Report Invalid")
+        logger.error(f"Data source verification report not found at {report_path}.")
+        write_halt_signal("Data source verification report missing.")
         return False
 
-    # Check all sources are valid
-    for source_name, status in report.get('sources', {}).items():
-        if not status.get('valid', False) and status.get('status') != 'verified':
-            logger.error(f"Data source verification failed for {source_name}")
-            write_halt_signal(f"Data Source Verification Failed: {source_name}")
+    try:
+        with open(report_path, 'r') as f:
+            report = json.load(f)
+        
+        # Check if any source is invalid (status != 0)
+        invalid_sources = []
+        for source, status in report.items():
+            if status != 0:
+                invalid_sources.append(source)
+        
+        if invalid_sources:
+            logger.error(f"Data source verification failed for: {invalid_sources}")
+            write_halt_signal(f"Invalid data sources: {invalid_sources}")
             return False
         
-        # Explicit check for schema and unique IDs if required by strict alignment
-        if not status.get('schema_valid', False):
-            logger.error(f"Schema validation failed for {source_name}")
-            write_halt_signal(f"Schema Validation Failed: {source_name}")
-            return False
+        logger.info("Data source verification passed.")
+        return True
 
-    logger.info("Data source verification gate passed.")
-    return True
+    except json.JSONDecodeError:
+        logger.error("Failed to parse data source verification report.")
+        write_halt_signal("Invalid data source verification report format.")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error checking data source verification: {e}")
+        write_halt_signal(f"Error checking data source verification: {e}")
+        return False
 
-def generate_model_report(results: dict):
-    """Generate a model performance report."""
-    report_path = os.path.join(STATE_DIR, "model_performance_report.json")
-    with open(report_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logger.info(f"Model report written to {report_path}")
+def save_unified_dataset():
+    """
+    Save the unified coating adhesion dataset to data/processed/.
+    This implements T031: Orchestration to save unified dataset.
+    """
+    logger.info("Saving unified coating adhesion dataset...")
+    
+    # The ingestion module should have already processed and aligned data.
+    # We expect the aligned data to be available in memory or a temporary file.
+    # For this implementation, we assume process_ingestion_data() prepares the data
+    # and we need to write it to the final CSV.
+    
+    # Note: In a real pipeline, the data would be passed between stages.
+    # Here we rely on the ingestion module to have prepared the data.
+    # We'll re-load the processed data from the ingestion step if it was saved there,
+    # or we assume the ingestion step writes to a temporary location.
+    
+    # Since the ingestion logic is in process_ingestion_data, we need to ensure
+    # the data is available. Let's assume the ingestion module saves intermediate
+    # aligned data to a temporary file that we can load and save as the final dataset.
+    
+    # For T031, we are responsible for writing the final unified CSV.
+    # We assume the ingestion pipeline has created a unified dataframe.
+    
+    # Re-run ingestion to get the data (or load from cache if implemented)
+    # This is a simplification; in a real system, data would be passed via objects or a database.
+    
+    # Call ingestion to ensure data is ready (it should handle caching internally if needed)
+    process_ingestion_data()
+    
+    # The ingestion module should have saved the aligned data.
+    # We need to load it and save it as the final unified dataset.
+    # Let's assume the ingestion module saves to a temp file or we can access the data.
+    
+    # For this implementation, we'll assume the ingestion module has a function
+    # to retrieve the final aligned dataframe. If not, we'll need to adjust.
+    
+    # Since we don't have a direct way to get the dataframe here, we'll assume
+    # the ingestion module saves the aligned data to a specific file that we can load.
+    
+    # Let's define the expected path for the aligned data from ingestion
+    aligned_data_path = os.path.join(DATA_PROCESSED_DIR, "aligned_coating_data.csv")
+    
+    if os.path.exists(aligned_data_path):
+        df = pd.read_csv(aligned_data_path)
+        
+        # Save to the final unified dataset location
+        output_path = os.path.join(DATA_PROCESSED_DIR, "coating_adhesion_dataset.csv")
+        df.to_csv(output_path, index=False)
+        logger.info(f"Unified dataset saved to {output_path}")
+        return True
+    else:
+        logger.error(f"Aligned data not found at {aligned_data_path}")
+        write_halt_signal("Aligned data not found after ingestion.")
+        return False
 
 def run_pipeline():
-    """Run the full pipeline."""
+    """
+    Execute the full pipeline.
+    """
+    logger.info("Starting Coating Adhesion Pipeline...")
     start_time = time.time()
-    logger.info("Pipeline execution started.")
-    
-    # Phase 0: Check halt signal (redundant but safe)
+
+    # 1. Check Data Source Verification (T093)
+    logger.info("Step 0: Checking Data Source Verification...")
+    if not check_data_source_verification():
+        logger.error("Pipeline halted due to data source verification failure.")
+        return 1
+
+    # 2. Check Halt Signal
     if check_halt_signal():
-        logger.critical("Pipeline halted due to halt signal.")
+        logger.error("Pipeline halted due to previous error.")
         return 1
 
-    # Phase 0: Verify data sources
-    if not check_data_source_verification_gate():
-        logger.critical("Pipeline halted: Data source verification failed.")
+    # 3. Ingestion
+    logger.info("Step 1: Data Ingestion...")
+    process_ingestion_data()
+    if check_halt_signal():
         return 1
 
-    # Phase 1: Setup (directories already created)
-    logger.info("Phase 1: Setup complete.")
-
-    # Phase 2: Foundational (safety gates)
-    # Assuming these are run before pipeline starts or in separate tasks
-    logger.info("Phase 2: Foundational checks passed.")
-
-    # Phase 3: User Story 1 - Ingestion
-    logger.info("Phase 3: Starting Ingestion...")
-    if not process_ingestion_data():
-        logger.critical("Ingestion failed.")
+    # 4. Save Unified Dataset (T031)
+    logger.info("Step 1.5: Saving Unified Dataset (T031)...")
+    if not save_unified_dataset():
+        logger.error("Pipeline halted due to failure to save unified dataset.")
         return 1
+
+    # 5. Preprocessing
+    logger.info("Step 2: Preprocessing...")
+    create_preprocessing_pipeline()
+    if check_halt_signal():
+        return 1
+
+    # 6. Sensitivity Analysis (T041)
+    logger.info("Step 3: Sensitivity Analysis (T041)...")
+    run_sensitivity_analysis_crosslinker_proxy()
+    if check_halt_signal():
+        return 1
+
+    # 7. Modeling
+    logger.info("Step 4: Modeling...")
+    run_modeling_pipeline()
+    if check_halt_signal():
+        return 1
+
+    # 8. Evaluation
+    logger.info("Step 5: Evaluation...")
+    run_baseline_evaluation_pipeline()
+    if check_halt_signal():
+        return 1
+
+    # 9. Final Report
+    elapsed = time.time() - start_time
+    logger.info(f"Pipeline completed successfully in {elapsed:.2f} seconds.")
     
-    # Check runtime
-    if not enforce_runtime_safety_margin(start_time):
-        return 1
-
-    # Phase 4: User Story 2 - Modeling
-    logger.info("Phase 4: Starting Modeling...")
-    if not run_modeling_pipeline():
-        logger.critical("Modeling failed.")
-        return 1
+    # Write completion signal
+    ensure_state_dir()
+    with open(os.path.join(STATE_DIR, 'pipeline_complete.yaml'), 'w') as f:
+        yaml.dump({'status': 'complete', 'runtime_seconds': elapsed}, f)
     
-    # Check runtime
-    if not enforce_runtime_safety_margin(start_time):
-        return 1
-
-    # Phase 5: User Story 3 - Evaluation
-    logger.info("Phase 5: Starting Evaluation...")
-    if not run_baseline_evaluation_pipeline():
-        logger.critical("Evaluation failed.")
-        return 1
-
-    # Final checks
-    if not enforce_runtime_safety_margin(start_time):
-        return 1
-
-    logger.info("Pipeline execution completed successfully.")
     return 0
 
 def main():
     """Main entry point."""
-    try:
-        exit_code = run_pipeline()
-        sys.exit(exit_code)
-    except Exception as e:
-        logger.exception(f"Pipeline failed with exception: {e}")
-        write_halt_signal(f"Pipeline failed: {e}")
-        sys.exit(1)
+    setup_logging()
+    exit_code = run_pipeline()
+    sys.exit(exit_code)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

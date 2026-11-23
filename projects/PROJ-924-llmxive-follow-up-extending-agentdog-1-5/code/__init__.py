@@ -1,1 +1,3 @@
-# llmXive Drift Detection Code Package
+"""
+AgentDoG Drift Detection Code Package.
+"""

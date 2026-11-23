@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 987a0c837eeba2ee8e66cf577d750f839a331999fa85f8c0d4ded0fc7012afe5
+  artifact_path: projects/PROJ-326-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Software for Complex Networks &#8212; NetworkX 3.6.1 documentation
+  kind: url
+  value: https://networkx.org/documentation/stable/
+  verification_status: pending
+  verified_against_url: https://networkx.org/documentation/stable/
+  verified_at: '2026-07-23T13:26:18.636489Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.20682",
+  "judged_at": "2026-07-19T19:01:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+  "rationale": "This paper is the foundational work for the specific framework (\"IndusAgent\") mentioned in the user's research question, satisfying category (d) as the canonical reference for the method being extended. Additionally, it directly measures the same mechanism (open-vocabulary industrial anomaly detection using agentic tools) described in the user's query, satisfying category (a).",
+  "relevant": true
+}

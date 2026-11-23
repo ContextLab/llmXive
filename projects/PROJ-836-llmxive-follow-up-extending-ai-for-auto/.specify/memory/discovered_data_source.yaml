@@ -1,0 +1,15 @@
+status: none
+intent: download AI for Auto-Research benchmark creation logs OpenAlex reference python
+  package dataset
+required_fields:
+- benchmark_id
+- paper_id
+- creation_phase_log
+- literature_review_text
+- entity_relation_triplets
+- graph_cycle_density
+- graph_isolation_score
+- graph_semantic_distance
+cache_key: b94163a6d76c17a59139ce10a6bffb39039fae2da6682f5b40fe618063e811c6
+searched_at: '2026-09-06T07:09:57.380849+00:00'
+retry_count: 1

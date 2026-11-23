@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model performance reports"
+type: object
+required:
+  - metrics
+  - hyperparameters
+  - statistical_test
+properties:
+  metrics:
+    type: object
+    required:
+      - R2
+      - MAE
+      - RMSE
+    properties:
+      R2:
+        type: number
+      MAE:
+        type: number
+      RMSE:
+        type: number
+  hyperparameters:
+    type: object
+    description: "Best hyperparameters found during grid search"
+  statistical_test:
+    type: object
+    required:
+      - method
+      - p_value
+      - confidence_interval
+    properties:
+      method:
+        type: string
+      p_value:
+        type: number
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+  timestamp:
+    type: string
+    format: date-time
+  model_type:
+    type: string

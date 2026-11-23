@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    volumes:
+      - ./data:/app/code/data
+      - ./reports:/app/code/reports
+    environment:
+      - PYTHONPATH=/app/code
+    command: pytest
+
+  dev:
+    build: .
+    volumes:
+      - .:/app
+    command: python -m pytest --watch
+    stdin_open: true
+    tty: true

@@ -48,5 +48,15 @@
     "sec/4_analysis.tex",
     "sec/2_method.tex",
     "sec/1_intro.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "43a828fbd7c04e14e70feb4bc3960005f484bae6dd6943364fae736ad023f512",
+      "bytes": 8779034
+    },
+    "original.pdf": {
+      "sha256": "a0eb086f58de7b277367ff073b8b356c892efa306ddd328114f188040519aca3",
+      "bytes": 8746192
+    }
+  }
 }

@@ -1,0 +1,94 @@
+# Implementation Plan: Exploring the Impact of Data Imputation Methods on Causal Inference
+
+**Branch**: `001-data-imputation-mnar-impact` | **Date**: 2026-07-15 | **Spec**: `specs/001-data-imputation-mnar-impact/spec.md`
+**Input**: Feature specification from `/specs/001-data-imputation-mnar-impact/spec.md`
+
+## Summary
+
+This feature implements a simulation study to quantify the bias introduced by standard imputation methods (Mean, KNN, MICE) when applied to data with Missing Not At Random (MNAR) mechanisms. The system generates synthetic Structural Causal Models (SCMs) with known ground-truth Average Treatment Effects (ATE), injects missingness dependent on unobserved outcomes, and compares estimated ATEs against the known truth. The plan strictly adheres to the requirement of CPU-only execution on GitHub Actions free-tier runners, utilizing `scikit-learn`, `statsmodels`, and `sklearn.impute` without GPU acceleration.
+
+## Technical Context
+
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `statsmodels`, `scipy`, `matplotlib`, `seaborn`, `causalinference` (or custom SCM generator), `pytest`.  
+**MICE Implementation**: `sklearn.experimental.enable_iterative_imputer()` with `IterativeImputer` (canonical choice for CPU-only). Fallback: `fancyimpute` only if sklearn unavailable.  
+**Storage**: Local filesystem (`data/` for generated CSV/Parquet, `data/results/` for aggregated metrics).  
+**Testing**: `pytest` with strict seed pinning for reproducibility.  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM).  
+**Project Type**: Computational research simulation.  
+**Performance Goals**: Complete 200 simulation runs + sensitivity analysis within 4 hours.  
+**Constraints**: No GPU, no CUDA, no 8-bit/4-bit quantization. Data subset to fit <7GB RAM.  
+**Scale/Scope**: Multiple simulation runs, Multiple MNAR parameter steps ($\beta \in \{,,, 0.8, 1.0\}$), imputation methods, estimators.  
+**Power Analysis**: For N=1000 with expected missingness rate [deferred], effective N ≈ 700. Post-hoc power calculation (Phase 3 Task T033) verifies [deferred] power to detect moderate effect size (Cohen's d) in bias differences between methods. If power < 80%, limitation is explicitly flagged in paper.
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research.*
+
+| Principle | Status | Verification Action |
+|-----------|--------|---------------------|
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. All data generated procedurally; no external static datasets required for the core simulation. `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **PASS** | Citations in `research.md` restricted to verified URLs in the input block. No invented URLs. |
+| **III. Data Hygiene** | **PASS** | Generated data stored in `data/` with checksums recorded in state. No in-place modification; derivations written to new files. |
+| **IV. Single Source of Truth** | **PASS** | All figures and stats in the paper will trace to `data/results/simulation_summary.csv` and `data/results/statistical_tests.json`. Schema validation (Task T028.5) ensures CSV completeness before visualization. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes. State file updated on artifact changes. |
+| **VI. Synthetic Ground Truth Integrity** | **PASS** | Phase 1 Task T006 implements `regenerate_ground_truth(seed, beta)` function returning (tau_true, alpha, beta). Phase 2 Task T029d stores these parameters in every row of simulation_summary.csv. Post-hoc verification enabled by calling regenerate_ground_truth(seed, beta) and comparing to stored values. Deterministic and mathematically verifiable. |
+| **VII. Causal Estimation Robustness** | **PASS** | Phase 3 Task T031 calculates bias divergence metric: \|bias_IPW - bias_PSM\| for each imputation method and beta level. If divergence > 0.1, flagged as interaction effect in data/results/statistical_tests.json with interaction_flag field. |
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-data-imputation-mnar-impact/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+└── contracts/           # Phase 1 output
+    ├── simulation_summary.schema.yaml       # Single Source of Truth
+    ├── statistical_test.schema.yaml
+    ├── sensitivity_analysis.schema.yaml
+    ├── imputation_result.schema.yaml
+    └── synthetic_dataset.schema.yaml
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-047-exploring-the-impact-of-data-imputation-/
+├── code/
+│   ├── __init__.py
+│   ├── synthetic_data.py          # SCM generation, MNAR injection, regenerate_ground_truth
+│   ├── imputation.py              # Mean, KNN, MICE implementation (CPU only)
+│   ├── causal_estimators.py       # IPW and PSM implementation
+│   ├── analysis.py                # Bias calculation, statistical tests (Shapiro/ANOVA/Friedman/Bootstrap)
+│   ├── sensitivity.py             # Beta sweep, trend verification (Spearman, Regression)
+│   ├── visualization.py           # Plot generation (bias_vs_beta, coverage_vs_beta, distributions)
+│   └── run_simulation.py          # Main orchestration loop
+├── data/
+│   ├── raw/                       # Generated synthetic datasets (per run)
+│   ├── results/                   # Aggregated CSVs, JSON stats, plots
+│   └── checksums.json             # Artifact hashes
+├── tests/
+│   ├── unit/
+│   │   ├── test_synthetic_data.py
+│   │   ├── test_imputation.py
+│   │   └── test_estimators.py
+│   └── integration/
+│       └── test_full_pipeline.py
+├── docs/
+│   └── paper/                     # Draft figures and text
+└── requirements.txt
+```
+
+**Structure Decision**: Single `code/` directory for simulation scripts, separated by functional module. `data/` split into `raw` (intermediate) and `results` (final). This supports the "Single Source of Truth" by ensuring results flow through `simulation_summary.csv` (validated by Task T028.5).
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Dual Estimators (IPW + PSM)** | Required by Constitution Principle VII to distinguish imputation error from causal identification error. Phase 3 Task T031 flags divergence between them as an interaction effect. | Using only one estimator would conflate the two sources of bias, violating the robustness verification requirement. |
+| **Sensitivity Analysis (Beta Sweep)** | Required by FR-007 and SC-005 to identify failure thresholds. Tasks T030 and T035 verify monotonic trends with explicit pass/fail flags. | A single-point analysis cannot demonstrate the monotonic trend or identify where standard methods break down. |
+| **Statistical Decision Tree (Shapiro → ANOVA/Friedman → Bootstrap)** | Required by FR-006 to ensure valid inference under unknown distribution shapes. Task T028 integrates all branches into a single coherent workflow. Bootstrap is computed whenever skewness > ±1 as a mandatory robustness check. | Using only ANOVA assumes normality which may not hold for bias distributions; using only Friedman loses power if normality holds. Bootstrap handles skewness. |
+| **Oracle Benchmark (Task T036)** | Added to address circularity concern: bias relative to generative parameter is tautological. Oracle benchmark (IPW on complete data) provides independent validation. | Without independent benchmark, cannot distinguish between "imputation failed" vs. "MNAR distorted the parameter." |

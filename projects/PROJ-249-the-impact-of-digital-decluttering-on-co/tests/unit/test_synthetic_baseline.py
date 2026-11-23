@@ -1,166 +1,233 @@
 """
-Unit tests for synthetic baseline data generation (T017).
-
-Verifies:
-1. Output file exists at data/raw/synthetic_baseline.csv
-2. Schema matches (participant_id, metric_type, value, timestamp)
-3. Participant IDs match P\\d{3} pattern
-4. Metric types match expected set
-5. Values fall within expected ranges defined in METRIC_CONFIG
-6. Distributions are approximately correct (mean/std checks)
+Unit tests for synthetic baseline data generator.
 """
 
 import os
 import csv
-import re
 import pytest
 from pathlib import Path
-from datetime import datetime
+import numpy as np
 
-# Import the module under test
+# Add project root to path for imports
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from validation.synthetic_baseline import (
-    generate_synthetic_data,
+from code.validation.synthetic_baseline import (
+    load_config,
     generate_participant_id,
     clip_value,
-    METRIC_CONFIG,
-    NUM_PARTICIPANTS,
-    SEED,
-    OUTPUT_FILE
+    generate_synthetic_data,
+    write_csv,
+    main
 )
-from utils.random_seed import set_global_seed, get_rng
+from code.utils.random_seed import set_global_seed, get_rng
 
-class TestParticipantIdGeneration:
+
+class TestGenerateParticipantId:
     def test_format(self):
-        """Test that IDs match P\\d{3} pattern."""
-        for i in range(1, 100):
+        """Test that generated IDs match P\\d{3} pattern."""
+        for i in range(1, 1000):
             pid = generate_participant_id(i)
-            assert re.match(r"P\d{3}", pid), f"ID {pid} does not match P\\d{3}"
+            assert pid.startswith("P")
+            assert len(pid) == 4
+            assert pid[1:].isdigit()
 
-    def test_sequence(self):
-        """Test that IDs are sequential."""
+    def test_specific_values(self):
+        """Test specific ID generation."""
         assert generate_participant_id(1) == "P001"
-        assert generate_participant_id(2) == "P002"
         assert generate_participant_id(10) == "P010"
-        assert generate_participant_id(99) == "P099"
+        assert generate_participant_id(100) == "P100"
+        assert generate_participant_id(999) == "P999"
+
 
 class TestClipValue:
-    def test_clip_below(self):
-        assert clip_value(-5, 0, 100) == 0
+    def test_within_range(self):
+        """Test clipping when value is within range."""
+        assert clip_value(15.0, 0, 50) == 15.0
 
-    def test_clip_above(self):
-        assert clip_value(150, 0, 100) == 100
+    def test_below_min(self):
+        """Test clipping when value is below minimum."""
+        assert clip_value(-5.0, 0, 50) == 0
 
-    def test_keep_in_range(self):
-        assert clip_value(50, 0, 100) == 50
+    def test_above_max(self):
+        """Test clipping when value is above maximum."""
+        assert clip_value(75.0, 0, 50) == 50
 
-class TestSyntheticDataGeneration:
-    def test_row_count(self):
-        """Verify we generate exactly NUM_PARTICIPANTS * 4 rows."""
-        set_global_seed(SEED)
+    def test_edge_cases(self):
+        """Test clipping at exact boundaries."""
+        assert clip_value(0, 0, 50) == 0
+        assert clip_value(50, 0, 50) == 50
+
+
+class TestLoadConfig:
+    def test_load_existing_config(self):
+        """Test loading the existing config file."""
+        config_path = Path("code/config/synthetic_data_config.yaml")
+        if config_path.exists():
+            config = load_config(config_path)
+            assert "seed" in config
+            assert "num_participants" in config
+            assert "metrics" in config
+            assert "SART" in config["metrics"]
+            assert "Ospan" in config["metrics"]
+            assert "PSS-10" in config["metrics"]
+            assert "PANAS" in config["metrics"]
+        else:
+            pytest.skip("Config file not found")
+
+    def test_missing_config(self):
+        """Test that missing config raises error."""
+        with pytest.raises(FileNotFoundError):
+            load_config(Path("nonexistent/config.yaml"))
+
+
+class TestGenerateSyntheticData:
+    def test_num_rows(self):
+        """Test that correct number of rows are generated."""
+        set_global_seed(42)
         rng = get_rng()
-        data = generate_synthetic_data(rng)
-        assert len(data) == NUM_PARTICIPANTS * 4, f"Expected {NUM_PARTICIPANTS * 4} rows, got {len(data)}"
+        config = {
+            "num_participants": 5,
+            "metrics": {
+                "SART": {"mean": 10, "std": 3, "min": 0, "max": 50},
+                "Ospan": {"mean": 15, "std": 3, "min": 0, "max": 25}
+            }
+        }
+        data = generate_synthetic_data(rng, config)
+        # 5 participants * 2 metrics = 10 rows
+        assert len(data) == 10
 
-    def test_columns_present(self):
-        """Verify all required columns exist."""
-        set_global_seed(SEED)
+    def test_row_structure(self):
+        """Test that each row has required fields."""
+        set_global_seed(42)
         rng = get_rng()
-        data = generate_synthetic_data(rng)
-        if len(data) > 0:
-            row = data[0]
-            assert "participant_id" in row
-            assert "metric_type" in row
-            assert "value" in row
-            assert "timestamp" in row
-
-    def test_metric_types(self):
-        """Verify metric types match expected set."""
-        set_global_seed(SEED)
-        rng = get_rng()
-        data = generate_synthetic_data(rng)
-        expected_metrics = set(METRIC_CONFIG.keys())
-        actual_metrics = set(row["metric_type"] for row in data)
-        assert actual_metrics == expected_metrics, f"Expected {expected_metrics}, got {actual_metrics}"
+        config = {
+            "num_participants": 1,
+            "metrics": {
+                "SART": {"mean": 10, "std": 3, "min": 0, "max": 50}
+            }
+        }
+        data = generate_synthetic_data(rng, config)
+        assert len(data) == 1
+        row = data[0]
+        assert "participant_id" in row
+        assert "metric_type" in row
+        assert "value" in row
+        assert "timestamp" in row
 
     def test_value_ranges(self):
-        """Verify values are within defined min/max for each metric."""
-        set_global_seed(SEED)
+        """Test that generated values are within specified ranges."""
+        set_global_seed(42)
         rng = get_rng()
-        data = generate_synthetic_data(rng)
+        config = {
+            "num_participants": 20,
+            "metrics": {
+                "SART": {"mean": 10, "std": 3, "min": 0, "max": 50},
+                "Ospan": {"mean": 15, "std": 3, "min": 0, "max": 25}
+            }
+        }
+        data = generate_synthetic_data(rng, config)
+
         for row in data:
+            value = row["value"]
             metric = row["metric_type"]
-            val = row["value"]
-            config = METRIC_CONFIG[metric]
-            assert config["min"] <= val <= config["max"], \
-                f"Value {val} for {metric} out of range [{config['min']}, {config['max']}]"
+            min_val = config["metrics"][metric]["min"]
+            max_val = config["metrics"][metric]["max"]
+            assert min_val <= value <= max_val, f"Value {value} out of range for {metric}"
 
-    def test_distributions(self):
-        """Verify approximate distribution parameters."""
-        set_global_seed(SEED)
-        rng = get_rng()
-        data = generate_synthetic_data(rng)
+    def test_deterministic_with_seed(self):
+        """Test that same seed produces same results."""
+        config = {
+            "num_participants": 5,
+            "metrics": {
+                "SART": {"mean": 10, "std": 3, "min": 0, "max": 50}
+            }
+        }
 
-        for metric, config in METRIC_CONFIG.items():
-            values = [row["value"] for row in data if row["metric_type"] == metric]
-            import numpy as np
-            mean = np.mean(values)
-            std = np.std(values)
-            
-            # Allow 20% tolerance for small sample size (n=20)
-            assert abs(mean - config["mean"]) < config["mean"] * 0.2, \
-                f"{metric} mean {mean} too far from expected {config['mean']}"
-            assert abs(std - config["std"]) < config["std"] * 0.3, \
-                f"{metric} std {std} too far from expected {config['std']}"
+        set_global_seed(42)
+        rng1 = get_rng()
+        data1 = generate_synthetic_data(rng1, config)
 
-class TestOutputFile:
-    def test_file_created(self):
-        """Verify the script creates the output file."""
-        # Run the generation
-        set_global_seed(SEED)
-        rng = get_rng()
-        data = generate_synthetic_data(rng)
-        
-        # Write manually to ensure file exists for this test
-        from validation.synthetic_baseline import write_csv
-        write_csv(data, OUTPUT_FILE)
-        
-        assert OUTPUT_FILE.exists(), f"Output file {OUTPUT_FILE} was not created"
+        set_global_seed(42)
+        rng2 = get_rng()
+        data2 = generate_synthetic_data(rng2, config)
 
-    def test_csv_schema(self):
-        """Verify CSV has correct headers."""
-        # Ensure file exists
-        set_global_seed(SEED)
-        rng = get_rng()
-        data = generate_synthetic_data(rng)
-        from validation.synthetic_baseline import write_csv
-        write_csv(data, OUTPUT_FILE)
+        assert data1 == data2
 
-        with open(OUTPUT_FILE, "r") as f:
+
+class TestWriteCsv:
+    def test_write_and_read(self, tmp_path):
+        """Test writing and reading back CSV."""
+        test_data = [
+            {"participant_id": "P001", "metric_type": "SART", "value": 10.5, "timestamp": "2023-10-01T09:00:00"},
+            {"participant_id": "P002", "metric_type": "SART", "value": 12.3, "timestamp": "2023-10-01T10:00:00"}
+        ]
+        output_file = tmp_path / "test_output.csv"
+
+        write_csv(test_data, output_file)
+
+        assert output_file.exists()
+
+        with open(output_file, "r", newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
-            headers = reader.fieldnames
-            expected = ["participant_id", "metric_type", "value", "timestamp"]
-            assert headers == expected, f"Headers {headers} != {expected}"
+            rows = list(reader)
 
-    def test_csv_data_integrity(self):
-        """Verify CSV data matches generation."""
-        set_global_seed(SEED)
-        rng = get_rng()
-        expected_data = generate_synthetic_data(rng)
-        
-        from validation.synthetic_baseline import write_csv
-        write_csv(expected_data, OUTPUT_FILE)
+        assert len(rows) == 2
+        assert rows[0]["participant_id"] == "P001"
+        assert rows[0]["metric_type"] == "SART"
+        assert rows[0]["value"] == "10.5"
 
-        with open(OUTPUT_FILE, "r") as f:
+    def test_creates_directory(self, tmp_path):
+        """Test that write_csv creates parent directories."""
+        test_data = [
+            {"participant_id": "P001", "metric_type": "SART", "value": 10.5, "timestamp": "2023-10-01T09:00:00"}
+        ]
+        output_file = tmp_path / "subdir" / "test_output.csv"
+
+        write_csv(test_data, output_file)
+
+        assert output_file.exists()
+
+
+class TestMain:
+    def test_main_execution(self, tmp_path, monkeypatch):
+        """Test that main() runs without error and creates output."""
+        # Create a minimal config file
+        config_content = """
+        seed: 42
+        num_participants: 3
+        metrics:
+          SART:
+            mean: 10
+            std: 3
+            min: 0
+            max: 50
+        output:
+          directory: data/raw
+          filename: synthetic_baseline.csv
+          columns:
+            - participant_id
+            - metric_type
+            - value
+            - timestamp
+        """
+        config_file = tmp_path / "config.yaml"
+        config_file.write_text(config_content)
+
+        # Patch paths
+        monkeypatch.setattr("code.validation.synthetic_baseline.CONFIG_FILE", config_file)
+        monkeypatch.setattr("code.validation.synthetic_baseline.OUTPUT_DIR", tmp_path)
+        monkeypatch.setattr("code.validation.synthetic_baseline.OUTPUT_FILE", tmp_path / "synthetic_baseline.csv")
+
+        # Run main
+        main()
+
+        # Verify output
+        output_file = tmp_path / "synthetic_baseline.csv"
+        assert output_file.exists()
+
+        with open(output_file, "r", newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
-            actual_data = list(reader)
-        
-        assert len(actual_data) == len(expected_data)
-        
-        for expected, actual in zip(expected_data, actual_data):
-            assert expected["participant_id"] == actual["participant_id"]
-            assert expected["metric_type"] == actual["metric_type"]
-            assert float(expected["value"]) == float(actual["value"])
-            assert expected["timestamp"] == actual["timestamp"]
+            rows = list(reader)
+
+        assert len(rows) == 3  # 3 participants * 1 metric

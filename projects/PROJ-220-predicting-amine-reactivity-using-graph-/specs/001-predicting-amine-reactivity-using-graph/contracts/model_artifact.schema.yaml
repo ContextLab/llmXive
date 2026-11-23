@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelArtifact"
+description: "Schema for a trained model artifact."
+type: "object"
+required:
+  - "model_id"
+  - "type"
+  - "hyperparameters"
+  - "metrics"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model."
+  type:
+    type: "string"
+    enum:
+      - "baseline"
+      - "gnn"
+    description: "Type of model."
+  hyperparameters:
+    type: "object"
+    description: "Dictionary of training hyperparameters."
+  metrics:
+    type: "object"
+    description: "Performance metrics."
+    properties:
+      r2:
+        type: "number"
+      mae:
+        type: "number"
+      rmse:
+        type: "number"
+  weights_path:
+    type: "string"
+    description: "Relative path to the weights file."

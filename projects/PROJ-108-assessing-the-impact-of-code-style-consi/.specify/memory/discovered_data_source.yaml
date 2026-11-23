@@ -1,0 +1,13 @@
+status: none
+intent: download CodeSearchNet Python dataset and Defects4J Python files python package
+  dataset
+required_fields:
+- file_path
+- source_code
+- language
+- repository_name
+- file_size
+- line_count
+cache_key: 3864d5f1f94496d7f701fd3645cb3c979b62e300d4635c3ae44284b19b9a0bd5
+searched_at: '2026-10-14T18:34:23.382171+00:00'
+retry_count: 1

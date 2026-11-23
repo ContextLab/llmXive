@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2609.38589",
+  "judged_at": "2026-10-21T19:11:14Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "This paper concerns cognitive load and sensory design in VR navigation, not virtual reality exposure therapy (VRET) for anxiety — it shares only the \"virtual reality\" keyword while addressing a distinct construct (cognitive load/accessibility, not therapeutic exposure for anxiety). It is off-domain with respect to the clinical psychology mechanism in the question.",
+  "relevant": false
+}

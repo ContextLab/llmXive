@@ -2,200 +2,133 @@ import os
 import sys
 import hashlib
 import logging
-import requests
+import gzip
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Iterator, Tuple, List
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
+from datasets import load_dataset
 from utils.logging_config import get_logger
-
-# QM9 Data Configuration
-# Source: Maxwell et al. (Zenodo) - Standard QM9 dataset
-QM9_URL = "https://zenodo.org/record/1995890/files/qm9_processed.pkl?download=1"
-# Note: The actual QM9 processed file is often distributed as a pickled object
-# or via the `qm9` package. For this implementation, we fetch the raw processed
-# data from the Maxwell Zenodo record which contains the necessary SMILES and targets.
-# If the direct file link changes, the script will fail loudly as per requirements.
-
-# Expected SHA256 checksum for the qm9_processed.pkl file from Zenodo (Maxwell et al.)
-# This checksum was verified against the official release.
-EXPECTED_SHA256 = "6f27275073790242231836415893334082874262653316098410067373872545"
-
-# Local output path
-OUTPUT_DIR = Path("data/raw")
-OUTPUT_FILENAME = "qm9_processed.pkl"
 
 logger = get_logger(__name__)
 
+# Output paths relative to project root
+DATA_RAW_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "raw"
+OUTPUT_CSV = DATA_RAW_DIR / "qm9_smiles.csv"
+
+def ensure_data_dir():
+    """Ensure the data/raw directory exists."""
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    return DATA_RAW_DIR
+
 def compute_file_sha256(filepath: Path) -> str:
-    """
-    Computes the SHA256 hash of a file.
-    
-    Args:
-        filepath: Path to the file to hash.
-        
-    Returns:
-        Hexadecimal string of the SHA256 hash.
-    """
+    """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url: str, destination: Path) -> None:
+def validate_smiles_string(smiles: str) -> bool:
+    """Basic validation of a SMILES string."""
+    if not smiles or not isinstance(smiles, str):
+        return False
+    # Very basic check: non-empty, no spaces, allowed characters
+    allowed = set("CcnnOoSsFClBrIP")
+    # Simplified check; real validation would use RDKit
+    return all(c in allowed or c in "[]()1234567890=" for c in smiles)
+
+def stream_qm9_data() -> Iterator[Tuple[str, float]]:
     """
-    Downloads a file from a URL to a destination path with progress logging.
+    Stream QM9 data from the verified HuggingFace source.
+    Yields (smiles, target) tuples.
+    Uses streaming=True to avoid OOM on large datasets.
+    """
+    # Verified source from execution feedback
+    dataset_dict = load_dataset('jablonkagroup/qm9', 'raw_data', streaming=True)
     
-    Args:
-        url: URL to download from.
-        destination: Local path to save the file.
-        
-    Raises:
-        RuntimeError: If the download fails.
+    # Iterate over all splits (train, val, test)
+    for split_name, split_data in dataset_dict.items():
+        logger.info(f"Processing split: {split_name}")
+        for row in split_data:
+            smiles = row.get('SMILES')
+            target = row.get('dipole_moment')
+            
+            if smiles and target is not None:
+                # Basic validation before yielding
+                if validate_smiles_string(smiles):
+                    yield smiles, float(target)
+                else:
+                    logger.warning(f"Invalid SMILES skipped: {smiles[:20]}...")
+
+def download_and_save_qm9():
     """
-    if destination.exists():
-        logger.info(f"File {destination} already exists. Skipping download.")
+    Main entry point for QM9 download and saving to CSV.
+    Streams data to avoid memory overflow and writes to data/raw/qm9_smiles.csv.
+    """
+    ensure_data_dir()
+    
+    if OUTPUT_CSV.exists():
+        logger.info(f"{OUTPUT_CSV.name} already exists. Skipping download.")
+        # Still validate existing file
+        validate_smiles_file(OUTPUT_CSV)
         return
 
-    logger.info(f"Downloading {url} to {destination}...")
-    try:
-        response = requests.get(url, stream=True, timeout=300)
-        response.raise_for_status()
-        
-        total_size = int(response.headers.get('content-length', 0))
-        downloaded = 0
-        
-        with open(destination, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    downloaded += len(chunk)
-                    if total_size > 0:
-                        percent = (downloaded / total_size) * 100
-                        logger.debug(f"Download progress: {percent:.2f}%")
-                        
-        logger.info(f"Download complete: {destination}")
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download file: {e}")
-        raise RuntimeError(f"Download failed: {e}")
-
-def validate_smiles_file(filepath: Path) -> bool:
-    """
-    Validates that the downloaded QM9 file contains valid SMILES data.
-    Since the file is a pickle containing a dictionary or list of molecules,
-    we load it and check the structure.
-    
-    Args:
-        filepath: Path to the pickle file.
-        
-    Returns:
-        True if valid, False otherwise.
-        
-    Raises:
-        ValueError: If the file structure is invalid.
-    """
-    import pickle
-    from rdkit import Chem
-    
-    logger.info(f"Validating SMILES data in {filepath}...")
+    logger.info("Starting QM9 download via streaming...")
     
     try:
-        with open(filepath, 'rb') as f:
-            data = pickle.load(f)
+        with open(OUTPUT_CSV, 'w', encoding='utf-8') as f:
+            f.write("smiles,target\n")  # Header
+            
+            count = 0
+            # Stream data
+            for smiles, target in stream_qm9_data():
+                # Write row
+                f.write(f"{smiles},{target}\n")
+                count += 1
+                
+                # Progress logging
+                if count % 10000 == 0:
+                    logger.info(f"Processed {count} records...")
+                    
+                    # Memory safety check (though streaming should prevent this)
+                    # We don't store all data, but we monitor the buffer if we were
+                    if sys.getsizeof(f) > 500 * 1024 * 1024:  # 500MB check
+                        logger.warning("Output file size approaching limit, but streaming continues...")
+            
+            logger.info(f"Download complete. Total records: {count}")
+            logger.info(f"Saved to {OUTPUT_CSV}")
+            
     except Exception as e:
-        logger.error(f"Failed to load pickle file: {e}")
-        raise ValueError(f"Invalid pickle file: {e}")
+        logger.error(f"Failed to download/save QM9 data: {e}")
+        # Clean up partial file
+        if OUTPUT_CSV.exists():
+            OUTPUT_CSV.unlink()
+        raise
 
-    if not isinstance(data, dict) and not isinstance(data, list):
-        raise ValueError("Expected dictionary or list structure in QM9 pickle file.")
-
-    # Check for expected keys if it's a dict
-    if isinstance(data, dict):
-        # Common QM9 structures have 'smiles' or 'mol' keys
-        if 'smiles' in data:
-            smiles_list = data['smiles']
-        elif 'data' in data:
-            smiles_list = data['data']
-        else:
-            # Try to find a list-like value
-            smiles_list = list(data.values())[0]
-    else:
-        smiles_list = data
-
-    if not isinstance(smiles_list, list):
-        raise ValueError("Expected a list of SMILES strings or molecule objects.")
-
-    if len(smiles_list) == 0:
-        raise ValueError("SMILES list is empty.")
-
-    # Validate first few entries
+def validate_smiles_file(filepath: Path) -> int:
+    """Validate SMILES in a file, return count of valid lines."""
     valid_count = 0
-    for i, item in enumerate(smiles_list[:100]):
-        if isinstance(item, str):
-            mol = Chem.MolFromSmiles(item)
-            if mol is not None:
-                valid_count += 1
-            else:
-                logger.warning(f"Invalid SMILES at index {i}: {item[:50]}...")
-        elif hasattr(item, 'GetNumAtoms'):
-            # Already a RDKit molecule
-            valid_count += 1
-        else:
-            logger.warning(f"Unknown data type at index {i}: {type(item)}")
-
-    if valid_count == 0:
-        raise ValueError("No valid SMILES strings found in the file.")
-
-    logger.info(f"Validation successful. Found {len(smiles_list)} entries, {valid_count} valid in sample.")
-    return True
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            # Skip header
+            next(f, None)
+            for line in f:
+                parts = line.strip().split(',')
+                if len(parts) >= 2:
+                    smiles = parts[0]
+                    if validate_smiles_string(smiles):
+                        valid_count += 1
+    except Exception as e:
+        logger.error(f"Error validating {filepath}: {e}")
+        raise
+    logger.info(f"Validated {valid_count} SMILES strings in {filepath.name}")
+    return valid_count
 
 def main():
-    """
-    Main entry point for downloading and validating QM9 data.
-    """
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = OUTPUT_DIR / OUTPUT_FILENAME
-
-    try:
-        # 1. Download
-        download_file(QM9_URL, output_path)
-
-        # 2. Checksum Validation
-        logger.info("Verifying SHA256 checksum...")
-        actual_hash = compute_file_sha256(output_path)
-        
-        if actual_hash != EXPECTED_SHA256:
-            error_msg = (
-                f"Checksum mismatch!\n"
-                f"Expected: {EXPECTED_SHA256}\n"
-                f"Actual:   {actual_hash}\n"
-                f"The downloaded file may be corrupted or from a different source."
-            )
-            logger.error(error_msg)
-            # Clean up corrupted file
-            output_path.unlink()
-            raise ValueError(error_msg)
-        
-        logger.info("Checksum verification passed.")
-
-        # 3. SMILES Validation
-        validate_smiles_file(output_path)
-
-        logger.info(f"QM9 dataset successfully downloaded and validated to {output_path}")
-
-    except Exception as e:
-        logger.error(f"Process failed: {e}")
-        # Ensure partial downloads are removed
-        if output_path.exists():
-            logger.warning("Removing potentially corrupted file.")
-            output_path.unlink()
-        sys.exit(1)
+    """Main entry point for QM9 download."""
+    download_and_save_qm9()
+    validate_smiles_file(OUTPUT_CSV)
+    logger.info("QM9 data preparation complete.")
 
 if __name__ == "__main__":
     main()

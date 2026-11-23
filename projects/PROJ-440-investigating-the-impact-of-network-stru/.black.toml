@@ -1,0 +1,19 @@
+# Black configuration is defined in pyproject.toml.
+# This file exists to allow `black --config .black.toml` if a standalone config is preferred.
+line-length = 88
+target-version = ["py39"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

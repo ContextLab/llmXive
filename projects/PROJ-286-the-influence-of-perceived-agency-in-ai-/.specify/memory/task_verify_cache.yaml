@@ -1,0 +1,17 @@
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the requested directory hierarchy or the required `__init__.py`\
+    \ files is provided; the \u201CActual artifacts / evidence on disk\u201D section\
+    \ contains no listings, so we cannot verify that `code/experiment`, `code/experiment/tests`,\
+    \ `code/analysis`, `code/analysis/tests`, `data/raw`, `data/processed`, `docs`,\
+    \ `specs/001-perceived-agency-trust/contracts` (and the `__init__.py` files in\
+    \ each) were actually created. The implementer must supply a file\u2011tree listing\
+    \ or screenshots showing the directories and the empty `__init__.py` files."
+T008:
+  c: false
+  h: a0330bc51b5274b5450356879f28f1b22106d27ed7e607fd511a5b33e1aba4d9
+  r: The provided `code/experiment/config.yaml` exists and has the correct keys, but
+    there is no evidence that the `sample_size` value was read from `research/power_calculation.json`
+    (no script or documented manual step is shown), nor any proof that this step ran
+    after T002. The required mechanism and dependency verification are missing.

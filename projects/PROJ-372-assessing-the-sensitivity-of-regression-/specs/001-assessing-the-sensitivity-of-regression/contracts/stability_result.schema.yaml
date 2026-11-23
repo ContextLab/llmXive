@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StabilityResult"
+description: "Results of OLS fitting on a specific subset."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "ID of the source dataset."
+  tier_percentage:
+    type: "integer"
+    enum:
+      - 10
+      - 25
+      - 50
+      - 75
+      - 90
+    description: "Sample size tier percentage."
+  subset_id:
+    type: "integer"
+    description: "Unique ID for the subset."
+  n_samples:
+    type: "integer"
+    description: "Actual number of samples in the subset."
+  coefficients:
+    type: "object"
+    description: "Map of feature name to coefficient value."
+    additionalProperties:
+      type: "number"
+  standard_errors:
+    type: "object"
+    description: "Map of feature name to standard error value."
+    additionalProperties:
+      type: "number"
+  r_squared:
+    type: "number"
+    description: "R-squared of the OLS fit."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp."
+required:
+  - dataset_id
+  - tier_percentage
+  - subset_id
+  - n_samples
+  - coefficients
+  - standard_errors
+  - r_squared
+  - timestamp
+additionalProperties: false

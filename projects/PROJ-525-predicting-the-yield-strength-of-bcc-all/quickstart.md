@@ -1,39 +1,54 @@
-# Quick Start Guide
+# Quickstart Guide
 
-## Prerequisites
-- Python 3.11+
-- `pip`
+This guide outlines how to run the BCC Yield Strength prediction pipeline.
 
-## Installation
+## 1. Environment Setup
+
+Ensure you are using Python 3.11 or higher.
+
 ```bash
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Running the Pipeline
+## 2. Directory Initialization
 
-### Step 1: Data Ingestion (US1)
-Downloads the MPEA database and filters for BCC alloys.
+Run the setup script to create necessary directories:
+
 ```bash
-python code/data_ingestion.py
+python code/config.py --init-dirs
 ```
-Output: `data/processed/bcc_filtered.csv`
 
-### Step 2: Feature Engineering (US2)
-Calculates compositional descriptors and ILR transformations.
+## 3. Pipeline Execution
+
+The pipeline consists of three main stages:
+
+1. **Data Ingestion** (T013-T018): Download and filter raw data.
+ ```bash
+ python code/01_download.py
+ ```
+
+2. **Feature Engineering** (T023-T032): Calculate descriptors and ILR transforms.
+ ```bash
+ python code/02_engineer.py
+ ```
+
+3. **Modeling** (T033-T039): Train models and generate reports.
+ ```bash
+ python code/03_modeling.py
+ ```
+
+## 4. Verification
+
+Validate the results:
 ```bash
-python code/feature_engineering.py
+python code/validate_success.py
 ```
-Output: `data/processed/features_engineered.csv`
 
-### Step 3: Modeling (US3)
-Trains models and generates comparison reports.
-```bash
-python code/modeling.py
-```
-Output: `reports/model_comparison_report.json`
+## 5. Linting & Formatting
 
-## Validation
-Run tests to verify the pipeline:
+Ensure code quality before committing:
 ```bash
-python -m pytest tests/ -v
+python code/lint_format.py
 ```

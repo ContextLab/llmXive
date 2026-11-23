@@ -1,4 +1,4 @@
-"""Integration: the canonical correction sweep inside process_document.
+"""Integration: the post-planning canonical correction sweep in process_document.
 
 Verifies the PROJ-552 fix end-to-end at the service chokepoint. The document
 contains BOTH the fabricated '27,635' mention and the verified '9,988' mention
@@ -12,13 +12,16 @@ per-project verified_facts.yaml.
 A document with no verified facts is byte-identical to today (pure
 strengthening).
 
-Real filesystem, deterministic extraction backend, no model mocks.
+The fixtures use research artifacts: planning specs deliberately defer empirical
+values instead of resolving them. Real filesystem; deterministic extraction
+fixtures, without a model or network call.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 import yaml
 
 from llmxive.claims.classify import classify
@@ -36,7 +39,7 @@ _OK_13 = (
 
 
 class _ExtractsVerifiedMentionBackend:
-    """Real chat backend that extracts the verified mention (_OK_13) as ONE claim.
+    """Extraction fixture returning the verified mention (_OK_13) as ONE claim.
 
     Deterministic, no network. The claim it emits is pre-seeded as VERIFIED in
     the registry (same claim_id), so the service reuses it without re-resolving
@@ -67,7 +70,7 @@ def _seed_verified_fact(project_id: str, repo_root: Path) -> str:
         raw_text=_OK_13,
         canonical=_OK_13,
         context="",
-        artifact_path=f"projects/{project_id}/specs/spec.md",
+        artifact_path=f"projects/{project_id}/docs/research.md",
         source_type="external",
         status=ClaimStatus.VERIFIED,
         resolved_value="9988",
@@ -99,7 +102,7 @@ class TestProcessDocumentCanonicalSweep:
         _seed_verified_fact(project_id, tmp_path)
 
         doc = (
-            "# Spec\n\n"
+            "# Research\n\n"
             + _FAB_13
             + "\n\nAnd separately, "
             + _OK_13
@@ -109,7 +112,7 @@ class TestProcessDocumentCanonicalSweep:
         )
         rendered, _claims, _gate = process_document(
             doc,
-            artifact_path=f"projects/{project_id}/specs/001/spec.md",
+            artifact_path=f"projects/{project_id}/docs/research.md",
             project_id=project_id,
             backend=_ExtractsVerifiedMentionBackend(),
             model=None,
@@ -132,7 +135,7 @@ class TestProcessDocumentCanonicalSweep:
 
         process_document(
             _FAB_13 + "\n\n" + _OK_13,
-            artifact_path=f"projects/{project_id}/specs/001/spec.md",
+            artifact_path=f"projects/{project_id}/docs/research.md",
             project_id=project_id,
             backend=_ExtractsVerifiedMentionBackend(),
             model=None,
@@ -164,10 +167,10 @@ class TestProcessDocumentCanonicalSweep:
 
                 return _R()
 
-        doc = "# Spec\n\nThe model used 5,000 samples over 7 years.\n"
+        doc = "# Research\n\nThe model used 5,000 samples over 7 years.\n"
         rendered, _c, _g = svc.process_document(
             doc,
-            artifact_path=f"projects/{project_id}/specs/001/spec.md",
+            artifact_path=f"projects/{project_id}/docs/research.md",
             project_id=project_id,
             backend=_SilentBackend(),
             model=None,
@@ -181,3 +184,31 @@ class TestProcessDocumentCanonicalSweep:
         )
         # No facts → nothing persisted.
         assert not facts_path.exists()
+
+
+@pytest.mark.parametrize("artifact,stage", [
+    ("specs/001/spec.md", None),
+    ("specs/001/spec.md", "implement"),
+    ("docs/research.md", "plan"),
+])
+def test_planning_regime_defers_unverified_values_without_registering_facts(tmp_path, artifact, stage):
+    """Artifact role or explicit planning stage keeps the planning gate intact."""
+    from llmxive.claims.service import process_document
+
+    class SilentExtraction:
+        def chat(self, messages, **kwargs):
+            class Response:
+                text = "claims: []"
+            return Response()
+
+    project_id = "PROJ-PLANNING-BOUNDARY"
+    text = "# Plan\n\nThe model used 5,000 samples over 7 years.\n"
+    rendered, claims, gate = process_document(
+        text, artifact_path=f"projects/{project_id}/{artifact}",
+        project_id=project_id, backend=SilentExtraction(), model=None,
+        repo_root=tmp_path, stage_label=stage,
+    )
+    assert rendered == text.replace("5,000", "[deferred]")
+    assert claims == [] and not gate.blocked
+    assert not (tmp_path / "state/claims").exists()
+    assert not (tmp_path / "projects" / project_id / ".specify/memory/verified_facts.yaml").exists()

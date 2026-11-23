@@ -1,127 +1,75 @@
 """
-Main entry point for the Solar Wind - Geomagnetic Correlation Pipeline.
-
-Orchestrates the full workflow:
-1. Data Acquisition & Synchronization (US1)
-2. Lagged Correlation & Significance Testing (US2)
-3. Visualization, Reporting & Validation (US3)
+Main entry point for the Solar Wind Composition and Geomagnetic Indices pipeline.
+Provides a CLI to run specific stages or the entire pipeline.
 """
-import os
+import argparse
 import sys
-import json
-from datetime import datetime
-
-# Add project root to path for imports
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from code.config import TRAIN_START, TRAIN_END, TEST_START, TEST_END, ACE_VARS, NOAA_VARS
 from code import logger
-from code.data.fetch import fetch_ace, fetch_noaa
-from code.data.validate import validate_ace_raw, validate_noaa_raw
-from code.data.align import run_alignment
-from code.analysis.thresholds import calculate_global_thresholds, write_global_thresholds
-from code.analysis.correlation import run_correlation_analysis
-from code.viz.plots import run_viz_pipeline
-from code.viz.report import run_validation_report
 
+def run_fetch(args):
+    from code.data.fetch_ace import fetch_ace
+    from code.data.fetch_noaa import fetch_noaa
+    start = args.start or "1998-01-01"
+    end = args.end or "2020-12-31"
+    logger.info(f"Stage: Fetching data from {start} to {end}")
+    fetch_ace(start, end)
+    fetch_noaa(start, end)
+
+def run_align():
+    from code.data.sync import run_sync
+    logger.info("Stage: Aligning and synchronizing datasets")
+    run_sync()
+
+def run_analyze(args):
+    from code.analysis.run_correlation import main as run_corr
+    logger.info("Stage: Computing lagged correlations")
+    run_corr()
+
+def run_validate():
+    from code.analysis.significance import run_validation_significance
+    from code.config import SYNCED_CSV
+    import pandas as pd
+    logger.info("Stage: Validating on held-out period")
+    try:
+        df = pd.read_csv(SYNCED_CSV, parse_dates=["timestamp"])
+        run_validation_significance(df)
+    except FileNotFoundError:
+        logger.error(f"Cannot validate: {SYNCED_CSV} not found. Run 'align' first.")
 
 def main():
-    """Execute the full research pipeline."""
-    start_time = datetime.now()
-    logger.info(f"Pipeline started at {start_time.isoformat()}")
-    logger.info(f"Configuration: Train={TRAIN_START}-{TRAIN_END}, Test={TEST_START}-{TEST_END}")
+    parser = argparse.ArgumentParser(
+        description="Quantifying Correlations Between Solar Wind Composition and Geomagnetic Indices"
+    )
+    parser.add_argument(
+        "--stage", 
+        choices=["fetch", "align", "analyze", "validate", "all"], 
+        help="Pipeline stage to execute"
+    )
+    parser.add_argument("--start", type=str, help="Start date (YYYY-MM-DD)")
+    parser.add_argument("--end", type=str, help="End date (YYYY-MM-DD)")
+    parser.add_argument("--lags", type=str, help="Comma-separated lags (e.g., 0,1,2,3,6)")
 
-    # ------------------------------------------------------------------
-    # PHASE 1: Data Acquisition & Synchronization (US1)
-    # ------------------------------------------------------------------
-    logger.info("--- Phase 1: Data Acquisition & Synchronization ---")
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(0)
 
-    # 1.1 Fetch raw data
-    logger.info("Fetching ACE and NOAA data...")
-    try:
-        ace_path = fetch_ace(TRAIN_START, TEST_END)
-        noaa_path = fetch_noaa(TRAIN_START, TEST_END)
-        logger.info(f"Fetched ACE data: {ace_path}")
-        logger.info(f"Fetched NOAA data: {noaa_path}")
-    except Exception as e:
-        logger.error(f"Failed to fetch data: {e}")
-        sys.exit(1)
+    args = parser.parse_args()
 
-    # 1.2 Validate raw data
-    logger.info("Validating raw data headers...")
-    try:
-        validate_ace_raw(ace_path)
-        validate_noaa_raw(noaa_path)
-        logger.info("Raw data validation passed.")
-    except ValueError as e:
-        logger.error(f"Data validation failed: {e}")
-        sys.exit(1)
-
-    # 1.3 Align and synchronize
-    logger.info("Aligning data to 1-hour UTC grid...")
-    try:
-        synced_path = run_alignment()
-        logger.info(f"Alignment complete. Output: {synced_path}")
-    except Exception as e:
-        logger.error(f"Alignment failed: {e}")
-        sys.exit(1)
-
-    # ------------------------------------------------------------------
-    # PHASE 2: Lagged Correlation & Significance (US2)
-    # ------------------------------------------------------------------
-    logger.info("--- Phase 2: Correlation Analysis & Significance ---")
-
-    # 2.1 Calculate global thresholds (Neff, Bonferroni)
-    logger.info("Calculating global significance thresholds...")
-    try:
-        thresholds = calculate_global_thresholds()
-        threshold_path = write_global_thresholds(thresholds)
-        logger.info(f"Global thresholds written to {threshold_path}")
-    except Exception as e:
-        logger.error(f"Threshold calculation failed: {e}")
-        sys.exit(1)
-
-    # 2.2 Run correlation analysis on full dataset
-    logger.info("Running lagged correlation analysis...")
-    try:
-        results_path = run_correlation_analysis()
-        logger.info(f"Correlation analysis complete. Output: {results_path}")
-    except Exception as e:
-        logger.error(f"Correlation analysis failed: {e}")
-        sys.exit(1)
-
-    # ------------------------------------------------------------------
-    # PHASE 3: Visualization & Validation (US3)
-    # ------------------------------------------------------------------
-    logger.info("--- Phase 3: Visualization & Validation Report ---")
-
-    # 3.1 Generate visualizations
-    logger.info("Generating visualizations...")
-    try:
-        viz_dir = run_viz_pipeline()
-        logger.info(f"Visualizations generated in {viz_dir}")
-    except Exception as e:
-        logger.error(f"Visualization generation failed: {e}")
-        sys.exit(1)
-
-    # 3.2 Run validation report
-    logger.info("Running validation report on held-out test set...")
-    try:
-        report_path = run_validation_report()
-        logger.info(f"Validation report generated: {report_path}")
-    except Exception as e:
-        logger.error(f"Validation report generation failed: {e}")
-        sys.exit(1)
-
-    end_time = datetime.now()
-    duration = (end_time - start_time).total_seconds()
-    logger.info(f"Pipeline completed successfully in {duration:.2f} seconds.")
-    logger.info(f"Start: {start_time.isoformat()}, End: {end_time.isoformat()}")
-
-    return 0
-
+    if args.stage == "all":
+        run_fetch(args)
+        run_align()
+        run_analyze(args)
+        run_validate()
+    elif args.stage == "fetch":
+        run_fetch(args)
+    elif args.stage == "align":
+        run_align()
+    elif args.stage == "analyze":
+        run_analyze(args)
+    elif args.stage == "validate":
+        run_validate()
+    else:
+        parser.print_help()
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

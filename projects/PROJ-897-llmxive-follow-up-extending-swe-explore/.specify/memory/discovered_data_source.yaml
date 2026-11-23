@@ -1,0 +1,19 @@
+status: none
+intent: download SWE-Explore dataset from SWE-bench GitHub or HuggingFace python package
+  dataset
+required_fields:
+- issue_id
+- repository_name
+- issue_title
+- issue_body
+- code_snippet
+- initial_coverage_score
+- coverage_percentile
+- difficulty_label
+- is_hard
+- synthetic_issue_id
+- original_issue_id
+- mutated_code
+cache_key: 970beb41a028dac24a74d8835d916a6b5eb24ff36bdd6beb1775255aa92c9c1e
+searched_at: '2026-11-02T09:21:28.301990+00:00'
+retry_count: 1

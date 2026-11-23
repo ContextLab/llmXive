@@ -1,99 +1,154 @@
 """
 Contract tests for dataset schema validation.
-Validates the structure of generated datasets (logic proofs and grid worlds).
+Ensures generated data conforms to the defined JSON schema.
 """
 import json
-import os
 import pytest
-from typing import Any, Dict, List
+from pathlib import Path
+import sys
 
-# Define the expected schema structure for datasets
-DATASET_SCHEMA = {
-    "required_keys": ["metadata", "instances"],
-    "metadata_keys": ["seed", "task_type", "rule_set_id", "generation_count", "checksum"],
-    "instance_keys": ["id", "problem", "solution", "rules_applied"],
-    "task_types": ["logic_proof", "grid_navigation"],
-    "problem_types": {
-        "logic_proof": {
-            "required": ["axioms", "goal"],
-            "optional": ["intermediate_steps"]
-        },
-        "grid_navigation": {
-            "required": ["grid_size", "start", "end", "obstacles", "rules"],
-            "optional": ["path"]
+# Add parent directory to path for imports if running as script
+if str(Path(__file__).parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from tests.contract.schemas import validate_dataset, DATASET_SCHEMA
+
+class TestDatasetSchema:
+    """Tests for the dataset schema validator."""
+
+    def test_valid_logic_proof_dataset(self):
+        """Test a valid dataset containing logic proofs."""
+        valid_data = {
+            "metadata": {
+                "version": "1.0.0",
+                "seed": 42,
+                "generator": "LogicProofGenerator",
+                "timestamp": "2023-10-27T10:00:00Z",
+                "checksum": "abc123"
+            },
+            "data": [
+                {
+                    "type": "logic_proof",
+                    "id": "proof_001",
+                    "axioms": ["A", "A -> B"],
+                    "conclusion": "B",
+                    "proof_steps": [
+                        {"step": 1, "rule": "Modus Ponens", "derived": "B"}
+                    ]
+                }
+            ]
         }
-    }
-}
+        result = validate_dataset(valid_data)
+        assert result.valid, f"Validation failed: {result.errors}"
 
-def validate_dataset_structure(data: Dict[str, Any]) -> List[str]:
-    """
-    Validates a dataset dictionary against the expected schema.
-    Returns a list of validation errors (empty if valid).
-    """
-    errors = []
+    def test_valid_grid_world_dataset(self):
+        """Test a valid dataset containing grid worlds."""
+        valid_data = {
+            "metadata": {
+                "version": "1.0.0",
+                "seed": 123,
+                "generator": "GridWorldGenerator",
+                "timestamp": "2023-10-27T10:00:00Z",
+                "checksum": "def456"
+            },
+            "data": [
+                {
+                    "type": "grid_world",
+                    "id": "grid_001",
+                    "grid_size": [5, 5],
+                    "start": [0, 0],
+                    "end": [4, 4],
+                    "obstacles": [[1, 1], [2, 2]],
+                    "rules": ["avoid_red", "diagonal_allowed"]
+                }
+            ]
+        }
+        result = validate_dataset(valid_data)
+        assert result.valid, f"Validation failed: {result.errors}"
 
-    # Check top-level required keys
-    for key in DATASET_SCHEMA["required_keys"]:
-        if key not in data:
-            errors.append(f"Missing required top-level key: {key}")
+    def test_invalid_missing_metadata(self):
+        """Test that missing metadata causes validation failure."""
+        invalid_data = {
+            "data": []
+        }
+        result = validate_dataset(invalid_data)
+        assert not result.valid
+        assert any("Missing required property 'metadata'" in str(e.message) for e in result.errors)
 
-    if "metadata" in data:
-        meta = data["metadata"]
-        for key in DATASET_SCHEMA["metadata_keys"]:
-            if key not in meta:
-                errors.append(f"Missing required metadata key: {key}")
+    def test_invalid_wrong_type_in_data(self):
+        """Test that wrong type in data items causes validation failure."""
+        invalid_data = {
+            "metadata": {
+                "version": "1.0.0",
+                "seed": 42,
+                "generator": "Test",
+                "timestamp": "2023-10-27T10:00:00Z",
+                "checksum": "xyz"
+            },
+            "data": [
+                {
+                    "type": "logic_proof",
+                    "id": 123, # Should be string
+                    "axioms": [],
+                    "conclusion": "X",
+                    "proof_steps": []
+                }
+            ]
+        }
+        result = validate_dataset(invalid_data)
+        assert not result.valid
+        assert any("Expected type 'string'" in str(e.message) for e in result.errors)
 
-        # Validate task_type
-        if "task_type" in meta and meta["task_type"] not in DATASET_SCHEMA["task_types"]:
-            errors.append(f"Invalid task_type: {meta['task_type']}")
+    def test_invalid_mixed_types_in_data(self):
+        """Test mixed valid types in data array."""
+        valid_data = {
+            "metadata": {
+                "version": "1.0.0",
+                "seed": 42,
+                "generator": "Test",
+                "timestamp": "2023-10-27T10:00:00Z",
+                "checksum": "xyz"
+            },
+            "data": [
+                {
+                    "type": "logic_proof",
+                    "id": "p1",
+                    "axioms": ["A"],
+                    "conclusion": "B",
+                    "proof_steps": []
+                },
+                {
+                    "type": "grid_world",
+                    "id": "g1",
+                    "grid_size": [3, 3],
+                    "start": [0, 0],
+                    "end": [2, 2],
+                    "obstacles": [],
+                    "rules": []
+                }
+            ]
+        }
+        result = validate_dataset(valid_data)
+        assert result.valid
 
-    if "instances" in data:
-        if not isinstance(data["instances"], list):
-            errors.append("'instances' must be a list")
-        else:
-            for i, instance in enumerate(data["instances"]):
-                prefix = f"Instance {i}"
-                for key in DATASET_SCHEMA["instance_keys"]:
-                    if key not in instance:
-                        errors.append(f"{prefix}: Missing required key '{key}'")
-
-                # Validate problem structure based on task type
-                if "metadata" in data and "task_type" in data["metadata"]:
-                    task_type = data["metadata"]["task_type"]
-                    if task_type in DATASET_SCHEMA["problem_types"]:
-                        problem_schema = DATASET_SCHEMA["problem_types"][task_type]
-                        problem = instance.get("problem", {})
-                        for req_key in problem_schema.get("required", []):
-                            if req_key not in problem:
-                                errors.append(f"{prefix}: Problem missing required key '{req_key}'")
-
-    return errors
-
-def load_dataset(filepath: str) -> Dict[str, Any]:
-    """Load a dataset from a JSON file."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Dataset file not found: {filepath}")
-    with open(filepath, 'r') as f:
-        return json.load(f)
-
-@pytest.mark.contract
-def test_logic_dataset_schema():
-    """Test that a generated logic proof dataset conforms to the schema."""
-    # This test will fail if the file doesn't exist yet, which is expected
-    # before T011/T014 are run. The task is to implement the validator.
-    try:
-        dataset = load_dataset("data/proofs_dataset.json")
-        errors = validate_dataset_structure(dataset)
-        assert len(errors) == 0, f"Schema validation failed: {errors}"
-    except FileNotFoundError:
-        pytest.skip("Dataset file not found. Run generation tasks first.")
-
-@pytest.mark.contract
-def test_grid_dataset_schema():
-    """Test that a generated grid navigation dataset conforms to the schema."""
-    try:
-        dataset = load_dataset("data/grids_dataset.json")
-        errors = validate_dataset_structure(dataset)
-        assert len(errors) == 0, f"Schema validation failed: {errors}"
-    except FileNotFoundError:
-        pytest.skip("Dataset file not found. Run generation tasks first.")
+    def test_invalid_missing_required_proof_fields(self):
+        """Test missing required fields in a logic proof."""
+        invalid_data = {
+            "metadata": {
+                "version": "1.0.0",
+                "seed": 42,
+                "generator": "Test",
+                "timestamp": "2023-10-27T10:00:00Z",
+                "checksum": "xyz"
+            },
+            "data": [
+                {
+                    "type": "logic_proof",
+                    "id": "p1",
+                    # Missing axioms, conclusion, proof_steps
+                }
+            ]
+        }
+        result = validate_dataset(invalid_data)
+        assert not result.valid
+        assert any("Missing required property" in str(e.message) for e in result.errors)

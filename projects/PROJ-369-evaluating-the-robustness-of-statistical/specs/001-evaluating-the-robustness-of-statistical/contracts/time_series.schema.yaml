@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TimeSeries Data Model"
+description: "Schema for ingested and processed time series data including stationarity checks and long-memory preservation."
+type: "object"
+properties:
+  source:
+    type: "string"
+    description: "Origin of the dataset (e.g., NOAA, UCI)."
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset instance."
+  raw_values:
+    type: "array"
+    items:
+      type: "number"
+    description: "Original values after missing value interpolation."
+  detrended_values:
+    type: "array"
+    items:
+      type: "number"
+    description: "Residuals after linear detrending OR differenced values (only if unit root)."
+  length:
+    type: "integer"
+    minimum: 100
+    description: "Number of points in the series."
+  autocorrelation_metrics:
+    type: "object"
+    properties:
+      hurst:
+        type: "number"
+        description: "Estimated Hurst exponent (via DFA)."
+      acf_max_lag20:
+        type: "number"
+        description: "Maximum absolute ACF value up to lag 20."
+      spectral_peak_ratio:
+        type: "number"
+        description: "Ratio of dominant spectral peak to noise floor."
+    required:
+      - hurst
+      - acf_max_lag20
+      - spectral_peak_ratio
+  is_stationary:
+    type: "boolean"
+    description: "Result of Augmented Dickey-Fuller test (True if p >= 0.05)."
+  is_differenced:
+    type: "boolean"
+    description: "True if differencing was applied (only if unit root detected)."
+  adf_p_value:
+    type: "number"
+    description: "P-value from the ADF test."
+  preprocessing_method:
+    type: "string"
+    enum:
+      - "unit_root_differenced"
+      - "long_memory_preserved"
+      - "detrended_only"
+    description: "Method used to handle non-stationarity."
+  preprocessing_log:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of actions taken during preprocessing."
+  n_eff:
+    type: "number"
+    description: "Effective Sample Size."
+required:
+  - source
+  - dataset_id
+  - raw_values
+  - detrended_values
+  - length
+  - autocorrelation_metrics
+  - is_stationary
+  - is_differenced
+  - adf_p_value
+  - preprocessing_method
+  - preprocessing_log
+  - n_eff

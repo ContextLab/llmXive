@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1908.02590",
+  "judged_at": "2026-10-10T21:22:29Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"when vision speaks for sound\" computer science",
+  "rationale": "This paper is canonical audio-visual speech enhancement work — it fuses visual lip information with audio for speech enhancement, the same mechanism and domain as \"When Vision Speaks for Sound\" (audio-visual speech processing), satisfying criteria (a) and (b). A follow-up extending that work would be expected to cite this audio-visual CVAE approach.",
+  "relevant": true
+}

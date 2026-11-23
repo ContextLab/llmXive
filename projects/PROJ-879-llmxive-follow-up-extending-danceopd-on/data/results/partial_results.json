@@ -1,0 +1,9 @@
+{
+  "status": "partial",
+  "completed_depths": [],
+  "fid_results": [],
+  "clip_results": [],
+  "statistical_tests": {},
+  "error": "No evaluation completed yet; this is a placeholder for partial results on timeout or power insufficiency.",
+  "timestamp": "2023-10-27T10:00:00Z"
+}

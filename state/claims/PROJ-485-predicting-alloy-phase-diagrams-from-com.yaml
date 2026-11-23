@@ -1,0 +1,229 @@
+- artifact_path: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com/tasks.md
+  attempts: 1
+  canonical: optimal thermoelectric configuration for Cu-Zn and Al-Cu systems
+  claim_id: c_24ba0ca3
+  context: 'T035 [US3] Calculate Topological Consistency Score (TCS): implement partial
+    match ratio logic. Deliverable: Generate data/artifacts/tcs_report.json (The research
+    aims to determine the optimal configuration for thermoelectric performance in
+    Cu-Zn and Al-Cu systems. The methodology involves comparative analysis of material
+    properties, as detailed in prior studies (DOI:10.1103/PhysRevB.99.125401). Initial
+    screening indicates that the Cu-Zn system demonstrates superior thermoelectric
+    efficiency compared to Al-Cu.).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optimal_thermoelectric_configuration_for_Cu-Zn_and_Al-Cu_sys
+  kind: entity_fact
+  raw_text: The research aims to determine the optimal configuration for thermoelectric
+    performance in Cu-Zn and Al-Cu systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:29:29Z'
+- artifact_path: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com/tasks.md
+  attempts: 1
+  canonical: comparative analysis of material properties for thermoelectric performance
+    DOI:10.1103/PhysRevB.99.125401
+  claim_id: c_2e906cbb
+  context: 'T035 [US3] Calculate Topological Consistency Score (TCS): implement partial
+    match ratio logic. Deliverable: Generate data/artifacts/tcs_report.json (The research
+    aims to determine the optimal configuration for thermoelectric performance in
+    Cu-Zn and Al-Cu systems. The methodology involves comparative analysis of material
+    properties, as detailed in prior studies (DOI:10.1103/PhysRevB.99.125401). Initial
+    screening indicates that the Cu-Zn system demonstrates superior thermoelectric
+    efficiency compared to Al-Cu.).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The methodology involves comparative analysis of material properties,
+    as detailed in prior studies (DOI:10.1103/PhysRevB.99.125401).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:29:32Z'
+- artifact_path: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com/tasks.md
+  attempts: 1
+  canonical: Cu-Zn system superior thermoelectric efficiency compared to Al-Cu
+  claim_id: c_9a85f81f
+  context: 'T035 [US3] Calculate Topological Consistency Score (TCS): implement partial
+    match ratio logic. Deliverable: Generate data/artifacts/tcs_report.json (The research
+    aims to determine the optimal configuration for thermoelectric performance in
+    Cu-Zn and Al-Cu systems. The methodology involves comparative analysis of material
+    properties, as detailed in prior studies (DOI:10.1103/PhysRevB.99.125401). Initial
+    screening indicates that the Cu-Zn system demonstrates superior thermoelectric
+    efficiency compared to Al-Cu.).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cu-Zn_system_superior_thermoelectric_efficiency_compared_to
+  kind: entity_fact
+  raw_text: Initial screening indicates that the Cu-Zn system demonstrates superior
+    thermoelectric efficiency compared to Al-Cu.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:30:05Z'
+- artifact_path: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com/tasks.md
+  attempts: 1
+  canonical: optimal configuration for thermoelectric performance in Cu-Zn and Al-Cu
+    systems
+  claim_id: c_01142a0f
+  context: 'Implement partial match ratio logic. **Deliverable**: Generate `data/artifacts/tcs_report.json`
+    (The research aims to determine the optimal configuration for thermoelectric performance
+    in Cu-Zn and Al-Cu systems. The methodology involves comparative analysis of material
+    properties, as detailed in prior studies (DOI:10.1103/PhysRevB.99.125401).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optimal_configuration_for_thermoelectric_performance_in_Cu-Z
+  kind: entity_fact
+  raw_text: The research aims to determine the optimal configuration for thermoelectric
+    performance in Cu-Zn and Al-Cu systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:32:33Z'
+- artifact_path: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com/tasks.md
+  attempts: 1
+  canonical: Research aims to determine optimal thermoelectric performance configuration
+    for Cu-Zn and Al-Cu systems
+  claim_id: c_fa0a4447
+  context: Generate data/artifacts/tcs_report.json (The research aims to determine
+    the optimal configuration for thermoelectric performance in Cu-Zn and Al-Cu systems.
+    The methodology involves comparative analysis of material properties, as detailed
+    in prior studies (DOI:10.1103/PhysRevB.99.125401).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_aims_to_determine_optimal_thermoelectric_performanc
+  kind: entity_fact
+  raw_text: The research aims to determine the optimal configuration for thermoelectric
+    performance in Cu-Zn and Al-Cu systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:36:58Z'
+- artifact_path: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com/tasks.md
+  attempts: 1
+  canonical: Methodology involves comparative analysis of material properties detailed
+    in DOI:10.1103/PhysRevB.99.125401
+  claim_id: c_5d5be472
+  context: Generate data/artifacts/tcs_report.json (The research aims to determine
+    the optimal configuration for thermoelectric performance in Cu-Zn and Al-Cu systems.
+    The methodology involves comparative analysis of material properties, as detailed
+    in prior studies (DOI:10.1103/PhysRevB.99.125401). Initial screening indicates
+    that the Cu-Zn system demonstrates superior thermoelectric efficiency compared
+    to Al-Cu.).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The methodology involves comparative analysis of material properties,
+    as detailed in prior studies (DOI:10.1103/PhysRevB.99.125401).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:37:00Z'
+- artifact_path: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com/tasks.md
+  attempts: 1
+  canonical: Initial screening indicates Cu-Zn system has superior thermoelectric
+    efficiency compared to Al-Cu
+  claim_id: c_55fdd835
+  context: Generate data/artifacts/tcs_report.json (The research aims to determine
+    the optimal configuration for thermoelectric performance in Cu-Zn and Al-Cu systems.
+    The methodology involves comparative analysis of material properties, as detailed
+    in prior studies (DOI:10.1103/PhysRevB.99.125401). Initial screening indicates
+    that the Cu-Zn system demonstrates superior thermoelectric efficiency compared
+    to Al-Cu.).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Initial_screening_indicates_Cu-Zn_system_has_superior_thermo
+  kind: entity_fact
+  raw_text: Initial screening indicates that the Cu-Zn system demonstrates superior
+    thermoelectric efficiency compared to Al-Cu.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:37:02Z'
+- artifact_path: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com/tasks.md
+  attempts: 1
+  canonical: optimal configuration for thermoelectric performance in Cu-Zn and Al-Cu
+    systems
+  claim_id: c_9216917d
+  context: 'Calculate Topological Consistency Score (TCS): implement partial match
+    ratio logic. **Deliverable**: Generate `data/artifacts/tcs_report.json` (The research
+    aims to determine the optimal configuration for thermoelectric performance in
+    Cu-Zn and Al-Cu systems. The methodology involves comparative analysis of material
+    properties, as detailed in prior studies (DOI:10.1103/PhysRevB.99.125401).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optimal_configuration_for_thermoelectric_performance_in_Cu-Z
+  kind: entity_fact
+  raw_text: The research aims to determine the optimal configuration for thermoelectric
+    performance in Cu-Zn and Al-Cu systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:37:42Z'
+- artifact_path: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com/tasks.md
+  attempts: 1
+  canonical: comparative analysis of material properties detailed in DOI:10.1103/PhysRevB.99.125401
+  claim_id: c_fbacac8a
+  context: The research aims to determine the optimal configuration for thermoelectric
+    performance in Cu-Zn and Al-Cu systems. The methodology involves comparative analysis
+    of material properties, as detailed in prior studies (DOI:10.1103/PhysRevB.99.125401).
+    Initial screening indicates that the Cu-Zn system demonstrates superior thermoelectric
+    efficiency compared to Al-Cu.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The methodology involves comparative analysis of material properties,
+    as detailed in prior studies (DOI:10.1103/PhysRevB.99.125401).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:37:43Z'
+- artifact_path: projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/specs/001-predicting-alloy-phase-diagrams-from-com/tasks.md
+  attempts: 2
+  canonical: Cu-Zn system demonstrates superior thermoelectric efficiency compared
+    to Al-Cu
+  claim_id: c_22e5677c
+  context: 'The methodology involves comparative analysis of material properties,
+    as detailed in prior studies (DOI:10.1103/PhysRevB.99.125401). Initial screening
+    indicates that the Cu-Zn system demonstrates superior thermoelectric efficiency
+    compared to Al-Cu.). **Verification**: Log warning if TCS < 0.8 but DO NOT halt.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cu-Zn_system_demonstrates_superior_thermoelectric_efficiency
+  kind: entity_fact
+  raw_text: Initial screening indicates that the Cu-Zn system demonstrates superior
+    thermoelectric efficiency compared to Al-Cu.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T20:37:45Z'

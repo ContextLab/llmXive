@@ -1,42 +1,60 @@
-"""
-T001a: Tests for directory structure creation.
-"""
-import os
 import pytest
-import shutil
-import tempfile
+import os
+from pathlib import Path
 import sys
 
-# Add parent directory to path to import setup_dirs
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from code.setup_dirs import create_directories
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
 
-@pytest.fixture
-def temp_project_root(tmp_path):
-    """Create a temporary directory to simulate project root."""
-    original_cwd = os.getcwd()
-    os.chdir(tmp_path)
-    yield tmp_path
-    os.chdir(original_cwd)
+from setup_dirs import create_directories
 
-def test_directories_created(temp_project_root):
-    """Verify that all required directories are created."""
-    # Remove existing directories if any (simulating fresh start)
-    dirs_to_check = ["data/raw", "data/processed", "code", "outputs", "tests"]
-    for d in dirs_to_check:
-        if os.path.exists(d):
-            shutil.rmtree(d)
+class TestSetupDirs:
+    """
+    Tests for the directory creation logic in setup_dirs.py.
+    """
 
-    # Run the creation function
-    create_directories()
+    def test_create_directories_returns_true(self):
+        """Test that create_directories returns True on success."""
+        # We expect this to succeed in a standard environment
+        result = create_directories()
+        assert result is True
 
-    # Verify each directory exists
-    for d in dirs_to_check:
-        assert os.path.isdir(d), f"Directory {d} was not created"
+    def test_directories_exist_after_creation(self):
+        """Test that required directories exist after running create_directories."""
+        # Run creation first
+        create_directories()
+        
+        project_root = Path(__file__).resolve().parent.parent
+        required_dirs = [
+            "data/raw",
+            "data/processed",
+            "code",
+            "outputs",
+            "tests",
+            "projects/PROJ-540-the-influence-of-social-media-doomscroll"
+        ]
 
-def test_directories_idempotent(temp_project_root):
-    """Verify that running the script again doesn't fail if dirs exist."""
-    # First run
-    create_directories()
-    # Second run should not raise errors
-    create_directories()
+        for dir_path in required_dirs:
+            full_path = project_root / dir_path
+            assert full_path.exists(), f"Directory {full_path} was not created."
+            assert full_path.is_dir(), f"{full_path} is not a directory."
+
+    def test_gitkeep_files_exist(self):
+        """Test that .gitkeep files exist in all required directories."""
+        # Run creation first
+        create_directories()
+        
+        project_root = Path(__file__).resolve().parent.parent
+        required_dirs = [
+            "data/raw",
+            "data/processed",
+            "code",
+            "outputs",
+            "tests",
+            "projects/PROJ-540-the-influence-of-social-media-doomscroll"
+        ]
+
+        for dir_path in required_dirs:
+            full_path = project_root / dir_path
+            gitkeep_path = full_path / ".gitkeep"
+            assert gitkeep_path.exists(), f".gitkeep file missing in {full_path}"

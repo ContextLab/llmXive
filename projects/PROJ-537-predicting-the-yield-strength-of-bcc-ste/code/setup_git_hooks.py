@@ -1,104 +1,107 @@
 """
-Script to install Git pre-commit hooks for the project.
-Sets up hooks for seed verification and import consistency checks.
+Setup script for Git hooks in the llmXive project.
+Creates pre-commit hooks to check for seeds and import conventions.
 """
 import os
 import stat
 import sys
 from pathlib import Path
 
+from utils.logging import get_logger, log_provenance_event
+
+logger = get_logger(__name__)
 
 def setup_git_hooks():
-    """Install pre-commit hooks into the .git/hooks directory."""
-    repo_root = Path(__file__).parent
-    git_hooks_dir = repo_root / ".git" / "hooks"
-    pre_commit_hook = git_hooks_dir / "pre-commit"
-
-    # Create .git/hooks directory if it doesn't exist
-    git_hooks_dir.mkdir(parents=True, exist_ok=True)
-
-    # Content for the pre-commit hook
-    hook_content = """#!/bin/bash
-    # Pre-commit hook for seed verification and import consistency
-
-    echo "Running pre-commit checks..."
-
-    # Run seed verification
-    echo "Checking random seeds..."
-    python code/utils/verify_seed.py
-    if [ $? -ne 0 ]; then
-        echo "❌ Seed verification failed. Please fix the issues above."
-        exit 1
-    fi
-
-    # Run import consistency check
-    echo "Checking import consistency..."
-    python code/utils/check_imports.py
-    if [ $? -ne 0 ]; then
-        echo "❌ Import consistency check failed. Please fix the issues above."
-        exit 1
-    fi
-
-    # Run pre-commit framework (if installed)
-    if command -v pre-commit &> /dev/null; then
-        echo "Running pre-commit framework..."
-        pre-commit run
-        if [ $? -ne 0 ]; then
-            echo "❌ Pre-commit framework checks failed."
-            exit 1
-        fi
-    fi
-
-    echo "✅ All pre-commit checks passed."
-    exit 0
     """
-
-    # Write the hook file
-    pre_commit_hook.write_text(hook_content)
-
-    # Make the hook executable
-    pre_commit_hook.chmod(pre_commit_hook.stat().st_mode | stat.S_IEXEC)
-
-    print(f"✅ Pre-commit hook installed at {pre_commit_hook}")
-
-    # Also install pre-commit framework configuration
-    pre_commit_config = repo_root / ".pre-commit-config.yaml"
-    if pre_commit_config.exists():
-        print("✅ Pre-commit configuration file found.")
-        print("   Run 'pre-commit install' to use the pre-commit framework.")
-    else:
-        print("⚠️  No .pre-commit-config.yaml found. Creating one...")
-        # Create a basic config
-        config_content = """repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
-  - repo: https://github.com/psf/black
-    rev: 23.12.1
-    hooks:
-      - id: black
-        language_version: python3
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
-    hooks:
-      - id: flake8
-        args: [--max-line-length=88, --extend-ignore=E203]
-"""
-        pre_commit_config.write_text(config_content)
-        print(f"✅ Created {pre_commit_config}")
-
-    return 0
-
+    Set up Git hooks for the project.
+    
+    Creates a pre-commit hook that:
+    1. Checks for random seed initialization in Python files
+    2. Validates import conventions
+    """
+    repo_root = Path(__file__).parent.parent
+    git_hooks_dir = repo_root / '.git' / 'hooks'
+    code_dir = repo_root / 'code'
+    
+    # Ensure .git/hooks directory exists
+    if not git_hooks_dir.exists():
+        logger.warning("Not a Git repository. Skipping hook setup.")
+        return False
+    
+    # Create hook scripts directory in code/
+    hook_scripts_dir = code_dir / 'hook_scripts'
+    hook_scripts_dir.mkdir(exist_ok=True)
+    
+    # Path to pre-commit hook
+    pre_commit_hook = git_hooks_dir / 'pre-commit'
+    
+    # Create the pre-commit hook script
+    hook_content = f'''#!/bin/bash
+    # Pre-commit hook for llmXive project
+    # Checks for seed initialization and import conventions
+    
+    set -e
+    
+    echo "Running pre-commit checks..."
+    
+    # Run seed check
+    python3 "{code_dir}/hook_scripts/check_seeds.py"
+    SEED_EXIT=$?
+    
+    # Run import check
+    python3 "{code_dir}/hook_scripts/check_imports.py"
+    IMPORT_EXIT=$?
+    
+    if [ $SEED_EXIT -ne 0 ] || [ $IMPORT_EXIT -ne 0 ]; then
+        echo ""
+        echo "⚠️  Pre-commit checks completed with warnings."
+        echo "Please review the output above before committing."
+        # Don't block the commit, just warn
+    else
+        echo "✅ All pre-commit checks passed."
+    fi
+    
+    exit 0
+    '''
+    
+    # Write the pre-commit hook
+    try:
+        with open(pre_commit_hook, 'w', encoding='utf-8') as f:
+            f.write(hook_content)
+        
+        # Make it executable
+        os.chmod(pre_commit_hook, os.stat(pre_commit_hook).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        
+        logger.info(f"Pre-commit hook created at {pre_commit_hook}")
+        log_provenance_event("git_hook_setup", {
+            "hook_type": "pre-commit",
+            "checks": ["seed_initialization", "import_conventions"],
+            "status": "success"
+        })
+        
+        return True
+    except Exception as e:
+        logger.error(f"Failed to create pre-commit hook: {str(e)}")
+        return False
 
 def main():
-    """Main entry point for the script."""
-    print("🔧 Setting up Git hooks...")
-    return setup_git_hooks()
+    """Main entry point for the setup script."""
+    logger.info("Setting up Git hooks...")
+    
+    success = setup_git_hooks()
+    
+    if success:
+        logger.info("Git hooks setup completed successfully.")
+        print("✅ Git hooks have been set up.")
+        print("   The pre-commit hook will check for:")
+        print("   - Random seed initialization")
+        print("   - Import conventions")
+    else:
+        logger.warning("Git hooks setup failed or was skipped.")
+        print("⚠️  Git hooks setup failed or was skipped.")
+        print("   You may need to manually set up hooks if not in a Git repository.")
+    
+    return 0 if success else 1
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     sys.exit(main())

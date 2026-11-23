@@ -1,0 +1,54 @@
+- artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR control requirement superseded
+  claim_id: c_863a1508
+  context: 'AMENDMENT (T008a): The original requirement for Benjamini-Hochberg (FDR)
+    control is hereby superseded. Due to the high dependency structure between adjacent
+    time windows, the MaxT procedure (Westfall & Young, 1993) shall be used instead.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_FDR_control_requirement_superseded
+  kind: entity_fact
+  raw_text: The original requirement for Benjamini-Hochberg (FDR) control is hereby
+    superseded.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T09:47:33Z'
+- artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec.md
+  attempts: 1
+  canonical: MaxT procedure Westfall Young 1993 used for FWER control
+  claim_id: c_41ca43d9
+  context: Due to the high dependency structure between adjacent time windows, the
+    MaxT procedure (Westfall & Young, 1993) shall be used instead. This ensures strict
+    FWER control at alpha=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: the MaxT procedure (Westfall & Young, 1993) shall be used instead.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T09:48:08Z'
+- artifact_path: projects/PROJ-287-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/spec.md
+  attempts: 1
+  canonical: MaxT procedure ensures strict FWER control at alpha 0.05
+  claim_id: c_d483f501
+  context: the MaxT procedure (Westfall & Young, 1993) shall be used instead. This
+    ensures strict FWER control at alpha=0.05, preventing false positives in drift
+    detection.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This ensures strict FWER control at alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T09:49:55Z'

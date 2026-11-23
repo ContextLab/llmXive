@@ -1,0 +1,15 @@
+status: none
+intent: openml Stroop task dataset download participant reaction time accuracy python
+  package dataset
+required_fields:
+- participant_id
+- reaction_time_ms
+- accuracy_percent
+- environment_tag
+- image_id
+- edge_density
+- color_entropy
+- object_count
+cache_key: 1f80f73d47eea892e4916cf8beb5b66897525b7f1f7a1f9ca3183bda16b1b0df
+searched_at: '2026-10-10T06:32:33.290085+00:00'
+retry_count: 1

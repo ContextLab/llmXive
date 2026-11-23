@@ -1,0 +1,11 @@
+status: none
+intent: tau c Bench dataset HuggingFace python package dataset
+required_fields:
+- task_id
+- task_prompt
+- success
+- api_calls
+- token_consumption
+cache_key: 844ec09e7314bd5d2965d2238d6d4ade3d35d8a2c7fc8db6634c6bdcda91eb1d
+searched_at: '2026-10-25T03:43:16.006449+00:00'
+retry_count: 1

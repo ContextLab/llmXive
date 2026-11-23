@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw Halo Data Schema"
+description: "Schema for validating raw halo data after filtering (US1). Contains only fundamental observed columns."
+type: object
+properties:
+  mass:
+    type: array
+    description: "Halo mass (M_sun/h)"
+    items:
+      type: number
+      minimum: 0
+  position:
+    type: array
+    description: "Halo position (x, y, z) in Mpc/h"
+    items:
+      type: array
+      minItems: 3
+      maxItems: 3
+      items:
+        type: number
+  velocity:
+    type: array
+    description: "Halo velocity (vx, vy, vz) in km/s"
+    items:
+      type: array
+      minItems: 3
+      maxItems: 3
+      items:
+        type: number
+  particle_count:
+    type: array
+    description: "Number of particles in the halo"
+    items:
+      type: integer
+      minimum: 0
+required:
+  - mass
+  - position
+  - velocity
+  - particle_count
+additionalProperties: false

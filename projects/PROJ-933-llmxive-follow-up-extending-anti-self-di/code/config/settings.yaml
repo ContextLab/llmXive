@@ -1,0 +1,93 @@
+# llmXive Configuration Settings
+# Generated for PROJ-933: Anti-Self-Distillation for Reasoning RL
+
+# --- Global Settings ---
+project_name: "llmxive-anti-self-di"
+version: "1.0.0"
+seed: 42
+device: "cpu"  # Optimized for CPU constraints as per spec
+
+# --- Time Constraints ---
+# Hard timeout limit in hours (5.5h as per FR-007, SC-004)
+timeout_hours: 5.5
+timeout_seconds: 19800
+
+# --- Hyperparameters ---
+training:
+  # Model selection (CPU feasible)
+  model_name: "distilbert-base-uncased"
+  # Training loop parameters
+  batch_size: 8
+  learning_rate: 2e-5
+  num_epochs: 1
+  max_steps: 10000  # Safety cap for CI runs
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  
+  # AntiSD Specifics
+  anti_sd_weight: 1.0  # Weight for JS divergence ascent
+  divergence_method: "js"  # Options: js, kl, pmim
+  
+  # Gradient Inversion
+  use_gradient_inversion: true
+  inversion_alpha: 0.1
+  
+data:
+  # Datasets
+  datasets:
+    - name: "UltraFeedback"
+      source: "HuggingFaceH4/ultrafeedback_binarized"
+      split: "train"
+      streaming: true
+    - name: "Dolly"
+      source: "databricks/dolly-15k"
+      split: "train"
+      streaming: true
+      
+  # Filtering criteria (FR-016)
+  min_traces_per_prompt: 4
+  
+  # Context Simulation
+  context_sampling:
+    num_privileged: 1
+    re_sample_on_match: true
+    
+# --- Analysis & Metrics ---
+analysis:
+  # Diversity Metrics
+  metrics:
+    - "bleu"
+    - "semantic_similarity"
+    - "deliberation_tokens"
+    
+  # Statistical Tests
+  statistical_tests:
+    - "wilcoxon_signed_rank"
+    - "pearson_correlation"
+    
+  # Power Analysis
+  power_analysis:
+    target_power: 0.8
+    alpha: 0.05
+    min_effect_size: 0.5
+    
+# --- Paths ---
+paths:
+  data_dir: "data"
+  results_dir: "results"
+  figures_dir: "figures"
+  config_dir: "code/config"
+  contracts_dir: "contracts"
+  
+# --- Logging ---
+logging:
+  level: "INFO"
+  log_file: "results/training.log"
+  log_interval_steps: 10
+  save_checkpoint_steps: 1000
+  
+# --- Resource Limits ---
+resources:
+  max_ram_gb: 6.5
+  max_disk_gb: 14.0
+  enable_memory_monitoring: true

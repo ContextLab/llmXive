@@ -1,0 +1,57 @@
+{
+  "total_open": 16678,
+  "remaining_unparseable": [
+    {
+      "path": "projects/PROJ-821-llmxive-follow-up-extending-training-lon/specs/001-llmxive-follow-up-extending-training-lon/tasks.md",
+      "line": "- [ ] **DELETED** T058 [P] **DELETED**: Replaced by integrated memory logging in T042."
+    },
+    {
+      "path": "projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md",
+      "line": "- [ ] TXXX [P] Documentation updates in docs/"
+    },
+    {
+      "path": "projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md",
+      "line": "- [ ] TXXX Code cleanup and refactoring"
+    },
+    {
+      "path": "projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md",
+      "line": "- [ ] TXXX Performance optimization across all stories"
+    },
+    {
+      "path": "projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md",
+      "line": "- [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/"
+    },
+    {
+      "path": "projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md",
+      "line": "- [ ] TXXX Security hardening"
+    },
+    {
+      "path": "projects/PROJ-105-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md",
+      "line": "- [ ] TXXX Run quickstart.md validation"
+    },
+    {
+      "path": "projects/PROJ-760-systematic-review-of-privacy-preserving-/specs/001-systematic-review-of-privacy-preserving/tasks.md",
+      "line": "- [ ] Ta [P] Generate a synthetic 200-paper dataset (JSON/CSV) with realistic metrics for performance testing"
+    },
+    {
+      "path": "projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/001-knot-complexity-analysis/tasks.md",
+      "line": "- [ ] Load and validate the raw knot atlas dataset."
+    },
+    {
+      "path": "projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/001-knot-complexity-analysis/tasks.md",
+      "line": "- [ ] Compute invariant coverage statistics."
+    },
+    {
+      "path": "projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/001-knot-complexity-analysis/tasks.md",
+      "line": "- [ ] Implement the composite metric calculations."
+    },
+    {
+      "path": "projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/001-knot-complexity-analysis/tasks.md",
+      "line": "- [ ] Generate visualizations for complexity distributions."
+    },
+    {
+      "path": "projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md",
+      "line": "- [ ] {{claim:c_65cd812e}}"
+    }
+  ]
+}

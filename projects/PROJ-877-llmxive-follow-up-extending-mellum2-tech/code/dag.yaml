@@ -1,0 +1,258 @@
+# DAG for llmXive Follow-up: Extending Mellum2 Tech
+# Generated for Task T021b
+# Defines the execution graph for the correlation analysis pipeline.
+# Dependencies are strictly enforced.
+
+version: "1.0"
+pipeline_name: "llmxive-correlation-analysis"
+description: "Execution graph for US1: Correlation Analysis of Code Complexity and Prediction Loss"
+
+# Global configuration
+config:
+  project_root: "projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech"
+  data_dir: "data"
+  code_dir: "code"
+  results_dir: "data/results"
+
+# Execution stages
+stages:
+  # Phase 0: Feasibility (Must complete before data download)
+  - id: feasibility
+    name: "Feasibility & Power Analysis"
+    script: "code/analysis/feasibility.py"
+    inputs: []
+    outputs:
+      - "data/results/feasibility_report.json"
+    dependencies: []
+    description: "Fetch pilot metadata, estimate variance, calculate required sample size, and determine feasibility."
+
+  - id: power_sensitivity
+    name: "Power Sensitivity Fallback"
+    script: "code/analysis/power_sensitivity.py"
+    inputs:
+      - "data/results/feasibility_report.json"
+    outputs:
+      - "data/results/power_sensitivity_fallback.md"
+      - "data/results/feasibility_report.json" # Updated with scope_reduction
+    dependencies:
+      - feasibility
+    description: "Analyze power limitations and update feasibility report with scope reductions if necessary."
+
+  # Phase 1: Data Acquisition & Preprocessing
+  - id: download
+    name: "Dataset Download"
+    script: "code/data/download.py"
+    inputs:
+      - "data/results/feasibility_report.json"
+    outputs:
+      - "data/processed/train_python/"
+      - "data/processed/val_java/" # Optional, depends on scope
+    dependencies:
+      - power_sensitivity
+    description: "Stream and download code chunks from codeparrot/github-code based on capped_N."
+
+  - id: preprocess
+    name: "Code Preprocessing & Labeling"
+    script: "code/data/preprocess.py"
+    inputs:
+      - "data/processed/train_python/"
+      - "data/processed/val_java/"
+    outputs:
+      - "data/processed/annotated_python.jsonl"
+      - "data/processed/annotated_java.jsonl"
+    dependencies:
+      - download
+    description: "Run CodeQL and tree-sitter to label complexity metrics."
+
+  # Phase 1: Parallel Analysis Blocks
+  - id: variance_check
+    name: "Variance Detection"
+    script: "code/analysis/variance_check.py"
+    inputs:
+      - "data/processed/annotated_python.jsonl"
+      - "data/processed/annotated_java.jsonl"
+    outputs:
+      - "data/results/variance_null_report.json" # Only generated if variance is zero
+    dependencies:
+      - preprocess
+    description: "Check for zero variance in complexity metrics. If zero, generate report and halt correlation."
+
+  - id: ngram_python
+    name: "Build KenLM Model (Python)"
+    script: "code/data/ngram.py"
+    inputs:
+      - "data/processed/train_python/"
+    outputs:
+      - "data/processed/kenlm_model_python.arpa"
+    dependencies:
+      - preprocess
+    description: "Build 5-gram language model for Python code."
+
+  - id: ngram_java
+    name: "Build KenLM Model (Java)"
+    script: "code/data/ngram.py"
+    inputs:
+      - "data/processed/val_java/"
+    outputs:
+      - "data/processed/kenlm_model_java.arpa"
+    dependencies:
+      - preprocess
+    condition: "scope_reduction.cross_language_enabled" # Only if Java data exists
+    description: "Build 5-gram language model for Java code."
+
+  # Phase 1: Inference
+  - id: inference
+    name: "Frozen LLM Inference"
+    script: "code/inference/engine.py"
+    inputs:
+      - "data/processed/annotated_python.jsonl"
+      - "data/processed/annotated_java.jsonl"
+      - "data/processed/kenlm_model_python.arpa"
+      - "data/processed/kenlm_model_java.arpa"
+    outputs:
+      - "data/processed/inference_results_python.jsonl"
+      - "data/processed/inference_results_java.jsonl"
+    dependencies:
+      - ngram_python
+      - ngram_java
+    description: "Run Mistral-7B (or TinyLlama fallback) inference with KenLM normalization."
+
+  # Phase 1: Correlation & Visualization
+  - id: correlation
+    name: "Correlation Analysis"
+    script: "code/analysis/correlation.py"
+    inputs:
+      - "data/processed/inference_results_python.jsonl"
+      - "data/processed/inference_results_java.jsonl"
+    outputs:
+      - "data/results/us1_correlation_stats.json"
+    dependencies:
+      - inference
+    description: "Compute Pearson and Spearman correlations between complexity and normalized loss."
+
+  - id: visualization
+    name: "Visualization Generation"
+    script: "code/analysis/correlation.py" # Reuses correlation module's visualization functions
+    inputs:
+      - "data/results/us1_correlation_stats.json"
+      - "data/results/variance_null_report.json" # Optional check
+    outputs:
+      - "data/results/us1_correlation_plot.png"
+    dependencies:
+      - correlation
+      - variance_check
+    description: "Generate scatter plots with regression lines if variance is non-zero."
+
+  # Phase 2: Threshold Detection
+  - id: threshold_detection
+    name: "Threshold Detection"
+    script: "code/analysis/threshold.py"
+    inputs:
+      - "data/results/us1_correlation_stats.json"
+    outputs:
+      - "data/results/us2_threshold_candidates.json"
+    dependencies:
+      - correlation
+    description: "Apply piecewise regression and change-point detection."
+
+  - id: model_comparison
+    name: "Model Comparison (AIC/BIC)"
+    script: "code/analysis/threshold.py"
+    inputs:
+      - "data/results/us2_threshold_candidates.json"
+    outputs:
+      - "data/results/us2_threshold_candidates.json" # Updated with model_preference
+    dependencies:
+      - threshold_detection
+    description: "Compare linear vs. non-linear models."
+
+  - id: sensitivity_analysis
+    name: "Sensitivity Analysis"
+    script: "code/analysis/threshold.py"
+    inputs:
+      - "data/results/us2_threshold_candidates.json"
+      - "data/results/feasibility_report.json"
+    outputs:
+      - "data/results/us2_threshold_candidates.json" # Updated with shifts
+    dependencies:
+      - model_comparison
+    description: "Perform perturbation sweep and bootstrap resampling."
+
+  - id: threshold_report
+    name: "Threshold Report Generation"
+    script: "code/analysis/threshold.py"
+    inputs:
+      - "data/results/us2_threshold_candidates.json"
+    outputs:
+      - "data/results/us2_threshold_report.md"
+    dependencies:
+      - sensitivity_analysis
+    description: "Generate markdown summary of thresholds and sensitivity."
+
+  # Phase 3: Statistical Significance
+  - id: permutation_test
+    name: "Permutation Test"
+    script: "code/analysis/stats.py"
+    inputs:
+      - "data/results/us1_correlation_stats.json"
+    outputs:
+      - "data/results/us3_permutation_pvalue.json"
+    dependencies:
+      - correlation
+    description: "Cluster-robust permutation test for p-values."
+
+  - id: multiple_comparison
+    name: "Multiple Comparison Correction"
+    script: "code/analysis/stats.py"
+    inputs:
+      - "data/results/us3_permutation_pvalue.json"
+    outputs:
+      - "data/results/us3_corrected_pvalues.json"
+    dependencies:
+      - permutation_test
+    description: "Apply Bonferroni or FDR correction."
+
+  - id: power_validation
+    name: "Post-hoc Power Analysis"
+    script: "code/analysis/stats.py"
+    inputs:
+      - "data/results/us1_correlation_stats.json"
+      - "data/results/us3_permutation_pvalue.json"
+    outputs:
+      - "data/results/us3_power_analysis.json"
+    dependencies:
+      - multiple_comparison
+    description: "Validate power against a priori targets."
+
+  - id: benchmark_validation
+    name: "Benchmark Validation"
+    script: "code/analysis/stats.py"
+    inputs:
+      - "data/processed/annotated_python.jsonl"
+    outputs:
+      - "data/results/us3_validation_result.json"
+    dependencies:
+      - correlation
+    description: "Validate against CodeXGLUE benchmark."
+
+  # Phase N: Output & Finalization
+  - id: final_output
+    name: "Final Output Aggregation"
+    script: "code/main.py" # Or a specific output aggregator
+    inputs:
+      - "data/results/us1_correlation_stats.json"
+      - "data/results/us2_threshold_report.md"
+      - "data/results/us3_power_analysis.json"
+    outputs:
+      - "data/results/final_report.md"
+    dependencies:
+      - threshold_report
+      - power_validation
+      - benchmark_validation
+    description: "Aggregate all results into a final report."
+
+# Execution metadata
+metadata:
+  created_by: "T021b"
+  created_at: "2023-10-27T10:00:00Z"
+  version: "1.0"

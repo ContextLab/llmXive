@@ -5,14 +5,14 @@
 
 ## Summary
 This feature implements a reproducible neuroimaging analysis pipeline to investigate the correlation between functional brain network dynamics (graph metrics) and **Fluid Intelligence (g-factor)** proxies. 
-**Critical Pivot**: The original spec targeted "Musical Creativity" (TTCT/AUT) using OpenNeuro datasets ds000224 and ds000230. However, these datasets (HCP 1200 Subjects and similar) **do not contain** TTCT/AUT or musical improvisation scores. 
+**Critical Pivot**: The original spec targeted "Musical Creativity" (TTCT/AUT) using OpenNeuro datasets ds000224 and ds000230. However, these datasets (HCP Subjects and similar) **do not contain** TTCT/AUT or musical improvisation scores. 
 **Revised Strategy**: The pipeline now targets **Fluid Intelligence** scores, which are present in the HCP datasets (ds000224). The pipeline will **not** halt if TTCT/AUT are missing; instead, it will validate for and use Fluid Intelligence scores. 
-The system downloads resting-state fMRI data from OpenNeuro (ds000224) via the OpenNeuro API/BIDS downloader, preprocesses it using FSL/AFNI tools, computes graph theoretical metrics (global efficiency, modularity, clustering coefficient) via NetworkX, and performs statistical correlation analysis with Fluid Intelligence scores including **Bonferroni** correction (per Constitution). The pipeline is constrained to run on a CPU-only GitHub Actions runner with limited computational resources, with strict adherence to the project constitution regarding reproducibility, data hygiene, and statistical transparency. 
+The system downloads resting-state fMRI data from OpenNeuro (ds) via the OpenNeuro API/BIDS downloader, preprocesses it using FSL/AFNI tools, computes graph theoretical metrics (global efficiency, modularity, clustering coefficient) via NetworkX, and performs statistical correlation analysis with Fluid Intelligence scores including **Bonferroni** correction (per Constitution). The pipeline is constrained to run on a CPU-only GitHub Actions runner with limited computational resources, with strict adherence to the project constitution regarding reproducibility, data hygiene, and statistical transparency. 
 **Feasibility Constraint**: To meet the 6-hour CI limit, the pipeline will process **N=10 subjects** (down from the spec's N=50 target). This is an exploratory feasibility study. The spec requires amendment to reflect the N=10 CI run and the pivot to Fluid Intelligence.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `nibabel`, `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `fslpy` (via system install), `afni` (via system install), `dipy`, `openneuro-py`  
 **Storage**: Local file system (`data/`), BIDS format for raw/preprocessed data, CSV/Parquet for derived metrics  
 **Testing**: `pytest` (unit tests for metric calculation, integration tests for pipeline flow)  
@@ -43,7 +43,7 @@ The system downloads resting-state fMRI data from OpenNeuro (ds000224) via the O
 The current `spec.md` contains requirements that conflict with the feasible implementation plan:
 1.  **FR-001 / Assumptions**: Mandates halting if "Musical Creativity (TTCT/AUT)" scores are missing. **Resolution**: The Plan implements a fallback to **Fluid Intelligence** (available in ds000224). The Spec must be amended to remove the hard halt and allow fallback to available cognitive proxies.
 2.  **FR-005**: Mandates **FDR** correction. **Resolution**: Constitution Principle VII mandates **Bonferroni**. The Plan implements Bonferroni to satisfy the Constitution. The Spec must be amended to align with Bonferroni.
-3.  **SC-001 / SC-005**: Target N=50 and "≥90% success" for N=50. **Resolution**: CI run is limited to **N=10** for feasibility. Success criteria will be measured against the N=10 run. The Spec must be amended to reflect the feasibility study nature (N=10) for CI.
+3.  **SC-001 / SC-005**: Target N=50 and "≥% success" for N=50. **Resolution**: CI run is limited to **N=10** for feasibility. Success criteria will be measured against the N=10 run. The Spec must be amended to reflect the feasibility study nature (N=10) for CI.
 
 ## Project Structure
 
@@ -103,7 +103,7 @@ projects/PROJ-216-exploring-the-relationship-between-brain/
 - **SC-003 (Effect Size)**: The `stats.py` script will calculate and report Cohen's d and 95% CI for all significant correlations.
 
 ## Compute Feasibility Analysis
-- **Environment**: GitHub Actions Free Tier (2 CPU, ~7GB RAM).
+- **Environment**: GitHub Actions Free Tier (multiple CPU cores, several GB RAM).
 - **Strategy**:
   - **Sample Limit**: Process **N=10** subjects (down from N=50) to ensure <6h runtime.
   - **Sequential Processing**: Preprocess one subject at a time to avoid RAM spikes.

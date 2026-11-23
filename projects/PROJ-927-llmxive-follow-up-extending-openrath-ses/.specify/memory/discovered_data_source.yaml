@@ -1,0 +1,15 @@
+status: none
+intent: Synthetic Multi-Agent Workflow debugging generator deterministic python package
+  dataset
+required_fields:
+- workflow_id
+- agent_roles
+- workflow_structure
+- final_state
+- ground_truth_hash
+- decision_tree
+- random_seed
+- generation_timestamp
+cache_key: e87216e34d1095886a31973e1a491e8c82233e4ece393ca4085d4d4f6564fdb7
+searched_at: '2026-10-22T09:24:07.874949+00:00'
+retry_count: 1

@@ -1,0 +1,52 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Counterfactual Report Schema
+description: Schema for the output of the Counterfactual Inspector Agent (FR-003). This schema defines an array of insights, as required by FR-003.
+type: object
+properties:
+  threshold_config:
+    type: string
+    description: "Configuration string: p < 0.05, |r| > 0.15, Bonferroni corrected"
+  insights:
+    type: array
+    description: "List of counterfactual insights found. If none, this array is empty."
+    items:
+      type: object
+      required:
+        - claim
+        - p_value
+        - partial_r
+        - validity_status
+        - query_executed
+        - low_power_flag
+      properties:
+        claim:
+          type: string
+          description: The counterfactual claim text.
+        p_value:
+          type: number
+          description: The Bonferroni-corrected p-value of the partial correlation test.
+        partial_r:
+          type: number
+          description: The partial correlation coefficient.
+        validity_status:
+          type: string
+          enum: ["verified", "low_power", "failed", "no_signal", "collinear"]
+          description: Status of the claim based on thresholds and data quality.
+        query_executed:
+          type: string
+          description: The SQL or Python query used to generate the result.
+        low_power_flag:
+          type: boolean
+          description: True if n < 30 or MDES is too high.
+        collinear_flag:
+          type: boolean
+          description: True if the candidate was excluded due to definitional collinearity.
+  status:
+    type: string
+    enum: ["SUCCESS", "LOW_POWER", "NO_COUNTERFACTUALS", "ERROR"]
+    description: Overall status of the counterfactual analysis.
+required:
+  - threshold_config
+  - insights
+  - status
+additionalProperties: false

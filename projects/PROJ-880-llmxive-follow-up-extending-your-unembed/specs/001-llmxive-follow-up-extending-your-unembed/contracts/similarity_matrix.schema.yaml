@@ -1,65 +1,30 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "SimilarityMatrixSchema"
-description: "Schema for pairwise cosine similarities between average token vectors and edge spectra after alignment."
+title: "Similarity Matrix Schema"
 type: object
 required:
-  - native_pairs
-  - cross_pairs
-  - delta
+  - "model_pairs"
+  - "similarity_scores"
+  - "bootstrap_ci"
+  - "generated_at"
 properties:
-  native_pairs:
+  model_pairs:
     type: array
-    description: "Similarities where the vector and spectrum are from the same language/model."
     items:
-      type: object
-      required:
-        - model_a
-        - model_b
-        - similarity
-      properties:
-        model_a:
-          type: string
-          description: "Model providing the average token vector."
-        model_b:
-          type: string
-          description: "Model providing the edge spectrum."
-        similarity:
-          type: number
-          description: "Cosine similarity score."
-          minimum: -1
-          maximum: 1
-  cross_pairs:
+      type: string
+  similarity_scores:
     type: array
-    description: "Similarities where the vector and spectrum are from different languages/models (after Procrustes alignment)."
-    items:
-      type: object
-      required:
-        - model_a
-        - model_b
-        - similarity
-        - alignment_applied
-      properties:
-        model_a:
-          type: string
-        model_b:
-          type: string
-        similarity:
-          type: number
-          minimum: -1
-          maximum: 1
-        alignment_applied:
-          type: boolean
-          description: "True if Procrustes alignment was applied to this pair."
-  delta:
-    type: array
-    description: "Difference (Native - Cross) for corresponding pairs."
     items:
       type: number
-  alignment_details:
-    type: object
-    description: "Details about the alignment process (e.g., shared vocab size)."
-    properties:
-      shared_vocab_size:
-        type: integer
-      method:
-        type: string
+      minimum: -1
+      maximum: 1
+  bootstrap_ci:
+    type: array
+    items:
+      type: array
+      minItems: 2
+      maxItems: 2
+      items:
+        type: number
+  generated_at:
+    type: string
+    format: date-time

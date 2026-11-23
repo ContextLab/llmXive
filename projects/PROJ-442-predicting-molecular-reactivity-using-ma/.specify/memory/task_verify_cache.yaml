@@ -1,0 +1,15 @@
+T012:
+  c: false
+  h: f3e4c77af941478e800591f6e374ff7e40e93d52e9081e1a6c81f08ac6b7e7c3
+  r: The provided `src/modeling/config.yaml` does not define a `USPTO_URL` key, violating
+    the required configuration check. Additionally, the expected output file `data/raw/uspto_subset.parquet`
+    is missing, indicating the ingestion script has not completed the download, checksum
+    verification, and parsing steps.
+T013b:
+  c: false
+  h: f7b8af83be7f2813d50634cfd13435abc902d8e8039f71dea6559c924f88a618
+  r: "The `src/utils/chemistry.py` file is only partially shown and ends abruptly\
+    \ inside `_match_reaction`; no complete reaction\u2011matching or classification\
+    \ function is present. Moreover, the required `config.yaml` containing the SMARTS\
+    \ patterns is missing, so the code cannot load the templates it is supposed to\
+    \ use. Both the essential artifact and its functionality are absent."

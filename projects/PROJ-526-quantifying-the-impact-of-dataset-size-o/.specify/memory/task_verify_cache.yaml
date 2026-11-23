@@ -1,0 +1,131 @@
+T001a:
+  c: true
+  h: 5955bca3e9599e0a32dcef3f7be0dd339faf4d7eef2c01af150a01b6bb01748d
+  r: The repository contains the project root `projects/PROJ-526-quantifying-the-impact-of-dataset-size-o/`
+    with the required subdirectories `code/`, `data/`, `tests/`, `state/`, and `docs/`
+    all present (as shown in the directory listings). This fulfills the task of creating
+    the specified root directories.
+  sig: bcf0bd14254cc9774dddeb9a142301c1de1b1f630e0f94f5537ecf6de9e4c43b
+T001b:
+  c: true
+  h: 41baccb55a6367f953bf1005efc2d314fc6f05e6e266ae49ce76b319ea8b9b0d
+  r: Checked that the directories `data/raw/`, `data/processed/`, `tests/contract/`,
+    `tests/unit/`, and `tests/integration/` all exist under the project root and contain
+    files (e.g., `.gitkeep` and test scripts), satisfying the creation requirement.
+  sig: c8292f3949af130c6853106ce09943aea4963180ad1c6663125bd6932a487139
+T001c:
+  c: false
+  h: 35dc1f812df90017125ac600a1f3dc70938771d449e3eb28fd957c81a753f673
+  r: The evidence provides only the project root location; no `.git` directory, no
+    `.gitignore` file, and no other indication that a Git repository was initialized.
+    Consequently the required artifacts for task T001c are missing.
+  sig: 535717ced3a319768f12cc6ecebf7c6b31cdb1c4215526402221e4c36a01e959
+T002:
+  c: true
+  h: 05e7ba632121805054d5594259ac1243fe00f6bdf5daf48fcc187287cf8c3a73
+  r: "Checked the `requirements.txt` file (195\u202Fbytes) located at the project\
+    \ root; it includes all required packages (`pymatgen`, `matminer`, `scikit-learn`,\
+    \ `pandas`, `numpy`, `requests`, `huggingface_hub`) with version specifiers, satisfying\
+    \ the initialization requirement."
+  sig: 88ac0a1e4263e67df25fa1cb3b545f8bdeeb7046b5e1cb50a7d1bb537d0f49a9
+T003:
+  c: false
+  h: 7b9bd49bc84d26da5e46b8f7e68969beb588350de996d572b24a3db92a95a008
+  r: "The evidence only shows the project root path; no linting configuration files\
+    \ (e.g.,\u202F`.flake8`, `pyproject.toml` with Black settings, or a pre\u2011\
+    commit hook) are present or referenced. Without these artifacts the requirement\
+    \ to \u201Cconfigure linting (flake8/black) and formatting tools\u201D is not\
+    \ satisfied. Adding the appropriate config files and confirming they are non\u2011\
+    empty will be needed."
+  sig: 6b4e341caac99c9afae3b27a9f4331a034f6d48a6040ddcc25290d2c14cf3162
+T004:
+  c: true
+  h: f1bb160b0854ba3e180a13f1dff514d357b70fa68e9d94bad02daea61358c974
+  r: The `data/` directory contains the required `raw/` and `processed/` subfolders,
+    and the `state/` directory exists (with placeholder files) to hold checksum information.
+  sig: 4604293fc8018a2136227ddb6d78e98e28861d51ddf6a3b483dbb0346a286b2a
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, or documentation showing added logging for download\
+    \ progress or descriptor\u2011generation statistics were provided. Without concrete\
+    \ artifacts (e.g., modified scripts, log\u2011format specifications, or example\
+    \ log output), we cannot confirm that the required logging functionality was implemented.\
+    \ The task therefore remains incomplete."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or JSON file implementing the required validation logic was\
+    \ provided. The claim lacks the actual artifact that counts distinct properties,\
+    \ raises a `ValueError` when the count is <\u202F15, logs the \u201C15\u2011N\u201D\
+    \ gap, and updates `state/properties_status.json`. Without these files or their\
+    \ contents, the task is not demonstrably completed."
+T020:
+  c: false
+  h: 398f8b5f1dfedf846d22a59cbd32a6bc9aa31e02093fe849fab9615f9a05148f
+  r: "The repository contains `code/fit_scaling_laws.py`, but the script is truncated\
+    \ and does not show any logic that reads learning\u2011curve data, performs the\
+    \ fit, and writes `data/processed/scaling_results.csv`. Moreover, the required\
+    \ output file `data/processed/scaling_results.csv` is absent. The task\u2019s\
+    \ core deliverable \u2013 a CSV with the specified columns \u2013 is therefore\
+    \ not present."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, test, or documentation artifact showing that the pipeline\
+    \ now detects and gracefully handles properties with fewer than\u202F1,000 samples\
+    \ was provided. Without such evidence we cannot confirm that error handling was\
+    \ added as required. The implementer must supply the modified source (e.g., a\
+    \ function that checks sample count and raises or logs an appropriate error) and,\
+    \ ideally, accompanying tests or logs demonstrating the behavior."
+T025:
+  c: false
+  h: 637dcd7a8bfeed3555ce90c278111005cca0b25fb46d9219261aab8938c74050
+  r: "The required `data/processed/metric_definitions.md` file is absent, and the\
+    \ provided `code/analyze_physics.py` is truncated (e.g., incomplete `compute_valence_electron_variance`\
+    \ function) with no implementation of \u201Csymmetry sensitivity\u201D or reading\
+    \ of metric definitions. The script therefore does not fulfill the specified computation\
+    \ requirements."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or result files implementing the Pearson correlation analysis
+    between physical metrics and scaling exponents were provided. The claim lacks
+    any artifact (e.g., a script, notebook, CSV of correlation coefficients, or figure)
+    that demonstrates the required analysis was performed.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of updated files in `docs/` or modifications to `README.md` was provided;
+    the claim cannot be verified without the actual documentation artifacts. The next
+    implementer must add the revised `docs/` files and the updated `README.md` showing
+    the required documentation changes.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, diff patches, or documentation of refactoring were provided;\
+    \ the evidence section contains no artifacts related to \u201Ccode cleanup and\
+    \ refactoring for readability.\u201D Consequently, the required deliverable is\
+    \ missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, figures, or analysis outputs were supplied; the implementer did\
+    \ not provide the required pipeline, Magpie descriptor calculations, learning\u2011\
+    curve plots, power\u2011law fits, or permutation\u2011test results demanded by\
+    \ the specification. Consequently the task\u2019s deliverables are missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any new test files under `tests/unit/` was provided; the claim\
+    \ of \u201Cadditional unit tests for edge cases (empty datasets, fit failures)\u201D\
+    \ cannot be verified because the required artifacts are missing. The next implementer\
+    \ must add concrete test cases covering empty dataset handling and model\u2011\
+    fit failure scenarios and ensure they are present in the repository."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` or `state/amendments.md` files were provided, and there is no evidence\
+    \ that either document was edited to change SC\u2011001\u2019s baseline N to 2\u2011\
+    3 or to require a Permutation Test for N\u202F<\u202F5. The required artifacts\
+    \ are missing, so the amendment task has not been demonstrated as completed."

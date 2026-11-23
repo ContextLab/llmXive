@@ -1,130 +1,160 @@
 import json
+import datetime
 import os
-import numpy as np
-from typing import Dict, Any, List, Optional
-from pathlib import Path
 import logging
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+import numpy as np
 
-from .models import DatasetRecord
-from .logging_config import setup_logging
-from .utils import set_seed
+try:
+    from .utils import set_seed
+except ImportError:
+    import utils
+    from utils import set_seed
 
-logger = setup_logging(log_file="data/derivation_logs/synthetic.log")
+logger = logging.getLogger(__name__)
 
 class SyntheticDataGenerator:
-    """
-    Generates synthetic datasets with configurable parameters for statistical validation.
-    """
-    
-    def __init__(self, seed: int = 42):
-        self.seed = seed
-        set_seed(seed)
-        self.logger = logging.getLogger("embodied_curriculum.synthetic")
-    
-    def generate(
-        self,
-        n_samples: int = 100,
-        mean_embodied: float = 15.0,
-        mean_static: float = 5.0,
-        std_dev: float = 5.0,
-        pre_test_mean: float = 50.0,
-        pre_test_std: float = 10.0
-    ) -> List[DatasetRecord]:
+    def __init__(self):
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+    def generate(self, n: int, seed: int, mean_diff_embodied: float, mean_diff_static: float) -> Dict[str, np.ndarray]:
         """
-        Generate synthetic dataset.
+        Generate synthetic dataset based on configurable parameters.
         
         Args:
-            n_samples: Total number of samples.
-            mean_embodied: Mean gain for embodied group.
-            mean_static: Mean gain for static group.
-            std_dev: Standard deviation for gains.
-            pre_test_mean: Mean pre-test score.
-            pre_test_std: Standard deviation for pre-test scores.
-        
+            n: Total number of samples.
+            seed: Random seed for reproducibility.
+            mean_diff_embodied: Mean gain for the embodied group.
+            mean_diff_static: Mean gain for the static group.
+            
         Returns:
-            List of DatasetRecord objects.
+            Dictionary containing 'pre_test_score', 'post_test_score', and 'instruction_type'.
         """
-        self.logger.info(f"Generating {n_samples} synthetic records.")
+        set_seed(seed)
         
-        # Ensure half are embodied, half static
-        n_embodied = n_samples // 2
-        n_static = n_samples - n_embodied
+        # Generate pre-test scores (normal distribution)
+        pre_scores = np.random.normal(loc=50, scale=10, size=n)
         
-        records = []
+        # Split into two groups
+        n_embodied = n // 2
+        n_static = n - n_embodied
         
-        # Generate Pre-test scores (common distribution)
-        pre_scores = np.random.normal(pre_test_mean, pre_test_std, n_samples)
+        # Generate gains based on instruction type
+        # Embodied group: mean_diff_embodied gain
+        # Static group: mean_diff_static gain
         
-        # Generate Post-test scores based on group
-        # Gain = Post - Pre => Post = Pre + Gain
+        gain_embodied = np.random.normal(loc=mean_diff_embodied, scale=5, size=n_embodied)
+        gain_static = np.random.normal(loc=mean_diff_static, scale=5, size=n_static)
         
-        # Embodied group
-        embodied_gains = np.random.normal(mean_embodied, std_dev, n_embodied)
-        embodied_pre = pre_scores[:n_embodied]
-        embodied_post = embodied_pre + embodied_gains
+        # Combine gains
+        gains = np.concatenate([gain_embodied, gain_static])
         
-        for i in range(n_embodied):
-            record = DatasetRecord(
-                pre_test_score=float(embodied_pre[i]),
-                post_test_score=float(embodied_post[i]),
-                instruction_type="embodied_physics",
-                covariates={"group": "embodied", "gain": float(embodied_gains[i])}
-            )
-            records.append(record)
+        # Calculate post-test scores
+        post_scores_embodied = pre_scores[:n_embodied] + gains[:n_embodied]
+        post_scores_static = pre_scores[n_embodied:] + gains[n_embodied:]
+        post_scores = np.concatenate([post_scores_embodied, post_scores_static])
         
-        # Static group
-        static_gains = np.random.normal(mean_static, std_dev, n_static)
-        static_pre = pre_scores[n_embodied:]
-        static_post = static_pre + static_gains
+        # Instruction types
+        instruction_types = np.array(['embodied'] * n_embodied + ['static'] * n_static)
         
-        for i in range(n_static):
-            record = DatasetRecord(
-                pre_test_score=float(static_pre[i]),
-                post_test_score=float(static_post[i]),
-                instruction_type="static_text",
-                covariates={"group": "static", "gain": float(static_gains[i])}
-            )
-            records.append(record)
+        # Shuffle to mix groups
+        indices = np.random.permutation(n)
         
-        self.logger.info(f"Synthetic generation complete. Total records: {len(records)}")
-        return records
-    
-    def generate_mapping_log(self, output_path: str = "data/synthetic/mapping_log.json"):
-        """
-        Create a mapping log documenting the causal chain for Constitution Principle VI.
-        """
-        log_path = Path(output_path)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        mapping_data = {
-            "causal_chain": [
-                {
-                    "stage": "Physics_Action",
-                    "description": "Student manipulates virtual objects (e.g., levers, pulleys).",
-                    "variables": ["force", "distance", "work"]
-                },
-                {
-                    "stage": "Virtual_Object_State",
-                    "description": "System updates state based on physical simulation engine.",
-                    "variables": ["position", "velocity", "energy"]
-                },
-                {
-                    "stage": "Abstract_Principle_Inference",
-                    "description": "Student infers mathematical relationship (e.g., Work = Force x Distance).",
-                    "variables": ["gain_score", "concept_mastery"]
-                }
-            ],
-            "generated_parameters": {
-                "seed": self.seed,
-                "embodied_mean_gain": 15.0,
-                "static_mean_gain": 5.0,
-                "std_dev": 5.0
-            },
-            "timestamp": str(np.datetime64('now'))
+        return {
+            'pre_test_score': pre_scores[indices],
+            'post_test_score': post_scores[indices],
+            'instruction_type': instruction_types[indices]
         }
+
+    def generate_and_save(self, n: int, seed: int, mean_diff_embodied: float, mean_diff_static: float, output_path: str) -> None:
+        """
+        Generate synthetic dataset and save it to a CSV file.
         
-        with open(log_path, 'w') as f:
-            json.dump(mapping_data, f, indent=2)
+        Args:
+            n: Total number of samples.
+            seed: Random seed for reproducibility.
+            mean_diff_embodied: Mean gain for the embodied group.
+            mean_diff_static: Mean gain for the static group.
+            output_path: Path to save the CSV file.
+        """
+        self.logger.info(f"Generating synthetic data: n={n}, seed={seed}, "
+                         f"mean_diff_embodied={mean_diff_embodied}, mean_diff_static={mean_diff_static}")
         
-        self.logger.info(f"Mapping log written to {log_path}")
-        return str(log_path)
+        data = self.generate(n, seed, mean_diff_embodied, mean_diff_static)
+        
+        # Ensure output directory exists
+        output_dir = os.path.dirname(output_path)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
+        
+        # Write to CSV
+        import csv
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['pre_test_score', 'post_test_score', 'instruction_type'])
+            for i in range(n):
+                writer.writerow([
+                    data['pre_test_score'][i],
+                    data['post_test_score'][i],
+                    data['instruction_type'][i]
+                ])
+        
+        self.logger.info(f"Synthetic data written to {output_path}")
+
+def generate_mapping_log(n: int, seed: int, mean_diff_embodied: float, mean_diff_static: float, output_path: str) -> None:
+    """
+    Generate mapping log for synthetic mode to satisfy Constitution Principle VI.
+    Writes the log to the specified output path.
+    This MUST be called for ALL synthetic data generation runs, even if physics 
+    parameters are not explicitly provided (defaults are used in that case).
+    """
+    log_entry = {
+        "timestamp": datetime.datetime.now().isoformat(),
+        "mode": "synthetic",
+        "parameters": {
+            "n": n,
+            "seed": seed,
+            "mean_diff_embodied": mean_diff_embodied,
+            "mean_diff_static": mean_diff_static
+        },
+        "derivation": {
+            "physical_variable": "gain_score",
+            "abstract_concept": "learning_retention",
+            "mapping_logic": "Synthetic gain scores derived from configurable mean differences to simulate embodied vs static instruction effects."
+        },
+        "conformance": "Constitution Principle VI (Simulation-Pedagogy Alignment) satisfied via explicit parameter mapping."
+    }
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(log_entry, f, indent=2)
+    
+    logger.info(f"Mapping log written to {output_path}")
+
+def parse_synthetic_params(args) -> Dict[str, Any]:
+    """
+    Parse synthetic generation parameters from CLI args or config.
+    
+    Args:
+        args: Parsed CLI arguments object.
+        
+    Returns:
+        Dictionary of parameters: n, seed, mean_diff_embodied, mean_diff_static.
+    """
+    # Default values if not provided in args
+    n = getattr(args, 'n', 1000)
+    seed = getattr(args, 'seed', 42)
+    mean_diff_embodied = getattr(args, 'mean_diff_embodied', 5.0)
+    mean_diff_static = getattr(args, 'mean_diff_static', 2.0)
+    
+    return {
+        'n': n,
+        'seed': seed,
+        'mean_diff_embodied': mean_diff_embodied,
+        'mean_diff_static': mean_diff_static
+    }

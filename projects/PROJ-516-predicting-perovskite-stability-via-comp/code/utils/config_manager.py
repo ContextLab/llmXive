@@ -1,110 +1,93 @@
-"""
-Configuration management for API keys and environment variables.
-
-This module handles the loading and validation of environment variables
-required for external data sources (Materials Project, NREL).
-"""
 import os
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+import yaml
+from dotenv import load_dotenv
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+CONFIG_PATH = Path(__file__).parent.parent / 'config.yaml'
+ENV_PATH = Path(__file__).parent.parent.parent / '.env'
+
 class ConfigError(Exception):
-    """Raised when configuration is missing or invalid."""
+    """Custom exception for configuration errors."""
     pass
 
-def load_dotenv_file(env_path: Optional[Path] = None) -> None:
-    """
-    Load environment variables from a .env file.
-    
-    This is a lightweight implementation to avoid adding 'python-dotenv'
-    as a dependency unless strictly necessary, though it can be added
-    if the project requirements allow.
-    
-    Args:
-        env_path: Path to the .env file. Defaults to project root .env.
-    """
+def load_dotenv_file(env_path: Optional[Path] = None) -> bool:
+    """Load environment variables from a .env file."""
     if env_path is None:
-        # Look for .env in the code directory (project root relative to code/)
-        # Assuming project structure: PROJ_ROOT/
-        #   code/
-        #     .env
-        base_dir = Path(__file__).resolve().parent.parent
-        env_path = base_dir / ".env"
-
+        env_path = ENV_PATH
+    
     if not env_path.exists():
-        logger.warning(f"Environment file not found at {env_path}. "
-                       "API keys may be missing. Use .env.example as a template.")
-        return
+        logger.warning(f"Environment file not found at {env_path}")
+        return False
+    
+    logger.info(f"Loading environment from {env_path}")
+    return load_dotenv(env_path)
 
-    with open(env_path, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            # Skip comments and empty lines
-            if not line or line.startswith("#"):
-                continue
-            
-            if "=" in line:
-                key, _, value = line.partition("=")
-                key = key.strip()
-                value = value.strip()
-                
-                # Remove surrounding quotes if present
-                if (value.startswith('"') and value.endswith('"')) or \
-                   (value.startswith("'") and value.endswith("'")):
-                    value = value[1:-1]
-                
-                os.environ[key] = value
-    logger.info(f"Loaded environment variables from {env_path}")
+def get_api_key(service_name: str) -> Optional[str]:
+    """Retrieve an API key from environment variables."""
+    key_var = f"{service_name.upper()}_API_KEY"
+    key = os.getenv(key_var)
+    if not key:
+        logger.warning(f"API key not found for {service_name} (env var: {key_var})")
+    return key
 
-def get_api_key(provider: str) -> str:
+def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+    """Load configuration from a YAML file."""
+    if config_path is None:
+        config_path = CONFIG_PATH
+    
+    if not config_path.exists():
+        raise ConfigError(f"Configuration file not found at {config_path}")
+    
+    try:
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+        logger.info(f"Loaded configuration from {config_path}")
+        return config
+    except yaml.YAMLError as e:
+        raise ConfigError(f"Error parsing YAML config: {e}")
+    except Exception as e:
+        raise ConfigError(f"Error loading config: {e}")
+
+def validate_environment(required_keys: List[str]) -> bool:
     """
-    Retrieve an API key from the environment.
+    Validate that required environment variables are set.
     
     Args:
-        provider: The name of the provider (e.g., 'materials_project', 'nrel').
+        required_keys: List of environment variable names that must be present.
     
     Returns:
-        The API key string.
-    
-    Raises:
-        ConfigError: If the key is not found in the environment.
+        True if all keys are present, False otherwise.
     """
-    env_vars = {
-        "materials_project": "MATERIALS_PROJECT_API_KEY",
-        "nrel": "NREL_API_KEY",
-    }
+    missing = []
+    for key in required_keys:
+        if not os.getenv(key):
+            missing.append(key)
     
-    env_key = env_vars.get(provider.lower())
-    if not env_key:
-        raise ConfigError(f"Unknown provider: {provider}. Supported: {list(env_vars.keys())}")
+    if missing:
+        logger.error(f"Missing required environment variables: {missing}")
+        return False
     
-    value = os.environ.get(env_key)
-    if not value:
-        raise ConfigError(
-            f"Missing required environment variable '{env_key}'. "
-            f"Please configure it in your .env file."
-        )
-    
-    return value
+    logger.info("Environment validation passed.")
+    return True
 
-def validate_environment() -> Dict[str, bool]:
-    """
-    Validate that all required API keys are present.
+def main():
+    """Test the config manager."""
+    logger.info("Testing config manager...")
+    load_dotenv_file()
+    config = load_config()
+    logger.info(f"Config: {config}")
     
-    Returns:
-        A dictionary mapping provider names to boolean status (True if valid).
-    """
-    results = {}
-    for provider in ["materials_project", "nrel"]:
-        try:
-            get_api_key(provider)
-            results[provider] = True
-            logger.debug(f"API key for {provider} is configured.")
-        except ConfigError:
-            results[provider] = False
-            logger.warning(f"API key for {provider} is NOT configured.")
-    
-    return results
+    # Example validation
+    if validate_environment(['NREL_API_KEY']):
+        logger.info("NREL API Key found.")
+    else:
+        logger.warning("NREL API Key missing (expected in test environment).")
+
+if __name__ == '__main__':
+    main()

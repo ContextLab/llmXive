@@ -1,53 +1,45 @@
-import os
-import json
-from pathlib import Path
-from typing import Dict, Any, List
+"""
+Backwards-compatible configuration shim.
 
-# Default configuration values
-DEFAULT_CONFIG = {
-    "max_tokens": 4000,
-    "github_token": os.getenv("GITHUB_TOKEN", ""),
-    "target_repos": [
-        "microsoft/vscode",
-        "python/cpython",
-        "pytorch/pytorch"
-    ],
-    "random_seed": 42,
-    "paths": {
-        "data_raw": "data/raw",
-        "data_derived": "data/derived",
-        "data_annotations": "data/annotations",
-        "results": "results",
-        "tests": "tests",
-        "specs": "specs",
-        "src": "src",
-        "logs": "logs"
-    }
-}
+All configuration now lives in ``code/src/config/settings.py`` (Task
+T002).  This module re-exports the full API so that existing imports of
+``code.config.settings`` keep working unchanged.
+"""
 
-_config = None
+from code.src.config.settings import (  # noqa: F401
+    DEFAULT_CONFIG_PATH,
+    HYPERPARAMS,
+    NUMPY_SEED,
+    PATHS,
+    PROJECT_ROOT,
+    PYTHON_SEED,
+    RANDOM_SEED,
+    TARGET_REPOS,
+    ensure_directories,
+    get_config,
+    get_hyperparams,
+    get_paths,
+    get_seed,
+    get_target_repos,
+    load_config,
+    save_config,
+)
 
-def get_config() -> Dict[str, Any]:
-    global _config
-    if _config is None:
-        _config = DEFAULT_CONFIG.copy()
-    return _config
-
-def get_target_repos() -> List[str]:
-    return get_config().get("target_repos", [])
-
-def get_paths() -> Dict[str, str]:
-    return get_config().get("paths", {})
-
-def ensure_directories():
-    """Create all required directories based on config paths."""
-    paths = get_paths()
-    for key, path_str in paths.items():
-        if key != "src": # Skip src creation if it's source code
-            path = Path(path_str)
-            path.mkdir(parents=True, exist_ok=True)
-            # print(f"Ensured directory: {path}")
-
-if __name__ == "__main__":
-    ensure_directories()
-    print("Directories created successfully.")
+__all__ = [
+    "DEFAULT_CONFIG_PATH",
+    "HYPERPARAMS",
+    "NUMPY_SEED",
+    "PATHS",
+    "PROJECT_ROOT",
+    "PYTHON_SEED",
+    "RANDOM_SEED",
+    "TARGET_REPOS",
+    "ensure_directories",
+    "get_config",
+    "get_hyperparams",
+    "get_paths",
+    "get_seed",
+    "get_target_repos",
+    "load_config",
+    "save_config",
+]

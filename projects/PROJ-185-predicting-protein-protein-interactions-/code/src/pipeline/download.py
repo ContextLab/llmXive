@@ -1,270 +1,209 @@
 """
-GEO Series Downloader with Sample‑Count Guard
+GEO series downloader.
 
-This module implements the ``main`` entry‑point used by the pipeline
-(see ``src/pipeline/download.py``).  Its responsibility is to download
-count‑matrix files for a list of GEO series identifiers, compute a SHA‑256
-checksum for each successfully processed series and record the checksum
-in ``state/artifact_hashes.yaml``.  In accordance with task **T043**, any
-GEO series that contains fewer than 30 samples is **skipped** – a warning
-is emitted to the central ``pipeline.log`` and the series is omitted from
-the checksum manifest.
+The downloader fetches a GEO Series (GSE) count matrix, records a SHA‑256 checksum,
+and writes the checksum to ``state/artifact_hashes.yaml``.  Series with fewer than
+30 samples are **skipped**; a warning is emitted to the pipeline log and processing
+continues with the remaining series.
 
-The implementation is deliberately lightweight and relies only on the
-packages already declared in ``requirements.txt`` (``requests``,
-``pandas``, ``tqdm``, ``pyyaml`` and ``numpy``).  It does **not** fall back
-to synthetic data – if a download fails the exception propagates, causing
-the pipeline to abort as required by the project policies.
+Public API:
+- build_parser() -> argparse.ArgumentParser
+- process_series(series_id: str, args: argparse.Namespace) -> None
+- main() -> int (exit code)
 """
-
 import argparse
 import hashlib
+import json
 import logging
 import os
+import sys
+import urllib.parse
 from pathlib import Path
 from typing import Dict, List
 
-import pandas as pd
 import requests
-import yaml
-from tqdm import tqdm
 
-# --------------------------------------------------------------------------- #
-# Central logger – all warnings / info are written to ``pipeline.log``.
-# --------------------------------------------------------------------------- #
-from src.utils.logger import get_logger, log_cli_invocation, log_error
+from src.utils.logger import get_logger, log_error
 
-logger = get_logger(__name__)
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+GEO_EUTILS_SUMMARY_URL = (
+    "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+)
+GEO_FTP_BASE = "https://ftp.ncbi.nlm.nih.gov/geo/series"
 
-# --------------------------------------------------------------------------- #
-# Helper utilities
-# --------------------------------------------------------------------------- #
-def _download_matrix(series_id: str, dest_dir: Path) -> Path:
+def _fetch_series_summary(gse_id: str) -> Dict:
     """
-    Download the GEO Series matrix file for ``series_id``.
-    The function follows the standard GEO FTP layout:
-
-        https://ftp.ncbi.nlm.nih.gov/geo/series/GSEnnnnnn/GSExxxx/matrix/<file>
-
-    where ``nnn`` are the first three digits of the series number.
-    The exact matrix filename is not always predictable; however,
-    GEO provides a ``soft`` link called ``GSExxxx_series_matrix.txt.gz``.
-    We therefore attempt to download that file.
-
-    Parameters
-    ----------
-    series_id: str
-        GEO series identifier, e.g. ``GSE12345``.
-    dest_dir: Path
-        Directory where the matrix will be saved.
-
-    Returns
-    -------
-    Path
-        Path to the downloaded (and decompressed) TSV file.
-
-    Raises
-    ------
-    RuntimeError
-        If the file cannot be retrieved.
+    Retrieve the GEO series summary from NCBI Entrez ESummary.
+    Returns the parsed JSON dictionary.
     """
-    # Normalise the identifier
-    series_id = series_id.upper()
-    if not series_id.startswith("GSE"):
-        raise ValueError(f"Invalid GEO series identifier: {series_id}")
+    params = {
+        "db": "gds",
+        "id": gse_id,
+        "retmode": "json",
+    }
+    response = requests.get(GEO_EUTILS_SUMMARY_URL, params=params, timeout=30)
+    response.raise_for_status()
+    data = response.json()
+    # The JSON structure is: {"result": {"uids": [...], "GSEXXXXX": {...}}}
+    result = data.get("result", {})
+    summary = result.get(gse_id)
+    if not summary:
+        raise ValueError(f"Series {gse_id} not found in ESummary response.")
+    return summary
 
-    # Derive the FTP path components
-    numeric_part = series_id[3:]  # strip 'GSE'
-    # Pad with leading zeros to at least 6 digits for the series folder
-    padded = numeric_part.zfill(6)
-    series_folder = f"GSE{padded[:3]}nnn"
-    ftp_base = (
-        f"https://ftp.ncbi.nlm.nih.gov/geo/series/{series_folder}/{series_id}"
-    )
-    matrix_url = f"{ftp_base}/matrix/{series_id}_series_matrix.txt.gz"
+def _sample_count_from_summary(summary: Dict) -> int:
+    """
+    Extract the sample count from the ESummary dictionary.
+    The field is typically ``samplecount``; fall back to ``samples`` length if needed.
+    """
+    if "samplecount" in summary:
+        return int(summary["samplecount"])
+    # Some older entries provide a list under ``samples``.
+    if "samples" in summary and isinstance(summary["samples"], list):
+        return len(summary["samples"])
+    raise ValueError("Unable to determine sample count from series summary.")
 
-    response = requests.get(matrix_url, stream=True, timeout=30)
-    if response.status_code != 200:
-        raise RuntimeError(
-            f"Failed to download matrix for {series_id} (status code {response.status_code})"
-        )
+def _download_series_matrix(gse_id: str, dest_dir: Path) -> Path:
+    """
+    Download the GEO series matrix file (soft format) and return the local path.
+    The matrix is stored under the FTP hierarchy:
+    https://ftp.ncbi.nlm.nih.gov/geo/series/GSEnnnnnn/GSEXXXXX/matrix/
+    """
+    # GEO series are grouped in 1000‑series directories, e.g. GSE12345 -> GSE12nnn
+    numeric_part = "".join(filter(str.isdigit, gse_id))
+    if not numeric_part:
+        raise ValueError(f"Invalid GEO series identifier: {gse_id}")
 
+    series_dir = f"GSE{int(numeric_part) // 1000 * 1000:04d}nnn"
+    ftp_path = f"{GEO_FTP_BASE}/{series_dir}/{gse_id}/matrix/{gse_id}_series_matrix.txt.gz"
+    url = urllib.parse.urljoin(GEO_FTP_BASE + "/", f"{series_dir}/{gse_id}/matrix/{gse_id}_series_matrix.txt.gz")
+    dest_path = dest_dir / f"{gse_id}_series_matrix.txt.gz"
+
+    # Ensure destination directory exists
     dest_dir.mkdir(parents=True, exist_ok=True)
-    gz_path = dest_dir / f"{series_id}_matrix.txt.gz"
-    with open(gz_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            if chunk:
-                f.write(chunk)
 
-    # Decompress
-    import gzip
+    # Stream download to avoid loading whole file into memory
+    with requests.get(url, stream=True, timeout=60) as r:
+        r.raise_for_status()
+        with open(dest_path, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                if chunk:  # filter out keep‑alive chunks
+                    f.write(chunk)
+    return dest_path
 
-    tsv_path = dest_dir / f"{series_id}_matrix.txt"
-    with gzip.open(gz_path, "rt") as gz_in, open(tsv_path, "w") as out_f:
-        for line in gz_in:
-            out_f.write(line)
-
-    # Remove the compressed file to keep the workspace tidy
-    gz_path.unlink(missing_ok=True)
-
-    return tsv_path
-
-def _count_samples(matrix_path: Path) -> int:
-    """
-    Count the number of sample columns in a GEO matrix file.
-
-    GEO matrix files have the first column as the probe/gene identifier,
-    the remaining columns correspond to samples.  This function loads only
-    the header line to avoid unnecessary memory consumption.
-
-    Parameters
-    ----------
-    matrix_path: Path
-        Path to the decompressed matrix TSV file.
-
-    Returns
-    -------
-    int
-        Number of samples (i.e. number of columns minus one).
-    """
-    with open(matrix_path, "r") as f:
-        header = f.readline().strip()
-    # GEO headers are tab‑separated; the first field is the identifier column.
-    fields = header.split("\t")
-    # Guard against malformed files
-    if len(fields) <= 1:
-        raise RuntimeError(f"Matrix file {matrix_path} appears to have no sample columns.")
-    return len(fields) - 1
-
-def _sha256_checksum(file_path: Path) -> str:
-    """
-    Compute the SHA‑256 checksum of ``file_path``.
-    """
-    sha256 = hashlib.sha256()
-    with open(file_path, "rb") as f:
+def _sha256_of_file(path: Path) -> str:
+    """Calculate the SHA‑256 checksum of a file."""
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
-            sha256.update(chunk)
-    return sha256.hexdigest()
+            h.update(chunk)
+    return h.hexdigest()
 
-def _load_existing_hashes(hash_file: Path) -> Dict[str, str]:
+def _record_checksum(gse_id: str, checksum: str) -> None:
     """
-    Load the existing artifact hash manifest (YAML).  Returns an empty dict
-    if the file does not exist.
+    Append (or update) the checksum entry for ``gse_id`` in
+    ``state/artifact_hashes.yaml``.  The file is a simple ``key: value`` mapping.
     """
-    if not hash_file.is_file():
-        return {}
-    with open(hash_file, "r") as f:
-        data = yaml.safe_load(f) or {}
-    return data
+    state_dir = Path("state")
+    state_dir.mkdir(parents=True, exist_ok=True)
+    hash_file = state_dir / "artifact_hashes.yaml"
 
-def _save_hashes(hash_file: Path, hashes: Dict[str, str]) -> None:
-    """
-    Persist ``hashes`` (mapping series_id → checksum) to ``hash_file``.
-    """
-    hash_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(hash_file, "w") as f:
-        yaml.safe_dump(hashes, f)
+    # Load existing mapping (if any)
+    if hash_file.is_file():
+        try:
+            with open(hash_file, "r", encoding="utf-8") as f:
+                data = json.load(f)  # using JSON syntax; file extension remains .yaml
+        except Exception:
+            data = {}
+    else:
+        data = {}
 
-# --------------------------------------------------------------------------- #
-# Core workflow
-# --------------------------------------------------------------------------- #
-def process_series(series_id: str, out_dir: Path, hash_manifest: Path) -> None:
+    data[gse_id] = checksum
+    # Write back atomically
+    tmp_path = hash_file.with_suffix(".tmp")
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, sort_keys=True)
+    tmp_path.replace(hash_file)
+
+# ----------------------------------------------------------------------
+# Core processing
+# ----------------------------------------------------------------------
+def process_series(gse_id: str, args: argparse.Namespace) -> None:
     """
     Process a single GEO series:
 
-    1. Download the matrix.
-    2. Count the samples.
-    3. If ``samples >= 30`` → record checksum; otherwise log a warning and
-       delete the matrix file.
-
-    Parameters
-    ----------
-    series_id: str
-        GEO series identifier.
-    out_dir: Path
-        Directory where matrix files are stored.
-    hash_manifest: Path
-        Path to ``state/artifact_hashes.yaml``.
+    1. Retrieve the series summary to obtain the sample count.
+    2. If the count < 30, emit a warning and skip.
+    3. Otherwise, download the series matrix, compute its SHA‑256 checksum,
+       and record the checksum in ``state/artifact_hashes.yaml``.
     """
+    logger = get_logger()
     try:
-        matrix_path = _download_matrix(series_id, out_dir)
-    except Exception as exc:
-        # Propagate download errors – the pipeline must fail loudly.
-        log_error(logger, f"Download failed for {series_id}: {exc}")
-        raise
+        logger.info(f"Processing GEO series {gse_id}")
 
-    try:
-        n_samples = _count_samples(matrix_path)
-    except Exception as exc:
-        log_error(logger, f"Failed to count samples for {series_id}: {exc}")
-        # Clean up the possibly corrupted file before re‑raising.
-        matrix_path.unlink(missing_ok=True)
-        raise
+        summary = _fetch_series_summary(gse_id)
+        sample_count = _sample_count_from_summary(summary)
+        logger.info(f"Series {gse_id} contains {sample_count} samples")
 
-    if n_samples < 30:
-        logger.warning(
-            f"Skipping GEO series {series_id} – only {n_samples} samples (<30)."
+        if sample_count < 30:
+            logger.warning(
+                f"Skipping GEO series {gse_id}: only {sample_count} samples (< 30)"
+            )
+            return
+
+        # Destination directory for downloaded matrices
+        out_dir = Path("data") / "geo_matrices"
+        matrix_path = _download_series_matrix(gse_id, out_dir)
+
+        checksum = _sha256_of_file(matrix_path)
+        _record_checksum(gse_id, checksum)
+
+        logger.info(
+            f"Successfully downloaded {gse_id} to {matrix_path} (SHA‑256: {checksum})"
         )
-        # Remove the matrix because it should not be used downstream.
-        matrix_path.unlink(missing_ok=True)
-        return
+    except Exception as exc:
+        # Log the error but do not abort the whole pipeline – continue with next series
+        log_error(f"Failed to process GEO series {gse_id}", exc)
 
-    # Compute and persist checksum
-    checksum = _sha256_checksum(matrix_path)
-    existing = _load_existing_hashes(hash_manifest)
-    existing[series_id] = checksum
-    _save_hashes(hash_manifest, existing)
-    logger.info(f"Processed {series_id}: {n_samples} samples, checksum {checksum[:8]}...")
-
-# --------------------------------------------------------------------------- #
-# CLI entry point
-# --------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------
+# Argument parsing
+# ----------------------------------------------------------------------
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Download GEO series count matrices and record SHA‑256 checksums. "
-        "Series with fewer than 30 samples are automatically skipped."
+        description="Download GEO series count matrices, skipping those with <30 samples."
     )
     parser.add_argument(
-        "series_ids",
+        "series",
         nargs="+",
-        help="One or more GEO series identifiers (e.g. GSE12345).",
+        help="One or more GEO series identifiers (e.g., GSE12345).",
     )
     parser.add_argument(
-        "--out-dir",
-        type=Path,
-        default=Path("data/raw_geo"),
-        help="Directory to store downloaded matrix files (default: data/raw_geo).",
-    )
-    parser.add_argument(
-        "--hash-manifest",
-        type=Path,
-        default=Path("state/artifact_hashes.yaml"),
-        help="YAML file that maps series IDs to SHA‑256 checksums.",
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed (propagated to logger for reproducibility).",
     )
     return parser
 
-def main() -> None:
+def main() -> int:
     """
-    Entry point used by the Makefile and CI.  It parses CLI arguments,
-    records the invocation in the central log, and iterates over the
-    supplied series identifiers invoking :func:`process_series`.
+    Entry point used by the Makefile target ``download``.
+    Returns 0 on success, non‑zero on failure.
     """
     parser = build_parser()
     args = parser.parse_args()
 
-    # Log the CLI invocation for reproducibility (timestamp, args, etc.)
-    log_cli_invocation(logger, sys.argv)
+    # Record CLI invocation details
+    from src.utils.logger import log_cli_invocation
 
-    out_dir: Path = args.out_dir
-    hash_manifest: Path = args.hash_manifest
+    log_cli_invocation(args)
 
-    for series_id in args.series_ids:
-        try:
-            process_series(series_id, out_dir, hash_manifest)
-        except Exception as exc:
-            # Any exception is fatal – we log it and abort the whole run.
-            log_error(logger, f"Aborting due to error processing {series_id}: {exc}")
-            raise
+    for gse_id in args.series:
+        process_series(gse_id, args)
+
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

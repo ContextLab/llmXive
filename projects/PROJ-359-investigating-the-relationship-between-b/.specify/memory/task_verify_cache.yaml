@@ -1,0 +1,7 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No Docker execution wrapper (e.g., a Dockerfile, CI configuration, or script
+    invoking fMRIPrep with the specified `--memory 5g --nprocs 1 --mem_mb 4500` flags)
+    is present in the provided evidence. The task requires an actual artifact implementing
+    this wrapper, which is missing.

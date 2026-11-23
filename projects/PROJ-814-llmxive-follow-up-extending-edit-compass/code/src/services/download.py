@@ -3,145 +3,205 @@ import sys
 import hashlib
 import logging
 import subprocess
+import json
+import yaml
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Dict, Any
 
-# Import project utilities
-from src.utils.logging import get_logger
-
-# Constants (matching test expectations)
-DATASET_REPO = "HuggingFaceM4/Edit-Compass"
-DATASET_FILE = "data.json"
-EXPECTED_CHECKSUM = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"  # Placeholder, real checksum should be fetched or verified
+from src.utils.logging import get_logger, setup_logging
 
 logger = get_logger(__name__)
 
-def calculate_sha256(filepath: Path) -> str:
+def calculate_sha256(file_path: Path) -> str:
     """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(filepath, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        logger.error(f"File not found for checksum calculation: {filepath}")
-        raise
-    except PermissionError:
-        logger.error(f"Permission denied reading file: {filepath}")
-        raise
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def verify_download(filepath: Path, expected_checksum: Optional[str] = None) -> bool:
-    """
-    Verify the downloaded file's integrity.
-    Returns True if checksum matches or if no checksum is provided (skip check).
-    Raises ValueError if checksum mismatch.
-    """
-    if not filepath.exists():
-        raise FileNotFoundError(f"Downloaded file not found at {filepath}")
+def verify_download(file_path: Path, expected_checksum: Optional[str] = None) -> bool:
+    """Verify the downloaded file exists and optionally matches checksum."""
+    if not file_path.exists():
+        logger.error(f"Downloaded file not found: {file_path}")
+        return False
 
-    actual_checksum = calculate_sha256(filepath)
-    
     if expected_checksum:
+        actual_checksum = calculate_sha256(file_path)
         if actual_checksum != expected_checksum:
-            error_msg = (
-                f"Checksum verification failed for {filepath}. "
-                f"Expected: {expected_checksum}, Got: {actual_checksum}"
-            )
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-        logger.info(f"Checksum verified for {filepath}")
-    else:
-        logger.warning(f"No checksum provided for {filepath}, skipping verification.")
-    
+            logger.error(f"Checksum mismatch for {file_path}")
+            logger.error(f"Expected: {expected_checksum}")
+            logger.error(f"Actual: {actual_checksum}")
+            return False
     return True
 
-def download_from_huggingface(output_dir: Path, filename: str = DATASET_FILE) -> Path:
-    """
-    Download the Edit-Compass dataset from Hugging Face.
-    
-    Args:
-        output_dir: Directory to save the downloaded file.
-        filename: Name of the file to download.
-        
-    Returns:
-        Path to the downloaded file.
-        
-    Raises:
-        FileNotFoundError: If the download fails or the file is not found.
-        RuntimeError: If the download command fails.
-        ValueError: If the output directory is invalid.
-    """
-    if not output_dir.exists():
-        raise FileNotFoundError(f"Output directory does not exist: {output_dir}")
-    
-    if not output_dir.is_dir():
-        raise ValueError(f"Output path is not a directory: {output_dir}")
+def download_from_huggingface(dataset_id: str, output_dir: Path, filename: str) -> Path:
+    """Download dataset from HuggingFace Hub."""
+    output_path = output_dir / filename
+    if output_path.exists():
+        logger.info(f"File already exists: {output_path}")
+        return output_path
 
-    file_path = output_dir / filename
-    
-    if file_path.exists():
-        logger.info(f"File already exists at {file_path}, skipping download.")
-        return file_path
-
-    logger.info(f"Downloading {DATASET_FILE} from {DATASET_REPO}...")
-    
-    # Construct huggingface-cli download command
-    # Using huggingface-cli as it is the standard tool for HF datasets
-    cmd = [
-        "huggingface-cli", "download",
-        DATASET_REPO,
-        filename,
-        "--local-dir", str(output_dir),
-        "--local-dir-use-symlinks", "false"
-    ]
-
+    logger.info(f"Downloading {dataset_id} to {output_path}")
     try:
-        # Check if huggingface-cli is available
-        subprocess.run(["huggingface-cli", "--version"], check=True, capture_output=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        logger.error("huggingface-cli is not installed. Please install it: pip install huggingface_hub")
-        raise RuntimeError("huggingface-cli not found. Install with: pip install huggingface_hub")
-
-    try:
-        logger.debug(f"Running command: {' '.join(cmd)}")
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        logger.info("Download completed successfully.")
-    except subprocess.CalledProcessError as e:
-        error_msg = f"Download failed with error code {e.returncode}. stderr: {e.stderr}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg) from e
+        from huggingface_hub import hf_hub_download
+        hf_hub_download(
+            repo_id=dataset_id,
+            filename=filename,
+            local_dir=output_dir,
+            local_dir_use_symlinks=False,
+        )
+        logger.info(f"Download successful: {output_path}")
+        return output_path
     except Exception as e:
-        logger.error(f"Unexpected error during download: {str(e)}")
-        raise RuntimeError(f"Download failed: {str(e)}") from e
+        logger.error(f"Download failed: {e}")
+        raise
 
-    if not file_path.exists():
-        raise FileNotFoundError(f"Download succeeded but file not found at {file_path}")
+def validate_dataset_structure(file_path: Path) -> bool:
+    """Validate that the dataset has the expected structure."""
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
 
-    logger.info(f"File saved to {file_path}")
-    return file_path
+        if not isinstance(data, list) or len(data) == 0:
+            logger.error("Dataset is not a non-empty list")
+            return False
+
+        if 'category' not in data[0]:
+            logger.error("Missing 'category' key in dataset")
+            return False
+
+        logger.info("Dataset structure validated successfully")
+        return True
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Validation error: {e}")
+        return False
+
+def verify_filtered_data_integrity(filtered_path: Path, checksums_file: Path) -> bool:
+    """
+    Verify the integrity of the filtered dataset by comparing its SHA256 checksum
+    against a known-good checksum stored in the state file.
+
+    Args:
+        filtered_path: Path to the filtered dataset (data/filtered/...)
+        checksums_file: Path to the state file containing known checksums
+
+    Returns:
+        bool: True if checksums match or if state file doesn't exist yet (first run),
+              False if checksums mismatch.
+    """
+    if not filtered_path.exists():
+        logger.error(f"Filtered dataset not found: {filtered_path}")
+        return False
+
+    if not checksums_file.exists():
+        logger.warning(f"Checksum state file not found: {checksums_file}. Skipping integrity check (first run?).")
+        return True
+
+    try:
+        with open(checksums_file, 'r') as f:
+            state_data = yaml.safe_load(f) or {}
+
+        known_checksum = state_data.get('filtered_dataset_sha256')
+
+        if known_checksum is None:
+            logger.warning("No known checksum found in state file. Skipping integrity check.")
+            return True
+
+        actual_checksum = calculate_sha256(filtered_path)
+
+        if actual_checksum != known_checksum:
+            logger.critical("CRITICAL: Filtered dataset integrity check FAILED!")
+            logger.critical(f"Expected checksum: {known_checksum}")
+            logger.critical(f"Actual checksum: {actual_checksum}")
+            logger.critical("The filtered dataset has changed since the last verified run.")
+            return False
+
+        logger.info(f"Filtered dataset integrity verified. Checksum: {actual_checksum}")
+        return True
+
+    except Exception as e:
+        logger.error(f"Error during integrity verification: {e}")
+        return False
 
 def main():
-    """Main entry point for the download script."""
-    # Default paths relative to project root
-    base_dir = Path(__file__).resolve().parent.parent.parent.parent
-    raw_data_dir = base_dir / "data" / "raw"
-    
-    if not raw_data_dir.exists():
-        raw_data_dir.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Starting download to {raw_data_dir}")
-    
+    """Main entry point for download and filter operations."""
+    setup_logging()
+
+    parser = argparse.ArgumentParser(description="Download and filter Edit-Compass dataset")
+    parser.add_argument("--dataset-id", default="HuggingFaceH4/edit-compass", help="HuggingFace dataset ID")
+    parser.add_argument("--output-dir", default="data/raw", help="Output directory for raw data")
+    parser.add_argument("--filtered-dir", default="data/filtered", help="Output directory for filtered data")
+    parser.add_argument("--categories", nargs="+", default=["World Knowledge Reasoning", "Visual Reasoning"], help="Categories to filter")
+    parser.add_argument("--checksums-file", default="state/projects/PROJ-814-checksums.yaml", help="Path to checksums state file")
+    parser.add_argument("--verify-only", action="store_true", help="Only verify integrity, do not download/filter")
+    args = parser.parse_args()
+
+    raw_dir = Path(args.output_dir)
+    filtered_dir = Path(args.filtered_dir)
+    checksums_file = Path(args.checksums_file)
+    raw_file = raw_dir / "edit-compass.json"
+
+    if args.verify_only:
+        filtered_file = filtered_dir / "edit-compass-filtered.json"
+        if verify_filtered_data_integrity(filtered_file, checksums_file):
+            sys.exit(0)
+        else:
+            sys.exit(1)
+
+    # Download
+    if not raw_file.exists():
+        raw_dir.mkdir(parents=True, exist_ok=True)
+        download_from_huggingface(args.dataset_id, raw_dir, "edit-compass.json")
+
+    # Validate structure
+    if not validate_dataset_structure(raw_file):
+        logger.error("FATAL: File structure mismatch. Missing 'category' key.")
+        sys.exit(1)
+
+    # Filter
+    filtered_dir.mkdir(parents=True, exist_ok=True)
+    filtered_file = filtered_dir / "edit-compass-filtered.json"
+
+    with open(raw_file, 'r') as f:
+        data = json.load(f)
+
+    filtered_data = [item for item in data if item.get('category') in args.categories]
+
+    if len(filtered_data) == 0:
+        logger.error("FATAL: Filter returned zero records for target categories.")
+        sys.exit(1)
+
+    with open(filtered_file, 'w') as f:
+        json.dump(filtered_data, f, indent=2)
+
+    logger.info(f"Filtered dataset saved to {filtered_file} ({len(filtered_data)} records)")
+
+    # Update checksums file with the new filtered dataset checksum
+    # Ensure the directory for the checksums file exists
+    checksums_file.parent.mkdir(parents=True, exist_ok=True)
+
+    actual_checksum = calculate_sha256(filtered_file)
     try:
-        file_path = download_from_huggingface(raw_data_dir)
-        verify_download(file_path)
-        logger.info("Download and verification completed successfully.")
-    except (FileNotFoundError, ValueError, RuntimeError) as e:
-        logger.error(f"Download process failed: {str(e)}")
-        sys.exit(1)
+        if checksums_file.exists():
+            with open(checksums_file, 'r') as f:
+                state_data = yaml.safe_load(f) or {}
+        else:
+            state_data = {}
+
+        state_data['filtered_dataset_sha256'] = actual_checksum
+
+        with open(checksums_file, 'w') as f:
+            yaml.dump(state_data, f)
+
+        logger.info(f"Updated checksums file: {checksums_file}")
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        sys.exit(1)
+        logger.warning(f"Could not update checksums file: {e}")
+
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MFQResponse Schema"
+description: "Schema for Moral Foundations Questionnaire responses"
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant"
+  foundation:
+    type: "string"
+    enum:
+      - "Care"
+      - "Fairness"
+      - "Loyalty"
+      - "Authority"
+      - "Sanctity"
+    description: "The moral foundation being measured"
+  score:
+    type: "number"
+    minimum: 1.0
+    maximum: 5.0
+    description: "Response score on a 1-5 Likert scale"
+  reversed:
+    type: "boolean"
+    description: "Flag indicating if the item was reverse-scored"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the response"
+required:
+  - participant_id
+  - foundation
+  - score
+  - reversed
+  - timestamp
+additionalProperties: false

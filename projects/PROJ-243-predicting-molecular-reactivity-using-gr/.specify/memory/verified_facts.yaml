@@ -1,0 +1,6 @@
+'|check comparison correlation error include model report threshold':
+  quote: "\u03B1\u2208{ 0.001, 0.01, 0.05}. The horizontal dashed line indicates power\
+    \ 1.Right: The asymptotic density"
+  source_id: '2203.15897'
+  url: https://arxiv.org/abs/2203.15897
+  value: '0.05'

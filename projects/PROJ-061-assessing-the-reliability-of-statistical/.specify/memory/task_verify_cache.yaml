@@ -1,0 +1,61 @@
+T004a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide any actual list of 10 public datasets (with\
+    \ IDs, types, and confirmation of meeting FR\u2011001 and Constitution Principle\
+    \ VII). No artifact containing the required dataset information is present, so\
+    \ the task requirement is unmet."
+T014:
+  c: false
+  h: 04110e7a966e06c488076d59e175d8fc0bb835c3afe7e06831a0b51f54f91382
+  r: "The `code/main.py` file is truncated and does not contain the full pipeline\
+    \ logic (e.g., it ends mid\u2011function and never writes the JSON output). The\
+    \ required output file `data/results/baseline.json` is absent, and the schema\
+    \ file `contracts/power_estimate.schema.yaml` (or `schema.yaml`) is also missing.\
+    \ Consequently the task\u2019s deliverables are not present or complete."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or log output was provided showing that datasets with fewer than\
+    \ 30 observations are detected, skipped, and that the message \u201Cinsufficient\
+    \ sample size\u201D is logged. The required validation logic and logging artifact\
+    \ are missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing listwise\u2011deletion of missing\
+    \ values before the power calculation was provided; the only content is the original\
+    \ task description and project spec. Consequently there is no artifact to verify\
+    \ that the required logic exists or works. The implementer must supply the actual\
+    \ implementation (e.g., a function/module that drops rows with missing data and\
+    \ then runs the power calculation) along with evidence it runs on a dataset."
+T021b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, or scripts implementing the parameter sweep logic\
+    \ for contamination rates, AR coefficients, or other violation magnitudes were\
+    \ provided. The claim lacks any tangible artifact (e.g., a Python module, YAML\
+    \ config, or generated bias\u2011curve output) that demonstrates the required\
+    \ functionality, so the task is not satisfied."
+T022:
+  c: false
+  h: 85160db57a60960d235c53babe224250f25b125932196d06ccea0b1a147b8466
+  r: "The repository lacks the required `data/results/violations.json` file, and the\
+    \ provided `code/main.py` is truncated and does not show any logic that iterates\
+    \ over violation configurations or appends results to that JSON file. Consequently,\
+    \ the task\u2019s core requirement is not fulfilled."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code changes, tests, or documentation were provided showing that conditional\
+    \ logic was added to detect non\u2011time\u2011ordered data, skip the autocorrelation\
+    \ injection, and emit a warning. Without any artifact to inspect, the requirement\
+    \ cannot be verified as met."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration files, test logs, or documentation were provided to demonstrate\
+    \ that the perturbation tasks have been refactored to run exclusively on CPU and\
+    \ that any GPU\u2011specific imports or calls have been removed. Without such\
+    \ artifacts (e.g., updated scripts, CI checks confirming absence of CUDA dependencies,\
+    \ or runtime logs showing CPU execution), the requirement cannot be verified."

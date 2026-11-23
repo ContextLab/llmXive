@@ -1,47 +1,38 @@
-# Spec Override: Rejection of SC-001 (CLR-transformed alpha diversity)
+# Spec Override: SC-001 Correction
 
-**Date:** 2023-10-27
-**Status:** Approved
-**Reference:** Plan Correction for Phase 4 (User Story 2)
+## Rejection of Original Specification
 
-## Original Specification (SC-001)
+The original specification SC-001 defined the measurement target as "CLR-transformed alpha diversity". This is mathematically invalid and scientifically unsound for the following reasons:
 
-**Original Requirement:**
-> "System MUST compute the correlation between **CLR-transformed** alpha diversity (Shannon Index) and fluid intelligence."
-
-**Rationale in Original Spec:**
-The original specification assumed that because compositional data requires CLR transformation for inter-taxa comparisons, the alpha diversity metric itself (a summary statistic) must also be CLR-transformed to maintain consistency with the "compositional nature" of the dataset.
-
-## Rejection Justification
-
-The requirement to apply Centered Log-Ratio (CLR) transformation to the **Shannon Index** is **mathematically invalid** and methodologically unsound for the following reasons:
-
-1. **Nature of the Metric**: The Shannon Index ($H' = -\sum p_i \ln p_i$) is already a normalized, scale-invariant summary statistic derived from relative abundances ($p_i$). It represents the entropy of the distribution and is bounded by $\ln(S)$, where $S$ is the number of observed species. It is not a compositional vector subject to the constant-sum constraint in the same way raw counts or relative abundance vectors are.
-
-2. **Domain of CLR**: The CLR transformation is defined for a vector of positive components $x = (x_1, \dots, x_D)$ as:
- $$clr(x)_i = \ln \left( \frac{x_i}{g(x)} \right)$$
- where $g(x)$ is the geometric mean of the components.
- Applying CLR to a **scalar** (the single Shannon Index value per sample) is undefined. There is no vector of components to compute a geometric mean against, nor is there a simplex constraint to normalize.
-
-3. **Distortion of Interpretation**: If one were to force a log-transformation on the Shannon Index (e.g., $\ln(H')$), it would arbitrarily distort the linear relationship with the outcome variable (Fluid Intelligence) without addressing any compositional artifact, as the Shannon Index is already a function of proportions. This would introduce unnecessary non-linearity and obscure the biological signal.
-
-4. **Statistical Consistency**: Standard ecological and microbiome literature (e.g., McMurdie & Holmes, 2014; Gloor et al., 2017) distinguishes between transforming **feature matrices** (taxa abundances) via CLR for regression/correlation, and analyzing **alpha diversity** (scalars) using standard parametric or non-parametric tests (e.g., Spearman, t-test) on the raw index values.
+1. **Alpha diversity metrics (e.g., Shannon Index) are scalar summary statistics** calculated from raw count data. They represent the diversity of a single sample.
+2. **Centered Log-Ratio (CLR) transformation** is a compositional data technique designed for high-dimensional relative abundance vectors (taxa matrices), not for scalar diversity indices.
+3. Applying CLR to a scalar value is undefined and renders the metric meaningless.
+4. The statistical properties of Shannon Index (non-negative, bounded by sample richness) are incompatible with the log-ratio assumptions of CLR.
 
 ## Corrected Requirement
 
-The system requirement is hereby corrected to:
+**SC-001: The correlation coefficient and p-value between **Raw Shannon Index** and fluid intelligence are measured against the Spearman rank correlation test results.**
 
-> **System MUST measure the correlation of Raw Shannon Index.**
->
-> "The analysis pipeline shall compute the Spearman rank correlation coefficient between the **untransformed** (raw) Shannon Index values and the Fluid Intelligence scores. No CLR or log-transformation shall be applied to the Shannon Index column."
+### Implementation Details
 
-## Implementation Impact
+- **Input Data**: The `shannon_index` column in the processed dataset must be derived directly from **raw OTU/ASV counts** using `scikit-bio`'s `diversity.alpha.shannon` function.
+- **Transformation**: No CLR transformation is applied to the `shannon_index` column.
+- **Statistical Test**: Spearman rank correlation (`scipy.stats.spearmanr`) is used to measure the monotonic relationship between `shannon_index` and `fluid_intelligence`.
+- **Output**: The correlation coefficient (`r_value`) and p-value (`p_value`) are recorded in `data/processed/correlation_results.csv`.
 
-- **Code Change**: The `code/analysis.py` module (Task T022) must utilize the `shannon_index` column directly from `data/processed/cleaned_data.csv` without applying `np.log` or any CLR-like operation.
-- **Validation**: The validation script `code/validate_sc001.py` (Task T028) must verify that the input to the correlation function is the raw index.
-- **Documentation**: All subsequent reports and visualizations must label the metric as "Raw Shannon Index" to prevent ambiguity.
+### Validation
 
-## References
+This override ensures that the analysis pipeline adheres to ecological statistical best practices by:
+1. Preserving the interpretability of the Shannon Index.
+2. Preventing the application of invalid mathematical transformations.
+3. Ensuring the correlation analysis reflects the true relationship between gut diversity and cognitive performance.
 
-- Gloor, G. B., Macklaim, J. M., Pawlowsky-Glahn, V., & Egozcue, J. J. (2017). Microbiome datasets are compositional: and this is not optional. *Frontiers in Microbiology*, 8, 2224.
-- McMurdie, P. J., & Holmes, S. (2014). Waste not, want not: why rarefying microbiome data is inadmissible. *PLOS Computational Biology*, 10(4), e1003531.
+## Dependencies
+
+- **T056**: Spec override documentation framework established.
+- **T045**: Related override for FR-003 (CLR on Alpha Diversity rejection) established.
+
+## Status
+
+**REJECTED**: Original SC-001 (CLR-transformed alpha diversity) is invalid.
+**APPROVED**: Corrected SC-001 (Raw Shannon Index) is the mandatory measurement target.

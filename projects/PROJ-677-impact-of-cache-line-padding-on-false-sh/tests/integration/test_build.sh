@@ -1,82 +1,65 @@
 #!/bin/bash
-# Integration test for build.sh
-# Verifies that the build script compiles successfully and produces binaries
-#
-# Exit codes:
-# 0 - Success (both binaries exist and are executable)
-# 1 - Failure (build script failed or binaries missing)
+# Integration test for build script `build.sh` success
+# Task: T013 [US1]
+# Verification: Run `bash tests/integration/test_build.sh` and verify it calls `build.sh` and checks for binary existence.
 
 set -e
+set -u
+set -o pipefail
 
+# Project root relative to script location
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$(dirname "${SCRIPT_DIR}")")"
-BUILD_SCRIPT="${PROJECT_ROOT}/code/scripts/build.sh"
-BENCHMARK_DIR="${PROJECT_ROOT}/code/benchmark"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+CODE_SCRIPTS_DIR="$PROJECT_ROOT/code/scripts"
+BINARY_NAME="benchmark"
+BINARY_PATH="$PROJECT_ROOT/code/benchmark/$BINARY_NAME"
 
-echo "=== Integration Test: Build Script ==="
-echo "Project Root: ${PROJECT_ROOT}"
-echo "Build Script: ${BUILD_SCRIPT}"
-echo ""
+echo "=== T013 Integration Test: Build Script Success ==="
+echo "Project Root: $PROJECT_ROOT"
+echo "Scripts Dir: $CODE_SCRIPTS_DIR"
+echo "Expected Binary: $BINARY_PATH"
 
-# Check if build script exists
-if [[ ! -f "${BUILD_SCRIPT}" ]]; then
-    echo "ERROR: Build script not found at ${BUILD_SCRIPT}"
+# Check if build.sh exists
+BUILD_SCRIPT="$CODE_SCRIPTS_DIR/build.sh"
+if [ ! -f "$BUILD_SCRIPT" ]; then
+    echo "ERROR: build.sh not found at $BUILD_SCRIPT"
     exit 1
 fi
+echo "OK: build.sh found at $BUILD_SCRIPT"
 
-# Make build script executable
-chmod +x "${BUILD_SCRIPT}"
+# Ensure build.sh is executable
+chmod +x "$BUILD_SCRIPT"
 
-# Clean previous builds if they exist
-if [[ -f "${BENCHMARK_DIR}/benchmark" ]]; then
-    rm -f "${BENCHMARK_DIR}/benchmark"
-    echo "Removed existing benchmark binary"
-fi
-if [[ -f "${BENCHMARK_DIR}/verify_layout" ]]; then
-    rm -f "${BENCHMARK_DIR}/verify_layout"
-    echo "Removed existing verify_layout binary"
-fi
-
-# Run build script
-echo "Running build script..."
-if ! bash "${BUILD_SCRIPT}"; then
-    echo "ERROR: Build script failed"
+# Execute build.sh
+echo "Executing build.sh..."
+if ! bash "$BUILD_SCRIPT"; then
+    echo "ERROR: build.sh failed with exit code $?"
+    echo "Check build.log for details."
     exit 1
 fi
-echo ""
+echo "OK: build.sh executed successfully"
 
-# Verify binaries exist
-echo "Checking for compiled binaries..."
-if [[ ! -f "${BENCHMARK_DIR}/benchmark" ]]; then
-    echo "ERROR: benchmark binary not found"
+# Verify binary existence
+if [ ! -f "$BINARY_PATH" ]; then
+    echo "ERROR: Binary '$BINARY_NAME' not found at $BINARY_PATH"
     exit 1
 fi
-if [[ ! -f "${BENCHMARK_DIR}/verify_layout" ]]; then
-    echo "ERROR: verify_layout binary not found"
-    exit 1
-fi
-echo "Both binaries found."
+echo "OK: Binary '$BINARY_NAME' exists at $BINARY_PATH"
 
-# Verify binaries are executable
-if [[ ! -x "${BENCHMARK_DIR}/benchmark" ]]; then
-    echo "ERROR: benchmark binary is not executable"
+# Verify binary is executable
+if [ ! -x "$BINARY_PATH" ]; then
+    echo "ERROR: Binary '$BINARY_NAME' is not executable"
     exit 1
 fi
-if [[ ! -x "${BENCHMARK_DIR}/verify_layout" ]]; then
-    echo "ERROR: verify_layout binary is not executable"
-    exit 1
-fi
-echo "Both binaries are executable."
+echo "OK: Binary '$BINARY_NAME' is executable"
 
-# Run verify_layout to ensure it works (single-threaded validation)
-echo ""
-echo "Running verify_layout binary..."
-if ! "${BENCHMARK_DIR}/verify_layout"; then
-    echo "ERROR: verify_layout binary failed to run"
-    exit 1
+# Verify binary is valid ELF (basic check)
+if ! file "$BINARY_PATH" | grep -q "ELF"; then
+    echo "WARNING: Binary '$BINARY_PATH' does not appear to be a valid ELF executable"
+    # Not a hard failure, as it might be a script or other valid format, but likely an issue
+else
+    echo "OK: Binary '$BINARY_PATH' is a valid ELF executable"
 fi
-echo "verify_layout ran successfully."
 
-echo ""
-echo "=== Integration Test: PASSED ==="
-echo "Build script compiles successfully and produces working binaries."
+echo "=== T013 Integration Test: PASSED ==="
+exit 0

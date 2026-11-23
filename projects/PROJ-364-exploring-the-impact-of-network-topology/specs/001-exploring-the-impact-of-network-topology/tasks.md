@@ -1,254 +1,229 @@
-# Tasks: Exploring the Impact of Network Topology on Heat Dissipation in 2D Materials
+# Tasks: Exploring the Impact of Network Topology on Heat Dissipation in 2D Materials  
 
-**Input**: Design documents from `/specs/001-network-topology-heat-dissipation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, existing code base, data‑model contracts, reviewer feedback.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+The list follows the platform’s canonical task format.  Tasks are grouped by research phase, respect data‑flow dependencies, and reference the exact artifact paths they create or modify.  All tasks are currently **unchecked**; checked boxes are retained only if a verifier has already marked them complete.  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+---  
 
-## Format: `[ID] [P?] [Story] Description`
+## Phase 1 – Project scaffolding & first end‑to‑end run  
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+| Goal | Run a minimal, reproducible pipeline on a tiny real (or validated synthetic) sample and produce a result file under `data/results/`. |
+|------|------------------------------------------------------------------------------------------------------------------------------------|
 
-## Path Conventions
+- [ ] **T001** [US1] Create the core project layout (directories `code/`, `data/raw/`, `data/processed/`, `results/`, `state/`, `contracts/`, `logs/`, `docs/`) and add placeholder `.gitkeep` files.  
+  *Path*: `.` (project root)  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [X] **T002** [US1] Add a pinned `requirements.txt` with the exact library versions required for the study.  
+  *Path*: `requirements.txt`  
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
+- [X] **T003** [US1] Create a minimal `quickstart.md` that documents how to install dependencies and run the end‑to‑end pipeline on the smallest valid dataset.  
+  *Path*: `docs/quickstart.md`  
 
-## Phase 1: Setup (Shared Infrastructure)
+- [X] **T004** [US1] Add a static configuration file `config.yaml` containing default values for the proximity threshold, scaling factor, the `validation_mode` flag **and** a `statistical_override` boolean to switch between fixed and lattice‑constant‑scaled thresholds.  
+  *Path*: `config.yaml`  
 
-**Purpose**: Project initialization and basic structure
+- [ ] **T005** [US1] Implement a thin entry‑point script `code/main.py` that orchestrates the whole workflow (ingestion → graph construction → metric extraction → analysis → reporting).   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+  *Path*: `code/main.py`  
 
-- [ ] T001 Create project structure: `src/`, `tests/`, `data/raw/`, `data/processed/`, `results/`, `state/`, `contracts/`, `logs/`, `docs/`. Initialize `requirements.txt`, `config.yaml`, and `pyproject.toml`.
-- [ ] T002 Initialize Python 3.11 project with dependencies: `networkx`, `pandas`, `numpy`, `scipy`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `jsonschema`
-- [ ] T003 [P] Configure linting (flake8/ruff) and formatting (black) tools
+- [ ] **T006** [US1] Write a unit test `tests/unit/test_end_to_end.py` that invokes `code/main.py` on a synthetic 1‑sample dataset and asserts that `data/results/end_to_end.json` is created and validates against `analysis.schema.yaml`.  
+  *Path*: `tests/unit/test_end_to_end.py`  
 
----
+---  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 2 – Data ingestion & graph construction (User Story 1, P1)  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+| Goal | Produce a validated `TopologyGraph` JSON for every real (or synthetic) sample. |
+|------|--------------------------------------------------------------------------------|
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T010** [US1] Add the constant file `src/constants/material_lattice.yaml` containing at least graphene (0.246 nm) and MoS₂ (0.316 nm) entries.  
+  *Path*: `src/constants/material_lattice.yaml`  
 
-- [ ] T004 Setup `data/` (raw, processed) and `results/` directory structure
-- [ ] T005 [P] Implement configuration management (`config.yaml`) with defaults for threshold (2.0 nm), seed (42), and material constants
-- [ ] T006 [P] Setup logging infrastructure to `logs/` with distinct levels for data ingestion warnings and statistical results
-- [ ] T007 Create base schema validators in `contracts/` (`dataset.schema.yaml`, `graph.schema.yaml`, `analysis.schema.yaml`)
-- [ ] T008 Implement checksum utility in `src/utils/checksum.py` (SHA-256 for data integrity)
-- [ ] T009 Create material constants lookup table in `src/data/materials.py` (graphene, MoS2 lattice constants, R_lattice values)
+- [ ] **T009** [US1] Create `src/data/materials.py` that loads material‑specific lattice constants from `src/constants/material_lattice.yaml`.  
+  *Path*: `src/data/materials.py`  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] **T013** [US1] Implement `src/data_ingestion/dataset_registry.py` that maintains `state/dataset_registry.json` mapping each `sample_id` to its source URL, DOI, and checksum. The registry is consulted by downstream tasks to confirm provenance.  
+  *Path*: `src/data_ingestion/dataset_registry.py`  
 
----
+- [ ] **T011** [US1] Implement `src/data_ingestion/fetch_materials_cloud.py` to download defect‑coordinate CSVs from Materials Cloud into `data/raw/`. The script must verify SHA‑256 checksums (recorded in `state/dataset_registry.json`) and abort on failure.  
+  *Path*: `src/data_ingestion/fetch_materials_cloud.py`  
 
-## Phase 3: User Story 1 - Data Ingestion and Graph Construction (Priority: P1) 🎯 MVP
+- [ ] **T012** [US1] Implement `src/data_ingestion/fetch_zenodo.py` to download defect‑coordinate CSVs from Zenodo into `data/raw/`, with the same checksum verification as T011.  
+  *Path*: `src/data_ingestion/fetch_zenodo.py`  
 
-**Goal**: Ingest raw defect coordinate datasets and convert them into network graphs where nodes represent defects and edges represent proximity.
+- [ ] **T014** [US1] Implement `src/data_ingestion/loader.py` that streams any CSV/Parquet in `data/raw/`, drops rows with missing `x` or `y`, logs a warning with `row_number` and `sample_id`, and writes an audit file `data/processed/dropped_rows.csv`. The loader must raise an exception if the source file cannot be read (no silent synthetic fallback).  
+  *Path*: `src/data_ingestion/loader.py`  
 
-**Independent Test**: Load a known sample dataset (500x500 pixel graphene simulation with 100 known defects) and verify the resulting graph has exactly 100 nodes and edge density matches the threshold logic.
+- [ ] **T015** [US1] Implement `src/data_ingestion/threshold.py` that computes the proximity threshold:  
+  - If `config.yaml` sets `statistical_override: true`, use `threshold = lattice_constant(material_type) * scaling_factor` (default scaling = 1.0).  
+  - Otherwise use the fixed baseline `BASELINE_THRESHOLD_NM = 2.5` nm.  
+  The computed value is written to `state/threshold_config.json`.  
+  *Path*: `src/data_ingestion/threshold.py`  
 
-### Tests for User Story 1 ⚠️
+- [ ] **T016** [US1] Implement `src/graphs/constructor.py` using `scipy.spatial.cKDTree` to add an undirected edge between any two defects whose Euclidean distance ≤ computed threshold. Expose `construct_graph(coordinates: np.ndarray, threshold: float) -> networkx.Graph`.  
+  *Path*: `src/graphs/constructor.py`  
 
-- [ ] T010 [P] [US1] Unit test for coordinate parsing and missing value handling in `tests/unit/test_data_ingestion.py`
-- [ ] T011 [P] [US1] Integration test for graph construction with known threshold in `tests/integration/test_graph_construction.py`
-- [ ] T012 [P] [US1] Contract test validating output against `graph.schema.yaml` in `tests/contract/test_graph_schema.py`
+- [ ] **T017** [US1] Implement `src/graphs/serializer.py` that converts a NetworkX graph into a JSON‑compatible dict matching `graph.schema.yaml` and writes it to `data/processed/graphs/{sample_id}.json`.  
+  *Path*: `src/graphs/serializer.py`  
 
-### Implementation for User Story 1
+- [ ] **T018** [US1] Add integration test `tests/integration/test_graph_construction.py` that loads a tiny known CSV, runs the full ingestion‑threshold‑construction pipeline, and asserts that the resulting JSON graph contains the expected node and edge counts.  
+  *Path*: `tests/integration/test_graph_construction.py`  
 
-- [ ] T013 [P] [US1] Implement `src/data_ingestion/loader.py` to load CSV/Parquet with `chunksize` streaming; drop rows with missing x/y and log warnings (FR-001, US1-Scenario 2)
-- [ ] T014 [US1] Implement `src/data_ingestion/threshold.py` to calculate threshold: MUST retrieve material-specific lattice constants from `src/data/materials.py` (T009) and apply statistical multiplier if `statistical_override` is active; otherwise use fixed 2.0nm (FR-009, US1-Scenario 3)
-- [ ] T015 [US1] Implement `src/graphs/constructor.py` using `scipy.spatial.cKDTree` for O(N log N) edge creation within threshold (US1-Scenario 1)
-- [ ] T016 [US1] Implement `src/graphs/serializer.py` to convert NetworkX graphs to JSON-compatible dicts conforming to `graph.schema.yaml`
-- [ ] T017 [P] [US1] Implement `src/data_ingestion/generate_synthetic.py` for validation-only mode (seeded, versioned, checksummed); explicitly NOT for scientific hypothesis testing (Plan Section 5)
+---  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+## Phase 3 – Topological metric extraction (User Story 2, P2)  
 
----
+| Goal | Enrich each `TopologyGraph` JSON with all required metrics and flags. |
+|------|-----------------------------------------------------------------------|
 
-## Phase 4: User Story 2 - Topological Metric Calculation (Priority: P2)
+- [ ] **T019** [US2] Implement `src/metrics/clustering.py` that computes the global clustering coefficient and the density‑normalized clustering `C / ρ` (where ρ = node_count / sample_area).  
+  *Path*: `src/metrics/clustering.py`  
 
-**Goal**: Calculate specific network topology metrics (clustering, path length, degree distribution, LCC, percolation) for each generated graph.
+- [ ] **T020** [US2] Implement `src/metrics/paths_and_lcc.py` that:  
+  1. Calculates the average shortest‑path length **only** on the largest connected component (returns `null` if the graph is disconnected or has zero nodes).  
+  2. Sets `is_connected` flag.  
+  3. Computes `lcc_fraction = |LCC| / total_nodes`.  
+  *Path*: `src/metrics/paths_and_lcc.py`  
 
-**Independent Test**: Run metric calculator on a synthetic Erdos-Renyi graph and verify calculated metrics match theoretical expectations within tolerance.
+- [ ] **T021** [US2] Implement `src/metrics/percolation.py` that performs a binary‑search bisection over the interval `[0.5 nm, 10 nm]` (tolerance 0.01 nm) to find the smallest distance at which `lcc_fraction` exceeds 0.5. Store the result as `percolation_threshold`.  
+  *Path*: `src/metrics/percolation.py`  
 
-### Tests for User Story 2 ⚠️
+- [ ] **T022** [US2] Implement `src/metrics/zero_defect.py` that detects `node_count == 0`, sets `average_path_length: null`, adds a `zero_defects` flag to `metadata.flags`, and logs a specific warning.  
+  *Path*: `src/metrics/zero_defect.py`  
 
-- [ ] T018 [P] [US2] Unit test for clustering coefficient and LCC fraction calculation in `tests/unit/test_metrics.py`
-- [ ] T019 [P] [US2] Unit test for disconnected graph handling (path length on LCC only) in `tests/unit/test_disconnected_graphs.py`
-- [ ] T020 [P] [US2] Integration test for percolation threshold binary search in `tests/integration/test_percolation.py`
+- [ ] **T023** [US2] Implement `src/metrics/fully_connected.py` that detects an all‑to‑all edge set, sets `average_path_length = 1.0`, adds a `fully_connected` flag, and ensures the true value is used downstream.  
+  *Path*: `src/metrics/fully_connected.py`  
 
-### Implementation for User Story 2
+- [ ] **T024** [US2] Create `src/metrics/aggregator.py` that calls the metric modules above, merges their outputs into a single dictionary conforming to `graph.schema.yaml`, and writes the enriched JSON back to `data/processed/graphs/{sample_id}.json`.  
+  *Path*: `src/metrics/aggregator.py`  
 
-- [ ] T021 [P] [US2] Implement `src/metrics/clustering.py` for global clustering coefficient and density-normalized variant (Plan Section 3)
-- [ ] T022 [US2] Implement `src/metrics/paths.py` to calculate Average Path Length ONLY on the Largest Connected Component (LCC); handle disconnected graphs by flagging `is_connected=false` and setting path length to NaN (FR-006, US2-Scenario 2). DO NOT calculate LCC fraction here.
-- [ ] T022a [US2] Implement `src/metrics/lcc_fraction.py` to calculate the LCC fraction metric (nodes in LCC / total nodes) and output it to the TopologyGraph dict (FR-002, US2-Scenario 1).
-- [ ] T023 [US2] Implement `src/metrics/percolation.py` to estimate critical distance `d_c` via binary search where LCC fraction exceeds threshold; MUST serialize `d_c` to the TopologyGraph JSON dict (Constitution VI)
-- [ ] T024 [US2] Implement `src/metrics/degree.py` to output degree distribution as histogram-ready (degree, frequency) pairs (US2-Scenario 3)
-- [ ] T025 [US2] Implement `src/metrics/aggregator.py` to combine all metrics (clustering, path, LCC fraction, percolation, degree) into a single `TopologyGraph` dict. MUST load `R_lattice` from `src/data/materials.py` (T009) and apply the series-parallel resistance correction to the raw metrics before they are passed to the correlation phase (Plan Section 3)
+- [ ] **T025** [US2] Add unit test `tests/unit/test_metrics.py` covering clustering, density‑normalized clustering, and correct handling of zero‑defect and fully‑connected cases.  
+  *Path*: `tests/unit/test_metrics.py`  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+---  
 
----
+## Phase 4 – Statistical analysis & validation (User Story 3, P3)  
 
-## Phase 5: User Story 3 - Correlation Analysis and Statistical Validation (Priority: P3)
+| Goal | Produce a validated `AnalysisResult` JSON, bootstrap confidence intervals, Bonferroni‑adjusted p‑values, partial‑correlation results, a sensitivity‑analysis report, and a power‑analysis report. |
+|------|------------------------------------------------------------------------------------------------------------------------------------------|
 
-**Goal**: Perform correlation analysis (linear/non-linear, Pearson/Spearman) between topological metrics and thermal conductivity, including bootstrap and multiple-comparison correction.
+- [ ] **T026** [US3] Implement `src/analysis/confounders.py` that computes partial correlations controlling for defect density (nodes per unit area) and for `material_type` (one‑hot encoded). Use the residual‑on‑residual method and return both raw and adjusted coefficients.  
+  *Path*: `src/analysis/confounders.py`  
 
-**Independent Test**: Run analysis on a synthetic dataset with injected correlation (r=0.8) and verify detection with p < 0.05.
+- [ ] **T027** [US3] Implement `src/analysis/dimensionality.py` that runs PCA on the four scalar topological metrics (clustering, average path length, LCC fraction, percolation threshold), retains components explaining ≥ 95 % of variance, and returns the transformed dataset.  
+  *Path*: `src/analysis/dimensionality.py`  
 
-### Tests for User Story 3 ⚠️
+- [ ] **T028** [US3] Implement `src/analysis/correlation.py` that, for each retained principal component, computes:  
+  - Pearson and Spearman correlation coefficients with thermal conductivity.  
+  - Linear regression and polynomial regressions of degrees 1 – 3, selecting the degree with the lowest 5‑fold CV MSE.  
+  The function returns a list of dictionaries ready for JSON serialization.  
+  *Path*: `src/analysis/correlation.py`  
 
-- [ ] T026 [P] [US3] Unit test for bootstrap resampling confidence intervals in `tests/unit/test_bootstrap.py`
-- [ ] T027 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_pvalue_correction.py`
-- [ ] T028 [P] [US3] Integration test for full correlation pipeline with known inputs in `tests/integration/test_correlation_pipeline.py`
+- [ ] **T029** [US3] Implement `src/analysis/bootstrap.py` that performs 1 000 bootstrap resamples of the (component, conductivity) pairs, computes the 95 % confidence interval for every correlation coefficient, and attaches the interval to the corresponding `AnalysisResult`.  
+  *Path*: `src/analysis/bootstrap.py`  
 
-### Implementation for User Story 3
+- [ ] **T030** [US3] Implement `src/analysis/correction.py` that applies a **fixed** Bonferroni correction (family size m = 20) to all raw p‑values, storing `adjusted_p_value = min(raw_p * 20, 1.0)`.  
+  *Path*: `src/analysis/correction.py`  
 
-- [ ] T029 [P] [US3] Implement `src/analysis/confounders.py` for partial correlation and ANCOVA controlling for defect density, purity, and temperature (Plan Section 4)
-- [ ] T030 [US3] Implement `src/analysis/dimensionality.py` to perform PCA on metrics, retaining components explaining ≥95% variance (Plan Section 4)
-- [ ] T031 [US3] Implement `src/analysis/correlation.py` for Pearson/Spearman tests on retained PCs; include linear and polynomial regression (FR-003, US3-Scenario 1)
-- [ ] T031b [US3] Implement `src/analysis/gp_regressor.py` for Gaussian Process regression (kernel selection, hyperparameter optimization) as explicitly required by FR-003
-- [ ] T032 [US3] Implement `src/analysis/bootstrap.py` for resampling to generate 95% CIs (FR-004, US3-Scenario 2)
-- [ ] T033 [US3] Implement `src/analysis/correction.py` for Bonferroni or Benjamini-Hochberg FDR on p-values (FR-005, US3-Scenario 4)
-- [ ] T034 [US3] Implement `src/analysis/sensitivity.py` to repeat the full pipeline for thresholds of varying magnitudes relative to the baseline. MUST explicitly calculate the standard deviation of the correlation coefficient across these thresholds and output it as the `std_dev` field in the `AnalysisResult` JSON (FR-010, SC-005)
-- [ ] T035 [US3] Implement `src/analysis/visualizer.py` to generate scatter plots with regression lines and save to `results/` (US3-Scenario 5)
-- [ ] T036 [US3] Implement `src/analysis/reporter.py` to aggregate results into `AnalysisResult` JSON objects, skipping hypothesis testing if synthetic data is detected (Plan Section 4, Section 5)
+- [ ] **T031** [US3] Implement `src/analysis/sensitivity.py` that re‑runs the entire pipeline for the four proximity‑threshold multipliers `[1.0, 1.5, 2.0, 2.5]` (relative to the baseline 2.5 nm). It records the primary correlation coefficient from each run, computes the standard deviation across runs, and writes `results/sensitivity_analysis.json` containing `thresholds`, `correlation_sd`, and a boolean `robustness_status` (true if SD ≤ 0.05).  
+  *Path*: `src/analysis/sensitivity.py`  
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T045** [US3] Implement `src/analysis/power.py` that computes statistical power for detecting a target effect size `r ≥ 0.3` at `α = 0.05` given the actual sample size `N`. It outputs a JSON report `results/power_analysis.json` with fields `sample_size`, `effect_size`, `alpha`, `power`, and a `recommendation` if power < 0.8.  
+  *Path*: `src/analysis/power.py`  
 
----
+- [ ] **T046** [US3] Add unit and integration tests (`tests/unit/test_power.py`, `tests/integration/test_full_analysis.py` updates) that verify the power‑analysis module returns sensible values and that `T034` now checks the presence of `results/power_analysis.json`.  
+  *Path*: `tests/unit/test_power.py`  
 
-## Phase 6: Polish & Cross-Cutting Concerns
+- [ ] **T032** [US3] Implement `src/analysis/visualizer.py` that generates scatter plots of each raw topological metric versus thermal conductivity, overlays the selected regression line, and saves PNGs to `results/plots/metric_vs_conductivity_<metric>.png`.  
+  *Path*: `src/analysis/visualizer.py`  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T033** [US3] Create `src/analysis/reporter.py` that aggregates all `AnalysisResult` objects, attaches the sensitivity‑analysis summary, includes flags for `validation_mode` or synthetic data, incorporates the power‑analysis report, and writes the final report to `results/analysis_report.json` (conforms to `analysis.schema.yaml`).  
+  *Path*: `src/analysis/reporter.py`  
 
-- [ ] T037 [P] Update `docs/quickstart.md` with data ingestion examples and synthetic fallback instructions
-- [ ] T038a [P] Run `mypy --strict` on `src/` and generate a list of all type errors
-- [ ] T038b [P] Fix all type errors reported in T038a to ensure type hinting consistency
-- [ ] T038c [P] Re-run `mypy --strict` to verify 0 errors remain (Verification Step)
-- [ ] T039 Performance optimization: verify streaming ingestion keeps RAM < 7GB for 50 samples
-- [ ] T040 [P] Add comprehensive docstrings to all public API functions
-- [ ] T041 Run `quickstart.md` validation to ensure end-to-end pipeline execution
-- [ ] T042 Verify `state/` hashes update correctly on any data or code change
+- [ ] **T034** [US3] Add integration test `tests/integration/test_full_analysis.py` that runs the complete pipeline on a small synthetic dataset with a known injected correlation (r ≈ 0.8) and asserts that:  
+  1. At least one Bonferroni‑adjusted p‑value < 0.05,  
+  2. The bootstrap 95 % CI contains the injected coefficient,  
+  3. `results/sensitivity_analysis.json` reports `robustness_status = true`,  
+  4. `results/power_analysis.json` exists and reports `power ≥ 0.5` (exploratory).  
+  *Path*: `tests/integration/test_full_analysis.py`  
 
----
+---  
 
-## Dependencies & Execution Order
+## Phase 5 – Polish, reproducibility & hand‑off (Phase 3 of the template)  
 
-### Phase Dependencies
+| Goal | Ensure the repository is clean, documented, and ready for the paper‑stage hand‑off. |
+|------|--------------------------------------------------------------------------------------|
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] **T035** [US‑H] Update `docs/quickstart.md` to include:  
+  1. How to run the pipeline in normal mode (`python code/main.py`).  
+  2. How to enable synthetic‑fallback (`validation_mode: true` in `config.yaml`).  
+  3. How to toggle the statistical‑override threshold (`statistical_override: true`).  
+  4. Expected output locations (`data/processed/graphs/`, `results/analysis_report.json`).  
+  *Path*: `docs/quickstart.md`  
 
-### User Story Dependencies
+- [ ] **T036** [US‑H] Run `mypy --strict` across the `src/` tree, fix any type errors, and commit the cleaned code.  
+  *Path*: `src/` (type‑checked)  
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (graphs)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (metrics) and US1 (if direct pairing needed)
+- [ ] **T042** [US‑H] Implement `code/generate_synthetic.py` that creates a synthetic defect‑coordinate CSV dataset adhering to `DefectSample` schema, using a fixed random seed (`--seed 42`). This dataset is used by profiling and validation scripts.  
+  *Path*: `code/generate_synthetic.py`  
 
-### Within Each User Story
+- [ ] **T043** [US‑H] Add unit test `tests/unit/test_generate_synthetic.py` that verifies the synthetic generator produces the correct number of samples and deterministic output given the seed.  
+  *Path*: `tests/unit/test_generate_synthetic.py`  
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utilities before services
-- Services before endpoints/aggregators
-- Core implementation before integration
-- Story complete before moving to next priority
+- [ ] **T037** [US‑H] Create a profiling script `src/utils/profile_memory.py` that streams a synthetic dataset of 50 samples × 10 k defects, records peak RAM usage, and writes `results/memory_profile.json`. The script must assert that peak RAM < 7 GB.  
+  *Path*: `src/utils/profile_memory.py`  
 
-### Parallel Opportunities
+- [ ] **T047** [US‑H] Create a runtime‑benchmark script `src/utils/runtime_benchmark.py` that runs the full pipeline on the synthetic dataset and records total wall‑clock time, asserting it is ≤ 6 hours. Results are written to `results/runtime_benchmark.json`.  
+  *Path*: `src/utils/runtime_benchmark.py`  
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] **T048** [US‑H] Create a random‑seed utility `src/utils/random_seed.py` exposing `set_global_seed(seed: int)` which seeds `numpy`, `random`, and any other libraries used. All stochastic modules must import and call this function at start.  
+  *Path*: `src/utils/random_seed.py`  
 
----
+- [ ] **T049** [US‑H] Add unit test `tests/unit/test_random_seed.py` ensuring that after calling `set_global_seed`, two successive calls to a random number generator produce identical sequences.  
+  *Path*: `tests/unit/test_random_seed.py`  
 
-## Parallel Example: User Story 1
+- [ ] **T050** [US‑H] Implement `src/analysis/filter_missing.py` that scans the merged dataset, removes any samples where `thermal_conductivity` is null, logs the number of exclusions, and passes the filtered table to downstream analysis modules.  
+  *Path*: `src/analysis/filter_missing.py`  
 
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Unit test for coordinate parsing in tests/unit/test_data_ingestion.py"
-Task: "Integration test for graph construction in tests/integration/test_graph_construction.py"
+- [ ] **T038** [US‑H] Create a SHA‑256 state tracker `src/utils/state_tracker.py` that walks the repository, hashes every file under `data/`, `results/`, and `code/`, and writes a manifest `state/artifact_hashes.json`. This is used by the platform for reproducibility checks.  
+  *Path*: `src/utils/state_tracker.py`  
 
-# Launch implementation tasks in parallel where files don't conflict:
-Task: "Implement loader.py"
-Task: "Implement threshold.py"
-```
+- [ ] **T039** [US‑H] Add comprehensive docstrings (PEP 257 style) to all public functions in `src/`. Run `pydocstyle` and fix any violations.  
+  *Path*: `src/`  
 
----
+- [ ] **T040** [US‑H] Execute the full end‑to‑end pipeline (real data if available, otherwise synthetic mode) and verify that:  
+  1. `results/analysis_report.json` validates against `analysis.schema.yaml`.  
+  2. All plots exist under `results/plots/`.  
+  3. No task logs any “fallback to synthetic data” warning unless `validation_mode` is true.  
+  *Path*: `results/`  
 
-## Implementation Strategy
+- [ ] **T041** [US‑H] Run `src/utils/state_tracker.py` after a successful pipeline run and commit the generated `state/artifact_hashes.json` to ensure reproducibility tracking.  
+  *Path*: `state/artifact_hashes.json`  
 
-### MVP First (User Story 1 Only)
+---  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (Graph construction works)
-5. Deploy/demo if ready
+### Dependency & Execution Order  
 
-### Incremental Delivery
+| Phase | Depends on |
+|-------|------------|
+| Phase 1 | none |
+| Phase 2 | Phase 1 |
+| Phase 3 | Phase 2 (graph JSONs) |
+| Phase 4 | Phase 3 (enriched `TopologyGraph` JSONs) |
+| Phase 5 | Phases 1‑4 (complete artifacts) |
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+Parallel execution is allowed for tasks marked `[P]` (different files, no data‑flow dependency).  
 
-### Parallel Team Strategy
+---  
 
-With multiple developers:
+### Revision notes  
 
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1 (Ingestion/Graphs)
-   - Developer B: User Story 2 (Metrics)
-   - Developer C: User Story 3 (Stats)
-3. Stories complete and integrate independently
+- Reordered tasks to respect import and data‑registry dependencies (T010 before T009; T013 before T011, T012, T014).  
+- Added missing functionality for power analysis (FR‑014, SC‑009), runtime benchmarking (SC‑004), missing‑conductivity filtering (FR‑011), random‑seed reproducibility (Principle I), and the `statistical_override` flag (FR‑008).  
+- Introduced synthetic data generation (Task T042) to support profiling and validation without external data.  
+- Updated `config.yaml` (T004) and `quickstart.md` (T035) to reflect new configuration options.  
+- Added dedicated utility scripts and corresponding tests to ensure deterministic behavior and compliance with all success criteria.  
 
----
+---  
 
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- **Data Integrity**: If real data is unavailable, use synthetic data ONLY for pipeline validation; explicitly skip hypothesis testing and log warnings (Plan Section 5).
-- **Compute**: Ensure streaming is used for large datasets to stay within 7GB RAM limit.
-- **Threshold**: Default to 2.0nm (phonon MFP based) unless statistical override is active.
-- **LCC Fraction**: Calculated in T022a, not T022.
-- **GP Regression**: Implemented in T031b, not T031.
-- **Sensitivity**: Outputs `std_dev` field in T034.
+*End of `tasks.md`.*  

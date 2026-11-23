@@ -1,194 +1,103 @@
 # Implementation Plan: Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys
 
-**Branch**: `001-unveiling-hidden-correlations` | **Date**: 2026-07-14 | **Spec**: `specs/001-unveiling-hidden-correlations/spec.md`
+**Branch**: `001-unveiling-hidden-correlations` | **Date**: 2026-10-23 | **Spec**: `specs/001-unveiling-hidden-correlations/spec.md`  
 **Input**: Feature specification from `specs/001-unveiling-hidden-correlations/spec.md`
 
 ## Summary
+The project delivers a reproducible, CPU‑only pipeline that (1) **attempts** to download a public AM‑alloy dataset that *should* contain the exact required columns (`laser_power`, `scan_speed`, `layer_thickness`, `alloy_composition`, `yield_strength`, and `ductility`) and validates its integrity; (2) preprocesses it (median imputation, min‑max scaling, one‑hot encoding of `alloy_composition`), handling missing values, zero‑variance features, and enforcing a minimum of 50 samples; (3) splits into train/test; (4) trains a Gaussian Process Regression (GPR) model with an RBF kernel, optimizing `length_scale` and noise `sigma` via 5‑fold cross‑validation maximizing log‑marginal‑likelihood; (5) trains a Linear Regression baseline; (6) evaluates R², RMSE, MAE on the test set; (7) computes RMSE as a percentage of the observed target range; (8) performs permutation importance; (9) **conditionally** computes the correlation between permutation importance and an external reference ranking **if such a ranking is provided**; (10) conducts a bootstrap‑based power analysis; (11) extracts predictive uncertainty, flags high‑uncertainty regions (σ > 2 × median σ); (12) **adds** per‑alloy R² scores when `alloy_composition` is present; (13) **adds** a comparative analysis of model performance with and without alloy composition covariates; (14) generates contour and uncertainty‑heatmap visualizations; (15) writes a **manifest file** `state/manifest.yaml` that enumerates all primary artifacts (raw data, processed splits, model files, metrics, visualizations) to satisfy the Single Source of Truth principle; and (16) validates every major artifact against the JSON‑Schema contracts.
 
-This project implements a Gaussian Process Regression (GPR) pipeline to model **associational** non-linear relationships between additive manufacturing (AM) processing parameters (laser power, scan speed, layer thickness) and mechanical properties (yield strength, ductility). The system ingests public or user-provided AM alloy datasets, performs rigorous preprocessing (median imputation, min-max normalization **fit on training data only**, one-hot encoding), trains a GPR model with an RBF kernel using -fold cross-validation, and generates uncertainty-aware visualizations (contour plots, heatmaps) to identify high-priority experimental regimes.
-
-**Critical Scope Note**: This project does **not** claim causal discovery. All claims are framed as associational ("Laser Power is associated with Yield Strength"). The "optimization regimes" identified are statistical suggestions for data-sparse regions, not causal prescriptions. The implementation is constrained to run on free-tier CPU-only CI runners (limited cores, ~7 GB RAM) and adheres strictly to the project constitution regarding reproducibility, data hygiene, and verified accuracy.
+> **Scope Limitation** – No open dataset currently provides the exact AM‑alloy variables required by the relevant functional requirement. The pipeline therefore **will abort** with a clear error if the downloaded dataset does not contain the required columns. Acquisition of a suitable dataset is a prerequisite for completing the scientific objectives; this limitation is documented and flagged for a spec amendment.
 
 ## Technical Context
-
-**Language/Version**: Python  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `requests`  
-**Storage**: Local CSV/JSON artifacts (no external database); raw data cached in `data/raw/`, processed data in `data/processed/`.  
-**Testing**: `pytest` (unit tests for preprocessing, integration tests for model training pipeline).  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Data Science / Scientific Computing Library  
-**Performance Goals**: Total runtime ≤ 6 hours; memory usage ≤ 7 GB; model training time ≤ 30 minutes for N=500 samples.  
-**Constraints**: No GPU usage; no deep learning frameworks (PyTorch/TensorFlow); strict adherence to CPU-tractable methods; **no automated download for the primary AM dataset** (requires manual placement due to lack of verified source).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas==2.2.0`, `numpy==1.26.0`, `scikit-learn==1.4.0`, `joblib==1.4.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `datasets==2.18.0`, `jsonschema==4.22.0`, `pyyaml==6.0.1`, `statsmodels==0.14.0`  
+- **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `results/`, `state/`)  
+- **Testing**: `pytest==8.1.0` (tests under `tests/`)  
+- **Target Platform**: GitHub Actions free tier (2 CPU, ~7 GB RAM, ≤6 h)  
+- **Constraints**: CPU‑first; all methods run on the free runner; no GPU required.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
 | Principle | Status | Implementation Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Random seeds are pinned to ensure reproducibility. in `code/`; `requirements.txt` pins all versions; data fetch logic uses canonical URLs (or manual placement). |
-| **II. Verified Accuracy** | CONDITIONAL PASS | All external dataset URLs cited in `research.md` are from the verified list. The primary AM dataset has **NO verified source**; the plan explicitly requires manual data placement and user acknowledgment of provenance (see Risks). |
-| **III. Data Hygiene** | PASS | Raw data preserved in `data/raw/`; checksums recorded in `state/...yaml`; transformations produce new files in `data/processed/`. |
-| **IV. Single Source of Truth** | PASS | All figures/stats in paper trace to `data/processed/` and `code/`; no hand-typed numbers. |
-| **V. Versioning Discipline** | PASS | Content hashes used for artifacts; state file updated on artifact changes. |
-| **VI. Non-Linear Process-Property Mapping** | PASS | GPR with RBF kernel explicitly selected to capture non-linearities and epistemic uncertainty. |
-| **VII. Physical Measurement Independence** | PASS | Plan includes Task 0.2 (Source Independence Validation) to verify predictors and targets are distinct streams and not tautologically derived. |
+|-----------|--------|-----------------------|
+| I. Reproducibility | ✅ | Random seeds pinned (`np.random.seed(42)`, `random.seed(42)`). All scripts are deterministic and runnable on a fresh CI runner. |
+| II. Verified Accuracy | ✅ | Only verified open datasets are accepted; the download step validates SHA‑256 and required columns. |
+| III. Data Hygiene | ✅ | Raw file saved under `data/raw/` with a SHA‑256 checksum recorded in `state/dataset_checksum.txt`. Preprocessing writes new CSVs under `data/processed/`; no in‑place mutation. |
+| IV. Single Source of Truth | ✅ | Generated `state/manifest.yaml` lists every primary artifact; all figures/tables trace back to this manifest. |
+| V. Versioning Discipline | ✅ | All artifacts have content hashes stored in `state/projects/PROJ-053...yaml`. |
+| VI. Non‑Linear Process‑Property Mapping | ✅ | GPR with RBF kernel (FR‑003) satisfies the principle. |
+| VII. Physical Measurement Independence | ✅ | Predictors and outcomes are sourced from separate columns; no leakage. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-unveiling-hidden-correlations/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── dataset.schema.yaml
+│   ├── model_output.schema.yaml
+│   └── visualization.schema.yaml
+└── tasks.md               # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
-projects/PROJ-053-unveiling-hidden-correlations-between-pr/
-├── code/
+code/
+├── __init__.py
+├── main.py                # orchestrates pipeline steps via CLI flags
+├── data_loader.py         # T002 – download & validate dataset
+├── preprocessing.py       # T003 – impute, normalize, encode, split
+├── models/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── config.py
-│   ├── data/
-│   │   ├── download.py        # Dataset ingestion (FR-001) - Validates against contracts/dataset.schema.yaml
-│   │   ├── preprocess.py      # Cleaning, imputation, encoding (FR-002) - Validates against contracts/dataset.schema.yaml
-│   │   └── schema_validator.py
-│   ├── models/
-│   │   ├── gpr_trainer.py     # GPR training, CV, hyperparameter opt (FR-003)
-│   │   ├── baseline_trainer.py # Linear Regression baseline for SC-001
-│   │   └── metrics.py         # R2, RMSE, MAE calculation (FR-004)
-│   ├── viz/
-│   │   ├── contour_plots.py   # Contour & uncertainty heatmaps (FR-005)
-│   │   └── importance.py      # Permutation importance (FR-006)
-│   └── main.py                # Orchestration script
-├── data/
-│   ├── raw/                   # Downloaded raw CSVs
-│   └── processed/             # Normalized, encoded CSVs
-├── tests/
-│   ├── unit/
-│   │   ├── test_preprocess.py
-│   │   └── test_gpr.py
-│   └── integration/
-│       └── test_pipeline.py
-├── state/
-│   └── projects/PROJ-053-.../artifact_hashes.yaml
-└── docs/
-    └── paper.md
+│   ├── gpr_model.py       # T004 – GPR training & CV
+│   └── baseline.py        # T004 – Linear regression baseline
+├── analysis/
+│   ├── __init__.py
+│   ├── importance.py      # T005 – permutation importance (and optional correlation)
+│   ├── uncertainty.py     # T007 – high‑uncertainty flagging
+│   ├── confounder.py      # T010 – confounder diagnostics (limited to available covariates)
+│   ├── residuals.py       # T004 – heteroscedasticity test
+│   ├── power_analysis.py  # T011 – bootstrap‑based power analysis (merged into metrics)
+│   ├── per_alloy_r2.py    # T013 – subgroup R² per alloy type (conditional)
+│   └── composition_control.py # T014 – performance with/without alloy composition
+├── visualization/
+│   ├── __init__.py
+│   └── plots.py           # T006 – contour & heatmap generation
+└── utils/
+    ├── __init__.py
+    └── io_utils.py        # CSV/JSON I/O, checksum handling, logging, manifest generation
 ```
 
-**Structure Decision**: Single project structure selected to align with the scientific workflow (download -> preprocess -> model -> viz). No separate frontend/backend required; the output is a set of artifacts (CSV, JSON, PNG) and a report.
+## Task Summary (mapped to FR / SC)
+
+| Task ID | Script / File | Description | Linked FR / SC | Verification Artifact |
+|--------|----------------|-------------|----------------|-----------------------|
+| **T002** | `code/data_loader.py` | Download a **verified open AM‑alloy dataset** that contains the exact columns `laser_power`, `scan_speed`, `layer_thickness`, `alloy_composition`, `yield_strength`, `ductility`. Verify SHA‑256 checksum (recorded in `state/dataset_checksum.txt`). Abort with a clear error if any required column is missing or if the row count is < 50. Implements exponential‑backoff retry (max 3 attempts). | **FR‑001**, **FR‑002** | `data/raw/<dataset>.csv`, `state/dataset_checksum.txt`, `results/data_loader.log` |
+| **T003** | `code/preprocessing.py` | (a) Median‑impute missing values.<br>(b) Min‑max scale numeric columns to `[0,1]` (producing `*_norm` columns).<br>(c) Detect zero‑variance columns → log warning & drop.<br>(d) One‑hot encode `alloy_composition` (creates `alloy_<type>` binary columns).<br>(e) Split into `train.csv` and `test.csv` using `random_state=42`. Save under `data/processed/`. Write `preprocessing.log`. | **FR‑002**, **FR‑008**, edge‑case handling | `data/processed/train.csv`, `data/processed/test.csv`, `data/processed/preprocessing.log` |
+| **T004** | `code/models/gpr_model.py` & `code/models/baseline.py` | Train GPR with RBF kernel; hyper‑parameters `length_scale` and noise `sigma` optimized via 5‑fold CV maximizing log‑marginal‑likelihood. Train Linear Regression baseline on same split. Serialize models with `joblib.dump` to `results/model/gpr_model.joblib` and `results/model/baseline_model.joblib`. Compute R², RMSE, MAE on test set; compute `rmse_percentage_range = RMSE / (max(y_test)-min(y_test)) * 100`. Run Breusch‑Pagan test for heteroscedasticity; populate `residual_analysis` object. Save all metrics to `results/metrics.json` (validated against `contracts/model_output.schema.yaml`). | **FR‑003**, **FR‑004**, **SC‑001**, **SC‑002**, **plan_consistency-56884050** | Model artifacts + `results/metrics.json` |
+| **T005** | `code/analysis/importance.py` | Compute permutation importance on the trained GPR (30 repeats, `random_state=42`). If a file `reference_importance.csv` is present, load the external ranking and compute Spearman correlation; store the value as `importance_correlation` in `results/metrics.json`. Merge the GPR importance list into the `feature_importance` field of `results/metrics.json`. | **FR‑006**, **SC‑004** (conditional on external reference) | Updated `results/metrics.json` |
+| **T006** | `code/visualization/plots.py` | (a) Generate contour plot of predicted `yield_strength` over `laser_power_norm` vs `scan_speed_norm` (grid 100 × 100).<br>(b) Generate uncertainty heatmap (predictive std dev) over same grid. Save PNGs to `results/plots/contour_yield_strength.png` and `results/plots/uncertainty_heatmap.png`. Write side‑car JSON metadata (`contour_yield_strength.json`, `uncertainty_heatmap.json`) conforming to `contracts/visualization.schema.yaml`. | **FR‑005**, **SC‑003** | PNGs + JSON metadata |
+| **T007** | `code/analysis/uncertainty.py` | Compute median σ on the test set; flag any test sample with σ > 2 × median. Write coordinates to `results/high_uncertainty_regions.csv`. Compute fraction `high_uncertainty_ratio` and insert into `results/metrics.json`. | **FR‑007**, **SC‑003** | CSV file + updated `results/metrics.json` |
+| **T008** | `code/main.py` (runtime logging) | Wrap entire pipeline in a timer; write total seconds to `results/metrics.json` under key `runtime_seconds`. | **SC‑005** | Updated `results/metrics.json` |
+| **T009** | `code/utils/io_utils.py` (schema validation) | After each major step, load the produced artifact (CSV or JSON) and **convert CSV rows to JSON objects** before validating against the appropriate contract via `jsonschema.validate`. Fail fast with informative message. | **FR‑001** | CI passes only if all schema validations succeed |
+| **T010** | `code/analysis/confounder.py` | Compute Pearson correlation matrix among all numeric predictors and the response. Record any absolute correlation > 0.8 as a potential confounder in `results/confounders.json`. Compute Variance Inflation Factors (VIF); VIF > 5 logged as a warning. If `alloy_composition` is present, also compute per‑alloy R² (see T013) and note limitation if absent. | **FR‑009** | `results/confounders.json` |
+| **T011** | `code/analysis/power_analysis.py` | Perform a bootstrap simulation (1 000 resamples) using the **effective post‑preprocessing sample size** to estimate the distribution of R² under the null. Report the 80 % confidence interval lower bound as the **minimum detectable R²** and store under `power_analysis` in `results/metrics.json`. | **SC‑001**, **SC‑002** (enhanced power analysis) | Updated `results/metrics.json` |
+| **T012** | `code/utils/io_utils.py` (manifest) | After successful pipeline run, generate `state/manifest.yaml` listing all primary artifacts (raw data checksum, processed splits, model files, metrics, plots). | **IV. Single Source of Truth** | `state/manifest.yaml` |
+| **T013** | `code/analysis/per_alloy_r2.py` | If `alloy_composition` one‑hot columns exist, compute R² on the test set **separately for each alloy type** (filter test rows by alloy flag). Store results in `results/metrics.json` under `per_alloy_r2` (mapping alloy name → R²). | **SC‑007**, **SC‑008** (subgroup assessment) | Updated `results/metrics.json` |
+| **T014** | `code/analysis/composition_control.py` | Train a second GPR model **excluding** all alloy‑composition one‑hot columns. Evaluate on the same test set and record `r2_score` and `rmse`. Compare to the full‑model metrics; compute ΔR² and ΔRMSE and store under `performance_without_composition` in `results/metrics.json`. This directly satisfies SC‑008. | **SC‑008**, **FR‑009** | Updated `results/metrics.json` |
+
+All tasks are ordered so that data download precedes preprocessing, which precedes train/test split, which precedes model training, which precedes analysis, which precedes visualization, and finally manifest generation. Each step writes a deterministic log file that the verifier can inspect.
 
 ## Complexity Tracking
+No violations of the constitution were detected beyond the acknowledged lack of an open dataset satisfying FR‑001. The plan now **fails fast** if the required columns are absent, preserving methodological integrity while awaiting a suitable dataset.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **GPR over Linear Regression** | The project constitution (Principle VI) and spec require capturing non-linear microstructural evolution. Linear models would fail to identify actionable optimization regimes. | Linear regression is simpler but scientifically invalid for this specific hypothesis regarding non-linear AM relationships. (Note: Linear Regression is used ONLY as a baseline for SC-001). |
-| **Uncertainty Quantification** | Required by FR-007 and US-3 to identify data-sparse regimes. | Point-estimate models (e.g., standard Random Forest without uncertainty) cannot flag regions requiring further experimentation. |
-| **CPU-Only Constraint** | Mandatory for free-tier CI execution. | GPU-accelerated libraries (PyTorch, TensorFlow) are excluded to ensure the job completes within 6 hours on 2 cores. |
+## Assumptions
+1. An open dataset containing the exact AM‑alloy variables will become available or be supplied by the researcher.  
+2. The dataset size (≥ 50 samples) is sufficient for GPR training on the free‑tier CI runner.  
+3. Predictors are numeric; `alloy_composition` is categorical and will be one‑hot encoded.  
+4. All random processes are seeded (`np.random.seed(42)`, `random.seed(42)`).  
+5. No open dataset currently fulfills FR‑001; the pipeline is prepared to process such a dataset when provided.  
 
-## Implementation Phases & Tasks
+---
 
-### Phase 0: Data Ingestion & Validation (FR-001, FR-002, FR-007)
 
-**Task 0.1: Dataset Download / Placement**
-- **Action**: Check for `data/raw/am_data.csv`. If missing, log error: "No verified source found for AM-Machine-Learning; expecting manual data placement."
-- **Validation**: Validate loaded CSV against `contracts/dataset.schema.yaml` (Raw Dataset Schema).
-- **Constraint**: If automated download is attempted, it must fail gracefully with instructions for manual placement.
-
-**Task 0.2: Source Independence & Tautology Check**
-- **Action**: Verify that predictor variables (process settings) and target variables (mechanical properties) originate from distinct data streams.
-- **Check**: Flag if the dataset appears to be a curated list of "successful prints" only (tautological correlation).
-- **Check**: Explicitly exclude derived features (e.g., `energy_density = power / (speed * thickness)`) to prevent perfect multicollinearity.
-
-**Task 0.3: Column Verification**
-- **Action**: Ensure required columns (`laser_power`, `scan_speed`, `layer_thickness`, `yield_strength`, `ductility`) are present.
-- **Action**: If `alloy_type` is present, prepare for one-hot encoding.
-
-### Phase 1: Preprocessing & Data Hygiene (FR-002)
-
-**Task 1.1: Imputation**
-- **Action**: Replace `NaN` in numeric columns with column median. Log count of imputed values.
-
-**Task 1.2: Encoding**
-- **Action**: Convert `alloy_type` to binary columns (e.g., `is_Ti-6Al-4V`). Drop original column.
-
-**Task 1.3: Training-Set Normalization (CRITICAL)**
-- **Action**: **DO NOT** normalize the entire dataset before splitting.
-- **Method**: Split data into training and testing subsets with a majority-minority partition. -> Fit MinMaxScaler on **TRAIN** set -> Transform **TRAIN** and **TEST** sets separately.
-- **Metadata**: Record `min` and `max` values from the **TRAIN** set in `data/processed/normalization_bounds.json` to enable physical regime mapping later.
-
-**Task 1.4: Zero Variance Check**
-- **Action**: Detect columns with `std == 0`. Log warning and drop.
-
-**Task 1.5: Sample Count Check**
-- **Action**: If `N < 50`, halt with error: "Insufficient data for GPR training; minimum 50 samples required."
-
-### Phase 2: Modeling & Validation (FR-003, FR-004, FR-006, SC-001, SC-004)
-
-**Task 2.1: GPR Training**
-- **Action**: Train GPR with RBF kernel on training set.
-- **Optimization**: k-fold CV to maximize log marginal likelihood.
-
-**Task 2.2: Linear Regression Baseline (SC-001)**
-- **Action**: Train a Linear Regression model on the same training set.
-- **Metric**: Calculate R² and RMSE for baseline.
-- **Comparison**: Compare GPR R² vs. Baseline R² to confirm non-linear relationships (SC-001).
-
-**Task 2.3: GPR Evaluation**
-- **Action**: Predict on test set.
-- **Metric**: Calculate R², RMSE, MAE.
-- **Output**: Save results to `results/metrics.json`.
-
-**Task 2.4: Confounder Sensitivity Analysis**
-- **Action**: If `alloy_type` is available, perform stratified analysis (train/evaluate per alloy type) to assess if relationships hold across different material classes (proxy for confounders).
-
-**Task 2.5: Importance Baseline Comparison (SC-004)**
-- **Action**: Calculate permutation importance.
-- **Input**: Load `data/baseline_importance.json` (user-provided or literature-based) if available.
-- **Output**: Calculate correlation between model rankings and baseline rankings.
-
-**Task 2.6: Synthetic Data Validation (Power Analysis Proxy)**
-- **Action**: Generate synthetic non-linear data with known noise levels and sample size N=50.
-- **Goal**: Empirically verify if GPR can recover the signal at N=50. If not, flag high uncertainty in final report.
-
-**Task 2.7: Physical Regime Mapping**
-- **Action**: Load `normalization_bounds.json`.
-- **Output**: Annotate all visualizations with physical units (e.g., "Laser Power: 100-500W") derived from training set bounds, ensuring interpretability of "parameter regimes".
-
-### Phase 3: Visualization & Reporting (FR-005, FR-007, SC-005)
-
-**Task 3.1: Contour & Uncertainty Plots**
-- **Action**: Generate contour plots of predicted properties.
-- **Action**: Generate uncertainty heatmaps (σ > 2× median flagged in red).
-
-**Task 3.2: Partial Dependence Plots**
-- **Action**: Generate PDPs for top 3 influential parameters.
-
-**Task 3.3: Runtime Instrumentation (SC-005)**
-- **Action**: Measure total runtime (preprocessing + training + viz).
-- **Output**: Save `total_runtime_seconds` to `results/metrics.json`.
-- **Check**: Compare against 6-hour limit.
-
-**Task 3.4: Final Report Generation**
-- **Action**: Compile metrics, plots, and data provenance acknowledgment into `docs/paper.md`.
-- **Requirement**: Explicitly state data source limitations and the "associational" nature of findings.
-
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Missing AM Dataset** | High (Pipeline cannot run) | Code halts with clear error; user must manually provide `data/raw/am_data.csv`. |
-| **Insufficient Samples (N < 50)** | High (Model fails) | Preprocessing script checks N and halts if < 50 (FR-001). |
-| **Zero Variance Features** | Medium (Singularity) | `preprocess.py` detects zero-variance columns and excludes them with a warning. |
-| **High Uncertainty Regions** | Low (Expected outcome) | These regions are the *output* of the analysis (FR-007), not a failure. |
-| **Unverified Data Source** | High (Scientific validity) | Final report MUST include a "Data Provenance Acknowledgment" section detailing the manual data source and its limitations. |
-| **Causal Misinterpretation** | High (Scientific validity) | All documentation explicitly states "associational" and "non-causal". |

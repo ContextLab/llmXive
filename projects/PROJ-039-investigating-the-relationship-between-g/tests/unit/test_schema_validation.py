@@ -1,118 +1,123 @@
+"""
+Unit tests for schema validation logic.
+"""
 import pytest
 import json
 import yaml
+import tempfile
+import os
 from pathlib import Path
 import sys
-import os
 
-# Add code to path
+# Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from schema_validator import SchemaValidator, validate_artifacts
+from schema_validator import SchemaValidator, load_schema
+from config import get_project_root
 
 @pytest.fixture
-def sample_microbiome_data():
+def validator():
+    return SchemaValidator()
+
+@pytest.fixture
+def valid_dataset_record():
     return {
-        "subject_id": "sub_001",
-        "metadata": {
-            "age": 25.0,
-            "sex": "M",
-            "bmi": 22.5
-        },
-        "taxa_abundances": {
-            "Bacteroides": 0.3,
-            "Firmicutes": 0.5
-        }
+        "age": 35,
+        "sex": "M",
+        "bmi": 24.5,
+        "alpha_power": 12.3,
+        "taxon_abundances": {"Bacteroides": 0.45, "Faecalibacterium": 0.15},
+        "diet": "Omnivore"
     }
 
 @pytest.fixture
-def sample_eeg_data():
+def invalid_dataset_record_missing_field():
     return {
-        "subject_id": "sub_002",
-        "metadata": {
-            "age": 30.0,
-            "sex": "F",
-            "bmi": 24.0
-        },
-        "eeg_metrics": {
-            "alpha_power": 12.5,
-            "valid_epochs": 150
-        }
+        "age": 35,
+        "sex": "M",
+        # bmi missing
+        "alpha_power": 12.3,
+        "taxon_abundances": {"Bacteroides": 0.45},
+        "diet": "Omnivore"
     }
 
 @pytest.fixture
-def sample_matched_pairs():
+def invalid_dataset_record_bad_type():
     return {
-        "pairs": [
-            {
-                "microbiome_subject_id": "sub_001",
-                "eeg_subject_id": "sub_002",
-                "distance": 0.05
-            }
-        ],
-        "metadata": {
-            "method": "nearest_neighbor",
-            "total_pairs": 1,
-            "path_selected": "Path A"
-        }
+        "age": "thirty-five", # Should be int
+        "sex": "M",
+        "bmi": 24.5,
+        "alpha_power": 12.3,
+        "taxon_abundances": {"Bacteroides": 0.45},
+        "diet": "Omnivore"
     }
 
 @pytest.fixture
-def sample_analysis_results():
+def valid_output_record():
     return {
-        "path_type": "Path A",
-        "statistics": {
-            "correlation": 0.45,
-            "p_value": 0.01
-        },
-        "permutation_test": {
-            "passed": True,
-            "p_value": 0.02
-        },
-        "disclaimer": "Note: This analysis is associational only; no causal inference is made."
+        "stratum_id": "20-30_M_<25_Omnivore",
+        "stratum_mean_alpha_power": 11.5,
+        "stratum_taxa_means": {"Bacteroides": 0.42, "Faecalibacterium": 0.18},
+        "valid_strata_count": 12
     }
 
-@pytest.fixture
-def schema_validator():
-    return SchemaValidator("contracts/dataset.schema.yaml")
+def test_validate_dataset_record_valid(validator, valid_dataset_record):
+    is_valid, error = validator.validate_dataset_record(valid_dataset_record)
+    assert is_valid is True
+    assert error is None
 
-def test_validate_microbiome_data(schema_validator, sample_microbiome_data):
-    assert schema_validator.validate(sample_microbiome_data) is True
+def test_validate_dataset_record_missing_field(validator, invalid_dataset_record_missing_field):
+    is_valid, error = validator.validate_dataset_record(invalid_dataset_record_missing_field)
+    assert is_valid is False
+    assert "bmi" in error
 
-def test_validate_eeg_data(schema_validator, sample_eeg_data):
-    assert schema_validator.validate(sample_eeg_data) is True
+def test_validate_dataset_record_bad_type(validator, invalid_dataset_record_bad_type):
+    is_valid, error = validator.validate_dataset_record(invalid_dataset_record_bad_type)
+    assert is_valid is False
+    assert "age" in error
 
-def test_validate_invalid_data(schema_validator):
-    invalid_data = {
-        "subject_id": 123,  # Should be string
-        "metadata": "bad",   # Should be object
-        "taxa_abundances": {}
+def test_validate_output_record_valid(validator, valid_output_record):
+    is_valid, error = validator.validate_output_record(valid_output_record)
+    assert is_valid is True
+    assert error is None
+
+def test_validate_output_record_missing_stratum_id(validator):
+    record = {
+        "stratum_mean_alpha_power": 11.5,
+        "stratum_taxa_means": {},
+        "valid_strata_count": 12
     }
-    with pytest.raises((TypeError, Exception)):
-        schema_validator.validate(invalid_data)
+    is_valid, error = validator.validate_output_record(record)
+    assert is_valid is False
+    assert "stratum_id" in error
 
-def test_validate_matched_pairs(sample_matched_pairs):
-    validator = SchemaValidator("contracts/output.schema.yaml")
-    assert validator.validate(sample_matched_pairs) is True
+def test_validate_output_record_null_diet(validator):
+    # Diet is not in output schema, but test that optional fields in dataset schema work
+    # We are testing output schema here, so diet shouldn't matter unless we add it
+    record = {
+        "stratum_id": "test",
+        "stratum_mean_alpha_power": 11.5,
+        "stratum_taxa_means": {},
+        "valid_strata_count": 12
+    }
+    is_valid, error = validator.validate_output_record(record)
+    assert is_valid is True
 
-def test_validate_analysis_results(sample_analysis_results):
-    validator = SchemaValidator("contracts/output.schema.yaml")
-    assert validator.validate(sample_analysis_results) is True
-
-def test_missing_schema_file():
+def test_load_schema_invalid_path():
     with pytest.raises(FileNotFoundError):
-        SchemaValidator("contracts/non_existent_schema.yaml")
+        load_schema(Path("/non/existent/path.yaml"))
 
-def test_load_schema_from_path():
-    validator = SchemaValidator()
-    validator.load_schema("contracts/dataset.schema.yaml")
-    assert validator.schema is not None
-    assert "definitions" in validator.schema
+def test_validate_artifacts_file_not_found(validator):
+    result = validator.validate_artifacts(Path("/non/existent/file.json"), "output")
+    assert result is False
 
-def test_validate_artifacts_matched_pairs(sample_matched_pairs):
-    result = validate_artifacts([sample_matched_pairs], "matched_pairs")
-    assert result is True
-
-def test_validate_artifacts_analysis(sample_analysis_results):
-    result = validate_artifacts([sample_analysis_results], "analysis_results")
-    assert result is True
+def test_validate_artifacts_invalid_json(validator):
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        f.write("{ invalid json }")
+        temp_path = Path(f.name)
+    
+    try:
+        result = validator.validate_artifacts(temp_path, "output")
+        assert result is False
+    finally:
+        os.unlink(temp_path)

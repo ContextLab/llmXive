@@ -1,0 +1,2 @@
+# This directory is for code artifacts
+# Configuration for linting and formatting is in the project root (.ruff.toml, pyproject.toml)

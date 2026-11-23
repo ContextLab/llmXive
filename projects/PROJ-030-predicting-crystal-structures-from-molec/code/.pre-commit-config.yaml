@@ -1,0 +1,48 @@
+# Configuration for pre-commit hooks: linting (ruff) and formatting (black)
+# This file is managed by the llmXive automated science pipeline for PROJ-030
+#
+# Usage:
+#   pip install pre-commit
+#   pre-commit install
+#   pre-commit run --all-files
+#
+# See: https://pre-commit.com/
+
+repos:
+  # Black: The uncompromising Python code formatter
+  - repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--line-length=88]
+        # Exclude generated data or large files if necessary
+        exclude: >
+          ^data/
+
+  # Ruff: An extremely fast Python linter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      # Run the linter
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        exclude: >
+          ^data/
+
+      # Run the formatter (optional, replaces black if preferred, but we keep both for now)
+      # If you prefer Ruff's formatter over Black, uncomment the hook below and remove the Black hook above.
+      # - id: ruff-format
+      #   args: [--line-length=88]
+
+  # Check for added files with large content (prevent committing large datasets)
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=1024']
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: debug-statements

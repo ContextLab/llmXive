@@ -1,0 +1,2 @@
+# This directory stores intermediate processing artifacts (CSVs, hashes).
+# Do not remove this file; it ensures the directory is tracked by Git.

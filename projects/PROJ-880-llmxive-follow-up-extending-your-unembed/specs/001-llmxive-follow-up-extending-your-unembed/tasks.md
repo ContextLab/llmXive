@@ -1,243 +1,127 @@
 # Tasks: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
 
-**Input**: Design documents from `/specs/001-llmxive-crosslingual/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root (per plan.md structure)
-- Paths shown below assume single project structure as defined in `plan.md`
-
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per `plan.md` (directories: `code/`, `data/raw/`, `data/processed/`, `tests/`, `contracts/`)
-- [ ] T002 Initialize a Python project with `requirements.txt` (pins `transformers`, `torch`, `numpy`, `scipy`, `pandas`, `huggingface_hub`, `datasets`) using a compatible major version.
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 Implement `code/config.py` with paths, seeds, and hyperparameters (k=100, n_bootstrap=1000); ensure these constants are importable by `model_analyzer.py` and `statistical_test.py`
-- [ ] T005 [P] Implement `code/validate_citations.py` to parse markdown, extract URLs, and verify against a local manifest (Constitution Principle II)
-- [ ] T006 [P] Implement `code/data_loader.py` skeleton with functions for downloading, verifying checksums, and hashing datasets
-- [ ] T007 Create base `code/__init__.py` and error handling infrastructure
-- [ ] T008 Setup `tests/contract/test_schemas.py` skeleton for validating JSON output schemas
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Extract and Compare Edge Spectrum Subspaces (Priority: P1) 🎯 MVP
-
-**Goal**: Compute the "edge spectrum" subspace (top-k singular vectors) of $W_U$ for Llama-3, Mistral, and BLOOM and calculate cosine similarity between subspaces to quantify geometric rotation.
-
-**Independent Test**: The system runs SVD on three models and outputs a JSON report with non-zero cosine similarity scores between model pairs.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T009 [P] [US1] Contract test for `similarity_report.schema.yaml` in `tests/contract/test_schemas.py`
-- [ ] T010 [P] [US1] Unit test for SVD extraction on a mock matrix in `tests/unit/test_math.py`
-
-### Implementation for User Story 1
-
-- [ ] T011 [US1] Implement `code/model_analyzer.py` to load unembedding matrix $W_U$ from HuggingFace models (Llama-3, Mistral, BLOOM) using CPU-only float32 loading, with error handling for missing/corrupted weight files
-- [ ] T012 [US1] Implement SVD extraction in `code/model_analyzer.py` to compute top-k (k=100) singular vectors, handling numerical instability and rank-deficient matrices
-- [ ] T013 [US1] Implement cosine similarity calculation in `code/model_analyzer.py` between subspace bases of English models vs. BLOOM
-- [ ] T014 [US1] Implement `code/main.py` orchestrator to run the SVD and similarity pipeline, outputting `data/processed/similarity_matrix.json`
-- [ ] T015 [US1] Implement logic to calculate anisotropy deviation from the hypothesized null (0.95) and compute the confidence interval for SC-001, outputting results to `data/processed/anisotropy_deviation.json`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Quantify Cross-Lingual Token Shift (Priority: P2)
-
-**Goal**: Identify tokens with highest logit weights in the edge spectrum subspace for each language and compare semantic categories to determine typological shift.
-
-**Independent Test**: The system projects frequency distributions onto the subspace and outputs ranked token lists distinct from the English baseline.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T016 [P] [US2] Contract test for `token_attribution.schema.yaml` in `tests/contract/test_schemas.py`
-- [ ] T017 [P] [US2] Unit test for centroid calculation logic in `tests/unit/test_math.py`
-
-### Implementation for User Story 2
-
-- [ ] T018 [US2] Implement `code/data_loader.py` functions to acquire and validate Common Crawl subsets (French/Chinese) and RedPajama lists, ensuring minimum size requirements
-- [ ] T019 [US2] Implement `code/data_loader.py` to load frequency distributions and output `data/processed/frequency_distributions.json` (Requires: T018)
-- [ ] T020 [US2] Implement `code/token_attribution.py` to project the frequency-weighted mean embedding vector (computed from RedPajama/Common Crawl frequencies) onto the Moore-Penrose pseudo-inverse of $W_U$ to compute the "mean embedding" vector (Requires: T019)
-- [ ] T021 [US2] Implement token ranking logic in `code/token_attribution.py` to identify the top-ranked tokens driving subspace variance for each language. (Requires: T020)
-- [ ] T022 [US2] Implement overlap ratio calculation between English and non-English top-10 token lists (Requires: T021)
-- [ ] T023 [US2] Integrate `code/main.py` to execute the token attribution pipeline, outputting `data/processed/token_attribution_report.json`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Validate Statistical Significance of Shift (Priority: P3)
-
-**Goal**: Perform a permutation test (multiple iterations) using a Within-Language Baseline (Llama-3 vs. Mistral) to assess if the observed cross-lingual similarity is statistically significant.
-
-**Independent Test**: The system runs a sufficient number of bootstrap iterations on CPU and outputs a p-value and significance flag.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T024 [P] [US3] Contract test for `permutation_result.schema.yaml` in `tests/contract/test_schemas.py`
-- [ ] T025 [P] [US3] Unit test for permutation logic with fixed seed in `tests/unit/test_math.py`
-
-### Implementation for User Story 3
-
-- [ ] T026 [US3] Implement `code/statistical_test.py` to generate the null distribution by bootstrapping the Within-Language Baseline (Llama-3 vs Mistral) similarity scores with added noise/variance scaling to approximate seed-variant differences (staged simplification proxy for model-seed null distribution due to unavailability of seed-variant models). Requires: T015 (US1 completion).
-- [ ] T027 [US3] Implement the permutation test loop (1,000 iterations) in `code/statistical_test.py`, ensuring CPU-only execution and < 6h runtime
-- [ ] T028 [US3] Implement p-value calculation and "Statistically Significant Shift" flag generation in `code/statistical_test.py`
-- [ ] T029 [US3] Implement `code/external_validation.py` to fetch WALS data and compute correlation coefficient between subspace orientation and WALS features. If data is unavailable, the task must fail or output a 'data_unavailable' flag (no mock validation allowed).
-- [ ] T030 [US3] Integrate `code/main.py` to run the statistical test and external validation, outputting `data/processed/permutation_result.json` and `data/processed/wals_validation.json`
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T031 [P] Generate `data/checksums.json` including hashes for all raw data and code artifacts
-- [ ] T032 Code cleanup and refactoring of `code/main.py` orchestrator
-- [ ] T033 Performance optimization for SVD and permutation loops to ensure < 6h runtime
-- [ ] T034 [P] Additional unit tests for edge cases (e.g., missing vocabulary mapping) in `tests/unit/`
-- [ ] T035 Run `quickstart.md` validation and update documentation
-- [ ] T036 Final verification of all JSON outputs against contract schemas
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for similarity_report.schema.yaml in tests/contract/test_schemas.py"
-Task: "Unit test for SVD extraction on a mock matrix in tests/unit/test_math.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/model_analyzer.py to load unembedding matrix W_U..."
-Task: "Implement SVD extraction in code/model_analyzer.py..."
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Feasibility Note**: All tasks strictly adhere to CPU-only constraints (no CUDA, no 8-bit quantization, float32 SVD on sampled k=100 vectors).
-- **Data Integrity**: No synthetic data generation; all tasks require real datasets (Common Crawl, RedPajama) via `data_loader.py`.
-- **Methodology Note**: T019 explicitly uses external frequency distributions (FR-005). T025 uses a bootstrapped Within-Language Baseline as a proxy for the seed-variant null distribution due to data availability constraints. T029 enforces strict WALS validation without mocks.
+**Inputs**: The active `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback from `david-krakauer-simulated`.
+
+## Phase 1: Setup and first end‑to‑end analysis
+
+- [ ] T001 Establish project structure, provenance, and dataset checksum verification.
+  - For each external dataset URL, retrieve the official SHA‑256 checksum from source metadata, compute the checksum **before** downloading, abort on mismatch, then download and record timestamps and checksums in `data/derived/dataset_checksums.json`.
+  - Paths: `code/`, `data/raw/`, `data/derived/`, `specs/001-llmxive-crosslingual/quickstart.md`.
+  - Verification: `quickstart.md` contains an init command; `dataset_checksums.json` exists and matches official source hashes.
+
+- [ ] T002 Detect and log missing or corrupted model weight files (FR‑030).
+  - For each model (Llama‑3, Mistral, BLOOM) verify presence and integrity of `W_U` weights; on failure log a clear error and continue with remaining models.
+  - Paths: `code/pipeline/model_loader.py`, `data/derived/model_load_log.json`.
+  - Verification: `model_load_log.json` lists any missing/corrupted models.
+
+- [ ] T003 Apply language‑specific token mask to the unembedding matrix **before** SVD extraction (FR‑028).
+  - Construct per‑language token masks using frequency thresholds (≥ 0.1 % of total tokens) and mask $W_U$ accordingly.
+  - Paths: `code/pipeline/mask.py`, `data/derived/masked_WU_{lang}.json`.
+  - Verification: Masked matrices have correct dimensions and mask statistics recorded.
+
+- [ ] T004 Perform SVD on each masked $W_U$ with numerical‑instability detection (FR‑001, FR‑033).
+  - Compute top‑100 singular vectors; if any singular value < 1e‑12, log a warning and skip that model.
+  - Paths: `code/pipeline/svd.py`, `data/derived/edge_spectrum.json`.
+  - Verification: `edge_spectrum.json` conforms to `edge_spectrum.schema.yaml`; instability warnings are present in `svd_log.json`.
+
+- [ ] T005 Align $U$ bases to the shared 11 200‑dim subword space (FR‑008, FR‑040).
+  - Use the shared vocabulary mapping layer to project left singular vectors onto the common subword space.
+  - Paths: `code/pipeline/align_u.py`, `data/derived/aligned_U_{model}.json`.
+  - Verification: Alignment matrices have shape `(top_k, 11200)`.
+
+- [ ] T006 Align $V$ bases across models via Procrustes alignment to a common hidden space (addresses hidden‑space dimensionality mismatch for FR‑002, FR‑036).
+  - Compute Procrustes transforms so that $V$ from Llama‑3, Mistral, and BLOOM reside in the same ambient space.
+  - Paths: `code/pipeline/align_v.py`, `data/derived/aligned_V_{model}.json`.
+  - Verification: Pairwise Procrustes error recorded; alignment log present.
+
+- [ ] T007 Run a thin end‑to‑end analysis on a reduced set (2 models: Llama‑3, BLOOM; 2 languages: EN, FR).
+  - Compute rotation‑invariant subspace similarity (principal angles) in the aligned $V$‑space and produce a small similarity matrix.
+  - Paths: `code/pipeline/orchestrator.py`, `data/derived/similarity_matrix_thin.json`.
+  - Verification: Matrix contains non‑zero scores and conforms to `similarity_matrix.schema.yaml`.
+
+## Phase 2: Full data acquisition and processing
+
+- [ ] T008 Stream language‑filtered corpora and enforce token‑count guard (FR‑006, FR‑009, FR‑034).
+  - Use `datasets.load_dataset(..., streaming=True)` for RedPajama (EN) and the ten Common Crawl subsets; abort language if < 1 000 000 tokens, logging `DataInsufficiencyError`.
+  - Paths: `code/pipeline/frequency.py`, `data/derived/frequency_list_{lang}.json`, `data/derived/token_count_guard.json`.
+  - Verification: Guard JSON shows PASS/FAIL per language; frequency files conform to `frequency_list.schema.yaml`.
+
+- [ ] T009 Compute mean embedding projection with Tikhonov regularization when needed (FR‑005, FR‑037).
+  - Calculate $W_U^{+} \times f$; if condition number > 1e⁸, apply regularization λ = 1e‑5 and log a warning.
+  - Paths: `code/pipeline/projection.py`, `data/derived/mean_embedding_{lang}.json`.
+  - Verification: Embedding files include `condition_number` and `regularization_applied` fields.
+
+- [ ] T010 Generate uniform‑frequency baseline projection and compare shift vectors (FR‑029, SC‑010).
+  - Project a uniform token frequency vector through the same pipeline and compute statistical significance of differences from language‑specific shift vectors.
+  - Paths: `code/pipeline/baseline.py`, `data/derived/baseline_report.json`.
+  - Verification: Report includes $p$‑values < 0.05 for significant deviations.
+
+- [ ] T011 Rank tokens by logit weight within the edge spectrum and compute overlap ratios versus a geometric baseline of 10 000 random orthogonal bases (FR‑003, FR‑031).
+  - Produce token attribution files and overlap statistics.
+  - Paths: `code/pipeline/token_attribution.py`, `data/derived/token_attribution_{model}.json`.
+  - Verification: Attribution files conform to `token_attribution.schema.yaml`; overlap report includes deviation from baseline mean.
+
+- [ ] T012 Acquire and verify external WALS typological features and XTREME probing benchmark results (FR‑007).
+  - Download WALS CSV and XTREME results, compute SHA‑256 checksums, and store processed feature vectors.
+  - Paths: `code/pipeline/wals_xtreme.py`, `data/derived/wals_features.json`, `data/derived/xtreme_results.json`.
+  - Verification: Checksums recorded; JSON conforms to appropriate schemas.
+
+## Phase 3: Similarity, Δ‑similarity, and control analyses
+
+- [ ] T013 Compute full similarity matrix for all model‑language pairs (producing `similarity_matrix.json`).
+  - Use aligned $V$ bases from T006; store principal‑angle similarity scores.
+  - Paths: `code/pipeline/similarity.py`, `data/derived/similarity_matrix.json`.
+  - Verification: Matrix conforms to `similarity_matrix.schema.yaml`.
+
+- [ ] T014 Compute matched‑architecture control pair similarities (baseline for Δ‑similarity) (FR‑010).
+  - Pair models of the same architecture (e.g., Llama‑3 vs. another Llama variant) and compute similarity; store results.
+  - Paths: `code/pipeline/control_pairs.py`, `data/derived/control_similarity.json`.
+  - Verification: Control similarities recorded; used in Δ‑similarity calculation.
+
+- [ ] T024 Generate matched‑architecture control analysis (control_analysis.json) (FR‑010).
+  - Aggregate `control_similarity.json` to compute mean and variance of control pair similarities; output `control_analysis.json` for use in Δ‑similarity computation.
+  - Paths: `code/pipeline/control_analysis.py`, `data/derived/control_analysis.json`.
+  - Verification: Control analysis JSON includes mean similarity and confidence interval.
+
+- [ ] T015 Compute Δ‑similarity metric using the baseline from T024 (FR‑010).
+  - Δ = observed similarity − mean control similarity; store in `similarity_metric.json`.
+  - Paths: `code/pipeline/delta_similarity.py`, `data/derived/similarity_metric.json`.
+  - Verification: Metric conforms to `similarity_metric.schema.yaml`.
+
+## Phase 4: Statistical testing and validation
+
+- [ ] T016 Perform permutation test (≥ 10 000 iterations) with combined null distribution (within‑language, across‑model, model‑specific) and Bonferroni‑adjusted significance (FR‑004).
+  - Paths: `code/pipeline/permutation.py`, `data/derived/permutation_test.json`.
+  - Verification: Output conforms to `permutation_test.schema.yaml`.
+
+- [ ] T017 Compute Pearson correlations between Δ‑similarity / shift vectors and WALS typological features and XTREME performance drops (FR‑016).
+  - Paths: `code/pipeline/correlation.py`, `data/derived/validation.json`.
+  - Verification: Validation file conforms to `validation.schema.yaml`.
+
+- [ ] T018 Conduct ablation analysis with a randomized token mask (FR‑032).
+  - Paths: `code/pipeline/ablation_random_mask.py`, `data/derived/ablation_random_mask.json`.
+  - Verification: Ablation results show loss of correlation (p > 0.05).
+
+- [ ] T019 Conduct sensitivity analysis **without** the language‑specific token mask (FR‑042).
+  - Paths: `code/pipeline/sensitivity_no_mask.py`, `data/derived/sensitivity_analysis.json`.
+  - Verification: Sensitivity report compares metrics to masked run.
+
+## Phase 5: Uncertainty, feasibility, and reproducibility
+
+- [ ] T020 Generate bootstrap confidence intervals (≥ 1 000 replicates) for all similarity measurements (FR‑015).
+  - Paths: `code/pipeline/bootstrap.py`, `data/derived/bootstrap_test.json`.
+  - Verification: Bootstrap files conform to `bootstrap_test.schema.yaml`.
+
+- [ ] T021 Perform power analysis to assess ability to detect Pearson $r$ = 0.5 with 80 % power (FR‑035) and record in feasibility report.
+  - Paths: `code/pipeline/power_analysis.py`, `data/derived/feasibility_report.json`.
+  - Verification: Report conforms to `feasibility_report.schema.yaml`.
+
+- [ ] T022 Implement reproducibility audit and final handoff (previous T008).
+  - Re‑run pipeline from raw inputs, compare artifact hashes, and emit `reproducibility_audit.json`.
+  - Paths: `code/pipeline/orchestrator.py`, `data/derived/reproducibility_audit.json`.
+  - Verification: Audit JSON shows `passed: true` and matches stored hashes.
+
+- [ ] T023 Validate uniform‑frequency baseline significance (SC‑010).
+  - Compare language‑specific shift vectors against the uniform‑frequency baseline using statistical tests (e.g., two‑sample t‑test); report $p$‑values and flag significant deviations.
+  - Paths: `code/pipeline/baseline_significance.py`, `data/derived/baseline_significance.json`.
+  - Verification: Report includes $p$ < 0.05 for significant deviations.

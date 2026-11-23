@@ -1,0 +1,7 @@
+T001:
+  c: true
+  h: 251d0c16939be1c39eb6c8d4aa609ce1b5fb3c578452b8d468baa31393d3a280
+  r: "Checked `requirements.txt` (pinned versions for all listed packages), `docs/quickstart.md`\
+    \ (contains a \u201CRun\u2011the\u2011pipeline\u201D command), and `results/setup_verification.json`\
+    \ which confirms a fresh environment installed the requirements without errors."
+  sig: b201785ff8cd205168508350f237f7e8d1bfc27fe874c6bff9be7dac19a92c42

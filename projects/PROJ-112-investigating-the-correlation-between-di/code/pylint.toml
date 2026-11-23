@@ -1,0 +1,7 @@
+[tool.pylint."MESSAGES CONTROL"]
+max-line-length = 88
+disable = [
+  "C0301", # line too long
+  "R0903", # too few public methods
+  "W1514", # using open instead of pathlib
+]

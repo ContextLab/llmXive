@@ -1,0 +1,587 @@
+{
+  "fetched_at": "2026-09-02T21:20:48Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents\"",
+      "target_n": 5
+    },
+    "duration_seconds": 58.558,
+    "ended_at": "2026-09-02T21:20:48Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "terminal-based autonomous agents"
+        ],
+        [
+          2,
+          "command-line interface agents"
+        ],
+        [
+          3,
+          "shell automation with large language models"
+        ],
+        [
+          4,
+          "interactive CLI agent benchmarks"
+        ],
+        [
+          5,
+          "natural language to shell command generation"
+        ],
+        [
+          6,
+          "LLM-driven terminal task execution"
+        ],
+        [
+          7,
+          "evaluation of AI agents in Linux environments"
+        ],
+        [
+          8,
+          "text-based agent interaction benchmarks"
+        ],
+        [
+          9,
+          "autonomous system administration with LLMs"
+        ],
+        [
+          10,
+          "general-purpose terminal agent evaluation"
+        ],
+        [
+          11,
+          "command-line agent reasoning"
+        ],
+        [
+          12,
+          "LLM performance on shell scripting tasks"
+        ],
+        [
+          13,
+          "agent-based terminal workflow automation"
+        ],
+        [
+          14,
+          "benchmarking AI for operating system control"
+        ],
+        [
+          15,
+          "natural language interface to terminal emulators"
+        ],
+        [
+          16,
+          "multi-step terminal task planning"
+        ],
+        [
+          17,
+          "LLM error recovery in shell environments"
+        ],
+        [
+          18,
+          "human-in-the-loop terminal agent evaluation"
+        ],
+        [
+          19,
+          "autonomous code execution in CLI"
+        ],
+        [
+          20,
+          "text-based UI agent benchmarks"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "command-line interface agents": 2,
+        "llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents\" computer science": 0,
+        "terminal-based autonomous agents": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "terminal agent memorization data contamination",
+      "CLI environment benchmark RLHF evaluation",
+      "shell command execution API interaction",
+      "task completion rate terminal agent performance",
+      "tool use reasoning large language model"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2510.06607"
+      ]
+    },
+    "per_query_hit_count": {
+      "CLI environment benchmark RLHF evaluation": 3,
+      "llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents\" computer science": 3,
+      "shell command execution API interaction": 3,
+      "task completion rate terminal agent performance": 3,
+      "terminal agent memorization data contamination": 3,
+      "tool use reasoning large language model": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2602.04518",
+          "rationale": "The paper focuses on learning ethical value systems and moral alignment in autonomous agents using inverse reinforcement learning, which is a distinct construct from the user's question about benchmarking terminal-use agents (TUA-Bench) for general-purpose command-line interaction. While both involve \"agents,\" the paper does not measure the same mechanism, variables, or empirical population (terminal usage) as the user's specific benchmarking question, and it falls under the \"distinct construct\"",
+          "title": "Learning the Value Systems of Agents with Preference-based and Inverse Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2603.17419",
+          "rationale": "The paper focuses on security architectures and threat models for autonomous AI agents in healthcare, which is a distinct construct from the user's question regarding a benchmark for terminal-use agents (TUA-Bench). While both involve AI agents, the candidate paper does not measure the same mechanism, variables, or empirical population related to benchmarking general-purpose terminal interactions, nor does it serve as a foundational reference for the specific benchmarking methodology the user is",
+          "title": "Caging the Agents: A Zero Trust Security Architecture for Autonomous AI in Healthcare"
+        },
+        {
+          "primary_pointer": "2504.00727",
+          "rationale": "The paper focuses on the influence of personality traits (OCEAN model) on LLM agent decision-making and planning, which is a distinct construct from the user's question regarding terminal-use agents and the TUA-Bench benchmark. It does not measure terminal interaction mechanisms, command-line environments, or the specific evaluation framework of TUA-Bench, failing to satisfy any of the inclusion criteria (a-f) for a literature review on this specific topic.",
+          "title": "Personality-Driven Decision-Making in LLM-Based Autonomous Agents"
+        },
+        {
+          "primary_pointer": "2002.08363",
+          "rationale": "The paper focuses on generating web-based graphical user interfaces (GUIs) for command-line tools to improve accessibility for non-technical users, which is a distinct construct from the user's question regarding \"terminal-use agents\" (autonomous AI agents that interact with the terminal via text/commands). While both involve command-line interfaces, the mechanism (GUI generation vs. autonomous agent benchmarking) and the domain application (bioinformatics software adoption vs. general-purpose A",
+          "title": "Pline: automatic generation of modern web interfaces for command-line programs"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-02T21:19:49Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"tua-bench: a benchmark for general-purpose terminal-use agents\" computer science",
+      "raw": "llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper studies the alignment process of generative models with Reinforcement Learning from Human Feedback (RLHF). We first identify the primary challenges of existing popular methods like offline PPO and offline DPO as lacking in strategical exploration of the environment. Then, to understand the mathematical principle of RLHF, we consider a standard mathematical formulation, the reverse-KL regularized contextual bandit for RLHF. Despite its widespread practical application, a rigorous theoretical analysis of this formulation remains open. We investigate its behavior in three distinct settings -- offline, online, and hybrid -- and propose efficient algorithms with finite-sample theoretical guarantees.\n  Moving towards practical applications, our framework, with a robust approximation of the information-theoretical policy improvement oracle, naturally gives rise to several novel RLHF algorithms. This includes an iterative version of the Direct Preference Optimization (DPO) algorithm for online settings, and a multi-step rejection sampling strategy for offline scenarios. Our empirical evaluations on real-world alignment experiment of large language model demonstrate that these proposed methods significantly surpass existing strong baselines, such as DPO and Rejection Sampling Optimization (RSO), showcasing the connections between solid theoretical foundations and their potent practical implementations.",
+          "claimed_authors": [
+            "Wei Xiong",
+            "Hanze Dong",
+            "Chenlu Ye",
+            "Ziqi Wang",
+            "Han Zhong",
+            "Heng Ji",
+            "Nan Jiang",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Iterative Preference Learning from Human Feedback: Bridging Theory and Practice for RLHF under KL-Constraint",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11456"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='Iterative Preference Learning from Human Feedback: Bridging Theory and Practice for RLHF under KL-Constraint')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Malicious shell commands are linchpins to many cyber-attacks, but may not be easy to understand by security analysts due to complicated and often disguised code structures. Advances in large language models (LLMs) have unlocked the possibility of generating understandable explanations for shell commands. However, existing general-purpose LLMs suffer from a lack of expert knowledge and a tendency to hallucinate in the task of shell command explanation. In this paper, we present Raconteur, a knowledgeable, expressive and portable shell command explainer powered by LLM. Raconteur is infused with professional knowledge to provide comprehensive explanations on shell commands, including not only what the command does (i.e., behavior) but also why the command does it (i.e., purpose). To shed light on the high-level intent of the command, we also translate the natural-language-based explanation into standard technique & tactic defined by MITRE ATT&CK, the worldwide knowledge base of cybersecurity. To enable Raconteur to explain unseen private commands, we further develop a documentation retriever to obtain relevant information from complementary documentations to assist the explanation process. We have created a large-scale dataset for training and conducted extensive experiments to evaluate the capability of Raconteur in shell command explanation. The experiments verify that Raconteur is able to provide high-quality explanations and in-depth insight of the intent of the command.",
+          "claimed_authors": [
+            "Jiangyi Deng",
+            "Xinfeng Li",
+            "Yanjiao Chen",
+            "Yijie Bai",
+            "Haiqin Weng",
+            "Yan Liu",
+            "Tao Wei",
+            "Wenyuan Xu"
+          ],
+          "claimed_title": "RACONTEUR: A Knowledgeable, Insightful, and Portable LLM-Powered Shell Command Explainer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.02074"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='RACONTEUR: A Knowledgeable, Insightful, and Portable LLM-Powered Shell Command Explainer')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Speculative execution attacks leverage the speculative and out-of-order execution features in modern computer processors to access secret data or execute code that should not be executed. Secret information can then be leaked through a covert channel. While software patches can be installed for mitigation on existing hardware, these solutions can incur big performance overhead. Hardware mitigation is being studied extensively by the computer architecture community. It has the benefit of preserving software compatibility and the potential for much smaller performance overhead than software solutions.\n  This paper presents a systematization of the hardware defenses against speculative execution attacks that have been proposed. We show that speculative execution attacks consist of 6 critical attack steps. We propose defense strategies, each of which prevents a critical attack step from happening, thus preventing the attack from succeeding. We then summarize 20 hardware defenses and overhead-reducing features that have been proposed. We show that each defense proposed can be classified under one of our defense strategies, which also explains why it can thwart the attack from succeeding. We discuss the scope of the defenses, their performance overhead, and the security-performance trade-offs that can be made.",
+          "claimed_authors": [
+            "Guangyuan Hu",
+            "Zecheng He",
+            "Ruby Lee"
+          ],
+          "claimed_title": "SoK: Hardware Defenses Against Speculative Execution Attacks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.03724"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='SoK: Hardware Defenses Against Speculative Execution Attacks')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Model (LLM) agents are increasingly used for coding and terminal automation, making shell-command dispatch a high-stakes runtime control point. We study command-level pre-execution mediation for individual shell commands produced by LLM agents under bounded path context. Existing safeguards remain limited: generic guardrails do not model shell structure in sufficient detail, always-on LLM judges are relatively costly and variable, and shell parsers do not directly prevent harmful execution. We present CARE (Canonicalization, Attribution, and Resolution Engine), a shell-specific, static-first verifier for individual shell commands before execution. CARE canonicalizes generated commands into stable verification targets, derives deterministic evidence over syntax, command semantics, path context, and provenance-backed risk patterns, and escalates only underdetermined cases to an LLM judge. This design keeps the common case fast, reproducible, and auditable while reserving neural adjudication for borderline commands. On the balanced main split, CARE reaches 85.64% F1 with a 0.91% false-positive rate at 2.32 ms mean latency. When deployed in its static enforcement profile, CARE retains 84.99% F1 at 0.34 ms and reduces realised harm on RedCode-gen to 37.33%. Across external-generalization tests and controlled Docker-sandbox execution, these profiles expose a practical trade-off between benign recovery, false-positive burden, latency, and harm reduction. Overall, command-level shell mediation can reduce dispatch-boundary risk for LLM agents while preserving most benign workflows.",
+          "claimed_authors": [
+            "Yu Liu",
+            "Wenxiao Zhang",
+            "Zhiwei Yang",
+            "Zhongyi Zhang",
+            "Hanqi Feng",
+            "Xinyu Wang",
+            "Peng Qiu",
+            "Yanbing Liu",
+            "Barnabas Poczos",
+            "Jin B. Hong"
+          ],
+          "claimed_title": "CARE: Pre-Execution Command Verification for Shell-Executing LLM Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.21642"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='CARE: Pre-Execution Command Verification for Shell-Executing LLM Agents')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The complexity of multimedia applications in terms of intensity of computation and heterogeneity of treated data led the designers to embark them on multiprocessor systems on chip. The complexity of these systems on one hand and the expectations of the consumers on the other hand complicate the designers job to conceive and supply strong and successful systems in the shortest deadlines. They have to explore the different solutions of the design space and estimate their performances in order to deduce the solution that respects their design constraints. In this context, we propose the modeling of one of the design space possible solutions: the software to hardware task migration. This modeling exploits the synchronous dataflow graphs to take into account the different migration impacts and estimate their performances in terms of throughput.",
+          "claimed_authors": [
+            "Dorsaf Sebai",
+            "Abderrazak Jemai",
+            "Imed Bennour"
+          ],
+          "claimed_title": "Performance Analysis of Software to Hardware Task Migration in Codesign",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1154"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='Performance Analysis of Software to Hardware Task Migration in Codesign')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Training terminal agents requires scalable executable supervision, yet synthesizing high-quality terminal tasks remains challenging. Each task couples an instruction, an initialized environment, a reference solution, and an executable verifier; if these artifacts are generated from inconsistent assumptions, the resulting task may be unsolvable or incorrectly evaluated. Meanwhile, multi-stage synthesis can discard the goals, dependencies, state transitions, and procedural constraints encoded in the original sources. We present FACET (Fine-grained Agentic Construction of Executable Tasks), a framework that addresses both information preservation and cross-artifact consistency. FACET reconstructs related agent skills into coherent, information-rich scenarios, then realizes and repairs the execution environment before generating the final task artifacts. The resulting container state serves as shared grounding for the instruction, solution, and verifier, while execution-based validation and targeted repair correct artifact-specific failures without unnecessarily regenerating valid components. FACET produces complex terminal tasks with dense executable checks, and successful trajectories collected from these tasks provide effective, data-efficient supervision. Fine-tuning models across multiple scales consistently improves performance on Terminal-Bench 2.1, while analyses of alternative generation schemes support the importance of environment-grounded construction for task validity and solution-verifier alignment. These results establish source-intent preservation and shared executable-state grounding as key principles for scalable terminal-task synthesis.",
+          "claimed_authors": [
+            "Kou Shi",
+            "Zun Wang",
+            "Qisheng Su",
+            "Shiting Huang",
+            "Ziao Zhang",
+            "Zhen Fang",
+            "Qingnan Ren",
+            "Jin Liu",
+            "Yu Zeng",
+            "Yiming Zhao",
+            "Lin Chen",
+            "Zehui Chen",
+            "Feng Zhao"
+          ],
+          "claimed_title": "FACET: Preserving Source Intent and Executable State in Terminal Task Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.18580"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='FACET: Preserving Source Intent and Executable State in Terminal Task Synthesis')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent evaluations of Large Language Models (LLMs) have centered around testing their zero-shot/few-shot capabilities for basic natural language tasks and their ability to translate instructions into tool APIs. However, the evaluation of LLMs utilizing complex tools to finish multi-turn, multi-modal instructions in a complex multi-modal environment has not been investigated. To address this gap, we introduce the PowerPoint Task Completion (PPTC) benchmark to assess LLMs' ability to create and edit PPT files based on user instructions. It contains 279 multi-turn sessions covering diverse topics and hundreds of instructions involving multi-modal operations. We also propose the PPTX-Match Evaluation System that evaluates if LLMs finish the instruction based on the prediction file rather than the label API sequence, thus it supports various LLM-generated API sequences. We measure 3 closed LLMs and 6 open-source LLMs. The results show that GPT-4 outperforms other LLMs with 75.1\\% accuracy in single-turn dialogue testing but faces challenges in completing entire sessions, achieving just 6\\% session accuracy. We find three main error causes in our benchmark: error accumulation in the multi-turn session, long PPT template processing, and multi-modality perception. These pose great challenges for future LLM and agent systems. We release the data, code, and evaluation system of PPTC at \\url{https://github.com/gydpku/PPTC}.",
+          "claimed_authors": [
+            "Yiduo Guo",
+            "Zekai Zhang",
+            "Yaobo Liang",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.01767"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='PPTC Benchmark: Evaluating Large Language Models for PowerPoint Task Completion')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The tool-use Large Language Models (LLMs) that integrate with external Python interpreters have significantly enhanced mathematical reasoning capabilities for open-source LLMs, while tool-free methods chose another track: augmenting math reasoning data. However, a great method to integrate the above two research paths and combine their advantages remains to be explored. In this work, we firstly include new math questions via multi-perspective data augmenting methods and then synthesize code-nested solutions to them. The open LLMs (i.e., Llama-2) are finetuned on the augmented dataset to get the resulting models, MuMath-Code ($μ$-Math-Code). During the inference phase, our MuMath-Code generates code and interacts with the external python interpreter to get the execution results. Therefore, MuMath-Code leverages the advantages of both the external tool and data augmentation. To fully leverage the advantages of our augmented data, we propose a two-stage training strategy: In Stage-1, we finetune Llama-2 on pure CoT data to get an intermediate model, which then is trained on the code-nested data in Stage-2 to get the resulting MuMath-Code. Our MuMath-Code-7B achieves 83.8 on GSM8K and 52.4 on MATH, while MuMath-Code-70B model achieves new state-of-the-art performance among open methods -- achieving 90.7% on GSM8K and 55.1% on MATH. Extensive experiments validate the combination of tool use and data augmentation, as well as our two-stage training strategy. We release the proposed dataset along with the associated code for public use.",
+          "claimed_authors": [
+            "Shuo Yin",
+            "Weihao You",
+            "Zhilong Ji",
+            "Guoqiang Zhong",
+            "Jinfeng Bai"
+          ],
+          "claimed_title": "MuMath-Code: Combining Tool-Use Large Language Models with Multi-perspective Data Augmentation for Mathematical Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.07551"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='MuMath-Code: Combining Tool-Use Large Language Models with Multi-perspective Data Augmentation for Mathematical Reasoning')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reasoning is a cognitive process of using evidence to reach a sound conclusion. The reasoning capability is essential for large language models (LLMs) to serve as the brain of the artificial general intelligence agent. Recent studies reveal that fine-tuning LLMs on data with the chain of thought (COT) reasoning process can significantly enhance their reasoning capabilities. However, we find that the fine-tuned LLMs suffer from an \\textit{Assessment Misalignment} problem, i.e., they frequently assign higher scores to subpar COTs, leading to potential limitations in their reasoning abilities. To address this problem, we introduce an \\textit{Alignment Fine-Tuning (AFT)} paradigm, which involves three steps: 1) fine-tuning LLMs with COT training data; 2) generating multiple COT responses for each question, and categorizing them into positive and negative ones based on whether they achieve the correct answer; 3) calibrating the scores of positive and negative responses given by LLMs with a novel constraint alignment loss. Specifically, the constraint alignment loss has two objectives: a) Alignment, which guarantees that positive scores surpass negative scores to encourage answers with high-quality COTs; b) Constraint, which keeps the negative scores confined to a reasonable range to prevent the model degradation. Beyond just the binary positive and negative feedback, the constraint alignment loss can be seamlessly adapted to the ranking situations when ranking feedback is accessible. Furthermore, we also delve deeply into recent ranking-based alignment methods, such as DPO, RRHF, and PRO, and discover that the constraint, which has been overlooked by these approaches, is also crucial for their performance. Extensive experiments on four reasoning benchmarks with both binary and ranking feedback demonstrate the effectiveness of AFT.",
+          "claimed_authors": [
+            "Peiyi Wang",
+            "Lei Li",
+            "Liang Chen",
+            "Feifan Song",
+            "Binghuai Lin",
+            "Yunbo Cao",
+            "Tianyu Liu",
+            "Zhifang Sui"
+          ],
+          "claimed_title": "Making Large Language Models Better Reasoners with Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.02144"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='Making Large Language Models Better Reasoners with Alignment')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning (RL) has become a key technique for enhancing the reasoning abilities of large language models (LLMs), with policy-gradient algorithms dominating the post-training stage because of their efficiency and effectiveness. However, most existing benchmarks evaluate large-language-model reasoning under idealized settings, overlooking performance in realistic, non-ideal scenarios. We identify three representative non-ideal scenarios with practical relevance: summary inference, fine-grained noise suppression, and contextual filtering. We introduce a new research direction guided by brain-science findings that human reasoning remains reliable under imperfect inputs. We formally define and evaluate these challenging scenarios. We fine-tune three LLMs and a state-of-the-art large vision-language model (LVLM) using RL with a representative policy-gradient algorithm and then test their performance on eight public datasets. Our results reveal that while RL fine-tuning improves baseline reasoning under idealized settings, performance declines significantly across all three non-ideal scenarios, exposing critical limitations in advanced reasoning capabilities. Although we propose a scenario-specific remediation method, our results suggest current methods leave these reasoning deficits largely unresolved. This work highlights that the reasoning abilities of large models are often overstated and underscores the importance of evaluating models under non-ideal scenarios. The code and data will be released at XXXX.",
+          "claimed_authors": [
+            "Chang Tian",
+            "Matthew B. Blaschko",
+            "Mingzhe Xing",
+            "Xiuxing Li",
+            "Yinliang Yue",
+            "Marie-Francine Moens"
+          ],
+          "claimed_title": "Large Language Models Reasoning Abilities Under Non-Ideal Conditions After RL-Fine-Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.04848"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"TUA-Bench: A Benchmark for General-Purpose Termina', candidate_title='Large Language Models Reasoning Abilities Under Non-Ideal Conditions After RL-Fine-Tuning')",
+        "failed_at": "2026-09-02T21:20:19Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ruida Hu",
+            "Xinchen Wang",
+            "Chao Peng",
+            "Cuiyun Gao",
+            "David Lo"
+          ],
+          "title": "Evaluating LLM-Based 0-to-1 Software Generation in End-to-End CLI Tool Scenarios",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.06742",
+        "summary": "The evolution of Large Language Models (LLMs) has catalyzed a paradigm shift towards intent-driven software development, where autonomous agents are expected to design and deliver complete, runnable software systems from scratch. However, existing benchmarks fail to adequately assess this 0-to-1 generation capability due to two fundamental limitations. First, they rely on predefined structural scaffolds, which reduces the task to mere file-filling. Second, they depend on rigid white-box unit testing, which forces generated code to conform to specific internal implementations rather than validating end-to-end user-centric behavior.\n  To bridge this gap, we introduce CLI-Tool-Bench, a novel, structure-agnostic benchmark designed to evaluate the ground-up generation of Command-Line Interface (CLI) tools. Powered by an automated black-box differential testing framework, the benchmark comprises 94 high-quality, real-world repositories spanning diverse programming languages and complexity levels. For each task, agents are provided with an empty workspace, forcing them to autonomously handle repository planning and dependencies. We evaluate the generated software by executing it in isolated sandboxes. The system-level side effects and terminal outputs are then compared against human-written oracles using a rigorous multi-tiered equivalence metric.\n  Extensive evaluation of seven state-of-the-art LLMs reveals that the top-tier models achieve a maximum overall success rate of only 43.8%, highlighting that 0-to-1 software generation remains a highly challenging frontier. Furthermore, we discover that agents exhibit a strong tendency to generate monolithic code structures, and that higher token consumption does not necessarily yield better task performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.06742",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-02T21:20:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Weidi Luo",
+            "Qiming Zhang",
+            "Tianyu Lu",
+            "Xiaogeng Liu",
+            "Bin Hu",
+            "Hung-Chun Chiu",
+            "Siyuan Ma",
+            "Yizhe Zhang",
+            "Xusheng Xiao",
+            "Yinzhi Cao",
+            "Zhen Xiang",
+            "Chaowei Xiao"
+          ],
+          "title": "Your Harness is Not Secure: Benchmarking Real-world Threat of Command Line Interface Agent",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.06607",
+        "summary": "Command-line interface (CLI) agents powered by large language models (LLMs) can interpret natural-language requests, plan multi-step tasks, execute shell commands, and modify files and system state. As these agents are increasingly used for operating-system (OS) workflows, it is important to evaluate whether they can be misused to carry out security-relevant operations. Existing benchmarks often lack an attacker-knowledge model grounded in tactics, techniques, and procedures (TTPs), provide limited coverage of end-to-end kill chains, rely on simplified single-host environments, or use LLM-as-a-judge for success evaluation. We introduce AdvCLI, an MITRE ATT&CK-aligned benchmark for evaluating OS-level misuse risks of CLI agents in a controlled multi-host sandbox. AdvCLI contains 140 tasks: 40 direct malicious requests, 74 TTP-based tasks, and 26 end-to-end kill chains. Each task is paired with deterministic hard-coded verification protocols that check whether the requested OS-level effect is realized. We evaluate seven CLI agents and products built on nine foundation models, including ReAct, OpenClaw, OpenAI Agent SDK, Claude Code, Gemini CLI, Cursor CLI, and Cursor IDE. Results show that current CLI agents frequently proceed beyond refusal and can complete a non-negligible fraction of malicious OS-level tasks, especially when requests include TTP-style attacker knowledge. AdvCLI provides a reproducible testbed for evaluating these risks and for developing stronger safety mechanisms for tool-using CLI agents in the future.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.06607",
+          "http_status": 200,
+          "pdf_sample_score": 0.2803,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-02T21:20:28Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"tua-bench: a benchmark for general-purpose terminal-use agents\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

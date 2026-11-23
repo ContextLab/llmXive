@@ -1,0 +1,59 @@
+T000:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or its contents were supplied, so we cannot confirm that\
+    \ the required sentences (\u201CSynthetic Microstructure Generator\u201D and \u201C\
+    pipeline methodology\u201D) were added to Section\u202F1. The verification command\
+    \ cannot be run, indicating the artifact is missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `black` settings,\
+    \ or pre\u2011commit hooks) or any other evidence of ruff/black being set up are\
+    \ present. The required artifacts to demonstrate that linting and formatting tools\
+    \ are configured are missing."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research.md` file was presented in `projects/PROJ-266-machine-learning-prediction-of-fracture-/`,
+    nor any excerpt showing its contents. Consequently we cannot confirm that the
+    file exists or that it contains the required `## Introduction` and `## Methodology`
+    headings. The implementer must provide the actual `research.md` artifact with
+    those sections.
+T009a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or Section\u202F3.2 with the deterministic K_IC generation\
+    \ logic and parameter definitions was provided; the only evidence is the project\
+    \ description, which does not contain the required methodology text. The task\
+    \ remains undone."
+T014:
+  c: false
+  h: 4e26d6f9c9c46d48e9596fee7d8256cbc839fcf6dadacaa54e751671cb8526b5
+  r: The required output file `data/processed/split_metadata.csv` does not exist,
+    and the provided `code/data/preprocess.py` (as shown) contains no implementation
+    of stratified splitting or saving of such metadata. Consequently the verification
+    command would fail.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, script output, or error messages were provided to demonstrate\
+    \ that running the preprocessing on a dataset containing only \u201Csteel\u201D\
+    \ exits with code\u202F1 and prints the required error text. The required artifact\
+    \ (proof of the validation behavior) is missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `logs/preprocess.log` file or logging configuration/code was provided, and\
+    \ there is no evidence (e.g., grep output) showing lines containing \u201CPREPROCESS\u201D\
+    . The required artifact \u2013 a log file populated with entries formatted as\
+    \ `%(asctime)s - PREPROCESS - %(message)s` after running the preprocessing script\
+    \ \u2013 is missing."
+T021b:
+  c: false
+  h: bd7c2db25fa0560aaa8335f13ea2afe7366235f2685d96ab6d5a5dd5f094f877
+  r: The required input file `data/features.json` does not exist, so the script cannot
+    be executed as specified, and the verification command will fail (raising a FileNotFoundError).
+    Without this file the training loop cannot run nor create `models/baselines/linear`.
+    The missing features JSON must be provided (or generated) for the task to be considered
+    complete.

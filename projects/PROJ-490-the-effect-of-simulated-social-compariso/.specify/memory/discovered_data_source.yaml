@@ -1,0 +1,13 @@
+status: none
+intent: Rosenberg Self-Esteem Scale INCOM longitudinal VR exposure dataset Open Science
+  Framework ICPSR python package dataset
+required_fields:
+- participant_id
+- pre_RSES
+- post_RSES
+- INCOM_score
+- condition_VR_exposure
+- timepoint
+cache_key: 33b803338ccff108806e0b53650bea43b9913e824e89476b8b07d1b2ce0a764e
+searched_at: '2026-10-09T15:26:56.344595+00:00'
+retry_count: 1

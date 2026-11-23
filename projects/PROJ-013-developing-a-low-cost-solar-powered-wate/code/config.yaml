@@ -1,0 +1,24 @@
+# Project Configuration
+# This file defines default parameters for the simulation and data paths.
+# Values can be overridden by environment variables or .env file.
+
+simulation:
+  default_days: 365
+  time_step_hours: 1
+  default_latitude: 0.0
+  default_longitude: 0.0
+  target_region: "Sub-Saharan Africa"
+  
+api_keys:
+  # API keys can be set here, but .env or ENV vars take precedence
+  nasa_power: ""
+
+data_paths:
+  raw: "data/raw"
+  processed: "data/processed"
+  plots: "data/plots"
+  checksums: "data/raw"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

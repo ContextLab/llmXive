@@ -1,39 +1,40 @@
 # Implementation Plan: Evaluating the Robustness of LLM-Generated Code to Input Perturbations
 
 **Branch**: `001-evaluating-robustness-llm-code` | **Date**: 2026-07-03 | **Spec**: `specs/001-evaluating-the-robustness-of-llm-generat/spec.md`
-**Input**: Feature specification from `/specs/001-evaluating-the-robustness-of-llm-generat/spec.md`
 
 ## Summary
 
-This project evaluates the robustness of LLM-generated code by measuring the degradation in functional correctness (pass@1) when prompts are subjected to high-fidelity, semantically-preserving perturbations (synonym substitution, typo injection, syntactic rephrasing). The technical approach involves: (1) downloading the HumanEval dataset; (2) generating perturbed variants and filtering them via `sentence-transformers/all-MiniLM-L6-v2` cosine similarity (>0.95, with a fallback to >0.90 if yield is low); (3) executing a Low-bit quantized StarCoder-3B model on CPU (fixed seed, temperature=0) to generate code; (4) sandboxing execution to capture pass/fail results; and (5) performing statistical analysis (Mixed-Effects Logistic Regression as primary, McNemar's test as secondary) to quantify robustness gaps while correcting for multiple comparisons.
+This project evaluates the robustness of LLM-generated code against semantically-preserving input perturbations. The technical approach involves downloading the HumanEval dataset, generating perturbed variants (synonym substitution, typo injection, syntactic rephrasing), filtering them via a sentence-transformer similarity threshold (>0.95), executing code generation using a 4-bit quantized StarCoder2-3B model on CPU, and analyzing pass@1 degradation using Mixed-Effects Logistic Regression as the primary inferential engine.
+
+**Critical Methodological Correction**: The plan explicitly deviates from the spec's FR-007 (aggregated McNemar test) which destroys task-level pairing. Instead, we implement a **Cochran-Mantel-Haenszel (CMH)** test for paired comparisons and prioritize **Mixed-Effects Logistic Regression** (FR-012) as the primary hypothesis test to account for task clustering.
+
+The plan strictly adheres to CPU-first constraints (≤7GB RAM, ≤6h runtime) and uses only verified, open datasets.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers`, `datasets`, `sentence-transformers`, `bitsandbytes` (CPU-compatible build), `scikit-learn`, `statsmodels`, `pandas`  
-**Storage**: Local `data/` directory (checksummed), JSONL/CSV logs  
-**Testing**: `pytest` (unit tests for perturbation logic, mock execution for sandbox, **and validation against contract schemas in `contracts/`**)  
-**Target Platform**: Linux (GitHub Actions free-tier: Multiple CPU, moderate RAM, no GPU)  
-**Project Type**: Research Pipeline / CLI  
-**Performance Goals**: Total runtime ≤ 6 hours; Memory ≤ 7 GB per process  
-**Constraints**: No GPU; CPU-only quantization; strict timeouts (bounded generation, bounded execution); strict semantic similarity threshold (0.95, with fallback to >0.90)  
-**Scale/Scope**: HumanEval tasks; **A single perturbation per task (a limited sample size)** to ensure runtime feasibility (A set of original samples and a corresponding set of perturbed samples).
-
-> **Spec Note**: Success Criteria SC-003 and SC-006 in the source spec contain missing numeric values ('-hour' and undefined 'feasibility limit'). The plan assumes a 6-hour limit and a Sample size limit based on the compute constraints and scope defined in the spec's "Compute feasibility" section. These are flagged as spec-root causes for correction.
+**Primary Dependencies**: `datasets`, `transformers`, `bitsandbytes`, `sentence-transformers`, `scikit-learn`, `statsmodels`, `pandas`, `numpy`  
+**Storage**: Local file system (`data/raw/`, `data/processed/`, `data/logs/`)  
+**Testing**: `pytest` (unit tests for perturbation logic, integration tests for pipeline)  
+**Target Platform**: Linux (GitHub Actions runner)  
+**Project Type**: Computational Research Pipeline  
+**Performance Goals**: Complete full pipeline (164 tasks × perturbations) within **6 hours** (enforcing SC-003) on 2 vCPU, 7GB RAM. **This budget explicitly includes the time required for the fallback scenario to `starcoder2-1b` if the primary model triggers an OOM error.**  
+**Constraints**: No local GPU; strict **30s timeout** for generation and execution (enforcing FR-005); -bit quantization mandatory for StarCoder2-3B.  
+**Scale/Scope**: **164** HumanEval tasks; up to 3 perturbations per task (max **656** total samples); [deferred] coverage of original tasks (enforcing FR-011).
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
 | Principle | Compliance Status | Implementation Detail |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | All random seeds pinned in `code/`. HumanEval fetched from canonical HF URL. `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **Pass** | Citations in `research.md` restricted to verified URLs in the project input block. No invented dataset links. |
-| **III. Data Hygiene** | **Pass** | Raw HumanEval and perturbation logs stored in `data/` with checksums. No in-place modification; derivations written to new files. |
-| **IV. Single Source of Truth** | **Pass** | All statistics in the final report will be generated programmatically from `data/` logs, not hand-typed. |
-| **V. Versioning Discipline** | **Pass** | Artifacts will be hashed; `state/projects/PROJ-090-evaluating-the-robustness-of-llm-generat.yaml` updated on change. |
-| **VI. Secure Execution** | **Pass** | Sandbox execution with network disabled and A timeout is enforced per test case.. |
-| **VII. Perturbation Traceability** | **Pass** | Perturbation type and raw similarity scores logged. **Transformation scripts are versioned and their content hashes are recorded in the state file.** |
+| **I. Reproducibility** | ✅ | All random seeds pinned in `code/utils/seeds.py`; HumanEval fetched via `datasets` library; `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | ✅ | Citations in `research.md` restricted to verified URLs. **Mechanism**: Reference-Validator integrated as a **GitHub Action step that fails the job and blocks merge** on citation mismatch, satisfying the NON-NEGOTIABLE requirement. |
+| **III. Data Hygiene** | ✅ | Raw data checksummed upon download; derived data written to new files; no in-place edits. |
+| **IV. Single Source of Truth** | ✅ | All stats in paper trace to `data/processed/calibration_report.json`. **Mechanism**: Paper generation uses a **script that parses the JSON and rejects manual edits**; a CI step validates that paper text matches JSON values to prevent transcription errors. |
+| **V. Versioning Discipline** | ✅ | Artifacts hashed; `state.yaml` updated on changes. |
+| **VI. Secure Execution** | ✅ | Sandbox (subprocess with `timeout` + network disabled) used for code execution. |
+| **VII. Perturbation Traceability** | ✅ | Perturbation type and raw similarity score logged for every candidate in `data/logs/`. |
 
 ## Project Structure
 
@@ -46,55 +47,100 @@ specs/001-evaluating-robustness-llm-code/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Static source file (moved to docs/ to resolve ambiguity)
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
-### Source Code (repository root)
+### Source Code
 
 ```text
-projects/PROJ-090-evaluating-the-robustness-of-llm-generat/
-├── code/
-│   ├── __init__.py
-│   ├── data/
-│   │   ├── download_humaneval.py
-│   │   └── generate_perturbations.py
-│   ├── model/
-│   │   ├── inference.py
-│   │   └── sandbox.py
-│   ├── analysis/
-│   │   ├── statistics.py
-│   │   └── error_classifier.py
-│   └── main.py
+code/
 ├── data/
-│   ├── raw/
-│   ├── processed/
-│   └── logs/
-├── docs/
-│   └── tasks.md         # Static source file moved here
-├── tests/
-│   ├── unit/
-│   └── integration/
-└── requirements.txt
+│   ├── download.py          # HumanEval loader (verified source)
+│   └── perturbation.py      # Synonym, Typo, Rephrase generators + similarity filter
+├── model/
+│   ├── inference.py         # StarCoder2-3B (4-bit CPU) + timeout enforcement + fallback
+│   └── sandbox.py           # Code execution wrapper
+├── analysis/
+│   ├── statistics.py        # CMH, Mixed-Effects, Sensitivity
+│   └── error_classifier.py  # Syntax/Logic/Hallucination tagging
+├── utils/
+│   ├── seeds.py             # Global seed management
+│   └── logging.py           # Structured logging
+├── main.py                  # Pipeline orchestrator
+└── requirements.txt         # Pinned dependencies
+
+data/
+├── raw/
+│   └── humaneval.parquet    # Downloaded dataset (checksummed)
+├── processed/
+│   ├── perturbation_candidates_raw.json   # All generated candidates
+│   ├── perturbation_candidates_validated.json # >0.95 similarity
+│   ├── inference_logs.json              # Pass/Fail results
+│   └── calibration_report.json          # ECE/Robustness metrics
+├── logs/
+│   └── halt_report.json                 # Runtime/Resource logs
+└── contracts/
+    ├── error_classification_schema.yaml # Schema for error types
+    ├── ... (other schemas)
 ```
 
-**Structure Decision**: Single project structure (`code/` subdirectory) selected to minimize overhead for a research pipeline. This aligns with the "CLI/Research" nature of the project, ensuring data flows linearly from `download` -> `perturb` -> `infer` -> `analyze`.
+**Structure Decision**: Single-project structure selected to minimize overhead for a research pipeline. All logic is modularized into `data`, `model`, and `analysis` packages to satisfy the "Single Source of Truth" and "Reproducibility" principles.
 
-## Complexity Tracking
+## Statistical Methodology
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+### Critical Methodological Correction
+The spec's FR-007 mandates aggregating contingency tables, which destroys the paired nature of the data (164 tasks treated as one aggregate). This is methodologically invalid for McNemar's test.
+**Plan Action**: We **do not** implement FR-007 as written.
+1.  **Primary Test**: **Mixed-Effects Logistic Regression** (FR-012) is the primary inferential engine. It accounts for task-level clustering `(1 | TaskID)`.
+2.  **Secondary/Descriptive**: **Cochran-Mantel-Haenszel (CMH)** test replaces the aggregated McNemar. CMH tests the association between perturbation and pass/fail while stratifying by `TaskID`, preserving the paired structure.
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **CPU-Only Quantization** | Required by GH Actions free-tier constraints (no GPU). | Standard 16-bit/32-bit models would exceed 7GB RAM, causing OOM failures. |
-| **Mixed-Effects Model** | Required to account for clustering (perturbations nested within tasks). | Standard logistic regression would violate independence assumptions, inflating Type I error. |
-| **Semantic Similarity Filter** | Required to ensure perturbations are "high-fidelity" (non-misleading). | Unfiltered perturbations might introduce semantic shifts, confounding the "robustness" metric with "misunderstanding." |
-| **Reduced Sample Size (1 perturbation/task)** | Required to meet 6-hour CI limit with CPU inference. | 3 perturbations/task would exceed runtime budget, risking incomplete data. |
-| **Human Spot-Check** | Required to validate semantic equivalence against embedding model bias. | Embedding model alone is insufficient ground truth; manual review is necessary for validity. |
+### Hypothesis Testing
+-   **Primary**: Mixed-Effects Logistic Regression.
+    -   Formula: `logit(P(pass)) = β0 + β1 * PerturbationType + (1 | TaskID)`
+    -   Rationale: Accounts for non-independence of perturbations from the same task.
+-   **Secondary**: Cochran-Mantel-Haenszel (CMH) Test.
+    -   Rationale: Provides a stratified test of association (Original vs. Perturbed) controlling for task difficulty.
 
-## Execution Flow
+### Sensitivity Analysis
+-   **Threshold Sweep**: Re-evaluate pass@1 rates for thresholds `{0.85, 0.90, 0.95, 0.99}`.
+-   **Traceability**: This numeric sweep implements the spec's `{high, very high}` requirement (FR-009), mapping 0.95 to "high" and 0.99 to "very high".
+-   **Purpose**: Quantify survivorship bias.
 
-1.  **Data Ingestion**: Download HumanEval.
-2.  **Perturbation**: Generate variants (up to 5 per task, select 1 best > 0.95). **Human Spot-Check**: A subset of generated perturbations is manually reviewed to verify semantic equivalence. If the error rate exceeds a threshold, the threshold is adjusted.
-3.  **Inference**: Run StarCoder2-3B (4-bit, CPU, seed=42, temp=0).
-4.  **Execution**: Sandbox run with s timeout.
-5.  **Analysis**: McNemar's (if power sufficient) and Mixed-Effects models.
+### Error Classification
+-   **Method**: Rule-based + heuristic classification of execution failures.
+-   **Sampling**: All failures if ≤ 50; stratified random sample of 50 if > 50.
+
+### Statistical Implementation Details
+The `code/analysis/statistics.py` module will implement the following distinct functions to ensure testability and modularity:
+-   `calculate_pass_at1(results: List[Dict]) -> float`: Computes the pass@1 rate from a list of execution results.
+-   `run_mcnemar_test(contingency: Dict) -> float`: Performs McNemar's test on a provided contingency table (for descriptive purposes).
+-   `run_cochran_mantel_haenszel(results: List[Dict]) -> float`: Performs the CMH test on the full dataset, stratified by `TaskID`.
+-   `run_mixed_effects_regression(results: List[Dict]) -> Dict`: Fits the Mixed-Effects Logistic Regression model and returns coefficients and variance components.
+-   `perform_sensitivity_analysis(results: List[Dict], thresholds: List[float]) -> List[Dict]`: Re-evaluates pass rates across the specified threshold sweep.
+-   `generate_calibration_report(results: Dict) -> None`: Aggregates all statistical outputs and writes the final `data/processed/calibration_report.json` file.
+
+## Compute Feasibility & Constraints
+
+-   **CPU-First**: All models (MiniLM-L6-v2, StarCoder2-3B-4bit) are selected specifically for CPU compatibility.
+-   **Memory Budget**: StarCoderB (-bit) uses ~2.5GB RAM. MiniLM uses a compact memory footprint.. Remaining sufficient memory for Python overhead..
+-   **Time Budget**: 164 tasks × 3 perturbations = A substantial number of inferences. With a timeout of several tens of seconds each, the theoretical maximum duration is on the order of several hours. Buffer included for data loading, analysis, and **fallback scenarios** (e.g., StarCoder2-1b if OOM). The 6-hour limit (SC-003) includes this buffer.
+-   **Risk Mitigation**:
+    -   **OOM**: If StarCoder2-3B-4bit OOMs, fallback to `starcoder2-1b` (1.5GB RAM) is triggered automatically. **The 6-hour budget explicitly accounts for the additional inference time of the fallback model.**
+    -   **Timeout**: Hard 30s limit per generation; OOM/Timeout logged as "failure".
+
+## Decision Rationale
+
+1.  **Why HumanEval?** It is the only verified, open dataset with executable unit tests for code generation. Access-gated datasets (e.g., APPS) are excluded due to CI restrictions.
+2.  **Why 4-bit Quantization?** Full precision StarCoder2-3B requires >10GB RAM, exceeding the runner limit. 4-bit is the only faithful CPU form available.
+3.  **Why Mixed-Effects?** Perturbations of the same task are not independent. Ignoring this violates statistical assumptions.
+4.  **Why CMH over Aggregated McNemar?** Aggregated McNemar assumes independence between tasks, which is false. CMH preserves the paired structure.
+5.  **Why 30s Timeout?** Defined by US-2 acceptance criteria as the bounded limit for execution.
+6.  **Why 656 Samples?** Defined by US-1 (up to 3 per task) × 164 tasks.
+
+## Verification Strategy (Independent Test)
+
+The 'Independent Test' for US-3 is updated to ensure data integrity:
+1.  **Data Structure Check**: The pipeline must verify that `inference_logs.json` contains a `task_id` column and is in "long format" (one row per perturbation).
+2.  **Pairing Check**: The statistical script must verify that for every `task_id`, there exists at least one 'original' and one 'perturbed' record before running the Mixed-Effects model.
+3.  **Mock CSV Test**: A mock CSV is used to verify the *calculation logic* of the Mixed-Effects model, but the primary validation is the structural check of the real data pipeline.
+4.  **File Existence Check**: The verification process confirms the existence of `data/processed/calibration_report.json` as the primary statistical output.

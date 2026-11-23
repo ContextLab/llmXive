@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: M4 Dataset Series Schema
+description: JSON Schema for a single M4 time series record including metadata and values.
+type: object
+required:
+  - id
+  - frequency
+  - seasonality
+  - values
+properties:
+  id:
+    type: string
+    description: Unique identifier for the time series (e.g., "M4_1001").
+  frequency:
+    type: string
+    description: The frequency category of the time series (e.g., "Yearly", "Quarterly", "Monthly", "Daily", "Hourly").
+    enum:
+      - Yearly
+      - Quarterly
+      - Monthly
+      - Daily
+      - Hourly
+  seasonality:
+    type: integer
+    description: The seasonality period of the time series. Must be an integer >= 1.
+    minimum: 1
+  values:
+    type: array
+    description: The time series data points.
+    items:
+      type: number
+      description: A single numeric value in the time series.
+    minItems: 1
+additionalProperties: false

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2307.15818",
+  "judged_at": "2026-09-11T10:56:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dual latent memory in vision-language-action models for robotic manipu\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it is a foundational work on Vision-Language-Action (VLA) models for robotic manipulation, directly addressing the core domain and mechanism (end-to-end VLA training for control) referenced in the user's follow-up question, even though it does not specifically study the \"Dual Latent Memory\" mechanism mentioned in the title of the prior work.",
+  "relevant": true
+}

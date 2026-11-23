@@ -1,0 +1,19 @@
+status: none
+intent: EvoPolicyGym python package dataset with dynamic-shift environment definitions
+  and transition parameters
+required_fields:
+- environment_id
+- base_environment_name
+- observation_space
+- action_space
+- reward_function_pre_shift
+- reward_function_post_shift
+- transition_matrix_pre_shift
+- transition_matrix_post_shift
+- shift_step
+- total_interaction_budget
+- shift_type
+- shift_configuration_details
+cache_key: 2db93f909e09742148559fa5f774e0b0572fa2bf165f09104e362126f9f30cc0
+searched_at: '2026-10-10T13:25:21.052735+00:00'
+retry_count: 1

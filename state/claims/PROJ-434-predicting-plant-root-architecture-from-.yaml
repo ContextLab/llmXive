@@ -1,0 +1,601 @@
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: minimum effect size threshold for practical significance in ecological
+    modeling is delta R-squared greater than or equal to 0.05
+  claim_id: c_f3dec23e
+  context: "Section 1.2 Effect Size Threshold (Delta R\xB2). To ensure practical significance\
+    \ beyond statistical significance, a minimum improvement in model performance\
+    \ is required. Standard: \u0394R\xB2 \u2265 0.05 (5% increase in explained variance)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_effect_size_threshold_for_practical_significance_in
+  kind: magnitude
+  raw_text: "A minimum improvement in model performance of \u0394R\xB2 \u2265 0.05\
+    \ (5% increase in explained variance) is required to ensure practical significance\
+    \ beyond statistical significance."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:10:47Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: TRY Plant Trait Database is a global database of plant functional traits
+    including root architecture metrics
+  claim_id: c_10572104
+  context: 'Section 2.1 Root Trait Data. Source: TRY Plant Trait Database. Description:
+    A global database of plant functional traits, including root architecture metrics
+    (specific root length, root depth, root diameter, etc.).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TRY_Plant_Trait_Database_is_a_global_database_of_plant_funct
+  kind: entity_fact
+  raw_text: The TRY Plant Trait Database is a global database of plant functional
+    traits, including root architecture metrics such as specific root length, root
+    depth, and root diameter.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:13:23Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: McCormack et al. 2015 published Redefining fine roots improves understanding
+    of below-ground contributions to terrestrial biosphere processes in New Phytologist
+  claim_id: c_3b08a9ea
+  context: "Section 2.1 Root Trait Data. Alternative Real Source: RootTrax or GRIN\
+    \ Global. Specific Reference: McCormack, M. L., et al. (2015). Redefining fine\
+    \ roots improves understanding of below-ground contributions to terrestrial biosphere\
+    \ processes. New Phytologist, 207(3), 505\u2013518."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: McCormack, M. L., et al. (2015) published 'Redefining fine roots improves
+    understanding of below-ground contributions to terrestrial biosphere processes'
+    in New Phytologist.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:13:59Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: SoilGrids 250m provides predictions for soil properties including pH,
+    nitrogen, phosphorus, and potassium at 250m resolution
+  claim_id: c_99829521
+  context: 'Section 2.2 Soil Nutrient Data. Source: SoilGrids 250m (ISRIC). Description:
+    Global gridded soil information system providing predictions for soil properties
+    including pH, Nitrogen (N), Phosphorus (P), and Potassium (K) at 250m resolution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SoilGrids_250m_provides_predictions_for_soil_properties_incl
+  kind: entity_fact
+  raw_text: SoilGrids 250m (ISRIC) is a global gridded soil information system providing
+    predictions for soil properties including pH, Nitrogen (N), Phosphorus (P), and
+    Potassium (K) at 250m resolution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:14:56Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: GBIF provides occurrence records for plant species
+  claim_id: c_152f5d02
+  context: 'Section 2.3 Species Distribution Data. Source: GBIF (Global Biodiversity
+    Information Facility). Description: Occurrence records for plant species used
+    to validate sampling locations and filter for species with sufficient observation
+    counts.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GBIF_provides_occurrence_records_for_plant_species
+  kind: entity_fact
+  raw_text: GBIF (Global Biodiversity Information Facility) provides occurrence records
+    for plant species used to validate sampling locations and filter for species with
+    sufficient observation counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:15:52Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Roberts et al. 2017 published Spatial cross-validation is not a reliable
+    approach to assessing model performance in species distribution modelling in Ecography
+  claim_id: c_285f716c
+  context: "Section 3. Methodological References. Leave-One-Species-Out (LOSO) CV.\
+    \ Reference: Roberts, D. W., et al. (2017). Spatial cross-validation is not a\
+    \ reliable approach to assessing model performance in species distribution modelling.\
+    \ Ecography, 40(9), 1059\u20131068."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Roberts, D. W., et al. (2017) published 'Spatial cross-validation is not
+    a reliable approach to assessing model performance in species distribution modelling'
+    in Ecography.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:16:44Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Breiman 2001 published Random Forests in Machine Learning volume 45 pages
+    5 to 32
+  claim_id: c_865c77bd
+  context: "Section 3. Methodological References. Permutation Testing for Feature\
+    \ Importance. Modern Application: Breiman, L. (2001). Random Forests. Machine\
+    \ Learning, 45, 5\u201332."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Breiman, L. (2001) published 'Random Forests' in Machine Learning, volume\
+    \ 45, pages 5\u201332."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:17:24Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: significance level alpha is 0.05 for biological and ecological research
+  claim_id: c_06ad5669
+  context: "The project adheres to the standard community convention for biological\
+    \ and ecological research: Significance Level ($\alpha$): 0.05"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project adheres to the standard community convention for biological\
+    \ and ecological research with a significance level ($\alpha$) of 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:56:54Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Bonferroni or FDR correction applied if number of tests exceeds 5
+  claim_id: c_e3a0ccfc
+  context: 'When evaluating feature importance across multiple soil predictors (N,
+    P, K, pH) or performing multiple permutation tests: Method: Bonferroni correction
+    or False Discovery Rate (FDR) control (Benjamini-Hochberg) will be applied if
+    the number of tests exceeds 5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction or False Discovery Rate (FDR) control (Benjamini-Hochberg)
+    will be applied if the number of tests exceeds 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:57:14Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: adjusted significance threshold is alpha divided by k for k independent
+    tests
+  claim_id: c_03dcf0f0
+  context: "Threshold Adjustment: For $k$ independent tests, the adjusted significance\
+    \ threshold is $\alpha / k$."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Adjusted_significance_threshold_is_alpha_divided_by_k_for_k
+  kind: entity_fact
+  raw_text: "For k independent tests, the adjusted significance threshold is $\alpha\
+    \ / k$."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:57:44Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Root traits of the world's plant species dataset by Hacket-Pain et al.
+    2018
+  claim_id: c_6dafdced
+  context: 'Dataset: Root traits of the world''s plant species (Global Root Trait
+    Database) Source: Hacket-Pain et al. (2018) / TRY Plant Trait Database'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset 'Root traits of the world's plant species' is associated with
+    Hacket-Pain et al. (2018) and the TRY Plant Trait Database.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:58:01Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: SoilGrids 250m dataset by Poggio et al. 2021
+  claim_id: c_bc7f901d
+  context: 'Dataset: SoilGrids 250m (ISRIC) Source: Poggio et al. (2021)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset 'SoilGrids 250m' is associated with Poggio et al. (2021).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:58:12Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: SoilGrids 250m provides global soil information at 250m resolution
+  claim_id: c_224d1cc9
+  context: 'Relevance: Provides the standard for global soil nutrient extraction (N,
+    P, K, pH) at 250m resolution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SoilGrids 250m provides global gridded soil information at 250m resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:58:34Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: SoilGrids 250m paper published in PLOS ONE 16(2) e0249848
+  claim_id: c_df98234a
+  context: 'Poggio, L., de Sousa, L. M., Batjes, N. H., Heuvelink, G. B., Kempen,
+    B., Riberio, E., & Rossiter, D. (2021). SoilGrids 250m: Global gridded soil information
+    based on machine learning. PLOS ONE.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: PLOS ONE 16(2) e0249848
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/SoilGrids_250m_paper_published_in_PLOS_ONE_16(2)_e0249848
+    source_value: https://en.wikipedia.org/wiki/SoilGrids_250m_paper_published_in_PLOS_ONE_16(2)_e0249848
+    subject: SoilGrids 250m paper
+  kind: relational
+  raw_text: 'The paper ''SoilGrids 250m: Global gridded soil information based on
+    machine learning'' was published in PLOS ONE 16(2) with article number e0249848.'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:58:57Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Root traits of the world's plant species paper published in Scientific
+    Data
+  claim_id: c_90f0a59d
+  context: Hacket-Pain, A., et al. (2018). Root traits of the world's plant species.
+    Scientific Data.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Scientific Data
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Root_traits_of_the_world%27s_plant_species_paper_published_in
+    source_value: https://en.wikipedia.org/wiki/Root_traits_of_the_world's_plant_species_paper_published_in_
+    subject: Root traits of the world's plant species paper
+  kind: relational
+  raw_text: The paper 'Root traits of the world's plant species' was published in
+    Scientific Data.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:59:23Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Feldman et al. 2020 confirms alpha equals 0.05 standard
+  claim_id: c_b6430e65
+  context: "Feldman, M. L., et al. (2020). Statistical standards for ecological research.\
+    \ Ecological Monographs. Relevance: Confirms the $\alpha = 0.05$ standard and\
+    \ the necessity of permutation testing for non-parametric ecological data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The paper 'Statistical standards for ecological research' by Feldman\
+    \ et al. (2020) confirms the $\alpha = 0.05$ standard."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T11:59:38Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Wright et al. 2004 The worldwide leaf economics spectrum published in
+    Nature
+  claim_id: c_cc6cca3a
+  context: Wright, I. J., et al. (2004). The worldwide leaf economics spectrum. Nature.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Wright, I.J. et al. 2004. The worldwide leaf economics spectrum. Nature
+        428:821-827.
+      source_id: Plant strategies
+      url: https://en.wikipedia.org/wiki/Plant_strategies
+      value: Nature
+    filled: true
+  kind: relational
+  raw_text: The paper 'The worldwide leaf economics spectrum' by Wright et al. (2004)
+    was published in Nature.
+  resolved_value: Nature
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-24T11:59:50Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: SoilGrids 2.0 provides soil property predictions at 250m resolution
+  claim_id: c_d65bd6f0
+  context: 'Source: ISRIC - SoilGrids 2.0. Description: Global gridded soil information
+    system providing predictions for soil properties including pH, Nitrogen (N), Phosphorus
+    (P), and Potassium (K) at 250m resolution.'
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: SoilGrids 2.0 provides predictions for soil properties including pH, Nitrogen
+    (N), Phosphorus (P), and Potassium (K) at 250m resolution.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-11T02:56:16Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: TRY Plant Trait Database is world's largest repository of plant trait
+    data with measurements for thousands of species
+  claim_id: c_d2015ec0
+  context: 'Source: TRY Plant Trait Database. Description: The world''s largest repository
+    of plant trait data, containing root depth, branching density, and specific root
+    length measurements for thousands of species.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TRY_Plant_Trait_Database_is_world's_largest_repository_of_pl
+  kind: magnitude
+  raw_text: The TRY Plant Trait Database is the world's largest repository of plant
+    trait data, containing root depth, branching density, and specific root length
+    measurements for thousands of species.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T02:58:58Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Kattge et al. 2020 TRY plant trait database Global Change Biology 26
+    119 188
+  claim_id: c_43a5cb4b
+  context: 'Source: The TRY Plant Trait Database (via Zenodo/HuggingFace) Description:
+    A global database of plant functional traits, including root depth and branching
+    patterns. Access: Programmatically accessible via the trydata Python package or
+    direct download from Zenodo. Citation: Kattge, J., et al. (2020).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Kattge, J., et al. (2020). TRY plant trait database \u2013 enhanced coverage\
+    \ and open access. Global Change Biology, 26(1), 119\u2013188."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T03:05:04Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Poggio et al. 2021 SoilGrids 2.0 SOIL 7 217 240
+  claim_id: c_850c0d8c
+  context: 'Source: SoilGrids 2.0 Description: Global soil information system providing
+    gridded maps of soil properties (N, P, K, pH) at 250m resolution. Access: Available
+    via the ISRIC API or downloadable GeoTIFFs from the SoilGrids repository. Citation:
+    Poggio, L., et al. (2021).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Poggio, L., et al. (2021). SoilGrids 2.0: producing soil information\
+    \ for the globe with quantified spatial uncertainty. SOIL, 7(1), 217\u2013240."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T03:05:11Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Varma and Simon 2006 Bias in error estimation BMC Bioinformatics 7 91
+  claim_id: c_feb408ca
+  context: 'LOSO is the primary validation strategy to assess model generalizability
+    to unseen species. Reference: Varma, S., & Simon, R. (2006). Bias in error estimation
+    when using cross-validation for model selection. BMC Bioinformatics, 7, 91.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Varma, S., & Simon, R. (2006). Bias in error estimation when using cross-validation
+    for model selection. BMC Bioinformatics, 7, 91.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T03:05:16Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: Altmann et al. 2010 Permutation importance Bioinformatics 26 1340 1347
+  claim_id: c_b8e6196a
+  context: "Sensitivity analysis is performed by sweeping p-value thresholds to evaluate\
+    \ the robustness of feature rankings. Reference: Altmann, A., et al. (2010). Permutation\
+    \ importance: a corrected feature importance measure. Bioinformatics, 26(10),\
+    \ 1340\u20131347."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Altmann, A., et al. (2010). Permutation importance: a corrected feature\
+    \ importance measure. Bioinformatics, 26(10), 1340\u20131347."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-11T03:05:21Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: standard significance level for ecological regression studies is 0.05
+  claim_id: c_de39c330
+  context: "The project adheres to the standard community threshold for ecological\
+    \ and agricultural regression studies: Significance Level (\u03B1): 0.05. Justification:\
+    \ This threshold is widely accepted in ecological literature (e.g., Hurlbert et\
+    \ al., 2019) to balance Type I and Type II errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project adheres to the standard community threshold for ecological\
+    \ and agricultural regression studies: Significance Level (\u03B1): 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:30:12Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: 1000 permutation test iterations used for p-value stability
+  claim_id: c_4a8902fb
+  context: 'Standard Practice: 1,000 iterations are used to ensure stability of p-values
+    below 0.05. Reference: Good, P. (2005). Permutation, Parametric, and Bootstrap
+    Tests of Hypotheses. Springer.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1,000 iterations are used to ensure stability of p-values below 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:30:44Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: global-root-trait-database contains root depth, branching density, and
+    species information
+  claim_id: c_5034101b
+  context: 'Dataset ID: global-root-trait-database. Description: Contains root depth,
+    branching density, and species information from global field studies. Citation:
+    McCormack, M. L., et al. (2020).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Global-root-trait-database_contains_root_depth,_branching_de
+  kind: entity_fact
+  raw_text: The global-root-trait-database dataset contains root depth, branching
+    density, and species information from global field studies.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:31:09Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  attempts: 1
+  canonical: SoilGrids 250m provides N, P, K, and pH at 250m resolution
+  claim_id: c_9dbe719b
+  context: 'Dataset ID: soilgrids-250m-nutrients. Description: Global soil properties
+    including Nitrogen (N), Phosphorus (P), Potassium (K), and pH at 250m resolution.
+    Citation: Poggio, L., et al. (2021).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SoilGrids 250m dataset provides global soil properties including Nitrogen
+    (N), Phosphorus (P), Potassium (K), and pH at 250m resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:31:25Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/docs/research.md
+  attempts: 1
+  canonical: Stratified k-Fold Cross-Validation with k=5 used as primary validation
+    method
+  claim_id: c_7e1169c6
+  context: 'Model Validation Standards: Stratified k-Fold Cross-Validation (k=5) is
+    used as the primary validation method to ensure representative sampling across
+    species. Reference: Kohavi, R. (1995).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified k-Fold Cross-Validation (k=5) is used as the primary validation
+    method.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:37:25Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/docs/research.md
+  attempts: 1
+  canonical: Feature importance stability evaluated across p-value thresholds 0.01,
+    0.05, and 0.10
+  claim_id: c_9fdf78b5
+  context: 'Feature Importance Thresholds: Feature importance rankings are evaluated
+    for stability across p-value thresholds {0.01, 0.05, 0.10}. Reference: Strobl,
+    C., et al. (2008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feature importance rankings are evaluated for stability across p-value
+    thresholds 0.01, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:37:48Z'
+- artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/docs/research.md
+  attempts: 1
+  canonical: 1000 permutation iterations used to establish null distribution for feature
+    importance and model performance
+  claim_id: c_c51bda25
+  context: 'Statistical Rigor: Permutation Tests: 1000 iterations are used to establish
+    the null distribution for feature importance and model performance. Reference:
+    Ojala, M., & Garriga, G. C. (2010).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 iterations are used to establish the null distribution for feature
+    importance and model performance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T16:38:07Z'

@@ -1,0 +1,19 @@
+status: none
+intent: OpenNeuro sensory deprivation resting state fMRI pre post dataset python package
+  dataset
+required_fields:
+- subject_id
+- session_label
+- run_id
+- nifti_path
+- repetition_time
+- echo_time
+- deprivation_condition
+- scanner_manufacturer
+- acquisition_date
+- voxel_dimensions
+- brain_mask_path
+- motion_parameters_path
+cache_key: 0b8f9cec18887ac1f0b63c67bc90cde064e19ff52b5654c72f168ef5deb7907e
+searched_at: '2026-10-11T05:27:32.683065+00:00'
+retry_count: 1

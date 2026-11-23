@@ -9,58 +9,36 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-13T20:41:05.037236Z'
-- artifact_hash: 9d557378a9f3cd50e425db5fe1432739bf9d3974a44aa2f4e8b4733c00a78d57
+- artifact_hash: 1d6aaf889b0e038fea6d04598253a2650c5f3a049cadf9144e43f2843d59a1cb
   artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/llmXive/latentskill-alfworld`
+  value: https://huggingface.co/datasets/peft/examples`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/llmXive/latentskill-alfworld
-  verified_at: '2026-07-13T20:56:36.109538Z'
-- artifact_hash: 9d557378a9f3cd50e425db5fe1432739bf9d3974a44aa2f4e8b4733c00a78d57
+  verified_against_url: https://huggingface.co/datasets/peft/examples
+  verified_at: '2026-09-02T15:34:46.709263Z'
+- artifact_hash: 1d6aaf889b0e038fea6d04598253a2650c5f3a049cadf9144e43f2843d59a1cb
   artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/llmXive/latentskill-searchqa`
+  value: https://huggingface.co/datasets/alfworld/alfworld`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/llmXive/latentskill-searchqa
-  verified_at: '2026-07-13T20:56:36.109538Z'
-- artifact_hash: 9d557378a9f3cd50e425db5fe1432739bf9d3974a44aa2f4e8b4733c00a78d57
-  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2606.06087'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-07-13T20:56:36.109538Z'
-- artifact_hash: 3ff155d3aa7016f526fa44bcc6ac7c894dfc9980e1ead8557bc76f93bd41ade7
-  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/quickstart.md
+  verified_against_url: https://huggingface.co/datasets/alfworld/alfworld
+  verified_at: '2026-09-02T15:34:46.709263Z'
+- artifact_hash: 0cd910299abda3a21a28b49ad0c0d95c0b757970f2dba4919efa1a02eb6a900b
+  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/README.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: ancillary.zip
   kind: url
-  value: https://github.com/your-org/llmxive-follow-up.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/llmxive-follow-up
-  verified_at: '2026-07-13T20:57:36.300784Z'
-- artifact_hash: 1a0ec6976a6b26f89d8efa84631453c31c6abd14c8ae0cd05feab4880a219c9b
-  artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2606.06087'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-07-13T21:05:18.201263Z'
+  value: https://arxiv.org/src/2606.06087v1/ancillary.zip`
+  verification_status: pending
+  verified_against_url: https://arxiv.org/src/2606.06087v1/ancillary.zip
+  verified_at: '2026-09-05T16:42:58.160994Z'

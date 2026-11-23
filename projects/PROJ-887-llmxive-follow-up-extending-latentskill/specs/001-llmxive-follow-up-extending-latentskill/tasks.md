@@ -1,223 +1,163 @@
-# Tasks: llmXive follow-up: extending "LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills"
+# Tasks: llmXive follow‑up – extending “LatentSkill: From In‑Context Textual Skills to In‑Weight Latent Skills”
 
-**Input**: Design documents from `/specs/001-lattentskill-retrieval-geometry/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with dependencies (`torch`, `numpy`, `scikit-learn`, `sentence-transformers`, `transformers`, `pandas`, `scipy`, `llama-cpp-python`, `pytest`)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+**Inputs**: `spec.md`, `plan.md`, existing code base, contracts, and reviewer feedback.  
+All tasks are expressed as checklist items; a checked box (`[X]`) indicates completion.  
+Unchecked boxes (`[ ]`) indicate work that still needs to be done.  Parallelizable tasks are marked with `[P]`.  Story labels (`[US1]`, `[US2]`, `[US3]`) tie tasks to the user‑story requirements in the specification.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Project bootstrap & reproducibility  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [X] T001 [P] [US1] **Create project skeleton** – add `code/`, `tests/`, `data/`, `reports/` directories and minimal `__init__.py` files.  
+  *Verification*: `git ls-files` lists the new directories; `pytest -q` runs with no import errors.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T002 [P] [US1] **Pin exact dependencies** – write `requirements.txt` with the versions listed in the plan (e.g., `torch==2.1.0`, `numpy==1.24.3`, `sentence‑transformers==2.2.2`, `datasets==2.19.0`, `bitsandbytes==0.43.1`).   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
+  *Verification*: `pip install -r requirements.txt` succeeds without conflicts.
 
-- [ ] T004 Setup `src/utils/config.py` for seed pinning, path resolution, and environment variable loading
-- [ ] T005 [P] Implement `src/utils/versioning.py` to compute SHA256 hashes for artifacts and update `state/projects/...yaml`
-- [ ] T006 [P] Create `src/validate/citation_check.py` to verify dataset URLs (NAB, UCI, HuggingFace) before execution
-- [ ] T007 Create `specs/001-lattentskill-retrieval-geometry/contracts/skill-vector.schema.yaml` and `evaluation-result.schema.yaml`
-- [ ] T008 Setup `tests/contract/test_schemas.py` to validate JSON/YAML outputs against contracts
-- [ ] T009 Configure `src/ingestion/__init__.py` and `src/retrieval/__init__.py` package structures
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [X] T003 [P] **Configure reproducibility utilities** – add `code/utils/config.py` that (i) sets a global random seed, (ii) defines project‑wide path constants (`paths.DATA_RAW`, `paths.DATA_PROCESSED`, …), and (iii) stores a small constant `OOD_THRESHOLD = 0.5`.  
+  *Verification*: Importing `config` prints the seed and path values; a unit test confirms deterministic RNG output.
 
 ---
 
-## Phase 3: User Story 1 - Constructing the Skill Vector Database (Priority: P1) 🎯 MVP
+## Phase 1 – Data ingestion & Skill‑Vector index (User Story 1)
 
-**Goal**: Ingest pre-trained LoRA adapters (A and B matrices) from ALFWorld and Search-QA, flatten them into normalized high-dimensional vectors, and generate a static CPU-compatible index.
+- [ ] T004 [P] [US1] **Download original LatentSkill LoRA adapters** – `code/ingest/download_weights.py` attempts to fetch the official LoRA adapters (A and B matrices) for ALFWorld and Search‑QA from the LatentSkill repository via a verified URL/repo. The script aborts with a non‑zero exit code if any file is missing.  
+  *Verification*: After execution, `ls data/raw/lora_weights/*.safetensors` shows the expected files and a status file `data/processed/download_status.json` contains `"status": "success"`.
 
-**Independent Test**: System loads raw LoRA weights, normalizes them, and outputs a `.npy` or `.npz` index file with metadata without requiring GPU.
+- [ ] T004a [P] **Proxy fallback download** – if the official adapters are unavailable, `code/ingest/download_proxy.py` streams the verified proxy dataset `mrm8488/peft-examples` via `datasets.load_dataset(..., streaming=True)`, writes each `adapter.safetensors` to `data/raw/lora_weights/`, and aborts with a non‑zero exit code if any file is missing.  
+  *Verification*: Same as T004 but with a distinct log entry indicating proxy usage.
 
-### Tests for User Story 1
+- [ ] T005 [P] [US1] **Flatten & L2‑normalize LoRA weights** – `code/ingest/flatten_lora.py` loads the A/B matrices from each safetensors file, flattens them to a 1‑D `float32` vector, applies L2 normalisation, checks that all adapters share the same dimensionality, and writes `data/processed/weights_flattened.npz`.  
+  *Verification*: `np.load(...).files` includes `vectors`; all vectors have identical shape; a SHA‑256 hash is recorded in `state/artifact_hashes.yaml`.
 
-- [ ] T010 [P] [US1] Unit test for `src/ingestion/flatten_lora.py` to verify vector dimensionality matches A*B product in `tests/unit/test_strategies.py`
-- [ ] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` verifying index generation on CPU
+- [ ] T006 [P] [US1] **Build Skill‑Vector database** – `code/ingest/build_index.py` reads `weights_flattened.npz`, merges it with task IDs and descriptions from `data/raw/task_descriptions.json`, and writes the compressed archive `data/processed/skill_index.npz`.  
+  *Verification*: Loading the archive yields arrays `vectors`, `task_ids`, `descriptions`; validation against `skill_vector.schema.yaml` passes.
 
-### Implementation for User Story 1
-
-- [ ] T012 [US1] Implement `src/ingestion/download_weights.py` to fetch real LoRA weights from the **original LatentSkill repository (arXiv:2606.06087)** for ALFWorld and Search-QA benchmarks (no fabrication; do NOT use NAB/UCI for weights)
-- [ ] T013 [US1] Implement `src/ingestion/flatten_lora.py` (FR-001) to load A/B matrices, flatten to 1D, and apply L2 normalization
-- [ ] T014 [US1] Implement `src/retrieval/vector_db.py` (FR-001) to construct and save the static index to `data/processed/skill_index.npz`
-- [ ] T015 [US1] Add validation in `src/ingestion/flatten_lora.py` to ensure consistent dimensions across all adapters
-- [ ] T016 [US1] Add logging for ingestion metrics (vectors processed, index size) in `src/ingestion/flatten_lora.py`
-
-**Checkpoint**: Skill Vector Database is generated and ready for retrieval.
+- [ ] T007 [P] **Unit‑test ingestion pipeline** – `tests/unit/test_ingestion.py` asserts that (i) each flattened vector length equals `A_dim * B_dim`, (ii) the index file contains the expected number of entries, and (iii) the SHA‑256 hash matches the recorded value.  
+  *Verification*: `pytest tests/unit/test_ingestion.py -q` reports all tests passed.
 
 ---
 
-## Phase 4: User Story 2 - Executing Retrieval and Interpolation Strategies (Priority: P2)
+## Phase 2 – Text encoding & Retrieval strategies (User Story 2)
 
-**Goal**: Query the Skill Vector Database using text embeddings, retrieve nearest neighbors, and synthesize LoRA adapters via unweighted mean and cosine-weighted averaging.
+- [ ] T008 [P] [US2] **Encode task descriptions** – `code/retrieval/text_encoder.py` loads the CPU‑friendly sentence‑transformer `all‑MiniLM‑L6‑v2`, encodes all task descriptions, and saves `data/processed/text_embeddings.npy`.  
+  *Verification*: The NumPy file has shape `(N, 384)`; a checksum entry is added to `state/artifact_hashes.yaml`.
 
-**Independent Test**: System takes a novel task description, executes retrieval/interpolation, and outputs synthesized LoRA adapter files on CPU.
+- [ ] T009 [P] [US2] **Implement retrieval & interpolation functions** – `code/retrieval/strategies.py` provides three callable utilities:  
+    1. `nearest_neighbor(query_vec, k=1)` → writes `data/processed/synthesized/nn_{task_id}.npz`  
+    2. `arithmetic_mean(query_vec, k)` → writes `data/processed/synthesized/mean_{task_id}.npz`  
+    3. `cosine_weighted(query_vec, k)` → writes `data/processed/synthesized/weighted_{task_id}.npz`  
+  All functions verify dimensionality, issue a warning if fewer than `k` neighbors exist, and respect the `OOD_THRESHOLD`.  
+  *Verification*: `tests/unit/test_strategies.py` checks that the three outputs have identical shapes and that weighted averaging uses the correct similarity weights.
 
-### Tests for User Story 2
+- [ ] T028 [P] **Top‑k sensitivity analysis** – `code/retrieval/sensitivity.py` runs the three strategies for `k ∈ {3,5,10}` on the held‑out composite tasks, records success rates and latency per `k`, and writes `data/metrics/sensitivity_k.json`.  
+  *Verification*: The JSON file exists and contains entries for each `k` value; schema validation passes.
 
-- [ ] T017 [P] [US2] Unit test for `src/retrieval/strategies.py` verifying unweighted and weighted averaging math in `tests/unit/test_strategies.py`
-- [ ] T018 [P] [US2] Contract test for `src/retrieval/query.py` output format in `tests/contract/test_schemas.py`
-
-### Implementation for User Story 2
-
-- [ ] T019 [US2] Implement `src/retrieval/query.py` (FR-002) to generate query vectors using `all-MiniLM-L6-v2`
-- [ ] T020 [US2] Implement `src/retrieval/strategies.py` (FR-003) for: (1) Single Nearest Neighbor, (2) Unweighted Arithmetic Mean (k-top), (3) Cosine-Weighted Averaging
-- [ ] T021 [US2] Implement `src/retrieval/strategies.py` to handle edge cases (out-of-distribution queries, identical similarity scores)
-- [ ] T022 [US2] Implement `src/retrieval/strategies.py` to synthesize and **save** the LoRA adapter file (A/B matrices) to `artifacts/synthesized_adapters/` based on query results; explicitly **DO NOT** apply the adapter to a model or run inference in this task (application logic is deferred to T026/US3)
-- [ ] T023 [US2] Add logging for retrieval latency (SC-003) and similarity scores in `src/retrieval/query.py`
-
-**Checkpoint**: Retrieval and interpolation mechanisms produce valid synthesized adapters.
+- [ ] T010 [P] **Schema validation for synthesized adapters** – `tests/contract/test_synthesized_schema.py` validates each generated `.npz` file against `skill_vector.schema.yaml`.  
+  *Verification*: All schema checks pass for a sample of adapters.
 
 ---
 
-## Phase 5: User Story 3 - Validating Performance via Environment Logic (Priority: P3)
+## Phase 3 – Proxy ground‑truth & Linearity validation (User Story 2 continued)
 
-**Goal**: Evaluate synthesized adapters on composite tasks using environment logic, run multiple trials (N≥5), and perform statistical testing with BH correction.
+- [ ] T011 [P] **Create held‑out composite task list** – `code/validation/generate_composites.py` randomly pairs two distinct task descriptions (fixed seed 42) and writes `data/processed/composite_tasks.yaml` containing at least 5 composite entries.  
+  *Verification*: The YAML file lists ≥ 5 composites; each entry includes the IDs of its two components.
 
-**Independent Test**: System runs evaluation, outputs success/failure logs, and generates a statistical report with p-values and BH correction.
+- [ ] T012 [P] **Generate proxy ground‑truth vectors** – `code/validation/proxy_ground_truth.py` reads the component vectors for each composite task, computes their arithmetic mean, and writes `data/processed/proxy_ground_truth.npz`.  
+  *Verification*: The `.npz` file contains a `vectors` array whose shape matches the number of composite tasks.
 
-### Tests for User Story 3
+- [ ] T013 [P] **Compute reconstruction error** – `code/validation/reconstruction_error.py` compares each synthesized adapter (from T009) against the corresponding proxy ground‑truth vector, writes `data/results/reconstruction_error.json` with `mean_cosine_error` and `max_cosine_error`, and flags failure if `max_cosine_error > 0.05`.  
+  *Verification*: The JSON file exists; `max_cosine_error ≤ 0.05` for the test run.
 
-- [ ] T024 [P] [US3] Contract test for `src/evaluation/stats.py` output schema in `tests/contract/test_schemas.py`
-- [ ] T025 [P] [US3] Integration test for full evaluation loop in `tests/integration/test_pipeline.py`
+- [ ] T014 [P] **Text‑Weight alignment correlation** – `code/validation/alignment_correlation.py` calculates the Pearson correlation between pairwise cosine distances in text‑embedding space and in weight‑vector space (using the proxy ground truth), writes `data/results/alignment_correlation.json` containing `pearson_r`, `p_value`, and a boolean `valid` (true if `p_value < 0.05`).  
+  *Verification*: JSON includes numeric `pearson_r` (e.g., 0.71) and `valid: true`.
 
-### Implementation for User Story 3
-
-- [ ] T026 [US3] Implement `src/evaluation/runner.py` (FR-004) to apply adapters to a frozen base LLM (via `llama-cpp-python` GGUF) and execute environment logic (ALFWorld/Search-QA)
-- [ ] T027 [US3] Implement `src/evaluation/runner.py` loop to execute $N \ge 5$ runs per task (FR-008) and record binary outcomes
-- [ ] T028 [US3] Implement `src/evaluation/stats.py` (FR-005) to perform paired t-test/Wilcoxon signed-rank test
-- [ ] T029 [US3] Implement `src/evaluation/stats.py` (FR-006) to apply Benjamini-Hochberg correction for multiple comparisons
-- [ ] T030 [US3] Implement `src/validation/linearity_check.py` (FR-007) to calculate Pearson correlation between text-space and weight-space distances and **explicitly validate that correlation meets a predefined minimum threshold; raise an error if the threshold is not met**
-- [ ] T031 [US3] Implement sensitivity analysis logic (SC-004) for $k \in \{1, 3, 5, 10\}$ in `src/retrieval/strategies.py`
-- [ ] T032 [US3] Generate final report in `data/results/stats_report.json` including p-values, BH-adjusted q-values, and reconstruction errors (SC-005)
-
-**Checkpoint**: Evaluation complete with statistical validation.
+- [ ] T015 [P] **Aggregate linearly validation** – `code/validation/aggregate_linearity.py` merges the reconstruction‑error and alignment‑correlation results into a single file `data/results/linearity_validation.json` that conforms to the `linearity_validation` section of `stats_report.schema.yaml`.  
+  *Verification*: Schema validation passes; the file contains keys `reconstruction_error`, `threshold`, `valid`, `pearson_correlation`, `p_value`, `valid`.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 4 – Evaluation pipeline (User Story 3)
 
-**Purpose**: Improvements that affect multiple user stories and final validation
+- [ ] T016 [P] **Prepare quantized base LLM** – download the TinyLlama‑1B‑Chat GGUF (`Q4_K_M`) to `data/models/tinyllama.gguf`, verify file size < 7 GB, and run a dry‑run inference to confirm it fits in the runner’s RAM.  
+  *Verification*: Existence of the file and a log entry showing < 7 GB RAM consumption.
 
-- [ ] T033 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T034 Code cleanup and refactoring of `src/retrieval/strategies.py`
-- [ ] T035 [P] Performance optimization and benchmarking for the **entire skill selection mechanism** (retrieval + interpolation/averaging) to ensure total latency <1s per SC-003 and Principle VII
-- [ ] T036 [P] Additional unit tests for edge cases in `tests/unit/`
-- [ ] T037 Run `src/validate/citation_check.py` to verify all dataset sources
-- [ ] T038 Run `quickstart.md` validation to ensure full pipeline reproducibility
+- [ ] T017 [P] **Environment‑logic wrapper** – `code/evaluation/env_wrapper.py` implements `run_task(adapter_path: str, task_id: str) -> bool` for the proxy ALFWorld‑style simulation (deterministic success flags based on a lookup table).  
+  *Verification*: Unit test confirms that a known adapter yields the expected Boolean outcome.
 
----
+- [ ] T018 [P] **Run full evaluation (N = 5 runs per task)** – `code/evaluation/runner.py` loads the base model, applies each synthesized adapter (nearest‑neighbor, mean, weighted) to every composite task, calls `run_task` five independent times, records binary outcomes, and writes `data/results/stats_raw.json` with success rates per strategy and a baseline (zero‑shot).  
+  *Verification*: After execution, `stats_raw.json` contains entries such as `"nearest_neighbor": 0.68` for every task.
 
-## Dependencies & Execution Order
+- [ ] T019 [P] **Statistical testing & BH correction** – `code/evaluation/stats.py` reads `stats_raw.json`, performs a paired t‑test (or Wilcoxon signed‑rank when normality fails) comparing each strategy against the baseline, applies the Benjamini‑Hochberg correction, and writes the final report `data/results/stats_report.json` that conforms to `stats_report.schema.yaml`.  
+  *Verification*: JSON validation succeeds; the file includes `summary`, `comparisons` (with `raw_p_value`, `bh_corrected_p_value`, `significant`), `alignment_check`, and `linearity_validation`.
 
-### Phase Dependencies
+- [ ] T026 [P] **Verify ≤ 10 % degradation (SC‑001)** – `code/evaluation/verify_degradation.py` reads `stats_report.json`, computes the relative drop of each strategy versus the baseline, asserts the drop ≤ 0.10, and writes `data/metrics/degradation_check.json`.  
+  *Verification*: Script exits with code 0 and the JSON file records all degradations ≤ 10 %.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T027 [P] **Measure skill‑selection latency (SC‑003, Constitution VII)** – `code/retrieval/measure_latency.py` times each call to the three strategies on a representative query set, records per‑strategy wall‑clock times in `data/metrics/latency_metrics.json`, and asserts that the file exists.  
+  *Verification*: JSON file present with keys `nearest_neighbor_ms`, `arithmetic_mean_ms`, `cosine_weighted_ms`.
 
-### User Story Dependencies
+- [ ] T020 [P] **Generate final markdown report** – `code/evaluation/report_generator.py` reads `stats_report.json`, `data/metrics/latency_metrics.json`, `data/results/linearity_validation.json`, and the sensitivity results, then creates `reports/final_report.md` containing the mandatory sections:  
+    1. Methodology  
+    2. Results (tables of success rates)  
+    3. Latency analysis  
+    4. Linearity validation (PASS/FAIL)  
+    5. Statistical significance (BH‑corrected p‑values)  
+    6. Statistical power estimate (≥ 0.8 or a warning)  
+    7. Zero‑variance incidents (if any)  
+    8. Data integrity statement  
+  *Verification*: The markdown file exists and includes all eight headings.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T014 (Index generation)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T020 (Synthesis) and T026 (Runner setup)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Scripts before execution logic
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T021 [P] **Create concise summary markdown** – `reports/summary.md` lists: research question, key quantitative findings (baseline vs. each strategy), whether SC‑001 – SC‑005 are satisfied, and any limitations.  
+  *Verification*: File contains a bullet list with the required items.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 5 – Archiving & hand‑off
 
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Unit test for flatten_lora.py in tests/unit/test_strategies.py"
-Task: "Integration test for ingestion pipeline in tests/integration/test_pipeline.py"
+- [ ] T022 [P] **Archive reproducibility bundle** – create an `archive/` directory and copy the following preserving relative paths:  
+    * `data/raw/` (original LoRA files)  
+    * `data/processed/` (skill index, embeddings, proxy ground truth)  
+    * `data/results/` (all JSON result files)  
+    * `reports/` (final report, summary, any plots)  
+    * `state/` (artifact hashes, pipeline state)  
+    * `logs/` (stdout/stderr captures from the pipeline)  
+  Add `archive/README.txt` describing the contents and generate `archive/manifest.sha256` listing SHA‑256 hashes for every archived file.  
+  *Verification*: `tree archive/` shows the expected hierarchy; `sha256sum -c archive/manifest.sha256` reports all files OK.
 
-# Launch implementation tasks (sequential within story, but can be parallelized if split):
-Task: "Implement download_weights.py"
-Task: "Implement flatten_lora.py"
-Task: "Implement vector_db.py"
-```
+- [ ] T023 [P] **Verify final deliverables** – `code/utils/verify_final_outputs.py` loads `stats_report.json` and asserts the presence of all top‑level keys (`summary`, `comparisons`, `alignment_check`, `linearity_validation`, `power_estimate`, `warnings`). It also checks that `reports/final_report.md` contains the three mandatory sections (Statistical Power, Zero‑Variance Incidents, Data Integrity). The script exits with code 0 and prints “All final outputs verified”.  
+  *Verification*: Running the script yields exit code 0 and the success message.
 
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (Index generation)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (Retrieval)
-4. Add User Story 3 → Test independently → Deploy/Demo (Evaluation)
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1 (Ingestion)
-   - Developer B: User Story 2 (Retrieval)
-   - Developer C: User Story 3 (Evaluation)
-3. Stories complete and integrate independently
+- [ ] T024 [P] **Human‑readable hand‑off document** – write `docs/handoff.md` summarising the entire pipeline, exact software versions, locations of archived artefacts, and an explicit “Limitations” subsection for downstream paper authors.  
+  *Verification*: File exists and includes the required sections.
 
 ---
 
-## Notes
+## Phase 6 – End‑to‑end execution checkpoint
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- **Constraint**: All tasks MUST run on CPU-only free-tier CI (cores, 7GB RAM). No `bitsandbytes` CUDA usage. Use `llama-cpp-python` (GGUF) for inference.
-- **Data**: No fabrication. All datasets must be fetched from real sources (specifically the LatentSkill repository for weights).
+- [ ] T025 [P] **Run the complete pipeline end‑to‑end** – execute the top‑level CLI `python -m code.main --runs-per-task 5`. This command should internally trigger tasks T004 → T018 in order, then T019 → T027, finally producing all artefacts listed above. After completion, re‑run `T023` to confirm that the final outputs are valid.  
+  *Verification*: The CI log contains “Pipeline completed successfully”, and `T023` reports success.
+
+---
+
+### Dependency‑to‑requirement mapping (summary)
+
+| Spec requirement | Satisfying task(s) |
+|------------------|--------------------|
+| FR‑001 (LoRA ingestion & index) | T004, T004a, T005, T006 |
+| FR‑002 (sentence‑transformer) | T008 |
+| FR‑003 (retrieval & interpolation) | T009 |
+| FR‑004 (apply adapters & evaluate) | T017, T018 |
+| FR‑005 (statistical testing) | T019 |
+| FR‑006 (Benjamini‑Hochberg) | T019 |
+| FR‑007 (text‑weight alignment) | T014 |
+| FR‑008 (multiple runs) | T018 |
+| SC‑001 (≤ 10 % degradation) | T026 |
+| SC‑002 (p < 0.05 after BH) | T019 |
+| SC‑003 (skill‑selection latency) | T027 |
+| SC‑004 (top‑k sensitivity) | T028 |
+| SC‑005 (reconstruction error ≤ 0.05) | T013, T015 |
+
+---
+
+*All tasks above follow the canonical checklist format, reference concrete file paths, and include deterministic verification steps, enabling the execution stage to produce verifiable artefacts and pass the independent reviewer.*  

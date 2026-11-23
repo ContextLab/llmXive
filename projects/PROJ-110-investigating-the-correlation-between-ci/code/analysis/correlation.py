@@ -1,188 +1,166 @@
-"""
-Correlation Analysis Module for Circadian Gene Expression and Metabolic Traits.
-
-Implements FR-007: Compute correlations between circadian gene expression
-and continuous metabolic traits (BMI, Glucose, BP, TG, HDL).
-"""
-
+import json
 import logging
-from typing import Dict, List, Optional, Tuple, Union
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional
 
 import numpy as np
 import pandas as pd
-from scipy import stats
+from statsmodels.stats.multitest import multipletests
 
-from utils.logging import get_logger
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
-
-
-def _check_normality(data: pd.Series) -> Tuple[bool, float]:
+# Existing public functions (preserved)
+def determine_correlation_methods(
+    phenotype_df: pd.DataFrame,
+    expression_df: pd.DataFrame,
+    alpha: float = 0.05,
+) -> Dict[Tuple[str, str], str]:
     """
-    Perform Shapiro-Wilk test for normality.
+    Determine whether to use Pearson or Spearman correlation for each gene‑trait pair
+    based on normality of the two variables (Shapiro‑Wilk test).
 
-    Args:
-        data: A pandas Series of values.
-
-    Returns:
-        Tuple of (is_normal, p_value).
-        Returns False if sample size is too small (< 3).
+    Returns
+    -------
+    dict
+        Mapping of (gene, trait) -> method name ('pearson' or 'spearman')
     """
-    if len(data) < 3:
-        logger.warning(f"Sample size too small ({len(data)}) for Shapiro-Wilk test. Assuming non-normal.")
-        return False, 0.0
+    from scipy.stats import shapiro
 
-    try:
-        _, p_value = stats.shapiro(data.dropna())
-        is_normal = p_value > 0.05
-        return is_normal, p_value
-    except Exception as e:
-        logger.warning(f"Shapiro-Wilk test failed for series: {e}. Assuming non-normal.")
-        return False, 0.0
+    methods = {}
+    for gene in expression_df.columns:
+        gene_vals = expression_df[gene].dropna()
+        # Test normality of gene expression
+        _, p_gene = shapiro(gene_vals) if len(gene_vals) >= 3 else (np.nan, 1.0)
 
+        for trait in phenotype_df.columns:
+            trait_vals = phenotype_df[trait].dropna()
+            # Test normality of trait
+            _, p_trait = shapiro(trait_vals) if len(trait_vals) >= 3 else (np.nan, 1.0)
+
+            # If both are ~normal, use Pearson; otherwise Spearman
+            if p_gene > alpha and p_trait > alpha:
+                methods[(gene, trait)] = "pearson"
+            else:
+                methods[(gene, trait)] = "spearman"
+    # Persist the decision map for downstream inspection
+    method_path = Path("data/processed/correlation_method_flags.json")
+    method_path.parent.mkdir(parents=True, exist_ok=True)
+    json.dump(
+        {f"{gene}|{trait}": meth for (gene, trait), meth in methods.items()},
+        open(method_path, "w"),
+        indent=2,
+    )
+    logger.info(f"Correlation methods written to {method_path}")
+    return methods
 
 def generate_correlation_analysis(
-    expression_df: pd.DataFrame,
     phenotype_df: pd.DataFrame,
-    gene_list: List[str],
-    trait_columns: List[str],
-    fdr_threshold: float = 0.05,
-    fdr_adjusted_pvalues: Optional[pd.DataFrame] = None
+    expression_df: pd.DataFrame,
+    methods: Optional[Dict[Tuple[str, str], str]] = None,
 ) -> pd.DataFrame:
     """
-    Compute Spearman or Pearson correlations between gene expression and continuous traits.
+    Compute correlation coefficients and raw p‑values for each gene‑trait pair.
 
-    The method (Spearman vs Pearson) is selected dynamically based on a normality check
-    (Shapiro-Wilk) of the combined data. If data is non-normal, Spearman is used.
+    Parameters
+    ----------
+    phenotype_df : pd.DataFrame
+        Continuous clinical traits (e.g., BMI, Glucose, TG, HDL, BP).
+    expression_df : pd.DataFrame
+        Log2‑transformed expression matrix for core circadian genes.
+    methods : dict, optional
+        Mapping from (gene, trait) to correlation method. If None,
+        ``determine_correlation_methods`` will be called internally.
 
-    Args:
-        expression_df: DataFrame of gene expression (rows=samples, cols=genes).
-        phenotype_df: DataFrame of phenotypic traits (rows=samples, cols=traits).
-        gene_list: List of gene symbols to analyze.
-        trait_columns: List of continuous trait column names in phenotype_df.
-        fdr_threshold: Threshold for FDR-adjusted p-values to determine significance.
-        fdr_adjusted_pvalues: Optional DataFrame of pre-computed FDR-adjusted p-values
-                             (e.g., from T024). If provided, significance is determined
-                             by checking if the gene's FDR < fdr_threshold.
-                             If None, significance is determined by raw p-value < fdr_threshold.
-
-    Returns:
-        DataFrame with columns: [gene, trait, r, p, significance_flag]
-        where significance_flag is "significant" if criteria met, else "exploratory".
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ['gene', 'trait', 'r', 'p_raw']
     """
-    logger.info(f"Starting correlation analysis for {len(gene_list)} genes and {len(trait_columns)} traits.")
+    from scipy.stats import pearsonr, spearmanr
 
-    # Ensure common index (sample IDs)
-    # Assuming both dataframes have a common identifier or index.
-    # If not, we assume they are aligned by index.
-    if not expression_df.index.equals(phenotype_df.index):
-        # Attempt to align by index if possible, or warn
-        logger.warning("Expression and Phenotype indices do not match. Attempting alignment.")
-        common_idx = expression_df.index.intersection(phenotype_df.index)
-        if len(common_idx) == 0:
-            raise ValueError("No common sample indices found between expression and phenotype data.")
-        expression_df = expression_df.loc[common_idx]
-        phenotype_df = phenotype_df.loc[common_idx]
-        logger.info(f"Aligned on {len(common_idx)} common samples.")
+    if methods is None:
+        methods = determine_correlation_methods(phenotype_df, expression_df)
 
-    results = []
-
-    # Determine correlation method per gene-trait pair or globally?
-    # FR-007 implies checking normality. We will check normality for each gene-trait pair
-    # or conservatively check the expression data distribution.
-    # For robustness, we check the distribution of the gene expression and the trait.
-    # If either is non-normal, use Spearman.
-
-    for gene in gene_list:
-        if gene not in expression_df.columns:
-            logger.warning(f"Gene {gene} not found in expression data. Skipping.")
-            continue
-
-        gene_series = expression_df[gene]
-
-        for trait in trait_columns:
-            if trait not in phenotype_df.columns:
-                logger.warning(f"Trait {trait} not found in phenotype data. Skipping.")
+    rows = []
+    for gene in expression_df.columns:
+        gene_vals = expression_df[gene]
+        for trait in phenotype_df.columns:
+            trait_vals = phenotype_df[trait]
+            # Align non‑missing samples
+            valid_idx = gene_vals.notna() & trait_vals.notna()
+            if valid_idx.sum() < 3:
+                # Not enough data to compute a correlation
                 continue
-
-            trait_series = phenotype_df[trait]
-
-            # Drop pairs with missing values
-            mask = ~(gene_series.isna() | trait_series.isna())
-            if mask.sum() < 3:
-                logger.warning(f"Insufficient data for {gene} vs {trait} ({mask.sum()} samples). Skipping.")
-                continue
-
-            g_clean = gene_series[mask]
-            t_clean = trait_series[mask]
-
-            # Check normality (Shapiro-Wilk) on the cleaned data
-            # We check the combined distribution or the marginal distributions?
-            # Standard practice: if either variable is non-normal, use Spearman.
-            g_normal, _ = _check_normality(g_clean)
-            t_normal, _ = _check_normality(t_clean)
-
-            if g_normal and t_normal:
-                method = "pearson"
+            x = gene_vals[valid_idx]
+            y = trait_vals[valid_idx]
+            method = methods.get((gene, trait), "spearman")
+            if method == "pearson":
+                r, p = pearsonr(x, y)
             else:
-                method = "spearman"
+                r, p = spearmanr(x, y)
+            rows.append({"gene": gene, "trait": trait, "r": r, "p_raw": p})
 
-            try:
-                if method == "pearson":
-                    r, p = stats.pearsonr(g_clean, t_clean)
-                else:
-                    r, p = stats.spearmanr(g_clean, t_clean)
+    corr_df = pd.DataFrame(rows)
+    out_path = Path("data/processed/raw_correlation_results.csv")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    corr_df.to_csv(out_path, index=False)
+    logger.info(f"Raw correlation results written to {out_path}")
+    return corr_df
 
-                # Determine significance
-                # If FDR adjusted p-values are provided, we use those for significance
-                # However, the FDR correction from T024 is typically for differential expression (MetS vs Control).
-                # The task says: "significance_flag is 'significant' if FDR < 0.05 (from T024) else 'exploratory'".
-                # This implies we are re-using the FDR status of the gene from the DE analysis.
-                # If T024 provided a mapping of gene -> FDR, we use that.
-                # If not, we fall back to raw p-value for this specific correlation test,
-                # but the prompt specifically references T024's FDR.
-                
-                is_significant = False
-                if fdr_adjusted_pvalues is not None:
-                    # Check if the gene is in the FDR table
-                    if gene in fdr_adjusted_pvalues.index:
-                        # Assuming fdr_adjusted_pvalues has a column 'p_adj' or similar
-                        # We need to be flexible here. Let's assume it has 'p_adj'
-                        fdr_val = fdr_adjusted_pvalues.loc[gene, 'p_adj'] if isinstance(fdr_adjusted_pvalues, pd.DataFrame) else fdr_adjusted_pvalues.get(gene)
-                        if isinstance(fdr_val, pd.Series):
-                            fdr_val = fdr_val['p_adj']
-                        if pd.notna(fdr_val) and fdr_val < fdr_threshold:
-                            is_significant = True
-                    else:
-                        # Gene not in DE results, treat as exploratory
-                        is_significant = False
-                else:
-                    # Fallback: use raw p-value if no FDR table provided
-                    if p < fdr_threshold:
-                        is_significant = True
+def apply_correlation_fdr(
+    correlation_df: Optional[pd.DataFrame] = None,
+    input_path: str = "data/processed/raw_correlation_results.csv",
+    output_path: str = "data/processed/correlation_fdr.csv",
+) -> pd.DataFrame:
+    """
+    Apply a global Benjamini‑Hochberg FDR correction to the raw p‑values
+    from the correlation analysis.
 
-                flag = "significant" if is_significant else "exploratory"
+    Parameters
+    ----------
+    correlation_df : pd.DataFrame, optional
+        DataFrame containing at least the columns ``['gene', 'trait', 'p_raw']``.
+        If ``None``, the function will load the table from ``input_path``.
+    input_path : str, default ``'data/processed/raw_correlation_results.csv'``
+        Path to the CSV file containing raw correlation results.
+    output_path : str, default ``'data/processed/correlation_fdr.csv'``
+        Destination CSV where the DataFrame with adjusted p‑values will be saved.
 
-                results.append({
-                    "gene": gene,
-                    "trait": trait,
-                    "r": r,
-                    "p": p,
-                    "method": method,
-                    "significance_flag": flag
-                })
+    Returns
+    -------
+    pd.DataFrame
+        The original correlation DataFrame with an additional column ``p_adj``
+        containing the FDR‑adjusted p‑values.
+    """
+    # Load the raw results if they are not supplied directly
+    if correlation_df is None:
+        corr_path = Path(input_path)
+        if not corr_path.is_file():
+            raise FileNotFoundError(f"Correlation results not found at {corr_path}")
+        correlation_df = pd.read_csv(corr_path)
 
-            except Exception as e:
-                logger.error(f"Error computing correlation for {gene} vs {trait}: {e}")
-                continue
+    if "p_raw" not in correlation_df.columns:
+        raise ValueError("Input DataFrame must contain a 'p_raw' column with raw p‑values.")
 
-    if not results:
-        logger.warning("No correlation results generated.")
-        return pd.DataFrame(columns=["gene", "trait", "r", "p", "significance_flag"])
+    # Perform the Benjamini‑Hochberg correction on the entire set of p‑values
+    raw_pvals = correlation_df["p_raw"].values
+    _, p_adj, _, _ = multipletests(raw_pvals, method="fdr_bh")
 
-    df_results = pd.DataFrame(results)
-    # Ensure column order
-    df_results = df_results[["gene", "trait", "r", "p", "significance_flag"]]
-    
-    logger.info(f"Correlation analysis complete. Generated {len(df_results)} results.")
-    return df_results
+    # Attach adjusted p‑values to the DataFrame
+    correlation_df = correlation_df.copy()
+    correlation_df["p_adj"] = p_adj
+
+    # Persist the results
+    out_path = Path(output_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    correlation_df.to_csv(out_path, index=False)
+    logger.info(f"FDR‑adjusted correlation results written to {out_path}")
+
+    return correlation_df
+
+# Exported symbols (the module's public API)
+__all__ = [
+    "determine_correlation_methods",
+    "generate_correlation_analysis",
+    "apply_correlation_fdr",
+]

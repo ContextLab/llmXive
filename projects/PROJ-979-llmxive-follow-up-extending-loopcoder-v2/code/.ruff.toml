@@ -1,0 +1,9 @@
+[lint]
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[format]
+line-length = 88
+
+[target]
+version = "py310"

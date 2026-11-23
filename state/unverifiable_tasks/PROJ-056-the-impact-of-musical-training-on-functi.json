@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-056-the-impact-of-musical-training-on-functi",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "Checked `code/main.py`, `code/data/run_synthetic_generator.py`, `code/data/real_ingest.py`, and `code/run_quickstart_test.py` against the task spec. While the entry\u2011point scripts parse the required arguments and implement the described logic, the quick\u2011start test script cannot validate schemas because the required `*_schema.yaml` contract files are absent, and the recorded test run (`code/.tasks/T001.code_run_quickstart_test.py.log`) shows the script exiting with a non\u2011zero code. Additionally, the expected status file `data/logs/real_ingest_status.json` is missing from the repository (only a s",
+      "first_seen": "2026-10-20T19:19:07.087079+00:00",
+      "last_seen": "2026-10-20T19:19:07.087079+00:00"
+    }
+  ],
+  "updated_at": "2026-10-20T19:19:07.087079+00:00"
+}

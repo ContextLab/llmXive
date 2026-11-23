@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.14301",
+  "judged_at": "2026-07-23T07:34:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dopd: dual on-policy distillation\" computer science",
+  "rationale": "The paper addresses the user's question by providing foundational work on \"Dual On-policy Distillation\" (DOPD) extensions through its proposal of \"federated knowledge distillation\" for Mixture-of-Experts (MoE) models, satisfying criteria (a) for same-mechanism evidence (distillation) and (b) for measuring the dependent variable (perplexity) in the same domain (LLM training). Although the specific \"Dual On-policy\" mechanism is not the primary focus, the paper establishes the canonical empirical b",
+  "relevant": true
+}

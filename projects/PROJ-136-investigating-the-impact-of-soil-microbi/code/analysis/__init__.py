@@ -1,19 +1,20 @@
-"""
-Analysis package for PROJ-136.
-"""
-from .logging_config import get_logger, reset_logging_config, setup_logging
-from .power_analysis import calculate_sample_size_for_power, calculate_power, run_power_analysis, save_report, main
-from .dataset_verification import verify_datasets, save_report, main as verify_main
+"""Analysis package initialization."""
+from .logging_config import get_logger
+from .data_acquisition import fetch_emp_agricultural_samples, fetch_disease_incidence_records
+from .data_matching import run_matching_pipeline, match_samples_to_disease
+from .dataset_verification import verify_datasets
+from .validation_utils import validate_record
+from .power_analysis import run_power_analysis
+from .variable_verification import run_variable_verification
 
 __all__ = [
     'get_logger',
-    'reset_logging_config', 
-    'setup_logging',
-    'calculate_sample_size_for_power',
-    'calculate_power',
-    'run_power_analysis',
-    'save_report',
-    'main',
+    'fetch_emp_agricultural_samples',
+    'fetch_disease_incidence_records',
+    'run_matching_pipeline',
+    'match_samples_to_disease',
     'verify_datasets',
-    'verify_main'
+    'validate_record',
+    'run_power_analysis',
+    'run_variable_verification'
 ]

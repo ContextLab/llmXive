@@ -1,0 +1,106 @@
+{
+  "trace_id": "training_42_00342",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "insert_text",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 21.1064,
+        "y": 65.609,
+        "length": 90.0218
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 24.2243,
+        "saturation": 89.7089
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 79.0356,
+        "saturation": 47.8788
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 79.8738,
+        "saturation": 6.6669
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 64.7754,
+        "y": 53.1573,
+        "length": 27.1556
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 68.3674,
+        "y": 49.1776,
+        "length": 10.4541
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 23.6315,
+        "y": 48.5567,
+        "length": 31.5255
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 85.6772,
+        "y": 94.9778,
+        "length": 77.217
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 65.3201,
+        "saturation": 32.3959
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.686962,
+    "tool_repetition_freq": 0.777778,
+    "arg_semantic_variance": 716.771413
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 2,
+    "layout_hash": "42-342-insert_text"
+  }
+}

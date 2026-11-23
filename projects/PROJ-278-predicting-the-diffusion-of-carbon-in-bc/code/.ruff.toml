@@ -1,17 +1,12 @@
 [lint]
-select = [
-  "E",   # pycodestyle errors
-  "W",   # pycodestyle warnings
-  "F",   # pyflakes
-  "I",   # isort
-  "C",   # flake8-comprehensions
-  "B",   # flake8-bugbear
-]
-ignore = [
-  "E501", # line too long (handled by black)
-  "B008", # do not perform function calls in argument defaults
-]
+select = ["E4", "E7", "E9", "F", "I", "N", "UP", "W"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [format]
 line-length = 88
-indent-width = 4
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false

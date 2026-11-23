@@ -1,115 +1,69 @@
-# Data Model: llmXive follow-up: extending "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based R"
+# Data Model: llmXive follow-up
 
 ## Overview
 
-This document defines the data structures used throughout the pipeline. All data is stored as CSV files in `data/processed` to ensure interoperability and ease of inspection. Data is validated against YAML schemas defined in `contracts/` using the `jsonschema` library at runtime.
+This document defines the data structures for the `llmXive follow-up` project. All data flows through a pipeline of ingestion, transformation, and evaluation. The model is designed to be immutable: raw data is never modified, and derived data is written to new files with checksums.
 
 ## Entities
 
-### 1. Trajectory (Raw/Ingested)
-**Source**: CHERRL log files.
+### 1. Trajectory (Raw)
+**Source**: CHERRL logs (CSV/Parquet).
 **Description**: Time-series record of a policy's training run.
+**Fields**:
+- `seed_id`: Unique identifier for the random seed (string).
+- `bias_type`: Category of bias (Lexical, Format, Tone, Self-praise) (string).
+- `timestep`: Integer index of the training step.
+- `J_biased`: Float, biased reward score.
+- `J_unbiased`: Float, unbiased reward score.
+- `J_gold`: Float, gold reward score.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `timestep` | int | Training step index. |
-| `seed_id` | str | Random seed identifier (e.g., "seed_01"). |
-| `bias_type` | str | Rubric type: "Lexical", "Format", "Tone", "Self-praise". |
-| `J_biased` | float | Biased reward score. |
-| `J_unbiased` | float | Unbiased reward score. |
-| `J_gold` | float | Independent gold reward score. |
+### 2. Divergence Signal (Derived)
+**Source**: Computed from Trajectory.
+**Description**: Time-series of divergence metrics.
+**Fields**:
+- `seed_id`: (string)
+- `bias_type`: (string)
+- `timestep`: (integer)
+- `G_t`: Float, $|J_{\text{biased}} - J_{\text{unbiased}}|$.
+- `dG_t`: Float, $G(t) - G(t-1)$.
+- `z_G_t`: Float, Rolling z-score of $G(t)$ (window=20).
+- `hacked_label`: Boolean, `True` if $z(G(t)) > 3.0$ OR $\Delta G(t) > \text{threshold}$.
 
-### 2. Divergence Signal (Processed)
-**Source**: Derived from `Trajectory` via `code/ingestion.py`.
-**Description**: Computed features for anomaly detection, including detector labels and sensitivity analysis metadata.
+### 3. Ground Truth (Derived)
+**Source**: Computed from Trajectory (J_gold).
+**Description**: Binary labels for actual hacking events.
+**Fields**:
+- `seed_id`: (string)
+- `bias_type`: (string)
+- `timestep`: (integer)
+- `is_hacked`: Boolean, `True` if $J_{\text{gold}}$ drop $\ge 0.1$ sustained for $\ge 3$ steps.
+- `independence_check`: Boolean, `True` if $r(J_{\text{unbiased}}, J_{\text{gold}}) \le 0.8$.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `timestep` | int | Training step index. |
-| `seed_id` | str | Random seed identifier. |
-| `bias_type` | str | Rubric type. |
-| `J_biased` | float | Biased reward score (from raw). |
-| `J_unbiased` | float | Unbiased reward score (from raw). |
-| `J_gold` | float | Gold reward score (from raw). |
-| `G_t` | float | Divergence gap: $\|J_{\text{biased}} - J_{\text{unbiased}}\|$. |
-| `dG_t` | float | Rate of change: $G(t) - G(t-1)$. |
-| `z_score` | float | Rolling z-score of $G(t)$ (window size TBD by sensitivity analysis). |
-| `hacked_label` | int | Binary label: 1 if $z\_score > \tau$ or $dG(t)$ threshold exceeded, else 0. |
-| `normality_test_p_value` | float | P-value from Kolmogorov-Smirnov test (per rubric type). |
-| `detection_method` | str | "z-score" (normal) or "iqr" (non-normal fallback). |
-| `window_size` | int | Actual window size used (from sensitivity analysis). |
-| `z_threshold` | float | Actual z-score threshold used (from sensitivity analysis). |
-
-**Output File**: `data/processed/trajectories_divergence.csv`  
-**Validation**: Validated against `contracts/trajectory_schema.schema.yaml` using `jsonschema`.
-
-### 3. Ground Truth Labels (Processed)
-**Source**: Derived from `Trajectory` via `code/ground_truth.py`.
-**Description**: Binary labels based on $J_{\text{gold}}$ drops, with independence check results.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `timestep` | int | Training step index. |
-| `seed_id` | str | Random seed identifier. |
-| `bias_type` | str | Rubric type. |
-| `gt_hacked` | int | 1 if $J_{\text{gold}}$ drop $\ge 0.1$ sustained for 3+ steps, else 0. |
-| `correlation_J_unbiased_J_gold` | float | Pearson $r$ between $J_{\text{unbiased}}$ and $J_{\text{gold}}$ (reported once per seed). |
-| `correlation_J_biased_J_gold` | float | Pearson $r$ between $J_{\text{biased}}$ and $J_{\text{gold}}$ (reported once per seed). |
-| `independence_check_passed` | int | 1 if both correlations $< 0.8$, else 0. |
-
-**Output File**: `data/processed/trajectories_gt.csv`  
-**Note**: This is a separate intermediate artifact from `trajectories_divergence.csv`. The two are merged during the evaluation step (Phase 4).
-
-### 4. Evaluation Results (Aggregated)
-**Source**: Merged `trajectories_divergence.csv` + `trajectories_gt.csv`, processed via `code/evaluation.py`.
-**Description**: Summary metrics per bias type and overall.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `bias_type` | str | Rubric type. |
-| `precision` | float | Precision score (TP / (TP + FP)). |
-| `recall` | float | Recall score (TP / (TP + FN)). |
-| `f1_score` | float | F1-score (harmonic mean of precision and recall). |
-| `t_statistic` | float | T-statistic from paired Wilcoxon test (primary) or t-test (secondary). |
-| `p_value` | float | P-value from statistical test. |
-| `p_value_corrected` | float | FDR-corrected p-value (Benjamini-Hochberg). |
-| `effect_size` | float | Cohen's d or rank-biserial correlation (depending on test). |
-| `test_method` | str | "Wilcoxon" or "t-test". |
-| `threshold_type` | str | "universal" or "rubric-specific". |
-| `baseline_method` | str | "random-guess" or "mean-divergence" (baseline being compared to). |
-
-**Output File**: `data/processed/metrics.csv`  
-**Validation**: Validated against `contracts/metrics_schema.schema.yaml` using `jsonschema`.
+### 4. Evaluation Metrics (Derived)
+**Source**: Computed from Divergence Signal and Ground Truth.
+**Description**: Aggregated performance metrics.
+**Fields**:
+- `bias_type`: (string)
+- `precision`: Float.
+- `recall`: Float.
+- `f1_score`: Float.
+- `wilcoxon_p_value`: Float.
+- `wilcoxon_z_statistic`: Float.
+- `baseline_f1`: Float.
+- `sensitivity_threshold`: Float (0.05, 0.1, 0.15).
+- `effect_size`: Float (rank-biserial correlation).
 
 ## Data Flow
 
-1.  **Raw** (`data/raw/*.csv`) → **Ingestion** (`code/ingestion.py`) → **Divergence Signal** (`data/processed/trajectories_divergence.csv`).
-   - Computes $G(t)$, $dG(t)$, z-scores, and detector labels.
-   - Performs sensitivity analysis (grid search) and selects hyperparameters.
-   - Validates output against schema.
+1.  **Ingest**: `download_cherrl_logs.py` -> `data/raw/` (Parquet).
+2.  **Compute**: `compute_divergence.py` -> `data/processed/divergence_signals.parquet`.
+3.  **Label**: `detect_hacking.py` + `evaluate.py` -> `data/processed/ground_truth_labels.parquet`.
+4.  **Evaluate**: `evaluate.py` -> `data/processed/evaluation_report.json`.
+5.  **Runtime**: `benchmark_runtime.py` -> `data/processed/runtime_metrics.json`.
 
-2.  **Raw** (`data/raw/*.csv`) → **Ground Truth** (`code/ground_truth.py`) → **Ground Truth Labels** (`data/processed/trajectories_gt.csv`).
-   - Derives ground-truth labels from $J_{\text{gold}}$ drops.
-   - Computes extended independence check (both $J_{\text{unbiased}}$ and $J_{\text{biased}}$ vs $J_{\text{gold}}$).
-   - Halts if independence check fails (correlation > 0.8).
-   - Validates output against schema.
+## Constraints
 
-3.  **Divergence Signal** + **Ground Truth Labels** → **Evaluation** (`code/evaluation.py`) → **Evaluation Results** (`data/processed/metrics.csv`).
-   - Merges the two intermediate artifacts.
-   - Computes Precision, Recall, F1-score per bias type.
-   - Runs Wilcoxon signed-rank test and t-test (sensitivity check).
-   - Applies Benjamini-Hochberg correction for multiple comparisons.
-   - Evaluates generalization (SC-003): if $\sigma(F1) > 0.15$, triggers rubric-specific tuning via `code/tune_rubric_specific.py`.
-   - Validates output against schema.
-
-4. **Optional**: **Rubric-Specific Tuning** (if SC-003 fails) → `code/tune_rubric_specific.py` → **Updated Metrics** (`data/processed/metrics_rubric_specific.csv`).
-   - Performs separate grid search per rubric type.
-   - Reports metrics with `threshold_type = "rubric-specific"`.
-
-## Schema Validation
-
-All processed CSV files are validated at runtime using `jsonschema`. Schemas are defined in YAML format in `contracts/`:
-- `contracts/trajectory_schema.schema.yaml`: Validates `trajectories_divergence.csv`.
-- `contracts/metrics_schema.schema.yaml`: Validates `metrics.csv`.
-
-If validation fails, the pipeline halts with a clear error message indicating which rows/columns violate the schema.
+- **Immutability**: Raw files in `data/raw/` are never modified.
+- **Checksums**: Every file in `data/` must have a corresponding SHA-256 hash in `state/...yaml`.
+- **Independence**: If `independence_check` is `False`, the pipeline must halt.
+- **Types**: All floats are 64-bit; all integers are 32-bit.

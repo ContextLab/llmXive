@@ -1,91 +1,94 @@
 import os
 import sys
+import subprocess
 from pathlib import Path
+import logging
+from utils.logger import get_logger
 
 def ensure_requirements():
-    """
-    Ensures the requirements.txt contains necessary linting dependencies.
-    Appends them if missing.
-    """
-    req_file = Path("code/requirements.txt")
-    if not req_file.exists():
-        req_file.parent.mkdir(parents=True, exist_ok=True)
-        req_file.touch()
+    """Install ruff and black if not present."""
+    logger = get_logger(__name__)
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", "ruff==0.1.6", "black"])
+        logger.info("Dependencies ruff and black installed successfully.")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to install dependencies: {e}")
+        sys.exit(1)
 
-    with open(req_file, "r") as f:
-        content = f.read()
-
-    packages = ["ruff", "black"]
-    needs_update = False
-    for pkg in packages:
-        if pkg not in content:
-            needs_update = True
-            with open(req_file, "a") as f:
-                f.write(f"{pkg}\n")
-            print(f"Added {pkg} to requirements.txt")
-
-    if not needs_update:
-        print("Linting requirements already present.")
-
-def create_ruff_config():
-    """
-    Creates a .ruff.toml configuration file with standard settings.
-    """
-    config_path = Path(".ruff.toml")
-    if config_path.exists():
-        print("ruff config already exists.")
+def create_ruff_config(config_path: Path):
+    """Create ruff configuration in pyproject.toml."""
+    logger = get_logger(__name__)
+    # The configuration is already defined in pyproject.toml directly per task spec,
+    # but we ensure the file exists and contains the correct block.
+    if not config_path.exists():
+        logger.warning(f"Config file {config_path} does not exist. Creating it.")
+        # This file is created by the artifact, so we just verify it here if needed.
         return
 
-    config_content = """[lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = []
-
-[lint.per-file-ignores]
-"tests/*" = ["S101"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
-skip-magic-trailing-comma = false
-"""
-    with open(config_path, "w") as f:
-        f.write(config_content)
-    print(f"Created {config_path}")
-
-def create_black_config():
-    """
-    Creates a pyproject.toml with Black configuration if not present.
-    """
-    config_path = Path("pyproject.toml")
-    if not config_path.exists():
-        config_path.touch()
-
-    with open(config_path, "r") as f:
-        content = f.read()
-
-    black_section = """[tool.black]
-line-length = 88
-target-version = ['py38']
-"""
+    # Verify content matches spec
+    content = config_path.read_text()
+    required_sections = ["[tool.ruff]", "select =", "line-length = 100"]
+    for section in required_sections:
+        if section not in content:
+            logger.error(f"Missing required section '{section}' in pyproject.toml")
+            sys.exit(1)
     
-    # Simple check to avoid appending twice
-    if "[tool.black]" not in content:
-        with open(config_path, "a") as f:
-            f.write("\n" + black_section)
-        print(f"Updated {config_path} with Black config")
-    else:
-        print("Black config already present in pyproject.toml")
+    logger.info("Ruff configuration verified in pyproject.toml.")
+
+def create_black_config(config_path: Path):
+    """Create black configuration in pyproject.toml."""
+    logger = get_logger(__name__)
+    if not config_path.exists():
+        logger.warning(f"Config file {config_path} does not exist.")
+        return
+
+    content = config_path.read_text()
+    required_sections = ["[tool.black]", "line-length = 100"]
+    for section in required_sections:
+        if section not in content:
+            logger.error(f"Missing required section '{section}' in pyproject.toml")
+            sys.exit(1)
+
+    logger.info("Black configuration verified in pyproject.toml.")
 
 def main():
-    """
-    Main entry point to configure linting tools.
-    """
+    logger = get_logger(__name__)
+    project_root = Path(__file__).resolve().parent
+    pyproject_path = project_root / "pyproject.toml"
+
+    # Ensure requirements are installed
     ensure_requirements()
-    create_ruff_config()
-    create_black_config()
-    print("Linting configuration complete.")
-    return 0
+
+    # Create/Verify config files
+    # Note: The pyproject.toml content is provided as an artifact in this task.
+    # This script verifies the configuration is correct and linting tools are available.
+    if not pyproject_path.exists():
+        logger.error("pyproject.toml not found. Ensure the artifact was created.")
+        sys.exit(1)
+
+    create_ruff_config(pyproject_path)
+    create_black_config(pyproject_path)
+
+    # Run a dry-run check to ensure ruff can parse the config
+    try:
+        result = subprocess.run(
+            ["ruff", "check", "--config", str(pyproject_path), "--output-format=concise", "."],
+            cwd=project_root,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        # Ruff returns 0 if no issues, 1 if issues found. We just want to ensure it runs without config error.
+        if result.returncode not in [0, 1]:
+            logger.error(f"Ruff check failed with unexpected exit code {result.returncode}: {result.stderr}")
+            sys.exit(1)
+        logger.info("Ruff configuration is valid and executable.")
+    except subprocess.TimeoutExpired:
+        logger.error("Ruff check timed out.")
+        sys.exit(1)
+    except FileNotFoundError:
+        logger.error("Ruff executable not found. Ensure it was installed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

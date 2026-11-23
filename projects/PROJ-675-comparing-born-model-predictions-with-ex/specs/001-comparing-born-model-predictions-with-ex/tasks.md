@@ -30,7 +30,7 @@
 - [X] T001d Create state/ directory with projects/ subdirectory and __init__.py
 - [X] T051 [P] Create data-model.md in specs/001-born-model-solvation-comparison/ defining entity-to-file mapping for IonSolventPair, BornPrediction, ResidualAnalysis per Constitution Principle IV
 - [X] T052 [P] Create quickstart.md in specs/001-born-model-solvation-comparison/ with minimal run instructions for code/born_calculator.py, code/data_compiler.py, pytest tests/
-- [ ] T003 [P] Configure linting (flake8) and formatting (black) tools: create.flake8 config file at repo root and pyproject.toml with [tool.black] section; verify via `flake8 --version` and `black --version`
+- [X] T003 [P] Configure linting (flake8) and formatting (black) tools: create.flake8 config file at repo root and pyproject.toml with [tool.black] section; verify via `flake8 --version` and `black --version`
 
 ---
 
@@ -41,14 +41,14 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T007a [P] Create IonSolventPair Pydantic model in code/data_models.py with fields: ion_identifier, solvent_identifier, experimental_deltaG, uncertainty, temperature, charge, radius, radius_type, instrument_metadata
-- [ ] T007b [P] Create BornPrediction Pydantic model in code/data_models.py with fields: ion_identifier, solvent_identifier, predicted_deltaG, ionic_radius, dielectric_constant, calculation_timestamp
-- [ ] T007c [P] Create ResidualAnalysis Pydantic model in code/data_models.py with fields: residual, ion_size_class, solvent_class, statistical_significance, p_value, confidence_interval
+- [X] T007b [P] Create BornPrediction Pydantic model in code/data_models.py with fields: ion_identifier, solvent_identifier, predicted_deltaG, ionic_radius, dielectric_constant, calculation_timestamp
+- [X] T007c [P] Create ResidualAnalysis Pydantic model in code/data_models.py with fields: residual, ion_size_class, solvent_class, statistical_significance, p_value, confidence_interval
 - [ ] T004 [P] Setup data schema contracts in contracts/ as JSON Schema files (IonSolventPair.json, BornPrediction.json, ResidualAnalysis.json); validate via jsonschema library; verify schema matches Pydantic models (T007a-c must complete first)
-- [ ] T005 [P] Implement physical constants module in code/physical_constants.py (fundamental physical constants and units) with NIST/CRC citations to appropriate precision
+- [X] T005 [P] Implement physical constants module in code/physical_constants.py (fundamental physical constants and units) with NIST/CRC citations to appropriate precision
 - [X] T005c [P] Create data/parameters.csv with physical parameters (e, ε0, ionic radii, dielectric constants) including source citations AND temperature conditions per Constitution Principle VI
 - [ ] T006 [P] Setup environment configuration management in code/config.py with fields: data_path, code_path, random_seed, log_level in YAML format; verify via config loading test
 - [ ] T008 Configure error handling and logging infrastructure in code/utils/logging.py with JSON log format (timestamp, level, module, message) and error handling patterns (try/except with logging); verify via log output test
-- [ ] T050 [P] Implement Reference-Validator Agent in code/validators/reference_validator.py to validate external citations and enforce title-token-overlap threshold ≥0.7 per Constitution Principle II; verify via test run on sample citations
+- [X] T050 [P] Implement Reference-Validator Agent in code/validators/reference_validator.py to validate external citations and enforce title-token-overlap threshold ≥0.7 per Constitution Principle II; verify via test run on sample citations
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,7 +58,7 @@
 
 **Goal**: Compile a unified dataset containing experimental solvation free energies, solvent dielectric constants, and ionic radii from public chemistry databases with explicit uncertainty and metadata.
 
-**Independent Test**: Can be fully tested by verifying the dataset contains ≥30 ion-solvent pairs with complete fields (experimental ΔG, ε, r, charge) and that each value includes an uncertainty estimate or documented source precision.
+**Independent Test**: Can be fully tested by verifying the dataset contains ≥30 ion-solvent pairs with complete fields (experimental ΔG, ε, r, charge) and that each value includes an uncertainty estimate or documented source precision. [UNRESOLVED-CLAIM: c_0f41c21a — status=not_enough_info]
 
 **Note**: This phase produces data required by Phase 4 (T027 depends on T018).
 
@@ -66,14 +66,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for IonSolventPair schema in tests/contract/test_schemas.py
-- [ ] T011 [P] [US1] Unit test for data compiler precision in tests/unit/test_data_compiler.py
+- [X] T010 [P] [US1] Contract test for IonSolventPair schema in tests/contract/test_schemas.py
+- [X] T011 [P] [US1] Unit test for data compiler precision in tests/unit/test_data_compiler.py
 
 ### Implementation for User Story 1
 
-- [ ] T012a [P] [US1] Implement NIST data fetcher in code/data_compiler.py with retry logic and timestamp logging
-- [ ] T012b [P] [US1] Implement {{claim:c_77fff846}} (Wikidata Q11927173, https://www.wikidata.org/wiki/Q11927173) data fetcher in code/data_compiler.py (URL:) with retry logic and timestamp logging; verify fetch completes
-- [ ] T013 [US1] Implement Shannon radii extractor in code/data_compiler.py (source: {{claim:c_baa24643}} (Wikidata Q2277031, https://www.wikidata.org/wiki/Q2277031)) with crystal radius values to ≥0.01 Å precision
+- [X] T012a [P] [US1] Implement NIST data fetcher in code/data_compiler.py with retry logic and timestamp logging <!-- FAILED: unspecified -->
+- [ ] T012b [P] [US1] {{claim:c_c74e2896}} (URL:) with retry logic and timestamp logging; verify fetch completes <!-- FAILED: unspecified -->
+- [ ] T013 [US1] Implement {{claim:c_fa4cd455}}
 - [ ] T014 [US1] [FR-002] Add radius_type field (crystal/hydrated) to dataset schema AND extraction logic; create radius_type documentation in data/metadata.json with FR-002 traceability; verify documentation exists
 - [ ] T015 [US1] [FR-008] Implement uncertainty column population (ΔG_uncertainty, ε_uncertainty) in data/experimental_solvation.csv AND document uncertainty sources in data/metadata.json; verify columns populated
 - [ ] T016 [US1] [FR-002] Enforce high precision for ionic radii in code/data_compiler.py with validation (≥0.01 Å precision); verify precision enforced
@@ -107,7 +107,7 @@
 - [ ] T023 [US2] [FR-002] Implement radius_type selector (crystal vs hydrated) in code/born_calculator.py; document in docstring and code/README.md; verify selector functional
 - [ ] T024 [US2] [FR-002] Add optional coordination_number_correction parameter in code/born_calculator.py; document limitation in docstring and code/README.md; verify parameter accepted
 - [ ] T025 [US2] Implement unit conversion utilities (Å to m, kcal/mol to J) with documented factors in code/born_calculator.py; verify conversions correct
-- [ ] T026 [US2] Validate calculator against ≥5 reference ion-water pairs from independent data with ≤1% relative error tolerance in code/validate_born.py; assert tolerance and log failures; verify ≤1% tolerance met
+- [ ] T026 [US2] Validate calculator against ≥5 reference ion-water pairs from independent data with ≤1% relative error tolerance in code/validate_born.py [UNRESOLVED-CLAIM: c_5b31a295 — status=not_enough_info]; assert tolerance and log failures; verify ≤1% tolerance met
 - [ ] T027 [US2] Compute Born predictions for all dataset pairs and save to data/born_predictions.csv; verify file created
 - [ ] T028a [US2] [P] CPU-only execution verification test: create tests/unit/test_cpu_only.py that verifies no CUDA imports and completes timing benchmark on CPU cores; verify no GPU dependencies
 - [ ] T028b [US2] Performance benchmark: create code/benchmark.py that measures total computation time and asserts <10 minutes on 2 CPU cores without GPU dependencies; verify benchmark passes
@@ -136,13 +136,13 @@
 - [ ] T032 [US3] [FR-008] Separate error analysis for dielectric constant measurement vs solvation energy determination in code/regression_analysis.py; output both analyses to data/residual_analysis.csv; verify separation in output
 - [ ] T033 [US3] [FR-006] Apply Benjamini-Hochberg multiple-comparison correction to all hypothesis tests with p < 0.05 threshold in code/regression_analysis.py; flag p-value failures for paper documentation; verify correction applied
 - [ ] T034a [US3] [FR-007] Implement sensitivity analysis on RMSE threshold over a set of candidate values in kcal/mol in code/regression_analysis.py; output classification rate variation to data/sensitivity_analysis.csv; verify all tested thresholds
-- [ ] T034b [US3] [SC-003] Calculate and validate RMSE < 5 kcal/mol and correlation > 0.8 metrics per solvent class (water, alcohols, aprotic) with pass/fail reporting in code/regression_analysis.py; verify metrics computed per class
+- [ ] T034b [US3] [SC-003] {{claim:c_c00cb993}}; verify metrics computed per class
 - [ ] T035a [US3] Generate all three diagnostic plots with specific output filenames: (a) data/plots/predicted_vs_experimental.png, (b) data/plots/residual_vs_radius.png, (c) data/plots/residual_vs_dielectric.png in code/diagnostics.py; verify all three plots exist
-- [ ] T035b [US3] [P] Validate all three diagnostic plots exist and are non-empty; assert file existence and size > 1KB; verify plots non-empty
+- [ ] T035b [US3] [P] Validate all three diagnostic plots exist and are non-empty; assert file existence and size > 1KB [UNRESOLVED-CLAIM: c_120de64f — status=not_enough_info]; verify plots non-empty
 - [ ] T036a [US3] [SC-003] Calculate correlation coefficient per solvent class and validate > 0.8 cutoff; report pass/fail to data/metrics_summary.csv; verify correlation validated per class
 - [ ] T036b [US3] [Constitution Principle VII] Flag p-value failures in paper draft (paper/limitations.md) with explicit limitation statements; verify flagging in paper
 - [ ] T036c [US3] [SC-003] Save regression results to data/residual_analysis.csv with p-values, confidence intervals, and classification rates per solvent class; verify all fields present
-- [ ] T037 [US3] Flag outliers (RMSE > 20 kcal/mol) for manual review in data/residual_analysis.csv with review_required flag; verify outliers flagged
+- [ ] T037 [US3] Flag outliers (RMSE > 20 kcal/mol) for manual review [UNRESOLVED-CLAIM: c_3b28059b — status=not_enough_info] in data/residual_analysis.csv with review_required flag; verify outliers flagged
 - [ ] T037b [US3] [FR-002] Document breakdown threshold where continuum assumptions fail (to be determined in implementation) in data/metadata.json with explicit boundary specification placeholder; verify documentation exists
 - [ ] T053 [P] Pin random seeds (numpy.random.seed, random.seed) in code/regression_analysis.py per Constitution Principle I; verify seeds set at module level (file created in T031)
 
@@ -157,9 +157,9 @@
 - [ ] T038 [P] [FR-002] Document continuum dielectric limitation and hydration shell discrepancy in code/README.md and output reports; reference FR-002 explicitly; verify documentation created
 - [ ] T039a [P] Remove unused imports across code/; verify via flake8 --select=F401
 - [ ] T039b [P] Apply consistent naming conventions across code/; verify via black --check
-- [ ] T039c [P] Achieve docstring coverage > 80% across code/; verify via pydocstyle
+- [ ] T039c [P] Achieve docstring coverage > 80% across code/ [UNRESOLVED-CLAIM: c_92dd3db5 — status=not_enough_info]; verify via pydocstyle
 - [ ] T040a [P] Vectorize operations in code/regression_analysis.py using numpy; measure speedup
-- [ ] T041a [P] Achieve unit test coverage > 80% across code/; verify via pytest --cov
+- [ ] T041a [P] Achieve unit test coverage > 80% across code/ [UNRESOLVED-CLAIM: c_3741d1b2 — status=not_enough_info]; verify via pytest --cov
 - [ ] T041b [P] Add edge case tests for NaN, infinity, empty inputs in tests/unit/
 - [ ] T042 [P] Security hardening: run pip-audit on requirements.txt and pip check for dependency conflicts; fix all vulnerabilities; verify no vulnerabilities remain
 - [ ] T043 [P] Run quickstart.md validation: python -m code.born_calculator, python -m code.data_compiler, pytest tests/; verify all pass; verify quickstart passes

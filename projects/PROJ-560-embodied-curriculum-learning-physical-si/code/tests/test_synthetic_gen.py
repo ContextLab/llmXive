@@ -4,112 +4,129 @@ import sys
 import json
 import tempfile
 import shutil
-from pathlib import Path
-
-# Ensure code/src is in path for imports
-src_path = Path(__file__).parent.parent / "src"
-sys.path.insert(0, str(src_path.parent))
-
 from src.synthetic_gen import SyntheticDataGenerator
 from src.models import DatasetRecord
 
 class TestSyntheticDataGenerator:
-    """Unit tests for SyntheticDataGenerator output schema and data integrity."""
-
-    def setup_method(self):
-        """Create a temporary directory for test outputs."""
-        self.test_dir = tempfile.mkdtemp()
-        self.output_dir = os.path.join(self.test_dir, "output")
-        os.makedirs(self.output_dir, exist_ok=True)
-
-    def teardown_method(self):
-        """Remove the temporary directory after tests."""
-        shutil.rmtree(self.test_dir, ignore_errors=True)
-
-    def test_generate_creates_required_columns(self):
-        """Verify that generated data contains all required columns for DatasetRecord."""
-        generator = SyntheticDataGenerator(seed=42)
-        df = generator.generate(n_samples=50, mean_diff=0.5)
-
-        required_columns = {
-            "pre_test_score",
-            "post_test_score",
-            "instruction_type",
-            "covariates"
-        }
-
-        assert set(df.columns).issuperset(required_columns), \
-            f"Missing columns: {required_columns - set(df.columns)}"
-
-    def test_generate_instruction_type_values(self):
-        """Verify that instruction_type contains valid categorical values."""
-        generator = SyntheticDataGenerator(seed=42)
-        df = generator.generate(n_samples=100, mean_diff=0.0)
-
-        valid_types = {"embodied", "static"}
-        actual_types = set(df["instruction_type"].unique())
-
-        assert actual_types.issubset(valid_types), \
-            f"Invalid instruction_type values found: {actual_types - valid_types}"
-
-    def test_generate_scores_within_range(self):
-        """Verify that pre and post scores are within valid range [0, 100]."""
-        generator = SyntheticDataGenerator(seed=42)
-        df = generator.generate(n_samples=200, mean_diff=0.3)
-
-        assert (df["pre_test_score"] >= 0).all() and (df["pre_test_score"] <= 100).all(), \
-            "pre_test_score out of range [0, 100]"
-        assert (df["post_test_score"] >= 0).all() and (df["post_test_score"] <= 100).all(), \
-            "post_test_score out of range [0, 100]"
-
-    def test_generate_covariates_structure(self):
-        """Verify that covariates column contains valid JSON-serializable dictionaries."""
-        generator = SyntheticDataGenerator(seed=42)
-        df = generator.generate(n_samples=50, mean_diff=0.1)
-
-        for idx, row in df.iterrows():
-            cov = row["covariates"]
-            assert isinstance(cov, dict), f"Covariates at index {idx} is not a dict"
-            # Basic check that it's JSON serializable
-            try:
-                json.dumps(cov)
-            except TypeError:
-                pytest.fail(f"Covariates at index {idx} is not JSON serializable: {cov}")
-
-    def test_generate_mapping_log_created(self):
-        """Verify that generate_mapping_log creates the expected JSON file."""
-        generator = SyntheticDataGenerator(seed=42)
-        log_path = os.path.join(self.output_dir, "mapping_log.json")
+    """Tests for SyntheticDataGenerator output schema."""
+    
+    def setup_method(self) -> None:
+        """Set up test fixtures."""
+        self.generator = SyntheticDataGenerator()
+        self.temp_dir = tempfile.mkdtemp()
+    
+    def teardown_method(self) -> None:
+        """Tear down test fixtures."""
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+    
+    def test_generate_basic(self) -> None:
+        """Test basic generation of synthetic data."""
+        records = self.generator.generate(
+            n=10,
+            seed=42,
+            mean_diff_embodied=5.0,
+            mean_diff_static=2.0
+        )
+        assert len(records) == 10
+        assert all(isinstance(r, DatasetRecord) for r in records)
+        assert all(r.instruction_type in ["embodied", "static"] for r in records)
+        assert all(isinstance(r.pre_test_score, (int, float)) for r in records)
+        assert all(isinstance(r.post_test_score, (int, float)) for r in records)
+    
+    def test_deterministic_generation(self) -> None:
+        """Test that generation is deterministic with the same seed."""
+        records1 = self.generator.generate(
+            n=10,
+            seed=42,
+            mean_diff_embodied=5.0,
+            mean_diff_static=2.0
+        )
+        records2 = self.generator.generate(
+            n=10,
+            seed=42,
+            mean_diff_embodied=5.0,
+            mean_diff_static=2.0
+        )
+        assert len(records1) == len(records2)
+        for r1, r2 in zip(records1, records2):
+            assert r1.pre_test_score == r2.pre_test_score
+            assert r1.post_test_score == r2.post_test_score
+            assert r1.instruction_type == r2.instruction_type
+    
+    def test_mapping_log_creation(self) -> None:
+        """Test that mapping log is created."""
+        output_path = os.path.join(self.temp_dir, "mapping_log.json")
+        self.generator.generate(
+            n=10,
+            seed=42,
+            mean_diff_embodied=5.0,
+            mean_diff_static=2.0
+        )
+        self.generator.write_mapping_log(output_path)
         
-        # Call the mapping log generation directly
-        generator.generate_mapping_log(log_path)
-
-        assert os.path.exists(log_path), "mapping_log.json was not created"
-
-        with open(log_path, 'r') as f:
+        assert os.path.exists(output_path)
+        with open(output_path, "r") as f:
             log_data = json.load(f)
-
-        # Verify structure per Constitution Principle VI
-        assert "causal_chain" in log_data, "mapping_log missing 'causal_chain'"
-        assert "Physics_Action" in log_data["causal_chain"], "Missing Physics_Action"
-        assert "Virtual_Object_State" in log_data["causal_chain"], "Missing Virtual_Object_State"
-        assert "Abstract_Principle_Inference" in log_data["causal_chain"], "Missing Abstract_Principle_Inference"
-
-    def test_generate_deterministic_with_seed(self):
-        """Verify that same seed produces identical data."""
-        generator1 = SyntheticDataGenerator(seed=123)
-        generator2 = SyntheticDataGenerator(seed=123)
-
-        df1 = generator1.generate(n_samples=50, mean_diff=0.5)
-        df2 = generator2.generate(n_samples=50, mean_diff=0.5)
-
-        assert df1.equals(df2), "Data generation is not deterministic with same seed"
-
-    def test_generate_sample_size_accuracy(self):
-        """Verify that generated dataset has exactly the requested number of samples."""
-        generator = SyntheticDataGenerator(seed=42)
-        n_requested = 75
-        df = generator.generate(n_samples=n_requested, mean_diff=0.2)
-
-        assert len(df) == n_requested, \
-            f"Expected {n_requested} samples, got {len(df)}"
+        
+        assert isinstance(log_data, list)
+        assert len(log_data) == 10
+        for entry in log_data:
+            assert "physics_param" in entry
+            assert "math_concept" in entry
+            assert "mapping_rule" in entry
+    
+    def test_group_distribution(self) -> None:
+        """Test that records are distributed between groups."""
+        records = self.generator.generate(
+            n=100,
+            seed=42,
+            mean_diff_embodied=5.0,
+            mean_diff_static=2.0
+        )
+        embodied_count = sum(1 for r in records if r.instruction_type == "embodied")
+        static_count = sum(1 for r in records if r.instruction_type == "static")
+        
+        assert embodied_count + static_count == 100
+        assert embodied_count == 50
+        assert static_count == 50
+    
+    def test_schema_types(self) -> None:
+        """Test that all fields in the generated records have correct types."""
+        records = self.generator.generate(
+            n=5,
+            seed=123,
+            mean_diff_embodied=5.0,
+            mean_diff_static=2.0
+        )
+        for r in records:
+            assert isinstance(r.pre_test_score, (int, float))
+            assert isinstance(r.post_test_score, (int, float))
+            assert isinstance(r.instruction_type, str)
+            assert r.instruction_type in ["embodied", "static"]
+    
+    def test_mean_difference_impact(self) -> None:
+        """Test that changing mean_diff parameters affects the generated scores."""
+        # Generate with a large difference
+        records_high = self.generator.generate(
+            n=100,
+            seed=42,
+            mean_diff_embodied=10.0,
+            mean_diff_static=1.0
+        )
+        
+        # Generate with a small difference
+        records_low = self.generator.generate(
+            n=100,
+            seed=42,
+            mean_diff_embodied=1.0,
+            mean_diff_static=1.0
+        )
+        
+        embodied_scores_high = [r.post_test_score - r.pre_test_score for r in records_high if r.instruction_type == "embodied"]
+        embodied_scores_low = [r.post_test_score - r.pre_test_score for r in records_low if r.instruction_type == "embodied"]
+        
+        avg_gain_high = sum(embodied_scores_high) / len(embodied_scores_high)
+        avg_gain_low = sum(embodied_scores_low) / len(embodied_scores_low)
+        
+        # The high difference scenario should produce a significantly higher average gain
+        assert avg_gain_high > avg_gain_low

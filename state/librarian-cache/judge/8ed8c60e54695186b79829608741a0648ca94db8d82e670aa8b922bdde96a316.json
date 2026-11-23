@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2608.17342",
+  "judged_at": "2026-09-08T13:06:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical modeling of temporal dependence in cryptocurrency price fluctuations statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it explicitly models \"multi-scale stochastic dependencies\" and \"temporal dynamics\" in cryptocurrency price fluctuations using a framework rooted in stochastic differential equations, directly addressing the user's focus on statistical modeling of temporal dependence in this specific domain.",
+  "relevant": true
+}

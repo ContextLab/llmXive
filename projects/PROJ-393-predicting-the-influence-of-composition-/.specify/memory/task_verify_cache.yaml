@@ -1,0 +1,23 @@
+T001:
+  c: false
+  h: 87310329665de76a688ac192ee40c501ed59c3b529dd1495b5b6857754824a2e
+  r: "The `docs/reports/` directory is missing, the `requirements.txt` uses loose\
+    \ \u201C>=\u201D version specifiers instead of exact pins, and there is no execution\
+    \ evidence that `python -m src.main --help` produces the required \u201CSetup\
+    \ OK\u201D help message."
+  sig: 2d5a336e7971df204c89031aae6ee78e2bd78e83ff88336b5d45377b4b064ed9
+T002:
+  c: false
+  h: 1b56ed4984447322727cd0854a5ff1ba89f47c064e87ef52fbf3e7f8ab375175
+  r: The required file `data/raw/elemental_properties_v1.csv` is missing, `src/features/descriptors.py`
+    is absent, and `data/checksums.txt` contains no checksum entry for the CSV. Additionally,
+    the provided test script looks for `data/raw/elemental_properties.csv` with a
+    different column set, so it does not verify the required schema.
+  sig: 1b90d08ceafb41683b854728c82a1707eebdc4f23aa8d73fe7e8566abcb4cae8
+T012:
+  c: false
+  h: 3901afc96271d248b56ed875487409e9329086db4feddbb36981310e2a6e1986
+  r: "The required unit test file `code/tests/unit/test_composition_parser.py` is\
+    \ missing from the repository, so no test code exists to verify that the composition\
+    \ parser correctly converts \"Co2MnGa\" to atomic fractions. The task\u2019s primary\
+    \ artifact is absent."

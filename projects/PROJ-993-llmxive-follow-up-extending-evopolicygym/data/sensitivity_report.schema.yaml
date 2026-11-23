@@ -1,0 +1,15 @@
+columns:
+  - name: env_id
+    type: string
+  - name: shift_step
+    type: integer
+  - name: pre_shift_score
+    type: float
+  - name: post_shift_score
+    type: float
+  - name: drop_percent
+    type: float
+  - name: p_value
+    type: float
+  - name: is_significant
+    type: boolean

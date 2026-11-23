@@ -1,0 +1,150 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Report Schema
+description: Schema for aggregated statistical analysis results
+type: object
+required:
+  - report_id
+  - generated_at
+  - methodology
+  - metrics
+properties:
+  report_id:
+    type: string
+    description: Unique identifier for the report
+  generated_at:
+    type: string
+    format: date-time
+    description: Generation timestamp
+  methodology:
+    type: object
+    required:
+      - primary_metric_static
+      - primary_metric_dynamic
+      - correlation_method
+      - significance_level
+    properties:
+      primary_metric_static:
+        type: string
+        const: "issue_detection_rate"
+        description: Static analysis metric used
+      primary_metric_dynamic:
+        type: string
+        const: "pass_rate"
+        description: Dynamic analysis metric used
+      correlation_method:
+        type: string
+        enum:
+          - spearman
+          - chi_squared
+        description: Statistical test method
+      significance_level:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Alpha level used
+      bonferroni_corrected:
+        type: boolean
+        description: Whether Bonferroni correction was applied
+      deviations:
+        type: array
+        items:
+          type: string
+        description: List of rejected requirements (e.g., FR-004, FR-005)
+  metrics:
+    type: object
+    required:
+      - issue_detection_rate
+      - pass_rate
+    properties:
+      issue_detection_rate:
+        type: object
+        properties:
+          overall:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          by_language:
+            type: object
+            properties:
+              python:
+                type: number
+              javascript:
+                type: number
+              java:
+                type: number
+      pass_rate:
+        type: object
+        properties:
+          overall:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          by_language:
+            type: object
+            properties:
+              python:
+                type: number
+              javascript:
+                type: number
+              java:
+                type: number
+  correlation_results:
+    type: object
+    properties:
+      spearman:
+        type: object
+        properties:
+          coefficient:
+            type: number
+          p_value:
+            type: number
+          sample_size:
+            type: integer
+      chi_squared:
+        type: object
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+          degrees_of_freedom:
+            type: integer
+  stratified_results:
+    type: array
+    items:
+      type: object
+      properties:
+        language:
+          type: string
+        sample_size:
+          type: integer
+        metrics:
+          type: object
+  sensitivity_analysis:
+    type: array
+    items:
+      type: object
+      properties:
+        alpha:
+          type: number
+        detection_rate:
+          type: number
+        p_value:
+          type: number
+        sample_size:
+          type: integer
+  limitations:
+    type: array
+    items:
+      type: string
+    description: List of data or methodological limitations
+  artifacts:
+    type: object
+    properties:
+      raw_data_hash:
+        type: string
+      processed_data_hash:
+        type: string
+      tool_versions:
+        type: object
+additionalProperties: false

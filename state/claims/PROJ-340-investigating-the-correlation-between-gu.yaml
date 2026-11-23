@@ -1,0 +1,1006 @@
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: No single public dataset contains paired gut metagenomics and objective
+    sleep data
+  claim_id: c_cfa67a4f
+  context: 'Search Findings Section 1: Single-Cohort Paired Datasets. Status: None
+    Found.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_single_public_dataset_contains_paired_gut_metagenomics_an
+  kind: entity_fact
+  raw_text: Despite extensive searching, no single public dataset was identified that
+    contains both high-resolution gut metagenomic sequencing and simultaneous objective
+    sleep architecture data from the same subjects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:54:30Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: Most existing gut-sleep studies have sample sizes less than 50
+  claim_id: c_8ea865f5
+  context: 'Search Findings Section 1: Single-Cohort Paired Datasets. Most existing
+    studies in this domain are small-scale...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Most_existing_gut-sleep_studies_have_sample_sizes_less_than
+  kind: magnitude
+  raw_text: Most existing studies in this domain are small-scale (N < 50).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:55:19Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: NHANES public cohort lacks available metagenomic data despite having
+    sleep and stool samples
+  claim_id: c_6891c175
+  context: 'Search Findings Section 2: Potential Candidate Cohorts. NHANES Status
+    and Limitation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NHANES_public_cohort_lacks_available_metagenomic_data_despit
+  kind: entity_fact
+  raw_text: NHANES contains sleep data (actigraphy and questionnaires) and stool samples,
+    but metagenomic data is not currently available for the public cohort.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:55:40Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: American Gut Project lacks objective sleep data like PSG or actigraphy
+  claim_id: c_39eeebdc
+  context: 'Search Findings Section 2: Potential Candidate Cohorts. American Gut Project
+    Limitation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/American_Gut_Project_lacks_objective_sleep_data_like_PSG_or
+  kind: entity_fact
+  raw_text: American Gut Project sleep data is limited to self-reported questionnaires,
+    not objective PSG or actigraphy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:56:14Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: UK Biobank metagenomic data not fully released for entire sleep cohort
+  claim_id: c_c737ec06
+  context: 'Search Findings Section 2: Potential Candidate Cohorts. UK Biobank Status
+    and Limitation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UK_Biobank_metagenomic_data_not_fully_released_for_entire_sl
+  kind: entity_fact
+  raw_text: UK Biobank contains sleep data (actigraphy) and stool samples for a subset,
+    but metagenomic data is not yet fully released for the entire sleep cohort.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:56:35Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: Query gut microbiome sleep actigraphy dataset returned 0 results
+  claim_id: c_5aac51cb
+  context: 'Appendix: Search Log. Query: ''gut microbiome sleep actigraphy dataset''
+    -> Result: 0 direct hits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query 'gut microbiome sleep actigraphy dataset' returned 0 direct hits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:56:47Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: Query metagenomics polysomnography public data returned 0 results
+  claim_id: c_7e057fe2
+  context: 'Appendix: Search Log. Query: ''metagenomics polysomnography public data''
+    -> Result: 0 direct hits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query 'metagenomics polysomnography public data' returned 0 direct hits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:57:03Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_sources.md
+  attempts: 1
+  canonical: Query dbGaP sleep microbiome returned 3 restricted access entries without
+    linked raw metagenomic PSG data
+  claim_id: c_76d1caf6
+  context: 'Appendix: Search Log. Query: ''dbGaP sleep microbiome'' -> Result: 3 entries...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query 'dbGaP sleep microbiome' returned 3 entries, all restricted access
+    with no raw metagenomic data linked to PSG.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T17:57:16Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time constraint is 6 hours on CPU-only CI
+  claim_id: c_391074bf
+  context: 'Goal: Ingest raw data, validate variable presence, and ensure pipeline
+    runs within 6 hours on CPU-only CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours on CPU-only CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:50:03Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Outlier detection threshold is 1.5 times IQR
+  claim_id: c_26d6977f
+  context: 'Implement outlier detection logic in code/ingest.py (IQR method: >1.5x
+    IQR above 75th or <1.5x below 25th) and flag exclusion'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Outlier detection uses the IQR method: >1.5x IQR above 75th or <1.5x
+    below 25th.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:50:03Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: FDR correction threshold is q less than or equal to 0.05
+  claim_id: c_fc5358b4
+  context: "Implement Benjamini-Hochberg FDR correction in code/analysis.py to adjust\
+    \ p-values (q \u2264 0.05)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FDR_correction_threshold_is_q_less_than_or_equal_to_0.05
+  kind: magnitude
+  raw_text: "Benjamini-Hochberg FDR correction adjusts p-values to q \u2264 0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:50:28Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: VIF flag threshold is greater than 5
+  claim_id: c_5591c4c4
+  context: Implement VIF calculation in code/diagnostics.py for multivariate predictors
+    (flag VIF > 5).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_flag_threshold_is_greater_than_5
+  kind: magnitude
+  raw_text: VIF calculation flags values greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:50:57Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Stability metric threshold is CV less than 0.10
+  claim_id: c_c86012b2
+  context: 'PASS/FAIL: If CV < 0.10, mark ''STABLE''; else ''UNSTABLE''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_metric_threshold_is_CV_less_than_0.10
+  kind: magnitude
+  raw_text: Stability metric marks 'STABLE' if coefficient of variation (CV) < 0.10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:51:21Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: RAM streaming threshold is between 6GB and 7GB
+  claim_id: c_ca948a1f
+  context: If 6GB < estimated usage <= 7GB, return status 'STREAM'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_streaming_threshold_is_between_6GB_and_7GB
+  kind: entity_fact
+  raw_text: RAM pre-check estimates usage where 6GB < estimated usage <= 7GB returns
+    status 'STREAM'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:51:45Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: RAM fail threshold is greater than 7GB
+  claim_id: c_12b2aee8
+  context: If estimated usage > 7GB, return status 'FAIL'.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_fail_threshold_is_greater_than_7GB
+  kind: magnitude
+  raw_text: RAM pre-check returns status 'FAIL' if estimated usage > 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:52:07Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Large proxy dataset size is 999 subjects
+  claim_id: c_ca1ff77f
+  context: Create a script in code/generate_large_proxy.py that generates a verified
+    large proxy dataset (N=999)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A large proxy dataset with N=999 is used for stress testing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:52:23Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Real data search covered GEO, SRA, EGA, and dbGaP repositories
+  claim_id: c_4bb17f0d
+  context: Perform a systematic search for single-source gut-sleep datasets in major
+    repositories (GEO, SRA, EGA, dbGaP).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Real_data_search_covered_GEO,_SRA,_EGA,_and_dbGaP_repositori
+  kind: entity_fact
+  raw_text: The search for real data covered repositories GEO, SRA, EGA, and dbGaP.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:52:43Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time on CPU-only CI is less than 6 hours
+  claim_id: c_a9f607c9
+  context: 'Independent Test: Run ingestion against a mock dataset missing ''SWS duration'';
+    verify system halts with specific error. Run dummy pipeline on CI; verify completion
+    < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_on_CPU-only_CI_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Run dummy pipeline on CI; verify completion < 6h.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:59:14Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if required variable load percentage is less than 100
+    percent
+  claim_id: c_38da378c
+  context: Implement load_data() in code/ingest.py to read CSV/TSV, READ the percentage
+    metric from data/results/variable_load_metrics.json (output of T012), and halt
+    execution with sys.exit(1) if the percentage is < 100% with specific error message
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_required_variable_load_percentage_is_less
+  kind: magnitude
+  raw_text: halt execution with sys.exit(1) if the percentage is < 100%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:59:39Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Outlier detection uses IQR method with thresholds of 1.5 times the interquartile
+    range
+  claim_id: c_839fe197
+  context: 'Implement outlier detection logic in code/ingest.py (IQR method: >1.5x
+    IQR above 75th or <1.5x below 25th) and flag exclusion'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'IQR method: >1.5x IQR above 75th or <1.5x below 25th'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:59:39Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution timing check asserts duration is less than 6 hours
+  claim_id: c_a1a8c076
+  context: Implement execution timing check in code/main.py to log start/end times,
+    assert < 6 hours, and generate timing evidence artifact
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_timing_check_asserts_duration_is_less_tha
+  kind: magnitude
+  raw_text: assert < 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T00:59:57Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor calculation flags values greater than 5
+  claim_id: c_4acac369
+  context: Implement VIF calculation in code/diagnostics.py for multivariate predictors
+    (flag VIF > 5)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: flag VIF > 5
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T01:00:05Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Stability metric marks results as stable if coefficient of variation
+    is less than 0.10
+  claim_id: c_00f6b3d4
+  context: 'PASS/FAIL: If CV < 0.10, mark ''STABLE''; else ''UNSTABLE'''
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_metric_marks_results_as_stable_if_coefficient_of_v
+  kind: magnitude
+  raw_text: If CV < 0.10, mark 'STABLE'; else 'UNSTABLE'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:04:07Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Dataset fetch implementation requires feasibility score greater than
+    or equal to 0.8
+  claim_id: c_1ce5d43d
+  context: IF T049a found a valid dataset with feasibility_score >= 0.8, implement
+    specific, verified data fetcher
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_fetch_implementation_requires_feasibility_score_grea
+  kind: magnitude
+  raw_text: feasibility_score >= 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:04:17Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: RAM usage estimation formula uses number of subjects multiplied by number
+    of taxa
+  claim_id: c_b98ddf87
+  context: 'Formula: Estimate (GB) = (N_subjects * N_taxa) / (conversion_factor*),
+    where the conversion factor represents the appropriate unit scaling for memory
+    estimation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_estimation_formula_uses_number_of_subjects_multipl
+  kind: entity_fact
+  raw_text: Estimate (GB) = (N_subjects * N_taxa) / (conversion_factor*)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:04:24Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: RAM check returns OK for usage up to 6GB, STREAM for 6GB to 7GB, and
+    FAIL for above 7GB
+  claim_id: c_8dac3be9
+  context: 'Logic: If estimated usage <= 6GB, return status ''OK''. If 6GB < estimated
+    usage <= 7GB, return status ''STREAM''. If estimated usage > 7GB, return status
+    ''FAIL'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_check_returns_OK_for_usage_up_to_6GB,_STREAM_for_6GB_to
+  kind: entity_fact
+  raw_text: If estimated usage <= 6GB, return status 'OK'. If 6GB < estimated usage
+    <= 7GB, return status 'STREAM'. If estimated usage > 7GB, return status 'FAIL'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:04:38Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Streaming execution test verifies memory usage stays below 7GB
+  claim_id: c_c71eb53e
+  context: 'Logic: Verify that memory usage stays < 7GB during execution and that
+    data/processed/filtered_data.parquet is generated via chunked accumulation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_execution_test_verifies_memory_usage_stays_below_7
+  kind: entity_fact
+  raw_text: memory usage stays < 7GB during execution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T01:04:46Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 6 hours on CPU-only CI
+  claim_id: c_1b97b07b
+  context: 'Goal: Ingest raw data, validate variable presence, and ensure pipeline
+    runs within 6 hours on CPU-only CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within 6 hours on CPU-only CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T17:55:43Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis stability threshold 10%
+  claim_id: c_5c3d0094
+  context: The stability_status must be 'STABLE' if the percentage change is < 10%
+    for all thresholds, and 'UNSTABLE' otherwise. This <10% threshold is the defined
+    pass/fail criterion for SC-002.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_stability_threshold_10%25
+  kind: magnitude
+  raw_text: The stability status is defined as 'STABLE' if the percentage change in
+    significant findings is less than 10% for all thresholds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T17:56:07Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: VIF flag threshold 5
+  claim_id: c_45d1bdde
+  context: 'Output: data/results/vif_report.json with VIF values and flags for VIF
+    > 5.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_flag_threshold_5
+  kind: magnitude
+  raw_text: Variance Inflation Factor (VIF) flags are set for values greater than
+    5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T17:56:24Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Stress testing sample size limit 1000
+  claim_id: c_b1eccace
+  context: 'Note: While this pipeline supports streaming for future scalability (N
+    > 1000), current stress testing is scoped to N < 1000 per Assumption-001.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Current stress testing is scoped to N < 1000 per Assumption-001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T17:56:24Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Required predictor taxa Bacteroides Firmicutes Actinobacteria Proteobacteria
+    Fusobacteria
+  claim_id: c_1e86cf48
+  context: 'Template List: required_predictors: [''Bacteroides'', ''Firmicutes'',
+    ''Actinobacteria'', ''Proteobacteria'', ''Fusobacteria'']'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Required_predictor_taxa_Bacteroides_Firmicutes_Actinobacteri
+  kind: entity_fact
+  raw_text: The required predictor taxa list includes Bacteroides, Firmicutes, Actinobacteria,
+    Proteobacteria, and Fusobacteria.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T17:56:54Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Required outcome sleep metrics REM duration SWS duration Wake after sleep
+    onset Total sleep time
+  claim_id: c_c25bac69
+  context: 'required_outcomes: [''REM_duration'', ''SWS_duration'', ''Wake_after_sleep_onset'',
+    ''Total_sleep_time'']'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Required_outcome_sleep_metrics_REM_duration_SWS_duration_Wak
+  kind: entity_fact
+  raw_text: The required outcome sleep metrics include REM duration, SWS duration,
+    Wake after sleep onset, and Total sleep time.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T17:57:13Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: current implementation scoped to N < 1000 per Assumption-001
+  claim_id: c_ebbcc089
+  context: 'Register the checksum for data/processed/filtered_data.parquet in state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml
+    per Constitution Principle III. **DEPENDS ON T014b.** **Note**: Future work may
+    include streaming support for large datasets, but current implementation is scoped
+    to N < 1000 per Assumption-001 and does not support streaming.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Future work may include streaming support for large datasets, but current
+    implementation is scoped to N < 1000 per Assumption-001 and does not support streaming.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T00:32:52Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: stability_status STABLE if percentage change < 10%
+  claim_id: c_4b814dfb
+  context: 'Output: `data/results/sensitivity_analysis.json` with percentage change
+    in significant findings for each threshold and a `stability_status` field. **Addresses
+    FR-005 and SC-002.** **Metric**: The `stability_status` must be ''STABLE'' if
+    the percentage change is < 10% for all thresholds, and ''UNSTABLE'' otherwise.
+    This <10% threshold is the defined pass/fail criterion for SC-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The `stability_status` must be 'STABLE' if the percentage change is <
+    10% for all thresholds, and 'UNSTABLE' otherwise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T00:32:52Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: flags for VIF > 5
+  claim_id: c_d5b595ec
+  context: 'Implement Variance Inflation Factor (VIF) calculation in `code/diagnostics.py`
+    for all predictors *excluding* those flagged as ''Perfect Multicollinearity''
+    in `data/metadata/static_collinearity_map.json` (output of T021f_new). **Output**:
+    `data/results/vif_report.json` with VIF values and flags for VIF > 5. **Addresses
+    FR-006 and SC-003.** **DEPENDS ON T021f_new.**'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement Variance Inflation Factor (VIF) calculation in `code/diagnostics.py`
+    for all predictors *excluding* those flagged as ''Perfect Multicollinearity''
+    in `data/metadata/static_collinearity_map.json` (output of T021f_new). **Output**:
+    `data/results/vif_report.json` with VIF values and flags for VIF > 5.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T00:33:15Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: NCBI taxonomy dump file version 2024-01-01 downloaded
+  claim_id: c_d1526060
+  context: 'T021f_download [P] DOWNLOAD NCBI TAXONOMY DUMP: Download the specific
+    NCBI taxonomy dump file (URL: , version 2024-01-01) to data/raw/ncbi_taxonomy_static.tsv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Download the specific NCBI taxonomy dump file (URL: , version 2024-01-01)
+    to data/raw/ncbi_taxonomy_static.tsv.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:55:15Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: NCBI taxonomy dump file row count greater than or equal to 50
+  claim_id: c_47f66bcc
+  context: 'Verification: Verify file exists, has correct columns, and row count >=
+    50.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P5379: 1118'
+      source_id: Q47604
+      url: https://www.wikidata.org/wiki/Q47604
+      value: '1118'
+    filled: true
+  kind: magnitude
+  raw_text: Verify file exists, has correct columns, and row count >= 50.
+  resolved_value: '1118'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T00:55:29Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Synthetic data uses normal distribution for sleep and Zero-Inflated Negative
+    Binomial for taxa
+  claim_id: c_71ca3d70
+  context: 'T107 [US1] IMPLEMENT SYNTHETIC DATA GENERATOR: Create code/generate_synthetic_data.py
+    to produce a mock dataset with known missing variables and zero-inflation for
+    testing T011. Constraints: Must not be used in production runs; only for local
+    validation. Distribution: Normal for sleep, Zero-Inflated Negative Binomial for
+    taxa.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_uses_normal_distribution_for_sleep_and_Zero-I
+  kind: entity_fact
+  raw_text: Use normal distribution for sleep and Zero-Inflated Negative Binomial
+    for taxa in synthetic data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:55:59Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Zero-proportion greater than 0.30 triggers Zero-Inflated Negative Binomial
+    model
+  claim_id: c_db3e0a7e
+  context: 'T021 [P] IMPLEMENT CORRELATION METHOD SELECTION: Implement select_correlation_method()
+    in code/analysis.py. Strict Priority per FR-002: 1) If Zero-Inflated (ZINB/Hurdle)
+    -> Use ZINB (Trigger: Shapiro-Wilk p < 0.05 OR Zero-proportion > 0.30).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Zero-proportion_greater_than_0.30_triggers_Zero-Inflated_Neg
+  kind: magnitude
+  raw_text: Use zero-proportion > 0.30 as a trigger for Zero-Inflated Negative Binomial
+    model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:56:52Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction implemented for multiple testing
+  claim_id: c_66c336e1
+  context: 'T025 [P] IMPLEMENT FDR CORRECTION AND OUTPUT: Implement Benjamini-Hochberg
+    FDR correction in code/analysis.py.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: certificate proves FDR> 0.0104for all sufficiently large numbers of hypotheses.
+        This
+      source_id: '2607.12208'
+      url: https://arxiv.org/abs/2607.12208
+      value: '0.0104'
+    filled: true
+  kind: entity_fact
+  raw_text: Use Benjamini-Hochberg FDR correction for multiple testing.
+  resolved_value: '0.0104'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T00:57:33Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution completes within 6 hours on CPU-only CI
+  claim_id: c_5fc02f5a
+  context: 'Goal: Ingest raw data, validate variable presence, and ensure pipeline
+    runs within 6 hours on CPU-only CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline execution must complete within 6 hours on CPU-only CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:57:52Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Significant correlations identified with q less than 0.05
+  claim_id: c_eae524d9
+  context: 'T302 [US3] FINAL STATISTICAL SIGNIFICANCE SUMMARY: Generate a summary
+    table in data/results/significance_summary.md listing all significant correlations
+    (q < 0.05) with their coefficients, p-values, and methods used.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Significant_correlations_identified_with_q_less_than_0.05
+  kind: magnitude
+  raw_text: Identify significant correlations with q < 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:58:25Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Causal language scan uses regex pattern for causes, leads to, effect,
+    causal
+  claim_id: c_831bcca9
+  context: 'T124 [US2] IMPLEMENT CAUSAL LANGUAGE ENFORCEMENT: Implement scan_causal_language()
+    in code/report.py to perform a regex scan of all logs and reports for causal language
+    (e.g., ''causes'', ''leads to'', ''effect''). Regex: r''\b(causes|leads to|effect|causal)\b''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Causal_language_scan_uses_regex_pattern_for_causes,_leads_to
+  kind: causal
+  raw_text: Scan for causal language using regex pattern r'\b(causes|leads to|effect|causal)\b'.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:58:27Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Outlier exclusion uses IQR method with 1.5x threshold above 75th percentile
+    and below 25th percentile
+  claim_id: c_99e75f73
+  context: 'T014 [US1] IMPLEMENT OUTLIER DETECTION AND REPORTING: Implement outlier
+    detection logic in code/ingest.py using IQR method (values > 1.5x IQR above 75th
+    percentile or < 1.5x IQR below 25th percentile).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude data points with values > 1.5x IQR above 75th percentile or <
+    1.5x IQR below 25th percentile.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:58:27Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: References Smith et al. 2023 and Zhang and Lee 2022 arXiv 2201.00001
+  claim_id: c_af8a1b0e
+  context: 'The research question remains: How can pipeline efficiency be optimized
+    under strict temporal constraints? The method involves: A comparative analysis
+    of scheduling algorithms using discrete-event simulation. References: Smith et
+    al. (2023) []; Zhang and Lee (2022) [arXiv:2201.00001].'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'References: Smith et al. (2023); Zhang and Lee (2022) [arXiv:2201.00001].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T00:58:31Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: NCBI taxonomy dump file version 2024-01-01
+  claim_id: c_8aa83040
+  context: 'T021f_download [P] DOWNLOAD NCBI TAXONOMY DUMP: Download the specific
+    NCBI taxonomy dump file (URL: , version 2024-01-01) to data/raw/ncbi_taxonomy_static.tsv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Download the specific NCBI taxonomy dump file (URL: , version 2024-01-01)
+    to data/raw/ncbi_taxonomy_static.tsv.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T01:00:45Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Comparative analysis of scheduling algorithms using discrete-event simulation
+    by Smith et al. (2023) and Zhang and Lee (2022)
+  claim_id: c_36fa2f2f
+  context: 'Error: Pipeline execution exceeded the designated time limit. The research
+    question remains: How can pipeline efficiency be optimized under strict temporal
+    constraints? The method involves: A comparative analysis of scheduling algorithms
+    using discrete-event simulation. References: Smith et al. (2023) []; Zhang and
+    Lee (2022) [arXiv:2201.00001].'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'The method involves: A comparative analysis of scheduling algorithms
+    using discrete-event simulation. References: Smith et al. (2023) []; Zhang and
+    Lee (2022) [arXiv:2201.00001].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T01:00:47Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 21600 seconds
+  claim_id: c_571e2e62
+  context: 'Implement a validation step to verify the timing evidence. Mechanism:
+    Use subprocess.run(..., timeout=21600) for cross-platform compatibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `run_pipeline()` in code/main.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T01:00:47Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Zero-proportion threshold 0.30 for ZINB model
+  claim_id: c_4d17ceed
+  context: 'Strict Priority per FR-002: 1) If Zero-Inflated (ZINB/Hurdle) -> Use ZINB
+    (Trigger: Shapiro-Wilk p < 0.05 OR Zero-proportion > 0.30).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Trigger: Zero-proportion > 0.30 for Zero-Inflated Negative Binomial model
+    selection.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T01:00:47Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Power analysis power levels 0.80, 0.90
+  claim_id: c_6e610faf
+  context: Update code/diagnostics.py to perform a more comprehensive power analysis,
+    including the calculation of the minimum sample size required for different effect
+    sizes (r = 0.2, 0.3, 0.4) and power levels (0.80, 0.90).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis calculation requires power levels 0.80 and 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T01:01:27Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Significant correlations q < 0.05
+  claim_id: c_690026c0
+  context: Generate a summary table in data/results/significance_summary.md listing
+    all significant correlations (q < 0.05) with their coefficients, p-values, and
+    methods used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Significant correlations are listed with q < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T01:01:27Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time limit 6 hours
+  claim_id: c_f9db0ac0
+  context: 'Goal: Ingest raw data, validate variable presence, and ensure pipeline
+    runs within 6 hours on CPU-only CI.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline execution must complete within 6 hours on CPU-only CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T01:01:27Z'
+- artifact_path: projects/PROJ-340-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: Data acquisition timeout 15 minutes
+  claim_id: c_ce6a4a81
+  context: This phase MUST complete within 15 minutes and MUST NOT block the main
+    pipeline execution if it fails.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Phase 0 data acquisition strategy must complete within 15 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T01:02:01Z'

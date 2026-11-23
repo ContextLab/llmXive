@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LLM Samples"
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task"
+  code:
+    type: "string"
+    description: "The generated code"
+  model:
+    type: "string"
+    description: "Model used to generate the code"
+  status:
+    type: "string"
+    enum: ["success", "failed"]
+    description: "Status of the generation"
+  error:
+    type: "string"
+    description: "Error message if generation failed"
+  generation_time:
+    type: "number"
+    description: "Time taken to generate"
+required:
+  - task_id
+  - code
+  - model
+  - status
+  - generation_time
+additionalProperties: false

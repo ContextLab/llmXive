@@ -1,0 +1,15 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Rating
+type: object
+additionalProperties: false
+required: [rating_id, proposal_id, metric, score, rater_orcid]
+properties:
+  rating_id: {type: string, minLength: 1}
+  proposal_id: {type: string, minLength: 1}
+  metric: {type: string, enum: [feasibility, bottleneck, alignment]}
+  score: {type: integer, minimum: 1, maximum: 5}
+  rater_orcid: {type: string, minLength: 1}
+  mock: {type: boolean}
+  rated_at: {type: string}
+  metadata: {type: object}
+  hash: {type: string}

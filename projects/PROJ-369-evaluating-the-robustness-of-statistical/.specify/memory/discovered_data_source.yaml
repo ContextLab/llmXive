@@ -1,0 +1,9 @@
+status: none
+intent: download NOAA climate time series, Yahoo Finance historical prices, UK National
+  Grid load python package dataset
+required_fields:
+- datetime
+- value
+cache_key: 3c279d78c8e9bdea743fe115f40cea07f34d16604eac7fed1d61f1760eac60e5
+searched_at: '2026-10-09T15:20:11.744414+00:00'
+retry_count: 1

@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NeuralPopulationMatrix"
+description: "Schema for the daily population activity matrix after unit filtering."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  day:
+    type: "integer"
+    description: "Training day index (0-based)."
+  units:
+    type: "array"
+    description: "List of unit IDs included in this matrix."
+    items:
+      type: "string"
+  conditions:
+    type: "array"
+    description: "List of experimental conditions."
+    items:
+      type: "string"
+  data:
+    type: "array"
+    description: "2D array of spike counts (Units × Conditions). Flattened row-major."
+    items:
+      type: "number"
+  metadata:
+    type: "object"
+    properties:
+      unit_stability_threshold:
+        type: "number"
+        description: "Threshold used for filtering (e.g., 0.80)."
+      total_units_raw:
+        type: "integer"
+        description: "Total units before filtering."
+      total_units_filtered:
+        type: "integer"
+        description: "Units remaining after filtering."
+required:
+  - subject_id
+  - day
+  - units
+  - conditions
+  - data
+  - metadata

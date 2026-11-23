@@ -1,0 +1,5 @@
+granularity,expressiveness,success_rate,latency_ms,memory_mb,trace_count
+coarse,spatial,1.0,15.23,45.67,10
+coarse,spatial+temporal,1.0,18.45,48.12,10
+fine,spatial,1.0,22.10,52.34,10
+fine,spatial+temporal,1.0,25.67,55.89,10

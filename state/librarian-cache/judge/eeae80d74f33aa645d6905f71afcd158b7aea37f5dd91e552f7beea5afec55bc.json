@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2608.01410",
+  "judged_at": "2026-08-08T06:36:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"humanoid-gpt: scaling data and structure for zero-shot motion tracking\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly investigates the same core mechanism (zero-shot humanoid motion tracking) and domain (scaling data/structure for robot-native motion) referenced in the user's question, specifically addressing the \"Humanoid-GPT\" context by proposing a framework to extend zero-shot coverage and bridge the gap between generated data and robot executability.",
+  "relevant": true
+}

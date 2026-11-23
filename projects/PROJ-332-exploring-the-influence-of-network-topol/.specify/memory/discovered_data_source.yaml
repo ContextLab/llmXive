@@ -1,13 +1,19 @@
 status: none
-intent: download NIST thermal conductivity reference dataset python package dataset
+intent: download nanowire network graphs NIST thermal conductivity python package
+  dataset
 required_fields:
-- material_name
-- material_formula
-- temperature_K
-- thermal_conductivity_W_per_mK
-- measurement_method
-- uncertainty
-- reference_citation
-cache_key: fa4ab0898718a242ffbff94e98d497fb53ecb03cdf46b63a3d941996f1083c25
-searched_at: '2026-07-16T00:12:50.600049+00:00'
+- node_id
+- x_coordinate
+- y_coordinate
+- edge_list
+- target_average_degree
+- measured_average_degree
+- connection_probability
+- effective_thermal_conductivity
+- material
+- wire_diameter_nm
+- domain_size_um
+- replicate_id
+cache_key: 6b867929fe347b36f46144bc11639ab45a8322993d020ef7102589fb2acf5bbd
+searched_at: '2026-07-29T06:35:58.025353+00:00'
 retry_count: 1

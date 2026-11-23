@@ -1,226 +1,228 @@
-import random
+import argparse
 import json
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+import random
 from pathlib import Path
-from code.src.parser_utils import load_json_file, save_json_file
-from code.src.config import get_config
+from typing import Any, Dict, List, Optional, Tuple
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+import numpy as np
+from sentence_transformers import SentenceTransformer
 
 class PromptGenerator:
-    """
-    Generates few-shot prompts based on different ordering strategies.
-    """
-
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self.config = config or get_config()
-        self.prompt_template = self.config.get("prompt", {}).get("template", "")
-        self.example_template = self.config.get("prompt", {}).get("example_template", "")
-        self.separator = self.config.get("prompt", {}).get("separator", "\n\n")
-
-    def load_examples_from_manifest(self, manifest_path: Path) -> List[Dict[str, Any]]:
-        """
-        Loads examples from the DAG manifest file.
-        
-        Args:
-            manifest_path: Path to the dag_manifest.json file.
-            
-        Returns:
-            List of example dictionaries.
-        """
-        if not manifest_path.exists():
-            raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
-        
-        manifest = load_json_file(manifest_path)
-        if not isinstance(manifest, list):
-            raise ValueError("Manifest must be a list of examples")
-        
-        return manifest
-
-    def sort_by_logical_ascending(self, examples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Sorts examples by Logical Difficulty Score (max path depth) in ascending order.
-        
-        Args:
-            examples: List of example dictionaries containing 'logical_difficulty' or 'depth'.
-            
-        Returns:
-            Sorted list of examples.
-        """
-        return sorted(
-            examples,
-            key=lambda x: x.get("logical_difficulty", x.get("depth", 0))
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        # Use the SBERT model specified in the task description
+        self.model_name = self.config.get(
+            "embedding_model", "sentence-transformers/all-MiniLM-L-v"
         )
+        self.model = SentenceTransformer(self.model_name)
 
-    def shuffle_deterministic(self, examples: List[Dict[str, Any]], seed: int) -> List[Dict[str, Any]]:
+    def load_dags(self, manifest_path: str) -> List[Dict]:
+        with open(manifest_path, "r") as f:
+            return json.load(f)
+
+    def generate_embeddings(self, texts: List[str]) -> np.ndarray:
+        """Generate SBERT embeddings for a list of texts."""
+        return self.model.encode(texts)
+
+    def _save_embeddings(self, embeddings_dict: Dict[str, List[float]]) -> None:
         """
-        Shuffles examples deterministically using a fixed seed.
-        
-        Args:
-            examples: List of example dictionaries.
-            seed: Random seed for reproducibility.
-            
+        Save the embeddings dictionary to the canonical location
+        ``data/processed/embeddings.json``.
+        """
+        output_path = Path("data/processed/embeddings.json")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w") as f:
+            json.dump(embeddings_dict, f, indent=2)
+        logging.info(f"Embeddings saved to {output_path}")
+
+    def generate_and_save_embeddings(self, dags: List[Dict]) -> Dict[str, List[float]]:
+        """
+        Compute embeddings for each example (using the ``text`` field) and
+        persist them to ``embeddings.json``.
+
         Returns:
-            Shuffled list of examples.
+            A mapping from example ID to the embedding vector (as a list of floats).
         """
-        shuffled = examples.copy()
-        rng = random.Random(seed)
-        rng.shuffle(shuffled)
-        return shuffled
+        if not dags:
+            return {}
 
-    def sort_by_original_cds(self, examples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        texts = [dag.get("text", "") for dag in dags]
+        ids = [dag.get("id") for dag in dags]
+
+        # Generate embeddings for the full example texts
+        raw_embeddings = self.generate_embeddings(texts)
+
+        # Convert to a JSON‑serialisable structure
+        embeddings_dict = {
+            str(example_id): embedding.tolist()
+            for example_id, embedding in zip(ids, raw_embeddings)
+        }
+
+        self._save_embeddings(embeddings_dict)
+        return embeddings_dict
+
+    def calculate_curvature(self, embeddings: np.ndarray) -> float:
         """
-        Sorts examples by Original CDS (Semantic Curvature) score.
-        
+        Calculate the 'Curvature Score' as the population variance of
+        cosine similarities between adjacent sentence embeddings.
+
         Args:
-            examples: List of example dictionaries containing 'curvature_score'.
-            
+            embeddings: Array of shape (N, D) where N is number of sentences.
+
         Returns:
-            Sorted list of examples (descending order for curvature).
+            float: The population variance of adjacent cosine similarities.
+                   Returns 0.0 if fewer than 2 embeddings exist.
         """
-        return sorted(
-            examples,
-            key=lambda x: x.get("curvature_score", 0),
-            reverse=True
-        )
+        if len(embeddings) < 2:
+            return 0.0
 
-    def assemble_prompt(self, examples: List[Dict[str, Any]], include_query: bool = True) -> str:
-        """
-        Assembles a single prompt string from a list of examples.
-        
-        This method combines the system prompt, few-shot examples, and optionally
-        the test query into a single string formatted for LLM inference.
-        
-        Args:
-            examples: List of example dictionaries. Each must contain at least:
-                      - 'question': The input question
-                      - 'answer': The ground truth or model answer
-                      Optionally:
-                      - 'thought': Chain of thought if available
-            include_query: If True, appends a placeholder for the test query at the end.
-            
-        Returns:
-            A single formatted prompt string.
-        """
-        if not examples:
-            logger.warning("No examples provided to assemble_prompt. Returning empty string.")
-            return ""
-
-        parts = []
-
-        # Add system prompt if defined in config
-        system_prompt = self.config.get("prompt", {}).get("system_prompt", "")
-        if system_prompt:
-            parts.append(system_prompt)
-
-        # Assemble few-shot examples
-        for i, example in enumerate(examples):
-            question = example.get("question", "")
-            answer = example.get("answer", "")
-            thought = example.get("thought", "")
-            
-            # Format individual example
-            if thought:
-                example_text = self.example_template.format(
-                    question=question,
-                    thought=thought,
-                    answer=answer
-                )
+        similarities = []
+        for i in range(len(embeddings) - 1):
+            v1 = embeddings[i]
+            v2 = embeddings[i + 1]
+            # Cosine similarity
+            norm1 = np.linalg.norm(v1)
+            norm2 = np.linalg.norm(v2)
+            if norm1 == 0 or norm2 == 0:
+                sim = 0.0
             else:
-                example_text = self.example_template.format(
-                    question=question,
-                    answer=answer
-                )
-            
-            parts.append(example_text)
+                sim = np.dot(v1, v2) / (norm1 * norm2)
+            similarities.append(sim)
 
-        # Add test query placeholder if requested
-        if include_query:
-            query_placeholder = self.config.get("prompt", {}).get("query_placeholder", "Question: {question}\nAnswer:")
-            # We append the start of the query, expecting the actual question to be filled in by the runner
-            # or we just append the generic "Question: ..." line if the runner handles the specific text
-            # For this assembler, we assume the runner will append the specific question text or
-            # we append the template for the question part.
-            # Based on standard ICL, we usually end with "Question: [Actual Question]\nAnswer:"
-            # Here we assume the caller passes the specific question for the test instance separately
-            # or we just leave the prompt ending in "Answer:"
-            final_suffix = self.config.get("prompt", {}).get("final_suffix", "Question:\nAnswer:")
-            parts.append(final_suffix)
+        similarities = np.array(similarities)
+        # Population variance (ddof=0)
+        return float(np.var(similarities, ddof=0))
 
-        return self.separator.join(parts)
-
-    def generate_prompt_for_strategy(
-        self,
-        examples: List[Dict[str, Any]],
-        strategy: str,
-        seed: Optional[int] = None
-    ) -> str:
+    def calculate_all_curvature_scores(self, dags: List[Dict]) -> Dict[str, float]:
         """
-        Generates a prompt based on the specified ordering strategy.
-        
+        Calculate curvature scores for ALL examples in the manifest.
+        This is the core implementation for T024b.
+
         Args:
-            examples: List of example dictionaries.
-            strategy: One of 'logical_ascending', 'logical_random', 'original_cds'.
-            seed: Random seed (required for 'logical_random').
-            
-        Returns:
-            Formatted prompt string.
-        """
-        ordered_examples = examples.copy()
-        
-        if strategy == "logical_ascending":
-            ordered_examples = self.sort_by_logical_ascending(ordered_examples)
-        elif strategy == "logical_random":
-            if seed is None:
-                raise ValueError("Seed is required for 'logical_random' strategy")
-            ordered_examples = self.shuffle_deterministic(ordered_examples, seed)
-        elif strategy == "original_cds":
-            ordered_examples = self.sort_by_original_cds(ordered_examples)
-        else:
-            raise ValueError(f"Unknown strategy: {strategy}")
-        
-        return self.assemble_prompt(ordered_examples)
+            dags: List of DAG entries, each containing at least 'id' and 'text'.
 
+        Returns:
+            Dict mapping example ID to its calculated curvature score.
+        """
+        if not dags:
+            return {}
+
+        curvature_scores = {}
+        for dag in dags:
+            text = dag.get("text", "")
+            # Simple sentence splitter
+            import re
+
+            sentences = re.split(r'[.!?]+', text)
+            sentences = [s.strip() for s in sentences if s.strip()]
+
+            if len(sentences) < 2:
+                curvature_scores[dag["id"]] = 0.0
+                continue
+
+            # Generate embeddings for the sentences of this example
+            sentence_embeddings = self.generate_embeddings(sentences)
+            score = self.calculate_curvature(sentence_embeddings)
+            curvature_scores[dag["id"]] = score
+
+        return curvature_scores
+
+    def sort_original_cds(self, dags: List[Dict], curvature_scores: Dict[str, float]) -> List[Dict]:
+        """Sort DAGs by their curvature score (ascending)."""
+        dag_with_curvature = [
+            (dag, curvature_scores.get(dag["id"], 0.0)) for dag in dags
+        ]
+        sorted_dags = sorted(dag_with_curvature, key=lambda x: x[1])
+        return [dag for dag, _ in sorted_dags]
+
+    def generate_prompts(self, dags: List[Dict], strategy: str):
+        if strategy == "original_cds":
+            # Step 1: Compute and persist embeddings (T024a)
+            self.generate_and_save_embeddings(dags)
+
+            # Step 2: Calculate curvature scores (T024b)
+            curvature_scores = self.calculate_all_curvature_scores(dags)
+
+            # Save curvature scores to file (T024b requirement)
+            curvature_path = Path("data/processed/curvature_scores.json")
+            curvature_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(curvature_path, "w") as f:
+                json.dump(curvature_scores, f, indent=2)
+            logging.info(f"Curvature scores saved to {curvature_path}")
+
+            # Sort by curvature score
+            sorted_dags = self.sort_original_cds(dags, curvature_scores)
+            return sorted_dags
+        elif strategy == "logical_ascending":
+            sorted_dags = sorted(dags, key=lambda x: x.get("depth", 0))
+            return sorted_dags
+        elif strategy == "logical_random":
+            random.shuffle(dags)
+            return dags
+        else:
+            raise ValueError(f"Unknown prompt strategy: {strategy}")
 
 def main():
-    """
-    Main entry point for testing prompt generation.
-    """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Generate prompts from DAG manifest")
-    parser.add_argument("--manifest", type=str, required=True, help="Path to dag_manifest.json")
-    parser.add_argument("--output", type=str, required=True, help="Path to output prompt file")
-    parser.add_argument("--strategy", type=str, default="logical_ascending", 
-                      choices=["logical_ascending", "logical_random", "original_cds"])
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for random strategy")
-    
-    args = parser.parse_args()
-    
-    manifest_path = Path(args.manifest)
-    output_path = Path(args.output)
-    
-    generator = PromptGenerator()
-    examples = generator.load_examples_from_manifest(manifest_path)
-    
-    logger.info(f"Loaded {len(examples)} examples from {manifest_path}")
-    logger.info(f"Generating prompt with strategy: {args.strategy}")
-    
-    prompt = generator.generate_prompt_for_strategy(
-        examples, 
-        strategy=args.strategy, 
-        seed=args.seed
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--manifest",
+        type=str,
+        required=True,
+        help="Path to the DAG manifest file.",
     )
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(prompt)
-        
-    logger.info(f"Prompt saved to {output_path}")
-    print(f"Generated prompt length: {len(prompt)} characters")
+    parser.add_argument(
+        "--strategy",
+        type=str,
+        default="original_cds",
+        choices=[
+            "original_cds",
+            "logical_ascending",
+            "logical_random",
+        ],
+        help="Prompt generation strategy.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for shuffling.",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/processed/prompts.json",
+        help="Path to save the generated prompts.",
+    )
 
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    # Set deterministic seed for the random strategy
+    random.seed(args.seed)
+
+    config = {
+        "embedding_model": "sentence-transformers/all-MiniLM-L-v",
+    }
+
+    prompt_generator = PromptGenerator(config)
+
+    try:
+        dags = prompt_generator.load_dags(args.manifest)
+        sorted_dags = prompt_generator.generate_prompts(dags, args.strategy)
+
+        # Ensure output directory exists
+        Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+
+        with open(args.output, "w") as f:
+            json.dump(sorted_dags, f, indent=4)
+        logger.info(f"Prompts saved to {args.output}")
+
+    except Exception as e:
+        logger.error(f"Error generating prompts: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

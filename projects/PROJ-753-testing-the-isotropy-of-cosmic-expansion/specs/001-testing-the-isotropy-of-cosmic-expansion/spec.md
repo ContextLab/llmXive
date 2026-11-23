@@ -13,7 +13,7 @@ The system MUST ingest the Pantheon+ Type Ia Supernova dataset, apply the standa
 
 **Why this priority**: This is the foundational data layer. Without accurate residuals and sky positions, no subsequent anisotropy analysis can occur. It delivers the primary dataset required for the hypothesis test.
 
-**Independent Test**: This can be tested by running the ingestion script on the Pantheon+ release and verifying that the output CSV contains the exact number of rows defined in the official Pantheon+ release v1.0 metadata (specifically the row count of the 'full' sample), valid RA/Dec coordinates, and calculated residuals that match a manual calculation for a known subset of supernovae.
+**Independent Test**: This can be tested by running the ingestion script on the Pantheon+ release and verifying that the output CSV contains the same number of rows as defined in the official Pantheon+ release metadata (specifically the row count of the “full” sample)., valid RA/Dec coordinates, and calculated residuals that match a manual calculation for a known subset of supernovae.
 
 **Acceptance Scenarios**:
 
@@ -90,6 +90,6 @@ The system MUST generate a statistically sufficient set of isotropic mock catalo
 - The Pantheon+ dataset provided by the official repository contains all necessary variables (RA, Dec, Redshift, Distance Modulus, Uncertainty) required for the analysis; if any variable is missing for a subset of supernovae, those entries are excluded from the analysis.
 - The flat ΛCDM model parameters ($H_0, \Omega_m$) used for residual calculation are derived from the dataset's metadata to ensure consistency with the dataset's native calibration.
 - The analysis is observational; therefore, any detected anisotropy will be framed as an associational signal rather than a causal mechanism, consistent with the lack of random assignment in the data.
-- The computational environment (GitHub Actions free tier) provides sufficient CPU and RAM to process 10,000 simulations on the ~1500 supernova dataset within 6 hours; if memory constraints arise, the simulation count may be reduced to a manageable level with a corresponding note on reduced statistical power.
+- The computational environment (GitHub Actions free tier) provides sufficient CPU and RAM to process 10,000 simulations on the large supernova dataset within 6 hours; if memory constraints arise, the simulation count may be reduced to a manageable level with a corresponding note on reduced statistical power.
 - The HEALPix library (e.g., `healpy` in Python) is available and compatible with the CPU-only environment for spherical harmonic decomposition.
 - The redshift distribution of the Pantheon+ sample is representative of the cosmic expansion history for the purpose of this isotropy test, and selection biases are mitigated by the rotation-aware null simulation strategy.

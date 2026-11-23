@@ -1,0 +1,43 @@
+# generated using pymatgen
+data_Na5Li3(TiS4)2
+_symmetry_space_group_name_H-M   C2/c
+_cell_length_a   17.57830000
+_cell_length_b   9.64040000
+_cell_length_c   12.07960000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   133.40470000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   15
+_chemical_formula_structural   Na5Li3(TiS4)2
+_chemical_formula_sum   'Na20 Li12 Ti8 S32'
+_cell_volume   1487.20570058
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x, y, -z+1/2'
+  4  'x, -y, z+1/2'
+  5  'x+1/2, y+1/2, z'
+  6  '-x+1/2, -y+1/2, -z'
+  7  '-x+1/2, y+1/2, -z+1/2'
+  8  'x+1/2, -y+1/2, z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Na  Na0  8  0.09854516  0.49467053  0.46323881  1.0
+  Na  Na1  8  0.15458294  0.26051868  0.78234456  1.0
+  Na  Na2  4  0.00000000  0.00303953  0.75000000  1.0
+  Li  Li3  8  0.19666457  0.99283986  0.13345470  1.0
+  Li  Li4  4  0.25000000  0.25000000  0.50000000  1.0
+  Ti  Ti5  8  0.08315037  0.22287382  0.14108320  1.0
+  S  S6  8  0.08113612  0.23031361  0.49980984  1.0
+  S  S7  8  0.10758973  0.22991332  0.99498465  1.0
+  S  S8  8  0.14060130  0.45223464  0.25282478  1.0
+  S  S9  8  0.17666466  0.06645480  0.30781890  1.0

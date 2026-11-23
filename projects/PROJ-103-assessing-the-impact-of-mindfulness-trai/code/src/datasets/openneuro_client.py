@@ -1,47 +1,49 @@
-"""
-OpenNeuro API client for dataset discovery.
-
-Provides methods to list available datasets and retrieve detailed information
-for specific datasets using the OpenNeuro GraphQL API.
-"""
-
 import requests
 from typing import Dict, Any, List, Optional
-
+import logging
 from src.config.env import get_openneuro_api_key
 
+logger = logging.getLogger(__name__)
 
 class OpenNeuroClientError(Exception):
-    """Custom exception for OpenNeuro client errors."""
+    """Base exception for OpenNeuro client errors."""
+    pass
+
+
+class DatasetNotFoundError(OpenNeuroClientError):
+    """Raised when a requested dataset is not found."""
+    pass
+
+
+class DatasetAccessError(OpenNeuroClientError):
+    """Raised when access to a dataset is denied or fails."""
     pass
 
 
 class OpenNeuroClient:
     """
     Client for interacting with the OpenNeuro API.
-
-    Attributes:
-        api_key (str): The API key for authentication.
-        base_url (str): The base URL for the OpenNeuro API.
+    
+    Provides methods to list datasets and retrieve detailed information
+    about specific datasets.
     """
-
-    BASE_URL = "https://api.openneuro.org"
-    GRAPHQL_ENDPOINT = "/crn/graphql"
-
+    
+    API_BASE_URL = "https://api.openneuro.org"
+    GRAPHQL_ENDPOINT = f"{API_BASE_URL}/crn/graphql"
+    
     def __init__(self, api_key: Optional[str] = None):
         """
-        Initialize the OpenNeuroClient.
-
+        Initialize the OpenNeuro client.
+        
         Args:
-            api_key: Optional API key. If not provided, attempts to load from env.
-
-        Raises:
-            OpenNeuroClientError: If no API key is provided or found in environment.
+            api_key: OpenNeuro API key. If not provided, attempts to load
+                    from environment variable OPENNEURO_API_KEY.
         """
         self.api_key = api_key or get_openneuro_api_key()
         if not self.api_key:
             raise OpenNeuroClientError(
-                "OpenNeuro API key is required. Provide it via argument or set OPENNEURO_API_KEY env var."
+                "OpenNeuro API key is required. Set OPENNEURO_API_KEY "
+                "environment variable or pass it to the client."
             )
         
         self.session = requests.Session()
@@ -49,25 +51,29 @@ class OpenNeuroClient:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         })
-
-    def _post_query(self, query: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    
+    def _execute_query(self, query: str, variables: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Execute a GraphQL query against the OpenNeuro API.
-
+        
         Args:
-            query: The GraphQL query string.
-            variables: Optional dictionary of query variables.
-
+            query: GraphQL query string
+            variables: Optional query variables
+        
         Returns:
-            The JSON response from the API.
-
+            Parsed JSON response
+        
         Raises:
-            OpenNeuroClientError: If the request fails or returns an error.
+            OpenNeuroClientError: If the request fails
         """
-        payload = {"query": query, "variables": variables or {}}
+        payload = {
+            "query": query,
+            "variables": variables or {}
+        }
+        
         try:
             response = self.session.post(
-                f"{self.BASE_URL}{self.GRAPHQL_ENDPOINT}",
+                self.GRAPHQL_ENDPOINT,
                 json=payload,
                 timeout=30
             )
@@ -79,148 +85,180 @@ class OpenNeuroClient:
                 raise OpenNeuroClientError(f"API Error: {error_msg}")
             
             return result
+        
+        except requests.exceptions.Timeout:
+            raise OpenNeuroClientError("Request to OpenNeuro API timed out")
         except requests.exceptions.RequestException as e:
-            raise OpenNeuroClientError(f"Network error: {e}")
-
-    def list_datasets(self, limit: int = 20, dataset_id: Optional[str] = None) -> List[Dict[str, Any]]:
+            raise OpenNeuroClientError(f"Request failed: {str(e)}")
+    
+    def list_datasets(self, limit: int = 100, offset: int = 0) -> List[Dict[str, Any]]:
         """
-        List available datasets on OpenNeuro.
-
+        List available datasets from OpenNeuro.
+        
         Args:
-            limit: Maximum number of datasets to return.
-            dataset_id: Optional specific dataset ID to filter by (exact match).
-                        If provided, returns a list with at most one item.
-
+            limit: Maximum number of datasets to return
+            offset: Number of datasets to skip (for pagination)
+        
         Returns:
-            A list of dictionaries, where each dict represents a dataset with keys:
-            'id', 'label', 'name', 'snapshot', 'created'.
-
-        Raises:
-            OpenNeuroClientError: If the API call fails.
+            List of dataset dictionaries containing id, label, and snapshot information
         """
-        # Query to fetch datasets with basic metadata
         query = """
-        query GetDatasets($limit: Int, $datasetId: ID) {
-            datasets(limit: $limit, datasetId: $datasetId) {
+        query DatasetList($limit: Int, $offset: Int) {
+            datasets(limit: $limit, offset: $offset) {
                 id
                 label
-                name
-                created
                 snapshot {
                     id
-                    tag
-                    summary {
-                        modalities
-                        sessions
-                        subjects
-                        subjectMetadata {
-                            participantId
-                            age
-                            sex
-                            group
-                        }
-                    }
+                    created
                 }
             }
         }
         """
         
-        variables = {"limit": limit}
-        if dataset_id:
-            variables["datasetId"] = dataset_id
-
-        result = self._post_query(query, variables)
+        variables = {"limit": limit, "offset": offset}
+        result = self._execute_query(query, variables)
         
         datasets = result.get("data", {}).get("datasets", [])
-        formatted_list = []
-        
-        for ds in datasets:
-            snapshot = ds.get("snapshot", {})
-            formatted_list.append({
-                "id": ds.get("id"),
-                "label": ds.get("label"),
-                "name": ds.get("name"),
-                "created": ds.get("created"),
-                "snapshot_id": snapshot.get("id"),
-                "snapshot_tag": snapshot.get("tag"),
-                "summary": snapshot.get("summary", {})
-            })
-        
-        return formatted_list
-
+        return [
+            {
+                "id": ds["id"],
+                "label": ds["label"],
+                "snapshot_id": ds.get("snapshot", {}).get("id"),
+                "created": ds.get("snapshot", {}).get("created")
+            }
+            for ds in datasets
+        ]
+    
     def get_dataset_info(self, dataset_id: str) -> Dict[str, Any]:
         """
-        Retrieve detailed information for a specific dataset.
-
+        Retrieve detailed information about a specific dataset.
+        
         Args:
-            dataset_id: The unique identifier of the dataset (e.g., 'ds000001').
-
+            dataset_id: The OpenNeuro dataset ID (e.g., 'ds000001')
+        
         Returns:
-            A dictionary containing detailed dataset information including:
-            'id', 'name', 'description', 'license', 'created', 'modified',
-            'snapshot', 'downloads', 'publishers'.
-
+            Dictionary containing dataset metadata including:
+            - id: Dataset identifier
+            - label: Human-readable name
+            - description: Dataset description
+            - created: Creation timestamp
+            - modified: Last modification timestamp
+            - snapshot: Snapshot information
+            - uploader: Uploader information
+        
         Raises:
-            OpenNeuroClientError: If the dataset is not found or API fails.
+            DatasetNotFoundError: If the dataset does not exist
+            DatasetAccessError: If the dataset cannot be accessed
+            OpenNeuroClientError: For other API errors
+        
+        Examples:
+            >>> client = OpenNeuroClient()
+            >>> info = client.get_dataset_info("ds000001")
+            >>> print(info['label'])
+            'Dataset Name'
         """
+        if not dataset_id or not isinstance(dataset_id, str):
+            raise OpenNeuroClientError("Dataset ID must be a non-empty string")
+        
         query = """
-        query GetDataset($datasetId: ID!) {
-            dataset(datasetId: $datasetId) {
+        query Dataset($datasetId: ID!) {
+            dataset(id: $datasetId) {
                 id
-                name
+                label
                 description
-                license
                 created
                 modified
-                downloads
-                snapshots {
+                snapshot {
                     id
-                    tag
                     created
+                    description
+                    summary {
+                        totalSubjects
+                        totalSessions
+                        modalities
+                    }
+                }
+                uploader {
+                    id
+                    name
+                    email
                 }
                 permissions {
+                    public
                     users {
                         id
-                        email
+                        role
+                    }
+                    groups {
+                        id
                         role
                     }
                 }
-                analytics {
-                    views
-                    downloads
-                }
             }
         }
         """
         
-        result = self._post_query(query, {"datasetId": dataset_id})
+        variables = {"datasetId": dataset_id}
         
-        dataset = result.get("data", {}).get("dataset")
+        try:
+            result = self._execute_query(query, variables)
+            dataset = result.get("data", {}).get("dataset")
+            
+            if dataset is None:
+                raise DatasetNotFoundError(
+                    f"Dataset '{dataset_id}' not found. "
+                    "Please verify the dataset ID exists on OpenNeuro."
+                )
+            
+            # Extract and structure the response
+            snapshot = dataset.get("snapshot") or {}
+            description = dataset.get("description") or {}
+            uploader = dataset.get("uploader") or {}
+            permissions = dataset.get("permissions") or {}
+            
+            return {
+                "id": dataset["id"],
+                "label": dataset["label"],
+                "description": description.get("description") or description.get("Name", "No description available"),
+                "created": dataset.get("created"),
+                "modified": dataset.get("modified"),
+                "snapshot": {
+                    "id": snapshot.get("id"),
+                    "created": snapshot.get("created"),
+                    "description": snapshot.get("description"),
+                    "summary": snapshot.get("summary") or {
+                        "totalSubjects": 0,
+                        "totalSessions": 0,
+                        "modalities": []
+                    }
+                },
+                "uploader": {
+                    "id": uploader.get("id"),
+                    "name": uploader.get("name"),
+                    "email": uploader.get("email")
+                },
+                "public": permissions.get("public", False),
+                "num_subjects": snapshot.get("summary", {}).get("totalSubjects", 0),
+                "modalities": snapshot.get("summary", {}).get("modalities", [])
+            }
         
-        if not dataset:
-            raise OpenNeuroClientError(f"Dataset '{dataset_id}' not found.")
-        
-        return {
-            "id": dataset.get("id"),
-            "name": dataset.get("name"),
-            "description": dataset.get("description"),
-            "license": dataset.get("license"),
-            "created": dataset.get("created"),
-            "modified": dataset.get("modified"),
-            "downloads": dataset.get("downloads"),
-            "snapshots": dataset.get("snapshots", []),
-            "analytics": dataset.get("analytics", {})
-        }
+        except DatasetNotFoundError:
+            raise
+        except OpenNeuroClientError:
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error retrieving dataset {dataset_id}: {str(e)}")
+            raise OpenNeuroClientError(f"Failed to retrieve dataset info: {str(e)}")
 
 
 def create_client(api_key: Optional[str] = None) -> OpenNeuroClient:
     """
     Factory function to create an OpenNeuroClient instance.
-
+    
     Args:
-        api_key: Optional API key.
-
+        api_key: Optional API key. If not provided, uses environment variable.
+    
     Returns:
-        An instance of OpenNeuroClient.
+        Configured OpenNeuroClient instance
     """
     return OpenNeuroClient(api_key=api_key)

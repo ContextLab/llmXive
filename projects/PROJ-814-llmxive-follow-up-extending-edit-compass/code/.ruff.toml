@@ -1,3 +1,20 @@
-# Extends pyproject.toml for specific overrides if needed
-# Currently, all configuration is in pyproject.toml
-extend = "pyproject.toml"
+# Ruff configuration
+line-length = 88
+target-version = "py311"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+]
+
+[lint.isort]
+known-first-party = ["src", "tests", "tools"]

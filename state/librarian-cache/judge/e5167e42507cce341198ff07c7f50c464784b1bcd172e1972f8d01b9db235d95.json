@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.00588",
+  "judged_at": "2026-07-30T18:39:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"blockpilot: instance-adaptive policy learning for diffusion-based spec\" linguistics",
+  "rationale": "The paper focuses on reinforcement learning and robot control using diffusion policies, which is an off-domain application compared to the user's specific question regarding \"linguistics\" and \"Diffusion-based Spec\" (likely referring to speech or text generation). While both involve diffusion models, the paper does not address the linguistic domain, the specific \"BlockPilot\" mechanism, or the instance-adaptive policy learning for language tasks required by the user's research question.",
+  "relevant": false
+}

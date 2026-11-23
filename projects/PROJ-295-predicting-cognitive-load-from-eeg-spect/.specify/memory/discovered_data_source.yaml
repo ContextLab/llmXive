@@ -1,0 +1,16 @@
+status: none
+intent: OpenNeuro ds000246 EEG download via openneuro-cli python package dataset
+required_fields:
+- subject_id
+- session_id
+- run_id
+- eeg_data
+- eeg_sampling_rate
+- channel_names
+- event_onset_times
+- event_labels
+- behavioral_timestamp
+- behavioral_label
+cache_key: 771afd212977de5546e36a2897e5684fef8b7839b0bc999d02ad4f17bb5977b9
+searched_at: '2026-10-09T04:19:18.715209+00:00'
+retry_count: 1

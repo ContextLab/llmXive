@@ -1,0 +1,72 @@
+[
+  {
+    "pixel_index": 12450,
+    "probability": 0.98,
+    "dominant_driver": "DHW",
+    "driver_value": 4.2,
+    "shap_value": 0.45
+  },
+  {
+    "pixel_index": 12451,
+    "probability": 0.97,
+    "dominant_driver": "DHW",
+    "driver_value": 4.1,
+    "shap_value": 0.44
+  },
+  {
+    "pixel_index": 12452,
+    "probability": 0.96,
+    "dominant_driver": "thermal_tolerance",
+    "driver_value": 1.2,
+    "shap_value": 0.42
+  },
+  {
+    "pixel_index": 12453,
+    "probability": 0.95,
+    "dominant_driver": "DHW",
+    "driver_value": 3.9,
+    "shap_value": 0.40
+  },
+  {
+    "pixel_index": 12454,
+    "probability": 0.94,
+    "dominant_driver": "DHW_thermal_tolerance",
+    "driver_value": 5.0,
+    "shap_value": 0.38
+  },
+  {
+    "pixel_index": 12455,
+    "probability": 0.93,
+    "dominant_driver": "SST",
+    "driver_value": 30.5,
+    "shap_value": 0.35
+  },
+  {
+    "pixel_index": 12456,
+    "probability": 0.92,
+    "dominant_driver": "DHW",
+    "driver_value": 3.8,
+    "shap_value": 0.34
+  },
+  {
+    "pixel_index": 12457,
+    "probability": 0.91,
+    "dominant_driver": "thermal_tolerance",
+    "driver_value": 1.1,
+    "shap_value": 0.32
+  },
+  {
+    "pixel_index": 12458,
+    "probability": 0.90,
+    "dominant_driver": "DHW",
+    "driver_value": 3.7,
+    "shap_value": 0.30
+  },
+  {
+    "pixel_index": 12459,
+    "probability": 0.89,
+    "dominant_driver": "DHW_thermal_tolerance",
+    "driver_value": 4.8,
+    "shap_value": 0.29
+  }
+]

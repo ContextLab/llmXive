@@ -1,0 +1,62 @@
+T011b:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt for `specs/001-predicting-solubility-in-mixed-solvents/spec.md`\
+    \ contains an explicit \u201CExcluded Sources: DSSTox is explicitly excluded\u201D\
+    \ line under FR\u2011001, with a rationale that cites the Plan\u2019s \u201CAssumptions\
+    \ & Gaps\u201D section, fulfilling the task\u2019s documentation requirement."
+T016:
+  c: false
+  h: dd7c3912fddb9d113a312f971c69dab0030f1faba4ca6e84dd84233deaff5cb8
+  r: The provided `code/02_feature_engineering.py` does not show any implementation
+    of explicit interaction term generation (polynomial or ratio), and the file is
+    truncated before any such logic could appear. Moreover, the required output file
+    `data/processed/solubility_features.csv` is absent, so no new columns have been
+    appended. The task is therefore not fulfilled.
+T024:
+  c: false
+  h: 20b46ebbaf325b962926a8633b41a6b6c80e2f2dcf361f296aa7983a80e833ea
+  r: "The required artifact `data/artifacts/trained_models.pkl` does not exist, causing\
+    \ `load_models()` to raise a FileNotFoundError. Moreover, while `code/04_evaluation.py`\
+    \ defines a `perform_paired_ttest` function, it never actually reads the model,\
+    \ computes absolute errors from it, or invokes the test, so the paired\u2011t\u2011\
+    test implementation is not operational. The task\u2019s requirement is therefore\
+    \ unmet."
+T029:
+  c: false
+  h: 20b46ebbaf325b962926a8633b41a6b6c80e2f2dcf361f296aa7983a80e833ea
+  r: The required model artifact `data/artifacts/trained_models.pkl` does not exist,
+    and the `compute_shap_values` function in `code/04_evaluation.py` is incomplete
+    (truncated) and never reaches the SHAP computation or output step. Both the input
+    dependency and the SHAP implementation are therefore missing.
+T031:
+  c: false
+  h: aa9908f2c982791557715c253720c20ddd63e88698799e6595d1b734adaf1228
+  r: "The required artifact `data/artifacts/shap_ranking.json` is missing, so no ranking\
+    \ of interaction terms has been produced or stored. The task\u2019s deliverable\
+    \ is absent."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data file, notebook, or result output was provided that reads the sensitivity\u2011\
+    analysis results and computes the Jaccard similarity of the top\u20115 term sets\
+    \ across thresholds. The required artifact (e.g., a script/notebook and its computed\
+    \ similarity values) is missing, so the task is not satisfied."
+T034:
+  c: false
+  h: aa9908f2c982791557715c253720c20ddd63e88698799e6595d1b734adaf1228
+  r: "The required output file `data/artifacts/shap_ranking.json` is missing, so no\
+    \ SHAP ranking stability calculation or pass/fail record was produced. Without\
+    \ this artifact the task\u2019s core requirement is not satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or its contents were provided, so we cannot confirm that\
+    \ verified source URLs and pivot decisions were actually appended to the \u201C\
+    Data Sources\u201D section as required. The necessary artifact is missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `code/utils/` Python files was provided, and there is no indication
+    that type hints were added or unused imports were removed. The required artifacts
+    (the updated source files) are missing, so the task is not satisfied.

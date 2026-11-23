@@ -1,0 +1,13 @@
+status: none
+intent: Aluminum alloy elastic constants dataset Materials Project elastic_tensor_2015
+  NIST Materials Data Repository python package dataset
+required_fields:
+- material_id
+- formula
+- composition
+- poissons_ratio
+- youngs_modulus_gpa
+- source
+cache_key: 3538bc2b717ae257737b6a2620cfe27bd4d85bd7f9ffbe329b2d64508551da35
+searched_at: '2026-10-25T05:47:53.870639+00:00'
+retry_count: 1

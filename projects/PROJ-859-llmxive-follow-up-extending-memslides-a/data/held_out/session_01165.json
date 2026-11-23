@@ -1,0 +1,108 @@
+{
+  "trace_id": "held_out_43_01165",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "delete_element",
+    "insert_image",
+    "format_text",
+    "insert_image",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 35.2491,
+        "padding": 22.1822
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 63.2596,
+        "padding": 73.2947
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 22.155,
+        "padding": 72.6154
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 61.6113
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 30.9094,
+        "y": 54.6433,
+        "width": 30.3696,
+        "height": 98.0273
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 85.8527,
+        "x": 85.9142,
+        "y": 93.7625
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 11.8573,
+        "y": 76.3977,
+        "width": 9.9113,
+        "height": 11.0448
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 81.9336,
+        "x": 37.5445,
+        "y": 90.1927
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 66.4691,
+        "x": 78.8313,
+        "y": 5.7801
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.310784,
+    "tool_repetition_freq": 0.555556,
+    "arg_semantic_variance": 892.056377
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 7,
+    "layout_hash": "43-1165-update_layout"
+  },
+  "variance_multiplier": 1.5
+}

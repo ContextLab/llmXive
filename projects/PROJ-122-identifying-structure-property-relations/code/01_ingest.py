@@ -1,303 +1,266 @@
-"""
-Data Ingestion and Harmonization Module.
-Handles fetching, cleaning, unit conversion, and validation of polymer blend data.
-"""
 import os
 import json
 import logging
 import sys
+import time
+import random
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Iterator
-import hashlib
-import csv
-import io
+from typing import Dict, List, Any, Optional
+from datetime import datetime
 
-# Ensure code directory is in path for relative imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent))
-
-from utils.logger import get_logger, setup_logging
-from utils.seeds import set_deterministic_seed
-from utils.ingest_utils import (
-    celsius_to_kelvin,
-    pascal_to_gpa,
-    validate_weight_fractions,
-    is_valid_smiles,
-    parse_smiles_to_mol
-)
+# Import local utilities
+from utils.logger import get_logger
 from utils.schema_validator import load_schema, validate_output_file
 from utils.checksum import compute_file_checksum
-import config
+from utils.ingest_utils import is_valid_smiles, celsius_to_kelvin, pascal_to_gpa
+from config import ensure_directories
 
-# Initialize Logger
-setup_logging()
+# Initialize logger
 logger = get_logger(__name__)
 
-# Set deterministic seed
-set_deterministic_seed(config.RANDOM_SEED)
-
 # Constants
-DATA_RAW_DIR = config.DATA_RAW_DIR
-DATA_PROCESSED_DIR = config.DATA_PROCESSED_DIR
-DATA_OUTPUT_DIR = config.DATA_OUTPUT_DIR
-TOLERANCE_SENSITIVITY_REPORT_PATH = config.TOLERANCE_SENSITIVITY_REPORT_PATH
-DATA_QUALITY_REPORT_PATH = config.DATA_QUALITY_REPORT_PATH
-WEIGHT_FRACTION_TOLERANCES = config.WEIGHT_FRACTION_TOLERANCES
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+PROCESSED_DIR = DATA_DIR / "processed"
+STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-122-identifying-structure-property-relations.yaml"
 
-# Ensure output directories exist
-DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-DATA_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def load_raw_data(source_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def fetch_with_backoff(url: str, max_retries: int = 5, initial_delay: float = 1.0, multiplier: float = 2.0) -> Optional[Dict]:
     """
-    Load raw data from a CSV file or simulate a fetch if no path is provided.
-    For this task, we assume data is already downloaded to data/raw/ or fetch from a known public source.
-    Since T019b requires real data and T014 failed previously on unspecified sources,
-    we will attempt to load from a specific expected file or raise an error.
-
-    In a real pipeline, this would call the API fetcher. Here we assume the data
-    has been placed in data/raw/polymer_blend_data.csv by T020 (or similar).
-    If not present, we raise a FileNotFoundError to fail loudly as per constraints.
+    Fetches data from a URL with exponential backoff.
+    Returns the parsed JSON data or None if all retries fail.
     """
-    # Check for expected file
-    expected_file = DATA_RAW_DIR / "polymer_blend_data.csv"
-    
-    if not expected_file.exists():
-        # Try to find any csv in raw dir
-        csv_files = list(DATA_RAW_DIR.glob("*.csv"))
-        if not csv_files:
-            raise FileNotFoundError(
-                f"No raw data found in {DATA_RAW_DIR}. "
-                "Please ensure T020 has downloaded data or place 'polymer_blend_data.csv' there."
-            )
-        # Use the first found CSV
-        source_path = csv_files[0]
-        logger.info(f"Using found CSV: {source_path}")
-    else:
-        source_path = expected_file
-
-    records = []
-    with open(source_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Clean and parse basic types
-            cleaned_row = {}
-            for k, v in row.items():
-                if v == '' or v is None:
-                    cleaned_row[k] = None
-                else:
-                    # Try to convert numbers
-                    try:
-                        if '.' in v:
-                            cleaned_row[k] = float(v)
-                        else:
-                            cleaned_row[k] = int(v)
-                    except ValueError:
-                        cleaned_row[k] = v
-            records.append(cleaned_row)
-    
-    logger.info(f"Loaded {len(records)} records from {source_path}")
-    return records
-
-
-def harmonize_units(record: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Convert units to standard SI (Kelvin, GPa).
-    """
-    if record is None:
-        return record
-    
-    # Convert Tg from Celsius to Kelvin if present and not already in K
-    if 'Tg' in record and record['Tg'] is not None:
-        # Assume input is Celsius if < 200 (heuristic) or based on schema
-        # For robustness, we assume the raw data comes in Celsius as per typical datasets
-        # If the value is > 0 and < 300, treat as Celsius.
-        val = record['Tg']
-        if isinstance(val, (int, float)) and 0 < val < 300:
-            record['Tg_K'] = celsius_to_kelvin(val)
-        else:
-            record['Tg_K'] = val # Assume already K or invalid
-    
-    # Convert Modulus from Pa to GPa if present
-    if 'Modulus' in record and record['Modulus'] is not None:
-        val = record['Modulus']
-        if isinstance(val, (int, float)):
-            # Assume input is Pa if > 1000
-            if val > 1000:
-                record['Modulus_GPa'] = pascal_to_gpa(val)
+    import requests
+    delay = initial_delay
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            logger.warning(f"Attempt {attempt + 1} failed for {url}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(delay + random.uniform(0, 0.1))
+                delay *= multiplier
             else:
-                record['Modulus_GPa'] = val # Assume already GPa
+                logger.error(f"Failed to fetch {url} after {max_retries} attempts.")
+    return None
+
+def load_dataset_schema(schema_path: Optional[Path] = None) -> Dict:
+    """
+    Loads the dataset schema from a YAML file.
+    Defaults to specs/001-structure-property-relationships/contracts/dataset.schema.yaml
+    """
+    if schema_path is None:
+        schema_path = PROJECT_ROOT / "specs" / "001-structure-property-relationships" / "contracts" / "dataset.schema.yaml"
+    return load_schema(schema_path)
+
+def validate_ingested_data(record: Dict, schema: Dict) -> bool:
+    """
+    Validates a single record against the provided schema.
+    """
+    # Basic validation logic based on schema requirements
+    required_fields = schema.get("required", [])
+    for field in required_fields:
+        if field not in record:
+            logger.debug(f"Record missing required field: {field}")
+            return False
+    return True
+
+def detect_temperature_unit(value: float, source_context: str = "") -> str:
+    """
+    Heuristically detects if a temperature value is in Celsius or Kelvin.
+    Assumes values < 200 are likely Celsius, >= 200 are Kelvin.
+    """
+    if value < 200:
+        return "C"
+    return "K"
+
+def detect_pressure_unit(value: float, source_context: str = "") -> str:
+    """
+    Heuristically detects if a pressure/modulus value is in Pa, kPa, MPa, or GPa.
+    Assumes values > 1e9 are GPa, > 1e6 are MPa, etc.
+    """
+    if value > 1e9:
+        return "GPa"
+    if value > 1e6:
+        return "MPa"
+    if value > 1e3:
+        return "kPa"
+    return "Pa"
+
+def harmonize_temperature(value: float, detected_unit: str) -> float:
+    """
+    Converts temperature to Kelvin.
+    """
+    if detected_unit == "C":
+        return celsius_to_kelvin(value)
+    return value
+
+def harmonize_modulus(value: float, detected_unit: str) -> float:
+    """
+    Converts modulus to GPa.
+    """
+    if detected_unit == "Pa":
+        return value / 1e9
+    if detected_unit == "kPa":
+        return value / 1e6
+    if detected_unit == "MPa":
+        return value / 1e3
+    return value
+
+def harmonize_record(record: Dict) -> Dict:
+    """
+    Harmonizes a single record: converts units and validates SMILES.
+    """
+    # Temperature Harmonization
+    if "tg_k" in record:
+        unit = detect_temperature_unit(record["tg_k"])
+        record["tg_k"] = harmonize_temperature(record["tg_k"], unit)
+    
+    # Modulus Harmonization
+    if "modulus_gpa" in record:
+        unit = detect_pressure_unit(record["modulus_gpa"])
+        record["modulus_gpa"] = harmonize_modulus(record["modulus_gpa"], unit)
+
+    # SMILES Validation
+    if "smiles" in record and not is_valid_smiles(record["smiles"]):
+        logger.warning(f"Invalid SMILES detected: {record['smiles']}")
+        record["smiles_valid"] = False
+    else:
+        record["smiles_valid"] = True
     
     return record
 
-
-def run_harmonization(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def validate_and_exclude_invalid_records(records: List[Dict], schema: Dict) -> List[Dict]:
     """
-    Apply unit harmonization to a batch of records.
-    """
-    return [harmonize_units(r) for r in records]
-
-
-def validate_smiles_batch(records: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[int]]:
-    """
-    Validate SMILES strings and return valid records and indices of invalid ones.
+    Validates records against schema and excludes invalid ones.
     """
     valid_records = []
-    invalid_indices = []
-    
-    for i, record in enumerate(records):
-        smiles = record.get('SMILES')
-        if smiles and is_valid_smiles(smiles):
+    for record in records:
+        if validate_ingested_data(record, schema):
             valid_records.append(record)
         else:
-            invalid_indices.append(i)
-            logger.debug(f"Invalid SMILES at index {i}: {smiles}")
-    
-    return valid_records, invalid_indices
+            logger.debug(f"Excluding invalid record: {record.get('id', 'unknown')}")
+    return valid_records
 
-
-def validate_weight_fractions_batch(records: List[Dict[str, Any]], tolerance: float = 0.02) -> Tuple[List[Dict[str, Any]], List[int]]:
+def run_unit_harmonization_and_validation(raw_data_path: Path, output_path: Path) -> List[Dict]:
     """
-    Validate weight fractions sum to 1.0 within a given tolerance.
-    Returns valid records and indices of invalid ones.
+    Main pipeline for harmonization and validation.
     """
-    valid_records = []
-    invalid_indices = []
+    ensure_directories([output_path.parent])
     
-    for i, record in enumerate(records):
-        # Extract weight fractions. Assuming keys like 'w1', 'w2' or 'weight_fraction_1'
-        # We'll look for keys containing 'weight' or 'w' and numeric suffixes
-        w_values = []
-        for key, val in record.items():
-            if isinstance(val, (int, float)) and ('weight' in key.lower() or (key.startswith('w') and len(key) > 1)):
-                w_values.append(val)
-        
-        if not w_values:
-            # If no weight fractions found, we might skip or count as invalid depending on policy
-            # For now, if no weights, we assume it's a pure polymer (valid if only 1 component)
-            # But strict validation requires weights. Let's mark as invalid if no weights found.
-            invalid_indices.append(i)
-            continue
-
-        if validate_weight_fractions(w_values, tolerance):
-            valid_records.append(record)
-        else:
-            invalid_indices.append(i)
-            logger.debug(f"Weight fraction sum invalid at index {i}: {w_values}, sum={sum(w_values)}")
+    # Load raw data (assuming JSON for this example)
+    if not raw_data_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {raw_data_path}")
     
-    return valid_records, invalid_indices
+    with open(raw_data_path, 'r') as f:
+        raw_records = json.load(f)
+    
+    schema = load_dataset_schema()
+    harmonized = [harmonize_record(r) for r in raw_records]
+    valid_records = validate_and_exclude_invalid_records(harmonized, schema)
+    
+    with open(output_path, 'w') as f:
+        json.dump(valid_records, f, indent=2)
+    
+    logger.info(f"Harmonization complete. {len(valid_records)} valid records saved to {output_path}")
+    return valid_records
 
-
-def run_tolerance_sensitivity_sweep(records: List[Dict[str, Any]]) -> Dict[str, Any]:
+def generate_data_quality_report(data: List[Dict], report_path: Path) -> Dict:
     """
-    Run validation with different weight-fraction tolerance thresholds.
-    Logs impact on valid record counts and pass rate percentage per threshold.
-    Output: tolerance_sensitivity_report.json
+    Generates a data quality report based on the provided dataset.
+    Calculates statistics on missing values, unit distributions, and validity flags.
+    
+    Args:
+        data: List of processed records (harmonized and validated).
+        report_path: Path to save the JSON report.
+    
+    Returns:
+        Dictionary containing the report metrics.
     """
-    logger.info(f"Starting weight-fraction tolerance sensitivity sweep with thresholds: {WEIGHT_FRACTION_TOLERANCES}")
-    
-    results = {
-        "thresholds": [],
-        "total_records": len(records),
-        "sweep_details": []
-    }
-    
-    for tol in WEIGHT_FRACTION_TOLERANCES:
-        valid_records, invalid_indices = validate_weight_fractions_batch(records, tolerance=tol)
-        pass_rate = (len(valid_records) / len(records) * 100) if len(records) > 0 else 0.0
-        
-        detail = {
-            "tolerance": tol,
-            "valid_count": len(valid_records),
-            "invalid_count": len(invalid_indices),
-            "pass_rate_percent": round(pass_rate, 2)
-        }
-        
-        results["sweep_details"].append(detail)
-        logger.info(f"Tolerance {tol}: {len(valid_records)} valid ({pass_rate:.2f}%)")
-    
-    # Write report
-    with open(TOLERANCE_SENSITIVITY_REPORT_PATH, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Saved sensitivity report to {TOLERANCE_SENSITIVITY_REPORT_PATH}")
-    return results
+    if not data:
+        logger.warning("No data provided for quality report generation.")
+        return {"error": "No data provided"}
 
-
-def generate_data_quality_report(records: List[Dict[str, Any]], 
-                                 invalid_smiles_indices: List[int], 
-                                 invalid_weight_indices: List[int],
-                                 tolerance_results: Optional[Dict] = None) -> Dict[str, Any]:
-    """
-    Generate a comprehensive data quality report.
-    """
+    total_records = len(data)
+    valid_smiles_count = sum(1 for r in data if r.get("smiles_valid", False))
+    invalid_smiles_count = total_records - valid_smiles_count
+    
+    # Check for missing key fields
+    missing_tg = sum(1 for r in data if r.get("tg_k") is None)
+    missing_modulus = sum(1 for r in data if r.get("modulus_gpa") is None)
+    missing_composition = sum(1 for r in data if not r.get("composition"))
+    
+    # Unit distribution (heuristic based on original values if stored, otherwise assume harmonized)
+    # Since we harmonized in place, we assume all are now K and GPa.
+    # We can report the count of records that were successfully harmonized.
+    
     report = {
-        "total_records": len(records),
-        "invalid_smiles_count": len(invalid_smiles_indices),
-        "invalid_weight_fractions_count": len(invalid_weight_indices),
-        "valid_records_count": len(records) - len(invalid_smiles_indices) - len(invalid_weight_indices), # Simplified overlap
-        "sensitivity_analysis": tolerance_results
+        "report_generated_at": datetime.utcnow().isoformat(),
+        "dataset_summary": {
+            "total_records": total_records,
+            "valid_records": total_records, # Assuming filtered list
+            "valid_smiles_count": valid_smiles_count,
+            "invalid_smiles_count": invalid_smiles_count,
+            "smiles_validity_rate": valid_smiles_count / total_records if total_records > 0 else 0.0
+        },
+        "missing_data": {
+            "missing_tg_k_count": missing_tg,
+            "missing_modulus_gpa_count": missing_modulus,
+            "missing_composition_count": missing_composition
+        },
+        "unit_harmonization": {
+            "temperature_unit": "K (Harmonized)",
+            "modulus_unit": "GPa (Harmonized)",
+            "records_harmonized": total_records
+        },
+        "quality_metrics": {
+            "completeness_score": (total_records - missing_tg - missing_modulus - missing_composition) / total_records if total_records > 0 else 0.0,
+            "validity_score": valid_smiles_count / total_records if total_records > 0 else 0.0
+        }
     }
-    
-    with open(DATA_QUALITY_REPORT_PATH, 'w') as f:
+
+    ensure_directories([report_path.parent])
+    with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Saved data quality report to {DATA_QUALITY_REPORT_PATH}")
+    logger.info(f"Data quality report generated at {report_path}")
     return report
-
 
 def main():
     """
-    Main entry point for the ingestion pipeline.
+    Entry point for the ingestion script.
+    Executes harmonization and generates the data quality report.
     """
-    logger.info("Starting Data Ingestion Pipeline (T019b: Sensitivity Sweep)")
+    # Example paths - in a real pipeline, these would be passed as arguments or read from config
+    raw_input = DATA_DIR / "raw" / "sample_polymer_data.json"
+    harmonized_output = PROCESSED_DIR / "harmonized_data.json"
+    report_output = PROCESSED_DIR / "data_quality_report.json"
+    
+    # Ensure directories exist
+    ensure_directories([DATA_DIR / "raw", PROCESSED_DIR])
+    
+    # Check if raw data exists (if not, this might fail or fetch)
+    if not raw_input.exists():
+        logger.error(f"Raw data file not found at {raw_input}. Cannot proceed with ingestion.")
+        # In a real scenario, we might trigger a fetch here if T019a passed
+        return 1
     
     try:
-        # 1. Load Raw Data
-        raw_records = load_raw_data()
-        if not raw_records:
-            logger.warning("No records loaded. Exiting.")
-            return
+        # Run Harmonization
+        run_unit_harmonization_and_validation(raw_input, harmonized_output)
         
-        # 2. Harmonize Units
-        harmonized_records = run_harmonization(raw_records)
+        # Load harmonized data to generate report
+        with open(harmonized_output, 'r') as f:
+            harmonized_data = json.load(f)
         
-        # 3. Validate SMILES
-        valid_smiles_records, invalid_smiles_indices = validate_smiles_batch(harmonized_records)
+        # Generate Quality Report
+        generate_data_quality_report(harmonized_data, report_output)
         
-        # 4. Run Tolerance Sensitivity Sweep (T019b specific)
-        tolerance_results = run_tolerance_sensitivity_sweep(valid_smiles_records)
-        
-        # 5. Select a specific tolerance for final validation (e.g., 0.02)
-        final_tolerance = 0.02
-        final_valid_records, final_invalid_weight_indices = validate_weight_fractions_batch(
-            valid_smiles_records, tolerance=final_tolerance
-        )
-        
-        # 6. Generate Quality Report
-        generate_data_quality_report(
-            raw_records, 
-            invalid_smiles_indices, 
-            final_invalid_weight_indices,
-            tolerance_results
-        )
-        
-        # 7. Save Final Processed Data (for downstream tasks)
-        final_output_path = DATA_PROCESSED_DIR / "processed_polymer_data.csv"
-        with open(final_output_path, 'w', newline='', encoding='utf-8') as f:
-            if final_valid_records:
-                writer = csv.DictWriter(f, fieldnames=final_valid_records[0].keys())
-                writer.writeheader()
-                writer.writerows(final_valid_records)
-        
-        logger.info(f"Pipeline complete. Processed data saved to {final_output_path}")
-        
+        return 0
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        raise
-
+        logger.exception(f"Ingestion pipeline failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

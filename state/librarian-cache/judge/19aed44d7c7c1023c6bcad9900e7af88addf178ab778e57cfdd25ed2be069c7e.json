@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1106.2895",
+  "judged_at": "2026-07-17T09:44:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of data scaling on statistical test sensitivity statistics",
+  "rationale": "The paper discusses the philosophical foundations and general interpretation of statistical inference (\"statistical pragmatism\") but does not measure, analyze, or provide empirical baselines for the specific mechanism of \"data scaling\" on \"statistical test sensitivity.\" It fails to meet criteria (a) or (b) as it lacks the specific variables and domain focus required, and it is not a foundational methodology paper (d) specifically for scaling effects on sensitivity, making it a general conceptual",
+  "relevant": false
+}

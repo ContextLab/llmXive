@@ -1,0 +1,122 @@
+5. GO stress‑response enrichment (hypergeometric odds ratio + FDR).
+6. Bias analysis plots (full vs filtered β₁).
+7. Summit‑match statistics (ρ and % within ±5 bp).
+8. Explicit disclaimer that results are **associational**, not causal (FR‑016).
+
+All figures and tables are linked to entries in the traceability manifest (`manifest.json`) to satisfy Principle IV.
+
+## 4. Computational Feasibility
+
+- **CPU‑only**: All tools (fastp, bowtie2, MACS2, bedtools, deepTools, R `nlme`) run on CPU.
+- **Memory**: Sub‑sampling of eQTL to genes with matched CREs keeps RAM ≤ 5 GB.
+- **Runtime**: Estimated ≤ 5 h on 2‑core GitHub Actions runner (dominant steps: MACS2 sweep, GLS fitting, 10,000 block permutations).
+- **Parallelism**: Independent stress conditions are processed sequentially to stay within the core limit.
+
+## 5. Decision Rationale
+
+| Decision | Rationale |
+|----------|-----------|
+| Fixed‑Effects GLS (no random intercept) | Avoids invalid random‑effects with a large-scale gene set (methodology‑5525a25f). |
+| Null‑Region Control | Breaks circularity between CRE definition and predictor (methodology‑df37d36a). |
+| Block‑Permutation (10,000 shuffles) | Preserves spatial autocorrelation and meets User Story 2 acceptance (methodology‑cc507c0c, scientific_soundness‑3867a4a7). |
+| Exclude collinear CREs (VIF > 5) | Direct compliance with FR‑012 (methodology‑29006026). |
+| Weighted predictor (motif OR Hi‑C) | Satisfies FR‑015 while allowing flexibility (spec_coverage‑2dc07716). |
+| ATAC optional step with explicit skip flag | Provides independent validation while respecting FR‑013. |
+| Sensitivity analysis | Quantifies selection bias introduced by FR‑014 filtering (FR‑017). |
+| Summit‑Match metric | Provides SC‑005 compliance for IGV validation. |
+| Manifest generation | Guarantees Single Source of Truth (Principle IV). |
+| Manifest‑driven multi‑accession download | Addresses data‑resource concerns and ensures Verified Accuracy (Principle II). |
+| Use of condition‑independent Hi‑C | Avoids circularity with stress‑specific expression (scientific_soundness‑522e8fd3). |
+| [deferred] shuffles with optimized block‑permutation | Meets acceptance criteria while fitting within CI limits. |
+
+All methodological safeguards are explicitly encoded in the pipeline scripts and documented here, ensuring reproducibility, statistical rigor, and compliance with the project constitution. ===END_ARTIFACT===
+
+===BEGIN_ARTIFACT projects/PROJ-153-decoding-regulatory-element-contribution/specs/001-decoding-regulatory-element-contribution/data-model.md===
+# Data Model: Decoding Regulatory Element Contributions to Phenotypic Plasticity in Yeast
+
+## 1. Overview
+
+Defines all intermediate and final data structures used throughout the pipeline. Each file is version‑controlled; all transformations produce new files, preserving raw inputs.
+
+## 2. Entity Definitions
+
+### 2.1 CRE (cis‑regulatory element)
+
+| Attribute | Type | Description | Source |
+|-----------|------|-------------|--------|
+| `cre_id` | String | Unique identifier (e.g., `CRE_chrI_12345_12500`). | Generated after peak merging. |
+| `chrom` | String | Chromosome name (e.g., `chrI`). | MACS2. |
+| `start` | Integer | 0‑based start coordinate. | MACS2. |
+| `end` | Integer | 0‑based end coordinate. | MACS2. |
+| `tf_binding` | List[String] | TFs with peaks in this CRE. | Merged MACS2 output. |
+| `context` | String | `"promoter"` (≤500 bp upstream) or `"distal"` (>500 bp). | Annotation step. |
+| `gene_id` | String | Nearest gene (≤10 kb) **or** Hi‑C‑linked gene (if Hi‑C validation succeeds). | Proximity + Hi‑C validation. |
+| `log2fc` | Float | Stress‑specific expression fold‑change (from eQTL). | eQTL. |
+| `cre_signal` | Float | Normalized RPKM for this CRE (per condition). | deepTools `bamCoverage`. |
+| `null_region_signal` | Float | Normalized RPKM for the matched null region (per condition). | `06_define_null_region.sh`. |
+| `delta_peak_signal` | Float | `cre_signal - null_region_signal`. | Computed in validation script. |
+| `motif_score` | Float | PWM p‑value (or –log10 transformed) for the best matching motif. | FIMO. |
+| `hi_c_score` | Float | Contact frequency (reads) for CRE‑gene pair. | Hi‑C matrix. |
+| `weight` | Float | **Conditional**: `log(motif_score + 1)` **if** a motif passes FR‑014 **else** `log(hi_c_score + 1)`. | Validation step (FR‑015). |
+| `weighted_delta_peak_signal` | Float | `delta_peak_signal * weight` (the predictor used in GLS). | Computed in `05_validate_cre_gating.py`. |
+| `composite_tf_score` | Float | Geometric mean of TF‑specific signals (computed for reporting only; **not** used in GLS). | `05_compute_composite_tf_score.py`. |
+| `beta1` | Float | Fixed‑effect estimate from GLS. | `06_fit_gls.R`. |
+| `p_value` | Float | Raw LRT p‑value for β₁. | `06_fit_gls.R`. |
+| `q_value` | Float | Benjamini–Hochberg adjusted p‑value. | `06_fit_gls.R`. |
+| `validation_score` | Float | Either `motif_score` or `hi_c_score` (whichever satisfied FR‑014). | Validation step. |
+| `is_collinear` | Boolean | True if VIF > 5 (CRE excluded from GLS). | VIF check (FR‑012). |
+| `is_significant` | Boolean | True if `q_value` ≤ 0.05 (FR‑007). | Post‑GLS. |
+| `summit_position` | Integer | Summit coordinate from MACS2 narrowPeak. | MACS2. |
+| `bigwig_max_signal` | Float | Maximum signal within ±5 bp of summit (used for SC‑005). | `09_summit_match.R`. |
+| `validated_by_atac` | Boolean | True if ATAC validation succeeded; False if ATAC data missing (`ATAC_MANDATORY_SKIP`). | ATAC step (FR‑013). |
+
+### 2.2 Gene
+
+| Attribute | Type | Description | Source |
+|-----------|------|-------------|--------|
+| `gene_id` | String | Yeast ORF (e.g., `YAL001C`). | eQTL. |
+| `fold_change_heat` | Float | Log₂FC under heat‑shock. | eQTL. |
+| `fold_change_osmotic` | Float | Log₂FC under osmotic stress. | eQTL. |
+| `fold_change_oxidative` | Float | Log₂FC under oxidative stress. | eQTL. |
+| `promoter_signal` | Float | Normalized promoter RPKM (per condition). | `04_merge_annotate.sh`. |
+| `global_expr` | Float | Genome‑wide mean expression for the gene (covariate). | Computed from eQTL dataset. |
+| `residual_expression` | Float | Residual after regressing out promoter and global expression (used as Y in GLS). | `06_fit_gls.R`. |
+
+### 2.3 Null Region
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `region_id` | String | Unique ID. |
+| `chrom` | String | Chromosome. |
+| `start` | Integer | Start coordinate. |
+| `end` | Integer | End coordinate. |
+| `signal` | Float | Normalized RPKM (per condition). |
+| `matched_gene_id` | String | Gene for which this region serves as control. |
+
+## 3. Data Flow Diagram
+
+```mermaid
+graph TD
+ A[Raw ChIP‑seq FASTQ] -->|fastp, bowtie2| B[Aligned BAM]
+ B -->|MACS2| C[Peak BED]
+ C -->|Merge/Annotate| D[CRE_merged.bed]
+ E[eQTL CSV] -->|Filter/Validate| F[Valid Genes CSV]
+ D -->|Motif/Hi‑C validation| G[CRE_validated.bed]
+ F -->|Join with G| H[CRE‑Gene Pairs CSV]
+ H -->|Null‑region baseline| I[CRE_with_null.bed]
+ I -->|Weighted predictor| J[GLS input table]
+ J -->|GLS fit| K[GLS results CSV]
+ K -->|Permutation| L[Empirical p‑values CSV]
+ K -->|Sensitivity| M[Bias analysis CSV]
+ K -->|Summit match| N[Summit stats TXT]
+ K -->|Report| O[Statistical_summary.pdf]
+ B -->|deepTools| P[bigWig tracks]
+ K -->|Manifest| Q[manifest.json]
+```
+
+## 4. Validation Rules (mirroring Functional Requirements)
+
+- **FR‑001**: MD5 checksum of each FASTQ recorded in `data/raw/checksums.tsv`. Pipeline aborts on mismatch.
+- **FR‑011**: eQTL file must contain columns for all three stress fold‑changes; fatal abort if an entire stress column missing; warning for missing genes.
+- **FR‑012**: VIF computed per CRE; if VIF > 5, `is_collinear` = true and the CRE is **excluded** from GLS (FR‑012 compliance).
+- **FR‑013**: ATAC‑seq data fetched; if unavailable, `validated_by_atac` = false and `ATAC_MANDATORY_SKIP` is logged.

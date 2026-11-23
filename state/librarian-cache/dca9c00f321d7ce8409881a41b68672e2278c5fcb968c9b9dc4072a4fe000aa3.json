@@ -1,0 +1,535 @@
+{
+  "fetched_at": "2026-08-09T06:25:55Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Vi\"",
+      "target_n": 5
+    },
+    "duration_seconds": 45.661,
+    "ended_at": "2026-08-09T06:25:55Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "real-time interactive virtual environments framework"
+        ],
+        [
+          2,
+          "full-stack open-source virtual world systems"
+        ],
+        [
+          3,
+          "low-latency virtual reality interaction architectures"
+        ],
+        [
+          4,
+          "open-source real-time game engine frameworks"
+        ],
+        [
+          5,
+          "interactive 3D virtual environment development tools"
+        ],
+        [
+          6,
+          "real-time multiplayer virtual world infrastructure"
+        ],
+        [
+          7,
+          "web-based real-time virtual environment frameworks"
+        ],
+        [
+          8,
+          "open-source metaverse platform architectures"
+        ],
+        [
+          9,
+          "real-time distributed virtual world systems"
+        ],
+        [
+          10,
+          "interactive virtual reality full-stack solutions"
+        ],
+        [
+          11,
+          "open-source simulation framework for virtual worlds"
+        ],
+        [
+          12,
+          "real-time collaborative virtual environment platforms"
+        ],
+        [
+          13,
+          "lightweight virtual world engine architectures"
+        ],
+        [
+          14,
+          "open-source real-time rendering and interaction stacks"
+        ],
+        [
+          15,
+          "scalable virtual world interaction frameworks"
+        ],
+        [
+          16,
+          "real-time physics and interaction in virtual environments"
+        ],
+        [
+          17,
+          "open-source virtual reality application frameworks"
+        ],
+        [
+          18,
+          "low-latency networked virtual world protocols"
+        ],
+        [
+          19,
+          "real-time state synchronization for virtual environments"
+        ],
+        [
+          20,
+          "modular open-source virtual world development kits"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Vi\" computer science": 0,
+        "real-time interactive virtual environments framework": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "real-time multimodal interaction streaming architecture",
+      "LLM agent tool use function calling latency",
+      "full-stack AI application framework deployment",
+      "low-latency inference token generation interactive",
+      "end-to-end system integration conversational agent"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1812.03322"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM agent tool use function calling latency": 3,
+      "end-to-end system integration conversational agent": 3,
+      "full-stack AI application framework deployment": 3,
+      "llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Vi\" computer science": 3,
+      "low-latency inference token generation interactive": 3,
+      "real-time multimodal interaction streaming architecture": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2512.14002",
+          "rationale": "The paper focuses on task offloading and resource allocation in Vehicular Edge Computing (VEC), which is a distinct domain from the user's question regarding a \"Full-Stack Open-Source Framework for Real-Time Interactive Vi\" (likely referring to Vision or Video) for LLMs. While both involve \"real-time\" and \"computing,\" the paper does not measure the same mechanism, variables, or empirical population as the user's specific framework for interactive LLMs, and it falls under the \"off-domain entirely",
+          "title": "Real-Time Service Subscription and Adaptive Offloading Control in Vehicular Edge Computing"
+        },
+        {
+          "primary_pointer": "1806.09998",
+          "rationale": "The paper focuses on industrial motor fault diagnosis using LabVIEW and signal processing, which is an off-domain application entirely unrelated to the user's question about extending a Large Language Model (LLM) framework for real-time interactive video. There is no overlap in mechanism, variables, domain, or empirical population between LLM-based video systems and motor state monitoring.",
+          "title": "Real time state monitoring and fault diagnosis system for motor based on LabVIEW"
+        },
+        {
+          "primary_pointer": "1802.00625",
+          "rationale": "The paper focuses on real-time sensor data analytics in industrial bulk materials handling and cyber-physical systems (CPS), which is an off-domain application compared to the user's question about extending a specific open-source framework for Large Language Models (LLMs) and interactive vision. While both involve \"real-time\" systems, the paper addresses physical sensor fusion and inverse physics problems, lacking any measurable connection to the LLM architecture, the \"minWM\" framework, or the ",
+          "title": "Real-Time-Data Analytics in Raw Materials Handling"
+        },
+        {
+          "primary_pointer": "2304.06907",
+          "rationale": "The paper focuses on computer vision tasks (image annotation and retrieval) using dictionary learning, which is an off-domain application compared to the user's question about extending a real-time interactive visual interface framework for Large Language Models (LLMs). While both mention \"real-time\" and \"visual,\" the underlying mechanisms, data modalities (static images vs. interactive LLM agents), and research goals are distinct, failing to meet the criteria for same-mechanism evidence or shar",
+          "title": "Toward Real-Time Image Annotation Using Marginalized Coupled Dictionary Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-09T06:25:09Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"minwm: a full-stack open-source framework for real-time interactive vi\" computer science",
+      "raw": "llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real-Time Interactive Vi\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motor is the most widely used production equipment in industrial field. In order to realize the real-time state monitoring and multi-fault pre-diagnosis of three-phase motor, this paper presents a design of three-phase motor state monitoring and fault diagnosis system based on LabVIEW.\n  The multi-dimensional vibration acceleration, rotational speed, temperature, current and voltage signals of the motor are collected with NI cDAQ acquisition equipment in real time and high speed. At the same time, the model of motor health state and fault state is established. The order analysis algorithm is used to analyze the data at an advanced level, and the diagnosis and classification of different fault types are realized. The system is equipped with multi-channel acquisition, display, analysis and storage. Combined with the current cloud transmission technology, we will back up the data to the cloud to be used by other terminals.",
+          "claimed_authors": [
+            "S. Q. Liu",
+            "Z. S. Ji",
+            "Y Wang",
+            "Z. C. Zhang"
+          ],
+          "claimed_title": "Real time state monitoring and fault diagnosis system for motor based on LabVIEW",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.09998"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='Real time state monitoring and fault diagnosis system for motor based on LabVIEW')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) is a method for learning decision-making tasks that could enable robots to learn and adapt to their situation on-line. For an RL algorithm to be practical for robotic control tasks, it must learn in very few actions, while continually taking those actions in real-time. Existing model-based RL methods learn in relatively few actions, but typically take too much time between each action for practical on-line learning. In this paper, we present a novel parallel architecture for model-based RL that runs in real-time by 1) taking advantage of sample-based approximate planning methods and 2) parallelizing the acting, model learning, and planning processes such that the acting process is sufficiently fast for typical robot control cycles. We demonstrate that algorithms using this architecture perform nearly as well as methods using the typical sequential architecture when both are given unlimited time, and greatly out-perform these methods on tasks that require real-time actions such as controlling an autonomous vehicle.",
+          "claimed_authors": [
+            "Todd Hester",
+            "Michael Quinlan",
+            "Peter Stone"
+          ],
+          "claimed_title": "A Real-Time Model-Based Reinforcement Learning Architecture for Robot Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1105.1749"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='A Real-Time Model-Based Reinforcement Learning Architecture for Robot Control')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As LLM agents increasingly select tools autonomously, their choices among tools with different privileges become safety-relevant. However, prior tool-selection studies focus on safety-agnostic metadata preferences, leaving privilege-sensitive choices underexplored. To address this gap, we study over-privileged tool selection, in which an agent selects or escalates to a higher-privilege tool despite a sufficient lower-privilege alternative. We introduce ToolPrivBench to evaluate whether agents choose higher-privilege tools despite sufficient lower-privilege alternatives, measuring both initial selection and escalation after transient tool failures. Across eight domains and five recurring risk patterns, we find that over-privileged tool selection is common among mainstream LLM agents and is further amplified by transient failures. We further find that general safety alignment does not reliably transfer to least-privilege tool choice, while prompt-level controls provide only limited mitigation under transient failures. We therefore introduce a privilege-aware post-training defense that teaches agents to prefer sufficient lower-privilege tools and escalate only when necessary. Our mitigation experiments show that this defense substantially reduces unnecessary high-privilege tool use while preserving general capabilities.",
+          "claimed_authors": [
+            "Kaiyue Yang",
+            "Yuyan Bu",
+            "Jingwei Yi",
+            "Yuchi Wang",
+            "Biyu Zhou",
+            "Juntao Dai",
+            "Songlin Hu",
+            "Yaodong Yang"
+          ],
+          "claimed_title": "When Lower Privileges Suffice: Investigating Over-Privileged Tool Selection in LLM Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.20023"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='When Lower Privileges Suffice: Investigating Over-Privileged Tool Selection in LLM Agents')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Every LLM tool call is structurally an RPC -- a function name, JSON arguments, and a serialized result -- yet each protocol (native Python, MCP, OpenAPI, LangChain) is integrated from scratch. We present ToolRegistry, a system that makes this RPC nature explicit: a single Tool object acts as a universal stub regardless of transport, while the registry serves as the RPC client runtime for dispatch, schema generation, and execution. The system ships as three packages -- a core registry, a server exposing tools over MCP and OpenAPI, and a hub of production-ready implementations -- and invokes tools through pluggable thread or process backends. The system now also provides tag-based permission policies, BM25F-powered progressive tool disclosure for large registries, think-augmented function calling, multi-provider schema support (OpenAI, Anthropic, Gemini), declarative JSONC/YAML configuration, and a near-zero-dependency core built on stdlib-only vendored modules. In our benchmarks the library cuts integration code by 60-80%, and choosing the right concurrency mode (thread vs. process) yields up to 3.1x throughput over the alternative for a given workload. ToolRegistry is open-source at https://github.com/Oaklight/ToolRegistry; documentation lives at https://toolregistry.readthedocs.io/.",
+          "claimed_authors": [
+            "Peng Ding",
+            "Rick Stevens"
+          ],
+          "claimed_title": "ToolRegistry: A Protocol-Agnostic Tool Management Library for Function-Calling LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.10593"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='ToolRegistry: A Protocol-Agnostic Tool Management Library for Function-Calling LLMs')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Model (LLM) agents significantly extend the capabilities of standalone LLMs, empowering them to interact with external tools (e.g., APIs, functions) and complete various tasks in a self-directed fashion. The challenge of tool use demands that LLMs not only understand user queries and generate answers accurately but also excel in task planning, tool invocation, and result summarization. While traditional works focus on training a single LLM with all these capabilities, performance limitations become apparent, particularly with smaller models. To overcome these challenges, we propose a novel approach that decomposes the aforementioned capabilities into a planner, caller, and summarizer. Each component is implemented by a single LLM that focuses on a specific capability and collaborates with others to accomplish the task. This modular framework facilitates individual updates and the potential use of smaller LLMs for building each capability. To effectively train this framework, we introduce a two-stage training paradigm. First, we fine-tune a backbone LLM on the entire dataset without discriminating sub-tasks, providing the model with a comprehensive understanding of the task. Second, the fine-tuned LLM is used to instantiate the planner, caller, and summarizer respectively, which are continually fine-tuned on respective sub-tasks. Evaluation across various tool-use benchmarks illustrates that our proposed multi-LLM framework surpasses the traditional single-LLM approach, highlighting its efficacy and advantages in tool learning.",
+          "claimed_authors": [
+            "Weizhou Shen",
+            "Chenliang Li",
+            "Hongzhan Chen",
+            "Ming Yan",
+            "Xiaojun Quan",
+            "Hehong Chen",
+            "Ji Zhang",
+            "Fei Huang"
+          ],
+          "claimed_title": "Small LLMs Are Weak Tool Learners: A Multi-LLM Agent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.07324"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='Small LLMs Are Weak Tool Learners: A Multi-LLM Agent')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI governance frameworks increasingly emphasize fairness, transparency, accountability, and lifecycle risk management in high-stakes domains. However, many current approaches remain observational, relying on static metric reporting, post-hoc auditing, and monitoring dashboards without directly governing deployment readiness, remediation progression, escalation states, or assurance-driven deployment control. This paper introduces Operational AI Deployment Assurance (OADA), a governance framework for translating fairness disagreement, subgroup instability, threshold sensitivity, remediation outcomes, and operational uncertainty into deployment-oriented assurance decisions. Building on prior work on the Fairness Disagreement Index (FDI) and FairRisk-FDI, OADA reframes governance uncertainty as an operational concern within AI deployment pipelines rather than a byproduct of metric disagreement. The framework introduces Deployment Assurance Scores, Deployment Readiness Classifications, Threshold Stability Zones, Governance Escalation States, and remediation-aware assurance progression. These constructs support lifecycle-oriented governance decisions across high-stakes settings by connecting evaluation outputs to deployment-state interpretation, reassessment, escalation, and operational control. Through deployment-oriented evaluation across facial recognition systems, with discussion extended to healthcare AI as a representative high-stakes domain, the paper demonstrates how systems may appear acceptable under isolated fairness or performance metrics while still exhibiting instability that affects deployment readiness. The proposed framework positions operational deployment assurance as a governance layer between evaluation and real-world AI deployment.",
+          "claimed_authors": [
+            "Khalid Adnan Alsayed"
+          ],
+          "claimed_title": "Operational AI Deployment Assurance: Governance-State Orchestration Under Threshold-Sensitive Deployment Conditions -- A Governance Framework for High-Stakes AI Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27827"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='Operational AI Deployment Assurance: Governance-State Orchestration Under Threshold-Sensitive Deployment Conditions -- A Governance Framework for High-Stakes AI Systems')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Enterprise investment in generative artificial intelligence (AI) tripled in a single year to roughly US$37 billion, yet independent field research finds that about 95% of enterprise generative-AI pilots deliver no measurable profit-and-loss impact. We argue that the dominant explanation--that models are not yet capable enough--is mistaken, and that enterprise AI has entered a Deployment Era in which advantage derives not from model intelligence but from the removal of the organizational and architectural friction that prevents a capable model from reaching production. Building on the software-engineering literature on technical debt and machine-learning deployment, and on a structured synthesis of independent field studies, we make the diagnosis operational. We introduce three linked constructs and one measurement instrument: the Deployment Wall, a six-stage value-leak model that mechanically reproduces observed survival rates; the Seam Index, a reproducible 0-12 diagnostic that scores any platform by how many of six recurring friction \"seams\" it removes natively rather than leaving to the adopter; and Deployment Debt, a construct that reframes unresolved friction as a compounding, quantifiable liability. We specify a scoring protocol with evidence anchors so the instrument can be applied consistently, illustrate it on a worked platform-selection example, and derive six falsifiable propositions with a research agenda for validation. The framework converts an eight-figure platform decision from a benchmark comparison into an architecture comparison.",
+          "claimed_authors": [
+            "Fabricio F. Costa"
+          ],
+          "claimed_title": "The Deployment Wall: A Diagnostic Framework and Instrument for Enterprise AI in the Deployment Era",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.29089"
+        },
+        "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='The Deployment Wall: A Diagnostic Framework and Instrument for Enterprise AI in the Deployment Era')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial intelligence (AI) predictions are increasingly used to inform human decisions. Here, using a behavioral implementation of the classic Newcomb's paradox in 1,305 participants, we show that AI predictions can also shape the reasoning people use to make a decision. In this paradigm, perceived predictive authority can alter how people reason about their future actions, leading them to forgo a guaranteed reward. Over 40% of participants treated AI as such a predictive authority about their own behavior, significantly increasing the odds of forgoing the guaranteed reward by a factor of 3.39 (95% CI: 2.45-4.70) and reducing earnings by 10.7-42.9%. The effect appeared across AI presentations and decision contexts and remained detectable even when predictions repeatedly failed. When people perceive AI as capable of predicting their personal behavior, the mere presence of AI predictions may shape their decision-making, narrowing the futures they consider.",
+          "claimed_authors": [
+            "Aoi Naito",
+            "Hirokazu Shirado"
+          ],
+          "claimed_title": "Faith in AI can narrow the futures individuals consider",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.28944"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='Faith in AI can narrow the futures individuals consider')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM inference is still evaluated mainly as a model or software problem: accuracy, latency, throughput, and hardware utilization. This is incomplete. At deployment scale, the relevant output is a quality-conditioned token produced under joint constraints from effective compute, delivered data-center power, cooling capacity, PUE, and utilization.\n  We argue that the ML community should treat inference as \\emph{energy-to-token production}. We formalize this view with a dimensionally consistent Token Production Function in which token rate is bounded by both compute-per-token and energy-per-token ceilings. Listed API prices vary by over an order of magnitude across providers, but we use price dispersion only as directional motivation, not as causal evidence of marginal cost. The core physical question is instead: under fixed quality and service targets, when does the binding constraint move from theoretical peak compute toward delivered power, cooling, and operational efficiency?\n  Under this framing, system optimizations -- latent KV-cache compression, sparse or heavily compressed attention, quantization, routing, and difficulty-adaptive reasoning -- are not merely local engineering tricks. They are energy-to-token levers because they reduce FLOPs/token, joules/token, memory traffic, or utilization losses under fixed $(q^{*},s^{*})$. We therefore call for inference papers and benchmarks to report Joules/token, active binding constraint, PUE-adjusted delivered power, and utilization-adjusted token output alongside accuracy and latency.",
+          "claimed_authors": [
+            "Xiang Liu",
+            "Shimiao Yuan",
+            "Zhenheng Tang",
+            "Peijie Dong",
+            "Kaiyong Zhao",
+            "Qiang Wang",
+            "Bo Li",
+            "Xiaowen Chu"
+          ],
+          "claimed_title": "Position: LLM Inference Should Be Evaluated as Energy-to-Token Production",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.11733"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='Position: LLM Inference Should Be Evaluated as Energy-to-Token Production')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper summarizes the idea of Tiered-Latency DRAM, which was published in HPCA 2013. The key goal of TL-DRAM is to provide low DRAM latency at low cost, a critical problem in modern memory systems. To this end, TL-DRAM introduces heterogeneity into the design of a DRAM subarray by segmenting the bitlines, thereby creating a low-latency, low-energy, low-capacity portion in the subarray (called the near segment), which is close to the sense amplifiers, and a high-latency, high-energy, high-capacity portion, which is farther away from the sense amplifiers. Thus, DRAM becomes heterogeneous with a small portion having lower latency and a large portion having higher latency. Various techniques can be employed to take advantage of the low-latency near segment and this new heterogeneous DRAM substrate, including hardware-based caching and software based caching and memory allocation of frequently used data in the near segment. Evaluations with simple such techniques show significant performance and energy-efficiency benefits.",
+          "claimed_authors": [
+            "Donghyuk Lee",
+            "Yoongu Kim",
+            "Vivek Seshadri",
+            "Jamie Liu",
+            "Lavanya Subramanian",
+            "Onur Mutlu"
+          ],
+          "claimed_title": "Tiered-Latency DRAM (TL-DRAM)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.06903"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='Tiered-Latency DRAM (TL-DRAM)')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interactive, immersive and critical applications demand ultra-reliable low-latency communication (URLLC). To build wireless communication systems that can support these applications, understanding the characteristics of the wireless medium is paramount. Although wireless channel characteristics and dynamics have been extensively studied, it is important to revisit these concepts in the context of the strict demands of low latency and ultra-reliability. In this paper, we bring a modeling approach from robust control to wireless communication -- the wireless channel characteristics are given a nominal model around which we allow for some quantified uncertainty. We propose certain key \"directions\" along which to bound model uncertainty that are relevant to URLLC. For the nominal model, we take an in-depth look at wireless channel characteristics such as spatial and temporal correlations based on Jakes' model. Contrary to what has been claimed in the literature, we find that standard Rayleigh fading processes are not bandlimited. This has significant implications on the predictability of channels. We also find that under reasonable conditions the spatial correlation of channels provide a fading distribution that is not too far off from an independent spatial fading model. Additionally, we look at the impact of these channel models on cooperative communication based systems. We find that while spatial-diversity-based techniques are necessary to combat the adverse effects of fading, time-diversity-based techniques are necessary to be robust against unmodeled errors. Robust URLLC systems need to operate with both an SNR margin and a time/repetition margin.",
+          "claimed_authors": [
+            "Vasuki Narasimha Swamy",
+            "Paul Rigge",
+            "Gireeja Ranade",
+            "Borivoje Nikolic",
+            "Anant Sahai"
+          ],
+          "claimed_title": "Wireless Channel Dynamics and Robustness for Ultra-Reliable Low-Latency Communications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.08777"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='Wireless Channel Dynamics and Robustness for Ultra-Reliable Low-Latency Communications')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "End-to-end training of neural networks is a promising approach to automatic construction of dialog systems using a human-to-human dialog corpus. Recently, Vinyals et al. tested neural conversation models using OpenSubtitles. Lowe et al. released the Ubuntu Dialogue Corpus for researching unstructured multi-turn dialogue systems. Furthermore, the approach has been extended to accomplish task oriented dialogs to provide information properly with natural conversation. For example, Ghazvininejad et al. proposed a knowledge grounded neural conversation model [3], where the research is aiming at combining conversational dialogs with task-oriented knowledge using unstructured data such as Twitter data for conversation and Foursquare data for external knowledge.However, the task is still limited to a restaurant information service, and has not yet been tested with a wide variety of dialog tasks. In addition, it is still unclear how to create intelligent dialog systems that can respond like a human agent.\n  In consideration of these problems, we proposed a challenge track to the 6th dialog system technology challenges (DSTC6) using human-to-human dialog data to mimic human dialog behaviors. The focus of the challenge track is to train end-to-end conversation models from human-to-human conversation and accomplish end-to-end dialog tasks in various situations assuming a customer service, in which a system plays a role of human agent and generates natural and informative sentences in response to user's questions or comments given dialog context.",
+          "claimed_authors": [
+            "Chiori Hori",
+            "Takaaki Hori"
+          ],
+          "claimed_title": "End-to-end Conversation Modeling Track in DSTC6",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.07440"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='End-to-end Conversation Modeling Track in DSTC6')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Legged locomotion is arguably the most suited and versatile mode to deal with natural or unstructured terrains. Intensive research into dynamic walking and running controllers has recently yielded great advances, both in the optimal control and reinforcement learning (RL) literature. Hopping is a challenging dynamic task involving a flight phase and has the potential to increase the traversability of legged robots. Model based control for hopping typically relies on accurate detection of different jump phases, such as lift-off or touch down, and using different controllers for each phase. In this paper, we present a end-to-end RL based torque controller that learns to implicitly detect the relevant jump phases, removing the need to provide manual heuristics for state detection. We also extend a method for simulation to reality transfer of the learned controller to contact rich dynamic tasks, resulting in successful deployment on the robot after training without parameter tuning.",
+          "claimed_authors": [
+            "Raghav Soni",
+            "Daniel Harnack",
+            "Hannah Isermann",
+            "Sotaro Fushimi",
+            "Shivesh Kumar",
+            "Frank Kirchner"
+          ],
+          "claimed_title": "End-to-End Reinforcement Learning for Torque Based Variable Height Hopping",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.16676"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='End-to-End Reinforcement Learning for Torque Based Variable Height Hopping')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In end-to-end autonomous driving,the motion prediction plays a pivotal role in ego-vehicle planning. However, existing methods often rely on globally aggregated motion features, ignoring the fact that planning decisions are primarily influenced by a small number of locally interacting agents. Failing to attend to these critical local interactions can obscure potential risks and undermine planning reliability. In this work, we propose FocalAD, a novel end-to-end autonomous driving framework that focuses on critical local neighbors and refines planning by enhancing local motion representations. Specifically, FocalAD comprises two core modules: the Ego-Local-Agents Interactor (ELAI) and the Focal-Local-Agents Loss (FLA Loss). ELAI conducts a graph-based ego-centric interaction representation that captures motion dynamics with local neighbors to enhance both ego planning and agent motion queries. FLA Loss increases the weights of decision-critical neighboring agents, guiding the model to prioritize those more relevant to planning. Extensive experiments show that FocalAD outperforms existing state-of-the-art methods on the open-loop nuScenes datasets and closed-loop Bench2Drive benchmark. Notably, on the robustness-focused Adv-nuScenes dataset, FocalAD achieves even greater improvements, reducing the average colilision rate by 41.9% compared to DiffusionDrive and by 15.6% compared to SparseDrive.",
+          "claimed_authors": [
+            "Bin Sun",
+            "Boao Zhang",
+            "Jiayi Lu",
+            "Xinjie Feng",
+            "Jiachen Shang",
+            "Rui Cao",
+            "Mengchao Zheng",
+            "Chuanye Wang",
+            "Shichun Yang",
+            "Yaoguang Cao",
+            "Ziying Song"
+          ],
+          "claimed_title": "FocalAD: Local Motion Planning for End-to-End Autonomous Driving",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.11419"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"minWM: A Full-Stack Open-Source Framework for Real', candidate_title='FocalAD: Local Motion Planning for End-to-End Autonomous Driving')",
+        "failed_at": "2026-08-09T06:25:39Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix G. Hamza-Lup",
+            "Jannick P. Rolland"
+          ],
+          "title": "Scene Synchronization for Real-Time Interaction in Distributed Mixed Reality and Virtual Reality Environments",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1812.03322",
+        "summary": "Advances in computer networks and rendering systems facilitate the creation of distributed collaborative environments in which the distribution of information at remote locations allows efficient communication. One of the challenges in networked virtual environments is maintaining a consistent view of the shared state in the presence of inevitable network latency and jitter. A consistent view in a shared scene may significantly increase the sense of presence among participants and facilitate their interactivity. The dynamic shared state is directly affected by the frequency of actions applied on the objects in the scene. Mixed Reality (MR) and Virtual Reality (VR) environments contain several types of action producers including human users, a wide range of electronic motion sensors, and haptic devices. In this paper, the authors propose a novel criterion for categorization of distributed MR/VR systems and present an adaptive synchronization algorithm for distributed MR/VR collaborative environments. In spite of significant network latency, results show that for low levels of update frequencies the dynamic shared state can be maintained consistent at multiple remotely located sites.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1812.03322",
+          "http_status": 200,
+          "pdf_sample_score": 0.2458,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-09T06:25:44Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"minwm: a full-stack open-source framework for real-time interactive vi\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

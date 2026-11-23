@@ -1,0 +1,181 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Plan Execution Schema"
+description: "Schema for validating the output of the research pipeline (JSONL files and analysis results)."
+type: "object"
+properties:
+  prompt:
+    type: "object"
+    properties:
+      prompt_id:
+        type: "string"
+        description: "Unique identifier for the prompt."
+      text:
+        type: "string"
+        description: "The full text of the problem."
+      source:
+        type: "string"
+        description: "Dataset origin."
+      domain:
+        type: "string"
+        description: "Category (math, physics, general_science)."
+      is_ill_structured:
+        type: "boolean"
+        description: "True if from OpenSci-Reason."
+    required:
+      - prompt_id
+      - text
+      - source
+      - domain
+      - is_ill_structured
+  response:
+    type: "object"
+    properties:
+      response_id:
+        type: "string"
+        description: "Unique identifier for the response."
+      prompt_id:
+        type: "string"
+        description: "Foreign key to Prompt."
+      model_name:
+        type: "string"
+        description: "SU-01 or Baseline."
+      text:
+        type: "string"
+        description: "Generated text."
+      generation_params:
+        type: "object"
+        properties:
+          temperature:
+            type: "number"
+          max_tokens:
+            type: "integer"
+          seed:
+            type: "integer"
+        required:
+          - temperature
+          - max_tokens
+          - seed
+      truncated:
+        type: "boolean"
+        description: "True if generation hit token limit."
+      status:
+        type: "string"
+        enum:
+          - success
+          - failure
+          - truncated
+    required:
+      - response_id
+      - prompt_id
+      - model_name
+      - text
+      - generation_params
+      - truncated
+      - status
+  score:
+    type: "object"
+    properties:
+      score_id:
+        type: "string"
+        description: "Unique identifier for the score."
+      response_id:
+        type: "string"
+        description: "Foreign key to Response."
+      novelty:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+        description: "Score 1-5."
+      feasibility:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+        description: "Score 1-5."
+      consistency:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+        description: "Score 1-5."
+      entropy:
+        type: "number"
+        description: "Mean entropy of logits."
+      is_low_confidence:
+        type: "boolean"
+        description: "True if variance > 1.5 or entropy > 2.0."
+      raw_output:
+        type: "string"
+        description: "Full JSON string from proxy model."
+    required:
+      - score_id
+      - response_id
+      - novelty
+      - feasibility
+      - consistency
+      - entropy
+      - is_low_confidence
+      - raw_output
+  olympiad_result:
+    type: "object"
+    properties:
+      prompt_id:
+        type: "string"
+        description: "Foreign key to Prompt."
+      model_name:
+        type: "string"
+        description: "SU-01 or Baseline."
+      is_correct:
+        type: "boolean"
+        description: "1 if answer matches ground truth, 0 otherwise."
+      ground_truth:
+        type: "string"
+        description: "The correct answer."
+    required:
+      - prompt_id
+      - model_name
+      - is_correct
+      - ground_truth
+  gold_standard:
+    type: "object"
+    properties:
+      response_id:
+        type: "string"
+        description: "Unique identifier."
+      human_novelty:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+      human_feasibility:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+      human_consistency:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+      proxy_novelty:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+      proxy_feasibility:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+      proxy_consistency:
+        type: "integer"
+        minimum: 1
+        maximum: 5
+    required:
+      - response_id
+      - human_novelty
+      - human_feasibility
+      - human_consistency
+      - proxy_novelty
+      - proxy_feasibility
+      - proxy_consistency
+required:
+  - prompt
+  - response
+  - score
+  - olympiad_result
+  - gold_standard
+additionalProperties: false

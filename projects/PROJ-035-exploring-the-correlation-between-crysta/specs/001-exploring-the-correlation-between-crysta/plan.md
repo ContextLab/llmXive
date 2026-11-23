@@ -4,7 +4,7 @@
 **Input**: Feature specification from `/specs/001-correlation-perovskites/spec.md`
 
 ## Summary
-The project must ingest perovskite crystal structures via the Materials Project API, merge them with experimentally measured thermal conductivity values from peer‑reviewed literature/NIST, compute crystallographic distortion descriptors, perform stratified correlation analysis, and build a validated multiple‑linear regression model with 5‑fold cross‑validation. All steps are deterministic, reproducible, and respect the functional and success criteria (FR‑001 – FR‑015, SC‑001 – SC‑005).
+The project must ingest perovskite crystal structures via the Materials Project API, merge them with experimentally measured thermal conductivity values from peer‑reviewed literature/NIST, compute crystallographic distortion descriptors, perform stratified correlation analysis, and build a validated multiple‑linear regression model with k‑fold cross‑validation. All steps are deterministic, reproducible, and respect the functional and success criteria (FR‑001 – FR‑015, SC‑001 – SC‑005).
 
 **Known Limitations**: This plan acknowledges several methodological constraints that may affect results: (1) DFT-optimized crystal structures may not capture real-sample defects/grain boundaries; (2) major confounds (synthesis method, measurement technique) are uncontrolled; (3) stratified analysis may be underpowered with N < 80; (4) Slack temperature correction may not apply to all chemistry classes. These are documented in research.md and reported in final outputs.
 

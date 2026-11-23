@@ -9,3 +9,25 @@
   verification_status: mismatch
   verified_against_url: https://www.projectimplicit.net/datasets/
   verified_at: '2026-07-01T12:08:10.130504Z'
+- artifact_hash: 49f5af058dfc600136c66340d351b25c6de115758d9dbf59f4f0c3de618de088
+  artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/data/raw/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://osf.io/download/4z9qg/
+  verification_status: unreachable
+  verified_against_url: https://osf.io/download/4z9qg/
+  verified_at: '2026-09-19T09:31:18.594493Z'
+- artifact_hash: 26118483b2f7bd17f0523aea04cf212f21aa8970bb077861efa5c21cab857f40
+  artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/docs/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Project Implicit
+  kind: url
+  value: https://projectimplicit.net/
+  verification_status: pending
+  verified_against_url: https://www.projectimplicit.net
+  verified_at: '2026-09-19T09:40:16.436615Z'

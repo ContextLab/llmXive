@@ -1,84 +1,92 @@
-"""
-T002: Initialize Python 3.11 virtualenv and install dependencies.
-
-This script automates the creation of a virtual environment and installs
-the dependencies listed in code/requirements.txt.
-"""
 import os
 import subprocess
 import sys
 import venv
-
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-VENV_DIR = os.path.join(PROJECT_ROOT, ".venv")
-REQUIREMENTS_PATH = os.path.join(PROJECT_ROOT, "code", "requirements.txt")
+from pathlib import Path
 
 def check_python_version():
-    """Ensure the running Python is 3.11."""
-    if sys.version_info[:2] != (3, 11):
-        print(f"⚠️  Warning: Running Python {sys.version_info.major}.{sys.version_info.minor}, "
-              f"but Python 3.11 is recommended for compatibility.")
-        # We proceed anyway to allow flexibility, but warn.
+    """Verify Python version is 3.11."""
+    version = sys.version_info
+    if version.major != 3 or version.minor != 11:
+        print(f"Error: Python 3.11 required. Found {version.major}.{version.minor}.{version.micro}")
+        sys.exit(1)
+    print(f"Python version check passed: {sys.version}")
+    return True
 
-def create_venv():
-    """Create the virtual environment if it doesn't exist."""
-    if os.path.exists(VENV_DIR):
-        print(f"✅ Virtual environment already exists at {VENV_DIR}")
-        return True
+def create_venv(venv_dir="venv"):
+    """Create a virtual environment in the specified directory."""
+    venv_path = Path(venv_dir)
+    if venv_path.exists():
+        print(f"Virtual environment at {venv_path} already exists. Skipping creation.")
+        return str(venv_path)
     
-    print(f"📦 Creating virtual environment at {VENV_DIR}...")
-    try:
-        venv.create(VENV_DIR, with_pip=True, clear=False)
-        print("✅ Virtual environment created successfully.")
-        return True
-    except Exception as e:
-        print(f"❌ Failed to create virtual environment: {e}")
-        return False
+    print(f"Creating virtual environment at {venv_path}...")
+    venv.create(venv_path, with_pip=True)
+    print("Virtual environment created successfully.")
+    return str(venv_path)
 
-def install_dependencies():
-    """Install requirements from code/requirements.txt."""
-    if not os.path.exists(REQUIREMENTS_PATH):
-        print(f"❌ Error: Requirements file not found at {REQUIREMENTS_PATH}")
-        return False
+def install_dependencies(venv_dir="venv", requirements_file="code/requirements.txt"):
+    """Install dependencies from requirements.txt into the virtual environment."""
+    venv_path = Path(venv_dir)
+    if not venv_path.exists():
+        print(f"Error: Virtual environment not found at {venv_path}. Run create_venv first.")
+        sys.exit(1)
 
-    # Determine the pip executable path based on OS
+    # Determine the correct pip path based on OS
     if sys.platform == "win32":
-        pip_executable = os.path.join(VENV_DIR, "Scripts", "pip.exe")
+        pip_path = venv_path / "Scripts" / "pip.exe"
     else:
-        pip_executable = os.path.join(VENV_DIR, "bin", "pip")
+        pip_path = venv_path / "bin" / "pip"
 
-    if not os.path.exists(pip_executable):
-        print(f"❌ Error: pip executable not found at {pip_executable}")
-        return False
+    if not pip_path.exists():
+        print(f"Error: pip not found at {pip_path}")
+        sys.exit(1)
 
-    print(f"🚀 Upgrading pip and installing dependencies from {REQUIREMENTS_PATH}...")
+    requirements_path = Path(requirements_file)
+    if not requirements_path.exists():
+        print(f"Error: Requirements file not found at {requirements_path}")
+        sys.exit(1)
+
+    print(f"Installing dependencies from {requirements_path}...")
     
     # Upgrade pip first
-    subprocess.run([pip_executable, "install", "--upgrade", "pip"], check=True)
+    subprocess.run([str(pip_path), "install", "--upgrade", "pip"], check=True)
     
     # Install requirements
-    try:
-        subprocess.run([pip_executable, "install", "-r", REQUIREMENTS_PATH], check=True)
-        print("✅ Dependencies installed successfully.")
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to install dependencies: {e}")
-        return False
+    result = subprocess.run(
+        [str(pip_path), "install", "-r", str(requirements_path)],
+        check=True
+    )
+    
+    if result.returncode == 0:
+        print("Dependencies installed successfully.")
+        # Log installed packages
+        subprocess.run([str(pip_path), "freeze"], check=False)
+    else:
+        print("Error installing dependencies.")
+        sys.exit(1)
+
+    return True
 
 def main():
-    print("🚀 Starting T002: Virtual Environment Initialization")
+    """Main entry point for environment initialization."""
+    print("=== Initializing Python 3.11 Virtual Environment ===")
+    
+    # Step 1: Check Python version
     check_python_version()
     
-    if not create_venv():
-        return 1
+    # Step 2: Create virtual environment
+    venv_path = create_venv()
     
-    if not install_dependencies():
-        return 1
+    # Step 3: Install dependencies
+    install_dependencies(venv_path)
     
-    print("✅ T002 Completed: Virtual environment initialized and dependencies installed.")
-    print(f"   To activate, run: source {os.path.join(VENV_DIR, 'bin', 'activate')} (Linux/Mac)")
-    print(f"   or: {os.path.join(VENV_DIR, 'Scripts', 'activate')} (Windows)")
-    return 0
+    print("=== Environment Setup Complete ===")
+    print(f"Activate the environment with:")
+    if sys.platform == "win32":
+        print(f"  {venv_path}\\Scripts\\activate")
+    else:
+        print(f"  source {venv_path}/bin/activate")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

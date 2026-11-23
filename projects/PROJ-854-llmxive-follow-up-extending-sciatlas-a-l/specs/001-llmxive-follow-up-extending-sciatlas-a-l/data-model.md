@@ -1,60 +1,75 @@
 # Data Model: Interdisciplinary Bridging Coefficient Analysis
 
-## 1. Overview
+## Overview
 
-This document defines the data structures used throughout the pipeline, from raw ingestion to final analysis. All data is stored in local files (`data/`) and processed in memory using Pandas DataFrames and NetworkX Graphs.
+This document defines the data structures, schemas, and transformations used in the analysis pipeline. The data flows from a raw OpenAlex-derived subgraph to an enriched dataset containing topological and text-based metrics.
 
-## 2. Entity Definitions
+## Source Data
 
-### Node
-Represents a scientific publication.
-- **Attributes**:
-  - `id`: Unique string identifier (OpenAlex ID).
-  - `title`: String (required for novelty analysis).
-  - `abstract`: String (required for embedding).
-  - `citation_count`: Integer (non-negative).
-  - `publication_year`: Integer (required for temporal lag).
-  - `primary_cluster`: Integer (assigned by Louvain).
-  - `topic_cluster`: Integer (assigned by K-Means).
-  - `bridging_coefficient`: Float (0.0 to 1.0).
-  - `novelty_score`: Float (k-NN average cosine distance).
-  - `embedding_vector`: Array of floats (normalized).
-  - `average_abstract_similarity`: Float (control variable).
+### Input: `data/processed/subgraph.parquet`
+- **Format**: Apache Parquet.
+- **Description**: A subset of the OpenAlex graph containing scientific works and their connections. Derived from the **OpenAlex Full Snapshot (2026-01-01)**.
+- **Schema**:
+  - `id`: `string` (Unique work identifier)
+  - `title`: `string` (Work title, nullable)
+  - `cited_by_count`: `int64` (Citation count, nullable)
+  - `publication_date`: `datetime64[ns]` (Date of publication)
+  - `field`: `string` (Disciplinary field identifier)
+  - `neighbors`: `list[string]` (List of connected work IDs). *Derived from the same OpenAlex snapshot as the node data, linked via the `id` field.*
 
-### Edge
-Represents a relationship between publications.
-- **Attributes**:
-  - `source_id`: String.
-  - `target_id`: String.
-  - `type`: String (e.g., "cites").
+## Derived Data
 
-### Analysis Result
-Aggregated statistical findings.
-- **Attributes**:
-  - `test_name`: String (e.g., "Bridging vs Citations").
-  - `correlation_coefficient`: Float.
-  - `p_value_raw`: Float.
-  - `p_value_adjusted`: Float.
-  - `method`: String (e.g., "Spearman", "Quadratic Regression").
-  - `sample_size`: Integer.
-  - `bin_trend`: String (e.g., "linear", "inverted_u", "none").
+### Output: `data/processed/subgraph_with_clusters.parquet`
+- **Format**: Apache Parquet.
+- **Description**: The original dataset enriched with clustering, bridging, and novelty metrics.
+- **Schema**:
+  - `id`: `string`
+  - `title`: `string`
+  - `cited_by_count`: `int64`
+  - `publication_date`: `datetime64[ns]`
+  - `field`: `string`
+  - `primary_cluster`: `int32` (Louvain cluster ID)
+  - `degree`: `int32` (Total number of connections)
+  - `inter_cluster_edges`: `int32` (Number of edges connecting to different clusters)
+  - `bridging_coefficient`: `float64` (Calculated as `inter_cluster_edges / degree`)
+  - `embedding_vector`: `list[float32]` (384-dimensional vector from MiniLM)
+  - `novelty_score`: `float64` (Cosine distance to global centroid)
+  - `is_singleton`: `bool` (True if cluster size is 1)
+  - `novelty_score_variance`: `float64` (Variance of novelty scores for the dataset, computed for SC-002)
 
-## 3. Data Flow
+### Logs: `data/processed/excluded_nodes.json`
+- **Format**: JSON.
+- **Description**: List of nodes excluded from embedding generation due to null titles.
+- **Schema**:
+  - `excluded_ids`: `list[string]`
+  - `reason`: `string` (e.g., "null_title")
 
-1. **Raw Input**: `data/raw/openalex_subset.parquet` (queried from API).
-2. **Ingested**: `data/intermediate/nodes.csv`, `data/intermediate/edges.csv`.
-3. **Processed**: `data/processed/analysis_dataset.parquet` (includes all derived metrics).
-4. **Output**: `data/results/statistical_summary.json`.
+## Data Transformations
 
-## 4. Constraints & Validation
+1. **Ingestion**:
+   - Load `subgraph.parquet`.
+   - Validate against `data/schema/openalex_works.json` (derived from `contracts/openalex_works.schema.yaml`).
+   - Handle missing `cited_by_count` (default to 0).
+   - Log null titles to `excluded_nodes.json`.
 
-- **Bridging Coefficient**: Must be in range $[0.0, 1.0]$.
-- **Citation Count**: Must be $\ge 0$.
-- **Novelty Score**: Must be $\ge 0$ (Cosine distance is non-negative).
-- **Clustering**: Every node must have a valid `primary_cluster` and `topic_cluster` (unless excluded).
-- **Missing Data**: Nodes missing `title` or `abstract` are excluded from novelty analysis but may be retained for citation analysis if `citation_count` exists.
-- **Temporal**: `publication_year` must be $\le$ current year.
+2. **Embedding**:
+   - Filter nodes with non-null titles.
+   - Generate embeddings using `all-MiniLM-L6-v2`.
+   - Compute global centroid (mean of normalized vectors, float32).
+   - Calculate `novelty_score` (cosine distance to centroid).
 
-## 5. Schema Contracts
+3. **Topology**:
+   - Construct graph from `id` and `neighbors` (convert list of strings to NetworkX edges).
+   - Run Louvain clustering to assign `primary_cluster`.
+   - Calculate `degree` and `inter_cluster_edges`.
+   - Compute `bridging_coefficient`.
 
-The following YAML schemas define the strict structure of the output data, used for automated validation.
+4. **Enrichment**:
+   - Merge embedding/novelty data with topology data.
+   - Save to `subgraph_with_clusters.parquet`.
+
+## Constraints
+
+- **Memory**: All transformations must be optimized to fit within 7GB RAM. Large lists (embeddings) may be stored as compressed arrays or processed in batches.
+- **Integrity**: Checksums are recorded for all Parquet files. No in-place modification.
+- **Validation**: Every intermediate file must pass schema validation before being used as input for the next step.

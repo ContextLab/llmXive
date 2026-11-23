@@ -1,0 +1,283 @@
+{
+  "fetched_at": "2026-11-10T03:14:21Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Agentic Environment Engineering for Large Language Models: A Survey of\"",
+      "target_n": 5
+    },
+    "duration_seconds": 22.071,
+    "ended_at": "2026-11-10T03:14:21Z",
+    "expansion": null,
+    "extracted_queries": [
+      "llmXive follow-up extending Agentic Environment linguistics",
+      "Large Language Models Survey linguistics",
+      "llmXive extending Environment Large Models linguistics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.14257"
+      ]
+    },
+    "per_query_hit_count": {
+      "Large Language Models Survey linguistics": 3,
+      "llmXive extending Environment Large Models linguistics": 2,
+      "llmXive follow-up extending Agentic Environment linguistics": 2,
+      "llmXive follow-up: extending \"Agentic Environment Engineering for Large Language Models: A Survey of\" linguistics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-11-10T03:13:58Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"agentic environment engineering for large language models: a survey of\" linguistics",
+      "raw": "llmXive follow-up: extending \"Agentic Environment Engineering for Large Language Models: A Survey of\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Agentic Environment Engineering for Large Language', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-11-10T03:14:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Agentic Environment Engineering for Large Language', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-11-10T03:14:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In a previous study [Jo, 2026], STAR reasoning (Situation, Task, Action, Result) raised car wash problem accuracy from 0% to 85% on Claude Sonnet 4.5, and to 100% with\n  additional prompt layers. This follow-up asks: does STAR maintain its effectiveness in a production system prompt?\n  We tested STAR inside InterviewMate's 60+ line production prompt, which had evolved through iterative additions of style guidelines, format instructions, and profile\n  features. Three conditions, 20 trials each, on Claude Sonnet 4.6: (A) production prompt with Anthropic profile, (B) production prompt with default profile, (C) original\n  STAR-only prompt. C scored 100% (verified at n=100). A and B scored 0% and 30%.\n  Prompt complexity dilutes structured reasoning. STAR achieves 100% in isolation but degrades to 0-30% when surrounded by competing instructions. The mechanism: directives\n  like \"Lead with specifics\" force conclusion-first output, reversing the reason-then-conclude order that makes STAR effective. In one case, the model output \"Short answer:\n  Walk.\" then executed STAR reasoning that correctly identified the constraint -- proving the model could reason correctly but had already committed to the wrong answer.\n  Cross-model comparison shows STAR-only improved from 85% (Sonnet 4.5) to 100% (Sonnet 4.6) without prompt changes, suggesting model upgrades amplify structured reasoning\n  in isolation.\n  These results imply structured reasoning frameworks should not be assumed to transfer from isolated testing to complex prompt environments. The order in which a model\n  reasons and concludes is a first-class design variable.",
+          "claimed_authors": [
+            "Heejin Jo"
+          ],
+          "claimed_title": "Prompt Complexity Dilutes Structured Reasoning: A Follow-Up Study on the Car Wash Problem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.13351"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Agentic Environment Engineering for Large Language', candidate_title='Prompt Complexity Dilutes Structured Reasoning: A Follow-Up Study on the Car Wash Problem')",
+        "failed_at": "2026-11-10T03:14:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As the number of installed meters in buildings increases, there is a growing number of data time-series that could be used to develop data-driven models to support and optimize building operation. However, building data sets are often characterized by errors and missing values, which are considered, by the recent research, among the main limiting factors on the performance of the proposed models. Motivated by the need to address the problem of missing data in building operation, this work presents a data-driven approach to fill these gaps. In this study, three different autoencoder neural networks are trained to reconstruct missing short-term indoor environment data time-series in a data set collected in an office building in Aachen, Germany. This consisted of a four year-long monitoring campaign in and between the years 2014 and 2017, of 84 different rooms. The models are applicable for different time-series obtained from room automation, such as indoor air temperature, relative humidity and $CO_{2}$ data streams. The results prove that the proposed methods outperform classic numerical approaches and they result in reconstructing the corresponding variables with average RMSEs of 0.42 °C, 1.30 % and 78.41 ppm, respectively.",
+          "claimed_authors": [
+            "Antonio Liguori",
+            "Romana Markovic",
+            "Thi Thu Ha Dam",
+            "Jérôme Frisch",
+            "Christoph van Treeck",
+            "Francesco Causone"
+          ],
+          "claimed_title": "Indoor environment data time-series reconstruction using autoencoder neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.08155"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Agentic Environment Engineering for Large Language', candidate_title='Indoor environment data time-series reconstruction using autoencoder neural networks')",
+        "failed_at": "2026-11-10T03:14:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As ever larger language models grow more ubiquitous, it is crucial to consider their environmental impact. Characterised by extreme size and resource use, recent generations of models have been criticised for their voracious appetite for compute, and thus significant carbon footprint. Although reporting of carbon impact has grown more common in machine learning papers, this reporting is usually limited to compute resources used strictly for training. In this work, we propose a holistic assessment of the footprint of an extreme-scale language model, Noor. Noor is an ongoing project aiming to develop the largest multi-task Arabic language models -- with up to 13B parameters -- leveraging zero-shot generalisation to enable a wide range of downstream tasks via natural language instructions. We assess the total carbon bill of the entire project: starting with data collection and storage costs, including research and development budgets, pretraining costs, future serving estimates, and other exogenous costs necessary for this international cooperation. Notably, we find that inference costs and exogenous factors can have a significant impact on total budget. Finally, we discuss pathways to reduce the carbon footprint of extreme-scale models.",
+          "claimed_authors": [
+            "Imad Lakim",
+            "Ebtesam Almazrouei",
+            "Ibrahim Abu Alhaol",
+            "Merouane Debbah",
+            "Julien Launay"
+          ],
+          "claimed_title": "A Holistic Assessment of the Carbon Footprint of Noor, a Very Large Arabic Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2610.00223"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Agentic Environment Engineering for Large Language', candidate_title='A Holistic Assessment of the Carbon Footprint of Noor, a Very Large Arabic Language Model')",
+        "failed_at": "2026-11-10T03:14:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper explores the advancements in making large language models (LLMs) more human-like. We focus on techniques that enhance natural language understanding, conversational coherence, and emotional intelligence in AI systems. The study evaluates various approaches, including fine-tuning with diverse datasets, incorporating psychological principles, and designing models that better mimic human reasoning patterns. Our findings demonstrate that these enhancements not only improve user interactions but also open new possibilities for AI applications across different domains. Future work will address the ethical implications and potential biases introduced by these human-like attributes.",
+          "claimed_authors": [
+            "Ethem Yağız Çalık",
+            "Talha Rüzgar Akkuş"
+          ],
+          "claimed_title": "Enhancing Human-Like Responses in Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.05032"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Agentic Environment Engineering for Large Language', candidate_title='Enhancing Human-Like Responses in Large Language Models')",
+        "failed_at": "2026-11-10T03:14:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) are the foundation of many AI applications today. However, despite their remarkable proficiency in generating coherent text, questions linger regarding their ability to perform fine-grained linguistic annotation tasks, such as detecting nouns or verbs, or identifying more complex syntactic structures like clauses in input texts. These tasks require precise syntactic and semantic understanding of input text, and when LLMs underperform on specific linguistic structures, it raises concerns about their reliability for detailed linguistic analysis and whether their (even correct) outputs truly reflect an understanding of the inputs. In this paper, we empirically study the performance of recent LLMs on fine-grained linguistic annotation tasks. Through a series of experiments, we find that recent LLMs show limited efficacy in addressing linguistic queries and often struggle with linguistically complex inputs. We show that the most capable LLM (Llama3-70b) makes notable errors in detecting linguistic structures, such as misidentifying embedded clauses, failing to recognize verb phrases, and confusing complex nominals with clauses. Our results provide insights to inform future advancements in LLM design and development.",
+          "claimed_authors": [
+            "Jiali Cheng",
+            "Hadi Amiri"
+          ],
+          "claimed_title": "Linguistic Blind Spots of Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.19260"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Agentic Environment Engineering for Large Language', candidate_title='Linguistic Blind Spots of Large Language Models')",
+        "failed_at": "2026-11-10T03:14:19Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vlad A. Neacsu"
+          ],
+          "title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.14257",
+        "summary": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.14257",
+          "http_status": 200,
+          "pdf_sample_score": 0.3309,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-11-10T03:14:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Keliang Liu",
+            "Dingkang Yang",
+            "Ziyun Qian",
+            "Weijie Yin",
+            "Yuchi Wang",
+            "Hongsheng Li",
+            "Jun Liu",
+            "Peng Zhai",
+            "Yang Liu",
+            "Lihua Zhang"
+          ],
+          "title": "Reinforcement Learning Meets Large Language Models: A Survey of Advancements and Applications Across the LLM Lifecycle",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.16679",
+        "summary": "In recent years, training methods centered on Reinforcement Learning (RL) have markedly enhanced the reasoning and alignment performance of Large Language Models (LLMs), particularly in understanding human intents, following user instructions, and bolstering inferential strength. Although existing surveys offer overviews of RL augmented LLMs, their scope is often limited, failing to provide a comprehensive summary of how RL operates across the full lifecycle of LLMs. We systematically review the theoretical and practical advancements whereby RL empowers LLMs, especially Reinforcement Learning with Verifiable Rewards (RLVR). First, we briefly introduce the basic theory of RL. Second, we thoroughly detail application strategies for RL across various phases of the LLM lifecycle, including pre-training, alignment fine-tuning, and reinforced reasoning. In particular, we emphasize that RL methods in the reinforced reasoning phase serve as a pivotal driving force for advancing model reasoning to its limits. Next, we collate existing datasets and evaluation benchmarks currently used for RL fine-tuning, spanning human-annotated datasets, AI-assisted preference data, and program-verification-style corpora. Subsequently, we review the mainstream open-source tools and training frameworks available, providing clear practical references for subsequent research. Finally, we analyse the future challenges and trends in the field of RL-enhanced LLMs. This survey aims to present researchers and practitioners with the latest developments and frontier trends at the intersection of RL and LLMs, with the goal of fostering the evolution of LLMs that are more intelligent, generalizable, and secure.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.16679",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-11-10T03:14:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lingzhe Zhang",
+            "Tong Jia",
+            "Mengxi Jia",
+            "Yifan Wu",
+            "Aiwei Liu",
+            "Yong Yang",
+            "Zhonghai Wu",
+            "Xuming Hu",
+            "Philip S. Yu",
+            "Ying Li"
+          ],
+          "title": "A Survey of AIOps in the Era of Large Language Models",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.12472",
+        "summary": "As large language models (LLMs) grow increasingly sophisticated and pervasive, their application to various Artificial Intelligence for IT Operations (AIOps) tasks has garnered significant attention. However, a comprehensive understanding of the impact, potential, and limitations of LLMs in AIOps remains in its infancy. To address this gap, we conducted a detailed survey of LLM4AIOps, focusing on how LLMs can optimize processes and improve outcomes in this domain. We analyzed 183 research papers published between January 2020 and December 2024 to answer four key research questions (RQs). In RQ1, we examine the diverse failure data sources utilized, including advanced LLM-based processing techniques for legacy data and the incorporation of new data sources enabled by LLMs. RQ2 explores the evolution of AIOps tasks, highlighting the emergence of novel tasks and the publication trends across these tasks. RQ3 investigates the various LLM-based methods applied to address AIOps challenges. Finally, RQ4 reviews evaluation methodologies tailored to assess LLM-integrated AIOps approaches. Based on our findings, we discuss the state-of-the-art advancements and trends, identify gaps in existing research, and propose promising directions for future exploration.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.12472",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-11-10T03:14:19Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"agentic environment engineering for large language models: a survey of\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

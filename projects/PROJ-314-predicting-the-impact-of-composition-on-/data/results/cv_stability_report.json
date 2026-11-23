@@ -1,0 +1,19 @@
+{
+  "status": "completed",
+  "method": "CV across cross-validation folds",
+  "top_features": [
+    {
+      "feature": "mean_atomic_radius",
+      "mean_importance": 0.2,
+      "std_importance": 0.07071067811865476,
+      "coefficient_of_variation": 0.3535533905932738
+    },
+    {
+      "feature": "electronegativity_std",
+      "mean_importance": 0.05,
+      "std_importance": 0.01767766952966369,
+      "coefficient_of_variation": 0.3535533905932738
+    }
+  ],
+  "total_features_analyzed": 2
+}

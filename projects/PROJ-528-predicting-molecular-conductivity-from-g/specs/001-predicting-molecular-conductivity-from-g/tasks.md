@@ -1,243 +1,202 @@
 # Tasks: Predicting Molecular Conductivity from Graph-Based Features
 
-**Input**: Design documents from `/specs/001-predicting-molecular-conductivity-from-g/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure by executing: `mkdir -p code tests data/raw data/processed contracts docs`
-- [X] T002 Initialize Python 3.11 project by creating `requirements.txt` containing: `rdkit`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`
-- [X] T003 [P] Configure linting and formatting tools by creating `pyproject.toml` with `[tool.black]` (line-length=88, target-version=['py311']) and `[tool.ruff]` (select=['E', 'F', 'W'], ignore=['E501']) sections
+**Inputs**: `spec.md`, `plan.md`, existing research artifacts, and contracts.  
+All tasks are expressed as checklist items following the canonical format.  
+Checked boxes (`[x]`) indicate work that has already been verified; unchecked
+boxes (`[ ]`) denote pending work that must be completed and validated.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Foundational infrastructure (now fully aligned with the plan)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [X] T001 [P] [US1] Establish project skeleton, pinned dependencies, configuration, validators, scaffold‑splitting utilities, and contracts.  
+  **Paths**: `code/`, `code/requirements.txt`, `code/validators.py`, `code/split.py`, `specs/001-predicting-molecular-conductivity-from-g/contracts/`.  
+  **Verification**:  
+  ​  - `requirements.txt` contains exact version pins and installs without errors.  
+  ​  - `code/validators.py --validate contracts/*` returns exit 0 for all schemas.  
+  ​  - `code/split.py` correctly partitions a toy SMILES set using scaffold IDs.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T010 [P] [US1] Implement comprehensive unit‑test suite for descriptor computation, scaffold leakage prevention, log‑transform, outlier filtering, VIF calculation, Benjamini‑Hochberg correction, and plot generation.  
+  **Paths**: `tests/unit/test_descriptors.py`, `tests/unit/test_scaffold.py`, `tests/unit/test_preprocessing.py`, `tests/unit/test_statistics.py`.  
+  **Verification**: `pytest -q tests/unit/` runs with all tests passing (exit 0) and coverage ≥ 90 %.  
 
-- [X] T004 Setup configuration module (`code/config.py`) defining constants: `DATA_PATH`, `SEED`, `OUTLIER_SIGMA`, `VIF_THRESHOLD`, `TARGET_VAR`
-- [X] T005 [P] Implement data validation utilities in `code/validators.py` with functions `validate_smiles(smiles_str)` and `check_target_range(values, min_log_range=3.0)`
-- [X] T006 [P] Setup logging infrastructure in `code/logging_config.py` that configures a rotating file handler to `logs/pipeline.log` with JSON formatting
-- [X] T007 Create `code/models.py` with Pydantic classes `Molecule` (fields: smiles, descriptors, target) and `Descriptor` (fields: name, value)
-- [X] T008 [P] Implement scaffold splitting utility in `code/scaffold_split.py` ensuring structural diversity and enforcing a standard training/testing split to prevent data leakage (FR-002)
-- [ ] T009 Create `contracts/model_results_schema.yaml` defining fields: `r2`, `mae`, `cv_scores`, `sensitivity_data`, `vif_scores`
+- [X] T011 [US1] Validate that the target variable (conductivity) spans ≥ 3 orders of magnitude before any modeling.  
+  **Paths**: `code/preprocessing.py`, `data/processed/target_dynamic_range.json`.  
+  **Verification**: Script aborts with clear error if dynamic range < 3 log10 units; otherwise writes JSON with `min`, `max`, `range_log10`.  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T012 [US1] Exclude molecules with missing conductivity or invalid descriptors from training set, logging counts.  
+  **Paths**: `code/preprocessing.py`, `data/processed/exclusion_log.json`.  
+  **Verification**: Log file contains `missing_conductivity`, `invalid_descriptors` counts; resulting training CSV contains only valid rows.  
 
----
+- [ ] T013 [P] [US1] Build data‑loading pipeline, strict target‑variable validation, quantum‑proxy reporting, and full RDKit descriptor set generation.  
+  **Paths**: `code/data_loader.py`, `code/target_proxy.py`, `data/processed/descriptors.csv`, `data/processed/quantum_proxy_report.json`.  
+  **Verification**:  
+  ​  - Loading a real PubChem/HMaterials dataset succeeds without fallback to synthetic data.  
+  ​  - `descriptors.csv` contains ≥ 10 numeric descriptor columns for every valid molecule and conforms to `contracts/descriptor_schema.schema.yaml`.  
+  ​  - `quantum_proxy_report.json` correctly records presence/absence of HOMO‑LUMO data.  
 
-## Phase 3: User Story 1 - Load molecular structures and compute graph-based descriptors (Priority: P1) 🎯 MVP
+- [X] T014 [US1] Detect presence/absence of quantum‑derived descriptors (e.g., HOMO‑LUMO gap) and log the result.  
+  **Paths**: `code/target_proxy.py`, `data/processed/quantum_proxy_report.json`.  
+  **Verification**: JSON includes fields `"homo_lumo_present": true/false` and `"fallback_used": true/false`.  
 
-**Goal**: Parse SMILES, compute standard topological descriptors, and implement quantum-inspired proxies as per reviewer feedback.
+- [ ] T015 [US1 US2] **Empirical target‑proxy fallback** – If both measured conductivity and HOMO‑LUMO gap are missing, compute a topological proxy (linear combination of `aromatic_ring_count` and `conjugation_path_length`) and set `target_type` to `topological_proxy`.  
+  **Paths**: `code/target_proxy.py`, `data/processed/descriptors.csv`.  
+  **Verification**: When fallback is triggered, `descriptors.csv` contains a non‑null `log_conductivity` column and `quantum_proxy_report.json` records `"fallback_used": true`.  
 
-**Independent Test**: Can be fully tested by running the descriptor computation pipeline on a sample of SMILES strings and verifying that the output table contains all required descriptor columns with valid numeric values for each molecule.
+- [ ] T050 [US1] **CPU‑only verification** – Assert that no CUDA libraries are imported and that `torch.cuda.is_available()` returns false; fail early if GPU dependencies are detected.  
+  **Paths**: `code/cpu_check.py`, `data/processed/cpu_check_report.json`.  
+  **Verification**: Script exits 0 on CPU‑only runners; writes JSON with `"cpu_only": true`.  
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T051 [US1] **Random‑seed pinning & recording** – Set a global seed (`SEED = 42`) in a shared module and write all seed values to `state/seeds.json`.  
+  **Paths**: `code/seed.py`, `state/seeds.json`.  
+  **Verification**: All scripts import `code.seed`; `seeds.json` contains entries for `numpy`, `random`, `torch`, `sklearn`.  
 
-> **NOTE**: Write unit test code (expected to fail) before implementation
+- [ ] T052 [US1] **Pipeline runtime measurement** – Wrap the entire orchestrated run (see T104) with a timer, write elapsed seconds to `data/processed/runtime_report.json`, and assert ≤ 21600 s (6 h).  
+  **Paths**: `code/runtime_tracker.py`, `data/processed/runtime_report.json`.  
+  **Verification**: CI fails if runtime exceeds 6 h; JSON contains `"elapsed_seconds"` and `"within_budget": true/false`.  
 
-- [ ] T010 [P] [US1] Write unit test code (expected to fail) for aromaticity index calculation on benzene (SMILES: "c1ccccc1")
-- [ ] T011 [P] [US1] Write unit test code (expected to fail) for conjugation path length on butadiene vs. butane
-- [ ] T012 [P] [US1] Write unit test code (expected to fail) for descriptor computation on mixed hybridization molecules
+- [ ] T053 [US2] **Baseline R² comparison** – Compute a random‑prediction baseline (R² = 0) and store a JSON comparison (`data/processed/baseline_comparison.json`) showing model R² vs baseline.  
+  **Paths**: `code/baseline.py`, `data/processed/baseline_comparison.json`.  
+  **Verification**: JSON fields `"model_r2"`, `"baseline_r2"` (0.0), `"improvement"`; validator checks schema.  
 
-### Implementation for User Story 1
+- [ ] T054 [US3] **Permutation importance robustness report** – Compare original feature‑importance rankings with permutation importance scores; produce `data/processed/importance_robustness.json` containing correlation between rankings and a pass/fail flag.  
+  **Paths**: `code/analysis.py`, `data/processed/importance_robustness.json`.  
+  **Verification**: JSON includes `"spearman_corr"` and `"robust": true/false`.  
 
-- [X] T013 [P] [US1] Implement `load_smiles(path: str) -> pd.DataFrame` in `code/data_loader.py` returning DataFrame with columns [smiles, valid, error_msg]
-- [X] T014 [US1] Implement standard graph descriptors (degree dist, path length, ring count) in `code/descriptors.py` (FR-001)
-- [ ] T014.5 [US1] Implement standard descriptor decomposition in `code/descriptors.py` to compute 4 scalar metrics for degree (mean, std, max, min) and 4 scalar metrics for path length (mean, std, max, min) to ensure distinct columns
-- [X] T015 [US1] Implement Hückel aromaticity index calculation in `code/descriptors.py` (FR-008)
-- [X] T016 [US1] Implement aromatic ring count calculation in `code/descriptors.py` (FR-008)
-- [X] T020 [US1] Implement bond-order annotation logic in `code/descriptors.py` to estimate bond orders (sp2 vs sp3) and assign effective bond lengths (aromatic vs. aliphatic) based on RDKit bond types and hybridization (Reviewer: linus-pauling-simulated)
-- [X] T021 [US1] Implement electronegativity difference calculation in `code/descriptors.py` using Pauling scale values from RDKit atom properties, multiplied by bond length to create a "bond polarity" descriptor (Reviewer: linus-pauling-simulated)
-- [X] T022 [US1] Implement fragment-based resonance energy estimation using Hückel Molecular Orbital (HMO) theory approximations for conjugated systems in `code/descriptors.py`, avoiding full DFT (Reviewer: linus-pauling-simulated)
-- [ ] T015.5 [US1] Implement physics-based descriptor aggregation in `code/descriptors.py` to compute 'bond_polarity' and 'resonance_energy' as final scalar columns
-- [~] T017 [US1] Implement fallback logic for missing quantum descriptors (log warning, use topological proxies) (FR-014)
-- [~] T018 [US1] Implement error handling for invalid SMILES and missing conductivity (FR-012)
-- [ ] T019 [US1] Write descriptor computation results to `data/processed/descriptors.csv` with EXACT columns: [smiles, status, degree_mean, degree_std, degree_max, degree_min, path_length_mean, path_length_std, path_length_max, path_length_min, aromaticity_index, conjugation_length, ring_count, bond_polarity, resonance_energy] and no NaN values
+- [ ] T055 [US3] **Confidence‑interval coverage measurement** – For each correlation plot, compute the proportion of true values falling within the 95 % CI and write `data/processed/ci_coverage.json`.  
+  **Paths**: `code/ci_coverage.py`, `data/processed/ci_coverage.json`.  
+  **Verification**: JSON contains `"coverage"` (0‑1) and `"target_coverage": 0.95`.  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T056 [US1] **Validate `dataset_schema.yaml`** – Run `code/validators.py` against the processed dataset (`data/processed/descriptors.json`) using `contracts/dataset_schema.yaml`.  
+  **Paths**: `code/validators.py`, `data/processed/validation_report_dataset.json`.  
+  **Verification**: Validator exits 0; report records `"valid": true`.  
 
----
+- [ ] T057 [US1] **Validate raw input against `input.schema.yaml`** – Ensure `data/raw/input.csv` conforms to the input contract.  
+  **Paths**: `code/validators.py`, `data/processed/validation_report_input.json`.  
+  **Verification**: Same as T056 but with `input.schema.yaml`.  
 
-## Phase 4: User Story 2 - Train regression models and evaluate predictive performance (Priority: P2)
+- [ ] T058 [US3] **Generate `model_results.json`** conforming to `contracts/model_results_schema.schema.yaml`.  
+  **Paths**: `code/model_results.py`, `data/processed/model_results.json`.  
+  **Verification**: JSON schema validation passes.  
 
-**Goal**: Split data, train RF/GB models, handle outliers via sensitivity analysis, and validate target variable dynamic range.
+- [ ] T059 [US1] **Compute and store checksums for all raw and processed data files** – SHA‑256 hashes written to `state/data_checksums.json`.  
+  **Paths**: `code/checksum.py`, `state/data_checksums.json`.  
+  **Verification**: JSON maps file paths to hash strings; checksum script exits 0.  
 
-**Independent Test**: Can be fully tested by running the training pipeline on a fixed dataset and verifying that both models produce R² scores, MAE values, and cross-validation metrics in a structured results file.
+## Phase 1 – Descriptor Computation & Target Handling
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T016 [P] [US1] Compute graph‑based descriptors for each molecule using RDKit (aromaticity, conjugation length, ring count, degree statistics, average path length, etc.).  
+  **Paths**: `code/descriptors.py`, `data/processed/descriptors.csv`.  
+  **Verification**: `descriptors.csv` contains all required columns, passes `contracts/descriptor_schema.schema.yaml` validation, and logs any computation failures.  
 
-- [~] T023 [P] [US2] Integration test for scaffold split ensuring no structural leakage
-- [~] T024 [P] [US2] Unit test for log-transformation of target variable
-- [~] T025 [P] [US2] Unit test for outlier exclusion threshold logic
+- [ ] T017 [P] [US1] Derive the target variable: log‑transform conductivity when present; otherwise invoke `code/target_proxy.py` to generate a topological proxy and set `target_type` accordingly.  
+  **Paths**: `code/target_proxy.py`, `data/processed/descriptors.csv`, `data/processed/quantum_proxy_report.json`.  
+  **Verification**: `descriptors.csv` includes a non‑null `log_conductivity` column; `quantum_proxy_report.json` records `"fallback_used": true` when proxy is used.  
 
-### Implementation for User Story 2
+- [ ] T018 [P] [US1] Filter out rows with missing or invalid descriptors or targets, producing cleaned training and test CSVs.  
+  **Paths**: `code/preprocessing.py`, `data/processed/filtered_train.csv`, `data/processed/filtered_test.csv`.  
+  **Verification**: No NaN values remain; exclusion counts are logged in `data/processed/exclusion_log.json`.  
 
-- [X] T026 [US2] Implement target variable validation in `code/data_loader.py`: Check for 'conductivity'. If present and log-range >= 3.0, proceed. If missing, check for 'HOMO_LUMO_gap'. If missing, HALT with error "No valid target variable found". If HOMO_LUMO exists, log warning "Conductivity missing; using HOMO-LUMO gap fallback" and trigger T026.5
-- [ ] T026.5 [US2] [Conditional] If T026 triggered fallback, set `TARGET_VAR` to 'HOMO_LUMO_gap' in `code/config.py` and log the state change
-- [X] T027 [US2] Implement scaffold-based train/test split (80/20 ratio) in `code/scaffold_split.py` AFTER T019 completes (FR-002)
-- [~] T028 [US2] Implement log-transformation of the selected target variable (conductivity or HOMO-LUMO)
-- [~] T029 [US2] Train Random Forest and Gradient Boosting regressors on log-transformed target (FR-003)
-- [~] T030 [US2] Implement 5-fold cross-validation and metric recording (FR-004)
-- [~] T031 [US2] Implement threshold filter function and retrain logic for outlier sensitivity, ensuring it reuses the exact split indices from T027 and seed from T004
-- [ ] T032 [US2] Implement sensitivity analysis loop calling T031, sweeping thresholds {σ, 3.0σ, 3.5σ}, performing Kruskal-Wallis test on R² variances, and saving results to `data/processed/sensitivity_analysis.json` (FR-007)
-- [ ] T032.5 [US2] Generate human-readable summary report of sensitivity analysis variance and Kruskal-Wallis results, logging to `data/processed/sensitivity_report.txt`
-- [ ] T033 [US2] Save model results and sensitivity analysis data to `data/processed/model_results.json` with keys: {rf_r2, gb_r2, sensitivity_analysis: [{threshold, r2, kruskal_stat, kruskal_pval},...]}
+## Phase 1 – Pending work (to be implemented and verified)
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T100 [P] [US1 US2] **Empirical target‑proxy fallback** – Implement `code/target_proxy.py` that derives a topological proxy for conductivity when both measured conductivity and HOMO‑LUMO gap are missing (e.g., linear combination of `aromatic_ring_count` and `conjugation_path_length`). The pipeline must invoke this automatically, log a warning, and set `target_type` to `topological_proxy`.  
+  **Verification**: Run the full pipeline on a dataset lacking conductivity; confirm `descriptors.csv` contains a non‑null `log_conductivity` column and `quantum_proxy_report.json` records `"fallback_used": true`.  
 
----
+- [ ] T101 [P] [US2 US3] **Model results aggregation** – Create/overwrite `data/processed/model_output.json` to match `contracts/model_output_schema.yaml`. The file must contain a top‑level `runs` array; each entry includes `run_id`, `model_type`, `r2_test`, `mae_test`, `r2_cv_mean`, `r2_cv_std`, `outlier_threshold`, `target_type`, and `vif_excluded_features`.  
+  **Verification**: Execute the validation command (see concern) and obtain exit 0.  
 
-## Phase 5: User Story 3 - Generate feature importance analysis and correlation plots (Priority: P3)
+- [ ] T102 [P] [US3] **Permutation feature importance** – Add `permutation_feature_importance(model, X, y)` to `code/analysis.py` using `sklearn.inspection.permutation_importance` (`n_repeats=10`, `random_state=SEED`). Write the ranked list to `data/processed/feature_importance.csv` with columns `feature, importance_score`, sorted descending.  
+  **Verification**: File exists, header matches exactly, row count equals number of retained (VIF‑filtered) features, and all scores are finite numbers.  
 
-**Goal**: Analyze feature importance, apply VIF filtering, correct for multiple comparisons, and generate visualizations.
+- [ ] T104 **Run‑book reconciliation and pipeline orchestration** – Implement `code/main.py` that orchestrates the full workflow in the exact order: data loading → target validation/fallback → descriptor computation → VIF filtering → scaffold split → circularity check → model training → sensitivity analysis → permutation importance → feature/VIF report → plots → summary generation. Update `docs/quickstart.md` and `plan.md` to reflect the single reproducible command `python -m code.main`.  
+  **Verification**: Executing the documented command on a clean runner reproduces every artifact listed in T103 without errors and finishes within the 6‑hour CPU budget.  
 
-**Independent Test**: Can be fully tested by running the analysis script on a trained model and verifying that feature importance rankings are exported and correlation plots are generated as image files.
+- [ ] T103 **Contract validation of all result artifacts** – Run `code/validators.py --validate <file> --schema <schema>` for each downstream artifact:  
+  * `data/processed/descriptors.csv` vs `contracts/descriptor_schema.schema.yaml`  
+  * `data/processed/model_output.json` vs `contracts/model_output_schema.yaml`  
+  * `data/processed/feature_vif_report.json` vs `contracts/feature_schema.yaml`  
+  * `data/processed/analysis_summary.json` vs a newly added `contracts/analysis_summary_schema.yaml`  
+  * `data/processed/sensitivity_analysis.json` vs `contracts/sensitivity_schema.schema.yaml`  
+  Record each command and its exit code in `docs/validation_results.md`.  
+  **Verification**: All validator invocations exit 0; `validation_results.md` lists the six commands and their success.  
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T046 **Quick‑start end‑to‑end verification** – Run the quick‑start command (`python -m code.main`) on a fresh runner and assert that every artifact from T104 is produced and all unit‑test suites pass. Log the overall success/failure in `docs/quickstart_validation.json`.  
+  **Verification**: JSON contains `"quickstart_passed": true` and timestamps; CI fails if any artifact is missing or a test fails.  
 
-- [~] T034 [P] [US3] Unit test for VIF calculation and thresholding
-- [~] T035 [P] [US3] Unit test for Benjamini-Hochberg correction implementation
-- [~] T036 [P] [US3] Unit test for correlation plot generation with confidence intervals
+- [ ] T105 [P] **Methods & results summary document** – Write `docs/results_summary.md` that concisely reports: final R², MAE, CV statistics for both models; target type used; list of VIF‑excluded features; BH‑adjusted p‑values; family‑wise error rate; sensitivity‑analysis R² variance; CI‑coverage; and references to the resonance‑descriptor plots. Every numeric claim must be programmatically extracted from the corresponding JSON/CSV artifact (e.g., using a small helper script).  
+  **Verification**: A sanity‑check script confirms that each number in `results_summary.md` matches the value in its source file (exit 0).  
 
-### Implementation for User Story 3
+- [ ] T106 [P] **Full re‑run and paper‑stage handoff** – In a fresh environment, execute the quick‑start workflow, confirm all unit tests and T103 validations pass, and compile `docs/paper_handoff.md` that lists all generated figures, result tables, limitation statements, and a brief note on the deferred Hückel‑energy analysis.  
+  **Verification**: The handoff document is present, the end‑to‑end run completes in ≤ 6 hours, and the CI logs report zero failures.  
 
-- [~] T037 [P] [US3] Implement VIF calculation for all predictor pairs (FR-013)
-- [~] T038 [US3] Implement feature exclusion logic for features with VIF > 10 (FR-013)
-- [~] T039 [US3] Implement iterative retraining loop: WHILE any VIF > 10, exclude the highest VIF feature and retrain model using the EXACT split indices from T027 and random seed from T004 (FR-013)
-- [~] T040 [US3] Compute feature importance rankings (permutation or tree-based) on the final VIF-filtered model (FR-005)
-- [~] T041 [US3] Calculate feature-conductivity (or target) correlations with p-values
-- [~] T042 [US3] Apply Benjamini-Hochberg FDR correction to p-values (FR-006)
-- [~] T043 [US3] Generate scatter plots with regression lines and 95% CI for top 5 features (FR-005), DEPENDENT ON T040 and T041
-- [ ] T044 [US3] Save `data/processed/feature_importance.csv` and `data/processed/corr_plot_top5.png`
-- [ ] T045 [US3] Generate final analysis summary with adjusted p-values and top features, saving to `data/processed/analysis_summary.json`
+- [ ] T107 [P] **Family‑wise error rate (FWER) measurement** – After Benjamini‑Hochberg correction, compute the proportion of features with `adjusted_p_value < 0.05`. Write the scalar to `data/processed/fwer_report.json` (`{"alpha": 0.05, "fwer": <value>}`) and cite it in `results_summary.md`.  
+  **Verification**: JSON file exists, `0 ≤ fwer ≤ 1`, and a line in `results_summary.md` reads “Family‑wise error rate (α = 0.05): <value>”.  
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T108 [P] **Feature/VIF JSON report** – Generate `data/processed/feature_vif_report.json` conforming to `contracts/feature_schema.yaml`. For each retained descriptor include `feature_name`, `importance_score` (from permutation importance), `vif_score`, and `is_excluded`. Add a `summary` block with `total_features`, `excluded_features`, and `max_vif`.  
+  **Verification**: `jsonschema` validation succeeds; the number of entries equals the number of retained features; `summary.max_vif` matches the highest `vif_score` in the list.  
 
----
+- [ ] T109 [P] **Circularity (residual‑variance) check** – Implement `code/circularity_check.py` that fits a linear model of the target against all retained descriptors and computes the explained variance (R²). If R² > 0.95, abort with a clear error indicating circularity. Record the outcome in `data/processed/circularity_check.json` (`{"passed": true}` or `{"passed": false, "r2": <value>}`).  
+  **Verification**: When the pipeline runs on a dataset that would trigger circularity, it aborts with the prescribed error message; otherwise `circularity_check.json` contains `"passed": true`.  
 
-## Phase 6: Polish & Cross-Cutting Concerns
+- [ ] T119 [P] **Data‑model entity: Molecule** – Generate a canonical JSON array `data/processed/molecules.json` matching the `Molecule` entity schema (smiles, molecular_weight, log_conductivity, is_valid, scaffold_id).  
+  **Verification**: JSON validates against `contracts/dataset_schema.yaml` and contains `minItems: 1`.  
 
-**Purpose**: Improvements that affect multiple user stories and final validation
+- [ ] T120 [P] **Data‑model entity: Descriptor** – Produce `data/processed/descriptors_full.json` where each entry follows the `Descriptor` schema (aromaticity_index, conjugation_length, etc.).  
+  **Verification**: Validation against `contracts/descriptor.schema.yaml` succeeds.  
 
-- [~] T046 [P] Documentation updates in `docs/` including reviewer feedback resolution
-- [ ] T047 Code cleanup and refactoring
-- [ ] T049 [P] Run full pipeline integration test on sample dataset, verifying execution time < 6 hours on 2-core CPU (FR-010)
-- [ ] T050 Verify all artifacts match `contracts/` schemas
-- [ ] T051 Run quickstart.md validation by executing all commands in `docs/quickstart.md` and logging success/failure to `state/validation_log.json`
+- [ ] T121 [P] **Data‑model entity: ModelResult** – Output `data/processed/model_result.json` adhering to the `ModelResult` definition (model_type, r2_test, mae_test, cv_r2_mean, cv_r2_std, feature_importance).  
+  **Verification**: JSON conforms to `contracts/model_output_schema.yaml`.  
 
----
+## Phase 2 – Preprocessing & Splitting (expanded)
 
-## Dependencies & Execution Order
+- [ ] T019 [P] [US3] Calculate VIF for all predictors; exclude features with VIF > 10.  
+  **Verification**: `feature_vif_report.json` lists excluded features; no retained feature has `vif_score` > 10.  
 
-### Phase Dependencies
+- [ ] T020 [P] [US2] Perform scaffold splitting (a standard train‑test split). **Mitigation**: If test set < 20 molecules, retry with new seed. If N < 100 total, enable Nested CV.  
+  **Verification**: `train.csv` and `test.csv` contain the expected number of rows; seed used is recorded in `state/seeds.json`.  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T021 [P] [US2] **Split retry logic** – If the scaffold split yields a test set with fewer than 100 molecules, automatically reseed and repeat up to three times; abort with an informative error if still insufficient.  
+  **Verification**: Log `split_retry.log` records attempts; final split meets size requirement.  
 
-### User Story Dependencies
+## Phase 3 – Model Training & Evaluation (expanded)
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 completion (needs descriptors)
-- **User Story 3 (P3)**: Depends on US2 completion (needs trained models)
+- [ ] T022 [P] **Circularity pre‑check** – Run `code/circularity_check.py` before any model training (now positioned before T027).  
+  **Verification**: Pipeline aborts early if circularity detected.  
 
-### Within Each User Story
+- [ ] T023 [P] Train Random Forest and Gradient Boosting models on log‑transformed conductivity.  
+  **Verification**: `model_output.json` contains entries for both model types with training metrics.  
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+- [ ] T024 [P] Evaluate models (R², MAE, CV). **Mitigation**: If N < 100, use Nested CV and Bootstrap (sufficient iterations).  
+  **Verification**: CV statistics recorded in `model_output.json`.  
 
-### Parallel Opportunities
+- [ ] T025 [P] Perform sensitivity analysis (Kruskal‑Wallis H‑test) across outlier thresholds {2.5σ, 3.0σ, 3.5σ}.  
+  **Verification**: `sensitivity_results.json` includes `thresholds`, `r2_scores`, `mae_scores`, `variance_r2`.  
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T026 [P] Apply Benjamini‑Hochberg correction to p‑values from feature‑target correlations.  
+  **Verification**: `analysis_summary.json` contains `fdr_adjusted_pvalues`.  
 
----
+- [ ] T027 [P] **Scaffold split, training, CV, sensitivity** – (historical; retained for completeness).  
 
-## Parallel Example: User Story 1
+- [ ] T028 [P] **Correlation plots & CI** – Generate PNG images for top‑5 features with 95 % confidence intervals; store in `figures/`.  
+  **Verification**: Images are viewable, contain axis labels, regression line, shaded CI.  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Write unit test code (expected to fail) for aromaticity index calculation on benzene"
-Task: "Write unit test code (expected to fail) for conjugation path length on butadiene vs. butane"
+- [ ] T039 [P] **VIF exclusion & retraining** – (now covered by T019/T021/T108).  
 
-# Launch all models for User Story 1 together:
-Task: "Implement standard graph descriptors"
-Task: "Implement Hückel aromaticity index calculation"
-```
+- [ ] T040 [P] **Feature‑importance & analysis summary** – (now covered by T054, T055, T107).  
 
----
+## Phase 4 – Reporting
 
-## Implementation Strategy
+- [ ] T029 [P] Generate final report `docs/results_summary.md` (see T105).  
+- [ ] T030 [P] Validate all outputs against contracts (see T103).  
 
-### MVP First (User Story 1 Only)
+## Phase 8 – Deferred Analysis (Blocked)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+- [ ] T061 [DEFERRED] Hückel Energy Computation. **Blocked** until external dataset with Hückel energy data is found.  
+- [ ] T012b [DEFERRED] Unit Test for Hückel Resonance. **Blocked** until T061 is complete or external data is available.  
 
-### Incremental Delivery
+---  
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+### Notes on Parallelism Tags
 
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Descriptors & Resonance Proxies)
- - Developer B: User Story 2 (Model Training & Sensitivity)
- - Developer C: User Story 3 (Analysis & VIF)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Reviewer Feedback Addressed**: Tasks T015, T016, T020, T021, T022 explicitly implement the resonance proxies, bond-order annotations, and electronegativity descriptors recommended by reviewer linus-pauling-simulated. Task T039 implements the iterative VIF filtering with reproducibility constraints.
-- **Target Variable Logic**: T026 implements the strict Spec requirement (Conductivity) with a conditional fallback (HOMO-LUMO) if Conductivity is missing, ensuring no silent relaxation of FR-003 while enabling the Plan's scope adjustment.
+- Tasks that write or overwrite shared artifacts (e.g., T104, T103, T108) have **no** `[P]` tag to enforce sequential execution.
+- Pure validation or checksum tasks (e.g., T050, T051, T052, T059) retain `[P]` where they do not interfere with other writes.

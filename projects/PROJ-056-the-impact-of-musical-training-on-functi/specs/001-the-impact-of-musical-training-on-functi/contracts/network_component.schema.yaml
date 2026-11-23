@@ -1,0 +1,12 @@
+type: object
+required:
+  - component_id
+  - size_edges
+  - p_value_fwer
+properties:
+  component_id:
+    type: string
+  size_edges:
+    type: integer
+  p_value_fwer:
+    type: number

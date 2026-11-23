@@ -1,70 +1,63 @@
 """
-Data schema definitions for the dataset entity.
-Defines the structure and validation rules for raw and processed data.
+Dataset contract definitions.
+
+These Pydantic models describe the expected structure of dataset‑related
+metadata used throughout the project. They are deliberately lightweight –
+only the fields required by the pipeline are captured.
 """
-from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
-from enum import Enum
+
+from __future__ import annotations
+
 from pathlib import Path
+from typing import List, Optional
+
+from pydantic import BaseModel, Field, HttpUrl, validator
 
 
-class DataSource(Enum):
-    """Enum for supported data sources."""
-    UCI_ELECTRICITY = "uci_electricity"
-    CUSTOM_CSV = "custom_csv"
-
-
-@dataclass
-class DatasetSchema:
+class DatasetInfo(BaseModel):
     """
-    Schema definition for the Electricity Load Diagrams dataset.
+    Core metadata for a dataset used in the analysis pipeline.
+
+    Attributes
+    ----------
+    name: Human‑readable name of the dataset.
+    version: Optional version identifier.
+    source_url: URL where the raw data can be downloaded.
+    local_path: Path on the local filesystem where the downloaded file resides.
+    expected_hash: Optional SHA‑256 hash used for integrity verification.
+    columns: Optional list of column names expected in the CSV.
     """
-    source: DataSource
-    raw_path: Path
-    processed_path: Path
-    columns: List[str]
-    target_column: str = "load"
-    timestamp_column: str = "timestamp"
-    feature_columns: List[str] = field(default_factory=list)
-    window_size_days: int = 30
-    min_r_squared: float = 0.8
-    missing_value_strategy: str = "median"
 
-    def __post_init__(self):
-        """Validate schema constraints."""
-        if self.target_column not in self.columns:
-            raise ValueError(f"Target column '{self.target_column}' not in columns list")
-        if self.timestamp_column not in self.columns:
-            raise ValueError(f"Timestamp column '{self.timestamp_column}' not in columns list")
-        if self.window_size_days <= 0:
-            raise ValueError("Window size must be positive")
-        if not (0.0 <= self.min_r_squared <= 1.0):
-            raise ValueError("min_r_squared must be between 0 and 1")
+    name: str = Field(..., description="Human‑readable dataset name.")
+    version: Optional[str] = Field(
+        None, description="Optional version or release identifier."
+    )
+    source_url: HttpUrl = Field(..., description="URL to download the raw file.")
+    local_path: Path = Field(..., description="Local path where the file is stored.")
+    expected_hash: Optional[str] = Field(
+        None,
+        description="SHA‑256 hash of the file for integrity checking.",
+        regex=r"^[a-fA-F0-9]{64}$",
+    )
+    columns: Optional[List[str]] = Field(
+        None, description="Column names expected in the CSV file."
+    )
 
-    def get_feature_list(self) -> List[str]:
-        """Return list of feature columns excluding target and timestamp."""
-        if self.feature_columns:
-            return self.feature_columns
-        exclude = {self.target_column, self.timestamp_column}
-        return [c for c in self.columns if c not in exclude]
+    @validator("local_path")
+    def ensure_path_is_absolute(cls, v: Path) -> Path:
+        """Force absolute paths to avoid ambiguous relative handling."""
+        return v.resolve()
 
 
-@dataclass
-class WindowMetadata:
-    """Metadata for a single time window."""
-    window_id: int
-    start_date: str
-    end_date: str
-    row_count: int
-    missing_count: int
-    dropped_zero_variance: List[str]
-    r_squared: Optional[float] = None
-    model_status: str = "pending"  # pending, success, failure
+class RawDatasetMeta(DatasetInfo):
+    """
+    Metadata specific to the raw (downloaded) dataset.
 
-@dataclass
-class ProcessedWindow:
-    """Container for a single processed window's data and metadata."""
-    metadata: WindowMetadata
-    features: Any  # np.ndarray
-    target: Any  # np.ndarray
-    feature_names: List[str]
+    In addition to the base fields, we track whether the file has been
+    verified against its expected hash.
+    """
+
+    verified: bool = Field(
+        False,
+        description="Flag indicating whether the file hash matched the expected_hash.",
+    )

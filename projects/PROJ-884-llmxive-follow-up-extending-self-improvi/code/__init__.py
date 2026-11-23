@@ -1,52 +1,64 @@
-import json
-import os
-import time
-import resource
-from datetime import datetime, timezone
+"""
+llmXive BES Pipeline Package.
+
+This package contains the modules for the Bidirectional Evolutionary Search
+pipeline for self-improving language models.
+"""
+import logging
+import sys
 from pathlib import Path
+import json
+from datetime import datetime
 
-# Ensure the data/processed directory exists
-DATA_PROCESSED_DIR = Path(__file__).parent.parent / "data" / "processed"
-LOG_FILE_PATH = DATA_PROCESSED_DIR / "experiment.log"
-
-def _get_resource_usage():
+# Ensure logging is configured
+def setup_package_logging(log_file: str = "data/processed/experiment.log"):
     """
-    Captures current resource usage (CPU time and memory) using the resource module.
-    Returns a dictionary with 'user_time', 'system_time', and 'max_rss_kb'.
+    Configure logging for the package to write JSON entries to a file.
+    
+    Args:
+        log_file: Path to the log file.
     """
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    return {
-        "user_time": usage.ru_utime,
-        "system_time": usage.ru_stime,
-        "max_rss_kb": usage.ru_maxrss
-    }
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create a custom JSON formatter
+    class JSONFormatter(logging.Formatter):
+        def format(self, record):
+            log_entry = {
+                "timestamp": datetime.now().isoformat(),
+                "level": record.levelname,
+                "message": record.getMessage(),
+                "module": record.module,
+                "function": record.funcName,
+                "line": record.lineno
+            }
+            # Add extra fields if present
+            if hasattr(record, 'cpu_percent'):
+                log_entry["cpu_percent"] = record.cpu_percent
+            if hasattr(record, 'wall_clock_time'):
+                log_entry["wall_clock_time"] = record.wall_clock_time
+            
+            return json.dumps(log_entry)
 
-def log_experiment_entry():
-    """
-    Captures a single log entry with timestamp, wall-clock time, and resource usage.
-    Appends the entry as a JSON line to data/processed/experiment.log.
-    """
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    
+    # Remove existing handlers to avoid duplicates
+    root_logger.handlers = []
+    
+    # File handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(JSONFormatter())
+    root_logger.addHandler(file_handler)
+    
+    # Console handler for important messages
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    root_logger.addHandler(console_handler)
 
-    now = datetime.now(timezone.utc)
-    entry = {
-        "timestamp": now.isoformat(),
-        "wall_clock": time.time(),
-        "resource_usage": _get_resource_usage()
-    }
+# Initialize logging on package import
+setup_package_logging()
 
-    with open(LOG_FILE_PATH, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
-
-def setup_logging():
-    """
-    Initializes the logging infrastructure by ensuring the log file exists.
-    Can be called at the start of an experiment to create a fresh log or
-    append to an existing one.
-    """
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    if not LOG_FILE_PATH.exists():
-        LOG_FILE_PATH.touch()
-
-# Convenience alias for immediate usage
-log = log_experiment_entry
+__version__ = "0.1.0"
+__author__ = "llmXive Team"

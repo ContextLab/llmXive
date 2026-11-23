@@ -1,248 +1,195 @@
 # Tasks: Exploring the Correlation Between Musical Preference and Personality Traits
 
-**Input**: Design documents from `/specs/001-music-personality-correlation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001a [P] Create directory structure: `data/raw/`, `data/processed/`, `code/`, `tests/`, `results/`, `logs/` (Note: `contracts/` created in Phase 2)
-- [X] T001b [P] Create empty `__init__.py` files in `code/` and `tests/`
-- [X] T001c [P] Initialize `requirements.txt` with placeholder dependencies
-- [X] T002 Initialize Python project with dependencies (pandas, scikit-learn, scipy, matplotlib, seaborn, numpy, openml, requests, pytest, statsmodels) in `requirements.txt`
-- [X] T003a [P] Create `.ruff.toml` configuration file for linting
-- [X] T003b [P] Create `pyproject.toml` with `[tool.black]` configuration for formatting
+**Inputs**: `spec.md`, `plan.md`, contracts, and reviewer feedback.  
+**Goal**: Deliver a reproducible end‑to‑end analysis that answers the research question using only real, verified datasets, and produce validated statistical artefacts, visualisations, and a final report.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Project scaffolding & reproducibility  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [~] **T001** [US‑1] **Create project directory layout**  
+  *Create the following folders at the repository root:* `data/raw/`, `data/processed/`, `results/`, `logs/`, `code/`, `tests/`.  
+  **Verification**:  
+  ```bash
+  python - <<'PY'
+  import pathlib, sys
+  dirs = ['data/raw','data/processed','results','logs','code','tests']
+  missing = [d for d in dirs if not pathlib.Path(d).is_dir()]
+  assert not missing, f"Missing dirs: {missing}"
+  print("OK")
+  PY
+  ```
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T002** **Pin exact dependency versions**   <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_requirements.py exit=1 -->
+  Create `requirements.txt` containing the exact versions listed in the plan (pandas, numpy, scipy, statsmodels, scikit‑learn, matplotlib, seaborn, datasets, pytest, pyyaml, jsonschema).  
+  **Verification**: Run `pip freeze > installed.txt` and ensure `diff -u requirements.txt installed.txt` reports no version mismatches.
 
-- [X] T005a [P] Implement `setup_logging()` function in `code/utils.py` returning a logger configured with file rotation to `logs/app.log`
-- [X] T006a Implement `load_config()` function in `code/utils.py` returning a dict of environment variables (Depends on T005a to ensure logging is ready for config errors)
-- [X] T006b [P] Define expected environment variable names (e.g., `RANDOM_SEED`, `DATA_PATH`) in `code/utils.py` docstring
-- [X] T007 [P] Create schema definitions in `contracts/dataset.schema.yaml` and `contracts/analysis_output.schema.yaml` and ensure `contracts/` directory exists
-- [X] T008 [P] Implement `code/synthetic_data.py`: Generate deterministic synthetic dataset with a fixed seed
-
-The research question, method, and references remain unchanged as per the planning document requirements., validate against `contracts/dataset.schema.yaml`, and save to `data/processed/synthetic_data.csv`
-- [X] T009 [P] Setup error handling wrappers in `code/utils.py` for HTTP timeouts and 404s
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing (Priority: P1) 🎯 MVP
-
-**Goal**: Ingest BFI-2 and Last.fm data (or synthetic fallback), clean, map genres, and merge into a unified dataframe.
-
-**Independent Test**: The pipeline can be tested by executing the data loading script and verifying the output dataframe contains non-null values for all 5 personality traits and at least 10 standardized genre categories (plus 'Other') for a sample of at least 100 users, with no missing demographic covariates.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T010 [P] [US1] Define test cases in `tests/test_mapping.py`: `test_map_raw_tags_to_standard` using inputs `['alt', 'rock']` and expected output from `contracts/genre_lookup.yaml`
-- [ ] T011 [P] [US1] Define test cases in `tests/test_ingest.py`: `test_missing_data_imputation` verifying strategy and logging
-
-### Implementation for User Story 1
-
-- [ ] T014 [US1] Implement `code/mapping.py`: Load lookup table from `contracts/genre_lookup.yaml` and map raw genre tags to standard categories + 'Other'.
-- [ ] T015 [US1] Implement `code/ingest.py`: Merge personality and listening data on `user_id`; exclude users with zero listening minutes.
-- [ ] T016 [US1] Implement `code/ingest.py`: Handle missing demographic data (impute numeric with median, categorical with mode) or exclude; log counts.
-- [ ] T012 [US1] Implement `code/ingest.py`: **Orchestration**: Attempt to download BFI-2 and Last.fm data with s timeout (FR-001). If successful, use real data. If HTTP 404/Timeout occurs, catch exception, log `FALLBACK: SYNTHETIC`, and invoke `code/synthetic_data.py` (T008). Then, apply mapping (T014), merge (T015), handle missing data (T016), and save final merged dataset to `data/processed/merged_data.csv` with checksum.
-- [ ] T017 [US1] Verify `data/processed/merged_data.csv` schema integrity (non-empty, correct columns) and log checksum.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [~] **T003** **Set deterministic random seeds**  
+  Add `code/seed.py` that sets fixed seeds for `random`, `numpy.random`, and (if used) `torch`. All pipeline scripts must import this module as the first line. The script also writes its SHA‑256 hash to `code/seed_hash.txt`.  
+  **Verification**:  
+  ```bash
+  python -c "import hashlib; print(hashlib.sha256(open('code/seed.py','rb').read()).hexdigest())" > current_hash.txt
+  diff -u current_hash.txt code/seed_hash.txt
+  ```
 
 ---
 
-## Phase 4: User Story 2 - Statistical Correlation and Regression Analysis (Priority: P2)
+## Phase 1 – Power analysis & research documentation  
 
-**Goal**: Compute Spearman correlations and multiple linear regressions with demographic controls, applying FDR correction.
+- [ ] **T004** **Compute required sample size**   <!-- FAILED-IN-EXECUTION: code/power_analysis.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/power_analysis.py exit=1 -->
+  Implement `code/power_analysis.py` that calculates the minimum sample size to detect a Pearson r = 0.10 with Bonferroni‑adjusted α = 0.001 (two‑tailed). The script writes the integer to `results/power_analysis.txt`, updates `research.md` with a line `Required sample size: <n>`, and writes the same value into `state/projects/PROJ-049.yaml` under `required_sample_size`.  
+  **Verification**:  
+  - `results/power_analysis.txt` exists and contains a positive integer.  
+  - `research.md` contains the exact line `Required sample size: <n>`.  
+  - `state/projects/PROJ-049.yaml` has a matching `required_sample_size` field.
 
-**Independent Test**: The analysis can be tested by running the script on a known synthetic dataset with pre-calculated correlation values and verifying the output matches the expected coefficients within a a tolerance threshold sufficiently low to ensure numerical stability and convergence precision.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [P] [US2] Unit test for Spearman correlation calculation in `tests/test_analysis.py` (verify against synthetic ground truth)
-- [ ] T019 [P] [US2] Unit test for Benjamini-Hochberg FDR correction in `tests/test_analysis.py` (verify p-value adjustment logic)
-
-### Implementation for User Story 2
-
-- [ ] T020 [US2] Implement `code/analysis.py`: Log-transform `listening_minutes` and compute Spearman rho and p-values for all trait-genre pairs; write intermediate results to `data/processed/correlation_results.csv`.
-- [ ] T021 [US2] Implement `code/analysis.py`: Run multiple linear regression for each trait with age, gender, and country (one-hot encoded) as covariates.
-- [ ] T022 [FR-004] [US2] Implement `code/analysis.py`: Detect collinear predictors (VIF > 5). If dropped, log the specific predictor name, update the regression model, and output a `model_definition` column in results listing the *actual* covariates used to ensure traceability against FR-004.
-- [ ] T023 [US2] Implement `code/analysis.py`: Apply Benjamini-Hochberg FDR correction (q < 0.05) to all p-values based on the dynamic count of tests.
-- [ ] T024 [US2] Save final analysis results (rho, p-value, adjusted p-value, is_significant, beta coefficients, model_definition) to `data/processed/analysis_results.csv`.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] **T005** **Draft `research.md` with provenance and “Real‑First” statement**  
+  Create `research.md` that includes:  
+  1. URLs for the verified BFI‑2 OpenML dataset (ID 42473) and the HuggingFace `lastfm/lastfm_1k` dataset.  
+  2. A paragraph titled **Real‑First** explaining that only these publicly verified sources are used.  
+  3. Licensing information for both datasets.  
+  4. The required sample size placeholder (filled by T004).  
+  **Verification**: `grep -E "openml|lastfm|Real‑First|Required sample size" research.md` returns a match for each of the four items.
 
 ---
 
-## Phase 5: User Story 3 - Visualization and Reporting (Priority: P3)
+## Phase 2 – Real‑data acquisition  
 
-**Goal**: Generate correlation heatmap, regression coefficient plots, and a summary report with effect sizes.
-
-**Independent Test**: The reporting module can be tested by executing the script and verifying the existence of a `results_report.csv` and a `correlation_heatmap.png` file, ensuring the heatmap correctly displays the sign and magnitude of correlations.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T025 [P] [US3] Integration test for report generation in `tests/test_reporting.py` (verify file existence and content schema)
-
-### Implementation for User Story 3
-
-- [ ] T026 [US3] Implement `code/analysis.py`: Read `data/processed/analysis_results.csv` (T024 output). Generate `results/correlation_heatmap.png` (800x600, 150dpi) using seaborn with a **diverging colormap** (e.g., 'coolwarm') to map color intensity to the **signed** correlation coefficient, preserving directionality.
-- [ ] T027 [US3] Implement `code/analysis.py`: Calculate **Pearson's r** effect sizes and **Fisher's z** confidence intervals for significant results as mandated by FR-006/US-3.
-- [ ] T028 [US3] Implement `code/analysis.py`: Generate `results/results_report.csv` containing effect sizes, CIs, and explicit "Non-significant" labels for multiple traits across multiple genres (fill nulls where needed).
-- [ ] T029 [P] [US3] Add `tests/test_report.py::test_report_completeness` to verify `results_report.csv` includes all 5 traits × 10+ genres.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T006** **Download BFI‑2 and stream Last.fm data with full hygiene and timing checks**  
+  Extend `code/ingest.py` to:  
+  1. Perform HEAD requests to both source URLs; abort with a clear error if any response is not 200.  
+  2. Download the BFI‑2 CSV (OpenML ID 42473) with a 300 s timeout, retry up to 3 times, compute and log its SHA‑256 checksum, and save to `data/raw/bfi2_raw.csv`.  
+  3. Stream the `lastfm/lastfm_1k` dataset via `datasets.load_dataset(..., streaming=True)`, write a compressed CSV `data/raw/lastfm_raw.csv`, and compute its SHA‑256 checksum (saved to `logs/lastfm_checksum.txt`).  
+  4. Measure total wall‑clock time; abort if > 300 seconds.  
+  5. After merging (see T007), assert the merged dataframe has ≥ 100 rows and that ≤ 5 % of rows have missing demographic fields after imputation.  
+  **Verification**:  
+  - Both raw files exist and are non‑empty.  
+  - `logs/ingestion.log` contains both SHA‑256 hashes and a timing entry ≤ 300 s.  
+  - Post‑merge row count and missing‑demographic percentage checks pass (logged).
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 3 – Pre‑processing, merging, and feature engineering (atomized)  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T007a** **Merge BFI‑2 and Last.fm on hashed `user_id`**  
+  Inner‑join `bfi2_raw.csv` and `lastfm_raw.csv` on a SHA‑256 hash of the original `user_id`. Abort if the join yields zero rows.  
+  **Verification**: Confirm `data/processed/merged_interim.parquet` exists and `row_count > 0`.
 
-- [ ] T030 [P] Documentation updates in `README.md` with execution instructions and synthetic data explanation
-- [ ] T031 Code cleanup and refactoring in `code/`
-- [ ] T032a [P] Add `tests/test_edge_cases.py::test_empty_dataset` for empty dataset handling
-- [ ] T032b [P] Add `tests/test_edge_cases.py::test_all_missing_demographics` for missing demographic handling
-- [ ] T033 Execute `code/pipeline.py` end-to-end, record execution time in `logs/timing.log`; fail if > 2 hours
+- [ ] **T007b** **Map raw genre tags to standardized categories**  
+  Load `contracts/genre_lookup.yaml` and map every raw genre tag to one of the ten categories (Rock, Pop, Hip‑Hop, Classical, Electronic, Jazz, Folk, Country, Metal, Other). Unmapped tags go to “Other”.  
+  **Verification**: Ensure a column `standard_genre` contains only the allowed enum values.
 
----
+- [ ] **T007c** **Compute total minutes and proportion with correct pseudocount**  
+  For each user compute `total_minutes = sum(listening_minutes)` and for each standardized genre compute  
+  `genre_proportion = (minutes + 1) / (total_minutes + 1)` (1‑minute pseudocount added to both numerator and denominator).  
+  **Verification**: Check that all `genre_proportion` values lie in (0,1] and that the sum across genres equals 1 (within tolerance).
 
-## Dependencies & Execution Order
+- [ ] **T007d** **Log‑transform and ILR‑transform genre proportions**  
+  Apply `np.log1p` to each `genre_proportion` producing `genre_log_<GENRE>`. Then perform an Isometric Log‑Ratio (ILR) transformation to obtain compositional components stored in `genre_ilr_<COMP>` columns.  
+  **Verification**: Verify that `genre_ilr_*` columns contain finite numbers and that the ILR transformation can be inverted without loss.
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires merged data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires analysis results from US2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2, except T006a which depends on T005a)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] **T007e** **Handle missing demographics, one‑hot encode, and document limitation**  
+  Impute missing `age` with the median, `gender` and `country` with their modes; exclude rows where imputation is impossible, logging the count and strategy. Group countries with frequency < 1 % into an “Other” category before one‑hot encoding, producing `gender_onehot_*` and `country_onehot_*`. Write a short limitation note about using listening minutes as a proxy to `docs/limitations.txt`.  
+  **Verification**:  
+  - `data/processed/unified_data.parquet` includes all required columns.  
+  - Schema validation against `contracts/processed_dataset.schema.yaml` passes.  
+  - `docs/limitations.txt` exists and contains the required narrative.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 4 – Correlation analysis and effect‑size computation  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for genre mapping logic in tests/test_mapping.py"
-Task: "Unit test for missing data imputation in tests/test_ingest.py"
-
-# Launch all implementation tasks for User Story 1 together:
-Task: "Implement code/mapping.py: Load lookup table..."
-Task: "Implement code/ingest.py: Merge personality and listening data..."
-Task: "Implement code/ingest.py: Orchestration (Download/Fallback)... (Depends on T014/T015)"
-```
+- [ ] **T008** **Compute Pearson correlations, Bonferroni correction, Cohen’s d, and bootstrap CIs**  
+  In `code/analysis.py` calculate for every Big‑Five trait × standardized genre pair (5 × 10):  
+  1. Pearson r and two‑tailed p‑value using the `genre_log_<GENRE>` columns.  
+  2. Bonferroni‑adjusted p‑value (α = 0.05 / 50 ≈ 0.001) and flag `is_significant`.  
+  3. Convert r to Cohen’s d via `d = 2r / sqrt(1‑r²)`.  
+  4. Obtain a 95 % confidence interval for r (and consequently for d) using Fisher’s z transformation with 10 000 bootstrap resamples.  
+  Write the results to `data/processed/correlation_results.csv` adhering to `contracts/correlation_results.schema.yaml`.  
+  **Verification**: Run JSON‑Schema validation; spot‑check a synthetic subset to ensure values fall within tolerance.
 
 ---
 
-## Implementation Strategy
+## Phase 5 – Regression modelling with diagnostics  
 
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] **T009** **Fit trait‑specific linear regressions, perform diagnostics, and record results**  
+  Using `statsmodels.OLS` in `code/regression.py`:  
+  1. For each trait, fit a model with predictors `genre_ilr_*`, `age`, all `gender_onehot_*`, and all `country_onehot_*` (exclude `total_minutes`).  
+  2. Compute VIF for all predictors; drop any with VIF > 5, log the action, and refit.  
+  3. Run Shapiro‑Wilk test on residuals (normality) and Breusch‑Pagan test (homoscedasticity); record pass/fail flags.  
+  4. Identify high‑influence points via Cook’s distance (> 4 / n) and log any removals.  
+  5. Apply Bonferroni correction to the p‑values of each coefficient.  
+  6. Store the final coefficient table (`trait`, `predictor`, `coefficient`, `std_error`, `p_value`, `adjusted_p_value`, `is_significant`) in `data/processed/regression_results.csv` (matches `contracts/regression_results.schema.yaml`).  
+  7. Append a diagnostics array to a master JSON file `data/processed/analysis_output.json` that follows `contracts/analysis_output.schema.yaml`, ensuring each entry contains `model_trait`, `issue`, and `action`.  
+  **Verification**:  
+  - `regression_results.csv` validates against its schema.  
+  - `analysis_output.json` contains a `diagnostics` entry for each trait with the required fields (checked via a JSON‑Schema validator).  
+  - `logs/regression.log` lists VIF values, dropped predictors, and diagnostic test statistics.
 
 ---
 
-## Notes
+## Phase 6 – Visualisation and final report  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Ensure synthetic data generator uses a fixed seed for reproducibility on CI.
-- **Critical**: Ensure all statistical tests run on CPU only (no GPU dependencies).
-- **Critical**: T012 implements the download attempt (FR-001) before falling back to synthetic data.
+- [ ] **T010** **Generate visualisations and compile the final results report**  
+  1. Produce `results/correlation_heatmap.png` (800 × 600 px, 150 dpi) visualising signed Pearson r values across traits (rows) and genres (columns) using a diverging colormap. Verify dimensions with Pillow (`Image.open(...).size`).  
+  2. Produce `results/regression_coefficients.png`, a grouped bar chart showing all significant regression coefficients per trait. Verify dimensions similarly.  
+  3. Assemble `results/results_report.csv` that conforms to `contracts/report.schema.yaml`, containing:  
+     - `summary_statistics` (total_tests = 50, significant_tests, required_sample_size from T004, actual_sample_size from the processed dataset, a brief power note).  
+     - `significant_findings`: the subset of rows from `correlation_results.csv` where `is_significant` = true, including Cohen’s d and 95 % CIs.  
+     - `limitations`: the narrative from `docs/limitations.txt`.  
+  **Verification**:  
+  - PNG files open without error and Pillow reports the requested dimensions.  
+  - `results_report.csv` validates against `contracts/report.schema.yaml`.  
+  - A unit test (`tests/unit/test_report_completeness.py`) asserts that exactly 50 trait‑genre combinations are present.
+
+---
+
+## Phase 7 – Contract validation and CI integration  
+
+- [ ] **T011** **Validate all pipeline artefacts against their JSON‑Schema contracts**  
+  Run `code/validate.py` which loads each output file (`unified_data.parquet`, `correlation_results.csv`, `regression_results.csv`, `results_report.csv`, `analysis_output.json`) and validates them against the corresponding schemas in `specs/.../contracts/`. Abort on any mismatch and write detailed error messages to `logs/validation.log`.  
+  **Verification**: The script exits with status 0; `logs/validation.log` is empty on success.
+
+- [ ] **T012** **Update README and add CI tests for runtime and schema compliance**  
+  1. Add an “Execution Instructions” section describing the single command `python -m code.pipeline`.  
+  2. Add a “Privacy & Data Handling” section explaining hashing of `user_id`, removal of PII, and licensing compliance.  
+  3. Add two CI tests under `tests/performance/`:  
+     - `test_ingestion_under_300s.py` asserts that the combined runtime of the download step (T006) is ≤ 300 seconds.  
+     - `test_all_outputs_valid.py` runs the validator from T011.  
+  **Verification**: `grep -E "Execution Instructions|Privacy & Data Handling" README.md` returns matches; CI workflow executes the two new tests and they both pass.
+
+---
+
+## Phase 8 – Quickstart guide  
+
+- [ ] **T013** **Create Quickstart documentation**  
+  Write `quickstart.md` that outlines: environment setup (`pip install -r requirements.txt`), data download (`python -m code.ingest`), running the full pipeline (`python -m code.pipeline`), and where to find results. Include code snippets and expected output file locations.  
+  **Verification**: `grep -E "pip install|python -m code.ingest|python -m code.pipeline" quickstart.md` returns matches for each command.
+
+---
+
+### Dependency mapping (summary)
+
+| Spec / FR | Satisfied by task(s) |
+|-----------|----------------------|
+| FR‑001 | T006 |
+| FR‑002 | T007b |
+| FR‑003 | T007c (corrected pseudocount) |
+| FR‑004 | T009 |
+| FR‑005 | T008 (Bonferroni) |
+| FR‑006 | T010 |
+| FR‑007 | T007e |
+| FR‑008 | T007c (total_minutes) |
+| FR‑009 | T009 (diagnostics) |
+| SC‑001 | T006 (runtime, row count, missing‑demographic checks) |
+| SC‑002 | T008 (significance threshold) |
+| SC‑004 | T009 (diagnostic pass) |
+| SC‑005 | T007c (proportion computation) |
+| SC‑006 | T010 (visuals & report) |
+| SC‑012 | T008 (Bonferroni) |
+| Power‑analysis / sample‑size | T004 |
+| Quickstart guide | T013 |
+
+---  
+
+*All tasks are initially unchecked (`[ ]`). Once a task is verified in CI, its checkbox may be ticked.*  

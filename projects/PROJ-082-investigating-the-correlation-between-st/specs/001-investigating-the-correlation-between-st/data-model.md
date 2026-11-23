@@ -2,81 +2,88 @@
 
 ## Overview
 
-This document defines the data structures for the meta-analysis pipeline. It includes the input schema for study records, the output schema for meta-analysis results, and the schema for the narrative fallback.
+This document defines the data structures used for input, processing, and output in the meta-analysis pipeline. All data is stored in `data/` (raw, processed, derived) and validated against the schemas in `contracts/`.
 
-## Entities
+## Entity-Relationship Diagram (Conceptual)
 
-### StudyRecord
+```mermaid
+erDiagram
+    StudyRecord ||--o| MetaAnalysisResult : "contributes to"
+    StudyRecord {
+        string author
+        int year
+        string tract_name
+        string metric_type "FA|MD|RD"
+        string stat_type "r|t|F|p"
+        float stat_value
+        int sample_size
+        string notes
+    }
+    MetaAnalysisResult {
+        float pooled_r
+        float ci_lower
+        float ci_upper
+        float i_squared
+        float egger_intercept
+        float egger_p_value
+        bool bonferroni_applied
+        float alpha_adj
+        string synthesis_mode "quantitative|narrative"
+    }
+```
 
-Represents a single literature entry.
+## Data Schemas
 
-| Field | Type | Description | Required |
-|-------|------|-------------|----------|
-| `author` | string | First author name. | Yes |
-| `year` | integer | Publication year. | Yes |
-| `tract_name` | string | Name of the brain tract (e.g., "arcuate fasciculus"). | Yes |
-| `metric` | string | MRI metric (e.g., "FA", "MD"). | Yes |
-| `r` | float | Correlation coefficient. | Conditional |
-| `n` | integer | Sample size. | Conditional |
-| `t_value` | float | T-statistic (if r not available). | Conditional |
-| `qualitative_desc` | string | Extracted qualitative description (if no r/n). | Yes |
-| `source` | string | Source of the record (e.g., "PubMed", "Synthetic"). | Yes |
+### 1. Input: StudyRecord (`data/raw/studies.csv`)
 
-**Constraints**:
-- `r` must be in [-1, 1].
-- `n` must be > 0.
-- If `r` and `n` are missing, `qualitative_desc` must be populated.
+**Source**: User-provided CSV or generated mock data.
+**Format**: CSV (Comma Separated Values).
 
-### MetaAnalysisResult
+| Column | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `author` | string | Yes | Primary author surname. |
+| `year` | int | Yes | Publication year. |
+| `tract_name` | string | Yes | Name of the white matter tract (e.g., "Arcuate Fasciculus"). |
+| `metric_type` | string | Yes | dMRI metric: "FA", "MD", "RD", "AD". |
+| `stat_type` | string | Yes | Statistic type: "r", "t", "F", "p". |
+| `stat_value` | float | Yes | The reported value. |
+| `sample_size` | int | Yes | Total N for the study. |
+| `notes` | string | No | Any additional context or conversion notes. |
 
-Represents the aggregated output.
+### 2. Intermediate: StudyCount (`data/processed/study_count.json`)
 
-| Field | Type | Description | Required |
-|-------|------|-------------|----------|
-| `pooled_r` | float | Weighted mean correlation. | Conditional |
-| `ci_lower` | float | 95% CI lower bound. | Conditional |
-| `ci_upper` | float | 95% CI upper bound. | Conditional |
-| `i_squared` | float | Heterogeneity statistic (2 decimals). | Conditional |
-| `egger_intercept` | float | Egger's test intercept. | Conditional |
-| `egger_p` | float | Egger's test p-value. | Conditional |
-| `egger_skipped_reason` | string | Reason for skipping Egger's test (if N<10). | Conditional |
-| `synthesis_mode` | string | "quantitative" or "narrative". | Yes |
-| `study_count` | integer | Number of eligible studies. | Yes |
-| `tract_count` | integer | Number of distinct tracts. | Yes |
-| `bonferroni_adjusted_alpha` | float | Adjusted alpha if applied. | Conditional |
-| `qualitative_summary` | string | Narrative summary (if synthesis_mode="narrative"). | Conditional |
+**Source**: `code/data/real_data_validator.py`
+**Purpose**: Gate logic for quantitative vs. narrative synthesis.
 
-**Constraints**:
-- If `synthesis_mode` == "quantitative", `pooled_r`, `i_squared`, and `egger_skipped_reason` (if applicable) must be present.
-- If `synthesis_mode` == "narrative", `qualitative_summary` must be present.
-- `i_squared` must have at least 2 decimal places.
+| Key | Type | Description |
+| :--- | :--- | :--- |
+| `unique_studies` | int | Count of unique (Author, Year) pairs. |
+| `total_comparisons` | int | Total number of rows (tracts) in input. |
+| `status` | string | "quantitative" (if ≥10) or "narrative" (if <10). |
 
-### VisualizationOutput
+### 3. Output: MetaAnalysisResult (`data/processed/meta_results.json`)
 
-Represents generated plots.
+**Source**: `code/analysis/meta_analysis.py`
+**Purpose**: Final statistical results.
 
-| Field | Type | Description | Required |
-|-------|------|-------------|----------|
-| `forest_plot_path` | string | Path to PNG file. | Yes |
-| `funnel_plot_path` | string | Path to PNG file. | Yes |
-| `correlation_plot_path` | string | Path to PNG file. | Yes |
-| `file_size_mb` | float | Size of each PNG in MB. | Yes |
-
-**Constraints**:
-- `file_size_mb` < 5.0 for all plots.
+| Key | Type | Description |
+| :--- | :--- | :--- |
+| `synthesis_mode` | string | "quantitative" or "narrative". |
+| `pooled_r` | float | Pooled correlation coefficient (if quantitative). |
+| `ci_lower` | float | Lower bound of 95% CI. |
+| `ci_upper` | float | Upper bound of 95% CI. |
+| `i_squared` | float | Heterogeneity statistic ($I^2$). |
+| `egger_intercept` | float | Egger's test intercept (if N≥10). |
+| `egger_p_value` | float | Egger's test p-value (if N≥10). |
+| `bonferroni_adjusted` | bool | Whether Bonferroni was applied. |
+| `alpha_adj` | float | Adjusted alpha threshold. |
+| `narrative_summary` | string | Text summary (if narrative mode). |
 
 ## Data Flow
 
-1.  **Input**: `raw/studies.csv` (or JSONL from PubMed).
-2.  **Extraction**: `extraction.py` parses input -> `processed/study_records.json`.
-3.  **Analysis**: `meta_analysis.py` reads records -> `results/meta_analysis_result.json`.
-4.  **Visualization**: `visualization.py` reads result -> `results/plots/` (PNGs).
-5.  **Output**: Final JSON report and PNGs.
-
-## Validation Rules
-
-- **Study Count**: Must be >= 1 for any analysis.
-- **Tract Count**: Must be >= 1.
-- **Effect Size Range**: `r` must be [-1, 1].
-- **Precision**: `i_squared` must be formatted to 2 decimal places.
-- **Skip Logic**: If `study_count` < 10, `egger_p` must be null and `egger_skipped_reason` must be set.
+1.  **Load**: `studies.csv` (Raw) → `StudyRecord` objects.
+2.  **Validate**: Count unique studies → `study_count.json` (Processed).
+3.  **Branch**:
+    *   If `status == "quantitative"`: Run Meta-Analysis → `meta_results.json`.
+    *   If `status == "narrative"`: Run Narrative Synthesis → `meta_results.json` (with `narrative_summary`).
+4.  **Visualize**: `meta_results.json` + `StudyRecord` → PNG plots (Derived).

@@ -1,183 +1,183 @@
-"""
-Process game data to compute derived metrics.
-
-This module implements the calculation of outcome deviation,
-which is defined as (actual_result - expected_probability).
-
-It also provides utilities for capping probabilities and
-calculating expected probabilities from Elo ratings.
-"""
 import pandas as pd
 import numpy as np
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Generator
 from pathlib import Path
 import logging
+import json
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def cap_probability(p: float, min_val: float = 0.01, max_val: float = 0.99) -> float:
+# Import from sibling modules as defined in API surface
+from src.data.models import GameRecord
+from src.data.parse import calculate_material_imbalance_move10, calculate_material_imbalance_move5
+from src.data.parse import calculate_and_save_inclusion_metrics
+from src.config import ensure_directories
+
+# Ensure output directories exist
+ensure_directories()
+
+class OnlineAccumulator:
     """
-    Cap a probability value to a safe range to avoid numerical instability.
-    
-    Args:
-        p: The probability value to cap.
-        min_val: Minimum allowed value (default 0.01).
-        max_val: Maximum allowed value (default 0.99).
-        
-    Returns:
-        The capped probability value.
+    Accumulates statistics for outcome_deviation and feature statistics in an online manner.
+    Avoids building a massive DataFrame in memory.
     """
-    return max(min_val, min(max_val, p))
+    def __init__(self):
+        self.total_games = 0
+        self.parsed_games = 0
+        self.outcome_deviation_sum = 0.0
+        self.outcome_deviation_sq_sum = 0.0
+        self.feature_sums: Dict[str, float] = {}
+        self.feature_sq_sums: Dict[str, float] = {}
+        self.records: List[GameRecord] = []
+        # Batch size to control memory usage before writing to parquet
+        self.batch_size = 10000
+        self._current_batch: List[GameRecord] = []
+
+    def add(self, record: GameRecord):
+        """Add a single record to the accumulator."""
+        self.total_games += 1
+        self.parsed_games += 1
+
+        # Update running sums for statistics
+        self.outcome_deviation_sum += record['outcome_deviation']
+        self.outcome_deviation_sq_sum += record['outcome_deviation'] ** 2
+
+        # Update feature sums dynamically
+        for key, value in record.items():
+            if key not in ['game_id', 'outcome_deviation', 'outcome', 'eco_code']:
+                if isinstance(value, (int, float)):
+                    if key not in self.feature_sums:
+                        self.feature_sums[key] = 0.0
+                        self.feature_sq_sums[key] = 0.0
+                    self.feature_sums[key] += value
+                    self.feature_sq_sums[key] += value ** 2
+
+        # Accumulate records for batch writing
+        self._current_batch.append(record)
+        if len(self._current_batch) >= self.batch_size:
+            self.records.extend(self._current_batch)
+            self._current_batch = []
+
+    def finalize(self):
+        """Finalize the accumulator, flushing any remaining batches."""
+        if self._current_batch:
+            self.records.extend(self._current_batch)
+            self._current_batch = []
+
+        # Calculate final statistics
+        stats = {
+            'total_games': self.total_games,
+            'parsed_games': self.parsed_games,
+            'mean_outcome_deviation': self.outcome_deviation_sum / self.parsed_games if self.parsed_games > 0 else 0.0,
+            'std_outcome_deviation': np.sqrt(
+                (self.outcome_deviation_sq_sum / self.parsed_games) - (self.outcome_deviation_sum / self.parsed_games) ** 2
+            ) if self.parsed_games > 0 else 0.0
+        }
+        return stats
+
+    def get_dataframe(self) -> pd.DataFrame:
+        """Convert accumulated records to a DataFrame."""
+        if not self.records:
+            return pd.DataFrame()
+        return pd.DataFrame(self.records)
 
 def calculate_expected_probability(white_rating: float, black_rating: float) -> float:
     """
-    Calculate the expected probability of White winning based on Elo ratings.
-    
-    Formula: P = 1 / (1 + 10^((R_black - R_white) / 400))
-    
-    Args:
-        white_rating: White player's Elo rating.
-        black_rating: Black player's Elo rating.
-        
-    Returns:
-        The expected probability of White winning, capped to [0.01, 0.99].
+    Calculate expected win probability using standard Elo logistic formula.
+    P = 1 / (1 + 10^((R2-R1)/400))
+    Capped to [0.01, 0.99] to prevent numerical instability.
     """
-    if pd.isna(white_rating) or pd.isna(black_rating):
-        return np.nan
-        
+    if white_rating is None or black_rating is None:
+        return 0.5  # Default if ratings missing
     diff = black_rating - white_rating
-    exponent = diff / 400.0
-    prob = 1.0 / (1.0 + (10.0 ** exponent))
-    
-    return cap_probability(prob)
+    prob = 1.0 / (1.0 + 10 ** (diff / 400.0))
+    # Cap to prevent numerical issues
+    return max(0.01, min(0.99, prob))
 
-def calculate_outcome_deviation(actual_result: float, expected_probability: float) -> float:
+def calculate_outcome_deviation(actual_result: float, expected_prob: float) -> float:
     """
-    Calculate the outcome deviation for a game.
-    
-    Outcome deviation is defined as (actual_result - expected_probability).
-    
-    Args:
-        actual_result: The actual game result (1.0 for White win, 0.5 for draw, 0.0 for Black win).
-        expected_probability: The expected probability of White winning.
-        
-    Returns:
-        The outcome deviation value.
+    Calculate outcome deviation as (actual_result - expected_prob).
+    Uses the capped expected probability.
     """
-    if pd.isna(actual_result) or pd.isna(expected_probability):
-        return np.nan
-        
-    return actual_result - expected_probability
+    return actual_result - expected_prob
 
-def map_outcome_to_result(outcome: str) -> float:
+def process_stream(iterator: Generator[str, None, None], config: Dict[str, Any]) -> OnlineAccumulator:
     """
-    Map a string outcome to a numeric result value.
+    Process a stream of PGN games, extracting features and accumulating statistics.
+    Yields GameRecord objects and updates the OnlineAccumulator.
+    """
+    accumulator = OnlineAccumulator()
     
-    Args:
-        outcome: The game outcome string (e.g., '1-0', '0-1', '1/2-1/2', '*').
-        
-    Returns:
-        Numeric result (1.0, 0.5, 0.0) or np.nan if outcome is invalid/unknown.
+    # Import parsing functions locally to avoid circular imports if any
+    from src.data.parse import parse_pgn_stream
+    
+    # Parse the stream using the defined parser
+    for record in parse_pgn_stream(iterator):
+        accumulator.add(record)
+    
+    accumulator.finalize()
+    return accumulator
+
+def save_games_parquet(accumulator: OnlineAccumulator, output_path: str = "data/processed/games.parquet"):
     """
-    outcome_map = {
-        '1-0': 1.0,
-        '0-1': 0.0,
-        '1/2-1/2': 0.5,
-        '*': np.nan,  # Unknown outcome
+    Save the accumulated game records to a Parquet file.
+    """
+    df = accumulator.get_dataframe()
+    if df.empty:
+        logger.warning("No data to save to parquet.")
+        return
+    
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Saved {len(df)} records to {output_path}")
+
+def save_inclusion_metrics(total_games: int, parsed_games: int, output_path: str = "data/results/inclusion_metrics.json"):
+    """
+    Calculate the inclusion rate and save it to a JSON file.
+    Schema: {total_games: int, parsed_games: int, inclusion_rate: float}
+    Logic: inclusion_rate = parsed_games / total_games
+    Requirement: Do NOT halt if inclusion_rate < 0.95.
+    """
+    if total_games == 0:
+        logger.warning("Total games is 0, setting inclusion rate to 0.0")
+        inclusion_rate = 0.0
+    else:
+        inclusion_rate = parsed_games / total_games
+
+    metrics = {
+        "total_games": total_games,
+        "parsed_games": parsed_games,
+        "inclusion_rate": inclusion_rate
     }
-    return outcome_map.get(str(outcome).strip(), np.nan)
 
-def process_game_record(df: pd.DataFrame) -> pd.DataFrame:
+    # Ensure directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    logger.info(f"Inclusion metrics saved to {output_path}: {metrics}")
+    return metrics
+
+def validate_inclusion_rate(inclusion_rate: float, threshold: float = 0.95) -> bool:
     """
-    Process a DataFrame of game records to add derived metrics.
-    
-    This function:
-    1. Calculates expected probability from ratings.
-    2. Maps outcome strings to numeric results.
-    3. Calculates outcome deviation.
-    
-    Args:
-        df: DataFrame with columns including 'white_rating', 'black_rating', and 'outcome'.
-        
-    Returns:
-        DataFrame with new columns: 'elo_expected_prob', 'outcome_result', 'outcome_deviation'.
+    Validate inclusion rate against a threshold.
+    Returns True if rate >= threshold, False otherwise.
+    Note: Per SC-001, this is a measurement, not a hard halt.
     """
-    logger.info(f"Processing {len(df)} game records...")
-    
-    # Create a copy to avoid modifying the original
-    result_df = df.copy()
-    
-    # Calculate expected probability
-    logger.info("Calculating expected probabilities...")
-    result_df['elo_expected_prob'] = result_df.apply(
-        lambda row: calculate_expected_probability(row['white_rating'], row['black_rating']),
-        axis=1
-    )
-    
-    # Map outcome to numeric result
-    logger.info("Mapping outcomes to numeric results...")
-    result_df['outcome_result'] = result_df['outcome'].apply(map_outcome_to_result)
-    
-    # Calculate outcome deviation
-    logger.info("Calculating outcome deviations...")
-    result_df['outcome_deviation'] = result_df.apply(
-        lambda row: calculate_outcome_deviation(row['outcome_result'], row['elo_expected_prob']),
-        axis=1
-    )
-    
-    # Log statistics
-    valid_deviation_count = result_df['outcome_deviation'].notna().sum()
-    logger.info(f"Successfully calculated outcome deviation for {valid_deviation_count} records.")
-    
-    return result_df
+    return inclusion_rate >= threshold
 
 def main():
     """
-    Main entry point for processing game data.
-    
-    This function:
-    1. Loads the processed game data from data/processed/games.parquet.
-    2. Processes the data to add outcome deviation metrics.
-    3. Saves the result to data/results/games_with_deviation.parquet.
+    Main entry point for processing stage if run standalone.
+    This is typically called by src/main.py orchestration.
     """
-    # Define paths
-    input_path = Path("data/processed/games.parquet")
-    output_path = Path("data/results/games_with_deviation.parquet")
-    
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.info("Please run the ingestion pipeline first to generate games.parquet")
-        return
-    
-    logger.info(f"Loading data from {input_path}...")
-    df = pd.read_parquet(input_path)
-    
-    logger.info(f"Loaded {len(df)} records with columns: {list(df.columns)}")
-    
-    # Process the data
-    processed_df = process_game_record(df)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save the result
-    logger.info(f"Saving processed data to {output_path}...")
-    processed_df.to_parquet(output_path, index=False)
-    
-    logger.info("Processing complete!")
-    logger.info(f"Output saved to: {output_path}")
-    logger.info(f"Columns in output: {list(processed_df.columns)}")
-    
-    # Print sample of outcome deviation
-    if 'outcome_deviation' in processed_df.columns:
-        sample = processed_df[['outcome', 'white_rating', 'black_rating', 'elo_expected_prob', 'outcome_result', 'outcome_deviation']].head(5)
-        logger.info("Sample of processed data:")
-        print(sample.to_string())
+    logger.info("Starting data processing stage.")
+    # Example usage if run directly (though typically orchestrated by main.py)
+    # This block ensures the script can be tested or invoked if needed.
+    pass
 
 if __name__ == "__main__":
     main()

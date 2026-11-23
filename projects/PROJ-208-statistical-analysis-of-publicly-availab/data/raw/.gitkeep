@@ -1,0 +1,2 @@
+# This directory stores raw data artifacts.
+# github_issues_raw_hf.parquet will be generated here by code/data/loader_hf.py

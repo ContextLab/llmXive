@@ -1,0 +1,129 @@
+{
+  "trace_id": "training_42_01775",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 12,
+  "tool_sequence": [
+    "format_text",
+    "delete_element",
+    "delete_element",
+    "resize_element",
+    "resize_element",
+    "insert_image",
+    "insert_image",
+    "delete_element",
+    "delete_element",
+    "update_layout",
+    "update_layout",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 29.9526,
+        "x": 11.4864,
+        "y": 4.8372
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 93.4537
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 87.9035
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 41.693,
+        "height": 61.9908
+      }
+    },
+    {
+      "step": 4,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 2.0561,
+        "height": 22.1944
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 84.5668,
+        "y": 39.5645,
+        "width": 72.9847,
+        "height": 26.4795
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 94.3342,
+        "y": 69.8982,
+        "width": 53.0688,
+        "height": 5.3956
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 31.6137
+      }
+    },
+    {
+      "step": 8,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 22.9334
+      }
+    },
+    {
+      "step": 9,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 91.4535,
+        "padding": 22.5998
+      }
+    },
+    {
+      "step": 10,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 0.1674,
+        "padding": 21.2679
+      }
+    },
+    {
+      "step": 11,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 90.3194,
+        "padding": 68.403
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.517106,
+    "tool_repetition_freq": 0.583333,
+    "arg_semantic_variance": 1027.917094
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 15,
+    "layout_hash": "42-1775-delete_element"
+  }
+}

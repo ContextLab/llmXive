@@ -1,0 +1,17 @@
+status: none
+intent: Guava visual trajectory dataset download robotics symbolic dataset YCB
+required_fields:
+- trajectory_id
+- frame_index
+- timestamp
+- raw_image
+- object_list
+- object_class_label
+- bbox_xyxy
+- centroid_xy
+- color_histogram
+- robot_action
+- end_effector_pose
+cache_key: 817e989f58b5d23c368a58a5164331b6727f8591ac55b298327098f9301ed1ba
+searched_at: '2026-09-04T09:24:42.139035+00:00'
+retry_count: 1

@@ -1,0 +1,14 @@
+status: none
+intent: download OBELiX and Materials Project crystal structures python package dataset
+required_fields:
+- material_id
+- formula
+- lattice_parameters
+- lattice_vectors
+- space_group
+- atomic_species
+- atomic_positions
+- formation_energy_per_atom
+cache_key: 7da784185fd61aa81a0fbb27e009950c628f1a943f4b181cca96becb045bf984
+searched_at: '2026-08-17T03:13:20.037791+00:00'
+retry_count: 1

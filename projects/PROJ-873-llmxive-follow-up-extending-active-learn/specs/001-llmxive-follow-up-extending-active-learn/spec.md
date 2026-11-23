@@ -1,102 +1,202 @@
-# Feature Specification: llmXive follow-up: extending "Active Learners as Efficient PRP Rerankers"
+# Specification: llmXive PRP Redundancy Analysis
+**Project**: PROJ-873-llmxive-follow-up-extending-active-learn
+**Status**: Draft
+**Version**: 1.1.0
 
-**Feature Branch**: `001-llmxive-prp-redundancy`  
-**Created**: 2026-07-11  
-**Status**: Draft  
-**Input**: User description: "llmXive follow-up: extending 'Active Learners as Efficient PRP Rerankers'"
+## User Scenarios & Testing
 
-## User Scenarios & Testing *(mandatory)*
+### User Story 1 - Synthetic Redundancy Injection and Baseline Measurement (Priority: P1)
+As a researcher, I want to inject synthetic near-duplicate passages into a baseline dataset (BEIR) using controlled paraphrasing and measure the baseline active learner performance, so that I can establish a ground truth for efficiency loss.
 
-### User Story 1 - Quantify Redundancy-Induced Efficiency Loss (Priority: P1)
-
-**User Journey**: A researcher needs to determine if active Pairwise Ranking Prompting (PRP) rankers waste LLM call budgets when processing retrieval lists containing near-duplicate documents. The researcher must observe a measurable degradation in ranking quality (NDCG@10) relative to the number of calls spent on redundant pairs.
-
-**Why this priority**: This is the core hypothesis validation. Without establishing that redundancy actually degrades performance, the subsequent optimization (pre-clustering) has no justification. It directly addresses the "What is NOT known" gap regarding the interaction between input noise and active selection.
-
-**Independent Test**: Can be tested by running the baseline active ranker on artificially inflated datasets with varying redundancy levels ([deferred], [deferred], [deferred]) and comparing the ratio of "wasted" calls (high similarity pairs) to NDCG@10 scores.
+**Why this priority**: This is the foundational experiment; without valid synthetic redundancy and a baseline, no efficiency gains can be measured.
+**Independent Test**: Can be fully tested by running the injection script on `nfcorpus` and verifying the output `injected_datasets.json` contains ≥ 20 clusters with similarity ≥ 0.95 and that the baseline ranker produces a stable NDCG score.
 
 **Acceptance Scenarios**:
+1. **Given** the BEIR `nfcorpus` dataset, **When** the system applies synonym replacement (WordNet) and shuffling, **Then** the output contains ≥ 20 clusters of 3–5 passages with cosine similarity ≥ 0.95 (measured by `all-MiniLM-L6-v2`) and semantic similarity to original ≥ 0.95.
+2. **Given** the injected dataset, **When** the baseline active ranker runs, **Then** it produces an NDCG@10 score logged in `us1_baseline_ndcg.json`.
 
-1. **Given** a retrieval candidate list with [deferred] near-duplicate passages (similarity > 0.95), **When** the baseline active ranker executes its query budget of 100 calls, **Then** the system MUST measure and report the ratio of "wasted" calls and the NDCG@10 drop; the hypothesis is that at least 35% of those calls will be classified as "wasted" (comparing near-duplicates), and the resulting NDCG@10 will be at least 15% lower than the NDCG@10 achieved by a full-baseline run on the unique subset of the same list.
-2. **Given** a retrieval candidate list with [deferred] redundancy, **When** the baseline active ranker executes the same query budget, **Then** the system MUST measure and report the ratio of "wasted" calls; the hypothesis is that the ratio will be < 5%, and the NDCG@10 will remain within 5% of the NDCG@10 achieved by a full-baseline run on the unique subset.
+### User Story 2 - Pre-Clustering Efficiency Recovery (Priority: P2)
+As a researcher, I want to apply MinHash-LSH pre-clustering to filter near-duplicates before ranking, so that I can measure the reduction in wasted LLM calls and efficiency gain.
 
----
-
-### User Story 2 - Validate CPU-Tractable Pre-Clustering Recovery (Priority: P2)
-
-**User Journey**: A researcher needs to verify that a lightweight MinHash-LSH pre-clustering step can filter redundant comparisons, allowing the active ranker to focus on informative pairs, thereby restoring NDCG@10 performance without exceeding the 7GB RAM or 6-hour runtime limits of a CPU-only CI runner.
-
-**Why this priority**: This validates the proposed solution. It proves that the method is not only theoretically sound but also computationally feasible in the target environment (GitHub Actions free tier) and effectively mitigates the problem identified in US-1.
-
-**Independent Test**: Can be tested by running the full pipeline (MinHash-LSH + Active Ranker) on the same high-redundancy dataset used in US-1 and comparing the "wasted" call ratio and NDCG@10 against the baseline.
+**Why this priority**: This implements the core optimization hypothesis (Active Learners as Efficient Rerankers).
+**Independent Test**: Can be fully tested by running the pre-clustering filter on the injected data and comparing the "wasted call" count against the baseline.
 
 **Acceptance Scenarios**:
+1. **Given** the injected dataset, **When** MinHash-LSH clustering is applied, **Then** the candidate pool is reduced, and the number of comparisons between pairs with similarity ≥ 0.95 is logged.
+2. **Given** the filtered subset, **When** the active ranker runs, **Then** it produces an NDCG@10 score logged in `us1_redundant_ndcg.json`.
 
-1. **Given** a retrieval candidate list with [deferred] near-duplicate passages, **When** the pre-clustering step (threshold Jaccard > 0.95) reduces the candidate pool size by at least 30%, **Then** the system MUST measure and report the "wasted" call ratio and NDCG@10 recovery; the hypothesis is that the "wasted" call ratio will drop to < 10%, and the NDCG@10 will recover to within 5% of the unique-only baseline performance (derived from the unique subset of the redundant list).
-2. **Given** the full pipeline execution on a standard GitHub Actions free-tier runner (2 CPU, 7GB RAM), **When** processing a dataset of N=100 candidates with redundancy level >= 40%, **Then** the total execution time must be ≤ 6 hours, and peak memory usage must remain ≤ 7GB.
+### User Story 3 - Statistical Validation and Real-World Fidelity Check (Priority: P3)
+As a researcher, I want to statistically validate the efficiency gains and check the fidelity of the synthetic generator against real-world data distributions, so that I can confirm the results are robust and the simulation is valid.
 
----
-
-### User Story 3 - Statistical Significance of Efficiency Gains (Priority: P3)
-
-**User Journey**: A researcher needs to confirm that the observed improvements in call efficiency and ranking quality are statistically significant and not due to random variance in the dataset sampling or LLM stochasticity.
-
-**Why this priority**: Essential for scientific rigor. It ensures the results are robust and publishable, addressing the "Multiplicity & power" methodological requirement by validating the hypothesis with appropriate statistical testing.
-
-**Independent Test**: Can be tested by running the baseline and clustering-aided variants over multiple random seeds (e.g., 5 runs) and performing a Wilcoxon signed-rank test on the resulting NDCG@10 and efficiency metrics.
+**Why this priority**: This ensures scientific rigor and generalizability of the findings.
+**Independent Test**: Can be fully tested by running the statistical analysis script and verifying the p-value and the KS-test statistic.
 
 **Acceptance Scenarios**:
+1. **Given** results from 5 independent seeds, **When** the Wilcoxon signed-rank test is performed, **Then** the p-value is < 0.05 (after Bonferroni correction) indicating significant gain.
+2. **Given** the synthetic similarity distribution, **When** compared to `trec-covid` similarity distribution, **Then** the Kolmogorov-Smirnov statistic D is < 0.1.
 
-1. **Given** 5 independent runs of both the baseline and clustering-aided variants on the same dataset configuration, **When** a Wilcoxon signed-rank test is performed on the NDCG@10 scores, **Then** the p-value must be < 0.05, indicating a statistically significant difference favoring the clustering-aided variant.
-2. **Given** the same set of runs, **When** a Wilcoxon signed-rank test is performed on the "wasted call" ratios, **Then** the p-value must be < 0.05, confirming the reduction in wasted budget is statistically significant.
+## Functional Requirements
 
-### Edge Cases
+### FR-001: Redundancy Injection
+The system must be able to inject synthetic redundancy into a baseline dataset (BEIR) to simulate real-world near-duplicate scenarios. (See US-001)
+- **Method**: Synonym replacement using WordNet (via NLTK) and sentence shuffling.
+- **Semantic Constraint**: Injected text must maintain a cosine similarity ≥ 0.95 with the original text (measured by `all-MiniLM-L6-v2`) to ensure semantic preservation.
+- **Target**: Create ≥ 20 clusters of 3–5 near-duplicate passages with cosine similarity ≥ 0.95 (measured by `all-MiniLM-L6-v2`).
 
-- What happens if the MinHash-LSH threshold (Jaccard > 0.95) is too strict, causing unique documents to be incorrectly merged into clusters, thereby reducing the effective candidate pool too much?
-- How does the system handle the scenario where the artificial paraphrasing fails to generate sufficient semantic similarity (similarity < 0.95) despite being near-duplicates, leading to false negatives in the "wasted" classification?
-- How does the system behave if the LLM call budget (e.g., 20 calls) is so low that the active ranker cannot explore the candidate pool sufficiently to distinguish between redundant and unique items?
-- What happens if the LLM consensus validation step (used to verify the cosine proxy) exceeds the runtime budget? The system MUST fall back to using only the cosine proxy for the main loop if the validation sample exceeds 10% of the budget.
+### FR-002: Similarity Thresholding
+The system must identify near-duplicate pairs using a cosine similarity threshold of ≥ 0.95. (See US-002)
+- **Model**: `all-MiniLM-L6-v2`.
 
-## Requirements *(mandatory)*
+### FR-003: Active Learning Baseline
+The system must run a baseline active learning ranker on the unique subset of the injected data. (See US-001)
 
-### Functional Requirements
+### FR-004: Wasted Call Detection
+The system must count "wasted" LLM calls defined as comparisons between pairs with cosine similarity ≥ 0.95. (See US-002)
+- **Note**: This metric measures the empirical cost of the ranker's inability to distinguish near-duplicates, distinct from the injection definition.
+- **Model**: `all-MiniLM-L6-v2`.
 
-- **FR-001**: System MUST implement a MinHash-LSH algorithm to group near-duplicate passages with a Jaccard similarity threshold of > 0.95 prior to ranking, serving US-2.
-- **FR-002**: System MUST inject semantic redundancy into the BEIR "nfcorpus" and "scifact" datasets by creating at least 20 clusters of 3–5 near-duplicate items via synonym replacement and sentence shuffling, serving US-1.
-- **FR-003**: System MUST log every pairwise comparison made by the active ranker and compute the cosine similarity of the compared pairs using a CPU-tractable embedding model (e.g., `all-MiniLM-L6-v2`) to *flag* potential "wasted" calls (similarity > 0.95); additionally, the system MUST validate this proxy by running LLM consensus on a random [deferred] sample of flagged calls to estimate ground truth accuracy, serving US-1.
-- **FR-004**: System MUST calculate NDCG@k scores for both the baseline and clustering-aided variants against the original BEIR relevance judgments at fixed LLM call budgets (20, 50, 100), serving US-2.
-- **FR-005**: System MUST execute a Wilcoxon signed-rank test comparing the NDCG@10 scores and wasted call ratios between the baseline and clustering-aided conditions with a significance level of p < 0.05, serving US-3.
-- **FR-006**: System MUST enforce a hard runtime limit of hours and a memory limit of 7GB during execution to ensure compatibility with the GitHub Actions free-tier runner, serving US-2.
-- **FR-007**: System MUST apply a multiple-comparison correction (e.g., Bonferroni) when evaluating the significance of multiple hypotheses (NDCG and efficiency) to control the family-wise error rate, serving US-3.
-- **FR-008**: System MUST validate the correlation between Jaccard similarity (MinHash) and Cosine similarity (Embeddings) on a labeled subset of pairs before relying on them interchangeably for scientific reporting, serving US-2.
-- **FR-009**: System MUST validate the synthetic redundancy proxy against a small set of real-world near-duplicates (e.g., from the BEIR "trec-covid" dataset) to ensure generalizability, serving US-1.
+### FR-005: Pre-Clustering Filter
+The system must implement a MinHash-LSH clustering step to reduce the candidate pool before ranking. (See US-002)
 
-### Key Entities
+### FR-006: Resource Constraints
+To ensure reproducibility and adherence to Constitution Principle VII: Resource-Constrained Execution Validation, the pipeline execution is strictly bounded: (See US-003)
+- **Runtime Limit**: The pipeline must terminate if execution exceeds a **limit of 6 hours**.
+- **Memory Limit**: The pipeline must terminate if memory usage exceeds a **limit of 7GB**.
+- **Enforcement**: These limits are enforced via `code/utils.py` (watchdog) and `code/config.py` (configuration).
+- **Trigger**: If limits are approached (≥ 90% of time or memory), the system must abort with a clear error to preserve experimental integrity.
 
-- **Candidate List**: A collection of N=100 retrieval passages, potentially containing clusters of near-duplicates generated by the injection process.
-- **Comparison Pair**: A tuple of two documents selected by the active ranker for LLM-based comparison, annotated with a similarity score and a "wasted/informative" label.
-- **Redundancy Level**: A quantitative metric representing the percentage of near-duplicate items in the candidate list; the system MUST test varying levels to validate robustness.
-- **Ranking Quality**: The NDCG@10 score calculated against ground truth relevance judgments.
+### FR-007: Statistical Significance
+The system must perform Wilcoxon signed-rank tests to validate efficiency gains across multiple seeds. (See US-003)
+- **Null Hypothesis (H0)**: There is no difference in NDCG@10 between Baseline and Pre-Clustering conditions.
+- **Comparison Pairs**: Baseline vs. Pre-Clustering for each of the 5 seeds.
+- **Significance Level**: α = 0.05 with Bonferroni correction (k=5).
+- **Justification**: Wilcoxon is used due to robustness for non-normal NDCG distributions in small samples (n=5).
+- **Pre-requisite**: A power analysis must be performed prior to execution to confirm that 5 seeds provide power ≥ 0.8 for the expected effect size.
 
-## Success Criteria *(mandatory)*
+### FR-008: Data Integrity
+The system must verify the existence and integrity of all intermediate artifacts (checksums) before proceeding to downstream tasks. (See US-001)
+
+### FR-009: Real-World Validation
+The system must compare synthetic redundancy distributions against real-world near-duplicates from the `trec-covid` dataset. (See US-003)
+- **Scope**: `trec-covid` is used *only* for distributional validation of the synthetic generator's output, not for redundancy injection.
+- **Metric**: Kolmogorov-Smirnov (KS) test on similarity score distributions.
+- **Threshold**: D < 0.1 indicates sufficient fidelity.
+- **Ground Truth Limitation**: As `trec-covid` lacks human-annotated near-duplicates, "real-world" duplicates are defined by the same cosine threshold (≥ 0.95) for distributional comparison purposes only.
+
+## Non-Functional Requirements
+
+### NFR-001: CPU-Only Execution
+The pipeline must run entirely on CPU. GPU-specific libraries (bitsandbytes, accelerate) are forbidden.
+
+### NFR-002: Reproducibility
+All random seeds must be configurable and logged. Results must be deterministic for a given seed.
+
+### NFR-003: Artifact Traceability
+Every output file must be traceable to its input artifacts via a manifest or state file.
+
+## Data Model
+
+### Input
+- BEIR Datasets: `nfcorpus`, `scifact`, `trec-covid`
+- Configuration: `code/config.py`
+
+### Intermediate Artifacts
+- `data/processed/injected_datasets.json`: Synthetic redundancy injected data.
+  - **Schema**:
+    ```json
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "clusters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "cluster_id": {"type": "string"},
+              "members": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "passage_id": {"type": "string"},
+                    "text": {"type": "string"},
+                    "similarity_to_original": {"type": "number", "minimum": 0.95}
+                  },
+                  "required": ["passage_id", "text"]
+                }
+              },
+              "avg_similarity": {"type": "number", "minimum": 0.95}
+            },
+            "required": ["cluster_id", "members", "avg_similarity"]
+          }
+        }
+      },
+      "required": ["clusters"]
+    }
+    ```
+- `data/processed/clusters.json`: MinHash clusters.
+  - **Schema**:
+    ```json
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "clusters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "cluster_id": {"type": "string"},
+              "member_ids": {"type": "array", "items": {"type": "string"}}
+            },
+            "required": ["cluster_id", "member_ids"]
+          }
+        }
+      },
+      "required": ["clusters"]
+    }
+    ```
+- `data/processed/comparison_log.jsonl`: Pairwise comparison logs.
+- `data/processed/unique_subset.json`: Unique representative subset.
+
+### Output Artifacts
+- `data/results/flagged_pairs_count.json`: Count of wasted calls.
+- `data/results/us1_baseline_ndcg.json`: Baseline NDCG@10.
+- `data/results/us1_redundant_ndcg.json`: Redundant run NDCG@10.
+- `data/results/wilcoxon_ndcg.json`: Statistical test results.
+- `data/results/statistical_report.md`: Final report.
+
+## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The ratio of "wasted" LLM calls (comparisons with similarity > 0.95) is measured against the total call budget to quantify efficiency loss in high-redundancy scenarios, serving US-1.
-- **SC-002**: The NDCG@10 score of the clustering-aided variant is measured against the NDCG@10 of the baseline active ranker on the same high-redundancy dataset to quantify performance recovery, serving US-2.
-- **SC-003**: The statistical significance (p-value) of the difference in NDCG@10 and wasted call ratios between the two variants is measured against the alpha threshold of 0.05 to validate the hypothesis, serving US-3.
-- **SC-004**: The total execution time and peak memory usage of the full pipeline are measured against the GitHub Actions free-tier constraints (6h, 7GB) to verify compute feasibility, serving US-2.
-- **SC-005**: The sensitivity of NDCG@k recovery to the MinHash-LSH threshold is measured by sweeping the threshold over a set of representative values, with the research question focusing on how threshold selection impacts ranking quality and the method employing a systematic parameter sweep. References: [Citation to be inserted]. to validate the robustness of the clustering decision, serving US-2.
+- **SC-001**: The number of wasted LLM calls is measured against the baseline count to quantify efficiency gain. (See US-002)
+- **SC-002**: The NDCG@10 of the pre-clustering run is measured against the baseline NDCG@10 to ensure no significant loss in relevance. (See US-002)
+- **SC-003**: The statistical significance (p-value) of the efficiency gain is measured against α=0.05 (Bonferroni corrected). (See US-003)
+- **SC-004**: The fidelity of the synthetic generator is measured against the `trec-covid` similarity distribution using the Kolmogorov-Smirnov statistic D < 0.1. (See US-003)
 
 ## Assumptions
 
-- The BEIR "nfcorpus" and "scifact" datasets contain sufficient semantic variety to allow for the creation of meaningful near-duplicate clusters via the described paraphrasing methods (synonym replacement, sentence shuffling) without destroying the original semantic intent.
-- The `all-MiniLM-L6-v2` embedding model is sufficiently accurate on CPU to distinguish near-duplicates (similarity > 0.95) from unique documents, serving as a reliable proxy for LLM-based similarity in the "wasted" call classification.
-- The active ranker implementation (based on the Mohajer preprint) is available and compatible with the Python environment provided by the GitHub Actions runner, requiring no GPU-specific dependencies.
-- The artificial injection of redundancy (clusters of 3–5 items) accurately simulates the behavior of real-world retrievers that return noisy, near-duplicate lists, serving as a valid proxy for production data.
-- The Jaccard similarity threshold of > 0.95 for MinHash-LSH is a defensible community standard for identifying "near-duplicates" in text clustering, justifying the specific cutoff used for the sensitivity analysis.
-- The unique-only baseline performance is derived from the unique subset of the redundant list to ensure a fair comparison of ranking quality independent of pool size.
+- Users have stable internet connectivity to download BEIR datasets.
+- The `all-MiniLM-L6-v2` model is available locally or via HuggingFace.
+- The BEIR `nfcorpus` and `scifact` datasets contain sufficient semantic variation to support synonym replacement without destroying meaning.
+- `trec-covid` is used solely as a proxy for real-world query distributions, not for ground-truth duplicate annotation.
+
+## Constitution Principles
+
+### Principle VII: Resource-Constrained Execution Validation
+The system must not consume excessive computational resources. Execution must be bounded by the limits defined in FR-006.
+
+### Principle IV: Single Source of Truth
+All metrics must be derived from real measurements on real or explicitly labeled synthetic data. No fabricated or placeholder values are permitted in the results.
+
+## Implementation Notes
+- Use `beir` library for dataset loading.
+- Use `datasketch` for MinHash-LSH.
+- Use `llama-cpp-python` for LLM inference (TinyLlama Q4_K_M) where required.
+- Use `NLTK` (WordNet) for synonym replacement in `code/data_loader.py`.
+- All scripts must be runnable via `python code/<script>.py`.
+- **Synthetic Injection**: `code/data_loader.py` must implement synonym replacement and shuffling, verify semantic similarity ≥ 0.95, and write `data/processed/injected_datasets.json`.

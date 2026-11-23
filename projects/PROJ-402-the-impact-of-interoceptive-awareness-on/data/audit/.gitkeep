@@ -1,0 +1,2 @@
+# This directory holds intermediate audit scan results (JSON)
+# Do not commit large binary files to git.

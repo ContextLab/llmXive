@@ -1,39 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AnalysisResult"
-description: "Schema for statistical analysis output."
-type: "object"
-properties:
-  analysis_id:
-    type: "string"
-    description: "Unique identifier for the analysis run."
-  model_type:
-    type: "string"
-    description: "Type of model used (e.g., GLMM_Binomial_Interaction)."
-  interaction_f_stat:
-    type: "number"
-    description: "F-statistic (or Chi-square) for the interaction term."
-  interaction_p_value:
-    type: "number"
-    description: "P-value for the interaction term."
-  bleu_threshold:
-    type: "number"
-    description: "BLEU threshold used for sensitivity analysis (null for primary)."
-  participant_pass_rate:
-    type: "number"
-    description: "Percentage of participants passing quality filters (0-100)."
-  limitations_statement:
-    type: "string"
-    description: "Programmatic acknowledgement of BLEU limitation and other caveats."
-  timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO8601 timestamp of analysis."
+title: AnalysisResult
+description: >-
+  Summary statistics and statistical test results from the GLMM analysis.
+type: object
 required:
-  - "analysis_id"
-  - "model_type"
-  - "interaction_f_stat"
-  - "interaction_p_value"
-  - "participant_pass_rate"
-  - "limitations_statement"
-  - "timestamp"
+  - threshold
+  - accuracy_mean
+  - latency_mean
+  - p_value_interaction
+properties:
+  threshold:
+    type: number
+    description: The BLEU threshold used for this sensitivity subset (if applicable).
+    default: null
+  accuracy_mean:
+    type: number
+    description: Mean accuracy for the analyzed subset.
+    minimum: 0
+    maximum: 1
+  latency_mean:
+    type: number
+    description: Mean latency in milliseconds for the analyzed subset.
+    minimum: 0
+  p_value_interaction:
+    type: number
+    description: P-value for the condition * complexity interaction term in the GLMM.
+    minimum: 0
+    maximum: 1
+  f_statistic:
+    type: number
+    description: F-statistic for the interaction term.
+    minimum: 0
+  model_type:
+    type: string
+    description: Type of model used (e.g., 'GLMM-Binomial').
+    default: "GLMM-Binomial"
+  limitation_note:
+    type: string
+    description: >-
+      Mandatory note regarding BLEU similarity limitations as per FR-009.
+    minLength: 1
 additionalProperties: false

@@ -61,10 +61,10 @@ Examples of foundational tasks (adjust based on your project):
 
 - [X] T004 Setup configuration management in `src/config/defaults.yaml` (seeds, paths, hyperparameters)
 - [ ] T005 [P] Implement custom logging infrastructure in `src/utils/logging.py` to track skipped invalid SMILES
-- [ ] T006 [P] Setup metric calculators in `src/utils/metrics.py` (MAE, RMSE, R²)
+- [X] T006 [P] Setup metric calculators in `src/utils/metrics.py` (MAE, RMSE, R²)
 - [ ] T007 Define and write schema files for `ReactionRecord` and `MolecularGraph` in `specs/001-predicting-molecular-reactivity-using-gr/contracts/`: Create `reaction_record.schema.yaml` (fields: reactants_smiles, product_smiles, yield, reaction_class) and `molecular_graph.schema.yaml` (fields: atoms, bonds, features).
 - [ ] T008 Setup CI environment configuration: Create `.github/workflows/ci.yml` with steps for installing dependencies, running tests, and enforcing a strict runtime limit.
-- [ ] T009 [P] Create spec amendment request for FR-008: Document the change from "reaction class stratification" to "Scaffold Split" in a formal amendment request or PR description to update `spec.md`. (Note: spec.md has been updated in this revision, this task tracks the workflow).
+- [~] T009 [P] Create spec amendment request for FR-008: Document the change from "reaction class stratification" to "Scaffold Split" in a formal amendment request or PR description to update `spec.md`. (Note: spec.md has been updated in this revision, this task tracks the workflow).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,19 +80,19 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Skeleton Unit test for SMILES parsing and invalid entry logging in `tests/unit/test_parsing.py`: Create `test_parse_smiles_invalid_logs_error` function with `pytest.fail` placeholder to verify logging of invalid SMILES.
-- [X] T011 [P] [US1] Skeleton Integration test for MPNN training loop on CPU in `tests/integration/test_pipeline.py`: Create `test_mpnn_training_cpu` function with `pytest.fail` placeholder to verify training loop execution and model saving.
+- [~] T010 [P] [US1] Skeleton Unit test for SMILES parsing and invalid entry logging in `tests/unit/test_parsing.py`: Create `test_parse_smiles_invalid_logs_error` function with `pytest.fail` placeholder to verify logging of invalid SMILES.
+- [~] T011 [P] [US1] Skeleton Integration test for MPNN training loop on CPU in `tests/integration/test_pipeline.py`: Create `test_mpnn_training_cpu` function with `pytest.fail` placeholder to verify training loop execution and model saving.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement data download in `src/data/download.py` (fetch USPTO subset from verified HuggingFace/Zenodo URL)
-- [ ] T013 [US1] Implement schema validation in `src/data/download.py` (Block if 'yield' column missing or categorical)
-- [ ] T014 [US1] Implement SMILES-to-Graph conversion in `src/data/parse.py` using RDKit (extract atom/bond features, log invalid entries per FR-001)
-- [ ] T014b [US1] Implement data validity calculation in `src/data/parse.py`: Calculate and report the percentage of successfully parsed reactions, asserting it meets the >95% target defined in SC-005.
-- [ ] T015 [US1] Implement Molecular Descriptor extraction (MW, logP, TPSA) in `src/data/preprocess.py` for baselines
-- [ ] T016a [US1] Implement Scaffold Split logic in `src/data/preprocess.py` (group by MurckoScaffold to prevent leakage)
+- [~] T012 [US1] Implement data download in `src/data/download.py` (fetch USPTO subset from verified HuggingFace/Zenodo URL)
+- [~] T013 [US1] Implement schema validation in `src/data/download.py` (Block if 'yield' column missing or categorical)
+- [~] T014 [US1] Implement SMILES-to-Graph conversion in `src/data/parse.py` using RDKit (extract atom/bond features, log invalid entries per FR-001)
+- [~] T014b [US1] Implement data validity calculation in `src/data/parse.py`: Calculate and report the percentage of successfully parsed reactions, asserting it meets the >95% target defined in SC-005.
+- [~] T015 [US1] Implement Molecular Descriptor extraction (MW, logP, TPSA) in `src/data/preprocess.py` for baselines
+- [~] T016a [US1] Implement Scaffold Split logic in `src/data/preprocess.py` (group by MurckoScaffold to prevent leakage)
 - [~] T016b [US1] Create a spec amendment request for FR-008: Draft a formal amendment request or PR description to update `spec.md` to align FR-008 with the Scaffold Split methodology used in the plan.
-- [ ] T017 [US1] Implement lightweight MPNN architecture in `src/models/mpnn.py` (CPU-optimized, <1M params, no CUDA)
+- [~] T017 [US1] Implement lightweight MPNN architecture in `src/models/mpnn.py` (CPU-optimized, <1M params, no CUDA)
 - [ ] T018 [US1] Implement training loop in `src/analysis/train.py` (Early stopping patience=5, max 200 epochs, MSE loss, save weights; implement K-Fold Cross-Validation as per plan to satisfy FR-003)
 - [ ] T019 [US1] Implement inference and metric calculation in `src/analysis/evaluate.py` (Output `results/metrics.json` with MAE, RMSE, R²)
 
@@ -109,7 +109,7 @@ Examples of foundational tasks (adjust based on your project):
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T020 [P] [US2] Unit test for baseline model training (RF/LR) in `tests/unit/test_baselines.py`: Create `test_rf_baseline` and `test_lr_baseline` functions with `pytest.fail` placeholders.
-- [X] T021 [P] [US2] Integration test for statistical significance comparison in `tests/integration/test_comparison.py`: Create `test_significance_comparison` function with `pytest.fail` placeholder.
+- [~] T021 [P] [US2] Integration test for statistical significance comparison in `tests/integration/test_comparison.py`: Create `test_significance_comparison` function with `pytest.fail` placeholder.
 
 ### Implementation for User Story 2
 

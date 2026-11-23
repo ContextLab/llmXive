@@ -1,0 +1,9 @@
+status: none
+intent: GEO scRNA-seq count matrices GSE13 GSE111322 GSE150728 python package dataset
+required_fields:
+- cell_barcode
+- gene_symbol
+- raw_count
+cache_key: 5fc33106f9f95ea78e343291d7aa1c9380359e992b6201d3041805cd3a9a5ddb
+searched_at: '2026-10-30T22:18:33.640084+00:00'
+retry_count: 1

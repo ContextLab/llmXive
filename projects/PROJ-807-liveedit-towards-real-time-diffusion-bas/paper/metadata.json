@@ -54,5 +54,15 @@
     "tab/ablation-arch.tex",
     "tab/ablation_cache.tex",
     "tab/baseline.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "f34ab93c9de494475afd29db4ae27886f7f1794316cbb76f7cc6a3c8bf828383",
+      "bytes": 35844652
+    },
+    "original.pdf": {
+      "sha256": "203e1002bc0b3b0159bb1d0964c045cdc99a16ef2d877e01c1f51a17e247ed4a",
+      "bytes": 35804426
+    }
+  }
 }

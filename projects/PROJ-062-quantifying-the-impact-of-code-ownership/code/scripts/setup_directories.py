@@ -1,44 +1,45 @@
-"""
-Script to create the required directory structure for the project.
-Creates data/raw, data/intermediate, data/results, tests/contract,
-tests/integration, tests/unit, and docs directories.
-"""
 import os
 from pathlib import Path
 
-def create_directories(base_path: Path) -> None:
+def create_directories():
     """
-    Create the required directory structure under the given base path.
+    Create the required directory structure for the project:
+    - data/raw/
+    - data/intermediate/
+    - data/results/
     
-    Args:
-        base_path: The root directory where the structure should be created.
+    Creates .gitkeep files in each to ensure they are tracked by Git.
     """
+    base_path = Path(__file__).parent.parent.parent / "data"
+    
     directories = [
-        "data/raw",
-        "data/intermediate",
-        "data/results",
-        "tests/contract",
-        "tests/integration",
-        "tests/unit",
-        "docs",
+        base_path / "raw",
+        base_path / "intermediate",
+        base_path / "results"
     ]
     
-    for dir_path in directories:
-        full_path = base_path / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
-
-def main() -> None:
-    """Main entry point for the script."""
-    # Determine the project root (parent of the 'code' directory)
-    # Assuming this script is located at code/scripts/setup_directories.py
-    script_dir = Path(__file__).resolve().parent
-    code_dir = script_dir.parent
-    project_root = code_dir.parent
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        gitkeep = directory / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.touch()
+            print(f"Created directory: {directory}")
+            print(f"Created .gitkeep in: {gitkeep}")
+        else:
+            print(f"Directory already exists: {directory}")
     
-    print(f"Project root: {project_root}")
-    create_directories(project_root)
-    print("Directory structure creation complete.")
+    return True
+
+def main():
+    """
+    Entry point for the script.
+    """
+    try:
+        create_directories()
+        print("Directory structure setup complete.")
+    except Exception as e:
+        print(f"Error setting up directories: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

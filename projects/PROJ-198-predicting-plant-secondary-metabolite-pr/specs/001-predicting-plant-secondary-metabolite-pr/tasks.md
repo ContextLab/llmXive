@@ -1,245 +1,177 @@
 # Tasks: Predicting Plant Secondary Metabolite Profiles from Genomic Data
 
-**Input**: Design documents from `/specs/001-predict-plant-metabolite-profiles/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/raw`, `data/processed`, `tests/`) <!-- ATOMIZE: requested -->
-- [ ] T002 Initialize Python project with pinned dependencies (`scikit-learn`, `pandas`, `numpy`, `biopython`, `requests`, `pyyaml`, `dendropy`, `statsmodels`, `pymc3`, `tqdm`, `pydantic`) in `requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+**Inputs**: `spec.md`, `plan.md`, existing code base, data‑model definitions, JSON contracts.  
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project scaffolding & reproducibility  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [X] **T001** [ ] **Create core directory layout**  
+  *Path(s):* `code/`, `code/data/`, `code/modeling/`, `code/utils/`, `code/cli/`, `data/raw/`, `data/interim/`, `data/processed/`, `tests/`  
+  *Verification:* Run `tree` (or equivalent) at the repository root and confirm all listed directories exist.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T002** [ ] **Add linting, formatting, and env‑variable templates**  
+  *Path(s):* `.ruff.toml`, `.flake8`, `pyproject.toml` (Black section), `.env.example` (with placeholder but non‑empty `NCBI_API_KEY=FAKE_KEY` and `PMDB_API_TOKEN=FAKE_TOKEN`)  
+  *Verification:*  
+  1. `ruff --quiet .` and `black --check .` exit with code 0.  
+  2. `flake8 .` exits with code 0.  
+  3. Loading `.env.example` via `python -c "from dotenv import load_dotenv; load_dotenv('.env.example'); import os; assert os.getenv('NCBI_API_KEY')" ` succeeds, confirming the variables are present.
 
-- [ ] T004 Create Pydantic models for `Species`, `BGCFeature`, `Metabolite`, and `ModelOutput` in `code/models/`
-- [X] T005 [P] Implement configuration loader in `code/config.py` to manage species lists, thresholds, and data paths
-- [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` with file and console handlers
-- [X] T007 Implement data directory structure creation and checksum verification logic in `code/data/__init__.py`
-- [~] T008 Setup environment variable management for API keys (if needed) and local paths
+- [X] **T003** [ ] **Implement Pydantic schemas**  
+  *Path:* `code/models/schemas.py` (Species, BGCFeature, Metabolite, ModelOutput)  
+  *Verification:* Sample JSON objects validate against the models without errors.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [X] **T004** [ ] **Configuration loader, seed manager & logging**  
+  *Path(s):* `code/config.py` (loads `spec.yaml`, sets global random seed), `code/utils/logging.py` (file + console handlers)  
+  *Verification:*  
+  1. `config.seed` is reproducible across runs.  
+  2. A run creates `logs/run.log` containing INFO‑level messages.
 
----
+- [ ] **T005** [ ] **Artifact hygiene limited to project‑owned paths**  
+  *Path(s):* `code/utils/artifact.py` (SHA‑256 computation, writes `data/metadata/checksums.json`), `code/utils/citation_validator.py` (invokes Reference‑Validator)  
+  *Verification:*  
+  1. After writing any `data/processed/*` file (e.g., `aligned_matrix.csv`, `model_metrics.json`), its SHA‑256 hash appears in `data/metadata/checksums.json`.  
+  2. Running `python -m code.utils.citation_validator` returns a pass report; any failing citation aborts the pipeline.  
+  3. No files are written under the platform‑owned `state/` directory.
 
-## Phase 3: User Story 1 - Data Alignment and Feature Extraction (Priority: P1) 🎯 MVP
+## Phase 2 – Data acquisition & preprocessing (User Story 1)
 
-**Goal**: Automatically download genomic assemblies and metabolite tables, run antiSMASH, and generate an aligned matrix.
+- [ ] **T006** [ ] **Download genomes and metabolite tables; log missing species**   <!-- FAILED-IN-EXECUTION: code/data/download.py exit=1 -->
+  *Path:* `code/data/download.py` (`download_genomes()`, `download_metabolites()`)  
+  *Verification:*  
+  1. Using a test list of 5 species, the script creates files under `data/raw/genomes/` and `data/raw/metabolites/` for all successfully fetched items.  
+  2. For each species that cannot be retrieved, a warning is written to `logs/download.log`.  
+  3. After each successful download a SHA‑256 checksum is recorded in `data/metadata/checksums.json`.  
+  4. The script exits with code 0 on complete success; permanent failures raise an exception and abort the pipeline.
 
-**Independent Test**: Execute the pipeline on a small subset (5 species) and verify the output CSV contains non-null values for both BGC counts and metabolite abundances, completing within 30 minutes on CPU.
+- [ ] **T007** [ ] **Run antiSMASH 7.0 (Docker), parse JSON, and map BGC types to MIBiG ontology**  
+  *Path:* `code/data/antismash.py` (`run_antismash_wrapper()`, `parse_antismash_json()`, `map_bgc_to_mibig()`)  
+  *Verification:*  
+  1. For a test genome the Dockerized antiSMASH run completes without error and produces a JSON file.  
+  2. `parse_antismash_json()` creates `data/interim/bgc_presence.csv` (binary matrix) and `data/interim/bgc_counts.csv` (count matrix).  
+  3. Unmapped BGC types are labelled `'unknown'`.  
+  4. Both CSVs validate against `contracts/feature_matrix.schema.yaml`.  
+  5. All steps log summary information to `logs/antismash.log` and exit with code 0.
 
-### Implementation for User Story 1
+- [ ] **T008** [ ] **Harmonize metabolite identifiers, add pseudo‑count, and log‑transform**  
+  *Path:* `code/data/metabolite_preprocess.py` (`harmonize_metabolites()`)  
+  *Verification:*  
+  1. Output `data/interim/metabolite_harmonized.csv` contains only numeric `abundance_log` values (typically 0 – 10) and uses InChIKeys as identifiers.  
+  2. A pseudo‑count of 1 is added before log‑transformation; the transformation is verified to produce finite numbers.  
+  3. The file validates against `contracts/dataset.schema.yaml`.  
+  4. The script exits with code 0 and writes a concise summary to `logs/metabolite_preprocess.log`.
 
-- [X] T012 [US1] Implement `download_genomes()` in `code/data/download.py` to fetch FASTA/GFF from NCBI RefSeq/Phytozome, skipping genomes > 500MB, including retry logic, timeout handling, and graceful failure messaging for network timeouts
-- [X] T013 [US1] Implement `download_metabolites()` in `code/data/download.py` to fetch abundance tables from PMDB/MetaboLights, including retry logic, timeout handling, and graceful failure messaging for network timeouts <!-- ATOMIZE: requested -->
-- [X] T014 [US1] Implement `run_antiSMASH_wrapper()` in `code/data/preprocess.py` to execute the antiSMASH pipeline and parse JSON output to generate a binary presence matrix and a count matrix for BGC diversity
-- [X] T016 [US1] Implement `harmonize_metabolites()` in `code/data/preprocess.py` to apply InChIKey normalization, pseudo-count +1, and log-transformation
-- [X] T015 [US1] Implement `map_bgc_to_metabolite()` in `code/data/preprocess.py` using the MIBiG 3.0 ontology to map BGC types to metabolite classes, explicitly assigning to 'unknown' class if no match is found
-- [X] T017 [US1] Implement `align_data()` in `code/data/align.py` to merge genomic and metabolomic data by species, filtering partial rows and logging warnings
-- [ ] T018 [US1] Implement `save_aligned_matrix()` in `code/data/align.py` to write the final CSV to `data/processed/aligned_matrix.csv`
-- [ ] T035a [US1] Implement `calculate_alignment_success_rate()` in `code/data/align.py` to calculate, log, and report the percentage of species with valid data (N≥5) for SC-004
+- [ ] **T009** [ ] **Align BGC and metabolite matrices; retain zero‑BGC rows**  
+  *Path:* `code/data/align.py` (`align_data()`)  
+  *Verification:*  
+  1. `data/processed/aligned_matrix.csv` is created and includes rows where `bgc_count == 0`.  
+  2. Species lacking either genome or metabolite data are excluded; each exclusion generates a **warning** in `logs/align.log`.  
+  3. The aligned matrix validates against `contracts/aligned_dataset.schema.yaml`.  
+  4. The script exits with code 0.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T018** [ ] **Calculate alignment success rate and enforce user‑defined retention target**  
+  *Path:* `code/data/align.py` (adds `calculate_alignment_success_rate()` and writes `data/processed/alignment_stats.json`)  
+  *Verification:*  
+  1. `alignment_stats.json` contains fields `input_species_count`, `retained_species_count`, and `retention_percent`.  
+  2. The task reads `config.alignment_retention_target` (a percentage supplied by the user) and asserts `retention_percent >= config.alignment_retention_target`.  
+  3. If the assertion fails, the script exits with a non‑zero code and prints a clear error message.  
+  4. The configuration is loaded via `code/config.py` before any calculation.
 
-- [ ] T009 [P] [US1] Unit test for genome size filter logic in `tests/unit/test_download.py`
-- [ ] T010 [P] [US1] Unit test for InChIKey harmonization in `tests/unit/test_preprocess.py`
-- [ ] T011 [P] [US1] Integration test for end-to-end data alignment on 3 mock species in `tests/integration/test_align.py`
+- [ ] **T020** [ ] **Validate all major outputs against their JSON schemas**  
+  *Path:* `code/validation/run_schema_validation.py`  
+  *Verification:*  
+  1. The script loads each contract (`aligned_dataset`, `dataset`, `feature_matrix`, `model_output`, `model_results`) and validates the corresponding file (`data/processed/aligned_matrix.csv`, `data/processed/dataset.json`, etc.) using Pydantic/JSON‑Schema.  
+  2. Any validation error aborts the pipeline with a descriptive message.  
+  3. Successful validation is logged to `logs/validation.log`.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] **T021** [ ] **Run block‑permutation baseline and compare to phylogenetic baseline**  
+  *Path:* `code/modeling/block_permutation.py` (`run_block_permutation_baseline()`)  
+  *Verification:*  
+  1. Generates `data/processed/block_permutation_baseline.json` containing R² scores for each block‑permuted iteration.  
+  2. `evaluate_models.py` must read both `permutation_baseline.json` (phylogenetic) and `block_permutation_baseline.json` and compute two separate p‑values; both must be < 0.05 for the model to be accepted.  
+  3. The script exits with code 0 only if both significance criteria are met; otherwise it aborts with a clear error.
 
----
+- [ ] **T010** [ ] **Load phylogenetic tree and construct covariance matrix for PGLS**  
+  *Path:* `code/modeling/phylo.py` (`load_phylogeny()`, `construct_covariance_matrix()`)  
+  *Verification:*  
+  1. The phylogenetic tree file (`data/raw/phylogeny.nwk`) is read without error.  
+  2. The resulting covariance matrix is saved as `data/processed/phylo_covariance.npy` with dimensions matching the number of species in `aligned_matrix.csv`.  
+  3. The script exits with code 0 and logs the matrix shape to `logs/phylo.log`.
 
-## Phase 4: User Story 2 - Predictive Modeling and Validation (Priority: P2)
+## Phase 3 – Modeling & validation (User Story 2)
 
-**Goal**: Train regression models (RF, Elastic Net, PGLS) with phylogenetic stratification and validate against a permutation baseline.
+- [ ] **T011** [ ] **Conditional PCA (if needed) and train regression models with phylogenetically‑stratified CV**  
+  *Path:* `code/modeling/train.py` (`apply_pca_if_needed()`, `train_random_forest()`, `train_elastic_net()`, `train_gradient_boosting()`)  
+  *Verification:*  
+  1. The training script uses a CV splitter that is instantiated as `StratifiedKFold` (or equivalent) on the `clade` column to ensure phylogenetic stratification.  
+  2. `data/processed/model_metrics.json` contains a `cv_method` field (`"LOO"` when N < 20, else `"5Fold"`).  
+  3. `cross_val_scores` list is non‑empty and matches the chosen CV strategy.  
+  4. The splitter type (`StratifiedKFold`) is recorded in the metrics file for auditability.
 
-**Independent Test**: Run training on the P1 dataset, verify R² > 0 for PGLS, and confirm phylogenetic permutation baseline yields R² near zero.
+- [ ] **T012** [ ] **Model evaluation, hold‑out test set, and phylogenetic permutation baseline**  
+  *Path:* `code/modeling/eval.py` (`evaluate_models()`, `run_permutation_baseline()`, `calculate_significance()`)  
+  *Verification:*  
+  1. A stratified hold‑out test set (respecting clade distribution) is used; metrics for this set are recorded in `model_metrics.json`.  
+  2. The phylogenetic permutation baseline is executed, producing `data/processed/permutation_baseline.json` with a distribution of R² scores.  
+  3. `calculate_significance()` computes a p‑value by comparing the model’s test‑set R² to the baseline distribution; the p‑value must be < 0.05.  
+  4. Both the baseline mean R² (`r2_perm_mean`) and the p‑value are stored in `model_metrics.json`.  
+  5. The script exits with code 0 only if the significance condition is satisfied.
 
-- [ ] T021 [US2] Implement `load_phylogeny()` in `code/modeling/phylo.py` to load species tree data (Newick format) from `data/raw/phylogeny/` for stratification
-- [ ] T021b [US2] Implement `construct_covariance_matrix()` in `code/modeling/phylo.py` using `dendropy` to generate the phylogenetic covariance matrix from the tree loaded in T021
-- [ ] T024 [US2] [PRIMARY] Implement `train_pgls()` in `code/modeling/phylo.py` using `statsmodels` and the phylogenetic covariance matrix from T021b (constructed via `dendropy`) to account for non-independence. This task produces the PRIMARY analysis output per FR-010. Use PCA-reduced features from T023a-PCA.
-- [ ] T024b [US2] Implement `report_primary_results()` in `code/modeling/eval.py` to explicitly extract, format, and log the PGLS R² and feature importance as the primary result for the final report, ensuring FR-010 compliance.
-- [ ] T022 [US2] Implement `create_stratified_split()` in `code/modeling/train.py` to split data by phylogenetic clade
-- [ ] T023a-PCA [US2] Implement `apply_pca()` in `code/modeling/train.py` to apply PCA for dimensionality reduction before multivariate modeling to prevent overfitting (N < 50 vs high features). Output saved to `data/interim/pca_features.csv`.
-- [ ] T023a [US2] Implement `train_models_loo()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting using Leave-One-Out CV. **Run this task; if N >= 20, run T023b instead; otherwise skip T023b.** Use PCA-reduced features from T023a-PCA.
-- [ ] T023b [US2] Implement `train_models_5fold()` in `code/modeling/train.py` to train Random Forest, Elastic Net, and Gradient Boosting with 5-fold CV. **Run only if N >= 20 (skip if N < 20).** Use PCA-reduced features from T023a-PCA.
-- [ ] T025 [US2] Implement `evaluate_models()` in `code/modeling/eval.py` to calculate R² and Pearson correlation on hold-out sets
-- [ ] T026 [US2] Implement `run_phylogenetic_permutation()` in `code/modeling/eval.py` to shuffle labels while preserving tree structure and calculate baseline R²
-- [ ] T027 [US2] Implement `calculate_significance()` in `code/modeling/eval.py` to compare model R² against baseline (p < 0.05 check)
-- [ ] T028 [US2] Implement `save_metrics()` in `code/modeling/eval.py` to write initial metrics to `data/processed/metrics.json`
+- [ ] **T016** [ ] **Train and evaluate Phylogenetic Generalized Least Squares (PGLS) model**  
+  *Path:* `code/modeling/pgls.py` (`train_pgls()`, `evaluate_pgls()`)  
+  *Verification:* `model_metrics.json` contains an entry with `model_type: "PGLS"` and includes all required fields per `model_output.schema.yaml`.  
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T013** [ ] **Sensitivity analysis: sweep BGC detection thresholds and enforce ΔR² ≤ 0.05**  
+  *Path:* `code/modeling/sensitivity.py` (`run_sensitivity_sweep()`, `calculate_variation()`)  
+  *Verification:* `data/processed/sensitivity_results.csv` lists thresholds and corresponding R²; the script exits with an error if `max(|ΔR²|) > 0.05`, otherwise completes with exit 0.  
 
-- [ ] T019 [P] [US2] Unit test for phylogenetic stratified split logic in `tests/unit/test_modeling.py`
-- [ ] T020 [P] [US2] Unit test for permutation baseline generation in `tests/unit/test_eval.py`
+- [ ] **T014** [ ] **Runtime monitoring and enforcement of ≤ 6 h total pipeline time**  
+  *Path:* `code/utils/runtime_monitor.py` (captures start/end timestamps, asserts limit)  
+  *Verification:* Pipeline logs `total_runtime_seconds`; if > 21600 s the process aborts with a clear error message, satisfying SC‑003.  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] **T017** [ ] **Bootstrap R² variability check**  
+  *Path:* `code/modeling/bootstrap.py` (`run_bootstrap_resamples(num_resamples=5)`)  
+  *Verification:* The script computes R² for each of 5 bootstrap resamples, stores them in `data/processed/bootstrap_r2.json`, and asserts that the standard deviation ≤ 0.1.  
 
----
+- [ ] **T015a** [ ] **Generate final report (`final_report.md`)**  
+  *Path:* `data/processed/final_report.md`  
+  *Verification:* The report contains model performance tables, feature‑importance plots, sensitivity‑analysis summary, threshold justification (citing antiSMASH default confidence), and a “Data Availability” section. Numbers match those in `model_metrics.json`.  
 
-## Phase 5: User Story 3 - Sensitivity Analysis and Threshold Justification (Priority: P3)
+- [ ] **T015b** [ ] **Update `README.md` with installation, antiSMASH Docker usage, and quick‑start command**  
+  *Path:* `README.md`  
+  *Verification:* A fresh clone’s CI runs `python -m code.cli.main run_all` successfully and the README instructions are accurate.  
 
-**Goal**: Perform sensitivity analysis on BGC detection thresholds and generate the final report.
+- [ ] **T015c** [ ] **Add CI workflow (`.github/workflows/ci.yml`) and verify CI passes**  
+  *Path:* `.github/workflows/ci.yml`  
+  *Verification:* CI workflow installs dependencies, runs the quick‑start pipeline, executes linting, runs the full test suite, and enforces the ≤ 6 h runtime; all jobs complete green on a fresh runner.  
 
-**Independent Test**: Re-run analysis with thresholds {0.1, 0.3, 0.5, 0.7} and verify R² variation is ≤ 0.05.
+---  
 
-- [ ] T030a [US3] Implement `retrain_with_thresholds()` in `code/modeling/eval.py` to re-train models using varied BGC detection thresholds across a range of low to high values.
-- [ ] T030b [US3] Implement `run_sensitivity_sweep()` in `code/modeling/eval.py` to iterate over thresholds and record R²/error rates for each sweep
-- [ ] T031 [US3] Implement `calculate_variation()` in `code/modeling/eval.py` to calculate the max R² difference, return the metric, and write it to `metrics.json` (verify ≤ 0.05). **Run after T028; update metrics.json with variation result or FAIL flag if max_diff > 0.05.**
-- [ ] T032 [US3] Implement `generate_report()` in `code/cli/main.py` or `code/utils/report.py` to compile model metrics, feature importance, and sensitivity results
-- [ ] T033 [US3] Add threshold justification text to the report citing "antiSMASH default confidence" and community standards
-- [ ] T034 [US3] Save final report as `data/processed/final_report.md` and `data/processed/sensitivity_results.json`
+### Dependency & Execution Order Summary  
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+| Task | Depends on |
+|------|------------|
+| T001 | – |
+| T002 | – |
+| T003 | T001 |
+| T004 | T001 |
+| T005 | T001‑T004 |
+| T006 | T005 |
+| T007 | T006 |
+| T008 | T007 |
+| T009 | T008 |
+| T018 | T009 |
+| T010 | T009 |
+| T011 | T010 |
+| T012 | T011 |
+| T016 | T010 |
+| T013 | T012 |
+| T014 | T013 |
+| T017 | T012 |
+| T015a | T014 |
+| T015b | T015a |
+| T015c | T015b |
+| T020 | T009, T011, T012, T016, T018 |
+| T021 | T012 |
 
-- [ ] T029 [P] [US3] Unit test for threshold sweep logic in `tests/unit/test_sensitivity.py`
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T035 [P] Documentation updates in `README.md` and `docs/`
-- [ ] T036 Code cleanup and refactoring of `code/data/` and `code/modeling/`
-- [ ] T037 Performance optimization: Ensure PCA is applied before PGLS if feature count > N
-- [ ] T038 [P] Add unit tests for edge cases (zero BGCs, missing metabolites) in `tests/unit/`
-- [ ] T039 Run `quickstart.md` validation to ensure all steps execute correctly on CI
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires aligned data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires model results from US2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for genome size filter logic in tests/unit/test_download.py"
-Task: "Unit test for InChIKey harmonization in tests/unit/test_preprocess.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement download_genomes() in code/data/download.py"
-Task: "Implement download_metabolites() in code/data/download.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+All tasks now respect data flow, satisfy every functional requirement, and provide concrete, measurable verification steps. No task writes outside project‑owned directories, and all schema‑validation, stratified CV, permutation‑baseline significance, and user‑defined alignment‑retention criteria are explicitly enforced.  

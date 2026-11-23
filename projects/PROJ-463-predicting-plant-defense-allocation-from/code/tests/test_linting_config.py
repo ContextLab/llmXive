@@ -2,61 +2,64 @@ import subprocess
 import sys
 from pathlib import Path
 import pytest
+import tomli
 
+@pytest.fixture
+def project_root():
+    return Path(__file__).parent.parent.parent
 
-def test_black_config_valid():
-    """Verify that Black configuration is valid and can format a dummy file."""
-    project_root = Path(__file__).parent.parent.parent
-    config_path = project_root / "pyproject.toml"
+def test_black_config_valid(project_root):
+    """Verify black configuration is present and valid in pyproject.toml."""
+    pyproject_path = project_root / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml not found"
+    
+    with open(pyproject_path, "rb") as f:
+        config = tomli.load(f)
+    
+    assert "tool" in config
+    assert "black" in config["tool"]
+    assert config["tool"]["black"]["target-version"] == ["py311"]
+    assert config["tool"]["black"]["line-length"] == 100
 
-    # Create a temporary dummy Python file to test formatting
-    dummy_file = project_root / "dummy_format_test.py"
-    try:
-        dummy_file.write_text("x=1+2\n")
+def test_ruff_config_valid(project_root):
+    """Verify ruff configuration is present and valid in pyproject.toml."""
+    pyproject_path = project_root / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml not found"
+    
+    with open(pyproject_path, "rb") as f:
+        config = tomli.load(f)
+    
+    assert "tool" in config
+    assert "ruff" in config["tool"]
+    assert config["tool"]["ruff"]["target-version"] == "py311"
+    assert config["tool"]["ruff"]["line-length"] == 100
 
-        # Run black in check mode (no write) to verify config is valid
-        result = subprocess.run(
-            [sys.executable, "-m", "black", "--check", "--config", str(config_path), str(dummy_file)],
-            capture_output=True,
-            text=True,
-            cwd=project_root,
-        )
+def test_black_check_on_test_file(project_root):
+    """Run black check on this test file to ensure formatting compliance."""
+    test_file = Path(__file__).relative_to(project_root)
+    result = subprocess.run(
+        [sys.executable, "-m", "black", "--check", "--diff", str(test_file)],
+        cwd=project_root,
+        capture_output=True,
+        text=True
+    )
+    # If black is not installed, skip (env might not have it yet, but config is valid)
+    if result.returncode == 127:
+        pytest.skip("black not installed in environment")
+    # Return code 0 means OK, 1 means needs formatting. We assert it's 0.
+    assert result.returncode == 0, f"Black check failed:\n{result.stdout}\n{result.stderr}"
 
-        # Exit code 1 is expected if the file is not formatted (which it isn't),
-        # but we want to ensure the command ran and config was parsed without error.
-        # Exit code 0 would mean it's already formatted.
-        # Exit code >= 2 means a configuration error.
-        assert result.returncode in (0, 1), f"Black config error: {result.stderr}"
-
-    finally:
-        if dummy_file.exists():
-            dummy_file.unlink()
-
-
-def test_ruff_config_valid():
-    """Verify that Ruff configuration is valid and can lint a dummy file."""
-    project_root = Path(__file__).parent.parent.parent
-    config_path = project_root / "pyproject.toml"
-
-    # Create a temporary dummy Python file to test linting
-    dummy_file = project_root / "dummy_lint_test.py"
-    try:
-        # Intentionally include a style error (unused import) to test linting
-        dummy_file.write_text("import os\nx = 1\n")
-
-        # Run ruff check to verify config is valid
-        result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "--config", str(config_path), str(dummy_file)],
-            capture_output=True,
-            text=True,
-            cwd=project_root,
-        )
-
-        # Ruff returns 0 if no issues found, 1 if issues found, 2 if config error.
-        # We expect issues (unused import) so 1 is acceptable, 0 is acceptable (if ignore list changed),
-        # but 2 is a failure.
-        assert result.returncode != 2, f"Ruff config error: {result.stderr}"
-
-    finally:
-        if dummy_file.exists():
-            dummy_file.unlink()
+def test_ruff_check_on_test_file(project_root):
+    """Run ruff check on this test file to ensure linting compliance."""
+    test_file = Path(__file__).relative_to(project_root)
+    result = subprocess.run(
+        [sys.executable, "-m", "ruff", "check", str(test_file)],
+        cwd=project_root,
+        capture_output=True,
+        text=True
+    )
+    # If ruff is not installed, skip
+    if result.returncode == 127:
+        pytest.skip("ruff not installed in environment")
+    # Return code 0 means OK
+    assert result.returncode == 0, f"Ruff check failed:\n{result.stdout}\n{result.stderr}"

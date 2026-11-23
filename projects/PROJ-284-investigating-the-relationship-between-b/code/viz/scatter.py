@@ -1,7 +1,3 @@
-"""
-Scatter plot generator for metric vs. score correlations.
-Generates publication-quality plots with regression lines and annotated statistics.
-"""
 from __future__ import annotations
 
 import os
@@ -10,325 +6,256 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-from scipy import stats
+import numpy as np
 
-# Project imports
 from code.logging_config import get_logger
-from code.analysis.correlations import apply_fdr_correction, run_correlations_with_fd_covariate
 
 logger = get_logger(__name__)
 
-# Constants
-FIGURE_DPI = 300
-FIGURE_SIZE = (10, 8)
-FONT_SIZE = 12
-LABEL_SIZE = 14
-TITLE_SIZE = 16
-OUTPUT_DIR = Path("data/analysis")
-FIGURES_DIR = Path("figures")
 
-# Ensure output directories exist
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def load_correlation_results(
-    filepath: Optional[Union[str, Path]] = None
-) -> pd.DataFrame:
-    """
-    Load correlation results from CSV.
-
-    Args:
-        filepath: Path to the correlation results CSV. Defaults to
-                 'data/analysis/correlations.csv'.
-
-    Returns:
-        DataFrame with correlation results.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-    """
-    if filepath is None:
-        filepath = OUTPUT_DIR / "correlations.csv"
-    else:
-        filepath = Path(filepath)
-
-    if not filepath.exists():
-        raise FileNotFoundError(f"Correlation results file not found: {filepath}")
-
-    logger.log("load_correlation_results", path=str(filepath))
-    df = pd.read_csv(filepath)
-    logger.log("correlation_results_loaded", rows=len(df))
-    return df
+def load_correlation_results(path: Path) -> pd.DataFrame:
+    """Loads correlation results produced by the analysis pipeline."""
+    if not path.exists():
+        logger.log(
+            "load_correlation_results",
+            status="failed",
+            reason=f"File not found: {path}",
+        )
+        raise FileNotFoundError(f"Correlation results file not found: {path}")
+    return pd.read_csv(path)
 
 
 def generate_scatter_plot(
-    x_data: Union[np.ndarray, List[float], pd.Series],
-    y_data: Union[np.ndarray, List[float], pd.Series],
-    metric_name: str,
-    score_name: str,
-    correlation_result: Optional[Dict[str, Any]] = None,
-    output_path: Optional[Union[str, Path]] = None,
-    title: Optional[str] = None,
-    x_label: Optional[str] = None,
-    y_label: Optional[str] = None,
-    show_plot: bool = False,
-) -> Path:
+    data: pd.DataFrame,
+    x_col: str,
+    y_col: str,
+    output_path: Path,
+    title: str = "Scatter Plot",
+    r: Optional[float] = None,
+    q: Optional[float] = None,
+    **kwargs,
+) -> None:
     """
-    Generate a scatter plot with regression line and annotated statistics.
+    Generates a scatter plot with a linear regression line.
 
-    Args:
-        x_data: Independent variable data.
-        y_data: Dependent variable data.
-        metric_name: Name of the metric (for filename and label).
-        score_name: Name of the score/behavioral measure.
-        correlation_result: Optional dict with 'r', 'p', 'q' keys for annotation.
-        output_path: Path to save the figure. If None, auto-generated based on
-                    metric_name and score_name.
-        title: Optional custom title.
-        x_label: Optional custom x-axis label.
-        y_label: Optional custom y-axis label.
-        show_plot: Whether to display the plot (useful for debugging).
-
-    Returns:
-        Path to the saved figure file.
-
-    Raises:
-        ValueError: If input data lengths don't match.
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Dataframe containing the data to plot.
+    x_col : str
+        Column name for the x‑axis (typically a network metric).
+    y_col : str
+        Column name for the y‑axis (typically the behavioural score).
+    output_path : Path
+        Destination file for the PNG image.
+    title : str, optional
+        Plot title.
+    r : float, optional
+        Pearson/Spearman correlation coefficient to annotate.
+    q : float, optional
+        FDR‑corrected q‑value to annotate.
+    **kwargs
+        Additional keyword arguments (currently ignored but kept for API stability).
     """
-    # Convert inputs to numpy arrays for consistency
-    x = np.asarray(x_data)
-    y = np.asarray(y_data)
-
-    if len(x) != len(y):
-        raise ValueError(
-            f"x_data and y_data must have the same length. "
-            f"Got {len(x)} and {len(y)}."
-        )
-
-    if len(x) < 2:
-        raise ValueError("Need at least 2 data points to generate a scatter plot.")
-
-    # Auto-generate output path if not provided
-    if output_path is None:
-        safe_metric = metric_name.replace(" ", "_").replace("/", "_").lower()
-        safe_score = score_name.replace(" ", "_").replace("/", "_").lower()
-        output_path = FIGURES_DIR / f"scatter_{safe_metric}_vs_{safe_score}.png"
-    else:
-        output_path = Path(output_path)
-
-    # Create figure and axis
-    fig, ax = plt.subplots(figsize=FIGURE_SIZE, dpi=FIGURE_DPI)
-
-    # Scatter plot
-    ax.scatter(x, y, alpha=0.7, edgecolors='k', linewidth=0.5, s=60, zorder=3)
-
-    # Calculate and plot regression line
-    if len(x) >= 2:
-        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-        x_line = np.linspace(min(x), max(x), 100)
-        y_line = slope * x_line + intercept
-        ax.plot(x_line, y_line, 'r-', linewidth=2, label=f'Regression (r={r_value:.3f})', zorder=2)
-
-        # Add 95% confidence interval shading
-        y_pred = slope * x + intercept
-        residuals = y - y_pred
-        se_line = std_err * np.sqrt(1/len(x) + (x_line - np.mean(x))**2 / np.sum((x - np.mean(x))**2))
-        ax.fill_between(x_line, y_line - 1.96 * se_line, y_line + 1.96 * se_line,
-                       color='red', alpha=0.2, label='95% CI')
-
-    # Set labels and title
-    if title is None:
-        title = f"{metric_name} vs. {score_name}"
-    ax.set_title(title, fontsize=TITLE_SIZE, fontweight='bold')
-
-    if x_label is None:
-        x_label = metric_name
-    ax.set_xlabel(x_label, fontsize=LABEL_SIZE)
-
-    if y_label is None:
-        y_label = score_name
-    ax.set_ylabel(y_label, fontsize=LABEL_SIZE)
-
-    # Add correlation statistics annotation
-    if correlation_result:
-        r = correlation_result.get('r', r_value if len(x) >= 2 else None)
-        p = correlation_result.get('p', p_value if len(x) >= 2 else None)
-        q = correlation_result.get('q', None)
-
-        annotation_parts = []
-        if r is not None:
-            annotation_parts.append(f"r = {r:.3f}")
-        if p is not None:
-            sig_marker = "***" if p < 0.001 else "**" if p < 0.01 else "*" if p < 0.05 else "ns"
-            annotation_parts.append(f"p = {p:.3f} {sig_marker}")
-        if q is not None:
-            annotation_parts.append(f"q (FDR) = {q:.3f}")
-
-        annotation_text = "\n".join(annotation_parts)
-
-        # Position annotation in upper right
-        ax.annotate(
-            annotation_text,
-            xy=(0.98, 0.98),
-            xycoords='axes fraction',
-            horizontalalignment='right',
-            verticalalignment='top',
-            bbox=dict(boxstyle="round,pad=0.5", facecolor="white", alpha=0.8, edgecolor="gray"),
-            fontsize=FONT_SIZE,
-            fontfamily='monospace'
-        )
-
-    # Add grid
-    ax.grid(True, linestyle='--', alpha=0.5, zorder=1)
-
-    # Adjust layout
-    plt.tight_layout()
-
-    # Save figure
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_path, dpi=FIGURE_DPI, bbox_inches='tight')
-    plt.close(fig)
-
     logger.log(
-        "scatter_plot_generated",
-        metric=metric_name,
-        score=score_name,
+        "generate_scatter_plot",
+        x=x_col,
+        y=y_col,
         output=str(output_path),
-        n_points=len(x),
-        r=r if len(x) >= 2 else None
+        r=r,
+        q=q,
     )
 
-    if show_plot:
-        plt.show()
+    # Defensive copy to avoid mutating caller data
+    plot_data = data[[x_col, y_col]].dropna()
 
-    return output_path
+    if plot_data.empty:
+        logger.log(
+            "generate_scatter_plot",
+            status="skipped",
+            reason="No data after dropping NaNs",
+        )
+        return
+
+    plt.figure(figsize=(8, 6))
+    plt.scatter(plot_data[x_col], plot_data[y_col], alpha=0.7, edgecolor="k")
+
+    # Linear regression line (least‑squares)
+    try:
+        coeffs = np.polyfit(plot_data[x_col], plot_data[y_col], 1)
+        poly = np.poly1d(coeffs)
+        x_vals = np.linspace(plot_data[x_col].min(), plot_data[x_col].max(), 100)
+        plt.plot(x_vals, poly(x_vals), "r--", linewidth=2)
+    except Exception as exc:  # pragma: no cover – extremely unlikely
+        logger.log(
+            "generate_scatter_plot",
+            status="warning",
+            reason=f"Regression failed: {exc}",
+        )
+
+    plt.xlabel(x_col)
+    plt.ylabel(y_col)
+    plt.title(title)
+
+    # Annotate statistical values if supplied
+    if r is not None and q is not None:
+        plt.text(
+            0.05,
+            0.95,
+            f"r = {r:.2f}\\nq = {q:.3f}",
+            transform=plt.gca().transAxes,
+            verticalalignment="top",
+            bbox=dict(facecolor="white", alpha=0.7, edgecolor="none"),
+        )
+
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+
+    logger.log("generate_scatter_plot", status="success", output=str(output_path))
 
 
-def generate_all_scatter_plots(
-    correlations_df: Optional[pd.DataFrame] = None,
-    metrics_df: Optional[pd.DataFrame] = None,
-    output_dir: Optional[Union[str, Path]] = None,
-) -> List[Path]:
+def generate_all_scatter_plots(results_path: Path, output_dir: Path) -> None:
     """
-    Generate scatter plots for all significant correlations.
+    Generates scatter plots for every significant correlation.
 
-    Args:
-        correlations_df: DataFrame with correlation results. If None, loads from
-                       default location.
-        metrics_df: DataFrame with metric values. If None, attempts to load from
-                   'data/analysis/full_metrics.csv'.
-        output_dir: Directory to save plots. Defaults to 'figures/'.
-
-    Returns:
-        List of paths to generated figure files.
+    The function expects ``results_path`` to point to the FDR‑corrected
+    correlation results CSV (produced by ``code/analysis/correlations.py``)
+    and a companion file ``data/analysis/full_metrics.csv`` that contains
+    per‑subject metric values together with the behavioural score
+    (``motor_score``). For each significant metric a plot of
+    ``metric`` vs. ``motor_score`` is saved as ``{metric}_vs_motor_score.png``.
     """
-    if output_dir is None:
-        output_dir = FIGURES_DIR
-    else:
-        output_dir = Path(output_dir)
+    logger.log(
+        "generate_all_scatter_plots",
+        results_path=str(results_path),
+        output_dir=str(output_dir),
+    )
+
+    if not results_path.exists():
+        logger.log(
+            "generate_all_scatter_plots",
+            status="skipped",
+            reason="Results file not found",
+        )
+        return
+
+    # Load correlation results
+    corr_df = load_correlation_results(results_path)
+
+    # Keep only rows marked as significant (boolean column expected)
+    if "significant" not in corr_df.columns:
+        logger.log(
+            "generate_all_scatter_plots",
+            status="failed",
+            reason="Column 'significant' missing in results",
+        )
+        raise KeyError("Column 'significant' missing in correlation results")
+
+    sig_df = corr_df[corr_df["significant"]].copy()
+    if sig_df.empty:
+        logger.log(
+            "generate_all_scatter_plots",
+            status="skipped",
+            reason="No significant correlations found",
+        )
+        return
+
+    # Load the full per‑subject metrics (must contain the behavioural score)
+    full_metrics_path = Path("data/analysis/full_metrics.csv")
+    if not full_metrics_path.exists():
+        logger.log(
+            "generate_all_scatter_plots",
+            status="failed",
+            reason=f"Full metrics file not found: {full_metrics_path}",
+        )
+        raise FileNotFoundError(f"Full metrics file not found: {full_metrics_path}")
+
+    full_df = pd.read_csv(full_metrics_path)
+
+    # The behavioural score column name is not hard‑coded in the spec.
+    # We try a few common possibilities.
+    possible_score_cols = ["motor_score", "score", "behaviour_score"]
+    score_col = next(
+        (col for col in possible_score_cols if col in full_df.columns), None
+    )
+    if score_col is None:
+        logger.log(
+            "generate_all_scatter_plots",
+            status="failed",
+            reason="Behavioural score column not found in full_metrics.csv",
+        )
+        raise KeyError(
+            "Behavioural score column not found in full_metrics.csv"
+        )
+
+    # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load correlation results if not provided
-    if correlations_df is None:
-        try:
-            correlations_df = load_correlation_results()
-        except FileNotFoundError as e:
-            logger.log("generate_all_scatter_plots_error", error=str(e))
-            return []
+    for _, row in sig_df.iterrows():
+        metric_name = row["metric"] if "metric" in row else row.get("metric_name")
+        if not metric_name:
+            logger.log(
+                "generate_all_scatter_plots",
+                status="warning",
+                reason="Row missing metric identifier; skipping",
+            )
+            continue
 
-    # Load metrics data if not provided
-    if metrics_df is None:
-        metrics_path = Path("data/analysis/full_metrics.csv")
-        if metrics_path.exists():
-            metrics_df = pd.read_csv(metrics_path)
-        else:
-            logger.log("generate_all_scatter_plots_warning",
-                     message="full_metrics.csv not found, plots will use correlation data only")
-            metrics_df = None
+        if metric_name not in full_df.columns:
+            logger.log(
+                "generate_all_scatter_plots",
+                status="warning",
+                reason=f"Metric column '{metric_name}' not present in full_metrics.csv",
+            )
+            continue
 
-    generated_plots = []
+        # Prepare data for the plot
+        plot_df = full_df[[metric_name, score_col]].dropna()
+        if plot_df.empty:
+            logger.log(
+                "generate_all_scatter_plots",
+                status="warning",
+                reason=f"No data for metric '{metric_name}' after dropping NaNs",
+            )
+            continue
 
-    # Iterate through significant correlations
-    significant = correlations_df[correlations_df['significant'] == True]
+        # Extract statistical annotations from the correlation row
+        r_val = float(row["r"]) if "r" in row else None
+        q_val = float(row["q"]) if "q" in row else None
 
-    for idx, row in significant.iterrows():
-        metric_name = row['metric_name']
-        r = row['r']
-        p = row['p']
-        q = row['q']
+        title = f"{metric_name} vs. {score_col}"
+        out_path = output_dir / f"{metric_name}_vs_{score_col}.png"
 
-        correlation_result = {'r': r, 'p': p, 'q': q}
+        generate_scatter_plot(
+            data=plot_df,
+            x_col=metric_name,
+            y_col=score_col,
+            output_path=out_path,
+            title=title,
+            r=r_val,
+            q=q_val,
+        )
 
-        # Try to get actual data points if metrics_df is available
-        x_data = None
-        y_data = None
-
-        if metrics_df is not None and metric_name in metrics_df.columns:
-            x_data = metrics_df[metric_name].dropna()
-            # Assume motor_score or similar is in the dataframe
-            score_col = [col for col in metrics_df.columns if 'motor' in col.lower() or 'score' in col.lower()]
-            if score_col:
-                y_data = metrics_df[score_col[0]].dropna()
-                # Align x and y
-                common_idx = x_data.index.intersection(y_data.index)
-                x_data = x_data.loc[common_idx]
-                y_data = y_data.loc[common_idx]
-
-        if x_data is not None and len(x_data) >= 2:
-            try:
-                plot_path = generate_scatter_plot(
-                    x_data=x_data,
-                    y_data=y_data,
-                    metric_name=metric_name,
-                    score_name="Motor Score",
-                    correlation_result=correlation_result,
-                    output_path=output_dir / f"scatter_{metric_name.replace(' ', '_').lower()}.png",
-                )
-                generated_plots.append(plot_path)
-                logger.log("plot_saved", path=str(plot_path))
-            except Exception as e:
-                logger.log("plot_generation_failed", metric=metric_name, error=str(e))
-        else:
-            # Fallback: generate a placeholder plot if data not available
-            # This should not happen in production with real data
-            logger.log("plot_skipped_no_data", metric=metric_name)
-
-    logger.log("all_plots_generated", count=len(generated_plots))
-    return generated_plots
+    logger.log("generate_all_scatter_plots", status="completed")
 
 
 def main() -> None:
     """
-    Main entry point for scatter plot generation.
-    Loads correlation results and generates plots for all significant findings.
+    Entry‑point used by the quick‑start run‑book.
+
+    Expected locations (relative to the project root):
+    - Correlation results: ``data/analysis/fdr_corrected_results.csv``
+    - Output directory: ``figures/scatter_plots``
     """
-    logger.log("scatter_plot_main_started")
-
-    try:
-        # Load correlation results
-        correlations_df = load_correlation_results()
-
-        # Generate all plots
-        plots = generate_all_scatter_plots(correlations_df)
-
-        print(f"Generated {len(plots)} scatter plots in {FIGURES_DIR}")
-        for p in plots:
-            print(f"  - {p}")
-
-        logger.log("scatter_plot_main_completed", num_plots=len(plots))
-
-    except FileNotFoundError as e:
-        logger.log("scatter_plot_main_error", error=str(e))
-        print(f"Error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.log("scatter_plot_main_unexpected_error", error=str(e))
-        print(f"Unexpected error: {e}")
-        sys.exit(1)
+    results_path = Path("data/analysis/fdr_corrected_results.csv")
+    output_dir = Path("figures/scatter_plots")
+    generate_all_scatter_plots(results_path, output_dir)
 
 
 if __name__ == "__main__":
+    # Allow direct execution for debugging / ad‑hoc runs
     main()

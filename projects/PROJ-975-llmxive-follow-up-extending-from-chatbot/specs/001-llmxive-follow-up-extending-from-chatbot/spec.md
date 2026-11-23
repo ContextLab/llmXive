@@ -9,7 +9,7 @@
 
 ### User Story 1 - Synthetic Dataset and Skill Library Generation (Priority: P1)
 
-The researcher needs to generate a reproducible synthetic environment containing 500 multi-step tasks and a configurable library of 100 overlapping Python "skills" with controlled semantic density to serve as the ground truth for the experiment.
+The researcher needs to generate a reproducible synthetic environment containing a substantial number of multi-step tasks and a configurable library of many overlapping Python “skills” with controlled semantic density to serve as the ground truth for the experiment.
 
 **Why this priority**: Without a deterministic, ground-truth dataset and a controllable skill library, no empirical measurement of retrieval fidelity or task success can occur. This is the foundational data layer required for all subsequent analysis.
 
@@ -25,7 +25,7 @@ The researcher needs to generate a reproducible synthetic environment containing
 
 ### User Story 2 - Agent Execution and Metric Collection (Priority: P2)
 
-The researcher needs to run the minimalistic "Digital Colleague" agent across varying library sizes (10, 30, 50, 100) and record task completion rates, token usage, and latency for each configuration.
+The researcher needs to run the minimalistic "Digital Colleague" agent across varying library sizes (a small library size, 30, 50, 100) and record task completion rates, token usage, and latency for each configuration.
 
 **Why this priority**: This is the core experimental loop. It generates the raw data required to test the hypothesis regarding the "tipping point" of retrieval noise.
 
@@ -33,7 +33,7 @@ The researcher needs to run the minimalistic "Digital Colleague" agent across va
 
 **Acceptance Scenarios**:
 
-1. **Given** a library of 50 skills and a task set of 500, **When** the agent executes, **Then** the system logs the completion status (success/fail) and latency for every single task.
+1. **Given** a library of many skills and a task set of a large number of items, **When** the agent executes, **Then** the system logs the completion status (success/fail) and latency for every single task.
 2. **Given** the agent encounters a retrieval failure, **When** it attempts to execute the task, **Then** the system records the failure and the specific retrieval noise metrics (e.g., top-k embedding variance).
 3. **Given** the experiment completes, **When** the researcher aggregates the logs, **Then** they can calculate the task success rate and average latency for the 50-skill configuration.
 
@@ -65,12 +65,12 @@ The researcher needs to apply a "Skill Pruning" heuristic to the active library 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate a synthetic dataset of exactly 500 multi-step tasks, where each task has a unique ground-truth solution path independent of the retrieval mechanism (See US-1).
-- **FR-002**: System MUST construct a skill library of 100 Python functions with configurable semantic overlap (low, medium, high) to simulate varying degrees of redundancy (See US-1).
+- **FR-001**: System MUST generate a synthetic dataset of a sufficiently large set of multi-step tasks, where each task has a unique ground-truth solution path independent of the retrieval mechanism. (See US-1).
+- **FR-002**: System MUST construct a skill library of a substantial number of Python functions with configurable semantic overlap (low, medium, high) to simulate varying degrees of redundancy (See US-1).
   - **Low**: Mean pairwise cosine similarity < 0.30.
   - **Medium**: Mean pairwise cosine similarity > 0.50 AND at least 30% of all pairs exceed 0.50.
   - **High**: Mean pairwise cosine similarity > 0.80 AND at least 30% of all pairs exceed 0.80.
-- **FR-003**: System MUST execute the agent against the task set for library sizes of 10, 30, 50, and 100, recording task completion rates, token usage, and latency for each run (See US-2).
+- **FR-003**: System MUST execute the agent against the task set for a range of library sizes (e.g., small, medium, and large configurations), recording task completion rates, token usage, and latency for each run. (See US-2).
 - **FR-004**: System MUST implement a "Skill Pruning" heuristic that removes a skill if (usage_count == 0) AND (min_cosine_similarity_to_any_other_skill_in_library < 0.70) after every 10 tasks (See US-3).
 - **FR-005**: System MUST perform Piecewise Linear Regression with a single breakpoint to identify the library size (x0) where task success rate significantly declines, and report the breakpoint value as the "tipping point" (See US-3).
 - **FR-006**: System MUST calculate and report two metrics:
@@ -103,6 +103,6 @@ The researcher needs to apply a "Skill Pruning" heuristic to the active library 
 - **Dataset-variable fit**: The synthetic data generation process is assumed to fully contain all necessary variables (task complexity, skill overlap, ground-truth paths) required for the analysis, as the data is constructed programmatically rather than sourced from an external repository.
 - **Inference framing**: Since the study uses a synthetic, deterministic environment with random assignment of tasks to library configurations, findings regarding the "tipping point" of retrieval noise can be framed as causal within the bounds of the simulation, but generalization to real-world chaotic environments is associative.
 - **Compute feasibility**: The entire analysis (data generation, agent execution, statistical analysis) is assumed to run within the GitHub Actions free-tier limits (limited CPU, 7 GB RAM, 6 hours) by using CPU-tractable methods (scikit-learn, standard cosine similarity) and avoiding GPU-dependent libraries or large model training.
-- **Threshold justification**: The specific library sizes (10, 30, 50, 100) are selected as a standard geometric progression to detect non-monotonic trends, and the "pruning" threshold (every 10 tasks) is a defensible default for frequent curation; a sensitivity analysis sweeping these values over {5, 10, 20} tasks will be included to verify robustness.
+- **Threshold justification**: The specific library sizes (10, 30, 50, 100) are selected as a standard geometric progression to detect non-monotonic trends, and the "pruning" threshold (every 10 tasks) is a defensible default for frequent curation; A sensitivity analysis sweeping these values over a range of task counts will be included to verify robustness.
 - **Measurement validity**: The use of Python function embeddings via standard sentence-transformers (CPU version) is assumed to provide a valid proxy for "semantic overlap" in the context of deterministic code retrieval.
 - **Predictor collinearity**: The analysis assumes that "library size" and "semantic overlap" are treated as distinct experimental factors; "overlap" is defined as a density parameter (mean pairwise cosine similarity) held constant across library sizes, while "total noise" scales with size. If they become definitionally correlated, the VIF diagnostic (FR-007) will flag the confound.

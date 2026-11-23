@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-196-the-role-of-temporal-discounting-in-proc
-last_run_id: 478dc664-e6c2-462e-a295-13f2298e1e07
+last_run_id: 139ba233-c797-4786-a9cf-029b3aea7528
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-196-the-role-of-temporal-discounting-in-proc/specs/001-the-role-of-temporal-discounting-in-proc
 title: The Role of Temporal Discounting in Procrastination on Cognitive Tasks
-updated_at: '2026-07-09T11:18:39.888973Z'
+updated_at: '2026-10-16T19:23:46.998007Z'

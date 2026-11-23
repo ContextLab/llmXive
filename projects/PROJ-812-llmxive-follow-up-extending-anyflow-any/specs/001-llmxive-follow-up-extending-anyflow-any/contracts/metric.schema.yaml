@@ -1,42 +1,31 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Divergence Metric Schema"
-description: "Schema for computed flow-map divergence metrics (data/processed/divergence_metrics.csv)"
-type: "object"
+title: "DivergenceMetric Schema"
+description: "Schema for computed flow-map divergence metrics."
+type: object
 properties:
-  video_id:
-    type: "string"
-    description: "Unique identifier for the video clip"
+  clip_id:
+    type: string
+    description: "Foreign key to VideoClip."
   divergence_score:
-    type: "number"
-    description: "L2 distance between predicted and Euler-rolled states"
-    minimum: 0.0
-  euler_steps:
-    type: "integer"
-    description: "Number of steps used in the Euler rollout (500 or 200)"
-  computation_time:
-    type: "number"
-    description: "Time taken to compute in milliseconds"
+    type: number
+    description: "MSE normalized by latent dimension."
+  baseline_steps:
+    type: integer
+    enum: [500, 200, 100]
+    description: "Number of Euler steps used for baseline."
+  kurtosis:
+    type: number
+    description: "Temporal pattern feature: kurtosis."
+  clustering:
+    type: number
+    description: "Temporal pattern feature: clustering."
   status:
-    type: "string"
-    description: "Status of computation"
-    enum: ["success", "failed"]
-  error_msg:
-    type: "string"
-    description: "Error message if status is failed"
-    nullable: true
-  model_hash:
-    type: "string"
-    description: "SHA-256 hash of the ONNX model used"
-  quantization_mode:
-    type: "string"
-    description: "Quantization mode used"
-    enum: ["float32"]
+    type: string
+    enum: ["success", "failed", "skipped"]
+    description: "Processing status."
 required:
-  - video_id
+  - clip_id
   - divergence_score
-  - euler_steps
-  - computation_time
+  - baseline_steps
   - status
-  - model_hash
-  - quantization_mode
 additionalProperties: false

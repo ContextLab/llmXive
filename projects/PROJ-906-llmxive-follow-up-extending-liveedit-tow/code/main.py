@@ -3,212 +3,373 @@ import sys
 import logging
 import json
 import gc
+import time
+import argparse
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from config import get_default_config, ensure_directories
+# Local imports
+from config import get_default_config, ensure_directories, set_random_seed
 from utils.logger import get_logger, setup_logging
-from utils.checkpoint import CheckpointManager
+from utils.checkpoint import CheckpointManager, save_state, load_state
 from data.models import VideoClip, MetricRecord
-from data.processor import process_dataset_stratification, ProcessedClip
+from data.processor import load_processed_clips
+from data.flow import compute_flow_magnitude_for_video
+from metrics.resource import MemoryProfiler
+from metrics.ssim import (
+    compute_ssim,
+    compute_temporal_gradient_variance,
+    compute_background_stability_score,
+    compute_flow_statistics
+)
 from models.baseline import run_baseline_inference
 from models.flow_coherence import run_flow_coherence_inference
-from metrics.ssim import compute_background_stability_score, compute_flow_normalized_ssim
-from metrics.resource import MemoryProfiler
-from analysis.reporter import generate_comparative_report
 
+# Setup logging
 logger = get_logger(__name__)
 
-def load_processed_clips(clip_dir: Path) -> List[ProcessedClip]:
-    """Load processed clips from the data directory."""
-    clips = []
-    if not clip_dir.exists():
-        logger.error(f"Clip directory does not exist: {clip_dir}")
-        return clips
-    
-    for json_file in clip_dir.glob("*.json"):
-        try:
-            with open(json_file, 'r') as f:
-                data = json.load(f)
-                # Reconstruct ProcessedClip from dict
-                # Assuming the JSON structure matches the dataclass fields
-                clip = ProcessedClip(**data)
-                clips.append(clip)
-        except Exception as e:
-            logger.warning(f"Failed to load {json_file}: {e}")
-    return clips
-
-def run_flow_coherence_inference_pipeline(
-    clip_dir: Path,
-    output_dir: Path,
-    config: Dict[str, Any],
-    resume: bool = True
+def run_baseline_inference_pipeline(
+    output_dir: str,
+    clip_subset: Optional[List[str]] = None,
+    force_recompute: bool = False
 ) -> List[MetricRecord]:
     """
-    Run the Flow-Coherence inference pipeline on a list of processed clips.
-    Implements T022: Flow-mode runner with checkpointing support.
+    Run baseline LiveEdit inference on processed clips.
     
     Args:
-        clip_dir: Directory containing processed clip JSON files.
-        output_dir: Directory to save metrics and results.
-        config: Experiment configuration dictionary.
-        resume: Whether to resume from checkpoint if available.
-    
+        output_dir: Directory to write metrics JSON files.
+        clip_subset: Optional list of clip IDs to process.
+        force_recompute: If True, recompute metrics even if files exist.
+        
     Returns:
-        List of MetricRecord objects.
+        List of MetricRecord objects containing results.
+    """
+    ensure_directories(output_dir)
+    config = get_default_config()
+    set_random_seed(config.get("seed", 42))
+    
+    logger.info(f"Starting baseline inference pipeline. Output: {output_dir}")
+    
+    # Load clips
+    clips = load_processed_clips()
+    if clip_subset:
+        clips = [c for c in clips if c.id in clip_subset]
+        
+    if not clips:
+        logger.warning("No clips found to process.")
+        return []
+        
+    logger.info(f"Processing {len(clips)} clips.")
+    
+    profiler = MemoryProfiler()
+    results = []
+    
+    for i, clip in enumerate(clips):
+        logger.info(f"[{i+1}/{len(clips)}] Processing clip: {clip.id}")
+        
+        # Memory profiling context
+        profiler.start()
+        
+        # Run inference
+        try:
+            inference_result = run_baseline_inference(clip)
+        except Exception as e:
+            logger.error(f"Error during inference for clip {clip.id}: {e}")
+            continue
+            
+        peak_memory = profiler.get_peak_memory()
+        profiler.stop()
+        
+        # Compute metrics
+        bss = compute_background_stability_score(clip, inference_result.frames)
+        ssim = compute_ssim(inference_result.frames, mask=clip.mask)
+        grad = compute_temporal_gradient_variance(inference_result.frames, mask=clip.mask)
+        
+        # Create record
+        record = MetricRecord(
+            clip_id=clip.id,
+            model_variant="baseline",
+            peak_memory=peak_memory,
+            inference_time=inference_result.time,
+            bss_score=bss.get("score", 0.0),
+            consecutive_ssim=ssim.get("score", 0.0),
+            temporal_gradient_variance=grad.get("variance", 0.0)
+        )
+        results.append(record)
+        
+        # Write intermediate files
+        output_path = Path(output_dir)
+        with open(output_path / f"baseline_bss_{clip.id}.json", "w") as f:
+            json.dump(bss, f)
+        with open(output_path / f"baseline_ssim_{clip.id}.json", "w") as f:
+            json.dump(ssim, f)
+        with open(output_path / f"baseline_grad_{clip.id}.json", "w") as f:
+            json.dump(grad, f)
+            
+        gc.collect()
+        
+    # Write aggregate results
+    results_path = Path(output_dir) / "baseline_results.json"
+    with open(results_path, "w") as f:
+        json.dump([r.__dict__ for r in results], f, indent=2)
+        
+    logger.info(f"Baseline pipeline complete. Results written to {results_path}")
+    return results
+
+def run_flow_coherence_inference_pipeline(
+    output_dir: str,
+    checkpoint_id: str,
+    clip_subset: Optional[List[str]] = None,
+    force_recompute: bool = False
+) -> List[MetricRecord]:
+    """
+    Run Flow-Coherence inference on processed clips with checkpointing support.
+    
+    Args:
+        output_dir: Directory to write metrics JSON files.
+        checkpoint_id: Unique identifier for this run to manage checkpoints.
+        clip_subset: Optional list of clip IDs to process.
+        force_recompute: If True, recompute metrics even if files exist.
+        
+    Returns:
+        List of MetricRecord objects containing results.
+    """
+    ensure_directories(output_dir)
+    config = get_default_config()
+    set_random_seed(config.get("seed", 42))
+    
+    logger.info(f"Starting flow-coherence inference pipeline. Output: {output_dir}")
+    
+    # Initialize checkpoint manager
+    checkpoint_dir = Path(output_dir) / "checkpoints"
+    ensure_directories(str(checkpoint_dir))
+    checkpoint_mgr = CheckpointManager(checkpoint_dir, checkpoint_id)
+    
+    # Load clips
+    clips = load_processed_clips()
+    if clip_subset:
+        clips = [c for c in clips if c.id in clip_subset]
+        
+    if not clips:
+        logger.warning("No clips found to process.")
+        return []
+        
+    # Filter out already processed clips unless force_recompute
+    if not force_recompute:
+        clips = [c for c in clips if not checkpoint_mgr.is_processed(c.id)]
+        
+    if not clips:
+        logger.info("All clips already processed. Skipping.")
+        # Still need to load and merge previous results
+        # For now, return empty and let reporter handle aggregation
+        return []
+        
+    logger.info(f"Processing {len(clips)} clips (excluding {len(load_processed_clips()) - len(clips)} completed).")
+    
+    profiler = MemoryProfiler()
+    results = []
+    
+    for i, clip in enumerate(clips):
+        logger.info(f"[{i+1}/{len(clips)}] Processing clip: {clip.id}")
+        
+        # Memory profiling context
+        profiler.start()
+        
+        # Run inference
+        try:
+            inference_result = run_flow_coherence_inference(clip)
+        except Exception as e:
+            logger.error(f"Error during inference for clip {clip.id}: {e}")
+            checkpoint_mgr.mark_failed(clip.id, str(e))
+            continue
+            
+        peak_memory = profiler.get_peak_memory()
+        profiler.stop()
+        
+        # Compute metrics
+        bss = compute_background_stability_score(clip, inference_result.frames)
+        ssim = compute_ssim(inference_result.frames, mask=clip.mask)
+        grad = compute_temporal_gradient_variance(inference_result.frames, mask=clip.mask)
+        flow_stats = compute_flow_statistics(inference_result.flow_fields)
+        
+        # Create record
+        record = MetricRecord(
+            clip_id=clip.id,
+            model_variant="flow_coherence",
+            peak_memory=peak_memory,
+            inference_time=inference_result.time,
+            bss_score=bss.get("score", 0.0),
+            consecutive_ssim=ssim.get("score", 0.0),
+            temporal_gradient_variance=grad.get("variance", 0.0),
+            invalid_flow_count=inference_result.invalid_flow_count,
+            flow_magnitude_mean=flow_stats.get("mean_magnitude", 0.0)
+        )
+        results.append(record)
+        
+        # Update checkpoint
+        checkpoint_mgr.mark_processed(clip.id)
+        
+        # Write intermediate files
+        output_path = Path(output_dir)
+        with open(output_path / f"flow_bss_{clip.id}.json", "w") as f:
+            json.dump(bss, f)
+        with open(output_path / f"flow_ssim_{clip.id}.json", "w") as f:
+            json.dump(ssim, f)
+        with open(output_path / f"flow_grad_{clip.id}.json", "w") as f:
+            json.dump(grad, f)
+        with open(output_path / f"flow_stats_{clip.id}.json", "w") as f:
+            json.dump(flow_stats, f)
+            
+        gc.collect()
+        
+    # Write aggregate results
+    results_path = Path(output_dir) / "flow_results.json"
+    with open(results_path, "w") as f:
+        json.dump([r.__dict__ for r in results], f, indent=2)
+        
+    logger.info(f"Flow-coherence pipeline complete. Results written to {results_path}")
+    return results
+
+def run_analysis_pipeline(
+    output_dir: str,
+    methods: List[str] = None,
+    sensitivity_cutoffs: List[float] = None
+) -> Dict[str, Any]:
+    """
+    Run statistical analysis pipeline comparing baseline and flow-coherence results.
+    
+    Args:
+        output_dir: Directory to write analysis results.
+        methods: List of analysis methods to run (e.g., 'ks_test', 'piecewise', 'sensitivity').
+        sensitivity_cutoffs: Cutoff values for sensitivity analysis.
+        
+    Returns:
+        Dictionary containing analysis results.
     """
     ensure_directories(output_dir)
     
-    # Initialize checkpoint manager
-    checkpoint_manager = CheckpointManager(
-        checkpoint_dir=output_dir / "checkpoints",
-        run_id="flow_coherence_run"
+    logger.info(f"Starting analysis pipeline. Output: {output_dir}")
+    
+    # Import stats module to trigger analysis
+    from analysis.stats import (
+        load_json_metrics,
+        aggregate_metrics_to_pairs,
+        compute_kolmogorov_smirnov_test,
+        compute_piecewise_regression,
+        run_sensitivity_analysis,
+        generate_analysis_summary
     )
     
-    # Load or resume state
-    processed_clips = load_processed_clips(clip_dir)
-    if not processed_clips:
-        logger.warning(f"No processed clips found in {clip_dir}")
-        return []
+    baseline_path = Path(output_dir) / "baseline_results.json"
+    flow_path = Path(output_dir) / "flow_results.json"
     
-    start_idx = 0
-    if resume:
-        checkpoint_data = checkpoint_manager.load_checkpoint()
-        if checkpoint_data and "processed_count" in checkpoint_data:
-            start_idx = checkpoint_data["processed_count"]
-            logger.info(f"Resuming from clip index {start_idx}")
+    if not baseline_path.exists() or not flow_path.exists():
+        logger.error("Missing baseline or flow results. Cannot run analysis.")
+        return {}
         
-        # Load existing metrics to append
-        existing_metrics_file = output_dir / "flow_metrics.json"
-        if existing_metrics_file.exists():
-            with open(existing_metrics_file, 'r') as f:
-                existing_records = json.load(f)
-        else:
-            existing_records = []
-    else:
-        existing_records = []
+    # Load metrics
+    baseline_metrics = load_json_metrics(baseline_path)
+    flow_metrics = load_json_metrics(flow_path)
     
-    # Initialize memory profiler
-    memory_profiler = MemoryProfiler()
-    
-    results: List[MetricRecord] = []
-    
-    for idx, clip in enumerate(processed_clips):
-        if idx < start_idx:
-            logger.info(f"Skipping clip {idx} ({clip.clip_id}) - already processed")
-            continue
+    # Aggregate pairs
+    paired_data = aggregate_metrics_to_pairs(baseline_metrics, flow_metrics)
+    paired_path = Path(output_dir) / "paired_metrics.json"
+    with open(paired_path, "w") as f:
+        json.dump(paired_data, f, indent=2)
         
-        logger.info(f"Processing clip {idx}/{len(processed_clips)}: {clip.clip_id}")
-        
-        # Start memory tracking
-        memory_profiler.start()
-        
-        try:
-            # Run flow coherence inference
-            result = run_flow_coherence_inference(
-                processed_clip=clip,
-                config=config
-            )
-            
-            # Compute metrics
-            bss = compute_background_stability_score(result.output_frames)
-            flow_norm_ssim = compute_flow_normalized_ssim(
-                result.output_frames, 
-                clip.flow_data
-            )
-            
-            # Get memory usage
-            mem_usage = memory_profiler.get_peak_usage_mb()
-            memory_profiler.stop()
-            
-            # Create metric record
-            metric_record = MetricRecord(
-                clip_id=clip.clip_id,
-                method="flow_coherence",
-                bss=bss,
-                flow_normalized_ssim=flow_norm_ssim,
-                peak_memory_mb=mem_usage,
-                inference_time_sec=result.total_time,
-                invalid_flow_count=result.invalid_flow_count,
-                flow_magnitude_stats=result.flow_magnitude_stats
-            )
-            
-            results.append(metric_record)
-            
-            # Save checkpoint after each clip
-            checkpoint_manager.save_checkpoint({
-                "processed_count": idx + 1,
-                "last_clip_id": clip.clip_id
-            })
-            
-            # Save intermediate metrics
-            intermediate_metrics = [r.to_dict() for r in results]
-            with open(output_dir / "flow_metrics.json", 'w') as f:
-                json.dump(intermediate_metrics, f, indent=2)
-            
-            # Force garbage collection
-            gc.collect()
-            
-        except Exception as e:
-            logger.error(f"Failed to process clip {clip.clip_id}: {e}", exc_info=True)
-            # Continue to next clip instead of crashing
-            gc.collect()
-            continue
+    results = {}
     
-    # Final report generation
-    if results:
-        logger.info(f"Generating comparative report for {len(results)} clips")
-        generate_comparative_report(
-            results=results,
-            output_path=output_dir / "flow_results.json"
-        )
-    
+    if not methods:
+        methods = ['ks_test', 'piecewise', 'sensitivity']
+        
+    if 'ks_test' in methods:
+        logger.info("Running Kolmogorov-Smirnov test...")
+        ks_result = compute_kolmogorov_smirnov_test(paired_data)
+        ks_path = Path(output_dir) / "ks_test.json"
+        with open(ks_path, "w") as f:
+            json.dump(ks_result, f, indent=2)
+        results['ks_test'] = ks_result
+        
+    if 'piecewise' in methods:
+        logger.info("Running piecewise regression...")
+        pc_result = compute_piecewise_regression(paired_data)
+        pc_path = Path(output_dir) / "pc_regression.json"
+        with open(pc_path, "w") as f:
+            json.dump(pc_result, f, indent=2)
+        results['pc_regression'] = pc_result
+        
+    if 'sensitivity' in methods:
+        if not sensitivity_cutoffs:
+            sensitivity_cutoffs = [0.01, 0.05, 0.1]
+        logger.info(f"Running sensitivity analysis with cutoffs: {sensitivity_cutoffs}")
+        sens_result = run_sensitivity_analysis(paired_data, sensitivity_cutoffs)
+        sens_path = Path(output_dir) / "sensitivity_analysis.json"
+        with open(sens_path, "w") as f:
+            json.dump(sens_result, f, indent=2)
+        results['sensitivity_analysis'] = sens_result
+        
+    # Generate summary
+    summary = generate_analysis_summary(results)
+    summary_path = Path(output_dir) / "analysis_results.json"
+    with open(summary_path, "w") as f:
+        json.dump(summary, f, indent=2)
+        
+    logger.info(f"Analysis pipeline complete. Summary written to {summary_path}")
     return results
 
 def main():
-    """Main entry point for the flow-coherence inference runner."""
-    # Setup logging
-    setup_logging(level=logging.INFO)
+    parser = argparse.ArgumentParser(description="llmXive Video Editing Analysis Pipeline")
+    parser.add_argument("--stage", type=str, required=True, 
+                      choices=["data_prep", "flow_compute", "inference", "analysis"],
+                      help="Pipeline stage to execute")
+    parser.add_argument("--dataset", type=str, default="davis",
+                      help="Dataset to use (davis, youtube_vos)")
+    parser.add_argument("--method", type=str, default=None,
+                      help="Method for flow computation or analysis")
+    parser.add_argument("--model", type=str, default="baseline",
+                      choices=["baseline", "flow_coherence"],
+                      help="Model variant for inference stage")
+    parser.add_argument("--stratify", action="store_true",
+                      help="Apply stratification during data prep")
+    parser.add_argument("--output_dir", type=str, default="data/metrics",
+                      help="Output directory for results")
+    parser.add_argument("--checkpoint_id", type=str, default=None,
+                      help="Checkpoint ID for flow-coherence inference")
+    parser.add_argument("--sweep", type=str, default=None,
+                      help="Comma-separated cutoff values for sensitivity analysis")
+                      
+    args = parser.parse_args()
+    setup_logging()
     
-    # Load configuration
-    config = get_default_config()
-    config["mode"] = "flow_coherence"
-    
-    # Define paths
-    project_root = Path(__file__).parent.parent
-    clip_dir = project_root / "data" / "processed"
-    output_dir = project_root / "data" / "metrics"
-    
-    # Ensure directories exist
-    ensure_directories(output_dir)
-    
-    logger.info("Starting Flow-Coherence Inference Pipeline")
-    logger.info(f"Clip directory: {clip_dir}")
-    logger.info(f"Output directory: {output_dir}")
-    
-    # Run pipeline
-    metrics = run_flow_coherence_inference_pipeline(
-        clip_dir=clip_dir,
-        output_dir=output_dir,
-        config=config,
-        resume=True
-    )
-    
-    logger.info(f"Pipeline completed. Processed {len(metrics)} clips.")
-    
-    # Print summary
-    if metrics:
-        avg_bss = sum(m.bss for m in metrics) / len(metrics)
-        avg_mem = sum(m.peak_memory_mb for m in metrics) / len(metrics)
-        logger.info(f"Average BSS: {avg_bss:.4f}")
-        logger.info(f"Average Memory: {avg_mem:.2f} MB")
-    
-    return metrics
-
+    if args.stage == "data_prep":
+        from data.downloader import download_dataset
+        from data.processor import process_dataset_stratification
+        
+        logger.info(f"Running data prep for {args.dataset}")
+        download_dataset(args.dataset, stratify=args.stratify)
+        if args.stratify:
+            process_dataset_stratification()
+            
+    elif args.stage == "flow_compute":
+        from data.flow import compute_full_flow_field
+        
+        logger.info(f"Computing flow with method: {args.method}")
+        compute_full_flow_field(method=args.method)
+        
+    elif args.stage == "inference":
+        if args.model == "baseline":
+            run_baseline_inference_pipeline(args.output_dir)
+        elif args.model == "flow_coherence":
+            if not args.checkpoint_id:
+                args.checkpoint_id = "flow_run_001"
+            run_flow_coherence_inference_pipeline(args.output_dir, args.checkpoint_id)
+            
+    elif args.stage == "analysis":
+        cutoffs = None
+        if args.sweep:
+            cutoffs = [float(x) for x in args.sweep.split(",")]
+        run_analysis_pipeline(args.output_dir, methods=[args.method] if args.method else None, 
+                            sensitivity_cutoffs=cutoffs)
+                            
 if __name__ == "__main__":
     main()

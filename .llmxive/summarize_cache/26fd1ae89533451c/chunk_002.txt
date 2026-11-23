@@ -1,0 +1,273 @@
+This document defines the data structures used in the project. All data flows from raw datasets to processed features, then to analysis results, and finally to the output schema.
+
+## 2. Raw Data Sources
+
+### 2.1 OpenNeuro MEG/EEG
+- **Source**: `
+- **Format**: Parquet (streamed)
+- **Key Fields**: `trial_id`, `timestamp`, `sensor_data`, `condition`
+- **Processing**:
+ 1. Bandpass filter Hz.
+ 2. Compute Power Spectral Density (PSD) using Welch's method.
+ 3. Normalize PSD to unit area for shape comparison.
+ 4. **Note**: No phase extraction or PLV calculation due to discrete vs. continuous time mismatch.
+
+### 2.2 CLUTRR Benchmark
+- **Source**: `
+- **Format**: Parquet
+- **Key Fields**: `story`, `question`, `answer`, `family_size`
+- **Processing**: Sampled to a representative subset of examples.; split by seed.
+
+### 2.3 PLV Reference (Deprecated)
+- **Source**: `
+- **Format**: JSON
+- **Key Fields**: `signal`, `phase`, `frequency`
+- **Processing**: Used for validation of spectral analysis pipeline only.
+
+## 3. Intermediate Data Structures
+
+### 3.1 ActivationTimeSeries
+- **Description**: Raw output of attention heads during forward pass.
+- **Shape**: `(batch_size, num_layers, num_heads, seq_len)`
+- **Type**: `numpy.ndarray` (float32)
+- **Storage**: Temporary in-memory; written to disk as `.npy` if needed.
+- **Time Axis**: Defined as "sequence index" (0 to N-1), not physical time.
+
+### 3.2 SpectralFeatures
+- **Description**: Power Spectral Density (PSD) and Spectral Density Correlation (SDC) for each activation time-series.
+- **Fields**:
+ - `frequency_band`: str (e.g., "30-50Hz")
+ - `psd`: array (power values, normalized)
+ - `sdc`: float (Spectral Density Correlation with MEG reference)
+ - `snr`: float (signal-to-noise ratio)
+- **Storage**: `data/processed/spectral_features_{seed}.json`
+
+### 3.3 BenchmarkResult
+- **Description**: Performance metrics for CLUTRR/bAbI.
+- **Fields**:
+ - `accuracy`: float
+ - `f1_score`: float
+ - `seed`: int
+- **Storage**: `data/processed/benchmark_result_{seed}.json`
+
+## 4. Output Schema
+
+### 4.1 Final Results
+- **Description**: Aggregated results for all seeds and frequencies.
+- **Fields**:
+ - `frequency`: int (relative frequency, cycles per sequence)
+ - `mean_snr`: float
+ - `mean_sdc`: float (Spectral Density Correlation)
+ - `p_value`: float (corrected)
+ - `significance`: bool
+- **Storage**: `data/final/results_summary.json`
+
+### 4.2 Statistical Report
+- **Description**: Detailed statistical analysis including permutation test results.
+- **Fields**:
+ - `null_distribution`: array (permutation results)
+ - `observed_value`: float
+ - `p_value`: float
+ - `correction_method`: str (e.g., "bonferroni")
+- **Storage**: `data/final/statistical_report.json`
+
+## 5. Data Hygiene & Versioning
+
+- **Checksums**: All raw data files will be checksummed (SHA256) and recorded in `state/...yaml`.
+- **Derivations**: No raw data is modified in place. All transformations produce new files.
+- **PII**: No PII is present in the datasets (anonymized MEG, synthetic CLUTRR).
+
+===BEGIN_ARTIFACT projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/quickstart.md===
+# Quickstart: The Binding Problem in LLMs: Implementing Synchronized Oscillations for Feature Integration
+
+## 1. Prerequisites
+- Python 3.11+
+- Git
+- Access to Hugging Face datasets (public)
+- GitHub Actions runner (or local equivalent with sufficient RAM)
+
+## 2. Installation
+
+```bash
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-593-the-binding-problem-in-llms-implementing
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+## 3. Data Download
+The data is downloaded automatically during the first run. For manual download:
+
+```bash
+python src/data/download_meg.py
+python src/data/download_clutrr.py
+```
+
+## 4. Running the Pipeline
+
+### 4.1 Full Pipeline
+```bash
+python src/main.py --config config/default.yaml
+```
+
+### 4.2 Specific Tasks
+- **Spectral Analysis**: `python src/analysis/spectral.py --input data/raw/activations.npy`
+- **Spectral Density Correlation (SDC)**: `python src/analysis/sdc.py --model-activations data/processed/activations.npy --meg-reference data/raw/meg.parquet`
+- **Benchmark Evaluation**: `python src/benchmarks/clutrr_eval.py --seed 42`
+
+## 5. Verification
+
+### 5.1 Unit Tests
+```bash
+pytest tests/unit/
+```
+
+### 5.2 Integration Tests
+```bash
+pytest tests/integration/
+```
+
+### 5.3 Contract Tests
+```bash
+pytest tests/contract/
+```
+
+## 6. Expected Output
+- `data/final/results_summary.json`: Aggregated metrics.
+- `data/final/statistical_report.json`: Statistical significance results.
+- `plots/`: Figures showing spectral peaks and SDC distributions.
+
+## 7. Troubleshooting
+
+- **OOM Error**: Reduce batch size or stream data more aggressively.
+- **CUDA Error**: The system will automatically switch to CPU or scale down for Kaggle GPU.
+- **Data Missing**: Verify Hugging Face access and network connectivity.
+- **MEG Preprocessing**: Ensure `mne` is installed and the pipeline (filter, PSD, normalize) is executed correctly.
+
+===BEGIN_ARTIFACT projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/contracts/dataset.schema.yaml===
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for raw and processed dataset files used in the project. Validates US-1, US-2."
+type: "object"
+properties:
+ metadata:
+ type: "object"
+ properties:
+ source:
+ type: "string"
+ description: "Source URL or identifier (e.g., Hugging Face dataset name)."
+ checksum:
+ type: "string"
+ description: "SHA256 checksum of the raw file."
+ version:
+ type: "string"
+ description: "Dataset version or commit hash."
+ raw_data:
+ type: "object"
+ properties:
+ openneuro_meg:
+ type: "object"
+ properties:
+ format:
+ type: "string"
+ enum: ["parquet", "json", "csv"]
+ fields:
+ type: "array"
+ items:
+ type: "string"
+ streaming:
+ type: "boolean"
+ description: "Whether the data is streamed to avoid RAM overflow."
+ clutrr:
+ type: "object"
+ properties:
+ format:
+ type: "string"
+ enum: ["parquet"]
+ fields:
+ type: "array"
+ items:
+ type: "string"
+ sample_size:
+ type: "integer"
+ description: "Number of samples used (e.g., 100)."
+ processed_data:
+ type: "object"
+ properties:
+ spectral_features:
+ type: "object"
+ properties:
+ frequency_band:
+ type: "string"
+ description: "Frequency band (e.g., '30-50Hz')."
+ snr_threshold:
+ type: "number"
+ description: "Minimum SNR for peak detection."
+ benchmark_results:
+ type: "object"
+ properties:
+ metrics:
+ type: "array"
+ items:
+ type: "string"
+ description: "List of metrics (e.g., 'accuracy', 'f1')."
+ seeds:
+ type: "array"
+ items:
+ type: "integer"
+ description: "Random seeds used (e.g., [42, 123, 456, 789, 101])."
+required:
+ - "metadata"
+ - "raw_data"
+ - "processed_data"
+
+===BEGIN_ARTIFACT projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/contracts/output.schema.yaml===
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for final results and statistical reports. Validates US-3, US-4."
+type: "object"
+properties:
+ results_summary:
+ type: "object"
+ properties:
+ frequency_sweep:
+ type: "array"
+ items:
+ type: "object"
+ properties:
+ frequency_hz:
+ type: "integer"
+ description: "Relative frequency tested (e.g., 40 cycles per sequence)."
+ mean_snr:
+ type: "number"
+ description: "Mean Signal-to-Noise Ratio."
+ mean_sdc:
+ type: "number"
+ description: "Mean Spectral Density Correlation."
+ p_value:
+ type: "number"
+ description: "Corrected p-value."
+ significance:
+ type: "boolean"
+ description: "Whether the result is statistically significant."
+ benchmark_performance:
+ type: "object"
+ properties:
+ clutrr:
+ type: "object"
+ properties:
+ accuracy:
+ type: "number"
+ f1_score:
+ type: "number"
+ p_value:
+ type: "number"
+ babi:
+ type: "object"
+ properties:

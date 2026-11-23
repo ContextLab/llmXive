@@ -1,84 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "AM Dataset Schema"
-description: "Schema for raw and processed AM alloy datasets"
-type: "object"
-properties:
-  raw:
-    type: "object"
-    description: "Schema for raw input CSV"
-    required:
-      - "laser_power"
-      - "scan_speed"
-      - "layer_thickness"
-      - "yield_strength"
-      - "ductility"
-    properties:
-      laser_power:
-        type: "number"
-        description: "Laser power in Watts (W)"
-      scan_speed:
-        type: "number"
-        description: "Scan speed in mm/s"
-      layer_thickness:
-        type: "number"
-        description: "Layer thickness in mm"
-      yield_strength:
-        type: "number"
-        description: "Yield strength in MPa"
-      ductility:
-        type: "number"
-        description: "Ductility in % elongation"
-      alloy_type:
-        type: "string"
-        description: "Alloy name (optional)"
-  processed:
-    type: "object"
-    description: "Schema for normalized and encoded CSV"
-    required:
-      - "laser_power_norm"
-      - "scan_speed_norm"
-      - "layer_thickness_norm"
-      - "yield_strength_norm"
-      - "ductility_norm"
-    properties:
-      laser_power_norm:
-        type: "number"
-        description: "Normalized laser power [0, 1]"
-        minimum: 0.0
-        maximum: 1.0
-      scan_speed_norm:
-        type: "number"
-        description: "Normalized scan speed [0, 1]"
-        minimum: 0.0
-        maximum: 1.0
-      layer_thickness_norm:
-        type: "number"
-        description: "Normalized layer thickness [0, 1]"
-        minimum: 0.0
-        maximum: 1.0
-      yield_strength_norm:
-        type: "number"
-        description: "Normalized yield strength [0, 1]"
-        minimum: 0.0
-        maximum: 1.0
-      ductility_norm:
-        type: "number"
-        description: "Normalized ductility [0, 1]"
-        minimum: 0.0
-        maximum: 1.0
-      is_Ti6Al4V:
-        type: "integer"
-        description: "One-hot encoded alloy type (0 or 1)"
-        enum:
-          - 0
-          - 1
-      is_Inconel718:
-        type: "integer"
-        description: "One-hot encoded alloy type (0 or 1)"
-        enum:
-          - 0
-          - 1
-      row_id:
-        type: "integer"
-        description: "Original row index for traceability"
-additionalProperties: false
+title: "AM Process‑Property Dataset Schema (Exact Required Columns)"
+description: "Schema for each row of the **preprocessed CSV** dataset used in GPR training. The CSV rows are validated by converting each row to a JSON object and applying this schema."
+type: array
+items:
+  type: object
+  properties:
+    laser_power_norm:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Normalized laser power (W) to [0, 1]."
+    scan_speed_norm:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Normalized scan speed (mm/s) to [0, 1]."
+    layer_thickness_norm:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Normalized layer thickness (µm) to [0, 1]."
+    yield_strength_norm:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Normalized yield strength (MPa)."
+    ductility_norm:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+      description: "Normalized ductility (%)."
+  required:
+    - laser_power_norm
+    - scan_speed_norm
+    - layer_thickness_norm
+    - yield_strength_norm
+    - ductility_norm
+  additionalProperties: false
+  patternProperties:
+    "^alloy_.*$":
+      type: integer
+      enum: [0, 1]
+      description: "Binary indicator for a specific alloy composition (one‑hot)."

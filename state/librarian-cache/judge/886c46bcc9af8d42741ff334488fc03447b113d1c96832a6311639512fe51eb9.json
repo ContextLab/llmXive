@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2109.01134",
+  "judged_at": "2026-09-01T18:25:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"locateanything: fast and high-quality vision-language grounding with p\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it is the foundational methodology paper (CoOp) for prompt learning in vision-language models, which is the canonical technique and alternative-vocabulary cluster for the \"LocateAnything\" follow-up research on extending vision-language grounding.",
+  "relevant": true
+}

@@ -1,0 +1,7 @@
+[
+  {
+    "fr_id": "FR-002",
+    "deviation": "ISRIC merge excluded due to lack of verified source; proceeding with PlantPheno only.",
+    "impact": "SC-001 metric redefined as P/N Availability Rate"
+  }
+]

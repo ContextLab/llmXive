@@ -1,0 +1,109 @@
+T001:
+  reason: No evidence of the required folder hierarchy (`data/raw`, `data/derived`,
+    `code`, `tests`, `results`) is provided; the response only contains a feature
+    specification and no actual project directories or files. The implementer must
+    create and show the specified project structure.
+  task: aba4b229360b894781a7df5985d583ea0c0d957154804e99d2a0b71960b9be2d
+T002:
+  reason: "The provided `requirements.txt` exists and lists the required packages,\
+    \ but it does not pin them to exact versions (it uses `>=` specifiers) and adds\
+    \ several unrelated packages, which does not satisfy the \u201Cpinning\u201D requirement\
+    \ of the task. The artifact must contain exact version pins (e.g., `pandas==2.0.0`)\
+    \ for the specified libraries."
+  task: 28fda3d5d3cb911d7bb68c3ac3166133cae2af06eff8bc7632da694956288d20
+T003:
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  reason: "The `code/download.py` script expects a `datasets.ds004041.version_hash`\
+    \ entry in `data/metadata.yaml`, but the provided YAML has a different structure\
+    \ (`dataset.id`, `hash` placeholder) so the hash\u2011loading logic will fail.\
+    \ Moreover, `data/raw/` contains only a `.gitkeep` file\u2014no downloaded dataset\
+    \ files are present. The script therefore does not actually fetch and verify the\
+    \ required dataset as specified."
+  task: d6278d40e1b82e3ea3af5981b7e6d4593943c3c99d36a9ff0ce7ddb953cac354
+T005:
+  task: 5ccd193647739cb8a7e8502f5960ce58593048ea466e82085a390d1f0bf5ca4f
+T005b:
+  task: 3048e7c5171e2c10cd2f6aed171ff13798905363f7d705bf8d9afaf012331bb9
+T005c:
+  task: d3908ba6ae5df7e2cdb3b90de75af47a22b14eaec8d72a669dd09eca08a345ad
+T006:
+  task: 5c50b21c6bd7cb783864fabe86d9dc28ba3ee8181e8548dbf54737b523b31532
+T007:
+  task: e600473746a78d74c8b275d08d67da79760aceadf6da460c452598841e960ad9
+T008:
+  task: 7dc229f6a81cba69e748744e4a8925e2d48f4106f6d4ca16c21117026ec0bf72
+T009:
+  task: 7040b4f0edc06bfd94c6189fd5e5fa835ff88ee3c8c77c745845f08764eec3ec
+T010:
+  task: d4e13aaf5dcd3fcc8675b88acca3c2185e3618153bd92b1ebdfa837c68a719e4
+T011:
+  task: adcfac987f3e25fc58b30be8dcd7bff35c823dc81a2ee4bad6c0be959e30360d
+T012:
+  task: 39e3554f88d4bbd9cc0ffb12c0d0717c16ff4ebc2d81c4cd3f79e1e7a16d6fe7
+T013:
+  task: 0d7cd79adb41c05d70fa732500ec29510ea44869a612dcaad2acf6b17991d63a
+T014:
+  task: 5bb626dafaad039123296c27aeccf760e616813790cc5721f09741d53a73ad63
+T015:
+  task: 7bb74473fcf069447e487372f0a27b5f1d6273f30298982a04e86b2e600b4c0e
+T016:
+  task: 59a8abc28d31ec67e96f703cb1138a5b15dc3690c9e5330b3b0fe9e0122d828d
+T017:
+  task: a3a6b0a8f01f7206db61fbe0224e14513ca1e4d9348374665926aecbf76cb242
+T018:
+  task: 49a697cd3f60127ea265250c2b197a22a2907bfb752c53e9b535eeb5f1f06ef4
+T019:
+  task: 8c0eba22cc4a5dd168ac90adbc1f61941b06fc420cf870fe0af547b6ef26c534
+T020:
+  task: 340041adfbda55d4d6987da52f6456a1ff82b99ced5c57b28eb1a27a2d17383c
+T021:
+  task: 6f05b9d70f6ae629e93a7b69a524536001251ae123e29b333afb31df95d1bfc8
+T021a:
+  task: 8281957c0043e36a94f723055dbcf7a56396dbfcc8a7e0f1ecc9985a2980f568
+T021b:
+  task: c11612addc67fa2177ca8e41a8a05b5294e12c5e0f5681e7b7b526a74f1948bd
+T022:
+  task: 38d1f41376d3e697ec7d0161ff57914557d41597fde885d02008bdae89775c0f
+T023:
+  task: 0d4a14c677515ecd54485002d74089dabac02812be95d789e9d53c30b8413dc0
+T024:
+  task: 42c36d48834a70400dd89c75339673b305271aa14d6cdef40ac130537941768e
+T025:
+  task: e2b9995c0d199b97f83b61b9dba9799a27494537289312f20442302b3e0211c2
+T026:
+  task: 6340b8671804cecd3f984fb5f2f761e51477f367d9e6e9caa09d3d04b9b09f86
+T026b:
+  task: bc70a3740371d9ffc8733531c1548815c6d26944e54ae50e6c4038637312fbf7
+T027:
+  task: 18a985f9503a508b259c6de388b528bec83de5478ec66814a5c21463fb8b99db
+T028:
+  task: 311e5bef7734007d556565b84880f34edb6a09c821e43ee8d5c4c173d0200cdd
+T029:
+  task: af9bbfc4b362e0c745f19ef14dab381bc5d9aed04bbdfd9d00eed888e42ce0dc
+T030:
+  task: 2220b79b56f99110a8fd03be14948dc29ca973a86a1cf0d611562c4afef6d3ce
+T031a:
+  task: ba73c3ade84d18ca3ef4d1091deacfdf6f49d8c745b659abbba2d8c33d006eb1
+T031b:
+  task: a135f2338b4e304bcb83639aac6f1f16cbf07b3369298aea5caf685fd479ba34
+T032:
+  task: 1a71985c692e8a70c1cf389ab16333638fa73186c18d37bc30fb392aabc0a1a3
+T033:
+  task: d6e74f9accf219d6786350909c44bbc6e5c4178765171f6e570e5a5260dfe0f9
+T034:
+  task: 6e860187afb5e1fbfefc32131d9436a46ebc63ec46d1c5307ed12ec50481c11f
+T035:
+  task: c308153c731e877a243202bbceef748f5bbe3e6d20be8deff41e296f98e8574d
+T036:
+  task: ae4c3647e15bf9cf9d549c9521e011a0258ee9ccf32b610eccc288219ab1a84d
+T037:
+  task: 36f30a0e590e6101566e75edb7ff97b628a32538774bbb0bc55785f2bbf4c397
+T038a:
+  task: 78f946ae7f735cc0c83858c7ef7e5a73f9c4551569814dffd1b5eb5db448f23f
+T038b:
+  task: 9765ec4a7c8ea8c7df1be0e26971dec0dea2ff933ff6c322d532f65051f77f44
+T039:
+  task: 91189bd0e52695bbebc0a1fb7e62bd87c4d2319e955b1f7148ce3cbd1610b7c8
+T040:
+  task: 6496292f19821a3965a84d72632b6379bade028811b035f5083383a78a5b773d

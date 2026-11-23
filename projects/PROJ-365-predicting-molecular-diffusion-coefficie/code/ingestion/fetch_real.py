@@ -1,168 +1,154 @@
-"""
-fetch_real.py
-----------------
-Implements the real‑data ingestion step for the diffusion coefficient project.
-It attempts to download a verified diffusion dataset (currently from Zenodo),
-stores it under ``data/raw/dataset.csv`` and records the source URL in ``plan.md``.
-The module provides a small public API that is used by other ingestion scripts.
-"""
-
 import sys
 from pathlib import Path
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
 
-from utils.config import get_project_root
+import utils.config as config
 from utils.logging import get_logger, log_info, log_error
 
-# ----------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------
-# A known, openly licensed diffusion‑coefficient CSV hosted on Zenodo.
-# The URL points directly to the raw CSV file and is stable as of 2024‑07.
-DATASET_URL = (
-    "https://zenodo.org/record/8224376/files/diffusion_dataset.csv?download=1"
-)
+logger = get_logger()
 
-# ----------------------------------------------------------------------
-# Public helper functions
-# ----------------------------------------------------------------------
-def ensure_output_dir() -> Path:
+def ensure_output_dir(output_path: Path) -> None:
+    """Ensure the directory for the output file exists."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+def fetch_from_zenodo(url: str, output_path: Path) -> None:
     """
-    Ensure that ``data/raw`` exists and return its Path.
-
-    Returns
-    -------
-    Path
-        The absolute path to the ``data/raw`` directory.
+    Download a file from a Zenodo URL.
+    Zenodo often provides a 'latest' redirect or a direct file link.
+    We handle the redirect by using urlopen which follows redirects automatically.
     """
-    raw_dir = get_project_root() / "data" / "raw"
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    return raw_dir
-
-
-def fetch_from_zenodo(url: str, dest_path: Path) -> bool:
-    """
-    Download a CSV from Zenodo and write it to ``dest_path``.
-
-    Parameters
-    ----------
-    url : str
-        Direct download URL.
-    dest_path : Path
-        Where the file should be saved.
-
-    Returns
-    -------
-    bool
-        ``True`` on success, ``False`` otherwise.
-    """
-    logger = get_logger(__name__)
-    logger.info(f"Attempting to download dataset from Zenodo: {url}")
-    # Use a request with a user‑agent to avoid potential 403 responses.
-    request = Request(url, headers={"User-Agent": "python-urllib"})
+    log_info(logger, f"Attempting to download from Zenodo: {url}")
     try:
-        with urlopen(request) as response, open(dest_path, "wb") as out_file:
-            # Stream the data in 1 MiB chunks to avoid huge memory usage.
-            chunk_size = 1024 * 1024
-            while True:
-                chunk = response.read(chunk_size)
-                if not chunk:
-                    break
-                out_file.write(chunk)
-        logger.info(f"Dataset successfully downloaded to {dest_path}")
-        return True
-    except (URLError, HTTPError) as exc:
-        logger.error(f"Zenodo download failed: {exc}")
-        return False
-    except Exception as exc:  # pragma: no cover – unexpected failures
-        logger.error(f"Unexpected error during download: {exc}")
-        return False
+        req = Request(url, headers={'User-Agent': 'llmXive-pipeline'})
+        with urlopen(req, timeout=30) as response:
+            ensure_output_dir(output_path)
+            with open(output_path, 'wb') as f:
+                while True:
+                    chunk = response.read(8192)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+        log_info(logger, f"Successfully downloaded to {output_path}")
+    except (URLError, HTTPError) as e:
+        log_error(logger, f"Failed to download from Zenodo: {e}")
+        raise FileNotFoundError(f"Could not download dataset from Zenodo: {e}")
 
-
-def fetch_from_nist() -> bool:
+def fetch_from_nist(url: str, output_path: Path) -> None:
     """
-    Placeholder for a future NIST‑TRC implementation using the ``thermo`` library.
-
-    Returns
-    -------
-    bool
-        ``True`` if data was successfully retrieved, ``False`` otherwise.
-
-    Notes
-    -----
-    The current pipeline prefers the Zenodo mirror because it requires no
-    external scientific‑library dependencies beyond the standard library.
+    Download a file from a NIST URL.
+    NIST data might require specific headers or follow different redirection rules.
     """
-    # TODO: integrate ``thermo``‑based retrieval when the upstream API is stable.
-    return False
+    log_info(logger, f"Attempting to download from NIST: {url}")
+    try:
+        req = Request(url, headers={'User-Agent': 'llmXive-pipeline'})
+        with urlopen(req, timeout=30) as response:
+            ensure_output_dir(output_path)
+            with open(output_path, 'wb') as f:
+                while True:
+                    chunk = response.read(8192)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+        log_info(logger, f"Successfully downloaded to {output_path}")
+    except (URLError, HTTPError) as e:
+        log_error(logger, f"Failed to download from NIST: {e}")
+        raise FileNotFoundError(f"Could not download dataset from NIST: {e}")
 
-
-def update_plan_md(url: str) -> None:
+def update_plan_md(plan_path: Path, dataset_url: str) -> None:
     """
-    Record the dataset URL inside ``plan.md``.
-
-    If the file already contains a line with the exact URL, nothing is changed.
-    Otherwise the URL is appended (or a minimal ``plan.md`` is created).
-
-    Parameters
-    ----------
-    url : str
-        The URL that was successfully used to fetch the dataset.
+    Update plan.md to record the actual dataset URL if it's not already present.
     """
-    logger = get_logger(__name__)
-    plan_path = get_project_root() / "plan.md"
-    url_line = f"Dataset URL: {url}"
+    if not plan_path.exists():
+        log_error(logger, f"Plan file not found: {plan_path}")
+        return
 
-    if plan_path.exists():
-        with open(plan_path, "r", encoding="utf-8") as f:
-            content = f.read()
-        if url_line in content:
-            logger.info("Dataset URL already present in plan.md; no update needed.")
-            return  # already recorded
+    content = plan_path.read_text()
+    # Check if Dataset URL: line already exists
+    if "Dataset URL:" in content:
+        log_info(logger, "Dataset URL already present in plan.md, skipping update.")
+        return
 
-        # Append a blank line and the URL line for readability.
-        with open(plan_path, "a", encoding="utf-8") as f:
-            f.write("\n" + url_line + "\n")
-        logger.info(f"Appended dataset URL to existing plan.md at {plan_path}")
-    else:
-        # Create a minimal plan file that records the URL.
-        with open(plan_path, "w", encoding="utf-8") as f:
-            f.write("# Project Plan\n\n")
-            f.write(url_line + "\n")
-        logger.info(f"Created new plan.md and recorded dataset URL at {plan_path}")
+    # Append the URL to the plan
+    with open(plan_path, 'a', encoding='utf-8') as f:
+        f.write(f"\nDataset URL: {dataset_url}\n")
+    log_info(logger, f"Updated plan.md with Dataset URL: {dataset_url}")
 
-
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
 def main() -> None:
     """
-    Orchestrates the download process.
-
-    1. Guarantees the ``data/raw`` directory exists.
-    2. Tries NIST first (currently a stub) and falls back to Zenodo.
-    3. Writes the dataset to ``data/raw/dataset.csv``.
-    4. Updates ``plan.md`` with the source URL.
+    Download a verified real dataset as specified in ``plan.md``.
+    The script expects a line of the form ``Dataset URL: <url>``.
+    On success, the CSV is saved to ``data/raw/dataset.csv``.
+    Any failure (missing URL, network error, HTTP error) results in a
+    non‑zero exit status and a clear error message – no silent fallback.
     """
-    logger = get_logger(__name__)
-    raw_dir = ensure_output_dir()
-    dest_file = raw_dir / "dataset.csv"
+    root = config.get_project_root()
+    plan_path = root / "plan.md"
+    raw_dir = root / "data" / "raw"
+    output_file = raw_dir / "dataset.csv"
 
-    # Attempt NIST retrieval first – currently not implemented.
-    if fetch_from_nist():
-        source_url = "NIST (retrieved via thermo – not implemented in this version)"
-        logger.info("Dataset retrieved from NIST (placeholder).")
-    elif fetch_from_zenodo(DATASET_URL, dest_file):
-        source_url = DATASET_URL
-        logger.info("Dataset retrieved from Zenodo.")
-    else:
-        logger.error("[ERROR] Could not obtain the diffusion dataset from any source.")
-        sys.exit(1)
+    # Ensure raw directory exists
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
-    update_plan_md(source_url)
-    logger.info(f"Dataset successfully saved to {dest_file}")
+    # 1. Verify plan.md exists
+    if not plan_path.exists():
+        msg = "plan.md not found – cannot fetch real data."
+        log_error(logger, msg)
+        raise RuntimeError(msg)
 
+    # 2. Extract Dataset URL
+    dataset_url = None
+    for line in plan_path.read_text().splitlines():
+        if line.strip().startswith("Dataset URL:"):
+            # Handle the case where the line may be empty after the colon
+            url_part = line.split(":", 1)[1].strip()
+            if url_part:
+                dataset_url = url_part
+            break
+
+    if not dataset_url:
+        msg = "No real dataset URL – FR-001 cannot be satisfied"
+        log_error(logger, msg)
+        raise RuntimeError(msg)
+
+    log_info(logger, f"Found Dataset URL in plan.md: {dataset_url}")
+
+    # 3. Attempt download using appropriate strategy
+    try:
+        if "zenodo" in dataset_url.lower():
+            fetch_from_zenodo(dataset_url, output_file)
+        elif "nist" in dataset_url.lower() or "nist.gov" in dataset_url.lower():
+            fetch_from_nist(dataset_url, output_file)
+        else:
+            # Generic fetch attempt
+            log_info(logger, f"Attempting generic fetch from: {dataset_url}")
+            req = Request(dataset_url, headers={'User-Agent': 'llmXive-pipeline'})
+            with urlopen(req, timeout=30) as response:
+                ensure_output_dir(output_file)
+                with open(output_file, 'wb') as f:
+                    while True:
+                        chunk = response.read(8192)
+                        if not chunk:
+                            break
+                        f.write(chunk)
+            log_info(logger, f"Successfully downloaded to {output_file}")
+
+        # 4. Record the successful URL in plan.md (idempotent)
+        update_plan_md(plan_path, dataset_url)
+
+    except FileNotFoundError as e:
+        # Propagate as a clear runtime error
+        log_error(logger, str(e))
+        raise RuntimeError(str(e)) from e
+    except Exception as e:
+        # Any unexpected exception should also cause a non‑zero exit
+        log_error(logger, f"Unexpected error during download: {e}")
+        raise RuntimeError(f"Unexpected error during download: {e}") from e
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as exc:
+        # Ensure the script exits with a non‑zero status on any failure
+        print(f"ERROR: {exc}", file=sys.stderr)
+        sys.exit(1)

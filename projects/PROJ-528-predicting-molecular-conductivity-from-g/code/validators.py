@@ -1,112 +1,144 @@
 """
-Data validation utilities for molecular conductivity prediction pipeline.
+Validation utilities for the project.
 
-This module provides functions to validate SMILES strings and check
-target variable ranges for scientific plausibility.
+Two modes are supported via the CLI:
+
+1. Data-vs-schema validation (a pair of paths):
+       python code/validators.py --validate <data_file> <schema_file>
+   JSON and YAML schema files are supported; data files may be JSON or CSV.
+
+2. Schema self-validation (a single path, or several):
+       python code/validators.py --validate contracts/schema_a.yaml [more...]
+   Each file is loaded and checked to be a valid JSON Schema (Draft 7).
+   This is the mode used to verify that every contract in
+   ``specs/001-predicting-molecular-conductivity-from-g/contracts/``
+   is itself a well-formed schema (exit 0 for all).
 """
+
+import argparse
+import json
 import logging
-from typing import Tuple, List, Optional
+from pathlib import Path
+from typing import List, Union
 
-import numpy as np
-import rdkit
-from rdkit import Chem
-from rdkit.Chem import AllChem
+import pandas as pd
+import yaml
+from jsonschema import Draft7Validator
 
-from config import OUTLIER_SIGMA, VIF_THRESHOLD, TARGET_VAR
-
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
-def validate_smiles(smiles_str: str) -> Tuple[bool, Optional[str], Optional[Chem.Mol]]:
-    """
-    Validate a SMILES string and return the corresponding RDKit molecule object.
+def _load_document(path: Path) -> Union[dict, list]:
+    """Load a JSON or YAML document from disk."""
+    with open(path, "r", encoding="utf-8") as f:
+        if path.suffix.lower() in (".yaml", ".yml"):
+            return yaml.safe_load(f)
+        return json.load(f)
 
-    Args:
-        smiles_str: The SMILES string to validate.
 
-    Returns:
-        A tuple containing:
-            - valid: Boolean indicating if the SMILES is valid.
-            - error_msg: Error message if invalid, None otherwise.
-            - mol: RDKit Mol object if valid, None otherwise.
-    """
-    if not isinstance(smiles_str, str) or not smiles_str.strip():
-        return False, "SMILES string is empty or not a string", None
+def check_schema_file(schema_path: str) -> bool:
+    """Validate that a file contains a well-formed JSON Schema (Draft 7)."""
+    schema_file = Path(schema_path)
+    if not schema_file.exists():
+        log.error(f"Schema file missing: {schema_path}")
+        return False
+    try:
+        schema = _load_document(schema_file)
+    except Exception as exc:
+        log.error(f"Failed to parse schema '{schema_path}': {exc}")
+        return False
+    try:
+        Draft7Validator.check_schema(schema)
+    except Exception as exc:
+        log.error(f"Invalid JSON Schema in '{schema_path}': {exc}")
+        return False
+    log.info(f"Schema OK: {schema_path}")
+    return True
+
+
+def validate_file(data_path: str, schema_path: str) -> bool:
+    """Validate a CSV or JSON file against the supplied schema."""
+    data_file = Path(data_path)
+    schema_file = Path(schema_path)
+
+    if not data_file.exists():
+        log.error(f"Data file missing: {data_path}")
+        return False
+    if not schema_file.exists():
+        log.error(f"Schema file missing: {schema_path}")
+        return False
 
     try:
-        # Sanitize and validate the SMILES
-        mol = Chem.MolFromSmiles(smiles_str.strip())
-        
-        if mol is None:
-            return False, "RDKit failed to parse SMILES string", None
+        schema = _load_document(schema_file)
+    except Exception as exc:
+        log.error(f"Failed to parse schema '{schema_path}': {exc}")
+        return False
 
-        # Perform basic sanitization to catch chemical validity issues
-        Chem.SanitizeMol(mol)
-        
-        # Additional check: ensure the molecule has at least one atom
-        if mol.GetNumAtoms() == 0:
-            return False, "Parsed molecule has no atoms", None
+    if data_file.suffix.lower() == ".json":
+        with open(data_file, "r", encoding="utf-8") as f:
+            instance = json.load(f)
+        validator = Draft7Validator(schema)
+        errors = sorted(validator.iter_errors(instance), key=lambda e: e.path)
+        if errors:
+            for e in errors:
+                log.error(f"Validation error: {e.message}")
+            return False
+        return True
 
-        return True, None, mol
+    if data_file.suffix.lower() == ".csv":
+        df = pd.read_csv(data_file)
+        required: List[str] = schema.get("required", []) or []
+        for col in required:
+            if col not in df.columns:
+                log.error(f"Missing required column '{col}'")
+                return False
+        return True
 
-    except Exception as e:
-        error_msg = str(e)
-        # Specific common errors
-        if "MolFromSmiles" in error_msg:
-            error_msg = "Invalid SMILES syntax"
-        elif "SanitizeMol" in error_msg:
-            error_msg = "Chemical sanitization failed (valence error, etc.)"
-        
-        logger.warning(f"SMILES validation failed: {error_msg}")
-        return False, error_msg, None
+    log.error(f"Unsupported file type: {data_file.suffix}")
+    return False
 
 
-def check_target_range(values: np.ndarray, min_log_range: float = 3.0) -> Tuple[bool, float]:
-    """
-    Check if the target variable values span a sufficient dynamic range.
+def _parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Validate a data file (CSV/JSON) against a JSON Schema, "
+        "or self-check schema files."
+    )
+    parser.add_argument(
+        "--validate",
+        nargs="+",
+        metavar="PATH",
+        help="Either one or more schema files (self-check), or exactly two "
+        "paths: <data_file> <schema_file>.",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress logging output except for errors.",
+    )
+    return parser.parse_args()
 
-    This function verifies that the logarithmic range of the target values
-    meets the minimum required span for meaningful regression analysis.
 
-    Args:
-        values: 1D numpy array of target values (conductivity or HOMO-LUMO gap).
-        min_log_range: Minimum required range in log10 space (default 3.0).
-
-    Returns:
-        A tuple containing:
-            - valid: Boolean indicating if the range is sufficient.
-            - log_range: The calculated log10 range of the values.
-    
-    Raises:
-        ValueError: If values contain non-positive numbers (cannot take log).
-    """
-    if not isinstance(values, np.ndarray):
-        values = np.array(values)
-
-    if values.size == 0:
-        raise ValueError("Input values array is empty")
-
-    # Check for non-positive values
-    if np.any(values <= 0):
-        non_positive_count = int(np.sum(values <= 0))
-        raise ValueError(
-            f"Found {non_positive_count} non-positive values in target data. "
-            "Log-transformation requires strictly positive values."
-        )
-
-    # Calculate log10 range
-    log_values = np.log10(values)
-    log_range = float(np.max(log_values) - np.min(log_values))
-
-    valid = log_range >= min_log_range
-
-    if not valid:
-        logger.warning(
-            f"Target variable range ({log_range:.2f}) is below minimum "
-            f"threshold ({min_log_range}). Consider data augmentation or "
-            "relaxing the threshold."
-        )
+def main() -> int:
+    args = _parse_args()
+    if args.quiet:
+        logging.basicConfig(level=logging.ERROR)
     else:
-        logger.info(f"Target variable range check passed: {log_range:.2f} >= {min_log_range}")
+        logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-    return valid, log_range
+    if not args.validate:
+        log.error("No validation arguments supplied.")
+        return 1
+
+    paths = args.validate
+    if len(paths) == 1:
+        return 0 if check_schema_file(paths[0]) else 1
+    if len(paths) == 2:
+        data_path, schema_path = paths
+        return 0 if validate_file(data_path, schema_path) else 1
+    # More than two paths: treat every path as a schema file to self-check.
+    ok = all(check_schema_file(p) for p in paths)
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

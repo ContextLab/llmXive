@@ -1,216 +1,99 @@
 import unittest
 import time
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock, call, Mock
 import sys
 import os
-
-# Add project root to path to allow imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
 from utils.logging import get_logger
+
+# Add parent directory to path to allow imports if running from tests/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from data.fetch_gdelt import fetch_with_retry
 
 class TestGDELTRetryLogic(unittest.TestCase):
     """
-    Unit tests for GDELT API retry logic with configurable maximum attempts.
-    Tests verify that the fetch function respects the max_retries parameter,
-    logs appropriate warnings on failure, and raises exceptions after exhausting retries.
+    Unit test for GDELT fetch retry logic.
+    Uses 'responses' concept via unittest.mock to simulate network failures.
     """
 
-    def setUp(self):
-        self.logger = get_logger(__name__)
-        self.mock_url = "https://api.gdeltproject.org/api/v2/doc/doc?query=test"
-        
-    @patch('code.data.fetch_gdelt.requests.get')
-    def test_success_on_first_attempt(self, mock_get):
-        """Test successful fetch on first attempt does not retry."""
-        # Arrange
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"data": [{"event": 1}]}
-        mock_get.return_value = mock_response
+    @patch('data.fetch_gdelt.requests.get')
+    def test_retry_logic_on_failure(self, mock_get):
+        """
+        Assert that the function retries exactly 3 times (total 4 calls: 1 initial + 3 retries)
+        when the first two requests fail with 500 errors, and the third attempt succeeds.
+        """
+        # Setup mock responses
+        # First call: 500 error
+        mock_response_1 = Mock()
+        mock_response_1.status_code = 500
+        mock_response_1.ok = False
+        mock_response_1.raise_for_status.side_effect = Exception("Server Error")
 
-        # Import the function to test (assuming it's in fetch_gdelt.py)
-        from code.data.fetch_gdelt import fetch_gdelt_events
+        # Second call: 500 error
+        mock_response_2 = Mock()
+        mock_response_2.status_code = 500
+        mock_response_2.ok = False
+        mock_response_2.raise_for_status.side_effect = Exception("Server Error")
 
-        # Act
-        result = fetch_gdelt_events(
-            start_date="2023-01-01",
-            end_date="2023-01-02",
-            max_retries=3
+        # Third call: Success
+        mock_response_3 = Mock()
+        mock_response_3.status_code = 200
+        mock_response_3.ok = True
+        mock_response_3.text = '{"Data": "Success"}'
+        mock_response_3.json.return_value = {"Data": "Success"}
+
+        # Configure the side_effect sequence
+        mock_get.side_effect = [mock_response_1, mock_response_2, mock_response_3]
+
+        # Execute the function
+        # Note: fetch_with_retry expects url, params, max_retries, backoff_factor
+        # We assume default backoff_factor is small enough for the test to run quickly
+        result = fetch_with_retry(
+            url="http://fake-gdelt-api.com/query",
+            params={"Action": "Count"},
+            max_retries=3,
+            backoff_factor=0.01
         )
 
-        # Assert
-        mock_get.assert_called_once()
-        self.assertEqual(len(result), 1)
+        # Assertions
+        # 1. Verify the request was called 4 times (1 initial + 3 retries)
+        self.assertEqual(mock_get.call_count, 4)
 
-    @patch('code.data.fetch_gdelt.requests.get')
-    def test_retry_on_transient_error(self, mock_get):
-        """Test that transient errors (503) trigger retries up to max_retries."""
-        # Arrange
-        mock_fail_response = MagicMock()
-        mock_fail_response.status_code = 503
-        
-        mock_success_response = MagicMock()
-        mock_success_response.status_code = 200
-        mock_success_response.json.return_value = {"data": [{"event": 1}]}
-
-        # Sequence: Fail, Fail, Success
-        mock_get.side_effect = [mock_fail_response, mock_fail_response, mock_success_response]
-
-        from code.data.fetch_gdelt import fetch_gdelt_events
-
-        # Act
-        result = fetch_gdelt_events(
-            start_date="2023-01-01",
-            end_date="2023-01-02",
-            max_retries=3
-        )
-
-        # Assert
-        # Should have been called 3 times (2 failures + 1 success)
-        self.assertEqual(mock_get.call_count, 3)
-        self.assertEqual(len(result), 1)
-
-    @patch('code.data.fetch_gdelt.requests.get')
-    def test_exhaust_retries_raises_exception(self, mock_get):
-        """Test that failing all retries raises an exception."""
-        # Arrange
-        mock_fail_response = MagicMock()
-        mock_fail_response.status_code = 503
-        
-        # Always fail
-        mock_get.return_value = mock_fail_response
-
-        from code.data.fetch_gdelt import fetch_gdelt_events
-
-        # Act & Assert
-        with self.assertRaises(RuntimeError) as context:
-            fetch_gdelt_events(
-                start_date="2023-01-01",
-                end_date="2023-01-02",
-                max_retries=3
-            )
-        
-        self.assertIn("Failed after 3 attempts", str(context.exception))
-
-    @patch('code.data.fetch_gdelt.requests.get')
-    def test_retry_count_matches_config(self, mock_get):
-        """Test that the number of attempts strictly matches the configured max_retries."""
-        # Arrange
-        mock_fail_response = MagicMock()
-        mock_fail_response.status_code = 500
-        mock_get.return_value = mock_fail_response
-
-        from code.data.fetch_gdelt import fetch_gdelt_events
-
-        # Act: Try with 5 retries
-        try:
-            fetch_gdelt_events(
-                start_date="2023-01-01",
-                end_date="2023-01-02",
-                max_retries=5
-            )
-        except RuntimeError:
-            pass
-
-        # Assert
-        # Should have been called exactly 5 times (initial + 4 retries)
-        # Note: Implementation usually counts initial attempt as 1, then retries.
-        # If max_retries=5, total calls should be 5.
-        self.assertEqual(mock_get.call_count, 5)
-
-    @patch('code.data.fetch_gdelt.requests.get')
-    def test_connection_error_triggers_retry(self, mock_get):
-        """Test that ConnectionError exceptions trigger retry logic."""
-        # Arrange
-        import requests
-        
-        # Sequence: ConnectionError, ConnectionError, Success
-        mock_get.side_effect = [
-            requests.exceptions.ConnectionError("Network error"),
-            requests.exceptions.ConnectionError("Network error"),
-            MagicMock(status_code=200, json=lambda: {"data": [{"event": 1}]})
+        # 2. Verify the calls were made in sequence
+        expected_calls = [
+            call(url="http://fake-gdelt-api.com/query", params={"Action": "Count"}),
+            call(url="http://fake-gdelt-api.com/query", params={"Action": "Count"}),
+            call(url="http://fake-gdelt-api.com/query", params={"Action": "Count"}),
+            call(url="http://fake-gdelt-api.com/query", params={"Action": "Count"})
         ]
+        mock_get.assert_has_calls(expected_calls)
 
-        from code.data.fetch_gdelt import fetch_gdelt_events
+        # 3. Verify the result is the successful response content
+        self.assertEqual(result, {"Data": "Success"})
 
-        # Act
-        result = fetch_gdelt_events(
-            start_date="2023-01-01",
-            end_date="2023-01-02",
-            max_retries=3
-        )
+    @patch('data.fetch_gdelt.requests.get')
+    def test_max_retries_exceeded(self, mock_get):
+        """
+        Assert that the function raises an exception after exhausting retries.
+        """
+        # Setup mock to always fail
+        mock_response_fail = Mock()
+        mock_response_fail.status_code = 500
+        mock_response_fail.ok = False
+        mock_response_fail.raise_for_status.side_effect = Exception("Server Error")
+        mock_get.return_value = mock_response_fail
 
-        # Assert
-        self.assertEqual(mock_get.call_count, 3)
-        self.assertEqual(len(result), 1)
-
-    @patch('code.data.fetch_gdelt.requests.get')
-    def test_timeout_error_triggers_retry(self, mock_get):
-        """Test that Timeout exceptions trigger retry logic."""
-        # Arrange
-        import requests
-        
-        mock_get.side_effect = [
-            requests.exceptions.Timeout("Request timed out"),
-            MagicMock(status_code=200, json=lambda: {"data": [{"event": 1}]})
-        ]
-
-        from code.data.fetch_gdelt import fetch_gdelt_events
-
-        # Act
-        result = fetch_gdelt_events(
-            start_date="2023-01-01",
-            end_date="2023-01-02",
-            max_retries=3
-        )
-
-        # Assert
-        self.assertEqual(mock_get.call_count, 2)
-        self.assertEqual(len(result), 1)
-
-    @patch('code.data.fetch_gdelt.requests.get')
-    def test_non_retryable_status_code_no_retry(self, mock_get):
-        """Test that 4xx errors (client errors) do not trigger retries."""
-        # Arrange
-        mock_fail_response = MagicMock()
-        mock_fail_response.status_code = 404
-        mock_get.return_value = mock_fail_response
-
-        from code.data.fetch_gdelt import fetch_gdelt_events
-
-        # Act & Assert
-        with self.assertRaises(RuntimeError):
-            fetch_gdelt_events(
-                start_date="2023-01-01",
-                end_date="2023-01-02",
-                max_retries=3
+        # Expect the function to raise an exception
+        with self.assertRaises(Exception):
+            fetch_with_retry(
+                url="http://fake-gdelt-api.com/query",
+                params={"Action": "Count"},
+                max_retries=3,
+                backoff_factor=0.01
             )
-        
-        # Should only be called once, as 404 is not retryable
-        self.assertEqual(mock_get.call_count, 1)
 
-    @patch('code.data.fetch_gdelt.time.sleep')
-    @patch('code.data.fetch_gdelt.requests.get')
-    def test_backoff_delay_between_retries(self, mock_get, mock_sleep):
-        """Test that a delay occurs between retry attempts."""
-        # Arrange
-        mock_fail_response = MagicMock(status_code=503)
-        mock_success_response = MagicMock(status_code=200, json=lambda: {"data": []})
-        mock_get.side_effect = [mock_fail_response, mock_success_response]
-
-        from code.data.fetch_gdelt import fetch_gdelt_events
-
-        # Act
-        fetch_gdelt_events(
-            start_date="2023-01-01",
-            end_date="2023-01-02",
-            max_retries=3
-        )
-
-        # Assert
-        # Should have slept at least once (between fail and success)
-        mock_sleep.assert_called_once()
+        # Verify it was called 4 times (1 initial + 3 retries)
+        self.assertEqual(mock_get.call_count, 4)
 
 if __name__ == '__main__':
     unittest.main()

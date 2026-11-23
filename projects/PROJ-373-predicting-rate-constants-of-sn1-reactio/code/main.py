@@ -1,233 +1,139 @@
-"""
-Main orchestration script for the SN1 Rate Constant Prediction Pipeline.
-
-This script coordinates the execution of the full pipeline:
-1. Data Ingestion (T011)
-2. Data Cleaning (T012)
-3. Descriptor Calculation (T013)
-4. Data Splitting (T014)
-5. Exclusion Report Generation (T015)
-6. Dataset Finalization (T016)
-7. Model Training (T020)
-8. Model Evaluation (T021)
-9. Model Artifact Saving (T022)
-10. Interpretability Analysis (T026, T029)
-11. Sensitivity Analysis (T027)
-12. Collinearity Analysis (T028)
-13. Power Analysis (T035)
-14. Report Generation (T030)
-
-Usage:
-    python code/main.py [--skip-data] [--skip-model] [--skip-analysis]
-"""
-
 import os
 import sys
 import logging
 import argparse
+import time
+import json
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(Path(__file__).parent))
 
-from config import ensure_dirs
-from utils.logger import setup_logging, get_logger
-from utils.checksum import compute_file_checksum
-
-# Import pipeline stages
-from data.ingest import main as ingest_main
-from data.clean import main as clean_main
-from data.descriptors import main as descriptors_main
-from data.split import main as split_main
-from data.exclusion_report import main as exclusion_report_main
-from data.finalize_dataset import main as finalize_dataset_main
-
-from models.train import main as train_main
-from models.evaluate import main as evaluate_main
-from models.save_artifacts import main as save_artifacts_main
-
-from analysis.interpret import main as interpret_main
-from analysis.sensitivity import main as sensitivity_main
-from analysis.collinearity import main as collinearity_main
-from analysis.power import main as power_main
-from analysis.generate_reports import main as generate_reports_main
+from config import ensure_dirs, DataConfig, TrainingConfig
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def run_stage(stage_name, stage_func, args=None):
-    """
-    Execute a pipeline stage with error handling and logging.
+def run_command(cmd: list, description: str = "") -> bool:
+    """Run a shell command and return success status."""
+    logger.info(f"Running: {description}")
+    logger.info(f"Command: {' '.join(cmd)}")
     
-    Args:
-        stage_name: Human-readable name of the stage
-        stage_func: Function to execute (expects main() signature)
-        args: Optional arguments to pass to the stage function
-    """
-    logger.info(f"--- Starting Stage: {stage_name} ---")
     try:
-        if args:
-            stage_func(args)
-        else:
-            stage_func()
-        logger.info(f"--- Completed Stage: {stage_name} ---")
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        if result.stdout:
+            logger.info(result.stdout)
+        if result.stderr:
+            logger.warning(result.stderr)
         return True
-    except Exception as e:
-        logger.error(f"--- Failed Stage: {stage_name} ---")
-        logger.error(f"Error: {str(e)}")
-        raise
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Command failed with exit code {e.returncode}")
+        if e.stdout:
+            logger.error(e.stdout)
+        if e.stderr:
+            logger.error(e.stderr)
+        return False
 
-def main():
-    """
-    Main orchestration entry point.
-    """
-    parser = argparse.ArgumentParser(
-        description="Orchestrate the SN1 Rate Constant Prediction Pipeline"
-    )
-    parser.add_argument(
-        "--skip-data",
-        action="store_true",
-        help="Skip data ingestion, cleaning, and preprocessing stages"
-    )
-    parser.add_argument(
-        "--skip-model",
-        action="store_true",
-        help="Skip model training and evaluation stages"
-    )
-    parser.add_argument(
-        "--skip-analysis",
-        action="store_true",
-        help="Skip analysis and reporting stages"
-    )
-    parser.add_argument(
-        "--log-level",
-        type=str,
-        default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Set logging level"
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="code/config.yaml",
-        help="Path to configuration file"
-    )
-    
-    args = parser.parse_args()
-    
-    # Setup logging
-    setup_logging(level=args.log_level)
-    logger.info("Starting SN1 Rate Constant Prediction Pipeline")
-    
-    # Ensure directories exist
+def run_stage(stage_name: str, script_path: str, args: list = None) -> bool:
+    """Run a specific stage script."""
+    cmd = [sys.executable, script_path]
+    if args:
+        cmd.extend(args)
+    return run_command(cmd, stage_name)
+
+def count_rows(file_path: str) -> int:
+    """Count rows in a CSV file."""
+    if not os.path.exists(file_path):
+        return 0
+    with open(file_path, 'r') as f:
+        return sum(1 for _ in f) - 1  # Exclude header
+
+def run_full_pipeline(max_configs: int = None):
+    """Execute the full pipeline from ingestion to final report."""
     ensure_dirs()
     
+    stages = [
+        ("Schema Check", "code/data/schema_check.py"),
+        ("Schema Validation", "code/data/schema_validate.py"),
+        ("Download Data", "code/data/download.py"),
+        ("Initialize Exclusion Log", "code/data/init_exclusion_log.py"),
+        ("Map Columns", "code/data/mapping.py"),
+        ("Clean and Filter", "code/data/clean.py"),
+        ("Compute Descriptors", "code/data/descriptors.py"),
+        ("Validate Exclusion Schema", "code/data/validate_exclusion_schema.py"),
+        ("Aggregate Exclusion Report", "code/data/exclusion_report.py"),
+        ("Finalize Dataset", "code/data/finalize_dataset.py"),
+        ("Split Dataset", "code/data/split.py"),
+        ("Train Model", "code/models/train.py", []),
+        ("Evaluate Model", "code/models/evaluate.py"),
+        ("Interpret Results", "code/analysis/interpret.py"),
+        ("Collinearity Analysis", "code/analysis/collinearity.py"),
+        ("Sensitivity Analysis", "code/analysis/sensitivity_runner.py"),
+        ("Hyperparameter Sensitivity", "code/analysis/hyperparameter_sensitivity.py"),
+        ("Consistency Analysis", "code/analysis/consistency.py"),
+        ("Generate Reports", "code/analysis/generate_reports.py"),
+        ("Final Validation", "code/data/final_validation.py"),
+        ("Generate Final Report", "code/analysis/final_report.py"),
+    ]
+
+    # Handle max_configs for training stage
+    for i, stage in enumerate(stages):
+        if stage[1] == "code/models/train.py":
+            if max_configs:
+                stages[i] = ("Train Model", "code/models/train.py", ["--max-configs", str(max_configs)])
+            break
+
     success = True
-    
-    # Stage 1: Data Ingestion and Preprocessing
-    if not args.skip_data:
-        logger.info("Executing Data Pipeline...")
-        
-        try:
-            # T011: Ingest data
-            run_stage("Data Ingestion", ingest_main)
-            
-            # T012: Clean data
-            run_stage("Data Cleaning", clean_main)
-            
-            # T013: Compute descriptors
-            run_stage("Descriptor Calculation", descriptors_main)
-            
-            # T014: Split data
-            run_stage("Data Splitting", split_main)
-            
-            # T015: Generate exclusion report
-            run_stage("Exclusion Report", exclusion_report_main)
-            
-            # T016: Finalize dataset
-            run_stage("Dataset Finalization", finalize_dataset_main)
-            
-            logger.info("Data Pipeline completed successfully.")
-            
-        except Exception as e:
-            logger.error(f"Data Pipeline failed: {str(e)}")
+    for stage_info in stages:
+        stage_name = stage_info[0]
+        script_path = stage_info[1]
+        args = stage_info[2] if len(stage_info) > 2 else None
+
+        if not run_stage(stage_name, script_path, args):
+            logger.error(f"Stage failed: {stage_name}")
             success = False
-            if not args.skip_model:
-                logger.warning("Skipping model stages due to data pipeline failure")
-                args.skip_model = True
-            if not args.skip_analysis:
-                logger.warning("Skipping analysis stages due to data pipeline failure")
-                args.skip_analysis = True
-    
-    # Stage 2: Model Training and Evaluation
-    if not args.skip_model and success:
-        logger.info("Executing Model Pipeline...")
-        
-        try:
-            # T020: Train model with hyperparameter optimization
-            run_stage("Model Training", train_main)
-            
-            # T021: Evaluate model
-            run_stage("Model Evaluation", evaluate_main)
-            
-            # T022: Save artifacts
-            run_stage("Artifact Saving", save_artifacts_main)
-            
-            logger.info("Model Pipeline completed successfully.")
-            
-        except Exception as e:
-            logger.error(f"Model Pipeline failed: {str(e)}")
-            success = False
-            if not args.skip_analysis:
-                logger.warning("Skipping analysis stages due to model pipeline failure")
-                args.skip_analysis = True
-    
-    # Stage 3: Analysis and Reporting
-    if not args.skip_analysis and success:
-        logger.info("Executing Analysis Pipeline...")
-        
-        try:
-            # T026, T029: Interpretability
-            run_stage("Interpretability Analysis", interpret_main)
-            
-            # T027: Sensitivity analysis
-            run_stage("Sensitivity Analysis", sensitivity_main)
-            
-            # T028: Collinearity analysis
-            run_stage("Collinearity Analysis", collinearity_main)
-            
-            # T035: Power analysis
-            run_stage("Power Analysis", power_main)
-            
-            # T030: Generate reports
-            run_stage("Report Generation", generate_reports_main)
-            
-            logger.info("Analysis Pipeline completed successfully.")
-            
-        except Exception as e:
-            logger.error(f"Analysis Pipeline failed: {str(e)}")
-            success = False
-    
-    # Final summary
+            break
+
     if success:
-        logger.info("=" * 50)
-        logger.info("Pipeline completed successfully!")
-        logger.info("=" * 50)
-        logger.info("Output artifacts:")
-        logger.info("  - data/processed/cleaned_sn1.csv")
-        logger.info("  - artifacts/best_model.pt")
-        logger.info("  - artifacts/metrics.json")
-        logger.info("  - artifacts/feature_importance.png")
-        logger.info("  - artifacts/sensitivity_report.csv")
-        logger.info("  - artifacts/perturbation_results.csv")
-        logger.info("  - artifacts/power_analysis_report.csv")
+        logger.info("Pipeline completed successfully")
     else:
-        logger.warning("=" * 50)
-        logger.warning("Pipeline completed with errors.")
-        logger.warning("=" * 50)
+        logger.error("Pipeline failed")
+
+    return success
+
+def setup_logging_pipeline():
+    """Setup logging for the pipeline."""
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    log_file = log_dir / f"pipeline_{time.strftime('%Y%m%d_%H%M%S')}.log"
     
-    return 0 if success else 1
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    return log_file
+
+def main():
+    parser = argparse.ArgumentParser(description="Run the full SN1 rate constant prediction pipeline")
+    parser.add_argument("--max-configs", type=int, default=None,
+                      help="Maximum number of hyperparameter configurations for training")
+    args = parser.parse_args()
+
+    log_file = setup_logging_pipeline()
+    logger.info(f"Logging to: {log_file}")
+    logger.info("Starting full pipeline execution")
+
+    success = run_full_pipeline(args.max_configs)
+
+    if success:
+        logger.info("Full pipeline completed successfully")
+        sys.exit(0)
+    else:
+        logger.error("Full pipeline failed")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,0 +1,161 @@
+T001a:
+  task: 9a462721d5434945e37f160df8c2f39e62d85350c39c2566597a5c9b3567ae05
+T001b:
+  reason: The evidence shows that only `data/raw/` and `contracts/` directories exist;
+    the required `data/cleaned/`, `data/results/`, and `figures/` directories are
+    missing.
+  task: b41f210984d98d2688949b174cc3ebf07d2de0b70667c00b9cebeb272542b304
+T001c:
+  task: a6ff4d9a09a5fc3f70c122629807c269326802fb0eb2ea629b8618ed95c9b262
+T002:
+  task: 284a61f359265b79097a10cdc191fd821573b9791b263da9fa60e001365a5aca
+T003:
+  reason: Checked the provided `pyproject.toml`, which correctly contains Black settings
+    with `line-length = 88`. No `create.flake8` (or equivalent `.flake8`) file was
+    found in the project artifacts, so the required linting configuration is missing.
+    Adding a `create.flake8` file with `max-line-length = 88` and `extend-ignore =
+    E203` will satisfy the task.
+  task: 8a3ca6f4700e5fc7959156538c21cb943f002ed329c0b76b590a707ecb562c47
+T004:
+  task: 25036d63068655bcc0bcbd6e96819924ca29a81d2d42da208d76fb12f68e77e4
+T005:
+  task: df60e12285ca1dc8290d6344709c4ea919d8c59a369e6336799c6e7d04d7f6d7
+T005b:
+  task: d1eb7c55c33946d27869ad96958df14a00772a4acb7c0f8f16c51ae56b48fb42
+T005c:
+  task: 73f9d2c65a7b70f5e083f2dd121368f12244d9a367c81117cc8c57404eff04b9
+T006:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-035-exploring-the-correlation-between-crysta.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: fbfed11d8f94803aeddc29a24b92d77ce1541b533b1466e4a254c8fca52ccad0
+T007:
+  task: 3f356a5f8ee3921a76252ab6a5e28e634c2966d2a8095519d88ac087221eea7e
+T009a:
+  task: 16076caf1d8a0b209122d41aea64b07ba07d410c2b9a7e8803fab064e859f9e5
+T009b:
+  task: fbf753fb9f9c8a2ed1e46e4fe84cbb6083c39eeb1b3bcfb16ae02b168d05d2d8
+T009c:
+  task: 0cbc96c7f65ab54dd778c6c69b8b54aa1fd475c5159df22a6c0d353e4d1cae98
+T010:
+  task: cecf8504f1f47a1c1679e16997e1a7a5030ac7e64f6fb9070bbb7e5ae59d03dd
+T010b:
+  task: 3c032cc9874719d330994783851b5fb85bb354b2c3c3d7495f77cf3eaa47201e
+T011:
+  task: d8ef1806c394c9e21b04dd9df9bf2e668c1beb414688a11910edd3ffeda0311b
+T012:
+  task: ff4281b80108dbc57d35fcd4db58545b03b63bd72351a0638c08adb46d904489
+T013:
+  task: a2db6151e55fd48fc038ed28f7cd25ee0a489e8ca19dcb6b62cdf3c4ab4e1830
+T014:
+  task: a485729075444e0fc34075b9de902a32cbc5c9eef26e905814fed14968d08add
+T014b:
+  reason: 'Requested task execution failed; rerun successfully: code/src/ingest/fetch_thermal.py
+    exit=1'
+  task: 9f454aaf0025af573552c309570f1ff17ccec3dc393b2a8abefa2837158a7d1e
+T015:
+  task: 94832479a4b7c0cb564bbc4786b1ea9c5f5402a98c93e500a08049a2c1ca5348
+T016:
+  task: f7aea480563048bc8647c6527de1f6510e9102fb11daedc378eee20da83529c7
+T016b:
+  task: 0c12e5ec77a505f6ebb042ddf44a5b71f5a6515137f5aa6e9d0acc8cc7292d98
+T018:
+  task: bb8c38f9adc9afa589e25889631bb00eeb5fb88d42889acc59bbaa120b902a14
+T019:
+  task: 83fed3ea1e9d39d39dab4fc3c44b4cdfe232e729028ed38d8aa64fde06930ee7
+T020:
+  task: 1a28c8e9cd39bfd65b8fa977a36de3da32ff6ea32a6050cde3fb371f9bfb494f
+T021a:
+  task: de3a63ce2e2f3fc70b4bf560f847e1f47f0b3dccc50a64d0ea1b04cb4bc11859
+T021b:
+  task: 0ec7ad7072b9ec28e98d0bb2173e1b90c9f3704488e22a3b15fe65f9b0d63d51
+T021c:
+  task: 72c193016124aa2798220ed26c7c8493c64ff683377f58ccf9d23d069450abeb
+T021d:
+  task: dabeef60fd0c3bf2d9d7bf691a37b8ef4fa1c1270a7075c976a36c86388dfcb6
+T021e:
+  task: 62f8a05886f6fffbd0e6415a293c4745719a19d69b51ca53871b26652555ef59
+T022:
+  task: c4fc9ffd55dc7de124849797bd50884afe948877bd7ebc095cca19471f623cc1
+T023:
+  task: d49b1d6239892911ddf1605a130939fe34a0279c47914b00090ea830937c32a9
+T023c:
+  task: fbadf28b3b8c6ff80184b90df1b1f28bddbd80df9a013c03a5ae42a0dd32f79e
+T024:
+  task: 83bdb349c49946232fae604ca3687119ba0556e4a2b743b14cdbaf04c832c0c4
+T025a:
+  task: 9a3e250e82766bbaafb123ac114751bd9a53b26711072765e483d9d86d1200c2
+T025b:
+  task: b2fc15a87aeeed8394891343d8075c87aa7b4762542ef0f1ef05bb7d5f938779
+T026:
+  task: 674a894d1efa1751dcfddbbcb8435aa2b842bcf6b0e68ceed16335be2d861d2a
+T027:
+  task: 0068673368df928d1948a34c2d71e9ca35b8894aba1d73eadc36315afce4b238
+T028a:
+  task: 8b4167785e95442b421776f0ccf39ebd2ddee3bdf8216a6c1f28d405b35762b4
+T028b:
+  task: 310f26ec5ea65a53d2a4afe086428cf7216687eeda7692acc4760868ad8009f9
+T029:
+  task: 328dd554aeb0938b9d3f7043bf0f644a7a46ae0467eac8b126fe852444547ad0
+T030:
+  task: 85a4aa21a5972b98c9a320cadd56f9b6e12b06436144bb9079a33dab01c1627b
+T031a:
+  reason: 'declared artifact(s) missing/empty/invalid: src/analysis/citation_verifier.py,
+    data/results/final_report.md'
+  task: 3ea5b9b4f279dfc5067cb1087fe20d0a0b91d55c0cb67260a7417fa780869e7a
+T031b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/final_report.md'
+  task: 4dabf7769529d6e105111ef6d887646514cf5a4bc395a522587ab912fb3c5acb
+T031c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/final_report.md'
+  task: f4f88bced0e5d4610217697e33adf19c1a1f4a7e2f2aceda8ea3f22cfe8fcdb6
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/feature_importance.csv'
+  task: fdc59bc894ae94a0d5100e1266958ecfee7d42c6abd9b23cdc4858b1c6ccc244
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: figures/'
+  task: e8663d9ae36377debd56efb096338096b9c1af3f008571e3f29086cb0137c06e
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/performance.md'
+  task: 65a9f177d42024f91d467e2d40caa7ca00c00d16b15106829337df9af55a08c5
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/quickstart.md, docs/api.md'
+  task: a0e64330b9cbe90591799b5a2f0ae86313e6ec5cfa0b75786c2a244f91c0e06b
+T036:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_edge_cases.py'
+  task: 01cdf4cbc57454c97bb66e28c5208207a100e463f1bc9af47bbc44b539980c31
+T037:
+  task: 1ad723e2b0a9ff7bbf716520e92690ae00ee4c47057374bf9883755e1acfe70d
+T038:
+  reason: "The provided `research.md` documents the conflict but does not contain\
+    \ the required exact sentence: \u201CConstitution VII is overridden by FR-010\
+    \ for this project; thermal data MUST be sourced exclusively from peer-reviewed\
+    \ literature or NIST, NOT Materials Project thermal endpoint.\u201D Adding this\
+    \ explicit statement is needed to satisfy T038."
+  task: 37a306f75725127e0881c3bc6d5db578620030afb78f15b1e026d4d496c9fc04
+T040:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-035-exploring-the-correlation-between-crysta.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 171fe30fcd141aae091604b73b5fd764ba4b0395aaac93f3bcef54b3400bf39d
+T042:
+  task: 0a32217217075ab8fac211a211be221490d8ba48b1863e8b558d6c312b64a685
+T043:
+  task: ebdf4183e698eff86517443b9d4a5bf42568a474ec39afea6f533b1e8f7b6f46
+T044:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/model_metrics.json,
+    figures/'
+  task: 4f3e90cd98bc79fc33b44379624c871424d5e791bdb5829c7ed8a6951588a0b4
+T045:
+  task: 8946b485a76cc0242f06188c505201c0d3b065daaaf8affa621e3df84e46cdb1
+T046:
+  task: b48b864073b620e5f0cf6f69d94dfa11676bd36fdb1111744eaca909019543d6
+T047:
+  task: ac2719f3c4012c95eb35c59fc95f29c2e8fa73e802f46344e9d092132d25cc2b
+T048:
+  task: efca0d9a4133371be6cd360cebfeeae48e30dbce0455e956606d315d8a91b756
+T049:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/final_report.md'
+  task: 4dc5421dd080745d7d27b64e23dfb07ac88a281eb931ad75af2977ee9eb8d9d2

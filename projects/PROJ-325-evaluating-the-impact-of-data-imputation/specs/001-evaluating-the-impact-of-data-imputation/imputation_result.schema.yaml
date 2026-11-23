@@ -1,86 +1,76 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Imputation Result Schema
 description: >
-  Schema for storing results from imputation methods (Single Mean, MICE, etc.).
-  Includes imputed data, method parameters, and convergence diagnostics.
+  Schema for results generated after applying imputation methods (MICE, Single Mean, etc.).
+  Contains imputed data statistics, convergence status, and method parameters.
 type: object
 required:
   - metadata
+  - method
+  - parameters
   - results
+  - status
 properties:
   metadata:
     type: object
     required:
-      - method
       - dataset_id
-      - created_at
-      - parameters
+      - variable
+      - imputation_date
     properties:
-      method:
-        type: string
-        enum: [single_mean, mice, predictive_mean_matching]
-        description: "Imputation method used"
       dataset_id:
         type: string
-        description: "Reference to the input dataset ID"
-      created_at:
+      variable:
+        type: string
+      imputation_date:
         type: string
         format: date-time
-      parameters:
-        type: object
-        description: "Method-specific parameters (e.g., m, max_iter, seed)"
-        additionalProperties: true
-      missingness_mechanism:
-        type: string
-        enum: [MCAR, MAR, MNAR, unknown]
-        description: "The mechanism assumed or detected for this run"
+  method:
+    type: string
+    enum: [MICE, SingleMean, CompleteCase]
+    description: Imputation method used
+  parameters:
+    type: object
+    description: Method-specific parameters
+    properties:
+      m:
+        type: integer
+        description: Number of imputations (for MICE)
+      max_iter:
+        type: integer
+        description: Maximum iterations (for MICE)
+      seed:
+        type: integer
+        description: Random seed used
+      burn_in:
+        type: integer
+        description: Burn-in iterations discarded
   results:
     type: object
     required:
-      - imputed_data
-      - convergence_status
+      - mean
+      - variance
+      - std_error
     properties:
-      imputed_data:
-        type: array
-        description: "The imputed dataset records"
-        items:
-          type: object
-          additionalProperties: true
+      mean:
+        type: number
+      variance:
+        type: number
+      std_error:
+        type: number
+      ci_lower:
+        type: number
+      ci_upper:
+        type: number
       convergence_status:
         type: string
         enum: [converged, warning, failed]
-        description: "Status of the imputation convergence"
-      error_message:
+      convergence_message:
         type: string
-        description: "Error details if status is failed or warning"
-      burn_in_discarded:
-        type: integer
-        description: "Number of initial iterations discarded (for MICE)"
-      chains_used:
-        type: integer
-        description: "Number of independent chains used (for MICE)"
-      pooled_variance_method:
-        type: string
-        description: "Method used to pool results (e.g., Rubin's Rules)"
-examples:
-  - metadata:
-      method: "mice"
-      dataset_id: "synthetic_mar_v1"
-      created_at: "2023-10-27T12:00:00Z"
-      parameters:
-        m: 5
-        max_iter: 1000
-        seed: 42
-      missingness_mechanism: "MAR"
-    results:
-      imputed_data:
-        - caseid: 1
-          age: 35
-          income: 50000
-        - caseid: 2
-          age: 40
-          income: 62000
-      convergence_status: "converged"
-      burn_in_discarded: 100
-      chains_used: 4
-      pooled_variance_method: "Rubins Rules"
+  status:
+    type: string
+    enum: [success, warning, failed]
+  error_message:
+    type: string
+    nullable: true
+    description: Error details if status is failed or warning

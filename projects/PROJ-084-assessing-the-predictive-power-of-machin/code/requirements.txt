@@ -1,7 +1,2 @@
-pandas
-scikit-learn
-rdkit
-pyyaml
-pytest
-ruff
-black
+datasets
+# Existing dependencies are provided by the platform (numpy, pandas, scikit-learn, rdkit, etc.) and do not need to be listed here.

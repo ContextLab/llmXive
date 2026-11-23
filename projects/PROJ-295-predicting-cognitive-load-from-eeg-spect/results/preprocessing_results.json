@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "message": "",
+  "processing_time": 0.0,
+  "peak_memory_mb": 0.0,
+  "epochs_processed": 0,
+  "subjects_processed": 0,
+  "output_files": []
+}

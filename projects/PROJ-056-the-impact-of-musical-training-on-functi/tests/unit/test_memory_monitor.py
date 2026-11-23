@@ -1,174 +1,145 @@
 """
-Unit tests for the memory monitoring utilities.
-
-These tests verify that the memory monitor correctly detects when
-memory usage exceeds the configured limit and raises MemoryLimitExceeded.
+Unit tests for memory_monitor.py (T005, T005b).
 """
-
 import pytest
-from unittest.mock import patch
+import pandas as pd
+import numpy as np
 import sys
 import os
 
-# Add the code directory to the path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
 from utils.memory_monitor import (
     MemoryLimitExceeded,
-    get_current_memory_mb,
-    check_memory_limit,
-    enforce_memory_limit,
-    simulate_large_memory_usage
+    check_and_subset_memory,
+    check_and_subset_memory_fallback,
+    estimate_dataframe_memory_mb,
+    simulate_large_memory_usage,
+    cleanup_large_memory
 )
 
+def test_subset_memory_reduces_usage():
+    """Test that subsetting actually reduces memory usage."""
+    # Create a large DataFrame
+    n_rows = 100000
+    df = pd.DataFrame({
+        'id': range(n_rows),
+        'value': np.random.rand(n_rows),
+        'category': np.random.choice(['A', 'B', 'C'], n_rows)
+    })
+    
+    # Estimate memory
+    initial_mem = estimate_dataframe_memory_mb(df)
+    
+    # Subset to a smaller limit (e.g., 10 MB)
+    subset_df = check_and_subset_memory(df, limit_gb=0.01) # 10 MB
+    
+    subset_mem = estimate_dataframe_memory_mb(subset_df)
+    
+    assert subset_mem <= 10.0, f"Subset memory {subset_mem:.2f} MB exceeds 10 MB limit"
+    assert len(subset_df) < len(df), "Subset should have fewer rows"
 
-class TestMemoryLimitExceeded:
-    """Tests for the MemoryLimitExceeded exception."""
+def test_subset_memory_preserves_structure():
+    """Test that subsetting preserves DataFrame structure and types."""
+    df = pd.DataFrame({
+        'id': range(1000),
+        'value': np.random.rand(1000),
+        'category': np.random.choice(['A', 'B', 'C'], 1000),
+        'group': np.random.choice(['musician', 'non_musician'], 1000)
+    })
     
-    def test_exception_inherits_from_exception(self):
-        """Verify that MemoryLimitExceeded is a subclass of Exception."""
-        assert issubclass(MemoryLimitExceeded, Exception)
+    subset_df = check_and_subset_memory(df, limit_gb=7.0)
     
-    def test_exception_message(self):
-        """Verify that the exception carries a meaningful message."""
-        with pytest.raises(MemoryLimitExceeded) as exc_info:
-            raise MemoryLimitExceeded("Test message")
-        
-        assert "Test message" in str(exc_info.value)
+    assert set(df.columns) == set(subset_df.columns), "Columns should match"
+    assert df.dtypes.equals(subset_df.dtypes), "Dtypes should match"
 
+def test_subset_memory_stratified_sampling():
+    """Test that stratified sampling is used when 'group' column exists."""
+    # Create imbalanced groups
+    df = pd.DataFrame({
+        'id': range(1000),
+        'value': np.random.rand(1000),
+        'group': ['musician'] * 900 + ['non_musician'] * 100
+    })
+    
+    subset_df = check_and_subset_memory(df, limit_gb=0.01)
+    
+    # Check that both groups are present
+    assert 'musician' in subset_df['group'].values, "Musician group should be present"
+    assert 'non_musician' in subset_df['group'].values, "Non-musician group should be present"
+    
+    # Check relative proportions are roughly maintained
+    original_ratio = df['group'].value_counts()['musician'] / df['group'].value_counts()['non_musician']
+    subset_ratio = subset_df['group'].value_counts()['musician'] / subset_df['group'].value_counts()['non_musician']
+    
+    # Allow some variance due to random sampling
+    assert abs(original_ratio - subset_ratio) < 1.0, "Relative proportions should be roughly maintained"
 
-class TestGetCurrentMemoryMb:
-    """Tests for get_current_memory_mb function."""
+def test_memory_limit_exceeded_impossible_subset():
+    """Test that MemoryLimitExceeded is raised when subsetting is impossible."""
+    # Create a DataFrame where even a single row exceeds the limit
+    # This is hard to simulate with real data, so we test the logic
+    # by creating a DataFrame and setting a very low limit
+    df = pd.DataFrame({
+        'id': [1],
+        'value': [1.0],
+        'group': ['A']
+    })
     
-    def test_returns_positive_float(self):
-        """Verify that get_current_memory_mb returns a positive float."""
-        memory_mb = get_current_memory_mb()
-        assert isinstance(memory_mb, float)
-        assert memory_mb >= 0
+    # This should raise because we can't go below 1 row
+    with pytest.raises(MemoryLimitExceeded) as exc_info:
+        check_and_subset_memory(df, limit_gb=0.0000001) # Extremely low limit
+    
+    assert "subsetting impossible" in str(exc_info.value).lower()
 
+def test_fallback_failure_handling():
+    """Test T005b fallback failure handling."""
+    df = pd.DataFrame({
+        'id': [1],
+        'value': [1.0],
+        'group': ['A']
+    })
+    
+    with pytest.raises(MemoryLimitExceeded) as exc_info:
+        check_and_subset_memory_fallback(df, limit_gb=0.0000001)
+    
+    assert "Memory limit exceeded and subsetting impossible" in str(exc_info.value)
 
-class TestCheckMemoryLimit:
-    """Tests for check_memory_limit function."""
+def test_no_subset_needed():
+    """Test that original DataFrame is returned if it fits within limit."""
+    df = pd.DataFrame({
+        'id': range(100),
+        'value': np.random.rand(100)
+    })
     
-    @patch('utils.memory_monitor.get_current_memory_mb')
-    def test_within_limit_returns_true(self, mock_get_memory):
-        """Verify that check_memory_limit returns True when under limit."""
-        mock_get_memory.return_value = 1000.0  # 1000 MB
-        
-        result = check_memory_limit(limit_gb=7.0, raise_on_exceed=False)
-        
-        assert result is True
-        mock_get_memory.assert_called_once()
+    original_mem = estimate_dataframe_memory_mb(df)
     
-    @patch('utils.memory_monitor.get_current_memory_mb')
-    def test_exceeds_limit_raises_exception(self, mock_get_memory):
-        """Verify that check_memory_limit raises MemoryLimitExceeded when over limit."""
-        mock_get_memory.return_value = 8000.0  # 8000 MB > 7GB
-        
-        with pytest.raises(MemoryLimitExceeded) as exc_info:
-            check_memory_limit(limit_gb=7.0, raise_on_exceed=True)
-        
-        assert "Memory limit exceeded" in str(exc_info.value)
-        mock_get_memory.assert_called_once()
+    # Use a high limit
+    result_df = check_and_subset_memory(df, limit_gb=100.0)
     
-    @patch('utils.memory_monitor.get_current_memory_mb')
-    def test_exceeds_limit_returns_false_when_not_raising(self, mock_get_memory):
-        """Verify that check_memory_limit returns False when over limit and raise_on_exceed=False."""
-        mock_get_memory.return_value = 8000.0  # 8000 MB > 7GB
-        
-        result = check_memory_limit(limit_gb=7.0, raise_on_exceed=False)
-        
-        assert result is False
-        mock_get_memory.assert_called_once()
-    
-    @patch('utils.memory_monitor.get_current_memory_mb')
-    def test_custom_limit(self, mock_get_memory):
-        """Verify that check_memory_limit respects custom limits."""
-        mock_get_memory.return_value = 1500.0  # 1500 MB
-        
-        # Should pass with 2GB limit
-        result = check_memory_limit(limit_gb=2.0, raise_on_exceed=False)
-        assert result is True
-        
-        # Should fail with 1GB limit
-        with pytest.raises(MemoryLimitExceeded):
-            check_memory_limit(limit_gb=1.0, raise_on_exceed=True)
-    
-    @patch('utils.memory_monitor.get_current_memory_mb')
-    def test_exactly_at_limit(self, mock_get_memory):
-        """Verify behavior when memory is exactly at the limit."""
-        limit_gb = 7.0
-        limit_mb = limit_gb * 1024.0
-        mock_get_memory.return_value = limit_mb
-        
-        # Should pass when exactly at limit
-        result = check_memory_limit(limit_gb=limit_gb, raise_on_exceed=False)
-        assert result is True
-        
-        # Should fail when slightly over limit
-        mock_get_memory.return_value = limit_mb + 1
-        with pytest.raises(MemoryLimitExceeded):
-            check_memory_limit(limit_gb=limit_gb, raise_on_exceed=True)
+    assert result_df is df or result_df.equals(df), "Original DataFrame should be returned"
 
-class TestEnforceMemoryLimit:
-    """Tests for enforce_memory_limit function."""
+def test_cleanup_large_memory():
+    """Test that cleanup function runs without error."""
+    # Simulate some memory usage
+    simulate_large_memory_usage(10)
     
-    @patch('utils.memory_monitor.get_current_memory_mb')
-    def test_enforce_raises_on_exceed(self, mock_get_memory):
-        """Verify that enforce_memory_limit raises exception when over limit."""
-        mock_get_memory.return_value = 8000.0  # 8000 MB > 7GB
-        
-        with pytest.raises(MemoryLimitExceeded):
-            enforce_memory_limit(limit_gb=7.0)
+    # Cleanup
+    cleanup_large_memory()
     
-    @patch('utils.memory_monitor.get_current_memory_mb')
-    def test_enforce_does_not_raise_under_limit(self, mock_get_memory):
-        """Verify that enforce_memory_limit does not raise when under limit."""
-        mock_get_memory.return_value = 1000.0  # 1000 MB < 7GB
-        
-        # Should not raise
-        enforce_memory_limit(limit_gb=7.0)
+    # Should not raise
+    assert True
 
-class TestMockDatasetMemoryExceed:
-    """Tests simulating a mock dataset that exceeds 7GB memory limit."""
+def test_memory_estimate_accuracy():
+    """Test that memory estimation is reasonable."""
+    df = pd.DataFrame({
+        'id': range(10000),
+        'value': np.random.rand(10000)
+    })
     
-    @patch('utils.memory_monitor.get_current_memory_mb')
-    def test_mock_dataset_exceeds_limit(self, mock_get_memory):
-        """
-        Simulate a mock dataset > 7GB and verify that MemoryLimitExceeded is raised.
-        
-        This test uses monkeypatching to simulate a scenario where a large dataset
-        would cause memory usage to exceed the 7GB limit.
-        """
-        # Simulate memory usage of a mock dataset > 7GB
-        mock_get_memory.return_value = 7500.0  # 7500 MB > 7GB
-        
-        # Verify that check_memory_limit raises the exception
-        with pytest.raises(MemoryLimitExceeded) as exc_info:
-            check_memory_limit(limit_gb=7.0, raise_on_exceed=True)
-        
-        # Verify the error message contains relevant information
-        assert "Memory limit exceeded" in str(exc_info.value)
-        assert "7500.00" in str(exc_info.value)
-        assert "7168.00" in str(exc_info.value)  # 7 * 1024
-    
-    @patch('utils.memory_monitor.get_current_memory_mb')
-    def test_multiple_datasets_cumulative_exceed(self, mock_get_memory):
-        """
-        Simulate multiple mock datasets that cumulatively exceed 7GB.
-        
-        This test verifies that the memory monitor can detect when
-        cumulative memory usage from multiple data sources exceeds the limit.
-        """
-        # Simulate cumulative memory usage
-        mock_get_memory.return_value = 8500.0  # 8500 MB > 7GB
-        
-        # First check should fail
-        with pytest.raises(MemoryLimitExceeded):
-            check_memory_limit(limit_gb=7.0, raise_on_exceed=True)
-        
-        # Verify the exception message
-        with pytest.raises(MemoryLimitExceeded) as exc_info:
-            check_memory_limit(limit_gb=7.0, raise_on_exceed=True)
-        
-        assert "Memory limit exceeded" in str(exc_info.value)
+    estimated = estimate_dataframe_memory_mb(df)
+    # Just check it's a positive number
+    assert estimated > 0
+    # Check it's within a reasonable range (should be < 10 MB for this small df)
+    assert estimated < 10.0

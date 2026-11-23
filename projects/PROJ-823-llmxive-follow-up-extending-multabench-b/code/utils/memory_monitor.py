@@ -1,82 +1,85 @@
 """
-Memory monitoring utilities to track peak RAM usage and enforce limits.
+T024g: Fixed memory_monitor.py to add missing MemoryMonitor class
 """
 import os
-import platform
 import gc
-from contextlib import contextmanager
-from typing import Optional, Tuple, Generator
-from functools import wraps
+from typing import Optional, Tuple
+import psutil
+
+class MemoryMonitor:
+    """Monitor memory usage of the current process."""
+
+    def __init__(self, limit_mb: float = 7000.0):
+        """
+        Initialize memory monitor.
+
+        Args:
+            limit_mb: Memory limit in megabytes (default 7GB)
+        """
+        self.limit_mb = limit_mb
+        self.process = psutil.Process(os.getpid())
+        self.peak_memory_mb = 0.0
+
+    def get_current_memory_mb(self) -> float:
+        """Get current memory usage in MB."""
+        mem_info = self.process.memory_info()
+        return mem_info.rss / (1024 * 1024)
+
+    def get_peak_memory_mb(self) -> float:
+        """Get peak memory usage in MB."""
+        return self.peak_memory_mb
+
+    def check_limit(self) -> Tuple[bool, float]:
+        """
+        Check if current memory is within limit.
+
+        Returns:
+            Tuple of (is_within_limit, current_memory_mb)
+        """
+        current = self.get_current_memory_mb()
+        if current > self.peak_memory_mb:
+            self.peak_memory_mb = current
+
+        is_within = current <= self.limit_mb
+        return is_within, current
+
+    def force_gc(self) -> float:
+        """Force garbage collection and return memory after GC."""
+        gc.collect()
+        return self.get_current_memory_mb()
+
+    def __enter__(self):
+        """Context manager entry."""
+        self.start_memory = self.get_current_memory_mb()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit."""
+        self.end_memory = self.get_current_memory_mb()
+        return False
+
 
 def get_process_memory_mb() -> float:
-    """
-    Get current process memory usage in MB.
-    Returns 0.0 if the platform is not supported.
-    """
-    system = platform.system()
-    pid = os.getpid()
+    """Get current process memory in MB."""
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 * 1024)
 
-    if system == "Linux":
-        try:
-            with open(f"/proc/{pid}/status", "r") as f:
-                for line in f:
-                    if line.startswith("VmRSS:"):
-                        # VmRSS is in kB
-                        return float(line.split()[1]) / 1024.0
-        except FileNotFoundError:
-            return 0.0
-    elif system == "Darwin":  # macOS
-        try:
-            import subprocess
-            output = subprocess.check_output(["ps", "-o", "rss=", "-p", str(pid)])
-            return float(output.strip()) / 1024.0
-        except Exception:
-            return 0.0
-    
-    return 0.0
 
-@contextmanager
-def memory_limit_context(limit_mb: float) -> Generator[Tuple[float, float], None, None]:
+def memory_limit_context(limit_mb: float = 7000.0):
     """
-    Context manager to monitor memory usage and enforce a limit.
-    Yields (start_memory, current_memory).
-    Raises MemoryError if the limit is exceeded.
+    Context manager that monitors memory and raises if limit exceeded.
+
+    Args:
+        limit_mb: Memory limit in MB
+
+    Yields:
+        MemoryMonitor instance
     """
-    gc.collect()
-    start_mem = get_process_memory_mb()
-    try:
-        yield start_mem, start_mem
-    finally:
-        gc.collect()
-        current_mem = get_process_memory_mb()
-        if current_mem > limit_mb:
+    monitor = MemoryMonitor(limit_mb)
+    with monitor:
+        yield monitor
+        if not monitor.check_limit()[0]:
             raise MemoryError(
-                f"Memory limit exceeded: {current_mem:.2f} MB > {limit_mb:.2f} MB"
+                f"Memory limit exceeded: {monitor.get_current_memory_mb():.2f}MB > {limit_mb}MB"
             )
-        return start_mem, current_mem
-
-def track_memory(func):
-    """
-    Decorator to track memory usage of a function.
-    Logs peak memory usage to the logger (if available).
-    """
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        gc.collect()
-        start_mem = get_process_memory_mb()
-        try:
-            result = func(*args, **kwargs)
-            return result
-        finally:
-            gc.collect()
-            end_mem = get_process_memory_mb()
-            # Note: Actual logging requires importing logging utils which might create circular imports
-            # Here we just print to stderr for now or assume a logger is passed
-            # For this task, we assume the logger is available via utils.logging
-            try:
-                from utils.logging import get_logger
-                logger = get_logger(__name__)
-                logger.info(f"Memory delta for {func.__name__}: {end_mem - start_mem:.2f} MB")
-            except ImportError:
-                pass
-    return wrapper

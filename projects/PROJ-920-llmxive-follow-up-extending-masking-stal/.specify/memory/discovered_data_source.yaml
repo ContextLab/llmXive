@@ -1,0 +1,15 @@
+status: none
+intent: python package generate synthetic search trajectories with controllable token
+  entropy python package dataset
+required_fields:
+- trajectory_id
+- turn_number
+- text
+- entropy_per_token
+- critical_flag
+- evidence_age
+- density_level
+- seed
+cache_key: 4854eb5f9a283f32bae3ccd9502ae8661e8172a63a0fe3564a80d926cd64402c
+searched_at: '2026-10-15T18:18:10.118209+00:00'
+retry_count: 1

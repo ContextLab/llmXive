@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Topology Definition Schema"
+description: "Schema for a single topology definition in the synthetic test set."
+type: object
+properties:
+  topology_id:
+    type: string
+    pattern: "^topology_[0-9]{3}$"
+    description: "Unique identifier for the topology."
+  type:
+    type: string
+    enum: ["kinematic_chain", "deformable_rope", "deformable_cloth"]
+    description: "Type of object topology."
+  parameters:
+    type: object
+    properties:
+      link_count:
+        type: integer
+        minimum: 2
+        description: "Number of links in the kinematic chain (if applicable)."
+      hinge_count:
+        type: integer
+        minimum: 1
+        description: "Number of hinges in the chain (if applicable)."
+      material_properties:
+        type: object
+        properties:
+          stiffness:
+            type: number
+            minimum: 0
+            description: "Stiffness coefficient for soft bodies."
+          damping:
+            type: number
+            minimum: 0
+            description: "Damping coefficient for soft bodies."
+        required: ["stiffness", "damping"]
+    required: []
+  checksum:
+    type: string
+    description: "SHA256 hash of the topology definition for uniqueness check."
+required: ["topology_id", "type", "checksum"]
+additionalProperties: false

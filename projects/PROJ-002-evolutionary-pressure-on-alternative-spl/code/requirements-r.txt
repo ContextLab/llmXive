@@ -1,0 +1,6 @@
+# R dependencies for PROJ-002: Evolutionary Pressure on Alternative Splicing in Primates
+# Statistical analysis and phylogenetics
+phylolm
+ape
+data.table
+ggplot2

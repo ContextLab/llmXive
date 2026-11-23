@@ -1,0 +1,10 @@
+pandas==2.0.3
+numpy==1.24.3
+scikit-learn==1.3.0
+hrv-analysis==1.1.0
+pybids==0.16.5
+requests==2.31.0
+pyyaml==6.0.1
+jsonschema==4.19.0
+statsmodels==0.14.0
+wfdb==4.1.0

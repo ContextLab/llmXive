@@ -1,199 +1,244 @@
 """
-Integration test for User Story 2: Hypothesis Test Execution.
-
-Tests the full iteration loop of generating synthetic data and running
-hypothesis tests without runtime errors.
-
-This verifies that:
-1. The data generation pipeline (T013-T016) produces valid inputs.
-2. The hypothesis test runner (T020, to be implemented) executes successfully.
-3. P-values are collected correctly across multiple iterations.
+Integration tests for hypothesis testing pipeline.
+Tests for code/run_tests.py and code/analyze_pvalues.py
 """
-import pytest
 import numpy as np
-import json
-from pathlib import Path
+import pytest
 from scipy import stats
-
-# Import from project modules (matching API surface)
-from code.generate_data import generate_correlated_data, apply_distribution_violation
-from code.utils.simulation import SimulationConfig, calculate_minimum_iterations
-from code.utils.regularization import regularize_covariance
+from run_tests import run_hypothesis_tests
+from analyze_pvalues import calculate_ks_statistic
 
 
-class TestFullIterationLoop:
-    """Integration tests for the full hypothesis testing loop."""
+class TestHypothesisTestingIntegration:
+    def test_full_iteration_loop(self):
+        """Test multiple iterations without runtime errors."""
+        n_iterations = 10
+        n_samples = 100
+        n_features = 50
 
-    @pytest.fixture
-    def temp_data_dir(self, tmp_path):
-        """Create a temporary directory for test artifacts."""
-        data_dir = tmp_path / "data" / "synthetic"
-        data_dir.mkdir(parents=True)
-        return data_dir
+        all_pvalues = []
 
-    def test_single_iteration_no_errors(self, temp_data_dir):
-        """
-        Test a single iteration of data generation and hypothesis testing.
-        Verifies that the loop runs without runtime errors.
-        """
-        # Parameters for a minimal test
-        n_samples = 50
-        n_features = 10
-        rho = 0.3
-        seed = 42
-        distribution_type = "normal"
+        for i in range(n_iterations):
+            np.random.seed(i)
+            group1 = np.random.randn(n_samples, n_features)
+            group2 = np.random.randn(n_samples, n_features)
 
-        # 1. Generate Correlated Data
-        # This mimics the logic in code/generate_data.py
-        np.random.seed(seed)
-        
-        # Generate correlation matrix
-        base = np.random.normal(0, 1, (n_features, n_features))
-        cov_matrix = np.dot(base, base.T)
-        # Add rho correlation structure
-        cov_matrix = cov_matrix + rho * np.eye(n_features)
-        # Normalize to correlation matrix
-        d = np.sqrt(np.diag(cov_matrix))
-        corr_matrix = cov_matrix / np.outer(d, d)
-        
-        # Regularize if necessary (simulating T004)
-        try:
-            corr_matrix = regularize_covariance(corr_matrix)
-        except Exception:
-            # Fallback if regularization fails on small matrices
-            pass
+            p_values = run_hypothesis_tests(group1, group2)
+            all_pvalues.extend(p_values)
 
-        # Generate data
-        data = np.random.multivariate_normal(
-            mean=np.zeros(n_features),
-            cov=corr_matrix,
-            size=n_samples
-        )
+        # Verify all p-values are valid
+        assert len(all_pvalues) == n_iterations * n_features
+        assert all(0 <= p <= 1 for p in all_pvalues)
 
-        # 2. Apply Distribution Violation (if requested)
-        if distribution_type == "heavy_tailed":
-            data = apply_distribution_violation(data, "t", df=3)
-        elif distribution_type == "skewed":
-            data = apply_distribution_violation(data, "skew_normal", alpha=2)
+    def test_null_hypothesis_pvalue_distribution(self):
+        """Test that p-values under null hypothesis are approximately uniform."""
+        n_iterations = 100
+        n_samples = 200
+        n_features = 20
 
-        # 3. Run Hypothesis Tests (Simulating T020 logic)
-        # We perform a t-test comparing the first half of samples to the second half
-        # Under the null hypothesis, the means should be equal.
-        split_idx = n_samples // 2
-        group1 = data[:split_idx, :]
-        group2 = data[split_idx:, :]
+        all_pvalues = []
 
-        p_values = []
-        for col_idx in range(n_features):
-            stat, p_val = stats.ttest_ind(group1[:, col_idx], group2[:, col_idx])
-            p_values.append(p_val)
+        for i in range(n_iterations):
+            np.random.seed(i)
+            group1 = np.random.randn(n_samples, n_features)
+            group2 = np.random.randn(n_samples, n_features)
 
-        # 4. Assertions
-        assert len(p_values) == n_features, f"Expected {n_features} p-values, got {len(p_values)}"
-        assert all(isinstance(p, float) for p in p_values), "All p-values must be floats"
-        assert all(0.0 <= p <= 1.0 for p in p_values), "All p-values must be in [0, 1]"
+            p_values = run_hypothesis_tests(group1, group2)
+            all_pvalues.extend(p_values)
 
-    def test_multiple_iterations_loop(self, temp_data_dir):
-        """
-        Test the full iteration loop with multiple seeds/iterations.
-        Ensures no state leakage or runtime errors across iterations.
-        """
-        num_iterations = 3
-        n_samples = 30
-        n_features = 5
+        # KS test against uniform distribution
+        ks_stat, p_value = stats.kstest(all_pvalues, 'uniform')
+
+        # Should not reject uniformity (p-value > 0.05)
+        # Note: With many tests, some will reject by chance
+        # So we check that most iterations pass
+        assert p_value > 0.01  # Allow some false positives
+
+    def test_alternative_hypothesis_detection(self):
+        """Test that alternative hypothesis is detected with sufficient power."""
+        n_iterations = 50
+        n_samples = 200
+        n_features = 20
+
+        detection_rate = 0
+
+        for i in range(n_iterations):
+            np.random.seed(i)
+            group1 = np.random.randn(n_samples, n_features)
+            group2 = np.random.randn(n_samples, n_features) + 1.0  # Mean shift
+
+            p_values = run_hypothesis_tests(group1, group2)
+
+            # Count significant results (p < 0.05)
+            significant = sum(1 for p in p_values if p < 0.05)
+
+            if significant > n_features * 0.5:
+                detection_rate += 1
+
+        # Should detect effect in most iterations
+        assert detection_rate > n_iterations * 0.8
+
+    def test_pvalue_collection_completeness(self):
+        """Test that all p-values are collected without missing values."""
+        n_iterations = 10
+        n_samples = 100
+        n_features = 50
+
+        for i in range(n_iterations):
+            np.random.seed(i)
+            group1 = np.random.randn(n_samples, n_features)
+            group2 = np.random.randn(n_samples, n_features)
+
+            p_values = run_hypothesis_tests(group1, group2)
+
+            # Verify exactly p values collected
+            assert len(p_values) == n_features
+
+            # Verify no NaN or Inf values
+            assert not np.any(np.isnan(p_values))
+            assert not np.any(np.isinf(p_values))
+
+    def test_ks_statistic_integration(self):
+        """Test KS statistic calculation on collected p-values."""
+        n_iterations = 100
+        n_samples = 200
+        n_features = 20
+
+        all_pvalues = []
+
+        for i in range(n_iterations):
+            np.random.seed(i)
+            group1 = np.random.randn(n_samples, n_features)
+            group2 = np.random.randn(n_samples, n_features)
+
+            p_values = run_hypothesis_tests(group1, group2)
+            all_pvalues.extend(p_values)
+
+        # Calculate KS statistic
+        ks_stat = calculate_ks_statistic(np.array(all_pvalues))
+
+        # Should be small for uniform distribution
+        assert ks_stat < 0.1
+
+    def test_batch_processing(self):
+        """Test processing multiple datasets in batch."""
+        n_datasets = 5
+        n_samples = 100
+        n_features = 50
+
+        results = []
+
+        for i in range(n_datasets):
+            np.random.seed(i)
+            group1 = np.random.randn(n_samples, n_features)
+            group2 = np.random.randn(n_samples, n_features)
+
+            p_values = run_hypothesis_tests(group1, group2)
+            ks_stat = calculate_ks_statistic(np.array(p_values))
+            results.append({"dataset": i, "ks_stat": ks_stat})
+
+        # Verify all results
+        assert len(results) == n_datasets
+        assert all(0 <= r["ks_stat"] <= 1 for r in results)
+
+    def test_large_scale_integration(self):
+        """Test integration with larger dimensions."""
+        n_iterations = 5
+        n_samples = 500
+        n_features = 200
+
+        all_pvalues = []
+
+        for i in range(n_iterations):
+            np.random.seed(i)
+            group1 = np.random.randn(n_samples, n_features)
+            group2 = np.random.randn(n_samples, n_features)
+
+            p_values = run_hypothesis_tests(group1, group2)
+            all_pvalues.extend(p_values)
+
+        # Verify completeness
+        assert len(all_pvalues) == n_iterations * n_features
+
+        # KS test
+        ks_stat = calculate_ks_statistic(np.array(all_pvalues))
+        assert ks_stat < 0.15  # Allow slightly larger for finite sample
+
+    def test_correlated_data_integration(self):
+        """Test integration with correlated data."""
+        n_iterations = 10
+        n_samples = 200
+        n_features = 50
         rho = 0.5
 
-        all_results = []
+        all_pvalues = []
 
-        for i in range(num_iterations):
-            seed = 100 + i
-            np.random.seed(seed)
+        for i in range(n_iterations):
+            np.random.seed(i)
 
-            # Generate Data
-            base = np.random.normal(0, 1, (n_features, n_features))
-            cov_matrix = np.dot(base, base.T) + rho * np.eye(n_features)
-            d = np.sqrt(np.diag(cov_matrix))
-            corr_matrix = cov_matrix / np.outer(d, d)
-            
-            try:
-                corr_matrix = regularize_covariance(corr_matrix)
-            except Exception:
-                pass
-
-            data = np.random.multivariate_normal(
-                mean=np.zeros(n_features),
-                cov=corr_matrix,
-                size=n_samples
+            # Generate correlated data
+            base = np.random.randn(n_samples, n_features)
+            # Create correlation structure
+            corr_data = base @ np.linalg.cholesky(
+                np.full((n_features, n_features), rho) + np.eye(n_features) * (1 - rho)
             )
 
-            # Run Tests
-            split_idx = n_samples // 2
-            group1 = data[:split_idx, :]
-            group2 = data[split_idx:, :]
+            group1 = corr_data[:n_samples//2, :]
+            group2 = corr_data[n_samples//2:, :]
 
-            iteration_p_values = []
-            for col_idx in range(n_features):
-                stat, p_val = stats.ttest_ind(group1[:, col_idx], group2[:, col_idx])
-                iteration_p_values.append(p_val)
+            p_values = run_hypothesis_tests(group1, group2)
+            all_pvalues.extend(p_values)
 
-            all_results.append({
-                "iteration": i,
-                "seed": seed,
-                "p_values": iteration_p_values
-            })
+        # Verify completeness
+        assert len(all_pvalues) == n_iterations * n_features
 
-        # Verify results structure
-        assert len(all_results) == num_iterations
-        for res in all_results:
-            assert len(res["p_values"]) == n_features
-            assert all(0.0 <= p <= 1.0 for p in res["p_values"])
+        # KS test
+        ks_stat = calculate_ks_statistic(np.array(all_pvalues))
+        # Correlated data might show some deviation
+        assert ks_stat < 0.2
 
-    def test_high_dimensional_case(self, temp_data_dir):
-        """
-        Test with p > n (high-dimensional scenario) to ensure robustness.
-        """
-        n_samples = 20
-        n_features = 50  # p > n
-        rho = 0.1
-        seed = 999
+    def test_mixed_distribution_integration(self):
+        """Test integration with mixed distribution violations."""
+        n_iterations = 5
+        n_samples = 200
+        n_features = 50
 
+        all_pvalues = []
+
+        for i in range(n_iterations):
+            np.random.seed(i)
+
+            # Generate data with t-distribution (heavy tails)
+            group1 = np.random.standard_t(df=3, size=(n_samples, n_features))
+            group2 = np.random.standard_t(df=3, size=(n_samples, n_features))
+
+            p_values = run_hypothesis_tests(group1, group2)
+            all_pvalues.extend(p_values)
+
+        # Verify completeness
+        assert len(all_pvalues) == n_iterations * n_features
+
+        # KS test (might show deviation due to heavy tails)
+        ks_stat = calculate_ks_statistic(np.array(all_pvalues))
+        assert ks_stat < 0.3  # Allow larger deviation for heavy-tailed data
+
+    def test_reproducibility_across_runs(self):
+        """Test that results are reproducible with same seed."""
+        n_samples = 100
+        n_features = 50
+        seed = 42
+
+        # First run
         np.random.seed(seed)
+        group1_1 = np.random.randn(n_samples, n_features)
+        group2_1 = np.random.randn(n_samples, n_features)
+        pvalues_1 = run_hypothesis_tests(group1_1, group2_1)
 
-        # Generate data
-        base = np.random.normal(0, 1, (n_features, n_features))
-        cov_matrix = np.dot(base, base.T) + rho * np.eye(n_features)
-        d = np.sqrt(np.diag(cov_matrix))
-        corr_matrix = cov_matrix / np.outer(d, d)
+        # Second run with same seed
+        np.random.seed(seed)
+        group1_2 = np.random.randn(n_samples, n_features)
+        group2_2 = np.random.randn(n_samples, n_features)
+        pvalues_2 = run_hypothesis_tests(group1_2, group2_2)
 
-        # Regularize is critical here for p > n
-        try:
-            corr_matrix = regularize_covariance(corr_matrix)
-        except Exception as e:
-            pytest.fail(f"Regularization failed for high-dimensional case: {e}")
-
-        data = np.random.multivariate_normal(
-            mean=np.zeros(n_features),
-            cov=corr_matrix,
-            size=n_samples
-        )
-
-        # Run tests
-        split_idx = n_samples // 2
-        group1 = data[:split_idx, :]
-        group2 = data[split_idx:, :]
-
-        p_values = []
-        for col_idx in range(n_features):
-            # T-test might fail if variance is zero, but with continuous dist it shouldn't
-            try:
-                stat, p_val = stats.ttest_ind(group1[:, col_idx], group2[:, col_idx])
-                p_values.append(p_val)
-            except ValueError:
-                # Handle edge case where variance is 0 (rare in continuous data)
-                p_values.append(1.0) # Conservative p-value
-
-        assert len(p_values) == n_features
-        assert all(0.0 <= p <= 1.0 for p in p_values)
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        # Results should be identical
+        np.testing.assert_array_equal(pvalues_1, pvalues_2)

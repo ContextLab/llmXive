@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionResult"
+description: "Schema for model prediction results and metrics."
+type: "object"
+properties:
+  fold_id:
+    type: "integer"
+    description: "Cross-validation fold ID (0-4)."
+  model_type:
+    type: "string"
+    enum:
+      - "GCN"
+      - "RF"
+      - "LR"
+    description: "Type of model used."
+  molecule_id:
+    type: "string"
+    description: "Reference to the molecule."
+  true_value:
+    type: "number"
+    description: "Actual experimental permeability."
+  predicted_value:
+    type: "number"
+    description: "Model predicted permeability."
+  error:
+    type: "number"
+    description: "Absolute error (|true - predicted|)."
+required:
+  - fold_id
+  - model_type
+  - molecule_id
+  - true_value
+  - predicted_value
+  - error

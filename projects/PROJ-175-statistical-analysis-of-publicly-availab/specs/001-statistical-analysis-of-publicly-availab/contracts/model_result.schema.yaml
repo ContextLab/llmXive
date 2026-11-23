@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult"
+description: "Schema for the output of the statistical model fitting."
+type: object
+properties:
+  coefficients:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Map of predictor names to coefficients."
+  p_values:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Map of predictor names to p-values."
+  vif_scores:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Map of predictor names to VIF scores."
+  auc:
+    type: number
+    description: "Area Under the Curve."
+  log_likelihood:
+    type: number
+    description: "Log-likelihood of the model."
+required:
+  - coefficients
+  - p_values
+  - vif_scores
+  - auc
+  - log_likelihood
+additionalProperties: false

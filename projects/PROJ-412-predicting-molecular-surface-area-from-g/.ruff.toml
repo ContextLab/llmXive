@@ -1,0 +1,40 @@
+# Ruff configuration for the molecular surface area prediction pipeline.
+# Ruff version pinned in code/requirements.txt (ruff==0.1.6).
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # Pyflakes
+  "I",   # isort
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "UP",  # pyupgrade
+  "S",   # flake8-bandit (security)
+  "RUF", # Ruff-specific rules
+]
+ignore = [
+  "E501",  # Line too long (handled by Black)
+  "B008",  # Do not perform function call in argument defaults (common in ML)
+  "S101",  # Use of assert detected (assertions used in tests/validations)
+]
+
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = true
+lines-after-imports = 2
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "ARG"]
+"code/utils/logging.py" = ["B028"]
+"code/data/ingest.py" = ["S310"] # URL open for reading (ZINC15)
+
+[lint.pydocstyle]
+convention = "google"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"

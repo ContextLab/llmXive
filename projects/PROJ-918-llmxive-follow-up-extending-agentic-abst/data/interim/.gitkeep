@@ -1,0 +1,2 @@
+# This directory stores intermediate data files used during processing.
+# Do not commit large data files. Add patterns to .gitignore.

@@ -1,0 +1,105 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the JSON file containing power analysis, mixed‑effects ANOVA, mixed logistic regression, and correlation results."
+type: object
+required:
+  - power_analysis
+  - anova_time
+  - anova_accuracy
+  - correlation_metrics
+properties:
+  power_analysis:
+    type: object
+    required:
+      - effect_size
+      - alpha
+      - achieved_power
+      - required_sample_per_group
+    properties:
+      effect_size:
+        type: number
+        description: "Cohen's f used in the power calculation."
+      alpha:
+        type: number
+        description: "Significance level (e.g., 0.05)."
+      achieved_power:
+        type: number
+        description: "Statistical power achieved with the actual sample size."
+      required_sample_per_group:
+        type: integer
+        description: "Minimum N per group needed for target power."
+  anova_time:
+    type: object
+    required:
+      - F
+      - p_value
+      - df_between
+      - df_within
+      - reject_null
+    properties:
+      F:
+        type: number
+        description: "F-statistic for completion time ANOVA."
+      p_value:
+        type: number
+        description: "Two-tailed p-value."
+      df_between:
+        type: integer
+        description: "Degrees of freedom between groups."
+      df_within:
+        type: integer
+        description: "Degrees of freedom within groups."
+      reject_null:
+        type: boolean
+        description: "True if p < 0.05, rejecting the null of no group difference."
+  anova_accuracy:
+    type: object
+    required:
+      - F
+      - p_value
+      - df_between
+      - df_within
+      - reject_null
+    properties:
+      F:
+        type: number
+        description: "F-statistic for accuracy ANOVA (after arcsine‑sqrt transform)."
+      p_value:
+        type: number
+        description: "Two-tailed p-value."
+      df_between:
+        type: integer
+        description: "Degrees of freedom between groups."
+      df_within:
+        type: integer
+        description: "Degrees of freedom within groups."
+      reject_null:
+        type: boolean
+        description: "True if p < 0.05, rejecting the null of no group difference."
+  correlation_metrics:
+    type: array
+    description: "Correlation results for each metric‑outcome pair (LLM rows only, aggregated per snippet)."
+    items:
+      type: object
+      required:
+        - metric
+        - outcome
+        - pearson_r
+        - p_value_raw
+        - p_value_corrected
+      properties:
+        metric:
+          type: string
+          enum: ["BLEU", "ROUGE_L", "Semantic_Similarity", "Comment_Length", "Flesch_Kincaid_Grade"]
+        outcome:
+          type: string
+          enum: ["completion_time_sec", "accuracy", "subjective_helpfulness"]
+        pearson_r:
+          type: number
+          description: "Pearson correlation coefficient."
+        p_value_raw:
+          type: number
+          description: "Unadjusted p-value."
+        p_value_corrected:
+          type: number
+          description: "Bonferroni-corrected p-value (alpha divided by number of tests)."

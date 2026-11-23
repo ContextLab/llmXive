@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.09720",
+  "judged_at": "2026-08-03T18:02:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"transitlm: a large-scale dataset and benchmark for map-free transit ro\" linguistics",
+  "rationale": "The paper focuses on computer vision and pedestrian attribute recognition using LLMs for visual feature augmentation, which is an off-domain application of LLMs compared to the user's question about extending a transit mapping dataset and benchmark. While both involve LLMs and benchmarks, the paper does not address the specific mechanism (map-free transit routing), the domain (transit/transportation), or the linguistic aspects of the user's proposed \"llmXive\" follow-up, failing to meet any of th",
+  "relevant": false
+}

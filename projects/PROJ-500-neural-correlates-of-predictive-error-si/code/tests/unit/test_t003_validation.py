@@ -3,117 +3,153 @@ import os
 import sys
 import pytest
 from pathlib import Path
-from src.data.ingest import (
-    generate_validation_report, 
-    run_variable_check_for_task,
-    validate_metadata_variables
-)
+import tempfile
+
+# Import the function we are testing
+from src.data.ingest import generate_validation_report
 
 @pytest.fixture
-def temp_data_dir(tmp_path):
-    # Setup a temporary directory for data
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    return data_dir
+def temp_data_dir():
+    """Create a temporary directory for test outputs."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-def test_analysis_mode_error_signal(tmp_path):
-    """Test that analysis_mode is 'error_signal' when both variables are present."""
-    # Mock metadata with both variables
-    mock_metadata = {
-        "stimulus_type": "present",
-        "response_correctness": "present"
+def test_analysis_mode_error_signal(temp_data_dir):
+    """Test that analysis_mode is 'error_signal' when response_correctness is present."""
+    dataset_info = {
+        "name": "test_dataset",
+        "metadata": {
+            "stimulus_type": ["std", "dev"],
+            "response_correctness": ["correct", "incorrect"]
+        },
+        "subjects": [
+            {"subject_id": "sub-001", "trials_per_condition": {"std": 600, "dev": 600}}
+        ]
     }
-    # Save mock metadata
-    meta_path = tmp_path / "data" / "metadata.json"
-    meta_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(meta_path, 'w') as f:
-        json.dump(mock_metadata, f)
+    output_path = temp_data_dir / "validation_report.json"
     
-    # Run generation
-    output_path = str(tmp_path / "data" / "validation_report.json")
-    # We need to patch the function to use our temp path or pass it
-    # Since the function uses a default, we'll test the logic directly
+    report = generate_validation_report(dataset_info, output_path)
     
-    # Re-implement logic for test
-    check_results = {
-        "stimulus_type": True,
-        "response_correctness": True
-    }
-    
-    if check_results.get("stimulus_type") and check_results.get("response_correctness"):
-        mode = "error_signal"
-    else:
-        mode = "stimulus_driven"
-    
-    assert mode == "error_signal"
+    assert report["analysis_mode"] == "error_signal"
+    assert output_path.exists()
+    assert report["excluded_subjects"] == []
 
-def test_analysis_mode_stimulus_driven_missing_response(tmp_path):
-    """Test that analysis_mode is 'stimulus_driven' when response_correctness is missing."""
-    check_results = {
-        "stimulus_type": True,
-        "response_correctness": False
+def test_analysis_mode_stimulus_driven_missing_response(temp_data_dir):
+    """Test that analysis_mode is 'stimulus_driven' when only stimulus_type is present."""
+    dataset_info = {
+        "name": "test_dataset",
+        "metadata": {
+            "stimulus_type": ["std", "dev"]
+        },
+        "subjects": [
+            {"subject_id": "sub-001", "trials_per_condition": {"std": 600, "dev": 600}}
+        ]
     }
+    output_path = temp_data_dir / "validation_report.json"
     
-    if check_results.get("stimulus_type") and check_results.get("response_correctness"):
-        mode = "error_signal"
-    else:
-        mode = "stimulus_driven"
+    report = generate_validation_report(dataset_info, output_path)
     
-    assert mode == "stimulus_driven"
+    assert report["analysis_mode"] == "stimulus_driven"
+    assert output_path.exists()
 
-def test_analysis_mode_stimulus_driven_missing_stimulus(tmp_path):
-    """Test that analysis_mode is 'stimulus_driven' when stimulus_type is missing."""
-    check_results = {
-        "stimulus_type": False,
-        "response_correctness": True
+def test_analysis_mode_stimulus_driven_missing_stimulus(temp_data_dir):
+    """Test that error is raised if stimulus_type is missing but response_correctness is present."""
+    # Actually, if response_correctness is present, we should still get error_signal.
+    # The logic is: if response -> error_signal. If not response but stimulus -> stimulus_driven.
+    # If neither -> error.
+    # So this test case is actually: only response, no stimulus -> should be error_signal.
+    dataset_info = {
+        "name": "test_dataset",
+        "metadata": {
+            "response_correctness": ["correct", "incorrect"]
+        },
+        "subjects": [
+            {"subject_id": "sub-001", "trials_per_condition": {"std": 600, "dev": 600}}
+        ]
     }
+    output_path = temp_data_dir / "validation_report.json"
     
-    if check_results.get("stimulus_type") and check_results.get("response_correctness"):
-        mode = "error_signal"
-    else:
-        mode = "stimulus_driven"
+    report = generate_validation_report(dataset_info, output_path)
     
-    assert mode == "stimulus_driven"
+    assert report["analysis_mode"] == "error_signal"
 
-def test_analysis_mode_stimulus_driven_missing_both(tmp_path):
-    """Test that analysis_mode is 'stimulus_driven' when both are missing."""
-    check_results = {
-        "stimulus_type": False,
-        "response_correctness": False
+def test_analysis_mode_stimulus_driven_missing_both(temp_data_dir):
+    """Test that error is raised if both variables are missing."""
+    dataset_info = {
+        "name": "test_dataset",
+        "metadata": {},
+        "subjects": []
     }
+    output_path = temp_data_dir / "validation_report.json"
     
-    if check_results.get("stimulus_type") and check_results.get("response_correctness"):
-        mode = "error_signal"
-    else:
-        mode = "stimulus_driven"
-    
-    assert mode == "stimulus_driven"
+    with pytest.raises(ValueError, match="lacks required variables"):
+        generate_validation_report(dataset_info, output_path)
 
-def test_generate_validation_report_creates_file(tmp_path):
-    """Test that the report file is created."""
-    # Create a mock metadata file
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    meta_file = data_dir / "metadata.json"
-    with open(meta_file, 'w') as f:
-        json.dump({"stimulus_type": True, "response_correctness": True}, f)
-    
-    # Temporarily change working directory or patch path
-    # For simplicity, we test the logic directly as the file I/O is standard
-    output_file = data_dir / "validation_report.json"
-    
-    # Simulate the logic
-    report = {
-        "status": "success",
-        "analysis_mode": "error_signal",
-        "variables_found": {"stimulus_type": True, "response_correctness": True},
-        "generated_by": "T003"
+def test_generate_validation_report_creates_file(temp_data_dir):
+    """Test that the report file is created on disk."""
+    dataset_info = {
+        "name": "test_dataset",
+        "metadata": {
+            "stimulus_type": ["std", "dev"],
+            "response_correctness": ["correct", "incorrect"]
+        },
+        "subjects": []
     }
+    output_path = temp_data_dir / "validation_report.json"
     
-    with open(output_file, 'w') as f:
-        json.dump(report, f)
+    generate_validation_report(dataset_info, output_path)
     
-    assert output_file.exists()
-    with open(output_file, 'r') as f:
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
         data = json.load(f)
-    assert data["analysis_mode"] == "error_signal"
+        assert "analysis_mode" in data
+        assert "excluded_subjects" in data
+
+def test_check_and_report_variables(temp_data_dir):
+    """Test the variable checking logic."""
+    # This function is tested indirectly via generate_validation_report,
+    # but we can test the exclusion logic specifically here.
+    dataset_info = {
+        "name": "test_dataset",
+        "metadata": {
+            "stimulus_type": ["std", "dev"],
+            "response_correctness": ["correct", "incorrect"]
+        },
+        "subjects": [
+            {"subject_id": "sub-001", "trials_per_condition": {"std": 400, "dev": 400}}, # < 500
+            {"subject_id": "sub-002", "trials_per_condition": {"std": 600, "dev": 600}},
+            {"subject_id": "sub-003", "trials_per_condition": {"std": 600, "dev": 600}}
+        ]
+    }
+    output_path = temp_data_dir / "validation_report.json"
+    
+    report = generate_validation_report(dataset_info, output_path)
+    
+    # Check that sub-001 is excluded for insufficient trials
+    excluded_ids = [s["subject_id"] for s in report["excluded_subjects"]]
+    assert "sub-001" in excluded_ids
+    assert len(report["excluded_subjects"]) == 1
+
+def test_cohort_underpowered(temp_data_dir):
+    """Test exclusion when total subjects < 20."""
+    # Create a dataset with only 5 subjects (all with enough trials)
+    subjects = [
+        {"subject_id": f"sub-{i:03d}", "trials_per_condition": {"std": 600, "dev": 600}}
+        for i in range(5)
+    ]
+    dataset_info = {
+        "name": "small_cohort_dataset",
+        "metadata": {
+            "stimulus_type": ["std", "dev"],
+            "response_correctness": ["correct", "incorrect"]
+        },
+        "subjects": subjects
+    }
+    output_path = temp_data_dir / "validation_report.json"
+    
+    report = generate_validation_report(dataset_info, output_path)
+    
+    # All 5 subjects should be excluded due to cohort size
+    assert len(report["excluded_subjects"]) == 5
+    assert report["exclusion_summary"]["total_excluded"] == 5
+    assert any("underpowered_cohort_size" in s["reason"] for s in report["excluded_subjects"])

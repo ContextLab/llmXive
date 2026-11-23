@@ -1,49 +1,58 @@
 import os
-import tempfile
-from pathlib import Path
+import shutil
 import pytest
+from pathlib import Path
+import sys
 
-# Import the function to test
+# Ensure code directory is in path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+
 from setup_directories import create_project_directories
 
-def test_create_project_directories():
-    """
-    Test that create_project_directories creates all required subdirectories.
-    """
-    # Create a temporary directory to act as the project root
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir)
-        
-        # Call the function
-        create_project_directories(str(project_root))
-        
-        # Define expected directories
-        expected_dirs = [
-            "results/models",
-            "results/figures",
-            "results/diagnostics",
-            "code",
-            "tests"
-        ]
-        
-        # Verify each directory exists
-        for dir_name in expected_dirs:
-            dir_path = project_root / dir_name
-            assert dir_path.exists(), f"Directory {dir_path} was not created."
-            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory."
+PROJECT_ROOT = "projects/PROJ-530-neural-correlates-of-error-monitoring-du"
+DATA_RAW = os.path.join(PROJECT_ROOT, "data", "raw")
+DATA_PROCESSED = os.path.join(PROJECT_ROOT, "data", "processed")
 
-def test_create_project_directories_idempotent():
-    """
-    Test that running the function twice does not raise errors (idempotent).
-    """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir)
+@pytest.fixture(autouse=True)
+def cleanup_directories():
+    """Clean up directories before and after each test."""
+    # Remove if exists
+    if os.path.exists(PROJECT_ROOT):
+        shutil.rmtree(PROJECT_ROOT)
+    yield
+    # Clean up after test
+    if os.path.exists(PROJECT_ROOT):
+        shutil.rmtree(PROJECT_ROOT)
+
+def test_create_data_directories():
+    """Test that create_project_directories creates the required data directories."""
+    result = create_project_directories()
+    
+    assert result is True, "Directory creation should return True on success"
+    assert os.path.isdir(DATA_RAW), f"Directory {DATA_RAW} should exist"
+    assert os.path.isdir(DATA_PROCESSED), f"Directory {DATA_PROCESSED} should exist"
+
+def test_directories_are_empty():
+    """Test that the created directories are initially empty."""
+    create_project_directories()
+    
+    raw_files = os.listdir(DATA_RAW)
+    processed_files = os.listdir(DATA_PROCESSED)
+    
+    assert len(raw_files) == 0, f"Directory {DATA_RAW} should be empty"
+    assert len(processed_files) == 0, f"Directory {DATA_PROCESSED} should be empty"
+
+def test_nested_structure_created():
+    """Test that parent directories are created if they don't exist."""
+    # Remove the entire project root to ensure nested creation
+    if os.path.exists(PROJECT_ROOT):
+        shutil.rmtree(PROJECT_ROOT)
         
-        # Run twice
-        create_project_directories(str(project_root))
-        create_project_directories(str(project_root))
-        
-        # Verify directories still exist
-        assert (project_root / "code").exists()
-        assert (project_root / "tests").exists()
-        assert (project_root / "results/models").exists()
+    assert not os.path.exists(PROJECT_ROOT)
+    
+    result = create_project_directories()
+    
+    assert result is True
+    assert os.path.isdir(PROJECT_ROOT)
+    assert os.path.isdir(DATA_RAW)
+    assert os.path.isdir(DATA_PROCESSED)

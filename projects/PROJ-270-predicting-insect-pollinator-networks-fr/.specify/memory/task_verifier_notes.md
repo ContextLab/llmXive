@@ -2,6 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — No directory listings or file paths were provided showing the presence of `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, or `results/` at the repository root, so the required structure cannot be confirmed. The implementer must add these directories (and ensure they are non‑empty or contain placeholder files) to satisfy the task.
-- **T001b** — No evidence was provided showing that `code/__init__.py`, `tests/__init__.py`, and `code/utils/__init__.py` actually exist on disk; without file listings or contents we cannot confirm the required empty package initializer files were created.
-- **T003** — No linting, formatting, or type‑checking configuration files (e.g., `pyproject.toml` with `ruff`/`black` settings, `.ruff.toml`, `mypy.ini`, or corresponding CI scripts) are present in the provided evidence, so the requirement to configure `ruff`, `black`, and `mypy` is not satisfied. The implementer must add the appropriate configuration files and ensure they are non‑empty and correctly set up.
+- **T001b** — The three required `__init__.py` files are present in `code/`, `tests/`, and `code/utils/`, but there is no evidence showing that they are empty as the task demands. Content of these files must be inspected and confirmed to contain no code or statements.
+- **T049** — declared artifact(s) missing/empty/invalid: tests/test_memory_usage.py
+- **T050** — declared artifact(s) missing/empty/invalid: tests/unit/test_ingestion.py

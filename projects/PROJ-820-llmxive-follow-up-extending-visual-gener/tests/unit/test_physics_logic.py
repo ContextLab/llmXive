@@ -1,5 +1,7 @@
 """
-Unit tests for physics logic in physics_engine.py
+Unit tests for physics logic in physics_engine.py.
+Tests verify that the simulation engine correctly detects logical contradictions
+such as cycles, direct conflicts (A on B AND B on A), and impossible configurations.
 """
 import unittest
 import sys
@@ -106,6 +108,70 @@ class TestPhysicsLogic(unittest.TestCase):
         constraint_types = [c["type"] for c in constraints]
         self.assertIn("above", constraint_types)
         self.assertIn("below", constraint_types)
+
+    def test_parse_scene_description_complex(self):
+        """Test parsing of a more complex scene description"""
+        description = "A is on B. B is on C. A is next to D."
+        _, objects, constraints = parse_scene_description(description)
+        self.assertEqual(len(objects), 4)
+        self.assertEqual(len(constraints), 3)
+        constraint_types = [c["type"] for c in constraints]
+        self.assertEqual(constraint_types.count("on"), 2)
+        self.assertEqual(constraint_types.count("next_to"), 1)
+
+    def test_parse_scene_description_empty(self):
+        """Test parsing of an empty scene description"""
+        description = ""
+        _, objects, constraints = parse_scene_description(description)
+        self.assertEqual(len(objects), 0)
+        self.assertEqual(len(constraints), 0)
+
+    def test_parse_scene_description_single_object(self):
+        """Test parsing of a scene with a single object"""
+        description = "A is alone."
+        _, objects, constraints = parse_scene_description(description)
+        self.assertEqual(len(objects), 1)
+        self.assertEqual(len(constraints), 0)
+
+    def test_parse_scene_description_unsupported_relation(self):
+        """Test parsing of a scene with an unsupported relation"""
+        description = "A is inside B. C is on D."
+        _, objects, constraints = parse_scene_description(description)
+        self.assertEqual(len(objects), 4)
+        # 'inside' is not supported, so only 'on' should be parsed
+        self.assertEqual(len(constraints), 1)
+        self.assertEqual(constraints[0]["type"], "on")
+
+    def test_simulate_physics_with_unsupported_relation(self):
+        """Test simulation with unsupported relations (should be ignored)"""
+        objects = [
+            {"id": "A", "name": "A", "type": "object"},
+            {"id": "B", "name": "B", "type": "object"}
+        ]
+        # 'inside' is not supported
+        constraints = [
+            {"type": "inside", "object_a": "A", "object_b": "B"}
+        ]
+        is_valid, contradictions = simulate_physics(objects, constraints, "test_6")
+        self.assertTrue(is_valid)
+        self.assertEqual(len(contradictions), 0)
+
+    def test_simulate_physics_mixed_relations(self):
+        """Test simulation with a mix of supported and unsupported relations"""
+        objects = [
+            {"id": "A", "name": "A", "type": "object"},
+            {"id": "B", "name": "B", "type": "object"},
+            {"id": "C", "name": "C", "type": "object"}
+        ]
+        constraints = [
+            {"type": "on", "object_a": "A", "object_b": "B"},
+            {"type": "inside", "object_a": "B", "object_b": "C"}, # Unsupported
+            {"type": "above", "object_a": "A", "object_b": "C"}
+        ]
+        is_valid, contradictions = simulate_physics(objects, constraints, "test_7")
+        # A on B and A above C is valid
+        self.assertTrue(is_valid)
+        self.assertEqual(len(contradictions), 0)
 
 if __name__ == '__main__':
     unittest.main()

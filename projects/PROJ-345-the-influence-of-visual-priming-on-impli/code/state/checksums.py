@@ -5,162 +5,182 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-from config import get_path
+from config import get_path, get_seed
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def calculate_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
-    """Calculate checksum of a file."""
+def calculate_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
+    """Calculate SHA-256 checksum of a file."""
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
     
-    hash_func = hashlib.new(algorithm)
+    sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def load_state_yaml() -> Dict[str, Any]:
-    """Load state.yaml from project root."""
-    state_path = get_path("state/projects/PROJ-345/state.yaml")
+def load_state_yaml(state_path: Path) -> Dict[str, Any]:
+    """Load state.yaml file, creating an empty structure if it doesn't exist."""
     if not state_path.exists():
-        logger.warning(f"State file not found at {state_path}. Creating new one.")
-        return {"project": "PROJ-345", "checksums": {}, "metrics": {}}
+        return {
+            "project_id": "PROJ-345-the-influence-of-visual-priming-on-impli",
+            "artifacts": {},
+            "checksums": {},
+            "metadata": {
+                "created_at": None,
+                "last_updated": None
+            }
+        }
     
-    with open(state_path, "r") as f:
-        return yaml.safe_load(f)
+    with open(state_path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f) or {}
 
-def save_state_yaml(data: Dict[str, Any]) -> None:
-    """Save state.yaml to project root."""
-    state_path = get_path("state/projects/PROJ-345/state.yaml")
+def save_state_yaml(state_path: Path, data: Dict[str, Any]) -> None:
+    """Save state dictionary to state.yaml."""
     state_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(state_path, "w") as f:
-        yaml.safe_dump(data, f, default_flow_style=False)
+    with open(state_path, 'w', encoding='utf-8') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
-def verify_and_record_checksums() -> Dict[str, str]:
+def verify_and_record_checksums(state_path: Path, raw_data_dir: Path, artifact_files: list) -> Dict[str, Any]:
     """
-    Verify checksums for all downloaded raw data files in data/raw/
-    and record them in state.yaml.
+    Verify checksums of raw data files and record them in state.yaml.
+    Returns updated state data.
+    """
+    state_data = load_state_yaml(state_path)
     
-    Returns:
-        Dict mapping file paths to their calculated checksums.
-    """
-    raw_dir = get_path("data/raw")
-    if not raw_dir.exists():
-        logger.warning(f"Raw data directory not found: {raw_dir}")
-        return {}
-
-    state_data = load_state_yaml()
+    # Ensure metadata exists
+    if "metadata" not in state_data:
+        state_data["metadata"] = {}
     if "checksums" not in state_data:
         state_data["checksums"] = {}
-
-    recorded_checksums = state_data["checksums"]
-    calculated_checksums = {}
-
-    for file_path in raw_dir.glob("*"):
-        if file_path.is_file():
-            rel_path = str(file_path.relative_to(get_path()))
-            
+    if "artifacts" not in state_data:
+        state_data["artifacts"] = {}
+    
+    # Record checksums for raw data files
+    if raw_data_dir.exists():
+        raw_checksums = {}
+        for file_path in raw_data_dir.rglob("*"):
+            if file_path.is_file():
+                try:
+                    checksum = calculate_file_checksum(file_path)
+                    rel_path = str(file_path.relative_to(raw_data_dir))
+                    raw_checksums[rel_path] = {
+                        "algorithm": "sha256",
+                        "value": checksum
+                    }
+                    logger.info(f"Recorded checksum for {rel_path}: {checksum[:16]}...")
+                except Exception as e:
+                    logger.warning(f"Could not calculate checksum for {file_path}: {e}")
+        
+        state_data["checksums"]["raw_data"] = raw_checksums
+    
+    # Record checksums for specific artifact files
+    for artifact_path in artifact_files:
+        path_obj = Path(artifact_path)
+        if path_obj.exists():
             try:
-                current_checksum = calculate_file_checksum(file_path)
-                calculated_checksums[rel_path] = current_checksum
-                
-                if rel_path in recorded_checksums:
-                    if recorded_checksums[rel_path] == current_checksum:
-                        logger.info(f"Checksum verified: {rel_path}")
-                    else:
-                        logger.warning(f"Checksum MISMATCH for {rel_path}")
-                        logger.warning(f"  Expected: {recorded_checksums[rel_path]}")
-                        logger.warning(f"  Got:      {current_checksum}")
-                else:
-                    logger.info(f"Recording new checksum for: {rel_path}")
-                    state_data["checksums"][rel_path] = current_checksum
-                    
+                checksum = calculate_file_checksum(path_obj)
+                state_data["checksums"]["processed_artifacts"] = state_data["checksums"].get("processed_artifacts", {})
+                state_data["checksums"]["processed_artifacts"][str(path_obj)] = {
+                    "algorithm": "sha256",
+                    "value": checksum
+                }
+                logger.info(f"Recorded checksum for artifact {path_obj}: {checksum[:16]}...")
             except Exception as e:
-                logger.error(f"Error processing {rel_path}: {e}")
-
-    save_state_yaml(state_data)
-    return calculated_checksums
-
-def calculate_linked_metadata_percentage() -> float:
-    """
-    Calculate the percentage of trials that have successfully linked metadata.
+                logger.warning(f"Could not calculate checksum for {path_obj}: {e}")
     
-    Reads data/processed/linked_trials.csv and calculates the ratio of 
-    trials with non-null stimulus_id to total trials.
+    # Update metadata
+    from datetime import datetime
+    state_data["metadata"]["last_updated"] = datetime.now().isoformat()
     
-    Returns:
-        Float between 0.0 and 1.0 representing the linked metadata percentage.
+    save_state_yaml(state_path, state_data)
+    return state_data
+
+def calculate_linked_metadata_percentage(linked_trials_path: Path, state_path: Path) -> float:
     """
-    linked_trials_path = get_path("data/processed/linked_trials.csv")
+    Calculate the percentage of trials with linked metadata from linked_trials.csv.
+    Returns the percentage as a float (0.0 to 100.0).
+    """
+    import pandas as pd
+    
     if not linked_trials_path.exists():
-        logger.error(f"Linked trials file not found: {linked_trials_path}")
-        return 0.0
-
-    total_trials = 0
-    linked_trials = 0
-
-    try:
-        with open(linked_trials_path, "r", newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                total_trials += 1
-                # Check if stimulus_id exists and is not empty
-                if row.get("stimulus_id") and row["stimulus_id"].strip():
-                    linked_trials += 1
-    except Exception as e:
-        logger.error(f"Error reading linked trials: {e}")
-        return 0.0
-
+        raise FileNotFoundError(f"Linked trials file not found: {linked_trials_path}")
+    
+    df = pd.read_csv(linked_trials_path)
+    
+    # Check for required columns
+    required_cols = ['trial_id', 'stimulus_id']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in {linked_trials_path}: {missing_cols}")
+    
+    total_trials = len(df)
     if total_trials == 0:
         logger.warning("No trials found in linked_trials.csv")
         return 0.0
-
-    percentage = linked_trials / total_trials
-    return percentage
-
-def main():
-    """Main entry point for T018: Checksum verification and metadata reporting."""
-    logger.info("=== T018: Checksum Verification and Metadata Reporting ===")
     
-    # Step 1: Verify and record checksums
-    logger.info("Verifying checksums for raw data...")
-    checksums = verify_and_record_checksums()
-    logger.info(f"Processed {len(checksums)} files.")
+    # Count trials with valid (non-null, non-empty) stimulus_id
+    linked_trials = df[df['stimulus_id'].notna() & (df['stimulus_id'].astype(str).str.strip() != '')]
+    linked_count = len(linked_trials)
     
-    # Step 2: Calculate linked metadata percentage
-    logger.info("Calculating linked metadata percentage...")
-    linked_percentage = calculate_linked_metadata_percentage()
+    percentage = (linked_count / total_trials) * 100.0
     
-    # Configuration for SC-001 target
-    threshold = 0.95  # Default 'vast majority' target
+    # Log the result
+    logger.info(f"Linked metadata percentage: {percentage:.2f}% ({linked_count}/{total_trials} trials)")
     
-    logger.info("=" * 60)
-    logger.info("T018 RESULTS:")
-    logger.info(f"  Linked Metadata Percentage: {linked_percentage:.2%}")
-    logger.info(f"  SC-001 Threshold (Configurable): {threshold:.2%}")
-    
-    if linked_percentage >= threshold:
-        logger.info(f"  ✅ PASS: Exceeds SC-001 target of {threshold:.0%}")
-    else:
-        logger.warning(f"  ⚠️  FAIL: Below SC-001 target of {threshold:.0%}")
-        logger.warning(f"  Current: {linked_percentage:.2%}, Needed: {threshold:.2%}")
-    
-    logger.info("=" * 60)
-    
-    # Update state.yaml with metrics
-    state_data = load_state_yaml()
+    # Update state.yaml with this metric
+    state_data = load_state_yaml(state_path)
     if "metrics" not in state_data:
         state_data["metrics"] = {}
     
-    state_data["metrics"]["linked_metadata_percentage"] = linked_percentage
-    state_data["metrics"]["sc001_threshold"] = threshold
-    state_data["metrics"]["sc001_passed"] = linked_percentage >= threshold
+    state_data["metrics"]["linked_metadata_percentage"] = {
+        "value": percentage,
+        "total_trials": total_trials,
+        "linked_trials": linked_count,
+        "threshold": 95.0,  # Default threshold as per SC-001
+        "target_description": "SC-001: Vast majority of trials must have linked metadata",
+        "status": "PASS" if percentage >= 95.0 else "FAIL"
+    }
     
-    save_state_yaml(state_data)
-    logger.info("Metrics saved to state.yaml")
+    save_state_yaml(state_path, state_data)
+    
+    return percentage
+
+def main():
+    """Main entry point for checksum verification and metadata percentage calculation."""
+    logging.basicConfig(level=logging.INFO)
+    
+    # Get paths from config
+    state_path = get_path("state") / "projects" / "PROJ-345" / "state.yaml"
+    raw_data_dir = get_path("data") / "raw"
+    linked_trials_path = get_path("data") / "processed" / "linked_trials.csv"
+    
+    logger.info("Starting checksum verification and metadata percentage calculation...")
+    
+    try:
+        # Verify and record checksums
+        artifact_files = [str(linked_trials_path)]
+        state_data = verify_and_record_checksums(state_path, raw_data_dir, artifact_files)
+        logger.info("Checksum verification completed.")
+        
+        # Calculate linked metadata percentage
+        if linked_trials_path.exists():
+            percentage = calculate_linked_metadata_percentage(linked_trials_path, state_path)
+            
+            # Log final result with threshold check
+            threshold = 95.0
+            if percentage >= threshold:
+                logger.info(f"✓ SUCCESS: Linked metadata percentage ({percentage:.2f}%) meets SC-001 target (≥{threshold}%)")
+            else:
+                logger.error(f"✗ FAILURE: Linked metadata percentage ({percentage:.2f}%) below SC-001 target ({threshold}%)")
+                logger.error("Data gap detected: Insufficient linkage between trials and stimuli.")
+        else:
+            logger.warning(f"Linked trials file not found at {linked_trials_path}. Skipping percentage calculation.")
+            
+    except Exception as e:
+        logger.error(f"Error during checksum verification or metadata calculation: {e}")
+        raise
 
 if __name__ == "__main__":
-    import csv
     main()

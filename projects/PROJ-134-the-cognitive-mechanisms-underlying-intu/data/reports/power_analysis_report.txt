@@ -1,0 +1,24 @@
+============================================================
+POWER ANALYSIS REPORT
+Task: T045 - Minimum Detectable Effect Size Calculation
+============================================================
+
+PARAMETERS:
+  Participants (N): 200
+  Vignettes (J): 50
+  Total Observations: 10000
+  Standard Deviation (σ): 1.0
+  Alpha (α): 0.05
+  Target Power (1-β): 0.8
+  Intraclass Correlation (ICC): 0.0
+
+RESULTS:
+  Standard Error (SE): 0.010000
+  Minimum Detectable Effect Size (MDES): 0.028000
+
+VALIDATION:
+  Assumed Ground Truth Effect: 0.5
+  Status: PASS
+  Message: Ground truth effect (0.5000) is above MDES (0.0280). Validation is statistically meaningful.
+
+============================================================

@@ -2,234 +2,301 @@ import os
 import sys
 import argparse
 import logging
+import json
+import signal
 from pathlib import Path
-from typing import Optional
-import yaml
-import pandas as pd
+from typing import Dict, Any, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from config import get_data_root, ensure_directories
-from utils.logger import setup_logger, get_logger, log_pipeline_start, log_pipeline_end
+# Local imports
+from config import get_data_root, N_MIN
+from utils.logger import get_logger, log_pipeline_start, log_pipeline_end, log_exception
 from data.quality_control import calculate_pipeline_completeness
+from data.store import run_store_pipeline
+from analysis.metrics import run_metrics_pipeline
+from analysis.avalanches import run_avalanche_pipeline
+from analysis.fitting import run_fitting_pipeline
 from analysis.stats import run_correlation_analysis
-from analysis.export_metrics import run_export_pipeline
+from analysis.sensitivity import run_sensitivity_pipeline
 from analysis.report import generate_report
 
-logger = setup_logger("main")
+logger = get_logger(__name__)
+
+class PipelineTimeoutError(Exception):
+    """Raised when the pipeline execution exceeds the time limit."""
+    pass
+
+def timeout_handler(signum, frame):
+    raise PipelineTimeoutError("Pipeline execution exceeded the time limit.")
+
+def setup_timeout(seconds: int):
+    """Setup a timeout for the pipeline execution."""
+    if hasattr(signal, 'SIGALRM'):
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(seconds)
+    else:
+        logger.warning("SIGALRM not available on this platform. Timeout disabled.")
+
+def clear_timeout():
+    """Clear the timeout if it was set."""
+    if hasattr(signal, 'SIGALRM'):
+        signal.alarm(0)
+
+def load_research_config() -> Dict[str, Any]:
+    """Load the research phase configuration."""
+    config_path = get_data_root().parent / "specs" / "001-network-structure-avalanche-dynamics" / "research_phase_config.json"
+    if not config_path.exists():
+        # Return defaults if file doesn't exist
+        return {
+            "thresholds": [0.70, 0.75, 0.80],
+            "N_MIN": N_MIN,
+            "simulation_flags": True,
+            "model_params": {}
+        }
+    try:
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Failed to load research config: {e}")
+        return {
+            "thresholds": [0.70, 0.75, 0.80],
+            "N_MIN": N_MIN,
+            "simulation_flags": True,
+            "model_params": {}
+        }
+
+def count_usable_subjects() -> int:
+    """Count the number of usable subjects from the QC output."""
+    usable_subjects_path = get_data_root() / "processed" / "usable_subjects.json"
+    if not usable_subjects_path.exists():
+        logger.warning(f"Usable subjects file not found at {usable_subjects_path}. Returning 0.")
+        return 0
+    try:
+        with open(usable_subjects_path, 'r') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                return len(data)
+            elif isinstance(data, dict) and "subject_ids" in data:
+                return len(data["subject_ids"])
+            else:
+                logger.error(f"Unexpected format in usable_subjects.json: {data}")
+                return 0
+    except (json.JSONDecodeError, IOError) as e:
+        logger.error(f"Failed to read usable subjects: {e}")
+        return 0
+
+def run_null_result_protocol(n_subjects: int, n_min: int) -> bool:
+    """
+    Execute the null result protocol if sample size is insufficient.
+    Returns True if the pipeline should halt (N=0), False if it should proceed with limited analysis (0 < N < N_MIN).
+    """
+    if n_subjects == 0:
+        logger.critical("No usable subjects found. Halting pipeline.")
+        return True # Halt
+
+    if n_subjects < n_min:
+        logger.warning(f"Sample size ({n_subjects}) is below minimum threshold ({n_min}). Generating insufficient sample report.")
+        report_path = get_data_root() / "results" / "insufficient_sample_report.md"
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(report_path, 'w') as f:
+            f.write(f"# Insufficient Sample Size Report\n\n")
+            f.write(f"**Date**: {__import__('datetime').datetime.now().isoformat()}\n\n")
+            f.write(f"**Minimum Required Subjects (N_MIN)**: {n_min}\n\n")
+            f.write(f"**Actual Usable Subjects (N)**: {n_subjects}\n\n")
+            f.write(f"**Status**: Analysis will proceed with limited statistical power.\n\n")
+            f.write(f"**Note**: The study is constrained by the available sample size. Statistical findings should be interpreted with caution and considered preliminary.\n\n")
+        
+        logger.info(f"Insufficient sample report generated at {report_path}")
+        
+        # Update routing state for limited path
+        routing_state = {
+            "path": "limited",
+            "N": n_subjects,
+            "N_MIN": n_min,
+            "status": "limited"
+        }
+        routing_path = get_data_root() / "processed" / "routing_state.json"
+        with open(routing_path, 'w') as f:
+            json.dump(routing_state, f, indent=2)
+        
+        return False # Proceed with limited analysis
+    
+    return False # Proceed normally
+
+def run_correlation_protocol():
+    """Run the full correlation and analysis pipeline."""
+    logger.info("Starting correlation protocol.")
+    
+    # Run metrics
+    logger.info("Running structural metrics pipeline...")
+    run_metrics_pipeline()
+    
+    # Run avalanche detection
+    logger.info("Running avalanche detection pipeline...")
+    run_avalanche_pipeline()
+    
+    # Run fitting
+    logger.info("Running power-law fitting pipeline...")
+    run_fitting_pipeline()
+    
+    # Run correlation analysis
+    logger.info("Running correlation analysis...")
+    run_correlation_analysis()
+    
+    # Run sensitivity analysis
+    logger.info("Running sensitivity analysis...")
+    run_sensitivity_pipeline()
+    
+    # Generate final report
+    logger.info("Generating final report...")
+    generate_report()
+    
+    logger.info("Correlation protocol completed.")
+
+def check_sample_size_gate():
+    """
+    Implement the Sample Size Check runtime gate (T029c).
+    1. Count usable subjects N from data/processed/usable_subjects.json.
+    2. Read N_MIN from config.
+    3. If N < N_MIN: Generate insufficient_sample_report.md, set routing state to 'limited', proceed if N > 0.
+    4. If N = 0: Halt with error.
+    5. If N >= N_MIN: Set routing state to 'correlation', proceed.
+    """
+    logger.info("Executing Sample Size Check Gate (T029c).")
+    
+    n_subjects = count_usable_subjects()
+    n_min = N_MIN
+    
+    logger.info(f"Usable subjects: {n_subjects}, Minimum required: {n_min}")
+    
+    routing_state_path = get_data_root() / "processed" / "routing_state.json"
+    routing_state_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    if n_subjects == 0:
+        logger.critical("Sample size is 0. Halting pipeline execution.")
+        # Write a failure state
+        state = {
+            "path": "halt",
+            "N": 0,
+            "N_MIN": n_min,
+            "status": "halt",
+            "error": "No usable subjects found."
+        }
+        with open(routing_state_path, 'w') as f:
+            json.dump(state, f, indent=2)
+        raise RuntimeError("Pipeline halted: No usable subjects found.")
+    
+    if n_subjects < n_min:
+        logger.warning(f"Sample size ({n_subjects}) is below minimum ({n_min}). Proceeding with limited analysis.")
+        # Run null result protocol to generate report and set state
+        should_halt = run_null_result_protocol(n_subjects, n_min)
+        if should_halt:
+            raise RuntimeError("Pipeline halted due to insufficient sample size (N=0).")
+        
+        # Update routing state to 'limited' (overwriting previous state if any)
+        state = {
+            "path": "limited",
+            "N": n_subjects,
+            "N_MIN": n_min,
+            "status": "limited"
+        }
+        with open(routing_state_path, 'w') as f:
+            json.dump(state, f, indent=2)
+        logger.info("Routing state updated to 'limited'. Proceeding to limited analysis.")
+        return "limited"
+    
+    # N >= N_MIN
+    logger.info(f"Sample size ({n_subjects}) meets minimum requirement ({n_min}). Proceeding to full correlation analysis.")
+    state = {
+        "path": "correlation",
+        "N": n_subjects,
+        "N_MIN": n_min,
+        "status": "proceed"
+    }
+    with open(routing_state_path, 'w') as f:
+        json.dump(state, f, indent=2)
+    logger.info("Routing state updated to 'correlation'. Proceeding to full analysis.")
+    return "correlation"
+
+def run_pipeline(args):
+    """Main pipeline execution logic."""
+    log_pipeline_start("Network Structure Avalanche Dynamics Pipeline")
+    
+    try:
+        # Setup timeout if specified
+        if args.timeout > 0:
+            setup_timeout(args.timeout)
+        
+        # Ensure data directories exist
+        data_root = get_data_root()
+        data_root.mkdir(parents=True, exist_ok=True)
+        (data_root / "raw").mkdir(exist_ok=True)
+        (data_root / "processed").mkdir(exist_ok=True)
+        (data_root / "results").mkdir(exist_ok=True)
+        
+        # 1. Check Sample Size Gate (T029c)
+        # This must happen after QC (T012) which produces usable_subjects.json
+        # If this task is run directly, it assumes T012 has completed.
+        gate_status = check_sample_size_gate()
+        
+        if gate_status == "halt":
+            # Should have raised an error already
+            return
+        
+        # 2. Run Store Pipeline (if not already done by previous steps)
+        # The task description implies this gate is a checkpoint. 
+        # If we are here, we have data. We proceed to analysis.
+        # Note: T013 (store) is usually run before T012 (QC) or T029c.
+        # We assume the data is already stored and usable_subjects.json exists.
+        
+        # 3. Run Analysis based on gate status
+        if gate_status == "correlation":
+            run_correlation_protocol()
+        elif gate_status == "limited":
+            logger.info("Running limited analysis protocol.")
+            # Run a subset of the analysis or the full analysis but with warnings
+            # For now, we run the full correlation protocol but the report will reflect the limitation
+            run_correlation_protocol()
+            
+    except PipelineTimeoutError as e:
+        logger.critical(f"Pipeline timed out: {e}")
+        timeout_report_path = get_data_root() / "results" / "runtime_timeout_report.md"
+        with open(timeout_report_path, 'w') as f:
+            f.write(f"# Runtime Timeout Report\n\n")
+            f.write(f"**Error**: {e}\n\n")
+            f.write(f"**Time Limit**: {args.timeout} seconds\n\n")
+        raise
+    except Exception as e:
+        log_exception(e)
+        raise
+    finally:
+        clear_timeout()
+        log_pipeline_end()
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Orchestrate the Neural Avalanche Dynamics pipeline.")
-    parser.add_argument("--config", type=str, default="config.yaml", help="Path to configuration file.")
+    parser = argparse.ArgumentParser(description="Network Structure Avalanche Dynamics Pipeline")
+    parser.add_argument("--timeout", type=int, default=0, help="Timeout in seconds (0 = no timeout)")
+    parser.add_argument("--validate", action="store_true", help="Run validation checks only")
     return parser.parse_args()
-
-def run_null_result_protocol(data_root: Path, min_subjects: int = 10):
-    """
-    Implements the 'Null Result Protocol' (T029b).
-    Checks if usable subjects after QC are sufficient.
-    If not, generates a report stating 'Pipeline Validated, Insufficient Data for Simulation'
-    and halts further analysis.
-    """
-    logger.info("Running Null Result Protocol check...")
-    qc_report_path = data_root / "results" / "qc_report.csv"
-    
-    if not qc_report_path.exists():
-        logger.warning("QC report not found. Assuming all subjects usable for protocol check (or error).")
-        # If QC hasn't run, we can't determine N_usable accurately without re-running QC.
-        # For this orchestration, we assume if QC report is missing, we proceed to try QC or fail loudly.
-        # However, the task implies QC (T012) is done. We check the report generated by T012.
-        # If T012 hasn't run, this is a pipeline order violation.
-        # We will assume the pipeline runs T012 before this check in a full run, 
-        # but here we rely on the existence of the report.
-        return True, 0 # Proceed? No, we need data. Let's assume 0 usable if report missing.
-
-    try:
-        df = pd.read_csv(qc_report_path)
-        # T012 defines 'usable' as passing connectivity and SNR checks.
-        # Assuming the QC report has a 'passed' or 'usable' boolean column.
-        # Based on T012 description: "exclude participants with disconnected graphs or insufficient data quality".
-        # Let's assume the column is 'is_usable' or we calculate from 'passed_qc'.
-        if 'is_usable' in df.columns:
-            n_usable = df['is_usable'].sum()
-        elif 'passed_qc' in df.columns:
-            n_usable = df['passed_qc'].sum()
-        else:
-            # Fallback: count rows if no explicit flag, assuming all in report passed?
-            # Or check T012b: "proportion of participants with complete simulated pipelines".
-            # We need the count of usable subjects.
-            n_usable = len(df) 
-        
-        if n_usable < min_subjects:
-            logger.warning(f"Insufficient usable subjects: {n_usable} < {min_subjects}.")
-            # Generate Null Result Report
-            output_path = data_root / "results" / "correlation_report.csv"
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            report_data = {
-                'status': ['Pipeline Validated, Insufficient Data for Simulation'],
-                'n_usable': [n_usable],
-                'min_required': [min_subjects],
-                'correlation': [None],
-                'p_value': [None],
-                'method': ['N/A']
-            }
-            pd.DataFrame(report_data).to_csv(output_path, index=False)
-            logger.info(f"Null Result Protocol triggered. Report saved to {output_path}")
-            return False, n_usable
-        else:
-            logger.info(f"Sufficient usable subjects: {n_usable} >= {min_subjects}. Proceeding.")
-            return True, n_usable
-    except Exception as e:
-        logger.error(f"Error during Null Result Protocol check: {e}")
-        return True, 0 # Default to proceeding if check fails, to avoid silent block
-
-def run_pipeline(config_path: str):
-    """
-    Orchestrates the full pipeline execution.
-    1. Load config.
-    2. Ensure directories.
-    3. (Assumes T009-T013 data generation is done or run here if needed - 
-       for T029 validation, we assume data exists or is generated by previous tasks).
-    4. Run QC (T012) if not done.
-    5. Check Null Result Protocol (T029b).
-    6. Run Metrics (T014), Avalanches (T015), Fitting (T016).
-    7. Export Metrics (T017).
-    8. Run Stats (T019, T020, T021, T022).
-    9. Generate Report (T023).
-    10. Verify output.
-    """
-    # Load Config
-    if not os.path.exists(config_path):
-        logger.error(f"Config file not found: {config_path}")
-        sys.exit(1)
-    
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-
-    data_root = get_data_root()
-    ensure_directories()
-
-    log_pipeline_start("T029-Orchestration")
-
-    try:
-        # Step 1: Data Availability Check (Assuming T009-T013 ran)
-        # If data doesn't exist, we might need to trigger generation scripts.
-        # For T029, we assume the environment is set up. 
-        # However, to ensure the test passes, we should ensure the data generation 
-        # steps (T009-T013) are effectively "run" or the data exists.
-        # Since T009-T013 are marked completed, we assume data exists.
-        # If not, the subsequent steps will fail loudly as per constraint 9.
-        
-        # Step 2: Run Quality Control (T012) if needed
-        qc_report_path = data_root / "results" / "qc_report.csv"
-        if not qc_report_path.exists():
-            logger.info("Running Quality Control (T012)...")
-            # Import and run QC pipeline
-            from data.quality_control import run_qc_for_subject, calculate_pipeline_completeness
-            # This would typically loop over subjects. 
-            # Assuming a helper exists or we call the main function from the module.
-            # Since T012 is done, we assume the logic is in place.
-            # We'll call a hypothetical run_qc_pipeline if it exists, or iterate.
-            # Given the API surface, we don't see a 'run_qc_pipeline' in the public names, 
-            # but 'run_qc_for_subject' is there. We need to know subject IDs.
-            # We will assume a helper or that the user runs T012 separately.
-            # For T029 to be self-contained in a single run, we might need to trigger it.
-            # Let's assume the data generation tasks (T009-T011) created a manifest.
-            # If not, we skip explicit QC run here and rely on existing report, 
-            # which might be empty/missing, triggering Null Protocol or failing later.
-            # To be robust, we check for the report.
-            pass
-
-        # Step 3: Null Result Protocol (T029b)
-        proceed, n_usable = run_null_result_protocol(data_root, min_subjects=10)
-        if not proceed:
-            log_pipeline_end("T029-Orchestration", status="Null Result Protocol Triggered")
-            return True # Task completed (protocol executed)
-
-        # Step 4: Run Metrics & Avalanches (T014, T015, T016)
-        # Assuming these are run per subject. We need a runner.
-        # Since T014-T016 are marked done, we assume they can be called.
-        # We will assume a 'run_analysis_pipeline' or similar exists in the stats/metrics modules
-        # or we call them sequentially.
-        # Given the API surface, we don't see a top-level runner for T014-T016.
-        # We will assume the 'run_correlation_analysis' in stats.py handles the dependencies 
-        # or we need to call them.
-        # Let's assume the stats module's run_correlation_analysis is the entry point for T019+
-        # and it expects pre-computed metrics.
-        # To satisfy T029, we must ensure the full flow runs.
-        # We will call the export and stats modules which depend on prior steps.
-        
-        logger.info("Running Analysis Pipeline (T014-T016)...")
-        # We assume the metrics/avalanches are computed. If not, we might need to run them.
-        # For this implementation, we assume the previous tasks (T014-T016) 
-        # have been executed or are executed by the stats module if it's a full runner.
-        # If not, we might need to explicitly run them.
-        # Let's assume a full run is required here.
-        # We'll call the stats analysis which is the final step before report.
-        
-        # Step 5: Run Correlation Analysis (T019, T020, T021, T022)
-        logger.info("Running Correlation Analysis (T019-T022)...")
-        # The stats.py module has run_correlation_analysis.
-        # We need to ensure it runs and produces the data for the report.
-        from analysis.stats import run_correlation_analysis
-        # This function likely reads from the store and computes correlations.
-        run_correlation_analysis() 
-
-        # Step 6: Export Metrics (T017)
-        logger.info("Exporting Metrics (T017)...")
-        from analysis.export_metrics import run_export_pipeline
-        run_export_pipeline()
-
-        # Step 7: Generate Report (T023)
-        logger.info("Generating Report (T023)...")
-        from analysis.report import generate_report
-        report_path = generate_report()
-        
-        # Step 8: Verification
-        output_file = data_root / "results" / "correlation_report.csv"
-        if not output_file.exists():
-            logger.error(f"Final output file {output_file} not found.")
-            # Fallback: try to generate from stats results if report failed
-            # But T023 should have done this.
-            # If T023 failed, we might need to handle it.
-            # Let's assume T023 writes to this path.
-            # If not, we create a minimal one to satisfy T029.
-            # However, the task says "asserting that ... exists".
-            # We must ensure it exists.
-            raise FileNotFoundError(f"Report file {output_file} not found after report generation.")
-
-        # Check row count
-        df = pd.read_csv(output_file)
-        if len(df) < 1:
-            logger.error(f"Report {output_file} is empty.")
-            sys.exit(1)
-        
-        logger.info(f"Pipeline completed successfully. Output: {output_file} ({len(df)} rows)")
-        return True
-
-    except Exception as e:
-        logger.error(f"Pipeline execution failed: {e}")
-        log_pipeline_end("T029-Orchestration", status="Failed")
-        raise e
 
 def main():
     args = parse_args()
-    setup_logger("main")
-    logger.info("Starting main orchestration...")
+    if args.validate:
+        logger.info("Running validation checks...")
+        # Simple validation: check if required files exist
+        data_root = get_data_root()
+        required_files = [
+            data_root / "processed" / "usable_subjects.json",
+            data_root / "processed" / "routing_state.json" # This task writes this
+        ]
+        missing = [str(f) for f in required_files if not f.exists()]
+        if missing:
+            logger.error(f"Validation failed. Missing files: {missing}")
+            sys.exit(1)
+        logger.info("Validation passed.")
+        sys.exit(0)
     
-    try:
-        success = run_pipeline(args.config)
-        if success:
-            logger.info("Orchestration completed successfully.")
-            sys.exit(0)
-        else:
-            logger.warning("Orchestration completed with warnings (e.g., Null Protocol).")
-            sys.exit(0)
-    except Exception as e:
-        logger.error(f"Critical failure: {e}")
-        sys.exit(1)
+    run_pipeline(args)
 
 if __name__ == "__main__":
     main()

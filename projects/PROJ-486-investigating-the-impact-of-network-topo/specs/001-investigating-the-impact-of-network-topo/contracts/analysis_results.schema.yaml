@@ -1,0 +1,109 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation and Regression Analysis Results"
+description: "Schema for the output of the topology-entrainment analysis pipeline."
+type: "object"
+properties:
+  analysis_metadata:
+    type: "object"
+    properties:
+      atlas_type:
+        type: "string"
+        enum: ["Schaefer", "AAL", "Power"]
+      metric_name:
+        type: "string"
+        enum: ["clustering_coefficient", "characteristic_path_length"]
+      n_subjects:
+        type: "integer"
+        minimum: 0
+      status:
+        type: "string"
+        enum: ["Valid", "Data Insufficient", "Collinearity Warning", "Non-informative"]
+    required:
+      - atlas_type
+      - metric_name
+      - n_subjects
+      - status
+  univariate_results:
+    type: "object"
+    properties:
+      r:
+        type: "number"
+        description: "Spearman correlation coefficient"
+      p_value:
+        type: "number"
+        description: "Unadjusted p-value"
+      adjusted_p_value:
+        type: "number"
+        description: "Holm-Bonferroni adjusted p-value"
+      is_significant:
+        type: "boolean"
+        description: "True if adjusted_p_value < 0.05"
+    required:
+      - r
+      - p_value
+      - adjusted_p_value
+      - is_significant
+  mlr_results:
+    type:
+      - "object"
+      - "null"
+    description: "Multiple Linear Regression results, null if VIF > 5 or univariate not significant"
+    properties:
+      r_squared:
+        type: "number"
+      adj_r_squared:
+        type: "number"
+      coefficients:
+        type: "object"
+        properties:
+          clustering:
+            type: "number"
+          path_length:
+            type: "number"
+        required:
+          - clustering
+          - path_length
+      vif:
+        type: "object"
+        properties:
+          clustering:
+            type: "number"
+          path_length:
+            type: "number"
+        required:
+          - clustering
+          - path_length
+      p_values:
+        type: "object"
+        properties:
+          clustering:
+            type: "number"
+          path_length:
+            type: "number"
+        required:
+          - clustering
+          - path_length
+      adjusted_p_values:
+        type: "object"
+        properties:
+          clustering:
+            type: "number"
+          path_length:
+            type: "number"
+        required:
+          - clustering
+          - path_length
+      collinearity_warning:
+        type: "boolean"
+    required:
+      - r_squared
+      - adj_r_squared
+      - coefficients
+      - vif
+      - p_values
+      - adjusted_p_values
+      - collinearity_warning
+required:
+  - analysis_metadata
+  - univariate_results
+  - mlr_results

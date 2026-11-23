@@ -1,46 +1,39 @@
 # Implementation Plan: Investigate Brain Network Dynamics and VR Therapy Response
 
-**Branch**: `[416-brain-network-dynamics]` | **Date**: 2026-06-24 | **Spec**: `specs/416-brain-network-dynamics/spec.md`
+**Branch**: `[416-brain-network-dynamics]` | **Date**: 2023-10-27 | **Spec**: `specs/416-brain-network-dynamics/spec.md`
 **Input**: Feature specification from `specs/416-brain-network-dynamics/spec.md`
 
 ## Summary
 
-**STATUS: BLOCKED**. This feature implements a CPU-tractable pipeline to investigate the relationship between resting-state brain network dynamics and response to Virtual Reality (VR) exposure therapy. The pipeline is designed to download public fMRI data (OpenNeuro), pre-process it, compute network metrics, and perform ANCOVA analysis.
-
-**Critical Blocker**: The `# Verified datasets` block provided in the source context contains **no verified sources** for resting-state fMRI data paired with clinical anxiety scores. The pipeline includes a strict "Dataset-Variable Fit" gate (FR-011) that halts execution immediately if such data is not found. As no verified dataset exists in the source block, the project cannot proceed to the implementation phase until a verified OpenNeuro accession ID (containing both rs-fMRI and pre/post clinical scores) is identified and added to the verified sources.
-
-**Methodological Clarification**: 
-1.  **Outcome Definition**: The primary analysis tests **predicting post-treatment state** (Post-score ~ Pre-score + Baseline Metric), not "predicting response" (Change-score) as a primary hypothesis. This avoids the tautology of predicting change from baseline in observational data and mitigates Regression to the Mean (RTM). A secondary exploratory analysis for "response" (Delta ~ Delta-Metric) is defined but flagged as underpowered.
-2.  **Statistical Strategy**: The plan mandates **Pre-specified Univariate Models** with FDR correction to avoid multicollinearity issues, explicitly rejecting the Spec's mandate for Ridge regression (FR-005/FR-012) as methodologically unsound for hypothesis testing (biased coefficients, invalid p-values). **This divergence is flagged for kickback to the spec owner** to update the spec requirements.
-3.  **Motion Control**: Mean Framewise Displacement (FD) is included as a mandatory covariate in all models to control for residual motion artifacts, not just as an exclusion criterion.
+This feature implements a neuroimaging analysis pipeline to investigate the relationship between resting-state brain network dynamics and response to Virtual Reality (VR) exposure therapy. The pipeline downloads open-source fMRI data (BIDS format), preprocesses it (motion correction, normalization), computes network metrics (modularity, efficiency), and performs ANCOVA regression to test associations while controlling for baseline severity. It includes rigorous checks for dataset-variable fit, collinearity (via univariate prioritization), multiple comparison correction, and sensitivity analysis on decision cutoffs and outcome definitions.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10 (CPU-optimized)  
-**Primary Dependencies**: `nibabel`, `nilearn`, `scikit-learn`, `networkx`, `pandas`, `numpy`, `matplotlib`, `scipy`  
-**Storage**: Local file system (`data/`), CSV/Parquet for metrics  
-**Testing**: `pytest` (unit tests for metric bounds, integration tests for pipeline flow)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, 14GB Disk, No GPU)  
-**Project Type**: Data Science Pipeline / CLI  
-**Performance Goals**: Preprocess **N=10** subjects within 6 hours; total runtime ≤6h (Reduced from N=20 to ensure feasibility).  
-**Constraints**: No GPU/CUDA; no deep learning training; memory <7GB; disk <14GB; strict data hygiene (checksums).  
-**Scale/Scope**: Single cohort analysis (N up to a limited number of subjects due to compute constraints).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `nibabel`, `nilearn>=0.10.0`, `numpy`, `pandas`, `scikit-learn>=1.3.0`, `networkx`, `bctpy>=0.5`, `statsmodels>=0.14.0`, `matplotlib`, `seaborn`, `datasets`, `datalad`, `bids-validator`  
+**Storage**: Local file system (`data/raw`, `data/processed`, `results`) with JSON metadata logs.  
+**Testing**: `pytest` (unit tests for metric bounds, integration tests for pipeline flow).  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, 14GB Disk).  
+**Project Type**: Computational Research Pipeline / CLI.  
+**Performance Goals**: Preprocess N=20 subjects within 6 hours; memory < 7GB via streaming; no GPU required.  
+**Constraints**: No access to gated clinical datasets (ADNI, UK Biobank); must halt if paired pre/post data is missing; must frame results as associational unless `randomized` metadata is present.  
+**Scale/Scope**: Pilot study scale (N < 20 expected); exploratory analysis.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Implementation Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `requirements.txt` pins all versions. Random seeds pinned in `code/`. Data fetched from canonical OpenNeuro ID (pending verification). |
-| **II. Verified Accuracy** | **BLOCKED** | **No verified dataset exists** in the source block containing both rs-fMRI and clinical scores. The project halts until a verified source is found. Citations cannot be validated against a non-existent source. |
-| **III. Data Hygiene** | **PASS** | `data/` files checksummed. Raw data immutable; derivations written to new files. PII scan enforced. |
-| **IV. Single Source of Truth** | **PASS** | Figures/stats trace to `data/` rows and `code/` blocks. No hand-typed numbers in reports. |
-| **V. Versioning Discipline** | **PASS** | Artifacts carry content hashes. `state/` updated on change. |
-| **VI. Neuroimaging Data Integrity** | **PASS** | Preprocessing uses `nilearn` (FSL/AFNI wrappers) with versioned command logs. Provenance metadata attached to derived matrices. |
-| **VII. Biomarker Validation Standard** | **PASS** | Analysis requires p<0.05 and Cohen's d >0.5 (if applicable) with FDR/Bonferroni correction. Code versioned. |
+| Principle | Check Status | Evidence/Action |
+|-----------|--------------|-----------------|
+| **I. Reproducibility** | PASS | Plan mandates pinned `requirements.txt`, random seeds, and streaming from canonical sources (OpenNeuro/HF). |
+| **II. Verified Accuracy** | PASS | Plan requires citations only from the "Verified datasets" block. **New**: Dataset verification phase ensures variables exist before execution. |
+| **III. Data Hygiene** | PASS | Plan includes checksumming of raw downloads, no in-place modification, and provenance logging for derived metrics. |
+| **IV. Single Source of Truth** | PASS | All results (coefficients, plots) generated by code in `code/` and written to `data/` before being referenced in reports. |
+| **V. Versioning Discipline** | PASS | Content hashes for artifacts will be recorded in `state/...yaml`. |
+| **VI. Neuroimaging Data Integrity** | PASS | Pipeline uses `nilearn` (FSL/AFNI compatible) with versioned arguments; raw NIfTI preserved; derivatives saved with metadata. **New**: `bctpy` version pinned and functions mapped to schema. |
+| **VII. Biomarker Validation Standard** | PASS | Plan enforces ANCOVA with p<0.05, Cohen's d > 0.5, and Bonferroni/FDR correction. **New**: Explicitly states that if thresholds are NOT met, no biomarker claim is made. |
 
 ## Project Structure
 
@@ -52,45 +45,111 @@ specs/416-brain-network-dynamics/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 definition (schemas defined here), Phase 2 implementation
-└── tasks.md             # Phase 2 output
+├── contracts/           # Phase 1 output
+│   ├── analysis_result.schema.yaml
+│   ├── clinical_scores.schema.yaml
+│   ├── dataset.schema.yaml
+│   ├── metrics.schema.yaml
+│   ├── network_metric.schema.yaml
+│   ├── network_metrics.schema.yaml
+│   ├── statistical_results.schema.yaml
+│   └── subject.schema.yaml
+└── tasks.md             # Phase 2 output (NOT created here)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/416-brain-network-dynamics/
-├── code/
-│   ├── __init__.py
-│   ├── data/
-│   │   ├── download.py       # FR-001: OpenNeuro fetch (Halt if no verified source)
-│   │   ├── preprocess.py     # FR-002: Motion, slice, norm
-│   │   └── validate.py       # FR-009, FR-011: Variable checks
-│   ├── analysis/
-│   │   ├── network.py        # FR-003, FR-004: Connectivity, Metrics
-│   │   ├── stats.py          # FR-005, FR-006, FR-012: ANCOVA, Univariate (Spec conflict noted)
-│   │   └── plots.py          # FR-007, FR-010: Diagnostics, Sensitivity
-│   └── main.py               # Orchestration
+code/
+├── __init__.py
+├── main.py              # Orchestration entry point
 ├── data/
-│   ├── raw/                  # Downloaded NIfTI (checksummed)
-│   ├── processed/            # Preprocessed NIfTI
-│   └── metrics/              # CSV/JSON of network metrics
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── contract/
-├── docs/
-└── requirements.txt
+│   ├── __init__.py
+│   ├── download.py      # OpenNeuro/HF fetcher with checksumming (Datalad)
+│   ├── preprocess.py    # Motion correction, normalization, parcellation
+│   └── validate.py      # Variable existence checks (FR-011) & Instrument Validation
+├── analysis/
+│   ├── __init__.py
+│   ├── network_metrics.py # Modularity, Efficiency (FR-003, FR-004)
+│   ├── regression.py    # ANCOVA, PCA, VIF, Correction (FR-005, FR-006)
+│   └── sensitivity.py   # Cutoff sweeping (FR-010) & Outcome Definition Sensitivity
+├── reports/
+│   ├── __init__.py
+│   └── generate.py      # Plots and Markdown reports (incl. sensitivity_analysis.md)
+├── config/
+│   └── defaults.yaml    # Paths, thresholds, seeds
+└── tests/
+    ├── test_metrics.py
+    └── test_pipeline.py
+
+data/
+├── raw/                 # Downloaded NIfTI/Parquet (checksummed)
+├── processed/           # Preprocessed fMRI, Connectivity matrices
+└── results/             # Regression tables, plots, sensitivity logs
 ```
 
-**Structure Decision**: Single project structure chosen for simplicity. The pipeline is linear (Download -> Preprocess -> Compute -> Analyze) and fits within a single Python package. `data/` is split into `raw` and `processed` to enforce Data Hygiene (Constitution Principle III). 
-**Note on Contracts**: The `contracts/` directory contains schema definitions (Phase 1). The validation logic that uses these schemas to halt on missing data is implemented in Phase 2. The initial "Halt on missing data" check in the download phase uses in-memory metadata validation to ensure feasibility before full download.
+**Structure Decision**: Single project structure chosen to align with the computational research nature. `code/` is modularized by domain (data, analysis, reports) to ensure separation of concerns and testability.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Univariate Models Only** | Metrics (Modularity, Efficiency) are highly interdependent. Multivariate models with Ridge fallback (Spec FR-005) introduce p-hacking risks and invalid p-values. Univariate models with FDR correction provide a statistically sounder primary analysis for small N. | Multivariate models with Ridge switching are rejected due to methodological unsoundness (biased coefficients, invalid p-values) and the risk of selection bias. **Spec requires update to remove this mandate.** |
-| **Sensitivity Analysis** | FR-010 requires sweeping cutoffs (motion threshold, p 0.01/0.05/0.1). | A single cutoff run cannot demonstrate robustness of findings to threshold choices. |
-| **Dataset-Variable Gate** | FR-011 requires halting if pre/post data is missing. | Proceeding without paired data would result in a fatal analysis failure or invalid inference. |
-| **N=10 Limit** | A subset of subjects exceeds 6h runtime on 2 CPU cores. | Processing a cohort of subjects takes approximately several hours.; N=10 ensures feasibility within the 6h CI limit. |
+| **PCA for Collinearity** | Network metrics (efficiency/modularity) are often definitionally linked. Standard regression fails (VIF > 5). | Ridge regression was rejected (FR-005) as it does not resolve the fundamental issue of testing independent effects of linked variables; PCA provides orthogonal components **only for exploratory/robustness checks**, not primary hypothesis testing. |
+| **Sensitivity Sweeping** | Decision cutoffs (motion, p-value) are arbitrary; robustness must be demonstrated. | Single-cutoff analysis was rejected as it fails to address the "Threshold Sensitivity" success criterion (SC-006) and risks overfitting to a specific threshold. **New**: Also sweeps outcome definition (Change vs. Residual). |
+| **Streaming/Chunking** | Full fMRI datasets exceed 7GB RAM. | Loading entire dataset into memory was rejected as it violates the compute constraint (FR-002); streaming ensures feasibility on CI. |
+| **Multi-Source Aggregation** | Single datasets often lack paired clinical/imaging data. | Relying on a single source was rejected as it risks "Data Unavailable" halts; aggregating 3 sources ensures feasibility (FR-013). |
+
+## Implementation Phases
+
+### Phase 0.1: Multi-Source Data Aggregation (FR-013)
+1.  **Iterate** through a list of 3 verified sources (OpenNeuro BIDS, HCP-Young-Adults subset, Secondary Repository).
+2.  **Check** each source for:
+    *   Resting-state fMRI (NIfTI).
+    *   Paired pre/post clinical scores.
+    *   Validated anxiety instrument (GAD-7, HAM-A).
+3.  **Select** the first source meeting all criteria.
+4.  **Halt** with "Data Unavailable: No longitudinal dataset found" if all 3 fail.
+
+### Phase 0.2: Dataset Variable Fit & Instrument Validation (FR-011, FR-009)
+1.  **Verify** existence of `pre_treatment_score`, `post_treatment_score`, `anxiety_instrument`.
+2.  **Validate** `anxiety_instrument` against a whitelist (GAD-7, HAM-A, BAI) with citable references.
+3.  **Halt** with "Data Unavailable: Missing [variable_name]" or "Invalid Instrument: [name]" if checks fail.
+
+### Phase 0.5: Power & Sample Size Gate (SC-004)
+1.  **Calculate** required N using G*Power logic (α=0.05, f²=0.15, power≥0.8).
+2.  **If N < 5**: HALT with "Insufficient Power: N < 5".
+3.  **If 5 ≤ N < required**: WARN "Underpowered for hypothesis testing (Power < 0.8)" and switch to **Exploratory Mode** (report effect sizes, no p-value claims).
+4.  **If N ≥ required**: Proceed to Analysis.
+
+### Phase 1: Data Preprocessing (US-1)
+1.  **Download** data using `datalad` (streaming if large).
+2.  **Preprocess**: Motion correction, slice timing, normalization (MNI).
+3.  **Quality Control**: Compute FD. Exclude subjects with FD > 3mm/3°.
+4.  **Confounder Handling**: Calculate missingness for age/medication. If >50% missing, drop covariate and log.
+
+### Phase 2: Network Metric Computation (US-2)
+1.  **Parcellation**: Schaefer or AAL.
+2.  **Connectivity**: Pearson correlation of ROI time series.
+3.  **Metrics**: Modularity (Q), Global Efficiency, Local Efficiency (using `bctpy` v0.5+).
+4.  **Validation**: Ensure values are non-negative/finite. Handle NaNs by exclusion.
+
+### Phase 3: Statistical Analysis (US-3)
+1.  **Outcome Definition**: Compute **Change Score** (Post - Pre) and **Residual** (Post ~ Pre).
+2.  **Primary Model**: ANCOVA on Change Score/Residual with Network Metric as predictor.
+    *   **Univariate Tests**: Test each metric separately with FDR correction (FR-006).
+    *   **Collinearity**: If VIF > 5, run PCA **only for exploratory visualization**. Do not replace primary predictors with PCs.
+3.  **Framing**: Check `metadata.randomized`. If absent, frame as **ASSOCIATIONAL** (FR-008).
+4.  **Biomarker Claim**: Only if p < 0.05 AND Cohen's d > 0.5 AND FDR corrected. Else, report as non-significant.
+
+### Phase 4: Sensitivity Analysis (FR-010, SC-006)
+1.  **Sweep Motion**: {2.0, 3.0} mm.
+2.  **Sweep P-value**: {0.01, 0.05, 0.1}.
+3.  **Sweep Outcome**: {Change Score, Residual, Raw Post}.
+4.  **Generate** `reports/sensitivity_analysis.md` with tables of effect sizes and CIs across all sweeps.
+
+## Reference Implementation Notes
+
+- **BIDS Compliance**: All data downloads must respect BIDS structure.
+- **Streaming**: `datasets.load_dataset(..., streaming=True)` or `datalad` streaming for large NIfTI.
+- **Memory Management**: Process subject-by-subject; delete intermediate NIfTI after metric extraction.
+- **Reproducibility**: Random seeds pinned in `config/defaults.yaml`.

@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResult"
+description: "Schema for the output of the Spearman correlation analysis with BH correction."
+type: "object"
+properties:
+  taxon_id:
+    type: "string"
+    description: "Unique identifier for the microbial taxon."
+  metric:
+    type: "string"
+    description: "The statistical test used (e.g., 'Spearman')."
+  coefficient:
+    type: "number"
+    description: "The Spearman rank correlation coefficient."
+  p_value_raw:
+    type: "number"
+    description: "The uncorrected p-value."
+  p_value_adj:
+    type: "number"
+    description: "The Benjamini-Hochberg corrected p-value (FDR)."
+  significant:
+    type: "boolean"
+    description: "True if p_value_adj < 0.05."
+required:
+  - taxon_id
+  - metric
+  - coefficient
+  - p_value_raw
+  - p_value_adj
+  - significant
+additionalProperties: false

@@ -3,27 +3,32 @@ from pathlib import Path
 
 def main():
     """
-    Setup the required data directory structure for the project.
+    Create the required data directory structure for the project.
+    
     Creates:
-      - data/raw/
-      - data/processed/
-    Ensures these directories exist relative to the project root.
+    - data/raw/
+    - data/processed/
+    - output/
+    
+    These directories are essential for storing raw downloaded data,
+    processed intermediate results, and final outputs.
     """
-    # Determine project root (assuming code/ is at root level)
-    current_dir = Path(__file__).parent
-    project_root = current_dir.parent
-
-    data_dir = project_root / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
-
+    # Define the project root (parent of code/)
+    project_root = Path(__file__).resolve().parent.parent
+    
+    # Define the directories to create
+    data_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "output",
+    ]
+    
     # Create directories if they don't exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
-    print(f"Created data directory structure:")
-    print(f"  - {raw_dir}")
-    print(f"  - {processed_dir}")
+    for dir_path in data_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
+    
+    print("Data directory structure setup complete.")
 
 if __name__ == "__main__":
     main()

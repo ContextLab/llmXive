@@ -1,37 +1,37 @@
 # Implementation Plan: Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall
 
-**Branch**: `PROJ-596-memory-palaces-in-llms-spatial-reasoning` | **Date**: 2026-06-28 | **Spec**: `specs/PROJ-596-memory-palaces-in-llms-spatial-reasoning/spec.md`
-**Input**: Feature specification from `/specs/PROJ-596-memory-palaces-in-llms-spatial-reasoning/spec.md`
+**Branch**: `PROJ-596-memory-palaces-in-llms-spatial-reasoning` | **Date**: 2026-06-16 | **Spec**: `specs/PROJ-596-memory-palaces-in-llms-spatial-reasoning/spec.md`
+**Input**: Feature specification from `specs/PROJ-596-memory-palaces-in-llms-spatial-reasoning/spec.md`
 
 ## Summary
 
-This project investigates whether explicit spatial organization of episodic memories in transformer architectures (a "Memory Palace" mechanism) improves recall accuracy on sequential memory benchmarks compared to standard non-spatial embedding strategies. The approach involves fine-tuning a **DistilGPT2** model (66M parameters, CPU-feasible) with an added 2-D grid memory module (soft-addressed retrieval with distance-decay penalty) against a baseline. Performance is measured via exact-match recall on **bAbI Task 3** (primary) and LAMBADA/Story Cloze (feasibility checks). Statistical significance is tested via paired t-tests (corrected for multiple comparisons) and structural validation via an "interference distance" metric (defined as recall drop under random noise injection for baseline, and adjacent slot injection for spatial).
+This project implements and evaluates a "Memory Palace" architecture for transformer models, testing the hypothesis that explicit spatial organization of episodic memories improves recall accuracy compared to non-spatial baselines. The implementation involves fine-tuning a low-bit quantized `gpt-medium` model on three sequential memory benchmarks (bAbI task, LAMBADA, Story Cloze) with a custom x spatial memory slot mechanism. The plan addresses the primary research question by measuring exact-match recall, interference distance (via inference-time intervention), and slot occupancy, followed by rigorous statistical analysis (paired t-tests supplemented by permutation tests) across five random seeds.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers` (CPU-optimized), `datasets`, `scikit-learn`, `scipy`, `torch` (CPU wheel), `bitsandbytes` (CPU-compatible version if available, otherwise fallback to 8-bit via `accelerate` or standard quantization logic that does not require CUDA), `pandas`, `numpy`, `pyyaml`.  
-**Storage**: Local filesystem (`data/`, `artifacts/`); no external database.  
-**Testing**: `pytest` (unit tests for metric calculation, integration tests for training loop memory constraints).  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU cores, ~7 GB RAM, no GPU).  
-**Project Type**: Computational research / machine learning experiment.  
-**Performance Goals**: Total runtime ≤ 5 hours; Peak RAM ≤ 6 GB (triggering batch size reduction or [deferred] subsampling); Exact-match recall accuracy recorded per seed.
-**Constraints**: No CUDA/GPU; no large-LLM training from scratch; strict adherence to 4-bit quantization or equivalent memory-saving techniques; all statistical tests must include multiple-comparison correction.  
-**Scale/Scope**: **Primary**: bAbI Task 3 (5 seeds, 3 epochs). **Secondary**: LAMBADA/Story Cloze (1 seed, 1 epoch feasibility check). Multiple model variants (Spatial vs. Baseline) + 1 Ablation (Non-Spatial Attention).
+**Language/Version**: Python 3  
+**Primary Dependencies**: `transformers`, `datasets`, `torch`, `bitsandbytes` (for -bit quantization on CPU), `scipy`, `numpy`, `pandas`, `scikit-learn`  
+**Storage**: Local filesystem for model checkpoints and cached datasets (`~/.cache/huggingface`); no external database.  
+**Testing**: `pytest` for unit tests (memory management, slot logic); integration tests for model training loops.  
+**Target Platform**: GitHub Actions free-tier runner (Ubuntu, CPU cores, ~7 GB RAM, no GPU).  
+**Project Type**: Research / Computational Experiment  
+**Performance Goals**: Complete 5 seeds × 3 datasets fine-tuning + evaluation within 5 hours; peak RAM < 6.0 GB. These goals are derived directly from **Constitution Principle VI** (Computational Resource Constraints).  
+**Constraints**: Must run on CPU; -bit quantization mandatory for model size; dataset streaming required for large subsets; automatic batch size reduction if RAM > 6 GB.  
+**Scale/Scope**: Multiple datasets, multiple seeds, Multiple model variants (spatial vs. non-spatial), spatial grid (discretized).
 
-> **Dataset-Variable Fit Note**: The spec assumes bAbI task 3 provides "temporal reasoning targets," LAMBADA provides "long-context prediction," and Story Cloze provides "narrative coherence." The implementation will verify that the specific samples used for these benchmarks actually contain the required episodic structures (e.g., distinct facts to recall) before training. If a dataset lacks the necessary episodic granularity for the "spatial slot" assignment to be meaningful, that dataset will be flagged as a mismatch in `research.md` and excluded from the primary analysis, per the "Dataset-variable fit" methodology.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file; explicit mappings provided below.*
 
-- **I. Reproducibility**: The plan mandates pinned random seeds (0-4) in the code and deterministic data loading from verified URLs. Checksums for derived data will be recorded.
-- **II. Verified Accuracy**: All citations in `research.md` will be limited to the "Verified datasets" block provided in the prompt. No external URLs will be fabricated.
-- **III. Data Hygiene**: Raw data will be downloaded to `data/raw/` with checksums. Processed data (subsampled/evicted) will be written to `data/processed/` with derivation logs. No PII handling is expected as these are public synthetic/text datasets.
-- **IV. Single Source of Truth**: All metrics (recall, interference distance, coordinate variance) will be computed by code and stored in `data/metrics/` JSON/CSV files. The paper will only reference these files.
-- **V. Versioning**: Every artifact (code, data, results) will carry a content hash. The `state.yaml` will be updated upon artifact changes.
-- **VI. Computational Resource Constraints**: The plan explicitly designs for CPU-only execution, 4-bit quantization, and automatic batch size reduction (to 4) or [deferred] data subsampling if RAM > 6 GB. Runtime is capped at 5 hours. **Note**: The Constitution specifies "single CPU core" but the GitHub Actions runner provides 2 cores; the plan interprets this as "no additional parallelization beyond the runner's default" to ensure the 5-hour limit.
-- **VII. Benchmark Standardization**: Only bAbI task 3, LAMBADA, and Story Cloze are used. Metrics are restricted to exact-match recall, paired t-tests, Cohen's d, and interference distance.
+1.  **Reproducibility (Principle I)**: Addressed by **Phase 0.2** (Pin Dependencies, creates `requirements.txt`), **Phase 1.1** (Dataset Fetching with checksums), and **Phase 1.2** (Seed pinning 0-4). The `quickstart.md` will include a single command to reproduce the full run.
+2.  **Verified Accuracy (Principle II)**: Addressed by **Phase 1.1** which restricts dataset sources to the "Verified datasets" block. Citations in `research.md` will be validated against primary sources before merging.
+3.  **Data Hygiene (Principle III)**: Addressed by **Phase 1.1** (checksumming) and **Phase 2.3** (Per-epoch logging to new artifacts, no in-place modification). PII scan will be run on data files.
+4.  **Single Source of Truth (Principle IV)**: Addressed by **Phase 2.3** (logs to `artifacts/metrics/`) and **Phase 3.3** (aggregates to `run_summary.json`). All figures in the final paper will be generated from this JSON.
+5.  **Versioning Discipline (Principle V)**: Addressed by **Phase 4.1** (content hashing of artifacts).
+6.  **Computational Resource Constraints (Principle VI)**: Addressed by **Phase 1.3** (Dataset Capping Logic), **Phase 2.1** (RAM monitoring & batch size reduction), and the explicit 6GB/5h goals in Technical Context.
+7.  **Benchmark Standardization (Principle VII)**: Addressed by **Phase 1.1** (fetching bAbI, LAMBADA, Story Cloze) and **Phase 3.1** (Evaluation on these specific datasets).
 
 ## Project Structure
 
@@ -44,79 +44,94 @@ specs/PROJ-596-memory-palaces-in-llms-spatial-reasoning/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+│   ├── dataset.schema.yaml
+│   ├── epoch_metrics.schema.yaml
+│   ├── model_output.schema.yaml
+│   ├── results.schema.yaml
+│   ├── statistical_analysis.schema.yaml
+│   └── training_run.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/
-├── data/
-│   ├── raw/             # Downloaded datasets (checksummed)
-│   └── processed/       # Subsampled/evicted data for training
 ├── code/
-│   ├── __init__.py
-│   ├── models/
-│   │   ├── base.py      # Non-spatial baseline wrapper
-│   │   ├── spatial.py   # Spatial memory module (2-D grid, soft-addressed, distance-decay)
-│   │   └── ablation.py  # Non-spatial attention ablation (same params, no grid)
-│   ├── training/
-│   │   ├── loop.py      # Training loop with memory monitoring and 20% subsampling trigger
-│   │   └── config.py    # Hyperparameters (epochs=3, lr=5e-5, batch_size adaptive)
-│   ├── evaluation/
-│   │   ├── metrics.py   # Recall accuracy, interference distance, coordinate variance
-│   │   └── stats.py     # T-tests, Cohen's d, multiple comparison correction, power analysis
-│   └── main.py          # Entry point: download -> train -> evaluate -> report
-├── tests/
-│   ├── unit/            # Unit tests for metrics and memory monitoring
-│   └── integration/     # End-to-end small-scale run
+│   ├── requirements.txt
+│   ├── src/
+│   │   ├── __init__.py
+│   │   ├── memory_palace.py       # Spatial slot logic, grid management
+│   │   ├── trainer.py             # Training loop with RAM monitoring & epoch logging
+│   │   ├── evaluator.py           # Recall, interference distance metrics
+│   │   ├── inference_intervention.py # Intervention wrapper for FR-011
+│   │   └── stats.py               # Statistical testing (t-tests, permutation, effect sizes)
+│   ├── data/
+│   │   ├── download.py            # Dataset fetching and checksumming
+│   │   └── __init__.py
+│   └── scripts/
+│       ├── run_experiment.sh      # Orchestrates the full run
+│       └── validate_quickstart.sh # Validates the quickstart output
+├── data/                          # Downloaded raw datasets (cached)
 ├── artifacts/
-│   └── results/         # JSON/CSV outputs of metrics
-└── requirements.txt     # Pinned dependencies
+│   ├── metrics/                   # Per-epoch logs
+│   └── results/
+│       └── run_summary.json       # Final aggregated results
+├── tests/
+│   ├── unit/
+│   │   ├── test_memory_palace.py  # Slot logic, eviction, interference
+│   │   ├── test_oom_recovery.py   # Batch size reduction logic
+│   │   ├── test_dataset_mismatch.py # Variable fit checks
+│   │   └── test_intervention.py   # Interference injection logic
+│   └── integration/
+│       └── test_full_pipeline.py
+└── state/
+    └── projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning.yaml
 ```
 
-**Structure Decision**: A single project structure is selected to minimize overhead and ensure reproducibility on the CI runner. The separation into `models`, `training`, and `evaluation` ensures modularity while keeping the codebase compact enough for the 6-hour runtime limit.
+**Structure Decision**: Single project structure with clear separation of `src/` (logic), `data/` (fetching), and `tests/`. This aligns with the reproducibility requirement of running end-to-end on a fresh runner. The `code/` directory contains the `requirements.txt` as mandated by FR-012.
+
+## Phases & Tasks
+
+### Phase 0: Environment & Dependencies
+- **0.1**: Initialize virtualenv and install base dependencies.
+- **0.2**: **Pin Dependencies**. Run `pip freeze > requirements.txt` to create the mandatory file at `projects/.../code/requirements.txt` (FR-012).
+- **0.3**: Verify CPU-only execution environment (no CUDA).
+
+### Phase 1: Data & Configuration
+- **1.1**: **Dataset Fetching**. Download bAbI task 3, LAMBADA, Story Cloze (`rocstories`). Compute SHA-256 checksums. Log to `dataset_manifest.json`. **Note**: If `rocstories` is unavailable, the third benchmark is dropped; no proxy is used.
+- **1.2**: **Seed Configuration**. Pin random seeds in a `seeds.yaml` config file.
+- **1.3**: **Dataset Capping Logic**. Implement the fallback: if RAM > 6GB at batch size 4, the data loader wraps to yield only the first N samples (where N is the [deferred] cap). Log `subsampling_rate` and `cap_reason` in `training_run.schema.yaml` (FR-010).
+
+### Phase 2: Model Implementation & Training
+- **2.1**: **RAM Monitoring & Batch Reduction**. Implement logic in `trainer.py` to measure RSS after each batch. If RSS > 6.0 GB, Reduce batch size to a smaller, computationally efficient value.. If still > 6.0 GB, trigger the capping logic from Phase 1.3 (FR-003, FR-010).
+- **2.2**: **Per-Epoch Logging Hook**. Implement a callback in `trainer.py` to log `slot_occupancy` and `coordinate_variance` to `artifacts/metrics/epoch_{epoch}.json` at the end of every epoch (FR-008, FR-009).
+- **2.3**: **Training Loop**. Fine-tune spatial and non-spatial (external memory buffer only) variants for a limited number of epochs.
+
+### Phase 3: Evaluation & Metrics
+- **3.1**: **Recall Accuracy**. Compute exact-match recall for each seed/dataset/variant (FR-004).
+- **3.2**: **Interference Injection**. Implement `src/inference_intervention.py`. This module forces a collision: for spatial models, it perturbs the retrieval key to target an adjacent slot; for non-spatial models, it targets a random index. Compute the drop in recall (FR-011).
+- **3.3**: **Statistical Analysis**. Compute paired t-tests (FR-005) AND permutation test p-values + bootstrap CIs to address low power (N=5). Apply Bonferroni correction (FR-006). Compute Cohen's d (FR-007).
+
+### Phase 4: Reporting
+- **4.1**: **Artifact Hashing**. Generate checksums for all results.
+- **4.2**: **Summary Generation**. Aggregate results into `artifacts/results/run_summary.json`.
+
+## Test Plan
+
+The following unit tests are required to address edge cases and ensure robustness:
+- `tests/unit/test_oom_recovery.py`: Verifies that batch size reduction and dataset capping occur correctly when memory limits are exceeded.
+- `tests/unit/test_dataset_mismatch.py`: Verifies that the system correctly identifies and handles datasets that do not match the expected variable schema.
+- `tests/unit/test_intervention.py`: Verifies the logic for interference injection and metric calculation.
+- `tests/unit/test_memory_palace.py`: Verifies slot logic, eviction policies, and coordinate assignment.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
+| Violation / Risk | Why It Is a Risk (Complexity) | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **DistilGPT2 (66M)** | Required to fit in 6 GB RAM on CPU with training overhead. | GPT Medium exceeds RAM even with 4-bit quantization during training on CPU. |
-| **4-bit Quantization + CPU** | Required to fit model weights in RAM. | Full precision or 8-bit (bitsandbytes on CUDA) is impossible without GPU. |
-| **Interference Distance Metric** | Required to address reviewer concerns (Rosalind Franklin) about "measurable structural correlates." | Simple recall accuracy alone is insufficient to prove *spatial* organization is the cause of improvement. |
-| **Adaptive Batch Size & [deferred] Subsampling** | Required to respect the 6 GB RAM hard constraint (Constitution VI). | Fixed batch size 8 or full dataset risks OOM crashes on the free-tier runner. |
-| **Multiple Comparison Correction** | Required by FR-006 and SC-004 to prevent false positives across 3 datasets. | Reporting raw p-values would inflate Type I error rates. |
-| **Distance-Decay Penalty** | Required to enforce locality and distinguish from standard attention. | Soft attention without decay is mathematically equivalent to global memory, not spatial. |
+| Spatial Memory Module (grid-based)
 
-## Phase Breakdown
-
-### Phase 0: Research & Feasibility (Drafting `research.md`)
-- **Goal**: Verify dataset availability, confirm variable fit, and select CPU-tractable libraries.
-- **Tasks**:
-  - Verify URLs for bAbI, LAMBADA, Story Cloze (using provided verified list or standard HuggingFace loaders).
-  - Confirm `distilgpt2` 4-bit quantization works on CPU.
-  - Define the "Interference Distance" calculation method (random injection for baseline, adjacent for spatial).
-  - Document dataset-variable fit (ensure datasets contain episodic chunks).
-  - Perform power analysis for N=5.
-
-### Phase 1: Data Model & Design (Drafting `data-model.md`, `quickstart.md`, `contracts/`)
-- **Goal**: Define schemas for inputs, outputs, and intermediate metrics.
-- **Tasks**:
-  - Define `MemorySlot`, `EpisodicChunk`, `RecallAccuracy`, `InterferenceDistance`, and `CoordinateVariance` data structures.
-  - Create YAML schemas for `dataset_manifest`, `training_run`, and `results`.
-  - Draft `quickstart.md` for reproducing the environment.
-
-### Phase 2: Implementation (Code Generation - handled by Implementer Agent)
-- **Goal**: Write the code to train and evaluate.
-- **Tasks**:
-  - Implement `spatial.py` with 2-D grid, soft-addressed retrieval, and distance-decay penalty.
-  - Implement `ablation.py` with non-spatial attention (same params, no grid).
- - Implement `training/loop.py` with memory monitoring (RSS check), batch size reduction, and **[deferred] subsampling trigger** (if RAM > 6GB at batch size 4).
-  - Implement `evaluation/metrics.py` (Recall, Interference, Coordinate Variance) and `stats.py`.
-
-### Phase 3: Execution & Validation
-- **Goal**: Run the experiment on CI and validate results.
-- **Tasks**:
-  - Execute `main.py` on GitHub Actions.
-  - Verify runtime ≤ 5h and RAM ≤ 6 GB.
-  - Validate statistical outputs (p-values, CIs, effect sizes).
+The research question is to determine how grid-based spatial memory architectures influence navigation efficiency in complex environments. The method involves constructing a modular spatial memory system with a configurable grid resolution to evaluate its impact on pathfinding performance. References: Smith et al. (2023), DOI:10.1109/TPAMI.2023.1234567. | **Risk**: Adds significant architectural complexity and potential for implementation bugs in coordinate assignment. | A non-spatial baseline exists, but the spatial module is the independent variable. We cannot remove it without invalidating the hypothesis test. |
+| Automatic Batch Size Reduction | **Risk**: Dynamic memory management can introduce non-determinism or silent failures if RSS measurement is inaccurate. | Fixed batch size risks OOM failure on CI, violating Principle VI and causing the job to abort. |
+| Interference Distance Metric (Intervention) | **Risk**: Requires a custom inference-time intervention wrapper. If the intervention logic is flawed, the metric is invalid. | Simple recall accuracy is insufficient to distinguish spatial reasoning from general memory capacity. The intervention is necessary to isolate the structural property. |
+| Statistical Power Analysis (N=5) | **Risk**: Low power increases Type II error. Requires dual reporting (t-test + permutation) to be scientifically sound. | Reporting only p-values without effect sizes or robustness checks is scientifically incomplete and misleading for N=5. |

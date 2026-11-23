@@ -1,51 +1,38 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Execution Log"
-type: "object"
+type: object
 required:
   - workflow_id
-  - compression_type
-  - max_depth
-  - original_node_count
-  - compressed_node_count
+  - compression_depth
   - token_count
-  - is_valid
-  - violations
+  - policy_violations
 properties:
   workflow_id:
-    type: "string"
-  compression_type:
-    type: "string"
-    enum: ["bfs", "dfs"]
-  max_depth:
-    type: "integer"
-    minimum: 0
-  original_node_count:
-    type: "integer"
-    minimum: 0
-  compressed_node_count:
-    type: "integer"
-    minimum: 0
+    type: string
+  compression_depth:
+    type: integer
   token_count:
-    type: "integer"
-    minimum: 0
+    type: integer
+  context_reduction_pct:
+    type: [number, string]
   is_valid:
-    type: "boolean"
-  violations:
-    type: "array"
+    type: boolean
+  status:
+    type: string
+  policy_violations:
+    type: array
     items:
-      type: "object"
-      required:
-        - type
-        - reason
+      type: string
+  violation_details:
+    type: array
+    items:
+      type: object
       properties:
-        type:
-          type: "string"
+        node_id:
+          type: string
+        rule_id:
+          type: string
         reason:
-          type: "string"
-        details:
-          type: "string"
-  context_truncated:
-    type: "boolean"
-  timestamp:
-    type: "string"
-    format: "date-time"
+          type: string
+  depth:
+    type: integer
+  complexity:
+    type: integer

@@ -1,0 +1,2 @@
+# This file ensures the root directory is tracked by git if needed.
+# Actual project files are in code/, data/, and tests/.

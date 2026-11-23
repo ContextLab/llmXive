@@ -1,0 +1,77 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.pylintrc`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) are present, nor any documentation\
+    \ showing they have been set up. The provided artifacts only describe higher\u2011\
+    level benchmark user stories and contain no concrete lint/format setup, so the\
+    \ task requirement is not satisfied."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or documentation were supplied that demonstrate the creation\
+    \ of the curated \u201Chard\u201D subset, the synthetic mutation logic, the iterative\
+    \ agent execution loop, or the comparative metric calculations. The claim lacks\
+    \ any tangible artifacts to verify that the required functionality exists."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or documentation were provided to demonstrate that the\
+    \ SWE\u2011Explore dataset was downloaded, filtered, or that synthetic ambiguous\
+    \ issues were generated. Likewise, there is no implementation of the iterative\
+    \ agent loop, static\u2011analysis integration, or metric\u2011calculation scripts.\
+    \ The required artifacts are missing, so the task is not satisfied."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or data artifacts were provided to demonstrate the implementation\
+    \ of ground\u2011truth derivation (e.g., downloading SWE\u2011Explore, filtering\
+    \ hard instances, generating synthetic ambiguous issues, or streaming the derived\
+    \ ground truth). Without any tangible files or output, the claimed functionality\
+    \ cannot be verified. The required implementation artifacts are missing."
+T011b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing an AST\u2011based coverage simulation\
+    \ (fallback) was provided; the only evidence is a high\u2011level description\
+    \ of unrelated user stories, with no concrete artifact to verify the required\
+    \ functionality. The task therefore lacks the necessary implementation artifact."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No curated dataset subset, synthetic mutation scripts, or any code/data artifacts\
+    \ were provided; the claim lacks the required files or outputs demonstrating filtering\
+    \ of hard instances and generation of ambiguous issues. The implementer must supply\
+    \ the actual dataset files and mutation logic to satisfy User Story\u202F1."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (e.g., curated subset of SWE\u2011Explore issues, scripts or notebooks\
+    \ that perform the filtering and synthetic mutation, or generated ambiguous code\
+    \ files) were provided. Without these concrete outputs, the claim of generating\
+    \ synthetic ambiguous issues cannot be verified. The implementer must supply the\
+    \ dataset subset and the mutation logic/results."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifacts (code, data files, scripts, logs, or results) were provided to\
+    \ demonstrate the curated \u201Chard\u201D dataset, the synthetic mutation logic,\
+    \ the iterative agent execution loop, or the comparative metric calculations.\
+    \ Without these concrete outputs, the claim does not satisfy any of the user stories\u2019\
+    \ acceptance criteria. The implementer must supply the actual dataset subset,\
+    \ mutation scripts, execution logs showing up\u2011to\u20113\u2011turn loops,\
+    \ and metric/statistical analysis results."
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or results implementing a permutation test sensitivity\
+    \ check were provided; the only evidence is the high\u2011level feature description,\
+    \ which does not contain the required artifact. The task remains undone."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, scripts, or data artifacts (e.g., dataset curation scripts, iterative
+    agent implementation, or metric calculation tools) are present in the repository;
+    the task required concrete implementations for static analysis error handling
+    and neutral signal generation, which are missing. The claim cannot be verified
+    because the required artifacts do not exist.

@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-02T08:39:05.858963+00:00'
+issue_number: 1335
+project_id: PROJ-245-predicting-adsorption-isotherm-parameter

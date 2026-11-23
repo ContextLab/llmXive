@@ -1,0 +1,25 @@
+# Ruff configuration for llmXive-superconducting-qubit-coupling
+# This file is a duplicate of settings in pyproject.toml for IDE compatibility
+target-version = "py311"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "N",  # flake8-blind-parens
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+]
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+    "data/raw",
+    "data/processed",
+]

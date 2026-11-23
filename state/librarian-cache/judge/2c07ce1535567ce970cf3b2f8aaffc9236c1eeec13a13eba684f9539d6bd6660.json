@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.12003",
+  "judged_at": "2026-08-10T12:47:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "This paper satisfies acceptance criteria (a) and (d) because it explicitly proposes and analyzes \"doubly robust estimators\" for causal effects in observational settings (specifically Difference-in-Differences), which is the exact mechanism and methodological framework the user is investigating.",
+  "relevant": true
+}

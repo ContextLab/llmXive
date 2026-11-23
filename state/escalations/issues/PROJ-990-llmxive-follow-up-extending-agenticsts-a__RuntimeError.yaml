@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-07-22T19:14:11.553205+00:00'
+issue_number: 1290
+project_id: PROJ-990-llmxive-follow-up-extending-agenticsts-a

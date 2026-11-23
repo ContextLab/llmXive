@@ -1,0 +1,24 @@
+{
+  "task_id": "T031b",
+  "description": "Apply black formatting to all code/ modules",
+  "status": "completed",
+  "steps": [
+    {
+      "step": "black_check",
+      "command": "black --check code/",
+      "status": "passed",
+      "message": "All code files are properly formatted."
+    },
+    {
+      "step": "black_format",
+      "command": "black code/",
+      "status": "skipped",
+      "message": "Formatting not needed as check passed."
+    }
+  ],
+  "summary": {
+    "files_checked": "all files in code/",
+    "formatting_applied": false,
+    "all_checks_passed": true
+  }
+}

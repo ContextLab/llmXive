@@ -1,0 +1,100 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final statistical analysis results."
+type: "object"
+properties:
+  analysis_id:
+    type: "string"
+    format: "uuid"
+  metric:
+    type: "string"
+    description: "The metric being analyzed (e.g., aesthetics)."
+  results:
+    type: "object"
+    properties:
+      mean_base:
+        type: "number"
+      mean_rl:
+        type: "number"
+      degradation_id:
+        type: "number"
+        description: "Mean degradation (Base - RL) for In-Distribution."
+      degradation_ood:
+        type: "number"
+        description: "Mean degradation (Base - RL) for Out-of-Distribution."
+      generalization_gap:
+        type: "number"
+        description: "Degradation OOD - Degradation ID."
+      p_value:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      confidence_interval:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+      statistical_significance:
+        type: "boolean"
+        description: "True if p_value < 0.05."
+    required:
+      - mean_base
+      - mean_rl
+      - degradation_id
+      - degradation_ood
+      - generalization_gap
+      - p_value
+      - confidence_interval
+      - statistical_significance
+  power_analysis:
+    type: "object"
+    properties:
+      achieved_power:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      mdes:
+        type: "number"
+        description: "Minimum Detectable Effect Size at N=500."
+      variance_saturation:
+        type: "boolean"
+        description: "True if variance < 0.01."
+    required:
+      - achieved_power
+      - mdes
+      - variance_saturation
+  consistency_check:
+    type: "object"
+    properties:
+      proxy_correlation:
+        type: "number"
+        minimum: -1
+        maximum: 1
+        description: "Pearson r with proxy model."
+    required:
+      - proxy_correlation
+  metadata:
+    type: "object"
+    properties:
+      timestamp:
+        type: "string"
+        format: "date-time"
+      sample_size:
+        type: "integer"
+        minimum: 0
+      bootstrap_iterations:
+        type: "integer"
+        minimum: 0
+    required:
+      - timestamp
+      - sample_size
+      - bootstrap_iterations
+required:
+  - analysis_id
+  - metric
+  - results
+  - power_analysis
+  - consistency_check
+  - metadata
+additionalProperties: false

@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stability Index Report Schema"
+description: "Schema for the threshold sensitivity analysis and stability index report."
+type: "object"
+properties:
+  threshold_sweep:
+    type: "array"
+    description: "List of threshold values and corresponding classification rates."
+    items:
+      type: "object"
+      properties:
+        threshold_eV:
+          type: "number"
+        classification_rate:
+          type: "number"
+          minimum: 0
+          maximum: 1
+      required:
+        - threshold_eV
+        - classification_rate
+  stability_index:
+    type: "number"
+    description: "Standard deviation of rates divided by threshold range (1/eV)."
+  stability_target_met:
+    type: "boolean"
+    description: "True if stability_index <= 0.05."
+  sweep_range:
+    type: "object"
+    properties:
+      min_threshold:
+        type: "number"
+      max_threshold:
+        type: "number"
+    required:
+      - min_threshold
+      - max_threshold
+required:
+  - threshold_sweep
+  - stability_index
+  - stability_target_met
+  - sweep_range

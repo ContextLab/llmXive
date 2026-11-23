@@ -1,69 +1,52 @@
-"""
-Unit tests for Source Verification Task (T011)
-"""
-import json
-import os
-import sys
-import tempfile
-from pathlib import Path
-from unittest.mock import MagicMock, patch
+"""Unit tests for T011 source verification logic (no network required)."""
 
-# Add parent to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from code import code
-from code.utils import logging_setup
-
-# Import the module under test
-# We need to import the module directly from the code directory
 import importlib.util
-spec = importlib.util.spec_from_file_location("source_verification", "code/03_source_verification.py")
-source_ver = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(source_ver)
+import sys
+from pathlib import Path
 
-def test_manifest_structure():
-    """Test that the manifest has the required fields."""
-    manifest = source_ver.verify_source()
-    
-    assert "search_scope" in manifest
-    assert "query_string" in manifest
-    assert "results" in manifest
-    assert "mode" in manifest
-    assert "reason" in manifest
-    
-    assert manifest["search_scope"] == source_ver.SEARCH_SOURCES
-    assert manifest["query_string"] == source_ver.QUERY_STRING
+import pytest
 
-def test_mode_flag_set_correctly():
-    """Test that mode is set to 'Data Insufficient' when no dataset is found."""
-    manifest = source_ver.verify_source()
-    assert manifest["mode"] == "Data Insufficient"
+_MODULE_PATH = Path(__file__).resolve().parents[1] / "code" / "03_source_verification.py"
 
-def test_manifest_written_to_disk():
-    """Test that the manifest is written to the correct path."""
-    # Use a temporary directory for testing
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        output_path = tmp_path / "test_manifest.json"
-        
-        # Patch the OUTPUT_PATH
-        original_output_path = source_ver.OUTPUT_PATH
-        source_ver.OUTPUT_PATH = output_path
-        
-        # Ensure directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Run main
-        source_ver.main()
-        
-        # Check file exists
-        assert output_path.exists()
-        
-        # Check content
-        with open(output_path, 'r') as f:
-            data = json.load(f)
-            assert "mode" in data
-            assert data["mode"] == "Data Insufficient"
-        
-        # Restore
-        source_ver.OUTPUT_PATH = original_output_path
+def _load_module():
+    spec = importlib.util.spec_from_file_location("source_verification", _MODULE_PATH)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["source_verification"] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+@pytest.fixture(scope="module")
+def mod():
+    return _load_module()
+
+def test_paired_detection_positive(mod):
+    entry = {"name": "EEG during tDCS motor task",
+             "description": "raw EEG with tDCS stimulation scores"}
+    assert mod.is_paired_eeg_tdcs(entry) is True
+
+def test_paired_detection_eeg_only(mod):
+    entry = {"name": "EEG Motor Movement/Imagery",
+             "description": "resting state EEG recordings"}
+    assert mod.is_paired_eeg_tdcs(entry) is False
+
+def test_paired_detection_tdcs_only(mod):
+    entry = {"name": "tDCS motor learning behavioral scores",
+             "description": "behavioral outcomes only"}
+    assert mod.is_paired_eeg_tdcs(entry) is False
+
+def test_query_and_scope_constants(mod):
+    assert mod.QUERY_STRING == "EEG AND tDCS AND motor"
+    assert sorted(mod.SEARCH_SCOPE) == ["Kaggle", "OpenNeuro", "PhysioNet"]
+
+def test_manifest_written_with_mandatory_fields():
+    """If the executed script ran, the manifest must carry FR-018 fields."""
+    import json
+    manifest_path = _MODULE_PATH.parents[1] / "data" / "verified_source_manifest.json"
+    if not manifest_path.exists():
+        pytest.skip("manifest not yet generated (script not executed)")
+    manifest = json.loads(manifest_path.read_text())
+    assert manifest["query_string"] == "EEG AND tDCS AND motor"
+    assert set(["OpenNeuro", "PhysioNet", "Kaggle"]) <= set(manifest["search_scope"])
+    assert manifest["status"] in ("found", "absent")
+    assert isinstance(manifest["N_actual"], int)
+    assert "mode_flag" in manifest

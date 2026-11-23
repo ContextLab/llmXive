@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.05287",
+  "judged_at": "2026-08-22T04:20:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"openthoughts-agent: data recipes for agentic models\" computer science",
+  "rationale": "The paper focuses on security architecture, access control, and multitenancy in enterprise RAG systems, which is a distinct construct from the user's question regarding \"data recipes\" and the training/development methodology for agentic models. While both involve \"agentic models,\" the paper does not measure the same mechanism, variables, or empirical population related to data curation strategies, failing to meet any of the inclusion criteria (a-f).",
+  "relevant": false
+}

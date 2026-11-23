@@ -1,3 +1,5 @@
 """
-PROJ-051: Investigating the relationship between fractal dimension and energy dissipation in turbulent flows.
+PROJ-051: Fractal Dimension and Energy Dissipation in Turbulent Flows
 """
+
+__version__ = "0.1.0"

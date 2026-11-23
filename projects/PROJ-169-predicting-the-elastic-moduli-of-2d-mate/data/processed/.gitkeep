@@ -1,1 +1,2 @@
-# Processed graph data (parquet) will be stored here.
+# This directory is intentionally left empty as a placeholder.
+# It is required to ensure the `data/processed/` directory exists in the repository.

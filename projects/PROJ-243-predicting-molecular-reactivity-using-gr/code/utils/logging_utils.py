@@ -1,237 +1,193 @@
-"""
-Logging infrastructure for the molecular reactivity project.
-
-Provides structured logging to files and a metrics logger for JSON metrics.
-"""
 import os
+import sys
 import json
 import logging
 import logging.handlers
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from config import get_config, ensure_directories
 
-# Global logger instance
-_logger: Optional[logging.Logger] = None
+# Global state for metrics accumulation
+_metrics_buffer: List[Dict[str, Any]] = []
 _metrics_file_path: Optional[str] = None
-_metrics_data: Dict[str, Any] = {}
+_logger_instance: Optional[logging.Logger] = None
 
-def setup_logging(log_level: str = "INFO") -> logging.Logger:
+def setup_logging(log_file_path: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Configure the root logger and project-specific logger.
-    
-    Creates structured log files in artifacts/logs/ and initializes
-    the metrics file path.
-    
+    Configure the root logger and a project-specific logger.
+    Sets up:
+    1. File handler for structured logs (JSON-like format or standard text with timestamps).
+    2. Console handler for immediate feedback.
+    3. Metrics file handler for appending metrics to artifacts/metrics.json.
+
     Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR)
-        
+        log_file_path: Path to the log file (e.g., 'artifacts/logs/run_20231027.log').
+        level: Logging level.
+
     Returns:
-        Configured project logger instance
+        Configured logger instance.
     """
-    global _logger, _metrics_file_path
+    global _metrics_file_path
+
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
+
+    # Get or create logger
+    logger = logging.getLogger('llmXive')
+    logger.setLevel(level)
     
-    if _logger is not None:
-        return _logger
-    
-    config = get_config()
-    ensure_directories()
-    
-    log_dir = os.path.join(config["artifacts_dir"], "logs")
-    os.makedirs(log_dir, exist_ok=True)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_filename = f"project_{timestamp}.log"
-    log_file_path = os.path.join(log_dir, log_filename)
-    
-    _logger = logging.getLogger("molecular_reactivity")
-    _logger.setLevel(getattr(logging, log_level.upper()))
-    
-    if _logger.handlers:
-        _logger.handlers.clear()
-    
+    # Clear existing handlers to avoid duplicates on re-runs in same process
+    logger.handlers.clear()
+
+    # Formatter for standard logs
     formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
+
+    # File handler for logs
+    fh = logging.FileHandler(log_file_path, mode='a')
+    fh.setLevel(level)
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    # Setup metrics file path
+    _metrics_file_path = os.path.join(
+        os.path.dirname(log_file_path), 
+        os.pardir, 
+        'metrics.json'
+    )
+    # Normalize path (resolve ..)
+    _metrics_file_path = os.path.normpath(_metrics_file_path)
     
-    file_handler = logging.FileHandler(log_file_path)
-    file_handler.setFormatter(formatter)
-    file_handler.setLevel(getattr(logging, log_level.upper()))
-    
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    console_handler.setLevel(logging.INFO)
-    
-    _logger.addHandler(file_handler)
-    _logger.addHandler(console_handler)
-    
-    _metrics_file_path = os.path.join(config["artifacts_dir"], "metrics.json")
-    
-    _logger.info(f"Logging initialized. Logs written to: {log_file_path}")
-    _logger.info(f"Metrics will be written to: {_metrics_file_path}")
-    
-    return _logger
+    # Ensure metrics directory exists
+    os.makedirs(os.path.dirname(_metrics_file_path), exist_ok=True)
+
+    # Initialize metrics file if it doesn't exist
+    if not os.path.exists(_metrics_file_path):
+        with open(_metrics_file_path, 'w') as f:
+            json.dump({"metrics": []}, f)
+
+    _logger_instance = logger
+    logger.info(f"Logging initialized. Logs: {log_file_path}, Metrics: {_metrics_file_path}")
+    return logger
 
 def get_logger() -> logging.Logger:
-    """
-    Get the configured project logger.
-    
-    Returns:
-        The project logger instance, initializing if necessary
-    """
-    if _logger is None:
-        return setup_logging()
-    return _logger
+    """Get the configured logger instance."""
+    if _logger_instance is None:
+        raise RuntimeError("Logging not initialized. Call setup_logging first.")
+    return _logger_instance
 
-def log_metric(metric_name: str, value: float, tags: Optional[Dict[str, str]] = None) -> None:
+def log_metric(metric_name: str, value: Any, tags: Optional[Dict[str, str]] = None) -> None:
     """
-    Log a metric value to the metrics.json file.
-    
-    Appends the metric to the JSON file in a structured format.
-    Handles file creation and appending safely.
-    
+    Append a metric to the in-memory buffer and flush to disk.
+    This ensures real-time persistence of metrics to artifacts/metrics.json.
+
     Args:
-        metric_name: Name of the metric
-        value: Numeric value of the metric
-        tags: Optional dictionary of key-value tags for categorization
+        metric_name: Name of the metric (e.g., 'loss', 'accuracy').
+        value: Value of the metric.
+        tags: Optional dictionary of metadata (e.g., {'epoch': 5, 'model': 'spectral'}).
     """
-    global _metrics_file_path, _metrics_data
+    global _metrics_buffer
     
     if _metrics_file_path is None:
-        config = get_config()
-        ensure_directories()
-        _metrics_file_path = os.path.join(config["artifacts_dir"], "metrics.json")
-    
+        raise RuntimeError("Metrics file path not set. Call setup_logging first.")
+
     entry = {
         "timestamp": datetime.now().isoformat(),
-        "metric_name": metric_name,
+        "metric": metric_name,
         "value": value,
         "tags": tags or {}
     }
     
-    try:
-        if os.path.exists(_metrics_file_path):
-            with open(_metrics_file_path, "r", encoding="utf-8") as f:
-                content = f.read().strip()
-                if content:
-                    try:
-                        _metrics_data = json.loads(content)
-                    except json.JSONDecodeError:
-                        _metrics_data = []
-        
-        if not isinstance(_metrics_data, list):
-            _metrics_data = []
-        
-        _metrics_data.append(entry)
-        
-        with open(_metrics_file_path, "w", encoding="utf-8") as f:
-            json.dump(_metrics_data, f, indent=2)
-            
-        logger = get_logger()
-        logger.debug(f"Metric logged: {metric_name} = {value}")
-        
-    except Exception as e:
-        logger = get_logger()
-        logger.error(f"Failed to write metric to {_metrics_file_path}: {e}")
-        raise
+    _metrics_buffer.append(entry)
+    flush_metrics()
+
+def get_metrics() -> List[Dict[str, Any]]:
+    """Return the current buffer of metrics."""
+    return _metrics_buffer.copy()
 
 def flush_metrics() -> None:
     """
-    Ensure all metrics are written to disk.
-    
-    This is primarily useful in long-running processes to ensure
-    metrics are persisted before exit.
+    Write the current metrics buffer to the metrics.json file.
+    Reads the existing file, appends new entries, and writes back.
     """
-    logger = get_logger()
-    logger.info("Metrics flushed to disk")
+    if _metrics_file_path is None or not _metrics_buffer:
+        return
 
-def get_metrics() -> list:
-    """
-    Retrieve all logged metrics from the metrics file.
-    
-    Returns:
-        List of metric dictionaries
-    """
-    global _metrics_file_path, _metrics_data
-    
-    if _metrics_file_path is None or not os.path.exists(_metrics_file_path):
-        return []
-    
     try:
-        with open(_metrics_file_path, "r", encoding="utf-8") as f:
-            content = f.read().strip()
-            if not content:
-                return []
-            return json.loads(content)
-    except json.JSONDecodeError:
-        return []
+        # Read existing metrics
+        existing_data = {"metrics": []}
+        if os.path.exists(_metrics_file_path):
+            with open(_metrics_file_path, 'r') as f:
+                try:
+                    existing_data = json.load(f)
+                    if "metrics" not in existing_data:
+                        existing_data["metrics"] = []
+                except json.JSONDecodeError:
+                    # If file is corrupted, start fresh but log warning
+                    logging.getLogger('llmXive').warning(f"Corrupted metrics file at {_metrics_file_path}, resetting.")
+        
+        # Append new metrics
+        existing_data["metrics"].extend(_metrics_buffer)
+        
+        # Write back
+        with open(_metrics_file_path, 'w') as f:
+            json.dump(existing_data, f, indent=2)
+        
+        # Clear buffer
+        _metrics_buffer.clear()
+    except Exception as e:
+        logging.getLogger('llmXive').error(f"Failed to flush metrics to {_metrics_file_path}: {e}")
 
-def log_execution_summary(
-    task_name: str,
-    start_time: datetime,
-    end_time: datetime,
-    success: bool,
-    details: Optional[Dict[str, Any]] = None
-) -> None:
+def log_execution_summary(summary_data: Dict[str, Any]) -> None:
     """
-    Log a structured execution summary for a task.
+    Log a structured execution summary to the log file and metrics.
     
     Args:
-        task_name: Name of the task
-        start_time: Task start time
-        end_time: Task end time
-        success: Whether the task completed successfully
-        details: Optional dictionary of additional details
+        summary_data: Dictionary containing execution details (e.g., duration, status, counts).
     """
     logger = get_logger()
-    
-    duration = (end_time - start_time).total_seconds()
-    
-    summary = {
-        "task": task_name,
-        "status": "success" if success else "failed",
-        "duration_seconds": duration,
-        "start_time": start_time.isoformat(),
-        "end_time": end_time.isoformat(),
-        "details": details or {}
-    }
-    
-    if success:
-        logger.info(f"Task '{task_name}' completed successfully in {duration:.2f}s")
-    else:
-        logger.error(f"Task '{task_name}' failed after {duration:.2f}s")
-    
-    log_metric(
-        "task_execution_duration",
-        duration,
-        tags={"task": task_name, "status": "success" if success else "failed"}
-    )
+    logger.info(f"Execution Summary: {json.dumps(summary_data)}")
+    log_metric("execution_summary", summary_data, tags={"type": "summary"})
 
 def main():
     """
-    Main entry point for testing the logging setup.
+    Main entry point for testing the logging setup directly.
+    Writes a sample log and metric to verify functionality.
     """
-    logger = setup_logging()
+    config = get_config()
+    ensure_directories(config)
     
-    logger.info("Logging infrastructure test started")
+    # Setup logging to a specific test file
+    log_path = os.path.join(config['paths']['artifacts'], 'logs', 'test_run.log')
+    logger = setup_logging(log_path)
     
-    log_metric("test_metric_1", 0.95, {"source": "test"})
-    log_metric("test_metric_2", 100, {"source": "test"})
+    logger.info("Test log message 1")
+    logger.warning("Test warning message")
     
-    logger.warning("This is a test warning")
-    logger.error("This is a test error")
+    # Test metric logging
+    log_metric("test_metric", 0.95, tags={"test": "true", "run_id": "T009-verify"})
+    log_metric("test_metric", 0.96, tags={"test": "true", "run_id": "T009-verify"})
     
-    log_execution_summary(
-        "logging_test_task",
-        datetime.now(),
-        datetime.now(),
-        True,
-        {"note": "Testing logging infrastructure"}
-    )
-    
-    logger.info("Logging infrastructure test completed")
+    # Force flush
     flush_metrics()
+    
+    logger.info("Logging test completed successfully.")
+    
+    # Verify files exist
+    assert os.path.exists(log_path), f"Log file missing: {log_path}"
+    metrics_path = os.path.join(config['paths']['artifacts'], 'metrics.json')
+    assert os.path.exists(metrics_path), f"Metrics file missing: {metrics_path}"
+    
+    print(f"Verified: {log_path}")
+    print(f"Verified: {metrics_path}")
 
 if __name__ == "__main__":
     main()

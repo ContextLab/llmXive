@@ -1,0 +1,121 @@
+T001a:
+  task: 15f738424d9fdf44037fdf931932669a618e33f21adb8cf735f03e4ed944a08a
+T001b:
+  reason: "The evidence shows `code/data/__init__.py` exists, but there is no listed\
+    \ `__init__.py` in the other required sub\u2011packages (`code/analysis/`, `code/utils/`,\
+    \ `code/viz/`). Without those files the task of creating `__init__.py` in all\
+    \ `code/` sub\u2011packages is not satisfied."
+  task: 4880f6020746bf6650f94068260a461b919ce0dc69910b8a803ab48ccd441cac
+T002:
+  reason: "The only artifact found is `code/requirements.txt`, which does contain\
+    \ all the required packages with the correct \u201C>=\u201D specifiers, but there\
+    \ is no evidence that the project is initialized for Python\u202F3.12.0 (e.g.,\
+    \ a `pyproject.toml`, `setup.cfg`, or similar file specifying `requires-python\
+    \ = \"3.12\"`). Without such a version declaration, the task\u2019s requirement\
+    \ to initialize a Python\u202F3.12.0 project is not satisfied."
+  task: 4931aa96208aa00b32c65f030e7fb063b5e12be075dbd3ac0111b62b02748446
+T003:
+  reason: The evidence only shows that configuration files (`.flake8`, `.ruff.toml`,
+    `ruff.toml`, `pyproject.toml`) and helper scripts exist, but their contents are
+    not provided; there is no proof they contain valid Ruff, Flake8, or Black settings.
+    Without the actual configuration details (e.g., `[tool.black]` section, Flake8
+    rule list, Ruff rules) we cannot confirm that linting and formatting are truly
+    configured in `code/`. The implementer must supply the contents of these files
+    (or execution logs showing the tools run successfully) to satisfy the task.
+  task: 74ba4260e9c2635f001f2473229ec56a5aa4e7c5c24a1167178e7ceb8276ca96
+T004:
+  task: bf1131b5442ac970f2752d32cfdfdca32da086819827d3035afa281d5d6ba211
+T005:
+  task: 0bdba68837670079d55d4ce49ba11fffd000d5f8d714ee1b50775f633c101245
+T006:
+  task: 01d98d378d53a11cb1f965a39c8c5f42f60f6cb9aa1ff7664f8696e4604f1735
+T007:
+  task: 87ab3ad4bac3564820f4021629d057408a5d2c890aa683d41618f5be51b7073a
+T007b:
+  task: 20af2bda05c3258f55889a5fcded45646ec465b434612e42cd754afb8f34daf1
+T007c:
+  task: d02caf0f3870de80dfcee0b20b20a8823ee790efa939369f9e8acef0735b7b18
+T007d:
+  task: f2860c396f03e37fc2db10f544718481de318d74ff352f9cf955f988660edf72
+T008:
+  task: 3a0284cb24a646d10a17889b697a960c7ae36b6776f4900d262ec999139c8c30
+T009:
+  task: 9eb7265587c7e29fc251bf570d04a81015d84c00c304fd05456241c08c592cfc
+T010:
+  task: cb581ce9db230c3e374c627b4b5f3e83c8aaffd812d23969a98675e17d9f01f8
+T011:
+  task: 4ce45a0dea4056bf1c175df99078e1c88ae38a5e977101d0a9ab874a574fd829
+T012:
+  task: ddf1282a047e0ba5ac064c48192c8a85032abf5cebf624d90804634028e81340
+T013:
+  task: ae95985d31c0edbd508093eea0d00eefcec9934daac3400df5af76a1ded0c6b4
+T014:
+  task: 82ff43f9e1b4d425a35829fad03e02158f076e04118480f54b70f0ae5ffd6940
+T015:
+  task: 4ff415cacf6ea51d01a90e6545afe4161da1148f65b2abe34442b87d5d1ca090
+T016:
+  task: 610494d6ac3cc22e0808e7c76ed6f32071408a7eb2672d2abbaa945bf67be4c0
+T017:
+  task: 05f8cc8ef940c47c39fdd800a4604fcf55c11519602fac72bbba3b9df275a9c8
+T018:
+  task: 5f8d7caa7901608e6340d5f90c8a7b0e77068700ad03170061184004bd758fa0
+T018b:
+  task: 8e0be9f477d7487d204ba1a1fe191f05637d48287552bd923c6d0a085179fab9
+T018c:
+  task: 67603b059beb457cbec1cbe346b2074409ae8ebc6a629db7e7a139b71e64fe91
+T018d:
+  task: 3c9128d81307a82f09535a4f02f0103019ac8702570145f3972bfbcdd7985b07
+T020:
+  task: 6b8017c51fd4123eb2d88242ed8739ddf3ac1c33955f8d0fd6622fcbda4b52d8
+T021:
+  task: a7418e21f60afdb4061da660dc555d84b634f93d58817facb4f71fd482ef0854
+T022:
+  task: b8373cb65424e3a5b3db777615e0f6788cc2761424afc9008c85a113c6e2447a
+T023:
+  task: cc32cda55af0ecfbfe3fa83259933b64a9f501cf4f8d14e46b186236e4670cab
+T024:
+  task: 7202a651f4bb161c327c494f4bac7efe12483aa99758963d34d8100db082eac9
+T025:
+  task: 572b188054d6d9c52874d3cbd9d27f363f680d7493c825aaacb5a1f83aa0be58
+T026:
+  task: 43318b3fe86ca6a5d9c7f9859587151793d3839d3f8ab350c48374745a28f163
+T028:
+  task: 8d556a4b95a03b133aeffeb6d57b17e9973b4c909f01aef359c0f0c6a7e2030b
+T029:
+  task: a1d72eb1bff87a883d1935f7658f5530bbdfab842e63af01c093ff6b06178590
+T030:
+  task: 87af8f0c44d01b783b10d27f31be9cf7ffa76aba00b88444c8f0ad4d54dd654a
+T031:
+  task: 9ba7ce47ddd76bf2a77f685085b38a5598d0ea44f9d5ebe8bc900f1f0d5813a8
+T032:
+  task: 392fae1f00d117feb4711425c892d6af83d3f2c90f6e2a175b39647865e81980
+T033:
+  task: 47dd6d639b2d36a8e199a9448b43822b38cde13ce755cc8f734a683274a09587
+T034:
+  task: f5d70cd1d0e4eceacf1e8ad016ffa73a6622b9dea34ffaf510a5660c31574413
+T035:
+  task: a9d42282b61fe40c4b676bf168db24cf28cf567c6329ebb1057f97ee346c475a
+T035b:
+  task: aaaa7a6e8554b048a0df78bb8e65d4bb2edd44d4df57e485e2b6995d5baaecc5
+T036:
+  task: 525203415d5a6b285506f4f2326c145acb8471862fddf7e6238c3dc469e781a3
+T037:
+  task: 9ea98c38eb04d07357ebee67bcf6daab29a9c842622ac3503a91db325e0ea8f4
+T038:
+  task: 9eb43b36377ee51f158df87e80332864146d490522372b6ae1dc6e37988e9396
+T039:
+  task: db210908d176da408528927eca8386683f41cedf0aefd4b4d1568170532ae929
+T040:
+  task: 67f8f03580a22247af05e8a1656f82ee6ead7ea601806107009127bf5fe7e0b4
+T041:
+  task: 04ab22060dd69c2318ad139539abbedd7f7a3fd23efd1398b824e9cd1cd08800
+T042:
+  task: 2ec54e2058fd207e8b262f386a8bd72815f8fe9af788b2396656378b5b02543a
+T048:
+  task: ea8f2d872e682e6738a897dad2a33b9551f787bc9db24555aaceade38c6df622
+T049:
+  task: 8896cd7ae82f22616b0db13659409d4c277422359e555f6fc104e41e198f7ea2
+T050:
+  task: 8327c4e7f7cf306a0760d25e667fbbb7570758a8cb51b3bd1d48467725787b9e
+T051:
+  task: 1d2db8451ef5ab288bc247fef77dd4899d3db62773b4b1ee29843c30ef747302

@@ -1,4 +1,5 @@
-# llmXive Project: Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns
-# Package: data
-# This directory stores raw, processed, and log data artifacts.
-pass
+"""
+Data package for llmXive project.
+
+This directory contains all data files: raw, processed, logs, and figures.
+"""

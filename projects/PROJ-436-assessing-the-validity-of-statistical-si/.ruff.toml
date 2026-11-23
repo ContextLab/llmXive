@@ -1,0 +1,23 @@
+# This file is a duplicate of the configuration in pyproject.toml
+# to allow running ruff directly via `ruff check .` without parsing pyproject.toml if preferred.
+# It mirrors the settings in [tool.ruff] above.
+
+line-length = 100
+target-version = "py311"
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[per-file-ignores]
+"__init__.py" = ["F401"]

@@ -43,5 +43,15 @@
     "tables/code_table.tex",
     "tables/ablation_q4_table.tex",
     "tables/ablation_qn_table.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "a9a9345b6ef03e6a113e569d6edc0703c63cc4fe1df7fccea2db44be43b16d8b",
+      "bytes": 1510081
+    },
+    "original.pdf": {
+      "sha256": "f794f34e6c6f28db47ddfa07d315245cbe4ef288c8e0c7b41cc7ee9bc86b2cfd",
+      "bytes": 1439839
+    }
+  }
 }

@@ -1,240 +1,133 @@
-# Tasks: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
+# Tasks: Extending "Mega-ASR" – Semantic Collapse Thresholds
 
-**Input**: Design documents from `/specs/001-semantic-collapse-threshold/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contract schemas, and reviewer feedback.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a [P] Create project root directory structure (`code/`, `data/raw/`, `data/derived/`, `tests/`) at repository root per plan.md
-- [ ] T001b [P] Initialize `code/` directory with `__init__.py` and `requirements.txt` (pinned `scikit-learn`, `transformers`, `torch`, `librosa`, `pandas`, `numpy`, `datasets`, `sentence-transformers`, `jiwer`)
-- [ ] T001c [P] Initialize `data/` directories (`raw/`, `derived/`, `validation/`) with `.gitkeep` files
-- [ ] T002 [P] Configure linting (ruff) and formatting (black) tools
+The list below follows the canonical checklist format `- [ ] T### [P?] [USx?] description …`. All file paths are relative to the project root. Tasks are ordered to respect data‑flow dependencies; each task includes concrete verification steps. This revision consolidates the prior task list into the smallest complete study and reopens the requirements rejected by the independent verifier (missing test scaffolding, truncated orchestration, missing `collapse_points.parquet`).
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes data fetching, stratification, and human annotation generation.
+- [ ] T001 [P] **Establish project layout, test scaffolding, and quickstart command** –   <!-- FAILED-IN-EXECUTION: code/run_quickstart.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/run_quickstart.py exit=1 -->
+  Create `code/`, `data/raw/`, `data/derived/`, `data/validation/`, `tests/unit/` (with `tests/__init__.py` and `tests/unit/__init__.py`) and `pytest.ini` / `conftest.py`. Add `code/config.py` with pinned constants (FR‑023): `SEED=42`, `SAMPLE_SIZE=50000`, SNR levels (9 values, −10 dB … 30 dB), RT60 levels (6 values, 0.1 s … 0.6 s), CCM threshold 0.5, SSS absolute threshold 0.5, WER multiplier 2.0, FDR 0.05, R² target 0.6. Write `docs/quickstart.md` documenting a runnable pilot command on 10 real clips producing `data/derived/stress_curves.parquet`, `data/derived/collapse_points.parquet`, and `data/derived/critical_vector.parquet`.  
+  **Verification**: `pytest --collect-only` exits 0; `python -c "import code.config"` succeeds; the documented quickstart command runs end‑to‑end on real inputs and all three Parquet files contain ≥ 1 row each.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T002 [US1] **Download and stratify the Voices‑in‑the‑Wild‑2M subset (FR‑001)** –  
+  Implement `code/data_loader.py::load_viw_subset()` that streams the dataset via `datasets.load_dataset("voices-in-the-wild/2M", split="train", streaming=True)`, stratifies by `speaker_id` and `environment_id` (seed 42), selects ≥ 50 000 clean clips, writes `data/raw/viw_subset.parquet` and records SHA‑256 checksums in `data/raw/viw_checksums.txt`. The loader MUST fail loudly (raise) on any fetch or checksum failure — no synthetic/mock fallback. Also record the exact streaming/sampling rule (split, chunk size, row count) in the manifest.  
+  **Verification**: `data/raw/viw_subset.parquet` has ≥ 50 000 rows with required metadata columns; `tests/unit/test_viw_loader.py` asserts stratification proportions within ±0.02 tolerance and that a failed fetch raises.
 
-- [ ] T003 [P] Implement `code/config.py` with paths, random seeds, and hyperparameters (thresholds, distortion counts)
-- [ ] T004 [P] Implement `code/monitor_resources.py` to track peak RSS and wall-clock time (SC-004)
-- [ ] T005 [P] Implement `code/hash_updater.py` to compute content hashes for `data/derived/` and update state YAML (Principle V)
-- [ ] T006 [P] Create base entity classes (`AudioClip`, `DistortionVector`, `StressCurve`) in `code/models.py` (or dataclasses)
-- [ ] T007a [P] Fetch and verify checksums for LibriSpeech subset in `code/data_loader.py`; implement stratified sampling by speaker ID and SNR bucket as per FR-001 (Plan deviation from Voices-in-the-Wild-2M)
-- [ ] T007b [P] Fetch and verify checksums for CORAA-MUPE-ASR subset in `code/data_loader.py`; implement stratified sampling by speaker ID and SNR bucket as per FR-001 (Plan deviation from Voices-in-the-Wild-2M)
-- [ ] T007c [P] Document dataset substitution rationale in `docs/dataset_substitution.md` and verify support for 54 compound distortion scenarios per FR-002
-- [ ] T008 [P] Implement unit test framework structure in `tests/unit/`
-- [ ] T030a [P] [US1/US2/US3] Generate a human-annotated corpus of transcripts for the validation subset.: Implement script in `code/human_validation.py` to select a representative sample of clips, define annotation protocol (intelligibility score 0-1), and generate `data/validation/human_annotations.csv` (Mandatory per FR-011)
+- [ ] T012 [US1] **Compute SSS embeddings for subset (FR‑003)** –  
+  Using `sentence-transformers/all-MiniLM-L6-v2`, compute semantic similarity scores for each clean clip and store in `data/derived/clean_sss.parquet`. This provides the `ss_score` needed for downstream human‑validation AUC‑ROC.  
+  **Verification**: `tests/unit/test_sss_embeddings.py` checks that the file exists, contains a `clip_id` column, and that all scores lie in [0, 1].
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T013 [US1] **Power analysis and verification (FR‑011, FR‑016, FR‑023, FR‑032, FR‑032‑VERIF)** –  
+  Implement `code/power_analysis.py` reproducing the G*Power calculation (linear multiple regression, f² = 0.02, α = 0.05, power = 0.80 → N ≈ 395) and write `logs/power_analysis.txt`. After the final subset size from T002 is fixed, re‑run with actual N and log achieved power (≥ 0.99) to `logs/power_analysis_verif.txt`.  
+  **Verification**: `tests/unit/test_power_analysis.py` asserts that both log files exist and contain the expected numeric values.
 
----
+- [ ] T014 [US1] **Create human‑validation annotation tool** –  
+  Provide `code/annotation_tool.py` with a simple CLI that ingests a CSV of clip IDs, presents audio via a Streamlit web UI, collects binary intelligibility labels from ≥ 3 raters per clip, enforces ≥ 2/3 agreement, and writes `data/validation/human_annotations.parquet`.  
+  **Verification**: `tests/unit/test_annotation_tool.py` checks that the script creates the Parquet file with required columns and that disagreement handling works as specified.
 
-## Phase 3: User Story 1 - Generate Compound Distortion Stress Curves (Priority: P1) 🎯 MVP
+- [ ] T015 [US1] **Human validation & AUC‑ROC computation (FR‑016, FR‑022)** –  
+  Run `code/human_validation.py` to compute AUC‑ROC between `ss_score` (from T012) and the binary intelligibility label. Require AUC‑ROC ≥ 0.85; if fails for high‑reverb clips (RT60 > 0.5 s, ≥ 500 clips), switch to Montreal Forced Aligner phoneme‑edit distance and require Pearson r ≥ 0.6. Abort with `RuntimeError` if both fail.  
+  **Verification**: `tests/unit/test_human_validation.py` asserts the AUC‑ROC threshold and the fallback path.
 
-**Goal**: Systematically apply 54 compound acoustic distortions to a stratified subset of audio data to generate stress curves mapping distortion intensity to semantic integrity.
+- [ ] T016 [US1] **Distortion engine implementation (FR‑002, FR‑024)** –  
+  Implement `code/distortion_engine.py` using **pyroomacoustics** to apply the Cartesian product of 9 SNR × 6 RT60 levels (54 compound vectors) per clip. No in‑task scaling discretion; the task must process the full ≥ 50 k subset. If resources are insufficient, the task will abort and trigger amendment task T019.  
+  **Verification**: `tests/unit/test_distortion_vectors.py` asserts exactly 54 vectors per clip; a log `logs/distortion_engine.log` records start/end timestamps.
 
-**Independent Test**: Run on a sample of audio clips; verify output CSV/JSON contains the expected number of rows per clip with acoustic parameters, ASR hypothesis, and Semantic Similarity Score (SSS).
+- [ ] T017 [US1] **ASR inference & stress‑curve generation (FR‑003, FR‑017, FR‑026)** –  
+  Run ASR inference on five small models (`whisper_tiny`, `whisper_base`, `distil_whisper`, `wav2vec2_small`, `whisper_medium`) with `device="cuda"` (auto‑offloaded to Kaggle GPU). Compute SSS via the embeddings from T012 and WER, log all provenance, and write `data/derived/stress_curves.parquet` conforming to `contracts/stress_curves.schema.yaml`. Also produce `data/derived/distortion_coverage_report.json`.  
+  **Verification**: `tests/unit/test_stress_curves.py` validates schema, column ranges, and that each clip has entries for all 5 models × 54 vectors.
 
-### Implementation for User Story 1
+- [ ] T018 [P] **Validate stress‑curve artifact schema (FR‑034)** –  
+  Execute `code/validate_artifacts.py` to validate `stress_curves.parquet` against `contracts/stress_curves.schema.yaml`; abort on any violation.  
+  **Verification**: CI logs “Stress‑curve schema validation passed”.
 
-- [ ] T009 [P] [US1] Unit test for `code/distortion_engine.py` verifying 54 distinct vectors are generated from parameter ranges
-- [ ] T010 [P] [US1] Extend `code/data_loader.py` to add US1-specific stress-curve generation logic (building on T007a/b stratified subset)
-- [ ] T011 [US1] Integration test for `code/data_loader.py` verifying stratified sampling and stress-curve generation workflow (Depends on T010)
-- [ ] T012 [US1] Implement `code/distortion_engine.py` to apply 54 compound distortion vectors (SNR/RT60 combinations) incrementally per FR-002
-- [ ] T013 [US1] Implement `code/metrics.py` to compute SSS using `all-MiniLM-L6-v2` (CPU-only) per FR-003
-- [ ] T014 [US1] Implement `code/metrics.py` to compute WER using `jiwer` for baseline and distorted hypotheses per FR-009
-- [ ] T015 [US1] Implement `code/main.py` orchestration to generate stress curves and save to `data/derived/stress_curves.parquet`
-- [ ] T016 [US1] Implement validation logic in `code/metrics.py` to handle edge cases: oscillating SSS (hysteresis), empty ASR output, and missing distortion scenarios (FR-001 edge cases)
+- [ ] T019 [P] **Spec amendment request for resource constraints** –  
+  If T016 aborts due to GPU budget, automatically open a PR proposing a formal spec amendment to relax FR‑001/FR‑002 or to allocate additional GPU resources.  
+  **Verification**: Presence of a PR comment log `logs/spec_amendment_request.txt`.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T020 [US1] **Baseline normalization, CCM, and deterministic collapse points (FR‑010, FR‑012, FR‑020, FR‑021, FR‑036)** –  
+  Implement `code/collapse.py`: extract per‑clip baseline SSS/WER from the clean scenario; compute `norm_sss`, `norm_wer`, and `CCM = 0.7 × (1 − norm_sss) + 0.3 × norm_wer` into `data/derived/stress_curves_normalized.parquet`; apply deterministic algorithm (first step where CCM ≥ 0.5, linear interpolation per FR‑020, “None”/“Max Tested” when never crossed, early‑collapse flag from spline’s maximum negative derivative); compute the **Universal Collapse Intensity** at absolute SSS ≤ 0.5 (FR‑036); fit splines and store curve‑shape descriptors in `data/derived/curve_shape.parquet`. Write `data/derived/collapse_points.parquet` conforming to `contracts/collapse_points.schema.yaml`.  
+  **Verification**: `tests/unit/test_collapse.py` checks collapse identification including edge cases; schema validation passes.
 
----
+- [ ] T021 [US1] **Prepare regression input (FR‑005, regression_input.schema.yaml)** –  
+  Build `data/derived/regression_input.parquet` containing `clip_id`, `model_name`, `snr`, `rt60`, `snr_sq`, `rt60_sq`, `snr_rt60`, `baseline_wer`, `transcript_perplexity`, and **`universal_collapse_intensity`** (the Universal Collapse Intensity from T020) as the target variable.  
+  **Verification**: Schema validation against `contracts/regression_input.schema.yaml` (field `universal_collapse_intensity` added via task T033) and `tests/unit/test_regression_input.py`.
 
-## Phase 4: User Story 2 - Identify Semantic Collapse Points (Priority: P2)
+- [ ] T022 [US1] **Train hierarchical regression model (FR‑005, FR‑025)** –  
+  Use `statsmodels.MixedLM` on the input from T021, 80/20 stratified split, 5‑fold CV, achieve out‑of‑sample R² ≥ 0.6 and MAE reported.  
+  **Verification**: `tests/unit/test_regression_fit.py` asserts metrics meet thresholds.
 
-**Goal**: Automatically identify the precise "collapse intensity" for each model/scenario where SSS drops below a normalized threshold. AND WER spikes >2x baseline.
+- [ ] T023 [US1] **Permutation baseline & interaction significance (FR‑027, FR‑028)** –  
+  Generate a permutation baseline by shuffling the target `universal_collapse_intensity`; require ΔR² ≥ 0.20. Compute interaction term significance, apply Benjamini‑Hochberg FDR ≤ 0.05, output `data/derived/permutation_baseline.json` and `data/derived/corrected_pvalues.json`.  
+  **Verification**: `tests/unit/test_permutation.py` asserts ΔR² ≥ 0.20; `tests/unit/test_fdr_correction.py` checks FDR threshold.
 
-**Independent Test**: Provide a pre-calculated stress curve with a known drop; verify the system correctly identifies the interpolation point or step meeting both criteria.
+- [ ] T024 [US1] **Partial‑correlation controlling for transcript difficulty (FR‑035)** –  
+  Compute partial‑correlation between acoustic predictors and `universal_collapse_intensity` while controlling for transcript perplexity; store results in `data/derived/partial_correlation.json`.  
+  **Verification**: `tests/unit/test_partial_corr.py` validates numeric output and that transcript difficulty is the control variable.
 
-### Implementation for User Story 2
+- [ ] T025 [US1] **Export critical interaction vector & out‑of‑sample R² (FR‑005, FR‑033, FR‑051)** –  
+  From the fitted model, export `critical_vector.parquet` matching `contracts/critical_vector.schema.yaml` (coefficients, CIs, R², MAE, universal vector, similarity to others). Additionally, compute out‑of‑sample R² against the 500‑expert‑labeled collapse intensities (FR‑033) and store in `data/derived/expert_r2.json`.  
+  **Verification**: `tests/unit/test_critical_vector.py` checks schema; `tests/unit/test_expert_r2.py` asserts R² is computed and recorded.
 
-- [ ] T017 [P] [US2] Unit test for collapse detection logic with synthetic data (monotonic drop, no drop, oscillation)
-- [ ] T018 [P] [US2] Integration test verifying WER spike confirmation logic in `code/metrics.py`
-- [ ] T019 [US2] Extend `code/metrics.py` to add collapse detection: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004, FR-009
-- [ ] T020a [US2] Extend `code/metrics.py` to add normalization logic: Calculate baseline SSS for each model and normalize the 0.5 threshold per FR-010
-- [ ] T020b [US2] Explicitly calculate and store `baseline_sss.json` for each model/scenario as a prerequisite artifact for normalization (FR-010)
-- [ ] T021 [US2] Implement handling for "No Collapse" scenarios (record as "Max Tested") per US-2 Acceptance 2
-- [ ] T022 [US2] Generate `data/derived/collapse_points.parquet` containing the identified collapse intensity vectors per model/scenario
+- [ ] T026 [P] **Update data‑model.md and designate canonical schemas (FR‑039)** –  
+  Edit `data-model.md` to reference the **plural** schema files (`contracts/stress_curves.schema.yaml`, `contracts/collapse_points.schema.yaml`, `contracts/critical_vector.schema.yaml`) and to point the module layout to `code/` (`distortion_engine.py`, `collapse.py`, `train_regressor.py`). Commit the updated file.  
+  **Verification**: `git diff --quiet data-model.md` passes; CI lints the file for consistency.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T027 [P] **Revise dependency table to include all SC‑001 – SC‑009** –  
+  Add missing rows for SC‑003 (FDR‑corrected interaction p‑values) and SC‑005 (sensitivity analysis CV) and ensure each task tags the corresponding SC IDs.  
+  **Verification**: Table now contains a row for every SC‑001…SC‑009; CI checks the table format.
 
----
+- [ ] T028 [US3] **Model‑agnostic SHAP analysis of interaction (US‑3)** –  
+  Run SHAP on the final regression model to quantify feature importance and visualize the interaction effect between SNR and RT60. Store plots in `figures/shap_interaction.png` and summary JSON `data/derived/shap_summary.json`.  
+  **Verification**: `tests/unit/test_shap.py` asserts files exist and that SHAP values for the interaction term are non‑zero.
 
-## Phase 5: User Story 3 - Predict Collapse via Critical Interaction Vector (Priority: P3)
+- [ ] T029 [US1] **Realism validation against DNS‑Challenge (FR‑018)** –  
+  Fetch the DNS‑Challenge dataset, compute Log‑Mel Spectral Distance (LMSD) between synthetic distortions and matched real clips (±1 dB / ±0.1 s), record results in `data/derived/realism_validation.parquet`, and require mean LMSD ≤ 0.15. Document the validation procedure and limitation note in the final report.  
+  **Verification**: `tests/unit/test_realism_dns.py` checks the parquet file exists, LMSD values are numeric, and mean ≤ 0.15.
 
-**Goal**: Train a lightweight regression model to predict collapse intensities using acoustic parameter vectors + interaction terms, and validate the "critical interaction vector" hypothesis.
+- [ ] T030 [P] **Record wall‑time for pilot and full runs (SC‑004)** –  
+  Instrument the pipeline (T016‑T025) to log start/end timestamps to `logs/run_timing.json`. Verify pilot run ≤ 48 h and full run ≤ 72 h on the GPU cluster. Abort if limits exceeded.  
+  **Verification**: `tests/unit/test_timing.py` parses the JSON and asserts the limits.
 
-**Independent Test**: Split data, train model, verify R² > 0.6 on test set and report coefficients.
+- [ ] T031 [P] **Create report compliance check script (FR‑007)** –  
+  Implement `code/check_report_compliance.py` that parses `docs/final_report.md`, ensures every required metric is present, and flags any prohibited causal verbs (“causes”, “leads to”, “drives”).  
+  **Verification**: `tests/unit/test_report_compliance.py` runs the script on a sample report and expects zero violations.
 
-### Implementation for User Story 3
+- [ ] T032 [P] **Canonicalize schema references and SSoT (FR‑038, FR‑039)** –  
+  Remove singular schema files (`contracts/stress_curve.schema.yaml`, `contracts/collapse_point.schema.yaml`) from the repository; ensure only plural versions remain. Update all task descriptions, validation scripts, and data‑model.md to reference the plural schemas. Add a short note in `data-model.md` that the source‑of‑truth for schema definitions is now the plural files and that the pipeline code resides under `code/`.  
+  **Verification**: CI checks that singular schema files are absent, that all import paths point to plural schemas, and that `data-model.md` contains the updated SSoT statement.
 
-- [ ] T023 [P] [US3] Unit test for interaction term generation (SNR×RT60, SNR², RT60²)
-- [ ] T024 [US3] Implement `code/statistics.py` for multiple-comparison correction (Bonferroni/FDR) on interaction effects per FR-008
-- [ ] T025 [US3] Generate `data/derived/corrected_pvalues.json` with corrected p-values and report statistical significance per SC-003
-- [ ] T026 [US3] Implement `code/models.py` to train CPU-tractable regression (Linear/Polynomial degree≤3 or DT max_depth≤5) with engineered interaction terms per FR-005
-- [ ] T027 [US3] Implement `code/analysis.py` to perform sensitivity analysis: sweep threshold over a moderate range in fixed increments and report variance in critical interaction vector per FR-006
-- [ ] T028 [US3] Implement cross-model comparison logic to calculate cosine similarity of critical vectors across a set of small ASR models: whisper-tiny, whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h (Depends on T026)
-- [ ] T029 [US3] Implement validation against held-out human-annotated subset: Correlate SSS-based collapse with Human-Validated Collapse Margin (HVCM) from `data/validation/human_annotations.csv` per FR-007, FR-011
-- [ ] T030 [US3] Generate final report artifacts in `data/derived/regression_results.json` and `data/derived/sensitivity_analysis.csv`
+- [ ] T033 [US1] **Align regression target to Universal Collapse Intensity (FR‑005)** –  
+  Modify `code/prepare_regression_input.py` to set `target = universal_collapse_intensity` (from T020) instead of `inflection_step`. Update `contracts/regression_input.schema.yaml` to replace `inflection_step` with `universal_collapse_intensity` (type string, same format as in `collapse_point.schema.yaml`). Adjust downstream tasks (T022‑T025) to consume the new target field.  
+  **Verification**: `tests/unit/test_regression_input.py` validates the new field; schema validation passes; regression training scripts reference the correct column name.
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T034 [US1] **Implement robust annotation UI and import contract** –  
+  Build `code/annotation_ui.py` using Streamlit that loads a CSV of clip IDs, streams audio from `data/raw/viw_subset.parquet`, records binary intelligibility labels, and writes `data/validation/human_annotations.parquet` following the contract `contracts/human_annotations.schema.yaml` (new contract to be added). Provide a CLI wrapper `code/run_annotation.sh` for batch execution.  
+  **Verification**: `tests/unit/test_annotation_ui.py` checks that the UI script produces a Parquet file adhering to the contract and that missing input raises an error.
 
----
+- [ ] T035 [US1] **Stratification tolerance verification (FR‑001)** –  
+  Extend `tests/unit/test_viw_loader.py` to compute the proportion of each `speaker_id` and `environment_id` stratum in the sampled subset and assert that the absolute deviation from the source distribution is ≤ 0.02 for both dimensions.  
+  **Verification**: Test passes only when the tolerance condition holds.
 
-## Phase N: Polish & Cross-Cutting Concerns
+- [ ] T011 **Final report and reproducibility check (FR‑007, SC‑001–SC‑009)** –  
+  `code/report_generator.py` creates `docs/final_report.md` with figures and tables plotted directly from the Parquet artifacts (stress curves, collapse‑point histograms, coefficient plots, SHAP visualisation, timing summary, realism validation, etc.). Every result statement uses associational phrasing only (FR‑007). Re‑run the documented workflow from `quickstart.md` inputs, confirm `pytest -q` passes in full, and document the paper‑stage handoff.  
+  **Verification**: A CI step runs `code/check_report_compliance.py` (produced by T031); all checks pass; the report includes all required metrics.
 
-**Purpose**: Improvements that affect multiple user stories
+## Dependency Table
 
-- [ ] T031 [P] Documentation updates in `docs/` including `research.md` citations for LibriSpeech/CORAA-MUPE-ASR
-- [ ] T032 Generate `data/derived/resource_monitoring_report.json` and verify peak RSS < 7GB as a gate before proceeding (SC-004)
-- [ ] T033 Performance optimization: Parallelize ASR inference and distortion application where safe
-- [ ] T034 [P] Additional unit tests in `tests/unit/` for edge cases and statistical corrections
-- [ ] T035 Run `quickstart.md` validation to ensure end-to-end reproducibility on GitHub Actions
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 (requires stress curve data)
-- **User Story 3 (P3)**: Depends on US2 (requires collapse points)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for distortion engine"
-Task: "Integration test for data loader"
-
-# Launch all models for User Story 1 together:
-Task: "Implement data loader"
-Task: "Implement distortion engine"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All ASR and embedding models MUST run on CPU (no CUDA/GPU). Use `whisper-tiny` and `all-MiniLM-L-v2`.
-- **Data Integrity**: Use real data from LibriSpeech/CORAA-MUPE-ASR. No synthetic data fabrication.
-- **Statistical Rigor**: Apply multiple-comparison correction and associational framing strictly.
-- **Human Validation**: FR-011 requires generating 500 human annotations (T030a) before US2/US3 validation.
+| Requirement | Task(s) | Order |
+|---|---|---|
+| FR‑001, FR‑023, FR‑026 | T001 → T002 | T001 → T002 |
+| FR‑011, FR‑016, FR‑022, FR‑032, FR‑032‑VERIF | T013 | after T002 |
+| FR‑002, FR‑003, FR‑017, FR‑024 | T016 → T017 | after T002 |
+| FR‑010, FR‑012, FR‑020, FR‑021, FR‑036 | T020 | after T004/T017 |
+| FR‑033, SC‑009 | T025 | after T023 |
+| FR‑005, FR‑008, FR‑013, FR‑025, FR‑027, FR‑028, FR‑029, FR‑035 | T022 → T023 → T024 → T025 | after T020 |
+| FR‑006, FR‑051, SC‑002, SC‑005 | T028 | after T025 |
+| FR‑018 (real DNS‑Challenge) | T029 | after T004 |
+| SC‑004 (pilot/full timing) | T030 | after T025 |
+| SC‑001, SC‑003, SC‑006, SC‑007, SC‑008 | T031, T025, etc. | throughout |
+| FR‑007, SC‑001–SC‑009 | T011 | after T025 |

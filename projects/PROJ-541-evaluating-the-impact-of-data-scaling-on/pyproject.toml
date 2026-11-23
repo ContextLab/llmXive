@@ -1,0 +1,10 @@
+[tool.black]
+line-length = 88
+skip-string-normalization = false
+target-version = ["py311"]
+# Data, results, logs and virtualenvs are never formatted.
+extend-exclude = '(/(data|results|logs|venv|\.git|\.venv)/)'
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

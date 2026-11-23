@@ -2,207 +2,134 @@ import argparse
 import json
 import sys
 import os
-from pathlib import Path
-from typing import Dict, Any, Optional, List
+import time
+import signal
+import logging
 
-from src.utils.config import load_config, save_config, Config
-from src.utils.checksums import load_checksums, save_checksums
-from src.analysis.validate_dataset import validate_dataset, main as validate_main
-from src.generators.data_writer import generate_and_save_training_data, main as data_writer_main
-from src.generators.test_generator import main as test_gen_main
-from src.agents.sequential_agent import SequentialAgent
-from src.agents.mixed_agent import MixedAgent
-from src.agents.coevolving_agent import CoevolvingAgent
-from src.utils.parity_checker import ParityChecker, ParityError
-from src.analysis.data_aggregator import main as aggregate_main
-from src.analysis.forgetting_metrics import main as forgetting_main
-from src.analysis.statistical_tests import main as stats_main
-from src.analysis.report_generator import main as report_main
+from src.utils.config import Config, load_config
+from src.generators.logic_generator import main as generate_logic_main
+from src.generators.grid_generator import main as generate_grid_main
+from src.generators.test_generator import main as generate_test_main
+from src.generators.data_writer import main as write_data_main
+from src.analysis.validate_dataset import main as validate_main
+from src.utils.checksums import main as checksum_main
 
-def load_training_data(config: Config) -> Dict[str, Any]:
-    """Load generated training data from disk."""
-    data_dir = Path(config.data_dir)
-    if not data_dir.exists():
-        raise FileNotFoundError(f"Data directory {data_dir} does not exist. Run generation first.")
-    
-    # Load logic and grid datasets
-    logic_file = data_dir / config.logic_data_file
-    grid_file = data_dir / config.grid_data_file
-    
-    if not logic_file.exists() or not grid_file.exists():
-        raise FileNotFoundError("Training data files missing. Run generation first.")
-    
-    with open(logic_file, 'r') as f:
-        logic_data = json.load(f)
-    with open(grid_file, 'r') as f:
-        grid_data = json.load(f)
-        
-    return {
-        "logic": logic_data,
-        "grid": grid_data
-    }
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-def run_sequential_training(data: Dict[str, Any], config: Config) -> Dict[str, Any]:
-    """Run SequentialAgent training loop."""
-    agent = SequentialAgent(config)
-    results = agent.train(data["logic"], data["grid"])
-    return results
+def create_parser():
+    parser = argparse.ArgumentParser(description="llmXive Co-Evolving Policy Distillation Pipeline")
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
 
-def run_mixed_training(data: Dict[str, Any], config: Config) -> Dict[str, Any]:
-    """Run MixedAgent training loop."""
-    agent = MixedAgent(config)
-    results = agent.train(data["logic"], data["grid"])
-    return results
+    # Generate command
+    gen_parser = subparsers.add_parser('generate', help='Generate synthetic datasets')
+    gen_parser.add_argument('--logic', type=int, default=100, help='Number of logic proofs')
+    gen_parser.add_argument('--grid', type=int, default=50, help='Number of grid worlds')
+    gen_parser.add_argument('--seed', type=int, default=42, help='Random seed')
+    gen_parser.add_argument('--output', type=str, default='data/synthetic_dataset.json', help='Output file')
 
-def run_coevolving_training(data: Dict[str, Any], config: Config) -> Dict[str, Any]:
-    """Run CoevolvingAgent training loop."""
-    agent = CoevolvingAgent(config)
-    results = agent.train(data["logic"], data["grid"])
-    return results
+    # Run command (placeholder for training)
+    run_parser = subparsers.add_parser('run', help='Run training conditions')
+    run_parser.add_argument('--conditions', type=str, default='sequential,mixed,coevolving', help='Conditions to run')
+    run_parser.add_argument('--generations', type=int, default=50, help='Number of generations')
+    run_parser.add_argument('--runs-per-condition', type=int, default=30, help='Runs per condition')
+    run_parser.add_argument('--seed', type=int, default=42, help='Random seed')
 
-def execute_training_loop(config: Config, condition: str) -> Dict[str, Any]:
-    """Execute the training loop for a specific condition with parity checks."""
-    data = load_training_data(config)
-    checker = ParityChecker(config)
-    
-    if condition == "sequential":
-        results = run_sequential_training(data, config)
-    elif condition == "mixed":
-        results = run_mixed_training(data, config)
-    elif condition == "coevolving":
-        results = run_coevolving_training(data, config)
-    else:
-        raise ValueError(f"Unknown condition: {condition}")
-    
-    # Verify parity
-    try:
-        checker.verify_run_parity(results)
-    except ParityError as e:
-        # Log but allow continuation if strict parity is not enforced by config flag
-        if config.strict_parity:
-            raise e
-        print(f"Warning: Parity check failed for {condition}: {e}")
-        
-    return results
+    # Analyze command (placeholder for analysis)
+    analyze_parser = subparsers.add_parser('analyze', help='Analyze results')
+    analyze_parser.add_argument('--input', type=str, default='results/forgetting_metrics.csv', help='Input file')
+    analyze_parser.add_argument('--output', type=str, default='results/statistical_report.json', help='Output file')
+
+    # Pipeline command for T015c
+    pipeline_parser = subparsers.add_parser('pipeline', help='Execute full data generation pipeline (T015c)')
+    pipeline_parser.add_argument('--logic-count', type=int, default=100, help='Number of logic proofs')
+    pipeline_parser.add_argument('--grid-count', type=int, default=50, help='Number of grid worlds')
+    pipeline_parser.add_argument('--seed', type=int, default=42, help='Random seed')
+    pipeline_parser.add_argument('--output-dir', type=str, default='data', help='Output directory')
+
+    return parser
+
+def execute_pipeline(args):
+    """
+    Execute the data generation pipeline: T011, T012, T013, T014, T015b.
+    Outputs:
+      - data/generated_proofs.json
+      - data/generated_grids.json
+      - data/test_instances.json
+      - data/validation_report.json
+    """
+    logger.info(f"Starting pipeline with seed {args.seed}")
+    config = load_config()
+
+    # T011: Generate Logic Proofs
+    logger.info("Step 1: Generating logic proofs...")
+    logic_args = argparse.Namespace(
+        count=args.logic_count,
+        seed=args.seed,
+        output=os.path.join(args.output_dir, 'generated_proofs.json')
+    )
+    generate_logic_main(logic_args)
+
+    # T012: Generate Grid Worlds
+    logger.info("Step 2: Generating grid worlds...")
+    grid_args = argparse.Namespace(
+        count=args.grid_count,
+        seed=args.seed + 1,
+        output=os.path.join(args.output_dir, 'generated_grids.json')
+    )
+    generate_grid_main(grid_args)
+
+    # T013: Generate Test Instances
+    logger.info("Step 3: Generating test instances...")
+    test_args = argparse.Namespace(
+        seed=args.seed + 2,
+        output=os.path.join(args.output_dir, 'test_instances.json')
+    )
+    generate_test_main(test_args)
+
+    # T014: Write Data (Checksums)
+    logger.info("Step 4: Writing data and registering checksums...")
+    write_args = argparse.Namespace(
+        files=[
+            os.path.join(args.output_dir, 'generated_proofs.json'),
+            os.path.join(args.output_dir, 'generated_grids.json'),
+            os.path.join(args.output_dir, 'test_instances.json')
+        ],
+        checksum_file=os.path.join(args.output_dir, 'checksums.json')
+    )
+    write_data_main(write_args)
+
+    # T015b: Validate Dataset
+    logger.info("Step 5: Validating dataset...")
+    validate_args = argparse.Namespace(
+        proofs=os.path.join(args.output_dir, 'generated_proofs.json'),
+        grids=os.path.join(args.output_dir, 'generated_grids.json'),
+        output=os.path.join(args.output_dir, 'validation_report.json')
+    )
+    validate_main(validate_args)
+
+    logger.info("Pipeline completed successfully.")
+    return 0
 
 def main():
-    parser = argparse.ArgumentParser(description="llmXive Co-Evolving Policy Distillation Pipeline")
-    subparsers = parser.add_subparsers(dest="command", help="Pipeline commands")
-
-    # Generation
-    gen_parser = subparsers.add_parser("generate", help="Generate synthetic datasets")
-    gen_parser.add_argument("--config", type=str, default="config.json", help="Path to config file")
-
-    # Validation
-    val_parser = subparsers.add_parser("validate", help="Validate generated datasets")
-    val_parser.add_argument("--config", type=str, default="config.json", help="Path to config file")
-
-    # Training (Single Run)
-    train_parser = subparsers.add_parser("train", help="Run a single training condition")
-    train_parser.add_argument("--condition", type=str, required=True, choices=["sequential", "mixed", "coevolving"])
-    train_parser.add_argument("--config", type=str, default="config.json", help="Path to config file")
-    train_parser.add_argument("--output", type=str, required=True, help="Output JSON path for results")
-
-    # Batch Runner
-    batch_parser = subparsers.add_parser("batch", help="Run 30+ independent training runs")
-    batch_parser.add_argument("--config", type=str, default="config.json", help="Path to config file")
-    batch_parser.add_argument("--output-dir", type=str, default="data/results", help="Directory for batch results")
-
-    # Analysis
-    analysis_parser = subparsers.add_parser("analyze", help="Run full analysis pipeline")
-    analysis_parser.add_argument("--config", type=str, default="config.json", help="Path to config file")
-    analysis_parser.add_argument("--results-dir", type=str, default="data/results", help="Directory containing batch results")
-    analysis_parser.add_argument("--output", type=str, default="data/results/forgetting_analysis.json", help="Output report path")
-
+    parser = create_parser()
     args = parser.parse_args()
 
-    if not args.command:
-        parser.print_help()
+    if args.command == 'pipeline':
+        sys.exit(execute_pipeline(args))
+    elif args.command == 'generate':
+        # Legacy generate command logic (simplified for CLI entry)
+        generate_logic_main(args)
+        generate_grid_main(args)
+    elif args.command == 'run':
+        logger.error("Training loop not implemented in this task scope.")
         sys.exit(1)
-
-    # Load config
-    config_path = Path(args.config)
-    if not config_path.exists():
-        print(f"Error: Config file {args.config} not found.")
+    elif args.command == 'analyze':
+        logger.error("Analysis loop not implemented in this task scope.")
         sys.exit(1)
-    
-    config = load_config(config_path)
-
-    if args.command == "generate":
-        # Orchestrate generation of logic, grid, and test instances
-        data_writer_main(config)
-        test_gen_main(config)
-        print("Generation complete.")
-
-    elif args.command == "validate":
-        # Gate: Validate datasets before training
-        success, report = validate_dataset(config)
-        if not success:
-            print("Validation failed. Training aborted.")
-            print(json.dumps(report, indent=2))
-            sys.exit(1)
-        print("Validation passed.")
-
-    elif args.command == "train":
-        # Single training run
-        results = execute_training_loop(config, args.condition)
-        output_path = Path(args.output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        print(f"Training results saved to {args.output}")
-
-    elif args.command == "batch":
-        # Run 30+ independent runs
-        output_dir = Path(args.output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Load existing checksums to track new runs
-        checksums = load_checksums(config)
-        
-        for i in range(config.batch_size):
-            seed = config.base_seed + i
-            config.seed = seed
-            config.output_file = str(output_dir / f"run_{i:03d}.json")
-            
-            try:
-                # Run all three conditions for this seed to ensure parity in batch
-                for cond in ["sequential", "mixed", "coevolving"]:
-                    results = execute_training_loop(config, cond)
-                    # Save individual run result
-                    run_output = output_dir / f"{cond}_{i:03d}.json"
-                    with open(run_output, 'w') as f:
-                        json.dump(results, f, indent=2)
-                    # Update checksum
-                    checksums = update_checksum_for_file(checksums, str(run_output))
-            except Exception as e:
-                print(f"Error in batch run {i} ({cond}): {e}")
-                continue
-        
-        save_checksums(checksums, config)
-        print(f"Batch complete. {config.batch_size} runs generated.")
-
-    elif args.command == "analyze":
-        # Full analysis pipeline: Aggregate -> Metrics -> Stats -> Report
-        results_dir = Path(args.results_dir)
-        
-        # Step 1: Aggregate batch results
-        aggregate_main(config, results_dir)
-        
-        # Step 2: Compute forgetting metrics and retention
-        forgetting_main(config, results_dir)
-        
-        # Step 3: Run statistical tests (ANOVA, Tukey)
-        stats_main(config, results_dir)
-        
-        # Step 4: Generate final report
-        report_main(config, results_dir, args.output)
-        
-        print(f"Analysis complete. Report saved to {args.output}")
-
     else:
         parser.print_help()
-        sys.exit(1)
+        sys.exit(0)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

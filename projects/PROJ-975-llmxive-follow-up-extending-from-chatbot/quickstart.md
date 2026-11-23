@@ -1,149 +1,117 @@
-# llmXive Quickstart Guide
+# Quickstart Guide
 
-This guide provides end-to-end execution steps for the "From Chatbot to Digital Colleague" experiment pipeline (Project PROJ-975).
+## Project: llmXive Follow-up
+**Title**: Extending "From Chatbot to Digital Colleague: The Paradigm Shift Toward Persistent"
 
 ## Prerequisites
 
-- Python 3.9+
-- pip (Python package installer)
-- At least 8GB RAM (for embedding calculations) [UNRESOLVED-CLAIM: c_6f56bb25 — status=not_enough_info]
+Ensure you have Python 3.9+ and `pip` installed.
 
-## 1. Setup Environment
+## Installation
 
+1. Clone the repository and navigate to the project root.
+2. Create a virtual environment (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+## Project Structure
+
+- `data/raw/`: Generated synthetic datasets (tasks, skills)
+- `data/results/`: Experiment logs, analysis outputs, and figures
+- `code/`: Implementation modules (data generation, agent, analysis)
+- `tests/`: Unit and contract tests
+- `contracts/`: JSON schemas for data validation
+- `state/`: Project state tracking and artifact hashes
+
+## Running the Pipeline
+
+### 1. Setup Project Directories
+Ensure the required directory structure exists:
 ```bash
-# Clone the repository (if not already done)
-git clone <repository-url>
-cd projects/PROJ-975-llmxive-follow-up-extending-from-chatbot
-
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-## 2. Project Initialization
-
-Run the setup scripts to create the required directory structure and configuration files.
-
-```bash
-# Create directory structure (data/raw, data/results, code, tests, contracts)
 python code/setup_directories.py
-
-# Initialize contract schemas (task, skill, experiment_log)
-python code/setup_contracts.py
 ```
 
-## 3. Data Generation (User Story 1)
-
-Generate the synthetic dataset containing 500 multi-step tasks and 100 overlapping skills. [UNRESOLVED-CLAIM: c_2eb18040 — status=not_enough_info]
-
+### 2. Generate Synthetic Data (User Story 1)
 ```bash
-# Set random seeds for reproducibility (optional, defaults used if not set)
-export SEED_A=42
-export SEED_B=123
-
-# Run data generation
 python code/generate_data.py
 ```
+**Outputs**:
+- `data/raw/tasks.json`
+- `data/raw/skills.json`
+- `data/raw/checksums.json`
 
-**Expected Outputs:**
-- `data/raw/skills.json`: 100 Python skill definitions with embeddings [UNRESOLVED-CLAIM: c_a22bf2c0 — status=not_enough_info]
-- `data/raw/tasks.json`: 500 multi-step tasks with ground-truth solution paths [UNRESOLVED-CLAIM: c_5969827a — status=not_enough_info]
-- Console output showing mean pairwise similarity and memory usage check
-
-**Verification:**
+### 3. Fix Task Schema (add missing `ground_truth_skills`)
 ```bash
-# Verify files exist and contain data
-python -c "import json; d=json.load(open('data/raw/skills.json')); print(f'Skills: {len(d[\"skills\"])}')"
-python -c "import json; d=json.load(open('data/raw/tasks.json')); print(f'Tasks: {len(d[\"tasks\"])}')"
+python code/fix_tasks_schema.py
 ```
 
-## 4. Baseline Experiment (User Story 3 - Pruning Disabled)
-
-Run the full experiment with **pruning disabled** to establish a performance baseline.
-
+### 4. Validate Raw Data
 ```bash
-python code/run_baseline.py
+pytest tests/contract/
+```
+Ensures `tasks.json` and `skills.json` conform to their schemas.
+
+### 5. Align Logging Configuration
+The `code/logging_config.py` file defines `LOG_COLUMNS`. **Make sure it exactly matches** the required header:
+```
+run_id,task_id,library_size,pruning_enabled,success,latency_ms,tokens_used,retrieval_precision,retrieval_diversity,edge_case
+```
+If you modify the header, update `LOG_COLUMNS` accordingly.
+
+### 6. Execute the Agent (full factorial sweep)
+```bash
+python -m code.agent \
+ --library-sizes 10 20 30 40 50 60 70 80 90 100 \
+ --overlap low medium high \
+ --pruning off fr04 \
+ --seed 42 \
+ --randomize-tasks
+```
+**Outputs**:
+- `data/results/experiment_log.csv` (detailed execution logs)
+- `data/results/execution_logs/run_<size>_<pruning>_<overlap>.jsonl` (JSON‑L logs for each run)
+
+### 7. Verify CSV Output
+```bash
+python -c "from code.logging_config import verify_log_file_exists; assert verify_log_file_exists(), 'CSV log missing'"
 ```
 
-**Expected Outputs:**
-- `data/results/experiment_log_baseline.csv`: Experiment logs with pruning disabled
-
-**Verification:**
+### 8. Analyze Results (User Story 3)
 ```bash
-head -n 5 data/results/experiment_log_baseline.csv
+python code/analyze.py --input data/results/experiment_log.csv
+```
+**Outputs**:
+- `data/results/analysis_report.json`
+- `data/results/sensitivity_report.json`
+- `data/results/final_analysis.json`
+
+### 9. Validate All Outputs
+```bash
+pytest tests/contract/
 ```
 
-## 5. Main Experiment (User Story 2 - With Pruning)
+### 10. Verify End‑to‑End Reproducibility
+Run the entire Quickstart on a fresh runner (e.g., a new GitHub Actions job) and confirm that the final `analysis_report.json` matches the one produced in Step 8.
 
-Run the main experiment across varying library sizes (10, 30, 50, 100) [UNRESOLVED-CLAIM: c_61793a69 — status=not_enough_info] with the "Safe Pruning" heuristic enabled.
+## Configuration
 
-```bash
-python code/run_experiment.py
-```
-
-**Expected Outputs:**
-- `data/results/experiment_log.csv`: Full experiment logs with pruning metrics
-- `data/results/metrics.json`: Aggregated metrics per library size
-
-**Verification:**
-```bash
-# Check that the log contains the required columns
-head -n 1 data/results/experiment_log.csv
-```
-
-## 6. Analysis (User Story 3)
-
-Perform statistical analysis to identify the "tipping point" and evaluate pruning efficacy.
-
-```bash
-python code/analyze.py
-```
-
-**Expected Outputs:**
-- `data/results/final_analysis.json`: Tipping point, p-values, and VIF metrics
-- `data/results/sensitivity_report.json`: Sensitivity analysis results
-
-**Verification:**
-```bash
-cat data/results/final_analysis.json | python -m json.tool
-```
-
-## 7. Full End-to-End Reproducibility
-
-To reproduce the entire pipeline from scratch:
-
-```bash
-# 1. Setup
-python code/setup_directories.py
-python code/setup_contracts.py
-
-# 2. Data Generation
-python code/generate_data.py
-
-# 3. Baseline (Pruning Disabled)
-python code/run_baseline.py
-
-# 4. Main Experiment (Pruning Enabled)
-python code/run_experiment.py
-
-# 5. Analysis
-python code/analyze.py
-
-# 6. Verify Results
-ls -lh data/results/
-```
+Environment variables can override defaults in `code/config.py`:
+- `SEED_A`: Random seed for skill generation (default: 42)
+- `SEED_B`: Random seed for task ground‑truth assignment (default: 123)
+- `OVERLAP_LEVEL`: 'low', 'medium', or 'high' (default: 'medium')
 
 ## Troubleshooting
 
-- **Memory Limit Exceeded**: If you encounter memory errors during embedding calculation, ensure you have at least 8GB RAM. You may need to reduce the library size in `code/config.py`.
-- **Missing Dependencies**: If `pip install` fails, ensure you are using Python 3.9+ and that your `pip` is up to date.
-- **Schema Validation Errors**: If contract tests fail, re-run `code/setup_contracts.py` to regenerate the schema files.
-
-## Next Steps
-
-- Review the `data/results/final_analysis.json` for insights on the tipping point library size.
-- Examine `data/results/sensitivity_report.json` to understand the robustness of the pruning heuristic.
-- Extend the experiment by modifying the pruning threshold or overlap level in `code/config.py`.
+- **Memory Errors**: The system checks RAM usage. Reduce the dataset size or run on a machine with more RAM if you encounter "Memory Limit Exceeded".
+- **Schema Validation Errors**: Ensure `contracts/*.yaml` files are present and match the data structure.
+- **Missing Data**: Re‑run `generate_data.py` if `data/raw/` is empty.
+- **Logging Issues**: If the CSV header does not match, verify `LOG_COLUMNS` in `code/logging_config.py` and re‑run the dummy‑log command.
+- **CLI argument error**: Use the exact flags shown above; do not include braces or other shell‑specific syntax.
+- **Pruning removes wrong skills**: Ensure `pruning.py` implements `prune_fr04` as described in the methodology.
+- **Agent exits with code 2**: Run `pytest tests/integration/test_full_sweep.py` to see the failure traceback; the updated `agent.py` now accepts multiple pruning flags.

@@ -1,1 +1,4 @@
-"""Test suite for PROJ-485."""
+"""
+Test suite package.
+Contains unit and integration tests for the project.
+"""

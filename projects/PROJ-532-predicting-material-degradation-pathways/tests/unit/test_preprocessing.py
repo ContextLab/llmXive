@@ -1,111 +1,108 @@
-"""
-Unit tests for preprocessing module.
-"""
 import pytest
 import pandas as pd
-import numpy as np
-from code.preprocessing import map_elemental_composition_to_features, handle_missing_values
+import os
+import json
+import tempfile
+from pathlib import Path
 
-def test_map_elemental_composition_to_features_basic():
-    """Test basic mapping with known elements."""
-    data = {
-        'Fe': [70.0, 60.0],
-        'Cr': [20.0, 25.0],
-        'Ni': [10.0, 15.0],
-        'id': [1, 2]  # Non-elemental column
-    }
-    df = pd.DataFrame(data)
-    
-    result = map_elemental_composition_to_features(df)
-    
-    # Should only contain elemental columns
-    expected_cols = {'Cr', 'Fe', 'Ni'}
-    assert set(result.columns) == expected_cols
-    
-    # Should be normalized to sum to 1.0
-    assert np.isclose(result.sum(axis=1).iloc[0], 1.0, atol=1e-6)
-    assert np.isclose(result.sum(axis=1).iloc[1], 1.0, atol=1e-6)
-    
-    # Columns should be sorted
-    assert list(result.columns) == sorted(result.columns)
+# Import the function to test
+from preprocessing import classify_alloy_family, generate_alloy_class_map
 
-def test_map_elemental_composition_to_features_missing_elements():
-    """Test mapping when some standard elements are missing from input."""
-    data = {
-        'Fe': [100.0],
-        'Ni': [0.0]
-    }
-    df = pd.DataFrame(data)
+class TestAlloyClassification:
     
-    # Should not raise an error, just use available elements
-    result = map_elemental_composition_to_features(df)
-    
-    assert 'Fe' in result.columns
-    assert 'Ni' in result.columns
-    assert np.isclose(result['Fe'].iloc[0], 1.0)
-    assert np.isclose(result['Ni'].iloc[0], 0.0)
+    def test_high_entropy_alloy_logic(self):
+        """Test that 5+ elements > 5% correctly identifies High-Entropy Alloy."""
+        # Create a mock row with 5 elements > 5%
+        row_data = {
+            'record_id': 'test_he_01',
+            'fe': 15.0, 'cr': 15.0, 'ni': 15.0, 'mn': 15.0, 'co': 15.0, # 5 elements > 5%
+            'c': 0.1, 'si': 0.1
+        }
+        row = pd.Series(row_data)
+        result = classify_alloy_family(row)
+        assert result == "High-Entropy Alloy", f"Expected High-Entropy Alloy, got {result}"
 
-def test_map_elemental_composition_to_features_missing_values():
-    """Test mapping with missing values (NaN) in elemental columns."""
-    data = {
-        'Fe': [70.0, np.nan],
-        'Cr': [20.0, 20.0],
-        'Ni': [10.0, 80.0]
-    }
-    df = pd.DataFrame(data)
-    
-    result = map_elemental_composition_to_features(df)
-    
-    # Missing values should be treated as 0.0
-    # Row 1: 0 + 20 + 80 = 100 -> Fe=0, Cr=0.2, Ni=0.8
-    assert np.isclose(result['Fe'].iloc[1], 0.0)
-    assert np.isclose(result['Cr'].iloc[1], 0.2, atol=1e-6)
-    assert np.isclose(result['Ni'].iloc[1], 0.8, atol=1e-6)
+    def test_stainless_steel_logic(self):
+        """Test that Fe > 10% AND Cr > 10% correctly identifies Stainless Steel."""
+        row_data = {
+            'record_id': 'test_ss_01',
+            'fe': 70.0, 'cr': 18.0, 'ni': 8.0,
+            'c': 0.1, 'mn': 1.0
+        }
+        row = pd.Series(row_data)
+        result = classify_alloy_family(row)
+        assert result == "Stainless Steel", f"Expected Stainless Steel, got {result}"
 
-def test_handle_missing_values_imputation():
-    """Test that missing values < 5% are imputed with median."""
-    data = {
-        'A': [1.0, 2.0, np.nan, 4.0, 5.0],  # 1/5 = 20% missing -> drop
-        'B': [1.0, 2.0, 3.0, 4.0, np.nan],  # 1/5 = 20% missing -> drop
-        'C': [1.0, 2.0, 3.0, 4.0, 5.0]      # 0% missing -> keep
-    }
-    # Actually, let's use a threshold of 0.3 (30%) to test imputation
-    df = pd.DataFrame(data)
-    cleaned, stats = handle_missing_values(df, threshold=0.3)
-    
-    assert 'C' in cleaned.columns
-    assert stats['C']['action'] == 'kept'
-    
-    # A and B have 20% missing, which is < 30%, so they should be imputed
-    assert 'A' in cleaned.columns
-    assert stats['A']['action'] == 'imputed_median'
-    assert 'B' in cleaned.columns
-    assert stats['B']['action'] == 'imputed_median'
+    def test_carbon_steel_logic(self):
+        """Test that Fe > 80% AND C < 2% correctly identifies Carbon Steel."""
+        row_data = {
+            'record_id': 'test_cs_01',
+            'fe': 98.0, 'c': 0.5, 'mn': 1.0,
+            'si': 0.2
+        }
+        row = pd.Series(row_data)
+        result = classify_alloy_family(row)
+        assert result == "Carbon Steel", f"Expected Carbon Steel, got {result}"
 
-def test_handle_missing_values_dropping():
-    """Test that missing values >= 5% cause column drop."""
-    data = {
-        'A': [1.0, np.nan, np.nan, np.nan, 5.0],  # 3/5 = 60% missing -> drop
-        'B': [1.0, 2.0, 3.0, 4.0, 5.0]            # 0% missing -> keep
-    }
-    df = pd.DataFrame(data)
-    cleaned, stats = handle_missing_values(df, threshold=0.05)
-    
-    assert 'B' in cleaned.columns
-    assert stats['B']['action'] == 'kept'
-    
-    assert 'A' not in cleaned.columns
-    assert stats['A']['action'] == 'dropped'
+    def test_other_logic(self):
+        """Test that records not matching specific rules are classified as Other."""
+        row_data = {
+            'record_id': 'test_other_01',
+            'fe': 5.0, 'c': 0.1, 'cu': 90.0, # Copper based, not steel
+            'zn': 5.0
+        }
+        row = pd.Series(row_data)
+        result = classify_alloy_family(row)
+        assert result == "Other", f"Expected Other, got {result}"
 
-def test_no_standard_elements_found():
-    """Test error when no standard elements are found."""
-    data = {
-        'id': [1, 2],
-        'label': ['pitting', 'scc']
-    }
-    df = pd.DataFrame(data)
+    def test_priority_rules(self):
+        """Test that High-Entropy rule takes priority over Stainless Steel."""
+        # Fe=15, Cr=15 (Stainless condition), but also Ni=15, Mn=15, Co=15 (HE condition)
+        row_data = {
+            'record_id': 'test_priority_01',
+            'fe': 15.0, 'cr': 15.0, 'ni': 15.0, 'mn': 15.0, 'co': 15.0,
+            'c': 0.1
+        }
+        row = pd.Series(row_data)
+        result = classify_alloy_family(row)
+        # Should be HE because 5 elements > 5%
+        assert result == "High-Entropy Alloy", f"Expected High-Entropy Alloy (priority), got {result}"
+
+class TestGenerateAlloyClassMap:
     
-    with pytest.raises(ValueError) as excinfo:
-        map_elemental_composition_to_features(df)
-    
-    assert "No standard elemental columns found" in str(excinfo.value)
+    def test_generate_map_from_csv(self):
+        """Test generating the alloy class map from a temporary CSV file."""
+        # Create temporary directory and files
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = os.path.join(tmpdir, "cleaned_alloys.csv")
+            output_path = os.path.join(tmpdir, "alloy_class_map.json")
+            
+            # Create mock CSV data
+            data = {
+                'record_id': ['rec_001', 'rec_002', 'rec_003', 'rec_004'],
+                'fe': [70.0, 98.0, 15.0, 5.0],
+                'cr': [18.0, 1.0, 15.0, 0.0],
+                'ni': [8.0, 1.0, 15.0, 0.0],
+                'mn': [1.0, 1.0, 15.0, 0.0],
+                'co': [0.0, 0.0, 15.0, 0.0],
+                'c': [0.1, 0.5, 0.1, 0.1]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(input_path, index=False)
+            
+            # Run the function
+            result_map = generate_alloy_class_map(input_path, output_path)
+            
+            # Verify output file exists
+            assert os.path.exists(output_path), "Output JSON file was not created"
+            
+            # Verify content
+            with open(output_path, 'r') as f:
+                loaded_map = json.load(f)
+            
+            assert loaded_map['rec_001'] == "Stainless Steel"
+            assert loaded_map['rec_002'] == "Carbon Steel"
+            assert loaded_map['rec_003'] == "High-Entropy Alloy"
+            assert loaded_map['rec_004'] == "Other"
+            
+            assert len(result_map) == 4

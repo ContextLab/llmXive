@@ -3,66 +3,70 @@
 ## Prerequisites
 
 - Python 3.11+
-- Git
-- HuggingFace CLI (optional, for model downloads)
-- Access to a CPU-tractable LLM (API key or local GGUF model)
+- `pip`
+- Access to the HuggingFace Hub (for `human-eval` package)
+- (Optional) API Key for LLM inference (if not using local model)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
+1.  **Clone the repository** (assuming standard structure):
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-527-evaluating-the-impact-of-prompt-complexi
+    ```
+
+2.  **Create and activate a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
+
 3.  **Install dependencies**:
     ```bash
-    pip install -r projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/requirements.txt
+    pip install -r code/requirements.txt
     ```
-
-## Configuration
-
-1.  Set the `HF_TOKEN` environment variable for HuggingFace access (if required):
-    ```bash
-    export HF_TOKEN="your_token_here"
-    ```
-2.  (Optional) Configure the LLM endpoint in `code/config.py` if using a specific API.
+    *Note: `requirements.txt` includes `human-eval`, `tiktoken`, `statsmodels`, `pandas`, `ruff`.*
 
 ## Running the Pipeline
 
-To run the full analysis (generation, execution, analysis):
+The pipeline is executed via the main entry point.
 
-```bash
-python projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/main.py
-```
+1.  **Initialize Data & Structure**:
+    This step creates the required directories and downloads the HumanEval dataset.
+    ```bash
+    python code/main.py --action init
+    ```
+    *This verifies the dataset source and populates `data/raw/`.*
 
-**Note**: This may take several hours on CPU. To test with a small subset:
-```bash
-python projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/main.py --sample-size 10
-```
+2.  **Generate Prompts**:
+    Generates the complexity variants for all problems in the dataset.
+    ```bash
+    python code/main.py --action generate
+    ```
 
-## Versioning & Checksums
+3.  **Execute & Analyze**:
+    Queries the LLM (API or local), runs unit tests, performs static analysis, and fits the LMM.
+    ```bash
+    python code/main.py --action run
+    ```
+    *Note: If a local GPU model is configured, this may trigger the GPU escape hatch logic.*
 
-After the pipeline runs, the `hash_artifacts.py` script will automatically compute SHA-256 hashes for all data artifacts and update the project state file:
-```bash
-python projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/code/utils/hash_artifacts.py
-```
+4.  **Review Results**:
+    Check the generated artifacts:
+    - `data/results/execution_results.parquet`
+    - `data/results/analysis_summary.json`
+    - `data/results/manual_review_queue.csv` (Flagged samples)
 
-## Testing
+## Configuration
 
-Run unit tests:
-```bash
-pytest tests/unit/
-```
+Edit `code/config.py` to set:
+- `LLM_MODEL`: e.g., "gpt-4", "meta-llama/Llama-2-7b-hf"
+- `API_KEY`: Your LLM provider key.
+- `SEED`: Random seed for reproducibility.
+- `MAX_WORKERS`: Parallelism for execution.
 
-Run integration tests (requires LLM access):
-```bash
-pytest tests/integration/
-```
+## Troubleshooting
 
-## Output
-
-- **Data**: `data/processed/results.csv`
-- **Plots**: `data/figures/complexity_vs_performance.png`
-- **Logs**: `logs/run_*.log`
-- **State**: `state/projects/PROJ-527-...yaml` (updated with checksums)
+- **Dataset Loading Error**: Ensure `human-eval` is installed (`pip install human-eval`).
+- **CUDA Error**: If using a local model, ensure the GPU escape hatch is triggered or switch to CPU mode in `config.py`.
+- **Timeout**: Increase `TIMEOUT_SECONDS` in `config.py` if code execution hangs.

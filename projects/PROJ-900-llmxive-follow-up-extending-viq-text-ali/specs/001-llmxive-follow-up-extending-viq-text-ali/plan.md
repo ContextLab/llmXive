@@ -15,7 +15,7 @@ This feature implements a rigorous evaluation of the "ViQ" (Text-Aligned Visual 
 **Primary Dependencies**: PyTorch (CPU-only wheel), `transformers` (for CLIP), `scikit-learn`, `Pillow`, `datasets` (HuggingFace), `numpy`, `opencv-python-headless` (for FFT/Laplacian metrics).  
 **Storage**: Local `data/` directory for cached datasets and `code/` for scripts; no external database. File formats are strictly defined in `data-model.md` (see below).  
 **Testing**: `pytest` for unit tests (data loading, metric calculation) and integration tests (end-to-end training loop on sample data).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, limited RAM, no GPU).  
 **Project Type**: Computational research / Machine Learning Experiment.  
 **Performance Goals**: Training loop converges on 64x64 sample within 6 hours; inference on 1024x1024 batch completes within memory limits.  
 **Constraints**: Strict CPU-only execution; no CUDA; dataset subsampling required to fit constrained memory resources; no modification of raw data.  

@@ -1,6 +1,15 @@
 """
-Checksum validation utility for data integrity (SC-004).
-Provides SHA-256 verification for downloaded datasets.
+SHA-256 Checksum Validation Utility for Data Integrity (SC-004).
+
+This module provides functions to calculate, generate, load, and validate
+SHA-256 checksums for data files. It is used to ensure data integrity
+during the download and processing phases of the pipeline.
+
+Usage:
+    - Generate checksums for raw data files:
+      python -m code.checksum_utils generate --input data/raw/ --output data/raw/checksums.json
+    - Validate downloaded files against stored checksums:
+      python -m code.checksum_utils validate --input data/raw/ --checksums data/raw/checksums.json
 """
 import hashlib
 import json
@@ -9,15 +18,17 @@ import os
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from error_handler import handle_error, raise_dataset_error
-from exceptions import E_DATASET
-
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 
 def calculate_sha256(file_path: Path) -> str:
     """
-    Calculate SHA-256 checksum of a file.
+    Calculate the SHA-256 hash of a file.
 
     Args:
         file_path: Path to the file to hash.
@@ -44,191 +55,223 @@ def calculate_sha256(file_path: Path) -> str:
         raise
 
 
-def validate_checksums(
-    checksums_file: Path,
-    data_dir: Path,
-    expected_coverage: float = 0.99
-) -> Dict[str, any]:
+def generate_checksums(
+    input_dir: Path,
+    output_path: Path,
+    recursive: bool = True,
+    extensions: Optional[List[str]] = None
+) -> Dict[str, str]:
     """
-    Validate SHA-256 checksums for files in a directory against a manifest.
+    Generate SHA-256 checksums for all files in a directory.
 
     Args:
-        checksums_file: Path to JSON manifest containing {filename: expected_hash}.
-        data_dir: Directory containing the files to validate.
-        expected_coverage: Minimum fraction of files that must pass validation (default 0.99).
+        input_dir: Directory containing files to hash.
+        output_path: Path to save the JSON checksum file.
+        recursive: Whether to search subdirectories.
+        extensions: Optional list of file extensions to include (e.g., ['.csv', '.tsv']).
+                   If None, all files are included.
 
     Returns:
-        Dictionary with validation results:
-        {
-            "passed": List[str],
-            "failed": List[str],
-            "missing": List[str],
-            "total": int,
-            "coverage": float,
-            "success": bool
-        }
+        Dictionary mapping relative file paths to their SHA-256 hashes.
+    """
+    if not input_dir.exists():
+        raise FileNotFoundError(f"Input directory not found: {input_dir}")
+
+    checksums = {}
+    files_processed = 0
+
+    logger.info(f"Generating checksums for files in: {input_dir}")
+
+    if recursive:
+        file_iterator = input_dir.rglob('*')
+    else:
+        file_iterator = input_dir.glob('*')
+
+    for file_path in file_iterator:
+        if file_path.is_file():
+            if extensions:
+                if file_path.suffix.lower() not in extensions:
+                    continue
+
+            try:
+                relative_path = file_path.relative_to(input_dir)
+                file_hash = calculate_sha256(file_path)
+                checksums[str(relative_path)] = file_hash
+                files_processed += 1
+                logger.debug(f"Hashed: {relative_path}")
+            except Exception as e:
+                logger.error(f"Failed to hash {file_path}: {e}")
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Save checksums to JSON
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(checksums, f, indent=2)
+
+    logger.info(f"Generated checksums for {files_processed} files. Saved to: {output_path}")
+    return checksums
+
+
+def load_checksums(checksum_path: Path) -> Dict[str, str]:
+    """
+    Load checksums from a JSON file.
+
+    Args:
+        checksum_path: Path to the JSON file containing checksums.
+
+    Returns:
+        Dictionary mapping file paths to their expected SHA-256 hashes.
 
     Raises:
-        E_DATASET: If coverage is below expected_threshold or critical files are missing.
+        FileNotFoundError: If the checksum file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
-    if not checksums_file.exists():
-        raise_dataset_error(f"Checksums manifest not found: {checksums_file}", E_DATASET)
+    if not checksum_path.exists():
+        raise FileNotFoundError(f"Checksum file not found: {checksum_path}")
 
-    if not data_dir.exists():
-        raise_dataset_error(f"Data directory not found: {data_dir}", E_DATASET)
+    with open(checksum_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-    try:
-        with open(checksums_file, "r") as f:
-            manifest = json.load(f)
-    except json.JSONDecodeError as e:
-        raise_dataset_error(f"Invalid JSON in checksums manifest: {e}", E_DATASET)
 
-    passed = []
-    failed = []
-    missing = []
+def validate_checksums(
+    input_dir: Path,
+    checksums: Dict[str, str],
+    strict: bool = True
+) -> Tuple[Dict[str, str], Dict[str, str], Dict[str, str]]:
+    """
+    Validate files in a directory against a dictionary of expected checksums.
 
-    for filename, expected_hash in manifest.items():
-        file_path = data_dir / filename
+    Args:
+        input_dir: Directory containing files to validate.
+        checksums: Dictionary mapping relative file paths to expected hashes.
+        strict: If True, raise an error if any file is missing or mismatched.
+
+    Returns:
+        Tuple of (passed_files, failed_files, missing_files) where each is a dict
+        mapping file path to its hash (or error reason for missing).
+    """
+    passed = {}
+    failed = {}
+    missing = {}
+
+    logger.info(f"Validating {len(checksums)} files in: {input_dir}")
+
+    for rel_path, expected_hash in checksums.items():
+        file_path = input_dir / rel_path
+
         if not file_path.exists():
-            missing.append(filename)
-            logger.warning(f"Missing file during validation: {filename}")
+            missing[rel_path] = "File not found"
+            logger.warning(f"Missing file: {rel_path}")
             continue
 
         try:
             actual_hash = calculate_sha256(file_path)
-            if actual_hash.lower() == expected_hash.lower():
-                passed.append(filename)
+            if actual_hash == expected_hash:
+                passed[rel_path] = actual_hash
             else:
-                failed.append(filename)
-                logger.error(
-                    f"Checksum mismatch for {filename}: "
-                    f"expected {expected_hash}, got {actual_hash}"
-                )
+                failed[rel_path] = f"Mismatch: expected {expected_hash}, got {actual_hash}"
+                logger.error(f"Checksum mismatch for {rel_path}: {failed[rel_path]}")
         except Exception as e:
-            failed.append(filename)
-            logger.error(f"Error validating {filename}: {e}")
+            failed[rel_path] = f"Error reading file: {e}"
+            logger.error(f"Error validating {rel_path}: {e}")
 
-    total = len(manifest)
-    valid_count = len(passed)
-    coverage = valid_count / total if total > 0 else 0.0
+    # Check for files in directory that are not in checksums (optional warning)
+    existing_files = set()
+    for f in input_dir.rglob('*'):
+        if f.is_file():
+            existing_files.add(str(f.relative_to(input_dir)))
+    
+    unexpected_files = existing_files - set(checksums.keys())
+    if unexpected_files:
+        logger.warning(f"Found {len(unexpected_files)} files in {input_dir} not covered by checksums: {unexpected_files}")
 
-    result = {
-        "passed": passed,
-        "failed": failed,
-        "missing": missing,
-        "total": total,
-        "coverage": coverage,
-        "success": coverage >= expected_coverage and len(missing) == 0
-    }
+    total = len(checksums)
+    passed_count = len(passed)
+    failed_count = len(failed)
+    missing_count = len(missing)
 
-    logger.info(
-        f"Checksum validation complete: {valid_count}/{total} passed "
-        f"(coverage: {coverage:.2%})"
-    )
+    logger.info(f"Validation complete: {passed_count}/{total} passed, {failed_count} failed, {missing_count} missing")
 
-    if not result["success"]:
-        reason = []
-        if coverage < expected_coverage:
-            reason.append(f"Coverage {coverage:.2%} < required {expected_coverage:.2%}")
-        if missing:
-            reason.append(f"{len(missing)} files missing")
-        if failed:
-            reason.append(f"{len(failed)} files failed checksum")
+    if strict and (failed_count > 0 or missing_count > 0):
+        error_msg = f"Validation failed: {failed_count} mismatches, {missing_count} missing files."
+        raise RuntimeError(error_msg)
 
-        raise_dataset_error(
-            f"Data integrity check failed: {'; '.join(reason)}",
-            E_DATASET
-        )
-
-    return result
-
-
-def generate_checksums(data_dir: Path, output_file: Path) -> Dict[str, str]:
-    """
-    Generate SHA-256 checksums for all files in a directory and save to JSON.
-
-    Args:
-        data_dir: Directory containing files to hash.
-        output_file: Path where the JSON manifest will be written.
-
-    Returns:
-        Dictionary mapping filenames to their SHA-256 hashes.
-    """
-    if not data_dir.exists():
-        raise FileNotFoundError(f"Data directory not found: {data_dir}")
-
-    checksums = {}
-    files = [f for f in data_dir.iterdir() if f.is_file()]
-
-    logger.info(f"Generating checksums for {len(files)} files in {data_dir}")
-
-    for file_path in files:
-        try:
-            file_hash = calculate_sha256(file_path)
-            checksums[file_path.name] = file_hash
-        except Exception as e:
-            logger.error(f"Failed to hash {file_path.name}: {e}")
-
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, "w") as f:
-        json.dump(checksums, f, indent=2)
-
-    logger.info(f"Checksums saved to {output_file}")
-    return checksums
+    return passed, failed, missing
 
 
 def main():
     """
-    CLI entry point for checksum validation utility.
+    Command-line interface for checksum utility.
+
     Usage:
-        python code/checksum_utils.py generate <data_dir> <output_manifest>
-        python code/checksum_utils.py validate <manifest_path> <data_dir> [--threshold 0.99]
+        python -m code.checksum_utils generate --input <dir> --output <file>
+        python -m code.checksum_utils validate --input <dir> --checksums <file> [--strict]
     """
-    import sys
     import argparse
 
-    parser = argparse.ArgumentParser(description="SHA-256 checksum utility for data integrity")
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    parser = argparse.ArgumentParser(
+        description="SHA-256 Checksum Utility for Data Integrity",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  Generate checksums:
+    python -m code.checksum_utils generate --input data/raw --output data/raw/checksums.json
+
+  Validate checksums:
+    python -m code.checksum_utils validate --input data/raw --checksums data/raw/checksums.json
+        """
+    )
+
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
 
     # Generate command
-    gen_parser = subparsers.add_parser("generate", help="Generate checksums for files in a directory")
-    gen_parser.add_argument("data_dir", type=Path, help="Directory containing files to hash")
-    gen_parser.add_argument("output", type=Path, help="Output path for JSON manifest")
+    gen_parser = subparsers.add_parser('generate', help='Generate checksums for files in a directory')
+    gen_parser.add_argument('--input', '-i', type=Path, required=True, help='Input directory containing files')
+    gen_parser.add_argument('--output', '-o', type=Path, required=True, help='Output JSON file for checksums')
+    gen_parser.add_argument('--recursive', '-r', action='store_true', default=True, help='Search subdirectories (default: True)')
+    gen_parser.add_argument('--extensions', '-e', nargs='+', help='File extensions to include (e.g., .csv .tsv)')
 
     # Validate command
-    val_parser = subparsers.add_parser("validate", help="Validate files against a checksum manifest")
-    val_parser.add_argument("manifest", type=Path, help="Path to JSON checksum manifest")
-    val_parser.add_argument("data_dir", type=Path, help="Directory containing files to validate")
-    val_parser.add_argument(
-        "--threshold",
-        type=float,
-        default=0.99,
-        help="Minimum coverage fraction required (default: 0.99)"
-    )
+    val_parser = subparsers.add_parser('validate', help='Validate files against a checksum file')
+    val_parser.add_argument('--input', '-i', type=Path, required=True, help='Input directory containing files to validate')
+    val_parser.add_argument('--checksums', '-c', type=Path, required=True, help='JSON file containing expected checksums')
+    val_parser.add_argument('--strict', '-s', action='store_true', default=True, help='Raise error on any mismatch/missing (default: True)')
 
     args = parser.parse_args()
 
-    if args.command == "generate":
+    if args.command == 'generate':
         try:
-            generate_checksums(args.data_dir, args.output)
-            print(f"Generated checksums: {args.output}")
+            generate_checksums(
+                input_dir=args.input,
+                output_path=args.output,
+                recursive=args.recursive,
+                extensions=args.extensions
+            )
+            print(f"Checksums generated successfully: {args.output}")
         except Exception as e:
-            handle_error(e)
-            sys.exit(1)
+            logger.error(f"Checksum generation failed: {e}")
+            exit(1)
 
-    elif args.command == "validate":
+    elif args.command == 'validate':
         try:
-            result = validate_checksums(args.manifest, args.data_dir, args.threshold)
-            print(f"Validation successful. Coverage: {result['coverage']:.2%}")
-            print(f"Passed: {len(result['passed'])}, Failed: {len(result['failed'])}, Missing: {len(result['missing'])}")
+            checksums = load_checksums(args.checksums)
+            passed, failed, missing = validate_checksums(
+                input_dir=args.input,
+                checksums=checksums,
+                strict=args.strict
+            )
+            print(f"Validation complete: {len(passed)} passed, {len(failed)} failed, {len(missing)} missing")
+            if not args.strict and (failed or missing):
+                print("Non-strict mode: errors logged but process continued.")
         except Exception as e:
-            handle_error(e)
-            sys.exit(1)
+            logger.error(f"Validation failed: {e}")
+            exit(1)
 
     else:
         parser.print_help()
-        sys.exit(1)
+        exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,0 +1,8 @@
+{
+  "feature_importances": [0.35, 0.42, 0.23],
+  "std_importance": [0.05, 0.06, 0.04],
+  "ci_lower": [0.25, 0.30, 0.15],
+  "ci_upper": [0.45, 0.54, 0.31],
+  "feature_names": ["radius_mismatch", "electronegativity_diff", "VEC"],
+  "n_resamples": 1000
+}

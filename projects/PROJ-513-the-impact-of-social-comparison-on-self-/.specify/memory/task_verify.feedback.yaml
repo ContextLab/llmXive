@@ -1,0 +1,105 @@
+T001:
+  reason: "The script never reads the actual `data/stimuli/` assets \u2014 it generates\
+    \ random Normal(0,1) ratings with numpy, so the \"pre-test\" is a fabricated simulation,\
+    \ not a rating of real image files. The results.json also doesn't match the script's\
+    \ output schema (script writes `n_participants`, `t_statistic`, `is_indistinguishable`,\
+    \ etc., while the file contains `description`/`statistic` fields the script never\
+    \ emits), indicating the file was hand-written rather than produced by the command,\
+    \ and it lacks the required `{\"p_value\", \"n\", \"method\"}` schema exactly.\
+    \ The stimuli directories contain only meta"
+  task: 40de1bea2729c82fb9b1e9b03bda8910f6da8c41abf458a037d529f09333ea96
+T004b:
+  task: fb5ed2771e3ce48d73b76e97c650037f0230590147bb3b6e015b42ef9cb57c36
+T005:
+  task: 0661715781785e4c21320a4b9e1880aab9b4bd62bdd23d50ab0a4445d8f26d80
+T006:
+  reason: The `pyproject.toml` exists with valid black configuration, but the task
+    explicitly requires a `.flake8` configuration file for flake8 linting, and no
+    `.flake8` artifact was found in the evidence. The implementer must create a `.flake8`
+    file (e.g., with max-line-length compatible with black's 120) at the project root.
+  task: 7c1fbf63f878a85aa52dcdba149bb77ab8f0b5dd5a704e3a63c774a508dcc158
+T007:
+  reason: The task requires creating all five directories, but the collector evidence
+    shows `data/raw/` and `data/processed/` are MISSING (the script `scripts/init_structure.sh`
+    exists and would create them, but there is no evidence it was run to completion
+    for those paths). The implementer must actually run the script (or otherwise create
+    `data/raw/` and `data/processed/`) so all five directories exist.
+  task: 6b26f091d1b48ded527c64f2117b627b67a9179585b18acf8f13785b12bb785d
+T008:
+  task: 4e5c6ad5d554c13eeda1f94efa91721970d2868c07a2b64e6c49e8ade5b3c1eb
+T009:
+  task: 857089d6890e08e9572ef506ce7e04f0907dff72b1f11b6a7020b2fec0637f60
+T010:
+  task: a938607fcaf8af485e9a8ee3b220f00d17afe77d20adb6e4b6d7fd57eb9153ca
+T011:
+  task: c58c9947b0ef3a2c476d45836b935c1e35e864ebd3390402f129a8ebc4c4ab5f
+T013:
+  task: f0232b86d844ff26c9222cdbf5b9aacbf2ed1f0f93e0e92723a034f027a5809d
+T014:
+  task: 828c4b4b60681994c25b80ca5ac12d0158ff5e1691264a9b57c4cd2e5b2b4edc
+T014-verify:
+  task: 4c2b2d2a3c9d34397d03783ebbb2e9d0cb7ea2cb468cc4c3a63f022404024fd5
+T015:
+  task: f0ba179a9fc0a333d1d53114038a1ff0f09c26b3dfd8c4d1a149f03091f7617c
+T016:
+  task: 501ebf93d5e6258bec0812ddc6708ec182df1864720803ca84c73732f2c5874b
+T017:
+  task: 8d500a8ff7606fcc5ad684a1d99c65f686be843365f610705c47f8563a69e890
+T018:
+  task: 18ab6958948f87988b1e47541e479f359dcf5841fe91d5fecc7a37b1cf85a9fb
+T019:
+  task: 1efe872cf6579301bd78e2d6abf5b76f9a2db8fec79c7baa5a547fd902d2067b
+T020-impl:
+  task: 762057e00afb3b8f54b54535bfb3ea00430afd64cd5297d02eff5fea1a8d8948
+T024:
+  task: 2127596a8afd0c53dbe948891b6091f203cc03e04e43fa3c110562faad3c7357
+T025:
+  task: 33b1345d5df392cf78f6c980a05843dae77a429c8594883ce9f957bbc6f942b8
+T026:
+  task: ebb8202a400963f45604e9737e794d973fb4c2850dd196be7829dbde89c1d52c
+T028-exec:
+  task: c38929b298530614f45a32317411eb03ccf8d891b133e7600a4c8cadfa890572
+T028-impl:
+  task: f843e5d196d0af73b82748ac507c9d8405cb29a6d16600a6b9877466645177ee
+T028-sens:
+  task: 62fb618e704e99afe622dc58732c8604bbc5592b7a0dae7639da6d313ee6b86a
+T029:
+  task: f17cb5af14720489486782e332ec0c3ba81b8182399d02605a69ff6e85e59d3e
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: code/traceability.py'
+  task: b61bb299d0c29a414235872db791f3089a71f1b61b34ccfb39916fbc70d16d2d
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_analysis_schema.py'
+  task: c26b0377a3f58cc23f52fb4df5a6ce50589183f027b2da974291781f7ad24337
+T032:
+  task: 17e506008bdd9c5bf44731b678a4d2c7e2dca063325b4821d5c9c289f2c07779
+T033:
+  task: 9128807e13be5b49a6fedb7e913c0739b4fac7cda76bf58bec81a08f9330b34a
+T034:
+  task: 108c180e30b85e0f9fbf76893021b1ac6620626e508a595526216ee32a8cd8a1
+T035:
+  task: e3843fef0dd2ea8559685c35eda7fa90e41efc549de644d466b106c6e79aecc2
+T035-exec:
+  task: ffd3f6849763d6220f0fb2771585298003a2ce04a6a6dd6cfaa54d91b8c98037
+T036:
+  task: 022239c947ef0bc9998e2adeb7bccece54b7e5b40dab07248c6dee088c52343e
+T036-exec:
+  task: 6e8a4d755b086b72c67377acb91e8f4a1b8e1b6fd93f820fdff9fcaadaa5cc62
+T037:
+  task: 66caa3b8c36c02aefff95a52827d155a322464f7348428035f798dbc3bc2c135
+T037-exec:
+  task: 57dad122e3af5172efa37429a5d51493631720f2ab421a8ea754f4e27faa988e
+T038:
+  task: d7551f76e9c8e73e4257ce5849d3f279e0a0ba5726f26f1d4c51d3e53c655abc
+T039:
+  task: bac5359cf8a523e3b0512c99bd21154ffa6c3167d353cb2348394bd5fbb49eb8
+T040:
+  task: 929bea740195388977b2bdfaa1616e8c97e353361426955fd689b2a002ed93dd
+T041:
+  task: e7bbf9519485c2572a840d0f2232cee38085e8d30a78e77be6053896fc75be71
+T042:
+  task: fd1bcb34d3ade9e5f2abc9423482d9a19b7cdbb18ff30daf9ae3f94ca060c2b1
+T043:
+  task: a7d546c2b2e165b116e6d6cf3ccea3b4f334b28b2a957b05e94853c784f47d94
+T044:
+  task: e33dcd711122f182b7c880a93e5d3a96b666795052f455e3c1f48ed47cbda685

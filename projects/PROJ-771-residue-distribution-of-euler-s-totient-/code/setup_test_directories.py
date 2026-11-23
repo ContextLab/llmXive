@@ -1,34 +1,35 @@
+"""
+Script to create test directory structure for the project.
+Implements task T001d: Create `tests/unit/` and `tests/integration/` directories.
+"""
 import os
 from pathlib import Path
 
+
 def setup_test_directories():
     """
-    Create the required test directory structure for the project.
-    
-    This function creates:
+    Creates the required test directory structure:
     - tests/unit/
     - tests/integration/
-    
+
     Returns:
-        dict: A dictionary containing the paths created for verification purposes.
+        None
     """
-    base_dir = Path("tests")
-    unit_dir = base_dir / "unit"
-    integration_dir = base_dir / "integration"
-    
+    project_root = Path(__file__).resolve().parent.parent
+    tests_base = project_root / "tests"
+    unit_dir = tests_base / "unit"
+    integration_dir = tests_base / "integration"
+
     # Create directories if they don't exist
     unit_dir.mkdir(parents=True, exist_ok=True)
     integration_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Create __init__.py files to make them proper Python packages
     (unit_dir / "__init__.py").touch()
     (integration_dir / "__init__.py").touch()
-    
-    return {
-        "unit": str(unit_dir),
-        "integration": str(integration_dir)
-    }
+
+    print(f"Created directories: {unit_dir}, {integration_dir}")
+
 
 if __name__ == "__main__":
-    result = setup_test_directories()
-    print(f"Test directories created: {result}")
+    setup_test_directories()

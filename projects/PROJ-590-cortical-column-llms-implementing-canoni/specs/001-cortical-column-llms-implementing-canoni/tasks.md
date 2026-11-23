@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -41,31 +41,29 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization and basic structure. Tasks are split into atomic steps for deterministic execution.
 
-- [ ] T001 Create project structure per `plan.md` (directories: `src/models`, `src/data`, `src/training`, `src/experiments`, `tests`)
-- [X] T002 Initialize Python 3.11 project with `pyproject.toml` and `requirements.txt` (PyTorch CPU-only, numpy, scipy, pytest, psutil)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [X] T004 [P] Configure `tests/conftest.py` with `pytest-timeout` settings for unit tests and resource monitoring hooks
+- [ ] T001a [P] Initialize Project Structure: Create all required directories (`src/`, `src/models/`, `src/data/`, `src/training/`, `src/experiments/`, `src/utils/`, `tests/unit/`, `tests/integration/`, `scripts/`, `data/results/`, `data/logs/`, `data/configs/`, `state/`). **CRITICAL**: Ensure `state/*.yaml` is tracked and checksummed as required by Constitution Principle V. **Action**: Create `state/template.yaml` as a placeholder.
+- [ ] T001b [P] Initialize Python Packages: Create `__init__.py` in every `src/` and `tests/` directory created in T001a.
+- [ ] T001c [P] Configure Version Control: Create `.gitignore` excluding `data/` (except `data/configs/`, `data/results/`, `data/logs/`) and `__pycache__`, `*.pyc`, `*.log`.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
+**Note**: T019 (Schema Contracts) added to satisfy Plan.md Phase 1 Deliverables.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `src/data/benchmarks.py` for synthetic function generation (Lorenz attractor, Fourier series, polynomial surfaces) with deterministic seeding
-- [X] T006 [P] Implement `src/models/baseline_transformer.py` (standard Transformer MLP/Attention layers)
-- [X] T007a [P] Implement `src/models/microcircuit.py` layer definitions for L2/3, L4, L5, L6 as separate `nn.Module` sub-layers.
-- [X] T007b [P] Implement `src/models/microcircuit.py` connectivity mask generation logic to enforce L4->L2/3 excitatory and other laminar connections.
-- [X] T007c [P] Implement `src/models/microcircuit.py` E/I ratio enforcement logic (targeting a dominant excitatory component) by construction in the initialization and forward pass.
-- [ ] T008 Implement `src/training/homeostasis.py` for activity-dependent synaptic scaling mechanism
-- [X] T009 Implement `tests/unit/test_benchmarks.py` to verify synthetic data generation and checksums
-- [X] T010 Implement `tests/unit/test_microcircuit.py` to verify initial connectivity matrix shape and weight constraints
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T003b [P] Implement `scripts/hash_artifacts.sh` and `src/utils/checksum.py` to generate and record SHA256 checksums for all files in `data/configs/`, `data/results/`, `data/logs/`, and `state/`. **CRITICAL**: This task is a MANDATORY prerequisite for any data generation task to satisfy Constitution Principle III (Data Hygiene) and Principle V (Versioning Discipline). <!-- FAILED-IN-EXECUTION: code/scripts/hash_artifacts.sh exit=2 -->
+- [ ] T004 [P] Verify Setup: Run a script to confirm all directories from T001 exist and `state/template.yaml` is present. **Output**: Exit 0 if all present, exit 1 otherwise. **CRITICAL**: This task must pass before Phase 2 starts.
+- [ ] T005 [P] Configure `tests/conftest.py` with `pytest-timeout` settings for unit tests and resource monitoring hooks using `psutil`. **CRITICAL**: Sets up both `pytest-timeout` and `psutil.Process.cpu_affinity` in one atomic step to avoid race conditions. Asserts RSS memory < 7GB during test execution. [UNRESOLVED-CLAIM: c_1661d492 — status=not_enough_info]
+- [ ] T010b [P] Implement `src/training/homeostasis.py::log_gradient_norms` as a utility function to compute and append gradient norms to a specified JSON file. **Signature**: `def log_gradient_norms(model, step, output_file: str) -> None`. **Implementation**: 1. If `output_file` does not exist, create it as an empty list `[]`. 2. Compute L2 norms for each parameter group using `model.register_full_backward_hook`. 3. Append `{step: int, norms: {param_name: float}}` to the list. 4. Write the list back with 2-space indentation and a trailing newline. **CRITICAL**: This is a utility definition only. It must be called by specific execution tasks (T071b_exec, T071c_exec) in later phases. **Atomicity**: Use file locking or atomic write to ensure parallel safety if run concurrently.
+- [ ] T019 [P] Generate Schema Contracts: Create `contracts/dataset.schema.yaml`, `contracts/model.schema.yaml`, and `contracts/experiment.schema.yaml` in `projects/PROJ-590-cortical-column-llms-implementing-canoni/specs/001-cortical-column-llms-implementing-canoni/contracts/`. **CRITICAL**: These files are required by Plan.md as Phase 1 Deliverables. Define JSON/YAML schemas for data generation outputs, model architectures, and experiment configurations to enforce Data Hygiene (Constitution III). **Output**: 3 YAML files with strict type definitions.
+- [ ] T008a [P] Implement `src/data/benchmarks.py::generate_training_data` to generate training data (Lorenz attractor) with deterministic seeding. **CRITICAL**: Implement distinct generator functions `generate_training_data()` (Lorenz) to ensure independent distributions for US1 and prevent data leakage. **Output**: `data/results/train_data_lorenz.npy`. **Verification**: Run `scripts/hash_artifacts.sh` and assert exit code 0 and file `data/results/train_data_lorenz.npy` exists. **CRITICAL**: If the file does not exist or checksum fails, the task MUST exit with code 1 and report failure. Do not proceed. **Dependency**: Requires T003b (Checksum Script) to be complete.
+- [ ] T008c [P] Implement `src/data/benchmarks.py::generate_polynomial_test_data` to generate independent test data for ablation/generalization metrics. **CRITICAL**: Read all empirical specifics (SEED, N, coeffs) from `data/configs/test_config.yaml`. **NO HARDCODED DEFAULTS**. If config is missing or invalid, exit 1. **Parameters**: Read from `test_config.yaml`. **Logic**: `np.random.seed(SEED); X = np.random.rand(N, 2); Y = np.polyval(coeffs, X[:,0]) + noise`. **Verification**: Run `scripts/hash_artifacts.sh` and assert exit code 0 and file `data/results/test_data_polynomial.npy` exists. **CRITICAL**: If the file does not exist or checksum fails, the task MUST exit with code 1 and report failure. Do not proceed. **Dependency**: Requires T019 (Schema Contracts) to define the config structure.
+- [ ] T008b [P] Implement `src/data/benchmarks.py::verify_independence` function. **Signature**: `def verify_independence(train_data: np.ndarray, test_data: np.ndarray) -> bool`. **Logic**: 1. Verify generators are distinct by design (Lorenz vs Polynomials). 2. Perform a Kolmogorov-Smirnov test on the generated samples. **Requirement**: Assert p-value < 0.05 to confirm distributions are statistically distinct (rejecting null hypothesis). If p >= 0.05, log an error and raise an exception. **CRITICAL**: This function satisfies Constitution Principle VII and FR-006 by ensuring the test set is from a different distribution by design AND by statistical verification. **Dependency**: Requires T008a and T008c to be complete. **Note**: T008b must pass before Phase 3 begins.
 
 ---
 
@@ -73,23 +71,22 @@
 
 **Goal**: Establish a computationally universal baseline using a standard Transformer on synthetic tasks to serve as the control.
 
-**Independent Test**: Execute training on held-out synthetic functions (Lorenz, Fourier) and verify MAE < 0.05 within 6 hours on 4 CPU cores.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T011 [P] [US1] Contract test for data generation in `tests/unit/test_benchmarks.py` (verify independent test set distribution)
-- [X] T012 [P] [US1] Integration test for baseline training pipeline in `tests/integration/test_baseline_training.py`
+**Independent Test**: Execute training on held-out synthetic functions (Lorenz, Fourier) and verify MAE < 0.05 within 6 hours on 4 CPU cores. [UNRESOLVED-CLAIM: c_23dbd191 — status=not_enough_info]
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `src/training/trainer.py` with CPU-optimized loop, gradient clipping (max norm), resource monitoring (psutil), and logic to calculate Mean Absolute Error (MAE). (Uses `pytest-timeout` for enforcement).
-- [X] T014 [US1] Create `scripts/run_baseline.sh` to orchestrate baseline training on Lorenz (train) and Polynomials (test), explicitly invoking `/usr/bin/time -v` to verify -hour time limit and GB RAM threshold as per FR-004.
-- [ ] T015 [US1] Create `src/experiments/baseline_runner.py` to manage experiment configuration and logging.
-- [ ] T016 [US1] Create `tests/integration/test_baseline_validation.py::test_baseline_degradation_measurement` that asserts the system records the MAE on the independent test set and calculates the degradation percentage relative to the training set, storing these metrics in `data/results/baseline_metrics.json` for cost curve generation (no hard pass/fail threshold on degradation).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T009a [US1] Implement `src/models/baseline_transformer.py` (standard Transformer MLP/Attention layers).
+- [ ] T012b_impl [US1] Implement CPU-optimized training loop in `src/training/trainer.py`, gradient clipping, resource monitoring and logging of MAE. **Output**: `data/logs/training_log.json`. **CRITICAL**: Explicitly log MAE and loss to `data/logs/training_log.json` and enforce resource constraints (limited RAM, limited cores) as per FR-004.
+- [ ] T011a_run [US1] Implement `src/experiments/baseline_runner.py::run_baseline_training` to execute the training loop defined in T012b_impl. **CRITICAL**: This task runs the actual training. It depends on T009a and T012b_impl. **Output**: Trained model weights in `data/models/baseline.pt`.
+- [ ] T013 [US1] Create `scripts/run_baseline.sh`.
+- [ ] T013b [US1] Update `scripts/run_baseline.sh` to explicitly call data generation functions for training and testing.
+- [ ] T013c [US1] Implement `src/experiments/baseline_runner.py` to manage experiment configuration and logging.
+- [ ] T015 [US1] Implement `src/experiments/baseline_runner.py::run_and_record_metrics`.
+- [ ] T014a [US1] Load Test Data: Implement `src/experiments/baseline_runner.py::load_test_data` to load `data/results/test_data_polynomial.npy`. **Output**: Returns `X_test`, `y_test`. **CRITICAL**: This is the first step of the atomized validation process. **Dependency**: Requires T008c (file generation) and T008b (verification passed). **Failure**: If file missing, exit 1.
+- [ ] T014b [US1] Run Inference: Implement `src/experiments/baseline_runner.py::run_inference` to execute the trained baseline model on `X_test`. **Output**: `y_pred`. **CRITICAL**: This is the second step of the atomized validation process. **Dependency**: Requires T011a_run (trained model).
+- [ ] T014c [US1] Compute Metrics: Implement `src/experiments/baseline_runner.py::compute_generalization_mae` to calculate MAE between `y_test` and `y_pred`. **Output**: `mae_value`. **CRITICAL**: This is the third step of the atomized validation process.
+- [ ] T014d [US1] Write Report: Implement `src/experiments/baseline_runner.py::write_generalization_report` to generate `data/results/generalization_report.md` summarizing the MAE and comparing it to the training set MAE. **CRITICAL**: Calculate `degradation_percent = (test_mae - train_mae) / train_mae * 100`. Assert `degradation_percent < 10%`. [UNRESOLVED-CLAIM: c_ee99bf49 — status=not_enough_info] If assertion fails, log the specific value and exit with code 1. **Output**: `data/results/generalization_report.md`. **Dependency**: Satisfies FR-006 and US-001 Acceptance Scenario 2.
+- [ ] T071b_exec [US1] Implement `src/experiments/baseline_gradient_extractor.py::run_baseline_gradient_extraction` to run the baseline model (T011a_run) and extract its gradient distribution using T010b. **Output**: `data/logs/baseline_gradient_norms.json`. **CRITICAL**: This task provides the baseline data required by T071a to perform the comparative analysis mandated by SC-002. **Dependency**: Requires T011a_run (trained baseline). **Action**: Invoke `log_gradient_norms(model, step, "data/logs/baseline_gradient_norms.json")` during training. **File Transfer**: Writes to `data/logs/baseline_gradient_norms.json`.
 
 ---
 
@@ -97,172 +94,80 @@
 
 **Goal**: Implement a parameterized "Cortical Column" module mimicking laminar structure with local E/I loops and homeostatic scaling.
 
-**Independent Test**: Instantiate module, verify connectivity matrix matches laminar topology, and confirm forward pass works on CPU.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T017 [P] [US2] Unit test for connectivity matrix in `tests/unit/test_microcircuit.py` (verify L4->L2/3 excitatory, etc.)
-- [ ] T018 [P] [US2] Unit test for E/I ratio enforcement in `tests/unit/test_microcircuit.py` (verify a forward/backward ratio during forward/backward)
-
-### Implementation for User Story 2
-
-- [ ] T019 [US2] Implement homeostatic scaling logic in `src/training/homeostasis.py` to dynamically maintain a balanced E/I ratio.
-- [ ] T020 [US2] Create `src/models/hybrid_network.py` to replace standard MLP layers with `MicrocircuitModule` while maintaining parameter count parity (±1%).
-- [ ] T021 [US2] Add weight clipping logic in `src/models/microcircuit.py` to enforce a normalized range during initialization.
-- [ ] T022 [US2] Implement `src/experiments/microcircuit_runner.py` to train hybrid model on same synthetic tasks as baseline.
-- [ ] T023 [US2] Create `tests/unit/test_hybrid_network.py::test_forward_pass_cpu` that instantiates the model and asserts no shape mismatches.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T010a [P] Implement core homeostatic scaling logic in `src/training/homeostasis.py`: define `scale_weights(model, target_ratio, decay_rate)` function that applies synaptic scaling to maintain E/I ratio. Use formula: `scale_factor = target_activity / current_activity`. Returns a dict of applied scaling factors. Explicitly derive `target_activity` from the E/I ratio constraint.
+- [ ] T009d [US2] Implement `src/models/microcircuit.py` layer definitions by creating classes `L23Layer`, `L4Layer`, `L5Layer`, `L6Layer`.
+- [ ] T009f [US2] Implement `src/models/microcircuit.py` connectivity mask generation logic to enforce laminar topology.
+- [ ] T010c [US2] Implement dynamic E/I ratio enforcement mechanism in `src/training/homeostasis.py`: enforce the 4: ratio as a *dynamic constraint* maintained during training using ONLY homeostatic scaling. **Algorithm**: 1. Apply `scale_weights` post-backpropagation to restore target activity. 2. **CRITICAL**: The ratio must be maintained via scaling dynamics alone. Do NOT use hard masks or zero-out operations during the forward pass. 3. Update rule: `new_weight = old_weight * (target_activity / current_activity) ** decay_rate`. **CRITICAL**: This task clarifies the dynamic nature of the ratio constraint as defined in FR-002.
+- [ ] T048 [US2] Implement `src/models/hybrid_network.py` to instantiate the hybrid network by replacing standard Transformer MLP layers with `MicrocircuitModule`. **CRITICAL**: Verify parameter count is within ±1% of baseline [UNRESOLVED-CLAIM: c_69320746 — status=not_enough_info] and this verification is a BLOCKING prerequisite for T049 (Scaling).
+- [ ] T069 [US2] Implement `src/utils/structure_verifier.py::verify_canonical_topology` to assert that the instantiated `MicrocircuitModule` has the exact connectivity masks for L2/3, L4, L5, L6 as defined in the spec. **Test**: Fail if any unexpected connections exist or if the E/I ratio deviates from 4:1 by > 5%. [UNRESOLVED-CLAIM: c_9b16b2a5 — status=not_enough_info] **CRITICAL**: This task consolidates the verification logic previously split between Phase 4 and Phase 7.
+- [ ] T069b [US2] Implement `tests/unit/test_homeostasis.py` to assert the `scale_weights` function modifies weights to restore target activity after a noise perturbation. **Parameters**: Target activity at a specified level, tolerance within an acceptable margin of error. **CRITICAL**: This task consolidates the verification logic previously split between Phase 4 and Phase 7.
+- [ ] T071c_exec [US2] Implement `src/experiments/microcircuit_gradient_extractor.py::run_microcircuit_gradient_extraction` to run the microcircuit model (T048) and extract its gradient distribution using T010b. **Output**: `data/logs/microcircuit_gradient_norms.json`. **CRITICAL**: This task provides the microcircuit data required for T071a to perform the comparative analysis mandated by SC-002. **Dependency**: Requires T048 (Microcircuit Implementation). **Action**: Invoke `log_gradient_norms(model, step, "data/logs/microcircuit_gradient_norms.json")` during training.
+- [ ] T071a_impl [US2] Implement `src/utils/statistics.py::verify_gradient_distribution` to verify the *distribution* of gradient norms (SC-002) by comparing the variance and overlap against the baseline. **Input**: `data/logs/baseline_gradient_norms.json` (from T071b_exec) and `data/logs/microcircuit_gradient_norms.json` (from T071c_exec). **Output**: `data/logs/gradient_distribution_report.md`. **Method**: Perform a two-sample Kolmogorov-Smirnov test. **CRITICAL Threshold**: Assert p-value > 0.05 (no significant difference) AND variance ratio (microcircuit/baseline) < 1.5. [UNRESOLVED-CLAIM: c_b4346e9d — status=not_enough_info] If criteria fail, log "INSTABILITY_DETECTED" and exit with code 1. **Dependency**: Requires T011a_run (Baseline Training) and T048 (Microcircuit Implementation) being complete.
+- [ ] T071a_report [US2] Implement `src/utils/report_generator.py::generate_gradient_report` to write the final report from T071a_impl. **Output**: `data/logs/gradient_distribution_report.md`. **CRITICAL**: Separates logic from reporting.
+- [ ] T011b [US1] Integration test in `tests/integration/test_baseline_training.py` that explicitly runs the baseline model with `log_gradient_norms` enabled to populate `data/logs/baseline_gradient_norms.json` for SC-002 verification. **CRITICAL**: This task depends on T071b_exec. It must assert that the file exists at the project root path (not tmp_path) and contains valid JSON. **Dependency**: Requires T009a (Baseline Implementation) and T071b_exec (Gradient Extraction) to be complete. **Note**: Moved to Phase 4 to respect producer-consumer flow.
 
 ---
 
 ## Phase 5: User Story 3 - Ablation and Scaling Law Analysis (Priority: P2)
 
-**Goal**: Run systematic ablation study and scaling analysis to quantify "cost of biological plausibility" and identify scaling exponents.
+**Goal**: Run systematic ablation study and scaling analysis to quantify "cost of biological plausibility".
 
-**Independent Test**: Train ablation variants (no recurrence, no inhibition) and scaling variants (multiple column configurations), compare errors and training times.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T024 [P] [US3] Statistical test for ablation impact in `tests/integration/test_ablation_stats.py` (t-test for p < 0.05)
-- [ ] T025 [P] [US3] Scaling law regression test in `tests/integration/test_scaling_laws.py`
-
-### Implementation for User Story 3
-
-- [ ] T026 [P] [US3] Implement `src/experiments/ablation.py` to programmatically disable specific features (recurrence, inhibition) in `MicrocircuitModule`.
-- [ ] T027 [US3] Implement `src/experiments/scaling.py` to vary column count (x, multiple of x) and measure performance vs. parameter count.
-- [ ] T028 [US3] Implement `src/utils/statistics.py` to perform two-sample t-tests and calculate scaling exponents.
-- [ ] T029 [US3] Create `src/utils/report_generator.py` to generate the "cost of biological plausibility" curve (MAE vs. biological constraint degree) and output to `data/results/cost_curve.json`.
-- [ ] T030 [US3] Create `tests/integration/test_ablation_stats.py::test_ablation_verification` that consumes T031A results to verify the statistical significance (p < 0.05) and records the effect size without enforcing a specific threshold.
-- [ ] T031A [US3] Implement statistical comparison logic in `src/utils/statistics.py` to compute the difference in MAE between full and ablated models and calculate p-values. Output must be a JSON object with keys: `{"full_mae": float, "ablated_mae": float, "mae_diff": float, "p_value": float, "significant": bool}`. (Producer task).
-- [ ] T031B [US3] Create `tests/integration/test_ablation_stats.py::test_ablation_verification` that consumes T031A results to verify the JSON schema and data integrity. (Consumer task).
-- [ ] T040 [US3] Implement `src/utils/scaling_analyzer.py` to fit a power-law model to the performance data from T027 (1x, 2x, 4x variants) and output the exponent with confidence intervals to `data/results/scaling_exponent.json`.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T025a [US3] Implement `src/experiments/ablation.py::generate_ablation_configs` to define variants (full, ablated recurrence, ablated inhibition). **CRITICAL**: This constitutes 3 distinct model variants satisfying FR-003.
+- [ ] T025b [US3] Implement `src/experiments/ablation.py::run_ablation_study` to train and evaluate the defined variants on the same dataset.
+- [ ] T049a [US3] Implement `src/experiments/scaling.py::train_single_config` to train a single model configuration with specified column count. **Parameters**: Base column count `x=10`. [UNRESOLVED-CLAIM: c_771fea9f — status=not_enough_info] **Constraint**: Must output `data/results/scaling_single_{config}.json`. **Dependency**: Requires T048 (Hybrid Network) to be complete.
+- [ ] T049b [US3] Implement `src/experiments/scaling.py::run_scaling_loop` to orchestrate training for column counts `[10, 20, 40]` (1x, 2x, 4x of base x=10). **Constraint**: Must call T049a for each config. **Dependency**: Requires T049a.
+- [ ] T049c [US3] Implement `src/experiments/scaling.py::write_scaling_results` to aggregate results into `data/results/scaling_law.csv` with columns `columns, params, mae, time_sec`. **Constraint**: Must include a verification step to ensure `data/results/scaling_law.csv` exists and is valid before completing. **CRITICAL**: This task depends on T048 (Hybrid Network Instantiation) and T049b being complete. **Output**: `data/results/scaling_law.csv`.
+- [ ] T050 [US3] Update `src/utils/scaling_analyzer.py` to perform a log-log linear regression on the scaling data. **Requirement**: Calculate and report the scaling exponent `beta` using the formula `log(MAE) ~ beta * log(Parameter Count)`. **Output**: Write a summary to `data/results/scaling_law_report.md` stating the metric used (MAE) and whether the exponent is linear, sublinear, or superlinear. **CRITICAL**: Explicitly state the metric used in the report to satisfy SC-004. **Dependency**: Requires T049c (scaling_law.csv generation).
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: Cost of Biological Plausibility Analysis (Priority: P2)
 
-**Purpose**: Improvements that affect multiple user stories
+**Goal**: Address FR-005 by generating the "cost of biological plausibility" curve using ablation and scaling data.
 
-- [ ] T041 [P] Update `docs/quickstart.md` with instructions for running baseline, microcircuit, ablation, and scaling experiments
-- [ ] T042 Code cleanup and refactoring of `src/models/` to ensure clear separation of concerns
-- [ ] T043 [P] Add comprehensive logging for all experiment runs (seed, params, metrics, wall-time)
-- [ ] T044 [P] Run `scripts/hash_artifacts.sh` to update `state/` YAML files with SHA256 hashes of data and code
-- [ ] T045 Validate `plan.md` constraints (CPU time, RAM) are met in all integration tests
-- [ ] T046 Final review of `research.md` to ensure all reviewer comments are addressed with data
+- [ ] T074 [US3] Implement `src/utils/cost_curve_generator.py::generate_cost_curve_data` to compute the "cost of biological plausibility" curve by comparing the ablated variants (recurrence, inhibition) against the full model and baseline. **Output**: `data/results/cost_curve_data.csv`. **Logic**: Calculate relative MAE increase and training time increase for each ablation variant. **CRITICAL**: Explicitly calculate "Metabolic Cost" as `Wall-Clock Training Time (sec) / max(MAE, 1e-6)` for each variant to quantify the trade-off. Handle MAE=0 by treating it as 1e-6 to prevent infinite cost values. [UNRESOLVED-CLAIM: c_410d9024 — status=not_enough_info] **Dependency**: Requires T049c (scaling data) and T025b (ablation data).
+- [ ] T075 [US3] Update `src/utils/report_generator.py::generate_cost_curve_report` to visualize the cost curve and explicitly link it to the scaling exponent from T050. **Output**: `data/results/cost_curve_report.md`. **CRITICAL**: This task depends on T074 and T050. The report MUST include the "Metabolic Cost" metric (Time/MAE) as the primary measure of biological plausibility cost.
+- [ ] T076 [US3] Implement `src/experiments/cost_analyzer.py::compute_cost_metrics` to explicitly compute the cost curve using the ablation data generated in Phase 5 and the scaling metrics from T050. **Output**: `data/results/cost_metrics.json`. **CRITICAL**: This task aggregates the CSV output from T074 (`data/results/cost_curve_data.csv`) into a JSON summary, ensuring the final report has a machine-readable metric. **Dependency**: Requires T074.
 
 ---
 
-## Dependencies & Execution Order
+## Phase 7: Interim Reporting and Universality Verification (Priority: P3)
 
-### Phase Dependencies
+**Goal**: Generate an interim report containing all findings up to this point, and verify the "Universal Computation" claim via the spec-defined independent distribution test.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - Note: T007a, T007b, T007c (Microcircuit) are now in Phase 2 to ensure 'enforcement by construction' is available before US1/US2.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Reviewer Responses (Phase 6 & 7)**: DELETED - These were unapproved scope creep.
-- **Polish (Final Phase)**: Depends on all desired user stories and reviewer responses being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
- - T016 (Test) is now part of Phase 3 to ensure testability during implementation.
-- **User Story 2 (P1)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
- - T023 (Test) is now part of Phase 4 to ensure testability during implementation.
-- **User Story 3 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
- - T030, T031A, T031B (Tests) are now part of Phase 5 to ensure testability during implementation.
-- **Scaling Analysis (T040)**: Depends on T027 (Scaling Experiment) completion.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T006, T007a, T007b, T007c) can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T080 [US3] Implement `src/experiments/final_verification.py::verify_universal_approximation` to verify the microcircuit models' universal approximation capability using the *same* test harness, dataset (polynomial surfaces), and seed configuration as T014 (Baseline). **Output**: `data/results/universal_approximation_report.md`. **CRITICAL**: Explicitly state that the same test harness is used for microcircuit models as for the baseline. **Note**: Replaces T082 (Logic Gates) to strictly adhere to spec-defined validation (Lorenz vs Polynomials).
+- [ ] T081 [US3] Implement `src/utils/report_generator.py::generate_interim_report` to consolidate all findings from Phases 1-6. **Requirement**: The report MUST explicitly state the "Cost of Biological Plausibility" curve and scaling exponent. **Output**: `data/results/interim_report.md`. **CRITICAL**: This task depends on T080, T075, and T050. This is NOT the final report; it is a precursor to the final synthesis.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 8: Final Synthesis and Reporting (Priority: P3)
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data generation in tests/unit/test_benchmarks.py"
-Task: "Integration test for baseline training pipeline in tests/integration/test_baseline_training.py"
+**Goal**: Synthesize findings into the final report that explicitly addresses the "Cost of Biological Plausibility" and "Universal Computation".
 
-# Launch all models for User Story 1 together:
-Task: "Implement src/training/trainer.py with CPU-optimized loop"
-Task: "Create src/experiments/baseline_runner.py"
-```
+- [ ] T105 [US3] Implement `src/utils/report_generator.py::generate_final_report` to consolidate all findings including the interim report, scaling analysis, cost metrics, and universality verification. **Requirement**: The report MUST explicitly state that the "Cost of Biological Plausibility" curve is the primary finding, derived from the fixed canonical microcircuit and its ablation variants, and that the "Universal Computation" claim is verified by the Polynomial Surface benchmark (T080). **Output**: `data/results/final_report.md`. **CRITICAL**: This task depends on T081 (interim report), T075 (cost curve), and T080 (Universality Test). This is the FINAL report generation.
+- [ ] T106 [US3] Implement `scripts/run_final_report.sh` to orchestrate the final verification and reporting pipeline, ensuring all dependencies (T080, T081, T075, T105) are met.
+- [ ] T107 [US3] Implement `tests/integration/test_final_synthesis.py` to verify that the final report contains all required answers to the spec (Cost curve, Scaling exponent, Universal approximation).
+- [ ] T108 [US3] Add unit test `tests/unit/test_final_report_completeness.py` to assert that the final report contains all required sections (Cost Curve, Scaling Law, Universal Approximation).
 
 ---
 
-## Implementation Strategy
+## Phase 9: Rule Space Exploration & Computational Irreducibility (Priority: P2) [DEFERRED]
 
-### MVP First (User Story 1 Only)
+**Goal**: Address Stephen Wolfram's review by implementing an experimental phase to enumerate candidate microcircuit rules and identify those exhibiting computational irreducibility, rather than relying on a single engineered design.
+**NOTE**: This phase is marked DEFERRED. It is not part of the current MVP execution. Plan.md requires a kickback to explicitly allocate the 6-hour CPU budget for this phase.
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (T016)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently (T016) → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently (T023) → Deploy/Demo
-4. Add User Story 3 → Test independently (T030, T031A, T031B) → Deploy/Demo
-5. Add Scaling Analysis (T040) → Quantify scaling exponent
-6. Add Polish (Phase N) → Finalize documentation and artifacts
-7. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Baseline) + T016
- - Developer B: User Story 2 (Microcircuit) + T023
- - Developer C: User Story 3 (Ablation/Scaling) + T030, T031A, T031B
-3. Once US3 is stable:
- - Developer D: Scaling Analysis (T040)
-4. Stories complete and integrate independently
-5. No Phase 6/7 tasks (removed due to unapproved scope creep).
+- [ ] T090 [US3] Implement `src/experiments/rule_explorer.py::generate_microcircuit_rule_space` to programmatically enumerate a constrained set of candidate microcircuit connectivity rules. **Logic**: Define a parameterized space for laminar connections (e.g., varying L->L2/3 strength [DEFERRED], L5->L6 feedback loops [DEFERRED]) and generate distinct configuration objects. **Constraint**: Limit the search space to a manageable number of distinct rules. **Budget**: Global budget: [DEFERRED]; Per-rule timeout: [DEFERRED]. **CRITICAL**: This task addresses the reviewer's challenge to "run through the space of possible microcircuit rules" rather than assuming a single design is optimal. **Status**: DEFERRED - Not implemented in MVP.
+- [ ] T091 [US3] Implement `src/experiments/rule_explorer.py::run_rule_screening` to train a simplified version of each candidate rule on a basic function approximation task (e.g., Lorenz short-horizon) to filter for computational capability. **Output**: `data/results/rule_screening_results.csv` containing rule_id, MAE, and convergence status. **CRITICAL**: Filter out rules that fail to converge or produce random noise, retaining only those capable of universal approximation. **Status**: DEFERRED - Not implemented in MVP.
+- [ ] T092 [US3] Implement `src/experiments/rule_explorer.py::measure_computational_irreducibility` to analyze the surviving rules. **Logic**: For each surviving rule, compare the computational cost of prediction vs. direct simulation (e.g., step-by-step execution). **Metric**: Calculate a "irreducibility score" = (Simulation Steps / Prediction Steps). **Output**: `data/results/irreducibility_scores.json`. **CRITICAL**: This directly addresses the "computational universe" aspect of the review, identifying if specific rules exhibit complex, irreducible behavior similar to Rule 110. **Status**: DEFERRED - Not implemented in MVP.
+- [ ] T093 [US3] Implement `src/experiments/rule_explorer.py::select_optimal_microcircuit` to choose the single best rule from the screened set based on a composite score of approximation error, irreducibility, and biological plausibility (E/I ratio). **Output**: Update `data/configs/selected_microcircuit_rule.yaml` with the winning rule parameters. **CRITICAL**: This task ensures the final model is not just "engineered" but "discovered" via the rule-space search mandated by the review. **Status**: DEFERRED - Not implemented in MVP.
+- [ ] T094 [US3] Implement `src/utils/report_generator.py::generate_rule_space_report` to document the rule search process, the filtering criteria, and the justification for the selected microcircuit rule. **Output**: `data/results/rule_space_report.md`. **CRITICAL**: This report must explicitly state that the selected rule was found via enumeration and screening, satisfying the "experimental phase" requirement of the review. **Status**: DEFERRED - Not implemented in MVP.
 
 ---
 
-## Notes
+## Phase 10: Review Response Integration (Priority: P2) [NEW]
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Ensure all data generation is deterministic and checksummed (Constitution Principle III)
-- **Critical**: Ensure all training runs respect CPU/RAM limits (FR-004) via `/usr/bin/time -v` in T014
-- **Critical**: Ensure homeostatic scaling maintains 4:1 ratio dynamically (FR-002)
-- **Critical**: T016 now records degradation metrics instead of enforcing a hard threshold.
-- **Critical**: T030 now verifies statistical results without enforcing a specific effect size.
-- **Critical**: T031A and T031B explicitly define the JSON schema for communication.
-- **Critical**: T007 atomized into T007a, T007b, T007c for independent testability.
-- **Critical**: Phase 6 and 7 removed as unapproved scope creep.
-- **Critical**: T040 (Scaling Analyzer) now operates only on 1x/2x/4x variants as per FR-008.
-- **Critical**: T007 (Microcircuit) no longer marked [P] to avoid resource contention.
+**Goal**: Explicitly address the "Scaling Law" (Geoffrey West) and "Rule Space" (Stephen Wolfram) concerns by adding verification and reporting tasks that link the existing data to these specific questions.
+
+- [ ] T110 [US3] Implement `src/utils/scaling_analyzer.py::explain_scaling_exponent` to generate a plain-language explanation of the scaling exponent `beta` calculated in T050. **Logic**: If `beta < 0`, explain sublinear scaling (diminishing returns); if `beta == 0`, linear; if `beta > 0`, superlinear. **Output**: Append a section "Scaling Law Explanation" to `data/results/scaling_law_report.md` that directly answers the "bartender test" by stating: "Doubling the columns results in a [X]% change in error, indicating [linear/sublinear/superlinear] scaling." **CRITICAL**: This task directly addresses Geoffrey West's review by explicitly calculating and explaining the scaling exponent derived from T049c/T050. **Dependency**: Requires T050.
+- [ ] T111 [US3] Implement `src/experiments/rule_explorer.py::quick_rule_scan` to perform a rapid, low-fidelity scan of a *very small* subset of the rule space (e.g., a handful of variants) to demonstrate the *feasibility* of the enumeration approach requested by Stephen Wolfram, even if the full search is deferred. **Logic**: Run T091 logic on a tiny, fixed set of rules (e.g., varying only one connection strength) to produce a preliminary `data/results/rule_scan_preliminary.csv`. **CRITICAL**: This task acknowledges Wolfram's critique by showing the *method* of enumeration is implemented and functional, even if the full budget is deferred. It provides a concrete "next step" for the research. **Dependency**: Uses hardcoded internal rule definitions; does NOT require T090.
+- [ ] T112 [US3] Update `src/utils/report_generator.py::generate_final_report` to include a dedicated "Reviewer Response" section that explicitly cites T110 (Scaling Law) and T111 (Rule Space Feasibility) as direct responses to the Geoffrey West and Stephen Wolfram reviews. **CRITICAL**: This ensures the final report explicitly acknowledges and addresses the specific reviewer concerns raised in `prior research-stage reviews`. The response to the Rule Space critique must explicitly state that the full enumeration is deferred and the current result is a feasibility demonstration. **Dependency**: Requires T110 and T111.

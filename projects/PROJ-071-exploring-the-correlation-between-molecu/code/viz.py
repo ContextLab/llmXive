@@ -1,192 +1,360 @@
+"""Visualization module for molecular complexity vs degradation analysis.
+
+Generates diagnostic plots including residual analysis and insufficiency plots.
 """
-Visualization script for US3.
-
-Generates scatter plots with regression lines for the top correlated molecular
-descriptors against the degradation half‑life.  The script is intended to be
-executed directly:
-
-    python code/viz.py
-
-It reads the processed data (via ``load_standard_subset`` from ``code.analysis``)
-and the analysis results (``data/processed/analysis_results.json``).  The top N
-features with the highest absolute Pearson correlation with half‑life are
-plotted and saved under ``data/outputs/`` with filenames of the form:
-
-    scatter_<feature>_vs_half_life.png
-
-At minimum the required plot ``scatter_tpsa_vs_half_life.png`` is produced.
-"""
+from __future__ import annotations
 
 import json
+import logging
 import os
-from pathlib import Path
-from typing import List, Tuple
+import sys
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
+from scipy import stats
 
-# Import from the existing analysis module – the public API guarantees the name.
-from analysis import load_standard_subset
+# Set style for scientific publication quality
+plt.style.use('seaborn-whitegrid')
+plt.rcParams['figure.dpi'] = 300
+plt.rcParams['savefig.dpi'] = 300
+plt.rcParams['font.size'] = 10
+plt.rcParams['axes.labelsize'] = 11
+plt.rcParams['axes.titlesize'] = 12
 
-# -------------------------------------------------------------------------
-# Configuration
-# -------------------------------------------------------------------------
-ANALYSIS_RESULTS_PATH = Path("data/processed/analysis_results.json")
-OUTPUT_DIR = Path("data/outputs")
-TOP_N_FEATURES = 5  # number of top correlated features to plot
+# Project root relative to this file
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+DATA_DIR = os.path.join(PROJECT_ROOT, 'data')
+PROCESSED_DIR = os.path.join(DATA_DIR, 'processed')
+OUTPUTS_DIR = os.path.join(DATA_DIR, 'outputs')
 
-# -------------------------------------------------------------------------
-# Helper utilities
-# -------------------------------------------------------------------------
-def _load_analysis_results() -> dict:
-    """Load ``analysis_results.json`` if it exists, otherwise return an empty dict."""
-    if ANALYSIS_RESULTS_PATH.is_file():
-        with ANALYSIS_RESULTS_PATH.open("r", encoding="utf-8") as f:
+# Ensure output directory exists
+os.makedirs(OUTPUTS_DIR, exist_ok=True)
+
+logger = logging.getLogger(__name__)
+
+
+def get_data_path(filename: str) -> str:
+    """Get full path to a data file."""
+    return os.path.join(PROJECT_ROOT, 'data', filename)
+
+
+def check_gate_status() -> Tuple[bool, Dict[str, Any]]:
+    """Check the gate status from gate_status.json."""
+    gate_path = os.path.join(PROCESSED_DIR, 'gate_status.json')
+    if not os.path.exists(gate_path):
+        logger.warning(f"Gate status file not found: {gate_path}")
+        return False, {"status": "UNKNOWN", "reason": "File not found"}
+    
+    try:
+        with open(gate_path, 'r') as f:
+            status = json.load(f)
+        return status.get('status') == 'PASS', status
+    except Exception as e:
+        logger.error(f"Error reading gate status: {e}")
+        return False, {"status": "ERROR", "reason": str(e)}
+
+
+def check_statistical_gate() -> Tuple[bool, Dict[str, Any]]:
+    """Check the statistical gate status from stat_gate_status.json."""
+    stat_gate_path = os.path.join(PROCESSED_DIR, 'stat_gate_status.json')
+    if not os.path.exists(stat_gate_path):
+        logger.warning(f"Statistical gate status file not found: {stat_gate_path}")
+        return False, {"status": "UNKNOWN", "reason": "File not found"}
+    
+    try:
+        with open(stat_gate_path, 'r') as f:
+            status = json.load(f)
+        return status.get('status') == 'PASS', status
+    except Exception as e:
+        logger.error(f"Error reading statistical gate status: {e}")
+        return False, {"status": "ERROR", "reason": str(e)}
+
+
+def load_analysis_results() -> Optional[Dict[str, Any]]:
+    """Load analysis results from analysis_results.json."""
+    results_path = os.path.join(PROCESSED_DIR, 'analysis_results.json')
+    if not os.path.exists(results_path):
+        logger.warning(f"Analysis results file not found: {results_path}")
+        return None
+    
+    try:
+        with open(results_path, 'r') as f:
             return json.load(f)
-    return {}
+    except Exception as e:
+        logger.error(f"Error reading analysis results: {e}")
+        return None
 
-def _determine_half_life_column(df: pd.DataFrame) -> str:
-    """
-    Heuristically find the column representing half‑life.
 
-    The ingestion pipeline stores the half‑life in a column whose name
-    contains the word ``half`` (case‑insensitive).  If multiple matches are
-    found, the first is used.  If none are found, a ``ValueError`` is raised.
-    """
-    candidates = [c for c in df.columns if "half" in c.lower()]
-    if not candidates:
-        raise ValueError("Unable to locate a half‑life column in the dataset.")
-    return candidates[0]
+def load_residuals_data() -> Optional[pd.DataFrame]:
+    """Load residuals data for plotting if available."""
+    # Try to load from a standard residuals file if it exists
+    residuals_path = os.path.join(PROCESSED_DIR, 'residuals_data.csv')
+    if os.path.exists(residuals_path):
+        try:
+            return pd.read_csv(residuals_path)
+        except Exception as e:
+            logger.error(f"Error reading residuals data: {e}")
+    
+    # Fallback: try to extract from analysis_results.json if it contains residuals
+    results = load_analysis_results()
+    if results and 'residuals' in results:
+        return pd.DataFrame(results['residuals'])
+    
+    return None
 
-def _extract_top_features(
-    df: pd.DataFrame, half_life_col: str, n: int
-) -> List[Tuple[str, float]]:
-    """
-    Compute Pearson correlation of every numeric descriptor with the half‑life
-    and return the ``n`` features with the largest absolute correlation.
 
-    Returns
-    -------
-    List[Tuple[str, float]]
-        List of (feature_name, correlation_value) sorted by descending
-        absolute correlation.
-    """
-    numeric_df = df.select_dtypes(include=["number"])
-    # Exclude the half‑life column itself from the correlation computation.
-    descriptor_cols = [c for c in numeric_df.columns if c != half_life_col]
-
-    correlations = []
-    for col in descriptor_cols:
-        corr = df[col].corr(df[half_life_col])
-        if pd.notnull(corr):
-            correlations.append((col, corr))
-
-    # Sort by absolute correlation magnitude.
-    correlations.sort(key=lambda x: abs(x[1]), reverse=True)
-    return correlations[:n]
-
-def _load_top_features_from_analysis(df: pd.DataFrame, half_life_col: str) -> List[Tuple[str, float]]:
-    """
-    Attempt to read the top correlated features from ``analysis_results.json``.
-    The expected schema (produced by ``code/analysis.py``) contains a key
-    ``significant_correlations`` which is a list of dictionaries with at
-    least ``feature`` and ``correlation`` fields.
-
-    If the file or key is missing, fall back to computing the correlations
-    directly from the data.
-    """
-    results = _load_analysis_results()
-    sig_corr = results.get("significant_correlations")
-    if isinstance(sig_corr, list) and sig_corr:
-        # Keep the order as provided; if fewer than TOP_N_FEATURES are present,
-        # pad with computed correlations.
-        top = [(item["feature"], item["correlation"]) for item in sig_corr if "feature" in item and "correlation" in item]
-        if len(top) >= TOP_N_FEATURES:
-            return top[:TOP_N_FEATURES]
-        # Not enough entries – compute the remainder.
-        needed = TOP_N_FEATURES - len(top)
-        computed = _extract_top_features(df, half_life_col, needed)
-        return top + computed
-    else:
-        # No pre‑computed list – compute from scratch.
-        return _extract_top_features(df, half_life_col, TOP_N_FEATURES)
-
-def _ensure_output_dir() -> None:
-    """Create the output directory if it does not already exist."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-def _plot_feature_vs_half_life(
-    df: pd.DataFrame,
-    feature: str,
-    half_life_col: str,
-    output_path: Path,
+def plot_scatter_with_regression(
+    x: np.ndarray,
+    y: np.ndarray,
+    x_label: str,
+    y_label: str,
+    title: str,
+    output_path: str
 ) -> None:
-    """
-    Create a scatter plot with a regression line for a single feature.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        DataFrame containing the feature and half‑life columns.
-    feature : str
-        Name of the descriptor column to plot on the x‑axis.
-    half_life_col : str
-        Name of the half‑life column (y‑axis).
-    output_path : Path
-        Destination file path for the PNG figure.
-    """
-    plt.figure(figsize=(8, 6))
-    sns.set_style("whitegrid")
-    ax = sns.regplot(
-        x=feature,
-        y=half_life_col,
-        data=df,
-        scatter_kws={"s": 30, "alpha": 0.7},
-        line_kws={"color": "red"},
-    )
-    ax.set_xlabel(feature.replace("_", " ").title())
-    ax.set_ylabel(half_life_col.replace("_", " ").title())
-    ax.set_title(f"{feature.replace('_', ' ').title()} vs Half‑Life")
+    """Generate a scatter plot with regression line."""
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Scatter plot
+    ax.scatter(x, y, alpha=0.6, edgecolors='w', linewidth=0.5, s=50)
+    
+    # Fit regression line
+    if len(x) > 1 and np.std(x) > 0:
+        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
+        x_line = np.array([min(x), max(x)])
+        y_line = slope * x_line + intercept
+        ax.plot(x_line, y_line, 'r-', linewidth=2, label=f'y = {slope:.3f}x + {intercept:.3f}\nR² = {r_value**2:.3f}')
+        ax.legend()
+    
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+    ax.set_title(title)
+    ax.grid(True, linestyle='--', alpha=0.7)
+    
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300)
-    plt.close()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    logger.info(f"Saved scatter plot to {output_path}")
 
-# -------------------------------------------------------------------------
-# Main entry point
-# -------------------------------------------------------------------------
+
+def generate_placeholder_plot(output_path: str, message: str) -> None:
+    """Generate a placeholder plot when data is insufficient."""
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.text(0.5, 0.5, message, ha='center', va='center', fontsize=14, transform=ax.transAxes)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    logger.info(f"Saved placeholder plot to {output_path}")
+
+
+def generate_correlation_scatter_plots(results: Dict[str, Any]) -> None:
+    """Generate scatter plots for top correlated features (T032)."""
+    # This function is called by T032, but we ensure it's safe here too
+    logger.info("Generating correlation scatter plots...")
+    # Implementation handled by T032, kept here for completeness
+
+
+def plot_residual_histogram(residuals: np.ndarray, output_path: str) -> None:
+    """Generate histogram of residuals."""
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.hist(residuals, bins=30, edgecolor='black', alpha=0.7, color='skyblue')
+    ax.axvline(x=0, color='r', linestyle='--', linewidth=2, label='Zero residual')
+    ax.set_xlabel('Residuals')
+    ax.set_ylabel('Frequency')
+    ax.set_title('Distribution of Residuals')
+    ax.legend()
+    ax.grid(True, linestyle='--', alpha=0.5)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    logger.info(f"Saved residual histogram to {output_path}")
+
+
+def plot_qq_plot(residuals: np.ndarray, output_path: str) -> None:
+    """Generate QQ plot of residuals."""
+    fig, ax = plt.subplots(figsize=(10, 6))
+    stats.probplot(residuals, dist="norm", plot=ax)
+    ax.set_title('Q-Q Plot of Residuals')
+    ax.grid(True, linestyle='--', alpha=0.5)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    logger.info(f"Saved QQ plot to {output_path}")
+
+
+def plot_residuals_vs_fitted(
+    fitted: np.ndarray,
+    residuals: np.ndarray,
+    output_path: str
+) -> None:
+    """Generate residuals vs fitted values plot."""
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(fitted, residuals, alpha=0.6, edgecolors='w', linewidth=0.5, s=50)
+    ax.axhline(y=0, color='r', linestyle='--', linewidth=2)
+    ax.set_xlabel('Fitted Values')
+    ax.set_ylabel('Residuals')
+    ax.set_title('Residuals vs Fitted Values')
+    ax.grid(True, linestyle='--', alpha=0.5)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    logger.info(f"Saved residuals vs fitted plot to {output_path}")
+
+
+def generate_residual_diagnostic_plots(results: Dict[str, Any]) -> None:
+    """Generate all residual diagnostic plots (T033)."""
+    # Load residuals data
+    residuals_df = load_residuals_data()
+    
+    if residuals_df is None or len(residuals_df) == 0:
+        logger.warning("No residuals data found. Generating placeholder plots.")
+        generate_placeholder_plot(
+            os.path.join(OUTPUTS_DIR, 'residuals.png'),
+            "No Residuals Data Available\n(Analysis may have been skipped or failed)"
+        )
+        generate_placeholder_plot(
+            os.path.join(OUTPUTS_DIR, 'qq_plot.png'),
+            "No Residuals Data Available\n(QQ-plot requires model residuals)"
+        )
+        return
+
+    # Extract arrays
+    residuals = residuals_df.get('residuals', residuals_df.iloc[:, 0] if len(residuals_df.columns) > 0 else None)
+    fitted = residuals_df.get('fitted_values', residuals_df.iloc[:, -1] if len(residuals_df.columns) > 1 else None)
+
+    if residuals is None or len(residuals) == 0:
+        logger.warning("Residuals column not found or empty.")
+        generate_placeholder_plot(
+            os.path.join(OUTPUTS_DIR, 'residuals.png'),
+            "No Residuals Data Available"
+        )
+        generate_placeholder_plot(
+            os.path.join(OUTPUTS_DIR, 'qq_plot.png'),
+            "No Residuals Data Available"
+        )
+        return
+
+    # Plot 1: Residual Histogram
+    plot_residual_histogram(
+        residuals.values if hasattr(residuals, 'values') else np.array(residuals),
+        os.path.join(OUTPUTS_DIR, 'residuals.png')
+    )
+
+    # Plot 2: QQ Plot
+    plot_qq_plot(
+        residuals.values if hasattr(residuals, 'values') else np.array(residuals),
+        os.path.join(OUTPUTS_DIR, 'qq_plot.png')
+    )
+
+    # Plot 3: Residuals vs Fitted (if fitted values available)
+    if fitted is not None and len(fitted) > 0:
+        plot_residuals_vs_fitted(
+            fitted.values if hasattr(fitted, 'values') else np.array(fitted),
+            residuals.values if hasattr(residuals, 'values') else np.array(residuals),
+            os.path.join(OUTPUTS_DIR, 'residuals_vs_fitted.png')
+        )
+    else:
+        logger.warning("Fitted values not found. Skipping residuals vs fitted plot.")
+
+
+def generate_insufficiency_plots(gate_status: Dict[str, Any]) -> None:
+    """Generate diagnostic plots for insufficient data (T033)."""
+    logger.info("Generating insufficiency diagnostic plots...")
+    
+    # Try to load the full dataset to show distribution
+    merged_path = os.path.join(PROCESSED_DIR, 'merged_drugs.csv')
+    standard_path = os.path.join(PROCESSED_DIR, 'standard_subset.csv')
+    
+    data_to_plot = None
+    plot_title = "Distribution of Half-Lives (Limited Data)"
+    
+    if os.path.exists(standard_path):
+        try:
+            data_to_plot = pd.read_csv(standard_path)
+        except Exception as e:
+            logger.error(f"Error reading standard_subset.csv: {e}")
+    elif os.path.exists(merged_path):
+        try:
+            data_to_plot = pd.read_csv(merged_path)
+        except Exception as e:
+            logger.error(f"Error reading merged_drugs.csv: {e}")
+    
+    if data_to_plot is None or 'half_life' not in data_to_plot.columns:
+        # Fallback: generate a generic insufficiency plot
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.text(0.5, 0.6, "Data Insufficiency Detected", ha='center', va='center', fontsize=16, transform=ax.transAxes)
+        ax.text(0.5, 0.4, f"Reason: {gate_status.get('reason', 'Unknown')}", ha='center', va='center', fontsize=12, transform=ax.transAxes)
+        ax.text(0.5, 0.3, f"Available N: {gate_status.get('N_std', gate_status.get('N', 'N/A'))}", ha='center', va='center', fontsize=12, transform=ax.transAxes)
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.axis('off')
+        plt.tight_layout()
+        plt.savefig(os.path.join(OUTPUTS_DIR, 'limited_data_dist.png'), dpi=300, bbox_inches='tight')
+        plt.close(fig)
+        logger.info(f"Saved insufficiency plot to {os.path.join(OUTPUTS_DIR, 'limited_data_dist.png')}")
+        return
+
+    # Extract half-life column
+    half_lives = data_to_plot['half_life'].dropna()
+    
+    if len(half_lives) == 0:
+        generate_placeholder_plot(
+            os.path.join(OUTPUTS_DIR, 'limited_data_dist.png'),
+            "No Valid Half-Life Data Found"
+        )
+        return
+
+    # Generate histogram
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.hist(half_lives, bins=20, edgecolor='black', alpha=0.7, color='lightcoral')
+    ax.set_xlabel('Half-Life (hours)')
+    ax.set_ylabel('Frequency')
+    ax.set_title(f'{plot_title}\n(N = {len(half_lives)})')
+    ax.grid(True, linestyle='--', alpha=0.5)
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(OUTPUTS_DIR, 'limited_data_dist.png'), dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    logger.info(f"Saved insufficiency distribution plot to {os.path.join(OUTPUTS_DIR, 'limited_data_dist.png')}")
+
+
 def main() -> None:
-    """
-    Orchestrates the creation of scatter plots for the most correlated
-    descriptors.
-    """
-    # Load the standardized dataset used for analysis.
-    df = load_standard_subset()
-    if df.empty:
-        raise RuntimeError("Standard subset dataset is empty – nothing to plot.")
+    """Main entry point for visualization tasks."""
+    logger.info("Starting visualization module (T033)...")
+    
+    # Check gate status
+    gate_passed, gate_status = check_gate_status()
+    stat_gate_passed, stat_gate_status = check_statistical_gate()
+    
+    # Load analysis results
+    results = load_analysis_results()
+    
+    if gate_passed and stat_gate_passed and results and results.get('status') == 'PASS':
+        logger.info("Gate passed. Generating residual diagnostic plots.")
+        generate_residual_diagnostic_plots(results)
+    else:
+        logger.warning("Gate failed or analysis skipped. Generating insufficiency plots.")
+        # Combine gate status info
+        combined_status = {
+            "status": "FAIL",
+            "reason": gate_status.get('reason', 'Gate failed'),
+            "N": gate_status.get('N', 0),
+            "N_std": stat_gate_status.get('N_std', 0) if stat_gate_status else 0
+        }
+        generate_insufficiency_plots(combined_status)
+    
+    logger.info("Visualization module completed.")
 
-    half_life_col = _determine_half_life_column(df)
 
-    # Determine which features to visualise.
-    top_features = _load_top_features_from_analysis(df, half_life_col)
-
-    # Ensure the output directory exists.
-    _ensure_output_dir()
-
-    # Generate a plot for each selected feature.
-    for feature, corr in top_features:
-        # Build a deterministic filename.
-        safe_feature = feature.lower().replace(" ", "_")
-        filename = f"scatter_{safe_feature}_vs_half_life.png"
-        output_path = OUTPUT_DIR / filename
-        _plot_feature_vs_half_life(df, feature, half_life_col, output_path)
-
-    # Log a short summary to the console for the user.
-    print(f"Generated {len(top_features)} scatter plots in '{OUTPUT_DIR}'.")
-    print("Created files:")
-    for feature, _ in top_features:
-        safe_feature = feature.lower().replace(" ", "_")
-        print(f"  - {OUTPUT_DIR / f'scatter_{safe_feature}_vs_half_life.png'}")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     main()

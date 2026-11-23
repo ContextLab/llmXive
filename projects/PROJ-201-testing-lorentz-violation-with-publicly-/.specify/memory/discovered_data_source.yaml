@@ -1,0 +1,13 @@
+status: none
+intent: download Planck 2018 PR3 SMICA temperature and polarization maps ESA Legacy
+  Archive python package dataset
+required_fields:
+- pixel_index
+- temperature_muK
+- polarization_EE_muK
+- polarization_TE_muK
+- mask_flag
+- nside
+cache_key: 9c481b2bd332432d5d0acfe89fdc4e49db8a26d94e31e02653a5d0838c70019c
+searched_at: '2026-10-22T09:55:22.303543+00:00'
+retry_count: 1

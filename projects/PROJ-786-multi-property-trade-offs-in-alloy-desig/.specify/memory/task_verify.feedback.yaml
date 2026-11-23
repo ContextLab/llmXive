@@ -1,0 +1,115 @@
+T000:
+  reason: "The spec file exists and includes the required version entries, but it\
+    \ does not contain the conditional pivot logic referencing HDBSCAN (or K\u2011\
+    Means on residuals) as required, and FR\u2011006 lacks the explicit 0.1 step specification.\
+    \ Moreover, the required output file `data/processed/spec_alignment_log.txt` is\
+    \ missing."
+  task: b3bc9b92aceba21fca32cd8fa9abf23835cadc7ab3f62506e90f9e29571a1d8b
+T001:
+  task: 42b4a5726054a8aa10c6e716d6aba2420b0425928adfeb266d00ee64c4679746
+T002:
+  task: 09ebb18fa10916f3e7acd999eab2b1face118b11a07df178c218fbfcf4b661b8
+T003:
+  task: 3281d6b8ade6e058d657aae7966978f1f0f74af2366fd2e9b04b9bbf14e0ff3f
+T004:
+  reason: "Checked the project root for the required `data/raw/.gitkeep` and `data/processed/.gitkeep`\
+    \ files; neither the directories nor the placeholder files are present in the\
+    \ repository. The task\u2019s core deliverable \u2013 the directory structure\
+    \ with `.gitkeep` files \u2013 is missing."
+  task: e3c8799bddc43d938b3d6d714678795122d3b449e3a56efd1f805103d9155fbe
+T005:
+  reason: The repository contains the `code/versioning.py` script, but the required
+    state file `state/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml`
+    is missing and there is no evidence (e.g., execution logs or the generated YAML)
+    showing that the script was run, produced the updated YAML, and logged hash computation.
+    The implementer must provide a run of the script that creates/updates the YAML
+    file and includes the corresponding console/log output.
+  task: e39ddf9b794528ec878d1186f379bed0cc59e59fee220e9bf5a33d262994fc4c
+T005b:
+  task: d5ccf555c186baefdbbc4d2a4bf5c7ad0150e1becc15c8150e42be6972fc52c4
+T006:
+  task: e105fc80ea7975dda906ac3783041dbd324f55d1871e4689306900857a3cc203
+T007:
+  task: e07b0bc32bb0365e880289b78124260d7a5b1821d82030daeb9a286ee368ced0
+T008:
+  task: dcd6ef1fd36138177065dc42a38012510ffe8e16258e8e243ee5fcf06f4ac504
+T009:
+  task: 714cf10d05840ecffbe1bd045c5f1e84bb20994c04f2c66ed0f216645ccec8aa
+T010:
+  task: 76ac9ffd9e01e2199b565d9af536c9fba47d21094946b66ff082755a81445736
+T011:
+  task: e39ccf009eb83b985d8673ed9fab8996f01c611c2476e0b2e3953614189612df
+T012:
+  task: aa4f431f230ec9a1c44e3f8d9d14d1f1a036836a9f0d800b8839a3661d36d9cf
+T013:
+  task: 39b43edbd937088048a729bedadcd6076db1594a0206119811da2fd918fe8401
+T014:
+  task: e77cbc06b9aa441e3a2f10f31961cc6de0e826710d44bfeff87ca705380aaa82
+T015:
+  task: a2e86705599af0a114cad67b758e8ea5a92ba6291d219bbb473c250db168896f
+T015b:
+  task: 4df800cb7345cdf79615a3049ed97b9dc02175b5976c2938f5faf884801306c2
+T016:
+  task: 5320fec8d4798e4413fc4f4f49ba584988eda0a831da4fb9132ca8ff1807ade5
+T017:
+  task: cdb75c9c67b7d4977d562493be0e79b5cac9867dd87920b6a2269f2e534a7f42
+T018:
+  task: 7394154b0f7fcefc2910740ab71c3341b0daa409b14f799927928141a83676c0
+T019:
+  task: 86575d9c1a39e2dcf6e385331ccb97374e1aa6d3da6d493a4a60304f4fe7bf83
+T020:
+  task: 26c7dbcaaa9e5d5db73d3e246c3796717d9176662397b97882e4453d10871b0b
+T021:
+  task: 0fd02cb3cfa5730919a66488890a0ddb56bf39e5a76cc9a4a1a6e8dd3fd5389a
+T022:
+  task: ac8d5b123cfeb4c49de42bf73cfb4878c2d1840392fdc92343060843f72a57d1
+T023:
+  task: e98b5ee331101a944d59c2f8eace2b3594b107ce0ae51fafbfa379fe530679e3
+T023b:
+  task: d26f216c61397ef05ff5fc8151a95f280acbb5ee5a8be496dc6110b62728a252
+T024:
+  task: 3c37846f9904daca76f26eec4240d100b5bfd9f6286fc5792bc08ee06311f2d2
+T024b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/physics_bounds.py, data/processed/theoretical_bounds.json'
+  task: 244b3729b8133f4c45bb2e06115db8b40f4c75a21c9684eb911fc8cfd9f3695d
+T025:
+  task: 7b1c1cc30cd5007472560c24d5decde1ee17d4e7965f8ffa589ce7995fb6afef
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/contract/test_visualization.py,
+    data/results/decoupling_plot.png'
+  task: 06ab1fe5f37d1053d6778dcad54f835947b6a96bd2b02839f4a3926ec66d2f4d
+T029:
+  task: 971874228a90db21661743692c74bd937ae464bd33741fb56cd9da41764c7ae8
+T029b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/ilr_transform.py'
+  task: 36cef64fbdb74890ff0db5d7faf408092b1e0101c75c41acab9eab32e61e076a
+T030:
+  task: 032291fc7fe2c72702b3e445be7c17fec38c79baa3c07ad36a5eec70658a865e
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/correlation_stats.csv'
+  task: 1c7fe1a63021f89a626f48e1a3d3e580c130d5586a81a2317571b3cba0bdc0ce
+T032:
+  task: 50e4def0139b872a37cbebc86f0b6e2c6a73809daa1bbba8eb7ec3cb5b26ec51
+T032b:
+  task: 6c18808a7360408bef692ed404df7faaec327eee49725f4e22c9b8e6e9be5c73
+T033:
+  task: 64b511e470cbee6b75102f792204d58c3b85191f70ba9a38a9996beac64e55cf
+T034:
+  task: 6cdaf7265572ad9fe547ce7f0ef154b516d80a4aa44928926442f0576287781e
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/correlation_stats.csv'
+  task: 5c224a8ff6a8988e090f652c1287c922b537fe9eeb40bd9c1f9ab82e0b005fd2
+T036:
+  task: e6a42f5b968bef18b2ea5066dcc34719131a4d92a12ff06aa48efb36903b48cb
+T037:
+  task: 4175c0685632e1f092e06081998ee3c46c7836359165a102f3115b6aba533750
+T038:
+  task: a6919ca2bebe4fcabd9eddbad8fdfb8f87257bc1960e05f0e48b63870d73cd3b
+T039:
+  task: 29e4e25418eb6b813cfa387eb3d4a47f3cfea5098656e1eb3bd6040b9a8ea739
+T040:
+  task: 4873e3151fd2952873a18882b4c6deb56e9403c7b8e5bdd4f27d041c971afaa8
+T041:
+  task: 1de65cf78a45678a410eaab31f14e622cb745d7f892bef8ff02fd0ceb7ef1296
+T042:
+  task: 60fdd23c72b0012837870567e65d6ba873ac96dd20edfabb4a830f866fe9f9db

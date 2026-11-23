@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-325-evaluating-the-impact-of-data-imputation",
+  "tasks": [
+    {
+      "task_key": "T006a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-27T03:50:10.357806+00:00",
+      "last_seen": "2026-09-27T03:50:10.357806+00:00"
+    },
+    {
+      "task_key": "T006b",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-27T03:50:10.358775+00:00",
+      "last_seen": "2026-09-27T03:50:10.358775+00:00"
+    },
+    {
+      "task_key": "T006c",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-27T03:50:10.359710+00:00",
+      "last_seen": "2026-09-27T03:50:10.359710+00:00"
+    }
+  ],
+  "updated_at": "2026-09-27T03:50:10.359710+00:00"
+}

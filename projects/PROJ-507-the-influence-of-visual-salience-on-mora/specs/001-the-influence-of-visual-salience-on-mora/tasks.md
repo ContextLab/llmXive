@@ -1,268 +1,190 @@
-# Tasks: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
+# Tasks: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios  
 
-**Input**: Design documents from `/specs/001-visual-salience-moral-judgments/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/`, `data/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can:
-  - Be implemented independently
-  - Be tested independently
-  - Be delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/raw/`, `data/processed/`, `data/survey/`, `tests/`)
-- [ ] T002 Initialize Python project with `requirements.txt` (numpy, pandas, scipy, statsmodels, Pillow, requests, matplotlib, seaborn, opencv-python-headless, streamlit, torch, transformers, diffusers)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/` for feature `001-visual-salience-moral-judgments`
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+| Goal | Run a minimal, fully‑executable pipeline on a small real subset to prove that all downstream steps can be triggered without error. |
+|------|-----------------------------------------------------------------------------------------------------------------------------------|
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [~] **T001** [US‑001] **Ingest and filter raw images from Visual Genome** – `code/01_ingest_and_filter.py`
+  - Stream the **Visual Genome** image dataset with `datasets.load_dataset("visual_genome", "images", split="train", streaming=True)`.  
+  - Keep records whose `metadata.tags` contain **“conflict”** or **“social”** and that have a downloadable image URL.  
+  - Limit to the first **200** matching records (fixed seed 42) so RAM < 2 GB.  
+  - **Determinism**: set `random.seed(42)` and `np.random.seed(42)` at script start.  
+  - Create `data/raw/images/` if it does not exist; download each image there and compute a SHA‑256 checksum stored in `data/raw/checksums.json`.  
+  - Write `data/processed/candidates_filtered.csv` conforming to `contracts/dataset.schema.yaml`.  
+  - **Verification**:  
+    - Running `python code/01_ingest_and_filter.py` exits 0.  
+    - The CSV contains ≥ 1 row and every `original_image_path` points to an existing file under `data/raw/images/`.  
+    - Unit test `tests/unit/test_data_loader.py` asserts that a simulated fetch failure raises a `DataFetchError`.
 
-- [ ] T004 [P] Setup random seed configuration module (`code/config.py`) to ensure reproducibility across all scripts. **Mechanism**: Define `seed_everything(seed=42)` function that sets seeds for `numpy`, `random`, and `torch` at module import.
-- [ ] T005 [P] Create data directory structure and checksum verification script (`code/verify_data_integrity.py`)
-- [ ] T006 [P] Implement basic logging infrastructure (`code/logging_config.py`)
-- [ ] T007 [P] Create base data models/entities in `code/models.py`: Define `Scenario` (id, image_path, ambiguity_label), `StimulusVariant` (id, scenario_id, salience_level, image_path), `Response` (id, participant_id, stimulus_id, rating, timestamp), and `Participant` (id, status) classes with explicit attributes per spec. **Reproducibility**: Any stochastic operations within these models (e.g., default initialization) MUST explicitly call `seed_everything()` with a fixed seed to ensure reproducibility as per the Constitution.
-- [ ] T008 [P] Setup environment variable management for dataset paths and API keys
+- [~] **T002** [US‑001] **Create human‑coding directory and template** – `code/02_prepare_human_coding_dir.py`
+  - Create the folder `data/raw/human_coding/` (must exist after execution).  
+  - Generate a **template CSV** `data/raw/human_coding/annotations_template.csv` that lists all `scenario_id`s from `candidates_filtered.csv` and provides columns for three independent annotators to record a 1‑5 ambiguity rating.  
+  - Include a short README in the same folder describing the annotation procedure and required number of raters.  
+  - **Verification**:  
+    - After script execution the folder and template file are present.  
+    - Integration test `tests/integration/test_human_coding_dir.py` checks that the file count matches the number of scenarios and that the header columns are correct.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [~] **T003** [US‑001] **Process human‑coding annotations and select ambiguous scenarios** – `code/03_process_human_coding.py`  
+  - Load all annotation CSVs placed in `data/raw/human_coding/` (at least three per scenario).  
+  - Compute for each scenario:  
+    1. **Mean ambiguity score** (1‑5 Likert).  
+    2. **Cohen’s κ** across the three annotators.  
+  - Retain scenarios where **mean ≥ 3.5** **and** **κ ≥ 0.6**.  
+  - Cross‑reference retained IDs against the external **MoralD** benchmark (provided via `datasets.load_dataset("moral_d")`). Write matches to `data/processed/ground_truth_match.csv`.  
+  - Output `data/processed/valid_scenarios.csv` conforming to `contracts/dataset.schema.yaml`.  
+  - **Verification**:  
+    - Unit test `tests/unit/test_human_coding.py` validates `calculate_cohens_kappa` on a hand‑computed example and checks that the filtering logic keeps only scenarios meeting both thresholds.  
+    - The script aborts loudly (`raise RuntimeError`) if any required annotation file is missing.
 
----
+- [~] **T015** **Provide a thin wrapper for the moral‑intent model** – `code/bert_moral_intent.py`  
+  - Download the `bert-base-uncased` checkpoint fine‑tuned on MoralD from Hugging Face (`transformers.AutoModelForSequenceClassification`).  
+  - Verify the file checksum (SHA‑256) against the published hash.  
+  - Expose `compute_preservation_score(original_image_path, manipulated_image_path)` that:  
+    1. Generates captions for both images using a pretrained caption model.  
+    2. Encodes captions with BERT and returns the Pearson correlation with a reference moral‑intent vector.  
+    3. Must return ≥ 0.90 on a sanity‑check image.  
+  - **Verification**: Unit test `tests/unit/test_bert_moral_intent.py` checks checksum, runs the sanity inference, and asserts the correlation threshold.
 
-## Phase 3: User Story 1 - Data Preparation and Salience Manipulation (Priority: P1) 🎯 MVP
+- [ ] **T004** [US‑001] **Generate salience‑manipulated stimulus variants** – `code/04_manipulate_stimuli.py`  
+  - Read manipulation parameters from `config/manipulation.yaml` (contrast & brightness levels for low/medium/high).  
+  - For each valid scenario (from **T003**) detect the ROI using Sobel edge detection, then create three variants by adjusting contrast/brightness as specified.  
+  - Save PNGs under `data/processed/stimuli/` with filenames `<scenario_id>_low.png`, `<scenario_id>_medium.png`, `<scenario_id>_high.png`.  
+  - Validate each variant:  
+    * **RMS contrast change** in ROI ≥ 15 %.  
+    * **CLIP cosine similarity** ≥ 0.95 (CPU first; fallback to GPU if `torch.cuda.is_available()`).  
+    * **Texture/edge‑density change** < 0.05 (Laplacian variance).  
+    * **Moral‑intent preservation score** ≥ 0.90 using the wrapper from **T015**.  
+  - Log any failures to `logs/manipulation_errors.log` and exclude those stimuli from downstream files.  
+  - Write `data/processed/stimuli_manifest.csv` (schema `contracts/stimuli_manifest.schema.yaml`) listing one row per variant with all validation metrics.  
+  - **Verification**:  
+    - Unit test `tests/unit/test_manipulation.py` checks that a real image produces ≥ 15 % RMS contrast change, CLIP ≥ 0.95, texture change < 0.05, and that the CSV validates against its schema.
 
-**Goal**: Ingest open visual datasets, identify morally ambiguous images, and generate manipulated variants with controlled luminance contrast.
+- [ ] **T005** [US‑001] **Automated pilot human manipulation check** – `code/05_human_manipulation_check.py`  
+  - Use a pre‑collected pilot‑check dataset (`data/processed/pilot_human_check.csv`) containing binary judgments from ≥ 5 coders on 20 randomly sampled manipulated images.  
+  - Compute the proportion of “preserved” responses; require **≥ 80 %** agreement.  
+  - Append a boolean column `human_narrative_preserved` to each row in `stimuli_manifest.csv`.  
+  - Summarize results in `data/processed/human_check_report.md`.  
+  - **Verification**: Unit test `tests/unit/test_human_check.py` loads the pilot file, validates the agreement calculation, and aborts if the threshold is not met.
 
-**Independent Test**: Run pipeline on a set of raw images; verify metadata filter, human coding reliability (≥80%), and pixel-level contrast changes without semantic alteration.
-
-### Implementation for User Story 1
-
-- [ ] T013 [P] [US1] Implement dataset ingestion and URL verification in `code/data_prep.py` (Target: Visual Genome or verified alternative). **Constraint**: MUST fetch from `https://visualgenome.org/api/` or verified HuggingFace mirror.
-- [ ] T014 [US1] Implement metadata filtering for 'social'/'conflict' tags in `code/data_prep.py`
-- [ ] T015a [US1] Implement Human Coding Interface: Create a Streamlit app (`code/human_coding_ui.py`) to allow ≥3 independent annotators to upload labels for candidate images. The app MUST enforce the ≥3 annotator requirement. **Logic**: If <3 annotators are available, the task is BLOCKED. If 3 annotators disagree, use majority vote to resolve. If no majority (e.g., 1-1-1), exclude scenario. Output a CSV (`data/processed/human_coding_annotations.csv`) compatible with T015.
-- [ ] T015 [US1] Implement human coding workflow script (`code/human_coding.py`) to calculate Cohen's κ from annotations (input from T015a), apply the ≥0.6 threshold as required by FR-008, and **exclude** scenarios failing the threshold. If κ < 0.6, block and log failure. Output the filtered list of valid scenarios to `data/processed/valid_scenarios.csv`.
-- [ ] T016 [US1] Implement salience manipulation function (low/med/high luminance) in `code/data_prep.py` ensuring no semantic change
-- [ ] T017 [US1] Implement semantic preservation verification in `code/validation.py`. **MUST** use CLIP (default precision, CPU) to compute embeddings. **Logic**: Crop target region using bounding box from metadata. Compute CLIP embedding for ROI and full original image. Verify cosine similarity ≥ 0.95. **DO NOT** use YOLO or IoU.
-- [ ] T017b [US1] Implement unit test for memory constraints regarding CLIP inference in `tests/unit/test_manipulation.py`. **Logic**: Verify that CLIP inference on a single image stays within 2GB RAM limit on CPU.
-- [ ] T018 [US1] Implement failure logging and exclusion logic for unmanipulatable images in `code/data_prep.py`
-- [ ] T019 [US1] Implement Pilot Human Manipulation Check in `code/manipulation_check.py`. **Logic**: Present manipulated images to a separate coder panel. Calculate agreement as (number of coders agreeing on narrative preservation) / (total coders). If agreement < 0.80, flag scenario as failed. Output results to `data/processed/narrative_check.csv`.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Survey Deployment and Data Collection (Priority: P2)
-
-**Goal**: Present manipulated images in a randomized within-subject design and collect blame ratings.
-
-**Independent Test**: Pilot survey with small cohort; verify randomization, within-subject constraints, and correct data logging.
-
-### Implementation for User Story 2
-
-- [ ] T022 [P] [US2] Implement survey randomization engine (within-subject design) in `code/survey_sim.py` to generate sequences where no scenario appears twice with the same salience level for a participant.
-- [ ] T023 [US2] Implement survey deployment interface using Streamlit in `code/survey_deploy.py`. **MUST** enforce the 'never the same one twice' constraint by implementing a `SessionState` dictionary. **Algorithm**: Use Latin Square randomization for within-subject design to ensure balanced order across participants. Check `session_state['seen_scenarios'][participant_id]`; if present, skip to next available salience level. Output schema: `participant_id`, `image_id`, `salience_level`, `rating`, `timestamp`. **Dependencies**: Requires completion of T016/T017 (Stimuli Generation) before execution.
-- [ ] T023a [US2] Document Scope Limitation: Update `docs/paper_draft.md` under section **3.1 'Scope of Pilot Phase'**. Explicitly state that FR-002 and FR-003 are implemented as a *simulation* using `code/survey_sim.py` and local Streamlit, and that real participant recruitment is deferred.
-- [ ] T024 [US2] Implement data collection handler to log responses to `data/survey/pilot_responses.csv`
-- [ ] T026 [US2] Implement pilot data simulation script (`code/survey_sim.py`) to generate synthetic data for pipeline validation (strictly for testing logic, not empirical claims)
-
-### Tests for User Story 2 (Restored) ⚠️
-
-- [ ] T020 [P] [US2] Unit test for randomization logic (within-subject constraint) in `tests/unit/test_survey_logic.py`
-- [ ] T021 [P] [US2] Unit test for data schema validation (participant_id, image_id, salience, rating) in `tests/unit/test_data_schema.py`
-- [ ] T022 [P] [US2] Integration test for pilot data collection flow in `tests/integration/test_survey_flow.py`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
-
-**Goal**: Perform Linear Mixed-Effects Model (LMM) analysis (Primary) and Repeated-Measures ANOVA (Secondary) to test for salience effects, apply corrections, and generate reports.
-
-**Independent Test**: Run analysis on synthetic datasets with known effects; verify F-statistics, p-values, effect sizes, and confidence intervals.
-
-### Implementation for User Story 3
-
-- [ ] T036 [US3] Implement pipeline validation script (Positive Control/Negative Control) in `code/validation.py`. **Logic**: Run synthetic data injection to verify LMM/ANOVA logic BEFORE processing real data. **Dependency**: MUST run before T030/T031.
-- [ ] T045 [US3] Execute Data Cleaning: Run the straight-lining detection routine on `data/survey/pilot_responses.csv` to exclude participants with identical ratings across all items; output cleaned dataset `data/processed/cleaned_responses.csv`. **Logic**: Exclude if variance < 0.1 OR >90% identical ratings. **Dependency**: MUST run before T030/T031.
-- [ ] T030 [US3] Implement Primary Analysis: Implement the Linear Mixed-Effects Model (`Rating ~ Salience + (1|Participant) + (1|Scenario)`) in `code/analysis.py` using `statsmodels` (per FR-004). **MUST** include random intercepts for Participant and Scenario. This is the PRIMARY analysis method.
-- [ ] T031 [US3] Implement Secondary Validation: Implement the Repeated-Measures ANOVA (`Rating ~ Salience + Error(Subject/Salience)`) in `code/analysis.py` using `statsmodels`. This is the SECONDARY analysis method for robustness checking.
-- [ ] T032 [US3] Implement ANOVA/LMM assumption checks (normality, homogeneity of variance) in `code/analysis.py`. **Logic**: Run Shapiro-Wilk test on residuals. If p < 0.05, switch to robust alternative: LMM with ordinal link function OR non-parametric bootstrap with a sufficient number of iterations to ensure robust resampling.
-- [ ] T034 [US3] Implement pairwise comparisons in `code/analysis.py`. **Logic**: If normality holds, perform pairwise t-tests with Bonferroni correction. If normality violated, perform Wilcoxon signed-rank test with Bonferroni correction.
-- [ ] T035 [US3] Implement effect size (partial eta-squared) and % CI calculation in `code/analysis.py` using Type III Sums of Squares.
-- [ ] T046 [US3] Implement Precision Threshold Check: In `code/config.py`, set `MIN_PRECISION = 0.3`. In `code/analysis.py`, calculate the 95% CI width for the main effect. Compare `CI_width` against `MIN_PRECISION`. If `CI_width > 0.3`, log failure and set `precision_adequate=false` in `data/analysis/results.json`. **Do not use placeholder values; use the concrete constant.**
-- [ ] T047 [US3] Implement Post-Hoc Power Analysis in `code/power_analysis.py`. **Logic**: Use observed effect size to calculate power. If calculated power < 0.80, write a warning to the report and set `power_adequate=false` in `data/analysis/results.json`.
-- [ ] T037 [US3] Implement report generator to output `data/analysis/results.json` and console summary, explicitly documenting the LMM primary vs ANOVA secondary distinction.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T027 [P] [US3] Unit test for LMM model fitting (Positive/Negative control) in `tests/unit/test_analysis.py`
-- [ ] T028 [P] [US3] Unit test for Bonferroni correction logic in `tests/unit/test_corrections.py`
-- [ ] T029 [P] [US3] Unit test for effect size (partial eta-squared) calculation in `tests/unit/test_metrics.py`
-- [ ] T030 [P] [US3] Integration test for full analysis pipeline on synthetic data in `tests/integration/test_analysis_pipeline.py`
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T016** **A‑priori power analysis for target sample size** – `code/00_pilot_power_analysis.py`  
+  - Perform a simulation‑based power analysis (or invoke G*Power) targeting a medium effect (odds ratio ≈ 1.5) with α = 0.05 (Bonferroni‑adjusted for three pairwise tests), participant ICC = 0.10, scenario ICC = 0.05.  
+  - Determine the required total N (≈ 600) and participants per scenario.  
+  - Write results to `config/pre_registration.yaml` under `required_sample_size` and store the full simulation output in `data/processed/power_analysis_a_priori.json`.  
+  - **Verification**: Unit test `tests/unit/test_power_a_priori.py` checks that the computed N meets the specification and that the JSON contains the expected fields.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 2 – Complete study, validation, and analysis  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T006** [US‑002] **Deploy within‑subject survey (simulated participants)** – `code/06_survey_deployment.py`  
+  - Load `stimuli_manifest.csv` and generate a **Latin‑square** schedule ensuring:  
+    1. No identical scenario appears consecutively for a participant.  
+    2. Salience order is balanced across participants.  
+    3. Each participant sees each scenario at exactly one salience level per block.  
+  - For automated CI runs, use a **simulated participant pool** (`data/processed/mock_participants.csv`) generated from the a‑priori power analysis.  
+  - Interface with the recruitment API only in a manual “real‑deployment” mode (outside CI).  
+  - Present each stimulus image, record a 1‑7 blame rating, and write two files per run:  
+    * `data/processed/responses_raw.csv` (schema `contracts/response.schema.yaml`).  
+    * `data/processed/responses_survey_raw.csv` (schema `contracts/survey_responses.schema.yaml`).  
+  - Abort with `DataIntegrityError` if the manifest’s `source_type` is `synthetic`.  
+  - **Verification**: Unit test `tests/unit/test_survey_logic.py` checks randomisation constraints; integration test `tests/integration/test_survey_flow.py` runs a pilot session using the mock participants, confirms the required number of participants logged, and validates both CSVs against their schemas.
 
-- [ ] T038a [P] Documentation updates: Add section **3.1 'Methods'** to `docs/paper_draft.md` describing the LMM model specification, data cleaning procedure, and Bonferroni correction.
-- [ ] T038b [P] Documentation updates: Add section **4.1 'Results'** to `docs/paper_draft.md` with placeholders for LMM tables, effect sizes, and CI widths.
-- [ ] T039a [P] Code cleanup: Refactor `code/data_prep.py` to reduce cyclomatic complexity < 10. Verify with `ruff`.
-- [ ] T039b [P] Code cleanup: Refactor `code/analysis.py` to separate model fitting from result reporting. Verify with `ruff`.
-- [ ] T050 [P] Add profiling script to measure runtime of the full pipeline (`code/profile_pipeline.py`)
-- [ ] T051 Refactor code to ensure <6h runtime on 2 CPU/7GB RAM, verified by running `code/profile_pipeline.py` on full dataset
-- [ ] T040 [P] Additional unit tests for edge cases (sample size < planned) in `tests/unit/`
-- [ ] T041 Run quickstart.md validation
+- [ ] **T007** [US‑003] **Clean raw responses and exclude straight‑liners** – `code/07_data_cleaning.py`  
+  - Load `responses_raw.csv`.  
+  - For each participant compute rating variance; flag exclusion if variance < 0.1 **or** > 90 % identical ratings.  
+  - Also flag participants who fail the embedded attention check in `responses_survey_raw.csv`.  
+  - Write `data/processed/responses_cleaned.csv` (adds a `valid` flag per response) and `data/processed/participants_excluded.csv` (schema `contracts/participant.schema.yaml`).  
+  - **Verification**: Unit test `tests/unit/test_data_cleaning.py` runs on a synthetic dataset with known straight‑liners and asserts correct exclusion; script prints the actual exclusion rate.
 
----
+- [ ] **T008** [US‑003] **Fit CLMM with robust fallback and report power/precision** – `code/08_analysis_clmm.py`  
+  - Load `responses_cleaned.csv`.  
+  - Fit a **Cumulative Link Mixed Model**: `blame_rating ~ salience_level + (1|participant_id) + (1|scenario_id)`.  
+  - If the optimizer fails to converge, automatically switch to a **Linear Mixed Model** with 10 000 bootstrap robust SEs (preserving the ordinal outcome).  
+  - Perform **Bonferroni‑adjusted** pairwise contrasts (low‑vs‑medium, medium‑vs‑high, low‑vs‑high).  
+  - Compute odds‑ratio effect size with 95 % CI, Type III sums of squares, and store under `effect_size`.  
+  - Run a post‑hoc power simulation using the observed odds‑ratio; set `power_flag` if observed power < 0.80.  
+  - Verify CI width against the pre‑registered precision threshold (0.30) and set `precision_flag`.  
+  - Write `data/processed/analysis_results.json` conforming to `contracts/analysis_schema.yaml`.  
+  - **Verification**: Unit test `tests/unit/test_analysis.py` runs the pipeline on a synthetic dataset with injected β = 0.5 and checks that the recovered effect meets tolerance, that correction and fallback logic work, and that the JSON validates; integration test `tests/integration/test_analysis_pipeline.py` runs on the real cleaned data and asserts schema compliance.
 
-## Dependencies & Execution Order
+- [ ] **T009** [US‑003] **Generate figures, tables, and verification script** – `code/09_generate_reports.py`  
+  - From `analysis_results.json` and `responses_cleaned.csv` produce:  
+    * `figures/odds_ratio_table.csv` (fixed‑effects odds‑ratio & CI).  
+    * `figures/posthoc_table.csv` (pairwise contrast statistics, Bonferroni‑adjusted).  
+    * `figures/power_summary.txt` (observed power, flags).  
+    * `figures/rating_distribution.png` (histograms per salience level).  
+    * `figures/marginal_effects.png` (predicted probability curves).  
+    * `figures/exclusion_flow.png` (Sankey diagram of participant flow).  
+  - Provide `tests/integration/test_report_verification.py` that loads each figure/table and asserts that every numeric entry appears in `analysis_results.json` or `responses_cleaned.csv`, and that each file is non‑empty.  
+  - **Verification**: Running `pytest -q tests/integration/test_report_verification.py` must pass.
 
-### Phase Dependencies
+- [ ] **T010** [US‑003] **Write methods & results markdown with automated verification** – `data/results/report.md`  
+  - Summarise:  
+    1. Sampling rule for image ingestion.  
+    2. Manipulation validation metrics (CLIP, RMS contrast, moral‑intent score, human‑check agreement).  
+    3. Participant exclusion statistics.  
+    4. Model convergence status and fallback used (if any).  
+    5. Effect‑size tables with CIs, corrected p‑values.  
+    6. Observed power & precision flags.  
+    7. Limitations (e.g., reduced sample size).  
+  - Every claim cites a concrete artifact path (e.g., `figures/odds_ratio_table.csv`, `data/processed/stimuli_manifest.csv`).  
+  - **Automated verification**: Added `code/10_verify_report.py` and unit test `tests/unit/test_report_verification.py` which checks that all required sections are present, citations resolve to existing files, and no placeholder text remains.  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for stimuli data (T023 explicitly requires US1 completion)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 for response data (T045 requires US2 output)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
-### Critical Execution Order (Phase 5)
-
-The following order is **MANDATORY** for Phase 5 tasks:
-1. **T036** (Pipeline Validation) - MUST run first to verify logic.
-2. **T045** (Data Cleaning) - MUST run before analysis.
-3. **T030** (Primary LMM) - MUST run on cleaned data.
-4. **T031** (Secondary ANOVA) - MUST run on cleaned data.
-5. **T032** (Assumption Checks) - Can run in parallel with T030/T031 or after.
-6. **T034** (Pairwise Comparisons) - Depends on T030/T031 results.
-7. **T035** (Effect Sizes) - Depends on T030/T031 results.
-8. **T046** (Precision Check) - Depends on T035.
-9. **T047** (Power Analysis) - Depends on T035.
-10. **T037** (Report Generation) - Depends on all above.
-
-**Note**: T030/T031 DEPEND ON T045 completion. T030/T031 DEPEND ON T036 completion.
+- [ ] **T011** [US‑003] **Paper‑stage handoff** – `data/results/handoff.md`  
+  - Re‑run the full workflow from **T001** through **T010** using the exact commands listed in `quickstart.md` (pinned seeds, deterministic RNG).  
+  - Confirm that all unit/integration tests pass (`pytest`).  
+  - Verify that `data/processed/analysis_results.json` is byte‑identical between runs (no timestamps).  
+  - List the artifacts required by the downstream paper pipeline: CLMM results JSON, all figures, tables, and the pre‑registration file (`config/pre_registration.yaml`).  
+  - **Verification**: Script `code/10_verify_handoff.py` computes SHA‑256 of `analysis_results.json` before and after a fresh run and asserts equality.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 3 – Reproducibility scaffolding  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for metadata filtering logic in tests/unit/test_data_prep.py"
-Task: "Unit test for luminance manipulation (CLIP check) in tests/unit/test_manipulation.py"
+- [ ] **T012** [P] **Create `quickstart.md` with a reproducible entry‑point** – `docs/quickstart.md`  
+  - Provide a step‑by‑step command list (environment setup, `pip install -r code/requirements.txt`, `python -m llmxive_toolkit.paths && python code/01_ingest_and_filter.py`, …, `python code/09_generate_reports.py`).  
+  - Include the exact seed values and environment variables required for deterministic execution.  
+  - **Verification**: Running the commands on a fresh clone reproduces the end‑to‑end results and all tests pass.
 
-# Launch all models for User Story 1 together:
-Task: "Implement dataset ingestion and URL verification in code/data_prep.py"
-Task: "Implement human coding workflow script in code/human_coding.py"
-```
+- [ ] **T013** [P] **Pin exact dependencies** – `code/requirements.txt` & verification script `code/10_verify_requirements.py`  
+  - List all packages with exact version numbers (e.g., `torch==2.2.0`, `datasets==2.18.0`, `statsmodels==0.14.0`, etc.).  
+  - `code/10_verify_requirements.py` compares the file against the current Python environment (`pip freeze`) and exits 0 only if they match.  
+  - **Verification**: Unit test `tests/unit/test_requirements.py` asserts existence of the file and that the script returns exit 0 in the CI environment.
 
----
+- [ ] **T014** [P] **Validate configuration files** – `code/11_validate_configs.py`  
+  - Ensure `config/manipulation.yaml`, `config/pre_registration.yaml`, and `config/analysis.yaml` exist, contain all required keys, and that `pre_registration.yaml` has `verification_status: VERIFIED`.  
+  - Raise `ConfigError` with a clear message for any missing key or mismatched status.  
+  - **Verification**: Unit test `tests/unit/test_config_validation.py` loads each YAML and checks schema compliance.
 
-## Implementation Strategy
+- [ ] **T017** **Validate generated artifacts against contract schemas** – `code/12_validate_contracts.py`  
+  - For every data file produced in Phases 1‑2 (CSV, YAML, JSON), run JSON/YAML schema validation against the corresponding schema in `contracts/`.  
+  - Abort with `ContractValidationError` if any artifact fails.  
+  - **Verification**: Unit test `tests/unit/test_contract_validation.py` loads a sample artifact and confirms successful validation.
 
-### MVP First (User Story 1 Only)
+---  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+### Dependency & Requirement Mapping  
 
-### Incremental Delivery
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| **FR‑001** (salience manipulation) | T004, T005, T015 |
+| **FR‑002** (survey randomisation) | T006 |
+| **FR‑003** (blame rating collection) | T006 |
+| **FR‑004** (CLMM with fallback) | T008 |
+| **FR‑005** (Bonferroni / Tukey) | T008 |
+| **FR‑006** (effect size reporting) | T008 |
+| **FR‑007** (straight‑liner exclusion) | T007 |
+| **FR‑008** (ambiguous scenario identification) | T001, T002, T003 |
+| **FR‑009** (a‑priori power analysis) | T016 |
+| **SC‑001** (stimulus integrity metrics) | T004, T005 |
+| **SC‑002** (effect size detection) | T008 |
+| **SC‑003** (family‑wise error control) | T008 |
+| **SC‑004** (valid participant proportion) | T007 |
+| **SC‑005** (CI width precision) | T008 |
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **FR-004 Compliance**: Linear Mixed-Effects Model (LMM) is the PRIMARY analysis method. Repeated-Measures ANOVA is secondary.
-- **FR-008 Compliance**: Human coding interface requires ≥3 annotators. Majority vote resolution is mandatory. κ ≥ 0.6 is the threshold.
-- **FR-002/003 Compliance**: Current phase is Pilot/Simulation; real deployment is deferred.
-- **Plan vs Spec**: Tasks follow Spec.md (Visual Genome ingestion) over Plan.md (Manual Curation).
+All tasks are ordered to respect data flow: ingestion → human coding → moral‑intent wrapper → stimulus creation → pilot checks → power analysis → survey → cleaning → analysis → reporting → handoff.  

@@ -1,0 +1,7 @@
+{
+  "task_id": "T000a",
+  "fingerprint": "748726a37a449e5e04a5a3591120c96a52edbaee740dd6e763c9ce6ec75cfa97",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] completed report supplied no writable artifacts or execution requests"
+}

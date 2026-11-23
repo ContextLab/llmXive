@@ -1,4 +1,25 @@
-# Ruff configuration file
-# This file is a duplicate of the ruff settings in pyproject.toml for IDE compatibility
-# if the IDE prefers a dedicated config file.
-extend = "pyproject.toml"
+# Standalone Ruff configuration file
+# Extends settings defined in pyproject.toml if needed, or provides defaults
+line-length = 88
+target-version = "py311"
+
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # Pyflakes
+    "I", # isort
+    "B", # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[isort]
+known-first-party = ["utils", "ingest", "analyze", "report"]
+force-single-line = false
+order-by-type = true
+
+[per-file-ignores]
+"__init__.py" = ["F401"]

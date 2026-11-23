@@ -1,0 +1,62 @@
+[project]
+name = "llmxive-extending-kuai-keye-vl"
+version = "0.1.0"
+description = "Automated science pipeline for aspect ratio robustness research"
+requires-python = ">=3.10"
+dependencies = [
+    "opencv-python==4.9.0.80",
+    "ffmpeg-python==0.2.0",
+    "transformers==4.42.0",
+    "optimum-intel==1.18.0",
+    "llama-cpp-python==0.2.88",
+    "pandas==2.2.2",
+    "scipy==1.13.1",
+    "numpy==1.26.4",
+    "requests==2.32.3",
+    "huggingface_hub==0.23.4",
+    "pytest==8.2.2",
+    "psutil==6.0.0",
+    "ultralytics==8.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=24.0.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+]
+
+[tool.ruff]
+# Inherits from ruff.toml in the root, but can override here if needed
+target-version = "py310"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+include = "code/"
+exclude = """
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | __pycache__
+)/
+"""
+
+[tool.pytest]
+testpaths = ["code/tests"]
+addopts = "-v --strict-markers"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["code"]

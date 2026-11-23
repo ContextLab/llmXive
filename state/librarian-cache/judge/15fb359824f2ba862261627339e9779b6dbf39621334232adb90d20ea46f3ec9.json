@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1305.4705",
+  "judged_at": "2026-07-26T07:30:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of laser surface texturing on wear resistance materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the tribological response (friction and wear mechanisms) of laser-textured surfaces, directly measuring the same physical observables and domain (materials science surface engineering) as the user's question, even though it uses a bio-inspired comparative approach rather than a direct wear-resistance test.",
+  "relevant": true
+}

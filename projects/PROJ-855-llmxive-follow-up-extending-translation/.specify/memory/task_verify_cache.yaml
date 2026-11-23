@@ -1,0 +1,9 @@
+T001:
+  c: true
+  h: 0d0087f89b08d74796ee393985e15d82cbb5615c25ca0354ec89d492b338338a
+  r: 'The `code/config.yaml` file exists and contains the required `random_seed`,
+    `tipping_angle: 15.0`, `slippage_distance: 0.02`, and a `sensitivity_noise_levels`
+    list in degrees. The unit test `tests/unit/test_config_load.py` successfully loads
+    the file and validates the presence and types of all required keys (log shows
+    the test passed).'
+  sig: f805c8c196631210db3c0325a1830465123d2512fc53cf2afe0c148fbd7b19fe

@@ -1,0 +1,90 @@
+T006:
+  c: true
+  h: 43a2447c06c8ac074a48e0e31c72ae934b0105558337b1a9b04a9f70d452b8e6
+  r: "The repository contains a non\u2011empty `code/utils/schema_validator.py` with\
+    \ a correctly implemented `load_schema(path)` function that reads JSON/YAML schema\
+    \ files and returns a `jsonschema.Draft7Validator` instance, satisfying the task\u2019\
+    s core requirement. The missing schema files are a separate dependency (T008)\
+    \ and do not invalidate the utility implementation itself."
+T010:
+  c: false
+  h: 36285dc507f606d0da85edee125e2e081ac85154b07b1611e0498e4dbebec8e2
+  r: The `tests/contract/test_dataset_schema.py` file is present, but the required
+    schema file `contracts/dataset.schema.yaml` does not exist, causing the test to
+    fail at load time. Additionally, there is no evidence that `data/clean_data.csv`
+    is present. Without the schema (and data) the contract test cannot verify the
+    dataset, so the task is not genuinely completed.
+T012:
+  c: false
+  h: 36f378a2aab1ac4aa5ba3e9df6a1c915c1e8b2e4182c09b046bdde8645b3dc76
+  r: "The provided `code/data/download.py` is incomplete (truncated) and does not\
+    \ show the required exponential\u2011backoff retry loop, nor any code that writes\
+    \ a `data/raw_data.csv` file. Moreover, the expected output file `data/raw_data.csv`\
+    \ is absent from the repository. Both the implementation and the required artifact\
+    \ are missing."
+T013:
+  c: false
+  h: 4aedd64059de8ab824d8db24e8ae902badb48cc1539477dc78b5359de62f6576
+  r: "The repository contains a `code/data/download.py` file, but the visible portion\
+    \ shows only helper functions and the file is truncated before any fallback logic\
+    \ that would create `data/synthetic_data.csv`. Moreover, the required `data/synthetic_data.csv`\
+    \ does not exist at all, so the script\u2019s intended synthetic\u2011data generation\
+    \ has not been demonstrated. The implementer must add the fallback that checks\
+    \ the filtered row count, generates \u2265100 rows with the specified columns\
+    \ using seed\u202F42, and ensure the CSV is created."
+T023:
+  c: false
+  h: 476ad33127aa86c0bed1c6a1a59b555b1221e1ad3ed8413b66e8dcb30792e906
+  r: The provided `engineering.py` does not contain any implementation for computing
+    baseline density via the linear mixing rule, nor does it calculate the residual
+    density or write a `clean_data.csv` file. Additionally, the required `data/clean_data.csv`
+    file is missing entirely. The task therefore remains unfinished.
+T025:
+  c: false
+  h: 51419188df4a96ad88e20b2639896db799a60a79051ad1c4993f8ba3a79af60b
+  r: "The provided `code/models/train.py` is truncated (the training function ends\
+    \ mid\u2011parameter definition) and does not contain code that saves the trained\
+    \ model to `models/model.pkl` or logs MAE/R\xB2 on a test set. Moreover, the required\
+    \ `models/model.pkl` file is absent from the repository. These missing pieces\
+    \ mean the task\u2019s core requirements are not satisfied."
+T025#1:
+  c: false
+  h: a10b0e5cff8b85297b312fafdb042401b5b35a16b42dcaae16e116e47bfb5f86
+  r: "The repository contains a `code/models/train.py` file, but the required output\
+    \ artifacts `models/model.pkl` and `data/test_residuals.csv` are absent. Since\
+    \ the model file and the CSV with the specified columns are missing, the task\u2019\
+    s core deliverables have not been produced. The next implementer must ensure the\
+    \ script actually trains the LightGBM regressor, saves the model to `models/model.pkl`,\
+    \ and writes `data/test_residuals.csv` with `sample_id`, `model_residual`, and\
+    \ `lmr_residual` columns."
+T030:
+  c: false
+  h: c8ae71d3cfd0b6c7fe90297949e20f6bc81222b1a05e4d4a99bff3b2b2137497
+  r: The `code/analysis/report.py` file contains a function to create the plot, but
+    the required output file `reports/predicted_vs_actual.png` is missing, indicating
+    the script has not been executed (or does not automatically generate the file).
+    The task is not satisfied until the plot is actually produced and saved at the
+    specified location.
+T031:
+  c: false
+  h: 0e9c9ea8a7862c1ffaf89005cfe70727c8e1dbbefda4b3774a720a1e516159c6
+  r: The repository contains `code/analysis/report.py`, but the `generate_shap_summary`
+    function is truncated and never saves the plot to the required `reports/shap_summary.png`.
+    Moreover, the expected PNG file is absent from the `reports` directory, indicating
+    the SHAP analysis and plot generation were not actually executed. The task therefore
+    remains unfinished.
+T032:
+  c: false
+  h: def1987f490f70afe3f38f814b7adcb9b4978b7c08521353feb2d9e94d6ed308
+  r: The provided `code/analysis/report.py` contains model loading, metric calculation,
+    and plotting utilities, but it does not implement the required sensitivity analysis
+    (adding Gaussian noise, computing MAE and RMSE variance, and writing results).
+    Moreover, the expected output file `reports/sensitivity_analysis.json` is absent.
+    The task therefore remains unfinished.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test files or code were provided that exercise the sensitivity\u2011\
+    analysis logic or verify that a report is generated only when the mean absolute\
+    \ error exceeds 0.1. The required test artifacts are missing, so the task is not\
+    \ satisfied."

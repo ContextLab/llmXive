@@ -3,58 +3,37 @@ import os
 import sys
 from pathlib import Path
 from typing import Optional
+import json
+import datetime
 
-def setup_logging(
-    log_level: Optional[int] = None,
-    log_file: Optional[str] = None,
-    project_root: Optional[Path] = None
-) -> logging.Logger:
-    """
-    Configure and return the project logger with both console and file handlers.
-    
-    Args:
-        log_level: Logging level (e.g., logging.DEBUG, logging.INFO). Defaults to INFO.
-        log_file: Optional path to a log file. If None, only console output is used.
-        project_root: Base path for relative log file paths. Defaults to current working directory.
-    
-    Returns:
-        A configured logger instance.
-    """
-    if log_level is None:
-        log_level = logging.INFO
-    
-    logger = logging.getLogger("embodied_curriculum")
+def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
+    """Configure logging handlers."""
+    logger = logging.getLogger()
     logger.setLevel(log_level)
-    
-    # Prevent duplicate handlers if called multiple times
+
     if logger.handlers:
-        return logger
-    
-    # Formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    
-    # Console Handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(log_level)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
-    # File Handler (if specified)
-    if log_file:
-        if project_root:
-            log_path = project_root / log_file
-        else:
-            log_path = Path(log_file)
-        
-        # Ensure directory exists
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        file_handler = logging.FileHandler(log_path, mode='a')
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-    
+        logger.handlers.clear()
+
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(log_level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    # File handler for derivation logs
+    log_dir = Path("data/derivation_logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    fh = logging.FileHandler(log_dir / "pipeline.log")
+    fh.setLevel(log_level)
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+
     return logger
+
+def write_skipped_record_jsonl(record: dict, log_path: str):
+    """Write a record to JSONL log file."""
+    path = Path(log_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'a', encoding='utf-8') as f:
+        f.write(json.dumps(record) + '\n')

@@ -641,3 +641,583 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T12:35:21Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Inference using llama.cpp CPU mode with LMM analysis for interaction
+    effects
+  claim_id: c_bcac87f5
+  context: 'Independent Test: The system can run inference on a sample of few-shot
+    prompts using `llama.cpp` (CPU mode), collect accuracy metrics, aggregate them
+    by seed, and output a statistical report confirming whether the interaction term
+    in the LMM is significant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inference_using_llama.cpp_CPU_mode_with_LMM_analysis_for_int
+  kind: entity_fact
+  raw_text: The system can run inference on a sample of few-shot prompts using `llama.cpp`
+    (CPU mode), collect accuracy metrics, aggregate them by seed, and output a statistical
+    report confirming whether the interaction term in the LMM is significant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:28:21Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: cycle detection logic with max cycle length of 5 and max 3 incoming edges
+  claim_id: c_7723fd76
+  context: T013 [US1] Implement cycle detection logic (max cycle length of 5 steps,
+    >3 incoming edges) and flagging mechanism in code/src/parser.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: cycle detection logic (max cycle length of 5 steps, >3 incoming edges)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:33:43Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: power analysis with alpha 0.05, power 0.8, and effect size 0.25
+  claim_id: c_ac13a0ab
+  context: T035b [US3] Document the deviation from Spec FR-004 (ANOVA) to Plan LMM
+    in artifacts/stats_report.md including a power analysis justification (alpha=0.05,
+    power=0.8, effect_size=0.25) using statsmodels.stats.power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power analysis justification (alpha=0.05, power=0.8, effect_size=0.25)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:34:24Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: parser runtime under 15 minutes for 1000 traces
+  claim_id: c_2b5d8110
+  context: 'T042 Performance optimization for DAG parsing: Refactor parser.py to achieve
+    < 15 min runtime on 1000 raw/CoT traces; verify by running benchmark script and
+    recording time in artifacts/perf_log.txt'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor parser.py to achieve < 15 min runtime on 1000 raw/CoT traces
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:34:24Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Q4_K_M quantization fits within 7GB RAM
+  claim_id: c_99d92506
+  context: 'CRITICAL: Ensure llama.cpp inference tasks (T032) strictly use CPU-only
+    flags and Q4_K_M quantization to fit within 7GB RAM.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Q4_K_M_quantization_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: Q4_K_M quantization to fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T01:35:02Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Generate gold standard template if missing
+  claim_id: c_822d7a46
+  context: T015 [US1] Load/Verify existence of data/processed/gold_standard_annotations.json.
+    If missing, generate a template file with instructions for expert annotation (handling
+    the 'deferred' assumption) rather than failing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_gold_standard_template_if_missing
+  kind: entity_fact
+  raw_text: Load/Verify existence of data/processed/gold_standard_annotations.json.
+    If missing, generate a template file with instructions for expert annotation (handling
+    the 'deferred' assumption) rather than failing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T19:11:17Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: LMM interaction term significance test via llama.cpp CPU inference
+  claim_id: c_931602e3
+  context: 'Independent Test: The system can run inference on a sample of few-shot
+    prompts using llama.cpp (CPU mode), collect accuracy metrics, aggregate them by
+    seed, and output a statistical report confirming whether the interaction term
+    in the LMM is significant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LMM_interaction_term_significance_test_via_llama.cpp_CPU_inf
+  kind: entity_fact
+  raw_text: The system can run inference on a sample of few-shot prompts using llama.cpp
+    (CPU mode), collect accuracy metrics, aggregate them by seed, and output a statistical
+    report confirming whether the interaction term in the LMM is significant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T19:11:35Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Parser runtime < 15 min on 1000 traces
+  claim_id: c_5ce05c47
+  context: 'T042 Performance optimization for DAG parsing: Refactor parser.py to achieve
+    < 15 min runtime on 1000 raw/CoT traces; verify by running benchmark script and
+    recording time in artifacts/perf_log.txt'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor parser.py to achieve < 15 min runtime on 1000 raw/CoT traces.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T19:11:36Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: parser precision >= 0.85 and recall >= 0.80
+  claim_id: c_5df41796
+  context: "Compare parsed edges against the gold standard (from T015/T015b) and output\
+    \ data/processed/parser_validation_metrics.json with precision \u2265 0.85 and\
+    \ recall \u2265 0.80. This satisfies FR-007 structural accuracy requirement."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "output data/processed/parser_validation_metrics.json with precision \u2265\
+    \ 0.85 and recall \u2265 0.80"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:44:59Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: detect cycles of length <= 5 steps
+  claim_id: c_f0e1b802
+  context: "Implement cycle detection logic in code/src/parser.py. Detect cycles of\
+    \ length \u2264 5 steps."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "detect cycles of length \u2264 5 steps"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:44:59Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: flag nodes with > 3 incoming edges from > 10 lines prior
+  claim_id: c_5bcabf86
+  context: Implement incoming edge threshold logic in code/src/parser.py. Flag traces
+    where a node has > 3 incoming edges from steps occurring > 10 lines prior.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flag traces where a node has > 3 incoming edges from steps occurring >
+    10 lines prior
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:44:59Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: power analysis for n=360 runs
+  claim_id: c_6130d52a
+  context: Use statsmodels.stats.power to calculate the statistical power of the planned
+    experiment (n=360 runs) to detect a moderate interaction effect.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: compute power of the planned experiment (n=360 runs) to detect a moderate
+    interaction effect
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:45:41Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: DAG parser runtime < 15 min on 1000 traces
+  claim_id: c_10270054
+  context: Refactor parser.py to achieve < 15 min runtime on 1000 raw/CoT traces;
+    verify by running benchmark script and recording time in artifacts/perf_log.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: achieve < 15 min runtime on 1000 raw/CoT traces
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:45:42Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: inference fits within 7GB RAM
+  claim_id: c_283ca54a
+  context: Ensure llama.cpp inference tasks (T032) strictly use CPU-only flags and
+    Q4_K_M quantization to fit within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inference_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: fit within 7GB RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:46:35Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: use sentence-transformers/all-MiniLM-L-v for embeddings
+  claim_id: c_be7b19cc
+  context: Implement SBERT embedding generation for 'Original CDS' (Semantic Curvature)
+    in code/src/prompt_gen.py. Use sentence-transformers/all-MiniLM-L-v to compute
+    embeddings for each example.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L-v_for_embeddings
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L-v to compute embeddings
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:47:06Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: stream full SFT dataset in chunks
+  claim_id: c_1eeaa575
+  context: Implement real data streaming for the full SFT dataset in code/src/data_loader.py.
+    Use datasets.load_dataset(name, split=..., streaming=True) to iterate in chunks,
+    accumulating statistics online without loading the full dataset into RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stream_full_SFT_dataset_in_chunks
+  kind: entity_fact
+  raw_text: load the full SFT dataset in chunks to avoid loading the full dataset
+    into RAM
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:47:35Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: training and test sets must be disjoint
+  claim_id: c_ffd60d9a
+  context: Implement training/test set split validation in code/src/validate_splits.py.
+    Load the training set (used for DAG construction) and test set (used for accuracy),
+    compare their IDs, and assert they are disjoint.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_and_test_sets_must_be_disjoint
+  kind: entity_fact
+  raw_text: load the training set (used for DAG construction) and test set (used for
+    accuracy), compare their IDs, and assert they are disjoint
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:48:19Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: synthetic gold standard template with scores 1-5
+  claim_id: c_cf226b71
+  context: Generate a synthetic gold standard template in data/processed/gold_standard_annotations.json
+    if the human-annotated file is missing. This template must contain a set of dummy
+    entries with random complexity scores (1-5).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate a synthetic gold standard template... with random complexity
+    scores (1-5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T07:49:01Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Parser edge detection precision >= 0.85 and recall >= 0.80 against gold
+    standard
+  claim_id: c_077212b8
+  context: "T015a [US1] Implement precision and recall calculation for edge detection\
+    \ in code/src/parser.py. Compare parsed edges against the gold standard (from\
+    \ T015/T015b) and output data/processed/parser_validation_metrics.json with precision\
+    \ \u2265 0.85 and recall \u2265 0.80."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compare parsed edges against the gold standard and output data/processed/parser_validation_metrics.json\
+    \ with precision \u2265 0.85 and recall \u2265 0.80."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:08:08Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Planned experiment power analysis uses n=360 runs to detect moderate
+    interaction effect
+  claim_id: c_360ea15e
+  context: T035c [US3] Perform power analysis justification for the LMM deviation
+    in code/src/analysis.py. Use statsmodels.stats.power to calculate the statistical
+    power of the planned experiment (n=360 runs) to detect a moderate interaction
+    effect.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use statsmodels.stats.power to calculate the statistical power of the
+    planned experiment (n=360 runs) to detect a moderate interaction effect.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:08:29Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: DAG parser runtime under 15 minutes for 1000 raw CoT traces
+  claim_id: c_b030e17d
+  context: 'T042 Performance optimization for DAG parsing: Refactor parser.py to achieve
+    < 15 min runtime on 1000 raw/CoT traces; verify by running benchmark script and
+    recording time in artifacts/perf_log.txt'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor parser.py to achieve < 15 min runtime on 1000 raw/CoT traces.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:08:30Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Tests are optional and included only if explicitly requested
+  claim_id: c_3ef787ca
+  context: Input and Prerequisites section describing the task format.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_and_included_only_if_explicitly_requested
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:10:29Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Tasks are grouped by user story for independent implementation
+  claim_id: c_1f0c25b9
+  context: Organization section describing how tasks are structured.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_are_grouped_by_user_story_for_independent_implementati
+  kind: entity_fact
+  raw_text: Tasks are grouped by user story to enable independent implementation and
+    testing of each story.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:11:09Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Data loader updates running statistics without holding full dataset in
+    memory
+  claim_id: c_2ce1d4b4
+  context: Task T046 description for real data streaming implementation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_updates_running_statistics_without_holding_full
+  kind: entity_fact
+  raw_text: This task must include code that iterates over the streaming dataset,
+    processes each batch, and updates running statistics (e.g., total count, depth
+    distribution) without holding the full dataset in memory.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:11:46Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Data loader raises FileNotFoundError or ConnectionError on fetch failure
+  claim_id: c_a06469d3
+  context: Task T047 description for 'fail loudly' mechanism.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_raises_FileNotFoundError_or_ConnectionError_on_f
+  kind: entity_fact
+  raw_text: If the real data fetch fails (network error, missing file), raise a FileNotFoundError
+    or ConnectionError immediately.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:12:18Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Cycle detection for cycles of length 5 or less
+  claim_id: c_950ca236
+  context: Task T013a implementation details for cycle detection logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Detect cycles of length \u2264 5 steps."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:12:18Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Flag traces with more than 3 incoming edges from steps 10 lines prior
+  claim_id: c_180ac2fa
+  context: Task T013b implementation details for incoming edge threshold logic.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_traces_with_more_than_3_incoming_edges_from_steps_10_li
+  kind: magnitude
+  raw_text: Flag traces where a node has > 3 incoming edges from steps occurring >
+    10 lines prior.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:13:23Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Synthetic gold standard template contains dummy entries with scores 1
+    to 5
+  claim_id: c_aa5e9db6
+  context: Task T015b description for generating a synthetic gold standard template.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This template must contain a set of dummy entries with random complexity
+    scores (1-5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:14:00Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: SBERT embeddings computed using sentence-transformers/all-MiniLM-L-v
+  claim_id: c_6c3e68ff
+  context: Task T024a implementation details for SBERT embedding generation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SBERT_embeddings_computed_using_sentence-transformers/all-Mi
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L-v to compute embeddings for each
+    example.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:14:25Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Curvature Score is population variance of cosine similarities between
+    adjacent sentences
+  claim_id: c_e8ca8447
+  context: Task T024b description for Original CDS score calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Curvature_Score_is_population_variance_of_cosine_similaritie
+  kind: entity_fact
+  raw_text: Calculate cosine similarity between adjacent sentences in the embeddings
+    (from T024a), then compute the population variance of these similarities as the
+    Curvature Score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:15:13Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: Power analysis planned for 360 runs to detect moderate interaction effect
+  claim_id: c_45c413ee
+  context: Task T035c description for power analysis justification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use statsmodels.stats.power to calculate the statistical power of the
+    planned experiment (n=360 runs) to detect a moderate interaction effect.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:15:13Z'
+- artifact_path: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co/tasks.md
+  attempts: 1
+  canonical: DAG parser runtime must be under 15 minutes for 1000 traces
+  claim_id: c_199b8b5e
+  context: Task T042 description for performance optimization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor parser.py to achieve < 15 min runtime on 1000 raw/CoT traces.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-21T08:15:14Z'

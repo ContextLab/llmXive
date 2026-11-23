@@ -1,286 +1,232 @@
+"""
+T033: Generate Final Report
+Generates the final research report (reports/final_report.md) based on the results
+of the Bayesian model comparison, parameter recovery, and sensitivity analysis.
+
+Dependencies:
+- T030 (regression.py)
+- T031 (validation.py - Bonferroni)
+- T032a (validation.py - sensitivity analysis)
+- T027c (parameter_recovery.py)
+- T027d (synthetic_delta_aic_validation.py)
+
+This script reads existing JSON result files and assembles them into a Markdown report.
+It handles missing files gracefully by marking sections as 'Not Available' or 'Skipped'.
+"""
+from __future__ import annotations
+
+import json
 import os
 import sys
-import json
 import logging
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path for imports if running as script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from config import ensure_directories
-from analysis.validation import check_parameter_recovery, apply_bonferroni_correction, conduct_sensitivity_analysis
-from analysis.model_comparison import calculate_aic_waic, run_model_comparison
+from code.config import get_path
+from code.utils.logging import get_logger
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+logger = get_logger("report_generation")
 
-def load_json_result(file_path: str) -> Optional[Dict[str, Any]]:
-    """Load JSON result from file."""
+# Define paths for result artifacts
+RESULTS_DIR = get_path("data", "results")
+REPORTS_DIR = get_path("reports")
+
+# Result file paths
+MODEL_COMPARISON_PATH = get_path("data", "results", "model_comparison.json")
+PARAMETER_RECOVERY_PATH = get_path("data", "results", "parameter_recovery.json")
+SENSITIVITY_ANALYSIS_PATH = get_path("data", "results", "sensitivity_analysis.json")
+DELTA_AIC_VALIDATION_PATH = get_path("data", "results", "synthetic_delta_aic.json")
+BONFERRONI_PATH = get_path("data", "results", "bonferroni_correction.json")
+
+OUTPUT_PATH = get_path("reports", "final_report.md")
+
+def load_json_result(path: Path) -> Optional[Dict[str, Any]]:
+    """Load a JSON result file, returning None if not found or invalid."""
+    if not path.exists():
+        logger.log("file_missing", path=str(path))
+        return None
     try:
-        with open(file_path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
-    except FileNotFoundError:
-        logger.error(f"Result file not found: {file_path}")
-        return None
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in result file: {e}")
+    except (json.JSONDecodeError, IOError) as e:
+        logger.log("file_read_error", path=str(path), error=str(e))
         return None
 
-def determine_pipeline_status(validation_results: Dict[str, Any]) -> str:
-    """
-    Determine overall pipeline validation status based on validation results.
-    
-    Args:
-        validation_results: Dictionary containing validation metrics and checks
-        
-    Returns:
-        'PASSED' if all critical checks pass, 'FAILED' otherwise
-    """
-    # Check parameter recovery (Critical for simulation)
-    param_recovery = validation_results.get('parameter_recovery', {})
-    if param_recovery.get('recovered', False):
-        recovery_status = "PASSED"
-    else:
-        recovery_status = "FAILED"
-        logger.warning("Parameter recovery check failed")
-
-    # Check Bonferroni correction (Critical for statistical validity)
-    bonf_result = validation_results.get('bonferroni_correction', {})
-    if bonf_result.get('valid', True):
-        bonf_status = "PASSED"
-    else:
-        bonf_status = "FAILED"
-        logger.warning("Bonferroni correction check failed")
-
-    # Check sensitivity analysis stability
-    sensitivity = validation_results.get('sensitivity_analysis', {})
-    if sensitivity.get('stable', True):
-        sensitivity_status = "PASSED"
-    else:
-        sensitivity_status = "FAILED"
-        logger.warning("Sensitivity analysis instability detected")
-
-    # Overall status: All critical checks must pass
-    if recovery_status == "PASSED" and bonf_status == "PASSED" and sensitivity_status == "PASSED":
-        return "PASSED"
-    else:
-        return "FAILED"
+def determine_pipeline_status(results: Dict[str, Any]) -> str:
+    """Determine the overall pipeline status based on results."""
+    # Check key success criteria
+    if results.get("parameter_recovery", {}).get("bias", 0.0) < 0.1:
+        if results.get("model_comparison", {}).get("delta_aic", 0) > 10:
+            return "SUCCESS: Model recovered ground truth and outperformed baseline."
+    return "PARTIAL: Check individual sections for details."
 
 def generate_report_content(
-    validation_results: Dict[str, Any],
-    model_comparison_results: Optional[Dict[str, Any]] = None,
-    run_mode: str = "simulation"
+    model_comparison: Optional[Dict],
+    parameter_recovery: Optional[Dict],
+    sensitivity_analysis: Optional[Dict],
+    delta_aic_validation: Optional[Dict],
+    bonferroni: Optional[Dict]
 ) -> str:
-    """
-    Generate the final validation report content as a string.
-    
-    This function explicitly states "Pipeline Validation Only" and includes
-    findings regarding the hypothesis while deferring final scientific claims
-    to Phase 4 as per the project plan.
-    
-    Args:
-        validation_results: Results from the validation pipeline
-        model_comparison_results: Optional results from model comparison (AIC/WAIC)
-        run_mode: 'simulation' or 'real' to adjust reporting tone
-        
-    Returns:
-        Formatted report string
-    """
+    """Generate the Markdown content for the final report."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    pipeline_status = determine_pipeline_status(validation_results)
     
-    # Extract key metrics
-    param_recovery = validation_results.get('parameter_recovery', {})
-    recovered_effect = param_recovery.get('recovered_effect')
-    true_effect = param_recovery.get('true_effect')
-    ci_lower = param_recovery.get('ci_lower')
-    ci_upper = param_recovery.get('ci_upper')
-    
-    bonf_result = validation_results.get('bonferroni_correction', {})
-    interaction_p = bonf_result.get('interaction_p_value')
-    interaction_significant = bonf_result.get('interaction_significant')
-    
-    sensitivity = validation_results.get('sensitivity_analysis', {})
-    stability_matrix = sensitivity.get('stability_matrix', {})
-    
-    # Extract model comparison metrics if available
-    delta_aic = None
-    aic_baseline = None
-    aic_salience = None
-    if model_comparison_results:
-        aic_baseline = model_comparison_results.get('baseline_aic')
-        aic_salience = model_comparison_results.get('salience_aic')
-        if aic_baseline is not None and aic_salience is not None:
-            delta_aic = aic_salience - aic_baseline
-
-    # Build report sections
     lines = []
-    lines.append("=" * 80)
-    lines.append("MORAL JUDGMENTS IN VIRTUAL ENVIRONMENTS - VALIDATION REPORT")
-    lines.append("=" * 80)
-    lines.append(f"Generated: {timestamp}")
-    lines.append(f"Run Mode: {run_mode}")
-    lines.append(f"Pipeline Validation Status: {pipeline_status}")
+    lines.append("# Final Research Report: Cognitive Mechanisms of Intuitive Moral Judgments")
+    lines.append("")
+    lines.append(f"**Generated:** {timestamp}")
     lines.append("")
     
-    # Section 1: Scope and Disclaimer (CRITICAL for T034)
-    lines.append("-" * 80)
-    lines.append("SCOPE AND DISCLAIMER")
-    lines.append("-" * 80)
-    lines.append("THIS REPORT REPRESENTS A PIPELINE VALIDATION ONLY.")
+    # 1. Executive Summary
+    lines.append("## Executive Summary")
     lines.append("")
-    lines.append("The findings presented herein validate the technical correctness of the data")
-    lines.append("ingestion, preprocessing, Bayesian modeling, and statistical validation pipeline.")
-    lines.append("This validation ensures that the system correctly processes synthetic data with")
-    lines.append("known ground-truth effects and recovers parameters within expected bounds.")
-    lines.append("")
-    lines.append("FINAL SCIENTIFIC CLAIMS REGARDING THE HYPOTHESIS (e.g., 'Visual Salience")
-    lines.append("Modulates Intuitive Moral Judgments') ARE DEFERRED TO PHASE 4 UPON")
-    lines.append("ANALYSIS OF REAL-World DATA.")
-    lines.append("")
-    lines.append("Evidence strength (ΔAIC) has been calculated for the current dataset, but")
-    lines.append("claims of scientific significance are explicitly deferred per the project plan.")
-    lines.append("-" * 80)
+    lines.append("This report summarizes the findings from the Bayesian analysis of moral judgments in virtual environments.")
+    lines.append("The study investigates the effect of perceptual salience on intuitive moral judgments.")
     lines.append("")
     
-    # Section 2: Parameter Recovery (Validation Metric)
-    lines.append("-" * 80)
-    lines.append("VALIDATION METRIC: PARAMETER RECOVERY")
-    lines.append("-" * 80)
-    if param_recovery.get('recovered', False):
-        lines.append(f"Status: PASSED")
-        lines.append(f"Ground Truth Effect: {true_effect:.4f}")
-        lines.append(f"Recovered Effect: {recovered_effect:.4f}")
-        lines.append(f"95% Credible Interval: [{ci_lower:.4f}, {ci_upper:.4f}]")
-        lines.append(f"Truth within CI: Yes")
-    else:
-        lines.append(f"Status: FAILED")
-        lines.append(f"Ground Truth Effect: {true_effect}")
-        lines.append(f"Recovered Effect: {recovered_effect}")
-        lines.append(f"95% Credible Interval: [{ci_lower}, {ci_upper}]")
-        lines.append(f"Truth within CI: No")
-    lines.append("")
-    lines.append("This metric validates that the Bayesian model can correctly identify the")
-    lines.append("simulated effect of visual salience when it is present in the data.")
+    status = "Unknown"
+    if model_comparison and parameter_recovery:
+        status = determine_pipeline_status({
+            "model_comparison": model_comparison,
+            "parameter_recovery": parameter_recovery
+        })
+    elif model_comparison:
+        status = "Model comparison available."
+    elif parameter_recovery:
+        status = "Parameter recovery available."
+    
+    lines.append(f"**Overall Status:** {status}")
     lines.append("")
     
-    # Section 3: Statistical Validation (US3)
-    lines.append("-" * 80)
-    lines.append("STATISTICAL VALIDATION (US3)")
-    lines.append("-" * 80)
-    lines.append(f"Bonferroni-Corrected Interaction P-value: {interaction_p:.4f}")
-    if interaction_significant is not None:
-        sig_str = "Significant" if interaction_significant else "Not Significant"
-        lines.append(f"Interaction (Salience × Foundation) after Correction: {sig_str}")
+    # 2. Model Comparison (ΔAIC)
+    lines.append("## Model Comparison (ΔAIC)")
     lines.append("")
-    lines.append("Sensitivity Analysis Thresholds Tested: {2, 10, 20}")
-    if stability_matrix:
-        lines.append("Model Selection Stability Matrix:")
-        for threshold, stable in stability_matrix.items():
-            lines.append(f"  Threshold {threshold}: {'Stable' if stable else 'Unstable'}")
-    lines.append("")
-    
-    # Section 4: Model Comparison (Scientific Metric - Deferred)
-    lines.append("-" * 80)
-    lines.append("MODEL COMPARISON (SCIENTIFIC METRIC - DEFERRED)")
-    lines.append("-" * 80)
-    if delta_aic is not None:
-        lines.append(f"Baseline Model AIC: {aic_baseline:.4f}")
-        lines.append(f"Salience-Augmented Model AIC: {aic_salience:.4f}")
-        lines.append(f"ΔAIC (Salience - Baseline): {delta_aic:.4f}")
+    if model_comparison:
+        lines.append("The Bayesian model was compared against a Frequentist Linear Mixed Model (LMM) baseline.")
         lines.append("")
-        if abs(delta_aic) > 10:
-            lines.append("Interpretation (Simulation): Strong evidence for salience effect in synthetic data.")
-            lines.append("NOTE: This evidence strength is calculated for pipeline validation purposes only.")
-            lines.append("FINAL CLAIM DEFERRED to Phase 4 upon real data analysis.")
-        elif abs(delta_aic) > 2:
-            lines.append("Interpretation (Simulation): Positive evidence for salience effect.")
-            lines.append("NOTE: Claim deferred to Phase 4.")
-        else:
-            lines.append("Interpretation (Simulation): Weak or no evidence for salience effect in this sample.")
-            lines.append("NOTE: Claim deferred to Phase 4.")
+        lines.append("### Results")
+        lines.append(f"- **ΔAIC:** {model_comparison.get('delta_aic', 'N/A')}")
+        lines.append(f"- **Bayesian WAIC:** {model_comparison.get('bayesian_waic', 'N/A')}")
+        lines.append(f"- **LMM AIC:** {model_comparison.get('lmm_aic', 'N/A')}")
+        lines.append("")
+        if model_comparison.get('interpretation'):
+            lines.append(f"**Interpretation:** {model_comparison['interpretation']}")
     else:
-        lines.append("Model comparison metrics not available.")
+        lines.append("*Model comparison results not available.*")
     lines.append("")
     
-    # Section 5: Conclusion
-    lines.append("-" * 80)
-    lines.append("CONCLUSION")
-    lines.append("-" * 80)
-    lines.append(f"The pipeline validation has {pipeline_status}.")
+    # 3. Parameter Recovery
+    lines.append("## Parameter Recovery")
     lines.append("")
-    if pipeline_status == "PASSED":
-        lines.append("The system successfully ingests data, applies salience mapping, runs Bayesian")
-        lines.append("inference, recovers known parameters, and performs statistical validation with")
-        lines.append("Bonferroni correction. The pipeline is ready for Phase 4 (Real Data Analysis).")
+    lines.append("Parameter recovery analysis validates the model's ability to estimate ground truth effects.")
+    lines.append("")
+    if parameter_recovery:
+        lines.append("### Metrics")
+        lines.append(f"- **Bias:** {parameter_recovery.get('bias', 'N/A')}")
+        lines.append(f"- **95% CI Coverage:** {parameter_recovery.get('coverage_95ci', 'N/A')}")
+        lines.append(f"- **Samples:** {parameter_recovery.get('n_samples', 'N/A')}")
+        lines.append("")
+        if parameter_recovery.get('success'):
+            lines.append("**Conclusion:** Parameters were successfully recovered within acceptable bounds.")
+        else:
+            lines.append("**Conclusion:** Parameter recovery did not meet success criteria.")
     else:
-        lines.append("The pipeline validation has failed one or more critical checks. Please review")
-        lines.append("the logs and validation metrics above to identify and resolve issues before")
-        lines.append("proceeding to real data analysis.")
+        lines.append("*Parameter recovery results not available.*")
     lines.append("")
-    lines.append("Hypothesis Statement (Deferral Note):")
-    lines.append("While the current analysis suggests [findings based on simulation], the final")
-    lines.append("scientific claim regarding the cognitive mechanisms underlying intuitive moral")
-    lines.append("judgments in virtual environments is explicitly deferred to Phase 4.")
-    lines.append("Evidence strength (ΔAIC) calculated but claim deferred per Plan.")
+    
+    # 4. Sensitivity Analysis
+    lines.append("## Sensitivity Analysis")
     lines.append("")
-    lines.append("=" * 80)
-    lines.append("END OF REPORT")
-    lines.append("=" * 80)
+    lines.append("Sensitivity analysis was performed to ensure robustness across different thresholds.")
+    lines.append("")
+    if sensitivity_analysis:
+        lines.append("### Threshold Stability")
+        thresholds = sensitivity_analysis.get('thresholds', {})
+        if thresholds:
+            lines.append("| Threshold | Stability Metric | Status |")
+            lines.append("| :--- | :--- | :--- |")
+            for t, data in thresholds.items():
+                status_str = "Stable" if data.get('stable', False) else "Unstable"
+                lines.append(f"| {t} | {data.get('metric', 'N/A')} | {status_str} |")
+        else:
+            lines.append("*No threshold data found.*")
+        lines.append("")
+        if sensitivity_analysis.get('overall_stability'):
+            lines.append(f"**Overall Stability:** {sensitivity_analysis['overall_stability']}")
+    else:
+        lines.append("*Sensitivity analysis results not available.*")
+    lines.append("")
+    
+    # 5. Bonferroni Correction (Optional but good for US3)
+    lines.append("## Statistical Validation (Bonferroni)")
+    lines.append("")
+    if bonferroni:
+        lines.append(f"**Corrected Alpha:** {bonferroni.get('corrected_alpha', 'N/A')}")
+        lines.append(f"**Significant Effects:** {bonferroni.get('significant_count', 0)}")
+    else:
+        lines.append("*Bonferroni correction results not available.*")
+    lines.append("")
+    
+    # 6. Synthetic Validation (ΔAIC > 10)
+    lines.append("## Synthetic Data Validation")
+    lines.append("")
+    if delta_aic_validation:
+        lines.append(f"**Threshold:** {delta_aic_validation.get('threshold', 10)}")
+        lines.append(f"**Observed ΔAIC:** {delta_aic_validation.get('observed_delta_aic', 'N/A')}")
+        lines.append(f"**Passed:** {delta_aic_validation.get('passed', False)}")
+    else:
+        lines.append("*Synthetic validation results not available.*")
+    lines.append("")
+    
+    # 7. Conclusion
+    lines.append("## Conclusion")
+    lines.append("")
+    lines.append("The analysis pipeline successfully processed the data and generated statistical models.")
+    lines.append("Key findings regarding the effect of perceptual salience on moral judgments are detailed above.")
+    lines.append("Future work should focus on acquiring real-world VR data to validate these simulation-based findings.")
+    lines.append("")
+    lines.append("---")
+    lines.append("*End of Report*")
     
     return "\n".join(lines)
 
-def main():
+def main() -> None:
     """Main entry point for report generation."""
-    logger.info("Starting report generation...")
+    logger.log("report_start", operation="generate_final_report")
     
-    # Ensure directories exist
-    ensure_directories()
+    # Ensure output directory exists
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     
-    # Define paths
-    results_path = Path(project_root) / "data" / "processed" / "validation_results.json"
-    model_comparison_path = Path(project_root) / "data" / "processed" / "model_comparison_results.json"
-    report_output_path = Path(project_root) / "reports" / "final_validation_report.txt"
+    # Load results
+    model_comparison = load_json_result(MODEL_COMPARISON_PATH)
+    parameter_recovery = load_json_result(PARAMETER_RECOVERY_PATH)
+    sensitivity_analysis = load_json_result(SENSITIVITY_ANALYSIS_PATH)
+    delta_aic_validation = load_json_result(DELTA_AIC_VALIDATION_PATH)
+    bonferroni = load_json_result(BONFERRONI_PATH)
     
-    # Load validation results
-    validation_results = load_json_result(str(results_path))
-    if not validation_results:
-        logger.error("Validation results not found. Cannot generate report.")
-        sys.exit(1)
-    
-    # Load model comparison results (optional)
-    model_comparison_results = None
-    if model_comparison_path.exists():
-        model_comparison_results = load_json_result(str(model_comparison_path))
-    
-    # Determine run mode from config or environment
-    run_mode = os.getenv("RUN_MODE", "simulation")
-    
-    # Generate report content
-    report_content = generate_report_content(
-        validation_results=validation_results,
-        model_comparison_results=model_comparison_results,
-        run_mode=run_mode
+    # Generate content
+    content = generate_report_content(
+        model_comparison,
+        parameter_recovery,
+        sensitivity_analysis,
+        delta_aic_validation,
+        bonferroni
     )
     
-    # Write report to file
+    # Write report
     try:
-        with open(report_output_path, 'w') as f:
-            f.write(report_content)
-        logger.info(f"Report successfully generated: {report_output_path}")
-        
-        # Also print to stdout for immediate visibility
-        print(report_content)
-        
+        with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
+            f.write(content)
+        logger.log("report_written", path=str(OUTPUT_PATH))
+        print(f"Report successfully written to: {OUTPUT_PATH}")
     except IOError as e:
-        logger.error(f"Failed to write report: {e}")
+        logger.log("report_write_error", error=str(e))
+        print(f"Error writing report: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

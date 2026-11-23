@@ -1,0 +1,587 @@
+{
+  "fetched_at": "2026-09-18T22:09:34Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction\"",
+      "target_n": 5
+    },
+    "duration_seconds": 40.152,
+    "ended_at": "2026-09-18T22:09:34Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "feed-forward 3D reconstruction from single images"
+        ],
+        [
+          2,
+          "neural 3D scene representation for simulation"
+        ],
+        [
+          3,
+          "real-time 3D scene generation for robotics"
+        ],
+        [
+          4,
+          "TriSplat architecture for 3D Gaussian splatting"
+        ],
+        [
+          5,
+          "simulation-ready neural scene representations"
+        ],
+        [
+          6,
+          "single-view 3D reconstruction using transformers"
+        ],
+        [
+          7,
+          "feed-forward neural radiance fields for dynamic scenes"
+        ],
+        [
+          8,
+          "3D Gaussian splatting for interactive simulation"
+        ],
+        [
+          9,
+          "end-to-end 3D scene understanding and reconstruction"
+        ],
+        [
+          10,
+          "neural rendering for digital twin environments"
+        ],
+        [
+          11,
+          "rapid 3D scene generation from RGB images"
+        ],
+        [
+          12,
+          "feed-forward geometry estimation for physics simulation"
+        ],
+        [
+          13,
+          "scalable 3D scene synthesis using deep learning"
+        ],
+        [
+          14,
+          "direct 3D point cloud reconstruction from 2D inputs"
+        ],
+        [
+          15,
+          "neural implicit surfaces for real-time rendering"
+        ],
+        [
+          16,
+          "3D scene reconstruction with learned priors"
+        ],
+        [
+          17,
+          "video-based 3D reconstruction for autonomous systems"
+        ],
+        [
+          18,
+          "generative models for 3D environment creation"
+        ],
+        [
+          19,
+          "efficient 3D asset generation for virtual simulation"
+        ],
+        [
+          20,
+          "monocular depth estimation for 3D scene reconstruction"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "feed-forward 3D reconstruction from single images": 4,
+        "llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "3D Gaussian Splatting feed-forward reconstruction",
+      "TriSplat neural radiance fields dataset benchmark",
+      "feed-forward 3D scene representation implicit surface",
+      "novel view synthesis PSNR LSS evaluation metrics",
+      "differentiable rendering geometry consistency simulation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2605.26115"
+      ]
+    },
+    "per_query_hit_count": {
+      "3D Gaussian Splatting feed-forward reconstruction": 3,
+      "TriSplat neural radiance fields dataset benchmark": 3,
+      "differentiable rendering geometry consistency simulation": 3,
+      "feed-forward 3D scene representation implicit surface": 1,
+      "llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction\" computer science": 3,
+      "novel view synthesis PSNR LSS evaluation metrics": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-18T22:08:54Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"trisplat: simulation-ready feed-forward 3d scene reconstruction\" computer science",
+      "raw": "llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-09-18T22:09:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-09-18T22:09:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-09-18T22:09:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human hair reconstruction is a challenging problem in computer vision, with growing importance for applications in virtual reality and digital human modeling. Recent advances in 3D Gaussians Splatting (3DGS) provide efficient and explicit scene representations that naturally align with the structure of hair strands. In this work, we extend the 3DGS framework to enable strand-level hair geometry reconstruction from multi-view images. Our multi-stage pipeline first reconstructs detailed hair geometry using a differentiable Gaussian rasterizer, then merges individual Gaussian segments into coherent strands through a novel merging scheme, and finally refines and grows the strands under photometric supervision.\n  While existing methods typically evaluate reconstruction quality at the geometric level, they often neglect the connectivity and topology of hair strands. To address this, we propose a new evaluation metric that serves as a proxy for assessing topological accuracy in strand reconstruction. Extensive experiments on both synthetic and real-world datasets demonstrate that our method robustly handles a wide range of hairstyles and achieves efficient reconstruction, typically completing within one hour.\n  The project page can be found at: https://yimin-pan.github.io/hair-gs/",
+          "claimed_authors": [
+            "Yimin Pan",
+            "Matthias Nießner",
+            "Tobias Kirschstein"
+          ],
+          "claimed_title": "HairGS: Hair Strand Reconstruction based on 3D Gaussian Splatting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.07774"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='HairGS: Hair Strand Reconstruction based on 3D Gaussian Splatting')",
+        "failed_at": "2026-09-18T22:09:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Neural Radiance Fields (NeRFs) encode the radiance in a scene parameterized by the scene's plenoptic function. This is achieved by using an MLP together with a mapping to a higher-dimensional space, and has been proven to capture scenes with a great level of detail. Naturally, the same parameterization can be used to encode additional properties of the scene, beyond just its radiance. A particularly interesting property in this regard is the semantic decomposition of the scene. We introduce a novel technique for semantic soft decomposition of neural radiance fields (named SSDNeRF) which jointly encodes semantic signals in combination with radiance signals of a scene. Our approach provides a soft decomposition of the scene into semantic parts, enabling us to correctly encode multiple semantic classes blending along the same direction -- an impossible feat for existing methods. Not only does this lead to a detailed, 3D semantic representation of the scene, but we also show that the regularizing effects of the MLP used for encoding help to improve the semantic representation. We show state-of-the-art segmentation and reconstruction results on a dataset of common objects and demonstrate how the proposed approach can be applied for high quality temporally consistent video editing and re-compositing on a dataset of casually captured selfie videos.",
+          "claimed_authors": [
+            "Siddhant Ranade",
+            "Christoph Lassner",
+            "Kai Li",
+            "Christian Haene",
+            "Shen-Chi Chen",
+            "Jean-Charles Bazin",
+            "Sofien Bouaziz"
+          ],
+          "claimed_title": "SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.03406"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='SSDNeRF: Semantic Soft Decomposition of Neural Radiance Fields')",
+        "failed_at": "2026-09-18T22:09:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-09-18T22:09:22Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose DENSER, a Depth-guided ENSemble with Staged EFA-GS Reconstruction for soccer novel view synthesis. DENSER extends EFA-GS with three key contributions: (1) camera-height-based loss weighting that prioritises ground-level broadcast views, (2) monocular depth supervision from Depth-Anything-V2 to regularise geometry in textureless regions, and (3) a three-model pixel-average ensemble whose members diverge from a shared base checkpoint by varying training length and Gaussian scale clamping. On five held-out challenge scenes we achieve a mean PSNR of 29.89 dB, SSIM of 0.791, and LPIPS of 0.366.",
+          "claimed_authors": [
+            "Parthsarthi Rawat"
+          ],
+          "claimed_title": "DENSER: Depth-Guided Ensemble with Staged EFA-GS Reconstruction for Soccer Novel View Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.01419"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='DENSER: Depth-Guided Ensemble with Staged EFA-GS Reconstruction for Soccer Novel View Synthesis')",
+        "failed_at": "2026-09-18T22:09:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a new task, novel view synthesis for LiDAR sensors. While traditional model-based LiDAR simulators with style-transfer neural networks can be applied to render novel views, they fall short of producing accurate and realistic LiDAR patterns because the renderers rely on explicit 3D reconstruction and exploit game engines, that ignore important attributes of LiDAR points. We address this challenge by formulating, to the best of our knowledge, the first differentiable end-to-end LiDAR rendering framework, LiDAR-NeRF, leveraging a neural radiance field (NeRF) to facilitate the joint learning of geometry and the attributes of 3D points. However, simply employing NeRF cannot achieve satisfactory results, as it only focuses on learning individual pixels while ignoring local information, especially at low texture areas, resulting in poor geometry. To this end, we have taken steps to address this issue by introducing a structural regularization method to preserve local structural details. To evaluate the effectiveness of our approach, we establish an object-centric multi-view LiDAR dataset, dubbed NeRF-MVL. It contains observations of objects from 9 categories seen from 360-degree viewpoints captured with multiple LiDAR sensors. Our extensive experiments on the scene-level KITTI-360 dataset, and on our object-level NeRF-MVL show that our LiDAR-NeRF surpasses the model-based algorithms significantly.",
+          "claimed_authors": [
+            "Tang Tao",
+            "Longfei Gao",
+            "Guangrun Wang",
+            "Yixing Lao",
+            "Peng Chen",
+            "Hengshuang Zhao",
+            "Dayang Hao",
+            "Xiaodan Liang",
+            "Mathieu Salzmann",
+            "Kaicheng Yu"
+          ],
+          "claimed_title": "LiDAR-NeRF: Novel LiDAR View Synthesis via Neural Radiance Fields",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.10406"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='LiDAR-NeRF: Novel LiDAR View Synthesis via Neural Radiance Fields')",
+        "failed_at": "2026-09-18T22:09:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The goal of Novel View Synthesis (NVS) is to generate realistic images of a given content from unseen viewpoints. But how can we trust that a generated image truly reflects the intended transformation? Evaluating its reliability remains a major challenge. While recent generative models, particularly diffusion-based approaches, have significantly improved NVS quality, existing evaluation metrics struggle to assess whether a generated image is both realistic and faithful to the source view and intended viewpoint transformation. Standard metrics, such as pixel-wise similarity and distribution-based measures, often mis-rank incorrect results as they fail to capture the nuanced relationship between the source image, viewpoint change, and generated output. We propose a task-aware evaluation framework that leverages features from a strong NVS foundation model, Zero123, combined with a lightweight tuning step to enhance discrimination. Using these features, we introduce two complementary evaluation metrics: a reference-based score, $D_{\\text{PRISM}}$, and a reference-free score, $\\text{MMD}_{\\text{PRISM}}$. Both reliably identify incorrect generations and rank models in agreement with human preference studies, addressing a fundamental gap in NVS evaluation. Our framework provides a principled and practical approach to assessing synthesis quality, paving the way for more reliable progress in novel view synthesis. To further support this goal, we apply our reference-free metric to six NVS methods across three benchmarks: Toys4K, Google Scanned Objects (GSO), and OmniObject3D, where $\\text{MMD}_{\\text{PRISM}}$ produces a clear and stable ranking, with lower scores consistently indicating stronger models.",
+          "claimed_authors": [
+            "Saar Stern",
+            "Ido Sobol",
+            "Or Litany"
+          ],
+          "claimed_title": "Appreciate the View: A Task-Aware Evaluation Framework for Novel View Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.12675"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='Appreciate the View: A Task-Aware Evaluation Framework for Novel View Synthesis')",
+        "failed_at": "2026-09-18T22:09:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Inverse rendering seeks to reconstruct both geometry and spatially varying BRDFs (SVBRDFs) from captured images. To address the inherent ill-posedness of inverse rendering, basis BRDF representations are commonly used, modeling SVBRDFs as spatially varying blends of a set of basis BRDFs. However, existing methods often yield basis BRDFs that lack intuitive separation and have limited scalability to scenes of varying complexity. In this paper, we introduce a differentiable inverse rendering method that produces interpretable basis BRDFs. Our approach models a scene using 2D Gaussians, where the reflectance of each Gaussian is defined by a weighted blend of basis BRDFs. We efficiently render an image from the 2D Gaussians and basis BRDFs using differentiable rasterization and impose a rendering loss with the input images. During this analysis-by-synthesis optimization process of differentiable inverse rendering, we dynamically adjust the number of basis BRDFs to fit the target scene while encouraging sparsity in the basis weights. This ensures that the reflectance of each Gaussian is represented by only a few basis BRDFs. This approach enables the reconstruction of accurate geometry and interpretable basis BRDFs that are spatially separated. Consequently, the resulting scene representation, comprising basis BRDFs and 2D Gaussians, supports physically-based novel-view relighting and intuitive scene editing.",
+          "claimed_authors": [
+            "Hoon-Gyu Chung",
+            "Seokjun Choi",
+            "Seung-Hwan Baek"
+          ],
+          "claimed_title": "Differentiable Inverse Rendering with Interpretable Basis BRDFs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.17994"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='Differentiable Inverse Rendering with Interpretable Basis BRDFs')",
+        "failed_at": "2026-09-18T22:09:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper establishes the basis of the quaternionic differential geometry ($\\mathbbm H$DG) initiated in a previous article. The usual concepts of curves and surfaces are generalized to quaternionic constraints, as well as the curvature and torsion concepts, differential forms, directional derivatives and the structural equations. The analogy between the quaternionic and the real geometries is obtained using a matrix representation of quaternions. The results evidences the quaternionic formalism as a suitable language to differential geometry that can be useful in various directions of future investigation.",
+          "claimed_authors": [
+            "Sergio Giardino"
+          ],
+          "claimed_title": "Differential geometry using quaternions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.03765"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='Differential geometry using quaternions')",
+        "failed_at": "2026-09-18T22:09:23Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new field of discrete differential geometry is presently emerging on the border between differential and discrete geometry. Whereas classical differential geometry investigates smooth geometric shapes (such as surfaces), and discrete geometry studies geometric shapes with finite number of elements (such as polyhedra), the discrete differential geometry aims at the development of discrete equivalents of notions and methods of smooth surface theory. Current interest in this field derives not only from its importance in pure mathematics but also from its relevance for other fields like computer graphics. Recent progress in discrete differential geometry has lead, somewhat unexpectedly, to a better understanding of some fundamental structures lying in the basis of the classical differential geometry and of the theory of integrable systems. The goal of this book is to give a systematic presentation of current achievements in this field.",
+          "claimed_authors": [
+            "Alexander I. Bobenko",
+            "Yuri B. Suris"
+          ],
+          "claimed_title": "Discrete differential geometry. Consistency as integrability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "math/0504358"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"TriSplat: Simulation-Ready Feed-Forward 3D Scene R', candidate_title='Discrete differential geometry. Consistency as integrability')",
+        "failed_at": "2026-09-18T22:09:23Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiahui Zhang",
+            "Yuelei Li",
+            "Anpei Chen",
+            "Muyu Xu",
+            "Kunhao Liu",
+            "Jianyuan Wang",
+            "Xiao-Xiao Long",
+            "Hanxue Liang",
+            "Zexiang Xu",
+            "Hao Su",
+            "Christian Theobalt",
+            "Christian Rupprecht",
+            "Andrea Vedaldi",
+            "Kaichen Zhou",
+            "Hanspeter Pfister",
+            "Paul Pu Liang",
+            "Shijian Lu",
+            "Fangneng Zhan"
+          ],
+          "title": "Advances in Feed-Forward 3D Reconstruction and View Synthesis: A Survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.14501",
+        "summary": "3D reconstruction and view synthesis are foundational problems in computer vision, graphics, and immersive technologies such as augmented reality (AR), virtual reality (VR), and digital twins. Traditional methods rely on computationally intensive iterative optimization in a complex chain, limiting their applicability in real-world scenarios. Recent advances in feed-forward approaches, driven by deep learning, have revolutionized this field by enabling fast and generalizable 3D reconstruction and view synthesis. This survey offers a comprehensive review of feed-forward techniques for 3D reconstruction and view synthesis, with a taxonomy according to the underlying representation architectures including point cloud, 3D Gaussian Splatting (3DGS), Neural Radiance Fields (NeRF), etc. We examine key tasks such as pose-free reconstruction, dynamic 3D reconstruction, and 3D-aware image and video synthesis, highlighting their applications in digital humans, SLAM, robotics, and beyond. In addition, we review commonly used datasets with detailed statistics, along with evaluation protocols for various downstream tasks. We conclude by discussing open research challenges and promising directions for future work, emphasizing the potential of feed-forward approaches to advance the state of the art in 3D vision.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.14501",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-18T22:09:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Haochen Yu",
+            "Qiankun Liu",
+            "Hongyuan Liu",
+            "Jianfei Jiang",
+            "Juntao Lyu",
+            "Jiansheng Chen",
+            "Huimin Ma"
+          ],
+          "title": "XYZCylinder: Towards Compatible Feed-Forward 3D Gaussian Splatting for Driving Scenes via Unified Cylinder Lifting Method",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.07856",
+        "summary": "Feed-forward paradigms for 3D reconstruction have become a focus of recent research, which learn implicit, fixed view transformations to generate a single scene representation. However, their application to complex driving scenes reveals significant limitations. Two core challenges are responsible for this performance gap. First, the reliance on a fixed view transformation hinders compatibility to varying camera configurations. Second, the inherent difficulty of learning complex driving scenes from sparse 360° views with minimal overlap compromises the final reconstruction fidelity. To handle these difficulties, we introduce XYZCylinder, a novel method built upon a unified cylinder lifting method that integrates camera modeling and feature lifting. To tackle the compatibility problem, we design a Unified Cylinder Camera Modeling (UCCM) strategy. This strategy explicitly models projection parameters to unify diverse camera setups, thus bypassing the need for learning viewpoint-dependent correspondences. To improve the reconstruction accuracy, we propose a hybrid representation with several dedicated modules based on newly designed Cylinder Plane Feature Group (CPFG) to lift 2D image features to 3D space. Extensive evaluations confirm that XYZCylinder not only achieves state-of-the-art performance under different evaluation settings but also demonstrates remarkable compatibility in entirely new scenes with different camera settings in a zero-shot manner. Project page: \\href{https://yuyuyu223.github.io/XYZCYlinder-projectpage/}{here}",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.07856",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-18T22:09:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Weijie Wang",
+            "Zimu Li",
+            "Jinchuan Shi",
+            "Zeyu Zhang",
+            "Botao Ye",
+            "Marc Pollefeys",
+            "Donny Y. Chen",
+            "Bohan Zhuang"
+          ],
+          "title": "TriSplat: Simulation-Ready Feed-Forward 3D Scene Reconstruction",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.26115",
+        "summary": "Sparse-view 3D reconstruction is increasingly addressed with feed-forward splatting networks that predict explicit primitives directly from images. Yet most existing methods remain centered on Gaussian primitives and expose surfaces only indirectly: extracting a usable mesh for downstream simulation, physics reasoning, or embodied interaction still requires expensive post-hoc steps that break the feed-forward promise. This limitation is especially pronounced in pose-free settings, where scene structure and camera parameters must be estimated jointly from sparse observations. We present TriSplat, a feed-forward reconstruction network that represents scenes with oriented triangle primitives and directly exports simulation-ready mesh scenes from a single forward pass. Given input images, the network predicts local 3D point maps, triangle attributes, camera poses, and optional intrinsics. Rather than regressing triangle orientation as an unconstrained latent variable, our approach constructs geometry normals from the predicted point maps, refines them with an image-conditioned normal head, and converts them into stable local frames for triangle parameterization. A mono-normal bootstrap schedule further stabilizes early training, while opacity and blur scheduling progressively sharpens the learned surface representation for direct mesh extraction. Experiments on RealEstate10K and DL3DV show that this representation produces more geometry-faithful reconstructions than Gaussian feed-forward baselines while maintaining competitive novel-view rendering quality. Because the rendering primitives are themselves surface triangles, the output can be directly ingested by physics engines, collision detectors, and standard rendering pipelines without any conversion, making it a practical simulation-ready solution for feed-forward 3D scene reconstruction.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.26115",
+          "http_status": 200,
+          "pdf_sample_score": 0.3556,
+          "query_relevance_score": 0.5833,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-18T22:09:22Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Weijie Wang",
+            "Qihang Cao",
+            "Sensen Gao",
+            "Donny Y. Chen",
+            "Haofei Xu",
+            "Wenjing Bian",
+            "Songyou Peng",
+            "Tat-Jen Cham",
+            "Chuanxia Zheng",
+            "Andreas Geiger",
+            "Jianfei Cai",
+            "Jia-Wang Bian",
+            "Bohan Zhuang"
+          ],
+          "title": "Feed-Forward 3D Scene Modeling: A Problem-Driven Perspective",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.14025",
+        "summary": "Reconstructing 3D representations from 2D inputs is a fundamental task in computer vision and graphics, serving as a cornerstone for understanding and interacting with the physical world. While traditional methods achieve high fidelity, they are limited by slow per-scene optimization or category-specific training, which hinders their practical deployment and scalability. Hence, generalizable feed-forward 3D reconstruction has witnessed rapid development in recent years. By learning a model that maps images directly to 3D representations in a single forward pass, these methods enable efficient reconstruction and robust cross-scene generalization. Our survey is motivated by a critical observation: despite the diverse geometric output representations, ranging from implicit fields to explicit primitives, existing feed-forward approaches share similar high-level architectural patterns, such as image feature extraction backbones, multi-view information fusion mechanisms, and geometry-aware design principles. Consequently, we abstract away from these representation differences and instead focus on model design, proposing a novel taxonomy centered on model design strategies that are agnostic to the output format. Our proposed taxonomy organizes the research directions into five key problems that drive recent research development: feature enhancement, geometry awareness, model efficiency, augmentation strategies and temporal-aware models. To support this taxonomy with empirical grounding and standardized evaluation, we further comprehensively review related benchmarks and datasets, and extensively discuss and categorize real-world applications based on feed-forward 3D models. Finally, we outline future directions to address open challenges such as scalability, evaluation standards, and world modeling.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.14025",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4167,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-18T22:09:23Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiahao Ma",
+            "Lei Wang",
+            "Miaomiao liu",
+            "David Ahmedt-Aristizabal",
+            "Chuong Nguyen"
+          ],
+          "title": "Puzzles: Unbounded Video-Depth Augmentation for Scalable End-to-End 3D Reconstruction",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.23863",
+        "summary": "Multi-view 3D reconstruction remains a core challenge in computer vision. Recent methods, such as DUST3R and its successors, directly regress pointmaps from image pairs without relying on known scene geometry or camera parameters. However, the performance of these models is constrained by the diversity and scale of available training data. In this work, we introduce Puzzles, a data augmentation strategy that synthesizes an unbounded volume of high-quality posed video-depth data from a single image or video clip. By simulating diverse camera trajectories and realistic scene geometry through targeted image transformations, Puzzles significantly enhances data variety. Extensive experiments show that integrating Puzzles into existing video-based 3D reconstruction pipelines consistently boosts performance without modifying the underlying network architecture. Notably, models trained on only ten percent of the original data augmented with Puzzles still achieve accuracy comparable to those trained on the full dataset. Code is available at https://jiahao-ma.github.io/puzzles/.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.23863",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-18T22:09:29Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"trisplat: simulation-ready feed-forward 3d scene reconstruction\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,98 +1,95 @@
-"""Create an auditory cortex ROI mask using the Harvard-Oxford Cortical Structural Atlas.
-
-This script downloads the Harvard-Oxford cortical atlas (maximum-probability,
-threshold 0, 1mm MNI space) via Nilearn, extracts the left and right
-Heschl's Gyrus regions (commonly used as a proxy for primary auditory cortex),
-combines them into a binary mask, and writes the result to
-``roi_masks/auditory_cortex.nii.gz`` in the project root.
-
-The script can be executed directly:
-
-    python code/create_auditory_roi.py
-
-After execution the file ``roi_masks/auditory_cortex.nii.gz`` will exist
-and be ready for downstream analyses.
 """
+Create the Auditory Cortex ROI mask from the Harvard-Oxford Atlas.
 
+This script fetches the Harvard-Oxford Cortical Structural Atlas using nilearn,
+locates the 'Auditory Cortex' label, and saves the binary mask to
+roi_masks/auditory_cortex.nii.gz.
+
+Dependencies:
+    nilearn, nibabel, numpy
+"""
 import os
 from pathlib import Path
-
 import numpy as np
 import nibabel as nib
 from nilearn import datasets
 
+# Ensure the output directory exists
+OUTPUT_DIR = Path("roi_masks")
+OUTPUT_FILE = OUTPUT_DIR / "auditory_cortex.nii.gz"
 
 def fetch_harvard_oxford_atlas():
-    """Fetch the Harvard‑Oxford cortical structural atlas (max‑probability, 1 mm).
-
-    Returns
-    -------
-    atlas_img : nibabel.Nifti1Image
-        The atlas image where each voxel value corresponds to a region index.
-    labels : list of str
-        List of region labels (index 0 is background).
     """
-    # Deterministic fetch: max‑probability atlas, no threshold, 1 mm resolution
-    atlas = datasets.fetch_atlas_harvard_oxford(
-        "cort-maxprob-thr0-1mm",  # max‑probability, threshold 0, 1 mm MNI space
-        data_dir=None,  # use default cache location
-        verbose=0,
+    Fetch the Harvard-Oxford Cortical Atlas (max probability, 1mm resolution).
+    Returns the atlas image object and the labels list.
+    """
+    # fetch_atlas_harvard_oxford returns a dict with 'maps' and 'labels'
+    atlas_data = datasets.fetch_atlas_harvard_oxford(
+        'cort-maxprob-thr0-1mm', symmetric_split=False
     )
-    atlas_img = nib.load(atlas["maps"])
-    labels = atlas["labels"]
+    atlas_img = atlas_data['maps']
+    labels = atlas_data['labels']
     return atlas_img, labels
 
-
-def create_auditory_cortex_mask(atlas_img: nib.Nifti1Image, labels):
-    """Create a binary mask for left and right Heschl's Gyrus (auditory cortex).
-
-    Parameters
-    ----------
-    atlas_img : nibabel.Nifti1Image
-        Atlas image with integer region labels.
-    labels : list of str
-        Corresponding region names.
-
-    Returns
-    -------
-    mask_img : nibabel.Nifti1Image
-        Binary mask (dtype uint8) where voxels belonging to the auditory cortex
-        are 1, all other voxels are 0.
+def create_auditory_cortex_mask(atlas_img, labels, target_label="Auditory Cortex"):
     """
-    data = atlas_img.get_fdata()
-    # Identify region indices whose label contains "Heschl"
-    auditory_indices = [
-        idx for idx, name in enumerate(labels) if "Heschl" in name
-    ]
+    Extract the binary mask for the target label from the atlas.
 
-    if not auditory_indices:
-        raise RuntimeError(
-            "Auditory cortex regions not found in Harvard‑Oxford atlas labels."
-        )
+    Args:
+        atlas_img: Nifti1Image object from nilearn.
+        labels: List of label strings corresponding to atlas indices.
+        target_label: The name of the region to extract.
 
-    # Create binary mask
-    mask_data = np.isin(data, auditory_indices).astype(np.uint8)
+    Returns:
+        Nifti1Image object containing the binary mask.
+    """
+    # Get the data array
+    atlas_data = atlas_img.get_fdata()
 
-    # Preserve affine and header (but update datatype)
-    mask_img = nib.Nifti1Image(mask_data, affine=atlas_img.affine, header=atlas_img.header)
-    # Ensure datatype is uint8
-    mask_img.set_data_dtype(np.uint8)
+    # Find the index of the target label
+    # Labels usually start with an empty string for index 0
+    label_index = None
+    for i, label in enumerate(labels):
+        if target_label in label:
+            label_index = i
+            break
+
+    if label_index is None:
+        raise ValueError(f"Label '{target_label}' not found in atlas labels. "
+                         f"Available labels: {labels}")
+
+    # Create a binary mask where data == label_index
+    mask_data = (atlas_data == label_index).astype(np.int16)
+
+    # Preserve affine and header from the original atlas
+    mask_img = nib.Nifti1Image(mask_data, atlas_img.affine, header=atlas_img.header)
+
     return mask_img
 
+def main():
+    """Main entry point to generate the ROI mask."""
+    print("Fetching Harvard-Oxford Cortical Atlas...")
+    try:
+        atlas_img, labels = fetch_harvard_oxford_atlas()
+    except Exception as e:
+        print(f"ERROR: Failed to fetch atlas: {e}")
+        raise
 
-def main(output_path: Path = Path("roi_masks") / "auditory_cortex.nii.gz"):
-    """Generate the auditory cortex ROI mask and write it to disk."""
+    print("Extracting Auditory Cortex mask...")
+    try:
+        mask_img = create_auditory_cortex_mask(atlas_img, labels)
+    except ValueError as e:
+        print(f"ERROR: {e}")
+        raise
+
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Fetch atlas and create mask
-    atlas_img, labels = fetch_harvard_oxford_atlas()
-    mask_img = create_auditory_cortex_mask(atlas_img, labels)
+    print(f"Saving mask to {OUTPUT_FILE}...")
+    nib.save(mask_img, str(OUTPUT_FILE))
 
-    # Save mask
-    nib.save(mask_img, str(output_path))
-    print(f"Auditory cortex ROI mask saved to: {output_path}")
-
+    print(f"Success! ROI mask saved to {OUTPUT_FILE}")
+    return OUTPUT_FILE
 
 if __name__ == "__main__":
     main()

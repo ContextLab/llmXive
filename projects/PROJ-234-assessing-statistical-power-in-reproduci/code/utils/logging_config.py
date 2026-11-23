@@ -1,32 +1,71 @@
+"""
+utils/logging_config.py
+-----------------------
+
+Minimal logging configuration used across the pipeline.
+Provides a ``setup_logging`` function that returns a logger writing
+to a given file (or to ``stderr`` if no path is supplied).  The logger
+is configured with a simple formatter and a ``INFO`` level by default.
+"""
+
 import logging
-import os
 from pathlib import Path
+from typing import Optional
 
-def setup_logging():
+_loggers = {}
+
+def setup_logging(log_path: Optional[str] = None) -> logging.Logger:
     """
-    Configure logging to write to data/ingest.log.
-    Returns the root logger.
+    Configure and return a logger.
+
+    Parameters
+    ----------
+    log_path : str or None
+        If provided, a ``FileHandler`` writing to this path is added.
+        The parent directory is created automatically.
+
+    Returns
+    -------
+    logging.Logger
+        A logger named ``'pipeline'`` (singleton per ``log_path``).
     """
-    base_dir = Path(__file__).parent.parent
-    log_file = base_dir / "data" / "ingest.log"
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    logger_name = "pipeline" if log_path is None else f"pipeline:{log_path}"
+    if logger_name in _loggers:
+        return _loggers[logger_name]
 
-    # Configure basic logging
-    logging.basicConfig(
-        filename=str(log_file),
-        level=logging.INFO,
-        format='%(asctime)s %(levelname)s %(name)s %(message)s'
-    )
-    
-    # Also print to console for immediate feedback
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    console.setFormatter(logging.Formatter('%(name)s - %(levelname)s - %(message)s'))
-    logging.getLogger('').addHandler(console)
+    logger = logging.getLogger(logger_name)
+    logger.setLevel(logging.INFO)
 
-    return logging.getLogger(__name__)
+    # Ensure we don't add duplicate handlers if called multiple times
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(message)s", "%Y-%m-%d %H:%M:%S"
+        )
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
 
-def test_log_entry():
-    """Write a test entry to verify logging works."""
-    logger = setup_logging()
-    logger.info("Logging configuration test successful.")
+        if log_path:
+            path = Path(log_path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            file_handler = logging.FileHandler(path, encoding="utf-8")
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+
+    _loggers[logger_name] = logger
+    return logger
+
+# Optional helper used by some tests
+def test_log_entry(message: str, log_path: str) -> bool:
+    """
+    Write a single log entry to ``log_path`` and verify that the file
+    contains the message. Returns ``True`` on success.
+    """
+    logger = setup_logging(log_path)
+    logger.info(message)
+
+    try:
+        with open(log_path, "r", encoding="utf-8") as f:
+            return message in f.read()
+    except Exception:
+        return False

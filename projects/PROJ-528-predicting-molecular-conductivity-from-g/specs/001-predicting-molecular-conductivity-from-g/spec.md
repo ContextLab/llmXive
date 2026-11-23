@@ -60,7 +60,7 @@ A researcher obtains a ranked list of topological features by predictive importa
 ### Edge Cases
 
 - What happens when the dataset contains molecules with missing conductivity values? → These are excluded from training with a warning count logged.
-- How does the system handle molecules with extreme conductivity values (outliers beyond 3 standard deviations)? → The system executes a mandatory sensitivity analysis sweeping the outlier exclusion threshold over a range of standard deviation multiples and reports how model R² varies across these cutoffs.
+- How does the system handle molecules with extreme conductivity values (outliers)? → The system executes a mandatory sensitivity analysis sweeping the outlier exclusion threshold over a range of standard deviation multiples and reports how model R² varies across these cutoffs.
 - What happens when all molecules in a scaffold split have identical conductivity values? → The split is rejected with an error and the random seed is advanced for retry.
 - How does the system handle resonance-related structural features not captured by basic graph topology? → The system includes aromaticity indices (e.g., Hückel aromaticity, number of aromatic rings) and topological conjugation path lengths as proxies for resonance-related electronic delocalization. If quantum-derived descriptors (e.g., HOMO-LUMO gap) are missing from the dataset, the system falls back to these topological proxies and logs a warning that quantum validation is pending. If *both* the proxy and primary data are missing or invalid for a specific molecule, that molecule is excluded from the analysis.
 - What happens when a molecule lacks required quantum-derived descriptors? → The system defaults to topological proxy mode (as per FR-014) and logs a warning. The molecule is only excluded if the topological proxy computation also fails or yields invalid values.
@@ -73,7 +73,7 @@ A researcher obtains a ranked list of topological features by predictive importa
 - **FR-002**: System MUST implement molecular scaffold splitting for train/test partitioning with an approximate majority/minority ratio to prevent data leakage from structurally similar molecules (See US-2)
 - **FR-003**: System MUST train both Random Forest and Gradient Boosting regressors on log-transformed charge carrier mobility (cm²/V·s) or intrinsic conductivity of doped states as the target variable, ensuring the dataset contains a non-trivial dynamic range (≥ 3 orders of magnitude) (See US-2)
 - **FR-004**: System MUST evaluate model performance using R², mean absolute error, and k-fold cross-validation on the test set (See US-2)
-- **FR-005**: System MUST output feature importance rankings and generate correlation plots with confidence intervals for the top 5 descriptors (See US-3)
+- **FR-005**: System MUST output feature importance rankings and generate correlation plots with confidence intervals for the top descriptors. (See US-3)
 - **FR-006**: System MUST implement Benjamini-Hochberg false discovery rate correction when reporting multiple feature-conductivity correlations to control family-wise error (See US-3)
 - **FR-007**: System MUST perform a sensitivity analysis sweeping the outlier exclusion threshold over a range of standard deviation multiples and report how model R² varies across these cutoffs. (See US-2)
 - **FR-008**: System MUST include aromaticity descriptors that capture resonance-related structural features as recommended by reviewer linus-pauling-simulated (See US-1)
@@ -102,8 +102,8 @@ A researcher obtains a ranked list of topological features by predictive importa
 - **SC-001**: Model R² on test set is measured against the baseline of random prediction (R² = 0) to quantify predictive power (See US-2)
 - **SC-002**: Feature importance rankings are measured against permutation importance scores to verify that top descriptors are robust to feature shuffling (See US-3)
 - **SC-003**: Correlation confidence interval coverage is measured against the [deferred] nominal coverage target to verify statistical calibration (See US-3)
-- **SC-004**: Family-wise error rate is measured against 0.05 threshold after Benjamini-Hochberg correction to verify multiplicity control (See US-3)
-- **SC-005**: Pipeline execution time is measured against the 6-hour limit to verify compute feasibility on free-tier CI (See US-1, US-2, US-3)
+- **SC-004**: Family-wise error rate is measured against a standard significance threshold after Benjamini-Hochberg correction to verify multiplicity control (See US-3)
+- **SC-005**: Pipeline execution time is measured against a predefined time limit to verify compute feasibility on free-tier CI. (See US-1, US-2, US-3)
 - **SC-006**: Sensitivity analysis R² variance across outlier thresholds is measured to verify model robustness to preprocessing choices (See US-2)
 - **SC-007**: Collinearity diagnostics (VIF scores) are measured for all predictor pairs to verify no spurious independent effects are claimed for definitionally related features (See US-3)
 - **SC-008**: Dependent feature pairs (VIF > 10) are reported, and the final importance ranking excludes these features to ensure statistical independence (See US-3)

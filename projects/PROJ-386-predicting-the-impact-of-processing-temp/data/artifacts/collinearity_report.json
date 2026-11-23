@@ -1,0 +1,7 @@
+{
+  "flagged_pairs": [
+    ["Temp_Mg", "Temp_Si"],
+    ["Mg", "Si"],
+    ["Temp_Cu", "Cu"]
+  ]
+}

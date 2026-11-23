@@ -1,0 +1,80 @@
+T011:
+  c: false
+  h: 803d3b92d60ef0705afc779a12ef6f1895f5024b24c78c82a30c187d1dedbdcd
+  r: "The required output file `data/raw/fda_structures.parquet` does not exist, and\
+    \ the provided `code/ingest.py` snippet is truncated (no visible CLI handling\
+    \ for `--fetch`). Without the saved parquet file, the task\u2019s core requirement\
+    \ is unmet."
+T012:
+  c: false
+  h: 0ce3e9f77f9692178a7dde4a148d56d9575ff9aa4b415acfc2bd7bf8f4000f5a
+  r: "The repository lacks the required `data_insufficiency_report.md` that should\
+    \ be generated when `gate_status.json` is `\"FAIL\"`. Moreover, the provided excerpt\
+    \ of `code/ingest.py` does not show any implementation of the gate\u2011status\
+    \ check, report generation, or the merge logic required by the task. These essential\
+    \ artifacts and behaviors are missing."
+T025:
+  c: false
+  h: c75e6732e45019f1ce74bb80589f5f554c949a930c9d941c1e2b65858b308e79
+  r: "The provided `code/analysis.py` does not contain any implementation of Shapiro\u2011\
+    Wilk or Breusch\u2011Pagan tests, nor does it import `statsmodels`. Moreover,\
+    \ the required output file `data/processed/analysis_results.json` is absent. Consequently,\
+    \ the task\u2019s core requirement\u2014performing the diagnostics and writing\
+    \ the results to the JSON file\u2014is not satisfied."
+T033:
+  c: false
+  h: 2b13c68f134c741fead75b43ec95ff865248c5e79992fd122d9e123d08d54d04
+  r: The `code/viz.py` file is incomplete (truncated and contains unfinished functions)
+    and the required output files (`data/outputs/residuals.png`, `qq_plot.png`) as
+    well as the input `data/processed/analysis_results.json` are missing, so the implementation
+    does not meet the specification.
+T035c:
+  c: false
+  h: 8253a03839ff02103f1f75417d83fd0a5194dbc77025870ec91cd14dbf7033b0
+  r: The `code/report.py` file shown does not contain any logic that checks the size
+    or contents of `analysis_results.json` or `data_insufficiency_report.md`, and
+    both required files are absent from the repository. Consequently, the final validation
+    step described in the task is not implemented.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script execution log, timing output, or any measurable artifact was provided;
+    the implementer did not supply evidence that the full pipeline was run or that
+    total execution time was recorded. The required execution-time measurement is
+    missing.
+T041a:
+  c: false
+  h: 737faab4f61568d1a81602a8a11de3cb71f5cc559104af5a392552631632ac78
+  r: "The provided `code/run_pipeline.py` is truncated and does not show an `if __name__\
+    \ == '__main__':` block, nor does it contain logic that writes the required `data/output/pipeline_metrics.json`\
+    \ file with the specified schema. Moreover, the expected `pipeline_metrics.json`\
+    \ file is missing from the repository. The script also catches `StatisticalInsufficiencyError`\
+    \ instead of the required `DataInsufficiencyError`. These gaps mean the task\u2019\
+    s specifications are not fully met."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact was provided that measures or logs the pipeline\u2019s execution\
+    \ time, defines the operational threshold, or demonstrates validation against\
+    \ that threshold. Consequently the requirement to \u201CValidate pipeline execution\
+    \ time against a defined operational threshold\u201D is not satisfied."
+T056a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script, log file, or execution output is present to show that SHA256 hashes
+    from `reproducibility_log.json` were compared against the actual `data/` files,
+    nor any indication that mismatches would cause a task failure. The required artifact
+    (the reproducibility audit script and its results) is missing.
+T057:
+  c: false
+  h: 3ed7fae82c4a704c6d35c24441a27b6a9782a428160dac8f28d3b3a1b6ea5883
+  r: The required artifact `data/gate_status.json` does not exist, so the gate outcome
+    cannot be verified and the branching logic cannot be confirmed. The task therefore
+    lacks the essential output.
+T060:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, dataset, execution logs, or error reports were provided to demonstrate\
+    \ that a synthetic edge\u2011case dataset was generated, run through the pipeline,\
+    \ and that RDKit remained stable with appropriate error logging. The required\
+    \ artifacts proving the stress test are missing."

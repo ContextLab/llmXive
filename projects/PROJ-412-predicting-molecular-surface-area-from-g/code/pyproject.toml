@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-molecular-sasa"
+version = "0.1.0"
+description = "Predicting Molecular Surface Area from Graph Convolutional Networks"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+dependencies = [
+    "rdkit",
+    "pandas",
+    "scikit-learn",
+    "pyyaml",
+    "numpy",
+    "pytest",
+    "ruff",
+    "black",
+    "datasets",
+    "huggingface_hub",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.setuptools]
+packages = ["code", "code.data", "code.models", "code.eval", "code.utils"]

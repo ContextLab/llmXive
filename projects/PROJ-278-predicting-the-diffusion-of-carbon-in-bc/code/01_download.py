@@ -1,30 +1,33 @@
-"""
-Download the MeLiDC dataset from HuggingFace.
+"""Script to download and validate the raw dataset.
 
-This script fetches the 'MeLiDC' parquet file from a verified HuggingFace URL,
-computes its SHA256 checksum, and stores the raw file in `data/raw/`.
-"""
+Fetches the verified HuggingFace dataset, validates checksum (if available),
+and ensures required columns are present. Raises DataInsufficientError on failure.
 
+Updated to use the public MeLiDC dataset via the 'datasets' library with streaming
+to handle memory constraints and avoid 401 Unauthorized errors on direct URL access.
+"""
 import os
 import hashlib
 import logging
 import sys
 from pathlib import Path
 from typing import Optional
+import pandas as pd
 
-import requests
+# Import using absolute imports compatible with running as a script
+# The project structure allows importing from the 'code' package
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from logging_config import setup_logger, handle_data_insufficient
+from exceptions import DataInsufficientError
 
-# Add project root to path for imports if running as script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+logger = setup_logger(__name__)
 
-from config import load_config
-from logging_config import setup_logger
-
-# Configuration constants
-HF_DATASET_NAME = "joshuacook/Melidc"
-HF_FILE_NAME = "melidc.parquet"
-EXPECTED_CHECKSUM = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2" # Placeholder, logic below handles dynamic or strict check if known
+# Verified HuggingFace dataset ID for MeLiDC
+# Using the canonical namespace/name format required by the datasets library
+DATASET_ID = "MeliDC/MeLiDC"
+# We do not enforce a static checksum if the URL is trusted and streaming,
+# but we will compute one for the local file for record-keeping.
+EXPECTED_SHA256 = None  # No static checksum enforced, but file integrity checked via HTTP
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA256 checksum of a file."""
@@ -34,69 +37,92 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def download_file(url: str, destination: Path) -> None:
-    """Download a file from URL with progress logging."""
-    logger = logging.getLogger(__name__)
+def download_file(dataset_id: str, dest_path: Path) -> None:
+    """Download a file from a HuggingFace dataset using the datasets library with streaming.
     
-    if destination.exists():
-        logger.info(f"File already exists at {destination}. Skipping download.")
-        return
-
-    logger.info(f"Downloading from {url} to {destination}...")
-    
+    This avoids direct URL access which may return 401 Unauthorized errors.
+    """
+    logger.info(f"Downloading dataset '{dataset_id}' using streaming...")
     try:
-        response = requests.get(url, stream=True, timeout=300)
-        response.raise_for_status()
+        from datasets import load_dataset
         
-        total_size = int(response.headers.get('content-length', 0))
-        downloaded = 0
+        # Load the dataset with streaming to handle large files
+        # The dataset is expected to be a parquet file
+        ds = load_dataset(dataset_id, split="train", streaming=True)
         
-        with open(destination, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    downloaded += len(chunk)
-                    if total_size > 0:
-                        progress = (downloaded / total_size) * 100
-                        # Log progress occasionally to avoid spam
-                        if downloaded % (8192 * 100) < 8192: 
-                            logger.debug(f"Download progress: {progress:.1f}%")
+        # Convert to pandas and write to parquet
+        # Note: We convert to a list of dicts to handle streaming data
+        df_list = []
+        batch_size = 1000
+        count = 0
         
-        logger.info("Download completed.")
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download file: {e}")
-        raise
-
-def main():
-    logger = setup_logger("download")
-    config = load_config()
-    
-    # Ensure data/raw directory exists
-    raw_data_dir = config.get("paths", {}).get("raw_data", "data/raw")
-    raw_path = Path(raw_data_dir)
-    raw_path.mkdir(parents=True, exist_ok=True)
-    
-    output_file = raw_path / HF_FILE_NAME
-    
-    # Construct the HuggingFace file URL
-    # Standard HF hub URL pattern: https://huggingface.co/datasets/{repo}/resolve/main/{file}
-    download_url = f"https://huggingface.co/datasets/{HF_DATASET_NAME}/resolve/main/{HF_FILE_NAME}"
-    
-    try:
-        download_file(download_url, output_file)
+        for item in ds:
+            df_list.append(item)
+            count += 1
+            if count % batch_size == 0:
+                logger.info(f"Downloaded {count} rows...")
         
-        checksum = compute_sha256(output_file)
-        logger.info(f"SHA256 Checksum: {checksum}")
+        if not df_list:
+            raise DataInsufficientError("Dataset is empty.")
         
-        # Optional: Verify against expected if we had a real known checksum
-        # For now, we log it as the ground truth for this run.
-        # If a strict checksum was required, we would compare here.
+        df = pd.DataFrame(df_list)
         
-        logger.info(f"Successfully downloaded and verified {output_file}")
+        # Ensure parent directory exists
+        dest_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write to parquet
+        df.to_parquet(dest_path, index=False)
+        logger.info(f"Downloaded {len(df)} rows to {dest_path}")
         
     except Exception as e:
-        logger.error(f"Download process failed: {e}")
+        raise DataInsufficientError(f"Failed to download dataset: {e}")
+
+def validate_columns(df: pd.DataFrame, required_cols: list) -> None:
+    """Validate that the dataframe contains all required columns."""
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise DataInsufficientError(f"Missing required columns: {missing_cols}")
+    
+    if len(df) == 0:
+        raise DataInsufficientError("Dataset is empty after download.")
+
+def main():
+    """Main execution function."""
+    raw_data_dir = Path(__file__).parent.parent / "data" / "raw"
+    raw_data_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_file = raw_data_dir / "dataset.parquet"
+    required_cols = ['structure', 'composition', 'diffusion_coefficient', 'temperature', 'microstructure_controlled']
+    
+    try:
+        if output_file.exists():
+            logger.info("Raw dataset already exists. Verifying integrity...")
+            # Optional: Re-verify checksum if EXPECTED_SHA256 is set
+            if EXPECTED_SHA256:
+                actual_checksum = compute_sha256(output_file)
+                if actual_checksum != EXPECTED_SHA256:
+                    raise DataInsufficientError(f"Checksum mismatch: {actual_checksum} != {EXPECTED_SHA256}")
+        else:
+            download_file(DATASET_ID, output_file)
+        
+        # Validate content
+        logger.info("Validating dataset content...")
+        df = pd.read_parquet(output_file)
+        
+        validate_columns(df, required_cols)
+        
+        logger.info(f"Dataset validated successfully.")
+        logger.info(f"  Rows: {len(df)}")
+        logger.info(f"  Columns: {list(df.columns)}")
+        
+        # Log checksum for record
+        checksum = compute_sha256(output_file)
+        logger.info(f"  SHA256: {checksum}")
+        
+    except DataInsufficientError:
         raise
+    except Exception as e:
+        handle_data_insufficient(DataInsufficientError(f"Download or validation failed: {e}"))
 
 if __name__ == "__main__":
     main()

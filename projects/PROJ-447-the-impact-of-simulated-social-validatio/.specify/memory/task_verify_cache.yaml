@@ -1,0 +1,78 @@
+T001a:
+  c: true
+  h: 8800226c87c9b632ec6df5e4ab4c6269f8d57ed66bc6221ee49dcf76a696f2e4
+  r: The directory `projects/PROJ-447-the-impact-of-simulated-social-validatio/code/`
+    is present at the repository root with multiple files inside, confirming the required
+    path was created.
+T001b:
+  c: true
+  h: 59636fb084965344027e1c653925fdc359407d207f735540402868b83db3b0a4
+  r: The directory `projects/PROJ-447-the-impact-of-simulated-social-validatio/data/`
+    exists at the repository root (contains an `__init__.py` file), fulfilling the
+    creation requirement.
+T001c:
+  c: true
+  h: 3020cc2105005d320158609bcb5bcd824606fb4e1d7623f9e2c2101778fa1864
+  r: "The evidence shows that the directory `projects/PROJ-447-the-impact-of-simulated-social-validatio/tests/`\
+    \ exists at the repository root and contains several files (`__init__.py`, `integration/`,\
+    \ `test_structure.py`, `unit/`). This fulfills the task\u2019s requirement to\
+    \ create the specified directory."
+T001d:
+  c: false
+  h: 3a3a028c7a2395ba87f3f11ed1fcf22f6643924ab19d33e6d5dba69ad833d16a
+  r: No directory listings or file paths were provided, so there is no evidence that
+    the required subdirectories (`code/data`, `code/analysis`, `code/viz`, `code/utils`,
+    `data/raw`, `data/processed`, `tests/unit`, `tests/integration`) actually exist
+    in the project. The implementer must create and show these folders.
+T002:
+  c: false
+  h: fa3463431ec941830e6723a4a58198967f3a4b9351d85a2ee763771ccfe72a15
+  r: No `__init__.py` files are presented in any directory of the project, and there
+    is no evidence that they have been created. The required artifact (initialized
+    package files in every created folder) is missing, so the task is not satisfied.
+T003:
+  c: false
+  h: 92bd4a8210f86fb4b0decf5dc7d23e455b7c03c929cc2d4d0220327ec09579f1
+  r: "The repository contains a `.ruff.toml` file, but it does not specify pinned\
+    \ versions for `ruff` (or `black`), and the required `pypy.toml` file is completely\
+    \ missing. Both artifacts are therefore absent or insufficient to meet the task\u2019\
+    s specification."
+T015:
+  c: false
+  h: 08144b2732e9a46c0c3c9f931e8ad0b273312f330bb6b02386a2a7c2465d7b29
+  r: "The required file `code/data/processor.py` is missing entirely, so no implementation\
+    \ of the FR\u2011008 formula is present. Consequently the task of deriving Perceived\
+    \ Social Validation cannot be satisfied. The implementer must add a non\u2011\
+    empty `processor.py` that imports the PSV weights from `code/utils/constants.py`\
+    \ and computes the PSV metric from likes, comments, shares, and sentiment as specified."
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, module, or documentation was presented that defines the measurement
+    model formula from T015a in an importable form, nor any evidence that other modules
+    can successfully import and use it. The required artifact (e.g., a Python file
+    with an exported function or class) is missing.
+T019:
+  c: false
+  h: 57bedebfdaf9e2e90b3260e126fd383264f9a29d2faa6cb9178aa3b08b0acecc
+  r: "The `data/processed/model_results.json` file does not exist, and the `calculate_vif`\
+    \ function in `code/analysis/regression.py` is truncated and never writes VIF\
+    \ values, the threshold, or a PASS/FAIL status to that JSON file. The required\
+    \ output artifact and complete VIF\u2011writing logic are missing."
+T027a:
+  c: false
+  h: 47c6de7def6efed979bcb9931d4a6e33b7e653f7897d1cd2c6357b5b022d5bb6
+  r: "The repository lacks the required `data/processed/pipeline_run_log.json` file,\
+    \ and the provided excerpt of `code/main.py` does not show any implementation\
+    \ that counts the visualization files or writes a flag to that log. Consequently,\
+    \ the task\u2019s core requirement\u2014to detect missing `scatter_plot.png`/`residuals.png`\
+    \ and record it in `pipeline_run_log.json`\u2014is not fulfilled. The next implementer\
+    \ must add the counting logic (or invoke the imported utilities) and ensure the\
+    \ JSON log is created/updated accordingly."
+T029a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No README.md file or its contents were provided; without the actual markdown\
+    \ document we cannot confirm that it contains a project overview, installation\
+    \ instructions, and usage examples as required. The implementer must supply a\
+    \ non\u2011empty README.md meeting those specifications."

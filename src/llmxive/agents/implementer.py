@@ -563,13 +563,13 @@ _OP_HINTS: dict[str, str] = {
 _COMPUTE_CUE = re.compile(
     r"\bfill(?:\s+in|\s+out)?\b|\bpopulate\b|\bplaceholder|\bTBD\b|\bnan\b"
     # "<exact|actual|real|computed|concrete|true> ... <count|number|value|…>"
-    r"|\b(?:exact|actual|real|computed|concrete|true)\s+(?:\w+[\s‑-]+){0,3}"
+    r"|\b(?:exact|actual|real|computed|concrete|true)\s+(?:\w+[\s\u2011-]+){0,3}"
     r"(?:count|number|value|figure|percentage|vif|coverage|total|statistic)"
     # "<insert|report|state|record|provide|specify> the <exact|actual|total|number|count>"
     r"|\b(?:insert|report|state|record|provide|specify|compute)\s+(?:the\s+)?"
     r"(?:exact|actual|total|real|number|count|computed)"
     r"|\bnumber\s+of\b|\btotal\s+(?:number|count|excluded|records|rows|knots|of)\b"
-    r"|\bcomputed\b|coverage\s*%|\bcounts?\s+(?:per|of|per‑crossing|per-crossing)\b"
+    r"|\bcomputed\b|coverage\s*%|\bcounts?\s+(?:per|of|per\u2011crossing|per-crossing)\b"
     r"|replace\s+.*\b(?:nan|tbd|placeholder)",
     re.I,
 )
@@ -1135,8 +1135,11 @@ class LLMXiveImplementer(Agent):
                 )
             )
 
-            tasks = _read_tasks_md(repo / project.revision_spec_path / "tasks.md")
-            action_items = _read_action_items(repo / project.revision_spec_path)
+            from llmxive.state.revision_paths import resolve_revision_path
+
+            revision_dir = resolve_revision_path(repo, project.id, project.revision_spec_path)
+            tasks = _read_tasks_md(revision_dir / "tasks.md")
+            action_items = _read_action_items(revision_dir)
 
             log_entries: list[ImplementerLogEntry] = []
             success_count = 0
@@ -1272,7 +1275,7 @@ class LLMXiveImplementer(Agent):
             )
             rh_state.save_round(project.id, round_number, log, repo_root=repo)
             outputs.append(
-                f"specs/auto-revisions/{project.id}/round-{round_number}/implementer-log.yaml"
+                str(rh_state._round_path(project.id, round_number, repo_root=repo).relative_to(repo))
             )
 
             # Append summary to revision_history.yaml.

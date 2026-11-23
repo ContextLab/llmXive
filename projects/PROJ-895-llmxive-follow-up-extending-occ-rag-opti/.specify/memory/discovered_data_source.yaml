@@ -1,0 +1,13 @@
+status: none
+intent: synthetic multi-hop question answering dataset 50k download python package
+  dataset
+required_fields:
+- question_id
+- question
+- context
+- answer
+- supporting_facts
+- hop_count
+cache_key: c7c531941962840972ae5479b5ab3b9e0e34c16c9bc70caa05363122b951592f
+searched_at: '2026-10-13T18:33:44.471900+00:00'
+retry_count: 1

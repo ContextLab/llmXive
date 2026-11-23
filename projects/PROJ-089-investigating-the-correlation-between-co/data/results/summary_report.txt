@@ -1,0 +1,22 @@
+# Summary Report
+Generated: 2026-10-06 01:45:07
+
+## Per-Repo Correlation Analysis
+Correlation between code churn and technical debt per repository.
+
+| repo_id | r | p | significance |
+| --- | --- | --- | --- |
+| repo_0 | 0.0000 | 1.0000 | negligible (No) |
+
+## Meta-Analysis Results
+Combined correlation across studies using Fisher's Z transformation.
+
+No meta-analysis data found.
+
+## Sensitivity Analysis
+Correlation stability across different LOC thresholds.
+
+No sensitivity analysis data found.
+
+---
+End of Report

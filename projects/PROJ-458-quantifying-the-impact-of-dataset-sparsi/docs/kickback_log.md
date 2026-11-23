@@ -1,29 +1,35 @@
-# Kickback Log: Spec vs. Plan Deviations
+# Kickback Log: Spec vs Plan Deviations
 
-This document records formal deviations between the original Feature Specification (`spec.md`) and the implementation Plan (`plan.md`). These entries ensure traceability and clarify why the implementation follows the Plan's directives.
+This document records formal deviations between the Project Specification (`spec.md`) and the Implementation Plan (`plan.md`). These deviations were identified during the Kickback & Spec Alignment phase and dictate the implementation strategy.
 
----
+## Log Entries
 
-## Entry: FR-007
+### FR-003: Baseline Definition
+- **Spec**: Uses "[deferred]" terminology for full dataset.
+- **Plan**: Defines a 'Representative Stratified Sample (RSS)' baseline with specific size configuration (`RSS_SIZE`).
+- **Decision**: Implementation follows the **Plan**. The `sparsity_generation.py` module implements RSS capping.
+- **Status**: Logged (T010).
 
-**Date**: 2023-10-27
-**Reference**: T014
-**Severity**: High (Metric Definition)
+### Assumptions: Authentication
+- **Spec**: Assumes 'no authentication barriers'.
+- **Plan**: Requires `MP_API_KEY` configuration via `.env`.
+- **Decision**: Implementation follows the **Plan**. `config.py` and `data_ingestion.py` enforce API key presence.
+- **Status**: Logged (T011).
 
-### Description
-The original Feature Specification (FR-007) defines the sensitivity analysis requirement for the elbow point stability in the learning curve but lacks a specific quantitative threshold for "stability." The text is ambiguous, potentially leading to subjective interpretation of results.
+### FR-006: Statistical Method
+- **Spec**: Mandates 'Repeated Measures ANOVA'.
+- **Plan**: Mandates 'Linear Mixed-Effects Modeling (LMM)' due to nested data structure (sparsity levels within seeds).
+- **Decision**: Implementation follows the **Plan**. `statistical_analysis.py` and `model_training.py` use `statsmodels.MixedLM`.
+- **Status**: Logged (T012).
 
-### Plan Directive
-The Plan explicitly mandates a quantitative threshold for this check: **"slope variance < 10%"**. This metric provides a concrete, measurable criterion for determining if the sensitivity analysis has passed.
+### SC-001: Metrics
+- **Spec**: Lists basic metrics.
+- **Plan**: Includes 'Predictive Variance' and 'Calibration Slope' metrics.
+- **Decision**: Implementation follows the **Plan**. `model_training.py` calculates these extended metrics.
+- **Status**: Logged (T013).
 
-### Deviation Summary
-| Aspect | Feature Specification | Implementation Plan | Decision |
-|:--- |:--- |:--- |:--- |
-| **Metric** | Ambiguous "stability" | Slope variance < 10% | **Plan** |
-| **Enforcement** | Qualitative check | Quantitative assertion | **Plan** |
-
-### Implementation Note
-The implementation of this specific check is handled in **Task T047** (`code/statistical_analysis.py`). The code will assert that the variance in the slope of the learning curve across adjacent sparsity levels is less than 10% to validate the elbow point stability.
-
-### Action Required
-No action required on the Spec document itself; this log serves as the authoritative record of the deviation. Future iterations of the Spec should be updated to reflect the 10% threshold if this project is used as a reference.
+### FR-007: Sensitivity Threshold
+- **Spec**: Ambiguous requirement for sensitivity analysis.
+- **Plan**: Specifies a 'slope variance < 10%' threshold.
+- **Decision**: Implementation follows the **Plan**. `statistical_analysis.py` (T047) implements this explicit check.
+- **Status**: Logged (T014).

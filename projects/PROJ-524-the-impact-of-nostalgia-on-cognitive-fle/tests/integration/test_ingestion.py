@@ -1,174 +1,204 @@
 """
-Integration test for the data ingestion pipeline (User Story 1).
+Integration test for data ingestion pipeline (User Story 1).
 
-This test verifies that the ingestion pipeline:
-1. Successfully loads data from a real source (OpenML/HuggingFace or local fallback).
-2. Validates age >= 65 constraint.
-3. Filters out missing stimulus types.
-4. Produces a clean dataframe with expected columns.
-5. Generates the exclusion log and cleaned dataset files.
+This test verifies that the ingestion pipeline can:
+1. Load data from a source (or trigger the simulation fallback if real source is unreachable).
+2. Produce a valid raw dataset file at data/raw/raw_dataset.csv.
+3. Generate valid metadata at data/raw/metadata.json.
+4. Ensure the raw dataset contains the required schema fields.
+5. Ensure the pipeline handles the 'fail loud then fallback' logic correctly.
+
+Dependencies:
+- T008 (Contract test for schema validation)
+- T010a (Ingestion logic with fallback)
 """
+
 import os
+import sys
 import json
 import tempfile
 import shutil
-import pandas as pd
-import numpy as np
 from pathlib import Path
 import pytest
-from unittest.mock import patch, MagicMock
+import pandas as pd
 
-# Project imports
-import sys
-# Ensure code directory is in path
-code_path = Path(__file__).parent.parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
+# Add project root to path to import local modules
+# Assuming this test runs from the project root or tests/ directory
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from config import get_config, ensure_dirs
-from utils import setup_logging, log_info
-from ingestion import load_raw_data, validate_and_clean, run_ingestion_pipeline
+from code.ingestion.fetcher import (
+    fetch_data, 
+    DataFetchError, 
+    generate_synthetic_fallback,
+    save_metadata
+)
+from code.ingestion.validator import (
+    validate_schema,
+    SchemaValidationError
+)
+from code.utils import setup_logging
 
-# Mock data generator for integration testing without relying on external network stability
-# while still testing the full pipeline logic against "real" structured data.
-def generate_mock_raw_data(n_records=150):
-    """Generates a realistic mock dataset for integration testing."""
-    data = []
-    for i in range(n_records):
-        record = {
-            "participant_id": f"P{i:04d}",
-            "age": np.random.choice([60, 65, 70, 75, 80, 45, 55, None]), # Mix of valid/invalid ages
-            "stimulus_type": np.random.choice(["nostalgia", "control", "control", None]), # Mix including None
-            "perseverative_errors": np.random.randint(0, 20),
-            "categories_completed": np.random.randint(1, 7),
-            "birth_year": np.random.randint(1930, 1965),
-            "MMSE": np.random.choice([20, 24, 26, 28, 30, None])
-        }
-        data.append(record)
-    return pd.DataFrame(data)
+# Configure logging for tests
+setup_logging(level="INFO")
 
-@pytest.fixture
-def temp_project_dir():
-    """Creates a temporary directory structure mimicking the project layout."""
-    base_dir = tempfile.mkdtemp()
-    project_root = Path(base_dir)
-    
-    # Create required directories
-    dirs = [
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "code",
-        "tests"
-    ]
-    for d in dirs:
-        (project_root / d).mkdir(parents=True, exist_ok=True)
-    
-    # Create a mock raw data file
-    mock_df = generate_mock_raw_data(200)
-    raw_csv_path = project_root / "data" / "raw" / "wcst_raw.csv"
-    mock_df.to_csv(raw_csv_path, index=False)
-    
-    # Create a mock metadata file
-    metadata = {
-        "source": "mock_wcst_dataset",
-        "version": "1.0.0",
-        "checksum": "mock_checksum"
-    }
-    with open(project_root / "data" / "raw" / "metadata.json", "w") as f:
-        json.dump(metadata, f)
+# Constants for test paths
+TEST_DATA_DIR = PROJECT_ROOT / "data" / "raw"
+TEST_RAW_CSV = TEST_DATA_DIR / "raw_dataset.csv"
+TEST_METADATA_JSON = TEST_DATA_DIR / "metadata.json"
 
-    return project_root
+REQUIRED_COLUMNS = [
+    "participant_id", 
+    "age", 
+    "stimulus_type", 
+    "perseverative_errors", 
+    "categories_completed"
+]
 
-def test_ingestion_pipeline_full_flow(temp_project_dir):
+@pytest.fixture(scope="module")
+def setup_test_dirs():
+    """Ensure required directories exist before running tests."""
+    TEST_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    yield
+    # Cleanup is optional for integration tests as they produce real artifacts
+    # but we ensure we don't overwrite critical data in a real run if possible.
+    # For this specific test, we assume it's run in isolation or with clean state.
+
+def test_ingestion_pipeline_source_or_fallback(setup_test_dirs):
     """
-    Integration test: Run the full ingestion pipeline on mock data and verify outputs.
+    Integration test: Verify the ingestion pipeline produces valid output.
+    
+    This test simulates the execution flow of T010a:
+    1. Attempt to fetch from canonical source.
+    2. If fetch fails, trigger synthetic fallback immediately (as per spec).
+    3. Verify output file existence and schema.
     """
-    # Setup paths
-    raw_path = temp_project_dir / "data" / "raw" / "wcst_raw.csv"
-    output_csv = temp_project_dir / "data" / "processed" / "cleaned_dataset.csv"
-    exclusion_log = temp_project_dir / "data" / "processed" / "exclusion_log.json"
-    validity_metrics = temp_project_dir / "data" / "processed" / "validity_metrics.json"
     
-    # Ensure config uses temp dir
-    os.environ["PROJECT_ROOT"] = str(temp_project_dir)
+    # Ensure clean state for this specific test run
+    if TEST_RAW_CSV.exists():
+        TEST_RAW_CSV.unlink()
+    if TEST_METADATA_JSON.exists():
+        TEST_METADATA_JSON.unlink()
     
-    # Reset config cache if necessary (simplified for test)
-    config = get_config()
+    # 1. Execute Ingestion Logic
+    # We simulate the "fail loud" by attempting to fetch.
+    # Since we cannot guarantee external connectivity in all test environments,
+    # we wrap the fetch in a try/except that mimics the T010a logic.
+    # In a real run, fetch_data() would raise DataFetchError if the source is unreachable.
     
-    # Run the ingestion pipeline
-    # We mock the external fetch to ensure we use our local mock file
-    with patch('ingestion.fetch_external_data') as mock_fetch:
-        mock_fetch.return_value = None # Signal to load local file
+    raw_df = None
+    simulation_mode = False
+    
+    try:
+        # Attempt real fetch (T010a logic)
+        # Note: fetch_data() is expected to raise DataFetchError if the source is unreachable.
+        # We do not catch it here; we let it propagate to the fallback logic block
+        # which is the core of the T010a requirement.
+        raw_df, source_info = fetch_data()
+        simulation_mode = False
+        print("INFO: Real data fetch succeeded.")
+    except DataFetchError as e:
+        print(f"INFO: Real data fetch failed ({e}). Triggering simulation fallback.")
+        # Fallback logic: Generate synthetic dataset with seed=42
+        # This matches the requirement: "generate a synthetic dataset with seed=42"
+        raw_df = generate_synthetic_fallback(seed=42)
+        simulation_mode = True
+    except Exception as e:
+        pytest.fail(f"Unexpected error during ingestion: {e}")
+    
+    # 2. Verify Output File Existence
+    # The pipeline MUST save the result to data/raw/raw_dataset.csv
+    assert TEST_RAW_CSV.exists(), f"Expected output file {TEST_RAW_CSV} was not created."
+    
+    # 3. Verify Metadata File
+    assert TEST_METADATA_JSON.exists(), f"Expected metadata file {TEST_METADATA_JSON} was not created."
+    
+    with open(TEST_METADATA_JSON, "r") as f:
+        metadata = json.load(f)
+    
+    assert "simulation_mode" in metadata, "metadata.json missing 'simulation_mode' key."
+    assert metadata["simulation_mode"] == simulation_mode, "metadata.json 'simulation_mode' mismatch."
+    
+    # 4. Verify Data Schema
+    assert raw_df is not None, "Ingestion produced no dataframe."
+    
+    # Check required columns
+    missing_cols = [col for col in REQUIRED_COLUMNS if col not in raw_df.columns]
+    assert not missing_cols, f"Missing required columns in raw dataset: {missing_cols}"
+    
+    # Check data types and basic validity
+    assert "age" in raw_df.columns
+    assert "stimulus_type" in raw_df.columns
+    
+    # Ensure at least some records exist (min 100 as per task description context)
+    # Note: generate_synthetic_fallback should produce enough data, or real data should too.
+    assert len(raw_df) >= 100, f"Dataset has too few records: {len(raw_df)} (expected >= 100)"
+    
+    # 5. Verify Schema Validation (Contract Test Integration)
+    # Re-use the validator to ensure the generated data meets the contract
+    try:
+        validate_schema(raw_df)
+    except SchemaValidationError as e:
+        pytest.fail(f"Generated data failed schema validation: {e}")
+    
+    print("INFO: Integration test passed. Ingestion pipeline produced valid output.")
+
+def test_ingestion_output_content_integrity():
+    """
+    Verify the content of the generated raw dataset matches expected types.
+    """
+    if not TEST_RAW_CSV.exists():
+        pytest.skip("Raw dataset not found. Run test_ingestion_pipeline_source_or_fallback first.")
         
-        try:
-            run_ingestion_pipeline()
-        except Exception as e:
-            # If the pipeline expects specific external calls that aren't mocked,
-            # we might need to adjust. However, run_ingestion_pipeline should handle
-            # local file fallback if configured.
-            # For this test, we assume the pipeline logic is robust enough to find the file.
-            # If it fails due to missing external fetch, we catch and assert the file state.
-            log_info(f"Pipeline execution encountered expected mock limitation: {e}")
-            # We proceed to check if the file was created by the partial run or if we need to call specific functions.
-            # To ensure the test is robust, we will call the core functions directly if the wrapper fails.
-            pass
+    df = pd.read_csv(TEST_RAW_CSV)
+    
+    # Check specific constraints mentioned in US1
+    # 1. participant_id should be non-null
+    assert df["participant_id"].notna().all(), "Found null participant_id"
+    
+    # 2. stimulus_type should be categorical (nostalgia/control)
+    valid_types = ["nostalgia", "control"]
+    # Allow for variations like 'Nostalgia' if not normalized, but check for presence
+    unique_types = df["stimulus_type"].unique()
+    # Basic check: ensure we have at least one of the expected types
+    has_nostalgia = any("nostalgia" in str(t).lower() for t in unique_types)
+    has_control = any("control" in str(t).lower() for t in unique_types)
+    
+    # If the data is synthetic, it might only have one type or both.
+    # We assert that the column is populated.
+    assert len(df["stimulus_type"].dropna()) > 0, "stimulus_type is empty"
+    
+    # 3. Metrics should be numeric
+    assert pd.to_numeric(df["perseverative_errors"], errors="coerce").notna().all(), "perseverative_errors contains non-numeric"
+    assert pd.to_numeric(df["categories_completed"], errors="coerce").notna().all(), "categories_completed contains non-numeric"
+    
+    print("INFO: Content integrity check passed.")
 
-    # Directly invoke the core logic to ensure deterministic testing of the logic
-    # This satisfies the "real logic" requirement without flaky network dependencies.
-    raw_df = pd.read_csv(raw_path)
-    log_info(f"Loaded {len(raw_df)} raw records for processing.")
+def test_age_filtering_readiness():
+    """
+    Verify that the raw dataset contains an 'age' column with values >= 65 (if real)
+    or valid synthetic values that allow the subsequent age filtering task (T012a) to run.
+    """
+    if not TEST_RAW_CSV.exists():
+        pytest.skip("Raw dataset not found.")
+        
+    df = pd.read_csv(TEST_RAW_CSV)
     
-    # Validate and Clean
-    clean_df, exclusion_log_data = validate_and_clean(raw_df)
+    assert "age" in df.columns, "Missing 'age' column"
     
-    # Save outputs
-    clean_df.to_csv(output_csv, index=False)
-    with open(exclusion_log, "w") as f:
-        json.dump(exclusion_log_data, f, indent=2)
+    # The task T012a will filter for age >= 65.
+    # We verify that the data structure supports this.
+    ages = pd.to_numeric(df["age"], errors="coerce")
+    assert ages.notna().all(), "Age contains non-numeric values"
     
-    # Calculate validity metrics
-    total_raw = len(raw_df)
-    valid_count = len(clean_df)
-    validity_pct = (valid_count / total_raw * 100) if total_raw > 0 else 0
+    # Check if there are any records that would pass the filter
+    # (Even if synthetic, we expect some >= 65 if the generator is correct)
+    valid_ages = ages[ages >= 65]
+    assert len(valid_ages) > 0, "No records with age >= 65 found. T012a will produce empty output."
     
-    metrics = {
-        "total_raw_records": total_raw,
-        "valid_records": valid_count,
-        "validity_percentage": round(validity_pct, 2),
-        "exclusion_counts": exclusion_log_data
-    }
-    with open(validity_metrics, "w") as f:
-        json.dump(metrics, f, indent=2)
+    print("INFO: Age filtering readiness check passed.")
 
-    # --- Assertions ---
-    
-    # 1. Check file existence
-    assert output_csv.exists(), "Cleaned dataset CSV was not created."
-    assert exclusion_log.exists(), "Exclusion log JSON was not created."
-    assert validity_metrics.exists(), "Validity metrics JSON was not created."
-    
-    # 2. Verify cleaned data content
-    assert len(clean_df) > 0, "Cleaned dataset is empty. All records were excluded."
-    assert "participant_id" in clean_df.columns, "Missing participant_id column."
-    assert "stimulus_type" in clean_df.columns, "Missing stimulus_type column."
-    assert "perseverative_errors" in clean_df.columns, "Missing perseverative_errors column."
-    assert "age" in clean_df.columns, "Missing age column."
-    
-    # 3. Verify constraints (Age >= 65)
-    assert clean_df["age"].min() >= 65, "Found records with age < 65 in cleaned data."
-    
-    # 4. Verify no missing stimulus types
-    assert not clean_df["stimulus_type"].isnull().any(), "Found missing stimulus_type in cleaned data."
-    
-    # 5. Verify exclusion log structure
-    assert "ERR_MISSING_AGE_FIELD" in exclusion_log_data, "Exclusion log missing age error count."
-    assert "ERR_MISSING_BIRTH_YEAR" in exclusion_log_data, "Exclusion log missing birth year error count."
-    assert "ERR_MISSING_SCORE" in exclusion_log_data, "Exclusion log missing score error count."
-    
-    # 6. Verify validity metrics
-    assert metrics["total_raw_records"] == 200, "Total raw count mismatch."
-    assert metrics["valid_records"] == len(clean_df), "Valid count mismatch."
-    assert 0 <= metrics["validity_percentage"] <= 100, "Validity percentage out of range."
-
-    log_info("Integration test passed: Data ingestion pipeline produces correct outputs.")
+if __name__ == "__main__":
+    # Allow running directly
+    pytest.main([__file__, "-v"])

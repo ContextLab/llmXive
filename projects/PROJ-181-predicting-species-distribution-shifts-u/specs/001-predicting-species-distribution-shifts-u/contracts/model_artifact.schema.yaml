@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Artifact Schema"
+description: "Schema for trained SDM model metadata."
+type: "object"
+properties:
+  modelID:
+    type: "string"
+    description: "Unique model identifier"
+  species:
+    type: "string"
+    description: "Target species name"
+  algorithm:
+    type: "string"
+    description: "Model algorithm (e.g., 'MaxEnt')"
+  trainPeriod:
+    type: "string"
+    description: "Training period (e.g., '1970-2000')"
+  testPeriod:
+    type: "string"
+    description: "Test period (e.g., '2005-2020')"
+  auc:
+    type: "number"
+    description: "Area Under Curve"
+  tss:
+    type: "number"
+    description: "True Skill Statistic"
+  filePath:
+    type: "string"
+    description: "Path to model file"
+  seed:
+    type: "integer"
+    description: "Random seed used"
+required:
+  - modelID
+  - species
+  - algorithm
+  - trainPeriod
+  - testPeriod
+  - auc
+  - tss
+  - filePath
+  - seed
+additionalProperties: false

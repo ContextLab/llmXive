@@ -1,0 +1,27 @@
+# SchNet Configuration for Molecular Surface Charge Prediction
+# Task: T020a - Configure model hyperparameters
+
+model:
+  name: "SchNet"
+  # Number of filters in interaction blocks (hidden dimension)
+  num_filters: 128
+  # Number of Gaussian functions for distance expansion
+  num_gaussians: 50
+  # Number of interaction blocks (layers)
+  num_interaction_blocks: 3
+  # Cutoff radius for interactions (Angstroms)
+  cutoff: 10.0
+  # Number of atom types to embed (covers up to Z=100 for safety)
+  num_atom_types: 100
+
+training:
+  learning_rate: 1e-3
+  batch_size: 32
+  max_epochs: 100
+  early_stopping_patience: 10
+
+paths:
+  data_dir: "data/raw"
+  processed_dir: "data/processed"
+  model_dir: "models/checkpoints"
+  report_dir: "reports"

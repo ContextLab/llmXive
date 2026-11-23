@@ -1,13 +1,14 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, W503
+extend-ignore = E203, E501, W503
 exclude =
     .git,
     __pycache__,
     build,
     dist,
     .eggs,
-    *.egg-info
+    *.egg-info,
+    data/
 per-file-ignores =
-    # Allow unused imports in __init__.py for re-exports
-    */__init__.py: F401
+    # Allow longer lines in data files or generated scripts if needed
+    code/scripts/*.py: E501

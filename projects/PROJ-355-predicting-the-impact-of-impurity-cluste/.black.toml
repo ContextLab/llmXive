@@ -1,23 +1,4 @@
-# Standalone Black configuration
-line-length = 88
-target-version = ['py310']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | code/__pycache__
-)/
-'''
-force-exclude = '''
-/(
-    \.git
-)/
-'''
+# This file extends the pyproject.toml settings if specific overrides are needed.
+# Currently, all configuration is in pyproject.toml.
+# This file exists to ensure black can be explicitly pointed to if needed.
+extend = "pyproject.toml"

@@ -1,4 +1,3 @@
-# Core dependencies
 nibabel
 numpy
 pandas
@@ -11,5 +10,9 @@ pybids
 pyyaml
 statsmodels
 pytest
-flake8
 black
+flake8
+isort
+pre-commit
+docker
+requests

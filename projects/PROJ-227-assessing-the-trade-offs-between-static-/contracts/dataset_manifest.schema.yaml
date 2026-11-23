@@ -1,0 +1,103 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Manifest Schema
+description: Manifest tracking all downloaded and processed datasets
+type: object
+required:
+  - manifest_version
+  - created_at
+  - datasets
+  - summary
+properties:
+  manifest_version:
+    type: string
+    const: "1.0"
+    description: Manifest schema version
+  created_at:
+    type: string
+    format: date-time
+    description: Creation timestamp
+  datasets:
+    type: array
+    items:
+      type: object
+      required:
+        - dataset_id
+        - file_path
+        - record_count
+        - language
+        - static_only
+        - checksum
+      properties:
+        dataset_id:
+          type: string
+          description: Unique dataset identifier
+        file_path:
+          type: string
+          description: Relative path to the dataset file
+        record_count:
+          type: integer
+          minimum: 1
+          description: Number of records
+        language:
+          type: string
+          enum:
+            - python
+            - javascript
+            - java
+          description: Target language
+        static_only:
+          type: boolean
+          description: Whether this dataset is static-only (no dynamic tests)
+        checksum:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+          description: SHA-256 checksum
+  summary:
+    type: object
+    required:
+      - total_records
+      - total_datasets
+      - language_breakdown
+      - static_only_count
+      - dynamic_capable_count
+    properties:
+      total_records:
+        type: integer
+        minimum: 0
+        description: Total snippets across all datasets
+      total_datasets:
+        type: integer
+        minimum: 0
+        description: Number of distinct datasets
+      language_breakdown:
+        type: object
+        properties:
+          python:
+            type: integer
+          javascript:
+            type: integer
+          java:
+            type: integer
+        description: Record counts per language
+      static_only_count:
+        type: integer
+        minimum: 0
+        description: Count of static-only snippets
+      dynamic_capable_count:
+        type: integer
+        minimum: 0
+        description: Count of snippets with dynamic test capability
+  validation_status:
+    type: object
+    properties:
+      passed:
+        type: boolean
+      errors:
+        type: array
+        items:
+          type: string
+      warnings:
+        type: array
+        items:
+          type: string
+additionalProperties: false

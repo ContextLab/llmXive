@@ -1,0 +1,583 @@
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Download 30 subjects from OpenNeuro ds000246 within 2 GB disk space
+  claim_id: c_ce456a63
+  context: Update spec.md FR-001 to explicitly state data download requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: System MUST download resting-state and task-based fMRI data for exactly
+    N=30 subjects from OpenNeuro ds000246, ensuring total data size fits within 2
+    GB disk space.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:06:37Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Analysis pipeline runtime less than or equal to 2.5 hours for 30 subjects
+  claim_id: c_2e38bc66
+  context: Update spec.md SC-004 regarding total pipeline runtime constraints.
+  evidence:
+    asserted: '2.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "The total runtime of the analysis pipeline (download to final plot) must\
+    \ be \u2264 2.5 hours, measured against the fixed internal budget for N=30 subjects."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T12:06:37Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Dataset OpenNeuro ds000246 with 30 subjects
+  claim_id: c_aff26e4f
+  context: Notes section specifying the dataset to be used for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OpenNeuro ds000246 (N=30)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:07:09Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Download 30 subjects from OpenNeuro ds000246 within 2 GB disk space
+  claim_id: c_ab6d8d75
+  context: 'Update spec.md FR-001 to explicitly state: System MUST download resting-state
+    and task-based fMRI data for exactly N=30 subjects from OpenNeuro ds000246, ensuring
+    total data size fits within 2 GB disk space.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: System MUST download resting-state and task-based fMRI data for exactly
+    N=30 subjects from OpenNeuro ds000246, ensuring total data size fits within 2
+    GB disk space.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:08:17Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with Frame Displacement greater than 0.5mm
+  claim_id: c_4e0e3b62
+  context: 'Implement subject exclusion logic: Calculate Frame Displacement (FD) using
+    sum of absolute derivatives of the 6 rigid-body motion parameters via nilearn.image.compute_motion_parameters;
+    exclude subjects with FD > 0.5mm and log reasons.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_Frame_Displacement_greater_than_0.5mm
+  kind: magnitude
+  raw_text: Exclude subjects with FD > 0.5mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:08:37Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Pipeline output motion parameters less than 0.5mm and memory usage less
+    than 6.5 GB
+  claim_id: c_784f548a
+  context: 'Independent Test: Run pipeline on a single subject; verify output is a
+    cleaned 4D NIfTI (or processed time-series CSV) with motion parameters < 0.5mm
+    and memory usage < 6.5 GB.'
+  evidence:
+    asserted: '4.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Verify output is a cleaned 4D NIfTI (or processed time-series CSV) with
+    motion parameters < 0.5mm and memory usage < 6.5 GB.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T12:08:37Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Graph metrics output efficiency between 0 and 1 and complete within 2
+    hours
+  claim_id: c_5fedca98
+  context: 'Independent Test: Run on subjects; verify output CSV has no NaNs, values
+    within theoretical bounds (efficiency [0,1]), and completes within 2 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify output CSV has no NaNs, values within theoretical bounds (efficiency
+    [0,1]), and completes within 2 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:08:54Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed on thresholds 0.10, 0.20, and 0.30
+  claim_id: c_e06d6c23
+  context: 'Goal: Perform Pearson correlations between topology and synchrony, apply
+    FDR correction, and run sensitivity analysis on thresholds {0.10, 0.20, 0.30}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis on thresholds {0.10, 0.20, 0.30}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:09:14Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Use Schaefer 200 Parcels 7 Networks atlas
+  claim_id: c_fcd7a806
+  context: 'Implement parcellation logic in code/data/preprocess.py: Fetch Schaefer_200Parcels_7Networks
+    atlas using nilearn.datasets.fetch_atlas_schaefer_2018 if not present, and apply
+    it to extract time-series matrices (200 regions x timepoints).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch Schaefer_200Parcels_7Networks atlas
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:09:54Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Dataset is OpenNeuro ds000246 with 30 subjects
+  claim_id: c_034f3926
+  context: 'Dataset: Use OpenNeuro ds000246 (N=30) as per approved spec amendment
+    (T009a-c).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use OpenNeuro ds000246 (N=30) as per approved spec amendment
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:10:34Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 dataset contains 30 subjects with total data size
+    under 2 GB
+  claim_id: c_5e46791b
+  context: 'T009a [P] Update spec.md FR-001 to explicitly state: ''System MUST download
+    resting-state and task-based fMRI data for exactly N=30 subjects from OpenNeuro
+    ds000246, ensuring total data size fits within 2 GB disk space.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: System MUST download resting-state and task-based fMRI data for exactly
+    N=30 subjects from OpenNeuro ds000246, ensuring total data size fits within 2
+    GB disk space.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:11:24Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Preprocessing and calculation steps memory usage measured as peak RSS
+  claim_id: c_69dad4c6
+  context: 'T009c [P] Update spec.md SC-005 to explicitly state: ''The memory usage
+    of the preprocessing and calculation steps must not exceed a standard operational
+    threshold at any point, measured as peak Resident Set Size (RSS) via /proc/self/status.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_and_calculation_steps_memory_usage_measured_as
+  kind: entity_fact
+  raw_text: The memory usage of the preprocessing and calculation steps must not exceed
+    a standard operational threshold at any point, measured as peak Resident Set Size
+    (RSS) via /proc/self/status.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:11:50Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Subjects with Frame Displacement greater than 0.5mm are excluded
+  claim_id: c_abbbc656
+  context: 'T015 [US1] Implement subject exclusion logic: Calculate Frame Displacement
+    (FD) using sum of absolute derivatives of the 6 rigid-body motion parameters;
+    exclude subjects with FD > 0.5mm and log reasons.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_Frame_Displacement_greater_than_0.5mm_are_excl
+  kind: magnitude
+  raw_text: Exclude subjects with FD > 0.5mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:11:52Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Memory guard raises error if Resident Set Size exceeds 6.5 GB
+  claim_id: c_4cc01afa
+  context: T017a [US1] Implement hard memory guard in code/utils/memory_guard.py which
+    raises MemoryError if RSS > 6.5 GB during execution and logs peak RSS to stderr
+    for verification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hard memory guard raises MemoryError if RSS > 6.5 GB during execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:11:52Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Schaefer_200Parcels_7Networks atlas fetched via nilearn.datasets.fetch_atlas_schaefer_2018
+  claim_id: c_329d867b
+  context: 'T014 [US1] Implement parcellation logic in code/data/preprocess.py: Fetch
+    Schaefer_200Parcels_7Networks atlas using nilearn.datasets.fetch_atlas_schaefer_2018
+    if not present, and apply it to extract time-series matrices (200 regions x timepoints).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schaefer_200Parcels_7Networks_atlas_fetched_via_nilearn.data
+  kind: entity_fact
+  raw_text: Fetch Schaefer_200Parcels_7Networks atlas using nilearn.datasets.fetch_atlas_schaefer_2018.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:12:11Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Default proportional threshold is 0.20
+  claim_id: c_635ce5ab
+  context: T020a [US2] Document default threshold (0.20) in code/config.py and data-model.md
+    to explicitly separate it from the sensitivity sweep range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default threshold is 0.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:12:27Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 0.10, 0.20, and 0.30
+  claim_id: c_ccc39342
+  context: 'T028 [US3] Implement sensitivity analysis: Re-execute the logic of T020
+    (graph metric calculation) with proportional thresholds explicitly set to the
+    set {0.10, 0.20, 0.30}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis runs on thresholds {0.10, 0.20, 0.30}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:12:46Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Download 30 subjects from OpenNeuro ds000246 within 2 GB disk space
+  claim_id: c_8cf82e6e
+  context: Update spec.md FR-001 to explicitly state the data acquisition requirements
+    for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: System MUST download resting-state and task-based fMRI data for exactly
+    N=30 subjects from OpenNeuro ds000246, ensuring total data size fits within 2
+    GB disk space.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:13:48Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with Frame Displacement greater than 0.5 mm
+  claim_id: c_b59d2799
+  context: 'Implement subject exclusion logic: Calculate Frame Displacement (FD) using
+    sum of absolute derivatives of the 6 rigid-body motion parameters.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_Frame_Displacement_greater_than_0.5_mm
+  kind: magnitude
+  raw_text: exclude subjects with FD > 0.5mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:13:50Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Use Schaefer 200 Parcels 7 Networks atlas
+  claim_id: c_812a9f1e
+  context: 'Implement parcellation logic: Fetch Schaefer_200Parcels_7Networks atlas
+    using nilearn.datasets.fetch_atlas_schaefer_2018 if not present, and apply it
+    to extract time-series matrices (200 regions x timepoints).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch Schaefer_200Parcels_7Networks atlas
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:13:50Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 2
+  canonical: Memory guard raises error if Resident Set Size exceeds 6.5 GB
+  claim_id: c_60f8e6ff
+  context: Implement hard memory guard in code/utils/memory_guard.py which raises
+    MemoryError if RSS > 6.5 GB during execution and logs peak RSS to stderr for verification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hard memory guard raises MemoryError if RSS > 6.5 GB during execution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:13:50Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Default proportional threshold is 0.20
+  claim_id: c_f65d9eef
+  context: Document default threshold (0.20) in code/config.py and data-model.md to
+    explicitly separate it from the sensitivity sweep range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default threshold (0.20)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:13:50Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses thresholds 0.10, 0.20, and 0.30
+  claim_id: c_97602c94
+  context: 'Implement sensitivity analysis: Re-execute the logic of T020 (graph metric
+    calculation) with proportional thresholds explicitly set to the set {0.10, 0.20,
+    0.30}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: proportional thresholds explicitly set to the set {0.10, 0.20, 0.30}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:14:11Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Dataset consists of 30 subjects from OpenNeuro ds000246
+  claim_id: c_4aaf0c66
+  context: 'Dataset: Use OpenNeuro ds000246 (N=30) as per approved spec amendment
+    (T009a-c).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 subjects from OpenNeuro ds000246
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:14:26Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Download 30 subjects from OpenNeuro ds000246 within 2 GB
+  claim_id: c_d46f5af7
+  context: Task T009a requires updating the specification to explicitly state data
+    acquisition constraints for the OpenNeuro dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: System MUST download resting-state and task-based fMRI data for exactly
+    N=30 subjects from OpenNeuro ds000246, ensuring total data size fits within 2
+    GB disk space.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:14:41Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Peak RSS must not exceed standard operational threshold
+  claim_id: c_ea8d83d3
+  context: Task T009c requires updating the specification regarding memory usage constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_must_not_exceed_standard_operational_threshold
+  kind: entity_fact
+  raw_text: The memory usage of the preprocessing and calculation steps must not exceed
+    a standard operational threshold at any point, measured as peak Resident Set Size
+    (RSS) via /proc/self/status.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:14:42Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Exclude subjects with FD greater than 0.5 mm
+  claim_id: c_fc77147c
+  context: Task T015 implements subject exclusion logic based on motion parameters
+    calculated via nilearn.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_FD_greater_than_0.5_mm
+  kind: magnitude
+  raw_text: Exclude subjects with Frame Displacement (FD) > 0.5mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:14:59Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Raise MemoryError if peak RSS exceeds 6.5 GB
+  claim_id: c_ecba400c
+  context: Task T017a implements a memory guard to enforce a hard limit on Resident
+    Set Size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement hard memory guard which raises MemoryError if RSS > 6.5 GB during
+    execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:14:59Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds 0.10, 0.20, 0.30
+  claim_id: c_898670c5
+  context: Task T028 requires re-executing graph metric calculation logic with specific
+    threshold values to measure variation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use proportional thresholds {0.10, 0.20, 0.30} for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:15:19Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Use Schaefer 200 Parcels 7 Networks atlas
+  claim_id: c_88c0a2ca
+  context: Task T014 implements parcellation logic using the Schaefer atlas to extract
+    time-series matrices.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch Schaefer_200Parcels_7Networks atlas using nilearn.datasets.fetch_atlas_schaefer_2018.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:15:19Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Normalize to MNI152NLin2009cAsym template
+  claim_id: c_0ca4c0a6
+  context: Task T013 specifies the canonical MNI space template for spatial normalization.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Normalize_to_MNI152NLin2009cAsym_template
+  kind: entity_fact
+  raw_text: Use MNI152NLin2009cAsym template for spatial normalization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:15:36Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 contains 30 subjects
+  claim_id: c_0327171b
+  context: Task T007 defines configuration keys including OPENNEuro_ID and N_SUBJECTS.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OpenNeuro dataset ds000246 contains data for 30 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:15:49Z'
+- artifact_path: projects/PROJ-358-the-influence-of-network-topology-on-neu/specs/001-the-influence-of-network-topology-on-neu/tasks.md
+  attempts: 1
+  canonical: Graph efficiency bounds 0 to 1
+  claim_id: c_783df0a6
+  context: Task T018a requires unit tests to verify that calculated efficiency values
+    fall within theoretical bounds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Graph efficiency values must be within theoretical bounds [0,1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T12:16:10Z'

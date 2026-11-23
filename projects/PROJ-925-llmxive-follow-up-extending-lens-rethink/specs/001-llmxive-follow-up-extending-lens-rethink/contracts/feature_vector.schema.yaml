@@ -1,29 +1,32 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: LinguisticFeatureVector
-description: Schema for the linguistic feature vector extracted from captions.
+$schema: http://json-schema.org/draft-07/schema#
+title: Linguistic Feature Vector Schema
+description: Schema for the extracted linguistic features from captions.
 type: object
+required:
+  - caption_id
+  - linguistic_uncertainty_proxy
+  - syntactic_depth
+  - noun_phrase_density
+  - token_diversity
 properties:
-  semantic_entropy:
+  caption_id:
+    type: string
+    description: Unique identifier for the caption.
+  linguistic_uncertainty_proxy:
     type: number
-    description: Semantic entropy calculated as ln(perplexity).
+    description: Natural log of perplexity from BERT.
     minimum: 0
   syntactic_depth:
     type: integer
-    description: Maximum depth of the syntactic dependency tree.
+    description: Depth of the dependency tree.
     minimum: 0
   noun_phrase_density:
     type: number
     description: Ratio of noun phrases to total tokens.
-    minimum: 0.0
-    maximum: 1.0
+    minimum: 0
+    maximum: 1
   token_diversity:
     type: number
-    description: Type-token ratio (unique tokens / total tokens).
-    minimum: 0.0
-    maximum: 1.0
-required:
-  - semantic_entropy
-  - syntactic_depth
-  - noun_phrase_density
-  - token_diversity
-additionalProperties: false
+    description: Type-token ratio.
+    minimum: 0
+    maximum: 1

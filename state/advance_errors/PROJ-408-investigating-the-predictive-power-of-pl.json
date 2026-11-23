@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-408-investigating-the-predictive-power-of-pl",
+  "stage": "in_progress",
+  "class": "transient",
+  "fingerprint": "unknown",
+  "consecutive_count": 1,
+  "first_seen": "2026-10-09T05:18:01.439590+00:00",
+  "last_seen": "2026-10-09T05:18:01.439590+00:00",
+  "retry_after": "2026-10-09T05:28:01.439590+00:00",
+  "last_error": "no implementation progress: no stage change or verified task completion",
+  "evidence": "no implementation progress: no stage change or verified task completion",
+  "remediation": "Backend/model chain or network flaked (or the signature is unrecognized). Retry with exponential backoff. If it persists past the cap the chain/model config or the remote is genuinely down \u2014 check backend health.",
+  "status": "retry_scheduled"
+}

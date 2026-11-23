@@ -1,138 +1,188 @@
-"""
-T038: Generate regression_summary.csv containing coefficients, SEs, p-values, and VIFs.
-
-This script loads the aggregated User-Track Pair data (from US2), fits the
-mixed-effects model (from US3), calculates VIFs, and saves the results
-to data/final/regression_summary.csv.
-"""
 import os
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
+import sys
 
-# Import from existing project modules
+# Add project root to path if not already present
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 from config import get_project_root, get_config_dict
 from utils import setup_logging, get_logger
-from state_manager import save_state, register_file
-from modeling import fit_mixed_model, check_collinearity, extract_model_summary
+from state_manager import save_state, calculate_checksum
+from modeling import load_user_track_pairs, fit_mixed_model
 
 logger = get_logger(__name__)
 
+def load_regression_results() -> pd.DataFrame:
+    """
+    Load the fitted model results.
+    
+    Since the model is fit in-memory in modeling.py, we need to re-fit
+    or retrieve the results. For this implementation, we re-fit the model
+    on the user_track_pairs data to extract the summary statistics.
+    
+    Returns:
+        pd.DataFrame: Model summary statistics.
+    """
+    logger.info("Loading user track pairs data...")
+    pairs_path = get_project_root() / "data" / "processed" / "user_track_pairs.parquet"
+    
+    if not pairs_path.exists():
+        raise FileNotFoundError(f"Required input file not found: {pairs_path}")
+    
+    df = pd.read_parquet(pairs_path)
+    logger.info(f"Loaded {len(df)} user-track pairs")
+    
+    logger.info("Fitting mixed effects model...")
+    model = fit_mixed_model(df)
+    
+    return model
+
+def calculate_vif(model) -> Dict[str, float]:
+    """
+    Calculate Variance Inflation Factor (VIF) for model predictors.
+    
+    Args:
+        model: Fitted statsmodels MixedLM model.
+        
+    Returns:
+        Dict[str, float]: VIF values for each predictor.
+    """
+    # Get the design matrix from the model
+    # For MixedLM, we need to extract the fixed effects design matrix
+    try:
+        # Access the design matrix if available
+        if hasattr(model, 'formula') and hasattr(model, 'model'):
+            # Extract exog from the underlying model
+            exog = model.model.exog
+            col_names = model.model.exog_names
+        else:
+            # Fallback: try to get from the result object
+            exog = model.exog
+            col_names = model.exog_names
+        
+        # Remove intercept column if present (first column is usually all 1s)
+        if exog.shape[1] > 1 and np.allclose(exog[:, 0], 1):
+            exog = exog[:, 1:]
+            col_names = col_names[1:]
+        
+        vif_dict = {}
+        for i, name in enumerate(col_names):
+            # Calculate VIF: 1 / (1 - R^2) where R^2 is from regressing
+            # column i on all other columns
+            X_other = np.delete(exog, i, axis=1)
+            X_i = exog[:, i]
+            
+            # Simple linear regression to get R^2
+            # X_i = beta_0 + beta_1 * X_other + error
+            try:
+                # Add intercept for regression
+                X_other_const = np.column_stack([np.ones(len(X_i)), X_other])
+                betas, _, _, _ = np.linalg.lstsq(X_other_const, X_i, rcond=None)
+                predicted = X_other_const @ betas
+                ss_res = np.sum((X_i - predicted) ** 2)
+                ss_tot = np.sum((X_i - np.mean(X_i)) ** 2)
+                r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
+                
+                vif = 1.0 / (1 - r_squared) if r_squared < 1 else np.inf
+                vif_dict[name] = vif
+            except Exception as e:
+                logger.warning(f"Could not calculate VIF for {name}: {e}")
+                vif_dict[name] = np.nan
+        
+        return vif_dict
+    except Exception as e:
+        logger.error(f"Error calculating VIF: {e}")
+        return {}
+
+def generate_summary_dataframe(model, vif_dict: Dict[str, float]) -> pd.DataFrame:
+    """
+    Generate a summary dataframe with coefficients, SEs, p-values, and VIFs.
+    
+    Args:
+        model: Fitted statsmodels MixedLM model.
+        vif_dict: Dictionary of VIF values.
+        
+    Returns:
+        pd.DataFrame: Summary table.
+    """
+    # Extract fixed effects results
+    params = model.params
+    std_err = model.bse
+    t_values = model.tvalues
+    
+    # Calculate p-values (two-tailed)
+    from scipy import stats
+    degrees_of_freedom = model.df_resid
+    p_values = 2 * (1 - stats.t.cdf(np.abs(t_values), degrees_of_freedom))
+    
+    # Create summary dataframe
+    summary_data = []
+    for name in params.index:
+        # Get VIF if available, else NaN
+        vif_val = vif_dict.get(name, np.nan)
+        
+        summary_data.append({
+            'variable': name,
+            'coefficient': params[name],
+            'std_error': std_err[name],
+            't_statistic': t_values[name],
+            'p_value': p_values[name],
+            'vif': vif_val
+        })
+    
+    summary_df = pd.DataFrame(summary_data)
+    return summary_df
+
 def main():
     """
-    Main entry point for T038.
-    1. Load data/processed/user_track_pairs.parquet
-    2. Fit the mixed model (vividness ~ residualized_exposure + popularity + (1|user_id))
-    3. Calculate VIFs for fixed effects
-    4. Extract coefficients, SEs, p-values
-    5. Save to data/final/regression_summary.csv
+    Main function to generate regression summary CSV.
     """
-    project_root = get_project_root()
-    config = get_config_dict()
-    
-    input_path = project_root / "data" / "processed" / "user_track_pairs.parquet"
-    output_dir = project_root / "data" / "final"
-    output_file = output_dir / "regression_summary.csv"
-
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T029 (generate_user_track_pairs) has been completed.")
-        raise FileNotFoundError(f"Required input file missing: {input_path}")
-
-    logger.info(f"Loading data from {input_path}")
-    try:
-        df = pd.read_parquet(input_path)
-    except Exception as e:
-        logger.error(f"Failed to load parquet file: {e}")
-        raise
-
-    required_cols = ['mean_vividness', 'residualized_exposure_score', 'overall_popularity_score', 'user_id']
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        logger.error(f"Missing required columns in input data: {missing_cols}")
-        raise ValueError(f"Input data missing columns: {missing_cols}")
-
-    logger.info("Fitting mixed-effects model...")
-    # Formula based on spec update FR-005: mean_vividness ~ residualized_exposure + popularity + (1|user_id)
-    formula = "mean_vividness ~ residualized_exposure_score + overall_popularity_score + (1|user_id)"
+    setup_logging()
+    logger.info("Starting regression summary generation (T038)...")
     
     try:
-        model_result = fit_mixed_model(df, formula)
-    except Exception as e:
-        logger.error(f"Model fitting failed: {e}")
-        raise
-
-    logger.info("Extracting model summary...")
-    summary_data = extract_model_summary(model_result, formula)
-
-    logger.info("Calculating Variance Inflation Factors (VIF)...")
-    # Calculate VIF on the fixed effect design matrix
-    # We need the exog matrix from the model
-    try:
-        # statsmodels MixedLM might not expose exog directly in a simple way for VIF
-        # We reconstruct the design matrix for fixed effects manually
-        import statsmodels.api as sm
-        # Create a subset for VIF calculation (excluding the grouping factor)
-        vif_df = df[['residualized_exposure_score', 'overall_popularity_score']].copy()
-        vif_df = vif_df.dropna()
+        # Load and fit model
+        model = load_regression_results()
         
-        if len(vif_df) == 0:
-            logger.warning("No valid data for VIF calculation after dropping NaNs.")
-            vif_results = {}
-        else:
-            vif_results = check_collinearity(vif_df)
-    except Exception as e:
-        logger.warning(f"Could not calculate VIF: {e}")
-        vif_results = {}
-
-    # Merge summary and VIFs
-    # summary_data is typically a list of dicts or a DataFrame
-    if isinstance(summary_data, list):
-        summary_df = pd.DataFrame(summary_data)
-    else:
-        summary_df = summary_data
-
-    # Add VIF column if available
-    if 'residualized_exposure_score' in vif_results:
-        summary_df['vif_residualized_exposure_score'] = summary_df['variable'].apply(
-            lambda x: vif_results.get(x, np.nan)
+        # Calculate VIFs
+        logger.info("Calculating VIFs...")
+        vif_dict = calculate_vif(model)
+        
+        # Generate summary dataframe
+        logger.info("Generating summary dataframe...")
+        summary_df = generate_summary_dataframe(model, vif_dict)
+        
+        # Define output path
+        output_dir = get_project_root() / "data" / "final"
+        output_dir.mkdir(parents=True, exist_ok=True)
+        output_path = output_dir / "regression_summary.csv"
+        
+        # Save to CSV
+        logger.info(f"Saving summary to {output_path}")
+        summary_df.to_csv(output_path, index=False)
+        
+        # Update state.yaml
+        logger.info("Updating state.yaml...")
+        checksum = calculate_checksum(output_path)
+        save_state(
+            file_path=str(output_path.relative_to(get_project_root())),
+            checksum=checksum,
+            task_id="T038",
+            description="Regression summary with coefficients, SEs, p-values, and VIFs"
         )
-    else:
-        # Fallback: assume order or just map by name if the summary has a 'variable' column
-        # If the summary format is different, this might need adjustment.
-        # Assuming standard statsmodels summary extraction yields 'variable', 'coef', 'std err', 'pvalue'
-        pass
-
-    # Ensure specific columns exist for the output format
-    required_output_cols = ['variable', 'coef', 'std err', 'pvalue']
-    for col in required_output_cols:
-        if col not in summary_df.columns:
-            logger.warning(f"Output column '{col}' not found in summary. Creating empty column.")
-            summary_df[col] = np.nan
-
-    # Select and order columns
-    final_cols = ['variable', 'coef', 'std err', 'pvalue']
-    # Add VIF columns dynamically if they exist
-    vif_cols = [c for c in summary_df.columns if c.startswith('vif_')]
-    final_cols.extend(vif_cols)
-
-    final_df = summary_df[final_cols]
-
-    logger.info(f"Saving regression summary to {output_file}")
-    final_df.to_csv(output_file, index=False)
-
-    # Register output in state.yaml
-    register_file(str(output_file), "regression_summary.csv")
-    save_state()
-
-    logger.info("T038 completed successfully.")
-    return final_df
+        
+        logger.info("Regression summary generation completed successfully.")
+        print(f"Output written to: {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Error generating regression summary: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
-    setup_logging()
     main()

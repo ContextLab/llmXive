@@ -65,5 +65,15 @@
     "sections/appendix.tex",
     "tables",
     "tables/gene_bench_main.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "0ebcc20cf8f22d5c258ba18121f01783e77bfc61a5faa67b592a08d70025387a",
+      "bytes": 3957490
+    },
+    "original.pdf": {
+      "sha256": "74421da43b4ef4b02a95060d2f5a44fced180ebc6719b598face11699fdb51c9",
+      "bytes": 3803570
+    }
+  }
 }

@@ -3,42 +3,37 @@
 **Branch**: `001-assessing-parcellation-sensitivity` | **Date**: 2026-07-09 | **Spec**: `specs/001-assessing-parcellation-sensitivity/spec.md`
 
 ## Summary
-
-This project implements a reproducible pipeline to assess how the identification of "hub" nodes in healthy brain connectomes varies across three distinct parcellation resolutions: AAL-90, Schaefer-200, and Schaefer-400. The system downloads raw fMRI time-series data for a cohort of healthy adults, generates adjacency matrices for each resolution, computes degree and betweenness centrality, defines hubs via a top-10% threshold, and quantifies resilience using **cardinality-normalized** Jaccard/Dice overlap indices (Excess Overlap), Spearman rank correlations (post-spatial alignment), and a Spatial Spin Test for statistical significance. The implementation strictly adheres to CPU-only constraints for GitHub Actions CI.
+This project quantifies the sensitivity of "hub" identification in healthy human connectomes to changes in parcellation resolution (AAL-90 vs. Schaefer-200/400). The technical approach involves downloading raw resting-state fMRI data (or verified pre-computed matrices) for N=20 subjects, generating adjacency matrices for three resolutions, computing degree and betweenness centrality, defining hubs via a top% threshold, and statistically validating overlap using Excess Overlap indices, Spearman rank correlations, and a Volumetric Spatial Spin Test. The pipeline is designed to run entirely on a CPU-first CI runner (limited cores, constrained RAM) by streaming data and using efficient graph libraries, with a fallback to pre-computed matrices if raw processing exceeds time limits.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `nibabel`, `nilearn`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `requests`, `scipy`  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/results`); no external DB.  
-**Testing**: `pytest` (unit tests for centrality logic, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Computational Neuroscience Data Pipeline / Research Scripting.  
-**Performance Goals**: Total runtime ≤ 6 hours; Peak RAM ≤ 7 GB; Disk usage ≤ 14 GB.  
-**Constraints**: No GPU/CUDA; no large model inference; data must be subset/sample-able to fit memory; all random seeds pinned.  
-**Scale/Scope**: N=100 subjects; Multiple resolutions (90, 200, 400 nodes); [deferred] spin test iterations (reducible to a feasible count).
-
-> **Note**: Empirical values (exact runtime, specific correlation coefficients) are deferred to the `research.md` and `data-model.md` phases.  
-> **Note**: `torch` is explicitly excluded from the dependency list. No deep learning or GPU acceleration is used.
+**Primary Dependencies**: `networkx` (graph analysis), `nilearn` (neuroimaging), `numpy`, `pandas`, `scipy` (statistics), `matplotlib`, `seaborn`, `huggingface_hub` (data access), `pytest` (testing).  
+**Storage**: Local temporary directories for streaming; artifacts written to `data/` (raw, processed, results).  
+**Testing**: `pytest` with unit tests for centrality logic and integration tests for the full pipeline on a single subject.  
+**Target Platform**: GitHub Actions Free Tier (Linux, CPU-only) with automatic offload to Kaggle GPU only if a CUDA-specific method is explicitly required (none planned; CPU-first strategy).  
+**Project Type**: Computational Neuroscience Research Pipeline.  
+**Performance Goals**: Complete analysis for N=20 subjects within 6 hours; peak RAM ≤ 7 GB.  
+**Constraints**: No local GPU; strict adherence to verified dataset URLs; no fabrication of data; all citations verified.  
+**Scale/Scope**: A cohort of subjects, multiple resolutions, multiple centrality metrics, 1 spatial mapping, multiple statistical tests.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
+| Principle | Compliance Status | Evidence / Action Plan |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All scripts in `code/` will pin random seeds (`numpy`, `random`). Dependencies pinned in `requirements.txt`. Data fetched from canonical OpenNeuro/HCP sources via `nilearn` or `requests` with checksums recorded. |
-| **II. Verified Accuracy** | **PASS** | Citations for atlases (AAL, Schaefer) and methods (centrality, permutation) will be validated by the Reference-Validator Agent as a blocking gate on the `research_review` → `research_accepted` transition, prior to final paper inclusion. |
-| **III. Data Hygiene** | **PASS** | Raw data stored in `data/raw` (unchanged). Processed matrices stored in `data/processed` with new filenames. Checksums recorded in `state/...yaml`. No PII in data (OpenNeuro/HCP are de-identified). |
-| **IV. Single Source of Truth** | **PASS** | All statistics in the final report will be generated by scripts in `code/` and read from `data/results`. No hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Content hashes for `code/` and `data/` artifacts will be updated in `state/projects/PROJ-800-assessing-parcellation-sensitivity-of-hu.yaml` upon any change. The `Advancement-Evaluator Agent` will invalidate stale records if hashes change. |
-| **VI. Parcellation Resolution Invariance** | **PASS** | The pipeline explicitly generates three distinct matrices per subject. All centrality outputs include the resolution label. Comparisons are only made after computing the specific overlap statistics mandated by the project. |
-| **VII. Set-Theoretic Hub Validation** | **PASS** | Hub status is defined strictly as the top nodes comprising a fixed, small proportion of the network.. Overlap is calculated via set intersection (Jaccard/Dice), not derived from correlation of raw values. **Crucially, overlap metrics are normalized by expected random overlap to account for cardinality differences.** |
+| **I. Reproducibility** | **Compliant** | All code will be in `code/`; random seeds pinned in `config.py`; data fetched via `huggingface_hub` from verified URLs; `requirements.txt` will pin versions. |
+| **II. Verified Accuracy** | **Compliant** | The plan mandates the use of the Reference-Validator Agent (FR-011) before any artifact write. Only URLs from the "Verified datasets" block will be cited. |
+| **III. Data Hygiene** | **Compliant** | Raw data will be checksummed (`sha256sum`) upon download. Derived matrices will be stored in `data/processed/` with new filenames. No in-place modification. |
+| **IV. Single Source of Truth** | **Compliant** | All figures and statistics in the final report will be generated by scripts in `code/` reading directly from `data/`. No manual data entry. |
+| **V. Versioning Discipline** | **Compliant** | The `state/projects/PROJ-800...yaml` file will be updated with content hashes after each artifact generation (FR-010). **Task T010** defines the `code/utils/update_state.py` script to perform this update. |
+| **VI. Parcellation Resolution Invariance** | **Compliant** | The core methodology explicitly compares metrics across AAL, Schaefer-200, and Schaefer-400. All results will be tagged with the specific resolution used via the `atlas_name` attribute in the `AdjacencyMatrix` and `CentralityScore` classes. |
+| **VII. Set-Theoretic Hub Validation** | **Compliant** | Hub status is defined strictly as membership in the top [deferred] (FR-003). Validation uses set-theoretic overlap (Excess Overlap) and rank correlation, not derived values. |
 
 ## Project Structure
 
 ### Documentation (this feature)
-
 ```text
 specs/001-assessing-parcellation-sensitivity/
 ├── plan.md              # This file
@@ -47,68 +42,70 @@ specs/001-assessing-parcellation-sensitivity/
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   ├── adjacency_matrix.schema.yaml
-│   ├── hub_analysis_output.schema.yaml
-│   ├── sensitivity_analysis.schema.yaml
-│   └── spatial_mapping.schema.yaml
-└── tasks.md             # Phase 2 output (not created by /speckit-plan)
+│   ├── hub_set.schema.yaml
+│   ├── centrality_score.schema.yaml
+│   └── overlap_result.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
-
 ```text
 projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/
-├── data/
-│   ├── raw/                 # Downloaded fMRI NIfTI files (or links)
-│   ├── processed/           # Adjacency matrices (npz/csv)
-│   └── results/             # Centrality CSVs, overlap stats, plots
 ├── code/
 │   ├── __init__.py
-│   ├── download_data.py     # FR-001: Fetch and verify raw data
-│   ├── parcellate.py        # FR-001, FR-009: Apply AAL/Schaefer atlases
-│   ├── centrality.py        # FR-002, FR-003: Compute metrics & define hubs
-│   ├── overlap.py           # FR-004, FR-005, FR-006, FR-008: Stats & Permutation
-│   ├── sensitivity.py       # FR-008: Sensitivity Analysis (Threshold Sweep + Fixed-Cardinality)
-│   ├── visualize.py         # FR-007: Heatmaps, Venn diagrams
+│   ├── config.py            # Seeds, paths, thresholds
+│   ├── data/
+│   │   ├── __init__.py
+│   │   ├── loader.py        # HCP/OpenNeuro download logic
+│   │   └── processor.py     # Parcellation logic (AAL, Schaefer)
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── adjacency_matrix.py  # AdjacencyMatrix class
+│   │   ├── hub_set.py           # HubSet class
+│   │   └── centrality_score.py  # CentralityScore class
+│   ├── analysis/
+│   │   ├── __init__.py
+│   │   ├── centrality.py    # Degree/Betweenness calculation
+│   │   ├── overlap.py       # Spatial mapping, Excess Overlap, Spin Test
+│   │   └── visualization.py # Venn, Heatmap, Line plots
+│   ├── validators/
+│   │   ├── __init__.py
+│   │   └── validate_citations.py # Reference-Validator Agent (FR-011)
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   └── update_state.py  # State file updater (FR-010)
 │   └── main.py              # Orchestration script
+├── data/
+│   ├── raw/                 # Downloaded fMRI/Matrices
+│   ├── processed/           # Adjacency matrices, mappings
+│   └── results/             # Overlap stats, plots, validation report
 ├── tests/
-│   ├── unit/
-│   │   ├── test_centrality.py
-│   │   └── test_overlap.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
+│   ├── __init__.py
+│   ├── test_centrality.py
+│   ├── test_overlap.py
+│   └── test_pipeline.py
+├── pyproject.toml           # Dependencies, linting (ruff/black) config
 └── README.md
 ```
 
-**Structure Decision**: A single-project Python structure is selected. The complexity of the neuroscience pipeline (data fetching, matrix generation, graph analysis, statistics) is best contained within a modular `code/` directory rather than split into separate microservices. This ensures tight coupling of data processing steps and simplifies the dependency management required for `nilearn` and `networkx`.
+**Structure Decision**: Single project structure selected to align with the research pipeline nature. Directories `data/raw`, `data/processed`, `data/results`, `code/`, and `tests/` are explicitly created to satisfy T004 and T007. Model classes `AdjacencyMatrix`, `HubSet`, `CentralityScore` will be implemented in `code/models/` to satisfy T007.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Spatial Mapping Module** | Required to align Schaefer-400/200 nodes to AAL-90 for FR-005. | Direct comparison of raw node indices is impossible due to differing node definitions. A majority-vote spatial overlap function is the standard, biologically plausible approach. |
-| **Permutation Test Engine** | Required for FR-006 to establish statistical significance against chance. | Analytical p-values are not available for set-theoretic overlap of non-independent hub sets; empirical null distributions are necessary. |
-| **Multi-Resolution Pipeline** | Required to test FR-001 and the core research question. | A single-resolution analysis would fail to address the "sensitivity" aspect of the study. |
-| **Sensitivity Analysis Module** | Required for FR-008 to sweep thresholds {, 0.10, 0.12} AND perform fixed-cardinality comparisons. | A fixed threshold analysis would fail to assess robustness of the hub definition, and a direct comparison of 9 vs 40 nodes is statistically invalid without normalization. |
+| **Volumetric Spatial Spin Test** | Required for statistical validation of spatial autocorrelation (FR-006) on volumetric data. | A simple random permutation would violate the spatial structure of the brain, leading to inflated Type I errors. Surface-based rotation is inapplicable to volumetric nodes without projection. |
+| **Multi-Resolution Mapping** | Required to compare AAL-90 with Schaefer-200/400 (FR-009). | Direct comparison without spatial mapping is mathematically invalid due to node count mismatch. |
+| **Streaming Data** | Required to fit 20 subjects + processing within 7 GB RAM (Assumption about compute feasibility). | Loading all raw fMRI time-series into memory at once would exceed RAM limits. |
 
-## Phases
+## Tasks
 
-- **Phase 0: Data Acquisition & Preprocessing** (FR-001, FR-009)
-  - Download raw fMRI data (OpenNeuro).
-  - Register to MNI space if necessary.
-  - Generate adjacency matrices for AAL-90, Schaefer-200, Schaefer-400.
-- **Phase 1: Centrality & Hub Definition** (FR-002, FR-003)
-  - Compute degree and betweenness centrality.
-  - Define hubs using `floor(N * 0.10)`.
-- **Phase 2: Overlap & Statistical Validation** (FR-004, FR-005, FR-006)
-  - Compute Jaccard/Dice overlap.
-  - **Calculate Expected Jaccard for random sets of matching cardinality.**
-  - Perform Spatial Spin Test for significance.
-  - Calculate Spearman correlation (post-aggregation).
-- **Phase 3: Sensitivity Analysis** (FR-008)
-  - Sweep thresholds {0.08, 0.10, 0.12}.
-  - **Perform fixed-cardinality sweep (e.g., compare top hubs across all resolutions).**
-  - Report variation in overlap metrics.
-- **Phase 4: Visualization & Reporting** (FR-007)
-  - Generate heatmaps and Venn diagrams.
-  - Compile final results.
+- **T001**: Create project directory structure `projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/`.
+- **T003**: Configure linting (ruff) and formatting (black) via `pyproject.toml`.
+- **T004**: Create directories `data/raw`, `data/processed`, `data/results`, `code/`, `tests/`.
+- **T007**: Implement `code/models/AdjacencyMatrix`, `HubSet`, `CentralityScore` classes.
+- **T008**: Implement `code/analysis/overlap.py` with the `weighted-vote spatial overlap` method, including the tie-breaker rule (largest absolute intersection volume).
+- **T009**: Implement `code/analysis/overlap.py` with the Volumetric Spatial Spin Test, including the fallback logic to reduce iterations if the 6-hour CI limit is approached.
+- **T010**: Implement `code/utils/update_state.py` to update the project state file with content hashes after each artifact generation (FR-010).
+- **T011**: Implement `code/validators/validate_citations.py` to integrate the Reference-Validator Agent (FR-011).
+- **T017**: Generate `data/results/validation_report.json` with all required fields.

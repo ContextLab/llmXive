@@ -1,0 +1,19 @@
+status: none
+intent: SeaBASS MODIS Aqua/Terra ocean color Copernicus Marine reanalysis BGC-Argo
+  python package dataset
+required_fields:
+- latitude
+- longitude
+- time
+- chl_a
+- sst
+- salinity
+- temperature
+- nutrients_nitrate
+- nutrients_phosphate
+- basin_id
+- source
+- quality_flag
+cache_key: af2f57554fbc301524478c573729987bab37991cfb7915d2976bbafaa7ee54a0
+searched_at: '2026-10-19T15:34:43.971838+00:00'
+retry_count: 1

@@ -1,3 +1,1 @@
-"""
-PROJ-277: Predicting the Impact of Alloying on High-Temperature Oxidation Resistance
-"""
+# Package for PROJ-277-predicting-oxidation-resistance code

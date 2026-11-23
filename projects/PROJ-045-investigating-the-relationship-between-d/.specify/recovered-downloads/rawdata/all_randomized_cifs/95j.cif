@@ -1,0 +1,48 @@
+# generated using pymatgen
+data_Li3AlH6
+_symmetry_space_group_name_H-M   R-3
+_cell_length_a   8.07117000
+_cell_length_b   8.07117000
+_cell_length_c   9.51300000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   120.00000000
+_symmetry_Int_Tables_number   148
+_chemical_formula_structural   Li3AlH6
+_chemical_formula_sum   'Li18 Al6 H36'
+_cell_volume   536.68705237
+_cell_formula_units_Z   6
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-y, x-y, z'
+  4  'y, -x+y, -z'
+  5  '-x+y, -x, z'
+  6  'x-y, x, -z'
+  7  'x+2/3, y+1/3, z+1/3'
+  8  '-x+2/3, -y+1/3, -z+1/3'
+  9  '-y+2/3, x-y+1/3, z+1/3'
+  10  'y+2/3, -x+y+1/3, -z+1/3'
+  11  '-x+y+2/3, -x+1/3, z+1/3'
+  12  'x-y+2/3, x+1/3, -z+1/3'
+  13  'x+1/3, y+2/3, z+2/3'
+  14  '-x+1/3, -y+2/3, -z+2/3'
+  15  '-y+1/3, x-y+2/3, z+2/3'
+  16  'y+1/3, -x+y+2/3, -z+2/3'
+  17  '-x+y+1/3, -x+2/3, z+2/3'
+  18  'x-y+1/3, x+2/3, -z+2/3'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  18  0.04432176  0.78147034  0.70667888  1.0
+  Al  Al1  3  0.00000000  0.00000000  0.00000000  1.0
+  Al  Al2  3  0.00000000  0.00000000  0.50000000  1.0
+  H  H3  18  0.01192351  0.84947557  0.38549679  1.0
+  H  H4  18  0.04332703  0.82128007  0.89742121  1.0

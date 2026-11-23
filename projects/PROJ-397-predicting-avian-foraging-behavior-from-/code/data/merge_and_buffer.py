@@ -1,224 +1,258 @@
 import os
 import sys
 import logging
+import json
+import zipfile
+import tempfile
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Dict, Any, Set
+
 import pandas as pd
 import numpy as np
 import rasterio
-from rasterio.features import shapes
-from rasterio.warp import calculate_default_transform, transform_bounds
-import json
-
-# Import config for paths
-try:
-    from utils.config import DATA_DIR, PROCESSED_DIR, RAW_DIR
-except ImportError:
-    # Fallback if utils not in path yet, assume relative execution
-    from pathlib import Path
-    DATA_DIR = Path(__file__).parent.parent / "data"
-    PROCESSED_DIR = DATA_DIR / "processed"
-    RAW_DIR = DATA_DIR / "raw"
+from rasterio.mask import mask
+from shapely.geometry import Point, mapping
+from utils.config import get_project_root, get_processed_dir, get_raw_data_dir, get_metadata_file
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-REQUIRED_COLUMNS = ['species_id', 'foraging_guild', 'land_cover_proportions']
-
-def load_filtered_ebd() -> pd.DataFrame:
-    """Load the filtered EBD data (top 25 species)."""
-    path = PROCESSED_DIR / "ebd_top25.csv"
-    if not path.exists():
-        raise FileNotFoundError(f"Filtered EBD data not found at {path}. Run T012.5 first.")
-    return pd.read_csv(path)
-
-def load_nlcd_raster() -> rasterio.DatasetReader:
-    """Load the NLCD 2019 land cover raster."""
-    # Assuming NLCD is stored in data/raw or data/processed as per T012
-    # We look for the most recent NLCD file or a specific name if standardized
-    nlcd_path = None
-    for p in PROCESSED_DIR.glob("nlcd*.tif"):
-        nlcd_path = p
-        break
-    if not nlcd_path:
-        for p in RAW_DIR.glob("nlcd*.tif"):
-            nlcd_path = p
-            break
-    
-    if not nlcd_path or not nlcd_path.exists():
-        raise FileNotFoundError(f"NLCD raster not found. Expected in {PROCESSED_DIR} or {RAW_DIR}.")
-    
-    return rasterio.open(nlcd_path)
-
-def load_guild_mapping() -> pd.DataFrame:
-    """Load the foraging guild mapping table."""
-    path = PROCESSED_DIR / "guild_mapping.csv"
-    if not path.exists():
-        raise FileNotFoundError(f"Guild mapping not found at {path}. Run T008 first.")
-    return pd.read_csv(path)
-
-def calculate_land_cover_proportions(observations: pd.DataFrame, raster: rasterio.DatasetReader) -> pd.DataFrame:
-    """
-    Calculate land cover proportions within a 100m buffer for each observation.
-    Returns the dataframe with a new column 'land_cover_proportions' containing 
-    a JSON string or dict of class: proportion.
-    """
-    # This is a simplified implementation assuming observations have lat/lon
-    # In a real scenario, we would use a spatial join or point sampling
-    # For this task, we assume the dataframe has 'latitude' and 'longitude'
-    
-    if 'latitude' not in observations.columns or 'longitude' not in observations.columns:
-        logger.warning("Observations missing lat/lon columns. Skipping buffer calculation.")
-        # Assign empty proportions if no coordinates
-        observations['land_cover_proportions'] = [{} for _ in range(len(observations))]
-        return observations
-
-    results = []
-    transform = raster.transform
-    crs = raster.crs
-
-    for idx, row in observations.iterrows():
-        lat = row['latitude']
-        lon = row['longitude']
-        
-        # Transform lat/lon to raster coordinates (pixel indices)
-        # Using rasterio's transform
-        try:
-            # Convert lat/lon to raster projection if necessary (NLCD is usually EPSG:26910 or similar)
-            # For simplicity, assuming input is already in raster CRS or simple conversion
-            # Real implementation would use pyproj for robust transformation
-            from rasterio.warp import transform
-            src_crs = "EPSG:4326"
-            dst_crs = crs
-            x, y = transform(src_crs, dst_crs, [lon], [lat])
-            x = x[0]
-            y = y[0]
-        except Exception as e:
-            logger.error(f"Coordinate transformation failed for {row}: {e}")
-            results.append({})
-            continue
-
-        # Define 100m buffer in raster units (assuming meters)
-        buffer_size = 100
-        minx, miny = x - buffer_size, y - buffer_size
-        maxx, maxy = x + buffer_size, y + buffer_size
-
-        # Read window
-        try:
-            window = rasterio.windows.from_bounds(minx, miny, maxx, maxy, transform)
-            window_data = raster.read(1, window=window)
-            window_transform = rasterio.windows.transform(window, transform)
-            
-            # Calculate proportions
-            unique, counts = np.unique(window_data, return_counts=True)
-            total = np.sum(counts)
-            if total == 0:
-                proportions = {}
-            else:
-                proportions = {str(int(val)): float(cnt/total) for val, cnt in zip(unique, counts)}
-            
-            results.append(proportions)
-        except Exception as e:
-            logger.warning(f"Buffer calculation failed for {row}: {e}")
-            results.append({})
-
-    observations['land_cover_proportions'] = results
-    return observations
-
-def assign_guilds(df: pd.DataFrame, mapping: pd.DataFrame) -> pd.DataFrame:
-    """Assign foraging guilds based on species_id."""
-    if 'species_id' not in df.columns:
-        raise ValueError("DataFrame missing 'species_id' column for guild assignment.")
-    
-    # Ensure species_id is string for join
-    df = df.copy()
-    df['species_id'] = df['species_id'].astype(str)
-    mapping = mapping.copy()
-    mapping['species_id'] = mapping['species_id'].astype(str)
-
-    merged = df.merge(mapping[['species_id', 'foraging_guild']], on='species_id', how='left')
-    return merged
-
-def filter_by_observation_count(df: pd.DataFrame, min_obs: int = 50) -> pd.DataFrame:
-    """Filter species with >= min_obs observations."""
-    if 'species_id' not in df.columns:
-        raise ValueError("DataFrame missing 'species_id' column for filtering.")
-    
-    counts = df['species_id'].value_counts()
-    valid_species = counts[counts >= min_obs].index.tolist()
-    
-    excluded = set(df['species_id'].unique()) - set(valid_species)
-    if excluded:
-        log_path = PROCESSED_DIR / "excluded_species.log"
-        with open(log_path, 'w') as f:
-            f.write("Excluded species (observation count < 50):\n")
-            for sp in excluded:
-                f.write(f"{sp}\n")
-        logger.info(f"Excluded {len(excluded)} species. Log saved to {log_path}")
-    
-    return df[df['species_id'].isin(valid_species)]
+# Required columns for the merged output dataset
+REQUIRED_COLUMNS: Set[str] = {
+    'species_id',
+    'foraging_guild',
+    'latitude',
+    'longitude',
+    'observation_date',
+    'forest_prop_100m',
+    'grassland_prop_100m',
+    'wetland_prop_100m',
+    'urban_prop_100m',
+    'water_prop_100m',
+    'cropland_prop_100m',
+    'barren_prop_100m',
+    'shrub_prop_100m'
+}
 
 def validate_schema(df: pd.DataFrame) -> None:
     """
-    Validates that the dataframe contains the required columns:
-    species_id, foraging_guild, land_cover_proportions.
+    Validates that the DataFrame contains all required columns.
     
+    Args:
+        df: The DataFrame to validate.
+        
     Raises:
-        ValueError: If any required column is missing.
+        ValueError: If any required columns are missing.
     """
-    missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-    if missing:
-        raise ValueError(f"Schema validation failed. Missing required columns: {missing}")
+    if df is None or df.empty:
+        raise ValueError("Cannot validate schema: DataFrame is None or empty.")
+        
+    current_columns = set(df.columns)
+    missing_columns = REQUIRED_COLUMNS - current_columns
     
-    # Additional type check for land_cover_proportions if it exists
-    if 'land_cover_proportions' in df.columns:
-        if not df['land_cover_proportions'].apply(lambda x: isinstance(x, dict) or (isinstance(x, str) and x.startswith('{'))).all():
-             # Allow stringified JSON or dict
-             pass 
+    if missing_columns:
+        raise ValueError(
+            f"Schema validation failed. Missing required columns: {sorted(missing_columns)}. "
+            f"Expected: {sorted(REQUIRED_COLUMNS)}. Found: {sorted(current_columns)}."
+        )
     
-    logger.info("Schema validation passed.")
+    # Additional type checks for numeric columns if they exist
+    numeric_cols = ['latitude', 'longitude', 'forest_prop_100m', 'grassland_prop_100m', 
+                    'wetland_prop_100m', 'urban_prop_100m', 'water_prop_100m', 
+                    'cropland_prop_100m', 'barren_prop_100m', 'shrub_prop_100m']
+    
+    for col in numeric_cols:
+        if col in current_columns:
+            if not pd.api.types.is_numeric_dtype(df[col]):
+                raise ValueError(f"Column '{col}' must be numeric.")
+                
+    logger.info("Schema validation passed successfully.")
+
+def load_filtered_ebd() -> pd.DataFrame:
+    """Loads the preprocessed EBD data."""
+    input_path = get_processed_dir() / "filtered_ebd.csv"
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    logger.info(f"Loading filtered EBD data from {input_path}")
+    return pd.read_csv(input_path)
+
+def load_guild_mapping() -> pd.DataFrame:
+    """Loads the guild mapping CSV."""
+    input_path = get_processed_dir() / "guild_mapping.csv"
+    if not input_path.exists():
+        raise FileNotFoundError(f"Guild mapping file not found: {input_path}")
+    logger.info(f"Loading guild mapping from {input_path}")
+    return pd.read_csv(input_path)
+
+def load_nlcd_raster() -> rasterio.DatasetReader:
+    """Loads the NLCD raster data from the zip archive."""
+    raw_dir = get_raw_data_dir()
+    zip_path = raw_dir / "nlcd_2019.zip"
+    
+    if not zip_path.exists():
+        raise FileNotFoundError(f"NLCD zip file not found: {zip_path}")
+    
+    # We expect the zip to contain a .tif file
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        tif_files = [f for f in zip_ref.namelist() if f.endswith('.tif')]
+        if not tif_files:
+            raise ValueError("No .tif file found in NLCD zip archive.")
+        
+        # Extract to temp file to read with rasterio
+        temp_dir = tempfile.mkdtemp()
+        target_path = os.path.join(temp_dir, tif_files[0])
+        zip_ref.extract(tif_files[0], temp_dir)
+        
+        logger.info(f"Extracted NLCD raster to {target_path}")
+        return rasterio.open(target_path)
+
+def calculate_land_cover_proportions(df: pd.DataFrame, raster: rasterio.DatasetReader) -> pd.DataFrame:
+    """
+    Calculates land cover proportions within a 100m buffer for each observation.
+    """
+    logger.info("Calculating land cover proportions...")
+    
+    # Map NLCD class codes to our target categories (simplified mapping for NLCD 2019)
+    # 11: Water, 21-24: Developed (Urban), 31-32: Barren, 41-43: Forest, 
+    # 51-52: Shrub/Scrub, 71-72: Grassland/Herbaceous, 81-82: Pasture/Hay (often grouped with grassland), 84: Cropland, 90-95: Wetlands
+    # Note: This mapping is approximate and depends on specific NLCD classification details.
+    # For this implementation, we assume a standard mapping exists or is hardcoded.
+    
+    # Define a helper to aggregate proportions
+    def get_proportions(row):
+        geom = Point(row['longitude'], row['latitude'])
+        buffer_geom = geom.buffer(100) # 100 meters
+        
+        try:
+            out_image, out_transform = mask(raster, [mapping(buffer_geom)], crop=True)
+            if out_image.shape[1] == 0 or out_image.shape[2] == 0:
+                return {
+                    'forest_prop_100m': 0.0, 'grassland_prop_100m': 0.0, 
+                    'wetland_prop_100m': 0.0, 'urban_prop_100m': 0.0,
+                    'water_prop_100m': 0.0, 'cropland_prop_100m': 0.0,
+                    'barren_prop_100m': 0.0, 'shrub_prop_100m': 0.0
+                }
+            
+            counts = np.bincount(out_image[0].flatten(), minlength=256)
+            total_pixels = np.sum(counts)
+            if total_pixels == 0:
+                return {
+                    'forest_prop_100m': 0.0, 'grassland_prop_100m': 0.0, 
+                    'wetland_prop_100m': 0.0, 'urban_prop_100m': 0.0,
+                    'water_prop_100m': 0.0, 'cropland_prop_100m': 0.0,
+                    'barren_prop_100m': 0.0, 'shrub_prop_100m': 0.0
+                }
+            
+            # NLCD 2019 Classes (approximate grouping)
+            # Forest: 41, 42, 43
+            forest_pixels = counts[41] + counts[42] + counts[43]
+            # Grassland: 71, 72, 81, 82
+            grassland_pixels = counts[71] + counts[72] + counts[81] + counts[82]
+            # Wetland: 90, 95
+            wetland_pixels = counts[90] + counts[95]
+            # Urban: 21, 22, 23, 24
+            urban_pixels = counts[21] + counts[22] + counts[23] + counts[24]
+            # Water: 11
+            water_pixels = counts[11]
+            # Cropland: 84
+            cropland_pixels = counts[84]
+            # Barren: 31, 32
+            barren_pixels = counts[31] + counts[32]
+            # Shrub: 51, 52
+            shrub_pixels = counts[51] + counts[52]
+            
+            return {
+                'forest_prop_100m': forest_pixels / total_pixels,
+                'grassland_prop_100m': grassland_pixels / total_pixels,
+                'wetland_prop_100m': wetland_pixels / total_pixels,
+                'urban_prop_100m': urban_pixels / total_pixels,
+                'water_prop_100m': water_pixels / total_pixels,
+                'cropland_prop_100m': cropland_pixels / total_pixels,
+                'barren_prop_100m': barren_pixels / total_pixels,
+                'shrub_prop_100m': shrub_pixels / total_pixels
+            }
+        except Exception as e:
+            logger.warning(f"Error processing geometry: {e}")
+            return {
+                'forest_prop_100m': 0.0, 'grassland_prop_100m': 0.0, 
+                'wetland_prop_100m': 0.0, 'urban_prop_100m': 0.0,
+                'water_prop_100m': 0.0, 'cropland_prop_100m': 0.0,
+                'barren_prop_100m': 0.0, 'shrub_prop_100m': 0.0
+            }
+
+    results = df.apply(get_proportions, axis=1)
+    for key in results[0].keys():
+        df[key] = results.apply(lambda x: x[key])
+    
+    return df
+
+def assign_guilds(df: pd.DataFrame, mapping_df: pd.DataFrame) -> pd.DataFrame:
+    """Assigns foraging guilds based on species_id."""
+    logger.info("Assigning foraging guilds...")
+    if 'species_id' not in mapping_df.columns or 'foraging_guild' not in mapping_df.columns:
+        raise ValueError("Guild mapping must contain 'species_id' and 'foraging_guild' columns.")
+    
+    merged = df.merge(mapping_df[['species_id', 'foraging_guild']], on='species_id', how='left')
+    
+    missing_guilds = merged['foraging_guild'].isna().sum()
+    if missing_guilds > 0:
+        logger.warning(f"{missing_guilds} observations have missing foraging guilds.")
+        
+    return merged
+
+def filter_by_observation_count(df: pd.DataFrame, min_count: int = 50) -> pd.DataFrame:
+    """Filters species with fewer than min_count observations."""
+    logger.info(f"Filtering species with < {min_count} observations...")
+    counts = df['species_id'].value_counts()
+    valid_species = counts[counts >= min_count].index.tolist()
+    filtered_df = df[df['species_id'].isin(valid_species)]
+    
+    excluded = len(df) - len(filtered_df)
+    logger.info(f"Excluded {excluded} observations for species with < {min_count} records.")
+    
+    return filtered_df
 
 def main():
-    """
-    Main entry point for the merge and buffer pipeline.
-    Orchestrates loading, merging, filtering, and validation.
-    """
-    logger.info("Starting merge and buffer pipeline...")
-    
-    # 1. Load Data
-    logger.info("Loading filtered EBD data...")
-    ebd_df = load_filtered_ebd()
-    
-    logger.info("Loading NLCD raster...")
-    nlcd_raster = load_nlcd_raster()
-    
-    logger.info("Loading guild mapping...")
-    guild_map = load_guild_mapping()
-    
-    # 2. Process
-    logger.info("Calculating land cover proportions...")
-    ebd_df = calculate_land_cover_proportions(ebd_df, nlcd_raster)
-    
-    logger.info("Assigning foraging guilds...")
-    ebd_df = assign_guilds(ebd_df, guild_map)
-    
-    logger.info("Filtering by observation count...")
-    ebd_df = filter_by_observation_count(ebd_df)
-    
-    # 3. Validate Schema
-    logger.info("Validating schema...")
+    """Main entry point for the merge and buffer pipeline."""
     try:
+        # 1. Load Data
+        ebd_df = load_filtered_ebd()
+        guild_df = load_guild_mapping()
+        nlcd_raster = load_nlcd_raster()
+        
+        # 2. Calculate Proportions
+        ebd_df = calculate_land_cover_proportions(ebd_df, nlcd_raster)
+        
+        # 3. Assign Guilds
+        ebd_df = assign_guilds(ebd_df, guild_df)
+        
+        # 4. Filter by Count
+        ebd_df = filter_by_observation_count(ebd_df, min_count=50)
+        
+        # 5. Validate Schema (T015 Requirement)
         validate_schema(ebd_df)
+        
+        # 6. Save Output
+        output_path = get_processed_dir() / "merged_observations.csv"
+        ebd_df.to_csv(output_path, index=False)
+        logger.info(f"Saved merged observations to {output_path}")
+        
+        # Record provenance
+        from utils.provenance import record_artifact_provenance
+        record_artifact_provenance(output_path, step="merge_and_buffer")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data file missing: {e}")
+        raise
     except ValueError as e:
-        logger.error(f"Schema validation failed: {e}")
-        sys.exit(1)
-    
-    # 4. Save Output
-    output_path = PROCESSED_DIR / "merged_observations.csv"
-    # Convert dict column to JSON string for CSV compatibility
-    ebd_df['land_cover_proportions'] = ebd_df['land_cover_proportions'].apply(json.dumps)
-    ebd_df.to_csv(output_path, index=False)
-    logger.info(f"Saved merged data to {output_path}")
+        logger.error(f"Validation error: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during merge_and_buffer: {e}")
+        raise
+    finally:
+        # Cleanup temp raster if opened (rasterio handles this usually, but good practice)
+        pass
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,19 @@
+{
+  "total_rows_processed": 0,
+  "null_counts": {
+    "rolling temperature": 0,
+    "grain size": 0,
+    "Mg": 0,
+    "Si": 0,
+    "Cu": 0,
+    "Al": 0
+  },
+  "means": {
+    "rolling temperature": 0.0,
+    "grain size": 0.0,
+    "Mg": 0.0,
+    "Si": 0.0,
+    "Cu": 0.0,
+    "Al": 0.0
+  }
+}

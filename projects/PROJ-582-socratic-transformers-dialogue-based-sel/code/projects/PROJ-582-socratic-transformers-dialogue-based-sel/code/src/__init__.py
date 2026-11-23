@@ -1,3 +1,1 @@
-"""
-Socratic Transformers: Dialogue-Based Self-Teaching
-"""
+# Source package for PROJ-582-socratic-transformers-dialogue-based-sel

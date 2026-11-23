@@ -1,0 +1,15 @@
+# Core scientific stack (already available in the runner)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+tqdm
+# No additional third‑party packages required for the scaffold.

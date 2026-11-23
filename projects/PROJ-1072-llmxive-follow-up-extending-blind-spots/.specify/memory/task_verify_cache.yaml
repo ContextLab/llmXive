@@ -1,0 +1,68 @@
+T012:
+  c: false
+  h: 59ef994f0843c2a0e6fc84c6f014944a7092db65425ca74569be2dce612774dd
+  r: "The `code/01_download_and_filter.py` script does not read or validate `config.yaml`\
+    \ (which is missing) and it downloads a HuggingFace dataset instead of the required\
+    \ canonical arXiv source, nor does it perform the internal URL\u2011match check.\
+    \ Additionally, the file ends abruptly (truncated string), indicating incomplete\
+    \ implementation."
+T018c:
+  c: true
+  h: 96ef8b496b6eeedc286181e79e24627401e9443af095cd228b3cb1bd9c755c76
+  r: "The repository contains a non\u2011empty `code/ingest_pilot_labels.py` that\
+    \ defines the required constants, schema validation logic, and (presumably) checks\
+    \ for the existence of `data/pilot/pilot_ground_truth_labels.jsonl` before processing,\
+    \ exiting if the file is absent. The missing JSONL data file is expected\u2014\
+    the script is designed to block execution when it is not present, satisfying the\
+    \ task\u2019s requirement."
+T022:
+  c: true
+  h: 7cfdd29e94b28fba3b4252746b830ef31fdaf538ae69366abaa003ce16a36a99
+  r: "The repository contains a non\u2011empty `code/02_generate_cot.py` that implements\
+    \ loading a 4\u2011bit quantized model (defaulting to CPU) and reads the tuned\
+    \ threshold from `data/pilot/tuned_threshold.json`, raising a clear `FileNotFoundError`\
+    \ when the file is absent. No placeholder or missing functionality is evident."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the inference loop with temperature\u202F\
+    0.0, fixed per\u2011task wall\u2011clock timeout, error logging (ERR_TIMEOUT),\
+    \ and dynamic budget calculation is present. The required artifact that enforces\
+    \ the timeout logic and skips tasks as specified is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided showing the added error\u2011\
+    handling logic, JSON\u2011structured warning logs with the required codes, or\
+    \ the skip\u2011task behavior. Without concrete artifacts, we cannot confirm that\
+    \ T022 was modified as specified. The implementer must supply the updated source\
+    \ (e.g., the modified T022 module) and example log output demonstrating ERR_TIMEOUT\
+    \ and ERR_EMPTY handling."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that the edge\u2011case\
+    \ handling (word\u2011boundary matching, null flags for missing constraints, and\
+    \ substring false\u2011positive checks) was implemented or verified. Without concrete\
+    \ artifacts, the requirement cannot be confirmed as satisfied."
+T034:
+  c: false
+  h: 5f9c7d68b435ac3453d314d2f8e4825e9bc4bcf03e276e5c6c32a5ff49addb23
+  r: "The required output file `data/parsed/classified_traces.jsonl` does not exist,\
+    \ and the provided excerpt of `code/03_parse_and_classify.py` stops before any\
+    \ classification logic is shown, so the core rule\u2011based labeling and file\
+    \ writing are not demonstrated. The task\u2019s essential artifacts are missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the conditional selection between\
+    \ Fisher\u2019s exact test and chi\u2011squared based on expected cell counts\
+    \ is present. The required artifact (e.g., a function that uses `scipy.stats.chi2_contingency`\
+    \ to compute expected counts and then chooses the appropriate test) is missing,\
+    \ so the task is not satisfied."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log files implementing the inference loop with temperature\u202F\
+    0.0 and a fixed 10\u2011minute wall\u2011clock timeout are present; the required\
+    \ artifact is missing, so the task\u2019s requirement is not satisfied."

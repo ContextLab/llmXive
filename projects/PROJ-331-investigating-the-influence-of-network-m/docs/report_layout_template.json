@@ -1,0 +1,47 @@
+{
+  "pages": [
+    {
+      "type": "title_page",
+      "elements": [
+        {"type": "text", "source_field": "title"},
+        {"type": "text", "source_field": "subtitle"},
+        {"type": "text", "source_field": "date"}
+      ]
+    },
+    {
+      "type": "methods",
+      "elements": [
+        {"type": "text", "source_field": "methods_summary"},
+        {"type": "text", "source_field": "statistical_parameters"}
+      ]
+    },
+    {
+      "type": "sensitivity_analysis",
+      "elements": [
+        {"type": "plot", "source_field": "sensitivity_plot_data"},
+        {"type": "text", "source_field": "sensitivity_interpretation"}
+      ]
+    },
+    {
+      "type": "motif_results",
+      "repeat": true,
+      "elements": [
+        {"type": "text", "source_field": "motif_id"},
+        {"type": "plot", "source_field": "scatter_plot_data"},
+        {"type": "text", "source_field": "correlation_stats"},
+        {"type": "text", "source_field": "permutation_result"}
+      ]
+    },
+    {
+      "type": "conclusion",
+      "elements": [
+        {"type": "text", "source_field": "summary"},
+        {"type": "text", "source_field": "disclaimer"}
+      ]
+    }
+  ],
+  "metadata": {
+    "library": "reportlab",
+    "version": "4.0.0"
+  }
+}

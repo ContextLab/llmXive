@@ -1,0 +1,15 @@
+# Core dependencies
+pysam
+scikit-learn
+pandas
+numpy
+requests
+h5py
+matplotlib
+statsmodels
+geopy
+pyyaml
+filelock
+
+# NCBI E-utilities specific
+biopython>=1.81

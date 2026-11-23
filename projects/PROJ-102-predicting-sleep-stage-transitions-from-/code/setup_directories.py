@@ -1,13 +1,17 @@
 import os
 from pathlib import Path
+import sys
 
 def main():
     """
-    Creates the standard project directory structure for llmXive.
-    This implements Task T001a: Create src/, tests/, data/, specs/ directories.
+    Create the foundational directory structure for the llmXive project.
+    This script ensures that src/, tests/, data/, and specs/ directories
+    exist at the project root relative to the script location.
     """
-    base_dir = Path(".")
-    
+    # Determine the project root (parent of the 'code' directory where this script lives)
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+
     # Define the required top-level directories
     required_dirs = [
         "src",
@@ -15,35 +19,39 @@ def main():
         "data",
         "specs"
     ]
-    
+
     created_count = 0
     for dir_name in required_dirs:
-        dir_path = base_dir / dir_name
+        dir_path = project_root / dir_name
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {dir_path}")
             created_count += 1
         else:
             print(f"Directory already exists: {dir_path}")
-    
-    # Create __init__.py files to make them proper Python packages where applicable
-    # src is definitely a package
-    src_init = base_dir / "src" / "__init__.py"
-    if not src_init.exists():
-        src_init.touch()
-        print(f"Created: {src_init}")
-    
-    # tests is definitely a package
-    tests_init = base_dir / "tests" / "__init__.py"
-    if not tests_init.exists():
-        tests_init.touch()
-        print(f"Created: {tests_init}")
-    
-    print(f"\nSetup complete. Created {created_count} new directories.")
-    print("Directory structure:")
-    for d in required_dirs:
-        p = base_dir / d
-        print(f"  {p}/")
+
+    # Also create the specific subdirectories required by T001b and T001c
+    # as part of this single setup script to ensure full compliance with Phase 1.
+    subdirectories = [
+        "data/raw",
+        "data/processed",
+        "data/interim",
+        "src/data",
+        "src/features",
+        "src/models",
+        "src/utils"
+    ]
+
+    for sub_dir in subdirectories:
+        dir_path = project_root / sub_dir
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created subdirectory: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Subdirectory already exists: {dir_path}")
+
+    print(f"Setup complete. {created_count} directories ensured.")
 
 if __name__ == "__main__":
     main()

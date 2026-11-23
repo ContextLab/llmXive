@@ -20,3 +20,14 @@
   verification_status: verified
   verified_against_url: https://openneuro.org/datasets/ds000117
   verified_at: '2026-07-09T11:57:40.310289Z'
+- artifact_hash: b4d5cd10ddd9c9afe7eec08a4b54561f54e30a0c922396ddc4f591802d75ef2c
+  artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Montenegro - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q236
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q236
+  verified_at: '2026-10-16T06:37:41.771602Z'

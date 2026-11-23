@@ -1,0 +1,13 @@
+status: none
+intent: Synthetic Video Stream fall detection dataset alternative to MMVP Nemotron
+  python package dataset
+required_fields:
+- video_id
+- frame_timestamp
+- frame_path
+- label
+- event_type
+- bounding_boxes
+cache_key: e459fcd579cd4a6433b3b7f606cb0fa673ce7a5a40ebc1e13d8b5f27b6b40bb8
+searched_at: '2026-10-16T15:29:35.642939+00:00'
+retry_count: 1

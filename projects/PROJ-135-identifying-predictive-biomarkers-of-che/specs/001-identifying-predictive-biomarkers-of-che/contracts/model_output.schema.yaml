@@ -1,144 +1,30 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Output Schema
-description: Schema for predictive model outputs and validation metrics.
+description: Schema for trained model outputs and metadata
 type: object
 required:
-  - model_metadata
-  - performance_metrics
-  - feature_importance
+  - cancer_type
+  - alpha
+  - lambda
+  - coefficients
+  - cross_val_auc
 properties:
-  model_metadata:
+  cancer_type:
+    type: string
+    description: Tumor type the model was trained on
+  alpha:
+    type: number
+    format: float
+    description: Elastic net mixing parameter
+  lambda:
+    type: number
+    format: float
+    description: Regularization strength
+  coefficients:
     type: object
-    required:
-      - model_id
-      - tumor_type
-      - model_type
-      - trained_at
-      - gene_panel
-    properties:
-      model_id:
-        type: string
-        description: Unique model identifier
-      tumor_type:
-        type: string
-        description: Tumor type this model is specific to
-      model_type:
-        type: string
-        enum: [ElasticNet, LogisticRegression, RandomForest]
-        description: Type of machine learning model
-      trained_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of training completion
-      gene_panel:
-        type: array
-        items:
-          type: string
-        description: List of gene symbols used in the model
-      hyperparameters:
-        type: object
-        description: Dictionary of model hyperparameters
-      cv_folds:
-        type: integer
-        minimum: 2
-        description: Number of cross-validation folds used
-      nested_cv_inner_folds:
-        type: integer
-        minimum: 2
-        description: Number of inner CV folds for hyperparameter tuning
-  performance_metrics:
-    type: object
-    required:
-      - auc_roc
-      - auc_pr
-    properties:
-      auc_roc:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Area Under the Receiver Operating Characteristic Curve
-      auc_pr:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Area Under the Precision-Recall Curve
-      accuracy:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      f1_score:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      calibration_slope:
-        type: number
-      calibration_intercept:
-        type: number
-      sensitivity:
-        type: number
-      specificity:
-        type: number
-      cv_metrics:
-        type: object
-        properties:
-          mean_auc_roc:
-            type: number
-          std_auc_roc:
-            type: number
-          mean_auc_pr:
-            type: number
-          std_auc_pr:
-            type: number
-      external_validation:
-        type: array
-        items:
-          type: object
-          required:
-            - dataset_id
-            - auc_roc
-          properties:
-            dataset_id:
-              type: string
-            auc_roc:
-              type: number
-            auc_pr:
-              type: number
-  feature_importance:
-    type: array
-    description: List of features with their importance scores
-    items:
-      type: object
-      required:
-        - gene_symbol
-        - coefficient
-      properties:
-        gene_symbol:
-          type: string
-        coefficient:
-          type: number
-        p_value:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-        adjusted_p_value:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-  validation_results:
-    type: object
-    properties:
-      delong_test:
-        type: object
-        properties:
-          p_value:
-            type: number
-          adjusted_p_value:
-            type: number
-          comparison:
-            type: string
-      calibration_plot_path:
-        type: string
-        description: Relative path to calibration plot image
-      roc_plot_path:
-        type: string
-        description: Relative path to ROC curve image
+    description: Mapping of gene symbol to coefficient value
+    additionalProperties:
+      type: number
+      format: float
+  cross_val_auc:
+    type: number
+    format: float
+    description: Cross-validated ROC AUC score

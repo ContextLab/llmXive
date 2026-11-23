@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1705.02544",
+  "judged_at": "2026-08-13T08:58:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+  "rationale": "The paper focuses on predicting human eye fixation in visual scenes using computer vision, which is an entirely different domain (human attention in images) from the user's question about predicting chemical reaction yields from spectroscopic data. While both use the term \"attention,\" the paper addresses a distinct construct (visual saliency) rather than the chemical mechanism, spectroscopic variables, or reaction yield outcomes required for inclusion.",
+  "relevant": false
+}

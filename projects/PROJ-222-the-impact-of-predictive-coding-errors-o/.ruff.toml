@@ -1,0 +1,24 @@
+# This file is redundant if pyproject.toml is present, but provided for IDE compatibility
+# where some editors prefer a dedicated .ruff.toml or ruff.toml.
+# It mirrors the configuration in pyproject.toml.
+
+line-length = 88
+target-version = "py311"
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[isort]
+known-first-party = ["config", "download", "preprocess", "analysis", "utils", "visualize"]
+known-third-party = ["pandas", "numpy", "statsmodels", "pingouin", "joblib", "matplotlib", "seaborn", "openml", "datasets", "yaml"]

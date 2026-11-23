@@ -1,116 +1,119 @@
 """
-Configuration settings for the llmXive automated science pipeline.
+Configuration module for the llmXive brain network topology project.
+Defines paths, seeds, and hyperparameters as per T004b and T001.
 
-This module defines all project-wide constants, paths, random seeds,
-and baseline parameters required for reproducibility and consistent execution.
+T004b requirements implemented here:
+  - WINDOW_LENGTH_BASELINE = 30 (TRs)
+  - WINDOW_LENGTH_VALIDATION = [20] (list of TRs, per task spec)
+  - WINDOW_STEP = 1 (TRs)
+  - K_MEANS_K = 5
+  - BASELINE_DENSITY = 0.1
+  - DENSITY_THRESHOLD_VARIATIONS derived as BASELINE_DENSITY ± 5% relative
+    perturbation (FR-008): [0.095, 0.1, 0.105] — explicit numeric offsets,
+    not vague heuristics.
 """
-
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
-# --- Project Paths ---
-# Determine the root directory based on the location of this config file
-_ROOT = Path(__file__).resolve().parent.parent
+# Project Root
+PROJECT_ROOT = Path(__file__).parent.parent
 
-# Standardized directory structure
-DATA_DIR = _ROOT / "data"
-DATA_RAW_DIR = DATA_DIR / "raw"
-DATA_PROCESSED_DIR = DATA_DIR / "processed"
-DATA_LOGS_DIR = DATA_DIR / "logs"
-DATA_FIGURES_DIR = DATA_DIR / "figures"
+# Directories
+DIR_CODE = PROJECT_ROOT / "code"
+DIR_DATA = PROJECT_ROOT / "data"
+DIR_DATA_RAW = DIR_DATA / "raw"
+DIR_DATA_PROCESSED = DIR_DATA / "processed"
+DIR_DATA_DERIVED = DIR_DATA / "derived"
+DIR_DATA_LOGS = DIR_DATA / "logs"
+DIR_DATA_FIGURES = DIR_DATA / "figures"
+DIR_CONTRACTS = PROJECT_ROOT / "contracts"
+DIR_TESTS = PROJECT_ROOT / "tests"
 
-CODE_DIR = _ROOT / "code"
-CONTRACTS_DIR = _ROOT / "contracts"
-TESTS_DIR = _ROOT / "tests"
-SPECS_DIR = _ROOT / "specs"
+# Hyperparameters (T004b)
+# Sliding Window Parameters (in TRs)
+WINDOW_LENGTH_BASELINE = 30  # Baseline window length for functional connectivity
+WINDOW_LENGTH_VALIDATION = [20]  # Validation window lengths (list) for robustness check
+WINDOW_STEP = 1  # Step size between windows in TRs
 
-# Output file paths (relative to project root)
-STRUCTURAL_METRICS_CSV = DATA_PROCESSED_DIR / "structural_metrics.csv"
-DYNAMIC_METRICS_CSV = DATA_PROCESSED_DIR / "dynamic_metrics.csv"
-CORRELATION_RESULTS_CSV = DATA_PROCESSED_DIR / "correlation_results.csv"
-EXCLUSION_LOG_JSON = DATA_LOGS_DIR / "exclusion_log.json"
-FINAL_REPORT_JSON = DATA_PROCESSED_DIR / "final_report.json"
+# Clustering Parameters
+K_MEANS_K = 5  # Number of clusters for K-Means state extraction
 
-# --- Random Seeds ---
-# Fixed seeds for reproducibility across numpy, sklearn, etc.
+# Graph Density Thresholds (Proportional)
+# Baseline density (10% of edges retained). May be derived dynamically
+# (e.g., median degree of the cohort) by downstream consumers; when
+# derived, they should override this value and log the derived value.
+BASELINE_DENSITY = 0.1
+
+# FR-008: ±5% RELATIVE perturbation of the baseline density.
+# For BASELINE_DENSITY = 0.1: 0.1 * 0.95 = 0.095, 0.1, 0.1 * 1.05 = 0.105.
+DENSITY_PERTURBATION = 0.05  # relative ±5% offset (fraction of baseline)
+DENSITY_THRESHOLD_VARIATIONS = [
+    round(BASELINE_DENSITY * (1.0 - DENSITY_PERTURBATION), 6),
+    BASELINE_DENSITY,
+    round(BASELINE_DENSITY * (1.0 + DENSITY_PERTURBATION), 6),
+]  # -> [0.095, 0.1, 0.105]
+
+# Backward-compatible alias: existing modules import
+# DENSITY_THRESHOLD_BASELINE (e.g., preprocess/structural.py, main.py).
+DENSITY_THRESHOLD_BASELINE = BASELINE_DENSITY
+
+# Tractography Confidence Parameters (T041)
+# Defined range for sensitivity analysis on tractography confidence thresholds
+TRACTOGRAPHY_CONFIDENCE_THRESHOLDS = [0.0, 0.2, 0.4, 0.6, 0.8]
+
+# Random Seeds for reproducibility
 RANDOM_SEED = 42
-NUMPY_SEED = 42
-SKLEARN_SEED = 42
 
-# --- Baseline Parameters (User Story 1 & 3) ---
-# Windowing parameters for dynamic functional connectivity
-WINDOW_LENGTH_TR = 30  # Baseline: 30 TR window
-WINDOW_STEP_TR = 1     # 1 TR step size
-WINDOW_LENGTH_TR_SENSITIVITY = 20  # Sensitivity check: 20 TR window (FR-006, SC-002)
+def ensure_directories() -> None:
+    """
+    Creates the required directory structure if it does not exist.
+    This function satisfies T001 by ensuring code/, data/, contracts/, tests/ exist.
+    """
+    dirs = [
+        DIR_CODE,
+        DIR_DATA,
+        DIR_DATA_RAW,
+        DIR_DATA_PROCESSED,
+        DIR_DATA_DERIVED,
+        DIR_DATA_LOGS,
+        DIR_DATA_FIGURES,
+        DIR_CONTRACTS,
+        DIR_TESTS,
+        DIR_CODE / "preprocess",
+        DIR_CODE / "analysis",
+        DIR_CODE / "reports",
+        DIR_CODE / "utils",
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
-# Clustering parameters
-K_STATES = 5           # Number of dynamic states (k=5)
-LOO_ENABLED = True     # Enable Leave-One-Out clustering to prevent circular correlation
-
-# --- Hyperparameters (User Story 2) ---
-# Structural network density thresholds
-DENSITY_THRESHOLD_BASELINE = 0.10  # 10% density for structural graph
-DENSITY_THRESHOLD_TOLERANCE = 0.05 # ±5% variation for robustness check (±5% of baseline)
-
-# Statistical testing parameters
-ALPHA_NORMALITY = 0.05   # Alpha level for Shapiro-Wilk normality test
-ALPHA_CORRELATION = 0.05 # Alpha level for correlation significance
-FDR_Q = 0.05             # False Discovery Rate threshold (Benjamini-Hochberg)
-
-# --- Data Loading Configuration ---
-# HCP OpenNeuro dataset identifiers
-HCP_DATASET_ID = "hcp-750"  # Placeholder for specific dataset version
-HCP_URL_TEMPLATE = "https://openneuro.org/datasets/ds000030" # Example base URL
-
-# --- Execution Constraints ---
-# CPU-only constraints
-MAX_WORKERS = 4            # Maximum parallel workers for CPU-bound tasks
-MAX_MEMORY_GB = 16         # Memory limit in GB
-
-# --- Helper Functions ---
 def get_config_dict() -> Dict[str, Any]:
-    """
-    Returns a dictionary of all configuration parameters.
-    Useful for logging or passing to downstream functions.
-    """
+    """Returns a dictionary of all configuration values."""
     return {
+        "window_length_baseline": WINDOW_LENGTH_BASELINE,
+        "window_length_validation": list(WINDOW_LENGTH_VALIDATION),
+        "window_step": WINDOW_STEP,
+        "k_means_k": K_MEANS_K,
+        "baseline_density": BASELINE_DENSITY,
+        "density_perturbation": DENSITY_PERTURBATION,
+        "density_threshold_variations": list(DENSITY_THRESHOLD_VARIATIONS),
+        "density_threshold_baseline": DENSITY_THRESHOLD_BASELINE,
+        "tractography_confidence_min": 0.0,
+        "tractography_confidence_max": 1.0,
+        "tractography_confidence_steps": 5,
+        "tractography_confidence_thresholds": TRACTOGRAPHY_CONFIDENCE_THRESHOLDS,
+        "random_seed": RANDOM_SEED,
         "paths": {
-            "root": str(_ROOT),
-            "data_raw": str(DATA_RAW_DIR),
-            "data_processed": str(DATA_PROCESSED_DIR),
-            "data_logs": str(DATA_LOGS_DIR),
-            "data_figures": str(DATA_FIGURES_DIR),
-            "contracts": str(CONTRACTS_DIR),
-        },
-        "seeds": {
-            "random": RANDOM_SEED,
-            "numpy": NUMPY_SEED,
-            "sklearn": SKLEARN_SEED,
-        },
-        "baseline": {
-            "window_length_tr": WINDOW_LENGTH_TR,
-            "window_step_tr": WINDOW_STEP_TR,
-            "window_length_tr_sensitivity": WINDOW_LENGTH_TR_SENSITIVITY,
-            "k_states": K_STATES,
-            "loo_enabled": LOO_ENABLED,
-        },
-        "hyperparameters": {
-            "density_threshold": DENSITY_THRESHOLD_BASELINE,
-            "density_tolerance": DENSITY_THRESHOLD_TOLERANCE,
-            "alpha_normality": ALPHA_NORMALITY,
-            "alpha_correlation": ALPHA_CORRELATION,
-            "fdr_q": FDR_Q,
-        },
-        "execution": {
-            "max_workers": MAX_WORKERS,
-            "max_memory_gb": MAX_MEMORY_GB,
+            "root": str(PROJECT_ROOT),
+            "data_raw": str(DIR_DATA_RAW),
+            "data_processed": str(DIR_DATA_PROCESSED),
+            "data_derived": str(DIR_DATA_DERIVED),
+            "data_logs": str(DIR_DATA_LOGS),
+            "data_figures": str(DIR_DATA_FIGURES),
+            "contracts": str(DIR_CONTRACTS),
         }
     }
 
-def ensure_directories():
-    """
-    Creates all required data directories if they do not exist.
-    """
-    for dir_path in [DATA_RAW_DIR, DATA_PROCESSED_DIR, DATA_LOGS_DIR, DATA_FIGURES_DIR]:
-        dir_path.mkdir(parents=True, exist_ok=True)
+# Initialize directories on import to satisfy T001 immediately
+ensure_directories()

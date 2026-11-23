@@ -1,0 +1,57 @@
+# Data directories (exclude from version control)
+data/raw/
+data/survey/
+data/synth/
+data/processed/
+data/logs/
+data/analysis/
+data/survey/
+
+# Python cache and bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+
+# Jupyter notebooks cache
+.ipynb_checkpoints/
+
+# Testing and coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Streamlit cache
+.streamlit/
+
+# Hugging Face cache (optional, can be uncommented if desired)
+# .cache/huggingface/

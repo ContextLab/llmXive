@@ -1,0 +1,83 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-evaluation"
+version = "0.1.0"
+description = "Evaluating the Impact of Code Generation on Code Review Quality with LLM Assistance"
+requires-python = ">=3.9"
+dependencies = [
+    "datasets",
+    "transformers",
+    "scikit-learn",
+    "scipy",
+    "pandas",
+    "pyyaml",
+    "pytest",
+    "numpy",
+    "requests",
+    "torch",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.venv
+    | venv
+    | __pycache__
+    | data
+    | results
+    | logs
+    | state
+    | \.github
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+src = ["code", "src"]
+extend-exclude = [
+    "data",
+    "results",
+    "logs",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "state",
+    ".github",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"code/tests/*" = ["S101"] # assert allowed in tests
+"tests/*" = ["S101"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "src"]
+force-sort-within-sections = true
+combine-as-imports = true

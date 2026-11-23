@@ -1,29 +1,28 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Structural Alerts Schema
-description: Schema for the structural alerts configuration file.
+title: StructuralAlertsConfig
 type: object
-required:
-  - alerts
 properties:
-  alerts:
+  patterns:
     type: array
+    minItems: 10
     items:
       type: object
       required:
-        - name
-        - smarts
+        - pattern_id
+        - smarts_string
         - weight
+        - source
+        - description
       properties:
-        name:
+        pattern_id:
           type: string
-          description: Human-readable name of the alert (e.g., NitroAromatic).
-        smarts:
+        smarts_string:
           type: string
-          description: SMARTS pattern string.
         weight:
           type: number
-          minimum: 0.0
-          description: Weight factor for the alert in the rule-based model.
+        source:
+          type: string
         description:
           type: string
-          description: Optional detailed description of the alert.
+required:
+  - patterns

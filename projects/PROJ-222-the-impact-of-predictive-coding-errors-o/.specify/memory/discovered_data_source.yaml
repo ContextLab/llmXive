@@ -1,0 +1,12 @@
+status: none
+intent: OpenML time perception sequential stimuli dataset download OR HuggingFace
+  datasets time perception predictability python package dataset
+required_fields:
+- duration_estimate
+- stimulus_timing
+- condition_label
+- participant_id
+- surprisal_metric
+cache_key: 8143b68c18718f6b7757abf5295c74ea85d4f9e22ab39d3b779594cfbfd85064
+searched_at: '2026-10-10T08:20:28.537063+00:00'
+retry_count: 1

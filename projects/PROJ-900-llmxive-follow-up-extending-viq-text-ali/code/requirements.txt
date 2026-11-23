@@ -1,0 +1,12 @@
+pillow  # auto-added: imported by run-book but missing from venv
+opencv-python  # auto-added: imported by run-book but missing from venv
+datasets  # auto-added: imported by run-book but missing from venv
+h5py  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+pandas  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+scikit-image  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
+torchvision  # auto-added: imported by run-book but missing from venv
+tqdm  # auto-added: imported by run-book but missing from venv
+transformers  # auto-added: imported by run-book but missing from venv

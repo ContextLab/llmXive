@@ -4,33 +4,37 @@
 
 ## Summary
 
-This project implements a CPU-tractable Machine Learning pipeline to predict SN1 reaction rate constants from molecular structure (SMILES). The approach ingests verified kinetic data (DTS-SN1), filters for SN1-compatible substrates (secondary/tertiary) using chemical rules, computes electronic descriptors (Gasteiger charges, topological indices) via RDKit, and trains a shallow Message Passing Neural Network (MPNN) with a limited number of layers. The system includes rigorous statistical validation (bootstrap comparisons, VIF diagnostics, sensitivity analysis, and orthogonal ablation) to ensure scientific validity and reproducibility on free-tier CI resources (limited CPU, constrained RAM, and time-bound execution). The plan explicitly avoids using "substrate class" as a predictive feature to prevent trivial correlation, using it only for filtering and stratification.
+This feature implements a reproducible, CPU-first pipeline to predict SN1 reaction rate constants from molecular structure. The system ingests kinetic data from verified HuggingFace sources (`DTS-SN-01-2024`, `SN-All-Date
+
+The specific value to remove/generalize: '-Date'
+
+Rewritten passage:`), validates strict metadata requirements (temperature, solvent, explicit substrate class), computes electronic descriptors (Gasteiger charges, topological indices) via RDKit, and trains a Message Passing Neural Network (MPNN) with Nested Cross-Validation. Performance is evaluated against linear and Kernel Ridge Regression baselines using R² and MAE, with statistical significance tested via bootstrap and Holm-Bonferroni correction. Interpretability is achieved via SHAP attributions (framed associatively) and robustness is verified through sensitivity and perturbation analyses.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `rdkit`, `torch` (CPU-only), `scikit-learn`, `shap`, `pandas`, `pyyaml`, `datasets` (HuggingFace), `numpy`  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `artifacts`)  
-**Testing**: `pytest` (contract tests against YAML schemas, unit tests for data cleaning logic)  
-**Target Platform**: Linux (GitHub Actions Free Runner)  
-**Project Type**: Computational Chemistry Research Pipeline  
-**Performance Goals**: Total runtime ≤ 6 hours; Memory ≤ 7 GB; Data processing ≥ 95% success rate.  
-**Constraints**: No GPU/CUDA; No PM7/semi-empirical QM for full dataset (too expensive); No deep LLM inference; Strict stratification by substrate class.  
-**Scale/Scope**: ~kk reaction entries (depending on available verified SN data); Multiple hyperparameter configurations.
+**Language/Version**: Python  
+**Primary Dependencies**: `rdkit`, `torch` (CPU-only), `scikit-learn`, `shap`, `datasets`, `pandas`, `pyyaml`  
+**Storage**: Local files in `data/` (raw, processed, artifacts); `data/` files are checksummed.  
+**Testing**: `pytest` for unit tests; integration tests via `main.py` execution on CI.  
+**Target Platform**: GitHub Actions Free Tier (multiple CPUs, ~7 GB RAM, ~ GB disk, no GPU).  
+**Project Type**: Computational Research Pipeline / Library  
+**Performance Goals**: Complete full pipeline (ingestion → training → evaluation) within 6 hours on 2-core CPU.  
+**Constraints**: No GPU usage for training; strict exclusion of datasets missing required metadata; deterministic seeding (seed=42); no causal language in output.  
+**Scale/Scope**: Dataset size [deferred] (verified sources only); if <500 rows, framed as feasibility study.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research.*
 
-| Principle | Status | Action/Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds, and deterministic RDKit settings. |
-| **II. Verified Accuracy** | **PASS** | Dataset URLs are strictly limited to the "Verified datasets" block in the prompt. No invented URLs. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming raw data, logging exclusion reasons, and preserving raw files. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (R², MAE) will be derived programmatically from `data/processed` and logged to `artifacts/`. |
-| **V. Versioning Discipline** | **PASS** | Plan requires content hashes for artifacts and timestamped updates to state files. |
-| **VI. Numerical Stability** | **PASS** | Plan uses Gasteiger charges as the deterministic, CPU-tractable alternative to PM7. While the Constitution Principle VI explicitly mentions PM7, this project formally adopts Gasteiger charges as the approved deterministic alternative given the 6-hour CPU constraint. This deviation is documented and satisfies the principle's intent (reproducibility and stability) within the project's compute bounds. |
-| **VII. Chemical Dataset Provenance** | **PASS** | Plan explicitly maps raw source URLs to processed files with documented transformation scripts. |
+| Principle | Status | Evidence / Action |
+|-----------|--------|-------------------|
+| I. Reproducibility | PASS | `code/config.py` enforces `torch.use_deterministic_algorithms(True)` and `seed=42`. `requirements.txt` pins all deps. Data fetched from canonical HF URLs. |
+| II. Verified Accuracy | PASS | All dataset URLs cited are from the "Verified datasets" block. No invented URLs. |
+| III. Data Hygiene | PASS | Raw data preserved in `data/raw/`; processed data in `data/processed/` with checksums recorded in `state/...yaml`. No in-place modification. |
+| IV. Single Source of Truth | PASS | All metrics trace to `data/processed/` and `code/`. No hand-typed numbers. |
+| V. Versioning Discipline | PASS | Artifacts hashed; `updated_at` updated on change. The pipeline script automatically updates the `updated_at` timestamp in the state YAML upon artifact generation. |
+| VI. Numerical Stability | PASS | Fixed RDKit/PyTorch versions; deterministic algorithms enabled. Uses Gasteiger charges and topological indices (not PM7) as per the CPU constraint. PM7 is explicitly out of scope per the spec. |
+| VII. Chemical Dataset Provenance | PASS | Raw kinetic datasets downloaded with timestamps; preprocessing scripts logged. Note: While the Constitution lists NIST/Reaxys, the Plan uses HuggingFace datasets because the verified URLs for NIST/Reaxys are non-kinetic, and this deviation is documented and justified in the spec (FR-001). |
 
 ## Project Structure
 
@@ -44,86 +48,111 @@ specs/001-predict-sn1-rate-constants/
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   ├── model_output.schema.yaml
-│   └── exclusion_report.schema.yaml
-└── tasks.md             # Phase 2 output
+│   ├── output.schema.yaml
+│   └── collinear.schema.yaml
+└── tasks.md             # Phase 2 output (NOT created here)
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── __init__.py
-├── config.py            # Hyperparameters, paths, seeds
+projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/
+├── code/
+│   ├── main.py              # Orchestrates ingestion, training, eval
+│   ├── config.py            # Seeds, paths, hyperparameter ranges
+│   ├── ingestion.py         # Data download, validation, cleaning
+│   ├── descriptors.py       # RDKit-based descriptor computation
+│   ├── model.py             # MPNN architecture, training loop
+│   ├── baselines.py         # Linear, KRR, Random baselines
+│   ├── eval.py              # Metrics, bootstrap, Holm-Bonferroni
+│   ├── interpretability.py  # SHAP, sensitivity, perturbation, VIF
+│   └── requirements.txt     # Pinned dependencies
 ├── data/
-│   ├── ingest.py        # Fetch and parse raw JSONL/Parquet
-│   ├── clean.py         # SMILES parsing, outlier filtering (SN2 removal)
-│   ├── descriptors.py   # Gasteiger, topological indices
-│   └── split.py         # Stratified train/val/test split
-├── models/
-│   ├── mpnn.py          # Message Passing Neural Network (CPU)
-│   ├── train.py         # Training loop, hyperparameter search
-│   └── evaluate.py      # Metrics, bootstrap comparison
-├── analysis/
-│   ├── interpret.py     # SHAP values, feature ranking, Graph Masking
-│   ├── sensitivity.py   # Threshold sweeps
-│   └── collinearity.py  # VIF calculation, PCA
-├── utils/
-│   ├── logger.py
-│   └── checksum.py
-├── main.py              # Orchestration entry point
-└── requirements.txt
-
-data/
-├── raw/                 # Downloaded datasets (checksummed)
-├── processed/           # Cleaned CSVs, descriptors
-└── artifacts/           # Model weights, plots, reports
-
-tests/
-├── contract/            # Schema validation tests
-├── unit/                # Descriptor calculation, filtering logic
-└── integration/         # End-to-end pipeline run (small subset)
+│   ├── raw/                 # Unmodified downloaded files (checksummed)
+│   ├── processed/           # Cleaned CSVs, descriptors, splits
+│   └── artifacts/           # Models, reports, plots
+├── tests/
+│   ├── unit/
+│   └── integration/
+└── state/
+    └── projects/PROJ-373-predicting-rate-constants-of-sn1-reactio.yaml
 ```
 
-**Structure Decision**: Single `code/` directory structure selected. This minimizes overhead for a research pipeline and aligns with the need for a single executable entry point (`main.py`) that orchestrates data ingestion, modeling, and analysis sequentially. The separation into `data`, `models`, and `analysis` submodules ensures modularity while maintaining a flat dependency graph suitable for CPU-only execution.
+**Structure Decision**: Single-project structure chosen for tight coupling of data, model, and evaluation. All scripts in `code/` are runnable end-to-end.
 
 ## Complexity Tracking
 
-*No violations identified. The plan strictly adheres to the spec's CPU constraints and avoids unverified datasets.*
+No violations detected. Complexity is justified by the need for Nested CV, scaffold splitting, and rigorous statistical testing as mandated by the spec.
 
-## Phase Execution Order (Critical for Feasibility)
+## Statistical Methodology
 
-1.  **Phase 0: Data Ingestion & Validation**: Download verified datasets, checksum, parse SMILES, compute descriptors. *Output: `data/processed/cleaned_sn1.csv`*.
-2.  **Phase 1: Baseline & MPNN Training**: Split data (stratified), train Linear Regression (baseline), train MPNN (random search). *Output: `artifacts/best_model.pt`, `artifacts/metrics.json`*.
-3.  **Phase 2: Statistical Validation**: Bootstrap comparison, VIF diagnostic, Sensitivity sweep, Power Analysis. *Output: `artifacts/statistical_report.md`*.
-4.  **Phase 3: Interpretability**: SHAP analysis, Graph-based Perturbation (Masking), Orthogonal Ablation. *Output: `artifacts/feature_importance.png`, `artifacts/perturbation_results.csv`*.
-5.  **Phase 4: Final Report**: Aggregate all metrics, generate final plots.
+- **Nested Cross-Validation**:
+  - **Outer Loop**: Scaffold splitting (using RDKit `GetScaffold` or Morgan fingerprints) to ensure chemically distinct molecules are in train/test splits. This prevents data leakage from similar structures and ensures generalization to unseen chemistry.
+  - **Inner Loop**: 5-fold CV (reduced to 3-fold if dataset size > 2000 to maintain 6h budget) for hyperparameter tuning.
+- **Hyperparameter Optimization**: Random search (≤50 configurations) as per Berthold et al. (2018) efficiency findings.
+- **Baseline Comparison**: Linear Regression and KRR use the *exact same* Gasteiger/topological descriptors as the MPNN's initial node features. This ensures a fair comparison of "Non-linear Graph Learning vs Linear Regression on the same feature space". The MPNN learns message passing from the graph topology, while the baseline is constrained to the same input space to isolate the benefit of the architecture.
+- **Statistical Significance**: Bootstrap (1000 iterations, seed=42) for confidence intervals. Holm-Bonferroni correction applied to all pairwise comparisons (MPNN vs Random/Linear/KRR on R²/MAE).
 
-## FR/SC Coverage Matrix
+## Compute Feasibility
 
-| ID | Requirement | Plan Element Addressing It |
-| :--- | :--- | :--- |
-| **FR-001** | Ingest NIST/Reaxys/UCI, parse SMILES, Gasteiger, no GPU | `data/ingest.py`, `data/descriptors.py`. Uses verified DTS-SN1 URL. |
-| **FR-002** | /15/15 Stratified Split | `data/split.py` using `stratify` on substrate class. |
-| **FR-003** | MPNN (layers), CPU, Random Search (≤50) | `models/mpnn.py` (shallow), `models/train.py` (random search loop). *Note: Spec FR-003 contains a typo 'MPNN with -4 layers'; plan interprets this as 4 layers.* |
-| **FR-004** | R²/MAE, Bootstrap Comparison (k resamples) | `models/evaluate.py` (scikit-learn `bootstrap` logic). |
-| **FR-005** | SHAP/Attention Feature Importance | `analysis/interpret.py` (SHAP library, applied to Model A only). |
-| **FR-006** | Sensitivity Sweep (low to high ranges)
+- **Dynamic Budgeting**:
+  - If dataset size N < 500: Full Nested CV with multiple folds and multiple configurations.
+  - If 500 ≤ N < 2000: Nested CV with multiple folds and multiple configurations.
+  - If N ≥ 2000: Nested CV (multiple repetitions and folds) with 20 configs.
+  - This ensures the total number of training runs (Outer * Inner * Configs) remains within the 6-hour CPU limit.
+- **Memory**: Streaming or chunked processing if dataset > 7GB RAM.
+- **No GPU**: All operations are CPU-optimized.
 
-The specific value to remove/generalize: 'low to high ranges'
+## Implementation Phases
 
-Rewritten passage:
-Sensitivity Sweep (low to high ranges)
+### Phase 0: Data Ingestion & Validation
+- Download `DTS-SN-01-2024` and `SN18-All-20240204`.
+- Verify presence of `SMILES`, `rate_constant`, `substrate_class`, `temperature`, `solvent`.
+- Exclude datasets missing any required column (FR-009).
+- **Distribution Shift Check**: Harmonize units (convert all rates to s⁻¹) and check for experimental condition shifts between datasets. Exclude rows with inconsistent units or unresolvable condition shifts.
+- Output: `data/processed/cleaned.csv`, `data/processed/exclusion_log.csv`.
 
-The specific value to remove/generalize: 'low to high ranges'
+### Phase 1: Descriptor Computation & Splitting
+- Compute Gasteiger charges and topological indices using RDKit.
+- Filter rows with unparseable SMILES or failed descriptor calculation.
+- Stratified split by `substrate_class` with a majority allocation to the training set.
+- Output: `data/processed/descriptors.csv`, `data/processed/split_train.csv`, etc.
 
-Rewritten passage:
-Sensitivity Sweep (broad parameter ranges) | `analysis/sensitivity.py`. |
-| **FR-007** | VIF Diagnostic (VIF > 5 flag) | `analysis/collinearity.py` (with PCA fallback). |
-| **FR-008** | Perturbation Study (Graph-based masking) | `analysis/interpret.py` (graph masking logic, not column removal). |
-| **SC-001** | R² vs Baseline | `models/evaluate.py` comparison logic. |
-| **SC-002** | Runtime ≤ 6h | CPU-only MPNN, shallow depth, sampled data if needed. |
-| **SC-003** | Robustness (Sweep variance) | `analysis/sensitivity.py` output. |
-| **SC-004** | SHAP consistency, Perturbation drop | `analysis/interpret.py` metrics. |
-| **SC-005** | Data Quality ≥ 95% | `data/clean.py` logging and exclusion report. |
-| **SC-006** | Power Analysis | `analysis/power.py` (MDE calculation). |
+### Phase 2: Model Training (Nested CV)
+- Execute Nested CV with scaffold splitting (outer) and random search (inner).
+- Train MPNN, Linear Regression, and KRR baselines.
+- Save best model and metrics.
+- Output: `artifacts/model.pt`, `artifacts/metrics.json`.
+
+### Phase 3: Evaluation & Success Criterion Verification
+- Calculate R² and MAE for all models on the held-out test set.
+- Perform bootstrap comparison with Holm-Bonferroni correction.
+- **SC-001 Verification**: Explicitly check if `MPNN_R2 - Linear_R2 > 0.05` AND `p < 0.05`. Output `PASS` or `FAIL`. If significant but < 0.05, report as "Statistically significant but below magnitude threshold".
+- Output: `artifacts/comparison_report.json`.
+
+### Phase 4: Sensitivity Analysis (FR-006)
+- Sweep top-k descriptors (k=1 to 10) based on absolute SHAP value.
+- Retrain/evaluate model with reduced feature set.
+- Report variance in R².
+- Output: `artifacts/sensitivity_report.md`.
+
+### Phase 5: Perturbation Study (FR-008)
+- Remove top SHAP features from the input.
+- Measure the drop in R².
+- Output: `artifacts/perturbation_report.md`.
+
+### Phase 6: Interpretability & Consistency (SC-004)
+- Generate SHAP summary plot.
+- **Consistency Check**: Re-run model with multiple different seeds and compare SHAP rankings.
+- Run VIF diagnostic on **all descriptor classes EXCEPT Gasteiger charges** (as mandated by FR-007). Pairs with VIF > 5 are flagged for joint analysis.
+- Output: `artifacts/shap_report.md`, `artifacts/vif_report.json`, `artifacts/shap_consistency_report.md`.
+
+### Phase 7: Final Report Generation
+- Aggregate all metrics, reports, and limitations.
+- Generate `artifacts/final_report.md`.
+
+## Limitations
+
+- **Substrate Class Discretization**: The model relies on explicit "secondary/tertiary" labels. This discretization may introduce label noise as the true physical driver (carbocation stability) is continuous. This limitation is explicitly reported in the final output.
+- **Power Limitations**: If N < 500, the study is framed as a feasibility demonstration with limited power to detect small effects (R² diff < 0.05).
+- **Collinearity**: Gasteiger charges are excluded from VIF testing per FR-007, limiting the ability to detect collinearity between electronic and topological signals derived from the same algorithm.

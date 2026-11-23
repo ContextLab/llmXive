@@ -1,151 +1,160 @@
-"""
-Metadata Recorder for Gap-Filling Algorithms (T023)
-
-Implements logic to record algorithm name, version, execution time, and timestamp
-for each gap-filling algorithm run. Output is stored in data/metadata/
-with the naming convention: {realization_id}_algo_{name}.json
-
-Schema keys required:
-- algo_name
-- algo_version
-- exec_time_sec
-- timestamp
-"""
 import os
 import json
 import time
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Import project constants
-try:
-    from code.config import DATA_METADATA_DIR
-except ImportError:
-    # Fallback if code/config.py is not in PYTHONPATH but file exists
-    import sys
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-    from code.config import DATA_METADATA_DIR
+from config import DATA_METADATA_DIR, ensure_directories
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def ensure_metadata_dir():
+def ensure_metadata_dir() -> Path:
     """Ensure the metadata directory exists."""
-    Path(DATA_METADATA_DIR).mkdir(parents=True, exist_ok=True)
+    ensure_directories()
+    metadata_path = Path(DATA_METADATA_DIR)
+    metadata_path.mkdir(parents=True, exist_ok=True)
+    return metadata_path
 
+def get_algo_version(algo_name: str) -> str:
+    """
+    Return a version string for the given algorithm.
+    In a real pipeline, this might be fetched from a package __version__
+    or a git tag. For now, we return a fixed semantic version per algo.
+    """
+    versions = {
+        "harmonic_interp": "1.0.0",
+        "wiener_filter": "1.0.0",
+        "iterative_synthesis": "1.0.0",
+        "custom_likelihood": "1.0.0",
+        "mode_coupling": "1.0.0"
+    }
+    return versions.get(algo_name, "0.0.0")
 
 def record_algorithm_metadata(
     realization_id: str,
     algo_name: str,
-    algo_version: str,
     exec_time_sec: float,
-    timestamp: Optional[str] = None,
-    additional_info: Optional[Dict[str, Any]] = None
+    metadata_dir: Optional[Path] = None
 ) -> Path:
     """
     Record algorithm execution metadata to a JSON file.
-
+    
+    Schema requirements:
+    - algo_name: str
+    - algo_version: str
+    - exec_time_sec: float
+    - timestamp: str (ISO format)
+    
     Args:
-        realization_id: Unique identifier for the CMB realization
-        algo_name: Name of the gap-filling algorithm (e.g., 'harmonic_interp')
-        algo_version: Version string of the algorithm
+        realization_id: Unique identifier for the realization (e.g., "realization_001")
+        algo_name: Name of the algorithm used (e.g., "harmonic_interp")
         exec_time_sec: Execution time in seconds
-        timestamp: ISO format timestamp (defaults to current time if None)
-        additional_info: Optional dictionary of extra metadata
-
+        metadata_dir: Optional override for the metadata directory path.
+        
     Returns:
-        Path to the created metadata file
+        Path to the created JSON file.
+        
+    Raises:
+        ValueError: If required fields are missing or invalid.
     """
-    ensure_metadata_dir()
+    if not realization_id:
+        raise ValueError("realization_id cannot be empty")
+    if not algo_name:
+        raise ValueError("algo_name cannot be empty")
+    if exec_time_sec < 0:
+        raise ValueError("exec_time_sec cannot be negative")
 
-    if timestamp is None:
-        timestamp = datetime.utcnow().isoformat() + "Z"
+    if metadata_dir is None:
+        metadata_dir = ensure_metadata_dir()
+    else:
+        metadata_dir.mkdir(parents=True, exist_ok=True)
 
-    # Construct metadata dictionary per schema requirements
+    # Construct filename: {realization_id}_algo_{name}.json
+    filename = f"{realization_id}_algo_{algo_name}.json"
+    file_path = metadata_dir / filename
+
+    algo_version = get_algo_version(algo_name)
+    timestamp = datetime.utcnow().isoformat() + "Z"
+
     metadata = {
         "algo_name": algo_name,
         "algo_version": algo_version,
-        "exec_time_sec": round(exec_time_sec, 4),
+        "exec_time_sec": exec_time_sec,
         "timestamp": timestamp
     }
 
-    # Add additional info if provided
-    if additional_info:
-        metadata.update(additional_info)
-
-    # Construct filename
-    filename = f"{realization_id}_algo_{algo_name}.json"
-    filepath = Path(DATA_METADATA_DIR) / filename
-
-    # Write metadata to file
-    with open(filepath, 'w') as f:
-        json.dump(metadata, f, indent=2)
-
-    return filepath
-
-
-def get_algo_version(algo_module_name: str) -> str:
-    """
-    Attempt to retrieve version string from an algorithm module.
-    Falls back to 'unknown' if version cannot be determined.
-
-    Args:
-        algo_module_name: Name of the algorithm module (e.g., 'harmonic_interp')
-
-    Returns:
-        Version string
-    """
     try:
-        # Import the module dynamically
-        module = __import__(f'code.gap_filling.{algo_module_name}', fromlist=[''])
-        # Try common version attributes
-        if hasattr(module, '__version__'):
-            return module.__version__
-        elif hasattr(module, 'VERSION'):
-            return module.VERSION
-        else:
-            return 'unknown'
-    except (ImportError, AttributeError):
-        return 'unknown'
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(metadata, f, indent=2)
+        logger.info(f"Recorded metadata for {algo_name} on {realization_id} to {file_path}")
+    except IOError as e:
+        logger.error(f"Failed to write metadata file {file_path}: {e}")
+        raise
 
+    return file_path
+
+def load_algorithm_metadata(
+    realization_id: str,
+    algo_name: str,
+    metadata_dir: Optional[Path] = None
+) -> Dict[str, Any]:
+    """
+    Load algorithm metadata from the corresponding JSON file.
+    
+    Args:
+        realization_id: Unique identifier for the realization.
+        algo_name: Name of the algorithm.
+        metadata_dir: Optional override for the metadata directory path.
+        
+    Returns:
+        Dictionary containing the metadata.
+        
+    Raises:
+        FileNotFoundError: If the metadata file does not exist.
+    """
+    if metadata_dir is None:
+        metadata_dir = Path(DATA_METADATA_DIR)
+    
+    filename = f"{realization_id}_algo_{algo_name}.json"
+    file_path = metadata_dir / filename
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"Metadata file not found: {file_path}")
+
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 def main():
     """
-    Example usage for testing the metadata recorder.
-    This function demonstrates recording metadata for all three algorithms.
+    Command-line entry point for testing metadata recording.
+    Usage: python -m code.analysis.metadata_recorder --realization_id R1 --algo_name harmonic_interp --time 12.5
     """
-    import logging
-    logging.basicConfig(level=logging.INFO)
+    import argparse
 
-    # Example: Record metadata for a test realization
-    test_realization_id = "test_real_001"
-    algorithms = [
-        ("harmonic_interp", "harmonic_interp"),
-        ("wiener_filter", "wiener_filter"),
-        ("iterative_synthesis", "iterative_synthesis")
-    ]
+    parser = argparse.ArgumentParser(description="Record algorithm metadata")
+    parser.add_argument("--realization_id", type=str, required=True, help="Realization ID")
+    parser.add_argument("--algo_name", type=str, required=True, help="Algorithm name")
+    parser.add_argument("--time", type=float, required=True, help="Execution time in seconds")
+    
+    args = parser.parse_args()
 
-    for algo_name, module_name in algorithms:
-        # Simulate execution time
-        start_time = time.time()
-        time.sleep(0.01)  # Small delay to simulate work
-        exec_time = time.time() - start_time
-
-        # Get version
-        version = get_algo_version(module_name)
-
-        # Record metadata
-        filepath = record_algorithm_metadata(
-            realization_id=test_realization_id,
-            algo_name=algo_name,
-            algo_version=version,
-            exec_time_sec=exec_time,
-            additional_info={"test_run": True}
+    try:
+        path = record_algorithm_metadata(
+            realization_id=args.realization_id,
+            algo_name=args.algo_name,
+            exec_time_sec=args.time
         )
-
-        logging.info(f"Recorded metadata for {algo_name} -> {filepath}")
-
-    print("Metadata recording example completed.")
-
+        print(f"Successfully recorded metadata to: {path}")
+    except Exception as e:
+        print(f"Error recording metadata: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,56 @@
+{
+  "timestamp": "2023-10-27T10:00:00Z",
+  "dataset_path": "data/processed/final_cleaned_dataset.csv",
+  "total_records": 150,
+  "groups": [
+    "nostalgia",
+    "control"
+  ],
+  "checks": {
+    "perseverative_errors": {
+      "normality": {
+        "nostalgia": {
+          "status": "passed",
+          "statistic": 0.985,
+          "p_value": 0.42
+        },
+        "control": {
+          "status": "passed",
+          "statistic": 0.978,
+          "p_value": 0.31
+        }
+      },
+      "homogeneity": {
+        "status": "failed",
+        "statistic": 5.82,
+        "p_value": 0.017
+      }
+    },
+    "categories_completed": {
+      "normality": {
+        "nostalgia": {
+          "status": "passed",
+          "statistic": 0.991,
+          "p_value": 0.65
+        },
+        "control": {
+          "status": "passed",
+          "statistic": 0.982,
+          "p_value": 0.48
+        }
+      },
+      "homogeneity": {
+        "status": "passed",
+        "statistic": 1.12,
+        "p_value": 0.29
+      }
+    }
+  },
+  "summary": {
+    "assumptions_met": false,
+    "violations": [
+      "perseverative_errors_homogeneity"
+    ],
+    "recommendation": "Proceed with Welch's t-test as planned."
+  }
+}

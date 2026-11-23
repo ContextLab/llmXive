@@ -1,0 +1,9 @@
+status: none
+intent: '### User Story 1 - Static Feature Extraction and Baseline Variance Quantification
+  (Priority: P1) **User Story ID**: US-1 As a researcher, I want to extract static
+  visual features (entropy, hand visibility, lighting) from egocentric video segments
+  and train a lightweight CPU-only regression model to '
+required_fields: []
+cache_key: 22c7a63d0ddfe6f428bc57ffeeb3a6dc2933d5084181e66337d5bb527d294e73
+searched_at: '2026-11-21T14:33:23.605876+00:00'
+retry_count: 2

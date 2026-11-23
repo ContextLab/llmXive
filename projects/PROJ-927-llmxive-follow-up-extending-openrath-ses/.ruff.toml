@@ -1,0 +1,46 @@
+# Ruff Configuration for llmXive Pipeline
+# Linting rules for consistent code quality
+
+[lint]
+# Enable pycodestyle (E) and Pyflakes (F) by default
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+]
+
+# Ignore specific rules that don't apply to this project
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "B008",  # Do not perform function call in argument defaults (common in tests)
+    "C901",  # Too complex (complexity handled by design)
+]
+
+[lint.per-file-ignores]
+# Allow more flexibility in test files
+"tests/*" = ["S101"]  # Allow assert in tests
+
+# Allow simpler rules in generated code
+"code/generators/*" = ["N806"]  # Allow lowercase variables in generators
+
+[lint.isort]
+# Isort configuration for import sorting
+known-first-party = ["config", "executors", "generators", "simulators", "reconstructors", "analyzers", "utils"]
+force-single-line = true
+lines-between-types = 1
+
+[lint.pydocstyle]
+# Pydocstyle configuration
+convention = "google"
+
+[format]
+# Format configuration (for ruff format, if used)
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

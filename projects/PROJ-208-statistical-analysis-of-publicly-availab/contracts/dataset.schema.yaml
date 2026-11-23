@@ -1,0 +1,48 @@
+# Schema for GitHub Issues Dataset
+# Used for validation in code/utils/validators.py
+type: object
+required:
+  - repository_full_name
+  - issue_number
+  - created_at
+  - closed_at
+  - state
+  - title
+  - user_login
+  - labels
+  - comments_count
+  - assignee
+properties:
+  repository_full_name:
+    type: string
+  issue_number:
+    type: integer
+  created_at:
+    type: string
+    format: date-time
+  closed_at:
+    type: string
+    format: date-time
+  state:
+    type: string
+    enum: ["open", "closed"]
+  title:
+    type: string
+  user_login:
+    type: string
+  labels:
+    type: array
+    items:
+      type: string
+  comments_count:
+    type: integer
+    minimum: 0
+  assignee:
+    type: ["string", "null"]
+  body:
+    type: ["string", "null"]
+  url:
+    type: string
+  closed_by:
+    type: ["string", "null"]
+additionalProperties: false

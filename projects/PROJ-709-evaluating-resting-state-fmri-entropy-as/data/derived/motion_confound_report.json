@@ -1,0 +1,8 @@
+{
+  "correlation": null,
+  "p_value": null,
+  "n_subjects": 0,
+  "flagged": false,
+  "message": "Insufficient data for correlation analysis",
+  "threshold": 0.3
+}

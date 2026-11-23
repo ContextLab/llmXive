@@ -1,45 +1,97 @@
-T001:
+T000:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listings were provided to demonstrate that the required
-    project folders (e.g., `projects/PROJ-503-predicting-plant-defense-compound-produc/code/`,
-    `.../data/raw/`, etc.) actually exist; the response contains only the task description
-    and no concrete filesystem evidence. The implementer must supply a verified directory
-    listing or screenshots showing the full structure.
+  h: b72007e21ada8f92ccd0344e62162ab4322ac0813cfeb3e8ee868860e0b6ddb1
+  r: "The required `projects/PROJ-503-predicting-plant-defense-compound-produc/code/data/verify_availability.py`\
+    \ script is missing, so the verification logic (including aborting with\u202F\
+    E\u2011DATASET) cannot be demonstrated. The existing `docs/dataset_availability_report.md`\
+    \ alone does not satisfy the full task."
+T001a:
+  c: false
+  h: 4a44e43fb042f1c5051478a49790edff07dc246217aea895d57c3a1b25d4c26a
+  r: The expected raw zip files (`data/raw/geo_GSE21857.zip` and `geo_GSE167633.zip`)
+    are absent, and the provided `download.py` script is truncated and does not demonstrate
+    a complete download implementation or raising `E_DATASET` on failure. No evidence
+    of a successful download execution is present.
+T001b:
+  c: false
+  h: 45ace4a6d3aca02439cf0fe52eccfa771ec6357fb0b5fefbc47e64b866515ccf
+  r: "The required output `data/raw/geo_expression_matrix.csv` does not exist, and\
+    \ the provided `parse.py` only contains code for metabolomics parsing (the GEO\u2011\
+    parsing portion is absent or incomplete in the shown excerpt). Consequently the\
+    \ task\u2019s core requirement\u2014parsing GEO raw zip files into a wide\u2011\
+    format expression CSV\u2014is not satisfied."
+T002a:
+  c: false
+  h: dadd2c385d0622a81dc42ab2f4cb292e01dcd55634183069110669c1138ff630
+  r: The expected `projects/PROJ-503-predicting-plant-defense-compound-produc/data/raw/metabolomics_ST002565.zip`
+    file is absent, and the provided `download.py` script is truncated and shows no
+    concrete implementation that performs the download, checks for failure, or raises
+    `E_DATASET`. Without the actual data file and a complete, verified download routine,
+    the task requirement is not satisfied.
+T002b:
+  c: false
+  h: 2ebc2257c1ff5cbd047a5a61a2587f80faee392bd5dd27b77c4ac2822b2d203a
+  r: "The required output file `projects/PROJ-503-predicting-plant-defense-compound-produc/data/raw/metabolite_matrix.csv`\
+    \ does not exist, and the provided `parse.py` is truncated before any logic that\
+    \ maps \u201CStudy Accession\u201D \u2192 `sample_id`, \u201CCompound Name\u201D\
+    \ \u2192 `metabolite_id`, or writes the wide\u2011format CSV. The task\u2019s\
+    \ core deliverable is therefore missing."
+T003:
+  c: false
+  h: e395f5cfc11cd0149a80cd7cbc91a7e58ce3ed381ef1ba8514879f44abb0ea83
+  r: "The required `data/raw/checksums.json` file is absent, and the provided `verify_checksums.py`\
+    \ script is truncated before it can compute the pass\u2011rate or abort when <99\u202F\
+    % of files match, so the checksum verification requirement is not fulfilled."
 T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required utility functions or the log files (`logs/data_pairing.json`
-    and `logs/feature_filtering.csv`) was provided; the claim lacks any actual artifacts
-    to verify that the logging logic was implemented per the spec.
-T006:
+  h: 7c90e429f6d9a204e696d11a2fa8365642f2352599f0e31dd705abab867352b2
+  r: The required output file `data/processed/paired_index.csv` is absent, and the
+    provided `code/data/pairing.py` is incomplete (truncated and contains only placeholder
+    comments without the actual pairing implementation or logging of mismatches).
+    Additionally, no `logs/data_pairing.json` file is present. These missing artifacts
+    mean the pairing task has not been genuinely fulfilled.
+T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files or class definitions were presented for `ExpressionMatrix`, `MetaboliteMatrix`,
-    `FeatureSet`, or `ModelArtifact` in the required `projects/PROJ-503-predicting-plant-defense-compound-produc/code/models/`
-    directory, so the required artifacts are absent. The implementer must add the
-    four model class files (or a module containing them) with proper implementations.
-T007:
+  r: "No code, script, or log file is provided that implements a runtime check of\
+    \ the pairing rate on the downloaded data and aborts with error\u202FE\u2011PAIRING\
+    \ when the rate falls below 95\u202F%. The required artifact (e.g., a function/module,\
+    \ unit test, or execution log demonstrating the abort behavior) is absent."
+T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation defining the E\u2011DATASET, E\u2011\
-    PAIRING, E\u2011TIMEOUT, or E\u2011POWER error codes (and their handling) is present.\
-    \ The required error\u2011handling framework and its integration per plan.md are\
-    \ missing, so the task is not satisfied."
-T009:
+  r: "No `logs/power_analysis_report.json` file was presented, and no content showing\
+    \ N, power, effect_size, alpha, or test_type was provided. The required power\u2011\
+    analysis output is therefore missing."
+T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No JSON file at `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/power_analysis.json`\
-    \ was provided, nor any evidence of the power\u2011analysis calculation (effect\
-    \ size\u202Fr\u202F=\u202F0.5, \u03B1\u202F=\u202F0.05, power\u202F=\u202F0.8)\
-    \ or the required abort behavior when n\u202F<\u202F28. The task\u2019s core artifact\
-    \ is missing."
-T010:
+  r: "The response contains no shell script, command output, or directory listing\
+    \ showing that the required folders under `projects/PROJ-503-predicting-plant-defense-compound-produc/`\
+    \ were created. Without concrete evidence of the filesystem structure, the task\u2019\
+    s deliverable is missing."
+T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no code, script, or documentation for a SHA\u2011256\
-    \ checksum validation utility, nor any tests or usage examples. The only artifacts\
-    \ described relate to plant\u2011defense data acquisition and modelling, which\
-    \ do not satisfy the checksum utility requirement. A functional utility (e.g.,\
-    \ a script or library that computes and verifies SHA\u2011256 hashes for files)\
-    \ is missing."
+  r: "No CSV file containing log\u2011transformed metabolite concentrations aligned\
+    \ by experimental sample identifier was provided; the evidence lacks the required\
+    \ artifact entirely. The task remains undone until such a non\u2011empty, correctly\
+    \ formatted CSV is present."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No JSON log file `projects/PROJ-503-predicting-plant-defense-compound-produc/logs/data_pairing.json`\
+    \ was presented, nor any excerpt showing entries with the required fields `{sample_id,\
+    \ expression_source, metabolite_source, reason: \"no_sample_level_pair\"}`. Without\
+    \ this artifact, the edge\u2011case logging requirement is not satisfied. The\
+    \ implementer must create and provide the actual log file containing the specified\
+    \ entries."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or log file implementing the required validation\
+    \ (halting with E-PAIRING when paired\u2011sample rate <\u202F95%) is present.\
+    \ The claim provides only a textual description of the task and project specs,\
+    \ but no concrete artifact (e.g., a Python module, CLI command, unit test, or\
+    \ log output) that demonstrates the validation logic or its execution. The missing\
+    \ implementation must be added and evidence of its operation supplied."

@@ -1,0 +1,22 @@
+# Data Path Configuration
+# Defines all file system paths used by the pipeline.
+# All paths are relative to the project root.
+paths:
+  raw_data_dir: "data/raw"
+  results_dir: "data/results"
+  figures_dir: "figures"
+  config_dir: "code/config"
+  code_dir: "code"
+  logs_dir: "code/logs"
+
+# Specific file references
+files:
+  data_source_config: "code/config/data_sources.yaml"
+  scale_config: "code/config/scales.yaml"
+  seed_config: "code/config/seeds.yaml"
+  cohort_file: "data/results/analysis_cohort.csv"
+  regression_results: "data/results/regression_results.csv"
+  sensitivity_results: "data/results/sensitivity_analysis.csv"
+  validation_report: "data/results/validation_report.json"
+  platform_status: "data/results/platform_status.json"
+  pipeline_log: "data/results/pipeline_run.log"

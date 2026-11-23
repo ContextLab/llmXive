@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.17905",
+  "judged_at": "2026-08-02T12:54:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting bacterial antibiotic resistance from public genomic databases biology",
+  "rationale": "This paper satisfies criterion (a) and (e) as it identifies a specific biological mechanism (Small Antimicrobial Resistance Proteins or SARPs) and an empirical population (unannotated small open reading frames in bacterial genomes) that are critical components of predicting antibiotic resistance from genomic data, even though it is a review rather than a predictive model itself.",
+  "relevant": true
+}

@@ -1,0 +1,13 @@
+status: none
+intent: LOST dataset arXiv download Zenodo HuggingFace Model Hub RoBERTa python package
+  dataset
+required_fields:
+- post_id
+- reply_id
+- post_text
+- reply_text
+- timestamp
+- valence
+cache_key: 253af59ec2be64166953f05fd71f02c860d2c5dc98e71ee97d2395459501ce98
+searched_at: '2026-10-09T07:43:53.059725+00:00'
+retry_count: 1

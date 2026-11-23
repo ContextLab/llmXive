@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mgb2-impurity-impact"
+version = "0.1.0"
+description = "Predicting the impact of impurities on the superconductivity of Magnesium Diboride"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "xgboost",
+    "pymatgen",
+    "requests",
+    "pyyaml",
+    "matplotlib",
+    "seaborn",
+    "statsmodels",
+    "pytest",
+    "datasets",
+    "toml",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+skip-string-normalization = false
+force-exclude = "code/setup_linting.py"
+
+[tool.setuptools]
+packages = ["code"]

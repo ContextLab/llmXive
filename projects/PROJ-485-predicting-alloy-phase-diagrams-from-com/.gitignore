@@ -1,58 +1,51 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+# Data directories (Constitution Principle V - exclude raw/processed/artifacts)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/artifacts/*
+!data/artifacts/.gitkeep
+
+# Python bytecode and cache
+*.pyc
+__pycache__
+*.pyo
+*.pyd
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Virtual Environments
-.venv/
-venv/
-ENV/
-env/
+# State files (except specific project state)
+state/*.yaml
+!state/PROJ-485/*.yaml
 
-# IDE
+# IDE and Editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Data (Constitution Principle III)
-# Exclude all data by default, allow specific project state
-data/raw/*
-data/processed/*
-data/artifacts/*
-
-# State (Constitution Principle V)
-# Exclude all state YAMLs EXCEPT the specific project state
-state/*.yaml
-!state/PROJ-485/*.yaml
-
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
 # Logs
+data/logs/
 *.log
-logs/
 
-# Coverage
-.coverage
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Jupyter notebooks
+.ipynb_checkpoints
+
+# Coverage reports
 htmlcov/
+.coverage
+coverage.xml
+
+# Testing
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/

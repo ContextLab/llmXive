@@ -1,0 +1,3 @@
+# This directory is managed by the project.
+# It serves as the root for data artifacts.
+# Subdirectories (raw, processed, state) are created by the pipeline.

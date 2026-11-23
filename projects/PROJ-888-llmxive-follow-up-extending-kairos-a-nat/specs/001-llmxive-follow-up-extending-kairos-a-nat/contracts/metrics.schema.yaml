@@ -1,0 +1,1 @@
+# This file has been removed. The schema for ErrorMetric is now defined solely in `error_metric.schema.yaml` to avoid conflicts and ensure a single source of truth.

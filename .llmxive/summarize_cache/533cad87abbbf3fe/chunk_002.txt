@@ -1,0 +1,4 @@
+- The NASA-TLX scale is a validated instrument for measuring cognitive load in this context, and the self-report data will be treated as the primary subjective metric.
+- The sample size (50-100 participants) is sufficient to detect an effect size of Cohen's d > 0.5 with power ≥ 0.80 (calculated via G*Power prior to data collection).
+- Any decision cutoffs introduced during analysis (e.g., for outlier removal) will be justified by community standards and subjected to the required sensitivity analysis.
+- The study requires real human participants for the main data collection; no synthetic data will be used for the primary outcome variables (NASA-TLX, reaction time) in the final hypothesis test.

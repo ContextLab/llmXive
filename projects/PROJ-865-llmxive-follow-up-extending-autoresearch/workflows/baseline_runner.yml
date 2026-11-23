@@ -1,0 +1,69 @@
+name: Baseline Runner (Resource Constrained)
+
+on:
+  workflow_dispatch:
+    inputs:
+      manifest_path:
+        description: 'Path to the experiment manifest CSV'
+        required: true
+        default: 'data/derived/experiment_manifest.csv'
+      output_path:
+        description: 'Path for the output results JSON'
+        required: true
+        default: 'data/derived/baseline_results.json'
+
+# T073: Enforce Resource Constraints in Baseline Execution
+# Using a specific runner label if available, or standard with explicit resource limits
+# In GitHub Actions, 'ubuntu-latest' provides ~2 cores and ~7GB RAM by default.
+# To strictly enforce 4 CPU / 16 GB, we would need a self-hosted runner with that label.
+# For this implementation, we define the label 'resource-limited' which should be configured
+# on a self-hosted runner with 4 vCPUs and 16GB RAM. If not available, the job will queue.
+runs-on: [self-hosted, resource-limited]
+
+env:
+  # Explicitly set environment variables for the script to read
+  BASELINE_CPU_CORES: "4"
+  BASELINE_MEMORY_GB: "16"
+
+steps:
+  - name: Checkout Repository
+    uses: actions/checkout@v3
+
+  - name: Set up Python
+    uses: actions/setup-python@v4
+    with:
+      python-version: '3.11'
+
+  - name: Install Dependencies
+    run: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+
+  - name: Verify Runner Resources
+    run: |
+      echo "Running resource verification on runner..."
+      python -c "
+        import os
+        import multiprocessing
+        mem_gb = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES') / (1024**3)
+        cpu_count = multiprocessing.cpu_count()
+        print(f'Detected: CPU={cpu_count}, RAM={mem_gb:.2f}GB')
+        if cpu_count < 4:
+          print('WARNING: CPU count < 4')
+        if mem_gb < 16:
+          print('WARNING: RAM < 16GB')
+      "
+
+  - name: Run Baseline Agent
+    id: run_baseline
+    run: |
+      python code/03_execution/run_baseline.py \
+        --manifest ${{ github.event.inputs.manifest_path }} \
+        --output ${{ github.event.inputs.output_path }}
+
+  - name: Upload Results Artifact
+    uses: actions/upload-artifact@v3
+    with:
+      name: baseline-results
+      path: ${{ github.event.inputs.output_path }}
+      retention-days: 5

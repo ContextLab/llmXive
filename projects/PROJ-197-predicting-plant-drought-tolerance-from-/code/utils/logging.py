@@ -1,11 +1,7 @@
 """
-Logging utilities for the plant drought tolerance prediction pipeline.
-
-This module provides the DataPipelineLog class for recording
-source URLs, download status, imputation details, merge statistics,
-and excluded species as required by FR-007.
+Logging utilities for the data pipeline.
+Provides DataPipelineLog for structured logging of data operations.
 """
-
 import json
 import logging
 import os
@@ -13,188 +9,85 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-# Ensure the log directory exists
-LOG_DIR = Path("data/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-def _get_timestamp() -> str:
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
+from config import ensure_directories, get_config
 
 class DataPipelineLog:
     """
-    A structured logger for the data pipeline.
-
-    Records events related to data ingestion, processing, and model training
-    to a JSON file and optionally to the standard logging stream.
+    Logger for data pipeline operations.
+    Records source URLs, download status, imputation details, merge statistics, and excluded species.
     """
-
-    def __init__(
-        self,
-        log_file: Optional[str] = None,
-        level: int = logging.INFO,
-    ):
-        """
-        Initialize the logger.
-
-        Args:
-            log_file: Relative path to the JSON log file. Defaults to 'data/logs/pipeline.json'.
-            level: Logging level for the console handler.
-        """
-        self.log_file = Path(log_file) if log_file else LOG_DIR / "pipeline.json"
-        self.events: List[Dict[str, Any]] = []
-
-        # Setup standard logging for console output
-        self.logger = logging.getLogger("DataPipelineLog")
-        self.logger.setLevel(level)
+    def __init__(self, component_name: str):
+        self.component_name = component_name
+        self.log_dir = Path(get_config()["paths"]["logs"])
+        ensure_directories([self.log_dir])
+        
+        self.log_file = self.log_dir / f"{component_name}.log"
+        self.metrics_file = self.log_dir / "metrics.json"
+        
+        # Setup standard logging
+        self.logger = logging.getLogger(f"pipeline.{component_name}")
+        self.logger.setLevel(logging.INFO)
+        
         if not self.logger.handlers:
-            handler = logging.StreamHandler()
-            formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
+            handler = logging.FileHandler(self.log_file)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
             handler.setFormatter(formatter)
             self.logger.addHandler(handler)
+        
+        # Initialize metrics file if not exists
+        if not self.metrics_file.exists():
+            with open(self.metrics_file, 'w') as f:
+                json.dump({}, f)
 
-    def _add_event(self, event_type: str, details: Dict[str, Any]) -> None:
-        """
-        Internal helper to add an event to the in-memory list and write to disk.
+    def record_source_url(self, source: str, url: str) -> None:
+        """Record the URL of a data source."""
+        self.logger.info(f"Source URL: {source} -> {url}")
+        self._update_metrics("source_urls", {source: url})
 
-        Args:
-            event_type: Type of event (e.g., 'source_url', 'download_status').
-            details: Dictionary of event-specific data.
-        """
-        entry = {
-            "timestamp": _get_timestamp(),
-            "type": event_type,
-            "details": details,
-        }
-        self.events.append(entry)
-        self.logger.info(f"[{event_type}] {details}")
+    def record_download_status(self, operation: str, status: str, details: str) -> None:
+        """Record the status of a download operation."""
+        self.logger.info(f"Download Status: {operation} - {status} - {details}")
+        self._update_metrics(f"download_{operation}", {"status": status, "details": details})
 
-        # Persist to JSON file immediately
+    def record_imputation_details(self, method: str, missing_count: int, imputed_count: int) -> None:
+        """Record details of imputation process."""
+        self.logger.info(f"Imputation: {method} - Missing: {missing_count}, Imputed: {imputed_count}")
+        self._update_metrics("imputation", {
+            "method": method,
+            "missing_count": missing_count,
+            "imputed_count": imputed_count
+        })
+
+    def record_merge_statistics(self, total_rows: int, excluded_count: int, excluded_species: List[str]) -> None:
+        """Record statistics from dataset merging."""
+        self.logger.info(f"Merge Stats: Total Rows: {total_rows}, Excluded: {excluded_count}")
+        self._update_metrics("merge", {
+            "total_rows": total_rows,
+            "excluded_count": excluded_count,
+            "excluded_species": excluded_species
+        })
+
+    def record_metrics(self, metrics: Dict[str, Any]) -> None:
+        """Record arbitrary metrics."""
+        self._update_metrics("custom", metrics)
+
+    def _update_metrics(self, key: str, value: Any) -> None:
+        """Update the metrics JSON file."""
         try:
-            with open(self.log_file, "w", encoding="utf-8") as f:
-                json.dump(self.events, f, indent=2, default=str)
-        except IOError as e:
-            self.logger.error(f"Failed to write log to {self.log_file}: {e}")
+            with open(self.metrics_file, 'r') as f:
+                metrics = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            metrics = {}
+        
+        metrics[key] = value
+        
+        with open(self.metrics_file, 'w') as f:
+            json.dump(metrics, f, indent=2)
 
-    def record_source_url(self, url: str, description: Optional[str] = None) -> None:
-        """
-        Record a source URL for data retrieval.
-
-        Args:
-            url: The URL of the data source.
-            description: Optional description of the source.
-        """
-        self._add_event("source_url", {"url": url, "description": description})
-
-    def record_download_status(
-        self,
-        url: str,
-        status: str,
-        size_bytes: Optional[int] = None,
-        error: Optional[str] = None,
-    ) -> None:
-        """
-        Record the status of a download attempt.
-
-        Args:
-            url: The URL that was accessed.
-            status: 'success' or 'failure'.
-            size_bytes: Size of the downloaded file if successful.
-            error: Error message if status is 'failure'.
-        """
-        details = {"url": url, "status": status}
-        if size_bytes is not None:
-            details["size_bytes"] = size_bytes
-        if error is not None:
-            details["error"] = error
-        self._add_event("download_status", details)
-
-    def record_imputation_details(
-        self,
-        strategy: str,
-        columns_imputed: List[str],
-        rows_imputed: int,
-        columns_dropped: Optional[List[str]] = None,
-    ) -> None:
-        """
-        Record details about the imputation process.
-
-        Args:
-            strategy: The imputation strategy used (e.g., 'MICE').
-            columns_imputed: List of column names that had missing values filled.
-            rows_imputed: Number of rows affected.
-            columns_dropped: List of columns dropped due to imputation failure.
-        """
-        details = {
-            "strategy": strategy,
-            "columns_imputed": columns_imputed,
-            "rows_imputed": rows_imputed,
-        }
-        if columns_dropped:
-            details["columns_dropped"] = columns_dropped
-        self._add_event("imputation_details", details)
-
-    def record_merge_statistics(
-        self,
-        left_source: str,
-        right_source: str,
-        left_count: int,
-        right_count: int,
-        merged_count: int,
-        dropped_count: int,
-        join_keys: List[str],
-    ) -> None:
-        """
-        Record statistics from a data merge operation.
-
-        Args:
-            left_source: Name of the left dataset.
-            right_source: Name of the right dataset.
-            left_count: Number of rows in left dataset.
-            right_count: Number of rows in right dataset.
-            merged_count: Number of rows in the resulting merged dataset.
-            dropped_count: Number of rows dropped during merge.
-            join_keys: List of keys used for joining.
-        """
-        details = {
-            "left_source": left_source,
-            "right_source": right_source,
-            "left_count": left_count,
-            "right_count": right_count,
-            "merged_count": merged_count,
-            "dropped_count": dropped_count,
-            "join_keys": join_keys,
-        }
-        self._add_event("merge_statistics", details)
-
-    def record_excluded_species(
-        self,
-        species_ids: List[str],
-        reason: str,
-        source_dataset: str,
-    ) -> None:
-        """
-        Record species that were excluded from the dataset.
-
-        Args:
-            species_ids: List of species identifiers that were excluded.
-            reason: The reason for exclusion (e.g., 'missing_genomic_data').
-            source_dataset: The dataset from which these species were excluded.
-        """
-        details = {
-            "species_ids": species_ids,
-            "reason": reason,
-            "source_dataset": source_dataset,
-            "count": len(species_ids),
-        }
-        self._add_event("excluded_species", details)
-
-    def get_events(self) -> List[Dict[str, Any]]:
-        """Return the list of all recorded events."""
-        return self.events
-
-    def save(self) -> None:
-        """Force save the current events to the log file."""
-        self._add_event("checkpoint", {"message": "Log flushed to disk"})
+    def get_metrics(self) -> Dict[str, Any]:
+        """Retrieve current metrics."""
+        try:
+            with open(self.metrics_file, 'r') as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {}

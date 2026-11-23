@@ -1,0 +1,93 @@
+T001:
+  task: 72fec46737f54103f97a09b949a1c3fffdf00a337b6fa3fe9d4f189047dbdce1
+T002:
+  reason: "The evidence includes `code/__init__.py`, `tests/__init__.py`, and `requirements.txt`,\
+    \ but there is no `README.md` file present in the project. Additionally, the `__init__.py`\
+    \ files contain comment text rather than being truly empty placeholders. The missing\
+    \ README.md (and non\u2011empty placeholder content) means the task is not fully\
+    \ satisfied."
+  task: c882fc764fa8415253f5126b34961ef61e60bad245e846de48588ad9b7388de1
+T003:
+  task: 1b2c97498b3feabc04b1882202c2d2868c91ffe2980f01760b5e5a9f69e82ea5
+T004:
+  task: 5efa23ef9e59a862222934603af9b4dcd708a8b0323bc9ec9ee2b3704e5a72ea
+T005:
+  reason: "The evidence only includes a placeholder `state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc.yaml`\
+    \ with a dummy hash and size, and there is no provided `download.py` showing the\
+    \ required state\u2011update logic. Without a concrete implementation that writes\
+    \ real artifact hashes to the YAML file, the task is not satisfied."
+  task: 9914cdbdcffb226cae1549533c3f1f481f3a1694db4af1bc3535486ab54244e8
+T006:
+  task: 8f1a238be33178fa5865ad09057d0ad0bdf3e70c7e450741d3c25c8fbf0dc5c4
+T007:
+  task: 7d782efb59604d52a3fe89351cc1a4820279fb749667d92c495533fb7293f576
+T008:
+  task: 0306a429582f17fff8c51f9c0a7a3d2aa9da8267db93bfb98bb910a997a63d4d
+T009:
+  task: 9705230b93f7731a50e299383b56600688895c81fdab8b9a32901a9508e3fa96
+T010:
+  task: 2182a3b2e90bf1db9d7eb70cc9eafa816b3e666188a4f38801e556cef19a3d33
+T011:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/metrics/detection_recall.json'
+  task: c2c2eeb79e1c18506e927338f70457873bd6b72a6b167c4e26286e3d4770119b
+T011B:
+  task: 1aed45ba04dcefcbf1910556064f7f219ea15278605532b92d5853ec17becff8
+T012:
+  task: 605cf64a96c8e062a0f7e3d0d3813e93b0a6c11d0c2a2666a70073aa230ef16a
+T013:
+  task: 226719239f0c05964c43e4b9aac68a279c917a5c637efb6c83213a5702dcbc73
+T013B:
+  task: ffe67697d4c4b0dbb59457bdbada0bbc4ac98c6936d6f4c111c51b4490032dc9
+T014:
+  task: 2ad7b2422c8b86f892dd0f54dd33329fae8dfb2e067c853640aaec33211cc772
+T015:
+  task: bac981ad25fc0f7b2e564fea20b5f05bd2eefa1b95eab83c3d359890beef3a4f
+T016:
+  task: 55ad0b5f1b24ebde8149535d6f6aaffcd98935ee9ab7ee32f9e83586cb48d19a
+T017:
+  task: 334d6e5e81c15110693bdacb642e0a70ab0a107d2c7f7049064ebf779022b19a
+T018:
+  task: 26fbf621005c0808c4517f210bb33a789ff37140968579d20ffb386671442db6
+T019:
+  task: 23adc616bd9a310862dd6dfb403650172612f304afab00a45b1b80c107f9bd10
+T020:
+  task: 87d1d6d85f31efe30bb50f8509f440ab563aa68fd5693df4d619f745725ffe5d
+T021:
+  task: 4a3ab15800acd11d9d8af361770740c9680d8f7fb1908f05d7a258b1d15acebe
+T022:
+  task: 8f6859ec55e2c0c1a675fb7862021acf665edd621ea913a2d12df0f32c1574bf
+T024:
+  task: c71d8b117e34a76b1d9c7de755f613d4a8930671ab5ad4916ef3f0029fe518f7
+T025:
+  task: ea2e63dfeaeb9ac533579ed51ecd0fedefaf69e170406d944df8cc12ef9d8b9e
+T026:
+  task: 075f7ba6217ba30ed0843323e6ef023d4f5f1828de8389d3884d109046dc534d
+T027:
+  task: 315bbe0dac56e0290fcd9345f5889ce4f575155a50baae8dd7b4d9aaa23b1d66
+T028:
+  task: d390df162a72e799ec1a47f5c08cd5a0c12b10c16e56890ad3fca8aee12c10bf
+T029:
+  task: 97c65a77edf9691fabd9d75ae1ca1c6662e38b9eacaf98aa2c591207e327e2f2
+T030:
+  task: 9c0d892f2daab6e768763f15851461cdf1867eaa8ad7c762d2d0cc31d589d095
+T031:
+  task: 01558dc2bf581aa7164f60cd1e5d832abfadd5f55ca921986856c247cf514e25
+T032:
+  task: c29d2e3deb14f05ae3bd18f879177205cfabdc164361614e625b9097a7e67013
+T033A:
+  task: 58075d9d831a0c2fc6bf9302702ea2b5b1dc94b92242b99981404c0ff65f2ff9
+T033B:
+  task: 1e5a024a6e9ad2a7c33e37221a687fbccdc65da19fe06ede905981cc21d0ba28
+T034:
+  task: c8d9142bb145d8f099be46f12739a5b34972f03bcc94a0c2fa418212a1ae77d7
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/metrics/composite_fidelity.json'
+  task: 2c71977a9fb3afaedb62e966ec08f73a046e0dc55341950172e65970a89ed728
+T036A:
+  task: 9535b0234083811c0ad62c7a0cb94105523173f55fd3d6f6f57bf2b80d451733
+T036B:
+  task: f2c4d2ec97593b8e5427e445ef7c588d167c9092866ed51de672fc2d9b1d990d
+T036C:
+  task: e0128eeb500f1623181d8842caa004d75da1c21bfdf3dbe17dc48745505460d5
+T037:
+  task: a3590f4b3699b04ec7ecebaed9eb4a3989660f964725d7fa70cf40587611fe39

@@ -1,0 +1,67 @@
+T002:
+  c: false
+  h: 9814ab7b6e4ba318e03a25a54243740b9017dada746d7f8a78850a282d5e8157
+  r: "The provided `physical-node.schema.yaml` is a placeholder (empty object with\
+    \ no required fields) rather than the exact schema required by the specification.\
+    \ No JSON metadata files (`data/raw/physical_node_*.json`) are present, and the\
+    \ test suite only covers node discovery\u2014not the full metadata collection,\
+    \ validation against the schema, or error handling for missing tools. Additionally,\
+    \ the required `logs/pytest_node_manager.log` artifact is absent. The implementation\
+    \ also omits running `free` and does not fully exercise all listed tools, so the\
+    \ task\u2019s requirements are not satisfied."
+  sig: 79a0ff05e5f1fbb679e0f11f5ffe87690d8cf1d09a04468afe2d56bd0f709576
+T003:
+  c: false
+  h: 141ff80de60f236f5345a0cb511875b3432cd2bb2d681ed9b3afbfbb91b58b36
+  r: "The provided `code/orchestrator/scheduler.py` only stores chunks and lacks heartbeat\
+    \ monitoring, timestamp recording, dropout\u2011reason detection, re\u2011assignment\
+    \ logic, and event logging. `dropout_logger.py` calls a non\u2011existent `Scheduler.dump_events`\
+    \ method, and `data/raw/dropout_events.json` remains an empty list. The required\
+    \ `dropout-event.schema.yaml` is missing, and the unit test `test_scheduler.py`\
+    \ does not trigger or verify the four dropout reasons nor validate against the\
+    \ schema. Consequently, the task\u2019s core requirements are not satisfied."
+  sig: fe9f50cffcfbb452a938528a74363fd6b5e57c89e2c1e37bb08fd9308320dca2
+T004:
+  c: false
+  h: d79c9f8b86e2e58c963b056d54f60939d85d3ff0f207e84d773d5d214f7ecee4
+  r: "I examined `code/orchestrator/cli.py`, `data/raw/run_001.csv`, `data/raw/task_chunks/run_001.jsonl`,\
+    \ and `data/raw/validation_status.json`. The CLI writes a CSV whose column names\
+    \ (`wall_clock_time_sec`, `chunk_id`) do not match the required schema (`wall_clock_time`,\
+    \ `task_id`), it runs on 15 mock nodes instead of the required 4, and it uses\
+    \ a simple iteration counter for `packet_count` rather than real `tcpdump` packet\
+    \ counts. Moreover, the required integration test file `code/tests/integration/test_full_workflow.py`\
+    \ and the log `logs/pytest_full_workflow.log` are missing, so the end\u2011to\u2011\
+    end "
+  sig: b33df599991c744288ca97f1d6d952401c2eeebf6ea0951ff74d2db11a28d3f2
+T005:
+  c: false
+  h: add49d95f304076787827db31b0c2df57887c55247fe2aa56e5289d0a5e6588a
+  r: "The repository contains `code/runtime/paths.py` with a mutable `TaskChunkStore.base_dir`,\
+    \ but `code/orchestrator/task_chunk_store.py` writes JSON\u2011lines directly\
+    \ to `base_dir/<run_id>.jsonl` (no `task_chunks/` sub\u2011folder) and validates\
+    \ against a schema that does not match the test\u2019s chunk fields. The required\
+    \ `task-chunk.schema.yaml` file is missing, the unit\u2011test `code/tests/unit/test_task_chunk_store.py`\
+    \ is absent, and the pytest log shows a failure (validation error). Additionally,\
+    \ there is no evidence that `scheduler.py` was updated to call `TaskChunkStore.append`.\
+    \ These missing/incorrect a"
+  sig: 9b6cb535b8e16a6f2fa82eafa79115c098fa08e179c04e8620294ff98194ca82
+T006:
+  c: false
+  h: 9d5c7324ad28142e3afb8c789b6188e3020177150dffb03b31040296aa87e55c
+  r: "The `runtime_tracker.py` implementation meets the functional spec, and the JSON\
+    \ and log files exist, but the required integration test file `code/tests/integration/test_watchdog_overrun.py`\
+    \ is missing, and the expected log `logs/pytest_watchdog.log` is not present.\
+    \ Without the test script and its log, the task\u2019s verification artifacts\
+    \ are incomplete."
+  sig: aad39f824c1533a6b1ea1cad6559a73ca489c24da29d88136589b32414630d92
+T007:
+  c: false
+  h: 6aa4d38aa227f2035c09f62d9826891afd9492d46f6d4aa7e436cb3255df7968
+  r: "Checked `code/orchestrator/calibration.py` (present but implements a custom\
+    \ UDP\u2011burst instead of the required iperf3\u202F+\u202Ftcpdump workflow)\
+    \ and the repository listing, which shows that `data/raw/network_calibration.json`,\
+    \ `data/raw/cpu_calibration.json`, `code/tests/unit/test_calibration.py`, and\
+    \ `logs/pytest_calibration.log` are all missing. The required test file and evidence\
+    \ of passing tests are absent, and the calibration script does not follow the\
+    \ specified measurement method, so the task is not satisfied."
+  sig: 81416098e9c8623f00d10752a0611488488d4a1bc99e2f37f2fbd6329c286af2

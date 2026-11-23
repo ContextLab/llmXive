@@ -1,0 +1,6 @@
+This directory is for PWM databases in MEME format.
+Please download transcription factor binding site motifs (e.g., from JASPAR, CIS-BP) 
+in MEME format and place them here.
+Example:
+- jaspar2024.meme (from http://jaspar.genereg.net/)
+After downloading, update code/src/data/extract.py if the filename differs from defaults.

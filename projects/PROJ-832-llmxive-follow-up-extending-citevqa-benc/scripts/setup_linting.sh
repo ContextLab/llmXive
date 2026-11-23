@@ -1,44 +1,40 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
+# Setup script for linting (ruff) and formatting (black)
+# This script ensures the tools are installed and provides basic configuration checks
 
-# This script configures the linting and formatting tools (Ruff and Black)
-# for the llmXive project. It installs the tools if missing and verifies
-# configuration files exist.
+set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(dirname "$SCRIPT_DIR")"
-CODE_DIR="$ROOT_DIR/code"
+echo "=== Setting up Linting and Formatting Tools ==="
 
-echo "🔧 Setting up linting and formatting tools..."
-
-# Check if tools are installed
-if ! command -v ruff &> /dev/null; then
-    echo "⚠️  Ruff not found. Installing..."
-    pip install ruff
-else
-    echo "✅ Ruff is installed."
+# Check if virtual environment exists, if not create it
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    python -m venv venv
 fi
 
-if ! command -v black &> /dev/null; then
-    echo "⚠️  Black not found. Installing..."
-    pip install black
-else
-    echo "✅ Black is installed."
-fi
+# Activate virtual environment
+source venv/bin/activate
 
-# Verify config files exist
-if [ ! -f "$CODE_DIR/.ruff.toml" ]; then
-    echo "❌ Error: $CODE_DIR/.ruff.toml not found."
-    exit 1
-fi
+# Install linting and formatting tools if not already present
+echo "Installing ruff and black..."
+pip install --upgrade pip
+pip install ruff black
 
-if [ ! -f "$CODE_DIR/.black.toml" ]; then
-    echo "❌ Error: $CODE_DIR/.black.toml not found."
-    exit 1
-fi
+# Verify installation
+echo "Verifying installations..."
+ruff --version
+black --version
 
-echo "✅ Configuration files verified."
-echo "🚀 You can now run:"
-echo "   ruff check code/"
-echo "   ruff format code/"
-echo "   black code/"
+# Run initial format check (dry run)
+echo "Checking code formatting (dry run)..."
+black --check --diff code/ || echo "Formatting issues found. Run 'black code/' to fix."
+
+# Run initial lint check
+echo "Running lint check..."
+ruff check code/ || echo "Linting issues found. Run 'ruff check --fix code/' to fix."
+
+echo "=== Setup Complete ==="
+echo "To format code: black code/"
+echo "To fix linting issues: ruff check --fix code/"
+echo "To check formatting: black --check code/"
+echo "To check linting: ruff check code/"

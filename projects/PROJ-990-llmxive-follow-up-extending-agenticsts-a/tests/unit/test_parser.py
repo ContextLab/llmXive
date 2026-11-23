@@ -1,202 +1,145 @@
 """
-Unit tests for the parser module.
+Unit tests for code/parser.py (T006a)
 """
-import json
-import tempfile
 import os
+import sys
+import json
+import math
+import tempfile
 import pytest
-import pandas as pd
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Import the module under test
-from code.parser import parse_turn_data, extract_metrics_from_trajectory, parse_trajectories
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
+from code.parser import (
+    extract_move_entropy,
+    validate_trajectory_against_schema,
+    extract_metrics_from_trajectory,
+    validate_data_source,
+    main
+)
 
-class TestParseTurnData:
-    """Tests for parse_turn_data function."""
+class TestExtractMoveEntropy:
+    def test_empty_list(self):
+        assert math.isnan(extract_move_entropy([]))
 
-    def test_valid_turn_json(self):
-        """Test parsing valid turn JSON."""
-        turn_json = json.dumps({
-            "health": 100.0,
-            "threat": 0.5,
-            "deck_size": 30
-        })
-        result = parse_turn_data(turn_json)
-        
-        assert result is not None
-        assert result["health"] == 100.0
-        assert result["threat"] == 0.5
-        assert result["deck_size"] == 30
+    def test_single_move(self):
+        assert extract_move_entropy(["move_a"]) == 0.0
 
-    def test_missing_fields_returns_none(self):
-        """Test that missing required fields return None."""
-        turn_json = json.dumps({
-            "health": 100.0,
-            "threat": 0.5
-            # missing deck_size
-        })
-        result = parse_turn_data(turn_json)
-        assert result is None
+    def test_two_moves(self):
+        # log2(2) = 1.0
+        assert extract_move_entropy(["move_a", "move_b"]) == 1.0
 
-    def test_empty_json_returns_none(self):
-        """Test that empty JSON returns None."""
-        assert parse_turn_data("") is None
-        assert parse_turn_data(None) is None
+    def test_four_moves(self):
+        # log2(4) = 2.0
+        assert extract_move_entropy(["a", "b", "c", "d"]) == 2.0
 
-    def test_invalid_json_returns_none(self):
-        """Test that invalid JSON returns None."""
-        assert parse_turn_data("not valid json") is None
+class TestValidateTrajectoryAgainstSchema:
+    def test_valid_trajectory(self):
+        schema = {
+            "required": ["trajectory_id", "turns"],
+            "properties": {
+                "trajectory_id": {"type": "string"},
+                "turns": {"type": "array"}
+            }
+        }
+        trajectory = {"trajectory_id": "123", "turns": []}
+        assert validate_trajectory_against_schema(trajectory, schema) is True
 
-    def test_string_numeric_conversion(self):
-        """Test that string numeric values are converted correctly."""
-        turn_json = json.dumps({
-            "health": "100",
-            "threat": "0.5",
-            "deck_size": "30"
-        })
-        result = parse_turn_data(turn_json)
-        
-        assert result is not None
-        assert isinstance(result["health"], float)
-        assert isinstance(result["threat"], float)
-        assert isinstance(result["deck_size"], int)
+    def test_missing_required_field(self):
+        schema = {
+            "required": ["trajectory_id"],
+            "properties": {}
+        }
+        trajectory = {"turns": []}
+        with pytest.raises(ValueError, match="Missing required field 'trajectory_id'"):
+            validate_trajectory_against_schema(trajectory, schema)
 
+    def test_type_mismatch(self):
+        schema = {
+            "required": [],
+            "properties": {
+                "score": {"type": "integer"}
+            }
+        }
+        trajectory = {"score": "not_an_int"}
+        with pytest.raises(ValueError, match="expected integer"):
+            validate_trajectory_against_schema(trajectory, schema)
 
 class TestExtractMetricsFromTrajectory:
-    """Tests for extract_metrics_from_trajectory function."""
+    def test_basic_extraction(self):
+        trajectory = {
+            "trajectory_id": "test_001",
+            "layer_name": "layer_1",
+            "turns": [
+                {
+                    "health_ratio": 0.8,
+                    "enemy_threat": 0.2,
+                    "deck_size": 10,
+                    "legal_moves": ["a", "b"]
+                },
+                {
+                    "health_ratio": 0.5,
+                    "enemy_threat": 0.5,
+                    "deck_size": 9,
+                    "legal_moves": ["c"]
+                }
+            ]
+        }
+        metrics = list(extract_metrics_from_trajectory(trajectory))
+        
+        assert len(metrics) == 2
+        assert metrics[0]["trajectory_id"] == "test_001"
+        assert metrics[0]["turn"] == 0
+        assert metrics[0]["health_ratio"] == 0.8
+        assert metrics[0]["move_entropy"] == 1.0 # log2(2)
+        
+        assert metrics[1]["turn"] == 1
+        assert metrics[1]["move_entropy"] == 0.0 # log2(1)
 
-    def test_single_turn_trajectory(self):
-        """Test extracting metrics from a single-turn trajectory."""
-        row = pd.Series({
-            "trajectory_id": "traj_001",
-            "turns": json.dumps([{
-                "health": 100.0,
-                "threat": 0.5,
-                "deck_size": 30
-            }])
-        })
-        
-        metrics = extract_metrics_from_trajectory(row)
-        
-        assert len(metrics) == 1
-        assert metrics[0]["trajectory_id"] == "traj_001"
-        assert metrics[0]["turn_index"] == 0
-        assert metrics[0]["health"] == 100.0
-
-    def test_multi_turn_trajectory(self):
-        """Test extracting metrics from a multi-turn trajectory."""
-        turns = [
-            {"health": 100.0, "threat": 0.1, "deck_size": 30},
-            {"health": 95.0, "threat": 0.3, "deck_size": 29},
-            {"health": 90.0, "threat": 0.5, "deck_size": 28}
-        ]
-        row = pd.Series({
-            "trajectory_id": "traj_002",
-            "turns": json.dumps(turns)
-        })
-        
-        metrics = extract_metrics_from_trajectory(row)
-        
-        assert len(metrics) == 3
-        assert all(m["trajectory_id"] == "traj_002" for m in metrics)
-        assert metrics[0]["turn_index"] == 0
-        assert metrics[2]["turn_index"] == 2
+    def test_missing_turns(self):
+        trajectory = {
+            "trajectory_id": "test_002",
+            "layer_name": "layer_2"
+            # No turns key
+        }
+        metrics = list(extract_metrics_from_trajectory(trajectory))
+        assert len(metrics) == 0
 
     def test_empty_turns_list(self):
-        """Test handling of empty turns list."""
-        row = pd.Series({
-            "trajectory_id": "traj_003",
-            "turns": json.dumps([])
-        })
-        
-        metrics = extract_metrics_from_trajectory(row)
-        assert len(metrics) == 0
-
-    def test_missing_turns_column(self):
-        """Test handling of missing turns data."""
-        row = pd.Series({
-            "trajectory_id": "traj_004",
-            "turns": None
-        })
-        
-        metrics = extract_metrics_from_trajectory(row)
-        assert len(metrics) == 0
-
-
-class TestParseTrajectories:
-    """Integration tests for parse_trajectories function."""
-
-    def test_parse_valid_csv(self, tmp_path):
-        """Test parsing a valid CSV file."""
-        # Create test data
-        test_data = {
-            "trajectory_id": ["traj_001", "traj_002"],
-            "turns": [
-                json.dumps([{"health": 100.0, "threat": 0.5, "deck_size": 30}]),
-                json.dumps([
-                    {"health": 100.0, "threat": 0.1, "deck_size": 30},
-                    {"health": 95.0, "threat": 0.3, "deck_size": 29}
-                ])
-            ]
+        trajectory = {
+            "trajectory_id": "test_003",
+            "layer_name": "layer_2",
+            "turns": []
         }
-        df = pd.DataFrame(test_data)
-        
-        input_path = tmp_path / "input.csv"
-        output_path = tmp_path / "output.csv"
-        
-        df.to_csv(input_path, index=False)
-        
-        result_df = parse_trajectories(str(input_path), str(output_path))
-        
-        assert len(result_df) == 3  # 1 + 2 turns
-        assert result_df["trajectory_id"].nunique() == 2
-        assert os.path.exists(output_path)
+        metrics = list(extract_metrics_from_trajectory(trajectory))
+        assert len(metrics) == 0
 
-    def test_missing_input_file(self, tmp_path):
-        """Test error handling for missing input file."""
-        input_path = tmp_path / "nonexistent.csv"
-        output_path = tmp_path / "output.csv"
+class TestValidateDataSource:
+    def test_file_exists(self):
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp.write(b"{}")
+            tmp_path = Path(tmp.name)
         
+        try:
+            validate_data_source(tmp_path) # Should not raise
+        finally:
+            os.unlink(tmp_path)
+
+    def test_file_not_found(self):
+        fake_path = Path("/nonexistent/path/file.jsonl")
         with pytest.raises(FileNotFoundError):
-            parse_trajectories(str(input_path), str(output_path))
+            validate_data_source(fake_path)
 
-    def test_missing_turns_column(self, tmp_path):
-        """Test error handling for missing turns column."""
-        test_data = {
-            "trajectory_id": ["traj_001"],
-            "other_column": ["value"]
-        }
-        df = pd.DataFrame(test_data)
+    def test_file_empty(self):
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            # Write nothing
+            tmp_path = Path(tmp.name)
         
-        input_path = tmp_path / "input.csv"
-        output_path = tmp_path / "output.csv"
-        
-        df.to_csv(input_path, index=False)
-        
-        with pytest.raises(ValueError):
-            parse_trajectories(str(input_path), str(output_path))
-
-    def test_mixed_valid_invalid_turns(self, tmp_path):
-        """Test handling of mixed valid and invalid turn data."""
-        test_data = {
-            "trajectory_id": ["traj_001", "traj_002"],
-            "turns": [
-                json.dumps([{"health": 100.0, "threat": 0.5, "deck_size": 30}]),
-                json.dumps([
-                    {"health": 100.0, "threat": 0.1, "deck_size": 30},
-                    {"health": "invalid", "threat": 0.3, "deck_size": 29}  # Invalid health
-                ])
-            ]
-        }
-        df = pd.DataFrame(test_data)
-        
-        input_path = tmp_path / "input.csv"
-        output_path = tmp_path / "output.csv"
-        
-        df.to_csv(input_path, index=False)
-        
-        result_df = parse_trajectories(str(input_path), str(output_path))
-        
-        # Should only include valid turns
-        assert len(result_df) == 2  # 1 from first traj, 1 valid from second
+        try:
+            with pytest.raises(FileNotFoundError, match="empty"):
+                validate_data_source(tmp_path)
+        finally:
+            os.unlink(tmp_path)

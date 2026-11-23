@@ -1,0 +1,8 @@
+# This file is a legacy alias for ruff configuration.
+# Primary configuration is in pyproject.toml under [tool.ruff].
+# This file is kept for backward compatibility if tools scan for it.
+target-version = "py39"
+line-length = 100
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008"]
+extend-exclude = ["__pycache__", "*.pyc", ".git"]

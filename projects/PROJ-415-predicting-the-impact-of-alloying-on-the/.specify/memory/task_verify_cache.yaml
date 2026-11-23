@@ -1,0 +1,9 @@
+T014:
+  c: false
+  h: e2cd8467b59b20b640f9f9f0d950999fad442a549e3219b357ed5fc70224dbf4
+  r: "The repository contains a `code/data/curation.py` file, but it only defines\
+    \ helper functions and does not write any exclusion logs, nor does it create the\
+    \ required `data/logs/exclusions.log` (which is absent) or `errors/missing_atomic_data.csv`.\
+    \ Consequently, the task\u2019s core requirements\u2014excluding rows, logging\
+    \ exclusions with a count header, and recording atomic data errors\u2014are not\
+    \ fulfilled."

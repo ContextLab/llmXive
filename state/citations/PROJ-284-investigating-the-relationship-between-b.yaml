@@ -1,22 +1,22 @@
-- artifact_hash: 0671c1c39ae0202c8acb4f9a8685f8d52e24e6f63fad104b964faff3a9bf33ef
+- artifact_hash: effc68144490becb004a32097b94e258c0a3a0f058cdfe731b2121ccbf52e555
   artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: OpenNeuro
   kind: url
-  value: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet%60
-  verified_at: '2026-06-29T19:33:42.495589Z'
-- artifact_hash: 0671c1c39ae0202c8acb4f9a8685f8d52e24e6f63fad104b964faff3a9bf33ef
+  value: https://openneuro.org/datasets/ds000117`
+  verification_status: pending
+  verified_against_url: https://openneuro.org/datasets/ds000117
+  verified_at: '2026-07-17T12:15:02.597867Z'
+- artifact_hash: effc68144490becb004a32097b94e258c0a3a0f058cdfe731b2121ccbf52e555
   artifact_path: projects/PROJ-284-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: BALSA
   kind: url
-  value: https://huggingface.co/datasets/adroitLee/eval_260112_ep50_syrg_bz50_R50_Rtn50_pjw_s12000/resolve/main/meta/info.json`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/adroitLee/eval_260112_ep50_syrg_bz50_R50_Rtn50_pjw_s12000/resolve/main/meta/info.json%60
-  verified_at: '2026-06-29T19:33:42.495589Z'
+  value: https://db.humanconnectome.org/`
+  verification_status: pending
+  verified_against_url: https://balsa.wustl.edu
+  verified_at: '2026-07-17T12:15:02.597867Z'

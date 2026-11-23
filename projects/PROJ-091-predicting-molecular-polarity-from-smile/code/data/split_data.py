@@ -1,139 +1,145 @@
-"""
-Data splitting utilities.
-
-Implements T022: Standard random train/test split (no target stratification).
-"""
 import os
 import sys
 import logging
 import pyarrow.parquet as pq
 import numpy as np
-from pathlib import Path
 import pandas as pd
-
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+from pathlib import Path
+from typing import Dict, Any
 
 from utils.logging_config import get_logger
-from utils.config import load_hyperparameters
 
 logger = get_logger(__name__)
 
-def split_data(
-    input_path: Path,
-    output_dir: Path,
-    test_size: float = 0.2,
-    random_state: int = 42
-):
-    """
-    Split the processed descriptors into train and test sets.
+# Hardcoded deterministic seed for reproducibility as per T004 constraints
+# and T046 determinism fix requirement.
+_DETERMINISTIC_SEED = 42
 
+def split_data(input_path: Path, output_prefix: Path, test_size: float = 0.2, seed: int = None) -> None:
+    """Split data into train and test sets deterministically.
+    
     Args:
-        input_path: Path to the input parquet file (data/processed/descriptors.parquet).
-        output_dir: Directory to save split files.
+        input_path: Path to the input parquet file.
+        output_prefix: Base path for output files (will append _train/_test).
         test_size: Fraction of data to use for testing.
-        random_state: Random seed for reproducibility.
-
-    Returns:
-        dict: Paths to the generated train/test files.
+        seed: Random seed. If None, uses the hardcoded deterministic seed.
     """
-    logger.info(f"Splitting data from {input_path}...")
+    logger.info(f"Loading data from {input_path}")
     
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    # Load data
-    df = pd.read_parquet(input_path)
     
-    if 'target' not in df.columns:
-        # Try to infer target column if not named 'target'
-        # Assuming the last column is target or a specific name
-        # For QM9, the target is usually a specific column. 
-        # Let's assume 'target' is the column name as per previous tasks.
-        raise ValueError("Column 'target' not found in input dataframe.")
+    df = pd.read_parquet(input_path)
+    logger.info(f"Loaded {len(df)} rows")
+    
+    # Use hardcoded seed if not provided to ensure determinism across runs
+    effective_seed = seed if seed is not None else _DETERMINISTIC_SEED
+    logger.info(f"Using random seed: {effective_seed}")
+    
+    # Explicitly set the seed before any random operations
+    np.random.seed(effective_seed)
+    indices = np.random.permutation(len(df))
+    test_count = int(len(df) * test_size)
+    test_indices = indices[:test_count]
+    train_indices = indices[test_count:]
+    
+    train_df = df.iloc[train_indices].reset_index(drop=True)
+    test_df = df.iloc[test_indices].reset_index(drop=True)
+    
+    train_path = output_prefix.with_name(output_prefix.name + "_train.parquet")
+    test_path = output_prefix.with_name(output_prefix.name + "_test.parquet")
+    
+    logger.info(f"Saving train data ({len(train_df)} rows) to {train_path}")
+    train_df.to_parquet(train_path, index=False)
+    
+    logger.info(f"Saving test data ({len(test_df)} rows) to {test_path}")
+    test_df.to_parquet(test_path, index=False)
+    
+    logger.info(f"Split complete. Train: {len(train_df)}, Test: {len(test_df)}")
 
-    X = df.drop(columns=['target'])
-    y = df['target']
-
-    # Random split (no stratification)
-    indices = np.arange(len(df))
-    np.random.seed(random_state)
-    np.random.shuffle(indices)
-
-    split_idx = int(len(indices) * (1 - test_size))
-    train_idx = indices[:split_idx]
-    test_idx = indices[split_idx:]
-
-    X_train = X.iloc[train_idx]
-    y_train = y.iloc[train_idx]
-    X_test = X.iloc[test_idx]
-    y_test = y.iloc[test_idx]
-
-    # Create output directory
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Save splits
-    train_X_path = output_dir / "train_X.parquet"
-    train_y_path = output_dir / "train_y.parquet"
-    test_X_path = output_dir / "test_X.parquet"
-    test_y_path = output_dir / "test_y.parquet"
-
-    X_train.to_parquet(train_X_path)
-    y_train.to_parquet(train_y_path)
-    X_test.to_parquet(test_X_path)
-    y_test.to_parquet(test_y_path)
-
-    logger.info(f"Saved train split: {X_train.shape}")
-    logger.info(f"Saved test split: {X_test.shape}")
-
+def load_splits(prefix: Path) -> Dict[str, pd.DataFrame]:
+    """Load train and test splits.
+    
+    Args:
+        prefix: Base path to the split files.
+        
+    Returns:
+        Dictionary with 'train' and 'test' keys containing DataFrames.
+    """
+    train_path = prefix.with_name(prefix.name + "_train.parquet")
+    test_path = prefix.with_name(prefix.name + "_test.parquet")
+    
+    if not train_path.exists():
+        raise FileNotFoundError(f"Train file not found: {train_path}")
+    if not test_path.exists():
+        raise FileNotFoundError(f"Test file not found: {test_path}")
+        
     return {
-        "train_X": str(train_X_path),
-        "train_y": str(train_y_path),
-        "test_X": str(test_X_path),
-        "test_y": str(test_y_path)
+        "train": pd.read_parquet(train_path),
+        "test": pd.read_parquet(test_path)
     }
 
-def load_splits(splits_dir: Path):
+def verify_determinism(input_path: Path, output_prefix: Path, iterations: int = 5) -> bool:
+    """Verify that the split is deterministic across multiple runs.
+    
+    Args:
+        input_path: Path to the input data.
+        output_prefix: Base path for output files.
+        iterations: Number of times to run the split.
+        
+    Returns:
+        True if all splits produced identical shapes, False otherwise.
     """
-    Load split data paths from the splits directory.
-    """
-    if not splits_dir.exists():
-        raise FileNotFoundError(f"Splits directory not found: {splits_dir}")
-
-    return {
-        "train_X": str(splits_dir / "train_X.parquet"),
-        "train_y": str(splits_dir / "train_y.parquet"),
-        "test_X": str(splits_dir / "test_X.parquet"),
-        "test_y": str(splits_dir / "test_y.parquet")
-    }
-
-def main():
-    """
-    Entry point for T022.
-    """
-    input_file = Path("data/processed/descriptors.parquet")
-    output_dir = Path("data/processed/splits")
-
-    if not input_file.exists():
-        logger.error(f"Input file {input_file} not found. Run preprocess_2d first.")
-        sys.exit(1)
-
-    config_path = Path("code/config.yaml")
-    if config_path.exists():
-        config = load_hyperparameters(config_path)
-        test_size = config.get("test_size", 0.2)
-        random_state = config.get("random_state", 42)
+    logger.info(f"Verifying determinism with {iterations} iterations...")
+    
+    shapes = []
+    for i in range(iterations):
+        # Clean up previous split files to ensure fresh run
+        train_path = output_prefix.with_name(output_prefix.name + "_train.parquet")
+        test_path = output_prefix.with_name(output_prefix.name + "_test.parquet")
+        
+        if train_path.exists():
+            train_path.unlink()
+        if test_path.exists():
+            test_path.unlink()
+        
+        # Run split with explicit seed
+        split_data(input_path, output_prefix, seed=_DETERMINISTIC_SEED)
+        
+        # Load and record shapes
+        train_df, test_df = load_splits(output_prefix)
+        shapes.append((train_df.shape, test_df.shape))
+        logger.info(f"Iteration {i+1}: Train {train_df.shape}, Test {test_df.shape}")
+    
+    # Check if all shapes are identical
+    first_shape = shapes[0]
+    all_identical = all(s == first_shape for s in shapes)
+    
+    if all_identical:
+        logger.info("Determinism verified: All splits produced identical shapes.")
     else:
-        test_size = 0.2
-        random_state = 42
+        logger.error("Determinism FAILED: Split shapes varied across iterations.")
+        logger.error(f"Expected: {first_shape}, Got: {shapes}")
+        
+    return all_identical
 
-    try:
-        splits = split_data(input_file, output_dir, test_size, random_state)
-        logger.info(f"Splits saved to {output_dir}")
-    except Exception as e:
-        logger.error(f"Splitting failed: {e}")
+def main() -> None:
+    """Main entry point for the split_data script."""
+    input_path = Path("data/processed/descriptors.parquet")
+    output_prefix = Path("data/processed/splits")
+    
+    # Ensure output directory exists
+    output_prefix.parent.mkdir(parents=True, exist_ok=True)
+    
+    split_data(input_path, output_prefix)
+    
+    # Verify determinism as part of T046
+    is_deterministic = verify_determinism(input_path, output_prefix, iterations=5)
+    if not is_deterministic:
+        logger.critical("Determinism verification failed. Exiting.")
         sys.exit(1)
+    else:
+        logger.info("Determinism verification passed.")
 
 if __name__ == "__main__":
     main()

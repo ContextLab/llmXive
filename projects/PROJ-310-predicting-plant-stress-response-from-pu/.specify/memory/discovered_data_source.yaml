@@ -1,0 +1,15 @@
+status: none
+intent: Metabolomics Workbench ERA5 SoilGrids integration python package dataset
+required_fields:
+- sample_id
+- metabolite_name
+- concentration
+- latitude
+- longitude
+- sampling_date
+- temperature
+- precipitation
+- soil_ph
+cache_key: e7f5dfb11756a770a26ebb7e83696946f9d2521893e1ba2d5fc64c160597298c
+searched_at: '2026-10-20T14:20:29.583721+00:00'
+retry_count: 1

@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SpectralFeatureVector"
+description: "Schema for the extracted spectral features from gradient covariance matrices."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the architecture and task."
+    pattern: "^[a-zA-Z0-9_-]+$"
+  dataset:
+    type: "string"
+    description: "Name of the proxy dataset used."
+    enum:
+      - "TinyImageNet"
+      - "C4"
+  step_count:
+    type: "integer"
+    description: "Number of training steps used for gradient aggregation."
+    const: 100
+  probe_optimizer:
+    type: "string"
+    description: "Optimizer used for feature extraction."
+    enum:
+      - "SGD"
+      - "Adam"
+  spectral_radius:
+    type: "number"
+    description: "Largest eigenvalue (lambda_max)."
+    minimum: 0
+  condition_number:
+    type: "number"
+    description: "Ratio lambda_max / (lambda_min + epsilon)."
+    minimum: 1
+  spectral_entropy:
+    type: "number"
+    description: "Entropy of the normalized top-k eigenvalues."
+    minimum: 0
+  num_eigenvalues:
+    type: "integer"
+    description: "Number of eigenvalues used for entropy calculation."
+    minimum: 10
+  extraction_time_sec:
+    type: "number"
+    description: "Time taken to extract features."
+    minimum: 0
+required:
+  - model_id
+  - dataset
+  - step_count
+  - probe_optimizer
+  - spectral_radius
+  - condition_number
+  - spectral_entropy
+  - num_eigenvalues
+  - extraction_time_sec
+additionalProperties: false

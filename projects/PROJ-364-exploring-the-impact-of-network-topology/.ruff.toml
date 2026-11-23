@@ -1,0 +1,36 @@
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort
+    "N",  # pep8-naming
+    "UP", # pyupgrade
+    "C9", # mccabe complexity
+    "ANN",# type annotations (optional strictness)
+]
+ignore = [
+    "E501", # line too long (handled by formatter/black)
+    "ANN101", # missing type annotation for self in method (optional)
+    "ANN102", # missing type annotation for self in method (optional)
+]
+# Per-file ignores for specific cases
+per-file-ignores = {
+    "__init__.py" = ["F401", "F403"], # Allow imports in __init__.py
+}
+
+[lint.flake8-quotes]
+inline-quotes = "double"
+multiline-quotes = "double"
+
+[lint.mccabe]
+max-complexity = 10
+
+[lint.permissive]
+# Allow wildcard imports for specific modules if needed, though generally discouraged
+# extend-ignore = ["F403"]
+
+[format]
+line-length = 88
+indent-style = "space"
+quote-style = "double"

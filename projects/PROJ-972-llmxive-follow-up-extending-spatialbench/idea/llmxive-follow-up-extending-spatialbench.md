@@ -5,30 +5,76 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?"
 
-## Summary of the prior work
-The paper introduces SpatialBench, a comprehensive benchmark evaluating 41 spatial foundation models across 19 datasets and 5 domains to determine their generalization capabilities, revealing that strict domain alignment and data quality outweigh simple dataset scaling. It further identifies a critical gap in embodied and egocentric tasks, addressing this by releasing DA-Next-5M (a large-scale dataset) and DA-Next (a baseline model). The core insight is that current models lack "all-round" robustness, particularly when facing arbitrary viewpoints, shifting domains, and varying input densities without specific fine-tuning.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can a lightweight, CPU-tractable "Spatial Adapter" trained solely on the *failure cases* identified in SpatialBench's embodied domain gap achieve comparable robustness to full-scale fine-tuning on DA-Next-5M?
-This direction matters because SpatialBench demonstrates that scaling data and models is computationally expensive and often unnecessary if the right data curation (quality over quantity) is applied; this study tests whether targeted, resource-efficient intervention on specific failure modes can close the generalization gap for edge devices without requiring GPU-accelerated pre-training.
+## Research question
+
+Does training exclusively on identified failure modes of spatial foundation models yield robust generalization on unseen embodied and egocentric tasks comparable to training on a random subset of equivalent size?
+
+## Motivation
+
+Current spatial foundation models exhibit significant generalization gaps in embodied and egocentric domains, often requiring computationally expensive full fine-tuning or massive data scaling to improve. This research addresses the gap between the high cost of scaling and the potential efficiency of targeted data curation, testing whether focusing exclusively on model failures can achieve "all-round" robustness with minimal compute resources suitable for edge deployment.
+
+## Related work
+
+- [SpatialBench: Is Your Spatial Foundation Model an All-Round Player? (2026)](https://arxiv.org/abs/2605.27367) — Establishes that current spatial models lack robustness in embodied/egocentric tasks and provides the benchmark and dataset (DA-Next-5M) required to identify specific failure modes for this study.
+- [Benchmarking Foundation Models with Language-Model-as-an-Examiner (2023)](https://arxiv.org/abs/2306.04181) — Provides a methodological precedent for using automated, model-based evaluation to systematically identify performance gaps and failure cases, which informs our strategy for extracting the specific training subset.
+
+## Expected results
+
+We expect the lightweight adapter trained on failure cases to achieve performance parity with a random-subset baseline on specific embodied/egocentric tasks while requiring significantly less compute time and memory. A positive result would show a >15% relative gain on failure modes compared to the random baseline, while a null result would suggest that failure cases alone are insufficient to capture the necessary generalization patterns, implying that broad data diversity remains critical.
 
 ## Methodology sketch
-**Data:** Extract the specific 546 scenes from SpatialBench where models scored below the 30th percentile in the "Embodied" and "Egocentric" task suites, along with their corresponding ground-truth spatial representations from DA-Next-5M.
-**Procedure:** Train a small, transformer-based adapter (under 10M parameters) using only CPU resources on a standard desktop, employing a contrastive loss function that specifically penalizes the model's previous errors on the extracted failure cases while freezing the original backbone weights. Evaluate the adapted model on the full SpatialBench test suite, comparing performance against the original DA-Next baseline and a model trained on a random subset of DA-Next-5M of equal size.
-**Expected Result:** The CPU-trained adapter will demonstrate a statistically significant improvement (e.g., >15% relative gain) on the specific embodied failure modes compared to the baseline, achieving performance parity with the full-scale fine-tuned model on these tasks while utilizing 99% less compute, thereby validating that targeted curation of failure data is more efficient than brute-force scaling.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Extraction**: Parse the SpatialBench evaluation logs to identify scenes where models scored below the 30th percentile in "Embodied" and "Egocentric" suites; extract the corresponding input scenes and ground-truth spatial representations from the DA-Next-5M dataset (available via the SpatialBench repository).
+- **Model Construction**: Initialize a frozen DA-Next backbone and attach a lightweight transformer adapter (<10M parameters) with learnable projection layers; ensure the architecture fits within 7GB RAM and runs on 2 CPU cores.
+- **Training Protocol**: Train the adapter for 50 epochs using a contrastive loss function that maximizes the distance between the model's original incorrect predictions and the ground-truth spatial representations; restrict the batch size to 4 to maintain CPU feasibility.
+- **Baseline Construction**: Construct a control training set by sampling a random subset of DA-Next-5M of identical size (matched to the failure-case count) to ensure a fair comparison of data efficiency rather than data volume.
+- **Evaluation**: Evaluate all models on the full SpatialBench test suite, specifically tracking accuracy on the original failure cases and generalization to unseen embodied tasks to measure robustness transfer.
+- **Statistical Analysis**: Perform a paired t-test comparing the accuracy of the failure-case adapter against the random-subset baseline on the failure cases to determine statistical significance (p < 0.05).
+- **Resource Measurement**: Log total CPU time, peak RAM usage, and wall-clock time for both training and inference to quantify the compute efficiency gain relative to the full-scale baseline.
 
-- **SpatialBench: Is Your Spatial Foundation Model an All-Round Player?** — Haosong Peng, Hao Li, Jiaqi Chen, Yuhao Pan, Runmao Yao, Yalun Dai, Fushuo Huo, Fangzhou Hong, Zhaoxi Chen, Haozhao Wang, Dingwen Zhang, Ziwei Liu, Wenchao Xu. https://arxiv.org/abs/2605.27367.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_27367,
-  title = {SpatialBench: Is Your Spatial Foundation Model an All-Round Player?},
-  author = {Haosong Peng and Hao Li and Jiaqi Chen and Yuhao Pan and Runmao Yao and Yalun Dai and Fushuo Huo and Fangzhou Hong and Zhaoxi Chen and Haozhao Wang and Dingwen Zhang and Ziwei Liu and Wenchao Xu},
-  year = {2026},
-  eprint = {2605.27367},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.27367},
-  url = {https://arxiv.org/abs/2605.27367}
-}
-```
+- Reviewed existing ideas: SpatialBench generalization analysis, DA-Next efficiency study, VLM spatial reasoning benchmarks.
+- Closest match: SpatialBench generalization analysis (similarity sketch: both analyze SpatialBench, but the original work focuses on benchmarking and dataset release, whereas this proposal focuses on a specific *methodological intervention*—failure-case adapter training).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-02T22:27:59Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?" computer science
+**Verified citation count**: 2
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "SpatialBench: Is Your Spatial Foundation Model an All-Round Player?" computer science | 0 |
+| 1 | Spatial foundation model evaluation benchmarks | 5 |
+| 2 | Comprehensive spatial reasoning assessment for multimodal models | 0 |
+| 3 | Benchmarking vision-language models on spatial tasks | 0 |
+| 4 | Generalization capabilities of spatial AI foundation models | 0 |
+| 5 | Multi-task spatial understanding in large multimodal models | 0 |
+| 6 | Spatial reasoning datasets for deep learning evaluation | 0 |
+| 7 | Limitations of current spatial foundation models | 0 |
+| 8 | Holistic evaluation framework for visual spatial intelligence | 0 |
+| 9 | Cross-domain spatial reasoning in transformer-based models | 0 |
+| 10 | Robustness testing of spatial perception models | 0 |
+| 11 | Spatial benchmark diversity for generative AI | 0 |
+| 12 | All-round performance metrics for spatial vision models | 0 |
+| 13 | Evaluating spatial consistency in large language models | 0 |
+| 14 | Geometric reasoning benchmarks for foundation models | 0 |
+| 15 | Spatial task generalization in computer vision | 0 |
+| 16 | Multimodal spatial understanding evaluation protocols | 0 |
+| 17 | Comparative analysis of spatial reasoning in AI models | 0 |
+| 18 | Spatial intelligence gaps in current foundation models | 0 |
+| 19 | Benchmarking 3D spatial reasoning in 2D models | 0 |
+| 20 | Unified evaluation suite for spatial AI agents | 0 |
+
+### Verified citations
+
+1. **SpatialBench: Is Your Spatial Foundation Model an All-Round Player?** (2026). Haosong Peng, Hao Li, Jiaqi Chen, Yuhao Pan, Runmao Yao, et al.. arXiv. [2605.27367](https://arxiv.org/abs/2605.27367). PDF-sampled: No.
+2. **Benchmarking Foundation Models with Language-Model-as-an-Examiner** (2023). Yushi Bai, Jiahao Ying, Yixin Cao, Xin Lv, Yuze He, et al.. arXiv. [2306.04181](https://arxiv.org/abs/2306.04181). PDF-sampled: No.

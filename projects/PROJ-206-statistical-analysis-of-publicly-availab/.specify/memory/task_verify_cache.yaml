@@ -1,0 +1,36 @@
+T002:
+  c: true
+  h: d38bd37917f87667e284d80b29d5e77fc321acc4b407cf230b88c46ae09dbd65
+  r: 'Both artifacts exist and match the requirements: `requirements.txt` pins exact
+    versions for all nine required packages (pandas, numpy, scipy, pymc 5.12.0, arviz,
+    requests, pyyaml, statsmodels, pytest, plus extras), and `src/utils/config.py`
+    implements a `set_seed()` that seeds `random`, `numpy`, and PyMC (with a graceful
+    ImportError fallback), records seed state, and even applies the seed on import.
+    The "called at the start of all scripts" verification cannot be fully checked
+    since no other scripts exist yet (they belong to later tasks), but the module-level
+    `set_seed()` call and `assert_seede'
+  sig: 89ac855ed8da6e51efb389a0faa4a7411c109ca8cc517c34ccb0b7fff6e6799c
+T005:
+  c: true
+  h: f433e3f7b96c8a9a30564608817f2e96f41a66922478d1e6ebc700bbe81af83d
+  r: 'Both schema files exist at the canonical contracts directory (the "MISSING"
+    entries reflect only path normalization; the resolved paths show non-empty files
+    of 4720 and 4579 bytes) and contain genuine, well-formed JSON Schema draft-07
+    documents covering the required dataset fields (date, pollster, vote_share, sample_size,
+    historical_rmse, etc.) and forecast fields (simple_avg_forecast, weighted_avg_forecast,
+    bayesian_forecast, CIs, r_hat) with validation rules. A dummy CSV matching the
+    dataset schema''s columns exists at `data/processed/dummy_poll.csv`, consistent
+    with the validation workflow; '
+  sig: 1c23a3c279ab6d774cc21a4adf1b298ce42ad5af24ff3f6efabd98119fae08de
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of modified `src/data/` scripts, no hash generation logic, and no
+    updated `state/projects/PROJ-206-*.yaml` files were provided. The required artifacts
+    are missing, so the task is not satisfied.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or configuration file is provided that sets up a PyMC NUTS\
+    \ sampler to run on CPU\u2011only, specifies the number of tuning steps, or fixes\
+    \ random seeds. The required artifact is missing, so the task is not satisfied."

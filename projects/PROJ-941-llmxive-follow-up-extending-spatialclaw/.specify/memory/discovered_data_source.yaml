@@ -1,0 +1,14 @@
+status: none
+intent: SpatialClaw benchmark dataset download open source python package dataset
+required_fields:
+- task_id
+- polygon_vertices
+- edge_list
+- occlusion_mask
+- depth_map_2d
+- ground_truth_label
+- scene_image_path
+- metadata
+cache_key: 2a6b0080df8d85dd4bd6a2c53751008fdcb8c1da52f8bb67f17142eb8c6f7f0a
+searched_at: '2026-10-10T03:22:36.966520+00:00'
+retry_count: 1

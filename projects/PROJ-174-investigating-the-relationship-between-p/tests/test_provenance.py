@@ -1,113 +1,108 @@
 """
-Tests for the provenance utilities in code/utils/provenance.py.
+Unit tests for provenance utilities (T007).
+
+Verifies that:
+1. hash_file computes a correct hash for a known file.
+2. write_meta creates a JSON file with correct keys (hash, timestamp, source).
+3. generate_provenance_for_dataset integrates correctly.
 """
-import json
 import os
+import json
 import tempfile
+import shutil
+from pathlib import Path
 import pytest
-import pandas as pd
 
-# Import the functions under test
-from utils.provenance import hash_file, write_meta
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent
+sys_path = str(project_root)
+if sys_path not in __import__('sys').path:
+    __import__('sys').path.insert(0, sys_path)
 
+from utils.provenance import hash_file, write_meta, generate_provenance_for_dataset
 
-class TestHashFile:
-    def test_hash_file_sha256(self):
-        """Test that hash_file computes a valid SHA256 hash."""
-        with tempfile.NamedTemporaryFile(delete=False, mode="w") as f:
-            f.write("test content")
-            temp_path = f.name
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test artifacts."""
+    path = tempfile.mkdtemp()
+    yield path
+    shutil.rmtree(path, ignore_errors=True)
 
-        try:
-            h = hash_file(temp_path, algorithm="sha256")
-            assert len(h) == 64  # SHA256 hex length
-            assert all(c in "0123456789abcdef" for c in h)
-        finally:
-            os.unlink(temp_path)
+def test_hash_file_valid(temp_dir):
+    """Test hash_file on a valid file."""
+    test_file = Path(temp_dir) / "test.txt"
+    content = b"Hello, provenance!"
+    test_file.write_bytes(content)
+    
+    h = hash_file(str(test_file))
+    assert len(h) == 64  # SHA256 hex length
+    assert h.isalnum()
 
-    def test_hash_file_not_found(self):
-        """Test that hash_file raises FileNotFoundError for missing files."""
-        with pytest.raises(FileNotFoundError):
-            hash_file("/nonexistent/path/file.txt")
+def test_hash_file_missing():
+    """Test hash_file raises on missing file."""
+    with pytest.raises(FileNotFoundError):
+        hash_file("/nonexistent/path/file.txt")
 
-    def test_hash_consistency(self):
-        """Test that the same file produces the same hash."""
-        with tempfile.NamedTemporaryFile(delete=False, mode="w") as f:
-            f.write("consistent content")
-            temp_path = f.name
+def test_write_meta_creates_json(temp_dir):
+    """Test write_meta creates a JSON file with required keys."""
+    test_file = Path(temp_dir) / "data.csv"
+    test_file.write_text("col1,col2\n1,2")
+    
+    meta_dict = {"custom_key": "custom_value"}
+    source = "test_source"
+    
+    meta_path = write_meta(str(test_file), meta_dict, source=source)
+    
+    # The function modifies meta_dict in place and returns None, 
+    # but the file is written to {path}_meta.json
+    expected_meta_path = str(test_file.parent / "data_meta.json")
+    
+    assert os.path.exists(expected_meta_path)
+    
+    with open(expected_meta_path, "r") as f:
+        data = json.load(f)
+    
+    assert "hash" in data
+    assert "timestamp" in data
+    assert "source" in data
+    assert data["source"] == source
+    assert data["custom_key"] == "custom_value"
 
-        try:
-            h1 = hash_file(temp_path)
-            h2 = hash_file(temp_path)
-            assert h1 == h2
-        finally:
-            os.unlink(temp_path)
+def test_write_meta_missing_file():
+    """Test write_meta raises on missing source file."""
+    with pytest.raises(FileNotFoundError):
+        write_meta("/nonexistent/data.csv", {})
 
+def test_generate_provenance_for_dataset(temp_dir):
+    """Test the convenience function."""
+    test_file = Path(temp_dir) / "dataset.parquet"
+    test_file.write_text("fake parquet content")
+    
+    result_path = generate_provenance_for_dataset(str(test_file), "ds004287")
+    
+    expected_meta = str(test_file.parent / "dataset_meta.json")
+    assert result_path == expected_meta
+    assert os.path.exists(expected_meta)
+    
+    with open(expected_meta, "r") as f:
+        data = json.load(f)
+    
+    assert data["source"] == "ds004287"
+    assert "hash" in data
+    assert "timestamp" in data
+    assert data["dataset_id"] == "dataset.parquet"
 
-class TestWriteMeta:
-    def test_write_meta_creates_file(self):
-        """Test that write_meta creates a valid JSON file."""
-        with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".csv") as f:
-            f.write("a,b\n1,2\n")
-            data_path = f.name
-
-        try:
-            meta_path = data_path.replace(".csv", "_meta.json")
-            write_meta(data_path, {"description": "test data"}, source="test_source")
-
-            assert os.path.exists(meta_path)
-            with open(meta_path, "r") as f:
-                meta = json.load(f)
-
-            assert "hash" in meta
-            assert "timestamp" in meta
-            assert meta["source"] == "test_source"
-            assert meta["description"] == "test data"
-        finally:
-            if os.path.exists(data_path):
-                os.unlink(data_path)
-            if os.path.exists(meta_path):
-                os.unlink(meta_path)
-
-    def test_write_meta_missing_source_file(self):
-        """Test that write_meta raises FileNotFoundError for missing source."""
-        with pytest.raises(FileNotFoundError):
-            write_meta("/nonexistent/file.csv", {})
-
-    def test_write_meta_auto_hash(self):
-        """Test that write_meta computes hash if not provided."""
-        with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".csv") as f:
-            f.write("x,y\n10,20\n")
-            data_path = f.name
-
-        try:
-            meta_path = data_path.replace(".csv", "_meta.json")
-            # Do not provide 'hash' in meta_dict
-            write_meta(data_path, {"note": "auto hash"}, source="auto_test")
-
-            with open(meta_path, "r") as f:
-                meta = json.load(f)
-
-            # Verify hash matches actual file hash
-            computed_hash = hash_file(data_path)
-            assert meta["hash"] == computed_hash
-        finally:
-            if os.path.exists(data_path):
-                os.unlink(data_path)
-            if os.path.exists(meta_path):
-                os.unlink(meta_path)
-
-    def test_write_meta_creates_directories(self):
-        """Test that write_meta creates parent directories if needed."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            nested_path = os.path.join(tmpdir, "subdir", "data.csv")
-            os.makedirs(os.path.dirname(nested_path), exist_ok=True)
-            
-            with open(nested_path, "w") as f:
-                f.write("col\n1\n")
-
-            meta_path = nested_path.replace(".csv", "_meta.json")
-            write_meta(nested_path, {}, source="nested_test")
-            
-            assert os.path.exists(meta_path)
-            os.unlink(meta_path)
+def test_write_meta_generates_hash_if_missing(temp_dir):
+    """Test that write_meta computes hash if not provided."""
+    test_file = Path(temp_dir) / "test.csv"
+    test_file.write_text("a,b")
+    
+    meta_dict = {}  # No hash provided
+    write_meta(str(test_file), meta_dict, source="src")
+    
+    meta_path = str(test_file.parent / "test_meta.json")
+    with open(meta_path, "r") as f:
+        data = json.load(f)
+    
+    # Should match the file hash
+    assert data["hash"] == hash_file(str(test_file))

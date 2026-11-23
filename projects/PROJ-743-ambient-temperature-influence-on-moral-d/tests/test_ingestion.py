@@ -1,126 +1,220 @@
 """
-Tests for the ingestion module (T017).
+Integration tests for T016: ERA5 data fetching and merging with sample Moral Machine data.
 
-These tests verify:
-1. Loading of Moral Machine data.
-2. Filtering of invalid records (missing location, bad response times).
-3. Logging of excluded records.
+These tests verify the full ingestion pipeline including geospatial matching logic
+and temperature interpolation against a controlled sample dataset.
 """
-import pytest
+import os
+import sys
+import json
+import tempfile
+from pathlib import Path
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import tempfile
-import os
-from unittest.mock import patch, MagicMock
+import pytest
 
-# Import the module to test
-# We need to mock the logging and config dependencies
-import sys
-from io import StringIO
-
-# Mock external dependencies before importing
-sys.modules['cdsapi'] = MagicMock()
-sys.modules['xarray'] = MagicMock()
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
 from ingestion import (
-    load_moral_machine_dataset,
-    filter_invalid_records,
-    log_excluded_records,
+    load_moral_machine_data,
+    apply_column_mapping,
+    filter_missing_location,
+    filter_invalid_response_time,
+    capture_pre_filter_count,
+    log_counts_to_file,
     ensure_exclusion_log_exists,
-    MIN_RESPONSE_TIME_MS,
-    MAX_RESPONSE_TIME_MS
+    save_filtered_data
 )
+from interpolation import (
+    process_interpolation,
+    calculate_temporal_gap,
+    interpolate_temperature
+)
+from config import get_path_env_override
 
 @pytest.fixture
 def sample_moral_machine_data():
-    """Create a sample DataFrame mimicking the Moral Machine dataset."""
+    """Create sample Moral Machine data for testing."""
     data = {
-        'id': [1, 2, 3, 4, 5, 6, 7],
-        'latitude': [40.7, 34.0, np.nan, 51.5, 48.8, 35.6, 12.9],
-        'longitude': [-74.0, -118.2, 0.0, -0.1, 2.3, 139.6, 77.2],
-        'response_time_ms': [500, 2000, 1500, 50, 15000, 800, 500],
-        'choice': ['A', 'B', 'A', 'A', 'B', 'A', 'B']
+        'participant_id': range(5),
+        'lat': [40.7128, 51.5074, 35.6762, 48.8566, 52.5200],
+        'lon': [-74.0060, -0.1278, 139.6503, 2.3522, 13.4050],
+        'response_time_ms': [500, 1200, 800, 200, 1500],
+        'country': ['US', 'UK', 'JP', 'FR', 'DE'],
+        'dilemma_id': range(5),
+        'timestamp': pd.date_range('2016-01-01', periods=5, freq='h')
     }
     return pd.DataFrame(data)
 
 @pytest.fixture
-def temp_log_dir(tmp_path):
-    """Create a temporary directory for logs."""
-    log_dir = tmp_path / "results" / "logs"
-    log_dir.mkdir(parents=True)
-    return log_dir
+def sample_era5_data():
+    """Create sample ERA5 temperature data for testing."""
+    # Simulate hourly temperature data for a few grid points
+    dates = pd.date_range('2016-01-01', periods=24, freq='h')
+    data = []
+    
+    # Grid point near New York (approx 40.7, -74.0)
+    for t in dates:
+        data.append({
+            'grid_id': 'grid_ny',
+            'timestamp': t,
+            'latitude': 40.75,
+            'longitude': -74.0,
+            'temperature_celsius': 5.0 + np.sin(t.hour / 24.0 * 2 * np.pi) * 2
+        })
+    
+    # Grid point near London (approx 51.5, -0.1)
+    for t in dates:
+        data.append({
+            'grid_id': 'grid_ldn',
+            'timestamp': t,
+            'latitude': 51.5,
+            'longitude': -0.1,
+            'temperature_celsius': 8.0 + np.sin(t.hour / 24.0 * 2 * np.pi) * 1.5
+        })
+        
+    return pd.DataFrame(data)
 
-def test_filter_invalid_records_missing_location(sample_moral_machine_data):
-    """Test that records with missing latitude/longitude are excluded."""
-    valid_df, excluded_df = filter_invalid_records(sample_moral_machine_data)
-    
-    # Record 3 has missing latitude
-    assert len(excluded_df) == 1
-    assert excluded_df.iloc[0]['id'] == 3
-    assert 'missing_location' in excluded_df.iloc[0]['exclusion_reason']
-    
-    # Check valid records
-    assert len(valid_df) == 6
-    assert 3 not in valid_df['id'].values
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test artifacts."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-def test_filter_invalid_records_response_time(sample_moral_machine_data):
-    """Test that records with response times < 100ms or > 10000ms are excluded."""
-    valid_df, excluded_df = filter_invalid_records(sample_moral_machine_data)
+def test_full_ingestion_pipeline_integration(temp_dir, sample_moral_machine_data, sample_era5_data):
+    """
+    Integration test: Run the full ingestion and interpolation pipeline on sample data.
+    Verifies that:
+    1. Moral Machine data is loaded and filtered correctly.
+    2. Temperature data is interpolated for matching timestamps.
+    3. The final merged dataset contains valid temperature values.
+    """
+    # 1. Prepare Moral Machine data
+    mm_path = temp_dir / 'moral_machine.csv'
+    sample_moral_machine_data.to_csv(mm_path, index=False)
     
-    # Record 4 is < 100ms
-    # Record 5 is > 10000ms
-    # Record 3 is also excluded (missing location)
+    # 2. Load and apply column mapping
+    df_mm = load_moral_machine_data(mm_path)
+    df_mm = apply_column_mapping(df_mm)
     
-    assert len(excluded_df) >= 2 # At least 4 and 5
-    ids_excluded = excluded_df['id'].tolist()
-    assert 4 in ids_excluded
-    assert 5 in ids_excluded
+    # 3. Filter missing locations
+    exclusion_log = temp_dir / 'exclusion_log.csv'
+    ensure_exclusion_log_exists(exclusion_log)
+    df_mm, _ = filter_missing_location(df_mm, exclusion_log)
     
-    # Check reasons
-    reason_4 = excluded_df[excluded_df['id'] == 4]['exclusion_reason'].iloc[0]
-    reason_5 = excluded_df[excluded_df['id'] == 5]['exclusion_reason'].iloc[0]
+    # 4. Filter invalid response times
+    df_mm, _ = filter_invalid_response_time(df_mm, exclusion_log, min_ms=100, max_ms=10000)
     
-    assert 'response_time' in reason_4
-    assert 'response_time' in reason_5
+    assert len(df_mm) > 0, "No valid Moral Machine records remaining after filtering"
+    
+    # 5. Save filtered data for interpolation step
+    filtered_path = temp_dir / 'filtered_moral_machine.parquet'
+    save_filtered_data(df_mm, filtered_path)
+    
+    # 6. Prepare ERA5 data
+    era5_path = temp_dir / 'era5_sample.parquet'
+    sample_era5_data.to_parquet(era5_path)
+    
+    # 7. Perform interpolation (simulating the matching logic)
+    # Note: In a real scenario, this would match grid IDs based on coordinates
+    # For this test, we manually assign grid IDs to simulate the match
+    df_mm['grid_id'] = df_mm.apply(
+        lambda row: 'grid_ny' if row['latitude'] > 40 else 'grid_ldn', 
+        axis=1
+    )
+    
+    # 8. Process interpolation
+    interpolated_data = process_interpolation(
+        moral_data=df_mm,
+        era5_path=era5_path,
+        exclusion_log=exclusion_log
+    )
+    
+    # 9. Assertions
+    assert interpolated_data is not None, "Interpolation failed to produce output"
+    assert 'temperature_celsius' in interpolated_data.columns, "Temperature column missing"
+    assert not interpolated_data['temperature_celsius'].isna().any(), "Missing temperature values after interpolation"
+    
+    # Verify temperature values are within a physically plausible range
+    temps = interpolated_data['temperature_celsius']
+    assert (temps >= -50).all() and (temps <= 60).all(), "Temperature values out of plausible range"
+    
+    # Verify record count is preserved (no unexpected drops in this simple test)
+    assert len(interpolated_data) == len(df_mm), "Record count mismatch after interpolation"
 
-def test_log_excluded_records(temp_log_dir):
-    """Test that excluded records are logged correctly."""
-    # Mock the path
-    original_path = Path("results/logs/exclusion_log.csv")
-    test_path = temp_log_dir / "exclusion_log.csv"
+def test_interpolation_edge_case_gap_handling(temp_dir, sample_moral_machine_data, sample_era5_data):
+    """
+    Test that the interpolation logic correctly handles temporal gaps.
+    Specifically, verifies that gaps > 2 hours result in exclusion.
+    """
+    # Create a scenario with a large gap in ERA5 data
+    dates = pd.date_range('2016-01-01', periods=5, freq='h')
+    # Remove the 3rd and 4th hours to create a 3-hour gap
+    dates_with_gap = [dates[0], dates[1], dates[4]]
     
-    # Patch the global path variable or use a context manager
-    # For simplicity, we'll test the logic by creating a dummy df and calling the function
-    # We need to ensure the function writes to our temp path
-    # Since the function uses a global constant, we'll patch it locally or assume the test environment handles it
-    # A better approach is to refactor the function to accept a path, but for now we test the side effect
+    gap_data = []
+    for t in dates_with_gap:
+        gap_data.append({
+            'grid_id': 'grid_ny',
+            'timestamp': t,
+            'latitude': 40.75,
+            'longitude': -74.0,
+            'temperature_celsius': 5.0
+        })
     
-    excluded_data = pd.DataFrame({
-        'id': [100],
-        'exclusion_reason': ['test_reason']
+    era5_gap_path = temp_dir / 'era5_gap.parquet'
+    pd.DataFrame(gap_data).to_parquet(era5_gap_path)
+    
+    # Create a Moral Machine record that falls exactly in the gap
+    mm_gap_data = pd.DataFrame({
+        'participant_id': [99],
+        'latitude': [40.7128],
+        'longitude': [-74.0060],
+        'response_time': [500],
+        'grid_id': ['grid_ny'],
+        'timestamp': [dates[2]]  # Falls in the gap
     })
     
-    # We need to ensure ensure_exclusion_log_exists creates the file
-    # and log_excluded_records appends to it
-    # This test is somewhat brittle due to global state, but verifies the mechanism
-    pass 
-    # In a real scenario, we would mock the Path or refactor to inject dependencies
-
-def test_filter_invalid_records_empty_df():
-    """Test filtering on an empty DataFrame."""
-    empty_df = pd.DataFrame(columns=['id', 'latitude', 'longitude', 'response_time_ms'])
-    valid_df, excluded_df = filter_invalid_records(empty_df)
-    assert len(valid_df) == 0
-    assert len(excluded_df) == 0
-
-def test_filter_invalid_records_all_valid(sample_moral_machine_data):
-    """Test filtering when all records are valid (modify data)."""
-    clean_data = sample_moral_machine_data.copy()
-    clean_data.loc[2, 'latitude'] = 10.0 # Fix missing
-    clean_data.loc[3, 'response_time_ms'] = 500 # Fix low
-    clean_data.loc[4, 'response_time_ms'] = 5000 # Fix high
+    exclusion_log = temp_dir / 'exclusion_log_gap.csv'
+    ensure_exclusion_log_exists(exclusion_log)
     
-    valid_df, excluded_df = filter_invalid_records(clean_data)
-    assert len(excluded_df) == 0
-    assert len(valid_df) == len(clean_data)
+    # Process interpolation - this should exclude the record due to gap > 2h
+    result = process_interpolation(
+        moral_data=mm_gap_data,
+        era5_path=era5_gap_path,
+        exclusion_log=exclusion_log
+    )
+    
+    # Verify the record was excluded
+    assert result is None or len(result) == 0, "Record in large gap should be excluded"
+    
+    # Verify exclusion was logged
+    if exclusion_log.exists():
+        exclusion_df = pd.read_csv(exclusion_log)
+        assert len(exclusion_df) > 0, "Exclusion log should contain entries for gap exclusion"
+        assert any('temperature gap' in str(reason).lower() for reason in exclusion_df['exclusion_reason']), "Exclusion reason should mention temperature gap"
+
+def test_column_mapping_integration(temp_dir, sample_moral_machine_data):
+    """
+    Integration test for column mapping and initial filtering.
+    Ensures that raw Moral Machine columns are correctly transformed to internal schema.
+    """
+    mm_path = temp_dir / 'mm_test.csv'
+    sample_moral_machine_data.to_csv(mm_path, index=False)
+    
+    # Load and map
+    df = load_moral_machine_data(mm_path)
+    df_mapped = apply_column_mapping(df)
+    
+    # Verify schema transformation
+    assert 'latitude' in df_mapped.columns
+    assert 'longitude' in df_mapped.columns
+    assert 'response_time' in df_mapped.columns
+    assert 'lat' not in df_mapped.columns
+    assert 'lon' not in df_mapped.columns
+    assert 'response_time_ms' not in df_mapped.columns
+    
+    # Verify data integrity
+    assert df_mapped['latitude'].iloc[0] == sample_moral_machine_data['lat'].iloc[0]
+    assert df_mapped['response_time'].iloc[0] == sample_moral_machine_data['response_time_ms'].iloc[0]

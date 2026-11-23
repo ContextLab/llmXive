@@ -31,7 +31,7 @@ from llmxive.claims.pointer import (
 )
 from llmxive.claims.resolve import resolve
 from llmxive.claims.smooth import strip_and_smooth
-from llmxive.claims.stage import is_planning_stage
+from llmxive.claims.stage import is_planning_stage, is_research_planning_artifact
 from llmxive.state import claims as _claim_store
 
 logger = logging.getLogger(__name__)
@@ -52,6 +52,8 @@ def _source_hash_from_evidence(evidence: dict[str, Any] | None, value: str | Non
     """
     if not evidence:
         return None
+    if evidence.get("artifact_sha256"):
+        return str(evidence["artifact_sha256"])
     if evidence.get("output_sha256"):
         return str(evidence["output_sha256"])
     source = evidence.get("source_id") or evidence.get("source") or evidence.get("url")
@@ -70,11 +72,14 @@ def _live_source_hash(claim: Claim, project_id: str, repo_root: Path) -> str | N
     purged or expires. Returns None when the artifact can no longer be found.
     """
     if claim.kind == ClaimKind.RESULT:
-        from llmxive.results.harness import result_backed
+        from llmxive.results.harness import result_backed, source_fingerprint
 
+        if claim.evidence and "result_artifacts" in claim.evidence:
+            from llmxive.results.claims import evidence_fingerprint
+            return evidence_fingerprint(claim.evidence, project_id, repo_root)
         candidate = claim.resolved_value or claim.canonical or claim.raw_text
         receipt = result_backed(candidate, project_id, repo_root=repo_root)
-        return receipt.output_sha256 if receipt is not None else None
+        return source_fingerprint(receipt) if receipt is not None else None
     return _source_hash_from_evidence(claim.evidence, claim.resolved_value)
 
 
@@ -112,7 +117,11 @@ def resolve_registered_claims(
         if current.status != ClaimStatus.VERIFIED:
             sk = subject_key(current)
             twin = verified_by_subject.get((current.kind, sk)) if sk else None
-            if twin is not None and twin.claim_id != current.claim_id:
+            if (twin is not None and twin.claim_id != current.claim_id
+                    and not (twin.evidence or {}).get("result_artifacts")
+                    and (twin.kind != ClaimKind.RESULT or (
+                        twin.source_hash is not None
+                        and _live_source_hash(twin, project_id, repo_root) == twin.source_hash))):
                 frozen = replace(
                     current,
                     status=ClaimStatus.VERIFIED,
@@ -128,9 +137,9 @@ def resolve_registered_claims(
 
         if current.status == ClaimStatus.VERIFIED:
             live = _live_source_hash(current, project_id, repo_root)
-            if current.source_hash is None:
+            if current.source_hash is None and current.kind != ClaimKind.RESULT:
                 unchanged = True  # legacy entry without a recorded hash: trust prior verify
-            elif live == current.source_hash:
+            elif live is not None and live == current.source_hash:
                 unchanged = True  # underlying artifact identical → reuse
             elif live is None and current.kind != ClaimKind.RESULT:
                 unchanged = True  # external source not re-derivable here → trust prior verify
@@ -251,6 +260,17 @@ def _process_planning_document(
     return smoothed, [], GateReport()
 
 
+def _refresh_legacy_grounding(carried, *, project_id, backend, model, repo_root):
+    stale = [claim for claim in carried.values()
+             if (claim.evidence or {}).get("entailment_status") == "grounded"
+             and (claim.evidence or {}).get("source_validation_version") != 2]
+    if stale:
+        for claim in resolve_registered_claims(stale, project_id=project_id,
+                backend=backend, model=model, repo_root=repo_root):
+            carried[claim.claim_id] = claim
+    return carried
+
+
 def process_document(
     text: str,
     *,
@@ -265,12 +285,14 @@ def process_document(
 
     Returns ``(rendered_text, claims, GateReport)``.
 
-    ``stage_label`` (spec 020 FR-001) selects the regime: a *planning* stage
+    Artifact role and ``stage_label`` (spec 020 FR-001) select the regime.
+    Research planning artifacts and explicit *planning* stages
     (specify/clarify/plan/tasks — see :func:`claims.stage.is_planning_stage`)
-    verifies references only and strips/smooths low-level claims (Part A); any
-    other / ``None`` stage runs the full extract→resolve→render verification with
-    the Part-B freeze. Defaulting to ``None`` preserves the prior behavior for
-    every existing caller.
+    defer low-level claims (Part A); references are verified by the caller.
+    A missing or non-planning stage label does not override a planning artifact.
+    Research reports and manuscripts otherwise run full extract→resolve→render
+    verification with the Part-B freeze. Task documents retain requirements
+    through their separate restoration gate.
 
     Idempotency: if a claim with the same ``claim_id`` is already in the
     registry with status VERIFIED, it is reused without re-resolution.
@@ -279,11 +301,22 @@ def process_document(
 
     Never raises — on extraction failure returns ``(text, [], GateReport())``.
     """
-    if is_planning_stage(stage_label):
+    if Path(artifact_path).name == "tasks.md":
+        # A task says what must be built/tested, not what an experiment found.
+        # Citations are checked by the caller's reference pass; results and
+        # manuscripts retain full claim verification. Never erase task criteria
+        # or turn them into opaque factual-value pointers.
+        from llmxive.claims.task_requirements import restore_requirements
+        restored, missing = restore_requirements(text, artifact_path=artifact_path,
+            project_id=project_id, repo_root=repo_root)
+        return restored, [], GateReport(blocked=bool(missing), unresolved_markers=missing)
+
+    planning_artifact = is_research_planning_artifact(artifact_path, project_id)
+    if is_planning_stage(stage_label) or planning_artifact:
         return _process_planning_document(
             text, artifact_path=artifact_path, project_id=project_id,
             backend=backend, model=model, repo_root=repo_root,
-            stage_label=stage_label,
+            stage_label="plan" if planning_artifact else stage_label,
         )
 
     # Step 0: Strip prior [UNRESOLVED-CLAIM:] markers so a re-run does NOT
@@ -315,6 +348,8 @@ def process_document(
             prior = _claim_store.get(project_id, cid, repo_root=repo_root)
             if prior is not None:
                 carried[cid] = prior
+        carried = _refresh_legacy_grounding(carried, project_id=project_id,
+            backend=backend, model=model, repo_root=repo_root)
         text = drop_orphan_pointers(text, set(carried))
         rendered, gate_report = render(text, carried, placeholder_verified=True)
         return rendered, [], gate_report
@@ -376,6 +411,8 @@ def process_document(
             prior = _claim_store.get(project_id, cid, repo_root=repo_root)
             if prior is not None:
                 claims_by_id[cid] = prior
+    claims_by_id = _refresh_legacy_grounding(claims_by_id, project_id=project_id,
+        backend=backend, model=model, repo_root=repo_root)
     # Drop orphan pointers (no backing registered claim) so they never render as a
     # spurious "unknown claim" marker — durable placeholders (with a claim) are kept.
     text_with_pointers = drop_orphan_pointers(text_with_pointers, set(claims_by_id))

@@ -1,0 +1,13 @@
+{
+  "total_cells": 2,
+  "insufficient_cells": 1,
+  "threshold": 5,
+  "cells": [
+    {
+      "species": "Species_B",
+      "grid_cell": "41.0_-76.0",
+      "observations": 3,
+      "reason": "Observation count (3) < threshold (5)"
+    }
+  ]
+}

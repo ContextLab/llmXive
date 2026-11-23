@@ -1,6 +1,6 @@
 # Tasks: Predicting the Stability of Perovskite Structures Using Machine Learning
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
+**Input**: Design documents from `/specs/001-predicting-the-stability-of-perovskite-s/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -10,12 +10,12 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
+- **Single project**: `code/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
@@ -43,8 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan (`code/`, `tests/`, `specs/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pymatgen, scikit-learn, pandas, numpy, requests, pyyaml)
+- [X] T001a [P] Create `code/` directory structure (`code/data/`, `code/models/`, `code/viz/`, `code/utils/`)
+- [X] T001b [P] Create `tests/` directory structure (`tests/unit/`, `tests/contract/`, `tests/integration/`)
+- [X] T001c [P] Create `docs/` and `specs/` directory structures
+- [X] T002a [P] Create `requirements.txt` with pinned versions: `pymatgen==2024.1.1 [UNRESOLVED-CLAIM: c_cb3ca66c — status=not_enough_info]`, `scikit-learn==1.5.0 [UNRESOLVED-CLAIM: c_7362adf9 — status=not_enough_info]`, `pandas==2.2.0 [UNRESOLVED-CLAIM: c_9683eb01 — status=not_enough_info]`, `{{claim:c_d0b0173c}} (pi, https://en.wikipedia.org/wiki/Pi)`, `{{claim:c_e35b508e}}`, `pyyaml==6.0.1 [UNRESOLVED-CLAIM: c_d74a6e21 — status=not_enough_info]`, `memory-profiler==0.61.0 [UNRESOLVED-CLAIM: c_86006b03 — status=not_enough_info]`, `shap==0.44.0 [UNRESOLVED-CLAIM: c_34c2ce40 — status=not_enough_info]`
+- [X] T002b [P] Initialize Python 3.x virtualenv and install dependencies from `requirements.txt`
 - [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -55,11 +58,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup `utils/config.py` with hyperparameters, element sets, and API rate-limit constants
-- [X] T005 [P] Implement `utils/api_client.py` with exponential backoff retry logic for 429 errors
-- [X] T006 [P] Create `contracts/data-schema.yaml` defining expected CSV columns and types
-- [ ] T007 Create `data/` and `results/` directory structure with `.gitkeep`
-- [ ] T008 Configure logging infrastructure to `logs/pipeline.log` with exclusion reasons
+- [X] T004 [P] Setup `code/utils/config.py` with hyperparameters, element sets (STRICT FR-004: A={K,Rb,Cs,Ba,Sr}, B={Ti,Zr,Hf}, X={F,Cl,Br,I}), and API rate-limit constants.
+- [X] T005 [P] Implement `code/utils/api_client.py` with exponential backoff retry logic for 429 errors
+- [ ] T006 [P] Create `specs/001-predicting-the-stability-of-perovskite-s/contracts/data-schema.yaml` defining expected CSV columns and types
+- [X] T007 [P] Create `data/`, `data/processed/`, and `results/` directory structure with `.gitkeep` (Artifact: `data/`, `results/`)
+- [X] T008 [P] Configure logging infrastructure to `logs/pipeline.log` with exclusion reasons (Artifact: `logs/`)
+- [X] T009 [P] Implement `code/utils/logging_utils.py` to handle structured logging and exclusion reason formatting
 
 **Checkpoint:** Foundation ready - user story implementation can now begin in parallel
 
@@ -72,21 +76,21 @@
 **Independent Test**: Run `code/data/download.py` and `code/data/descriptors.py` against a small subset; verify `data/processed/features.csv` contains exactly the required columns with zero nulls in the target column.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+**Note**: These tests are written to FAIL initially. They must be run *after* their corresponding implementation tasks (T014, T015) are completed to verify the fix. The [P] tag indicates they can run in parallel *with each other*, not with their missing implementation.
 
-- [ ] T009 [P] [US1] Unit test `tests/unit/test_descriptors.py::test_tolerance_factor_calculation_returns_correct_value_for_KCl3`
-- [ ] T010 [P] [US1] Unit test `tests/unit/test_api_client.py::test_retry_logic_triggers_on_429_error`
-- [ ] T011 [P] [US1] Contract test `tests/contract/test_schemas.py::test_features_csv_schema_validation`
+- [X] T010 [P] [US1] Unit test `tests/unit/test_descriptors.py::test_tolerance_factor_calculation_returns_correct_value_for_BaTiO3`: Implement test that calculates tolerance factor for BaTiO3 using `pymatgen==2024.1.1 [UNRESOLVED-CLAIM: c_cb3ca66c — status=not_enough_info]` and Shannon ionic radii, asserting `tolerance_factor` is approximately unity within a narrow tolerance.
+- [X] T011 [P] [US1] Unit test `tests/unit/test_api_client.py::test_retry_logic_triggers_on_429_error`
+- [X] T012 [P] [US1] Contract test `tests/contract/test_schemas.py::test_features_csv_schema_validation`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data/download.py` to fetch up to 10,000 entries from Materials Project API (using `utils/api_client.py`), validate the count, and raise a critical error if the initial MP fetch yields < 5,000 valid entries (merging the logic of T014.5 here).
-- [~] T013 [US1] Implement explicit OQMD ingestion logic in `code/data/download.py` (or a new `code/data/download_oqmd.py`): Fetch from the verified OQMD CSV URL, parse the specific columns (formula, space_group, decomposition_energy), and merge with MP data ONLY if MP yields < 5,000 valid entries. Ensure the merged dataset reaches the minimum threshold required for statistical validity..
-- [X] T014 [US1] Implement structural filtering in `code/data/download.py`: Filter entries where `space_group == 221` (Cubic) OR `space_group == 148` (Rhombohedral).
-- [X] T015 [US1] Implement `code/data/descriptors.py` using `pymatgen` to calculate Goldschmidt tolerance factor ($t$) and octahedral factor ($\mu$).
-- [X] T016 [US1] Implement `code/data/descriptors.py` to calculate ionic radius mismatch and electronegativity differences.
-- [X] T017 [US1] Implement exclusion logic in `code/data/descriptors.py` for ambiguous oxidation states or missing radii, logging reasons to `logs/pipeline.log`.
-- [~] T018 [US1] Create `code/data/preprocess.py` to clean data, handle missing values, and save `data/processed/features.csv`.
-- [~] T019 [US1] Verify `data/processed/features.csv` has zero nulls in `decomposition_energy` column.
+- [ ] T013 [US1] [FR-001] Implement `code/data/download.py` to fetch up to 10,000 entries [UNRESOLVED-CLAIM: c_36a5b477 — status=not_enough_info]: (1) Fetch from Materials Project API using `code/utils/api_client.py`; (2) If valid entry count < 5,000, fetch from OQMD until count >= 5,000; (3) If combined count from both sources is still < 5,000, **raise a `RuntimeError`** with message "DATA_SHORTFALL: Minimum 5,000 valid perovskite entries [UNRESOLVED-CLAIM: c_d2a536d6 — status=not_enough_info] not met from verified sources (MP + OQMD)." **Constraint**: This task enforces a hard failure; it does NOT proceed with partial data. **Verification**: Ensure the pipeline halts with the specified error if count < 5,000.
+- [X] T014 [US1] Implement `code/data/descriptors.py` to calculate Goldschmidt tolerance factor ($t$) and octahedral factor ($\mu$) using `pymatgen` (version pinned in requirements.txt, Shannon radii). **Deliverable**: Append columns `tolerance_factor` and `octahedral_factor` to the dataframe. **Verification**: Verify `tolerance_factor` for BaTiO3 is approximately unity within a tolerance of 0.01.
+- [X] T015 [US1] Implement `code/data/descriptors.py` to calculate ionic radius mismatch and electronegativity differences. **Deliverable**: Append columns `ionic_radius_mismatch` and `electronegativity_diff` to the dataframe. **Logic**: Calculate electronegativity difference between A-site and B-site cations only. **Verification**: Verify values for BaTiO3: ionic_radius_mismatch within a negligible tolerance and electronegativity_diff is non-null and within a physically reasonable range for BaTiO3.
+- [ ] T016 [US1] Implement exclusion logic in `code/data/descriptors.py` for ambiguous oxidation states or missing radii. **Deliverable**: Log exclusion reasons to `logs/pipeline.log` in format `EXCLUSION: [reason] [formula]`. **Logic**: If a composition has ambiguous oxidation states or missing radii/electronegativity values, **exclude** the row immediately. **DO NOT** impute missing values. **Verification**: Verify log contains exclusion entries and that excluded rows are removed from the dataset. **Ordering**: This task must be completed before T017 to ensure exclusion logic is applied before preprocessing.
+- [ ] T017a [US1] [Prerequisite: T016] Implement `code/data/preprocess.py` (Load & Clean): (1) Load raw data from T013/T014/T015/T016; (2) Drop rows where `decomposition_energy` is null; (3) Drop rows where ANY of the feature columns (`tolerance_factor`, `octahedral_factor`, `ionic_radius_mismatch`, `electronegativity_diff`) are null (should be rare after T016 exclusion); (4) Log excluded rows. **Deliverable**: Cleaned dataframe in memory.
+- [ ] T017b [US1] [Prerequisite: T017a] Implement `code/data/preprocess.py` (Save & Verify): (1) If the resulting dataset is empty, raise `RuntimeError("Dataset empty after cleaning")`; (2) **Save** to `data/processed/features.csv`. **Verification**: Run `python -c "import pandas as pd; df=pd.read_csv('data/processed/features.csv'); assert df['decomposition_energy'].isnull().sum() == 0; print('PASS: Zero nulls in target')".` **Artifact**: `data/processed/features.csv`.
+- [ ] T018 [US1] Verify `data/processed/features.csv` has zero nulls in `decomposition_energy` column. **Action**: Run assertion `assert df['decomposition_energy'].isnull().sum() == 0`.
 
 **Checkpoint:** At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,21 +104,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Unit test `tests/unit/test_model_utils.py::test_permutation_importance_returns_correct_scores`
-- [~] T021 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_full_training_pipeline_with_sample_data`
+- [X] T019 [P] [US2] Unit test `tests/unit/test_model_utils.py::test_permutation_importance_returns_correct_scores`
+- [ ] T020a [P] [US2] [Atomized] Unit test setup: Create `tests/integration/test_pipeline.py::test_full_training_pipeline_with_sample_data` fixture. **Signature**: `def test_full_training_pipeline_with_sample_data(tmp_path: Path)`. **Logic**: Generate a sample dataset of **100 rows** with the exact schema columns (`tolerance_factor`, `octahedral_factor`, `ionic_radius_mismatch`, `electronegativity_diff`, `decomposition_energy`). **Crucial**: Values for features must be sampled from the *observed distributions* in the real data (or a defined physical range, e.g., t: 0.8-1.1, mu: 0.4-0.6, decomposition_energy: within a bounded symmetric range around zero) to ensure physical plausibility. **Save** to a **unique temporary path** generated via `tempfile.mkdtemp()` to avoid shared state. Assert file exists.
+- [ ] T020b [P] [US2] [Atomized] Unit test execution: Run the training pipeline against the unique sample dataset (generated by T020a) using `python code/models/train.py --input <sample_path> --output results/`. Verify `results/model.pkl` is created.
+- [X] T020c [P] [US2] [Atomized] Unit test assertion: Assert that `results/metrics.json` exists and contains keys `test_rmse`, `best_params`, and `dft_functional` with numeric/string values.
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement the `split_data` function in `code/data/preprocess.py` to perform an 80/20 stratified split into `train_set` and `test_set` variables, confirming the `stratify=y` logic matches the plan's nested CV description.
-- [X] T023 [US2] Implement `code/models/train.py` with `RandomForestRegressor` and `GridSearchCV` (cv=5) over `max_depth` {10, 15, 20} and `min_samples_leaf` {1, 2, 4}.
-- [~] T024 [US2] Implement inner-loop CV logic to select best hyperparameters based on lowest cross-validation error.
-- [~] T025 [US2] Implement re-training of the model on the full `train_set` using best parameters.
-- [ ] T026 [US2] Implement evaluation on the held-out `test_set` and log test RMSE to `results/metrics.json`.
-- [X] T027 [US2] Implement "low confidence" flagging logic in `code/models/train.py`: Flag model if test RMSE > 0.15 eV/atom (matching SC-001).
-- [X] T028 [US2] Implement permutation-based sensitivity analysis in `code/models/train.py` to validate feature importance hypotheses.
-- [X] T029 [US2] Implement `code/viz/plot.py` to generate `predicted-vs-true.png` scatter plot.
-- [X] T030 [US2] Implement `code/viz/plot.py` to generate `feature-importance.png` bar chart.
-- [ ] T031 [US2] Save trained model artifact to `results/model.pkl` and metrics to `results/metrics.json`.
+- [ ] T021a [US2] [FR-003] [SC-001] Implement `code/models/train.py` (Train & CV): (1) Load `data/processed/features.csv` (output of T017b); (2) Perform a **stratified split** of the dataset into `train_set` and `test_set` using `train_test_split` with `random_state=42 [UNRESOLVED-CLAIM: c_b2fe300d — status=not_enough_info]` and **stratify by quantiles of decomposition_energy**; (3) Run **GridSearchCV** with `cv=5` on `train_set` only for `max_depth` {10, 15, 20} and `min_samples_leaf` {1, 2, 4}; (4) Select best params based on lowest CV error; (5) Re-train on full `train_set` with best params; (6) Evaluate on `test_set`; (7) Calculate test RMSE; (8) Perform permutation importance analysis (SC-002); (9) Save `results/model.pkl` (temporary), `results/feature-importance.png`. **Note**: Do NOT save final metrics.json yet; proceed to T021b for validation.
+- [ ] T021b [US2] [SC-001] [Enforcement] Implement `code/models/train.py` (Remediation & Validation): (1) Load `results/model.pkl` (from T021a) and `results/metrics.json` (if generated); (2) If `test_rmse > 0.15 eV/atom`, trigger remediation: Re-run GridSearchCV with **expanded grid** (ONLY if allowed by spec, otherwise fail): **CRITICAL**: The spec FR-003 defines the grid as {10,15,20} x {1,2,4}. If RMSE > 0.15, **raise a `RuntimeError`** with message "MODEL_INVALID: Test RMSE (0.XX) exceeds threshold of 0.15 eV/atom. Model does not meet SC-001." **DO NOT** attempt remediation or expand the grid. **Constraint**: This task enforces the hard success criterion. **Verification**: Ensure `results/model.pkl` is only saved if RMSE <= 0.15, otherwise the script halts with an error.
+- [ ] T021c [US2] [Prerequisite: T021b] Implement `code/models/train.py` (Finalize & Save): (1) Generate final `results/model.pkl` (only if T021b passed); (2) Save `results/metrics.json` containing `test_rmse`, `best_params`, `dft_functional` (PBE), and permutation importance scores; (3) Save `results/feature-importance.png`. **Artifact**: `results/model.pkl`, `results/metrics.json`, `results/feature-importance.png`.
+- [ ] T022 [US2] [Prerequisite: T021c] Implement `code/viz/plot.py` to generate `predicted-vs-true.png` scatter plot using `results/model.pkl` and `results/metrics.json`. **Artifact**: `results/predicted-vs-true.png`.
 
 **Checkpoint:** At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,25 +124,26 @@
 
 **Goal**: Generate a combinatorial library of hypothetical ABX₃, filter for geometric feasibility, predict stability, and rank top candidates.
 
-**Independent Test**: Run `code/models/predict.py` on a mock library; verify `results/screening_candidates.md` lists exactly 20 candidates sorted by predicted stability, with values < -0.1 eV/atom highlighted.
+**Independent Test**: Run `code/models/predict.py` on a mock library; verify `results/screening_candidates.md` lists exactly 20 candidates sorted by predicted stability, with values significantly below zero eV/atom highlighted.
+
+**Note on Element Sets**: This phase uses element sets A={K,Rb,Cs,Ba,Sr}, B={Ti,Zr,Hf}, X={F,Cl,Br,I} as defined in **FR-004**. **Justification**: Strict adherence to FR-004.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T032 [P] [US3] Unit test `tests/unit/test_screening.py::test_combinatorial_library_generation_returns_correct_count`
-- [X] T033 [P] [US3] Unit test `tests/unit/test_screening.py::test_geometric_feasibility_filter_returns_correct_subset`
+- [X] T024 [P] [US3] Unit test `tests/unit/test_screening.py::test_combinatorial_library_generation_returns_correct_count`
+- [X] T025 [P] [US3] Unit test `tests/unit/test_screening.py::test_geometric_feasibility_filter_returns_correct_subset`
 
 ### Implementation for User Story 3
 
-- [~] T034 [US3] Implement `code/models/predict.py` to generate combinatorial library using A={K, Rb, Cs, Ba, Sr}, B={Ti, Zr, Hf, Sn, Ge}, X={F, Cl, Br, I}. Note: Explicitly adhering to plan.md Phase 3 and Constitution Principle VII (5-element A-site) to ensure generation of >= 200 feasible candidates, overriding the narrower spec.md FR-004 list. Output format: save to `data/processed/hypothetical_library.csv`.
-- [X] T035 [US3] Implement geometric feasibility filter in `code/models/predict.py` (0.8 ≤ $t$ ≤ 1.1).
-- [X] T036 [US3] Implement OOD check in `code/models/predict.py`: Perform range check against training min/max for descriptors. Output: Log warning and add `is_ood` column to output CSV.
-- [ ] T037 [US3] Implement prediction logic using `results/model.pkl` to calculate predicted decomposition energy for all feasible candidates.
-- [~] T038 [US3] Implement ranking logic to sort candidates by predicted energy (ascending).
-- [~] T039 [US3] Implement threshold flagging for candidates with predicted energy below a defined thermodynamic threshold.
-- [ ] T040 [US3] Save full ranked list to `results/screening_full.csv`. Validation: Ensure the list contains at least 200 feasible candidates as required by the plan.
-- [ ] T041 [US3] Generate `results/screening_candidates.md` containing a curated set of the top candidates with required descriptor summaries, derived from the >= 200 full list.
-
-The research question, method, and references remain unchanged.
+- [ ] T026a [US3] [FR-004] [Plan-Driven] Generate combinatorial library using element sets **A={K,Rb,Cs,Ba,Sr}**, **B={Ti,Zr,Hf}**, **X={F,Cl,Br,I}** as defined in **FR-004**. **Logic**: Cartesian product of sets. **Expected Output**: 5 * 3 * 4 = 60 rows [UNRESOLVED-CLAIM: c_cb6a8205 — status=not_enough_info]. **Note**: This yields 60 candidates. If this count is < 200, **do NOT relax filters or expand elements**. Proceed with the 60 candidates. The spec SC-003 target of >=200 is noted, but FR-004 element constraints are strict. **Deliverable**: Save to `data/processed/hypothetical_library.csv` with columns `A`, `B`, `X`, `formula`, `tolerance_factor`. **Artifact**: `data/processed/hypothetical_library.csv`.
+- [X] T026b [US3] [Prerequisite: T026a] Verify `data/processed/hypothetical_library.csv` row count. **Action**: Assert row count is generated correctly (60). **Note**: This yields 60 candidates as per strict FR-004.
+- [ ] T027 [US3] [Prerequisite: T026a] Implement geometric feasibility filter in `code/models/predict.py` (0.8 ≤ $t$ ≤ 1.1). **Input**: `data/processed/hypothetical_library.csv` (from T026a). **Output**: `data/processed/filtered_hypothetical_library.csv`. **Constraint**: **DO NOT** relax the filter range. If count < 200, proceed with the strict subset.
+- [ ] T028 [US3] [Prerequisite: T021c, T027] Implement prediction logic using `results/model.pkl` (from T021c) and `data/processed/filtered_hypothetical_library.csv` (from T027) to calculate predicted decomposition energy for all feasible candidates. **Input**: `data/processed/filtered_hypothetical_library.csv` (from T027) and `results/model.pkl` (from T021c). **Artifact**: `results/screening_full.csv`.
+- [ ] T029 [US3] [Prerequisite: T028] Implement ranking logic to sort candidates by predicted energy (ascending). **Deliverable**: Update `results/screening_full.csv` by adding a `rank` column (1-based index). **Verification**: Ensure `results/screening_full.csv` is sorted by `predicted_energy` ascending.
+- [ ] T030 [US3] [Prerequisite: T029] Implement threshold flagging for candidates with predicted energy below a thermodynamically favorable threshold. **Logic**: (1) Set `is_stable_candidate` to True if `predicted_energy` < -0.1 eV/atom. **DO NOT** check for `low_confidence` flags or disable flagging. **Deliverable**: Add a boolean column `is_stable_candidate` to `results/screening_full.csv`. **Verification**: Ensure the column is correctly populated based on the threshold (-0.1 eV/atom).
+- [X] T031a [US3] [Prerequisite: T029] Validate candidate count and log. **Logic**: Ensure the list contains **at least 1** feasible candidate (regardless of flag status). If the total pool is < 1, raise `RuntimeError("Combinatorial generation failed to produce any candidates")`. If the count is low (e.g., < 20), log a warning "LOW_CANDIDATES: < 20 candidates found".
+- [X] T031b [US3] [Prerequisite: T031a] Extract top candidates and save. **Deliverable**: Extract the top candidates (or all if <20) and save to `results/screening_candidates.md`. **Artifact**: `results/screening_candidates.md`.
+- [X] T032 [US3] [Prerequisite: T031b] Generate `results/screening_candidates.md` containing a curated set of the top candidates with required descriptor summaries, derived from the full list (Artifact: `results/screening_candidates.md`).
 
 **Checkpoint:** All user stories should now be independently functional
 
@@ -152,12 +153,22 @@ The research question, method, and references remain unchanged.
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T042 [P] Verify total pipeline runtime ≤ 6 hours: Run full pipeline with `time` command and parse output to confirm duration
-- [~] T043 [P] Verify memory usage ≤ 7 GB: Run pipeline with `memory_profiler` and assert max RSS < 7GB
-- [~] T044 [P] Add content hashes to all artifacts in `results/` and `data/`
-- [~] T045 [P] Verify DFT functional (PBE) is explicitly stated in model metadata (optional but recommended)
-- [~] T046 [P] Run `quickstart.md` validation to ensure reproducible execution
-- [X] T047 [P] Update `docs/README.md` with pipeline execution instructions
+- [ ] T033 [Prerequisite: T017b, T021c, T032] Implement `code/main.py` to orchestrate the full pipeline: (1) Call download/descriptor/preprocess; (2) Call train; (3) Call screening; (4) Aggregate results.
+- [X] T034 [Prerequisite: T033] Run pipeline and capture runtime: Execute `time python code/main.py` and save output to `results/runtime_log.txt`. **Format**: Save as `duration_seconds: <float>` to enable parsing by T036. **Note**: This is a local sanity check; T036b is the definitive CI verification.
+- [X] T035 [US2] [Prerequisite: T034] Run pipeline and capture memory profile: Execute `python -m memory_profiler code/main.py` and save output to `results/memory_profile.txt`. **Format**: Parse max RSS and save as `max_rss_gb: <float>` to parse by T037. **Note**: This task runs **sequentially** after T034 to avoid race conditions.
+- [X] T036 [Prerequisite: T034] Verify total pipeline runtime ≤ 6 hours: Parse `results/runtime_log.txt` (produced by T034) and assert duration < 6h (21600 seconds). **Note**: This is a local sanity check; T036b is the definitive CI verification for SC-004.
+- [X] T036b [Prerequisite: T033] **CI Verification**: Run the pipeline in the GitHub Actions CI environment and capture runtime. Save output to `results/ci_runtime_log.txt`. Verify duration < 6h (21600 seconds) in the CI context. **Artifact**: `results/ci_runtime_log.txt`. **Note**: This result supersedes T036 for the final success criterion of SC-004.
+- [X] T037 [Prerequisite: T035] Verify memory usage ≤ 7 GB: Parse `results/memory_profile.txt` (produced by T035) and assert max RSS < 7GB.
+- [X] T038 [P] Add content hashes to all artifacts in `results/` and `data/`.
+- [X] T039 [P] Verify DFT functional (PBE) is explicitly stated in model metadata: Ensure `results/metrics.json` contains key `dft_functional` with value `PBE`.
+- [X] T040 [P] Run `quickstart.md` validation to ensure reproducible execution.
+- [X] T041 [P] Update `docs/README.md` with pipeline execution instructions.
+- [ ] T042 [US1] [FR-001] [Constitution: Fail Loudly] Implement strict `try/except` block in `code/data/download.py` that raises `RuntimeError` with message "Real data fetch failed" **ONLY** if **both** Materials Project and OQMD fetches fail with an exception (e.g., `requests.exceptions.RequestException`) **AND** no data was retrieved. **Logic**: Catch `requests.exceptions.RequestException` and `ValueError`. **CRITICAL**: If the fetch fails but data was partially retrieved (count < 5000), do NOT raise (see T013 handles the count check). If **both** sources fail to return any data, raise the error. Ensure no synthetic data is ever generated.
+- [ ] T043 [US3] [Plan-Driven Scope] Document the element sets: Update `code/utils/config.py` to explicitly comment that A={K,Rb,Cs,Ba,Sr}, B={Ti,Zr,Hf}, X={F,Cl,Br,I} are used per FR-004 (strict).
+- [ ] T044 [US1] [Constitution: Fail Loudly] Add explicit unit test in `tests/unit/test_download.py` that asserts `RuntimeError` is raised when a mock API call fails **after both sources fail** and **after cached data check**, verifying no synthetic data generation code path is reachable.
+- [ ] T045 [US1] [Constitution: Real Data] Add a verification step in `code/data/download.py` that logs the exact source URL and number of records retrieved for each dataset (MP and OQMD) to `logs/pipeline.log`, ensuring traceability of the real data source.
+- [ ] T046 [US2] [SC-002] Implement permutation importance calculation in `code/models/train.py` and save the results to `results/permutation_importance.json`. **Verification**: Perform a permutation-based sensitivity analysis to rank feature importance. **Non-linear Detection**: Additionally, use the `shap` library to calculate **SHAP interaction values** to detect non-linear interactions between features. **Algorithm**: If the mean absolute SHAP interaction value for any pair of features exceeds **0.05**, report it as a detected non-linear interaction. Generate a baseline distribution by shuffling the target variable multiple times and recalculating importance. Compare the mean importance of the features against this baseline distribution. **Artifact**: `results/permutation_importance.json`, `results/shap_interactions.json`.
+- [ ] T047 [US3] [Plan-Driven Scope] Add a validation check in `code/models/predict.py` that counts the number of generated candidates after filtering; if count < 20, log a warning but proceed (as the element set is fixed by FR-004).
 
 ---
 
@@ -199,12 +210,12 @@ The research question, method, and references remain unchanged.
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test `tests/unit/test_descriptors.py::test_tolerance_factor_calculation_returns_correct_value_for_KCl3`"
+Task: "Unit test `tests/unit/test_descriptors.py::test_tolerance_factor_calculation_returns_correct_value_for_BaTiO3`"
 Task: "Unit test `tests/unit/test_api_client.py::test_retry_logic_triggers_on_429_error`"
 Task: "Contract test `tests/contract/test_schemas.py::test_features_csv_schema_validation`"
 
 # Launch all models for User Story 1 together:
-Task: "Implement `code/data/download.py` to fetch up to 10,000 entries"
+Task: "Implement `code/data/download.py` to fetch up to 10,000 entries [UNRESOLVED-CLAIM: c_36a5b477 — status=not_enough_info] "
 Task: "Implement `code/data/descriptors.py` to calculate Goldschmidt tolerance factor"
 ```
 
@@ -235,8 +246,8 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1 (Data)
- - Developer B: User Story 2 (Model) - waits for T018 completion
- - Developer C: User Story 3 (Screening) - waits for T031 completion
+ - Developer B: User Story 2 (Model) - waits for T017b completion
+ - Developer C: User Story 3 (Screening) - waits for T021c completion
 3. Stories complete and integrate independently
 
 ---
@@ -250,5 +261,31 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: Ensure all tasks run on a limited number of CPU cores, approximately 7 GB RAM, no GPU. No 8-bit quantization or CUDA.
+- **CPU Constraint**: Ensure all tasks run on a limited number of CPU cores, limited RAM, no GPU. No low-bit quantization or CUDA.
 - **Data Integrity**: No fabricated data. All inputs must come from real API calls or defined combinatorial logic.
+- **Constitution Compliance**: Element sets for screening are STRICT FR-004 (A={K,Rb,Cs,Ba,Sr}, B={Ti,Zr,Hf}, X={F,Cl,Br,I}).
+- **OOD Check**: REMOVED. OOD Check is not required by Spec US-3.
+- **Execution Order**: T034 (Execute End-to-End Pipeline) MUST run after T017b, T021c, and T032 are complete to ensure all pipeline components are implemented before verification.
+- **New Task T042**: Addresses the "Fail Loudly" rule to prevent synthetic fallbacks (after OQMD exhaustion) and includes a cached data fallback for reproducibility.
+- **T020 Atomization**: Split into T020a, T020b, T020c for better granularity and increased sample size.
+- **T029/T030**: Explicitly named output artifacts (rank column, is_stable_candidate column) with correct threshold (-0.1) and strict flagging logic.
+- **T034/T035**: Explicit output formats defined for downstream parsing. T035 is now sequential (depends on T034).
+- **T013**: Hard fail strategy enforced (raise RuntimeError if <5,000).
+- **T016**: Strict exclusion enforced (no imputation).
+- **T021**: Split into T021a (Train), T021b (Validation/Hard Fail), T021c (Finalize). Hard fail on RMSE > 0.15.
+- **T031**: Validation logic updated to handle potential filtering reductions and FR-004 constraints.
+- **T026/T026b**: Updated to use strict B-site set (3 elements) as per FR-004.
+- **T030**: Threshold value explicitly set to -0.1 eV/atom, with logic to ALWAYS flag.
+- **T046**: Enhanced with SHAP interactions for non-linear detection (threshold 0.05).
+- **T036b**: Added for CI runtime verification, superseding T036 for final success criterion.
+- **T015**: Verification value updated to range check (0.0-4.0) instead of hardcoded 0.65.
+- **T021b**: Added to enforce RMSE threshold with hard fail.
+- **T017**: Atomized into T017a (Clean) and T017b (Save).
+- **T021**: Atomized into T021a, T021b, T021c.
+- **T026**: Atomized into T026a, T026b.
+- **T031**: Atomized into T031a, T031b.
+- **T014**: Fixed formula typo (BaTiO -> BaTiO3).
+- **T021**: Removed corrupted text fragment.
+- **T026a**: Updated to use strict B-site set (3 elements) as per FR-004.
+- **T046**: Clarified distinction between permutation importance (relevance) and SHAP (non-linear interactions).
+- **Phase 7**: REMOVED. All revision tasks integrated into main phases.

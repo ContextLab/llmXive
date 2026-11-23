@@ -1,3 +1,1 @@
-"""
-Utility modules for the research pipeline.
-"""
+"""Utility modules."""

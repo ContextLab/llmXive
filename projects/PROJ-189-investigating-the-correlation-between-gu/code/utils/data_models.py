@@ -9,6 +9,9 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any
 from enum import Enum
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class DataType(Enum):
@@ -72,7 +75,7 @@ class Sample:
         covariates: Dictionary of covariates (e.g., {'bmi': 24.5, 'education_years': 16}).
         taxon_abundances: Dictionary mapping Taxon IDs to abundance values (counts or relative).
         data_type: The type of abundance data stored (raw, relative, clr).
-        metadata: Additional sample-level metadata.
+        metadata: Additional samples-level metadata.
     """
     sample_id: str
     participant_id: str

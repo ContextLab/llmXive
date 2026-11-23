@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-535-quantifying-the-impact-of-data-resolutio
-last_run_id: a343c3c2-5e18-4bff-b520-535d3f50fca7
+last_run_id: 045ac4da-fd40-4238-9b08-0755dbd28327
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-535-quantifying-the-impact-of-data-resolutio/specs/001-quantifying-the-impact-of-data-resolutio
 title: Quantifying the Impact of Data Resolution on Simulated Fluid Turbulence
-updated_at: '2026-07-14T09:57:14.139058Z'
+updated_at: '2026-10-07T09:48:53.752115Z'

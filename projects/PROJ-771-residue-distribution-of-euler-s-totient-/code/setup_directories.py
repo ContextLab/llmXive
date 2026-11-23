@@ -3,29 +3,41 @@ from pathlib import Path
 
 def setup_directories():
     """
-    Creates the necessary directory structure for the project.
-    Implements T001a, T001b, T001c.
+    Creates the required project directory structure for llmXive.
+    Specifically creates the 'code/' directory as per task T001a.
+    Also creates other foundational directories to ensure the project tree is valid.
     """
-    base = Path(".")
+    root = Path(".")
     
-    # T001a: Create code directory (usually exists, but ensure)
-    (base / "code").mkdir(exist_ok=True)
+    directories = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "results/plots",
+        "results/reports",
+        "tests/unit",
+        "tests/integration",
+        "specs"
+    ]
     
-    # T001b: Create data/raw and data/processed
-    (base / "data" / "raw").mkdir(parents=True, exist_ok=True)
-    (base / "data" / "processed").mkdir(parents=True, exist_ok=True)
+    created = []
+    for dir_path in directories:
+        full_path = root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(full_path))
+        else:
+            # Ensure it is actually a directory
+            if not full_path.is_dir():
+                raise NotADirectoryError(f"Path exists but is not a directory: {full_path}")
     
-    # T001c: Create results/plots and results/reports
-    (base / "results" / "plots").mkdir(parents=True, exist_ok=True)
-    (base / "results" / "reports").mkdir(parents=True, exist_ok=True)
+    # Log creation for verification
+    if created:
+        print(f"Created directories: {created}")
+    else:
+        print("All required directories already exist.")
     
-    # Print confirmation for verification
-    print("Directory structure created successfully:")
-    print("  - code/")
-    print("  - data/raw/")
-    print("  - data/processed/")
-    print("  - results/plots/")
-    print("  - results/reports/")
+    return created
 
 if __name__ == "__main__":
     setup_directories()

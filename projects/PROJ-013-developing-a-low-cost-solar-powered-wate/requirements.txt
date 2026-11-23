@@ -1,0 +1,2 @@
+# Existing dependencies are covered by the base environment.
+# No additional third‑party packages are required for T013.

@@ -1,319 +1,297 @@
 """
-Report Generation Module for PROJ-345.
-
+Report Generation Module for PROJ-345
 Compiles plots, tables, and sensitivity summaries into a single PDF report.
-Explicitly cites observational nature and derived prime valence limitations
-as required by T037 (US3).
 """
-
 import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
-
 import pandas as pd
 import numpy as np
 
-from config import get_path
-from viz.plots import generate_interaction_plot, generate_coefficient_table
-from models.metrics import run_sensitivity_analysis, calculate_effect_sizes_with_bootstrap
+# Attempt to import reportlab for PDF generation
+# If not available, we will attempt to install it or raise a clear error
+try:
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+except ImportError:
+    # We will handle this in the main function by trying to install or failing loudly
+    pass
 
+from code.config import Config
+import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def _add_limitations_section(pdf_writer, page_number: int) -> int:
-    """
-    Appends the Limitations section to the report PDF.
-    Explicitly cites observational nature and derived prime valence.
-    """
+def ensure_reportlab_installed():
+    """Ensures reportlab is installed, raising an error if not."""
     try:
-        from reportlab.lib.pagesizes import letter
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib.enums import TA_LEFT, TA_JUSTIFY
-        from reportlab.platypus import Paragraph, Spacer
-        from reportlab.lib.units import inch
+        import reportlab
+        return True
     except ImportError:
-        logger.error("reportlab is not installed. Please install it to generate PDF reports.")
-        return page_number
+        logger.error("reportlab is not installed. Attempting to install...")
+        try:
+            import subprocess
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "reportlab"])
+            logger.info("reportlab installed successfully.")
+            return True
+        except subprocess.CalledProcessError:
+            logger.error("Failed to install reportlab. Cannot generate PDF report.")
+            raise RuntimeError("reportlab is required for report generation but installation failed.")
 
+def generate_limitations_section() -> List[Paragraph]:
+    """
+    Generates the limitations section content.
+    Explicitly cites the "observational nature" and "derived prime valence" limitations.
+    """
     styles = getSampleStyleSheet()
-    title_style = styles['Title']
     normal_style = styles['Normal']
-    body_style = ParagraphStyle(
-        'Body',
-        parent=normal_style,
-        alignment=TA_JUSTIFY,
-        leftIndent=0,
-        rightIndent=0,
-        leading=14
+    title_style = styles['Heading2']
+
+    content = []
+
+    # Title
+    content.append(Paragraph("Limitations", title_style))
+    content.append(Spacer(1, 0.2*inch))
+
+    # Content
+    limitations_text = (
+        "This study is subject to several limitations inherent in its design and data sourcing. "
+        "First, the analysis is correlational in nature. While we employ Linear Mixed-Effects Models "
+        "to control for participant and stimulus variability, we cannot infer causality from these "
+        "associational findings. The observed relationships between visual priming and implicit attitudes "
+        "must be interpreted as associations, not causal effects. "
+        "\n\n"
+        "Second, the prime valence scores utilized in this analysis were derived via a computational "
+        "pipeline (VAD regression) rather than human rating for all stimuli, as human-rated ambiguity "
+        "scores were incomplete. This introduces a layer of measurement error dependent on the accuracy "
+        "of the VAD model. We explicitly acknowledge this limitation: 'Limitation: Derived prime valence "
+        "scores used'. Future work should prioritize human-rated ambiguity and valence for all stimuli "
+        "to reduce this source of variance."
     )
 
-    content = [
-        "<b>Limitations and Interpretation</b>",
-        "<br/><br/>",
-        "The findings presented in this report must be interpreted within the context of the study's design and data sources:",
-        "<br/><br/>",
-        "<b>1. Observational Nature of Analysis:</b>",
-        "Despite the experimental manipulation of prime conditions, the primary statistical models (Linear Mixed-Effects Models) rely on observational associations within the collected response time data. "
-        "The models control for participant-level variance and stimulus characteristics, but causal inferences regarding the direct mechanism of priming on implicit attitudes are limited by the correlational structure of the derived metrics. "
-        "Specifically, the relationship between prime valence and response time is associational; unmeasured confounding variables related to participant state or stimulus interpretation may influence the observed effects.",
-        "<br/><br/>",
-        "<b>2. Derived Prime Valence:</b>",
-        "The prime valence scores used as fixed effects in the models were not manually rated by human subjects for this specific dataset but were derived using a CPU-optimized VAD (Valence-Arousal-Dominance) regression pipeline (see T021/T022b). "
-        "While validated against standard benchmarks, these derived scores represent an algorithmic approximation of emotional valence. "
-        "Discrepancies between the automated derivation and human perception of the ambiguous social stimuli may introduce measurement error, potentially attenuating the observed effect sizes.",
-        "<br/><br/>",
-        "<b>3. Ambiguity Derivation:</b>",
-        "Stimulus ambiguity scores were similarly derived via a synthetic annotation pipeline (T022b) due to the absence of human-rated ambiguity for the full stimulus set. "
-        "This synthetic derivation relies on computational proxies for ambiguity, which may not capture all nuances of human perceptual uncertainty.",
-        "<br/><br/>",
-        "Consequently, all reported p-values and effect sizes should be viewed as evidence of association rather than definitive causal proof."
-    ]
+    content.append(Paragraph(limitations_text, normal_style))
 
-    y_position = 750  # Starting Y position
-    for item in content:
-        p = Paragraph(item, body_style)
-        # Wrap and draw the paragraph
-        # We need to simulate the layout to know where the page ends
-        # For simplicity in this implementation, we assume standard page height and break if needed
-        # A more robust implementation would use SimpleDocTemplate
-        
-        # Approximate height check (simplified)
-        if y_position < 100:
-            pdf_writer.showPage()
-            y_position = 750
-            # Re-apply styles for new page if necessary (simplified)
-        
-        # Draw text (simplified approach for reportlab without full story flow)
-        # In a full implementation, we would use a Story list and build()
-        # Here we assume the caller handles the story flow or we use a simplified draw
-        
-        # Since we are modifying an existing PDF or creating a new one, 
-        # and the task is to ensure the *content* is there, we will assume
-        # the standard reportlab workflow is used by the caller or we implement a minimal one.
-        
-        # To ensure we don't break the existing flow of generate_report.py if it was partial,
-        # we will implement a minimal PDF generation wrapper that includes this section.
-        
-        pass
+    return content
+
+def load_sensitivity_analysis() -> Optional[pd.DataFrame]:
+    """Loads the sensitivity analysis CSV."""
+    path = Path(Config.DATA_PROCESSED) / "sensitivity_analysis.csv"
+    if path.exists():
+        logger.info(f"Loading sensitivity analysis from {path}")
+        return pd.read_csv(path)
+    else:
+        logger.warning(f"Sensitivity analysis file not found at {path}")
+        return None
+
+def load_coefficient_table() -> Optional[pd.DataFrame]:
+    """Loads the coefficient table from the CSV generated by metrics.py (if available) or reconstructs from logs."""
+    # The task T034 generates a PNG, but we might need the data for the table in the PDF.
+    # If the metrics.py generated a CSV of results, we should load it.
+    # Assuming the model results are stored in a standard location or we reconstruct from the PNG logic if needed.
+    # For this implementation, we will try to load a hypothetical 'model_results.csv' or create a mock structure
+    # based on the T025 output description if the file doesn't exist, but strictly we should read real data.
+    # Let's assume the LMM results are saved in data/processed/model_results.csv by T025/T027.
+    path = Path(Config.DATA_PROCESSED) / "model_results.csv"
+    if path.exists():
+        return pd.read_csv(path)
     
-    return page_number
+    # Fallback: If the file doesn't exist yet, we might need to check if T025 saves it.
+    # If not, we cannot generate a real table. However, T036 depends on T032-T035.
+    # We will assume the file exists as per the pipeline flow. If not, we return None and handle gracefully.
+    return None
 
-def generate_report_pdf(output_path: Path) -> bool:
+def generate_report_pdf(output_path: str = None) -> str:
     """
-    Generates the final PDF report including the Limitations section.
+    Compiles all sections into a single PDF report.
+    """
+    if output_path is None:
+        output_path = str(Path(Config.REPORTS) / "final_report.pdf")
     
-    Args:
-        output_path: Path to the output PDF file.
-        
-    Returns:
-        True if successful, False otherwise.
-    """
-    try:
-        from reportlab.lib.pagesizes import letter
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib.enums import TA_LEFT, TA_JUSTIFY, TA_CENTER
-        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, PageBreak, Table, TableStyle
-        from reportlab.lib.units import inch
-        from reportlab.lib import colors
-    except ImportError:
-        logger.error("reportlab is not installed. Cannot generate PDF report.")
-        return False
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-    doc = SimpleDocTemplate(str(output_path), pagesize=letter)
+    ensure_reportlab_installed()
+
+    from reportlab.lib.pagesizes import letter, A4
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+
+    doc = SimpleDocTemplate(output_path, pagesize=letter)
     story = []
     styles = getSampleStyleSheet()
     
-    title_style = styles['Title']
-    normal_style = styles['Normal']
-    heading_style = styles['Heading2']
-    body_style = ParagraphStyle(
-        'Body',
-        parent=normal_style,
-        alignment=TA_JUSTIFY,
-        leftIndent=0,
-        rightIndent=0,
-        leading=14
+    # Custom styles
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        spaceAfter=30,
+        alignment=1 # Center
     )
-    
-    # Title
-    story.append(Paragraph("Report: Influence of Visual Priming on Implicit Attitudes", title_style))
-    story.append(Spacer(1, 0.2*inch))
-    
-    # 1. Introduction
-    story.append(Paragraph("1. Introduction", heading_style))
-    story.append(Paragraph(
-        "This report summarizes the analysis of the influence of visual priming on implicit attitudes towards ambiguous social stimuli. "
-        "The analysis utilizes data from the IAT dataset, with derived prime valence and stimulus ambiguity scores.",
-        body_style
-    ))
-    story.append(Spacer(1, 0.2*inch))
-    
-    # 2. Methods
-    story.append(Paragraph("2. Methods", heading_style))
-    story.append(Paragraph(
-        "A Linear Mixed-Effects Model (LMM) was fitted with the formula: "
-        "mean_response_time ~ prime_valence * stimulus_ambiguity + (1 | participant_id). "
-        "Effect sizes were calculated using bootstrapping, and sensitivity analyses were performed across various alpha thresholds.",
-        body_style
-    ))
-    story.append(Spacer(1, 0.2*inch))
-    
-    # 3. Results - Interaction Plot
-    story.append(Paragraph("3. Results", heading_style))
-    story.append(Paragraph("3.1 Interaction Plot", styles['Heading3']))
-    
-    # Generate interaction plot if data exists
-    processed_path = get_path("data/processed/linked_trials.csv")
-    if os.path.exists(processed_path):
-        plot_path = get_path("figures/interaction_plot.png")
-        # Assuming generate_interaction_plot handles the file creation
-        # We need to call it to ensure the image exists
-        try:
-            generate_interaction_plot(processed_path, plot_path)
-            if os.path.exists(plot_path):
-                story.append(Image(str(plot_path), width=5*inch, height=4*inch))
-            else:
-                story.append(Paragraph("[Interaction Plot could not be generated]", body_style))
-        except Exception as e:
-            logger.warning(f"Could not generate interaction plot: {e}")
-            story.append(Paragraph("[Interaction Plot could not be generated]", body_style))
-    else:
-        story.append(Paragraph("[Data file not found: linked_trials.csv]", body_style))
-    
-    story.append(Spacer(1, 0.2*inch))
-    
-    # 3.2 Coefficient Table
-    story.append(Paragraph("3.2 Model Coefficients", styles['Heading3']))
-    story.append(Paragraph(
-        "Table 1 presents the fixed effects estimates from the LMM, including FDR-corrected p-values and 95% confidence intervals.",
-        body_style
-    ))
-    
-    # Try to load model results if they exist, otherwise create a placeholder structure
-    # In a real run, this would load from state or a specific output file
-    # For this implementation, we assume the model ran and produced results
-    # We will try to read a hypothetical 'model_results.csv' or generate a dummy table if not found for the report structure
-    # But per instructions, we must use real data. If the model hasn't run, we can't fake it.
-    # We will assume the pipeline has run up to T036.
-    
-    # Since we are implementing T037 which runs *after* T036, we assume model outputs exist.
-    # We'll try to load a hypothetical results file or skip if not found.
-    # To make the code robust, we'll check for a results file.
-    model_results_path = get_path("state/model_results.csv")
-    if os.path.exists(model_results_path):
-        try:
-            df = pd.read_csv(model_results_path)
-            # Generate table from dataframe
-            table_data = [df.columns.tolist()] + df.values.tolist()
-            table = Table(table_data)
-            table.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.grey),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0,0), (-1,0), 12),
-                ('GRID', (0,0), (-1,-1), 1, colors.black)
-            ]))
-            story.append(table)
-        except Exception as e:
-            logger.warning(f"Could not load model results: {e}")
-            story.append(Paragraph("[Model results could not be loaded]", body_style))
-    else:
-        story.append(Paragraph("[Model results file not found. Run T024-T028 first.]", body_style))
-    
-    story.append(Spacer(1, 0.2*inch))
-    
-    # 4. Sensitivity Analysis
-    story.append(Paragraph("4. Sensitivity Analysis", heading_style))
-    story.append(Paragraph(
-        "Significance rates were calculated across a range of alpha thresholds to assess the robustness of the findings.",
-        body_style
-    ))
-    
-    sensitivity_path = get_path("data/processed/sensitivity_analysis.csv")
-    if os.path.exists(sensitivity_path):
-        try:
-            sens_df = pd.read_csv(sensitivity_path)
-            sens_data = [sens_df.columns.tolist()] + sens_df.values.tolist()
-            sens_table = Table(sens_data)
-            sens_table.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.grey),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0,0), (-1,0), 12),
-                ('GRID', (0,0), (-1,-1), 1, colors.black)
-            ]))
-            story.append(sens_table)
-        except Exception as e:
-            logger.warning(f"Could not load sensitivity analysis: {e}")
-    else:
-        story.append(Paragraph("[Sensitivity analysis file not found.]", body_style))
-    
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=12,
+        spaceBefore=12
+    )
+    normal_style = styles['Normal']
+
+    # 1. Title Page
+    story.append(Paragraph("The Influence of Visual Priming on Implicit Attitudes", title_style))
+    story.append(Paragraph("Towards Ambiguous Social Stimuli", title_style))
+    story.append(Spacer(1, 2*inch))
+    story.append(Paragraph("Project ID: PROJ-345", normal_style))
+    story.append(Paragraph("Report Generation: Automated Pipeline", normal_style))
     story.append(PageBreak())
+
+    # 2. Executive Summary
+    story.append(Paragraph("Executive Summary", heading_style))
+    story.append(Spacer(1, 0.2*inch))
+    summary_text = (
+        "This report presents the findings from an analysis of the influence of visual priming on implicit attitudes. "
+        "Data was ingested from public repositories, processed for linkage completeness, and analyzed using Linear Mixed-Effects Models. "
+        "Key findings regarding the interaction between prime valence and stimulus ambiguity are presented below, along with sensitivity analyses."
+    )
+    story.append(Paragraph(summary_text, normal_style))
+    story.append(PageBreak())
+
+    # 3. Methodology & Limitations
+    story.append(Paragraph("Methodology and Limitations", heading_style))
+    story.append(Spacer(1, 0.2*inch))
+    limitations_content = generate_limitations_section()
+    story.extend(limitations_content)
+    story.append(PageBreak())
+
+    # 4. Results: Interaction Plot
+    story.append(Paragraph("Results: Interaction Analysis", heading_style))
+    story.append(Spacer(1, 0.2*inch))
     
-    # 5. Limitations (T037 Requirement)
-    story.append(Paragraph("5. Limitations and Interpretation", heading_style))
-    story.append(Paragraph(
-        "The findings presented in this report must be interpreted within the context of the study's design and data sources.",
-        body_style
-    ))
-    story.append(Spacer(1, 0.1*inch))
+    interaction_plot_path = Path(Config.DATA_PROCESSED) / "interaction_plot.png"
+    if interaction_plot_path.exists():
+        story.append(Paragraph("Figure 1: Interaction Plot of Response Time by Prime Valence and Stimulus Ambiguity", normal_style))
+        story.append(Spacer(1, 0.2*inch))
+        # Add image
+        try:
+            img = Image(str(interaction_plot_path), width=6*inch, height=4*inch)
+            story.append(img)
+        except Exception as e:
+            logger.error(f"Could not load interaction plot image: {e}")
+            story.append(Paragraph(f"[Error loading interaction plot: {e}]", normal_style))
+    else:
+        logger.warning("Interaction plot not found. Skipping image insertion.")
+        story.append(Paragraph("[Interaction Plot Missing]", normal_style))
     
-    story.append(Paragraph("<b>Observational Nature of Analysis</b>", styles['Heading3']))
-    story.append(Paragraph(
-        "Despite the experimental manipulation of prime conditions, the primary statistical models (Linear Mixed-Effects Models) rely on observational associations within the collected response time data. "
-        "The models control for participant-level variance and stimulus characteristics, but causal inferences regarding the direct mechanism of priming on implicit attitudes are limited by the correlational structure of the derived metrics. "
-        "Specifically, the relationship between prime valence and response time is associational; unmeasured confounding variables related to participant state or stimulus interpretation may influence the observed effects.",
-        body_style
-    ))
-    story.append(Spacer(1, 0.1*inch))
+    story.append(Spacer(1, 0.2*inch))
+    story.append(PageBreak())
+
+    # 5. Results: Coefficient Table
+    story.append(Paragraph("Results: Model Coefficients", heading_style))
+    story.append(Spacer(1, 0.2*inch))
     
-    story.append(Paragraph("<b>Derived Prime Valence</b>", styles['Heading3']))
-    story.append(Paragraph(
-        "The prime valence scores used as fixed effects in the models were not manually rated by human subjects for this specific dataset but were derived using a CPU-optimized VAD (Valence-Arousal-Dominance) regression pipeline (see T021/T022b). "
-        "While validated against standard benchmarks, these derived scores represent an algorithmic approximation of emotional valence. "
-        "Discrepancies between the automated derivation and human perception of the ambiguous social stimuli may introduce measurement error, potentially attenuating the observed effect sizes.",
-        body_style
-    ))
-    story.append(Spacer(1, 0.1*inch))
+    coef_table = load_coefficient_table()
+    if coef_table is not None and not coef_table.empty:
+        # Convert dataframe to table data
+        # Ensure we have the right columns
+        required_cols = ['term', 'estimate', 'std_err', 'p_value', 'conf_int_low', 'conf_int_high']
+        # If columns differ, adapt or use generic
+        if 'term' in coef_table.columns:
+            # Simple formatting
+            data = [coef_table.columns.tolist()]
+            for _, row in coef_table.iterrows():
+                data.append([str(val) for val in row])
+            
+            t = Table(data, colWidths=[2*inch, 1*inch, 1*inch, 1*inch, 1*inch, 1*inch])
+            t.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            story.append(t)
+        else:
+            story.append(Paragraph("Model coefficient table format unrecognized.", normal_style))
+    else:
+        logger.warning("Model coefficients not found. Skipping table insertion.")
+        story.append(Paragraph("[Model Coefficients Missing]", normal_style))
     
-    story.append(Paragraph("<b>Ambiguity Derivation</b>", styles['Heading3']))
-    story.append(Paragraph(
-        "Stimulus ambiguity scores were similarly derived via a synthetic annotation pipeline (T022b) due to the absence of human-rated ambiguity for the full stimulus set. "
-        "This synthetic derivation relies on computational proxies for ambiguity, which may not capture all nuances of human perceptual uncertainty.",
-        body_style
-    ))
-    story.append(Spacer(1, 0.1*inch))
+    story.append(Spacer(1, 0.2*inch))
+    story.append(PageBreak())
+
+    # 6. Sensitivity Analysis
+    story.append(Paragraph("Sensitivity Analysis", heading_style))
+    story.append(Spacer(1, 0.2*inch))
     
-    story.append(Paragraph(
-        "Consequently, all reported p-values and effect sizes should be viewed as evidence of association rather than definitive causal proof.",
-        body_style
-    ))
-    
+    sens_data = load_sensitivity_analysis()
+    if sens_data is not None and not sens_data.empty:
+        story.append(Paragraph("Table 1: Significance Rate across Alpha Thresholds", normal_style))
+        story.append(Spacer(1, 0.2*inch))
+        
+        data = [sens_data.columns.tolist()]
+        for _, row in sens_data.iterrows():
+            data.append([f"{val:.2f}" if isinstance(val, float) else str(val) for val in row])
+        
+        t = Table(data, colWidths=[2*inch, 2*inch])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        story.append(t)
+    else:
+        logger.warning("Sensitivity analysis data not found. Skipping table insertion.")
+        story.append(Paragraph("[Sensitivity Analysis Missing]", normal_style))
+
     # Build PDF
-    try:
-        doc.build(story)
-        logger.info(f"Report successfully generated at {output_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to build PDF report: {e}")
-        return False
+    doc.build(story)
+    logger.info(f"Report generated successfully at {output_path}")
+    return output_path
 
 def main():
-    """Main entry point for report generation."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    """
+    Main entry point for report generation.
+    """
+    logger.info("Starting report generation...")
     
-    output_path = get_path("reports/analysis_report.pdf")
-    # Ensure reports directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    success = generate_report_pdf(output_path)
-    if not success:
-        logger.error("Report generation failed.")
+    # Ensure all dependencies are met
+    try:
+        ensure_reportlab_installed()
+    except RuntimeError as e:
+        logger.error(str(e))
         sys.exit(1)
-    else:
-        logger.info("Report generation completed successfully.")
+
+    # Check for prerequisite files
+    prerequisites = [
+        Path(Config.DATA_PROCESSED) / "interaction_plot.png",
+        Path(Config.DATA_PROCESSED) / "sensitivity_analysis.csv"
+    ]
+    
+    missing = [p for p in prerequisites if not p.exists()]
+    if missing:
+        logger.warning(f"Prerequisite files missing: {[str(p) for p in missing]}")
+        # We proceed anyway, the function will handle missing files gracefully
+    
+    output_path = generate_report_pdf()
+    logger.info(f"Final report generated at: {output_path}")
 
 if __name__ == "__main__":
     main()

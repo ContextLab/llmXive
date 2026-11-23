@@ -1,10 +1,8 @@
 """
-Environment variable management and configuration for the Hubble Constant Isotropy project.
+Configuration management for the Hubble Constant Isotropy project.
 
-This module handles:
-- Zenodo API key retrieval
-- Random seed management for reproducibility
-- Environment variable validation
+Handles environment variables for API keys (Zenodo), random seed management,
+and project directory path resolution.
 """
 
 import os
@@ -12,119 +10,166 @@ import random
 from pathlib import Path
 from typing import Optional
 
+# Import logger from sibling module as per API surface
 from .logger import get_logger
 
+# Initialize logger for this module
 logger = get_logger(__name__)
 
-# Default random seed for reproducibility if not specified
-DEFAULT_SEED = 42
+# Project root is assumed to be the parent of 'code/'
+# If running from 'code/', parent is root. If running from root, 'code' is subdir.
+# We assume the standard execution context where this file is in code/src/utils/
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_CONFIG_FILE_PATH = _PROJECT_ROOT / "config" / "settings.ini"
 
-# Zenodo configuration
-ZENODO_RECORD_ID = "1002345"
-ZENODO_DOI = "10.5281/zenodo.1002345"
-ZENODO_API_KEY_ENV = "ZENODO_API_KEY"
-ZENODO_BASE_URL = "https://zenodo.org/api/records"
+# Environment variable names
+_ZENODO_API_KEY_ENV = "ZENODO_API_KEY"
+_RANDOM_SEED_ENV = "RANDOM_SEED"
 
-# Project paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-RESULTS_DIR = DATA_DIR / "results"
-
-def get_zenodo_api_key() -> Optional[str]:
+def get_zenodo_api_key(required: bool = True) -> Optional[str]:
     """
     Retrieve the Zenodo API key from environment variables.
 
+    Args:
+        required: If True, raises an error if the key is missing.
+                 If False, returns None if missing.
+
     Returns:
-        The API key string if found, None otherwise.
+        The API key string if found.
 
     Raises:
-        ValueError: If the API key is expected but not found (for critical operations).
+        ValueError: If the key is required but not found.
     """
-    api_key = os.getenv(ZENODO_API_KEY_ENV)
-    if api_key:
-        logger.info("Zenodo API key found in environment")
-    else:
-        logger.warning("Zenodo API key not found in environment. Some operations may be rate-limited.")
-    return api_key
+    key = os.getenv(_ZENODO_API_KEY_ENV)
+    if not key:
+        if required:
+            msg = (
+                f"Zenodo API key not found in environment variable "
+                f"'{_ZENODO_API_KEY_ENV}'. "
+                f"Please set it to access the Pantheon+ dataset."
+            )
+            logger.error(msg)
+            raise ValueError(msg)
+        logger.warning(
+            f"Zenodo API key not found in environment variable "
+            f"'{_ZENODO_API_KEY_ENV}'. Some features may be unavailable."
+        )
+        return None
+    
+    logger.info("Zenodo API key loaded successfully.")
+    return key
 
 def set_random_seed(seed: Optional[int] = None) -> int:
     """
-    Set the random seed for reproducible experiments.
+    Initialize the random seed for reproducibility.
+
+    Checks for 'RANDOM_SEED' environment variable first. If not set,
+    uses the provided argument, or defaults to 42 if neither is available.
 
     Args:
-        seed: The seed value. If None, uses DEFAULT_SEED.
+        seed: An integer seed value. If None, checks environment.
 
     Returns:
-        The seed value that was set.
+        The integer seed value used.
     """
-    if seed is None:
-        seed = DEFAULT_SEED
+    env_seed = os.getenv(_RANDOM_SEED_ENV)
+    
+    if env_seed is not None:
+        try:
+            final_seed = int(env_seed)
+            logger.info(f"Random seed initialized from environment: {final_seed}")
+        except ValueError:
+            logger.warning(
+                f"Invalid random seed in environment '{_RANDOM_SEED_ENV}': "
+                f"'{env_seed}'. Using provided seed or default."
+            )
+            final_seed = seed if seed is not None else 42
+    elif seed is not None:
+        final_seed = seed
+        logger.info(f"Random seed initialized from argument: {final_seed}")
+    else:
+        final_seed = 42
+        logger.warning(
+            f"No random seed specified. Using default: {final_seed}. "
+            f"Set {_RANDOM_SEED_ENV} or pass seed argument for reproducibility."
+        )
 
-    # Set seeds for various libraries
-    random.seed(seed)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        logger.warning("NumPy not available, skipping numpy random seed")
-
-    try:
-        import os
-        os.environ['PYTHONHASHSEED'] = str(seed)
-    except Exception:
-        logger.warning("Could not set PYTHONHASHSEED")
-
-    logger.info(f"Random seed set to {seed}")
-    return seed
+    # Set seeds for standard libraries used in this project
+    random.seed(final_seed)
+    
+    # Note: numpy and torch seeds would be set here if those were imported,
+    # but we stick to standard library + provided API surface.
+    
+    return final_seed
 
 def get_project_paths() -> dict:
     """
-    Retrieve standardized project directory paths.
+    Returns a dictionary of key project directory paths.
 
     Returns:
-        Dictionary mapping path names to Path objects.
+        dict: Mapping of logical names to Path objects.
     """
-    return {
-        "root": PROJECT_ROOT,
-        "data": DATA_DIR,
-        "raw": RAW_DATA_DIR,
-        "processed": PROCESSED_DATA_DIR,
-        "results": RESULTS_DIR,
+    paths = {
+        "root": _PROJECT_ROOT,
+        "data_raw": _PROJECT_ROOT / "data" / "raw",
+        "data_processed": _PROJECT_ROOT / "data" / "processed",
+        "data_results": _PROJECT_ROOT / "data" / "results",
+        "code": _PROJECT_ROOT / "code",
+        "src": _PROJECT_ROOT / "code" / "src",
+        "tests": _PROJECT_ROOT / "tests",
+        "config": _PROJECT_ROOT / "config",
+        "figures": _PROJECT_ROOT / "figures",
     }
+    logger.debug(f"Project paths resolved: {list(paths.keys())}")
+    return paths
 
-def ensure_directories_exist() -> bool:
+def ensure_directories_exist() -> None:
     """
-    Ensure all required project directories exist.
-
-    Returns:
-        True if all directories exist or were created successfully.
+    Ensures all required project directories exist, creating them if necessary.
+    
+    Uses paths derived from get_project_paths().
     """
     paths = get_project_paths()
-    success = True
-    for name, path in paths.items():
-        if not path.exists():
-            try:
-                path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {path}")
-            except Exception as e:
-                logger.error(f"Failed to create directory {path}: {e}")
-                success = False
-    return success
+    dirs_to_create = [
+        paths["data_raw"],
+        paths["data_processed"],
+        paths["data_results"],
+        paths["config"],
+        paths["figures"],
+    ]
+
+    created_count = 0
+    for dir_path in dirs_to_create:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            logger.debug(f"Directory already exists: {dir_path}")
+    
+    if created_count > 0:
+        logger.info(f"Created {created_count} new directories.")
 
 def get_config_summary() -> dict:
     """
-    Get a summary of the current configuration state.
-
+    Generates a summary of the current configuration state.
+    
     Returns:
-        Dictionary with configuration details.
+        dict: Summary including seed status, API key presence, and paths.
     """
-    return {
-        "zenodo_record_id": ZENODO_RECORD_ID,
-        "zenodo_doi": ZENODO_DOI,
-        "api_key_present": get_zenodo_api_key() is not None,
-        "project_root": str(PROJECT_ROOT),
-        "data_dir": str(DATA_DIR),
-        "default_seed": DEFAULT_SEED,
+    seed = os.getenv(_RANDOM_SEED_ENV, "Not set (default 42)")
+    has_key = _ZENODO_API_KEY_ENV in os.environ
+    paths = get_project_paths()
+    
+    summary = {
+        "random_seed_env": seed,
+        "zenodo_api_key_present": has_key,
+        "project_root": str(paths["root"]),
+        "data_dirs": {
+            "raw": str(paths["data_raw"]),
+            "processed": str(paths["data_processed"]),
+            "results": str(paths["data_results"]),
+        }
     }
+    logger.debug(f"Configuration summary generated: {summary}")
+    return summary

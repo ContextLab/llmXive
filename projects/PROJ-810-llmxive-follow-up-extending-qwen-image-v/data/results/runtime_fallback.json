@@ -1,0 +1,7 @@
+{
+  "N_required": 1000,
+  "N_final": 1000,
+  "estimated_runtime_seconds": 2000.0,
+  "status": "PASS",
+  "reason": "N_required (1000) fits within 6h runtime budget."
+}

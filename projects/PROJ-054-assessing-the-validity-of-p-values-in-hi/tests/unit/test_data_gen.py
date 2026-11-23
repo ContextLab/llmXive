@@ -1,137 +1,143 @@
 """
-Unit tests for data generation utilities.
+Unit tests for data generation utilities in generate_data.py.
+These tests verify correlation structure accuracy and distributional shape validation.
 """
 import pytest
 import numpy as np
-from code.generate_data import generate_correlated_data
+from scipy import stats
+import sys
+import os
 
-def test_correlation_threshold_accuracy():
-    """
-    T010: Verify that generated data has the exact correlation structure
-    specified (within numerical tolerance).
-    """
-    n, p, rho = 5000, 50, 0.5
-    data, _ = generate_correlated_data(n, p, rho, seed=42)
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-    # Calculate empirical correlation matrix
-    # Use ddof=1 for sample covariance
-    emp_corr = np.corrcoef(data.T)
+from generate_data import generate_correlated_data, generate_distribution_violations
 
-    # Check diagonal is 1
-    assert np.allclose(np.diag(emp_corr), 1.0, atol=1e-5)
 
-    # Check off-diagonal average is close to rho
-    # We exclude the diagonal
-    off_diag_mask = ~np.eye(p, dtype=bool)
-    off_diag_values = emp_corr[off_diag_mask]
-    avg_off_diag = np.mean(off_diag_values)
+class TestCorrelatedDataGeneration:
+    """Tests for T012: Correlation matrix generation accuracy."""
 
-    # Allow some tolerance due to sampling variance (n=5000 should be tight)
-    # Standard error of correlation ~ 1/sqrt(n) ~ 0.014
-    # We expect the mean of many correlations to be closer, so 0.02 tolerance is safe
-    assert np.abs(avg_off_diag - rho) < 0.02, f"Expected avg corr ~ {rho}, got {avg_off_diag}"
+    def test_no_correlation_identity(self):
+        """Test that rho=0.0 produces near-identity correlation matrix."""
+        n, p, rho = 100, 50, 0.0
+        data = generate_correlated_data(n, p, rho, seed=42)
 
-def test_distribution_shape_normal():
-    """
-    T011: Unit test for normal distribution shape validation.
-    """
-    n, p = 10000, 10
-    data, _ = generate_correlated_data(n, p, rho=0.0, seed=99, distribution="normal")
+        # Calculate empirical correlation
+        corr_matrix = np.corrcoef(data.T)
 
-    # Check skewness and kurtosis for each column
-    # For standard normal: skew ~ 0, kurtosis (excess) ~ 0
-    from scipy import stats as st
+        # Diagonal should be 1.0
+        np.testing.assert_array_almost_equal(
+            np.diag(corr_matrix),
+            np.ones(p),
+            decimal=5,
+            err_msg="Diagonal of correlation matrix should be 1.0"
+        )
 
-    for i in range(p):
-        col = data[:, i]
-        skew = st.skew(col)
-        kurt = st.kurtosis(col, fisher=True) # Fisher=True gives excess kurtosis
+        # Off-diagonal should be near 0
+        off_diag = corr_matrix[~np.eye(p, dtype=bool)]
+        assert np.allclose(off_diag, 0.0, atol=0.1), \
+            f"Off-diagonal correlations should be near 0, max observed: {np.max(np.abs(off_diag))}"
 
-        # Tolerance for large n
-        assert np.abs(skew) < 0.1, f"Column {i} skewness {skew} too high for normal"
-        assert np.abs(kurt) < 0.2, f"Column {i} kurtosis {kurt} too high for normal"
+    def test_strong_positive_correlation(self):
+        """Test that high rho produces strong positive correlations."""
+        n, p, rho = 500, 50, 0.9
+        data = generate_correlated_data(n, p, rho, seed=42)
 
-def test_distribution_shape_t():
-    """
-    T011: Unit test for heavy-tailed t-distribution.
-    """
-    n, p = 10000, 10
-    data, _ = generate_correlated_data(n, p, rho=0.0, seed=99, distribution="t", t_df=4)
+        corr_matrix = np.corrcoef(data.T)
+        off_diag = corr_matrix[~np.eye(p, dtype=bool)]
 
-    from scipy import stats as st
+        # Average off-diagonal correlation should be close to rho
+        mean_off_diag = np.mean(off_diag)
+        assert abs(mean_off_diag - rho) < 0.1, \
+            f"Mean off-diagonal correlation {mean_off_diag} should be close to {rho}"
 
-    # T-distribution with df=4 has excess kurtosis = 6 / (4-4) -> infinite?
-    # Actually excess kurtosis = 6/(df-4) for df > 4. For df=4, it's undefined/infinite.
-    # For df=5, excess kurtosis = 6.
-    # We expect significantly higher kurtosis than normal
-    for i in range(p):
-        col = data[:, i]
-        kurt = st.kurtosis(col, fisher=True)
-        # Should be much larger than 0
-        assert kurt > 2.0, f"Column {i} kurtosis {kurt} too low for t-dist (df=4)"
+    def test_deterministic_with_seed(self):
+        """Test that same seed produces identical data."""
+        n, p, rho = 100, 20, 0.5
+        seed = 12345
 
-def test_distribution_shape_skew():
-    """
-    T011: Unit test for skewed normal distribution.
-    """
-    n, p = 10000, 10
-    skew_param = 5.0
-    data, _ = generate_correlated_data(n, p, rho=0.0, seed=99, distribution="skew", skewness=skew_param)
+        data1 = generate_correlated_data(n, p, rho, seed=seed)
+        data2 = generate_correlated_data(n, p, rho, seed=seed)
 
-    from scipy import stats as st
+        np.testing.assert_array_equal(data1, data2, err_msg="Same seed should produce identical data")
 
-    for i in range(p):
-        col = data[:, i]
-        skew = st.skew(col)
-        # Should be positive and significant
-        assert skew > 1.0, f"Column {i} skewness {skew} too low for skewness={skew_param}"
 
-def test_invalid_rho():
-    """
-    Test that invalid rho values raise ValueError.
-    """
-    with pytest.raises(ValueError):
-        generate_correlated_data(100, 10, rho=1.5)
-    with pytest.raises(ValueError):
-        generate_correlated_data(100, 10, rho=-0.1)
+class TestDistributionViolations:
+    """Tests for T013: Distribution shape validation."""
 
-def test_invalid_dimensions():
-    """
-    Test that invalid dimensions raise ValueError.
-    """
-    with pytest.raises(ValueError):
-        generate_correlated_data(0, 10, rho=0.5)
-    with pytest.raises(ValueError):
-        generate_correlated_data(100, -5, rho=0.5)
+    def test_t_dist_df3(self):
+        """Test that t-distribution with df=3 produces heavy tails (KS distance < 0.01)."""
+        n = 10000
+        dist_type = "t"
+        params = {"df": 3}
 
-def test_reproducibility():
-    """
-    Test that same seed produces same results.
-    """
-    data1, _ = generate_correlated_data(100, 10, rho=0.5, seed=123)
-    data2, _ = generate_correlated_data(100, 10, rho=0.5, seed=123)
+        data = generate_distribution_violations(n, dist_type, params, seed=42)
 
-    assert np.allclose(data1, data2)
+        # KS test against theoretical t-distribution
+        ks_stat, p_value = stats.kstest(data, 't', args=(params["df"],))
 
-def test_sweep_data_structure():
-    """
-    Test the sweep helper function structure.
-    """
-    from code.generate_data import generate_sweep_data
+        # For large n, KS statistic should be small if distribution matches
+        # Allow KS < 0.01 for df=3 (heavy-tailed)
+        assert ks_stat < 0.01, \
+            f"KS statistic {ks_stat:.4f} exceeds threshold 0.01 for t-dist df=3"
 
-    results = generate_sweep_data(
-        n_values=[100],
-        p_values=[10],
-        rho_values=[0.0, 0.5],
-        seed_base=100
-    )
+        # Verify heavy tails: kurtosis should be > 3 (normal has kurtosis 3)
+        kurtosis = stats.kurtosis(data, fisher=False)
+        assert kurtosis > 3, f"Kurtosis {kurtosis} should be > 3 for heavy-tailed t-dist"
 
-    assert len(results) == 2
-    for item in results:
-        assert 'data' in item
-        assert 'true_cov' in item
-        assert 'n' in item
-        assert 'p' in item
-        assert 'rho' in item
-        assert 'seed' in item
-        assert item['data'].shape == (item['n'], item['p'])
+    def test_skewed_normal(self):
+        """Test that skewed normal produces asymmetry."""
+        n = 10000
+        dist_type = "skew_normal"
+        params = {"a": 5}  # Skewness parameter
+
+        data = generate_distribution_violations(n, dist_type, params, seed=42)
+
+        # Check skewness
+        skewness = stats.skew(data)
+        assert abs(skewness - 1.0) < 0.5, \
+            f"Skewness {skewness} should be positive for skewed normal (a=5)"
+
+        # KS test against skewed normal
+        ks_stat, p_value = stats.kstest(data, 'skewnorm', args=(params["a"],))
+        assert ks_stat < 0.01, \
+            f"KS statistic {ks_stat:.4f} exceeds threshold 0.01 for skew_normal"
+
+    def test_uniform_control(self):
+        """Test that uniform distribution (control) passes KS test."""
+        n = 10000
+        dist_type = "uniform"
+        params = {}
+
+        data = generate_distribution_violations(n, dist_type, params, seed=42)
+
+        ks_stat, p_value = stats.kstest(data, 'uniform')
+        assert ks_stat < 0.01, \
+            f"KS statistic {ks_stat:.4f} exceeds threshold 0.01 for uniform"
+
+
+class TestDataDimensions:
+    """Tests for data shape and dimensionality."""
+
+    def test_correct_dimensions(self):
+        """Test that generated data has correct (n, p) shape."""
+        test_cases = [
+            (100, 1000),
+            (50, 5000),
+            (200, 100),
+        ]
+
+        for n, p in test_cases:
+            data = generate_correlated_data(n, p, rho=0.5, seed=42)
+            assert data.shape == (n, p), \
+                f"Expected shape ({n}, {p}), got {data.shape}"
+
+    def test_no_nan_values(self):
+        """Test that generated data contains no NaN values."""
+        data = generate_correlated_data(100, 100, rho=0.5, seed=42)
+        assert not np.any(np.isnan(data)), "Generated data should not contain NaN values"
+
+    def test_finite_values(self):
+        """Test that all values are finite (no inf)."""
+        data = generate_correlated_data(100, 100, rho=0.5, seed=42)
+        assert np.all(np.isfinite(data)), "Generated data should contain only finite values"

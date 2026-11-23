@@ -3,10 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-eval-code-style"
+name = "llmxive-evaluation-code-style"
 version = "0.1.0"
 description = "Evaluating the Impact of Code Style on LLM Code Understanding and Generation"
-readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "datasets",
@@ -17,40 +16,37 @@ dependencies = [
     "rouge-score",
     "codebleu",
     "pytest",
-    "ruff",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "ruff",
-    "pytest-cov",
 ]
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
+where = ["code"]
 
-[tool.ruff]
-# Target Python version
-target-version = "py39"
+[project.scripts]
+run-pipeline = "main:main"
 
-# Line length matching Black's default
-line-length = 88
-
-# Exclude directories
-exclude = [
-    ".git",
-    ".tox",
-    "__pycache__",
-    "data",
-    "results",
-    "build",
-    "dist",
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests",
 ]
 
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+indent-width = 4
+src = ["code", "tests"]
+
 [tool.ruff.lint]
-# Select specific rules
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -58,66 +54,42 @@ select = [
     "I",   # isort
     "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
+    "UP",  # pyupgrade
 ]
-
-# Ignore specific rules if necessary
 ignore = [
-    "E501", # Line too long (handled by formatter)
+    "E501", # Line too long (handled by black)
     "B008", # Do not perform function call in argument defaults (common in dataclasses)
 ]
 
-[tool.ruff.lint.isort]
-known-first-party = ["code"]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "B011"] # Allow assert and random in tests
 
 [tool.ruff.format]
-# Use double quotes like Black
 quote-style = "double"
-# Indent with spaces like Black
 indent-style = "space"
-# Skip magic trailing comma like Black (default)
-skip-magic-trailing-comma = true
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
-[tool.pytest.ini_options]
-testpaths = [
-    "tests",
-]
-python_files = [
-    "test_*.py",
-    "*_test.py",
-]
-python_functions = [
-    "test_*",
-]
-addopts = [
-    "-v",
-    "--strict-markers",
-    "--tb=short",
-]
-markers = [
-    "unit: Unit tests",
-    "integration: Integration tests",
-    "slow: Marks tests as slow",
-]
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
-]
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 
-[tool.coverage.run]
-source = ["code"]
-branch = true
-omit = [
-    "tests/*",
-    "*/__init__.py",
-]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-    "@abstractmethod",
-]
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["transform", "evaluate", "mutation", "validation", "analyze"]

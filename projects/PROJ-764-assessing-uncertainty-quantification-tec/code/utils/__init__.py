@@ -1,3 +1,1 @@
-"""
-Utility functions and classes.
-"""
+# Utils package

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.07942",
+  "judged_at": "2026-08-26T06:53:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scaling the horizon, not the parameters: reaching trillion-parameter p\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides the foundational mathematical model and empirical evidence for the \"neural scaling laws\" (the core mechanism of \"Scaling the Horizon\") that the user's research question explicitly references. It establishes the theoretical baseline for how data distribution properties drive parameter scaling, which is essential context for any follow-up work on trillion-parameter linguistic models.",
+  "relevant": true
+}

@@ -1,0 +1,2 @@
+# This directory holds raw downloaded datasets (e.g., WESAD, OpenNeuro)
+# Do not commit large binary files to git.

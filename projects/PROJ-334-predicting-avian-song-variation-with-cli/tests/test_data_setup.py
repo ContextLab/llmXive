@@ -1,100 +1,93 @@
-"""
-Tests for data directory setup functionality.
-"""
-
 import os
-import tempfile
+import yaml
+import csv
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
+from data_setup import ensure_directory, initialize_checksums_file, initialize_state_file
 
-# Import the module to test
-import code.data_setup as data_setup_module
+@pytest.fixture
+def temp_project_root(tmp_path):
+    """Create a temporary project structure for testing."""
+    # Simulate the structure expected by data_setup.py
+    # The script looks for parent of code/
+    code_dir = tmp_path / "code"
+    code_dir.mkdir()
+    return tmp_path
 
+def test_ensure_directory_creates_new(tmp_path):
+    new_dir = tmp_path / "new_folder"
+    assert not new_dir.exists()
+    ensure_directory(str(new_dir))
+    assert new_dir.exists()
+    assert new_dir.is_dir()
 
-class TestDataSetup:
-    """Test cases for data directory setup."""
+def test_ensure_directory_exists(tmp_path):
+    existing_dir = tmp_path / "existing_folder"
+    existing_dir.mkdir()
+    assert existing_dir.exists()
+    ensure_directory(str(existing_dir)) # Should not raise
+    assert existing_dir.exists()
 
-    def test_ensure_directory_creates_new_dir(self, tmp_path):
-        """Test that ensure_directory creates a new directory."""
-        new_dir = tmp_path / "new_subdir"
-        assert not new_dir.exists()
-        
-        # Patch the function to work with our temp directory
-        with patch.object(data_setup_module, 'DATA_DIR', tmp_path):
-            data_setup_module.ensure_directory(new_dir)
-        
-        assert new_dir.exists()
-        assert new_dir.is_dir()
+def test_initialize_checksums_file_creates_new(tmp_path):
+    checksums_file = tmp_path / "checksums.txt"
+    initialize_checksums_file(str(checksums_file))
+    
+    assert checksums_file.exists()
+    with open(checksums_file, 'r') as f:
+        reader = csv.reader(f)
+        rows = list(reader)
+    
+    assert len(rows) == 1
+    assert rows[0] == ['filename', 'sha256_hash']
 
-    def test_ensure_directory_exists(self, tmp_path):
-        """Test that ensure_directory handles existing directories."""
-        existing_dir = tmp_path / "existing"
-        existing_dir.mkdir()
-        
-        with patch.object(data_setup_module, 'DATA_DIR', tmp_path):
-            # Should not raise an error
-            data_setup_module.ensure_directory(existing_dir)
-        
-        assert existing_dir.exists()
+def test_initialize_checksums_file_preserves_existing(tmp_path):
+    checksums_file = tmp_path / "checksums.txt"
+    # Create with existing data
+    checksums_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(checksums_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['filename', 'sha256_hash'])
+        writer.writerow(['test.csv', 'abc123'])
+    
+    initialize_checksums_file(str(checksums_file))
+    
+    with open(checksums_file, 'r') as f:
+        reader = csv.reader(f)
+        rows = list(reader)
+    
+    # Should still have 2 rows (header + data)
+    assert len(rows) == 2
+    assert rows[1] == ['test.csv', 'abc123']
 
-    def test_initialize_checksums_file_creates_new(self, tmp_path):
-        """Test that initialize_checksums_file creates a new file with header."""
-        checksums_file = tmp_path / "checksums.txt"
-        
-        with patch.object(data_setup_module, 'CHECKSUMS_FILE', checksums_file):
-            data_setup_module.initialize_checksums_file()
-        
-        assert checksums_file.exists()
-        content = checksums_file.read_text()
-        assert "# Data Artifact Checksums" in content
-        assert "sha256_hash" in content
-        assert "relative_path" in content
+def test_initialize_state_file_creates_new(tmp_path):
+    state_file = tmp_path / "state.yaml"
+    initialize_state_file(str(state_file))
+    
+    assert state_file.exists()
+    with open(state_file, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    assert "artifact_hashes" in data
+    assert data["artifact_hashes"] == {}
+    assert "updated_at" in data
+    assert data["updated_at"] == "1970-01-01T00:00:00Z"
 
-    def test_initialize_checksums_file_exists(self, tmp_path):
-        """Test that initialize_checksums_file handles existing file."""
-        checksums_file = tmp_path / "checksums.txt"
-        checksums_file.write_text("existing content\n")
-        
-        with patch.object(data_setup_module, 'CHECKSUMS_FILE', checksums_file):
-            # Should not raise an error
-            data_setup_module.initialize_checksums_file()
-        
-        # Content should remain unchanged
-        assert checksums_file.read_text() == "existing content\n"
-
-    def test_main_executes_successfully(self, tmp_path):
-        """Test that main() runs without errors and creates expected structure."""
-        data_dir = tmp_path / "data"
-        raw_dir = data_dir / "raw"
-        processed_dir = data_dir / "processed"
-        checksums_file = data_dir / "checksums.txt"
-        
-        with patch.object(data_setup_module, 'DATA_DIR', data_dir):
-            with patch.object(data_setup_module, 'RAW_DIR', raw_dir):
-                with patch.object(data_setup_module, 'PROCESSED_DIR', processed_dir):
-                    with patch.object(data_setup_module, 'CHECKSUMS_FILE', checksums_file):
-                        data_setup_module.main()
-        
-        # Verify directories were created
-        assert data_dir.exists()
-        assert raw_dir.exists()
-        assert processed_dir.exists()
-        
-        # Verify checksums file was created
-        assert checksums_file.exists()
-        content = checksums_file.read_text()
-        assert "# Data Artifact Checksums" in content
-
-    def test_path_structure_correct(self, tmp_path):
-        """Test that the directory structure follows the expected pattern."""
-        data_dir = tmp_path / "data"
-        
-        with patch.object(data_setup_module, 'DATA_DIR', data_dir):
-            data_setup_module.main()
-        
-        # Check that raw and processed are subdirectories of data
-        assert (data_dir / "raw").exists()
-        assert (data_dir / "processed").exists()
-        assert (data_dir / "checksums.txt").exists()
+def test_initialize_state_file_preserves_existing(tmp_path):
+    state_file = tmp_path / "state.yaml"
+    # Create with existing data
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    existing_data = {
+        "artifact_hashes": {"old_file.txt": "hash123"},
+        "updated_at": "2023-01-01T00:00:00Z"
+    }
+    with open(state_file, 'w') as f:
+        yaml.dump(existing_data, f)
+    
+    initialize_state_file(str(state_file))
+    
+    with open(state_file, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    # Should preserve existing data
+    assert data["artifact_hashes"] == {"old_file.txt": "hash123"}
+    assert data["updated_at"] == "2023-01-01T00:00:00Z"

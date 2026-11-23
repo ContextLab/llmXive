@@ -1,60 +1,56 @@
-"""
-Script to create the project directory structure for the muon flux study.
-
-This script creates the following directories relative to the project root:
-- src/
-- tests/
-- data/raw/
-- data/processed/
-- data/results/
-- logs/
-- config/
-"""
 import os
 import sys
 from pathlib import Path
 
-# Define the directory structure relative to the project root
-DIRECTORIES = [
-    "src",
-    "tests",
-    "data/raw",
-    "data/processed",
-    "data/results",
-    "logs",
-    "config",
-]
-
 def main():
-    # Determine project root (current working directory)
+    """
+    Creates the project directory structure as defined in the implementation plan.
+    Directories created relative to the project root.
+    """
+    # Define the root directory (assuming script is in code/ or project root)
+    # We use the current working directory as the project root for safety
     project_root = Path.cwd()
     
-    print(f"Creating directory structure in: {project_root}")
+    # Define required directories relative to project root
+    # Based on T001a description: src/, tests/, data/raw/, data/processed/, data/results/, logs/, config/
+    directories = [
+        "src",
+        "tests",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "logs",
+        "config",
+        # Ensure src subdirectories exist if referenced in API surface
+        "src/data",
+        "src/analysis",
+        "tests/unit",
+        "tests/integration",
+    ]
     
     created_count = 0
-    for dir_path in DIRECTORIES:
-        full_path = project_root / dir_path
-        
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"  Created: {full_path}")
+    existing_count = 0
+    
+    print(f"Creating project directories in: {project_root}")
+    
+    for dir_name in directories:
+        target_path = project_root / dir_name
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created: {target_path}")
             created_count += 1
         else:
-            print(f"  Exists: {full_path}")
+            # Check if it's actually a directory
+            if target_path.is_dir():
+                existing_count += 1
+            else:
+                print(f"Warning: Path exists but is not a directory: {target_path}")
     
-    print(f"\nSetup complete. Created {created_count} new directories.")
+    print(f"\nDirectory creation complete.")
+    print(f"Created: {created_count} new directories.")
+    print(f"Skipped: {existing_count} existing directories.")
     
-    # Verify structure
-    missing = []
-    for dir_path in DIRECTORIES:
-        if not (project_root / dir_path).exists():
-            missing.append(dir_path)
-    
-    if missing:
-        print(f"ERROR: Missing directories: {missing}")
-        sys.exit(1)
-    else:
-        print("Verification passed: All required directories exist.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

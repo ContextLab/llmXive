@@ -1,246 +1,77 @@
 # Tasks: Evaluating the Effectiveness of Prompt Engineering for LLM-Based Code Translation
 
-**Input**: Design documents from `/specs/001-prompt-engineering-code-translation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, data‑model contracts, verifier‑rejected task list, reviewer feedback. All tasks write only project‑owned paths (`code/`, `data/`, `paper/`, `specs/`, `figures/`). State‑updates are handled by the platform.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [ ] T001 [P] [US1] Implement `code/src/ingestion/download_datasets.py` that streams **both** HuggingFace datasets `codeparrot/code-trans-py-js` **and** `bigcode/evaluation` via `datasets.load_dataset(..., streaming=True)`. Write raw rows under `data/raw/` and raise on any fetch failure. Record dataset ID, split, and row count in `data/raw/ingestion_log.json`. <!-- FAILED-IN-EXECUTION: code/src/ingestion/download_datasets.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/ingestion/download_datasets.py exit=1 -->
+  *Verification:* `pytest code/tests/contract/test_dataset_fetch.py` asserts real rows are present and that a forced fetch failure raises.
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T002 [US1] Implement `code/src/ingestion/preprocess_corpus.py` that iterates the streamed raw data in chunks, filters entries with missing or syntactically invalid Python (`ast.parse`) or JavaScript, logs excluded entries to `data/logs/dataset_preprocess.log`, samples **≥ 200** valid pairs with a fixed seed, and writes `data/processed/corpus.csv` conforming to `dataset.schema.yaml`. Ensure peak memory ≤ 7 GB.
+  *Verification:* `pytest code/tests/integration/test_preprocess_memory.py` asserts ≥ 200 rows, schema conformance, and RSS < 7 GB.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T003 [US2] Create the four prompt template files in `data/prompts/` with complete, non‑placeholder text: `zero_shot_basic.txt`, `zero_shot_style.txt`, `few_shot_basic.txt`, `few_shot_style.txt`. Few‑shot files must contain two concrete Python→JavaScript example pairs sampled from `data/processed/corpus.csv` with a fixed seed.
+  *Verification:* `pytest code/tests/contract/test_prompts_exist.py` confirms existence, ≥ 10 words each, and that few‑shot files contain both Python and JavaScript example blocks.
 
-## Path Conventions
+- [ ] T004 [US2] Implement core inference in `code/src/execution/run_inference.py`. Load `data/processed/corpus.csv` and the four prompt files; for each (snippet, condition) call the HuggingFace Inference API with model `codellama/CodeLlama-7b-Instruct-hf`, `seed=42`, `temperature=0.0`. Enforce a 30 s request timeout, exponential backoff (≤ 3 retries) for rate limits, and detect non‑code responses (log as failure). Write generated JavaScript to `data/evaluation/raw_outputs/<condition_name>/<snippet_id>.js`. Write the **raw LLM response** to `data/evaluation/raw_responses/<condition_name>/<snippet_id>.txt`. Log each attempt in `data/evaluation/metadata_log.csv` with columns `snippet_id`, `condition_name`, `prompt_path`, `prompt_text`, `model_version`, `seed`, `timestamp`, `response_status`, `raw_response_path`. The `raw_response_path` points to the file created above, satisfying FR‑006 and US‑2 scenario 3.
+  *Verification:* `pytest code/tests/unit/test_timeout_utils.py`, `code/tests/unit/test_failed_translation.py`, `code/tests/contract/test_metadata_log.py`, `code/tests/contract/test_output_hierarchy.py`.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T005 [P] Run a thin end‑to‑end analysis on a small real sample (`N=5` snippets × 4 conditions) using T001–T004. Verify real JavaScript files, populated `metadata_log.csv`, and that `code/src/main.py --sample 5` reproduces the artifacts. Document the command in `specs/001-evaluating-the-effectiveness-of-prompt-e/quickstart.md`.
+  *Verification:* The command executes and `data/evaluation/raw_outputs/` contains ≥ 20 non‑empty `.js` files.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+## Phase 2: Complete the study and validate its evidence
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T006 [US3] Implement `code/src/evaluation/translate_python_tests.py` that translates the original Python unit tests for each snippet to JavaScript using the same LLM (or a verified transpiler). Store translated test files under `data/evaluation/translated_tests/<snippet_id>_test.js`. Log any translation failures (e.g., refusal, malformed output) in `data/logs/test_translation_errors.log`.
+  *Verification:* `pytest code/tests/contract/test_test_translation.py` checks that for each snippet a corresponding `.js` test file exists (or a failure is logged) and that the file is syntactically valid JavaScript.
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T007 [US3] Implement `code/src/evaluation/run_js_validation.py` that executes each generated JavaScript file against its translated test suite using Node.js with a 10 s per‑test timeout (via `timeout_utils`). Record binary pass/fail (plus `timeout`/`skipped` statuses) and execution time in `data/evaluation/validation_results.csv` conforming to `translation_result.schema.yaml`.
+  *Verification:* `pytest code/tests/contract/test_translation_result_schema.py` and `code/tests/contract/test_js_validation.py` validate schema and correct handling of passing, failing, and timeout cases.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T008 [US3] Implement `code/src/evaluation/compute_quality.py` that runs the ESLint complexity plugin on every generated `.js` file. For files that fail to parse, record `complexity_score = 0`. Write results to `data/evaluation/quality_metrics.csv` (`snippet_id`, `condition_name`, `complexity_score`, `lines_of_code`).
+  *Verification:* `pytest code/tests/unit/test_compute_quality.py` and `code/tests/contract/test_quality_metrics_schema.py` assert numeric scores and schema compliance.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T009 [US2] Execute the full experimental domain (all ≥ 200 snippets × 4 conditions) using the pipeline T001–T008. Monitor wall‑clock time; if the extrapolated total exceeds 6 h, invoke the checkpoint/fallback task (T018) to switch to the N=50 fallback and record the decision in `data/logs/runtime.log`. On any unrecoverable API failure, abort loudly (no Ollama substitution). Produce the full set of CSVs (`metadata_log.csv`, `validation_results.csv`, `quality_metrics.csv`) and the runtime log.
+  *Verification:* All CSVs contain rows for the executed sample; `runtime.log` reports ≤ 21600 s or a documented fallback decision.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T010 [US3] Implement `code/src/evaluation/statistical_analysis.py` that:
+  1. Performs a chi‑square test of correctness rates across the four prompt conditions (primary test, baseline = zero_shot_basic).  
+  2. Runs repeated‑measures ANOVA for cyclomatic complexity and lines of code across conditions.  
+  3. Applies Bonferroni correction to all pairwise comparisons.  
+  4. Computes effect sizes (Cohen’s h for chi‑square, eta‑squared for ANOVA) and post‑hoc observed power.  
+  5. Emits `data/evaluation/statistical_summary.csv` conforming to `statistical_summary.schema.yaml`.  
+  6. If any comparison’s observed power < 0.80, adds a `power_limitation` row.
+  *Verification:* `pytest code/tests/unit/test_statistical_analysis.py` checks required columns, correct correction method, and presence of baseline comparisons.
 
-- [X] T001a [P] Create directory structure: `src/`, `tests/`, `data/`, `data/raw/`, `data/processed/`, `data/prompts/`, `data/evaluation/`, `state/`, `state/checksums/`
-- [X] T001b [P] Create `.gitignore` to exclude `data/raw/`, `data/processed/`, `__pycache__`, `*.pyc`, `venv/`
-- [X] T001c [P] Create initial `requirements.txt` and `package.json` placeholder files
+- [ ] T011 [US3] Generate summary tables and figures directly from the validated CSVs:
+  - `data/results/summary_table.csv` (pass rates, mean complexity, mean LOC per condition with 95 % CIs).  
+  - `figures/correctness_by_condition.png` and `figures/quality_by_condition.png` via matplotlib.
+  *Verification:* `code/tests/contract/test_summary_table.py` re‑derives the table and matches; figure files exist and are non‑empty.
 
----
+- [ ] T012 [US3] Write `paper/methods_and_results.md` linking every reported number to its source CSV cell, including a short “error taxonomy” subsection classifying failed translations (syntax error, runtime error, wrong output, refusal/timeout). Reference the deviation changelog (T016) for any spec departures (e.g., fallback policy). Ensure all FR/SC claims are traceable.
+  *Verification:* Manual/automated review confirms every numeric claim maps to an existing CSV cell and that no placeholder numbers remain.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T013 [P] Re‑run the documented workflow end‑to‑end (`code/src/main.py` per `quickstart.md`), confirm all pytest suites pass, runtime ≤ 6 h, memory ≤ 7 GB, and record the paper‑stage handoff in `paper/methods_and_results.md`.
+  *Verification:* Full `pytest code/tests/` passes; `runtime.log` ≤ 21600 s; quickstart reproduces all result artifacts.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+## Phase 3: Supporting infrastructure and compliance
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T014 [P] Implement `code/src/utils/checksum_artifacts.py` that computes SHA‑256 checksums for **every file** under `data/raw/` and writes a manifest `data/raw/checksums.json`. This satisfies Constitution III (data hygiene) by recording hashes in a project‑owned location.
+  *Verification:* `pytest code/tests/contract/test_checksum_artifacts.py` validates that the manifest contains an entry for each raw file and that hashes match file contents.
 
-- [X] T006 Implement `src/utils/checksum_artifacts.py` to generate SHA-256 hashes for `data/raw/` files and write results to `state/checksums/` (Constitution Principle III)
-- [X] T007 Implement `src/utils/update_state.py` to track artifact hashes and update `state/projects/PROJ-230-evaluating-the-effectiveness-of-prompt-e.yaml` (Constitution Principle V)
-- [X] T008 Implement `src/utils/logging.py` with structured JSON logging for all prompts, seeds, and raw outputs
-- [ ] T009 Implement `src/utils/timeout_utils.py` for enforcing 120s API timeouts and 10s test timeouts
-- [~] T010 Create `data/prompts/` directory and add placeholder files for the four prompt conditions: `zero_shot_basic.txt`, `zero_shot_style.txt`, `few_shot_basic.txt`, `few_shot_style.txt`
+- [ ] T015 [P] Create a pinned `requirements.txt` (Python) and ensure `package.json`/`package-lock.json` are present at the project root, enumerating exact versions of all dependencies (including ESLint, statsmodels, etc.). This fulfills reproducibility (Constitution I) and the missing dependency‑pinning requirement.
+  *Verification:* `pip install -r requirements.txt` succeeds; `npm ci` reproduces the exact Node environment.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T016 [P] Write `data/changelog/deviations.md` documenting any deviation from the original specification or constitution (e.g., replacement of translated‑unit‑test evaluation with I/O‑pair extraction if ever used, policy change regarding Ollama fallback). This satisfies Constitution VII’s requirement to record justified deviations.
+  *Verification:* Presence of the file is checked by `code/tests/contract/test_deviation_changelog.py`.
 
----
+- [ ] T017 [P] Implement `code/src/utils/metadata_schema_validator.py` that validates `data/evaluation/metadata_log.csv` against the expected schema, ensuring the `raw_response_path` column exists and points to a real file. Run as part of the pipeline after inference.
+  *Verification:* `pytest code/tests/contract/test_metadata_schema.py` confirms schema compliance.
 
-## Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority: P1) 🎯 MVP
+- [ ] T018 [P] Implement a checkpoint/fallback logic script `code/src/utils/checkpoint_fallback.py` that monitors elapsed wall‑clock time during T009, predicts total runtime, and if > 5.5 h triggers a fallback to the N=50 sample size, recording the decision in `data/logs/runtime.log`. This task is referenced by T009.
+  *Verification:* Unit test `code/tests/unit/test_checkpoint_fallback.py` simulates elapsed times and checks correct fallback activation.
 
-**Goal**: Download, filter, and prepare a CPU-tractable corpus of ≥200 Python-to-JavaScript pairs from HuggingFace (CodeTrans/BigCode) without exceeding 7GB RAM.
+- [ ] T019 [P] Add a script `code/src/utils/raw_response_persistence.py` that, given the raw LLM response string, writes it to the appropriate `data/evaluation/raw_responses/<condition>/<snippet_id>.txt` and returns the file path for inclusion in `metadata_log.csv`.
+  *Verification:* `pytest code/tests/unit/test_raw_response_persistence.py` confirms file creation and correct path returned.
 
-**Independent Test**: Verify `src/ingestion/download_datasets.py` creates a local CSV with ≥200 valid pairs and logs a memory peak <7GB during execution.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [~] T011 [P] [US1] Contract test for dataset fetch in `tests/contract/test_dataset_fetch.py`
-- [X] T012 [P] [US1] Integration test for memory-constrained preprocessing in `tests/integration/test_preprocess_memory.py`
-
-### Implementation for User Story 1
-
-- [ ] T013 [US1] Implement `src/ingestion/download_datasets.py` to fetch from `codeparrot/code-trans-py-js` and `bigcode/evaluation` via `datasets` library, explicitly **caching** raw data to `data/raw/` before any processing, and extracting `python_code` and `javascript_code` columns
-- [~] T013b [US1] Implement validation logic to exclude corrupted entries (missing code, non-string types) from the cached dataset
-- [ ] T013c [US1] Implement sampling/chunking logic to ensure the processed dataset footprint remains ≤7GB RAM, outputting to `data/processed/corpus.csv`
-- [ ] T014 [US1] Add validation logic to ensure the final `data/processed/corpus.csv` contains ≥200 valid entries
-- [~] T015 [US1] Integrate `src/utils/checksum_artifacts.py` to hash `data/raw/` files before preprocessing (DEPENDS ON T006)
-- [~] T016 [US1] Add logging for excluded entries and memory usage statistics, specifically logging peak memory usage against SC-004 constraint
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Prompt Condition Execution (Priority: P2)
-
-**Goal**: Execute four distinct prompt conditions against the corpus using CodeLlama-7B via HuggingFace Inference API, storing outputs deterministically.
-
-**Independent Test**: Verify `src/execution/run_inference.py` creates distinct subdirectories for each condition with generated JS files matching inputs.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [~] T018 [P] [US2] Contract test for API client in `tests/contract/test_api_client.py`
-- [X] T019 [P] [US2] Integration test for timeout/retry logic in `tests/integration/test_inference_retry.py`
-
-### Implementation for User Story 2
-
-- [ ] T020 [US2] Implement `src/execution/api_client.py` with exponential backoff (limited retry attempts), 120s timeout, error handling for malformed responses, using endpoint ` No address associated with hostname)"))]
-- [ ] T021 [US2] Implement `src/execution/run_inference.py` to iterate through the corpus and apply the four prompt conditions from `data/prompts/`
-- [ ] T022 [US2] Ensure deterministic execution by pinning seeds and logging exact prompt text, model version, and seed for every request
-- [ ] T023 [US2] Implement output storage to `data/evaluation/raw_translations/` organized by condition directory
-- [ ] T024 [US2] Add logic to log "failed translation" for non-code outputs (e.g., "I cannot do that")
-- [ ] T025b [US2] Implement `src/evaluation/generate_translations_log.py` to aggregate all prompts, seeds, and raw outputs into a **version-controlled CSV** (`data/evaluation/raw_translations_log.csv`) with columns: `prompt_condition`, `seed`, `raw_output`, `timestamp`, and commit this artifact to git (FR-006)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Functional Correctness and Quality Analysis (Priority: P3)
-
-**Goal**: Evaluate generated JS against translated unit tests, compute quality metrics, and perform statistical analysis.
-
-**Independent Test**: Verify `src/evaluation/statistical_analysis.py` produces a CSV with `pass_rate`, `complexity`, `prompt_condition`, and valid p-values.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T025 [P] [US3] Contract test for test translation in `tests/contract/test_test_translation.py`
-- [ ] T026 [P] [US3] Integration test for Node.js test runner in `tests/integration/test_node_runner.py`
-
-### Implementation for User Story 3
-
-- [ ] T027a [US3] Select and document a deterministic transpiler (e.g., `transcrypt` or custom AST converter) for converting Python unit tests to JavaScript
-- [ ] T027 [US3] Implement `src/evaluation/translate_tests.py` to convert Python unit tests to JavaScript using the selected deterministic transpiler, strictly forbidding LLM-based test generation (FR-003)
-- [ ] T028 [US3] Implement `src/evaluation/run_node_tests.py` to execute translated tests against generated JS in a Node.js environment, enforcing 10s timeout per test (DEPENDS ON T027 output)
-- [ ] T029 [US3] Implement `src/evaluation/compute_quality.py` using ESLint `complexity` rule (config: `--rule complexity: [, 10]`) to calculate cyclomatic complexity and LOC for each translation
-- [ ] T030 [US3] Implement `src/evaluation/statistical_analysis.py` to perform Chi-square (correctness) and ANOVA (quality) with Bonferroni correction
-- [ ] T031 [US3] Generate final `data/evaluation/statistical_summary.csv` containing `p_value`, `confidence_interval`, `effect_size`, and `prompt_condition`
-- [ ] T032 [US3] Integrate `src/utils/update_state.py` to update state after evaluation completion
-- [ ] T032b [US3] Implement `src/utils/measure_runtime.py` to measure and log total pipeline execution time against the 6-hour SC-003 constraint
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T039 [P] Documentation updates in `docs/` including quickstart guide for running the full pipeline
-- [ ] T040 Code cleanup and refactoring of error handling paths
-- [ ] T041 Performance optimization for API request batching (if rate limits allow)
-- [ ] T042 [P] Additional unit tests in `tests/unit/` for utility functions
-- [ ] T043 Run `quickstart.md` validation to ensure end-to-end reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data availability
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output availability
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utilities before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for dataset fetch in tests/contract/test_dataset_fetch.py"
-Task: "Integration test for memory-constrained preprocessing in tests/integration/test_preprocess_memory.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement download_datasets.py in src/ingestion/download_datasets.py"
-Task: "Implement preprocess_corpus.py in src/ingestion/preprocess_corpus.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: {{claim:c_65af1cd1}} No local LLM training or 8-bit quantization allowed. 
+- [ ] T020 [P] Implement `code/src/evaluation/check_paper_traceability.py` that parses `paper/methods_and_results.md`, extracts all numeric values, and verifies each originates from a cell in one of the CSV artifacts. Report any unmatched numbers.
+  *Verification:* `pytest code/tests/contract/test_paper_traceability.py` passes when all numbers are traceable.

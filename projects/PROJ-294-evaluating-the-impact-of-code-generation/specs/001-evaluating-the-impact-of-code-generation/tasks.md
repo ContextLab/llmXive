@@ -1,242 +1,142 @@
 # Tasks: Evaluating the Impact of Code Generation Models on Code Testability
 
-**Input**: Design documents from `/specs/001-evaluating-the-impact-of-code-generation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per implementation plan (`projects/PROJ-294-evaluating-the-impact-of-code-generation/`)
-- [X] T002 Initialize a Python project with pinned dependencies in `code/requirements.txt`
-- [X] T003 [P] Configure linting (flake8/black) and formatting tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T004 Setup logging infrastructure in `code/utils.py` with timestamp and task ID tracking (FR-007)
-- [X] T005 Implement SHA256 checksum utility in `code/utils.py` for dataset and artifact verification (FR-001, FR-011)
-- [X] T006 Create `state/artifact_hashes.yaml` structure and update logic (FR-011)
-- [ ] T007 [P] Implement Reference-Validator Agent wrapper in `code/validate_citations.py` (FR-010). **BLOCKING**: Must complete before T010 starts.
-- [ ] T008 Create data directory structure: `data/raw/`, `data/generated/`, `data/analysis/`
-- [ ] T009 Create results directory structure: `results/figures/`
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Acquisition and Paired Analysis Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Download HumanEval, generate LLM code, compute metrics (Complexity, Halstead, Coverage), and produce paired JSON dataset.
-
-**Independent Test**: Run the pipeline on a local copy of HumanEval. Verify that `data/analysis/metrics.json` contains `cyclomatic_complexity`, `halstead_volume`, `branch_coverage_pct`, and `pass_rate` for every valid pair, with at least 40 valid samples.
-
-### Implementation for User Story 1
-
-- [X] T010 [US1] Implement `code/download_data.py` to download HumanEval from HuggingFace, verify SHA256, and save to `data/raw/` (FR-001)
-- [X] T011 [US1] Implement stratified sampling logic in `code/download_data.py` to select a representative subset of tasks based on human pass-rate quartiles (Plan: Sampling Strategy). **Includes assertion**: Verify the final selected subset size is exactly 50 to satisfy FR-001 count constraint.
-- [X] T012 [US1] Implement `code/generate_code.py` to load `Salesforce/codegen-mono` on CPU and generate code for a set of tasks with 3-retry logic (FR-002)
-- [X] T013 [US1] Implement error handling in `code/generate_code.py` to log failures to `errors.log` and mark samples as missing (Edge Cases)
-- [X] T014 [US1] Implement `code/analyze_metrics.py` to run `radon` for cyclomatic complexity and Halstead volume on all samples (FR-003)
-- [X] T015 [US1] Implement logic in `code/analyze_metrics.py` to execute `pytest` against the HumanEval test suite for each sample and record the binary `pass_rate` (1 = all tests passed, 0 = any failure) as per FR-005.
-- [X] T042 [US1] Implement logic in `code/analyze_metrics.py` to run `pytest --cov` for `branch_coverage_pct`, recording `[deferred]` if execution fails while still recording the `pass_rate` (FR-003, Edge Cases)
-- [X] T016 [US1] Implement logic in `code/analyze_metrics.py` to handle execution failures (record `[deferred]` for coverage) (Edge Cases)
-- [~] T017 [US1] Implement aggregation in `code/analyze_metrics.py` to produce `data/analysis/metrics.json` with all required fields (US-1 Independent Test)
-
-**Sensitivity Analysis Sub-Phase (within US1)**
-
-- [X] T028a [US3] **Prerequisite**: Attempt to load `CodeLlama-3B` locally on CPU with 4-bit quantization in `code/generate_code.py` to prepare for fallback. If loading fails (RAM constraint), log error and mark local fallback as unavailable. (FR-009)
-- [X] T028 [US3] Implement sensitivity analysis logic in `code/generate_code.py` to call HuggingFace Inference API for `CodeLlama-7B` for a subset of tasks. **Trigger**: Run only if API is available. (FR-009)
-- [X] T029 [US3] Implement fallback logic in `code/generate_code.py`: If `CodeLlama-7B` local 4-bit quantization fails (if attempted) OR if API is unavailable, use the locally loaded `CodeLlama-3B` (from T028a) for generation. If T028a failed, skip sensitivity generation for this path. (FR-009)
-- [ ] T041 [US1] **Dependency**: Must run after T028/T029. Re-run analysis (T014/T042 logic) on sensitivity samples generated by T028/T029 and **merge** results into `data/analysis/metrics.json` using unique keys to ensure a unified Single Source of Truth before statistical testing. (FR-009, Plan: Data Model Traceability)
-
-- [X] T018 [US1] Write unit tests for `code/download_data.py` to verify checksum logic and sampling distribution (tests/unit/test_download.py)
-- [X] T019 [US1] Write integration test for `code/analyze_metrics.py` to verify metric extraction on a known Python snippet (tests/integration/test_metrics.py)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (including sensitivity data merged into metrics.json)
-
----
-
-## Phase 4: User Story 2 - Statistical Comparison and Hypothesis Testing (Priority: P2)
-
-**Goal**: Perform Wilcoxon, McNemar, Fisher, and Permutation tests, and Power Analysis (A Priori/Post-Hoc) on the paired dataset.
-
-**Independent Test**: Feed mock paired datasets; verify p-values are calculated correctly and power analysis reports required n ≥ 38 and achieved power ≥ 0.8.
-
-### Implementation for User Story 2
-
-- [X] T020 [US2] Implement `code/statistical_tests.py` with Wilcoxon Signed-Rank test for continuous metrics: **Cyclomatic Complexity, Halstead Volume, AND Branch Coverage** (FR-004, US-2)
-- [X] T021 [US2] Implement `code/statistical_tests.py` with McNemar's test for binary pass-rate (FR-004)
-- [X] T022 [US2] Implement `code/statistical_tests.py` with Fisher's Exact Test for **unpaired exploratory checks ONLY** (FR-004)
-- [X] T040 [US2] Implement `code/statistical_tests.py` with Permutation Test specifically for paired branch coverage data (Plan: Complexity Tracking)
-- [X] T023 [US2] Implement A Priori Power Analysis in `code/statistical_tests.py` (d=0.5, α=0.05, power≥0.8) to validate sample size (FR-008)
-- [X] T024 [US2] Implement Post-Hoc Power Analysis in `code/statistical_tests.py` based on observed effect sizes (FR-008)
-- [X] T025 [US2] Implement Spearman's rank correlation coefficient test in `code/statistical_tests.py` to explicitly test independence of structural complexity from functional success. **Specific Handling**: Use Point-Biserial correlation for the binary `pass_rate` component of functional success and Spearman for continuous metrics; output correlation coefficients and p-values for both. (FR-004)
-- [X] T026 [US2] Write unit tests for statistical functions using mock data with known p-values (tests/unit/test_statistics.py)
-- [X] T027 [US2] Write integration test verifying the full statistical report generation from `metrics.json` (tests/integration/test_stats_pipeline.py)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Visualization, Reporting, and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Generate automated Markdown report with figures, and perform sensitivity analysis using CodeLlama models.
-
-**Independent Test**: Verify `results_report.md` contains all figures, tables, and sensitivity analysis results; verify API fallback logic works.
-
-### Implementation for User Story 3
-
-- [ ] T030 [US3] Implement `code/report_generator.py` to create histograms and boxplots using `matplotlib` for all continuous metrics (US-3)
-- [ ] T031 [US3] Implement `code/report_generator.py` with Jinja2 template to compile `results_report.md` including figures, tables, and power analysis (FR-006)
-- [ ] T032 [US3] Implement logic to include sensitivity analysis comparison (7B/3B vs 350M) in the final report (FR-009)
-- [ ] T033 [US3] Write unit tests for `code/report_generator.py` to verify figure generation and template rendering (tests/unit/test_report.py)
-- [ ] T034 [US3] Write integration test for the full pipeline from `metrics.json` to `results_report.md` (tests/integration/test_full_pipeline.py)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T035 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T036 Code cleanup and refactoring of `code/utils.py`
-- [ ] T037 Performance optimization for `code/analyze_metrics.py` (parallel processing if safe)
-- [ ] T038 [P] Additional unit tests for edge cases (e.g., 0 coverage, missing LLM samples) in `tests/unit/`
-- [ ] T039 Run quickstart.md validation to ensure end-to-end reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **Phase 3 (US1)**: **Depends on Phase 2 (Foundational) completion**. T007 must complete before T010 starts. **Includes T041** which must complete before Phase 4 starts.
-- **Phase 4 (US2)**: **Depends on Phase 3 (US1) completion** (requires `metrics.json` from T017 and T041).
-- **Phase 5 (US3)**: **Depends on Phase 4 (US2) completion** and **T041 completion** (requires statistical results and sensitivity analysis data).
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. Includes sensitivity generation and analysis (T028a, T028, T029, T041).
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (`metrics.json` including sensitivity data).
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data, US2 results, and T041 for report generation.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
-
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (including T041 for sensitivity data merge)
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+**Inputs**: `spec.md`, `plan.md`, current research artifacts, and reviewer feedback.  
+**Research question**: Does LLM-generated code exhibit statistically significant differences in structural testability metrics compared to human-written code on HumanEval?
+
+## Phase 1: Setup and first end-to-end analysis
+
+- [ ] T001 [US1] Implement reproducible data acquisition and human reference extraction in `code/download_data.py` and `code/extract_human_reference.py` <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1; code/extract_human_reference.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1; code/extract_human_reference.py exit=1 -->
+  - Download HumanEval via `datasets.load_dataset("openai/openai_humaneval", revision=<pinned commit hash>)`, save to `data/raw/humaneval.parquet`, compute SHA256 with `code/utils/hash_utils.py`, and record `checksum`, `commit_hash`, `download_date` in `data/raw/metadata.yaml` (FR-001). A checksum mismatch or failed fetch MUST raise `RuntimeError` — never fall back to synthetic data.
+  - Extract `canonical_solution` per task into `data/generated/human_samples.json` (JSONL) with fields `task_id`, `code`, `source="human"`, validating against `specs/.../contracts/human_samples.schema.yaml`.
+  - Include `code/utils/seeds.py` pinning `random`/`numpy`/`torch` seeds imported first by all scripts (FR-001, Principle I), and `code/utils/logger.py` emitting ISO-8601 timestamps and `task_id` (FR-007).
+  - **Verification**: running `python code/download_data.py && python code/extract_human_reference.py` produces both files; the parquet hash matches `metadata.yaml`; every JSONL line passes schema validation; unit tests in `code/tests/test_hash_utils.py` and `code/tests/test_seeds.py` pass.
+
+- [ ] T002 [US1] Implement primary-model code generation with retry and error logging in `code/generate_code.py`
+  - Load `Salesforce/codegen-mono-350M` on `device="cpu"` (deterministic CPU‑feasible primary model). Attempt the 4B 8‑bit variant first; on OOM automatically fall back to the 350M model.
+  - Generate code for all HumanEval tasks with greedy decoding, pinned seeds, exponential‑backoff retry, and a **60‑second per‑task timeout**. Retries continue until a successful generation or until the fallback model succeeds; no task is allowed to finish with `status="failed"`—the script must raise if generation cannot succeed after fallback.
+  - Write `data/generated/codegen_samples.json` (JSONL) with `task_id`, `code`, `model`, `status="success"`, `generation_time`, validating against `llm_samples.schema.yaml`. All 164 entries contain non‑empty `code`.
+  - Log `generation_duration_ms` and `tasks_per_minute` events for capacity checks (SC-001, SC-002).
+  - **Verification**: the JSONL contains exactly one entry per HumanEval task, each with non‑null `code`; a forced‑failure unit test confirms proper error raising.
+
+- [ ] T003 [US1] Implement filtered metrics pipeline in `code/analyze_metrics.py` with sandboxed test execution
+  - Load generated samples (human and LLM) and execute each code sample in `code/sandbox.py` (60 s timeout) to compute `pass_rate` (float ratio of passed tests).
+  - Filter samples with `pass_rate >= 0.80`. **Only filtered samples proceed to structural analysis**, satisfying FR-005.
+  - For each filtered sample, compute:
+    - `cyclomatic_complexity` (integer) via `radon`.
+    - `static_branch_count` (integer) via `radon`.
+    - `dynamic_branch_coverage` (float 0‑1) via `coverage.py`.
+    - Retain `pass_rate` (float) for record.
+  - Write two files:
+    - `data/analysis/analysis.json` conforming to `analysis.schema.yaml` (includes all fields, float `pass_rate`).
+    - `data/analysis/metrics.json` conforming to `metrics.schema.yaml` (uses **binary** `pass_rate` field: `1` if `pass_rate >= 0.80`, else `0`; includes required fields `task_id`, `model`, `cyclomatic_complexity`, `static_branch_count`, `dynamic_branch_coverage`, `pass_rate`, `is_valid`, `parse_error`).
+  - Record any radon parse failures with `null` for the affected fields and set `parse_error=true` (allowed by `analysis.schema.yaml`).
+  - **Verification**: a known‑passing sample yields `pass_rate == 1.0` in `analysis.json` and `pass_rate == 1` in `metrics.json`; a failing sample is excluded from both files; schema validation tests exist (see T012).
+
+- [ ] T004 [US1] Produce pass‑rate summary for all tasks
+  - Run the full pass‑rate evaluation (without structural analysis) on **all** 164 tasks for human and LLM code, writing `data/analysis/pass_rate_summary.json` (list of `task_id`, `source_type`, `pass_rate`).
+  - **Verification**: counts match 164 per source; values are floats between 0 and 1; schema‑agnostic sanity checks pass.
+
+## Phase 2: Complete the study and validate its evidence
+
+- [ ] T005 [US2] Implement paired Wilcoxon analysis, Kolmogorov‑Smirnov test, MDES, and bias analysis in `code/stats_analysis.py`
+  - Pair human vs. codegen metrics from `metrics.json` (filtered set) by `task_id`.
+  - Perform two‑tailed Wilcoxon Signed‑Rank tests (α = 0.05) on `cyclomatic_complexity`, `static_branch_count`, and `dynamic_branch_coverage`.
+  - Perform a Kolmogorov‑Smirnov test on the distribution of `cyclomatic_complexity` (filtered set) and record `ks_statistic` and `ks_p_value`.
+  - Compute Minimum Detectable Effect Size (MDES) for N = 164, α = 0.05, power = 0.80; also compute achieved post‑hoc power and 95 % CI for observed effect sizes (FR‑008, SC‑005).
+  - Conduct Little’s MCAR test on prompt length versus inclusion status, reporting `bias_analysis.mcar_test_p_value` and `difficulty_comparison` (means and p‑value).
+  - Write `data/analysis/statistical_results.json` conforming to `statistical_results.schema.yaml` (includes Wilcoxon, KS, MDES, power, bias fields).
+  - **Verification**: unit tests in `code/tests/test_statistics.py` reproduce known Wilcoxon, KS, and MDES values; schema validation via T019.
+
+- [ ] T006 [US2] Run CodeLlama sensitivity analysis and extend statistical results
+  - Load quantized GGUF model `TheBloke/CodeLlama-3B-Instruct-GGUF` via `llama-cpp-python` (CPU, `n_ctx=2048`).
+  - Generate code for all tasks, writing `data/generated/sensitivity_samples.json` (validated against `llm_samples.schema.yaml`).
+  - Re‑run the filtered metrics pipeline on sensitivity samples, merging results into `analysis.json` with `model="codellama-3b"` and updating `metrics.json` accordingly.
+  - Perform Levene’s test on each metric between the primary (codegen‑mono) and sensitivity (CodeLlama) models; record `levene_statistic`, `levene_p_value`, and a boolean `variance_exceeds_threshold` (true if variance difference > 0.05) in `statistical_results.json`. Propagate the KS fields from T005 to keep the schema satisfied.
+  - **Verification**: sensitivity JSONL has 164 entries; Levene fields are present; KS fields persist; unit tests in `code/tests/test_sensitivity.py` validate calculations.
+
+- [ ] T007 [US1] Add independent correctness, sensitivity, and runtime checks
+  - Add `code/tests/test_metrics_schema.py` to validate `analysis.json` against `analysis.schema.yaml` and `metrics.json` against `metrics.schema.yaml`.
+  - Add `code/tests/test_stats_pipeline.py` for end‑to‑end integration (metrics → statistical_results).
+  - Add `code/tests/test_coverage_distinction.py` confirming static vs. dynamic branch metrics differ on a crafted example.
+  - Aggregate generation and execution logs into `data/analysis/performance.json` (measured `generation_duration_ms`, `tasks_per_minute`, total runtime) and compare against the 6‑hour capacity goal (SC‑001, SC‑002, SC‑003).
+  - **Verification**: all tests pass; `performance.json` contains numeric values; summary records pass/fail per check with no invented numbers.
+
+- [ ] T008 [US3] Generate figures and the Markdown report from validated outputs in `code/report_generator.py`
+  - Produce histograms and box plots (PNG) under `figures/` comparing human vs. LLM metrics for both the filtered set and the full pass‑rate summary.
+  - Render `paper/report.md` programmatically from `analysis.json`, `metrics.json`, `statistical_results.json`, and `power_results.yaml`; embed MDES, achieved power, CIs, Levene results, KS results, and bias analysis. All numbers are pulled directly from the JSON/YAML files (no hand‑typed values).
+  - Validate every citation in the report via the Reference‑Validator Agent; remove any citation that fails validation.
+  - **Verification**: every figure referenced exists; the MDES value in the report matches `statistical_results.json`; citation validation passes.
+
+- [ ] T009 [US3] Track artifact integrity for all analysis outputs
+  - Compute SHA256 hashes for every file under `data/analysis/` (including `analysis.json`, `metrics.json`, `statistical_results.json`, `power_results.yaml`, `artifact_hashes.yaml`) and write `data/analysis/artifact_hashes.yaml` conforming to `artifact-hashes.schema.yaml`.
+  - **Note**: Updating the project‑level state file `state/projects/PROJ-294-evaluating-the-impact-of-code-generation.yaml` is handled by the platform; this task does not write to `state/` as prohibited by task rules.
+  - **Verification**: schema validation succeeds; recomputed hashes match stored values.
+
+- [ ] T010 Write the methods/results account and paper‑stage handoff
+  - Write `paper/methods_and_results.md` summarizing the pipeline, pinned dataset revision, model versions, statistical outcomes (including negative findings), and limitations. Link each referenced artifact with its SHA256 hash from `artifact_hashes.yaml`.
+  - **Verification**: all referenced artifact paths exist; hashes resolve correctly; values match those in `statistical_results.json`.
+
+- [ ] T011 Re‑run the documented workflow end‑to‑end and confirm reproducibility
+  - Document the full run command sequence in `quickstart.md` (download → extract → generate → metrics → stats → sensitivity → report → hashes) and re‑execute it on a fresh runner.
+  - **Verification**: a fresh run reproduces identical `analysis.json`, `metrics.json`, and `statistical_results.json` (given pinned seeds and revisions); all unit tests pass; report files are present and parseable.
+
+## Phase 3: Contract validation suite (new)
+
+- [ ] T012 Add comprehensive contract validation tests
+  - Implement `code/tests/test_contracts.py` that programmatically validates:
+    - `analysis.json` against `analysis.schema.yaml`
+    - `artifact_hashes.yaml` against `artifact-hashes.schema.yaml`
+    - `data/raw/humaneval.parquet` against `dataset.schema.yaml`
+    - Processed dataset files against `dataset_schema.schema.yaml`
+    - `human_samples.json` against `human_samples.schema.yaml`
+    - `codegen_samples.json` and `sensitivity_samples.json` against `llm_samples.schema.yaml`
+    - `metrics.json` against `metrics.schema.yaml`
+    - Dummy `metrics_alt.json` against `metrics_schema.schema.yaml` (includes `mutation_score`)
+    - `statistical_results.json` against `statistical_results.schema.yaml`
+    - `power_results.yaml` against `power.schema.yaml`
+    - `validation_results.yaml` against `validation_results.schema.yaml`
+  - **Verification**: all schema validations succeed; failures abort the CI.
+
+- [ ] T013 Generate dummy `metrics_alt.json` to satisfy the orphan `metrics_schema.schema.yaml`
+  - Produce a minimal JSON file containing required fields (`task_id`, `model`, `cyclomatic_complexity`, `static_branch_count`, `dynamic_branch_coverage`, `pass_rate`, `is_valid`, `parse_error`, `mutation_score`) with placeholder values for demonstration purposes only.
+  - **Verification**: file validates against `metrics_schema.schema.yaml`.
+
+- [ ] T014 Generate `validation_results.yaml` aggregating validation outcomes
+  - Summarize results of Wilcoxon test, power analysis, KS test, Levene test, and citation validation per `validation_results.schema.yaml`.
+  - **Verification**: file conforms to its schema; values match those computed earlier.
+
+## Phase 4: Constitution‑level hash tracking (flagged for kickback)
+
+- [ ] T015 (plan‑root cause) Record SHA256 hashes of all `data/` artifacts in the project‑level state file `state/projects/PROJ-294-evaluating-the-impact-of-code-generation.yaml` as required by Constitution Principle III & V.  
+  *Note*: This task cannot be implemented directly by project scripts (writes to `state/` are prohibited). The requirement is flagged for architectural kick‑back to the platform team.
+
+- [ ] T016 Generate `validation_results.yaml` aggregating validation outcomes and validate against its schema
+  - After completing the statistical analysis and report generation, compile a YAML file `validation_results.yaml` in `data/analysis/` that includes:
+    - Wilcoxon test statistic and p‑value per metric
+    - Kolmogorov‑Smirnov test statistic and p‑value
+    - MDES and achieved power
+    - Levene’s test statistic and p‑value
+    - Citation validation boolean
+  - Validate this file against `validation_results.schema.yaml` using `jsonschema`.
+  - **Verification**: schema validation passes; the file is included in `artifact_hashes.yaml` tracking.
+
+## Dependencies and requirement coverage
+
+| Requirement | Task(s) | Demonstrating command |
+|---|---|---|
+| FR-001 (Download & Verify) | T001 | `python code/download_data.py` |
+| FR-002 (Generation, retry, timeout) | T002 | `python code/generate_code.py` |
+| FR-003 (Radon metrics) | T003 | `python code/analyze_metrics.py` |
+| FR-004 (Wilcoxon paired, α=0.05) | T005 | `python code/stats_analysis.py` |
+| FR-005 (Test execution, pass_rate filter, coverage) | T003, T004 | `pytest code/tests/test_coverage_distinction.py` |
+| FR-006 (Report + figures) | T008 | `python code/report_generator.py` |
+| FR-007 (Logging) | T001 | logger unit check |
+| FR-008 (MDES) | T005 | `statistical_results.json` keys |
+| FR-009 (Sensitivity) | T006 | `python code/generate_code_llama.py` |
+| FR-010 (Citation validation) | T008 | report citation check |
+| FR-011 (Artifact hashes) | T009 | `python code/report_generator.py --hashes` |
+| SC-001/002/003 | T002, T007 | `data/analysis/performance.json`, `pass_rate` in analysis |
+| SC-005/006 | T005, T006 | `mdes`, `levene_*` in `statistical_results.json` |
+| SC-004 | — | Out of scope, documented in report limitations (per plan) |
+
+**Execution order**: T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014 → T015 → T016. T009 can run in parallel with T010 after T008.

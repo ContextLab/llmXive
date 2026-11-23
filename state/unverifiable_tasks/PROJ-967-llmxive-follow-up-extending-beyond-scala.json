@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-967-llmxive-follow-up-extending-beyond-scala",
+  "tasks": [
+    {
+      "task_key": "T037b",
+      "reject_count": 1,
+      "last_reason": "No code, data files, or output artifacts (e.g., ingestion script, JSON feature records, or model training results) are present to demonstrate that the Z\u2011Reward dataset was loaded, teacher/student scores aligned, entanglement features computed, or a Random Forest regressor trained. The required scripts and generated results are missing, so the task is not satisfied.",
+      "first_seen": "2026-09-27T19:58:12.438216+00:00",
+      "last_seen": "2026-09-27T19:58:12.438216+00:00"
+    },
+    {
+      "task_key": "T038",
+      "reject_count": 1,
+      "last_reason": "No ingestion script, feature\u2011engineering module, or predictive\u2011modeling code/data files are present in the provided evidence, and no generated summaries, JSON records, or model artifacts are supplied. Consequently the required artifacts for User Stories\u202f1\u20113 are missing, so the task is not genuinely completed.",
+      "first_seen": "2026-09-27T19:58:12.439270+00:00",
+      "last_seen": "2026-09-27T19:58:12.439270+00:00"
+    },
+    {
+      "task_key": "T039",
+      "reject_count": 1,
+      "last_reason": "No ingestion script, feature\u2011engineering module, or predictive\u2011modeling code/data were supplied; the repository contains no files matching the required artifacts, so the task\u2019s core deliverables are missing.",
+      "first_seen": "2026-09-27T19:58:12.439999+00:00",
+      "last_seen": "2026-09-27T19:58:12.439999+00:00"
+    }
+  ],
+  "updated_at": "2026-09-27T19:58:12.439999+00:00"
+}

@@ -1,158 +1,76 @@
 """
-Unit tests for memory management utilities.
+Unit tests for memory_utils.py
 """
-import gc
-import sys
 import pytest
+import os
+import gc
 from unittest.mock import patch, MagicMock
 
-# Import the module under test
+# Add project root to path
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from utils.memory_utils import (
     get_current_memory_mb,
     check_memory_limit,
     force_gc,
     clear_memory,
-    process_repository_batch,
-    memory_limit_decorator,
-    MAX_RAM_GB
+    MEMORY_LIMIT_MB
 )
 
 
-class TestGetCurrentMemoryMb:
-    """Tests for get_current_memory_mb function."""
+class TestMemoryUtils:
+    """Test cases for memory utility functions."""
 
-    def test_returns_positive_value(self):
-        """Memory usage should always be a positive number."""
+    def test_get_current_memory_mb_returns_positive(self):
+        """Test that get_current_memory_mb returns a positive number."""
         memory = get_current_memory_mb()
-        assert isinstance(memory, float)
-        assert memory >= 0
+        assert memory >= 0, "Memory usage should be non-negative"
 
-    @patch('utils.memory_utils.resource')
-    def test_uses_resource_module(self, mock_resource):
-        """Should use resource module when available."""
-        mock_usage = MagicMock()
-        mock_usage.ru_maxrss = 102400  # 100 MB in KB
-        mock_resource.getrusage.return_value = mock_usage
+    def test_check_memory_limit_within_limit(self):
+        """Test check_memory_limit when within limit."""
+        # Use a limit much higher than current usage
+        result = check_memory_limit(limit_mb=100000)
+        assert result is True
 
+    def test_check_memory_limit_exceeds_limit(self):
+        """Test check_memory_limit when exceeding limit."""
+        # Use a very low limit to force failure
+        result = check_memory_limit(limit_mb=0.001)
+        assert result is False
+
+    def test_force_gc_returns_integer(self):
+        """Test that force_gc returns an integer."""
+        collected = force_gc()
+        assert isinstance(collected, int)
+        assert collected >= 0
+
+    def test_clear_memory_executes_without_error(self):
+        """Test that clear_memory executes without raising exceptions."""
+        # Should not raise any errors
+        clear_memory()
+
+    def test_memory_limit_constant(self):
+        """Test that MEMORY_LIMIT_MB is set to 7000."""
+        assert MEMORY_LIMIT_MB == 7000, "Memory limit should be 7000 MB (7 GB)"
+
+    @patch('utils.memory_utils.psutil')
+    def test_get_current_memory_mb_with_psutil(self, mock_psutil):
+        """Test get_current_memory_mb with mocked psutil."""
+        # Setup mock
+        mock_process = MagicMock()
+        mock_process.memory_info.return_value = MagicMock(rss=1024*1024*500)  # 500 MB
+        mock_psutil.Process.return_value = mock_process
+
+        # Call function
         memory = get_current_memory_mb()
-        assert memory == 100.0
-        mock_resource.getrusage.assert_called_once()
 
+        # Verify result
+        assert memory == 500.0, "Should return 500.0 MB"
 
-class TestCheckMemoryLimit:
-    """Tests for check_memory_limit function."""
-
-    def test_within_limit_returns_true(self):
-        """Should return True when memory is within limit."""
-        with patch('utils.memory_utils.get_current_memory_mb', return_value=1000.0):
-            assert check_memory_limit(limit_mb=2000.0) is True
-
-    def test_exceeds_limit_returns_false(self):
-        """Should return False when memory exceeds limit."""
-        with patch('utils.memory_utils.get_current_memory_mb', return_value=3000.0):
-            assert check_memory_limit(limit_mb=2000.0) is False
-
-    def test_default_limit_is_7gb(self):
-        """Default limit should be MAX_RAM_GB (7GB)."""
-        expected_limit_mb = MAX_RAM_GB * 1024
-        with patch('utils.memory_utils.get_current_memory_mb', return_value=expected_limit_mb - 1):
-            assert check_memory_limit() is True
-
-        with patch('utils.memory_utils.get_current_memory_mb', return_value=expected_limit_mb + 1):
-            assert check_memory_limit() is False
-
-
-class TestForceGc:
-    """Tests for force_gc function."""
-
-    def test_calls_gc_collect(self):
-        """Should call gc.collect()."""
-        with patch('utils.memory_utils.gc.collect', return_value=100) as mock_collect:
-            result = force_gc()
-            assert result == 100
-            mock_collect.assert_called_once()
-
-
-class TestClearMemory:
-    """Tests for clear_memory function."""
-
-    def test_clears_memory(self):
-        """Should force garbage collection."""
-        with patch('utils.memory_utils.force_gc') as mock_gc:
-            with patch('utils.memory_utils.get_current_memory_mb', return_value=100.0):
-                clear_memory()
-                mock_gc.assert_called_once()
-
-
-class TestProcessRepositoryBatch:
-    """Tests for process_repository_batch function."""
-
-    def test_processes_single_repository(self):
-        """Should process a single repository and clear memory."""
-        def mock_process(repo):
-            return f"processed_{repo}"
-
-        repos = [1, 2, 3]
-
-        with patch('utils.memory_utils.clear_memory') as mock_clear:
-            with patch('utils.memory_utils.check_memory_limit', return_value=True):
-                results = process_repository_batch(iter(repos), mock_process)
-
-        assert len(results) == 3
-        assert results == ['processed_1', 'processed_2', 'processed_3']
-        # Memory should be cleared after each repository (batch_size=1)
-        assert mock_clear.call_count == 3
-
-    def test_handles_processing_error(self):
-        """Should raise exception when processing fails."""
-        def failing_process(repo):
-            if repo == 2:
-                raise ValueError("Processing failed")
-            return f"processed_{repo}"
-
-        repos = [1, 2, 3]
-
-        with pytest.raises(ValueError, match="Processing failed"):
-            with patch('utils.memory_utils.check_memory_limit', return_value=True):
-                process_repository_batch(iter(repos), failing_process)
-
-    def test_respects_batch_size(self):
-        """Should clear memory after batch_size repositories."""
-        def mock_process(repo):
-            return f"processed_{repo}"
-
-        repos = [1, 2, 3, 4, 5]
-
-        with patch('utils.memory_utils.clear_memory') as mock_clear:
-            with patch('utils.memory_utils.check_memory_limit', return_value=True):
-                process_repository_batch(iter(repos), mock_process, batch_size=2)
-
-        # Should clear after repos 2 and 4
-        assert mock_clear.call_count == 2
-
-
-class TestMemoryLimitDecorator:
-    """Tests for memory_limit_decorator."""
-
-    def test_decorator_allows_within_limit(self):
-        """Should allow function execution when within limit."""
-        @memory_limit_decorator(max_gb=1.0)
-        def my_func():
-            return "success"
-
-        with patch('utils.memory_utils.get_current_memory_mb', return_value=500.0):
-            result = my_func()
-            assert result == "success"
-
-    def test_decorator_warns_when_exceeds(self, caplog):
-        """Should log warning when memory exceeds limit."""
-        @memory_limit_decorator(max_gb=0.5)
-        def my_func():
-            return "success"
-
-        with patch('utils.memory_utils.get_current_memory_mb', return_value=600.0):
-            result = my_func()
-            assert result == "success"
-
-            # Check that a warning was logged
-            assert any("exceeded memory limit" in str(record.message) for record in caplog.records)
+    def test_check_memory_limit_with_default(self):
+        """Test check_memory_limit uses default limit."""
+        # This should work with default limit (7000 MB)
+        result = check_memory_limit()
+        assert result is True  # Assuming we're under 7GB

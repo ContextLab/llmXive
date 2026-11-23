@@ -23,7 +23,7 @@ Rewritten passage:
 **Primary Dependencies**: `mne` (EEG processing), `numpy`, `scipy`, `pandas`, `statsmodels`, `scikit-learn`, `pyyaml`, `openneuro-py`, `bids`  
 **Storage**: Local temporary directory for raw data; `data/` for derived artifacts (epochs, metrics).  
 **Testing**: `pytest` (unit tests for signal processing, integration tests for pipeline).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU cores, sufficient RAM, no GPU).  
 **Project Type**: Computational Neuroscience Analysis Pipeline  
 **Performance Goals**: Peak RSS ≤ 6.5 GB; Total runtime ≤ 6 hours for full dataset.  
 **Constraints**: CPU-only; no CUDA; sequential subject processing to fit RAM; strict epoching windows.  

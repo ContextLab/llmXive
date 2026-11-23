@@ -1,0 +1,31 @@
+# Schema for the excluded species summary generated in T017
+# File: data/processed/excluded_species_summary.csv
+version: "1.0"
+description: |
+  Summary of species excluded from the merged dataset due to insufficient observations
+  or data quality issues.
+format:
+  type: csv
+  delimiter: ","
+  encoding: "utf-8"
+columns:
+  - name: "species_name"
+    type: "string"
+    description: "Binomial scientific name of the excluded species"
+    nullable: false
+  - name: "observation_count"
+    type: "integer"
+    description: "Number of valid observations available for this species"
+    nullable: false
+  - name: "reason"
+    type: "string"
+    description: "Specific reason for exclusion"
+    enum:
+      - "observation_count < 10"
+      - "missing soil data"
+      - "failed geocoding"
+      - "physically implausible values"
+    nullable: false
+constraints:
+  - description: "The 'reason' column must contain the specific reason, not a generic string."
+  - description: "All excluded species from the merge process (T017) must be listed."

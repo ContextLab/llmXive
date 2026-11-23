@@ -1,0 +1,13 @@
+status: none
+intent: download CodeSearchNet Python dataset via HuggingFace Datasets python package
+  dataset
+required_fields:
+- id
+- code
+- human_docstring
+- generated_comment
+- no_comment
+- split
+cache_key: e9e465e064fdcfc2d2a5e199a0bb6872ec0f4664bd98e17b4842878eded62be4
+searched_at: '2026-10-21T20:20:59.264720+00:00'
+retry_count: 1

@@ -1,0 +1,40 @@
+- **FR-003**: System MUST compute the Semantic Similarity Score (SSS) between the clean reference transcript and the distorted ASR hypothesis using a pre-trained sentence embedding model (source: Q, https://www.wikidata.org/wiki/Q). (See US-1)
+- **FR-004**: System MUST identify the "semantic collapse intensity" for each model/scenario combination by executing the deterministic algorithm defined in FR-021. (See US-2)
+- **FR-005**: System MUST train a hierarchical regression model or perform functional data analysis (FDA) to predict the collapse intensity based on the acoustic parameter vector, explicitly including engineered interaction terms (e.g., SNR × RT60, SNR², RT60²), to account for model-specific idiosyncrasies and isolate universal acoustic interactions. The system MUST use a stratified split by speaker ID and distortion type for training and validation. The system MUST perform a model-agnostic test (e.g., SHAP values) to confirm the form of interaction before claiming a universal vector exists. The target variable MUST be the curve parameters (inflection point, slope) derived from the full stress curve, not a binary label. The system MUST use centering or orthogonal polynomial contrasts for the interaction terms to handle the natural correlation between main effects and interaction terms. (See US-3)
+- **FR-006**: System MUST perform a sensitivity analysis by sweeping the inflection point detection parameters and analyzing the variance in the identified "critical interaction vector" across different curve morphologies (linear vs. sigmoid). (See US-3)
+- **FR-007**: System MUST explicitly frame all predictive findings as ASSOCIATIONAL, avoiding causal claims regarding the distortions unless randomization is explicitly modeled. (See US-3)
+- **FR-008**: System MUST perform multiple-comparison correction (e.g., Benjamini-Hochberg or False Discovery Rate) when evaluating the statistical significance of the interaction effects across the 54 scenarios. (See US-3)
+- **FR-010**: System MUST normalize the SSS collapse threshold relative to each model's clean-audio baseline SSS to isolate universal acoustic interactions from model-specific embedding behaviors. (See US-3)
+- **FR-011**: System MUST validate the SSS metric against a held-out subset of ≥ 1,000 human-annotated transcripts (sourced from the CHiME-5 dataset, stratified by speaker and room) to ensure correlation with human judgment of semantic integrity. The human annotations MUST be obtained via a crowdsourcing protocol with ≥ 3 raters per clip, requiring ≥ 2/3 agreement on a binary intelligibility score (pass/fail). The validation MUST use AUC-ROC ≥ 0.85 as the pass criterion. This validation is a methodological necessity to calibrate the SSS metric as a valid proxy before defining the collapse threshold. (See US-1)
+- **FR-012**: System MUST analyze the shape of the degradation curve (e.g., sigmoid vs. linear) and calculate the maximum derivative (inflection point) for every stress curve to normalize the rate of degradation across models. (See US-2)
+- **FR-013**: System MUST explicitly validate the non-linear nature of interactions by comparing the interaction term coefficient against the sum of individual coefficients in a linear additive model of SSS vs. SNR/RT60, confirming synergistic failure modes, satisfying Constitution Principle VI. The comparison MUST use a statistically significant (p < 0.05, FDR-corrected) improvement in variance explained by the full model over the additive model. (See US-3)
+- **FR-016**: System MUST halt the workflow and require manual intervention if FR-011 (human validation) fails to meet the threshold (AUC-ROC ≥ 0.85) AND the fallback mechanism in FR-022 also fails to achieve the threshold for the phoneme metric (Pearson r ≥ 0.6). This check is performed as a pre-study gate before US-1 execution. (See US-1)
+- **FR-017**: System MUST log a warning and proceed with the available subset, noting the missing scenarios in the final report, if the "CHiME-5" subset lacks specific distortion combinations required for the 54 scenarios. (See US-1)
+- **FR-018**: System MUST validate the realism of applied synthetic distortions against a subset of ≥ 50 real-world noisy audio clips (sourced from the DNS Challenge real-world noise subset) to ensure the distortion parameters reflect actual acoustic conditions. The validation MUST use a Log-Mel Spectral Distance metric (window=25ms, hop=10ms, 128 bins) with a pass criterion of ≤ 0.15. The matching protocol MUST minimize the distance between the synthetic clip and a real-world clip with similar SNR/RT60 estimates (within ±1dB/±0.1s). (See US-1)
+- **FR-020**: System MUST implement a deterministic interpolation rule for the 'concurrent' check: if SSS drops below a predefined threshold at step N and WER spikes at the subsequent step, the collapse intensity is defined as the linearly interpolated intensity between steps N and the subsequent step. (See US-2)
+- **FR-021**: System MUST implement the following deterministic algorithm to calculate 'collapse intensity':
+    1. Calculate the first derivative of the SSS curve.
+    2. Identify the inflection point (maximum negative derivative).
+    3. Determine the "threshold crossing step": the first step where SSS < 0.5 AND WER > 2× baseline WER (where baseline WER is calculated on the clean subset of the CHiME-5 dataset).
+    4. If the threshold crossing step exists: Record the intensity at that step (or linearly interpolated intensity if steps differ per FR-020) as 'collapse intensity'.
+    5. If no threshold crossing step exists but an inflection point exists: Record the inflection point intensity as 'collapse intensity' (indicating a slow degradation).
+    6. If neither exists: Record 'None'.
+    (See US-2)
+- **FR-022**: System MUST implement a fallback mechanism: if the embedding model fails to correlate with human judgment for high-reverb audio (defined as RT60 > 0.5s) with AUC-ROC < 0.85, the system MUST switch to a phoneme-level edit distance metric (using Montreal Forced Aligner with standard English dictionaries) as the primary semantic integrity measure for that subset. The phoneme-level edit distance MUST be calculated against the original clean transcript from the CHiME dataset. The high-reverb subset MUST be ≥ 500 clips, stratified by speaker ID. (See US-1)
+- **FR-023**: System MUST define the specific values for all parameters (sample size, correlation thresholds) in the implementation plan before execution. (See US-1)
+- **FR-024**: System MUST generate the distortion scenarios using a Cartesian product of multiple SNR levels and 6 RT60 levels to produce a diverse set of distinct scenarios. (See US-1)
+- **FR-025**: System MUST utilize a hierarchical regression model or functional data analysis approach to account for model-specific idiosyncrasies when predicting the "critical interaction vector" across different ASR architectures, ensuring the statistical method matches the research goal. (See US-3)
+- **FR-026**: System MUST log the actual computation steps, data sources, and intermediate values for every metric (SSS, WER, R²) to ensure auditability and prevent the use of simulated or fabricated scores. (See US-1)
+
+### Key Entities
+
+- **AudioClip**: Represents a single audio file from the dataset, containing metadata (ID, source, speaker_id, room_id) and the raw waveform.
+- **DistortionVector**: Represents a specific combination of acoustic parameters (e.g., SNR=10dB, RT60=0.5s, DistortionType=Reverb+Noise).
+- **StressCurve**: A sequence of records linking a specific AudioClip and DistortionVector to a resulting SSS and ASR hypothesis.
+- **CollapseIntensity**: A derived entity representing the specific DistortionVector intensity where SSS < 0.5 (normalized) for a given model.
+- **CriticalInteractionVector**: The learned coefficients from the regression model representing the predictive signature of semantic collapse.
+
+## Success Criteria
+
+### Measurable Outcomes
+

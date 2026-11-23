@@ -7,11 +7,11 @@ scipy>=1.11.0
 statsmodels>=0.14.0
 torch>=2.0.0
 datasets>=2.14.0
+cryptography>=41.0.0
+PyYAML>=6.0.0
+requests>=2.31.0
 
-# Additional dependencies for infrastructure testing
-psutil>=5.9.0
-
-# Development dependencies
-black>=23.0.0
-flake8>=6.0.0
-pytest>=7.0.0
+# Test dependencies
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-timeout>=2.2.0

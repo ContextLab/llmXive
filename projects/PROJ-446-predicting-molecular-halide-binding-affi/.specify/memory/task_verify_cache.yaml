@@ -1,0 +1,10 @@
+T001:
+  c: true
+  h: 308760d97ee8c606f9b1f52a1068fce8f8fad333507aa0ddbf7441819beb861b
+  r: "Checked `code/01_data_ingestion.py` and the four output artifacts (`fetch_outcome.json`,\
+    \ `raw_scrape.json`, `raw_scrape_cleaned.csv`, `filtered_hosts.csv`). The script\
+    \ performs real HTTP requests with back\u2011off and delays, parses HTML/JSON,\
+    \ applies the required filtering, unit conversion, duplicate averaging, logs exclusions,\
+    \ writes honest outcome JSON, produces CSVs with the required columns (empty when\
+    \ no records), and exits with code\u202F0 \u2013 all verified by the passing tests."
+  sig: e8163154ef2316a276ad8de17ffe85b30de09040ad76a3a43622b8f9f1e3b825

@@ -1,3 +1,3 @@
 """
-Analysis module for regime detection and visualization.
+Analysis module for crack propagation ML project.
 """

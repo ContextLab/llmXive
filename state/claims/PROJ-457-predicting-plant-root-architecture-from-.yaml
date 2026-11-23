@@ -1,0 +1,136 @@
+- artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/tasks.md
+  attempts: 1
+  canonical: 'python dependencies: pandas, scikit-learn, statsmodels, seaborn, matplotlib,
+    pyyaml, geopandas'
+  claim_id: c_351533be
+  context: 'Initialize Python 3.11+ project: Create `code/requirements.txt` with dependencies
+    `pandas`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `pyyaml`, `geopandas`
+    and run `pip install -r code/requirements.txt`, then pin versions via `pip freeze
+    > code/requirements.txt`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Python_dependencies:_pandas,_scikit-learn,_statsmodels,_seab
+  kind: entity_fact
+  raw_text: Create `code/requirements.txt` with dependencies `pandas`, `scikit-learn`,
+    `statsmodels`, `seaborn`, `matplotlib`, `pyyaml`, `geopandas` and run `pip install
+    -r code/requirements.txt`, then pin versions via `pip freeze > code/requirements.txt`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T16:23:26Z'
+- artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/tasks.md
+  attempts: 1
+  canonical: "data ingestion pipeline test: 6 columns with \u226520 rows per species"
+  claim_id: c_70614ea1
+  context: 'Independent Test: The pipeline can be fully tested by running the data
+    ingestion script on a sample subset and verifying the output CSV contains the
+    required columns (species, root_length, branching_density, surface_area, phosphorus,
+    nitrogen) with no null values in the predictor columns and at least 20 rows per
+    species.'
+  evidence:
+    entailment_evidence: "Data ingestion pipeline test: 6 columns with \u226520 rows\
+      \ per sp"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_pipeline_test:_6_columns_with_%E2%89%A520_rows_per_sp
+  kind: magnitude
+  raw_text: The pipeline can be fully tested by running the data ingestion script
+    on a sample subset and verifying the output CSV contains the required columns
+    (species, root_length, branching_density, surface_area, phosphorus, nitrogen)
+    with no null values in the predictor columns and at least 20 rows per species.
+  resolved_value: "data ingestion pipeline test: 6 columns with \u226520 rows per\
+    \ species"
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-14T16:23:28Z'
+- artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/tasks.md
+  attempts: 1
+  canonical: RootReader data source failure handling
+  claim_id: c_3708819b
+  context: 'Implement `code/data_ingestion.py` to download/parse RootReader and PlantPheno
+    data (FR-001). **Constraint**: If RootReader source is unverified or missing,
+    proceed with PlantPheno only and log a warning.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RootReader_data_source_failure_handling
+  kind: entity_fact
+  raw_text: If RootReader source is unverified or missing, proceed with PlantPheno
+    only and log a warning.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T16:40:56Z'
+- artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/tasks.md
+  attempts: 1
+  canonical: P/N column requirement
+  claim_id: c_55f51106
+  context: 'Check for Phosphorus/Nitrogen columns in PlantPheno data. **Action**:
+    Verify existence of columns `phosphorus` and `nitrogen` (or aliases). **Constraint**:
+    If missing, **raise a `ValueError`** with message "Critical: P/N columns missing.
+    Cannot proceed. Spec Deviation required."'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Critical Reviews in Toxicology
+      source_id: Q3562267
+      url: https://www.wikidata.org/wiki/Q3562267
+      value: Critical Reviews in Toxicology
+    filled: true
+  kind: entity_fact
+  raw_text: 'If missing, **raise a `ValueError`** with message "Critical: P/N columns
+    missing. Cannot proceed. Spec Deviation required."'
+  resolved_value: Critical Reviews in Toxicology
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-14T16:55:44Z'
+- artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/tasks.md
+  attempts: 1
+  canonical: 'data filtering rules: n<20 and manipulated/controlled data'
+  claim_id: c_f1ff4327
+  context: Implement filtering logic in `code/data_ingestion.py` to exclude species
+    with n<20 AND exclude rows where `data_source_type` indicates 'manipulated' or
+    'controlled' nutrient conditions (FR-001, FR-012).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exclude species with n<20 AND exclude rows where `data_source_type` indicates
+    'manipulated' or 'controlled' nutrient conditions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T16:55:44Z'
+- artifact_path: projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/tasks.md
+  attempts: 1
+  canonical: species counts output file
+  claim_id: c_e7d897e5
+  context: 'Log the exact count of rows excluded due to `data_source_type`, missing
+    nutrients, and species < 20 directly within this function. **Constraint**: **Output**:
+    Write a JSON file `artifacts/reports/species_counts.json` containing keys: `total_species_input`
+    (integer), `excluded_species_count` (integer), `excluded_species_list` (list of
+    species names).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Species_counts_output_file
+  kind: entity_fact
+  raw_text: 'Write a JSON file `artifacts/reports/species_counts.json` containing
+    keys: `total_species_input` (integer), `excluded_species_count` (integer), `excluded_species_list`
+    (list of species names).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-14T17:11:27Z'

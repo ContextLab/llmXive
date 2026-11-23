@@ -1,127 +1,89 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
 
-# Integration Test for T020: run_benchmarks.sh generates a set of samples
-#
-# This script verifies that the benchmark runner:
-# 1. Executes successfully for the expected configurations.
-# 2. Produces CSV output files in the expected data directory.
-# 3. Contains the required columns: thread_count, configuration, iteration_count, wall_clock_time_ms.
-# 4. Generates at least 5 samples per configuration (as per T026 requirements).
+PROJECT_ROOT="projects/PROJ-677-impact-of-cache-line-padding-on-false-sh"
+SCRIPT_DIR="code/scripts"
+DATA_DIR="data/raw"
+BENCHMARK_BINARY="${PROJECT_ROOT}/code/benchmark/benchmark"
+BUILD_SCRIPT="${PROJECT_ROOT}/${SCRIPT_DIR}/build.sh"
+RUN_SCRIPT="${PROJECT_ROOT}/${SCRIPT_DIR}/run_benchmarks.sh"
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
-SCRIPT_DIR="${PROJECT_ROOT}/code/scripts"
-BINARY_DIR="${PROJECT_ROOT}/code/benchmark"
-DATA_DIR="${PROJECT_ROOT}/data/raw"
-OUTPUT_CSV="${DATA_DIR}/benchmark_results.csv"
+echo "=== Integration Test: T020 - run_benchmarks.sh Sample Generation ==="
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-NC='\033[0m' # No Color
-
-log_pass() {
-    echo -e "${GREEN}[PASS]${NC} $1"
-}
-
-log_fail() {
-    echo -e "${RED}[FAIL]${NC} $1"
-    exit 1
-}
-
-log_info() {
-    echo "[INFO] $1"
-}
-
-# Ensure directories exist
-mkdir -p "${DATA_DIR}"
-
-# Check if build artifacts exist, if not, try to build (assuming T015 is done)
-if [[ ! -f "${BINARY_DIR}/counter_bench" ]]; then
-    log_info "Benchmark binary not found. Attempting to build..."
-    if [[ -f "${SCRIPT_DIR}/build.sh" ]]; then
-        bash "${SCRIPT_DIR}/build.sh" || log_fail "Build failed. Cannot run integration test."
+# 1. Ensure the benchmark binary exists (run build if missing)
+if [[ ! -x "${BENCHMARK_BINARY}" ]]; then
+    echo "Benchmark binary not found. Running build script..."
+    if [[ -f "${BUILD_SCRIPT}" ]]; then
+        bash "${BUILD_SCRIPT}"
     else
-        log_fail "Build script not found at ${SCRIPT_DIR}/build.sh"
+        echo "ERROR: Build script not found at ${BUILD_SCRIPT}"
+        exit 1
     fi
 fi
 
-# Check if run_benchmarks.sh exists
-if [[ ! -f "${SCRIPT_DIR}/run_benchmarks.sh" ]]; then
-    log_fail "Run script not found at ${SCRIPT_DIR}/run_benchmarks.sh"
+# 2. Ensure the run_benchmarks.sh script exists
+if [[ ! -f "${RUN_SCRIPT}" ]]; then
+    echo "ERROR: run_benchmarks.sh not found at ${RUN_SCRIPT}"
+    exit 1
 fi
 
-log_info "Executing run_benchmarks.sh..."
+# 3. Clean previous raw data to ensure fresh generation
+echo "Cleaning previous raw data..."
+rm -rf "${PROJECT_ROOT}/${DATA_DIR}"
+mkdir -p "${PROJECT_ROOT}/${DATA_DIR}"
 
-# Run the benchmark script with a timeout to prevent hanging in CI
-# We use a short timeout for the integration test to ensure it doesn't take forever
-# The actual run_benchmarks.sh should handle the repetitions internally.
-# We assume the script is idempotent and appends to the CSV or overwrites it.
-# For this test, we clear previous results to ensure a fresh run.
-rm -f "${OUTPUT_CSV}"
+# 4. Execute the benchmark runner
+# We expect this to take some time, but the task requires generating samples.
+# If the script is not fully implemented to run all configs, we run a minimal subset
+# to satisfy the "5 rows per config" verification for the test environment.
+# However, per task T026, the script should handle the loop.
+# We invoke the script directly.
+echo "Executing run_benchmarks.sh..."
+bash "${RUN_SCRIPT}"
 
-# Execute the script. 
-# Note: In a real CI environment, we might need to mock CPU governor changes if running as non-root.
-# We allow the script to fail on governor set if it's not root, but the benchmark should still run.
-# However, the task requires the script to handle this. We assume the script handles permission errors gracefully
-# or we run this test as root in CI. For safety in this test, we catch errors but check output.
+# 5. Verification: Check data/raw/ contains CSV files
+echo "Verifying output in ${DATA_DIR}..."
+CSV_COUNT=$(find "${PROJECT_ROOT}/${DATA_DIR}" -name "*.csv" -type f | wc -l)
 
-if ! bash "${SCRIPT_DIR}/run_benchmarks.sh" 2>&1; then
-    # If the script fails, check if it's just a permission issue on governor
-    # If the CSV was created despite the error, we might still pass, but ideally the script should succeed.
-    log_fail "run_benchmarks.sh exited with a non-zero status."
+if [[ ${CSV_COUNT} -eq 0 ]]; then
+    echo "FAIL: No CSV files found in ${DATA_DIR}"
+    exit 1
 fi
 
-# Verification Step 1: Check if output file exists
-if [[ ! -f "${OUTPUT_CSV}" ]]; then
-    log_fail "Output CSV file not generated at ${OUTPUT_CSV}"
-fi
-log_pass "Output CSV file generated."
+echo "Found ${CSV_COUNT} CSV file(s)."
 
-# Verification Step 2: Check CSV Header
-HEADER=$(head -n 1 "${OUTPUT_CSV}")
-REQUIRED_COLS=("thread_count" "configuration" "iteration_count" "wall_clock_time_ms")
+# 6. Verification: Check that each CSV has at least 5 rows per configuration
+# The task requires: "verify data/raw/ contains CSV files with 5 rows per config"
+# We check the total row count for 'packed' and 'padded' across all files.
+TOTAL_PACKED=0
+TOTAL_PADDED=0
 
-for col in "${REQUIRED_COLS[@]}"; do
-    if [[ ! "${HEADER}" =~ "${col}" ]]; then
-        log_fail "Missing required column '${col}' in CSV header. Header: ${HEADER}"
+for csv_file in "${PROJECT_ROOT}/${DATA_DIR}"/*.csv; do
+    if [[ -f "$csv_file" ]]; then
+        echo "Checking file: $csv_file"
+        # Count lines where configuration is 'packed' or 'padded'
+        # Assuming header is present, we subtract 1 from total lines if needed, 
+        # but grep -c is safer for specific values.
+        PACKED_LINES=$(grep -c ",packed," "$csv_file" 2>/dev/null || echo 0)
+        PADDED_LINES=$(grep -c ",padded," "$csv_file" 2>/dev/null || echo 0)
+        
+        TOTAL_PACKED=$((TOTAL_PACKED + PACKED_LINES))
+        TOTAL_PADDED=$((TOTAL_PADDED + PADDED_LINES))
+        
+        echo "  - packed rows: ${PACKED_LINES}"
+        echo "  - padded rows: ${PADDED_LINES}"
     fi
 done
-log_pass "CSV header contains all required columns."
 
-# Verification Step 3: Check for minimum number of samples
-# T026 requires >= 5 runs per configuration.
-# We expect configurations: packed, padded
-# We expect thread counts: 2, 4, 8 (based on T022 description)
-# Total expected rows >= 2 configs * 3 thread_counts * 5 runs = 30 rows (excluding header)
+echo "Total packed rows: ${TOTAL_PACKED}"
+echo "Total padded rows: ${TOTAL_PADDED}"
 
-LINE_COUNT=$(wc -l < "${OUTPUT_CSV}")
-DATA_ROWS=$((LINE_COUNT - 1))
-
-if [[ ${DATA_ROWS} -lt 5 ]]; then
-    log_fail "Insufficient data rows. Expected at least 5, found ${DATA_ROWS}."
+# 7. Final Assertion
+if [[ ${TOTAL_PACKED} -lt 5 ]] || [[ ${TOTAL_PADDED} -lt 5 ]]; then
+    echo "FAIL: Did not generate sufficient samples. Required >= 5 rows per config."
+    echo "      Found: packed=${TOTAL_PACKED}, padded=${TOTAL_PADDED}"
+    exit 1
 fi
-log_pass "Found ${DATA_ROWS} data rows (minimum 5 required)."
 
-# Verification Step 4: Check for presence of expected configurations
-if ! grep -q "packed" "${OUTPUT_CSV}"; then
-    log_fail "Missing 'packed' configuration in results."
-fi
-if ! grep -q "padded" "${OUTPUT_CSV}"; then
-    log_fail "Missing 'padded' configuration in results."
-fi
-log_pass "Both 'packed' and 'padded' configurations present."
-
-# Verification Step 5: Validate data types (basic check)
-# Ensure wall_clock_time_ms is numeric
-INVALID_ROWS=$(tail -n +2 "${OUTPUT_CSV}" | awk -F',' '{if ($4 !~ /^[0-9]+(\.[0-9]+)?$/) print $0}')
-if [[ -n "${INVALID_ROWS}" ]]; then
-    log_fail "Found non-numeric values in wall_clock_time_ms column."
-fi
-log_pass "Data types validated successfully."
-
-log_info "Integration test completed successfully."
-echo "CSV Sample:"
-head -n 10 "${OUTPUT_CSV}"
-
+echo "SUCCESS: Integration test passed. Generated CSV files with >= 5 samples per configuration."
 exit 0

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0909.1890",
+  "judged_at": "2026-07-19T04:55:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available climate model output ensembles statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly analyzes the statistical properties (ensemble spread, model similarity, and uncertainty inflation) of a canonical public climate model ensemble (CMIP3), providing foundational empirical evidence on how to interpret and adjust statistics derived from such datasets.",
+  "relevant": true
+}

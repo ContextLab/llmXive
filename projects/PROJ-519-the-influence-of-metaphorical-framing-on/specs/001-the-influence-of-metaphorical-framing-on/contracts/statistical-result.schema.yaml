@@ -1,0 +1,112 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Statistical Result Schema
+description: >
+  Schema for aggregated statistical results from both experimental and discourse analyses.
+type: object
+required:
+  - analysis_type
+  - timestamp
+  - results
+properties:
+  analysis_type:
+    type: string
+    enum:
+      - experimental_anova
+      - experimental_posthoc
+      - discourse_regression
+    description: Type of statistical test performed.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the analysis run.
+  sample_size:
+    type: integer
+    minimum: 1
+    description: Number of observations used in the analysis.
+  results:
+    type: object
+    description: Specific statistical outcomes based on analysis_type.
+    properties:
+      # Experimental ANOVA specific
+      f_statistic:
+        type: number
+      p_value:
+        type: number
+      degrees_of_freedom:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+      # Post-hoc specific
+      pairwise_comparisons:
+        type: array
+        items:
+          type: object
+          required:
+            - group1
+            - group2
+            - mean_diff
+            - p_value_raw
+            - p_value_adjusted
+            - significant
+          properties:
+            group1:
+              type: string
+            group2:
+              type: string
+            mean_diff:
+              type: number
+            p_value_raw:
+              type: number
+            p_value_adjusted:
+              type: number
+            significant:
+              type: boolean
+      # Regression specific
+      regression_coefficients:
+        type: object
+        properties:
+          intercept:
+            type: number
+          metaphor_density:
+            type: number
+          control_upvotes:
+            type: number
+          control_length:
+            type: number
+      regression_p_values:
+        type: object
+        properties:
+          intercept:
+            type: number
+          metaphor_density:
+            type: number
+          control_upvotes:
+            type: number
+          control_length:
+            type: number
+      r_squared:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      vif_flag:
+        type: string
+        enum:
+          - LOW
+          - HIGH
+        description: Variance Inflation Factor flag (HIGH if >= 5).
+      robust_se_used:
+        type: boolean
+        description: Whether Huber-White robust standard errors were used.
+  config:
+    type: object
+    description: Configuration parameters used for the analysis.
+    properties:
+      alpha:
+        type: number
+      bonferroni_adjusted_alpha:
+        type: number
+      model_formula:
+        type: string
+additionalProperties: false

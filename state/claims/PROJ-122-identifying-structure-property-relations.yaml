@@ -1,0 +1,268 @@
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: dataset schema includes SMILES, composition, Tg in Kelvin, Modulus in
+    GPa, and source fields
+  claim_id: c_a132e1fc
+  context: Task T005 defines YAML schema with fields for SMILES, composition, Tg (K),
+    Modulus (GPa), source, and validation rules per FR-001.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_schema_includes_SMILES,_composition,_Tg_in_Kelvin,_M
+  kind: entity_fact
+  raw_text: The dataset schema defines fields for SMILES, composition, Tg (K), Modulus
+    (GPa), source, and validation rules.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:07:37Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: output schema requires features array, target number, and metadata object
+  claim_id: c_b8157b90
+  context: Task T006 defines YAML schema for processed datasets, feature matrices,
+    and model outputs with required fields features, target, and metadata.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_schema_requires_features_array,_target_number,_and_me
+  kind: entity_fact
+  raw_text: The output schema defines properties for features (array of numbers),
+    target (number), and metadata (object).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:10:04Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: 'API fetcher exponential backoff parameters: initial 1s, multiplier 2,
+    max 5 retries'
+  claim_id: c_95b61f30
+  context: 'Task T014 implements API fetcher with exponential backoff in code/01_ingest.py
+    with exact parameters: initial=1s, multiplier=2, max=5 retries per FR-010.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The API fetcher implementation uses exponential backoff with an initial
+    delay of 1s, a multiplier of 2, and a maximum of 5 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:14:48Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: data verification gate requires citation title overlap threshold of 0.7
+  claim_id: c_d65504e3
+  context: Task T019a implements a Data Verification Gate that checks CITATION_TITLE_OVERLAP_THRESHOLD
+    >= 0.7 before proceeding.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_verification_gate_requires_citation_title_overlap_thres
+  kind: magnitude
+  raw_text: The data verification gate requires a CITATION_TITLE_OVERLAP_THRESHOLD
+    greater than or equal to 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:16:03Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: monomer-level fallback triggered if join failure rate exceeds 50%
+  claim_id: c_55b75192
+  context: Task T020b implements a fallback script that switches to predicting monomer
+    properties if SMILES/Composition join fails >50%.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Monomer-level_fallback_triggered_if_join_failure_rate_exceed
+  kind: magnitude
+  raw_text: The monomer-level fallback script is triggered if the SMILES/Composition
+    join fails for more than 50% of records.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:17:26Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep evaluates tolerance values 0.01, 0.02, and 0.05
+  claim_id: c_ea742bd4
+  context: Task T019b runs a sensitivity sweep over explicit values [0.01, 0.02, 0.05]
+    defined in config.TOLERANCE_VALUES.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep script evaluates weight-fraction tolerance values
+    of 0.01, 0.02, and 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:18:31Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: molecular descriptor generation produces at least 15 features
+  claim_id: c_ac7d03cc
+  context: "Task T024 implements molecular descriptor generation using RDKit with\
+    \ a requirement of \u226515 features."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Molecular_descriptor_generation_produces_at_least_15_feature
+  kind: magnitude
+  raw_text: Molecular descriptor generation must produce at least 15 features using
+    RDKit.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:19:11Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: VIF diagnostic flags predictors with values greater than 5.0
+  claim_id: c_26706fec
+  context: Task T023 and T028a verify VIF computation and flagging of values > 5.0.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_diagnostic_flags_predictors_with_values_greater_than_5.0
+  kind: magnitude
+  raw_text: The Variance Inflation Factor (VIF) diagnostic flags predictors with values
+    greater than 5.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:19:39Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: training pipeline halts if dataset size is less than 100
+  claim_id: c_574648cb
+  context: Task T033 checks if N < 100 and raises DataInsufficiencyError with message
+    'Dataset size N={N} < 100' to halt the pipeline.
+  evidence:
+    asserted: '100.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The training pipeline raises a DataInsufficiencyError if the dataset size
+    N is less than 100.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T01:19:40Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: Stratified Repeated K-Fold uses 5 folds and 3 repeats for datasets under
+    500
+  claim_id: c_b2ab77cf
+  context: Task T033 implements Stratified Repeated K-Fold with 5 folds and 3 repeats
+    if N < 500.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_Repeated_K-Fold_uses_5_folds_and_3_repeats_for_da
+  kind: magnitude
+  raw_text: Stratified Repeated K-Fold uses 5 folds and 3 repeats when the dataset
+    size is less than 500.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:20:09Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: VIF retrain trigger activated if any predictor VIF is greater than 10
+  claim_id: c_ffc3af5d
+  context: Task T038c reads the VIF report and sets retrain_vif_corrected to true
+    if any predictor has VIF > 10.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_retrain_trigger_activated_if_any_predictor_VIF_is_greate
+  kind: magnitude
+  raw_text: The VIF decision step sets a trigger flag to retrain if any predictor
+    has a VIF greater than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:21:14Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: stability metrics count descriptors appearing in at least 80% of 5 runs
+  claim_id: c_d8f99703
+  context: "Task T040c1 calculates feature stability frequencies across 5 runs and\
+    \ identifies descriptors appearing in \u2265 80% of runs."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_metrics_count_descriptors_appearing_in_at_least_80
+  kind: magnitude
+  raw_text: The stability metrics analysis counts descriptors that appear in at least
+    80% of 5 independent training runs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:21:53Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: report if at least 3 stable descriptors exist
+  claim_id: c_a146083a
+  context: "Task T040c1 requires explicitly counting and reporting if at least 3 descriptors\
+    \ appear in \u2265 80% of runs (SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_if_at_least_3_stable_descriptors_exist
+  kind: magnitude
+  raw_text: The pipeline must explicitly count and report if at least 3 stable descriptors
+    exist.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:22:18Z'
+- artifact_path: projects/PROJ-122-identifying-structure-property-relations/specs/001-identifying-structure-property-relations/tasks.md
+  attempts: 1
+  canonical: paired t-test defaults to uncorrected method
+  claim_id: c_671c56c0
+  context: Task T036 implements paired t-test comparison with a default uncorrected
+    method, with optional Bonferroni/FDR only if configured.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_defaults_to_uncorrected_method
+  kind: entity_fact
+  raw_text: The paired t-test comparison defaults to an uncorrected method unless
+    configured otherwise.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T01:23:02Z'

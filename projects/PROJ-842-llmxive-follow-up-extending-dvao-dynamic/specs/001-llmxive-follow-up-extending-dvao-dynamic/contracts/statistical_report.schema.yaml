@@ -1,0 +1,136 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Report Schema"
+description: "Schema for data/processed/statistical_report.json"
+type: "object"
+required:
+  - "summary"
+  - "correlation_analysis"
+  - "stability_check"
+  - "assumptions"
+  - "results_by_correlation"
+  - "sample_complexity_analysis"
+  - "noise_sanity_check"
+properties:
+  summary:
+    type: "object"
+    required:
+      - "total_episodes"
+      - "objective_counts_tested"
+      - "window_ratios_tested"
+    properties:
+      total_episodes:
+        type: "integer"
+        minimum: 1
+      objective_counts_tested:
+        type: "array"
+        items:
+          type: "integer"
+        description: "List of N values tested"
+      window_ratios_tested:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of k ratios tested"
+  correlation_analysis:
+    type: "object"
+    required:
+      - "pearson_coefficient"
+      - "p_value"
+      - "interpretation"
+    properties:
+      pearson_coefficient:
+        type: "number"
+        description: "Pearson correlation coefficient between variance error and Pareto distance"
+      p_value:
+        type: "number"
+        description: "P-value from the correlation test"
+      interpretation:
+        type: "string"
+        description: "Human-readable interpretation of the correlation"
+  stability_check:
+    type: "object"
+    required:
+      - "target_ratio_range"
+      - "stability_rate"
+      - "failure_point_n"
+    properties:
+      target_ratio_range:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+        description: "Target range for heuristic/full-batch ratio [min, max]"
+      stability_rate:
+        type: "number"
+        description: "Percentage of steps where ratio is within target range (0.0 to 1.0)"
+        minimum: 0.0
+        maximum: 1.0
+      failure_point_n:
+        type: "integer"
+        description: "Smallest N where stability rate < 95%"
+  sample_complexity_analysis:
+    type: "object"
+    required:
+      - "failure_point_ratio"
+      - "threshold"
+    properties:
+      failure_point_ratio:
+        type: "number"
+        description: "Sample complexity ratio at the failure point"
+      threshold:
+        type: "number"
+        description: "Threshold for failure (e.g., 1.0)"
+  noise_sanity_check:
+    type: "object"
+    required:
+      - "measured_sigma"
+      - "theoretical_sigma"
+      - "passed"
+    properties:
+      measured_sigma:
+        type: "number"
+        description: "Empirically measured standard deviation of injected noise"
+      theoretical_sigma:
+        type: "number"
+        description: "Theoretical standard deviation of injected noise"
+      passed:
+        type: "boolean"
+        description: "Whether the sanity check passed"
+  results_by_correlation:
+    type: "array"
+    description: "Results stratified by noise correlation level"
+    items:
+      type: "object"
+      required:
+        - "rho"
+        - "failure_point_n"
+      properties:
+        rho:
+          type: "number"
+          description: "Correlation coefficient rho"
+        failure_point_n:
+          type: "integer"
+          description: "Failure point N for this correlation level"
+  assumptions:
+    type: "object"
+    required:
+      - "noise_type"
+      - "independence"
+      - "correlation_levels_tested"
+    properties:
+      noise_type:
+        type: "string"
+        description: "Type of noise distribution (e.g., 'Gaussian')"
+      independence:
+        type: "boolean"
+        description: "Whether noise is assumed independent"
+      correlation_levels_tested:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of rho values tested"
+  methodology_notes:
+    type: "string"
+    description: "Notes on methodology (e.g., 'Used Benjamini-Hochberg FDR', 'Used weighted-sum Pareto approximation')"
+additionalProperties: false

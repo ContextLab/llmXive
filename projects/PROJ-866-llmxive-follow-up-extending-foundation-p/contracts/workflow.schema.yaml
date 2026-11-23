@@ -1,53 +1,53 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Workflow"
-type: "object"
+type: object
 required:
   - id
   - nodes
   - edges
+  - metadata
 properties:
   id:
-    type: "string"
-    description: "Unique identifier for the workflow"
-  depth:
-    type: "integer"
-    minimum: 1
-    maximum: 20
-    description: "Maximum depth of the workflow DAG"
-  complexity:
-    type: "integer"
-    minimum: 1
-    maximum: 10
-    description: "Complexity score of the workflow"
-  budget_cap:
-    type: "number"
-    description: "Maximum allowed token budget"
+    type: string
   nodes:
-    type: "array"
+    type: array
     items:
-      type: "object"
+      type: object
       required:
         - id
         - type
-        - policy
+        - constraints
       properties:
         id:
-          type: "string"
+          type: string
         type:
-          type: "string"
-          enum: ["start", "process", "end"]
-        policy:
-          type: "object"
-          additionalProperties: true
+          type: string
+        constraints:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              type:
+                type: string
+              compliant:
+                type: boolean
   edges:
-    type: "array"
+    type: array
     items:
-      type: "object"
-      required:
-        - source
-        - target
+      type: object
       properties:
         source:
-          type: "string"
+          type: string
         target:
-          type: "string"
+          type: string
+  metadata:
+    type: object
+    properties:
+      depth:
+        type: integer
+      complexity:
+        type: integer
+      node_count:
+        type: integer
+      edge_count:
+        type: integer

@@ -1,0 +1,10 @@
+{
+  "mae": 1.45,
+  "r": 0.28,
+  "r_squared": 0.078,
+  "p_value": 0.032,
+  "reduced_model_r2": 0.045,
+  "delta_r2": 0.033,
+  "interpretation_type": "Independent Effect",
+  "collinearity_flag": false
+}

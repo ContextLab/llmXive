@@ -1,35 +1,29 @@
-# Data directories - large files, not for version control
+# Data directories - exclude raw and processed data from version control
 data/
-!data/.gitkeep
+data/raw/
+data/processed/
+data/interim/
+data/external/
 
-# Python cache and build artifacts
+# Python cache and bytecode
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+.python-version
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Virtual environments
 venv/
-ENV/
 env/
 .venv/
+ENV/
 .env/
+*.egg-info/
+dist/
+build/
 
 # IDE and editor files
 .idea/
@@ -43,27 +37,23 @@ env/
 # OS generated files
 .DS_Store
 .DS_Store?
-_Thumbs.db
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-$RECYCLE.BIN/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb_checkpoints
+_thumbnails/
+Thumbs.db
 
 # Logs
 *.log
 logs/
 
-# Environment variables (sensitive)
-.env
-.env.local
-.env.*.local
+# Jupyter Notebook
+.ipynb_checkpoints
 
 # Temporary files
 tmp/
 temp/
 *.tmp
-*.temp
+
+# Sensitive configuration
+.env.local
+.env.*.local
+credentials.json
+*.key

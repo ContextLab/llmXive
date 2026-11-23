@@ -1,0 +1,3 @@
+# Project‑specific dependencies not covered by the platform‑provided list.
+robosuite==1.4.*
+# (torch is already provided by the platform; other scientific packages are pre‑installed.)

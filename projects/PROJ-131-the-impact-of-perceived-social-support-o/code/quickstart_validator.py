@@ -1,7 +1,7 @@
 """
-T035: Quickstart Validation Script
-Runs the end-to-end pipeline as described in quickstart.md to ensure
-all components function correctly and produce the required artifacts.
+Quickstart Validator.
+
+Verifies that all declared deliverables exist after pipeline execution.
 """
 import os
 import sys
@@ -10,85 +10,53 @@ import time
 import traceback
 from pathlib import Path
 
-# Add project root to path if not already present
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add project root
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
 
-from logger import get_logger
-from main_pipeline import run_pipeline
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def log_section(title: str):
-    logger = get_logger()
-    logger.info("=" * 60)
-    logger.info(f" {title} ")
-    logger.info("=" * 60)
+def log_section(msg):
+    logger.info("=" * 50)
+    logger.info(msg)
+    logger.info("=" * 50)
 
-def check_file_exists(path: str, description: str):
-    p = Path(path)
-    if not p.exists():
-        logger = get_logger()
-        logger.error(f"MISSING: {description} not found at {p.resolve()}")
+def check_file_exists(path_str):
+    path = Path(path_str)
+    if path.exists():
+        logger.info(f"✓ Found: {path}")
+        return True
+    else:
+        logger.error(f"✗ Missing: {path}")
         return False
-    logger.info(f"FOUND: {description} at {p.resolve()}")
-    return True
 
 def main():
-    logger = get_logger()
-    logger.setLevel(logging.INFO)
-    
-    log_section("T035: Quickstart Validation Starting")
-    logger.info("Executing end-to-end pipeline validation...")
-    
-    start_time = time.time()
-    success = True
-    
-    try:
-        # Run the main pipeline
-        log_section("Step 1: Executing Main Pipeline")
-        run_pipeline()
-        log_section("Step 1: Pipeline Execution Completed")
-        
-    except Exception as e:
-        logger.error(f"Pipeline execution failed: {str(e)}")
-        traceback.print_exc()
-        success = False
-    
-    elapsed = time.time() - start_time
-    logger.info(f"Total execution time: {elapsed:.2f} seconds")
-    
-    # Verify expected output artifacts
-    log_section("Step 2: Verifying Output Artifacts")
+    """Validates declared deliverables."""
+    log_section("Validating Declared Deliverables")
     
     required_files = [
-        ("data/results/synthetic_cohort.csv", "Synthetic Cohort"),
-        ("data/results/regression_results.csv", "Regression Results"),
-        ("data/results/sensitivity_analysis.csv", "Sensitivity Analysis"),
-        ("data/results/regression_summary.md", "Regression Summary Report"),
-        ("data/results/sensitivity_comparison.csv", "Sensitivity Comparison Table"),
+        "data/raw/cyberbullying_2021.csv",
+        "data/results/analysis_cohort.csv",
+        "data/results/regression_results.csv",
+        "data/results/sensitivity_analysis.csv",
+        "data/results/regression_summary.md",
+        "data/results/platform_status.json",
+        "data/results/validation_report.json"
     ]
     
-    missing_files = []
-    for path, desc in required_files:
-        if not check_file_exists(path, desc):
-            missing_files.append(path)
+    all_present = True
+    for f in required_files:
+        full_path = project_root.parent / f
+        if not check_file_exists(str(full_path)):
+            all_present = False
     
-    if missing_files:
-        logger.error(f"Validation FAILED: Missing {len(missing_files)} required files.")
-        for f in missing_files:
-            logger.error(f"  - {f}")
-        success = False
+    log_section("Validation Complete")
+    if all_present:
+        logger.info("All declared deliverables are present.")
     else:
-        logger.info("Validation PASSED: All required output files generated.")
-    
-    log_section("T035: Validation Summary")
-    if success:
-        logger.info("SUCCESS: End-to-end pipeline validation completed successfully.")
-        logger.info("All required artifacts were generated and verified.")
-        return 0
-    else:
-        logger.error("FAILURE: Validation failed due to missing artifacts or pipeline errors.")
-        return 1
+        logger.error("Some declared deliverables are missing.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

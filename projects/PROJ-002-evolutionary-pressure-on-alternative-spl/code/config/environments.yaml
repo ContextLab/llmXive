@@ -1,0 +1,67 @@
+# Environment Configuration for PROJ-002
+# Defines parameters for CI (Sampled) vs Full (HPC) execution modes.
+# Used by pipeline scripts to adjust resource constraints, sample sizes, and tool parameters.
+
+modes:
+  ci_sampled:
+    description: "CI/CD execution mode using sampled data for logic validation only."
+    target: "Free-tier CPU CI (limited cores, RAM, disk)"
+    constraints:
+      max_replicates_per_species: 1
+      min_replicates_per_species: 1
+      max_alignments: 4
+      max_psi_events: 100
+      max_memory_gb: 2
+      max_disk_gb: 5
+      max_wall_time_minutes: 60
+      use_synthetic_data: true
+      star_params:
+        runMode: "singleEnd"
+        outFilterMultimapNmax: 10
+        limitBAMsortRAM: 1000000000  # 1GB
+        alignSJoverhangMin: 8
+        alignSJDBoverhangMin: 1
+      suppa_params:
+        generateEvents: "--iobase"
+        psi: "--output"
+    data_sources:
+      human: "data/ci_sample/human_1.fastq.gz"
+      chimp: "data/ci_sample/chimp_1.fastq.gz"
+      macaque: "data/ci_sample/macaque_1.fastq.gz"
+      marmoset: "data/ci_sample/marmoset_1.fastq.gz"
+    validation:
+      strict_replicate_check: false
+      allow_placeholder_flags: true
+
+  hpc_full:
+    description: "Full production execution on HPC cluster with real data."
+    target: "HPC Cluster (many cores, high RAM, fast disk)"
+    constraints:
+      max_replicates_per_species: 10
+      min_replicates_per_species: 3
+      max_alignments: 1000
+      max_psi_events: 100000
+      max_memory_gb: 64
+      max_disk_gb: 500
+      max_wall_time_minutes: 1440
+      use_synthetic_data: false
+      star_params:
+        runMode: "singleEnd"
+        outFilterMultimapNmax: 20
+        limitBAMsortRAM: 50000000000  # 50GB
+        alignSJoverhangMin: 8
+        alignSJDBoverhangMin: 1
+        outSAMtype: "BAM SortedByCoordinate"
+      suppa_params:
+        generateEvents: "--iobase"
+        psi: "--output"
+    data_sources:
+      human: "sra:SRP010775"
+      chimp: "sra:SRP009050"
+      macaque: "sra:SRP009051"
+      marmoset: "sra:SRP009052"
+    validation:
+      strict_replicate_check: true
+      allow_placeholder_flags: false
+
+default_mode: ci_sampled

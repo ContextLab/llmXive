@@ -122,7 +122,7 @@ As a researcher, I want to validate GWAS findings using LASSO logistic regressio
 
 - **SC-004**: Total pipeline runtime is measured against the 6-hour GitHub Actions free-tier limit. (See US-1)
 
-- **SC-005**: Peak memory usage is measured against the 7 GB RAM constraint of the CI runner. (See US-1)
+- **SC-005**: Peak memory usage is measured against the RAM constraint of the CI runner. (See US-1)
 
 - **SC-006**: Collinearity diagnostics (VIF or correlation matrix) are measured against the threshold of r² > 0.8 for flagging problematic covariate relationships. (See US-1)
 
@@ -132,7 +132,7 @@ As a researcher, I want to validate GWAS findings using LASSO logistic regressio
 
 - The NCBI BioProject data (PRJNA639195 and PRJNA566029) includes Varroa mite load metadata for ≥ 90% of colonies. For the remaining ≤ 10% with missing metadata, the pipeline will exclude those samples from the GWAS covariate model but retain them for genotype-only analysis. If < 80% of the total cohort has Varroa data, the pipeline halts with error code `ERR_VARROA_COVARIATE_MISSING` to prevent biased adjustment.
 
-- The reference genome Amel_HAv3.1 is compatible with the downloaded sequencing reads from the NCBI BioProject sources.
+- The reference genome Amel_HAv is compatible with the downloaded sequencing reads from the NCBI BioProject sources.
 
 - The BeeBase repository provides metadata with consistent formatting across all colonies in the dataset.
 

@@ -33,6 +33,7 @@ from typing import TYPE_CHECKING, Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage
+from llmxive.state.revision_paths import project_control_dir
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
@@ -102,7 +103,7 @@ class _AbstractTasksReviser:
         self._summarize_cache_dir = (
             Path(summarize_cache_dir)
             if summarize_cache_dir is not None
-            else self._repo_root / ".llmxive" / "summarize_cache"
+            else project_control_dir(self._repo_root, project_id) / "summarize_cache"
         )
 
     # --- public API ---------------------------------------------------------
@@ -188,27 +189,36 @@ class _AbstractTasksReviser:
                 prior_reviews=prior_reviews,
                 concerns=concerns,
                 extra_instructions=extra_instructions,
+                supporting_context=artifacts.get("__task_contract_context__", ""),
             )
             response_text = self._call_backend(messages)
             new_tasks, responses = self._parse_response(
                 response_text, concerns, tasks_path
             )
-            updated = dict(artifacts)
-            updated[tasks_path] = new_tasks
-            return updated, responses
+            if not self._is_paper_side:
+                from llmxive.agents.task_verifier import preserve_verified_completion
+                project_dir = self._repo_root / "projects" / self._project_id
+                new_tasks = preserve_verified_completion(
+                    project_dir, self._repo_root / tasks_path, new_tasks,
+                )
+            # Only the task document is editable. Passing context files through
+            # post-revision claim guards would rewrite the already-approved
+            # specification and plan, and spend model calls auditing them anew.
+            return {tasks_path: new_tasks}, responses
 
         # FR-011 self-consistency pass: first pass + ONE corrective re-pass.
-        return run_with_self_consistency(
+        revised, responses = run_with_self_consistency(
             backend=self._backend,
             profile=self._profile,
             repo_root=self._repo_root,
             concerns=concerns,
             first_pass=run_pass_with_artifact_retry(
-                _run_pass, reviser_name=type(self).__name__,
+                _run_pass, reviser_name=type(self).__name__, reviser=self,
             ),
             redo=_run_pass,
             stage_label="tasks",  # spec 020 FR-001: planning → references-only + strip/smooth
         )
+        return {**artifacts, **revised}, responses
 
     # --- internal helpers ---------------------------------------------------
 
@@ -241,6 +251,7 @@ class _AbstractTasksReviser:
         prior_reviews: str,
         concerns: list[Concern],
         extra_instructions: str = "",
+        supporting_context: str = "",
     ) -> list[ChatMessage]:
         system_text = render_prompt(
             self._system_prompt_path,
@@ -253,11 +264,13 @@ class _AbstractTasksReviser:
             for c in concerns
         ) or "(no panel concerns this round)"
 
+        supporting_section = supporting_context + "\n\n" if supporting_context else ""
         user_text = (
             "# Spec (what the tasks must cover)\n\n"
             f"{spec_md or '(no spec supplied)'}\n\n"
             "# Plan (the elements each task ties back to)\n\n"
             f"{plan_md or '(no plan supplied)'}\n\n"
+            f"{supporting_section}"
             "# Constitution (FR-030)\n\n"
             f"{constitution or '(no constitution supplied)'}\n\n"
             "# Current tasks.md (what you are revising)\n\n"
@@ -315,6 +328,19 @@ class _AbstractTasksReviser:
                 f"'new_tasks_md' string; got: {type(new_tasks).__name__}; "
                 f"artifact paths in reply: {sorted(artifacts_by_path)!r}"
             )
+
+        # The transport envelope can parse while the generated task document
+        # cannot (an open Markdown fence or duplicate identities, for example).
+        # Classify only that generated-content failure as a malformed reply so
+        # the existing bounded retry/kickback path handles it, not engine-failure.
+        from llmxive.speckit.task_lines import TaskFormatError, validate_open_tasks
+
+        try:
+            validate_open_tasks(new_tasks)
+        except TaskFormatError as exc:
+            raise RuntimeError(
+                f"{type(self).__name__}: response has no usable tasks artifact: {exc}"
+            ) from exc
 
         responses = build_concern_responses(
             responses_raw, concerns, default_artifacts=[tasks_path]

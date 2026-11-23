@@ -1,11 +1,8 @@
 """
-ANOVA testing and multiple-comparison correction module.
-
-Implements:
-- One-way ANOVA F-tests for comparing means across topology groups.
-- Multiple-comparison correction (Bonferroni and Benjamini-Hochberg).
-- Application of corrections to both ANOVA F-test p-values and regression coefficients.
+ANOVA and multiple-comparison correction module.
+Implements one-way ANOVA, Bonferroni, and Benjamini-Hochberg corrections.
 """
+
 import logging
 from typing import Dict, Any, List, Optional, Tuple, Union
 
@@ -13,8 +10,6 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from statsmodels.stats.multitest import multipletests
-
-from code.src.analysis.regression import RegressionResult
 
 logger = logging.getLogger(__name__)
 
@@ -25,251 +20,230 @@ class ANOVAError(Exception):
 
 
 def run_one_way_anova(
-    groups: Dict[str, Union[List[float], np.ndarray]],
-    factor_name: str = "topology_class",
-    response_name: str = "diffusion_rate"
+    groups: Dict[str, List[Union[int, float]]],
+    factor_name: str = "group"
 ) -> Dict[str, Any]:
     """
-    Perform a one-way ANOVA F-test to compare means across groups.
+    Perform a one-way ANOVA test on multiple groups.
 
     Args:
-        groups: Dictionary mapping group names (e.g., topology classes) to arrays of values.
-        factor_name: Name of the grouping factor (for metadata).
-        response_name: Name of the response variable (for metadata).
+        groups: Dictionary mapping group names to lists of values.
+        factor_name: Name of the factor being tested.
 
     Returns:
-        Dictionary containing:
-            - 'f_statistic': float
-            - 'p_value': float
-            - 'df_between': int
-            - 'df_within': int
-            - 'factor_name': str
-            - 'response_name': str
-            - 'group_counts': Dict[str, int]
+        Dictionary containing F-statistic, p-value, and group statistics.
     """
-    if not groups:
-        raise ANOVAError("Groups dictionary cannot be empty.")
+    if len(groups) < 2:
+        raise ANOVAError("At least two groups are required for ANOVA.")
 
     group_names = list(groups.keys())
-    group_data = [np.array(groups[name]) for name in group_names]
+    group_values = list(groups.values())
 
-    if any(len(g) == 0 for g in group_data):
-        raise ANOVAError("One or more groups have zero samples.")
+    # Check for empty groups
+    for name, values in groups.items():
+        if len(values) == 0:
+            raise ANOVAError(f"Group '{name}' is empty. Cannot perform ANOVA.")
 
-    # scipy.stats.f_oneway expects separate arrays for each group
-    f_stat, p_val = stats.f_oneway(*group_data)
+    # Perform ANOVA
+    f_stat, p_value = stats.f_oneway(*group_values)
 
-    # Degrees of freedom
-    k = len(group_data)  # number of groups
-    n = sum(len(g) for g in group_data)  # total samples
-    df_between = k - 1
-    df_within = n - k
+    # Calculate group statistics
+    group_stats = {}
+    for name, values in groups.items():
+        values_arr = np.array(values)
+        group_stats[name] = {
+            "mean": float(np.mean(values_arr)),
+            "std": float(np.std(values_arr)),
+            "n": len(values),
+        }
 
-    result = {
+    return {
         "f_statistic": float(f_stat),
-        "p_value": float(p_val),
-        "df_between": int(df_between),
-        "df_within": int(df_within),
+        "p_value": float(p_value),
         "factor_name": factor_name,
-        "response_name": response_name,
-        "group_counts": {name: int(len(g)) for name, g in zip(group_names, group_data)}
+        "group_names": group_names,
+        "group_stats": group_stats,
+        "degrees_of_freedom": {
+            "between": len(groups) - 1,
+            "within": sum(len(v) for v in group_values) - len(groups),
+        },
     }
-
-    logger.info(f"ANOVA F-test: F={f_stat:.4f}, p={p_val:.4e} for {factor_name} vs {response_name}")
-    return result
 
 
 def apply_multiple_comparison_correction(
     p_values: List[float],
-    method: str = "bonferroni",
-    alpha: float = 0.05
+    method: str = "fdr_bh"
 ) -> Dict[str, Any]:
     """
     Apply multiple-comparison correction to a list of p-values.
 
-    Supported methods:
-        - 'bonferroni': Bonferroni correction (family-wise error rate control)
-        - 'benjamini_hochberg': Benjamini-Hochberg procedure (FDR control)
-
     Args:
         p_values: List of raw p-values.
-        method: Correction method ('bonferroni' or 'benjamini_hochberg').
-        alpha: Significance level threshold.
+        method: Correction method. Options: 'bonferroni', 'fdr_bh' (Benjamini-Hochberg),
+                'fdr_by' (Benjamini-Yekutieli), 'sidak'.
 
     Returns:
-        Dictionary containing:
-            - 'raw_p_values': List[float]
-            - 'corrected_p_values': List[float]
-            - 'is_significant': List[bool]
-            - 'method': str
-            - 'alpha': float
+        Dictionary containing corrected p-values, rejection decisions, and method info.
     """
     if not p_values:
-        raise ANOVAError("Cannot apply correction to empty p-value list.")
+        return {
+            "corrected_p_values": [],
+            "rejections": [],
+            "method": method,
+            "alpha": 0.05,
+            "n_tests": 0,
+        }
 
-    if method == "bonferroni":
-        # statsmodels multipletests with method='bonferroni'
-        corrected, rejected, _, _ = multipletests(p_values, alpha=alpha, method='bonferroni')
-    elif method == "benjamini_hochberg" or method == "fdr_bh":
-        corrected, rejected, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
-    else:
-        raise ANOVAError(f"Unsupported correction method: {method}. Use 'bonferroni' or 'benjamini_hochberg'.")
-
-    result = {
-        "raw_p_values": [float(p) for p in p_values],
-        "corrected_p_values": [float(p) for p in corrected],
-        "is_significant": [bool(r) for r in rejected],
-        "method": method,
-        "alpha": alpha
+    # Map method names to statsmodels codes
+    method_map = {
+        "bonferroni": "bonferroni",
+        "fdr_bh": "fdr_bh",
+        "fdr_by": "fdr_by",
+        "sidak": "sidak",
     }
 
-    logger.info(f"Applied {method} correction: {sum(rejected)} of {len(p_values)} tests significant at alpha={alpha}")
-    return result
+    if method not in method_map:
+        raise ANOVAError(f"Unknown correction method: {method}. Use {list(method_map.keys())}.")
+
+    # Perform correction
+    corrected_p_values, rejections, _, _ = multipletests(
+        p_values, alpha=0.05, method=method_map[method]
+    )
+
+    method_name = {
+        "bonferroni": "Bonferroni",
+        "fdr_bh": "Benjamini-Hochberg",
+        "fdr_by": "Benjamini-Yekutieli",
+        "sidak": "Sidak",
+    }[method]
+
+    rationale = "Default for FDR control" if method == "fdr_bh" else "Family-wise error rate control"
+    if method == "fdr_bh":
+        rationale = "Control of False Discovery Rate (FDR) as recommended for exploratory analyses"
+
+    return {
+        "corrected_p_values": [float(p) for p in corrected_p_values],
+        "rejections": list(rejections),
+        "method": method_name,
+        "method_code": method,
+        "alpha": 0.05,
+        "n_tests": len(p_values),
+        "rationale": rationale,
+    }
 
 
 def correct_regression_pvalues(
-    regression_results: List[RegressionResult],
-    method: str = "bonferroni",
-    alpha: float = 0.05
-) -> List[Dict[str, Any]]:
+    regression_results: List[Dict[str, Any]],
+    p_value_key: str = "p_value",
+    method: str = "fdr_bh"
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """
-    Apply multiple-comparison correction to p-values from a list of regression results.
-
-    This ensures correction is applied to regression coefficients as required by the task.
+    Apply multiple-comparison correction to a list of regression results.
 
     Args:
-        regression_results: List of RegressionResult objects.
-        method: Correction method ('bonferroni' or 'benjamini_hochberg').
-        alpha: Significance level threshold.
+        regression_results: List of dictionaries containing regression results.
+        p_value_key: Key name for the p-value in each result dict.
+        method: Correction method ('bonferroni' or 'fdr_bh').
 
     Returns:
-        List of dictionaries, each containing the original regression data plus:
-            - 'corrected_p_values': List[float]
-            - 'is_significant': List[bool]
-            - 'correction_method': str
+        Tuple of (updated_results, correction_metadata).
     """
-    if not regression_results:
-        return []
+    p_values = [r.get(p_value_key) for r in regression_results if p_value_key in r]
 
-    # Extract p-values for each coefficient
-    # Assuming regression_results.p_values is a list of p-values for coefficients
-    all_p_values = []
-    result_map = []
+    if not p_values:
+        logger.warning("No p-values found to correct.")
+        return regression_results, {"method": method, "n_tests": 0}
 
-    for res in regression_results:
-        # Handle case where p_values might be None or empty
-        if res.p_values:
-            all_p_values.extend(res.p_values)
-        else:
-            # If no p-values, append None placeholders to maintain alignment
-            # This shouldn't happen in valid RegressionResult, but handle gracefully
-            logger.warning("RegressionResult has no p_values; skipping correction for this result.")
-            result_map.append({
-                "original": res,
-                "corrected_p_values": [],
-                "is_significant": [],
-                "correction_method": method
-            })
-            continue
+    correction_result = apply_multiple_comparison_correction(p_values, method)
 
-    if not all_p_values:
-        return result_map
+    # Update the results list with corrected p-values and rejection status
+    updated_results = []
+    for i, result in enumerate(regression_results):
+        new_result = result.copy()
+        if i < len(correction_result["corrected_p_values"]):
+            new_result["p_value_corrected"] = correction_result["corrected_p_values"][i]
+            new_result["is_significant_corrected"] = correction_result["rejections"][i]
+        updated_results.append(new_result)
 
-    # Apply correction
-    correction_result = apply_multiple_comparison_correction(all_p_values, method, alpha)
-
-    # Map corrected values back to each regression result
-    idx = 0
-    for res in regression_results:
-        if not res.p_values:
-            continue
-        num_coefs = len(res.p_values)
-        corrected_p = correction_result["corrected_p_values"][idx:idx+num_coefs]
-        is_sig = correction_result["is_significant"][idx:idx+num_coefs]
-        idx += num_coefs
-
-        result_map.append({
-            "original": res,
-            "corrected_p_values": corrected_p,
-            "is_significant": is_sig,
-            "correction_method": method
-        })
-
-    return result_map
+    return updated_results, correction_result
 
 
 def run_anova_on_diffusion_by_topology(
-    simulation_results: pd.DataFrame,
-    topology_column: str = "topology_class",
-    diffusion_column: str = "diffusion_rate",
-    correction_method: str = "bonferroni",
-    alpha: float = 0.05
+    simulation_data: pd.DataFrame,
+    target_column: str = "diffusion_rate",
+    group_column: str = "topology_type",
+    correction_method: str = "fdr_bh"
 ) -> Dict[str, Any]:
     """
-    Run a full ANOVA pipeline:
-    1. Group data by topology class.
-    2. Run one-way ANOVA.
-    3. If significant, perform post-hoc pairwise comparisons (t-tests) and correct p-values.
+    Run ANOVA on diffusion rates grouped by topology type and apply correction.
 
     Args:
-        simulation_results: DataFrame with columns including topology_class and diffusion_rate.
-        topology_column: Name of the topology class column.
-        diffusion_column: Name of the diffusion rate column.
+        simulation_data: DataFrame containing simulation results.
+        target_column: Name of the column containing the dependent variable.
+        group_column: Name of the column containing the grouping variable.
         correction_method: Method for multiple-comparison correction.
-        alpha: Significance threshold.
 
     Returns:
-        Dictionary containing:
-            - 'anova_result': Dict from run_one_way_anova
-            - 'post_hoc_result': Dict from apply_multiple_comparison_correction (if applicable)
-            - 'pairwise_comparisons': List of pairwise test results (optional)
+        Dictionary containing ANOVA results and correction details.
     """
-    if topology_column not in simulation_results.columns or diffusion_column not in simulation_results.columns:
-        raise ANOVAError(f"DataFrame must contain columns '{topology_column}' and '{diffusion_column}'.")
+    if target_column not in simulation_data.columns:
+        raise ANOVAError(f"Target column '{target_column}' not found in data.")
+    if group_column not in simulation_data.columns:
+        raise ANOVAError(f"Group column '{group_column}' not found in data.")
 
-    # Group by topology
+    # Group data
     groups = {}
-    for name, group in simulation_results.groupby(topology_column):
-        groups[name] = group[diffusion_column].values
+    for name, group in simulation_data.groupby(group_column):
+        values = group[target_column].dropna().tolist()
+        if values:
+            groups[name] = values
+
+    if len(groups) < 2:
+        raise ANOVAError("Not enough groups with data for ANOVA.")
 
     # Run ANOVA
-    anova_res = run_one_way_anova(groups, factor_name=topology_column, response_name=diffusion_column)
+    anova_result = run_one_way_anova(groups, factor_name=group_column)
 
-    post_hoc = None
-    pairwise_results = []
+    # Extract p-values for pairwise comparisons if needed, or use overall p-value
+    # For multiple comparison correction, we typically correct pairwise p-values.
+    # Here, we simulate pairwise comparisons by running t-tests between all pairs
+    # if we want to correct for multiple comparisons across pairs.
+    # However, the task specifically asks for correction in the context of ANOVA.
+    # Standard practice: If ANOVA is significant, perform post-hoc tests (e.g., Tukey).
+    # But the task asks for Bonferroni/BH on the p-values.
+    # We will generate pairwise p-values to demonstrate the correction logic.
 
-    # If ANOVA is significant, run post-hoc pairwise t-tests
-    if anova_res["p_value"] < alpha:
-        logger.info("ANOVA significant. Running post-hoc pairwise t-tests with correction.")
-        group_names = list(groups.keys())
-        p_vals = []
-        comparisons = []
+    group_names = list(groups.keys())
+    pairwise_p_values = []
+    pairwise_comparisons = []
 
-        for i in range(len(group_names)):
-            for j in range(i + 1, len(group_names)):
-                g1 = groups[group_names[i]]
-                g2 = groups[group_names[j]]
-                # Two-sample t-test
-                _, p_val = stats.ttest_ind(g1, g2, equal_var=False)  # Welch's t-test
-                p_vals.append(p_val)
-                comparisons.append((group_names[i], group_names[j]))
+    for i in range(len(group_names)):
+        for j in range(i + 1, len(group_names)):
+            g1, g2 = group_names[i], group_names[j]
+            _, p_val = stats.ttest_ind(groups[g1], groups[g2])
+            pairwise_p_values.append(p_val)
+            pairwise_comparisons.append(f"{g1}_vs_{g2}")
 
-        if p_vals:
-            corr_res = apply_multiple_comparison_correction(p_vals, method=correction_method, alpha=alpha)
-            post_hoc = corr_res
+    correction_result = apply_multiple_comparison_correction(pairwise_p_values, correction_method)
 
-            # Attach significance to comparisons
-            for idx, (g1, g2) in enumerate(comparisons):
-                pairwise_results.append({
-                    "group1": g1,
-                    "group2": g2,
-                    "raw_p_value": p_vals[idx],
-                    "corrected_p_value": corr_res["corrected_p_values"][idx],
-                    "is_significant": corr_res["is_significant"][idx]
-                })
-
-    return {
-        "anova_result": anova_res,
-        "post_hoc_result": post_hoc,
-        "pairwise_comparisons": pairwise_results
+    # Combine results
+    final_result = {
+        "anova": anova_result,
+        "pairwise_comparisons": {
+            "comparisons": pairwise_comparisons,
+            "raw_p_values": pairwise_p_values,
+            "corrected_p_values": correction_result["corrected_p_values"],
+            "rejections": correction_result["rejections"],
+        },
+        "correction_method": correction_result["method"],
+        "correction_rationale": correction_result["rationale"],
+        "alpha": 0.05,
     }
+
+    logger.info(
+        f"ANOVA completed for {target_column} by {group_column}. "
+        f"F-stat: {anova_result['f_statistic']:.4f}, P-value: {anova_result['p_value']:.4e}. "
+        f"Correction: {correction_result['method']}."
+    )
+
+    return final_result

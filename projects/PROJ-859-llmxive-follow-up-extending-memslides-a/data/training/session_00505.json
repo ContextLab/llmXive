@@ -1,0 +1,206 @@
+{
+  "trace_id": "training_42_00505",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 18,
+  "tool_sequence": [
+    "format_text",
+    "format_text",
+    "format_text",
+    "insert_image",
+    "format_text",
+    "format_text",
+    "format_text",
+    "delete_element",
+    "delete_element",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "update_layout",
+    "format_text",
+    "format_text",
+    "insert_text",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 8.2269,
+        "x": 88.7447,
+        "y": 36.0852
+      }
+    },
+    {
+      "step": 1,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 36.6574,
+        "x": 27.1591,
+        "y": 39.8349
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 52.9827,
+        "x": 61.9514,
+        "y": 65.8549
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 69.6176,
+        "y": 5.5554,
+        "width": 88.8046,
+        "height": 40.5791
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 13.1608,
+        "x": 46.6468,
+        "y": 65.0234
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 1.7906,
+        "x": 9.7675,
+        "y": 17.1117
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 68.0946,
+        "x": 57.1152,
+        "y": 25.2862
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 17.081
+      }
+    },
+    {
+      "step": 8,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 5.0801
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 86.7721,
+        "y": 39.8243,
+        "width": 48.1281,
+        "height": 90.8548,
+        "data_points": 34.1654
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 73.4945,
+        "y": 93.2004,
+        "width": 80.5009,
+        "height": 20.1663,
+        "data_points": 57.2865
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 37.2463,
+        "y": 95.2347,
+        "width": 14.1759,
+        "height": 23.7908,
+        "data_points": 55.5391
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 39.7896,
+        "y": 70.7218,
+        "width": 1.0466,
+        "height": 4.8974,
+        "data_points": 8.7925
+      }
+    },
+    {
+      "step": 13,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 25.9616,
+        "padding": 44.5434
+      }
+    },
+    {
+      "step": 14,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 59.4419,
+        "x": 22.912,
+        "y": 40.1336
+      }
+    },
+    {
+      "step": 15,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 7.5477,
+        "x": 74.1527,
+        "y": 53.1525
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 50.0168,
+        "y": 9.9723,
+        "length": 63.4268
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 0.6967,
+        "y": 36.4983,
+        "width": 72.2367,
+        "height": 56.5496,
+        "data_points": 49.6351
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.442093,
+    "tool_repetition_freq": 0.666667,
+    "arg_semantic_variance": 731.950558
+  },
+  "final_state": {
+    "dominant_tool": "format_text",
+    "slide_element_count": 12,
+    "layout_hash": "42-505-format_text"
+  }
+}

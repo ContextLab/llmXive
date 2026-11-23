@@ -30,12 +30,12 @@
 - [X] T004 Create `data/metadata/` directory
 - [X] T005 Create `code/` directory
 - [X] T006 Create `code/tests/` directory
-- [~] T007 Create `results/` directory
-- [~] T008 Create `results/models/` directory
-- [~] T009 Create `results/reports/` directory
-- [~] T010 Create `results/validation/` directory
-- [~] T011 Create `tests/` directory
-- [~] T012 Create `tests/unit/` directory
+- [ ] T007 Create `results/` directory
+- [ ] T008 Create `results/models/` directory
+- [ ] T009 Create `results/reports/` directory
+- [ ] T010 Create `results/validation/` directory
+- [ ] T011 Create `tests/` directory
+- [ ] T012 Create `tests/unit/` directory
 - [~] T013 Create `tests/integration/` directory
 - [~] T014 Create `tests/contract/` directory
 
@@ -79,8 +79,8 @@
 - [X] T026 [US1] Create `code/descriptor_computation.py` with standardized elemental property lookup using `data/metadata/descriptor_sources.yaml`; define formulas: ΔHmix, δ, VEC, Δχ
 - [X] T027 [US1] Implement `code/descriptor_computation.py` to compute ΔHmix, δ, VEC, Δχ for each sample using the defined formulas
 - [X] T028 [US1] Implement `code/descriptor_computation.py` logic to flag and exclude samples with missing elemental data (log entry required)
-- [ ] T029 [US1] Run `code/descriptor_computation.py` to generate `data/processed/computed_descriptors.csv` with all computed features and original composition; **Depends on**: T023 (if testing) or T022 (if production)
-- [ ] T030 [P] [US1] Unit test for descriptor computation formulas in `tests/unit/test_descriptors.py`
+- [~] T029 [US1] Run `code/descriptor_computation.py` to generate `data/processed/computed_descriptors.csv` with all computed features and original composition; **Depends on**: T023 (if testing) or T022 (if production)
+- [X] T030 [P] [US1] Unit test for descriptor computation formulas in `tests/unit/test_descriptors.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,21 +96,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
-- [ ] T032 [P] [US2] Integration test for cross-system validation split in `tests/integration/test_cross_system_validation.py`
+- [X] T031 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
+- [X] T032 [P] [US2] Integration test for cross-system validation split in `tests/integration/test_cross_system_validation.py`
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] Implement `code/model_training.py` to load `data/processed/computed_descriptors.csv`
-- [ ] T034 [US2] Implement `code/model_training.py` family assignment logic: Group by element with highest atomic fraction (Fe, Zr, Mg, Cu, Ti); **Tie-break**: Alphabetical order; **Input Column**: `composition`
-- [ ] T035 [US2] Implement `code/model_training.py` split strategy: Primary = cross-system (train Fe-based, test Zr-based); fallback = stratified random split (80/20) if N < 20 per family
-- [ ] T036 [US2] Implement `code/model_training.py` to train Random Forest classifier with stratified 5-fold cross-validation and grid search
-- [ ] T037 [US2] Implement `code/model_training.py` to train Gradient Boosting classifier with stratified 5-fold cross-validation and grid search
-- [ ] T038 [US2] Implement `code/model_training.py` to compute accuracy and AUC-ROC metrics for both models
-- [ ] T039 [US2] Implement `code/model_training.py` cross-system validation: Calculate and report AUC-ROC on external family (e.g., Zr-based) if trained on Fe-based; **Output**: `results/reports/cross_system_metrics.json`; **Note**: Constitution Principle VII requires AUC ≥ 0.70 for generalizability claims, but Spec SC-002 defers the target; report measured value and flag if < 0.70
-- [ ] T040 [US2] Save model artifacts to `results/models/` (pkl files)
+- [~] T033 [US2] Implement `code/model_training.py` to load `data/processed/computed_descriptors.csv`
+- [X] T034 [US2] Implement `code/model_training.py` family assignment logic: Group by element with highest atomic fraction (Fe, Zr, Mg, Cu, Ti); **Tie-break**: Alphabetical order; **Input Column**: `composition`
+- [X] T035 [US2] Implement `code/model_training.py` split strategy: Primary = cross-system (train Fe-based, test Zr-based); fallback = stratified random split (80/20) if N < 20 per family
+- [X] T036 [US2] Implement `code/model_training.py` to train Random Forest classifier with stratified 5-fold cross-validation and grid search
+- [X] T037 [US2] Implement `code/model_training.py` to train Gradient Boosting classifier with stratified 5-fold cross-validation and grid search
+- [X] T038 [US2] Implement `code/model_training.py` to compute accuracy and AUC-ROC metrics for both models
+- [~] T039 [US2] Implement `code/model_training.py` cross-system validation: Calculate and report AUC-ROC on external family (e.g., Zr-based) if trained on Fe-based; **Output**: `results/reports/cross_system_metrics.json`; **Note**: Constitution Principle VII requires AUC ≥ 0.70 for generalizability claims, but Spec SC-002 defers the target; report measured value and flag if < 0.70
+- [~] T040 [US2] Save model artifacts to `results/models/` (pkl files)
 - [ ] T041 [US2] Generate performance report to `results/reports/model_metrics.json`
-- [ ] T042 [P] [US2] Unit test for family assignment logic in `tests/unit/test_family_assignment.py`
+- [X] T042 [P] [US2] Unit test for family assignment logic in `tests/unit/test_family_assignment.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

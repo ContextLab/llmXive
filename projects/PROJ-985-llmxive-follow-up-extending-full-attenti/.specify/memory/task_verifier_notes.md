@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T046b** — The repository contains `code/data/generate_manifest.py`, but the script is truncated and does not show any code that writes `data/config/document_manifest.json`. Moreover, the required `document_manifest.json` file is missing entirely, so the verification conditions (file existence, 50 unique IDs, determinism) are not met. The implementer must add the missing logic to save the IDs and ensure the JSON file is created.
+- **T011** — The required manifest `data/config/document_manifest.json` and the resulting `data/intermediate/downloaded_docs.jsonl` are both absent, so the verification step cannot succeed. Moreover, the provided `code/data/download.py` is truncated and does not show the actual streaming download, error handling, or writing of the filtered JSONL, leaving the core functionality unproven. The implementer must supply the manifest, ensure the script creates the exact 50‑document JSONL file, and include the full streaming download logic.

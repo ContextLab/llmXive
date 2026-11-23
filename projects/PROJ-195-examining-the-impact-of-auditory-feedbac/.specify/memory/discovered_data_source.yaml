@@ -1,0 +1,15 @@
+status: none
+intent: download OpenNeuro ds000246 fMRI motor sequence task python package dataset
+required_fields:
+- subject_id
+- run_id
+- event_onset
+- event_duration
+- condition_label
+- auditory_feedback_type
+- reaction_time
+- block_number
+- block_mean_reaction_time
+cache_key: 8c7f25cafb77edece7300b5b29605d8e59cea4ce64fa88aec4df5185a15baeff
+searched_at: '2026-10-10T04:17:13.716560+00:00'
+retry_count: 1

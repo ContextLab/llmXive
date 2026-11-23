@@ -6,7 +6,7 @@
 ## Summary
 This project investigates the association between defect chemistry (vacancies, interstitials, antisites) and ionic conductivity in solid electrolytes. The approach involves downloading crystal structures, computing defect formation energies and migration barriers using DFT (Quantum ESPRESSO) for a high-fidelity subset, and using semi-empirical approximations for the remaining compositions to meet statistical power requirements. Statistical correlation analysis uses scikit-learn to regress experimental conductivity against the computed **Total Activation Energy (Ea = Ef + Em)**. The plan explicitly addresses reviewer concerns regarding supercell size, physical model completeness, and data independence.
 
-> **Note on Spec Constraint (FR-003)**: The original spec (FR-003) mandated "≤8 atoms per defect system". This constraint is physically insufficient for accurate defect modeling in complex oxides (e.g., LLZO) and would introduce errors >1 eV. The plan adopts a **hybrid strategy**: DFT with 2x2x2 expansion (allowing >8 atoms) for a high-fidelity subset (3-5 compositions), and semi-empirical methods for the rest. This deviation is a necessary scientific correction to ensure validity; the spec will be updated in the implementation phase to reflect this requirement.
+> **Note on Spec Constraint (FR-003)**: The original spec (FR-003) mandated "≤8 atoms per defect system". This constraint is physically insufficient for accurate defect modeling in complex oxides (e.g., LLZO) and would introduce errors >1 eV. The plan adopts a **hybrid strategy**: DFT with 2x2x2 expansion (allowing >8 atoms) for a high-fidelity subset (-5 compositions), and semi-empirical methods for the rest. This deviation is a necessary scientific correction to ensure validity; the spec will be updated in the implementation phase to reflect this requirement.
 
 ## Technical Context
 
@@ -14,12 +14,12 @@ This project investigates the association between defect chemistry (vacancies, i
 **Primary Dependencies**: `pymatgen`, `ase`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pydantic`
 **Storage**: Local file system (`data/` for raw/processed data, `code/` for scripts)
 **Testing**: `pytest` (unit tests for data validation, integration tests for pipeline execution)
-**Target Platform**: GitHub Actions (Ubuntu-latest, CPU-only, 2 cores, ~7 GB RAM)
+**Target Platform**: GitHub Actions (Ubuntu-latest, CPU-only, cores, ~7 GB RAM)
 **Project Type**: Computational Materials Science / Data Analysis Pipeline
 **Performance Goals**: Complete data download and validation in <30 mins; DFT calculations for 3-5 representative systems within 6h job limit; statistical analysis in <10 mins.
 **Constraints**: 
 - NO GPU usage.
-- **Hybrid Strategy**: High-fidelity DFT (2x2x2 expansion, >8 atoms allowed) for 3-5 compositions; Semi-empirical methods for remaining 7-9 compositions to achieve n≥12.
+- **Hybrid Strategy**: High-fidelity DFT (2x2x2 expansion, >8 atoms allowed) for 3-5 compositions; Semi-empirical methods for remaining -9 compositions to achieve n≥12.
 - No VASP (licensing); must use Quantum ESPRESSO or semi-empirical approximations if DFT fails.
 - All data must be checksummed and reproducible.
 

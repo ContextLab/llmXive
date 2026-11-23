@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Session State"
+description: "Atomic state object from the Session-First architecture."
+type: object
+required:
+  - workflow_id
+  - step_id
+  - state_snapshot
+  - transcript
+properties:
+  workflow_id:
+    type: string
+  step_id:
+    type: string
+  state_snapshot:
+    type: object
+    description: "Complete state at this step."
+    additionalProperties: true
+  transcript:
+    type: string
+    description: "Full decision rationale for this step."
+  corruption_flag:
+    type: boolean
+    default: false
+additionalProperties: false

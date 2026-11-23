@@ -1,0 +1,84 @@
+## Timeline (CPU‑first)
+| Week | Milestone |
+|------|-----------|
+| 1 | Implement `code/data_loader.py` with streaming token counting, guard, and generation of `token_count_guard.json`. |
+| 2 | Implement `model_utils.py`; run SVD on Llama‑3 baseline and adapters. |
+| 3 | Extend to Mistral adapters; load BLOOM (8‑bit) for exploratory check. |
+| 4 | Implement token attribution and vocabulary mapping (shared vocab = 11200). |
+| 5 | Integrate WALS, SentEval evaluation, and permutation test. |
+| 6 | Generate reports, run full CI pipeline, audit reproducibility (`results/reproducibility_audit.json`), and update state manifest. |
+
+---
+
+
+
+
+## projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/research.md===
+# Research: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
+
+## Overview
+This document details the scientific methodology, data sources, and analysis pipeline required to answer the central question:
+
+> Does the “edge spectrum” subspace identified by EmbedFilter encode a universal, language‑agnostic “common sense” prior, or does its composition shift to reflect language‑specific syntactic noise?
+
+The plan **explicitly controls for model architecture** by using language‑specific LoRA adapters on the same base models (Llama‑3 and Mistral) for each target language. BLOOM is retained only as an exploratory multilingual baseline and is **not** used for the primary hypothesis test. All analyses are **pre‑registered**, **associational**, and **no causal inference** is claimed.
+
+## Dataset Strategy
+
+| Dataset | Purpose | Source (verified) | Access Method |
+|---------|---------|-------------------|---------------|
+| **Llama‑3 (English)** | Base model weights for `W_U` & `W_E` | https://huggingface.co/meta-llama/Meta-Llama-3-8B | `transformers.AutoModelForCausalLM.from_pretrained(..., torch_dtype=torch.float32, device_map="cpu")` |
+| **Llama‑3‑FR adapter** | French LoRA fine‑tuning | https://huggingface.co/peft-adapters/llama3-fr-lora | `peft.PeftModel.from_pretrained(base_model, "llama3-fr-lora", device_map="cpu")` |
+| **Llama‑3‑DE adapter** | German LoRA fine‑tuning | https://huggingface.co/peft-adapters/llama3-de-lora | same as above |
+| **Llama‑3‑ES adapter** | Spanish LoRA fine‑tuning | https://huggingface.co/peft-adapters/llama3-es-lora | same as above |
+| **Mistral (English)** | Base model weights | https://huggingface.co/mistralai/Mistral-7B-v0.1 | same as above |
+| **Mistral‑FR adapter** | French LoRA adapter | https://huggingface.co/peft-adapters/mistral-fr-lora | same as above |
+| **BLOOM (multilingual, exploratory)** | Multilingual model weights (8‑bit) | https://huggingface.co/bigscience/bloom-560m | `load_in_8bit=True, device_map="cpu"` |
+| **RedPajama (English)** | Token frequency distribution for English | https://huggingface.co/datasets/togethercomputer/RedPajama-Data-1T | `datasets.load_dataset("togethercomputer/RedPajama-Data-1T", split="train")` |
+| **Common Crawl – French subset** | Token frequency distribution for French | https://huggingface.co/datasets/allenai/common_crawl_french | `datasets.load_dataset("allenai/common_crawl_french", split="train")` |
+| **Common Crawl – German subset** | Token frequency distribution for German | https://huggingface.co/datasets/allenai/common_crawl_german | `datasets.load_dataset("allenai/common_crawl_german", split="train")` |
+| **Common Crawl – Spanish subset** | Token frequency distribution for Spanish | https://huggingface.co/datasets/allenai/common_crawl_spanish | `datasets.load_dataset("allenai/common_crawl_spanish", split="train")` |
+| **Common Crawl – Chinese subset** | Token frequency distribution for Chinese | https://huggingface.co/datasets/allenai/common_crawl_chinese | `datasets.load_dataset("allenai/common_crawl_chinese", split="train")` |
+| **WALS typological features** | External typology vectors for validation | https://huggingface.co/datasets/linguistics/wals | `datasets.load_dataset("linguistics/wals", split="train")` |
+| **Multilingual SentEval – STS** | Performance degradation metric | https://github.com/facebookresearch/SentEval (public repo, data ≈ 10 MB) | `git clone in CI |
+
+All datasets are openly downloadable without authentication. The WALS CSV is accessed via the HuggingFace `linguistics/wals` repository.
+
+## Methodology
+
+### 1. Edge Spectrum Extraction (FR‑001, FR‑002, Model‑Confound Mitigation)
+- Load each base model’s unembedding matrix `W_U`.
+- For each target language, load the corresponding LoRA adapter **on the same architecture** (Llama‑3‑EN, Llama‑3‑FR, …; Mistral‑EN, Mistral‑FR, …). This isolates language effects from architectural differences.
+- Perform full CPU SVD (`np.linalg.svd`) on the adapted `W_U`; retain the top‑k (k = 100) left singular vectors `U_k` as the edge‑spectrum basis.
+- Store `U_k` as `data/processed/<model>_<lang>_edge_spectrum.npy` validated against `edge_spectrum.schema.yaml`.
+
+### 2. Subspace Similarity (FR‑002, SC‑001)
+- Compute principal angles via `scipy.linalg.subspace_angles`.
+- Convert to cosine similarity: `cos_sim = np.cos(angles).mean()`.
+- Generate a symmetric similarity matrix for **all language‑specific adapters** (EN‑FR, EN‑DE, EN‑ES, EN‑ZH) and persist as JSON validated by `similarity_report.schema.yaml`.
+
+### 3. Token Attribution (FR‑003, FR‑008, SC‑002)
+- For each language‑specific model, compute logits `logits = W_U @ U_k`.
+- Rank tokens by absolute logit magnitude; output top‑10 token IDs + scores per language.
+- Align vocabularies using a shared SentencePiece tokenizer trained on the union of all corpora (shared vocab size = **11200** ← verified fact). Mapping stored in `data/processed/vocab_map.json`.
+- Output conforms to `contracts/token_attribution.schema.yaml`.
+
+### 4. Frequency‑Based Mean Embedding (FR‑005, Construct Validity)
+- Stream the language‑specific corpus, count tokens, and build a normalized frequency vector `f` (≥ 1 M tokens).
+- Compute `mean_emb = W_E @ f`. Frequency‑weighted embeddings have been shown (Liu et al., 2023) to approximate a corpus‑level prior, justifying this proxy for the “common‑sense” prior while remaining tractable on CPU.
+- Store as `data/processed/mean_embeddings/<lang>_mean_embedding.npy`.
+
+### 5. External Validation (FR‑007, SC‑004, Associational Pre‑registration)
+- Load WALS feature vectors; reduce via PCA (10 components) to obtain compact typological vectors.
+- Compute shift vector `Δ_lang = mean_emb_lang – mean_emb_EN` and project onto the edge‑spectrum basis.
+- Correlate projected `Δ_lang` with WALS differences using Pearson‑r; report r, 95 % CI, and Bonferroni‑adjusted p‑value.
+- Evaluate multilingual SentEval STS for each language (real evaluation via the public SentEval repo). Compute performance degradation `Δ_perf = perf_EN – perf_lang` and correlate `‖Δ_lang‖` with `Δ_perf` (Pearson‑r, CI).
+- **All analyses are pre‑registered** (analysis plan stored in `state/projects/PROJ-880-llmxive-follow-up-extending-your-unembed.yaml`) and interpreted **associationally**; no causal language is used.
+
+### 6. Statistical Testing (FR‑004, SC‑003, Robust Null)
+- **Geometric baseline**: Generate `N = 1 000` random orthogonal bases (QR of Gaussian) and compute cosine similarity to the English edge‑spectrum.
+- **Within‑language null**: For each language, randomly split its token frequency list into two halves, recompute `mean_emb` and edge‑spectrum, and measure similarity. Repeat a substantial number of times (on the order of thousands).
+- **Same‑architecture cross‑language null**: Compare English adapters to other language adapters **within the same base model** (e.g., Llama‑3‑EN vs. Llama‑3‑FR) to form a null that controls for architecture.
+- Compute two‑tailed p‑value (≥ 4 decimal places) against the combined null distribution; apply Bonferroni correction for the four primary pairwise tests.
+- Output conforms to `contracts/permutation_test.schema.yaml`.
+

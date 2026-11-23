@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results Schema"
+type: "object"
+description: "Schema for evaluation metrics and statistical test results."
+required:
+  - "metrics"
+  - "statistics"
+properties:
+  metrics:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "condition"
+        - "dataset"
+        - "accuracy"
+        - "count"
+      properties:
+        condition:
+          type: "string"
+          enum:
+            - "selection"
+            - "ablation"
+            - "static"
+        dataset:
+          type: "string"
+          enum:
+            - "gsm8k_test"
+            - "math_500"
+        accuracy:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+        count:
+          type: "integer"
+          minimum: 1
+  statistics:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "test_type"
+        - "comparison"
+        - "statistic"
+        - "p_value"
+        - "corrected_p_value"
+        - "significant"
+      properties:
+        test_type:
+          type: "string"
+          enum:
+            - "paired_t_test"
+            - "wilcoxon_signed_rank"
+        comparison:
+          type: "string"
+          enum:
+            - "selection_vs_ablation"
+            - "selection_vs_static"
+            - "ablation_vs_static"
+        statistic:
+          type: "number"
+        p_value:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+        corrected_p_value:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+        significant:
+          type: "boolean"
+additionalProperties: false

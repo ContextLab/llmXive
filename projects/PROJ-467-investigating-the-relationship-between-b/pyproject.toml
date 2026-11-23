@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "brainnet"
 version = "0.1.0"
-description = "Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Tactile Discrimination"
+description = "Investigating the relationship between brain network dynamics and individual differences in tactile discrimination"
 requires-python = ">=3.11"
 dependencies = [
     "numpy",
@@ -18,20 +18,13 @@ dependencies = [
     "datasets",
     "pytest",
     "jsonschema",
+    "ruff",
+    "black",
+    "isort",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
-    "pytest",
-]
-
-[tool.ruff]
-# Inherit settings from .ruff.toml if needed, or define here
-line-length = 88
-target-version = "py311"
+[tool.setuptools.packages.find]
+where = ["."]
 
 [tool.black]
 line-length = 88
@@ -40,14 +33,14 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
@@ -55,21 +48,35 @@ exclude = '''
 profile = "black"
 line_length = 88
 known_first_party = ["brainnet"]
-known_third_party = [
-    "datasets",
-    "jsonschema",
-    "networkx",
-    "nilearn",
-    "numpy",
-    "pandas",
-    "pingouin",
-    "pytest",
-    "scikit_learn",
-    "scipy",
-    "statsmodels",
+skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
 ]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101"]  # Allow asserts in tests
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]

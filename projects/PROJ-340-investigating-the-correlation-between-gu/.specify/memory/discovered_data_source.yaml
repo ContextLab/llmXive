@@ -1,0 +1,14 @@
+status: none
+intent: download Qiita MG-RAST MESA SHHS PhysioNet gut microbiome sleep dataset python
+  package dataset
+required_fields:
+- subject_id
+- sample_id
+- taxon
+- count
+- REM_duration
+- SWS_duration
+- NREM_duration
+cache_key: a4c903779b1819e2cda25b2b3e20772824af43fd5d981edce0ae46fbc26e574f
+searched_at: '2026-08-20T06:37:11.225999+00:00'
+retry_count: 1

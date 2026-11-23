@@ -1,0 +1,9 @@
+{
+  "N_required": 50,
+  "N_per_group": 25,
+  "effect_size": 0.8,
+  "power": 0.8,
+  "alpha": 0.05,
+  "N_audit": 25,
+  "description": "Minimum total samples required to detect effect size 0.8 with 0.8 power."
+}

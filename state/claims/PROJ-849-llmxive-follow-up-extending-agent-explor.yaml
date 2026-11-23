@@ -1,0 +1,193 @@
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Load max 500 records with 7GB memory limit downsample
+  claim_id: c_8f6c3530
+  context: 'T005 Create src/lib/data_loader.py with strict real-data fetch logic:
+    HEAD request pre-check, ERR_DATASET_UNREACHABLE halt on failure, NO synthetic
+    fallback. Must implement: Load max 500 records; if memory usage > 7GB during load,
+    downsample to a subset of records using itertools.islice with a fixed seed. (FR-001,
+    FR-007, Constitution Principle II)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load max 500 records; if memory usage > 7GB during load, downsample to
+    a subset of records using itertools.islice with a fixed seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:51:46Z'
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Enforce 7 GB memory limit and hard timeout
+  claim_id: c_3d617d02
+  context: T004-ext Implement src/lib/resource_tracker.py to enforce a hard timeout
+    (using signal/threading) and 7 GB memory limit (using psutil), raising TimeoutExceededError
+    or MemoryLimitExceededError respectively.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce a hard timeout (using signal/threading) and 7 GB memory limit
+    (using psutil)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:52:09Z'
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Fatal error if sample size N < 30
+  claim_id: c_d26288ff
+  context: 'T005-ext CRITICAL: If the field is missing/null, skip the record and log
+    ERR_STRATIFICATION_FIELD_MISSING. Immediately after filtering, calculate the remaining
+    dataset size N. If N < 30, raise a fatal error ''Insufficient Sample Size for
+    Power Analysis'' and halt execution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N < 30, raise a fatal error 'Insufficient Sample Size for Power Analysis'
+    and halt execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:52:09Z'
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Model achieves > 60% accuracy and >= 0.65 AUC-ROC
+  claim_id: c_a830ede6
+  context: "Independent Test: The system outputs a Pearson correlation coefficient\
+    \ and p-value, flagging significant negative correlations. Goal: Train a Logistic\
+    \ Regression classifier to predict RL failure based on semantic divergence metrics.\
+    \ Independent Test: The model achieves accuracy > 60% and AUC-ROC \u2265 0.65\
+    \ on a held-out test set."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The model achieves accuracy > 60% and AUC-ROC \u2265 0.65 on a held-out\
+    \ test set."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:52:09Z'
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Generate SHA-256 content hashes
+  claim_id: c_ef626cb9
+  context: 'T037 Generate content hashes for raw data and derived artifacts using
+    SHA-256. Update state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml
+    under the key artifact_hashes with the exact file paths and format: filename:
+    <sha256_hash>.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate content hashes for raw data and derived artifacts using SHA-256.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:52:33Z'
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Use CPU-first DistilBERT for embeddings
+  claim_id: c_296962e7
+  context: 'Compute Rule: Use CPU-first (DistilBERT) for embeddings; only use GPU
+    if absolutely necessary for the specific model type (not applicable here as per
+    spec).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_CPU-first_DistilBERT_for_embeddings
+  kind: entity_fact
+  raw_text: Use CPU-first (DistilBERT) for embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:52:59Z'
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project
+  claim_id: c_251c8209
+  context: T002 Initialize Python 3.11 project with requirements.txt (transformers,
+    rank_bm25, scikit-learn, pandas, datasets, pyyaml)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:53:26Z'
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Synthetic orthogonal inputs return similarity <= 0.05
+  claim_id: c_95b772ff
+  context: "T012 Unit test for synthetic orthogonal inputs (similarity \u2264 0.05)\
+    \ in tests/unit/test_metrics.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Return similarity \u2264 0.05 for synthetic orthogonal inputs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:53:27Z'
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Synthetic identical inputs return similarity >= 0.99
+  claim_id: c_50a0045e
+  context: "T013 Unit test for synthetic identical inputs (similarity \u2265 0.99)\
+    \ in tests/unit/test_metrics.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Return similarity \u2265 0.99 for synthetic identical inputs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:53:27Z'
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Zero-retrieval edge case returns zero vector and score 1.0
+  claim_id: c_52c09238
+  context: T011 Unit test for zero-retrieval edge case (returns zero vector, score=1.0)
+    in tests/unit/test_retrieval.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Return zero vector and score=1.0 for zero-retrieval edge case.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:53:52Z'
+- artifact_path: projects/PROJ-849-llmxive-follow-up-extending-agent-explor/specs/001-llmxive-follow-up-extending-agent-explor/tasks.md
+  attempts: 1
+  canonical: Random data test yields p-value > 0.05
+  claim_id: c_63d3fa48
+  context: T020 Unit test for random data (p-value > 0.05) in tests/unit/test_analysis.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test for random data yields p-value > 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-02T12:53:52Z'

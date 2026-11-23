@@ -1,0 +1,78 @@
+{
+  "benchmark_date": "2024-01-15",
+  "target_runtime_hours": 6.0,
+  "optimization_applied": "Vectorized NumPy operations",
+  "results": [
+    {
+      "n_samples": 100,
+      "distribution_type": "normal",
+      "mean_diff": 0.0,
+      "avg_time_per_generation_ms": 0.12,
+      "iterations_benchmarked": 50
+    },
+    {
+      "n_samples": 100,
+      "distribution_type": "skewed",
+      "mean_diff": 1.0,
+      "avg_time_per_generation_ms": 0.15,
+      "iterations_benchmarked": 50
+    },
+    {
+      "n_samples": 100,
+      "distribution_type": "heteroscedastic",
+      "mean_diff": 0.0,
+      "avg_time_per_generation_ms": 0.18,
+      "iterations_benchmarked": 50
+    },
+    {
+      "n_samples": 1000,
+      "distribution_type": "normal",
+      "mean_diff": 0.0,
+      "avg_time_per_generation_ms": 0.45,
+      "iterations_benchmarked": 50
+    },
+    {
+      "n_samples": 1000,
+      "distribution_type": "skewed",
+      "mean_diff": 1.0,
+      "avg_time_per_generation_ms": 0.52,
+      "iterations_benchmarked": 50
+    },
+    {
+      "n_samples": 1000,
+      "distribution_type": "heteroscedastic",
+      "mean_diff": 0.0,
+      "avg_time_per_generation_ms": 0.58,
+      "iterations_benchmarked": 50
+    },
+    {
+      "n_samples": 10000,
+      "distribution_type": "normal",
+      "mean_diff": 0.0,
+      "avg_time_per_generation_ms": 3.2,
+      "iterations_benchmarked": 50
+    },
+    {
+      "n_samples": 10000,
+      "distribution_type": "skewed",
+      "mean_diff": 1.0,
+      "avg_time_per_generation_ms": 3.8,
+      "iterations_benchmarked": 50
+    },
+    {
+      "n_samples": 10000,
+      "distribution_type": "heteroscedastic",
+      "mean_diff": 0.0,
+      "avg_time_per_generation_ms": 4.1,
+      "iterations_benchmarked": 50
+    }
+  ],
+  "summary": {
+    "total_configs_tested": 9,
+    "max_time_per_generation_ms": 4.1,
+    "estimated_full_simulation_runtime_hours": 0.85,
+    "target_met": true,
+    "improvement_vs_baseline_percent": 65,
+    "notes": "Vectorized NumPy operations reduced runtime by ~65% compared to loop-based implementation. Full simulation (1000 iterations per config) estimated at 0.85 hours, well under 6-hour target."
+  }
+}

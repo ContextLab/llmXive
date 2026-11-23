@@ -1,150 +1,171 @@
 """
-Unit tests for the experiment configuration manager.
+Unit tests for configuration constants and utilities in code/config.py.
+Validates SENSITIVITY_CUTOFFS, STRATIFICATION_THRESHOLDS, and directory handling.
 """
-
-import pytest
 import os
+import sys
+import pytest
+import tempfile
+from pathlib import Path
 
-from code.config import (
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from config import (
     ExperimentConfig,
-    CUTOFFS,
-    DEFAULT_SEED,
-    ensure_directories,
     get_default_config,
+    get_default_config_dict,
+    ensure_directories,
+    set_random_seed,
+    SENSITIVITY_CUTOFFS,
+    STRATIFICATION_THRESHOLDS
 )
 
 
-class TestCutoffs:
-    """Test the CUTOFFS constant as per Spec FR-007."""
+class TestConfigConstants:
+    """Tests for global configuration constants defined in config.py."""
 
-    def test_cutoffs_contains_required_values(self):
-        """Verify CUTOFFS contains exactly {0.01, 0.05, 0.1}."""
+    def test_sensitivity_cutoffs_defined(self):
+        """Verify SENSITIVITY_CUTOFFS is defined and is a set."""
+        assert SENSITIVITY_CUTOFFS is not None
+        assert isinstance(SENSITIVITY_CUTOFFS, set)
+
+    def test_sensitivity_cutoffs_values(self):
+        """Verify SENSITIVITY_CUTOFFS contains the expected values {0.01, 0.05, 0.1}."""
         expected = {0.01, 0.05, 0.1}
-        assert CUTOFFS == expected, f"CUTOFFS must be {expected}, got {CUTOFFS}"
+        assert SENSITIVITY_CUTOFFS == expected
 
-    def test_cutoffs_is_set(self):
-        """Verify CUTOFFS is a set."""
-        assert isinstance(CUTOFFS, set), "CUTOFFS must be a set"
+    def test_sensitivity_cutoffs_types(self):
+        """Verify all elements in SENSITIVITY_CUTOFFS are floats."""
+        for val in SENSITIVITY_CUTOFFS:
+            assert isinstance(val, float), f"Value {val} is not a float"
 
+    def test_stratification_thresholds_defined(self):
+        """Verify STRATIFICATION_THRESHOLDS is defined and is a set."""
+        assert STRATIFICATION_THRESHOLDS is not None
+        assert isinstance(STRATIFICATION_THRESHOLDS, set)
 
-class TestExperimentConfig:
-    """Test the ExperimentConfig class."""
+    def test_stratification_thresholds_values(self):
+        """Verify STRATIFICATION_THRESHOLDS contains the expected values {0.5, 5.0}."""
+        expected = {0.5, 5.0}
+        assert STRATIFICATION_THRESHOLDS == expected
 
-    def test_default_initialization(self):
-        """Test default configuration initialization."""
-        config = ExperimentConfig()
-        assert config.seed == DEFAULT_SEED
-        assert config.device == "cpu"
-        assert config.batch_size == 1
-        assert config.num_clips == 50
-        assert config.flow_model == "raft-small"
-        assert config.cutoffs == CUTOFFS
-
-    def test_custom_seed(self):
-        """Test custom seed initialization."""
-        config = ExperimentConfig(seed=123)
-        assert config.seed == 123
-
-    def test_custom_cutoffs(self):
-        """Test custom cutoffs initialization."""
-        custom_cutoffs = {0.02, 0.06, 0.12}
-        config = ExperimentConfig(cutoffs=custom_cutoffs)
-        assert config.cutoffs == custom_cutoffs
-
-    def test_invalid_seed(self):
-        """Test that negative seed raises ValueError."""
-        with pytest.raises(ValueError, match="Seed must be non-negative"):
-            ExperimentConfig(seed=-1)
-
-    def test_invalid_batch_size(self):
-        """Test that batch_size < 1 raises ValueError."""
-        with pytest.raises(ValueError, match="Batch size must be at least 1"):
-            ExperimentConfig(batch_size=0)
-
-    def test_invalid_num_clips(self):
-        """Test that num_clips < 1 raises ValueError."""
-        with pytest.raises(ValueError, match="Number of clips must be at least 1"):
-            ExperimentConfig(num_clips=0)
-
-    def test_invalid_device(self):
-        """Test that invalid device raises ValueError."""
-        with pytest.raises(ValueError, match="Device must be 'cpu' or 'cuda'"):
-            ExperimentConfig(device="tpu")
-
-    def test_to_dict(self):
-        """Test conversion to dictionary."""
-        config = ExperimentConfig(seed=42, device="cpu", batch_size=2)
-        config_dict = config.to_dict()
-        assert isinstance(config_dict, dict)
-        assert config_dict["seed"] == 42
-        assert config_dict["device"] == "cpu"
-        assert config_dict["batch_size"] == 2
-        assert "cutoffs" in config_dict
-        assert isinstance(config_dict["cutoffs"], list)
-
-    def test_reproducibility(self):
-        """Test that seeds are set correctly for reproducibility."""
-        import random
-        import numpy as np
-        import torch
-
-        config1 = ExperimentConfig(seed=42)
-        config2 = ExperimentConfig(seed=42)
-
-        # Both should produce same random values
-        random.seed(42)
-        val1 = random.random()
-        np.random.seed(42)
-        val2 = np.random.random()
-        torch.manual_seed(42)
-        val3 = torch.rand(1).item()
-
-        random.seed(42)
-        val4 = random.random()
-        np.random.seed(42)
-        val5 = np.random.random()
-        torch.manual_seed(42)
-        val6 = torch.rand(1).item()
-
-        assert val1 == val4
-        assert val2 == val5
-        assert abs(val3 - val6) < 1e-6
-
-
-class TestGetDefaultConfig:
-    """Test the get_default_config function."""
-
-    def test_returns_experiment_config(self):
-        """Test that get_default_config returns an ExperimentConfig."""
-        config = get_default_config()
-        assert isinstance(config, ExperimentConfig)
-
-    def test_has_correct_defaults(self):
-        """Test that default config has correct values."""
-        config = get_default_config()
-        assert config.seed == DEFAULT_SEED
-        assert config.cutoffs == CUTOFFS
+    def test_stratification_thresholds_types(self):
+        """Verify all elements in STRATIFICATION_THRESHOLDS are floats."""
+        for val in STRATIFICATION_THRESHOLDS:
+            assert isinstance(val, float), f"Value {val} is not a float"
 
 
 class TestEnsureDirectories:
-    """Test the ensure_directories function."""
+    """Tests for the ensure_directories utility function."""
 
-    def test_creates_directories(self):
-        """Test that ensure_directories creates required directories."""
-        # Clean up if they exist
-        dirs_to_check = [
-            "data/raw",
-            "data/flow",
-            "data/metrics",
-            "results",
-        ]
+    def test_ensure_directories_single_string(self):
+        """Test ensure_directories with a single string path."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = os.path.join(tmpdir, "test_dir")
+            ensure_directories(target)
+            assert os.path.isdir(target)
 
-        # Run the function
-        ensure_directories()
+    def test_ensure_directories_path_object(self):
+        """Test ensure_directories with a pathlib.Path object."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir) / "test_dir_path"
+            ensure_directories(target)
+            assert target.is_dir()
 
-        # Verify directories exist
-        for dir_path in dirs_to_check:
-            assert os.path.exists(dir_path), f"Directory {dir_path} was not created"
+    def test_ensure_directories_list_of_strings(self):
+        """Test ensure_directories with a list of string paths."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target1 = os.path.join(tmpdir, "dir1")
+            target2 = os.path.join(tmpdir, "dir2")
+            ensure_directories([target1, target2])
+            assert os.path.isdir(target1)
+            assert os.path.isdir(target2)
 
-        # Clean up (optional, for test isolation)
-        # Note: In real CI, we might want to keep these for debugging
+    def test_ensure_directories_list_of_paths(self):
+        """Test ensure_directories with a list of Path objects."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target1 = Path(tmpdir) / "dir1"
+            target2 = Path(tmpdir) / "dir2"
+            ensure_directories([target1, target2])
+            assert target1.is_dir()
+            assert target2.is_dir()
+
+    def test_ensure_directories_nested_creation(self):
+        """Test ensure_directories creates nested directories if they don't exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = os.path.join(tmpdir, "level1", "level2", "level3")
+            ensure_directories(target)
+            assert os.path.isdir(target)
+
+    def test_ensure_directories_existing_dir(self):
+        """Test ensure_directories does not raise on existing directories."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            ensure_directories(tmpdir)
+            # Should not raise
+
+
+class TestExperimentConfig:
+    """Tests for the ExperimentConfig dataclass."""
+
+    def test_experiment_config_creation(self):
+        """Test creating an ExperimentConfig instance with defaults."""
+        cfg = ExperimentConfig()
+        assert cfg is not None
+        assert isinstance(cfg.seed, int)
+        assert isinstance(cfg.device, str)
+
+    def test_experiment_config_custom_values(self):
+        """Test creating an ExperimentConfig instance with custom values."""
+        cfg = ExperimentConfig(seed=42, device="cpu", batch_size=16)
+        assert cfg.seed == 42
+        assert cfg.device == "cpu"
+        assert cfg.batch_size == 16
+
+
+class TestGetDefaultConfig:
+    """Tests for get_default_config and get_default_config_dict."""
+
+    def test_get_default_config_returns_dict(self):
+        """Verify get_default_config returns a dictionary."""
+        cfg = get_default_config()
+        assert isinstance(cfg, dict)
+
+    def test_get_default_config_dict_returns_dict(self):
+        """Verify get_default_config_dict returns a dictionary."""
+        cfg = get_default_config_dict()
+        assert isinstance(cfg, dict)
+
+    def test_config_contains_expected_keys(self):
+        """Verify the config dictionary contains expected keys."""
+        cfg = get_default_config()
+        expected_keys = ["seed", "device", "batch_size", "num_workers"]
+        for key in expected_keys:
+            assert key in cfg, f"Key '{key}' missing from config"
+
+
+class TestSetRandomSeed:
+    """Tests for set_random_seed function."""
+
+    def test_set_random_seed_no_error(self):
+        """Verify set_random_seed executes without raising an exception."""
+        try:
+            set_random_seed(42)
+        except Exception as e:
+            pytest.fail(f"set_random_seed raised an exception: {e}")
+
+    def test_set_random_seed_reproducibility(self):
+        """Verify set_random_seed produces reproducible results."""
+        import numpy as np
+        import torch
+
+        set_random_seed(123)
+        a = np.random.rand(5)
+        b = torch.rand(5)
+
+        set_random_seed(123)
+        c = np.random.rand(5)
+        d = torch.rand(5)
+
+        assert np.allclose(a, c), "NumPy seed not reproducible"
+        assert torch.allclose(b, d), "PyTorch seed not reproducible"

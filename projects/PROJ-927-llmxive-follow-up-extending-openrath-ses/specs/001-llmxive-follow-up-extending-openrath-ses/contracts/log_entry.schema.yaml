@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Log Entry"
+description: "A single fragmented log entry from the Event-Log architecture."
+type: object
+required:
+  - workflow_id
+  - step_id
+  - timestamp
+  - content
+properties:
+  workflow_id:
+    type: string
+  step_id:
+    type: string
+  timestamp:
+    type: string
+    format: date-time
+  content:
+    type: object
+    description: "The actual log data (transcript, snapshot, etc.)."
+    additionalProperties: true
+  corruption_flag:
+    type: boolean
+    default: false
+    description: "Set to true if this entry was modified/deleted by the injector."
+additionalProperties: false

@@ -23,15 +23,18 @@ RATE_LIMIT_BACKOFF_FACTOR: float = 2.0
 RATE_LIMIT_STATUS_FORCELIST: List[int] = [429, 500, 502, 503, 504]
 
 # ----------------------------------------------------------------------
-# Element Sets for Virtual Screening (US3)
+# Element Sets for Virtual Screening (US3) - STRICT FR-004
 # ----------------------------------------------------------------------
 # A-site elements: K, Rb, Cs, Ba, Sr (5 elements per plan.md Phase 3)
+# FR-004: Strict element set for screening
 ELEMENTS_A_SITE: Set[str] = {"K", "Rb", "Cs", "Ba", "Sr"}
 
-# B-site elements: Ti, Zr, Hf, Sn, Ge
-ELEMENTS_B_SITE: Set[str] = {"Ti", "Zr", "Hf", "Sn", "Ge"}
+# B-site elements: Ti, Zr, Hf (STRICT FR-004: Sn and Ge REMOVED)
+# FR-004: Strict element set for screening
+ELEMENTS_B_SITE: Set[str] = {"Ti", "Zr", "Hf"}
 
 # X-site elements (Halogens): F, Cl, Br, I
+# FR-004: Strict element set for screening
 ELEMENTS_X_SITE: Set[str] = {"F", "Cl", "Br", "I"}
 
 # Combined set for quick lookup

@@ -8,6 +8,7 @@ from utils.logging import get_logger
 logger = get_logger(__name__)
 
 # Define domains and their characteristics
+# Per T006: 2 profiles per domain (coding, math, logic, creative, factual)
 DOMAINS = {
     "coding": {
         "capability_rules": "Must provide syntactically correct code. Must include comments explaining logic. Must handle edge cases.",
@@ -31,48 +32,74 @@ DOMAINS = {
     }
 }
 
-def generate_profiles(count: int = 50, seed: int = 42) -> List[Dict[str, Any]]:
+def generate_profiles(count: int = 10, seed: int = 42) -> List[Dict[str, Any]]:
     """
-    Generate synthetic expert profiles.
+    Generate expert profiles for the COLLEAGUE.SKILL follow-up study.
+    
+    Per T006 requirements:
+    - Generates exactly 10 profiles (2 per domain).
+    - Domains: coding, math, logic, creative, factual.
+    - Schema: {"id": str, "domain": str, "capability_rules": str, "behavior_keywords": [str]}.
+    - Validates non-empty rules/keywords; skips malformed profiles.
+    - Raises on fatal errors (e.g., disk write failure).
     
     Args:
-        count: Total number of profiles to generate.
+        count: Total number of profiles to generate (default 10).
         seed: Random seed for reproducibility.
         
     Returns:
-        List of profile dictionaries.
+        List of valid profile dictionaries.
+        
+    Raises:
+        RuntimeError: If a fatal error occurs during generation.
     """
     set_global_seed(seed)
     profiles = []
-    profiles_per_domain = count // len(DOMAINS)
+    
+    # Enforce 2 per domain as per task description
+    profiles_per_domain = 2
+    domain_keys = list(DOMAINS.keys())
+    
+    # Ensure we have enough domains for the requested count
+    if len(domain_keys) * profiles_per_domain < count:
+        logger.warning(f"Requested {count} profiles, but domain structure limits to {len(domain_keys) * profiles_per_domain}. Adjusting count.")
+        count = len(domain_keys) * profiles_per_domain
     
     profile_id = 0
-    for domain, characteristics in DOMAINS.items():
+    for domain in domain_keys:
+        characteristics = DOMAINS[domain]
+        
+        # Validate domain definition before generating
+        if not characteristics.get("capability_rules") or not characteristics.get("behavior_keywords"):
+            logger.error(f"Domain '{domain}' has malformed characteristics (empty rules or keywords). Skipping.")
+            continue
+            
         for i in range(profiles_per_domain):
             profile_id += 1
-            profile = {
-                "id": f"prof_{profile_id:03d}",
-                "domain": domain,
-                "capability_rules": characteristics["capability_rules"],
-                "behavior_keywords": characteristics["behavior_keywords"]
-            }
-            profiles.append(profile)
+            try:
+                # Construct profile
+                profile = {
+                    "id": f"prof_{profile_id:03d}",
+                    "domain": domain,
+                    "capability_rules": characteristics["capability_rules"],
+                    "behavior_keywords": list(characteristics["behavior_keywords"]) # Ensure it's a list
+                }
+                
+                # Validation Logic: Check for non-empty rules and keywords
+                if not profile["capability_rules"] or not profile["behavior_keywords"]:
+                    logger.error(f"Generated profile {profile['id']} is malformed (missing keys). Skipping.")
+                    continue
+                    
+                profiles.append(profile)
+                
+            except Exception as e:
+                logger.error(f"Fatal error generating profile for domain {domain}: {e}")
+                raise RuntimeError(f"Internal generator failure: {e}")
     
-    # If count is not evenly divisible, add remaining profiles randomly
-    remaining = count - len(profiles)
-    if remaining > 0:
-        domains_list = list(DOMAINS.keys())
-        for i in range(remaining):
-            domain = random.choice(domains_list)
-            profile_id += 1
-            profile = {
-                "id": f"prof_{profile_id:03d}",
-                "domain": domain,
-                "capability_rules": DOMAINS[domain]["capability_rules"],
-                "behavior_keywords": DOMAINS[domain]["behavior_keywords"]
-            }
-            profiles.append(profile)
-    
+    if len(profiles) == 0:
+        raise RuntimeError("Fatal: No valid profiles could be generated.")
+        
+    logger.info(f"Successfully generated {len(profiles)} valid profiles.")
     return profiles
 
 def save_profiles(profiles: List[Dict[str, Any]], output_path: Path) -> None:
@@ -82,12 +109,19 @@ def save_profiles(profiles: List[Dict[str, Any]], output_path: Path) -> None:
     Args:
         profiles: List of profile dictionaries.
         output_path: Path to save the file.
+        
+    Raises:
+        RuntimeError: If file writing fails (strict failure).
     """
-    ensure_dir(output_path.parent)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        for profile in profiles:
-            f.write(json.dumps(profile, ensure_ascii=False) + '\n')
-    logger.info(f"Saved {len(profiles)} profiles to {output_path}")
+    try:
+        ensure_dir(output_path.parent)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            for profile in profiles:
+                f.write(json.dumps(profile, ensure_ascii=False) + '\n')
+        logger.info(f"Saved {len(profiles)} profiles to {output_path}")
+    except IOError as e:
+        logger.critical(f"Failed to write profiles to disk: {e}")
+        raise RuntimeError(f"Fatal disk write error: {e}")
 
 def load_profiles(input_path: Path) -> List[Dict[str, Any]]:
     """
@@ -98,6 +132,9 @@ def load_profiles(input_path: Path) -> List[Dict[str, Any]]:
         
     Returns:
         List of profile dictionaries.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
     """
     if not input_path.exists():
         raise FileNotFoundError(f"Profiles file not found: {input_path}")
@@ -107,17 +144,26 @@ def load_profiles(input_path: Path) -> List[Dict[str, Any]]:
         for line in f:
             line = line.strip()
             if line:
-                profiles.append(json.loads(line))
+                try:
+                    profiles.append(json.loads(line))
+                except json.JSONDecodeError as e:
+                    logger.warning(f"Skipping malformed JSON line in profiles file: {e}")
     return profiles
 
 def main():
     """Main entry point for profile generation."""
     set_global_seed(42)
     
+    # Output path as per project structure
     output_path = get_data_dir() / "interim" / "profiles.jsonl"
-    profiles = generate_profiles(count=50)
+    
+    # Generate exactly 10 profiles (2 per domain)
+    profiles = generate_profiles(count=10)
+    
+    # Save to disk
     save_profiles(profiles, output_path)
-    logger.info(f"Generated and saved {len(profiles)} profiles")
+    
+    logger.info(f"Profile generation complete: {len(profiles)} profiles written to {output_path}")
 
 if __name__ == "__main__":
     main()

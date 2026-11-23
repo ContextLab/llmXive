@@ -1,11 +1,13 @@
 """
-Statistical Summary Report Generator for PROJ-596.
+Statistical Summary Report Generator (Task T022)
 
-This module generates a comprehensive statistical summary report containing
-p-values, corrected p-values, effect sizes, and confidence intervals for each
-dataset comparison (bAbI, LAMBADA, Story Cloze).
+Generates a comprehensive statistical summary report containing p-values,
+corrected p-values, effect sizes, and confidence intervals for each dataset
+(bAbI, LAMBADA, Story Cloze).
 
-It relies on the analysis results produced by `code/evaluation/stats.py`.
+This module aggregates results from the paired statistical tests (T019),
+multiple comparison corrections (T020), and effect size calculations (T021)
+into a single JSON artifact.
 """
 
 import json
@@ -15,160 +17,179 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-# Import from sibling module based on API surface
-from evaluation.stats import run_all_analyses, save_analysis_results, load_recall_results
+# Import from existing project modules
+# stats.py contains the raw analysis results (t-tests, wilcoxon, etc.)
+from evaluation.stats import load_recall_results, run_all_analyses, save_analysis_results
+# effect_size.py contains Cohen's d calculations
+from evaluation.effect_size import calculate_effect_sizes_for_datasets, load_recall_results_from_json
+# multiple_comparison.py contains correction logic
+from evaluation.multiple_comparison import run_multiple_comparison_correction, load_p_values_from_analysis
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-DATASETS = ["babi", "lambada", "story_cloze"]
-RESULTS_DIR = Path("artifacts/results")
-ANALYSIS_FILE = RESULTS_DIR / "statistical_analysis_results.json"
-SUMMARY_FILE = RESULTS_DIR / "statistical_summary.json"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
+RESULTS_DIR = ARTIFACTS_DIR / "results"
+ANALYSIS_DIR = ARTIFACTS_DIR / "analysis"
 
+# Ensure directories exist
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
+
+DATASETS = ["babi", "lambada", "story_cloze"]
 
 def load_seed_accuracies() -> Dict[str, Dict[str, List[float]]]:
     """
-    Loads the recall accuracy results per seed for each dataset.
-    Expects `artifacts/results/recall_accuracy.json` to exist (produced by T015).
-    
-    Returns:
-        Dict mapping dataset name to dict of model type -> list of accuracies.
-        Structure: { dataset: { "spatial": [...], "baseline": [...] } }
+    Loads the recall accuracy results from the evaluation phase.
+    Returns a dictionary mapping dataset names to a dict of {seed: accuracy}.
     """
     recall_file = RESULTS_DIR / "recall_accuracy.json"
-    
     if not recall_file.exists():
         raise FileNotFoundError(
-            f"Required input file not found: {recall_file}. "
-            "Please ensure evaluation (T015) has been run to generate recall_accuracy.json."
+            f"Recall accuracy file not found at {recall_file}. "
+            "Please run the evaluation phase (T015) first."
         )
-
+    
     with open(recall_file, 'r') as f:
         data = json.load(f)
-
-    # Organize data for easier consumption by stats module
-    # Expected structure in recall_accuracy.json:
-    # {
-    #   "babi": { "spatial": [acc1, acc2...], "baseline": [acc1, acc2...] },
-    #   ...
-    # }
-    return data
-
+    
+    # Expected structure: {"babi": {"seed_-4": 0.85, ...}, ...}
+    # We need to ensure we have lists of accuracies per dataset for stats
+    formatted_data = {}
+    for dataset in DATASETS:
+        if dataset in data:
+            # Extract values (accuracies) for each seed
+            # The keys are typically "seed_-4", "seed_-3", etc.
+            accuracies = list(data[dataset].values())
+            formatted_data[dataset] = accuracies
+        else:
+            logger.warning(f"No data found for dataset: {dataset}")
+            formatted_data[dataset] = []
+    
+    return formatted_data
 
 def generate_statistical_summary() -> Dict[str, Any]:
     """
-    Generates the statistical summary report.
+    Generates the complete statistical summary report.
     
     This function:
-    1. Loads seed accuracies.
-    2. Runs the full statistical analysis pipeline (t-tests, normality checks, effect sizes).
-    3. Applies multiple comparison correction (Bonferroni/Holm).
-    4. Compiles the results into the final summary dictionary.
+    1. Loads recall accuracies from the evaluation phase.
+    2. Runs or loads paired statistical tests (t-test/Wilcoxon).
+    3. Applies multiple comparison corrections (Bonferroni/Holm).
+    4. Calculates effect sizes (Cohen's d) with confidence intervals.
+    5. Aggregates all results into a single summary dictionary.
     
     Returns:
-        Dict containing the full statistical summary.
+        Dict containing p-values, corrected p-values, effect sizes, and CIs.
     """
-    logger.info("Loading seed accuracies...")
-    try:
-        seed_accuracies = load_seed_accuracies()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
-
-    logger.info("Running statistical analyses for all datasets...")
+    logger.info("Generating statistical summary report...")
     
-    # Run analysis for each dataset
-    analysis_results = {}
+    # 1. Load Accuracies
+    seed_accuracies = load_seed_accuracies()
+    
+    # 2. Run Statistical Analysis (T019)
+    # This performs paired t-tests or Wilcoxon tests between Spatial and Baseline
+    # We assume the 'run_all_analyses' function in stats.py handles the comparison
+    # between the two model variants for each dataset.
+    # Note: In a real run, we would need to load the specific results of the
+    # Spatial vs Baseline comparison. Since the task implies the analysis is
+    # done, we simulate the structure or call the helper if it returns the dict.
+    
+    # For this implementation, we assume 'run_all_analyses' returns a dict
+    # of results per dataset if not saved, or we load from a saved file.
+    analysis_results_path = ANALYSIS_DIR / "statistical_analysis_results.json"
+    
+    if analysis_results_path.exists():
+        with open(analysis_results_path, 'r') as f:
+            analysis_data = json.load(f)
+    else:
+        # Fallback: run analysis if file missing (requires real data loaded)
+        # This part depends on how 'run_all_analyses' is implemented in stats.py
+        # Assuming it returns a dict: { "babi": { "p_value": ..., "test": ... } }
+        analysis_data = run_all_analyses(seed_accuracies)
+        save_analysis_results(analysis_data, analysis_results_path)
+
+    # 3. Multiple Comparison Correction (T020)
+    # Extract p-values from analysis data
+    p_values = {}
     for dataset in DATASETS:
-        if dataset not in seed_accuracies:
-            logger.warning(f"Skipping dataset '{dataset}' as no data found in recall_accuracy.json")
-            continue
-        
-        logger.info(f"Analyzing dataset: {dataset}")
-        # We assume the stats module handles the internal logic of comparing
-        # spatial vs baseline for the given dataset.
-        # The `run_all_analyses` function in stats.py is expected to orchestrate this
-        # or we call the specific runner if `run_all_analyses` is too generic.
-        # Based on API surface, `run_all_analyses` seems to be the entry point.
-        # However, to be safe and explicit, we might need to call `run_analysis_for_dataset`.
-        # Let's assume `run_all_analyses` iterates or we call the specific one.
-        # Re-reading API: `run_all_analyses` is listed. Let's use that if it handles the loop,
-        # otherwise we loop here. Given the task is to generate the summary, 
-        # we'll call the stats module's main analysis function.
-        
-        # Since `run_all_analyses` might expect file paths or specific arguments,
-        # and we have data in memory, let's look at the likely signature of `run_analysis_for_dataset`.
-        # It likely takes the data and returns the analysis dict.
-        # We will simulate the call to the stats module's logic.
-        
-        # Fallback: We will call the stats module's main function if it handles the flow,
-        # but since we need to pass data, let's assume we call the specific analysis function
-        # for each dataset using the loaded data.
-        
-        # Note: The API surface lists `run_analysis_for_dataset`. We will use that.
-        # We need to pass the spatial and baseline accuracies.
-        spatial_accs = seed_accuracies[dataset].get("spatial", [])
-        baseline_accs = seed_accuracies[dataset].get("baseline", [])
-        
-        if not spatial_accs or not baseline_accs:
-            logger.warning(f"Missing data for {dataset}, skipping.")
-            continue
-
-        # Call the stats module function
-        # Assuming `run_analysis_for_dataset` takes dataset_name, spatial, baseline
-        result = run_analysis_for_dataset(dataset, spatial_accs, baseline_accs)
-        analysis_results[dataset] = result
-
-    logger.info("Compiling statistical summary...")
+        if dataset in analysis_data:
+            p_values[dataset] = analysis_data[dataset].get('p_value')
     
+    corrected_results = run_multiple_comparison_correction(p_values)
+    
+    # 4. Effect Size Calculation (T021)
+    # Calculate Cohen's d and CI for each dataset
+    effect_size_data = calculate_effect_sizes_for_datasets(seed_accuracies)
+    
+    # 5. Assemble Final Report
     summary = {
-        "generated_at": None, # Will be set by the caller or stats module
-        "datasets": analysis_results,
-        "summary_statistics": {
-            "total_datasets_analyzed": len(analysis_results),
-            "datasets": list(analysis_results.keys())
-        }
+        "generated_at": str(Path.cwd()),
+        "datasets": {}
     }
+    
+    for dataset in DATASETS:
+        dataset_info = {
+            "p_value": None,
+            "corrected_p_value": None,
+            "correction_method": "Holm-Bonferroni",
+            "effect_size": None,
+            "ci_lower": None,
+            "ci_upper": None,
+            "interpretation": None,
+            "statistical_significance": None
+        }
+        
+        # P-value
+        if dataset in analysis_data:
+            dataset_info["p_value"] = analysis_data[dataset].get("p_value")
+        
+        # Corrected P-value
+        if dataset in corrected_results:
+            dataset_info["corrected_p_value"] = corrected_results[dataset].get("corrected_p_value")
+            dataset_info["correction_method"] = corrected_results[dataset].get("method", "Holm-Bonferroni")
+        
+        # Effect Size & CI
+        if dataset in effect_size_data:
+            es = effect_size_data[dataset]
+            dataset_info["effect_size"] = es.get("cohens_d")
+            dataset_info["ci_lower"] = es.get("ci_lower")
+            dataset_info["ci_upper"] = es.get("ci_upper")
+            dataset_info["interpretation"] = es.get("interpretation")
+        
+        # Significance Check
+        if dataset_info["corrected_p_value"] is not None:
+            dataset_info["statistical_significance"] = dataset_info["corrected_p_value"] < 0.05
+        
+        summary["datasets"][dataset] = dataset_info
     
     return summary
 
-
 def main():
     """
-    Main entry point for generating the statistical summary report.
-    Produces `artifacts/results/statistical_summary.json`.
+    Main entry point for generating the statistical summary.
     """
-    logger.info("Starting Statistical Summary Generation (T022)...")
-    
-    # Ensure output directory exists
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    
     try:
         summary = generate_statistical_summary()
         
-        # Add metadata
-        from datetime import datetime
-        summary["generated_at"] = datetime.utcnow().isoformat() + "Z"
-        
-        # Save to file
-        with open(SUMMARY_FILE, 'w') as f:
+        output_path = RESULTS_DIR / "statistical_summary.json"
+        with open(output_path, 'w') as f:
             json.dump(summary, f, indent=2)
         
-        logger.info(f"Statistical summary successfully written to {SUMMARY_FILE}")
-        return 0
+        logger.info(f"Statistical summary report generated successfully: {output_path}")
+        print(json.dumps(summary, indent=2))
         
+    except FileNotFoundError as e:
+        logger.error(f"Missing required data file: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Failed to generate statistical summary: {e}")
-        import traceback
-        traceback.print_exc()
-        return 1
-
+        logger.error(f"Error generating statistical summary: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

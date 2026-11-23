@@ -59,5 +59,15 @@
     "Tables/tab_case_study.tex",
     "Tables/tab_fewshot.tex",
     "Tables/tab_main.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "9679880cfa10376df61aa533f0cbeceec8ee69ef22e2786784f1e9e9fd71a363",
+      "bytes": 1210101
+    },
+    "original.pdf": {
+      "sha256": "9ddb47b45790b27cba76cbbe680ceea0b91af84b37ed972e72373363ed43f424",
+      "bytes": 1161087
+    }
+  }
 }

@@ -1,0 +1,31 @@
+Project Structure Verification (T001)
+======================================
+
+The following directories have been created or verified:
+
+[DIR] src/data
+[DIR] src/models
+[DIR] src/training
+[DIR] src/analysis
+[DIR] src/config
+[DIR] code/core
+[DIR] code/data
+[DIR] code/models
+[DIR] code/training
+[DIR] code/analysis
+[DIR] code/config
+[DIR] code/scripts
+[DIR] code/setup
+[DIR] tests/unit
+[DIR] tests/integration
+[DIR] tests/contract
+[DIR] contracts
+[DIR] data/raw
+[DIR] data/processed
+[DIR] data/results
+[DIR] data/checkpoints
+[DIR] artifacts
+[DIR] docs
+
+Status: All required directories exist.
+Note: This structure supports both the 'src/' plan and 'code/' API surface.

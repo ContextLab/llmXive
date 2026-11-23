@@ -1,122 +1,97 @@
 # Quantifying the Impact of Data Artifacts on Planetary Nebula Morphology
 
-**Project ID:** PROJ-319-quantifying-the-impact-of-data-artifacts
+**Project ID:** PROJ‑319
+**Branch:** `001-quantify-artifact-bias`
+**Created:** 2026‑06‑25
 
 ## Overview
 
-This research pipeline quantifies how instrumental data artifacts—specifically **Gaussian noise** and **pixel saturation**—bias morphological measurements (ellipticity and asymmetry) of Planetary Nebulae (PNe).
+This repository implements a computational pipeline to assess how common imaging artifacts—specifically Gaussian detector noise and pixel saturation—bias the measurement of morphological parameters (ellipticity and asymmetry) in planetary nebulae.
 
-Using high-fidelity synthetic planetary nebulae with known ground-truth morphology, we systematically inject controlled levels of noise and saturation. We then measure the deviation in derived metrics to:
-1. **Quantify Bias:** Determine the magnitude and direction of bias introduced by specific artifact levels.
-2. **Statistical Significance:** Apply rigorous statistical testing (t-tests with Bonferroni correction) to confirm that observed biases are non-random.
-3. **Derive Calibration:** Fit regression models to generate correction functions that can de-bias real observational data.
+The workflow:
+1. **Synthetic Data Generation** – Produce 50 synthetic, flux‑calibrated planetary nebula images with known ground‑truth ellipticity and asymmetry.
+2. **Artifact Injection** – Systematically inject Gaussian noise (σ = 0.01, 0.05, 0.10 × median signal) and apply saturation clipping (0 %–50 % in 5 % steps).
+3. **Metric Measurement** – Compute ellipticity (second‑order moments) and asymmetry (Conselice 2003) for each artifact‑augmented image.
+4. **Statistical Analysis** – Perform linear/polynomial regression of bias versus artifact intensity, applying Bonferroni correction for multiple testing.
+5. **Calibration & Validation** – Derive correction functions, validate on a held‑out synthetic subset, and evaluate on a small real HST validation set.
+6. **Reproducibility** – Log random seeds, artifact parameters, software versions, and generate a run manifest with checksums.
 
-This project adheres to the **llmXive** automated science pipeline principles, ensuring reproducibility, deterministic synthetic data generation, and strict separation of data, code, and analysis.
+The pipeline is fully automated via a single CLI entry point and is designed to run on CPU‑only runners (e.g., GitHub Actions free tier). All results are written to the `data/processed/` directory and documented in accompanying markdown reports.
 
-## Repository Structure
+## Quick‑start
 
-```text
-.
-├── code/ # Core Python modules
-│ ├── analysis/ # Statistical tests and regression models
-│ ├── io/ # FITS loading, validation, and writing
-│ ├── metrics/ # Ellipticity and Asymmetry calculation
-│ ├── synthetic/ # Nebula generation and artifact injection
-│ ├── config.py # Global configuration and seeds
-│ └── main.py # Pipeline orchestration (entry point)
-├── data/
-│ ├── raw/ # Real observational data (HST/MST) if available
-│ ├── synthetic/ # Generated synthetic images and ground truth JSONs
-│ ├── processed/ # Artifact-injected images and measurement results
-│ └── validation/ # Manual validation datasets
-├── logs/ # Execution logs and statistical reports
-├── tests/ # Unit, contract, and integration tests
-├── README.md # This file
-├── requirements.txt # Python dependencies
-└── quickstart.md # Detailed step-by-step execution guide
-```
-
-## Quickstart Guide
-
-### 1. Environment Setup
-
-Ensure you are using Python 3.11 or higher.
+The following instructions assume a POSIX‑compatible shell (Linux/macOS/WSL).
 
 ```bash
-# Create and activate a virtual environment
+# 1. Clone the repository
+git clone <repository-url>
+cd PROJ-319-quantifying-the-impact-of-data-artifacts
+
+# 2. Create and activate a virtual environment
 python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+source venv/bin/activate # Windows: venv\Scripts\activate
 
-# Install dependencies
+# 3. Install dependencies
+pip install --upgrade pip
 pip install -r requirements.txt
+
+# 4. Run the full pipeline
+python code/main.py --run-all
 ```
 
-### 2. Project Initialization
+The command above will:
+- Generate synthetic FITS images in `data/synthetic/`.
+- Produce ground‑truth metadata `data/synthetic/gt_metadata.json`.
+- Run noise and saturation sweeps, writing `noise_sweep_data.csv` and `saturation_sweep.csv` to `data/processed/`.
+- Perform regressions, saving `noise_stats.csv`, `saturation_stats.csv`, and the calibration model `calibration_functions.json`.
+- Validate the models on a held‑out subset and output `validation_results.csv`.
+- Create a reproducibility manifest `data/processed/run_manifest.json` and log files under `logs/`.
 
-Run the setup script to create the required directory structure.
+### Running Individual Stages
 
 ```bash
-python code/setup_dirs.py
+# Generate synthetic data only
+python code/main.py --mode generate --n-images 50
+
+# Inject artifacts and measure metrics
+python code/main.py --mode process
+
+# Fit calibration models
+python code/main.py --mode calibrate
+
+# Validate calibration functions
+python code/main.py --mode validate
+
+# Verify pipeline state (checks required files)
+python code/main.py --mode verify
 ```
 
-*This creates: `code/`, `data/`, `logs/`, and `tests/` subdirectories.*
+## Directory Structure
 
-### 3. Generate Synthetic Ground Truth
-
-Before running the pipeline, generate the baseline synthetic planetary nebulae with known ground-truth ellipticity and asymmetry.
-
-```bash
-python code/synthetic/generator.py
+```
+.
+├─ code/ # Source modules
+│ ├─ synthetic/ # Synthetic image generation & artifact injection
+│ ├─ metrics/ # Ellipticity & asymmetry calculations
+│ ├─ analysis/ # Statistics, regression, validation, power analysis
+│ └─ io/ # FITS/JSON I/O utilities and run manifest
+├─ data/
+│ ├─ synthetic/ # Generated FITS images + gt_metadata.json
+│ ├─ processed/ # Sweep CSVs, regression outputs, manifests
+│ └─ validation/ # Real HST images and validation results
+├─ logs/ # Log files (research.log, verification.log, etc.)
+├─ tests/ # Unit, contract, and integration tests
+├─ docs/ # Reports and documentation
+├─ requirements.txt # Pinned dependencies
+└─ README.md # This file
 ```
 
-**Output:**
-- `data/synthetic/nebula_base.fits`: Clean synthetic image.
-- `data/synthetic/gt_metadata.json`: Ground truth parameters (Single Source of Truth).
+## Reproducibility
 
-### 4. Run the Artifact Injection & Measurement Pipeline
-
-Execute the main pipeline to inject noise/saturation, measure metrics, and log bias.
-
-```bash
-python code/main.py
-```
-
-**Expected Outputs:**
-- `data/processed/noise_sweep_{sigma}.fits`: Images with injected noise.
-- `data/processed/saturation_sweep_{fraction}.fits`: Images with clipped saturation.
-- `logs/stats_results.csv`: Statistical significance of bias.
-- `logs/research.log`: Detailed run logs.
-
-### 5. Verification & Testing
-
-Run the test suite to ensure all components (loading, metrics, artifact injection) are functioning correctly.
-
-```bash
-pytest tests/ -v
-```
-
-### 6. Derive Calibration Functions
-
-Once data is collected, run the analysis module to fit regression models and generate calibration functions.
-
-```bash
-python code/analysis/regression.py
-```
-
-**Output:**
-- `data/processed/calibration_functions.json`: Corrective models for ellipticity and asymmetry.
-
-## Key Dependencies
-
-- **numpy**: Numerical operations
-- **scikit-image**: Image processing
-- **astropy**: FITS handling and WCS
-- **scipy**: Statistical tests
-- **statsmodels**: Regression analysis
-- **pandas**: Data manipulation
-- **matplotlib**: Visualization
-- **pytest**: Testing framework
+- All random seeds are fixed (`RANDOM_SEED = 42`).
+- Every artifact is written with a SHA‑256 checksum; the manifest (`run_manifest.json`) records git commit, environment info, and artifact parameters.
+- To reproduce a specific run, checkout the commit hash from the manifest and rerun the pipeline with the same configuration.
 
 ## License
 
-This project is part of the llmXive automated science research initiative.
+This project is released under the MIT License. See the `LICENSE` file for details.

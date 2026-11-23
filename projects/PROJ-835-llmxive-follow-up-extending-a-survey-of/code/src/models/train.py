@@ -4,225 +4,377 @@ import json
 import logging
 import argparse
 from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score
-import joblib
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.covariance import LedoitWolf
 
-# Project local imports based on API surface
-from src.utils.config import get_path, ensure_dir, set_random_seed, load_state, save_state, update_artifact_hash
-from src.utils.logging_config import get_module_logger
+# Import project utilities from existing API surface
+from src.utils.config import set_random_seed, get_path, ensure_dir, load_state, save_state
+from src.utils.logging_config import get_logger, get_module_logger
 from src.utils.stats import compute_benign_statistics, calculate_mahalanobis_distance
 
-# Ensure CPU-only execution as per project constraints
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
-
+# Setup logging
 logger = get_module_logger(__name__)
 
-def load_embeddings(input_path: str) -> pd.DataFrame:
+def load_embeddings(parquet_path: str) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Load embeddings from a Parquet file.
-    Expected columns: 'embedding' (list/array), 'label' (int), 'source_id' (str), 'split' (str - optional)
+    Load embeddings and labels from a Parquet file.
+    
+    Args:
+        parquet_path: Path to the embeddings parquet file.
+        
+    Returns:
+        Tuple of (embeddings_array, labels_array)
     """
-    logger.info(f"Loading embeddings from {input_path}")
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Embeddings file not found: {input_path}")
+    if not os.path.exists(parquet_path):
+        raise FileNotFoundError(f"Embeddings file not found: {parquet_path}")
     
-    df = pd.read_parquet(input_path)
+    df = pd.read_parquet(parquet_path)
     
-    # Validate expected columns
-    required_cols = ['embedding', 'label']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column '{col}' in {input_path}")
+    # Assuming the dataframe has 'embedding' (list/array) and 'label' columns
+    # If 'embedding' is stored as a string representation of a list, we need to parse it
+    if isinstance(df['embedding'].iloc[0], str):
+        df['embedding'] = df['embedding'].apply(lambda x: np.fromstring(x.strip('[]'), sep=' '))
     
-    # Ensure embedding is numpy array for processing
-    df['embedding'] = df['embedding'].apply(lambda x: np.array(x) if not isinstance(x, np.ndarray) else x)
+    embeddings = np.vstack(df['embedding'].values)
+    labels = df['label'].values.astype(int)
     
-    logger.info(f"Loaded {len(df)} embeddings. Columns: {list(df.columns)}")
-    return df
+    logger.info(f"Loaded {len(labels)} samples with embedding dimension {embeddings.shape[1]}")
+    return embeddings, labels
 
-def perform_stratified_split(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42) -> tuple:
+def perform_stratified_split(
+    embeddings: np.ndarray, 
+    labels: np.ndarray, 
+    test_size: float = 0.2, 
+    random_state: int = 42
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Perform a stratified train/test split based on the 'label' column.
-    Returns: (train_df, test_df)
-    """
-    logger.info(f"Performing stratified split (test_size={test_size}, random_state={random_state})")
+    Perform a stratified train/test split.
     
-    train_df, test_df = train_test_split(
-        df, 
-        test_size=test_size, 
-        stratify=df['label'], 
-        random_state=random_state
+    Args:
+        embeddings: Array of shape (n_samples, n_features)
+        labels: Array of shape (n_samples,)
+        test_size: Proportion of samples for testing
+        random_state: Random seed for reproducibility
+        
+    Returns:
+        Tuple of (X_train, X_test, y_train, y_test)
+    """
+    X_train, X_test, y_train, y_test = train_test_split(
+        embeddings, labels, test_size=test_size, random_state=random_state, stratify=labels
     )
     
-    logger.info(f"Split complete. Train: {len(train_df)}, Test: {len(test_df)}")
-    return train_df, test_df
+    logger.info(f"Split complete: Train={len(y_train)}, Test={len(y_test)}")
+    logger.info(f"Train class distribution: {np.bincount(y_train)}")
+    logger.info(f"Test class distribution: {np.bincount(y_test)}")
+    
+    return X_train, X_test, y_train, y_test
 
-def train_logistic_regression(train_df: pd.DataFrame, random_state: int = 42) -> LogisticRegression:
+def train_logistic_regression(
+    X_train: np.ndarray, 
+    y_train: np.ndarray, 
+    random_state: int = 42,
+    max_iter: int = 1000
+) -> LogisticRegression:
     """
-    Train a Logistic Regression classifier on the training embeddings.
+    Train a Logistic Regression classifier on CPU.
+    
+    Args:
+        X_train: Training features
+        y_train: Training labels
+        random_state: Random seed
+        max_iter: Maximum iterations for solver convergence
+        
+    Returns:
+        Trained LogisticRegression model
     """
-    logger.info("Training Logistic Regression model...")
+    logger.info("Training Logistic Regression model (CPU-only)...")
     
-    X_train = np.stack(train_df['embedding'].values)
-    y_train = train_df['label'].values
+    model = LogisticRegression(
+        random_state=random_state, 
+        max_iter=max_iter,
+        solver='lbfgs',
+        n_jobs=-1  # Use all CPU cores
+    )
     
-    model = LogisticRegression(random_state=random_state, solver='lbfgs', max_iter=1000)
     model.fit(X_train, y_train)
     
-    logger.info("Model training complete.")
+    logger.info(f"Model training complete. Coefficients shape: {model.coef_.shape}")
+    logger.info(f"Intercept: {model.intercept_}")
+    
     return model
 
-def evaluate_model(model: LogisticRegression, test_df: pd.DataFrame) -> dict:
+def evaluate_model(
+    model: LogisticRegression, 
+    X_test: np.ndarray, 
+    y_test: np.ndarray
+) -> Dict[str, Any]:
     """
-    Evaluate the model on the test set.
+    Evaluate the trained model on the test set.
+    
+    Args:
+        model: Trained LogisticRegression model
+        X_test: Test features
+        y_test: Test labels
+        
+    Returns:
+        Dictionary containing evaluation metrics
     """
-    logger.info("Evaluating model on test set...")
-    
-    X_test = np.stack(test_df['embedding'].values)
-    y_test = test_df['label'].values
-    
     y_pred = model.predict(X_test)
     y_prob = model.predict_proba(X_test)
     
     report = classification_report(y_test, y_pred, output_dict=True)
-    accuracy = accuracy_score(y_test, y_pred)
+    cm = confusion_matrix(y_test, y_pred)
     
-    logger.info(f"Model Accuracy: {accuracy:.4f}")
-    return {
-        "accuracy": accuracy,
-        "classification_report": report,
-        "predictions": y_pred.tolist(),
-        "probabilities": y_prob.tolist()
+    metrics = {
+        "accuracy": report['accuracy'],
+        "precision": report['1']['precision'],
+        "recall": report['1']['recall'],
+        "f1_score": report['1']['f1-score'],
+        "confusion_matrix": cm.tolist(),
+        "classification_report": report
     }
+    
+    logger.info(f"Test Accuracy: {metrics['accuracy']:.4f}")
+    logger.info(f"Test F1-Score: {metrics['f1_score']:.4f}")
+    
+    return metrics, y_pred, y_prob
 
 def calculate_benign_statistics_and_anomaly_scores(
-    train_df: pd.DataFrame, 
-    test_df: pd.DataFrame, 
-    output_path: str
-) -> None:
+    X_train: np.ndarray, 
+    y_train: np.ndarray,
+    X_all: np.ndarray,
+    y_all: np.ndarray
+) -> Tuple[Dict[str, np.ndarray], np.ndarray]:
     """
-    T022b Implementation:
-    1. Calculate benign centroid (mu) and covariance (Sigma) ONLY from the Training Set's benign samples.
-    2. Calculate Mahalanobis distance for ALL samples (train + test) using these stats.
-    3. Save the unified AnomalyScore report to data/anomaly_scores.parquet.
+    Calculate benign centroid and covariance from training set,
+    then compute Mahalanobis distance for ALL samples.
+    
+    Args:
+        X_train: Training features
+        y_train: Training labels
+        X_all: All features (train + test) for anomaly scoring
+        y_all: All labels
+        
+    Returns:
+        Tuple of (benign_stats dict, anomaly_scores array)
     """
-    logger.info("Starting calculation of benign statistics and anomaly scores (T022b)...")
+    # Filter benign samples from training set ONLY
+    benign_mask = (y_train == 0)
+    X_train_benign = X_train[benign_mask]
     
-    # 1. Filter training set for benign samples (label == 0)
-    benign_train_df = train_df[train_df['label'] == 0]
+    if len(X_train_benign) == 0:
+        raise ValueError("No benign samples found in training set for covariance estimation")
     
-    if len(benign_train_df) == 0:
-        raise ValueError("No benign samples found in the training set to calculate statistics.")
+    logger.info(f"Computing statistics from {len(X_train_benign)} benign training samples...")
     
-    logger.info(f"Found {len(benign_train_df)} benign samples in training set for centroid/covariance calculation.")
+    benign_stats = compute_benign_statistics(X_train_benign)
     
-    # Extract embeddings
-    X_benign = np.stack(benign_train_df['embedding'].values)
+    # Calculate Mahalanobis distance for ALL samples
+    anomaly_scores = calculate_mahalanobis_distance(
+        X_all, 
+        benign_stats['mean'], 
+        benign_stats['covariance']
+    )
     
-    # 2. Compute statistics using the shared stats utility
-    mu, sigma = compute_benign_statistics(X_benign)
+    logger.info(f"Computed anomaly scores for {len(anomaly_scores)} samples")
+    logger.info(f"Anomaly score range: [{anomaly_scores.min():.4f}, {anomaly_scores.max():.4f}]")
     
-    logger.info(f"Computed benign centroid (dim: {mu.shape}) and covariance.")
-    
-    # 3. Combine train and test data for unified scoring
-    # We need to preserve the origin (train/test) and original indices
-    train_df = train_df.copy()
-    test_df = test_df.copy()
-    
-    train_df['split'] = 'train'
-    test_df['split'] = 'test'
-    
-    # Reset index to have a unique identifier across both if needed, or keep original
-    # Assuming original index is unique enough or we can combine split + index
-    combined_df = pd.concat([train_df, test_df], ignore_index=True)
-    
-    logger.info(f"Combined dataset size for scoring: {len(combined_df)}")
-    
-    # 4. Calculate Mahalanobis distance for ALL samples
-    X_all = np.stack(combined_df['embedding'].values)
-    
-    # Calculate distances using the stats utility
-    # The utility expects data and the pre-computed stats
-  #   We pass the pre-computed mu and sigma directly to a wrapper or call the distance function
-  #   The stats.py utility `calculate_mahalanobis_distance` likely takes (data, mu, sigma)
-  #   Let's assume the signature based on standard usage or implement the call here if the utility is generic.
-  #   Looking at the API: `calculate_mahalanobis_distance` is available.
-  #   We need to ensure we pass the correct arguments. Usually: (X, mu, Sigma)
-  
-    anomaly_scores = calculate_mahalanobis_distance(X_all, mu, sigma)
-    
-    # 5. Add scores to the dataframe
-    combined_df['anomaly_score'] = anomaly_scores
-    combined_df['mahalanobis_distance'] = anomaly_scores # Alias for clarity
-    
-    # 6. Save to Parquet
-    ensure_dir(str(Path(output_path).parent))
-    combined_df.to_parquet(output_path, index=False)
-    
-    logger.info(f"Saved unified AnomalyScore report to {output_path}")
-    logger.info(f"Score statistics: Min={anomaly_scores.min():.4f}, Max={anomaly_scores.max():.4f}, Mean={anomaly_scores.mean():.4f}")
+    return benign_stats, anomaly_scores
 
-def save_model_artifact(model: LogisticRegression, output_path: str) -> None:
-    """Save the trained model to disk."""
-    ensure_dir(str(Path(output_path).parent))
-    joblib.dump(model, output_path)
-    logger.info(f"Model saved to {output_path}")
-
-def save_predictions(predictions: dict, output_path: str) -> None:
-    """Save prediction results to JSON."""
-    ensure_dir(str(Path(output_path).parent))
+def save_model_artifact(
+    model: LogisticRegression, 
+    metrics: Dict[str, Any], 
+    benign_stats: Dict[str, np.ndarray],
+    output_dir: str,
+    filename: str = "model_artifact.json"
+) -> str:
+    """
+    Save model coefficients, metrics, and benign statistics to a JSON file.
+    
+    Args:
+        model: Trained LogisticRegression model
+        metrics: Evaluation metrics dictionary
+        benign_stats: Benign centroid and covariance statistics
+        output_dir: Directory to save the artifact
+        filename: Name of the output file
+        
+    Returns:
+        Path to the saved artifact
+    """
+    ensure_dir(output_dir)
+    output_path = os.path.join(output_dir, filename)
+    
+    artifact = {
+        "model_type": "LogisticRegression",
+        "coefficients": model.coef_.tolist(),
+        "intercept": model.intercept_.tolist(),
+        "metrics": metrics,
+        "benign_statistics": {
+            "mean": benign_stats['mean'].tolist(),
+            "covariance": benign_stats['covariance'].tolist(),
+            "n_samples": int(benign_stats['n_samples'])
+        }
+    }
+    
     with open(output_path, 'w') as f:
-        json.dump(predictions, f, indent=2)
-    logger.info(f"Predictions saved to {output_path}")
+        json.dump(artifact, f, indent=2)
+    
+    logger.info(f"Model artifact saved to: {output_path}")
+    return output_path
+
+def save_predictions(
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    y_prob: np.ndarray,
+    anomaly_scores: np.ndarray,
+    output_dir: str,
+    filename: str = "predictions.csv"
+) -> str:
+    """
+    Save predictions and probabilities to a CSV file.
+    
+    Args:
+        y_true: True labels
+        y_pred: Predicted labels
+        y_prob: Predicted probabilities (for positive class)
+        anomaly_scores: Mahalanobis anomaly scores
+        output_dir: Directory to save the CSV
+        filename: Name of the output file
+        
+    Returns:
+        Path to the saved CSV
+    """
+    ensure_dir(output_dir)
+    output_path = os.path.join(output_dir, filename)
+    
+    # Create DataFrame
+    df = pd.DataFrame({
+        "true_label": y_true,
+        "predicted_label": y_pred,
+        "predicted_prob_jailbreak": y_prob[:, 1],  # Probability of class 1
+        "anomaly_score": anomaly_scores
+    })
+    
+    df.to_csv(output_path, index=False)
+    logger.info(f"Predictions saved to: {output_path}")
+    logger.info(f"Total predictions: {len(df)}")
+    
+    return output_path
+
+def save_anomaly_scores(
+    y_true: np.ndarray,
+    anomaly_scores: np.ndarray,
+    output_dir: str,
+    filename: str = "anomaly_scores.parquet"
+) -> str:
+    """
+    Save anomaly scores to a Parquet file.
+    
+    Args:
+        y_true: True labels
+        anomaly_scores: Mahalanobis anomaly scores
+        output_dir: Directory to save the Parquet
+        filename: Name of the output file
+        
+    Returns:
+        Path to the saved Parquet
+    """
+    ensure_dir(output_dir)
+    output_path = os.path.join(output_dir, filename)
+    
+    df = pd.DataFrame({
+        "label": y_true,
+        "anomaly_score": anomaly_scores
+    })
+    
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Anomaly scores saved to: {output_path}")
+    
+    return output_path
 
 def main():
     """
     Main entry point for the training pipeline.
-    Handles loading, splitting, training, evaluation, and T022b anomaly scoring.
     """
-    parser = argparse.ArgumentParser(description="Train LLMXive Audio Classifier and Generate Anomaly Scores")
-    parser.add_argument("--input", type=str, default="data/embeddings.parquet", help="Path to embeddings parquet")
-    parser.add_argument("--model-out", type=str, default="results/model.joblib", help="Path to save model")
-    parser.add_argument("--preds-out", type=str, default="results/predictions.json", help="Path to save predictions")
-    parser.add_argument("--anomaly-out", type=str, default="data/anomaly_scores.parquet", help="Path to save anomaly scores (T022b)")
-    parser.add_argument("--test-size", type=float, default=0.2, help="Test split size")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser = argparse.ArgumentParser(description="Train and evaluate jailbreak classifier")
+    parser.add_argument("--embeddings_path", type=str, default="data/embeddings.parquet",
+                        help="Path to embeddings parquet file")
+    parser.add_argument("--output_dir", type=str, default="results",
+                        help="Directory to save model artifacts and predictions")
+    parser.add_argument("--test_size", type=float, default=0.2,
+                        help="Proportion of data for testing")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed for reproducibility")
+    
     args = parser.parse_args()
-
+    
+    # Set random seed
     set_random_seed(args.seed)
     
+    # Ensure output directories exist
+    ensure_dir(args.output_dir)
+    
     try:
-        # 1. Load Data
-        df = load_embeddings(args.input)
+        # 1. Load embeddings
+        logger.info(f"Loading embeddings from {args.embeddings_path}...")
+        embeddings, labels = load_embeddings(args.embeddings_path)
         
-        # 2. Split Data
-        train_df, test_df = perform_stratified_split(df, test_size=args.test_size, random_state=args.seed)
+        # 2. Perform stratified split
+        X_train, X_test, y_train, y_test = perform_stratified_split(
+            embeddings, labels, test_size=args.test_size, random_state=args.seed
+        )
         
-        # 3. Train Model
-        model = train_logistic_regression(train_df, random_state=args.seed)
+        # 3. Train model
+        model = train_logistic_regression(X_train, y_train, random_state=args.seed)
         
-        # 4. Evaluate Model
-        eval_results = evaluate_model(model, test_df)
+        # 4. Evaluate model
+        metrics, y_pred_test, y_prob_test = evaluate_model(model, X_test, y_test)
         
-        # 5. T022b: Calculate Benign Stats and Anomaly Scores for ALL samples
-        calculate_benign_statistics_and_anomaly_scores(train_df, test_df, args.anomaly_out)
+        # 5. Calculate benign statistics and anomaly scores for ALL samples
+        # Combine train and test for unified anomaly scoring
+        X_all = np.vstack([X_train, X_test])
+        y_all = np.concatenate([y_train, y_test])
         
-        # 6. Save Artifacts
-        save_model_artifact(model, args.model_out)
-        save_predictions(eval_results, args.preds_out)
+        benign_stats, anomaly_scores_all = calculate_benign_statistics_and_anomaly_scores(
+            X_train, y_train, X_all, y_all
+        )
         
-        # Update state hash if needed (optional for this task, but good practice)
-        # update_artifact_hash(args.anomaly_out)
+        # 6. Save model artifact
+        model_path = save_model_artifact(
+            model, metrics, benign_stats, args.output_dir, "model_artifact.json"
+        )
         
-        logger.info("Pipeline completed successfully.")
+        # 7. Save predictions (for test set only, but include anomaly scores for all)
+        # Align anomaly scores with test set
+        n_train = len(y_train)
+        y_pred_test_full = y_pred_test
+        y_prob_test_full = y_prob_test
+        anomaly_scores_test = anomaly_scores_all[n_train:]
+        
+        predictions_path = save_predictions(
+            y_test, y_pred_test_full, y_prob_test_full, anomaly_scores_test,
+            args.output_dir, "predictions.csv"
+        )
+        
+        # 8. Save anomaly scores for all samples
+        anomaly_scores_path = save_anomaly_scores(
+            y_all, anomaly_scores_all, args.output_dir, "anomaly_scores.parquet"
+        )
+        
+        logger.info("Training pipeline completed successfully.")
+        logger.info(f"Model artifact: {model_path}")
+        logger.info(f"Predictions: {predictions_path}")
+        logger.info(f"Anomaly scores: {anomaly_scores_path}")
         
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Training pipeline failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

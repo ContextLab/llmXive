@@ -1,0 +1,10 @@
+derivative_threshold,sigma_threshold,peak_temperature,peak_variance,is_significant,status
+-0.015,1.0,2.15,0.82,True,Peak detected
+-0.015,2.0,2.15,0.82,True,Peak detected
+-0.015,3.0,2.15,0.82,True,Peak detected
+-0.01,1.0,2.15,0.82,True,Peak detected
+-0.01,2.0,2.15,0.82,True,Peak detected
+-0.01,3.0,2.15,0.82,True,Peak detected
+-0.005,1.0,2.15,0.82,True,Peak detected
+-0.005,2.0,2.15,0.82,True,Peak detected
+-0.005,3.0,2.15,0.82,True,Peak detected

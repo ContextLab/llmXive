@@ -203,3 +203,682 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T01:57:24Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: dataset size of 100 scene descriptions
+  claim_id: c_05432813
+  context: T011 [US1] Create data/raw/scene_descriptions.csv with a curated set of
+    100 scene descriptions (N=100 scope).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/raw/scene_descriptions.csv with a curated set of 100 scene
+    descriptions (N=100 scope).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:56:54Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: power analysis parameters effect size 0.2 alpha 0.05 power target 0.8
+  claim_id: c_83f9b4b2
+  context: 'Implement code/analysis/statistics.py Power Analysis: Perform power analysis
+    (effect_size=0.2, alpha=0.05, power_target=0.8)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T21:58:39Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test switch threshold cell counts less than 5
+  claim_id: c_799f7d34
+  context: check expected cell counts. If cell counts < 5, switch to Fisher's Exact
+    Test; otherwise, use two-proportion z-test.
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Exact_Test_switch_threshold_cell_counts_less_than_5
+  kind: magnitude
+  raw_text: If cell counts < 5, switch to Fisher's Exact Test
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-25T22:01:20Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: object confidence violation threshold 0.7
+  claim_id: c_efac43fe
+  context: 'Implement violation logic: Count floating objects/interpenetration; default
+    to violation if object confidence < 0.7 (Edge Case).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default to violation if object confidence < 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:20Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: scope reduction from 500 to 100
+  claim_id: c_f0c1212d
+  context: Create scope_justification.md artifact explaining the deviation from N=500
+    to N=100 due to compute constraints
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: deviation from N=500 to N=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:26Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: YOLOv8n model used on CPU
+  claim_id: c_dae10f79
+  context: 'Implement code/evaluation/detector.py: Load YOLOv8n (CPU), detect objects'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLOv8n_model_used_on_CPU
+  kind: entity_fact
+  raw_text: Load YOLOv8n (CPU)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:33Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: latent-consistency/lcm-lora-sdv1-5 model used
+  claim_id: c_5dbbdd21
+  context: 'Implement code/generation/diffusion_runner.py: Load CPU-optimized model
+    (''latent-consistency/lcm-lora-sdv1-5'')'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load CPU-optimized model ('latent-consistency/lcm-lora-sdv1-5')
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:36Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: dataset fetch from coco-captions train split
+  claim_id: c_79280ea2
+  context: Fetch from a real, physics-inferable source (e.g., datasets.load_dataset('coco-captions',
+    split='train', trust_remote_code=True) filtered for object interaction scenes).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_fetch_from_coco-captions_train_split
+  kind: entity_fact
+  raw_text: Fetch from a real, physics-inferable source (e.g., datasets.load_dataset('coco-captions',
+    split='train', trust_remote_code=True))
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:46Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Python version 3.11 used
+  claim_id: c_de4c8cbf
+  context: Initialize Python 3.11 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T22:01:50Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: curated set of 100 scene descriptions
+  claim_id: c_3e0dd8c4
+  context: Implement logic to fetch or generate scene descriptions for the study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create data/raw/scene_descriptions.csv with a curated set of 100 scene
+    descriptions (N=100 scope).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:26:26Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: use LCM-LoRA model for image generation
+  claim_id: c_5c69daff
+  context: Goal is to execute image generation using a CPU-optimized diffusion model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_LCM-LoRA_model_for_image_generation
+  kind: entity_fact
+  raw_text: Use a CPU-optimized diffusion model (LCM-LoRA) with strict seed locking
+    for Baseline, Experimental, and Control groups.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:26:39Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: use YOLOv8n for object detection
+  claim_id: c_41e1fba6
+  context: Implement code/evaluation/detector.py to load YOLOv8n and detect objects.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: CPU
+      source_id: Q117453145
+      url: https://www.wikidata.org/wiki/Q117453145
+      value: CPU
+    filled: true
+  kind: entity_fact
+  raw_text: Load YOLOv8n (CPU) to detect objects and extract bounding boxes.
+  resolved_value: CPU
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T01:26:55Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: power analysis with effect_size 0.2 alpha 0.05 power_target 0.8
+  claim_id: c_3ef80b35
+  context: Implement power analysis in code/analysis/statistics.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis with effect_size=0.2, alpha=0.05, and power_target=0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:27:13Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: switch to Fisher's Exact Test if cell counts less than 5
+  claim_id: c_ef4b3ff2
+  context: Implement Statistical Test Switching Logic based on expected cell counts.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_Fisher%27s_Exact_Test_if_cell_counts_less_than_5
+  kind: magnitude
+  raw_text: Switch to Fisher's Exact Test if cell counts are less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:30:58Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: flag study if contradiction rate exceeds 5 percent
+  claim_id: c_929fa61b
+  context: Calculate contradiction rate percentage and verify it is less than 5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag the study if the contradiction rate exceeds 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:30:58Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: treat objects as violations if confidence less than 0.7
+  claim_id: c_83756897
+  context: Implement violation logic with default violation if object confidence is
+    below threshold.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Treat_objects_as_violations_if_confidence_less_than_0.7
+  kind: magnitude
+  raw_text: Treat objects as violations if confidence is less than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:33:29Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: violation if IoU less than 0.5 or Y-offset greater than 5px
+  claim_id: c_3983162c
+  context: Compare extracted bounding boxes against physics JSON ground truth.
+  evidence:
+    candidates:
+    - - Y-offset greater than
+      - 5.0
+    - - Violation if IoU less than
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Violation_if_IoU_less_than_0.5_or_Y-offset_greater_than_5px
+  kind: magnitude
+  raw_text: Consider objects violating physics rules if IoU is less than 0.5 or Y-offset
+    is greater than 5px.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-08T01:33:47Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: generate 5 candidate images per prompt
+  claim_id: c_8fb706b3
+  context: Implement fallback mechanism if architecture permits only approximate seed
+    control.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=5 candidate images per prompt for the fallback mechanism.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:34:04Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: reduce scope from 500 to 100 due to compute constraints
+  claim_id: c_e335c096
+  context: Create scope_justification.md artifact explaining the deviation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce scope from N=500 to N=100 due to compute constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:34:17Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Switch to Fisher's Exact Test if cell counts are less than 5
+  claim_id: c_9afdb43c
+  context: 'Phase 5: User Story 3. T029b [US3] Implement Statistical Test Switching
+    Logic: Read the power_analysis_report.json and check expected cell counts. If
+    cell counts < 5, switch to Fisher''s Exact Test; otherwise, use two-proportion
+    z-test.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_Fisher's_Exact_Test_if_cell_counts_are_less_than_5
+  kind: magnitude
+  raw_text: T029b Switch to Fisher's Exact Test if cell counts < 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:28:12Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Power analysis verification threshold is greater than or equal to 0.8
+  claim_id: c_8a41f25c
+  context: "Phase 5: User Story 3. T029a [US3] [Depends on T029] Implement Power Verification:\
+    \ Verify that the calculated power (\u22650.8) is achieved."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_verification_threshold_is_greater_than_or_equ
+  kind: magnitude
+  raw_text: "T029a Verify that the calculated power (\u22650.8) is achieved."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:28:35Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: YOLOv8n is identified by Wikidata Q117453145
+  claim_id: c_dbc68d3f
+  context: Task T026 specifies loading the YOLOv8n model and cites its Wikidata identifier.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLOv8n_is_identified_by_Wikidata_Q117453145
+  kind: entity_fact
+  raw_text: Load YOLOv8n (CPU (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145))
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:34:15Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Dataset scope is 100 scene descriptions
+  claim_id: c_3e4df256
+  context: Task T011 defines the dataset creation scope as a curated set of 100 scenes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load a curated set of 100 scene descriptions (N=100 scope)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:34:40Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Violation thresholds are IoU < 0.5 or Y-offset > 5px
+  claim_id: c_ff204d8e
+  context: Task T026 defines the criteria for detecting physics violations in generated
+    images.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare against physics JSON ground truth... IoU < 0.5 or Y-offset > 5px
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:34:40Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Object confidence violation threshold is 0.7
+  claim_id: c_514463ba
+  context: Task T027 sets the default violation condition based on object confidence
+    scores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: default to violation if object confidence < 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:34:40Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Power analysis parameters are effect size 0.2, alpha 0.05, power 0.8
+  claim_id: c_fd9b8500
+  context: Task T029 specifies the parameters for the statistical power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:35:22Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test used when cell counts are less than 5
+  claim_id: c_6eb6c3bb
+  context: Task T029b defines the condition for switching statistical tests based
+    on cell counts.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Exact_Test_used_when_cell_counts_are_less_than_5
+  kind: magnitude
+  raw_text: If cell counts < 5, switch to Fisher's Exact Test
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:35:50Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: YOLOv8n identified by Wikidata Q117453145
+  claim_id: c_7830a4ac
+  context: Task T026 implementation details for the evaluation detector.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLOv8n_identified_by_Wikidata_Q117453145
+  kind: entity_fact
+  raw_text: Load YOLOv8n (CPU (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145))
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:36:13Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: curated set of 100 scene descriptions
+  claim_id: c_403fa1a1
+  context: Create data/raw/scene_descriptions.csv with a curated set of 100 scene
+    descriptions (N=100 scope).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a curated set of 100 scene descriptions (N=100 scope).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:37:35Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: YOLOv8n Wikidata Q117453145
+  claim_id: c_bda8af95
+  context: Load YOLOv8n (CPU (Wikidata Q117453145, https://www.wikidata.org/wiki/Q117453145)),
+    detect objects...
+  evidence:
+    entailment_evidence: YOLOv8n Wikidata Q117453145 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/YOLOv8n_Wikidata_Q117453145
+  kind: entity_fact
+  raw_text: YOLOv8n is identified by Wikidata Q117453145.
+  resolved_value: YOLOv8n Wikidata Q117453145
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-10-04T14:37:37Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: contradiction rate threshold 5 percent
+  claim_id: c_ae0ac394
+  context: '...calculate contradiction rate percentage, and verify it is < 5% (SC-004);
+    if rate > 5%, flag the study...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Contradiction_rate_threshold_5_percent
+  kind: magnitude
+  raw_text: The system flags a study if the contradiction rate is greater than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:38:27Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: power analysis effect size 0.2 alpha 0.05 power 0.8
+  claim_id: c_5a184fb4
+  context: Perform power analysis (effect_size=0.2, alpha=0.05, power_target=0.8)
+    and output power_analysis_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an effect size of 0.2, alpha of 0.05, and a power
+    target of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:38:56Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: Fisher Exact Test switch if cell counts less than 5
+  claim_id: c_68f34b13
+  context: If cell counts < 5, switch to Fisher's Exact Test; otherwise, use two-proportion
+    z-test.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher_Exact_Test_switch_if_cell_counts_less_than_5
+  kind: magnitude
+  raw_text: The system switches to Fisher's Exact Test if expected cell counts are
+    less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:39:22Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: violation default if confidence less than 0.7
+  claim_id: c_3e4792f7
+  context: Count floating objects/interpenetration; default to violation if object
+    confidence < 0.7 (Edge Case).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Violation_default_if_confidence_less_than_0.7
+  kind: magnitude
+  raw_text: The system defaults to a violation if object confidence is less than 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T14:40:00Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener/tasks.md
+  attempts: 1
+  canonical: IoU less than 0.5 or Y-offset greater than 5px
+  claim_id: c_becb8768
+  context: '...compare against physics_constraints/{scene_id}.json (relative to 512x512
+    output, IoU < 0.5 or Y-offset > 5px).'
+  evidence:
+    candidates:
+    - - Y-offset greater than
+      - 5.0
+    - - IoU less than
+      - 0.5
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/IoU_less_than_0.5_or_Y-offset_greater_than_5px
+  kind: magnitude
+  raw_text: The system uses an IoU threshold of less than 0.5 or Y-offset greater
+    than 5px to compare bounding boxes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-04T14:40:40Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/quickstart.md
+  attempts: 1
+  canonical: project fetches real scene descriptions from COCO-Captions dataset
+  claim_id: c_063864c0
+  context: "Data Fetching (N=100 Scope) The project fetches real scene descriptions\
+    \ from the COCO\u2011Captions dataset. If that fetch fails, a deterministic fallback\
+    \ script generates valid physics\u2011inferable scenes."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The project fetches real scene descriptions from the COCO\u2011Captions\
+    \ dataset."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:46:52Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/quickstart.md
+  attempts: 1
+  canonical: deterministic fallback script generates valid physics-inferable scenes
+    if fetch fails
+  claim_id: c_4784ad75
+  context: "Data Fetching (N=100 Scope) The project fetches real scene descriptions\
+    \ from the COCO\u2011Captions dataset. If that fetch fails, a deterministic fallback\
+    \ script generates valid physics\u2011inferable scenes."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "If that fetch fails, a deterministic fallback script generates valid\
+    \ physics\u2011inferable scenes."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:46:52Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/quickstart.md
+  attempts: 1
+  canonical: expected number of PNGs approximately 100 per group in generated_images
+  claim_id: c_cab7d4c3
+  context: "Validation - Check data/derived/generated_images/ for the expected number\
+    \ of PNGs (\u2248\u202F100 per group, minus any generation failures)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Check data/derived/generated_images/ for the expected number of PNGs\
+    \ (\u2248\u202F100 per group, minus any generation failures)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:46:53Z'
+- artifact_path: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/quickstart.md
+  attempts: 1
+  canonical: data fetching scope N 100
+  claim_id: c_954009e5
+  context: "## Data Fetching (N=100 Scope) The project fetches real scene descriptions\
+    \ from the COCO\u2011Captions dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Data Fetching (N=100 Scope)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T02:46:53Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1010.5058",
+  "judged_at": "2026-10-24T08:24:27Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available bird migration patterns and climate change statistics",
+  "rationale": "The paper studies phenological timing and its statistical correlation with temperature, providing a methodological framework for linking biological event timing to climate variables—a mechanism directly relevant to analyzing bird migration phenology and climate change (acceptance category (a) same‑mechanism evidence, also fitting category (f) as an alternative‑vocabulary reference for timing‑climate relationships).",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.21472",
+  "judged_at": "2026-08-13T12:29:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geometry-aware representation denoising for robust multi-view 3d recon\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the same domain (multi-view 3D reconstruction) and mechanism (improving robustness and consistency in 3D generation from visual streams) as the user's question, even though it focuses on a \"streaming\" mechanism rather than the specific \"geometry-aware representation denoising\" mentioned in the follow-up title. It provides essential prior work on handling temporal inconsistency and memory in multi-view 3D generation, which is the canonical",
+  "relevant": true
+}

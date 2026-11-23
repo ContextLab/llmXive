@@ -1,0 +1,19 @@
+status: none
+intent: OpenStreetMap parquet dataset GADM boundaries Landsat 8 surface temperature
+  python package dataset
+required_fields:
+- building_id
+- building_geometry
+- building_height
+- landuse_class
+- landuse_geometry
+- tree_id
+- tree_species
+- tree_geometry
+- road_id
+- road_type
+- road_geometry
+- city_boundary_polygon
+cache_key: 03e7c9e95f517444cc4459bb4c0da439684172783fe9623042485fd8ee0c83e8
+searched_at: '2026-10-21T11:39:54.053448+00:00'
+retry_count: 1

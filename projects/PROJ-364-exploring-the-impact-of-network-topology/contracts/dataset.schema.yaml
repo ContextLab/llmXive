@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Defect Coordinate Dataset Schema"
+description: "Schema for defect coordinate data in 2D materials heat dissipation study."
+type: "object"
+required:
+  - "$schema"
+  - "type"
+  - "properties"
+properties:
+  $schema:
+    type: "string"
+    const: "http://json-schema.org/draft-07/schema#"
+  type:
+    type: "string"
+    const: "object"
+  properties:
+    type: "object"
+    properties:
+      sample_id:
+        type: "string"
+        description: "Unique identifier for the material sample."
+        minLength: 1
+      x:
+        type: "number"
+        description: "X-coordinate of the defect in nanometers (nm)."
+      y:
+        type: "number"
+        description: "Y-coordinate of the defect in nanometers (nm)."
+      material_type:
+        type: "string"
+        description: "Type of 2D material (e.g., 'graphene', 'MoS2')."
+        enum:
+          - "graphene"
+          - "MoS2"
+          - "hBN"
+          - "WS2"
+          - "WSe2"
+      thermal_conductivity:
+        type: "number"
+        description: "Thermal conductivity of the sample in W/(m·K)."
+        minimum: 0
+    required:
+      - "sample_id"
+      - "x"
+      - "y"
+      - "material_type"
+      - "thermal_conductivity"
+  additionalProperties: false
+examples:
+  - sample_id: "sample_001"
+    x: 12.5
+    y: 34.2
+    material_type: "graphene"
+    thermal_conductivity: 5300.0

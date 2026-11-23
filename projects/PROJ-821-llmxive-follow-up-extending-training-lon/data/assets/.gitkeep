@@ -1,0 +1,4 @@
+# This directory is created by T004 (generate_assets.py)
+# It contains 20 deterministic 336x336 grayscale gradient images
+# and a manifest.json file with SHA-256 hashes.
+# Do not delete this file; it ensures the directory is tracked by git.

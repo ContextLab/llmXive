@@ -1,0 +1,48 @@
+T020:
+  c: false
+  h: 6490bc0e3faa8f1a30c2ef0aa697de537da747f1f712fcbe1c1fcf3fa86ec6e1
+  r: "The provided `train.py` is truncated and does not show an explicit call to T020a,\
+    \ nor does it contain code that saves `predictions.npy`, `model.pkl`, or a checkpoint\
+    \ file. Moreover, the required output files (`data/processed/predictions.npy`,\
+    \ `data/processed/model.pkl`, `data/processed/train_checkpoint.json`) are absent\
+    \ from the repository. The implementation therefore does not meet the task\u2019\
+    s specifications."
+T022a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file or excerpt is provided showing the required amendment\
+    \ to FR\u2011006, the reference to T037a, or matching text to the implementation\
+    \ plan. Without the actual document content, the claim cannot be verified. The\
+    \ implementer must supply the modified specification file containing the new section."
+T023:
+  c: false
+  h: fae1614e714b6707a64fb24c4e14f24287715459d296f05a7376c9d96d3339e9
+  r: "The required `data/processed/predictions.npy` and `data/results/bootstrap_ci.json`\
+    \ files are absent, and the provided `code/modeling/evaluate.py` only contains\
+    \ resource\u2011limit utilities (truncated) with no implementation of loading\
+    \ predictions, aggregating them, performing bootstrap resampling, or writing the\
+    \ confidence\u2011interval JSON. The task\u2019s core functionality is therefore\
+    \ not delivered."
+T024:
+  c: false
+  h: e03b3a0808d2aa54b5afd15a160a52cf8e5446390f4cfcf89bcd190a7e4bf9c7
+  r: "The provided `evaluate.py` only contains generic resource\u2011limit utilities\
+    \ and does not implement the required sensitivity\u2011analysis grid (variance\
+    \ thresholds, PCA retention), retry logic, status flagging, or saving to `data/results/sensitivity_partial.json`.\
+    \ Moreover, the timeout constant is set to 5\u202Fhours instead of the required\
+    \ 3\u2011hour `SENSITIVITY_TIMEOUT_HOURS`, and the expected output file is missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or generated brain\u2011surface image was provided; the claim\
+    \ contains only a textual description of the required functionality. Consequently\
+    \ there is no artifact to verify that `plot_connectome` was used, that the top\u202F\
+    N connections are highlighted, or that a warning is logged when fewer than\u202F\
+    50 non\u2011zero coefficients exist. The required output is missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No Python script or module that uses `xml.etree.ElementTree` to load an SVG,
+    count `<line>` and `<path>` elements, and enforce a minimum of 50 edges is present,
+    nor is there any SVG plot file to validate. Consequently, the required artifact
+    (the validation code and/or the plot file) is missing, so the task is not satisfied.

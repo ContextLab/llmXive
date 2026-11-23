@@ -1,0 +1,83 @@
+- artifact_path: projects/PROJ-363-predicting-the-impact-of-additive-manufa/docs/quickstart.md
+  attempts: 1
+  canonical: Dataset used is 316L Stainless Steel
+  claim_id: c_1a784bee
+  context: '### A. Download Data
+
+
+    Fetches the 316L Stainless Steel dataset. This step verifies the material type
+    to ensure data integrity.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: in order to obtain the required dataset, Stress316L, for training the
+        neural network. Moreover, instead of
+      source_id: '2102.02470'
+      url: https://arxiv.org/abs/2102.02470
+      value: Stress316L
+    filled: true
+  kind: entity_fact
+  raw_text: Fetches the 316L Stainless Steel dataset.
+  resolved_value: Stress316L
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T15:38:43Z'
+- artifact_path: projects/PROJ-363-predicting-the-impact-of-additive-manufa/docs/quickstart.md
+  attempts: 1
+  canonical: Models trained using 5-fold cross-validation
+  claim_id: c_eaf7d827
+  context: '### C. Train Models
+
+
+    Trains Gradient Boosting and MLP models on both raw and derived feature sets using
+    5-fold cross-validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trains Gradient Boosting and MLP models on both raw and derived feature
+    sets using 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:39:25Z'
+- artifact_path: projects/PROJ-363-predicting-the-impact-of-additive-manufa/docs/quickstart.md
+  attempts: 1
+  canonical: Pipeline uses 5-fold cross-validation
+  claim_id: c_c57057cc
+  context: '- **Memory Issues**: If training fails due to memory, ensure your environment
+    has at least 8GB of RAM available. The pipeline uses 5-fold CV which loads data
+    multiple times.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline uses 5-fold CV which loads data multiple times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:40:12Z'
+- artifact_path: projects/PROJ-363-predicting-the-impact-of-additive-manufa/docs/quickstart.md
+  attempts: 1
+  canonical: Environment requires at least 8GB of RAM
+  claim_id: c_d533c9f1
+  context: '- **Memory Issues**: If training fails due to memory, ensure your environment
+    has at least 8GB of RAM available. The pipeline uses 5-fold CV which loads data
+    multiple times.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Environment_requires_at_least_8GB_of_RAM
+  kind: magnitude
+  raw_text: ensure your environment has at least 8GB of RAM available
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T15:40:57Z'

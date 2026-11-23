@@ -1,0 +1,145 @@
+T001a:
+  c: false
+  h: 2b7b7b563f5e86e4b34acddd03e808f84b60d86d26626f4c832adfb2ffada3dd
+  r: The required directories `data/raw/`, `data/processed/`, and `specs/contracts/`
+    are missing from the project tree, even though `code/__init__.py` is present.
+    The task demands all listed directories to exist, so the implementation is incomplete.
+T001b:
+  c: false
+  h: 3dc445d0d1b02af5e4ea82158d67c3f71259bee672930f3d2a751afb642ed2f9
+  r: "The provided `requirements.txt` is missing the two required pinned packages\
+    \ `memory-profiler==0.61.0` and `llama-cpp-python==0.2.91`; thus the artifact\
+    \ does not meet the task\u2019s specification."
+T002:
+  c: false
+  h: e547348b9cd3ac7d41b0c7ccdaf7799b8b0d9360aecfdcf7b468d972eb51a1b2
+  r: "No renderer script, event logger, text\u2011only agent loop, or memory\u2011\
+    gap metric code/data were provided; the claim contains only a description of desired\
+    \ behavior without any actual artifacts to verify deterministic ASCII output,\
+    \ JSON logs, inference results, or statistical analysis. Consequently the required\
+    \ deliverables are missing."
+T003a:
+  c: true
+  h: a7609dddb1255b0b237f74d56f98636b65821273a8d945c5171e359abc53d9e4
+  r: "The `pyproject.toml` file is present (1011\u202Fbytes) and contains a `[tool.black]`\
+    \ section as well as a `[tool.ruff]` section whose `select` list includes exactly\
+    \ the required rules E,\u202FF,\u202FW,\u202FI,\u202FN."
+T003b:
+  c: true
+  h: 7c2139dac2ddae5f0f187f65d61be5f85d99c0ed016119b66eebf398eabba4ee
+  r: "The `results/lint_report.txt` file exists, is non\u2011empty, and contains the\
+    \ captured output of `ruff check .` with a return code of\u202F1 (allowed). The\
+    \ report shows the expected lint messages, satisfying the task\u2019s artifact\
+    \ and verification criteria."
+T004b:
+  c: false
+  h: f15c6dc9a6ec8a222c6a343772bb0b789dbf6cbd518e20a6d6905eeb09b4ca00
+  r: "The required artifact `utils/checksum.py` with a functional command\u2011line\
+    \ interface is not present or not shown; no evidence of CLI arguments, help output,\
+    \ or error handling is provided. The implementer must supply the script containing\
+    \ the full CLI implementation and demonstrate it works (e.g., by showing the `--help`\
+    \ output)."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or documentation were supplied showing that out-of-bounds state
+    validation and standardized error ASCII blocks were implemented; the required
+    artifact is missing. The implementer must provide the modified renderer (or validation
+    module) and evidence (e.g., unit tests or example outputs) demonstrating the new
+    error handling.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I examined the repository for a modified `utils/checksum.py` that records checksums
+    of files under `data/processed/` and for any `state/*.yaml` files containing those
+    checksum entries. No such integration or updated YAML files are present; the relevant
+    code and state files are missing. The task therefore remains unfinished.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided material only contains high\u2011level feature specifications and\
+    \ user stories; there is no code, script, or documentation that implements a sliding\u2011\
+    window or truncation mechanism for long event logs. Consequently, the required\
+    \ artifact (a concrete implementation of context window management) is missing."
+T026:
+  c: false
+  h: db944e04bde172972e4eaee698b6f7e6fd2f9766495e60565617173a7127b633
+  r: "The provided `results/step_limit_test.log` does not show the required \u201C\
+    timeout\u201D status (it reports \u201Cstep_limit_exceeded\u201D) and there is\
+    \ no `results/discarded_runs.csv` file at all. Moreover, the excerpt of `code/agent_loop.py`\
+    \ does not contain any logic that enforces the hard step limit, marks a run as\
+    \ timed\u2011out, or writes to the discarded\u2011runs CSV. Both the missing CSV\
+    \ artifact and the lack of step\u2011limit enforcement mean the task is not genuinely\
+    \ completed."
+T027:
+  c: false
+  h: 0f86789cbe6dd61ce05b8ee69e444c123136bd3a18f779da5fcd49bdb22838c4
+  r: "The provided log file claims the test passed, but the required `results/discarded_runs.csv`\
+    \ does not exist, so the discard cannot be verified. Moreover, the shown portion\
+    \ of `code/agent_loop.py` contains no visible logic for detecting NaN outputs\
+    \ or handling OOM conditions. Both the missing CSV and lack of error\u2011handling\
+    \ code mean the task\u2019s requirements are not satisfied."
+T028:
+  c: false
+  h: 9fd643cc70f501568561f3c1fe4e8ecd774770d3258951e6fab2f8cab3b90abf
+  r: The required `code/resource_monitor.py` file does not exist, and the existing
+    `results/resource_profile.json` contains only placeholder zero values rather than
+    real peak RAM/CPU metrics from an agent run. Both the implementation and the logged
+    data are missing.
+T033b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file or excerpt showing the new \u201CMetric Definition:\
+    \ Structured JSON + Semantic Similarity\u201D section or the modifications to\
+    \ FR\u2011006 and FR\u2011008 is provided. Without the actual spec content, we\
+    \ cannot confirm that the required ratification was performed. The implementer\
+    \ must supply the revised `spec.md` (or a diff) that includes the new metric definition\
+    \ and the updated functional requirements."
+T039b:
+  c: false
+  h: 02338ff36f290a3d078f94f4fcbebcb0d510283580d35eed883dda1144811d7c
+  r: "The required script `code/baseline_runner.py` does not exist, and consequently\
+    \ no baseline log files were generated in `data/processed/`. Without the script\
+    \ and its output, the task\u2019s core requirement is unmet. The implementer must\
+    \ provide the missing `baseline_runner.py` and run it to produce the expected\
+    \ JSON logs."
+T039c:
+  c: false
+  h: 74de1c4c382dbc2c99ae9053e92c730a27a0004ae14432bc4044f143823a8ab3
+  r: "The required output file `results/statistical_summary.json` does not exist,\
+    \ and `code/main.py` contains only placeholder logic without any experiment execution.\
+    \ Consequently the batch run for seeds\u202F1\u201120 was never performed, so\
+    \ the task\u2019s core requirement is unmet."
+T039d:
+  c: false
+  h: 74de1c4c382dbc2c99ae9053e92c730a27a0004ae14432bc4044f143823a8ab3
+  r: "The required `results/statistical_summary.json` file does not exist, and `code/main.py`\
+    \ contains only a placeholder implementation with no logic to run a full experiment\
+    \ batch, handle the `--mode full` or `--seeds` arguments, perform power analysis,\
+    \ or write the statistical summary. Consequently the task\u2019s conditional execution\
+    \ and result update are not fulfilled."
+T041:
+  c: false
+  h: f92a3d71a8038a2600bb0a4ff17ba4a3599f80b855a502e94dd8c312f26804f2
+  r: 'The required output file `results/benchmark_log.json` does not exist, so the
+    verification conditions (existence, `total_time_hours < 6.0`, `passed: true`)
+    cannot be satisfied. The implementer must run the benchmark runner and produce
+    the JSON log at the specified path.'
+T042b:
+  c: false
+  h: f502dfb5900e56f83c59ae0c24e17001ca8dda8e0b4f659d2fc721e0572e3823
+  r: "The repository contains a `tests/integration/test_full_loop.py` file, but it\
+    \ is truncated and does not show a `test_full_loop_integration` function that\
+    \ uses the required `data/processed/seeds_1.ascii` input. Moreover, the expected\
+    \ output file `results/statistical_summary.json` is not present, and the referenced\
+    \ input file `data/processed/seeds_1.ascii` is missing. The task\u2019s core requirement\u2014\
+    an integration test that reads that specific ASCII file and generates the statistical\
+    \ summary JSON\u2014has not been fulfilled."
+T044:
+  c: false
+  h: 33e44eca6cabf7f75a18f58ce3b6e758fae2c6aa2998e05ca78d1967afd183da
+  r: "The required `results/quickstart_validation.log` file is absent, and there is\
+    \ no evidence that a fresh virtual environment was created, dependencies installed,\
+    \ or that the commands from `docs/quickstart.md` were run and all exited with\
+    \ code\u202F0. The provided `code/main.py` contains only placeholder logic, not\
+    \ the actual pipeline execution. The task therefore remains unfinished."

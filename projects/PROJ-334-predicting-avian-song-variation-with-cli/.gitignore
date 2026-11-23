@@ -7,19 +7,46 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.eggs/
-*.egg-info/
-dist/
+.Python
 build/
-bdist.*/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.hypothesis/
+.tox/
+.nox/
 
 # Virtual environments
-venv/
 .venv/
+venv/
+ENV/
 env/
-.env/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
@@ -30,12 +57,12 @@ env/
 .DS_Store
 Thumbs.db
 
-# Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
+# Project specific data
+data/raw/
+data/processed/
+data/logs/
+state/
 data/checksums.txt
-figures/
-data/models/
+
+# Logs
 *.log

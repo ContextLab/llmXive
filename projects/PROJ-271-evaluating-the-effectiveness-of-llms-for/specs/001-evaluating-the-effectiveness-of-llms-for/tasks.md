@@ -1,243 +1,203 @@
-# Tasks: Evaluating the Effectiveness of LLMs for Detecting Code Smells
+# Tasks: Evaluating the Effectiveness of LLMs for Detecting Code Smells  
 
-**Input**: Design documents from `/specs/001-evaluating-the-effectiveness-of-llms-for/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: The active `spec.md`, `plan.md`, original research idea, existing artifacts, and any reviewer feedback.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+---  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 1 – Project Initialization & Shared Infrastructure  
 
-## Format: `[ID] [P?] [Story] Description`
+*These tasks must be completed before any scientific work begins.*
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [X] T001a [P] Initialize project directory structure (`projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/contract/`).  
+  *Verification*: After execution, each listed directory exists and is writable.  
 
-## Path Conventions
+- [ ] T001b Create a `.flake8` configuration file in `code/` with the exact required settings:  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+  ```text
+  [flake8]
+  max-line-length = 88
+  ignore = E203,W503
+  ```  
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  *Verification*: The file exists, is readable, and contains both settings exactly as shown.  
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T001c Create `pyproject.toml` in `code/` with Black settings (`line-length = 88`, `target-version = py311`).  
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+  ```toml
+  [tool.black]
+  line-length = 88
+  target-version = ['py311']
+  ```  
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+  *Verification*: The file exists and includes the `[tool.black]` section with the exact `line-length` value.  
 
-## Phase 1: Setup (Shared Infrastructure)
+- [X] T002 Add `requirements.txt` containing `datasets pandas radon pylint sentence-transformers llama-cpp-python scikit-learn statsmodels numpy psutil`.  
 
-**Purpose**: Project initialization and basic structure
+  *Verification*: The file exists and each dependency appears on its own line matching the list above.  
 
-- [ ] T001a [P] Create `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/code/` directory
-- [ ] T001b [P] Create `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/data/raw/`, `data/processed/`, and `results/` directories
-- [ ] T001c [P] Create `projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/tests/unit/` and `tests/contract/` directories
-- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` containing `datasets`, `pandas`, `radon`, `pylint`, `sentence-transformers`, `llama-cpp-python`, `scikit-learn`, `statsmodels`, `numpy`, `psutil`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+## Phase 2 – Core Foundations (must be complete before any user‑story work)  
 
----
+- [ ] T003 [P] Verify the HuggingFace dataset URL for `codeparrot/github-code` is reachable, download a small test shard, compute its checksum, and record it in `data/checksums.txt`. Abort if verification fails.   <!-- FAILED-IN-EXECUTION: code/verify_dataset.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/verify_dataset.py exit=1 -->
+  *Verification*: Log entry confirms successful URL check, checksum matches, and `data/checksums.txt` is written.  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T004 [P] Create `code/config.py` defining paths (`data/`, `results/`), random seed (`42`), and batch‑size constants (`LLM_BATCH_SIZE = 10`).  
+  *Verification*: Importing `code.config` yields the expected constants; a unit test asserts their values.  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T005 [P] Add `code/__init__.py` and ensure directory layout matches `data/raw`, `data/processed`, `results`.  
+  *Verification*: `code/__init__.py` exists and a script confirms the required sub‑directories are present.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T006a [P] Configure logging in `code/config.py` (format, file handler, level).  
+  *Verification*: Running a test log entry creates `logs/run.log` with the correct format and level.  
 
-- [X] T004 [P] Create `code/config.py` defining paths (`data/`, `results/`), random seeds, and batch size constants (LLM batch ≤ 10)
-- [ ] T005 [P] Implement `code/__init__.py` and ensure directory structure matches `data/raw`, `data/processed`, `results`
-- [X] T006a [P] Setup logging configuration in `code/config.py` to define log format, file handlers, and levels for metrics (FR-008)
-- [X] T006b [P] Implement `code/monitoring.py` to capture RAM usage, CPU utilization, and inference time using `psutil` for use in inference loops (FR-008)
+- [ ] T006b [P] Implement `code/monitoring.py` that records RAM, CPU, and elapsed time per batch using `psutil`; writes to `results/resource_metrics.json`.  
+  *Verification*: After a dummy batch, `results/resource_metrics.json` contains an entry with `peak_ram_gb`, `cpu_percent`, and `elapsed_seconds`.  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+## Phase 3 – User Story 1: Automated Data Pipeline & Static‑Analysis Baseline (Priority P1)  
 
----
+- [ ] T007 [US1][P] Sample **exactly 800** Python functions from the HuggingFace dataset `codeparrot/github-code` using `datasets.load_dataset("codeparrot/github-code", split="train", streaming=True)` with `seed=42`. Write the sampled functions to `data/raw/sample_functions.jsonl` (one JSON object per line, containing at least `id` and `source_code`).  
+  *Verification*: File exists, line count is 800, and a log entry reports “Sampled 800 functions”.  
 
-## Phase 3: User Story 1 - Automated Data Pipeline and Static Analysis Baseline (Priority: P1) 🎯 MVP
+- [ ] T008 [US1] For each sampled function, compute structural metrics **LOC**, **cyclomatic complexity**, and **nesting depth** using the `radon` library. Store intermediate results in `data/processed/structural_metrics.jsonl` (one JSON object per function).  
+  *Verification*: Randomly inspect 5 entries; each contains integer fields `loc`, `cyclomatic_complexity`, `nesting_depth` that match radon’s CLI output for the same code.  
 
-**Goal**: Ingest a sampled subset of `codeparrot/github-code`, compute structural metrics via `radon`, and generate a baseline "smell label" set using Pylint.
+- [ ] T009 [US1] Run **Pylint** on every sampled function, capture raw error codes, and store them in `data/processed/pylint_outputs.jsonl`.  
+  *Verification*: Each JSON line includes a list field `static_labels`; the list may be empty but is always present.  
 
-**Independent Test**: Run the pipeline on a local subset (e.g., 10 functions) and verify `data/static_baseline.csv` exists with correct columns (`code`, `loc`, `cyclomatic_complexity`, `static_smell_labels`).
+- [ ] T010 [US1] Create `contracts/smell_mapping.json` that maps the five required Pylint codes to canonical smell names:  
 
-### Implementation for User Story 1
+  ```json
+  {
+    "C0111": "Missing Docstring",
+    "R0913": "Too Many Arguments",
+    "C0103": "Invalid Name",
+    "R0904": "Too Many Public Methods",
+    "W0613": "Unused Argument"
+  }
+  ```  
 
-- [X] T007 [US1] Implement `code/data_pipeline.py` to sample 800 functions from `codeparrot/github-code` using HuggingFace `datasets` (FR-001)
-- [X] T008 [US1] Implement structural metric calculation in `code/data_pipeline.py` using `radon` for LOC and Cyclomatic Complexity (FR-002)
-- [X] T009 [US1] Implement Pylint execution in `code/data_pipeline.py` to generate static smell labels AND normalize raw Pylint codes to canonical smell names for deterministic baseline (FR-003)
-- [X] T010 [US1] Implement error handling in `code/data_pipeline.py` to catch `radon` parsing errors, log the file, and exclude from final count (Edge Case)
-- [~] T011 [US1] Implement CSV serialization in `code/data_pipeline.py` to write `data/static_baseline.csv` with normalized smell codes (FR-001)
-- [ ] T012 [US1] Add validation to ensure `data/static_baseline.csv` contains ≥ 95% of sampled functions with all required columns (FR-001, SC-005)
+  *Verification*: The file is valid JSON and validates against a simple schema (object of string→string).  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T011 [US1] Normalize raw Pylint codes to canonical smell names using `contracts/smell_mapping.json`. For any unmapped code, label it `"Unknown"` and emit a warning to `logs/normalization_warnings.log`. Append both `static_labels` (raw codes) and `normalized_static_labels` (canonical names) to each function record in `data/processed/static_normalized.jsonl`.  
+  *Verification*: Sample 10 records; every entry’s `normalized_static_labels` contains only values from the mapping or `"Unknown"`.  
 
----
+- [ ] T012 [US1] Write the final static baseline CSV **`data/static_baseline.csv`** with columns: `id`, `source_code`, `loc`, `cyclomatic_complexity`, `nesting_depth`, `static_labels` (JSON‑encoded list), `normalized_static_labels` (JSON‑encoded list).  
+  *Verification*: The CSV contains exactly 800 rows and passes the `static_baseline.schema.yaml` contract test.  
 
-## Phase 4: User Story 2 - Semantic Feature Extraction and LLM Inference (Priority: P2)
+- [ ] T013 [US1] Validate completeness: at least **95 %** of the 800 rows must have non‑null values for all required columns. Produce a summary JSON `results/static_baseline_validation.json` with fields `total_rows`, `valid_rows`, `percent_valid`.  
+  *Verification*: `percent_valid` ≥ 95 and the JSON file is present.  
 
-**Goal**: Compute semantic embeddings and generate "smell labels" via a CPU-quantized LLM (CodeLlama-7B-GGUF) using a standardized prompt.
+## Phase 4 – User Story 2: Semantic Feature Extraction & LLM Inference (Priority P2)  
 
-**Independent Test**: Process a single function through the embedding model and LLM, verifying a dense vector is produced and the LLM returns a parsable list of smells.
+- [ ] T014 [US2] Load the `sentence‑transformers/all‑MiniLM‑L6‑v2` model and compute a 384‑dimensional embedding for each function in `data/static_baseline.csv`. Store embeddings in `data/processed/embeddings.jsonl` (each line adds a field `semantic_vector`).  
+  *Verification*: Randomly inspect 5 entries; each `semantic_vector` is a list of 384 floats.  
 
-**Depends on**: T011 (US1) must complete to provide `data/static_baseline.csv`.
+- [ ] T015 [US2] Verify the presence of the **4‑bit quantized** `CodeLlama‑7B‑Instruct‑GGUF` model file `code_llama_7b_q4_0.gguf` in `models/`. Load it with `llama_cpp.Llama` using `device='cpu'`. Raise an explicit error if the model’s quantization metadata does not contain `q4_0`.  
+  *Verification*: After loading, a log entry prints `Quantization: q4_0`.  
 
-### Implementation for User Story 2
+- [ ] T016 [US2] Create `contracts/llm_prompt.txt` containing the exact prompt:  
 
-- [~] T013 [US2] [Depends: T011] Implement `code/semantic_analysis.py` to load `sentence-transformers/all-MiniLM-L6-v2` and compute dense vectors for functions in `data/static_baseline.csv` (FR-005)
-- [X] T014 [US2] Implement `code/semantic_analysis.py` to load `CodeLlama-7B-Instruct-GGUF` (4-bit) using `llama-cpp-python` on CPU device (FR-004)
-- [X] T015 [US2] Implement the standardized "Code Smell Detection" prompt in `code/semantic_analysis.py` to request a JSON list of smell categories (FR-004)
-- [X] T016 [US2] Implement batched inference loop in `code/semantic_analysis.py` with batch size ≤ 10 (within ≤ 50 constraint) and explicit `gc.collect()` between batches to manage RAM, and record batch-level metrics (RAM, CPU, time) (FR-004, FR-008)
-- [X] T017 [US2] Implement JSON parsing and error handling in `code/semantic_analysis.py` to log "Unparseable" for malformed LLM outputs (Edge Case)
-- [X] T018 [US2] Implement context window check in `code/semantic_analysis.py` to truncate or skip functions exceeding model limits and log the count (Edge Case)
-- [ ] T019 [US2] Write embeddings and LLM labels to `data/processed/semantic_results.json` (FR-004, FR-005)
-- [~] T020 [US2] [Depends: T006b] Add monitoring in `code/semantic_analysis.py` to record peak RAM, CPU utilization, and inference time per batch to `results/resource_metrics.json` using `code/monitoring.py` (FR-008)
+  ```
+  Identify any code smells present in the following Python function and output a JSON array of smell names. Do not include any additional text.
+  ```  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+  *Verification*: A unit test reads the file and asserts its content matches the string above exactly.  
 
----
+- [ ] T017 [US2] Implement batched LLM inference (**batch size ≤ 10**) over the sampled functions:  
 
-## Phase 5: User Story 3 - Comparative Statistical Analysis and Reporting (Priority: P3)
+  1. Truncate functions that exceed the model’s context window, preserving the function header.  
+  2. Feed the prompt from `contracts/llm_prompt.txt` followed by the (possibly truncated) function source.  
+  3. Parse the LLM output; on parse failure record `"Unparseable"` for that function and set `parse_status = "PARSE_ERROR"`.  
+  4. Store results (`llm_labels`, `parse_status`, optional `llm_raw_output`) in `data/processed/semantic_results.jsonl`.  
 
-**Goal**: Correlate features with outcomes, perform McNemar's test, logistic regression (with VIF check), sensitivity analysis, and generate a summary report.
+  *Verification*: After processing, ≥ 90 % of rows have `parse_status = "SUCCESS"`; any failures are listed in `results/llm_parsing_errors.log`.  
 
-**Independent Test**: Run the analysis script on `data/processed/semantic_results.json` and verify `results/` contains p-values, regression coefficients, and sensitivity reports.
+- [ ] T018 [US2] Record per‑batch resource usage (peak RAM, CPU %, elapsed time) using `code/monitoring.py`; append each batch’s metrics to `results/resource_metrics.json`.  
+  *Verification*: Every entry includes `batch_index`, `peak_ram_gb` (≤ 7), `cpu_percent`, `elapsed_seconds`.  
 
-**Depends on**: T019 (US2) must complete to provide `data/processed/semantic_results.json`.
+- [ ] T019 [US2] Produce a compliance verification file `results/compliance_verification.json` that flags any breach of the **≤ 7 GB RAM** or **≤ 6 h total runtime** constraints.  
+  *Verification*: The JSON contains boolean fields `ram_ok` and `time_ok`; both are `true` when the pipeline finishes within limits.  
 
-### Implementation for User Story 3
+## Phase 5 – User Story 3: Comparative Statistical Analysis & Reporting (Priority P3)  
 
-- [~] T021 [US3] [Depends: T019] Implement `code/statistical_analysis.py` to merge `data/static_baseline.csv` and `data/processed/semantic_results.json` into a unified dataset
-- [~] T021a [US3] Validate merged dataset completeness (≥95% rows have all required fields: code, metrics, static labels, semantic vectors, LLM labels) of the 800 sampled functions before proceeding to statistical analysis (SC-005)
-- [X] T022 [US3] Implement McNemar's test per smell category (aggregating paired detection outcomes per function) in `code/statistical_analysis.py` (FR-006)
-- [X] T023 [US3] Implement Variance Inflation Factor (VIF) calculation in `code/statistical_analysis.py` for predictors (LOC, Cyclomatic, Semantic Mean) (FR-010)
-- [ ] T024 [US3] Implement logistic regression fitting in `code/statistical_analysis.py` that excludes predictors with VIF ≥ 5, flags high-VIF predictors in output, and implements exclusion as the only fallback path (FR-007, FR-010)
-- [ ] T025 [US3] Implement sensitivity analysis in `code/statistical_analysis.py` sweeping LOC thresholds (50, 100, 150) and calculating false-positive/negative rates (FR-009)
-- [ ] T026 [US3] Generate `results/statistical_significance.json` containing McNemar p-values (FR-006, SC-003)
-- [ ] T027 [US3] Generate `results/logistic_regression.json` containing coefficients and VIF scores (FR-007, SC-001, SC-002)
-- [ ] T028 [US3] Generate `results/sensitivity_report.md` listing smells detected *only* by static, *only* by LLM, and sensitivity results (FR-009)
-- [ ] T029 [US3] Verify `results/` artifacts contain valid data for ≥ 95% of the sample (SC-005)
+- [ ] T020 [US3] **Merge** the static baseline (`data/static_baseline.csv`), the embeddings (`data/processed/embeddings.jsonl`), and the LLM results (`data/processed/semantic_results.jsonl`) into a unified JSONLines file `data/merged_analysis.jsonl`. Each record must contain:  
 
-**Checkpoint**: All user stories should now be independently functional
+  `id`, `source_code`, structural metrics, `static_labels`, `normalized_static_labels`, `semantic_vector`, `llm_labels`, and derived boolean flags `static_only`, `llm_only`, `both`.  
 
----
+  *Verification*: Sample 5 merged records; all fields are present and the three flags are mutually exclusive and correctly computed.  
 
-## Phase N: Polish & Cross-Cutting Concerns
+- [ ] T021 [US3] Validate merged dataset completeness: ≥ 95 % of the 800 functions must have non‑null values for **all** required fields (`semantic_vector`, `llm_labels`, structural metrics). Write a summary to `results/merged_validation.json`.  
+  *Verification*: `percent_complete` ≥ 95 in the JSON report.  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T022 [US3] Perform **McNemar’s test** for each smell category using the paired outcomes (static vs. LLM). Store p‑values in `results/statistical_significance.json` under the key `mcnemar_pvalues`. Apply Bonferroni correction across categories.  
+  *Verification*: The JSON conforms to `statistical_report.schema.yaml`; every p‑value is a number in `[0,1]`.  
 
-- [ ] T030a [P] Add usage instructions to `README.md`
-- [ ] T030b [P] Update dependencies list in `README.md`
-- [ ] T030c [P] Create `quickstart.md` with setup and run instructions
-- [ ] T031a [P] Remove unused imports from all `code/` modules
-- [ ] T031b [P] Apply black formatting to all `code/` modules
-- [ ] T031c [P] Extract helper functions from `code/statistical_analysis.py`
-- [ ] T032a [P] Profile and optimize batch loading in `code/semantic_analysis.py` to reduce RAM peak
-- [ ] T032b [P] Verify total runtime ≤ 6h via dry-run on CI with mock data
-- [ ] T033a [P] Add `tests/unit/test_data_pipeline.py::test_radon_metrics`
-- [ ] T033b [P] Add `tests/unit/test_semantic_analysis.py::test_parsing`
-- [ ] T034 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T023 [US3] Compute **Variance Inflation Factor (VIF)** for predictors `loc`, `cyclomatic_complexity`, `nesting_depth`, and `semantic_mean` (mean of the 384‑dim embedding). Write VIF scores to `results/vif_scores.json`.  
+  *Verification*: Any predictor with `VIF ≥ 5` is listed in `results/vif_report.md` with a warning.  
 
----
+- [ ] T024 [US3] Fit **binary logistic regression** models to predict the two detection modes:  
 
-## Dependencies & Execution Order
+  1. `static_only` ≈ structural + semantic predictors.  
+  2. `llm_only` ≈ structural + semantic predictors.  
 
-### Phase Dependencies
+  Exclude any predictor flagged by VIF ≥ 5. Store coefficients in `results/logistic_regression.json` under keys `static_only` and `llm_only`. Include model diagnostics (`AIC`, `pseudo_R2`).  
+  *Verification*: Each coefficient is numeric; the JSON validates against the statistical‑report schema.  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T025 [US3] Conduct a **sensitivity analysis** sweeping LOC thresholds `{50, 100, 150}`. For each threshold compute false‑positive (`fp_rate`) and false‑negative (`fn_rate`) rates for static‑only detections **and** the `static_only_proportion`. Output an array of objects to `results/sensitivity_metrics.json` with schema `[{threshold:int, static_only_proportion:float, fp_rate:float, fn_rate:float}]`.  
+  *Verification*: The file contains three entries (one per threshold) and all rates lie in `[0,1]`.  
 
-### User Story Dependencies
+- [ ] T032 [US3] Compute the **Pearson correlation** between each structural metric (`loc`, `cyclomatic_complexity`, `nesting_depth`) and the binary flag `static_only`. Store results in `results/structural_correlation.json` (fields: `metric`, `correlation_coefficient`, `p_value`).  
+  *Verification*: At least one metric has `p_value ≤ 0.05`.  
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data output from US1 (`data/static_baseline.csv`)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on data output from US1 and US2
+- [ ] T026 [US3] Compute the **Pearson correlation** between the mean semantic embedding (average of the 384 dimensions) and the binary flag `llm_only`. Write `results/semantic_correlation.json` containing `correlation_coefficient`, `p_value`, `regression_coefficient` (from the logistic model), and `method`.  
+  *Verification*: JSON fields are present and `p_value ≤ 0.05` for at least one correlation.  
 
-### Within Each User Story
+- [ ] T027 [US3] Generate a **complementarity summary** `results/complementarity_report.md` that enumerates:  
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+  * Smells detected **only** by static analysis.  
+  * Smells detected **only** by the LLM.  
+  * Overlap (detected by both).  
 
-### Parallel Opportunities
+  Include a brief interpretation of the overlap size and any notable patterns.  
+  *Verification*: Manual inspection confirms the three lists are non‑empty (unless the data dictate otherwise).  
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T028 [US3] Validate all result artifacts against their respective JSON/YAML schemas (`static_baseline.schema.yaml`, `statistical_report.schema.yaml`, etc.) using the contract tests in `tests/contract/`.  
+  *Verification*: All contract tests exit with code 0.  
 
----
+## Phase 6 – Additional Scientific Rigor (addresses reviewer epistemology comment)
 
-## Parallel Example: User Story 1
+- [ ] T033 [US3] Perform a **manual sanity‑check** on a random sample of 20 functions where the LLM reported a smell that static analysis did not (i.e., `llm_only = true`). A domain‑expert reviewer reads each function and the LLM’s reported smell, then records a binary judgment (`ground_truth = true/false`). Summarize the proportion of LLM‑only detections that appear plausible in `results/manual_llm_validation.json`.  
+  *Verification*: The JSON contains fields `sample_size`, `plausible_count`, `plausible_rate`; the rate is reported in the final paper methods section.  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+## Phase 7 – Polish, Reproducibility & Paper Handoff  
 
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
+- [ ] T029 [P] Update `README.md` with a concise CLI overview, environment‑setup instructions, and direct links to the main result files.  
+- [ ] T030 [P] Create `quickstart.md` that walks a new user through: (1) installing dependencies, (2) running the full pipeline (`python -m code.main`), and (3) locating the final statistical report.  
+- [ ] T031 [P] Add a reproducibility metadata file `results/run_metadata.json` capturing: `pip freeze` snapshot, dataset version/commit hash, random seed, start/end timestamps, and git commit SHA.  
+  *Verification*: The file is automatically generated at the end of `code/main.py` and contains all required keys.  
 
----
+---  
 
-## Implementation Strategy
+### Dependency Mapping (Specification → Tasks)
 
-### MVP First (User Story 1 Only)
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| FR‑001 – Sample 800 functions | T007 |
+| FR‑002 – Structural metrics | T008 |
+| FR‑003 – Pylint baseline & normalization | T009, T010, T011 |
+| FR‑004 – Load 4‑bit CodeLlama on CPU | T015 |
+| FR‑005 – Compute semantic embeddings | T014 |
+| FR‑006 – McNemar’s test | T022 |
+| FR‑007 – Logistic regression (binary) | T023, T024 |
+| FR‑008 – Resource usage logging | T006b, T018, T019 |
+| FR‑009 – Sensitivity analysis | T025 |
+| FR‑010 – VIF calculation & handling | T023 |
+| SC‑001 – Correlation (structural ↔ static‑only) | T032 |
+| SC‑002 – Correlation (semantic ↔ LLM‑only) | T026 |
+| SC‑003 – McNemar significance | T022 |
+| SC‑004 – Runtime & RAM compliance | T019 |
+| SC‑05 – ≥ 95 % completeness | T013, T021, T028 |
+| Reviewer epistemology concern | T033 |
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+---  
 
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+*All unchecked tasks are pending implementation. Once a task is completed, mark the checkbox `[X]` and ensure the verification step passes.*  

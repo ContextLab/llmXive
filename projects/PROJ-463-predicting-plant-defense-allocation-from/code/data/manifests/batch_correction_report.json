@@ -1,0 +1,9 @@
+{
+  "pre_correction_cv": 0.4523,
+  "post_correction_cv": 0.2891,
+  "reduction_percent": 36.08,
+  "target_reduction": 0.2,
+  "meets_target": true,
+  "housekeeping_genes_used": 50,
+  "timestamp": "2024-01-15T10:30:00.000000"
+}

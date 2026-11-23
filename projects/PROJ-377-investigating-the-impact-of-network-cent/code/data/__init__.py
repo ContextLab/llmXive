@@ -1,13 +1,3 @@
 """
-Data module initialization.
-
-Exports data models for Subject and ConnectivityMatrix.
+Data processing module for llmXive research pipeline.
 """
-
-from .subject import Subject
-from .connectivity_matrix import ConnectivityMatrix
-
-__all__ = [
-    'Subject',
-    'ConnectivityMatrix'
-]

@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-541-evaluating-the-impact-of-data-scaling-on",
+  "ok": false,
+  "reason": "6 command(s) failed: python code/main.py --mode simulation (rc=2); python code/main.py --mode real_world (rc=2); python code/main.py --mode simulation --config-id \"test-config-1\" --iterations 100 (rc=2)",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --mode simulation -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: unrecognized arguments: --mode",
+    "python code/main.py --mode real_world -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: unrecognized arguments: --mode",
+    "python code/main.py --mode simulation --config-id \"test-config-1\" --iterations 100 -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: unrecognized arguments: --mode",
+    "python code/main.py --mode visualize -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: unrecognized arguments: --mode",
+    "python code/main.py --mode analyze -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: unrecognized arguments: --mode",
+    "python code/main.py --mode verify-checksums -> rc=2\n    usage: main.py [-h] {simulation,real_world,analyze,visualize} ...\nmain.py: error: argument mode: invalid choice: 'verify-checksums' (choose from 'simulation', 'real_world', 'analyze', 'visualize')"
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-24T15:59:48Z"
+}

@@ -1,118 +1,129 @@
-"""
-Unit tests for T038: generate_regression_summary.py
-"""
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import tempfile
-import os
 import sys
+from unittest.mock import Mock, patch, MagicMock
 
-# Mock the project root and config for testing
-@pytest.fixture
-def mock_project_root(tmp_path):
-    # Create necessary directory structure
-    data_raw = tmp_path / "data" / "raw"
-    data_processed = tmp_path / "data" / "processed"
-    data_final = tmp_path / "data" / "final"
-    data_raw.mkdir(parents=True)
-    data_processed.mkdir(parents=True)
-    data_final.mkdir(parents=True)
-    
-    # Create a mock input file
-    mock_data = pd.DataFrame({
-        'mean_vividness': [5.0, 4.5, 6.0, 3.0, 7.0],
-        'residualized_exposure_score': [0.1, 0.2, 0.3, 0.4, 0.5],
-        'overall_popularity_score': [10, 20, 30, 40, 50],
-        'user_id': ['u1', 'u1', 'u2', 'u2', 'u3']
-    })
-    input_path = data_processed / "user_track_pairs.parquet"
-    mock_data.to_parquet(input_path)
-    
-    return tmp_path
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-@pytest.fixture
-def mock_config(monkeypatch, mock_project_root):
-    # Mock get_project_root to return our temp dir
-    def mock_get_root():
-        return mock_project_root
-    
-    def mock_get_config():
-        return {}
-    
-    monkeypatch.setattr('config.get_project_root', mock_get_root)
-    monkeypatch.setattr('config.get_config_dict', mock_get_config)
-    
-    # Mock state_manager to avoid file system issues
-    def mock_register(*args, **kwargs):
-        pass
-    def mock_save(*args, **kwargs):
-        pass
-    
-    monkeypatch.setattr('state_manager.register_file', mock_register)
-    monkeypatch.setattr('state_manager.save_state', mock_save)
+from generate_regression_summary import (
+    calculate_vif,
+    generate_summary_dataframe
+)
 
-def test_generate_regression_summary_runs(mock_project_root, mock_config):
-    """
-    Test that the main function runs without error and produces the output file.
-    """
-    # We need to import the module after mocking
-    # Since the module imports at the top, we might need to reload or import carefully
-    # For simplicity, we assume the mocks are in place before import or we use a subprocess
-    # However, for a unit test of the logic, we can test the core functions if exposed.
-    # Here we test the script execution logic.
-    
-    # Temporarily add the code dir to path if not already
-    code_dir = mock_project_root / "code"
-    if str(code_dir) not in sys.path:
-        sys.path.insert(0, str(code_dir))
-    
-    # Import the main function
-    try:
-        from generate_regression_summary import main
-    except ImportError as e:
-        pytest.skip(f"Could not import module: {e}")
+class TestCalculateVIF:
+    def test_vif_calculation_no_collinearity(self):
+        """Test VIF calculation when predictors are uncorrelated."""
+        # Create a mock model with uncorrelated predictors
+        mock_model = Mock()
+        
+        # Create uncorrelated design matrix
+        np.random.seed(42)
+        n = 100
+        x1 = np.random.normal(0, 1, n)
+        x2 = np.random.normal(0, 1, n)
+        x3 = np.random.normal(0, 1, n)
+        
+        exog = np.column_stack([np.ones(n), x1, x2, x3])
+        col_names = ['Intercept', 'x1', 'x2', 'x3']
+        
+        mock_model.model.exog = exog
+        mock_model.model.exog_names = col_names
+        
+        vif_dict = calculate_vif(mock_model)
+        
+        # VIF should be close to 1 for uncorrelated variables
+        assert 'x1' in vif_dict
+        assert 'x2' in vif_dict
+        assert 'x3' in vif_dict
+        assert 0.9 <= vif_dict['x1'] <= 1.1
+        assert 0.9 <= vif_dict['x2'] <= 1.1
+        assert 0.9 <= vif_dict['x3'] <= 1.1
 
-    output_file = mock_project_root / "data" / "final" / "regression_summary.csv"
-    
-    # Run the main function
-    # Note: This requires statsmodels to be installed and working
-    try:
-        main()
-    except Exception as e:
-        # If statsmodels fails due to missing dependencies in test env, skip
-        if "statsmodels" in str(e) or "MixedLM" in str(e):
-            pytest.skip("Statsmodels not available or model fitting failed in test env.")
-        else:
-            raise
+    def test_vif_calculation_high_collinearity(self):
+        """Test VIF calculation when predictors are highly correlated."""
+        mock_model = Mock()
+        
+        # Create highly correlated design matrix
+        np.random.seed(42)
+        n = 100
+        x1 = np.random.normal(0, 1, n)
+        x2 = x1 + np.random.normal(0, 0.01, n)  # Highly correlated
+        x3 = np.random.normal(0, 1, n)
+        
+        exog = np.column_stack([np.ones(n), x1, x2, x3])
+        col_names = ['Intercept', 'x1', 'x2', 'x3']
+        
+        mock_model.model.exog = exog
+        mock_model.model.exog_names = col_names
+        
+        vif_dict = calculate_vif(mock_model)
+        
+        # VIF should be high for correlated variables
+        assert vif_dict['x1'] > 5
+        assert vif_dict['x2'] > 5
+        # x3 should still be low
+        assert 0.9 <= vif_dict['x3'] <= 1.1
 
-    assert output_file.exists(), "Output CSV file was not created."
-    
-    df = pd.read_csv(output_file)
-    assert 'variable' in df.columns, "Missing 'variable' column."
-    assert 'coef' in df.columns, "Missing 'coef' column."
-    assert 'std err' in df.columns, "Missing 'std err' column."
-    assert 'pvalue' in df.columns, "Missing 'pvalue' column."
-    assert len(df) > 0, "Output CSV is empty."
+class TestGenerateSummaryDataFrame:
+    def test_summary_dataframe_structure(self):
+        """Test that summary dataframe has correct columns."""
+        # Create a mock model
+        mock_model = Mock()
+        
+        # Mock params, bse, tvalues
+        mock_model.params = pd.Series([0.5, 0.3], index=['x1', 'x2'])
+        mock_model.bse = pd.Series([0.1, 0.15], index=['x1', 'x2'])
+        mock_model.tvalues = pd.Series([5.0, 2.0], index=['x1', 'x2'])
+        mock_model.df_resid = 98
+        
+        vif_dict = {'x1': 1.2, 'x2': 1.5}
+        
+        summary_df = generate_summary_dataframe(mock_model, vif_dict)
+        
+        # Check columns
+        expected_columns = ['variable', 'coefficient', 'std_error', 't_statistic', 'p_value', 'vif']
+        assert list(summary_df.columns) == expected_columns
+        
+        # Check values
+        assert len(summary_df) == 2
+        assert summary_df.loc[summary_df['variable'] == 'x1', 'coefficient'].iloc[0] == 0.5
+        assert summary_df.loc[summary_df['variable'] == 'x1', 'std_error'].iloc[0] == 0.1
+        assert summary_df.loc[summary_df['variable'] == 'x1', 'vif'].iloc[0] == 1.2
 
-def test_missing_input_file(mock_project_root, mock_config):
-    """
-    Test that the script fails gracefully if input file is missing.
-    """
-    # Remove the mock input file
-    input_path = mock_project_root / "data" / "processed" / "user_track_pairs.parquet"
-    if input_path.exists():
-        input_path.unlink()
+    def test_summary_dataframe_pvalue_calculation(self):
+        """Test that p-values are correctly calculated."""
+        mock_model = Mock()
+        
+        # t-value of 0 should give p-value of 1.0
+        mock_model.params = pd.Series([0.0], index=['x1'])
+        mock_model.bse = pd.Series([1.0], index=['x1'])
+        mock_model.tvalues = pd.Series([0.0], index=['x1'])
+        mock_model.df_resid = 100
+        
+        vif_dict = {'x1': 1.0}
+        
+        summary_df = generate_summary_dataframe(mock_model, vif_dict)
+        
+        # p-value should be close to 1.0 for t=0
+        assert 0.99 < summary_df['p_value'].iloc[0] < 1.01
 
-    code_dir = mock_project_root / "code"
-    if str(code_dir) not in sys.path:
-        sys.path.insert(0, str(code_dir))
-
-    try:
-        from generate_regression_summary import main
-    except ImportError:
-        pytest.skip("Could not import module.")
-
-    with pytest.raises(FileNotFoundError):
-        main()
+    def test_summary_dataframe_with_nan_vif(self):
+        """Test summary dataframe generation when VIF is missing."""
+        mock_model = Mock()
+        
+        mock_model.params = pd.Series([0.5], index=['x1'])
+        mock_model.bse = pd.Series([0.1], index=['x1'])
+        mock_model.tvalues = pd.Series([5.0], index=['x1'])
+        mock_model.df_resid = 98
+        
+        # Empty VIF dict
+        vif_dict = {}
+        
+        summary_df = generate_summary_dataframe(mock_model, vif_dict)
+        
+        assert summary_df['vif'].iloc[0] != summary_df['vif'].iloc[0]  # NaN check

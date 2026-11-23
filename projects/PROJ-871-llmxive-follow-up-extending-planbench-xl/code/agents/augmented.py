@@ -1,137 +1,206 @@
-"""
-Augmented Agent Implementation.
-Executes tasks with access to failure signatures for recovery.
-"""
 import os
+import json
 import re
 import time
-import json
-from typing import Any, Dict, List, Optional, Tuple
+import fnmatch
+from typing import Any, Dict, List, Optional
+
 from agents.base import BaseAgent
-from utils.config import get_path, get_hyperparameter
+
 
 class AugmentedAgent(BaseAgent):
-    """
-    Augmented agent that checks for known failure signatures post-invocation
-    and triggers recovery strategies.
-    """
-    
-    def __init__(self, model_name: Optional[str] = None):
-        super().__init__()
-        self.model_name = model_name or get_hyperparameter("model")
-        self.max_tokens = get_hyperparameter("max_tokens")
-        self.temperature = get_hyperparameter("temperature")
-        self.seed = get_hyperparameter("seed")
-        
-        # Path to failure signatures index
-        self.signatures_path = get_path("failure_signatures")
-        
-        # Ensure data directories exist
-        get_path("data_logs").mkdir(parents=True, exist_ok=True)
-        get_path("data_derived").mkdir(parents=True, exist_ok=True)
-        
-        # Log file path
-        self.log_path = get_path("augmented_log")
-        
-        # Load signatures
-        self.signatures = self._load_signatures()
+    """Augmented agent with failure signature retrieval.
 
-    def _load_signatures(self) -> Dict[str, Any]:
+    This agent uses the same LLM as the baseline but, after each
+    generation, checks the output against a static failure‑signature
+    index.  If a signature matches, a lightweight recovery strategy
+    (re‑planning) is triggered via a second LLM call.
+    """
+
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        super().__init__(config)
+
+        # Configuration -------------------------------------------------
+        config = config or {}
+        self.signature_index_path = config.get("signature_index_path")
+        self.model_name = config.get(
+            "model_name", "meta-llama/Meta-Llama-3-8B"
+        )
+        self.max_tokens = config.get("max_tokens", 512)
+        self.temperature = config.get("temperature", 0.7)
+
+        # Runtime state -------------------------------------------------
+        self.signature_index: Dict[str, str] = self._load_signature_index()
+        self.model = None
+        self.tokenizer = None
+        self.llm_call_count = 0  # tracks how many LLM calls we make
+
+        # Model loading -------------------------------------------------
+        self._load_model()
+
+    # -----------------------------------------------------------------
+    # Helper methods
+    # -----------------------------------------------------------------
+    def _load_signature_index(self) -> Dict[str, str]:
+        """Load the failure‑signature index from JSON.
+
+        The index is a list of objects of the form:
+            {
+                "tool_id": "<id>",
+                "pattern_string": "<wildcard‑compatible pattern>"
+            }
+
+        Returns a dict mapping ``tool_id`` → ``pattern_string`` for fast
+        lookup.  If the file does not exist we return an empty dict,
+        which effectively disables signature‑based recovery.
         """
-        Loads the failure signatures index from the configured path.
-        """
-        if not self.signatures_path.exists():
+        if not self.signature_index_path or not os.path.exists(
+            self.signature_index_path
+        ):
             return {}
-        
-        with open(self.signatures_path, 'r') as f:
-            return json.load(f)
 
-    def _check_signatures(self, tool_output: str) -> Optional[str]:
+        with open(self.signature_index_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            # Convert list → dict for O(1) look‑ups.
+            return {
+                entry["tool_id"]: entry["pattern_string"] for entry in data
+            }
+
+    def _load_model(self) -> None:
+        """Load the quantised Llama‑3‑8B model using bitsandbytes."""
+        try:
+            from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+            import torch
+
+            quant_cfg = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                bnb_4bit_compute_dtype=torch.float16,
+            )
+
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            self.model = AutoModelForCausalLM.from_pretrained(
+                self.model_name,
+                quantization_config=quant_cfg,
+                device_map="auto",
+                torch_dtype=torch.float16,
+            )
+        except Exception as exc:
+            raise RuntimeError(f"Failed to load LLM model: {exc}") from exc
+
+    def _check_failure_signature(self, tool_output: str) -> Optional[str]:
+        """Return the matching ``tool_id`` if a failure signature is found.
+
+        Matching uses ``fnmatch`` which supports ``*`` and ``?`` wild‑cards
+        as required by the specification.  If no pattern matches, ``None``
+        is returned.
         """
-        Checks if the tool output matches any known failure signature.
-        
-        Args:
-            tool_output: The output string from a tool invocation.
-            
-        Returns:
-            The matched signature key if found, otherwise None.
-        """
-        for pattern, metadata in self.signatures.items():
-            # Exact match or regex if pattern contains wildcards
-            if '*' in pattern or '?' in pattern:
-                # Simple glob-to-regex conversion
-                regex_pattern = pattern.replace('*', '.*').replace('?', '.')
-                if re.search(regex_pattern, tool_output):
-                    return pattern
-            else:
-                if pattern in tool_output:
-                    return pattern
+        for tool_id, pattern in self.signature_index.items():
+            # ``fnmatch`` handles both exact and wildcard matches.
+            if fnmatch.fnmatch(tool_output, pattern):
+                return tool_id
         return None
 
-    def _recover(self, task: Dict[str, Any], error_pattern: str) -> Dict[str, Any]:
-        """
-        Executes a recovery strategy (re-plan or tool substitution).
-        
-        Args:
-            task: The original task.
-            error_pattern: The matched error pattern.
-            
-        Returns:
-            Recovery result dictionary.
-        """
-        # Placeholder for recovery logic
-        # In a real implementation, this would re-invoke the LLM with a new prompt
-        # or substitute the failing tool.
+    def _replan(self, task: Dict[str, Any], failure_context: str) -> Dict[str, Any]:
+        """Generate a new plan after a failure has been detected."""
+        prompt = (
+            f"Task: {task.get('instruction', '')}\n"
+            f"Context: {task.get('context', '')}\n"
+            f"Previous failure: {failure_context}\n"
+            "Please re‑plan and execute the task, avoiding the previous failure."
+        )
+
+        inputs = (
+            self.tokenizer(prompt, return_tensors="pt")
+            .to(self.model.device)
+        )
+        self.llm_call_count += 1
+        outputs = self.model.generate(
+            **inputs,
+            max_new_tokens=self.max_tokens,
+            temperature=self.temperature,
+            do_sample=True,
+        )
+
+        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
         return {
-            "recovery_action": "replan",
-            "status": "attempted",
-            "details": f"Recovered from {error_pattern}"
-        }
-
-    def _simulate_llm_call(self, prompt: str) -> str:
-        """
-        Simulates an LLM call.
-        """
-        return "Simulated response for augmented agent."
-
-    def execute_task(self, task: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Executes a single task with signature checking.
-        """
-        start_time = time.time()
-        
-        prompt = f"Task: {task.get('instruction', '')}"
-        response = self._simulate_llm_call(prompt)
-        
-        # Check for failure signatures in the response/tool outputs
-        # In a real scenario, we would parse the tool outputs specifically
-        matched_pattern = self._check_signatures(response)
-        
-        recovery_info = None
-        if matched_pattern:
-            recovery_info = self._recover(task, matched_pattern)
-        
-        execution_time = time.time() - start_time
-        
-        result = {
-            "task_id": task.get("task_id"),
-            "status": "completed",
+            "status": "replanned",
             "response": response,
-            "execution_time": execution_time,
-            "agent_type": "augmented",
-            "signature_detected": matched_pattern is not None,
-            "signature_pattern": matched_pattern,
-            "recovery_info": recovery_info
+            "recovery_strategy": "replan",
         }
-        
-        return result
 
-    def run(self, tasks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    # -----------------------------------------------------------------
+    # Public API
+    # -----------------------------------------------------------------
+    def execute(self, task: Dict[str, Any]) -> Dict[str, Any]:
+        """Run the agent on a single ``task``.
+
+        The method returns a dictionary containing at least:
+            - ``task_id``
+            - ``final_status`` (``success`` / ``failure`` / ``replanned``)
+            - ``signature_triggered`` (bool)
+            - ``execution_time`` (seconds)
+            - ``response`` (LLM output)
         """
-        Runs the agent on a list of tasks.
-        """
-        results = []
-        for task in tasks:
-            result = self.execute_task(task)
-            results.append(result)
-        return results
+        start = time.time()
+
+        # -----------------------------------------------------------------
+        # 1. Initial LLM call
+        # -----------------------------------------------------------------
+        prompt = f"Task: {task.get('instruction', '')}\n"
+        if task.get("context"):
+            prompt += f"Context: {task['context']}\n"
+
+        inputs = (
+            self.tokenizer(prompt, return_tensors="pt")
+            .to(self.model.device)
+        )
+        self.llm_call_count += 1
+        outputs = self.model.generate(
+            **inputs,
+            max_new_tokens=self.max_tokens,
+            temperature=self.temperature,
+            do_sample=True,
+        )
+
+        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+        # -----------------------------------------------------------------
+        # 2. Signature check
+        # -----------------------------------------------------------------
+        signature_tool = self._check_failure_signature(response)
+        signature_triggered = signature_tool is not None
+
+        if signature_triggered:
+            # -----------------------------------------------------------------
+            # 3. Recovery via re‑planning
+            # -----------------------------------------------------------------
+            recovery = self._replan(
+                task,
+                f"Detected failure signature for tool '{signature_tool}'",
+            )
+            final_status = recovery["status"]
+            response = recovery["response"]
+            recovery_strategy = recovery["recovery_strategy"]
+        else:
+            final_status = "success"
+            recovery_strategy = None
+
+        elapsed = time.time() - start
+
+        return {
+            "task_id": task.get("id", task.get("task_id", "unknown")),
+            "response": response,
+            "final_status": final_status,
+            "execution_time": elapsed,
+            "agent_type": "augmented",
+            "signature_triggered": signature_triggered,
+            "recovery_strategy": recovery_strategy,
+            "llm_calls_made": self.llm_call_count,
+        }
+
+    def reset(self) -> None:
+        """Reset any internal state (not used for the current agent)."""
+        self.llm_call_count = 0

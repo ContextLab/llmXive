@@ -31,6 +31,21 @@ jobs:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
     steps:
       - uses: actions/checkout@v5
+        with:
+          # The fixtures are inline in eval/promptfoo. No project datasets or
+          # historical run logs are inputs to this evaluation.
+          sparse-checkout: |
+            /src/
+            /agents/
+            /eval/promptfoo/
+            /specs/001-agentic-pipeline-refactor/contracts/
+            /.specify/
+            /web/about.html
+            /*.md
+            /*.toml
+            /*.ini
+            /LICENSE
+          sparse-checkout-cone-mode: false
 
       - uses: actions/setup-python@v5
         with:

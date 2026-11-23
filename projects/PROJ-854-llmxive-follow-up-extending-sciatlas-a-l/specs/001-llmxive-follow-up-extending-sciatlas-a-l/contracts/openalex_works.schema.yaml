@@ -1,0 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: OpenAlex Works Subgraph Schema
+description: Schema for validating the input OpenAlex-derived subgraph Parquet file.
+type: object
+properties:
+  id:
+    type: string
+    description: Unique work identifier.
+  title:
+    type: ["string", "null"]
+    description: Work title. Nullable.
+  cited_by_count:
+    type: ["integer", "null"]
+    description: Citation count. Nullable, defaults to 0.
+  publication_date:
+    type: string
+    format: date-time
+    description: Date of publication.
+  field:
+    type: string
+    description: Disciplinary field identifier.
+  neighbors:
+    type: array
+    items:
+      type: string
+    description: List of connected work IDs.
+required:
+  - id
+  - cited_by_count
+  - publication_date
+  - field
+additionalProperties: true

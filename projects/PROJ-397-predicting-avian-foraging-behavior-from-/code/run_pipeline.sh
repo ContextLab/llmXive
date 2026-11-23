@@ -1,69 +1,69 @@
 #!/bin/bash
-# Orchestration script for the Avian Foraging Behavior Prediction Pipeline
-# Executes the full data processing, modeling, and visualization workflow.
-#
-# Usage: bash run_pipeline.sh
-#
-# Prerequisites:
-#   - Python 3.11+ installed
-#   - Virtual environment activated with dependencies from requirements.txt
-#   - Real data sources (eBird, NLCD) accessible via network
+# run_pipeline.sh - Orchestration script for the Avian Foraging Behavior Pipeline
+# This script executes all pipeline stages in dependency order with error handling.
 
-set -e  # Exit immediately if a command exits with a non-zero status
+set -e  # Exit on first error
 
-# Determine script directory to ensure relative paths work correctly
+# Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+CODE_DIR="${SCRIPT_DIR}"
+LOG_FILE="${CODE_DIR}/pipeline_execution.log"
 
 echo "=========================================="
 echo "Starting Avian Foraging Behavior Pipeline"
+echo "Started at: $(date)"
 echo "=========================================="
-echo "Working directory: $(pwd)"
-echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-echo "------------------------------------------"
+echo ""
 
-# Step 1: Download eBird Data
-echo "[1/7] Downloading eBird data..."
-python data/download_ebd.py
-echo "Step 1 complete."
+# Helper function to run a step
+run_step() {
+    local step_name="$1"
+    local script_path="$2"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Executing: ${step_name}"
+    echo "  Script: ${script_path}"
+    
+    if python "${script_path}"; then
+        echo "  Status: SUCCESS"
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${step_name} completed successfully." >> "${LOG_FILE}"
+    else
+        echo "  Status: FAILED"
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${step_name} failed with exit code $?." >> "${LOG_FILE}"
+        echo "ERROR: Step '${step_name}' failed. Stopping pipeline."
+        exit 1
+    fi
+    echo ""
+}
 
-# Step 2: Download NLCD Data
-echo "[2/7] Downloading NLCD land cover data..."
-python data/download_nlcd.py
-echo "Step 2 complete."
+# Phase 1: Data Download
+echo ">>> PHASE 1: DATA DOWNLOAD"
+run_step "Download eBird Data" "${CODE_DIR}/data/download_ebd.py"
+run_step "Download NLCD Data" "${CODE_DIR}/data/download_nlcd.py"
+run_step "Download Guild Source" "${CODE_DIR}/data/download_guild_source.py"
+run_step "Generate Guild Mapping" "${CODE_DIR}/data/generate_guild_mapping.py"
 
-# Step 3: Merge and Buffer
-echo "[3/7] Merging data and calculating buffers..."
-python data/merge_and_buffer.py
-echo "Step 3 complete."
+# Phase 2: Data Preprocessing
+echo ">>> PHASE 2: DATA PREPROCESSING"
+run_step "Load and Count Species" "${CODE_DIR}/data/load_and_count.py"
+run_step "Select Top Species" "${CODE_DIR}/data/select_top_species.py"
+run_step "Preprocess Data" "${CODE_DIR}/data/preprocess.py"
+run_step "Merge and Buffer" "${CODE_DIR}/data/merge_and_buffer.py"
+run_step "Aggregate Species Profiles" "${CODE_DIR}/data/aggregate.py"
 
-# Step 4: Train Model
-echo "[4/7] Training Random Forest model..."
-python models/train.py
-echo "Step 4 complete."
+# Phase 3: Model Training
+echo ">>> PHASE 3: MODEL TRAINING"
+run_step "Train Random Forest" "${CODE_DIR}/models/train.py"
 
-# Step 5: Evaluate Model
-echo "[5/7] Evaluating model performance..."
-python models/evaluate.py
-echo "Step 5 complete."
+# Phase 4: Model Evaluation
+echo ">>> PHASE 4: MODEL EVALUATION"
+run_step "Evaluate Model" "${CODE_DIR}/models/evaluate.py"
 
-# Step 6: Plot Confusion Matrix
-echo "[6/7] Generating confusion matrix visualization..."
-python viz/plot_confusion.py
-echo "Step 6 complete."
+# Phase 5: Visualization
+echo ">>> PHASE 5: VISUALIZATION"
+run_step "Plot Confusion Matrix" "${CODE_DIR}/viz/plot_confusion.py"
+run_step "Plot Feature Importance" "${CODE_DIR}/viz/plot_importance.py"
+run_step "Map Habitat" "${CODE_DIR}/viz/map_habitat.py"
 
-# Step 7: Plot Feature Importance
-echo "[7/7] Generating feature importance chart..."
-python viz/plot_importance.py
-echo "Step 7 complete."
-
-# Note: map_habitat.py is not included in the primary chain in tasks.md description
-# but if needed, it would be run here. The tasks.md specific command list ends at plot_importance.
-# If map_habitat is required by the user, uncomment the line below:
-# echo "Generating habitat map..."
-# python viz/map_habitat.py
-
-echo "------------------------------------------"
+echo "=========================================="
 echo "Pipeline completed successfully!"
-echo "Check 'data/processed/' for datasets and 'figures/' for visualizations."
+echo "Finished at: $(date)"
 echo "=========================================="

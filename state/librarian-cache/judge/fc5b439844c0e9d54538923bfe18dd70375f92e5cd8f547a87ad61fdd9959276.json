@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.17982",
+  "judged_at": "2026-09-26T04:28:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying hallucination in llm-generated api documentation computer science",
+  "rationale": "This paper satisfies criterion (a) and (f) as it investigates the core mechanism of \"hallucination\" in Large Language Models (and their multimodal variants), providing canonical evidence on the nature, dynamics, and quantification of this specific failure mode, which is the primary variable of interest in the user's question even though the specific domain (API documentation) differs from the paper's visual domain.",
+  "relevant": true
+}

@@ -1,6 +1,6 @@
 # Tasks: Assessing the Impact of Data Augmentation on Statistical Power in Small Samples
 
-**Input**: Design documents from `/specs/001-assess-augmentation-impact/`
+**Input**: Design documents from `/specs/001-assessing-the-impact-of-data-augmentatio/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories)
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -20,47 +20,36 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure: `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/code/`, `data/raw/`, `data/derived/`, `results/`, `tests/`, `contracts/`
-- [ ] T001b [P] Create `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/requirements.txt` with pinned versions: pandas, numpy, scikit-learn, imbalanced-learn, scipy, requests, pytest
-- [ ] T001c [P] Create `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/code/__init__.py` and `tests/__init__.py`
+- [X] T001a [P] Create project directories `code/` and `tests/` at repository root.
+- [X] T001b [P] Create project directories `data/raw/`, `data/derived/`, `results/`, `contracts/`, and `state/` at repository root.
+- [X] T001c [P] Create `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/requirements.txt` with pinned versions: pandas, numpy, scikit-learn, imbalanced-learn, scipy, requests, pytest.
+- [X] T001d [P] Create `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/code/__init__.py` and `tests/__init__.py`.
+- [X] T003 [P] Create `code/verified_datasets.json`: Define a JSON object mapping dataset names (breast_cancer, ionosphere, heart_disease) to their canonical UCI URLs and expected cryptographic checksums. **Constraint**: This file is the single source of truth for T004.
+- [X] T036 [P] Create `quickstart.md` in `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/` with instructions for running the full study. **Dependency**: T001a, T001b, T001c. **Constraint**: Must exist before Phase 2 validation.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes feasibility gates.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/download_data.py`: Fetch a set of verified UCI datasets (Breast Cancer, Ionosphere, Heart Disease) via direct URLs. Save to `data/raw/` and compute SHA256 checksums. **Logic**: If the fetched count is not 3, log a warning indicating the deviation from the original FR-001 intent of 5 datasets. Do not attempt to fetch unverified datasets.
-- [ ] T005 [P] Implement `code/subsample.py`: Create stratified subsampling function for N=15, 25, 40. **Target Column Detection**: Look for 'target', then 'class', then 'label', then default to the last column. **Edge Cases**: If class count < 5 for a configuration, skip it, log a warning, and append the skipped configuration details to `data/derived/skipped_configurations.log`.
-- [ ] T006 [P] Implement `code/augment.py`: Create functions for Gaussian noise injection, SMOTE, and Random Oversampling using `imbalanced-learn`; ensure no CUDA/GPU dependencies; handle zero-variance samples.
-- [~] T008a [P] Define JSON schema for simulation output: Create `contracts/simulation_schema.json` defining the structure for p-value distributions, error rates, and metadata. **Must be valid JSON and exist before T007 runs.**
-- [X] T007 [P] Implement `code/simulation.py`: Full implementation of Monte Carlo loop with random seed pinning, configuration management, and a sufficient number of iterations per config to ensure statistical convergence. **Pre-check**: Validate that `contracts/simulation_schema.json` exists and is valid JSON before proceeding. **Logic**: Implement internal helper functions for label permutation (Type I) and mean shift (Type II) within this module; do not rely on external tasks for these functions. **Dependency**: Requires T008a.
-- [X] T008b [P] Implement `code/analyze.py`: Implement error rate calculation (Type I/II), KS test wrapper (p-value distributions only), and JSON reporting structure. **Dependency**: Requires T007 output.
+- [X] T004 [P] Implement `code/download_data.py`: Fetch verified UCI datasets using the canonical URLs and checksums defined in `code/verified_datasets.json` (T003). Save to `data/raw/`. **Constraint**: If the fetched count does not meet the specification requirement, log a warning to `data/derived/fetch_count.log` in **JSON format**. (`[{"dataset_name": "...", "status": "deviation", "message": "...", "timestamp": "..."}]`) for agent processing. **Do NOT write to state files**; the Advancement-Evaluator Agent handles state updates. **Constraint**: If a checksum mismatch occurs, raise a `DataFetchError` (handled by T038).
+- [X] T004b Implement deviation recording logic: Update `code/download_data.py` or a helper script to read the dataset count from `data/derived/fetch_count.log` (generated by T004) and write the list of available datasets to `data/derived/deviation_log.json` as a JSON array. **Adaptation Logic**: If count < 5, write the list of fetched dataset names to `data/derived/deviation_log.json`. **Dependency**: T004. **Note**: This task writes the adaptation logic to a log file, NOT `code/config.yaml`, to preserve immutability of config. **Constraint**: This task is NOT parallel-safe ([P]) as it writes to a shared log file required by T007.
+- [X] T004c [P] Implement logging and checksum logic: Write the specific deviation count to `data/derived/deviation_log.json` (if not already done by T004b). Compute the SHA256 checksum of this file and **create or append** the hash to `state/manifest.yaml` under `artifact_hashes` (YAML structure: `artifact_hashes: { filename: sha256 }`) for agent ingestion. **Dependency**: T004b. **Note**: If `state/manifest.yaml` does not exist, create it. This task initializes the manifest structure.
+- [X] T005 [P] Implement `code/subsample.py`: Create stratified subsampling function for N=15, 25, 40. **Target Column Detection**: Look for 'target', then 'class', then 'label', then default to the last column. **Edge Cases**: If class count < 5 for a configuration, **Do NOT reduce N**. Skip the configuration, log a warning, and append details to `data/derived/skipped_configurations.json` as a **valid JSON array of objects** with schema: `[{"dataset": "...", "size": N, "reason": "...", "timestamp": "..."}]`. **Dependency**: T038b for power analysis verification of skipped configurations (moved to Phase 5).
+- [X] T006 [P] Implement `code/augment.py`: Create functions for Gaussian noise injection, SMOTE, and Random Oversampling using `imbalanced-learn`; ensure no CUDA/GPU dependencies; handle zero-variance samples.
+- [X] T008a [P] Define JSON schema for simulation output: Create `contracts/simulation_schema.json` defining the structure for p-value distributions, error rates, and metadata. **Must be valid JSON and exist before T007 runs.** (Note: T007 execution is blocked until this task is complete).
+- [X] T034 [P] Validate computational runtime: Implement a validation script in `code/validation.py` to run a sample configuration (1 dataset, 1 size) and verify the runtime is within the **6-hour limit** (SC-004). This task is a blocking prerequisite for T007.
+- [X] T035 [P] Verify memory usage: Implement a validation script in `code/validation.py` to run a sample configuration and verify memory usage (process memory RSS) remains under **7 GB** (SC-005). This task is a blocking prerequisite for T007.
+- [X] T014 [P] Implement Ground Truth Experimental Conditions in `code/simulation.py`: Create helper functions for (1) label permutation (shuffle all labels using pinned seed) for Type I error and (2) mean shift (Cohen's d = 0.5) applied to the **first numeric feature** (lowest column index among float/int columns, excluding target column) found in the dataset for Type II error. **These functions are for Augmented/Ground Truth scenarios, not the Baseline.** **Dependency**: None. **Note**: This task is now in Phase 2 to ensure it precedes T013.
+- [X] T007 [P] Implement `code/simulation.py` **Infrastructure**: Create the generic Monte Carlo loop infrastructure (configuration management, random seed pinning, iteration loop) to run iterations per configuration as mandated by FR-004. **Read iteration count from `code/config.yaml` (default configurable) or CLI arg**. **Read the list of available datasets from `data/derived/deviation_log.json` at runtime** (generated by T004b). **Do NOT implement ground truth logic here**; implement only the loop mechanics. **Dependency**: Requires T008a, T034, T035, T014.
+- [X] T008b [P] Implement `code/analyze.py`: Implement error rate calculation (Type I/II), KS test wrapper (p-value distributions only), and JSON reporting structure. **Dependency**: Requires T007 output, T008a (schema validation).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,9 +70,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement baseline Monte Carlo loop (1,000 iterations per config as per FR-004) in `code/simulation.py` (no augmentation step). **Logic**: Include internal functions for (1) label permutation (shuffle all labels using pinned seed) for Type I error and (2) mean shift (Cohen's d = 0.5) for Type II error. **Target Column**: Use the priority 'target' -> 'class' -> 'label' -> last column for both ground-truth logic and subsampling. **Dependency**: Requires T007 infrastructure.
-- [X] T014 [US1] Implement error rate calculation in `code/analyze.py`: Compute proportion of p < 0.05 and bootstrap 95% CIs for baseline results.
-- [~] T015 [US1] Save baseline results to `results/[dataset]_[size]_baseline_null.json` and `results/[dataset]_[size]_baseline_alt.json`. **Naming convention**: `[dataset]` = lowercase underscore (e.g., 'breast_cancer'), `[size]` = integer (e.g., '15').
+- [X] T013 [US1] Implement Baseline Monte Carlo loop in `code/simulation.py`: Use T007 infrastructure to run iterations on **original, non-augmented** data. **Logic**: Do NOT apply label permutation or mean shift here; this is the pure baseline. **Dependency**: Requires T007 infrastructure and T014 helper functions **for code availability (functions must exist in module)**, even if not invoked in this specific baseline branch. **Note**: Aggregation of error rates is handled by T013b.
+- [X] T013b [US1] Implement Baseline Error Rate Aggregation: Create logic in `code/analyze.py` (or a helper module) to calculate empirical Type I/II error rates (proportions of p < 0.05) and **Bootstrap confidence intervals
+
+The research question, the method, and the references remain unchanged.** from the p-value distribution generated by T013. **Dependency**: T013.
+- [X] T015 [US1] Write code to save baseline results to `results/[dataset]_[size]_baseline_null.json` and `results/[dataset]_[size]_baseline_alt.json`. **Iteration Logic**: Iterate over the **verified datasets available** (breast_cancer, ionosphere, heart_disease) and varying sizes. as per the Plan's deviation from the Spec's 5 datasets. **Naming convention**: `[dataset]` = lowercase underscore (e.g., 'breast_cancer'), `[size]` = integer (e.g., '15').
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -97,17 +88,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Unit test for SMOTE edge case handling (zero variance samples) in `tests/test_augment.py`
-- [ ] T017 [P] [US2] Unit test for Gaussian noise injection parameters in `tests/test_augment.py`
+- [X] T016 [P] [US2] Unit test for SMOTE edge case handling (zero variance samples) in `tests/test_augment.py`
+- [X] T017 [P] [US2] Unit test for Gaussian noise injection parameters in `tests/test_augment.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [P] [US2] Implement Gaussian noise injection in `code/augment.py` with configurable standard deviation (default 0.1).
-- [ ] T019 [P] [US2] Implement SMOTE augmentation in `code/augment.py` with edge case handling for N < 5 or extreme imbalance.
-- [ ] T020 [P] [US2] Implement Random Oversampling in `code/augment.py`.
-- [ ] T021 [US2] Integrate augmentation functions into `code/simulation.py` Monte Carlo loop (separate branches for Null and Alt conditions). **Requires T013 (baseline loop) and T018-T020 completion.**
-- [ ] T022 [US2] Implement logic to detect and exclude zero-variance synthetic samples before hypothesis testing to prevent division-by-zero.
-- [ ] T023 [US2] Save augmented results to `results/[dataset]_[size]_[method]_null.json` and `results/[dataset]_[size]_[method]_alt.json`. **Mandatory**: Distinct files for Null and Alt conditions for each method.
+- [X] T018 [P] [US2] Implement Gaussian noise injection in `code/augment.py` with configurable standard deviation (default a small positive threshold). **Edge Case Logic**: If zero-variance samples are generated, **detect and exclude them**; if the resulting sample size is < 5, **skip the iteration**.
+- [X] T019 [P] [US2] Implement SMOTE augmentation in `code/augment.py` with edge case handling. **Edge Case Logic**: If N < 5 or extreme imbalance prevents SMOTE, **skip the configuration** as per FR-002.
+- [X] T020 [P] [US2] Implement Random Oversampling in `code/augment.py`. **Edge Case Logic**: If zero-variance samples are generated, **detect and exclude them**; if the resulting sample size is < 5, **skip the iteration**.
+- [X] T021 [US2] Integrate augmentation functions into `code/simulation.py` Monte Carlo loop (separate branches for Null and Alt conditions). **Requires T013 (baseline loop), T014 (ground truth logic), and T018-T020 completion.** Note: Phase 3 must complete before Phase 4 integration tasks can begin.
+- [X] T023 [US2] Write code to save augmented results to `results/[dataset]_[size]_[method]_null.json` and `results/[dataset]_[size]_[method]_alt.json`. **Mandatory**: Distinct files for Null and Alt conditions for each method.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -121,19 +111,30 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Integration test for comparative analysis logic in `tests/test_analysis.py`
-- [ ] T025 [P] [US3] Contract test for final JSON output schema in `tests/contract/test_results_schema.py`
+- [X] T024 [P] [US3] Integration test for comparative analysis logic in `tests/test_analysis.py`
+- [X] T025 [P] [US3] Contract test for final JSON output schema in `tests/contract/test_results_schema.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement KS test wrapper in `code/analyze.py` for supplementary distributional shift diagnostics: **Apply ONLY to p-value distributions** (FR-006). **Constraint**: Input validation must reject any input that is not a list/array of p-values.
-- [ ] T027 [US3] Implement comparative analysis logic: Calculate difference in Type I/II error rates between baseline and each augmentation method.
-- [ ] T028 [US3] Implement threshold identification logic: Flag configurations where Type I error > 0.10 **AND** compare against baseline error rate to quantify impact (FR-005).
-- [ ] T029 [US3] Implement final report generation in `code/analyze.py`: Aggregate results, compute power (1 - Type II), and format output. **Mandatory**: Include fixed design threshold (0.10) value in JSON output (SC-001).
-- [ ] T030 [US3] Inject "DISCLAIMER: Findings are associational..." string into **every** result JSON file (baseline and all augmented variants) and summary report as per FR-007. **Mechanism**: Use glob pattern `results/**/*.json` to discover all files. Insert the disclaimer at the JSON key `metadata.disclaimer`.
-- [ ] T031 [US3] Create `code/main.py` orchestration script to run full pipeline: Download → Subsample → Baseline → Augment → Analyze → Report. **Must be last task in Phase 5.**
+- [X] T026 [P] [US3] Implement KS test wrapper in `code/analyze.py` for supplementary distributional shift diagnostics: **Apply ONLY to p-value distributions** (FR-006). **Constraint**: Input validation must reject any input that is not a list/array of p-values.
+- [X] T026b [US3] Invoke KS Test Wrapper: Implement logic to call the T026 wrapper on the generated baseline and augmented p-value distributions and record the KS statistic and p-value in the output. **Dependency**: T026.
+- [X] T027 [US3] Implement comparative analysis logic: Calculate difference in Type I/II error rates between baseline and each augmentation method. **Include consumption of KS statistics from T026b.**
+- [X] T028 [US3] Implement threshold identification logic: Flag configurations where Type I error > 0.10 **AND** compare against baseline error rate to quantify impact (FR-005).
+- [X] T030a [US3] Inject "DISCLAIMER: Findings are associational..." string into **every** raw result JSON file (`results/[dataset]_[size]_*.json` generated by T015 and T023) **BEFORE** final report generation. **Pre-Check**: Verify existence of all raw result files (`results/**/*.json`); raise a `FileNotFoundError` if any are missing. **Mechanism**: Use glob pattern `results/**/*.json` to discover all files. **Structure**: Ensure the JSON has a `metadata` object; if not, create it; then **set `metadata.disclaimer` to the string**. **Malformed File Handling**: If a file is malformed JSON, raise `FileNotFoundError`. **Post-Processing**: Compute SHA256 of the modified file and append the hash to the state manifest. **Dependency**: Requires T015, T023 completion. **Note**: This task runs **BEFORE** T029 to ensure all input files have disclaimers.
+- [X] T029 [US3] Implement final report generation in `code/analyze.py`: Aggregate results from all disclaimer-injected files (T030a), compute power (- Type II), **calculate bootstrap confidence intervals for all error rates**, and format output. **Mandatory**: Generate `results/summary_report.json`, include fixed design threshold value in JSON output (SC-001), validate against `contracts/simulation_schema.json`, and **include computational cost metrics** (SC-004). **Dependency**: T027, T028, T030a.
+- [X] T042 [US3] Add "Computational Cost" metric to final report: Extend `code/analyze.py` to calculate and record the average runtime per iteration for each augmentation method., ensuring the final report addresses SC-004 explicitly with empirical data. **Dependency**: T029. **Note**: This task is now integrated into T029 and verifies the metric is present.
+- [X] T038b [US3] Perform Power Analysis Verification: Implement a script to verify that the reduced dataset count provides sufficient statistical power (SC-002) to meet the research goals, documenting the result in `data/derived/power_analysis_log.json`. **Dependency**: T005 (for skip logic) and T029 (for final results). **Constraint**: Must verify that skipped configurations do not invalidate the study's power by analyzing the `skipped_configurations.json` log.
+- [X] T031 [US3] Create `code/main.py` orchestration script to run full pipeline: Download → Subsample → Baseline → Augment → Analyze → Report. **Must be last task in Phase 5.**
 
 **Checkpoint**: All user stories should now be independently functional
+
+---
+
+## Phase 6: Post-Processing & Reporting
+
+**Purpose**: Finalizing artifacts and ensuring compliance
+
+- [X] T030 [US3] (Moved to Phase 5) See T030a in Phase 5 for disclaimer injection. This task is now complete and integrated.
 
 ---
 
@@ -141,12 +142,32 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Add comprehensive docstrings and type hints to all `code/*.py` modules
-- [ ] T033 [P] Add `pytest` fixtures for dataset loading and random seed management
-- [ ] T034 [P] Validate computational runtime against a predefined temporal constraint using a sample run of a representative number of iterations.
-- [ ] T035 [P] Verify memory usage remains within acceptable limits during the full simulation loop.
-- [ ] T036 [P] Update `quickstart.md` with instructions for running the full study
-- [ ] T037 [P] Generate `data-model.md` documenting `Dataset Configuration`, `Simulation Run`, and `Error Rate Profile` entities
+- [X] T032a [P] Add comprehensive docstrings and type hints to `code/download_data.py`, `code/subsample.py`, `code/augment.py`, `code/simulation.py`, `code/analyze.py`, `code/main.py` to pass pydocstyle checks with the project's `.pydocstyle` config.
+- [X] T032b [P] Add `pytest` fixtures for dataset loading and random seed management in `tests/conftest.py`.
+- [X] T036 [P] (Moved to Phase 1) See T036 in Phase 1 for quickstart creation. This task is now complete.
+
+---
+
+## Phase R: Revision & Compliance (Review Concerns)
+
+**Purpose**: Address specific reviewer concerns regarding data integrity, reproducibility, and edge-case handling.
+
+- [X] T038 [US1] Implement robust URL validation in `code/download_data.py`: Create a `VERIFIED_DATASETS` constant mapping dataset names to **single canonical URLs** and their expected SHA256 checksums. **Constraint**: If the fetched file does not match the checksum, raise a `DataFetchError` and **never** fall back to synthetic data (per Constitution Rule: "The loader must FAIL LOUDLY"). **Note**: This task handles checksum mismatches; T004 handles count deviations. T038 does NOT override T004's count deviation logic.
+- [X] T039 [US1] Add deterministic seed verification task: Implement a unit test in `tests/test_simulation.py` that runs the baseline loop twice with the same seed and asserts that the resulting p-value distributions are bitwise identical (within floating point tolerance) to ensure strict reproducibility.
+- [X] T040 [US2] Enhance SMOTE edge-case logging in `code/augment.py`: When SMOTE is skipped due to N < 5 or extreme imbalance, log the specific dataset name, sample size, and class distribution to `data/derived/skipped_configurations.json` as a **valid JSON array of objects** with schema: `[{"dataset": "...", "size": N, "reason": "...", "timestamp": "..."}]`. **Dependency**: T005 (for schema definition). **Note**: This task verifies the logging format established in T005.
+- [X] T041 [US3] Implement "Safety Threshold" sensitivity analysis: Add a task in `code/analyze.py` to re-run the comparative analysis with alternative thresholds to demonstrate the robustness of the "unsafe" classification near the 0.10 boundary.
+- [X] T038b [US3] (Moved to Phase 5) See T038b in Phase 5 for Power Analysis Verification. This task is now complete.
+- [X] T043 [US3] Implement Runtime Profiling Instrumentation: Add `time.perf_counter()` markers in `code/simulation.py` around the augmentation and testing steps to enable T042, ensuring the overhead of logging does not distort the measured iteration time.
+- [X] T046 [US2] Implement "Zero-Variance" Detection in T018-T020: Add explicit checks in `code/augment.py` to detect if an augmentation step results in a dataset with zero variance in any feature column, and if so, **skip the iteration** and log the event to `data/derived/skipped_configurations.json` with reason "zero_variance_detected". **Constraint**: This prevents division-by-zero errors in subsequent t-tests (FR-004) and ensures data integrity. **Dependency**: T018, T019, T020.
+
+---
+
+## Archived Tasks
+
+**Purpose**: Tasks that were removed or deferred due to contradictions or scope changes.
+
+- [X] T044 [US3] Add Explicit Sample Size Reduction Logic: In `code/subsample.py`, implement a fallback mechanism that attempts N-1 reduction steps (down to N=5) when stratification fails for a specific class, logging each reduction step to `data/derived/skipped_configurations.json` before skipping. **Constraint**: This task is **DISABLED** by T005's "Do NOT reduce N" rule. It serves as a placeholder for future spec amendments if N reduction is ever authorized.
+- [X] T045 [US3] Implement "Streaming Data" Fallback Logic: In `code/download_data.py`, if a dataset URL returns a file size exceeding 100MB, implement a streaming chunk-reader using `pandas.read_csv(..., chunksize=...)` to process the data in-memory-safe chunks, logging the chunk count to `data/derived/streaming_log.json`. **Constraint**: This task addresses the "Large real datasets" rule by ensuring the system can handle larger-than-RAM real datasets without falling back to synthetic data or crashing. **Dependency**: T004.
 
 ---
 
@@ -159,6 +180,8 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Post-Processing (Phase 6)**: Depends on all User Stories being complete
+- **Revision (Phase R)**: Can be implemented in parallel with Phase 5 or 6, but must be complete before final release
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -177,10 +200,11 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT** T004b and T004c which are sequential after T004.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Different augmentation techniques (T018, T019, T020) can be implemented in parallel
+- Revision tasks (T038-T044, T045, T046) can be implemented in parallel with Phase 5/6 tasks as they focus on specific code paths
 
 ---
 
@@ -238,4 +262,22 @@ With multiple developers:
 - **Critical Constraint**: Ensure all tasks run on CPU-only CI (no 8-bit quantization, no CUDA, no large models). Use `imbalanced-learn` CPU mode and small sample sizes only.
 - **Target Column Priority**: 'target' > 'class' > 'label' > last column (used in T005, T013).
 - **Schema Dependency**: T007 requires T008a (schema) to exist before execution.
-- **Log File**: Skipped configurations are logged to `data/derived/skipped_configurations.log`.
+- **Log File**: Skipped configurations are logged to `data/derived/skipped_configurations.json` as a JSON array with schema: `[{"dataset": "...", "size": N, "reason": "...", "timestamp": "..."}]`.
+- **Feasibility Gates**: T034 and T035 are mandatory blocking prerequisites for the simulation loop.
+- **Deviation Handling**: T004, T004b, and T004c handle the 3 vs 5 dataset deviation explicitly.
+- **Revision Concerns**: T038-T044 address specific reviewer concerns regarding data integrity, reproducibility, and edge-case handling. T045 and T046 address streaming and zero-variance edge cases.
+- **Resolved**: T022 was superseded by T018-T020 and removed.
+- **Manifest Handling**: T004c must create `state/manifest.yaml` if it does not exist.
+- **Disclaimer**: T030 is now integrated into Phase 5 to ensure FR-007 compliance before report finalization. T030a handles pre-report injection.
+- **Power Analysis**: T038b is now in Phase 5 to ensure power verification is part of the post-processing flow.
+- **Quickstart**: T036 is now in Phase 1 to ensure artifact availability for downstream validation.
+- **Computational Cost**: T042 is now integrated into Phase 5 to ensure SC-004 is addressed in the final report.
+- **Edge Case Logging**: T040 is now in Phase 2 to verify the logging format established in T005.
+- **Ground Truth Logic**: T014 is now in Phase 2 to ensure it precedes T013.
+- **N Reduction**: T005 explicitly forbids N reduction, aligning with FR-002. T044 is archived.
+- **Checksum vs Count**: T038 handles checksum mismatches (fail), T004 handles count deviations (log).
+- **Streaming Fallback**: T045 is archived as it contradicts Spec Assumption 2.
+- **Zero-Variance**: T046 ensures augmentation steps producing invalid data are skipped and logged.
+- **Circular Dependency Resolved**: T030a runs before T029; T029 depends on T030a.
+- **Config Mutation Resolved**: T004b writes to a log file; T007 reads from the log file.
+- **Disabled Task Removed**: T044 moved to Archived Tasks.

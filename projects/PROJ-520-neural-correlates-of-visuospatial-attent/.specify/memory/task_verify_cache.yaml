@@ -1,0 +1,32 @@
+T013:
+  c: false
+  h: 69bc0c504e017aa1fd81fabf7cddb955f8a2d0ecfb6c83af8b9909fd43a830e8
+  r: "The repository lacks the required `data/processed/epoch_audit.log` file, and\
+    \ the provided excerpt of `code/preprocessing.py` does not show any function that\
+    \ creates 2\u2011second epochs centered on attention\u2011shift events (no epoching\
+    \ logic is present). Both the epoch implementation and the audit\u2011log entry\
+    \ are missing."
+T018:
+  c: false
+  h: fe998ee71e5e1f59ae012f300777d1f96d5d8282686837dd50cf9fcc985b9f31
+  r: "The required input file `data/processed/epochs_cleaned.fif` does not exist,\
+    \ and the provided `code/feature_extraction.py` is truncated (ending mid\u2011\
+    function) with no visible logic that actually invokes the Morlet decomposition\
+    \ on the low\u2011frequency band. Both the essential data artifact and a complete\
+    \ implementation are missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or log files were supplied that implement the \u201Cfeature validation\u201D\
+    \ step or record validation failures as required by US2. Without concrete artifacts\
+    \ (e.g., a validation script, test results, or failure logs), the claim cannot\
+    \ be verified. The implementer must provide the actual validation implementation\
+    \ and accompanying logs."
+T056:
+  c: false
+  h: c646670c6768a8a8198e25ee918726b7b0d8ef142a5db765cfcee5d580366fa8
+  r: The provided `main.py` defines a `verify_data_source()` function that meets the
+    verification logic, but there is no evidence that this function is actually invoked
+    in the pipeline, nor that it is called **after** the T010/T044 steps as required.
+    Additionally, the truncated file prevents confirming the ordering of calls. The
+    missing integration makes the task not fully satisfied.

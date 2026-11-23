@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult"
+description: "Schema for the outcome of a single evaluation run."
+type: "object"
+properties:
+  result_id:
+    type: "string"
+    description: "Unique identifier for the result."
+  task_id:
+    type: "string"
+    description: "Reference to the planning task."
+  model_variant:
+    type: "string"
+    enum: ["baseline", "episodic"]
+    description: "Model variant used."
+  threshold_used:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Similarity threshold used for retrieval (can vary during sensitivity sweep)."
+  success:
+    type: "boolean"
+    description: "Whether the plan solved the task."
+  metrics:
+    type: "object"
+    description: "Dictionary of specific metrics (precision, recall, confidence)."
+    additionalProperties:
+      type: "number"
+required:
+  - result_id
+  - task_id
+  - model_variant
+  - threshold_used
+  - success
+  - metrics
+additionalProperties: false

@@ -1,61 +1,55 @@
 """
-Setup script to create required project directories.
-This script creates the data/raw, data/processed, state, and code directories
-as required by task T004.
+Setup Directories Script
+-------------------------
+
+This script creates the required directory hierarchy for the project:
+
+- data/
+  - raw/
+  - processed/
+- state/
+- code/
+
+It is safe to run multiple times; existing directories are left untouched.
 """
+
 import os
-import sys
 from pathlib import Path
 
-def main():
-    # Define the project root relative to this script's location
-    # The script is in code/, so root is parent of code/
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
+def create_directory(path: Path) -> None:
+    """
+    Create a directory (including parents) if it does not already exist.
 
-    # Directories to create relative to project root
-    directories = [
-        "data/raw",
-        "data/processed",
-        "state",
-        "code"
+    Args:
+        path: Path object representing the directory to create.
+    """
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        print(f"Created (or already exists): {path}")
+    except Exception as exc:
+        # Re‑raise to make the script fail loudly on unexpected errors
+        raise RuntimeError(f"Failed to create directory {path}: {exc}") from exc
+
+def main() -> None:
+    """
+    Entry point: ensure the project sub‑directories exist.
+
+    The script assumes it is executed from the project root (the directory
+    that contains the top‑level ``code`` folder). All paths are resolved
+    relative to the current working directory.
+    """
+    # Define the required directories relative to the project root
+    required_dirs = [
+        Path("data/raw"),
+        Path("data/processed"),
+        Path("state"),
+        Path("code"),
     ]
 
-    created_count = 0
-    existing_count = 0
+    for dir_path in required_dirs:
+        create_directory(dir_path)
 
-    print(f"Project root: {project_root}")
-    print("Setting up directories...")
-
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        
-        if full_path.exists():
-            print(f"[SKIP] {dir_path} already exists")
-            existing_count += 1
-        else:
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"[CREATE] {dir_path}")
-            created_count += 1
-
-    print(f"\nSetup complete: {created_count} created, {existing_count} existing")
-    
-    # Verify all directories exist
-    all_exist = all((project_root / d).exists() for d in directories)
-    if not all_exist:
-        print("ERROR: Some directories were not created successfully")
-        sys.exit(1)
-    
-    # List contents of project root for verification
-    print("\nProject structure:")
-    for item in sorted(project_root.iterdir()):
-        if item.is_dir():
-            print(f"  {item.name}/")
-            for subitem in sorted(item.iterdir()):
-                if subitem.is_dir():
-                    print(f"    {subitem.name}/")
-
-    return 0
+    print("All required directories are now present.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

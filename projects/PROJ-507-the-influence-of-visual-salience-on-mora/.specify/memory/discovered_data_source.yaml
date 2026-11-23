@@ -1,0 +1,11 @@
+status: none
+intent: CodedotAI Visual Genome CLIP BERT MoralD CLMM python package dataset
+required_fields:
+- image_id
+- image_url
+- bounding_boxes
+- region_label
+- moral_ambiguity_label
+cache_key: b5edfc60a4456809fd2951c2786747898359d2249bee55460d13a6f03bc73b50
+searched_at: '2026-11-05T21:16:06.035768+00:00'
+retry_count: 1

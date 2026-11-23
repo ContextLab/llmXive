@@ -1,3 +1,3 @@
 """
-Integration tests for the emotional valence decoding pipeline.
+Integration tests for the EMG valence decoding pipeline.
 """

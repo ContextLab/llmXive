@@ -1,125 +1,172 @@
-"""
-Semantic Similarity Validation
-Uses sentence-transformers to ensure perturbed prompts are semantically similar
-to the original.
-
-STRICT CONSTRAINT: Only perturbations with score > 0.95 are retained.
-No fallback logic allowed. If the real source (model) cannot be loaded or
-similarity cannot be computed, the process must fail loudly.
-"""
-
-import torch
+import json
+import sys
+import logging
+from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
-from sentence_transformers import SentenceTransformer, util
-from config import ensure_directories
-from utils.logging import get_perturbation_logger
+import torch
+from sentence_transformers import SentenceTransformer
 
-logger = get_perturbation_logger()
-MODEL_NAME = "all-MiniLM-L6-v2"
-_model = None
+from config import ensure_directories, get_semantic_threshold
+from utils.logging import init_logging, get_perturbation_logger
+
+# Constants
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
+RAW_INPUT_PATH = "data/processed/perturbation_candidates_raw.json"
+VALIDATED_OUTPUT_PATH = "data/processed/perturbation_candidates_validated.json"
+HALT_REPORT_PATH = "data/logs/halt_report.json"
+THRESHOLD = 0.95
 
 def get_model() -> SentenceTransformer:
-    """
-    Lazy loads the sentence transformer model.
-    Raises an error if the model cannot be loaded from the real source.
-    """
-    global _model
-    if _model is None:
-        logger.info(f"Loading model: {MODEL_NAME}")
-        try:
-            # This fetches the model from the Hugging Face Hub (real source)
-            _model = SentenceTransformer(MODEL_NAME)
-            _model.eval()
-            logger.info("Model loaded successfully from real source.")
-        except Exception as e:
-            # Fail loudly: do not fallback to synthetic or mock
-            logger.error(f"CRITICAL: Failed to load real model source {MODEL_NAME}: {e}")
-            raise RuntimeError(f"Failed to load required semantic model: {e}")
-    return _model
+    """Load the sentence transformer model."""
+    logger = logging.getLogger("semantic_validator")
+    logger.info(f"Loading model: {MODEL_NAME}")
+    model = SentenceTransformer(MODEL_NAME)
+    model.eval()
+    return model
 
-def compute_similarity(text1: str, text2: str, model: Optional[SentenceTransformer] = None) -> float:
-    """
-    Computes cosine similarity between two texts.
-    Returns a float between -1 and 1.
-    """
-    if model is None:
-        model = get_model()
-    
-    try:
-        embedding1 = model.encode(text1, convert_to_tensor=True)
-        embedding2 = model.encode(text2, convert_to_tensor=True)
-        
-        # Ensure same device
-        device = next(model.parameters()).device
-        if embedding1.device != device:
-            embedding1 = embedding1.to(device)
-        if embedding2.device != device:
-            embedding2 = embedding2.to(device)
-
-        similarity = util.cos_sim(embedding1, embedding2)
-        return float(similarity.item())
-    except Exception as e:
-        # Fail loudly on computation error
-        logger.error(f"Error computing similarity: {e}")
-        raise RuntimeError(f"Similarity computation failed: {e}")
+def compute_similarity(
+    model: SentenceTransformer, text_a: str, text_b: str
+) -> float:
+    """Compute cosine similarity between two texts."""
+    embeddings = model.encode([text_a, text_b], convert_to_tensor=True)
+    cosine_sim = torch.nn.functional.cosine_similarity(
+        embeddings[0].unsqueeze(0), embeddings[1].unsqueeze(0)
+    )
+    return float(cosine_sim.item())
 
 def validate_perturbation(
-    original: str, 
-    perturbed: str, 
-    threshold: float = 0.95
-) -> Tuple[bool, float]:
+    model: SentenceTransformer, original: str, candidate: str, threshold: float
+) -> Tuple[float, bool]:
     """
-    Validates a single perturbation against the strict threshold.
-    Returns (is_valid, score).
-    
-    STRICT CONSTRAINT: Only scores > threshold are considered valid.
-    No fallback logic.
+    Validate a single perturbation candidate.
+    Returns (similarity_score, is_valid).
     """
-    score = compute_similarity(original, perturbed)
+    score = compute_similarity(model, original, candidate)
     is_valid = score > threshold
-    if not is_valid:
-        logger.debug(f"Perturbation failed semantic check: {score:.4f} <= {threshold}")
-    return is_valid, score
+    return score, is_valid
+
+def load_raw_candidates() -> List[Dict[str, Any]]:
+    """Load the raw candidates from the previous step."""
+    path = Path(RAW_INPUT_PATH)
+    if not path.exists():
+        raise FileNotFoundError(f"Raw candidates file not found: {path}")
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def save_validated_candidates(candidates: List[Dict[str, Any]]) -> None:
+    """Save the validated candidates to disk."""
+    ensure_directories([Path(VALIDATED_OUTPUT_PATH).parent])
+    with open(VALIDATED_OUTPUT_PATH, "w", encoding="utf-8") as f:
+        json.dump(candidates, f, indent=2)
+
+def save_halt_report(reason: str) -> None:
+    """Save a halt report if yield is zero."""
+    ensure_directories([Path(HALT_REPORT_PATH).parent])
+    report = {"reason": reason}
+    with open(HALT_REPORT_PATH, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
 
 def validate_perturbation_batch(
-    original: str, 
-    candidates: List[str], 
-    threshold: float = 0.95
-) -> List[Tuple[str, float, bool]]:
+    candidates: List[Dict[str, Any]], model: SentenceTransformer
+) -> List[Dict[str, Any]]:
     """
-    Validates a batch of candidates against the strict threshold.
-    Returns list of (candidate, score, is_valid).
-    
-    STRICT CONSTRAINT: No fallback for failed validations.
+    Validate all candidates in the batch.
+    Updates 'is_valid' and 'raw_score' fields in-place.
     """
-    results = []
-    for cand in candidates:
-        is_valid, score = validate_perturbation(original, cand, threshold)
-        results.append((cand, score, is_valid))
-    return results
+    logger = logging.getLogger("semantic_validator")
+    validated_count = 0
 
-def main():
-    """CLI test for the validator using real data simulation."""
-    ensure_directories()
-    model = get_model()
-    
-    # Real-world style test cases
-    t1 = "Write a function to sort a list of integers in ascending order."
-    t2 = "Create a function that sorts a list of integers from smallest to largest."
-    t3 = "This is completely different text unrelated to sorting."
-    
-    s1 = compute_similarity(t1, t2, model)
-    s2 = compute_similarity(t1, t3, model)
-    
-    print(f"Similarity (t1, t2 - semantic match): {s1:.4f}")
-    print(f"Similarity (t1, t3 - semantic mismatch): {s2:.4f}")
-    
-    # Validate against strict threshold
-    valid1, _ = validate_perturbation(t1, t2, threshold=0.95)
-    valid2, _ = validate_perturbation(t1, t3, threshold=0.95)
-    
-    print(f"t2 passes >0.95 check: {valid1}")
-    print(f"t3 passes >0.95 check: {valid2}")
+    for item in candidates:
+        original_text = item.get("original_text", "")
+        candidate_text = item.get("candidate_text", "")
+
+        if not original_text or not candidate_text:
+            logger.warning(
+                f"Skipping item {item.get('task_id')} due to missing text."
+            )
+            continue
+
+        score, is_valid = validate_perturbation(
+            model, original_text, candidate_text, THRESHOLD
+        )
+
+        # Update the item
+        item["raw_score"] = score
+        item["is_valid"] = is_valid
+
+        if is_valid:
+            validated_count += 1
+
+        # Log raw score for every candidate
+        logger.debug(
+            f"Task {item['task_id']} ({item['perturbation_type']}): "
+            f"Score={score:.4f}, Valid={is_valid}"
+        )
+
+    return candidates
+
+def evaluate_feasibility(candidates: List[Dict[str, Any]]) -> bool:
+    """
+    Check if the dataset has any valid candidates.
+    Returns True if valid yield > 0, False otherwise.
+    """
+    return any(c.get("is_valid", False) for c in candidates)
+
+def main() -> None:
+    """Main entry point for semantic validation."""
+    # Setup logging
+    init_logging()
+    logger = get_perturbation_logger()
+    logger.info("Starting Semantic Validation (T016)")
+
+    # Pre-check: Verify raw file exists
+    if not Path(RAW_INPUT_PATH).exists():
+        logger.error(
+            f"Pre-check failed: {RAW_INPUT_PATH} does not exist. "
+            "Please run T017 first."
+        )
+        # We log error but proceed to exit gracefully as per "fail loudly"
+        # However, task spec says: "if not, log error and exit"
+        sys.exit(1)
+
+    try:
+        # Load raw candidates
+        logger.info(f"Loading raw candidates from {RAW_INPUT_PATH}")
+        candidates = load_raw_candidates()
+        logger.info(f"Loaded {len(candidates)} candidates.")
+
+        if not candidates:
+            logger.warning("Raw candidates list is empty.")
+            save_halt_report("ZERO_YIELD")
+            # Proceed with available data (empty list)
+            save_validated_candidates([])
+            return
+
+        # Load model
+        model = get_model()
+
+        # Validate batch
+        logger.info("Validating perturbations...")
+        validated_candidates = validate_perturbation_batch(candidates, model)
+
+        # Check yield
+        valid_count = sum(1 for c in validated_candidates if c.get("is_valid"))
+        logger.info(f"Validation complete. Valid count: {valid_count}/{len(validated_candidates)}")
+
+        if valid_count == 0:
+            logger.warning(
+                "ZERO_YIELD: No candidates passed the semantic threshold (>0.95). "
+                "Saving halt report and proceeding with available data (empty)."
+            )
+            save_halt_report("ZERO_YIELD")
+
+        # Save results
+        save_validated_candidates(validated_candidates)
+        logger.info(f"Saved validated candidates to {VALIDATED_OUTPUT_PATH}")
+
+    except Exception as e:
+        logger.exception(f"Critical error during validation: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

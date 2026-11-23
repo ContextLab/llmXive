@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fingerprint Schema"
+description: "Schema for intermediate fingerprint data"
+type: object
+properties:
+  smiles:
+    type: string
+    description: "Isomeric SMILES string"
+  maccs:
+    type: array
+    items:
+      type: integer
+      enum: [0, 1]
+    description: "MACCS fingerprint (standardized bit length)"
+    minItems: 166
+    maxItems: 166
+  ecfp4:
+    type: array
+    items:
+      type: integer
+      enum: [0, 1]
+    description: "ECFP fingerprint (standard configuration)"
+    minItems: 1024
+    maxItems: 1024
+required:
+  - smiles
+  - maccs
+  - ecfp4

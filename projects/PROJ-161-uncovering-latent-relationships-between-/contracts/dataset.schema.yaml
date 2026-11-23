@@ -1,0 +1,81 @@
+%YAML 1.2
+---
+title: Dataset Schema for Antibiotic Resistance Analysis
+description: >
+  Schema defining the structure of the merged dataset containing molecular
+  descriptors and antibiotic resistance frequencies. This schema is used
+  for validation of the `data/processed/descriptors.csv` file.
+
+type: object
+required:
+  - inchikey
+  - smiles
+  - resistance_frequency
+  - descriptors
+
+properties:
+  inchikey:
+    type: string
+    description: >
+      The InChIKey canonical identifier for the compound.
+      Format: 27 characters (14-10-1 with hyphens).
+    pattern: "^([A-Z]{14})-([A-Z]{10})-([A-Z])$"
+    minLength: 27
+    maxLength: 27
+    
+  smiles:
+    type: string
+    description: >
+      Canonical SMILES string for the compound.
+      Must be valid according to RDKit canonicalization rules.
+      Cannot contain whitespace or unbalanced brackets.
+    minLength: 1
+    
+  resistance_frequency:
+    type: number
+    description: >
+      Frequency of resistance observed in NCBI Pathogen Detection data.
+      Represents the proportion of isolates showing resistance (0.0 to 1.0).
+      May be NaN if resistance data is missing for the compound.
+    minimum: 0.0
+    maximum: 1.0
+    nullable: true
+    
+  descriptors:
+    type: object
+    description: >
+      Dictionary of molecular descriptors calculated by RDKit.
+      Each key is a descriptor name, each value is a numeric value.
+      All descriptor values must be finite numbers (no NaN/Inf unless explicitly allowed).
+    additionalProperties:
+      type: number
+      nullable: true
+    
+    # Required descriptors based on plan requirements
+    required:
+      - MolWt
+      - MolLogP
+      - NumHDonors
+      - NumHAcceptors
+      - NumRotatableBonds
+      - TPSA
+      - NumAromaticRings
+      - FractionCSP3
+      - NumHeavyAtoms
+      - NumRings
+    
+examples:
+  - inchikey: "BSYNRYMUTXBXSQ-UHFFFAOYSA-N"
+    smiles: "CC(=O)OC1=CC=CC=C1C(=O)O"
+    resistance_frequency: 0.15
+    descriptors:
+      MolWt: 180.157
+      MolLogP: 1.93
+      NumHDonors: 1
+      NumHAcceptors: 3
+      NumRotatableBonds: 2
+      TPSA: 46.53
+      NumAromaticRings: 1
+      FractionCSP3: 0.125
+      NumHeavyAtoms: 13
+      NumRings: 1

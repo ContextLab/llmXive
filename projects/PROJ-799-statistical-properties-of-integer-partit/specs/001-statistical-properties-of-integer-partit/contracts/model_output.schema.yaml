@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput"
+description: "Schema for the regression model results and statistics."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model used (e.g., 'OLS', 'Ridge')."
+  coefficients:
+    type: "object"
+    description: "Mapping of feature names to coefficient values."
+    additionalProperties:
+      type: "number"
+  intercept:
+    type: "number"
+    description: "Intercept term of the regression model."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination (R^2) on the full data."
+    minimum: 0
+    maximum: 1
+  p_values:
+    type: "object"
+    description: "Mapping of feature names to raw p-values (HAC‑adjusted)."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  fdr_corrected_p_values:
+    type: "object"
+    description: "Mapping of feature names to Benjamini‑Hochberg corrected p-values."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  mse_cv:
+    type: "number"
+    description: "Mean Squared Error averaged over 10‑fold time‑series CV."
+    minimum: 0
+  null_model_R2:
+    type: "number"
+    description: "R^2 of intercept‑only null model."
+    minimum: 0
+    maximum: 1
+  null_model_MSE:
+    type: "number"
+    description: "MSE of intercept‑only null model."
+    minimum: 0
+additionalProperties: false

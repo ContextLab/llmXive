@@ -1,172 +1,101 @@
 """
-Unit tests for vocal prosody extraction (T014)
-
-Tests pitch, energy, and tempo extraction logic.
-Uses mocked audio data to ensure deterministic behavior.
+Unit tests for vocal prosody extraction logic.
 """
 import os
 import sys
-import tempfile
-import json
 import numpy as np
-import pandas as pd
-import librosa
 import pytest
-from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from code.extract_vocal import (
     extract_pitch_features,
     extract_energy_features,
-    extract_tempo_features,
+    extract_tempo,
     process_audio_file,
-    load_audio_manifest,
-    save_features,
-    main
+    extract_vocal_prosody
 )
+from code.logging_config import setup_logging
+
+# Setup logging for tests
+setup_logging()
 
 @pytest.fixture
-def mock_audio():
-    """Generate a simple mock audio signal."""
-    sr = 16000
+def dummy_audio():
+    """Generate a dummy audio signal for testing."""
+    sr = 22050
     duration = 1.0
     t = np.linspace(0, duration, int(sr * duration))
-    # Simple sine wave at 440Hz (A4)
-    y = 0.5 * np.sin(2 * np.pi * 440 * t)
-    return y, sr
+    # 440 Hz sine wave
+    signal = 0.5 * np.sin(2 * np.pi * 440 * t)
+    return signal, sr
 
-@pytest.fixture
-def temp_audio_file(mock_audio):
-    """Create a temporary WAV file with mock audio."""
-    y, sr = mock_audio
-    with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as f:
-        temp_path = f.name
-        librosa.output.write_wav(temp_path, y, sr)
-    yield temp_path
-    os.unlink(temp_path)
+def test_extract_pitch_features(dummy_audio):
+    y, sr = dummy_audio
+    features = extract_pitch_features(y, sr)
+    
+    assert isinstance(features, dict)
+    assert 'pitch_mean' in features
+    assert 'pitch_std' in features
+    assert 'pitch_range' in features
+    assert 'voiced_ratio' in features
+    
+    # For a pure 440Hz sine wave, mean should be close to 440
+    assert 400 < features['pitch_mean'] < 480
 
-@pytest.fixture
-def temp_manifest(temp_audio_file):
-    """Create a temporary manifest file."""
-    manifest_data = [
-        {"interaction_id": "test_001", "audio_path": temp_audio_file}
-    ]
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump(manifest_data, f)
-        manifest_path = f.name
-    yield manifest_path
-    os.unlink(manifest_path)
+def test_extract_energy_features(dummy_audio):
+    y, sr = dummy_audio
+    features = extract_energy_features(y, sr)
+    
+    assert isinstance(features, dict)
+    assert 'energy_mean' in features
+    assert 'energy_std' in features
+    assert 'energy_max' in features
+    assert 'energy_entropy' in features
+    
+    assert features['energy_mean'] > 0
+    assert features['energy_max'] > 0
 
-def test_extract_pitch_features(mock_audio):
-    """Test pitch extraction returns expected shapes."""
-    y, sr = mock_audio
-    f0, voiced = extract_pitch_features(y, sr)
+def test_extract_tempo(dummy_audio):
+    y, sr = dummy_audio
+    features = extract_tempo(y, sr)
     
-    assert isinstance(f0, np.ndarray)
-    assert isinstance(voiced, np.ndarray)
-    assert f0.shape == voiced.shape
-    assert len(f0) > 0
+    assert isinstance(features, dict)
+    assert 'tempo_bpm' in features
+    assert 'onset_mean' in features
+    assert 'onset_std' in features
     
-    # For a 440Hz sine wave, mean pitch should be close to 440
-    # (allowing for some algorithmic variance)
-    mean_pitch = np.mean(f0[f0 > 0])
-    assert 400 < mean_pitch < 480, f"Expected pitch ~440, got {mean_pitch}"
+    # Tempo might be 0 for a pure sine wave, but keys must exist
+    assert isinstance(features['tempo_bpm'], float)
 
-def test_extract_energy_features(mock_audio):
-    """Test energy extraction returns positive values."""
-    y, sr = mock_audio
-    energy = extract_energy_features(y, sr)
+def test_process_audio_file_empty(tmp_path, dummy_audio):
+    # Create a dummy audio file
+    import librosa
+    file_path = tmp_path / "test_audio.wav"
+    librosa.output.write_wav(str(file_path), dummy_audio[0], dummy_audio[1])
     
-    assert isinstance(energy, np.ndarray)
-    assert len(energy) > 0
-    assert np.all(energy >= 0)
+    features = process_audio_file(str(file_path), "test_id_1")
     
-    # Energy should have some variance for a sine wave
-    assert np.std(energy) > 0
+    assert features is not None
+    assert features['interaction_id'] == "test_id_1"
+    assert features['duration_sec'] > 0
 
-def test_extract_tempo_features(mock_audio):
-    """Test tempo extraction returns a float."""
-    y, sr = mock_audio
-    # Note: Tempo estimation on a pure sine wave is unreliable,
-    # but the function should return a valid float without crashing.
-    tempo = extract_tempo_features(y, sr)
+def test_process_audio_file_corrupted(tmp_path):
+    # Create a corrupted file (empty or invalid header)
+    file_path = tmp_path / "corrupted.wav"
+    file_path.write_bytes(b"NOT_A_WAVE_FILE")
     
-    assert isinstance(tempo, float)
-    assert tempo >= 0
+    features = process_audio_file(str(file_path), "test_id_2")
+    
+    # Should return None or handle gracefully
+    assert features is None
 
-def test_process_audio_file(temp_audio_file):
-    """Test full processing of a single audio file."""
-    result = process_audio_file(temp_audio_file, "test_001")
-    
-    assert result is not None
-    assert result["interaction_id"] == "test_001"
-    assert "pitch_mean" in result
-    assert "energy_mean" in result
-    assert "tempo_bpm" in result
-    assert "f0_series" in result
-    assert "energy_series" in result
-    
-    # Check that series are lists
-    assert isinstance(result["f0_series"], list)
-    assert isinstance(result["energy_series"], list)
-
-def test_process_corrupted_file():
-    """Test handling of a non-existent file."""
-    result = process_audio_file("non_existent_file.wav", "test_bad")
-    assert result is None
-
-def test_load_audio_manifest(temp_manifest, temp_audio_file):
-    """Test loading audio manifest."""
-    items = load_audio_manifest(temp_manifest)
-    
-    assert len(items) == 1
-    assert items[0]["interaction_id"] == "test_001"
-    assert items[0]["audio_path"] == temp_audio_file
-
-def test_save_features(tmp_path):
-    """Test saving features to CSV."""
-    features = [
-        {
-            "interaction_id": "1",
-            "pitch_mean": 200.0,
-            "energy_mean": 0.5,
-            "tempo_bpm": 120.0,
-            "f0_series": [1, 2, 3],
-            "energy_series": [0.1, 0.2, 0.3]
-        },
-        {
-            "interaction_id": "2",
-            "pitch_mean": 250.0,
-            "energy_mean": 0.6,
-            "tempo_bpm": 130.0,
-            "f0_series": [4, 5, 6],
-            "energy_series": [0.4, 0.5, 0.6]
-        }
-    ]
-    
+def test_extract_vocal_prosody_no_files(tmp_path):
+    # Test with empty directory
     output_path = tmp_path / "features.csv"
-    save_features(features, str(output_path))
+    result = extract_vocal_prosody(str(tmp_path), str(output_path))
     
-    assert output_path.exists()
-    df = pd.read_csv(output_path)
-    
-    assert len(df) == 2
-    assert list(df.columns) == [
-        "interaction_id", "pitch_mean", "energy_mean", "tempo_bpm", 
-        "f0_series", "energy_series"
-    ]
-    # Verify series are stored as strings (JSON)
-    assert isinstance(df.loc[0, "f0_series"], str)
-
-def test_main_flow(temp_manifest, tmp_path):
-    """Test the full main pipeline."""
-    output_path = tmp_path / "output_features.csv"
-    
-    main(temp_manifest, str(output_path))
-    
-    assert output_path.exists()
-    df = pd.read_csv(output_path)
-    assert len(df) == 1
-    assert "pitch_mean" in df.columns
+    assert result == []
+    assert not os.path.exists(output_path)

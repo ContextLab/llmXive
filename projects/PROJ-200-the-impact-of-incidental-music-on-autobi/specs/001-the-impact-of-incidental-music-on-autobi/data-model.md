@@ -1,103 +1,92 @@
 # Data Model: The Impact of Incidental Music on Autobiographical Memory Retrieval
 
-## 1. Entity Relationship Diagram (Conceptual)
-
+## 1. Data Flow Diagram
 ```mermaid
-erDiagram
-    USER ||--o{ LISTEN_EVENT : generates
-    USER ||--o{ MEMORY_CUE : records
-    TRACK ||--o{ LISTEN_EVENT : receives
-    TRACK ||--o{ MEMORY_CUE : triggers
-    TRACK {
-        string track_id PK
-        string title
-        string artist
-        float overall_popularity_score
-        float residualized_exposure_score
-    }
-    USER {
-        string user_id PK
-        int birth_year
-    }
-    LISTEN_EVENT {
-        string event_id PK
-        string user_id FK
-        string track_id FK
-        datetime timestamp
-    }
-    MEMORY_CUE {
-        string cue_id PK
-        string user_id FK
-        string track_id FK
-        string cue_text
-        float vividness
-        float valence
-    }
-    USER_TRACK_PAIR {
-        string user_id PK, FK
-        string track_id PK, FK
-        float mean_vividness
-        float mean_valence
-        float residualized_exposure_score
-        int memory_count
-    }
+graph TD
+    A[Raw MSD JSONL (streamed)] -->|download.py| B[data/raw/msd_*.jsonl]
+    C[User‑provided AMT Parquet] -->|ingest.py| D[data/processed/ingested_cohort.parquet]
+    B --> D
+    D -->|match.py (thresholds 1‑5)| E[data/processed/matched_thr{n}.parquet]
+    E -->|aggregate.py| F[data/processed/user_track_pairs_thr{n}.parquet]
+    F -->|model.py| G[data/final/regression_summary_thr{n}.csv]
+    F -->|sensitivity.py| H[data/final/sensitivity_analysis.csv]
+    F -->|permutation.py| I[data/final/permutation_results.csv]
+    G -->|plots| J[data/final/plots/]
 ```
 
-## 2. Data Dictionary
+## 2. Schemas
 
-### 2.1 Raw Input Schemas
+### 2.1 `ingested_cohort.parquet`
+| Column | Type | Description |
+|--------|------|-------------|
+| `user_id` | string | Unique participant identifier. |
+| `track_id` | string | Unique track identifier (from MSD). |
+| `birth_year` | integer | User's birth year (nullable). |
+| `cue_text` | string | Memory cue (from AMT). |
+| `vividness` | integer (1‑7) | Vividness rating. |
+| `valence` | integer (1‑7) | Valence rating. |
+| `track_release_year` | integer | Year track was released. |
+| `track_popularity` | float | Track popularity score (MSD). |
+| `listen_timestamp` | datetime | **Only populated if an external listening‑history dataset with timestamps is supplied**; otherwise null. |
+| `is_adolescent_listen` | boolean | `True` if listen occurred when user age ∈ [10, 19] (requires timestamps). |
 
-**MSD Listening Log (JSONL)**
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `user_id` | String | Unique user identifier | Required |
-| `track_id` | String | Unique track identifier | Required |
-| `timestamp` | DateTime | Time of listen | Required |
-| `birth_year` | Integer | User's birth year | Optional (Critical for FR-001) |
+### 2.2 `matched_thr{n}.parquet` (intermediate)
+| Column | Type | Description |
+|--------|------|-------------|
+| `user_id` | string | |
+| `track_id` | string | |
+| `cue_text` | string | |
+| `matched_track_title` | string | Title after fuzzy matching. |
+| `levenshtein_distance` | integer | Distance used for the match. |
+| `threshold` | integer | Levenshtein threshold (`n`). |
+| `match_success` | boolean | Whether distance ≤ threshold. |
 
-**AMT Memory Cues (JSONL/Parquet)**
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `user_id` | String | Unique user identifier | Required |
-| `cue_text` | String | Free-text memory description | Required |
-| `vividness` | Float | Memory vividness (0-100) | Range: [0, 100] |
-| `valence` | Float | Emotional valence (-5 to +5) | Range: [-5, 5] |
+### 2.3 `user_track_pairs_thr{n}.parquet` (final analysis dataset)
+| Column | Type | Description |
+|--------|------|-------------|
+| `user_id` | string | |
+| `track_id` | string | |
+| `total_listens` | integer ≥ 5 | Total listens for this pair (FR‑009). |
+| `adolescent_listens` | integer ≥ 0 | Listens during adolescence (requires timestamps). |
+| `adolescent_exposure_ratio` | number [0, 1] | `adolescent_listens / total_listens` (or placeholder). |
+| `logit_ratio` | number | Continuity‑corrected logit of `adolescent_exposure_ratio`. |
+| `mean_vividness` | number [1, 7] | Average vividness rating. |
+| `mean_valence` | number [1, 7] | Average valence rating. |
+| `track_popularity` | number | Popularity control. |
+| `match_threshold_used` | integer ∈ {1, 2, 3, 4, 5} | Levenshtein threshold applied. |
+| `n_cues` | integer ≥ 1 | Number of cues for this pair. |
+| `global_exposure_proxy` | number [0, 1] | Population‑level proxy for missing birth years (null if not used). |
 
-### 2.2 Derived Schemas
+### 2.4 `regression_summary_thr{n}.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `term` | string | Variable name (`logit_ratio`, `track_popularity`, `total_listens`, `Intercept`). |
+| `estimate` | number | Coefficient estimate. |
+| `std_error` | number | Standard error. |
+| `t_value` | number | t‑statistic. |
+| `p_value` | number [0, 1] | Bonferroni‑adjusted p‑value. |
+| `vif` | number | Variance Inflation Factor (≥ 1.0). |
 
-**Track Exposure Profile (Intermediate)**
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `track_id` | String | Primary Key |
-| `total_listens` | Integer | Total listens from valid users (>= 10 threshold) |
-| `adolescent_listens` | Integer | Listens from users aged 12-18 |
-| `raw_exposure_score` | Float | `adolescent_listens / total_listens` |
-| `residualized_exposure_score` | Float | Residuals of `raw_exposure_score` ~ `log(popularity)` |
-| `overall_popularity_score` | Float | Log-scaled total listens |
+### 2.5 `sensitivity_analysis.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `threshold` | integer | Levenshtein distance used. |
+| `match_rate` | number [0, 1] | Proportion of cues successfully matched. |
+| `coef_estimate` | float | `logit_ratio` coefficient from the LMM. |
+| `p_value` | float [0, 1] | Bonferroni‑adjusted p‑value. |
 
-**User-Track Aggregation (Final Analysis Dataset)**
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `user_id` | String | User ID (Random Effect) |
-| `track_id` | String | Matched Track ID |
-| `residualized_exposure_score` | Float | Predictor (0-1, adjusted) |
-| `overall_popularity_score` | Float | Covariate |
-| `mean_vividness` | Float | Outcome 1 (Mean per pair) |
-| `mean_valence` | Float | Outcome 2 (Mean per pair) |
-| `memory_count` | Integer | Number of cues for this pair |
-| `match_distance` | Integer | Levenshtein distance used |
+### 2.6 `permutation_results.csv`
+| Column | Type | Description |
+|--------|------|-------------|
+| `iteration` | integer | Permutation index (1‑10,000). |
+| `coef_null` | float | Coefficient for `logit_ratio` from this permuted dataset. |
+| `coef_observed` | float | Observed coefficient (repeated for all rows). |
 
-## 3. Data Flow
+## 3. Data Hygiene & Versioning
+- **Checksums**: Every artifact (`*.parquet`, `*.csv`) receives a SHA‑256 hash stored in `state.yaml`.  
+- **Immutability**: Raw files under `data/raw/` are never overwritten; all transformations write new files in `data/processed/` or `data/final/`.  
+- **State Tracking**: `state.yaml` records `artifact_hashes` and a `updated_at` timestamp per run.  
+- **Schema Validation**: After each write, `code/state_manager.py` validates the file against the appropriate JSON‑Schema contract (`contracts/dataset.schema.yaml` for parquet, `contracts/output.schema.yaml` for CSV, `contracts/user_track_pair.schema.yaml` for the aggregated dataset). Failures abort the pipeline, guaranteeing deterministic, verifiable outputs.
 
-1. **Ingest**: Raw JSONL/Parquet → Filtered/Validated CSVs (Minimum Listen Threshold applied).
-2. **Enrich**: Calculate `residualized_exposure_score` per track.
-3. **Match**: AMT cues → MSD tracks (Levenshtein ≤ 4).
-4. **Aggregate**: Group by `user_id` + `track_id` → Compute means (User-Track Pair).
-5. **Filter**: Remove rows with missing values or zero variance.
-6. **Model**: Feed Final Analysis Dataset into `statsmodels`.
+---
 
-## 4. Data Integrity & Hygiene
-
-- **Checksums**: All raw files under `data/raw/` must have SHA-256 checksums recorded.
-- **PII**: No raw birth years or user IDs will be exposed in final outputs; only hashed or aggregated.
-- **Immutability**: Raw data is never modified. All transformations create new files in `data/processed/`.

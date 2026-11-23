@@ -1,3 +1,3 @@
 """
-Test suite for PROJ-062
+Initialization file for the tests package.
 """

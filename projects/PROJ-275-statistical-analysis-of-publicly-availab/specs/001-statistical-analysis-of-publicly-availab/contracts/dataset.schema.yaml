@@ -1,55 +1,108 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Merged Movie Dataset Schema
+title: Merged Movie Review Dataset Schema
 description: |
-  Schema for the unified, time-aligned dataset resulting from the
-  ingestion and preprocessing of TMDB 5000 and IMDb Reviews.
-  Includes static revenue anchors and weekly sentiment scores.
+  Schema for the unified, time-aligned dataset containing movie metadata,
+  static revenue anchors, and weekly sentiment scores.
+  This schema enforces the "Static Revenue Anchor" constraint where
+  `opening_weekend_revenue` is constant across all time-series rows for a movie.
 type: object
 required:
-  - columns
-  - row_count
-  - generated_at
+  - fields
+  - constraints
 properties:
-  columns:
+  fields:
     type: array
-    description: List of column definitions present in the dataset.
+    description: List of expected columns in the processed dataset (parquet/csv)
     items:
       type: object
       required:
         - name
-        - dtype
-        - nullable
+        - type
+        - required
       properties:
         name:
           type: string
-          description: Column name.
-        dtype:
+          description: Column name
+        type:
           type: string
-          description: Data type (e.g., 'object', 'int64', 'float64', 'datetime64[ns]').
-        nullable:
+          enum:
+            - string
+            - integer
+            - float
+            - datetime
+            - category
+          description: Expected pandas/numpy dtype category
+        required:
           type: boolean
-          description: Whether the column allows null values.
+          description: Whether the column must be present and non-null
         description:
           type: string
-          description: Human-readable description of the column.
-    minItems: 6
-  row_count:
-    type: integer
-    description: Total number of rows in the dataset.
-    minimum: 500
-  generated_at:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the dataset was generated.
-  metadata:
+          description: Business meaning of the column
+    items:
+      - name: movie_id
+        type: string
+        required: true
+        description: Unique identifier for the movie
+      - name: title
+        type: string
+        required: true
+        description: Official movie title
+      - name: release_date
+        type: datetime
+        required: true
+        description: Theatrical release date (ISO 8601)
+      - name: opening_weekend_revenue
+        type: float
+        required: true
+        description: Static anchor: Opening weekend box office revenue (USD).
+          Must be non-negative and identical for all time-step rows of the same movie.
+      - name: genre
+        type: category
+        required: true
+        description: Primary genre classification (e.g., Action, Drama)
+      - name: week_number
+        type: integer
+        required: true
+        description: Weeks elapsed since release_date (0 = release week)
+      - name: review_timestamp
+        type: datetime
+        required: true
+        description: Timestamp of the review contributing to this week's score
+      - name: sentiment_score
+        type: float
+        required: true
+        description: VADER compound sentiment score (-1.0 to 1.0) for the week
+      - name: review_count
+        type: integer
+        required: true
+        description: Number of reviews aggregated for this week
+      - name: data_source
+        type: string
+        required: true
+        description: Source of the review data (e.g., 'TMDB', 'IMDb')
+  constraints:
     type: object
-    description: Optional metadata about the dataset version and source.
+    description: Business logic constraints enforced by the pipeline
     properties:
-      source_datasets:
-        type: array
-        items:
-          type: string
-      preprocessing_steps:
-        type: array
-        items:
-          type: string
+      min_movies:
+        type: integer
+        minimum: 500
+        description: Minimum number of unique movies required
+      min_weeks_history:
+        type: integer
+        minimum: 12
+        description: Minimum weeks of review history required per movie (FR-002)
+      revenue_staticity:
+        type: boolean
+        default: true
+        description: Enforce that opening_weekend_revenue does not vary by week_number
+      sentiment_range:
+        type: object
+        properties:
+          min:
+            type: number
+            maximum: 0.0
+          max:
+            type: number
+            minimum: 0.0
+        description: Valid range for VADER scores [-1.0, 1.0]

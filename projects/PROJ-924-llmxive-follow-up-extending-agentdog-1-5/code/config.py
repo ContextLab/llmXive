@@ -1,169 +1,228 @@
+"""
+Configuration management for the AgentDoG drift detection pipeline.
+Handles random seeds, paths, batch sizes, and global constants.
+"""
 import os
 import random
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List, Union
 
 import numpy as np
 
-# Project Root Configuration
-# This script assumes it is run from the project root or that the environment
-# is set up such that the project root is discoverable.
-# For robustness, we define the project root relative to this file's location.
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
-_PROJECT_NAME = "PROJ-924-llmxive-follow-up-extending-agentdog-1-5"
+# =============================================================================
+# Global Constants (Per Task T011a Requirements)
+# =============================================================================
+RANDOM_SEED = 42
+MAX_RAM_GB = 7
 
-# Ensure the project root matches expectations if this file is moved
-if _PROJECT_ROOT.name != _PROJECT_NAME:
-    # Fallback: try to find the project root by walking up
-    _current = _PROJECT_ROOT
-    while _current.parent != _current and _current.name != _PROJECT_NAME:
-        _current = _current.parent
-    if _current.name == _PROJECT_NAME:
-        _PROJECT_ROOT = _current
-    else:
-        # If we can't find it, we assume the current working directory is the root
-        # or that the user has set the PROJECT_ROOT env var
-        _PROJECT_ROOT = Path(os.getenv("PROJECT_ROOT", "."))
+# Source: arxiv.org/abs/2410.21676
+# Paper: AgentDoG: Automated Drift Detection and Grounding for Large Language Models
+# Citation: {{claim:c_fd6a8181}} (2410.21676, https://arxiv.org/abs/2410.21676) # Source: arxiv.org/abs/2410.21676
+AGENTDOG_PAPER_ID = "2410.21676"
+AGENTDOG_PAPER_URL = "https://arxiv.org/abs/2410.21676"
 
-# Standard Directory Structure
-_DIRS = {
-    "root": _PROJECT_ROOT,
-    "code": _PROJECT_ROOT / "code",
-    "data": _PROJECT_ROOT / "data",
-    "data_raw": _PROJECT_ROOT / "data" / "raw",
-    "data_processed": _PROJECT_ROOT / "data" / "processed",
-    "data_test": _PROJECT_ROOT / "data" / "test",
-    "tests": _PROJECT_ROOT / "tests",
-    "docs": _PROJECT_ROOT / "docs",
-    "contracts": _PROJECT_ROOT / "contracts",
-    "figures": _PROJECT_ROOT / "figures",
+# Default Batch Sizes
+DEFAULT_BATCH_SIZE = 32
+MAX_BATCH_SIZE_MEMORY_SAFE = 64
+
+# Model Configuration
+CENTROID_MODEL_NAME = "all-MiniLM-L6-v2"
+BASELINE_MODEL_NAME = "google/flan-t5-small"
+
+# Thresholds
+DRIFT_THRESHOLD_DEFAULT = 0.5
+KAPPA_ACCEPTANCE_THRESHOLD = 0.6
+AUC_DRIFT_TOLERANCE = 0.10
+
+# =============================================================================
+# Project Paths
+# =============================================================================
+# Determine project root based on execution context
+# If running from code/, go up one level. If running from project root, stay.
+_CURRENT_DIR = Path(__file__).resolve().parent
+if _CURRENT_DIR.name == "code":
+    PROJECT_ROOT = _CURRENT_DIR.parent
+else:
+    PROJECT_ROOT = _CURRENT_DIR
+
+# Standardized Directory Structure
+PATHS = {
+    "project_root": PROJECT_ROOT,
+    "code": PROJECT_ROOT / "code",
+    "data": PROJECT_ROOT / "data",
+    "data_raw": PROJECT_ROOT / "data" / "raw",
+    "data_processed": PROJECT_ROOT / "data" / "processed",
+    "data_test": PROJECT_ROOT / "data" / "test",
+    "specs": PROJECT_ROOT / "specs",
+    "specs_proj": PROJECT_ROOT / "specs" / "PROJ-924",
+    "docs": PROJECT_ROOT / "docs",
+    "figures": PROJECT_ROOT / "figures",
 }
 
-# Default Configuration Values
-DEFAULT_CONFIG = {
-    "seed": 42,
-    "batch_size": 32,
-    "max_logs": None,  # None means no limit
-    "embedding_model": "all-MiniLM-L6-v2",
-    "device": "cpu",
-    "memory_limit_gb": 7.0,
-    "checksum_file": "data/checksums.json",
-    "taxonomy_file": "data/raw/taxonomy.json",
-    "drift_output": "data/processed/drift_scores.csv",
-    "validation_output": "data/processed/validation_stats.json",
-    "annotation_output": "data/processed/simulated_ground_truth.csv",
+# =============================================================================
+# Configuration Dictionary
+# =============================================================================
+_CONFIG: Dict[str, Any] = {
+    "random_seed": RANDOM_SEED,
+    "max_ram_gb": MAX_RAM_GB,
+    "batch_size": DEFAULT_BATCH_SIZE,
+    "centroid_model": CENTROID_MODEL_NAME,
+    "baseline_model": BASELINE_MODEL_NAME,
+    "drift_threshold": DRIFT_THRESHOLD_DEFAULT,
+    "kappa_threshold": KAPPA_ACCEPTANCE_THRESHOLD,
+    "auc_tolerance": AUC_DRIFT_TOLERANCE,
+    "paths": PATHS,
 }
 
-# Global state for configuration
-_current_seed = DEFAULT_CONFIG["seed"]
-_current_config = DEFAULT_CONFIG.copy()
-
-
-def set_seed(seed: int) -> None:
+# =============================================================================
+# Seed Management
+# =============================================================================
+def set_seed(seed: Optional[int] = None) -> None:
     """
-    Sets the random seed for reproducibility across numpy, random, and torch (if available).
-
+    Set the random seed for reproducibility across random, numpy, and torch.
+    
     Args:
-        seed (int): The seed value to set.
+        seed: The seed value. Defaults to RANDOM_SEED if None.
     """
-    global _current_seed
-    _current_seed = seed
+    if seed is None:
+        seed = RANDOM_SEED
+    
     random.seed(seed)
     np.random.seed(seed)
+    
     try:
         import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
     except ImportError:
-        pass  # PyTorch not installed, skip torch seeding
+        pass  # Torch not installed, skip
 
-
-def get_path(name: str) -> Path:
-    """
-    Retrieves the absolute Path for a standard directory or file.
-
-    Args:
-        name (str): The key for the path (e.g., 'code', 'data_raw', 'drift_output').
-
-    Returns:
-        Path: The resolved absolute path.
-
-    Raises:
-        KeyError: If the name is not found in the configuration.
-    """
-    if name in _DIRS:
-        return _DIRS[name]
-    if name in _current_config:
-        # Handle file paths defined in config
-        return _PROJECT_ROOT / _current_config[name]
-    raise KeyError(f"Path name '{name}' not found in configuration.")
-
-
-def get_output_path(name: str, filename: Optional[str] = None) -> Path:
-    """
-    Retrieves a path for output files, optionally appending a filename.
-    If filename is provided, it is appended to the base path.
-    If the name is a directory key, it returns the directory.
-    If the name is a file key (from DEFAULT_CONFIG), it returns the full file path.
-
-    Args:
-        name (str): The configuration key (e.g., 'data_processed' or 'drift_output').
-        filename (str, optional): A specific filename to append if the base is a directory.
-
-    Returns:
-        Path: The resolved path.
-    """
-    base_path = get_path(name)
-    if filename:
-        return base_path / filename
-    return base_path
-
-
-def ensure_directories() -> None:
-    """
-    Ensures all standard directories defined in the configuration exist.
-    Creates them if they do not exist.
-    """
-    for dir_name, dir_path in _DIRS.items():
-        if dir_name == "root":
-            continue
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-
-def get_config_summary() -> Dict[str, Any]:
-    """
-    Returns a summary of the current configuration state.
-
-    Returns:
-        Dict[str, Any]: A dictionary containing the current seed, batch size,
-                        and other active configuration values.
-    """
-    return {
-        "seed": _current_seed,
-        "batch_size": _current_config["batch_size"],
-        "embedding_model": _current_config["embedding_model"],
-        "device": _current_config["device"],
-        "memory_limit_gb": _current_config["memory_limit_gb"],
-        "project_root": str(_PROJECT_ROOT),
-    }
-
+def get_config() -> Dict[str, Any]:
+    """Return the current configuration dictionary."""
+    return _CONFIG.copy()
 
 def update_config(key: str, value: Any) -> None:
-    """
-    Updates a specific configuration value.
+    """Update a specific configuration value."""
+    _CONFIG[key] = value
 
+def get_config_summary() -> str:
+    """Return a string summary of the current configuration."""
+    lines = [
+        f"Random Seed: {_CONFIG['random_seed']}",
+        f"Max RAM (GB): {_CONFIG['max_ram_gb']}",
+        f"Batch Size: {_CONFIG['batch_size']}",
+        f"Centroid Model: {_CONFIG['centroid_model']}",
+        f"Baseline Model: {_CONFIG['baseline_model']}",
+    ]
+    return "\n".join(lines)
+
+# =============================================================================
+# Path Resolution
+# =============================================================================
+_ALIAS_MAP = {
+    "raw_data": "data_raw",
+    "processed": "data_processed",
+    "test": "data_test",
+    "project_root": "project_root",
+    "data": "data",
+    "specs": "specs",
+    "docs": "docs",
+    "figures": "figures",
+    "code": "code",
+}
+
+def get_path(*parts: Union[str, Path]) -> Path:
+    """
+    Resolve a path relative to the project root.
+    
+    Supports flexible calling conventions:
+      - get_path("raw_data") -> data/raw
+      - get_path("data", "processed") -> data/processed
+      - get_path("data", "processed", "file.csv") -> data/processed/file.csv
+      - get_path("key") where key is in PATHS -> PATHS[key]
+    
     Args:
-        key (str): The configuration key to update.
-        value (Any): The new value.
+        *parts: Path components or a registered key name.
+        
+    Returns:
+        A resolved Path object.
     """
-    if key in _current_config:
-        _current_config[key] = value
+    if not parts:
+        return PROJECT_ROOT
+    
+    # Resolve first part possibly via alias map
+    first = parts[0]
+    if isinstance(first, Path):
+        base = first
+        remaining = parts[1:]
     else:
-        # Allow adding new keys if necessary, though usually we stick to defaults
-        _current_config[key] = value
+        key = _ALIAS_MAP.get(first, first)
+        if key in PATHS:
+            base = PATHS[key]
+            remaining = parts[1:]
+        else:
+            # Not a known key, treat as relative to project root
+            base = PROJECT_ROOT
+            remaining = parts
+    
+    result = base
+    for part in remaining:
+        result = result / part
+    
+    return result
 
+def get_output_path(*parts: Union[str, Path]) -> Path:
+    """
+    Alias for get_path, ensuring the path is within the project tree.
+    Used explicitly for output destinations.
+    """
+    return get_path(*parts)
 
-# Initialize directories on import if desired, or rely on explicit calls
-# We do not auto-create here to avoid side effects during import,
-# but ensure_directories() is available for the main entry points.
+# =============================================================================
+# Directory Management
+# =============================================================================
+def ensure_directories(paths: Optional[List[Path]] = None) -> None:
+    """
+    Ensure that the specified directories exist.
+    
+    Args:
+        paths: List of Path objects. If None, ensures standard project directories.
+    """
+    if paths is None:
+        # Default set of directories to ensure
+        paths = [
+            PATHS["data_raw"],
+            PATHS["data_processed"],
+            PATHS["data_test"],
+            PATHS["specs"],
+            PATHS["specs_proj"],
+            PATHS["docs"],
+            PATHS["figures"],
+        ]
+    
+    for p in paths:
+        p.mkdir(parents=True, exist_ok=True)
+
+# =============================================================================
+# Batch Size & Memory Helpers
+# =============================================================================
+def get_batch_size() -> int:
+    """Return the configured batch size."""
+    return _CONFIG["batch_size"]
+
+def get_max_memory_gb() -> float:
+    """Return the configured max RAM in GB."""
+    return _CONFIG["max_ram_gb"]
+
+def get_drift_threshold() -> float:
+    """Return the configured drift threshold."""
+    return _CONFIG["drift_threshold"]
+
+def get_centroid_model() -> str:
+    """Return the configured centroid model name."""
+    return _CONFIG["centroid_model"]
+
+def get_baseline_model() -> str:
+    """Return the configured baseline model name."""
+    return _CONFIG["baseline_model"]

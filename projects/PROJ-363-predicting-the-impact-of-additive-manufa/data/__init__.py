@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Data Module
+Data directory for raw and processed datasets.
 """

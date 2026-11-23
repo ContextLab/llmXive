@@ -1,39 +1,62 @@
-# Quickstart Guide
+# Quickstart Guide for PROJ-345
 
-## Prerequisites
-- Python 3.11+
-- pip
-- git
+## Installation
 
-## Step 1: Clone and Setup
+1. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt --index-url https://download.pytorch.org/whl/cpu
+ ```
+
+3. Verify environment:
+ ```bash
+ python scripts/verify_env.sh
+ ```
+
+## Data Setup
+
+The pipeline downloads data from OSF/HF automatically. No manual download required unless specified.
+
+## Run Pipeline
+
+Execute the full pipeline in order:
+
 ```bash
-git clone <repo-url>
-cd PROJ-345-the-influence-of-visual-priming-on-impli
-python3.11 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-## Step 2: Initialize Project Structure
-```bash
+# 1. Setup Directories and State
 python code/run_setup.py
 python code/run_state_init.py
+
+# 2. Ingest Data (T013)
+python code/data/ingest.py
+
+# 3. Preprocess & Derive Metrics (T014, T015a, T018a)
+python code/data/preprocess.py
+python code/data/calculate_ingest_metrics.py
+
+# 4. Linkage Verification (T016)
+python code/data/linkage.py
+
+# 5. Generate Linked Trials (T017) - THIS TASK
+python code/data/generate_linked_trials.py
+
+# 6. Modeling (T021-T028)
+python code/models/lmm.py
+python code/models/metrics.py
+
+# 7. Reporting (T032-T037)
+python code/viz/plots.py
+python code/reports/generate_report.py
+
+# 8. Validation
+python code/validation/validate_quickstart.py
 ```
 
-## Step 3: Run the Pipeline
-Execute the full pipeline to ingest data, preprocess, model, and generate reports:
-```bash
-python code/main.py
-```
+## Verification
 
-## Step 4: Verify Outputs
-Check the following artifacts after successful execution:
-- `data/processed/linked_trials.csv`
-- `data/processed/stimulus_metadata.csv`
-- `state/model_convergence_metrics.json`
-- `reports/output_report.pdf`
-
-## Troubleshooting
-- **Missing Data**: Ensure `data/raw` contains valid IAT datasets or run `code/data/ingest.py` manually.
-- **Model Convergence**: Check `state/model_convergence_metrics.json` for convergence rates.
-- **Linkage Failures**: Verify `data/processed/linked_trials.csv` for missing `stimulus_id` values.
+After running, check `data/processed/linked_trials.csv` exists and contains the expected columns.
+Check `reports/final_report.pdf` for the generated report.

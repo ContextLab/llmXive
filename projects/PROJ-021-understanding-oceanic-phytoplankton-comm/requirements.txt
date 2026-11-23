@@ -8,3 +8,9 @@ netCDF4
 matplotlib
 seaborn
 datasets
+ruff
+black
+psutil
+statsmodels
+copernicusmarine
+h5netcdf

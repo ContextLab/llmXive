@@ -1,0 +1,10 @@
+status: none
+intent: download Project Implicit Political IAT dataset with ideology and news exposure
+  variables python package dataset
+required_fields:
+- IAT_score
+- ideology
+- news_exposure
+cache_key: 6a809f580bf975e386c50ead5801c19f3d960b1e4ec67a3ba3ecbcd52f5f5526
+searched_at: '2026-10-10T00:27:06.097190+00:00'
+retry_count: 1

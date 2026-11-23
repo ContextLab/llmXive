@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1303.0095",
+  "judged_at": "2026-07-24T21:11:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of simulated social exclusion on default mode network dynamics neuroscience",
+  "rationale": "The paper focuses on machine learning techniques for node classification in abstract social network graphs, which is a distinct construct from the user's question regarding the neural correlates (brain activity) of social exclusion in the Default Mode Network. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords,\" where \"social network\" refers to graph data structures rather than human social interactions or their biological substrates.",
+  "relevant": false
+}

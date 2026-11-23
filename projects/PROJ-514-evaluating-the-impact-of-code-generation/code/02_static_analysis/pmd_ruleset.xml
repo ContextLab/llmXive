@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ruleset name="Custom Code Smell Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
+
+  <description>
+    Custom ruleset for detecting specific code smells: 
+    LongMethod, DuplicatedCode, FeatureEnvy, LongParameterList.
+  </description>
+
+  <!-- Long Method -->
+  <rule ref="category/java/codestyle.xml/LongMethod">
+      <properties>
+          <property name="minimum" value="20" /> <!-- Threshold for lines of code -->
+      </properties>
+  </rule>
+
+  <!-- Long Parameter List -->
+  <rule ref="category/java/codestyle.xml/LongParameterList">
+      <properties>
+          <property name="threshold" value="5" /> <!-- Threshold for number of parameters -->
+      </properties>
+  </rule>
+
+  <!-- Feature Envy -->
+  <rule ref="category/java/design.xml/FeatureEnvy" />
+
+  <!-- Duplicated Code (Simpler rule for detection) -->
+  <!-- Note: PMD's DuplicatedCode rule can be heavy. 
+       We use a simplified version or rely on CPD if available, 
+       but here we reference the standard rule if present in the PMD installation. -->
+  <rule ref="category/java/codestyle.xml/DuplicatedIdentifier" />
+  
+  <!-- Alternative: If DuplicatedCode is not available in standard rulesets, 
+       we might need to rely on CPD or a custom rule. 
+       For this task, we assume standard PMD ruleset availability. 
+       If not, we can fallback to a basic check or skip. -->
+</ruleset>

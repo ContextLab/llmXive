@@ -1,2 +1,2 @@
-# This file ensures the tests directory is tracked by git even if empty.
-# It is a placeholder.
+# This file ensures the tests directory is tracked by git.
+# Actual test files should be added here.

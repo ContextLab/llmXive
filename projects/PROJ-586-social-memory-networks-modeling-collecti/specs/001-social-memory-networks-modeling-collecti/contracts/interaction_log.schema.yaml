@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InteractionLog"
+description: "Schema for the per-game interaction log (JSON)."
+type: "object"
+properties:
+  game_id:
+    type: "string"
+  agents:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        agent_id:
+          type: "string"
+        model_name:
+          type: "string"
+        memory_actions:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              action_type:
+                type: "string"
+                enum: ["write", "read"]
+              key:
+                type: "string"
+              value:
+                type: "string"
+              timestamp:
+                type: "string"
+                format: "date-time"
+              owner_agent_id:
+                type: "string"
+            required:
+              - action_type
+              - key
+              - timestamp
+              - owner_agent_id
+      required:
+        - agent_id
+        - model_name
+        - memory_actions
+  metrics:
+    type: "object"
+    properties:
+      specialization_index:
+        type: "number"
+      retrieval_efficiency:
+        type: "number"
+    required:
+      - specialization_index
+      - retrieval_efficiency
+required:
+  - game_id
+  - agents
+  - metrics
+additionalProperties: false

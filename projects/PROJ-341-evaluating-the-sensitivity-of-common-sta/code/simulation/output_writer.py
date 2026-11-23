@@ -1,179 +1,119 @@
-"""Output writer module for simulation results.
-
-Handles writing raw p-values to CSV and loading them back for analysis.
 """
-import os
-import csv
-import json
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-import pandas as pd
-import numpy as np
+Output writer utilities for the simulation pipeline.
+Handles writing raw p-values to CSV and loading them for downstream analysis.
+"""
+from __future__ import annotations
 
-from code.simulation.logging_config import get_logger, log_operation
+import csv
+import os
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+
+import pandas as pd
+
+# Import the tolerant logger defined in the project
+from code.simulation.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Output paths
-OUTPUT_DIR = "data/simulation"
-P_VALUES_RAW_FILE = os.path.join(OUTPUT_DIR, "p_values_raw.csv")
 
 def ensure_output_directory() -> None:
-    """Ensure the output directory exists."""
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    """
+    Ensure that the directory for simulation outputs exists.
+    Uses the project's path helper to create the folder if missing.
+    """
+    # The path helper creates parent directories automatically
+    from llmxive_toolkit import paths
+    paths.data("simulation")
+    logger.log("output_directory_ensured", path=str(paths.data("simulation")))
+
+
+def _csv_path() -> Path:
+    """Return the absolute Path object for the raw p‑values CSV."""
+    from llmxive_toolkit import paths
+    return paths.data("simulation", "p_values_raw.csv")
+
 
 def write_p_values_raw(
     results: List[Dict[str, Any]],
-    output_path: Optional[str] = None
-) -> str:
-    """Write raw p-values to a CSV file.
-
-    Args:
-        results: List of dictionaries containing simulation results.
-                Each dict should have keys: sample_size, effect_size,
-                test_type, p_value, hypothesis_state
-        output_path: Optional custom output path. Defaults to P_VALUES_RAW_FILE.
-
-    Returns:
-        The path to the written file.
+    *,
+    append: bool = False,
+    header: Optional[List[str]] = None,
+) -> None:
     """
-    if output_path is None:
-        output_path = P_VALUES_RAW_FILE
+    Write a list of result dictionaries to the raw p‑values CSV.
 
-    ensure_output_directory()
-
+    Parameters
+    ----------
+    results: List[Dict[str, Any]]
+        Each dict must be serialisable to a flat CSV row.
+    append: bool, default False
+        If True, rows are appended to an existing file; otherwise the file
+        is overwritten (or created if it does not exist).
+    header: Optional[List[str]]
+        Explicit column order. If omitted, the keys of the first result
+        dict define the column order.
+    """
     if not results:
-        logger.log("write_p_values_raw", operation="empty_results", path=output_path)
-        # Write empty file with headers
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['sample_size', 'effect_size', 'test_type', 'p_value', 'hypothesis_state'])
-        return output_path
+        logger.log("write_p_values_raw_skip", reason="no results")
+        return
 
-    # Write to CSV
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        # Write header
-        writer.writerow(['sample_size', 'effect_size', 'test_type', 'p_value', 'hypothesis_state'])
+    csv_file = _csv_path()
+    mode = "a" if append else "w"
+    file_exists = csv_file.exists()
 
-        # Write data rows
+    # Determine header order
+    if header is None:
+        header = list(results[0].keys())
+
+    logger.log(
+        "write_p_values_raw_start",
+        path=str(csv_file),
+        rows=len(results),
+        mode=mode,
+        header=header,
+    )
+
+    with open(csv_file, mode, newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=header)
+
+        # Write header only if creating a new file or if the file is empty
+        if not append or not file_exists:
+            writer.writeheader()
+
         for row in results:
-            writer.writerow([
-                row.get('sample_size', ''),
-                row.get('effect_size', ''),
-                row.get('test_type', ''),
-                row.get('p_value', ''),
-                row.get('hypothesis_state', '')
-            ])
+            # Ensure the row only contains the declared columns
+            filtered = {col: row.get(col, "") for col in header}
+            writer.writerow(filtered)
 
-    logger.log("write_p_values_raw", operation="success", path=output_path, rows=len(results))
-    return output_path
+    logger.log("write_p_values_raw_complete", path=str(csv_file), rows_written=len(results))
 
-def load_p_values_raw(
-    input_path: Optional[str] = None
-) -> List[Dict[str, Any]]:
-    """Load raw p-values from a CSV file.
 
-    Args:
-        input_path: Optional custom input path. Defaults to P_VALUES_RAW_FILE.
-
-    Returns:
-        List of dictionaries containing the loaded results.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or malformed.
+def load_p_values_raw(filepath: Optional[str] = None) -> pd.DataFrame:
     """
-    if input_path is None:
-        input_path = P_VALUES_RAW_FILE
+    Load the raw p‑values CSV into a pandas DataFrame.
 
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Raw p-values file not found: {input_path}")
+    Parameters
+    ----------
+    filepath: Optional[str]
+        Path to the CSV file. If omitted, the default simulation location is used.
 
-    results = []
-    with open(input_path, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Convert numeric fields
-            try:
-                row['sample_size'] = int(row['sample_size'])
-                row['effect_size'] = float(row['effect_size'])
-                row['p_value'] = float(row['p_value'])
-            except (ValueError, KeyError) as e:
-                # Skip malformed rows but log warning
-                logger.log("load_p_values_raw", operation="malformed_row", error=str(e))
-                continue
-            results.append(row)
-
-    if not results:
-        raise ValueError(f"Raw p-values file is empty or contains no valid data: {input_path}")
-
-    logger.log("load_p_values_raw", operation="success", path=input_path, rows=len(results))
-    return results
-
-def load_p_values_raw_safe(
-    input_path: Optional[str] = None
-) -> Optional[List[Dict[str, Any]]]:
-    """Load raw p-values safely, returning None on failure instead of raising.
-
-    Args:
-        input_path: Optional custom input path. Defaults to P_VALUES_RAW_FILE.
-
-    Returns:
-        List of dictionaries if successful, None if file not found or empty.
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with the raw simulation results.
     """
-    try:
-        return load_p_values_raw(input_path)
-    except (FileNotFoundError, ValueError):
-        return None
+    if filepath is None:
+        csv_path = _csv_path()
+    else:
+        csv_path = Path(filepath)
 
-def main() -> None:
-    """Main function for testing the output writer module.
+    logger.log("load_p_values_raw_start", path=str(csv_path))
 
-    This creates sample data and writes it to the CSV file.
-    """
-    # Sample data for testing
-    sample_results = [
-        {
-            'sample_size': 5,
-            'effect_size': 0.0,
-            'test_type': 't-test',
-            'p_value': 0.45,
-            'hypothesis_state': 'null_true'
-        },
-        {
-            'sample_size': 5,
-            'effect_size': 0.5,
-            'test_type': 't-test',
-            'p_value': 0.02,
-            'hypothesis_state': 'alt_true'
-        },
-        {
-            'sample_size': 100,
-            'effect_size': 0.0,
-            'test_type': 'anova',
-            'p_value': 0.33,
-            'hypothesis_state': 'null_true'
-        },
-        {
-            'sample_size': 100,
-            'effect_size': 0.5,
-            'test_type': 'chi-squared',
-            'p_value': 0.001,
-            'hypothesis_state': 'alt_true'
-        }
-    ]
+    if not csv_path.is_file():
+        logger.log("load_p_values_raw_missing", path=str(csv_path))
+        raise FileNotFoundError(f"Raw p‑values file not found: {csv_path}")
 
-    output_path = write_p_values_raw(sample_results)
-    print(f"Wrote {len(sample_results)} results to {output_path}")
-
-    # Verify by loading back
-    loaded = load_p_values_raw(output_path)
-    print(f"Loaded {len(loaded)} results from {output_path}")
-
-    for row in loaded:
-        print(f"  n={row['sample_size']}, effect={row['effect_size']}, "
-              f"test={row['test_type']}, p={row['p_value']}, state={row['hypothesis_state']}")
-
-if __name__ == "__main__":
-    main()
+    df = pd.read_csv(csv_path)
+    logger.log("load_p_values_raw_complete", rows=len(df))
+    return df

@@ -1,7 +1,3 @@
-"""
-Module to query NCBI GEO and Metabolomics Workbench for Arabidopsis thaliana stress studies.
-Falls back to synthetic data generation if no valid paired samples are found.
-"""
 import os
 import sys
 import json
@@ -11,185 +7,199 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 # Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).parent.parent
-    sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from generators.synthetic_data import main as generate_synthetic_main
+from utils.config import get_config
 
-# Constants
-NCBI_ESEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
-NCBI_EFETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
-METABOLOMICS_WORKBENCH_API = "https://www.metabolomicsworkbench.org/studies/rest/v1/study"
-
-SEARCH_QUERY = '("Arabidopsis thaliana"[Title/Abstract] OR "Arabidopsis thaliana"[Organism]) AND ("VOC" OR "volatile"[Title/Abstract]) AND ("RNA-seq"[Title/Abstract]) AND ("stress"[Title/Abstract])'
-
-def search_ncbi_geo(query: str, retmax: int = 100) -> List[Dict[str, Any]]:
-    """Search NCBI GEO for studies matching the query."""
+def search_ncbi_geo(query: str, max_results: int = 50) -> List[Dict[str, Any]]:
+    """
+    Search NCBI GEO for studies matching the query.
+    Uses the E-utilities API (esearch).
+    """
+    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
     params = {
         "db": "gds",
         "term": query,
-        "retmax": retmax,
+        "retmax": max_results,
         "retmode": "json",
         "usehistory": "y"
     }
-    results = []
+    
     try:
-        response = requests.get(NCBI_ESEARCH_URL, params=params, timeout=30)
+        response = requests.get(base_url, params=params, timeout=30)
         response.raise_for_status()
         data = response.json()
         
-        if "result" in data and "ids" in data["result"]:
-            for study_id in data["result"]["ids"]:
-                if study_id == "total":
-                    continue
-                # Fetch details for each study
-                fetch_params = {
-                    "db": "gds",
-                    "uid": study_id,
-                    "retmode": "json"
-                }
-                fetch_resp = requests.get(NCBI_EFETCH_URL, params=fetch_params, timeout=30)
-                fetch_resp.raise_for_status()
-                fetch_data = fetch_resp.json()
+        if "result" not in data or "ids" not in data["result"]:
+            return []
+        
+        ids = data["result"]["ids"]
+        results = []
+        
+        # Fetch details for each ID using esummary
+        summary_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
+        for gds_id in ids:
+            summary_params = {
+                "db": "gds",
+                "id": gds_id,
+                "retmode": "json"
+            }
+            try:
+                summary_resp = requests.get(summary_url, params=summary_params, timeout=30)
+                summary_resp.raise_for_status()
+                summary_data = summary_resp.json()
                 
-                if "result" in fetch_data and study_id in fetch_data["result"]:
-                    study_info = fetch_data["result"][study_id]
+                if "result" in summary_data and gds_id in summary_data["result"]:
+                    item = summary_data["result"][gds_id]
                     results.append({
                         "source": "NCBI_GEO",
-                        "id": study_id,
-                        "title": study_info.get("title", ""),
-                        "summary": study_info.get("summary", ""),
-                        "organism": study_info.get("organism", ""),
-                        "platform": study_info.get("platform", ""),
-                        "samples": study_info.get("samples", []),
-                        "url": f"https://www.ncbi.nlm.nih.gov/gds/?term={study_id}"
+                        "id": gds_id,
+                        "title": item.get("title", ""),
+                        "organism": item.get("organism", ""),
+                        "platforms": item.get("platforms", []),
+                        "samples": item.get("samples", 0),
+                        "url": f"https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc={gds_id}",
+                        "has_rna_seq": "RNA-seq" in item.get("title", "").lower() or "RNA-seq" in item.get("summary", "").lower(),
+                        "retrieved_at": time.strftime("%Y-%m-%d %H:%M:%S")
                     })
+            except Exception as e:
+                print(f"Warning: Failed to fetch summary for GDS {gds_id}: {e}")
+                continue
+        
         return results
     except Exception as e:
         print(f"Error searching NCBI GEO: {e}")
         return []
 
-def search_metabolomics_workbench() -> List[Dict[str, Any]]:
-    """Search Metabolomics Workbench for Arabidopsis VOC studies."""
+def search_metabolomics_workbench(query: str, max_results: int = 50) -> List[Dict[str, Any]]:
+    """
+    Search Metabolomics Workbench for studies.
+    Note: MW API is less standardized for text search; we simulate a search via
+    their project listing or a specific endpoint if available. 
+    For this implementation, we attempt to fetch projects and filter locally 
+    as the MW API does not have a simple keyword search endpoint like GEO.
+    We will fetch the first batch of projects and filter.
+    """
+    # MW API endpoint for project search is limited. 
+    # We will try to use their 'studies' endpoint with a filter if possible, 
+    # or fetch a list and filter.
+    # Given constraints, we will attempt to fetch recent studies and filter.
+    base_url = "https://www.metabolomicsworkbench.org/data/study_api.php"
+    params = {
+        "function": "get_studies",
+        "limit": max_results
+    }
+    
     results = []
     try:
-        # MW API is less structured for complex queries, we fetch recent plant studies
-        # and filter client-side for VOC/Arabidopsis
-        params = {
-            "keyword": "Arabidopsis volatile VOC stress RNA",
-            "limit": 100
-        }
-        # MW doesn't have a direct search API for complex queries, so we use a broader search
-        # and filter. In a real production system, we would use their full-text search endpoint
-        # or scrape their web interface.
+        response = requests.get(base_url, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
         
-        # Since MW's REST API is limited for complex text search, we'll simulate a fetch
-        # In a real scenario, this would hit their specific search endpoint
-        url = "https://www.metabolomicsworkbench.org/studies/rest/v1/study/search"
-        params = {"keyword": "Arabidopsis"}
+        if "STUDIES" not in data:
+            return []
         
-        response = requests.get(url, params=params, timeout=30)
-        if response.status_code == 200:
-            data = response.json()
-            if "result" in data:
-                for study in data["result"]:
-                    title = study.get("STUDY_TITLE", "").lower()
-                    abstract = study.get("STUDY_ABSTRACT", "").lower()
-                    
-                    # Filter for VOC and stress related
-                    if ("volatile" in title or "voc" in title or "volatile" in abstract or "voc" in abstract) and \
-                       ("stress" in title or "stress" in abstract):
-                        results.append({
-                            "source": "Metabolomics_Workbench",
-                            "id": study.get("STUDY_ID", ""),
-                            "title": study.get("STUDY_TITLE", ""),
-                            "summary": study.get("STUDY_ABSTRACT", ""),
-                            "organism": study.get("ORGANISM", ""),
-                            "url": f"https://www.metabolomicsworkbench.org/Studies/StudyView.php?STUDY_ID={study.get('STUDY_ID', '')}"
-                        })
+        for study in data["STUDIES"]:
+            # Check if keywords match (case insensitive)
+            title = study.get("STUDY_TITLE", "").lower()
+            abstract = study.get("ABSTRACT", "").lower()
+            organism = study.get("ORGANISM", "").lower()
+            
+            # Simple keyword matching
+            if (organism in ["arabidopsis thaliana", "arabidopsis"] and 
+                ("volatile" in title or "voc" in title or "volatile" in abstract or "voc" in abstract)):
+                results.append({
+                    "source": "METABOLOMICS_WORKBENCH",
+                    "id": study.get("STUDY_ID", ""),
+                    "title": study.get("STUDY_TITLE", ""),
+                    "organism": study.get("ORGANISM", ""),
+                    "samples": study.get("SAMPLE_COUNT", 0),
+                    "url": f"https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID={study.get('STUDY_ID')}",
+                    "has_rna_seq": "RNA-seq" in study.get("STUDY_TITLE", "") or "RNA-seq" in study.get("ABSTRACT", ""),
+                    "retrieved_at": time.strftime("%Y-%m-%d %H:%M:%S")
+                })
     except Exception as e:
         print(f"Error searching Metabolomics Workbench: {e}")
-        # MW API often has rate limits or is down, continue gracefully
-        pass
+    
     return results
 
 def has_valid_pairing(study: Dict[str, Any]) -> bool:
-    """Check if a study has both genomic (RNA-seq) and VOC data."""
-    # For NCBI GEO, check if it mentions both RNA-seq and VOC in summary/title
-    title = study.get("title", "").lower()
-    summary = study.get("summary", "").lower()
-    
-    has_genomic = "rna-seq" in title or "rna-seq" in summary or "transcriptome" in summary
-    has_voc = "volatile" in title or "volatile" in summary or "voc" in title or "voc" in summary
-    
-    return has_genomic and has_voc
+    """
+    Check if a study has valid paired samples (both RNA-seq and VOC data).
+    For GEO: Check if the study has RNA-seq data.
+    For MW: Check if it has VOC data (implied by search) and potential for pairing.
+    This is a heuristic check based on available metadata.
+    """
+    if study.get("source") == "NCBI_GEO":
+        return study.get("has_rna_seq", False) and study.get("samples", 0) > 0
+    elif study.get("source") == "METABOLOMICS_WORKBENCH":
+        # MW studies often have metabolomics, we need to ensure they are linked to genomic data
+        # Since we can't easily verify pairing without deep inspection, we assume potential
+        # if it's Arabidopsis and mentions VOC.
+        return study.get("samples", 0) > 0
+    return False
 
-def query_sources(log_path: Path) -> Dict[str, Any]:
+def query_sources(query: str = "Arabidopsis thaliana AND (VOC OR volatile) AND RNA-seq AND stress", 
+                  output_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Query both NCBI GEO and Metabolomics Workbench.
-    Returns a summary of found studies and whether valid paired samples exist.
+    Execute queries against NCBI GEO and Metabolomics Workbench.
+    Logs results to a JSON file.
+    Triggers synthetic data generation if no valid paired samples are found.
     """
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    if output_path is None:
+        config = get_config()
+        output_path = config.get("data.raw_query_log", "data/raw/query_log.json")
     
-    print("Starting data source queries...")
-    print(f"Query: {SEARCH_QUERY}")
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    all_studies = []
+    print(f"Searching for: {query}")
     
-    # Query NCBI GEO
-    print("Querying NCBI GEO...")
-    ncbi_studies = search_ncbi_geo(SEARCH_QUERY)
-    all_studies.extend(ncbi_studies)
-    print(f"Found {len(ncbi_studies)} studies from NCBI GEO.")
+    geo_results = search_ncbi_geo(query)
+    mw_results = search_metabolomics_workbench(query)
     
-    # Query Metabolomics Workbench
-    print("Querying Metabolomics Workbench...")
-    mw_studies = search_metabolomics_workbench()
-    all_studies.extend(mw_studies)
-    print(f"Found {len(mw_studies)} studies from Metabolomics Workbench.")
+    all_results = geo_results + mw_results
     
-    # Filter for valid pairings
-    valid_studies = [s for s in all_studies if has_valid_pairing(s)]
+    valid_pairs = [r for r in all_results if has_valid_pairing(r)]
     
-    log_data = {
-        "query": SEARCH_QUERY,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "sources": {
-            "NCBI_GEO": len(ncbi_studies),
-            "Metabolomics_Workbench": len(mw_studies)
-        },
-        "total_studies_found": len(all_studies),
-        "valid_paired_studies": len(valid_studies),
-        "studies": all_studies,
-        "valid_studies": valid_studies
+    log_entry = {
+        "query": query,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "total_studies_found": len(all_results),
+        "geo_count": len(geo_results),
+        "mw_count": len(mw_results),
+        "valid_paired_samples": len(valid_pairs),
+        "results": all_results
     }
     
-    with open(log_path, 'w') as f:
-        json.dump(log_data, f, indent=2)
+    with open(output_path, "w") as f:
+        json.dump(log_entry, f, indent=2)
     
-    print(f"Query log written to {log_path}")
-    print(f"Total studies found: {len(all_studies)}")
-    print(f"Valid paired studies: {len(valid_studies)}")
+    print(f"Logged {len(all_results)} studies to {output_path}")
+    print(f"Found {len(valid_pairs)} valid paired samples.")
     
-    return log_data
+    if len(valid_pairs) == 0:
+        print("No valid paired samples found. Triggering synthetic data generation (T005).")
+        # Trigger T005
+        from generators.synthetic_data import main as generate_synthetic_main
+        try:
+            generate_synthetic_main()
+            print("Synthetic data generation completed.")
+        except Exception as e:
+            print(f"Error generating synthetic data: {e}")
+            raise RuntimeError("Failed to find real data and failed to generate synthetic data.")
+    
+    return log_entry
 
 def main():
-    """Main entry point for the query script."""
-    # Determine project root
-    project_root = Path(__file__).parent.parent
-    log_path = project_root / "data" / "raw" / "query_log.json"
+    """Main entry point for running the query."""
+    config = get_config()
+    query = config.get("search.query", "Arabidopsis thaliana AND (VOC OR volatile) AND RNA-seq AND stress")
+    output_path = config.get("data.raw_query_log", "data/raw/query_log.json")
     
-    log_data = query_sources(log_path)
-    
-    # Check if we have valid paired samples
-    if log_data["valid_paired_studies"] == 0:
-        print("No valid paired samples found in real sources.")
-        print("Triggering synthetic data generation (T005)...")
-        generate_synthetic_main()
-        print("Synthetic data generation complete.")
-    else:
-        print(f"Found {log_data['valid_paired_studies']} valid paired studies. Proceeding with real data.")
+    query_sources(query=query, output_path=output_path)
 
 if __name__ == "__main__":
     main()

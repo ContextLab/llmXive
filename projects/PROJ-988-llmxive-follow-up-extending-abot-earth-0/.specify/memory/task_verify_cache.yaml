@@ -1,0 +1,117 @@
+T001a:
+  c: true
+  h: 17deed5742e667aeea7a8f7782c14d1ef469c590eec72e7f5cd70f6b01a91aed
+  r: "Checked the project root `projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0/`\
+    \ and confirmed that the required sub\u2011directories `code/`, `data/`, `tests/`,\
+    \ and `docs/` all exist and contain files, matching the specified structure."
+  sig: 73c1c41cfeb1221da8532d6b2575a57d3fa220de49a274b3f30322ee0445af8c
+T001b:
+  c: false
+  h: ad9e3dd78e4c0fb25b8ab03e8477b4b9eb0f3d2519960b473aae6420b81cc0d8
+  r: No evidence of a `.gitignore` file was found in the project root (`projects/PROJ-988-llmxive-follow-up-extending-abot-earth-0`),
+    nor any content showing it ignores large files and Python artifacts. The required
+    artifact is missing.
+  sig: 7aa1ea213306f246ed22d00e35ea54aa10e7aa3f17fe3ec8cff11b6bc1911e3a
+T002a:
+  c: false
+  h: ef1d9d208388fb9126f9259535052b9644f21fe3347c5680a7b864a8f520f574
+  r: The `code/requirements.txt` file is present, but it lists the required packages
+    without any version pinning (e.g., `torch-cpu` instead of `torch-cpu==X.Y.Z`).
+    The task explicitly demanded pinned versions, so the artifact does not satisfy
+    the requirement.
+  sig: 9369ab003da4a0936b4ab9127226596b0e0532854fbaeb012211146d1a6011e6
+T002b:
+  c: false
+  h: aed6ab5d82db9219b395906cf4367f6cec0168433909275583a96b9b21169aad
+  r: "No concrete artifact (e.g., a created virtual environment directory, a `requirements.txt`/`pyproject.toml`\
+    \ file, or a script/command log showing `python -m venv` and `pip install` execution)\
+    \ was found in the provided project tree. Without such evidence the claim that\
+    \ a Python\u202F3.11 virtualenv was initialized and dependencies installed cannot\
+    \ be verified."
+  sig: 74ebb3f702de6d53a1eba6ff561c7129fb6f9086d66f8ec906c4961b19ffd4cd
+T003:
+  c: false
+  h: 20e5ab58942df9ee9b968bb42a5aa8ecc6cb56be553f6a60bc7f13be67c1e28e
+  r: "The evidence provides only the project root path but contains no linting or\
+    \ formatting configuration files (e.g., `pyproject.toml` with Black settings,\
+    \ `.ruff.toml` or `ruff.toml`, `.flake8`, or CI scripts invoking ruff/flake8/black).\
+    \ Without these artifacts, the requirement to configure linting and formatting\
+    \ tools is not satisfied. Adding the appropriate configuration files and confirming\
+    \ they are present and non\u2011empty will be needed."
+  sig: 14cf7b326632a3c5421b9f070f37ecc6b2a49a34bdb78f0141699f3b1784ddaf
+T004:
+  c: false
+  h: 66f031c82fa4b5c06465b21c497841906d4b7effa425afb09e5e569f61c6fe99
+  r: "Checked the `data/` directory (exists with `__init__.py`, `city_list.txt`, `processed/`,\
+    \ `raw/`) and the top\u2011level `results/` directory. The required subdirectory\
+    \ `interim/` is missing, and `results/` is not placed under `data/` as the task\
+    \ specifies."
+  sig: f901ffde36f7db60c61f9a610f0c691b0465ce1ed12d4cbe4eb4e594c5ddcb06
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence contains only high\u2011level user story descriptions\
+    \ and no actual code, configuration files, or scripts implementing loaders for\
+    \ `city_list.txt` or managing random seeds. Consequently, the required environment\
+    \ configuration management artifacts are missing."
+T012:
+  c: false
+  h: d9bfe4364c7cad571453b52a85fd95e0b7667438b8295756e2dd71cf5c7886fb
+  r: "The required output files `data/processed/raw_manifest.csv`, `aligned_pairs.csv`,\
+    \ and `alignment_report.csv` are absent, and the provided `code/01_data_curation.py`\
+    \ is only a partial, mock\u2011up (truncated) that does not demonstrably perform\
+    \ the full download, retry loop, saving of raw assets, or CSV generation. The\
+    \ task\u2019s deliverables are therefore not satisfied."
+T013:
+  c: false
+  h: a780803393b430c8390f632513bd857eba131b1fd6831c543ecc21f246472453
+  r: "The repository contains a `code/01_patch_extraction.py` file, but it is truncated\
+    \ and does not show a complete implementation (e.g., the loop body is cut off\
+    \ and no saving logic is visible). Moreover, the required output `data/processed/patch_manifest.csv`\
+    \ is absent, and there is no evidence of any extracted patch files in `data/processed/patches_100m2/`.\
+    \ The task\u2019s core deliverables are therefore missing."
+T014b:
+  c: false
+  h: 90b67a4e2990743366653b194c42ef3b8a8e46c765ecb722649135c400b34ebe
+  r: "The `data/processed/degraded_manifest.json` file is missing, and the provided\
+    \ `code/02_degradation_pipeline.py` is truncated and shows no implementation for\
+    \ systematically varying NNF or writing the final dataset/manifest to the required\
+    \ locations. The task\u2019s core requirements are therefore not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides only the task description and project context but contains\
+    \ no actual files in `data/raw/real_cloud_masks_subset/` nor any documented Kolmogorov\u2011\
+    Smirnov comparison method. Without the real cloud mask dataset and a concrete\
+    \ statistical test definition, the requirement is not satisfied."
+T016:
+  c: false
+  h: fc071e2b20bf46d631585682c3f546764e1c7185e5751b3dbb0454d9516c791b
+  r: "The provided `code/02b_validate_masks.py` is truncated and ends abruptly without\
+    \ loading synthetic masks, performing the Kolmogorov\u2011Smirnov test, writing\
+    \ `data/results/mask_similarity_score.json`, or implementing any parameter\u2011\
+    tuning logic. Moreover, the expected output file is missing. The task therefore\
+    \ remains unfinished."
+T019:
+  c: false
+  h: 93c4c7510eac542b32753a069c55f19974ec1007c43d15b65d64fccb4ceb1f7d
+  r: "The required artifact `tests/integration/test_memory_limits.py` does not exist\
+    \ in the repository, so no integration test verifying peak RAM <\u202F6.5\u202F\
+    GB is present. The task\u2019s core deliverable is missing."
+T026:
+  c: false
+  h: 4d3ec680e36e2a644f79857b17b7acd1461f0295a92f7d54e2346a75ca98afb7
+  r: "The repository contains `code/03_performance_aggregator.py`, but the file is\
+    \ truncated and does not show logic that writes the required columns (`sample_id`,\
+    \ `peak_ram_mb`, `wall_clock_time`, `status`) or performs the total\u2011time\
+    \ verification. Moreover, the expected output file `data/results/performance_log.csv`\
+    \ is absent. Both the implementation and the required result artifact are missing."
+T030:
+  c: false
+  h: a51d983caee2b76a7c3f234931bfbba6c08e9691a1b2afbd92b03cbaa94b9a94
+  r: "The repository contains a `code/04_metrics_evaluation.py` file, but the shown\
+    \ content is truncated and does not demonstrate a complete implementation (e.g.,\
+    \ the `process_sample` function is cut off and no main execution logic is visible).\
+    \ Moreover, the required output file `data/results/metrics.csv` is absent. Both\
+    \ the script\u2019s full functionality and the generated results file are missing,\
+    \ so the task is not genuinely completed."

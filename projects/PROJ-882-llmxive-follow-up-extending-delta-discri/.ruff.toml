@@ -1,0 +1,3 @@
+# Ruff configuration file (alias for pyproject.toml tool.ruff section)
+# This file ensures linters running from root or IDEs pick up the config.
+extend = "pyproject.toml"

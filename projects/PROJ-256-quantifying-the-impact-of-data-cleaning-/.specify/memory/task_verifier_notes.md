@@ -2,7 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T013** — The `data/processed/baseline_metrics.json` file is empty (`{}`) and contains no baseline metrics, lacks the required ≥3‑decimal precision values, and does not include data for the required ≥10 datasets. The task’s core requirement is therefore unmet.
-- **T023** — The required output file `data/processed/cleaned_metrics.json` does not exist, so the task’s deliverable is missing. Without this JSON containing the re‑run t‑test and regression metrics, the requirement is not satisfied.
-- **T027** — The provided `code/reporting.py` is truncated and does not contain any functions that compute the required p‑value absolute difference, confidence‑interval width change, effect‑size delta, or the inconsistency‑rate metric. Moreover, there is no evidence that the required `cleaned_metrics.json` and `baseline_metrics.json` files exist in the repository. The task’s core calculations and dependent data artifacts are therefore missing.
-- **T030** — No code, script, or log output implementing the dataset‑size binning sensitivity analysis was provided, nor any evidence that warnings are emitted when a bin contains fewer than one dataset. The required artifact (implementation dependent on baseline metrics) is missing.
+- **T001** — The test suite passes, but the original utility scripts (`code/run_lint.py`, `code/run_quickstart_validation.py`) remain as stub files instead of being removed after migration, and there is no evidence that `.gitignore` was updated to exclude `t*.py` and temporary files. Both the required file deletions and the `.gitignore` change are missing.
+- **T002** — declared artifact(s) missing/empty/invalid: tests/unit/test_power_analysis.py
+- **T003** — The `sample_size_justification.md` file exists but contains 172 words, exceeding the 150‑word limit, causing the unit test `test_word_count_within_limit` to fail. Reduce the justification to ≤150 words.
+- **T005** — Requested task execution failed; rerun successfully: code/data_loader.py exit=1

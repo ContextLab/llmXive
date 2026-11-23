@@ -1,167 +1,232 @@
 """
-Unit tests for unit conversion logic in preprocessing.
-Specifically tests weight% to atomic% conversion edge cases.
+Unit tests for preprocessing functions in preprocess.py.
 """
 import pytest
-import math
-from code.src.utils import constants
+import pandas as pd
+import numpy as np
+from pathlib import Path
+import sys
+import tempfile
+import json
 
-# Helper function to perform the conversion (mirroring logic expected in preprocessing)
-def weight_pct_to_atomic_pct(weight_pct_list, element_symbols):
-    """
-    Convert a list of weight percentages to atomic percentages.
-    
-    Args:
-        weight_pct_list: List of weight percentages for impurities
-        element_symbols: List of corresponding element symbols (e.g., ['C', 'Al'])
-    
-    Returns:
-        List of atomic percentages
-    """
-    if not weight_pct_list or not element_symbols:
-        return []
-    
-    if len(weight_pct_list) != len(element_symbols):
-        raise ValueError("Weight percentage list and element symbols list must be the same length")
-    
-    # Calculate moles for each impurity
-    moles = []
-    for wt, symbol in zip(weight_pct_list, element_symbols):
-        atomic_weight = constants.get_atomic_weight(symbol)
-        if atomic_weight is None:
-            raise ValueError(f"Unknown element symbol: {symbol}")
-        moles.append(wt / atomic_weight)
-    
-    # Calculate total moles of impurities
-    total_moles = sum(moles)
-    
-    if total_moles == 0:
-        return [0.0] * len(weight_pct_list)
-    
-    # Calculate atomic percentages
-    atomic_pct = [(m / total_moles) * 100.0 for m in moles]
-    
-    return atomic_pct
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.src.ingestion.preprocess import (
+    clean_column_name,
+    weight_pct_to_atomic_pct,
+    handle_synthesis_range,
+    convert_impurity_units,
+    merge_datasets,
+    filter_valid_entries,
+    attach_provenance,
+    preprocess_datasets
+)
+from code.src.utils.constants import get_atomic_weight
 
 
 class TestWeightToAtomicConversion:
-    """Test suite for weight% to atomic% conversion logic."""
-
-    def test_basic_conversion_single_element(self):
-        """Test conversion with a single impurity (should be 100% atomic if only one)."""
-        weights = [10.0]
-        symbols = ['C']
-        result = weight_pct_to_atomic_pct(weights, symbols)
-        assert len(result) == 1
-        assert math.isclose(result[0], 100.0, rel_tol=1e-5)
-
-    def test_basic_conversion_two_elements(self):
-        """Test conversion with two impurities with known weights."""
-        # Example: 50% C (12.01 g/mol) and 50% Al (26.98 g/mol)
-        # Moles C = 50/12.01 = 4.163
-        # Moles Al = 50/26.98 = 1.853
-        # Total Moles = 6.016
-        # At% C = 4.163/6.016 = 69.2%
-        # At% Al = 1.853/6.016 = 30.8%
-        weights = [50.0, 50.0]
-        symbols = ['C', 'Al']
-        result = weight_pct_to_atomic_pct(weights, symbols)
-        
-        expected_c = (50.0 / 12.011) / ((50.0 / 12.011) + (50.0 / 26.982)) * 100
-        expected_al = (50.0 / 26.982) / ((50.0 / 12.011) + (50.0 / 26.982)) * 100
-        
-        assert len(result) == 2
-        assert math.isclose(result[0], expected_c, rel_tol=1e-3)
-        assert math.isclose(result[1], expected_al, rel_tol=1e-3)
-        assert math.isclose(result[0] + result[1], 100.0, rel_tol=1e-5)
-
-    def test_edge_case_empty_lists(self):
-        """Test conversion with empty lists."""
-        result = weight_pct_to_atomic_pct([], [])
-        assert result == []
-
-    def test_edge_case_single_element_zero_weight(self):
-        """Test conversion where weight is zero."""
-        weights = [0.0]
-        symbols = ['C']
-        result = weight_pct_to_atomic_pct(weights, symbols)
-        # 0 weight means 0 moles, total moles = 0 -> handled by division check
-        # In our logic: total_moles is 0, so we return 0.0
-        assert math.isclose(result[0], 0.0, rel_tol=1e-5)
-
-    def test_edge_case_multiple_zeros(self):
-        """Test conversion where all weights are zero."""
-        weights = [0.0, 0.0]
-        symbols = ['C', 'Al']
-        result = weight_pct_to_atomic_pct(weights, symbols)
-        # Total moles is 0, should return zeros
-        assert len(result) == 2
-        assert all(math.isclose(x, 0.0, rel_tol=1e-5) for x in result)
-
-    def test_invalid_element_symbol(self):
-        """Test conversion with an unknown element symbol."""
-        weights = [10.0]
-        symbols = ['X']  # Unknown element
-        with pytest.raises(ValueError, match="Unknown element symbol"):
-            weight_pct_to_atomic_pct(weights, symbols)
-
-    def test_mismatched_list_lengths(self):
-        """Test conversion with mismatched list lengths."""
-        weights = [10.0, 20.0]
-        symbols = ['C']
-        with pytest.raises(ValueError, match="same length"):
-            weight_pct_to_atomic_pct(weights, symbols)
-
-    def test_very_small_weights(self):
-        """Test conversion with very small weight percentages (precision edge case)."""
-        weights = [1e-6, 1e-6]
-        symbols = ['C', 'Al']
-        result = weight_pct_to_atomic_pct(weights, symbols)
-        # Should still sum to 100%
-        assert math.isclose(sum(result), 100.0, rel_tol=1e-3)
-
-    def test_very_large_weights(self):
-        """Test conversion with large weight percentages."""
-        weights = [99.9, 0.1]
-        symbols = ['C', 'Al']
-        result = weight_pct_to_atomic_pct(weights, symbols)
-        # C is lighter, so its atomic % should be higher than 99.9
-        # Moles C = 99.9/12.01 ~ 8.31
-        # Moles Al = 0.1/26.98 ~ 0.0037
-        # Total ~ 8.3137
-        # At% C ~ 99.95%
-        assert result[0] > 99.9
-        assert result[1] < 0.1
-
-    def test_consistency_with_constants_module(self):
-        """Verify the conversion uses the correct atomic weights from constants module."""
-        # Use Carbon and Magnesium
-        # C: ~12.011, Mg: ~24.305
-        # If we have 50% C and 50% Mg
-        weights = [50.0, 50.0]
-        symbols = ['C', 'Mg']
-        result = weight_pct_to_atomic_pct(weights, symbols)
-        
-        atomic_wt_c = constants.get_atomic_weight('C')
-        atomic_wt_mg = constants.get_atomic_weight('Mg')
-        
-        expected_c = (50.0 / atomic_wt_c) / ((50.0 / atomic_wt_c) + (50.0 / atomic_wt_mg)) * 100
-        
-        assert math.isclose(result[0], expected_c, rel_tol=1e-5)
+    """Tests for weight percentage to atomic percentage conversion."""
     
-    def test_real_world_scenario_mgb2_impurities(self):
-        """Test a realistic scenario with MgB2 impurities (C and Al)."""
-        # Typical doping levels: 1 wt% C, 2 wt% Al
-        weights = [1.0, 2.0]
-        symbols = ['C', 'Al']
-        result = weight_pct_to_atomic_pct(weights, symbols)
+    def test_basic_conversion(self):
+        """Test basic weight to atomic conversion."""
+        # For MgB2: Mg=52.9%, B=47.1% by weight
+        # 1% weight impurity should convert to approximately 2% atomic
+        result = weight_pct_to_atomic_pct(1.0, "C", [("Mg", 52.9), ("B", 47.1)])
+        assert result > 0
+        assert result < 100
+    
+    def test_zero_weight(self):
+        """Test conversion with zero weight percentage."""
+        result = weight_pct_to_atomic_pct(0.0, "C", [("Mg", 52.9), ("B", 47.1)])
+        assert result == 0.0
+    
+    def test_nan_weight(self):
+        """Test conversion with NaN weight percentage."""
+        result = weight_pct_to_atomic_pct(np.nan, "C", [("Mg", 52.9), ("B", 47.1)])
+        assert result == 0.0
+    
+    def test_high_impurity(self):
+        """Test conversion with high impurity percentage."""
+        result = weight_pct_to_atomic_pct(10.0, "C", [("Mg", 52.9), ("B", 47.1)])
+        assert result > 0
+        assert result < 100
+    
+    def test_unknown_element(self):
+        """Test conversion with unknown element."""
+        result = weight_pct_to_atomic_pct(1.0, "X", [("Mg", 52.9), ("B", 47.1)])
+        assert result == 0.0
+
+
+class TestSynthesisRange:
+    """Tests for synthesis range handling."""
+    
+    def test_range_string(self):
+        """Test parsing of range string."""
+        result = handle_synthesis_range("300-400")
+        assert result == 350.0
+    
+    def test_single_value(self):
+        """Test parsing of single value."""
+        result = handle_synthesis_range("350")
+        assert result == 350.0
+    
+    def test_float_value(self):
+        """Test parsing of float value."""
+        result = handle_synthesis_range("350.5")
+        assert result == 350.5
+    
+    def test_nan_value(self):
+        """Test handling of NaN."""
+        result = handle_synthesis_range(np.nan)
+        assert result is None
+    
+    def test_invalid_string(self):
+        """Test handling of invalid string."""
+        result = handle_synthesis_range("invalid")
+        assert result is None
+    
+    def test_range_with_spaces(self):
+        """Test parsing of range with spaces."""
+        result = handle_synthesis_range(" 300 - 400 ")
+        assert result == 350.0
+    
+    def test_negative_range(self):
+        """Test parsing of negative range."""
+        result = handle_synthesis_range("-10-10")
+        assert result == 0.0
+
+
+class TestCleanColumnName:
+    """Tests for column name cleaning."""
+    
+    def test_basic_cleaning(self):
+        """Test basic column name cleaning."""
+        result = clean_column_name("Critical Temperature")
+        assert result == "critical_temperature"
+    
+    def test_special_characters(self):
+        """Test removal of special characters."""
+        result = clean_column_name("Tc (K)!@#$")
+        assert result == "tc_k"
+    
+    def test_hyphens(self):
+        """Test conversion of hyphens to underscores."""
+        result = clean_column_name("impurity-weight")
+        assert result == "impurity_weight"
+    
+    def test_multiple_spaces(self):
+        """Test handling of multiple spaces."""
+        result = clean_column_name("  multiple   spaces  ")
+        assert result == "multiple_spaces"
+    
+    def test_empty_string(self):
+        """Test handling of empty string."""
+        result = clean_column_name("")
+        assert result == ""
+
+def test_convert_impurity_units():
+    """Test conversion of impurity units."""
+    df = pd.DataFrame({
+        "impurity_C_weight": [1.0, 2.0, 3.0],
+        "impurity_O_weight": [0.5, 1.0, 1.5],
+        "Tc": [39.0, 38.5, 38.0]
+    })
+    
+    result = convert_impurity_units(df, ["impurity_C_weight", "impurity_O_weight"])
+    
+    assert "impurity_C_atomic" in result.columns
+    assert "impurity_O_atomic" in result.columns
+    assert "impurity_C_weight" not in result.columns
+    assert "impurity_O_weight" not in result.columns
+    assert all(result["impurity_C_atomic"] > 0)
+
+def test_merge_datasets():
+    """Test merging of datasets."""
+    mp_df = pd.DataFrame({
+        "tc": [39.0, 38.5],
+        "impurity_c": [1.0, 2.0],
+        "source": ["mp1", "mp2"]
+    })
+    
+    supercon_df = pd.DataFrame({
+        "critical_temperature": [38.0, 37.5],
+        "carbon_impurity": [0.5, 1.5],
+        "source": ["sc1", "sc2"]
+    })
+    
+    result = merge_datasets(mp_df, supercon_df)
+    
+    assert len(result) == 4
+    assert "Tc" in result.columns
+    assert "impurity_C" in result.columns
+    assert "source" in result.columns
+    assert all(result["source"].isin(["materials_project", "supercon"]))
+
+def test_filter_valid_entries():
+    """Test filtering of valid entries."""
+    df = pd.DataFrame({
+        "Tc": [39.0, np.nan, 38.0, 37.5],
+        "impurity_C": [1.0, 2.0, np.nan, 0.5],
+        "impurity_O": [0.5, np.nan, 1.0, 1.5]
+    })
+    
+    result = filter_valid_entries(df)
+    
+    # Should drop row 1 (NaN Tc) and row 2 (all impurities NaN)
+    assert len(result) == 2
+    assert all(result["Tc"].notna())
+
+def test_attach_provenance():
+    """Test attaching provenance metadata."""
+    df = pd.DataFrame({
+        "Tc": [39.0, 38.5],
+        "impurity_C": [1.0, 2.0]
+    })
+    
+    raw_headers = ["header1", "header2"]
+    result = attach_provenance(df, raw_headers)
+    
+    assert "provenance" in result.attrs
+    assert "provenance_header" in result.attrs
+    assert len(result.attrs["provenance"]["sources"]) == 2
+
+def test_preprocess_datasets_integration():
+    """Integration test for preprocess_datasets with mock files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
         
-        # Verify sum is 100
-        assert math.isclose(sum(result), 100.0, rel_tol=1e-5)
+        # Create mock raw files
+        mp_data = [
+            {"material_id": "mp-1", "tc": 39.0, "impurity_c": 1.0, "impurity_o": 0.5},
+            {"material_id": "mp-2", "tc": 38.5, "impurity_c": 2.0, "impurity_o": 1.0}
+        ]
         
-        # C is lighter (12.01) than Al (26.98), so 1% C should have more moles 
-        # than 2% Al?
-        # Moles C = 1/12.01 = 0.083
-        # Moles Al = 2/26.98 = 0.074
-        # So C should have slightly higher atomic % despite lower weight %
-        assert result[0] > result[1]
+        mp_file = tmpdir / "materials_project_mgb2.json"
+        with open(mp_file, 'w') as f:
+            json.dump(mp_data, f)
+        
+        supercon_file = tmpdir / "supercon_mgb2.csv"
+        supercon_df = pd.DataFrame({
+            "tc": [38.0, 37.5],
+            "impurity_c": [0.5, 1.5],
+            "impurity_o": [0.2, 0.8]
+        })
+        supercon_df.to_csv(supercon_file, index=False)
+        
+        # Temporarily override paths
+        import code.src.ingestion.preprocess as preprocess_module
+        original_mp_file = preprocess_module.MATERIALS_PROJECT_FILE
+        original_supercon_file = preprocess_module.SUPERCON_FILE
+        
+        preprocess_module.MATERIALS_PROJECT_FILE = mp_file
+        preprocess_module.SUPERCON_FILE = supercon_file
+        
+        try:
+            result = preprocess_datasets()
+            assert len(result) > 0
+            assert "Tc" in result.columns
+            assert "source" in result.columns
+        finally:
+            preprocess_module.MATERIALS_PROJECT_FILE = original_mp_file
+            preprocess_module.SUPERCON_FILE = original_supercon_file

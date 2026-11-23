@@ -1,0 +1,14 @@
+# Environment Variables Example
+# Copy this file to .env and fill in the values
+# API Keys for external services (if needed)
+# PUSHSHIFT_API_KEY=your_key_here
+# HF_TOKEN=your_huggingface_token_here
+
+# Paths
+DATA_DIR=data
+LOG_DIR=logs
+FIGURES_DIR=figures
+
+# Feature Flags
+USE_REAL_DATA=true
+DEBUG_MODE=false

@@ -1,115 +1,67 @@
-"""
-Module to generate coverage metrics CSV from simulation logs.
-
-Converts JSON simulation results to CSV format for analysis.
-"""
 import json
 import os
 import csv
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import numpy as np
+from typing import List, Dict, Any
 
+from config import get_results_dir
 
-def load_results_from_log(log_path: str = "results/simulation_logs.json") -> List[Dict[str, Any]]:
-    """
-    Load simulation results from JSON log file.
-    
-    Args:
-        log_path: Path to the simulation logs JSON file.
-    
-    Returns:
-        List of result dictionaries.
-    """
-    if not os.path.exists(log_path):
-        logging.warning(f"Log file not found: {log_path}")
-        return []
-    
+logger = logging.getLogger(__name__)
+
+def load_results_from_log(log_path: Path) -> List[Dict[str, Any]]:
+    """Load simulation results from the JSON log file."""
+    if not log_path.exists():
+        raise FileNotFoundError(f"Log file not found: {log_path}")
     with open(log_path, 'r') as f:
-        data = json.load(f)
-    
-    return data if isinstance(data, list) else [data]
-
+        return json.load(f)
 
 def aggregate_results(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Aggregate results by phi and n values.
-    
-    Args:
-        results: List of result dictionaries.
-    
-    Returns:
-        List of aggregated result dictionaries.
-    """
-    if not results:
-        return []
-    
-    # Group by phi and n
-    grouped = {}
-    for r in results:
-        key = (r['phi'], r['n'])
-        if key not in grouped:
-            grouped[key] = []
-        grouped[key].append(r)
-    
+    """Aggregate results into the format required for coverage_metrics.csv."""
+    # The runner already aggregates per (phi, n) in run_paired_trial
+    # So we just need to format them for CSV
     aggregated = []
-    for (phi, n), group in grouped.items():
-        aggregated.append({
-            'phi': phi,
-            'n': n,
-            'ordered_cov': np.mean([r['ordered_coverage'] for r in group]),
-            'shuffled_cov': np.mean([r['shuffled_coverage'] for r in group]),
-            'diff': np.mean([r['coverage_drop'] for r in group]),
-            'p_value': np.mean([r['p_value'] for r in group]),
-            'ci_width_ratio': np.mean([r['ci_width_ratio'] for r in group]),
-            'bias_block': np.mean([r.get('bias_block', 0) for r in group])
-        })
-    
+    for res in results:
+        if res.get('condition') == 'paired':
+            aggregated.append({
+                'phi': res['phi'],
+                'n': res['n'],
+                'ordered_cov': res['ordered_coverage'],
+                'shuffled_cov': res['shuffled_coverage'],
+                'diff': res['diff'],
+                'p_value': res['p_value']
+            })
     return aggregated
 
-
-def write_csv(aggregated_results: List[Dict[str, Any]], 
-              output_path: str = "results/coverage_metrics.csv") -> None:
-    """
-    Write aggregated results to CSV file.
-    
-    Args:
-        aggregated_results: List of aggregated result dictionaries.
-        output_path: Path for the output CSV file.
-    """
-    if not aggregated_results:
-        logging.warning("No results to write to CSV")
+def write_csv(aggregated: List[Dict[str, Any]], csv_path: Path) -> None:
+    """Write aggregated results to CSV."""
+    if not aggregated:
+        logger.warning("No data to write to CSV.")
         return
-    
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    fieldnames = ['phi', 'n', 'ordered_cov', 'shuffled_cov', 'diff', 
-                 'p_value', 'ci_width_ratio', 'bias_block']
-    
-    with open(output_path, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(aggregated_results)
-    
-    logging.info(f"Metrics CSV written to {output_path}")
 
+    fieldnames = ['phi', 'n', 'ordered_cov', 'shuffled_cov', 'diff', 'p_value']
+    with open(csv_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in aggregated:
+            # Format p_value to 6 decimal places
+            row['p_value'] = f"{row['p_value']:.6f}"
+            writer.writerow(row)
+    logger.info(f"CSV written to {csv_path}")
 
 def main():
-    """Main entry point for generating metrics CSV."""
-    logging.basicConfig(level=logging.INFO)
-    
-    results = load_results_from_log()
-    if not results:
-        logging.warning("No simulation results found. Run simulation first.")
-        return
-    
-    aggregated = aggregate_results(results)
-    write_csv(aggregated)
-    
-    logging.info(f"Generated metrics CSV with {len(aggregated)} rows")
+    """Main entry point to generate the metrics CSV."""
+    results_dir = get_results_dir()
+    log_path = results_dir / "simulation_logs.json"
+    csv_path = results_dir / "coverage_metrics.csv"
 
+    try:
+        results = load_results_from_log(log_path)
+        aggregated = aggregate_results(results)
+        write_csv(aggregated, csv_path)
+    except Exception as e:
+        logger.error(f"Failed to generate metrics CSV: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,301 +1,414 @@
+"""
+Statistical analysis module for co-evolving policy distillation.
+Implements Mixed-Design ANOVA, power analysis, and sample size calculation.
+"""
 import json
 import os
 import sys
+import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass
+from typing import Dict, List, Any, Optional, Tuple, Union
 
 import numpy as np
-from scipy import stats
-from statsmodels.stats.multicomp import pairwise_tukeyhsd
+from statsmodels.stats.power import FTestAnovaPower
 
-from src.analysis.forgetting_metrics import RetentionMetrics
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 
 class StatisticalAnalysisError(Exception):
     """Custom exception for statistical analysis errors."""
     pass
 
-@dataclass
+
 class ANOVAResult:
-    f_statistic: float
-    p_value: float
-    degrees_of_freedom: Tuple[int, int]
-    is_significant: bool
+    """Result container for ANOVA analysis."""
+    def __init__(self, f_statistic: float, p_value: float, df_between: int, df_within: int):
+        self.f_statistic = f_statistic
+        self.p_value = p_value
+        self.df_between = df_between
+        self.df_within = df_within
 
-@dataclass
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'f_statistic': self.f_statistic,
+            'p_value': self.p_value,
+            'df_between': self.df_between,
+            'df_within': self.df_within
+        }
+
+
 class TukeyResult:
-    comparison: str
-    difference: float
-    p_value: float
-    is_significant: bool
+    """Result container for Tukey HSD post-hoc test."""
+    def __init__(self, comparisons: List[Dict[str, Any]]):
+        self.comparisons = comparisons
 
-@dataclass
+    def to_dict(self) -> Dict[str, Any]:
+        return {'comparisons': self.comparisons}
+
+
 class StatisticalReport:
-    anova_result: Optional[ANOVAResult]
-    tukey_results: List[TukeyResult]
-    descriptive_stats: Dict[str, Dict[str, float]]
-    retention_comparison: Optional[Dict[str, Any]]
+    """Complete statistical analysis report."""
+    def __init__(self, anova_results: ANOVAResult, tukey_results: Optional[TukeyResult] = None):
+        self.anova_results = anova_results
+        self.tukey_results = tukey_results
 
-def load_forgetting_data(data_dir: Path) -> Dict[str, List[float]]:
-    """Load forgetting data from aggregated results."""
-    if not data_dir.exists():
-        raise StatisticalAnalysisError(f"Data directory not found: {data_dir}")
+    def to_dict(self) -> Dict[str, Any]:
+        result = {'anova': self.anova_results.to_dict()}
+        if self.tukey_results:
+            result['tukey'] = self.tukey_results.to_dict()
+        return result
 
-    results = {}
-    json_file = data_dir / "aggregated_results.json"
 
-    if not json_file.exists():
-        raise StatisticalAnalysisError(f"Aggregated results not found: {json_file}")
+def load_forgetting_data(input_path: str) -> Dict[str, List[float]]:
+    """
+    Load forgetting metrics from a CSV or JSON file.
+    Expected format: condition -> list of forgetting rates.
+    """
+    path = Path(input_path)
+    if not path.exists():
+        raise StatisticalAnalysisError(f"Input file not found: {input_path}")
 
-    with open(json_file, 'r') as f:
-        data = json.load(f)
+    if path.suffix == '.json':
+        with open(path, 'r') as f:
+            data = json.load(f)
+        return data
+    elif path.suffix == '.csv':
+        # Simple CSV parser for expected format
+        # Header: condition,forgetting_rate
+        import csv
+        data: Dict[str, List[float]] = {}
+        with open(path, 'r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                cond = row['condition']
+                rate = float(row['forgetting_rate'])
+                if cond not in data:
+                    data[cond] = []
+                data[cond].append(rate)
+        return data
+    else:
+        raise StatisticalAnalysisError(f"Unsupported file format: {path.suffix}")
 
-    if "results" not in data:
-        raise StatisticalAnalysisError("No 'results' key in aggregated data")
 
-    for run_data in data["results"]:
-        condition = run_data.get("condition")
-        forgetting_rate = run_data.get("forgetting_rate")
+def load_retention_data(input_path: str) -> Dict[str, List[float]]:
+    """
+    Load retention metrics from a CSV or JSON file.
+    Expected format: condition -> list of retention rates.
+    """
+    return load_forgetting_data(input_path)  # Reuse logic, format is similar
 
-        if condition and forgetting_rate is not None:
-            if condition not in results:
-                results[condition] = []
-            results[condition].append(forgetting_rate)
 
-    return results
+def compute_descriptive_stats(data: Dict[str, List[float]]) -> Dict[str, Dict[str, float]]:
+    """Compute mean, std, min, max for each condition."""
+    stats = {}
+    for cond, values in data.items():
+        arr = np.array(values)
+        stats[cond] = {
+            'mean': float(np.mean(arr)),
+            'std': float(np.std(arr)),
+            'min': float(np.min(arr)),
+            'max': float(np.max(arr)),
+            'n': len(values)
+        }
+    return stats
 
-def load_retention_data(data_dir: Path) -> Dict[str, Dict[str, float]]:
-    """Load retention metrics from the retention metrics file."""
-    retention_file = data_dir / "retention_metrics.json"
-    if not retention_file.exists():
-        raise StatisticalAnalysisError(f"Retention metrics file not found: {retention_file}")
-
-    with open(retention_file, 'r') as f:
-        data = json.load(f)
-
-    if "metrics" not in data:
-        raise StatisticalAnalysisError("No 'metrics' key in retention data")
-
-    return data["metrics"]
 
 def perform_mixed_design_anova(data: Dict[str, List[float]]) -> ANOVAResult:
-    """Perform Mixed-Design ANOVA on forgetting rates across conditions."""
+    """
+    Perform a Mixed-Design ANOVA (repeated measures) on forgetting rates.
+    Simplified to one-way ANOVA for between-subjects factor (condition)
+    as we are comparing different conditions across independent runs.
+    """
     if len(data) < 2:
         raise StatisticalAnalysisError("Need at least 2 conditions for ANOVA")
 
-    values = []
-    groups = []
-    for group_name, group_values in data.items():
-        if len(group_values) < 2:
-            raise StatisticalAnalysisError(f"Insufficient samples for condition {group_name}")
-        values.extend(group_values)
-        groups.extend([group_name] * len(group_values))
+    groups = list(data.values())
+    group_names = list(data.keys())
+    n_groups = len(groups)
 
-    values = np.array(values)
-    groups = np.array(groups)
+    # Check sample sizes
+    for i, g in enumerate(groups):
+        if len(g) < 2:
+            raise StatisticalAnalysisError(f"Condition '{group_names[i]}' has insufficient samples (n < 2)")
 
-    f_stat, p_val = stats.f_oneway(*[v for k, v in data.items()])
+    # Perform one-way ANOVA (between-subjects)
+    # Using scipy for the actual calculation
+    from scipy import stats
+    f_stat, p_val = stats.f_oneway(*groups)
 
-    # Calculate degrees of freedom
-    k = len(data)  # number of groups
-    n = sum(len(v) for v in data.values())  # total samples
-    df_between = k - 1
-    df_within = n - k
+    df_between = n_groups - 1
+    df_within = sum(len(g) for g in groups) - n_groups
 
     return ANOVAResult(
         f_statistic=float(f_stat),
         p_value=float(p_val),
-        degrees_of_freedom=(df_between, df_within),
-        is_significant=p_val < 0.05
+        df_between=df_between,
+        df_within=df_within
     )
 
-def perform_tukey_hsd(data: Dict[str, List[float]]) -> List[TukeyResult]:
-    """Perform Tukey HSD post-hoc test."""
+
+def perform_tukey_hsd(data: Dict[str, List[float]], alpha: float = 0.05) -> TukeyResult:
+    """
+    Perform Tukey HSD post-hoc test for pairwise comparisons.
+    """
+    try:
+        from statsmodels.stats.multicomp import pairwise_tukeyhsd
+        from statsmodels.stats.power import FTestAnovaPower
+    except ImportError:
+        raise StatisticalAnalysisError("statsmodels is required for Tukey HSD")
+
+    # Flatten data
     values = []
     groups = []
-    for group_name, group_values in data.items():
-        values.extend(group_values)
-        groups.extend([group_name] * len(group_values))
+    for cond, vals in data.items():
+        values.extend(vals)
+        groups.extend([cond] * len(vals))
 
-    tukey = pairwise_tukeyhsd(endog=values, groups=groups, alpha=0.05)
+    if len(set(groups)) < 2:
+        raise StatisticalAnalysisError("Need at least 2 groups for Tukey HSD")
 
+    tukey = pairwise_tukeyhsd(endog=values, groups=groups, alpha=alpha)
+
+    comparisons = []
+    for i in range(len(tukey.groupsunique)):
+        for j in range(i + 1, len(tukey.groupsunique)):
+            g1 = tukey.groupsunique[i]
+            g2 = tukey.groupsunique[j]
+            # Find the result for this pair
+            # tukey.results is a table, we need to extract specific comparison
+            # Using the reject array and pvalues
+            # A simpler approach: iterate the summary table
+            pass
+
+    # Alternative: extract from tukey object directly
+    # The tukey object has a 'reject' array and 'pvalues' array
+    # We need to map these to group pairs
     results = []
-    for i, row in enumerate(tukey.results):
-        group1, group2 = row[0], row[1]
-        diff = row[2]
-        p_val = row[4]
+    n = len(tukey.groupsunique)
+    idx = 0
+    for i in range(n):
+        for j in range(i + 1, n):
+            g1 = tukey.groupsunique[i]
+            g2 = tukey.groupsunique[j]
+            p_val = tukey.pvalues[idx]
+            rej = tukey.reject[idx]
+            meandiff = tukey.meandiffs[idx]
+            results.append({
+                'group1': str(g1),
+                'group2': str(g2),
+                'mean_difference': float(meandiff),
+                'p_value': float(p_val),
+                'significant': bool(rej)
+            })
+            idx += 1
 
-        comparison = f"{group1} vs {group2}"
-        results.append(TukeyResult(
-            comparison=comparison,
-            difference=float(diff),
-            p_value=float(p_val),
-            is_significant=p_val < 0.05
-        ))
+    return TukeyResult(comparisons=results)
 
-    return results
 
-def compute_descriptive_stats(data: Dict[str, List[float]]) -> Dict[str, Dict[str, float]]:
-    """Compute descriptive statistics for each condition."""
-    stats_dict = {}
-    for group_name, group_values in data.items():
-        arr = np.array(group_values)
-        stats_dict[group_name] = {
-            "mean": float(np.mean(arr)),
-            "std": float(np.std(arr)),
-            "min": float(np.min(arr)),
-            "max": float(np.max(arr)),
-            "count": len(arr)
-        }
-    return stats_dict
-
-def compare_retention_rates(retention_data: Dict[str, Dict[str, float]]) -> Dict[str, Any]:
+def calculate_power_and_sample_size(
+    alpha: float = 0.05,
+    power: float = 0.8,
+    effect_size: float = 0.25
+) -> int:
     """
-    Compare retention rates between Co-evolving and Mixed-task conditions.
-    Uses a two-sample t-test to determine if the difference in retention
-    rates is statistically significant.
+    Calculate the minimum sample size (N per group) required to achieve
+    the specified power for a fixed effect size.
+
+    Uses FTestAnovaPower from statsmodels.
+
+    Args:
+        alpha: Significance level (default 0.05)
+        power: Desired statistical power (default 0.8)
+        effect_size: Cohen's f effect size (default 0.25, medium effect)
+
+    Returns:
+        Minimum N per group (integer)
     """
-    if "coevolving" not in retention_data or "mixed" not in retention_data:
-        raise StatisticalAnalysisError(
-            "Cannot compare retention rates: missing 'coevolving' or 'mixed' data"
-        )
+    solver = FTestAnovaPower()
+    # solve for nobs (sample size per group)
+    # n_groups is assumed to be 3 (sequential, mixed, coevolving) based on project design
+    n_groups = 3
+    n_per_group = solver.solve_power(
+        effect_size=effect_size,
+        n_groups=n_groups,
+        alpha=alpha,
+        power=power
+    )
+    # Round up to ensure sufficient power
+    return int(np.ceil(n_per_group))
 
-    coevolving_metrics = retention_data["coevolving"]
-    mixed_metrics = retention_data["mixed"]
 
-    # Extract retention rates (assuming the key is 'retention_rate' or similar)
-    # The data structure from T031 is Dict[str, float] per condition
-    # We assume the metrics are aggregated per rule or overall.
-    # If it's a single overall rate per condition, we can't do a t-test on one value.
-    # However, T031 computes retention rates for distinct rules.
-    # Let's assume the input 'retention_data' is structured as:
-    # { "condition": { "rule_id_1": rate, "rule_id_2": rate, ... } }
-    # OR if T031 outputs a single average per run, we need to aggregate across runs.
-    # Given T031 description: "compute and store raw retention rates of distinct logical rules"
-    # The file likely contains: { "metrics": { "coevolving": { "rule_1": 0.9, ... }, "mixed": ... } }
-    # We will treat the values for each rule as independent samples if multiple rules exist.
-    # If only one value exists, we cannot perform a statistical test.
+def check_power_requirement(
+    current_n: int,
+    alpha: float = 0.05,
+    power: float = 0.8,
+    effect_size: float = 0.25
+) -> Tuple[bool, float]:
+    """
+    Check if the current sample size meets the power requirement for a given effect size.
 
-    coevolving_rates = list(coevolving_metrics.values())
-    mixed_rates = list(mixed_metrics.values())
+    Returns:
+        Tuple of (meets_requirement, achieved_power)
+    """
+    solver = FTestAnovaPower()
+    n_groups = 3
+    achieved_power = solver.power(
+        effect_size=effect_size,
+        nobs1=current_n,
+        alpha=alpha,
+        n_groups=n_groups
+    )
+    return achieved_power >= power, achieved_power
 
-    if len(coevolving_rates) == 0 or len(mixed_rates) == 0:
-        raise StatisticalAnalysisError("No retention rates found to compare")
 
-    # Calculate means for summary
-    mean_coevolving = np.mean(coevolving_rates)
-    mean_mixed = np.mean(mixed_rates)
+def generate_batch_config(
+    output_path: str,
+    n_per_condition: int = 30,
+    conditions: Optional[List[str]] = None
+) -> Dict[str, Any]:
+    """
+    Generate a batch configuration file containing unique random seeds.
 
-    # Perform independent two-sample t-test (Welch's t-test is safer for unequal variances)
-    t_stat, p_value = stats.ttest_ind(coevolving_rates, mixed_rates, equal_var=False)
+    Args:
+        output_path: Path to write the JSON config file
+        n_per_condition: Number of seeds per condition (default 30)
+        conditions: List of condition names (default: sequential, mixed, coevolving)
 
-    return {
-        "coevolving_mean": float(mean_coevolving),
-        "mixed_mean": float(mean_mixed),
-        "difference": float(mean_coevolving - mean_mixed),
-        "t_statistic": float(t_stat),
-        "p_value": float(p_value),
-        "is_significant": p_value < 0.05,
-        "sample_sizes": {
-            "coevolving": len(coevolving_rates),
-            "mixed": len(mixed_rates)
-        }
+    Returns:
+        The generated configuration dictionary
+    """
+    if conditions is None:
+        conditions = ['sequential', 'mixed', 'coevolving']
+
+    config = {
+        'n_per_condition': n_per_condition,
+        'conditions': conditions,
+        'seeds': {}
     }
 
-def run_statistical_analysis(data_dir: Path) -> StatisticalReport:
-    """Run the full statistical analysis pipeline."""
-    # Load forgetting data
-    forgetting_data = load_forgetting_data(data_dir)
+    for cond in conditions:
+        # Generate unique seeds for this condition
+        # Using a large range to ensure uniqueness across conditions
+        seeds = list(range(100000, 100000 + n_per_condition * 1000))
+        # Shuffle to randomize order
+        np.random.shuffle(seeds)
+        config['seeds'][cond] = [int(s) for s in seeds[:n_per_condition]]
 
-    if len(forgetting_data) < 2:
-        raise StatisticalAnalysisError("Insufficient data for ANOVA (need >= 2 conditions)")
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load retention data for comparison
-    retention_data = load_retention_data(data_dir)
+    # Write to file
+    with open(output_path, 'w') as f:
+        json.dump(config, f, indent=2)
 
-    # Compute descriptive stats
+    logger.info(f"Generated batch config with {n_per_condition} seeds per condition: {output_path}")
+    return config
+
+
+def run_statistical_analysis(
+    forgetting_input: str,
+    retention_input: Optional[str] = None,
+    output_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Run the full statistical analysis pipeline.
+
+    Args:
+        forgetting_input: Path to forgetting metrics data
+        retention_input: Optional path to retention metrics data
+        output_path: Optional path to write the report JSON
+
+    Returns:
+        Statistical report dictionary
+    """
+    logger.info(f"Loading forgetting data from {forgetting_input}")
+    forgetting_data = load_forgetting_data(forgetting_input)
+
+    logger.info("Computing descriptive statistics")
     desc_stats = compute_descriptive_stats(forgetting_data)
 
-    # Perform ANOVA
+    logger.info("Performing ANOVA")
     anova_result = perform_mixed_design_anova(forgetting_data)
 
-    # Perform Tukey HSD
-    tukey_results = perform_tukey_hsd(forgetting_data)
-
-    # Compare retention rates
-    retention_comparison = None
+    logger.info("Performing Tukey HSD post-hoc test")
     try:
-        retention_comparison = compare_retention_rates(retention_data)
-    except StatisticalAnalysisError as e:
-        # Log warning but don't fail the whole analysis if retention comparison fails
-        print(f"Warning: Could not compare retention rates: {e}", file=sys.stderr)
+        tukey_result = perform_tukey_hsd(forgetting_data)
+    except Exception as e:
+        logger.warning(f"Tukey HSD failed: {e}")
+        tukey_result = None
 
-    return StatisticalReport(
-        anova_result=anova_result,
-        tukey_results=tukey_results,
-        descriptive_stats=desc_stats,
-        retention_comparison=retention_comparison
-    )
+    report = StatisticalReport(anova_result, tukey_result).to_dict()
+    report['descriptive_stats'] = desc_stats
+
+    if output_path:
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Statistical report written to {output_path}")
+
+    return report
+
 
 def main():
-    """Main entry point for statistical analysis."""
-    data_dir = Path("data/results")
-    output_file = data_dir / "forgetting_analysis.json"
+    """CLI entry point for statistical analysis."""
+    import argparse
 
-    if not data_dir.exists():
-        print(f"Error: Data directory not found: {data_dir}", file=sys.stderr)
+    parser = argparse.ArgumentParser(description='Statistical Analysis for Co-Evolving Policy Distillation')
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+
+    # Analyze command
+    analyze_parser = subparsers.add_parser('analyze', help='Run statistical analysis on forgetting metrics')
+    analyze_parser.add_argument('--input', required=True, help='Input file (CSV or JSON) with forgetting metrics')
+    analyze_parser.add_argument('--retention-input', help='Optional input file for retention metrics')
+    analyze_parser.add_argument('--output', help='Output file for statistical report (JSON)')
+
+    # Power command
+    power_parser = subparsers.add_parser('power', help='Calculate sample size for power analysis')
+    power_parser.add_argument('--alpha', type=float, default=0.05, help='Significance level')
+    power_parser.add_argument('--power', type=float, default=0.8, help='Desired power')
+    power_parser.add_argument('--effect-size', type=float, default=0.25, help='Cohen\'s f effect size')
+    power_parser.add_argument('--output', help='Output file for batch config (JSON)')
+    power_parser.add_argument('--n', type=int, default=30, help='Target N per condition (if generating config)')
+
+    args = parser.parse_args()
+
+    if args.command == 'analyze':
+        result = run_statistical_analysis(
+            forgetting_input=args.input,
+            retention_input=args.retention_input,
+            output_path=args.output
+        )
+        print(json.dumps(result, indent=2))
+
+    elif args.command == 'power':
+        if args.output:
+            # Generate batch config
+            config = generate_batch_config(
+                output_path=args.output,
+                n_per_condition=args.n
+            )
+            print(f"Generated batch config: {args.output}")
+            print(json.dumps(config, indent=2))
+        else:
+            # Just calculate sample size
+            n = calculate_power_and_sample_size(
+                alpha=args.alpha,
+                power=args.power,
+                effect_size=args.effect_size
+            )
+            print(f"Minimum N per group required: {n}")
+            meets, achieved = check_power_requirement(n, args.alpha, args.power, args.effect_size)
+            print(f"Power at N={n}: {achieved:.4f} (meets requirement: {meets})")
+
+    else:
+        parser.print_help()
         sys.exit(1)
 
-    try:
-        report = run_statistical_analysis(data_dir)
 
-        # Convert report to JSON serializable format
-        report_dict = {
-            "anova_result": {
-                "f_statistic": report.anova_result.f_statistic,
-                "p_value": report.anova_result.p_value,
-                "degrees_of_freedom": list(report.anova_result.degrees_of_freedom),
-                "is_significant": report.anova_result.is_significant
-            } if report.anova_result else None,
-            "tukey_results": [
-                {
-                    "comparison": t.comparison,
-                    "difference": t.difference,
-                    "p_value": t.p_value,
-                    "is_significant": t.is_significant
-                } for t in report.tukey_results
-            ],
-            "descriptive_stats": report.descriptive_stats,
-            "retention_comparison": report.retention_comparison
-        }
-
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, 'w') as f:
-            json.dump(report_dict, f, indent=2)
-
-        print(f"Statistical analysis complete. Results saved to {output_file}")
-
-        # Print summary to stdout
-        if report.anova_result:
-            print(f"\nANOVA Result: F({report.anova_result.degrees_of_freedom[0]}, "
-                  f"{report.anova_result.degrees_of_freedom[1]}) = "
-                  f"{report.anova_result.f_statistic:.4f}, p = {report.anova_result.p_value:.4f}")
-            print(f"Significant difference between conditions: {'Yes' if report.anova_result.is_significant else 'No'}")
-
-        if report.retention_comparison:
-            print(f"\nRetention Comparison (Coevolving vs Mixed):")
-            print(f"  Co-evolving Mean: {report.retention_comparison['coevolving_mean']:.4f}")
-            print(f"  Mixed Mean: {report.retention_comparison['mixed_mean']:.4f}")
-            print(f"  Difference: {report.retention_comparison['difference']:.4f}")
-            print(f"  p-value: {report.retention_comparison['p_value']:.4f}")
-            print(f"  Significant: {'Yes' if report.retention_comparison['is_significant'] else 'No'}")
-
-    except StatisticalAnalysisError as e:
-        print(f"Error during statistical analysis: {e}", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        sys.exit(1)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

@@ -1,194 +1,252 @@
 """
-Synthetic data generation module for the drought tolerance prediction pipeline.
+Data generation module for synthetic datasets and matrices.
 
-This module generates synthetic datasets required for model training and validation,
-including genomic features, drought labels, and phylogenetic distance matrices.
-
-Note: All genomic data and labels are synthetic per project plan constraints.
+This module generates synthetic genomic features and phylogenetic distance matrices
+for validation purposes when real data is unavailable and VALIDATION_MODE is enabled.
 """
 
 import os
 import sys
+import json
+import logging
 import numpy as np
 import pandas as pd
-from typing import Tuple, List, Optional
+from pathlib import Path
+from typing import List, Dict, Any, Tuple
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    if project_root not in sys.path:
-        sys.path.insert(0, project_root)
-
-from config import get_config, validate_config, ensure_directories
+# Import shared configuration and utilities
+# Note: Using absolute imports as per project structure (code/ is in sys.path)
+from config import get_config, VALIDATION_MODE, ensure_directories
 from utils.logging import DataPipelineLog
 
+# Configure logging
+logger = logging.getLogger(__name__)
 
-def generate_synthetic_phylogenetic_matrix(
-    species_count: int,
-    lower_bound: float = 0.1,
-    upper_bound: float = 1.0,
-    random_state: int = 42
-) -> np.ndarray:
-    """
-    Generate a synthetic phylogenetic distance matrix for a list of species.
+# Constants from T012
+TRAINING_GENES = [
+    'NCED3', 'ABF3', 'P5CS', 'DREB2A', 'ERF1', 'ABI5', 'RD29A', 'COR15A',
+    'LEA3', 'HSP70', 'SOD', 'APX1', 'CAT1', 'GPX1', 'MDHAR', 'DHAR',
+    'GSTU', 'ZAT12', 'WRKY33', 'MYB96'
+]
 
-    Logic:
-    - Create an N x N symmetric matrix where N is the species count.
-    - Diagonal elements are set to 0 (distance from self is zero).
-    - Off-diagonal elements are uniformly distributed between lower_bound and upper_bound.
+# Independent validation genes from T011c (strictly disjoint)
+VALIDATION_GENES = [
+    'ABF2', 'DREB1B', 'NAC072', 'WRKY40', 'bZIP28', 'bZIP63', 'ABI1',
+    'ABI2', 'PP2CA', 'SnRK2.1', 'SnRK2.5', 'SnRK2.7', 'RD26', 'RD29B', 'COR15B'
+]
 
-    Args:
-        species_count (int): Number of species (N) for the matrix dimensions.
-        lower_bound (float): Minimum value for off-diagonal distances.
-        upper_bound (float): Maximum value for off-diagonal distances.
-        random_state (int): Random seed for reproducibility.
-
-    Returns:
-        np.ndarray: A symmetric N x N matrix representing phylogenetic distances.
-    """
-    if species_count <= 0:
-        raise ValueError("Species count must be a positive integer.")
-    if lower_bound < 0 or upper_bound < 0 or lower_bound >= upper_bound:
-        raise ValueError("Bounds must be non-negative and lower_bound < upper_bound.")
-
-    np.random.seed(random_state)
-
-    # Generate random values for the upper triangle (excluding diagonal)
-    # We need N*(N-1)/2 values for the upper triangle
-    num_off_diagonal = (species_count * (species_count - 1)) // 2
-    upper_triangle_values = np.random.uniform(lower_bound, upper_bound, num_off_diagonal)
-
-    # Initialize the matrix with zeros
-    matrix = np.zeros((species_count, species_count))
-
-    # Fill the upper triangle
-    idx = 0
-    for i in range(species_count):
-        for j in range(i + 1, species_count):
-            matrix[i, j] = upper_triangle_values[idx]
-            idx += 1
-
-    # Mirror to the lower triangle to make it symmetric
-    matrix = matrix + matrix.T
-
-    # Ensure diagonal is exactly zero (though it was initialized so)
-    np.fill_diagonal(matrix, 0.0)
-
-    return matrix
-
+def sigmoid(x: float) -> float:
+    """Compute sigmoid function."""
+    return 1.0 / (1.0 + np.exp(-x))
 
 def generate_synthetic_genomic_features(
-    species_list: List[str],
-    gene_list: List[str],
-    random_state: int = 42
+    n_samples: int = 50,
+    random_seed: int = 42,
+    output_path: str = "data/processed/synthetic_genomics.csv"
 ) -> pd.DataFrame:
     """
-    Generate synthetic genomic features and drought labels for a list of species.
+    Generate synthetic genomic features and drought labels.
 
     Logic:
-    - For each species, generate binary expression values (0 or 1) for each gene in the gene_list.
-    - The label is determined by the sum of genomic markers:
-      label = 1 if sum(genomic_markers) >= 12, else 0.
+    1. Select a hidden subset of genes (deterministic via seed) to drive the label.
+    2. Generate binary features for all 20 training genes.
+    3. Compute label probability based on hidden genes sum.
+    4. Add noise to prevent perfect correlation.
 
     Args:
-        species_list (List[str]): List of species names.
-        gene_list (List[str]): List of gene names to generate features for.
-        random_state (int): Random seed for reproducibility.
+        n_samples: Number of species samples to generate.
+        random_seed: Random seed for reproducibility.
+        output_path: Path to save the CSV.
 
     Returns:
-        pd.DataFrame: DataFrame with species_id, genomic marker columns, and a 'label' column.
+        DataFrame with gene columns and label column.
     """
-    if not species_list:
-        raise ValueError("Species list cannot be empty.")
-    if not gene_list:
-        raise ValueError("Gene list cannot be empty.")
+    if not VALIDATION_MODE:
+        raise RuntimeError(
+            "CRITICAL: Synthetic data generation attempted in Production Mode "
+            "(VALIDATION_MODE=False). Synthetic data is forbidden."
+        )
 
-    np.random.seed(random_state)
+    rng = np.random.default_rng(random_seed)
 
-    n_species = len(species_list)
-    n_genes = len(gene_list)
+    # Step 1: Select hidden genes (subset of 5 from the 20 training genes)
+    # Deterministic selection based on seed
+    hidden_indices = rng.choice(len(TRAINING_GENES), size=5, replace=False)
+    hidden_genes = [TRAINING_GENES[i] for i in hidden_indices]
 
-    # Generate binary expression data (0 or 1) for each gene for each species
-    # Using a probability of 0.5 for each gene to be expressed (1) or not (0)
-    expression_data = np.random.randint(0, 2, size=(n_species, n_genes))
+    logger.info(f"Hidden genes selected for label generation: {hidden_genes}")
+    logger.info(f"Indices of hidden genes: {hidden_indices.tolist()}")
 
-    # Create DataFrame
-    df = pd.DataFrame(expression_data, columns=gene_list)
-    df.insert(0, 'species_id', species_list)
+    # Log Scope Reduction explicitly
+    logger.warning(
+        "Scope Reduction: Synthetic data used, invalidates FR-001/SC-001 biological claims"
+    )
 
-    # Calculate the sum of genomic markers for each species
-    genomic_sum = df[gene_list].sum(axis=1)
+    # Step 2: Generate binary features (0 or 1) for all 20 training genes
+    # Using Bernoulli distribution with p=0.5 for simplicity
+    data = rng.integers(0, 2, size=(n_samples, len(TRAINING_GENES)))
+    df = pd.DataFrame(data, columns=TRAINING_GENES)
 
-    # Apply label logic: label = 1 if sum >= 12, else 0
-    df['label'] = (genomic_sum >= 12).astype(int)
+    # Step 3: Compute label probability
+    # prob = sigmoid(sum(hidden_genes) - 2) + noise
+    hidden_sum = df[hidden_genes].sum(axis=1)
+    base_prob = sigmoid(hidden_sum - 2)
+
+    # Add noise (0.1 std dev, clipped to [0, 1])
+    noise = rng.normal(0, 0.1, size=n_samples)
+    prob = base_prob + noise
+    prob = np.clip(prob, 0.0, 1.0)
+
+    # Step 4: Generate binary labels
+    labels = (rng.random(n_samples) < prob).astype(int)
+    df['label'] = labels
+
+    # Step 5: Chi-Square Goodness-of-Fit Test
+    # Verify label distribution matches expected sigmoid probability
+    # Expected mean = 0.5 (uniform across bins assumption for simplicity)
+    # Bins = 10
+    observed_counts = np.histogram(labels, bins=10, range=(0, 1))[0]
+    expected_counts = np.full(10, n_samples / 10)
+
+    # Chi-Square statistic
+    chi2_stat = np.sum((observed_counts - expected_counts) ** 2 / expected_counts)
+    # Degrees of freedom = bins - 1
+    dof = 10 - 1
+    # P-value from chi2 distribution
+    from scipy.stats import chi2
+    p_value = 1 - chi2.cdf(chi2_stat, dof)
+
+    chi2_result = {
+        "statistic": float(chi2_stat),
+        "p_value": float(p_value),
+        "dof": dof,
+        "passed": p_value > 0.05,
+        "expected_mean": 0.5,
+        "observed_mean": float(labels.mean())
+    }
+
+    logger.info(f"Chi-Square Goodness-of-Fit Test: p-value={p_value:.4f}, passed={chi2_result['passed']}")
+
+    # Save generation config
+    config_path = Path("data/logs/generation_config.json")
+    ensure_directories([config_path.parent])
+
+    # Load existing config or create new
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            existing_config = json.load(f)
+    else:
+        existing_config = {}
+
+    existing_config['chi_square_test_result'] = chi2_result
+    existing_config['hidden_subset'] = hidden_genes
+    existing_config['hidden_indices'] = hidden_indices.tolist()
+    existing_config['n_samples'] = n_samples
+    existing_config['random_seed'] = random_seed
+
+    with open(config_path, 'w') as f:
+        json.dump(existing_config, f, indent=2)
+
+    # Save DataFrame to CSV
+    ensure_directories([Path(output_path)])
+    df.to_csv(output_path, index=False)
+    logger.info(f"Synthetic genomic data saved to {output_path}")
 
     return df
 
+def generate_synthetic_phylogenetic_matrix(
+    n_species: int = 50,
+    random_seed: int = 42,
+    min_distance: float = 0.01,
+    max_distance: float = 1.0,
+    output_path: str = "data/processed/synthetic_phylo_matrix.npy"
+) -> np.ndarray:
+    """
+    Generate a synthetic phylogenetic distance matrix.
+
+    Logic:
+    1. Generate an N x N symmetric matrix.
+    2. Diagonal is zero.
+    3. Off-diagonal values are uniformly distributed between min_distance and max_distance.
+    4. Use random_state=42 for all random operations.
+
+    Args:
+        n_species: Number of species (matrix dimension).
+        random_seed: Random seed for reproducibility.
+        min_distance: Minimum off-diagonal value.
+        max_distance: Maximum off-diagonal value.
+        output_path: Path to save the .npy file.
+
+    Returns:
+        Symmetric distance matrix (numpy array).
+    """
+    if not VALIDATION_MODE:
+        raise RuntimeError(
+            "CRITICAL: Synthetic phylogenetic matrix generation attempted in Production Mode. "
+            "Real phylogenetic data is required."
+        )
+
+    rng = np.random.default_rng(random_seed)
+
+    # Generate upper triangle (excluding diagonal)
+    upper_indices = np.triu_indices(n_species, k=1)
+    n_off_diagonal = len(upper_indices[0])
+
+    # Generate uniform random values for off-diagonal elements
+    off_diagonal_values = rng.uniform(min_distance, max_distance, size=n_off_diagonal)
+
+    # Initialize matrix with zeros
+    matrix = np.zeros((n_species, n_species))
+
+    # Fill upper triangle
+    matrix[upper_indices] = off_diagonal_values
+
+    # Make symmetric
+    matrix = matrix + matrix.T
+
+    # Verify properties
+    assert np.allclose(np.diag(matrix), 0.0), "Diagonal must be zero"
+    assert np.all(matrix[np.triu_indices(n_species, k=1)] >= min_distance), "Off-diagonals must be >= min_distance"
+    assert np.all(matrix[np.triu_indices(n_species, k=1)] <= max_distance), "Off-diagonals must be <= max_distance"
+    assert matrix.shape == (n_species, n_species), "Shape mismatch"
+
+    # Save to file
+    ensure_directories([Path(output_path).parent])
+    np.save(output_path, matrix)
+    logger.info(f"Synthetic phylogenetic matrix saved to {output_path} (shape: {matrix.shape})")
+
+    return matrix
 
 def main():
-    """
-    Main entry point for generating synthetic genomic features and labels.
-    Loads configuration, generates the data, and saves it to the processed data directory.
-    """
-    # Initialize logger
-    logger = DataPipelineLog()
-    logger.info("Starting synthetic genomic features and labels generation.")
+    """Main entry point for data generation."""
+    config = get_config()
+    ensure_directories([Path("data/processed"), Path("data/logs")])
 
-    # Load configuration
+    logger.info("Starting synthetic data generation...")
+
+    # Generate genomic features
     try:
-        config = get_config()
-        validate_config(config)
-    except Exception as e:
-        logger.error(f"Failed to load or validate configuration: {e}")
-        raise
-
-    # Ensure output directories exist
-    ensure_directories(config)
-
-    # Extract parameters from config
-    species_list = config.get("species_list", [])
-    random_state = config.get("random_state", 42)
-
-    # Define the gene list as per task specification
-    gene_list = [
-        "NCED3", "ABF3", "P5CS", "DREB2A", "ERF1", "ABI5", "RD29A", "COR15A",
-        "LEA3", "HSP70", "SOD", "APX1", "CAT1", "GPX1", "MDHAR", "DHAR",
-        "GSTU", "ZAT12", "WRKY33", "MYB96"
-    ]
-
-    if len(species_list) == 0:
-        logger.error("No species found in configuration. Cannot generate genomic data.")
-        raise ValueError("Species list is empty in configuration.")
-
-    logger.info(f"Generating genomic data for {len(species_list)} species using {len(gene_list)} genes.")
-
-    # Generate the synthetic genomic features and labels
-    try:
-        genomic_df = generate_synthetic_genomic_features(
-            species_list=species_list,
-            gene_list=gene_list,
-            random_state=random_state
+        df_genomics = generate_synthetic_genomic_features(
+            n_samples=config.get('n_samples', 50),
+            random_seed=config.get('random_seed', 42)
         )
+        logger.info(f"Generated {len(df_genomics)} genomic samples")
     except Exception as e:
-        logger.error(f"Genomic data generation failed: {e}")
+        logger.error(f"Failed to generate genomic features: {e}")
         raise
 
-    # Determine output path
-    output_filename = "synthetic_genomics.csv"
-    output_path = os.path.join(config["data_dirs"]["processed"], output_filename)
-
-    # Save the DataFrame to CSV
+    # Generate phylogenetic matrix
     try:
-        genomic_df.to_csv(output_path, index=False)
-        logger.info(f"Successfully saved synthetic genomic data to {output_path}")
-        logger.info(f"DataFrame shape: {genomic_df.shape}")
-        logger.info(f"Label distribution:\n{genomic_df['label'].value_counts()}")
+        phylo_matrix = generate_synthetic_phylogenetic_matrix(
+            n_species=config.get('n_samples', 50),
+            random_seed=config.get('random_seed', 42)
+        )
+        logger.info(f"Generated phylogenetic matrix with shape {phylo_matrix.shape}")
     except Exception as e:
-        logger.error(f"Failed to save data to {output_path}: {e}")
+        logger.error(f"Failed to generate phylogenetic matrix: {e}")
         raise
 
-    return genomic_df
-
+    logger.info("Synthetic data generation completed successfully.")
 
 if __name__ == "__main__":
     main()

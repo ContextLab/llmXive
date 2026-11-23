@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ponzo Susceptibility Schema"
+description: "Per‑subject β score quantifying the magnitude of the Ponzo illusion."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Participant identifier."
+  beta:
+    type: number
+    description: "Susceptibility coefficient from the generative Ponzo model."
+  r2:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Coefficient of determination (goodness‑of‑fit) for the β estimate."
+required:
+  - subject_id
+  - beta
+  - r2
+additionalProperties: false

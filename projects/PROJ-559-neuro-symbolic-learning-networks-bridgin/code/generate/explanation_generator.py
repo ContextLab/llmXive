@@ -1,15 +1,26 @@
+"""
+Explanation Generator Orchestrator
+
+Orchestrates the generation of neural, symbolic, and neuro-symbolic explanations
+for a given problem. Includes validation to ensure distinctness between neural
+and symbolic outputs as per FR-002.
+"""
 import os
 import sys
 import json
 import logging
+import argparse
 import time
+import argparse
 from typing import Dict, Any, List, Optional, Tuple
 
-from generate.symbolic_explanation import generate_symbolic_explanation
-from generate.neural_explanation import generate_neural_explanation
-from generate.neuro_symbolic_explanation import generate_neuro_symbolic_explanation
-from utils.validation import validate_explanation
+# Import from existing API surface
+from generate.symbolic_explanation import generate_symbolic_explanation, SymbolicSolver
+from generate.neural_explanation import generate_neural_explanation, NeuralExplanationGenerator
+from generate.neuro_symbolic_explanation import generate_neuro_symbolic_explanation, NeuroSymbolicExplanationGenerator
+from generate.validate_distinctness import calculate_jaccard_similarity, validate_distinctness
 
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -18,217 +29,259 @@ logger = logging.getLogger(__name__)
 
 class ExplanationGenerator:
     """
-    Orchestrates the generation of three explanation types:
-    1. Symbolic (Rule-based)
-    2. Neural (LLM-based)
-    3. Neuro-Symbolic (Hybrid)
+    Orchestrator for generating multiple explanation types.
 
-    Handles error states, logging, and validation for each generation step.
+    Ensures that generated explanations are distinct and valid before saving.
     """
 
-    def __init__(self, output_dir: str = "data/explanations"):
+    def __init__(self, output_dir: str = "data/generated"):
         self.output_dir = output_dir
+        self.symbolic_generator = SymbolicSolver()
+        self.neural_generator = NeuralExplanationGenerator()
+        self.neuro_symbolic_generator = NeuroSymbolicExplanationGenerator()
+        
+        # Ensure output directory exists
         os.makedirs(self.output_dir, exist_ok=True)
-        logger.info(f"ExplanationGenerator initialized. Output dir: {self.output_dir}")
 
-    def _save_explanation(self, problem_id: str, explanation_type: str, content: str, metadata: Optional[Dict] = None):
+    def generate_all(
+        self,
+        problem_id: str,
+        problem_type: str,
+        problem_statement: str,
+        problem_data: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, str]:
         """
-        Saves an explanation to a JSON file in the output directory.
-        File naming convention: explanation_{problem_id}_{type}.json
-        """
-        filename = f"explanation_{problem_id}_{explanation_type}.json"
-        filepath = os.path.join(self.output_dir, filename)
+        Generate all three explanation types for a given problem.
 
-        record = {
-            "problem_id": problem_id,
-            "type": explanation_type,
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "content": content,
-            "metadata": metadata or {}
-        }
+        Args:
+            problem_id: Unique identifier for the problem
+            problem_type: Type of problem (e.g., 'algebra', 'geometry')
+            problem_statement: Text description of the problem
+            problem_data: Optional structured data about the problem
 
-        try:
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(record, f, indent=2)
-            logger.info(f"Saved {explanation_type} explanation for problem {problem_id} to {filepath}")
-            return True
-        except IOError as e:
-            logger.error(f"Failed to write explanation file {filepath}: {e}")
-            return False
+        Returns:
+            Dictionary with keys 'neural', 'symbolic', 'neuro_symbolic' containing
+            the generated explanations.
 
-    def generate_symbolic(self, problem_data: Dict[str, Any], problem_id: str) -> Tuple[bool, Optional[str], Optional[Dict]]:
+        Raises:
+            ValueError: If explanations are not distinct enough (similarity > 0.95)
+            RuntimeError: If any generator fails
         """
-        Generates a symbolic explanation using the rule-based engine.
-        Returns (success, content, metadata)
-        """
-        logger.info(f"Generating symbolic explanation for problem {problem_id}...")
+        logger.info(f"Starting explanation generation for problem {problem_id} ({problem_type})")
         start_time = time.time()
+
         try:
-            content, metadata = generate_symbolic_explanation(problem_data)
-            duration = time.time() - start_time
-            metadata['generation_time_seconds'] = duration
-            
-            # Validate content
-            if not content or len(content.strip()) == 0:
-                logger.error(f"Symbolic generator returned empty content for {problem_id}")
-                return False, None, metadata
-
-            # Optional: validate against schema if needed
-            # is_valid = validate_explanation(content, "symbolic")
-            
-            self._save_explanation(problem_id, "symbolic", content, metadata)
-            return True, content, metadata
-        except Exception as e:
-            logger.exception(f"Symbolic generation failed for {problem_id}: {e}")
-            return False, None, {"error": str(e)}
-
-    def generate_neural(self, problem_data: Dict[str, Any], problem_id: str) -> Tuple[bool, Optional[str], Optional[Dict]]:
-        """
-        Generates a neural explanation using the LLM.
-        Returns (success, content, metadata)
-        """
-        logger.info(f"Generating neural explanation for problem {problem_id}...")
-        start_time = time.time()
-        try:
-            content, metadata = generate_neural_explanation(problem_data)
-            duration = time.time() - start_time
-            metadata['generation_time_seconds'] = duration
-
-            if not content or len(content.strip()) == 0:
-                logger.error(f"Neural generator returned empty content for {problem_id}")
-                return False, None, metadata
-
-            self._save_explanation(problem_id, "neural", content, metadata)
-            return True, content, metadata
-        except Exception as e:
-            logger.exception(f"Neural generation failed for {problem_id}: {e}")
-            return False, None, {"error": str(e)}
-
-    def generate_neuro_symbolic(self, problem_data: Dict[str, Any], problem_id: str, 
-                                symbolic_trace: Optional[str] = None, 
-                                neural_narrative: Optional[str] = None) -> Tuple[bool, Optional[str], Optional[Dict]]:
-        """
-        Generates a neuro-symbolic explanation.
-        Can accept pre-computed traces/narratives or generate them internally if not provided.
-        Returns (success, content, metadata)
-        """
-        logger.info(f"Generating neuro-symbolic explanation for problem {problem_id}...")
-        start_time = time.time()
-        try:
-            content, metadata = generate_neuro_symbolic_explanation(
-                problem_data, 
-                symbolic_trace=symbolic_trace, 
-                neural_narrative=neural_narrative
+            # Generate symbolic explanation
+            logger.info("Generating symbolic explanation...")
+            symbolic_start = time.time()
+            symbolic_explanation = generate_symbolic_explanation(
+                problem_id=problem_id,
+                problem_type=problem_type,
+                problem_statement=problem_statement,
+                problem_data=problem_data
             )
-            duration = time.time() - start_time
-            metadata['generation_time_seconds'] = duration
+            symbolic_duration = time.time() - symbolic_start
+            logger.info(f"Symbolic explanation generated in {symbolic_duration:.2f}s")
 
-            if not content or len(content.strip()) == 0:
-                logger.error(f"Neuro-symbolic generator returned empty content for {problem_id}")
-                return False, None, metadata
+            # Generate neural explanation
+            logger.info("Generating neural explanation...")
+            neural_start = time.time()
+            neural_explanation = generate_neural_explanation(
+                problem_id=problem_id,
+                problem_type=problem_type,
+                problem_statement=problem_statement,
+                problem_data=problem_data
+            )
+            neural_duration = time.time() - neural_start
+            logger.info(f"Neural explanation generated in {neural_duration:.2f}s")
 
-            self._save_explanation(problem_id, "neuro_symbolic", content, metadata)
-            return True, content, metadata
+            # Validate distinctness BEFORE generating neuro-symbolic
+            logger.info("Validating distinctness between neural and symbolic explanations...")
+            similarity = calculate_jaccard_similarity(
+                neural_explanation,
+                symbolic_explanation
+            )
+            logger.info(f"Similarity between neural and symbolic: {similarity:.4f}")
+
+            if similarity > 0.95:
+                error_msg = (
+                    f"CRITICAL: Neural and symbolic explanations are too similar "
+                    f"(similarity={similarity:.4f} > 0.95). This violates FR-002 "
+                    f"requiring distinct explanations. "
+                    f"Problem ID: {problem_id}, Type: {problem_type}"
+                )
+                logger.error(error_msg)
+                raise ValueError(error_msg)
+
+            # Generate neuro-symbolic explanation
+            logger.info("Generating neuro-symbolic explanation...")
+            neuro_symbolic_start = time.time()
+            neuro_symbolic_explanation = generate_neuro_symbolic_explanation(
+                problem_id=problem_id,
+                problem_type=problem_type,
+                problem_statement=problem_statement,
+                neural_explanation=neural_explanation,
+                symbolic_explanation=symbolic_explanation,
+                problem_data=problem_data
+            )
+            neuro_symbolic_duration = time.time() - neuro_symbolic_start
+            logger.info(f"Neuro-symbolic explanation generated in {neuro_symbolic_duration:.2f}s")
+
+            total_duration = time.time() - start_time
+            logger.info(f"All explanations generated successfully in {total_duration:.2f}s")
+
+            return {
+                'neural': neural_explanation,
+                'symbolic': symbolic_explanation,
+                'neuro_symbolic': neuro_symbolic_explanation
+            }
+
         except Exception as e:
-            logger.exception(f"Neuro-symbolic generation failed for {problem_id}: {e}")
-            return False, None, {"error": str(e)}
+            logger.error(f"Error during explanation generation: {str(e)}")
+            raise
 
-    def generate_all(self, problem_data: Dict[str, Any], problem_id: str) -> Dict[str, Any]:
+    def save_explanations(
+        self,
+        problem_id: str,
+        explanations: Dict[str, str]
+    ) -> Dict[str, str]:
         """
-        Orchestrates the generation of all three explanation types.
-        
-        Strategy:
-        1. Generate Symbolic first (as it is the ground truth structure).
-        2. Generate Neural independently.
-        3. Generate Neuro-Symbolic, optionally passing the generated symbolic trace 
-           to ensure the narrative is grounded in the rules.
-        
-        Returns a summary report of the execution.
+        Save explanations to disk.
+
+        Args:
+            problem_id: Unique identifier for the problem
+            explanations: Dictionary of explanation types to content
+
+        Returns:
+            Dictionary mapping explanation type to file path
         """
-        logger.info(f"--- Starting full generation pipeline for problem {problem_id} ---")
-        results = {
-            "problem_id": problem_id,
-            "status": "in_progress",
-            "symbolic": {"success": False, "error": None},
-            "neural": {"success": False, "error": None},
-            "neuro_symbolic": {"success": False, "error": None}
-        }
-
-        # 1. Symbolic Generation
-        sym_success, sym_content, sym_meta = self.generate_symbolic(problem_data, problem_id)
-        results["symbolic"]["success"] = sym_success
-        results["symbolic"]["error"] = None if sym_success else "Generation failed"
+        saved_files = {}
         
-        # 2. Neural Generation
-        neu_success, neu_content, neu_meta = self.generate_neural(problem_data, problem_id)
-        results["neural"]["success"] = neu_success
-        results["neural"]["error"] = None if neu_success else "Generation failed"
-
-        # 3. Neuro-Symbolic Generation
-        # Pass the generated symbolic trace to ensure grounding, even if symbolic failed 
-        # (it will be None, allowing the generator to handle fallback or error)
-        ns_success, ns_content, ns_meta = self.generate_neuro_symbolic(
-            problem_data, 
-            problem_id, 
-            symbolic_trace=sym_content if sym_success else None,
-            neural_narrative=neu_content if neu_success else None
-        )
-        results["neuro_symbolic"]["success"] = ns_success
-        results["neuro_symbolic"]["error"] = None if ns_success else "Generation failed"
-
-        # Summary
-        success_count = sum([sym_success, neu_success, ns_success])
-        total_count = 3
+        for exp_type, content in explanations.items():
+            filename = f"explanation_{exp_type}.txt"
+            filepath = os.path.join(self.output_dir, filename)
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(content)
+            
+            saved_files[exp_type] = filepath
+            logger.info(f"Saved {exp_type} explanation to {filepath}")
         
-        if success_count == total_count:
-            results["status"] = "complete"
-            logger.info(f"--- Pipeline complete for {problem_id}: {success_count}/{total_count} successful ---")
-        else:
-            results["status"] = "partial"
-            logger.warning(f"--- Pipeline partial for {problem_id}: {success_count}/{total_count} successful ---")
+        return saved_files
 
-        return results
+    def run_with_problem_id(
+        self,
+        problem_id: str,
+        problem_type: str = "algebra",
+        problem_statement: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Run the full generation pipeline for a specific problem ID.
+
+        Args:
+            problem_id: The problem identifier
+            problem_type: Type of problem (default: algebra)
+            problem_statement: Optional problem statement text
+
+        Returns:
+            Dictionary with generation results and file paths
+        """
+        # If no problem statement provided, use a default based on problem_id
+        if problem_statement is None:
+            problem_statement = f"Problem {problem_id} of type {problem_type}"
+            logger.warning(f"No problem statement provided, using default: {problem_statement}")
+
+        try:
+            explanations = self.generate_all(
+                problem_id=problem_id,
+                problem_type=problem_type,
+                problem_statement=problem_statement
+            )
+            
+            saved_files = self.save_explanations(problem_id, explanations)
+            
+            return {
+                'success': True,
+                'problem_id': problem_id,
+                'files': saved_files,
+                'explanations': explanations
+            }
+            
+        except ValueError as e:
+            # Distinctness validation failed
+            logger.error(f"Distinctness validation failed: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e),
+                'exit_code': 1
+            }
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e),
+                'exit_code': 1
+            }
+
+        logger.info(f"Successfully generated explanations for {problem_id}.")
+        logger.info(f"Files saved to: {self.output_dir}")
+        return files
 
 def main():
     """
-    CLI entry point for running the explanation generator on a specific problem.
-    Usage: python -m generate.explanation_generator --problem_id <id> [--data <json_path>]
-    """
-    import argparse
+    Main entry point for the explanation generator CLI.
 
-    parser = argparse.ArgumentParser(description="Orchestrate explanation generation")
-    parser.add_argument("--problem_id", type=str, required=True, help="ID of the problem to process")
-    parser.add_argument("--data", type=str, default=None, help="Path to JSON file containing problem data. If None, generates synthetic test data.")
-    parser.add_argument("--output_dir", type=str, default="data/explanations", help="Output directory for artifacts")
-    
+    Usage:
+        python code/generate/explanation_generator.py --problem-id sample_001 --problem-type algebra
+    """
+    parser = argparse.ArgumentParser(
+        description='Generate neural, symbolic, and neuro-symbolic explanations for problems.'
+    )
+    parser.add_argument(
+        '--problem-id',
+        type=str,
+        required=True,
+        help='Unique identifier for the problem'
+    )
+    parser.add_argument(
+        '--problem-type',
+        type=str,
+        default='algebra',
+        help='Type of problem (e.g., algebra, geometry)'
+    )
+    parser.add_argument(
+        '--output-dir',
+        type=str,
+        default='data/generated',
+        help='Directory to save generated explanations'
+    )
+    parser.add_argument(
+        '--problem-statement',
+        type=str,
+        default=None,
+        help='Optional problem statement text'
+    )
+
     args = parser.parse_args()
 
-    # Load or create problem data
-    if args.data and os.path.exists(args.data):
-        logger.info(f"Loading problem data from {args.data}")
-        with open(args.data, 'r', encoding='utf-8') as f:
-            problem_data = json.load(f)
-    else:
-        logger.warning("No valid data file provided. Generating synthetic test data.")
-        # Synthetic fallback for demonstration/CI if real data is missing
-        problem_data = {
-            "question": "If 3x + 5 = 20, what is x?",
-            "type": "algebra",
-            "difficulty": "medium",
-            "context": "Linear equation solving"
-        }
+    logger.info(f"Explanation Generator started for problem {args.problem_id}")
 
     generator = ExplanationGenerator(output_dir=args.output_dir)
-    results = generator.generate_all(problem_data, args.problem_id)
+    result = generator.run_with_problem_id(
+        problem_id=args.problem_id,
+        problem_type=args.problem_type,
+        problem_statement=args.problem_statement
+    )
 
-    # Print summary to stdout
-    print(json.dumps(results, indent=2))
+    if result['success']:
+        logger.info("Explanation generation completed successfully")
+        print(json.dumps(result, indent=2))
+        sys.exit(0)
+    else:
+        logger.error(f"Explanation generation failed: {result.get('error', 'Unknown error')}")
+        print(json.dumps(result, indent=2))
+        sys.exit(result.get('exit_code', 1))
 
-    # Return exit code 1 if no explanations were generated
-    if not any([results["symbolic"]["success"], results["neural"]["success"], results["neuro_symbolic"]["success"]]):
-        sys.exit(1)
-    
-    sys.exit(0)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

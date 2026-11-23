@@ -1,0 +1,40 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `simulation/student_model.py` file or any code implementing a CPU\u2011only\
+    \ wrapper for the simplified diffusion model is present. The required artifact\
+    \ is missing entirely, so the task is not satisfied."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `evaluation/clip_evaluator.py` file or its contents were provided, so there\
+    \ is no evidence that a frozen CLIP\u2011ViT model is being loaded without gradients\
+    \ for temporal coherence scoring. The required artifact is missing."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `simulation/training_loop.py` file or any code implementing a CPU\u2011only\
+    \ forward/backward pass with stochastic rounding is present in the provided evidence.\
+    \ The required artifact is missing, so the task has not been fulfilled."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided that implements a factory or\
+    \ re\u2011instantiation mechanism to change the simulated bit\u2011width (2,\u202F\
+    4,\u202F8) at runtime, nor any test showing the quantization rounding logic can\
+    \ be re\u2011initialized without restarting the program. The required artifact\
+    \ is missing."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `evaluation/metrics.py` file or any code implementing temporal coherence\
+    \ scoring is present; without the required module the task of calculating per\u2011\
+    clip coherence scores cannot be verified. The implementer must add a non\u2011\
+    empty `evaluation/metrics.py` that defines the metric logic as specified."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation showing that `evaluation/clip_evaluator.py`
+    has been imported and called from the training loop, nor any output logs or results
+    demonstrating generated videos being scored, were provided. The required integration
+    artifact is missing.

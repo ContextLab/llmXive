@@ -1,57 +1,40 @@
-"""Ellipticity calculation metrics for planetary nebulae.
-
-This module implements the calculation of ellipticity using second-order moments
-as per the Conselice (2003) definition or similar astronomical standards.
+"""
+Ellipticity calculation using second-order moments.
 """
 import logging
 from typing import Tuple
-
 import numpy as np
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def calculate_ellipticity(image: np.ndarray) -> Tuple[float, float]:
-    """Calculate ellipticity components (e1, e2) using second-order moments.
-
-    The ellipticity is defined as:
-    e1 = (Q_xx - Q_yy) / (Q_xx + Q_yy)
-    e2 = 2 * Q_xy / (Q_xx + Q_yy)
-
-    Where Q_ij are the second-order moments of the light distribution.
-
-    Args:
-        image: 2D array representing the image intensity.
-
-    Returns:
-        Tuple (e1, e2) representing the ellipticity components.
+def calculate_ellipticity(image: np.ndarray) -> float:
     """
-    if image.ndim != 2:
-        raise ValueError("Image must be a 2D array.")
-
-    # Calculate the center of light (first moments)
-    y, x = np.indices(image.shape)
-    total_flux = np.sum(image)
-    if total_flux == 0:
-        logger.warning("Image has zero flux, returning zero ellipticity.")
-        return 0.0, 0.0
-
-    x_bar = np.sum(x * image) / total_flux
-    y_bar = np.sum(y * image) / total_flux
-
-    # Calculate second-order moments
-    # Q_xx = sum((x - x_bar)^2 * I)
-    # Q_yy = sum((y - y_bar)^2 * I)
-    # Q_xy = sum((x - x_bar) * (y - y_bar) * I)
-    Q_xx = np.sum((x - x_bar) ** 2 * image)
-    Q_yy = np.sum((y - y_bar) ** 2 * image)
-    Q_xy = np.sum((x - x_bar) * (y - y_bar) * image)
-
-    trace = Q_xx + Q_yy
-    if trace == 0:
-        logger.warning("Trace of moment matrix is zero, returning zero ellipticity.")
-        return 0.0, 0.0
-
-    e1 = (Q_xx - Q_yy) / trace
-    e2 = 2 * Q_xy / trace
-
-    return e1, e2
+    Calculate ellipticity from second-order moments.
+    e = (a - b) / (a + b)
+    """
+    y, x = np.ogrid[:image.shape[0], :image.shape[1]]
+    center_x = np.sum(x * image) / np.sum(image)
+    center_y = np.sum(y * image) / np.sum(image)
+    
+    # Second moments
+    Mxx = np.sum((x - center_x)**2 * image) / np.sum(image)
+    Myy = np.sum((y - center_y)**2 * image) / np.sum(image)
+    Mxy = np.sum((x - center_x) * (y - center_y) * image) / np.sum(image)
+    
+    # Eigenvalues of the moment matrix
+    trace = Mxx + Myy
+    det = Mxx * Myy - Mxy**2
+    
+    if det <= 0:
+        logger.warning("Moment matrix determinant is non-positive. Returning 0 ellipticity.")
+        return 0.0
+    
+    lambda1 = (trace + np.sqrt(trace**2 - 4*det)) / 2
+    lambda2 = (trace - np.sqrt(trace**2 - 4*det)) / 2
+    
+    if lambda1 + lambda2 == 0:
+        return 0.0
+    
+    ellipticity = (lambda1 - lambda2) / (lambda1 + lambda2)
+    return float(ellipticity)

@@ -1,96 +1,107 @@
+"""
+Dataset Configuration Validator
+
+Validates dataset configuration files against the schema defined in
+contracts/dataset-config.schema.yaml. Provides utilities to load the schema,
+validate configs, and generate sample configurations.
+"""
 import json
 import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
 import yaml
 import jsonschema
-import logging
+from jsonschema import ValidationError, SchemaError
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
-def load_schema(schema_path: str) -> Dict[str, Any]:
+def load_schema(schema_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Load JSON schema from a YAML or JSON file.
-    
+    Load the JSON schema from the specified path or default location.
+
     Args:
-        schema_path: Path to the schema file (.yaml or .json)
-        
+        schema_path: Path to the schema file. If None, uses default path.
+
     Returns:
-        Dictionary containing the schema
+        Dict containing the schema definition.
+
+    Raises:
+        FileNotFoundError: If schema file is not found.
+        yaml.YAMLError: If schema file is invalid YAML/JSON.
     """
-    path = Path(schema_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
-    with open(path, 'r', encoding='utf-8') as f:
-        if path.suffix in ['.yaml', '.yml']:
+    if schema_path is None:
+        # Default path relative to project root
+        schema_path = "contracts/dataset-config.schema.yaml"
+
+    schema_file = Path(schema_path)
+    if not schema_file.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_file}")
+
+    with open(schema_file, 'r', encoding='utf-8') as f:
+        # Schema might be YAML or JSON
+        try:
             return yaml.safe_load(f)
-        else:
+        except yaml.YAMLError:
+            # Fallback to JSON
+            f.seek(0)
             return json.load(f)
 
-def validate_config(config_path: str, schema_path: str) -> Tuple[bool, List[str]]:
+
+def validate_config(config_path: str, schema_path: Optional[str] = None) -> Tuple[bool, Optional[str]]:
     """
-    Validate a dataset configuration file against a JSON schema.
-    
+    Validate a dataset configuration file against the schema.
+
     Args:
-        config_path: Path to the dataset configuration JSON file
-        schema_path: Path to the JSON schema file
-        
+        config_path: Path to the dataset configuration JSON file.
+        schema_path: Optional path to schema. If None, uses default.
+
     Returns:
-        Tuple of (is_valid, list of error messages)
+        Tuple of (is_valid, error_message). error_message is None if valid.
     """
-    errors = []
-    
+    config_file = Path(config_path)
+    if not config_file.exists():
+        return False, f"Configuration file not found: {config_file}"
+
     try:
-        # Load schema
-        schema = load_schema(schema_path)
-        
-        # Load config
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_file, 'r', encoding='utf-8') as f:
             config = json.load(f)
-        
-        # Validate
-        validator = jsonschema.Draft7Validator(schema)
-        validation_errors = list(validator.iter_errors(config))
-        
-        if validation_errors:
-            for error in validation_errors:
-                error_path = ".".join(map(str, error.path)) if error.path else "root"
-                errors.append(f"Error at '{error_path}': {error.message}")
-        else:
-            logger.info(f"Configuration '{config_path}' is valid.")
-            
     except json.JSONDecodeError as e:
-        errors.append(f"Invalid JSON in config file: {str(e)}")
-    except yaml.YAMLError as e:
-        errors.append(f"Invalid YAML in schema file: {str(e)}")
+        return False, f"Invalid JSON in configuration file: {e}"
+
+    try:
+        schema = load_schema(schema_path)
     except FileNotFoundError as e:
-        errors.append(str(e))
+        return False, str(e)
     except Exception as e:
-        errors.append(f"Unexpected error during validation: {str(e)}")
-    
-    return (len(errors) == 0, errors)
+        return False, f"Error loading schema: {e}"
+
+    try:
+        jsonschema.validate(instance=config, schema=schema)
+        return True, None
+    except ValidationError as e:
+        return False, f"Validation error: {e.message} at path '{e.json_path}'"
+    except SchemaError as e:
+        return False, f"Schema error: {e.message}"
+
 
 def create_sample_config(output_path: str) -> None:
     """
-    Create a sample dataset configuration file if one doesn't exist.
-    
+    Create a sample dataset configuration file at the specified path.
+
+    This generates a template config that conforms to the schema,
+    useful for users to understand the expected structure.
+
     Args:
-        output_path: Path where the sample config should be written
+        output_path: Path where the sample config will be written.
     """
-    sample_data = {
+    sample_config = {
         "version": "1.0.0",
-        "description": "Dataset configuration for microbial community succession study in constructed wetlands",
+        "description": "Sample dataset configuration for microbial community succession study",
         "datasets": [
             {
                 "id": "PRJNA555687",
                 "source": "ncbi_sra",
-                "description": "Constructed wetland microbiome time-series dataset",
+                "description": "Example constructed wetland microbiome dataset",
                 "metadata": {
                     "wetland_type": "constructed",
                     "nutrient_removal": True,
@@ -99,85 +110,57 @@ def create_sample_config(output_path: str) -> None:
                     "location": "North America",
                     "study_period": "24_months"
                 }
-            },
-            {
-                "id": "10.5281/zenodo.1234567",
-                "source": "zenodo",
-                "description": "Supplementary 16S rRNA feature tables from wetland study",
-                "metadata": {
-                    "wetland_type": "constructed",
-                    "nutrient_removal": True,
-                    "target_nutrients": ["nitrogen"],
-                    "sampling_stages": ["early", "mature"],
-                    "location": "Europe",
-                    "study_period": "18_months"
-                }
             }
         ]
     }
-    
+
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(sample_data, f, indent=2)
-    
-    logger.info(f"Sample configuration created at {output_path}")
 
-def main():
-    """Main entry point for the validator."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Validate dataset configuration against schema")
-    parser.add_argument(
-        '--config', '-c',
-        type=str,
-        default='data/config/dataset_ids.json',
-        help='Path to dataset configuration file'
-    )
-    parser.add_argument(
-        '--schema', '-s',
-        type=str,
-        default='contracts/dataset-config.schema.yaml',
-        help='Path to JSON schema file'
-    )
-    parser.add_argument(
-        '--create-sample',
-        action='store_true',
-        help='Create a sample configuration file'
-    )
-    parser.add_argument(
-        '--output', '-o',
-        type=str,
-        default='data/config/dataset_ids.json',
-        help='Output path for sample configuration (if --create-sample is used)'
-    )
-    
-    args = parser.parse_args()
-    
-    if args.create_sample:
-        create_sample_config(args.output)
-        return
-    
-    if not os.path.exists(args.config):
-        logger.error(f"Configuration file not found: {args.config}")
-        logger.info("Use --create-sample to generate a sample configuration.")
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(sample_config, f, indent=2)
+
+
+def main() -> int:
+    """
+    Main entry point for command-line usage.
+
+    Usage:
+        python code/dataset_config_validator.py validate <config_path>
+        python code/dataset_config_validator.py sample <output_path>
+
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    import sys
+
+    if len(sys.argv) < 3:
+        print("Usage:")
+        print("  python code/dataset_config_validator.py validate <config_path>")
+        print("  python code/dataset_config_validator.py sample <output_path>")
         return 1
-    
-    if not os.path.exists(args.schema):
-        logger.error(f"Schema file not found: {args.schema}")
-        return 1
-    
-    is_valid, errors = validate_config(args.config, args.schema)
-    
-    if is_valid:
-        print(f"✓ Configuration is valid")
+
+    command = sys.argv[1]
+    path_arg = sys.argv[2]
+
+    if command == "validate":
+        is_valid, error = validate_config(path_arg)
+        if is_valid:
+            print(f"✓ Configuration valid: {path_arg}")
+            return 0
+        else:
+            print(f"✗ Configuration invalid: {error}")
+            return 1
+
+    elif command == "sample":
+        create_sample_config(path_arg)
+        print(f"✓ Sample configuration created: {path_arg}")
         return 0
+
     else:
-        print("✗ Configuration validation failed:")
-        for error in errors:
-            print(f"  - {error}")
+        print(f"Unknown command: {command}")
         return 1
+
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

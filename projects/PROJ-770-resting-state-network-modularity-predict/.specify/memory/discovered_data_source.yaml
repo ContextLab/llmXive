@@ -1,0 +1,10 @@
+status: none
+intent: Human Connectome Project 1200 subjects dataset with Schaefer 200 atlas python
+  package dataset
+required_fields:
+- subject_id
+- modularity_q
+- behavioral_metrics
+cache_key: ff3db49e430b5aca88fa82d30881083b9bb55a0f7467db2fd8cd85c26bca9939
+searched_at: '2026-10-12T01:12:07.687136+00:00'
+retry_count: 1

@@ -1,44 +1,36 @@
 """
-Environment configuration and random seed management for reproducibility.
+Environment management and reproducibility utilities.
 
 This module handles:
-1. Loading configuration from code/config.yaml
-2. Setting global random seeds (numpy, random, os.environ)
-3. Resolving project paths relative to the root
-4. Basic logging setup
+- Loading configuration
+- Setting up random seeds
+- Managing project paths
 """
 import os
+import sys
 import random
 import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 import yaml
 
-# Global project root
-# Assumes this file is at code/utils/environment_manager.py
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+def get_project_root() -> Path:
+    """Get the project root directory."""
+    return Path(__file__).resolve().parent.parent
 
-def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Load configuration from a YAML file.
-    Defaults to code/config.yaml relative to project root.
-    """
-    if config_path is None:
-        config_path = _PROJECT_ROOT / "code" / "config.yaml"
-    
+def load_config(config_path: Path) -> Dict[str, Any]:
+    """Load configuration from YAML file."""
     if not config_path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+        return {}
     
-    with open(config_path, "r", encoding="utf-8") as f:
-        config = yaml.safe_load(f)
-    
-    return config
+    with open(config_path, 'r') as f:
+        try:
+            return yaml.safe_load(f) or {}
+        except yaml.YAMLError:
+            return {}
 
-def deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Recursively merge two dictionaries.
-    Values from 'override' take precedence.
-    """
+def deep_merge(base: Dict, override: Dict) -> Dict:
+    """Deep merge two dictionaries."""
     result = base.copy()
     for key, value in override.items():
         if key in result and isinstance(result[key], dict) and isinstance(value, dict):
@@ -47,131 +39,80 @@ def deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]
             result[key] = value
     return result
 
-def setup_reproducibility(seed: int) -> None:
+def setup_reproducibility(seed: int = 42) -> None:
     """
-    Set random seeds for all relevant libraries to ensure reproducibility.
+    Setup reproducibility by setting random seeds.
     
     Args:
-        seed: Integer seed value.
+        seed: Random seed value.
     """
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     
+    # If numpy is available
     try:
         import numpy as np
         np.random.seed(seed)
     except ImportError:
         pass
     
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-    except ImportError:
-        pass
+    logging.info(f"Reproducibility setup with seed: {seed}")
 
-def get_paths(config: Dict[str, Any]) -> Dict[str, Path]:
+def get_paths() -> Dict[str, Path]:
     """
-    Resolve absolute paths for data directories based on configuration.
-    
-    Args:
-        config: Configuration dictionary containing 'paths'.
+    Get standard project paths.
     
     Returns:
-        Dictionary mapping path keys to absolute Path objects.
+        Dictionary of path names to Path objects.
     """
-    path_config = config.get("paths", {})
-    resolved = {}
+    root = get_project_root()
     
-    # Default paths if not in config
-    defaults = {
-        "data_raw": "data/raw",
-        "data_derived": "data/derived",
-        "data_processed": "data/processed",
-        "figures": "figures",
-        "state": "state",
-        "logs": "logs"
+    return {
+        'root': root,
+        'data_raw': root / 'data' / 'raw',
+        'data_derived': root / 'data' / 'derived',
+        'data_processed': root / 'data' / 'processed',
+        'state': root / 'state',
+        'logs': root / 'logs',
+        'output': root / 'output',
+        'config': root / 'code' / 'config.yaml',
+        'raw_eye_tracking': root / 'data' / 'raw' / 'eye_tracking_raw.parquet',
+        'preprocessed_gaze': root / 'data' / 'derived' / 'preprocessed_gaze.csv',
+        'empirical_outcomes': root / 'data' / 'derived' / 'empirical_outcomes.csv',
     }
-    
-    for key, default_rel in defaults.items():
-        rel_path = path_config.get(key, default_rel)
-        resolved[key] = _PROJECT_ROOT / rel_path
-        # Ensure directories exist
-        resolved[key].mkdir(parents=True, exist_ok=True)
-    
-    return resolved
 
-def get_config_value(config: Dict[str, Any], key_path: str, default: Any = None) -> Any:
+def get_config_value(config: Dict[str, Any], key: str, default: Any = None) -> Any:
     """
-    Retrieve a nested value from config using dot notation.
+    Get a value from configuration with a default fallback.
     
     Args:
         config: Configuration dictionary.
-        key_path: Dot-separated path (e.g., 'algorithms.ivt.velocity_threshold').
+        key: Key to look up.
         default: Default value if key not found.
-    
+        
     Returns:
-        The value or default.
+        Configuration value or default.
     """
-    keys = key_path.split(".")
-    current = config
-    for key in keys:
-        if isinstance(current, dict) and key in current:
-            current = current[key]
+    keys = key.split('.')
+    value = config
+    for k in keys:
+        if isinstance(value, dict) and k in value:
+            value = value[k]
         else:
             return default
-    return current
+    return value
 
-def setup_logging(config: Dict[str, Any]) -> logging.Logger:
-    """
-    Configure logging based on configuration settings.
-    
-    Args:
-        config: Configuration dictionary containing 'logging'.
-    
-    Returns:
-        Configured root logger.
-    """
-    log_config = config.get("logging", {})
-    level_str = log_config.get("level", "INFO").upper()
-    log_format = log_config.get("format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    log_file = log_config.get("file", "logs/pipeline.log")
-    
-    log_path = _PROJECT_ROOT / log_file
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Configure root logger
-    logging.basicConfig(
-        level=getattr(logging, level_str, logging.INFO),
-        format=log_format,
-        handlers=[
-            logging.FileHandler(log_path),
-            logging.StreamHandler()
-        ]
-    )
-    
-    return logging.getLogger(__name__)
+def setup_logging(log_dir: Optional[Path] = None) -> None:
+    """Setup basic logging."""
+    import logging
+    from logging_config import setup_logging as setup_log
+    setup_log(log_dir)
 
 def main():
-    """
-    Entry point for testing environment setup.
-    """
-    config = load_config()
-    print(f"Loaded config from: {_PROJECT_ROOT / 'code' / 'config.yaml'}")
-    print(f"Random Seed: {config.get('random_seed')}")
-    
-    setup_reproducibility(config.get("random_seed", 42))
-    paths = get_paths(config)
-    
-    print("Resolved Paths:")
-    for key, path in paths.items():
-        print(f"  {key}: {path}")
-    
-    logger = setup_logging(config)
-    logger.info("Environment manager initialized successfully.")
+    """Test environment manager."""
+    paths = get_paths()
+    print(f"Project root: {paths['root']}")
+    print(f"Data raw: {paths['data_raw']}")
 
 if __name__ == "__main__":
     main()

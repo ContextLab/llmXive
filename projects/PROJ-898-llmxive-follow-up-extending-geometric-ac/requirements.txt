@@ -1,0 +1,12 @@
+# Pinned dependencies for PROJ-898 (CPU-only).
+# torch is installed from the PyTorch CPU wheel index; all other
+# packages come from PyPI. Install with: pip install -r requirements.txt
+
+torch==2.0.0+cpu --index-url https://download.pytorch.org/whl/cpu
+pybullet==3.2.6
+cvxpy==1.4.3
+diff-taichi==0.0.4
+scipy==1.11.4
+pandas==2.1.4
+numpy==1.24.4
+pytest==7.4.4

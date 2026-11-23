@@ -1,0 +1,3 @@
+"""
+Contract validation tests package.
+"""

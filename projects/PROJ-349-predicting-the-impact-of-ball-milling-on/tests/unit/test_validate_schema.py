@@ -1,174 +1,191 @@
 """
-Unit tests for dataset schema validation.
+Unit tests for the schema validation logic in src/preprocess/validate_schema.py.
 """
+
 import os
 import tempfile
 from pathlib import Path
-import pytest
+
 import pandas as pd
+import pytest
 import yaml
 
-# Import the module under test
-# Adjust import path based on project structure (src/utils/validate_schema.py)
-import sys
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "src"))
-
-from utils.validate_schema import (
-    load_schema, 
-    validate_dataframe, 
-    validate_and_raise, 
-    validate_csv_file,
-    SCHEMA_PATH
-)
+from src.utils.exceptions import InsufficientDataError, SchemaValidationError
+from src.preprocess.validate_schema import load_schema, validate_schema, validate_file
 
 
 @pytest.fixture
-def valid_schema():
-    """Load the valid schema for testing."""
-    return load_schema()
-
-
-@pytest.fixture
-def valid_dataframe(valid_schema):
-    """Create a valid DataFrame based on the schema."""
-    data = {
-        'experiment_id': ['exp_001', 'exp_002'],
-        'source': ['materials_project', 'nist'],
-        'material_type': ['Ceramic', 'Metal'],
-        'milling_speed_rpm': [300.0, 450.0],
-        'process_duration_h': [2.0, 5.5],
-        'ball_to_powder_ratio': [10.0, 15.0],
-        'jar_material': ['Zirconia', 'Steel'],
-        'ball_material': ['Zirconia', 'Steel'],
-        'material_density_g_cm3': [3.9, 7.8],
-        'youngs_modulus_gpa': [350.0, 200.0],
-        'd10_um': [1.2, 2.5],
-        'd50_um': [5.0, 10.0],
-        'd90_um': [12.0, 25.0]
+def sample_schema():
+    """Return a sample schema dictionary for testing."""
+    return {
+        "version": "1.0",
+        "description": "Test schema",
+        "fields": [
+            {"name": "experiment_id", "type": "string", "required": True},
+            {"name": "source", "type": "string", "required": True},
+            {"name": "material_type", "type": "string", "required": True},
+            {"name": "milling_speed", "type": "float", "required": True},
+            {"name": "milling_time", "type": "float", "required": True},
+            {"name": "ball_to_powder_ratio", "type": "float", "required": True},
+            {"name": "youngs_modulus", "type": "float", "required": True},
+            {"name": "density", "type": "float", "required": True},
+            {"name": "d10", "type": "float", "required": True},
+            {"name": "d50", "type": "float", "required": True},
+            {"name": "d90", "type": "float", "required": True},
+            {"name": "process_duration", "type": "float", "required": True},
+        ]
     }
-    return pd.DataFrame(data)
 
 
 @pytest.fixture
-def invalid_columns_dataframe(valid_schema):
-    """Create a DataFrame with missing required columns."""
-    data = {
-        'experiment_id': ['exp_001'],
-        'source': ['materials_project'],
-        # Missing 'material_type' and others
-    }
-    return pd.DataFrame(data)
+def valid_dataframe(sample_schema):
+    """Return a valid DataFrame matching the schema."""
+    return pd.DataFrame({
+        "experiment_id": ["exp_001", "exp_002"],
+        "source": ["NIST", "Materials Project"],
+        "material_type": ["Steel", "Aluminum"],
+        "milling_speed": [300.0, 400.0],
+        "milling_time": [2.0, 4.0],
+        "ball_to_powder_ratio": [10.0, 15.0],
+        "youngs_modulus": [200.0, 70.0],
+        "density": [7.8, 2.7],
+        "d10": [10.0, 15.0],
+        "d50": [25.0, 30.0],
+        "d90": [50.0, 60.0],
+        "process_duration": [2.0, 4.0],
+    })
 
 
 @pytest.fixture
-def invalid_values_dataframe(valid_schema):
-    """Create a DataFrame with invalid values (e.g., negative duration)."""
-    data = {
-        'experiment_id': ['exp_001'],
-        'source': ['materials_project'],
-        'material_type': ['Ceramic'],
-        'milling_speed_rpm': [-100.0],  # Invalid: negative
-        'process_duration_h': [2.0],
-        'ball_to_powder_ratio': [10.0],
-        'jar_material': ['Zirconia'],
-        'ball_material': ['Zirconia'],
-        'material_density_g_cm3': [3.9],
-        'youngs_modulus_gpa': [350.0],
-        'd10_um': [1.2],
-        'd50_um': [5.0],
-        'd90_um': [12.0]
-    }
-    return pd.DataFrame(data)
+def small_dataframe(sample_schema):
+    """Return a small valid DataFrame (1 row) - T007b does NOT check row count."""
+    return pd.DataFrame({
+        "experiment_id": ["exp_001"],
+        "source": ["NIST"],
+        "material_type": ["Steel"],
+        "milling_speed": [300.0],
+        "milling_time": [2.0],
+        "ball_to_powder_ratio": [10.0],
+        "youngs_modulus": [200.0],
+        "density": [7.8],
+        "d10": [10.0],
+        "d50": [25.0],
+        "d90": [50.0],
+        "process_duration": [2.0],
+    })
 
 
 @pytest.fixture
-def invalid_enum_dataframe(valid_schema):
-    """Create a DataFrame with invalid enum value for 'source'."""
-    data = {
-        'experiment_id': ['exp_001'],
-        'source': ['unknown_source'],  # Invalid enum
-        'material_type': ['Ceramic'],
-        'milling_speed_rpm': [300.0],
-        'process_duration_h': [2.0],
-        'ball_to_powder_ratio': [10.0],
-        'jar_material': ['Zirconia'],
-        'ball_material': ['Zirconia'],
-        'material_density_g_cm3': [3.9],
-        'youngs_modulus_gpa': [350.0],
-        'd10_um': [1.2],
-        'd50_um': [5.0],
-        'd90_um': [12.0]
-    }
-    return pd.DataFrame(data)
+def invalid_nulls_dataframe(sample_schema):
+    """Return a DataFrame with null values in a required column."""
+    df = valid_dataframe(sample_schema).copy()
+    df.loc[0, "d50"] = None
+    return df
 
 
-def test_load_schema(valid_schema):
-    """Test that the schema loads correctly."""
-    assert valid_schema is not None
-    assert 'required' in valid_schema
-    assert 'properties' in valid_schema
-    assert 'experiment_id' in valid_schema['properties']
+@pytest.fixture
+def missing_column_dataframe(sample_schema):
+    """Return a DataFrame missing a required column."""
+    df = valid_dataframe(sample_schema).copy()
+    df = df.drop(columns=["d90"])
+    return df
 
 
-def test_validate_dataframe_valid(valid_schema, valid_dataframe):
-    """Test validation with a valid DataFrame."""
-    errors = validate_dataframe(valid_dataframe, valid_schema)
-    assert len(errors) == 0
+def test_validate_schema_success(valid_dataframe, sample_schema):
+    """Test that a valid DataFrame passes validation."""
+    result = validate_schema(valid_dataframe, sample_schema)
+    assert result is not None
+    assert len(result) == 2
+    assert list(result.columns) == list(valid_dataframe.columns)
 
 
-def test_validate_dataframe_missing_columns(valid_schema, invalid_columns_dataframe):
-    """Test validation with missing required columns."""
-    errors = validate_dataframe(invalid_columns_dataframe, valid_schema)
-    assert len(errors) > 0
-    assert any("Missing required columns" in err for err in errors)
+def test_validate_schema_insufficient_rows(small_dataframe, sample_schema):
+    """
+    Test that a DataFrame with < 150 rows PASSES validation.
+    T007b explicitly states: 'This task does NOT check row count;
+    row count validation is handled later in T015c and T017c.'
+    """
+    # This should NOT raise an error
+    result = validate_schema(small_dataframe, sample_schema)
+    assert result is not None
+    assert len(result) == 1
 
 
-def test_validate_dataframe_negative_values(valid_schema, invalid_values_dataframe):
-    """Test validation with negative numeric values."""
-    errors = validate_dataframe(invalid_values_dataframe, valid_schema)
-    assert len(errors) > 0
-    assert any("negative values" in err for err in errors)
+def test_validate_schema_null_values(invalid_nulls_dataframe, sample_schema):
+    """Test that a DataFrame with nulls raises InsufficientDataError."""
+    with pytest.raises(InsufficientDataError) as exc_info:
+        validate_schema(invalid_nulls_dataframe, sample_schema)
+    assert "null values" in str(exc_info.value).lower()
 
 
-def test_validate_dataframe_invalid_enum(valid_schema, invalid_enum_dataframe):
-    """Test validation with invalid enum value."""
-    errors = validate_dataframe(invalid_enum_dataframe, valid_schema)
-    assert len(errors) > 0
-    assert any("invalid values" in err for err in errors)
+def test_validate_schema_missing_column(missing_column_dataframe, sample_schema):
+    """Test that a DataFrame with missing columns raises InsufficientDataError."""
+    with pytest.raises(InsufficientDataError) as exc_info:
+        validate_schema(missing_column_dataframe, sample_schema)
+    assert "Missing required columns" in str(exc_info.value)
 
 
-def test_validate_and_raise_valid(valid_schema, valid_dataframe):
-    """Test that validate_and_raise does not raise for valid data."""
-    try:
-        validate_and_raise(valid_dataframe, valid_schema)
-    except ValueError:
-        pytest.fail("validate_and_raise raised ValueError unexpectedly")
+def test_validate_schema_none_input():
+    """Test that passing None raises SchemaValidationError."""
+    with pytest.raises(SchemaValidationError):
+        validate_schema(None)
 
 
-def test_validate_and_raise_invalid(valid_schema, invalid_columns_dataframe):
-    """Test that validate_and_raise raises ValueError for invalid data."""
-    with pytest.raises(ValueError):
-        validate_and_raise(invalid_columns_dataframe, valid_schema)
+def test_validate_schema_non_dataframe():
+    """Test that passing a non-DataFrame raises SchemaValidationError."""
+    with pytest.raises(SchemaValidationError):
+        validate_schema({"key": "value"})
 
 
-def test_validate_csv_file(tmp_path, valid_dataframe):
-    """Test validation of a CSV file."""
-    csv_path = tmp_path / "test_data.csv"
-    valid_dataframe.to_csv(csv_path, index=False)
-    
-    assert validate_csv_file(csv_path) is True
-
-
-def test_validate_csv_file_invalid(tmp_path, invalid_columns_dataframe):
-    """Test validation of an invalid CSV file."""
-    csv_path = tmp_path / "invalid_data.csv"
-    invalid_columns_dataframe.to_csv(csv_path, index=False)
-    
-    assert validate_csv_file(csv_path) is False
-
-
-def test_validate_csv_file_not_found():
-    """Test validation of a non-existent file."""
+def test_load_schema_file_not_found():
+    """Test that loading a non-existent schema file raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
-        validate_csv_file("non_existent_file.csv")
+        load_schema("/path/to/non_existent_schema.yaml")
+
+
+def test_load_schema_success(tmp_path):
+    """Test loading a valid schema file."""
+    schema_content = {
+        "version": "1.0",
+        "fields": [
+            {"name": "id", "type": "string", "required": True}
+        ]
+    }
+    schema_file = tmp_path / "schema.yaml"
+    with open(schema_file, "w") as f:
+        yaml.dump(schema_content, f)
+
+    loaded = load_schema(str(schema_file))
+    assert loaded["version"] == "1.0"
+    assert len(loaded["fields"]) == 1
+
+
+def test_validate_file_parquet(valid_dataframe, sample_schema, tmp_path):
+    """Test validating a parquet file."""
+    file_path = tmp_path / "test.parquet"
+    valid_dataframe.to_parquet(file_path)
+    result = validate_file(str(file_path), sample_schema)
+    assert len(result) == 2
+
+
+def test_validate_file_csv(valid_dataframe, sample_schema, tmp_path):
+    """Test validating a csv file."""
+    file_path = tmp_path / "test.csv"
+    valid_dataframe.to_csv(file_path, index=False)
+    result = validate_file(str(file_path), sample_schema)
+    assert len(result) == 2
+
+
+def test_validate_file_not_found():
+    """Test that validating a non-existent file raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        validate_file("/path/to/non_existent_file.csv")
+
+
+def test_validate_file_unsupported_format(valid_dataframe, tmp_path):
+    """Test that an unsupported file format raises ValueError."""
+    file_path = tmp_path / "test.txt"
+    file_path.write_text("some text")
+    with pytest.raises(ValueError) as exc_info:
+        validate_file(str(file_path))
+    assert "Unsupported file format" in str(exc_info.value)

@@ -1,0 +1,35 @@
+status: verified
+kind: pypi_package
+ref: ir-datasets
+access_python: 'import ir_datasets
+
+
+  ds = ir_datasets.load(''codesearchnet'')
+
+  count = ds.docs_count()
+
+  first = next(iter(ds.docs))
+
+  fields = first._fields
+
+  print(f''RECORDS={count}'')
+
+  print(''FIELDS='' + '',''.join(fields))'
+record_count: 2070536
+sample_fields:
+- doc_id
+- repo
+- path
+- func_name
+- code
+- language
+field_coverage: 0.833
+required_fields:
+- code
+- docstring
+- language
+- func_name
+- repo
+- path
+intent: download CodeSearchNet Python Java dataset pip install python package dataset
+cache_key: 3c9d9fc7ad62b56d84ac4c19ebc0072f58dbee947b85820f9b8c577f4c97f5ba

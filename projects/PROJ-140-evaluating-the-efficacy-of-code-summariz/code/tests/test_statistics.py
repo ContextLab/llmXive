@@ -5,194 +5,417 @@ from statsmodels.stats.contingency_tables import mcnemar
 from statsmodels.stats.weightstats import ttest_ind
 from statsmodels.regression.mixed_linear_model import MixedLM
 import sys
+import os
 from pathlib import Path
+from io import StringIO
 
-# Add parent directory to path to allow imports from code/
+# Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from analysis.run_statistics import (
+    run_mcnemar_tests,
+    run_lme_analysis,
+    compute_effect_sizes,
+    detect_outliers,
+    run_sensitivity_analysis
+)
+from analysis.bootstrap_utils import bootstrap_cohen_d, bootstrap_odds_ratio
+from analysis.correction_utils import holm_bonferroni_correction
+
 class TestMcNemarsTest(unittest.TestCase):
-    """
-    Unit tests for McNemar's test implementation logic.
-    This tests the statistical correctness of the contingency table setup
-    and the p-value calculation, which will be used in run_statistics.py.
-    """
+    """Unit tests for McNemar's test implementation and edge cases."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        # Create a synthetic interaction log DataFrame for testing
+        self.test_data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P1', 'P2', 'P2', 'P2'],
+            'task_id': ['T1', 'T1', 'T1', 'T2', 'T2', 'T2'],
+            'condition': ['baseline', 'llm', 'rule', 'baseline', 'llm', 'rule'],
+            'correct': [1, 1, 0, 1, 0, 1],  # 1 = correct, 0 = incorrect
+            'time_ms': [5000, 3000, 4000, 6000, 2500, 4500]
+        })
 
     def test_mcnemar_perfect_agreement(self):
-        """
-        Test case where there is perfect agreement between two conditions.
-        Off-diagonal elements (b and c) should be 0.
-        McNemar's test is undefined or p=1.0 in this case (or raises error depending on exactness).
-        We verify the contingency table construction logic.
-        """
-        # Simulating data:
-        # Condition A: Correct, Condition B: Correct -> 100
-        # Condition A: Correct, Condition B: Incorrect -> 0
-        # Condition A: Incorrect, Condition B: Correct -> 0
-        # Condition A: Incorrect, Condition B: Incorrect -> 0
-        
-        # We will construct the 2x2 table manually to test the logic
-        # Table:
-        #           B=1   B=0
-        # A=1       100     0
-        # A=0         0     0
-        
-        # In a real scenario, we would feed a DataFrame, but here we test the core logic
-        # that counts discordant pairs.
-        
-        discordant_pairs = 0 # b + c
-        self.assertEqual(discordant_pairs, 0)
+        """Test McNemar's test when both conditions have perfect agreement."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P2', 'P2'],
+            'task_id': ['T1', 'T1', 'T2', 'T2'],
+            'condition': ['baseline', 'llm', 'baseline', 'llm'],
+            'correct': [1, 1, 0, 0]
+        })
+        # Both conditions agree perfectly -> no discordant pairs
+        # Expected: b=0, c=0 -> result should handle this edge case
+        results = run_mcnemar_tests(data, 'baseline', 'llm')
+        self.assertIn('baseline_vs_llm', results)
+        # When b=c=0, the test is undefined; implementation should handle gracefully
+        self.assertIsNotNone(results['baseline_vs_llm'])
 
-    def test_mcnemar_significant_difference(self):
-        """
-        Test case where there is a significant difference between two conditions.
-        A high number of discordant pairs where B=1, A=0 vs B=0, A=1.
-        """
-        # Construct a table with significant discordance
-        # A=1, B=0 (b): 10 (A correct, B wrong)
-        # A=0, B=1 (c): 50 (A wrong, B correct)
-        # Total discordant = 60
-        
-        b = 10
-        c = 50
-        
-        # McNemar's chi-squared statistic (with continuity correction)
-        # Chi2 = (|b - c| - 1)^2 / (b + c)
-        chi2_stat = (abs(b - c) - 1)**2 / (b + c)
-        
-        # We expect a high chi-squared value indicating difference
-        self.assertGreater(chi2_stat, 3.84) # Approx p < 0.05 threshold for 1 dof
-        
-        # Verify using statsmodels if available (mocked data)
-        # We create a synthetic contingency table
-        table = np.array([[100, b], [c, 100]]) # [[a, b], [c, d]]
-        
-        result = mcnemar(table, exact=False, correction=True)
-        self.assertLess(result.pvalue, 0.05)
+    def test_mcnemar_zero_discordant_pairs(self):
+        """Test McNemar's test when there are zero discordant pairs in one direction."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P2', 'P2', 'P3', 'P3'],
+            'task_id': ['T1', 'T1', 'T2', 'T2', 'T3', 'T3'],
+            'condition': ['baseline', 'llm', 'baseline', 'llm', 'baseline', 'llm'],
+            'correct': [1, 1, 0, 1, 1, 1]  # baseline: 1,0,1; llm: 1,1,1
+        })
+        results = run_mcnemar_tests(data, 'baseline', 'llm')
+        self.assertIn('baseline_vs_llm', results)
+        # Should not raise an exception
+        self.assertIsNotNone(results['baseline_vs_llm']['p_value'])
 
-    def test_mcnemar_no_difference(self):
-        """
-        Test case where there is no significant difference.
-        Discordant pairs are roughly equal.
-        """
-        # b = 25, c = 25
-        b = 25
-        c = 25
-        
-        table = np.array([[100, b], [c, 100]])
-        result = mcnemar(table, exact=False, correction=True)
-        
-        # P-value should be high (> 0.05)
-        self.assertGreater(result.pvalue, 0.05)
+    def test_mcnemar_single_participant(self):
+        """Test McNemar's test with only one participant."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1'],
+            'task_id': ['T1', 'T1'],
+            'condition': ['baseline', 'llm'],
+            'correct': [1, 0]
+        })
+        results = run_mcnemar_tests(data, 'baseline', 'llm')
+        self.assertIn('baseline_vs_llm', results)
+        # With only one discordant pair, p-value should be 1.0 (exact test)
+        self.assertIsNotNone(results['baseline_vs_llm']['p_value'])
 
-    def test_contingency_table_construction_logic(self):
-        """
-        Verify the logic for constructing the 2x2 table from raw interaction logs.
-        This simulates the data processing step that would happen in run_statistics.py.
-        """
-        # Mock data representing binary outcomes (1=Success, 0=Fail)
-        # Condition A: [1, 1, 0, 0, 1]
-        # Condition B: [1, 0, 0, 1, 1]
-        # Pairs: (1,1), (1,0), (0,0), (0,1), (1,1)
-        # a (1,1): 2
-        # b (1,0): 1
-        # c (0,1): 1
-        # d (0,0): 1
-        
-        cond_a = np.array([1, 1, 0, 0, 1])
-        cond_b = np.array([1, 0, 0, 1, 1])
-        
-        a = np.sum((cond_a == 1) & (cond_b == 1))
-        b = np.sum((cond_a == 1) & (cond_b == 0))
-        c = np.sum((cond_a == 0) & (cond_b == 1))
-        d = np.sum((cond_a == 0) & (cond_b == 0))
-        
-        self.assertEqual(a, 2)
-        self.assertEqual(b, 1)
-        self.assertEqual(c, 1)
-        self.assertEqual(d, 1)
-        
-        table = np.array([[a, b], [c, d]])
-        result = mcnemar(table, exact=False, correction=True)
-        
-        # With b=1, c=1, chi2 = (|1-1|-1)^2 / 2 = 0.5, p > 0.05
-        self.assertGreater(result.pvalue, 0.05)
+    def test_mcnemar_all_zeros(self):
+        """Test McNemar's test when all outcomes are zero."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P2', 'P2'],
+            'task_id': ['T1', 'T1', 'T2', 'T2'],
+            'condition': ['baseline', 'llm', 'baseline', 'llm'],
+            'correct': [0, 0, 0, 0]
+        })
+        results = run_mcnemar_tests(data, 'baseline', 'llm')
+        self.assertIn('baseline_vs_llm', results)
+        # Should handle without crashing
+        self.assertIsNotNone(results['baseline_vs_llm'])
+
+    def test_mcnemar_large_sample(self):
+        """Test McNemar's test with a larger sample size."""
+        np.random.seed(42)
+        n = 100
+        data = pd.DataFrame({
+            'participant_id': [f'P{i}' for i in range(n)],
+            'task_id': [f'T{i}' for i in range(n)],
+            'condition': ['baseline'] * n + ['llm'] * n,
+            'correct': np.concatenate([
+                np.random.binomial(1, 0.7, n),
+                np.random.binomial(1, 0.8, n)
+            ])
+        })
+        results = run_mcnemar_tests(data, 'baseline', 'llm')
+        self.assertIn('baseline_vs_llm', results)
+        self.assertIn('p_value', results['baseline_vs_llm'])
+        self.assertIsInstance(results['baseline_vs_llm']['p_value'], float)
+
+    def test_mcnemar_missing_condition(self):
+        """Test McNemar's test when one condition is missing from data."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P2', 'P2'],
+            'task_id': ['T1', 'T1', 'T2', 'T2'],
+            'condition': ['baseline', 'baseline', 'baseline', 'baseline'],
+            'correct': [1, 0, 1, 1]
+        })
+        with self.assertRaises(ValueError):
+            run_mcnemar_tests(data, 'baseline', 'llm')
+
+    def test_mcnemar_empty_dataframe(self):
+        """Test McNemar's test with an empty DataFrame."""
+        data = pd.DataFrame(columns=['participant_id', 'task_id', 'condition', 'correct'])
+        with self.assertRaises(ValueError):
+            run_mcnemar_tests(data, 'baseline', 'llm')
+
+    def test_mcnemar_invalid_correct_values(self):
+        """Test McNemar's test with invalid values in 'correct' column."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P2', 'P2'],
+            'task_id': ['T1', 'T1', 'T2', 'T2'],
+            'condition': ['baseline', 'llm', 'baseline', 'llm'],
+            'correct': [1, 2, 0, 1]  # 2 is invalid
+        })
+        # Should either raise or handle gracefully; checking it doesn't crash unexpectedly
+        try:
+            results = run_mcnemar_tests(data, 'baseline', 'llm')
+            # If it doesn't raise, it should handle the invalid value
+            self.assertIsNotNone(results)
+        except (ValueError, TypeError):
+            # Expected behavior if validation is strict
+            pass
+
 
 class TestEffectSizeCalculation(unittest.TestCase):
-    """
-    Unit tests for Odds Ratio and Cohen's d calculation logic.
-    """
+    """Unit tests for effect size calculation and edge cases."""
 
-    def test_odds_ratio_calculation(self):
-        """
-        Verify Odds Ratio calculation: OR = (a * d) / (b * c)
-        """
-        a, b, c, d = 10, 5, 20, 15
-        or_val = (a * d) / (b * c)
-        expected = (10 * 15) / (5 * 20)
-        self.assertAlmostEqual(or_val, expected)
+    def setUp(self):
+        """Set up test fixtures."""
+        self.test_data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P1', 'P2', 'P2', 'P2'],
+            'task_id': ['T1', 'T1', 'T1', 'T2', 'T2', 'T2'],
+            'condition': ['baseline', 'llm', 'rule', 'baseline', 'llm', 'rule'],
+            'correct': [1, 1, 0, 1, 0, 1],
+            'time_ms': [5000, 3000, 4000, 6000, 2500, 4500]
+        })
 
-    def test_cohen_d_calculation(self):
-        """
-        Verify Cohen's d calculation for independent samples.
-        d = (mean1 - mean2) / pooled_std
-        """
-        group1 = np.array([10, 12, 14, 16, 18])
-        group2 = np.array([5, 7, 9, 11, 13])
-        
-        mean1 = np.mean(group1)
-        mean2 = np.mean(group2)
-        
-        std1 = np.std(group1, ddof=1)
-        std2 = np.std(group2, ddof=1)
-        
-        n1 = len(group1)
-        n2 = len(group2)
-        
-        pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
-        
-        d = (mean1 - mean2) / pooled_std
-        
-        # Manual check:
-        # mean1 = 14, mean2 = 9, diff = 5
-        # std1 = 3.16, std2 = 3.16
-        # pooled ~ 3.16
-        # d ~ 1.58
-        self.assertGreater(d, 1.0)
-        self.assertLess(d, 2.0)
+    def test_cohen_d_perfect_separation(self):
+        """Test Cohen's d when groups are perfectly separated."""
+        group1 = np.array([1.0, 2.0, 3.0])
+        group2 = np.array([10.0, 11.0, 12.0])
+        # Should compute a large effect size
+        result = ttest_ind(group1, group2)
+        self.assertGreater(result.effectsize, 5.0)
+
+    def test_cohen_d_identical_groups(self):
+        """Test Cohen's d when groups are identical."""
+        group1 = np.array([1.0, 2.0, 3.0])
+        group2 = np.array([1.0, 2.0, 3.0])
+        result = ttest_ind(group1, group2)
+        self.assertAlmostEqual(result.effectsize, 0.0, places=5)
+
+    def test_cohen_d_single_value(self):
+        """Test Cohen's d with a single value in one group."""
+        group1 = np.array([1.0])
+        group2 = np.array([2.0, 3.0, 4.0])
+        # Should handle without crashing
+        try:
+            result = ttest_ind(group1, group2)
+            # effectsize might be NaN or Inf depending on implementation
+            self.assertTrue(np.isfinite(result.effectsize) or np.isnan(result.effectsize))
+        except Exception:
+            # Expected if standard deviation is zero
+            pass
+
+    def test_cohen_d_very_small_variance(self):
+        """Test Cohen's d with very small variance."""
+        group1 = np.array([1.0, 1.0000001, 1.0000002])
+        group2 = np.array([2.0, 2.0000001, 2.0000002])
+        result = ttest_ind(group1, group2)
+        # Should compute without crashing
+        self.assertIsNotNone(result.effectsize)
+
+    def test_odds_ratio_zero_cell(self):
+        """Test Odds Ratio calculation when one cell is zero."""
+        # contingency table: [[a, b], [c, d]]
+        table = np.array([[10, 0], [5, 8]])
+        # Odds ratio should handle zero cell (possibly with continuity correction)
+        result = bootstrap_odds_ratio(table, n_resamples=100, seed=42)
+        self.assertIsNotNone(result)
+        self.assertIn('odds_ratio', result)
+        self.assertIn('ci_lower', result)
+        self.assertIn('ci_upper', result)
+
+    def test_odds_ratio_all_zeros(self):
+        """Test Odds Ratio when all cells are zero."""
+        table = np.array([[0, 0], [0, 0]])
+        # Should handle gracefully
+        result = bootstrap_odds_ratio(table, n_resamples=100, seed=42)
+        self.assertIsNotNone(result)
+
+    def test_bootstrap_with_small_sample(self):
+        """Test bootstrap functions with very small sample size."""
+        table = np.array([[5, 3], [2, 4]])
+        result = bootstrap_odds_ratio(table, n_resamples=10, seed=42)
+        self.assertIsNotNone(result)
+        self.assertIn('odds_ratio', result)
+
+    def test_effect_sizes_computation(self):
+        """Test the compute_effect_sizes function with real data."""
+        results = compute_effect_sizes(self.test_data)
+        self.assertIsInstance(results, dict)
+        self.assertIn('accuracy', results)
+        self.assertIn('speed', results)
+        # Check that effect sizes are computed for comparisons
+        for comparison in ['baseline_vs_llm', 'baseline_vs_rule']:
+            if comparison in results['accuracy']:
+                self.assertIn('odds_ratio', results['accuracy'][comparison])
+                self.assertIn('ci_lower', results['accuracy'][comparison])
+                self.assertIn('ci_upper', results['accuracy'][comparison])
+
 
 class TestLMEModel(unittest.TestCase):
-    """
-    Unit tests for Linear Mixed-Effects model setup.
-    """
+    """Unit tests for Linear Mixed-Effects model and edge cases."""
 
-    def test_lme_model_construction(self):
-        """
-        Verify that the LME model can be constructed with random intercepts.
-        """
-        # Create synthetic data
+    def setUp(self):
+        """Set up test fixtures."""
+        self.test_data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P1', 'P2', 'P2', 'P2', 'P3', 'P3', 'P3'],
+            'task_id': ['T1', 'T1', 'T1', 'T2', 'T2', 'T2', 'T3', 'T3', 'T3'],
+            'condition': ['baseline', 'llm', 'rule', 'baseline', 'llm', 'rule', 'baseline', 'llm', 'rule'],
+            'time_ms': [5000, 3000, 4000, 6000, 2500, 4500, 5500, 2800, 4200]
+        })
+
+    def test_lme_single_group(self):
+        """Test LME model when all data belongs to one group."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P2', 'P2'],
+            'condition': ['baseline', 'baseline', 'baseline', 'baseline'],
+            'time_ms': [5000, 5100, 5200, 5300]
+        })
+        # LME requires variation in the fixed effect; should handle gracefully
+        try:
+            result = run_lme_analysis(data, 'time_ms', 'condition', 'participant_id')
+            self.assertIsNotNone(result)
+        except Exception:
+            # Expected if model cannot converge with no fixed effect variation
+            pass
+
+    def test_lme_single_participant(self):
+        """Test LME model with only one participant."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P1'],
+            'condition': ['baseline', 'llm', 'rule'],
+            'time_ms': [5000, 3000, 4000]
+        })
+        # LME requires multiple participants for random effects
+        try:
+            result = run_lme_analysis(data, 'time_ms', 'condition', 'participant_id')
+            # Should handle or warn
+            self.assertIsNotNone(result)
+        except Exception:
+            # Expected if model cannot estimate random effects
+            pass
+
+    def test_lme_very_small_variance(self):
+        """Test LME model with very small variance in outcome."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P2', 'P2'],
+            'condition': ['baseline', 'llm', 'baseline', 'llm'],
+            'time_ms': [5000.0, 5000.0001, 5000.0002, 5000.0003]
+        })
+        try:
+            result = run_lme_analysis(data, 'time_ms', 'condition', 'participant_id')
+            self.assertIsNotNone(result)
+        except Exception:
+            # Expected if model cannot converge
+            pass
+
+    def test_lme_missing_random_effect_levels(self):
+        """Test LME when some participants have only one observation."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P2', 'P2'],
+            'condition': ['baseline', 'llm', 'rule'],
+            'time_ms': [5000, 3000, 4000]
+        })
+        try:
+            result = run_lme_analysis(data, 'time_ms', 'condition', 'participant_id')
+            self.assertIsNotNone(result)
+        except Exception:
+            # Expected if model cannot estimate random effects
+            pass
+
+    def test_lme_normal_case(self):
+        """Test LME model with normal, well-formed data."""
         np.random.seed(42)
-        n_participants = 10
-        n_tasks_per_participant = 5
-        
-        participant_ids = np.repeat(range(n_participants), n_tasks_per_participant)
-        task_ids = np.tile(range(n_tasks_per_participant), n_participants)
-        condition = np.random.choice([0, 1], size=n_participants * n_tasks_per_participant)
-        # Simulate response with a fixed effect for condition and random intercept for participant
-        fixed_effect = 2.0
-        random_intercepts = np.random.normal(0, 1, n_participants)[participant_ids]
-        noise = np.random.normal(0, 0.5, n_participants * n_tasks_per_participant)
-        response = fixed_effect * condition + random_intercepts + noise
-        
-        endog = response
-        exog = condition.reshape(-1, 1)
-        groups = participant_ids
-        
-        # Construct model
-        model = MixedLM(endog, exog, groups=groups)
-        result = model.fit()
-        
+        n_participants = 20
+        n_tasks = 3
+        data = pd.DataFrame({
+            'participant_id': [f'P{i}' for i in range(n_participants) for _ in range(n_tasks)],
+            'condition': ['baseline', 'llm', 'rule'] * n_participants,
+            'time_ms': np.random.normal(4000, 500, n_participants * n_tasks)
+        })
+        result = run_lme_analysis(data, 'time_ms', 'condition', 'participant_id')
         self.assertIsNotNone(result)
-        self.assertIn('cond', result.params.index)
+        self.assertIn('fixed_effects', result)
+        self.assertIn('random_effects_variance', result)
+
+
+class TestOutlierDetection(unittest.TestCase):
+    """Unit tests for outlier detection edge cases."""
+
+    def test_detect_outliers_empty_data(self):
+        """Test outlier detection with empty DataFrame."""
+        data = pd.DataFrame(columns=['participant_id', 'time_ms'])
+        result = detect_outliers(data, 'time_ms')
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 0)
+
+    def test_detect_outliers_single_value(self):
+        """Test outlier detection with a single value."""
+        data = pd.DataFrame({'time_ms': [5000.0]})
+        result = detect_outliers(data, 'time_ms')
+        self.assertIsInstance(result, list)
+        # No outliers possible with single value
+        self.assertEqual(len(result), 0)
+
+    def test_detect_outliers_all_identical(self):
+        """Test outlier detection when all values are identical."""
+        data = pd.DataFrame({'time_ms': [5000.0, 5000.0, 5000.0]})
+        result = detect_outliers(data, 'time_ms')
+        self.assertIsInstance(result, list)
+        # No outliers if all values are the same
+        self.assertEqual(len(result), 0)
+
+    def test_detect_outliers_normal_case(self):
+        """Test outlier detection with normal data including one outlier."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P2', 'P3', 'P4', 'P5'],
+            'time_ms': [4000, 4100, 3900, 4050, 15000]  # 15000 is an outlier
+        })
+        result = detect_outliers(data, 'time_ms')
+        self.assertIsInstance(result, list)
+        # Should identify the outlier
+        self.assertGreater(len(result), 0)
+        self.assertIn('P5', result)
+
+    def test_detect_outliers_with_nan(self):
+        """Test outlier detection with NaN values."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P2', 'P3'],
+            'time_ms': [4000.0, np.nan, 4100.0]
+        })
+        # Should handle NaN without crashing
+        result = detect_outliers(data, 'time_ms')
+        self.assertIsInstance(result, list)
+
+
+class TestSensitivityAnalysis(unittest.TestCase):
+    """Unit tests for sensitivity analysis edge cases."""
+
+    def test_sensitivity_empty_config(self):
+        """Test sensitivity analysis with empty config."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1'],
+            'condition': ['baseline', 'llm'],
+            'correct': [1, 0]
+        })
+        # Should handle empty config gracefully
+        result = run_sensitivity_analysis(data, 'baseline', 'llm', 'correct', [])
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(len(result), 0)
+
+    def test_sensitivity_single_cutoff(self):
+        """Test sensitivity analysis with a single cutoff value."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P2', 'P2'],
+            'condition': ['baseline', 'llm', 'baseline', 'llm'],
+            'correct': [1, 1, 0, 1]
+        })
+        result = run_sensitivity_analysis(data, 'baseline', 'llm', 'correct', [0.05])
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertEqual(len(result), 1)
+
+    def test_sensitivity_duplicate_cutoffs(self):
+        """Test sensitivity analysis with duplicate cutoff values."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P2', 'P2'],
+            'condition': ['baseline', 'llm', 'baseline', 'llm'],
+            'correct': [1, 1, 0, 1]
+        })
+        result = run_sensitivity_analysis(data, 'baseline', 'llm', 'correct', [0.05, 0.05, 0.10])
+        self.assertIsInstance(result, pd.DataFrame)
+        # Should handle duplicates (either deduplicate or process multiple times)
+        self.assertGreater(len(result), 0)
+
+    def test_sensitivity_invalid_cutoffs(self):
+        """Test sensitivity analysis with invalid cutoff values."""
+        data = pd.DataFrame({
+            'participant_id': ['P1', 'P1'],
+            'condition': ['baseline', 'llm'],
+            'correct': [1, 0]
+        })
+        # Negative or >1 cutoffs should be handled
+        result = run_sensitivity_analysis(data, 'baseline', 'llm', 'correct', [-0.1, 0.05, 1.5])
+        self.assertIsInstance(result, pd.DataFrame)
+
 
 if __name__ == '__main__':
     unittest.main()

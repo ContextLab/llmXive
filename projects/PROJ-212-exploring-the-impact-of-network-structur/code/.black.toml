@@ -1,0 +1,5 @@
+# Black configuration
+# Settings are primarily in pyproject.toml for unified config.
+# This file exists to ensure black finds config in root if pyproject is ignored.
+line-length = 100
+target-version = ['py39']

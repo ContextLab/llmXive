@@ -1,0 +1,18 @@
+# Ruff configuration for llmXive project
+# Strict linting rules as per task T004
+
+# Select strict rules: pycodestyle errors, Pyflakes, isort, and pycodestyle warnings
+select = ["E", "F", "I", "W"]
+
+line-length = 88
+target-version = "py311"
+
+# Standard excludes for environment and version control
+exclude = [
+    ".git",
+    "venv",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]

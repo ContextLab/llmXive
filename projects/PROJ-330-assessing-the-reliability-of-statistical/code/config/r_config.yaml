@@ -1,0 +1,23 @@
+# R Script Configuration
+# Directory containing R scripts used by the pipeline
+r_script_dir: code/scripts
+
+# Memory Configuration
+# Maximum memory (MB) for R processes. Used to set R_MAX_VSIZE environment variable.
+memory_limit_mb: 4096
+
+# Time Configuration
+# Maximum execution time (seconds) for R processes before timeout.
+time_limit_seconds: 3600
+
+# R Executable
+# Path to Rscript executable. Use full path if not in system PATH.
+r_executable: Rscript
+
+# Additional Environment
+# Extra environment variables to set for R processes.
+additional_env:
+  # Custom library path for R packages
+  R_LIBS_USER: code/R_libs
+  # Disable interactive prompts in R
+  R_INTERACTIVE: "false"

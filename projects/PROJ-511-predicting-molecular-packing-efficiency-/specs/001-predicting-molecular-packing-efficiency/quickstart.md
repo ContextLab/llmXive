@@ -1,69 +1,94 @@
-# Quickstart: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
+# Quickstart: Predicting Molecular Packing Efficiency
 
 ## Prerequisites
-
-- Python 3.11+
-- `pip` or `conda`
-- Access to the Crystallography Open Database (internet required for download)
+* Python 3.11 or newer  
+* `pip` (installed with Python)  
+* Internet access to download the COD dataset **once a verified URL is supplied** (see Data Availability note below).  
 
 ## Installation
+```bash
+# Navigate to the project root
+cd projects/PROJ-511-predicting-molecular-packing-efficiency-
 
-1.  **Clone and Setup**:
-    ```bash
-    cd projects/PROJ-511-predicting-molecular-packing-efficiency-/
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r code/requirements.txt
-    ```
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
 
-2.  **Verify Dependencies**:
-    ```bash
-    python -c "import rdkit; import torch; print('Dependencies OK')"
-    ```
+# Install exact dependencies
+pip install -r code/requirements.txt
+```
 
 ## Running the Pipeline
+> **Important** – The pipeline cannot start until a verified COD dataset URL is provided (see Data Availability section). Once the source is available, the steps below will run end‑to‑end on a fresh GitHub Actions runner.
 
-### Step 1: Data Acquisition & Feature Engineering
-Download COD Organic Subset, generate SMILES, and compute features.
+### Step 1: Data Acquisition & Feature Engineering (Phase 0)
 ```bash
-python code/data/download_cod.py
-python code/data/generate_smiles.py
-python code/data/compute_features.py
+# 1. Download and filter COD entries (organic ≤ 50 non‑H atoms)
+python code/download_cod.py --output data/raw/cod.jsonl
+
+# 2. Extract or generate SMILES
+python code/generate_smiles.py \
+    --input data/raw/cod.jsonl \
+    --output data/processed/with_smiles.csv
+
+# 3. Compute 3‑D geometry descriptors and confounder counts
+python code/compute_descriptors.py \
+    --input data/processed/with_smiles.csv \
+    --output data/processed/with_descriptors.csv
+
+# 4. Encode SMILES with the frozen transformer (streaming, CPU‑only, batch size auto‑fallback)
+python code/encode_smiles.py \
+    --input data/processed/with_descriptors.csv \
+    --output data/processed/full_feature_matrix.csv
 ```
-*Output*: `data/processed/dataset.csv`, `data/data_provenance.json`
 
-### Step 2: Model Training
-Train the Baseline and Upper Bound models on the processed dataset.
+### Step 2: Model Training (Phase 2)
 ```bash
-python code/models/trainer.py
+python code/train_model.py \
+    --data data/processed/full_feature_matrix.csv \
+    --model-primary data/artifacts/model_primary.pt \
+    --model-full data/artifacts/model_full.pt
 ```
-*Output*: `models/baseline_checkpoint.pt`, `models/upper_bound_checkpoint.pt`, `results/training_log.json`
 
-### Step 3: Evaluation & Robustness
-Run validation, permutation tests (1,000 shuffles), and threshold sweeps.
+### Step 3: Evaluation & Reporting (Phases 3‑5)
 ```bash
-python code/analysis/diagnostics.py
-python code/analysis/robustness.py
+# Evaluation (metrics, permutation test, VIF, residual analysis)
+python code/evaluate_model.py \
+    --model data/artifacts/model_primary.pt \
+    --data data/processed/full_feature_matrix.csv \
+    --output data/artifacts/validation_report.json
+
+# Sensitivity analysis over high‑packing thresholds
+python code/sensitivity_analysis.py \
+    --model data/artifacts/model_primary.pt \
+    --data data/processed/full_feature_matrix.csv \
+    --output data/artifacts/sensitivity_results.json
+
+# Generate the final HTML report
+python code/report_generator.py \
+    --validation data/artifacts/validation_report.json \
+    --output data/artifacts/report.html
 ```
-*Output*: `results/validation_report.json`
 
-### Step 4: Generate Report
-Create the final HTML report.
+## Verification Checklist
+- **Dataset size**: `full_feature_matrix.csv` contains **≥ 500** rows (SC‑001).  
+- **Primary model performance**: `validation_report.json` shows `spearman_rho ≥ 0.3` **and** Bonferroni‑corrected `p_value ≤ 0.05`, indicating statistical significance at the conventional α = 0.05 level (SC‑002).  
+- **Null‑result check**: If `spearman_rho < 0.2`, the report must show `p_value ≥ 0.05` (SC‑003).  
+- **Robustness**: Sensitivity table shows variation of `spearman_rho` across thresholds ≤ ±0.05 (SC‑004 is not defined; robustness is captured by the sensitivity analysis).  
+- **Runtime**: Full pipeline completes ≤ 6 h on the GitHub Actions free‑tier runner (SC‑005).  
+
+Run the test suite to confirm all unit and integration tests pass:
 ```bash
-python code/report/generate_report.py
-```
-*Output*: `results/report.html`
-
-## Validation
-
-Run the contract tests to ensure data and outputs match schemas:
-```bash
-pytest tests/contract/
+pytest tests/
 ```
 
 ## Troubleshooting
+| Symptom | Possible Cause | Remedy |
+|---------|----------------|--------|
+| OOM during `encode_smiles.py` | Batch size too large for available RAM | The script automatically reduces the batch size (64 → 32 → 16) and retries. |
+| Few records after filtering | Atom‑count or volume filters too strict | Inspect `data/raw/cod.jsonl` and adjust `--max-atoms` or `--volume-range` parameters. |
+| Permutation test takes longer than expected | Inefficient parallelization | Ensure `joblib` is using all available cores; the implementation is optimized to finish within 2 h. |
+| Missing COD data | No verified COD URL is supplied | Provide a verified COD mirror URL or adopt an open substitute as described in the Data Availability note. |
 
-- **Memory Error**: Ensure `data/processed/dataset.csv` is not loaded entirely into RAM at once if N > 2000. The pipeline uses chunked processing.
-- **CUDA Error**: If `ImportError: No module named 'torch.cuda'` appears, ensure the CPU-only version of PyTorch was installed (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-- **Missing SMILES**: If the script fails to generate SMILES, check the CIF coordinates for validity. Corrupt CIFs are logged in `data/logs/parsing_errors.log`.
-- **Runtime Error**: If the pipeline exceeds 4 hours, check the `data_provenance.json` to ensure the correct subset was downloaded.
+---
+

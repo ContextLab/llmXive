@@ -1,203 +1,138 @@
 # Tasks: Investigating the Impact of Network Centrality on Neural Synchrony During Sleep Stages
 
-**Input**: Design documents from `/specs/001-network-centrality-sleep-synchrony/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: Design documents from `specs/001-network-centrality-sleep-synchrony/` (spec.md, plan.md, data‑model.md, contracts/)  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories)
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Task format
+`- [ ] T### [P?] [USx?] description with exact artifact paths`  
+- **[P]** – can run in parallel (different files, no data dependencies)  
+- **[USx]** – user‑story label (US1, US2, US3)  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so that they:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per implementation plan: `code/`, `data/raw`, `data/processed`, `data/metrics`, `data/results`, `tests/unit`, `tests/integration`. Verify each directory exists after creation.
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (mne, statsmodels, networkx, scipy, pandas, numpy, pyedflib).
-- [X] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `code/`.
+All tasks respect the data‑flow ordering indicated by the indentation and by the “Depends on” table below.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1: Setup and first end‑to‑end analysis
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T001 [P] [US1] Establish project layout, configuration, and verified data acquisition from PhysioNet (FR‑001) <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download.py exit=1 -->
+  - Update `specs/001-investigating-the-impact-of-network-cent/contracts/analysis.schema.yaml` to replace all references to "FDR-corrected" with "Bonferroni-corrected" to align with Constitution Principle VII.  
+  - Write `code/config.yaml` with all signal‑processing parameters: bandpass 0.5–45 Hz, ICA kurtosis > 5.0, high‑frequency power > 3 × baseline, theta 4–8 Hz, alpha 8–13 Hz, epoch length 30 s, random seed, `N_MIN` = 30, VIF threshold 5.0, α = 0.05.  
+  - Write `code/requirements.txt` with pinned versions of `mne`, `statsmodels`, `networkx`, `scipy`, `pandas`, `numpy`, `pyedflib`.  
+  - Implement `code/download.py::download_sleep_edf(output_dir='data/raw/', n_subjects=…)` using MNE‑Python’s PhysioNet Sleep‑EDF fetch (`mne.datasets.sleep_physionet.fetch_data`). The fetch **must raise** on any download failure; no synthetic fallback. Verify file integrity via SHA‑256 checksums recorded in `data/raw/download_log.txt`. Corrupted `.edf` files are logged and **skipped** without halting the job (edge‑case: Data Corruption).  
+  - **Verification**: `python -c "import mne,statsmodels,networkx,scipy,pandas,numpy,pyedflib"` succeeds; `data/raw/` contains ≥ 30 subjects; `data/raw/download_log.txt` lists checksum‑verified files; `analysis.schema.yaml` specifies Bonferroni.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T002 [US1] Implement EEG preprocessing: filtering, ICA artifact removal, epoching, night‑ID extraction (FR‑002, FR‑011)  
+  - `code/preprocess.py::apply_bandpass_filter(raw, low=0.5, high=45.0)` – unit test in `code/tests/test_preprocess.py` verifies a 10 Hz sinusoid passes while 0.1 Hz and 100 Hz components are attenuated.  
+  - `code/preprocess.py::remove_ica_artifacts(filtered, kurtosis_thr=5.0, power_ratio_thr=3.0)` – flags/removes components with kurtosis > 5.0 **or** high‑frequency power > 3 × baseline; unit test flags a synthetic high‑kurtosis component.  
+  - `code/preprocess.py::epoch_by_sleep_stage(cleaned, annotations, epoch_sec=30)` – produces 30‑second epochs labeled Wake/N1/N2/N3/REM; extracts `waking_night_id` and `sleep_night_id` from recording metadata. Outputs `data/processed/epochs_{subject_id}.npz` and `data/processed/metadata_{subject_id}.json`.  
+  - `code/preprocess.py::validate_no_nans(arr)` – raises on any NaN; status logged to `data/processed/validation_log.txt`.  
+  - Missing sleep stages for a subject are recorded (no imputation, no crash – edge‑case: Missing Sleep Stages).  
+  - **Verification**: Run on a real 3‑subject subset; epochs have correct shape, correct labels, and contain no NaNs.
 
-- [X] T006 [P] Create `code/loaders.py` with functions `load_raw_edf` and `load_annotations` to handle `data/raw` vs `data/processed` directory structure.
-- [X] T004 [P] Create `code/config.yaml` with signal‑processing parameters (filter cutoffs 0.5‑45 Hz, ICA thresholds, band definitions).
-- [X] T005 [P] Implement `code/__init__.py` and basic logging infrastructure in `code/main.py`. *Note*: Runtime depends on T004 and T006 being present.
-- [X] T007 [P] Setup environment configuration management (random seed pinning in `code/config.yaml`).
-- [X] T008 [P] Implement data integrity check utility (checksum verification for raw files).
+- [ ] T003 [US2] Compute connectivity, centrality, PLI, VIF, and aggregate subject‑level metrics (FR‑003, FR‑004, FR‑005, FR‑009)  
+  - `code/metrics.py::compute_connectivity_matrix(waking_signal, bands={'theta':(4,8),'alpha':(8,13)})` – symmetric coherence matrices with values strictly in (0, 1); saved as `data/processed/connectivity_{subject_id}_{band}.npy`; also compute `global_coherence_mean` (covariate). Unit test checks symmetry and range.  
+  - `code/metrics.py::compute_centrality_metrics(matrix)` – degree, betweenness, eigenvector centrality via NetworkX; validated on a synthetic star graph against reference values within 1e‑6 (US‑2 acceptance scenario 2).  
+  - `code/metrics.py::compute_pli(epoch_signal)` – Phase Lag Index across electrode pairs per epoch, aggregated to a mean global synchrony score per sleep stage (single float in [0, 1]); unit test on synthetic phase‑locked signals.  
+  - `code/metrics.py::compute_vif(centrality_df)` – VIF per centrality metric, flags > 5.0; output `data/metrics/vif_report.json`; unit test on correlated synthetic data.  
+  - `code/metrics.py::aggregate_subject_metrics(...)` – one row per subject per stage (missing stage‑subject pairs excluded, not zero‑imputed) into `data/metrics/SubjectMetrics.csv` conforming to `specs/.../contracts/dataset.schema.yaml`. Columns: `subject_id, stage_label, mean_pli, n_epochs, centrality_degree_mean, centrality_betweenness_mean, centrality_eigenvector_mean, waking_night_id, sleep_night_id, temporal_proximity`.  
+  - **Verification**: Integration test loads `SubjectMetrics.csv`, validates schema, numeric ranges, and presence of all required columns.
 
-**Checkpoint**: Foundation ready – user story implementation can now begin in parallel.
-
----
-
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Automatically download Sleep‑EDF dataset, preprocess EEG (filtering, ICA), and segment into labeled epochs.
-
-**Independent Test**: The pipeline executes on a subset, output matches expected epoch counts, and no NaN values remain in filtered arrays.
-
-### Implementation for User Story 1
-
-- [X] T012 [US1] Implement `code/download.py` to fetch Sleep‑EDF from PhysioNet via MNE, verify checksums (FR‑001).
-- [X] T016 [US1] Add error handling for corrupted `.edf` files in `code/download.py` (log error, skip file, continue) (Edge Case: Data Corruption).
-- [ ] [ ] T013 [US1] Implement `code/preprocess.py` band‑pass filter (0.5–45 Hz) on raw EEG signals (FR‑002).
-- [ ] [ ] T014 [US1] Implement `code/preprocess.py` ICA artifact removal (kurtosis > 5.0 or high‑freq power > 3× baseline) (FR‑002).
-- [ ] [ ] T015 [US1] Implement `code/preprocess.py` epoching into ‑second windows labeled by sleep stage (Wake, N1‑N3, REM) (FR‑002).
-- [ ] [ ] T017 [US1] Add validation step to ensure no NaN values remain in output arrays.
-- [ ] [ ] T018 [US1] Output cleaned signal arrays and epoch metadata to `data/processed/`.
-
-### Tests for User Story 1 (OPTIONAL)
-
-- [X] T048 [P] [US1] Unit test for checksum verification in `tests/unit/test_download.py`.
-- [X] T049 [P] [US1] Unit test for ICA artifact flagging logic in `tests/unit/test_preprocess.py`.
-- [X] T050 [P] [US1] Integration test for full download‑to‑epoch flow in `tests/integration/test_pipeline.py`.
-
-**Checkpoint**: User Story 1 should be fully functional and testable independently.
+- [ ] T004 [US3] Run a thin end‑to‑end analysis on the real subset and produce first result rows (FR‑006, FR‑007, SC‑002, SC‑003)  
+  - Wire `code/main.py` (download → preprocess → metrics → analysis) with runtime and peak‑memory logging.  
+  - Execute the full chain on the real 3‑subject subset; compute Shapiro‑Wilk normality on each centrality‑PLI pair, then select Pearson (if normal) or Spearman (if non‑normal) correlation.  
+  - Apply **Bonferroni** correction to the resulting raw p‑values (multiply by the number of tests, cap at 1.0).  
+  - Produce a preliminary `data/results/analysis_results.json` containing entries that conform to the *updated* `contracts/analysis.schema.yaml` (Bonferroni-corrected).  
+  - **Verification**: The documented command executes; JSON entries contain all required fields (`metric_name`, `stage_label`, `band`, `correlation_coefficient`, `p_value_raw`, `p_value_corrected`, `significant`, `method:"pearson"` or `"spearman"`, `global_connectivity_coefficient` set to `null`, `covariate_used:false`).
 
 ---
 
-## Phase 4: User Story 2 - Metric Computation (Centrality and Synchrony) (Priority: P2)
+## Phase 2: Complete the study and validate its evidence
 
-**Goal**: Compute network centrality metrics from waking connectivity and neural synchrony (PLI) from sleep epochs.
+- [ ] T005 [US1] [US2] Run the complete dataset through preprocessing and metric computation (FR‑001–FR‑005, SC‑001)  
+  - Process all downloaded subjects subject‑by‑subject to stay < 4 GB RAM; compute processed‑subject percentage against total downloaded (SC‑001) recorded in `data/processed/preprocessing_complete.txt`.  
+  - Regenerate the full `data/metrics/SubjectMetrics.csv` and `data/metrics/vif_report.json` on the complete dataset.  
+  - **Verification**: Distinct `subject_id` count ≥ 30 in `SubjectMetrics.csv`; all rows schema‑valid.
 
-**Independent Test**: Generate a summary CSV with centrality and synchrony scores per subject, openable in a spreadsheet without errors.
+- [ ] T006 [US3] Implement the full statistical analysis respecting FR‑010, FR‑012, and **Bonferroni** correction (FR‑006, FR‑007)  
+  - `code/analysis.py::check_sample_size(df, n_min=30)` – logs a **warning** if N < 30 and skips the correlation step (continues pipeline).  
+  - `code/analysis.py::shapiro_and_select(df)` – runs Shapiro‑Wilk on each predictor/response pair, selects Pearson if p ≥ 0.05 else Spearman; records diagnostics in `data/results/method_selection.csv`.  
+  - `code/analysis.py::compute_correlations(df)` – for each centrality metric × stage × band, computes the selected correlation coefficient and raw p‑value.  
+  - `code/analysis.py::bonferroni_correct(pvals, n_tests=24)` – applies Bonferroni correction (multiply by 24, cap at 1.0).  
+  - Assemble results into `data/results/analysis_results.json` matching the updated schema (p‑value fields now Bonferroni‑corrected, `method` set to `"pearson"` or `"spearman"`).  
+  - **Verification**: JSON contains 24 entries, all fields present, corrected p‑values ≥ raw p‑values and ≤ 1.0, `significant` flag correct.
 
-### Implementation for User Story 2
+- [ ] T007 [US3] Add independent correctness, sensitivity, and runtime checks; record actual outcomes (SC‑002, SC‑003, SC‑004, SC‑005)  
+  - Sensitivity check: re‑run `code/analysis.py` **excluding** subjects where `temporal_proximity == true`; compare coefficients in `data/results/sensitivity_temporal.json`.  
+  - Collinearity check: confirm `data/metrics/vif_report.json` flags VIF > 5.0 and that highly collinear metrics are reported descriptively, not as independent effects (edge‑case: Collinearity).  
+  - Runtime/memory check: assert full pipeline runtime < 4 h and peak RAM < 4 GB from `main.py` logs; record in `data/results/pipeline_complete.txt`.  
+  - Schema validation test: `data/results/analysis_results.json` validates against `contracts/analysis.schema.yaml`; all significant entries have corrected p < 0.05 (SC‑004).  
+  - **Verification**: All auxiliary JSON/TXT files exist and contain the expected diagnostic information.
 
-- [X] T022 [US2] Implement `code/metrics.py` to construct functional connectivity matrices using theta (4‑8 Hz) and alpha (8‑13 Hz) coherence from waking data (FR‑003).
-- [X] T023 [US2] Validate connectivity matrices are symmetric and values are strictly between 0 and 1 (FR‑003).
-- [X] T024 [US2] Implement `code/metrics.py` to compute degree, betweenness, and eigenvector centrality using NetworkX (FR‑004).
-- [X] T025 [US2] Implement `code/metrics.py` to calculate Phase Lag Index (PLI) across electrode pairs for each epoch (FR‑005).
-- [X] T026 [US2] Aggregate PLI to mean global synchrony score per sleep stage (FR‑005).
-- [X] T027 [US2] Handle missing sleep stages by excluding the subject‑stage pair (Edge Case: Missing Sleep Stages).
-- [X] T028 [US2] Calculate Variance Inflation Factor (VIF) for centrality metrics and flag > 5.0 (FR‑009); ensure VIF reporting is separate from model covariates. <!-- SKIPPED: non-mapping output -->
-- [X] T029 [US2] Extract `waking_night_id` and `sleep_night_id` to determine temporal proximity (FR‑011).
-- [X] T030 [US2] Output `data/metrics/SubjectMetrics.csv` with subject ID, centrality metrics, synchrony scores, and VIF flags.
+- [ ] T008 [US3] Generate result tables and figures directly from validated outputs (FR‑008, FR‑011)  
+  - `code/report.py` builds from `data/results/analysis_results.json`, `data/metrics/vif_report.json`, and `data/metrics/SubjectMetrics.csv` (no hand‑typed numbers):  
+    - `data/results/correlation_table.csv` – coefficient, raw p, Bonferroni‑corrected p, significance flag per metric‑stage‑band.  
+    - `figures/centrality_pli_scatter.png` – scatter plots of each centrality metric vs. mean PLI per stage with correlation fit lines.  
+    - `figures/synchrony_by_stage.png` – mean PLI distribution per sleep stage.  
+  - “Confounding Limitation” paragraph is auto‑generated whenever any subject has `temporal_proximity == true` (FR‑011).  
+  - **Verification**: Every number in the tables/figures traces programmatically to `data/results/` or `data/metrics/` artifacts; files exist and are readable.
 
-### Tests for User Story 2 (OPTIONAL)
+- [ ] T009 [P] [US3] Write the human‑readable final report (FR‑008, FR‑011)  
+  - Generate `reports/final_report.md` containing:  
+    - Sample‑size summary and any under‑powered warning (appears only if N < 30).  
+    - Results table (coefficients, raw and Bonferroni‑corrected p‑values, significance flags).  
+    - VIF table with any > 5.0 flags.  
+    - “Confounding Limitation” paragraph for temporal proximity.  
+    - Normality/Pearson/Spearman diagnostic note.  
+    - Explicit “Significant” / “Non‑Significant” labeling.  
+    - Associational (non‑causal) framing per spec Assumption 2.  
+  - **Verification**: Unit test asserts presence of all required sections and correct rendering of significance flags.
 
-- [X] T051 [P] [US2] Unit test for NetworkX centrality calculation on synthetic graph in `tests/unit/test_metrics.py`.
-- [X] T052 [P] [US2] Unit test for PLI calculation on synthetic signal in `tests/unit/test_metrics.py`.
-- [X] T053 [P] [US2] Integration test for matrix symmetry and value range (0‑1) in `tests/integration/test_metrics.py`.
-
-**Checkpoint**: User Stories 1 & 2 should both work independently.
-
----
-
-## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
-
-**Goal**: Execute correlation/LME analysis, apply FDR correction, and generate the final report.
-
-**Independent Test**: Run analysis on metrics CSV, produce a JSON report with coefficients and corrected p‑values, programmatically validatable.
-
-### Implementation for User Story 3
-
-- [X] T034 [US3] Implement subject‑count check (N ≥ 30). If N < 30, **log a warning** and continue; downstream tasks will perform effect‑size estimation (see T011).
-- [X] T011 [US3] When N < 30, compute effect sizes (Cohen’s d) and 95 % confidence intervals for each centrality‑synchrony pair; append these to `analysis_results.json`. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
- in "<unicode string>", line 2, column 1:
- **Key Implementation Details:**
- ^
-expected alphabetic or numeric character, but found '*'
- in "<unicode string>", line 2, column 2:
- **Key Implementation Details:**
- ^) -->
-- [X] T036 [US3] Perform Shapiro‑Wilk test on LME residuals for diagnostics; store results in `data/results/residuals_diagnostics.json` (FR‑012 for diagnostics only).
-- [X] T037 [US3] **Mandatory**: Implement LME analysis in `code/analysis.py` with formula `centrality ~ pli + global_coherence + (1|subject)`. Generate raw p‑values, apply **Benjamini‑Hochberg FDR** correction, and write `data/results/analysis_results.json`. This satisfies FR‑006, FR‑007 (as upgraded to FDR per plan), and FR‑012 (diagnostic Shapiro‑Wilk).
-- [X] T038 [US3] *Deprecated*: Previously separate FDR task – now superseded by T037. Marked for reference only.
-- [X] T039 [US3] Implement `code/report.py` to generate a JSON report containing coefficients, raw p‑values, FDR‑corrected p‑values, and effect‑size fields (if N < 30). (FR‑008)
-- [X] T040 [US3] Extend the report to flag results with adjusted p < 0.05 as “Significant” and others as “Non‑Significant”. (FR‑008)
-- [X] T041 [US3] Include a “Confounding Limitation” section in the report when `temporal_proximity` flag from T029 indicates waking and sleep data originate from the same night. (FR‑011)
-- [X] T042 [US3] Output final artifacts: `data/results/analysis_results.json` and a Markdown summary `reports/final_report.md`.
-
-### Tests for User Story 3 (OPTIONAL)
-
-- [X] T054 [P] [US3] Unit test for residual diagnostics JSON generation in `tests/unit/test_analysis.py`.
-- [X] T055 [P] [US3] Unit test for FDR correction logic in `tests/unit/test_analysis.py`.
-- [X] T056 [P] [US3] Integration test for end‑to‑end report generation in `tests/integration/test_analysis.py`.
-
-**Checkpoint**: All user stories should now be independently functional and produce the required deliverables.
+- [ ] T010 [P] Write the methods/results account, quick‑start guide, and document the paper‑stage handoff (FR‑008, FR‑011)  
+  - Populate `specs/001-network-centrality-sleep-synchrony/quickstart.md` with exact runnable commands (install, `python code/main.py`), expected outputs (`SubjectMetrics.csv`, `analysis_results.json`, `final_report.md`), and measured runtime/memory from `data/results/pipeline_complete.txt`.  
+  - Write `specs/001-network-centrality-sleep-synchrony/methods.md` describing: data source (Sleep‑EDF via PhysioNet/MNE), preprocessing steps, theta/alpha coherence, centrality computation, PLI calculation, **Bonferroni‑corrected** Pearson/Spearman correlation methodology, VIF diagnostics, temporal‑proximity limitation, and honest reporting of null findings.  
+  - Re‑run the documented workflow from `data/raw/` inputs; confirm all tests and artifact checks pass; capture outcome in `data/results/reproducibility_check.txt`.  
+  - Document the paper‑stage handoff: list of artefacts handed to the paper pipeline (`analysis_results.json`, `correlation_table.csv`, `figures/*.png`, `final_report.md`).  
+  - **Verification**: Re‑execution produces identical hashes for all listed artefacts; `reproducibility_check.txt` contains a success message.
 
 ---
 
-## Phase N: Polish & Cross‑Cutting Concerns
+## Phase 3: Alignment with Specification & Contracts
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T011 [P] Perform a final audit of the analysis contract and all generated results to ensure absolute alignment with Bonferroni requirements (FR‑007)  
+  - Verify that `specs/001-investigating-the-impact-of-network-cent/contracts/analysis.schema.yaml` explicitly describes "Bonferroni-corrected p-value".  
+  - Cross-reference `data/results/analysis_results.json` against the schema to ensure no "FDR" terminology persists in descriptions or values.  
+  - **Verification**: Audit log confirms 100% alignment between Constitution VII, Spec FR-007, and the final schema.
 
-- [X] T043 [P] Documentation updates in `docs/` and `README.md`: add installation instructions, usage examples, and data model diagram; create `docs/quickstart.md`.
-- [X] T044 [P] Refactor `code/metrics.py` to reduce cyclomatic complexity to a lower, manageable level and ensure every public function has a comprehensive docstring.
-- [X] T045 [P] Refactor `code/analysis.py` to enforce function length < 50 lines and add type hints throughout.
-- [X] T045 [P] Performance optimization: add memory profiling in `code/main.py` to ensure peak RAM < 4 GB (SC‑003).
-- [X] T046 [P] Run quickstart validation script to ensure end‑to‑end execution from a fresh clone.
-- [X] T047 [P] Verify runtime logging in `code/main.py` targets < 4 hours on a 2 vCPU runner (SC‑002).
+- [ ] T012 [P] Ensure the implementation of `code/analysis.py` uses the Bonferroni correction defined in the updated schema (FR‑007)  
+  - Replace any remaining reference to FDR in the code with a call to `bonferroni_correct`.  
+  - Add a unit test confirming that for a known set of raw p‑values the Bonferroni‑adjusted values match the expected calculation (p_adj = p * n_tests).  
+  - **Verification**: Unit test passes; static analysis shows no remaining FDR function calls.
 
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies – can start immediately.
-- **Foundational (Phase 2)**: Depends on Setup; blocks all user stories.
-- **User Stories (Phase 3+)**: All depend on Foundational. After that, US 1, US 2, and US 3 can run in parallel (subject to data flow).
-- **Polish (Final Phase)**: Depends on completion of the desired user stories.
-
-### User Story Data Flow
-
-- US 1 produces `data/processed/` files required by US 2.
-- US 2 produces `data/metrics/SubjectMetrics.csv` required by US 3.
-- US 3 consumes the CSV and generates final results and reports.
-
-### Parallel Opportunities
-
-- All `[P]` tasks within a phase can be developed concurrently, provided runtime ordering respects the data‑flow described above.
-- Tests marked `[P]` can be executed in parallel after their corresponding implementation tasks.
+- [ ] T013 [P] Align the sample‑size check with FR‑010 (halt with warning, not error)  
+  - Confirm that `code/analysis.py::check_sample_size` logs a warning when `N < 30` and **skips** correlation computation while allowing the pipeline to continue to later steps (e.g., reporting the warning).  
+  - Add an integration test that feeds a dataset with 20 subjects and expects the pipeline to emit the warning and produce no analysis results rather than raising an exception.  
+  - **Verification**: Integration test passes; pipeline aborts analysis but completes without error when sample size is insufficient.
 
 ---
 
-## Implementation Strategy
+## Dependencies and requirement coverage
 
-- **MVP First**: Complete Setup → Foundational → US 1, validate, then iteratively add US 2 and US 3.
-- **Incremental Delivery**: Each story is independently testable; integration occurs only at the data‑flow boundaries.
-- **Parallel Team**: One developer can finish Setup & Foundational, then separate developers take US 1, US 2, and US 3 in parallel.
+| Task | Depends on | Requirements covered |
+|------|------------|----------------------|
+| T001 | – | FR‑001, Constitution VII (Contract) |
+| T002 | T001 | FR‑002, FR‑011 |
+| T003 | T002 | FR‑003, FR‑004, FR‑005, FR‑009 |
+| T004 | T003 | FR‑006, FR‑007 (Bonferroni), SC‑002, SC‑003 |
+| T005 | T003 | FR‑001–FR‑005 at full scale, SC‑001 |
+| T006 | T005 | FR‑006, FR‑007 (Bonferroni), FR‑010, FR‑012 |
+| T007 | T006 | SC‑002, SC‑003, SC‑004, SC‑005, edge‑case collinearity |
+| T008 | T007 | FR‑008, FR‑011 |
+| T009 | T008 | FR‑008, FR‑011 |
+| T010 | T008 | Reproducibility, documentation, paper handoff |
+| T011 | T006 | FR‑007 (Final Audit) |
+| T012 | T011 | FR‑007 (Implementation Alignment) |
+| T013 | – | FR‑010 (Warning‑only behavior) |
 
----
+Tasks T011‑T013 are parallelizable ([P]) once the core pipeline (T001‑T010) is in place. All data‑flow orderings are respected: verification tasks run after the computations they verify.  
 
-## Notes
-
-- All tasks are designed to run on a CPU‑only CI runner (2 vCPU, ≤ 4 GB RAM, ≤ 6 h).
-- The pipeline respects the plan’s methodological upgrades (LME + FDR) while flagging spec contradictions for downstream amendment.
-- Edge‑case handling (missing stages, corrupted files, collinearity) is explicitly covered in the relevant tasks.
+**Compute note**: All methods (MNE filtering/ICA, NetworkX centrality, Pearson/Spearman correlation) are CPU‑tractable on the default free runner (2 vCPU, ≈ 7 GB RAM, ≤ 6 h). Data are processed subject‑by‑subject to keep peak memory < 4 GB. No synthetic data fallbacks are used; any real‑data fetch failure raises an exception, allowing the platform to retry on a verified source.

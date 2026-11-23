@@ -1,0 +1,31 @@
+# Logging Configuration for the Pipeline
+# This file defines the logging infrastructure settings
+# Task: T017 - Initialize Logging
+
+logging:
+  # Log file path (relative to project root)
+  file: "data/results/pipeline_run.log"
+
+  # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+
+  # Log format
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+
+  # Console output settings
+  console:
+    enabled: true
+    level: "INFO"
+
+  # File output settings
+  file:
+    enabled: true
+    mode: "w"  # 'w' for overwrite, 'a' for append
+    level: "INFO"
+
+# Notes:
+# - All pipeline tasks should use the logger from utils.logger.get_logger()
+# - The logger is initialized once at pipeline start via setup_logging()
+# - Log messages are written to both console and file
+# - The log file is overwritten on each run (mode: 'w')

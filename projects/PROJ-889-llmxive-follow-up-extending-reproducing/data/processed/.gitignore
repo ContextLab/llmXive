@@ -1,0 +1,5 @@
+# Ignore all processed data files
+*
+
+# Keep this file
+!.gitignore

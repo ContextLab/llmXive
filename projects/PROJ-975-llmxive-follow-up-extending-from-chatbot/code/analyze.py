@@ -1,190 +1,189 @@
-import os
+"""
+Statistical analysis script for the llmXive follow‑up experiment.
+
+This script loads the experiment CSV log, selects the HIGH‑overlap,
+no‑pruning baseline, fits a single‑breakpoint piecewise linear regression
+on binary success vs. library size, bootstraps the breakpoint estimate,
+computes VIF for the orthogonalised predictors ``library_size`` and
+``total_redundancy`` (derived from retrieval diversity), and writes the
+results to ``data/results/analysis_report.json``.
+
+The script is deliberately self‑contained and uses only the declared
+project‑owned dependencies. It is invoked from the quickstart via:
+
+    python code/analyze.py --input data/results/experiment_log.csv
+"""
+import argparse
 import json
 import logging
+import os
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from typing import Dict, Any, Optional, Tuple
-from scipy.optimize import curve_fit
+import pwlf
+import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-from statsmodels.tools import add_constant
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Ensure output directory exists
+Path("data/results").mkdir(parents=True, exist_ok=True)
+
 logger = logging.getLogger(__name__)
 
-def load_experiment_data(filepath: str) -> pd.DataFrame:
-    """Load experiment data from CSV."""
+def load_experiment_data(filepath: str = "data/results/experiment_log.csv") -> pd.DataFrame:
+    """Load the experiment CSV log."""
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Data file not found: {filepath}")
-    return pd.read_csv(filepath)
+        raise FileNotFoundError(f"Experiment log not found at {filepath}")
+    df = pd.read_csv(filepath)
+    return df
 
-def piecewise_linear(x: np.ndarray, x0: float, k1: float, k2: float, y0: float) -> np.ndarray:
-    """Piecewise linear function with a single breakpoint x0."""
-    return np.where(x < x0, k1 * (x - x0) + y0, k2 * (x - x0) + y0)
+def _extract_overlap(pruning_flag: str, run_id: str) -> str:
+    """
+    Helper to extract the overlap level from the ``run_id`` string.
+    Expected format: ``run_<size>_<pruning>_<overlap>``.
+    """
+    parts = run_id.split("_")
+    if len(parts) >= 4:
+        return parts[3].upper()
+    return ""
 
-def perform_piecewise_regression(df: pd.DataFrame) -> Dict[str, float]:
-    """Perform piecewise linear regression to find the tipping point."""
-    x = df['library_size'].values.astype(float)
-    y = df['success_rate'].values.astype(float)
-    
-    # Initial guesses
-    x0_init = np.median(x)
-    k1_init = -0.01
-    k2_init = 0.01
-    y0_init = np.max(y)
-    
+def filter_high_overlap_no_pruning(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Keep only rows that belong to the HIGH‑overlap condition and where
+    pruning is disabled.
+    """
+    # ``pruning_enabled`` column is a boolean (True/False) written by the logger.
+    # ``run_id`` encodes the overlap level.
+    mask_pruning = df["pruning_enabled"] == False  # noqa: E712
+    mask_overlap = df["run_id"].apply(_extract_overlap) == "HIGH"
+    return df[mask_pruning & mask_overlap].copy()
+
+def calculate_vif(df: pd.DataFrame, predictors: list) -> dict:
+    """
+    Calculate Variance Inflation Factor for each predictor in ``predictors``.
+    Returns a mapping ``{predictor: vif_value}``.
+    """
+    X = df[predictors].astype(float)
+    # Add constant term for VIF calculation
+    X = sm.add_constant(X, has_constant='add')
+    vif_dict = {}
+    for i, col in enumerate(predictors, start=1):  # start=1 to skip constant at index 0
+        vif = variance_inflation_factor(X.values, i)
+        vif_dict[col] = float(vif)
+    return vif_dict
+
+def fit_piecewise_linear(df: pd.DataFrame) -> tuple:
+    """
+    Fit a single‑breakpoint piecewise linear model to binary success vs.
+    library size using ``pwlf``.
+    Returns ``(breakpoint, mse)``.
+    """
+    x = df["library_size"].values.astype(float)
+    y = df["success"].astype(int).values.astype(float)
+
+    # Ensure there is variability; pwlf requires at least two unique x values.
+    if len(np.unique(x)) < 2:
+        raise ValueError("Not enough distinct library sizes for regression.")
+
+    # Two segments => one interior breakpoint
+    pwlf_model = pwlf.PiecewiseLinFit(x, y)
     try:
-        popt, _ = curve_fit(
-            piecewise_linear, x, y, 
-            p0=[x0_init, k1_init, k2_init, y0_init],
-            maxfev=10000
-        )
-        x0, k1, k2, y0 = popt
-        return {'x0': float(x0), 'k1': float(k1), 'k2': float(k2), 'y0': float(y0)}
-    except Exception as e:
-        logger.warning(f"Piecewise regression failed: {e}")
-        return {'x0': float(np.median(x)), 'k1': 0.0, 'k2': 0.0, 'y0': float(np.mean(y))}
+        breaks = pwlf_model.fit(2)  # 2 segments
+    except Exception as exc:
+        raise RuntimeError(f"pwlf fitting failed: {exc}")
 
-def calculate_vif(df: pd.DataFrame, predictors: list) -> Dict[str, float]:
-    """Calculate Variance Inflation Factor for predictors."""
-    X = df[predictors].values
-    X = add_constant(X)
-    vif_data = {}
-    for i, col in enumerate(predictors):
-        vif = variance_inflation_factor(X, i + 1)  # +1 because of constant
-        vif_data[col] = float(vif)
-    return vif_data
+    # ``breaks`` includes the left and right bounds; interior breakpoint is at index 1
+    breakpoint = breaks[1]
+    # Compute mean squared error of the fitted model
+    y_pred = pwlf_model.predict(x)
+    mse = float(np.mean((y - y_pred) ** 2))
+    return breakpoint, mse
 
-def calculate_pruning_efficacy(df: pd.DataFrame) -> float:
-    """Calculate the efficacy of pruning by comparing success rates."""
-    if 'pruning_enabled' not in df.columns:
-        return 0.0
-    enabled = df[df['pruning_enabled'] == True]['success_rate'].mean()
-    disabled = df[df['pruning_enabled'] == False]['success_rate'].mean()
-    return float(enabled - disabled)
-
-def run_sensitivity_analysis(
-    df: pd.DataFrame, 
-    task_intervals: list = [5, 10, 20]
-) -> Dict[str, Any]:
+def bootstrap_breakpoint(df: pd.DataFrame, n_boot: int = 1000, random_state: int = 42) -> dict:
     """
-    Perform sensitivity analysis on pruning thresholds.
-    Sweeps through task intervals (tasks between pruning checks) to verify
-    the robustness of the tipping point finding.
+    Perform bootstrap resampling to obtain a 95 % confidence interval for the
+    breakpoint estimate.
+    Returns ``{'ci_lower': float, 'ci_upper': float, 'estimates': list}``.
     """
-    results = {
-        "task_intervals_tested": task_intervals,
-        "analysis": []
+    rng = np.random.default_rng(random_state)
+    estimates = []
+    for _ in range(n_boot):
+        sample = df.sample(frac=1.0, replace=True, random_state=rng.integers(0, 1_000_000))
+        try:
+            bp, _ = fit_piecewise_linear(sample)
+            estimates.append(bp)
+        except Exception:
+            # In rare pathological resamples the fit may fail; skip those.
+            continue
+    if not estimates:
+        raise RuntimeError("Bootstrap failed to produce any valid breakpoint estimates.")
+    lower = float(np.percentile(estimates, 2.5))
+    upper = float(np.percentile(estimates, 97.5))
+    return {"ci_lower": lower, "ci_upper": upper, "estimates": estimates}
+
+def run_analysis(input_path: str = "data/results/experiment_log.csv") -> dict:
+    """
+    Main analysis routine.
+
+    Returns a dictionary that will be written to ``analysis_report.json``.
+    The dictionary contains at least:
+      - ``breakpoint_estimate`` (float)
+      - ``breakpoint_ci`` (dict with ``lower`` and ``upper``)
+      - ``vif_library_size`` (float)
+      - ``vif_total_redundancy`` (float)
+    """
+    df = load_experiment_data(input_path)
+
+    # Derive a simple proxy for total redundancy:
+    # Higher ``retrieval_diversity`` means lower redundancy.
+    # We define ``total_redundancy = 1 - retrieval_diversity``.
+    if "retrieval_diversity" not in df.columns:
+        raise KeyError("Column 'retrieval_diversity' missing from experiment log.")
+    df["total_redundancy"] = 1.0 - df["retrieval_diversity"]
+
+    # Filter to the baseline condition required by the specification.
+    baseline_df = filter_high_overlap_no_pruning(df)
+
+    if baseline_df.empty:
+        raise ValueError("No rows found for HIGH overlap with pruning disabled.")
+
+    # Piecewise linear regression
+    breakpoint, mse = fit_piecewise_linear(baseline_df)
+
+    # Bootstrap confidence interval
+    boot = bootstrap_breakpoint(baseline_df, n_boot=1000)
+
+    # VIF calculation
+    vif_dict = calculate_vif(baseline_df, ["library_size", "total_redundancy"])
+
+    report = {
+        "breakpoint_estimate": float(breakpoint),
+        "breakpoint_ci": {"lower": boot["ci_lower"], "upper": boot["ci_upper"]},
+        "vif_library_size": vif_dict.get("library_size", None),
+        "vif_total_redundancy": vif_dict.get("total_redundancy", None),
+        "piecewise_mse": mse,
     }
-
-    for interval in task_intervals:
-        logger.info(f"Running sensitivity analysis for interval: {interval} tasks")
-        
-        # Simulate or filter data based on the interval.
-        # In a real scenario, the experiment data would have been generated with specific intervals.
-        # Here, we assume the input df might contain an 'pruning_interval' column or we
-        # re-calculate metrics based on the interval.
-        # For this implementation, we assume the df contains the necessary columns 
-        # and we filter/simulate the effect of the interval.
-        
-        # If the data doesn't explicitly have the interval column, we simulate the analysis
-        # by grouping or assuming the current data represents a specific baseline (e.g., 10)
-        # and we extrapolate or re-run the regression logic conceptually.
-        
-        # To satisfy the requirement of "sweeping", we will perform the regression
-        # on subsets or with adjusted parameters if the data supports it.
-        # Since we are reading a static CSV, we will perform the regression on the 
-        # whole dataset but record the "simulated" outcome for this interval 
-        # based on the assumption that the tipping point might shift slightly.
-        
-        # Real implementation note: This function would ideally be called by a script
-        # that runs the experiment with different intervals. Since we are analyzing
-        # existing data, we perform the regression and report the stability.
-        
-        # We assume the input df has 'library_size' and 'success_rate'.
-        # We perform the piecewise regression to find the tipping point for this "configuration".
-        # In a real multi-run scenario, we would filter df by 'pruning_interval' == interval.
-        
-        subset_df = df.copy()
-        # If a column 'pruning_interval' exists, filter it. If not, we assume the data 
-        # is representative or we are testing the robustness of the *current* data's 
-        # tipping point against the theoretical interval change.
-        if 'pruning_interval' in subset_df.columns:
-            subset_df = subset_df[subset_df['pruning_interval'] == interval]
-            if subset_df.empty:
-                logger.warning(f"No data found for interval {interval}. Skipping.")
-                continue
-
-        # Perform regression
-        reg_result = perform_piecewise_regression(subset_df)
-        
-        # Calculate VIF for this subset if possible
-        vif_result = {}
-        if len(subset_df) > 5 and 'library_size' in subset_df.columns:
-            try:
-                vif_result = calculate_vif(subset_df, ['library_size'])
-            except Exception:
-                vif_result = {}
-
-        results["analysis"].append({
-            "interval": interval,
-            "tipping_point_x0": reg_result['x0'],
-            "slope_before": reg_result['k1'],
-            "slope_after": reg_result['k2'],
-            "vif": vif_result
-        })
-
-    return results
-
-def run_analysis(data_path: str, output_path: str) -> Dict[str, Any]:
-    """Main analysis routine."""
-    df = load_experiment_data(data_path)
-    
-    # Ensure required columns exist
-    required_cols = ['library_size', 'success_rate']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
-
-    # Calculate tipping point
-    tipping_point = perform_piecewise_regression(df)
-    
-    # Calculate VIF
-    vif_metrics = calculate_vif(df, ['library_size'])
-    
-    # Calculate pruning efficacy if data allows
-    pruning_eff = 0.0
-    if 'pruning_enabled' in df.columns:
-        pruning_eff = calculate_pruning_efficacy(df)
-
-    # Run Sensitivity Analysis (Task T040)
-    sensitivity_results = run_sensitivity_analysis(df)
-
-    final_report = {
-        "tipping_point": tipping_point,
-        "vif_metrics": vif_metrics,
-        "pruning_efficacy": pruning_eff,
-        "sensitivity_analysis": sensitivity_results
-    }
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(final_report, f, indent=2)
-    
-    logger.info(f"Analysis complete. Report saved to {output_path}")
-    return final_report
+    return report
 
 def main():
-    data_path = "data/results/experiment_log.csv"
-    output_path = "data/results/sensitivity_report.json"
-    
-    # Check if data exists, if not try to load from a more specific path or fail
-    if not os.path.exists(data_path):
-        # Fallback or error handling
-        logger.error(f"Data file {data_path} not found.")
-        return
-
-    run_analysis(data_path, output_path)
+    parser = argparse.ArgumentParser(description="Statistical analysis for llmXive follow‑up.")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default="data/results/experiment_log.csv",
+        help="Path to the experiment CSV log.",
+    )
+    args = parser.parse_args()
+    logging.basicConfig(level=logging.INFO)
+    try:
+        report = run_analysis(args.input)
+        out_path = Path("data/results/analysis_report.json")
+        with out_path.open("w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Analysis report written to {out_path}")
+    except Exception as e:
+        logger.error(f"Analysis failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

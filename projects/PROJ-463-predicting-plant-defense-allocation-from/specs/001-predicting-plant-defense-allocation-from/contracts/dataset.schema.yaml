@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RNA-Seq Study Metadata"
+type: object
+required:
+  - accession_id
+  - organism
+  - tissue
+  - herbivore_type
+  - replicate_count
+  - raw_fastq_path
+properties:
+  accession_id:
+    type: string
+    description: "NCBI GEO or SRA accession ID"
+  organism:
+    type: string
+    description: "Scientific name of the plant species"
+  tissue:
+    type: string
+    description: "Tissue type (leaf, stem, root)"
+  herbivore_type:
+    type: string
+    enum:
+      - "chewing"
+      - "piercing-sucking"
+      - "control"
+    description: "Type of herbivore treatment"
+  replicate_count:
+    type: integer
+    minimum: 2
+    description: "Number of biological replicates"
+  raw_fastq_path:
+    type: string
+    description: "Path to the raw FASTQ file in data/raw/"
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the raw file"

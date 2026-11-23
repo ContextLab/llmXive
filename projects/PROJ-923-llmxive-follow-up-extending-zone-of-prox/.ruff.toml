@@ -1,0 +1,16 @@
+# Ruff configuration for llmXive project
+# Extends settings from pyproject.toml but allows for project-specific overrides if needed
+# Currently mirrors pyproject.toml for consistency
+
+line-length = 88
+target-version = "py39"
+
+[lint]
+select = ["E", "F", "W", "I", "B"]
+ignore = ["E501"] # Line length handled by formatter
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

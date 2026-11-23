@@ -1,13 +1,9 @@
 """
-Post-run artifact hashing and state updates for the CI robustness simulation.
+Post-run artifact hashing and state updates.
 
-This module provides utilities to:
-1. Compute cryptographic hashes (SHA-256) for all generated artifacts in the `artifacts/` directory.
-2. Generate a deterministic `state.json` manifest recording the hash of every output file,
-   the git commit hash (if available), and the timestamp of the run.
-3. Update the project state to ensure reproducibility and integrity checks.
+This module provides utilities to compute file hashes, scan artifact directories,
+and maintain a manifest of the project state after simulation runs.
 """
-
 import hashlib
 import json
 import os
@@ -15,55 +11,44 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 
-# Import project config to resolve paths dynamically
-# Assuming the script is run from the project root or code/ directory
-# We use a relative import approach or sys.path manipulation if run as a script
-try:
-    from code.config import ARTIFACTS_DIR, PROJECT_ROOT
-except ImportError:
-    # Fallback for direct execution without package structure in path
-    import sys
-    from pathlib import Path
-
-    # Add project root to path if running as __main__
-    _current_dir = Path(__file__).resolve().parent
-    _project_root = _current_dir.parent.parent
-    if str(_project_root) not in sys.path:
-        sys.path.insert(0, str(_project_root))
-    
-    from code.config import ARTIFACTS_DIR, PROJECT_ROOT
+from code.config import Config
 
 
-def compute_file_hash(file_path: Path) -> str:
+def compute_file_hash(file_path: str, algorithm: str = "sha256") -> str:
     """
-    Compute the SHA-256 hash of a file.
-
+    Compute the cryptographic hash of a file.
+    
     Args:
         file_path: Path to the file to hash.
-
+        algorithm: Hash algorithm to use (default 'sha256').
+        
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        Hexadecimal digest of the file hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the algorithm is not supported.
     """
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        return "file_not_found"
-    except Exception as e:
-        return f"error_hashing: {str(e)}"
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+        
+    hash_obj = hashlib.new(algorithm)
+    with open(file_path, "rb") as f:
+        # Read in chunks to handle large files efficiently
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_obj.update(chunk)
+            
+    return hash_obj.hexdigest()
 
 
 def get_git_commit_hash() -> Optional[str]:
     """
     Retrieve the current git commit hash.
-
+    
     Returns:
-        Short git commit hash string, or None if not in a git repo.
+        Short git commit hash (7 characters) or None if not in a git repository.
     """
     try:
         result = subprocess.run(
@@ -71,159 +56,238 @@ def get_git_commit_hash() -> Optional[str]:
             capture_output=True,
             text=True,
             check=True,
-            cwd=PROJECT_ROOT
+            timeout=10
         )
         return result.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError):
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
         return None
 
 
-def scan_artifacts(artifacts_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
+def scan_artifacts(
+    base_dir: str,
+    extensions: Optional[List[str]] = None
+) -> List[Dict[str, Any]]:
     """
-    Scan the artifacts directory for all files and compute their hashes.
-
+    Scan a directory recursively for artifacts and compute their metadata.
+    
     Args:
-        artifacts_dir: Path to the artifacts directory. Defaults to config.ARTIFACTS_DIR.
-
+        base_dir: Root directory to scan.
+        extensions: Optional list of file extensions to include (e.g., ['.csv', '.json']).
+                    If None, includes all files.
+                    
     Returns:
-        List of dictionaries containing file info (path, size, hash).
+        List of dictionaries containing file metadata (path, size, hash, modified_time).
     """
-    if artifacts_dir is None:
-        artifacts_dir = Path(ARTIFACTS_DIR)
+    artifacts = []
+    base_path = Path(base_dir)
     
-    if not artifacts_dir.exists():
-        return []
-
-    file_manifest = []
-    for file_path in artifacts_dir.rglob("*"):
+    if not base_path.exists():
+        return artifacts
+        
+    for file_path in base_path.rglob("*"):
         if file_path.is_file():
-            relative_path = file_path.relative_to(artifacts_dir)
-            file_info = {
-                "path": str(relative_path),
-                "size_bytes": file_path.stat().st_size,
-                "hash_sha256": compute_file_hash(file_path),
-                "modified_at": datetime.fromtimestamp(file_path.stat().st_mtime).isoformat()
-            }
-            file_manifest.append(file_info)
-    
-    # Sort for deterministic ordering
-    file_manifest.sort(key=lambda x: x["path"])
-    return file_manifest
+            # Filter by extension if specified
+            if extensions is not None:
+                if file_path.suffix not in extensions:
+                    continue
+                    
+            try:
+                stat_info = file_path.stat()
+                file_hash = compute_file_hash(str(file_path))
+                
+                artifacts.append({
+                    "path": str(file_path.relative_to(base_path)),
+                    "absolute_path": str(file_path),
+                    "size_bytes": stat_info.st_size,
+                    "hash_sha256": file_hash,
+                    "modified_time": datetime.fromtimestamp(
+                        stat_info.st_mtime
+                    ).isoformat(),
+                    "extension": file_path.suffix
+                })
+            except (OSError, ValueError) as e:
+                # Log warning but continue scanning
+                print(f"Warning: Could not process {file_path}: {e}", file=sys.stderr)
+                
+    return artifacts
 
 
 def update_state_manifest(
-    output_path: Optional[Path] = None,
-    artifacts_dir: Optional[Path] = None
-) -> Dict[str, Any]:
+    output_path: str,
+    artifacts: List[Dict[str, Any]],
+    git_hash: Optional[str] = None,
+    additional_metadata: Optional[Dict[str, Any]] = None
+) -> str:
     """
-    Generate and save the state manifest (state.json).
-
-    This function scans the artifacts directory, computes hashes,
-    and writes a JSON file containing the run state.
-
-    Args:
-        output_path: Path to write the state.json. Defaults to PROJECT_ROOT / "state.json".
-        artifacts_dir: Path to the artifacts directory to scan.
-
-    Returns:
-        The generated state dictionary.
-    """
-    if output_path is None:
-        output_path = Path(PROJECT_ROOT) / "state.json"
-    if artifacts_dir is None:
-        artifacts_dir = Path(ARTIFACTS_DIR)
-
-    manifest = {
-        "generated_at": datetime.now().isoformat(),
-        "git_commit": get_git_commit_hash(),
-        "artifacts_directory": str(artifacts_dir),
-        "files": scan_artifacts(artifacts_dir)
-    }
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
-
-    print(f"State manifest written to: {output_path}")
-    print(f"Total artifacts hashed: {len(manifest['files'])}")
+    Create or update a JSON manifest file with the current state of artifacts.
     
-    return manifest
+    Args:
+        output_path: Path where the manifest JSON file will be written.
+        artifacts: List of artifact metadata dictionaries from scan_artifacts.
+        git_hash: Current git commit hash.
+        additional_metadata: Optional dictionary of extra metadata to include.
+        
+    Returns:
+        Path to the written manifest file.
+    """
+    manifest = {
+        "timestamp": datetime.now().isoformat(),
+        "git_commit": git_hash,
+        "total_artifacts": len(artifacts),
+        "artifacts": artifacts,
+        "metadata": additional_metadata or {}
+    }
+    
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write to a temporary file first, then rename for atomicity
+    temp_path = output_file.with_suffix(".tmp")
+    with open(temp_path, "w") as f:
+        json.dump(manifest, f, indent=2, default=str)
+        
+    os.replace(temp_path, output_file)
+    
+    return str(output_file)
 
 
 def verify_state_integrity(
-    state_path: Optional[Path] = None,
-    artifacts_dir: Optional[Path] = None
-) -> bool:
+    manifest_path: str,
+    base_dir: Optional[str] = None
+) -> Tuple[bool, List[str]]:
     """
-    Verify that the current artifacts match the recorded hashes in state.json.
-
-    Args:
-        state_path: Path to the state.json file.
-        artifacts_dir: Path to the artifacts directory.
-
-    Returns:
-        True if all hashes match, False otherwise.
-    """
-    if state_path is None:
-        state_path = Path(PROJECT_ROOT) / "state.json"
-    if artifacts_dir is None:
-        artifacts_dir = Path(ARTIFACTS_DIR)
-
-    if not state_path.exists():
-        print(f"State file not found: {state_path}")
-        return False
-
-    with open(state_path, "r", encoding="utf-8") as f:
-        saved_state = json.load(f)
-
-    current_files = {item["path"]: item for item in scan_artifacts(artifacts_dir)}
-    saved_files = {item["path"]: item for item in saved_state["files"]}
-
-    if set(current_files.keys()) != set(saved_files.keys()):
-        print("File set mismatch between current state and saved state.")
-        return False
-
-    all_match = True
-    for path, saved_info in saved_files.items():
-        current_info = current_files[path]
-        if current_info["hash_sha256"] != saved_info["hash_sha256"]:
-            print(f"Hash mismatch for {path}:")
-            print(f"  Saved:  {saved_info['hash_sha256']}")
-            print(f"  Current: {current_info['hash_sha256']}")
-            all_match = False
-
-    if all_match:
-        print("Integrity check passed: All artifact hashes match.")
-    else:
-        print("Integrity check FAILED: Some artifacts have changed.")
+    Verify that artifacts listed in a manifest match their current state on disk.
     
-    return all_match
-
-
-def main() -> None:
+    Args:
+        manifest_path: Path to the state manifest JSON file.
+        base_dir: Optional base directory for relative path resolution.
+                  If None, uses paths as stored in the manifest.
+                  
+    Returns:
+        Tuple of (is_valid, list_of_errors).
     """
-    CLI entry point for updating and verifying state.
-    Usage: python -m code.utils.update_state [update|verify]
+    errors = []
+    
+    if not os.path.exists(manifest_path):
+        return False, [f"Manifest file not found: {manifest_path}"]
+        
+    try:
+        with open(manifest_path, "r") as f:
+            manifest = json.load(f)
+    except json.JSONDecodeError as e:
+        return False, [f"Invalid JSON in manifest: {e}"]
+        
+    artifacts = manifest.get("artifacts", [])
+    
+    for artifact in artifacts:
+        file_path = artifact.get("path")
+        if not file_path:
+            errors.append("Artifact missing 'path' field")
+            continue
+            
+        full_path = os.path.join(base_dir, file_path) if base_dir else file_path
+        
+        if not os.path.exists(full_path):
+            errors.append(f"Artifact missing on disk: {file_path}")
+            continue
+            
+        try:
+            current_hash = compute_file_hash(full_path)
+            stored_hash = artifact.get("hash_sha256")
+            
+            if current_hash != stored_hash:
+                errors.append(
+                    f"Hash mismatch for {file_path}: "
+                    f"expected {stored_hash}, got {current_hash}"
+                )
+        except Exception as e:
+            errors.append(f"Error verifying {file_path}: {e}")
+            
+    return len(errors) == 0, errors
+
+
+def main() -> int:
     """
-    if len(sys.argv) < 2:
-        print("Usage: python -m code.utils.update_state [update|verify]")
-        print("  update  - Scan artifacts and write state.json")
-        print("  verify  - Check current artifacts against state.json")
-        sys.exit(1)
-
-    command = sys.argv[1].lower()
-
-    if command == "update":
-        update_state_manifest()
-    elif command == "verify":
-        success = verify_state_integrity()
-        sys.exit(0 if success else 1)
+    CLI entry point for updating and verifying project state.
+    
+    Usage:
+        python -m code.utils.update_state [--scan <dir>] [--output <path>] [--verify <manifest>]
+        
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description="Update and verify project artifact state"
+    )
+    parser.add_argument(
+        "--scan",
+        type=str,
+        default="artifacts",
+        help="Directory to scan for artifacts (default: artifacts)"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="artifacts/state_manifest.json",
+        help="Path to write the state manifest (default: artifacts/state_manifest.json)"
+    )
+    parser.add_argument(
+        "--verify",
+        type=str,
+        help="Path to an existing manifest to verify instead of creating a new one"
+    )
+    parser.add_argument(
+        "--extensions",
+        type=str,
+        nargs="+",
+        default=[".csv", ".json", ".png", ".txt"],
+        help="File extensions to include in the scan"
+    )
+    
+    args = parser.parse_args()
+    
+    if args.verify:
+        # Verification mode
+        print(f"Verifying state integrity for: {args.verify}")
+        is_valid, errors = verify_state_integrity(args.verify)
+        
+        if is_valid:
+            print("✓ State integrity verified successfully.")
+            return 0
+        else:
+            print("✗ State integrity check failed:")
+            for error in errors:
+                print(f"  - {error}")
+            return 1
     else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
+        # Scan and update mode
+        print(f"Scanning directory: {args.scan}")
+        artifacts = scan_artifacts(args.scan, extensions=args.extensions)
+        
+        if not artifacts:
+            print("No artifacts found to scan.")
+            return 1
+            
+        git_hash = get_git_commit_hash()
+        print(f"Git commit: {git_hash or 'Not in a git repository'}")
+        
+        print(f"Writing manifest to: {args.output}")
+        manifest_path = update_state_manifest(
+            args.output,
+            artifacts,
+            git_hash=git_hash,
+            additional_metadata={
+                "scan_directory": args.scan,
+                "extensions_scanned": args.extensions,
+                "total_files": len(artifacts)
+            }
+        )
+        
+        print(f"✓ Successfully updated state manifest with {len(artifacts)} artifacts.")
+        return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

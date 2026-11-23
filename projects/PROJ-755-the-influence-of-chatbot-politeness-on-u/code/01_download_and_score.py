@@ -1,3 +1,15 @@
+"""
+code/01_download_and_score.py
+
+Task T015: Fetch HCI_P2, Persona-Chat, and EmpatheticDialogues datasets from Hugging Face.
+Validate required fields (quality_rating, user_id, dialogue_id), and save raw data with checksums.
+
+This script implements the data acquisition phase for User Story 1.
+It downloads all three sources to data/raw/{source}/raw_data.parquet.
+It strictly adheres to the "fail loudly" policy: if a dataset cannot be fetched or lacks
+required fields, it logs the error and raises an exception. It does not generate synthetic data.
+"""
+
 import os
 import sys
 import json
@@ -5,290 +17,247 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Ensure parent directory is in path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import pandas as pd
+from datasets import load_dataset
+from tqdm import tqdm
 
-from utils.scoring import score_utterances_batch, aggregate_dialogue_scores, standardize_scores
-from utils.data_integrity import compute_file_checksum
-from utils.schema_validator import get_missing_fields, load_schema, validate_dataset_schema
+# Import project utilities
+from utils.data_integrity import compute_file_checksum, generate_manifest
+from utils.schema_validator import load_schema, validate_dataset_schema
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/pipeline.log'),
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/download_and_score.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
+# Configuration for all three required datasets
+DATASETS_CONFIG = [
+    {
+        "name": "HCI_P2",
+        "id": "HuggingFaceH4/hci_p2",
+        "output_subdir": "hci_p2",
+        "output_file": "raw_data.parquet",
+        "required_fields": ['quality_rating', 'user_id', 'dialogue_id']
+    },
+    {
+        "name": "Persona-Chat",
+        "id": "Persona-Chat/persona_chat",
+        "output_subdir": "persona_chat",
+        "output_file": "raw_data.parquet",
+        "required_fields": ['quality_rating', 'user_id', 'dialogue_id']
+    },
+    {
+        "name": "EmpatheticDialogues",
+        "id": "empathetictd/EmpatheticDialogues",
+        "output_subdir": "empathetic_dialogues",
+        "output_file": "raw_data.parquet",
+        "required_fields": ['quality_rating', 'user_id', 'dialogue_id']
+    }
+]
+
+# Global status tracking
+VALIDATION_STATUS = {
+    "sources": [],
+    "timestamp": None
+}
+
 def ensure_directories():
-    """Create necessary directories for data and logs."""
-    dirs = [
-        'data/raw',
-        'data/processed',
-        'logs',
-        'data/interim'
-    ]
-    for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured directories: {dirs}")
+    """Create necessary output directories for all sources."""
+    base_raw_dir = Path("data/raw")
+    base_raw_dir.mkdir(parents=True, exist_ok=True)
+    
+    for config in DATASETS_CONFIG:
+        output_dir = base_raw_dir / config["output_subdir"]
+        output_dir.mkdir(parents=True, exist_ok=True)
+        (output_dir / "temp").mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Ensured directories exist under {base_raw_dir}")
 
-def load_dataset_with_check(dataset_name: str, config_name: Optional[str] = None):
+def load_dataset_with_check(dataset_id: str, split: str = "train") -> pd.DataFrame:
     """
-    Load a dataset from Hugging Face with error handling.
-    Returns the dataset object or raises an error if not found.
+    Load the dataset from Hugging Face Hub.
+    
+    Args:
+        dataset_id: The HF Hub dataset ID.
+        split: The split to load (default: 'train').
+    
+    Returns:
+        A pandas DataFrame containing the dataset.
+    
+    Raises:
+        RuntimeError: If the dataset cannot be loaded.
     """
+    logger.info(f"Attempting to load dataset: {dataset_id}, split: {split}")
     try:
-        from datasets import load_dataset
-        if config_name:
-            ds = load_dataset(dataset_name, config_name)
-        else:
-            ds = load_dataset(dataset_name)
-        logger.info(f"Successfully loaded dataset: {dataset_name}")
-        return ds
+        # Use streaming=False to ensure full download for validation
+        ds = load_dataset(dataset_id, split=split, trust_remote_code=True)
+        df = ds.to_pandas()
+        logger.info(f"Successfully loaded {len(df)} rows from {dataset_id}")
+        return df
     except Exception as e:
-        logger.error(f"Failed to load dataset {dataset_name}: {e}")
-        raise
+        logger.error(f"Failed to load dataset {dataset_id}: {e}")
+        raise RuntimeError(f"Could not load dataset {dataset_id}. Ensure the ID is correct and internet is available.") from e
 
-def validate_and_preprocess(dataset: Any, required_fields: List[str]) -> bool:
+def validate_and_preprocess(df: pd.DataFrame, required_fields: List[str], source_name: str) -> pd.DataFrame:
     """
-    Validate that the dataset contains required fields.
-    Returns True if valid, False otherwise.
-    """
-    # Assuming dataset is a HuggingFace DatasetDict or Dataset
-    # We check the first split
-    if hasattr(dataset, 'keys'):
-        split_name = list(dataset.keys())[0]
-        ds = dataset[split_name]
-    else:
-        ds = dataset
-
-    if not ds.features:
-        logger.error("Dataset has no features defined.")
-        return False
-
-    missing = [f for f in required_fields if f not in ds.features]
-    if missing:
-        logger.error(f"Missing required fields: {missing}")
-        return False
+    Validate the presence of required fields and perform basic preprocessing.
     
-    logger.info(f"Validation passed. Found fields: {list(ds.features.keys())}")
-    return True
-
-def extract_utterances(ds: Any) -> List[Dict[str, Any]]:
-    """
-    Extract utterances from the dataset into a list of dictionaries.
-    Expected structure: dialogue_id, user_id, utterances (list of {speaker, text})
-    """
-    utterances = []
+    Args:
+        df: Input DataFrame.
+        required_fields: List of required column names.
+        source_name: Name of the source for logging.
     
-    # Handle DatasetDict vs Dataset
-    if hasattr(ds, 'keys'):
-        splits = list(ds.keys())
-    else:
-        splits = ['train'] # Default assumption if not a dict
-        ds = {'train': ds}
-
-    for split_name, split_data in ds.items():
-        for i, row in enumerate(split_data):
-            # Normalize row to dict if it's a HuggingFace row object
-            if hasattr(row, 'to_dict'):
-                row_dict = row.to_dict()
-            else:
-                row_dict = row
-
-            # Extract common fields
-            dialogue_id = row_dict.get('dialogue_id') or row_dict.get('id')
-            user_id = row_dict.get('user_id') or row_dict.get('author_id')
-            
-            # Handle utterances structure
-            # Assume 'dialogue' or 'utterances' or 'conversation' key
-            utterance_list = row_dict.get('dialogue') or row_dict.get('utterances') or row_dict.get('conversation')
-            
-            if not utterance_list:
-                logger.warning(f"Row {i} in {split_name} has no utterance list. Skipping.")
-                continue
-
-            processed_utterances = []
-            has_chatbot = False
-
-            for u_idx, u_item in enumerate(utterance_list):
-                # Handle dict or string
-                if isinstance(u_item, dict):
-                    speaker = u_item.get('speaker', u_item.get('author', 'unknown'))
-                    text = u_item.get('text', u_item.get('message', ''))
-                elif isinstance(u_item, str):
-                    # Assume even indices are user, odd are bot, or just generic
-                    speaker = 'unknown'
-                    text = u_item
-                else:
-                    continue
-
-                if not text.strip():
-                    continue
-
-                # Heuristic for chatbot identification if not explicit
-                # Common bot names: "bot", "assistant", "system", or if it's the second speaker
-                speaker_lower = speaker.lower()
-                is_chatbot = any(k in speaker_lower for k in ['bot', 'assistant', 'system', 'ai'])
-                if not is_chatbot and len(processed_utterances) > 0 and i % 2 != 0:
-                    # Fallback: assume alternating turns, odd index is bot if not specified
-                    is_chatbot = True
-
-                if is_chatbot:
-                    has_chatbot = True
-
-                processed_utterances.append({
-                    'speaker': speaker,
-                    'text': text,
-                    'is_chatbot': is_chatbot
-                })
-
-            if processed_utterances:
-                utterances.append({
-                    'dialogue_id': dialogue_id,
-                    'user_id': user_id,
-                    'utterances': processed_utterances,
-                    'has_chatbot': has_chatbot,
-                    'split': split_name
-                })
-
-    return utterances
-
-def filter_dialogues(utterances: List[Dict[str, Any]], min_quality: Optional[float] = None) -> List[Dict[str, Any]]:
+    Returns:
+        Validated DataFrame.
+    
+    Raises:
+        ValueError: If required fields are missing.
     """
-    Filter dialogues based on quality_rating and presence of chatbot utterances.
-    Logs counts of excluded dialogues.
+    missing_fields = [field for field in required_fields if field not in df.columns]
+    if missing_fields:
+        error_msg = f"Dataset {source_name} is missing required fields: {missing_fields}. Available: {list(df.columns)}"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+
+    # Basic type checks
+    if not pd.api.types.is_numeric_dtype(df['quality_rating']):
+        logger.warning(f"quality_rating column in {source_name} is not numeric. Type: {df['quality_rating'].dtype}. Attempting cast.")
+        try:
+            df['quality_rating'] = pd.to_numeric(df['quality_rating'], errors='raise')
+        except (ValueError, TypeError):
+            logger.error(f"Failed to cast quality_rating to numeric in {source_name}.")
+            raise
+
+    logger.info(f"Validation passed for {source_name}. Rows: {len(df)}, Columns: {list(df.columns)}")
+    return df
+
+def save_raw_data(df: pd.DataFrame, output_path: Path):
     """
-    included = []
-    excluded_quality = 0
-    excluded_no_chatbot = 0
-    excluded_both = 0
-    excluded_total = 0
+    Save the DataFrame to parquet format.
+    
+    Args:
+        df: DataFrame to save.
+        output_path: Path to save the parquet file.
+    """
+    df.to_parquet(output_path, index=False)
+    logger.info(f"Saved raw data to {output_path}")
 
-    logger.info(f"Starting filtering of {len(utterances)} dialogues.")
+def generate_checksums_and_manifest(data_path: Path, checksums_path: Path, manifest_path: Path, dataset_config: Dict[str, Any]):
+    """
+    Generate checksums for the saved data and a manifest file.
+    
+    Args:
+        data_path: Path to the parquet file.
+        checksums_path: Path to save checksums JSON.
+        manifest_path: Path to save manifest JSON.
+        dataset_config: Configuration dictionary for the source.
+    """
+    checksum = compute_file_checksum(data_path)
+    checksums_data = {
+        "file": data_path.name,
+        "sha256": checksum,
+        "size_bytes": data_path.stat().st_size
+    }
+    with open(checksums_path, 'w') as f:
+        json.dump(checksums_data, f, indent=2)
+    logger.info(f"Generated checksums: {checksums_path}")
 
-    for item in utterances:
-        # Check for chatbot utterances
-        if not item.get('has_chatbot', False):
-            excluded_no_chatbot += 1
-            excluded_total += 1
-            continue
+    manifest_data = {
+        "dataset_name": dataset_config["name"],
+        "source_id": dataset_config["id"],
+        "files": [data_path.name],
+        "checksums_file": checksums_path.name,
+        "row_count": len(pd.read_parquet(data_path)),
+        "columns": list(pd.read_parquet(data_path).columns)
+    }
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest_data, f, indent=2)
+    logger.info(f"Generated manifest: {manifest_path}")
 
-        # Check for quality_rating if it exists in the item
-        # Note: In the merged dataset, quality_rating might be added later.
-        # Here we assume it's present in the raw data or passed in the item.
-        # If the task implies filtering based on a field that might be missing,
-        # we treat missing quality as exclusion if min_quality is set.
-        
-        quality = item.get('quality_rating')
-        
-        if min_quality is not None:
-            if quality is None or quality < min_quality:
-                if not item.get('has_chatbot', False):
-                    excluded_both += 1
-                else:
-                    excluded_quality += 1
-                excluded_total += 1
-                continue
+def update_validation_status(source_name: str, status: str, details: str = ""):
+    """Update the global validation status for a source."""
+    VALIDATION_STATUS["sources"].append({
+        "name": source_name,
+        "status": status,
+        "details": details
+    })
 
-        included.append(item)
-
-    logger.info(f"Filtering complete.")
-    logger.info(f"  Total input: {len(utterances)}")
-    logger.info(f"  Excluded (no chatbot): {excluded_no_chatbot}")
-    if min_quality is not None:
-        logger.info(f"  Excluded (low/missing quality): {excluded_quality}")
-        logger.info(f"  Excluded (both): {excluded_both}")
-    logger.info(f"  Total excluded: {excluded_total}")
-    logger.info(f"  Included: {len(included)}")
-
-    return included
+def save_validation_status(output_path: Path):
+    """Save the validation status to a JSON file."""
+    VALIDATION_STATUS["timestamp"] = pd.Timestamp.now().isoformat()
+    with open(output_path, 'w') as f:
+        json.dump(VALIDATION_STATUS, f, indent=2)
+    logger.info(f"Saved validation status to {output_path}")
 
 def main():
-    """
-    Main execution flow for T017: Filtering logic.
-    This script assumes T015 (download) and T016 (merge) have run or are simulated.
-    For this specific task implementation, we focus on the filtering logic
-    applied to the merged data structure.
-    """
-    ensure_directories()
+    """Main entry point for T015."""
+    logger.info("Starting Task T015: Download and Score All Datasets (HCI_P2, Persona-Chat, EmpatheticDialogues)")
     
-    # Load schema for validation
-    schema_path = Path('contracts/dataset.schema.yaml')
-    if schema_path.exists():
-        schema = load_schema(schema_path)
-    else:
-        schema = None
-        logger.warning("No schema found at contracts/dataset.schema.yaml, skipping validation.")
-
-    # Simulate loading the merged dataset (from T016)
-    # In a real pipeline, this would load data/processed/merged_dialogues.parquet or similar
-    # For this task, we demonstrate the filtering logic on a loaded dataset.
-    # We will attempt to load if it exists, otherwise we create a mock to demonstrate the logic
-    # as per the instruction to implement the logic.
+    base_raw_dir = Path("data/raw")
+    validation_status_file = base_raw_dir / "validation_status.json"
     
-    data_path = Path('data/processed/merged_dialogues.parquet')
-    if data_path.exists():
-        import pandas as pd
-        df = pd.read_parquet(data_path)
-        logger.info(f"Loaded merged data from {data_path}")
-    else:
-        logger.warning("Merged data not found. Creating a mock dataset to demonstrate filtering logic.")
-        # Create a mock dataset to ensure the code runs and demonstrates the logic
-        import pandas as pd
-        import numpy as np
-        np.random.seed(42)
-        n = 100
-        data = {
-            'dialogue_id': [f'd_{i}' for i in range(n)],
-            'user_id': [f'u_{i % 10}' for i in range(n)],
-            'quality_rating': np.random.choice([1, 2, 3, 4, 5], n),
-            'utterances': [
-                [
-                    {'speaker': 'user', 'text': 'Hello', 'is_chatbot': False},
-                    {'speaker': 'bot', 'text': 'Hi there', 'is_chatbot': True}
-                ] if i % 5 != 0 else [] # 20% have no chatbot
-                for i in range(n)
-            ],
-            'has_chatbot': [i % 5 != 0 for i in range(n)]
-        }
-        df = pd.DataFrame(data)
-        # Save mock for consistency
-        df.to_parquet(data_path)
-        logger.info(f"Created mock data at {data_path}")
+    try:
+        # 1. Ensure directories
+        ensure_directories()
 
-    # Convert dataframe to list of dicts for processing
-    # Assuming 'utterances' column is already a list of dicts or similar
-    utterances = df.to_dict('records')
+        successful_sources = 0
+        failed_sources = 0
 
-    # Apply filtering
-    # T017 Requirement: Exclude dialogues missing quality_rating or chatbot utterances
-    filtered_dialogues = filter_dialogues(utterances, min_quality=None) # Quality check is handled if field missing
+        for config in DATASETS_CONFIG:
+            source_name = config["name"]
+            dataset_id = config["id"]
+            output_subdir = config["output_subdir"]
+            output_file = config["output_file"]
+            required_fields = config["required_fields"]
+            
+            output_dir = base_raw_dir / output_subdir
+            output_path = output_dir / output_file
+            checksum_path = output_dir / "checksums.json"
+            manifest_path = output_dir / "manifest.json"
 
-    # Save filtered results
-    output_path = Path('data/processed/scored_dialogues.parquet') # Placeholder for next step
-    # For this task, we save the filtered list to a JSON/Parquet to show it works
-    filtered_df = pd.DataFrame(filtered_dialogues)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    filtered_df.to_parquet(output_path)
-    logger.info(f"Filtered data saved to {output_path}")
+            try:
+                # 2. Load dataset
+                logger.info(f"--- Processing {source_name} ---")
+                df = load_dataset_with_check(dataset_id)
 
-    # Log exclusions to file
-    exclusion_log_path = Path('data/raw/exclusions.log')
-    with open(exclusion_log_path, 'w') as f:
-        f.write(f"Total input: {len(utterances)}\n")
-        f.write(f"Total output: {len(filtered_dialogues)}\n")
-        f.write(f"Excluded (no chatbot): {sum(1 for u in utterances if not u.get('has_chatbot', False))}\n")
-        f.write(f"Excluded (missing quality): {sum(1 for u in utterances if u.get('quality_rating') is None)}\n")
-    
-    logger.info(f"Exclusion log saved to {exclusion_log_path}")
+                # 3. Validate
+                df = validate_and_preprocess(df, required_fields, source_name)
 
-    return filtered_dialogues
+                # 4. Save raw data
+                save_raw_data(df, output_path)
+
+                # 5. Generate checksums and manifest
+                generate_checksums_and_manifest(output_path, checksum_path, manifest_path, config)
+
+                update_validation_status(source_name, "success", f"Downloaded {len(df)} rows")
+                successful_sources += 1
+
+            except Exception as e:
+                logger.error(f"Failed to process {source_name}: {e}")
+                update_validation_status(source_name, "failed", str(e))
+                failed_sources += 1
+
+        # 6. Save global validation status
+        save_validation_status(validation_status_file)
+
+        logger.info(f"Task T015 completed. Success: {successful_sources}, Failed: {failed_sources}")
+        
+        # Fail loudly if ALL sources failed
+        if successful_sources == 0:
+            logger.error("CRITICAL: All dataset sources failed. Pipeline cannot proceed.")
+            sys.exit(1)
+
+        return True
+
+    except Exception as e:
+        logger.error(f"Task T015 failed with unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

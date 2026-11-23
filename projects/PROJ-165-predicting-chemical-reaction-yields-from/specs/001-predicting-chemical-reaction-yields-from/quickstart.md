@@ -1,90 +1,80 @@
-# Quickstart: Predicting Molecular Stability from Spectroscopic Data
+# Quickstart: Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms
 
 ## Prerequisites
-
-- Python 3.11+
+- Python 3.11 or newer
 - Git
-- Sufficient disk space (for raw and processed data)
-- 7 GB+ RAM
+- Access to a GitHub Actions free‑tier runner **or** a local Linux environment with ≥ 8 GB RAM and 2 CPU cores
+- Internet connectivity (to download USPTO parquet and query NIST / PubChem APIs)
 
 ## Installation
 
-1.  **Clone the Repository**
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-165-predicting-chemical-reaction-yields-from
-    ```
-
-2.  **Create Virtual Environment**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install Dependencies**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins PyTorch to a CPU-only version.*
-
-## Running the Pipeline
-
-The pipeline is executed via the CLI. It performs data ingestion, preprocessing, training, and evaluation in sequence.
-
-### 1. Full Pipeline Execution
 ```bash
-python -m src.cli.main --mode full
-```
-This command:
-- Downloads datasets from verified HuggingFace URLs.
-- Preprocesses data (resampling, splitting).
-- Trains the attention model and baselines.
-- Runs evaluation and generates reports.
-- Saves all artifacts to `data/artifacts/`.
+# 1️⃣ Clone the repository
+git clone <REPO_URL>
+cd projects/PROJ-165-predicting-chemical-reaction-yields-from
 
-### 2. Individual Steps
+# 2️⃣ Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-**Preprocessing Only** (skip training):
-```bash
-python -m src.cli.main --mode preprocess
+# 3️⃣ Install pinned dependencies
+pip install -r src/requirements.txt
 ```
 
-**Training Only** (requires preprocessed data):
+`src/requirements.txt` pins exact versions (e.g., `torch==2.3.0`, `rdkit-pypi==2023.9.5`, `ruff==0.4.1`).
+
+## Running the Full Pipeline
+
 ```bash
-python -m src.cli.main --mode train
+python src/cli/main.py --run-full --seed 42
 ```
 
-**Evaluation Only** (requires trained model):
+The command executes the following phases **in order**:
+
+1. **Data Ingestion** – Downloads USPTO‑50k parquet, queries NIST & PubChem for IR/¹H‑NMR spectra, writes raw files to `data/raw/`, logs `ingestion_log.json` and `validation_status.json`.
+2. **Early‑exit Check** – If fewer than 300 reactions have complete spectra or the API‑failure rate exceeds 80 %, the script aborts with a `DATA_INSUFFICIENT` error (FR‑014) and writes `validation_status.json`.
+3. **Preprocessing & Splitting** – Resamples spectra, normalizes, generates fingerprints, performs scaffold‑based split, writes `train.parquet`, `val.parquet`, `test.parquet`, and `leakage_report.json`.
+4. **Model Training** – Trains the attention model and three baselines, saves `model.pth` and `training_log.csv`.
+5. **Evaluation** – Computes RMSE/MAE/R², Wilcoxon tests (Bonferroni‑corrected), permutation test, VIF, attention heatmaps, and peak‑alignment report. All results are stored in `data/artifacts/` as JSON and PNG files.
+
+### Demo Mode (Alternative Data Strategy)
+If the real ingestion fails the size threshold, you can run the pipeline on the bundled demo dataset:
+
 ```bash
-python -m src.cli.main --mode eval
+python src/cli/main.py --run-full --seed 42 --demo
 ```
 
-**Update State File** (Principle V):
-After any significant change or manual intervention, run:
+The demo dataset (`data/demo/`) contains a modest number of reactions with fully measured IR, ¹H‑NMR, and yields, allowing you to exercise the entire workflow and generate all artifacts (including attention heatmaps) on a small scale. Results will be clearly flagged as **illustrative**.
+
+### Verifying Reproducibility
+Re‑run with the same seed:
+
 ```bash
-python -m src.cli.main --update-state
+python src/cli/main.py --run-full --seed 42   # or with --demo
 ```
-This command updates the `updated_at` timestamp in `state/projects/PROJ-165-.../state.yaml` and records the current artifact hashes. The `src/utils/state_manager.py` module performs this update.
 
-## Verifying Results
+- Compare SHA‑256 hashes in `state/projects/PROJ-165-.../artifact_hashes.yaml`.  
+- Confirm that `model.pth`, `training_log.csv`, and `evaluation_report.json` are **identical** (bit‑wise) to the previous run.
 
-After running the full pipeline:
+## Expected Outcome (when sufficient data exists)
+- `leakage_report.json` indicates that no overlap was detected (SC‑no overlap).  
+- `evaluation_report.json` contains RMSE/MAE/R² for all four models, Wilcoxon p‑values < 0.0167, permutation mean R² < 0.05, VIF ≤ 5, and ≥ 80 % overlap of top‑weighted spectral regions across the 90 %, 95 %, 99 % thresholds (SC‑003).  
+- Attention heatmaps (`attention_plot_*.png`) highlight chemically meaningful bands; `peak_alignment_report.json` reports ≥ 80 % matches to NIST functional‑group frequencies (SC‑008).
 
-1.  **Check Metrics**:
-    Open `data/artifacts/metrics.json` to view RMSE, MAE, R², and p-values.
-2.  **View Attention Heatmap**:
-    Open `data/artifacts/attention_heatmap.png` to see the top spectral regions identified by the model.
-3.  **Verify Leakage**:
-    Run the unit test to ensure no scaffold overlap:
-    ```bash
-    pytest tests/unit/test_preprocessing.py::test_no_scaffold_leakage
-    ```
-4.  **Verify SSoT**:
-    Check `data/artifacts/trace_log.json` to ensure every statistic has a corresponding `AnalysisTrace` entry.
+## What Happens If Data Are Insufficient?
+If the ingestion step cannot collect ≥ 300 reactions with **both** IR and ¹H‑NMR spectra (the current realistic situation given available open data), the pipeline will:
+- Log the failure reason in `validation_status.json`.  
+- Exit with status code 1 and message `DATA_INSUFFICIENT`.  
+- **Automatically** switch to the demo dataset (`--demo`) and execute the full training/evaluation workflow on that set, clearly flagging the results as illustrative.
+
+You can still explore the full workflow using the **demo mode** described above.
 
 ## Troubleshooting
+- **Out‑of‑Memory**: Reduce batch size in `src/cli/main.py` (`--batch-size 16`).  
+- **High API Failure Rate**: The NIST WebBook may throttle requests; increase `--api-retry-delay` (seconds) or run the ingestion step locally with a longer timeout.  
+- **VIF > 5**: Adjust the stochastic noise parameters in `src/data/ingestion.py` (if using a simulated fallback) or consider dropping highly collinear condition features.  
+- **Static‑analysis failures**: Run `ruff check src/` locally; fix any hard‑coded metric literals before committing.
 
-- **Out of Memory**: If the process crashes due to RAM, reduce the `--sample-size` argument in the preprocessing step.
-- **Data Download Failed**: Verify internet connection. The datasets are fetched from HuggingFace; ensure no firewall blocks these URLs.
-- **CUDA Error**: Ensure you are using the CPU-only PyTorch build installed via `requirements.txt`.
-- **State Update Failed**: Ensure the `state/` directory is writable and the `state_manager.py` module is present in `src/utils/`.
+---
+
+

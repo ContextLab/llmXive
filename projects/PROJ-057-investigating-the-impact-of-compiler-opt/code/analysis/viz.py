@@ -1,365 +1,354 @@
+"""
+Visualization module for compiler optimization impact analysis.
+Generates Pareto frontier plots and error distribution visualizations.
+"""
 import os
 import logging
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_stability_metrics(csv_path: str) -> pd.DataFrame:
+# Constants
+STABILITY_THRESHOLD = 1e-5
+DATA_DIR = Path("data")
+RESULTS_DIR = DATA_DIR / "results"
+INTERMEDIATES_DIR = DATA_DIR / "intermediates"
+
+def load_stability_metrics() -> pd.DataFrame:
     """
-    Load stability metrics from a CSV file.
-    
-    Args:
-        csv_path: Path to the stability metrics CSV file.
-        
+    Load stability metrics from the aggregated CSV.
     Returns:
-        DataFrame containing stability metrics.
+        DataFrame with stability metrics.
     """
-    path = Path(csv_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Stability metrics file not found: {csv_path}")
+    metrics_path = RESULTS_DIR / "stability_metrics.csv"
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Stability metrics file not found: {metrics_path}")
     
-    logger.info(f"Loading stability metrics from {csv_path}")
-    df = pd.read_csv(path)
-    
-    required_cols = ['config_id', 'kernel_type', 'l2_error', 'max_diff', 'status']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in {csv_path}: {missing}")
-    
+    df = pd.read_csv(metrics_path)
+    logger.info(f"Loaded {len(df)} stability metrics from {metrics_path}")
     return df
 
-def parse_optimization_level(config_id: str) -> str:
+def parse_optimization_level(config_id: str) -> Tuple[str, str]:
     """
-    Extract optimization level from config_id.
+    Parse optimization level and compiler from config_id.
+    Expected format: 'compiler_level' (e.g., 'gcc_O2', 'clang_O3')
     
     Args:
         config_id: Configuration identifier string.
-        
+    
     Returns:
-        Optimization level string (e.g., 'O0', 'O2', 'O3', 'fast-math').
+        Tuple of (compiler, level).
     """
-    # Handle various config_id formats
-    if 'O0' in config_id:
-        return 'O0'
-    elif 'O1' in config_id:
-        return 'O1'
-    elif 'O2' in config_id:
-        return 'O2'
-    elif 'O3' in config_id:
-        return 'O3'
-    elif 'Os' in config_id:
-        return 'Os'
-    elif 'ffast-math' in config_id:
-        return 'fast-math'
-    elif 'funroll-loops' in config_id:
-        return 'unroll'
-    else:
-        # Default to the full config_id if no standard flag found
-        return config_id
+    parts = config_id.split('_')
+    if len(parts) >= 2:
+        return parts[0], parts[1]
+    return "unknown", config_id
 
 def plot_pareto_frontier(
     df: pd.DataFrame,
-    x_col: str = 'median_latency',
-    y_col: str = 'max_abs_diff',
-    title: str = 'Pareto Frontier',
-    output_path: Optional[str] = None,
-    stable_only: bool = True,
-    error_threshold: float = 1e-5,
-    downsampled_marker: str = 's',
-    standard_marker: str = 'o',
-    downsampled_color: str = 'orange',
-    standard_color: str = 'blue'
-) -> None:
+    x_col: str = "median_ms",
+    y_col: str = "max_diff",
+    title: str = "Pareto Frontier",
+    output_path: Optional[Path] = None,
+    exclude_unstable: bool = False,
+    highlight_downsampled: bool = False
+) -> plt.Figure:
     """
-    Plot Pareto frontier of latency vs. error.
+    Generate a Pareto frontier plot of latency vs error.
     
     Args:
-        df: DataFrame containing latency and error data.
-        x_col: Column name for latency (x-axis).
-        y_col: Column name for error (y-axis).
+        df: DataFrame containing configuration data.
+        x_col: Column name for x-axis (latency).
+        y_col: Column name for y-axis (error).
         title: Plot title.
-        output_path: Path to save the plot (if None, show instead).
-        stable_only: If True, filter out unstable configurations.
-        error_threshold: Threshold for stability (error <= threshold is stable).
-        downsampled_marker: Marker style for downsampled configs.
-        standard_marker: Marker style for standard configs.
-        downsampled_color: Color for downsampled configs.
-        standard_color: Color for standard configs.
-    """
-    logger.info(f"Plotting Pareto frontier: {x_col} vs {y_col}")
+        output_path: Path to save the figure.
+        exclude_unstable: If True, exclude rows with status='unstable'.
+        highlight_downsampled: If True, highlight downsampled configurations.
     
-    # Filter data
+    Returns:
+        Matplotlib figure object.
+    """
     plot_df = df.copy()
-    if stable_only:
-        plot_df = plot_df[plot_df['status'] == 'stable']
-        logger.info(f"Filtered to stable configs only (error <= {error_threshold})")
+    
+    if exclude_unstable:
+        stable_df = plot_df[plot_df.get("status", "stable") == "stable"]
+        logger.info(f"Filtered to {len(stable_df)} stable configurations for final plot")
+        plot_df = stable_df
     
     if plot_df.empty:
-        logger.warning("No data points available for plotting after filtering.")
-        return
+        logger.warning("No data points to plot after filtering.")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.text(0.5, 0.5, "No valid data to plot", transform=ax.transAxes, ha='center')
+        plt.close(fig)
+        return fig
+
+    fig, ax = plt.subplots(figsize=(10, 6))
     
-    # Identify downsampled configurations (assuming config_id contains 'downsampled' or similar)
-    # Adjust this logic based on actual config_id format
-    plot_df['is_downsampled'] = plot_df['config_id'].str.contains('downsampled', case=False, na=False)
-    
-    fig, ax = plt.subplots(figsize=(10, 8))
-    
-    # Plot standard configurations
-    standard_mask = ~plot_df['is_downsampled']
-    if standard_mask.any():
+    # Identify downsampled points if requested
+    if highlight_downsampled and "downsampled" in plot_df.columns:
+        downsampled_mask = plot_df["downsampled"] == True
+        stable_mask = ~downsampled_mask
+    else:
+        downsampled_mask = pd.Series([False] * len(plot_df), index=plot_df.index)
+        stable_mask = pd.Series([True] * len(plot_df), index=plot_df.index)
+
+    # Plot non-downsampled points
+    if stable_mask.any():
         ax.scatter(
-            plot_df.loc[standard_mask, x_col],
-            plot_df.loc[standard_mask, y_col],
-            marker=standard_marker,
-            color=standard_color,
+            plot_df.loc[stable_mask, x_col],
+            plot_df.loc[stable_mask, y_col],
             alpha=0.6,
-            label='Standard',
-            s=100
+            label='Stable',
+            edgecolors='black',
+            s=50
         )
     
-    # Plot downsampled configurations
-    downsampled_mask = plot_df['is_downsampled']
-    if downsampled_mask.any():
+    # Plot downsampled points with distinct marker
+    if highlight_downsampled and downsampled_mask.any():
         ax.scatter(
             plot_df.loc[downsampled_mask, x_col],
             plot_df.loc[downsampled_mask, y_col],
-            marker=downsampled_marker,
-            color=downsampled_color,
-            alpha=0.6,
+            alpha=0.8,
             label='Downsampled',
+            marker='X',
             s=100,
-            edgecolors='black',
+            edgecolors='red',
             linewidths=1.5
         )
     
     # Calculate and plot Pareto frontier
-    # Sort by x (latency) ascending
-    sorted_df = plot_df.sort_values(by=x_col)
-    pareto_x = []
-    pareto_y = []
+    pareto_points = []
+    sorted_df = plot_df.sort_values(by=[x_col, y_col])
+    
     min_y = float('inf')
-    
     for _, row in sorted_df.iterrows():
-        if row[y_col] < min_y:
+        if row[y_col] <= min_y:
+            pareto_points.append(row)
             min_y = row[y_col]
-            pareto_x.append(row[x_col])
-            pareto_y.append(row[y_col])
     
-    if pareto_x:
-        ax.plot(pareto_x, pareto_y, 'g-', linewidth=2, label='Pareto Frontier', alpha=0.8)
-        # Mark Pareto points
-        ax.scatter(pareto_x, pareto_y, color='green', marker='*', s=150, zorder=5, label='Pareto Points')
+    if pareto_points:
+        pareto_df = pd.DataFrame(pareto_points)
+        pareto_df = pareto_df.sort_values(by=x_col)
+        ax.plot(
+            pareto_df[x_col],
+            pareto_df[y_col],
+            'r-',
+            linewidth=2,
+            label='Pareto Frontier'
+        )
     
-    ax.set_xlabel('Median Latency (ms)')
-    ax.set_ylabel('Max Absolute Difference')
+    ax.set_xlabel("Median Latency (ms)")
+    ax.set_ylabel("Max Absolute Difference")
     ax.set_title(title)
     ax.legend()
     ax.grid(True, alpha=0.3)
     
-    # Invert y-axis if needed (lower error is better) - optional, depending on preference
-    # ax.invert_yaxis()
-    
     if output_path:
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.savefig(output_path, dpi=150, bbox_inches='tight')
         logger.info(f"Pareto frontier plot saved to {output_path}")
-    else:
-        plt.show()
     
-    plt.close(fig)
+    return fig
 
-def generate_pareto_exploration(
-    metrics_path: str,
-    latency_path: str,
-    output_path: str
-) -> None:
+def generate_pareto_exploration() -> Path:
     """
-    Generate Pareto exploration plot including downsampled configurations.
+    Generate Pareto exploration plot including ALL configurations (stable and unstable).
+    Unstable configurations are marked with a warning style (red outline).
+    Downsampled configurations are marked with a distinct indicator.
     
-    Args:
-        metrics_path: Path to stability metrics CSV.
-        latency_path: Path to aggregated latency CSV.
-        output_path: Path to save the output plot.
+    Returns:
+        Path to the generated plot file.
     """
-    logger.info("Generating Pareto exploration plot...")
+    df = load_stability_metrics()
     
-    # Load data
-    stability_df = load_stability_metrics(metrics_path)
-    latency_df = pd.read_csv(latency_path)
+    # Mark unstable configurations
+    unstable_mask = df.get("status", "stable") == "unstable"
+    downsampled_mask = df.get("downsampled", False) == True
     
-    # Merge data
-    merged_df = pd.merge(
-        stability_df,
-        latency_df,
-        on='config_id',
-        how='inner'
-    )
+    fig, ax = plt.subplots(figsize=(12, 8))
     
-    # For exploration, we include all numerically stable configurations
-    # (stable AND downsampled, but EXCLUDING unstable ones with error > 1e-5)
-    # The stability_check should have already marked unstable ones
-    
-    plot_pareto_frontier(
-        df=merged_df,
-        x_col='median',
-        y_col='max_diff',
-        title='Pareto Frontier Exploration (All Stable Configs)',
-        output_path=output_path,
-        stable_only=True,
-        error_threshold=1e-5,
-        downsampled_marker='s',
-        standard_marker='o',
-        downsampled_color='orange',
-        standard_color='blue'
-    )
-
-def generate_pareto_final(
-    metrics_path: str,
-    latency_path: str,
-    output_path: str
-) -> None:
-    """
-    Generate final Pareto frontier plot strictly excluding configurations with error > 1e-5.
-    
-    This represents the final, validated Pareto frontier (Constitution Principle VI).
-    
-    Args:
-        metrics_path: Path to stability metrics CSV.
-        latency_path: Path to aggregated latency CSV.
-        output_path: Path to save the output plot.
-    """
-    logger.info("Generating final Pareto frontier plot...")
-    
-    # Load data
-    stability_df = load_stability_metrics(metrics_path)
-    latency_df = pd.read_csv(latency_path)
-    
-    # Merge data
-    merged_df = pd.merge(
-        stability_df,
-        latency_df,
-        on='config_id',
-        how='inner'
-    )
-    
-    # STRICTLY exclude configurations with error > 1e-5
-    # Constitution Principle VI: Configurations with error > 1e-5 are excluded from final results
-    valid_df = merged_df[merged_df['max_diff'] <= 1e-5]
-    
-    if valid_df.empty:
-        logger.error("No valid configurations found for final Pareto frontier (all error > 1e-5).")
-        # Create an empty plot with a message
-        fig, ax = plt.subplots(figsize=(10, 8))
-        ax.text(0.5, 0.5, 'No Valid Configurations\n(Error > 1e-5 for all)', 
-                transform=ax.transData, ha='center', va='center', fontsize=14)
-        ax.set_xlabel('Median Latency (ms)')
-        ax.set_ylabel('Max Absolute Difference')
-        ax.set_title('Final Pareto Frontier (No Valid Data)')
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close(fig)
-        return
-    
-    # Identify downsampled configurations for distinct marking
-    valid_df['is_downsampled'] = valid_df['config_id'].str.contains('downsampled', case=False, na=False)
-    
-    fig, ax = plt.subplots(figsize=(10, 8))
-    
-    # Plot standard configurations
-    standard_mask = ~valid_df['is_downsampled']
-    if standard_mask.any():
+    # Plot stable, non-downsampled
+    mask_stable_normal = ~unstable_mask & ~downsampled_mask
+    if mask_stable_normal.any():
         ax.scatter(
-            valid_df.loc[standard_mask, 'median'],
-            valid_df.loc[standard_mask, 'max_diff'],
-            marker='o',
-            color='blue',
-            alpha=0.7,
-            label='Standard',
-            s=100
+            df.loc[mask_stable_normal, "median_ms"],
+            df.loc[mask_stable_normal, "max_diff"],
+            alpha=0.6,
+            label='Stable (Normal)',
+            edgecolors='black',
+            s=60
         )
     
-    # Plot downsampled configurations with distinct marker
-    downsampled_mask = valid_df['is_downsampled']
-    if downsampled_mask.any():
+    # Plot stable, downsampled
+    mask_stable_down = ~unstable_mask & downsampled_mask
+    if mask_stable_down.any():
         ax.scatter(
-            valid_df.loc[downsampled_mask, 'median'],
-            valid_df.loc[downsampled_mask, 'max_diff'],
-            marker='s',
-            color='orange',
-            alpha=0.7,
-            label='Downsampled',
+            df.loc[mask_stable_down, "median_ms"],
+            df.loc[mask_stable_down, "max_diff"],
+            alpha=0.8,
+            label='Stable (Downsampled)',
+            marker='X',
             s=100,
-            edgecolors='black',
+            edgecolors='blue',
             linewidths=1.5
         )
     
-    # Calculate Pareto frontier (minimize both latency and error)
-    # Sort by latency ascending
-    sorted_df = valid_df.sort_values(by='median')
-    pareto_x = []
-    pareto_y = []
+    # Plot unstable (warning style)
+    if unstable_mask.any():
+        ax.scatter(
+            df.loc[unstable_mask, "median_ms"],
+            df.loc[unstable_mask, "max_diff"],
+            alpha=0.7,
+            label='Unstable (Warning)',
+            facecolors='none',
+            edgecolors='red',
+            linewidths=2,
+            s=80
+        )
+    
+    # Calculate Pareto frontier on ALL data
+    sorted_df = df.sort_values(by=["median_ms", "max_diff"])
+    pareto_points = []
     min_y = float('inf')
-    
     for _, row in sorted_df.iterrows():
-        if row['max_diff'] < min_y:
-            min_y = row['max_diff']
-            pareto_x.append(row['median'])
-            pareto_y.append(row['max_diff'])
+        if row["max_diff"] <= min_y:
+            pareto_points.append(row)
+            min_y = row["max_diff"]
     
-    if pareto_x:
-        ax.plot(pareto_x, pareto_y, 'g-', linewidth=2, label='Pareto Frontier', alpha=0.8)
-        # Mark Pareto points
-        ax.scatter(pareto_x, pareto_y, color='green', marker='*', s=150, zorder=5, label='Pareto Points')
+    if pareto_points:
+        pareto_df = pd.DataFrame(pareto_points)
+        pareto_df = pareto_df.sort_values(by="median_ms")
+        ax.plot(
+            pareto_df["median_ms"],
+            pareto_df["max_diff"],
+            'g--',
+            linewidth=2,
+            label='Exploration Frontier'
+        )
     
-    ax.set_xlabel('Median Latency (ms)')
-    ax.set_ylabel('Max Absolute Difference')
-    ax.set_title('Final Pareto Frontier (Stable Configurations Only, Error ≤ 1e-5)')
+    ax.set_xlabel("Median Latency (ms)")
+    ax.set_ylabel("Max Absolute Difference")
+    ax.set_title("Pareto Frontier Exploration (All Configurations)")
+    ax.legend(loc='upper right')
+    ax.grid(True, alpha=0.3)
+    
+    output_path = RESULTS_DIR / "pareto_frontier_exploration.png"
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    
+    logger.info(f"Exploration plot saved to {output_path}")
+    return output_path
+
+def generate_pareto_final() -> Tuple[Path, Path]:
+    """
+    Generate final Pareto frontier plot strictly excluding unstable configurations.
+    Also generates aggregated.csv with only stable configurations.
+    
+    Returns:
+        Tuple of (plot_path, csv_path).
+    """
+    df = load_stability_metrics()
+    
+    # Filter to stable only
+    stable_df = df[df.get("status", "stable") == "stable"]
+    
+    if stable_df.empty:
+        logger.warning("No stable configurations found for final plot.")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.text(0.5, 0.5, "No stable data to plot", transform=ax.transAxes, ha='center')
+        plot_path = RESULTS_DIR / "pareto_frontier_final.png"
+        plt.savefig(plot_path, dpi=150)
+        plt.close(fig)
+        return plot_path, RESULTS_DIR / "aggregated.csv"
+    
+    # Generate plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Plot all stable points
+    ax.scatter(
+        stable_df["median_ms"],
+        stable_df["max_diff"],
+        alpha=0.6,
+        label='Stable Configurations',
+        edgecolors='black',
+        s=60
+    )
+    
+    # Calculate Pareto frontier
+    sorted_df = stable_df.sort_values(by=["median_ms", "max_diff"])
+    pareto_points = []
+    min_y = float('inf')
+    for _, row in sorted_df.iterrows():
+        if row["max_diff"] <= min_y:
+            pareto_points.append(row)
+            min_y = row["max_diff"]
+    
+    if pareto_points:
+        pareto_df = pd.DataFrame(pareto_points)
+        pareto_df = pareto_df.sort_values(by="median_ms")
+        ax.plot(
+            pareto_df["median_ms"],
+            pareto_df["max_diff"],
+            'r-',
+            linewidth=2,
+            label='Pareto Frontier'
+        )
+    
+    ax.set_xlabel("Median Latency (ms)")
+    ax.set_ylabel("Max Absolute Difference")
+    ax.set_title("Pareto Frontier (Stable Configurations Only)")
     ax.legend()
     ax.grid(True, alpha=0.3)
     
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    logger.info(f"Final Pareto frontier plot saved to {output_path}")
+    plot_path = RESULTS_DIR / "pareto_frontier_final.png"
+    plt.savefig(plot_path, dpi=150, bbox_inches='tight')
     plt.close(fig)
+    
+    # Generate aggregated CSV
+    csv_path = RESULTS_DIR / "aggregated.csv"
+    stable_df.to_csv(csv_path, index=False)
+    
+    logger.info(f"Final plot saved to {plot_path}")
+    logger.info(f"Aggregated CSV saved to {csv_path} with {len(stable_df)} rows")
+    
+    return plot_path, csv_path
 
 def main():
-    """
-    Main entry point for generating Pareto frontier plots.
-    """
+    """Main entry point for visualization tasks."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Generate Pareto frontier plots')
-    parser.add_argument('--mode', choices=['exploration', 'final'], default='final',
-                      help='Plot mode: exploration (includes downsampled) or final (strictly stable)')
-    parser.add_argument('--metrics', type=str, default='data/results/stability_metrics.csv',
-                      help='Path to stability metrics CSV')
-    parser.add_argument('--latency', type=str, default='data/results/aggregated.csv',
-                      help='Path to aggregated latency CSV')
-    parser.add_argument('--output', type=str, default=None,
-                      help='Output path for the plot (default: auto-generated based on mode)')
+    parser = argparse.ArgumentParser(description="Generate visualization plots for compiler optimization analysis.")
+    parser.add_argument(
+        "--plot-exploration",
+        action="store_true",
+        help="Generate exploration plot including all configurations."
+    )
+    parser.add_argument(
+        "--plot-final",
+        action="store_true",
+        help="Generate final plot excluding unstable configurations."
+    )
     
     args = parser.parse_args()
     
-    # Set default output paths if not provided
-    if args.output is None:
-        if args.mode == 'exploration':
-            args.output = 'data/results/pareto_frontier_exploration.png'
-        else:
-            args.output = 'data/results/pareto_frontier_final.png'
-    
     # Ensure output directory exists
-    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     
-    if args.mode == 'exploration':
-        generate_pareto_exploration(args.metrics, args.latency, args.output)
-    else:
-        generate_pareto_final(args.metrics, args.latency, args.output)
+    if args.plot_exploration:
+        logger.info("Generating exploration plot...")
+        generate_pareto_exploration()
+    
+    if args.plot_final:
+        logger.info("Generating final plot...")
+        generate_pareto_final()
+    
+    if not (args.plot_exploration or args.plot_final):
+        parser.print_help()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

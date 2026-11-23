@@ -1,0 +1,17 @@
+status: none
+intent: WESAD OpenNeuro TSST Schandry heartbeat interoception dataset python package
+  dataset
+required_fields:
+- subject_id
+- session_id
+- modality
+- signal_data
+- sampling_rate
+- interoception_task_present
+- interoception_task_events
+- tsst_stress_task_present
+- tsst_event_markers
+- bids_metadata
+cache_key: a43ea0a7e5f62599fc64f8cf3db27326088522e883ad10ab46ed4dacecf119a8
+searched_at: '2026-08-04T18:27:14.608780+00:00'
+retry_count: 1

@@ -1,48 +1,142 @@
-# Data Model: llmXive follow-up: extending "Trust-Region Behavior Blending for On-Policy Distillation"
+# Data Model: llmXive Follow-up (Trust-Region Behavior Blending Extension)
 
-## Entity Definitions
+## Overview
 
-### DiversityProfile
-Represents the static feature vector for a single teacher response.
-- **distinct_4_ratio**: float (0.0 - 1.0). Ratio of distinct 4-grams to total 4-grams.
-- **ngram_entropy**: float. Average entropy of n-grams (n=1 to 4).
-- **syntactic_variation_score**: float. Variance of parse tree depths.
-- **text_length**: int. Number of tokens/characters.
-- **parse_failed**: boolean. True if parsing failed (metric set to NaN).
+This document defines the core data structures used in the llmXive follow-up project,
+specifically focusing on the `TrainingInstance` schema and related feature representations.
+The model has been updated to reflect the **Proxy Strategy** (replacing ground-truth collapse labels
+with proxy targets like relevance scores and text length).
+
+## Core Entities
 
 ### TrainingInstance
-Links a `DiversityProfile` to a proxy target (since ground truth is missing).
-- **profile_id**: string. Unique ID linking to the source output.
-- **domain**: string. "book_corpus" (source) or "beir" (target).
-- **proxy_quality_score**: float. Relevance score (BEIR) or text length (Book Corpus) used as a proxy for quality.
-- **proxy_stability_score**: float. Simulated stability metric (e.g., inverse of text length variance) used as a proxy for stability.
-- **optimal_epsilon_0**: null. (Ground truth missing, set to null).
-- **collapse_label**: null. (Ground truth missing, set to null).
-- **final_loss_variance**: null. (Ground truth missing, set to null).
 
-### AnalysisResult
-The output of the correlation analysis.
-- **model_type**: string. "Correlation" or "Baseline".
-- **task**: string. "correlation_analysis".
-- **source_domain**: string. "book_corpus".
-- **target_domain**: string. "beir".
-- **metrics**: dict. Correlation coefficients, baseline delta, p-values.
+Represents a single data point used for correlation analysis and profile generation.
+Previously, this schema included `optimal_epsilon_0` and `collapse_label` derived from
+ground-truth sweep logs. Since those logs are unavailable, the schema has been amended
+to link diversity profiles to **proxy targets**.
 
-## Data Flow
+**Schema Definition:**
 
-1.  **Input**: Raw JSONL/Parquet files from verified datasets.
-2.  **Processing**:
-    -   Filter empty/whitespace rows.
-    -   Compute `distinct_4_ratio`, `ngram_entropy`, `syntactic_variation_score`.
-    -   Handle parse failures (assign NaN).
-    -   Join with available metadata (relevance scores, text length) to create proxy targets.
-3.  **Output**:
-    -   `data/processed/feature_matrix_source.csv`
-    -   `data/processed/feature_matrix_target.csv`
-    -   `data/results/correlation_report.json`
+```yaml
+TrainingInstance:
+ type: object
+ required:
+ - instance_id
+ - source_text
+ - profile_features
+ - proxy_target
+ properties:
+ instance_id:
+ type: string
+ description: Unique identifier for the instance (e.g., 'book_001_sent_42')
+ source_text:
+ type: string
+ description: The raw text content (teacher output or document chunk)
+ profile_features:
+ type: object
+ description: Computed diversity metrics (lexical and syntactic)
+ properties:
+ distinct_4_ratio:
+ type: number
+ format: float
+ description: Ratio of unique 4-grams to total 4-grams
+ ngram_entropy:
+ type: number
+ format: float
+ description: Shannon entropy of the 4-gram distribution
+ syntactic_variation_score:
+ type: number
+ format: float
+ description: Variance of parse tree depths in the text
+ # Optional fallback if syntactic parsing fails
+ parse_tree_depth_variance:
+ type: number
+ format: float
+ nullable: true
+ description: Fallback metric if full syntactic variation fails
+ proxy_target:
+ type: object
+ description: The proxy value used instead of ground-truth collapse labels.
+ # This object varies by dataset source
+ oneOf:
+ - $ref: '#/definitions/BookCorpusProxy'
+ - $ref: '#/definitions/BEIRProxy'
+ discriminator:
+ propertyName: source_type
+ mapping:
+ book_corpus: '#/definitions/BookCorpusProxy'
+ beir: '#/definitions/BEIRProxy'
 
-## Edge Cases & Defaults
+definitions:
+ BookCorpusProxy:
+ type: object
+ properties:
+ source_type:
+ type: string
+ enum: [book_corpus]
+ proxy_type:
+ type: string
+ enum: [text_length]
+ text_length:
+ type: integer
+ description: Length of the source text (proxy for 'collapse' or 'stability')
+ # Conceptual mapping: Shorter text may imply 'collapse' (low diversity/stability)
+ # Longer text implies 'stability' (high diversity/stability)
+ required:
+ - source_type
+ - proxy_type
+ - text_length
 
--   **Empty Text**: `distinct_4_ratio` = 0.0, `ngram_entropy` = 0.0, `syntactic_variation_score` = NaN.
--   **Parse Failure**: `syntactic_variation_score` = NaN. Row is excluded from analysis if > 20% of data fails.
--   **Missing Proxy Metadata**: Row is excluded from the analysis set but logged for coverage reporting.
+ BEIRProxy:
+ type: object
+ properties:
+ source_type:
+ type: string
+ enum: [beir]
+ proxy_type:
+ type: string
+ enum: [relevance_score]
+ relevance_score:
+ type: number
+ format: float
+ description: Retrieval relevance score (proxy for 'collapse' or 'stability')
+ # Conceptual mapping: Low relevance may imply 'collapse' (low utility/stability)
+ # High relevance implies 'stability' (high utility/stability)
+ required:
+ - source_type
+ - proxy_type
+ - relevance_score
+```
+
+## Schema Evolution Notes
+
+### Change Log
+
+- **T006b Update (Current)**:
+ - **Removed**: `optimal_epsilon_0` (float, optional) - No longer available from sweep logs.
+ - **Removed**: `collapse_label` (boolean, optional) - Ground truth unavailable.
+ - **Added**: `proxy_target` (object) - A polymorphic structure containing:
+ - `source_type`: Identifies the dataset source (`book_corpus` or `beir`).
+ - `proxy_type`: The nature of the proxy (`text_length` or `relevance_score`).
+ - `text_length` OR `relevance_score`: The actual numeric proxy value.
+ - **Rationale**: This change aligns the data model with the **Proxy Strategy** defined in
+ `spec.md` (amended in T006a). It allows the pipeline to perform correlation analysis
+ between `profile_features` and the available proxy targets without requiring
+ non-existent ground-truth labels.
+
+### Usage Guidelines
+
+1. **Feature Extraction**: `code/pipelines/extract_features.py` populates `profile_features`.
+2. **Target Assignment**:
+ - For **Book Corpus** data, the `proxy_target` is set to `BookCorpusProxy` with `text_length`.
+ - For **BEIR** data, the `proxy_target` is set to `BEIRProxy` with `relevance_score`.
+3. **Analysis**: `code/pipelines/analyze_correlations.py` extracts the numeric value from
+ `proxy_target` based on `proxy_type` to compute correlation coefficients against
+ `profile_features`.
+
+## Related Artifacts
+
+- `specs/001-llmxive-trb-diversity-profile/spec.md`: Defines the functional requirements for proxy usage.
+- `code/pipelines/extract_features.py`: Generates the `profile_features` portion of the instance.
+- `code/pipelines/analyze_correlations.py`: Consumes the `proxy_target` for statistical analysis.

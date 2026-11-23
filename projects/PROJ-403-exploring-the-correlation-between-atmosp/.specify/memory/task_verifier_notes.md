@@ -2,9 +2,24 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001 [P] Initialize project structure: Create `src/`, `tests/`, `data/`, `figures/`, `logs/`, `report/`, `artifacts/` directories at repository root and create `__init__.py` files in `src/` and `tests/` subdirectories.** — No evidence of the required directories (`src/`, `tests/`, `data/`, `figures/`, `logs/`, `report/`, `artifacts/`) or the `__init__.py` files in `src/` and `tests/` was provided; without these artifacts the task is not satisfied.
-- **T002 [P] Configure linting (ruff/flake8) and formatting (black/isort) tools in `pyproject.toml`.** — No `pyproject.toml` file or any snippet showing ruff/flake8, black, and isort configuration is provided; therefore the required linting/formatting setup is missing.
-- **T003 Create `requirements.txt` with pinned dependencies: xarray>=2023.9.0, numpy>=1.26.0, pandas>=2.1.0, scipy>=1.11.0, statsmodels>=0.14.0, matplotlib>=3.8.0, cartopy>=0.22.0, netCDF4>=1.6.5, cftime>=1.6.2, dask[complete]>=2023.9.0, h5netcdf>=0.14.0, requests>=2.31.0, tqdm>=4.66.0, nitime>=0.10.0, pytest>=7.4.0, pytest-cov** — No `requirements.txt` file or its contents were provided; the implementer did not supply the required pinned dependency list, so the task is not satisfied.
-- **T004 [P] Setup `pyproject.toml` for Python 3.11 project configuration.** — No `pyproject.toml` file or its contents were provided; without the actual configuration file we cannot confirm that a Python 3.11 project setup was created. The required artifact is missing.
-- **T005 [P] Setup `src/utils/logger.py` for logging and `src/utils/config.py` for environment variable management (data paths, thresholds).** — No `src/utils/logger.py` or `src/utils/config.py` files were provided or described, so the required logging and environment‑variable utilities are missing. The task cannot be considered done until those modules exist with appropriate functionality.
-- **T006 [P] Implement `src/data/download.py` with `cdsapi` wrappers to fetch ERA IVT and Z for 1979–2023, **regional domain (mid-to-high northern latitudes, 100°E-60°W)**, using CDS variables: 'integrated_water_vapor_transport' and 'geopotential', product_type: 'reanalysis', resolution: °, with explicit lat/lon bounding box parameters.** — The required file `src/data/download.py` does not exist, so no implementation of the CDS API wrappers is present. Consequently, the task’s core deliverable is missing.
+- **T007** — Checked `src/data/download.py` – it defines SHA‑256 calculation and writes a metadata YAML, but it writes to `data/raw/metadata.yaml` (via `raw_dir / "metadata.yaml"`), not to the required `data/metadata.yaml`. Moreover, the repository contains no `data/metadata.yaml` file, so the required output artifact is missing. The task’s core deliverable is therefore not satisfied.
+- **T009b** — The provided `src/cli/run_analysis.py` only contains placeholder phase routing and uses a config that limits processing to a regional domain (20°‑60° N, 100°‑300° E). It does not implement any domain‑filtering logic, nor does it perform streaming or chunked processing of the full global grid (90° S‑90° N, 180° W‑180° E) required by FR‑009. The task’s core functionality is therefore missing.
+- **T019** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T020** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T022** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T023a** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T023b** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T025** — declared artifact(s) missing/empty/invalid: tests/integration/test_viz.py
+- **T026** — declared artifact(s) missing/empty/invalid: src/viz/maps.py
+- **T027** — declared artifact(s) missing/empty/invalid: src/viz/maps.py
+- **T028** — declared artifact(s) missing/empty/invalid: src/viz/maps.py
+- **T029** — declared artifact(s) missing/empty/invalid: src/viz/maps.py
+- **T031** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T032** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T033** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T034** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T035** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T036** — declared artifact(s) missing/empty/invalid: src/data/analysis.py, data/processed/sensitivity_summary.csv
+- **T038** — declared artifact(s) missing/empty/invalid: logs/performance.yaml
+- **T045** — declared artifact(s) missing/empty/invalid: src/data/analysis.py
+- **T046** — declared artifact(s) missing/empty/invalid: src/data/analysis.py

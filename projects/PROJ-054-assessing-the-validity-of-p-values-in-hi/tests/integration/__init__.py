@@ -1,3 +1,3 @@
 """
-Integration tests for workflows.
+Integration tests for pipeline components.
 """

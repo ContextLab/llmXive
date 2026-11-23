@@ -1,0 +1,156 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: Schema for LMM and Random Forest model evaluation metrics and coefficients.
+type: object
+required:
+  - lmm
+  - random_forest
+  - cross_validation
+  - f_test
+  - sensitivity_analysis
+properties:
+  lmm:
+    type: object
+    description: Linear Mixed-Effects Model results.
+    required:
+      - adjusted_r_squared
+      - p_values
+      - coefficients
+      - random_effect_variance
+    properties:
+      adjusted_r_squared:
+        type: number
+        description: Adjusted R-squared value for the LMM.
+      p_values:
+        type: object
+        description: P-values for fixed effects coefficients.
+        properties:
+          phosphorus:
+            type: number
+            minimum: 0
+            maximum: 1
+          nitrogen:
+            type: number
+            minimum: 0
+            maximum: 1
+          intercept:
+            type: number
+            minimum: 0
+            maximum: 1
+      coefficients:
+        type: object
+        description: Fixed effects coefficients.
+        properties:
+          phosphorus:
+            type: number
+          nitrogen:
+            type: number
+          intercept:
+            type: number
+      random_effect_variance:
+        type: number
+        description: Variance of the random intercept (species).
+      std_errors:
+        type: object
+        description: Standard errors for fixed effects.
+        properties:
+          phosphorus:
+            type: number
+          nitrogen:
+            type: number
+          intercept:
+            type: number
+
+  random_forest:
+    type: object
+    description: Random Forest baseline results.
+    required:
+      - r_squared
+      - rmse
+      - feature_importance
+    properties:
+      r_squared:
+        type: number
+      rmse:
+        type: number
+      feature_importance:
+        type: object
+        description: Importance of features in the RF model.
+        properties:
+          phosphorus:
+            type: number
+          nitrogen:
+            type: number
+          other_features:
+            type: number
+
+  cross_validation:
+    type: object
+    description: Cross-validation metrics.
+    required:
+      - mean_r_squared
+      - std_r_squared
+      - folds
+    properties:
+      mean_r_squared:
+        type: number
+      std_r_squared:
+        type: number
+      folds:
+        type: integer
+        minimum: 2
+
+  f_test:
+    type: object
+    description: F-test results for overall model significance.
+    required:
+      - f_statistic
+      - p_value
+    properties:
+      f_statistic:
+        type: number
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+
+  sensitivity_analysis:
+    type: object
+    description: Sensitivity analysis results against literature ranges.
+    required:
+      - percent_deviation
+      - literature_mean
+      - observed_coefficient
+      - confidence_interval
+      - literature_overlap
+    properties:
+      percent_deviation:
+        type: number
+      literature_mean:
+        type: number
+      observed_coefficient:
+        type: number
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+      literature_overlap:
+        type: boolean
+
+  metadata:
+    type: object
+    description: Metadata about the run.
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      version:
+        type: string
+      model_type:
+        type: string
+        enum:
+          - lmm
+          - random_forest
+          - combined

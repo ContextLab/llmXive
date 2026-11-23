@@ -1,33 +1,17 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Thread Schema"
-description: "Schema for a single discussion thread extracted from Reddit or Stack Exchange."
-type: "object"
+type: object
 properties:
   thread_id:
-    type: "string"
-    description: "Unique identifier for the thread."
+    type: string
   source:
-    type: "string"
-    enum: ["reddit", "stackexchange"]
-    description: "Origin platform."
+    type: string
   subreddit_site:
-    type: "string"
-    description: "Name of the subreddit or Stack Exchange site."
+    type: string
   created_at:
-    type: "string"
-    format: "date-time"
-    description: "ISO 8601 timestamp of thread creation."
+    type: string
   seed_count:
-    type: "integer"
-    minimum: 3
-    description: "Number of top-level seed posts (must be >= 3)."
+    type: integer
   total_replies:
-    type: "integer"
-    minimum: 0
-    description: "Total number of replies in the thread."
-  has_ground_truth:
-    type: "boolean"
-    description: "Whether external validation ground truth is available for this thread."
+    type: integer
 required:
   - thread_id
   - source
@@ -35,5 +19,3 @@ required:
   - created_at
   - seed_count
   - total_replies
-  - has_ground_truth
-additionalProperties: false

@@ -1,0 +1,9 @@
+status: none
+intent: GLUE MNLI QNLI datasets download via HuggingFace datasets python package dataset
+required_fields:
+- sentence1
+- sentence2
+- label
+cache_key: b2e666ffada2942a65af0a7329064fc2dad558c832fe4c09e3f9a2cbc1d4b86f
+searched_at: '2026-10-27T22:20:45.394604+00:00'
+retry_count: 1

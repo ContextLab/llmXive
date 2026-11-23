@@ -6,7 +6,7 @@ synthetic dataset generation, including sample size, predictors,
 correlation structure, noise levels, and true coefficients.
 """
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict, Any
 import numpy as np
 from numpy.typing import ArrayLike
 

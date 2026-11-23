@@ -1,0 +1,12 @@
+status: none
+intent: download Wan-Streamer v0.1 logs or VoxCeleb2 speech video dataset with turn
+  taking labels python package dataset
+required_fields:
+- timestamp
+- semantic_feature
+- prosodic_feature
+- latent_delta_magnitude
+- turn_label
+cache_key: b5340d320f66bb89a7db7c2cda25319556528d145d0c9b0bfad664a21015c567
+searched_at: '2026-10-10T03:23:39.776275+00:00'
+retry_count: 1

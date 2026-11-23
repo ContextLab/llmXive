@@ -1,0 +1,22 @@
+random_seed: 42
+paths:
+  raw_data: data/raw/github_issues_raw_api.parquet
+  cleaned_data: data/processed/cleaned_issues.csv
+  repo_metadata: data/processed/repo_metadata.json
+  outlier_report: data/processed/outlier_report.json
+  distribution_metrics: data/processed/distribution_metrics.json
+  hypothesis_results: data/processed/hypothesis_results.json
+  mixed_effects_results: data/processed/mixed_effects_results.json
+  collinearity_results: data/processed/collinearity_results.json
+  sensitivity_results: data/processed/sensitivity_analysis.json
+  figures_dir: data/figures
+  logs_dir: data/logs
+thresholds:
+  completeness: 0.95
+  vif_collinearity: 5
+  outlier_iqr_multiplier: 1.5
+  label_frequency_threshold: 0.01
+api:
+  rate_limit_wait: 60
+  max_retries: 5
+  timeout: 30

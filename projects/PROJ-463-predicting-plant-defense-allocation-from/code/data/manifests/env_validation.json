@@ -1,0 +1,25 @@
+{
+  "timestamp": "2024-01-15T10:30:45.123456",
+  "tools": {
+    "fastp": {
+      "installed": true,
+      "version": "fastp 0.23.4",
+      "error": null
+    },
+    "hisat2": {
+      "installed": true,
+      "version": "hisat2-2.2.1",
+      "error": null
+    },
+    "featureCounts": {
+      "installed": true,
+      "version": "featureCounts 2.0.3 (Subread package)",
+      "error": null
+    }
+  },
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0
+  }
+}

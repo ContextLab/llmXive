@@ -1,0 +1,31 @@
+{
+  "timestamp": "2023-10-27 14:30:00",
+  "constraints": {
+    "time_limit_seconds": 21600,
+    "memory_limit_gb": 7.0
+  },
+  "stages": {
+    "preprocessing": {
+      "stage": "preprocessing",
+      "duration_seconds": 3600.5,
+      "start_memory_gb": 1.2,
+      "end_memory_gb": 4.5,
+      "peak_memory_gb": 5.8,
+      "success": true
+    },
+    "permutation_test": {
+      "stage": "permutation_test_subset",
+      "subset_permutations": 100,
+      "extrapolated_full_permutations": 1000,
+      "extrapolated_duration_seconds": 10800.0,
+      "peak_memory_gb": 3.2,
+      "success": true
+    }
+  },
+  "summary": {
+    "total_time_seconds": 14400.5,
+    "max_memory_gb": 5.8,
+    "passed_time_constraint": true,
+    "passed_memory_constraint": true
+  }
+}

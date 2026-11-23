@@ -1,0 +1,138 @@
+T001:
+  c: true
+  h: feb64c2d634d9e5225034494233539442288c83fa28b46085295c2c254626963
+  r: All four required files exist with non-empty content (`code/__init__.py`, `data/raw/.gitkeep`,
+    `data/processed/.gitkeep`, `tests/__init__.py`), and the directory structure (`code`,
+    `data`, `tests`, `data/raw`, `data/processed`, `graphs`, `data/processed/graphs`)
+    is implied by the resolved file paths. The task only asked for scaffolding, which
+    is fully satisfied.
+  sig: 9e09b6722389de37ef9f69efe7fbbeec52f390b65093f56102fc7e4a10746529
+T002:
+  c: true
+  h: a001205a58f6d24e889eb0e33ddeba93329b456f265a56a73d2c72dad44d42ef
+  r: The `requirements.txt` exists at the project root, is non-empty, and contains
+    all eight required packages (pandas, networkx, scikit-learn, spacy, tqdm, pyyaml,
+    requests, scipy) plus a few reasonable extras (datasets, numpy, pytest).
+  sig: dee97da0a8f3d0f9cce41bfd7a36c9fc739bc6da6d3a13b76463b3333bdfb94e
+T003:
+  c: true
+  h: 4483714bd2338e8ff44faef2ee8d2f82ea981d47a4389a94c13727b65e249dad
+  r: The `pyproject.toml` exists at the project root and contains the exact required
+    `[tool.black]` section (line-length=88, target-version=['py311']) and `[tool.ruff]`
+    section (select=['E','W','F'], ignore=['E501']), plus reasonable supporting project/build
+    configuration.
+  sig: 84ae512ef47efc1f60e2d7e3705a4d566f701b4e7ba89fa36546e9e1bab33563
+T004:
+  c: false
+  h: 96df2e6a71d762f4e66bdac58e738ac6ad2b6fb3887b02993e0231fdbda07011
+  r: '`code/config.py` exists and correctly defines `cutoff_depth=0.3`, `seed=42`,
+    `dataset_url="NJU-LINK/TELBench"`, and a `sensitivity_thresholds` list containing
+    the required [0.01, 0.05, 0.1]. However, the task explicitly requires `null_permutations=1000`,
+    while the file sets its default to 5000 (via `os.environ.get("LLMXIVE_NULL_PERMUTATIONS",
+    5000)`), contradicting the stated requirement. Fix: change the default to 1000
+    (or otherwise match the task''s specified value).'
+  sig: 382291c4c7560b0a55c35034b450b802757b2d44e04880d81f246edb35fe4738
+T004a:
+  c: false
+  h: ac915ba8e7bd03f89d29d9cc83b866d0fe79dcd3e38538b58a40c388c68dc8ae
+  r: "The repository contains `code/validator.py` and a unit test `tests/unit/test_validator.py`,\
+    \ but the required output file `data/processed/cutoff_depth_validation.json` is\
+    \ absent, indicating that the function either was not executed or failed to write\
+    \ the file. Additionally, the shown source for `validator.py` is truncated, suggesting\
+    \ the implementation may be incomplete. The task\u2019s core deliverable \u2013\
+    \ a non\u2011empty JSON file with the justification/recommendation \u2013 is missing."
+T005:
+  c: false
+  h: 8a48f0fa5247c79468f3dc37f179bedb347afcc0573f314dca6fbbc7bb20c99e
+  r: "`code/hasher.py` exists and implements real hashing logic (chunked sha256, directory\
+    \ hashing, manifest load/save), but `save_hash_manifest` calls `ensure_directories(output_path)`\
+    \ while `code/config.py` defines `ensure_directories()` with no parameters, so\
+    \ that function raises a `TypeError` whenever it is invoked \u2014 a required\
+    \ utility function is non-functional. Fix the call (e.g., call `ensure_directories()`\
+    \ and create the output file's parent directory separately) so the manifest-saving\
+    \ utility actually works."
+  sig: 483b127e6e7065db2b2bd5fb79ebd05d600ca92b28d62c3d758fe478b96e48b1
+T006:
+  c: false
+  h: 3954c169b393c65604f741b69041ea6cdf1357c682802bd7f5e4026455d89241
+  r: "The file exists and `validate_trajectory_record`/`validate_json_file` do handle\
+    \ missing fields with warnings and per-record skipping, but malformed JSON is\
+    \ NOT handled gracefully: `validate_json_file` calls `json.load(f)` with no try/except,\
+    \ so a corrupted JSON file raises an uncaught `JSONDecodeError` and crashes the\
+    \ batch \u2014 directly contradicting acceptance scenario 3 (\"logs a warning\
+    \ and skips that specific trajectory without crashing the entire batch\"). Additionally,\
+    \ `fetch_tebench_streaming` references an undefined `dataset_id` variable (NameError\
+    \ at `logger.info(f\"Starting streaming fetc"
+  sig: 5e6ca71196ec3768cabff68544b43f1d5aca7b98eeeea7789f9a24258a5c25c4
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that the metric functions\
+    \ now return\u202F0.0 for zero\u2011node or zero\u2011edge graphs instead of NaN.\
+    \ The required implementation and verification artifacts are missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation showing that batch processing now logs its
+    progress with `tqdm` was provided; the artifact is missing entirely, so the requirement
+    is not satisfied.
+T030:
+  c: false
+  h: cbdec122ad02090a41eee122ae0be73c61a2219a6483d93b341b7bbce77703e8
+  r: "The `calculate_20th_percentile_threshold` function is implemented and the unit\
+    \ test `test_20th_percentile_threshold` exists, but the required output step (writing\
+    \ the threshold to `data/processed/threshold_config.json`) is not present, and\
+    \ the input file `data/processed/train_metrics.csv` is missing. The task therefore\
+    \ lacks the necessary artifacts and side\u2011effects."
+T031:
+  c: false
+  h: d462fdc009272411d90ecbbd75821e82a0c303a59ffcda26f5beb3ec5d2bca10
+  r: The repository lacks a `data/processed/train_metrics.csv` file, the `calculate_f1_max_threshold`
+    function is not present (or is incomplete) in `code/evaluator.py`, and the expected
+    JSON output `data/processed/f1_max_threshold.json` does not exist. Additionally,
+    the unit test `tests/unit/test_evaluator.py::test_f1_max_threshold_calculation`
+    is absent from the test suite. These missing artifacts prevent the task from being
+    considered complete.
+T032:
+  c: false
+  h: 79940c4e84d0460372b73a6e444edb01b05d4752057612faea17d2f5be5395c3
+  r: "The repository lacks a `predict_collapse` implementation in `code/evaluator.py`\
+    \ (the file ends before such a function appears) and the required input file `data/processed/test_metrics.csv`\
+    \ is absent, so the task\u2019s core functionality cannot be verified."
+T033:
+  c: false
+  h: 79940c4e84d0460372b73a6e444edb01b05d4752057612faea17d2f5be5395c3
+  r: The repository lacks the required `data/processed/test_metrics.csv` file, and
+    the provided `code/evaluator.py` does not contain an implemented `evaluate_performance`
+    function (the file is truncated before any such definition). Consequently the
+    task of computing Precision, Recall, F1, and a Confusion Matrix cannot be satisfied.
+T034:
+  c: false
+  h: 00fe2f5e0e8c214eb81fb40b8259dc298ffd6c2602bc51f4651673227230e5e8
+  r: "The repository contains the unit test `test_baseline_mean_connectivity`, but\
+    \ the required output file `data/processed/baseline_report.json` is missing, and\
+    \ there is no evidence that `calculate_baseline` writes the `baseline_mean_connectivity`\
+    \ field to that JSON (or even that the function is fully implemented). The task\u2019\
+    s output artifact and its consumption by downstream tasks are therefore not satisfied."
+T046:
+  c: false
+  h: 89228361f1d19a2e8784eeaab16601331d08a54c3c5469271780d315166a4b7a
+  r: The repository lacks the required input files (`threshold_config.json`, `f1_max_threshold.json`,
+    `sensitivity_matrix.json`) and the output file `comparative_report.json`. `code/evaluator.py`
+    does not show an implementation of `report_comparative_thresholds`, and the unit
+    test suite does not contain the promised `test_comparative_thresholds_report`.
+    Consequently the comparative thresholds report functionality is not present.
+T061:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md, quickstart.md, or research.md files (or any diff/report) are provided,
+    nor any evidence that they were compared against the code and outputs. The implementer
+    did not supply the required documentation review artifacts.
+T062:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence (e.g., command output, log files, or a report) showing that `ruff\
+    \ check code/` and `black --check code/` were run and returned zero errors is\
+    \ present, so we cannot confirm the codebase is properly formatted and lint\u2011\
+    free. The implementer must provide the verification output or a summary confirming\
+    \ no formatting/linting issues."

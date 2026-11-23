@@ -1,0 +1,81 @@
+- artifact_hash: 2dac377c0187930cfa5c6f1aae33a017cb3a0bb5188b85e7f57bfb937ced7be1
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - NVIDIA/flownet2-pytorch: Pytorch implementation of FlowNet\
+    \ 2.0: Evolution of Optical Flow Estimation with Deep Networks \xB7 GitHub"
+  kind: url
+  value: https://github.com/NVIDIA/flownet2-pytorch
+  verification_status: pending
+  verified_against_url: https://github.com/NVIDIA/flownet2-pytorch
+  verified_at: '2026-10-22T07:44:07.089724Z'
+- artifact_hash: 2dac377c0187930cfa5c6f1aae33a017cb3a0bb5188b85e7f57bfb937ced7be1
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/spec.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - pytorch/vision: Datasets, Transforms and Models specific\
+    \ to Computer Vision \xB7 GitHub"
+  kind: url
+  value: https://github.com/pytorch/vision
+  verification_status: pending
+  verified_against_url: https://github.com/pytorch/vision
+  verified_at: '2026-10-22T07:44:07.089724Z'
+- artifact_hash: 2dac377c0187930cfa5c6f1aae33a017cb3a0bb5188b85e7f57bfb937ced7be1
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/spec.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '1504.06852'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-22T07:44:07.089724Z'
+- artifact_hash: 2dac377c0187930cfa5c6f1aae33a017cb3a0bb5188b85e7f57bfb937ced7be1
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/spec.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '1512.03385'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-10-22T07:44:07.089724Z'
+- artifact_hash: 036f8f2f44a38645cb39286c64c678fb897b55a5baafcdd55a34868235ff3e1f
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - NVIDIA/flownet2-pytorch: Pytorch implementation of FlowNet\
+    \ 2.0: Evolution of Optical Flow Estimation with Deep Networks \xB7 GitHub"
+  kind: url
+  value: https://github.com/NVIDIA/flownet2-pytorch
+  verification_status: pending
+  verified_against_url: https://github.com/NVIDIA/flownet2-pytorch
+  verified_at: '2026-10-22T08:07:29.682533Z'
+- artifact_hash: 992deb24e5ffa85f971f37a344fa44c37051a937c293b78f30132c6d32d8430f
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - NVIDIA/flownet2-pytorch: Pytorch implementation of FlowNet\
+    \ 2.0: Evolution of Optical Flow Estimation with Deep Networks \xB7 GitHub"
+  kind: url
+  value: https://github.com/NVIDIA/flownet2-pytorch
+  verification_status: pending
+  verified_against_url: https://github.com/NVIDIA/flownet2-pytorch
+  verified_at: '2026-10-22T08:07:47.735214Z'
+- artifact_hash: 605232f98c2528c6e15a446594f7cd71fb39e87a9ba4e7497293c263fc2aa00a
+  artifact_path: projects/PROJ-1044-llmxive-follow-up-extending-why-can-t-i/specs/001-llmxive-follow-up-extending-why-can-t-i/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/NVIDIA/flownet-pytorch
+  verification_status: mismatch
+  verified_against_url: https://github.com/NVIDIA/flownet-pytorch
+  verified_at: '2026-10-22T08:08:06.827440Z'

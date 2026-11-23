@@ -1,65 +1,70 @@
 """
-Script to initialize the project directory structure.
-Creates directories for source code, tests, raw/processed data, and results.
+Project setup script.
+
+Creates the required top‑level directory scaffold for the project
+and ensures that the ``code/requirements.txt`` file exists.
+This script is intended to be run via ``python -m code.setup_project`` or
+through the ``code/setup_project.py`` entry point defined in ``code/main.py``.
 """
+
 import os
 from pathlib import Path
+import argparse
+import sys
 
-def main():
-    root = Path(__file__).parent.parent
-    
-    # Define directory structure relative to project root
-    dirs = [
-        root / "code",
-        root / "tests",
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "results",
-        root / "figures",
-        root / "code" / "utils",
-        root / "code" / "data",
-        root / "code" / "features",
-        root / "code" / "models",
-        root / "code" / "eval",
-        root / "code" / "interpret",
-        root / "code" / "report",
-        root / "code" / "pipeline",
-        root / "tests" / "unit",
-        root / "tests" / "integration",
-    ]
+# List of directories that must exist at the repository root
+REQUIRED_DIRS = [
+    Path("code"),
+    Path("data"),
+    Path("data/raw"),
+    Path("data/processed"),
+    Path("results"),
+    Path("scripts"),
+    Path("specs"),
+]
 
-    created_count = 0
-    for dir_path in dirs:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path.relative_to(root)}")
-            created_count += 1
-        else:
-            print(f"Directory exists: {dir_path.relative_to(root)}")
+def create_directories() -> None:
+    """Create all required directories if they do not already exist."""
+    for directory in REQUIRED_DIRS:
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"✅ Created directory: {directory}")
+        except Exception as exc:
+            print(f"❌ Failed to create directory {directory}: {exc}", file=sys.stderr)
+            raise
 
-    print(f"\nProject structure initialized. Created {created_count} new directories.")
+def verify_requirements_file() -> None:
+    """Ensure that ``code/requirements.txt`` exists."""
+    req_path = Path("code") / "requirements.txt"
+    if not req_path.is_file():
+        raise FileNotFoundError(
+            f"Requirements file not found at expected location: {req_path}"
+        )
+    print(f"✅ Requirements file present: {req_path}")
 
-    # Create placeholder __init__.py files to ensure Python package recognition
-    # and to prevent import errors later.
-    init_files = [
-        root / "code" / "__init__.py",
-        root / "code" / "utils" / "__init__.py",
-        root / "code" / "data" / "__init__.py",
-        root / "code" / "features" / "__init__.py",
-        root / "code" / "models" / "__init__.py",
-        root / "code" / "eval" / "__init__.py",
-        root / "code" / "interpret" / "__init__.py",
-        root / "code" / "report" / "__init__.py",
-        root / "code" / "pipeline" / "__init__.py",
-        root / "tests" / "__init__.py",
-        root / "tests" / "unit" / "__init__.py",
-        root / "tests" / "integration" / "__init__.py",
-    ]
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Set up the project scaffold and verify basic dependencies."
+    )
+    parser.add_argument(
+        "--verify",
+        action="store_true",
+        help="Only verify that the scaffold and requirements file exist.",
+    )
+    args = parser.parse_args()
 
-    for init_file in init_files:
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created: {init_file.relative_to(root)}")
+    if args.verify:
+        # Just verification mode
+        for d in REQUIRED_DIRS:
+            if not d.is_dir():
+                raise FileNotFoundError(f"Required directory missing: {d}")
+        verify_requirements_file()
+        print("✅ Scaffold verification passed.")
+    else:
+        # Create everything
+        create_directories()
+        verify_requirements_file()
+        print("✅ Project scaffold created and verified.")
 
 if __name__ == "__main__":
     main()

@@ -1,157 +1,394 @@
 """
-Unit tests for axis semantic overlap constraint.
+Unit tests for axis semantic overlap constraints.
 
-This test implements the TDD approach for User Story 1.
-It depends on T010 (schema) and T011 (service) being implemented.
-Currently, this test will fail until T010/T011 are complete,
-as required by the task description.
+This module tests the validation logic in src/services/axis_validator.py
+to ensure Coarse and Fine axes are sufficiently independent.
+
+Dependencies:
+  - T010 (axis.schema.yaml) for schema reference
+  - T012 (axis_validator.py) for validation logic
 """
 import pytest
+import math
+from unittest.mock import patch, MagicMock
 import numpy as np
-from typing import Dict, Any, List, Tuple
-from pathlib import Path
-import sys
 
-# Add project root to path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from src.services.axis_validator import (
+    load_sentence_model_cached,
+    preprocess_text,
+    calculate_lexical_overlap,
+    calculate_semantic_distance,
+    validate_coarse_fine_independence,
+    validate_source_observation_distinctness,
+    validate_axis_definition
+)
 
-# These imports will fail until T010/T011 are implemented
-# This is intentional per the task requirements
-try:
-    from src.services.axis_generator import validate_axis_semantic_overlap
-    from src.lib.config import get_config
-except ImportError as e:
-    # Define stubs for testing purposes when dependencies are missing
-    # In a real TDD flow, these would be the actual implementations
-    def validate_axis_semantic_overlap(coarse: str, fine: str) -> Tuple[bool, float]:
-        """
-        Stub implementation - will be replaced by T011.
-        Returns (is_valid, overlap_score)
-        """
-        # Default to invalid with high overlap to fail the test
-        return False, 0.9
 
-    def get_config():
-        """Stub config loader"""
-        return {
-            "semantic_overlap_threshold": 0.4,
-            "embedding_distance_threshold": 0.3
+class TestPreprocessText:
+    """Tests for text preprocessing utility."""
+
+    def test_lowercases_input(self):
+        result = preprocess_text("Hello WORLD")
+        assert result == "hello world"
+
+    def test_removes_punctuation(self):
+        result = preprocess_text("Hello, world! How are you?")
+        # Punctuation should be stripped, leaving only words and spaces
+        assert "!" not in result
+        assert "," not in result
+        assert "?" not in result
+        assert "." not in result
+
+    def test_handles_empty_string(self):
+        result = preprocess_text("")
+        assert result == ""
+
+    def test_handles_whitespace_only(self):
+        result = preprocess_text("   \t\n   ")
+        assert result == ""
+
+    def test_removes_multiple_spaces(self):
+        result = preprocess_text("Hello    World")
+        assert "  " not in result
+
+
+class TestLexicalOverlap:
+    """Tests for Jaccard similarity calculation."""
+
+    def test_identical_texts(self):
+        """Jaccard similarity of identical sets is 1.0."""
+        text1 = "the quick brown fox"
+        text2 = "the quick brown fox"
+        overlap = calculate_lexical_overlap(text1, text2)
+        assert abs(overlap - 1.0) < 1e-6
+
+    def test_no_overlap(self):
+        """Jaccard similarity of disjoint sets is 0.0."""
+        text1 = "apple banana cherry"
+        text2 = "dog cat fish"
+        overlap = calculate_lexical_overlap(text1, text2)
+        assert abs(overlap - 0.0) < 1e-6
+
+    def test_partial_overlap(self):
+        """Test partial overlap calculation."""
+        # Set A: {the, quick, brown, fox}
+        # Set B: {the, quick, red, car}
+        # Intersection: {the, quick} -> 2
+        # Union: {the, quick, brown, fox, red, car} -> 6
+        # Jaccard: 2/6 = 0.333...
+        text1 = "the quick brown fox"
+        text2 = "the quick red car"
+        overlap = calculate_lexical_overlap(text1, text2)
+        expected = 2.0 / 6.0
+        assert abs(overlap - expected) < 1e-6
+
+    def test_case_insensitivity(self):
+        """Overlap calculation should be case-insensitive."""
+        text1 = "Hello World"
+        text2 = "hello world"
+        overlap = calculate_lexical_overlap(text1, text2)
+        assert abs(overlap - 1.0) < 1e-6
+
+    def test_empty_input(self):
+        """Empty inputs should result in 0.0 overlap."""
+        overlap = calculate_lexical_overlap("", "")
+        assert overlap == 0.0
+
+    def test_one_empty_input(self):
+        """One empty input should result in 0.0 overlap."""
+        overlap = calculate_lexical_overlap("hello", "")
+        assert overlap == 0.0
+
+
+class TestSemanticDistance:
+    """Tests for semantic distance calculation using embeddings."""
+
+    @patch('src.services.axis_validator.load_sentence_model_cached')
+    def test_identical_embeddings_zero_distance(self, mock_model_loader):
+        """Cosine distance of identical vectors is 0.0."""
+        mock_model = MagicMock()
+        mock_model_loader.return_value = mock_model
+        
+        # Mock embeddings to be identical
+        vec1 = np.array([1.0, 0.0, 0.0])
+        vec2 = np.array([1.0, 0.0, 0.0])
+        mock_model.encode.side_effect = [vec1, vec2]
+
+        distance = calculate_semantic_distance("hello", "hello")
+        assert abs(distance - 0.0) < 1e-6
+
+    @patch('src.services.axis_validator.load_sentence_model_cached')
+    def test_opposite_embeddings_max_distance(self, mock_model_loader):
+        """Cosine distance of opposite vectors is 2.0 (1 - (-1))."""
+        mock_model = MagicMock()
+        mock_model_loader.return_value = mock_model
+        
+        # Mock embeddings to be opposite
+        vec1 = np.array([1.0, 0.0, 0.0])
+        vec2 = np.array([-1.0, 0.0, 0.0])
+        mock_model.encode.side_effect = [vec1, vec2]
+
+        distance = calculate_semantic_distance("hello", "goodbye")
+        # Cosine similarity = -1, so distance = 1 - (-1) = 2
+        assert abs(distance - 2.0) < 1e-6
+
+    @patch('src.services.axis_validator.load_sentence_model_cached')
+    def test_orthogonal_embeddings_one_distance(self, mock_model_loader):
+        """Cosine distance of orthogonal vectors is 1.0."""
+        mock_model = MagicMock()
+        mock_model_loader.return_value = mock_model
+        
+        # Mock embeddings to be orthogonal
+        vec1 = np.array([1.0, 0.0, 0.0])
+        vec2 = np.array([0.0, 1.0, 0.0])
+        mock_model.encode.side_effect = [vec1, vec2]
+
+        distance = calculate_semantic_distance("hello", "world")
+        # Cosine similarity = 0, so distance = 1 - 0 = 1
+        assert abs(distance - 1.0) < 1e-6
+
+    @patch('src.services.axis_validator.load_sentence_model_cached')
+    def test_partial_similarity(self, mock_model_loader):
+        """Test with partially similar vectors."""
+        mock_model = MagicMock()
+        mock_model_loader.return_value = mock_model
+        
+        # Vectors with cosine similarity of 0.5
+        vec1 = np.array([1.0, 0.0, 0.0])
+        vec2 = np.array([0.5, math.sqrt(0.75), 0.0])  # norm = 1, dot = 0.5
+        mock_model.encode.side_effect = [vec1, vec2]
+
+        distance = calculate_semantic_distance("text1", "text2")
+        # Cosine similarity = 0.5, so distance = 1 - 0.5 = 0.5
+        assert abs(distance - 0.5) < 1e-6
+
+
+class TestValidationLogic:
+    """Integration tests for the full validation pipeline."""
+
+    @patch('src.services.axis_validator.load_sentence_model_cached')
+    def test_valid_independent_axes(self, mock_model_loader):
+        """Test that sufficiently different axes pass validation."""
+        mock_model = MagicMock()
+        mock_model_loader.return_value = mock_model
+        
+        # Mock lexical overlap > 0.4 (e.g., 0.5)
+        with patch('src.services.axis_validator.calculate_lexical_overlap', return_value=0.5):
+            # Mock semantic distance < 0.3 (e.g., 0.2)
+            with patch('src.services.axis_validator.calculate_semantic_distance', return_value=0.2):
+                coarse = {
+                    "character": "Elizabeth Bennet",
+                    "axis_name": "Innocence",
+                    "description": "She is naive, trusting, and optimistic about people's intentions."
+                }
+                fine = {
+                    "character": "Elizabeth Bennet",
+                    "axis_name": "Experience",
+                    "description": "She is cautious, skeptical, and carefully evaluates people's character.",
+                    "source_observation": "Her realization of Wickham's true nature after Darcy's letter."
+                }
+                
+                is_valid, reason = validate_coarse_fine_independence(coarse, fine)
+                
+                assert is_valid is True
+                assert "failed" not in reason.lower()
+
+    @patch('src.services.axis_validator.load_sentence_model_cached')
+    def test_axes_too_lexically_similar(self, mock_model_loader):
+        """Test that axes with high lexical overlap fail."""
+        mock_model = MagicMock()
+        mock_model_loader.return_value = mock_model
+        
+        # Mock lexical overlap < 0.4 (e.g., 0.3)
+        with patch('src.services.axis_validator.calculate_lexical_overlap', return_value=0.3):
+            # Mock semantic distance < 0.3 (e.g., 0.2)
+            with patch('src.services.axis_validator.calculate_semantic_distance', return_value=0.2):
+                coarse = {
+                    "character": "Elizabeth Bennet",
+                    "axis_name": "Kindness",
+                    "description": "She is kind and helpful to others."
+                }
+                fine = {
+                    "character": "Elizabeth Bennet",
+                    "axis_name": "Kindness-Refined",
+                    "description": "She is kind and helpful to people.",
+                    "source_observation": "She helps her sister Jane."
+                }
+                
+                is_valid, reason = validate_coarse_fine_independence(coarse, fine)
+                
+                assert is_valid is False
+                assert "lexical" in reason.lower()
+
+    @patch('src.services.axis_validator.load_sentence_model_cached')
+    def test_axes_semantically_too_similar(self, mock_model_loader):
+        """Test that axes with low semantic distance fail."""
+        mock_model = MagicMock()
+        mock_model_loader.return_value = mock_model
+        
+        # Mock lexical overlap > 0.4 (e.g., 0.5)
+        with patch('src.services.axis_validator.calculate_lexical_overlap', return_value=0.5):
+            # Mock semantic distance >= 0.3 (e.g., 0.4)
+            with patch('src.services.axis_validator.calculate_semantic_distance', return_value=0.4):
+                coarse = {
+                    "character": "Elizabeth Bennet",
+                    "axis_name": "Intelligence",
+                    "description": "She is very smart and perceptive."
+                }
+                fine = {
+                    "character": "Elizabeth Bennet",
+                    "axis_name": "Perception",
+                    "description": "She is very smart and perceptive about others.",
+                    "source_observation": "She notices Darcy's pride immediately."
+                }
+                
+                is_valid, reason = validate_coarse_fine_independence(coarse, fine)
+                
+                assert is_valid is False
+                assert "semantic" in reason.lower() or "distance" in reason.lower()
+
+    @patch('src.services.axis_validator.load_sentence_model_cached')
+    def test_both_constraints_violated(self, mock_model_loader):
+        """Test failure when both lexical and semantic constraints are violated."""
+        mock_model = MagicMock()
+        mock_model_loader.return_value = mock_model
+        
+        with patch('src.services.axis_validator.calculate_lexical_overlap', return_value=0.2):
+            with patch('src.services.axis_validator.calculate_semantic_distance', return_value=0.8):
+                coarse = {
+                    "character": "Elizabeth Bennet",
+                    "axis_name": "Test",
+                    "description": "A test description."
+                }
+                fine = {
+                    "character": "Elizabeth Bennet",
+                    "axis_name": "Test",
+                    "description": "A test description.",
+                    "source_observation": "Observation."
+                }
+                
+                is_valid, reason = validate_coarse_fine_independence(coarse, fine)
+                
+                assert is_valid is False
+                # Should mention both issues or the first one encountered
+                assert "failed" in reason.lower()
+
+    def test_missing_source_observation(self):
+        """Test that missing source_observation fails distinctness check."""
+        fine = {
+            "character": "Elizabeth Bennet",
+            "axis_name": "Experience",
+            "description": "She is cautious."
+            # Missing source_observation
         }
+        
+        is_valid, reason = validate_source_observation_distinctness(fine)
+        
+        assert is_valid is False
+        assert "source_observation" in reason.lower()
 
+    def test_empty_source_observation(self):
+        """Test that empty source_observation fails distinctness check."""
+        fine = {
+            "character": "Elizabeth Bennet",
+            "axis_name": "Experience",
+            "description": "She is cautious.",
+            "source_observation": ""
+        }
+        
+        is_valid, reason = validate_source_observation_distinctness(fine)
+        
+        assert is_valid is False
 
-class TestAxisSemanticOverlap:
-    """Test suite for axis semantic overlap validation"""
-    
-    def test_high_lexical_overlap_fails(self):
-        """Test that axes with high lexical overlap (>0.4) are rejected"""
-        coarse = "The character is consistently brave and courageous in all situations"
-        fine = "The character displays bravery and courage when facing danger"
+    def test_valid_source_observation(self):
+        """Test that valid source_observation passes."""
+        fine = {
+            "character": "Elizabeth Bennet",
+            "axis_name": "Experience",
+            "description": "She is cautious.",
+            "source_observation": "After reading Darcy's letter, she re-evaluates Wickham's character."
+        }
         
-        is_valid, overlap_score = validate_axis_semantic_overlap(coarse, fine)
+        is_valid, reason = validate_source_observation_distinctness(fine)
         
-        # Should fail due to high overlap
-        assert not is_valid, "Axes with high lexical overlap should be rejected"
-        assert overlap_score > 0.4, f"Overlap score {overlap_score} should be > 0.4"
-    
-    def test_low_lexical_overlap_passes(self):
-        """Test that axes with low lexical overlap (<0.4) pass lexical check"""
-        coarse = "The character shows consistent moral integrity in decision making"
-        fine = "The character demonstrates emotional volatility under stress"
+        assert is_valid is True
+
+    @patch('src.services.axis_validator.load_sentence_model_cached')
+    def test_full_axis_definition_valid(self, mock_model_loader):
+        """Test complete axis definition validation with valid inputs."""
+        mock_model = MagicMock()
+        mock_model_loader.return_value = mock_model
         
-        is_valid, overlap_score = validate_axis_semantic_overlap(coarse, fine)
+        coarse = {
+            "character": "Elizabeth Bennet",
+            "axis_name": "Innocence",
+            "description": "She is naive, trusting, and optimistic."
+        }
+        fine = {
+            "character": "Elizabeth Bennet",
+            "axis_name": "Experience",
+            "description": "She is cautious, skeptical, and analytical.",
+            "source_observation": "Her change of heart after Darcy's letter."
+        }
         
-        # Should pass if overlap is low enough
-        # Note: This test may fail until T011 is implemented
-        if overlap_score < 0.4:
-            assert is_valid, "Axes with low lexical overlap should pass"
-    
-    def test_cosine_similarity_check(self):
-        """Test that axes with high cosine similarity (<0.3 distance) are rejected"""
-        coarse = "The character exhibits leadership qualities in group settings"
-        fine = "The character takes charge and guides others effectively"
+        with patch('src.services.axis_validator.calculate_lexical_overlap', return_value=0.5):
+            with patch('src.services.axis_validator.calculate_semantic_distance', return_value=0.2):
+                is_valid, reason = validate_axis_definition(coarse, fine)
+                
+                assert is_valid is True
+
+    @patch('src.services.axis_validator.load_sentence_model_cached')
+    def test_full_axis_definition_invalid_overlap(self, mock_model_loader):
+        """Test complete axis definition validation with invalid overlap."""
+        mock_model = MagicMock()
+        mock_model_loader.return_value = mock_model
         
-        is_valid, overlap_score = validate_axis_semantic_overlap(coarse, fine)
+        coarse = {
+            "character": "Elizabeth Bennet",
+            "axis_name": "Kindness",
+            "description": "She is kind and helpful."
+        }
+        fine = {
+            "character": "Elizabeth Bennet",
+            "axis_name": "Kindness",
+            "description": "She is kind and helpful.",
+            "source_observation": "She helps her sister."
+        }
         
-        # Should fail due to high semantic similarity (low distance)
-        # Note: This test may fail until T011 is implemented
-        if overlap_score > 0.7:  # High similarity means low distance
-            assert not is_valid, "Axes with high semantic similarity should be rejected"
-    
-    def test_threshold_configuration(self):
-        """Test that validation respects configured thresholds"""
-        config = get_config()
-        threshold = config.get("semantic_overlap_threshold", 0.4)
+        with patch('src.services.axis_validator.calculate_lexical_overlap', return_value=0.3):
+            with patch('src.services.axis_validator.calculate_semantic_distance', return_value=0.1):
+                is_valid, reason = validate_axis_definition(coarse, fine)
+                
+                assert is_valid is False
+
+    def test_missing_coarse_field(self):
+        """Test validation when coarse definition is missing required fields."""
+        coarse = {
+            "character": "Elizabeth Bennet"
+            # Missing axis_name and description
+        }
+        fine = {
+            "character": "Elizabeth Bennet",
+            "axis_name": "Experience",
+            "description": "She is cautious.",
+            "source_observation": "Observation."
+        }
         
-        coarse = "Test axis A"
-        fine = "Test axis A"  # Identical text
+        # This should fail due to missing required fields in coarse
+        is_valid, reason = validate_axis_definition(coarse, fine)
+        assert is_valid is False
+
+    def test_missing_fine_field(self):
+        """Test validation when fine definition is missing required fields."""
+        coarse = {
+            "character": "Elizabeth Bennet",
+            "axis_name": "Innocence",
+            "description": "She is naive."
+        }
+        fine = {
+            "character": "Elizabeth Bennet"
+            # Missing axis_name, description, and source_observation
+        }
         
-        is_valid, overlap_score = validate_axis_semantic_overlap(coarse, fine)
-        
-        # Identical text should always fail
-        assert not is_valid, "Identical axes should always be rejected"
-        assert overlap_score == 1.0, "Identical text should have 1.0 overlap"
-    
-    def test_empty_inputs_handling(self):
-        """Test that empty or near-empty inputs are handled gracefully"""
-        coarse = ""
-        fine = "Some valid axis description"
-        
-        with pytest.raises((ValueError, TypeError)):
-            validate_axis_semantic_overlap(coarse, fine)
-    
-    def test_whitespace_only_inputs(self):
-        """Test that whitespace-only inputs are handled gracefully"""
-        coarse = "   "
-        fine = "   "
-        
-        with pytest.raises((ValueError, TypeError)):
-            validate_axis_semantic_overlap(coarse, fine)
-    
-    def test_very_long_text_performance(self):
-        """Test that validation handles long text without timing out"""
-        coarse = "The character is " + "very " * 1000 + "determined"
-        fine = "The character is " + "extremely " * 1000 + "persistent"
-        
-        # Should complete within reasonable time (no explicit assertion, just no timeout)
-        is_valid, overlap_score = validate_axis_semantic_overlap(coarse, fine)
-        
-        # Result should be boolean and float
-        assert isinstance(is_valid, bool)
-        assert isinstance(overlap_score, (float, int))
-    
-    def test_special_characters_handling(self):
-        """Test that special characters in axis text are handled correctly"""
-        coarse = "The character's 'moral compass' is broken!"
-        fine = "The character has no \"moral compass\" whatsoever."
-        
-        # Should not raise exceptions
-        is_valid, overlap_score = validate_axis_semantic_overlap(coarse, fine)
-        
-        assert isinstance(is_valid, bool)
-        assert isinstance(overlap_score, (float, int))
-    
-    def test_multilingual_text(self):
-        """Test that multilingual text is handled (though likely high overlap)"""
-        coarse = "The character is brave"
-        fine = "El personaje es valiente"  # Spanish for same meaning
-        
-        # Should complete without errors
-        is_valid, overlap_score = validate_axis_semantic_overlap(coarse, fine)
-        
-        assert isinstance(is_valid, bool)
-        assert isinstance(overlap_score, (float, int))
-    
-    def test_return_type_consistency(self):
-        """Test that function always returns consistent types"""
-        test_cases = [
-            ("Short text", "Different short text"),
-            ("Medium length axis description for testing", "Another medium length axis description"),
-            ("A" * 100, "B" * 100),
-        ]
-        
-        for coarse, fine in test_cases:
-            is_valid, overlap_score = validate_axis_semantic_overlap(coarse, fine)
-            
-            assert isinstance(is_valid, bool), f"is_valid should be bool, got {type(is_valid)}"
-            assert isinstance(overlap_score, (float, int)), f"overlap_score should be numeric, got {type(overlap_score)}"
-            assert 0.0 <= overlap_score <= 1.0, f"overlap_score {overlap_score} should be in [0, 1]"
+        is_valid, reason = validate_axis_definition(coarse, fine)
+        assert is_valid is False

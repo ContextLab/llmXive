@@ -1,292 +1,273 @@
-"""
-Data schema validation module for raw and processed data directories.
-
-Implements validation logic using Pydantic models where possible,
-and fallback dict checks for complex or dynamic schemas.
-"""
 import os
 import csv
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Set
 from dataclasses import dataclass, field
-from enum import Enum
+import logging
 
-# Try to import pydantic, fallback to dict-based validation if not available
-try:
-    from pydantic import BaseModel, Field, ValidationError, field_validator
-    from pydantic.config import ConfigDict
-    PYDANTIC_AVAILABLE = True
-except ImportError:
-    PYDANTIC_AVAILABLE = False
-    # Define a simple fallback structure if Pydantic is not available
-    class BaseModel:
-        pass
-    class Field:
-        def __init__(self, default=None, **kwargs):
-            self.default = default
-    class ValidationError(Exception):
-        pass
-
-from .config import DATA_RAW_PATH, DATA_PROCESSED_PATH, LOG_PATH
+from .config import get_data_path, DATA_RAW_PATH, DATA_PROCESSED_PATH
 from .logging_config import get_logger, log_warning
 
 logger = get_logger(__name__)
 
-class ValidationStatus(Enum):
-    VALID = "valid"
-    INVALID = "invalid"
-    SKIPPED = "skipped"
-    ERROR = "error"
-
 @dataclass
 class ValidationResult:
-    file_path: str
-    status: ValidationStatus
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    schema_name: str = "unknown"
+    status: str  # 'valid', 'invalid', 'warning'
+    message: str
+    file_path: Optional[str] = None
+    details: Dict[str, Any] = field(default_factory=dict)
 
-class SchemaValidator:
+class ValidationStatus:
+    VALID = 'valid'
+    INVALID = 'invalid'
+    WARNING = 'warning'
+
+# Define expected schemas for raw and processed data
+# These are simplified schemas based on the project context (proteomic/transcriptomic data)
+RAW_SCHEMA_REQUIRED_COLUMNS = {
+    'sample_id',
+    'species',
+    'stress_condition',
+}
+
+PROCESSED_SCHEMA_REQUIRED_COLUMNS = {
+    'sample_id',
+    'species',
+    'stress_condition',
+    'protein_id',  # or gene_id
+}
+
+# Allowed column prefixes for processed data (protein/gene abundance columns)
+ALLOWED_COLUMN_PREFIXES = {
+    'protein_',
+    'gene_',
+    'abundance_',
+}
+
+def validate_csv_schema(file_path: Path, schema_type: str) -> ValidationResult:
     """
-    Validates data files against predefined schemas.
-    Supports both Pydantic models and dict-based checks.
-    """
+    Validates a CSV file against the expected schema for raw or processed data.
     
-    def __init__(self, data_dir: Optional[Path] = None):
-        self.data_dir = data_dir or DATA_RAW_PATH
-        self.logger = get_logger(__name__)
+    Args:
+        file_path: Path to the CSV file
+        schema_type: 'raw' or 'processed'
         
-        # Define schemas for common data types
-        self.schemas = {
-            "raw_proteomics": self._validate_raw_proteomics,
-            "raw_transcriptomics": self._validate_raw_transcriptomics,
-            "processed_matrix": self._validate_processed_matrix,
-            "metadata": self._validate_metadata,
-        }
+    Returns:
+        ValidationResult object
+    """
+    if not file_path.exists():
+        return ValidationResult(
+            status=ValidationStatus.INVALID,
+            message=f"File not found: {file_path}",
+            file_path=str(file_path)
+        )
 
-    def _validate_raw_proteomics(self, file_path: Path, content: List[Dict[str, Any]]) -> ValidationResult:
-        """
-        Validate raw proteomics data.
-        Expected columns: ProteinID, SampleID, Abundance, StressCondition, Species
-        """
-        errors = []
-        warnings = []
-        
-        required_columns = {"ProteinID", "SampleID", "Abundance", "StressCondition", "Species"}
-        if not content:
-            errors.append("File is empty or contains no data rows")
-            return ValidationResult(str(file_path), ValidationStatus.INVALID, errors, warnings, "raw_proteomics")
-        
-        headers = set(content[0].keys())
-        missing_cols = required_columns - headers
-        if missing_cols:
-            errors.append(f"Missing required columns: {missing_cols}")
-        
-        # Validate data types and constraints
-        for i, row in enumerate(content[:100]):  # Sample check for performance
-            if not row.get("ProteinID"):
-                warnings.append(f"Row {i}: Missing ProteinID")
-            if row.get("Abundance") is not None:
-                try:
-                    float(row["Abundance"])
-                except (ValueError, TypeError):
-                    errors.append(f"Row {i}: Abundance is not a valid number")
-        
-        status = ValidationStatus.INVALID if errors else ValidationStatus.VALID
-        return ValidationResult(str(file_path), status, errors, warnings, "raw_proteomics")
-
-    def _validate_raw_transcriptomics(self, file_path: Path, content: List[Dict[str, Any]]) -> ValidationResult:
-        """
-        Validate raw transcriptomics data.
-        Expected columns: GeneID, SampleID, Expression, StressCondition, Species
-        """
-        errors = []
-        warnings = []
-        
-        required_columns = {"GeneID", "SampleID", "Expression", "StressCondition", "Species"}
-        if not content:
-            errors.append("File is empty or contains no data rows")
-            return ValidationResult(str(file_path), ValidationStatus.INVALID, errors, warnings, "raw_transcriptomics")
-        
-        headers = set(content[0].keys())
-        missing_cols = required_columns - headers
-        if missing_cols:
-            errors.append(f"Missing required columns: {missing_cols}")
-        
-        status = ValidationStatus.INVALID if errors else ValidationStatus.VALID
-        return ValidationResult(str(file_path), status, errors, warnings, "raw_transcriptomics")
-
-    def _validate_processed_matrix(self, file_path: Path, content: List[Dict[str, Any]]) -> ValidationResult:
-        """
-        Validate processed data matrix.
-        Expected columns: ID (Protein or Gene), Sample1, Sample2, ..., StressCondition, Species
-        """
-        errors = []
-        warnings = []
-        
-        if not content:
-            errors.append("File is empty or contains no data rows")
-            return ValidationResult(str(file_path), ValidationStatus.INVALID, errors, warnings, "processed_matrix")
-        
-        headers = set(content[0].keys())
-        # At minimum, expect an ID column and at least one sample column
-        id_cols = [h for h in headers if h.lower() in ["id", "proteinid", "geneid"]]
-        if not id_cols:
-            errors.append("Missing ID column (expected 'ID', 'ProteinID', or 'GeneID')")
-        
-        sample_cols = [h for h in headers if h not in ["ID", "ProteinID", "GeneID", "StressCondition", "Species"]]
-        if not sample_cols:
-            warnings.append("No sample columns found. Check if data was properly processed.")
-        
-        status = ValidationStatus.INVALID if errors else ValidationStatus.VALID
-        return ValidationResult(str(file_path), status, errors, warnings, "processed_matrix")
-
-    def _validate_metadata(self, file_path: Path, content: List[Dict[str, Any]]) -> ValidationResult:
-        """
-        Validate metadata JSON/CSV files.
-        Expected structure varies, but must contain 'source', 'date', 'description'
-        """
-        errors = []
-        warnings = []
-        
-        if not content:
-            errors.append("Metadata file is empty")
-            return ValidationResult(str(file_path), ValidationStatus.INVALID, errors, warnings, "metadata")
-        
-        required_fields = {"source", "date", "description"}
-        first_row = content[0]
-        missing_fields = required_fields - set(first_row.keys())
-        if missing_fields:
-            errors.append(f"Missing required metadata fields: {missing_fields}")
-        
-        status = ValidationStatus.INVALID if errors else ValidationStatus.VALID
-        return ValidationResult(str(file_path), status, errors, warnings, "metadata")
-
-    def _detect_schema_type(self, file_path: Path) -> str:
-        """
-        Detect which schema to apply based on file name and content.
-        """
-        file_name = file_path.name.lower()
-        
-        if "proteo" in file_name:
-            return "raw_proteomics"
-        elif "transcrip" in file_name or "rna" in file_name:
-            return "raw_transcriptomics"
-        elif "processed" in file_name or "matrix" in file_name:
-            return "processed_matrix"
-        elif "meta" in file_name:
-            return "metadata"
-        
-        # Default to checking content for clues
-        if file_path.suffix == '.csv':
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    reader = csv.DictReader(f)
-                    first_row = next(reader, None)
-                    if first_row:
-                        if "ProteinID" in first_row:
-                            return "raw_proteomics"
-                        elif "GeneID" in first_row:
-                            return "raw_transcriptomics"
-            except Exception as e:
-                self.logger.warning(f"Could not detect schema for {file_path}: {e}")
-        
-        return "processed_matrix"  # Default fallback
-
-    def validate_file(self, file_path: Path) -> ValidationResult:
-        """
-        Validate a single file against its detected schema.
-        """
-        if not file_path.exists():
-            return ValidationResult(str(file_path), ValidationStatus.ERROR, [f"File not found: {file_path}"], [], "unknown")
-        
-        schema_type = self._detect_schema_type(file_path)
-        validator_func = self.schemas.get(schema_type)
-        
-        if not validator_func:
-            return ValidationResult(str(file_path), ValidationStatus.SKIPPED, [], [f"No validator for schema type: {schema_type}"], schema_type)
-        
-        content = []
-        try:
-            if file_path.suffix == '.csv':
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    reader = csv.DictReader(f)
-                    content = list(reader)
-            elif file_path.suffix == '.json':
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-                    if isinstance(data, list):
-                        content = data
-                    elif isinstance(data, dict):
-                        content = [data]
-                    else:
-                        return ValidationResult(str(file_path), ValidationStatus.ERROR, ["JSON must be a list or object"], [], schema_type)
+    try:
+        with open(file_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            headers = reader.fieldnames
+            
+            if not headers:
+                return ValidationResult(
+                    status=ValidationStatus.INVALID,
+                    message=f"File {file_path} is empty or has no headers",
+                    file_path=str(file_path)
+                )
+            
+            headers_set = set(headers)
+            missing_columns = []
+            invalid_columns = []
+            row_count = 0
+            
+            # Determine required columns based on schema type
+            if schema_type == 'raw':
+                required = RAW_SCHEMA_REQUIRED_COLUMNS
+            elif schema_type == 'processed':
+                required = PROCESSED_SCHEMA_REQUIRED_COLUMNS
+                # Check for valid protein/gene columns
+                data_columns = [h for h in headers if h not in PROCESSED_SCHEMA_REQUIRED_COLUMNS]
+                for col in data_columns:
+                    is_valid = any(col.startswith(prefix) for prefix in ALLOWED_COLUMN_PREFIXES)
+                    if not is_valid and col != 'sample_id':  # sample_id is allowed as is
+                        invalid_columns.append(col)
             else:
-                return ValidationResult(str(file_path), ValidationStatus.SKIPPED, [], [f"Unsupported file format: {file_path.suffix}"], schema_type)
-        except Exception as e:
-            return ValidationResult(str(file_path), ValidationStatus.ERROR, [f"Error reading file: {str(e)}"], [], schema_type)
+                return ValidationResult(
+                    status=ValidationStatus.INVALID,
+                    message=f"Unknown schema type: {schema_type}",
+                    file_path=str(file_path)
+                )
+            
+            # Check for required columns
+            missing_columns = list(required - headers_set)
+            
+            # Count rows
+            for _ in reader:
+                row_count += 1
+                
+        if missing_columns:
+            return ValidationResult(
+                status=ValidationStatus.INVALID,
+                message=f"Missing required columns: {', '.join(missing_columns)}",
+                file_path=str(file_path),
+                details={'missing_columns': missing_columns}
+            )
         
-        return validator_func(file_path, content)
+        if invalid_columns:
+            return ValidationResult(
+                status=ValidationStatus.WARNING,
+                message=f"Columns with unexpected naming: {', '.join(invalid_columns)}",
+                file_path=str(file_path),
+                details={'invalid_columns': invalid_columns, 'row_count': row_count}
+            )
+        
+        return ValidationResult(
+            status=ValidationStatus.VALID,
+            message=f"Schema validation passed",
+            file_path=str(file_path),
+            details={'columns': list(headers), 'row_count': row_count}
+        )
+        
+    except Exception as e:
+        logger.error(f"Error validating CSV schema for {file_path}: {e}")
+        return ValidationResult(
+            status=ValidationStatus.INVALID,
+            message=f"Error reading file: {str(e)}",
+            file_path=str(file_path)
+        )
 
-    def validate_directory(self, directory: Optional[Path] = None) -> List[ValidationResult]:
-        """
-        Validate all files in a directory.
-        """
-        target_dir = directory or self.data_dir
-        results = []
+def validate_parquet_schema(file_path: Path, schema_type: str) -> ValidationResult:
+    """
+    Validates a Parquet file against the expected schema.
+    Note: This is a simplified check. Full schema validation would require pandas.
+    """
+    if not file_path.exists():
+        return ValidationResult(
+            status=ValidationStatus.INVALID,
+            message=f"File not found: {file_path}",
+            file_path=str(file_path)
+        )
+
+    try:
+        import pandas as pd
+        df = pd.read_parquet(file_path)
         
-        if not target_dir.exists():
-            self.logger.error(f"Directory does not exist: {target_dir}")
-            return results
+        headers = set(df.columns)
+        missing_columns = []
         
-        supported_extensions = {'.csv', '.json', '.tsv'}
+        if schema_type == 'raw':
+            required = RAW_SCHEMA_REQUIRED_COLUMNS
+        elif schema_type == 'processed':
+            required = PROCESSED_SCHEMA_REQUIRED_COLUMNS
+        else:
+            return ValidationResult(
+                status=ValidationStatus.INVALID,
+                message=f"Unknown schema type: {schema_type}",
+                file_path=str(file_path)
+            )
         
-        for file_path in target_dir.iterdir():
-            if file_path.is_file() and file_path.suffix.lower() in supported_extensions:
-                result = self.validate_file(file_path)
-                results.append(result)
-                if result.status == ValidationStatus.INVALID:
-                    self.logger.error(f"Validation failed for {file_path}: {result.errors}")
-                elif result.status == ValidationStatus.VALID:
-                    self.logger.info(f"Validation passed for {file_path}")
-                elif result.status == ValidationStatus.ERROR:
-                    self.logger.error(f"Error validating {file_path}: {result.errors}")
+        missing_columns = list(required - headers)
         
+        if missing_columns:
+            return ValidationResult(
+                status=ValidationStatus.INVALID,
+                message=f"Missing required columns: {', '.join(missing_columns)}",
+                file_path=str(file_path),
+                details={'missing_columns': missing_columns}
+            )
+        
+        return ValidationResult(
+            status=ValidationStatus.VALID,
+            message=f"Parquet schema validation passed",
+            file_path=str(file_path),
+            details={'columns': list(df.columns), 'row_count': len(df)}
+        )
+        
+    except ImportError:
+        log_warning("pandas not available for Parquet validation, skipping")
+        return ValidationResult(
+            status=ValidationStatus.WARNING,
+            message="pandas not available for Parquet validation",
+            file_path=str(file_path)
+        )
+    except Exception as e:
+        logger.error(f"Error validating Parquet schema for {file_path}: {e}")
+        return ValidationResult(
+            status=ValidationStatus.INVALID,
+            message=f"Error reading Parquet file: {str(e)}",
+            file_path=str(file_path)
+        )
+
+def validate_directory_schema(directory_path: Path) -> List[ValidationResult]:
+    """
+    Validates all CSV and Parquet files in a directory against the appropriate schema.
+    
+    Args:
+        directory_path: Path to the directory to validate
+        
+    Returns:
+        List of ValidationResult objects
+    """
+    results = []
+    
+    if not directory_path.exists():
+        log_warning(f"Directory does not exist: {directory_path}")
         return results
+        
+    # Determine schema type based on directory name
+    dir_name = directory_path.name
+    if 'raw' in dir_name.lower():
+        schema_type = 'raw'
+    elif 'processed' in dir_name.lower():
+        schema_type = 'processed'
+    else:
+        schema_type = 'raw'  # Default to raw for unknown directories
+        
+    for file_path in directory_path.iterdir():
+        if file_path.is_file():
+            if file_path.suffix.lower() == '.csv':
+                result = validate_csv_schema(file_path, schema_type)
+                results.append(result)
+            elif file_path.suffix.lower() in ['.parquet', '.pq']:
+                result = validate_parquet_schema(file_path, schema_type)
+                results.append(result)
+                
+    return results
 
 def main():
     """
-    Entry point for schema validation script.
-    Validates both raw and processed data directories.
+    Main entry point for schema validation.
+    Validates both data/raw and data/processed directories.
     """
-    logger.info("Starting schema validation for data directories...")
+    data_path = get_data_path()
+    raw_dir = data_path / 'raw'
+    processed_dir = data_path / 'processed'
     
-    raw_validator = SchemaValidator(DATA_RAW_PATH)
-    processed_validator = SchemaValidator(DATA_PROCESSED_PATH)
+    logger.info("Starting schema validation for data directories")
     
-    raw_results = raw_validator.validate_directory(DATA_RAW_PATH)
-    processed_results = processed_validator.validate_directory(DATA_PROCESSED_PATH)
+    # Validate raw directory
+    raw_results = validate_directory_schema(raw_dir)
+    logger.info(f"Validated {len(raw_results)} files in raw directory")
     
-    all_results = raw_results + processed_results
+    # Validate processed directory
+    processed_results = validate_directory_schema(processed_dir)
+    logger.info(f"Validated {len(processed_results)} files in processed directory")
     
-    valid_count = sum(1 for r in all_results if r.status == ValidationStatus.VALID)
-    invalid_count = sum(1 for r in all_results if r.status == ValidationStatus.INVALID)
-    error_count = sum(1 for r in all_results if r.status == ValidationStatus.ERROR)
-    skipped_count = sum(1 for r in all_results if r.status == ValidationStatus.SKIPPED)
+    # Summary
+    total_valid = sum(1 for r in raw_results + processed_results if r.status == ValidationStatus.VALID)
+    total_invalid = sum(1 for r in raw_results + processed_results if r.status == ValidationStatus.INVALID)
+    total_warnings = sum(1 for r in raw_results + processed_results if r.status == ValidationStatus.WARNING)
     
-    logger.info(f"Validation Summary:")
-    logger.info(f"  Valid: {valid_count}")
-    logger.info(f"  Invalid: {invalid_count}")
-    logger.info(f"  Errors: {error_count}")
-    logger.info(f"  Skipped: {skipped_count}")
+    logger.info(f"Schema Validation Summary: {total_valid} valid, {total_invalid} invalid, {total_warnings} warnings")
     
-    if invalid_count > 0 or error_count > 0:
-        logger.warning("Some files failed validation. Check logs for details.")
+    if total_invalid > 0:
+        logger.error(f"Found {total_invalid} files with schema errors")
+        for result in raw_results + processed_results:
+            if result.status == ValidationStatus.INVALID:
+                logger.error(f"  - {result.file_path}: {result.message}")
         return 1
-    else:
-        logger.info("All files passed validation.")
-        return 0
+        
+    return 0
 
 if __name__ == "__main__":
     exit(main())

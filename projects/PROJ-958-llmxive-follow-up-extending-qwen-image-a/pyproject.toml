@@ -1,0 +1,78 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-research"
+version = "0.1.0"
+description = "Automated science pipeline for Qwen-Image-Agent extension"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "nltk",
+    "spacy",
+    "torch",
+    "transformers",
+    "statsmodels",
+    "textstat",
+    "datasets",
+    "huggingface_hub",
+    "matplotlib",
+    "seaborn",
+    "diffusers",
+    "accelerate",
+    "tiktoken",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+# Same as Black
+line-length = 88
+target-version = "py39"
+
+# Assume Python 3.9
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/*" = ["S101"] # assert allowed in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+known-third-party = ["datasets", "diffusers", "huggingface_hub", "matplotlib", "nltk", "numpy", "pandas", "seaborn", "sklearn", "spacy", "statsmodels", "textstat", "tiktoken", "torch", "transformers"]

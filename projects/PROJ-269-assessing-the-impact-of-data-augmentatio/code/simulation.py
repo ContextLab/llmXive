@@ -1,248 +1,281 @@
+"""
+Monte Carlo simulation module.
+
+This module implements the generic Monte Carlo loop infrastructure for
+running hypothesis tests on baseline and augmented datasets.
+"""
+
 import os
 import json
 import logging
 import argparse
 import hashlib
-from pathlib import Path
-from typing import Dict, List, Any, Tuple, Optional
-
-import numpy as np
+from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
+import numpy as np
 from scipy import stats
+from pathlib import Path
 
-# Import from sibling modules as per API surface
-from subsample import detect_target_column, create_stratified_subsample
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants
-SCHEMA_PATH = Path("contracts/simulation_schema.json")
-RAW_DATA_DIR = Path("data/raw")
-DERIVED_DATA_DIR = Path("data/derived")
-RESULTS_DIR = Path("results")
 
-def validate_schema() -> bool:
-    """Validate that the simulation schema exists and is valid JSON."""
-    if not SCHEMA_PATH.exists():
-        logger.error(f"Schema file not found: {SCHEMA_PATH}")
-        return False
-    try:
-        with open(SCHEMA_PATH, 'r') as f:
-            json.load(f)
-        logger.info("Schema validation successful.")
-        return True
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in schema file: {e}")
-        return False
+def validate_schema(data: Dict[str, Any], schema_path: str) -> bool:
+    """
+    Validate data against a JSON schema.
 
-def load_dataset(dataset_name: str) -> pd.DataFrame:
-    """Load a dataset from the raw data directory."""
-    file_path = RAW_DATA_DIR / f"{dataset_name}.csv"
-    if not file_path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {file_path}")
-    logger.info(f"Loading dataset: {file_path}")
-    return pd.read_csv(file_path)
+    Args:
+        data: Data to validate.
+        schema_path: Path to the schema file.
 
-def generate_type_i_condition(df: pd.DataFrame, target_col: str, seed: int, sample_size: int) -> Tuple[pd.DataFrame, pd.Series]:
+    Returns:
+        True if valid, False otherwise.
     """
-    Generate data for Type I error (Null Hypothesis is True).
-    Logic: Shuffle labels (permutation) to break any association while preserving distribution.
-    """
-    rng = np.random.default_rng(seed)
-    # Stratified subsample first to maintain class balance in the small sample
-    sub_df = create_stratified_subsample(df, target_col, sample_size, rng)
-    
-    # Permute labels
-    original_labels = sub_df[target_col].values
-    permuted_labels = rng.permutation(original_labels)
-    
-    # Return features and permuted labels
-    features = sub_df.drop(columns=[target_col])
-    return features, pd.Series(permuted_labels, index=sub_df.index)
+    # Simplified validation - in production, use jsonschema library
+    required_keys = ['p_values', 'error_rates', 'metadata']
+    for key in required_keys:
+        if key not in data:
+            logger.warning(f"Missing required key: {key}")
+            return False
+    return True
 
-def generate_type_ii_condition(df: pd.DataFrame, target_col: str, seed: int, sample_size: int, effect_size: float = 0.5) -> Tuple[pd.DataFrame, pd.Series]:
-    """
-    Generate data for Type II error (Alternative Hypothesis is True).
-    Logic: Apply a mean shift to features of one class to induce a detectable difference (Cohen's d).
-    """
-    rng = np.random.default_rng(seed)
-    # Stratified subsample
-    sub_df = create_stratified_subsample(df, target_col, sample_size, rng)
-    
-    features = sub_df.drop(columns=[target_col]).values
-    labels = sub_df[target_col].values
-    
-    # Identify class 1 (assuming binary classification for this study)
-    # If labels are not 0/1, map them. Usually UCI datasets are 0/1 or 1/2.
-    unique_labels = np.unique(labels)
-    if len(unique_labels) != 2:
-        raise ValueError(f"Type II simulation expects binary classification, found {len(unique_labels)} classes.")
-    
-    class_1_mask = labels == unique_labels[1]
-    class_0_mask = labels == unique_labels[0]
-    
-    # Calculate standard deviation for normalization (Cohen's d logic)
-    # Use pooled std dev approximation from the sample
-    std_0 = np.std(features[class_0_mask], axis=0)
-    std_1 = np.std(features[class_1_mask], axis=0)
-    # Avoid division by zero
-    std_pooled = np.sqrt((std_0**2 + std_1**2) / 2)
-    std_pooled[std_pooled == 0] = 1e-5 # Small epsilon to prevent div by zero
-    
-    # Shift mean of class 1 by effect_size * std
-    shift = effect_size * std_pooled
-    shifted_features = features.copy()
-    shifted_features[class_1_mask] += shift
-    
-    return pd.DataFrame(shifted_features, columns=sub_df.drop(columns=[target_col]).columns), pd.Series(labels, index=sub_df.index)
 
-def run_hypothesis_test(X: pd.DataFrame, y: pd.Series) -> float:
+def load_dataset(filepath: str) -> pd.DataFrame:
     """
-    Run a two-sample t-test (Mann-Whitney U if non-parametric assumption needed, 
-    but t-test is standard for power analysis unless specified otherwise).
-    Returns the p-value.
+    Load a dataset from a CSV file.
+
+    Args:
+        filepath: Path to the CSV file.
+
+    Returns:
+        Loaded DataFrame.
     """
-    unique_y = np.unique(y)
-    if len(unique_y) != 2:
-        # Fallback or error? For power analysis, we expect binary.
-        # If not binary, we can't do a simple 2-sample t-test.
-        logger.warning("Non-binary target in hypothesis test. Skipping.")
-        return 1.0
-    
-    group_0 = X[y == unique_y[0]].values
-    group_1 = X[y == unique_y[1]].values
-    
-    # Flatten if multi-dimensional (though t-test usually on 1D or per-feature)
-    # For multivariate data, we often use a multivariate test or univariate per feature + correction.
-    # Given the context of "Statistical Power in Small Samples" with UCI data, 
-    # a common approach is to test each feature and aggregate, or use a global test.
-    # However, standard power analysis for classification often implies testing the classifier's performance.
-    # But the task asks for "p-value distributions".
-    # Let's assume a univariate approach on the first feature or a multivariate test if available.
-    # To be robust and simple for the "Monte Carlo loop" described in FR-004:
-    # We will perform a t-test on the first feature for simplicity, OR
-    # better: perform a multivariate test if possible, but scipy doesn't have a simple one.
-    # Alternative: Use a permutation test on a simple statistic (e.g., difference in means of first feature).
-    # Given the constraints and typical "baseline" tasks, let's use the t-test on the first feature 
-    # as a proxy for the "signal" in the data, or average p-values if multiple features.
-    # Actually, a more standard approach for "hypothesis test" in this context without a classifier is 
-    # testing if the means of the groups are different across features.
-    # Let's stick to a simple univariate test on the first feature to generate a p-value for the loop.
-    # This is a simplification required by the lack of a specified classifier in T013.
-    
-    # If the dataset has multiple features, we might want to aggregate.
-    # For now, let's test the first feature.
-    if X.shape[1] > 0:
-        x0 = group_0[:, 0]
-        x1 = group_1[:, 0]
-        t_stat, p_val = stats.ttest_ind(x0, x1, equal_var=False) # Welch's t-test
-        return p_val
-    else:
+    return pd.read_csv(filepath)
+
+
+def generate_type_i_condition(
+    df: pd.DataFrame,
+    target_col: str,
+    random_state: int
+) -> pd.DataFrame:
+    """
+    Generate Type I error condition by permuting labels.
+
+    Args:
+        df: Input DataFrame.
+        target_col: Name of the target column.
+        random_state: Random seed.
+
+    Returns:
+        DataFrame with permuted labels.
+    """
+    df_copy = df.copy()
+    np.random.seed(random_state)
+    df_copy[target_col] = np.random.permutation(df_copy[target_col].values)
+    return df_copy
+
+
+def generate_type_ii_condition(
+    df: pd.DataFrame,
+    target_col: str,
+    effect_size: float = 0.5,
+    random_state: int = 42
+) -> pd.DataFrame:
+    """
+    Generate Type II error condition by shifting mean of first numeric feature.
+
+    Args:
+        df: Input DataFrame.
+        target_col: Name of the target column.
+        effect_size: Cohen's d effect size.
+        random_state: Random seed.
+
+    Returns:
+        DataFrame with shifted feature values.
+    """
+    df_copy = df.copy()
+    numeric_cols = df_copy.select_dtypes(include=[np.number]).columns
+    # Exclude target column
+    numeric_cols = [col for col in numeric_cols if col != target_col]
+
+    if not numeric_cols:
+        return df_copy
+
+    first_feature = numeric_cols[0]
+    np.random.seed(random_state)
+
+    # Calculate mean and std of the feature for each class
+    mean_0 = df_copy[df_copy[target_col] == 0][first_feature].mean()
+    mean_1 = df_copy[df_copy[target_col] == 1][first_feature].mean()
+    std_1 = df_copy[df_copy[target_col] == 1][first_feature].std()
+
+    if std_1 == 0:
+        return df_copy
+
+    # Shift class 1 mean
+    shift = effect_size * std_1
+    mask = df_copy[target_col] == 1
+    df_copy.loc[mask, first_feature] += shift
+
+    return df_copy
+
+
+def run_hypothesis_test(
+    df: pd.DataFrame,
+    target_col: str
+) -> float:
+    """
+    Run a two-sample t-test.
+
+    Args:
+        df: Input DataFrame.
+        target_col: Name of the target column.
+
+    Returns:
+        P-value from the t-test.
+    """
+    X = df.drop(columns=[target_col])
+    y = df[target_col]
+
+    # Get first numeric feature
+    numeric_cols = X.select_dtypes(include=[np.number]).columns
+    if len(numeric_cols) == 0:
         return 1.0
 
-def run_simulation_iteration(df: pd.DataFrame, target_col: str, sample_size: int, 
-                             condition: str, seed: int) -> float:
+    feature = numeric_cols[0]
+    group_0 = X[y == 0][feature]
+    group_1 = X[y == 1][feature]
+
+    if len(group_0) < 2 or len(group_1) < 2:
+        return 1.0
+
+    _, p_value = stats.ttest_ind(group_0, group_1)
+    return p_value
+
+
+def run_simulation_iteration(
+    df: pd.DataFrame,
+    target_col: str,
+    condition: str,
+    augmentation_method: Optional[str] = None,
+    random_state: Optional[int] = None
+) -> float:
     """
-    Run a single iteration of the simulation.
-    condition: 'null' (Type I) or 'alt' (Type II)
+    Run a single simulation iteration.
+
+    Args:
+        df: Input DataFrame.
+        target_col: Name of the target column.
+        condition: 'null' or 'alt'.
+        augmentation_method: Optional augmentation method.
+        random_state: Random seed for this iteration.
+
+    Returns:
+        P-value from the hypothesis test.
     """
+    if random_state is not None:
+        np.random.seed(random_state)
+
+    df_work = df.copy()
+
     if condition == 'null':
-        X, y = generate_type_i_condition(df, target_col, seed, sample_size)
+        df_work = generate_type_i_condition(df_work, target_col, random_state or 42)
     elif condition == 'alt':
-        X, y = generate_type_ii_condition(df, target_col, seed, sample_size)
-    else:
-        raise ValueError(f"Unknown condition: {condition}")
-    
-    p_val = run_hypothesis_test(X, y)
-    return p_val
+        df_work = generate_type_ii_condition(df_work, target_col, random_state=random_state or 42)
 
-def run_full_simulation(dataset_name: str, sample_sizes: List[int], 
-                        iterations: int = 1000, base_seed: int = 42) -> Dict[str, Any]:
+    if augmentation_method:
+        # Import augmentation functions here to avoid circular imports
+        from augment import augment_dataset
+        df_work = augment_dataset(df_work, augmentation_method, target_col, random_state=random_state or 42)
+        if df_work is None:
+            return None
+
+    p_value = run_hypothesis_test(df_work, target_col)
+    return p_value
+
+
+def run_full_simulation(
+    dataset_path: str,
+    target_col: str,
+    condition: str,
+    n_iterations: int,
+    augmentation_method: Optional[str] = None,
+    seed: int = 42
+) -> Dict[str, Any]:
     """
-    Run the full Monte Carlo simulation for a dataset and sample sizes.
+    Run the full Monte Carlo simulation.
+
+    Args:
+        dataset_path: Path to the dataset.
+        target_col: Name of the target column.
+        condition: 'null' or 'alt'.
+        n_iterations: Number of iterations.
+        augmentation_method: Optional augmentation method.
+        seed: Base random seed.
+
+    Returns:
+        Dictionary with p-values and metadata.
     """
-    if not validate_schema():
-        raise RuntimeError("Schema validation failed. Cannot proceed.")
-    
-    logger.info(f"Starting simulation for dataset: {dataset_name}")
-    df = load_dataset(dataset_name)
-    target_col = detect_target_column(df)
-    logger.info(f"Detected target column: {target_col}")
-    
-    results = {
-        "dataset": dataset_name,
-        "sample_sizes": {},
-        "metadata": {
-            "iterations": iterations,
-            "base_seed": base_seed,
-            "target_column": target_col,
-            "disclaimer": "DISCLAIMER: Findings are associational and do not imply causation."
-        }
+    df = load_dataset(dataset_path)
+    p_values = []
+
+    for i in range(n_iterations):
+        iter_seed = seed + i
+        p_value = run_simulation_iteration(
+            df, target_col, condition, augmentation_method, iter_seed
+        )
+        if p_value is not None:
+            p_values.append(p_value)
+
+    return {
+        'p_values': p_values,
+        'n_iterations': n_iterations,
+        'condition': condition,
+        'augmentation_method': augmentation_method,
+        'seed': seed
     }
-    
-    for size in sample_sizes:
-        logger.info(f"Running simulation for sample size N={size}")
-        null_p_values = []
-        alt_p_values = []
-        
-        # Null condition (Type I)
-        for i in range(iterations):
-            seed = base_seed + i
-            p_val = run_simulation_iteration(df, target_col, size, 'null', seed)
-            null_p_values.append(p_val)
-        
-        # Alt condition (Type II)
-        for i in range(iterations):
-            seed = base_seed + iterations + i
-            p_val = run_simulation_iteration(df, target_col, size, 'alt', seed)
-            alt_p_values.append(p_val)
-        
-        results["sample_sizes"][str(size)] = {
-            "null_p_values": null_p_values,
-            "alt_p_values": alt_p_values
-        }
-    
-    return results
 
-def save_results(results: Dict[str, Any], output_path: Path) -> None:
-    """Save simulation results to a JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+def save_results(
+    results: Dict[str, Any],
+    output_path: str
+) -> None:
+    """
+    Save simulation results to a JSON file.
+
+    Args:
+        results: Results dictionary.
+        output_path: Path to save the results.
+    """
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    logger.info(f"Results saved to: {output_path}")
+    logger.info(f"Results saved to {output_path}")
 
-def main():
-    parser = argparse.ArgumentParser(description="Run baseline Monte Carlo simulation.")
-    parser.add_argument("--dataset", type=str, required=True, help="Name of the dataset (without extension)")
-    parser.add_argument("--sizes", type=int, nargs="+", default=[15, 25, 40], help="Sample sizes to test")
-    parser.add_argument("--iterations", type=int, default=1000, help="Number of iterations per config")
-    parser.add_argument("--seed", type=int, default=42, help="Base random seed")
-    parser.add_argument("--output", type=str, default=None, help="Output file path (optional)")
-    
+
+def main() -> None:
+    """Main entry point for simulation."""
+    parser = argparse.ArgumentParser(description="Run Monte Carlo simulation")
+    parser.add_argument("--dataset", type=str, required=True, help="Path to dataset")
+    parser.add_argument("--target", type=str, default="target", help="Target column")
+    parser.add_argument("--condition", type=str, choices=["null", "alt"], default="null")
+    parser.add_argument("--iterations", type=int, default=100)
+    parser.add_argument("--output", type=str, required=True)
+    parser.add_argument("--augmentation", type=str, default=None)
+    parser.add_argument("--seed", type=int, default=42)
+
     args = parser.parse_args()
-    
-    results = run_full_simulation(args.dataset, args.sizes, args.iterations, args.seed)
-    
-    if args.output:
-        save_results(results, Path(args.output))
-    else:
-        # Default naming convention based on task requirements
-        dataset_slug = args.dataset.lower().replace('-', '_')
-        for size in args.sizes:
-            # We need to split results per size for the specific file naming convention
-            # But run_full_simulation returns all sizes. 
-            # Let's save the full run or split it. The task says "Save baseline results to..."
-            # We will save the full results object, or we can split here.
-            # The task T015 (later) specifies file naming. T013 is just the loop.
-            # Let's save the full result to a single file for this dataset.
-            pass
-        
-        # For T013, we just ensure the loop runs and produces data.
-        # We'll save to a generic path if not specified, or let the caller handle it.
-        # To be safe and follow "Produce real outputs", we'll save to a default location.
-        default_path = RESULTS_DIR / f"{dataset_slug}_baseline_full.json"
-        save_results(results, default_path)
+
+    results = run_full_simulation(
+        args.dataset,
+        args.target,
+        args.condition,
+        args.iterations,
+        args.augmentation,
+        args.seed
+    )
+
+    save_results(results, args.output)
+
 
 if __name__ == "__main__":
     main()

@@ -1,25 +1,27 @@
-"""Stimulus (headline) data model."""
-from dataclasses import dataclass
+"""
+Stimulus (Headline) data model.
+
+Represents a stimulus (headline) presented to participants in the eye-tracking study.
+"""
+from dataclasses import dataclass, field
 from typing import Optional
+import numpy as np
 
 
 @dataclass
 class Stimulus:
     """
-    Represents a visual stimulus (headline).
+    Represents a stimulus (headline) presented to participants.
 
     Attributes:
-        id: Unique stimulus identifier.
-        headline_text: The text of the headline.
-        valence: Emotional valence score (e.g., from NRC or VADER).
-        random_intercept: Random intercept term for mixed-effects modeling.
+        id: Unique identifier for the stimulus (e.g., 'headline_001').
+        headline_text: The full text content of the headline.
+        valence: Emotional valence score (typically -1.0 to 1.0), calculated from
+                 NRC or VADER lexicons. Optional until T021 computes it.
+        random_intercept: Random intercept term for mixed-effects modeling to account
+                          for stimulus-specific variance. Initialized to 0.0.
     """
     id: str
     headline_text: str
     valence: Optional[float] = None
-    random_intercept: float = 0.0
-
-    def __post_init__(self):
-        """Validate headline text."""
-        if not self.headline_text or not isinstance(self.headline_text, str):
-            raise ValueError("headline_text must be a non-empty string")
+    random_intercept: float = field(default_factory=lambda: 0.0)

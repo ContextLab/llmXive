@@ -1,2 +1,1 @@
-# llmXive project: Self-improving LLM recursive architecture
-# Package initialization
+"""Top‑level package for the self‑improving LLM project."""

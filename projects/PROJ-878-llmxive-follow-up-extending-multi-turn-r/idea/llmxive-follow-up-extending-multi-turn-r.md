@@ -9,45 +9,44 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-How do specific structural properties of logical dependencies (e.g., nesting depth, branching factor) mechanistically influence the trajectory of error propagation in multi-hop reasoning, and what distinct failure modes arise when these structural bottlenecks exceed the representational capacity of current error-correction strategies?
+How does the topological complexity of logical dependency graphs (nesting depth and branching factor) fundamentally limit the convergence of sequential reasoning processes in generative models, independent of specific error-correction policies?
 
 ## Motivation
 
-Current Reflective Masking (RM) strategies often treat intermediate denoising states as a uniform context, potentially obscuring the specific tokens that initiated logical contradictions. By explicitly modeling the causal dependency between masked errors and their root causes, this project investigates whether a graph-guided approach can accelerate convergence on complex reasoning tasks. This addresses a critical gap in making iterative reasoning models computationally efficient on resource-constrained hardware, specifically targeting the reduction of inference steps required to resolve multi-hop logical inconsistencies.
+Current Reflective Masking (RM) strategies often treat intermediate denoising states as a uniform context, potentially obscuring the specific tokens that initiated logical contradictions. By explicitly modeling the causal dependency between masked errors and their root causes, this project investigates whether the structural properties of the reasoning task itself (e.g., graph depth) create a "bottleneck" that no simple policy can overcome. This addresses a critical gap in understanding the theoretical limits of iterative reasoning on resource-constrained hardware, moving beyond "does it work?" to "under what structural conditions does it fail?"
 
 ## Literature gap analysis
 
 ### What we searched
-We queried the provided literature block (comprising results from Semantic Scholar/arXiv on LLM human-likeness, self-cognition, and deception) using queries related to "Reflective Masking," "Error Attribution in Diffusion," "Causal Dependency in Logical Reasoning," and "Mask Diffusion Models." The search returned five results, all of which focus on high-level LLM behavioral traits (personality, deception, character composition) rather than the specific mechanics of Mask Diffusion Models or iterative error correction algorithms.
+We queried the provided literature block (comprising results from Semantic Scholar/arXiv on Diffusion Language Models, Reasoning Suppression, and Reflective Masking) using queries related to "Mask Diffusion convergence," "Logical dependency depth in reasoning," "Topological limits of generative models," and "Error propagation in iterative denoising." The search returned six results. While one result (Multi-Turn Reflective Masking) establishes the baseline methodology, and others address efficiency (ARS) or general reasoning alignment, none systematically analyze the correlation between the *topological complexity* of the reasoning graph (nesting/branching) and the *convergence failure rates* of diffusion-based reasoning loops.
 
 ### What is known
-- [Enhancing Human-Like Responses in Large Language Models (2025)](https://arxiv.org/abs/2501.05032) — Establishes general advancements in LLM coherence but does not address specific masking or diffusion-based reasoning architectures.
-- [Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality (2024)](https://arxiv.org/abs/2402.14679) — Investigates personality consistency in LLMs, offering no methodological precedent for error-graph construction in diffusion models.
-- [Large Language Models Lack Understanding of Character Composition of Words (2024)](https://arxiv.org/abs/2405.11357) — Highlights limitations in LLM token-level understanding but does not propose causal modeling for error correction.
-- [Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models (2024)](https://arxiv.org/abs/2403.09676) — Focuses on deceptive behaviors, unrelated to the algorithmic mechanics of reflective masking.
-- [Self-Cognition in Large Language Models: An Exploratory Study (2024)](https://arxiv.org/abs/2407.01505) — Explores self-cognition concepts but lacks the technical specificity required for Mask Diffusion error attribution.
+- [Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Models (2026)](https://arxiv.org/abs/2606.16700) — Establishes the baseline Reflective Masking framework for eliciting reasoning in diffusion models but does not analyze how structural complexity of the problem affects convergence limits.
+- [ARS: Adaptive Reasoning Suppression for Efficient Large Reasoning Language Models (2025)](https://arxiv.org/abs/2510.00071) — Addresses the "overthinking" phenomenon and computational inefficiency in reasoning models but focuses on suppression strategies rather than the topological limits of error propagation.
+- [Improving Variable-Length Generation in Diffusion Language Models via Length Regularization (2026)](https://arxiv.org/abs/2602.07546) — Discusses inherent limitations of Diffusion LLMs regarding variable-length generation, providing context on architectural constraints but not on logical dependency structures.
+- [Making Large Language Models Better Reasoners with Alignment (2023)](https://arxiv.org/abs/2309.02144) — Focuses on alignment techniques to improve reasoning capabilities generally, without dissecting the specific impact of logical graph topology on iterative refinement.
 
 ### What is NOT known
-There is currently no published work that applies explicit causal graph structures to guide the masking policy in Mask Diffusion Models. While foundational work on Reflective Masking exists, the specific hypothesis that an "Error-Attribution Graph" can outperform uniform or history-based referencing in reducing turn-count for multi-hop logical errors remains untested. Furthermore, no study has systematically correlated structural dependency metrics (like nesting depth) with the failure rates of specific error-correction strategies in this domain.
+There is currently no published work that quantifies the relationship between the *topological complexity* (nesting depth, branching factor) of a logical problem and the *maximum convergence speed* achievable by Mask Diffusion models. It remains unknown whether specific structural thresholds exist where iterative refinement fails to converge regardless of the error-correction policy used, or if the failure is merely a function of computational budget.
 
 ### Why this gap matters
-Filling this gap is critical for making iterative reasoning models computationally efficient on CPU-only hardware, which is a prerequisite for deploying complex logical reasoning agents in resource-constrained environments. If causal modeling significantly reduces the number of refinement turns, it could enable real-time, interactive logical problem solving without the high energy costs associated with GPU-accelerated retraining.
+Filling this gap is critical for determining the theoretical feasibility of deploying iterative reasoning agents on CPU-only hardware. If logical complexity inherently creates a convergence barrier that cannot be bypassed by algorithmic tweaks, resources should be directed toward alternative architectures (e.g., neuro-symbolic hybrids) rather than optimizing diffusion policies. Understanding these limits enables more realistic benchmarking and prevents wasted effort on intractable problem classes.
 
 ### How this project addresses the gap
-This project directly addresses the gap by implementing and evaluating a CPU-only "Error-Attribution Graph" module within the Reflective Masking framework. By constructing a directed acyclic graph of error propagation and prioritizing high-centrality nodes for masking, the methodology generates the first empirical evidence on whether explicit causal modeling improves convergence speed over existing uniform or history-based strategies, while also quantifying how structural complexity impacts these gains.
+This project directly addresses the gap by constructing a synthetic dataset of logical puzzles with controlled topological metrics (depth, branching) and measuring the convergence failure rates of a standard Mask Diffusion model. By correlating the structural metrics with the number of turns required (or failure to converge), the methodology will empirically identify if and where the "topological limit" exists, providing the first evidence of structural constraints on diffusion-based reasoning.
 
 ## Expected results
 
-We expect the Error-Attribution Graph variant to achieve a statistically significant reduction in the average number of refinement turns required to solve multi-hop logical puzzles compared to the baseline Reflective Masking approach, particularly for tasks with high branching factors. This finding would be confirmed if the graph-guided policy consistently reaches the correct solution in fewer iterations on the filtered "long-chain" subset of the dataset, demonstrating that targeting error sources is more efficient than uniform refinement.
+We expect to observe a non-linear degradation in convergence speed as nesting depth increases, with a specific "tipping point" where the number of required turns exceeds the computational budget or the model enters a non-convergent loop. This finding would be confirmed if a regression analysis shows a strong positive correlation between nesting depth and turn count, while branching factor exhibits a weaker or threshold-based effect, demonstrating that structural complexity imposes a fundamental limit independent of the specific masking policy.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the GSM8K logical deduction subset and a curated Sudoku dataset from public repositories (HuggingFace Datasets `gsm8k` and standard Sudoku benchmarks), filtering specifically for instances requiring 5+ inference steps to solve to ensure sufficient complexity.
-- **Baseline Implementation**: Implement the original Reflective Masking (RM) loop using a pre-trained Mask Diffusion Model (using public weights) running on a single CPU core to establish a baseline for turn count and error patterns.
-- **Graph Construction Module**: Develop a lightweight Python module that parses the sequence of masked tokens from previous turns; for each incorrect token, trace its dependency back to input context tokens that likely caused the contradiction, constructing a Directed Acyclic Graph (DAG) where edge weights represent estimated error propagation strength based on attention scores or token co-occurrence in error states.
-- **Policy Modification**: Replace the baseline's uniform/random masking selection with a "centrality-weighted" policy that prioritizes masking tokens with the highest in-degree (most downstream errors caused) in the constructed DAG.
-- **Execution & Measurement**: Run 1,000 inference episodes for both the baseline RM and the Graph-augmented RM on the filtered dataset, recording the number of turns taken to reach a verified correct solution for each instance, alongside the calculated structural metrics (depth, branching factor).
-- **Statistical Analysis**: Perform a paired Wilcoxon signed-rank test to compare the distribution of turn counts between the two methods, and conduct a regression analysis to correlate structural properties with failure rates, ensuring the validation target (solution correctness against ground-truth puzzle answers) is independent of the predictor (graph centrality).
+- **Data Acquisition**: Download the GSM8K dataset and generate a synthetic logical deduction dataset using a script that constructs dependency graphs with controlled nesting depths (1–10) and branching factors (1–5) to ensure systematic variation in topological complexity.
+- **Baseline Implementation**: Implement the original Reflective Masking (RM) loop using a pre-trained Mask Diffusion Model (e.g., from the "Multi-Turn Reflective Masking" paper weights) running on a single CPU core to establish a baseline convergence profile.
+- **Topological Metric Extraction**: Develop a parser to convert each problem instance into a directed dependency graph; calculate specific metrics: *maximum nesting depth* (longest chain of logical implications) and *branching factor* (average number of premises required for a single deduction step).
+- **Execution & Measurement**: Run the baseline RM model on the curated dataset for a fixed maximum number of turns (e.g., 50); record the number of turns to solution for successful cases and mark failures for non-convergent cases.
+- **Statistical Analysis**: Perform a non-parametric regression (e.g., Spearman correlation and Generalized Linear Model) to correlate the extracted topological metrics (predictors) with the turn count or binary convergence status (outcome), ensuring the validation target (solution correctness against ground-truth) is independent of the graph construction process.
+- **Threshold Identification**: Analyze the residuals and convergence curves to identify specific depth or branching thresholds where the model's performance degrades significantly, indicating a fundamental limit.
 
 ## Duplicate-check
 
@@ -58,21 +57,42 @@ We expect the Error-Attribution Graph variant to achieve a statistically signifi
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-11T16:57:33Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-17T19:16:04Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode" linguistics
-**Verified citation count**: 5
+**Verified citation count**: 6
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode" linguistics | 5 |
+| 0 (initial) | llmXive follow-up: extending "Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Mode" linguistics | 0 |
+| 1 | reflective masking for reasoning in diffusion language models | 4 |
+| 2 | multi-turn reasoning elicitation in masked diffusion models | 4 |
+| 3 | iterative self-refinement in diffusion-based LLMs | 0 |
+| 4 | reasoning capabilities of masked diffusion language models | 0 |
+| 5 | multi-step inference in autoregressive versus diffusion models | 0 |
+| 6 | chain-of-thought reasoning in non-autoregressive language generation | 0 |
+| 7 | iterative denoising for complex reasoning tasks in LLMs | 0 |
+| 8 | reflective prompting strategies for diffusion language models | 0 |
+| 9 | emergent reasoning in masked generative language models | 0 |
+| 10 | multi-turn dialogue and reasoning in diffusion-based text generation | 0 |
+| 11 | reasoning elicitation through iterative masking and refinement | 0 |
+| 12 | comparative analysis of reasoning in autoregressive and diffusion LLMs | 0 |
+| 13 | self-correction mechanisms in diffusion language models | 0 |
+| 14 | multi-stage reasoning generation in masked sequence models | 0 |
+| 15 | reasoning through iterative refinement in generative language models | 0 |
+| 16 | diffusion-based approaches to logical reasoning in NLP | 0 |
+| 17 | multi-turn interaction patterns in masked diffusion language models | 0 |
+| 18 | reasoning induction via reflective masking in language generation | 0 |
+| 19 | iterative reasoning processes in non-autoregressive language models | 0 |
+| 20 | linguistic analysis of reasoning emergence in diffusion language models | 0 |
 
 ### Verified citations
 
-1. **Enhancing Human-Like Responses in Large Language Models** (2025). Ethem Yağız Çalık, Talha Rüzgar Akkuş. arXiv. [2501.05032](https://arxiv.org/abs/2501.05032). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-2. **Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality** (2024). Yiming Ai, Zhiwei He, Ziyin Zhang, Wenhong Zhu, Hongkun Hao, et al.. arXiv. [2402.14679](https://arxiv.org/abs/2402.14679). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-3. **Large Language Models Lack Understanding of Character Composition of Words** (2024). Andrew Shin, Kunitake Kaneko. arXiv. [2405.11357](https://arxiv.org/abs/2405.11357). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-4. **Unmasking the Shadows of AI: Investigating Deceptive Capabilities in Large Language Models** (2024). Linge Guo. arXiv. [2403.09676](https://arxiv.org/abs/2403.09676). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-5. **Self-Cognition in Large Language Models: An Exploratory Study** (2024). Dongping Chen, Jiawen Shi, Yao Wan, Pan Zhou, Neil Zhenqiang Gong, et al.. arXiv. [2407.01505](https://arxiv.org/abs/2407.01505). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+1. **Improving Variable-Length Generation in Diffusion Language Models via Length Regularization** (2026). Zicong Cheng, Ruixuan Jia, Jia Li, Guo-Wei Yang, Meng-Hao Guo, et al.. arXiv. [2602.07546](https://arxiv.org/abs/2602.07546). PDF-sampled: No.
+2. **ARS: Adaptive Reasoning Suppression for Efficient Large Reasoning Language Models** (2025). Dongqi Zheng. arXiv. [2510.00071](https://arxiv.org/abs/2510.00071). PDF-sampled: No.
+3. **Making Large Language Models Better Reasoners with Alignment** (2023). Peiyi Wang, Lei Li, Liang Chen, Feifan Song, Binghuai Lin, et al.. arXiv. [2309.02144](https://arxiv.org/abs/2309.02144). PDF-sampled: No.
+4. **Multi-Turn Reflective Masking Elicits Reasoning in Mask Diffusion Models** (2026). Yanming Zhang, Yihan Bian, Jingyuan Qi, Yuguang Yao, Lifu Huang, et al.. arXiv. [2606.16700](https://arxiv.org/abs/2606.16700). PDF-sampled: No.
+5. **Building Math Agents with Multi-Turn Iterative Preference Learning** (2024). Wei Xiong, Chengshuai Shi, Jiaming Shen, Aviv Rosenberg, Zhen Qin, et al.. arXiv. [2409.02392](https://arxiv.org/abs/2409.02392). PDF-sampled: No.
+6. **A Cheaper and Better Diffusion Language Model with Soft-Masked Noise** (2023). Jiaao Chen, Aston Zhang, Mu Li, Alex Smola, Diyi Yang. arXiv. [2304.04746](https://arxiv.org/abs/2304.04746). PDF-sampled: No.

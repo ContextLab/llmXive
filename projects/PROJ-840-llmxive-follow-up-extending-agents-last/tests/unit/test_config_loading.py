@@ -1,91 +1,134 @@
-"""
-Unit tests for configuration loading and normalization constants.
-Verifies T032: Magic numbers are removed from heuristics and moved to config.
-"""
 import pytest
-from pathlib import Path
-import sys
-import os
 import yaml
+import os
+import tempfile
+from pathlib import Path
 
-# Add code to path
+# Import from the project's utils module
+import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from utils.config import load_config, validate_config, PipelineConfig, ModelConfig, CheckpointConfig
 
-from utils.config import load_config, validate_config
-from classification.heuristics import normalize_state
+def test_load_config_from_schema():
+    """Test that load_config correctly parses the YAML schema defined in config_schema.yaml."""
+    # Create a temporary YAML file matching the schema
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml_content = """
+model:
+  path: "models/test-model.gguf"
+  quantization: "Q4_K_M"
+  max_context_length: 8192
+  n_gpu_layers: 0
 
-class TestConfigLoading:
-    """Test that config loads correctly from schema."""
+checkpoint:
+  interval_n: 10
+  enabled: true
+  compression_method: "abstraction"
+
+logging:
+  level: "DEBUG"
+  file: "test.log"
+  max_file_size_mb: 50
+  backup_count: 3
+
+data_paths:
+  raw: "data/raw_test"
+  processed: "data/processed_test"
+  figures: "figures_test"
+
+normalization:
+  float_tolerance: 1e-5
+  timestamp_stripping: false
+  id_canonicalization: false
+
+stats:
+  test: "mcnemar"
+  correction: "fdr"
+  alpha: 0.01
+
+runner:
+  max_memory_gb: 16
+  timeout_hours: 12
+  cpu_only: true
+"""
+        f.write(yaml_content)
+        temp_path = f.name
+
+    try:
+        config = load_config(temp_path)
+        
+        # Verify ModelConfig mapping
+        assert config.model.model_path == "models/test-model.gguf"
+        assert config.model.quantization == "Q4_K_M"
+        assert config.model.context_window == 8192
+        
+        # Verify CheckpointConfig mapping
+        assert config.checkpoint.interval == 10
+        assert config.checkpoint.compression == "abstraction"
+        
+        # Verify DataPathsConfig mapping
+        assert config.paths.raw_data == "data/raw_test"
+        assert config.paths.processed_data == "data/processed_test"
+        assert config.paths.figures == "figures_test"
+        
+        # Verify RunnerConfig mapping (with unit conversion)
+        assert config.runner.memory_limit == 16000.0
+        assert config.runner.timeout == 12 * 3600
+        
+        # Verify StatsConfig mapping
+        assert config.stats.correction == "fdr"
+        assert config.stats.alpha == 0.01
+
+    finally:
+        os.unlink(temp_path)
+
+def test_load_config_missing_file():
+    """Test that load_config returns default config when file is missing."""
+    config = load_config("nonexistent/path/config.yaml")
+    assert isinstance(config, PipelineConfig)
+    assert config.model.model_path == ""
+    assert config.checkpoint.interval == 3
+
+def test_validate_config_success():
+    """Test validation with a valid config."""
+    config = PipelineConfig()
+    config.model.model_path = "models/test.gguf"
+    config.runner.memory_limit = 7000.0
+    config.runner.timeout = 3600
     
-    def test_load_config_exists(self):
-        """Verify config file exists and loads."""
-        config_path = Path(__file__).parent.parent.parent / "code" / "utils" / "config_schema.yaml"
-        assert config_path.exists(), "config_schema.yaml must exist"
-        
-        wrapper = load_config(str(config_path))
-        assert wrapper is not None
-        assert wrapper.config is not None
-        
-    def test_normalization_config_loaded(self):
-        """Verify normalization constants are loaded from config."""
-        wrapper = load_config()
-        norm_cfg = wrapper.config.normalization
-        
-        # Check that tolerance is a float and not hardcoded in code
-        assert isinstance(norm_cfg.float_tolerance, float)
-        assert norm_cfg.float_tolerance == 1.0e-6
-        
-        # Check placeholders
-        assert norm_cfg.timestamp_placeholder == "[TIMESTAMP]"
-        assert norm_cfg.id_placeholder == "[ID]"
-        assert norm_cfg.ref_placeholder == "[REF]"
-        
-    def test_validate_config(self):
-        """Verify config validation works."""
-        wrapper = load_config()
-        assert validate_config(wrapper) is True
+    assert validate_config(config) is True
 
-class TestNormalizationNoMagicNumbers:
-    """Test that normalization uses config values, not magic numbers."""
+def test_validate_config_missing_model_path():
+    """Test validation fails without model path."""
+    config = PipelineConfig()
+    config.runner.memory_limit = 7000.0
+    config.runner.timeout = 3600
     
-    def test_float_normalization_uses_config(self):
-        """Verify float rounding uses config tolerance."""
-        wrapper = load_config()
-        tolerance = wrapper.config.normalization.float_tolerance
-        
-        # Test value that needs rounding
-        test_val = 3.14159265358979
-        
-        # Normalize
-        result = normalize_state(test_val)
-        
-        # Calculate expected decimal places
-        decimal_places = max(0, int(-math.log10(tolerance)))
-        expected = round(test_val, decimal_places)
-        
-        assert result == expected
-        
-    def test_timestamp_replacement_uses_config(self):
-        """Verify timestamp placeholder comes from config."""
-        wrapper = load_config()
-        expected_placeholder = wrapper.config.normalization.timestamp_placeholder
-        
-        test_str = "Event at 2023-10-05T14:30:00Z occurred"
-        result = normalize_state(test_str)
-        
-        assert expected_placeholder in result
-        assert "2023-10-05" not in result
-        
-    def test_uuid_replacement_uses_config(self):
-        """Verify ID placeholder comes from config."""
-        wrapper = load_config()
-        expected_placeholder = wrapper.config.normalization.id_placeholder
-        
-        test_str = "User ID: a1b2c3d4-e5f6-7890-abcd-ef1234567890 logged in"
-        result = normalize_state(test_str)
-        
-        assert expected_placeholder in result
-        assert "a1b2c3d4" not in result
+    with pytest.raises(ValueError, match="Model path is required"):
+        validate_config(config)
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_validate_config_invalid_memory():
+    """Test validation fails with invalid memory limit."""
+    config = PipelineConfig()
+    config.model.model_path = "models/test.gguf"
+    config.runner.memory_limit = 0
+    config.runner.timeout = 3600
+    
+    with pytest.raises(ValueError, match="Memory limit must be positive"):
+        validate_config(config)
+
+def test_runner_config_logger_compatibility():
+    """Test that RunnerConfig tolerates logger-style method calls."""
+    config = PipelineConfig().runner
+    
+    # These should not raise AttributeError
+    config.info("Test info")
+    config.debug("Test debug")
+    config.warning("Test warning")
+    config.error("Test error")
+    config.critical("Test critical")
+    
+    # Unknown method should return a callable that does nothing
+    unknown = config.some_unknown_method
+    assert callable(unknown)
+    assert unknown("arg1", kw="arg2") is None

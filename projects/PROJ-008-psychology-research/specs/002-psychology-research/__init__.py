@@ -1,1 +1,1 @@
-# Feature specification directory
+# Feature specification package

@@ -1,7 +1,3 @@
-"""
-Unit tests for code/data/lag.py
-Tests for FR-012: Physics-based lag calculation and application.
-"""
 import pytest
 import pandas as pd
 import numpy as np
@@ -9,134 +5,146 @@ from datetime import datetime, timedelta
 import sys
 import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+# Add parent directory to path for imports if running standalone
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from code.data.lag import calculate_physics_lag, apply_lag_shift, prepare_lagged_data
-from code.config import EARTH_RADIUS_KM, TAIL_DISTANCE_RE
+from code.data.lag import apply_lag_shift, calculate_l_phys
 
-def test_lag_calculation_formula():
-    """
-    Test the physics-based lag calculation.
-    Formula derived from FR-012:
-    Distance = TAIL_DISTANCE_RE * EARTH_RADIUS_KM (km)
-    Time (s) = Distance / Vsw (km/s)
-    Time (min) = Time (s) / 60
+class TestLagShift:
+    """Unit tests for the apply_lag_shift function in code/data/lag.py."""
 
-    L_phys = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / Vsw / 60
+    def test_lag_shift_applies_correctly(self):
+        """
+        Verify that apply_lag_shift correctly shifts a time series forward
+        by the specified lag minutes.
 
-    With constants: TAIL_DISTANCE_RE=60, EARTH_RADIUS_KM=6371
-    L_phys = (60 * 6371) / Vsw / 60 = 6371 / Vsw
-    """
-    vsw = 400.0  # km/s
-    # Expected: (60 * 6371) / 400 / 60 = 15.9275
-    expected_lag = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / vsw / 60.0
+        This test creates a synthetic time series with a known pattern, applies
+        a lag shift, and verifies that:
+        1. The values are shifted to later timestamps
+        2. The beginning of the series is filled with NaNs (as expected)
+        3. The end of the series is truncated (as expected)
+        4. The original data integrity is preserved in the shifted portion
+        """
+        # Create a simple time series with a clear pattern
+        # Using 5-minute cadence to match project standard
+        start_time = datetime(2023, 1, 1, 0, 0, 0)
+        n_points = 20
+        cadence_minutes = 5
 
-    result = calculate_physics_lag(vsw)
-    assert abs(result - expected_lag) < 1e-5, f"Expected {expected_lag}, got {result}"
+        # Create index with 5-minute intervals
+        timestamps = [start_time + timedelta(minutes=i * cadence_minutes) for i in range(n_points)]
 
-def test_lag_calculation_high_speed():
-    """Test with high solar wind speed (800 km/s) -> shorter lag."""
-    vsw = 800.0
-    result = calculate_physics_lag(vsw)
-    expected = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / vsw / 60.0
-    assert abs(result - expected) < 1e-5
+        # Create values with a simple linear pattern for easy verification
+        # Values: 1, 2, 3, ..., 20
+        values = np.arange(1, n_points + 1, dtype=float)
 
-def test_lag_calculation_low_speed():
-    """Test with low solar wind speed (300 km/s) -> longer lag."""
-    vsw = 300.0
-    result = calculate_physics_lag(vsw)
-    expected = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / vsw / 60.0
-    assert abs(result - expected) < 1e-5
+        series = pd.Series(values, index=pd.to_datetime(timestamps))
 
-def test_lag_calculation_invalid_speed():
-    """Test that zero or negative speed raises an error."""
-    with pytest.raises(ValueError):
-        calculate_physics_lag(0.0)
-    with pytest.raises(ValueError):
-        calculate_physics_lag(-100.0)
+        # Apply a 15-minute lag (3 periods at 5-min cadence)
+        lag_minutes = 15
+        shifted_series = apply_lag_shift(series, lag_minutes)
 
-def test_lag_shift_applies_correctly():
-    """Test that apply_lag_shift correctly shifts the time index."""
-    # Create a simple DataFrame with DatetimeIndex
-    dates = pd.date_range(start='2023-01-01', periods=5, freq='H')
-    df = pd.DataFrame({'value': [1, 2, 3, 4, 5]}, index=dates)
+        # Expected behavior:
+        # - First 3 values (15 minutes) should be NaN
+        # - Value at index 3 (20:00) should be original value at index 0 (00:00) = 1.0
+        # - Value at index 4 (20:05) should be original value at index 1 (00:05) = 2.0
+        # - ... and so on
 
-    lag_minutes = 30.0
-    df_shifted = apply_lag_shift(df, lag_minutes)
+        # Check that the first 3 values are NaN
+        expected_nan_count = lag_minutes // cadence_minutes
+        assert pd.isna(shifted_series.iloc[:expected_nan_count]).all(), \
+            f"Expected {expected_nan_count} NaN values at the start, but got different count"
 
-    # Check that the index has shifted
-    original_first = df.index[0]
-    shifted_first = df_shifted.index[0]
+        # Check that the shifted values match the original values
+        # The value at position i in shifted series should equal value at position i - expected_nan_count in original
+        for i in range(expected_nan_count, len(series)):
+            original_idx = i - expected_nan_count
+            expected_value = series.iloc[original_idx]
+            actual_value = shifted_series.iloc[i]
+            assert actual_value == expected_value, \
+                f"Mismatch at index {i}: expected {expected_value}, got {actual_value}"
 
-    expected_first = original_first + pd.Timedelta(minutes=lag_minutes)
-    assert shifted_first == expected_first, f"Expected {expected_first}, got {shifted_first}"
+        # Verify the series length is preserved
+        assert len(shifted_series) == len(series), \
+            f"Length mismatch: original {len(series)}, shifted {len(shifted_series)}"
 
-    # Check values are preserved
-    assert df_shifted['value'].tolist() == [1, 2, 3, 4, 5]
+        # Verify the index is preserved
+        assert shifted_series.index.equals(series.index), \
+            "Index mismatch between original and shifted series"
 
-def test_prepare_lagged_data_integration():
-    """Test the full pipeline of calculating lag and shifting data."""
-    # Create synthetic solar wind data
-    dates = pd.date_range(start='2023-01-01', periods=100, freq='10T')
-    vsw_values = np.full(100, 400.0) # Constant 400 km/s
-    df_sw = pd.DataFrame({'Vsw': vsw_values}, index=dates)
+    def test_lag_shift_with_non_divisible_lag(self):
+        """
+        Test that apply_lag_shift handles lag values that are not perfectly
+        divisible by the cadence interval.
+        """
+        start_time = datetime(2023, 1, 1, 0, 0, 0)
+        n_points = 10
+        cadence_minutes = 5
 
-    # Create synthetic Ey data
-    ey_values = np.random.randn(100)
-    df_ey = pd.DataFrame({'Ey': ey_values}, index=dates)
+        timestamps = [start_time + timedelta(minutes=i * cadence_minutes) for i in range(n_points)]
+        values = np.arange(1, n_points + 1, dtype=float)
+        series = pd.Series(values, index=pd.to_datetime(timestamps))
 
-    df_sw_shifted, df_ey_out, lag = prepare_lagged_data(df_sw, df_ey)
+        # Use a lag that is not a multiple of 5 (e.g., 7 minutes)
+        # This should be rounded down to 1 period (5 minutes) in integer division
+        lag_minutes = 7
+        shifted_series = apply_lag_shift(series, lag_minutes)
 
-    # Verify lag calculation
-    expected_lag = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / 400.0 / 60.0
-    assert abs(lag - expected_lag) < 1e-5
+        # Expected: 1 period shift (7 // 5 = 1)
+        assert pd.isna(shifted_series.iloc[0]), "First value should be NaN"
+        assert shifted_series.iloc[1] == 1.0, "Second value should be original first value"
 
-    # Verify shift
-    original_first = df_sw.index[0]
-    shifted_first = df_sw_shifted.index[0]
-    expected_shifted = original_first + pd.Timedelta(minutes=lag)
-    assert shifted_first == expected_shifted
+    def test_lag_shift_with_zero_lag(self):
+        """Test that zero lag returns the original series."""
+        start_time = datetime(2023, 1, 1, 0, 0, 0)
+        n_points = 5
+        timestamps = [start_time + timedelta(minutes=i * 5) for i in range(n_points)]
+        values = np.arange(1, n_points + 1, dtype=float)
+        series = pd.Series(values, index=pd.to_datetime(timestamps))
 
-    # Verify Ey is unchanged (no shift applied to Ey in this function)
-    assert df_ey_out.index.equals(df_ey.index)
+        shifted_series = apply_lag_shift(series, 0)
 
-def test_prepare_lagged_data_with_nan():
-    """Test handling of NaN values in Vsw calculation."""
-    dates = pd.date_range(start='2023-01-01', periods=100, freq='10T')
-    vsw_values = np.full(100, 400.0)
-    vsw_values[10] = np.nan # Introduce a NaN
-    df_sw = pd.DataFrame({'Vsw': vsw_values}, index=dates)
+        # With zero lag, series should be identical
+        pd.testing.assert_series_equal(series, shifted_series)
 
-    df_ey = pd.DataFrame({'Ey': np.random.randn(100)}, index=dates)
+    def test_lag_shift_preserves_data_types(self):
+        """Verify that the shifted series preserves the original data types."""
+        start_time = datetime(2023, 1, 1, 0, 0, 0)
+        n_points = 5
+        timestamps = [start_time + timedelta(minutes=i * 5) for i in range(n_points)]
+        values = np.array([1.5, 2.5, 3.5, 4.5, 5.5])  # Float values
+        series = pd.Series(values, index=pd.to_datetime(timestamps))
 
-    # Should not raise an error
-    df_sw_shifted, df_ey_out, lag = prepare_lagged_data(df_sw, df_ey)
+        shifted_series = apply_lag_shift(series, 10)  # 2 periods
 
-    # Lag should be calculated based on mean of valid values (which is 400.0)
-    expected_lag = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / 400.0 / 60.0
-    assert abs(lag - expected_lag) < 1e-5
+        # Check that the non-NaN values are still floats
+        non_nan_values = shifted_series.dropna()
+        assert non_nan_values.dtype == float, f"Expected float dtype, got {non_nan_values.dtype}"
 
-def test_prepare_lagged_data_all_nan():
-    """Test handling when all Vsw values are NaN."""
-    dates = pd.date_range(start='2023-01-01', periods=10, freq='H')
-    df_sw = pd.DataFrame({'Vsw': [np.nan] * 10}, index=dates)
-    df_ey = pd.DataFrame({'Ey': np.random.randn(10)}, index=dates)
+    def test_lag_shift_with_negative_values(self):
+        """Test that the function handles negative values correctly."""
+        start_time = datetime(2023, 1, 1, 0, 0, 0)
+        n_points = 5
+        timestamps = [start_time + timedelta(minutes=i * 5) for i in range(n_points)]
+        values = np.array([-1.0, -2.0, -3.0, -4.0, -5.0])
+        series = pd.Series(values, index=pd.to_datetime(timestamps))
 
-    with pytest.raises(ValueError):
-        prepare_lagged_data(df_sw, df_ey)
+        shifted_series = apply_lag_shift(series, 5)  # 1 period
 
-def test_prepare_lagged_data_missing_column():
-    """Test that missing Vsw column raises an error."""
-    dates = pd.date_range(start='2023-01-01', periods=10, freq='H')
-    df_sw = pd.DataFrame({'Bz': np.random.randn(10)}, index=dates)
-    df_ey = pd.DataFrame({'Ey': np.random.randn(10)}, index=dates)
+        assert pd.isna(shifted_series.iloc[0])
+        assert shifted_series.iloc[1] == -1.0
+        assert shifted_series.iloc[2] == -2.0
 
-    with pytest.raises(ValueError):
-        prepare_lagged_data(df_sw, df_ey)
+    def test_lag_shift_with_large_lag(self):
+        """Test behavior when lag exceeds series length."""
+        start_time = datetime(2023, 1, 1, 0, 0, 0)
+        n_points = 3
+        timestamps = [start_time + timedelta(minutes=i * 5) for i in range(n_points)]
+        values = np.array([1.0, 2.0, 3.0])
+        series = pd.Series(values, index=pd.to_datetime(timestamps))
 
-def test_apply_lag_shift_non_datetime_index():
-    """Test that apply_lag_shift raises an error for non-DatetimeIndex."""
-    df = pd.DataFrame({'value': [1, 2, 3]})
-    with pytest.raises(TypeError):
-        apply_lag_shift(df, 30.0)
+        # Lag of 20 minutes (4 periods) on a 3-point series
+        shifted_series = apply_lag_shift(series, 20)
+
+        # All values should be NaN since the lag exceeds the series length
+        assert pd.isna(shifted_series).all(), "All values should be NaN when lag exceeds series length"

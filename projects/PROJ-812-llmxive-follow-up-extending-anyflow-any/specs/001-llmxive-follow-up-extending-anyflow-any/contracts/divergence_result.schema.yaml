@@ -1,0 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Divergence Result"
+description: "Schema for the computed flow-map divergence metric"
+type: object
+properties:
+  clip_id:
+    type: string
+    description: "Reference to the video clip"
+  divergence_score:
+    type: number
+    description: "Computed divergence score (MSE normalized)"
+  solver_steps:
+    type: integer
+    description: "Number of Euler steps used (N)"
+  latent_dim:
+    type: integer
+    description: "Dimension of the latent vector"
+  runtime_ms:
+    type: integer
+    description: "Runtime in milliseconds"
+  status:
+    type: string
+    enum:
+      - "Success"
+      - "Failed"
+    description: "Inference status"
+required:
+  - clip_id
+  - divergence_score
+  - solver_steps
+  - status
+additionalProperties: false

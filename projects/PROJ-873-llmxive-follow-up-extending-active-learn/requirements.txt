@@ -7,5 +7,12 @@ pandas
 numpy
 pytest
 nltk
+onnx
+onnxruntime
+transformers
+huggingface_hub
+llama-cpp-python
+psutil
+ruff
+black
 pyyaml
-resource-monitor

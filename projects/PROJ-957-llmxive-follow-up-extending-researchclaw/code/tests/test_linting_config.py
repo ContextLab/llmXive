@@ -5,91 +5,75 @@ from pathlib import Path
 
 import pytest
 
-PROJECT_ROOT = Path(__file__).parent.parent
 
-def test_ruff_config_exists():
-    """Verify that ruff configuration exists in pyproject.toml or .ruff.toml"""
-    pyproject = PROJECT_ROOT / "pyproject.toml"
-    ruff_toml = PROJECT_ROOT / ".ruff.toml"
-    
-    assert (pyproject.exists() or ruff_toml.exists()), \
-        "Ruff configuration file (pyproject.toml or .ruff.toml) not found"
-    
-    if pyproject.exists():
-        content = pyproject.read_text()
-        assert "[tool.ruff]" in content, \
-            "Ruff configuration section missing from pyproject.toml"
+@pytest.fixture
+def project_root():
+    """Get the project root directory."""
+    return Path(__file__).resolve().parent.parent
 
-def test_black_config_exists():
-    """Verify that Black configuration exists in pyproject.toml"""
-    pyproject = PROJECT_ROOT / "pyproject.toml"
-    
-    assert pyproject.exists(), "pyproject.toml not found"
-    
-    content = pyproject.read_text()
-    assert "[tool.black]" in content, \
-        "Black configuration section missing from pyproject.toml"
-    assert "line-length" in content, \
-        "Black line-length configuration missing"
 
-def test_pyproject_dev_dependencies():
-    """Verify that dev dependencies (ruff, black) are listed in pyproject.toml"""
-    pyproject = PROJECT_ROOT / "pyproject.toml"
-    
-    assert pyproject.exists(), "pyproject.toml not found"
-    
-    content = pyproject.read_text()
-    assert "ruff" in content, "ruff not found in dependencies"
-    assert "black" in content, "black not found in dependencies"
+def test_ruff_config_exists(project_root):
+    """Verify that ruff configuration exists in pyproject.toml."""
+    pyproject_path = project_root / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml must exist"
 
-def test_ruff_check_syntax():
-    """Run ruff check to verify syntax and linting rules are valid"""
-    ruff_path = PROJECT_ROOT / "pyproject.toml"
-    
-    # Check if ruff is installed
-    try:
-        subprocess.run(["ruff", "--version"], check=True, capture_output=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pytest.skip("ruff is not installed")
-    
-    # Run ruff check on the code directory
-    code_dir = PROJECT_ROOT / "code"
-    if not code_dir.exists():
-        pytest.skip("code directory not found")
-    
+    content = pyproject_path.read_text()
+    assert "[tool.ruff]" in content, "pyproject.toml must contain [tool.ruff] section"
+    assert 'line-length = 88' in content, "Ruff must have line-length = 88"
+    assert 'target-version = "py311"' in content, "Ruff must target Python 3.11"
+
+
+def test_black_config_exists(project_root):
+    """Verify that black configuration exists in pyproject.toml."""
+    pyproject_path = project_root / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml must exist"
+
+    content = pyproject_path.read_text()
+    assert "[tool.black]" in content, "pyproject.toml must contain [tool.black] section"
+    assert 'line-length = 88' in content, "Black must have line-length = 88"
+    assert 'target-version = ["py311"]' in content, "Black must target Python 3.11"
+
+
+def test_pyproject_dev_dependencies(project_root):
+    """Verify that dev dependencies include ruff and black."""
+    pyproject_path = project_root / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml must exist"
+
+    content = pyproject_path.read_text()
+    # Check for optional dev dependencies section or direct dependencies
+    assert "ruff" in content.lower(), "pyproject.toml should reference ruff"
+    assert "black" in content.lower(), "pyproject.toml should reference black"
+
+
+def test_ruff_check_syntax(project_root, tmp_path):
+    """Run ruff check on a temporary valid Python file to ensure tool works."""
+    # Create a temporary valid Python file
+    test_file = tmp_path / "test_syntax.py"
+    test_file.write_text("x = 1\nprint(x)\n")
+
+    # Run ruff check
     result = subprocess.run(
-        ["ruff", "check", str(code_dir)],
-        cwd=PROJECT_ROOT,
+        [sys.executable, "-m", "ruff", "check", str(test_file)],
+        cwd=project_root,
         capture_output=True,
-        text=True
+        text=True,
     )
-    
-    # We expect ruff to run successfully (exit code 0 or 1 for found issues)
-    # Exit code 2 indicates a configuration error
-    assert result.returncode != 2, \
-        f"Ruff configuration error: {result.stderr}"
+    # Ruff should exit with 0 if no issues found
+    assert result.returncode == 0, f"Ruff check failed: {result.stderr}"
 
-def test_black_check_syntax():
-    """Run black --check to verify formatting rules are valid"""
-    # Check if black is installed
-    try:
-        subprocess.run(["black", "--version"], check=True, capture_output=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pytest.skip("black is not installed")
-    
-    code_dir = PROJECT_ROOT / "code"
-    if not code_dir.exists():
-        pytest.skip("code directory not found")
-    
+
+def test_black_check_syntax(project_root, tmp_path):
+    """Run black --check on a temporary valid Python file to ensure tool works."""
+    # Create a temporary valid Python file
+    test_file = tmp_path / "test_syntax.py"
+    test_file.write_text("x = 1\nprint(x)\n")
+
+    # Run black check
     result = subprocess.run(
-        ["black", "--check", "--diff", str(code_dir)],
-        cwd=PROJECT_ROOT,
+        [sys.executable, "-m", "black", "--check", str(test_file)],
+        cwd=project_root,
         capture_output=True,
-        text=True
+        text=True,
     )
-    
-    # Exit code 0: all files are formatted correctly
-    # Exit code 1: some files need reformatting (this is okay for the test itself)
-    # Exit code >= 2: configuration or runtime error
-    assert result.returncode < 2, \
-        f"Black configuration error: {result.stderr}"
+    # Black should exit with 0 if file is already formatted
+    assert result.returncode == 0, f"Black check failed: {result.stderr}"

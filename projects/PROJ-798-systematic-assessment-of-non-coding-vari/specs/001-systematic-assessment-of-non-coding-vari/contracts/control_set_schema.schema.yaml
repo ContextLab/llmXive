@@ -1,0 +1,117 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: GC-Matched Control Set Schema
+description: |
+  Schema for the GC-matched non-regulatory control set generated in T013b.
+  This dataset contains genomic regions matched for GC content to the regulatory SNPs,
+  used as a baseline for statistical enrichment analysis (T025a, T027b).
+type: object
+required:
+  - meta
+  - columns
+  - data
+properties:
+  meta:
+    type: object
+    description: Metadata about the dataset generation
+    required:
+      - generated_by
+      - generation_timestamp
+      - source_regulatory_snps
+      - gc_tolerance
+      - total_regions
+    properties:
+      generated_by:
+        type: string
+        description: Task ID or script name that generated this file
+        const: T013b
+      generation_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      source_regulatory_snps:
+        type: string
+        description: Path to the source regulatory SNPs file used for GC calculation
+        pattern: "^data/derived/filtered_snps\\.parquet$"
+      gc_tolerance:
+        type: number
+        description: Tolerance range for GC matching (e.g., 0.02 for ±2%)
+        minimum: 0
+        maximum: 1
+      total_regions:
+        type: integer
+        description: Total number of control regions generated
+        minimum: 1
+  columns:
+    type: array
+    description: List of column definitions in the dataset
+    items:
+      type: object
+      required:
+        - name
+        - type
+        - description
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - integer
+            - string
+            - float
+            - boolean
+        description:
+          type: string
+  data:
+    type: array
+    description: Array of control region records
+    items:
+      type: object
+      required:
+        - region_id
+        - chromosome
+        - start
+        - end
+        - gc_content
+        - length
+        - source
+      properties:
+        region_id:
+          type: string
+          description: Unique identifier for the control region
+          pattern: "^CTRL-\\d+$"
+        chromosome:
+          type: string
+          description: Chromosome name (e.g., chr1, chr2, ... chr22, chrX, chrY)
+          pattern: "^chr(\\d{1,2}|X|Y|M)$"
+        start:
+          type: integer
+          description: 0-based start coordinate
+          minimum: 0
+        end:
+          type: integer
+          description: 0-based end coordinate (exclusive)
+          exclusiveMinimum: 0
+        gc_content:
+          type: number
+          description: Fraction of G and C bases in the region (0.0 to 1.0)
+          minimum: 0.0
+          maximum: 1.0
+        length:
+          type: integer
+          description: Length of the region in base pairs
+          minimum: 1
+        source:
+          type: string
+          description: Source of the region (e.g., 'random_genome')
+          const: random_genome
+        overlaps_regulatory:
+          type: boolean
+          description: Flag indicating if region overlaps any regulatory region (must be false)
+          const: false
+        matched_to_regional_gc:
+          type: number
+          description: GC content of the regulatory SNP it was matched to
+          minimum: 0.0
+          maximum: 1.0
+additionalProperties: false

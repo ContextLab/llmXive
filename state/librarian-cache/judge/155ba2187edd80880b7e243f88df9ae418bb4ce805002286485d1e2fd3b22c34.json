@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0704.3543",
+  "judged_at": "2026-07-22T19:50:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "can publicly available data reveal subtle violations of time-reversal symmetry in beta decay? physics",
+  "rationale": "The paper focuses on dark matter detection and double beta decay (a process involving two simultaneous beta decays), which is a distinct physical mechanism from the single beta decay time-reversal symmetry violation the user is asking about. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (specifically the term \"beta decay\" referring to different nuclear processes) and is off-domain regarding the specific symmetry violation mechanism.",
+  "relevant": false
+}

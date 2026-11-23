@@ -1,0 +1,143 @@
+   - **Linear Mixed‑Effects Model (LMM)**: `root_trait ~ phosphorus + nitrogen + soil_moisture + temperature + elevation + (1|species)`. Fixed effects are included **only when the covariate is present** (FR‑004, FR‑026). Fitted with REML; Satterthwaite p‑values.  
+   - **Random Forest Baseline**: `RandomForestRegressor(max_depth=5, random_state=42)`.  
+   - **Cross‑Validation**: 5‑fold, stratified by species (Constitution VI).  
+
+4. **Statistical Rigor**  
+   - **Multiple‑Comparison Correction**: Benjamini‑Hochberg False Discovery Rate applied to the six coefficient tests (P & N × three traits) (FR‑010).  
+   - **Collinearity Check**: Compute VIF for **all** fixed predictors (P, N, soil_moisture, temperature, elevation); warn if VIF > 5.  
+   - **Overall Model Significance**: F‑test with reported p‑value (FR‑008).  
+   - **Bias Assessment**: Two complementary bias checks: (a) distributional shift from the two‑stage imputation (Task T026) and (b) leave‑one‑species‑out coefficient stability (Task T025).  
+   - **Associational Framing**: All statements are explicitly labelled “associational” in the final report, and a dedicated verification step (Task T030) scans for causal language.  
+
+5. **Sensitivity Analysis (FR‑011, FR‑028)**  
+   - Compare each LMM coefficient to literature‑reported effect‑size ranges (±10 %). If the literature dataset is unavailable, fall back to hard‑coded typical effect ranges and require stability within ±15 % (Task T024).  
+
+6. **Visualization**  
+   - Partial dependence plots for each nutrient–trait pair using the 5‑th to 95‑th percentile of nutrient values in the training set.  
+   - PNG files saved under `artifacts/reports/plots/`; total size verified ≤ 100 MB (SC‑004).  
+
+## Compute Feasibility
+- **Memory**: ≤ 4 GB (datasets < 150 k rows).  
+- **Runtime**: ≈ 1.5 h on a 2‑CPU GitHub Actions runner (well under the 6 h limit).  
+- **GPU**: Not required.
+
+## Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| No merged dataset reachable | The pipeline will abort with a clear error logged in `artifacts/logs/fallback.log`. Ensure at least one of the verified merged dataset URLs is reachable. |
+| Insufficient species counts | Species with < 30 observations are excluded; impact quantified in SC‑005. |
+| Missing literature ranges for sensitivity | Use hard‑coded typical effect ranges; still produce a plausibility check and set `sc_006_met` = false with a log entry. |
+| High collinearity between predictors | VIF check for all fixed effects; warnings guide interpretation. |
+| Potential causal wording in report | Task T030 scans the report markdown for causal keywords and fails the run on detection. |
+| Power may be low after filtering | A priori power analysis (Task T023) ensures the required sample size is met before filtering. |
+
+## Success Criteria Evaluation (populated in `metrics.json`)
+
+- **SC‑001**: `merge_success_rate` = (number of root records successfully merged with soil nutrients) / (total root records). Set to `null` if merged dataset unavailable (recorded in `artifacts/logs/fallback.log`).  
+- **SC‑002**: LMM adjusted R² within 5 % of RF R².  
+- **SC‑003**: Benjamini‑Hochberg‑corrected p‑values for phosphorus and nitrogen coefficients < 0.05.  
+- **SC‑004**: Total PNG size ≤ 100 MB (verified programmatically).  
+- **SC‑005**: Proportion of excluded species ≤ 10 % (recorded in metrics).  
+- **SC‑006**: All coefficients lie within ±10 % of literature effect‑size ranges (or fallback ±15 %).  
+- **SC‑007**: Final report passes causal‑language lint check (zero violations).  
+- **SC‑008**: Maximum absolute change in any nutrient coefficient from leave‑one‑species‑out ≤ 5 %.  
+- **SC‑009**: A priori power analysis confirms ≥80 % power given the ≥30‑sample‑per‑species threshold.  
+- **SC‑010**: Fallback sensitivity analysis (if literature ranges unavailable) shows coefficient stability within ±15 %.  
+- **SC‑011**: Report contains the exact associational statement and verification result recorded in `report_verification.json`.  
+
+All criteria are computed in Task T028 and reported in the final PDF.
+
+---
+
+
+
+## projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/data-model.md
+# Data Model: Predicting Plant Root Architecture from Soil Nutrient Availability
+
+## Entity Definitions
+
+### RootPhenotypeRecord
+| Field | Type | Description |
+|-------|------|-------------|
+| `species` | string | Scientific name of the plant species (non‑null). |
+| `root_length` | float | Total root length (cm). |
+| `branching_density` | float | Branches per unit length. |
+| `surface_area` | float | Root surface area (cm²). |
+| `geographic_location` | string | Latitude/Longitude or site identifier. |
+| `experimental_id` | string | Unique experiment identifier. |
+| `data_source_type` | string | `"observational"` or `"experimental"` (used for FR‑012). |
+
+### SoilNutrientRecord
+| Field | Type | Description |
+|-------|------|-------------|
+| `phosphorus_concentration` | float | Soil P (mg kg⁻¹ or ppm). |
+| `nitrogen_concentration` | float | Soil N (mg kg⁻¹ or ppm). |
+| `measurement_date` | date | Date of soil sampling. |
+| `depth` | float | Sampling depth (cm). |
+| `geographic_location` | string | Must match `RootPhenotypeRecord.geographic_location` for merging. |
+
+### MergedDataset (post‑processing)
+| Field | Type | Description |
+|-------|------|-------------|
+| `species` | string | Plant species (non‑null). |
+| `root_length` | float | **Log‑transformed** total length. |
+| `branching_density` | float | **Log‑transformed** branching density. |
+| `surface_area` | float | **Log‑transformed** surface area. |
+| `phosphorus` | float | **Z‑scored** phosphorus concentration; may be null if soil data unavailable. |
+| `nitrogen` | float | **Z‑scored** nitrogen concentration; may be null if soil data unavailable. |
+| `soil_moisture` | float | Optional covariate (may be null). |
+| `temperature` | float | Optional covariate (may be null). |
+| `elevation` | float | Optional covariate (may be null). |
+| `data_source_type` | string | `"observational"` (after FR‑012 filtering). |
+| `sample_size_per_species` | integer | Number of rows for the species after filtering (used for SC‑005). |
+
+## Data Flow Overview
+1. **Ingestion** (`T007`, `T008`) – Load a verified merged dataset via HuggingFace.  
+2. **Filtering** (`T009`‑`T010`) – Keep observational rows, enforce n ≥ 30 per species.  
+3. **Missing‑Data Logic** (`T011`) – Apply FR‑025 species‑level missing‑nutrient policy (impute or exclude).  
+4. **Transformation** (`T012`‑`T014`) – Log‑transform roots, z‑score nutrients, two‑stage imputation.  
+5. **Persistence** (`T015`) – Write Parquet file for downstream steps.  
+
+## Schema Constraints (mirrored in `contracts/dataset.schema.yaml`)
+- `species`: required, non‑null string.  
+- Root metrics: required numbers (already log‑transformed).  
+- `phosphorus`, `nitrogen`: numbers **or null** (`nullable: true`).  
+- Optional covariates may be null.  
+- No additional properties permitted.
+
+
+## projects/PROJ-457-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/quickstart.md
+# Quickstart: Predicting Plant Root Architecture from Soil Nutrient Availability
+
+## Prerequisites
+- Python 3.11 or newer
+- `git` (to clone the repository)
+- Internet access (to download datasets)
+
+## Installation
+
+```bash
+# 1. Clone the repository
+git clone 
+cd plant-root-architecture
+
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install pinned dependencies
+pip install -r code/requirements.txt
+```
+
+## Running the Full Pipeline
+
+```bash
+# Step 1: Ingest data (requires at least one verified merged dataset)
+python code/ingestion.py
+
+# Step 2: Preprocess (filter, log‑transform, z‑score, missing‑data handling)
+python code/preprocessing.py
+
+# Step 3: Fit models and evaluate (species‑stratified CV)
+python code/modeling.py
+

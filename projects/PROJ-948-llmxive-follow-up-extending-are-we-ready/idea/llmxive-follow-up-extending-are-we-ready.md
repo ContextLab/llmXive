@@ -5,31 +5,78 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Are We Ready For An Agent-Native Memory System?"
 
-## Summary of the prior work
-This paper introduces a data management framework to decompose LLM agent memory into four core modules: representation/storage, extraction, retrieval/routing, and maintenance. Through a systematic evaluation of 12 systems across 11 datasets, the authors demonstrate that no single architecture dominates all scenarios, revealing critical trade-offs between cost, fidelity, and stability. The study concludes that localized maintenance strategies are more cost-efficient than global reorganization and highlights the need for workload-aligned memory structures.
+**Field**: Linguistics / AI Systems
 
-## Proposed extension
-**Research Question:** Can a lightweight, CPU-tractable "memory compaction scheduler" that dynamically switches between localized and global maintenance strategies based on real-time write-amplification thresholds significantly improve long-horizon task stability without increasing inference latency?
+## Research question
 
-**Why it matters:** While the prior work identifies that localized maintenance is generally more cost-efficient, it treats maintenance strategies as static architectural choices; this extension proposes an adaptive, feedback-driven control layer that optimizes the trade-off between storage bloat (which degrades retrieval precision) and update overhead in real-time, directly addressing the "dynamic lifecycle governance" gap identified in the original study.
+Under what specific noise regimes and update frequencies does the computational overhead of a dynamic memory maintenance controller negate the retrieval fidelity gains, making a static localized strategy the more optimal choice for long-horizon agent tasks?
+
+## Motivation
+
+While Zhou et al. established that static localized maintenance is generally cost-efficient, they treated maintenance strategies as fixed architectural choices rather than dynamic control variables. This gap leaves systems unable to adapt to the unpredictable "noise" and conflicting facts inherent in real-world agent interactions, potentially causing retrieval degradation or unnecessary computational waste. Understanding the precise crossover point where dynamic adaptation becomes computationally prohibitive is essential for designing scalable, autonomous agents that avoid "memory rot" without incurring prohibitive overhead.
+
+## Related work
+
+- [Are We Ready For An Agent-Native Memory System?](https://arxiv.org/abs/2606.24775) — Establishes a taxonomy of memory modules and demonstrates that static localized maintenance is generally more cost-efficient than global reorganization, but notes the need for "workload-aligned" structures without proposing an adaptive mechanism.
+- [Oracle Agent Memory as an Enterprise Memory Substrate for Long-Horizon AI Agents](https://arxiv.org/abs/2607.13157) — Frames agent memory as a systems problem requiring robust state retention and fact recovery, emphasizing the need for enterprise-grade substrates rather than algorithmic, dynamic maintenance scheduling.
+
+## Expected results
+
+We expect to identify a specific threshold of noise density and update frequency where the computational cost of monitoring and decision-making in a dynamic controller outweighs the gains in retrieval precision, rendering static localized strategies optimal. Conversely, in high-noise, high-variability regimes, we anticipate the adaptive scheduler will significantly outperform static baselines in long-horizon task accuracy, proving that dynamic governance is beneficial only when specific environmental conditions are met.
 
 ## Methodology sketch
-**Data:** Utilize the 11 datasets from the original paper (e.g., SQuAD, HotpotQA, LongBench) but simulate a high-frequency update environment by injecting synthetic "noise" or conflicting facts into the memory stream at varying rates to stress-test maintenance logic.
-**Procedure:** Implement a CPU-only control agent that monitors the "write-amplification ratio" (new tokens added vs. tokens rewritten) and "retrieval drift score" (cosine similarity drop in top-k results) for each memory module; based on these metrics, the agent triggers either a localized patch (low cost) or a global re-indexing (high cost) operation, comparing this adaptive approach against the static baselines from the original study.
-**Expected result:** We anticipate the adaptive scheduler will achieve a 15-20% improvement in long-horizon task accuracy compared to static localized maintenance by preventing retrieval degradation in high-noise scenarios, while maintaining inference latency within 5% of the cheapest static baseline, proving that dynamic governance is superior to fixed architectural heuristics.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the 11 benchmark datasets (e.g., SQuAD, HotpotQA, LongBench) from their official HuggingFace repositories to ensure reproducibility.
+- **Environment Simulation**: Construct a synthetic memory stream by injecting "noise" (conflicting facts, redundant entries) at controlled rates (low, medium, high) and varying update frequencies into dataset sequences.
+- **Metric Definition**: Implement real-time monitoring functions for `write_amplification_ratio` (new tokens vs. rewritten tokens) and `retrieval_drift_score` (cosine similarity drop in top-k results against ground truth).
+- **Adaptive Controller Implementation**: Develop a CPU-only rule-based agent that triggers "localized patches" or "global re-indexing" based on the monitored metrics.
+- **Baseline Construction**: Re-implement the static localized and static global maintenance strategies from the original paper as control groups.
+- **Execution & Logging**: Run the adaptive controller and both static baselines on the simulated streams across all datasets, logging task completion rates, retrieval precision, and total inference latency per step.
+- **Statistical Analysis**: Apply a paired t-test to compare the long-horizon task accuracy of the adaptive scheduler against the static localized baseline across varying noise regimes to determine statistical significance (p < 0.05).
+- **Validation Independence**: Evaluate performance using *task completion accuracy* (a downstream outcome measured by the agent's ability to answer questions correctly) and *retrieval precision* (measured against the static ground truth of the dataset), ensuring these metrics are independent of the controller's input signals (write amplification and drift scores).
 
-- **Are We Ready For An Agent-Native Memory System?** — Wei Zhou, Xuanhe Zhou, Shaokun Han, Hongming Xu, Guoliang Li, Zhiyu Li, Feiyu Xiong, Fan Wu. https://arxiv.org/abs/2606.24775.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2606_24775,
-  title = {Are We Ready For An Agent-Native Memory System?},
-  author = {Wei Zhou and Xuanhe Zhou and Shaokun Han and Hongming Xu and Guoliang Li and Zhiyu Li and Feiyu Xiong and Fan Wu},
-  year = {2026},
-  eprint = {2606.24775},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2606.24775},
-  url = {https://arxiv.org/abs/2606.24775}
-}
-```
+- Reviewed existing ideas: None (this is a follow-up extension of a specific preprint).
+- Closest match: N/A (No prior fleshed-out ideas in the corpus).
+- Verdict: NOT a duplicate.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-02T06:50:11Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Are We Ready For An Agent-Native Memory System?" linguistics
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Are We Ready For An Agent-Native Memory System?" linguistics | 0 |
+| 1 | agent-native memory systems for large language models | 5 |
+| 2 | long-term memory architectures in autonomous AI agents | 0 |
+| 3 | cognitive architectures for LLM-based agents | 0 |
+| 4 | persistent memory mechanisms for language model agents | 0 |
+| 5 | retrieval-augmented generation for agent continuity | 0 |
+| 6 | episodic memory in large language model agents | 0 |
+| 7 | semantic memory structures for AI agents | 0 |
+| 8 | external memory augmentation for LLMs | 0 |
+| 9 | context management in multi-turn agent interactions | 0 |
+| 10 | knowledge integration in autonomous language agents | 0 |
+| 11 | dynamic memory updating in AI agents | 0 |
+| 12 | human-AI collaboration in memory-augmented systems | 0 |
+| 13 | cognitive science perspectives on AI memory | 0 |
+| 14 | neural-symbolic memory systems for agents | 0 |
+| 15 | lifelong learning in language model agents | 0 |
+| 16 | memory consistency in multi-agent language systems | 0 |
+| 17 | structured knowledge representation for AI agents | 0 |
+| 18 | temporal reasoning in agent-native memory | 0 |
+| 19 | memory retrieval strategies for autonomous agents | 0 |
+| 20 | agent identity maintenance through memory systems | 0 |
+
+### Verified citations
+
+1. **Are We Ready For An Agent-Native Memory System?** (2026). Wei Zhou, Xuanhe Zhou, Shaokun Han, Hongming Xu, Guoliang Li, et al.. arXiv. [2606.24775](https://arxiv.org/abs/2606.24775). PDF-sampled: No.
+2. **MRMMIA: Membership Inference Attacks on Memory in Chat Agents** (2026). Kai Chen, Yan Pang, Tianhao Wang. arXiv. [2605.27825](https://arxiv.org/abs/2605.27825). PDF-sampled: No.
+3. **Oracle Agent Memory as an Enterprise Memory Substrate for Long-Horizon AI Agents** (2026). Richmond Alake, Cesare Bernardis, Paul Cayet, Luca Engel, Damien Hilloulin, et al.. arXiv. [2607.13157](https://arxiv.org/abs/2607.13157). PDF-sampled: No.

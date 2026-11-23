@@ -1,44 +1,21 @@
-"""
-Utility script to ensure all required project directories exist.
-This script is idempotent and safe to run multiple times.
-"""
 import os
 from pathlib import Path
+from typing import List
+from utils.logging import get_logger
 
-def ensure_dirs(base_path: str) -> None:
+logger = get_logger(__name__)
+
+def ensure_dirs(dir_paths: List[str]) -> None:
     """
-    Creates the directory structure for the project if it doesn't exist.
+    Create directories if they do not exist.
     
     Args:
-        base_path: The root path of the project.
+        dir_paths: List of directory paths to create.
     """
-    project_root = Path(base_path)
-    
-    # Define all required directories relative to the project root
-    directories = [
-        "code",
-        "code/ingestion",
-        "code/analysis",
-        "code/utils",
-        "data",
-        "data/raw",
-        "data/processed",
-        "data/artifacts",  # The specific target for T010
-        "tests",
-        "tests/unit",
-        "tests/integration",
-    ]
-    
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Ensured directory: {full_path}")
-
-if __name__ == "__main__":
-    # Determine the project root based on the current file location
-    # This script is located at code/utils/mkdirs.py
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent.parent
-    
-    ensure_dirs(project_root)
-    print("All directories ensured.")
+    for path_str in dir_paths:
+        path = Path(path_str)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {path}")
+        else:
+            logger.debug(f"Directory already exists: {path}")

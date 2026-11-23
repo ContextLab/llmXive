@@ -13,7 +13,7 @@ This project implements a predictive pipeline to determine the thermal decomposi
 **Primary Dependencies**: `pandas`, `scikit-learn`, `shap`, `requests`, `pyyaml`, `numpy`, `pymatgen` (for formula parsing)  
 **Storage**: Local CSV/Parquet files under `data/` (raw and processed)  
 **Testing**: `pytest` with `pytest-cov`  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, adequate RAM for baseline workloads.)  
 **Project Type**: data-science-pipeline  
 **Performance Goals**: Complete full pipeline (ingest, train, validate) within 4 hours (budget 6h).  
 **Constraints**: No GPU/CUDA; grid search limited to ≤10 combinations per model; VIF > 5 triggers feature removal or Elastic Net fallback; external validation required for OOD assessment.  
@@ -31,7 +31,7 @@ This project implements a predictive pipeline to determine the thermal decomposi
 - **IV. Single Source of Truth**: The `data-model.md` defines the schema for derived data; the `contracts/` directory (specifically `contracts/descriptor.schema.yaml`) is the implementation of this SSoT, ensuring figures/stats trace back to specific rows.
 - **V. Versioning Discipline**: The plan includes a dedicated task to compute SHA-256 hashes for derived artifacts (`descriptors.csv`, `model_runs.json`) and write them to the `state/...yaml` file after generation.
 - **VI. Computational-Budget Discipline**: Grid search is explicitly capped at ≤10 combinations per model to ensure the 6-hour runtime limit is respected on free-tier runners.
-- **VII. Statistical-Rigor Requirement**: The plan includes VIF diagnostics (threshold 5, with feature removal/Elastic Net fallback), -permutation testing (p < 0.05, Benjamini-Hochberg correction), and stratified splits by perovskite family. Success criteria (R² ≥ 0.6, R² < 0.3) are explicitly mapped to permutation test results.
+- **VII. Statistical-Rigor Requirement**: The plan includes VIF diagnostics (with feature removal/Elastic Net fallback), -permutation testing (p < 0.05, Benjamini-Hochberg correction), and stratified splits by perovskite family. Success criteria (R² ≥ 0.6, R² < 0.3) are explicitly mapped to permutation test results.
 
 ## Project Structure
 

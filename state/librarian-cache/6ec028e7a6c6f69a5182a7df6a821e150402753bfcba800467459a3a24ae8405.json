@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-10T21:35:04Z",
+  "fetched_at": "2026-07-30T10:46:07Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,105 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\"",
       "target_n": 5
     },
-    "duration_seconds": 50.722,
-    "ended_at": "2026-07-10T21:35:04Z",
+    "duration_seconds": 83.974,
+    "ended_at": "2026-07-30T10:46:07Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "In-context learning for robotic world models"
+          "in-context learning for robotic control"
         ],
         [
           2,
-          "Transformer-based world modeling for robot control"
+          "world models in robotics via large language models"
         ],
         [
           3,
-          "Contextual world models in embodied AI"
+          "context-based world modeling for robot agents"
         ],
         [
           4,
-          "Prompt-based world simulation for robotics"
+          "LLM-based world modeling for autonomous systems"
         ],
         [
           5,
-          "In-context reinforcement learning for physical agents"
+          "few-shot world modeling for robot manipulation"
         ],
         [
           6,
-          "Large language models for robotic perception and planning"
+          "in-context policy learning for robotics"
         ],
         [
           7,
-          "Dynamic world model construction via few-shot prompting"
+          "language model world simulators for control"
         ],
         [
           8,
-          "Context-aware policy learning in robotics"
+          "context-aware robotic planning with LLMs"
         ],
         [
           9,
-          "In-context imitation learning for robotic manipulation"
+          "generative world models for robot decision making"
         ],
         [
           10,
-          "Language-guided world modeling for autonomous agents"
+          "in-context imitation learning for robotics"
         ],
         [
           11,
-          "Pre-trained foundation models for robotic control policies"
+          "large language models for embodied AI control"
         ],
         [
           12,
-          "Meta-learning world dynamics from context"
+          "context-conditioned dynamics modeling in robotics"
         ],
         [
           13,
-          "In-context reasoning for robotic decision making"
+          "prompt-based world modeling for robotic agents"
         ],
         [
           14,
-          "Zero-shot world model adaptation for robots"
+          "in-context reasoning for robot task planning"
         ],
         [
           15,
-          "Contextual sequence modeling for robotic trajectories"
+          "LLM-driven simulation for robotic control"
         ],
         [
           16,
-          "LLM-driven simulation of robotic environments"
+          "context-dependent world prediction in robotics"
         ],
         [
           17,
-          "Prompt engineering for robotic world state prediction"
+          "foundation models for robotic world understanding"
         ],
         [
           18,
-          "Generalizable world models via in-context learning"
+          "in-context transfer learning for robot control"
         ],
         [
           19,
-          "Contextual transfer learning in robotic control systems"
+          "language-guided world modeling for autonomous navigation"
         ],
         [
           20,
-          "Foundation models for embodied world understanding"
+          "zero-shot world modeling for robotic manipulation"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "In-context learning for robotic world models": 5,
-        "llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" computer science": 0
+        "in-context learning for robotic control": 4,
+        "llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" computer science": 0,
+        "world models in robotics via large language models": 5
       },
-      "total_queries_issued": 1
+      "total_queries_issued": 2
     },
     "extracted_queries": [
       "world model latent dynamics robotic manipulation",
-      "LLM robot policy zero-shot transfer simulation",
-      "implicit reasoning token trajectory planning",
-      "downstream task success rate sample efficiency",
-      "cognitive architecture agent environment interaction"
+      "transformer policy imitation learning dexterous control",
+      "visual foresight model predictive control RL",
+      "sample efficiency data-driven robotics zero-shot transfer",
+      "in-context learning system identification sim-to-real gap"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,36 +116,46 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2602.02454"
+        "2511.22904"
       ]
     },
     "per_query_hit_count": {
-      "LLM robot policy zero-shot transfer simulation": 3,
-      "cognitive architecture agent environment interaction": 3,
-      "downstream task success rate sample efficiency": 3,
-      "implicit reasoning token trajectory planning": 3,
+      "in-context learning system identification sim-to-real gap": 3,
       "llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" computer science": 3,
+      "sample efficiency data-driven robotics zero-shot transfer": 3,
+      "transformer policy imitation learning dexterous control": 3,
+      "visual foresight model predictive control RL": 3,
       "world model latent dynamics robotic manipulation": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 1,
+      "rejected_count": 3,
       "rejections": [
         {
-          "primary_pointer": "1912.01715",
-          "rationale": "The paper focuses on deep reinforcement learning (Soft Actor-Critic) for human-robot collaboration in real-world settings, which is a distinct mechanism and methodology from the user's specific question regarding \"In-Context World Modeling\" (a technique typically associated with Transformer-based LLMs and context-window reasoning). While both fall under the broad domain of robotic control, the candidate paper does not measure the same biological/algorithmic mechanism, establish a baseline for in",
-          "title": "Human-Robot Collaboration via Deep Reinforcement Learning of Real-World Interactions"
+          "primary_pointer": "1612.02739",
+          "rationale": "The paper focuses on autonomous control strategies for robot morphology under partial observability using safety conditions and tactile exploration, which does not address the user's specific question about \"In-Context World Modeling\" (a mechanism involving LLMs or sequence models performing world modeling within the context window). While both involve robotics and control, the candidate paper lacks the core mechanism (in-context learning/world modeling) or the specific domain (LLM-based approac",
+          "title": "Controlling Robot Morphology from Incomplete Measurements"
+        },
+        {
+          "primary_pointer": "2501.05032",
+          "rationale": "The paper focuses on general human-like conversational traits and emotional intelligence in LLMs, which is a distinct construct from the user's specific question about \"In-Context World Modeling\" for robotic control. It fails to address the core mechanism (world modeling for physical control), the domain (robotics), or the specific methodology (in-context learning for dynamics) required by the user's research question.",
+          "title": "Enhancing Human-Like Responses in Large Language Models"
+        },
+        {
+          "primary_pointer": "2402.14679",
+          "rationale": "The paper investigates LLM personality consistency and self-knowledge, which is a distinct construct from \"in-context world modeling for robotic control\" (the mechanism of using context to simulate physical dynamics for action). While both involve LLMs and action, the candidate paper does not measure the same biological/physical pathway, algorithmic property, or causal mechanism (world modeling) required by the user's question, nor does it establish a baseline for robotic control performance.",
+          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-10T21:34:13Z",
+    "started_at": "2026-07-30T10:44:43Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"in-context world modeling for robotic control\" computer science",
       "raw": "llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" computer science"
@@ -163,7 +174,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-10T21:34:43Z",
+        "failed_at": "2026-07-30T10:45:12Z",
         "reason": "query_irrelevant"
       },
       {
@@ -182,7 +193,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-10T21:34:43Z",
+        "failed_at": "2026-07-30T10:45:12Z",
         "reason": "query_irrelevant"
       },
       {
@@ -200,7 +211,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-10T21:34:43Z",
+        "failed_at": "2026-07-30T10:45:12Z",
         "reason": "query_irrelevant"
       },
       {
@@ -226,7 +237,7 @@
           "primary_pointer": "2605.22882"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation')",
-        "failed_at": "2026-07-10T21:34:43Z",
+        "failed_at": "2026-07-30T10:45:12Z",
         "reason": "query_irrelevant"
       },
       {
@@ -261,7 +272,7 @@
           "primary_pointer": "2603.29727"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
-        "failed_at": "2026-07-10T21:34:43Z",
+        "failed_at": "2026-07-30T10:45:12Z",
         "reason": "query_irrelevant"
       },
       {
@@ -292,248 +303,285 @@
           "primary_pointer": "2507.19375"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
-        "failed_at": "2026-07-10T21:34:43Z",
+        "failed_at": "2026-07-30T10:45:12Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The ability to reuse collected data and transfer trained policies between robots could alleviate the burden of additional data collection and training. While existing approaches such as pretraining plus finetuning and co-training show promise, they do not generalize to robots unseen in training. Focusing on common robot arms with similar workspaces and 2-jaw grippers, we investigate the feasibility of zero-shot transfer. Through simulation studies on 8 manipulation tasks, we find that state-based Cartesian control policies can successfully zero-shot transfer to a target robot after accounting for forward dynamics. To address robot visual disparities for vision-based policies, we introduce Mirage, which uses \"cross-painting\"--masking out the unseen target robot and inpainting the seen source robot--during execution in real time so that it appears to the policy as if the trained source robot were performing the task. Mirage applies to both first-person and third-person camera views and policies that take in both states and images as inputs or only images as inputs. Despite its simplicity, our extensive simulation and physical experiments provide strong evidence that Mirage can successfully zero-shot transfer between different robot arms and grippers with only minimal performance degradation on a variety of manipulation tasks such as picking, stacking, and assembly, significantly outperforming a generalist policy. Project website: https://robot-mirage.github.io/",
+          "claimed_abstract": "Existing on-policy imitation learning algorithms, such as DAgger, assume access to a fixed supervisor. However, there are many settings where the supervisor may evolve during policy learning, such as a human performing a novel task or an improving algorithmic controller. We formalize imitation learning from a \"converging supervisor\" and provide sublinear static and dynamic regret guarantees against the best policy in hindsight with labels from the converged supervisor, even when labels during learning are only from intermediate supervisors. We then show that this framework is closely connected to a class of reinforcement learning (RL) algorithms known as dual policy iteration (DPI), which alternate between training a reactive learner with imitation learning and a model-based supervisor with data from the learner. Experiments suggest that when this framework is applied with the state-of-the-art deep model-based RL algorithm PETS as an improving supervisor, it outperforms deep RL baselines on continuous control tasks and provides up to an 80-fold speedup in policy evaluation.",
           "claimed_authors": [
-            "Lawrence Yunliang Chen",
-            "Kush Hari",
-            "Karthik Dharmarajan",
-            "Chenfeng Xu",
-            "Quan Vuong",
+            "Ashwin Balakrishna",
+            "Brijen Thananjeyan",
+            "Jonathan Lee",
+            "Felix Li",
+            "Arsh Zahed",
+            "Joseph E. Gonzalez",
             "Ken Goldberg"
           ],
-          "claimed_title": "Mirage: Cross-Embodiment Zero-Shot Policy Transfer with Cross-Painting",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.19249"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Mirage: Cross-Embodiment Zero-Shot Policy Transfer with Cross-Painting')",
-        "failed_at": "2026-07-10T21:34:43Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recently, model-free reinforcement learning algorithms have been shown to solve challenging problems by learning from extensive interaction with the environment. A significant issue with transferring this success to the robotics domain is that interaction with the real world is costly, but training on limited experience is prone to overfitting. We present a method for learning to navigate, to a fixed goal and in a known environment, on a mobile robot. The robot leverages an interactive world model built from a single traversal of the environment, a pre-trained visual feature encoder, and stochastic environmental augmentation, to demonstrate successful zero-shot transfer under real-world environmental variations without fine-tuning.",
-          "claimed_authors": [
-            "Jake Bruce",
-            "Niko Suenderhauf",
-            "Piotr Mirowski",
-            "Raia Hadsell",
-            "Michael Milford"
-          ],
-          "claimed_title": "One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1711.10137"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay')",
-        "failed_at": "2026-07-10T21:34:43Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Imitation learning is a popular approach for training visual navigation policies. However, collecting expert demonstrations for legged robots is challenging as these robots can be hard to control, move slowly, and cannot operate continuously for a long time. Here, we propose a zero-shot imitation learning approach for training a visual navigation policy on legged robots from human (third-person perspective) demonstrations, enabling high-quality navigation and cost-effective data collection. However, imitation learning from third-person demonstrations raises unique challenges. First, these demonstrations are captured from different camera perspectives, which we address via a feature disentanglement network (FDN) that extracts perspective-invariant state features. Second, as transition dynamics vary across systems, we label missing actions by either building an inverse model of the robot's dynamics in the feature space and applying it to the human demonstrations or developing a Graphic User Interface(GUI) to label human demonstrations. To train a navigation policy we use a model-based imitation learning approach with FDN and labeled human demonstrations. We show that our framework can learn an effective policy for a legged robot, Laikago, from human demonstrations in both simulated and real-world environments. Our approach is zero-shot as the robot never navigates the same paths during training as those at testing time. We justify our framework by performing a comparative study.",
-          "claimed_authors": [
-            "Xinlei Pan",
-            "Tingnan Zhang",
-            "Brian Ichter",
-            "Aleksandra Faust",
-            "Jie Tan",
-            "Sehoon Ha"
-          ],
-          "claimed_title": "Zero-shot Imitation Learning from Demonstrations for Legged Robot Visual Navigation",
+          "claimed_title": "On-Policy Robot Imitation Learning from a Converging Supervisor",
           "claimed_venue": "arXiv",
           "claimed_year": 2019,
-          "primary_pointer": "1909.12971"
+          "primary_pointer": "1907.03423"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Zero-shot Imitation Learning from Demonstrations for Legged Robot Visual Navigation')",
-        "failed_at": "2026-07-10T21:34:43Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='On-Policy Robot Imitation Learning from a Converging Supervisor')",
+        "failed_at": "2026-07-30T10:45:12Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Prior work suggests that language models, while trained on next token prediction, show implicit planning behavior: they may select the next token in preparation to a predicted future token, such as a likely rhyming word, as supported by a prior qualitative study of Claude 3.5 Haiku using a cross-layer transcoder. We propose much simpler techniques for assessing implicit planning in language models. With case studies on rhyme poetry generation and question answering, we demonstrate that our methodology easily scales to many models. Across models, we find that the generated rhyme (e.g. \"-ight\") or answer to a question (\"whale\") can be manipulated by steering at the end of the preceding line with a vector, affecting the generation of intermediate tokens leading up to the rhyme or answer word. We show that implicit planning is a universal mechanism, present in smaller models than previously thought, starting from 1B parameters. Our methodology offers a widely applicable direct way to study implicit planning abilities of LLMs. More broadly, understanding planning abilities of language models can inform decisions in AI safety and control.",
+          "claimed_abstract": "We propose to perform imitation learning for dexterous manipulation with multi-finger robot hand from human demonstrations, and transfer the policy to the real robot hand. We introduce a novel single-camera teleoperation system to collect the 3D demonstrations efficiently with only an iPad and a computer. One key contribution of our system is that we construct a customized robot hand for each user in the physical simulator, which is a manipulator resembling the same kinematics structure and shape of the operator's hand. This provides an intuitive interface and avoid unstable human-robot hand retargeting for data collection, leading to large-scale and high quality data. Once the data is collected, the customized robot hand trajectories can be converted to different specified robot hands (models that are manufactured) to generate training demonstrations. With imitation learning using our data, we show large improvement over baselines with multiple complex manipulation tasks. Importantly, we show our learned policy is significantly more robust when transferring to the real robot. More videos can be found in the https://yzqin.github.io/dex-teleop-imitation .",
           "claimed_authors": [
-            "Jim Maar",
-            "Denis Paperno",
-            "Callum Stuart McDougall",
-            "Neel Nanda"
+            "Yuzhe Qin",
+            "Hao Su",
+            "Xiaolong Wang"
           ],
-          "claimed_title": "What's the plan? Metrics for implicit planning in LLMs and their application to rhyme generation and question answering",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2601.20164"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title=\"What's the plan? Metrics for implicit planning in LLMs and their application to rhyme generation and question answering\")",
-        "failed_at": "2026-07-10T21:34:43Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
-          "claimed_authors": [
-            "Dinithi Dissanayake",
-            "Suranga Nanayakkara"
-          ],
-          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.16021"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
-        "failed_at": "2026-07-10T21:34:43Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs), when guided by explicit textual plans, can perform reliable step-by-step reasoning during problem-solving. However, generating accurate and effective textual plans remains challenging due to LLM hallucinations and the high diversity of task-specific questions. To address this, we draw inspiration from human Implicit Cognition (IC), the subconscious process by which decisions are guided by compact, generalized patterns learned from past experiences without requiring explicit verbalization. We propose iCLP, a novel framework that enables LLMs to adaptively generate latent plans (LPs), which are compact encodings of effective reasoning instructions. iCLP first distills explicit plans from existing step-by-step reasoning trajectories. It then learns discrete representations of these plans via a vector-quantized autoencoder coupled with a codebook. Finally, by fine-tuning LLMs on paired latent plans and corresponding reasoning steps, the models learn to perform implicit planning during reasoning. Experimental results on mathematical reasoning and code generation tasks demonstrate that, with iCLP, LLMs can plan in latent space while reasoning in language space. This approach yields significant improvements in both accuracy and efficiency and, crucially, demonstrates strong cross-domain generalization while preserving the interpretability of chain-of-thought reasoning.",
-          "claimed_authors": [
-            "Sijia Chen",
-            "Di Niu"
-          ],
-          "claimed_title": "iCLP: Large Language Model Reasoning with Implicit Cognition Latent Planning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2512.24014"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='iCLP: Large Language Model Reasoning with Implicit Cognition Latent Planning')",
-        "failed_at": "2026-07-10T21:34:43Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Scaling laws provide important insights that can guide the design of large language models (LLMs). Existing work has primarily focused on studying scaling laws for pretraining (upstream) loss. However, in transfer learning settings, in which LLMs are pretrained on an unsupervised dataset and then finetuned on a downstream task, we often also care about the downstream performance. In this work, we study the scaling behavior in a transfer learning setting, where LLMs are finetuned for machine translation tasks. Specifically, we investigate how the choice of the pretraining data and its size affect downstream performance (translation quality) as judged by: downstream cross-entropy and translation quality metrics such as BLEU and COMET scores. Our experiments indicate that the size of the finetuning dataset and the distribution alignment between the pretraining and downstream data significantly influence the scaling behavior. With sufficient alignment, both downstream cross-entropy and translation quality scores improve monotonically with more pretraining data. In such cases, we show that it is possible to predict the downstream translation quality metrics with good accuracy using a log-law. However, there are cases where moderate misalignment causes the downstream translation scores to fluctuate or get worse with more pretraining, whereas downstream cross-entropy monotonically improves. By analyzing these, we provide new practical insights for choosing appropriate pretraining data.",
-          "claimed_authors": [
-            "Berivan Isik",
-            "Natalia Ponomareva",
-            "Hussein Hazimeh",
-            "Dimitris Paparas",
-            "Sergei Vassilvitskii",
-            "Sanmi Koyejo"
-          ],
-          "claimed_title": "Scaling Laws for Downstream Task Performance of Large Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.04177"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Scaling Laws for Downstream Task Performance of Large Language Models')",
-        "failed_at": "2026-07-10T21:34:43Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper describes the NiuTrans system for the WMT21 translation efficiency task (http://statmt.org/wmt21/efficiency-task.html). Following last year's work, we explore various techniques to improve efficiency while maintaining translation quality. We investigate the combinations of lightweight Transformer architectures and knowledge distillation strategies. Also, we improve the translation efficiency with graph optimization, low precision, dynamic batching, and parallel pre/post-processing. Our system can translate 247,000 words per second on an NVIDIA A100, being 3$\\times$ faster than last year's system. Our system is the fastest and has the lowest memory consumption on the GPU-throughput track. The code, model, and pipeline will be available at NiuTrans.NMT (https://github.com/NiuTrans/NiuTrans.NMT).",
-          "claimed_authors": [
-            "Chenglong Wang",
-            "Chi Hu",
-            "Yongyu Mu",
-            "Zhongxiang Yan",
-            "Siming Wu",
-            "Minyi Hu",
-            "Hang Cao",
-            "Bei Li",
-            "Ye Lin",
-            "Tong Xiao",
-            "Jingbo Zhu"
-          ],
-          "claimed_title": "The NiuTrans System for the WMT21 Efficiency Task",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2109.08003"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='The NiuTrans System for the WMT21 Efficiency Task')",
-        "failed_at": "2026-07-10T21:34:43Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper describes the submissions of the NiuTrans Team to the WNGT 2020 Efficiency Shared Task. We focus on the efficient implementation of deep Transformer models \\cite{wang-etal-2019-learning, li-etal-2019-niutrans} using NiuTensor (https://github.com/NiuTrans/NiuTensor), a flexible toolkit for NLP tasks. We explored the combination of deep encoder and shallow decoder in Transformer models via model compression and knowledge distillation. The neural machine translation decoding also benefits from FP16 inference, attention caching, dynamic batching, and batch pruning. Our systems achieve promising results in both translation quality and efficiency, e.g., our fastest system can translate more than 40,000 tokens per second with an RTX 2080 Ti while maintaining 42.9 BLEU on \\textit{newstest2018}. The code, models, and docker images are available at NiuTrans.NMT (https://github.com/NiuTrans/NiuTrans.NMT).",
-          "claimed_authors": [
-            "Chi Hu",
-            "Bei Li",
-            "Ye Lin",
-            "Yinqiao Li",
-            "Yanyang Li",
-            "Chenglong Wang",
-            "Tong Xiao",
-            "Jingbo Zhu"
-          ],
-          "claimed_title": "The NiuTrans System for WNGT 2020 Efficiency Task",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2109.08008"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='The NiuTrans System for WNGT 2020 Efficiency Task')",
-        "failed_at": "2026-07-10T21:34:43Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This document presents endeavors to represent emotion in a computational cognitive architecture. The first part introduces research organizing with two axes of emotional affect: pleasantness and arousal. Following this basic of emotional components, the document discusses an aspect of emergent properties of emotion, showing interaction studies with human users. With these past author's studies, the document concludes that the advantage of the cognitive human-agent interaction approach is in representing human internal states and processes.",
-          "claimed_authors": [
-            "Junya Morita"
-          ],
-          "claimed_title": "Emotion in Cognitive Architecture: Emergent Properties from Interactions with Human Emotion",
+          "claimed_title": "From One Hand to Multiple Hands: Imitation Learning for Dexterous Manipulation from Single-Camera Teleoperation",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2301.00003"
+          "primary_pointer": "2204.12490"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Emotion in Cognitive Architecture: Emergent Properties from Interactions with Human Emotion')",
-        "failed_at": "2026-07-10T21:34:43Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='From One Hand to Multiple Hands: Imitation Learning for Dexterous Manipulation from Single-Camera Teleoperation')",
+        "failed_at": "2026-07-30T10:45:12Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Recent evidence suggests that SARS-CoV-2, which is the virus causing a global pandemic in 2020, is predominantly transmitted via airborne aerosols in indoor environments. This calls for novel strategies when assessing and controlling a building's indoor air quality (IAQ). IAQ can generally be controlled by ventilation and/or policies to regulate human-building-interaction. However, in a building, occupants use rooms in different ways, and it may not be obvious which measure or combination of measures leads to a cost- and energy-effective solution ensuring good IAQ across the entire building. Therefore, in this article, we introduce a novel agent-based simulator, ArchABM, designed to assist in creating new or adapt existing buildings by estimating adequate room sizes, ventilation parameters and testing the effect of policies while taking into account IAQ as a result of complex human-building interaction patterns. A recently published aerosol model was adapted to calculate time-dependent carbon dioxide ($CO_2$) and virus quanta concentrations in each room and inhaled $CO_2$ and virus quanta for each occupant over a day as a measure of physiological response. ArchABM is flexible regarding the aerosol model and the building layout due to its modular architecture, which allows implementing further models, any number and size of rooms, agents, and actions reflecting human-building interaction patterns. We present a use case based on a real floor plan and working schedules adopted in our research center. This study demonstrates how advanced simulation tools can contribute to improving IAQ across a building, thereby ensuring a healthy indoor environment.",
+          "claimed_abstract": "In this paper we present a complete study of an end-to-end imitation learning system for speed control of a real car, based on a neural network with a Long Short Term Memory (LSTM). To achieve robustness and generalization from expert demonstrations, we propose data augmentation and label augmentation that are relevant for imitation learning in longitudinal control context. Based on front camera image only, our system is able to correctly control the speed of a car in simulation environment, and in a real car on a challenging test track. The system also shows promising results in open road context.",
           "claimed_authors": [
-            "Iñigo Martinez",
-            "Jan L. Bruse",
-            "Ane M. Florez-Tapia",
-            "Elisabeth Viles",
-            "Igor G. Olaizola"
+            "Laurent George",
+            "Thibault Buhet",
+            "Emilie Wirbel",
+            "Gaetan Le-Gall",
+            "Xavier Perrotton"
           ],
-          "claimed_title": "ArchABM: an agent-based simulator of human interaction with the built environment. $CO_2$ and viral load analysis for indoor air quality",
+          "claimed_title": "Imitation Learning for End to End Vehicle Longitudinal Control with Forward Camera",
           "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2111.01484"
+          "claimed_year": 2018,
+          "primary_pointer": "1812.05841"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='ArchABM: an agent-based simulator of human interaction with the built environment. $CO_2$ and viral load analysis for indoor air quality')",
-        "failed_at": "2026-07-10T21:34:43Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Imitation Learning for End to End Vehicle Longitudinal Control with Forward Camera')",
+        "failed_at": "2026-07-30T10:45:12Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The topic of joint actions has been deeply studied in the context of Human-Human interaction in order to understand how humans cooperate. Creating autonomous robots that collaborate with humans is a complex problem, where it is relevant to apply what has been learned in the context of Human-Human interaction. The question is what skills to implement and how to integrate them in order to build a cognitive architecture, allowing a robot to collaborate efficiently and naturally with humans. In this paper, we first list a set of skills that we consider essential for Joint Action, then we analyze the problem from the robot's point of view and discuss how they can be instantiated in human-robot scenarios. Finally, we open the discussion on how to integrate such skills into a cognitive architecture for human-robot collaborative problem solving and task achievement.",
+          "claimed_abstract": "Vision-Language-Action (VLA) policies offer strong general-purpose manipulation priors, but often fail on tight-tolerance, contact-rich assembly due to long-horizon credit assignment and subtask coupling: a state that is geometrically successful for the current skill can be brittle for downstream skills. We show this failure mode in residual reinforcement learning (RL) over a frozen VLA base policy: constant sparse success rewards improve each subtask in isolation yet yield little or no gain when skills are chained, because terminal state quality is uncontrolled. We propose Foresight Residual RL, which optimizes handoff quality by augmenting each subtask's sparse success reward with an offline-estimated foresight value -- the probability of future subtask success conditioned on the terminal state of the current subtask. Concretely, we (i) train a visual foresight predictor from images of terminal states of the base policy, labeled using downstream rollout statistics, and (ii) train residual policies via backward foresight induction, using the predictor output as a reward multiplier. On a three-phase wrench-based nut-tightening assembly task in Isaac Gym (grasp, move-insert, rotate), our method achieves 85.6% full-task success, outperforming standard subtask residual RL (54.5%) and VLA baselines, while leaving per-subtask success unchanged. These results highlight that improving long-horizon performance requires shaping which successful states are produced at each sub-task, not only whether success occurs.",
           "claimed_authors": [
-            "Sandra Devin",
-            "Grégoire Milliez",
-            "Michelangelo Fiore",
-            "Aurélie Clodic",
-            "Rachid Alami"
+            "Yuhan Liu",
+            "Xinyu Zhang",
+            "Litao Liu",
+            "Abdeslam Boularias"
           ],
-          "claimed_title": "Some essential skills and their combination in an architecture for a cognitive and interactive robot",
+          "claimed_title": "Foresight Residual RL for Long-Horizon Robot Manipulation with Vision-Language-Action Models",
           "claimed_venue": "arXiv",
-          "claimed_year": 2016,
-          "primary_pointer": "1603.00583"
+          "claimed_year": 2026,
+          "primary_pointer": "2607.16506"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Some essential skills and their combination in an architecture for a cognitive and interactive robot')",
-        "failed_at": "2026-07-10T21:34:43Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Foresight Residual RL for Long-Horizon Robot Manipulation with Vision-Language-Action Models')",
+        "failed_at": "2026-07-30T10:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The derivation of multi-step-ahead prediction models from sampled data of a linear system is considered. A dedicated prediction model is built for each future time step of interest. In addition to a nominal model, the set of all models consistent with data and prior information is derived as well, making the approach suitable for robust control design within a Model Predictive Control framework. The resulting parameter identification problem is solved through a sequence of convex programs, overcoming the non-convexity arising when identifying 1-step prediction models with an output-error criterion. At the same time, the derived models guarantee a worst-case error which is always smaller than the one obtained by iterating models identified with a 1-step prediction error criterion.",
+          "claimed_authors": [
+            "Enrico Terzi",
+            "Lorenzo Fagiano",
+            "Marcello Farina",
+            "Riccardo Scattolini"
+          ],
+          "claimed_title": "On multi-step prediction models for receding horizon control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.09767"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='On multi-step prediction models for receding horizon control')",
+        "failed_at": "2026-07-30T10:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem of controlling hybrid dynamical systems using model predictive control (MPC) is formulated and sufficient conditions for asymptotic stability of a set are provided. Hybrid dynamical systems are modeled in terms of hybrid equations, involving a differential equation and a difference equation with inputs and constraints. The proposed hybrid MPC algorithm uses a suitable prediction and control horizon construction inspired by hybrid time domains. Structural properties of the hybrid optimization problem, its feasible set, and its value function are provided. Checkable conditions to guarantee asymptotic stability of a set are provided. These conditions are given in terms of properties on the stage cost, terminal cost, and the existence of static state-feedback laws, related through a control Lyapunov function condition. Examples illustrate the results throughout the paper.",
+          "claimed_authors": [
+            "Ricardo G. Sanfelice",
+            "Berk Altin"
+          ],
+          "claimed_title": "Model Predictive Control of Hybrid Dynamical Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.21989"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Model Predictive Control of Hybrid Dynamical Systems')",
+        "failed_at": "2026-07-30T10:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a framework for data-driven robotics that makes use of a large dataset of recorded robot experience and scales to several tasks using learned reward functions. We show how to apply this framework to accomplish three different object manipulation tasks on a real robot platform. Given demonstrations of a task together with task-agnostic recorded experience, we use a special form of human annotation as supervision to learn a reward function, which enables us to deal with real-world tasks where the reward signal cannot be acquired directly. Learned rewards are used in combination with a large dataset of experience from different tasks to learn a robot policy offline using batch RL. We show that using our approach it is possible to train agents to perform a variety of challenging manipulation tasks including stacking rigid objects and handling cloth.",
+          "claimed_authors": [
+            "Serkan Cabi",
+            "Sergio Gómez Colmenarejo",
+            "Alexander Novikov",
+            "Ksenia Konyushkova",
+            "Scott Reed",
+            "Rae Jeong",
+            "Konrad Zolna",
+            "Yusuf Aytar",
+            "David Budden",
+            "Mel Vecerik",
+            "Oleg Sushkov",
+            "David Barker",
+            "Jonathan Scholz",
+            "Misha Denil",
+            "Nando de Freitas",
+            "Ziyu Wang"
+          ],
+          "claimed_title": "Scaling data-driven robotics with reward sketching and batch reinforcement learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.12200"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Scaling data-driven robotics with reward sketching and batch reinforcement learning')",
+        "failed_at": "2026-07-30T10:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present Xiaomi-Robotics-1, a foundational vision-language-action (VLA) model capable of (1) following diverse language instructions to perform a wide range of mobile manipulation tasks in unseen environments out-of-the-box, and (2) efficiently adapting to novel downstream tasks with minimal fine-tuning data. We propose a two-stage training recipe consisting of pre-training and post-training. During pre-training, we imbue the model with broad and generalizable action-generation capabilities by training on over 100k hours of real-world manipulation trajectories collected via UMI devices. Crucially, we develop a scalable auto-labeling pipeline that annotates trajectory clips with natural languages describing scene state transitions, providing rich and precise conditioning for action learning. During post-training, we aim to align these capabilities with robot embodiments and imperative instructions that humans naturally use to prompt robots. Extensive experiments demonstrate strong scaling behavior. Xiaomi-Robotics-1 consistently improves with increased data scales and model sizes during pre-training. This scaling behavior directly transfers to post-training, where a stronger pre-training model yields better out-of-the-box real-robot performance in unseen environments. Furthermore, Xiaomi-Robotics-1 serves as a strong robot foundation policy that can be efficiently fine-tuned on complex, dexterous tasks with high data efficiency. Across multiple simulation benchmarks, Xiaomi-Robotics-1 outperforms state-of-the-art methods. Notably, it establishes a new state-of-the-art with a 57.4% success rate on RoboCasa365, surpassing the previous best of 46.6%. Furthermore, it achieves an average score of 20.07 on RoboDojo, significantly outperforming the prior state-of-the-art (13.07). Code and model checkpoints will be released. Project page: https://robotics.xiaomi.com/xiaomi-robotics-1.html",
+          "claimed_authors": [
+            " Xiaomi Robotics Team",
+            "Jun Guo",
+            "Piaopiao Jin",
+            "Jason Li",
+            "Peiyan Li",
+            "Yingyan Li",
+            "Futeng Liu",
+            "Wanli Peng",
+            "Optimus Qin",
+            "Yifei Su",
+            "Nan Sun",
+            "Qiao Sun",
+            "Runze Suo",
+            "Heyun Wang",
+            "Yunhong Wang",
+            "Rujie Wu",
+            "Caoyu Xia",
+            "Lina Zhang",
+            "Jack Zhao",
+            "Guoliang Chen",
+            "Wenlong Chen",
+            "Xinze He",
+            "Bin Li",
+            "Qing Li",
+            "Zhuorong Li",
+            "Heng Qu",
+            "Wenxuan Song",
+            "Diyun Xiang",
+            "Yifan Xie",
+            "Peiran Xu",
+            "Hangjun Ye",
+            "Wen Ye",
+            "Han Zhao",
+            "Quanyun Zhou"
+          ],
+          "claimed_title": "Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.15330"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories')",
+        "failed_at": "2026-07-30T10:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-07-30T10:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper addresses the problem of long-context linear system identification, where the state $x_t$ of a dynamical system at time $t$ depends linearly on previous states $x_s$ over a fixed context window of length $p$. We establish a sample complexity bound that matches the i.i.d. parametric rate up to logarithmic factors for a broad class of systems, extending previous works that considered only first-order dependencies. Our findings reveal a learning-without-mixing phenomenon, indicating that learning long-context linear autoregressive models is not hindered by slow mixing properties potentially associated with extended context windows. Additionally, we extend these results to (i) shared low-rank representations, where rank-regularized estimators improve the dependence of the rates on the dimensionality, and (ii) misspecified context lengths in strictly stable systems, where shorter contexts offer statistical advantages.",
+          "claimed_authors": [
+            "Oğuz Kaan Yüksel",
+            "Mathieu Even",
+            "Nicolas Flammarion"
+          ],
+          "claimed_title": "Long-Context Linear System Identification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.05690"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Long-Context Linear System Identification')",
+        "failed_at": "2026-07-30T10:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study sim-to-real skill transfer and discovery in the context of robotics control using representation learning. We draw inspiration from spectral decomposition of Markov decision processes. The spectral decomposition brings about representation that can linearly represent the state-action value function induced by any policies, thus can be regarded as skills. The skill representations are transferable across arbitrary tasks with the same transition dynamics. Moreover, to handle the sim-to-real gap in the dynamics, we propose a skill discovery algorithm that learns new skills caused by the sim-to-real gap from real-world data. We promote the discovery of new skills by enforcing orthogonal constraints between the skills to learn and the skills from simulators, and then synthesize the policy using the enlarged skill sets. We demonstrate our methodology by transferring quadrotor controllers from simulators to Crazyflie 2.1 quadrotors. We show that we can learn the skill representations from a single simulator task and transfer these to multiple different real-world tasks including hovering, taking off, landing and trajectory tracking. Our skill discovery approach helps narrow the sim-to-real gap and improve the real-world controller performance by up to 30.2%.",
+          "claimed_authors": [
+            "Haitong Ma",
+            "Zhaolin Ren",
+            "Bo Dai",
+            "Na Li"
+          ],
+          "claimed_title": "Skill Transfer and Discovery for Sim-to-Real Learning: A Representation-Based Viewpoint",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.05051"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Skill Transfer and Discovery for Sim-to-Real Learning: A Representation-Based Viewpoint')",
+        "failed_at": "2026-07-30T10:45:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter addresses the critical challenge of simulation-to-reality (sim-to-real) transfer for deep reinforcement learning (DRL) in bipedal locomotion. After contextualizing the problem within various control architectures, we dissect the ``curse of simulation'' by analyzing the primary sources of sim-to-real gap: robot dynamics, contact modeling, state estimation, and numerical solvers. Building on this diagnosis, we structure the solutions around two complementary philosophies. The first is to shrink the gap through model-centric strategies that systematically improve the simulator's physical fidelity. The second is to harden the policy, a complementary approach that uses in-simulation robustness training and post-deployment adaptation to make the policy inherently resilient to model inaccuracies. The chapter concludes by synthesizing these philosophies into a strategic framework, providing a clear roadmap for developing and evaluating robust sim-to-real solutions.",
+          "claimed_authors": [
+            "Lingfan Bao",
+            "Tianhu Peng",
+            "Chengxu Zhou"
+          ],
+          "claimed_title": "Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06465"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"In-Context World Modeling for Robotic Control\" com', candidate_title='Sim-to-Real Transfer in Deep Reinforcement Learning for Bipedal Locomotion')",
+        "failed_at": "2026-07-30T10:45:12Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -541,126 +589,205 @@
       {
         "bibliographic_info": {
           "authors": [
-            "Kaichen Zhou",
-            "Yuzhen Chen",
-            "Fangneng Zhan",
-            "Hang Hua",
-            "Grace Chen",
-            "Xinhai Chang",
-            "Ao Qu",
-            "Yilun Du",
-            "Zhuang Liu",
-            "Paul Pu Liang",
-            "Mengyu Wang"
+            "Takahito Fujimori"
           ],
-          "title": "GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2605.22882",
-        "summary": "Video world models can generate realistic futures from a single instruction, but they often fail to track the same physical points consistently across time. As a result, the generated videos appear plausible, yet lack the physical grounding required for reliable action execution, such as robot manipulation. We present GEM-4D, a geometry-grounded video world model that resolves this limitation by injecting dense 4D correspondence supervision distilled from a pretrained geometry foundation model into the video generative backbone during training. This supervision enables the model to jointly capture appearance and geometric structure while retaining a single-stream architecture with no additional inference cost. We further introduce an inverse dynamics module that converts correspondence-consistent video rollouts into executable robot trajectories, enabling direct deployment in both real-world and simulated manipulation. GEM-4D achieves state-of-the-art performance on both video prediction and geometric consistency across both simulation and realistic scenarios and improves real-world manipulation success from 61% to 81%. Additional results are available at https://gem-4d.github.io/.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.22882",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-10T21:34:49Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jake Bruce",
-            "Niko Suenderhauf",
-            "Piotr Mirowski",
-            "Raia Hadsell",
-            "Michael Milford"
-          ],
-          "title": "One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay",
-          "venue": "arXiv",
-          "year": 2017
-        },
-        "primary_pointer": "1711.10137",
-        "summary": "Recently, model-free reinforcement learning algorithms have been shown to solve challenging problems by learning from extensive interaction with the environment. A significant issue with transferring this success to the robotics domain is that interaction with the real world is costly, but training on limited experience is prone to overfitting. We present a method for learning to navigate, to a fixed goal and in a known environment, on a mobile robot. The robot leverages an interactive world model built from a single traversal of the environment, a pre-trained visual feature encoder, and stochastic environmental augmentation, to demonstrate successful zero-shot transfer under real-world environmental variations without fine-tuning.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1711.10137",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.4,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-10T21:34:49Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jacob Beck",
-            "Shikha Surana",
-            "Manus McAuliffe",
-            "Oliver Bent",
-            "Thomas D. Barrett",
-            "Juan Jose Garau Luis",
-            "Paul Duckworth"
-          ],
-          "title": "Metalic: Meta-Learning In-Context with Protein Language Models",
+          "title": "FRIDAY: Real-time Learning DNN-based Stable LQR controller for Nonlinear Systems under Uncertain Disturbances",
           "venue": "arXiv",
           "year": 2024
         },
-        "primary_pointer": "2410.08355",
-        "summary": "Predicting the biophysical and functional properties of proteins is essential for in silico protein design. Machine learning has emerged as a promising technique for such prediction tasks. However, the relative scarcity of in vitro annotations means that these models often have little, or no, specific data on the desired fitness prediction task. As a result of limited data, protein language models (PLMs) are typically trained on general protein sequence modeling tasks, and then fine-tuned, or applied zero-shot, to protein fitness prediction. When no task data is available, the models make strong assumptions about the correlation between the protein sequence likelihood and fitness scores. In contrast, we propose meta-learning over a distribution of standard fitness prediction tasks, and demonstrate positive transfer to unseen fitness prediction tasks. Our method, called Metalic (Meta-Learning In-Context), uses in-context learning and fine-tuning, when data is available, to adapt to new tasks. Crucially, fine-tuning enables considerable generalization, even though it is not accounted for during meta-training. Our fine-tuned models achieve strong results with 18 times fewer parameters than state-of-the-art models. Moreover, our method sets a new state-of-the-art in low-data settings on ProteinGym, an established fitness-prediction benchmark. Due to data scarcity, we believe meta-learning will play a pivotal role in advancing protein engineering.",
+        "primary_pointer": "2412.01103",
+        "summary": "Linear Quadratic Regulator (LQR) is often combined with feedback linearization (FBL) for nonlinear systems that have the nonlinearity additive to the input. Conventional approaches estimate and cancel the nonlinearity based on the first principle or data-driven methods such as Gaussian Processes (GPs). However, the former needs an elaborate modeling process, and the latter provides a fixed learned model, which may be suffering when the model dynamics are changing. In this letter, we take a Deep Neural Network (DNN) using a real-time-updated dataset to approximate the unknown nonlinearity while the controller is running. Spectrally normalizing the weights in each time-step, we stably incorporate the DNN prediction to an LQR controller and compensate for the nonlinear term. Leveraging the property of the bounded Lipschitz constant of the DNN, we provide theoretical analysis and locally exponential stability of the proposed controller. Simulation results show that our controller significantly outperforms Baseline controllers in trajectory tracking cases.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2410.08355",
+          "final_url": "https://arxiv.org/abs/2412.01103",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.6,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-10T21:34:50Z"
+          "verified_at": "2026-07-30T10:45:19Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Ansh Kumar Sharma",
-            "Yixiang Sun",
-            "Ninghao Lu",
-            "Yunzhe Zhang",
-            "Jiarao Liu",
-            "Sherry Yang"
+            "Fernando Castañeda",
+            "Mathias Wulfman",
+            "Ayush Agrawal",
+            "Tyler Westenbroek",
+            "Claire J. Tomlin",
+            "S. Shankar Sastry",
+            "Koushil Sreenath"
           ],
-          "title": "World-Gymnast: Training Robots with Reinforcement Learning in a World Model",
+          "title": "Improving Input-Output Linearizing Controllers for Bipedal Robots via Reinforcement Learning",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2020
         },
-        "primary_pointer": "2602.02454",
-        "summary": "Robot learning from interacting with the physical world is fundamentally bottlenecked by the cost of physical interaction. The two alternatives, supervised finetuning (SFT) from expert demonstrations and reinforcement learning (RL) in a software-based simulator, are limited by the amount of expert data available and the sim-to-real gap for manipulation. With the recent emergence of world models learned from real-world video-action data, we ask the question of whether training a policy in a world model can be more effective than supervised learning or software simulation in achieving better real-robot performance. We propose World-Gymnast, which performs RL finetuning of a vision-language-action (VLA) policy by rolling out the policy in an action-conditioned video world model and rewarding the rollouts with a vision-language model (VLM). On the Bridge robot setup, World-Gymnast outperforms SFT by as much as 18x and outperforms software simulator by as much as 2x. More importantly, World-Gymnast demonstrates intriguing capabilities of RL with a world model, including training on diverse language instructions and novel scenes from the world model, test-time training in a novel scene, and online iterative world model and policy improvement. Our results suggest learning a world model and training robot policies in the cloud could be the key to bridging the gap between robots that work in demonstrations and robots that can work in anyone's household.",
+        "primary_pointer": "2004.07276",
+        "summary": "The main drawbacks of input-output linearizing controllers are the need for precise dynamics models and not being able to account for input constraints. Model uncertainty is common in almost every robotic application and input saturation is present in every real world system. In this paper, we address both challenges for the specific case of bipedal robot control by the use of reinforcement learning techniques. Taking the structure of a standard input-output linearizing controller, we use an additive learned term that compensates for model uncertainty. Moreover, by adding constraints to the learning problem we manage to boost the performance of the final controller when input limits are present. We demonstrate the effectiveness of the designed framework for different levels of uncertainty on the five-link planar walking robot RABBIT.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2602.02454",
+          "final_url": "https://arxiv.org/abs/2004.07276",
           "http_status": 200,
-          "pdf_sample_score": 0.2576,
-          "query_relevance_score": 0.6,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-10T21:34:50Z"
+          "verified_at": "2026-07-30T10:45:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jaeseok Kim",
+            "Nino Cauli",
+            "Pedro Vicente",
+            "Bruno Damas",
+            "Alexandre Bernardino",
+            "José Santos-Victor",
+            "Filippo Cavallo"
+          ],
+          "title": "Cleaning tasks knowledge transfer between heterogeneous robots: a deep learning approach",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1903.05635",
+        "summary": "Nowadays, autonomous service robots are becoming an important topic in robotic research. Differently from typical industrial scenarios, with highly controlled environments, service robots must show an additional robustness to task perturbations and changes in the characteristics of their sensory feedback. In this paper, a robot is taught to perform two different cleaning tasks over a table, using a learning from demonstration paradigm. However, differently from other approaches, a convolutional neural network is used to generalize the demonstrations to different, not yet seen dirt or stain patterns on the same table using only visual feedback, and to perform cleaning movements accordingly. Robustness to robot posture and illumination changes is achieved using data augmentation techniques and camera images transformation. This robustness allows the transfer of knowledge regarding execution of cleaning tasks between heterogeneous robots operating in different environmental settings. To demonstrate the viability of the proposed approach, a network trained in Lisbon to perform cleaning tasks, using the iCub robot, is successfully employed by the DoRo robot in Peccioli, Italy.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1903.05635",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-30T10:45:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            " Xiaomi Robotics Team",
+            "Jun Guo",
+            "Piaopiao Jin",
+            "Jason Li",
+            "Peiyan Li",
+            "Yingyan Li",
+            "Futeng Liu",
+            "Wanli Peng",
+            "Optimus Qin",
+            "Yifei Su",
+            "Nan Sun",
+            "Qiao Sun",
+            "Runze Suo",
+            "Heyun Wang",
+            "Yunhong Wang",
+            "Rujie Wu",
+            "Caoyu Xia",
+            "Lina Zhang",
+            "Jack Zhao",
+            "Guoliang Chen",
+            "Wenlong Chen",
+            "Xinze He",
+            "Bin Li",
+            "Qing Li",
+            "Zhuorong Li",
+            "Heng Qu",
+            "Wenxuan Song",
+            "Diyun Xiang",
+            "Yifan Xie",
+            "Peiran Xu",
+            "Hangjun Ye",
+            "Wen Ye",
+            "Han Zhao",
+            "Quanyun Zhou"
+          ],
+          "title": "Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.15330",
+        "summary": "We present Xiaomi-Robotics-1, a foundational vision-language-action (VLA) model capable of (1) following diverse language instructions to perform a wide range of mobile manipulation tasks in unseen environments out-of-the-box, and (2) efficiently adapting to novel downstream tasks with minimal fine-tuning data. We propose a two-stage training recipe consisting of pre-training and post-training. During pre-training, we imbue the model with broad and generalizable action-generation capabilities by training on over 100k hours of real-world manipulation trajectories collected via UMI devices. Crucially, we develop a scalable auto-labeling pipeline that annotates trajectory clips with natural languages describing scene state transitions, providing rich and precise conditioning for action learning. During post-training, we aim to align these capabilities with robot embodiments and imperative instructions that humans naturally use to prompt robots. Extensive experiments demonstrate strong scaling behavior. Xiaomi-Robotics-1 consistently improves with increased data scales and model sizes during pre-training. This scaling behavior directly transfers to post-training, where a stronger pre-training model yields better out-of-the-box real-robot performance in unseen environments. Furthermore, Xiaomi-Robotics-1 serves as a strong robot foundation policy that can be efficiently fine-tuned on complex, dexterous tasks with high data efficiency. Across multiple simulation benchmarks, Xiaomi-Robotics-1 outperforms state-of-the-art methods. Notably, it establishes a new state-of-the-art with a 57.4% success rate on RoboCasa365, surpassing the previous best of 46.6%. Furthermore, it achieves an average score of 20.07 on RoboDojo, significantly outperforming the prior state-of-the-art (13.07). Code and model checkpoints will be released. Project page: https://robotics.xiaomi.com/xiaomi-robotics-1.html",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.15330",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-30T10:45:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jimmy Wu",
+            "Rika Antonova",
+            "Adam Kan",
+            "Marion Lepert",
+            "Andy Zeng",
+            "Shuran Song",
+            "Jeannette Bohg",
+            "Szymon Rusinkiewicz",
+            "Thomas Funkhouser"
+          ],
+          "title": "TidyBot: Personalized Robot Assistance with Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.05658",
+        "summary": "For a robot to personalize physical assistance effectively, it must learn user preferences that can be generally reapplied to future scenarios. In this work, we investigate personalization of household cleanup with robots that can tidy up rooms by picking up objects and putting them away. A key challenge is determining the proper place to put each object, as people's preferences can vary greatly depending on personal taste or cultural background. For instance, one person may prefer storing shirts in the drawer, while another may prefer them on the shelf. We aim to build systems that can learn such preferences from just a handful of examples via prior interactions with a particular person. We show that robots can combine language-based planning and perception with the few-shot summarization capabilities of large language models (LLMs) to infer generalized user preferences that are broadly applicable to future interactions. This approach enables fast adaptation and achieves 91.2% accuracy on unseen objects in our benchmark dataset. We also demonstrate our approach on a real-world mobile manipulator called TidyBot, which successfully puts away 85.0% of objects in real-world test scenarios.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2305.05658",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-30T10:45:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anh Nguyen",
+            "Stefan Lee"
+          ],
+          "title": "Language-conditioned world model improves policy generalization by reading environmental descriptions",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.22904",
+        "summary": "To interact effectively with humans in the real world, it is important for agents to understand language that describes the dynamics of the environment--that is, how the environment behaves--rather than just task instructions specifying \"what to do\". Understanding this dynamics-descriptive language is important for human-agent interaction and agent behavior. Recent work address this problem using a model-based approach: language is incorporated into a world model, which is then used to learn a behavior policy. However, these existing methods either do not demonstrate policy generalization to unseen games or rely on limiting assumptions. For instance, assuming that the latency induced by inference-time planning is tolerable for the target task or expert demonstrations are available. Expanding on this line of research, we focus on improving policy generalization from a language-conditioned world model while dropping these assumptions. We propose a model-based reinforcement learning approach, where a language-conditioned world model is trained through interaction with the environment, and a policy is learned from this model--without planning or expert demonstrations. Our method proposes Language-aware Encoder for Dreamer World Model (LED-WM) built on top of DreamerV3. LED-WM features an observation encoder that uses an attention mechanism to explicitly ground language descriptions to entities in the observation. We show that policies trained with LED-WM generalize more effectively to unseen games described by novel dynamics and language compared to other baselines in several settings in two environments: MESSENGER and MESSENGER-WM.To highlight how the policy can leverage the trained world model before real-world deployment, we demonstrate the policy can be improved through fine-tuning on synthetic test trajectories generated by the world model.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.22904",
+          "http_status": 200,
+          "pdf_sample_score": 0.3662,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-30T10:45:25Z"
         }
       }
     ]

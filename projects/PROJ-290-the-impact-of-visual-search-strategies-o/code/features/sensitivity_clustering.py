@@ -1,8 +1,10 @@
 """
-Sensitivity Analysis Clustering Module.
+Sensitivity Clustering Implementation (T024b)
 
-Implements k-means clustering for k=2 and k=3 to generate labels
-for sensitivity analysis as per T024b.
+Implements k-means clustering for k=2 and k=3 to generate labels for sensitivity analysis.
+Outputs:
+  - data/processed/labels_k2.csv
+  - data/processed/labels_k3.csv
 """
 import os
 import sys
@@ -11,175 +13,169 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 
-# Import from project API
-from utils.logging import get_logger
+# Import from existing project modules
 from config import get_config
+from utils.logging import get_logger
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
 
-def get_logger_wrapper(name: str = __name__) -> logging.Logger:
-    """Helper to get a configured logger."""
-    return get_logger(name)
+def get_logger_wrapper():
+    """Get a logger instance configured for this module."""
+    config = get_config()
+    return get_logger(__name__, config.log_level)
+
+def load_processed_features(logger: logging.Logger, config: Any) -> pd.DataFrame:
+    """
+    Load the processed features from data/processed/features.csv.
+    Expects the file to exist (produced by T019/T020).
+    """
+    features_path = config.data_processed_path / "features.csv"
+    if not features_path.exists():
+        logger.error(f"Processed features file not found at {features_path}. "
+                     "Please run feature extraction tasks first.")
+        raise FileNotFoundError(f"Missing features file: {features_path}")
+    
+    logger.info(f"Loading processed features from {features_path}")
+    df = pd.read_csv(features_path)
+    return df
 
 def perform_sensitivity_clustering(
-    features_df: pd.DataFrame,
-    k_values: List[int] = [2, 3],
-    random_state: int = 42
-) -> Dict[int, pd.DataFrame]:
+    df: pd.DataFrame,
+    logger: logging.Logger,
+    config: Any
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Perform k-means clustering for specified k values on feature data.
-
+    Perform k-means clustering for k=2 and k=3.
+    
     Args:
-        features_df: DataFrame containing extracted features (must have 'participant_id', 'fixation_eye_ratio' or similar).
-        k_values: List of k values to test (default [2, 3]).
-        random_state: Random seed for reproducibility.
-
+        df: DataFrame containing processed features with columns for clustering.
+        logger: Logger instance.
+        config: Config object for paths.
+        
     Returns:
-        Dictionary mapping k value to a DataFrame with added cluster labels.
+        Tuple of (df_k2, df_k3) where each has an added 'cluster_label' column.
     """
-    logger = get_logger()
+    # Identify clustering features. Based on T018/T020, we expect:
+    # fixation_duration_eye, fixation_duration_mouth, saccade_amplitude, dispersion
+    # We use the continuous ratio as well if available, but standard features are safer.
+    # Let's select numeric columns that are likely features, excluding metadata.
+    
+    feature_cols = [
+        'fixation_duration_eye',
+        'fixation_duration_mouth', 
+        'saccade_amplitude',
+        'dispersion',
+        'eye_mouth_ratio' # From T020
+    ]
+    
+    # Filter to only existing columns
+    available_cols = [col for col in feature_cols if col in df.columns]
+    
+    if len(available_cols) < 2:
+        logger.warning(f"Insufficient feature columns found. Available: {list(df.columns)}. "
+                       "Using all numeric columns except 'participant_id' and 'cluster_label'."
+                       )
+        # Fallback: use all numeric columns
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        exclude_cols = ['participant_id', 'cluster_label']
+        available_cols = [c for c in numeric_cols if c not in exclude_cols]
+    
+    logger.info(f"Using columns for clustering: {available_cols}")
+    
+    X = df[available_cols].dropna()
+    original_indices = X.index
+    
+    # Handle missing values in features (drop rows with NaN in features)
+    if len(X) < len(df):
+        logger.warning(f"Dropped {len(df) - len(X)} rows due to NaN in feature columns.")
+    
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
     results = {}
-
-    # Ensure we have necessary columns
-    # The continuous ratio is calculated in T020/classification.py as 'eye_to_mouth_ratio'
-    # We assume features_df has been enriched with this column or similar.
-    # If not, we might need to calculate it here or rely on existing columns.
-    # Based on T020, the column is likely 'eye_to_mouth_ratio' or similar.
-    # Let's check for common names or calculate if missing.
     
-    # Fallback: If 'eye_to_mouth_ratio' doesn't exist, try to calculate from raw fixation times if available.
-    if 'eye_to_mouth_ratio' not in features_df.columns:
-        # Try to find columns that might represent eye and mouth fixation
-        eye_cols = [c for c in features_df.columns if 'eye' in c.lower() and 'fix' in c.lower()]
-        mouth_cols = [c for c in features_df.columns if 'mouth' in c.lower() and 'fix' in c.lower()]
-        
-        if eye_cols and mouth_cols:
-            # Use the first found
-            eye_col = eye_cols[0]
-            mouth_col = mouth_cols[0]
-            features_df['eye_to_mouth_ratio'] = features_df[eye_col] / (features_df[mouth_col] + 1e-6)
-            logger.info(f"Calculated eye_to_mouth_ratio from {eye_col} and {mouth_col}")
-        else:
-            # Fallback to using first numeric column if ratio not found
-            numeric_cols = features_df.select_dtypes(include=[np.number]).columns.tolist()
-            if len(numeric_cols) >= 2:
-                features_df['eye_to_mouth_ratio'] = features_df[numeric_cols[0]] / (features_df[numeric_cols[1]] + 1e-6)
-                logger.warning(f"Using {numeric_cols[0]} and {numeric_cols[1]} as proxy for ratio calculation")
-            else:
-                raise ValueError("Cannot perform clustering: No suitable numeric columns found to derive predictor.")
-
-    predictor_col = 'eye_to_mouth_ratio'
-    
-    # Prepare data for clustering (exclude non-numeric and ID columns)
-    # We only use the ratio for clustering in this sensitivity check
-    X = features_df[[predictor_col]].values
-
-    for k in k_values:
+    for k in [2, 3]:
         logger.info(f"Performing k-means clustering with k={k}")
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10, max_iter=300)
+        labels = kmeans.fit_predict(X_scaled)
         
-        kmeans = KMeans(
-            n_clusters=k,
-            random_state=random_state,
-            n_init=10,
-            algorithm='lloyd'
-        )
+        # Calculate silhouette score if we have enough points and clusters
+        if len(X) > k and k > 1:
+            try:
+                score = silhouette_score(X_scaled, labels)
+                logger.info(f"k={k}: Silhouette Score = {score:.4f}")
+            except Exception as e:
+                logger.warning(f"Could not calculate silhouette score for k={k}: {e}")
+                score = None
+        else:
+            score = None
         
-        cluster_labels = kmeans.fit_predict(X)
+        # Create a copy of the original dataframe and assign labels
+        # We need to map the labels back to the original indices
+        temp_df = df.copy()
+        temp_df['cluster_label'] = np.nan
+        temp_df.loc[original_indices, 'cluster_label'] = labels
         
-        # Create a copy of the dataframe and add the labels
-        result_df = features_df.copy()
-        result_df[f'cluster_label_k{k}'] = cluster_labels
+        results[k] = {
+            'df': temp_df,
+            'silhouette_score': score,
+            'model': kmeans
+        }
         
-        # Log cluster sizes
-        unique, counts = np.unique(cluster_labels, return_counts=True)
-        logger.info(f"Cluster distribution for k={k}: {dict(zip(unique, counts))}")
-        
-        results[k] = result_df
-
-    return results
+    return results[2]['df'], results[3]['df']
 
 def save_clustering_results(
-    results: Dict[int, pd.DataFrame],
-    output_dir: Path
-) -> List[str]:
+    df_k2: pd.DataFrame,
+    df_k3: pd.DataFrame,
+    logger: logging.Logger,
+    config: Any
+) -> None:
     """
-    Save clustering results to CSV files.
-
-    Args:
-        results: Dictionary of k -> DataFrame with labels.
-        output_dir: Directory to save files.
-
-    Returns:
-        List of paths to saved files.
+    Save the clustering results to data/processed/labels_k2.csv and labels_k3.csv.
     """
-    saved_files = []
+    output_dir = config.data_processed_path
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    for k, df in results.items():
-        # Select only relevant columns for the output: participant_id, ratio, and the specific cluster label
-        # Ensure participant_id exists
-        if 'participant_id' not in df.columns:
-            # Try to find an ID column
-            id_cols = [c for c in df.columns if 'id' in c.lower()]
-            if id_cols:
-                id_col = id_cols[0]
-            else:
-                # Create a dummy ID if none exists
-                df['participant_id'] = range(len(df))
-                id_col = 'participant_id'
-        
-        # Select columns: ID, the predictor used, and the specific cluster label
-        label_col = f'cluster_label_k{k}'
-        output_cols = [id_col, 'eye_to_mouth_ratio', label_col]
-        
-        # Filter to only existing columns
-        output_cols = [c for c in output_cols if c in df.columns]
-        
-        output_df = df[output_cols].copy()
-        
-        filename = f"labels_k{k}.csv"
-        filepath = output_dir / filename
-        
-        output_df.to_csv(filepath, index=False)
-        saved_files.append(str(filepath))
-        logging.info(f"Saved clustering results for k={k} to {filepath}")
-        
-    return saved_files
+    path_k2 = output_dir / "labels_k2.csv"
+    path_k3 = output_dir / "labels_k3.csv"
+    
+    logger.info(f"Saving k=2 labels to {path_k2}")
+    df_k2.to_csv(path_k2, index=False)
+    
+    logger.info(f"Saving k=3 labels to {path_k3}")
+    df_k3.to_csv(path_k3, index=False)
+    
+    if not path_k2.exists() or not path_k3.exists():
+        raise IOError("Failed to write output files.")
 
 def main():
-    """
-    Main entry point for T024b execution.
-    """
-    logger = get_logger()
+    """Main entry point for T024b."""
     config = get_config()
+    logger = get_logger_wrapper()
     
-    # Paths
-    features_path = Path(config['paths']['data_processed']) / 'features.csv'
-    output_dir = Path(config['paths']['data_processed'])
-    
-    logger.info(f"Starting sensitivity clustering (T024b)")
-    logger.info(f"Loading features from {features_path}")
-    
-    if not features_path.exists():
-        logger.error(f"Features file not found: {features_path}. Please run feature extraction first.")
-        sys.exit(1)
+    logger.info("Starting Sensitivity Clustering (T024b)")
     
     try:
-        features_df = pd.read_csv(features_path)
-        logger.info(f"Loaded {len(features_df)} rows of features.")
-    except Exception as e:
-        logger.error(f"Failed to load features: {e}")
+        # 1. Load data
+        df = load_processed_features(logger, config)
+        
+        # 2. Perform clustering
+        df_k2, df_k3 = perform_sensitivity_clustering(df, logger, config)
+        
+        # 3. Save results
+        save_clustering_results(df_k2, df_k3, logger, config)
+        
+        logger.info("Sensitivity Clustering completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data missing: {e}")
         sys.exit(1)
-    
-    # Perform clustering for k=2 and k=3
-    results = perform_sensitivity_clustering(features_df, k_values=[2, 3])
-    
-    # Save results
-    saved_files = save_clustering_results(results, output_dir)
-    
-    logger.info(f"Sensitivity clustering completed. Files saved: {saved_files}")
-    
-    return 0
+    except Exception as e:
+        logger.error(f"Error during clustering: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,1 +1,3 @@
-# Tests package for Coral Bleaching Susceptibility Project
+"""
+Test suite for the coral bleaching prediction pipeline.
+"""

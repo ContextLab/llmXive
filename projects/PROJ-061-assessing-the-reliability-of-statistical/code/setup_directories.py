@@ -1,56 +1,23 @@
 """
-Script to initialize the project directory structure for PROJ-061.
-Creates data/raw, data/processed, data/results, code, tests and their subdirectories.
-Ensures __init__.py files exist in all Python packages.
+Script to initialize project directory structure.
+Implements T001 logic explicitly.
 """
 import os
 from pathlib import Path
+from config import ensure_directories
 
 def main():
-    base_dir = Path(__file__).resolve().parent.parent
-    print(f"Setting up directories in: {base_dir}")
-
-    # Define the required directory structure relative to project root
-    dirs_to_create = [
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "code",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        "docs",
-    ]
-
-    # Create directories
-    for dir_path in dirs_to_create:
-        full_path = base_dir / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created: {full_path}")
-
-    # Create __init__.py files in Python packages
-    python_packages = [
-        "code",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-    ]
-
-    for pkg_path in python_packages:
-        full_path = base_dir / pkg_path
-        init_file = full_path / "__init__.py"
-        
-        # Ensure directory exists (though it should from previous step)
-        full_path.mkdir(parents=True, exist_ok=True)
-        
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created: {init_file}")
-        else:
-            print(f"Exists: {init_file}")
-
-    print("Directory structure setup complete.")
+    """
+    Entry point to create project directories and __init__.py files.
+    """
+    print("Initializing project directories...")
+    success = ensure_directories()
+    if success:
+        print("Project directories created successfully.")
+    else:
+        print("Failed to create directories.")
+        return 1
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

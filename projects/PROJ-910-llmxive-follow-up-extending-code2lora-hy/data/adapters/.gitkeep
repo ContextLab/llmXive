@@ -1,1 +1,2 @@
-# This directory holds generated LoRA adapters (.safetensors).
+# This directory stores generated LoRA adapters (.safetensors).
+# Do not commit actual adapter files here.

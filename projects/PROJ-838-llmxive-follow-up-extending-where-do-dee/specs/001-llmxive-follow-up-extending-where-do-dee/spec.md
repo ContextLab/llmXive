@@ -93,7 +93,7 @@ As a researcher, I need the system to apply a data-driven threshold (the 20th pe
 ## Assumptions
 
 - **Assumption about data availability**: The TELBench dataset (a collection of annotated trajectories) is publicly accessible and the JSON/CSV format remains stable for the duration of the project.
-- **Assumption about compute environment**: The analysis will run on a GitHub Actions free-tier runner (limited CPU cores, ~7 GB RAM, no GPU), requiring all graph algorithms to be implemented using standard Python libraries (e.g., `networkx`, `pandas`) without heavy deep learning frameworks.
+- **Assumption about compute environment**: The analysis will run on a GitHub Actions free-tier runner (limited CPU cores, constrained RAM, no GPU), requiring all graph algorithms to be implemented using standard Python libraries (e.g., `networkx`, `pandas`) without heavy deep learning frameworks.
 - **Assumption about threshold justification**: The 20th percentile is chosen as the initial data-driven threshold based on community standards for anomaly detection in sparse graphs; a sensitivity analysis (SC-004) will be performed to validate this choice.
 - **Assumption about dataset-variable fit**: The TELBench dataset contains sufficient textual context within the first [deferred] of spans to infer co-reference and citation edges; if a trajectory lacks these early, the system assumes a "sparse" topology by default.
 - **Assumption about inference framing**: Since the study uses observational data (no random assignment of topological structures), all conclusions regarding the relationship between topology and collapse will be framed as associational, not causal.

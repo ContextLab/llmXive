@@ -1,0 +1,14 @@
+status: none
+intent: download QM9 dataset with Merz-Kollman charges python package
+required_fields:
+- molecule_id
+- atomic_number
+- x_coordinate
+- y_coordinate
+- z_coordinate
+- bond_index
+- bond_type
+- merz_kollman_charge
+cache_key: b5692727aff93f45c0b782fcb2f7edfc3917f4328c735e1bb663c4d61f7135ad
+searched_at: '2026-10-24T15:30:52.725250+00:00'
+retry_count: 1

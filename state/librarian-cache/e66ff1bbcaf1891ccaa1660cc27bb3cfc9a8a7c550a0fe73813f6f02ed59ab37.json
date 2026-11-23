@@ -1,0 +1,656 @@
+{
+  "fetched_at": "2026-08-07T12:57:20Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores",
+      "target_n": 5
+    },
+    "duration_seconds": 63.471,
+    "ended_at": "2026-08-07T12:57:20Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Quantitative structure-activity relationship (QSAR) models for drug-likeness"
+        ],
+        [
+          2,
+          "Molecular properties and Lipinski's Rule of Five correlation"
+        ],
+        [
+          3,
+          "Structure-property relationships in small molecule drug discovery"
+        ],
+        [
+          4,
+          "Physicochemical descriptors predictive of oral bioavailability"
+        ],
+        [
+          5,
+          "Multivariate analysis of molecular fingerprints and ADMET profiles"
+        ],
+        [
+          6,
+          "Machine learning prediction of drug-likeness from molecular descriptors"
+        ],
+        [
+          7,
+          "Correlation between topological indices and pharmacokinetic parameters"
+        ],
+        [
+          8,
+          "Optimization of molecular descriptors for lead compound selection"
+        ],
+        [
+          9,
+          "Statistical analysis of molecular weight, logP, and drug efficacy"
+        ],
+        [
+          10,
+          "Relationship between electronic descriptors and toxicity scores"
+        ],
+        [
+          11,
+          "High-throughput screening of molecular descriptors for drug candidates"
+        ],
+        [
+          12,
+          "Feature selection in cheminformatics for drug-likeness assessment"
+        ],
+        [
+          13,
+          "Predictive modeling of drug absorption using molecular descriptors"
+        ],
+        [
+          14,
+          "Correlation of 3D molecular descriptors with binding affinity"
+        ],
+        [
+          15,
+          "Application of genetic algorithms to optimize molecular descriptors"
+        ],
+        [
+          16,
+          "Cheminformatics approaches to identifying drug-like chemical space"
+        ],
+        [
+          17,
+          "Linear and non-linear regression of molecular properties on drug scores"
+        ],
+        [
+          18,
+          "Descriptor-based virtual screening for novel therapeutic agents"
+        ],
+        [
+          19,
+          "Impact of molecular flexibility and solubility on drug-likeness metrics"
+        ],
+        [
+          20,
+          "Comparative analysis of molecular descriptor sets in drug design"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores chemistry": 0,
+        "Quantitative structure-activity relationship (QSAR) models for drug-likeness": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "QSAR molecular fingerprints druglikeness",
+      "QM9 dataset molecular property prediction",
+      "ADMET physicochemical property profiling",
+      "Lipinski rule of five solubility permeability",
+      "structure activity relationship feature importance"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1804.08615"
+      ]
+    },
+    "per_query_hit_count": {
+      "ADMET physicochemical property profiling": 3,
+      "Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores chemistry": 3,
+      "Lipinski rule of five solubility permeability": 3,
+      "QM9 dataset molecular property prediction": 2,
+      "QSAR molecular fingerprints druglikeness": 2,
+      "structure activity relationship feature importance": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-07T12:56:17Z",
+    "term_input": {
+      "normalized": "investigating correlations between molecular descriptors and drug-likeness scores chemistry",
+      "raw": "Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Astrochemistry lies at the nexus of astronomy, chemistry, and molecular physics. On the basis of precise laboratory data, a rich collection of more than 200 familiar and exotic molecules have been identified in the interstellar medium, the vast majority by their unique rotational fingerprint. Despite this large body of work, there is scant evidence in the radio band for the basic building blocks of chemistry on earth -- five and six-membered rings -- despite long standing and sustained efforts during the past 50 years. In contrast, a peculiar structural motif, highly unsaturated carbon in a chain-like arrangement, is instead quite common in space. The recent astronomical detection of cyanobenzene, the simplest aromatic nitrile, in the dark molecular cloud TMC-1, and soon afterwards in additional pre-stellar, and possibly protostellar sources, establishes that aromatic chemistry is likely widespread in the earliest stages of star formation. The subsequent discovery of cyanocyclopentadienes and even cyanonapthlenes in TMC-1 provides further evidence that organic molecules of considerable complexity are readily synthesized in regions with high visual extinction but where the low temperature and pressure are remarkably low. This review focuses on laboratory efforts now underway to understand the rich transition region between linear and planar carbon structures using microwave spectroscopy. We present key features, advantages, and disadvantages of current detection methods, a discussion of the types of molecules found in space and in the laboratory, and approaches under development to identify entirely new species in complex mixtures. Studies focusing on the cyanation of hydrocarbons and the formation of benzene from acyclic precursors are highlighted, as is the role that isotopic studies might play in elucidating the chemical pathways to ring formation.",
+          "claimed_authors": [
+            "Michael C. McCarthy",
+            "Brett A. McGuire"
+          ],
+          "claimed_title": "Aromatics and Cyclic Molecules in Molecular Clouds: A New Dimension of Interstellar Organic Chemistry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.09608"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='Aromatics and Cyclic Molecules in Molecular Clouds: A New Dimension of Interstellar Organic Chemistry')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proposes a novel approach to semantic ontology alignment using contextual descriptors. A formalization was developed that enables the integration of essential and contextual descriptors to create a comprehensive knowledge model. The hierarchical structure of the semantic approach and the mathematical apparatus for analyzing potential conflicts between concepts, particularly in the example of \"Transparency\" and \"Privacy\" in the context of artificial intelligence, are demonstrated. Experimental studies showed a significant improvement in ontology alignment metrics after the implementation of contextual descriptors, especially in the areas of privacy, responsibility, and freedom & autonomy. The application of contextual descriptors achieved an average overall improvement of approximately 4.36%. The results indicate the effectiveness of the proposed approach for more accurately reflecting the complexity of knowledge and its contextual dependence.",
+          "claimed_authors": [
+            "Eduard Manziuk",
+            "Oleksander Barmak",
+            "Pavlo Radiuk",
+            "Vladislav Kuznetsov",
+            "Iurii Krak",
+            "Sergiy Yakovlev"
+          ],
+          "claimed_title": "Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.19113"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='Integration of Contextual Descriptors in Ontology Alignment for Enrichment of Semantic Correspondence')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+          "claimed_authors": [
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
+          ],
+          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.02639"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Molecular Graph Neural Networks (GNNs) are increasingly common in drug discovery, particularly for Quantitative Structure-Activity Relationship (QSAR) studies; yet, their superiority compared to classical molecular featurisation approaches is disputed. We report a general strategy for improving GNNs for QSAR by pre-training to predict Extended-Connectivity Fingerprints (ECFP). We validate our approach with statistical tests and challenging out-of-distribution (OOD) splits. Across five out of six Biogen benchmarks, we observed a statistically significant improvement in standard performance metrics over all evaluated baselines when using ECFP pre-trained GNNs. However, for more heterogeneous datasets and more complex endpoints, such as binding affinity prediction, pre-trained GNNs underperformed in OOD settings. Importantly, we investigated the impact of substructure-level data leakage during pre-training on downstream performance. While we identified scenarios where pre-training on ECFPs was less effective, our findings show that ECFP-based pre-training can enhance downstream OOD performance on a diverse set of practically relevant QSAR tasks.",
+          "claimed_authors": [
+            "Sam Money-Kyrle",
+            "Markus Dablander",
+            "Thierry Hanser",
+            "Stephane Werner",
+            "Charlotte M. Deane",
+            "Garrett M. Morris"
+          ],
+          "claimed_title": "On Improving Graph Neural Networks for QSAR by Pre-training on Extended-Connectivity Fingerprints",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.10722"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='On Improving Graph Neural Networks for QSAR by Pre-training on Extended-Connectivity Fingerprints')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The absorption, distribution, metabolism, excretion, and toxicity (ADMET) properties are important in drug discovery as they define efficacy and safety. In this work, we applied an ensemble of features, including fingerprints and descriptors, and a tree-based machine learning model, extreme gradient boosting, for accurate ADMET prediction. Our model performs well in the Therapeutics Data Commons ADMET benchmark group. For 22 tasks, our model is ranked first in 18 tasks and top 3 in 21 tasks. The trained machine learning models are integrated in ADMETboost, a web server that is publicly available at https://ai-druglab.smu.edu/admet.",
+          "claimed_authors": [
+            "Hao Tian",
+            "Rajas Ketkar",
+            "Peng Tao"
+          ],
+          "claimed_title": "Accurate ADMET Prediction with XGBoost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.07532"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='Accurate ADMET Prediction with XGBoost')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While investigating methods to predict small molecule potencies, we found random forests or support vector machines paired with extended-connectivity fingerprints (ECFP) consistently outperformed recently developed methods. A detailed investigation into regression algorithms and molecular fingerprints revealed gradient-boosted decision trees, particularly CatBoost, in conjunction with a combination of ECFP, Avalon, and ErG fingerprints, as well as 200 molecular properties, to be most effective. Incorporating a graph neural network fingerprint further enhanced performance. We successfully validated our model across 22 Therapeutics Data Commons ADMET benchmarks. Our findings underscore the significance of richer molecular representations for accurate property prediction.",
+          "claimed_authors": [
+            "James H. Notwell",
+            "Michael W. Wood"
+          ],
+          "claimed_title": "ADMET property prediction through combinations of molecular fingerprints",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.00174"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='ADMET property prediction through combinations of molecular fingerprints')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hebbian synaptic plasticity inevitably leads to interference and forgetting when different, overlapping memory patterns are sequentially stored in the same network. Recent work on artificial neural networks shows that an information-geometric approach can be used to protect important weights to slow down forgetting. This strategy however is biologically implausible as it requires knowledge of the history of previously learned patterns. In this work, we show that a purely local weight consolidation mechanism, based on estimating energy landscape curvatures from locally available statistics, prevents pattern interference. Exploring a local calculation of energy curvature in the sparse-coding limit, we demonstrate that curvature-aware learning rules reduce forgetting in the Hopfield network. We further show that this method connects information-geometric global learning rules based on the Fisher information to local spike-dependent rules accessible to biological neural networks. We conjecture that, if combined with other learning procedures, it could provide a building-block for content-aware learning strategies that use only quantities computable in biological neural networks to attenuate pattern interference and catastrophic forgetting. Additionally, this work clarifies how global information-geometric structure in a learning problem can be exposed in local model statistics, building a deeper theoretical connection between the statistics of single units in a network, and the global structure of the collective learning space.",
+          "claimed_authors": [
+            "Michael Deistler",
+            "Martino Sorbaro",
+            "Michael E. Rule",
+            "Matthias H. Hennig"
+          ],
+          "claimed_title": "Local learning rules to attenuate forgetting in neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.05097"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='Local learning rules to attenuate forgetting in neural networks')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We uncover anisotropic permeability in microfluidic deterministic lateral displacement (DLD) arrays. A DLD array can achieve high-resolution bimodal size-based separation of microparticles, including bioparticles, such as cells. For an application with a given separation size, correct device operation requires that the flow remains at a fixed angle to the obstacle array. We demonstrate via experiments and lattice-Boltzmann simulations that subtle array design features cause anisotropic permeability. Anisotropic permeability indicates the microfluidic array's intrinsic tendency to induce an undesired lateral pressure gradient. This can cause an inclined flow and therefore local changes in the critical separation size. Thus, particle trajectories can become unpredictable and the device useless for the desired separation task. Anisotropy becomes severe for arrays with unequal axial and lateral gaps between obstacle posts and highly asymmetric post shapes. Furthermore, of the two equivalent array layouts employed with the DLD, the rotated-square layout does not display intrinsic anisotropy. We therefore recommend this layout over the easier-to-implement parallelogram layout. We provide additional guidelines for avoiding adverse effects of anisotropy on the DLD.",
+          "claimed_authors": [
+            "Rohan Vernekar",
+            "Timm Krüger",
+            "Kevin Loutherback",
+            "Keith Morton",
+            "David Inglis"
+          ],
+          "claimed_title": "Anisotropic permeability in deterministic lateral displacement arrays",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.08427"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='Anisotropic permeability in deterministic lateral displacement arrays')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reproducibility of computational studies is a hallmark of scientific methodology. It enables researchers to build with confidence on the methods and findings of others, reuse and extend computational pipelines, and thereby drive scientific progress. Since many experimental studies rely on computational analyses, biologists need guidance on how to set up and document reproducible data analyses or simulations.\n  In this paper, we address several questions about reproducibility. For example, what are the technical and non-technical barriers to reproducible computational studies? What opportunities and challenges do computational notebooks offer to overcome some of these barriers? What tools are available and how can they be used effectively?\n  We have developed a set of rules to serve as a guide to scientists with a specific focus on computational notebook systems, such as Jupyter Notebooks, which have become a tool of choice for many applications. Notebooks combine detailed workflows with narrative text and visualization of results. Combined with software repositories and open source licensing, notebooks are powerful tools for transparent, collaborative, reproducible, and reusable data analyses.",
+          "claimed_authors": [
+            "Adam Rule",
+            "Amanda Birmingham",
+            "Cristal Zuniga",
+            "Ilkay Altintas",
+            "Shih-Cheng Huang",
+            "Rob Knight",
+            "Niema Moshiri",
+            "Mai H. Nguyen",
+            "Sara Brin Rosenthal",
+            "Fernando Pérez",
+            "Peter W. Rose"
+          ],
+          "claimed_title": "Ten Simple Rules for Reproducible Research in Jupyter Notebooks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.08055"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='Ten Simple Rules for Reproducible Research in Jupyter Notebooks')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The automatic, sensor-based assessment of challenging behavior of persons with dementia is an important task to support the selection of interventions. However, predicting behaviors like apathy and agitation is challenging due to the large inter- and intra-patient variability. Goal of this paper is to improve the recognition performance by making use of the observation that patients tend to show specific behaviors at certain times of the day or week. We propose to identify such segments of similar behavior via clustering the distributions of annotations of the time segments. All time segments within a cluster then consist of similar behaviors and thus indicate a behavioral predisposition (BPD). We utilize BPDs by training a classifier for each BPD. Empirically, we demonstrate that when the BPD per time segment is known, activity recognition performance can be substantially improved.",
+          "claimed_authors": [
+            "Maximilian Popko",
+            "Sebastian Bader",
+            "Stefan Lüdtke",
+            "Thomas Kirste"
+          ],
+          "claimed_title": "Discovering Behavioral Predispositions in Data to Improve Human Activity Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.08816"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='Discovering Behavioral Predispositions in Data to Improve Human Activity Recognition')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A new method of feature extraction in the social network for within-network classification is proposed in the paper. The method provides new features calculated by combination of both: network structure information and class labels assigned to nodes. The influence of various features on classification performance has also been studied. The experiments on real-world data have shown that features created owing to the proposed method can lead to significant improvement of classification accuracy.",
+          "claimed_authors": [
+            "Tomasz Kajdanowicz",
+            "Przemyslaw Kazienko",
+            "Piotr Doskocz"
+          ],
+          "claimed_title": "Label-dependent Feature Extraction in Social Networks for Node Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.0095"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='Label-dependent Feature Extraction in Social Networks for Node Classification')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Human Activity Recognition (HAR) on mobile devices has been demonstrated to be possible using neural models trained on data collected from the device's inertial measurement units. These models have used Convolutional Neural Networks (CNNs), Long Short-Term Memory (LSTMs), Transformers or a combination of these to achieve state-of-the-art results with real-time performance. However, these approaches have not been extensively evaluated in real-world situations where the input data may be different from the training data. This paper highlights the issue of data heterogeneity in machine learning applications and how it can hinder their deployment in pervasive settings. To address this problem, we propose and publicly release the code of two sensor-wise Transformer architectures called HART and MobileHART for Human Activity Recognition Transformer. Our experiments on several publicly available datasets show that these HART architectures outperform previous architectures with fewer floating point operations and parameters than conventional Transformers. The results also show they are more robust to changes in mobile position or device brand and hence better suited for the heterogeneous environments encountered in real-life settings. Finally, the source code has been made publicly available.",
+          "claimed_authors": [
+            "Sannara EK",
+            "François Portet",
+            "Philippe Lalanda"
+          ],
+          "claimed_title": "Transformer-based Models to Deal with Heterogeneous Environments in Human Activity Recognition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.11750"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating Correlations Between Molecular Descriptors and Drug-Likeness Score', candidate_title='Transformer-based Models to Deal with Heterogeneous Environments in Human Activity Recognition')",
+        "failed_at": "2026-08-07T12:56:47Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alex G. C. de Sá",
+            "David B. Ascher"
+          ],
+          "title": "Auto-ADMET: An Effective and Interpretable AutoML Method for Chemical ADMET Property Prediction",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2502.16378",
+        "summary": "Machine learning (ML) has been playing important roles in drug discovery in the past years by providing (pre-)screening tools for prioritising chemical compounds to pass through wet lab experiments. One of the main ML tasks in drug discovery is to build quantitative structure-activity relationship (QSAR) models, associating the molecular structure of chemical compounds with an activity or property. These properties -- including absorption, distribution, metabolism, excretion and toxicity (ADMET) -- are essential to model compound behaviour, activity and interactions in the organism. Although several methods exist, the majority of them do not provide an appropriate model's personalisation, yielding to bias and lack of generalisation to new data since the chemical space usually shifts from application to application. This fact leads to low predictive performance when completely new data is being tested by the model. The area of Automated Machine Learning (AutoML) emerged aiming to solve this issue, outputting tailored ML algorithms to the data at hand. Although an important task, AutoML has not been practically used to assist cheminformatics and computational chemistry researchers often, with just a few works related to the field. To address these challenges, this work introduces Auto-ADMET, an interpretable evolutionary-based AutoML method for chemical ADMET property prediction. Auto-ADMET employs a Grammar-based Genetic Programming (GGP) method with a Bayesian Network Model to achieve comparable or better predictive performance against three alternative methods -- standard GGP method, pkCSM and XGBOOST model -- on 12 benchmark chemical ADMET property prediction datasets. The use of a Bayesian Network model on Auto-ADMET's evolutionary process assisted in both shaping the search procedure and interpreting the causes of its AutoML performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2502.16378",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-07T12:56:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
+          ],
+          "title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "venue": "arXiv",
+          "year": 2017
+        },
+        "primary_pointer": "1711.02639",
+        "summary": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1711.02639",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-07T12:56:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Juan José Galano-Frutos",
+            "Luca Bergamasco",
+            "Paolo Vigo",
+            "Matteo Morciano",
+            "Matteo Fasano",
+            "Davide Pirolli",
+            "Eliodoro Chiavazzo",
+            "Maria Cristina de Rosa"
+          ],
+          "title": "Pore-level Quantitative Structure-Activity Relationship (QSAR) for Water Permeation Rate in Aquaporins",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2410.14355",
+        "summary": "Aquaporins (AQPs) and aquaglyceroporins (AQGPs) play a crucial role in regulating water transport and solute selectivity across biological membranes. Besides their biological relevance, AQPs have at-tracted growing interest as models for the design of next-generation biomimetic membranes for water filtration. In this work, we present a pore-level Quantitative Structure-Activity Relationship (QSAR) approach that relates structural and physicochemical pore descriptors with experimentally reported water permeation rates across a set of AQ(G)Ps with high-resolution 3D structures. This data-driven methodology, presented here as a proof of concept, introduces a multi-feature framework for determining pore descriptors associated with water transport efficiency in AQ(G)Ps. Applied to two compiled permeation rate datasets, this framework recapitulates determinants previously reported in single-feature studies, while also highlighting additional pore descriptors that emerge as relevant in a multi-variable context. The insights gained through this approach may, in perspective, contribute to advancing the rational design of AQP-based filtration devices and to deepening the molecular understanding of the function of these valuable macromolecules in health and disease.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2410.14355",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-07T12:56:59Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Markus Dablander",
+            "Thierry Hanser",
+            "Renaud Lambiotte",
+            "Garrett M. Morris"
+          ],
+          "title": "Exploring QSAR Models for Activity-Cliff Prediction",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.13644",
+        "summary": "Pairs of similar compounds that only differ by a small structural modification but exhibit a large difference in their binding affinity for a given target are known as activity cliffs (ACs). It has been hypothesised that quantitative structure-activity relationship (QSAR) models struggle to predict ACs and that ACs thus form a major source of prediction error. However, a study to explore the AC-prediction power of modern QSAR methods and its relationship to general QSAR-prediction performance is lacking. We systematically construct nine distinct QSAR models by combining three molecular representation methods (extended-connectivity fingerprints, physicochemical-descriptor vectors and graph isomorphism networks) with three regression techniques (random forests, k-nearest neighbours and multilayer perceptrons); we then use each resulting model to classify pairs of similar compounds as ACs or non-ACs and to predict the activities of individual molecules in three case studies: dopamine receptor D2, factor Xa, and SARS-CoV-2 main protease. We observe low AC-sensitivity amongst the tested models when the activities of both compounds are unknown, but a substantial increase in AC-sensitivity when the actual activity of one of the compounds is given. Graph isomorphism features are found to be competitive with or superior to classical molecular representations for AC-classification and can thus be employed as baseline AC-prediction models or simple compound-optimisation tools. For general QSAR-prediction, however, extended-connectivity fingerprints still consistently deliver the best performance. Our results provide strong support for the hypothesis that indeed QSAR methods frequently fail to predict ACs. We propose twin-network training for deep learning models as a potential future pathway to increase AC-sensitivity and thus overall QSAR performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.13644",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-07T12:57:00Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuting Xu",
+            "Andy Liaw",
+            "Robert P. Sheridan",
+            "Vladimir Svetnik"
+          ],
+          "title": "Development and Evaluation of Conformal Prediction Methods for QSAR",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.00970",
+        "summary": "The quantitative structure-activity relationship (QSAR) regression model is a commonly used technique for predicting biological activities of compounds using their molecular descriptors. Predictions from QSAR models can help, for example, to optimize molecular structure; prioritize compounds for further experimental testing; and estimate their toxicity. In addition to the accurate estimation of the activity, it is highly desirable to obtain some estimate of the uncertainty associated with the prediction, e.g., calculate a prediction interval (PI) containing the true molecular activity with a pre-specified probability, say 70%, 90% or 95%. The challenge is that most machine learning (ML) algorithms that achieve superior predictive performance require some add-on methods for estimating uncertainty of their prediction. The development of these algorithms is an active area of research by statistical and ML communities but their implementation for QSAR modeling remains limited. Conformal prediction (CP) is a promising approach. It is agnostic to the prediction algorithm and can produce valid prediction intervals under some weak assumptions on the data distribution. We proposed computationally efficient CP algorithms tailored to the most advanced ML models, including Deep Neural Networks and Gradient Boosting Machines. The validity and efficiency of proposed conformal predictors are demonstrated on a diverse collection of QSAR datasets as well as simulation studies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.00970",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-07T12:57:04Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Liang-Yong Xia",
+            "Qing-Yong Wang"
+          ],
+          "title": "QSAR Classification Modeling for Bioactivity of Molecular Structure via SPL-Logsum",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1804.08615",
+        "summary": "Quantitative structure-activity relationship (QSAR) modelling is effective 'bridge' to search the reliable relationship related bioactivity to molecular structure. A QSAR classification model contains a lager number of redundant, noisy and irrelevant descriptors. To address this problem, various of methods have been proposed for descriptor selection. Generally, they can be grouped into three categories: filters, wrappers, and embedded methods. Regularization method is an important embedded technology, which can be used for continuous shrinkage and automatic descriptors selection. In recent years, the interest of researchers in the application of regularization techniques is increasing in descriptors selection , such as, logistic regression(LR) with $L_1$ penalty. In this paper, we proposed a novel descriptor selection method based on self-paced learning(SPL) with Logsum penalized LR for predicting the bioactivity of molecular structure. SPL inspired by the learning process of humans and animals that gradually learns from easy samples(smaller losses) to hard samples(bigger losses) samples into training and Logsum regularization has capacity to select few meaningful and significant molecular descriptors, respectively. Experimental results on simulation and three public QSAR datasets show that our proposed SPL-Logsum method outperforms other commonly used sparse methods in terms of classification performance and model interpretation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1804.08615",
+          "http_status": 200,
+          "pdf_sample_score": 0.3093,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-07T12:57:04Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating correlations between molecular descriptors and drug-likeness scores chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

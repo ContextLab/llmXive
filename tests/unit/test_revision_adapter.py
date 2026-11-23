@@ -63,11 +63,12 @@ def test_research_stage_project_gets_research_kind_not_paper(tmp_path: Path) -> 
     from the project's current_stage; absent project state it defaults to paper
     (backward compatible)."""
     import datetime
+
     from llmxive.state import project as project_store
     from llmxive.types import Project, Stage
 
     pid = "PROJ-700-research-conv"
-    now = datetime.datetime(2026, 6, 19, tzinfo=datetime.timezone.utc)
+    now = datetime.datetime(2026, 6, 19, tzinfo=datetime.UTC)
     project_store.save(
         Project(
             id=pid, title="research conv test", field="math",
@@ -125,9 +126,9 @@ class TestRevisionAdapterDirectoryContract:
         assert spec_dir.name == "round-1"
         # Located at specs/auto-revisions/<PROJ-ID>/
         parent = spec_dir.parent
-        assert parent.name == "PROJ-100-test"
-        assert parent.parent.name == "auto-revisions"
-        assert parent.parent.parent.name == "specs"
+        assert parent.name == "auto-revisions"
+        assert parent.parent.name == ".specify"
+        assert parent.parent.parent.name == "PROJ-100-test"
 
     def test_index_yaml_updated_with_ready_entry(self, tmp_path: Path) -> None:
         kb = _make_kickback([_make_concern()])

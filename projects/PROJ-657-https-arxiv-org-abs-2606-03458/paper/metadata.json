@@ -49,5 +49,15 @@
     "tables/ifeval_main.tex",
     "tables/line_retrieval_main.tex",
     "tables/reasoning_appendix.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "49f958e2e97f3c1ee43c7c250bd778c09ec89d136b35481c5a3319987c0538fb",
+      "bytes": 907124
+    },
+    "original.pdf": {
+      "sha256": "c437782e9352790102fde8561aaf2f74c930fed1b6cf44414c7d42ab57571739",
+      "bytes": 874189
+    }
+  }
 }

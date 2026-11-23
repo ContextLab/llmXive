@@ -1,29 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmXive-avian-song"
+version = "0.1.0"
+description = "Predicting avian song variation with climatic and geographic factors"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "statsmodels",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "requests",
+    "rasterio",
+    "geopandas",
+    "pyproj",
+]
+
 [tool.black]
 line-length = 88
-target-version = ['py311']
-skip-string-normalization = true
+target-version = ['py39', 'py310', 'py311']
+include = '\\.pyi?$'
 exclude = '''
-    (
-        /(
-            \.eggs
-            | \.git
-            | \.hg
-            | \.mypy_cache
-            | \.tox
-            | \.venv
-            | _build
-            | buck-out
-            | build
-            | dist
-        )/
-        | /data/
-        | /output/
-        | /figures/
-    )
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
 '''
 
-[tool.flake8]
-max-line-length = 88
-extend-ignore = E203, W503
-exclude = .git,__pycache__,build,dist,.eggs,*.egg-info,data,output,figures
-per-file-ignores = __init__.py:F401
+[tool.ruff]
+# Same as .ruff.toml but kept here for IDE integration if needed
+line-length = 88
+target-version = "py39"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

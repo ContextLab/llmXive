@@ -44,7 +44,7 @@ properties:
       - "Not Significant"
   FDR_Q_Value:
     type: number
-    description: "FDR-adjusted p-value (q-value) for post-hoc tests."
+    description: "FDR-adjusted p-value (q-value) for post‑hoc tests."
   FDR_Appplied:
     type: boolean
     description: "Whether FDR correction was applied."

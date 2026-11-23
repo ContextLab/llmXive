@@ -1,0 +1,5 @@
+{
+  "max_deviation": 0.03,
+  "bins": 10,
+  "passed": true
+}

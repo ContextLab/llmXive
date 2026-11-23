@@ -1,101 +1,91 @@
-"""
-Separability Analysis Module.
-Implements power analysis and other statistical checks for latent space disentanglement.
-"""
 import json
-import math
+import os
 from pathlib import Path
+import numpy as np
+from scipy.stats import ttest_ind, norm
 
-# Ensure output directory exists
-OUTPUT_DIR = Path("data/results")
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-def calculate_sample_size_power(effect_size: float, alpha: float = 0.05, power: float = 0.80) -> int:
+def calculate_sample_size_for_power(effect_size: float = 0.8, power: float = 0.8, alpha: float = 0.05) -> int:
     """
-    Calculates the minimum sample size (N) required per group for a two-sample t-test
-    to achieve the specified power given an effect size (Cohen's d).
+    Calculate the minimum sample size N required to achieve a specified statistical power
+    for a two-sample t-test, given an expected effect size (Cohen's d).
 
-    Uses the approximation formula:
-    N = 2 * ((Z_alpha + Z_beta) / d)^2
-
-    Where:
-    - Z_alpha is the critical value for the significance level (two-tailed)
-    - Z_beta is the critical value for the desired power (1 - beta)
-    - d is the effect size (Cohen's d)
+    Uses the approximation formula for sample size in a two-sided independent t-test:
+    N_per_group = 2 * ((Z_alpha/2 + Z_beta) / effect_size)^2
 
     Args:
-        effect_size (float): Cohen's d (e.g., 0.8 for large effect)
-        alpha (float): Significance level (default 0.05)
-        power (float): Desired statistical power (default 0.80)
+        effect_size: Expected Cohen's d (default 0.8, strictly > 0.8 as per task requirement).
+        power: Desired statistical power (1 - beta), default 0.8.
+        alpha: Significance level (Type I error), default 0.05.
 
     Returns:
-        int: Minimum sample size required per group.
+        Total sample size N (sum of both groups).
     """
-    from scipy.stats import norm
+    if effect_size <= 0:
+        raise ValueError("Effect size must be positive.")
+    if not (0 < power < 1):
+        raise ValueError("Power must be between 0 and 1.")
+    if not (0 < alpha < 1):
+        raise ValueError("Alpha must be between 0 and 1.")
 
-    # Z-scores
     z_alpha = norm.ppf(1 - alpha / 2)
     z_beta = norm.ppf(power)
 
-    # Formula for two-sample t-test (equal variance, equal n)
-    # N per group
     n_per_group = 2 * ((z_alpha + z_beta) / effect_size) ** 2
-
-    return int(math.ceil(n_per_group))
-
+    return int(np.ceil(n_per_group * 2))
 
 def run_power_analysis(
-    effect_size: float = 0.8,
-    alpha: float = 0.05,
-    power: float = 0.80,
-    audit_ratio: float = 0.05,
-    min_audit: int = 30
+    output_path: str = "data/results/power_analysis.json",
+    effect_size: float = 0.81,
+    power: float = 0.8,
+    alpha: float = 0.05
 ) -> dict:
     """
-    Runs the power analysis to determine required sample size (N_required)
-    and the sample size for manual audit (N_audit).
+    Performs power analysis calculation and writes the result to a JSON file.
 
     Args:
-        effect_size (float): Expected effect size (Cohen's d).
-        alpha (float): Significance level.
-        power (float): Target power.
-        audit_ratio (float): Ratio of N to sample for manual audit.
-        min_audit (int): Minimum number of samples for audit.
+        output_path: Path to write the JSON output.
+        effect_size: Effect size (Cohen's d). Must be > 0.8 per task spec.
+        power: Target power.
+        alpha: Significance level.
 
     Returns:
-        dict: Results dictionary containing N_required, effect_size, power, N_audit.
+        Dictionary containing the analysis results.
     """
-    n_required = calculate_sample_size_power(effect_size, alpha, power)
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Calculate N_audit
-    # Ensure N_audit is at least min_audit, but not larger than N_required
-    n_audit = max(min_audit, int(n_required * audit_ratio))
-    if n_audit > n_required:
-        n_audit = n_required
+    # Calculate N
+    n_required = calculate_sample_size_for_power(effect_size, power, alpha)
+
+    # Define N_audit as a fraction of N (e.g., 5% or minimum 10) for manual audit
+    n_audit = max(10, int(np.ceil(n_required * 0.05)))
 
     result = {
         "N_required": n_required,
         "effect_size": effect_size,
         "power": power,
         "alpha": alpha,
-        "N_audit": n_audit,
-        "audit_ratio_applied": audit_ratio,
-        "description": "Power analysis for two-sample t-test on latent space separability"
+        "N_audit": n_audit
     }
 
-    # Save to file
-    output_path = OUTPUT_DIR / "power_analysis.json"
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w") as f:
         json.dump(result, f, indent=2)
-
-    print(f"Power analysis complete. Results saved to {output_path}")
-    print(f"  N_required: {n_required}")
-    print(f"  N_audit: {n_audit}")
 
     return result
 
+def main():
+    """Entry point for running power analysis."""
+    # Task requirement: effect_size d > 0.8. We use 0.81 to satisfy strictly greater.
+    result = run_power_analysis(
+        output_path="data/results/power_analysis.json",
+        effect_size=0.81,
+        power=0.8,
+        alpha=0.05
+    )
+    print(f"Power analysis complete. Results written to data/results/power_analysis.json")
+    print(f"Required N: {result['N_required']}, Audit N: {result['N_audit']}")
+    return result
 
 if __name__ == "__main__":
-    # Execute the power analysis with default parameters from the task spec
-    # Effect size d > 0.8 as defined in Assumptions
-    run_power_analysis(effect_size=0.8)
+    main()

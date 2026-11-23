@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Metrics"
+type: object
+required:
+  - loso_r2
+  - loso_spearman
+  - p_value_permutation
+  - phylogenetic_null_p_value
+  - power_analysis_passed
+properties:
+  loso_r2:
+    type: number
+    description: "Leave-One-Species-Out R² score"
+  loso_spearman:
+    type: number
+    description: "Spearman correlation between predicted and observed"
+  p_value_permutation:
+    type: number
+    description: "P-value from 10,000 permutation test"
+  phylogenetic_null_p_value:
+    type: number
+    description: "P-value comparing observed R² to phylogenetic null distribution"
+  power_analysis_passed:
+    type: boolean
+    description: "Whether the study passed the power analysis threshold"
+  sensitivity_analysis:
+    type: array
+    items:
+      type: object
+      properties:
+        num_genes:
+          type: integer
+        r2:
+          type: number
+    description: "R² variation across different DE gene counts"

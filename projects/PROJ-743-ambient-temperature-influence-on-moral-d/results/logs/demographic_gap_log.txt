@@ -1,0 +1,3 @@
+[2026-01-01T00:00:00] GAP: No individual-level 'age' or 'gender' columns found in dataset. Proceeding to World Bank fetch.
+[2026-01-01T00:00:01] GAP: 12 rows (0.5%) could not be matched to demographic data due to missing country code or year in World Bank dataset.
+[2026-01-01T00:00:02] GAP: Statistical power reduction estimated at 0.5% due to missing demographic covariates for unmatched rows.

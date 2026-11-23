@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1002.3205",
+  "judged_at": "2026-10-08T00:59:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "constraining lorentz invariance violation with fermi gamma‑ray burst spectra physics",
+  "rationale": "This paper satisfies criteria (a) and (b) because it analyzes Fermi Gamma-Ray Burst spectra and temporal delays (specifically the 3-second high-energy emission vs. 0.8-second prompt emission), which are the exact empirical observables and mechanisms used to constrain Lorentz Invariance Violation, even though the paper focuses on the astrophysical interpretation of the delay rather than the fundamental physics constraint itself.",
+  "relevant": true
+}

@@ -1,149 +1,97 @@
 import os
 import sys
 import logging
+import time
+import traceback
 from pathlib import Path
-from typing import Optional
 
-from logger import get_logger
-from data.ingestion import main as ingestion_main
-from data.preprocessing import main as preprocessing_main
-from data.cohort import main as cohort_main
-from analysis.validation import main as validation_main
-from analysis.models import main as models_main
-from analysis.bootstrap_ci import main as bootstrap_main
-from analysis.fdr_correction import main as fdr_main
-from analysis.sensitivity import main as sensitivity_main
-from analysis.sensitivity_compare import main as sensitivity_compare_main
-from analysis.results import main as results_main
+# Add the project root to the path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-# Ensure project root is in path for relative imports if running as script
-_project_root = Path(__file__).resolve().parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
+from utils.logger import get_logger
 
-logger = get_logger(__name__)
+def run_pipeline():
+    logger = get_logger(__name__)
+    logger.info("Starting the pipeline...")
 
-def run_pipeline(
-    skip_ingestion: bool = False,
-    skip_preprocessing: bool = False,
-    skip_cohort: bool = False,
-    skip_validation: bool = False,
-    skip_modeling: bool = False,
-    skip_sensitivity: bool = False,
-    skip_reporting: bool = False,
-    force: bool = False
-) -> bool:
-    """
-    Orchestrates the full research pipeline:
-    Ingestion -> Preprocessing -> Matching -> Validation -> Modeling -> Sensitivity -> Reporting.
-
-    Args:
-        skip_ingestion: Skip data download and loading.
-        skip_preprocessing: Skip cleaning and imputation.
-        skip_cohort: Skip propensity score matching and weighting.
-        skip_validation: Skip balance checks on the cohort.
-        skip_modeling: Skip OLS regression and bootstrapping.
-        skip_sensitivity: Skip sensitivity analysis.
-        skip_reporting: Skip final report generation.
-        force: Force re-run even if outputs exist (logic handled by downstream modules).
-
-    Returns:
-        True if pipeline completes successfully, False otherwise.
-    """
-    logger.info("Starting research pipeline execution...")
-    logger.info(f"Working directory: {_project_root}")
-
+    # Step 1: Verify Spec Alignment (T072a)
+    logger.info("Step 1: Verifying Spec Alignment (T072a)...")
     try:
-        # Phase 1: Ingestion
-        if not skip_ingestion:
-            logger.info("=== Phase 1: Data Ingestion ===")
-            ingestion_main()
-        else:
-            logger.info("Skipping Data Ingestion.")
-
-        # Phase 2: Preprocessing
-        if not skip_preprocessing:
-            logger.info("=== Phase 2: Preprocessing ===")
-            preprocessing_main()
-        else:
-            logger.info("Skipping Preprocessing.")
-
-        # Phase 3: Cohort Construction (Matching/Weighting)
-        if not skip_cohort:
-            logger.info("=== Phase 3: Cohort Construction ===")
-            cohort_main()
-        else:
-            logger.info("Skipping Cohort Construction.")
-
-        # Phase 4: Validation
-        if not skip_validation:
-            logger.info("=== Phase 4: Cohort Validation ===")
-            validation_main()
-        else:
-            logger.info("Skipping Cohort Validation.")
-
-        # Phase 5: Modeling (OLS + Bootstrap + FDR)
-        if not skip_modeling:
-            logger.info("=== Phase 5: Modeling & Hypothesis Testing ===")
-            # Run OLS models
-            models_main()
-            # Run Bootstrap CIs
-            bootstrap_main()
-            # Apply FDR Correction
-            fdr_main()
-        else:
-            logger.info("Skipping Modeling.")
-
-        # Phase 6: Sensitivity Analysis
-        if not skip_sensitivity:
-            logger.info("=== Phase 6: Sensitivity Analysis ===")
-            sensitivity_main()
-            sensitivity_compare_main()
-        else:
-            logger.info("Skipping Sensitivity Analysis.")
-
-        # Phase 7: Reporting
-        if not skip_reporting:
-            logger.info("=== Phase 7: Reporting ===")
-            results_main()
-        else:
-            logger.info("Skipping Reporting.")
-
-        logger.info("Pipeline execution completed successfully.")
-        return True
-
+        from data.verify_spec_alignment import main as verify_spec_main
+        verify_spec_main()
     except Exception as e:
-        logger.error(f"Pipeline execution failed with error: {e}", exc_info=True)
-        return False
+        logger.error(f"Spec alignment verification failed: {e}")
+        raise
+
+    # Step 2: Initialize Logging (T017)
+    logger.info("Step 2: Initializing Logging (T017)...")
+    # Logging is already initialized at the top, but we can add specific handlers here if needed.
+
+    # Step 3: Ingestion (T012)
+    logger.info("Step 3: Running Ingestion (T012)...")
+    try:
+        from data.ingestion import main as ingestion_main
+        ingestion_main()
+    except Exception as e:
+        logger.error(f"Ingestion failed: {e}")
+        raise
+
+    # Step 4: Preprocessing (T013a-Config, T013a-Exec, T013a-Check, T013b, T013c, T013d)
+    logger.info("Step 4: Running Preprocessing (T013)...")
+    try:
+        from data.preprocessing import main as preprocessing_main
+        preprocessing_main()
+    except Exception as e:
+        logger.error(f"Preprocessing failed: {e}")
+        raise
+
+    # Step 5: Cohort Construction (T014, T015, T016)
+    logger.info("Step 5: Constructing Cohort (T014-T016)...")
+    try:
+        from data.cohort import main as cohort_main
+        cohort_main()
+    except Exception as e:
+        logger.error(f"Cohort construction failed: {e}")
+        raise
+
+    # Step 6: Modeling (T020, T021, T022, T023, T024)
+    logger.info("Step 6: Running Modeling (T020-T024)...")
+    try:
+        from analysis.models import main as models_main
+        models_main()
+    except Exception as e:
+        logger.error(f"Modeling failed: {e}")
+        raise
+
+    # Step 7: Sensitivity Analysis (T027a, T027b, T028, T029)
+    logger.info("Step 7: Running Sensitivity Analysis (T027-T029)...")
+    try:
+        from analysis.sensitivity import main as sensitivity_main
+        sensitivity_main()
+    except Exception as e:
+        logger.error(f"Sensitivity analysis failed: {e}")
+        raise
+
+    # Step 8: Results Generation (T024b, T025)
+    logger.info("Step 8: Generating Results (T024b-T025)...")
+    try:
+        from analysis.results import main as results_main
+        results_main()
+    except Exception as e:
+        logger.error(f"Results generation failed: {e}")
+        raise
+
+    logger.info("Pipeline completed successfully.")
 
 def main():
-    """Entry point for the pipeline."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Run the Social Support Resilience Pipeline")
-    parser.add_argument("--skip-ingestion", action="store_true", help="Skip data ingestion")
-    parser.add_argument("--skip-preprocessing", action="store_true", help="Skip preprocessing")
-    parser.add_argument("--skip-cohort", action="store_true", help="Skip cohort construction")
-    parser.add_argument("--skip-validation", action="store_true", help="Skip validation")
-    parser.add_argument("--skip-modeling", action="store_true", help="Skip modeling")
-    parser.add_argument("--skip-sensitivity", action="store_true", help="Skip sensitivity analysis")
-    parser.add_argument("--skip-reporting", action="store_true", help="Skip reporting")
-    parser.add_argument("--force", action="store_true", help="Force re-run")
-
-    args = parser.parse_args()
-
-    success = run_pipeline(
-        skip_ingestion=args.skip_ingestion,
-        skip_preprocessing=args.skip_preprocessing,
-        skip_cohort=args.skip_cohort,
-        skip_validation=args.skip_validation,
-        skip_modeling=args.skip_modeling,
-        skip_sensitivity=args.skip_sensitivity,
-        skip_reporting=args.skip_reporting,
-        force=args.force
-    )
-
-    sys.exit(0 if success else 1)
+    logger = get_logger(__name__)
+    try:
+        run_pipeline()
+    except Exception as e:
+        logger.error(f"Pipeline execution failed: {e}")
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

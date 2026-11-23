@@ -1,43 +1,52 @@
-# Data Model: The Impact of Nostalgia on Cognitive Flexibility in Aging Adults
+# Data Model: Nostalgia Cognitive Flexibility Study
 
-## Entity Definitions
+## Overview
+The data model defines the entities required for the real‑data pipeline and aligns with the input schema in the specification. All tables are stored as CSV files; relationships are enforced by the cleaning scripts.
+
+## Entities
 
 ### Participant
-Represents an individual in the study.
-- `participant_id`: Unique identifier (string, required)
-- `age`: Age in years (integer, required, ≥ 65)
-- `baseline_cognitive_score`: Optional baseline cognitive score (float, nullable)
-- `stimulus_exposure`: Boolean indicating exposure to nostalgia stimulus (boolean, required)
-- `mmse_score`: Mini-Mental State Examination score (integer, nullable, used for exclusion)
+| Attribute | Type | Description | Constraints |
+|-----------|------|-------------|-------------|
+| `participant_id` | string | Unique identifier for participant | Primary key, non‑null, unique |
+| `age` | integer | Age in years | Minimum 65, non‑null |
+| `stimulus_type` | string | Assigned condition (nostalgia or control) | Enum: `["nostalgia","control"]`, non‑null |
+| `stimulus_id` | string | Identifier linking to the stimulus audio file | Non‑null, matches an entry in `Stimulus.stimulus_id` |
+| `education_years` | number | Years of education (covariate) | Non‑null, ≥ 0 |
+| `gender` | string | Gender (covariate) | Enum: `["female","male","other"]`, non‑null |
+| `MMSE` | integer (optional) | Mini‑Mental State Examination score | 0 – 30; if present and `<24` → exclusion (FR‑006) |
+| `perseverative_errors` | number | Number of perseverative errors on the WCST | Non‑null |
+| `categories_completed` | number | Number of categories completed on the WCST | Non‑null |
 
 ### Stimulus
-Represents a specific nostalgia induction item.
-- `stimulus_id`: Unique identifier (string, required)
-- `type`: "nostalgia" or "control" (string, required)
-- `source_url`: Original source URL (string, required, verified)
-- `checksum`: SHA-256 hash of file (string, required)
-- `file_path`: Local path in `data/stimuli/` (string, required)
+| Attribute | Type | Description | Constraints |
+|-----------|------|-------------|-------------|
+| `stimulus_id` | string | Unique identifier for the audio file | Primary key, non‑null |
+| `stimulus_type` | string | Matches `Participant.stimulus_type` | Enum: `["nostalgia","control"]`, non‑null |
+| `file_path` | string | Relative path under `data/stimuli/` | Non‑null |
+| `checksum` | string | SHA‑256 hash of the file | Non‑null |
 
-### PerformanceMetric
-Represents a behavioral outcome from WCST.
-- `metric_name`: "perseverative_errors" or "categories_completed" (string, required)
-- `value`: Numeric score (float, required)
-- `stimulus_condition`: "nostalgia" or "control" (string, required)
-  - **Note**: This field replaces the previous "condition" (pre/post) to align with the **between-subjects** design. Participants are assigned to a stimulus condition, not measured pre/post.
-- `participant_id`: Foreign key to Participant (string, required)
-- `stimulus_id`: Foreign key to Stimulus (string, required)
+## Relationships
+- **Participant ↔ Stimulus**: One‑to‑one via `stimulus_id`.  
+- **Participant ↔ WCSTMetric**: One‑to‑many via `participant_id`; each participant has exactly one metric record in this study (merged into the Participant table for simplicity).
 
-## Data Flow
+## Validation Rules (implemented in `code/cleaning.py`)
+1. **Age Filter (FR‑001)** – Exclude rows where `age` < 65 or missing.  
+2. **Missing WCST Metrics** – Exclude rows with null `perseverative_errors` or `categories_completed`.  
+3. **MMSE Exclusion (FR‑006)** – If `MMSE` column exists, exclude participants with `MMSE` < 24; log `"MMSE_EXCLUDED"` in `exclusion_log.json`.  
+4. **Stimulus Integrity (VI)** – Verify each stimulus file’s SHA‑256 matches `manifest.json`; abort on mismatch.  
 
-1. **Raw Ingestion**: Raw CSV/JSON files loaded into `data/raw/`.
-2. **Validation**: Age ≥ 65, non-null metrics, stimulus type present. Excluded records logged.
-3. **Processing**: Cleaned data written to `data/processed/` with checksums.
-4. **Analysis**: Statistical tests run on processed data; results written to `data/results/`.
-5. **Reporting**: Final report generated from `data/results/`; no hand-typed numbers.
+## Data Collection Note
+All fields (`education_years`, `gender`, `MMSE`, `stimulus_type`) are collected directly from participants during the in‑lab session described in `research.md`. No synthetic generation is performed.
 
-## Data Hygiene Rules
+## Schema Representation
+The logical schema is captured in JSON‑Schema files under `contracts/`:
 
-- **Immutability**: Raw data never modified; derivations written to new files.
-- **Checksums**: All files in `data/` checksummed (SHA-256); hashes recorded in `state/`.
-- **PII**: No personally identifiable information allowed in committed data.
-- **Versioning**: Every artifact change updates `state/` timestamp.
+- `contracts/dataset.schema.yaml` – validates each row of the **cleaned participant** dataset (includes all fields above).  
+- `contracts/output.schema.yaml` – validates the JSON reports (`statistical_report.json`, `sensitivity_report.json`).  
+
+These schemas are enforced by the test suite (`tests/contract/validate_output.py`).
+
+---
+
+

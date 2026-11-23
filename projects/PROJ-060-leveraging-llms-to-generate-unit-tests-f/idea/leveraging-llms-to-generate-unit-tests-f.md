@@ -9,50 +9,33 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-What is the relationship between language‑model size and quantization level and the quality (pass rate, coverage, hallucination rate) of unit tests automatically generated from OpenAPI specifications, and how does this relationship change as schema complexity increases?
+How does API specification complexity interact with model capacity to predict unit test generation quality, and which specification characteristics (endpoint density, schema nesting depth, constraint specificity) most strongly moderate the relationship between model size and test pass rate?
 
 ## Motivation
 
-Manual test creation is a bottleneck in CI/CD pipelines. While LLMs show promise for test generation, fine-tuning large models is resource-prohibitive for standard GitHub Actions runners. Understanding the trade-off between model size, quantization, and test quality enables practitioners to optimize cloud costs and enables on-premise testing workflows without requiring GPU infrastructure.
+Manual test creation is a bottleneck in CI/CD pipelines, yet deploying large, unquantized models for test generation is often infeasible on standard compute runners. Understanding how specific API structural features (e.g., deep schema nesting) degrade the performance of smaller, quantized models is critical for defining the "minimum viable model" for automated testing in resource-constrained environments.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-
-We queried Semantic Scholar and arXiv using search terms including "LLM test generation," "API documentation unit tests," "OpenAPI test automation," and "small language model code generation." Two primary results were retrieved from the literature block, both focusing on LLM-based test generation frameworks.
-
-### What is known
-
-- [ChatUniTest: A Framework for LLM-Based Test Generation (2023)](https://arxiv.org/abs/2305.04764) — Establishes a framework for LLM-based unit test generation but does not systematically evaluate the impact of model size or quantization on test quality.
-- [The Midas Touch: Triggering the Capability of LLMs for RM-API Misuse Detection (2024)](https://arxiv.org/abs/2409.09380) — Demonstrates LLM capabilities for API constraint understanding and documentation analysis, though focused on misuse detection rather than test generation.
-
-### What is NOT known
-
-No published work has systematically measured how quantized small language models (<3B parameters) perform on OpenAPI-to-test generation tasks, nor has any study examined the degradation of test quality as API schema complexity increases. Current literature either uses large unquantized models or does not report pass rates, coverage, or hallucination metrics across model configurations.
-
-### Why this gap matters
-
-This gap matters for teams deploying automated testing in resource-constrained environments (CI/CD pipelines, edge devices, on-premise systems). Filling this gap would provide evidence-based guidance on minimum viable model specifications, enabling cost-effective test automation without sacrificing reliability.
-
-### How this project addresses the gap
-
-This project's methodology directly measures test quality metrics (pass rate, coverage, hallucination rate) across multiple quantized model sizes and schema complexity levels, producing the first empirical mapping of model configuration to test generation quality for OpenAPI specifications.
+- [ChatUniTest: A Framework for LLM-Based Test Generation (2023)](https://arxiv.org/abs/2305.04764) — Establishes a general framework for LLM-based test generation but does not systematically evaluate the impact of model size, quantization, or specific API structural complexity on test quality.
+- [The Midas Touch: Triggering the Capability of LLMs for RM-API Misuse Detection (2024)](https://arxiv.org/abs/2409.09380) — Demonstrates LLM capabilities for understanding API constraints and documentation, though focused on misuse detection rather than the generation of executable test suites.
+- [APITestGenie: Automated API Test Generation through Generative AI (2024)](https://arxiv.org/abs/2409.03838) — Highlights the potential of LLMs for test code generation but notes a lack of studies quantifying performance degradation across different model scales and quantization levels.
+- [CASCADE: Detecting Inconsistencies between Code and Documentation with Automatic Test Generation (2026)](https://arxiv.org/abs/2604.19400) — Focuses on consistency checking via test generation, providing a methodological precedent for using generated tests to validate documentation, but does not address the model capacity vs. complexity trade-off.
 
 ## Expected results
 
-Quantized 1.1B–2.7B parameter models will achieve 50–70% pass rate on simple GET/POST endpoints using few-shot prompting. Performance degradation will be measurable on complex schema validation tasks, with hallucination rates increasing as quantization becomes more aggressive (Q4 vs. Q8). This would establish a practical ceiling for parameter-light approaches on intricate APIs.
+We expect a significant interaction effect where model capacity becomes the dominant predictor of pass rate only when schema nesting depth exceeds a specific threshold (e.g., >3 levels). Smaller models (1.1B–2.7B) will maintain high pass rates on simple endpoints but will exhibit a sharp, non-linear increase in hallucination rates and syntax errors as constraint specificity and nesting depth increase, whereas larger models will show a more gradual degradation.
 
 ## Methodology sketch
 
-- Download a curated set of 100 OpenAPI specification files from `https://github.com/OAI/OpenAPI-Specification/tree/master/schemas` and the `examples` directory.
-- Classify each spec by schema complexity (simple: ≤5 endpoints; medium: 6–15 endpoints; complex: >15 endpoints with nested schemas).
-- Load quantized (Q4_K_M, Q8_0) models (e.g., TinyLlama-1.1B, Phi-2-1.3B) using `llama.cpp` CPU inference to fit within 7GB RAM limits.
-- Construct prompt templates mapping OAS endpoints to Python `pytest` syntax with 3-shot examples per complexity tier.
-- Generate test scripts for all 100 endpoints within a single 6-hour GitHub Actions job window (batch processing with checkpointing).
-- Execute generated tests in a sandboxed Docker container with stubbed API responses using `pytest` and `coverage.py`.
-- Measure three independent quality metrics: (1) pass rate (% tests that execute without errors), (2) branch coverage (% of spec conditions covered), and (3) hallucination rate (% references to non-existent endpoints or parameters).
-- Perform two-way ANOVA testing model size (1.1B vs. 2.7B) × quantization (Q4 vs. Q8) on pass rate, with schema complexity as a stratification variable.
-- All validation targets (pass rate, coverage, hallucination rate) are measured independently from the model's own predictions using external test execution and static analysis.
+- **Data Acquisition**: Download 150 real-world OpenAPI specification files from the `OAI/OpenAPI-Specification` GitHub repository and the `stoplightio/openapi-samples` dataset to ensure diversity in complexity.
+- **Complexity Stratification**: Parse each spec to compute three structural metrics: (1) endpoint density (endpoints per KB), (2) maximum schema nesting depth (recursive depth of `allOf`/`oneOf`), and (3) constraint specificity (count of `pattern`, `enum`, `minimum`, `maximum` constraints per schema).
+- **Model Selection & Loading**: Load three quantized models (TinyLlama-1.1B-Q4, Phi-2-1.3B-Q4, Mistral-7B-Q4) using `llama.cpp` on CPU, ensuring all fit within the 7GB RAM limit.
+- **Prompt Engineering**: Construct a standardized few-shot prompting template that maps OpenAPI endpoints to `pytest` fixtures, varying the complexity tier of the input spec while keeping the prompt structure constant.
+- **Test Generation**: Execute batch generation for all 150 specs across the three model configurations, recording generation time and token usage.
+- **Execution & Validation**: Run generated tests in isolated Docker containers with mocked API servers (using `prism` or `openapi-mock`) to ensure deterministic execution; measure pass rate, line coverage, and hallucination rate (references to non-existent parameters/endpoints).
+- **Statistical Analysis**: Perform a three-way ANOVA with model size, quantization level, and complexity tier as factors, followed by a multiple regression analysis to identify which specific complexity metric (nesting vs. constraints) most strongly predicts the drop in pass rate.
+- **Independence Check**: Ensure validation metrics (pass rate, coverage) are derived from the execution of generated code against the mock server, which is entirely independent of the model's internal generation process.
 
 ## Duplicate-check
 
@@ -63,38 +46,20 @@ Quantized 1.1B–2.7B parameter models will achieve 50–70% pass rate on simple
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-25T20:39:43Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-18T16:06:18Z
 **Outcome**: exhausted
 **Original term**: Leveraging LLMs to Generate Unit Tests from API Documentation computer science
-**Verified citation count**: 2
+**Verified citation count**: 4
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Leveraging LLMs to Generate Unit Tests from API Documentation computer science | 0 |
-| 1 | Large Language Models for automated unit test generation | 5 |
-| 2 | AI-driven test case synthesis from API specifications | 0 |
-| 3 | OpenAPI specification to unit test conversion | 0 |
-| 4 | Transformer models for software testing automation | 0 |
-| 5 | Automated test generation from REST API documentation | 0 |
-| 6 | Natural language to test code translation | 0 |
-| 7 | Generative AI in software engineering testing | 0 |
-| 8 | Swagger documentation based test suite creation | 0 |
-| 9 | Program synthesis for unit testing | 0 |
-| 10 | LLM-based API contract testing | 0 |
-| 11 | Specification-driven test generation using deep learning | 0 |
-| 12 | Automated test oracle generation from documentation | 0 |
-| 13 | Code generation models for testing frameworks | 0 |
-| 14 | Neural approaches to software test case creation | 0 |
-| 15 | Prompt engineering for automated test generation | 0 |
-| 16 | Semantic analysis of API interfaces for testing | 0 |
-| 17 | AI-assisted software quality assurance pipelines | 0 |
-| 18 | Documentation to executable test conversion | 0 |
-| 19 | Language model evaluation of generated unit tests | 0 |
-| 20 | Automated regression test creation from specs | 0 |
+| 0 (initial) | Leveraging LLMs to Generate Unit Tests from API Documentation computer science | 4 |
 
 ### Verified citations
 
 1. **The Midas Touch: Triggering the Capability of LLMs for RM-API Misuse Detection** (2024). Yi Yang, Jinghua Liu, Kai Chen, Miaoqian Lin. arXiv. [2409.09380](https://arxiv.org/abs/2409.09380). PDF-sampled: No.
-2. **ChatUniTest: A Framework for LLM-Based Test Generation** (2023). Yinghao Chen, Zehao Hu, Chen Zhi, Junxiao Han, Shuiguang Deng, et al.. arXiv. [2305.04764](https://arxiv.org/abs/2305.04764). PDF-sampled: No.
+2. **Independent Test Generation for RESTful APIs** (2025). S M Sadrul Islam Asif, James Chen, Kennett Puerto Diaz, Earl T. Barr, Mark Marron. arXiv. [2510.19777](https://arxiv.org/abs/2510.19777). PDF-sampled: No.
+3. **APITestGenie: Automated API Test Generation through Generative AI** (2024). André Pereira, Bruno Lima, João Pascoal Faria. arXiv. [2409.03838](https://arxiv.org/abs/2409.03838). PDF-sampled: No.
+4. **CASCADE: Detecting Inconsistencies between Code and Documentation with Automatic Test Generation** (2026). Tobias Kiecker, Jan Arne Sparka, Martin Reuter, Albert Ziegler, Lars Grunske. arXiv. [2604.19400](https://arxiv.org/abs/2604.19400). PDF-sampled: No.

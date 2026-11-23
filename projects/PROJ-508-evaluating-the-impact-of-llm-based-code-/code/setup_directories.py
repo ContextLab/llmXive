@@ -3,30 +3,25 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the required directory structure for the project.
-    Specifically implements T010: Create docs/output directory.
-    Also ensures raw and derived data directories exist if they don't already.
+    Creates all required directories for the project structure.
+    This function ensures that the docs/output directory exists for report generation.
     """
-    base_path = Path("projects/PROJ-508-evaluating-the-impact-of-llm-based-code-")
+    project_root = Path(__file__).resolve().parent.parent
     
-    # Directories to create
     directories = [
-        base_path / "data" / "raw",
-        base_path / "data" / "derived",
-        base_path / "docs" / "output",
+        project_root / "projects" / "PROJ-508-evaluating-the-impact-of-llm-based-code-" / "data" / "raw",
+        project_root / "projects" / "PROJ-508-evaluating-the-impact-of-llm-based-code-" / "data" / "derived",
+        project_root / "projects" / "PROJ-508-evaluating-the-impact-of-llm-based-code-" / "docs" / "output",
+        project_root / "code",
+        project_root / "code" / "utils",
+        project_root / "tests",
+        project_root / "docs",
     ]
     
-    created_count = 0
     for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {directory}")
-    
-    return created_count
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Ensured directory exists: {directory}")
 
 if __name__ == "__main__":
-    count = create_directories()
-    print(f"Total directories created: {count}")
+    create_directories()
+    print("Directory setup complete.")

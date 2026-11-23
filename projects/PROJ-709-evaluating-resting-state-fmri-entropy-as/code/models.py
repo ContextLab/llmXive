@@ -1,10 +1,9 @@
 """
-Core data structures for the fMRI entropy analysis pipeline.
+Base data structures for the fMRI entropy analysis pipeline.
 
-Defines the fundamental data classes used throughout the project:
-- Subject: Represents a single participant with their data paths and phenotypic traits.
-- Parcel: Represents a brain region (ROI) defined by an atlas index and mask.
-- EntropyFeature: Represents the computed entropy value for a specific subject-parcel pair.
+Defines core dataclasses: Subject, Parcel, and EntropyFeature.
+These structures are used throughout the pipeline to represent
+subjects, brain parcels, and computed entropy features.
 """
 
 from dataclasses import dataclass, field
@@ -16,87 +15,79 @@ import numpy as np
 @dataclass
 class Subject:
     """
-    Represents a single study participant.
+    Represents a single subject in the study.
 
     Attributes:
-        subject_id (str): Unique identifier for the subject (e.g., 'sub-01').
-        nifti_path (Path): Path to the preprocessed NIfTI file (e.g., scrubbed/truncated).
-        phenotypic_data (Dict[str, Any]): Dictionary containing phenotypic information
-            (e.g., ADHD status, age, sex, motion metrics).
-        runs (List[str]): List of run identifiers associated with this subject.
+        subject_id: Unique identifier for the subject (e.g., 'sub-001').
+        nifti_path: Path to the preprocessed NIfTI file for this subject.
+        phenotypic_data: Dictionary containing phenotypic data (e.g., ADHD-RS score, age, sex).
+        time_points: Number of time points in the fMRI time series (after scrubbing/truncation).
+        mean_fd: Mean Framewise Displacement for this subject (optional).
+        scrub_fraction: Fraction of volumes scrubbed (optional).
     """
     subject_id: str
     nifti_path: Path
     phenotypic_data: Dict[str, Any] = field(default_factory=dict)
-    runs: List[str] = field(default_factory=list)
-
-    def __post_init__(self):
-        """Validate that the NIfTI path exists."""
-        if not self.nifti_path.exists():
-            raise FileNotFoundError(f"NIfTI file not found for subject {self.subject_id}: {self.nifti_path}")
+    time_points: Optional[int] = None
+    mean_fd: Optional[float] = None
+    scrub_fraction: Optional[float] = None
 
     @property
-    def adhd_status(self) -> Optional[int]:
-        """Convenience accessor for ADHD diagnosis (1=ADHD, 0=Control)."""
-        return self.phenotypic_data.get('adhd_status')
+    def adhd_rs_score(self) -> Optional[float]:
+        """Retrieve ADHD-RS score if available."""
+        return self.phenotypic_data.get('adhd_rs_score')
 
     @property
-    def age(self) -> Optional[float]:
-        """Convenience accessor for age."""
-        return self.phenotypic_data.get('age')
-
-    @property
-    def sex(self) -> Optional[str]:
-        """Convenience accessor for sex."""
-        return self.phenotypic_data.get('sex')
+    def diagnosis(self) -> Optional[str]:
+        """Retrieve binary diagnosis if available."""
+        return self.phenotypic_data.get('diagnosis')
 
 
 @dataclass
 class Parcel:
     """
-    Represents a single brain parcel (ROI) from an atlas.
+    Represents a brain parcel (region of interest) in the atlas.
 
     Attributes:
-        index (int): 0-based index of the parcel in the atlas.
-        name (str): Human-readable name of the parcel (e.g., 'Frontal_Superior_Left').
-        mask (np.ndarray): Binary 3D or 4D mask array for this parcel.
-        atlas_name (str): Name of the atlas used (e.g., 'Schaefer200').
+        index: Integer index of the parcel in the atlas (0 to N-1).
+        mask: Boolean numpy array representing the parcel mask in 3D space.
+        name: Optional name or label for the parcel.
+        atlas_name: Name of the atlas used (e.g., 'Schaefer200').
     """
     index: int
-    name: str
     mask: np.ndarray
-    atlas_name: str = "Default"
+    name: Optional[str] = None
+    atlas_name: str = "Schaefer200"
 
     def __post_init__(self):
-        """Ensure mask is a numpy array."""
+        """Validate that mask is a boolean numpy array."""
         if not isinstance(self.mask, np.ndarray):
-            self.mask = np.array(self.mask)
-
-    @property
-    def volume(self) -> int:
-        """Return the number of voxels in the parcel."""
-        return int(np.sum(self.mask > 0))
+            raise TypeError(f"mask must be a numpy.ndarray, got {type(self.mask)}")
+        if self.mask.dtype != bool:
+            raise TypeError(f"mask must be of boolean dtype, got {self.mask.dtype}")
 
 
 @dataclass
 class EntropyFeature:
     """
-    Represents a computed entropy value for a specific subject and parcel.
+    Represents a computed entropy feature for a specific subject and parcel.
 
     Attributes:
-        subject_id (str): ID of the subject.
-        parcel_index (int): Index of the parcel.
-        parcel_name (str): Name of the parcel.
-        entropy_value (float): The computed Sample Entropy value.
-        method (str): Method used (e.g., 'SampEn').
-        parameters (Dict[str, Any]): Parameters used for calculation (e.g., m, r).
+        subject_id: ID of the subject.
+        parcel_index: Index of the parcel.
+        parcel_name: Name of the parcel (optional).
+        entropy_value: The computed Sample Entropy value.
+        method: Entropy calculation method (e.g., 'SampEn').
+        parameters: Dictionary of parameters used (e.g., m, r).
+        timestamp: Optional timestamp of computation.
     """
     subject_id: str
     parcel_index: int
-    parcel_name: str
     entropy_value: float
     method: str = "SampEn"
     parameters: Dict[str, Any] = field(default_factory=lambda: {"m": 2, "r": 0.2})
+    parcel_name: Optional[str] = None
+    timestamp: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert the feature to a dictionary for serialization."""
@@ -106,17 +97,6 @@ class EntropyFeature:
             "parcel_name": self.parcel_name,
             "entropy_value": self.entropy_value,
             "method": self.method,
-            "parameters": self.parameters
+            "parameters": self.parameters,
+            "timestamp": self.timestamp
         }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'EntropyFeature':
-        """Create an EntropyFeature from a dictionary."""
-        return cls(
-            subject_id=data["subject_id"],
-            parcel_index=data["parcel_index"],
-            parcel_name=data["parcel_name"],
-            entropy_value=data["entropy_value"],
-            method=data.get("method", "SampEn"),
-            parameters=data.get("parameters", {"m": 2, "r": 0.2})
-        )

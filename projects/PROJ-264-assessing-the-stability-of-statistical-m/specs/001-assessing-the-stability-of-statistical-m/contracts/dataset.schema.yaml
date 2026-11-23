@@ -27,6 +27,9 @@ properties:
     type: string
     description: "SHA-256 checksum of the raw file."
     pattern: "^[a-f0-9]{64}$"
+  binarized:
+    type: boolean
+    description: "True if the dataset was binarized from a multi-class source."
 required:
   - dataset_id
   - dataset_name
@@ -34,4 +37,5 @@ required:
   - n_features
   - source
   - checksum
+  - binarized
 additionalProperties: false

@@ -1,1 +1,1 @@
-# Analysis module
+# Analysis module initialization

@@ -1,198 +1,136 @@
-"""
-Unit tests for validate_spot_check.py
-"""
+import os
 import csv
 import json
-import os
 import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
-
-# Add parent directory to path to import the module
+from pathlib import Path
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
+# Add code directory to path for imports
+sys.path.insert(0, 'code')
 
 from validate_spot_check import (
+    generate_annotation_template,
     load_processed_data,
-    stratify_data,
-    perform_stratified_sampling,
-    simulate_manual_review,
+    load_annotations,
     calculate_false_negative_rate,
-    SAMPLE_SIZE,
-    RANDOM_SEED
+    handle_missing_annotations,
+    DataValidationError
 )
 
-@pytest.fixture
-def sample_data():
-    """Create sample data for testing."""
-    return [
-        {
-            'pr_id': '1',
-            'repo_name': 'repo1',
-            'is_ai_labeled': 'False',
-            'files_changed': 3,
-            'turnaround_hours': 10.5,
-            'commit_messages': ['Fix bug'],
-            'labels': ['bug']
-        },
-        {
-            'pr_id': '2',
-            'repo_name': 'repo1',
-            'is_ai_labeled': 'False',
-            'files_changed': 8,
-            'turnaround_hours': 24.0,
-            'commit_messages': ['Refactor with copilot'],
-            'labels': []
-        },
-        {
-            'pr_id': '3',
-            'repo_name': 'repo2',
-            'is_ai_labeled': 'True',
-            'files_changed': 5,
-            'turnaround_hours': 15.0,
-            'commit_messages': ['AI generated'],
-            'labels': ['ai-generated']
-        },
-        {
-            'pr_id': '4',
-            'repo_name': 'repo2',
-            'is_ai_labeled': 'False',
-            'files_changed': 25,
-            'turnaround_hours': 48.0,
-            'commit_messages': ['Large refactor'],
-            'labels': ['enhancement']
-        }
-    ]
-
-@pytest.fixture
-def temp_csv_file(sample_data):
-    """Create a temporary CSV file with sample data."""
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=sample_data[0].keys())
-        writer.writeheader()
-        writer.writerows(sample_data)
-        temp_path = f.name
+class TestGenerateAnnotationTemplate:
+    def test_template_generation_creates_file(self, tmp_path):
+        """Test that generate_annotation_template creates the output file."""
+        processed_data = [
+            {"pr_id": 1, "is_ai_assisted": "0", "repo_name": "test/repo1"},
+            {"pr_id": 2, "is_ai_assisted": "1", "repo_name": "test/repo2"},
+            {"pr_id": 3, "is_ai_assisted": "0", "repo_name": "test/repo3"}
+        ]
+        
+        output_path = tmp_path / "annotation_template.csv"
+        generate_annotation_template(processed_data, str(output_path))
+        
+        assert output_path.exists(), "Annotation template file was not created."
     
-    yield temp_path
+    def test_template_contains_instructions(self, tmp_path):
+        """Test that the template contains the required header instructions."""
+        processed_data = [
+            {"pr_id": 1, "is_ai_assisted": "0"}
+        ]
+        output_path = tmp_path / "annotation_template.csv"
+        generate_annotation_template(processed_data, str(output_path))
+        
+        content = output_path.read_text()
+        
+        assert "# ANNOTATION TEMPLATE" in content
+        assert "Instructions for Human Annotator:" in content
+        assert "copilot" in content.lower()
+        assert "ai-generated" in content.lower()
+        assert "Save the file as 'annotations.csv'" in content
     
-    os.unlink(temp_path)
-
-def test_load_processed_data(temp_csv_file):
-    """Test loading data from CSV."""
-    with patch('validate_spot_check.PROCESSED_DATA_PATH', Path(temp_csv_file)):
-        data = load_processed_data()
-        assert len(data) == 4
-        assert data[0]['pr_id'] == '1'
-        assert data[0]['turnaround_hours'] == 10.5
-        assert data[0]['files_changed'] == 3
-
-def test_stratify_data(sample_data):
-    """Test data stratification."""
-    strata = stratify_data(sample_data)
+    def test_template_excludes_ai_assisted_prs(self, tmp_path):
+        """Test that PRs already labeled as AI-assisted are excluded from the template."""
+        processed_data = [
+            {"pr_id": 1, "is_ai_assisted": "0"},
+            {"pr_id": 2, "is_ai_assisted": "1"},
+            {"pr_id": 3, "is_ai_assisted": "0"}
+        ]
+        
+        output_path = tmp_path / "annotation_template.csv"
+        generate_annotation_template(processed_data, str(output_path))
+        
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        
+        pr_ids = [int(row['pr_id']) for row in rows]
+        
+        assert 1 in pr_ids
+        assert 3 in pr_ids
+        assert 2 not in pr_ids  # AI-assisted should be excluded
     
-    # Should have 2 strata: (repo1, small), (repo1, medium), (repo2, large)
-    # But repo2 has only AI labeled, so excluded
-    # So we expect (repo1, small), (repo1, medium), (repo2, large) - wait, repo2 has AI labeled
-    # Actually, only non-AI labeled are included
-    # repo1: 1 (small), 2 (medium)
-    # repo2: 4 (large)
-    # So 3 strata
+    def test_template_has_correct_columns(self, tmp_path):
+        """Test that the template has the correct column headers."""
+        processed_data = [{"pr_id": 1, "is_ai_assisted": "0"}]
+        output_path = tmp_path / "annotation_template.csv"
+        generate_annotation_template(processed_data, str(output_path))
+        
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            # Skip comment lines if present in DictReader logic (it usually ignores them)
+            # We check the fieldnames
+            fieldnames = reader.fieldnames
+        
+        assert 'pr_id' in fieldnames
+        assert 'is_ai_assisted' in fieldnames
+
+class TestCalculateFalseNegativeRate:
+    def test_correct_fnr_calculation(self):
+        """Test calculation of false negative rate."""
+        automated_data = [
+            {"pr_id": 1, "is_ai_assisted": "0"}, # FN if human says 1
+            {"pr_id": 2, "is_ai_assisted": "0"}, # TN if human says 0
+            {"pr_id": 3, "is_ai_assisted": "1"}, # TP
+            {"pr_id": 4, "is_ai_assisted": "0"}  # FN if human says 1
+        ]
+        
+        human_annotations = [
+            {"pr_id": 1, "is_ai_assisted": 1}, # FN
+            {"pr_id": 2, "is_ai_assisted": 0}, # TN
+            {"pr_id": 3, "is_ai_assisted": 1}, # TP
+            {"pr_id": 4, "is_ai_assisted": 1}  # FN
+        ]
+        
+        fnr = calculate_false_negative_rate(automated_data, human_annotations)
+        
+        # Total negatives (auto=0) = 3 (ids 1, 2, 4)
+        # False negatives (auto=0, human=1) = 2 (ids 1, 4)
+        # FNR = 2/3
+        assert abs(fnr - 2/3) < 0.0001
     
-    assert len(strata) == 3
-    assert ('repo1', 'small') in strata
-    assert ('repo1', 'medium') in strata
-    assert ('repo2', 'large') in strata
+    def test_zero_negatives_returns_zero(self):
+        """Test that if there are no negatives, FNR is 0."""
+        automated_data = [
+            {"pr_id": 1, "is_ai_assisted": "1"}
+        ]
+        human_annotations = [
+            {"pr_id": 1, "is_ai_assisted": 1}
+        ]
+        
+        fnr = calculate_false_negative_rate(automated_data, human_annotations)
+        assert fnr == 0.0
 
-def test_perform_stratified_sampling(sample_data):
-    """Test stratified sampling."""
-    strata = stratify_data(sample_data)
-    sample = perform_stratified_sampling(strata, n=3)
-    
-    assert len(sample) == 3
-    # Check that all sampled items are non-AI labeled
-    for pr in sample:
-        assert pr.get('is_ai_labeled') == 'False' or pr.get('is_ai_labeled') is False
-
-def test_simulate_manual_review_ai_keyword():
-    """Test manual review detection of AI keywords."""
-    pr = {
-        'pr_id': '1',
-        'repo_name': 'test',
-        'is_ai_labeled': 'False',
-        'files_changed': 5,
-        'turnaround_hours': 10.0,
-        'commit_messages': ['Generated by copilot'],
-        'labels': []
-    }
-    result = simulate_manual_review(pr)
-    assert result is True  # Should detect AI
-
-def test_simulate_manual_review_ai_label():
-    """Test manual review detection of AI labels."""
-    pr = {
-        'pr_id': '1',
-        'repo_name': 'test',
-        'is_ai_labeled': 'False',
-        'files_changed': 5,
-        'turnaround_hours': 10.0,
-        'commit_messages': ['Fix bug'],
-        'labels': ['copilot-assisted']
-    }
-    result = simulate_manual_review(pr)
-    assert result is True  # Should detect AI
-
-def test_simulate_manual_review_no_ai():
-    """Test manual review when no AI indicators."""
-    pr = {
-        'pr_id': '1',
-        'repo_name': 'test',
-        'is_ai_labeled': 'False',
-        'files_changed': 5,
-        'turnaround_hours': 10.0,
-        'commit_messages': ['Fix bug'],
-        'labels': ['bug']
-    }
-    result = simulate_manual_review(pr)
-    assert result is False  # Should not detect AI
-
-def test_calculate_false_negative_rate():
-    """Test false-negative rate calculation."""
-    sample = [
-        {
-            'pr_id': '1',
-            'is_ai_labeled': 'False',
-            'commit_messages': ['Generated by copilot'],
-            'labels': []
-        },
-        {
-            'pr_id': '2',
-            'is_ai_labeled': 'False',
-            'commit_messages': ['Fix bug'],
-            'labels': ['bug']
-        },
-        {
-            'pr_id': '3',
-            'is_ai_labeled': 'True',
-            'commit_messages': ['AI generated'],
-            'labels': ['ai-generated']
-        }
-    ]
-    
-    # PR1: non-AI labeled, but has AI keyword -> False Negative
-    # PR2: non-AI labeled, no AI keyword -> Correct
-    # PR3: AI labeled -> Not counted in FNR (only non-AI labeled are checked)
-    
-    fpr = calculate_false_negative_rate(sample)
-    assert fpr == 1/2  # 1 false negative out of 2 non-AI labeled PRs
-
-def test_calculate_false_negative_rate_empty():
-    """Test false-negative rate with empty sample."""
-    fpr = calculate_false_negative_rate([])
-    assert fpr == 0.0
-
-def test_constants():
-    """Test that constants are defined correctly."""
-    assert SAMPLE_SIZE == 50
-    assert RANDOM_SEED == 42
+class TestHandleMissingAnnotations:
+    def test_creates_status_file(self, tmp_path):
+        """Test that handle_missing_annotations creates the status file."""
+        status_path = tmp_path / "validation_status.json"
+        handle_missing_annotations(str(status_path))
+        
+        assert status_path.exists()
+        
+        with open(status_path, 'r') as f:
+            status = json.load(f)
+        
+        assert status["status"] == "UNVALIDATED"
+        assert status["rate"] is None
+        assert "missing" in status["message"].lower()

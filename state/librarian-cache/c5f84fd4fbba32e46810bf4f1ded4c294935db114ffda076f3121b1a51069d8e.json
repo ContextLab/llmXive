@@ -1,0 +1,422 @@
+{
+  "fetched_at": "2026-07-28T18:40:03Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Permeability Coefficients Using Graph Neural Networks and Publicly Available Datasets",
+      "target_n": 5
+    },
+    "duration_seconds": 41.529,
+    "ended_at": "2026-07-28T18:40:03Z",
+    "expansion": null,
+    "extracted_queries": [
+      "membrane permeability partition coefficient QSAR",
+      "MoleculeNet QM9 lipophilicity dataset",
+      "molecular graph homophily heterophily",
+      "permeability coefficient held-out evaluation benchmark",
+      "ADMET physicochemical descriptor leakage"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2011.12117"
+      ]
+    },
+    "per_query_hit_count": {
+      "ADMET physicochemical descriptor leakage": 3,
+      "MoleculeNet QM9 lipophilicity dataset": 3,
+      "Predicting Molecular Permeability Coefficients Using Graph Neural Networks and Publicly Available Datasets chemistry": 3,
+      "membrane permeability partition coefficient QSAR": 3,
+      "molecular graph homophily heterophily": 3,
+      "permeability coefficient held-out evaluation benchmark": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1905.05918",
+          "rationale": "The paper focuses on predicting the remaining useful life of mechanical systems using time-series data, which is an entirely different domain (mechanical engineering) and target variable than the user's question regarding molecular permeability in chemistry. This falls under the rejection rule for being \"off-domain entirely\" and sharing only the generic keyword \"neural network\" without any connection to the specific biological mechanism, chemical domain, or molecular variables requested.",
+          "title": "A Neural Network-Evolutionary Computational Framework for Remaining Useful Life Estimation of Mechanical Systems"
+        },
+        {
+          "primary_pointer": "2211.12792",
+          "rationale": "The paper proposes a general heterogeneous graph neural network architecture (MECCH) for node classification and link prediction on generic datasets, but it does not address the specific domain of molecular permeability, nor does it apply the method to chemical datasets or measure the permeability coefficient. While it is a GNN paper, it fails the \"off-domain entirely\" rejection rule because it lacks the necessary connection to the specific biological/chemical mechanism (permeability) or the spe",
+          "title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks"
+        },
+        {
+          "primary_pointer": "2209.06177",
+          "rationale": "The paper focuses on the general theoretical properties of graph datasets (homophily/heterophily) and their impact on standard GNN performance for node classification, but it does not address the specific domain of molecular permeability, chemical datasets, or the prediction of molecular properties. While it discusses GNNs (a shared keyword), it lacks the necessary connection to the user's specific biological/chemical mechanism or empirical population, falling under the \"Distinct construct shari",
+          "title": "Characterizing Graph Datasets for Node Classification: Homophily-Heterophily Dichotomy and Beyond"
+        },
+        {
+          "primary_pointer": "2211.14523",
+          "rationale": "The paper focuses on the general architectural challenge of handling homophily and heterophily in Graph Neural Networks across generic real-world datasets, without addressing the specific domain of molecular permeability, chemistry, or the use of publicly available chemical datasets. While it is a foundational methodology paper for GNNs (category d), it lacks the necessary domain connection (molecular properties) to be included in a literature review specifically for predicting molecular permeab",
+          "title": "VR-GNN: Variational Relation Vector Graph Neural Network for Modeling both Homophily and Heterophily"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-28T18:39:21Z",
+    "term_input": {
+      "normalized": "predicting molecular permeability coefficients using graph neural networks and publicly available datasets chemistry",
+      "raw": "Predicting Molecular Permeability Coefficients Using Graph Neural Networks and Publicly Available Datasets chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-07-28T18:39:50Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative Structure-Activity Relationship (QSAR) has proved an invaluable tool in medicinal chemistry. Data availability at unprecedented levels through various databases have collaborated to a resurgence in the interest for QSAR. In this context, rapid generation of quality predictive models is highly desirable for hit identification and lead optimization. We showcase the application of an automated QSAR approach, which randomly selects multiple training/test sets and utilizes machine-learning algorithms to generate predictive models. Results demonstrate that AutoQSAR produces models of improved or similar quality to those generated by practitioners in the field but in just a fraction of the time. Despite the potential of the concept to the benefit of the community, the AutoQSAR opportunity has been largely undervalued.",
+          "claimed_authors": [
+            "Marcelo T. de Oliveira",
+            "Edson Katekawa"
+          ],
+          "claimed_title": "On the Virtues of Automated QSAR The New Kid on the Block",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.02639"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='On the Virtues of Automated QSAR The New Kid on the Block')",
+        "failed_at": "2026-07-28T18:39:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The trade-off effect of the oxygen permeability and stability of oxygen transport membranes (OTMs) still exists in working atmospheres containing CO2. Herein, we reported a new series of 60 wt%Ce0.9Ln0.1O2-δ-40wt%Ln0.6Sr0.4Fe0.9Ti0.1O3-δ (CLnO-LnSFTO, Ln = La, Pr, Nd, Sm, Gd, Tb) dual-phase OTMs by selecting different Ln elements based on the reported highly stable Ti-doped CPrO-PrSFTO. The effects of different Ln elements on the structure and oxygen permeability of Ti-doped dual-phase OTMs were systematically studied. Basically, as the atomic number of Ln elements increases, the unit cell parameters of both the fluorite phase and the perovskite phase become smaller. The unit cell volume and spatial symmetry of the perovskite phase are reduced, resulting in a reduction in oxygen permeability. The optimal CLaO-LaSFTO showed JO2 of 0.60 and 0.54 mL min-1 cm-2 with He and CO2 sweeping at 1000 oC, respectively. In addition, all CLnO-LnSFTO OTMs could work for more than 100 hours with no significant performance degradation in a CO2 atmosphere, maintaining excellent stability. This work explores candidate OTM materials for CO2 capture and oxygen separation, as well as provides some ideas for addressing the trade-off effect.",
+          "claimed_authors": [
+            "Chao Zhang",
+            "Zaichen Xiang",
+            "Lingyong Zeng",
+            "Peifeng Yu",
+            "Kuan Li",
+            "Kangwang Wang",
+            "Longfu Li",
+            "Rui Chen",
+            "Huixia Luo"
+          ],
+          "claimed_title": "Effects of Lanthanides on the Structure and Oxygen Permeability of Ti-doped Dual-phase Membranes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.02693"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='Effects of Lanthanides on the Structure and Oxygen Permeability of Ti-doped Dual-phase Membranes')",
+        "failed_at": "2026-07-28T18:39:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work we present measurements of permeability, effective porosity and tortuosity on a variety of rock samples using NMR/MRI of thermal and laser-polarized gas. Permeability and effective porosity are measured simultaneously using MRI to monitor the inflow of laser-polarized xenon into the rock core. Tortuosity is determined from measurements of the time-dependent diffusion coefficient using thermal xenon in sealed samples. The initial results from a limited number of rocks indicate inverse correlations between tortuosity and both effective porosity and permeability. Further studies to widen the number of types of rocks studied may eventually aid in explaining the poorly understood connection between permeability and tortuosity of rock cores.",
+          "claimed_authors": [
+            "R. Wang",
+            "T. Pavlin",
+            "M. S. Rosen",
+            "R. W. Mair",
+            "D. G. Cory",
+            "R. L. Walsworth"
+          ],
+          "claimed_title": "Xenon NMR Measurements of Permeability and Tortuosity in Reservoir Rocks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "cond-mat/0407710"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='Xenon NMR Measurements of Permeability and Tortuosity in Reservoir Rocks')",
+        "failed_at": "2026-07-28T18:39:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-28T18:39:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-07-28T18:39:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph Convolutional Networks (GCNs) have been widely applied in various fields due to their significant power on processing graph-structured data. Typical GCN and its variants work under a homophily assumption (i.e., nodes with same class are prone to connect to each other), while ignoring the heterophily which exists in many real-world networks (i.e., nodes with different classes tend to form edges). Existing methods deal with heterophily by mainly aggregating higher-order neighborhoods or combing the immediate representations, which leads to noise and irrelevant information in the result. But these methods did not change the propagation mechanism which works under homophily assumption (that is a fundamental part of GCNs). This makes it difficult to distinguish the representation of nodes from different classes. To address this problem, in this paper we design a novel propagation mechanism, which can automatically change the propagation and aggregation process according to homophily or heterophily between node pairs. To adaptively learn the propagation process, we introduce two measurements of homophily degree between node pairs, which is learned based on topological and attribute information, respectively. Then we incorporate the learnable homophily degree into the graph convolution framework, which is trained in an end-to-end schema, enabling it to go beyond the assumption of homophily. More importantly, we theoretically prove that our model can constrain the similarity of representations between nodes according to their homophily degree. Experiments on seven real-world datasets demonstrate that this new approach outperforms the state-of-the-art methods under heterophily or low homophily, and gains competitive performance under homophily.",
+          "claimed_authors": [
+            "Tao Wang",
+            "Rui Wang",
+            "Di Jin",
+            "Dongxiao He",
+            "Yuxiao Huang"
+          ],
+          "claimed_title": "Powerful Graph Convolutioal Networks with Adaptive Propagation Mechanism for Homophily and Heterophily",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.13562"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='Powerful Graph Convolutioal Networks with Adaptive Propagation Mechanism for Homophily and Heterophily')",
+        "failed_at": "2026-07-28T18:39:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-07-28T18:39:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We uncover anisotropic permeability in microfluidic deterministic lateral displacement (DLD) arrays. A DLD array can achieve high-resolution bimodal size-based separation of microparticles, including bioparticles, such as cells. For an application with a given separation size, correct device operation requires that the flow remains at a fixed angle to the obstacle array. We demonstrate via experiments and lattice-Boltzmann simulations that subtle array design features cause anisotropic permeability. Anisotropic permeability indicates the microfluidic array's intrinsic tendency to induce an undesired lateral pressure gradient. This can cause an inclined flow and therefore local changes in the critical separation size. Thus, particle trajectories can become unpredictable and the device useless for the desired separation task. Anisotropy becomes severe for arrays with unequal axial and lateral gaps between obstacle posts and highly asymmetric post shapes. Furthermore, of the two equivalent array layouts employed with the DLD, the rotated-square layout does not display intrinsic anisotropy. We therefore recommend this layout over the easier-to-implement parallelogram layout. We provide additional guidelines for avoiding adverse effects of anisotropy on the DLD.",
+          "claimed_authors": [
+            "Rohan Vernekar",
+            "Timm Krüger",
+            "Kevin Loutherback",
+            "Keith Morton",
+            "David Inglis"
+          ],
+          "claimed_title": "Anisotropic permeability in deterministic lateral displacement arrays",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1610.08427"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='Anisotropic permeability in deterministic lateral displacement arrays')",
+        "failed_at": "2026-07-28T18:39:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There has been a significant increase in leakage energy dissipation of CMOS circuits with each technology generation. Further, due to their large size, last level caches (LLCs) spend a large fraction of their energy in the form of leakage energy and hence, addressing this has become extremely important to meet the challenges of chip power budget. For addressing this, several techniques have been proposed. However, most of these techniques require offline profiling and hence cannot be used for real-life systems which usually run multitasking programs, with possible pre-emptions. In this paper, we propose a dynamic profiling based technique for saving cache leakage energy in multitasking systems. Our technique uses a small coloring-based profiling cache, to estimate performance and energy consumption of multiple cache configurations and then selects the best (least-energy) configuration among them. Our technique uses non-intrusive profiling and saves energy despite intra-task and inter-task variations; thus, it is suitable for multitasking systems. Simulations performed using workloads from SPEC2006 suite show the superiority of our technique over an existing cache energy saving technique. With a 2MB baseline cache, the average saving in memory sub-system energy is 22.8%.",
+          "claimed_authors": [
+            "Sparsh Mittal"
+          ],
+          "claimed_title": "A Cache-Coloring Based Technique for Saving Leakage Energy In Multitasking Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1309.5647"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='A Cache-Coloring Based Technique for Saving Leakage Energy In Multitasking Systems')",
+        "failed_at": "2026-07-28T18:39:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The absorption, distribution, metabolism, excretion, and toxicity (ADMET) properties are important in drug discovery as they define efficacy and safety. In this work, we applied an ensemble of features, including fingerprints and descriptors, and a tree-based machine learning model, extreme gradient boosting, for accurate ADMET prediction. Our model performs well in the Therapeutics Data Commons ADMET benchmark group. For 22 tasks, our model is ranked first in 18 tasks and top 3 in 21 tasks. The trained machine learning models are integrated in ADMETboost, a web server that is publicly available at https://ai-druglab.smu.edu/admet.",
+          "claimed_authors": [
+            "Hao Tian",
+            "Rajas Ketkar",
+            "Peng Tao"
+          ],
+          "claimed_title": "Accurate ADMET Prediction with XGBoost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2204.07532"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='Accurate ADMET Prediction with XGBoost')",
+        "failed_at": "2026-07-28T18:39:52Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A tunable measure for information leakage called \\textit{maximal $α$-leakage} is introduced. This measure quantifies the maximal gain of an adversary in refining a tilted version of its prior belief of any (potentially random) function of a dataset conditioning on a disclosed dataset. The choice of $α$ determines the specific adversarial action ranging from refining a belief for $α=1$ to guessing the best posterior for $α= \\infty$, and for these extremal values this measure simplifies to mutual information (MI) and maximal leakage (MaxL), respectively. For all other $α$ this measure is shown to be the Arimoto channel capacity. Several properties of this measure are proven including: (i) quasi-convexity in the mapping between the original and disclosed datasets; (ii) data processing inequalities; and (iii) a composition property.",
+          "claimed_authors": [
+            "Jiachun Liao",
+            "Oliver Kosut",
+            "Lalitha Sankar",
+            "Flavio P. Calmon"
+          ],
+          "claimed_title": "A Tunable Measure for Information Leakage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.03332"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='Predicting Molecular Permeability Coefficients Using Graph Neural Networks and P', candidate_title='A Tunable Measure for Information Leakage')",
+        "failed_at": "2026-07-28T18:39:52Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Nina Lukashina",
+            "Alisa Alenicheva",
+            "Elizaveta Vlasova",
+            "Artem Kondiukov",
+            "Aigul Khakimova",
+            "Emil Magerramov",
+            "Nikita Churikov",
+            "Aleksei Shpilman"
+          ],
+          "title": "Lipophilicity Prediction with Multitask Learning and Molecular Substructures Representation",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2011.12117",
+        "summary": "Lipophilicity is one of the factors determining the permeability of the cell membrane to a drug molecule. Hence, accurate lipophilicity prediction is an essential step in the development of new drugs. In this paper, we introduce a novel approach to encoding additional graph information by extracting molecular substructures. By adding a set of generalized atomic features of these substructures to an established Direct Message Passing Neural Network (D-MPNN) we were able to achieve a new state-of-the-art result at the task of prediction of two main lipophilicity coefficients, namely logP and logD descriptors. We further improve our approach by employing a multitask approach to predict logP and logD values simultaneously. Additionally, we present a study of the model performance on symmetric and asymmetric molecules, that may yield insight for further research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2011.12117",
+          "http_status": 200,
+          "pdf_sample_score": 0.1986,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-28T18:39:51Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular permeability coefficients using graph neural networks and publicly available datasets chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

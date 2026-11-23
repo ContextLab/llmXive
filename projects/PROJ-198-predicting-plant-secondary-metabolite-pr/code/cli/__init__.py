@@ -1,3 +1,3 @@
 """
-CLI package initialization.
+Package marker for the ``code.cli`` sub‑module.
 """

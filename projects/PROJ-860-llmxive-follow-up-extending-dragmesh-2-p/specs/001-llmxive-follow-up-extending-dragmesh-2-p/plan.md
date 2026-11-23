@@ -1,87 +1,164 @@
-# Implementation Plan: llmXive Follow-up: Virtual Tactile Zero-Shot Adaptation
+# Implementation Plan: Virtual Tactile Zero-Shot Adaptation
 
-**Branch**: `001-virtual-tactile-adaptation` | **Date**: 2026-07-13 | **Spec**: `specs/001-virtual-tactile-adaptation/spec.md`
+**Branch**: `001-virtual-tactile-adaptation` | **Date**: 2026-10-13 | **Spec**: `specs/001-virtual-tactile-adaptation/spec.md`  
 **Input**: Feature specification from `/specs/001-virtual-tactile-adaptation/spec.md`
 
 ## Summary
-
-This feature extends the DragMesh-2 framework to implement a "Virtual Tactile" zero-shot adaptation mechanism for dexterous hand-object interaction. The core innovation is a non-neural estimator that computes a stiffness proxy ($k_{est}$) from the ratio of hand joint torque derivatives to object velocity derivatives. This proxy drives an adaptive reward scheduler that dynamically adjusts detachment and contact maintenance weights during simulation, enabling the policy to handle unseen friction coefficients spanning a broad range without retraining. The implementation strictly adheres to CPU-only constraints (PyBullet) to ensure reproducibility on GitHub Actions free-tier runners.
+The goal is to enable zero‑shot adaptation of a dexterous hand manipulation policy to unseen friction conditions by (1) estimating a **Dynamic Resistance Proxy** (`k_norm`) from torque and velocity derivatives, (2) feeding this proxy to an **AdaptiveRewardScheduler** that scales detachment and contact rewards based on percentile position, and (3) validating the approach with a CPU‑only pipeline that satisfies all functional (FR‑001…FR‑011) and success‑criteria (SC‑001…SC‑006) requirements.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pybullet` (CPU-only), `numpy`, `scipy` (for statistical tests), `pandas`, `datasets` (for HuggingFace loading), `pytest`, `statsmodels` (for power analysis)  
-**Storage**: Local file system for generated geometry and logs; HuggingFace Hub for DragMesh-2 dataset.  
-**Testing**: `pytest` with `pytest-timeout` to enforce 6-hour limit; `pytest-mock` for unit testing the estimator logic.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).  
-**Project Type**: Research simulation pipeline / library.  
-**Performance Goals**: Complete full experiment (30 objects, 50 trials each, training, inference, analysis) in ≤ 6 hours; peak memory ≤ 7 GB.  
-**Constraints**: No CUDA/GPU operations; no 8-bit/4-bit quantization; strict CPU backend for physics engine.  
-**Scale/Scope**: A set of novel object geometries; 1 static baseline policy; 1 adaptive policy; statistical comparison via paired t-test on aggregated success rates.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pybullet`, `torch` (CPU‑only), `numpy`, `pandas`, `scipy`, `statsmodels`, `pytest`  
+- **Storage**: Local `data/` directory (raw manifests, generated objects, CSV logs, JSON summaries)  
+- **Testing**: `pytest` with CPU‑resource assertions  
+- **Target Platform**: GitHub Actions free‑tier runner (Linux, 2 vCPU, 7 GB RAM)  
+- **Performance Goals**: Full experiment ≤ 6 h wall‑clock, peak RAM ≤ 7 GB, **no CUDA** usage  
+- **Constraints**: CPU‑only (Constitution Principle VI), reproducibility (Principle I), data hygiene (Principle III)  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-1.  **I. Reproducibility**: The plan mandates pinned `requirements.txt` (located in `code/`), random seed fixation, and re-runnable scripts against the canonical HuggingFace DragMesh-2 source.
-2.  **II. Verified Accuracy**: All citations in `research.md` will be restricted to the verified HuggingFace dataset URL provided in the spec. The CI pipeline includes a `validate_citations.py` step that checks URL reachability and title-token-overlap (≥ 0.7) before execution.
-3.  **III. Data Hygiene**: The plan requires checksumming of the DragMesh manifest and any derived geometry files. Checksums are recorded in `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under the `artifact_hashes` map. The `data/raw` directory is mounted read-only in the CI environment to enforce no in-place modifications.
-4.  **IV. Single Source of Truth**: The `data/` directory will store the generated objects and simulation logs. The `paper/` (future) will reference these specific files.
-5.  **V. Versioning Discipline**: Artifacts (schemas, logs) will be tracked with content hashes in the project state file `state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` under `artifact_hashes`.
-6.  **VI. CPU-Only Simulation Fidelity**: The plan explicitly selects PyBullet with CPU backend and prohibits any GPU-accelerated libraries or CUDA calls.
-7.  **VII. Derivative-Based Stiffness Proxy Validation**: The plan includes the specific formula $k_{est} = \frac{|\Delta \tau_{hand}|}{|\Delta v_{object}|}$ (with mass normalization) and the paired t-test validation against the static baseline as required.
+| Principle | Status | Note |
+|-----------|--------|------|
+| I. Reproducibility | **PASS** | Fixed seeds, isolated `requirements.txt`, deterministic loaders. |
+| II. Verified Accuracy | **PASS** | All citations (DragMesh‑2, Gaussian filter) are verified URLs. |
+| III. Data Hygiene | **PASS** | Checksums recorded, raw vs. derived files separated. |
+| IV. Single Source of Truth | **PASS** | All figures/tables trace back to `data/` artifacts; spec amendment is a separate, versioned artifact. |
+| V. Versioning Discipline | **PASS** | Content hashes stored in project state; amendment proposal versioned separately. |
+| VI. CPU‑Only Simulation Fidelity | **PASS** | Explicit `pybullet` `DIRECT` mode; `torch.cuda` never imported. |
+| VII. Derivative‑Based Stiffness Proxy Validation | **PASS** | GLMM analysis, correlation experiment, paired‑t‑test, and ablation study directly test the estimator. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-virtual-tactile-adaptation/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
-│   └── estimator_output.schema.yaml
-└── tasks.md             # Phase 2 output
-```
+│   ├── estimator_output.schema.yaml
+│   └── sweep_output.schema.yaml
+└── docs/
+    ├── README.md
+    └── CHANGELOG.md
 
-### Source Code (repository root)
-
-```text
 projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/
-├── data/
-│   ├── raw/             # DragMesh-2 manifest (downloaded, read-only)
-│   └── generated/       # 30 novel object geometries
 ├── code/
 │   ├── __init__.py
-│   ├── config.py        # Hyperparameters, seeds
-│   ├── estimator.py     # VirtualTactileEstimator (FR-001, FR-006, FR-007)
-│   ├── scheduler.py     # AdaptiveRewardScheduler (FR-002)
-│   ├── environment.py   # PyBullet CPU setup (FR-004)
-│   ├── generator.py     # NovelObjectSet generation (FR-003)
-│   ├── train.py         # Policy training loop
-│   ├── evaluate.py      # Inference and success rate logging
-│   ├── analysis.py      # Paired t-test (FR-005)
-│   ├── validate_citations.py # CI gate for Principle II
-│   └── requirements.txt # Pinning dependencies (Constitution Reproducibility)
+│   ├── environment/
+│   │   ├── __init__.py
+│   │   ├── drag_mesh_env.py
+│   │   └── articulated_object_gen.py
+│   ├── estimators/
+│   │   ├── __init__.py
+│   │   └── virtual_tactile.py
+│   ├── policies/
+│   │   ├── __init__.py
+│   │   ├── static_pica.py
+│   │   └── adaptive_pica.py
+│   ├── analysis/
+│   │   ├── __init__.py
+│   │   └── statistical_test.py
+│   └── main.py
+├── data/
+│   ├── raw/
+│   │   └── dragmesh_manifest.jsonl
+│   ├── generated/
+│   │   └── novel_objects/
+│   └── logs/
+│       ├── simulation_run_*.csv
+│       └── experiment_summary.json
 ├── tests/
 │   ├── unit/
-│   │   └── test_estimator.py
-│   └── integration/
-│       └── test_pipeline.py
-├── state/
-│   └── projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml # State file with artifact_hashes
-└── README.md
+│   │   ├── test_estimator.py
+│   │   └── test_scheduler.py
+│   ├── integration/
+│   │   └── test_cpu_pipeline.py
+│   └── contract/
+│       └── test_schema_validation.py
+├── docs/
+│   ├── README.md
+│   └── CHANGELOG.md
+├── requirements.txt
+└── .gitignore
 ```
 
-**Structure Decision**: A single-project structure is selected. The research involves a tight coupling between the estimator, scheduler, and physics environment, making a monolithic `code/` directory more efficient for simulation state management and reproducibility than a microservices split. The `data/` directory is strictly separated to enforce the "Data Hygiene" constitution principle.
+## Phase & Task Mapping (covers all FR/SC)
 
-## Complexity Tracking
+| Phase | Task ID | FR / SC | Description |
+|-------|---------|--------|-------------|
+| **0. Spec Amendment** | T000 | — | Create `amendment_proposal.md` **adding** a paired‑t‑test analysis (see Task T025a) while retaining the GLMM; this amendment aligns the plan with Constitution Principle VII. |
+| **1. Data Preparation** | T010 | FR‑010, FR‑009 | Download DragMesh‑2 manifest, checksum, generate **10** novel articulated objects with friction ∈ [0.8, 1.2] ∪ [0.0, 0.1]; log normal contact force `N`. |
+| **2. Simulation & Logging** | T015a | FR‑001, FR‑006, FR‑007, FR‑009, SC‑003, SC‑004 | Run `drag_mesh_env.py` for each object under three policies (`static`, `adaptive`, `ablation_random`). Log raw `torque_hand`, `velocity_object`, and `N` per timestep to CSV. |
+| **3. Estimation & Reward Scheduling** | T015b | FR‑001, FR‑002, FR‑006, FR‑007, **FR‑011** | `virtual_tactile.py` reads raw CSV, applies moving‑average (W=5), epsilon clamping (ε=1e‑4), computes `k_norm`, clamps to [1e‑4, 10], updates reward weights per percentile rules (90th/10th). |
+| **4. Ablation (Random Proxy)** | T015c | SC‑001, SC‑002 | Replace `k_norm` with uniform random values **while keeping object geometry and initial conditions identical** across policies, thereby isolating the estimator’s contribution. |
+| **5. CPU‑Only Enforcement** | T015d | FR‑004 | Verify that no CUDA imports or GPU‑specific calls are present; include a unit test that scans source files for `torch.cuda` and fails if found. |
+| **6. Correlation‑Validation Experiment** | T020 | FR‑008, SC‑006 | Run **≥ 30** trials where the true friction coefficient is known. Record `k_norm` and also **normalize** by `N` (or compute partial correlation controlling for `N`). Compute Pearson r; require `r ≥ 0.8`. |
+| **7. Power Analysis & Contingency** | T045 | — | Perform a quick analytical power check for the GLMM with 10 objects; if predicted power < 0.8, automatically increase `--num_objects` up to 20 (still ≤ 6 h). |
+| **8. Reward Threshold Sensitivity** | T045b | — | Evaluate alternative percentile thresholds (80/20, 85/15) and report impact on success rate; choose the most robust setting. |
+| **9. Statistical Analysis – GLMM** | T025 | FR‑005, SC‑005 | Fit a **Generalized Linear Mixed Model** (logit link) with `policy_type` as fixed effect, `object_id` as random intercept; report `p < 0.05`. |
+| **10. Statistical Analysis – Paired t‑test** | T025a | FR‑005, SC‑005 | Conduct a paired‑t‑test on per‑object success rates (adaptive vs. static) as required by Constitution Principle VII; report effect size and significance. |
+| **11. Result Summarization** | T030 | SC‑001, SC‑002 | Write `experiment_summary.json` with success rates, improvement %, `p_value` (GLMM), `t_test_p`, `correlation_r`, and conclusion flag. |
+| **12. Documentation Update** | T040 | — | Populate `docs/README.md` and `docs/CHANGELOG.md` with usage, reproducibility notes, and version history. |
+| **13. Contract Validation** | T050 | — | Run `tests/contract/test_schema_validation.py` against generated JSON/CSV artifacts. |
+| **14. CI Integration** | T060 | — | Ensure `code/main.py --mode full` runs end‑to‑end on a fresh GitHub Actions runner within the 6 h / 7 GB budget. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| N/A | The project adheres to all constraints. | The CPU-only constraint is a hard requirement for CI feasibility, not a complexity choice. |
+All phases are ordered so that data download precedes generation, generation precedes simulation, simulation precedes estimation, estimation precedes analysis, and analysis precedes reporting.
+
+---
+
+## Decision/Rationale Summary
+- **GLMM + Paired t‑test** – Binary outcomes demand a GLMM for mixed‑effects inference *and* a paired t‑test to satisfy Constitution Principle VII. Both are run; GLMM handles random effects, t‑test provides the mandated direct comparison.  
+- **Ablation with Random Proxy** – Controls for object‑specific factors by evaluating all policies on the *same* objects and initial states; only the proxy is randomized.  
+- **CPU‑only execution** – Enforced by Task T015d; no CUDA imports, `torch` installed with `+cpu`.  
+- **Moving‑average window = 5** – Directly matches the verified filter size (Gaussian filter source).  
+- **DragMesh‑2 as sole data source** – Open, programmatically downloadable, and provides required geometry; friction is assigned during generation, meeting dataset‑variable fit.  
+- **Dynamic Resistance Proxy construct validity** – Acknowledged that torque and velocity derivatives also depend on geometry and mass; justified via the *controlled* correlation experiment that normalizes by contact force `N`.  
+- **Reward thresholds** – Sensitivity analysis (Task T045b) will verify that 90th/10th percentiles are robust; alternative thresholds are explored.  
+- **Power analysis** – Quick analytic check (Task T045) ensures sufficient statistical power; if under‑powered, object count is increased up to 20 while staying within the 6 h budget.  
+
+## Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| Simulation instability at extreme friction | Clamp `k_norm` (FR‑007) and enforce maximum reward scaling; fallback to reduced timestep if PyBullet reports high forces. |
+| Insufficient statistical power | Power analysis (T045) will trigger increase of `--num_objects` up to 20; GLMM and paired t‑test will be re‑run. |
+| Noisy derivatives | Apply mandatory moving‑average filter; if still noisy, increase window size to 7 in a secondary run (still documented). |
+| Spec‑analysis mismatch | Amendment proposal (`amendment_proposal.md`) adds paired t‑test without removing GLMM; both are documented and versioned. |
+| Memory overflow | Stream CSV rows during GLMM fitting; limit episode length and use PyBullet’s `MAX_SUBSTEPS` to reduce state size. |
+
+---
+
+
+## Quick Reference of FR/SC Coverage
+- **FR‑001‑007** – Implemented in `virtual_tactile.py` (estimator).  
+- **FR‑008‑009** – Correlation experiment and normal‑force logging in `drag_mesh_env.py`.  
+- **FR‑010‑011** – Object generation and percentile‑based reward scaling in `articulated_object_gen.py` & `adaptive_pica.py`.  
+- **FR‑004** – Enforced by Task T015d.  
+- **FR‑005** – GLMM (Task T025) *and* paired t‑test (Task T025a).  
+- **SC‑001‑002** – Success‑rate comparisons recorded in `experiment_summary.json`.  
+- **SC‑003‑004** – CI‑budget tracking via `tests/integration/test_cpu_pipeline.py`.  
+- **SC‑005** – GLMM `p < 0.05` requirement.  
+- **SC‑006** – Pearson r ≥ 0.8 over ≥ 30 trials in correlation experiment.  
+
+---
+
+
+## Timeline (approximate)
+
+| Week | Milestones |
+|------|------------|
+| 1 | Data download, object generation (T010). |
+| 2 | Simulation runs, logging (T015a‑c). |
+| 3 | Estimator implementation, reward scheduler (T015b). |
+| 4 | CPU‑only verification (T015d) + ablation runs. |
+| 5 | Correlation experiment (T020) + power analysis (T045). |
+| 6 | GLMM & paired t‑test analyses (T025, T025a). |
+| 7 | Sensitivity analysis (T045b) + result summarization (T030). |
+| 8 | Documentation, contract validation, CI integration (T040‑T060). |
+
+---
+
+
+## Appendices
+- **Algorithmic Details** – formulas, filter implementation, percentile computation.  
+- **Software Stack** – exact version pins (see `requirements.txt`).  
+- **Reproducibility** – random seed (`--seed 42`) recorded in all scripts.  

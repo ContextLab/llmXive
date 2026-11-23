@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cleaned Microbiome Sleep Dataset Schema"
+description: "Schema for the processed dataset containing microbiome and sleep data. If the dataset is blocked, the file contains a single row with status='blocked'."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample. If blocked, this will be 'BLOCKED'."
+  status:
+    type: "string"
+    description: "Status of the row. 'blocked' indicates the dataset was not available."
+    enum:
+      - "valid"
+      - "blocked"
+  reason:
+    type: "string"
+    description: "Reason for blocking if status is 'blocked'. Otherwise, null."
+    nullable: true
+  shannon:
+    type: "number"
+    description: "Shannon diversity index."
+    nullable: true
+  simpson:
+    type: "number"
+    description: "Simpson diversity index."
+    nullable: true
+  observed_otus:
+    type: "number"
+    description: "Observed OTUs count."
+    nullable: true
+  sleep_efficiency:
+    type: "number"
+    description: "Sleep efficiency percentage."
+    nullable: true
+  sleep_duration_hours:
+    type: "number"
+    description: "Sleep duration in hours."
+    nullable: true
+  age:
+    type: "integer"
+    description: "Age of participant."
+    nullable: true
+  bmi:
+    type: "number"
+    description: "Body Mass Index."
+    nullable: true
+required:
+  - "sample_id"
+  - "status"
+additionalProperties: false

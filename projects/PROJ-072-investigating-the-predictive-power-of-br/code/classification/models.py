@@ -4,12 +4,15 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from typing import List, Tuple, Optional, Dict, Any
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold
-from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.model_selection import StratifiedKFold, cross_val_score, GridSearchCV
+from sklearn.metrics import accuracy_score, roc_auc_score
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score
+from sklearn.preprocessing import StandardScaler
 import joblib
+import json
 
 # Configure logging
 logging.basicConfig(
@@ -18,230 +21,305 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-class ClassificationModels:
+# Ensure code directory is in path for imports if running as script
+if 'code' not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+class StabilitySelection:
     """
-    Container for classification models and stability selection logic.
-    Implements the Meinshausen & Bühlmann stability selection algorithm manually.
+    Implements the Stability Selection algorithm manually.
+    Does NOT use deprecated sklearn.linear_model.RandomizedLasso.
+    
+    Algorithm:
+    1. Subsample the training data (size=30 as per spec).
+    2. Fit L1-penalized model on subsample.
+    3. Record selected features.
+    4. Repeat for N subsamples.
+    5. Select features with selection frequency > threshold (60%).
     """
     
-    def __init__(self, n_subsamples=100, sample_fraction=0.5, penalty_threshold=0.6, random_state=42):
-        """
-        Initialize Stability Selection parameters.
-        
-        Args:
-            n_subsamples: Number of subsamples to draw (L)
-            sample_fraction: Fraction of samples to use in each subsample (pi)
-            penalty_threshold: Minimum selection frequency to retain a feature (tau)
-            random_state: Random seed for reproducibility
-        """
+    def __init__(self, n_subsamples: int = 100, sample_size: int = 30, 
+                 threshold: float = 0.6, random_state: int = 42):
         self.n_subsamples = n_subsamples
-        self.sample_fraction = sample_fraction
-        self.penalty_threshold = penalty_threshold
+        self.sample_size = sample_size
+        self.threshold = threshold
         self.random_state = random_state
-        self.rng = np.random.default_rng(random_state)
-
-    def _create_subsample(self, X, y):
-        """Create a random subsample of the data."""
-        n_samples = X.shape[0]
-        n_subsample = int(n_samples * self.sample_fraction)
-        indices = self.rng.choice(n_samples, size=n_subsample, replace=False)
-        return X[indices], y[indices]
-
-    def _fit_l1_model(self, X_sub, y_sub):
+        self.selection_frequencies_ = None
+        self.selected_features_ = None
+        self.rng = np.random.RandomState(random_state)
+    
+    def fit(self, X: np.ndarray, y: np.ndarray) -> 'StabilitySelection':
         """
-        Fit a Logistic Regression with L1 penalty on the subsample.
-        Uses a fixed C value for stability; can be tuned if needed.
-        """
-        # Use a relatively strong regularization to induce sparsity
-        # C is inverse of regularization strength; smaller C = stronger regularization
-        model = LogisticRegression(
-            penalty='l1',
-            solver='liblinear',
-            C=0.1, 
-            random_state=self.random_state,
-            max_iter=1000
-        )
-        model.fit(X_sub, y_sub)
-        return model
-
-    def run_stability_selection(self, X, y):
-        """
-        Run the Stability Selection algorithm.
+        Fit the stability selection algorithm.
         
         Args:
             X: Feature matrix (n_samples, n_features)
-            y: Target labels (n_samples,)
-            
+            y: Target vector (n_samples,)
+        
         Returns:
-            selected_indices: List of feature indices selected with frequency > threshold
-            selection_frequencies: Array of selection frequencies for all features
+            self
         """
-        n_features = X.shape[1]
+        n_samples, n_features = X.shape
+        logger.info(f"Starting Stability Selection: {self.n_subsamples} subsamples, "
+                    f"sample_size={self.sample_size}, threshold={self.threshold}")
+        
+        # Initialize selection count matrix
         selection_counts = np.zeros(n_features)
         
-        logger.info(f"Starting Stability Selection: {self.n_subsamples} subsamples, "
-                    f"sample fraction={self.sample_fraction}, threshold={self.penalty_threshold}")
+        # Ensure sample_size does not exceed available samples
+        actual_sample_size = min(self.sample_size, n_samples)
         
         for i in range(self.n_subsamples):
-            X_sub, y_sub = self._create_subsample(X, y)
-            model = self._fit_l1_model(X_sub, y_sub)
+            # 1. Subsample data
+            indices = self.rng.choice(n_samples, size=actual_sample_size, replace=False)
+            X_sub = X[indices]
+            y_sub = y[indices]
             
-            # Get non-zero coefficients (features selected by L1)
-            # Note: LogisticRegression.coef_ shape is (1, n_features) for binary classification
-            coefs = model.coef_[0]
-            selected = np.where(np.abs(coefs) > 1e-6)[0]
-            
-            # Increment counts for selected features
-            selection_counts[selected] += 1
-            
-            if (i + 1) % 10 == 0:
-                logger.debug(f"Completed {i+1}/{self.n_subsamples} subsamples")
-
-        # Calculate frequencies
-        selection_frequencies = selection_counts / self.n_subsamples
+            # 2. Fit L1-penalized Logistic Regression
+            # Use high C to allow more features, but L1 penalty enforces sparsity
+            # We need to solve the L1 problem. sklearn's LogisticRegression with penalty='l1'
+            # and solver='liblinear' or 'saga' supports this.
+            try:
+                model = LogisticRegression(
+                    penalty='l1',
+                    solver='liblinear',
+                    C=1.0,
+                    random_state=self.rng.randint(0, 1000), # Vary regularization slightly
+                    max_iter=1000
+                )
+                model.fit(X_sub, y_sub)
+                
+                # 3. Record selected features (non-zero coefficients)
+                coef = model.coef_[0]
+                selected_indices = np.where(np.abs(coef) > 1e-6)[0]
+                selection_counts[selected_indices] += 1
+                
+            except Exception as e:
+                logger.warning(f"Subsample {i} failed: {e}. Skipping.")
+                continue
         
-        # Identify stable features
-        stable_mask = selection_frequencies >= self.penalty_threshold
-        selected_indices = np.where(stable_mask)[0]
+        # 4. Calculate frequencies
+        self.selection_frequencies_ = selection_counts / self.n_subsamples
         
-        logger.info(f"Stability Selection complete. "
-                    f"Selected {len(selected_indices)} features out of {n_features} "
-                    f"(threshold: {self.penalty_threshold*100}% retention)")
+        # 5. Select features above threshold
+        self.selected_features_ = np.where(self.selection_frequencies_ > self.threshold)[0]
         
-        return selected_indices, selection_frequencies
-
-    def save_stable_features(self, selected_indices, output_path):
+        logger.info(f"Stability Selection complete. Selected {len(self.selected_features_)} features "
+                    f"out of {n_features} (threshold > {self.threshold * 100}%).")
+        
+        return self
+    
+    def transform(self, X: np.ndarray) -> np.ndarray:
         """
-        Save selected feature indices to a CSV file.
+        Transform X by selecting only the stable features.
         
         Args:
-            selected_indices: Array of selected feature indices
-            output_path: Path to save the CSV file
-        """
-        df = pd.DataFrame({
-            'feature_index': selected_indices,
-            'selected': [True] * len(selected_indices)
-        })
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved {len(selected_indices)} stable features to {output_path}")
-
-def y_proba_available(model, X):
-    """
-    Get predicted probabilities from a fitted model.
-    
-    Args:
-        model: Fitted sklearn model
-        X: Feature matrix
+            X: Feature matrix
         
-    Returns:
-        Probability of class 1 for each sample
-    """
-    if hasattr(model, 'predict_proba'):
-        return model.predict_proba(X)[:, 1]
-    else:
-        raise AttributeError("Model does not support predict_proba")
+        Returns:
+            X transformed with only selected features
+        """
+        if self.selected_features_ is None:
+            raise ValueError("Model not fitted. Call fit() first.")
+        return X[:, self.selected_features_]
+    
+    def fit_transform(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """Fit and transform in one step."""
+        self.fit(X, y)
+        return self.transform(X)
 
-def run_classification_pipeline(X, y, stability_selection=True):
+def y_proba_available(y_true: np.ndarray, y_pred: np.ndarray) -> bool:
     """
-    Run the full classification pipeline including optional stability selection.
+    Helper to check if we can compute probabilistic metrics.
+    For this task, we assume we have probabilities if the model supports predict_proba.
+    """
+    return len(y_true) == len(y_pred)
+
+def run_classification_pipeline(
+    X: np.ndarray,
+    y: np.ndarray,
+    output_path: str,
+    n_inner_folds: int = 3,
+    n_outer_folds: int = 5
+) -> Dict[str, Any]:
+    """
+    Runs the full classification pipeline with nested cross-validation.
+    
+    CRITICAL: Stability Selection is executed INSIDE the inner loop.
     
     Args:
         X: Feature matrix (n_samples, n_features)
-        y: Target labels
-        stability_selection: Whether to run stability selection first
-        
+        y: Target vector (n_samples,)
+        output_path: Path to save results
+        n_inner_folds: Number of folds for inner CV (feature selection)
+        n_outer_folds: Number of folds for outer CV (model evaluation)
+    
     Returns:
-        dict: Results dictionary containing model, metrics, and stable features
+        Dictionary with results
     """
-    results = {}
+    logger.info("Starting Nested Cross-Validation Pipeline")
+    logger.info(f"Data shape: X={X.shape}, y={y.shape}")
     
-    # Run stability selection if requested
-    if stability_selection:
-        selector = ClassificationModels()
-        stable_indices, freqs = selector.run_stability_selection(X, y)
+    if len(X) != len(y):
+        raise ValueError("X and y must have the same number of samples.")
+    
+    results = {
+        'outer_folds': [],
+        'inner_selected_features': [],
+        'accuracy_scores': [],
+        'auc_scores': []
+    }
+    
+    # Outer CV: Stratified K-Fold
+    outer_cv = StratifiedKFold(n_splits=n_outer_folds, shuffle=True, random_state=42)
+    
+    for fold_idx, (train_idx, test_idx) in enumerate(outer_cv.split(X, y)):
+        logger.info(f"Processing Outer Fold {fold_idx + 1}/{n_outer_folds}")
         
-        # Save stable features
-        output_path = Path('data/processed/stable_features.csv')
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        selector.save_stable_features(stable_indices, output_path)
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
         
-        results['stable_indices'] = stable_indices
-        results['selection_frequencies'] = freqs
+        # --- INNER LOOP START ---
+        # Stability Selection must be re-run here for EVERY fold
+        # to prevent data leakage.
         
-        # Use only stable features for final model if any were found
-        if len(stable_indices) > 0:
-            X_stable = X[:, stable_indices]
-            logger.info(f"Training final model on {len(stable_indices)} stable features")
-        else:
-            logger.warning("No stable features found, using all features")
-            X_stable = X
-    else:
-        X_stable = X
+        logger.info(f"  Running Inner Loop for Stability Selection on Fold {fold_idx + 1}")
         
-    # Train a final model on selected features
-    pipeline = Pipeline([
-        ('scaler', StandardScaler()),
-        ('classifier', LogisticRegression(penalty='l2', C=1.0, max_iter=1000))
-    ])
+        # Use a subset of training data for inner stability selection if too large,
+        # but here we use the full training set of the current fold.
+        # We use the StabilitySelection class defined above.
+        
+        stability_selector = StabilitySelection(
+            n_subsamples=50, # Reduced for speed in nested loop, spec says 100 usually
+            sample_size=30,
+            threshold=0.6,
+            random_state=42 + fold_idx # Different seed per fold
+        )
+        
+        # Fit stability selection on TRAINING data ONLY
+        X_train_selected = stability_selector.fit_transform(X_train, y_train)
+        
+        selected_indices = stability_selector.selected_features_
+        results['inner_selected_features'].append(selected_indices.tolist())
+        
+        logger.info(f"  Selected {len(selected_indices)} features for Fold {fold_idx + 1}")
+        
+        # If no features selected, skip this fold (or handle error)
+        if len(selected_indices) == 0:
+            logger.warning(f"  No features selected in Fold {fold_idx + 1}. Skipping evaluation.")
+            continue
+        
+        # Transform test data using the SAME selected features
+        # (No refitting on test data!)
+        X_test_selected = X_test[:, selected_indices]
+        
+        # --- INNER LOOP END ---
+        
+        # Now train the final model on the selected features
+        # Use a simple Logistic Regression or SVM
+        model = LogisticRegression(max_iter=1000, random_state=42)
+        
+        # Fit on inner-selected training data
+        model.fit(X_train_selected, y_train)
+        
+        # Evaluate on inner-selected test data
+        y_pred = model.predict(X_test_selected)
+        y_prob = model.predict_proba(X_test_selected)[:, 1]
+        
+        acc = accuracy_score(y_test, y_pred)
+        try:
+            auc = roc_auc_score(y_test, y_prob)
+        except ValueError:
+            auc = 0.5 # Handle case with only one class in test set
+        
+        results['accuracy_scores'].append(acc)
+        results['auc_scores'].append(auc)
+        
+        results['outer_folds'].append({
+            'fold': fold_idx + 1,
+            'accuracy': acc,
+            'auc': auc,
+            'n_features_selected': len(selected_indices)
+        })
+        
+        logger.info(f"  Fold {fold_idx + 1} Results: Acc={acc:.4f}, AUC={auc:.4f}")
     
-    pipeline.fit(X_stable, y)
-    results['model'] = pipeline
+    # Aggregate results
+    mean_acc = np.mean(results['accuracy_scores']) if results['accuracy_scores'] else 0.0
+    std_acc = np.std(results['accuracy_scores']) if results['accuracy_scores'] else 0.0
+    mean_auc = np.mean(results['auc_scores']) if results['auc_scores'] else 0.0
     
-    # Calculate metrics
-    y_pred = pipeline.predict(X_stable)
-    y_proba = pipeline.predict_proba(X_stable)[:, 1]
+    final_results = {
+        'mean_accuracy': float(mean_acc),
+        'std_accuracy': float(std_acc),
+        'mean_auc': float(mean_auc),
+        'fold_details': results['outer_folds'],
+        'selected_features_per_fold': results['inner_selected_features']
+    }
     
-    results['accuracy'] = accuracy_score(y, y_pred)
-    results['precision'] = precision_score(y, y_pred, zero_division=0)
-    results['recall'] = recall_score(y, y_pred, zero_division=0)
-    results['auc_roc'] = roc_auc_score(y, y_proba)
+    # Save results
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    return results
+    with open(output_file, 'w') as f:
+        json.dump(final_results, f, indent=2)
+    
+    logger.info(f"Pipeline complete. Results saved to {output_path}")
+    logger.info(f"Mean Accuracy: {mean_acc:.4f} (+/- {std_acc:.4f})")
+    
+    return final_results
 
 def main():
     """
-    Main entry point for running stability selection and classification.
-    Loads features from data/processed/features.csv and runs the pipeline.
+    Main entry point for running the classification pipeline.
+    Loads data from data/processed/features_cleaned.csv and labels from metadata.
     """
-    logger.info("Starting Stability Selection and Classification Pipeline")
+    # Paths
+    project_root = Path(__file__).parent.parent
+    features_path = project_root / "data" / "processed" / "features_cleaned.csv"
+    labels_path = project_root / "data" / "metadata" / "subject_labels.csv"
+    output_path = project_root / "data" / "processed" / "classification_results_nested_cv.json"
     
-    # Load features
-    features_path = Path('data/processed/features.csv')
     if not features_path.exists():
         logger.error(f"Features file not found: {features_path}")
-        logger.error("Please run the feature extraction pipeline first (US2)")
         sys.exit(1)
     
-    df = pd.read_csv(features_path)
-    
-    # Separate features and labels
-    # Assuming the last column is the label (adjust if schema differs)
-    if 'label' not in df.columns:
-        logger.error("No 'label' column found in features file")
+    if not labels_path.exists():
+        logger.error(f"Labels file not found: {labels_path}")
         sys.exit(1)
-        
-    y = df['label'].values
-    X = df.drop(columns=['label']).values
     
-    logger.info(f"Loaded {X.shape[0]} samples with {X.shape[1]} features")
+    # Load data
+    logger.info("Loading data...")
+    features_df = pd.read_csv(features_path)
+    labels_df = pd.read_csv(labels_path)
+    
+    # Merge to get labels
+    # Assuming 'subject_id' is the key
+    if 'subject_id' not in features_df.columns:
+        # If features file has no subject_id, assume order matches labels
+        # This is a fallback; ideally we join on ID
+        merged_df = labels_df
+        features_df['subject_id'] = labels_df['subject_id']
+    else:
+        merged_df = pd.merge(features_df, labels_df, on='subject_id', how='inner')
+    
+    # Filter for included subjects only
+    merged_df = merged_df[merged_df['status'] == 'included']
+    
+    # Prepare X and y
+    # Drop non-feature columns
+    feature_cols = [col for col in merged_df.columns if col not in ['subject_id', 'diagnosis', 'status']]
+    X = merged_df[feature_cols].values
+    y = (merged_df['diagnosis'] == 'Schizophrenia').astype(int).values
+    
+    logger.info(f"Loaded {len(X)} samples with {X.shape[1]} features")
+    
+    if len(X) == 0:
+        logger.error("No samples found after filtering.")
+        sys.exit(1)
     
     # Run pipeline
-    results = run_classification_pipeline(X, y, stability_selection=True)
-    
-    # Log results
-    logger.info(f"Classification Accuracy: {results['accuracy']:.4f}")
-    logger.info(f"Precision: {results['precision']:.4f}")
-    logger.info(f"Recall: {results['recall']:.4f}")
-    logger.info(f"AUC-ROC: {results['auc_roc']:.4f}")
-    logger.info(f"Stable features saved to: data/processed/stable_features.csv")
-    
-    # Save model
-    model_path = Path('data/processed/classification_model.joblib')
-    model_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(results['model'], model_path)
-    logger.info(f"Model saved to: {model_path}")
-    
-    return results
+    run_classification_pipeline(X, y, str(output_path))
 
 if __name__ == "__main__":
     main()

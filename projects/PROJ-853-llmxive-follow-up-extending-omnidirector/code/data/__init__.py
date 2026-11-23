@@ -1,7 +1,3 @@
 """
-Data module initialization.
-Exports core models for the pipeline.
+Data subpackage: utilities for dataset handling.
 """
-from code.data.models import GridFrame, CameraPose, ReconstructedBox
-
-__all__ = ["GridFrame", "CameraPose", "ReconstructedBox"]

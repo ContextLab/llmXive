@@ -1,0 +1,15 @@
+status: none
+intent: download OpenNeuro ds001734 dataset via Hugging Face datasets python package
+  dataset
+required_fields:
+- eeg_signal
+- channel_names
+- sampling_rate
+- event_id
+- event_time
+- condition_label
+- epoch_start
+- epoch_end
+cache_key: 1f5e74e7f86916cc32c829a6781610b4947f9597954e18e2d5ccf2b71ab2461b
+searched_at: '2026-10-26T06:50:17.686968+00:00'
+retry_count: 1

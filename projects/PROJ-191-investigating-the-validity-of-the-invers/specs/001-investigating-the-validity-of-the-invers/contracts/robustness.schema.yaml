@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RobustnessReport"
+description: "Schema for LOO, Injection-Recovery, and Null-Simulation results."
+type: "object"
+properties:
+  loo_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        excluded_run_id: { type: "string" }
+        upper_limit_alpha_95: { type: "number" }
+        bayes_factor: { type: "number" }
+      required: ["excluded_run_id", "upper_limit_alpha_95", "bayes_factor"]
+  injection_recovery:
+    type: "object"
+    properties:
+      injected_alpha: { type: "number" }
+      recovered_alpha: { type: "number" }
+      recovered_interval:
+        type: "array"
+        items: { type: "number" }
+        minItems: 2
+        maxItems: 2
+      success: { type: "boolean" }
+    required: ["injected_alpha", "recovered_alpha", "recovered_interval", "success"]
+  null_simulation:
+    type: "object"
+    properties:
+      bayes_factor_mean: { type: "number" }
+      false_positive_rate: { type: "number" }
+    required: ["bayes_factor_mean", "false_positive_rate"]
+  stability_metric:
+    type: "number"
+    description: "Variation in upper limits across LOO iterations (must be < 15%)."
+required: ["loo_results", "injection_recovery", "null_simulation", "stability_metric"]

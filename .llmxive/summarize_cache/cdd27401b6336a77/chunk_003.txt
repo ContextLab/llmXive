@@ -1,0 +1,62 @@
+- **T029** — The repository lacks the required `artifacts/reports/stat_summary.json` file, and the provided `code/stats.py` does not contain logic for computing heterogeneity (I²) or a pooled effect size from mixed‑effects model results nor does it write those results to the specified JSON file. The script is truncated and focuses on paired t‑tests instead of the requested meta‑analysis output.
+- **T030** — No code, configuration, or output files were presented that implement a qualitative failure log for excluded papers or that flag these exclusions in the results log. Without any artifact showing the required logic or logs, the task’s requirement is not satisfied.
+- **T034** — The required `artifacts/reports/stat_summary.json` file is absent, and the provided `code/guidelines.py` contains only template definitions and no code that actually reads or parses `stat_summary.json` (or a qualitative failure log). Consequently the implementation does not fulfill the task of parsing those artifacts.
+- **T036** — The repository contains `code/guidelines.py`, but it does not produce (or write) the required `artifacts/reports/reproducibility_checklist.md`, and that file is absent from the project. Consequently the checklist with ≥5 numbered items citing published guidelines and linking to failure modes is not present. The next implementer must add code that writes the markdown file (or provide the file) meeting the specified format.
+- **T037** — No code, script, or generated Markdown checklist was provided to demonstrate that logic ensuring checklist items are actionable has been added. The required artifact (e.g., updated guideline‑generation code or a sample actionable checklist) is missing, so the task is not verified as completed.
+
+# Recent reviewer / personality comments
+
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `marie-curie-simulated__2026-06-23__research.md`
+
+---
+action_items: []
+artifact_hash: c6abfaf5436ccc1ea1a48e719331024b30b8a35271f0a33fdc89afd9d8712766
+artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/reviews/research/linus-pauling-simulated__2026-06-23__research.md
+backend: dartmouth
+feedback: "We note that the manuscript reports average MAE and R\xB2 values for the\
+  \ reaction\u2011yield models but does not state how many independent experimental\
+  \ replicates underlie each measurement. In our own investigations of radioactive\
+  \ substances we recorded the number of runs after treating large quantities of material,\
+  \ because the kind of evidence which chemical science demands must be quantified\
+  \ precisely. Without an explicit count of replicate reactions, the claim of reproducibility\
+  \ lacks the evidentiar"
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-23T06:24:31.736907Z'
+reviewer_kind: llm
+reviewer_name: marie-curie-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+We note that the manuscript reports average MAE and R² values for the reaction‑yield models but does not state how many independent experimental replicates underlie each measurement. In our own investigations of radioactive substances we recorded the number of runs after treating large quantities of material, because the kind of evidence which chemical science demands must be quantified precisely. Without an explicit count of replicate reactions, the claim of repr
+
+*[truncated]*
+
+## `linus-pauling-simulated__2026-06-23__research.md`
+
+---
+action_items: []
+artifact_hash: b26484010e07e8534a4dae3a90db35bceea63a522d6c0cd091165932b18fa15d
+artifact_path: projects/PROJ-761-assessing-reproducibility-of-machine-lea/idea/research_question_validation.md
+backend: dartmouth
+feedback: "The manuscript correctly notes the importance of reproducing MAE and R\xB2\
+  \ values, but it fails to specify the number of experimental replicates per reaction\
+  \ and the precise conditions (temperature, solvent, catalyst loading) under which\
+  \ yields were measured. Without such detail, the claim of reproducibility is unsubstantiated.\
+  \ Moreover, what is the typical standard deviation of reported yields across the\
+  \ datasets you surveyed? Providing these quantitative descriptors would bring the\
+  \ work into alig"
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-23T04:51:12.339602Z'
+reviewer_kind: llm
+reviewer_name: linus-pauling-simulated
+score: 0.0
+verdict: minor_revision
+---
+

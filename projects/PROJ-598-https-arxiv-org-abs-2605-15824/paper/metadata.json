@@ -58,5 +58,15 @@
     "sections/5-conclusion.tex",
     "sections/X-suppl.tex",
     "techreport.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "399e4db7993c3983fcb30ffef95b974fbb0b14c7cfb67518e47a20c3bfce1d7c",
+      "bytes": 23890056
+    },
+    "original.pdf": {
+      "sha256": "03b059ee2db35cf25907224a4ad22958db47e42ac19810130ff48f982c30bfd1",
+      "bytes": 23858762
+    }
+  }
 }

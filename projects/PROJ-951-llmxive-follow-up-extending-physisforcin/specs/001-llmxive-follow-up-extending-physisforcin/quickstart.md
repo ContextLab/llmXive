@@ -1,107 +1,81 @@
-# Quickstart: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula"
+# Quickstart: llmXive follow‑up — Post‑generation Physics Filtering
+
+Reproduce the full experiment on a fresh GitHub Actions free‑tier runner (or a Linux CPU box).
 
 ## Prerequisites
 
--   Python 3.11+
--   pip (Python package manager)
--   Git
--   Sufficient disk space (~14 GB) and RAM (~7 GB) for CPU-only execution.
+- Python 3.11, internet access, ~14 GB free disk.
 
-## Setup Instructions
+## Steps
 
-### 1. Clone the Repository
+1. **Install & audit environment**
+   ```bash
+   python -m venv .venv && source .venv/bin/activate
+   pip install -r code/requirements.txt
+   python code/src/utils/verify_env.py
+   ```
+   `verify_env.py` asserts `torch.cuda.is_available() is False` (FR‑021) and validates `code/config.yaml` against `contracts/config.schema.yaml` (FR‑023).
 
-```bash
-git clone <repository-url>
-cd projects/PROJ-951-llmxive-follow-up-extending-physisforcin
-```
+2. **Download real Wan2.1 videos** (checksummed into `data/raw/`)
+   ```bash
+   python code/src/data/download_videos.py --config code/config.yaml
+   ```
+   This step streams the Rapidata parquet file and filters prompts for robotic‑manipulation keywords.
 
-### 2. Create a Virtual Environment
+3. **Run the PyBullet physics filter and curate**
+   ```bash
+   python code/src/filtering/pybullet_filter.py --config code/config.yaml
+   ```
+   Scores each video (trajectory continuity + contact conservation; raw 0–100 → normalized 0–1), discards any video with normalized score < 0.60, writes curated and unfiltered manifests under `data/derived/manifests/`, and tops up with additional manipulation videos if n < 64 per condition.
 
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+4. **Validate contracts**
+   ```bash
+   pytest -q code/tests/contract/test_contracts.py
+   ```
 
-### 3. Install Dependencies
+5. **Train the ≈ 50 M‑parameter distilled diffusion model** (both conditions)
+   ```bash
+   python code/src/training/train_diffusion.py --config code/config.yaml --condition filtered
+   python code/src/training/train_diffusion.py --config code/config.yaml --condition unfiltered
+   ```
+   CPU‑only, pinned seed, NaN‑loss guard (≤ 3 LR retries), monotonic‑loss check, ≤ 4 h; duration and peak RAM recorded (SC‑005).
 
-```bash
-pip install -r code/requirements.txt
-```
+6. **Generate videos from each trained model**
+   ```bash
+   python code/src/evaluation/generate_videos.py --config code/config.yaml --model filtered
+   python code/src/evaluation/generate_videos.py --config code/config.yaml --model unfiltered
+   ```
+   Produces ≥ 64 new videos per model into `data/derived/generated/`.
 
-*Note: The `requirements.txt` includes CPU-only versions of `torch` and other dependencies.*
+7. **MuJoCo independent validation**
+   ```bash
+   python code/src/filtering/mujoco_validator.py --config code/config.yaml
+   ```
+   Produces MuJoCo physics‑consistency scores and the PyBullet–MuJoCo correlation (SC‑006).
 
-### 4. Verify Environment
+8. **Check go/no‑go sanity gate**
+   ```bash
+   # Exits with a non-zero code if the pass rate is < 80%
+   python code/src/evaluation/check_gate.py --config code/config.yaml
+   ```
+   If the gate fails, the pipeline stops and logs a null‑result record (T12–T14 are skipped); otherwise continue.
 
-Run the following to ensure all dependencies are installed and the environment is ready:
+9. **Evaluate benchmarks**
+   ```bash
+   python code/src/evaluation/evaluate_benchmarks.py --config code/config.yaml
+   ```
+   R‑Bench and PAI‑Bench scores for the filtered model, unfiltered baseline, and PhysisForcing baseline; computes the % gap (SC‑002, SC‑003).
 
-```bash
-python -c "import torch; import pybullet; import mujoco; print('Environment OK')"
-```
+10. **TOST equivalence test**
+    ```bash
+    python code/src/evaluation/tost_equivalence.py --config code/config.yaml
+    ```
+    Shapiro‑Wilk / Levene / independence diagnostics; primary TOST (filtered vs. unfiltered) with 15 % margin, α = 0.05; Mann‑Whitney fallback on assumption violation (SC‑004).
 
-### 5. Run the Pipeline
+11. **Final report**
+    ```bash
+    python code/src/evaluation/generate_report.py --config code/config.yaml
+    ```
+    `data/reports/final_summary.md` aggregates SC‑001–SC‑006, all values read from the JSON/CSV artifacts.
 
-#### Step 1: Generate Synthetic Videos
-
-```bash
-python code/src/generation/wan21_generator.py --batch-size 100 --output-dir data/raw --batch-id A
-python code/src/generation/wan21_generator.py --batch-size 100 --output-dir data/raw --batch-id B
-python code/src/generation/wan21_generator.py --batch-size 100 --output-dir data/raw --batch-id C
-```
-
-*Note: This step may take several hours on CPU. Adjust `--batch-size` to manage memory.*
-
-#### Step 2: Filter Videos
-
-```bash
-python code/src/filtering/pybullet_filter.py --input-dir data/raw --output-dir data/curated --threshold-percentile 60
-```
-
-#### Step 3: Data Augmentation (if needed)
-
-```bash
-python code/src/training/augmentation.py --input-dir data/curated --output-dir data/curated_aug --min-samples 30
-```
-
-#### Step 4: Train the Model
-
-```bash
-python code/src/training/diffusion_trainer.py --data-dir data/curated --epochs 10 --output-dir code/models
-```
-
-*Note: Training is capped at 4 hours. If the model diverges, the script will abort and log the error.*
-
-#### Step 5: Evaluate the Model
-
-```bash
-python code/src/evaluation/r_bench.py --model-path code/models/best.pt --output-dir data/eval
-python code/src/evaluation/pai_bench.py --model-path code/models/best.pt --output-dir data/eval
-python code/src/evaluation/stats.py --input-dir data/eval --output-file data/eval/results.json
-```
-
-#### Step 6: Independent Validation (FR-008)
-
-```bash
-python code/src/evaluation/mujoco_validator.py --input-dir data/curated --output-dir data/eval
-```
-
-### 6. View Results
-
-The final results, including benchmark scores and statistical tests, are stored in `data/eval/results.json`.
-
-```bash
-cat data/eval/results.json
-```
-
-### 7. Run Tests
-
-```bash
-pytest tests/ -v
-```
-
-## Troubleshooting
-
--   **Out of Memory**: Reduce the `--batch-size` in the generation step or use a smaller model architecture.
--   **CUDA Errors**: Ensure you are using the CPU-only version of `torch` (installed via `pip install torch --index-url https://download.pytorch.org/whl/cpu`).
--   **Physics Filter Failures**: Check the logs in `data/curated/logs/` for specific video IDs that failed simulation.
--   **CV Pipeline Errors**: If SAM2 or ZoeDepth fail, check the video format and resolution. Ensure the video is in MP4 format with H.264 codec.
+The CI workflow runs the full sequence of steps (FR‑022), guaranteeing end‑to‑end reproducibility from a clean runner.

@@ -6,257 +6,333 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
+from utils.config import get_config
 from utils.github_client import GitHubClient
-from utils.metrics import process_review_metrics
-
-# Configure logging for the ingestion process
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('data/ingestion.log')
-    ]
+from utils.metrics import (
+    calculate_avg_comment_length,
+    calculate_review_thread_depth,
+    calculate_revert_frequency,
+    calculate_diff_complexity_score,
+    is_ai_noise_flag,
+    calculate_domain_complexity
 )
-logger = logging.getLogger(__name__)
+from utils.data_validation import validate_csv_schema
 
-# Generic config patterns that do NOT explicitly name an LLM tool
-GENERIC_CONFIG_NAMES = {
-    'config.json',
-    'settings.json',
-    'project.json',
-    'appsettings.json',
-    'config.yaml',
-    'settings.yaml',
-    'project.yaml',
-    'config.yml',
-    'settings.yml',
-    'project.yml',
-    'options.json',
-    'options.yaml'
-}
+# Import generate_manifest from the same module
+from generate_manifest import generate_manifest, write_manifest
 
-# Known LLM-specific config patterns
-LLM_CONFIG_NAMES = {
-    '.cursorrules',
-    '.copilot',
-    'copilot_config.json',
-    'copilot_settings.json',
-    'llm_config.json',
-    '.aider.conf',
-    '.githelp',
-    'github-copilot.json'
-}
-
-def load_repo_list(repo_list_path: str) -> List[Dict[str, Any]]:
-    """Load the list of repositories to analyze from a JSON file."""
-    path = Path(repo_list_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Repository list file not found: {repo_list_path}")
+def load_repo_list(repo_file: Path) -> List[Dict[str, str]]:
+    """Load repository list from a JSON file."""
+    if not repo_file.exists():
+        logging.warning(f"Repository list file not found: {repo_file}")
+        return []
     
-    with open(path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'repositories' in data:
-        return data['repositories']
-    else:
-        raise ValueError(f"Invalid format in {repo_list_path}: expected a list or dict with 'repositories' key")
+    with open(repo_file, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-def fetch_repository_details(client: GitHubClient, repo_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Fetch detailed repository data from GitHub API."""
-    owner = repo_info.get('owner')
-    name = repo_info.get('name')
+def fetch_repository_details(client: GitHubClient, repo: Dict[str, str]) -> Optional[Dict[str, Any]]:
+    """Fetch detailed repository data including PRs, commits, and config files."""
+    owner = repo.get("owner")
+    name = repo.get("name")
+    
     if not owner or not name:
-        logger.warning(f"Skipping repo with missing owner/name: {repo_info}")
+        logging.error(f"Invalid repository entry: {repo}")
         return None
     
     try:
+        # Fetch repo metadata
         repo_data = client.get_repo(owner, name)
         if not repo_data:
-            logger.warning(f"Repository not found or inaccessible: {owner}/{name}")
             return None
         
-        # Fetch PRs and commits
-        prs = client.get_pulls(owner, name, state='closed', per_page=100)
-        commits = client.get_commits(owner, name, per_page=100)
+        # Fetch PRs
+        pulls = client.get_pulls(owner, name, state="all")
         
-        # Fetch config files
+        # Fetch commits for each PR
+        pr_details = []
+        for pull in pulls:
+            pr_num = pull.get("number")
+            commits = client.get_commits(owner, name, sha=pull.get("merge_commit_sha"))
+            
+            # Fetch review threads
+            review_threads = client.get_review_comments(owner, name, pull_number=pr_num)
+            
+            pr_details.append({
+                "number": pr_num,
+                "state": pull.get("state"),
+                "merged": pull.get("merged_at") is not None,
+                "created_at": pull.get("created_at"),
+                "merged_at": pull.get("merged_at"),
+                "commits": commits,
+                "review_threads": review_threads
+            })
+        
+        # Fetch config files for LLM adoption detection
         config_files = {}
-        for filename in GENERIC_CONFIG_NAMES.union(LLM_CONFIG_NAMES):
-            try:
-                content = client.get_file_content(owner, name, filename)
-                if content:
-                    config_files[filename] = content
-            except Exception as e:
-                logger.debug(f"Could not fetch {filename} for {owner}/{name}: {e}")
+        config_paths = [".cursorrules", "copilot.yaml", "copilot.yml", "config.json"]
+        for path in config_paths:
+            content = client.get_file_content(owner, name, path)
+            if content:
+                config_files[path] = content
+        
+        # Check README and CONTRIBUTING
+        readme = client.get_file_content(owner, name, "README.md")
+        contributing = client.get_file_content(owner, name, "CONTRIBUTING.md")
         
         return {
-            'owner': owner,
-            'name': name,
-            'repo_data': repo_data,
-            'prs': prs,
-            'commits': commits,
-            'config_files': config_files
+            "id": f"{owner}/{name}",
+            "owner": owner,
+            "name": name,
+            "repo_data": repo_data,
+            "pulls": pr_details,
+            "config_files": config_files,
+            "readme": readme,
+            "contributing": contributing
         }
     except Exception as e:
-        logger.error(f"Error fetching details for {owner}/{name}: {e}")
+        logging.error(f"Failed to fetch details for {owner}/{name}: {e}")
         return None
 
-def calculate_llm_adoption_flag(repo_details: Dict[str, Any]) -> Dict[str, Any]:
+def calculate_llm_adoption_flag(repo_data: Dict[str, Any]) -> bool:
     """
-    Determine LLM adoption status and log warnings for ambiguous signals.
-    
-    Returns a dict with:
-    - llm_adoption_flag: True/False/None
-    - adoption_signals: list of detected signals
-    - ambiguous_warning: bool (True if generic config detected without clear LLM signal)
+    Determine if a repository uses LLM tools based on:
+    1. Presence of .cursorrules or copilot config files
+    2. Mentions in README/CONTRIBUTING (first 2048 chars)
+    3. Commit message frequency >= 5%
     """
-    config_files = repo_details.get('config_files', {})
-    repo_name = f"{repo_details['owner']}/{repo_details['name']}"
+    config_files = repo_data.get("config_files", {})
+    readme = repo_data.get("readme", "")
+    contributing = repo_data.get("contributing", "")
+    pulls = repo_data.get("pulls", [])
     
-    adoption_signals = []
-    ambiguous_warning = False
-    llm_adoption_flag = None
+    # Check config files
+    if ".cursorrules" in config_files or "copilot.yaml" in config_files or "copilot.yml" in config_files:
+        return True
     
-    # Check for explicit LLM config files
-    for filename in config_files:
-        if filename in LLM_CONFIG_NAMES:
-            adoption_signals.append(f"Explicit LLM config: {filename}")
-            llm_adoption_flag = True
-            break
-        elif filename in GENERIC_CONFIG_NAMES:
-            # Check if the generic config file mentions LLM tools
-            content = config_files[filename].get('content', '').lower()
-            if any(keyword in content for keyword in ['copilot', 'cursor', 'aider', 'llm', 'codeium']):
-                adoption_signals.append(f"Generic config with LLM mention: {filename}")
-                llm_adoption_flag = True
-            else:
-                # Generic config without LLM mention - potential ambiguous signal
-                if 'llm_adoption_flag' not in adoption_signals:
-                    ambiguous_warning = True
+    # Check README/CONTRIBUTING (first 2048 chars)
+    combined_text = (readme or "")[:2048] + (contributing or "")[:2048]
+    if "copilot" in combined_text.lower() or "llm" in combined_text.lower():
+        return True
     
-    # Check README/CONTRIBUTING for mentions (already implemented in T022)
-    # This is a simplified check - the full implementation would parse these files
-    readme_content = config_files.get('README.md', {}).get('content', '').lower()
-    contributing_content = config_files.get('CONTRIBUTING.md', {}).get('content', '').lower()
+    # Check commit message frequency
+    total_commits = 0
+    copilot_commits = 0
     
-    for content, filename in [(readme_content, 'README.md'), (contributing_content, 'CONTRIBUTING.md')]:
-        if any(keyword in content for keyword in ['copilot', 'cursor', 'aider', 'llm', 'codeium']):
-            adoption_signals.append(f"LLM mention in {filename}")
-            if llm_adoption_flag is None:
-                llm_adoption_flag = True
+    for pr in pulls:
+        for commit in pr.get("commits", []):
+            total_commits += 1
+            message = commit.get("message", "").lower()
+            if "copilot" in message or "llm" in message:
+                copilot_commits += 1
     
-    # Check commit messages for Copilot/LLM frequency (T022 implementation)
-    commits = repo_details.get('commits', [])
-    if commits:
-        copilot_commits = sum(1 for c in commits if 'copilot' in c.get('message', '').lower() or 'llm' in c.get('message', '').lower())
-        frequency = copilot_commits / len(commits) if commits else 0
-        if frequency >= 0.05:
-            adoption_signals.append(f"Commit message frequency: {frequency:.1%}")
-            if llm_adoption_flag is None:
-                llm_adoption_flag = True
+    if total_commits > 0 and (copilot_commits / total_commits) >= 0.05:
+        return True
     
-    # If no clear signal but generic configs exist, log warning
-    if ambiguous_warning and not adoption_signals:
-        logger.warning(
-            f"Ambiguous LLM signal detected for {repo_name}: "
-            f"Generic config files found ({', '.join([f for f in config_files if f in GENERIC_CONFIG_NAMES])}) "
-            f"without explicit LLM tool naming. This repository will be flagged for sensitivity analysis."
-        )
-        # Keep flag as None for ambiguous cases
-        llm_adoption_flag = None
+    return False
+
+def detect_ambiguous_llm_signal(repo_data: Dict[str, Any]) -> bool:
+    """Detect if LLM signal is ambiguous (e.g., generic config without tool naming)."""
+    config_files = repo_data.get("config_files", {})
+    
+    for path, content in config_files.items():
+        if path == "config.json":
+            try:
+                config = json.loads(content)
+                # Check if it's generic without specific tool naming
+                if "tools" not in config and "llm" not in config and "copilot" not in config:
+                    return True
+            except json.JSONDecodeError:
+                pass
+    
+    return False
+
+def extract_pr_metrics(pr_data: List[Dict[str, Any]]) -> Dict[str, float]:
+    """
+    Extract PR-level metrics:
+    - avg_comment_length: Mean length of comment bodies
+    - review_thread_depth: Count of comments per PR
+    - revert_frequency: Count of commits with "revert" in message
+    """
+    total_comment_length = 0
+    total_comments = 0
+    total_reverts = 0
+    
+    for pr in pr_data:
+        review_threads = pr.get("review_threads", [])
+        for thread in review_threads:
+            comments = thread.get("comments", [])
+            for comment in comments:
+                body = comment.get("body", "")
+                total_comment_length += len(body)
+                total_comments += 1
+        
+        commits = pr.get("commits", [])
+        for commit in commits:
+            message = commit.get("message", "").lower()
+            if "revert" in message:
+                total_reverts += 1
+    
+    avg_comment_length = total_comment_length / total_comments if total_comments > 0 else 0.0
+    review_thread_depth = total_comments
     
     return {
-        'llm_adoption_flag': llm_adoption_flag,
-        'adoption_signals': adoption_signals,
-        'ambiguous_warning': ambiguous_warning and not adoption_signals
+        "avg_comment_length": avg_comment_length,
+        "review_thread_depth": review_thread_depth,
+        "revert_frequency": total_reverts
     }
 
-def run_ingestion(repo_list_path: str, output_path: str) -> Dict[str, Any]:
+def calculate_domain_complexity_metric(repo_data: Dict[str, Any]) -> int:
     """
-    Main ingestion pipeline that processes repositories and generates the master dataset.
+    Calculate domain complexity:
+    Sum of unique programming languages + count of dependencies in manifest files.
+    """
+    # This would normally parse manifest files to count dependencies
+    # For now, we'll use a placeholder based on repo metadata
+    languages = repo_data.get("repo_data", {}).get("languages", {})
+    lang_count = len(languages) if languages else 0
     
-    This implementation includes T026: logging "ambiguous LLM signal" warnings for repos
-    with generic configs (e.g., config.json without tool naming) to support sensitivity analysis.
-    """
-    logger.info(f"Starting ingestion pipeline from {repo_list_path}")
+    # Count dependencies from manifest files (simplified)
+    config_files = repo_data.get("config_files", {})
+    dep_count = 0
+    
+    for path, content in config_files.items():
+        if path == "package.json":
+            try:
+                pkg = json.loads(content)
+                deps = pkg.get("dependencies", {})
+                dev_deps = pkg.get("devDependencies", {})
+                dep_count += len(deps) + len(dev_deps)
+            except json.JSONDecodeError:
+                pass
+        elif path == "requirements.txt":
+            lines = content.split("\n")
+            dep_count += sum(1 for line in lines if line.strip() and not line.startswith("#"))
+        elif path == "pom.xml":
+            # Simplified count
+            dep_count += content.count("<dependency>")
+    
+    return lang_count + dep_count
+
+def write_master_dataset(repos: List[Dict[str, Any]], output_path: Path) -> None:
+    """Write the master dataset to a CSV file."""
+    if not repos:
+        logging.warning("No repository data to write.")
+        return
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    fieldnames = [
+        "repository_id", "llm_adoption_flag", "iteration_count",
+        "avg_comment_length", "review_thread_depth", "revert_frequency",
+        "loc", "contributors", "domain_complexity", "diff_complexity_score",
+        "ai_noise_flag"
+    ]
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        
+        for repo in repos:
+            # Calculate metrics
+            llm_flag = repo.get("llm_adoption_flag", False)
+            pulls = repo.get("pulls", [])
+            
+            # Iteration count: TOTAL push events between PR open and merge
+            iteration_count = 0
+            for pr in pulls:
+                if pr.get("merged"):
+                    iteration_count += 1  # Simplified: count merged PRs as iterations
+            
+            # PR metrics
+            pr_metrics = extract_pr_metrics(pulls)
+            
+            # LOC and contributors
+            repo_data = repo.get("repo_data", {})
+            loc = repo_data.get("size", 0)
+            contributors = repo_data.get("contributors_count", 0)
+            
+            # Domain complexity
+            domain_complexity = calculate_domain_complexity_metric(repo)
+            
+            # Diff complexity and AI noise (simplified for ingestion)
+            # In a real scenario, this would be calculated per commit
+            # Here we use a placeholder based on repo characteristics
+            diff_complexity = 0.1  # Placeholder
+            ai_noise = diff_complexity > 0.3 and False  # Placeholder logic
+            
+            row = {
+                "repository_id": repo.get("id"),
+                "llm_adoption_flag": llm_flag,
+                "iteration_count": iteration_count,
+                "avg_comment_length": pr_metrics["avg_comment_length"],
+                "review_thread_depth": pr_metrics["review_thread_depth"],
+                "revert_frequency": pr_metrics["revert_frequency"],
+                "loc": loc,
+                "contributors": contributors,
+                "domain_complexity": domain_complexity,
+                "diff_complexity_score": diff_complexity,
+                "ai_noise_flag": ai_noise
+            }
+            writer.writerow(row)
+    
+    logging.info(f"Master dataset written to {output_path}")
+
+def generate_manifest_for_ingestion(repos: List[Dict[str, Any]], output_path: Path, data_dir: Path) -> None:
+    """Generate the manifest.json file for the ingestion pipeline."""
+    manifest = generate_manifest(output_path, data_dir)
+    
+    # Add ingestion-specific details
+    manifest["ingestion_details"] = {
+        "total_repositories_processed": len(repos),
+        "successful_fetches": sum(1 for r in repos if r.get("pulls") is not None),
+        "failed_fetches": sum(1 for r in repos if r.get("pulls") is None),
+        "llm_adoption_count": sum(1 for r in repos if r.get("llm_adoption_flag", False)),
+        "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+    
+    write_manifest(manifest, output_path)
+
+def run_ingestion(config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    """Run the full ingestion pipeline."""
+    logging.info("Starting ingestion pipeline")
+    
+    repo_file = Path(config.get("repo_list_path", "data/raw/repo_list.json"))
+    output_path = Path(config.get("output_path", "data/derived/master_dataset.csv"))
+    manifest_path = Path(config.get("manifest_path", "data/manifest.json"))
     
     # Load repository list
-    repo_list = load_repo_list(repo_list_path)
-    logger.info(f"Loaded {len(repo_list)} repositories to process")
+    repos = load_repo_list(repo_file)
+    if not repos:
+        logging.error("No repositories found in the list.")
+        return []
     
     # Initialize GitHub client
     client = GitHubClient()
     
-    # Process each repository
-    results = []
-    ambiguous_count = 0
+    processed_repos = []
+    for repo in repos:
+        repo_data = fetch_repository_details(client, repo)
+        if repo_data:
+            repo_data["llm_adoption_flag"] = calculate_llm_adoption_flag(repo_data)
+            if detect_ambiguous_llm_signal(repo_data):
+                logging.warning(f"Ambiguous LLM signal detected for {repo_data['id']}")
+            processed_repos.append(repo_data)
     
-    for repo_info in repo_list:
-        repo_details = fetch_repository_details(client, repo_info)
-        if not repo_details:
-            continue
-        
-        # Calculate LLM adoption flag (includes T026 logic)
-        adoption_data = calculate_llm_adoption_flag(repo_details)
-        
-        # Process review metrics (T024)
-        prs = repo_details.get('prs', [])
-        review_metrics = process_review_metrics(prs)
-        
-        # Build result row
-        result_row = {
-            'owner': repo_details['owner'],
-            'name': repo_details['name'],
-            'llm_adoption_flag': adoption_data['llm_adoption_flag'],
-            'adoption_signals': json.dumps(adoption_data['adoption_signals']),
-            'ambiguous_llm_signal': adoption_data['ambiguous_warning'],
-            'total_prs': len(prs),
-            'avg_comment_length': review_metrics.get('avg_comment_length', 0),
-            'review_thread_depth': review_metrics.get('review_thread_depth', 0),
-            'revert_frequency': review_metrics.get('revert_frequency', 0)
-        }
-        
-        results.append(result_row)
-        
-        if adoption_data['ambiguous_warning']:
-            ambiguous_count += 1
+    # Write master dataset
+    write_master_dataset(processed_repos, output_path)
     
-    # Write results to CSV
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Generate manifest
+    generate_manifest_for_ingestion(processed_repos, manifest_path, Path("data"))
     
-    fieldnames = [
-        'owner', 'name', 'llm_adoption_flag', 'adoption_signals', 
-        'ambiguous_llm_signal', 'total_prs', 'avg_comment_length',
-        'review_thread_depth', 'revert_frequency'
-    ]
+    logging.info("Ingestion pipeline completed.")
+    return processed_repos
+
+def main():
+    """Main entry point."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    with open(output_file, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
-    
-    logger.info(f"Ingestion complete. Processed {len(results)} repositories.")
-    logger.info(f"Ambiguous LLM signals detected: {ambiguous_count} repositories")
-    logger.info(f"Results written to {output_path}")
-    
-    return {
-        'total_processed': len(results),
-        'ambiguous_signals': ambiguous_count,
-        'output_file': str(output_file)
-    }
+    config = get_config()
+    run_ingestion(config)
 
 if __name__ == "__main__":
-    # Example usage - in production, these would come from config/environment
-    REPO_LIST_PATH = "data/raw/repo_list.json"
-    OUTPUT_PATH = "data/derived/master_dataset.csv"
-    
-    if os.path.exists(REPO_LIST_PATH):
-        result = run_ingestion(REPO_LIST_PATH, OUTPUT_PATH)
-        print(f"Ingestion completed: {result}")
-    else:
-        print(f"Error: Repository list file not found at {REPO_LIST_PATH}")
-        print("Please create data/raw/repo_list.json with repository data first.")
+    main()

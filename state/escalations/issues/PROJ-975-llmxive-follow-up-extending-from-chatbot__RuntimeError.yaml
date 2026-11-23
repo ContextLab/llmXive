@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-10-04T11:25:23.858810+00:00'
+issue_number: 1453
+project_id: PROJ-975-llmxive-follow-up-extending-from-chatbot

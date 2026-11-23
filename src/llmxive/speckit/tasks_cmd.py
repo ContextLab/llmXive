@@ -17,6 +17,7 @@ Stage transitions:
 from __future__ import annotations
 
 import difflib
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -31,8 +32,11 @@ from llmxive.backends.base import (
 )
 from llmxive.backends.router import chat_with_fallback
 from llmxive.config import TASKER_MAX_REVISION_ROUNDS
+from llmxive.speckit._analysis_policy import analysis_policy_fingerprint
+from llmxive.speckit._task_contract_context import task_contract_context
 from llmxive.speckit.analyze_cmd import analyze_advance_ok, run_analyze
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
+from llmxive.types import Outcome, Stage
 
 
 def _unified_diff(before: str, after: str, path: str) -> str:
@@ -48,6 +52,48 @@ def _unified_diff(before: str, after: str, path: str) -> str:
 
 
 class TaskerAgent(SlashCommandAgent):
+    def _analysis_fingerprint(self, ctx: SlashCommandContext) -> str:
+        """Bind a completed analysis to its exact artifacts and review inputs."""
+        repo = ctx.project_dir.parent.parent
+        feature = self._feature_dir(ctx)
+        supporting_context = task_contract_context(feature, ctx.project_dir)
+        paths = {feature / name for name in ("spec.md", "plan.md", "tasks.md")}
+        paths.update(path for path in feature.rglob("*") if path.is_file())
+        paths.update((ctx.project_dir / "idea").glob("*.md"))
+        paths.update((ctx.project_dir / "reviews/research").glob("*.md"))
+        paths.update((repo / "agents/prompts").rglob("*.md"))
+        paths.update((repo / "src/llmxive").rglob("*.py"))
+        paths.update((repo / "agents/templates").glob("*.md"))
+        paths.update({
+            ctx.project_dir / ".specify/memory/constitution.md",
+            ctx.project_dir / ".specify/memory/task_verifier_notes.md",
+            ctx.project_dir / ".specify/templates/tasks-template.md",
+        })
+        paths.update((repo / ".specify/templates").glob("*.md"))
+        paths.add(repo / "web/about.html")  # Authoritative convergence/citation policy.
+        digest = hashlib.sha256(b"task-analysis-v3\0")
+        digest.update(supporting_context.encode() + b"\0")
+        digest.update(analysis_policy_fingerprint(ctx).encode() + b"\0")
+        for path in sorted(paths):
+            digest.update(str(path.relative_to(repo)).encode() + b"\0")
+            digest.update(path.read_bytes() if path.is_file() else b"<absent>")
+            digest.update(b"\0")
+        return digest.hexdigest()
+
+    def run(self, ctx: SlashCommandContext):
+        self._accepted_analysis = None
+        entry = super().run(ctx)
+        # Citation validation happens in the base run after analysis. Reuse is
+        # safe only if it left the reviewed artifacts unchanged.
+        if (entry.outcome == Outcome.SUCCESS and self._accepted_analysis
+                and self._accepted_analysis == self._analysis_fingerprint(ctx)):
+            marker = ctx.project_dir / ".specify/memory/tasker_rounds.yaml"
+            record = yaml.safe_load(marker.read_text()) or {}
+            record["analysis_sha256"] = self._accepted_analysis
+            from llmxive.state._io import atomic_write_text
+            atomic_write_text(marker, yaml.safe_dump(record))
+        return entry
+
     def slash_command_name(self) -> str:
         return "speckit.tasks"
 
@@ -66,6 +112,25 @@ class TaskerAgent(SlashCommandAgent):
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         feature_dir = self._feature_dir(ctx)
+        marker = ctx.project_dir / ".specify/memory/tasker_rounds.yaml"
+        record = yaml.safe_load(marker.read_text()) if marker.exists() else {}
+        record = record if isinstance(record, dict) else {}
+        from llmxive.state import project as project_store
+        try:
+            stage = project_store.load(ctx.project_id, repo_root=ctx.project_dir.parent.parent).current_stage
+        except FileNotFoundError:
+            stage = None
+        # PLANNED is a new generation/replan. Only the follow-up analysis stages
+        # may consume a receipt, and pending kickback feedback always forces work.
+        if (stage in {Stage.TASKED, Stage.ANALYZE_IN_PROGRESS}
+                and record.get("analysis_sha256")
+                and not (ctx.project_dir / ".specify/memory/kickback_feedback.md").exists()
+                and record["analysis_sha256"] == self._analysis_fingerprint(ctx)):
+            return {"skip_llm": True, "reason": "exact task artifacts already analyzed"}
+        if "analysis_sha256" in record:
+            record.pop("analysis_sha256")
+            from llmxive.state._io import atomic_write_text
+            atomic_write_text(marker, yaml.safe_dump(record))
         return {
             "feature_dir": str(feature_dir),
             "spec_path": str(feature_dir / "spec.md"),
@@ -84,7 +149,12 @@ class TaskerAgent(SlashCommandAgent):
         repo = ctx.project_dir.parent.parent
         spec_text = Path(mechanical_output["spec_path"]).read_text(encoding="utf-8")
         plan_text = Path(mechanical_output["plan_path"]).read_text(encoding="utf-8")
-        tasks_template_path = Path(mechanical_output["tasks_template_path"])
+        # Existing projects carry old copies of the generic application template.
+        # Platform task structure comes from the current research template; the
+        # project's scientific requirements still come from its spec and plan.
+        tasks_template_path = repo / "agents/templates/research-tasks.md"
+        if not tasks_template_path.is_file():
+            tasks_template_path = Path(mechanical_output["tasks_template_path"])
         tasks_template = (
             tasks_template_path.read_text(encoding="utf-8")
             if tasks_template_path.exists()
@@ -101,22 +171,11 @@ class TaskerAgent(SlashCommandAgent):
             if existing_tasks_path.exists()
             else ""
         )
-        reviews_dir = ctx.project_dir / "reviews" / "research"
-        review_block = ""
-        if reviews_dir.is_dir():
-            review_chunks: list[str] = []
-            for md in sorted(reviews_dir.glob("*.md")):
-                try:
-                    text = md.read_text(encoding="utf-8")
-                except OSError:
-                    continue
-                review_chunks.append(f"## {md.name}\n\n{text}")
-            if review_chunks:
-                review_block = (
-                    "\n\n# Prior research-stage reviews "
-                    "(address every reviewer's concerns in the new tasks list)\n\n"
-                    + "\n\n---\n\n".join(review_chunks)
-                )
+        from llmxive.speckit._comments_context import render_recent_comments_block
+
+        # Replanning must receive the diagnosis that caused the kickback, not
+        # only the old tasks and peer-review prose. This includes verifier notes.
+        review_block = render_recent_comments_block(ctx.project_dir)
         system = render_prompt(
             "agents/prompts/tasker.md",
             {"project_id": ctx.project_id, "mode": "A"},
@@ -127,21 +186,35 @@ class TaskerAgent(SlashCommandAgent):
             f"# spec.md\n\n{spec_text}",
             f"# plan.md\n\n{plan_text}",
             f"# tasks template\n\n{tasks_template}",
+            task_contract_context(Path(mechanical_output["tasks_path"]).parent, ctx.project_dir),
         ]
+        idea_dir = ctx.project_dir / "idea"
+        if idea_dir.is_dir():
+            for idea in sorted(idea_dir.glob("*.md")):
+                user_parts.append(f"# Original idea: {idea.name}\n\n{idea.read_text(encoding='utf-8')}")
         if existing_tasks.strip():
             user_parts.append(
-                "# Existing tasks.md (revise — keep [X] tasks already done, "
-                "add new [ ] tasks that address review concerns)\n\n" + existing_tasks
+                "# Existing tasks.md (preserve working artifacts and satisfied requirements; "
+                "repair contradictory or corrupted instructions against the original idea "
+                "and active specification)\n\n" + existing_tasks
             )
         if review_block:
             user_parts.append(review_block)
         user_parts.append(
             "# Task\n\nReturn the FULL contents of tasks.md as Markdown. "
             "DO NOT return a diff or partial patch — return the entire "
-            "file from the first line to the last. Preserve all existing "
-            "[X]-marked tasks verbatim and append new [ ]-marked tasks "
-            "for the revision concerns. The output MUST contain at least "
-            "one line beginning with `- [ ] T###`."
+            "file from the first line to the last. Preserve verified work; a checked "
+            "box does not justify retaining a malformed parameter set, wrong path, "
+            "or instruction conflicting with the original study. Reopen only the "
+            "requirements affected by a correction, and address revision concerns "
+            "without duplicating completed tasks. Group related pending work into "
+            "8-15 substantive research tasks where possible; preserve every scientific "
+            "requirement and include an early executable end-to-end result. "
+            "The output MUST contain at least five substantive canonical checkbox "
+            "task items beginning with `- [ ] T###`, each with a unique ID. "
+            "Do not use task tables or fenced examples in place of executable "
+            "checkbox items; retain every requirement and verification step in "
+            "the task item and its indented continuation lines."
         )
         user = "\n\n".join(user_parts)
         return [
@@ -158,15 +231,8 @@ class TaskerAgent(SlashCommandAgent):
         repo = ctx.project_dir.parent.parent
         tasks_path = Path(mechanical_output["tasks_path"])
         tasks_path.parent.mkdir(parents=True, exist_ok=True)
-        # Strip ```markdown / ```md fences if the LLM wrapped its response.
-        text = llm_response.text.strip()
-        if text.startswith("```"):
-            lines = text.splitlines()
-            if lines[0].lstrip("`").lower() in {"", "markdown", "md"}:
-                lines = lines[1:]
-            if lines and lines[-1].strip() == "```":
-                lines = lines[:-1]
-            text = "\n".join(lines).strip()
+        from llmxive.speckit.task_lines import unwrap_task_document
+        text = unwrap_task_document(llm_response.text)
         # Stronger validation: tasks.md must:
         #   1. NOT be a unified or context diff (spec 010 fix — the old
         #      guard caught `@@`-prefixed leads but missed `--- a/<path>`
@@ -178,18 +244,30 @@ class TaskerAgent(SlashCommandAgent):
         #      digits (T001, T012, etc.) per the format contract
         from llmxive.speckit._diff_guard import refuse_if_diff
         refuse_if_diff(text, artifact_kind="tasks.md")
-        import re as _re
-        task_id_lines = _re.findall(r"^- \[[ Xx]\] T\d+\b", text, _re.MULTILINE)
+        from llmxive.speckit.task_lines import (
+            TASK_LINE_RE,
+            TaskFormatError,
+            mask_fenced_code,
+            validate_open_tasks,
+        )
+        validate_open_tasks(text)
+        task_id_lines = list(TASK_LINE_RE.finditer(mask_fenced_code(text)))
         if len(task_id_lines) < 5:
-            raise RuntimeError(
+            raise TaskFormatError(
                 f"Tasker produced only {len(task_id_lines)} task IDs "
-                f"(need >= 5; total chars: {len(text)}). Re-running on next cycle."
+                f"(need >= 5; total chars: {len(text)}). Regenerate the complete "
+                "tasks.md as canonical '- [ ] T### description' checkbox items, "
+                "not task tables or fenced examples. Preserve every scientific "
+                "requirement, path and verification step; do not add empty tasks "
+                "or discard requirements to satisfy the format."
             )
         # Defect #21: a re-task overwrites the existing tasks.md — capture it
         # so a guard refusal RESTORES it instead of leaving no file on disk.
         prior_tasks = (
             tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else None
         )
+        from llmxive.agents.task_verifier import preserve_verified_completion
+        text = preserve_verified_completion(ctx.project_dir, tasks_path, text)
         tasks_path.write_text(text + "\n", encoding="utf-8")
         # FR-009: real-only guard — refuse to commit a template tasks.md
         from llmxive.speckit._real_only_guard import guard_emit
@@ -250,6 +328,7 @@ class TaskerAgent(SlashCommandAgent):
                     project_dir=ctx.project_dir,
                     kind="research",
                     constitution_text=_const_text,
+                    supporting_context=task_contract_context(tasks_path.parent, ctx.project_dir),
                 )
             except _BackendError as exc:
                 print(f"[tasker] analyze round {round_idx + 1} failed: {exc}; "
@@ -276,6 +355,7 @@ class TaskerAgent(SlashCommandAgent):
                     yaml.safe_dump({"rounds_used": round_idx + 1}),
                     encoding="utf-8",
                 )
+                self._accepted_analysis = self._analysis_fingerprint(ctx)
                 return written
 
             # Mode B — ask the Tasker to patch the artifacts.
@@ -290,6 +370,7 @@ class TaskerAgent(SlashCommandAgent):
                 f"# spec.md\n\n{spec_path.read_text(encoding='utf-8')}\n\n"
                 f"# plan.md\n\n{plan_path.read_text(encoding='utf-8')}\n\n"
                 f"# tasks.md\n\n{tasks_path.read_text(encoding='utf-8')}\n\n"
+                f"{task_contract_context(tasks_path.parent, ctx.project_dir)}\n\n"
                 "Return the YAML patch document per the contract."
             )
             try:
@@ -479,6 +560,7 @@ class TaskerAgent(SlashCommandAgent):
                 project_dir=ctx.project_dir,
                 kind="research",
                 constitution_text=_const_text,
+                supporting_context=task_contract_context(tasks_path.parent, ctx.project_dir),
             )
         except _BackendError as exc:
             print(
@@ -506,6 +588,7 @@ class TaskerAgent(SlashCommandAgent):
                 yaml.safe_dump({"rounds_used": 1, "converged": True}),
                 encoding="utf-8",
             )
+            self._accepted_analysis = self._analysis_fingerprint(ctx)
             return
 
         # ---- Engine resolve loop ----
@@ -698,6 +781,9 @@ class TaskerAgent(SlashCommandAgent):
             }),
             encoding="utf-8",
         )
+        if final_clean:
+            self._accepted_analysis = self._analysis_fingerprint(ctx)
+
 
 
 def _parse_tasker_response(text: str) -> dict[str, Any] | None:

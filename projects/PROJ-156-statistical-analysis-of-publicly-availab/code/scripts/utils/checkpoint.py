@@ -1,90 +1,151 @@
 """
-Checkpoint utility for resuming long-running scripts on CI timeout.
-
-Provides functions to save and load intermediate state as JSON files.
-State includes progress markers (e.g., last processed game ID) and
-partial results to allow resumption without reprocessing completed items.
+Utility functions for saving, loading, and deleting JSON checkpoint files.
+Provides a simple API used throughout the pipeline and unit tests.
 """
-
 import json
-import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Union
 
-# Ensure the utils directory exists relative to the project root
-# Assuming the script is run from the project root or code/scripts
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-CHECKPOINT_DIR = BASE_DIR / "data" / "checkpoints"
+# Default directory for checkpoints (project-owned location)
+# Exposed as CHECKPOINT_DIR for tests that monkey-patch it.
+CHECKPOINT_DIR: Path = Path("data") / "checkpoints"
 
-def ensure_checkpoint_dir() -> Path:
-    """Ensure the checkpoint directory exists."""
-    if not CHECKPOINT_DIR.exists():
-        CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
-    return CHECKPOINT_DIR
+def ensure_checkpoint_dir(base_dir: Union[str, Path] = None) -> Path:
+    """
+    Ensure that the checkpoint directory exists.
 
-def save_checkpoint(filename: str, state: Dict[str, Any]) -> None:
-    """
-    Save the current state to a JSON checkpoint file.
-    
-    Args:
-        filename: Name of the checkpoint file (e.g., 'fetch_data_state.json').
-        state: Dictionary containing the state to save (e.g., processed games, counters).
-    """
-    ensure_checkpoint_dir()
-    filepath = CHECKPOINT_DIR / filename
-    
-    try:
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(state, f, indent=2, default=str)
-        print(f"Checkpoint saved: {filepath}")
-    except Exception as e:
-        raise RuntimeError(f"Failed to save checkpoint to {filepath}: {e}")
+    Parameters
+    ----------
+    base_dir : str | Path, optional
+        If provided, the directory is created relative to this path.
+        Otherwise ``CHECKPOINT_DIR`` is used.
 
-def load_checkpoint(filename: str) -> Optional[Dict[str, Any]]:
+    Returns
+    -------
+    pathlib.Path
+        The path to the directory that now exists.
     """
-    Load the state from a JSON checkpoint file if it exists.
-    
-    Args:
-        filename: Name of the checkpoint file.
-    
-    Returns:
-        The state dictionary if the file exists, otherwise None.
+    dir_path = Path(base_dir) if base_dir is not None else CHECKPOINT_DIR
+    dir_path.mkdir(parents=True, exist_ok=True)
+    return dir_path
+
+def get_checkpoint_path(*args: Any) -> Path:
     """
-    filepath = CHECKPOINT_DIR / filename
-    
-    if not filepath.exists():
+    Resolve a checkpoint file path.
+
+    Two calling styles are supported:
+    1. ``get_checkpoint_path("fetch_checkpoint.json")`` – returns
+       ``<CHECKPOINT_DIR>/fetch_checkpoint.json``.
+    2. ``get_checkpoint_path(custom_dir, "fetch_data")`` – returns
+       ``<custom_dir>/fetch_data`` (the name can include an extension).
+
+    Parameters
+    ----------
+    *args : Any
+        Either a single filename (or relative path) or a base directory
+        followed by a filename.
+
+    Returns
+    -------
+    pathlib.Path
+        The resolved absolute path.
+    """
+    if len(args) == 1:
+        # Only a filename – use default checkpoint directory
+        filename = args[0]
+        base_dir = CHECKPOINT_DIR
+    elif len(args) == 2:
+        base_dir, filename = args
+    else:
+        raise ValueError("get_checkpoint_path expects 1 or 2 arguments")
+    return Path(base_dir) / filename
+
+def _resolve_path(path: Union[str, Path]) -> Path:
+    """
+    Resolve a possibly-relative checkpoint path. If ``path`` is just a 
+    filename (no directory components), it is interpreted relative to 
+    ``CHECKPOINT_DIR``.
+    """
+    p = Path(path)
+    # If the path is just a filename, p.name will equal the string representation of p.
+    if p.name == str(p):
+        return CHECKPOINT_DIR / p
+    return p
+
+def save_checkpoint(state_or_path: Union[Dict, str, Path],
+                    path_or_state: Union[Dict, str, Path, None] = None) -> None:
+    """
+    Persist a checkpoint dictionary to a JSON file.
+
+    The function is flexible and accepts arguments in either order:
+    ``save_checkpoint(state, path)`` or ``save_checkpoint(path, state)``.
+
+    Parameters
+    ----------
+    state_or_path : dict | str | pathlib.Path
+        Either the checkpoint data (if ``path_or_state`` is a path) or the
+        destination path (if ``path_or_state`` is a dict).
+    path_or_state : dict | str | pathlib.Path, optional
+        The complementary argument.
+    """
+    # Resolve arguments
+    if isinstance(state_or_path, dict) and path_or_state is not None:
+        state = state_or_path
+        path = _resolve_path(path_or_state)
+    elif isinstance(path_or_state, dict) and state_or_path is not None:
+        state = path_or_state
+        path = _resolve_path(state_or_path)
+    else:
+        raise ValueError("save_checkpoint requires one dict and one path argument")
+
+    # Ensure the parent directory exists
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write JSON
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(state, f, indent=2, sort_keys=True)
+
+def load_checkpoint(path: Union[str, Path]) -> Union[Dict, None]:
+    """
+    Load a checkpoint JSON file.
+
+    Returns ``None`` if the file does not exist.
+
+    Parameters
+    ----------
+    path : str | pathlib.Path
+        The path to the checkpoint file.
+
+    Returns
+    -------
+    dict | None
+        The checkpoint contents, or ``None`` if the file does not exist.
+    """
+    p = _resolve_path(path)
+    if not p.is_file():
         return None
-    
+    with open(p, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def delete_checkpoint(path: Union[str, Path]) -> bool:
+    """
+    Delete a checkpoint file if it exists.
+
+    Parameters
+    ----------
+    path : str | pathlib.Path
+        The path to the checkpoint file.
+
+    Returns
+    -------
+    bool
+        ``True`` if the file was removed, ``False`` otherwise.
+    """
+    p = _resolve_path(path)
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        print(f"Warning: Checkpoint file {filepath} is corrupted. Ignoring.")
-        return None
-    except Exception as e:
-        raise RuntimeError(f"Failed to load checkpoint from {filepath}: {e}")
-
-def delete_checkpoint(filename: str) -> bool:
-    """
-    Delete a checkpoint file after successful completion.
-    
-    Args:
-        filename: Name of the checkpoint file.
-    
-    Returns:
-        True if deleted, False if file didn't exist.
-    """
-    filepath = CHECKPOINT_DIR / filename
-    if filepath.exists():
-        try:
-            filepath.unlink()
-            print(f"Checkpoint deleted: {filepath}")
-            return True
-        except Exception as e:
-            print(f"Warning: Failed to delete checkpoint {filepath}: {e}")
-            return False
-    return False
-
-def get_checkpoint_path(filename: str) -> Path:
-    """Return the full path to a checkpoint file."""
-    return CHECKPOINT_DIR / filename
+        p.unlink()
+        return True
+    except FileNotFoundError:
+        return False
+    except Exception:
+        return False

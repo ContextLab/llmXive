@@ -1,0 +1,174 @@
+T001:
+  reason: "The provided artifact only shows top\u2011level entries (e.g., `code/`,\
+    \ `data/`, `results/`, `tests/`) but does not demonstrate that the required sub\u2011\
+    directories (`data/raw`, `data/processed`, `results/plots`, `tests/unit`, `tests/integration`,\
+    \ `tests/contract`, `state`) actually exist. A full recursive listing (`ls -R`)\
+    \ confirming each of these paths is missing."
+  task: 027661ce75c9d120016863e0b75f61f422954775bd24f182bc945919b29073b4
+T002:
+  reason: "The provided `requirements.txt` exists and lists all required packages,\
+    \ but it does not pin them to exact versions (it uses `>=` specifiers) as the\
+    \ task demands, and there is no evidence that `pip check` was run to confirm conflict\u2011\
+    free installation. The implementer must supply a `requirements.txt` with exact\
+    \ version pins (e.g., `statsmodels==0.14.0`) for every listed dependency and include\
+    \ proof that `pip check` passes."
+  task: 159e0b65eab629bfeda5f32b0dc8cb2c0ba9b65249ad1ee98659d64000ae083d
+T003:
+  task: 9730b2e70966d31c1fa5e86d9634a884ed1fcc460ef558f83590f34920512e54
+T004:
+  reason: The listed evidence shows that `data/raw/` does not contain `M4-Dataset.zip`
+    (file missing) and `state/checksums.yaml` is also missing, so the required artifacts
+    are absent and the checksum validation cannot be performed. The implementer must
+    add the downloaded zip file and the checksum YAML file.
+  task: b26bef092ae3ebbd33fa87d8a1a86c8e6072f59c7ee7cce6e78b07699e3dc86d
+T004b:
+  reason: "The provided `config.yaml` is present but its contents do not match the\
+    \ specification: the required top\u2011level keys `learning_rate`, `step_size`,\
+    \ `initial_alpha`, `seed` are missing or nested under `aci`/`pipeline`; `nominal_levels`\
+    \ contains `[0.80, 0.90]` instead of `[0.80, 0.95]`; and `sensitivity_thresholds`\
+    \ lacks the value `0.02`. The file therefore fails the verification script."
+  task: 8181b3fefc486d02027bbba9f3fe95c40a619a61fb8427fff530ee20376fb803
+T005a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/arima_model.py,
+    tests/unit/test_models.py'
+  task: 69e7b963ab47faa75fde412d62352b2c5e083f25cbb2cb9414f0ee58edc64a1e
+T005b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/ets_model.py, tests/unit/test_models.py'
+  task: 05cb1052d531cee7c2c94b46ee956aab72e3ee0f8fcac0f2e024e100829799ef
+T005c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/prophet_model.py,
+    tests/unit/test_models.py'
+  task: f93c8be907a301067e367d5bd1ccba3f0b41ad8b9c1de791a9bbd35a703311dd
+T005d:
+  reason: "The required file `code/models/lightgbm_quantile.py` is missing, and the\
+    \ test file `tests/unit/test_models.py` (which contains the verification test)\
+    \ does not exist, so no implementation or test can be run. The task\u2019s core\
+    \ artifact is absent."
+  task: dce2f4e18f80afe42d705d85e86288cb3154fc0e711b6d829d619d40628548c7
+T006:
+  task: 303e09c4f14b3ccab8b6af1a24f775678f5fcf0c101e39115a0e56edbc745983
+T006a:
+  task: 8a4d6b87b9cb57a570122f4e639b5007386a3f059d5c8265144d1065badd4af8
+T007:
+  task: a086ab9a7d5f51ac5a33ce4ba40fa6c91ebfdf3cb847a00270ad8e59f7558f24
+T008:
+  task: 5a99582fb7c422b7f1a857fe1dd5797ab055436620c3018f9583f47119f104c4
+T009:
+  task: c0d040356f5e670ddd5fa85fc809e95437e5f1de40cb040ac5f38cfd3b828bb1
+T010:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_metrics.py'
+  task: 636b73b27ef461976c9627dd7b232e6d7f1d03b4d5dfe0bd09b80511e64b6883
+T011:
+  task: 656204c6c86ef8ff9bcc4595ef7e6201883cc61d64e065f52b2bdd6138c40179
+T012:
+  task: 180f6bedbed101000ceaf4bdcfc38780b7e523c0ae3388b8fea8a88320e6275e
+T013a:
+  task: c2ca2ed6d9610c350385f92ce0642f167dfd1df16eb22365227f17d1414b114f
+T013a-1:
+  task: f2a6dfeb51bc3a0b972dbb95ffbcf11ead86c00b6c14d4921244abc8a4e7f2c4
+T013a-2:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sample_indices.csv,
+    state/sampling_metrics.json'
+  task: 4553c9e38cb0723f2f745c8cb45fad20ea8f4054738be3b64359a427cbc3cd1a
+T013b-1:
+  task: 5d010e152dd268e4acde1d0901eb5e4914e8e321a86fcf6d470b0e2bd71da906
+T013b-2:
+  task: aadb120c2c7d8a26a925108f887e94f0d2b8e3c512567b3562fda7c3d029b50f
+T013c:
+  task: 972be983b205749c88ff13032f47663d8e9e7039f0ab71c44197126231f3374a
+T014:
+  task: e23c6669ff21f484eee55db33f96b34ca9435cfeadd918aab9af27cd671eb9f0
+T015:
+  task: 82e6cea9ffe3d5bd0a45126d11b63aa261a915d5f75638217f21af3d9b4747b4
+T016:
+  task: 74b1de3d2458b037c03616276331973f3648d6ddb749ff24e5d3bcc421485ddd
+T017a:
+  reason: 'declared artifact(s) missing/empty/invalid: results/hypotheses_list.json'
+  task: ea497c3084e07be561f007947f447ac34760a87270a100a215f6c77f3a316ea4
+T017b:
+  task: 09177cc1b21ef32b0f9c93ded12a5f0ef8658ac5d7fab3c1a71fbf9939b623c8
+T017c:
+  task: 1ff4d1eb80211b762b6f29b76e3d63cafd89a03ce3908d736c45308c450c1149
+T017d:
+  reason: 'declared artifact(s) missing/empty/invalid: results/pvalues.json, results/hypotheses_list.json'
+  task: e97d60be02adf55573d1ea84862e2cdeb277851e77a2e01801dba470eda8b540
+T018:
+  task: 95663a874d9f1787a850c94a344b0172d414a015219f6ca448d6e26aeab39074
+T019:
+  task: b5dbd227006c9011b575996810c107d8f642b80cbffa30af6c8964fdb92783bf
+T020:
+  task: ff9652a9ba4c20a0f60d45c54f79b730fc0a81d675bbd52b4fe2f76a9bd0493c
+T020b:
+  task: 88024a1f6d12c4f66d6f86d202e9d524afd88ab856095381fd5f8bd94f6b9be3
+T021:
+  task: baeba2c11e53f49892ee032cba6b69b4aa0890caced927833f96eff5bd528ee9
+T023:
+  task: d63df558b614236ed52ce5207a21a65957d5b3e0d7c9df97cb63786961f65888
+T024:
+  task: 52c8d0b9fe7c9bb5707f08842faac5eeefa4b6e8a258a770f9ba691a3ea4b956
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: results/stratified_coverage.csv'
+  task: 6bb76a5cafb3c0fe1ac977789cabaf09c2e1d545a045137a2661c7f533ea709c
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: results/plots/stratified_bar.png'
+  task: 9606c9334c8ac79a28a26091fa13320796fd9516f844efc41aafcf97c90503ca
+T026b:
+  task: 7d7240ec8c73987d7ddf167074465b7b36b993549d18b2ab532069b0db07fc1a
+T027:
+  task: e32a8d602d8fa52c999614aebe64d509f03fe3dc70f0e7966b21abdfd1566e2c
+T028:
+  task: ebf25bfc6ecf4fbb5ce45d46c6fbd3e31119bd850a4b2d5ee0e25e6cda950eac
+T029:
+  task: d7bc494e91c6cf6d6e262cf8f070e2385b809a3b7dbcdbebb5037288d423c41f
+T030:
+  task: 67cf59f991744ecfb5fc94938bf759c6d243c34b85ca4e8232b6f51437a550cf
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: results/recalibration.csv'
+  task: e0eeee53ca0bf7329e7f0f1c2b8e91081b64fd3933d5181a6ed72b9c812e491d
+T032:
+  task: 787e71772c137cb906a0c79096cd77d85d61c9f1dd20f7d0e41caf879b1f4689
+T033a:
+  task: 0f2b709cd6fcc17fe420e457d672f2f11b024ea9efe761bc79f708b7deaa2cfe
+T033b:
+  task: b953f718ad9dc6f3ed635fae2104cf0dd15eb2d1c73dc0e200ce9c74010e9294
+T034a:
+  task: 9027169d93067e0724ba9edf58bf59f2184659e91c61fdc0d71545de8c3a7683
+T034b:
+  reason: 'declared artifact(s) missing/empty/invalid: results/memory.log, scripts/profile_memory.py'
+  task: 146e6c9cee6c73e06b32b3b34c98d26f662a9397829e0e722e2af57116b1feda
+T035a:
+  task: 998e3d25fb30d22aad585388603b638f63665f37e81fada3c2349347b654b096
+T035b:
+  task: d6c0b45e3e2dc05ad86e55c246187dffd0983142fd4bf7ebf457d8be94d32f0e
+T035c:
+  task: e093d0bd96c98015cd1ad731901477a0f7f62f38834146d460605fb5f2aeec96
+T036:
+  task: ba03f3c1dc815fe05504eae3fb6e1275ce5cdab6fdb84f989a1f78ec607adce8
+T037:
+  task: c1e17bfb5e7408a8253cfd2ebdb1b025d2fc2bfb103846a538d61f63fd4ef079
+T038:
+  task: 516267ccabd83c179233347b3e3daf35835972d458f5abf2b8dcc71bade9332c
+T039:
+  task: f911406cbf5d58cb63a2bb0ab573f0fe02260014f9a1d3eb3a1c31fdf799756a
+T040:
+  task: cee1e58b8506e5af116b3bcd71cee4412fb04205fb731261f7d8049a7c9e3d68
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: results/bootstrap_pvalues.json,
+    results/recalibration_pvalues_fdr.json'
+  task: 8ab0c6e4ec84d4db228f71d871d3d3ba238ec27ff1a9f630f57df0109f3fc62e
+T042:
+  task: 6e92f3b6a59f91fe5ebaaed392c287e2b4894cbea0ea8b3434d211662ae50297
+T050:
+  task: 9c74268c24bcaa56546cb037944cd1515081f2dedccad6058196e89c4686cdca
+T051:
+  task: e74b4cf59906110dace80f870f498c3f700acdc980794343ebffa230c97beba9
+T052:
+  task: d89a7ddf336dbeb3d0330b0c180cf37a1c5f954ad2dde5b1a4160b1bda2b75c0
+T053:
+  task: effaff0d7c408b4940b7514adc4ee3734b0405609ed63d24b19159bf08376567
+T054:
+  task: 3a2eb9aa0155d07c6dd04262771c0d0b39b387149a882fa7906e63ba2d037a43
+T055:
+  task: 0eb1b4df7b90de06a7344f7af496ef849f7721e87e5ba06ab698848c5a719a4a
+T056:
+  task: 942a5b8463c187794faa3f7b3cf13eb7282f7d15a9cd441b725e2a7ecc48e793

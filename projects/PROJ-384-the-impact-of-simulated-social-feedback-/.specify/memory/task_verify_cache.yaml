@@ -1,0 +1,71 @@
+T001:
+  c: true
+  h: 4680311251aa63ba8fd651eeca5e31f426375521e8c646f9f5faa063c653b5d8
+  r: "The repository contains the required directories: `code/` (with subdirectory\
+    \ `code/utils/`), `tests/`, `data/raw/`, and `data/processed/`, each present and\
+    \ populated (e.g., with placeholder files such as `.gitkeep`). This matches the\
+    \ task\u2019s specification of creating the project structure."
+T002:
+  c: false
+  h: 604d042027751f03a0a40ebc8b3e1acc37f484065652513e9fd88d5350b68876
+  r: "The provided `code/requirements.txt` lists the required packages but does not\
+    \ pin them to specific version numbers (e.g., `pandas==1.5.3`), violating the\
+    \ \u201Cpinned dependencies\u201D requirement, and it also includes an extra `pyyaml`\
+    \ entry not requested. The task is therefore not fully satisfied."
+T003:
+  c: true
+  h: 45f1021c1ab1772e20a4451145e19b60056ed104b87263bcbba4df098885c646
+  r: "The `code/.pre-commit-config.yaml` file exists, is non\u2011empty, and configures\
+    \ ruff (a linting tool that can replace flake8) and black for formatting, fulfilling\
+    \ the task\u2019s requirement."
+T004:
+  c: true
+  h: 67f2e414ba05b3db1e92aeea1511c6f79d395f07ca54c0bf4c9080e07e9fa5dd
+  r: The file `code/utils/config.py` exists and defines project paths, random seed
+    constants, a VIF limit, and a sentiment range tuple covering negative to positive
+    values, fulfilling the task specification.
+T005:
+  c: false
+  h: c619eb69ac3d9555fa97a1659de993eeb2cea7aab91aa2de9cac49c49946babc
+  r: "The provided `code/utils/logger.py` defines a custom `ReproducibilityLogger`\
+    \ but never configures Python\u2019s `logging` module with file and console handlers,\
+    \ nor does it write any output to `logs/pipeline.log`. The task explicitly required\
+    \ setting up logging that writes to that file, which is missing."
+T006:
+  c: false
+  h: 46028d289fb9d7afb4a4e65d7c14b64b1e9acf98a7916b2122ed199a9a71feb3
+  r: The schema file exists and is a valid, strict YAML definition, but there is no
+    accompanying evidence (e.g., Python code or test output) showing that the schema
+    was loaded with `jsonschema`, validated against a good payload, and that it correctly
+    raises an error on a known bad JSON payload as required.
+T008:
+  c: false
+  h: 44d66de4314cb55d1c288c590ee83cfc911d53042ff8f1eb0701d90a5b99c01d
+  r: "The `code/utils/model_loader.py` file exists and implements the model initialization\
+    \ and caching, but the required lexicon file `data/raw/lexicons/rosenberg_words.txt`\
+    \ is missing, so the loader cannot fulfill its purpose of loading the Rosenberg\
+    \ self\u2011esteem lexicon. Add the lexicon file (with the expected word list)\
+    \ to complete the task."
+T016:
+  c: false
+  h: 44032301468328d20148662deeef678ec0e18d6e71af3215784f2c5158edf9de
+  r: "The required file `code/01_ingest.py` is missing from the repository, so no\
+    \ implementation applying the RoBERTa model and normalizing scores is present.\
+    \ Consequently the task\u2019s core deliverable is absent."
+T018:
+  c: false
+  h: 536bcd097ef6490c6e0e8ff3f35417cbbcbe199390a694a4beac016f0ec34af0
+  r: "The required output file `data/processed/valence_sequence.csv` does not exist,\
+    \ so the script\u2019s primary deliverable is missing. Consequently the verification\
+    \ of columns and null\u2011value constraints cannot be performed. Additionally,\
+    \ the provided `code/01_ingest.py` excerpt shows only loading and validation logic\
+    \ and does not demonstrate the grouping, sorting, or CSV writing steps required\
+    \ by the task. The implementer must create the CSV with the specified columns\
+    \ and ensure the script performs the described processing."
+T024:
+  c: false
+  h: 2abf1973519fcf28fde3d7c70d90587eca604c1740c00322c57da7c444662d06
+  r: The provided `code/02_metrics.py` expects `data/processed/valence_sequence.csv`,
+    but that CSV file is absent from the repository, so the script cannot actually
+    load and group the data as required. The missing input file prevents the task
+    from being fulfilled.

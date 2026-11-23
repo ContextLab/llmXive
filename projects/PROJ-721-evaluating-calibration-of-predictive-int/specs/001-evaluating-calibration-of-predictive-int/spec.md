@@ -13,7 +13,7 @@ As a researcher, I want to ingest the M4 dataset, fit multiple forecasting model
 
 **Why this priority**: This is the foundational capability; without accurate interval generation and coverage calculation, no analysis is possible. It delivers the primary research value.
 
-**Independent Test**: Can be fully tested by running the pipeline on a subset of 10 series and verifying that the output CSV contains observed coverage rates for [deferred] and [deferred] intervals that match manual calculation on those 10 series.
+**Independent Test**: Can be fully tested by running the pipeline on a subset of series and verifying that the output CSV contains observed coverage rates for [deferred] and [deferred] intervals that match manual calculation on those series.
 
 **Acceptance Scenarios**:
 

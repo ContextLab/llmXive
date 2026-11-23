@@ -1,0 +1,23 @@
+[tool.ruff]
+# Global options
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+# Select rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["data", "models", "uq", "utils"]
+force-sort-within-sections = true

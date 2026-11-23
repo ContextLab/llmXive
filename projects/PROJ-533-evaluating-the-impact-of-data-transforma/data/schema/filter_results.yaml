@@ -1,0 +1,63 @@
+# Schema definition for data/filter_results.csv
+# Generated for task T016a: Define schema for filter results
+# This file defines the structure, types, and constraints for the filter results CSV.
+
+file_name: filter_results.csv
+description: "Results of the Shapiro-Wilk normality test and sample size filtering for each dataset."
+delimiter: ","
+encoding: "utf-8"
+
+columns:
+  - name: dataset_id
+    type: string
+    description: "Unique identifier for the dataset."
+    constraints:
+      - not_null: true
+      - pattern: "^[a-zA-Z0-9_-]+$"
+      - min_length: 1
+  
+  - name: shapiro_p
+    type: float
+    description: "P-value from the Shapiro-Wilk normality test."
+    constraints:
+      - not_null: true
+      - min_value: 0.0
+      - max_value: 1.0
+      - precision: 6
+  
+  - name: sample_size
+    type: integer
+    description: "Number of samples (rows) in the dataset after cleaning."
+    constraints:
+      - not_null: true
+      - min_value: 0
+      - max_value: 1000000000
+  
+  - name: included
+    type: boolean
+    description: "Whether the dataset passed the filtering criteria (p < 0.05 and sample_size >= 30)."
+    constraints:
+      - not_null: true
+      - allowed_values: [true, false]
+
+validation_rules:
+  - rule: "included is true IF AND ONLY IF (shapiro_p < 0.05 AND sample_size >= 30)"
+    severity: error
+  - rule: "shapiro_p must be a valid float between 0.0 and 1.0"
+    severity: error
+  - rule: "sample_size must be a non-negative integer"
+    severity: error
+
+example_rows:
+  - dataset_id: "uci_adult_001"
+    shapiro_p: 0.002341
+    sample_size: 45220
+    included: true
+  - dataset_id: "openml_height_002"
+    shapiro_p: 0.124500
+    sample_size: 5000
+    included: false
+  - dataset_id: "custom_small_003"
+    shapiro_p: 0.000100
+    sample_size: 15
+    included: false

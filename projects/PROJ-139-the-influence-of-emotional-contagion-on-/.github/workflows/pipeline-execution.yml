@@ -1,0 +1,178 @@
+name: Pipeline Execution Gate
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360  # 6 hours limit (SC-005)
+    env:
+      # GitHub Actions Free Tier Limits: 2 CPU, 7GB RAM, 14GB Disk
+      # We explicitly check these in the script to ensure compliance
+      CI_RUNNER: "true"
+      MAX_THREADS: "2"
+      
+      # Data Source Configuration
+      # Primary: Pushshift (via API), Fallback: HuggingFace Archives
+      # No synthetic data fallback allowed (T031 requirement)
+      PUSHSHIFT_API_URL: "https://api.pushshift.io/reddit/submission/search/"
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f code/requirements.txt ]; then
+            pip install -r code/requirements.txt
+          else
+            echo "ERROR: code/requirements.txt not found"
+            exit 1
+          fi
+
+      - name: Verify Project Structure
+        run: |
+          if [ ! -d "code/data" ]; then
+            echo "ERROR: code/data directory missing"
+            exit 1
+          fi
+          if [ ! -d "code/analysis" ]; then
+            echo "ERROR: code/analysis directory missing"
+            exit 1
+          fi
+
+      - name: Run Full Pipeline
+        id: pipeline_run
+        run: |
+          echo "Starting pipeline execution..."
+          echo "Checking system resources..."
+          
+          # Capture start time
+          START_TIME=$(date +%s)
+          
+          # Run the pipeline
+          # We use --threads to limit concurrency if needed, but the script handles resource checks internally
+          python code/analysis/run_pipeline.py --threads || {
+            END_TIME=$(date +%s)
+            DURATION=$((END_TIME - START_TIME))
+            echo "Pipeline execution failed."
+            echo "duration_seconds=$DURATION" >> $GITHUB_OUTPUT
+            exit 1
+          }
+          
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "duration_seconds=$DURATION" >> $GITHUB_OUTPUT
+          echo "Pipeline execution completed successfully."
+
+      - name: Verify Artifacts Existence
+        run: |
+          echo "Verifying required output artifacts..."
+          
+          REQUIRED_FILES=(
+            "data/raw/reddit_threads.jsonl"
+            "data/processed/valid_threads.csv"
+            "data/processed/all_threads_classified.csv"
+            "data/processed/threads_with_seeds.csv"
+            "data/processed/thread_metrics.csv"
+            "data/processed/validity_status.json"
+            "data/processed/sensitivity_analysis.csv"
+            "data/processed/external_validation_correlation.csv"
+            "state/performance_log.json"
+            "state/reproducibility_report.json"
+            "state/final_validation.json"
+            "docs/paper.md"
+            "docs/analysis_summary.md"
+          )
+
+          FAILED=0
+          for file in "${REQUIRED_FILES[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "ERROR: Missing required artifact: $file"
+              FAILED=1
+            else
+              SIZE=$(stat -c%s "$file" 2>/dev/null || stat -f%z "$file" 2>/dev/null)
+              echo "Found: $file (Size: $SIZE bytes)"
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            echo "Pipeline execution failed due to missing artifacts."
+            exit 1
+          fi
+
+      - name: Validate Performance Constraints
+        run: |
+          echo "Validating performance constraints..."
+          
+          if [ ! -f "state/performance_log.json" ]; then
+            echo "ERROR: state/performance_log.json not found for validation"
+            exit 1
+          fi
+
+          # Check runtime (should be < 6 hours = 21600 seconds)
+          RUNTIME=$(python -c "import json; d=json.load(open('state/performance_log.json')); print(d.get('total_runtime_seconds', 0))")
+          if [ "$RUNTIME" -gt 21600 ]; then
+            echo "ERROR: Pipeline exceeded 6-hour limit. Runtime: ${RUNTIME}s"
+            exit 1
+          fi
+          echo "Runtime check passed: ${RUNTIME}s < 21600s"
+
+          # Check thread count (should be >= 2 subreddits, >= 1 SE site)
+          THREAD_COUNT=$(python -c "import json; d=json.load(open('state/performance_log.json')); print(d.get('thread_count', 0))")
+          if [ "$THREAD_COUNT" -lt 10 ]; then
+            echo "WARNING: Low thread count: ${THREAD_COUNT}. Check data source availability."
+            # Not a hard failure, but logged
+          else
+            echo "Thread count check passed: ${THREAD_COUNT} threads processed"
+          fi
+
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-output
+          path: |
+            data/
+            state/
+            docs/
+          retention-days: 7
+
+      - name: Final Validation Report
+        run: |
+          echo "=== FINAL VALIDATION SUMMARY ==="
+          if [ -f "state/final_validation.json" ]; then
+            python -c "
+            import json
+            with open('state/final_validation.json') as f:
+                report = json.load(f)
+            print(f\"All Criteria Met: {report.get('all_criteria_met', False)}\")
+            print(f\"Details: {json.dumps(report.get('details', {}), indent=2)}\")
+            if not report.get('all_criteria_met', False):
+                exit(1)
+            "
+          else
+            echo "ERROR: Final validation report not generated"
+            exit 1
+          fi
+
+      - name: Upload Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-pipeline-logs
+          path: |
+            state/validation_errors.log
+            state/*.log
+            data/raw/reddit_threads.jsonl
+          retention-days: 7

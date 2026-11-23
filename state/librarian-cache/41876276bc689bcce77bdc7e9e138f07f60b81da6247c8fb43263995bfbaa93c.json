@@ -1,0 +1,429 @@
+{
+  "fetched_at": "2026-08-10T06:41:59Z",
+  "field": "physics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "physics",
+      "idea_body_excerpt": "Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 70.103,
+    "ended_at": "2026-08-10T06:41:59Z",
+    "expansion": null,
+    "extracted_queries": [
+      "degree correlation assortativity epidemic threshold",
+      "preferential attachment Barabasi-Albert SIR spreading dynamics",
+      "small-world clustering coefficient percolation transition",
+      "basic reproduction number R0 critical mass threshold",
+      "contact network topology susceptibility cascade mechanism"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2109.03044"
+      ]
+    },
+    "per_query_hit_count": {
+      "Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free Networks physics": 3,
+      "basic reproduction number R0 critical mass threshold": 3,
+      "contact network topology susceptibility cascade mechanism": 3,
+      "degree correlation assortativity epidemic threshold": 3,
+      "preferential attachment Barabasi-Albert SIR spreading dynamics": 3,
+      "small-world clustering coefficient percolation transition": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1003.4886",
+          "rationale": "The paper focuses on \"small-world\" network topology applied to geophysical diffusion in porous rocks, which is a distinct construct from the user's specific focus on \"scale-free\" networks and \"epidemic spreading.\" While both involve network theory, the paper does not measure the same mechanism (epidemic dynamics vs. pollutant transport), the same network class (scale-free vs. small-world), or the same domain (epidemiology vs. geophysics), failing to meet the inclusion criteria for a literature r",
+          "title": "Small-World Networks in Geophysics"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-10T06:40:49Z",
+    "term_input": {
+      "normalized": "quantifying the impact of network proximity on epidemic spreading in scale-free networks physics",
+      "raw": "Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free Networks physics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study an individual-based stochastic epidemic model in which infected individuals become susceptible again following each infection (generalized SIS model). Specifically, after each infection, the infectivity is a random function of the time elapsed since the infection, and each recovered individual loses immunity gradually (equivalently, becomes gradually susceptible) after some time according to a random susceptibility function. The epidemic dynamics is described by the average infectivity and susceptibility processes in the population together with the numbers of infected and susceptible/uninfected individuals. In \\cite{forien-Zotsa2022stochastic}, a functional law of large numbers (FLLN) is proved as the population size goes to infinity, and asymptotic endemic behaviors are also studied. In this paper, we prove a functional central limit theorem (FCLT) for the stochastic fluctuations of the epidemic dynamics around the FLLN limit. The FCLT limit for the aggregate infectivity and susceptibility processes is given by a system of stochastic non-linear integral equation driven by a two-dimensional Gaussian process.",
+          "claimed_authors": [
+            "Arsene-Brice Zotsa-Ngoufack"
+          ],
+          "claimed_title": "Functional Central limit theorems for epidemic models with varying infectivity and waning immunity",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.02260"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='Functional Central limit theorems for epidemic models with varying infectivity and waning immunity')",
+        "failed_at": "2026-08-10T06:41:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A variation of the preferential attachment random graph model of Barabási and Albert is defined that incorporates planted communities. The graph is built progressively, with new vertices attaching to the existing ones one-by-one. At every step, the incoming vertex is randomly assigned a label, which represents a community it belongs to. This vertex then chooses certain vertices as its neighbors, with the choice of each vertex being proportional to the degree of the vertex multiplied by an affinity depending on the labels of the new vertex and a potential neighbor. It is shown that the fraction of half-edges attached to vertices with a given label converges almost surely for some classes of affinity matrices. In addition, the empirical degree distribution for the set of vertices with a given label converges to a heavy tailed distribution, such that the tail decay parameter can be different for different communities. Our proof method may be of independent interest, both for the classical Barabási -Albert model and for other possible extensions.",
+          "claimed_authors": [
+            "Bruce Hajek",
+            "Suryanarayana Sankagiri"
+          ],
+          "claimed_title": "Preferential Attachment Graphs with Planted Communities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.06816"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='Preferential Attachment Graphs with Planted Communities')",
+        "failed_at": "2026-08-10T06:41:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce a family of one-dimensional geometric growth models, constructed iteratively by locally optimizing the tradeoffs between two competing metrics, and show that this family is equivalent to a family of preferential attachment random graph models with upper cutoffs. This is the first explanation of how preferential attachment can arise from a more basic underlying mechanism of local competition. We rigorously determine the degree distribution for the family of random graph models, showing that it obeys a power law up to a finite threshold and decays exponentially above this threshold.\n  We also rigorously analyze a generalized version of our graph process, with two natural parameters, one corresponding to the cutoff and the other a ``fertility'' parameter. We prove that the general model has a power-law degree distribution up to a cutoff, and establish monotonicity of the power as a function of the two parameters. Limiting cases of the general model include the standard preferential attachment model without cutoff and the uniform attachment model.",
+          "claimed_authors": [
+            "N. Berger",
+            "C. Borgs",
+            "J. T. Chayes",
+            "R. M. D'Souza",
+            "R. D. Kleinberg"
+          ],
+          "claimed_title": "Degree Distribution of Competition-Induced Preferential Attachment Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "cond-mat/0502205"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='Degree Distribution of Competition-Induced Preferential Attachment Graphs')",
+        "failed_at": "2026-08-10T06:41:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article is a draft of a book chapter of the book entitled \"Quantum Percolation and Breakdown\", to appear 2008.",
+          "claimed_authors": [
+            "K. Kieling",
+            "J. Eisert"
+          ],
+          "claimed_title": "Percolation in quantum computation and communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0712.1836"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='Percolation in quantum computation and communication')",
+        "failed_at": "2026-08-10T06:41:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The small-world phenomenon is found in many self-organising systems. Systems configured in small-world networks spread information more easily than in random or regular lattice-type networks. Whilst it is a known fact that small-world networks have short average path length and high clustering coefficient in self-organising systems, the ego centralities that maintain the cohesiveness of small-world network have not been formally defined. Here we show that instantaneous events such as the release of news items via Twitter, coupled with active community arguments related to the news item form a particular type of small-world network. Analysis of the centralities in the network reveals that community arguments maintain the small-world network whilst actively maintaining the cohesiveness and boundary of the group. The results demonstrate how an active Twitter community unconsciously forms a small-world network whilst interacting locally with a bordering community. Over time, such local interactions brought about the global emergence of the small-world network, connecting media channels with human activities. Understanding the small-world phenomenon in relation to online social or civic movement is important, as evident in the spate of online activists that tipped the power of governments for the better or worst in recent times. The support, or removal of high centrality nodes in such networks has important ramifications in the self-expression of society and civic discourses. The presentation in this article anticipates further exploration of man-made self-organising systems where a larger cluster of ad-hoc and active community maintains the overall cohesiveness of the network.",
+          "claimed_authors": [
+            "Eugene Ch'ng"
+          ],
+          "claimed_title": "Local Interactions and the Emergence of a Twitter Small-World Network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1508.03594"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='Local Interactions and the Emergence of a Twitter Small-World Network')",
+        "failed_at": "2026-08-10T06:41:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Estimating time-varying reproduction numbers from epidemic incidence data is a central task in infectious disease surveillance, yet it poses an inherently ill-posed inverse problem. Existing approaches often rely on strong structural assumptions derived from epidemiological models, which can limit their ability to adapt to non-stationary transmission dynamics induced by interventions or behavioral changes, leading to delayed detection of regime shifts and degraded estimation accuracy. In this work, we propose a Conditional Inverse Reproduction Learning framework (CIRL) that addresses the inverse problem by learning a {conditional mapping} from historical incidence patterns and explicit time information to latent reproduction numbers. Rather than imposing strongly enforced parametric constraints, CIRL softly integrates epidemiological structure with flexible likelihood-based statistical modeling, using the renewal equation as a forward operator to enforce dynamical consistency. The resulting framework combines epidemiologically grounded constraints with data-driven temporal representations, producing reproduction number estimates that are robust to observation noise while remaining responsive to abrupt transmission changes and zero-inflated incidence observations. Experiments on synthetic epidemics with controlled regime changes and real-world SARS and COVID-19 data demonstrate the effectiveness of the proposed approach.",
+          "claimed_authors": [
+            "Lanlan Yu",
+            "Quan-Hui Liu",
+            "Haoyue Zheng",
+            "Xinfu Yang"
+          ],
+          "claimed_title": "Conditional Inverse Learning of Time-Varying Reproduction Numbers Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.17549"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='Conditional Inverse Learning of Time-Varying Reproduction Numbers Inference')",
+        "failed_at": "2026-08-10T06:41:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Joint United Nations Programme on HIV and AIDS (UNAIDS) has set a new 90-90-90 global target for the coverage of anti-retroviral therapy (ART) to be reached by 2020. This would mean that 90% of all people infected with HIV know their status, 90% of them are on ART and 90% of them will have full viral load suppression. Here we first estimate the case reproduction number, R0, for countries in sub-Saharan Africa and for India using data on the rate at which the prevalence of HIV increased at the start of the epidemic and the life expectancy of people living with HIV who are not on ART. R0 determines the magnitude of the control problem, that is to say, the extent to which transmission must be reduced to eliminate HIV. We show that in sub-Saharan Africa the median value of R0 is 4.6 and in all but five countries R0 is less than 6.3. If the 90-90-90 target is reached, 73% of all those living with HIV will have full viral load suppression. If this is maintained it should guarantee elimination in 70% of all countries in sub-Saharan Africa and will reduce R0 to less than 2 in the remaining 12 countries, making elimination easy to achieve by increasing the availability of other high impact methods of prevention.",
+          "claimed_authors": [
+            "Brian G. Williams",
+            "Eleanor Gouws"
+          ],
+          "claimed_title": "R0 and the elimination of HIV in Africa: Will 90-90-90 be sufficient?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1304.3720"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='R0 and the elimination of HIV in Africa: Will 90-90-90 be sufficient?')",
+        "failed_at": "2026-08-10T06:41:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurate epidemic forecasting requires models that account for the layered and heterogeneous nature of real social interactions. The basic reproduction number $\\mathcal R_0$, as calculated from models that assume homogeneous mixing or single-layer contact structures, has limited applicability to complex social systems. Here, we derive an expression for $\\mathcal R_0$ in the context of multiplex networks, enabling the analysis of disease transmission across multiple social layers.\n  We adapt the Degree-Based Mean-Field (DBMF) SIR model for single-layer complex networks to the multiplex setting, where each layer is characterized by its own degree distribution and infection rate. Using the Next Generation Matrix method, we derive an analytical expression for the basic reproduction number $\\mathcal R_0$. Numerical integration of the multiplex DBMF equations shows that $\\mathcal R_0=1$ marks the epidemic threshold and governs the behavior of key outbreak indicators as expected. In addition to the exact expression for $\\mathcal R_0$, we introduce an approximation, denoted by $τ$, which is simpler to compute and admits a more transparent interpretation in terms of the epidemiological and topological parameters of the system.\n  Stochastic agent-based simulations support these findings, demonstrating a direct correspondence between $τ$ and the average number of secondary infections generated during the early stages of an outbreak, consistent with the epidemiological interpretation of $\\mathcal R_0$. This work provides a robust generalization of $\\mathcal R_0$ for layered contact structures, offering a more realistic basis for epidemic forecasting and the design of intervention strategies.",
+          "claimed_authors": [
+            "Eric Alejandro Rozan",
+            "Mario Ignacio Simoy",
+            "Sebastian Bouzat",
+            "Marcelo Nestor Kuperman"
+          ],
+          "claimed_title": "Modeling Epidemics on Multiplex Networks: Epidemic Threshold and Basic Reproduction Number",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.12614"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='Modeling Epidemics on Multiplex Networks: Epidemic Threshold and Basic Reproduction Number')",
+        "failed_at": "2026-08-10T06:41:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We employ cut and paste contact topological techniques to classify some tight contact structures on the closed, oriented genus-2 surface times the interval. A boundary condition is specified so that the Euler class of the of the contact structure vanishes when evaluated on each boundary component. We prove that there exists a unique, non-product tight contact structure in this case.",
+          "claimed_authors": [
+            "Tanya Cofer"
+          ],
+          "claimed_title": "A class of tight contact structures on Sigma_2 x I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "math/0411208"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='A class of tight contact structures on Sigma_2 x I')",
+        "failed_at": "2026-08-10T06:41:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "claimed_title": "Topological spaces of persistence modules and their properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.08117"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='Topological spaces of persistence modules and their properties')",
+        "failed_at": "2026-08-10T06:41:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This is a survey of knot contact homology, with an emphasis on topological, algebraic, and combinatorial aspects.",
+          "claimed_authors": [
+            "Lenhard Ng"
+          ],
+          "claimed_title": "A topological introduction to knot contact homology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.4803"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Quantifying the Impact of Network Proximity on Epidemic Spreading in Scale-Free ', candidate_title='A topological introduction to knot contact homology')",
+        "failed_at": "2026-08-10T06:41:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Julián Candia"
+          ],
+          "title": "Irreversible Opinion Spreading on Scale-Free Networks",
+          "venue": "arXiv",
+          "year": 2006
+        },
+        "primary_pointer": "cond-mat/0610097",
+        "summary": "We study the dynamical and critical behavior of a model for irreversible opinion spreading on Barabási-Albert (BA) scale-free networks by performing extensive Monte Carlo simulations. The opinion spreading within an inhomogeneous society is investigated by means of the magnetic Eden model, a nonequilibrium kinetic model for the growth of binary mixtures in contact with a thermal bath. The deposition dynamics, which is studied as a function of the degree of the occupied sites, shows evidence for the leading role played by hubs in the growth process. Systems of finite size grow either ordered or disordered, depending on the temperature. By means of standard finite-size scaling procedures, the effective order-disorder phase transitions are found to persist in the thermodynamic limit. This critical behavior, however, is absent in related equilibrium spin systems such as the Ising model on BA scale-free networks, which in the thermodynamic limit only displays a ferromagnetic phase. The dependence of these results on the degree exponent is also discussed for the case of uncorrelated scale-free networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/0610097",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T06:41:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "André Panisson",
+            "Alain Barrat",
+            "Ciro Cattuto",
+            "Wouter Van den Broeck",
+            "Giancarlo Ruffo",
+            "Rossano Schifanella"
+          ],
+          "title": "On the Dynamics of Human Proximity for Data Diffusion in Ad-Hoc Networks",
+          "venue": "arXiv",
+          "year": 2011
+        },
+        "primary_pointer": "1106.5992",
+        "summary": "We report on a data-driven investigation aimed at understanding the dynamics of message spreading in a real-world dynamical network of human proximity. We use data collected by means of a proximity-sensing network of wearable sensors that we deployed at three different social gatherings, simultaneously involving several hundred individuals. We simulate a message spreading process over the recorded proximity network, focusing on both the topological and the temporal properties. We show that by using an appropriate technique to deal with the temporal heterogeneity of proximity events, a universal statistical pattern emerges for the delivery times of messages, robust across all the data sets. Our results are useful to set constraints for generic processes of data dissemination, as well as to validate established models of human mobility and proximity that are frequently used to simulate realistic behaviors.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1106.5992",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T06:41:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gang Yan",
+            "Tao Zhou",
+            "Jie Wang",
+            "Zhong-Qian Fu",
+            "Bing-Hong Wang"
+          ],
+          "title": "Epidemic spread in weighted scale-free networks",
+          "venue": "arXiv",
+          "year": 2004
+        },
+        "primary_pointer": "cond-mat/0408049",
+        "summary": "In this letter, we investigate the detailed epidemic spreading process in scale-free networks with links' weights that denote familiarity between two individuals and find that spreading velocity reaches a peak quickly then decays in a power-law form. Numerical study exhibits that the nodes with larger strength is preferential to be infected, but the hierarchical dynamics are not clearly found, which is different from the well-known result in unweighed network case. In addition, also by numerical study, we demonstrate that larger dispersion of weight of networks results in slower spreading, which indicates that epidemic spreads more quickly on unweighted scale-free networks than on weighted scale-free networks with the same condition.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/cond-mat/0408049",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T06:41:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "M. L. Bertotti",
+            "G. Modanese"
+          ],
+          "title": "Diagonal degree correlations vs. epidemic threshold in scale-free networks",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2109.03044",
+        "summary": "We prove that the presence of a diagonal assortative degree correlation, even if small, has the effect of dramatically lowering the epidemic threshold of large scale-free networks. The correlation matrix considered is $P(h|k)=(1-r)P^U_{hk}+rδ_{hk}$, where $P^U$ is uncorrelated and $r$ (the Newman assortativity coefficient) can be very small. The effect is uniform in the scale exponent $γ$, if the network size is measured by the largest degree $n$. We also prove that it is possible to construct, via the Porto-Weber method, correlation matrices which have the same $k_{nn}$ as the $P(h|k)$ above, but very different elements and spectrum, and thus lead to different epidemic diffusion and threshold. Moreover, we study a subset of the admissible transformations of the form $P(h|k) \\to P(h|k)+Φ(h,k)$ with $Φ(h,k)$ depending on a parameter which leave $k_{nn}$ invariant. Such transformations affect in general the epidemic threshold. We find however that this does not happen when they act between networks with constant $k_{nn}$, i.e. networks in which the average neighbor degree is independent from the degree itself (a wider class than that of strictly uncorrelated networks).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2109.03044",
+          "http_status": 200,
+          "pdf_sample_score": 0.2392,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T06:41:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sheryl L. Chang",
+            "Mahendra Piraveenan",
+            "Mikhail Prokopenko"
+          ],
+          "title": "Impact of network assortativity on epidemic and vaccination behaviour",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2001.01852",
+        "summary": "The resurgence of measles is largely attributed to the decline in vaccine adoption and the increase in mobility. Although the vaccine for measles is readily available and highly successful, its current adoption is not adequate to prevent epidemics. Vaccine adoption is directly affected by individual vaccination decisions, and has a complex interplay with the spatial spread of disease shaped by an underlying mobility (travelling) network. In this paper, we model the travelling connectivity as a scale-free network, and investigate dependencies between the network's assortativity and the resultant epidemic and vaccination dynamics. In doing so we extend an SIR-network model with game-theoretic components, capturing the imitation dynamics under a voluntary vaccination scheme. Our results show a correlation between the epidemic dynamics and the network's assortativity, highlighting that networks with high assortativity tend to suppress epidemics under certain conditions. In highly assortative networks, the suppression is sustained producing an early convergence to equilibrium. In highly disassortative networks, however, the suppression effect diminishes over time due to scattering of non-vaccinating nodes, and frequent switching between the predominantly vaccinating and non-vaccinating phases of the dynamics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2001.01852",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T06:41:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "James Atwood",
+            "Bruno Ribeiro",
+            "Don Towsley"
+          ],
+          "title": "Efficient Network Generation Under General Preferential Attachment",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1403.4521",
+        "summary": "Preferential attachment (PA) models of network structure are widely used due to their explanatory power and conceptual simplicity. PA models are able to account for the scale-free degree distributions observed in many real-world large networks through the remarkably simple mechanism of sequentially introducing nodes that attach preferentially to high-degree nodes. The ability to efficiently generate instances from PA models is a key asset in understanding both the models themselves and the real networks that they represent. Surprisingly, little attention has been paid to the problem of efficient instance generation. In this paper, we show that the complexity of generating network instances from a PA model depends on the preference function of the model, provide efficient data structures that work under any preference function, and present empirical results from an implementation based on these data structures. We demonstrate that, by indexing growing networks with a simple augmented heap, we can implement a network generator which scales many orders of magnitude beyond existing capabilities ($10^6$ -- $10^8$ nodes). We show the utility of an efficient and general PA network generator by investigating the consequences of varying the preference functions of an existing model. We also provide \"quicknet\", a freely-available open-source implementation of the methods described in this work.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1403.4521",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T06:41:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "quantifying the impact of network proximity on epidemic spreading in scale-free networks physics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

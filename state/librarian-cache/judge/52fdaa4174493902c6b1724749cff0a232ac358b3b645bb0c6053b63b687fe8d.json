@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.12117",
+  "judged_at": "2026-07-28T18:39:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular permeability coefficients using graph neural networks and publicly available datasets chemistry",
+  "rationale": "This paper satisfies criterion (a) and (b) because it addresses the same biological mechanism (cell membrane permeability) by predicting lipophilicity coefficients (logP/logD), which are the primary determinants of molecular permeability, using a Graph Neural Network architecture (D-MPNN) on molecular data. Although it focuses on lipophilicity rather than the permeability coefficient directly, it provides the canonical prior work on the underlying physical property and the specific GNN methodolo",
+  "relevant": true
+}

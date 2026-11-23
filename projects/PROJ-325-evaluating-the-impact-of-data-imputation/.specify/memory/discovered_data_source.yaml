@@ -1,0 +1,10 @@
+status: none
+intent: download GSS 2018 and ACS design-weighted survey data python package dataset
+required_fields:
+- weight
+- strata
+- psu
+- all survey variables (e.g., demographic and outcome variables)
+cache_key: 9d26357d0ae39251b2668db8b2d4d4323d582384a0a4e41728c127ce668c1839
+searched_at: '2026-09-23T00:23:00.282273+00:00'
+retry_count: 1

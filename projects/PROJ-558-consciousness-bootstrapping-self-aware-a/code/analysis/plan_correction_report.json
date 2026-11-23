@@ -1,0 +1,20 @@
+[
+  {
+    "line_number": 12,
+    "matched_phrase": "Teacher-Student Distillation",
+    "line_content": "The training pipeline utilizes a Teacher-Student Distillation approach where the student model mimics the teacher.",
+    "context": "Summary: The project aims to create a self-aware AI. The training pipeline utilizes a Teacher-Student Distillation approach where the student model mimics the teacher. This is inconsistent with spec assumptions."
+  },
+  {
+    "line_number": 45,
+    "matched_phrase": "Pre-computed Teacher Labels",
+    "line_content": "Data preparation involves generating Pre-computed Teacher Labels for the training set.",
+    "context": "Data Preparation: Data preparation involves generating Pre-computed Teacher Labels for the training set. These labels are derived from a larger external model."
+  },
+  {
+    "line_number": 89,
+    "matched_phrase": "external truth",
+    "line_content": "The loss function minimizes the distance to external truth signals.",
+    "context": "Loss Function: The loss function minimizes the distance to external truth signals. This contradicts the self-referential nature of the spec."
+  }
+]

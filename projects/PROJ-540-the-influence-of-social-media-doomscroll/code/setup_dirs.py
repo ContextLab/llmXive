@@ -3,48 +3,47 @@ import sys
 from pathlib import Path
 import logging
 
-# Configure basic logging if not already configured
-if not logging.root.handlers:
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
+from config import load_config, ensure_directories
+
 logger = logging.getLogger(__name__)
 
-def create_directories():
-    """
-    Creates the required directory structure for the project.
+def _log_step(message: str) -> None:
+    """Helper to log steps with consistent formatting."""
+    logger.info(f"SETUP: {message}")
+
+def create_directories() -> None:
+    """Create necessary directory structure."""
+    _log_step("Creating directory structure")
     
-    Directories created:
-    - data/raw/
-    - data/processed/
-    - code/ (if not exists)
-    - outputs/
-    - tests/
-    """
-    # Define the project root relative to this script's location
-    # Assuming this script is in code/, root is one level up
-    project_root = Path(__file__).resolve().parent.parent
+    # Use the ensure_directories from config
+    ensure_directories()
     
-    required_dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "code",
-        project_root / "outputs",
-        project_root / "tests"
+    # Additional project-specific directories
+    project_dirs = [
+        "projects/PROJ-540-the-influence-of-social-media-doomscroll",
+        "projects/PROJ-540-the-influence-of-social-media-doomscroll/code",
+        "projects/PROJ-540-the-influence-of-social-media-doomscroll/tests",
+        "projects/PROJ-540-the-influence-of-social-media-doomscroll/data",
+        "projects/PROJ-540-the-influence-of-social-media-doomscroll/data/raw",
+        "projects/PROJ-540-the-influence-of-social-media-doomscroll/data/processed",
+        "projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs"
     ]
     
-    created_count = 0
-    for dir_path in required_dirs:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            logger.debug(f"Directory already exists: {dir_path}")
+    for dir_path in project_dirs:
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
+        _log_step(f"Created directory: {dir_path}")
+
+def main() -> None:
+    """Main entry point for setup directories script."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    logger.info(f"Directory setup complete. {created_count} new directories created.")
-    return True
+    try:
+        create_directories()
+        logger.info("Directory structure created successfully")
+    except Exception as e:
+        logger.error(f"Directory setup failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    create_directories()
+    import sys
+    main()

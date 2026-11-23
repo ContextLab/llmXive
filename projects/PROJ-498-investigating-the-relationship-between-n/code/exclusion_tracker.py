@@ -1,110 +1,103 @@
+"""
+Exclusion Tracker for T017.
+Manages the exclusions CSV file and provides utilities to log exclusions.
+"""
 import csv
 import os
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from logging_setup import get_logger
+from datetime import datetime
 
-EXCLUSIONS_FILE = "data/exclusions.csv"
+# Import from the project's logging module
+from synchrony import get_logger
 
-def ensure_exclusions_file_exists() -> None:
+logger = get_logger(__name__)
+
+def ensure_exclusions_file_exists(exclusions_path: Path) -> None:
     """Ensure the exclusions CSV file exists with the correct header."""
-    path = Path(EXCLUSIONS_FILE)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if not path.exists():
-        with open(path, 'w', newline='') as f:
+    if not exclusions_path.exists():
+        exclusions_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(exclusions_path, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['subject_id', 'reason'])
+        logger.log("ensure_exclusions_file_exists", path=str(exclusions_path))
 
-def log_exclusion(subject_id: str, reason: str) -> None:
-    """
-    Log an exclusion to the CSV file.
-    
-    Args:
-        subject_id: The ID of the excluded subject.
-        reason: The reason for exclusion (e.g., "insufficient trials", "excessive artifact removal").
-    """
-    ensure_exclusions_file_exists()
-    logger = get_logger()
-    logger.info(f"Excluding subject {subject_id}: {reason}")
-    
-    with open(EXCLUSIONS_FILE, 'a', newline='') as f:
+def log_exclusion(exclusions_path: Path, subject_id: str, reason: str) -> None:
+    """Append an exclusion record to the CSV."""
+    ensure_exclusions_file_exists(exclusions_path)
+    with open(exclusions_path, 'a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow([subject_id, reason])
+    logger.log("log_exclusion", subject_id=subject_id, reason=reason)
 
 def evaluate_subject_for_exclusion(
-    subject_id: str, 
-    n_trials_per_condition: Dict[str, int], 
-    total_trials_initial: int, 
-  ) -> Optional[str]:
+    subject_id: str,
+    trials_per_condition: Dict[str, int],
+    total_trials: int,
+    artifact_removed_count: int
+) -> Tuple[bool, Optional[str]]:
     """
-    Evaluate a subject for exclusion based on trial counts and artifact removal rates.
-    
-    Criteria:
-    - Exclude if <10 valid trials for ANY condition (reason: "insufficient trials")
-    - Exclude if >50% of initial trials were removed as artifacts (reason: "excessive artifact removal")
-    
+    Evaluate a subject for exclusion based on T017 criteria.
+
     Args:
         subject_id: The subject identifier.
-        n_trials_per_condition: Dictionary mapping condition names to valid trial counts.
-        total_trials_initial: The number of trials before artifact removal.
-        
-    Returns:
-        The exclusion reason string if the subject should be excluded, None otherwise.
-    """
-    # Check for insufficient trials (< 10 in any condition)
-    for condition, count in n_trials_per_condition.items():
-        if count < 10:
-            return "insufficient trials"
-    
-    # Check for excessive artifact removal (> 50%)
-    if total_trials_initial > 0:
-        # Calculate how many trials remain
-        total_trials_final = sum(n_trials_per_condition.values())
-        removed_trials = total_trials_initial - total_trials_final
-        removal_rate = removed_trials / total_trials_initial
-        
-        if removal_rate > 0.50:
-            return "excessive artifact removal"
-    
-    return None
+        trials_per_condition: Dict mapping condition names to trial counts.
+        total_trials: Total number of trials before artifact removal.
+        artifact_removed_count: Number of trials removed due to artifacts.
 
-def get_excluded_subjects() -> List[Tuple[str, str]]:
-    """
-    Read the exclusions file and return a list of (subject_id, reason) tuples.
-    
     Returns:
-        List of tuples containing subject ID and exclusion reason.
+        Tuple of (is_excluded, reason). If not excluded, reason is None.
     """
-    if not os.path.exists(EXCLUSIONS_FILE):
+    MIN_TRIALS_PER_CONDITION = 10
+    MAX_ARTIFACT_REMOVAL_RATIO = 0.50
+
+    # Check for insufficient trials per condition
+    for condition, count in trials_per_condition.items():
+        if count < MIN_TRIALS_PER_CONDITION:
+            logger.log(
+                "evaluate_subject_for_exclusion",
+                subject_id=subject_id,
+                reason="insufficient_trials",
+                condition=condition,
+                count=count,
+                threshold=MIN_TRIALS_PER_CONDITION
+            )
+            return True, "insufficient trials"
+
+    # Check for excessive artifact removal
+    if total_trials > 0:
+        removal_ratio = artifact_removed_count / total_trials
+        if removal_ratio > MAX_ARTIFACT_REMOVAL_RATIO:
+            logger.log(
+                "evaluate_subject_for_exclusion",
+                subject_id=subject_id,
+                reason="excessive_artifact_removal",
+                ratio=removal_ratio,
+                threshold=MAX_ARTIFACT_REMOVAL_RATIO
+            )
+            return True, "excessive artifact removal"
+
+    return False, None
+
+def get_excluded_subjects(exclusions_path: Path) -> List[Dict]:
+    """Read the exclusions file and return a list of excluded subjects."""
+    if not exclusions_path.exists():
         return []
-        
-    exclusions = []
-    with open(EXCLUSIONS_FILE, 'r', newline='') as f:
+
+    excluded = []
+    with open(exclusions_path, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            exclusions.append((row['subject_id'], row['reason']))
-    return exclusions
+            excluded.append(row)
+    return excluded
 
 def main():
     """
-    Main entry point for testing the exclusion tracker.
-    This is a simple test to verify the file structure and logging.
+    Main entry point for exclusion tracker.
     """
-    logger = get_logger()
-    logger.info("Testing exclusion tracker...")
-    
-    # Ensure file exists
-    ensure_exclusions_file_exists()
-    
-    # Log a test exclusion
-    log_exclusion("test_subject_001", "insufficient trials")
-    
-    # Verify it was logged
-    excluded = get_excluded_subjects()
-    if excluded:
-        logger.info(f"Successfully logged exclusion: {excluded[-1]}")
-    else:
-        logger.error("Failed to log exclusion.")
+    exclusions_path = Path("data/exclusions.csv")
+    print(f"Exclusion tracker initialized. Output file: {exclusions_path}")
+    return 0
 
 if __name__ == "__main__":
     main()

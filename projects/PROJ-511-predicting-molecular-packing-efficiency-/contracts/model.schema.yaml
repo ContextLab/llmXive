@@ -1,41 +1,96 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Model Output Schema
-description: Schema for model training and evaluation outputs
+description: Schema for the trained model metadata and configuration stored alongside the model artifact.
 type: object
 required:
-  - model_path
-  - metrics
-  - validation_report
+  - model_type
+  - architecture
+  - hyperparameters
+  - training_config
+  - input_features
+  - target_variable
 properties:
-  model_path:
+  model_type:
     type: string
-    description: Path to the saved model file
-  metrics:
+    description: Type of model used (e.g., "MLP").
+    enum:
+      - MLP
+  architecture:
     type: object
+    description: Description of the neural network architecture.
     required:
-      - mae
-      - pearson_r
-      - spearman_rho
+      - layers
+      - activation
+      - dropout
     properties:
-      mae:
+      layers:
+        type: array
+        items:
+          type: integer
+        description: List of layer sizes (input, hidden, output).
+      activation:
+        type: string
+        description: Activation function used in hidden layers.
+      dropout:
         type: number
-        description: Mean Absolute Error
-      pearson_r:
+        description: Dropout rate applied to hidden layers.
+  hyperparameters:
+    type: object
+    description: Hyperparameters used during training.
+    required:
+      - learning_rate
+      - batch_size
+      - optimizer
+    properties:
+      learning_rate:
         type: number
-        description: Pearson correlation coefficient
-      spearman_rho:
+      batch_size:
+        type: integer
+      optimizer:
+        type: string
+      weight_decay:
         type: number
-        description: Spearman rank correlation coefficient
-      r_squared:
+        default: 0
+      epochs:
+        type: integer
+  training_config:
+    type: object
+    description: Configuration details of the training run.
+    required:
+      - seed
+      - device
+      - train_split
+      - val_split
+    properties:
+      seed:
+        type: integer
+      device:
+        type: string
+        enum:
+          - cpu
+          - cuda
+      train_split:
         type: number
-        description: R-squared value
-      shapiro_wilk_p:
+        description: Fraction of data used for training.
+      val_split:
         type: number
-        description: Shapiro-Wilk test p-value for residual normality
-      permutation_p:
-        type: number
-        description: Permutation test p-value
-  validation_report:
+        description: Fraction of data used for validation.
+  input_features:
+    type: array
+    description: List of feature names used as input to the model.
+    items:
+      type: string
+  target_variable:
     type: string
-    description: Path to the validation report file
-additionalProperties: false
+    description: Name of the target variable being predicted.
+  parameter_count:
+    type: integer
+    description: Total number of trainable parameters in the model.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the model was trained.
+  version:
+    type: string
+    description: Version of the model schema.
+    default: "1.0.0"

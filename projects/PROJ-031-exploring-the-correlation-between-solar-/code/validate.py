@@ -1,217 +1,159 @@
 """
-Validation module for the Solar Flare and Geomagnetic Storm Correlation Study.
-
-This module provides functions to validate data artifacts against their
-corresponding JSON Schema definitions. It is designed to be used as a
-gatekeeper in the pipeline: if validation fails, downstream processes
-(like writing the final CSV or updating the manifest) are blocked.
+Validation module for checking data against JSON schemas.
+Implements T017 and T017b validation gates.
 """
-
 import os
 import json
 import sys
 import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional, Tuple
-import yaml
 
-# Using jsonschema for robust validation
+# Add code directory to path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 try:
-    import jsonschema
-    from jsonschema import validate, ValidationError, SchemaError
+    from jsonschema import validate, ValidationError, Draft7Validator
 except ImportError:
-    print("ERROR: The 'jsonschema' library is required. Install it via 'pip install jsonschema'.")
+    print("ERROR: jsonschema module not found. Please install it via 'pip install jsonschema'.")
     sys.exit(1)
 
-# Project root relative to code/
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-CONTRACTS_DIR = os.path.join(PROJECT_ROOT, "contracts")
-DATA_PROCESSED_DIR = os.path.join(PROJECT_ROOT, "data", "processed")
-DATA_RAW_DIR = os.path.join(PROJECT_ROOT, "data", "raw")
-SOURCE_MANIFEST_PATH = os.path.join(PROJECT_ROOT, "data", "source_manifest.yaml")
-
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("validate")
+logger = logging.getLogger(__name__)
 
-
-def load_schema(schema_name: str) -> Dict[str, Any]:
-    """
-    Loads a JSON/YAML schema from the contracts directory.
-
-    Args:
-        schema_name: The filename of the schema (e.g., 'aligned_event.schema.yaml').
-
-    Returns:
-        The schema as a dictionary.
-
-    Raises:
-        FileNotFoundError: If the schema file does not exist.
-        ValueError: If the schema file is empty or invalid.
-    """
-    schema_path = os.path.join(CONTRACTS_DIR, schema_name)
-    if not os.path.exists(schema_path):
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-
-    with open(schema_path, 'r', encoding='utf-8') as f:
-        try:
-            schema = yaml.safe_load(f)
-            if not schema:
-                raise ValueError(f"Schema file is empty: {schema_path}")
-            return schema
-        except yaml.YAMLError as e:
-            raise ValueError(f"Invalid YAML in schema {schema_path}: {e}")
-
-
-def validate_aligned_events(csv_path: str, schema_name: str = "aligned_event.schema.yaml") -> Tuple[bool, List[str]]:
-    """
-    Validates the aligned_events.csv file against the specified schema.
-
-    This function reads the CSV, converts it to a list of dictionaries (rows),
-    and validates each row against the 'items' definition in the schema.
-    It also checks for required columns and data types where possible.
-
-    Args:
-        csv_path: Path to the CSV file to validate.
-        schema_name: Name of the schema file in the contracts directory.
-
-    Returns:
-        A tuple (is_valid, errors).
-        - is_valid: True if all rows pass validation.
-        - errors: A list of error messages describing validation failures.
-    """
-    if not os.path.exists(csv_path):
-        return False, [f"Input file not found: {csv_path}"]
-
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """Load a JSON schema from a file."""
     try:
-        schema = load_schema(schema_name)
-    except (FileNotFoundError, ValueError) as e:
-        return False, [f"Failed to load schema: {e}"]
+        with open(schema_path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.error(f"Schema file not found: {schema_path}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in schema file {schema_path}: {e}")
+        raise
 
-    # Basic CSV reading
-    import pandas as pd
+def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+    """Validate a single record against a schema.
+    
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
     try:
-        df = pd.read_csv(csv_path)
-    except Exception as e:
-        return False, [f"Failed to read CSV: {e}"]
+        validate(instance=record, schema=schema)
+        return True, None
+    except ValidationError as e:
+        return False, str(e.message)
 
-    if df.empty:
-        logger.warning("CSV file is empty. Validation passed trivially, but data may be missing.")
-        return True, []
-
+def validate_aligned_events(csv_path: str, schema_path: str) -> Tuple[bool, List[str]]:
+    """Validate all records in a CSV file against a schema.
+    
+    Args:
+        csv_path: Path to the CSV file to validate
+        schema_path: Path to the JSON schema file
+        
+    Returns:
+        Tuple of (all_valid, list_of_errors)
+    """
+    import csv
+    
+    schema = load_schema(schema_path)
     errors = []
-    rows = df.to_dict('records')
-
-    # Define a validator for the schema
+    total_records = 0
+    valid_records = 0
+    
+    # Check if file exists
+    if not os.path.exists(csv_path):
+        logger.error(f"CSV file not found: {csv_path}")
+        return False, [f"File not found: {csv_path}"]
+    
     try:
-        validator = jsonschema.Draft7Validator(schema)
-    except SchemaError as e:
-        return False, [f"Invalid schema definition: {e}"]
-
-    # Validate each row
-    for idx, row in enumerate(rows):
-        # Convert row values to types expected by JSON Schema if necessary
-        # (e.g., ensure integers are ints, floats are floats, nulls are None)
-        # Pandas often reads everything as object or float64; we try to coerce based on schema hints
-        clean_row = {}
-        for key, value in row.items():
-            if pd.isna(value):
-                clean_row[key] = None
-            elif isinstance(value, (int, float)):
-                # Handle potential integer-like floats (e.g., 1.0 -> 1) if schema expects integer
-                if isinstance(value, float) and value.is_integer():
-                    clean_row[key] = int(value)
+        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            
+            # Validate header against schema required fields if applicable
+            if 'required' in schema.get('properties', {}):
+                required_fields = schema['properties']['required']
+                header_fields = set(reader.fieldnames or [])
+                # Note: Schema validation for CSV headers is complex; we'll validate records primarily
+            
+            for row_num, row in enumerate(reader, start=2):  # Start at 2 (1 is header)
+                total_records += 1
+                is_valid, error_msg = validate_record(row, schema)
+                
+                if is_valid:
+                    valid_records += 1
                 else:
-                    clean_row[key] = value
-            else:
-                clean_row[key] = value
-
-        # Validate the row
-        for error in validator.iter_errors(clean_row):
-            errors.append(f"Row {idx}: {error.message} (instance: {error.instance})")
-
+                    errors.append(f"Row {row_num}: {error_msg}")
+                    # Limit error reporting to first 10 errors to avoid log flooding
+                    if len(errors) >= 10:
+                        errors.append("... (additional errors truncated)")
+                        break
+    
+    except Exception as e:
+        logger.error(f"Error reading CSV file {csv_path}: {e}")
+        return False, [f"Error reading file: {str(e)}"]
+    
+    logger.info(f"Validation complete: {valid_records}/{total_records} records valid")
+    
     if errors:
-        logger.error(f"Validation failed for {csv_path} with {len(errors)} errors.")
+        logger.error(f"Validation failed with {len(errors)} errors")
         return False, errors
-
-    logger.info(f"Validation successful for {csv_path}. All {len(rows)} rows are schema-compliant.")
+    
     return True, []
 
-
-def block_write_if_invalid(csv_path: str, schema_name: str = "aligned_event.schema.yaml") -> bool:
-    """
-    Validates the CSV and returns True if valid, False if invalid.
-    This is the primary entry point for the pipeline to check before writing.
-
+def block_write_if_invalid(csv_path: str, schema_path: str) -> bool:
+    """Validate a file and block if invalid.
+    
     Args:
-        csv_path: Path to the CSV file to validate.
-        schema_name: Name of the schema file.
-
+        csv_path: Path to the CSV file to validate
+        schema_path: Path to the JSON schema file
+        
     Returns:
-        True if validation passes (or file doesn't exist yet but will be created),
-        False if validation fails.
+        True if valid, False if invalid
     """
-    if not os.path.exists(csv_path):
-        # If the file doesn't exist, we can't validate it yet.
-        # In the context of 'block_write_if_invalid', this usually means
-        # we are about to write it. We return True to allow the write,
-        # assuming the writer will produce valid data.
-        # However, if this function is called AFTER generation, it should fail.
-        # Given the task: "block the writing ... if validation fails",
-        # we assume the file exists at this point (just generated).
-        # If it doesn't exist, we can't validate.
-        logger.warning(f"Cannot validate {csv_path} because it does not exist yet.")
-        return True 
-
-    is_valid, errors = validate_aligned_events(csv_path, schema_name)
+    is_valid, errors = validate_aligned_events(csv_path, schema_path)
+    
     if not is_valid:
-        logger.error("VALIDATION BLOCKED: Data does not match schema. Aborting write/manifest update.")
-        for err in errors[:5]: # Log first 5 errors
+        logger.error("Validation failed. Blocking write operation.")
+        for err in errors[:5]:  # Log first 5 errors
             logger.error(f"  - {err}")
-        if len(errors) > 5:
-            logger.error(f"  ... and {len(errors) - 5} more errors.")
         return False
     
+    logger.info("Validation passed. Proceeding with write operation.")
     return True
 
-
 def main():
-    """
-    Command-line entry point for validation.
-    Usage: python code/validate.py [csv_path] [schema_name]
-    """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Validate data artifacts against schemas.")
-    parser.add_argument(
-        "--csv", 
-        default=os.path.join(DATA_PROCESSED_DIR, "aligned_events.csv"),
-        help="Path to the CSV file to validate."
-    )
-    parser.add_argument(
-        "--schema", 
-        default="aligned_event.schema.yaml",
-        help="Name of the schema file in contracts/."
-    )
-
-    args = parser.parse_args()
-
-    logger.info(f"Starting validation of {args.csv} against {args.schema}...")
+    """Main entry point for validation script.
     
-    is_valid, errors = validate_aligned_events(args.csv, args.schema)
-
-    if is_valid:
-        logger.info("VALIDATION PASSED.")
-        sys.exit(0)
-    else:
-        logger.error("VALIDATION FAILED.")
-        for err in errors:
-            print(err)
+    Usage:
+        python validate.py <csv_path> <schema_path>
+        
+    Returns:
+        0 if validation passes, 1 if it fails
+    """
+    if len(sys.argv) != 3:
+        print("Usage: python validate.py <csv_path> <schema_path>")
         sys.exit(1)
-
+    
+    csv_path = sys.argv[1]
+    schema_path = sys.argv[2]
+    
+    logger.info(f"Validating {csv_path} against {schema_path}")
+    
+    is_valid, errors = validate_aligned_events(csv_path, schema_path)
+    
+    if not is_valid:
+        logger.error("Validation FAILED")
+        for err in errors:
+            logger.error(f"  - {err}")
+        sys.exit(1)
+    
+    logger.info("Validation PASSED")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

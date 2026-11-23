@@ -1,226 +1,245 @@
+"""
+Multiple Comparisons Correction (Bonferroni) Implementation.
+
+Task: T021
+Reads gate_result.json to determine synthesis mode.
+If quantitative mode is active, reads study counts and tract counts to compute
+adjusted alpha and p-values.
+Writes bonferroni_status.json and updates results.json.
+"""
+
 import json
-import math
+import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, Any, List, Optional
 
-import numpy as np
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Import shared utilities from sibling modules to maintain API consistency
-from analysis.bias import load_study_count_from_json, load_effect_sizes_and_se
-from utils.logger import get_logger, log_error_context
+def get_project_root() -> Path:
+    """Get the project root directory."""
+    return Path(__file__).resolve().parent.parent.parent
 
-logger = get_logger(__name__)
+def load_json(file_path: Path) -> Dict[str, Any]:
+    """Load a JSON file."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"Required file not found: {file_path}")
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-# Constants
-DEFAULT_ALPHA = 0.05
+def save_json(file_path: Path, data: Dict[str, Any]) -> None:
+    """Save data to a JSON file."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
-def load_tract_data_from_json(json_path: Path) -> List[Dict[str, Any]]:
-    """
-    Load the list of tract-specific effect sizes from the meta-analysis output JSON.
-    Expects the JSON to have a 'results' or 'tracts' key containing the list of studies/tracks.
-    """
-    if not json_path.exists():
-        raise FileNotFoundError(f"Input JSON not found: {json_path}")
-
-    with open(json_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
-    # Attempt to find the list of results. The structure depends on T014 output.
-    # Assuming T014 outputs a list under 'results' or 'tract_results'.
-    results = data.get('results') or data.get('tract_results') or data.get('studies')
-    
-    if not results:
-        logger.warning("No tract data found in input JSON. Assuming empty result set.")
-        return []
-    
-    return results
-
-def count_unique_tracts(tract_data: List[Dict[str, Any]]) -> int:
-    """
-    Count the number of unique tracts in the provided data.
-    """
-    if not tract_data:
-        return 0
-    
-    tracts = set()
-    for item in tract_data:
-        # Expecting a key like 'tract_name', 'tract', or 'id'
-        name = item.get('tract_name') or item.get('tract') or item.get('id')
-        if name:
-            tracts.add(str(name))
-    
-    return len(tracts)
-
-def apply_bonferroni_correction(p_values: List[float], k: int) -> List[Tuple[float, float]]:
-    """
-    Apply Bonferroni correction to a list of p-values.
-    
-    Args:
-        p_values: List of raw p-values.
-        k: Number of comparisons (number of tracts).
-    
-    Returns:
-        List of tuples (adjusted_p_value, is_significant_at_0.05).
-        Adjusted p-value is min(p * k, 1.0).
-    """
-    if k == 0:
-        return []
-    
-    adjusted_results = []
-    for p in p_values:
-        # Cap at 1.0
-        adjusted_p = min(p * k, 1.0)
-        is_significant = adjusted_p < DEFAULT_ALPHA
-        adjusted_results.append((adjusted_p, is_significant))
-    
-    return adjusted_results
-
-def run_correction_analysis(
-    input_json_path: Path,
-    output_json_path: Path
+def apply_bonferroni_correction(
+    p_values: List[float],
+    k: int,
+    alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Main function to run the multiple comparison correction.
-    
-    Logic:
-    1. Load study_count from T014 output (or the same input JSON if it contains it).
-    2. If study_count < 10, skip correction and set narrative mode flag.
-    3. Load tract data to determine k (number of tracts).
-    4. If k < 2, skip correction (no multiple comparisons to make).
-    5. If N >= 10 and k >= 2, apply Bonferroni correction.
-    6. Write results to output JSON.
-    
+    Apply Bonferroni correction to a list of p-values.
+
+    Args:
+        p_values: List of raw p-values.
+        k: Number of comparisons (distinct tracts).
+        alpha: Significance level (default 0.05).
+
     Returns:
-        Dictionary containing the correction results.
+        Dictionary containing correction results.
     """
-    logger.info(f"Starting correction analysis on {input_json_path}")
-    
-    # 1. Load study count
-    # We reuse the helper from bias.py to ensure consistency in reading the count
-    try:
-        study_count = load_study_count_from_json(input_json_path)
-    except Exception as e:
-        logger.error(f"Failed to load study count: {e}")
-        study_count = 0
+    if k <= 0:
+        raise ValueError("Number of comparisons (k) must be positive.")
 
-    # 2. Check N < 10 condition
-    if study_count < 10:
-        logger.info(f"Study count ({study_count}) < 10. Skipping correction (Narrative Mode).")
-        result = {
-            "correction_mode": "skipped_narrative",
-            "reason": "Insufficient studies (N < 10) for quantitative correction.",
-            "study_count": study_count,
-            "adjusted_threshold": None,
-            "results": [],
-            "limitations": "Quantitative correction skipped due to low study count. Narrative synthesis recommended."
-        }
-        
-        with open(output_json_path, 'w', encoding='utf-8') as f:
-            json.dump(result, f, indent=2)
-        
-        return result
+    alpha_adj = alpha / k
+    p_adjusted = [min(p * k, 1.0) for p in p_values]
 
-    # 3. Load tract data and count unique tracts (k)
-    tract_data = load_tract_data_from_json(input_json_path)
-    k = count_unique_tracts(tract_data)
-
-    # 4. Check k < 2 condition
-    if k < 2:
-        logger.info(f"Unique tract count ({k}) < 2. Skipping correction (No multiple comparisons).")
-        result = {
-            "correction_mode": "skipped_single_comparison",
-            "reason": "Only one tract or no tracts found. Bonferroni correction not applicable.",
-            "study_count": study_count,
-            "tract_count": k,
-            "adjusted_threshold": DEFAULT_ALPHA,
-            "results": [],
-            "limitations": "Correction skipped as there is only a single comparison."
-        }
-        
-        with open(output_json_path, 'w', encoding='utf-8') as f:
-            json.dump(result, f, indent=2)
-        
-        return result
-
-    # 5. Perform Bonferroni Correction
-    logger.info(f"Applying Bonferroni correction: N={study_count}, k={k}")
-    
-    # Extract p-values. Assuming the input JSON has a 'p_value' or 'p' key per item.
-    p_values = []
-    for item in tract_data:
-        p = item.get('p_value') or item.get('p')
-        if p is not None:
-            p_values.append(float(p))
-    
-    if not p_values:
-        logger.warning("No p-values found in tract data to correct.")
-        result = {
-            "correction_mode": "no_data",
-            "reason": "No p-values found in input data.",
-            "study_count": study_count,
-            "tract_count": k,
-            "adjusted_threshold": DEFAULT_ALPHA,
-            "results": [],
-            "limitations": "No p-values available for correction."
-        }
-        with open(output_json_path, 'w', encoding='utf-8') as f:
-            json.dump(result, f, indent=2)
-        return result
-
-    adjusted_results = apply_bonferroni_correction(p_values, k)
-    adjusted_threshold = DEFAULT_ALPHA / k
-
-    # Construct output results
-    output_results = []
-    for i, (adj_p, sig) in enumerate(adjusted_results):
-        # Map back to original item if possible, or just index
-        original_item = tract_data[i] if i < len(tract_data) else {}
-        output_results.append({
-            "original_p_value": p_values[i],
-            "adjusted_p_value": round(adj_p, 6),
-            "is_significant": sig,
-            "tract_name": original_item.get('tract_name', original_item.get('tract', f"tract_{i}"))
-        })
-
-    result = {
-        "correction_mode": "bonferroni",
-        "study_count": study_count,
-        "tract_count": k,
-        "adjusted_threshold": round(adjusted_threshold, 6),
-        "results": output_results,
-        "limitations": (
-            "Bonferroni correction is conservative and assumes independence of tests. "
-            "Since brain tracts are anatomically and functionally correlated, "
-            "the true family-wise error rate may be lower than estimated here, "
-            "potentially leading to an increased Type II error rate (false negatives)."
-        )
+    return {
+        "bonferroni_applied": True,
+        "k": k,
+        "alpha": alpha,
+        "alpha_adj": alpha_adj,
+        "p_adjusted": p_adjusted
     }
 
-    with open(output_json_path, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2)
-
-    logger.info(f"Correction analysis complete. Results written to {output_json_path}")
-    return result
-
-def main():
+def extract_p_values_from_meta_results(meta_results: Dict[str, Any]) -> List[float]:
     """
-    CLI entry point for correction analysis.
-    Expects --input and --output arguments.
+    Extract p-values from meta-analysis results.
+    Handles various possible structures in meta_results.
     """
-    import argparse
+    p_values = []
 
-    parser = argparse.ArgumentParser(description="Apply Bonferroni correction to meta-analysis results.")
-    parser.add_argument("--input", type=Path, required=True, help="Path to input meta-analysis JSON (from T014).")
-    parser.add_argument("--output", type=Path, required=True, help="Path to output correction JSON.")
-    
-    args = parser.parse_args()
+    # Case 1: Direct 'p_value' field
+    if "p_value" in meta_results:
+        val = meta_results["p_value"]
+        if isinstance(val, (int, float)) and not (val is None or (isinstance(val, float) and val != val)):
+            p_values.append(float(val))
+
+    # Case 2: 'results' list
+    if "results" in meta_results and isinstance(meta_results["results"], list):
+        for item in meta_results["results"]:
+            if isinstance(item, dict) and "p_value" in item:
+                val = item["p_value"]
+                if isinstance(val, (int, float)) and not (val is None or (isinstance(val, float) and val != val)):
+                    p_values.append(float(val))
+
+    # Case 3: 'effect_size' list
+    if "effect_size" in meta_results and isinstance(meta_results["effect_size"], list):
+        for item in meta_results["effect_size"]:
+            if isinstance(item, dict) and "p_value" in item:
+                val = item["p_value"]
+                if isinstance(val, (int, float)) and not (val is None or (isinstance(val, float) and val != val)):
+                    p_values.append(float(val))
+
+    # Case 4: Nested 'p_value' in 'overall' or 'summary'
+    for key in ["overall", "summary", "pooled"]:
+        if key in meta_results and isinstance(meta_results[key], dict):
+            if "p_value" in meta_results[key]:
+                val = meta_results[key]["p_value"]
+                if isinstance(val, (int, float)) and not (val is None or (isinstance(val, float) and val != val)):
+                    p_values.append(float(val))
+
+    return p_values
+
+def run_correction() -> Dict[str, Any]:
+    """
+    Main logic for multiple comparisons correction.
+    """
+    project_root = get_project_root()
+    data_derived = project_root / "data" / "derived"
+    data_processed = project_root / "data" / "processed"
+
+    # Paths
+    gate_path = data_derived / "gate_result.json"
+    study_count_path = data_processed / "study_count.json"
+    tract_count_path = data_derived / "tract_count.json"
+    meta_results_path = data_derived / "meta_results.json"
+    results_path = data_derived / "results.json"
+    output_path = data_derived / "bonferroni_status.json"
+
+    # 1. Check Gate Result
+    logger.info(f"Reading gate result from {gate_path}")
+    try:
+        gate_result = load_json(gate_path)
+    except FileNotFoundError:
+        logger.warning("Gate result file not found. Assuming narrative mode.")
+        gate_result = {"status": "narrative_required", "reason": "Gate file missing"}
+
+    status = gate_result.get("status", "narrative_required")
+
+    if status == "narrative_required":
+        logger.info("Narrative mode active. Skipping Bonferroni correction.")
+        result = {
+            "bonferroni_applied": False,
+            "reason": "Narrative mode active"
+        }
+        save_json(output_path, result)
+        return result
+
+    # 2. Load Counts
+    try:
+        study_count_data = load_json(study_count_path)
+        N = study_count_data.get("N", 0)
+    except FileNotFoundError:
+        logger.error(f"Study count file not found: {study_count_path}")
+        N = 0
 
     try:
-        run_correction_analysis(args.input, args.output)
-        print(f"Correction analysis completed successfully. Output: {args.output}")
+        tract_count_data = load_json(tract_count_path)
+        k = tract_count_data.get("k", 0)
+    except FileNotFoundError:
+        logger.error(f"Tract count file not found: {tract_count_path}")
+        k = 0
+
+    logger.info(f"Study count (N): {N}, Tract count (k): {k}")
+
+    # 3. Check Conditions
+    # Condition: k >= 2 AND N >= 10
+    if k < 2:
+        logger.info(f"Skipping correction: k={k} < 2. (k must be >= 2)")
+        result = {
+            "bonferroni_applied": False,
+            "reason": f"Insufficient tracts (k={k} < 2)"
+        }
+        save_json(output_path, result)
+        return result
+
+    if N < 10:
+        logger.info(f"Skipping correction: N={N} < 10. (N must be >= 10)")
+        result = {
+            "bonferroni_applied": False,
+            "reason": f"Insufficient studies (N={N} < 10)"
+        }
+        save_json(output_path, result)
+        return result
+
+    # 4. Extract P-values
+    try:
+        meta_results = load_json(meta_results_path)
+    except FileNotFoundError:
+        logger.warning(f"Meta results file not found: {meta_results_path}. Cannot extract p-values.")
+        result = {
+            "bonferroni_applied": False,
+            "reason": "Meta results file missing"
+        }
+        save_json(output_path, result)
+        return result
+
+    p_values = extract_p_values_from_meta_results(meta_results)
+
+    if not p_values:
+        logger.warning("No valid p-values found in meta results.")
+        result = {
+            "bonferroni_applied": False,
+            "reason": "No valid p-values found"
+        }
+        save_json(output_path, result)
+        return result
+
+    # 5. Apply Correction
+    logger.info(f"Applying Bonferroni correction for k={k} comparisons.")
+    correction_result = apply_bonferroni_correction(p_values, k)
+
+    # 6. Update Results JSON
+    if results_path.exists():
+        try:
+            current_results = load_json(results_path)
+        except Exception as e:
+            logger.warning(f"Could not load existing results.json: {e}. Creating new.")
+            current_results = {}
+
+        current_results["bonferroni_correction"] = correction_result
+        save_json(results_path, current_results)
+        logger.info(f"Updated {results_path} with correction results.")
+    else:
+        # If results.json doesn't exist, create it with the correction data
+        # Note: This might be too minimal for a full results.json, but satisfies the requirement
+        # to update it. A full pipeline should have populated results.json earlier.
+        logger.warning(f"{results_path} not found. Creating minimal results.json with correction data.")
+        save_json(results_path, {
+            "bonferroni_correction": correction_result
+        })
+
+    # 7. Save Bonferroni Status
+    save_json(output_path, correction_result)
+    logger.info(f"Saved Bonferroni status to {output_path}")
+
+    return correction_result
+
+def main() -> None:
+    """Entry point."""
+    try:
+        result = run_correction()
+        print(json.dumps(result, indent=2))
+        sys.exit(0)
     except Exception as e:
-        logger.error(f"Correction analysis failed: {e}")
+        logger.error(f"Error in correction pipeline: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

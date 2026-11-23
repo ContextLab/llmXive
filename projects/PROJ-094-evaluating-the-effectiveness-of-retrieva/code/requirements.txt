@@ -1,0 +1,16 @@
+ir-datasets
+sentence-transformers
+faiss-cpu
+rank_bm25
+scikit-learn
+pandas
+numpy
+psutil
+transformers
+torch
+accelerate
+pytest
+ruff
+black
+scipy
+tqdm

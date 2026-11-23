@@ -1,0 +1,216 @@
+ MORAL_RESPONSE {
+ string response_id PK
+ string participant_id FK
+ float latitude
+ float longitude
+ datetime timestamp
+ float response_time_ms
+ string dilemma_id
+ string choice
+ string country
+ }
+ TEMPERATURE_RECORD {
+ string grid_id
+ float latitude
+ float longitude
+ datetime timestamp_hourly
+ float temperature_2m_c
+ }
+ MERGED_DATASET ||--o| EXCLUSION_LOG: "logged_in"
+ MERGED_DATASET ||--o| MATCH_LOG: "logged_in"
+ MERGED_DATASET {
+ string response_id PK
+ float temperature_celsius
+ float temperature_squared
+ float dilemma_complexity
+ string time_of_day
+ string urban_rural_proxy
+ string match_quality
+ string station_id
+ datetime match_timestamp
+ }
+```
+
+## Data Schemas
+
+### 1. Raw Input: Moral Machine Response
+* **Source**: `data/raw/moral_machine.csv`
+* **Format**: CSV
+* **Fields**:
+ * `response_id` (string): Unique identifier.
+ * `participant_id` (string): Unique user ID.
+ * `country` (string): ISO country code.
+ * `latitude` (float): Decimal degrees.
+ * `longitude` (float): Decimal degrees.
+ * `timestamp` (datetime): ISO 8601.
+ * `response_time_ms` (int): Milliseconds.
+ * `dilemma_id` (string): Dilemma scenario ID.
+ * `choice` (string): "save_many", "save_few", etc.
+
+### 2. Raw Input: ERA5 Temperature
+* **Source**: ` (accessed via `cdsapi` for a multi-year period)
+* **Format**: NetCDF/HDF5 (converted to `xarray` dataset)
+* **Fields**:
+ * `time` (datetime): Hourly timestamps.
+ * `latitude` (float): Grid latitude.
+ * `longitude` (float): Grid longitude.
+ * `temperature_2m` (float): Temperature in Kelvin (converted to Celsius).
+
+### 3. Processed: Merged Dataset
+* **Target**: `data/processed/merged_dataset.parquet`
+* **Format**: Parquet (for efficiency)
+* **Fields**:
+ * `response_id` (string): PK.
+ * `participant_id` (string).
+ * `country` (string).
+ * `response_time_ms` (int): Filtered (<100 ms or >10 000 ms removed).
+ * `log_response_time` (float): Natural log of response time.
+ * `temperature_celsius` (float): Mapped from ERA5.
+ * `temperature_squared` (float): `temperature_celsius ** 2`.
+ * `dilemma_complexity` (float): Derived static metric.
+ * `time_of_day` (float): Hour of the day (0‑23) or sin/cos encoded.
+ * `choice_type` (string): Type of moral choice made (e.g., 'save_many').
+ * `distance_km` (float): Distance to the nearest ERA5 grid point.
+ * `station_id` (string): Identifier of the matched ERA5 grid cell.
+ * `match_timestamp` (datetime): Timestamp of the matched ERA5 observation.
+ * `match_quality` (string): "high" if distance ≤ 25 km, "low" otherwise.
+ * `exclusion_flag` (bool): True if the record was excluded due to distance, time gap, or temperature extreme.
+
+### 4. Log: Exclusion Log
+* **Target**: `results/logs/exclusion_log.csv`
+* **Format**: CSV
+* **Fields**:
+ * `response_id` (string).
+ * `reason` (string): "distance > 100km", "ERA5 coverage gap", "invalid response time", "missing location", etc.
+ * `original_lat` (float), `original_lon` (float).
+ * `timestamp` (datetime).
+
+### 5. Log: Match Log
+* **Target**: `results/logs/match_log.csv`
+* **Format**: CSV
+* **Fields**:
+ * `response_id` (string).
+ * `station_id` (string).
+ * `match_timestamp` (datetime).
+ * `distance_km` (float).
+ * `match_quality` (string).
+
+## Data Flow
+
+1. **Ingestion**: Download ERA5 via CDS API and Moral Machine CSV.
+2. **Validation**: Verify checksums and resolution (31 km, hourly). Abort if checks fail (FR‑014).
+3. **Matching**: Chunked nearest‑neighbor join using KD‑Tree; enforce distance ≤ 100 km and temporal gap ≤ 2 h. Log successes to `match_log.csv` and failures to `exclusion_log.csv`.
+4. **Filtering**: Remove `response_time_ms` < 100 ms or > 10 000 ms (FR‑010). Exclude temperature extremes outside ‑ °C – 50 °C (FR‑002).
+5. **Transformation**: Log‑transform response time; compute quadratic term; derive `dilemma_complexity` from static scenario attributes.
+6. **Output**: Save `merged_dataset.parquet`, `exclusion_log.csv`, and `match_log.csv`.
+
+
+## projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/quickstart.md
+
+# Quickstart: Ambient Temperature Influence on Moral Decision Speed
+
+## Prerequisites
+
+* Python 3.11+
+* `pip`
+* Sufficient disk space for raw and processed data.
+* Internet access (to download ERA5 and Moral Machine data)
+
+## Installation
+
+1. **Clone the repository** (or navigate to the project root).
+2. **Create a virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+ *Note: `requirements.txt` pins versions for `pandas`, `numpy`, `statsmodels`, `xarray`, `h5netcdf`, `geopy`, `matplotlib`, `seaborn`, `pytest`, `cdsapi`.*
+
+## Data Setup
+
+The ingestion script will automatically download the required datasets to `data/raw/`.
+
+1. **Run the ingestion script**:
+ ```bash
+ python code/ingestion.py
+ ```
+ * This script:
+ * Downloads ERA hourly data for a five-year period. via the Copernicus Climate Data Store API.
+ * Downloads the Moral Machine dataset from the verified HuggingFace repository.
+ * Performs spatial/temporal matching using a KD‑Tree with a defined distance cutoff.
+ * Filters outliers (response time < 100 ms or > 10 000 ms; temperature < ‑30 °C or > 50 °C).
+ * Generates `results/logs/exclusion_log.csv` (failed matches) **and** `results/logs/match_log.csv` (successful matches).
+ * Saves the cleaned dataset to `data/processed/merged_dataset.parquet`.
+
+2. **Verify Data**:
+ * Check `results/logs/exclusion_log.csv` for exclusion reasons.
+ * Check `results/logs/match_log.csv` for match quality.
+ * Inspect `data/processed/merged_dataset.parquet` for expected columns.
+
+## Running the Analysis
+
+### Primary Scalable Model (recommended)
+
+```bash
+python code/modeling.py --mode scalable
+```
+* **What it does**:
+ * Aggregates response times per participant (or samples up to 10 k participants).
+ * Fits an OLS model with clustered robust SEs by cultural region.
+ * Saves `results/models/model_summary.json`, diagnostic plots, and convergence info.
+
+### Full Mixed‑Effects Model (optional, runs on sampled subset)
+
+```bash
+python code/modeling.py --mode full_lmm --sample-size 200000
+```
+* Outputs: same artifacts as above, plus random‑effect variances.
+
+### Robustness Checks
+
+```bash
+python code/robustness.py
+```
+* Generates:
+ * Temperature metric comparison figures.
+ * Distance‑threshold sensitivity tables.
+ * Non‑linearity comparison JSON (`results/robustness/nonlinearity_comparison.json`).
+ * Indoor/outdoor proxy analysis (or limitation report).
+
+## Running Tests
+
+```bash
+pytest tests/ -v
+```
+
+## Expected Outputs
+
+* `results/logs/exclusion_log.csv` – excluded records with reasons.
+* `results/logs/match_log.csv` – successful match details (station ID, timestamp, distance).
+* `results/models/model_summary.json` – coefficients, p‑values, LRT/Wald test results, convergence status.
+* `results/figures/` – diagnostic plots, effect plots, robustness visualizations.
+* `data/processed/merged_dataset.parquet` – cleaned dataset for further analysis.
+
+## Troubleshooting
+
+* **Memory Error** – If the full dataset exceeds memory, the script automatically samples a representative subset of rows (adjustable via `--sample-size`).
+* **ERA5 Download Failed** – Ensure internet access; the script uses the official CDS API URL `.
+* **Model Convergence Warning** – Check `results/logs/convergence_log.txt`. If convergence fails, the script will fall back to the GLMM with Gamma distribution.
+
+
+## projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/contracts/exclusion_log.schema.yaml
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Exclusion Log Schema"
+description: "Schema for the log of excluded records during data ingestion."
+type: "object"
+properties:
+ response_id:
+ type: "string"
+ description: "Unique identifier for the excluded response."
+ reason:
+ type: "string"

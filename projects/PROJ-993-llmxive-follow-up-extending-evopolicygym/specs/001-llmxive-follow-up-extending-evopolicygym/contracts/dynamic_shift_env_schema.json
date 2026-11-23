@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/dynamic_shift_env.json",
+  "title": "Dynamic Shift Environment Configuration",
+  "description": "JSON Schema defining the configuration contract for dynamic shift environments. Used to validate shift parameters before environment initialization and to log configuration provenance.",
+  "type": "object",
+  "properties": {
+    "shift_step": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "The environment step number at which the dynamic shift occurs. Must be within the episode horizon.",
+      "default": 80
+    },
+    "shift_type": {
+      "type": "string",
+      "enum": ["reward_change", "transition_change", "mixed"],
+      "description": "The nature of the dynamic shift to be applied."
+    },
+    "magnitude": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "The magnitude of the shift (0.0 = no change, 1.0 = maximal disruption)."
+    },
+    "target_env_id": {
+      "type": "string",
+      "description": "The Gymnasium environment ID to which the shift is applied (e.g., 'CartPole-v1')."
+    },
+    "shift_config": {
+      "type": "object",
+      "description": "Specific parameters for the shift type.",
+      "properties": {
+        "reward_delta": {
+          "type": "number",
+          "description": "Additive or multiplicative factor applied to rewards post-shift."
+        },
+        "transition_noise": {
+          "type": "number",
+          "minimum": 0.0,
+          "description": "Noise level added to transition probabilities."
+        }
+      },
+      "additionalProperties": true
+    },
+    "validation_seed": {
+      "type": ["integer", "null"],
+      "description": "Seed used to ensure reproducibility of the shift injection for testing."
+    }
+  },
+  "required": ["shift_step", "shift_type", "magnitude", "target_env_id"],
+  "additionalProperties": false
+}

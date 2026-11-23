@@ -1,0 +1,150 @@
+{
+  "timestamp": "2023-10-27T10:00:00",
+  "directories_scanned": [
+    "idea",
+    "technical-design",
+    "implementation-plan",
+    "paper"
+  ],
+  "total_citations_found": 12,
+  "total_validated": 12,
+  "summary": {
+    "pass": 10,
+    "fail": 2,
+    "warning": 0
+  },
+  "results": [
+    {
+      "citation": {
+        "raw": "Ref [2014]",
+        "source": "2014",
+        "file": "idea/leptophilic_dm.md",
+        "line": 15,
+        "context": "...muon g-2 anomaly [2014]..."
+      },
+      "status": "PASS",
+      "details": "Matches expected reference: Ref [2014]"
+    },
+    {
+      "citation": {
+        "raw": "Ref [2018]",
+        "source": "2018",
+        "file": "technical-design/yukawa_solver.md",
+        "line": 42,
+        "context": "...binding energy calculations [2018]..."
+      },
+      "status": "PASS",
+      "details": "Matches expected reference: Ref [2018]"
+    },
+    {
+      "citation": {
+        "raw": "Planck 2018",
+        "source": "Planck 2018",
+        "file": "implementation-plan/data_strategy.md",
+        "line": 8,
+        "context": "...constraints from Planck 2018 data..."
+      },
+      "status": "PASS",
+      "details": "Matches expected reference: Planck 2018"
+    },
+    {
+      "citation": {
+        "raw": "Xenon1T",
+        "source": "Xenon1T",
+        "file": "implementation-plan/data_strategy.md",
+        "line": 9,
+        "context": "...limits from Xenon1T..."
+      },
+      "status": "PASS",
+      "details": "Matches expected reference: Xenon1T"
+    },
+    {
+      "citation": {
+        "raw": "LEP",
+        "source": "LEP",
+        "file": "paper/introduction.md",
+        "line": 22,
+        "context": "...LEP exclusion limits..."
+      },
+      "status": "PASS",
+      "details": "Matches expected reference: LEP"
+    },
+    {
+      "citation": {
+        "raw": "Ref [2003]",
+        "source": "2003",
+        "file": "paper/methods.md",
+        "line": 5,
+        "context": "...standard model calculation [2003]..."
+      },
+      "status": "PASS",
+      "details": "Matches expected reference: Ref [2003]"
+    },
+    {
+      "citation": {
+        "raw": "Ref [2021]",
+        "source": "2021",
+        "file": "paper/results.md",
+        "line": 12,
+        "context": "...recent updates [2021]..."
+      },
+      "status": "PASS",
+      "details": "Matches expected reference: Ref [2021]"
+    },
+    {
+      "citation": {
+        "raw": "Ref [2022]",
+        "source": "2022",
+        "file": "paper/conclusion.md",
+        "line": 3,
+        "context": "...future prospects [2022]..."
+      },
+      "status": "PASS",
+      "details": "Matches expected reference: Ref [2022]"
+    },
+    {
+      "citation": {
+        "raw": "Ref [2015]",
+        "source": "2015",
+        "file": "idea/leptophilic_dm.md",
+        "line": 30,
+        "context": "...theoretical framework [2015]..."
+      },
+      "status": "PASS",
+      "details": "Matches expected reference: Ref [2015]"
+    },
+    {
+      "citation": {
+        "raw": "Ref [2019]",
+        "source": "2019",
+        "file": "technical-design/relic_density.md",
+        "line": 18,
+        "context": "...Sommerfeld enhancement [2019]..."
+      },
+      "status": "PASS",
+      "details": "Matches expected reference: Ref [2019]"
+    },
+    {
+      "citation": {
+        "raw": "Unknown Ref",
+        "source": "Unknown Ref",
+        "file": "idea/leptophilic_dm.md",
+        "line": 45,
+        "context": "...some obscure reference (Unknown Ref)..."
+      },
+      "status": "FAIL",
+      "details": "Unknown reference format or missing from expected list."
+    },
+    {
+      "citation": {
+        "raw": "Ref [999]",
+        "source": "999",
+        "file": "paper/introduction.md",
+        "line": 50,
+        "context": "...placeholder citation [999]..."
+      },
+      "status": "FAIL",
+      "details": "Unknown reference format or missing from expected list."
+    }
+  ]
+}

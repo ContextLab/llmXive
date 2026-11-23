@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MoleculeProcessedData"
+description: "Schema for the processed molecule dataset containing graph and descriptor information."
+type: "object"
+properties:
+  molecule_id:
+    type: "string"
+    description: "Unique identifier for the molecule."
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string."
+  graph_adjacency:
+    type: "array"
+    description: "Adjacency list of the molecular graph."
+    items:
+      type: "array"
+      items:
+        type: "integer"
+  node_features:
+    type: "array"
+    description: "Feature vector for each atom (Atomic Number, Hybridization, etc.)."
+    items:
+      type: "array"
+      items:
+        type: "number"
+  descriptors:
+    type: "object"
+    description: "Physicochemical descriptors."
+    properties:
+      MW:
+        type: "number"
+        description: "Molecular Weight."
+      logP:
+        type: "number"
+        description: "Partition coefficient (XLogP3)."
+      PSA:
+        type: "number"
+        description: "Polar Surface Area."
+      RotatableBonds:
+        type: "integer"
+        description: "Number of rotatable bonds."
+    required:
+      - MW
+      - logP
+      - PSA
+      - RotatableBonds
+  target_permeability:
+    type: "number"
+    description: "Experimental permeability coefficient."
+    minimum: -999.0
+    maximum: 999.0
+required:
+  - molecule_id
+  - smiles
+  - graph_adjacency
+  - node_features
+  - descriptors
+  - target_permeability

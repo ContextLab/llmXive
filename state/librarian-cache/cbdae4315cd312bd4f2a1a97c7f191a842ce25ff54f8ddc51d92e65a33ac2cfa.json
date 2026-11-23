@@ -1,0 +1,618 @@
+{
+  "fetched_at": "2026-09-19T05:10:12Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T\"",
+      "target_n": 5
+    },
+    "duration_seconds": 52.126,
+    "ended_at": "2026-09-19T05:10:12Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "data-agnostic quantization for diffusion models"
+        ],
+        [
+          2,
+          "low-bit quantization image diffusion"
+        ],
+        [
+          3,
+          "post-training quantization video diffusion transformers"
+        ],
+        [
+          4,
+          "quantization noise reduction diffusion models"
+        ],
+        [
+          5,
+          "integer quantization generative adversarial networks"
+        ],
+        [
+          6,
+          "mixed-precision training diffusion models"
+        ],
+        [
+          7,
+          "efficient diffusion model inference quantization"
+        ],
+        [
+          8,
+          "quantization-aware training for latent diffusion"
+        ],
+        [
+          9,
+          "hardware-aware quantization for generative AI"
+        ],
+        [
+          10,
+          "compression techniques for diffusion transformers"
+        ],
+        [
+          11,
+          "low-rank adaptation combined with quantization"
+        ],
+        [
+          12,
+          "bit-width optimization for image generation"
+        ],
+        [
+          13,
+          "robustness of quantized diffusion models"
+        ],
+        [
+          14,
+          "quantization error propagation in generative models"
+        ],
+        [
+          15,
+          "adaptive quantization for video synthesis"
+        ],
+        [
+          16,
+          "weight-only quantization diffusion models"
+        ],
+        [
+          17,
+          "activation quantization strategies for generative networks"
+        ],
+        [
+          18,
+          "neural network pruning and quantization diffusion"
+        ],
+        [
+          19,
+          "energy-efficient diffusion model deployment"
+        ],
+        [
+          20,
+          "quantization effects on diffusion model fidelity"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "data-agnostic quantization for diffusion models": 5,
+        "llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "post-training quantization diffusion foundation models",
+      "OrbitQuant data-free compression video generation",
+      "low-bitwidth neural network quantization diffusion",
+      "inference latency throughput diffusion transformer",
+      "quantization error stability generative diffusion"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2404.12759"
+      ]
+    },
+    "per_query_hit_count": {
+      "OrbitQuant data-free compression video generation": 3,
+      "inference latency throughput diffusion transformer": 3,
+      "llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T\" computer science": 3,
+      "low-bitwidth neural network quantization diffusion": 3,
+      "post-training quantization diffusion foundation models": 3,
+      "quantization error stability generative diffusion": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2605.22586",
+          "rationale": "The paper is a general tutorial on the mathematical foundations of diffusion models (SDEs, ODEs, score matching) and does not address the specific mechanism of \"quantization\" (reducing numerical precision) or the \"OrbitQuant\" framework mentioned in the user's question. While it covers the domain of diffusion models, it fails to satisfy criteria (a) or (b) because it does not measure, analyze, or provide a baseline for the data-agnostic quantization process that is the core subject of the user's ",
+          "title": "A Tutorial on Diffusion Theory: From Differential Equations to Diffusion Models"
+        },
+        {
+          "primary_pointer": "2312.03397",
+          "rationale": "The paper focuses on a joint training framework for Energy-Based Models and Diffusion Models using Inverse Reinforcement Learning, which is a distinct algorithmic mechanism from \"data-agnostic quantization\" (reducing numerical precision for efficiency). While both involve diffusion models, the candidate paper does not measure the same mechanism, variables, or empirical setting as the user's specific question about quantization techniques, nor does it serve as a foundational reference for quantiz",
+          "title": "Generalized Contrastive Divergence: Joint Training of Energy-Based Model and Diffusion Model through Inverse Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-19T05:09:20Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"orbitquant: data-agnostic quantization for image and video diffusion t\" computer science",
+      "raw": "llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion T\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development of tabular foundation models (TFMs) has accelerated in recent years, showing strong potential to outperform traditional ML methods for structured data. A key finding is that TFMs can be pretrained entirely on synthetic datasets, opening opportunities to design data generators that encourage desirable model properties. Prior work has mainly focused on crafting high-quality priors over generators to improve overall pretraining performance. Our insight is that parameterizing the generator distribution enables an adversarial robustness perspective: during training, we can adapt the generator to emphasize datasets that are particularly challenging for the model. We formalize this by introducing an optimality gap measure, given by the difference between TFM performance and the best achievable performance as estimated by strong baselines such as XGBoost, CatBoost, and Random Forests. Building on this idea, we propose Robust Tabular Foundation Models (RTFM), a model-agnostic adversarial training framework. Applied to the TabPFN V2 classifier, RTFM improves benchmark performance, with up to a 6% increase in mean normalized AUC over the original TabPFN and other baseline algorithms, while requiring less than 100k additional synthetic datasets. These results highlight a promising new direction for targeted adversarial training and fine-tuning of TFMs using synthetic data alone.",
+          "claimed_authors": [
+            "Matthew Peroni",
+            "Franck Le",
+            "Vadim Sheinin"
+          ],
+          "claimed_title": "Robust Tabular Foundation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.03307"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Robust Tabular Foundation Models')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Use this plain-text version for the arXiv abstract field: Learned image compression (LIC) models achieve strong rate-distortion performance but are hindered by high computational complexity and encoding-decoding mismatches across heterogeneous hardware platforms. Uniform fixed-precision quantization alleviates these issues but suffers severe quality degradation at low bit widths because it ignores differences in the quantization sensitivities of individual layers. To enable efficient and accurate low-bit deployment of pretrained LIC models, we propose HAMP-LIC, a Hessian-aware mixed-precision post-training quantization (PTQ) framework with a four-stage optimization strategy. First, block-wise sensitivity is estimated from the Hessian trace to capture second-order importance. Second, a task-aware refinement module adjusts these sensitivities by jointly considering quantization distortion and rate-distortion performance. Third, guided by the refined sensitivity profile, bit widths are allocated under a global model-size constraint to balance efficiency and reconstruction quality. Finally, block-wise reconstruction using a small calibration set further suppresses quantization error. Experiments on representative LIC models, including Minnen2018 and Cheng2020, demonstrate that HAMP-LIC achieves up to 4.85x model compression with as little as 0.59% BD-rate loss. It consistently outperforms existing fixed- and mixed-precision PTQ methods across multiple datasets while completely eliminating cross-platform encoding-decoding errors.",
+          "claimed_authors": [
+            "Yuefeng Zhang"
+          ],
+          "claimed_title": "HAMP-LIC: Hessian-Aware Mixed-Precision Post-Training Quantization for Learned Image Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.12239"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='HAMP-LIC: Hessian-Aware Mixed-Precision Post-Training Quantization for Learned Image Compression')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "ECG foundation models are increasingly popular due to their adaptability across various tasks. However, their clinical applicability is often limited by performance gaps compared to task-specific models, even after pre-training on large ECG datasets and fine-tuning on target data. This limitation is likely due to the lack of an effective post-training strategy. In this paper, we propose a simple yet effective post-training approach to enhance ECG foundation models. We evaluate it on a publicly available Transformer-based foundation model. Experiments across multiple ECG tasks show that our method consistently outperforms baseline fine-tuning. On the PTB-XL benchmarks, it improves macro AUROC by 0.7%-8.9% and macro AUPRC by 23.3%-77.9%, also outperforming several recent state-of-the-art approaches, including task-specific and advanced architectures. Further analyses demonstrate improved training dynamics and data efficiency, with only 30% of the training data outperforming the baseline trained on the full dataset. Ablation studies highlight the importance of stochastic depth and preview linear probing. These findings underscore the potential of post-training strategies to improve ECG foundation models, and we hope this work will contribute to the continued development of foundation models in the ECG domain.",
+          "claimed_authors": [
+            "Ya Zhou",
+            "Yujie Yang",
+            "Xiaohan Fan",
+            "Wei Zhao"
+          ],
+          "claimed_title": "Bridging Performance Gaps for ECG Foundation Models: A Post-Training Strategy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.12991"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Bridging Performance Gaps for ECG Foundation Models: A Post-Training Strategy')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Typical deep neural video compression networks usually follow the hybrid approach of classical video coding that contains two separate modules: motion coding and residual coding. In addition, a symmetric auto-encoder is often used as a normal architecture for both motion and residual coding. In this paper, we propose a novel approach that handles the drawbacks of the two typical above-mentioned architectures, we call it kernel-based motion-free video coding. The advantages of the motion-free approach are twofold: it improves the coding efficiency of the network and significantly reduces computational complexity thanks to eliminating motion estimation, motion compensation, and motion coding which are the most time-consuming engines. In addition, the kernel-based auto-encoder alleviates blur artifacts that usually occur with the conventional symmetric autoencoder. Consequently, it improves the visual quality of the reconstructed frames. Experimental results show the proposed framework outperforms the SOTA deep neural video compression networks on the HEVC-class B dataset and is competitive on the UVG and MCL-JCV datasets. In addition, it generates high-quality reconstructed frames in comparison with conventional motion coding-based symmetric auto-encoder meanwhile its model size is much smaller than that of the motion-based networks around three to four times.",
+          "claimed_authors": [
+            "Van Thang Nguyen"
+          ],
+          "claimed_title": "Motion Free B-frame Coding for Neural Video Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2411.17160"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Motion Free B-frame Coding for Neural Video Compression')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, the image and video coding technologies have advanced by leaps and bounds. However, due to the popularization of image and video acquisition devices, the growth rate of image and video data is far beyond the improvement of the compression ratio. In particular, it has been widely recognized that there are increasing challenges of pursuing further coding performance improvement within the traditional hybrid coding framework. Deep convolution neural network (CNN) which makes the neural network resurge in recent years and has achieved great success in both artificial intelligent and signal processing fields, also provides a novel and promising solution for image and video compression. In this paper, we provide a systematic, comprehensive and up-to-date review of neural network based image and video compression techniques. The evolution and development of neural network based compression methodologies are introduced for images and video respectively. More specifically, the cutting-edge video coding techniques by leveraging deep learning and HEVC framework are presented and discussed, which promote the state-of-the-art video coding performance substantially. Moreover, the end-to-end image and video coding frameworks based on neural networks are also reviewed, revealing interesting explorations on next generation image and video coding frameworks/standards. The most significant research works on the image and video coding related topics using neural networks are highlighted, and future trends are also envisioned. In particular, the joint compression on semantic and visual information is tentatively explored to formulate high efficiency signal representation structure for both human vision and machine vision, which are the two dominant signal receptor in the age of artificial intelligence.",
+          "claimed_authors": [
+            "Siwei Ma",
+            "Xinfeng Zhang",
+            "Chuanmin Jia",
+            "Zhenghui Zhao",
+            "Shiqi Wang",
+            "Shanshe Wang"
+          ],
+          "claimed_title": "Image and Video Compression with Neural Networks: A Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.03567"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Image and Video Compression with Neural Networks: A Review')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One key challenge to learning-based video compression is that motion predictive coding, a very effective tool for video compression, can hardly be trained into a neural network. In this paper we propose the concept of PixelMotionCNN (PMCNN) which includes motion extension and hybrid prediction networks. PMCNN can model spatiotemporal coherence to effectively perform predictive coding inside the learning network. On the basis of PMCNN, we further explore a learning-based framework for video compression with additional components of iterative analysis/synthesis, binarization, etc. Experimental results demonstrate the effectiveness of the proposed scheme. Although entropy coding and complex configurations are not employed in this paper, we still demonstrate superior performance compared with MPEG-2 and achieve comparable results with H.264 codec. The proposed learning-based scheme provides a possible new direction to further improve compression efficiency and functionalities of future video coding.",
+          "claimed_authors": [
+            "Zhibo Chen",
+            "Tianyu He",
+            "Xin Jin",
+            "Feng Wu"
+          ],
+          "claimed_title": "Learning for Video Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.09869"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Learning for Video Compression')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose Additive Powers-of-Two~(APoT) quantization, an efficient non-uniform quantization scheme for the bell-shaped and long-tailed distribution of weights and activations in neural networks. By constraining all quantization levels as the sum of Powers-of-Two terms, APoT quantization enjoys high computational efficiency and a good match with the distribution of weights. A simple reparameterization of the clipping function is applied to generate a better-defined gradient for learning the clipping threshold. Moreover, weight normalization is presented to refine the distribution of weights to make the training more stable and consistent. Experimental results show that our proposed method outperforms state-of-the-art methods, and is even competitive with the full-precision models, demonstrating the effectiveness of our proposed APoT quantization. For example, our 4-bit quantized ResNet-50 on ImageNet achieves 76.6% top-1 accuracy without bells and whistles; meanwhile, our model reduces 22% computational cost compared with the uniformly quantized counterpart. The code is available at https://github.com/yhhhli/APoT_Quantization.",
+          "claimed_authors": [
+            "Yuhang Li",
+            "Xin Dong",
+            "Wei Wang"
+          ],
+          "claimed_title": "Additive Powers-of-Two Quantization: An Efficient Non-uniform Discretization for Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.13144"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Additive Powers-of-Two Quantization: An Efficient Non-uniform Discretization for Neural Networks')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion models have achieved remarkable success in image and video generation. In this work, we demonstrate that diffusion models can also \\textit{generate high-performing neural network parameters}. Our approach is simple, utilizing an autoencoder and a diffusion model. The autoencoder extracts latent representations of a subset of the trained neural network parameters. Next, a diffusion model is trained to synthesize these latent representations from random noise. This model then generates new representations, which are passed through the autoencoder's decoder to produce new subsets of high-performing network parameters. Across various architectures and datasets, our approach consistently generates models with comparable or improved performance over trained networks, with minimal additional cost. Notably, we empirically find that the generated models are not memorizing the trained ones. Our results encourage more exploration into the versatile use of diffusion models. Our code is available \\href{https://github.com/NUS-HPC-AI-Lab/Neural-Network-Diffusion}{here}.",
+          "claimed_authors": [
+            "Kai Wang",
+            "Dongwen Tang",
+            "Boya Zeng",
+            "Yida Yin",
+            "Zhaopan Xu",
+            "Yukun Zhou",
+            "Zelin Zang",
+            "Trevor Darrell",
+            "Zhuang Liu",
+            "Yang You"
+          ],
+          "claimed_title": "Neural Network Diffusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.13144"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Neural Network Diffusion')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Wireless information-centric networks consider storage as one of the network primitives, and propose to cache data within the network in order to improve latency and reduce bandwidth consumption. We study the throughput capacity and delay in an information-centric network when the data cached in each node has a limited lifetime. The results show that with some fixed request and cache expiration rates, the order of the data access time does not change with network growth, and the maximum throughput order is inversely proportional to the square root and logarithm of the network size $n$ in cases of grid and random networks, respectively. Comparing these values with the corresponding throughput and latency with no cache capability (throughput inversely proportional to the network size, and latency of order $\\sqrt{n}$ and $\\sqrt{\\frac{n}{\\log n}}$ in grid and random networks, respectively), we can actually quantify the asymptotic advantage of caching. Moreover, we compare these scaling laws for different content discovery mechanisms and illustrate that not much gain is lost when a simple path search is used.",
+          "claimed_authors": [
+            "Bita Azimdoost",
+            "Cedric Westphal",
+            "Hamid R. Sadjadpour"
+          ],
+          "claimed_title": "Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.1185"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Classical search algorithms have long underpinned modern artificial intelligence. In this work, we tackle the challenge of inference-time control in diffusion models -- adapting generated outputs to meet diverse test-time objectives -- using principles from classical search. We propose a general framework that orchestrates local and global search to efficiently navigate the generative space. It employs a theoretically grounded local search via annealed Langevin MCMC and performs compute-efficient global exploration using breadth-first and depth-first tree search. We evaluate our approach on a range of challenging domains, including planning, offline reinforcement learning, and image generation. Across all tasks, we observe significant gains in both performance and efficiency. These results show that classical search provides a principled and practical foundation for inference-time scaling in diffusion models. Project page at https://diffusion-inference-scaling.github.io/.",
+          "claimed_authors": [
+            "Xiangcheng Zhang",
+            "Haowei Lin",
+            "Haotian Ye",
+            "James Zou",
+            "Jianzhu Ma",
+            "Yitao Liang",
+            "Yilun Du"
+          ],
+          "claimed_title": "Inference-time Scaling of Diffusion Models through Classical Search",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.23614"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Inference-time Scaling of Diffusion Models through Classical Search')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Contextualized or discourse aware commonsense inference is the task of generating coherent commonsense assertions (i.e., facts) from a given story, and a particular sentence from that story. Some problems with the task are: lack of controllability for topics of the inferred facts; lack of commonsense knowledge during training; and, possibly, hallucinated or false facts. In this work, we utilize a transformer model for this task and develop techniques to address the aforementioned problems in the task. We control the inference by introducing a new technique we call \"hinting\". Hinting is a kind of language model prompting, that utilizes both hard prompts (specific words) and soft prompts (virtual learnable templates). This serves as a control signal to advise the language model \"what to talk about\". Next, we establish a methodology for performing joint inference with multiple commonsense knowledge bases. Joint inference of commonsense requires care, because it is imprecise and the level of generality is more flexible. You want to be sure that the results \"still make sense\" for the context. To this end, we align the textual version of assertions from three knowledge graphs (ConceptNet, ATOMIC2020, and GLUCOSE) with a story and a target sentence. This combination allows us to train a single model to perform joint inference with multiple knowledge graphs. We show experimental results for the three knowledge graphs on joint inference. Our final contribution is exploring a GAN architecture that generates the contextualized commonsense assertions and scores them as to their plausibility through a discriminator. The result is an integrated system for contextual commonsense inference in stories, that can controllably generate plausible commonsense assertions, and takes advantage of joint inference between multiple commonsense knowledge bases.",
+          "claimed_authors": [
+            "Pedro Colon-Hernandez",
+            "Henry Lieberman",
+            "Yida Xin",
+            "Claire Yin",
+            "Cynthia Breazeal",
+            "Peter Chin"
+          ],
+          "claimed_title": "Adversarial Transformer Language Models for Contextual Commonsense Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.05406"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Adversarial Transformer Language Models for Contextual Commonsense Inference')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The quantization of large language models (LLMs) has been a prominent research area aimed at enabling their lightweight deployment in practice. Existing research about LLM's quantization has mainly explored the interplay between weights and activations, or employing auxiliary components while neglecting the necessity of adjusting weights during quantization. Consequently, original weight distributions frequently fail to yield desired results after round-to-nearest (RTN) quantization. Even though incorporating techniques such as mixed precision and low-rank error approximation in LLM's quantization can yield improved results, they inevitably introduce additional computational overhead. On the other hand, traditional techniques for weight quantization, such as Generative Post-Training Quantization, rely on manually tweaking weight distributions to minimize local errors, but they fall short of achieving globally optimal outcomes. Although the recently proposed Learnable Singular-value Increment improves global weight quantization by modifying weight distributions, it disrupts the original distribution considerably. This introduces pronounced bias toward the training data and can degrade downstream task performance. In this paper, we introduce Singular-value Diagonal Expansion, a more nuanced approach to refining weight distributions to achieve better quantization alignment. Furthermore, we introduce Cross-layer Learning that improves overall quantization outcomes by distributing errors more evenly across layers. Our plug-and-play weight-quantization methods demonstrate substantial performance improvements over state-of-the-art approaches, including OmniQuant, DuQuant, and PrefixQuant.",
+          "claimed_authors": [
+            "Yifei Gao",
+            "Jie Ou",
+            "Lei Wang",
+            "Jun Cheng",
+            "Mengchu Zhou"
+          ],
+          "claimed_title": "Compensate Quantization Errors+: Quantized Models Are Inquisitive Learners",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.15508"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Compensate Quantization Errors+: Quantized Models Are Inquisitive Learners')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) demand substantial computational and memory resources, creating deployment challenges. Quantization-aware training (QAT) addresses these challenges by reducing model precision while maintaining performance. However, the scaling behavior of QAT, especially at 4-bit precision (W4A4), is not well understood. Existing QAT scaling laws often ignore key factors such as the number of training tokens and quantization granularity, which limits their applicability. This paper proposes a unified scaling law for QAT that models quantization error as a function of model size, training data volume, and quantization group size. Through 268 QAT experiments, we show that quantization error decreases as model size increases, but rises with more training tokens and coarser quantization granularity. To identify the sources of W4A4 quantization error, we decompose it into weight and activation components. Both components follow the overall trend of W4A4 quantization error, but with different sensitivities. Specifically, weight quantization error increases more rapidly with more training tokens. Further analysis shows that the activation quantization error in the FC2 layer, caused by outliers, is the primary bottleneck of W4A4 QAT quantization error. By applying mixed-precision quantization to address this bottleneck, we demonstrate that weight and activation quantization errors can converge to similar levels. Additionally, with more training data, weight quantization error eventually exceeds activation quantization error, suggesting that reducing weight quantization error is also important in such scenarios. These findings offer key insights for improving QAT research and development.",
+          "claimed_authors": [
+            "Mengzhao Chen",
+            "Chaoyi Zhang",
+            "Jing Liu",
+            "Yutao Zeng",
+            "Zeyue Xue",
+            "Zhiheng Liu",
+            "Yunshui Li",
+            "Jin Ma",
+            "Jie Huang",
+            "Xun Zhou",
+            "Ping Luo"
+          ],
+          "claimed_title": "Scaling Law for Quantization-Aware Training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.14302"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Scaling Law for Quantization-Aware Training')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion models have achieved great success in image synthesis through iterative noise estimation using deep neural networks. However, the slow inference, high memory consumption, and computation intensity of the noise estimation model hinder the efficient adoption of diffusion models. Although post-training quantization (PTQ) is considered a go-to compression method for other tasks, it does not work out-of-the-box on diffusion models. We propose a novel PTQ method specifically tailored towards the unique multi-timestep pipeline and model architecture of the diffusion models, which compresses the noise estimation network to accelerate the generation process. We identify the key difficulty of diffusion model quantization as the changing output distributions of noise estimation networks over multiple time steps and the bimodal activation distribution of the shortcut layers within the noise estimation network. We tackle these challenges with timestep-aware calibration and split shortcut quantization in this work. Experimental results show that our proposed method is able to quantize full-precision unconditional diffusion models into 4-bit while maintaining comparable performance (small FID change of at most 2.34 compared to >100 for traditional PTQ) in a training-free manner. Our approach can also be applied to text-guided image generation, where we can run stable diffusion in 4-bit weights with high generation quality for the first time.",
+          "claimed_authors": [
+            "Xiuyu Li",
+            "Yijiang Liu",
+            "Long Lian",
+            "Huanrui Yang",
+            "Zhen Dong",
+            "Daniel Kang",
+            "Shanghang Zhang",
+            "Kurt Keutzer"
+          ],
+          "claimed_title": "Q-Diffusion: Quantizing Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.04304"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"OrbitQuant: Data-Agnostic Quantization for Image a', candidate_title='Q-Diffusion: Quantizing Diffusion Models')",
+        "failed_at": "2026-09-19T05:09:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiuyu Li",
+            "Yijiang Liu",
+            "Long Lian",
+            "Huanrui Yang",
+            "Zhen Dong",
+            "Daniel Kang",
+            "Shanghang Zhang",
+            "Kurt Keutzer"
+          ],
+          "title": "Q-Diffusion: Quantizing Diffusion Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.04304",
+        "summary": "Diffusion models have achieved great success in image synthesis through iterative noise estimation using deep neural networks. However, the slow inference, high memory consumption, and computation intensity of the noise estimation model hinder the efficient adoption of diffusion models. Although post-training quantization (PTQ) is considered a go-to compression method for other tasks, it does not work out-of-the-box on diffusion models. We propose a novel PTQ method specifically tailored towards the unique multi-timestep pipeline and model architecture of the diffusion models, which compresses the noise estimation network to accelerate the generation process. We identify the key difficulty of diffusion model quantization as the changing output distributions of noise estimation networks over multiple time steps and the bimodal activation distribution of the shortcut layers within the noise estimation network. We tackle these challenges with timestep-aware calibration and split shortcut quantization in this work. Experimental results show that our proposed method is able to quantize full-precision unconditional diffusion models into 4-bit while maintaining comparable performance (small FID change of at most 2.34 compared to >100 for traditional PTQ) in a training-free manner. Our approach can also be applied to text-guided image generation, where we can run stable diffusion in 4-bit weights with high generation quality for the first time.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.04304",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-19T05:09:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Donghyun Lee",
+            "Jitesh Chavan",
+            "Duy Nguyen",
+            "Sam Huang",
+            "Liming Jiang",
+            "Priyadarshini Panda",
+            "Timo Mertens",
+            "Saurabh Shukla"
+          ],
+          "title": "OrbitQuant: Data-Agnostic Quantization for Image and Video Diffusion Transformers",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.02461",
+        "summary": "Diffusion transformers (DiTs) achieve state-of-the-art image and video generation, but their multi-step sampling and growing parameter count make inference expensive. Post-training quantization (PTQ) is the natural remedy, yet DiT activations shift across timesteps, prompts, and guidance branches, forcing prior methods to re-fit calibration data for every new checkpoint or modality. We present OrbitQuant, a data-agnostic weight-activation quantizer that bypasses range estimation by quantizing in a normalized, rotated basis. In this basis, a randomized permuted block-Hadamard (RPBH) rotation concentrates each coordinate around one fixed, known marginal regardless of the input, so a single Lloyd-Max codebook serves all timesteps, prompts, and layers of a given input dimension. We extend the same quantizer to weight rows offline, absorbing the rotation into the weights so that it cancels inside each linear layer and only a forward rotation on the activations remains at runtime. The same recipe transfers from image to video with no per-modality tuning. Across FLUX.1, Z-Image-Turbo, Wan 2.1, and CogVideoX, it sets the state of the art for PTQ at several low-bit settings. It also pushes PTQ of image diffusion transformers to W2A4 with usable generation quality.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.02461",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-19T05:09:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yi Guo",
+            "Fanliu Kong",
+            "Xiaoyang Li",
+            "Hui Li",
+            "Wei Chen",
+            "Xiaogang Tian",
+            "Jinping Cai",
+            "Yang Zhang",
+            "Shouda Liu"
+          ],
+          "title": "decoupleQ: Towards 2-bit Post-Training Uniform Quantization via decoupling Parameters into Integer and Floating Points",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.12759",
+        "summary": "Quantization emerges as one of the most promising compression technologies for deploying efficient large models for various real time application in recent years. Considering that the storage and IO of weights take up the vast majority of the overhead inside a large model, weight only quantization can lead to large gains. However, existing quantization schemes suffer from significant accuracy degradation at very low bits, or require some additional computational overhead when deployed, making it difficult to be applied to large-scale applications in industry. In this paper, we propose decoupleQ, achieving a substantial increase in model accuracy, especially at very low bits. decoupleQ abandons the traditional heuristic quantization paradigm and decouples the model parameters into integer and floating-point parts, thus transforming the quantization problem into a traditional mathematical optimization problem with constraints, which is then solved alternatively by off-the-shelf optimization methods.\n  Quantization via decoupleQ is linear and uniform, making it hardware-friendlier than non-uniform counterpart, and enabling the idea to be migrated to high-bit quantization to enhance its robustness. Our method has achieved well on-line accuracy near fp16/bf16 on the 2-bit quantization of large speech models in ByteDance. The code is available at https://github.com/bytedance/decoupleQ",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.12759",
+          "http_status": 200,
+          "pdf_sample_score": 0.2932,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-19T05:10:10Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"orbitquant: data-agnostic quantization for image and video diffusion t\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

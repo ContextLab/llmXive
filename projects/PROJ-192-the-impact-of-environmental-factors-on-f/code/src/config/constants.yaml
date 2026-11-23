@@ -1,0 +1,5 @@
+vif_threshold: 5
+p_value_threshold: 0.05
+min_samples: 10
+max_ram_gb: 7
+permutations: 999

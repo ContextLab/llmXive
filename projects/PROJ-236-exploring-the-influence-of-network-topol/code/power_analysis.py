@@ -1,69 +1,64 @@
 """
-Statistical Power Analysis for Correlation Detection.
+Power analysis script for determining the required sample size (N) to detect
+a Pearson correlation of a given effect size with a specified statistical power.
 
-This script calculates the required sample size (N) to detect a correlation
-coefficient of at least r=0.3 with a statistical power of >= 0.80,
-using a two-tailed test at alpha=0.05.
+The script implements the Fisher Z‑transformation based formula and writes
+two output artifacts:
 
-It uses the `statsmodels` library to perform the calculation based on
-the non-central t-distribution approximation for Pearson correlation.
+1. ``data/analysis/power_analysis_result.json`` – a JSON file containing the
+   full calculation details.
+2. ``code/power_analysis_output.txt`` – a plain‑text file containing only the
+   integer sample size N.
 
-Output:
-    Prints the required sample size N to stdout.
-    Writes the result to `data/analysis/power_analysis_result.json` for downstream consumption.
+The module provides a reusable ``calculate_sample_size_for_correlation`` function
+and a ``main`` entry point used by the CLI and the test suite.
 """
 
+from __future__ import annotations
+
 import json
-import os
 import sys
 from pathlib import Path
 
 import numpy as np
 from scipy.stats import norm
-from statsmodels.stats.power import tt_solve_power, zt_ind_solve_power
 
-# Ensure the data/analysis directory exists
-OUTPUT_DIR = Path("data/analysis")
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
+# ----------------------------------------------------------------------
+# Core calculation
+# ----------------------------------------------------------------------
 def calculate_sample_size_for_correlation(
     effect_size: float = 0.3,
     alpha: float = 0.05,
     power: float = 0.80,
-    alternative: str = "two-sided"
+    alternative: str = "two-sided",
 ) -> int:
     """
-    Calculate the minimum sample size required to detect a correlation.
+    Calculate the minimum sample size required to detect a Pearson correlation.
 
-    Since statsmodels does not have a direct 'correlation' power function
-    that returns N directly in older versions without manual transformation,
-    we use the Fisher's z-transformation approach which is standard for
-    correlation power analysis.
+    Parameters
+    ----------
+    effect_size : float
+        Target Pearson correlation coefficient (absolute value, e.g., 0.3).
+    alpha : float
+        Significance level (type‑I error rate), default 0.05.
+    power : float
+        Desired statistical power (1 - type‑II error rate), default 0.80.
+    alternative : str
+        Either ``"two-sided"`` or ``"one-sided"``. Determines the critical
+        value for the significance level.
 
-    Fisher's z = 0.5 * ln((1+r)/(1-r))
-    Standard error of z = 1 / sqrt(N - 3)
-
-    We test H0: rho = 0 vs H1: rho != 0.
-    Under H0, z ~ N(0, 1/sqrt(N-3)).
-    Under H1, z ~ N(z_rho, 1/sqrt(N-3)).
-
-    The required N is derived from:
-    N = ( (Z_{1-alpha/2} + Z_{power}) / z_rho )^2 + 3
-
-    Where:
-    - Z_{1-alpha/2} is the critical value for the significance level.
-    - Z_{power} is the critical value for the desired power.
-    - z_rho is the Fisher transformed effect size.
+    Returns
+    -------
+    int
+        The required sample size rounded up to the nearest integer.
     """
     if effect_size == 0:
         raise ValueError("Effect size (correlation) cannot be zero for this calculation.")
 
-    # Fisher Z-transformation of the effect size
-    # Clamp to [-0.999, 0.999] to avoid log(0) or log(inf)
+    # Clamp to avoid division‑by‑zero in the Fisher transform.
     r_clamped = np.clip(effect_size, -0.999, 0.999)
     z_rho = 0.5 * np.log((1 + r_clamped) / (1 - r_clamped))
 
-    # Critical values
     if alternative == "two-sided":
         z_alpha = norm.ppf(1 - alpha / 2)
     else:
@@ -71,55 +66,54 @@ def calculate_sample_size_for_correlation(
 
     z_beta = norm.ppf(power)
 
-    # Calculate N
-    # N - 3 = ((z_alpha + z_beta) / z_rho)^2
     n_minus_3 = ((z_alpha + z_beta) / z_rho) ** 2
     n = n_minus_3 + 3
 
-    # Round up to the nearest integer
     return int(np.ceil(n))
 
-def main():
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> int:
     """
-    Main entry point for the power analysis script.
-    """
-    print("Starting Power Analysis for Correlation Detection...")
-    print(f"Target Correlation (r): 0.3")
-    print(f"Target Power: 0.80")
-    print(f"Significance Level (alpha): 0.05")
+    Execute the power analysis with default parameters, write the results
+    to the expected output locations, and exit with a status code.
 
+    Returns
+    -------
+    int
+        Exit code (0 = success, non‑zero = failure).
+    """
     try:
-        required_n = calculate_sample_size_for_correlation(
-            effect_size=0.3,
-            alpha=0.05,
-            power=0.80,
-            alternative="two-sided"
-        )
+        # Perform the calculation using the default parameters defined in the
+        # specification (effect size r = 0.3, power = 0.80, alpha = 0.05).
+        required_n = calculate_sample_size_for_correlation()
 
+        # ------------------------------------------------------------------
+        # 1. Write JSON result (used by other verification tests)
+        # ------------------------------------------------------------------
         result = {
             "effect_size_r": 0.3,
-            "target_power": 0.80,
+            "target_power": 0.8,
             "alpha": 0.05,
             "required_sample_size_N": required_n,
-            "methodology": "Fisher's z-transformation approximation"
+            "methodology": "Fisher's z-transformation approximation",
         }
 
-        # Print result to stdout
-        print(f"\nResult: A sample size of N = {required_n} is required.")
-        print(f"Calculated N (float): {required_n - 3 + 3:.2f} (raw calculation)")
+        json_path = Path("data/analysis/power_analysis_result.json")
+        json_path.parent.mkdir(parents=True, exist_ok=True)
+        json_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
 
-        # Save to file
-        output_path = OUTPUT_DIR / "power_analysis_result.json"
-        with open(output_path, "w") as f:
-            json.dump(result, f, indent=2)
+        # ------------------------------------------------------------------
+        # 2. Persist the integer sample size to the required text file
+        # ------------------------------------------------------------------
+        txt_path = Path("code/power_analysis_output.txt")
+        txt_path.write_text(str(required_n), encoding="utf-8")
 
-        print(f"Result saved to: {output_path}")
-
-        # Return code 0 on success
+        # Successful execution
         return 0
-
-    except Exception as e:
-        print(f"Error during power analysis: {e}", file=sys.stderr)
+    except Exception as exc:  # pragma: no cover – any unexpected error should be visible
+        print(f"[ERROR] Power analysis failed: {exc}", file=sys.stderr)
         return 1
 
 if __name__ == "__main__":

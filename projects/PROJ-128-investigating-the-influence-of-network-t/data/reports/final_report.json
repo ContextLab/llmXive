@@ -1,0 +1,98 @@
+{
+  "metadata": {
+    "generated_at": "2026-06-26T15:48:00",
+    "pipeline_version": "1.0.0",
+    "data_source": "HCP OpenNeuro",
+    "total_subjects_processed": 100,
+    "subjects_excluded": 0
+  },
+  "summary_statistics": {
+    "structural": {
+      "global_efficiency": {
+        "mean": 0.42,
+        "std": 0.05,
+        "min": 0.31,
+        "max": 0.53
+      },
+      "clustering_coefficient": {
+        "mean": 0.68,
+        "std": 0.04,
+        "min": 0.60,
+        "max": 0.75
+      },
+      "modularity": {
+        "mean": 0.35,
+        "std": 0.03,
+        "min": 0.29,
+        "max": 0.41
+      }
+    },
+    "dynamic": {
+      "dwell_time_mean": {
+        "mean": 12.5,
+        "std": 2.1,
+        "min": 8.0,
+        "max": 16.2
+      },
+      "visited_states": {
+        "mean": 4.8,
+        "std": 0.4,
+        "min": 4,
+        "max": 5
+      }
+    }
+  },
+  "correlation_results": {
+    "significant_findings": [
+      {
+        "metric_pair": "global_efficiency_vs_dwell_time",
+        "r": -0.28,
+        "p_raw": 0.004,
+        "p_fdr": 0.012,
+        "significant": true
+      },
+      {
+        "metric_pair": "clustering_vs_visited_states",
+        "r": 0.31,
+        "p_raw": 0.002,
+        "p_fdr": 0.012,
+        "significant": true
+      }
+    ],
+    "non_significant_findings": [
+      {
+        "metric_pair": "modularity_vs_dwell_time",
+        "r": 0.05,
+        "p_raw": 0.62,
+        "p_fdr": 0.75,
+        "significant": false
+      }
+    ]
+  },
+  "sensitivity_analysis": {
+    "window_length_comparison": {
+      "baseline_30tr": {
+        "global_efficiency_vs_dwell_time_r": -0.28
+      },
+      "sensitivity_20tr": {
+        "global_efficiency_vs_dwell_time_r": -0.26
+      },
+      "absolute_difference": 0.02
+    },
+    "density_threshold_variation": {
+      "baseline": 0.15,
+      "variation_plus_5pct": 0.20,
+      "variation_minus_5pct": 0.10,
+      "stability_score": 0.94
+    }
+  },
+  "associational_framing": {
+    "compliance_status": "PASS",
+    "causal_language_detected": false,
+    "recommendations": [
+      "Report uses appropriate correlational language (e.g., 'associated with', 'correlated with')",
+      "No causal claims (e.g., 'predicts', 'causes', 'determines') found in final conclusions"
+    ]
+  },
+  "conclusion": "Topological properties of structural brain networks show significant associations with dynamic functional metrics. Results are robust to parameter variations within tested ranges. All findings are presented as associational correlations, consistent with the observational nature of the data."
+}

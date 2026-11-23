@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Correctness Label Schema
+description: Schema for the result of test suite execution against a patch.
+type: object
+required:
+  - bug_id
+  - patch_id
+  - pass_fail
+properties:
+  bug_id:
+    type: string
+    description: Reference to the associated bug
+    pattern: "^[a-zA-Z]+-\\d+$"
+  patch_id:
+    type: string
+    description: Reference to the associated patch
+  pass_fail:
+    type: string
+    enum:
+      - PASS
+      - FAIL
+    description: Result of the test suite execution
+  unsafe_flag:
+    type: boolean
+    default: false
+    description: Indicates if the patch introduced unsafe behavior (e.g., infinite loop, crash)
+  execution_time_ms:
+    type: integer
+    minimum: 0
+    description: Time taken to execute the test suite in milliseconds
+  error_log:
+    type: string
+    description: Optional error output if execution failed or timed out
+additionalProperties: false

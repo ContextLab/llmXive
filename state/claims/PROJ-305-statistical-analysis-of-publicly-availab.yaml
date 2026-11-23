@@ -1,0 +1,631 @@
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: project implements reproducible CPU-only pipeline analyzing VAERS 2020-2023
+  claim_id: c_cc38b30d
+  context: "This project implements a reproducible, CPU\u2011only pipeline to analyze\
+    \ VAERS data from 2020\u20112023, detecting safety signals for COVID\u201119 vaccines\
+    \ through disproportionality metrics, sensitivity checks, and temporal profiling."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This project implements a reproducible, CPU\u2011only pipeline to analyze\
+    \ VAERS data from 2020\u20112023."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T20:26:48Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: pipeline detects safety signals for COVID-19 vaccines via disproportionality
+    metrics sensitivity checks temporal profiling
+  claim_id: c_7588080e
+  context: "This project implements a reproducible, CPU\u2011only pipeline to analyze\
+    \ VAERS data from 2020\u20112023, detecting safety signals for COVID\u201119 vaccines\
+    \ through disproportionality metrics, sensitivity checks, and temporal profiling."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The pipeline detects safety signals for COVID\u201119 vaccines through\
+    \ disproportionality metrics, sensitivity checks, and temporal profiling."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T20:26:48Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/README.md
+  attempts: 1
+  canonical: repository provides reproducible CPU-only pipeline for statistical analysis
+    of VAERS COVID-19 vaccine adverse event reports
+  claim_id: c_60136c7a
+  context: "This repository provides a reproducible, CPU\u2011only pipeline for statistical\
+    \ analysis of VAERS COVID\u201119 vaccine adverse event reports."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This repository provides a reproducible, CPU\u2011only pipeline for statistical\
+    \ analysis of VAERS COVID\u201119 vaccine adverse event reports."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-11T23:07:44Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: full 2020-2023 VAERS parquet file downloaded
+  claim_id: c_cf4ebf17
+  context: "Step 2 of the execution downloads the full 2020\u20112023 VAERS parquet\
+    \ file from the URL defined in the script."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Downloads the full 2020\u20112023 VAERS parquet file from `...` (actual\
+    \ URL defined in the script)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:57Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: SHA-256 checksum written to data/checksums.txt
+  claim_id: c_2b8293bf
+  context: "During the download step the script writes a SHA\u2011256 checksum to\
+    \ data/checksums.txt."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Writes SHA\u2011256 checksum to `data/checksums.txt`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: exits with E_SCHEMA_MISSING when required columns are absent
+  claim_id: c_ea546c09
+  context: The validation script aborts with error code E_SCHEMA_MISSING if required
+    columns are missing.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Exits with `E_SCHEMA_MISSING` if any of `VAX_TYPE`, `SOC_CODE`, `REPT_DATE`
+    are absent.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: all JSON-schema contracts pass
+  claim_id: c_a7c12640
+  context: The verification step runs pytest against the contract tests and requires
+    all JSON-schema contracts to pass.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All JSON\u2011schema contracts must pass."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: output signals.csv contains ROR PRR IC with adjusted p-values
+  claim_id: c_1c12eb52
+  context: "After running the full analysis pipeline, the resulting signals.csv file\
+    \ contains disproportionality metrics with adjusted p\u2011values."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`output/signals.csv` \u2013 table of ROR/PRR/IC with adjusted p\u2011\
+    values."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: PNG plots for top signals generated in output/temporal_profiles
+  claim_id: c_2a8de9bb
+  context: The pipeline creates temporal profiling PNG plots for the top signals in
+    the output/temporal_profiles directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: PNG plots for the top signals are saved in `output/temporal_profiles/`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: sensitivity_analysis.csv contains delta metrics versus Flu baseline
+  claim_id: c_274aed6d
+  context: "A flu\u2011only sensitivity analysis is written to output/sensitivity_analysis.csv,\
+    \ reporting delta metrics compared to the Flu baseline."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`output/sensitivity_analysis.csv` \u2013 \u0394\u2011metrics vs. Flu\
+    \ baseline."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: output report.md includes summary, memory usage, and limitations
+  claim_id: c_b55adc26
+  context: The final step generates a markdown report summarizing findings, memory
+    usage, and study limitations.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "`output/report.md` \u2013 human\u2011readable summary, memory usage,\
+    \ and limitations."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:27:58Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: download full 2020-2023 VAERS parquet file
+  claim_id: c_e6f814dc
+  context: Step 2 of the execution pipeline runs a script that retrieves the complete
+    VAERS dataset covering the years 2020 to 2023.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Downloads the full 2020\u20112023 VAERS parquet file from ... (actual\
+    \ URL defined in the script)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:30:33Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: writes SHA-256 checksum to data/checksums.txt
+  claim_id: c_ad49c5a5
+  context: "During the download step the script records a SHA\u2011256 hash of the\
+    \ downloaded file for integrity verification."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Writes SHA\u2011256 checksum to data/checksums.txt."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:30:33Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: exits with E_SCHEMA_MISSING when required columns are missing
+  claim_id: c_73a344e1
+  context: The schema validation script aborts with a specific error code when mandatory
+    columns are not present in the raw dataset.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Exits with E_SCHEMA_MISSING if any of VAX_TYPE, SOC_CODE, REPT_DATE are\
+    \ absent (fulfills FR\u2011001 & SC\u2011004)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:30:33Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: produces cleaned.parquet with three groups
+  claim_id: c_104c1ce8
+  context: After cleaning and mapping the data, the pipeline outputs a parquet file
+    that separates records into three predefined categories.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Produces data/processed/cleaned.parquet with three groups (COVID\u2011\
+    related, Non\u2011COVID\u2011Non\u2011Flu, Flu\u2011only)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:30:33Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: generates signals.csv with ROR PRR IC and adjusted p-values
+  claim_id: c_d33c2906
+  context: Running the main analysis module creates a CSV file summarizing disproportionality
+    metrics and their corrected significance levels.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The analysis pipeline generates output/signals.csv containing ROR/PRR/IC\
+    \ with adjusted p\u2011values."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:30:33Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: saves temporal profiling PNG plots for top signals
+  claim_id: c_45bef1cc
+  context: Part of the pipeline creates visualizations of signal trends over time
+    and writes them to a dedicated output directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Temporal profiling plots are saved as PNG files in output/temporal_profiles/
+    for the top signals.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:30:33Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: writes flu-only sensitivity analysis to sensitivity_analysis.csv
+  claim_id: c_98c7de1d
+  context: "The pipeline runs a secondary analysis comparing COVID\u2011related signals\
+    \ against a Flu\u2011only baseline and records the \u0394\u2011metrics."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Flu\u2011only sensitivity analysis results are written to output/sensitivity_analysis.csv."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:30:33Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: generates report.md with summary, memory usage, and limitations
+  claim_id: c_d435679d
+  context: After all processing steps, the pipeline compiles a markdown document summarizing
+    findings and resource consumption.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The final report is generated as output/report.md, containing a human\u2011\
+    readable summary, memory usage, and limitations."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:30:33Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: all JSON-schema contracts must pass pytest contract tests
+  claim_id: c_1e62e3be
+  context: The verification step runs a pytest suite that checks compliance of generated
+    artifacts against predefined JSON schemas.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All JSON\u2011schema contracts must pass when running pytest -q tests/contract/."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:30:33Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: downloads the official 2020-2023 VAERS CSV zip archives from the CDC
+    public repository
+  claim_id: c_c63ac4f7
+  context: "Step 2 description: the script downloads the official 2020\u20112023 VAERS\
+    \ CSV zip archives from the CDC public repository."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Downloads the official 2020\u20112023 VAERS CSV zip archives from the\
+    \ CDC public repository."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-18T18:31:31Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: writes SHA-256 checksums to data/checksums.txt
+  claim_id: c_702afdc2
+  context: "Step 2 description: after downloading, the script writes SHA\u2011256\
+    \ checksums to data/checksums.txt."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Writes SHA\u2011256 checksums to data/checksums.txt."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:31:31Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: exits with E_SCHEMA_MISSING if any of VAX_TYPE, SOC_CODE, REPT_DATE are
+    absent
+  claim_id: c_48d5303d
+  context: 'Step 3 validation: the program exits with E_SCHEMA_MISSING when required
+    columns are missing.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Exits with E_SCHEMA_MISSING if any of VAX_TYPE, SOC_CODE, REPT_DATE are\
+    \ absent (fulfills FR\u2011001 & SC\u2011004)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:31:31Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: produces data/processed/cleaned.parquet with three groups COVID-related,
+    Non-COVID-Non-Flu, Flu-only
+  claim_id: c_ff13055f
+  context: 'Step 4 cleaning: the pipeline creates a cleaned.parquet file containing
+    three groups.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Produces data/processed/cleaned.parquet with three groups (COVID\u2011\
+    related, Non\u2011COVID\u2011Non\u2011Flu, Flu\u2011only)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:31:31Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: all JSON-schema contracts must pass
+  claim_id: c_6e1d4864
+  context: 'Step 6 verification: running pytest ensures that all JSON-schema contracts
+    pass.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All JSON\u2011schema contracts must pass."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T18:31:31Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: Pipeline utilizes CDC VAERS 2020-2023 CSV archives
+  claim_id: c_b655bdcb
+  context: This pipeline utilizes the Vaccine Adverse Event Reporting System (VAERS)
+    data, specifically the 2020-2023 CSV archives provided by the CDC (Centers for
+    Disease Control and Prevention) through their official public data repository.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This pipeline utilizes the Vaccine Adverse Event Reporting System (VAERS)
+    data, specifically the 2020-2023 CSV archives provided by the CDC (Centers for
+    Disease Control and Prevention) through their official public data repository.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T02:17:55Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: 'Processed data contains three groups: COVID-related, Non-COVID-Non-Flu,
+    and Flu-only'
+  claim_id: c_916d4bf0
+  context: python src/data/clean.py - Produces data/processed/cleaned.parquet with
+    three groups (COVID-related, Non-COVID-Non-Flu, Flu-only).
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Produces data/processed/cleaned.parquet with three groups (COVID-related,
+    Non-COVID-Non-Flu, Flu-only).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T02:17:55Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: VAERS is operated by the U.S. FDA and CDC
+  claim_id: c_2d653fdd
+  context: The document describes the provenance of the VAERS data used by the pipeline.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Vaccine adverse event
+        url: https://en.wikipedia.org/wiki/Vaccine_adverse_event
+        value: Food and Drug Administration (FDA) and the Centers for Disease Control
+          and Prevention (CDC)
+      quote: The CDC uses a number of tools to monitor the safety of vaccines. The
+        Vaccine Adverse Event Reporting System (VAERS), a national vaccine safety
+        surveillance program run by CDC and the FDA. "VAERS detects possible safety
+        issues with U.S. vaccines by collecting information about adverse events (possible
+        side effects or health problems) after vaccination." The CDC's Safety Information
+        by Vaccine page provides a list of the latest safety information, side effects,
+        and answers to common questions about CDC recommended vaccines.
+      source_id: Centers for Disease Control and Prevention
+      url: https://en.wikipedia.org/wiki/Centers_for_Disease_Control_and_Prevention
+      value: CDC and the FDA
+    filled: true
+  kind: entity_fact
+  raw_text: VAERS is operated by the U.S. FDA and CDC
+  resolved_value: CDC and the FDA
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-19T02:52:56Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 0
+  canonical: VAERS is operated by the U.S. FDA and CDC
+  claim_id: c_371ab511
+  context: VAERS is operated by the U.S. FDA and CDC; the data are spontaneous adverse-event
+    reports
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Vaccine adverse event
+        url: https://en.wikipedia.org/wiki/Vaccine_adverse_event
+        value: Food and Drug Administration (FDA) and the Centers for Disease Control
+          and Prevention (CDC)
+      quote: The CDC uses a number of tools to monitor the safety of vaccines. The
+        Vaccine Adverse Event Reporting System (VAERS), a national vaccine safety
+        surveillance program run by CDC and the FDA. "VAERS detects possible safety
+        issues with U.S. vaccines by collecting information about adverse events (possible
+        side effects or health problems) after vaccination." The CDC's Safety Information
+        by Vaccine page provides a list of the latest safety information, side effects,
+        and answers to common questions about CDC recommended vaccines.
+      source_id: Centers for Disease Control and Prevention
+      url: https://en.wikipedia.org/wiki/Centers_for_Disease_Control_and_Prevention
+      value: CDC and the FDA
+    filled: true
+  kind: entity_fact
+  raw_text: VAERS is operated by the U.S. FDA and CDC
+  resolved_value: CDC and the FDA
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-19T07:26:56Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: VAERS data analyzed for reporting years 2020-2023
+  claim_id: c_a755fbf4
+  context: The pipeline analyses Vaccine Adverse Event Reporting System (VAERS) data
+    for reporting years 2020-2023.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline analyses Vaccine Adverse Event Reporting System (VAERS) data
+    for reporting years 2020-2023.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T07:29:00Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: Input dataset is chrisvoncsefalvay/vaers-outcomes on Hugging Face
+  claim_id: c_3ccd3e50
+  context: The primary input is the verified, publicly accessible Hugging Face dataset
+    `chrisvoncsefalvay/vaers-outcomes` (VAERS outcomes, parquet format).
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The primary input is the verified, publicly accessible Hugging Face dataset
+    `chrisvoncsefalvay/vaers-outcomes`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-19T07:30:27Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 0
+  canonical: VAERS is operated by the U.S. FDA and CDC
+  claim_id: c_b288605f
+  context: VAERS is operated by the U.S. FDA and CDC; the data are spontaneous adverse-event
+    reports and carry the well-known limitations of such systems.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Vaccine adverse event
+        url: https://en.wikipedia.org/wiki/Vaccine_adverse_event
+        value: Food and Drug Administration (FDA) and the Centers for Disease Control
+          and Prevention (CDC)
+      quote: The CDC uses a number of tools to monitor the safety of vaccines. The
+        Vaccine Adverse Event Reporting System (VAERS), a national vaccine safety
+        surveillance program run by CDC and the FDA. "VAERS detects possible safety
+        issues with U.S. vaccines by collecting information about adverse events (possible
+        side effects or health problems) after vaccination." The CDC's Safety Information
+        by Vaccine page provides a list of the latest safety information, side effects,
+        and answers to common questions about CDC recommended vaccines.
+      source_id: Centers for Disease Control and Prevention
+      url: https://en.wikipedia.org/wiki/Centers_for_Disease_Control_and_Prevention
+      value: CDC and the FDA
+    filled: true
+  kind: entity_fact
+  raw_text: VAERS is operated by the U.S. FDA and CDC
+  resolved_value: CDC and the FDA
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-25T10:26:07Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: primary input dataset is chrisvoncsefalvay/vaers-outcomes on Hugging
+    Face
+  claim_id: c_c831ae2a
+  context: The primary input is the verified, publicly accessible Hugging Face dataset
+    `chrisvoncsefalvay/vaers-outcomes` (VAERS outcomes, parquet format).
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The primary input is the verified, publicly accessible Hugging Face dataset
+    `chrisvoncsefalvay/vaers-outcomes`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T10:26:35Z'
+- artifact_path: projects/PROJ-305-statistical-analysis-of-publicly-availab/quickstart.md
+  attempts: 1
+  canonical: pipeline analyses VAERS data for years 2020 to 2023
+  claim_id: c_af050dcf
+  context: The pipeline analyses Vaccine Adverse Event Reporting System (VAERS) data
+    for reporting years 2020-2023.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline analyses Vaccine Adverse Event Reporting System (VAERS) data
+    for reporting years 2020-2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T10:27:03Z'

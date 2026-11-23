@@ -1,3 +1,2 @@
-# This directory is for raw data downloads.
-# Do not commit large files here.
-# Add .gitkeep to ensure directory is tracked.
+# This file ensures the data/raw directory is tracked by git.
+# Place raw data files here.

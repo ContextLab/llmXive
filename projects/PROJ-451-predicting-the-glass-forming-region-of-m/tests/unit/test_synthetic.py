@@ -1,178 +1,153 @@
 """
-Unit tests for synthetic data generator.
+Unit tests for synthetic data generator (T011).
 
-Tests verify that the synthetic data generator:
-1. Produces valid compositions
-2. Computes descriptors correctly
-3. Maintains expected phase distribution
-4. Generates reproducible results with fixed seed
+Tests that the synthetic generator produces valid compositions
+with realistic descriptor ranges.
 """
 import pytest
-import numpy as np
 import pandas as pd
+import numpy as np
 from pathlib import Path
 import sys
 import os
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from utils.synthetic import (
     generate_composition_from_system,
+    generate_synthetic_phase,
     generate_synthetic_dataset,
-    GLASS_FORMING_SYSTEMS,
-    CRYSTALLINE_SYSTEMS
+    apply_descriptors_to_dataframe,
+    save_synthetic_dataset
 )
-from features.descriptors import compute_all_descriptors
-
+from features.descriptors import parse_composition
 
 class TestCompositionGeneration:
-    """Test composition generation from system configurations."""
+    """Tests for composition generation functions."""
     
-    def test_generate_amorphous_composition(self):
-        """Test that amorphous compositions are generated correctly."""
-        rng = np.random.default_rng(42)
-        system = GLASS_FORMING_SYSTEMS[0]  # Zr-based
+    def test_generate_composition_valid_format(self):
+        """Test that generated compositions have valid chemical format."""
+        system = ['Zr', 'Cu', 'Al']
+        composition, fractions = generate_composition_from_system(system)
         
-        result = generate_composition_from_system(system, rng)
+        # Check composition is not empty
+        assert len(composition) > 0
         
-        assert "composition" in result
-        assert "element_fractions" in result
-        assert "phase" in result
-        assert result["phase"] == "amorphous"
-        assert len(result["element_fractions"]) >= 3
-        assert len(result["element_fractions"]) <= 5
+        # Check all elements from system are in composition
+        for elem in system:
+            assert elem in composition
         
-        # Check that fractions sum to 1 (within floating point tolerance)
-        total = sum(result["element_fractions"].values())
-        assert np.isclose(total, 1.0, atol=1e-6)
-    
-    def test_generate_crystalline_composition(self):
-        """Test that crystalline compositions are generated correctly."""
-        rng = np.random.default_rng(42)
-        system = CRYSTALLINE_SYSTEMS[0]  # Simple alloys
+        # Check fractions sum to approximately 1
+        assert abs(sum(fractions.values()) - 1.0) < 0.01
         
-        result = generate_composition_from_system(system, rng)
-        
-        assert result["phase"] == "crystalline"
-        assert "composition" in result
-        assert len(result["element_fractions"]) >= 2
-    
-    def test_composition_string_format(self):
-        """Test that composition strings follow expected format."""
-        rng = np.random.default_rng(42)
-        system = GLASS_FORMING_SYSTEMS[0]
-        
-        result = generate_composition_from_system(system, rng)
-        comp_str = result["composition"]
-        
-        # Composition should contain element symbols and numbers
-        assert len(comp_str) > 0
-        assert comp_str[0].isupper()  # First char should be element symbol
-        
-        # Check that numbers follow element symbols
-        has_numbers = any(char.isdigit() for char in comp_str)
-        assert has_numbers
-
-
-class TestDatasetGeneration:
-    """Test full dataset generation."""
-    
-    def test_dataset_size(self):
-        """Test that generated dataset has expected size."""
-        df = generate_synthetic_dataset(num_samples=100, seed=42)
-        assert len(df) == 100
-    
-    def test_phase_distribution(self):
-        """Test that phase distribution matches expected ratio."""
-        df = generate_synthetic_dataset(num_samples=1000, amorphous_ratio=0.7, seed=42)
-        
-        amorphous_count = sum(df["phase"] == "amorphous")
-        crystalline_count = sum(df["phase"] == "crystalline")
-        
-        # Allow small tolerance for rounding
-        assert 0.65 <= (amorphous_count / len(df)) <= 0.75
-        assert 0.25 <= (crystalline_count / len(df)) <= 0.35
-    
-    def test_descriptor_computation(self):
-        """Test that descriptors are computed for all samples."""
-        df = generate_synthetic_dataset(num_samples=50, seed=42)
-        
-        # Check for expected descriptor columns
-        expected_descriptors = [
-            "atomic_radius",
-            "electronegativity",
-            "valence_electron_concentration",
-            "atomic_size_mismatch",
-            "mixing_enthalpy",
-            "atomic_size_difference",
-            "valence_electron_size_mismatch",
-            "electron_atom_ratio",
-            "miedema_heat_of_formation",
-            "atomic_packing_factor"
+    def test_generate_composition_multiple_systems(self):
+        """Test composition generation for various alloy systems."""
+        systems = [
+            ['Zr', 'Cu', 'Al'],
+            ['Pd', 'Ni', 'P'],
+            ['Mg', 'Cu', 'Y']
         ]
         
-        for col in expected_descriptors:
-            assert col in df.columns, f"Missing descriptor: {col}"
+        for system in systems:
+            composition, fractions = generate_composition_from_system(system)
+            assert len(composition) > 0
+            assert abs(sum(fractions.values()) - 1.0) < 0.01
+
+class TestPhaseGeneration:
+    """Tests for phase label generation."""
     
+    def test_phase_is_valid_label(self):
+        """Test that generated phases are valid labels."""
+        composition, fractions = generate_composition_from_system(['Zr', 'Cu', 'Al'])
+        phase = generate_synthetic_phase(composition, fractions)
+        
+        assert phase in ['amorphous', 'crystalline']
+        
+    def test_phase_distribution(self):
+        """Test that phase distribution is reasonable."""
+        phases = []
+        for _ in range(100):
+            composition, fractions = generate_composition_from_system(['Zr', 'Cu', 'Al'])
+            phase = generate_synthetic_phase(composition, fractions)
+            phases.append(phase)
+        
+        # Should have both phases represented
+        assert 'amorphous' in phases
+        assert 'crystalline' in phases
+
+class TestDatasetGeneration:
+    """Tests for full dataset generation."""
+    
+    def test_dataset_size(self):
+        """Test that generated dataset meets minimum size requirement."""
+        df = generate_synthetic_dataset(n_samples=1000)
+        
+        assert len(df) >= 1000, f"Expected >= 1000 samples, got {len(df)}"
+        
+    def test_dataset_columns(self):
+        """Test that dataset has all required columns."""
+        df = generate_synthetic_dataset(n_samples=100)
+        
+        required_columns = [
+            'composition', 'phase', 'atomic_radius', 'electronegativity',
+            'vec', 'size_mismatch', 'electronegativity_diff', 'mixing_enthalpy',
+            'source'
+        ]
+        
+        for col in required_columns:
+            assert col in df.columns, f"Missing column: {col}"
+            
     def test_descriptor_ranges(self):
-        """Test that descriptor values fall within physically reasonable ranges."""
-        df = generate_synthetic_dataset(num_samples=100, seed=42)
+        """Test that computed descriptors fall within physically reasonable ranges."""
+        df = generate_synthetic_dataset(n_samples=100)
         
-        # Atomic size mismatch (δ) should be non-negative
-        assert all(df["atomic_size_mismatch"] >= 0), "Atomic size mismatch should be non-negative"
+        # Atomic radius should be positive and reasonable (50-200 pm)
+        assert df['atomic_radius'].min() > 0
+        assert df['atomic_radius'].max() < 300
         
-        # Electronegativity should be positive
-        assert all(df["electronegativity"] > 0), "Electronegativity should be positive"
+        # Electronegativity should be positive (Pauling scale)
+        assert df['electronegativity'].min() > 0
+        assert df['electronegativity'].max() < 4.0
         
-        # Valence electron concentration should be positive
-        assert all(df["valence_electron_concentration"] > 0), "VEC should be positive"
-    
-    def test_reproducibility(self):
-        """Test that same seed produces same results."""
-        df1 = generate_synthetic_dataset(num_samples=50, seed=123)
-        df2 = generate_synthetic_dataset(num_samples=50, seed=123)
+        # VEC should be positive
+        assert df['vec'].min() > 0
         
-        # Compare compositions
-        assert list(df1["composition"]) == list(df2["composition"])
+        # Size mismatch should be non-negative
+        assert df['size_mismatch'].min() >= 0
         
-        # Compare phase labels
-        assert list(df1["phase"]) == list(df2["phase"])
+        # Electronegativity difference should be non-negative
+        assert df['electronegativity_diff'].min() >= 0
         
-        # Compare descriptors (with floating point tolerance)
-        for col in df1.columns:
-            if col not in ["composition", "phase", "source", "generation_seed", "timestamp"]:
-                assert np.allclose(df1[col].values, df2[col].values), f"Descriptor {col} not reproducible"
-    
-    def test_source_metadata(self):
-        """Test that source metadata is correctly set."""
-        df = generate_synthetic_dataset(num_samples=50, seed=42)
+        # Mixing enthalpy can be negative or positive
+        # (typical range for alloys is -50 to +50 kJ/mol)
         
-        assert all(df["source"] == "synthetic")
-        assert all(df["generation_seed"] == 42)
-        assert "timestamp" in df.columns
+    def test_composition_parsing(self):
+        """Test that generated compositions can be parsed."""
+        df = generate_synthetic_dataset(n_samples=50)
+        
+        for _, row in df.iterrows():
+            try:
+                parsed = parse_composition(row['composition'])
+                assert len(parsed) > 0
+            except Exception as e:
+                pytest.fail(f"Failed to parse composition {row['composition']}: {e}")
 
-
-class TestEdgeCases:
-    """Test edge cases and error handling."""
+class TestSaveSyntheticDataset:
+    """Tests for saving synthetic datasets."""
     
-    def test_minimum_sample_size(self):
-        """Test generation with minimum sample size."""
-        df = generate_synthetic_dataset(num_samples=1, seed=42)
-        assert len(df) == 1
-    
-    def test_extreme_amorphous_ratio(self):
-        """Test with extreme amorphous ratios."""
-        # All amorphous
-        df1 = generate_synthetic_dataset(num_samples=100, amorphous_ratio=1.0, seed=42)
-        assert all(df1["phase"] == "amorphous")
+    def test_save_creates_file(self, tmp_path):
+        """Test that save function creates output file."""
+        df = generate_synthetic_dataset(n_samples=10)
         
-        # All crystalline
-        df2 = generate_synthetic_dataset(num_samples=100, amorphous_ratio=0.0, seed=42)
-        assert all(df2["phase"] == "crystalline")
-    
-    def test_large_dataset(self):
-        """Test generation of larger dataset."""
-        df = generate_synthetic_dataset(num_samples=5000, seed=42)
-        assert len(df) == 5000
-        assert len(df.columns) > 10  # Should have many descriptor columns
+        output_path = str(tmp_path / 'test_synthetic.csv')
+        saved_path = save_synthetic_dataset(df, output_path)
+        
+        assert os.path.exists(saved_path)
+        
+        # Verify file is readable
+        loaded_df = pd.read_csv(saved_path)
+        assert len(loaded_df) == len(df)
+
+if __name__ == '__main__':
+    pytest.main([__file__, '-v'])

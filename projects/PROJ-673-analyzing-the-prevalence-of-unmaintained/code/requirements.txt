@@ -17,3 +17,4 @@ mypy>=1.5.0
 
 # Security (for validation, not runtime dependency)
 # Note: No additional security packages needed - using standard library
+urllib3  # auto-added: imported by run-book but missing from venv

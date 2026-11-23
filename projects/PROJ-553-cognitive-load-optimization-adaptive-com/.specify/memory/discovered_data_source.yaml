@@ -1,0 +1,16 @@
+status: none
+intent: ASSISTments OULAD learning analytics datasets timestamps errors hints OpenML
+  python package dataset
+required_fields:
+- interaction_id
+- student_id
+- problem_id
+- timestamp
+- response
+- correctness
+- hint_count
+- latency
+- pause_duration
+cache_key: 1005a8ca80f7a69b1141153a347b7a218ee4080e330020f7117a947d8402bda7
+searched_at: '2026-10-14T09:39:18.133766+00:00'
+retry_count: 1

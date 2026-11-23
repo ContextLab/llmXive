@@ -8,13 +8,13 @@ properties:
     description: "Unique identifier for the subject."
   model_type:
     type: "string"
-    description: "Type of model used (e.g., 'ridge_regression')."
+    description: "Type of classifier used (e.g., 'ridge_regression')."
   roi:
     type: "string"
-    description: "Region of Interest (e.g., 'hippocampus')."
+    description: "Region of Interest."
   trial_type:
     type: "string"
-    description: "Target narrative element (e.g., 'plot')."
+    description: "Target narrative element (e.g., 'plot', 'character', 'theme')."
   accuracy:
     type: "number"
     minimum: 0.0
@@ -24,12 +24,12 @@ properties:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Expected accuracy by chance (1/N)."
+    description: "Expected accuracy by chance."
   p_value:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Significance p-value from permutation test."
+    description: "P-value from permutation test."
   fdr_corrected:
     type: "boolean"
     description: "Whether FDR correction was applied."

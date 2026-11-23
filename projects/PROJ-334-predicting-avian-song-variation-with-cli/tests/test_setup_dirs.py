@@ -1,58 +1,74 @@
-"""
-Tests for the setup directory script.
-Verifies that the required directories are created or exist.
-"""
 import os
-import tempfile
-import shutil
-from pathlib import Path
 import sys
+import csv
+import yaml
+from pathlib import Path
+import pytest
 
-# Add the code directory to the path so we can import the setup script logic
-# We will test the logic by simulating the function calls rather than running the script
-# in the test environment to avoid side effects in the actual test runner directory.
+# Ensure code is in path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_directory_creation_logic():
-    """Test that the logic correctly identifies and creates directories."""
-    # Create a temporary directory to act as the project root for this test
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmp_dir)
-            
-            # Import the function logic locally to avoid side effects of running __main__
-            # We re-implement the core logic here to test it in isolation
-            base_dirs = [
-                "projects/PROJ-334-predicting-avian-song-variation-with-cli",
-                "data",
-                "code",
-                "tests"
-            ]
-            
-            data_subdirs = [
-                "data/raw",
-                "data/processed",
-                "data/external"
-            ]
+from setup_dirs import ensure_directory, initialize_checksums_file, initialize_state_file
 
-            all_dirs = base_dirs + data_subdirs
-            
-            # Verify they don't exist initially
-            for d in all_dirs:
-                assert not Path(d).exists(), f"Directory {d} should not exist initially"
+class TestSetupDirs:
+    @pytest.fixture
+    def temp_project_root(self, tmp_path):
+        """Create a temporary project root structure for testing."""
+        root = tmp_path / "projects" / "PROJ-334-test"
+        root.mkdir(parents=True, exist_ok=True)
+        return root
 
-            # Create them
-            for dir_path in all_dirs:
-                Path(dir_path).mkdir(parents=True, exist_ok=True)
+    def test_ensure_directory_creates_new(self, temp_project_root):
+        """Test that ensure_directory creates a new directory."""
+        new_dir = temp_project_root / "new_subdir"
+        assert not new_dir.exists()
+        ensure_directory(str(new_dir))
+        assert new_dir.exists()
+        assert new_dir.is_dir()
 
-            # Verify they exist now
-            for d in all_dirs:
-                assert Path(d).exists(), f"Directory {d} should exist after creation"
-                assert Path(d).is_dir(), f"{d} should be a directory"
+    def test_ensure_directory_exists(self, temp_project_root):
+        """Test that ensure_directory does nothing if directory exists."""
+        existing_dir = temp_project_root / "existing"
+        existing_dir.mkdir(parents=True, exist_ok=True)
+        ensure_directory(str(existing_dir))
+        # Should not raise an error
 
-        finally:
-            os.chdir(original_cwd)
+    def test_initialize_checksums_file_creates(self, temp_project_root):
+        """Test that initialize_checksums_file creates the file with header."""
+        checksums_path = temp_project_root / "data" / "checksums.txt"
+        initialize_checksums_file(str(checksums_path))
+        
+        assert checksums_path.exists()
+        with open(checksums_path, 'r', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            header = next(reader)
+            assert header == ['filename', 'sha256_hash']
 
-if __name__ == "__main__":
-    test_directory_creation_logic()
-    print("All tests passed.")
+    def test_initialize_checksums_file_exists(self, temp_project_root):
+        """Test that initialize_checksums_file does nothing if file exists."""
+        checksums_path = temp_project_root / "data" / "checksums.txt"
+        checksums_path.parent.mkdir(parents=True, exist_ok=True)
+        checksums_path.touch()
+        initialize_checksums_file(str(checksums_path))
+        # Should not raise an error
+
+    def test_initialize_state_file_creates(self, temp_project_root):
+        """Test that initialize_state_file creates the YAML file with correct structure."""
+        state_path = temp_project_root / "state" / "projects" / "PROJ-334-test.yaml"
+        initialize_state_file(str(state_path))
+        
+        assert state_path.exists()
+        with open(state_path, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+            assert 'artifact_hashes' in data
+            assert data['artifact_hashes'] == {}
+            assert 'updated_at' in data
+            assert data['updated_at'] == '1970-01-01T00:00:00Z'
+
+    def test_initialize_state_file_exists(self, temp_project_root):
+        """Test that initialize_state_file does nothing if file exists."""
+        state_path = temp_project_root / "state" / "projects" / "PROJ-334-test.yaml"
+        state_path.parent.mkdir(parents=True, exist_ok=True)
+        state_path.touch()
+        initialize_state_file(str(state_path))
+        # Should not raise an error

@@ -1,0 +1,23 @@
+status: verified
+kind: pypi_package
+ref: networkx
+access_python: 'import networkx as nx
+
+  G = nx.watts_strogatz_graph(n=30, k=4, p=0.0)  # regular ring lattice
+
+  edges = [{"edge_source": u, "edge_target": v} for u, v in G.edges()]
+
+  print(f"RECORDS={len(edges)}")
+
+  print("FIELDS=edge_source,edge_target")'
+record_count: 60
+sample_fields:
+- edge_source
+- edge_target
+field_coverage: 0.667
+required_fields:
+- node_id
+- edge_source
+- edge_target
+intent: NetworkX synthetic regular ring lattice python package dataset
+cache_key: 3c530d4b3ed58edbdd08917219b93512e7535ddef0b32bea1cdcf45eaa300de2

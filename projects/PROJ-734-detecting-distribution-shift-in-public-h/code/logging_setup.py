@@ -1,47 +1,48 @@
 """
-Logging configuration and utilities.
-
-This module provides utilities for setting up and managing logging within the
-llmXive pipeline, ensuring consistent formatting and output destinations.
+Logging setup module.
+Provides a consistent logging configuration for the project.
 """
-
 import logging
 import sys
 import os
+from datetime import datetime
+from typing import Optional
 
-def setup_logging(level: int = logging.INFO) -> None:
+def setup_logging(module_name: str = "project", log_level: int = logging.INFO) -> logging.Logger:
     """
-    Configures the root logger for the application.
-
-    Args:
-        level: The logging level (e.g., logging.DEBUG, logging.INFO).
+    Setup and return a logger with standard formatting.
+    Creates a logs directory if it doesn't exist.
     """
-    # Prevent duplicate handlers if called multiple times
-    if logging.getLogger().handlers:
-        return
+    logger = logging.getLogger(module_name)
+    logger.setLevel(log_level)
 
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
+    # Avoid adding handlers multiple times if called repeatedly
+    if logger.handlers:
+        return logger
 
-    # Console Handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
+    # Create logs directory
+    log_dir = "logs"
+    os.makedirs(log_dir, exist_ok=True)
+    
+    log_file = os.path.join(log_dir, f"{module_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+
+    # File handler
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(log_level)
+
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(log_level)
 
     # Formatter
     formatter = logging.Formatter(
-        fmt="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
-    console_handler.setFormatter(formatter)
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
 
-    root_logger.addHandler(console_handler)
+    logger.addHandler(fh)
+    logger.addHandler(ch)
 
-    # Also configure the specific package logger if needed
-    package_logger = logging.getLogger("llmXive")
-    package_logger.setLevel(level)
-
-# Initialize default logging on import if not already configured
-# This is safe because setup_logging checks for existing handlers
-setup_logging()
-
-__all__ = ["setup_logging"]
+    return logger

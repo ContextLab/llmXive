@@ -10,3 +10,10 @@ T003a:
   r: "The file `code/.pre-commit-config.yaml` is present, non\u2011empty, and correctly\
     \ defines black and ruff hooks as required. No missing or placeholder content\
     \ was found."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/` directory hierarchy (`data/raw/`, `data/processed/`,
+    `data/interim/`) or the accompanying `.gitkeep` placeholder files is present.
+    The implementer must add these empty directories and `.gitkeep` files without
+    creating any data files.

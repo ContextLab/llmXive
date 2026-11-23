@@ -1,0 +1,115 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PDBbind Molecular Graph Dataset Schema
+description: >
+  Schema for validating molecular graph data derived from PDBbind v2020 refined set.
+  Enforces US-1 (Data Ingestion) requirements including hydration states, 3D coordinates,
+  and atomic properties.
+type: object
+required:
+  - complex_id
+  - resolution
+  - atoms
+  - water_flag
+  - coordinates_3d
+properties:
+  complex_id:
+    type: string
+    description: Unique identifier for the protein-ligand complex (e.g., '1abc').
+  
+  resolution:
+    type: number
+    description: Resolution of the crystal structure in Angstroms.
+    exclusiveMinimum: 0
+    maximum: 2.5
+    description_note: >
+      Per T020 and Spec Edge Cases, complexes with resolution > 2.5 Å must be excluded.
+      This schema enforces the upper bound for valid data ingestion.
+
+  water_flag:
+    type: boolean
+    description: >
+      Indicates if water-mediated interactions were detected in the complex.
+      Set to True if any oxygen atom is within 3.5 Å of a ligand atom (T015).
+  
+  coordinates_3d:
+    type: array
+    description: Global 3D coordinates of the complex centroid or reference frame.
+    items:
+      type: number
+    minItems: 3
+    maxItems: 3
+    description_note: >
+      Represents the [x, y, z] position in the global frame. 
+      Individual atom coordinates are stored within the 'atoms' array.
+
+  atoms:
+    type: array
+    description: List of atomic nodes in the molecular graph.
+    items:
+      type: object
+      required:
+        - atom_type
+        - charge
+        - hydrophobicity
+        - coordinates
+      properties:
+        atom_type:
+          type: string
+          description: >
+            Element symbol or specific atom type (e.g., 'C', 'N', 'O', 'S', 'P', 'Cl').
+            Must be consistent with standard chemical element symbols.
+        
+        charge:
+          type: number
+          description: Formal charge or partial charge of the atom (float).
+        
+        hydrophobicity:
+          type: number
+          description: >
+            Hydrophobicity score (e.g., Kyte-Doolittle scale or similar).
+            Used for feature engineering in GNNs.
+        
+        coordinates:
+          type: array
+          description: 3D coordinates [x, y, z] for this specific atom.
+          items:
+            type: number
+          minItems: 3
+          maxItems: 3
+          description_note: >
+            Explicit 3D coordinates are required to satisfy FR-001 (explicitly encode steric constraints).
+            These are used to calculate Euclidean distances for edge construction.
+
+  edges:
+    type: array
+    description: List of edges representing interactions (covalent and non-covalent).
+    items:
+      type: object
+      required:
+        - source
+        - target
+        - distance
+        - interaction_type
+      properties:
+        source:
+          type: integer
+          description: Index of the source atom in the 'atoms' array.
+        target:
+          type: integer
+          description: Index of the target atom in the 'atoms' array.
+        distance:
+          type: number
+          description: >
+            Euclidean distance between source and target atoms in Angstroms.
+            Explicitly stored to satisfy FR-001.
+        interaction_type:
+          type: string
+          enum:
+            - covalent
+            - hydrogen_bond
+            - hydrophobic
+            - water_mediated
+            - van_der_waals
+          description: Type of interaction represented by the edge.
+
+additionalProperties: false

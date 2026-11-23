@@ -1,0 +1,11 @@
+status: none
+intent: LPBF 316L stainless steel dataset Zenodo OpenML python package dataset
+required_fields:
+- laser_power
+- scan_speed
+- hatch_spacing
+- layer_thickness
+- porosity
+cache_key: f5093c0e7017ae12df752c9ac1a8b1b7ec27274caf433daa3ef95209cc4331c1
+searched_at: '2026-09-26T02:52:09.311570+00:00'
+retry_count: 1

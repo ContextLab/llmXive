@@ -6,7 +6,7 @@ failed_stage: null
 field: mathematics
 human_escalation_reason: null
 id: PROJ-799-statistical-properties-of-integer-partit
-last_run_id: 040b8568-000b-4b3f-93df-394a6dc5f6bf
+last_run_id: a47da893-662e-4ce9-9ee7-81949b2b2941
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-799-statistical-properties-of-integer-partit/specs/001-statistical-properties-of-integer-partit
 title: Statistical Properties of Integer Partitions Into Distinct Prime Summands
-updated_at: '2026-07-10T19:57:20.288616Z'
+updated_at: '2026-10-25T02:27:26.831549Z'

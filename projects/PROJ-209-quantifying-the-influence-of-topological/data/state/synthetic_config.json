@@ -1,0 +1,21 @@
+{
+  "seed": 42,
+  "n_actual": 1000,
+  "n_target_requested": 1000,
+  "analytical_formula": "E = E0 * (1 - k*density)",
+  "parameters": {
+    "E0": 1.0,
+    "k_elastic": 0.8,
+    "sigma0": 1.0,
+    "k_conductivity": 0.5,
+    "gamma0": 1.0,
+    "k_fracture": 0.6
+  },
+  "noise_params": {
+    "mean": 0.0,
+    "variance": 0.05,
+    "std": 0.22360679774997896
+  },
+  "generation_time_estimate_seconds": 0.04801750183105469,
+  "scaled_down": false
+}

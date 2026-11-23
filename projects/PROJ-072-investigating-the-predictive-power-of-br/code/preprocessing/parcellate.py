@@ -1,8 +1,11 @@
 """
-Parcellation module for generating connectivity matrices using the AAL atlas.
+Parcellation module for AAL atlas-based connectivity matrix generation.
 
-This module implements AAL atlas parcellation to generate subject-level 
-connectivity matrices from preprocessed fMRI data.
+This module handles:
+1. Loading the AAL atlas (90 regions)
+2. Extracting region-wise time series from preprocessed fMRI data
+3. Computing Pearson correlation matrices
+4. Saving connectivity matrices to disk
 """
 import os
 import sys
@@ -10,276 +13,407 @@ import numpy as np
 import nibabel as nib
 from pathlib import Path
 import logging
-from typing import Dict, List, Optional, Tuple
-import pandas as pd
-from nilearn import datasets, masking, image
-from nilearn.input_data import NiftiLabelsMasker
+from typing import Tuple, List, Optional
+
+# Project imports
+from preprocessing.psd_validator import validate_and_regularize_matrix
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 # Constants
-AAL_ATLAS_URL = "https://www.gin.cnrs.fr/AAL_files/aal_for_SPM.tar.gz"
-DEFAULT_N_ROIS = 90  # Standard AAL atlas has 90 regions
-OUTPUT_DIR = Path("data/processed")
-METADATA_DIR = Path("data/metadata")
-RAW_DIR = Path("data/raw")
+AAL_ATLAS_URL = "https://raw.githubusercontent.com/nilearn/nilearn/main/nilearn/datasets/data/aal/AAL.nii"
+AAL_LABELS_URL = "https://raw.githubusercontent.com/nilearn/nilearn/main/nilearn/datasets/data/aal/AAL_labels.txt"
+DEFAULT_AAL_PATH = Path("data/raw/aal/AAL.nii")
+DEFAULT_LABELS_PATH = Path("data/raw/aal/AAL_labels.txt")
+MATRIX_OUTPUT_DIR = Path("data/processed")
+MATRIX_DIMENSION = 90  # AAL atlas has 90 regions
 
-def get_aal_atlas_path() -> Path:
+def get_aal_atlas_path(force_download: bool = False) -> Path:
     """
-    Download or retrieve the AAL atlas files.
-    
-    Returns:
-        Path to the AAL atlas label file and image file.
-    """
-    # Try to get from nilearn cache first
-    try:
-        atlas_data = datasets.fetch_atlas_aal()
-        atlas_img = Path(atlas_data.maps)
-        atlas_labels = Path(atlas_data.labels)
-        
-        if atlas_img.exists() and atlas_labels.exists():
-            logger.info(f"Found AAL atlas in nilearn cache: {atlas_img}")
-            return atlas_img, atlas_labels
-    except Exception as e:
-        logger.warning(f"Could not fetch AAL from nilearn: {e}")
-    
-    # If not in cache, we'll use nilearn's built-in handling
-    # The fetch_atlas_aal will download and cache if needed
-    logger.info("Downloading AAL atlas...")
-    try:
-        atlas_data = datasets.fetch_atlas_aal(download_only=True)
-        return Path(atlas_data.maps), Path(atlas_data.labels)
-    except Exception as e:
-        logger.error(f"Failed to download AAL atlas: {e}")
-        raise RuntimeError(f"Could not obtain AAL atlas: {e}")
+    Get the path to the AAL atlas file. Downloads if missing.
 
-def load_parcellation_labels(labels_path: Path) -> List[str]:
-    """
-    Load AAL region labels from file.
-    
     Args:
-        labels_path: Path to the labels file.
-        
+        force_download: If True, re-download even if file exists.
+
+    Returns:
+        Path to the AAL atlas NIfTI file.
+
+    Raises:
+        FileNotFoundError: If download fails and file doesn't exist.
+    """
+    atlas_path = DEFAULT_AAL_PATH
+    labels_path = DEFAULT_LABELS_PATH
+
+    # Ensure directories exist
+    atlas_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Download atlas if missing or forced
+    if force_download or not atlas_path.exists():
+        logger.info(f"Downloading AAL atlas to {atlas_path}")
+        import requests
+        try:
+            response = requests.get(AAL_ATLAS_URL, timeout=30)
+            response.raise_for_status()
+            with open(atlas_path, 'wb') as f:
+                f.write(response.content)
+            logger.info(f"Successfully downloaded AAL atlas")
+        except Exception as e:
+            if atlas_path.exists():
+                logger.warning(f"Download failed but file exists: {e}. Using existing file.")
+            else:
+                raise FileNotFoundError(f"Failed to download AAL atlas and no local file found: {e}")
+
+    if force_download or not labels_path.exists():
+        logger.info(f"Downloading AAL labels to {labels_path}")
+        import requests
+        try:
+            response = requests.get(AAL_LABELS_URL, timeout=30)
+            response.raise_for_status()
+            with open(labels_path, 'w') as f:
+                f.write(response.text)
+            logger.info(f"Successfully downloaded AAL labels")
+        except Exception as e:
+            if labels_path.exists():
+                logger.warning(f"Download failed but file exists: {e}. Using existing file.")
+            else:
+                raise FileNotFoundError(f"Failed to download AAL labels and no local file found: {e}")
+
+    return atlas_path
+
+def load_parcellation_labels(labels_path: Optional[Path] = None) -> List[str]:
+    """
+    Load AAL region labels.
+
+    Args:
+        labels_path: Path to labels file. Uses default if None.
+
     Returns:
         List of region names.
     """
+    if labels_path is None:
+        labels_path = DEFAULT_LABELS_PATH
+
     if not labels_path.exists():
         raise FileNotFoundError(f"Labels file not found: {labels_path}")
-    
-    labels = []
-    try:
-        # AAL labels file format: index, name, x, y, z
-        with open(labels_path, 'r') as f:
-            for line in f:
-                parts = line.strip().split()
+
+    with open(labels_path, 'r') as f:
+        # Skip header if present, read region names
+        lines = [line.strip() for line in f if line.strip()]
+        # AAL labels file typically has format: "1:RegionName"
+        # We extract just the region names
+        labels = []
+        for line in lines:
+            if ':' in line:
+                parts = line.split(':')
                 if len(parts) >= 2:
-                    # First column is index, second is name
-                    labels.append(parts[1])
-    except Exception as e:
-        logger.error(f"Error reading labels file: {e}")
-        raise
-    
-    logger.info(f"Loaded {len(labels)} region labels")
+                    labels.append(parts[1].strip())
+            else:
+                labels.append(line.strip())
+
+    # Ensure we have exactly 90 labels
+    if len(labels) < MATRIX_DIMENSION:
+        # Pad with generic names if needed
+        while len(labels) < MATRIX_DIMENSION:
+            labels.append(f"Region_{len(labels)+1}")
+    elif len(labels) > MATRIX_DIMENSION:
+        labels = labels[:MATRIX_DIMENSION]
+
     return labels
 
-def compute_correlation_matrix(timeseries: np.ndarray) -> np.ndarray:
+def extract_region_timeseries(
+    nii_path: Path,
+    atlas_path: Path,
+    labels: List[str]
+) -> np.ndarray:
     """
-    Compute Pearson correlation matrix from region timeseries.
-    
+    Extract mean time series for each AAL region from fMRI data.
+
+    Args:
+        nii_path: Path to preprocessed fMRI NIfTI file.
+        atlas_path: Path to AAL atlas NIfTI file.
+        labels: List of region labels (for validation).
+
+    Returns:
+        Array of shape (n_timepoints, n_regions) containing region-wise time series.
+    """
+    # Load fMRI data
+    fmri_img = nib.load(nii_path)
+    fmri_data = fmri_img.get_fdata()
+    fmri_shape = fmri_data.shape
+    logger.debug(f"Loaded fMRI data with shape: {fmri_shape}")
+
+    # Load atlas
+    atlas_img = nib.load(atlas_path)
+    atlas_data = atlas_img.get_fdata()
+    atlas_shape = atlas_data.shape
+    logger.debug(f"Loaded atlas with shape: {atlas_shape}")
+
+    # Resample atlas to fMRI space if necessary
+    if atlas_shape[:3] != fmri_shape[:3]:
+        logger.info(f"Resampling atlas from {atlas_shape[:3]} to {fmri_shape[:3]}")
+        from nilearn.image import resample_to_img
+        atlas_img_resampled = resample_to_img(atlas_img, fmri_img, interpolation='nearest')
+        atlas_data = atlas_img_resampled.get_fdata()
+
+    # Flatten spatial dimensions
+    n_voxels = fmri_shape[0] * fmri_shape[1] * fmri_shape[2]
+    n_timepoints = fmri_shape[3] if len(fmri_shape) == 4 else 1
+
+    # Map each voxel to a region
+    # AAL atlas uses integer labels (1-90)
+    unique_regions = np.unique(atlas_data)
+    # Filter out background (0)
+    valid_regions = unique_regions[unique_regions > 0]
+    logger.info(f"Found {len(valid_regions)} valid regions in atlas")
+
+    # Initialize timeseries array
+    timeseries = np.zeros((n_timepoints, len(valid_regions)))
+
+    # Extract mean time series for each region
+    for i, region_idx in enumerate(valid_regions):
+        mask = (atlas_data == region_idx)
+        # Get voxels belonging to this region
+        region_voxels = fmri_data[mask]
+        # Reshape to (n_voxels_in_region, n_timepoints) if 4D
+        if len(fmri_shape) == 4:
+            region_voxels = region_voxels.reshape(-1, n_timepoints)
+            # Compute mean across voxels for each timepoint
+            timeseries[:, i] = np.mean(region_voxels, axis=0)
+        else:
+            # 3D case (single timepoint)
+            timeseries[0, i] = np.mean(region_voxels)
+
+    # Ensure we have exactly 90 regions
+    if timeseries.shape[1] != MATRIX_DIMENSION:
+        logger.warning(f"Expected {MATRIX_DIMENSION} regions, got {timeseries.shape[1]}")
+        # Pad or truncate
+        if timeseries.shape[1] < MATRIX_DIMENSION:
+            padding = np.zeros((n_timepoints, MATRIX_DIMENSION - timeseries.shape[1]))
+            timeseries = np.hstack([timeseries, padding])
+        else:
+            timeseries = timeseries[:, :MATRIX_DIMENSION]
+
+    return timeseries
+
+def compute_correlation_matrix(
+    timeseries: np.ndarray,
+    regularization: float = 1e-6
+) -> np.ndarray:
+    """
+    Compute Pearson correlation matrix from region time series.
+
     Args:
         timeseries: Array of shape (n_timepoints, n_regions).
-        
+        regularization: Small value for numerical stability.
+
     Returns:
         Correlation matrix of shape (n_regions, n_regions).
     """
-    if timeseries.shape[0] < 2:
-        raise ValueError("Need at least 2 timepoints to compute correlation")
-    
-    # Compute correlation matrix
-    corr_matrix = np.corrcoef(timeseries, rowvar=False)
-    
-    # Handle potential NaN values (e.g., constant regions)
-    if np.any(np.isnan(corr_matrix)):
-        logger.warning("NaN values detected in correlation matrix, replacing with 0")
-        corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
-    
-    # Ensure diagonal is 1.0
-    np.fill_diagonal(corr_matrix, 1.0)
-    
-    return corr_matrix
+    n_timepoints, n_regions = timeseries.shape
 
-def extract_region_timeseries(
-    func_img_path: Path, 
-    atlas_img_path: Path,
-    labels: List[str]
-) -> Tuple[np.ndarray, List[str]]:
-    """
-    Extract mean timeseries for each region from functional image.
-    
-    Args:
-        func_img_path: Path to preprocessed functional image.
-        atlas_img_path: Path to AAL atlas image.
-        labels: List of region labels.
-        
-    Returns:
-        Tuple of (timeseries array, list of region names).
-    """
-    if not func_img_path.exists():
-        raise FileNotFoundError(f"Functional image not found: {func_img_path}")
-    
-    if not atlas_img_path.exists():
-        raise FileNotFoundError(f"Atlas image not found: {atlas_img_path}")
-    
-    # Create masker
-    masker = NiftiLabelsMasker(
-        labels_img=atlas_img_path,
-        labels=labels,
-        standardize=True,
-        detrend=True,
-        low_pass=None,  # Assume bandpass already done in preprocessing
-        high_pass=None,
-        t_r=2.0,  # Default TR, will be read from image if available
-        memory="auto",
-        verbose=0
-    )
-    
-    try:
-        timeseries = masker.fit_transform(func_img_path)
-    except Exception as e:
-        logger.error(f"Error extracting timeseries: {e}")
-        raise
-    
-    logger.info(f"Extracted timeseries shape: {timeseries.shape}")
-    return timeseries, labels
+    if n_timepoints < 2:
+        raise ValueError("Need at least 2 timepoints to compute correlation")
+
+    # Standardize time series (zero mean, unit variance)
+    # Handle constant time series
+    std = np.std(timeseries, axis=0)
+    std[std == 0] = 1.0  # Prevent division by zero
+    timeseries_standardized = (timeseries - np.mean(timeseries, axis=0)) / std
+
+    # Compute correlation matrix
+    corr_matrix = np.dot(timeseries_standardized.T, timeseries_standardized) / (n_timepoints - 1)
+
+    # Ensure symmetry and numerical stability
+    corr_matrix = (corr_matrix + corr_matrix.T) / 2.0
+    np.fill_diagonal(corr_matrix, 1.0)  # Ensure diagonal is exactly 1
+
+    # Validate and regularize if necessary
+    corr_matrix = validate_and_regularize_matrix(corr_matrix, regularization)
+
+    return corr_matrix
 
 def parcellate_subject(
     subject_id: str,
-    preprocessed_img_path: Path,
-    atlas_img_path: Path,
-    labels: List[str],
-    output_dir: Path = OUTPUT_DIR
+    fmri_nii_path: Path,
+    atlas_path: Optional[Path] = None,
+    labels_path: Optional[Path] = None,
+    output_dir: Optional[Path] = None
 ) -> Path:
     """
-    Process a single subject to generate connectivity matrix.
-    
+    Process a single subject: extract timeseries and compute connectivity matrix.
+
     Args:
         subject_id: Subject identifier.
-        preprocessed_img_path: Path to preprocessed functional image.
-        atlas_img_path: Path to AAL atlas image.
-        labels: List of region labels.
-        output_dir: Directory to save output.
-        
+        fmri_nii_path: Path to preprocessed fMRI NIfTI file.
+        atlas_path: Path to AAL atlas.
+        labels_path: Path to AAL labels.
+        output_dir: Directory to save output matrix.
+
     Returns:
-        Path to saved connectivity matrix.
+        Path to the saved connectivity matrix.
+
+    Raises:
+        FileNotFoundError: If input files don't exist.
+        ValueError: If processing fails.
     """
+    if output_dir is None:
+        output_dir = MATRIX_OUTPUT_DIR
     output_dir.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Processing subject: {subject_id}")
-    
-    # Extract timeseries
-    timeseries, region_names = extract_region_timeseries(
-        preprocessed_img_path, atlas_img_path, labels
-    )
-    
+
+    if not fmri_nii_path.exists():
+        raise FileNotFoundError(f"fMRI file not found: {fmri_nii_path}")
+
+    if atlas_path is None:
+        atlas_path = get_aal_atlas_path()
+
+    if labels_path is None:
+        labels_path = DEFAULT_LABELS_PATH
+
+    logger.info(f"Processing subject {subject_id} for parcellation")
+
+    # Load labels
+    labels = load_parcellation_labels(labels_path)
+
+    # Extract region timeseries
+    timeseries = extract_region_timeseries(fmri_nii_path, atlas_path, labels)
+    logger.debug(f"Extracted timeseries with shape: {timeseries.shape}")
+
     # Compute correlation matrix
     corr_matrix = compute_correlation_matrix(timeseries)
-    
+    logger.debug(f"Computed correlation matrix with shape: {corr_matrix.shape}")
+
     # Save matrix
-    matrix_path = output_dir / f"{subject_id}_matrix.npy"
-    np.save(matrix_path, corr_matrix)
-    
-    # Save metadata (region names)
-    metadata_path = output_dir / f"{subject_id}_regions.csv"
-    pd.DataFrame({'region_name': region_names}).to_csv(metadata_path, index=False)
-    
-    # Save as CSV as well for easy inspection
-    csv_path = output_dir / f"{subject_id}_matrix.csv"
-    pd.DataFrame(corr_matrix).to_csv(csv_path, index=False)
-    
-    logger.info(f"Saved connectivity matrix: {matrix_path}")
-    logger.info(f"Matrix shape: {corr_matrix.shape}")
-    logger.info(f"Matrix value range: [{corr_matrix.min():.3f}, {corr_matrix.max():.3f}]")
-    
-    return matrix_path
+    output_path = output_dir / f"sub-{subject_id}_matrix.npy"
+    np.save(output_path, corr_matrix)
+    logger.info(f"Saved connectivity matrix to {output_path}")
+
+    # Save metadata (optional, for debugging)
+    metadata_path = output_dir / f"sub-{subject_id}_matrix_meta.json"
+    import json
+    metadata = {
+        "subject_id": subject_id,
+        "matrix_shape": corr_matrix.shape,
+        "atlas": "AAL",
+        "n_regions": MATRIX_DIMENSION,
+        "n_timepoints": timeseries.shape[0],
+        "has_nan": bool(np.any(np.isnan(corr_matrix))),
+        "min_value": float(np.min(corr_matrix)),
+        "max_value": float(np.max(corr_matrix)),
+        "is_symmetric": bool(np.allclose(corr_matrix, corr_matrix.T)),
+        "is_psd": bool(np.all(np.linalg.eigvalsh(corr_matrix) >= -1e-6))
+    }
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+
+    return output_path
 
 def run_parcellation_pipeline(
-    subjects: Optional[List[str]] = None,
-    raw_dir: Path = RAW_DIR,
-    atlas_url: str = AAL_ATLAS_URL
-) -> Dict[str, Path]:
+    subject_ids: List[str],
+    fmri_base_path: Path,
+    atlas_path: Optional[Path] = None,
+    output_dir: Optional[Path] = None
+) -> List[Path]:
     """
-    Run parcellation pipeline for all subjects.
-    
+    Run parcellation for multiple subjects.
+
     Args:
-        subjects: List of subject IDs to process. If None, processes all found.
-        raw_dir: Directory containing raw/preprocessed data.
-        atlas_url: URL for AAL atlas.
-        
+        subject_ids: List of subject identifiers.
+        fmri_base_path: Base path where fMRI files are located.
+        atlas_path: Path to AAL atlas.
+        output_dir: Directory to save output matrices.
+
     Returns:
-        Dictionary mapping subject_id to output matrix path.
+        List of paths to saved connectivity matrices.
     """
-    # Get atlas
-    atlas_img_path, labels_path = get_aal_atlas_path()
-    labels = load_parcellation_labels(labels_path)
-    
-    # Find subjects if not provided
-    if subjects is None:
-        # Look for preprocessed images in data/processed or data/raw
-        # Assuming naming convention: sub-<id>_preprocessed.nii.gz
-        subjects = []
-        for f in raw_dir.glob("sub-*_preprocessed.nii.gz"):
-            subject_id = f.stem.replace("_preprocessed", "")
-            subjects.append(subject_id)
-        logger.info(f"Found {len(subjects)} subjects to process")
-    
-    results = {}
-    for subject_id in subjects:
-        # Find preprocessed image
-        preprocessed_img = raw_dir / f"{subject_id}_preprocessed.nii.gz"
-        if not preprocessed_img.exists():
-            logger.warning(f"Preprocessed image not found for {subject_id}, skipping")
-            continue
-        
+    if output_dir is None:
+        output_dir = MATRIX_OUTPUT_DIR
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    if atlas_path is None:
+        atlas_path = get_aal_atlas_path()
+
+    output_paths = []
+    skipped = 0
+    failed = 0
+
+    for subject_id in subject_ids:
+        # Construct expected fMRI path
+        # Expected format: data/processed/preprocessed/sub-<id>_preprocessed.nii.gz
+        fmri_path = fmri_base_path / f"sub-{subject_id}_preprocessed.nii.gz"
+        if not fmri_path.exists():
+            # Try alternative naming
+            fmri_path = fmri_base_path / f"sub-{subject_id}.nii.gz"
+            if not fmri_path.exists():
+                logger.warning(f"fMRI file not found for subject {subject_id}, skipping")
+                skipped += 1
+                continue
+
         try:
             output_path = parcellate_subject(
-                subject_id,
-                preprocessed_img,
-                atlas_img_path,
-                labels
+                subject_id=subject_id,
+                fmri_nii_path=fmri_path,
+                atlas_path=atlas_path,
+                output_dir=output_dir
             )
-            results[subject_id] = output_path
+            output_paths.append(output_path)
+            logger.info(f"Successfully processed subject {subject_id}")
         except Exception as e:
             logger.error(f"Failed to process subject {subject_id}: {e}")
-            continue
-    
-    logger.info(f"Successfully processed {len(results)} subjects")
-    return results
+            failed += 1
+
+    logger.info(f"Parcellation pipeline completed: {len(output_paths)} success, {skipped} skipped, {failed} failed")
+    return output_paths
 
 def main():
-    """Main entry point for parcellation pipeline."""
-    logger.info("Starting AAL parcellation pipeline")
-    
+    """Main entry point for standalone execution."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run AAL parcellation pipeline")
+    parser.add_argument("--subjects", nargs="+", help="List of subject IDs to process")
+    parser.add_argument("--fmri-dir", type=str, default="data/processed", help="Directory containing preprocessed fMRI files")
+    parser.add_argument("--output-dir", type=str, default="data/processed", help="Directory to save connectivity matrices")
+    parser.add_argument("--download-atlas", action="store_true", help="Force download of AAL atlas")
+
+    args = parser.parse_args()
+
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+    # If no subjects specified, try to find all subjects in the fmri directory
+    if not args.subjects:
+        fmri_dir = Path(args.fmri_dir)
+        if fmri_dir.exists():
+            # Look for preprocessed files
+            files = list(fmri_dir.glob("sub-*_preprocessed.nii.gz"))
+            files += list(fmri_dir.glob("sub-*.nii.gz"))
+            subject_ids = list(set([f.stem.replace("_preprocessed", "").replace("sub-", "") for f in files]))
+            logger.info(f"Found {len(subject_ids)} subjects to process")
+        else:
+            logger.error(f"fMRI directory not found: {args.fmri_dir}")
+            sys.exit(1)
+    else:
+        subject_ids = args.subjects
+
+    # Run pipeline
+    fmri_path = Path(args.fmri_dir)
+    output_path = Path(args.output_dir)
+
     try:
-        results = run_parcellation_pipeline()
-        
-        if not results:
-            logger.warning("No subjects were processed successfully")
-            return 1
-        
-        # Log summary
-        logger.info("Parcellation completed successfully:")
-        for subject_id, path in results.items():
-            logger.info(f"  {subject_id}: {path}")
-        
-        return 0
+        run_parcellation_pipeline(
+            subject_ids=subject_ids,
+            fmri_base_path=fmri_path,
+            output_dir=output_path,
+            atlas_path=get_aal_atlas_path(force_download=args.download_atlas)
+        )
+        logger.info("Parcellation pipeline completed successfully")
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
-        return 1
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

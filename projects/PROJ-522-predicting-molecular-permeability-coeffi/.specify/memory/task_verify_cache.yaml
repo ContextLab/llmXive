@@ -1,0 +1,93 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any `__init__.py` files in the `code/` or `tests/` subdirectories\
+    \ is provided; without seeing those files we cannot confirm they exist and are\
+    \ non\u2011empty. The required package initializer files are missing from the\
+    \ artifact set."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitkeep` files are present in any `data/` subdirectory; the repository lacks
+    the required placeholder files to preserve empty directories in version control.
+    The task therefore remains undone.
+T003:
+  c: true
+  h: 66eb473bd48acb85008dd1f9ee344e2b7f5aa13d8da72b294ea528dbe406010e
+  r: "Both `code/.ruff.toml` and `code/.black.toml` are present, non\u2011empty, and\
+    \ contain the required settings (ignore\u202F=\u202F\"E501\" and line\u2011length\u202F\
+    =\u202F100). The files are valid TOML configurations, satisfying the task\u2019\
+    s deliverable."
+T012a:
+  c: false
+  h: b7aa5f9fd292fceec33146f8204f4016c5fd6b7ed6214aa810c1e73320d01ea6
+  r: "The `code/ingestion.py` file exists but does not contain logic to write the\
+    \ fetched datasets to `data/raw/*.parquet`, and the three required parquet files\
+    \ are absent from the repository. Consequently the task\u2019s output requirement\
+    \ is not satisfied."
+T012c:
+  c: false
+  h: dd0770bc82c832f3f8622fa80a87f48c62f71203381ff7a81154e04ecbf3e017
+  r: The `deduplicate_smiles` function is present and correctly aggregates duplicates,
+    but the script never writes the resulting DataFrame to `data/processed/deduplicated.csv`,
+    and that CSV file is missing. Additionally, the provided `ingestion.py` is truncated,
+    so the saving step is not implemented. The required output artifact is absent.
+T012d:
+  c: false
+  h: 6602556ce2b6fdd68b6b484bafffce5de8437c6aab0ac08a2ec4b727ee66aea3
+  r: The required output files `data/processed/exclusion_log.json` and `data/processed/validation_report.json`
+    are absent, and the provided `code/ingestion.py` (as shown) does not contain logic
+    to filter rows with missing permeability values, log exclusion reasons, write
+    the validation report, or raise an error when fewer than 500 unique compounds
+    remain. These core requirements are missing.
+T012e:
+  c: false
+  h: e39ec31607264905d06d538bfe40f4459f9e9c9ffddc42b55cc68ae5f78f07a7
+  r: The `code/ingestion.py` file is truncated (the `merge_sources` implementation
+    ends abruptly and never writes the merged CSV), and the required output file `data/processed/merged_dataset.csv`
+    does not exist. Both the function implementation and the expected artifact are
+    missing.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No streaming implementation script, test, or logs were provided; there is no\
+    \ artifact demonstrating that dataset loading with `streaming=True` enforces a\
+    \ <\u202F2\u202FGB memory limit and fails when the full dataset cannot fit. The\
+    \ required code and evidence are missing."
+T017e:
+  c: false
+  h: 949fbdcdaf0446310abcd7cec585dff79de91f2f07cb17ca3fdc28ee4f0c4582
+  r: "The repository contains `code/escape_hatch.py`, but the provided excerpt never\
+    \ writes the required `data/processed/escape_hatch_log.json` (the file is missing)\
+    \ and the script appears to trigger a training script rather than re\u2011run\
+    \ the ingestion step. Consequently the required output file with the specified\
+    \ schema is not produced, so the task is not fully satisfied."
+T020c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation for a GCN training wrapper with CPU backend\
+    \ and early\u2011stopping (patience\u202F=\u202F10) was provided. The evidence\
+    \ consists only of the task description and project specs; the required implementation\
+    \ artifact is missing."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No training script, code, or output files for the Random Forest and Linear Regression
+    baselines are present; the claim provides only the task description and specifications
+    without any actual artifact (e.g., Python module, training loop implementation,
+    CSV of predictions, or performance report). The required training loop and its
+    results are missing.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided that demonstrate a timeout\
+    \ mechanism for long\u2011running training jobs, nor any evidence (e.g., a log\
+    \ entry \u201CTIMEOUT: Terminating run\u201D) showing that runs exceeding 2\u202F\
+    hours are automatically stopped. The required artifact to prove the timeout enforcement\
+    \ is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (code, data, statistical test results, or report) was provided showing
+    a paired t-test comparison between GNN and RF/LR, nor any normality test output.
+    Without these concrete results, the requirement is not satisfied.

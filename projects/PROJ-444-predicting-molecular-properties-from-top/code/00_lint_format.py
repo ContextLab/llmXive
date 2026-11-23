@@ -1,55 +1,62 @@
 """
-Linting and Formatting Runner for llmXive Project.
-
-This script verifies that the codebase adheres to the configured
-linting (ruff) and formatting (black) standards.
-
-Usage:
-    python code/00_lint_format.py
+Linting and Formatting Script.
+Runs ruff check and black formatting on the project codebase.
 """
 import subprocess
 import sys
 import os
+from pathlib import Path
 
 def run_command(cmd: list[str]) -> int:
     """Run a shell command and return the exit code."""
     print(f"Running: {' '.join(cmd)}")
     try:
-        result = subprocess.run(
-            cmd,
-            check=False,
-            capture_output=False,
-            text=True,
-            cwd=os.path.dirname(os.path.abspath(__file__)),
-        )
+        result = subprocess.run(cmd, check=True, capture_output=False)
         return result.returncode
-    except FileNotFoundError:
-        print(f"ERROR: Command not found: {cmd[0]}")
-        print("Please ensure 'ruff' and 'black' are installed.")
-        return 1
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed with exit code {e.returncode}")
+        return e.returncode
 
-def main() -> int:
-    """Execute linting and formatting checks."""
-    print("--- Starting Lint and Format Validation ---\n")
+def main() -> None:
+    """Entry point for linting and formatting."""
+    project_root = Path(__file__).resolve().parent.parent
+    code_dir = project_root / "code"
+    tests_dir = project_root / "tests"
 
-    # Check for ruff
-    print("[1/2] Running Ruff Linter...")
-    ruff_code = run_command([sys.executable, "-m", "ruff", "check", "."])
-    if ruff_code != 0:
-        print("❌ Ruff check failed. Please fix the errors above.\n")
-        return 1
-    print("✅ Ruff check passed.\n")
+    if not code_dir.exists() and not tests_dir.exists():
+        print("Error: Neither 'code/' nor 'tests/' directory found in project root.")
+        sys.exit(1)
 
-    # Check for black
-    print("[2/2] Running Black Formatter...")
-    black_code = run_command([sys.executable, "-m", "black", "--check", "."])
-    if black_code != 0:
-        print("❌ Black check failed. Please run 'black .' to fix formatting.\n")
-        return 1
-    print("✅ Black check passed.\n")
+    target_dirs = []
+    if code_dir.exists():
+        target_dirs.append(str(code_dir))
+    if tests_dir.exists():
+        target_dirs.append(str(tests_dir))
 
-    print("--- All checks passed successfully! ---")
-    return 0
+    # 1. Run Linter (Ruff)
+    # --fix attempts to auto-fix issues, --exit-non-zero-on-fix ensures we fail if fixes were needed but not applied immediately
+    lint_cmd = [
+        sys.executable, "-m", "ruff", "check",
+        "--fix",
+        "--exit-non-zero-on-fix",
+        *target_dirs
+    ]
+    lint_exit_code = run_command(lint_cmd)
+
+    # 2. Run Formatter (Black)
+    format_cmd = [
+        sys.executable, "-m", "black",
+        "--check", # Check only, do not modify files
+        *target_dirs
+    ]
+    format_exit_code = run_command(format_cmd)
+
+    if lint_exit_code != 0 or format_exit_code != 0:
+        print("\nLinting or Formatting failed. Please fix issues and re-run.")
+        sys.exit(1)
+
+    print("\nLinting and Formatting checks passed.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

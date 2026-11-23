@@ -2,53 +2,40 @@ import os
 import sys
 from pathlib import Path
 
-# Define the project root relative to this file's location or current working directory
-# Assuming this script runs from the project root or we calculate root from script location
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
-
-# Directories to create
-DIRECTORIES_TO_CREATE = [
-    "explanations",
-    "state",
-    "tests",
-]
-
-def ensure_directory(dir_path: Path) -> bool:
-    """
-    Creates a directory if it does not exist.
-    Returns True if successful, False otherwise.
-    """
-    try:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        return True
-    except OSError as e:
-        print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
-        return False
+def ensure_directory(path: str) -> None:
+    """Create directory and a .gitkeep file if it doesn't exist."""
+    dir_path = Path(path)
+    dir_path.mkdir(parents=True, exist_ok=True)
+    gitkeep = dir_path / ".gitkeep"
+    if not gitkeep.exists():
+        gitkeep.touch()
 
 def main():
-    """
-    Main entry point to create required project directories.
-    """
-    print(f"Project root identified at: {PROJECT_ROOT}")
-    created_count = 0
-    failed_count = 0
+    """Initialize project directory structure."""
+    # Directories to create based on task T003
+    directories = [
+        "explanations",
+        "state",
+        "tests",
+        # Ensure subdirectories for tests as well
+        "tests/contract",
+        "tests/integration",
+        "tests/unit",
+    ]
 
-    for dir_name in DIRECTORIES_TO_CREATE:
-        target_path = PROJECT_ROOT / dir_name
-        if ensure_directory(target_path):
-            print(f"Created directory: {target_path}")
-            created_count += 1
+    for dir_path in directories:
+        ensure_directory(dir_path)
+        print(f"Created: {dir_path}/")
+
+    # Verify existence
+    print("\nVerification:")
+    for dir_path in directories:
+        p = Path(dir_path)
+        if p.exists():
+            print(f"  [OK] {dir_path}/ exists")
         else:
-            failed_count += 1
-
-    print(f"Directory creation summary: {created_count} created, {failed_count} failed.")
-
-    if failed_count > 0:
-        sys.exit(1)
-    else:
-        print("All required directories successfully created.")
-        sys.exit(0)
+            print(f"  [FAIL] {dir_path}/ missing")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

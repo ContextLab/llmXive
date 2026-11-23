@@ -1,23 +1,33 @@
+# Ruff Configuration for PROJ-500-neural-correlates-of-predictive-error-si
+# Enforces strict type safety, flake8 conventions, and project-specific rules
+
 [lint]
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # Pyflakes
-  "I",  # isort
-  "B",  # flake8-bugbear
-  "C4", # flake8-comprehensions
-  "UP", # pyupgrade
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "T20", # flake8-print
 ]
 ignore = [
-  "E501", # line-too-long (handled by black)
-  "B008", # do-not-perform-function-call-in-argument-default-value (common in pytest fixtures)
+    "E501", # Line length (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in MNE/Pydantic)
+    "ARG001", # Unused arguments (allowed in abstract base classes/interfaces)
 ]
 
 [lint.isort]
-known-first-party = ["src", "tests", "setup_project"]
+known-first-party = ["src", "tests"]
+known-third-party = ["mne", "pandas", "numpy", "statsmodels", "sklearn", "pytest", "yaml", "requests", "datasets", "joblib"]
 force-sort-within-sections = true
 
 [format]
-line-length = 88
-indent-style = "space"
+# Black-compatible settings
 quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

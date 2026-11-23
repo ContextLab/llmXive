@@ -1,24 +1,17 @@
-"""
-Script to execute T025: Extract changed lines from Defects4J data.
-This script parses the cached parquet file and outputs data/changed_lines.json.
-"""
 import sys
 from pathlib import Path
-
-# Add parent directory to path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from data_loader import extract_changed_lines
+from data_loader import extract_changed_lines, ensure_data_loaded_and_integrity_recorded
 
 def main():
-    print("Starting extraction of changed lines from Defects4J data...")
+    """Main entry point for extracting changed lines."""
     try:
-        changed_lines = extract_changed_lines()
-        print(f"Successfully extracted changed lines for {len(changed_lines)} projects.")
-        print("Output written to data/changed_lines.json")
+        dataset = ensure_data_loaded_and_integrity_recorded()
+        result = extract_changed_lines(dataset)
+        print(f"Successfully extracted changed lines for {len(result)} projects.")
+        return 0
     except Exception as e:
-        print(f"Error during extraction: {e}")
-        sys.exit(1)
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

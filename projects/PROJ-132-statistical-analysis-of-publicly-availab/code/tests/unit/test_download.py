@@ -1,148 +1,118 @@
-"""
-Unit tests for the download module.
-
-Tests cover:
-- Synthetic data generation
-- Checksum computation
-- State file writing
-- Production vs development mode behavior
-"""
-
 import os
 import sys
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from src.data.download import (
-    compute_sha256,
-    generate_synthetic_ebird_data,
-    generate_synthetic_climate_data,
-    ensure_data_available,
-    EBIRD_COLUMNS,
-    CLIMATE_COLUMNS
-)
+from unittest.mock import patch, MagicMock
 import pandas as pd
-import numpy as np
 
+from src.data.download import get_clo_migratory_list, CACHE_FILE, CACHE_DIR, compute_sha256
+
+from src.data.download import get_clo_migratory_list, check_real_data_available, compute_sha256
 
 class TestDownloadModule:
-    """Test suite for download module functions."""
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        """Setup and teardown for each test."""
+        # Create a temporary directory for testing
+        self.temp_dir = tempfile.mkdtemp()
+        self.original_cache_dir = CACHE_DIR
+        
+        # Mock the cache directory
+        import src.data.download as download_module
+        download_module.CACHE_DIR = Path(self.temp_dir)
+        download_module.CACHE_FILE = Path(self.temp_dir) / "clo_migratory_list.csv"
+        
+        yield
+        
+        # Cleanup
+        shutil.rmtree(self.temp_dir)
+        download_module.CACHE_DIR = self.original_cache_dir
+        download_module.CACHE_FILE = self.original_cache_dir / "clo_migratory_list.csv"
 
-    def test_compute_sha256(self):
-        """Test SHA-256 checksum computation."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            f.write("test content")
-            temp_path = Path(f.name)
+    def test_compute_sha256_basic(self):
+        """Test SHA-256 computation on a simple file."""
+        test_file = Path(self.temp_dir) / "test.txt"
+        test_file.write_text("Hello, World!")
+        
+        checksum = compute_sha256(test_file)
+        assert len(checksum) == 64  # SHA-256 hex length
+        assert isinstance(checksum, str)
 
-        try:
-            checksum = compute_sha256(temp_path)
-            assert len(checksum) == 64, "SHA-256 should be 64 hex characters"
-            assert checksum.isalnum(), "Checksum should be alphanumeric"
-        finally:
-            temp_path.unlink()
+    def test_compute_sha256_file_not_found(self):
+        """Test SHA-256 computation on a non-existent file."""
+        non_existent_file = Path(self.temp_dir) / "non_existent.txt"
+        
+        with pytest.raises(FileNotFoundError):
+            compute_sha256(non_existent_file)
 
-    def test_synthetic_ebird_data_generation(self):
-        """Test synthetic eBird data generation."""
-        df = generate_synthetic_ebird_data(seed=42, num_records=100)
+    @patch('src.data.download.requests.get')
+    def test_download_success(self, mock_get):
+        """Test successful download of CLO migratory list."""
+        # Mock response
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.content = b"scientific_name,common_name\nTurdus migratorius,American Robin\n"
+        mock_get.return_value = mock_response
 
-        # Check columns
-        assert list(df.columns) == EBIRD_COLUMNS, f"Expected columns {EBIRD_COLUMNS}, got {list(df.columns)}"
+        df = get_clo_migratory_list(force_download=True)
 
-        # Check data types
-        assert df["species"].dtype == object
-        assert df["lat"].dtype in [np.float64, np.float32]
-        assert df["lon"].dtype in [np.float64, np.float32]
-        assert pd.api.types.is_datetime64_any_dtype(df["date"])
-        assert df["count"].dtype in [np.int64, np.int32]
-        assert df["checklist_id"].dtype == object
+        assert isinstance(df, pd.DataFrame)
+        assert 'scientific_name' in df.columns
+        assert len(df) == 1
+        assert df.iloc[0]['scientific_name'] == 'Turdus migratorius'
+        
+        # Verify file was created
+        assert CACHE_FILE.exists()
 
-        # Check value ranges
-        assert df["lat"].between(25.0, 49.0).all()
-        assert df["lon"].between(-125.0, -70.0).all()
-        assert df["count"].ge(0).all()
-        assert len(df) == 100
+    @patch('src.data.download.requests.get')
+    def test_download_failure(self, mock_get):
+        """Test handling of download failure."""
+        mock_get.side_effect = requests.exceptions.RequestException("Network error")
 
-    def test_synthetic_climate_data_generation(self):
-        """Test synthetic climate data generation."""
-        df = generate_synthetic_climate_data(seed=42, num_records=100)
+        with pytest.raises(RuntimeError):
+            get_clo_migratory_list(force_download=True)
 
-        # Check columns
-        assert list(df.columns) == CLIMATE_COLUMNS, f"Expected columns {CLIMATE_COLUMNS}, got {list(df.columns)}"
+    @patch('src.data.download.requests.get')
+    def test_download_missing_column(self, mock_get):
+        """Test handling of file with missing required columns."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.content = b"wrong_column,another_column\nvalue1,value2\n"
+        mock_get.return_value = mock_response
 
-        # Check data types
-        assert df["lat"].dtype in [np.float64, np.float32]
-        assert df["lon"].dtype in [np.float64, np.float32]
-        assert df["temp"].dtype in [np.float64, np.float32]
-        assert df["week"].dtype in [np.int64, np.int32]
-        assert df["precip"].dtype in [np.float64, np.float32]
+        with pytest.raises(ValueError):
+            get_clo_migratory_list(force_download=True)
 
-        # Check value ranges
-        assert df["lat"].between(25.0, 49.0).all()
-        assert df["lon"].between(-125.0, -70.0).all()
-        assert df["week"].between(1, 53).all()
-        assert df["precip"].ge(0).all()
-        assert len(df) == 100
+    def test_cache_hit(self):
+        """Test that cached file is used when available."""
+        # Create a fake cached file
+        CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        CACHE_FILE.write_text("scientific_name,common_name\nTurdus migratorius,Robin\n")
 
-    def test_synthetic_data_reproducibility(self):
-        """Test that synthetic data is reproducible with same seed."""
-        df1 = generate_synthetic_ebird_data(seed=42, num_records=100)
-        df2 = generate_synthetic_ebird_data(seed=42, num_records=100)
+        # Mock requests.get to ensure it's not called
+        with patch('src.data.download.requests.get') as mock_get:
+            df = get_clo_migratory_list(force_download=False)
+            
+            mock_get.assert_not_called()
+            assert len(df) == 1
+            assert df.iloc[0]['scientific_name'] == 'Turdus migratorius'
 
-        pd.testing.assert_frame_equal(df1, df2)
+    @patch('src.data.download.requests.get')
+    def test_cache_miss_and_download(self, mock_get):
+        """Test download when cache is empty."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.content = b"scientific_name,common_name\nTurdus migratorius,Robin\n"
+        mock_get.return_value = mock_response
 
-    def test_ensure_data_available_development_mode(self):
-        """Test ensure_data_available in development mode creates synthetic data."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Mock the data directories
-            original_data_raw = Path("data/raw")
-            temp_data_raw = Path(tmpdir) / "data" / "raw"
-            temp_data_raw.mkdir(parents=True)
+        # Ensure cache file doesn't exist
+        if CACHE_FILE.exists():
+            CACHE_FILE.unlink()
 
-            # Temporarily override the constants
-            import src.data.download as download_module
-            original_data_raw_dir = download_module.DATA_RAW_DIR
-            original_state_dir = download_module.STATE_DIR
+        df = get_clo_migratory_list(force_download=False)
 
-            download_module.DATA_RAW_DIR = temp_data_raw
-            download_module.STATE_DIR = Path(tmpdir) / "state" / "projects"
-
-            try:
-                # This should generate synthetic data
-                data_paths = ensure_data_available(mode="development")
-
-                assert "ebird" in data_paths
-                assert "climate" in data_paths
-                assert data_paths["ebird"].exists()
-                assert data_paths["climate"].exists()
-            finally:
-                # Restore original paths
-                download_module.DATA_RAW_DIR = original_data_raw_dir
-                download_module.STATE_DIR = original_state_dir
-
-    def test_schema_compliance(self):
-        """Test that generated data complies with expected schema."""
-        ebird_df = generate_synthetic_ebird_data(seed=42, num_records=1000)
-        climate_df = generate_synthetic_climate_data(seed=42, num_records=1000)
-
-        # Check for required columns
-        assert set(EBIRD_COLUMNS).issubset(set(ebird_df.columns))
-        assert set(CLIMATE_COLUMNS).issubset(set(climate_df.columns))
-
-        # Check for no missing values in critical fields
-        assert ebird_df["species"].notna().all()
-        assert ebird_df["lat"].notna().all()
-        assert ebird_df["lon"].notna().all()
-        assert ebird_df["date"].notna().all()
-        assert ebird_df["count"].notna().all()
-        assert ebird_df["checklist_id"].notna().all()
-
-        assert climate_df["lat"].notna().all()
-        assert climate_df["lon"].notna().all()
-        assert climate_df["temp"].notna().all()
-        assert climate_df["week"].notna().all()
-        assert climate_df["precip"].notna().all()
+        mock_get.assert_called_once()
+        assert CACHE_FILE.exists()
+        assert len(df) == 1

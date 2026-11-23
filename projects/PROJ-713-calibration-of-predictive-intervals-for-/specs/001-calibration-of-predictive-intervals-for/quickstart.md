@@ -1,73 +1,76 @@
 # Quickstart: Calibration of Predictive Intervals for Time‑Series Forecasts
 
 ## Prerequisites
-
--   Python 3.11+
--   Git
--   Sufficient RAM (recommended for full runs, streaming used for large datasets)
+- Python 3.11+
+- Git
+- ~ modest amount of RAM (streaming keeps usage low)
 
 ## Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    git checkout 001-calibration-of-predictive-intervals
-    cd projects/PROJ-713-calibration-of-predictive-intervals-for-/code
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
-
-2.  **Verify Dependencies**:
-    ```bash
-    python -c "import statsmodels, prophet, torch, properscoring; print('All dependencies installed.')"
-    ```
-
-## Running the Pipeline
-
-### 1. Download Data
-The pipeline expects data in `data/raw/`.
 ```bash
-# Note: M4 and UCI Electricity download scripts are in code/scripts/download_data.py
-# If the verified datasets block is used, this will download UCI HAR instead.
-python code/scripts/download_data.py
+# 1️⃣ Clone the repository
+git clone <repo-url>
+cd projects/PROJ-713-calibration-of-predictive-intervals-for-
+
+# 2️⃣ Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3️⃣ Install dependencies
+pip install -r requirements.txt
 ```
 
-### 2. Run Benchmark
-Execute the main evaluation loop. This will process series sequentially.
+> **Note**: `prophet` may need system libraries (`gcc`, `make`, `python3-dev`). On Ubuntu runners they are pre‑installed; on other platforms install the appropriate build tools.
+
+## Data Preparation
+
+The pipeline expects the M4 and UCI Electricity datasets. Because these URLs are **not present in the verified‑datasets list**, the script will first run a **Verified‑Dataset‑Check** (Task **T000a**) that cross‑references the required URLs with the verified list. If the URLs are missing, the run aborts with a clear error explaining how to add them to the verified list. If the check passes, the script proceeds to download the archives from the canonical sources defined in `code/config.yaml`.
+
 ```bash
-# Run on a sample of M (500 series) and full UCI HAR
-python code/evaluation/runner.py --dataset m4_sample --dataset uci_har --models arima prophet lstm
+# Verify (and download if missing) the raw data
+python code/utils/checksum.py --download
 ```
 
-### 3. View Results
-Results are saved to `results/`.
-```bash
-# View coverage summary
-cat results/coverage_summary.csv
+The script:
+1. Performs the pre‑run verification described above.
+2. Downloads each archive.
+3. Computes SHA‑256 checksums.
+4. Stores the files under `data/raw/`.
+5. Writes the checksum values to `state/dataset_hashes.yaml`.
 
-# View statistical significance
-cat results/bootstrap_results.json
+## Running the Benchmark
+
+### Full benchmark (may exceed the 6 h CI limit)
+```bash
+python code/evaluation/runner.py
 ```
 
-### 4. Generate Plots
+### Recommended CI‑friendly run (sample of a representative number of series)
 ```bash
-python code/scripts/generate_plots.py --input results/coverage_summary.csv --output results/plots/
+python code/evaluation/runner.py --sample-size 500
 ```
+*`--sample-size` triggers stratified sampling as described in `research.md`.*
 
-## Testing
+## Expected Outputs (found under `results/`)
 
-Run the unit tests to verify metric calculations:
-```bash
-pytest tests/unit/ -v
-```
-
-Run the integration test (small subset):
-```bash
-pytest tests/integration/test_pipeline.py -v --sample-size 10
-```
+| File | Description |
+|------|-------------|
+| `coverage.csv` | Empirical coverage for 0.80 & 0.95 intervals. |
+| `distributional_metrics.csv` | PIT KS & Ljung‑Box p‑values, CRPS scores. |
+| `significance_test.csv` | Paired bootstrap p‑values. |
+| `conformal_results.csv` | Coverage before/after SCCP and improvement delta. |
+| `benchmark_timing.csv` | Runtime per stage (useful for CI monitoring). |
+| `skipped_series.log` | Log of series skipped due to constant variance or LSTM instability. |
+| `contract_validation.log` | Summary of schema validation (Task T026). |
 
 ## Troubleshooting
 
--   **OOM Error**: Ensure `streaming=True` is set in `config.py` for large datasets.
--   **LSTM Failure**: Check `logs/` for "NaN detected" messages. The system will auto-retry with lower learning rate.
--   **Dataset Missing**: If M4/UCI-Elec is missing, the system will fall back to UCI HAR (verified) and log a warning.
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| **OOM / MemoryError** | Large single series exceeding RAM | The The loader will automatically down‑sample to an appropriate number of thousand points.; check `logs/loader.log`. |
+| **LSTM NaN/Inf intervals** | Numerical instability | The runner retries with a lower learning rate; after two failures the series is logged to `results/skipped_series.log`. |
+| **Dataset download fails** | URLs not verified or network issue | Verify that the URLs appear in the verified‑datasets block; add them if missing, then re‑run. |
+| **Constitution amendment pending** | T040 not yet approved | Results are still generated; KS test is primary. Once the amendment is merged, the pipeline will automatically prioritize Ljung‑Box if desired. |
+| **Schema validation errors** | CSV columns mismatch contracts | Review `contract_validation.log` for details; fix the offending script and re‑run. |
+
+---  

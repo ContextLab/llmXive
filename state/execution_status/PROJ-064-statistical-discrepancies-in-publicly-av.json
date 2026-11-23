@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-064-statistical-discrepancies-in-publicly-av",
+  "ok": false,
+  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python code/discrepancy_calc.py --input data/processed/unified_election_data.parquet --output data/processed/discrepancies.parquet; python code/viz.py --input data/processed/analysis_results.json --output-dir docs/plots; 3 command(s) failed: python code/ingestion.py --source \"synthetic\" --state \"CA\" (rc=1); python code/simulation.py --input data/processed/discrepancies.parquet --iterations 10000 --seed 42 (rc=1); python code/analysis.py --input data/processed/null_distributions.json --threshold 0.005 (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/ingestion.py --source \"synthetic\" --state \"CA\" -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/ingestion.py\", line 15, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/discrepancy_calc.py --input data/processed/unified_election_data.parquet --output data/processed/discrepancies.parquet -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/discrepancy_calc.py': [Errno 2] No such file or directory",
+    "python code/simulation.py --input data/processed/discrepancies.parquet --iterations 10000 --seed 42 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/simulation.py\", line 9, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/analysis.py --input data/processed/null_distributions.json --threshold 0.005 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/analysis.py\", line 2, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/viz.py --input data/processed/analysis_results.json --output-dir docs/plots -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-064-statistical-discrepancies-in-publicly-av/code/viz.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-03T05:51:45Z"
+}

@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionModel"
+description: "Schema for the fitted empirical composition-segregation function."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model."
+  coefficients:
+    type: "object"
+    description: "Mapping of term name to coefficient value."
+    additionalProperties:
+      type: "number"
+  interaction_terms:
+    type: "array"
+    description: "List of interaction terms included in the model."
+    items:
+      type: "string"
+  r_squared:
+    type: "number"
+    description: "R-squared value on training set."
+    minimum: -1.0
+    maximum: 1.0
+  cv_scores:
+    type: "array"
+    description: "R-squared scores for each CV fold."
+    items:
+      type: "number"
+    minItems: 5
+    maxItems: 5
+  p_values:
+    type: "object"
+    description: "P-values for each coefficient."
+    additionalProperties:
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+  held_out_mse:
+    type: "number"
+    description: "MSE on held-out test set."
+    minimum: 0.0
+  mse_reduction:
+    type: "number"
+    description: "Percentage reduction in MSE vs additive model."
+required:
+  - model_id
+  - coefficients
+  - interaction_terms
+  - r_squared
+  - cv_scores
+  - p_values
+  - held_out_mse
+  - mse_reduction
+additionalProperties: false

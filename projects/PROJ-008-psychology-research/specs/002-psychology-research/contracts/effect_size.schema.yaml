@@ -1,33 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Effect Size Schema"
-description: "Schema for calculated effect sizes per study."
 type: "object"
+required:
+  - "study_id"
+  - "hedges_g"
+  - "se"
+  - "ci_lower"
+  - "ci_upper"
+  - "component_tag"
+  - "format_tag"
+  - "domain_tag"
 properties:
   study_id:
     type: "string"
-    description: "Foreign key to study_id."
   hedges_g:
     type: "number"
-    description: "Calculated Hedges' g effect size."
   se:
     type: "number"
     minimum: 0
-    description: "Standard error of the effect size."
   ci_lower:
     type: "number"
-    description: "Lower bound of 95% confidence interval."
   ci_upper:
     type: "number"
-    description: "Upper bound of 95% confidence interval."
-  weight:
-    type: "number"
-    minimum: 0
-    description: "Weight assigned in meta-analysis."
-required:
-  - study_id
-  - hedges_g
-  - se
-  - ci_lower
-  - ci_upper
-  - weight
+  n_treatment:
+    type: "integer"
+    minimum: 1
+  n_control:
+    type: "integer"
+    minimum: 1
+  component_tag:
+    type: "string"
+    enum: ["breathing", "body_scan", "mindful_movement", "combined"]
+  format_tag:
+    type: "string"
+    enum: ["caregiver_mediated", "child_led", "hybrid"]
+  domain_tag:
+    type: "string"
+    enum: ["communication", "peer_interaction", "emotional_regulation", "adaptive_behavior"]
+  baseline_used:
+    type: "boolean"
+  rob_rating:
+    type: "string"
+    enum: ["low", "some concerns", "high"]
 additionalProperties: false

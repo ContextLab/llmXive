@@ -1,0 +1,128 @@
+{
+  "trace_id": "training_42_00838",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "insert_chart",
+    "insert_chart",
+    "update_layout",
+    "update_layout",
+    "insert_text",
+    "format_text",
+    "insert_text",
+    "update_layout",
+    "update_layout",
+    "apply_theme",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 89.9663,
+        "y": 5.9753,
+        "width": 57.9026,
+        "height": 20.7048,
+        "data_points": 48.0131
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 87.4852,
+        "y": 9.4399,
+        "width": 93.1052,
+        "height": 21.5531,
+        "data_points": 15.1024
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 59.2045,
+        "padding": 50.528
+      }
+    },
+    {
+      "step": 3,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 58.7523,
+        "padding": 82.0645
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 59.5813,
+        "y": 83.4111,
+        "length": 4.0938
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 36.9081,
+        "x": 0.2579,
+        "y": 66.6472
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 78.0308,
+        "y": 97.6492,
+        "length": 62.1679
+      }
+    },
+    {
+      "step": 7,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 94.0233,
+        "padding": 49.0071
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 42.5812,
+        "padding": 43.4577
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 98.7616,
+        "saturation": 6.0911
+      }
+    },
+    {
+      "step": 10,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 62.8068,
+        "height": 38.8248
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.641735,
+    "tool_repetition_freq": 0.454545,
+    "arg_semantic_variance": 918.776626
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 6,
+    "layout_hash": "42-838-update_layout"
+  }
+}

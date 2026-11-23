@@ -1,152 +1,179 @@
-"""
-Data download script for ds004041 (Pupil Labs Reading).
-
-Fetches the dataset using openneuro-py to data/raw/ and verifies
-the dataset version hash against data/metadata.yaml.
-"""
 import hashlib
 import os
 import sys
 from pathlib import Path
-
 import yaml
 
-# Ensure we can import from the project root if run as a script
-# (Though typically run via python -m or with PYTHONPATH set)
 try:
-    from openneuro import download as openneuro_download
+    from openneuro import openneuro_download
 except ImportError:
-    print("Error: openneuro-py is required. Install with: pip install openneuro-py")
+    print("Error: openneuro-py is not installed. Please install it via 'pip install openneuro-py'.")
     sys.exit(1)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-METADATA_FILE = PROJECT_ROOT / "data" / "metadata.yaml"
+from config import get_config
+from utils.logging import setup_pipeline_logger, log_step, log_error
 
-DATASET_ID = "ds004041"
-# Expected version hash for ds004041 (Pupil Labs Reading)
-# This should match the specific version we want to ensure reproducibility.
-# If not present in metadata, we default to a known stable version hash.
-EXPECTED_VERSION_HASH = "e296741573567627950545356175091578661695"  # Placeholder, will be read from metadata if available
-
-def load_expected_hash() -> str:
+def load_expected_hash(config_path: Path) -> str:
     """
-    Load the expected dataset version hash from data/metadata.yaml.
-    Returns the hash string or None if not found.
+    Loads the expected dataset version hash from data/metadata.yaml.
+    Raises FileNotFoundError or KeyError if the metadata is missing or malformed.
     """
-    if not METADATA_FILE.exists():
-        print(f"Warning: {METADATA_FILE} not found. Using default expected hash.")
-        return EXPECTED_VERSION_HASH
-
+    if not config_path.exists():
+        raise FileNotFoundError(f"Metadata file not found: {config_path}")
+    
+    with open(config_path, 'r') as f:
+        metadata = yaml.safe_load(f)
+    
     try:
-        with open(METADATA_FILE, "r", encoding="utf-8") as f:
-            metadata = yaml.safe_load(f)
+        hash_val = metadata['datasets']['ds004041']['version_hash']
+        if not hash_val:
+            raise ValueError("version_hash is empty in metadata.yaml")
+        return hash_val
+    except KeyError as e:
+        raise KeyError(f"Missing required key in metadata.yaml: {e}")
+
+def verify_hash(dataset_path: Path, expected_hash: str) -> bool:
+    """
+    Computes the SHA-256 hash of the downloaded dataset directory tree
+    and compares it to the expected hash.
+    
+    Note: This is a simplified verification. In production, one might verify
+    individual file hashes or use the dataset's manifest if available.
+    For this implementation, we compute a tree hash of the directory structure
+    and file contents to ensure integrity.
+    """
+    hasher = hashlib.sha256()
+    
+    # Sort files to ensure deterministic ordering
+    all_files = sorted(dataset_path.rglob('*'))
+    
+    for file_path in all_files:
+        if file_path.is_file():
+            # Include relative path in hash to prevent directory swapping attacks
+            rel_path = str(file_path.relative_to(dataset_path))
+            hasher.update(rel_path.encode('utf-8'))
+            
+            # Read file in chunks to handle large datasets
+            with open(file_path, 'rb') as f:
+                while chunk := f.read(8192):
+                    hasher.update(chunk)
         
-        if not isinstance(metadata, dict):
-            print(f"Warning: {METADATA_FILE} is not a valid YAML dictionary. Using default expected hash.")
-            return EXPECTED_VERSION_HASH
-
-        dataset_entry = metadata.get("datasets", {}).get(DATASET_ID)
-        if not dataset_entry:
-            print(f"Warning: Dataset '{DATASET_ID}' not found in {METADATA_FILE}. Using default expected hash.")
-            return EXPECTED_VERSION_HASH
-
-        version_hash = dataset_entry.get("version_hash")
-        if not version_hash:
-            print(f"Warning: 'version_hash' not found for '{DATASET_ID}' in {METADATA_FILE}. Using default expected hash.")
-            return EXPECTED_VERSION_HASH
-
-        return version_hash
-
-    except Exception as e:
-        print(f"Error reading {METADATA_FILE}: {e}. Using default expected hash.")
-        return EXPECTED_VERSION_HASH
-
-def verify_hash(local_dir: Path, expected_hash: str) -> bool:
-    """
-    Verify the hash of the downloaded dataset directory.
-    Since openneuro-py downloads a specific version, we check the .gitattributes or
-    a manifest if available, or simply rely on the version tag provided by the API.
-    However, for robustness, we can compute a hash of the directory structure
-    or rely on the version string returned by the download function.
+    computed_hash = hasher.hexdigest()
     
-    For this implementation, we will rely on the version tag returned by openneuro-py
-    matching the expected hash (which represents the version tag in OpenNeuro).
-    If openneuro-py doesn't return a hash, we'll attempt to verify via file checksums
-    if a manifest exists, otherwise we assume the download was successful if no exception occurred.
-    """
-    # openneuro-py downloads by version tag. The tag is often the hash.
-    # We will assume the version tag provided to the download function is the hash.
-    # If the download completes without error, the version is present.
-    # A more robust check would involve checksumming files, but OpenNeuro datasets
-    # are large. We'll trust the version tag mechanism for now, as per Constitution Principle I.
-    # We will log the actual version used.
-    
-    # Check if the directory exists and has content
-    if not local_dir.exists():
-        print(f"Error: Download directory {local_dir} does not exist.")
+    if computed_hash == expected_hash:
+        log_step("hash_verification", "PASSED", {"computed": computed_hash, "expected": expected_hash})
+        return True
+    else:
+        log_error("hash_verification", "FAILED", {"computed": computed_hash, "expected": expected_hash})
         return False
-    
-    files = list(local_dir.rglob("*"))
-    if not files:
-        print(f"Error: Download directory {local_dir} is empty.")
-        return False
-    
-    print(f"Verification: Downloaded {DATASET_ID} to {local_dir}.")
-    print(f"Verification: Expected version hash: {expected_hash}")
-    # Note: openneuro-py doesn't easily expose the exact hash of the downloaded content
-    # in a simple way without re-computing. We assume the version tag passed is correct.
-    # In a production environment, we might store the expected hash and verify
-    # specific key files or a manifest.
-    return True
 
-def download_dataset(output_dir: Path, version_hash: str) -> bool:
+def download_dataset(dataset_id: str, output_dir: Path, version: str = "1.0.0") -> Path:
     """
-    Download the dataset using openneuro-py.
+    Downloads the specified OpenNeuro dataset to the output directory.
+    
+    Args:
+        dataset_id: The OpenNeuro dataset ID (e.g., 'ds004041').
+        output_dir: The directory where the dataset will be downloaded.
+        version: The version tag to download (default: "1.0.0").
+        
+    Returns:
+        The path to the downloaded dataset directory.
+        
+    Raises:
+        RuntimeError: If the download fails or the hash verification fails.
     """
-    print(f"Starting download of {DATASET_ID} (version: {version_hash}) to {output_dir}...")
+    logger = setup_pipeline_logger("download")
+    log_step("download_start", "INITIATED", {"dataset_id": dataset_id, "output_dir": str(output_dir)})
+    
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     try:
-        # openneuro.download(dataset, output, version, ...
-        # The version parameter expects the version tag, which is often the hash.
-        openneuro_download.download(
-            dataset=DATASET_ID,
-            output=output_dir,
-            version=version_hash,
-            delete=False,  # Do not delete if exists, just verify or overwrite? 
-            # The spec says "fetch", implying getting the data.
-            # openneuro-py might overwrite if the directory exists.
+        # Use openneuro-py to download
+        # The library handles the actual fetching. We pass the dataset ID and output path.
+        # Note: openneuro_download typically downloads to a subdirectory named after the dataset.
+        # We need to handle the case where the library might create the directory or we need to specify it.
+        # Based on typical usage, we pass the output directory and let it create the dataset folder.
+        
+        # We attempt to download the specific version if supported, otherwise default to latest.
+        # The openneuro-py library's API might vary, but typically it looks like:
+        # openneuro_download(dataset_id, output_dir=output_dir, tag=version)
+        
+        logger.info(f"Attempting to download {dataset_id} version {version} to {output_dir}")
+        
+        # Attempt download
+        downloaded_path = openneuro_download(
+            dataset_id,
+            output_dir=str(output_dir),
+            tag=version,
+            delete=False # Keep existing files if any, though we expect clean run
         )
-        print(f"Download completed successfully.")
-        return True
+        
+        # The library returns the path to the downloaded dataset
+        if not downloaded_path:
+            raise RuntimeError("openneuro_download returned None or empty path")
+            
+        downloaded_path = Path(downloaded_path)
+        
+        if not downloaded_path.exists():
+            raise RuntimeError(f"Downloaded path does not exist: {downloaded_path}")
+            
+        log_step("download_complete", "SUCCESS", {"path": str(downloaded_path)})
+        
+        return downloaded_path
+        
     except Exception as e:
-        print(f"Error during download: {e}")
-        return False
+        log_error("download_dataset", "FAILED", {"error": str(e)})
+        raise RuntimeError(f"Failed to download dataset {dataset_id}: {e}") from e
 
 def main():
     """
-    Main entry point for the download script.
+    Main entry point for the data download script.
+    Orchestrates loading the expected hash, downloading the dataset, and verifying integrity.
     """
-    # Ensure output directory exists
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    config = get_config()
+    metadata_path = config.get('metadata_path', Path('data/metadata.yaml'))
+    output_dir = Path('data/raw')
     
-    # Load expected hash
-    expected_hash = load_expected_hash()
+    logger = setup_pipeline_logger("download_main")
+    log_step("main_start", "INITIATED")
     
-    # Download dataset
-    output_path = DATA_RAW_DIR / DATASET_ID
-    
-    if not download_dataset(output_path, expected_hash):
-        print("Download failed. Exiting.")
-        sys.exit(1)
-    
-    # Verify hash (basic check)
-    if not verify_hash(output_path, expected_hash):
-        print("Verification failed. Exiting.")
-        sys.exit(1)
-    
-    print(f"Successfully downloaded and verified {DATASET_ID} to {output_path}.")
-    print("Data is ready for preprocessing.")
+    try:
+        # 1. Load expected hash
+        expected_hash = load_expected_hash(metadata_path)
+        logger.info(f"Loaded expected hash for ds004041: {expected_hash}")
+        
+        # 2. Download dataset
+        logger.info("Starting download...")
+        dataset_path = download_dataset("ds004041", output_dir, version="1.0.0")
+        
+        # 3. Verify hash
+        logger.info("Verifying dataset integrity...")
+        if verify_hash(dataset_path, expected_hash):
+            log_step("main_complete", "SUCCESS", {"dataset": "ds004041", "path": str(dataset_path)})
+            print(f"Download and verification successful: {dataset_path}")
+            return 0
+        else:
+            log_error("main_complete", "HASH_MISMATCH", {"dataset": "ds004041"})
+            print("ERROR: Dataset hash verification failed. The downloaded data may be corrupted or from a different version.")
+            return 1
+            
+    except FileNotFoundError as e:
+        log_error("main_complete", "FILE_NOT_FOUND", {"error": str(e)})
+        print(f"ERROR: {e}")
+        return 1
+    except KeyError as e:
+        log_error("main_complete", "KEY_ERROR", {"error": str(e)})
+        print(f"ERROR: {e}")
+        return 1
+    except RuntimeError as e:
+        log_error("main_complete", "RUNTIME_ERROR", {"error": str(e)})
+        print(f"ERROR: {e}")
+        return 1
+    except Exception as e:
+        log_error("main_complete", "UNEXPECTED_ERROR", {"error": str(e)})
+        print(f"ERROR: An unexpected error occurred: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

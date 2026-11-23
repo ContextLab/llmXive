@@ -2,162 +2,202 @@
 
 ## Project Overview
 
-This project investigates how simulated social rejection (via the Cyberball paradigm) modulates neural and behavioral responses to positive feedback (reward processing). The analysis pipeline supports two experimental designs:
-1. **Within-Subjects**: Single-cohort datasets containing both Cyberball and Reward tasks.
-2. **Between-Subjects**: Composite strategy matching participant IDs across distinct datasets (ds000208 for rejection, ds003392 for reward).
+This project implements an automated scientific pipeline to analyze the effect of simulated social rejection (Cyberball task) on neural and behavioral responses to positive feedback. The pipeline supports two experimental designs:
+1. **Within-Subjects**: Single-cohort datasets where participants complete both rejection and reward tasks.
+2. **Between-Subjects**: Separate datasets for rejection and reward tasks, analyzed independently.
 
-## Key Features
-
-- **Dual-Design Support**: Automatically detects data availability and switches between Mixed ANOVA (Within-Subjects) and One-Way ANOVA (Between-Subjects).
-- **Robust Preprocessing**: IQR-based outlier detection, reaction time normalization, and feature extraction.
-- **Statistical Rigor**: Benjamini-Hochberg FDR correction, sensitivity analysis across alpha thresholds, and effect size confidence intervals.
-- **Memory Safety**: Runtime RAM monitoring with automatic halting if thresholds are exceeded.
-- **Traceability**: Checksums for raw data integrity, design-switch logging, and "associational" framing for Between-Subjects results.
-
-## Project Structure
-
-```
-.
-├── code/ # Core implementation
-│ ├── __init__.py
-│ ├── config.py # Paths, seeds, alpha thresholds
-│ ├── data_model.py # Dataset, PreprocessedRecord, AnalysisResult entities
-│ ├── ingest.py # Data download, validation, design determination
-│ ├── preprocess.py # Cleaning, normalization, outlier detection
-│ ├── analysis.py # ANOVA execution, FDR, sensitivity sweep
-│ ├── report.py # Report generation, phrasing enforcement
-│ └── logging_utils.py # Memory tracking utilities
-├── data/
-│ ├── raw/ # Downloaded datasets, checksums.json
-│ ├── interim/ # Preprocessed data (preprocessed_data.csv)
-│ └── processed/ # Final results (final_results.json)
-├── tests/ # Unit and integration tests
-│ ├── test_ingest.py
-│ ├── test_preprocess.py
-│ ├── test_analysis.py
-│ └── test_report.py
-├── docs/ # Documentation
-│ ├── design.md # Design decisions
-│ └── api.md # API reference
-├── reports/ # Generated reports
-│ └── final_report.md
-├── requirements.txt # Python dependencies
-└── README.md
-```
+**CRITICAL**: Merging distinct studies is strictly forbidden. The pipeline automatically detects the design type and adjusts statistical methods accordingly.
 
 ## Installation
 
-1. **Clone the repository**:
+### Prerequisites
+
+- Python 3.11 or higher
+- pip package manager
+- 7 GB+ available RAM (recommended)
+
+### Setup
+
+1. Clone the repository:
  ```bash
  git clone <repository-url>
  cd PROJ-258-the-effect-of-simulated-social-rejection
  ```
 
-2. **Create a virtual environment**:
+2. Create a virtual environment:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
- pip install -r requirements.txt
+ pip install -r code/requirements.txt
  ```
 
-## Usage
+### Dependencies
 
-### Running the Full Pipeline
+The project requires the following Python packages (see `code/requirements.txt`):
+- `pandas`: Data manipulation and analysis
+- `numpy`: Numerical computing
+- `scipy`: Statistical functions
+- `statsmodels`: Statistical modeling and tests
+- `pyyaml`: Configuration file handling
+- `requests`: HTTP library for data downloads
+- `psutil`: System and process monitoring
+- `scikit-learn`: Machine learning utilities (if needed)
 
-Execute the pipeline from the project root:
+## Data Sources
 
-```bash
-python code/ingest.py && \
-python code/preprocess.py && \
-python code/analysis.py && \
-python code/report.py
-```
+This project uses real, publicly available neuroimaging and behavioral datasets from OpenNeuro:
 
-### Individual Scripts
+1. **Cyberball Task (Social Rejection)**
+ - Dataset: ds000208
+ - URL: https://openneuro.org/datasets/ds000208
+ - Description: fMRI data from participants playing Cyberball, a virtual ball-tossing game used to simulate social exclusion.
 
-- **Data Ingestion**:
+2. **Reward Task (Positive Feedback)**
+ - Dataset: ds003392
+ - URL: https://openneuro.org/datasets/ds003392
+ - Description: fMRI data from participants performing a reward-based task with positive feedback conditions.
+
+**Citation**:
+- OpenNeuro datasets are cited according to their DOIs and associated publications. Please refer to the dataset pages for specific citation requirements.
+- Cyberball paradigm: Williams, K. D., et al. (2000). "Ostracism: A temporal need-threat model." *Advances in Experimental Social Psychology*.
+
+## Usage Instructions
+
+### Running the Pipeline
+
+The pipeline is executed sequentially through its main stages:
+
+1. **Data Ingestion** (User Story 1)
  ```bash
  python code/ingest.py
  ```
- Downloads datasets, validates schemas, determines design type, and saves checksums.
+ This script:
+ - Checks available memory before downloading
+ - Attempts to find a single-cohort dataset (Within-Subjects design)
+ - Falls back to separate datasets (Between-Subjects design) if single-cohort is unavailable
+ - Validates data schemas and generates manifest files
+ - Outputs: `data/raw/dataset_manifest.json`, `data/interim/validation_report.json`, `data/processed/id_match_status.json`, `data/processed/metadata.json`
 
-- **Preprocessing**:
+2. **Preprocessing** (User Story 2)
  ```bash
  python code/preprocess.py
  ```
- Cleans data, normalizes reaction times, detects outliers, and extracts features.
+ This script:
+ - Cleans behavioral data
+ - Normalizes reaction times
+ - Detects and handles outliers using IQR method
+ - Extracts summary features (mean RT, avg mood)
+ - Outputs: `data/interim/preprocessed_data.csv`
 
-- **Analysis**:
+3. **Statistical Analysis** (User Story 3)
  ```bash
  python code/analysis.py
  ```
- Runs ANOVA (Mixed or One-Way), applies FDR correction, and performs sensitivity sweeps.
+ This script:
+ - Selects appropriate ANOVA type based on design (Mixed vs. One-Way)
+ - Applies Benjamini-Hochberg FDR correction
+ - Performs sensitivity analysis across α levels {0.01, 0.05, 0.1}
+ - Handles convergence warnings for small sample sizes
+ - Outputs: `data/processed/final_results.json`, `data/processed/sensitivity_results.json`
 
-- **Reporting**:
+4. **Report Generation** (User Story 3)
  ```bash
  python code/report.py
  ```
- Generates `reports/final_report.md` and `data/processed/final_results.json`.
+ This script:
+ - Generates the final research report in Markdown format
+ - Includes sensitivity tables and effect size confidence intervals
+ - Explicitly labels Between-Subjects results as "associational"
+ - Outputs: `reports/final_report.md`
 
 ### Running Tests
 
+Execute the test suite to verify implementation:
 ```bash
-pytest tests/ -v
+python -m pytest tests/ -v
 ```
 
-## Design Determination Logic
+### Performance Monitoring
 
-The pipeline follows a strict decision tree:
+The pipeline includes built-in memory monitoring. To benchmark performance:
+```bash
+python code/performance_monitor.py
+```
+Output: `data/processed/performance_log.json`
 
-1. **Attempt Single-Cohort**: Check if a dataset contains both Cyberball and Reward tasks with consistent Participant IDs.
- - If found: `design_type = "Within-Subjects"` → Use Mixed ANOVA.
-2. **Fallback to Composite**: If single-cohort fails, attempt to match IDs between ds000208 (rejection) and ds003392 (reward).
- - If matching IDs exist: `design_type = "Between-Subjects"` → Use One-Way ANOVA.
- - If no match: Halt with exit code 1 ("Data Unavailable").
+## Project Structure
 
-**Note**: For Between-Subjects designs, the report explicitly uses "associational" phrasing and excludes causal claims.
+```
+.
+├── code/
+│ ├── __init__.py
+│ ├── config.py # Configuration management
+│ ├── data_model.py # Data entities and schemas
+│ ├── ingest.py # Data ingestion and validation
+│ ├── preprocess.py # Data cleaning and feature extraction
+│ ├── analysis.py # Statistical analysis
+│ ├── report.py # Report generation
+│ ├── performance_monitor.py
+│ └── requirements.txt
+├── data/
+│ ├── raw/ # Downloaded datasets and manifests
+│ ├── interim/ # Intermediate processed data
+│ └── processed/ # Final analysis results
+├── tests/
+│ ├── test_ingest.py
+│ ├── test_preprocess.py
+│ └── test_analysis.py
+├── reports/
+│ └── final_report.md
+├── docs/
+│ └── api.md
+└── README.md
+```
 
-## Configuration
+## Design Type Determination
 
-Edit `code/config.py` to modify:
-- Random seeds (`RANDOM_SEED`)
-- Alpha thresholds (`ALPHA_THRESHOLDS = {0.01, 0.05, 0.1}`)
-- Memory limits (`MEMORY_LIMIT_GB`)
-- Dataset URLs
+The pipeline automatically determines the experimental design:
 
-## Output Artifacts
+- **Within-Subjects**: Detected when a single dataset contains both Cyberball and Reward tasks for the same participants.
+ - Statistical method: Mixed ANOVA
+ - Claim: Can test for "modulation" of reward responses by prior rejection
 
-| File | Description |
-|------|-------------|
-| `data/raw/checksums.json` | SHA-256 hashes of raw data files |
-| `data/interim/preprocessed_data.csv` | Cleaned, normalized, outlier-flagged data |
-| `data/processed/final_results.json` | ANOVA results, p-values, effect sizes, FDR-corrected p-values |
-| `reports/final_report.md` | Human-readable report with design-appropriate phrasing |
+- **Between-Subjects**: Used when rejection and reward data come from separate datasets.
+ - Statistical method: One-Way ANOVA
+ - Claim: Limited to "associational group differences" (no causal modulation claims)
 
-## Limitations
+The design type is logged in `data/processed/metadata.json` and explicitly stated in the final report.
 
-- **Convergence Warnings**: If N < 30, the pipeline issues a warning and reports wider confidence intervals for effect sizes.
-- **Data Availability**: If neither single-cohort nor composite strategies yield valid data, the pipeline halts with a clear error.
-- **Memory Constraints**: Execution halts if RAM usage exceeds the configured threshold (default: 7 GB).
+## Memory Constraints
+
+The pipeline enforces a 7 GB RAM limit:
+- Pre-download memory estimation (T015a)
+- Runtime memory monitoring (T015b)
+- Automatic halting with exit code 1 if limits are exceeded
+
+## Error Handling
+
+- **Data Unavailable**: If no valid datasets are found, the pipeline halts with a clear error message.
+- **Convergence Warnings**: For small sample sizes (N < 30), the pipeline outputs effect size confidence intervals.
+- **Schema Validation**: Missing required columns trigger immediate failure with detailed reports.
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Ensure all tests pass before committing
+2. Follow the existing code structure and naming conventions
+3. Update documentation when adding new features
+4. Never fabricate data or results
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is open source and available under the MIT License.
 
 ## Acknowledgments
 
-- Cyberball paradigm developers
-- OpenNeuro dataset contributors (ds000208, ds003392)
-- Statsmodels and SciPy communities
+- OpenNeuro for providing free, open access to neuroimaging datasets
+- The Cyberball research community for developing the social rejection paradigm
+- Contributors to the scientific Python ecosystem (pandas, scipy, statsmodels)

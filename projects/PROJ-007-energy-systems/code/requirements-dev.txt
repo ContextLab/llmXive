@@ -1,0 +1,5 @@
+# Development dependencies for PROJ-007-energy-systems
+# Linting and Formatting
+ruff>=0.4.0
+black>=24.3.0
+pre-commit>=3.7.0

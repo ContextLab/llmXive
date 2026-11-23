@@ -1,0 +1,3 @@
+"""
+Initialize the code package.
+"""

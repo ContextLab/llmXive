@@ -1,0 +1,55 @@
+# JSON Schema for ModelArtifact (Trained Model Metadata)
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ModelArtifact
+type: object
+properties:
+  model_id:
+    type: string
+    description: Unique identifier for the model artifact
+  model_type:
+    type: string
+    enum: ["XGBRegressor", "XGBClassifier", "Ridge"]
+    description: Type of model used
+  hyperparameters:
+    type: object
+    description: Dictionary of model hyper‑parameters
+  performance_metrics:
+    type: object
+    description: Metrics such as R², AUC, accuracy, etc.
+  feature_importance:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        importance:
+          type: number
+      required:
+        - feature_name
+        - importance
+    description: Ranked list of feature importances
+  vif_scores:
+    type: object
+    description: Mapping from feature name to VIF score
+  power_analysis:
+    type: object
+    description: Contains MDES, achieved power, alpha, etc.
+  circularity_check:
+    type: object
+    description: Results of permutation test (e.g., real_score, shuffled_score, passed)
+  checksum:
+    type: string
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: SHA‑256 checksum of the serialized model artifact
+required:
+  - model_id
+  - model_type
+  - hyperparameters
+  - performance_metrics
+  - feature_importance
+  - vif_scores
+  - power_analysis
+  - circularity_check
+  - checksum
+additionalProperties: false

@@ -1,1 +1,6 @@
-[]
+[
+  {
+    "symbol": "get",
+    "owner": "Config"
+  }
+]

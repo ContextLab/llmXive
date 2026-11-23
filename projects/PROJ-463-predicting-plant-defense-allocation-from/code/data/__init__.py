@@ -1,3 +1,3 @@
 """
-Data acquisition, preprocessing, and management modules.
+Data directory placeholder.
 """

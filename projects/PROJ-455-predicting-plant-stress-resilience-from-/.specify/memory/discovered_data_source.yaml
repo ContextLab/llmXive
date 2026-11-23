@@ -1,0 +1,13 @@
+status: none
+intent: plant metabolomics dataset NCBI GEO Zenodo downloadable python package dataset
+required_fields:
+- sample_id
+- metabolite_id
+- intensity
+- stress_condition
+- recovery_time_days
+- plant_species
+- experiment_accession
+cache_key: e6a3d5bba261ee39ea09e21f010a0e0357a27c20d761eb309a19214c66e8517e
+searched_at: '2026-10-09T00:18:10.564848+00:00'
+retry_count: 1

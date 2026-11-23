@@ -1,0 +1,15 @@
+captured:
+  path: data/raw/adult_income.csv
+  sha256: 5b00264637dbfec36bdeaab5676b0b309ff9eb788d63554ca0a249491c86603d
+created_at: '2026-10-11T22:37:38Z'
+env_sha: 5b00264637dbfec3
+hmac: f82e8ab73b78479980b2bae5dad68dfba163694e06184a2514aa7ee7c0201643
+inputs:
+  command: quickstart run-book
+kind: table
+output_sha256: 3623b03df508d05f40e6aa7fce8625f52879b8a8d316f639a4db0aff3669b3d6
+producer:
+  artifact: data/raw/adult_income.csv
+  stage: implementation_preview
+result_id: r_3623b03d
+value: data/raw/adult_income.csv

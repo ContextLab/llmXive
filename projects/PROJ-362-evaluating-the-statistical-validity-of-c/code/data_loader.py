@@ -1,229 +1,261 @@
-"""
-Data Loader Module for llmXive Project.
-
-Fetches TREC Robust and Web data via HuggingFace datasets with retry logic.
-Validates schema compliance and logs warnings for zero-relevance queries.
-"""
 import os
 import time
 import logging
 import json
-from typing import List, Dict, Any, Optional, Generator
-
-import datasets
-from datasets import load_dataset, DatasetDict
-
-from config import DATA_RAW_DIR, ensure_dirs
+import yaml
+import hashlib
+import ir_datasets
+from pathlib import Path
+from typing import Dict, List, Any, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Configuration for dataset fetching
-MAX_RETRIES = 5
-RETRY_DELAY = 5  # seconds
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+RESULTS_DIR = PROJECT_ROOT / "results"
+STATE_DIR = PROJECT_ROOT / "state" / "projects"
+STATE_FILE = STATE_DIR / "PROJ-362-evaluating-the-statistical-validity-of-c.yaml"
 
-# TREC Dataset Identifiers on HuggingFace
-TREC_ROBUST_04 = "trec-robust04"
-TREC_WEB_2013 = "trec-web-2013"
-TREC_WEB_2014 = "trec-web-2014"
+# Ensure directories exist
+DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+STATE_DIR.mkdir(parents=True, exist_ok=True)
 
-# Expected Schema for Qrels (simplified validation)
-QRELS_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "query_id": {"type": "integer"},
-        "doc_id": {"type": "integer"},
-        "relevance": {"type": "integer"}
-    },
-    "required": ["query_id", "doc_id", "relevance"]
-}
+def compute_file_checksum(file_path: Path) -> str:
+    """Compute SHA-256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def fetch_with_retry(dataset_name: str, split: str = "train") -> Optional[DatasetDict]:
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load and return the JSON schema from a YAML file."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
+
+def validate_qrels_schema(record: Dict[str, Any], schema: Dict[str, Any]) -> bool:
     """
-    Fetch a dataset from HuggingFace with exponential backoff retry logic.
-
-    Args:
-        dataset_name: Name of the dataset on HuggingFace.
-        split: The split to load (default "train").
-
-    Returns:
-        DatasetDict or None if all retries fail.
+    Validate a single qrels record against the schema.
+    Schema expects: query_id (int), doc_id (int), relevance (int).
     """
-    attempt = 0
-    while attempt < MAX_RETRIES:
-        try:
-            logger.info(f"Fetching dataset '{dataset_name}' (Attempt {attempt + 1}/{MAX_RETRIES})...")
-            dataset = load_dataset(dataset_name, split=split)
-            logger.info(f"Successfully loaded '{dataset_name}'.")
-            return dataset
-        except Exception as e:
-            attempt += 1
-            if attempt < MAX_RETRIES:
-                delay = RETRY_DELAY * (2 ** (attempt - 1))
-                logger.warning(f"Failed to load '{dataset_name}': {e}. Retrying in {delay}s...")
-                time.sleep(delay)
-            else:
-                logger.error(f"Failed to load '{dataset_name}' after {MAX_RETRIES} attempts: {e}")
-                return None
-    return None
+    required_fields = schema.get('required', [])
+    properties = schema.get('properties', {})
 
-def validate_qrels_schema(record: Dict[str, Any]) -> bool:
-    """
-    Validates a single qrel record against the expected schema.
-
-    Args:
-        record: A dictionary representing a qrel row.
-
-    Returns:
-        True if valid, False otherwise.
-    """
-    if not isinstance(record, dict):
-        return False
-    
-    # Check required keys
-    for key in QRELS_SCHEMA["required"]:
-        if key not in record:
+    for field in required_fields:
+        if field not in record:
             return False
 
-    # Check types
-    try:
-        int(record["query_id"])
-        int(record["doc_id"])
-        int(record["relevance"])
-    except (ValueError, TypeError):
-        return False
+        expected_type = properties.get(field, {}).get('type')
+        if expected_type == 'integer':
+            if not isinstance(record[field], int):
+                return False
+        elif expected_type == 'string':
+            if not isinstance(record[field], str):
+                return False
 
     return True
 
-def load_trec_robust04() -> Optional[List[Dict[str, Any]]]:
+def fetch_with_retry(dataset_id: str, max_retries: int = 3, base_delay: float = 2.0, multiplier: float = 2.0) -> Optional[ir_datasets.Dataset]:
     """
-    Loads TREC Robust 04 data.
-    
-    Note: The dataset on HF might be named differently or require a specific config.
-    We attempt to load a generic TREC robust dataset.
+    Attempt to fetch a dataset with exponential backoff retry logic.
+    Raises RuntimeError if all retries fail.
     """
-    # Attempt to load from a known TREC Robust 04 mirror on HF
-    # Common HF ID: "trec-robust-04" or similar. Using a generic robust dataset name.
-    # If specific ID changes, update TREC_ROBUST_04 constant.
-    # For this implementation, we assume the dataset name provided in constants is correct
-    # or use a fallback if the specific name is not found.
-    
-    dataset = fetch_with_retry(TREC_ROBUST_04)
-    if dataset is None:
-        # Fallback: Try a common alternative name if the primary fails
-        logger.warning(f"Dataset '{TREC_ROBUST_04}' not found. Trying fallback...")
-        dataset = fetch_with_retry("trec-robust04", split="train")
-    
-    if dataset is None:
-        return None
+    for attempt in range(max_retries):
+        try:
+            logger.info(f"Fetching dataset '{dataset_id}' (attempt {attempt + 1}/{max_retries})...")
+            dataset = ir_datasets.load(dataset_id)
+            logger.info(f"Successfully loaded dataset '{dataset_id}'.")
+            return dataset
+        except Exception as e:
+            logger.warning(f"Attempt {attempt + 1} failed for '{dataset_id}': {e}")
+            if attempt < max_retries - 1:
+                delay = base_delay * (multiplier ** attempt)
+                logger.info(f"Retrying in {delay:.2f} seconds...")
+                time.sleep(delay)
+            else:
+                logger.error(f"Failed to load '{dataset_id}' after {max_retries} attempts.")
+                raise RuntimeError(f"Failed to fetch dataset '{dataset_id}' after {max_retries} retries. Original error: {e}")
+    return None
 
-    # Convert to list of dicts for easier processing if needed
-    # Note: datasets.Dataset has .to_list() or can be iterated
-    data = list(dataset)
-    return data
+def load_trec_robust04() -> ir_datasets.Dataset:
+    """Load TREC Robust 2004 dataset."""
+    return fetch_with_retry('trec/robust04')
 
-def load_trec_web_data(years: List[int] = [2013, 2014]) -> List[Dict[str, Any]]:
+def load_trec_web_data(track_year: int) -> ir_datasets.Dataset:
+    """Load TREC Web Track data for a specific year (2009-2012)."""
+    dataset_id = f'trec/web-track-{track_year}'
+    return fetch_with_retry(dataset_id)
+
+def load_from_nist_fallback(dataset_id: str) -> ir_datasets.Dataset:
     """
-    Loads TREC Web data for specified years.
-    
-    Args:
-        years: List of years to load (e.g., [2013, 2014]).
-    
-    Returns:
-        Combined list of qrel records.
+    Fallback loader that strictly enforces 'no synthetic' rule.
+    This function is a wrapper to ensure we only use ir_datasets.
     """
-    all_data = []
-    for year in years:
-        dataset_name = f"trec-web-{year}"
-        dataset = fetch_with_retry(dataset_name)
-        if dataset:
-            all_data.extend(list(dataset))
+    return fetch_with_retry(dataset_id)
+
+def process_and_validate_qrels(dataset: ir_datasets.Dataset) -> List[Dict[str, Any]]:
+    """
+    Process qrels from an ir_datasets dataset and validate against schema.
+    Returns a list of valid records.
+    """
+    schema_path = CONTRACTS_DIR / "dataset.schema.yaml"
+    if not schema_path.exists():
+        logger.warning(f"Schema file not found at {schema_path}. Skipping validation.")
+        # If schema is missing, we cannot validate, but we can still process
+        # However, per spec, we assume schema exists (T005)
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+
+    schema = load_schema(schema_path)
+    valid_records = []
+
+    # Get qrels from the dataset
+    # ir_datasets qrels usually have: query_id, doc_id, relevance
+    try:
+        qrels_iter = dataset.qrels
+    except AttributeError:
+        logger.warning(f"Dataset '{dataset}' does not have a 'qrels' attribute.")
+        return []
+
+    for qrel in qrels_iter:
+        record = {
+            'query_id': int(qrel.query_id),
+            'doc_id': int(qrel.doc_id),
+            'relevance': int(qrel.relevance)
+        }
+
+        if validate_qrels_schema(record, schema):
+            valid_records.append(record)
         else:
-            logger.warning(f"Skipping TREC Web {year} due to load failure.")
-    return all_data
+            logger.debug(f"Invalid record skipped: {record}")
 
-def process_and_validate_qrels(data: List[Dict[str, Any]], source: str = "unknown") -> List[Dict[str, Any]]:
+    return valid_records
+
+def validate_qrels(records: List[Dict[str, Any]]) -> Tuple[bool, List[int]]:
     """
-    Validates qrel data against schema and logs warnings for zero-relevance queries.
+    Validate a list of qrels records for a specific query.
+    Returns (is_valid, query_ids_with_issues).
+    
+    CRITICAL: If a query has zero relevance labels, return False.
+    Logs a WARNING to results/warnings.log.
     
     Args:
-        data: List of raw qrel records.
-        source: Source identifier for logging.
+        records: List of qrels records (all records for one query or mixed? 
+                 The function signature implies a list of records, but the logic 
+                 requires checking per query. 
+                 Based on T006 description: "If a query has zero relevance labels".
+                 We assume `records` contains all records for a SINGLE query context 
+                 OR we group by query_id if multiple queries are passed.
+                 
+                 Given the integration point with permutation engine (T013a), 
+                 it likely calls this per query. 
+                 Let's assume `records` is the list of relevance labels for ONE query.
+    """
+    if not records:
+        # Zero records means zero relevance labels for the query
+        warnings_path = RESULTS_DIR / "warnings.log"
+        with open(warnings_path, 'a') as f:
+            f.write(f"WARNING: Zero relevance labels found for query. Skipping.\n")
+        logger.warning("Zero relevance labels found for query. Skipping.")
+        return False, []
+
+    # Check if any record has a non-zero relevance? 
+    # The spec says "zero-relevance queries" usually means queries with NO labels at all.
+    # But sometimes it means queries where all labels are 0.
+    # T006 says: "If a query has zero relevance labels" -> implies count of labels == 0.
+    # If the list is empty, we already returned False.
     
-    Returns:
-        List of validated records.
-    """
-    validated_data = []
-    zero_relevance_count = 0
-    schema_error_count = 0
-
-    for record in data:
-        if not validate_qrels_schema(record):
-            schema_error_count += 1
-            logger.warning(f"Schema validation failed for record in {source}: {record}")
-            continue
-
-        # Check for zero relevance
-        if record["relevance"] == 0:
-            zero_relevance_count += 1
-            # We log the warning but still include the record as per standard qrel handling
-            # unless the spec strictly forbids them. The task says "log warnings".
-            # We will log a debug/warning message occasionally to avoid spamming logs
-            # but here we just count and log the total at the end.
-        
-        validated_data.append(record)
-
-    if schema_error_count > 0:
-        logger.warning(f"Found {schema_error_count} records with schema errors in {source}. Skipped.")
+    # Let's also check if the list is not empty but all relevance is 0?
+    # The spec says "zero relevance labels" which usually means "no labels".
+    # If it meant "all labels are 0", it would say "queries with all zero relevance".
+    # We will stick to: if the list is empty, it's invalid.
+    # If the list is not empty, it is valid (even if all relevance is 0, it has labels).
+    # However, T013a says "If is_valid is False (zero relevance labels), log WARNING... and skip".
+    # This confirms the "empty list" interpretation.
     
-    if zero_relevance_count > 0:
-        logger.warning(f"Found {zero_relevance_count} records with zero relevance in {source}.")
+    return True, []
 
-    return validated_data
+def save_qrels_to_json(records: List[Dict[str, Any]], output_path: Path) -> None:
+    """Save processed qrels to a JSON file."""
+    with open(output_path, 'w') as f:
+        json.dump(records, f, indent=2)
+    logger.info(f"Saved {len(records)} records to {output_path}")
 
-def save_qrels_to_json(data: List[Dict[str, Any]], filename: str):
-    """
-    Saves validated qrels data to a JSON file.
-    
-    Args:
-        data: List of validated records.
-        filename: Output filename (relative to DATA_RAW_DIR).
-    """
-    ensure_dirs()
-    filepath = os.path.join(DATA_RAW_DIR, filename)
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    logger.info(f"Saved {len(data)} records to {filepath}")
-
-def run_data_load():
-    """
-    Main entry point for loading TREC data.
-    Fetches Robust04 and Web data, validates, and saves to data/raw/.
-    """
-    logger.info("Starting data loading process...")
-    
-    # Load Robust04
-    robust_data = load_trec_robust04()
-    if robust_data:
-        validated_robust = process_and_validate_qrels(robust_data, "Robust04")
-        save_qrels_to_json(validated_robust, "trec_robust04_qrels.json")
-    else:
-        logger.error("Failed to load Robust04 data. Aborting.")
+def update_state_checksum(file_path: Path, state_file: Path = STATE_FILE) -> None:
+    """Update the state file with the checksum of a processed file."""
+    if not file_path.exists():
+        logger.warning(f"File not found for checksum update: {file_path}")
         return
 
-    # Load Web Data (2013, 2014)
-    web_data = load_trec_web_data([2013, 2014])
-    if web_data:
-        validated_web = process_and_validate_qrels(web_data, "Web")
-        save_qrels_to_json(validated_web, "trec_web_qrels.json")
-    else:
-        logger.warning("No Web data loaded.")
+    checksum = compute_file_checksum(file_path)
+    file_name = file_path.name
+    
+    state_data = {}
+    if state_file.exists():
+        with open(state_file, 'r') as f:
+            state_data = yaml.safe_load(f) or {}
+    
+    if 'artifact_hashes' not in state_data:
+        state_data['artifact_hashes'] = {}
+    
+    state_data['artifact_hashes'][file_name] = checksum
+    
+    with open(state_file, 'w') as f:
+        yaml.dump(state_data, f)
+    logger.info(f"Updated state file with checksum for {file_name}")
 
-    logger.info("Data loading process completed.")
+def run_data_load() -> Dict[str, Any]:
+    """
+    Main entry point for data loading.
+    Loads TREC Robust 2004 and Web Track 2009-2012 data.
+    """
+    datasets_to_load = [
+        ('trec/robust04', load_trec_robust04),
+        ('trec/web-track-2009', lambda: load_trec_web_data(2009)),
+        ('trec/web-track-2010', lambda: load_trec_web_data(2010)),
+        ('trec/web-track-2011', lambda: load_trec_web_data(2011)),
+        ('trec/web-track-2012', lambda: load_trec_web_data(2012)),
+    ]
+
+    all_records = []
+    processed_files = []
+
+    for dataset_id, loader_func in datasets_to_load:
+        try:
+            dataset = loader_func()
+            records = process_and_validate_qrels(dataset)
+            
+            # Save individual dataset qrels
+            output_path = DATA_RAW_DIR / f"{dataset_id.replace('/', '_')}_qrels.json"
+            save_qrels_to_json(records, output_path)
+            processed_files.append(output_path)
+            
+            all_records.extend(records)
+            logger.info(f"Loaded {len(records)} records from {dataset_id}")
+        except RuntimeError as e:
+            logger.error(f"Critical error loading {dataset_id}: {e}")
+            raise e
+
+    # Save combined records
+    combined_path = DATA_RAW_DIR / "combined_qrels.json"
+    save_qrels_to_json(all_records, combined_path)
+    processed_files.append(combined_path)
+
+    # Update state file with checksums
+    for f_path in processed_files:
+        update_state_checksum(f_path)
+
+    logger.info(f"Data loading complete. Total records: {len(all_records)}")
+    return {"total_records": len(all_records), "files": [str(p) for p in processed_files]}
 
 if __name__ == "__main__":
     run_data_load()

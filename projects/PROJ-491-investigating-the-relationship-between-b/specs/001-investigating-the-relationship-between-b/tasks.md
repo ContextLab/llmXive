@@ -39,13 +39,24 @@
  ============================================================================
 -->
 
+## Phase 0: Research & Feasibility (Plan Phase 0)
+
+**Purpose**: Verify data availability and coordinate alignment before implementation begins.
+
+- [ ] T000a [P] [Plan] Verify OpenNeuro dataset `ds000001` (or equivalent HCP) contains at least 50 subjects with both resting-state and task-fMRI data and distinct session IDs. Log results to `data/research/data_availability_log.txt`.
+- [ ] T000b [P] [Plan] Verify Power 264 atlas coordinates and Ventral Striatum ROI coordinates are compatible with HCP MNI152NLin2009cAsym space. If mismatch, plan resampling strategy. Log results to `data/research/coordinate_alignment_log.txt`.
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `state/` (Note: `specs/001-gene-regulation/` is a source artifact, not created here)
-- [ ] T001b [P] Create `.gitignore` excluding `data/raw/*.nii*`, `data/processed/*.csv`, `__pycache__`, `*.pyc`, `env/`
+- [ ] T001a [P] Create directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `state/`, `data/research/`, `data/contracts/` (Note: `specs/001-gene-regulation/` is a source artifact, not created here)
+- [ ] T001b [P] Create `.gitignore` excluding `data/raw/*.nii*`, `data/processed/*.csv`, `data/processed/*.json`, `data/processed/*.png`, `__pycache__`, `*.pyc`, `env/`, `.env`
 - [ ] T001c [P] Create `README.md` skeleton with project title and empty installation/usage sections
+- [ ] T001d [P] [Plan] Define and write `data/contracts/csv_time_series.schema.yaml` for extracted BOLD time series.
+- [ ] T001e [P] [Plan] Define and write `data/contracts/states.schema.yaml` for dynamic state sequences.
 
 ---
 
@@ -55,16 +66,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn, nibabel, scipy, matplotlib, requests, tqdm, bids)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
-- [X] T004 Create `code/config.py` defining paths, seeds (), and parameters (window sizes:, 30, 40 TRs)
-- [X] T005 [P] Implement `code/state_manager.py` to compute content hashes for artifacts and update `state/` YAML
-- [X] T006 [P] Setup `code/__init__.py` and basic logging infrastructure
-- [X] T007a [P] Define and write `data/contracts/atlas_power264.json` containing Power node coordinates in MNI space
-- [X] T007b [P] Define and write `data/contracts/roi_ventral_striatum.json` containing Ventral Striatum ROI MNI coordinates
-- [ ] T007c [P] Implement logic to identify and write `data/contracts/Power264_excl_vs_nodes.json` listing Power 264 nodes overlapping with VS ROI to prevent double-dipping
-- [ ] T008 [P] Implement memory-efficient streaming utilities for large NIfTI files to ensure <7GB RAM usage
-- [ ] T009 Setup environment configuration management for OpenNeuro credentials
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn, nibabel, scipy, matplotlib, requests, tqdm, bids)
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools: Create `setup.cfg` with flake8 rules and `pyproject.toml` for black
+- [~] T004 Create `code/config.py` defining paths, seeds (42), and parameters (window sizes: [20, 30, 40])
+- [ ] T005 [P] Implement `code/state_manager.py` to compute content hashes for artifacts and update `state/` YAML
+- [~] T006 [P] Setup `code/__init__.py` and basic logging infrastructure
+- [~] T007a [P] Define and write `data/contracts/atlas_power264.json` containing Power node coordinates in MNI space
+- [~] T007b [P] Define and write `data/contracts/roi_ventral_striatum.json` containing Ventral Striatum ROI MNI coordinates
+- [~] T007c [P] Implement logic to identify and write `data/contracts/Power264_excl_vs_nodes.json` listing Power 264 nodes overlapping with VS ROI to prevent double-dipping
+- [~] T008 [P] Implement memory-efficient streaming utilities: Create `code/streaming_utils.py` with function `load_nifti_chunked(input_path, chunk_size)` to load NIfTI data in chunks to ensure <7GB RAM usage
+- [~] T009 [P] Setup environment configuration management: Create `code/.env.example` with placeholders for OpenNeuro credentials (OPENNEURO_USER, OPENNEURO_PASS) and implement `code/config.py` to load these securely.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,22 +91,32 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for session ID validation logic in `tests/unit/test_data_ingestion.py`
-- [ ] T011 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_ingestion_flow.py`
+- [~] T010 [P] [US1] Unit test for session ID validation logic in `tests/unit/test_data_ingestion.py`
+- [~] T011 [P] [US1] Integration test for data download and checksum verification in `tests/integration/test_ingestion_flow.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/data_ingestion.py` to download HCP data from OpenNeuro for 50 subjects (FR-001)
-- [ ] T013 [US1] Implement session ID distinctness validation logic in `code/data_ingestion.py` (FR-008), explicitly excluding subjects with matching session IDs from the downstream pipeline
-- [ ] T013b [US1] Implement logic to calculate the pass-rate percentage of subjects with distinct session IDs and write this metric to `data/processed/session_validation_metrics.json` (SC-005)
-- [ ] T013c [US1] Implement logic to write the list of excluded subject IDs (due to session ID mismatch) to `data/processed/excluded_session_ids.csv`
-- [ ] T014 [US1] Implement logic to skip corrupted/missing subjects and log warnings to `data/processed/ingestion_warnings.log` (Edge Case)
-- [ ] T015 [US1] Implement logic to fail fast with non-zero exit code and error message "Error: Insufficient valid subjects (<50)" if <50 valid subjects found, logging to `data/processed/ingestion_errors.log` (FR-010)
-- [ ] T016 [US1] Implement `code/preprocessing.py` to extract BOLD time series using Power 264 atlas, explicitly excluding nodes listed in `data/contracts/Power264_excl_vs_nodes.json` to prevent double-dipping (FR-002)
-- [ ] T016c [US1] Implement `code/preprocessing.py` to explicitly extract the Ventral Striatum (VS) ROI time series from task-fMRI NIfTI files for all valid subjects (FR-002)
-- [ ] T016b [US1] Implement aggregation of task-fMRI BOLD time series (from T016c) to calculate mean ventral striatum activation magnitude per subject, writing to `data/processed/ventral_striatum_activation.csv` (FR-002)
-- [ ] T017 [US1] Verify TR of downloaded data matches expected values for window calculations; fail with non-zero exit code and "Error: TR mismatch" if invalid (Assumption)
-- [ ] T018 [US1] Ensure memory footprint of loaded data never exceeds 7 GB during processing (SC-001)
+- [~] T012 [US1] Implement `code/data_ingestion.py` to download HCP data from OpenNeuro for 50 subjects (FR-001). **Hashing**: Call `state_manager.hash_artifact("data/raw/*.nii*")` after download to record raw data checksums.
+- [~] T012a [US1] Implement logic in `code/data_ingestion.py` to read NIfTI headers and extract Repetition Time (TR) values for validation (Supports T017).
+- [~] T013 [US1] **Implement Session Validation, Metrics, Fail-Fast, and Hashing**: Implement logic in `code/data_ingestion.py` to:
+ 1. Read NIfTI headers for all downloaded subjects.
+ 2. Validate distinct session IDs (FR-008).
+ 3. Calculate pass-rate percentage and write `data/processed/session_validation_metrics.json` (SC-005) FIRST. Schema: `{"pass_rate": float, "total_subjects": int, "valid_subjects": int}`.
+ 4. Write list of excluded subject IDs to `data/processed/excluded_session_ids.csv` FIRST.
+ 5. **Fail Fast**: If valid subjects < 50, exit with code 1 and error "Error: Insufficient valid subjects (<50)" (FR-010) AFTER files are written.
+ 6. **Verification**: Assert `session_validation_metrics.json` keys are exactly `["pass_rate", "total_subjects", "valid_subjects"]` and `pass_rate` is a float [0.0, 1.0]. Assert `excluded_session_ids.csv` exists and is consistent.
+ 7. **Hashing**: Call `state_manager.hash_artifact("data/processed/session_validation_metrics.json")` and `state_manager.hash_artifact("data/processed/excluded_session_ids.csv")`. **Depends on: T012**
+- [~] T016 [US1] Implement `code/preprocessing.py` to extract BOLD time series using Power 264 atlas, explicitly excluding nodes listed in `data/contracts/Power264_excl_vs_nodes.json` to prevent double-dipping (FR-002). **Note**: VS ROI is excluded from this extraction per spec; VS time series are extracted separately from task-fMRI in T016c.
+- [~] T016c [US1] Implement `code/preprocessing.py` to explicitly extract the Ventral Striatum (VS) ROI time series from task-fMRI NIfTI files for all valid subjects and write to `data/processed/vs_time_series.csv` (FR-002). **Hashing**: Call `state_manager.hash_artifact("data/processed/vs_time_series.csv")`.
+- [~] T016b [US1] **Aggregate VS Activation and Verify**: Implement logic in `code/preprocessing.py` to:
+ 1. Read `data/processed/vs_time_series.csv` (from T016c).
+ 2. Calculate mean ventral striatum activation magnitude per subject.
+ 3. Write to `data/processed/ventral_striatum_activation.csv`. Schema: `{"subject_id": str, "mean_activation": float}`.
+ 4. **Verification**: Assert file exists, is not empty, and contains columns `["subject_id", "mean_activation"]`. Verify `mean_activation` is the average of the VS ROI time series across reward cue epochs (identified via event file JSON sidecar or fixed time window defined in `code/config.py`).
+ 5. **Hashing**: Call `state_manager.hash_artifact("data/processed/ventral_striatum_activation.csv")`. **Depends on: T016c**
+- [~] T016d [US1] **Log Excluded Nodes**: Implement logic in `code/preprocessing.py` to write the list of Power 264 nodes excluded (those overlapping VS) to `data/contracts/Power264_excluded_vs_nodes_log.csv` to satisfy Constitution Principle VI. **Hashing**: Call `state_manager.hash_artifact("data/contracts/Power264_excluded_vs_nodes_log.csv")`. **Depends on: T007c**
+- [~] T017 [US1] Verify TR of downloaded data matches expected values for window calculations; fail with non-zero exit code and "Error: TR mismatch" if invalid (Assumption). **Depends on: T012a**.
+- [ ] T018 [US1] Ensure memory footprint of loaded data never exceeds 7 GB during processing (SC-001). Generate `data/processed/memory_profile.json` logging peak RAM usage and assert peak < 7GB. **Depends on: T008 (existence)**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (valid CSV time series generated for 50 subjects)
 
@@ -109,18 +130,24 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for K-means clustering determinism (seed=42) in `tests/unit/test_connectivity.py`
-- [ ] T020 [P] [US2] Unit test for flexibility score calculation against known ground truth in `tests/unit/test_connectivity.py`
+- [~] T019 [P] [US2] Unit test for K-means clustering determinism (seed=42) in `tests/unit/test_connectivity.py`
+- [~] T020 [P] [US2] Unit test for flexibility score calculation against known ground truth in `tests/unit/test_connectivity.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020b [US2] Generate synthetic ground truth dataset with known switching patterns to validate the flexibility calculation logic (Independent Test requirement)
-- [ ] T021 [US2] Implement sliding window functional connectivity calculation (window=30 TR, step=1 TR) in `code/connectivity.py` (FR-003)
-- [ ] T022 [US2] Implement K-means clustering (K=4, K-means++, seed=42) to define state space in `code/connectivity.py` (FR-003a)
+- [ ] T020b [US2] Generate synthetic ground truth dataset with known switching patterns to validate the flexibility calculation logic. Write to `data/synthetic/ground_truth_seed.csv` with columns: `subject_id`, `state_sequence`, `flexibility_score`
+- [~] T021a [US2] Refactor `code/connectivity.py` sliding window function to accept `window_size` as a parameter (default 30) to support sensitivity analysis (FR-009).
+- [ ] T021 [US2] Implement sliding window functional connectivity calculation (window=30 TR, step=1 TR) in `code/connectivity.py` (FR-003). **Depends on: T021a**.
+- [ ] T021b [US2] **Sensitivity Analysis Loop**: Implement sensitivity analysis loop in `code/connectivity.py` to execute sliding window calculation for window sizes **[20, 30, 40]** TRs and store intermediate state sequences. **Depends on: T021, T021a**.
+- [ ] T022 [US2] Implement K-means clustering (K=4, K-means++, seed=42) to define state space in `code/connectivity.py` (FR-003a). **Explicitly use `init='k-means++'`**.
 - [ ] T023 [US2] Implement flexibility score calculation (state switching frequency) normalized for scan length in `code/connectivity.py` (FR-004)
-- [ ] T025 [US2] Handle edge case: flag and exclude subjects with zero variance flexibility scores, writing excluded subject IDs to `data/processed/excluded_subjects_log.csv` (Edge Case)
-- [ ] T025b [US2] Filter the `data/processed/ventral_striatum_activation.csv` (from T016b) to match the remaining subject list after zero-variance exclusions, ensuring data alignment for correlation analysis
-- [ ] T026 [US2] Ensure output files are CSVs containing time-series state sequences and scalar flexibility scores
+- [ ] T025 [US2] **Handle Zero-Variance, Align Data, and Verify**: Implement logic in `code/connectivity.py` to:
+ 1. Flag and exclude subjects with zero variance flexibility scores.
+ 2. Write excluded subject IDs to `data/processed/excluded_zero_variance_subjects.csv`.
+ 3. Filter `data/processed/ventral_striatum_activation.csv` (from T016b) to match the remaining subject list.
+ 4. **Verification**: Assert `excluded_zero_variance_subjects.csv` exists and contains valid subject IDs. Verify the filtered activation CSV contains only subject IDs present in the flexibility score output and excludes those in `excluded_zero_variance_subjects.csv`.
+ 5. **Hashing**: Call `state_manager.hash_artifact("data/processed/excluded_zero_variance_subjects.csv")`. **Depends on: T023, T016b**
+- [~] T026 [US2] Ensure output files are CSVs containing time-series state sequences and scalar flexibility scores
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (flexibility scores generated for 50 subjects)
 
@@ -134,18 +161,25 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for Pearson correlation and p-value calculation in `tests/unit/test_analysis.py`
-- [ ] T028 [P] [US3] Unit test for permutation test logic (A sufficient number of iterations will be performed to ensure convergence.) in `tests/unit/test_analysis.py`
+- [~] T027 [P] [US3] Unit test for Pearson correlation and p-value calculation in `tests/unit/test_analysis.py`
+- [~] T028 [P] [US3] Unit test for permutation test logic (a sufficient number of iterations) in `tests/unit/test_analysis.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement Pearson correlation analysis between flexibility scores and ventral striatum activation in `code/analysis.py` (FR-005)
-- [ ] T029b [US3] Implement sensitivity analysis loop for window sizes {20, 30, 40} TRs; calculate correlation and p-value for each; write results to `data/processed/sensitivity_analysis.csv` with columns: window_size, correlation_coefficient, p_value (FR-009)
-- [ ] T030 [US3] Implement permutation test (A sufficient number of iterations will be performed to ensure convergence.) to calculate empirical p-value in `code/analysis.py` (FR-006)
-- [ ] T031 [US3] Handle edge case: report p < 1/1001 if permutation p-value is exactly 0 (Edge Case)
-- [ ] T032 [US3] Generate scatter plot with regression line for the correlation result
-- [ ] T033 [US3] Implement `code/reporting.py` to generate final markdown report containing "associational relationship" and excluding "causal" (FR-007)
-- [ ] T034 [US3] Include sensitivity analysis results (window sizes 20, 30, 40) from `data/processed/sensitivity_analysis.csv` in the final report (FR-009)
+- [ ] T029 [US3] Implement Pearson correlation analysis between flexibility scores and ventral striatum activation in `code/analysis.py` (FR-005). **Depends on: T025**
+- [ ] T029b [US3] **Sensitivity Analysis and Verify**: Implement sensitivity analysis loop for window sizes **[20, 30, 40]** in `code/analysis.py`:
+ 1. Calculate correlation and p-value for each window size.
+ 2. Write results to `data/processed/sensitivity_analysis.csv` with columns: `window_size`, `correlation_coefficient`, `p_value`.
+ 3. **Verification**: Assert file exists, contains exactly 3 rows with `window_size` values [20, 30, 40], and that `correlation_coefficient` and `p_value` are numeric.
+ 4. **Hashing**: Call `state_manager.hash_artifact("data/processed/sensitivity_analysis.csv")`. **Depends on: T021b, T025**
+- [ ] T030 [US3] Implement permutation test with exactly 1,000 iterations to calculate empirical p-value in `code/analysis.py` (FR-006)
+- [~] T031 [US3] Handle edge case: report p < 1/1001 if permutation p-value is exactly 0 (Edge Case)
+- [ ] T032 [US3] Generate scatter plot with regression line for the correlation result. Output to `data/processed/correlation_plot.png` using `matplotlib.pyplot.scatter` with regression line overlay
+- [ ] T033 [US3] **Generate Report and Verify**: Implement `code/reporting.py` to:
+ 1. Generate final markdown report containing "associational relationship" and excluding "causal" (FR-007).
+ 2. Include sensitivity analysis results (window sizes 20, 30, 40) from `data/processed/sensitivity_analysis.csv` (FR-009).
+ 3. **Verification**: Assert the final report contains "associational relationship" and excludes "causal".
+ 4. **Hashing**: Call `state_manager.hash_artifact("paper/results.md")`. **Depends on: T032, T029b**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,16 +189,24 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035a [P] Update `README.md` with installation instructions and CLI usage examples
-- [ ] T035b [P] Update `specs/001-gene-regulation/` documentation with final data flow diagrams
-- [ ] T036a Code cleanup: fix linting errors in `code/`
-- [ ] T036b Code cleanup: remove dead code and unused imports in `code/`
-- [ ] T037c [P] Benchmark pipeline runtime on a small subset (e.g., 5 subjects) to establish a baseline and verify the time constraint before full execution (FR-009/Assumptions)
-- [ ] T037b [P] Performance optimization: ensure total runtime stays <6h for 50 subjects based on T037c results (FR-009/Assumptions)
-- [ ] T037a Performance optimization: ensure peak RAM usage stays <6GB during processing
-- [ ] T038 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T039 Run `quickstart.md` validation
+- [~] T035a [P] Update `README.md` with installation instructions and CLI usage examples
+- [~] T035b [P] Update `specs/001-gene-regulation/` documentation with final data flow diagrams
+- [~] T036a Code cleanup: fix linting errors in `code/`
+- [~] T036b Code cleanup: remove dead code and unused imports in `code/`
+- [~] T037c [P] Benchmark pipeline runtime on a small subset (e.g., 5 subjects) to establish a baseline and verify the time constraint before full execution (FR-009/Assumptions)
+- [~] T037b [P] Performance optimization: ensure total runtime stays <6h for 50 subjects based on T037c results (FR-009/Assumptions). **Deliverable**: Refactored code and benchmark log. **Verification**: Run benchmark script and log total time < 6h.
+- [~] T037a Performance optimization: ensure peak RAM usage stays < 7GB during processing (matches SC-001). **Deliverable**: Refactored streaming code and benchmark log. **Verification**: Run benchmark script and log peak RAM < 7GB.
+- [~] T038 [P] Additional unit tests (if requested) in `tests/unit/`
+- [~] T039 Run `quickstart.md` validation
 - [ ] T040 Verify `state/` YAML contains hashes for all artifacts in `data/processed/` and `paper/` (Constitution V)
+
+---
+
+## Phase 7: Execution & Run-Book Reconciliation
+
+**Purpose**: Ensure the execution environment can successfully run the pipeline as defined.
+
+- [ ] T041 [P] Create `code/main.py` as the orchestration entry point defined in plan.md Phase 2. **Action**: Create the file if missing, or update it to invoke the correct scripts. **Verification**: Run `python code/main.py` successfully. <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
 
 ---
 
@@ -178,11 +220,12 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Execution (Phase 7)**: Depends on all implementation phases being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1 (specifically T016b)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on data from US1 and metrics from US2
 
 ### Within Each User Story

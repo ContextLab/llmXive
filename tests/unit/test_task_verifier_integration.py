@@ -124,8 +124,7 @@ def test_defer_marks_task_under_review_and_blocks_advancement(tmp_path, monkeypa
 
 
 def test_already_verified_tasks_are_not_rejudged(tmp_path, monkeypatch) -> None:
-    """A task that was ALREADY [X] before the tick is settled — the verify pass
-    must not re-judge it (so a flaky reject can't un-settle accepted work)."""
+    """Reuse a prior acceptance only with a matching saved evidence receipt."""
     project = _project()
     d = tmp_path / "projects" / project.id / "specs" / "001-x"
     d.mkdir(parents=True, exist_ok=True)
@@ -143,6 +142,11 @@ def test_already_verified_tasks_are_not_rejudged(tmp_path, monkeypatch) -> None:
         return tv.TaskVerdict(complete=True, reason="ok")
 
     monkeypatch.setattr(tv, "verify_task", _spy)
+    project_dir = tmp_path / "projects" / project.id
+    mem = project_dir / ".specify/memory"
+    tv.run_verification_pass(project_dir, t, already_verified=set(),
+                             notes_path=mem / "notes.md", state_path=mem / "task_verify.yaml")
+    calls.clear()
     graph.run_one_step(project, repo_root=tmp_path)
 
     # Only the newly-claimed T002 is judged; the settled T001 is skipped.

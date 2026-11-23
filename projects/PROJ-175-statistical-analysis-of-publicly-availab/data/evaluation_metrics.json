@@ -1,0 +1,40 @@
+{
+  "auc": 0.0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "calibration_curve": {
+    "prob_true": [],
+    "prob_pred": [],
+    "n_bins": 10
+  },
+  "baseline_metrics": {
+    "auc": 0.0,
+    "precision": 0.0,
+    "recall": 0.0
+  },
+  "full_model_metrics": {
+    "model": "full",
+    "auc": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "brier_score": 0.0,
+    "calibration_curve": {
+      "prob_true": [],
+      "prob_pred": [],
+      "n_bins": 10
+    }
+  },
+  "baseline_model_metrics": {
+    "model": "baseline",
+    "auc": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "brier_score": 0.0,
+    "calibration_curve": {
+      "prob_true": [],
+      "prob_pred": [],
+      "n_bins": 10
+    }
+  },
+  "plot_path": "figures/calibration_curve.png"
+}

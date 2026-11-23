@@ -1,205 +1,227 @@
-# src/code/sensitivity.R
-# Sensitivity Analysis for Niche Shifts (User Story 3)
-# Implements subsampling of occurrence records to assess stability of niche shift estimates.
+#!/usr/bin/env Rscript
+# sensitivity.R - User Story 3: Sensitivity Analysis of Sampling Effort
 #
-# T031: Perform random subsamples (50% of records, 10 replicates, set.seed(42))
-# T032: Recompute niche shift magnitude for each replicate
-# T033: Flag species with SD >= 0.2 and skip species with < 80 records
-# T034: Output results to results/sensitivity_summary.csv
+# Performs random subsampling of occurrence records (50%, 10 replicates),
+# recomputes niche shift magnitude (ΔN) for each replicate, and calculates
+# mean/SD of shifts. Flags species with high variability (SD >= 0.2).
+#
+# Outputs:
+#   - results/sensitivity_summary.csv: Summary statistics per species
+#   - logs/sensitivity.log: Detailed log of subsampling outcomes (FR-010)
+#
+# Dependencies:
+#   - data/raw/<species>_raw.csv (or similar pattern from T013)
+#   - data/processed/centroids.csv (for baseline shift reference if needed, though we recompute)
+#   - src/code/utils.R (logging, directory creation)
+#   - src/code/compute_shifts.R (for re-computing ΔN on subsamples)
 
+# Load dependencies
 library(dplyr)
 library(tidyr)
 library(readr)
-library(utils)
+library(lubridate)
+library(here)
 
-# Source utilities if available
-utils_path <- file.path("src", "code", "utils.R")
-if (file.exists(utils_path)) {
-  source(utils_path)
-} else {
-  # Fallback logging if utils.R not yet loaded (though T004 should be done)
-  log_info <- function(msg) message(paste("[INFO]", Sys.time(), "-", msg))
-  log_warn <- function(msg) message(paste("[WARN]", Sys.time(), "-", msg))
+# Source project utilities
+source(here("src", "code", "utils.R"))
+
+# Configuration
+set.seed(42)
+SUBSAMPLE_FRACTION <- 0.5
+NUM_REPLICATES <- 10
+MIN_RECORDS_THRESHOLD <- 80
+HIGH_VARIABILITY_THRESHOLD <- 0.2
+RESULTS_DIR <- here("results")
+LOGS_DIR <- here("logs")
+RAW_DATA_DIR <- here("data", "raw")
+PROCESSED_DATA_DIR <- here("data", "processed")
+
+# Ensure output directories exist
+create_directory(RESULTS_DIR)
+create_directory(LOGS_DIR)
+
+# Initialize logging
+log_file <- file.path(LOGS_DIR, "sensitivity.log")
+init_logging(log_file, task_name = "Sensitivity Analysis (US3)")
+
+log_message("Starting sensitivity analysis for sampling effort.")
+log_message(paste0("Configuration: Subsample fraction = ", SUBSAMPLE_FRACTION,
+                   ", Replicates = ", NUM_REPLICATES,
+                   ", Min records = ", MIN_RECORDS_THRESHOLD))
+
+# Load raw occurrence data
+# Expecting files like: data/raw/<species_name>_raw.csv
+# We will look for all CSVs in data/raw that match the pattern of species data
+# Alternatively, if there is a master list, use that. For now, we scan the directory.
+raw_files <- list.files(RAW_DATA_DIR, pattern = "_raw\\.csv$", full.names = TRUE)
+
+if (length(raw_files) == 0) {
+  log_message("ERROR: No raw occurrence data files found in data/raw/. Exiting.", level = "ERROR")
+  stop("No raw occurrence data files found. Ensure T013 has run successfully.")
 }
 
-#' Subsample records for a single species
-#'
-#' @param data A data frame containing occurrence records for one species.
-#' @param fraction The fraction of records to keep (default 0.5).
-#' @param seed The random seed for reproducibility.
-#' @return A data frame with the subsampled records.
-subsample_records <- function(data, fraction = 0.5, seed = NULL) {
-  if (!is.null(seed)) {
-    set.seed(seed)
+log_message(paste0("Found ", length(raw_files), " raw occurrence files."))
+
+# Function to compute niche shift (ΔN) for a given dataset
+# This mimics the logic in compute_shifts.R but simplified for local use
+# It expects a dataframe with columns: species, period, temp, precip (standardized)
+compute_delta_n <- function(df_species) {
+  # df_species should have rows for two periods (e.g., "1970-2000", "1991-2020")
+  # We assume global z-scoring was already applied to the columns 'temp' and 'precip'
+  # If not, we would need to pass the global means/SDs, but for this task,
+  # we assume the input data is already standardized as per T021 logic.
+
+  # Check if we have exactly 2 periods
+  periods <- unique(df_species$period)
+  if (length(periods) != 2) {
+    return(NA) # Cannot compute shift with != 2 periods
   }
 
-  n <- nrow(data)
-  if (n < 2) {
-    stop("Input data must have at least 2 records to subsample.")
-  }
+  # Calculate centroids for each period
+  centroid_p1 <- df_species %>%
+    filter(period == periods[1]) %>%
+    summarise(temp_mean = mean(temp, na.rm = TRUE),
+              precip_mean = mean(precip, na.rm = TRUE))
 
-  # Calculate number of records to keep
-  n_keep <- max(1, floor(n * fraction))
+  centroid_p2 <- df_species %>%
+    filter(period == periods[2]) %>%
+    summarise(temp_mean = mean(temp, na.rm = TRUE),
+              precip_mean = mean(precip, na.rm = TRUE))
 
-  # Randomly select indices
-  indices <- sample(seq_len(n), size = n_keep, replace = FALSE)
-
-  return(data[indices, ])
-}
-
-#' Compute niche shift magnitude (Euclidean distance in climate space)
-#'
-#' Assumes data has columns 'temp' and 'precip' and 'period' (e.g., "1970-2000", "1991-2020").
-#' Calculates centroids per period and returns the Euclidean distance.
-#'
-#' @param data Data frame with climate variables and period column.
-#' @return Numeric value of Euclidean distance.
-compute_shift_magnitude <- function(data) {
-  if (!all(c("temp", "precip", "period") %in% names(data))) {
-    stop("Data must contain 'temp', 'precip', and 'period' columns.")
-  }
-
-  centroids <- data %>%
-    group_by(period) %>%
-    summarise(
-      temp_mean = mean(temp, na.rm = TRUE),
-      precip_mean = mean(precip, na.rm = TRUE),
-      .groups = "drop"
-    )
-
-  if (nrow(centroids) < 2) {
-    return(NA_real_)
-  }
-
-  # Assuming periods are ordered or we know which is which.
-  # For simplicity, we assume the first row is period 1 and second is period 2.
-  # In a real scenario, we might sort by period name if they are numeric ranges.
-  p1 <- centroids[1, ]
-  p2 <- centroids[2, ]
-
-  dist <- sqrt(
-    (p1$temp_mean - p2$temp_mean)^2 +
-    (p1$precip_mean - p2$precip_mean)^2
+  # Euclidean distance in climate space
+  delta_n <- sqrt(
+    (centroid_p2$temp_mean - centroid_p1$temp_mean)^2 +
+    (centroid_p2$precip_mean - centroid_p1$precip_mean)^2
   )
 
-  return(dist)
+  return(delta_n)
 }
 
-#' Run sensitivity analysis for all species
-#'
-#' @param input_path Path to the input CSV with occurrence data (e.g., points_with_climate.csv).
-#' @param output_path Path to save the sensitivity summary CSV.
-#' @param n_replicates Number of subsampling replicates (default 10).
-#' @param fraction Fraction of records to subsample (default 0.5).
-#' @param min_records Minimum number of records required to run analysis (default 80).
-#' @param seed Random seed for reproducibility (default 42).
-run_sensitivity_analysis <- function(
-  input_path = "data/processed/points_with_climate.csv",
-  output_path = "results/sensitivity_summary.csv",
-  n_replicates = 10,
-  fraction = 0.5,
-  min_records = 80,
-  seed = 42
-) {
-  log_info("Starting sensitivity analysis.")
+# Prepare results dataframe
+results_list <- list()
 
-  # Check input file
-  if (!file.exists(input_path)) {
-    stop(paste("Input file not found:", input_path))
-  }
+for (file_path in raw_files) {
+  species_name <- tools::file_path_sans_ext(basename(file_path))
+  species_name <- gsub("_raw$", "", species_name)
 
-  data <- read_csv(input_path)
+  log_message(paste0("Processing species: ", species_name))
 
-  # Ensure required columns exist
-  required_cols <- c("species", "temp", "precip", "period", "year")
-  if (!all(required_cols %in% names(data))) {
-    stop(paste("Input file missing required columns:", paste(setdiff(required_cols, names(data)), collapse = ", ")))
-  }
+  tryCatch({
+    # Read raw data
+    raw_data <- read_csv(file_path, show_col_types = FALSE)
 
-  # Prepare output list
-  results <- list()
-
-  # Iterate over species
-  species_list <- unique(data$species)
-  log_info(paste("Processing", length(species_list), "species."))
-
-  for (sp in species_list) {
-    sp_data <- data %>% filter(species == sp)
-    n_records <- nrow(sp_data)
-
-    if (n_records < min_records) {
-      log_warn(paste("Skipping species", sp, "with only", n_records, "records (<", min_records, ")."))
-      results[[sp]] <- list(
-        species = sp,
-        n_records = n_records,
-        mean_shift = NA_real_,
-        sd_shift = NA_real_,
-        flagged = FALSE,
-        status = "Skipped (insufficient records)"
-      )
+    # Validate necessary columns
+    required_cols <- c("species", "decimalLatitude", "decimalLongitude", "eventDate", "temp", "precip", "period")
+    if (!all(required_cols %in% names(raw_data))) {
+      log_message(paste0("Skipping ", species_name, ": Missing required columns in raw data."), level = "WARN")
       next
     }
 
-    shifts <- numeric(n_replicates)
+    # Filter for valid records (non-NA climate, valid coordinates)
+    valid_data <- raw_data %>%
+      filter(!is.na(temp), !is.na(precip),
+             !is.na(decimalLatitude), !is.na(decimalLongitude))
 
-    for (i in 1:n_replicates) {
-      # Subsample
-      subsample <- subsample_records(sp_data, fraction = fraction, seed = seed + i)
+    record_count <- nrow(valid_data)
+    log_message(paste0("  Valid records for ", species_name, ": ", record_count))
 
-      # Compute shift
-      shift_val <- compute_shift_magnitude(subsample)
-
-      if (is.na(shift_val)) {
-        log_warn(paste("Could not compute shift for species", sp, "in replicate", i))
-      }
-      shifts[i] <- shift_val
+    # Check minimum record threshold
+    if (record_count < MIN_RECORDS_THRESHOLD) {
+      log_message(paste0("  Skipping ", species_name, ": Record count (", record_count,
+                         ") is below threshold (", MIN_RECORDS_THRESHOLD, ")."), level = "WARN")
+      next
     }
 
-    mean_shift <- mean(shifts, na.rm = TRUE)
-    sd_shift <- sd(shifts, na.rm = TRUE)
+    # Perform subsampling replicates
+    replicate_shifts <- numeric(NUM_REPLICATES)
 
-    # Flag if SD >= 0.2
-    is_flagged <- ifelse(!is.na(sd_shift) && sd_shift >= 0.2, TRUE, FALSE)
+    for (i in 1:NUM_REPLICATES) {
+      # Random subsample
+      sample_indices <- sample(seq_len(nrow(valid_data)),
+                               size = floor(nrow(valid_data) * SUBSAMPLE_FRACTION))
+      subsample_data <- valid_data[sample_indices, ]
 
-    results[[sp]] <- list(
-      species = sp,
-      n_records = n_records,
+      # Compute shift for this replicate
+      shift_val <- compute_delta_n(subsample_data)
+
+      if (is.na(shift_val)) {
+        log_message(paste0("    Replicate ", i, ": Could not compute shift (missing period data)."), level = "WARN")
+        replicate_shifts[i] <- NA
+      } else {
+        replicate_shifts[i] <- shift_val
+      }
+    }
+
+    # Calculate mean and SD, ignoring NAs
+    mean_shift <- mean(replicate_shifts, na.rm = TRUE)
+    sd_shift <- sd(replicate_shifts, na.rm = TRUE)
+
+    # Flag high variability
+    is_high_variability <- FALSE
+    if (!is.na(sd_shift) && sd_shift >= HIGH_VARIABILITY_THRESHOLD) {
+      is_high_variability <- TRUE
+      log_message(paste0("  WARNING: ", species_name, " flagged for high variability (SD = ",
+                         round(sd_shift, 4), " >= ", HIGH_VARIABILITY_THRESHOLD, ")."), level = "WARN")
+    }
+
+    # Store results
+    results_list[[species_name]] <- data.frame(
+      species = species_name,
+      total_records = record_count,
+      subsample_records_avg = mean(floor(nrow(valid_data) * SUBSAMPLE_FRACTION)),
+      replicate_count = sum(!is.na(replicate_shifts)),
       mean_shift = mean_shift,
       sd_shift = sd_shift,
-      flagged = is_flagged,
-      status = "Completed"
-    )
-  }
-
-  # Convert to data frame
-  output_df <- bind_rows(lapply(results, as.data.frame))
-
-  # Ensure column types
-  output_df <- output_df %>%
-    mutate(
-      flagged = as.logical(flagged),
-      status = as.character(status)
+      high_variability = is_high_variability,
+      stringsAsFactors = FALSE
     )
 
-  # Save output
-  dir.create(dirname(output_path), showWarnings = FALSE, recursive = TRUE)
-  write_csv(output_df, output_path)
+    log_message(paste0("  Completed ", species_name, ": Mean ΔN = ",
+                       round(mean_shift, 4), ", SD = ", round(sd_shift, 4)))
 
-  log_info(paste("Sensitivity analysis complete. Results saved to", output_path))
-
-  # Log summary
-  flagged_count <- sum(output_df$flagged, na.rm = TRUE)
-  log_info(paste("Total species processed:", nrow(output_df)))
-  log_info(paste("Species flagged for high variability (SD >= 0.2):", flagged_count))
-
-  return(output_df)
+  }, error = function(e) {
+    log_message(paste0("ERROR processing ", species_name, ": ", conditionMessage(e)), level = "ERROR")
+  })
 }
 
-# Execute if run as script
-if (!interactive()) {
-  args <- commandArgs(trailingOnly = TRUE)
-  input_file <- if (length(args) >= 1) args[1] else "data/processed/points_with_climate.csv"
-  output_file <- if (length(args) >= 2) args[2] else "results/sensitivity_summary.csv"
+# Combine results into a single dataframe
+if (length(results_list) > 0) {
+  sensitivity_summary <- bind_rows(results_list)
 
-  run_sensitivity_analysis(input_path = input_file, output_path = output_file)
+  # Write to CSV
+  output_path <- file.path(RESULTS_DIR, "sensitivity_summary.csv")
+  write_csv(sensitivity_summary, output_path)
+  log_message(paste0("Sensitivity summary written to: ", output_path))
+
+  # Append detailed log entries for subsampling outcomes (FR-010)
+  # We already logged per-species details, but let's add a final summary block
+  log_message("--- Sensitivity Analysis Summary ---")
+  log_message(paste0("Total species processed: ", nrow(sensitivity_summary)))
+  log_message(paste0("Species with high variability (SD >= ", HIGH_VARIABILITY_THRESHOLD, "): ",
+                     sum(sensitivity_summary$high_variability)))
+  log_message(paste0("Average mean shift across all species: ",
+                     round(mean(sensitivity_summary$mean_shift, na.rm = TRUE), 4)))
+  log_message(paste0("Average SD across all species: ",
+                     round(mean(sensitivity_summary$sd_shift, na.rm = TRUE), 4)))
+  log_message("Sensitivity analysis completed successfully.")
+
+} else {
+  log_message("No species met the criteria for sensitivity analysis. No output file generated.", level = "WARN")
+  # Still create an empty file or a file with headers to indicate the run happened?
+  # The task says "Output results/sensitivity_summary.csv". If empty, we should probably create it with headers.
+  empty_df <- data.frame(
+    species = character(),
+    total_records = integer(),
+    subsample_records_avg = numeric(),
+    replicate_count = integer(),
+    mean_shift = numeric(),
+    sd_shift = numeric(),
+    high_variability = logical(),
+    stringsAsFactors = FALSE
+  )
+  output_path <- file.path(RESULTS_DIR, "sensitivity_summary.csv")
+  write_csv(empty_df, output_path)
+  log_message(paste0("Empty sensitivity summary written to: ", output_path))
 }
+
+log_message("Script execution finished.")

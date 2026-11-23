@@ -1,68 +1,96 @@
 """
-Pytest configuration and fixtures for the llmXive follow-up project.
+Pytest configuration and global fixtures for llmXive project.
 
-This module configures:
-- Fixed random seed (42) for reproducibility across all tests.
-- Global fixtures for temporary directories and data paths.
-- Integration test scaffolding markers.
+This file enforces the fixed random seed (42) requirement for all tests
+to ensure deterministic and reproducible results.
 """
 import os
 import random
-import tempfile
+import sys
 from pathlib import Path
-from typing import Generator
 
-import numpy as np
 import pytest
 
-# Enforce fixed seed for reproducibility
+# Ensure reproducibility by setting global random seeds
+# This runs before any test collection or execution
 SEED = 42
 
-@pytest.fixture(scope="session", autouse=True)
-def set_seed():
-    """Automatically set random seeds for numpy and python random on session start."""
+def pytest_configure(config):
+    """Configure pytest with fixed seed and project paths."""
+    # Set global random seed
     random.seed(SEED)
-    np.random.seed(SEED)
     os.environ["PYTHONHASHSEED"] = str(SEED)
+    
+    # Attempt to set numpy seed if available
+    try:
+        import numpy as np
+        np.random.seed(SEED)
+    except ImportError:
+        pass
+    
+    # Attempt to set torch seed if available
+    try:
+        import torch
+        torch.manual_seed(SEED)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(SEED)
+    except ImportError:
+        pass
 
-@pytest.fixture(scope="session")
-def project_root() -> Path:
-    """Return the root directory of the project."""
+@pytest.fixture(autouse=True)
+def reset_seeds():
+    """
+    Autouse fixture to reset random seeds before each test.
+    This ensures that state from one test does not leak into another.
+    """
+    random.seed(SEED)
+    os.environ["PYTHONHASHSEED"] = str(SEED)
+    try:
+        import numpy as np
+        np.random.seed(SEED)
+    except ImportError:
+        pass
+    try:
+        import torch
+        torch.manual_seed(SEED)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(SEED)
+    except ImportError:
+        pass
+    yield
+    # Optional: Cleanup or verification can happen here
+
+@pytest.fixture
+def project_root():
+    """Return the path to the project root directory."""
     return Path(__file__).parent.parent
 
-@pytest.fixture(scope="session")
-def data_root(project_root: Path) -> Path:
-    """Return the path to the data directory."""
-    return project_root / "data"
+@pytest.fixture
+def data_processed_dir(project_root):
+    """Return the path to the processed data directory."""
+    return project_root / "data" / "processed"
 
-@pytest.fixture(scope="session")
-def raw_data_path(data_root: Path) -> Path:
-    """Return the path to raw data."""
-    return data_root / "raw"
+@pytest.fixture
+def data_raw_dir(project_root):
+    """Return the path to the raw data directory."""
+    return project_root / "data" / "raw"
 
-@pytest.fixture(scope="session")
-def processed_data_path(data_root: Path) -> Path:
-    """Return the path to processed data."""
-    return data_root / "processed"
+@pytest.fixture
+def code_dir(project_root):
+    """Return the path to the code directory."""
+    return project_root / "code"
 
-@pytest.fixture(scope="function")
-def temp_dir() -> Generator[Path, None, None]:
-    """Provide a temporary directory that is cleaned up after the test."""
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        yield Path(tmpdirname)
+@pytest.fixture
+def oracle_graph_path(data_processed_dir):
+    """Path to the generated oracle graph JSON."""
+    return data_processed_dir / "oracle_graph.json"
 
-@pytest.fixture(scope="function")
-def temp_data_file(temp_dir: Path) -> Path:
-    """Provide a path to a temporary data file."""
-    return temp_dir / "test_data.json"
+@pytest.fixture
+def extracted_rules_path(data_processed_dir):
+    """Path to the generated extracted rules JSON."""
+    return data_processed_dir / "extracted_rules.json"
 
-# Markers for test categorization
-# Usage: @pytest.mark.integration
-# Add to pytest.ini or pass via CLI: -m "not integration"
-def pytest_configure(config):
-    config.addinivalue_line(
-        "markers", "integration: mark test as an integration test requiring external resources or full pipeline."
-    )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running."
-    )
+@pytest.fixture
+def divergence_report_path(data_processed_dir):
+    """Path to the generated divergence report JSON."""
+    return data_processed_dir / "divergence_report.json"

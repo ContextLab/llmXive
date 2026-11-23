@@ -14,11 +14,11 @@ The system explicitly addresses the limitation of using only reduction percentag
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `orix` (crystallography), `scikit-learn` (modeling), `pandas`, `numpy`, `pyyaml`, `requests`, `shap` (for variance decomposition)  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`); Parquet/CSV formats.  
 **Testing**: `pytest` (contract tests on schema, unit tests on descriptor calculation, symmetry re-indexing).  
-**Target Platform**: GitHub Actions free-tier runner (limited CPU resources, ~7 GB RAM, no GPU).  
+**Target Platform**: GitHub Actions free-tier runner (limited CPU resources, constrained RAM, no GPU).  
 **Project Type**: Scientific computing pipeline / CLI  
 **Performance Goals**: Complete data ingestion and modeling within 6 hours; R² ≥ 0.85 on held-out test sets (SC-003), with metal-specific analysis if thresholds are not met.  
 **Constraints**: Must run on CPU only; no deep learning; strict adherence to FCC symmetry handling (FR-002); no modification of raw data files.  

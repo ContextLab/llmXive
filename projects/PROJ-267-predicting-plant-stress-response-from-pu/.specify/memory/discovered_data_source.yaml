@@ -1,0 +1,16 @@
+status: none
+intent: Arabidopsis rice wheat drought salinity heat proteomics transcriptomics GEO
+  ProteomeXchange biomaRt dataset python package dataset
+required_fields:
+- sample_id
+- species
+- stress_condition
+- protein_accession
+- protein_abundance
+- gene_symbol
+- gene_expression
+- detection_rate
+- biomaRt_mapped_id
+cache_key: 1c5dbffa281e306c2c57e44c464cccd7ab09d16c45cbaf0b092ed49eb565d464
+searched_at: '2026-10-26T10:45:16.434410+00:00'
+retry_count: 1

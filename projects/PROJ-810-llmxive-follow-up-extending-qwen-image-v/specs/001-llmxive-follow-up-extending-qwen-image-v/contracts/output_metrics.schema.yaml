@@ -21,12 +21,12 @@ properties:
           type: "number"
           minimum: 0
           maximum: 1
-          description: "Unadjusted p-value."
+          description: "Unadjusted p-value (only for separability metrics)."
         p_value_adjusted:
           type: "number"
           minimum: 0
           maximum: 1
-          description: "Bonferroni-corrected p-value."
+          description: "Bonferroni-corrected p-value (only for separability metrics)."
         is_significant:
           type: "boolean"
           description: "Whether the result is significant after correction."
@@ -44,13 +44,10 @@ properties:
           description: "Final conclusion based on metrics and power."
         family:
           type: "string"
-          description: "The correction family (e.g., 'separability', 'fidelity')."
+          description: "The correction family (e.g., 'separability')."
       required:
         - metric_name
         - value
-        - p_value
-        - p_value_adjusted
-        - is_significant
         - conclusion
         - family
 required:

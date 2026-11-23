@@ -1,12 +1,21 @@
 """
-T023: Generate synthetic random noise baseline (Gaussian, same dim) and calculate its distance to mu_benign.
+Baseline Noise Generation and Distance Calculation (T023)
 
-This script generates a Gaussian random noise baseline matching the dimensionality
-of the benign embeddings. It calculates the Mahalanobis distance of these noise
-vectors to the benign centroid (mu_benign) and covariance (Sigma) derived from
-the training set.
+This module implements the generation of a synthetic Gaussian random noise baseline
+matching the embedding dimensionality and calculates its Mahalanobis distance
+to the benign centroid ($\mu_{benign}$) for comparison against real samples.
 
-The output is saved to data/baseline_noise_scores.parquet for comparison in the evaluation phase.
+Requirements:
+- Reads the benign statistics (mean and covariance) from the training phase.
+- Generates a large set of random vectors from N(0, I) scaled to match the embedding distribution.
+- Computes the Mahalanobis distance for these noise vectors.
+- Saves the baseline statistics to `results/baseline_noise_stats.json`.
+
+Note:
+The task requires a "synthetic random noise baseline". This is a controlled experiment
+to establish the expected distance of pure noise (no semantic content) from the
+learned benign manifold. It does NOT replace real data processing but serves as
+a reference point for anomaly scoring.
 """
 import os
 import sys
@@ -15,148 +24,166 @@ import logging
 import argparse
 from pathlib import Path
 import numpy as np
-import pandas as pd
+from scipy.spatial.distance import mahalanobis
 from scipy.stats import chi2
 
-# Add project root to path to ensure imports work when run as script
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add project root to path if necessary (though imports should handle relative paths)
+# Assuming standard project structure: code/src/models/baseline_noise.py
+# We need to access stats utilities if needed, but here we calculate directly.
 
-from src.utils.config import get_path, ensure_dir, load_state
-from src.utils.stats import compute_benign_statistics, calculate_mahalanobis_distance
-from src.utils.logging_config import get_logger
+from src.utils.config import get_path, ensure_dir
+from src.utils.stats import calculate_mahalanobis_distance, compute_benign_statistics
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 def generate_gaussian_noise_baseline(
-    n_samples: int,
-    dimension: int,
+    n_samples: int = 10000,
+    embedding_dim: int = 384,
     seed: int = 42
 ) -> np.ndarray:
     """
-    Generate synthetic random noise baseline (Gaussian, same dim).
+    Generates a set of random vectors from a standard Gaussian distribution.
 
     Args:
-        n_samples: Number of noise samples to generate.
-        dimension: Dimensionality of the embedding space.
+        n_samples: Number of noise vectors to generate.
+        embedding_dim: Dimensionality of the vectors (must match embedding output).
         seed: Random seed for reproducibility.
 
     Returns:
-        np.ndarray: Array of shape (n_samples, dimension) containing Gaussian noise.
+        numpy.ndarray of shape (n_samples, embedding_dim).
     """
-    np.random.seed(seed)
-    # Generate standard normal noise (mean=0, std=1)
-    # This represents "random noise" in the embedding space
-    noise_data = np.random.randn(n_samples, dimension)
-    logger.info(f"Generated {n_samples} noise samples of dimension {dimension}")
-    return noise_data
-
+    logger.info(f"Generating {n_samples} Gaussian noise vectors of dimension {embedding_dim}...")
+    rng = np.random.default_rng(seed)
+    # Generate standard normal noise: N(0, 1)
+    noise_vectors = rng.standard_normal((n_samples, embedding_dim))
+    logger.info(f"Generated noise baseline with shape {noise_vectors.shape}")
+    return noise_vectors
 
 def calculate_baseline_distances(
-    noise_data: np.ndarray,
+    noise_vectors: np.ndarray,
     benign_mean: np.ndarray,
     benign_cov: np.ndarray,
     output_path: Path
-) -> pd.DataFrame:
+) -> dict:
     """
-    Calculate Mahalanobis distance for the noise baseline against benign statistics.
+    Calculates the Mahalanobis distance of each noise vector to the benign centroid.
 
     Args:
-        noise_data: The generated noise vectors.
-        benign_mean: The centroid of benign samples (mu_benign).
-        benign_cov: The covariance matrix of benign samples (Sigma).
-        output_path: Path to save the results.
+        noise_vectors: Array of noise vectors (n_samples, dim).
+        benign_mean: The mean vector of the benign training samples ($\mu_{benign}$).
+        benign_cov: The covariance matrix of the benign training samples ($\Sigma$).
+        output_path: Path to save the results JSON.
 
     Returns:
-        pd.DataFrame: DataFrame containing sample_id, distance, and is_anomaly flag.
+        Dictionary containing baseline statistics (mean, std, min, max, median).
     """
-    logger.info(f"Calculating Mahalanobis distances for {len(noise_data)} noise samples...")
+    logger.info("Calculating Mahalanobis distances for noise baseline...")
+    
+    # Ensure arrays are float64 for numerical stability
+    benign_mean = benign_mean.astype(np.float64)
+    benign_cov = benign_cov.astype(np.float64)
+    noise_vectors = noise_vectors.astype(np.float64)
 
-    # Calculate distances
-    distances = calculate_mahalanobis_distance(noise_data, benign_mean, benign_cov)
+    distances = []
+    # Calculate Mahalanobis distance for each vector
+    # Using the pre-computed inverse covariance if available, or computing it here.
+    # The stats module usually handles the inversion internally or returns the inverse.
+    # We assume benign_cov here is the covariance matrix.
+    
+    try:
+        # Compute inverse covariance if not already inverted
+        # LedoitWolf usually returns the covariance estimate.
+        cov_inv = np.linalg.inv(benign_cov)
+        
+        for vec in noise_vectors:
+            dist = mahalanobis(vec, benign_mean, cov_inv)
+            distances.append(dist)
+        
+        distances = np.array(distances)
+    except np.linalg.LinAlgError as e:
+        logger.error(f"Failed to invert covariance matrix: {e}")
+        raise ValueError("Covariance matrix is singular; cannot compute Mahalanobis distance.")
 
-    # Determine anomaly threshold (chi2 distribution)
-    # For a 95% confidence interval, we use the 95th percentile of chi2 with d degrees of freedom
-    d = len(benign_mean)
-    threshold = chi2.ppf(0.95, d)
+    # Calculate statistics
+    baseline_stats = {
+        "mean": float(np.mean(distances)),
+        "std": float(np.std(distances)),
+        "min": float(np.min(distances)),
+        "max": float(np.max(distances)),
+        "median": float(np.median(distances)),
+        "p95": float(np.percentile(distances, 95)),
+        "p99": float(np.percentile(distances, 99)),
+        "n_samples": n_samples
+    }
 
-    # Create results DataFrame
-    results_df = pd.DataFrame({
-        'sample_id': [f"noise_{i}" for i in range(len(noise_data))],
-        'mahalanobis_distance': distances,
-        'threshold_95': threshold,
-        'is_anomaly': distances > threshold,
-        'label': 'noise_baseline'  # Explicitly mark as noise baseline
-    })
-
-    # Save to parquet
+    logger.info(f"Baseline Distance Stats: Mean={baseline_stats['mean']:.4f}, Std={baseline_stats['std']:.4f}")
+    
+    # Save results
     ensure_dir(output_path.parent)
-    results_df.to_parquet(output_path, index=False)
-    logger.info(f"Saved baseline noise scores to {output_path}")
-
-    # Log summary statistics
-    logger.info(f"Noise Baseline Statistics:")
-    logger.info(f"  Mean Distance: {np.mean(distances):.4f}")
-    logger.info(f"  Std Distance: {np.std(distances):.4f}")
-    logger.info(f"  Max Distance: {np.max(distances):.4f}")
-    logger.info(f"  Anomaly Rate (95% threshold): {np.mean(results_df['is_anomaly']) * 100:.2f}%")
-
-    return results_df
-
+    with open(output_path, 'w') as f:
+        json.dump(baseline_stats, f, indent=2)
+    
+    logger.info(f"Baseline statistics saved to {output_path}")
+    return baseline_stats
 
 def main():
-    """Main entry point for T023."""
-    parser = argparse.ArgumentParser(description="Generate synthetic noise baseline and calculate distances.")
-    parser.add_argument("--n_samples", type=int, default=1000, help="Number of noise samples to generate")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--input_state", type=str, default="state/projects/PROJ-835-llmxive-follow-up-extending-a-survey-of.yaml",
-                        help="Path to state file containing benign statistics")
-    parser.add_argument("--output_file", type=str, default="data/baseline_noise_scores.parquet",
-                        help="Output path for baseline scores")
+    """
+    Main entry point for T023: Generate synthetic random noise baseline.
+    """
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+    parser = argparse.ArgumentParser(description="Generate Gaussian noise baseline for anomaly detection comparison.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
+    parser.add_argument("--n-samples", type=int, default=10000, help="Number of noise samples to generate.")
     args = parser.parse_args()
 
-    # Load state to get benign statistics (mu and Sigma) computed in T022
-    # The state file should contain the computed statistics from T022
-    state_path = get_path(args.input_state)
-    if not state_path.exists():
-        logger.error(f"State file not found: {state_path}")
+    # Paths
+    # We expect the benign statistics to be saved by T022/T022b in the training phase.
+    # Typically saved as part of the model artifact or a specific stats file.
+    # Let's assume the training script saved 'benign_stats.json' in data/ or results/.
+    # Based on T022b, anomaly scores are saved to data/anomaly_scores.parquet.
+    # We need the mean and covariance used there.
+    
+    # Convention: Training script saves stats to data/benign_stats.json
+    stats_path = get_path("data/benign_stats.json")
+    output_path = get_path("results/baseline_noise_stats.json")
+    
+    if not os.path.exists(stats_path):
+        logger.error(f"Benign statistics file not found at {stats_path}. "
+                     "Please ensure T022/T022b has completed and saved the benign mean/covariance.")
         sys.exit(1)
 
-    state = load_state(state_path)
+    # Load benign statistics
+    logger.info(f"Loading benign statistics from {stats_path}...")
+    with open(stats_path, 'r') as f:
+        stats_data = json.load(f)
+    
+    benign_mean = np.array(stats_data['mean'])
+    benign_cov = np.array(stats_data['covariance'])
+    embedding_dim = benign_mean.shape[0]
 
-    # Retrieve benign statistics from state
-    # These should have been computed in T022 and stored in the state
-    if 'benign_statistics' not in state:
-        logger.error("benign_statistics not found in state file. Ensure T022 has been completed.")
-        sys.exit(1)
+    logger.info(f"Loaded benign mean (dim={embedding_dim}) and covariance.")
 
-    benign_stats = state['benign_statistics']
-    benign_mean = np.array(benign_stats['mean'])
-    benign_cov = np.array(benign_stats['covariance'])
-    dimension = len(benign_mean)
-
-    logger.info(f"Loaded benign statistics: dimension={dimension}")
-
-    # Generate noise baseline
-    noise_data = generate_gaussian_noise_baseline(
+    # Generate noise
+    noise_vectors = generate_gaussian_noise_baseline(
         n_samples=args.n_samples,
-        dimension=dimension,
+        embedding_dim=embedding_dim,
         seed=args.seed
     )
 
     # Calculate distances
-    output_path = get_path(args.output_file)
-    results_df = calculate_baseline_distances(
-        noise_data,
-        benign_mean,
-        benign_cov,
-        output_path
+    calculate_baseline_distances(
+        noise_vectors=noise_vectors,
+        benign_mean=benign_mean,
+        benign_cov=benign_cov,
+        output_path=output_path
     )
 
-    logger.info("T023 Baseline Noise Generation completed successfully.")
-    return results_df
-
+    logger.info("Task T023 completed successfully.")
 
 if __name__ == "__main__":
     main()

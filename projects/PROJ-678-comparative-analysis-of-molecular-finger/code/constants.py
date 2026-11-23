@@ -1,11 +1,14 @@
-"""
-Project constants for molecular fingerprint analysis.
-"""
+# Constants for the Comparative Analysis of Molecular Fingerprints for Pesticide Toxicity Prediction
+# This module defines all critical configuration parameters used across the pipeline.
+# These constants MUST be imported by other modules (e.g., filter.py, split.py, fingerprints.py)
+# rather than being hardcoded locally to ensure consistency and maintainability.
 
-# SMARTS pattern for organophosphate detection
+# SMARTS pattern for identifying organophosphates (phosphorus center with specific bonding)
+# Pattern: Phosphorus double-bonded to Oxygen, single-bonded to (O, S, or C), and single-bonded to (O or S)
 SMARTS_PATTERN = "[P](=O)([O,SC])[O,SC]"
 
-# Tanimoto similarity threshold for splitting
+# Tanimoto similarity threshold for maximal dissimilarity splitting
+# Compounds with similarity < this value are considered dissimilar
 TANIMOTO_THRESHOLD = 0.85
 
 # Morgan fingerprint parameters
@@ -17,14 +20,3 @@ MACCS_BITS = 166
 
 # Cross-validation parameters
 N_FOLDS = 5
-
-# Model training parameters
-N_TREES = 100
-MAX_DEPTH = 15
-
-# Statistical test parameters
-SIGNIFICANCE_LEVEL = 0.05
-BOOTSTRAP_ITERATIONS = 1000
-
-# Feature importance threshold for SC-003
-SC003_THRESHOLD = 0.15  # 15% improvement

@@ -1,0 +1,7 @@
+query_id,metric,raw_p,corrected_p,is_significant
+Q1,ndcg_at_k,0.02,0.04,True
+Q1,map_at_k,0.05,0.05,True
+Q2,ndcg_at_k,0.1,0.15,False
+Q2,map_at_k,0.15,0.15,False
+Q3,ndcg_at_k,0.01,0.012,True
+Q3,map_at_k,0.03,0.03,True

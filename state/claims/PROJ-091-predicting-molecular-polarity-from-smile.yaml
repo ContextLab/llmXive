@@ -1,0 +1,37 @@
+- artifact_path: projects/PROJ-091-predicting-molecular-polarity-from-smile/README.md
+  attempts: 1
+  canonical: QM9 dataset contains 134000 small organic molecules
+  claim_id: c_4570e764
+  context: 'This project uses the **QM9** dataset, which contains 134k small organic
+    molecules with quantum mechanical properties. Source: Maxwell et al. (2016) /
+    Zenodo'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This project uses the QM9 dataset, which contains 134k small organic molecules
+    with quantum mechanical properties.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:46:39Z'
+- artifact_path: projects/PROJ-091-predicting-molecular-polarity-from-smile/README.md
+  attempts: 1
+  canonical: Computes more than 200 topological descriptors from SMILES strings
+  claim_id: c_88d21f12
+  context: 'Features include 2D Descriptor Generation: Computes >200 topological descriptors
+    from SMILES strings without 3D conformer generation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Computes_more_than_200_topological_descriptors_from_SMILES_s
+  kind: magnitude
+  raw_text: Computes >200 topological descriptors from SMILES strings without 3D conformer
+    generation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:47:12Z'

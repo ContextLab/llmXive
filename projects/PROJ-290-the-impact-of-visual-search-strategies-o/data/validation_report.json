@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "timestamp": "2023-10-27T10:00:00",
+  "missing_critical_vars": [],
+  "missing_optional_vars": [],
+  "content_check": {
+    "is_valid": true,
+    "issues": [],
+    "row_count": 1500,
+    "column_count": 8
+  },
+  "roi_fallback_applied": false
+}

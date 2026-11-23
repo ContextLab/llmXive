@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-596-memory-palaces-in-llms-spatial-reasoning",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python src/trainer.py --seed 0 --dataset babi_task3 --variant spatial; 1 declared deliverable(s) absent: data/raw/checksums.json",
+  "artifacts": [],
+  "failures": [
+    "python src/trainer.py --seed 0 --dataset babi_task3 --variant spatial -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/src/trainer.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 1,
+  "total_attempts": 14,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-02T09:54:24Z"
+}

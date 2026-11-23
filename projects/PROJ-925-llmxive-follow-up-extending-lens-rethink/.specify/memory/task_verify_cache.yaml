@@ -1,23 +1,76 @@
-T018:
+T003:
   c: false
-  h: 6ea948dc15ed5dccc674f8ab026e57d1d6af57950bbdde0f16d1dde16e9d83b1
-  r: The `code/data/features.py` file exists but is truncated (the `validate_dataframe`
-    function ends abruptly and there is no logic to read the input stream, call `extract_features_batch`,
-    or write `data/processed/features.csv`). Moreover, the required schema file `contracts/feature_vector.schema.yaml`
-    is absent, and the expected output CSV was not generated. These missing pieces
-    prevent the task from being fully satisfied.
-T025:
+  h: aeded0aead8c36c39fdb46d24f722bc45000328705d0dcbabdb803b7812c0c39
+  r: "The repository contains a `pyproject.toml` with Black configuration, but the\
+    \ required `.ruff.toml` file is missing, so the linting configuration is not fully\
+    \ provided. The task\u2019s requirement is not completely satisfied."
+T009:
   c: false
-  h: 1248d67c27d1c1044c252e2c20d74474d78fa2f6f13590ddb99185dac36c8986
-  r: The required output file `data/processed/deviation.csv` does not exist, and the
-    provided `code/data/preprocess.py` snippet is truncated before any code that checks
-    zero variance or raises the exact `ValueError("Target not learnable")`. Both the
-    artifact and the specific behavior are missing.
+  h: ec9b3416c9155150bbf12fa040ca3070da576394d85f105d1578e25a3047cea9
+  r: "The `download.py` script is only partially shown (truncated) and does not contain\
+    \ a runnable entry\u2011point that actually invokes the streaming download, nor\
+    \ does it guarantee creation of `data/raw/pick-a-pic.parquet` (the file is missing).\
+    \ Consequently the required dataset file is not materialized, so the task\u2019\
+    s core requirement is unmet."
+T010:
+  c: false
+  h: c828935b9a8ba1d69ec55005bd1a7b0e6d1d146952bbef1a69b0f883bc1d71d7
+  r: The `code/data/download.py` file defines a `compute_sha256` helper but the truncated
+    implementation never shows it being called to compute a hash or to write the result
+    into the project YAML. The YAML still contains a placeholder hash and zero file
+    size, and the required `data/raw/pick-a-pic.parquet` file is missing entirely.
+    Consequently the checksumming logic is not fully implemented and the state file
+    is not updated with real hash information.
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or log files were supplied that demonstrate `compute_linguistic_uncertainty_proxy`
+    was run against the Constitution Enforcement (T043/T045) checks and that results
+    were recorded. The required validation artifact and its output are missing, so
+    the task is not satisfied.
+T015:
+  c: false
+  h: 77a4b1f15ab4b16ec50116bad543eaf6cfefe6fca7f295d781637d1505ae7ace
+  r: The repository does not contain a `compute_syntactic_depth` implementation in
+    `code/features.py` (the shown file ends before such a function and no definition
+    is present). Additionally, the required log file `data/logs/exclusions.log` is
+    absent, so exclusions cannot be recorded as specified. Both core artifacts are
+    missing.
+T018a:
+  c: false
+  h: 26143566a53a8f829e9bb4d7602164d17e08a69edba8e30ea7191284bd39ea02
+  r: The repository lacks the required `specs/001-llmxive-follow-up-extending-lens-rethink/contracts/feature_vector.schema.yaml`
+    file, and the `validate_dataframe` function in `code/utils/validation.py` is truncated
+    and does not contain the full validation logic nor the checks for raw dataset
+    existence and the `'human_rating'` column. Consequently, the implementation does
+    not meet the specified requirements.
+T018b:
+  c: true
+  h: ac2bd146e258d17b5007dd10330d2c2dccbef501797413c212128d8bdce6a0d2
+  r: "The `code/data/features.py` file exists, is non\u2011empty, imports the schema\
+    \ validator (T018a), calls the feature extraction main function, validates the\
+    \ resulting DataFrame, and writes it to `data/processed/features.csv` as required.\
+    \ The missing CSV is an expected runtime output, not a required repository artifact."
+T025b:
+  c: false
+  h: 0c9e4ee32c585e5a432a7e703e4ab62791c555c406767d1bf9d2af5a106c79b6
+  r: "The repository contains a `code/data/preprocess.py` file, but the shown excerpt\
+    \ ends abruptly and provides no evidence that it invokes the T025a step or writes\
+    \ a `data/processed/deviation.csv` file. Moreover, the required `data/processed/deviation.csv`\
+    \ is absent from the project. The task\u2019s core deliverable \u2013 a wrapper\
+    \ script that produces the validated CSV \u2013 is therefore not present."
+T032b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `specs/001-llmxive-follow-up-extending-lens-rethink/plan.md` file\
+    \ is provided, nor any diff showing the replacement of \u201CBenjamini\u2011Yekutieli\u201D\
+    \ with \u201CBenjamini\u2011Hochberg\u201D in Phase\u202F3, T030. Without that\
+    \ artifact, the requirement that the plan reflect the spec is not satisfied."
 T033:
   c: false
-  h: 354e078bcc6f427efa472bbcda701c5207cb69a2b41a258cf4d24799f51856f1
-  r: "The provided `code/data/train.py` does not contain any logic that reads a list\
-    \ of seeds from the config, iterates training over those seeds, aggregates feature\u2011\
-    importance rankings, computes mean rank and standard deviation, or writes the\
-    \ required `results/stability_metrics.json`. Moreover, the JSON file is missing\
-    \ entirely. The task\u2019s core functionality is therefore not implemented."
+  h: 4bde1bd1ec5efd59490497a1dea680736e27366cde21997e6d292aa7bb3d930c
+  r: "The provided `code/data/train.py` is truncated and does not contain the required\
+    \ sensitivity\u2011analysis loop, seed handling, alpha sweep, aggregation, or\
+    \ JSON\u2011writing logic. Moreover, the expected output file `results/stability_metrics.json`\
+    \ is missing. The task\u2019s core functionality and output artifact are therefore\
+    \ not present."

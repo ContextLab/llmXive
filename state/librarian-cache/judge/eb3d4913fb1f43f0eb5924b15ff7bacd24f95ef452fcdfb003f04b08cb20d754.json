@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2105.04026",
+  "judged_at": "2026-08-26T00:46:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+  "rationale": "The paper is a broad theoretical overview of deep learning mathematics and does not measure chemical reaction yields, spectroscopic data, or attention mechanisms in a chemistry context, failing to satisfy the criteria for same-mechanism evidence, domain-specific variables, or empirical baselines. While it mentions deep learning's success in physical problems generally, it lacks the specific empirical connection to the user's domain (chemistry) and variables (yields/spectroscopy) required for inc",
+  "relevant": false
+}

@@ -1,0 +1,130 @@
+# Retrieval Output Schema
+# Defines the standard output format for petitRADTRANS retrieval results
+# per User Story 2 requirements.
+#
+# This schema supports both detected values and censored upper limits
+# as required for handling low S/N data (Task T019).
+#
+# Fields are designed to satisfy Marie Curie's requirement for explicit
+# uncertainty reporting and Rosalind Franklin's concern for detection limits.
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Exoplanet Retrieval Result
+description: >
+  Output schema for atmospheric retrieval results, including water vapor
+  mixing ratios, uncertainties, and censored data flags.
+
+type: object
+properties:
+  planet_name:
+    type: string
+    description: "Unique identifier for the exoplanet (e.g., 'HD 209458 b')"
+    minLength: 1
+  
+  water_mixing_ratio:
+    type: number
+    description: >
+      Log10 of the water vapor mixing ratio (e.g., -4.5 for 10^-4.5).
+      For censored values (upper limits), this field contains the
+      detection limit value.
+    minimum: -20
+    maximum: 0
+  
+  uncertainty:
+    type: number
+    description: >
+      1-sigma standard deviation of the log10 water mixing ratio.
+      Represents the width of the confidence interval.
+      For upper limits, this is the uncertainty of the limit itself.
+    minimum: 0
+  
+  is_upper_limit:
+    type: boolean
+    description: >
+      Flag indicating if the value is a censored upper limit (True)
+      or a direct detection (False).
+      True when signal < 3-sigma above noise floor (Task T019).
+  
+  detection_limit:
+    type: number
+    description: >
+      The 3-sigma detection limit in log10 mixing ratio units.
+      The minimum value that could be confidently detected given
+      the spectral noise floor and resolution.
+      Always present; equals water_mixing_ratio when is_upper_limit=True.
+    minimum: -20
+    maximum: 0
+  
+  min_detectable_concentration:
+    type: number
+    description: >
+      Minimum Detectable Concentration (MDC) in linear units (not log10).
+      Calculated as 10^detection_limit.
+      Provides the absolute concentration threshold for the observation.
+    minimum: 0
+  
+  snr_at_feature:
+    type: number
+    description: >
+      Signal-to-noise ratio at the 1.4 micron water absorption band.
+      Used to validate the detection limit calculation (Task T035).
+      Values < 3 indicate non-detection.
+    minimum: 0
+  
+  resolution:
+    type: integer
+    description: >
+      Spectral resolution (R = lambda / delta_lambda) of the observation.
+      Required for detection limit calculation per Rosalind Franklin's
+      requirement for resolution definition.
+    minimum: 1
+  
+  retrieval_status:
+    type: string
+    enum: [converged, failed_upper_limit, failed_non_convergent]
+    description: >
+      Status of the retrieval process:
+      - converged: Standard successful retrieval
+      - failed_upper_limit: Retrieval failed, upper limit derived (Task T019)
+      - failed_non_convergent: Retrieval failed, no limit derived (Task T021)
+  
+  metadata:
+    type: object
+    description: "Additional metadata from the retrieval process"
+    properties:
+      instrument:
+        type: string
+        description: "Instrument used for the observation"
+      wavelength_range:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+        description: "[min_wavelength, max_wavelength] in microns"
+      posterior_samples:
+        type: integer
+        description: "Number of posterior samples used for uncertainty estimation"
+
+required:
+  - planet_name
+  - water_mixing_ratio
+  - uncertainty
+  - is_upper_limit
+  - detection_limit
+  - min_detectable_concentration
+  - snr_at_feature
+  - resolution
+  - retrieval_status
+
+additionalProperties: true
+
+# Validation notes:
+# 1. When is_upper_limit=True:
+#    - water_mixing_ratio == detection_limit
+#    - uncertainty represents the 1-sigma confidence on the limit
+# 2. When is_upper_limit=False:
+#    - water_mixing_ratio is the measured value
+#    - uncertainty is the 1-sigma measurement error
+# 3. min_detectable_concentration = 10^detection_limit (always positive)
+# 4. snr_at_feature < 3 implies is_upper_limit should be True (validation check)

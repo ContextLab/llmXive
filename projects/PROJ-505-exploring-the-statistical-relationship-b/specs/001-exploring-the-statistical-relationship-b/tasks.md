@@ -1,252 +1,150 @@
 # Tasks: Exploring the Statistical Relationship Between Solar Wind Composition and Geomagnetic Indices
 
-**Input**: Design documents from `/specs/001-solar-wind-composition-geomagnetic/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, existing project skeleton, reviewer feedback, and verifier‑rejection notes.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/`. <!-- ATOMIZE: requested -->
-- [ ] T002 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/`.
-- [ ] T003 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/`.
-- [ ] T004 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/`.
-- [ ] T005 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion`.
-- [ ] T006 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis`.
-- [~] T007 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils`.
-- [~] T008 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/raw`.
-- [~] T009 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/processed`.
-- [~] T010 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/data/artifacts`.
-- [~] T011 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/unit`.
-- [~] T012 Create directory `projects/PROJ-505-exploring-the-statistical-relationship-b/tests/integration`.
-- [X] T013 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/__init__.py`.
-- [X] T014 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/ingestion/__init__.py`.
-- [X] T015 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/analysis/__init__.py`.
-- [X] T016 Create file `projects/PROJ-505-exploring-the-statistical-relationship-b/code/utils/__init__.py`.
+The list follows the required canonical checkbox format, respects data‑flow ordering, and incorporates the revisions demanded by the verifier (T001, T003, T004, T005) and the reviewer’s comment on realistic temporal alignment. All scientific requirements from the specification are covered.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Setup, utilities, and first end‑to‑end analysis  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Goal**: Obtain real (or, if necessary, synthetic) solar‑wind composition and geomagnetic data, align them to a clean hourly grid, compute coupling functions, and verify that the pipeline runs on a small real subset before scaling to the full multi‑decadal interval.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T001** [P] Pin every project dependency in `requirements.txt` to the pattern `package==major.minor.*`, run a clean installation on a fresh runner, capture the full `pip install` stdout/stderr in `ci/install_log.txt`, and add an integration test that asserts successful installation for each package.   <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/install_requirements.py exit=1 -->
+  *File(s)*: `requirements.txt`, `ci/install_log.txt`, `tests/integration/test_requirements_install.py`  
+  *Verification*: CI step executes `pip install -r requirements.txt`; the test parses `ci/install_log.txt` for the phrase “Successfully installed” for each listed package and exits with code 0.
 
-Examples of foundational tasks (adjust based on your project):
+- [ ] **T002**  Refactor `code/utils/io.py` to provide `load_parquet(path)` and `save_parquet(df, path)` with a safe fallback from `pyarrow` to `fastparquet`.  
+  *File(s)*: `code/utils/io.py`  
+  *Verification*: `pytest tests/unit/test_io.py` passes on a runner that lacks `pyarrow`; the saved parquet file’s SHA‑256 matches the checksum recorded in `data/raw/checksums.yaml`. *(kept for reproducibility)*
 
-- [X] T017 Initialize Python project with `requirements.txt` (pandas, numpy, scikit-learn, statsmodels, scipy, pytest, ruff, black).
-- [X] T018 [P] Implement `code/utils/io.py` for checksumming and parquet loading.
-- [X] T019 Create base configuration for random seeds and file paths in `code/config.py`.
-- [X] T020 Setup error handling and logging infrastructure in `code/utils/logging.py`.
+- [ ] **T013**  Submit a **Principle VI amendment request** permitting the synthetic‑data fallback for workflow validation and defining the gating condition for downstream composition‑dependent analysis.  
+  *File(s)*: `data/artifacts/amendment_request.md` (human‑written rationale, required approvers, reference to the amendment policy).  
+  *Verification*: CI step checks that the file exists before any composition‑dependent script is invoked; a manual reviewer must sign off the request.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] **T003** [US1] Download the **real** solar‑wind bulk parameters and NOAA geomagnetic indices for the study period, store the raw files unchanged, and generate a SHA‑256 manifest. No composition data are fetched here.  
+  *File(s)*: `code/ingestion/download_real.py` → creates  
+   `data/raw/ace_bulk/` (ACE bulk CSVs),  
+   `data/raw/omni/` (OMNI bulk parameters + Dst/Kp),  
+   `data/raw/checksums.yaml` (manifest of all raw files).  
+  *Verification*: Integration test `tests/integration/test_download_real.py` checks that each directory exists, contains at least one file per year for 2000‑2020, and that the SHA‑256 recorded in `checksums.yaml` matches the on‑disk file. The script raises a `RuntimeError` on any HTTP failure; no synthetic fallback is invoked.
 
----
+- [ ] **T017** [US1] **Conditional** – if a Principle VI amendment is approved, generate a deterministic synthetic composition dataset for workflow validation.  
+  *File(s)*: `code/ingestion/generate_synthetic_composition.py --seed 42 --output data/raw/synthetic_composition.parquet` → creates `data/raw/synthetic_composition.parquet` and records its provenance in `data/raw/synthetic_config.yaml`.  
+  *Verification*: Unit test `tests/unit/test_generate_synthetic.py` asserts the file exists, contains the expected columns (`o_fe_ratio`, `he_h_ratio`, `c_o_ratio`), and that the checksum matches the recorded value.
 
-## Phase 3: User Story 1 - Data Ingestion and Temporal Alignment (Priority: P1) 🎯 MVP
+- [ ] **T004** [US1] Align and merge the three streams (bulk, geomagnetic, and optional composition), resample to a strict **1‑hour** grid using **hourly median** aggregation, and enforce the following rules:  
+    • Maximum temporal offset ≤ 30 minutes.  
+    • Exactly one row per hour for the whole study period (including leap‑year handling).  
+    • Core columns (`dst_index`, `kp_index`, bulk parameters) **must be non‑null**.  
+    • Composition fields (`o_fe_ratio`, `he_h_ratio`, `c_o_ratio`) may be `null` when the 2‑hour cadence provides no measurement or when only synthetic data are present.  
+    • Gaps > 6 hours are recorded in `data/artifacts/alignment_report.json`.  
+    • Division‑by‑zero protection: any denominator < 1e‑6 is replaced by 1e‑6.  
+  *File(s)*: `code/ingestion/align.py` → outputs  
+   `data/processed/aligned_hourly.parquet` (conforms to `contracts/dataset.schema.yaml`),  
+   `data/artifacts/alignment_report.json`.  
+  *Verification*: Unit test `tests/unit/test_align.py` validates (i) exactly one row per hour, (ii) monotonic timestamps, (iii) `max_offset_minutes ≤ 30`, (iv) core columns non‑null, (v) schema compliance via `jsonschema`, and (vi) that any gap > 6 h appears in the report.
 
-**Goal**: Download, parse, and align time-series data from ACE/WIND and NOAA into a unified hourly dataset. Handles real-data fetch attempts and falls back to synthetic generation due to data gaps.
+- [ ] **T005** [US2] Compute the **Akasofu ε** and **Newell dΦ/dt** coupling functions from bulk parameters and append them to the aligned dataset.  
+  *File(s)*: `code/analysis/coupling_functions.py` → reads `data/processed/aligned_hourly.parquet` and writes `data/processed/with_coupling.parquet`.  
+  *Verification*: Unit test `tests/unit/test_coupling.py` feeds a handcrafted row and asserts that `epsilon` and `newell_flux` match analytically‑computed values within 1e‑6 relative tolerance; the script exits with code 0 and the output parquet file exists.
 
-**Independent Test**: Execute the ingestion script and verify the output CSV/Parquet contains exactly one row per hour for the study period, with no missing values in core index columns (Dst, Kp) and monotonically increasing timestamps.
+- [ ] **T006** [US2] Fit **baseline** multivariate linear regression models (coupling functions only) for both targets (**Dst** and **Kp**). Compute **Variance Inflation Factor (VIF)** for every predictor and write any VIF ≥ 5 to `data/artifacts/vif_warnings.txt`.  
+  *File(s)*: `code/analysis/regression.py` → produces  
+   `data/artifacts/baseline_model_dst.json`,  
+   `data/artifacts/baseline_model_kp.json`,  
+   `data/artifacts/vif_warnings.txt`.  
+  *Verification*: Integration test `tests/integration/test_regression_baseline.py` checks that each JSON contains `coefficients`, `p_values`, `r_squared`, `adj_r_squared`, and a `vif` dictionary; all p‑values lie in `[0, 1]`; `vif_warnings.txt` lists only predictors with VIF ≥ 5 (or is empty).
 
-### Implementation for User Story 1
+- [ ] **T007** [US2] **Conditional** – if a Principle VI amendment is recorded **and** real or synthetic composition data are present, fit the **full** regression model (coupling + composition) for both targets, compute VIF, and write `data/artifacts/full_model_dst.json` / `full_model_kp.json`.  
+  *File(s)*: `code/analysis/regression.py` (mode `full`) → outputs the two JSON files and updates `vif_warnings.txt` if needed.  
+  *Verification*: Integration test `tests/integration/test_regression_full.py` runs only when `data/raw/synthetic_composition.parquet` exists **and** `data/artifacts/amendment_approved.txt` is present; it asserts the same structure as the baseline test.
 
-- [ ] T021 [US1] Implement `code/ingestion/generate_synthetic_data.py`: Create a multi-year hourly dataset mimicking ACE/WIND composition and NOAA indices distributions (seeded for reproducibility). **This task must be completed BEFORE T022 and T023 as they depend on this generator for fallback logic.**
-- [ ] T022 [US1] Implement `code/ingestion/download_ace.py`: Attempt fetch from CDAWeb; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
-- [ ] T023 [US1] Implement `code/ingestion/download_noaa.py`: Attempt fetch from NOAA Dst/Kp archives; if failed, trigger synthetic generation using T021. **Crucially, label all output artifacts as 'synthetic' ONLY if the fallback is used.**
-- [ ] T024 [US1] Implement `code/ingestion/align.py`: Merge real/synthetic sources, handle data gaps (>6h) via interpolation/flagging, resample to a regular hourly median, apply epsilon floor for zero-velocity/IMF ratios, and **handle instrument version transitions (e.g., ACE SWICS vs. SWICS-2) by applying calibration offsets IF available, ELSE treat them as separate cohorts**. **Include a memory check during processing; if usage > 6GB, log a warning and defer chunked processing to a future phase.**
-- [ ] T025 [US1] Add validation logic to ensure temporal offset ≤ 30 minutes and monotonically increasing timestamps (integrated into T024).
+- [ ] **T008** [US2] **Conditional** – Compute the **incremental ΔR²** (`R²_full − R²_baseline`) for each target and perform **5‑fold time‑series cross‑validation** (`TimeSeriesSplit`) for both baseline and full models. Write the results to `data/artifacts/delta_r2.json` and `data/artifacts/cv_metrics.json`.  
+  *File(s)*: `code/analysis/cross_validation.py` → produces the two JSON files.  
+  *Verification*: Integration test `tests/integration/test_cross_validation.py` asserts that `delta_r2.json` contains `delta_r2_dst` and `delta_r2_kp` equal (within 1e‑8) to the difference of the in‑sample R² values, and that `cv_metrics.json` includes `baseline_r2_dst`, `full_r2_dst`, `delta_r2_cv_dst`, and the analogous Kp entries. The test is skipped if the full model is absent.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T009** [US2] **Conditional** – Compute a **95 % bootstrap confidence interval** for each ΔR² using **10 000** resamples (fixed RNG seed = 42). Output `data/artifacts/delta_r2_ci.json`.  
+  *File(s)*: `code/analysis/bootstrap_ci.py` → writes the CI JSON.  
+  *Verification*: Unit test `tests/unit/test_bootstrap_ci.py` confirms that the CI bounds enclose the observed ΔR² and that the JSON contains a `provenance` block (`source_file`, `script`, `git_commit`, `timestamp`). Skipped if `delta_r2.json` is missing.
 
-> **NOTE: Write these tests AFTER implementation to verify the logic**
+- [ ] **T010** [US3] **Conditional** – Implement the **block permutation test**: shuffle each composition predictor in **24‑hour blocks**, run at least **1 000** iterations (early stop when the standard error of the p‑value < 0.001, hard cap = 10 000). Produce null distributions and two‑sided p‑values for the six hypotheses (three ratios × two indices). Write `data/artifacts/permutation_results.json`.  
+  *File(s)*: `code/analysis/permutation_test.py` → outputs the JSON.  
+  *Verification*: Unit test `tests/unit/test_permutation.py` checks that the stopping criterion is respected, that each entry contains `observed_coefficient`, `null_distribution` (list of floats), and `p_value` ∈ [0, 1]. Test runs only when amendment and composition data are present.
 
-- [ ] T026 [US1] Unit test for data alignment logic in `tests/unit/test_ingestion.py` (verify 1-hour resampling and median aggregation).
-- [ ] T027 [US1] Unit test for synthetic data generator in `tests/unit/test_synthetic.py` (verify realistic distributions and no NaNs in critical columns).
+- [ ] **T011** [US3] **Conditional** – Apply **Benjamini‑Hochberg FDR** correction across the six permutation tests and flag significance using the 95 % percentile rule. Write `data/artifacts/significance.json` and `data/artifacts/fdr_results.csv`.  
+  *File(s)*: `code/analysis/significance.py` → produces the two files.  
+  *Verification*: Unit test `tests/unit/test_significance.py` confirms that percentile flags match the 95 % rule and that `fdr_results.csv` contains columns `hypothesis, raw_p, fdr_p, significant` for all six tests. Skipped if `permutation_results.json` is absent.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] **T012** [US3] **Conditional** – Perform a **sensitivity sweep** over significance thresholds `{0.01, 0.05, 0.10}` using the FDR‑corrected p‑values from T011. Report, for each threshold, the number of significant predictors and the corresponding ΔR² stability. Write `data/artifacts/sensitivity.json` and `data/artifacts/threshold_stability.csv`.  
+  *File(s)*: `code/analysis/sensitivity.py` → outputs the two files.  
+  *Verification*: Unit test `tests/unit/test_sensitivity.py` asserts three rows, non‑negative integer counts of significant predictors, and that ΔR² values are recorded for each threshold. Skipped if `fdr_results.csv` is missing.
 
----
+- [ ] **T014** [ P] Write the top‑level driver `code/main.py` that executes the full pipeline in strict dependency order, automatically detects whether the provenance is **Real** or **Synthetic**, and inserts an appropriate disclaimer in the final report when synthetic composition is used.  
+  *File(s)*: `code/main.py` → produces `data/artifacts/final_report.json`.  
+  *Verification*: End‑to‑end test `tests/integration/test_e2e.py` runs `python -m code.main` and asserts that  
+   - all expected artifact files exist,  
+   - `final_report.json` contains fields `source_type`, `model_summary` (baseline R², full R², ΔR², CI), `significance_summary`, `threshold_stability`, `pipeline_runtime_seconds`, and a complete `provenance` block,  
+   - if `source_type` = `Synthetic`, a `disclaimer` field with the required wording is present,  
+   - SC‑001 rule is respected (ΔR² > 0.05 → “statistically significant and practically meaningful improvement”, otherwise “statistically significant but below practical threshold”),  
+   - total runtime < 6 h. *(the `[P]` tag has been removed to reflect sequential execution)*
 
-## Phase 4: User Story 2 - Multivariate Regression and Predictive Power Assessment (Priority: P2)
+- [ ] **T015** [ P] Generate **tables and figures** directly from validated artifacts:  
+    • Correlation heatmap of all predictors vs. indices,  
+    • Regression coefficient plot with 95 % CIs,  
+    • Residual‑diagnostic plots,  
+    • ΔR² / threshold‑stability summary tables.  
+  *File(s)*: `code/reporting/figures.py` (invoked by `code/main.py --report-only`) → saves PNG files under `data/artifacts/figures/`.  
+  *Verification*: Integration test `tests/integration/test_report_determinism.py` runs the report‑only mode twice and asserts that each figure file exists and has an identical SHA‑256 checksum across runs. Figures that depend on missing composition artifacts are omitted gracefully.
 
-**Goal**: Perform multivariate linear regression to assess if composition ratios (O/Fe, He/H, C/O) provide independent predictive power for Dst/Kp beyond bulk coupling functions.
-
-**Independent Test**: Run the regression module and verify output includes coefficient tables, p-values, and ΔR² between baseline (coupling functions) and full (coupling + composition) models.
-
-### Implementation for User Story 2
-
-- [ ] T028 [US2] Implement `code/analysis/coupling_functions.py`: Derive Akasofu epsilon, Newell function, and other bulk-parameter coupling functions from aligned data.
-- [ ] T029 [US2] Implement `code/analysis/regression.py`: Fit baseline model (coupling functions only) and full model (coupling + composition ratios); calculate coefficients, p-values, and VIF; **explicitly flag and output a warning artifact for any predictor with VIF ≥ 5**. **Prerequisite: T024 (align.py) must be complete.**
-- [ ] T030 [US2] Implement `code/analysis/cross_validation.py`: Perform 5-fold cross-validation to assess out-of-sample R² for both models and calculate ΔR². **Prerequisite: T029 (regression.py) must be complete.**
-- [ ] T031 [US2] Integrate regression results into `data/artifacts/` (CSV/JSON outputs with model metrics).
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T032 [US2] Unit test for coupling function derivation in `tests/unit/test_coupling.py` (verify Akasofu epsilon/Newell function calculations).
-- [ ] T033 [US2] Integration test for regression pipeline in `tests/integration/test_regression.py` (verify ΔR² calculation and VIF check).
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Significance and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Validate statistical significance using block permutation tests and perform sensitivity analysis on thresholds to ensure robustness.
-
-**Independent Test**: Run the significance module and verify block permutation generates a null distribution, and sensitivity analysis reports predictor stability across thresholds.
-
-### Implementation for User Story 3
-
-- [ ] T034 [US3] Implement `code/analysis/permutation_test.py`: Execute block permutation test (minimum 1,000 iterations, 24h blocks) to generate null distributions for composition coefficients. **Logic: Continue iterating until p-value standard error < 0.001 (calculated as sqrt(p*(1-p)/N) where p is the running estimate of the p-value and N is the current iteration count) OR N reaches [deferred]. Calculate and output the [deferred] percentile range (2.5th/97.5th) of the null distribution.** **Prerequisite: T029 (regression.py) must be complete.**
-- [ ] T035 [US3] Implement `code/analysis/sensitivity.py`: Sweep significance thresholds across a range of conventional levels, including 0.01, 0.05, and 0.10. **Explicitly apply Benjamini-Hochberg FDR correction to the 6 hypothesis tests (O/Fe-Dst, O/Fe-Kp, He/H-Dst, He/H-Kp, C/O-Dst, C/O-Kp).** Report variation in significant predictors. **Prerequisite: T029 (regression.py) must be complete.**
-- [ ] T036 [US3] Implement final reporting logic in `code/main.py`: Aggregate all results, **explicitly label data as 'synthetic' ONLY if the fallback was triggered**, and generate summary artifacts (CSV/JSON) for review.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T037 [US3] Unit test for block permutation logic in `tests/unit/test_permutation.py` (verify 24-hour block shuffling and null distribution generation).
-- [ ] T038 [US3] Integration test for sensitivity analysis in `tests/integration/test_sensitivity.py` (verify threshold sweep and FDR correction application).
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T039 [P] Documentation updates in `README.md` (explicitly state data gap and synthetic nature if fallback used).
-- [ ] T040 [P] Refactor `code/analysis/regression.py` to reduce cyclomatic complexity to < 10.
-- [ ] T041 [P] Refactor `code/analysis/permutation_test.py` to reduce cyclomatic complexity to < 10.
-- [ ] T042 [P] Run quickstart.md validation.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2). **Internal Dependency: T022 and T023 depend on T021.**
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2). **Dependency: Depends on T024 (US1) output.**
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2). **Dependency: Depends on T029 (US2) model output.**
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] **T016** [ P] Write a concise **methods & results** section in `specs/001-exploring-the-statistical-relationship-b/research.md` that:  
+    • References the real (or synthetic) data sources and their provenance,  
+    • Reports sample size, missing‑data handling, and **all quantitative results** (`ΔR²`, CI bounds, VIF warnings, significant predictors, sensitivity outcomes) by linking to artifact keys (e.g., `{{artifact:delta_r2.json.delta_r2_dst}}`),  
+    • Honestly describes any non‑significant findings or limitations (e.g., 2‑hour composition cadence, gaps, interpolation decisions),  
+    • Updates `quickstart.md` with the single command `python -m code.main` and the expected artifact checks, and  
+    • Documents the hand‑off to the paper stage (location of tables/figures).  
+  *Verification*: Integration test `tests/integration/test_research_traceability.py` extracts every numeric claim from `research.md` and checks it matches the corresponding value in the JSON/CSV artifacts within `1e‑9`; it also verifies that every figure link resolves to an existing file under `data/artifacts/figures/`. The test skips claims that depend on absent composition artifacts and adds a synthetic‑data disclaimer when appropriate.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 2 – Complete the study and validate its evidence  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for data alignment logic in tests/unit/test_ingestion.py"
-Task: "Unit test for synthetic data generator in tests/unit/test_synthetic.py"
+**Goal**: Validate that any improvement from composition ratios is statistically robust and not an artifact of multiple testing.
 
-# Launch all models for User Story 1 together:
-Task: "Implement code/ingestion/generate_synthetic_data.py (T021)"
-Task: "Implement code/ingestion/download_ace.py (T022)"
-Task: "Implement code/ingestion/download_noaa.py (T023)"
-```
+*(Tasks T010–T012 already cover the required statistical validation; no additional tasks are needed in this phase.)*
 
 ---
 
-## Implementation Strategy
+## Phase 3 – Reproducible reporting and paper hand‑off  
 
-### MVP First (User Story 1 Only)
+**Goal**: Tie together all stages, produce final artifacts, and generate a traceable methods/results write‑up for the downstream paper pipeline.
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Ensure T021 is done before T022/T023)
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (T021 first, then T022/T023)
- - Developer B: User Story 2 (T028, T029, T030)
- - Developer C: User Story 3 (T034, T035)
-3. Stories complete and integrate independently
+*(Tasks T014–T016 fulfil the requirements of this phase.)*
 
 ---
 
-## Notes
+## Dependencies and requirement coverage  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Note**: All data used in this pipeline is synthetic due to unavailability of verified real-world ACE SWICS and NOAA Dst/Kp sources. Scientific hypothesis testing is not possible; only pipeline validation is achieved. All output artifacts MUST be explicitly labeled as 'synthetic' ONLY when the fallback is triggered. The pipeline is designed to handle real data per FR-001/002 if available.
+| Specification | Task(s) | Demonstrating command |
+|---------------|---------|-----------------------|
+| FR‑001, FR‑002 (real data download) | T003 | `python -m code.ingestion.download_real` |
+| FR‑001 (synthetic fallback) | T017 – synthetic generation (conditional) |
+| FR‑003 (hourly median alignment, ≤ 30 min offset) | T004 | `pytest tests/unit/test_align.py` |
+| FR‑004 (baseline regression) | T006 | `python -m code.analysis.regression --mode baseline` |
+| FR‑005 (full regression) | T007 (conditional) | `python -m code.analysis.regression --mode full` |
+| FR‑006 (ΔR²) | T008 (conditional) | `pytest tests/integration/test_cross_validation.py` |
+| FR‑007 (5‑fold CV) | T008 (conditional) | same as above |
+| FR‑008 (block permutation) | T010 (conditional) | `pytest tests/unit/test_permutation.py` |
+| FR‑009 (threshold sweep) | T012 (conditional) | `pytest tests/unit/test_sensitivity.py` |
+| FR‑010 (BH FDR) | T011 (conditional) | `pytest tests/unit/test_significance.py` |
+| FR‑011 (VIF) | T006 / T007 (conditional) | `pytest tests/integration/test_regression_baseline.py` |
+| SC‑001 (ΔR² CI & practical‑vs‑significant rule) | T009 (conditional), T014 | `pytest tests/integration/test_e2e.py` |
+| SC‑002 (95 % percentile significance) | T011 (conditional) | `pytest tests/unit/test_significance.py` |
+| SC‑003 (threshold stability) | T012 (conditional) | `pytest tests/unit/test_sensitivity.py` |
+| SC‑004 (out‑of‑sample R²) | T008 (conditional) | `pytest tests/integration/test_cross_validation.py` |
+
+**Execution order** (respecting data flow and amendment gating):  
+
+`T001 → T002 → T013 → T003 → T017 (if amendment) → T004 → T005 → T006 → T007 (if amendment) → T008 (if full model) → T009 (if ΔR²) → T010 (if amendment) → T011 (if permutation) → T012 (if FDR) → T014 → T015 → T016`
+
+All pending tasks are unchecked; each includes a concrete verification step that the CI will run. Completed work (e.g., T002) remains checked.

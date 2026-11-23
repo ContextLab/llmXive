@@ -1,189 +1,118 @@
-"""
-Hardware specification detection and CPU governor configuration utility.
-
-This script detects the number of CPU cores, cache line size, and attempts
-to set the CPU governor to 'performance' mode for consistent benchmarking.
-"""
-
 import os
 import subprocess
 import sys
 import yaml
 from pathlib import Path
+from typing import Dict, Any, Optional
+from datetime import datetime
+import re
+import platform
 
-
-def get_core_count() -> int:
-    """Detect the number of logical CPU cores."""
-    try:
-        # Try os.cpu_count() first (Python standard)
-        count = os.cpu_count()
-        if count is not None and count > 0:
-            return count
-    except Exception:
-        pass
-
-    # Fallback: parse /proc/cpuinfo if available
-    try:
-        with open("/proc/cpuinfo", "r") as f:
-            content = f.read()
-            return content.count("processor\t:")
-    except FileNotFoundError:
-        pass
-
-    # Final fallback: use nproc command
-    try:
-        result = subprocess.run(["nproc"], capture_output=True, text=True, check=True)
-        return int(result.stdout.strip())
-    except (subprocess.CalledProcessError, ValueError):
-        return 1  # Default to 1 if detection fails
-
-
-def get_cache_line_size() -> int:
-    """Detect the CPU cache line size in bytes."""
-    # Common default for x86_64
-    default_size = 64
-
-    # Try to read from sysfs (Linux)
-    try:
-        # Check for L1 data cache line size
-        sysfs_path = "/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size"
-        if os.path.exists(sysfs_path):
-            with open(sysfs_path, "r") as f:
-                return int(f.read().strip())
-    except (ValueError, FileNotFoundError, PermissionError):
-        pass
-
-    # Try dmidecode if available (requires root usually)
-    try:
-        result = subprocess.run(
-            ["dmidecode", "-t", "cache"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        for line in result.stdout.splitlines():
-            if "Line Size" in line:
-                parts = line.split(":")
-                if len(parts) > 1:
-                  # Extract number (e.g., "64 Bytes")
-                  num_str = "".join(filter(str.isdigit, parts[1]))
-                  if num_str:
-                      return int(num_str)
-    except (subprocess.TimeoutExpired, FileNotFoundError, subprocess.CalledProcessError):
-        pass
-
-    # Fallback: check getconf (sometimes available)
-    try:
-        result = subprocess.run(["getconf", "LEVEL1_DCACHE_LINESIZE"], capture_output=True, text=True, timeout=5)
-        if result.returncode == 0:
-            return int(result.stdout.strip())
-    except (subprocess.TimeoutExpired, FileNotFoundError, ValueError):
-        pass
-
-    return default_size
-
-
-def set_cpu_governor(target_governor: str = "performance") -> tuple[bool, str]:
-    """
-    Attempt to set the CPU governor to the specified mode.
-
-    Returns:
-        tuple: (success: bool, message: str)
-    """
-    governor_path = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"
-
-    # Check if we have permission to write
-    if not os.path.exists(governor_path):
-        return False, f"Governor path not found: {governor_path}. System may not support dynamic governor changes."
-
-    if not os.access(governor_path, os.W_OK):
-        return False, f"Permission denied: Cannot write to {governor_path}. Try running with sudo."
-
-    # Check if the target governor is available
-    available_path = governor_path.replace("scaling_governor", "scaling_available_governors")
-    available_governors = []
-    try:
-        with open(available_path, "r") as f:
-            available_governors = f.read().strip().split()
-    except FileNotFoundError:
-        pass
-
-    if target_governor not in available_governors:
-        current_governor = "unknown"
+def get_cpu_model() -> str:
+    """Detect CPU model from /proc/cpuinfo (Linux) or fallback."""
+    if sys.platform == "linux":
         try:
-            with open(governor_path, "r") as f:
-                current_governor = f.read().strip()
+            with open("/proc/cpuinfo", "r") as f:
+                for line in f:
+                    if line.startswith("model name"):
+                        return line.split(":", 1)[1].strip()
         except FileNotFoundError:
             pass
-        return False, f"Governor '{target_governor}' not available. Available: {available_governors}. Current: {current_governor}"
+    # Fallback to platform module
+    return platform.processor() or platform.machine() or "Unknown CPU"
 
-    # Attempt to set the governor
+def get_core_count() -> int:
+    """Detect logical core count."""
     try:
-        with open(governor_path, "w") as f:
-            f.write(target_governor)
-        return True, f"Successfully set CPU governor to '{target_governor}'"
-    except PermissionError:
-        return False, f"Permission denied while writing to {governor_path}. Try running with sudo."
-    except Exception as e:
-        return False, f"Failed to set governor: {str(e)}"
+        return os.cpu_count() or 1
+    except Exception:
+        return 1
 
+def get_cache_line_size() -> int:
+    """Detect cache line size (default 64 bytes if undetectable)."""
+    if sys.platform == "linux":
+        try:
+            # Try reading from sysfs (modern Linux)
+            cache_path = "/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size"
+            if os.path.exists(cache_path):
+                with open(cache_path, "r") as f:
+                    return int(f.read().strip())
+        except (FileNotFoundError, ValueError, PermissionError):
+            pass
+        
+        try:
+            # Fallback: lscpu
+            result = subprocess.run(
+                ["lscpu"], 
+                capture_output=True, 
+                text=True, 
+                timeout=5
+            )
+            for line in result.stdout.splitlines():
+                if line.startswith("Cache line size:"):
+                    return int(line.split(":", 1)[1].strip())
+        except (subprocess.TimeoutExpired, ValueError, FileNotFoundError):
+            pass
 
-def generate_hardware_spec(output_path: str | None = None) -> dict:
+    # Default assumption for x86_64
+    return 64
+
+def get_compiler_flags() -> str:
+    """Detect default compiler flags or common optimization flags."""
+    # Check environment variables first
+    cxx_flags = os.environ.get("CXXFLAGS", "")
+    if cxx_flags:
+        return cxx_flags
+    
+    # Common default for build systems in this project
+    return "-O3 -march=native"
+
+def generate_hardware_spec(output_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Detect hardware specs and optionally save to a YAML file.
-
+    Detect hardware specifications and write them to a YAML file.
+    
     Args:
-        output_path: Optional path to save the YAML file. If None, only returns the dict.
-
+        output_path: Path to write the YAML file. Defaults to data/hardware_spec.yaml 
+                     relative to the project root.
+                     
     Returns:
-        dict: Hardware specification dictionary.
+        The generated specification dictionary.
     """
-    core_count = get_core_count()
-    cache_line_size = get_cache_line_size()
-    governor_success, governor_msg = set_cpu_governor("performance")
-
+    if output_path is None:
+        # Determine project root relative to this file's location
+        current_file = Path(__file__).resolve()
+        project_root = current_file.parent.parent.parent.parent
+        output_path = project_root / "data" / "hardware_spec.yaml"
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     spec = {
-        "detected_at": None,  # Will be set by caller if needed, or left as null
-        "hardware": {
-            "logical_cores": core_count,
-            "cache_line_size_bytes": cache_line_size,
-        },
-        "cpu_governor": {
-            "requested": "performance",
-            "success": governor_success,
-            "message": governor_msg
-        }
+        "cpu_model": get_cpu_model(),
+        "core_count": get_core_count(),
+        "cache_line_size": get_cache_line_size(),
+        "compiler_flags": get_compiler_flags(),
+        "timestamp": datetime.now().isoformat()
     }
-
-    if output_path:
-        output_file = Path(output_path)
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w") as f:
-            yaml.dump(spec, f, default_flow_style=False, sort_keys=False)
-
+    
+    with open(output_path, "w") as f:
+        yaml.dump(spec, f, default_flow_style=False, sort_keys=False)
+    
     return spec
 
-
 def main():
-    """Entry point for the script."""
-    # Default output path relative to project root
-    project_root = Path(__file__).resolve().parent.parent.parent
-    output_file = project_root / "data" / "hardware_spec.yaml"
-
-    print(f"Detecting hardware specifications...")
-    print(f"  Logical Cores: {get_core_count()}")
-    print(f"  Cache Line Size: {get_cache_line_size()} bytes")
-
-    success, msg = set_cpu_governor("performance")
-    print(f"  CPU Governor: {'Success' if success else 'Failed'} - {msg}")
-
-    spec = generate_hardware_spec(str(output_file))
-
-    print(f"\nHardware specification saved to: {output_file}")
-    print("Contents:")
-    with open(output_file, "r") as f:
-        print(f.read())
-
+    """Entry point for running the hardware detection script."""
+    try:
+        spec = generate_hardware_spec()
+        print(f"Hardware specification written to: {spec.get('output_path', 'data/hardware_spec.yaml')}")
+        print(f"CPU Model: {spec['cpu_model']}")
+        print(f"Core Count: {spec['core_count']}")
+        print(f"Cache Line Size: {spec['cache_line_size']} bytes")
+        print(f"Compiler Flags: {spec['compiler_flags']}")
+        sys.exit(0)
+    except Exception as e:
+        print(f"Error generating hardware spec: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

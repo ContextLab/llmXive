@@ -1,0 +1,8 @@
+pandas
+scipy
+statsmodels
+numpy
+pyyaml
+pytest
+black
+ruff

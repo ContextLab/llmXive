@@ -1,0 +1,54 @@
+T001:
+  task: d83bc269745b8f87625151982a3cd2551c354fbab94e61a02b41f8e330f419c0
+T002:
+  reason: "The evidence includes `.ruff.toml` and `pyproject.toml`, but the required\
+    \ `.flake8` file and `.env.example` (with the placeholder keys) are missing, so\
+    \ the linting/formatting and env\u2011variable template requirements are not fully\
+    \ satisfied."
+  task: a72a9d3083ccff6edfdbfd03c5b613cf08986f0239bbcf940acdfb266f4c6413
+T003:
+  task: 70c3a6076013af70ca88953d5eeb0eebfdfb224dc36471144dd9e4a9cca83f32
+T004:
+  task: 7366c60ac2e8dccea1eb3ce47cbd663380d5df4b332250e30cc34ccb648af4b7
+T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 738e70b6e41b782f50676c8dab6a851da28c74885cac8b5327233fbe083bc6e1
+T006:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1'
+  task: d416287bb5fdde07ba2fd48bb8b1bb99a810fb51bb183ebe746d9f201ef1327d
+T007:
+  task: 0f0a21f5a86ecb0b58f398df6d0f9bd1ad917849fba919d2d76a473817069280
+T008:
+  task: 9c15b7bd566d17fa303434f31ebcc5f1e6305a44b5d67b8ab3149e0cfc3781ab
+T009:
+  task: d149bb70aad5fa598ab3beeb0edb78d026f386f5833f30d66ebf5e5caf2bb3b8
+T010:
+  task: 9a963c041f1b931d65fbcfb3544ede1db08908a88db7a0c66044a5a3fef31d30
+T011:
+  task: 7d160b6ab2e3740ef497ed8d40e246ca5cec7c74cd7697f16a83c395f7a4906f
+T012:
+  task: 7153f9b92d5323262ca3902962c6a1a2eb7a5642f290c86273a7e4c377ccba4b
+T013:
+  task: 7910b5608d58431c2d620406d884773b01bd4c973afaf9e3909163075ed31f41
+T014:
+  task: 04bf3b2659835f81725a80a013a19a56b19a894dee7c76a500812ad1ae28eaa7
+T015a:
+  task: 2a92e12f78cd2dfc42a7c27ef13a720e5f112d909cea2ce4dc08cd4b3cc3f030
+T015b:
+  task: 5a01127c4f0137936edb8046fdbdb0d8b7d352efba89d5808041cc4e6fb0c5ba
+T015c:
+  task: a9c04ea8bf5c71c9a1b5cb6beceb28796e2535349f5fed942dbf52387fbba527
+T016:
+  task: e71ad303cae5d29defb75fa82954b03d9c52fa3f1ae0115f4221f4930c954eb9
+T017:
+  task: 26749d4a83f1dd280e168b4598c51d570406d9c2a839d729000d7ed35c4316c3
+T018:
+  task: ba117d51adda3dfcc9ada9fcda21af9954a9bf98f171c7708ab30b34f48d2fbc
+T020:
+  task: ecb6d7917f120e90fa312fac13075d4ae0a1173a4bee67d10da898ff9af9a49a
+T021:
+  task: 7801429e262324e28cc7f166e240e94526bbff4b92b2414382fdd791de216835

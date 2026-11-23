@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-515-predicting-plant-pathogen-host-range-fro
-last_run_id: 3a068784-90cf-455e-b078-cddd079a08fc
+last_run_id: 010fe835-3239-418f-9791-bb6083cb47f4
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-515-predicting-plant-pathogen-host-range-fro/specs/001-predicting-plant-pathogen-host-range-fro
 title: Predicting Plant Pathogen Host Range from Publicly Available Genomic and Interaction
   Data
-updated_at: '2026-07-02T15:48:44.430911Z'
+updated_at: '2026-09-20T21:59:15.826872Z'

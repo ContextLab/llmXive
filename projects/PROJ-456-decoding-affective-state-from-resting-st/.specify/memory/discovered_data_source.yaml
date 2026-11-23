@@ -1,0 +1,13 @@
+status: none
+intent: download OpenNeuro resting state EEG ds ds004137 python package dataset
+required_fields:
+- subject_id
+- session_id
+- eeg_data
+- sampling_rate
+- channel_names
+- affective_questionnaire_responses
+- event_markers
+cache_key: 32ada4f818e81c9e99794bb505d8762c4ed4b9970db157091c52ed496ffe2fd4
+searched_at: '2026-10-18T00:52:35.487770+00:00'
+retry_count: 1

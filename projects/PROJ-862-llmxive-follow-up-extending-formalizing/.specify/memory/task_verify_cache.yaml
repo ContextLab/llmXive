@@ -1,0 +1,94 @@
+T008b:
+  c: false
+  h: eecc6ca6da31f51f986dbdb9a52ce58cbf120801fe379d2e575840ade3b39396
+  r: "The provided `code/memory_monitor.py` is truncated and does not show any logic\
+    \ that writes the peak RSS value to `data/processed/memory_profile.json`. Moreover,\
+    \ the required JSON file is missing from the repository. Consequently, the task\u2019\
+    s core requirement of persisting the memory profile for every run is not satisfied."
+T013:
+  c: false
+  h: 3818f0240a09fa257560fc6720a94963d03f61a2b5bc09218490a0afec7d0a39
+  r: The provided `code/data_loader.py` only contains dataset loading and validation
+    utilities; it lacks any function that pairs questions by task type, assigns `PairID`s,
+    or writes `data/processed/pairing_config.json`. Moreover, the required `pairing_config.json`
+    file does not exist. Both the implementation and the expected output artifact
+    are missing.
+T015:
+  c: false
+  h: 76e9b35d8166b7cfa64ae0647dd7a4d16f60f46b85b75a957a848d1b5bde7b2e
+  r: "The repository lacks the required `data/processed/baseline_vectors.csv` file,\
+    \ and the provided `code/main.py` excerpt is truncated before showing any dimension\u2011\
+    mismatch validation, base64 encoding of L2\u2011normalized vectors, or tracemalloc\u2011\
+    based logging. Consequently the task\u2019s specifications are not demonstrably\
+    \ met."
+T019:
+  c: false
+  h: 540b8345e0ca9451fe64b874645a5648a85b13e4454b084d968f787b00680489
+  r: 'The `code/data_loader.py` file is truncated and contains a syntax error (`''TaskType'':
+    task_t` is undefined and the code ends abruptly), so it does not fully implement
+    the required pairing logic. Moreover, the required output file `data/processed/pairing_config.json`
+    is missing entirely. Both the implementation and the expected artifact are absent,
+    so the task is not satisfied.'
+T021:
+  c: false
+  h: ca077c56c3c716833bb8b69dd50a97d07717a7fb8cb53418c0c19a46d1286717
+  r: "The required output file `data/processed/baseline_vectors.csv` does not exist,\
+    \ and the provided `code/main.py` excerpt is truncated and shows no implementation\
+    \ of the baseline extraction loop, dimension\u2011mismatch validation, or tracemalloc\u2011\
+    based RSS logging. The missing CSV file alone means the task\u2019s deliverable\
+    \ is not satisfied."
+T022:
+  c: false
+  h: ae6853103b859272eddd26daeccb233e10de3fad198e879e09c3eb9054eab307
+  r: The repository lacks the required `data/processed/memory_profile.json` file,
+    and there is no evidence (e.g., test results, logs, or a verification script)
+    showing that `code/main.py` logs progress and memory usage as specified or that
+    the produced CSV conforms to the schema. These missing artifacts must be added
+    and demonstrated for the task to be considered complete.
+T027:
+  c: false
+  h: d95d17a7a1e901d59a0a5d7e2acdd57b0dca599568dcc7e6f934e97c2f594dcc
+  r: "The provided `code/validity_check.py` does not contain an implementation of\
+    \ `check_output_validity(model_output, expected_answer)` (the file is truncated\
+    \ before such a function appears) and the required CSV files `data/processed/filtered_pairs_output_validity.csv`\
+    \ and `data/processed/failed_output_validity_pairs.csv` are absent. The task\u2019\
+    s core functionality and output artifacts are therefore missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation was presented that implements the required logic\
+    \ to flag \u201CSignificant Separability Increase\u201D when the corrected p\u2011\
+    value is below 0.05. The claim lacks any artifact (e.g., a function, script, or\
+    \ notebook) that performs the p\u2011value check and produces the flag, so the\
+    \ requirement is not satisfied."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main.py` file or refactored code was presented; the evidence consists only
+    of the task description and feature spec, with no actual artifact to inspect.
+    Without the cleaned/refactored script, we cannot confirm that the required code
+    cleanup was performed.
+T038:
+  c: false
+  h: 94d85b3a84e08407bca864c86f9a4220ff0388a95f7bdd0598c3f28b86043fb6
+  r: "The repository contains a `code/plot_sensitivity.py` file, but the required\
+    \ output document `docs/sensitivity_report.md` is absent, and the dependent data\
+    \ file `data/processed/sensitivity_report.json` does not exist. Without the JSON\
+    \ input and the generated markdown report, the task\u2019s deliverables are incomplete."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a revised `main.py` was provided, nor any documentation or code
+    showing that the `run_sweep` function is now fully utilized. The required artifact
+    (the cleaned and refactored script with proper usage and docstrings) is missing.
+T047:
+  c: false
+  h: 072b3482e8810ed244013d171bf6f13a557f57954ff5ee13b47cd60cd8b94599
+  r: "The provided `code/main.py` only defines a `verify_data_fetch_integrity` helper\
+    \ that delegates to `load_reasoning_dataset` and is not invoked before model loading;\
+    \ the script still loads the model first. Moreover, the required `data/checksums.json`\
+    \ file is missing, so the checksum validation cannot actually be performed. The\
+    \ implementation does not guarantee exiting with code\u202F1 on failure nor does\
+    \ it explicitly check for the presence of files in `data/raw/`. A proper pre\u2011\
+    flight check must be added early in the script, the checksum file must exist,\
+    \ and the script must terminate with the specifi"

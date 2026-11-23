@@ -1,0 +1,34 @@
+[MASTER]
+extension-pkg-whitelist=
+init-hook=
+persistent=yes
+py-version=3.9
+unsafe-load-any-extension=no
+
+[MESSAGES CONTROL]
+disable=
+    C0114,
+    C0115,
+    C0116,
+    R0903,
+    R0913,
+    R0914,
+    R0915
+
+[FORMAT]
+max-line-length=88
+
+[DESIGN]
+max-args=10
+max-locals=20
+max-returns=6
+max-branches=15
+max-statements=60
+max-attributes=10
+max-public-methods=20
+
+[SIMILARITIES]
+min-similarity-lines=4
+ignore-comments=yes
+ignore-docstrings=yes
+ignore-imports=no

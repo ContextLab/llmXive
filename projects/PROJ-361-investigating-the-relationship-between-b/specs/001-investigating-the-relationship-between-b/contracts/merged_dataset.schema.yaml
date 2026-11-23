@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Dataset Schema"
+description: "Schema for the merged dataset (data/processed/merged_dataset.csv) containing topology metrics and illusion scores"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique subject identifier"
+  modularity:
+    type: "number"
+    description: "Modularity metric"
+  path_length:
+    type: "number"
+    description: "Path length metric"
+  clustering:
+    type: "number"
+    description: "Clustering coefficient"
+  efficiency:
+    type: "number"
+    description: "Global efficiency"
+  muller_lyer_error:
+    type: ["number", "null"]
+    description: "Error magnitude in Müller-Lyer illusion task (may be null if missing)"
+  ponzo_error:
+    type: ["number", "null"]
+    description: "Error magnitude in Ponzo illusion task (may be null if missing)"
+  included:
+    type: "boolean"
+    description: "Whether the subject passed all exclusion criteria"
+required:
+  - subject_id
+  - modularity
+  - path_length
+  - clustering
+  - efficiency
+  - included
+additionalProperties: false

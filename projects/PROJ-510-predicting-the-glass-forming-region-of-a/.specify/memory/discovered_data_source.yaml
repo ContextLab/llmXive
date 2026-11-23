@@ -1,0 +1,15 @@
+status: none
+intent: download ternary alloy CCR experimental dataset and OQMD elemental properties
+  python package dataset
+required_fields:
+- alloy_composition
+- measured_critical_cooling_rate
+- temperature_of_measurement
+- source_reference
+- element
+- atomic_radius_OQMD
+- electronegativity_OQMD
+- formation_enthalpy_OQMD
+cache_key: b2de610342041d66fdaaa7c219bb01a868c90571f29cca79ef93fb61ede81a4b
+searched_at: '2026-10-23T13:39:00.405158+00:00'
+retry_count: 1

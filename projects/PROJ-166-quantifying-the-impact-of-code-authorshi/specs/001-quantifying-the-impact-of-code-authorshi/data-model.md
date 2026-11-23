@@ -1,53 +1,55 @@
-# Data Model: Quantifying the Association Between Code Authorship Diversity and Software Security
+# Data Model: Quantifying the Impact of Code Authorship Diversity on Software Security
 
-## Overview
+## 1. Entity Definitions
 
-This document defines the data schemas for the pipeline. All data flows from raw downloads to processed CSVs, then to model inputs.
+### 1.1 Repository (Source)
+Represents a single target GitHub repository.
+*   `repo_id`: Unique identifier (e.g., `owner/name`).
+*   `url`: Full GitHub URL.
+*   `primary_language`: Language of the repository (e.g., "Python").
+*   `created_at`: Date of repository creation.
+*   `stars`: Number of stars at ingestion time.
 
-## Entity Definitions
+### 1.2 Commit History (Derived)
+Derived from `git log` on the cloned repository.
+*   `total_commits`: Count of commits in the `--shallow-since` window.
+*   `unique_authors`: Count of distinct email addresses (or usernames) in the commit log. **Primary Independent Variable (Breadth)**.
+*   `project_age`: Years from `created_at` to `last_commit_date`.
 
-### 1. Repository Metrics (Processed)
-Derived from local git clones and `cloc` execution.
-- **Source**: `code/data/extract_github.py`
-- **Target**: `data/processed/repo_metrics.csv`
-- **Keys**: `repo_url` (PK)
+### 1.3 Code Metrics (Derived)
+*   `kloc`: Thousands of Lines of Code (calculated by `cloc`).
+*   `log_kloc`: Natural logarithm of `kloc`.
+*   `entropy`: Shannon entropy of author commit distribution. **Secondary Metric (Evenness)**.
+*   `author_count`: Alias for `unique_authors` used in modeling.
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `repo_url` | string | Full HTTPS URL of the repository. | Input List |
-| `primary_language` | string | Dominant language (e.g., Python, JavaScript). | GitHub API / cloc |
-| `raw_line_count` | integer | Total lines of code from `cloc`. | cloc |
-| `kloc` | float | `raw_line_count / 1000`. | Derived |
-| `unique_authors` | integer | Count of unique emails/names in `git log`. | git log |
-| `author_count` | integer | Same as `unique_authors` (alias for model). | Derived |
-| `project_age_years` | float | Years since first commit. | git log |
-| `release_count` | integer | Number of tags/releases. | GitHub API |
-| `num_dependencies` | integer | Number of dependencies (if available). | GitHub API / `package.json` |
-| `cve_count` | integer | Number of matching CVEs from NVD feed. | NVD Dataset Join |
-| `cve_density` | float | `cve_count / kloc` (Descriptive only). | Derived |
+### 1.4 Vulnerability Record (Source)
+*   `cve_id`: Unique CVE identifier (e.g., "CVE-2023-12345").
+*   `description`: Summary of the vulnerability.
+*   `cvss_score`: Severity score.
+*   `matched_url`: The repository URL matched in the NVD record (via substring).
 
-### 2. Model Results
-Output of the statistical analysis.
-- **Source**: `code/analysis/fit_models.py`
-- **Target**: `data/processed/model_results.json`
+### 1.5 Aggregated Dataset (Input to Model)
+A single row per repository containing all predictors and the outcome.
+*   `cve_count`: Total number of CVEs matched to the repository. **Outcome Variable**.
+*   `author_count`: `unique_authors`.
+*   `project_age`: Years.
+*   `primary_language`: Categorical (one-hot encoded in model).
+*   `release_count`: Number of GitHub releases.
+*   `log_kloc`: Continuous.
+*   `cve_density`: `cve_count / kloc`. **Descriptive Only**.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `model_type` | string | "Poisson" or "NegativeBinomial" |
-| `coef_author_count` | float | Coefficient for author count. |
-| `se_author_count` | float | Standard error. |
-| `pvalue_raw` | float | Raw p-value. |
-| `pvalue_adj` | float | Benjamini-Hochberg adjusted p-value. |
-| `ci_lower` | float | 95% Confidence Interval Lower. |
-| `ci_upper` | float | 95% Confidence Interval Upper. |
-| `coef_log_kloc` | float | Coefficient for `log(kloc)` (predictor, not offset). |
-| `vif_scores` | object | Map of predictor -> VIF value. |
-| `convergence_status` | string | "OK" or "FAILED" |
-| `power_analysis` | object | Minimum Detectable Effect Size (MDES) and power estimate. |
+## 2. Data Flow
 
-## Data Lineage
+1.  **Ingestion**: `GitHub API` -> `List of Repos` -> `data/repos_list.json`
+2.  **Cloning**: `List of Repos` -> `git clone --shallow-since` -> `data/repos/<repo_id>/`
+3.  **Metric Extraction**: `data/repos/<repo_id>/` -> `metrics.py` -> `data/processed/repo_metrics.csv`
+4.  **Vulnerability Matching**: `NVD JSON` + `repo_metrics.csv` -> `ingestion.py` -> `data/processed/vuln_matches.csv`
+5.  **Model Input**: `repo_metrics.csv` + `vuln_matches.csv` -> `modeling.py` -> `data/processed/final_dataset.csv`
+6.  **Output**: `final_dataset.csv` -> `modeling.py` -> `data/processed/model_results.json`
 
-1.  **Raw**: Downloaded NVD JSON feed -> `data/raw/`.
-2.  **Raw**: Cloned Repos (local git, full clone) -> Temporary workspace (cleaned after).
-3.  **Processed**: `repo_metrics.csv` (Join of Raw Git + Raw NVD).
-4.  **Final**: `model_results.json` (Output of GLM).
+## 3. Data Constraints
+
+*   **Missing Data**: Repositories with zero commits in the `--shallow-since` window are excluded.
+*   **Ambiguous Matches**: Repositories with NVD matches that cannot be resolved via substring matching are excluded and logged.
+*   **Zero CVEs**: Repositories with zero CVEs are included (Negative Binomial handles zeros).
+*   **Circularity Prevention**: The model formula explicitly excludes `cve_density`. The code validates that the outcome variable is strictly `cve_count` (integer).

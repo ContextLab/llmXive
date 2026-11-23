@@ -1,0 +1,13 @@
+{
+  "dataset_id": "llmxive/auto-research-benchmark-v1",
+  "url": "https://huggingface.co/datasets/llmxive/auto-research-benchmark-v1/resolve/main/benchmark_dataset.tar.gz",
+  "version": "1.0.0",
+  "description": "Benchmark dataset for AI auto-research literature review analysis and failure prediction",
+  "source_type": "huggingface",
+  "checksums": {
+    "tar_gz": "SHA256_PLACEHOLDER_UPDATE_AFTER_VERIFICATION"
+  },
+  "metadata_url": "https://huggingface.co/datasets/llmxive/auto-research-benchmark-v1/resolve/main/metadata.json",
+  "verified": false,
+  "verification_note": "Populated after Phase 0 research verification. Update 'verified' to true and 'checksums' after successful download and validation."
+}

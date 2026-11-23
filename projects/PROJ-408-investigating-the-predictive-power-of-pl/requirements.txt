@@ -1,0 +1,12 @@
+biopython
+scikit-bio
+scipy
+pandas
+numpy
+ete3
+requests
+lxml
+matplotlib
+seaborn
+pytest
+# Added for the audit script (no new runtime dependencies beyond stdlib)

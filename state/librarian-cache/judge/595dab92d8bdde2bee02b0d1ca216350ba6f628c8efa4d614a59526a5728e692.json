@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.06573",
+  "judged_at": "2026-10-14T09:18:07Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "neural correlates of simulated social exclusion on default mode network dynamics neuroscience",
+  "rationale": "The paper focuses on methodological aspects of Dynamic Mode Decomposition applied to fluid‑mechanics simulations and does not address neural activity, social exclusion paradigms, or the default mode network, thus it is off‑domain and unrelated to the user's neuroscience question.",
+  "relevant": false
+}

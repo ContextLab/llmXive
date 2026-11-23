@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-mellum2-tech"
+version = "0.1.0"
+description = "Automated science pipeline for analyzing code complexity and prediction loss"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "datasets",
+    "transformers",
+    "tree-sitter",
+    "codeql",
+    "scikit-learn",
+    "statsmodels",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "seaborn",
+    "kenlm",
+    "pwlf",
+    "ruptures",
+    "python-dotenv",
+    "pyyaml",
+    "pytest",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.setuptools]
+packages = ["code", "code.analysis", "code.data", "code.inference", "code.utils", "code.contracts"]

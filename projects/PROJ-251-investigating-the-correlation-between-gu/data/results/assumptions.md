@@ -1,0 +1,1 @@
+Methodology Note: Spearman rank correlation with Benjamini-Hochberg correction is used as the primary method per Spec FR-004. This overrides the Plan's initial mention of permutation testing.

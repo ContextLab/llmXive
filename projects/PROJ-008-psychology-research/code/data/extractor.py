@@ -1,177 +1,235 @@
-"""
-Data Extractor Module for Psychology Research Project (PROJ-008).
-
-This module handles the extraction of study metadata and intervention details.
-It includes a specific fallback mechanism for abstract reconstruction using
-pdfplumber when API metadata is missing or incomplete.
-
-Constraints:
-- Abstract-only extraction (no full-text OCR) to comply with CPU/RAM limits.
-- Uses pdfplumber for PDF text extraction.
-"""
+import json
 import logging
 import os
-from typing import Dict, Any, List, Optional
+import re
+from datetime import datetime, timezone
 from pathlib import Path
-
-import pdfplumber
-
-from utils.logging import get_logger
-from utils.config import get_data_path
+from typing import List, Dict, Any, Optional
+from code.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def extract_abstract_from_pdf(pdf_path: str) -> Optional[str]:
-    """
-    Extract text from a PDF file, specifically targeting the abstract section.
+def log_excluded_study(study_id: str, reason: str, output_dir: Path) -> None:
+    """Log excluded study to JSONL file."""
+    log_file = output_dir / "excluded_studies.log"
+    timestamp = datetime.now(timezone.utc).isoformat()
+    entry = {
+        "study_id": study_id,
+        "reason": reason,
+        "timestamp": timestamp
+    }
+    with open(log_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
 
-    This function attempts to locate the abstract by looking for common headers
-    (e.g., "Abstract", "Background", "Objective") and extracts the subsequent
-    text block.
+def extract_study_metadata(study: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract core metadata from study record."""
+    return {
+        "id": study.get("id"),
+        "title": study.get("title"),
+        "registry": study.get("registry"),
+        "age_range": study.get("age_range"),
+        "diagnosis": study.get("diagnosis"),
+        "outcomes": study.get("outcomes"),
+        "abstract_text": study.get("abstract"),
+        "follow_up": study.get("follow_up"),
+        "rater_type": study.get("rater_type"),
+        "blinded_assessment_flag": study.get("blinded_assessment_flag")
+    }
 
-    Constraints:
-    - Does NOT perform OCR (full-text OCR is disabled per constraints).
-    - Returns None if the file cannot be opened or no abstract is found.
-
-    Args:
-        pdf_path: Absolute or relative path to the PDF file.
-
-    Returns:
-        A string containing the extracted abstract text, or None if extraction fails.
-    """
-    if not os.path.exists(pdf_path):
-        logger.warning(f"PDF file not found: {pdf_path}")
-        return None
-
-    try:
-        with pdfplumber.open(pdf_path) as pdf:
-            full_text = ""
-            for page in pdf.pages:
-                text = page.extract_text()
-                if text:
-                    full_text += text + "\n"
-
-            if not full_text.strip():
-                logger.warning(f"No text extracted from {pdf_path}. May require OCR (disabled).")
-                return None
-
-            # Attempt to locate the abstract section
-            abstract_keywords = ["abstract", "background", "objective", "summary"]
-            abstract_text = None
-
-            lines = full_text.split("\n")
-            start_index = -1
-
-            for i, line in enumerate(lines):
-                lower_line = line.lower().strip()
-                # Check if line starts with a keyword (case-insensitive)
-                if any(lower_line.startswith(kw) for kw in abstract_keywords):
-                    start_index = i
-                    break
-
-            if start_index != -1:
-                # Extract from the keyword line until the next section header or end
-                # Heuristic: Stop at the next line that looks like a section header (all caps or short)
-                # or simply take the next 10-15 lines if it's an abstract.
-                # For robustness in this specific task, we take a block of text.
-                end_index = start_index + 30  # Assume abstract is within 30 lines
-                abstract_lines = lines[start_index:end_index]
-                
-                # Clean up the extracted block
-                clean_lines = []
-                for line in abstract_lines:
-                    # Stop if we hit a clear new section (e.g., "Methods", "Results")
-                    if line.strip().lower() in ["methods", "results", "discussion", "conclusion", "references"]:
-                        break
-                    clean_lines.append(line)
-                
-                abstract_text = " ".join(clean_lines).strip()
-            else:
-                # Fallback: If no keyword found, return the first 500 characters as a potential abstract
-                # This is a weak fallback but better than nothing for "missing metadata" scenarios.
-                logger.info(f"No explicit 'Abstract' header found in {pdf_path}. Returning initial text block.")
-                abstract_text = full_text[:500].strip()
-
-            return abstract_text
-
-    except Exception as e:
-        logger.error(f"Error extracting text from PDF {pdf_path}: {e}")
-        return None
-
-def extract_study_metadata(study_record: Dict[str, Any], pdf_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Extract and enrich study metadata.
-
-    If the primary API metadata (study_record) is missing the 'abstract' field,
-    this function attempts to reconstruct it using the provided PDF path.
-
-    Args:
-        study_record: Dictionary containing study data from the API collector.
-        pdf_path: Optional path to the PDF file if the record lacks an abstract.
-
-    Returns:
-        Updated study_record with abstract text if successfully extracted.
-    """
-    # Check if abstract is already present
-    if study_record.get("abstract") and study_record["abstract"].strip():
-        logger.debug(f"Abstract already present for study {study_record.get('id', 'unknown')}")
-        return study_record
-
-    # Fallback to PDF extraction
-    if pdf_path:
-        logger.info(f"Abstract missing for study {study_record.get('id', 'unknown')}. Attempting PDF extraction from {pdf_path}.")
-        extracted_abstract = extract_abstract_from_pdf(pdf_path)
-        
-        if extracted_abstract:
-            study_record["abstract"] = extracted_abstract
-            logger.info(f"Successfully reconstructed abstract for study {study_record.get('id', 'unknown')}")
-        else:
-            logger.warning(f"Failed to extract abstract from PDF for study {study_record.get('id', 'unknown')}")
-            # Ensure we don't leave a None or empty string that might break downstream
-            study_record["abstract"] = "[Abstract extraction failed]"
-    else:
-        logger.warning(f"No PDF path provided and abstract missing for study {study_record.get('id', 'unknown')}.")
-        study_record["abstract"] = "[Abstract missing and no PDF source]"
-
-    return study_record
-
-def process_studies_with_fallback(studies: List[Dict[str, Any]], pdf_base_dir: Optional[str] = None) -> List[Dict[str, Any]]:
-    """
-    Process a list of studies, applying the abstract extraction fallback where necessary.
-
-    Args:
-        studies: List of study dictionaries.
-        pdf_base_dir: Base directory where PDFs are stored (e.g., data/raw/pdfs).
-                      If None, assumes PDFs are named by study ID in a default location.
-
-    Returns:
-        List of enriched study dictionaries.
-    """
-    processed_studies = []
+def extract_intervention_components(study: Dict[str, Any]) -> List[str]:
+    """Extract mindfulness intervention components from description/abstract."""
+    text = ""
+    if "description" in study:
+        text += study["description"] + " "
+    if "abstract" in study and study["abstract"]:
+        text += study["abstract"] + " "
     
-    if not pdf_base_dir:
-        pdf_base_dir = str(get_data_path() / "raw" / "pdfs")
+    text_lower = text.lower()
+    
+    components = []
+    component_map = {
+        "breathing": r"\bbreathing\b",
+        "body scan": r"\bbody\s+scan\b",
+        "mindful movement": r"\bmindful\s+movement\b",
+        "mindful eating": r"\bmindful\s+eating\b"
+    }
+    
+    for component, pattern in component_map.items():
+        if re.search(pattern, text_lower):
+            components.append(component)
+    
+    return components if components else ["none"]
 
-    for study in studies:
-        study_id = study.get("id") or study.get("nct_id") or "unknown"
-        
-        # Construct expected PDF path
-        # Assuming naming convention: {study_id}.pdf or {study_id}_abstract.pdf
-        possible_names = [
-            f"{study_id}.pdf",
-            f"{study_id}_abstract.pdf",
-            f"{study_id}_full.pdf"
-        ]
-        
-        pdf_path = None
-        for name in possible_names:
-            candidate = os.path.join(pdf_base_dir, name)
-            if os.path.exists(candidate):
-                pdf_path = candidate
+def extract_social_skill_domain(study: Dict[str, Any]) -> tuple:
+    """Extract social skill domain and notes from description/abstract."""
+    text = ""
+    if "description" in study:
+        text += study["description"] + " "
+    if "abstract" in study and study["abstract"]:
+        text += study["abstract"] + " "
+    
+    text_lower = text.lower()
+    
+    domain_keywords = {
+        "communication": ["speech", "language", "verbal", "non-verbal"],
+        "peer interaction": ["peer", "social", "group", "play"],
+        "emotional regulation": ["emotion", "affect", "regulation", "tantrum"]
+    }
+    
+    found_domains = []
+    for domain, keywords in domain_keywords.items():
+        for keyword in keywords:
+            if keyword in text_lower:
+                found_domains.append(domain)
                 break
+    
+    if len(found_domains) == 0:
+        # Check if there's a description that suggests a domain but doesn't match keywords
+        if text and "social" in text_lower or "skill" in text_lower:
+            return "other", text[:200]  # Return first 200 chars as note
+        return "other", None
+    elif len(found_domains) == 1:
+        return found_domains[0], None
+    else:
+        return "mixed", None
 
-        # Apply extraction logic
-        enriched_study = extract_study_metadata(study, pdf_path)
-        processed_studies.append(enriched_study)
+def extract_delivery_format(study: Dict[str, Any]) -> str:
+    """Extract delivery format from metadata."""
+    format_val = study.get("delivery_format")
+    if format_val in ["caregiver-mediated", "child-led", "mixed", "not-reported"]:
+        return format_val
+    return "not-reported"
 
-    return processed_studies
+def extract_blinding_status(study: Dict[str, Any]) -> tuple:
+    """
+    Extract blinding status from metadata.
+    Returns (rater_type, blinded_assessment_flag)
+    
+    Logic:
+    - If both fields present: use them directly
+    - If rater_type present but flag missing: infer flag from type
+    - If flag present but type missing: infer type from flag
+    - If both missing: flag as 'unknown'
+    - If both present but conflicting: flag as 'mixed'
+    """
+    rater_type = study.get("rater_type")
+    blinded_flag = study.get("blinded_assessment_flag")
+    
+    # Case 1: Both present
+    if rater_type is not None and blinded_flag is not None:
+        # Check for consistency
+        if rater_type == "blinded" and not blinded_flag:
+            return "mixed", None  # Conflicting
+        if rater_type == "unblinded" and blinded_flag:
+            return "mixed", None  # Conflicting
+        return rater_type, blinded_flag
+    
+    # Case 2: Only rater_type present
+    if rater_type is not None:
+        if rater_type == "blinded":
+            return rater_type, True
+        elif rater_type == "unblinded":
+            return rater_type, False
+        elif rater_type == "mixed":
+            return rater_type, None  # Mixed implies both exist
+        else:
+            return "unknown", None
+    
+    # Case 3: Only flag present
+    if blinded_flag is not None:
+        if blinded_flag:
+            return "blinded", blinded_flag
+        else:
+            return "unblinded", blinded_flag
+    
+    # Case 4: Both missing
+    return "unknown", None
+
+def process_studies_with_fallback(studies: List[Dict[str, Any]], output_dir: Path) -> List[Dict[str, Any]]:
+    """Process all studies, extracting metadata and handling missing fields."""
+    processed = []
+    
+    for study in studies:
+        study_id = study.get("id", "unknown")
+        
+        # Check for insufficient metadata (age_range, diagnosis, or outcomes missing)
+        if not study.get("age_range") or not study.get("diagnosis") or not study.get("outcomes"):
+            # Check if abstract exists for fallback
+            if not study.get("abstract"):
+                log_excluded_study(study_id, "INSUFFICIENT_METADATA_NO_ABSTRACT", output_dir)
+                continue
+            else:
+                # Per T020: DO NOT attempt extraction from abstract for inclusion criteria
+                # Just exclude
+                log_excluded_study(study_id, "MISSING_PRIMARY_FIELD", output_dir)
+                continue
+        
+        # Extract core metadata
+        meta = extract_study_metadata(study)
+        
+        # Extract intervention components
+        meta["intervention_components"] = extract_intervention_components(study)
+        
+        # Extract social skill domain
+        domain, notes = extract_social_skill_domain(study)
+        meta["social_skill_domain"] = domain
+        meta["domain_notes"] = notes
+        
+        # Extract delivery format
+        meta["delivery_format"] = extract_delivery_format(study)
+        
+        # Extract blinding status (T022)
+        rater_type, blinded_flag = extract_blinding_status(study)
+        meta["rater_type"] = rater_type
+        meta["blinded_assessment_flag"] = blinded_flag
+        
+        processed.append(meta)
+    
+    return processed
+
+def main():
+    """Entry point for extractor script."""
+    import argparse
+    from code.utils.config import get_data_path
+
+    parser = argparse.ArgumentParser(description="Extract study metadata")
+    parser.add_argument("--input", type=str, required=True, help="Input directory containing raw JSON files")
+    parser.add_argument("--output", type=str, required=True, help="Output directory for extracted data")
+    args = parser.parse_args()
+
+    input_dir = Path(args.input)
+    output_dir = Path(args.output)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Loading studies from {input_dir}")
+    
+    # Load all JSON files from input directory
+    studies = []
+    for json_file in input_dir.glob("*.json"):
+        if "mock" not in str(json_file):  # Skip mock data in production
+            with open(json_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    studies.extend(data)
+                elif isinstance(data, dict):
+                    studies.append(data)
+    
+    logger.info(f"Loaded {len(studies)} studies")
+    
+    if not studies:
+        logger.warning("No studies found to extract")
+        return
+
+    # Process studies
+    processed_studies = process_studies_with_fallback(studies, output_dir)
+    
+    logger.info(f"Extracted metadata for {len(processed_studies)} studies")
+    
+    # Save to JSON
+    output_file = output_dir / "extracted_studies.json"
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(processed_studies, f, indent=2)
+    logger.info(f"Saved extracted studies to {output_file}")
+
+if __name__ == "__main__":
+    main()

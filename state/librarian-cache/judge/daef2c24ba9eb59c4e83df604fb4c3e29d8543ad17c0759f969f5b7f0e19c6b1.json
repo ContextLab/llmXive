@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2301.00942",
+  "judged_at": "2026-09-03T12:35:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geometry-aware representation denoising for robust multi-view 3d recon\" computer science",
+  "rationale": "The paper is a general educational resource on the theoretical connections between deep learning and computational physics, lacking any specific focus on multi-view 3D reconstruction, geometry-aware representation denoising, or the specific \"llmXive\" context mentioned in the user's question. It fails to meet criteria (a) or (b) as it does not measure the specific mechanism or variables of the user's domain, and it is not the foundational methodology paper (d) for the specific technique of geomet",
+  "relevant": false
+}

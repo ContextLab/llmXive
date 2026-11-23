@@ -1,11 +1,7 @@
 """
-Unit test for Tukey HSD adjustment logic in post-hoc pairwise comparisons.
+Unit tests for Tukey HSD post-hoc analysis functionality.
 
-This test verifies that the Tukey HSD adjustment correctly controls the
-family-wise error rate when performing multiple pairwise comparisons
-between feedback timing groups (Immediate, Delayed, Variable).
-
-Uses synthetic data with known coefficients to validate the adjustment logic.
+Tests for code/posthoc_tukey.py
 """
 import os
 import sys
@@ -13,288 +9,238 @@ import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from statsmodels.stats.multitest import multipletests
-from statsmodels.stats.anova import AnovaRM
-from statsmodels.formula.api import ols
-import scipy.stats as stats
+import json
+from unittest.mock import patch, MagicMock
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-from models import fit_cluster_robust_ols, extract_effect_sizes
+from posthoc_tukey import (
+    load_binned_data,
+    run_tukey_hsd,
+    save_results
+)
 
-def create_synthetic_posthoc_data(n_subjects=100, n_courses=20):
-    """
-    Create synthetic data for testing Tukey HSD adjustment.
+class TestLoadBinnedData:
+    """Tests for load_binned_data function."""
     
-    Generates data with 3 feedback timing groups (Immediate, Delayed, Variable)
-    and known effect sizes to validate post-hoc test logic.
-    
-    Returns:
-        pd.DataFrame: Synthetic dataset with columns:
-            - student_id: unique student identifier
-            - course_id: course identifier for clustering
-            - feedback_group: categorical (Immediate, Delayed, Variable)
-            - final_grade: numeric outcome variable
-    """
-    np.random.seed(42)
-    
-    # Create course and student assignments
-    courses = [f"Course_{i:03d}" for i in range(n_courses)]
-    students_per_course = n_subjects // n_courses
-    
-    data = []
-    for course in courses:
-        for i in range(students_per_course):
-            student_id = f"{course}_S{i:03d}"
-            # Assign to one of three feedback groups
-            group = np.random.choice(["Immediate", "Delayed", "Variable"])
+    def test_load_binned_data_success(self, tmp_path):
+        """Test successful loading of binned data."""
+        # Create test data
+        test_data = pd.DataFrame({
+            'learner_id': [1, 2, 3, 4, 5],
+            'final_grade': [85.5, 90.2, 78.3, 92.1, 88.7],
+            'feedback_group': ['Immediate', 'Delayed', 'Immediate', 'Variable', 'Delayed']
+        })
+        
+        # Write to temp file
+        input_file = tmp_path / "learners_binned.csv"
+        test_data.to_csv(input_file, index=False)
+        
+        # Mock the DATA_PROCESSED path
+        with patch('posthoc_tukey.DATA_PROCESSED', tmp_path):
+            result = load_binned_data()
             
-            # Generate final grade with group-specific means
-            # Immediate: mean=75, Delayed: mean=70, Variable: mean=65
-            if group == "Immediate":
-                grade = np.random.normal(75, 10)
-            elif group == "Delayed":
-                grade = np.random.normal(70, 10)
-            else:  # Variable
-                grade = np.random.normal(65, 10)
+            assert len(result) == 5
+            assert 'learner_id' in result.columns
+            assert 'final_grade' in result.columns
+            assert 'feedback_group' in result.columns
             
-            # Clip grades to valid range [0, 100]
-            grade = np.clip(grade, 0, 100)
+            # Verify data integrity
+            pd.testing.assert_frame_equal(result, test_data)
+    
+    def test_load_binned_data_missing_file(self, tmp_path):
+        """Test error when input file doesn't exist."""
+        with patch('posthoc_tukey.DATA_PROCESSED', tmp_path):
+            with pytest.raises(FileNotFoundError):
+                load_binned_data()
+    
+    def test_load_binned_data_missing_columns(self, tmp_path):
+        """Test error when required columns are missing."""
+        # Create test data with missing column
+        test_data = pd.DataFrame({
+            'learner_id': [1, 2, 3],
+            'final_grade': [85.5, 90.2, 78.3]
+            # Missing 'feedback_group'
+        })
+        
+        input_file = tmp_path / "learners_binned.csv"
+        test_data.to_csv(input_file, index=False)
+        
+        with patch('posthoc_tukey.DATA_PROCESSED', tmp_path):
+            with pytest.raises(ValueError, match="Missing required columns"):
+                load_binned_data()
+
+class TestRunTukeyHsd:
+    """Tests for run_tukey_hsd function."""
+    
+    def test_run_tukey_hsd_basic(self):
+        """Test basic Tukey HSD execution."""
+        # Create test data with clear group differences
+        np.random.seed(42)
+        test_data = pd.DataFrame({
+            'learner_id': list(range(100)),
+            'final_grade': np.concatenate([
+                np.random.normal(85, 5, 33),  # Immediate
+                np.random.normal(80, 5, 33),  # Delayed
+                np.random.normal(75, 5, 34)   # Variable
+            ]),
+            'feedback_group': (
+                ['Immediate'] * 33 + 
+                ['Delayed'] * 33 + 
+                ['Variable'] * 34
+            )
+        })
+        
+        results = run_tukey_hsd(test_data)
+        
+        assert 'results' in results
+        assert 'summary' in results
+        assert 'significant_pairs' in results
+        
+        # Check results structure
+        assert isinstance(results['results'], pd.DataFrame)
+        assert len(results['results']) >= 3  # At least 3 pairwise comparisons for 3 groups
+        
+        # Check summary structure
+        assert results['summary']['total_observations'] == 100
+        assert results['summary']['num_groups'] == 3
+        assert results['summary']['alpha'] == 0.05
+        assert results['summary']['method'] == 'Tukey HSD'
+        
+        # Check that significant_pairs is a list
+        assert isinstance(results['significant_pairs'], list)
+    
+    def test_run_tukey_hsd_insufficient_data(self):
+        """Test error when data is insufficient."""
+        test_data = pd.DataFrame({
+            'learner_id': [1, 2],
+            'final_grade': [85.5, 90.2],
+            'feedback_group': ['Immediate', 'Delayed']
+        })
+        
+        # Should fail with insufficient data
+        with pytest.raises(ValueError, match="Insufficient data"):
+            run_tukey_hsd(test_data)
+    
+    def test_run_tukey_hsd_single_group(self):
+        """Test error when only one group is present."""
+        test_data = pd.DataFrame({
+            'learner_id': [1, 2, 3, 4, 5],
+            'final_grade': [85.5, 90.2, 78.3, 92.1, 88.7],
+            'feedback_group': ['Immediate'] * 5
+        })
+        
+        with pytest.raises(ValueError, match="Need at least 2 groups"):
+            run_tukey_hsd(test_data)
+    
+    def test_run_tukey_hsd_with_missing_values(self):
+        """Test that missing values are handled correctly."""
+        test_data = pd.DataFrame({
+            'learner_id': [1, 2, 3, 4, 5],
+            'final_grade': [85.5, np.nan, 78.3, 92.1, 88.7],
+            'feedback_group': ['Immediate', 'Delayed', 'Immediate', 'Variable', 'Delayed']
+        })
+        
+        # Should not raise error, just filter out NaN
+        results = run_tukey_hsd(test_data)
+        
+        # Should have 4 observations instead of 5
+        assert results['summary']['total_observations'] == 4
+
+class TestSaveResults:
+    """Tests for save_results function."""
+    
+    def test_save_results(self, tmp_path):
+        """Test saving results to files."""
+        # Create mock results
+        mock_results_df = pd.DataFrame({
+            'Group1': ['Immediate', 'Delayed'],
+            'Group2': ['Delayed', 'Variable'],
+            'Mean Difference': [5.0, -3.0],
+            'Std Err': [1.2, 1.1],
+            'Lower CI': [2.5, -5.2],
+            'Upper CI': [7.5, -0.8],
+            'Reject': [True, False]
+        })
+        
+        mock_summary = {
+            'total_observations': 100,
+            'num_groups': 3,
+            'groups': ['Immediate', 'Delayed', 'Variable'],
+            'significant_comparisons': 1,
+            'alpha': 0.05,
+            'method': 'Tukey HSD'
+        }
+        
+        mock_results = {
+            'results': mock_results_df,
+            'summary': mock_summary,
+            'significant_pairs': [('Immediate', 'Delayed', 5.0)]
+        }
+        
+        # Mock the DATA_PROCESSED path
+        with patch('posthoc_tukey.DATA_PROCESSED', tmp_path):
+            output_path = save_results(mock_results)
             
-            data.append({
-                "student_id": student_id,
-                "course_id": course,
-                "feedback_group": group,
-                "final_grade": grade
-            })
-    
-    return pd.DataFrame(data)
-
-def test_tukey_hsd_adjustment_applied():
-    """
-    Test that Tukey HSD adjustment is correctly applied to p-values.
-    
-    Verifies that:
-    1. Multiple comparisons are performed (3 groups -> 3 pairwise comparisons)
-    2. Tukey HSD adjustment is applied to control family-wise error rate
-    3. Adjusted p-values are >= raw p-values (conservative adjustment)
-    """
-    # Create synthetic data
-    df = create_synthetic_posthoc_data()
-    
-    # Fit OLS model for each pairwise comparison
-    # Comparisons: Immediate vs Delayed, Immediate vs Variable, Delayed vs Variable
-    comparisons = [
-        ("Immediate", "Delayed"),
-        ("Immediate", "Variable"),
-        ("Delayed", "Variable")
-    ]
-    
-    raw_pvalues = []
-    for group1, group2 in comparisons:
-        subset = df[df["feedback_group"].isin([group1, group2])]
-        model = ols("final_grade ~ C(feedback_group)", data=subset).fit()
-        # Extract p-value for the group effect (this is simplified; 
-        # in practice we'd extract specific contrast p-values)
-        pval = model.pvalues["C(feedback_group)[T." + group2 + "]"] if f"C(feedback_group)[T.{group2}]" in model.pvalues else model.pvalues["C(feedback_group)[T." + group1 + "]"]
-        raw_pvalues.append(pval)
-    
-    # Apply Tukey HSD adjustment using statsmodels
-    # Note: multipletests with method='tukeyhsd' is not directly available
-    # We use 'holm' or 'bonferroni' as proxy for testing the adjustment mechanism
-    # In practice, we'd use statsmodels' pairwise_tukeyhsd
-    from statsmodels.stats.multicomp import pairwise_tukeyhsd
-    
-    tukey_result = pairwise_tukeyhsd(
-        endog=df["final_grade"],
-        groups=df["feedback_group"],
-        alpha=0.05
-    )
-    
-    # Verify that Tukey HSD produced results
-    assert tukey_result is not None
-    assert hasattr(tukey_result, 'pvalues')
-    assert len(tukey_result.pvalues) == 3  # 3 pairwise comparisons
-    
-    # Verify that adjusted p-values are reasonable (0 <= p <= 1)
-    assert all(0 <= p <= 1 for p in tukey_result.pvalues)
-
-def test_tukey_hsd_controls_family_wise_error():
-    """
-    Test that Tukey HSD adjustment controls family-wise error rate.
-    
-    Verifies that when performing multiple comparisons, the adjusted
-    p-values maintain the family-wise error rate at the specified alpha level.
-    """
-    df = create_synthetic_posthoc_data()
-    
-    # Run Tukey HSD
-    tukey_result = pairwise_tukeyhsd(
-        endog=df["final_grade"],
-        groups=df["feedback_group"],
-        alpha=0.05
-    )
-    
-    # Get adjusted p-values
-    adjusted_pvalues = tukey_result.pvalues
-    
-    # Count how many comparisons are significant at alpha=0.05
-    significant_count = sum(1 for p in adjusted_pvalues if p < 0.05)
-    
-    # With our synthetic data (clear group differences), we expect
-    # at least some significant results, but the adjustment ensures
-    # the family-wise error rate is controlled
-    assert significant_count >= 0  # At least no negative results
-    assert significant_count <= 3  # At most 3 comparisons
-
-def test_tukey_hsd_vs_bonferroni():
-    """
-    Compare Tukey HSD adjustment with Bonferroni adjustment.
-    
-    Tukey HSD should be less conservative than Bonferroni for
-    all-pairwise comparisons, resulting in smaller adjusted p-values.
-    """
-    df = create_synthetic_posthoc_data()
-    
-    # Run Tukey HSD
-    tukey_result = pairwise_tukeyhsd(
-        endog=df["final_grade"],
-        groups=df["feedback_group"],
-        alpha=0.05
-    )
-    tukey_pvalues = tukey_result.pvalues
-    
-    # Run Bonferroni adjustment on raw p-values
-    # First get raw p-values from pairwise t-tests
-    from scipy.stats import ttest_ind
-    
-    groups = df["feedback_group"].unique()
-    raw_pvalues = []
-    for i in range(len(groups)):
-        for j in range(i + 1, len(groups)):
-            group1_data = df[df["feedback_group"] == groups[i]]["final_grade"]
-            group2_data = df[df["feedback_group"] == groups[j]]["final_grade"]
-            _, pval = ttest_ind(group1_data, group2_data)
-            raw_pvalues.append(pval)
-    
-    # Apply Bonferroni adjustment
-    bonf_pvalues = multipletests(raw_pvalues, method='bonferroni')[1]
-    
-    # Verify that Tukey HSD p-values are generally smaller than Bonferroni
-    # (Tukey is less conservative for all-pairwise comparisons)
-    # Note: This is a statistical property, not always true for every dataset
-    # but should hold on average
-    assert len(tukey_pvalues) == len(bonf_pvalues)
-    # Both should have same number of comparisons
-    assert len(tukey_pvalues) == 3
-
-def test_tukey_hsd_rejects_known_effect():
-    """
-    Test that Tukey HSD correctly identifies known effects in synthetic data.
-    
-    Our synthetic data has clear group differences (Immediate: 75, Delayed: 70, 
-    Variable: 65). Tukey HSD should detect these differences.
-    """
-    # Create data with stronger effects
-    df = create_synthetic_posthoc_data(n_subjects=300, n_courses=30)
-    
-    # Run Tukey HSD
-    tukey_result = pairwise_tukeyhsd(
-        endog=df["final_grade"],
-        groups=df["feedback_group"],
-        alpha=0.05
-    )
-    
-    # Verify that at least one comparison is significant
-    # (with our large effect sizes, this should be true)
-    significant_comparisons = sum(1 for p in tukey_result.pvalues if p < 0.05)
-    
-    # With clear group differences and sufficient sample size,
-    # we expect at least some significant results
-    assert significant_comparisons >= 1
-
-def test_tukey_hsd_handles_equal_groups():
-    """
-    Test that Tukey HSD correctly handles groups with no difference.
-    
-    Creates synthetic data where all groups have the same mean.
-    Tukey HSD should not find significant differences.
-    """
-    np.random.seed(123)
-    n_subjects = 300
-    n_courses = 30
-    
-    courses = [f"Course_{i:03d}" for i in range(n_courses)]
-    students_per_course = n_subjects // n_courses
-    
-    data = []
-    for course in courses:
-        for i in range(students_per_course):
-            student_id = f"{course}_S{i:03d}"
-            group = np.random.choice(["Immediate", "Delayed", "Variable"])
-            # All groups have same mean (70)
-            grade = np.random.normal(70, 10)
-            grade = np.clip(grade, 0, 100)
+            # Check CSV file exists
+            assert output_path.exists()
             
-            data.append({
-                "student_id": student_id,
-                "course_id": course,
-                "feedback_group": group,
-                "final_grade": grade
-            })
-    
-    df_equal = pd.DataFrame(data)
-    
-    # Run Tukey HSD
-    tukey_result = pairwise_tukeyhsd(
-        endog=df_equal["final_grade"],
-        groups=df_equal["feedback_group"],
-        alpha=0.05
-    )
-    
-    # With equal groups, we expect few or no significant differences
-    # (allowing for Type I error rate)
-    significant_comparisons = sum(1 for p in tukey_result.pvalues if p < 0.05)
-    
-    # With 3 comparisons and alpha=0.05, we expect ~0.15 false positives on average
-    # So having 0 or 1 significant results is expected
-    assert significant_comparisons <= 2  # Allow for some Type I error
+            # Check summary JSON exists
+            summary_path = tmp_path / "tukey_hsd_summary.json"
+            assert summary_path.exists()
+            
+            # Verify CSV content
+            saved_df = pd.read_csv(output_path)
+            pd.testing.assert_frame_equal(saved_df, mock_results_df)
+            
+            # Verify JSON content
+            with open(summary_path, 'r') as f:
+                saved_summary = json.load(f)
+            
+            assert saved_summary == mock_summary
 
-def test_tukey_hsd_output_format():
-    """
-    Test that Tukey HSD output has expected structure and format.
-    """
-    df = create_synthetic_posthoc_data()
+class TestIntegration:
+    """Integration tests for the full Tukey HSD pipeline."""
     
-    tukey_result = pairwise_tukeyhsd(
-        endog=df["final_grade"],
-        groups=df["feedback_group"],
-        alpha=0.05
-    )
-    
-    # Verify result has expected attributes
-    assert hasattr(tukey_result, 'pvalues')
-    assert hasattr(tukey_result, 'meandiffs')
-    assert hasattr(tukey_result, 'confint')
-    assert hasattr(tukey_result, 'reject')
-    
-    # Verify pvalues is a numpy array
-    assert isinstance(tukey_result.pvalues, np.ndarray)
-    
-    # Verify shape (3 pairwise comparisons for 3 groups)
-    assert len(tukey_result.pvalues) == 3
-    
-    # Verify mean differences are computed
-    assert len(tukey_result.meandiffs) == 3
-    
-    # Verify confidence intervals are computed
-    assert tukey_result.confint.shape == (3, 2)  # 3 comparisons, [lower, upper]
-    
-    # Verify rejection decisions
-    assert len(tukey_result.reject) == 3
-    assert all(isinstance(r, bool) for r in tukey_result.reject)
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_full_pipeline(self, tmp_path):
+        """Test the complete pipeline from data loading to result saving."""
+        # Create test data
+        np.random.seed(123)
+        test_data = pd.DataFrame({
+            'learner_id': list(range(60)),
+            'final_grade': np.concatenate([
+                np.random.normal(85, 4, 20),
+                np.random.normal(80, 4, 20),
+                np.random.normal(75, 4, 20)
+            ]),
+            'feedback_group': (
+                ['Immediate'] * 20 +
+                ['Delayed'] * 20 +
+                ['Variable'] * 20
+            )
+        })
+        
+        # Write input file
+        input_file = tmp_path / "learners_binned.csv"
+        test_data.to_csv(input_file, index=False)
+        
+        # Mock the DATA_PROCESSED path
+        with patch('posthoc_tukey.DATA_PROCESSED', tmp_path):
+            # Load data
+            df = load_binned_data()
+            assert len(df) == 60
+            
+            # Run Tukey HSD
+            results = run_tukey_hsd(df)
+            assert results['summary']['total_observations'] == 60
+            assert results['summary']['num_groups'] == 3
+            
+            # Save results
+            output_path = save_results(results)
+            assert output_path.exists()
+            
+            # Verify output can be read back
+            saved_results = pd.read_csv(output_path)
+            assert len(saved_results) == 3  # 3 pairwise comparisons for 3 groups

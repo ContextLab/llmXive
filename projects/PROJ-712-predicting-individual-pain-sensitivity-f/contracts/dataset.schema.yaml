@@ -1,0 +1,31 @@
+# JSON‑Schema (expressed in YAML) for the processed feature matrix.
+# It requires the basic metadata columns and allows any additional
+# columns that follow the microstate‑feature naming convention.
+type: object
+required:
+  - participant_id
+  - heat_pain_threshold
+  - age
+  - gender
+  - valid_eeg_minutes
+properties:
+  participant_id:
+    type: string
+  heat_pain_threshold:
+    type: string
+  age:
+    type: string
+  gender:
+    type: string
+  valid_eeg_minutes:
+    type: string
+patternProperties:
+  "^MS_[ABCD]_Duration$":
+    type: number
+  "^MS_[ABCD]_Occurrence$":
+    type: number
+  "^Trans_[ABCD]_[ABCD]$":
+    type: number
+  "^Spectral_(Delta|Theta|Alpha|Beta|LowGamma|HighGamma)_Power$":
+    type: number
+additionalProperties: false

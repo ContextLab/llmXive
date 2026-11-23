@@ -1,0 +1,4 @@
+# Extends pyproject.toml configuration for black
+# (Most settings are in pyproject.toml [tool.black] section)
+line-length = 100
+target-version = ['py310']

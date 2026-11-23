@@ -1,0 +1,7 @@
+# llmXive Project: OPID Critical-First Routing Complexity Analysis
+# Pinned dependencies for reproducibility
+networkx==3.2.1
+numpy==1.26.4
+pandas==2.2.1
+scipy==1.13.0
+pytest==8.1.1

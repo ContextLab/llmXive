@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feasibility Report Schema"
+type: object
+required:
+  - "total_runtime_seconds"
+  - "peak_memory_gb"
+  - "cpu_cores_used"
+  - "abort_warning"
+  - "generated_at"
+properties:
+  total_runtime_seconds:
+    type: number
+  peak_memory_gb:
+    type: number
+  cpu_cores_used:
+    type: integer
+  abort_warning:
+    type: string
+    description: "Empty if no abort; otherwise contains the warning message."
+  generated_at:
+    type: string
+    format: date-time

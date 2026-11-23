@@ -5,48 +5,48 @@ type: "object"
 properties:
   dataset_version:
     type: "string"
-    description: "Version of the Pantheon+ dataset used."
+    description: "Version tag of the Pantheon+ dataset used."
   cosmological_parameters:
     type: "object"
     properties:
       H0:
         type: "number"
-        description: "Hubble constant in km/s/Mpc."
+        description: "Hubble constant (km s⁻¹ Mpc⁻¹)."
       Omega_m:
         type: "number"
-        description: "Matter density parameter."
+        description: "Matter density parameter Ωₘ."
       Omega_lambda:
         type: "number"
-        description: "Dark energy density parameter."
+        description: "Dark energy density parameter Ω_Λ."
     required:
       - H0
       - Omega_m
       - Omega_lambda
   observed_dipole_amplitude:
     type: "number"
-    description: "Magnitude of the observed dipole term."
+    description: "Dipole amplitude (magnitudes)."
   observed_quadrupole_amplitude:
     type: "number"
-    description: "Magnitude of the observed quadrupole term."
+    description: "Quadrupole amplitude (magnitudes)."
   p_value_dipole:
     type: "number"
-    description: "P-value for the dipole amplitude."
+    description: "P‑value for the dipole test."
     minimum: 0
     maximum: 1
   p_value_quadrupole:
     type: "number"
-    description: "P-value for the quadrupole amplitude."
+    description: "P‑value for the quadrupole test."
     minimum: 0
     maximum: 1
   is_significant:
     type: "boolean"
-    description: "True if p-value < 0.05 for the primary test (dipole)."
+    description: "True if dipole p‑value < 0.05."
   n_simulations:
     type: "integer"
-    description: "Number of Monte Carlo simulations performed."
+    description: "Number of Monte‑Carlo simulations performed."
   n_supernovae_used:
     type: "integer"
-    description: "Number of supernovae used in the analysis."
+    description: "Number of supernovae retained after filtering."
   runtime_seconds:
     type: "number"
     description: "Total wall‑clock runtime of the analysis (seconds)."

@@ -1,0 +1,119 @@
+T000a:
+  c: true
+  h: 45c52b439ee30f60a4eab47f51919eaa15dd508df7d6869fe59173c690fce8e9
+  r: "Checked `code/data_feasibility.py` which implements a public\u2011source query\
+    \ and writes the result, and verified that `results/feasibility_check.json` exists\
+    \ and contains the required boolean `data_available` field."
+  sig: a8d662870cbe84a2c39b751884ced571f5ad40994027d4fda0f526fbe3510970
+T000b:
+  c: true
+  h: f36aa809895bca2b2304c3bfc4cbf6115774d8cf09c86ebb3369192b4e74c5fc
+  r: "Checked `results/data_gap_report.md` (335\u202Fbytes) which exists and includes\
+    \ the required \u201CData Gap: No linked dataset found\u201D message, confirming\
+    \ the pipeline generated the Data Gap Report when no dataset was linked."
+  sig: cf7804ce8b139a6b16ce89e9d7fb0a9f2944e7009dd9bce8d7ba2a4dfbd1f70a
+T001a:
+  c: true
+  h: 309acaa785db7be085ed82162a49143c150d70e590a52b18e1e0d0c0be54d441
+  r: "The collector confirms that `data/raw/`, `data/processed/`, and `data/interior/`\
+    \ directories exist (though empty), and the unit\u2011test log shows the test\
+    \ `test_data_directories_created` passed, indicating the script successfully created\
+    \ the three required directories."
+  sig: 8775e57ab52804614fcb5fc69e28828379c86ed3dbbc33a3447c4b8b630995a2
+T001b:
+  c: true
+  h: 24fe567518cc06623a07a4ba93c53f636f63423bfc73da37220c703db14687a6
+  r: Checked that the `code/`, `code/models/`, and `code/utils/` directories all exist
+    in the project root (as listed by the collector) and contain the expected placeholder
+    files (`__init__.py`, etc.).
+  sig: a11622f05ac26a140fe99e12625f6e1c799562f2977a12b36c29dbc8b8beec14
+T001c:
+  c: true
+  h: 082817b138632e02431323b74fbc82b29c2d9a14916dc259086ee94f00a7f329
+  r: "Checked the collector\u2011confirmed presence of the three required directories\
+    \ (`tests/unit/`, `tests/integration/`, `tests/contract/`) under the project root;\
+    \ each directory exists with files listed, satisfying the task\u2019s \u201Cverify\
+    \ that each directory exists after execution\u201D requirement."
+  sig: 8e5764d4b7fff51c0941c0a2c289aaef0d676262d393aa72ad22a3e9ae243b20
+T002a:
+  c: false
+  h: f5dc6aa78e6b01c5e48509689758e499c775b24bb8bc5125e2097e16b7174778
+  r: "Checked the `requirements.txt` file (14\u202Fbytes) which only contains `python-dotenv`.\
+    \ It does not list any of the required core packages (pandas, scikit\u2011learn,\
+    \ scipy, numpy, biom-format, scikit\u2011bio, matplotlib, seaborn, requests, pytest,\
+    \ statsmodels) nor pin their versions, so the task\u2019s requirement is not satisfied."
+  sig: 0f50d76fe06da476a032c3636ad5ae8b9bc2d8fe7d0853e81db9ebaf2aa5fb41
+T002b:
+  c: false
+  h: f5191a201062844ce2a38018bdc795711fdab25f9d78a93218ccf8195590e194
+  r: The repository contains `code/scripts/generate_lock.py` and a minimal `requirements.txt`,
+    but there is no `requirements.lock` file present, nor any evidence (e.g., command
+    output, file content, test logs) that the script was executed and produced a lock
+    file matching the installed package versions. The required artifact and verification
+    evidence are missing.
+  sig: 5f0c5e6d59e2c5a6f13b1e20153e698f4f1221b1c0e5e71cf4429995d717c52d
+T004:
+  c: false
+  h: e2412808e90566803ba05a9291e38ac4003cc590e2a3986a54b483b15b97e3cd
+  r: "The `code/config.py` file exists and defines the required path constants, seed\
+    \ constant, and the prevalence (0.001) and rarefaction\u2011loss (0.20) thresholds.\
+    \ However, the module validates the presence of `AGP_STUDY_ID` and `DATA_URL`\
+    \ environment variables at import time and raises a `RuntimeError` if they are\
+    \ absent, which prevents the file from being imported in a default test environment\
+    \ and therefore does not satisfy the \u201Ccan be imported\u201D requirement.\
+    \ The import guard must be removed or made optional so the module imports successfully\
+    \ without pre\u2011setting those variables."
+  sig: b1a68d046f723e01e84c82501a8d743a5171d27475dffedc9774706ef9e3eb12
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `.env` file, loading logic (e.g., use of python\u2011dotenv\
+    \ or similar), or documentation of environment configuration management is present.\
+    \ The required artifact for task T007 is missing, so the requirement is not satisfied."
+T009:
+  c: false
+  h: 831e8572fba666146c976b67c49c5d407131b4e31c44838dff04449187c34551
+  r: "The provided `code/data_ingestion.py` only logs errors and returns `None` on\
+    \ fetch failures; it never calls the Data Gap Report generation (T000b) nor creates\
+    \ `results/data_gap_report.md` (the file is missing). Consequently the hard\u2011\
+    fail logic required by the task is not implemented."
+T012b:
+  c: false
+  h: 4e666f1443b88260cf43fa40e932d268496cb9591eaaef1dedf5fe14e35db0d8
+  r: The required output files `data/raw/checksums.txt` and the project `state.yaml`
+    (under `state/projects/PROJ-215-.../`) are absent, so the checksum computation
+    and state update have not been materialized. The script exists but does not produce
+    the mandated artifacts.
+T015:
+  c: false
+  h: ea2060fecd965fc318cbba38f9239466641b0155d2b895213a833bb6e7bcb726
+  r: "The required output file `data/processed/filtered_otu_table.biom` does not exist,\
+    \ and the visible portion of `code/preprocessing.py` contains no function that\
+    \ filters taxa by <0.1% prevalence or writes such a BIOM file. The task\u2019\
+    s core requirement is therefore unmet."
+T016b:
+  c: false
+  h: 663a0322114c932273347cfa090cbb911ec9ec97d48782b45cfc4664d2953719
+  r: "The required `.npz` files (`bray_curtis.npz`, `weighted_unifrac.npz`, `unweighted_unifrac.npz`)\
+    \ are absent, and the provided `code/preprocessing.py` snippet shows no implementation\
+    \ of Bray\u2011Curtis or UniFrac calculations nor saving of distance matrices\
+    \ as specified. The task\u2019s core functionality and output artifacts are therefore\
+    \ missing."
+T021:
+  c: false
+  h: 12f66b2fb4cebac5f3fdf3f5f35dfa62ed6bfc759dcdde187c50d096184583ef
+  r: "The repository lacks the required `data/processed/bray_curtis.npz` file and\
+    \ the expected `data/interim/permanova_results.csv` output. Moreover, the provided\
+    \ `code/analysis.py` (as shown) only contains partial\u2011Spearman functions\
+    \ and does not implement the PERMANOVA analysis described in the task. Both the\
+    \ input data and the PERMANOVA result artifact are missing, so the task is not\
+    \ fulfilled."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, results file, or report showing that a Kolmogorov\u2011Smirnov test\
+    \ was run on the p\u2011value distribution when no taxa have q\u202F<\u202F0.05\
+    \ is provided; the only evidence is the task description itself, which does not\
+    \ constitute the required artifact. The implementer must supply the analysis script\
+    \ (or notebook) and its output (e.g., KS test statistic and p\u2011value) to satisfy\
+    \ the requirement."

@@ -1,200 +1,106 @@
 """
-Task T015: Generate results_full.csv for User Story 1 (Full-context condition).
+T015: Generate results_full.csv for full-context simulation.
 
-This script runs a simulated experiment under the "full" context condition,
-computes specialization and retrieval metrics for each game, and writes the
-results to `results/results_full.csv`.
+This script runs a simulation loop for N games (default 200) under the
+'full' context condition and outputs a CSV with specialization index
+and retrieval efficiency metrics.
 
-It uses the real metric computation functions from `metrics.specialization`
-and `metrics.retrieval`. To satisfy the "no fabrication" constraint while
-respecting the CPU-only and non-GPU constraint, this script performs a
-*small-scale* real measurement: it runs a reduced number of games (default 10)
-using a deterministic, lightweight simulation of agent interaction (no heavy
-LLM inference). The metrics are computed on these real simulation traces.
-
-The output CSV contains:
-  - game_id
-  - specialization_index
-  - retrieval_efficiency
-  - context_condition (always "full")
-  - agent_count
+Dependencies:
+  - T011b: simulate_one_game (game simulation loop)
+  - T012: compute_specialization_index
+  - T013: compute_retrieval_efficiency
 """
-from __future__ import annotations
-
-import argparse
 import csv
 import os
-import random
-from dataclasses import dataclass, field
+import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
 
-# Import real metric functions from existing modules
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from run_experiment import simulate_one_game, GameConfig
 from metrics.specialization import compute_specialization_index
 from metrics.retrieval import compute_retrieval_efficiency
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-@dataclass
-class GameConfig:
-    num_agents: int
-    num_facts: int
-    context_condition: str
-    seed: int = 42
+def main():
+    """Run full-context simulation and write results_full.csv."""
+    # Determine game count from environment variable
+    game_count_env = os.environ.get('SIMULATION_GAME_COUNT', '200')
+    try:
+        game_count = int(game_count_env)
+    except ValueError:
+        logger.log("error", operation="invalid_game_count", message=f"Invalid SIMULATION_GAME_COUNT: {game_count_env}, defaulting to 200")
+        game_count = 200
 
-@dataclass
-class GameResult:
-    game_id: int
-    agent_facts: List[Dict[str, Any]]  # Each agent's assigned facts
-    successful_retrievals: int
-    total_retrieval_attempts: int
-    specialization_index: float
-    retrieval_efficiency: float
-    context_condition: str
-    agent_count: int
+    logger.log("info", operation="start_simulation", game_count=game_count, context="full")
 
-def simulate_one_game(config: GameConfig) -> GameResult:
-    """
-    Simulate a single game with 'num_agents' agents and 'num_facts' facts.
+    # Ensure output directory exists
+    output_dir = project_root / "results"
+    output_dir.mkdir(exist_ok=True)
+    output_path = output_dir / "results_full.csv"
 
-    This is a lightweight, CPU-only simulation that does NOT invoke a heavy LLM.
-    It assigns facts to agents, simulates retrieval attempts, and returns
-    the raw data needed to compute metrics.
+    # Prepare CSV fields
+    fieldnames = [
+        "game_id",
+        "specialization_index",
+        "retrieval_efficiency",
+        "context_condition",
+        "agent_count"
+    ]
 
-    The simulation is deterministic given the seed.
-    """
-    random.seed(config.seed + config.num_agents)  # Ensure reproducibility
-
-    # Assign facts to agents (each fact assigned to exactly one agent)
-    agent_facts = [set() for _ in range(config.num_agents)]
-    for fact_id in range(config.num_facts):
-        agent_idx = fact_id % config.num_agents
-        agent_facts[agent_idx].add(fact_id)
-
-    # Simulate retrieval attempts
-    # Each agent attempts to retrieve facts they know and facts they don't
-    total_attempts = 0
-    successful_retrievals = 0
-
-    for agent_idx in range(config.num_agents):
-        # Attempt to retrieve facts this agent knows
-        known_facts = agent_facts[agent_idx]
-        for _ in known_facts:
-            total_attempts += 1
-            # Simulate a successful retrieval (since the agent knows it)
-            successful_retrievals += 1
-
-        # Attempt to retrieve facts this agent doesn't know (cue-based retrieval)
-        unknown_facts = set(range(config.num_facts)) - known_facts
-        for _ in unknown_facts:
-            total_attempts += 1
-            # Simulate a 50% success rate for cue-based retrieval
-            if random.random() < 0.5:
-                successful_retrievals += 1
-
-    # Compute metrics using the real metric functions
-    # Convert agent_facts to the format expected by compute_specialization_index
-    facts_list = [list(facts) for facts in agent_facts]
-    spec_index, _ = compute_specialization_index(facts_list, num_agents=config.num_agents)
-
-    ret_eff, _ = compute_retrieval_efficiency(
-        successful_retrievals, total_attempts, config.num_agents
-    )
-
-    return GameResult(
-        game_id=config.seed,
-        agent_facts=[list(f) for f in agent_facts],
-        successful_retrievals=successful_retrievals,
-        total_retrieval_attempts=total_attempts,
-        specialization_index=spec_index,
-        retrieval_efficiency=ret_eff,
-        context_condition=config.context_condition,
-        agent_count=config.num_agents,
-    )
-
-def run_simulation(
-    num_games: int,
-    num_agents: int,
-    num_facts: int,
-    context_condition: str,
-    seed: int,
-) -> List[GameResult]:
-    """Run multiple game simulations and collect results."""
+    # Run simulation loop
     results = []
-    for i in range(num_games):
-        game_config = GameConfig(
-            num_agents=num_agents,
-            num_facts=num_facts,
-            context_condition=context_condition,
-            seed=seed + i,
-        )
-        result = simulate_one_game(game_config)
-        results.append(result)
-        logger.log("game_completed", game_id=result.game_id, agents=num_agents)
-    return results
+    for i in range(game_count):
+        game_id = i + 1
 
-def write_results_csv(results: List[GameResult], output_path: Path) -> None:
-    """Write results to CSV file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", newline="") as f:
-        writer = csv.DictWriter(
-            f,
-            fieldnames=[
-                "game_id",
-                "specialization_index",
-                "retrieval_efficiency",
-                "context_condition",
-                "agent_count",
-            ],
+        # Configuration for full-context simulation
+        # Using default agent count (e.g., 3 or 5) as per task description
+        # We'll use 3 agents as a standard baseline
+        agent_count = 3
+        config = GameConfig(
+            context_condition="full",
+            agent_count=agent_count,
+            dataset_name="hanabi", # Default dataset
+            max_turns=50
         )
-        writer.writeheader()
-        for r in results:
-            writer.writerow({
-                "game_id": r.game_id,
-                "specialization_index": f"{r.specialization_index:.6f}",
-                "retrieval_efficiency": f"{r.retrieval_efficiency:.6f}",
-                "context_condition": r.context_condition,
-                "agent_count": r.agent_count,
+
+        try:
+            # Run the simulation for one game
+            # simulate_one_game returns (specialization_index, retrieval_efficiency, game_result_obj)
+            # based on T011b implementation
+            spec_idx, ret_eff, game_result = simulate_one_game(game_id, config)
+
+            # Validate metrics (T012 and T013 should handle this, but double-check)
+            if spec_idx is None or ret_eff is None:
+                logger.log("warning", operation="skip_game", game_id=game_id, reason="None metrics returned")
+                continue
+
+            results.append({
+                "game_id": game_id,
+                "specialization_index": spec_idx,
+                "retrieval_efficiency": ret_eff,
+                "context_condition": "full",
+                "agent_count": agent_count
             })
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Generate full-context results for T015")
-    parser.add_argument(
-        "--games", type=int, default=10, help="Number of games to simulate"
-    )
-    parser.add_argument(
-        "--agents", type=int, default=5, help="Number of agents per game"
-    )
-    parser.add_argument(
-        "--facts", type=int, default=50, help="Number of facts per game"
-    )
-    parser.add_argument(
-        "--seed", type=int, default=42, help="Random seed"
-    )
-    parser.add_argument(
-        "--output", type=str, default="results/results_full.csv", help="Output CSV path"
-    )
-    return parser
+            if game_id % 50 == 0:
+                logger.log("info", operation="progress", game_id=game_id, total=game_count)
 
-def main() -> None:
-    parser = build_parser()
-    args = parser.parse_args()
+        except Exception as e:
+            logger.log("error", operation="game_failure", game_id=game_id, error=str(e))
+            # Continue with next game rather than failing the whole run
 
-    logger.log("starting_t015", games=args.games, agents=args.agents)
+    # Write results to CSV
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
 
-    results = run_simulation(
-        num_games=args.games,
-        num_agents=args.agents,
-        num_facts=args.facts,
-        context_condition="full",
-        seed=args.seed,
-    )
-
-    output_path = Path(args.output)
-    write_results_csv(results, output_path)
-
-    logger.log("t015_complete", output=str(output_path), games=len(results))
+    logger.log("info", operation="simulation_complete", output_path=str(output_path), total_games=len(results))
     print(f"Results written to {output_path}")
 
 if __name__ == "__main__":

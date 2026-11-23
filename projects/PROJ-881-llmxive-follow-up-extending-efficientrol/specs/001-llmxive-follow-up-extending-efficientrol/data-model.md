@@ -1,55 +1,69 @@
 # Data Model: llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
 
-## Overview
-This document defines the data structures used to store and process the intermediate states, ground truth labels, and analysis results. The model is designed to be streaming-friendly (to handle memory constraints) and schema-strict (for reproducibility). The key change is the **single-pass** capture of entropy and validity, and the support for **Mixed-Effects Logistic Regression** (GLMM) in the analysis result structure.
-
-## Entity Definitions
+## Entities & Relationships
 
 ### 1. TokenSequence
-Represents a single generated response to a prompt.
-*   **id**: Unique identifier (UUID).
-*   **task_type**: Enum (`gsm8k`, `minigrid`).
-*   **prompt**: The input text.
-*   **ground_truth**: The expected solution string or action sequence (external source).
-*   **generated_tokens**: List of token IDs or strings.
-*   **validity_flags**: List of booleans (1/0) corresponding to each token (derived from external ground truth).
-*   **sequence_length**: Integer.
+Represents a generated response to a prompt.
+- **Attributes**:
+  - `sequence_id`: Unique identifier (UUID).
+  - `task_type`: "gsm8k" or "minigrid".
+  - `prompt_id`: Reference to the input prompt.
+  - `tokens`: List of token IDs.
+  - `ground_truth`: The reference solution string/sequence.
+  - `validity_labels`: List of booleans (0/1) corresponding to each token.
+- **Relationship**: One `TokenSequence` contains many `EntropyProfile` entries.
 
-### 2. EntropyProfile
-Represents the internal state of a single token across all transformer layers.
-*   **sequence_id**: Foreign key to `TokenSequence`.
-*   **token_index**: Integer (position in sequence).
-*   **token_id**: Integer (Vocab ID).
-*   **entropy_values**: List of floats (one per layer).
-*   **is_valid**: Boolean (derived from external ground truth, not model output).
+### 2. TokenAlignment
+Represents the mapping between generated tokens and ground truth.
+- **Attributes**:
+  - `alignment_id`: Unique identifier.
+  - `sequence_id`: Foreign key to `TokenSequence`.
+  - `token_index`: Position in the sequence.
+  - `alignment_status`: "match", "mismatch", "divergence".
+  - `validity_label`: Derived from alignment status (1 for match, 0 for mismatch/divergence).
+- **Relationship**: One `TokenAlignment` belongs to one `TokenSequence`.
 
-### 3. RegressionResult
-Stores the output of the Mixed-Effects Logistic Regression (GLMM) analysis.
-*   **task_type**: Enum.
-*   **layer_group**: String (`early`, `mid`, `late`, `all`, or specific layer index).
-*   **coefficient**: Float ($\beta_1$).
-*   **p_value**: Float (raw).
-*   **p_value_corrected**: Float (FDR/Bonferroni corrected).
-*   **auc_roc**: Float.
-*   **optimal_threshold**: Float.
-*   **fpr_at_threshold**: Float.
-*   **fnr_at_threshold**: Float.
-*   **random_effect_variance**: Float (variance of the random intercept for `sequence_id`).
+### 3. EntropyProfile
+Represents the internal state of a single token at a specific layer.
+- **Attributes**:
+  - `profile_id`: Unique identifier.
+  - `sequence_id`: Foreign key to `TokenSequence`.
+  - `token_index`: Position in the sequence (0-indexed).
+  - `layer_id`: Transformer layer index (0 to N).
+  - `entropy_value`: Calculated Shannon entropy (float).
+  - `validity_label`: Inherited from `TokenSequence` (denormalized for analysis).
+- **Relationship**: One `EntropyProfile` belongs to one `TokenSequence`.
 
-### 4. SensitivityAnalysis
-Stores the results of the threshold sweep.
-*   **task_type**: Enum.
-*   **threshold**: Float.
-*   **accuracy**: Float.
-*   **fpr**: Float.
-*   **fnr**: Float.
-*   **computation_saved_ratio**: Float (estimated based on skipped layers).
+### 4. RegressionModel
+Stores the results of the statistical analysis.
+- **Attributes**:
+  - `model_id`: Unique identifier.
+  - `task_type`: "gsm8k", "minigrid", or "pooled".
+  - `coefficients`: JSON object mapping predictors to coefficients.
+  - `intercept`: Float.
+  - `auc_roc`: Float (0.0 to 1.0).
+  - `p_values`: JSON object mapping predictors to p-values.
+  - `fdr_corrected_p_values`: JSON object.
+  - `optimal_threshold`: Float.
+  - `fpr`: Float.
+  - `fnr`: Float.
+  - `random_effect_variance`: Float (variance of random intercept).
 
 ## Data Flow
-1.  **Single-Pass Generation**: `TokenSequence` and `EntropyProfile` generated simultaneously and written to `data/raw/sequences.jsonl` (with embedded entropy) or separate linked files.
-2.  **Analysis**: `RegressionResult` and `SensitivityAnalysis` computed and stored in `data/results/analysis_results.jsonl`.
 
-## Constraints
-*   **Sequence Length**: Max tokens within a reasonable limit appropriate for the task.
-*   **Batch Size**: Processing batches limited to a size constrained by available RAM.
-*   **Data Integrity**: No in-place updates; all derivations append to new files.
+1. **Raw Data**: Downloaded Parquet/HDF5 files -> `data/raw/`.
+2. **Processed Data**:
+   - `data/processed/ground_truth_labels.jsonl`: Token-level validity (via Semantic Alignment).
+   - `data/processed/entropy_profiles.jsonl`: Layer-level entropy (via single-sequence streaming).
+   - `data/processed/merged_analysis.jsonl`: Joined data for regression.
+3. **Results**:
+   - `data/results/regression_results.json`: Model coefficients and metrics.
+   - `data/results/sensitivity_analysis.json`: Threshold sweep results.
+   - `data/results/fdr_report.json`: Corrected p-values.
+   - `data/results/decay_analysis.json`: Stratified results by sequence length.
+
+## Storage Strategy
+
+- **Format**: JSONL for intermediate data (streaming-friendly), JSON for final results.
+- **Checksums**: All files in `data/raw/` and `data/processed/` are checksummed (SHA-256) and recorded in `state/...yaml`.
+- **Versioning**: Derived files include `derived_from` metadata pointing to the source file hash.

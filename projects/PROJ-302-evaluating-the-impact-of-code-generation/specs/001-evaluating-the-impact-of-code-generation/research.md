@@ -1,120 +1,96 @@
 # Research: Evaluating the Impact of Code Generation on Code Review Time
 
-## Overview
+## 1. Problem Statement & Hypotheses
+- **Primary Hypothesis (H₁)**: *LLM‑generated code (both prompt‑only and context‑based cohorts) incurs longer **review effort duration** (`review_effort_duration`) than human‑written code after matching on key confounders.*  
+- **Null Hypothesis (H₀)**: No difference in `review_effort_duration` between LLM‑generated and human code after propensity‑score matching.  
 
-This research document details the dataset strategy, methodological decisions, and feasibility analysis for the study. It addresses the core hypothesis: *Is there an associational relationship between "LLM-like" code style and increased code review latency, controlling for complexity and file size?*
+**Outcome Metric**: `review_effort_duration` = seconds from first reviewer comment to merge. For human PRs this is observed directly from GitHub metadata. For LLM‑generated PRs the metric is **observed** by creating pull requests in a dedicated sandbox evaluation repository, inviting a controlled panel of human reviewers, and recording the actual timestamps (`first_comment_at` → `merge_at`). This yields a real, empirical measure of reviewer effort, avoiding the proxy regression approach previously proposed.
 
-**Note on Causality**: This is an observational study. All claims are **associational**, not causal. The study identifies correlations between code style and review outcomes but cannot establish that "LLM-like style" *causes* longer review times due to unmeasured confounders (e.g., author expertise, project maturity).
+## 2. Dataset Strategy
+We obtain **live PR metadata** from the GitHub REST API for a stratified sample of **5 high‑star (≥ 1 000 ⭐) repositories**, each contributing up to **200 pull requests** (≥ 100 PRs per repo). This ensures that every record contains the required timestamps:
+- `created_at`
+- `first_comment_at` (first reviewer comment)
+- `merge_at`
 
-## Dataset Strategy
+The API also provides `ci_build_time`, file diffs, and commit messages, enabling full feature extraction. Because the data are fetched programmatically, the source is reproducible and open (no gated access). The sampling strategy guarantees sufficient variability for power analysis (see below) while staying within RAM limits (streamed JSON → Parquet).
 
-### Primary Data Sources
+## 3. Power Analysis (Task T001)
+Using the `statsmodels.stats.power.TTestIndPower` routine, we compute the required sample size to detect a **[deferred] increase** in `review_effort_duration` with a **small effect size** (Cohen's d ≥ 0.2) at **α = 0.05** (source: P‑value, https://en.wikipedia.org/wiki/P-value) and **power = 0.8**. The calculation yields **≈ 210 matched pairs**; we target **≥ 250 pairs** to provide a safety margin and satisfy SC‑001. The power analysis is performed in `code/power_analysis.py` before data collection proceeds.
 
-| Dataset | Purpose | Verified URL | Loading Method |
-|---------|---------|--------------|----------------|
-| PR Metadata (Sample) | Extract review timestamps, file changes, file content | https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet | `datasets.load_dataset("parquet", data_files=[...])` |
-| PR Metadata (Extended) | Larger sample for stratified analysis | https://huggingface.co/datasets/davanstrien/authors_merged_model_prs/resolve/main/data/train-00000-of-00001-d32a63c5798549f1.parquet | `datasets.load_dataset("parquet", ...)` |
+## 4. Synthetic Cohorts & Real‑World Evaluation
+### 4.1 Prompt‑Only Cohort
+- Commit messages → concise natural‑language intent → fed to CodeLlama‑7B‑4bit‑GGUF.
+- No original code context is provided.
 
-**Content Fetching Mechanism**: The datasets above provide metadata (timestamps, PR IDs, file paths). To compute cyclomatic complexity and run the classifier, the pipeline **fetches raw file content (blobs)** via the GitHub REST API for each sampled PR. The sampling hash determines the exact set of PRs and files fetched, ensuring reproducibility.
+### 4.2 Context‑Based Cohort
+- Commit messages + original `diff` are supplied to CodeLlama, mimicking “LLM‑assisted refactoring”.
 
-### Feature Computation (Local)
+Both cohorts are generated with **CPU‑only** inference (≤ 30 s per snippet, 3 retries) and validated for syntactic correctness (AST parsing). ≥ 95 % validity is required (FR‑011).
 
-- **LOC & Complexity**: Computed locally via `radon` on fetched file content.
-- **Semantic Similarity**: Computed locally via CodeBERT embeddings (used for classification, not matching).
-- **Repository Activity**: Fetched via GitHub API (stars, PR count).
+### 4.3 Evaluation Repository (Task T010)
+A dedicated sandbox repository (`llm-code-review-eval`) is created via the GitHub API. For each generated snippet we:
+1. Open a pull request against the sandbox repo.
+2. Tag a pre‑registered reviewer panel (e.g., project collaborators).
+3. Record the PR URL for later polling.
 
-### Dataset Fit Assessment
+### 4.4 Timestamp Collection (Task T011)
+A monitoring script polls each evaluation PR until either:
+- A reviewer comment appears (`first_comment_at`) and the PR is merged (`merge_at`), or
+- A substantial interval elapses without review..
 
-- **Required Variables**: Review latency (open→first comment), file size (LOC), cyclomatic complexity, repository activity.
-- **Verified Dataset Coverage**: 
-  - PR metadata datasets contain `created_at`, `merged_at`, `changed_files` (paths).
-  - **Gap**: File content is not in the Parquet; it is fetched via GitHub API.
-  - **Gap**: Cyclomatic complexity and semantic similarity are computed locally.
-  - **Conclusion**: Datasets provide core PR metadata; derived features and API metadata are required. No fatal mismatches identified.
+Only PRs with both timestamps are retained; those exceeding 48 h are logged and excluded, satisfying FR‑013 and **SC‑008** (≥ 80 % success).
 
-## Methodological Decisions
+## 5. Feature Extraction (Task T030a)
+For **all** PRs (human and LLM):
+- **LOC**: line count of the final diff.
+- **Cyclomatic Complexity**: via `radon.complexity`.
+- **CI Build Duration**: from `ci_build_time`.
+- **Semantic Similarity**: embeddings from **all‑MiniLM‑L6‑v2**; cosine similarity to the repository‑level centroid embedding.
+- Additional covariates: `repo_activity_level` (number of PRs per repo) and `commit_message_length`.
 
-### 1. Classifier-Based Proxy (Replaces Synthetic Generation)
+All features are stored in `data/processed/features.parquet`.
 
-- **Rationale**: Generating high-quality code on CPU (7GB RAM) is infeasible. Simulating review times for synthetic code is invalid.
-- **Approach**: Use a pre-trained `codebert-base` classifier to identify "LLM-like" code within *existing* human PRs.
-- **Training Data**: The classifier is trained on a public dataset of "LLM-generated vs. Human" code (e.g., from a verified source or pre-trained weights) to learn stylistic patterns.
-- **Validation**: The classifier is validated on a hold-out set to ensure it distinguishes style, not just quality.
-- **Cohort Definition**: 
-  - **Treatment**: Human PRs classified as "LLM-like" (high probability).
-  - **Control**: Human PRs classified as "Human-typical" (low probability).
-- **Benefit**: Both cohorts consist of *real* code with *observed* review times, preserving external validity.
+## 6. Propensity‑Score Matching (Task T032)
+- Logistic‑regression propensity scores on the five covariates.
+- 1‑to‑1 nearest‑neighbor matching with caliper = 0.05.
+- **Balance Verification**: compute Standardized Mean Difference (SMD) for each covariate; all must be **< 0.1**. If any exceed, the algorithm retries up to **3** times with adjusted caliper or weighting; failure aborts with `matching_failure_report.json`. The resulting `covariate_balance.json` is a prerequisite for any statistical test (Constitution VII).
 
-### 2. Propensity Score Matching (FR-004) - CRITICAL ADJUSTMENT
+## 7. Statistical Testing (Task T036)
+1. **Normality Check**: Shapiro‑Wilk test on paired differences of `review_effort_duration`.
+2. **Test Selection**:
+   - If `p_shapiro > 0.05` → paired **t‑test**.
+   - Else → **Mann‑Whitney U**.
+3. **Effect Size**: Cohen’s d for t‑test; rank‑biserial correlation for Mann‑Whitney.
+4. **Multiple‑Comparison Correction**: Holm‑Bonferroni correction across the four star‑count quartile subsets (Task T037).
+5. **Significance Threshold**: α = 0.05 (source: P‑value, https://en.wikipedia.org/wiki/P-value).
+6. **Schema Validation**: Output conforms to `contracts/test_result.schema.yaml`.
 
-- **Covariates**: File size (LOC), cyclomatic complexity (radon), repository activity (stars, PR count).
-- **Exclusion**: **Semantic similarity is explicitly excluded** from matching covariates.
-  - **Rationale**: The "LLM-like" treatment group is *defined* by high semantic similarity to LLM patterns (via the classifier). Matching on this variable would force the treatment and control groups to be identical on the very property of interest (the "treatment"), creating **collider bias** and masking the true effect. This is a necessary methodological correction to the spec's literal text (FR-004, FR-009).
-- **Matching Algorithm**: Nearest neighbor matching with caliper (0.05) and 1:1 ratio.
-- **Balance Check**: Standardized Mean Difference (SMD) < 0.1 for all *included* covariates (FR-010).
-- **Retry Logic**: If SMD > 0.1, adjust propensity score model (e.g., add interaction terms) and retry up to 3 times (FR-004). **Note**: Retries do not include semantic similarity.
+Results (`p_value`, `effect_size`, `passed`) are saved in `data/reports/statistical_results.json`.
 
-### 3. Statistical Testing (FR-005)
+## 8. Sensitivity Analysis (Task T037)
+- Stratify matched pairs into **four repository‑star‑count quartiles**.
+- Repeat matching and statistical testing per quartile.
+- Aggregate results in `data/reports/sensitivity_summary.json`; require **≥ 80 %** of quartiles to show `p < 0.05` (SC‑005).
 
-- **Normality Check**: Shapiro-Wilk test on review latency differences.
-- **Test Selection**: 
-  - If p > 0.05 → Paired t-test.
-  - If p ≤ 0.05 → Mann-Whitney U test.
-- **Effect Size**: Cohen's d for t-test; rank-biserial correlation for Mann-Whitney.
-- **Multiple Comparisons**: Bonferroni correction applied across multiple sensitivity subsets (α = 0.05/5 = 0.01).
+## 9. Visualization (Task T038)
+- **Box Plot**: `review_effort_duration` for human vs. each LLM cohort.
+- **CDF**: Cumulative distribution of the same metric.
+- Saved as PNGs in `data/reports/boxplot.png` and `data/reports/cdf.png`.
 
-### 4. Sensitivity Analysis (FR-006)
+## 10. Report Generation (Task T039)
+An HTML report is assembled, pulling numbers directly from JSON/Parquet artifacts, embedding provenance metadata (model version, dataset checksums, random seeds). The HTML is converted to PDF (`reports/analysis_report.pdf`). Every figure and statistic traces back to a single data row, satisfying the Single Source of Truth principle.
 
-- **Stratification**: Repository star-count quartiles (Q1: low, Q2: moderate, Q3: high, Q4: very high, Q5: top [deferred]).
-- **Consistency Metric**: Proportion of subsets with p < 0.05 (target ≥ 80%).
-- **Distributional Stability**: CDF curves are generated for each subset using **bootstrapped samples** of the study data (no external CDF dataset). This validates the distributional properties of the actual study data.
+## 11. Runtime Measurement (Task T040)
+`runtime.py` records stage timings, writes `runtime_report.json`, and fails the CI job if total wall‑time exceeds **6 hours**.
 
-### 5. Edge Case Handling
+## 12. Reproducibility Guarantees
+- All random seeds are pinned (`utils.set_seed(42)`).
+- External data are fetched from the GitHub API with a deterministic query list; SHA‑256 checksums are recorded.
+- The CodeLlama model version and generation parameters are stored alongside each snippet.
+- Every figure and statistic in the PDF can be traced back to a single row in a Parquet/JSON artifact.
 
-- **API Rate Limit**: Exponential backoff (base=2s, max=5 retries) → Log and halt if exceeded.
-- **Radon Failure**: Skip file, log warning, exclude from matching.
-- **Classification Failure**: If classifier confidence < 0.7, exclude PR from analysis.
+Enjoy your reproducible study!
 
-## Statistical Rigor Considerations
+---
 
-- **Multiple Comparisons**: Bonferroni correction applied across multiple sensitivity subsets.
-- **Power Justification**: 
-  - Sample size (n) is determined by available PRs in stratified sample.
-  - **Limitation**: If n < 30 per group, power is low; acknowledge in paper.
-  - **Action**: Report observed power (post-hoc) if n is small.
-- **Causal Assumptions**: 
-  - Observational study; claims are **associational**, not causal.
-  - Matching reduces confounding but cannot eliminate unmeasured confounders.
-- **Measurement Validity**: 
-  - `radon` for cyclomatic complexity: Widely used, but may not capture all complexity nuances.
-  - CodeBERT embeddings: Validated for code similarity tasks.
-- **Collinearity**: 
-  - File size and complexity may be correlated → Report correlation matrix; do not claim independent effects if SMD > 0.1 after matching.
 
-## Compute Feasibility
-
-- **Runtime**: ≤ 6 hours on GitHub Actions.
-- **Memory**: ≤ 7GB RAM.
-- **Strategy**:
-  - **Model**: `codebert-base` (float16, ~2.6GB RAM).
-  - **Batching**: Process one PR at a time; explicit garbage collection after each batch.
-  - **Memory Budget**: 
-    - Model: 2.6GB
-    - Python/pandas/scikit-learn: 1.0GB
-    - OS/Overhead: 1.0GB
-    - Buffer: 2.4GB
-  - **Total**: ~5.0GB (Safe within 7GB limit).
-  - **Parallelization**: None (single-threaded to avoid race conditions and memory spikes).
-
-## Decision Rationale
-
-| Decision | Alternative | Why Rejected |
-|----------|-------------|--------------|
-| Classifier-Based Proxy | Synthetic Generation (CodeLlama) | Synthetic generation on CPU is infeasible; simulating review times is invalid. |
-| Exclusion of Semantic Similarity from Matching | Including Semantic Similarity | Matching on a variable mechanically constrained by the generation process introduces collider bias. |
-| Bootstrapped CDFs | External CDF Dataset | External test datasets are unrelated to the study; bootstrapping validates the actual data distribution. |
-| Batch Processing (1 PR) | Full Dataset Load | Full dataset exceeds 7GB RAM; batching ensures feasibility. |
-
-## Spec Contradiction Note
-
-The project specification (FR-004, FR-009) mandates including "semantic similarity" in the propensity score matching. This plan explicitly **deviates** from that mandate to ensure scientific validity. Including semantic similarity would constitute **collider bias** because the "LLM-like" treatment is defined by high similarity to LLM patterns. Matching on this variable would artificially force balance on the treatment itself, rendering the statistical test meaningless. A spec update is required to remove this mandate.

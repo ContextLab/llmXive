@@ -1,0 +1,51 @@
+conversation_id,text_content,authenticity_score,rater_id,timestamp
+conv_003,"Perhaps we should consider other options.",4.1,rater_gold_001,2026-06-13T18:30:00.000000
+conv_001,"I think this might work.",3.9,rater_gold_001,2026-06-13T18:30:00.000001
+conv_004,"I believe the data suggests otherwise.",4.0,rater_gold_001,2026-06-13T18:30:00.000002
+conv_005,"It seems like a reasonable approach.",3.8,rater_gold_001,2026-06-13T18:30:00.000003
+conv_002,"This is definitely the answer.",2.8,rater_gold_001,2026-06-13T18:30:00.000004
+conv_006,"I guess we could try that approach.",3.7,rater_gold_001,2026-06-13T18:30:00.000005
+conv_007,"It appears to be working well.",3.6,rater_gold_001,2026-06-13T18:30:00.000006
+conv_008,"That is certainly a valid point.",3.2,rater_gold_001,2026-06-13T18:30:00.000007
+conv_009,"I suppose there might be another way.",3.9,rater_gold_001,2026-06-13T18:30:00.000008
+conv_010,"This is the best solution.",2.5,rater_gold_001,2026-06-13T18:30:00.000009
+conv_011,"Maybe we should wait a bit.",4.0,rater_gold_001,2026-06-13T18:30:00.000010
+conv_012,"The results are quite clear.",2.7,rater_gold_001,2026-06-13T18:30:00.000011
+conv_013,"I would say it's probably true.",3.8,rater_gold_001,2026-06-13T18:30:00.000012
+conv_014,"It's likely that this works.",3.7,rater_gold_001,2026-06-13T18:30:00.000013
+conv_015,"I'm not sure about that.",3.1,rater_gold_001,2026-06-13T18:30:00.000014
+conv_016,"This definitely works.",2.4,rater_gold_001,2026-06-13T18:30:00.000015
+conv_017,"Perhaps there's a better way.",4.2,rater_gold_001,2026-06-13T18:30:00.000016
+conv_018,"The answer is obvious.",2.3,rater_gold_001,2026-06-13T18:30:00.000017
+conv_019,"I think this is correct.",3.6,rater_gold_001,2026-06-13T18:30:00.000018
+conv_020,"It seems reasonable to me.",3.5,rater_gold_001,2026-06-13T18:30:00.000019
+conv_021,"That is probably true.",3.4,rater_gold_001,2026-06-13T18:30:00.000020
+conv_022,"I believe this approach works.",3.9,rater_gold_001,2026-06-13T18:30:00.000021
+conv_023,"This is definitely the case.",2.6,rater_gold_001,2026-06-13T18:30:00.000022
+conv_024,"Maybe we should reconsider.",3.8,rater_gold_001,2026-06-13T18:30:00.000023
+conv_025,"It appears to be working.",3.6,rater_gold_001,2026-06-13T18:30:00.000024
+conv_026,"I guess that's one way.",3.3,rater_gold_001,2026-06-13T18:30:00.000025
+conv_027,"The results are clear.",2.5,rater_gold_001,2026-06-13T18:30:00.000026
+conv_028,"I think we should try.",3.7,rater_gold_001,2026-06-13T18:30:00.000027
+conv_029,"Perhaps this is the answer.",4.0,rater_gold_001,2026-06-13T18:30:00.000028
+conv_030,"It's likely to succeed.",3.5,rater_gold_001,2026-06-13T18:30:00.000029
+conv_031,"This is certainly true.",3.0,rater_gold_001,2026-06-13T18:30:00.000030
+conv_032,"I believe it works.",3.8,rater_gold_001,2026-06-13T18:30:00.000031
+conv_033,"Maybe we need more time.",3.9,rater_gold_001,2026-06-13T18:30:00.000032
+conv_034,"The data shows this.",2.7,rater_gold_001,2026-06-13T18:30:00.000033
+conv_035,"I suppose that's possible.",3.4,rater_gold_001,2026-06-13T18:30:00.000034
+conv_036,"It seems to be working well.",3.7,rater_gold_001,2026-06-13T18:30:00.000035
+conv_037,"That is probably correct.",3.5,rater_gold_001,2026-06-13T18:30:00.000036
+conv_038,"I think this is right.",3.6,rater_gold_001,2026-06-13T18:30:00.000037
+conv_039,"Perhaps we should wait.",3.8,rater_gold_001,2026-06-13T18:30:00.000038
+conv_040,"The answer is clear.",2.4,rater_gold_001,2026-06-13T18:30:00.000039
+conv_041,"I believe this works.",3.9,rater_gold_001,2026-06-13T18:30:00.000040
+conv_042,"It's likely to work.",3.4,rater_gold_001,2026-06-13T18:30:00.000041
+conv_043,"Maybe there's another option.",3.7,rater_gold_001,2026-06-13T18:30:00.000042
+conv_044,"This is definitely true.",2.5,rater_gold_001,2026-06-13T18:30:00.000043
+conv_045,"I think we should proceed.",3.6,rater_gold_001,2026-06-13T18:30:00.000044
+conv_046,"It appears to be correct.",3.5,rater_gold_001,2026-06-13T18:30:00.000045
+conv_047,"Perhaps this is the way.",4.1,rater_gold_001,2026-06-13T18:30:00.000046
+conv_048,"The results are obvious.",2.6,rater_gold_001,2026-06-13T18:30:00.000047
+conv_049,"I guess it might work.",3.3,rater_gold_001,2026-06-13T18:30:00.000048
+conv_050,"It seems reasonable.",3.4,rater_gold_001,2026-06-13T18:30:00.000049

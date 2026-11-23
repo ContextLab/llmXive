@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Participant Logs",
+  "description": "Schema for raw participant onboarding study logs",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "participant_id",
+      "condition",
+      "start_time",
+      "end_time",
+      "help_request_count",
+      "cognitive_load_proxy",
+      "subjective_rating",
+      "status"
+    ],
+    "properties": {
+      "participant_id": {
+        "type": "string",
+        "description": "UUID v4 identifier for the participant",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "condition": {
+        "type": "string",
+        "enum": ["LLM", "Human", "None"],
+        "description": "Documentation condition assigned"
+      },
+      "start_time": {
+        "type": "string",
+        "format": "date-time",
+        "description": "ISO 8601 timestamp of session start"
+      },
+      "end_time": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 timestamp of session end (null if incomplete)"
+      },
+      "help_request_count": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Number of clarification questions asked"
+      },
+      "cognitive_load_proxy": {
+        "type": "number",
+        "description": "Composite score of cognitive load"
+      },
+      "subjective_rating": {
+        "type": ["number", "null"],
+        "minimum": 1,
+        "maximum": 5,
+        "description": "Subjective helpfulness rating (1-5)"
+      },
+      "status": {
+        "type": "string",
+        "enum": ["complete", "incomplete"],
+        "description": "Session completion status"
+      },
+      "intervention_flag": {
+        "type": "boolean",
+        "default": false,
+        "description": "True if stop-loss intervention was triggered"
+      },
+      "questions": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "timestamp": {"type": "string", "format": "date-time"},
+            "content": {"type": "string"},
+            "moderator_tagged": {"type": "boolean"}
+          }
+        },
+        "description": "Detailed log of help requests"
+      }
+    },
+    "additionalProperties": true
+  }
+}

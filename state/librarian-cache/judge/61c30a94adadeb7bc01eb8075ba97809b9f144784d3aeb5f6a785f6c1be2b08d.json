@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.21089",
+  "judged_at": "2026-08-29T00:55:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"datacomp-vlm: improved open datasets for vision-language models\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides a canonical dataset and empirical evaluation for Vision-Language Models (VLMs), which is the core domain of the user's question regarding \"DataComp-VLM\" and VLM datasets. While the specific application (disaster assessment) differs from the general open datasets in DataComp-VLM, it represents a direct extension of the same mechanism (training/evaluating VLMs on specialized open datasets) and offers the necessary empirical baseline for VLM ",
+  "relevant": true
+}

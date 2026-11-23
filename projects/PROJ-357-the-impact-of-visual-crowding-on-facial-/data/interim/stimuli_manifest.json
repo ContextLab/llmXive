@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "generated_at": "/home/runner/work/llmXive/llmXive/projects/PROJ-357-the-impact-of-visual-crowding-on-facial-",
+  "total_stimuli": 0,
+  "total_excluded": 0,
+  "stimuli": [],
+  "validation_notes": {
+    "unparseable_filenames": [],
+    "error_log_path": "data/interim/generation_errors.log",
+    "stimuli_dir": "data/interim/stimuli"
+  }
+}

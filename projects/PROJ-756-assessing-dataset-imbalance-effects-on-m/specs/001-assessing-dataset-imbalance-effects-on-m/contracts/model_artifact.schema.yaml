@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelArtifactSchema"
+description: "Schema for trained model artifacts and performance metrics."
+type: object
+properties:
+  model_type:
+    type: string
+    enum: ["RandomForest", "GradientBoosting"]
+    description: "Type of machine learning model."
+  training_strategy:
+    type: string
+    enum: ["Skewed", "Balanced_Undersampled", "Cost_Sensitive"]
+    description: "Resampling strategy used."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  hyperparameters:
+    type: object
+    description: "Model hyperparameters."
+  metrics:
+    type: object
+    properties:
+      mae:
+        type: number
+        description: "Mean Absolute Error (Global)."
+      rmse:
+        type: number
+        description: "Root Mean Squared Error (Global)."
+      r2:
+        type: number
+        description: "R-squared score (Global)."
+    required:
+      - mae
+      - rmse
+      - r2
+  metrics_minority:
+    type: object
+    properties:
+      mae:
+        type: number
+        description: "Mean Absolute Error on the bottom 10th percentile subset."
+      rmse:
+        type: number
+      r2:
+        type: number
+    required:
+      - mae
+      - rmse
+      - r2
+    description: "Metrics on the bottom 10th percentile subset of the target distribution."
+  metrics_per_bin:
+    type: object
+    description: "MAE for each of the 20 target bins."
+    additionalProperties:
+      type: number
+  shap_ranks:
+    type: array
+    items:
+      type: string
+    description: "Top-10 feature names ranked by importance."
+  correlation_report:
+    type: object
+    properties:
+      correlation_coefficient:
+        type: number
+      p_value:
+        type: number
+      x_variable:
+        type: string
+      y_variable:
+        type: string
+    description: "Correlation metrics for SC-004."
+required:
+  - model_type
+  - training_strategy
+  - seed
+  - metrics
+  - metrics_minority
+  - shap_ranks
+additionalProperties: false

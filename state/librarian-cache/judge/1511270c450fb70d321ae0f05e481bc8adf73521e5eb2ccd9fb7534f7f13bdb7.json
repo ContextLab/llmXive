@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.21676",
+  "judged_at": "2026-10-12T00:46:00Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anti-self-distillation for reasoning rl via pointwise mutual informati\" computer science",
+  "rationale": "The paper studies learning dynamics, data curricula, and hallucinations in language models, but it does not investigate anti‑self‑distillation, pointwise mutual information, or reasoning‑oriented reinforcement learning—the core mechanisms and variables of the user’s question. Hence it falls outside the relevant construct, domain, and methodology.",
+  "relevant": false
+}

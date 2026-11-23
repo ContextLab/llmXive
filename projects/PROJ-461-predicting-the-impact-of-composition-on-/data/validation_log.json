@@ -1,0 +1,25 @@
+{
+  "source_file": "data/clean_data.csv",
+  "source_status": "REAL",
+  "row_count": 50,
+  "column_count": 7,
+  "target_column": "density",
+  "missing_values": {
+    "valid": true,
+    "missing_count": 0,
+    "missing_percentage": 0.0
+  },
+  "numeric_types": {
+    "valid": true,
+    "invalid_columns": [],
+    "details": {
+      "mass_fraction_Zr": "Valid numeric type",
+      "mass_fraction_Cu": "Valid numeric type",
+      "mass_fraction_Ni": "Valid numeric type",
+      "mass_fraction_Ti": "Valid numeric type",
+      "mass_fraction_Al": "Valid numeric type"
+    }
+  },
+  "overall_valid": true,
+  "validation_timestamp": "2024-01-15T10:30:45.123456"
+}

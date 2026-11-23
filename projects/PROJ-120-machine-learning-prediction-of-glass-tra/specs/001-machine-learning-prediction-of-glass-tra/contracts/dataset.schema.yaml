@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GlassDatasetSchema"
+description: "Schema for the featurized glass composition dataset."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Origin of the data (e.g., 'NIST', 'UCI')."
+      total_samples:
+        type: integer
+        description: "Total number of samples in the dataset."
+      generated_at:
+        type: string
+        format: date-time
+        description: "Timestamp of featurization."
+  samples:
+    type: array
+    items:
+      type: object
+      required:
+        - formula
+        - Tg
+        - atomic_fractions
+        - descriptors
+      properties:
+        formula:
+          type: string
+          description: "Chemical formula string (e.g., 'SiO2')."
+        Tg:
+          type: number
+          description: "Glass transition temperature in Kelvin."
+          minimum: 0
+        atomic_fractions:
+          type: object
+          additionalProperties:
+            type: number
+            minimum: 0
+          description: "Map of element symbol to atomic fraction."
+        descriptors:
+          type: object
+          additionalProperties:
+            type: number
+          description: "Map of feature name to value (e.g., avg_electronegativity)."
+required:
+  - metadata
+  - samples
+additionalProperties: false

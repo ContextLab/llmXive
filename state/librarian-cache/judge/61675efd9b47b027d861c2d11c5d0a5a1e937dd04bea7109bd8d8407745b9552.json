@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0906.3662",
+  "judged_at": "2026-08-12T06:41:33Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical power analysis of openly available fmri datasets statistics",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology and canonical reference for the statistical analysis of fMRI data, which is the necessary framework for conducting any power analysis on such datasets. It also satisfies category (b) by addressing the statistical properties and challenges of the specific domain (fMRI data) mentioned in the user's question, even though it does not explicitly calculate power metrics for openly available datasets.",
+  "relevant": true
+}

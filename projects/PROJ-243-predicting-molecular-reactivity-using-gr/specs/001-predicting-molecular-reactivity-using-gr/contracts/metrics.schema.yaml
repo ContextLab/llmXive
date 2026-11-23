@@ -43,7 +43,7 @@ properties:
           description: "Bonferroni corrected alpha"
         is_primary:
           type: "boolean"
-          description: "True if this is the primary test (Wilcoxon)"
+          description: "True if this is the primary test."
       required:
         - comparison
         - test_type
@@ -56,15 +56,20 @@ properties:
     properties:
       alignment_score:
         type: "number"
-        description: "Alignment with curated reactive substructures"
+        description: "Alignment with curated reactive substructures."
       top_features:
         type: "array"
         items:
           type: "string"
-        description: "List of top 5 identified features"
+        description: "List of top 5 identified features."
       reference_source_type:
         type: "string"
-        description: "Source of the reference set (e.g., 'Experimental', 'Independent Literature')"
+        description: "Source of the reference set (e.g., 'Experimental', 'Independent Literature')."
+    required:
+      - alignment_score
+      - top_features
+      - reference_source_type
 required:
   - metrics
   - statistical_tests
+  - interpretability

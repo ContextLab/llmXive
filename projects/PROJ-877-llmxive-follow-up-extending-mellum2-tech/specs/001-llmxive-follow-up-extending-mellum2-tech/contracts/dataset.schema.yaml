@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeChunk Dataset Schema"
+description: "Schema for the processed code chunk dataset containing static analysis and LLM inference metrics."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the chunk."
+  repo_name:
+    type: string
+    description: "Source repository name."
+  language:
+    type: string
+    description: "Programming language (e.g., Python, Java)."
+  content:
+    type: string
+    description: "Raw source code."
+  cyclomatic_complexity:
+    type: integer
+    description: "Cyclomatic complexity metric."
+  nesting_depth:
+    type: integer
+    description: "Maximum nesting depth."
+  repetition_ratio:
+    type: number
+    description: "Ratio of repeated n‑grams."
+  token_count:
+    type: integer
+    description: "Number of tokens."
+  ngram_probability:
+    type: number
+    description: "KenLM estimate (FR‑010)."
+  per_token_loss:
+    type: number
+    description: "Per‑token cross‑entropy loss."
+  entropy:
+    type: number
+    description: "Prediction entropy."
+  inference_time_ms:
+    type: integer
+    description: "Inference latency (ms)."
+  status:
+    type: string
+    enum:
+      - success
+      - timeout
+      - parse_error
+      - oom
+    description: "Processing status."
+required:
+  - id
+  - repo_name
+  - language
+  - content
+  - cyclomatic_complexity
+  - nesting_depth
+  - repetition_ratio
+  - token_count
+  - ngram_probability
+  - per_token_loss
+  - entropy
+  - inference_time_ms
+  - status
+additionalProperties: false

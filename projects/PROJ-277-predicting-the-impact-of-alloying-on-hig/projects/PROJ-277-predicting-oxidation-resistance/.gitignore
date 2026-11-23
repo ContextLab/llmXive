@@ -3,47 +3,24 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
 # Distribution / packaging
-.Python
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+.eggs/
+sdist/
+wheels/
 
 # Unit test / coverage reports
-htmlcov/
-.tox/
+.pytest_cache/
 .coverage
 .coverage.*
+htmlcov/
+.tox/
+.nox/
 coverage.xml
-*.cover
-.pytest_cache
-
-# Translations
-*.mo
-*.pot
+.hypothesis/
 
 # Environments
 .env
@@ -51,33 +28,48 @@ coverage.xml
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
+# Jupyter Notebook / IPython
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
 
-# Rope project settings
-.ropeproject
+# Data science artifacts (large/raw data files)
+data/raw/*
+!data/raw/.gitkeep
+*.parquet
+*.hdf5
+*.h5
+*.feather
 
-# IDEs
+# Model artifacts
+*.pkl
+*.pickle
+*.joblib
+models/
+checkpoints/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# OS specific
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Project specific
-logs/
-data/raw/
-data/processed/
-data/fetches/
-models/
-figures/
+# Cache directories
 .cache/
+.mypy_cache/
+.ruff_cache/
+.flake8
+
+# SHAP / plotting outputs (regenerable)
+figures/
+*.png
+!docs/**/*.png

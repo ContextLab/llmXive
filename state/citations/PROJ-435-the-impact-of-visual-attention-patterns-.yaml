@@ -1,1 +1,36 @@
-[]
+- artifact_hash: 41096ada5905a97794a348662b4cad1f8f705c181fc4d483e0e6f24602ca4d8d
+  artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/verified-misleading-headlines-eye-tracking`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/verified-misleading-headlines-eye-tracking/datasets
+  verified_at: '2026-07-25T15:58:54.382873Z'
+- artifact_hash: 41096ada5905a97794a348662b4cad1f8f705c181fc4d483e0e6f24602ca4d8d
+  artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/nrc-emotion-lexicon`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/nrc-emotion-lexicon/datasets
+  verified_at: '2026-07-25T15:58:54.382873Z'
+- artifact_hash: 41096ada5905a97794a348662b4cad1f8f705c181fc4d483e0e6f24602ca4d8d
+  artifact_path: projects/PROJ-435-the-impact-of-visual-attention-patterns-/specs/001-the-impact-of-visual-attention-patterns/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - cjhutto/vaderSentiment: VADER Sentiment Analysis. VADER\
+    \ (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based\
+    \ sentiment analysis tool that is specifically attuned to sentiments expressed\
+    \ in social media, and works well on texts from other domains. \xB7 GitHub"
+  kind: url
+  value: https://github.com/cjhutto/vaderSentiment`
+  verification_status: pending
+  verified_against_url: https://github.com/cjhutto/vaderSentiment
+  verified_at: '2026-07-25T15:58:54.382873Z'

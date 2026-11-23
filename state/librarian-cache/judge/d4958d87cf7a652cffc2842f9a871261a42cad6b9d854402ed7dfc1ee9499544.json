@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.03307",
+  "judged_at": "2026-08-16T03:26:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"abot-n1: toward a general visual language navigation foundation model\" computer science",
+  "rationale": "The paper focuses on \"Tabular Foundation Models\" for structured data, which is an entirely different domain from the user's question regarding \"Visual Language Navigation\" (VLN) and computer vision. While both involve foundation models, the data modalities (tables vs. visual/linguistic navigation) and the specific mechanisms studied (adversarial robustness on synthetic tabular data vs. visual navigation capabilities) are distinct, failing the \"off-domain entirely\" rejection criterion.",
+  "relevant": false
+}

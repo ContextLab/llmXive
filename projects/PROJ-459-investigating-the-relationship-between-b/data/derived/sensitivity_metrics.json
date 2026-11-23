@@ -1,0 +1,14 @@
+{
+  "20": {
+    "global_efficiency": 0.45,
+    "modularity": 0.32
+  },
+  "30": {
+    "global_efficiency": 0.46,
+    "modularity": 0.31
+  },
+  "40": {
+    "global_efficiency": 0.44,
+    "modularity": 0.33
+  }
+}

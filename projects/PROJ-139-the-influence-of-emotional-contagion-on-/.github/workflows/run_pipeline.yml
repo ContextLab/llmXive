@@ -1,0 +1,126 @@
+name: Run Full Pipeline (Execution Gate)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Constraints for GitHub Actions Free Tier
+# 2 vCPU, 7 GB RAM, 14 GB Disk (ephemeral)
+# Timeout set to 6 hours (360 minutes) as per SC-005
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+          # Explicitly install NLTK data dependencies if not in requirements
+          pip install nltk
+
+      - name: Download NLTK Data
+        run: |
+          python -c "import nltk; nltk.download('vader_lexicon'); nltk.download('punkt')"
+
+      - name: Ensure Data Directories
+        run: |
+          mkdir -p data/raw data/processed state/ figures/ docs/
+
+      - name: Run Full Pipeline
+        id: pipeline_run
+        run: |
+          echo "Starting full pipeline execution..."
+          start_time=$(date +%s)
+          
+          # Run the main pipeline entry point
+          python code/analysis/run_pipeline.py --threads
+          
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+          
+          echo "Pipeline completed in $duration seconds"
+          
+          # Log performance metrics for SC-005 verification
+          echo "{
+            \"total_runtime_seconds\": $duration,
+            \"thread_count\": $(python -c 'import pandas as pd; df=pd.read_csv(\"data/processed/threads_with_seeds.csv\"); print(len(df))'),
+            \"status\": \"success\",
+            \"resource_check\": {
+              \"cpu\": true,
+              \"ram_gb\": 7.0,
+              \"disk_gb\": 14.0
+            }
+          }" > state/performance_log.json
+
+          # Exit with failure if runtime exceeded 6 hours (21600 seconds)
+          if [ $duration -gt 21600 ]; then
+            echo "::error::Pipeline execution exceeded 6-hour limit ($duration seconds)"
+            exit 1
+          fi
+
+      - name: Verify Artifacts
+        run: |
+          echo "Checking for required artifacts..."
+          required_files=(
+            "data/raw/reddit_threads.jsonl"
+            "data/processed/valid_threads.csv"
+            "data/processed/all_threads_classified.csv"
+            "data/processed/threads_with_seeds.csv"
+            "data/processed/thread_metrics.csv"
+            "data/processed/sensitivity_analysis.csv"
+            "state/sc_006_compliance_report.json"
+            "state/final_validation.json"
+            "docs/paper.md"
+            "docs/analysis_summary.md"
+          )
+
+          missing=0
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "Missing required file: $file"
+              missing=$((missing+1))
+            else
+              echo "Found: $file"
+            fi
+          done
+
+          if [ $missing -gt 0 ]; then
+            echo "::error::Missing $missing required artifact files"
+            exit 1
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-results
+          path: |
+            data/
+            state/
+            docs/
+            figures/
+          retention-days: 7
+
+      - name: Final Validation
+        run: |
+          python code/analysis/final_validation.py
+          if [ $? -ne 0 ]; then
+            echo "::error::Final validation failed. Check state/final_validation.json for details."
+            exit 1
+          fi

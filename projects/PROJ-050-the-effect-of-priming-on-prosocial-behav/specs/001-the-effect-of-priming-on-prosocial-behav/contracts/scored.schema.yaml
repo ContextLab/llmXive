@@ -8,43 +8,57 @@ properties:
     description: "Unique comment identifier."
   thread_id:
     type: string
-  user_id:
+  user_id_hash:
     type: string
-  thread_age:
-    type: number
+    description: "SHA-256 hash of the user ID."
+    pattern: "^[a-f0-9]{64}$"
+  comment_rank:
+    type: integer
+    description: "Relative order of comment in thread."
     minimum: 0
-  subreddit:
+  body:
     type: string
+    description: "The text content of the comment."
   thread_type:
     type: string
     enum:
       - "Prime"
       - "Control"
-  neg_score:
+    description: "Classification of the thread context."
+  vader_neg:
     type: number
     description: "VADER negative sentiment component."
     minimum: 0
     maximum: 1
-  prosocial_action_count:
+  prosocial_count:
     type: integer
     description: "Count of prosocial action verbs."
     minimum: 0
-  compound:
+  vader_compound:
     type: number
     description: "VADER compound sentiment score."
-  comment_count:
-    type: integer
-    description: "Total number of comments in the thread."
-    minimum: 1
+    minimum: -1
+    maximum: 1
+  vader_pos:
+    type: number
+    description: "VADER positive proportion."
+    minimum: 0
+    maximum: 1
+  vader_neu:
+    type: number
+    description: "VADER neutral proportion."
+    minimum: 0
+    maximum: 1
 required:
   - comment_id
   - thread_id
-  - user_id
-  - thread_age
-  - subreddit
+  - user_id_hash
+  - comment_rank
+  - body
   - thread_type
-  - neg_score
-  - prosocial_action_count
-  - compound
-  - comment_count
-
+  - vader_neg
+  - prosocial_count
+  - vader_compound
+  - vader_pos
+  - vader_neu
+additionalProperties: false

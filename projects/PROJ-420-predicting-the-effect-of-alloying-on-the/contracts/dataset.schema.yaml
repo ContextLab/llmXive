@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Merged Alloy Dataset Schema
+description: Schema for the merged and deduplicated aluminum alloy dataset containing Poisson's ratio, Young's modulus, composition, and metadata.
+type: object
+required:
+  - poisson_ratio
+  - young_modulus
+  - composition
+  - measurement_method
+  - alloy_type
+properties:
+  poisson_ratio:
+    type: number
+    description: Poisson's ratio of the alloy.
+    minimum: 0.0
+    maximum: 0.5
+  young_modulus:
+    type: number
+    description: Young's modulus of the alloy in GPa.
+    minimum: 0.0
+  composition:
+    type: object
+    description: Atomic fractions of the major alloying elements.
+    required:
+      - Cu
+      - Mg
+      - Si
+      - Zn
+      - Mn
+    properties:
+      Cu:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      Mg:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      Si:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      Zn:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      Mn:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+    additionalProperties: false
+  measurement_method:
+    type: string
+    description: Method used to measure the elastic properties (e.g., 'Ultrasonic', 'Direct', 'Resonant', 'Impulse').
+  alloy_type:
+    type: string
+    description: Type of alloy (e.g., 'monolithic', 'composite').
+  source:
+    type: string
+    description: Source of the data (e.g., 'Materials Project', 'NIST MDR').
+    enum:
+      - Materials Project
+      - NIST MDR
+  record_id:
+    type: string
+    description: Unique identifier for the record.
+additionalProperties: true

@@ -64,5 +64,15 @@
     "sample-base.bib",
     "sample-sigconf.tex",
     "software.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "aa7b1887b623e68ef50b48ef7a57fd2effa2368b460a40487526663f4a0e10e1",
+      "bytes": 4150676
+    },
+    "original.pdf": {
+      "sha256": "2e350f40d8ecbf4ab8ecb268bdd10e0d42da0b4e66e1c1ccf4e96ddac140cf45",
+      "bytes": 4112560
+    }
+  }
 }

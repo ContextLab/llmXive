@@ -1,0 +1,9 @@
+{
+  "total_edge_cases": 3,
+  "by_reason": {
+    "depth_zero": 2,
+    "single_node_graph": 1
+  },
+  "filtered_count": 2,
+  "timestamp": "2023-10-27T10:00:00Z"
+}

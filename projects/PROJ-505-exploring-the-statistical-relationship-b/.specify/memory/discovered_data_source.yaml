@@ -1,0 +1,16 @@
+status: none
+intent: CDAWeb ACE SWICS and WIND composition with NOAA Dst Kp hourly python package
+  dataset
+required_fields:
+- time
+- O/Fe
+- He/H
+- C/O
+- bulk_speed
+- density
+- IMF_Bz
+- Dst
+- Kp
+cache_key: 51bf443a6b8ed31e048f9988adba4ea95063df0d73ee9df41577b8f7bab86f18
+searched_at: '2026-10-27T20:11:50.938302+00:00'
+retry_count: 1

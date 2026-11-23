@@ -1,17 +1,20 @@
 datasets:
   - name: adult_income
-    url: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
-    description: UCI Adult Income dataset (continuous/categorical features)
+    url: "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
+    description: "UCI Adult Income dataset. Contains continuous (age, fnlwgt, education-num, capital-gain, capital-loss, hours-per-week) and categorical features."
     target: income
-  - name: wine
-    url: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
-    description: UCI Wine dataset (continuous chemical features)
-    target: class
-  - name: iris
-    url: https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
-    description: UCI Iris dataset (continuous features)
-    target: class
+    type: binary_classification
+
+  - name: credit_card_default
+    url: "https://archive.ics.uci.edu/ml/machine-learning-databases/00350/default%20of%20credit%20card%20clients.xls"
+    description: "UCI Credit Card Default dataset. Mixed types: continuous (LIMIT_BAL, BILL_AMT1-6, PAY_AMT1-6) and categorical (SEX, EDUCATION, MARRIAGE). Suitable for t-tests, ANOVA, and chi-squared tests."
+    target: default_payment_next_month
+    type: binary_classification
+
   - name: openml_titanic
-    url: https://www.openml.org/data/download/61/titanic.csv
-    description: OpenML Titanic dataset (mixed types)
+    url: "https://www.openml.org/data/download/18/titanic.csv"
+    description: "OpenML Titanic dataset. Mixed types (categorical and continuous) suitable for testing robustness across variable types."
     target: survived
+    type: binary_classification
+    source: openml
+    dataset_id: 18

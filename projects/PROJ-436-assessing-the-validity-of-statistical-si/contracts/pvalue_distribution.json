@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/contracts/pvalue_distribution.json",
+  "title": "PValueDistribution",
+  "description": "Schema for the distribution of p-values across simulation iterations.",
+  "type": "object",
+  "properties": {
+    "condition_id": {
+      "type": "string",
+      "description": "Unique identifier for the experimental condition."
+    },
+    "dataset_id": {
+      "type": "integer",
+      "description": "OpenML dataset ID used."
+    },
+    "missing_mechanism": {
+      "type": "string",
+      "enum": ["MCAR", "MAR", "MNAR"],
+      "description": "The missing data mechanism applied."
+    },
+    "missing_rate": {
+      "type": "number",
+      "description": "The missingness rate applied."
+    },
+    "imputation_method": {
+      "type": "string",
+      "enum": ["complete_case", "mice", "ipw"],
+      "description": "The analysis method used."
+    },
+    "p_values": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 1.0
+      },
+      "description": "List of p-values generated in each iteration."
+    },
+    "histogram_bins": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "Bin edges used for histogramming p-values."
+    },
+    "histogram_counts": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "Counts per bin."
+    },
+    "mean_p_value": {
+      "type": "number",
+      "description": "Average p-value across iterations."
+    },
+    "median_p_value": {
+      "type": "number",
+      "description": "Median p-value across iterations."
+    }
+  },
+  "required": [
+    "condition_id",
+    "dataset_id",
+    "missing_mechanism",
+    "missing_rate",
+    "imputation_method",
+    "p_values"
+  ]
+}

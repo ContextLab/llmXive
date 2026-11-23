@@ -1,0 +1,41 @@
+[
+  {
+    "query_index": 0,
+    "query": "What is the primary function of the gene regulator mentioned in the text?",
+    "ground_truth_answer": "It activates transcription.",
+    "predicted_answer": "It activates transcription.",
+    "ground_truth_chunk_id": "chunk_001",
+    "predicted_chunk_id": "chunk_001",
+    "semantic_similarity": 1.0,
+    "is_answer_correct": true,
+    "iou_score": 1.0,
+    "saa": true,
+    "retrieved_chunk_ids": ["chunk_001", "chunk_002", "chunk_003", "chunk_004", "chunk_005"]
+  },
+  {
+    "query_index": 1,
+    "query": "Which protein is associated with the binding site at position 120?",
+    "ground_truth_answer": "Protein X",
+    "predicted_answer": "Protein X",
+    "ground_truth_chunk_id": "chunk_002",
+    "predicted_chunk_id": "chunk_002",
+    "semantic_similarity": 1.0,
+    "is_answer_correct": true,
+    "iou_score": 1.0,
+    "saa": true,
+    "retrieved_chunk_ids": ["chunk_002", "chunk_001", "chunk_003", "chunk_004", "chunk_005"]
+  },
+  {
+    "query_index": 2,
+    "query": "Describe the effect of the mutation on the promoter region.",
+    "ground_truth_answer": "It reduces binding affinity.",
+    "predicted_answer": "It increases binding affinity.",
+    "ground_truth_chunk_id": "chunk_003",
+    "predicted_chunk_id": "chunk_004",
+    "semantic_similarity": 0.88,
+    "is_answer_correct": false,
+    "iou_score": 0.0,
+    "saa": false,
+    "retrieved_chunk_ids": ["chunk_003", "chunk_004", "chunk_005", "chunk_001", "chunk_002"]
+  }
+]

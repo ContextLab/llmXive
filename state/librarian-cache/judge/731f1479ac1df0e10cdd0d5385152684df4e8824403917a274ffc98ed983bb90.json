@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1910.06657",
+  "judged_at": "2026-09-01T21:45:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"program-as-weights: a programming paradigm for fuzzy functions\" computer science",
+  "rationale": "The paper focuses on proof-theoretic formalisms (cut-elimination, linear nested sequents) for intuitionistic fuzzy logic, which is a distinct mathematical construct from the \"Program-as-Weights\" paradigm for implementing fuzzy functions in LLMs. While both involve \"fuzzy logic,\" the paper does not measure the same mechanism, domain, or variables as the user's question regarding LLM weight manipulation and programming paradigms, falling under the rejection rule for distinct constructs sharing onl",
+  "relevant": false
+}

@@ -1,0 +1,18 @@
+status: none
+intent: ClinicalTrials.gov OSF PubMed integrated metadata python package dataset
+required_fields:
+- source
+- record_id
+- title
+- description
+- abstract
+- authors_investigators
+- start_date
+- completion_date
+- publication_date
+- status
+- sponsor_funder
+- keywords
+cache_key: 33114cfa27f2da8ee3a0702c5a935272f63c7f5ab494431f5486cb686d344f07
+searched_at: '2026-10-21T06:57:40.269175+00:00'
+retry_count: 1

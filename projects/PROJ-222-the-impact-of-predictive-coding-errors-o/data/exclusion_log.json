@@ -1,0 +1,18 @@
+[
+  {
+    "dataset_id": "sample_non_sequential",
+    "reason": "non_sequential_stimuli",
+    "details": {
+      "reason": "Missing sequential stimulus column (stimulus_sequence, stimulus_order, trial_order, or sequence_index)"
+    },
+    "status": "excluded"
+  },
+  {
+    "dataset_id": "sample_no_predictability",
+    "reason": "no_predictability_manipulation",
+    "details": {
+      "reason": "No explicit predictability manipulation column found"
+    },
+    "status": "excluded"
+  }
+]

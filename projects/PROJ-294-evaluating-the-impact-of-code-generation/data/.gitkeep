@@ -1,5 +1,1 @@
-# Data directory placeholder
-# This directory will contain:
-# - raw/: Downloaded datasets (HumanEval)
-# - generated/: LLM-generated code samples
-# - analysis/: Processed metrics and statistical results
+# Directory marker created for T001a

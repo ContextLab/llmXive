@@ -1,69 +1,85 @@
-# Data Model: Reprojection and Resampling Methods
+# Data Model: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
 ## Overview
 
-This document specifies the reprojection and resampling methods used to align OpenStreetMap (OSM) vector data and satellite thermal imagery into a common raster grid for Urban Heat Island (UHI) analysis. The pipeline ensures all output rasters share identical dimensions, origin, and Coordinate Reference System (CRS) to enable valid pixel-wise statistical analysis.
+Defines immutable schemas for raw, processed, and result artifacts. All files live under `data/` with SHA‑256 checksums recorded in `data/raw/manifest.json` (Constitution Principle III).
 
-## Coordinate Reference System (CRS) Strategy
+## Core Entities
 
-### Target CRS
-- **Primary CRS**: EPSG:3857 (Web Mercator) for global consistency and visualization compatibility.
-- **Local CRS**: For high-precision local analysis, the pipeline supports dynamic transformation to Local UTM zones based on the city centroid.
-- **Configuration**: Controlled via `code/config.py` (`TARGET_CRS` and `USE_LOCAL_UTM` flags).
+### CityBoundary
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | `string` | City name (e.g., "New York") |
+| `bbox` | `array[float]` (length 4) | `[minx, miny, maxx, maxy]` in EPSG:4326 |
+| `crs` | `string` | EPSG code of source CRS |
 
-### Reprojection Workflow
-1. **Input Validation**: Verify input rasters and vector footprints have valid CRS definitions.
-2. **Transformation**: Use `rasterio.warp.reproject` for rasters and `geopandas.GeoDataFrame.to_crs` for vectors.
-3. **Resampling**: Apply method-specific resampling (see below) during transformation.
-4. **Verification**: Assert output CRS matches `TARGET_CRS` and dimensions are within 0.1% tolerance of expected grid.
+### RasterCovariate
+| Field | Type | Description |
+|-------|------|-------------|
+| `path` | `string` | Relative path to GeoTIFF |
+| `resolution` | `number` | Target resolution (30.0 m) |
+| `crs` | `string` | EPSG code after reprojection |
+| `variable_name` | `string` | e.g., `building_density`, `land_use_*`, `tree_cover`, `road_density` |
+| `source` | `string` | `"OSM"` |
+| `description` | `string` | Rasterization/aggregation method (Principle VI) |
 
-## Resampling Methods
+### TemperatureRaster
+| Field | Type | Description |
+|-------|------|-------------|
+| `path` | `string` | Relative path to GeoTIFF |
+| `resolution` | `number` | 30.0 m |
+| `crs` | `string` | EPSG after reprojection |
+| `time_range` | `string` | e.g., `"2020-2024"` (JJA median composites, 5‑year average) |
+| `source` | `string` | `"Landsat"` (via `ingest_lst.py` contract; `DATA_GAP` if unavailable) |
 
-The choice of resampling algorithm depends on the data type to preserve statistical properties and physical meaning.
+### ModelResult
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_type` | `string` | `"OLS"`, `"SAR"`, `"GWR"`, or `"OLS_DEGRADED"` |
+| `city_name` | `string` | City identifier |
+| `rmse` | `number` | Root Mean Squared Error |
+| `mae` | `number` | Mean Absolute Error |
+| `r2` | `number` | R‑squared value |
+| `coefficients` | `object` | Per‑predictor coefficient map |
+| `standard_errors` | `object` | Per‑predictor standard‑error map |
+| `p_values` | `object` | FDR‑corrected p‑values per predictor |
+| `correction_method` | `string` | `"permutation-FDR"` (SC‑003) |
+| `memory_status` | `string` | `"OK"` or `"DEGRADED"` |
+| `memory_peak_gb` | `number` | Peak RSS via psutil (SC‑005) |
+| `n_samples` | `integer` | Cell count used in the model |
+| `n_eff` | `number` | Effective sample size (heuristic) |
+| `cv_metrics` | `object` | Spatial 5‑fold CV RMSE/MAE/R² |
+| `sensitivity_analysis` | `object` | Bandwidth or block‑size sweep results |
+| `unexplained_variance_gap` | `number` | 0.68 − Observed_R² (provisional) |
+| `notes` | `string` | Bias warning / descriptive‑only label in degraded mode |
+| `morans_i` | `number` | Moran's I of model residuals (always reported) |
 
-### 1. Continuous Variables (Bilinear Interpolation)
-- **Applies to**: Temperature rasters (LST), elevation models, and continuous covariates.
-- **Method**: Bilinear interpolation (`rasterio.enums.Resampling.bilinear`).
-- **Rationale**: Preserves smooth gradients and minimizes artificial edge effects in thermal data.
-- **Error Handling**: Upsampling error (RMSE between original and reprojected sample points) must be < 0.1. If exceeded, the pipeline exits with code 1.
+## File Formats
 
-### 2. Categorical Variables (Nearest Neighbor)
-- **Applies to**: Land-use/land-cover (LULC) classes, building density buckets, road networks (rasterized).
-- **Method**: Nearest neighbor (`rasterio.enums.Resampling.nearest`).
-- **Rationale**: Prevents the creation of non-existent intermediate classes (e.g., "0.5 water") and preserves integer class labels.
+| Category | Format | Location |
+|----------|--------|----------|
+| Raw OSM vectors | Parquet / GeoJSON | `data/raw/osm/` |
+| Raw LST | GeoTIFF (cloud‑screened) | `data/raw/lst/` |
+| Download manifest (checksums, timestamps) | JSON | `data/raw/manifest.json` |
+| Processed 30 m rasters | GeoTIFF | `data/processed/rasters/` |
+| Alignment log (reprojection/aggregation methods) | JSON | `data/processed/alignment_log.json` |
+| Aligned pixel dataset | Parquet | `data/processed/aligned/` |
+| Exploratory statistics | CSV (`exploratory.csv`) | `data/results/` |
+| Model metrics | CSV (`metrics.csv`) | `data/results/` |
+| Model outputs | JSON | `data/results/models/` |
+| Plots | PNG | `data/results/plots/` |
+| Lint reports / test logs | TXT | `data/results/qa/` |
+| Reports | Markdown | `data/results/reports/` |
 
-### 3. Binary/Boolean Variables (Nearest Neighbor)
-- **Applies to**: Tree canopy masks, water bodies.
-- **Method**: Nearest neighbor.
+## Data Flow (Logical)
 
-## Resolution Alignment
+1. **Ingest** → `data/raw/` (checksums + timestamps recorded).  
+2. **Transform** → `data/processed/` (reproject, rasterize, log methods).  
+3. **Sample / memory check** → possibly block‑sampled subset of `processed/aligned/`.  
+4. **Model** → `data/results/models/` (ModelResult JSON).  
+5. **Validate & visualize** → plots, contract‑validated outputs.  
+6. **QA** → lint reports, unit/contract test logs.  
+7. **Report** → markdown report in `data/results/reports/`.
 
-- **Target Resolution**: 30 meters (aligned with Landsat thermal band resolution).
-- **Process**:
- 1. All input rasters are resampled to 30m resolution in the target CRS.
- 2. Vector data (OSM buildings, roads) is rasterized to 30m using the appropriate method (nearest for categorical counts, bilinear for density aggregates).
-- **Implementation**: Handled in `code/ingest.py` via the `align_rasters` function.
+All steps are deterministic given fixed seeds (e.g., a designated seed identifier). Raw data is never modified in place; all transformations write new files.  
 
-## Missing Data Handling
-
-- **Threshold**:
- - **≤ 10% missing**: Proceed without warning.
- - **> 10% missing**: Log a `WARNING` but continue processing.
- - **> 50% missing**: Log `ERROR` and skip the specific raster layer.
-- **No-Data Value**: Standardized to `-9999` across all output GeoTIFFs.
-- **Masking**: `numpy.ma.masked_invalid` is used during statistical computation to ignore no-data pixels.
-
-## Output Specifications
-
-All aligned rasters in the final stack (`data/processed/`) must satisfy:
-1. **Identical Dimensions**: Same number of rows and columns.
-2. **Identical Origin**: Top-left corner coordinates match exactly.
-3. **Identical CRS**: All layers use the same EPSG code.
-4. **Identical Resolution**: 30m x 30m pixel size.
-
-These constraints are enforced by `code/stack_output.py` during the `create_aligned_stack` step.
-
-## Compliance
-
-- **SC-007**: This document serves as the formal specification for reprojection and resampling methods required by the project specification.
-- **Validation**: The `validate_non_null_overlap` function in `code/ingest.py` verifies these constraints before final output generation.

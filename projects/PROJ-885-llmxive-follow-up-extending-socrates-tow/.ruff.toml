@@ -1,0 +1,12 @@
+# Standalone ruff configuration for CLI usage if pyproject.toml is not detected in some environments
+extend = "pyproject.toml"
+# Ensure we check the code directory specifically
+extend-exclude = [
+    ".git",
+    "__pycache__",
+    "data",
+    "build",
+    "dist",
+    ".venv",
+    "venv",
+]

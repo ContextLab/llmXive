@@ -1,0 +1,7 @@
+data/raw/*
+data/processed/*.parquet
+__pycache__/
+venv/
+.env
+*.pyc
+.pytest_cache/

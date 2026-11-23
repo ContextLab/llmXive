@@ -1,0 +1,16 @@
+Exclusion Log for Dataset ds000030
+Generated at: 2024-01-15 10:30:45
+Diagnostic column used: group
+Total subjects processed: 4
+Subjects excluded: 2
+Subjects included: 2
+
+Excluded Subjects:
+--------------------------------------------------
+Subject: sub-03
+  Reason: Missing diagnostic label in column "group"
+  Value: 
+
+Subject: sub-04
+  Reason: Missing diagnostic label in column "group"
+  Value: nan

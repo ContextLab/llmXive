@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-076-assessing-the-validity-of-modified-newto
-last_run_id: 722059a2-7539-4dd5-86ec-26f767ce30bb
+last_run_id: 377733f5-fa57-4679-9797-974e2dd86906
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-076-assessing-the-validity-of-modified-newto/specs/001-assessing-the-validity-of-modified-newto
 title: Assessing the Validity of Modified Newtonian Dynamics (MOND) with Galaxy Rotation
   Curves
-updated_at: '2026-07-05T03:43:04.338241Z'
+updated_at: '2026-10-05T22:07:46.607680Z'

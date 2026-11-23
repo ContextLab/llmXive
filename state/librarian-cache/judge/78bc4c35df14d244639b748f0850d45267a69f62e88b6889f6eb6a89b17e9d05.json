@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.12327",
+  "judged_at": "2026-07-19T09:53:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"perception or prejudice: can mllms go beyond first impressions of pers\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the same core mechanism (social bias in MLLMs) and dependent variable (bias in model outputs) that the user's question references, specifically extending the analysis to intersectional and contextualized perspectives which are central to the \"Perception or Prejudice\" theme. Although it focuses on Japanese models and intersectionality rather than the exact \"first impressions\" metric, it provides the necessary canonical prior work on the dom",
+  "relevant": true
+}

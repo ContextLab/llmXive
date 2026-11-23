@@ -1,0 +1,5 @@
+gene_symbol,meta_pvalue,mean_log2FC,num_studies,z_combined
+GENE_A,0.001234,1.35,2,3.05
+GENE_B,0.045678,-0.85,2,-1.98
+GENE_D,0.002345,2.0,1,2.89
+GENE_C,0.678901,0.1,1,0.12

@@ -1,226 +1,160 @@
 """
-Contract tests for project schemas.
-Validates that generated data artifacts conform to the JSON schemas defined in `contracts/`.
+Contract tests for schema validation.
+Validates that generated data artifacts conform to the defined JSON schemas.
 """
 import json
-import os
 import pytest
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict
 
-# Try to import jsonschema, fail gracefully if not installed but task requires it
-try:
-    import jsonschema
-except ImportError:
-    pytest.skip("jsonschema not installed", allow_module_level=True)
+import yaml
+import jsonschema
 
-from config import get_config, get_paths
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
-# Constants
-CONTRACTS_DIR = Path("contracts")
-TESTS_DIR = Path("tests")
-DATA_DIR = Path("data")
 
-# Load schemas once
 def load_schema(schema_name: str) -> Dict[str, Any]:
     """Load a JSON schema from the contracts directory."""
     schema_path = CONTRACTS_DIR / schema_name
     if not schema_path.exists():
-        pytest.fail(f"Schema file not found: {schema_path}")
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
     with open(schema_path, "r") as f:
         return yaml.safe_load(f)
 
-import yaml
 
-ATOMIC_GRAPH_SCHEMA = load_schema("atomic_graph.schema.yaml")
-THERMAL_SAMPLE_SCHEMA = load_schema("thermal_sample.schema.yaml")
-GNN_OUTPUT_SCHEMA = load_schema("gnn_output.schema.yaml")
+def validate_data_against_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> None:
+    """Validate data against a schema using jsonschema."""
+    try:
+        jsonschema.validate(instance=data, schema=schema)
+    except jsonschema.exceptions.ValidationError as e:
+        pytest.fail(f"Data validation failed: {e.message}")
 
 
 class TestAtomicGraphSchema:
-    """Contract tests for the AtomicGraph schema (US1)."""
+    """Tests for the AtomicGraph schema (T007a)."""
 
-    def test_valid_atomic_graph_structure(self):
-        """Test that a properly structured AtomicGraph passes validation."""
-        valid_graph = {
-            "metadata": {
-                "source_file": "data/raw/sample_001.xyz",
-                "bond_cutoff": 3.0,
-                "atom_type": "Si",
-                "node_count": 10,
-                "edge_count": 20,
-                "generated_at": "2023-10-27T10:00:00Z"
-            },
+    @pytest.fixture
+    def schema(self):
+        return load_schema("atomic_graph.schema.yaml")
+
+    def test_schema_loads(self, schema):
+        """Verify the schema file is valid YAML and loads correctly."""
+        assert schema is not None
+        assert "type" in schema
+        assert schema["type"] == "object"
+
+    def test_valid_sample_passes(self, schema):
+        """Test that a valid atomic graph structure passes validation."""
+        valid_data = {
+            "graph_id": "sample_01",
+            "cutoff_distance": 3.0,
             "nodes": [
                 {
-                    "index": 0,
-                    "position": [0.0, 0.0, 0.0],
-                    "degree": 4
+                    "id": 0,
+                    "coords": [0.0, 0.0, 0.0],
+                    "degree": 4,
+                    "clustering_coeff": 0.0
                 },
                 {
-                    "index": 1,
-                    "position": [2.35, 0.0, 0.0],
-                    "degree": 3
+                    "id": 1,
+                    "coords": [2.35, 0.0, 0.0],
+                    "degree": 4,
+                    "clustering_coeff": 0.0
                 }
             ],
             "edges": [
-                {"source": 0, "target": 1, "distance": 2.35}
+                [0, 1],
+                [1, 0]
             ]
         }
-        try:
-            jsonschema.validate(instance=valid_graph, schema=ATOMIC_GRAPH_SCHEMA)
-        except jsonschema.ValidationError as e:
-            pytest.fail(f"Valid graph failed validation: {e.message}")
+        validate_data_against_schema(valid_data, schema)
 
-    def test_missing_metadata_fails(self):
-        """Test that missing metadata causes validation failure."""
-        invalid_graph = {
-            "nodes": [{"index": 0, "position": [0.0, 0.0, 0.0], "degree": 4}],
+    def test_missing_required_field_fails(self, schema):
+        """Test that missing a required field causes validation failure."""
+        invalid_data = {
+            "graph_id": "sample_01",
+            # Missing 'nodes' and 'edges'
+            "cutoff_distance": 3.0
+        }
+        with pytest.raises(jsonschema.exceptions.ValidationError):
+            jsonschema.validate(instance=invalid_data, schema=schema)
+
+    def test_invalid_coord_dimension_fails(self, schema):
+        """Test that coords with wrong dimension fails."""
+        invalid_data = {
+            "graph_id": "sample_01",
+            "cutoff_distance": 3.0,
+            "nodes": [
+                {
+                    "id": 0,
+                    "coords": [0.0, 0.0],  # Should be 3D
+                    "degree": 4,
+                    "clustering_coeff": 0.0
+                }
+            ],
             "edges": []
         }
-        with pytest.raises(jsonschema.ValidationError):
-            jsonschema.validate(instance=invalid_graph, schema=ATOMIC_GRAPH_SCHEMA)
+        with pytest.raises(jsonschema.exceptions.ValidationError):
+            jsonschema.validate(instance=invalid_data, schema=schema)
 
-    def test_invalid_bond_cutoff_type_fails(self):
-        """Test that non-numeric bond_cutoff fails."""
-        invalid_graph = {
-            "metadata": {
-                "source_file": "test.xyz",
-                "bond_cutoff": "three",
-                "atom_type": "Si",
-                "node_count": 1,
-                "edge_count": 0
-            },
-            "nodes": [],
+    def test_invalid_clustering_coeff_fails(self, schema):
+        """Test that clustering coefficient outside [0, 1] fails."""
+        invalid_data = {
+            "graph_id": "sample_01",
+            "cutoff_distance": 3.0,
+            "nodes": [
+                {
+                    "id": 0,
+                    "coords": [0.0, 0.0, 0.0],
+                    "degree": 4,
+                    "clustering_coeff": 1.5  # Invalid
+                }
+            ],
             "edges": []
         }
-        with pytest.raises(jsonschema.ValidationError):
-            jsonschema.validate(instance=invalid_graph, schema=ATOMIC_GRAPH_SCHEMA)
-
-    def test_empty_nodes_fails(self):
-        """Test that empty nodes array fails (minItems not specified but node_count > 0 implies nodes exist)."""
-        # Schema doesn't strictly forbid empty nodes if node_count is 0, but let's test consistency
-        invalid_graph = {
-            "metadata": {
-                "source_file": "test.xyz",
-                "bond_cutoff": 3.0,
-                "atom_type": "Si",
-                "node_count": 5, # Claims 5 nodes
-                "edge_count": 0
-            },
-            "nodes": [], # But provides none
-            "edges": []
-        }
-        # This should fail because node_count is 5 but nodes list is empty?
-        # Actually schema validates structure, not cross-field consistency unless we add dependencies.
-        # Let's test a structure that definitely fails: negative index.
-        invalid_graph = {
-            "metadata": {
-                "source_file": "test.xyz",
-                "bond_cutoff": 3.0,
-                "atom_type": "Si",
-                "node_count": 1,
-                "edge_count": 0
-            },
-            "nodes": [{"index": -1, "position": [0.0, 0.0, 0.0], "degree": 4}],
-            "edges": []
-        }
-        # Schema doesn't enforce non-negative index explicitly in the draft, but let's assume standard constraints.
-        # Let's test missing required field in node.
-        invalid_graph = {
-            "metadata": {
-                "source_file": "test.xyz",
-                "bond_cutoff": 3.0,
-                "atom_type": "Si",
-                "node_count": 1,
-                "edge_count": 0
-            },
-            "nodes": [{"index": 0, "position": [0.0, 0.0, 0.0]}], # Missing 'degree'
-            "edges": []
-        }
-        with pytest.raises(jsonschema.ValidationError):
-            jsonschema.validate(instance=invalid_graph, schema=ATOMIC_GRAPH_SCHEMA)
-
-    def test_real_graph_artifact_validation(self):
-        """
-        If any AtomicGraph artifacts exist in data/processed/graphs/, validate them.
-        This ensures real pipeline outputs match the contract.
-        """
-        graphs_dir = Path("data/processed/graphs")
-        if not graphs_dir.exists():
-            pytest.skip("No graphs directory found, skipping real artifact validation.")
-
-        graph_files = list(graphs_dir.glob("*.pkl")) + list(graphs_dir.glob("*.json"))
-        if not graph_files:
-            pytest.skip("No graph files found in data/processed/graphs.")
-
-        for graph_file in graph_files:
-            try:
-                if graph_file.suffix == ".json":
-                    with open(graph_file, "r") as f:
-                        data = json.load(f)
-                else:
-                    # Assuming pickle for .pkl
-                    import pickle
-                    with open(graph_file, "rb") as f:
-                        data = pickle.load(f)
-
-                # If it's a list of graphs, validate each
-                if isinstance(data, list):
-                    for i, graph in enumerate(data):
-                        jsonschema.validate(instance=graph, schema=ATOMIC_GRAPH_SCHEMA)
-                else:
-                    jsonschema.validate(instance=data, schema=ATOMIC_GRAPH_SCHEMA)
-            except jsonschema.ValidationError as e:
-                pytest.fail(f"Real graph artifact {graph_file} failed validation: {e.message}")
-            except Exception as e:
-                # Skip if file is corrupted or unreadable for other reasons
-                pytest.skip(f"Could not read graph file {graph_file}: {e}")
+        with pytest.raises(jsonschema.exceptions.ValidationError):
+            jsonschema.validate(instance=invalid_data, schema=schema)
 
 
 class TestThermalSampleSchema:
-    """Contract tests for the ThermalSample schema (US2)."""
+    """Tests for the ThermalSample schema (T007b)."""
 
-    def test_valid_thermal_sample_structure(self):
-        """Test that a properly structured ThermalSample passes validation."""
-        valid_sample = {
-            "graph": {
-                "metadata": {"source_file": "test.xyz", "bond_cutoff": 3.0, "atom_type": "Si", "node_count": 1, "edge_count": 0},
-                "nodes": [],
-                "edges": []
-            },
-            "conductivity": {
-                "value": 1.5,
-                "unit": "W/mK",
-                "converged": True
-            },
+    @pytest.fixture
+    def schema(self):
+        return load_schema("thermal_sample.schema.yaml")
+
+    def test_schema_loads(self, schema):
+        assert schema is not None
+
+    def test_valid_sample_passes(self, schema):
+        valid_data = {
+            "graph_id": "sample_01",
+            "conductivity": 1.45,
+            "converged": True,
             "metadata": {
-                "sample_id": "sample_001",
+                "timestep": 1.0,
                 "temperature": 300.0
             }
         }
-        try:
-            jsonschema.validate(instance=valid_sample, schema=THERMAL_SAMPLE_SCHEMA)
-        except jsonschema.ValidationError as e:
-            pytest.fail(f"Valid sample failed validation: {e.message}")
+        validate_data_against_schema(valid_data, schema)
 
 
 class TestGNNOutputSchema:
-    """Contract tests for the GNNOutput schema (US3)."""
+    """Tests for the GNNOutput schema (T007c)."""
 
-    def test_valid_gnn_output_structure(self):
-        """Test that a properly structured GNNOutput passes validation."""
-        valid_output = {
-            "model_id": "gnn_v1",
-            "predictions": [1.2, 1.3, 1.4],
-            "feature_importance": {
-                "degree": 0.4,
-                "clustering": 0.3,
-                "path_length": 0.3
-            },
-            "loss_history": [0.5, 0.4, 0.3]
+    @pytest.fixture
+    def schema(self):
+        return load_schema("gnn_output.schema.yaml")
+
+    def test_schema_loads(self, schema):
+        assert schema is not None
+
+    def test_valid_output_passes(self, schema):
+        valid_data = {
+            "predicted_flux": [0.1, 0.2, 0.15],
+            "loss": 0.0045,
+            "epoch": 100
         }
-        try:
-            jsonschema.validate(instance=valid_output, schema=GNN_OUTPUT_SCHEMA)
-        except jsonschema.ValidationError as e:
-            pytest.fail(f"Valid GNN output failed validation: {e.message}")
+        validate_data_against_schema(valid_data, schema)

@@ -1,158 +1,215 @@
 """
 Verification logic for User Story 1 (T014).
-
 Calculates Spearman correlation between the missingness mask M and the
-generated complete outcome Y (before masking) to verify the MNAR mechanism.
+*complete* outcome Y for each simulation run, stores the result in a JSON
+file, and flags runs that do not meet the specification.
 """
-
 import json
 import hashlib
 import os
-from typing import Tuple, Any, Dict
+from typing import List, Dict, Any, Tuple
 
 import numpy as np
-import pandas as pd
 from scipy import stats
+import logging
 
-# Import existing API surface
-from simulation.missingness import inject_mnar
-from simulation.scm_generator import generate_scm
+logger = logging.getLogger(__name__)
+
+# Default output location – can be overridden by callers
+DEFAULT_OUTPUT_PATH = "data/results/us1_verification.json"
 
 
 def compute_run_id(seed: int, beta: float) -> str:
     """
-    Generate a SHA-256 hash of the string "{seed}_{beta}".
+    Compute a deterministic SHA‑256 hash for a run based on its seed and
+    MNAR parameter beta.
+
+    Parameters
+    ----------
+    seed : int
+        Random seed used for the simulation run.
+    beta : float
+        MNAR intensity parameter for the run.
+
+    Returns
+    -------
+    str
+        Hex‑encoded SHA‑256 hash of the string ``f"{seed}_{beta}"``.
     """
-    input_str = f"{seed}_{beta}"
-    return hashlib.sha256(input_str.encode('utf-8')).hexdigest()
+    return hashlib.sha256(f"{seed}_{beta}".encode()).hexdigest()
 
 
-def verify_mnar_correlation(
-    seed: int,
-    beta: float,
-    n_samples: int = 1000
-) -> Dict[str, Any]:
+def verify_mnar_correlation(mask: np.ndarray, y_complete: np.ndarray) -> Tuple[float, float]:
     """
-    Generate synthetic data, inject MNAR missingness, and calculate
-    Spearman correlation between the mask M and the complete Y.
+    Compute the Spearman rank correlation between the missingness mask and the
+    complete outcome vector.
 
-    Args:
-        seed: Random seed for reproducibility.
-        beta: The MNAR parameter controlling the strength of the relationship
-              between Y and the missingness mask M.
-        n_samples: Number of samples to generate.
+    Parameters
+    ----------
+    mask : np.ndarray
+        1‑D array (or flattenable) indicating missingness (1 = missing, 0 = observed).
+    y_complete : np.ndarray
+        1‑D array (or flattenable) of the *complete* outcome values before masking.
 
-    Returns:
-        Dictionary containing:
-            - run_id: SHA-256 hash of "{seed}_{beta}"
-            - correlation: Spearman rho
-            - p_value: P-value for the correlation
-            - status: "reported"
+    Returns
+    -------
+    Tuple[float, float]
+        (rho, p_value) – Spearman correlation coefficient and two‑tailed p‑value.
     """
-    # 1. Generate complete synthetic data (X, T, Y)
-    # Note: generate_scm expects tau_true. We assume a standard value or
-    # derive it. Based on T006, tau_true is often 0.5 for seed=42, beta=0.5.
-    # However, generate_scm signature is (seed, n, tau_true).
-    # We need a consistent tau_true. Let's use a fixed value of 0.5 as per T006 example,
-    # or derive it if regenerate_ground_truth is meant to be used here.
-    # The task description implies we just need to verify the mechanism.
-    # Let's assume tau_true = 0.5 for the generation step to ensure valid Y exists.
-    tau_true = 0.5
-    dataset = generate_scm(seed=seed, n=n_samples, tau_true=tau_true)
+    # Ensure 1‑D vectors
+    mask_flat = np.asarray(mask).ravel()
+    y_flat = np.asarray(y_complete).ravel()
 
-    # dataset.Y is the complete outcome variable (numpy array or pandas Series)
-    y_complete = dataset.Y
-    if isinstance(y_complete, np.ndarray):
-        y_complete = pd.Series(y_complete)
+    # Guard against degenerate inputs
+    if mask_flat.size < 2 or y_flat.size < 2:
+        logger.warning("Not enough data points for Spearman correlation.")
+        return 0.0, 1.0
 
-    # 2. Inject MNAR missingness
-    # inject_mnar(data, beta, target_rate)
-    # We need a target_rate. The task doesn't specify, but T012 handles tuning.
-    # For verification, we can use a fixed target rate (e.g., 0.3) or let inject_mnar
-    # use a default if it has one. Looking at T011 description: "using logistic regression".
-    # Let's assume a standard target rate of 0.3 if not specified, or pass it.
-    # Since T012 is "tune_alpha", we might need to call it or use a fixed alpha.
-    # The task says "inject_mnar(data, beta, target_rate)".
-    # Let's use a reasonable target rate like 0.3.
-    target_rate = 0.3
-    missing_data = inject_mnar(dataset, beta=beta, target_rate=target_rate)
+    # Remove any NaNs (should not be present, but be safe)
+    valid = ~np.isnan(mask_flat) & ~np.isnan(y_flat)
+    if np.sum(valid) < 2:
+        logger.warning("All data points contain NaNs after filtering.")
+        return 0.0, 1.0
 
-    # The missingness pattern M is usually stored in the dataset or returned.
-    # Based on T007, MissingnessPattern has a 'mask' field.
-    # inject_mnar likely returns a dataset with an added 'mask' attribute or similar.
-    # Let's assume the returned object has a 'mask' attribute (numpy array of 0/1).
-    # If missing_data is a SyntheticDataset, we need to check where M is stored.
-    # The prompt says "Calculate Spearman rho between M and the generated complete Y".
-    # Let's assume the mask is accessible as missing_data.mask or similar.
-    # If the function returns the modified dataset, we look for the mask.
-    # If the function returns the mask directly, we use that.
-    # Let's assume the mask is part of the returned dataset object as 'mask'.
-    # If not, we might need to reconstruct it or the function returns it.
-    # Given the API surface provided, inject_mnar is in missingness.py.
-    # Let's assume it modifies the dataset and adds a 'mask' attribute.
-    # If the mask is not directly on the dataset, we might need to check the implementation.
-    # However, since I must implement T014 based on the API, I will assume the mask
-    # is available as `missing_data.mask` (numpy array).
+    rho, p_value = stats.spearmanr(mask_flat[valid], y_flat[valid])
+    # scipy can return nan if constant; handle gracefully
+    if np.isnan(rho) or np.isnan(p_value):
+        logger.warning("Spearman calculation returned NaN.")
+        return 0.0, 1.0
 
-    mask = missing_data.mask
-    if isinstance(mask, np.ndarray):
-        mask = pd.Series(mask)
+    return float(rho), float(p_value)
 
-    # 3. Calculate Spearman correlation
-    # We correlate the mask (0/1) with the complete Y.
-    # Note: Y might contain NaN if generate_scm didn't clean it, but it should be complete.
-    # The mask indicates missingness (1=missing, 0=observed).
-    # We expect a correlation if MNAR is working.
 
-    # Ensure no NaNs in Y for correlation (should be complete)
-    if y_complete.isna().any():
-        # This shouldn't happen for the complete Y before masking
-        y_complete = y_complete.dropna()
-        mask = mask.loc[y_complete.index]
+def _load_existing_results(output_path: str) -> List[Dict[str, Any]]:
+    """
+    Helper to load previously saved verification results, if any.
+    """
+    if os.path.exists(output_path):
+        try:
+            with open(output_path, "r") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    return data
+                else:
+                    logger.warning(
+                        f"Unexpected JSON structure in {output_path}; resetting file."
+                    )
+        except Exception as e:
+            logger.error(f"Failed to read existing verification file: {e}")
+    return []
 
-    spearman_rho, p_value = stats.spearmanr(y_complete, mask)
 
-    # 4. Construct result
-    run_id = compute_run_id(seed, beta)
-
-    result = {
-        "run_id": run_id,
-        "correlation": float(spearman_rho),
-        "p_value": float(p_value),
-        "status": "reported"
-    }
-
-    return result
+def _save_results(results: List[Dict[str, Any]], output_path: str) -> None:
+    """
+    Write the list of verification dictionaries to ``output_path``.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(results, f, indent=2)
 
 
 def run_verification_and_save(
     seed: int,
     beta: float,
-    output_path: str = "data/results/us1_verification.json"
-) -> None:
+    mask_data: np.ndarray,
+    complete_y: np.ndarray,
+    output_path: str = DEFAULT_OUTPUT_PATH,
+) -> Dict[str, Any]:
     """
-    Run the verification for a specific seed and beta, and save the result.
+    Perform verification for a single run and append the result to the
+    JSON file at ``output_path``.
+
+    Parameters
+    ----------
+    seed : int
+        Random seed for the simulation run.
+    beta : float
+        MNAR intensity parameter.
+    mask_data : np.ndarray
+        Missingness indicator array (same length as ``complete_y``).
+    complete_y : np.ndarray
+        Complete outcome values before missingness injection.
+    output_path : str, optional
+        Destination JSON file. Defaults to ``data/results/us1_verification.json``.
+
+    Returns
+    -------
+    Dict[str, Any]
+        The verification record that was written.
     """
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    run_id = compute_run_id(seed, beta)
+    rho, p_value = verify_mnar_correlation(mask_data, complete_y)
 
-    result = verify_mnar_correlation(seed, beta)
+    status = "passed" if (rho > 0.5 and p_value < 0.01) else "failed"
+    if status == "failed":
+        logger.warning(
+            f"Run {run_id}: MNAR verification failed (rho={rho:.4f}, p={p_value:.4f})"
+        )
 
-    # Save to JSON
-    with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
+    record = {
+        "run_id": run_id,
+        "correlation": rho,
+        "p_value": p_value,
+        "status": status,
+    }
 
-    print(f"Verification result for seed={seed}, beta={beta} saved to {output_path}")
-    print(f"  Run ID: {result['run_id']}")
-    print(f"  Spearman rho: {result['correlation']:.4f}")
-    print(f"  P-value: {result['p_value']:.4f}")
-    print(f"  Status: {result['status']}")
+    # Load existing results, append, and write back
+    results = _load_existing_results(output_path)
+    # Ensure we don't duplicate entries for the same run_id
+    results = [r for r in results if r.get("run_id") != run_id]
+    results.append(record)
+    _save_results(results, output_path)
+
+    return record
+
+
+def main() -> None:
+    """
+    CLI entry point – useful for ad‑hoc verification outside the main
+    simulation loop. Accepts file paths for mask and complete Y so the
+    script can be invoked independently.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Verify MNAR correlation for a single simulation run"
+    )
+    parser.add_argument("--seed", type=int, required=True, help="Run seed")
+    parser.add_argument("--beta", type=float, required=True, help="MNAR beta")
+    parser.add_argument(
+        "--mask-file",
+        type=str,
+        required=True,
+        help="Path to a NumPy ``.npy`` file containing the mask array",
+    )
+    parser.add_argument(
+        "--y-file",
+        type=str,
+        required=True,
+        help="Path to a NumPy ``.npy`` file containing the complete Y array",
+    )
+    parser.add_argument(
+        "--output",
+      type=str,
+        default=DEFAULT_OUTPUT_PATH,
+        help="Destination JSON file for verification results",
+    )
+
+    args = parser.parse_args()
+
+    # Load arrays from the provided .npy files
+    mask_array = np.load(args.mask_file)
+    y_array = np.load(args.y_file)
+
+    run_verification_and_save(
+        seed=args.seed,
+        beta=args.beta,
+        mask_data=mask_array,
+        complete_y=y_array,
+        output_path=args.output,
+    )
+    print(f"Verification result written to {args.output}")
 
 
 if __name__ == "__main__":
-    # Example usage: Run for a specific seed and beta
-    # In the main loop (T029a), this function will be called for each run.
-    # Here we run a single example for demonstration/verification.
-    seed = 42
-    beta = 0.5
-    run_verification_and_save(seed, beta)
+    main()

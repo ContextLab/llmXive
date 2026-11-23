@@ -1,136 +1,189 @@
+"""
+Unit tests for preprocess.py
+"""
 import pytest
-import json
-import os
+import pandas as pd
+import numpy as np
 from pathlib import Path
 import tempfile
-import numpy as np
+import json
+
+from rdkit import Chem
 
 # Import functions to test
-from preprocess import (
-    filter_missing_environmental_data,
-    smiles_to_molecular_graph,
-    is_polyester,
-    filter_polyesters,
-    apply_edge_dropout,
-    canonicalize_smiles,
-    compute_checksum,
-    save_dataset
-)
-from data_models import MolecularGraph
-
-class TestFilterMissingEnvironmentalData:
-    def test_missing_env_excludes_record(self):
-        """Test that records with missing environmental data are excluded."""
-        records = [
-            {'id': '1', 'smiles': 'CCO', 'temperature': 25, 'ph': 7.0, 'uv_intensity': 100},
-            {'id': '2', 'smiles': 'CC', 'temperature': None, 'ph': 7.0, 'uv_intensity': 100},
-            {'id': '3', 'smiles': 'CCC', 'temperature': 25, 'ph': None, 'uv_intensity': 100},
-            {'id': '4', 'smiles': 'CCCC', 'temperature': 25, 'ph': 7.0, 'uv_intensity': None},
-            {'id': '5', 'smiles': 'CCCCC', 'temperature': 25, 'ph': 7.0, 'uv_intensity': 100}
-        ]
-        
-        filtered = filter_missing_environmental_data(records)
-        
-        assert len(filtered) == 2
-        assert filtered[0]['id'] == '1'
-        assert filtered[1]['id'] == '5'
-
-class TestSmilesToMolecularGraph:
-    def test_valid_smiles_conversion(self):
-        """Test conversion of valid SMILES to MolecularGraph."""
-        smiles = 'CCO'
-        graph = smiles_to_molecular_graph(smiles)
-        
-        assert graph is not None
-        assert graph.smiles == smiles
-        assert graph.num_atoms == 3
-        assert graph.num_bonds == 2
-
-    def test_invalid_smiles_returns_none(self):
-        """Test that invalid SMILES returns None."""
-        invalid_smiles = 'invalid_smiles_123'
-        graph = smiles_to_molecular_graph(invalid_smiles)
-        
-        assert graph is None
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+from preprocess import is_polyester, smiles_to_graph_features, validate_environmental_data, preprocess_dataset
 
 class TestIsPolyester:
     def test_polyester_detection(self):
-        """Test detection of polyester functional groups."""
-        # Ethylene glycol terephthalate (PET) - typical polyester
-        polyester_smiles = 'O=C(OCCOC(=O)c1ccc(C(=O)OCCOC(=O)c2ccc(C(=O)O)cc2)cc1)c3ccc(C(=O)O)cc3'
-        assert is_polyester(polyester_smiles) is True
-        
-        # Ethanol - not a polyester
-        non_polyester_smiles = 'CCO'
-        assert is_polyester(non_polyester_smiles) is False
+        """Test that polyester SMILES are correctly identified."""
+        # Valid polyester (has ester group C(=O)O)
+        smiles_polyester = "CC(=O)OCC"  # Ethyl acetate (simple ester)
+        assert is_polyester(smiles_polyester) is True
 
-class TestFilterPolyesters:
-    def test_filter_polyesters(self):
-        """Test filtering of polyester records."""
-        records = [
-            {'id': '1', 'smiles': 'CCO'},  # Not polyester
-            {'id': '2', 'smiles': 'O=C(OCCOC(=O)c1ccc(C(=O)OCCOC(=O)c2ccc(C(=O)O)cc2)cc1)c3ccc(C(=O)O)cc3'},  # Polyester
-            {'id': '3', 'smiles': 'CC'}  # Not polyester
-        ]
-        
-        filtered = filter_polyesters(records)
-        
-        assert len(filtered) == 1
-        assert filtered[0]['id'] == '2'
+        # Non-polyester (no ester group)
+        smiles_non_polyester = "CCCC"  # Butane
+        assert is_polyester(smiles_non_polyester) is False
 
-class TestApplyEdgeDropout:
-    def test_edge_dropout(self):
-        """Test edge dropout preserves graph structure."""
-        # Create a simple graph
-        adj = [[0, 1, 0], [1, 0, 1], [0, 1, 0]]
-        graph = MolecularGraph(
-            smiles='CCC',
-            num_atoms=3,
-            num_bonds=2,
-            molecular_weight=42.0,
-            logp=1.5,
-            adjacency_matrix=adj
-        )
-        
-        # Apply dropout with 0% rate
-        dropped_graph = apply_edge_dropout(graph, dropout_rate=0.0)
-        assert dropped_graph.adjacency_matrix == adj
-        
-        # Apply dropout with 100% rate (all edges dropped)
-        dropped_graph_full = apply_edge_dropout(graph, dropout_rate=1.0)
-        assert dropped_graph_full.num_bonds == 0
+        # Invalid SMILES
+        assert is_polyester("INVALID") is False
 
-class TestCanonicalizeSmiles:
-    def test_canonicalization(self):
-        """Test SMILES canonicalization."""
-        smiles = 'CCO'
-        canonical = canonicalize_smiles(smiles)
-        
-        assert canonical is not None
-        assert canonical == smiles  # Simple case should remain same
+    def test_complex_polyester(self):
+        """Test complex polyester detection."""
+        # Polyethylene terephthalate (PET) monomer
+        smiles_pet = "O=C(Oc1ccc(C(=O)O)cc1)Oc1ccc(C(=O)O)cc1"
+        assert is_polyester(smiles_pet) is True
 
-class TestChecksumAndSave:
-    def test_compute_checksum(self):
-        """Test checksum computation."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            f.write("test content")
-            temp_path = f.name
-        
-        try:
-            checksum = compute_checksum(temp_path)
-            assert len(checksum) == 64  # SHA256 hex length
-        finally:
-            os.unlink(temp_path)
+class TestSmilesToGraphFeatures:
+    def test_graph_conversion(self):
+        """Test conversion of SMILES to graph features."""
+        smiles = "CCO"  # Ethanol
+        mol = Chem.MolFromSmiles(smiles)
+        graph_data = smiles_to_graph_features(mol)
 
-    def test_save_dataset(self):
-        """Test dataset saving and checksum generation."""
-        records = [{'id': '1', 'data': 'test'}]
-        
+        assert graph_data is not None
+        assert 'atom_features' in graph_data
+        assert 'bond_features' in graph_data
+        assert 'edge_index' in graph_data
+        assert 'smiles' in graph_data
+
+        # Check dimensions
+        assert graph_data['atom_features'].shape[1] == 5  # 5 features per atom
+        assert graph_data['bond_features'].shape[1] == 3  # 3 features per bond
+
+    def test_single_atom(self):
+        """Test conversion of single atom molecule."""
+        smiles = "[He]"
+        mol = Chem.MolFromSmiles(smiles)
+        graph_data = smiles_to_graph_features(mol)
+
+        assert graph_data is not None
+        assert graph_data['atom_features'].shape[0] == 1
+        assert graph_data['bond_features'].shape[0] == 0
+
+class TestValidateEnvironmentalData:
+    def test_complete_data(self):
+        """Test validation with complete environmental data."""
+        row = pd.Series({
+            'temperature': 30.0,
+            'ph': 6.5,
+            'uv': 10.0
+        })
+        is_valid, imputed, missing = validate_environmental_data(row)
+        assert is_valid is True
+        assert missing == []
+        assert imputed['temperature'] == 30.0
+
+    def test_missing_temperature(self):
+        """Test imputation of missing temperature."""
+        row = pd.Series({
+            'temperature': None,
+            'ph': 6.5,
+            'uv': 10.0
+        })
+        is_valid, imputed, missing = validate_environmental_data(row)
+        assert is_valid is False
+        assert 'temperature' in missing
+        assert imputed['temperature'] == 25.0  # Default
+
+    def test_missing_all_env(self):
+        """Test imputation of all missing environmental data."""
+        row = pd.Series({
+            'temperature': None,
+            'ph': None,
+            'uv': None
+        })
+        is_valid, imputed, missing = validate_environmental_data(row)
+        assert is_valid is False
+        assert len(missing) == 3
+        assert imputed['temperature'] == 25.0
+        assert imputed['ph'] == 7.0
+        assert imputed['uv'] == 0.0
+
+class TestPreprocessDataset:
+    def test_preprocess_basic(self):
+        """Test basic preprocessing pipeline."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test.json')
-            result = save_dataset(records, output_path)
-            
-            assert os.path.exists(output_path)
-            assert 'checksum' in result
-            assert result['record_count'] == 1
-            assert result['type'] == 'raw'
+            input_path = Path(tmpdir) / "input.csv"
+            output_path = Path(tmpdir) / "output.parquet"
+
+            # Create test data
+            data = {
+                'smiles': ['CC(=O)OCC', 'CCCC', 'O=C(Oc1ccc(C(=O)O)cc1)Oc1ccc(C(=O)O)cc1'],
+                'degradation_pathway': ['hydrolysis', 'oxidation', 'photolysis'],
+                'temperature': [25.0, 30.0, None],
+                'ph': [7.0, None, 6.0],
+                'uv': [0.0, 10.0, 5.0]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(input_path, index=False)
+
+            # Run preprocessing
+            result = preprocess_dataset(input_path, output_path)
+
+            # Verify output
+            assert output_path.exists()
+            output_df = pd.read_parquet(output_path)
+
+            # Should have 2 polyesters (first and third), second is non-polyester
+            assert len(output_df) == 2
+            assert 'atom_features' in output_df.columns
+            assert 'temperature' in output_df.columns
+
+            # Check imputation
+            assert output_df.loc[output_df['smiles'] == 'O=C(Oc1ccc(C(=O)O)cc1)Oc1ccc(C(=O)O)cc1', 'temperature'].iloc[0] == 25.0
+
+            # Check exclusion log
+            exclusion_log_path = output_path.parent / 'exclusion_decision_log.json'
+            assert exclusion_log_path.exists()
+            with open(exclusion_log_path, 'r') as f:
+                log = json.load(f)
+            assert log['excluded_count'] >= 1
+
+    def test_missing_env_imputation(self):
+        """Test that missing environmental data is flagged and imputed."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "input.csv"
+            output_path = Path(tmpdir) / "output.parquet"
+
+            data = {
+                'smiles': ['CC(=O)OCC'],
+                'degradation_pathway': ['hydrolysis'],
+                'temperature': [None],
+                'ph': [None],
+                'uv': [None]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(input_path, index=False)
+
+            result = preprocess_dataset(input_path, output_path)
+
+            # Check env missing flags
+            env_missing_path = output_path.parent / 'flagged_env_missing.csv'
+            assert env_missing_path.exists()
+            env_df = pd.read_csv(env_missing_path)
+            assert len(env_df) == 1
+            assert 'temperature' in env_df['missing_fields'].iloc[0]
+
+    def test_non_polyester_exclusion(self):
+        """Test that non-polyesters are excluded."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "input.csv"
+            output_path = Path(tmpdir) / "output.parquet"
+
+            data = {
+                'smiles': ['CCCC', 'CC(=O)OCC'],
+                'degradation_pathway': ['oxidation', 'hydrolysis'],
+                'temperature': [30.0, 25.0],
+                'ph': [7.0, 7.0],
+                'uv': [10.0, 0.0]
+            }
+            df = pd.DataFrame(data)
+            df.to_csv(input_path, index=False)
+
+            result = preprocess_dataset(input_path, output_path)
+
+            output_df = pd.read_parquet(output_path)
+            assert len(output_df) == 1
+            assert output_df['smiles'].iloc[0] == 'CC(=O)OCC'

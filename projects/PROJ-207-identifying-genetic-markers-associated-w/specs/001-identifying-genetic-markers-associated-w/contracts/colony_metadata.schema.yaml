@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  colony_id:
+    type: string
+    description: "Unique colony identifier"
+  health_status:
+    type: integer
+    description: "CCD=1, Healthy=0"
+    enum:
+      - 0
+      - 1
+  geographic_region:
+    type: string
+    description: "Geographic region name"
+  sampling_year:
+    type: integer
+    description: "Year of sampling"
+  varroa_mite_count:
+    type: number
+    description: "Varroa mite count per colony"
+    minimum: 0
+required:
+  - colony_id
+  - health_status
+  - geographic_region
+  - sampling_year
+  - varroa_mite_count
+additionalProperties: false
+description: "Schema for colony phenotype metadata. All fields required."

@@ -1,0 +1,94 @@
+# VLM Configuration for SynthDocBench Retrieval Extension
+# Defines models stratified by context window size for FR-004 compliance.
+#
+# Context Size Categories:
+# - small: <= 4k tokens (Baseline for comparison)
+# - medium: 8k - 16k tokens (Standard LLM context)
+# - large: 32k+ tokens (Long-context capable models)
+#
+# This file is consumed by baseline_eval.py and retrieval_eval.py.
+
+models:
+  # Small Context Window Models (<= 4k)
+  - model_id: "llava-v1.6-mistral-7b"
+    name: "LLaVA 1.6 Mistral 7B"
+    context_window_tokens: 32768 # Technically 32k, but often tested in smaller chunks for baseline
+    category: "medium" # Re-mapping to medium for this specific benchmark due to 32k native, but grouping for stratification logic
+    # Note: For strict "small" (<4k) testing, we might use a quantized version or specific truncation,
+    # but LLaVA 1.6 Mistral is the standard open-weight baseline.
+    # We will categorize strictly by native context window for the correlation study in US3.
+    native_context_window: 32768
+    weights_repo: "xtuner/llava-v1.6-mistral-7b-hf"
+    processor: "llava-hf/llava-v1.6-mistral-7b-hf"
+    temperature: 0.0
+    max_new_tokens: 256
+
+  - model_id: "qwen-vl-chat-v1"
+    name: "Qwen-VL Chat"
+    native_context_window: 4096
+    category: "small"
+    weights_repo: "Qwen/Qwen-VL-Chat"
+    processor: "Qwen/Qwen-VL-Chat"
+    temperature: 0.0
+    max_new_tokens: 256
+
+  # Medium Context Window Models (8k - 16k)
+  - model_id: "llava-v1.5-7b"
+    name: "LLaVA 1.5 7B"
+    native_context_window: 4096 # LLaVA 1.5 is typically 4k, but often grouped with medium in extended contexts
+    category: "small"
+    weights_repo: "llava-hf/llava-1.5-7b-hf"
+    processor: "llava-hf/llava-1.5-7b-hf"
+    temperature: 0.0
+    max_new_tokens: 256
+
+  - model_id: "fuyu-8b"
+    name: "Fuyu-8B"
+    native_context_window: 8192
+    category: "medium"
+    weights_repo: "adept/fuyu-8b"
+    processor: "adept/fuyu-8b"
+    temperature: 0.0
+    max_new_tokens: 256
+
+  # Large Context Window Models (32k+)
+  - model_id: "llava-v1.6-vicuna-13b"
+    name: "LLaVA 1.6 Vicuna 13B"
+    native_context_window: 32768
+    category: "large"
+    weights_repo: "xtuner/llava-v1.6-vicuna-13b-hf"
+    processor: "llava-hf/llava-v1.6-vicuna-13b-hf"
+    temperature: 0.0
+    max_new_tokens: 256
+
+  - model_id: "internvl-chat-v1-5"
+    name: "InternVL Chat v1.5"
+    native_context_window: 32768
+    category: "large"
+    weights_repo: "OpenGVLab/InternVL-Chat-V1-5"
+    processor: "OpenGVLab/InternVL-Chat-V1-5"
+    temperature: 0.0
+    max_new_tokens: 256
+
+# Stratification configuration for US3 analysis
+stratification:
+  small:
+    min_tokens: 0
+    max_tokens: 4096
+    description: "Standard context models"
+  medium:
+    min_tokens: 8192
+    max_tokens: 16384
+    description: "Extended context models"
+  large:
+    min_tokens: 32768
+    max_tokens: 131072
+    description: "Long-context models"
+
+# Execution parameters
+execution:
+  device: "auto"
+  dtype: "float16"
+  trust_remote_code: true
+  load_in_8bit: false
+  load_in_4bit: false

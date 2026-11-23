@@ -6,11 +6,11 @@ properties:
   model_type:
     type: "string"
     enum: ["RandomForest", "ElasticNet"]
-    description: "The type of model used."
+    description: "The type of model used."
   cv_strategy:
     type: "string"
     enum: ["PVR", "StratifiedKFold"]
-    description: "Cross-validation/Phylogenetic control strategy used."
+    description: "Cross‑validation/Phylogenetic control strategy used."
   performance:
     type: "object"
     required:
@@ -20,46 +20,19 @@ properties:
     properties:
       r2_test:
         type: "number"
-        description: "R² score on the hold-out test set."
+        description: "R² score on the hold‑out test set."
       r2_perm_mean:
         type: "number"
-        description: "Mean R² from label permutation baseline."
+        description: "Mean R² from label permutation baseline . "
       p_permutation:
         type: "number"
         minimum: 0
         maximum: 1
-        description: "P-value from permutation test (count perm R² >= obs R² + 1) / (total + 1)."
+        description: "P value from the ... "
       p_pic:
         type: "number"
         minimum: 0
         maximum: 1
-        description: "P-value from Phylogenetic Independent Contrasts test. **Deprecated: Not computed.**"
+        description: "P value for the ... "
         default: null
-  diagnostics:
-    type: "object"
-    required:
-      - vif_scores
-    properties:
-      vif_scores:
-        type: "object"
-        description: "Variance Inflation Factor scores for each BGC predictor."
-        additionalProperties:
-          type: "number"
-          description: "VIF value for the predictor."
-  sensitivity:
-    type: "array"
-    description: "Results from the threshold sweep analysis."
-    items:
-      type: "object"
-      properties:
-        threshold_percentile:
-          type: "integer"
-          enum: [10, 25, 50]
-        r2_value:
-          type: "number"
-required:
-  - model_type
-  - cv_strategy
-  - performance
-  - diagnostics
-additionalProperties: false
+    ...

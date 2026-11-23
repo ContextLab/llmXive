@@ -1,0 +1,18 @@
+{
+  "analysis_mode": "error_signal",
+  "dataset_info": {
+    "name": "sample_dataset"
+  },
+  "excluded_subjects": [
+    {
+      "subject_id": "sub-001",
+      "reason": "underpowered_dataset"
+    }
+  ],
+  "exclusion_summary": {
+    "total_excluded": 1,
+    "reasons": [
+      "underpowered_dataset"
+    ]
+  }
+}

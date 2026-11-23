@@ -27,6 +27,7 @@ jobs:
     timeout-minutes: 15
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
       # Guarded paid fallback (claude-haiku) for when ALL free models flap;
       # globally hard-capped by the daily ~$2 credit budget (backends/credits.py).
       LLMXIVE_PAID_OPT_IN: "1"
@@ -38,7 +39,14 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: main
-          fetch-depth: 0
+          # depth 1, matching every other ordinary lane (maintenance,
+          # submission-intake, paper-compile). This was `fetch-depth: 0` -- a
+          # FULL-history clone of a ~9 GB repository with 14k commits, which
+          # the 2026-10-09 audit recorded consuming the lane's entire
+          # 15-minute cap (run 37957247536) before a tick could run. The lane
+          # reads current files and writes a review; the shared commit helper
+          # fetches newer main itself before its rebase-retry.
+          fetch-depth: 1
 
       - uses: actions/setup-python@v6
         with:

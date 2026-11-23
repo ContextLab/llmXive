@@ -42,5 +42,15 @@
     "scaling_law_center_acc_icml_v2.pdf",
     "selected_tasks_comparison.pdf",
     "ZvNgczioehg_task_0.png"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "16f76e8663ec5ca34f54a8331185d77366ee2758c7fdecdcfb7c6a30e039d884",
+      "bytes": 6988841
+    },
+    "original.pdf": {
+      "sha256": "62c1f7aedd4a05d2e3fa2a9d2fcd069d586ccaa75224ce9ea60aa419f7396271",
+      "bytes": 6993580
+    }
+  }
 }

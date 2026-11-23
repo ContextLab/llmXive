@@ -1,0 +1,14 @@
+status: none
+intent: download synthetic attention matrix generator with KVarN Sinkhorn optimizer
+  python package dataset
+required_fields:
+- matrix_id
+- attention_matrix
+- mean
+- variance
+- sparsity_level
+- outlier_magnitude
+- optimal_scaling_factors
+cache_key: 4bf63b201f2d9513e90870ed0c21bbe216560ad5c0e03e2950620e7e89fae254
+searched_at: '2026-10-21T12:40:25.542876+00:00'
+retry_count: 1

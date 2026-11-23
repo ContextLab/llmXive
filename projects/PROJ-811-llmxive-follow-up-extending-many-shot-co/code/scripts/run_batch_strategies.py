@@ -1,248 +1,228 @@
-"""
-Batch runner to generate prompts for multiple seeds across three strategies.
-
-This script orchestrates the prompt generation process for User Story 2 (US2).
-It iterates over a list of configured seeds and three prompt strategies:
-1. Logical Ascending (sorted by DAG depth)
-2. Logical Random (shuffled with fixed seed)
-3. Original CDS (sorted by Semantic Curvature)
-
-Outputs are saved to data/processed/prompts/ in JSON format.
-"""
 import argparse
 import json
 import logging
 import sys
 import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-
-# Add project root to path to allow relative imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from typing import Dict, List, Any, Optional
 
 from code.src.config import get_config
 from code.src.prompt_gen import PromptGenerator
 from code.src.parser_utils import load_json_file, save_json_file
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
 logger = logging.getLogger(__name__)
 
-STRATEGIES = [
-    "logical_ascending",
-    "logical_random",
-    "original_cds"
-]
+STRATEGIES = ["original_cds", "logical_ascending", "logical_random"]
 
-def load_manifest(manifest_path: Path) -> List[Dict[str, Any]]:
+def load_manifest(manifest_path: Path) -> Dict[str, Any]:
     """Load the DAG manifest containing parsed traces and metadata."""
     if not manifest_path.exists():
         raise FileNotFoundError(f"DAG manifest not found at {manifest_path}")
-    
-    logger.info(f"Loading DAG manifest from {manifest_path}")
-    data = load_json_file(manifest_path)
-    
-    if not isinstance(data, list):
-        raise ValueError(f"Expected manifest to be a list, got {type(data)}")
-    
-    logger.info(f"Loaded {len(data)} entries from manifest")
-    return data
+    return load_json_file(manifest_path)
 
 def generate_prompts_for_seed(
     generator: PromptGenerator,
-    examples: List[Dict[str, Any]],
+    manifest_data: Dict[str, Any],
     seed: int,
     strategy: str,
-    output_dir: Path
-) -> Optional[Path]:
-    """Generate prompts for a single seed and strategy."""
+    output_dir: Path,
+    max_examples: Optional[int] = None
+) -> List[str]:
+    """
+    Generate prompts for a single seed and strategy.
+
+    Args:
+        generator: The PromptGenerator instance.
+        manifest_data: The full DAG manifest data.
+        seed: The random seed for this batch.
+        strategy: One of 'original_cds', 'logical_ascending', 'logical_random'.
+        output_dir: Directory to save the generated prompt files.
+        max_examples: Optional limit on number of examples to include per prompt.
+
+    Returns:
+        List of file paths generated.
+    """
+    if strategy not in STRATEGIES:
+        raise ValueError(f"Unknown strategy: {strategy}. Must be one of {STRATEGIES}")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Extract examples from manifest
+    # Assuming manifest structure: {"entries": [...], "metadata": {...}}
+    entries = manifest_data.get("entries", [])
+    if not entries:
+        logger.warning(f"No entries found in manifest for seed {seed}")
+        return []
+
+    # Generate the prompt configuration for this seed/strategy
+    # The generator handles sorting/shuffling internally based on strategy
+    prompt_files = []
+
+    # We create one prompt file per seed/strategy combination containing
+    # the ordered set of examples for that configuration.
+    # In a many-shot setting, this might be a single file per seed/strategy
+    # or split by prompt length. Here we assume one file per seed/strategy.
+    output_filename = f"seed_{seed}_{strategy}.json"
+    output_path = output_dir / output_filename
+
     try:
-        logger.info(f"Generating prompts for seed={seed}, strategy={strategy}")
-        
-        # Generate the ordered examples based on strategy
-        ordered_examples = generator.generate_ordering(
-            examples=examples,
+        # Use the generator to create the ordered list of examples
+        ordered_examples = generator.generate_ordered_examples(
+            examples=entries,
             strategy=strategy,
-            seed=seed
-        )
-        
-        if not ordered_examples:
-            logger.warning(f"No examples generated for seed={seed}, strategy={strategy}")
-            return None
-        
-        # Assemble prompts
-        prompt_data = generator.assemble_prompts(
-            examples=ordered_examples,
             seed=seed,
-            strategy=strategy
+            max_examples=max_examples
         )
-        
-        # Save to file
-        output_file = output_dir / f"prompts_seed_{seed}_{strategy}.json"
-        save_json_file(prompt_data, output_file)
-        
-        logger.info(f"Saved {len(prompt_data['prompts'])} prompts to {output_file}")
-        return output_file
-        
+
+        # Save the ordered examples to a JSON file
+        # Structure: { "seed": int, "strategy": str, "examples": [...] }
+        output_data = {
+            "seed": seed,
+            "strategy": strategy,
+            "num_examples": len(ordered_examples),
+            "examples": ordered_examples
+        }
+
+        save_json_file(output_data, output_path)
+        prompt_files.append(str(output_path))
+        logger.info(f"Generated {output_path} with {len(ordered_examples)} examples")
+
     except Exception as e:
-        logger.error(f"Failed to generate prompts for seed={seed}, strategy={strategy}: {e}", exc_info=True)
-        return None
+        logger.error(f"Failed to generate prompts for seed {seed}, strategy {strategy}: {e}")
+        raise
+
+    return prompt_files
 
 def run_batch(
-    config: Any,
     manifest_path: Path,
-    output_dir: Path,
     seeds: List[int],
-    strategies: List[str]
+    output_base_dir: Path,
+    max_examples_per_prompt: Optional[int] = None,
+    strategies: Optional[List[str]] = None
 ) -> Dict[str, Any]:
-    """Run batch prompt generation for all seeds and strategies."""
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
+    """
+    Run prompt generation for multiple seeds and strategies.
+
+    Args:
+        manifest_path: Path to the DAG manifest JSON.
+        seeds: List of random seeds to process.
+        output_base_dir: Base directory for output prompts.
+        max_examples_per_prompt: Limit on examples per prompt file.
+        strategies: List of strategies to run (defaults to all).
+
+    Returns:
+        Summary dictionary of generated files.
+    """
+    strategies = strategies or STRATEGIES
+    logger.info(f"Starting batch generation for {len(seeds)} seeds and {len(strategies)} strategies")
+
     # Load manifest
-    try:
-        examples = load_manifest(manifest_path)
-    except Exception as e:
-        logger.error(f"Failed to load manifest: {e}")
-        return {"status": "failed", "error": str(e)}
-    
+    manifest_data = load_manifest(manifest_path)
+
     # Initialize generator
-    generator = PromptGenerator(config)
-    
-    # Track results
+    config = get_config()
+    generator = PromptGenerator(config=config)
+
     results = {
-        "seeds_processed": [],
-        "strategies_processed": [],
-        "outputs": [],
-        "errors": [],
-        "total_prompts_generated": 0
+        "seeds": seeds,
+        "strategies": strategies,
+        "output_dir": str(output_base_dir),
+        "files": [],
+        "errors": []
     }
-    
+
     for seed in seeds:
+        logger.info(f"Processing seed {seed}")
         for strategy in strategies:
-            if strategy not in STRATEGIES:
-                logger.warning(f"Unknown strategy {strategy} for seed {seed}, skipping")
-                continue
-            
-            output_file = generate_prompts_for_seed(
-                generator=generator,
-                examples=examples,
-                seed=seed,
-                strategy=strategy,
-                output_dir=output_dir
-            )
-            
-            if output_file:
-                results["seeds_processed"].append(seed)
-                results["strategies_processed"].append(strategy)
-                results["outputs"].append({
-                    "seed": seed,
-                    "strategy": strategy,
-                    "output_file": str(output_file)
-                })
-            else:
-                results["errors"].append({
-                    "seed": seed,
-                    "strategy": strategy,
-                    "error": "Generation failed"
-                })
-    
-    results["status"] = "completed"
-    logger.info(f"Batch run completed. Generated {results['total_prompts_generated']} prompts across {len(results['outputs'])} configurations.")
+            try:
+                seed_output_dir = output_base_dir
+                generated_files = generate_prompts_for_seed(
+                    generator=generator,
+                    manifest_data=manifest_data,
+                    seed=seed,
+                    strategy=strategy,
+                    output_dir=seed_output_dir,
+                    max_examples=max_examples_per_prompt
+                )
+                results["files"].extend(generated_files)
+            except Exception as e:
+                error_msg = f"Seed {seed}, Strategy {strategy}: {str(e)}"
+                logger.error(error_msg)
+                results["errors"].append(error_msg)
+
+    logger.info(f"Batch generation complete. Generated {len(results['files'])} files.")
+    if results["errors"]:
+        logger.warning(f"Encountered {len(results['errors'])} errors during generation.")
+
     return results
 
 def main():
-    """Main entry point for the batch runner."""
     parser = argparse.ArgumentParser(
-        description="Batch runner for generating prompts across seeds and strategies"
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="config/config.yaml",
-        help="Path to configuration file"
+        description="Batch runner to generate prompts for multiple seeds across strategies."
     )
     parser.add_argument(
         "--manifest",
         type=str,
-        default="data/processed/dag_manifest.json",
-        help="Path to DAG manifest file"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/processed/prompts",
-        help="Output directory for generated prompts"
+        required=True,
+        help="Path to the DAG manifest JSON file."
     )
     parser.add_argument(
         "--seeds",
         type=int,
         nargs="+",
-        default=None,
-        help="List of seeds to process (overrides config)"
+        default=[42, 123, 456, 789, 101112],
+        help="List of random seeds to process."
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="data/processed/prompts",
+        help="Directory to save generated prompt files."
     )
     parser.add_argument(
         "--strategies",
         type=str,
         nargs="+",
-        default=None,
-        help="List of strategies to process (overrides config)"
+        choices=STRATEGIES,
+        help="Specific strategies to run (default: all)."
     )
     parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
+        "--max-examples",
+        type=int,
+        default=None,
+        help="Maximum number of examples per prompt file."
     )
-    
+
     args = parser.parse_args()
-    
-    # Setup logging
-    log_level = logging.DEBUG if args.verbose else logging.INFO
-    logging.basicConfig(
-        level=log_level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    
-    # Load config
-    try:
-        config = get_config(args.config)
-        logger.info(f"Loaded configuration from {args.config}")
-    except Exception as e:
-        logger.error(f"Failed to load configuration: {e}")
-        sys.exit(1)
-    
-    # Determine seeds and strategies
-    seeds = args.seeds if args.seeds else config.get("experiment", {}).get("seeds", [42, 123, 456])
-    strategies = args.strategies if args.strategies else config.get("experiment", {}).get("strategies", STRATEGIES)
-    
-    logger.info(f"Processing {len(seeds)} seeds: {seeds}")
-    logger.info(f"Processing {len(strategies)} strategies: {strategies}")
-    
-    # Resolve paths
+
     manifest_path = Path(args.manifest)
     output_dir = Path(args.output_dir)
-    
-    # Run batch
-    results = run_batch(
-        config=config,
-        manifest_path=manifest_path,
-        output_dir=output_dir,
-        seeds=seeds,
-        strategies=strategies
-    )
-    
-    # Save run report
-    report_path = output_dir / "batch_run_report.json"
-    save_json_file(results, report_path)
-    logger.info(f"Saved batch run report to {report_path}")
-    
-    # Exit with appropriate code
-    if results.get("status") == "failed":
-        logger.error("Batch run failed")
+
+    if not manifest_path.exists():
+        logger.error(f"Manifest file not found: {manifest_path}")
         sys.exit(1)
-    else:
-        logger.info("Batch run completed successfully")
-        sys.exit(0)
+
+    try:
+        results = run_batch(
+            manifest_path=manifest_path,
+            seeds=args.seeds,
+            output_base_dir=output_dir,
+            max_examples_per_prompt=args.max_examples,
+            strategies=args.strategies
+        )
+
+        # Save a summary manifest
+        summary_path = output_dir / "batch_run_summary.json"
+        save_json_file(results, summary_path)
+        logger.info(f"Summary saved to {summary_path}")
+
+    except Exception as e:
+        logger.error(f"Batch run failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

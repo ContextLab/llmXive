@@ -1,105 +1,71 @@
-# Feature Specification: Quantify Dataset Sparsity Impact
+# Specification: Quantifying the Impact of Dataset Sparsity on Model Performance
+## Version 1.1 (Aligned with Plan Deviations)
 
-**Feature Branch**: `001-quantify-sparsity-impact`  
-**Created**: 2024-05-22  
-**Status**: Draft  
-**Input**: User description: "Quantifying the Impact of Dataset Sparsity on Machine Learning Models of Material Stability"
+## 1. Introduction
+This document defines the requirements for a research pipeline to quantify the impact of dataset sparsity on the predictive performance of machine learning models for materials science. The study utilizes the Materials Project (MP) database and employs Linear Mixed-Effects Modeling (LMM) to account for nested data structures.
 
-## User Scenarios & Testing *(mandatory)*
+## 2. Functional Requirements
 
-### User Story 1 - Data Retrieval and Preprocessing Pipeline (Priority: P1)
+### FR-001: Data Acquisition
+The system shall download a corpus of at least 150,000 material entries from the Materials Project API using the provided `MP_API_KEY`.
 
-As a researcher, I want to download and filter Materials Project data to ensure I have a clean dataset with formation energies and composition descriptors, so that I can begin the sparsity analysis with valid inputs.
+### FR-002: Data Filtering
+The system shall filter the raw pool to retain only entries where `formation_energy` is not null and `dft_computed` is True.
 
-**Why this priority**: Without valid data ingestion and filtering, no subsequent modeling or analysis can occur. This is the foundational dependency for the entire project.
+### FR-003: Representative Stratified Sample (RSS)
+The system shall construct a Representative Stratified Sample (RSS) of [deferred] entries from the filtered pool. The sampling must preserve the distribution of formation energy. The RSS serves as the [deferred] baseline for all sparsity experiments.
 
-**Independent Test**: Can be fully tested by executing the data ingestion script and verifying that the output CSV contains >100,000 rows with non-null formation energy and feature vectors.
+### FR-004: Descriptor Generation
+The system shall generate elemental property descriptors using `matminer` (atomic_number, electronegativity, atomic_radius).
 
-**Acceptance Scenarios**:
+### FR-005: Sparsity Levels
+The system shall generate strictly nested stratified subsets corresponding to a range of sparsity levels. These levels represent the percentage of the RSS used for training.
 
-1. **Given** the Materials Project API is accessible, **When** the ingestion script runs, **Then** it downloads at least 150,000 structure entries.
-2. **Given** the raw download, **When** filtering for DFT-computed formation energies, **Then** the resulting dataset contains no null values in the target variable.
-3. **Given** the filtered dataset, **When** generating composition descriptors via matminer, **Then** all rows have valid feature vectors (no missing descriptors).
+### FR-006: Linear Mixed-Effects Modeling (LMM)
+The system shall employ Linear Mixed-Effects Modeling (LMM) to analyze the relationship between sparsity and error. The fixed effect is `sparsity_level`, and the random effect is `seed` (nested structure). The model formula is `error ~ sparsity_level + (1|seed)`.
 
----
+### FR-007: Sensitivity and Slope Variance Threshold
+The system shall perform a sensitivity analysis to measure the variance in the slope of the learning curve between consecutive sparsity levels. The analysis must explicitly report whether the **slope variance < 10%** between consecutive levels. This threshold is used to determine if adding more data yields diminishing returns. The system shall output `data/results/slope_variance.json`.
 
-### User Story 2 - Sparsity Subsampling and Model Training (Priority: P1)
+### FR-008: Reporting
+The system shall generate a final report summarizing findings as associational evidence, avoiding causal claims.
 
-As a researcher, I want to train Gaussian Process and Random Forest models across 7 defined sparsity levels on CPU, so that I can observe how performance degrades as data becomes sparse.
+## 3. Success Criteria
 
-**Why this priority**: This is the core experimental loop that generates the primary data for the research question. It must run within compute constraints.
+### SC-001: Metric Logging
+All metrics (RMSE, MAE, Variance, Calibration Slope) must be logged to `data/results/metrics.csv`.
 
-**Independent Test**: Can be fully tested by running the training script on a single sparsity level (e.g., [deferred]) and verifying that model artifacts (pickle files) and metrics (RMSE) are generated without GPU errors.
+### SC-002: Learning Curve Visualization
+The system shall generate a learning curve plot (Error vs. Dataset Size) with error bars representing standard deviation across seeds.
 
-**Acceptance Scenarios**:
+### SC-003: Statistical Significance via LMM
+The system shall apply pairwise contrasts with Tukey-adjusted p-values to the LMM results to report p-values for differences between sparsity levels (threshold p < 0.05). The analysis must confirm that the **slope variance < 10%** threshold is met or violated for specific intervals, providing statistical backing for the sensitivity analysis defined in FR-007.
 
-1. **Given** the full dataset, **When** stratified random sampling (using k-means clustering on elemental fingerprints) is applied, **Then** 7 subsets ([deferred], [deferred], [deferred], [deferred], [deferred], [deferred], [deferred]) are created preserving chemical space distribution (elemental histogram correlation coefficient ≥ 0.95) for each level.
-2. **Given** a subset, **When** training GPR and Random Forest models, **Then** training completes within 60 minutes per subset on a GitHub Actions 2-core runner.
-3. **Given** model training, **When** cross-validation (k-fold) is executed, **Then** RMSE and MAE metrics are logged for each fold without CUDA errors.
+## 4. User Stories
 
----
+### US-1: Data Ingestion Pipeline
+As a researcher, I want to ingest and preprocess the Materials Project data so that I have a clean, feature-rich dataset for training.
 
-### User Story 3 - Statistical Analysis and Visualization (Priority: P2)
+### US-2: Sparsity Subsampling and Training
+As a researcher, I want to generate nested subsets and train models on CPU so that I can measure performance degradation as a function of data size.
 
-As a researcher, I want to generate learning curves and perform ANOVA tests, so that I can identify sparsity thresholds where additional data yields diminishing returns.
+### US-3: Statistical Analysis and Validation
+As a researcher, I want to perform Linear Mixed-Effects Modeling (LMM) and validate the **slope variance < 10%** threshold so that I can rigorously quantify the impact of dataset sparsity and determine diminishing returns.
 
-**Why this priority**: This delivers the final research output (curves and significance tests) required to answer the research question.
+## 5. Assumptions & Constraints
+- **MP_API_KEY**: The `MP_API_KEY` environment variable must be set. The system will raise a `RuntimeError` if missing.
+- **CPU Only**: All training and inference must run on CPU.
+- **Memory Limit**: The system must enforce a memory limit within a high-capacity range suitable for large-scale model execution.
+- **No Synthetic Data**: All data must come from the real Materials Project API. Synthetic fallbacks are strictly forbidden.
+- **Reproducibility**: All random seeds must be fixed and logged.
 
-**Independent Test**: Can be fully tested by running the analysis script and verifying that the output directory contains the learning curve plots and statistical summary tables.
-
-**Acceptance Scenarios**:
-
-1. **Given** the collected metrics from all sparsity levels, **When** the analysis script runs, **Then** a learning curve plot is generated showing error vs. dataset size.
-2. **Given** the metrics, **When** Repeated Measures ANOVA with Tukey post-hoc test is applied, **Then** p-values are reported for differences between sparsity levels.
-3. **Given** the elbow point detection, **When** sensitivity analysis is run, **Then** the stability of the threshold is verified (identified elbow point varies by no more than 5% across adjacent levels).
-
----
-
-### Edge Cases
-
-- What happens when the Materials Project API rate limits requests? (System MUST implement exponential backoff with a maximum of 3 retries).
-- How does system handle out-of-memory errors during GPR training on [deferred] data? (System MUST implement chunked processing or subsample to fit GB RAM limit).
-- What happens if a specific composition descriptor is missing for a row? (System MUST impute with mean or drop row and log the count).
-
-## Requirements *(mandatory)*
-
-### Functional Requirements
-
-- **FR-001**: System MUST download Materials Project formation energy data via public API and filter for entries with DFT-computed values (See US-1).
-- **FR-002**: System MUST generate elemental composition descriptors (atomic number, electronegativity, atomic radius averages) using matminer (See US-1).
-- **FR-003**: System MUST create multiple stratified random subsamples representing [deferred], [deferred], [deferred], [deferred], [deferred], [deferred], and [deferred] of the full dataset using k-means clustering on elemental fingerprints to preserve chemical space coverage (See US-2).
-- **FR-004**: System MUST train Gaussian Process Regression (RBF kernel) and Random Forest (ensemble of decision trees) models using CPU-only execution (No GPU/CUDA) (See US-2).
-- **FR-005**: System MUST perform Multiple-fold cross-validation with multiple independent random seeds per sparsity level and record RMSE, MAE, and predictive variance for uncertainty calibration (See US-2).
-- **FR-006**: System MUST apply Repeated Measures ANOVA with Tukey post-hoc test to determine statistical significance (p < 0.05) of performance differences across sparsity levels, accounting for the nested nature of the subsets (See US-3).
-- **FR-007**: System MUST perform sensitivity analysis on sparsity boundaries by verifying trend stability (slope variance < 10%) across adjacent levels (e.g., 5% vs 10%) to justify threshold selection (See US-3).
-- **FR-008**: System MUST report findings as associational evidence regarding data density and model reliability, avoiding causal claims (See US-3).
-- **FR-009**: System MUST partition a fixed, independent test set (a proportion of the full dataset) at the start of the pipeline and use this SAME test set to evaluate all training sparsity levels to prevent circular dependency (See US-2).
-- **FR-010**: System MUST utilize Mixed-Effects Modeling or Repeated Measures ANOVA to handle the correlation between nested sparsity levels, ensuring statistical validity of p-values (See US-3).
-
-### Key Entities *(include if feature involves data)*
-
-- **MaterialEntry**: Represents a material structure with composition, formation energy, and derived descriptors.
-- **SparsitySubset**: Represents a specific training split defined by percentage ([deferred]-100%) and random seed.
-- **PerformanceMetric**: Represents the RMSE, MAE, or calibration slope calculated for a specific model and subset.
-- **FixedTestSet**: A static [deferred] holdout of the full dataset used for all evaluation.
-
-## Success Criteria *(mandatory)*
-
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: RMSE and MAE error rates are measured against the FIXED held-out test set ([deferred] of full data) for each sparsity level (See US-3).
-- **SC-002**: Learning curve completeness is measured against the requirement to plot all 7 sparsity levels with error bars (See US-3).
-- **SC-003**: Statistical significance is measured against the p < 0.05 threshold using Repeated Measures ANOVA with Tukey correction (See US-3).
-- **SC-004**: Compute feasibility is measured against the GitHub Actions free-tier limit and GB RAM constraint (See US-2).
-
-## Assumptions
-
-- [Assumption about data/environment] Materials Project public API is available without authentication barriers for this dataset volume.
-- [Assumption about scope boundaries] GPU acceleration is explicitly out of scope; all models must run on CPU.
-- [Assumption about data/environment] The Materials Project dataset contains sufficient formation energy entries (>150k) to support the [deferred] sparsity level.
-- [Dependency on existing system/service] Requires access to the `matminer` library for feature engineering.
-- [Assumption about target users] Researchers will interpret the sparsity-performance curves as associational evidence, not causal proof of material stability mechanisms.
+## 6. Data Lineage
+- Raw: `data/raw/raw_pool.csv`
+- Filtered: `data/processed/filtered_pool.csv`
+- Descriptors: `data/processed/descriptors_pool.csv`
+- Final Pool: `data/processed/full_pool_final.csv`
+- RSS: `data/processed/rss_pool.csv`
+- Sparsity Subsets: `data/processed/sparsity_<level>pct.csv`
+- Test Set: `data/processed/test_set.csv`
+- Metrics: `data/results/metrics.csv`
+- Slope Variance: `data/results/slope_variance.json`

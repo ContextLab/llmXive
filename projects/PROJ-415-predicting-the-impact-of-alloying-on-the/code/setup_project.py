@@ -1,88 +1,72 @@
-"""
-Project Setup Script for PROJ-415-predicting-the-impact-of-alloying-on-the
-Creates the required directory structure for the automated science pipeline.
-"""
 import os
 import sys
 from pathlib import Path
+from typing import List
+from config import DATA_DIR, PROJECT_ROOT, LOG_DIR, ERRORS_DIR, MODELS_DIR, REPORTS_DIR
+from utils.logging import get_logger
 
-def create_directories():
-    """Create the project directory structure as per implementation plan."""
-    # Define the base directory (project root)
-    base_dir = Path.cwd()
-    
-    # Define the required directories
-    directories = [
-        "code",
-        "code/utils",
-        "code/data",
-        "code/models",
-        "code/validation",
-        "tests",
-        "tests/unit",
-        "tests/contract",
-        "tests/integration",
-        "data",
-        "data/raw",
-        "data/curated",
-        "data/artifacts",
-        "data/logs",
-        "models",
-        "reports",
-        "figures"
+logger = get_logger(__name__)
+
+def create_directories() -> None:
+    """
+    Create the core project directory structure:
+    code/, tests/, data/, models/, reports/
+    plus subdirectories for data (raw, curated, artifacts, logs) and errors.
+    """
+    # Core directories
+    dirs: List[Path] = [
+        PROJECT_ROOT / "code",
+        PROJECT_ROOT / "tests",
+        DATA_DIR,
+        MODELS_DIR,
+        REPORTS_DIR,
+        ERRORS_DIR,
+        LOG_DIR,
+        # Data subdirectories
+        DATA_DIR / "raw",
+        DATA_DIR / "curated",
+        DATA_DIR / "artifacts",
+        DATA_DIR / "logs",
     ]
-    
-    created_count = 0
-    skipped_count = 0
-    
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-            skipped_count += 1
-    
-    print(f"\nSetup complete: {created_count} directories created, {skipped_count} already existed.")
-    return True
 
-def create_init_files():
-    """Create __init__.py files to make directories Python packages."""
-    base_dir = Path.cwd()
-    package_dirs = [
-        "code",
-        "code/utils",
-        "code/data",
-        "code/models",
-        "code/validation",
-        "tests",
-        "tests/unit",
-        "tests/contract",
-        "tests/integration"
+    for d in dirs:
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {d}")
+        else:
+            logger.debug(f"Directory already exists: {d}")
+
+def create_init_files() -> None:
+    """
+    Create __init__.py files in the new directories to make them packages.
+    """
+    init_paths: List[Path] = [
+        PROJECT_ROOT / "code" / "__init__.py",
+        PROJECT_ROOT / "tests" / "__init__.py",
+        DATA_DIR / "__init__.py",
+        MODELS_DIR / "__init__.py",
+        REPORTS_DIR / "__init__.py",
+        ERRORS_DIR / "__init__.py",
+        LOG_DIR / "__init__.py",
+        DATA_DIR / "raw" / "__init__.py",
+        DATA_DIR / "curated" / "__init__.py",
+        DATA_DIR / "artifacts" / "__init__.py",
+        DATA_DIR / "logs" / "__init__.py",
     ]
-    
-    for dir_path in package_dirs:
-        init_file = base_dir / dir_path / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created __init__.py: {init_file}")
-        else:
-            print(f"__init__.py already exists: {init_file}")
 
-def main():
-    """Main entry point for project setup."""
-    print("Starting project setup for PROJ-415...")
-    
-    try:
-        create_directories()
-        create_init_files()
-        print("\nProject structure setup completed successfully.")
-        return 0
-    except Exception as e:
-        print(f"\nError during project setup: {e}")
-        return 1
+    for p in init_paths:
+        if not p.exists():
+            p.touch()
+            logger.debug(f"Created __init__.py: {p}")
+
+def main() -> None:
+    """
+    Entry point to set up the project structure.
+    """
+    logger.info("Starting project structure setup...")
+    create_directories()
+    create_init_files()
+    logger.info("Project structure setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

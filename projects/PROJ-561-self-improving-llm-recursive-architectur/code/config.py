@@ -1,116 +1,224 @@
-"""
-Central configuration for the self-improving LLM recursive architecture project.
-Defines hyperparameters, safety constraints, and file paths.
-"""
 import os
-from dataclasses import dataclass, field
-from typing import List, Optional
 import random
 import numpy as np
 import torch
+import re
+import logging
+from typing import Optional, Dict, Any, List
 
-# ============================================================================
-# Hyperparameters
-# ============================================================================
-@dataclass
+# Configure logging for the module
+logger = logging.getLogger(__name__)
+
+# FR-003 hard cap: the maximum allowed parameter increase ratio above the
+# GPT-2 baseline. Any value parsed from research.md that exceeds this cap
+# is clamped to it.
+MAX_PARAM_INCREASE_RATIO = 0.30
+
 class Hyperparameters:
-    """Training hyperparameters."""
-    learning_rate: float = 5e-5
-    batch_size: int = 4
-    seed: int = 42
-    num_epochs: int = 1
-    max_seq_length: int = 512
-    weight_decay: float = 0.01
-    warmup_steps: int = 100
-    gradient_clip_val: float = 1.0
-    
-    def set_seed(self):
-        """Set random seeds for reproducibility."""
-        random.seed(self.seed)
-        np.random.seed(self.seed)
-        torch.manual_seed(self.seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(self.seed)
+    """Container for training hyperparameters."""
+    def __init__(self, lr: float = 5e-5, batch_size: int = 4, seed: int = 42, epochs: int = 1):
+        self.lr = lr
+        self.batch_size = batch_size
+        self.seed = seed
+        self.epochs = epochs
 
-# ============================================================================
-# Constraints
-# ============================================================================
-@dataclass
 class SafetyConstraints:
-    """Safety and resource constraints for the self-improvement loop."""
-    max_param_increase_ratio: float = 1.30  # ≤30% parameter increase
-    max_ram_gb: float = 7.0
-    max_training_time_seconds: int = 7200  # 2 hours per cycle
-    max_total_time_seconds: int = 21600  # 6 hours total
-    early_stop_degradation_threshold: float = 0.05  # 5% degradation triggers early stop
-    max_retries: int = 2
+    """Container for safety and resource constraints."""
+    def __init__(self, max_ram_gb: float = 7.0, max_param_increase_ratio: Optional[float] = None):
+        self.max_ram_gb = max_ram_gb
+        # If None, it means the value is deferred or not yet determined by research
+        self.max_param_increase_ratio = max_param_increase_ratio
 
-# ============================================================================
-# Path Definitions
-# ============================================================================
-@dataclass
 class PathConfig:
-    """File system paths."""
-    # Base project root (assumed to be relative to where this script is run)
-    project_root: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
-    # Data directories
-    data_raw: str = os.path.join(project_root, "data", "raw")
-    data_processed: str = os.path.join(project_root, "data", "processed")
-    
-    # Results and artifacts
-    results_dir: str = os.path.join(project_root, "results")
-    figures_dir: str = os.path.join(project_root, "figures")
-    
-    # Checkpoints
-    checkpoints_dir: str = os.path.join(project_root, "checkpoints")
-    
-    # Logs
-    logs_dir: str = os.path.join(project_root, "logs")
-    
-    # Specific output files
-    trajectory_file: str = os.path.join(results_dir, "trajectory.json")
-    trade_off_file: str = os.path.join(results_dir, "trade_off_analysis.json")
-    bootstrap_results_file: str = os.path.join(results_dir, "bootstrap_results.json")
-    decay_fit_file: str = os.path.join(results_dir, "decay_fit.json")
-    
-    # Ensure directories exist
-    def ensure_dirs(self):
-        """Create all required directories if they don't exist."""
-        for path in [
-            self.data_raw, self.data_processed, self.results_dir,
-            self.figures_dir, self.checkpoints_dir, self.logs_dir
-        ]:
-            os.makedirs(path, exist_ok=True)
+    """Container for project directory paths."""
+    def __init__(self, base_dir: str = "."):
+        self.base_dir = base_dir
+        self.data_raw = os.path.join(base_dir, "data", "raw")
+        self.data_processed = os.path.join(base_dir, "data", "processed")
+        self.results = os.path.join(base_dir, "results")
+        self.state = os.path.join(base_dir, "state")
+        self.code = os.path.join(base_dir, "code")
+        self.research_md = os.path.join(base_dir, "research.md")
 
-# ============================================================================
-# Global Configuration Instance
-# ============================================================================
-config = Hyperparameters()
-constraints = SafetyConstraints()
-paths = PathConfig()
+class Config:
+    """Master configuration object."""
+    def __init__(self, hyperparams: Hyperparameters, safety: SafetyConstraints, paths: PathConfig):
+        self.hyperparams = hyperparams
+        self.safety = safety
+        self.paths = paths
 
-# ============================================================================
-# Utility Functions
-# ============================================================================
-def get_config_summary() -> dict:
-    """Return a dictionary summary of current configuration."""
-    return {
-        "hyperparameters": {
-            "learning_rate": config.learning_rate,
-            "batch_size": config.batch_size,
-            "seed": config.seed,
-            "max_seq_length": config.max_seq_length,
-        },
-        "constraints": {
-            "max_param_increase_ratio": constraints.max_param_increase_ratio,
-            "max_ram_gb": constraints.max_ram_gb,
-            "max_training_time_seconds": constraints.max_training_time_seconds,
-            "early_stop_degradation_threshold": constraints.early_stop_degradation_threshold,
-        },
-        "paths": {
-            "data_raw": paths.data_raw,
-            "results_dir": paths.results_dir,
-            "trajectory_file": paths.trajectory_file,
-        }
-    }
+# Global configuration instance
+_config: Optional[Config] = None
+
+def _parse_research_md_for_param_limit(research_path: str) -> Optional[float]:
+    """
+    Parses research.md to find a defined MAX_PARAM_INCREASE_RATIO.
+    Looks for patterns like 'MAX_PARAM_INCREASE_RATIO: 0.25' or 'ratio: 0.25'
+    in the 'Methodology for Parameter Limit' section.
+    Returns None if not found or if the value is marked as deferred.
+    """
+    if not os.path.exists(research_path):
+        logger.warning(f"research.md not found at {research_path}. Using default/provisional constraints.")
+        return None
+
+    try:
+        with open(research_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Check if the methodology section exists
+        if "## Methodology for Parameter Limit" not in content:
+            logger.warning("Methodology for Parameter Limit section not found in research.md.")
+            return None
+
+        # Simple regex to find a float value associated with param limit
+        # Matches patterns like "0.25", "ratio: 0.25", "limit: 0.25"
+        # We look for a float in the vicinity of the section header
+        section_start = content.find("## Methodology for Parameter Limit")
+        if section_start == -1:
+            return None
+
+        # Look within the next 2000 characters for a ratio definition
+        section_content = content[section_start : section_start + 2000]
+
+        # Check for deferred markers first
+        if "[deferred]" in section_content.lower() or "deferred" in section_content.lower():
+            logger.info("Parameter limit found as [deferred] in research.md.")
+            return None
+
+        # Try to find a specific float value
+        # Pattern: number (possibly with leading 0.)
+        pattern = r'(?:ratio|limit|max_param|increase).*[:\s=]+([0-9]*\.?[0-9]+)'
+        matches = re.findall(pattern, section_content, re.IGNORECASE)
+
+        if matches:
+            try:
+                val = float(matches[0])
+                if 0.0 < val <= 1.0:
+                    logger.info(f"Found defined parameter increase ratio {val} in research.md.")
+                    return val
+            except ValueError:
+                pass
+
+        logger.warning("No valid numeric parameter limit found in research.md methodology section.")
+        return None
+
+    except Exception as e:
+        logger.error(f"Error parsing research.md for parameter limit: {e}")
+        return None
+
+def _clamp_param_ratio(value: Optional[float]) -> Optional[float]:
+    """
+    Clamps a parameter increase ratio to the FR-003 hard cap (0.30).
+    Any value read from research.md exceeding 0.30 is clamped to 0.30.
+    None (deferred) passes through unchanged.
+    """
+    if value is None:
+        return None
+    if value > MAX_PARAM_INCREASE_RATIO:
+        logger.warning(
+            f"Parameter increase ratio {value} from research.md exceeds the "
+            f"FR-003 hard cap {MAX_PARAM_INCREASE_RATIO}. Clamping to {MAX_PARAM_INCREASE_RATIO}."
+        )
+        return MAX_PARAM_INCREASE_RATIO
+    return value
+
+def get_config() -> Config:
+    """Returns the global configuration, initializing it if necessary."""
+    global _config
+    if _config is None:
+        _config = _init_config()
+    return _config
+
+def set_config(cfg: Config) -> None:
+    """Sets the global configuration."""
+    global _config
+    _config = cfg
+
+def _init_config() -> Config:
+    """Initializes the configuration with defaults and research overrides."""
+    base_dir = os.getenv("PROJECT_ROOT", ".")
+
+    # Initialize paths
+    paths = PathConfig(base_dir)
+
+    # Initialize safety constraints
+    # Default provisional value is 0.30, but we check research.md first
+    research_path = paths.research_md
+    param_ratio = _parse_research_md_for_param_limit(research_path)
+
+    if param_ratio is None:
+        # research.md does not define a value; the FR-003 cap of 0.30 is the
+        # provisional default enforced everywhere the limit is consumed.
+        safety = SafetyConstraints(max_param_increase_ratio=None)
+        logger.warning(
+            "MAX_PARAM_INCREASE_RATIO not defined in research.md. Using None "
+            "(provisional FR-003 default of 0.30 applies)."
+        )
+    else:
+        # FR-003: clamp any research.md value exceeding 0.30 to 0.30.
+        clamped = _clamp_param_ratio(param_ratio)
+        safety = SafetyConstraints(max_param_increase_ratio=clamped)
+
+    # Initialize hyperparameters (FR-004: lr=5e-5, bs=4, 1 epoch)
+    hyperparams = Hyperparameters(
+        lr=5e-5,
+        batch_size=4,
+        seed=42,
+        epochs=1
+    )
+
+    return Config(hyperparams, safety, paths)
+
+def get_learning_rate() -> float:
+    """Returns the learning rate from the global config."""
+    return get_config().hyperparams.lr
+
+def get_batch_size() -> int:
+    """Returns the batch size from the global config."""
+    return get_config().hyperparams.batch_size
+
+def get_seed() -> int:
+    """Returns the random seed from the global config."""
+    return get_config().hyperparams.seed
+
+def get_ram_limit() -> float:
+    """Returns the RAM limit in GB from the global config."""
+    return get_config().safety.max_ram_gb
+
+def get_trajectory_path() -> str:
+    """Returns the path to the trajectory file."""
+    return os.path.join(get_config().paths.results, "trajectory.json")
+
+def get_max_param_increase_percent() -> Optional[float]:
+    """
+    Returns the max parameter increase ratio.
+    If research.md defined a value, returns it (clamped to the FR-003 cap).
+    If not, returns None (indicating the provisional 0.30 default is in
+    effect but not formally set).
+    """
+    return get_config().safety.max_param_increase_ratio
+
+def get_bootstrap_resamples() -> int:
+    """Returns the number of bootstrap resamples for statistical testing."""
+    return 1000  # Default, can be made configurable
+
+def set_seed(seed: int) -> None:
+    """Sets the random seed for reproducibility."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+def ensure_directories() -> None:
+    """Creates all required directories defined in PathConfig."""
+    cfg = get_config()
+    dirs = [
+        cfg.paths.data_raw,
+        cfg.paths.data_processed,
+        cfg.paths.results,
+        cfg.paths.state
+    ]
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
+        logger.debug(f"Ensured directory exists: {d}")

@@ -1,0 +1,21 @@
+### 7. Power Analysis & Statistical Rigor
+- **Effect‑size estimate**: Pilot runs suggest an expected cosine shift of modest magnitude with a comparable standard deviation. With **five languages** (EN, FR, DE, ES, ZH) we obtain **four independent EN‑X pairwise data points**, giving ≈ 0.45 power at α = 0.05. We acknowledge this modest power and treat all correlation results as exploratory, reporting bootstrap confidence intervals.
+- **Multiple‑Comparison Correction**: Bonferroni across the four primary similarity tests.
+- **Associational framing**: All claims are stated as associations; causal language is avoided.
+- **Collinearity**: Edge‑spectrum vectors are orthogonal by construction; frequency vectors are independent across languages.
+
+## Expected Outputs
+- `results/edge_similarity.json` – cosine similarity matrix (validated by `similarity_report.schema.yaml`).
+- `results/token_attribution_<model>_<lang>.json` – top‑10 tokens + scores (validated by `token_attribution.schema.yaml`).
+- `results/shift_correlations.json` – Pearson‑r values for WALS and SentEval (validated by `validation_metric.schema.yaml`).
+- `results/permutation_test.json` – p‑value, null distribution summary (validated by `permutation_test.schema.yaml`).
+- Figures (PNG) for similarity heatmap, token overlap bar chart, correlation scatter plots.
+- `results/reproducibility_audit.json` – checksums, seeds, runtime metadata for full auditability (generated in Phase 0).
+
+## Decision / Rationale
+All heavy linear‑algebraic steps run on CPU (numpy/scipy). BLOOM is loaded in a low‑precision mode to stay within the 7 GB RAM budget; it serves only as an exploratory check, not as a primary test of the hypothesis. Real SentEval evaluations are performed; no fabricated numbers are used. The inclusion of **five languages** (EN, FR, DE, ES, ZH) provides **four** independent language‑pair data points for correlation analyses, improving statistical reliability while still fitting within the CI compute budget.
+
+---
+
+
+

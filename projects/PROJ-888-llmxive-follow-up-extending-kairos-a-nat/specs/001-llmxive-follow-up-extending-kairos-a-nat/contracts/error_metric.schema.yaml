@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ErrorMetric"
-description: "Schema for model performance metrics and statistical validation results (Bayesian)."
+description: "Schema for model performance metrics and statistical validation results."
 type: "object"
 properties:
   run_id:
@@ -8,39 +8,70 @@ properties:
     description: "Unique identifier for the independent run."
   bit_depth:
     type: "integer"
-    enum: [4, 8, 16]
+    enum: [4, 6, 8, 16]
     description: "Quantization bit depth used."
   noise_std:
     type: "number"
     description: "Standard deviation of injected Gaussian noise."
   horizon:
     type: "integer"
-    enum: [100, 500, 1000]
+    enum: [100, 250, 500, 1000]
     description: "Prediction horizon in time steps."
-  mse:
+  total_mse:
     type: "number"
-    description: "Mean Squared Error between decoded prediction and continuous ground truth."
-  cumulative_error_rate:
+    description: "Mean Squared Error between predicted and clean ground truth."
+  mse_normalized:
+    type: "number"
+    description: "MSE divided by state space dimensionality."
+  quantization_noise_floor:
+    type: "number"
+    description: "Theoretical MSE of the quantization process (combined noise)."
+  model_error:
+    type: "number"
+    description: "Model-adjusted error (Total MSE)."
+  cumulative_growth_rate:
     type: "number"
     description: "MSE growth rate per time step."
-  credible_interval:
-    type: "object"
-    properties:
-      lower:
-        type: "number"
-      upper:
-        type: "number"
-    description: "95% Credible interval for the effect size from BHM."
-  is_significant:
+  baseline_continuous_error:
+    type: "number"
+    description: "Error of the continuous baseline model."
+  degradation_ratio:
+    type: "number"
+    description: "Ratio of model_error to baseline_continuous_error."
+  is_stable:
     type: "boolean"
-    description: "True if the credible interval excludes zero."
+    description: "True if degradation_ratio < 1.20."
+  entropy_score:
+    type: "number"
+    description: "Entropy of the quantized distribution (validation metric)."
+  ram_peak_mb:
+    type: "number"
+    description: "Peak RAM usage in MB."
+  latency_per_step_ms:
+    type: "number"
+    description: "Inference latency per step in milliseconds."
+  is_untrained:
+    type: "boolean"
+    description: "True if model was trained from scratch due to missing weights."
+  stability_claim_framing:
+    type: "string"
+    description: "Field name for stability claim framing (e.g., 'mse_ratio')."
 required:
   - run_id
   - bit_depth
   - noise_std
   - horizon
-  - mse
-  - cumulative_error_rate
-  - credible_interval
-  - is_significant
+  - total_mse
+  - mse_normalized
+  - quantization_noise_floor
+  - model_error
+  - cumulative_growth_rate
+  - baseline_continuous_error
+  - degradation_ratio
+  - is_stable
+  - entropy_score
+  - ram_peak_mb
+  - latency_per_step_ms
+  - is_untrained
+  - stability_claim_framing
 additionalProperties: false

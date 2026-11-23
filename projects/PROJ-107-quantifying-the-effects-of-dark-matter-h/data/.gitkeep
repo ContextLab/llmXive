@@ -1,1 +1,2 @@
-# Placeholder to ensure data directory exists
+# This directory is for raw and processed data artifacts.
+# Git tracks this file to ensure the directory exists.

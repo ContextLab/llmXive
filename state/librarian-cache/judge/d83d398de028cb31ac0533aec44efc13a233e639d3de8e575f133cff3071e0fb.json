@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2608.02704",
+  "judged_at": "2026-10-06T06:43:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predictive coding llms: implementing hierarchical error minimization computer science",
+  "rationale": "This paper qualifies under category (a) and (d) because it explicitly addresses the core mechanism of \"hierarchical prediction error minimization\" and \"predictive processing\" in cognitive architecture, providing a formal generative framework that is directly relevant to the theoretical underpinnings of implementing such systems in LLMs, even though it focuses on cognitive science rather than specific neural network code.",
+  "relevant": true
+}

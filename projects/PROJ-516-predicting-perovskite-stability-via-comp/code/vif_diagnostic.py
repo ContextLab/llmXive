@@ -1,277 +1,203 @@
-"""
-VIF Diagnostic Computation for Perovskite Stability Descriptors.
-
-This module implements Variance Inflation Factor (VIF) analysis to detect
-multicollinearity among compositional descriptors. It flags descriptors with
-VIF > 5 and implements an Elastic Net fallback strategy for feature selection.
-
-Outputs:
-    data/processed/vif_report.csv: Contains VIF scores, flags, and removal decisions.
-"""
-
 import logging
 import sys
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
-
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import ElasticNetCV
 from sklearn.preprocessing import StandardScaler
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
 VIF_THRESHOLD = 5.0
-INPUT_FILE = Path("data/processed/descriptors.csv")
-OUTPUT_FILE = Path("data/processed/vif_report.csv")
-REQUIRED_COLUMNS = ["formula", "T_d"]  # T_d is the target, not a feature
 
-
-def calculate_vif(df: pd.DataFrame, features: List[str]) -> pd.Series:
+def calculate_vif(df: pd.DataFrame, feature_cols: List[str]) -> pd.DataFrame:
     """
-    Calculate Variance Inflation Factor for each feature.
-
-    VIF_i = 1 / (1 - R_i^2)
-    where R_i^2 is the R-squared of regressing feature i against all other features.
-
+    Calculate Variance Inflation Factor (VIF) for each feature.
+    
     Args:
-        df: DataFrame containing feature columns.
-        features: List of column names to calculate VIF for.
-
+        df: DataFrame containing features.
+        feature_cols: List of column names to calculate VIF for.
+        
     Returns:
-        pandas Series with VIF values indexed by feature name.
+        DataFrame with 'feature', 'vif' columns.
     """
-    if not features:
-        return pd.Series(dtype=float)
+    if len(feature_cols) == 0:
+        logger.warning("No features provided for VIF calculation.")
+        return pd.DataFrame(columns=['feature', 'vif'])
 
+    X = df[feature_cols].copy()
+    
+    # Handle constant columns (infinite VIF)
+    # Replace zero variance with a large VIF value
     vif_data = []
-    logger.info(f"Calculating VIF for {len(features)} features...")
-
-    for i, feature in enumerate(features):
-        # Create X matrix (all features except current)
-        X_cols = [f for f in features if f != feature]
-        if not X_cols:
-            vif_data.append((feature, 1.0))
-            continue
-
-        X = df[X_cols].values
-        y = df[feature].values
-
-        # Handle constant columns (VIF is undefined, set to infinity or high value)
-        if np.std(y) < 1e-9:
-            vif_data.append((feature, np.inf))
-            continue
-
-        # Fit regression to get R^2
-        try:
-            # Standardize X and y for numerical stability
-            scaler_x = StandardScaler()
-            X_scaled = scaler_x.fit_transform(X)
-            scaler_y = StandardScaler()
-            y_scaled = scaler_y.fit_transform(y.reshape(-1, 1)).ravel()
-
-            # Fit linear model
-            model = ElasticNetCV(l1_ratio=[0.1, 0.5, 0.9], cv=3, random_state=42, n_jobs=-1)
-            model.fit(X_scaled, y_scaled)
-
-            # Calculate R^2
-            r2 = model.score(X_scaled, y_scaled)
-
-            # Calculate VIF
-            if r2 >= 1.0:
-                vif = np.inf
+    
+    for i, col in enumerate(feature_cols):
+        if X[col].var() == 0:
+            vif_val = float('inf')
+        else:
+            # VIF = 1 / (1 - R^2) where R^2 is from regressing col on all other features
+            other_cols = [c for c in feature_cols if c != col]
+            if len(other_cols) == 0:
+                vif_val = 1.0
             else:
-                vif = 1.0 / (1.0 - r2)
+                try:
+                    y = X[col]
+                    X_other = X[other_cols]
+                    
+                    # Fit linear regression
+                    model = ElasticNetCV(cv=3, random_state=42, l1_ratio=0.5)
+                    model.fit(X_other, y)
+                    r2 = model.score(X_other, y)
+                    
+                    if r2 >= 1.0:
+                        vif_val = float('inf')
+                    else:
+                        vif_val = 1.0 / (1.0 - r2)
+                except Exception as e:
+                    logger.warning(f"Could not calculate VIF for {col}: {e}")
+                    vif_val = float('inf')
+        
+        vif_data.append({'feature': col, 'vif': vif_val})
+    
+    return pd.DataFrame(vif_data)
 
-            vif_data.append((feature, vif))
-
-        except Exception as e:
-            logger.warning(f"Could not calculate VIF for {feature}: {e}")
-            vif_data.append((feature, np.nan))
-
-        if (i + 1) % 10 == 0:
-            logger.info(f"Processed {i + 1}/{len(features)} features")
-
-    return pd.Series([v for _, v in vif_data], index=[f for f, _ in vif_data])
-
-
-def select_features_with_elastic_net(
-    df: pd.DataFrame,
-    features: List[str],
-    target: str,
-    alpha: float = 1.0
-) -> List[str]:
+def select_features_with_elastic_net(X: pd.DataFrame, y: pd.Series, 
+                                     max_features: int = 20) -> List[str]:
     """
-    Use Elastic Net to select features based on regularization path.
-
+    Select features using Elastic Net regularization.
+    
     Args:
-        df: DataFrame with features and target.
-        features: List of candidate feature names.
-        target: Name of the target column.
-        alpha: Regularization strength.
-
+        X: Feature DataFrame.
+        y: Target Series.
+        max_features: Maximum number of features to select.
+        
     Returns:
         List of selected feature names.
     """
-    if not features:
+    if X.shape[1] == 0:
         return []
+        
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    # Use ElasticNetCV to find non-zero coefficients
+    # L1 ratio 1.0 is Lasso, 0.0 is Ridge. We use a mix but lean towards Lasso for selection.
+    model = ElasticNetCV(l1_ratio=0.8, cv=5, random_state=42, n_alphas=100)
+    model.fit(X_scaled, y)
+    
+    # Get indices of non-zero coefficients
+    non_zero_mask = model.coef_ != 0
+    selected_indices = np.where(non_zero_mask)[0]
+    
+    # If too many, we need to select top ones based on absolute coefficient magnitude
+    if len(selected_indices) > max_features:
+        abs_coefs = np.abs(model.coef_[selected_indices])
+        top_k_indices = selected_indices[np.argsort(abs_coefs)[-max_features:]]
+        selected_indices = np.sort(top_k_indices)
+    
+    return [X.columns[i] for i in selected_indices]
 
-    X = df[features].dropna()
-    y = df.loc[X.index, target].dropna()
-
-    # Align indices
-    common_idx = X.index.intersection(y.index)
-    if len(common_idx) == 0:
-        logger.warning("No overlapping indices for Elastic Net feature selection")
-        return []
-
-    X_clean = X.loc[common_idx]
-    y_clean = y.loc[common_idx]
-
-    # Handle constant columns
-    non_const_cols = X_clean.columns[X_clean.std() > 1e-9]
-    if len(non_const_cols) == 0:
-        return []
-
-    X_clean = X_clean[non_const_cols]
-
-    try:
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X_clean)
-
-        # Use ElasticNetCV to find non-zero coefficients
-        enet = ElasticNetCV(
-            l1_ratio=[0.1, 0.5, 0.9],
-            alphas=np.logspace(-4, 2, 20),
-            cv=5,
-            random_state=42,
-            n_jobs=-1,
-            max_iter=1000
-        )
-        enet.fit(X_scaled, y_clean)
-
-        # Get features with non-zero coefficients
-        selected = [col for col, coef in zip(non_const_cols, enet.coef_) if abs(coef) > 1e-9]
-        logger.info(f"Elastic Net selected {len(selected)} features: {selected}")
-        return selected
-
-    except Exception as e:
-        logger.error(f"Elastic Net feature selection failed: {e}")
-        # Fallback: return all features if Elastic Net fails
-        return list(non_const_cols)
-
-
-def run_vif_diagnostic(
-    input_path: Path = INPUT_FILE,
-    output_path: Path = OUTPUT_FILE,
-    vif_threshold: float = VIF_THRESHOLD
-) -> pd.DataFrame:
+def run_vif_diagnostic(input_path: Path, output_path: Path, 
+                       target_col: str = 'T_d', 
+                       feature_cols: Optional[List[str]] = None) -> Tuple[bool, List[str]]:
     """
-    Main VIF diagnostic workflow.
-
-    1. Load descriptors.
-    2. Identify feature columns (exclude formula, T_d, and metadata).
-    3. Calculate VIF for each feature.
-    4. Flag features with VIF > threshold.
-    5. If high VIFs exist, run Elastic Net to select a reduced set.
-    6. Generate report.
-
+    Run VIF diagnostic on the dataset, flag high-VIF features, and optionally
+    suggest feature removal or Elastic Net fallback.
+    
     Args:
-        input_path: Path to descriptors.csv.
-        output_path: Path to write vif_report.csv.
-        vif_threshold: Threshold for flagging multicollinearity.
-
+        input_path: Path to input descriptors CSV.
+        output_path: Path to write VIF report CSV.
+        target_col: Name of the target column.
+        feature_cols: Optional list of feature columns. If None, all numeric cols
+                      except target are used.
+                      
     Returns:
-        DataFrame containing the VIF report.
+        Tuple of (success, list of removed/high-VIF features).
     """
-    logger.info(f"Loading descriptors from {input_path}")
+    logger.info(f"Loading data from {input_path}")
     if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
+        logger.error(f"Input file not found: {input_path}")
+        return False, []
+        
     df = pd.read_csv(input_path)
-
-    # Identify feature columns (exclude formula, T_d, and any non-numeric)
-    exclude_cols = set(REQUIRED_COLUMNS + ["formula"])
-    feature_cols = [col for col in df.columns if col not in exclude_cols and pd.api.types.is_numeric_dtype(df[col])]
-
-    if not feature_cols:
-        logger.warning("No numeric feature columns found to analyze.")
-        report = pd.DataFrame(columns=["feature", "vif", "flagged", "removed", "reason"])
-        report.to_csv(output_path, index=False)
-        return report
-
-    logger.info(f"Analyzing {len(feature_cols)} feature columns: {feature_cols}")
-
-    # Calculate VIF
-    vif_series = calculate_vif(df, feature_cols)
-
-    # Build report
+    
+    if feature_cols is None:
+        # Select all numeric columns except target
+        feature_cols = [col for col in df.select_dtypes(include=[np.number]).columns 
+                       if col != target_col]
+    
+    logger.info(f"Calculating VIF for {len(feature_cols)} features: {feature_cols}")
+    
+    vif_df = calculate_vif(df, feature_cols)
+    
+    # Sort by VIF descending
+    vif_df = vif_df.sort_values(by='vif', ascending=False)
+    
+    # Identify high VIF features
+    high_vif_features = vif_df[vif_df['vif'] > VIF_THRESHOLD]['feature'].tolist()
+    
+    logger.warning(f"Found {len(high_vif_features)} features with VIF > {VIF_THRESHOLD}: {high_vif_features}")
+    
+    # Prepare report
     report_data = []
-    features_to_remove = []
-
-    for feature in feature_cols:
-        vif_val = vif_series.get(feature, np.nan)
-        flagged = vif_val > vif_threshold if not np.isnan(vif_val) else False
-        reason = ""
-
-        if np.isnan(vif_val):
-            reason = "Calculation failed"
-            features_to_remove.append(feature)
-        elif flagged:
-            reason = f"VIF ({vif_val:.2f}) > {vif_threshold}"
-            features_to_remove.append(feature)
-        else:
-            reason = "Acceptable multicollinearity"
-
+    for _, row in vif_df.iterrows():
+        feature = row['feature']
+        vif_val = row['vif']
+        status = "HIGH" if vif_val > VIF_THRESHOLD else "OK"
+        
+        # Determine action
+        action = "Keep"
+        if vif_val == float('inf'):
+            action = "Remove (Constant)"
+        elif vif_val > VIF_THRESHOLD:
+            action = "Remove or Elastic Net Fallback"
+            
         report_data.append({
-            "feature": feature,
-            "vif": vif_val,
-            "flagged": flagged,
-            "removed": False,  # Will update later if Elastic Net is used
-            "reason": reason
+            'feature': feature,
+            'vif': vif_val if vif_val != float('inf') else np.nan,
+            'status': status,
+            'action': action
         })
-
+    
     report_df = pd.DataFrame(report_data)
-
-    # If high VIFs exist, run Elastic Net fallback
-    if report_df["flagged"].any():
-        logger.warning(f"Detected {report_df['flagged'].sum()} features with VIF > {vif_threshold}. Running Elastic Net fallback.")
-        
-        # Use non-flagged features + target to run Elastic Net
-        # Actually, we should run Elastic Net on ALL features to see which are truly predictive
-        selected_features = select_features_with_elastic_net(df, feature_cols, "T_d")
-        
-        # Mark removed features
-        for i, row in report_df.iterrows():
-            feature = row["feature"]
-            if feature not in selected_features:
-                report_df.at[i, "removed"] = True
-                if row["flagged"]:
-                    report_df.at[i, "reason"] += " -> Removed by Elastic Net"
-                else:
-                    report_df.at[i, "reason"] += " -> Removed by Elastic Net (redundant)"
-
-    logger.info(f"VIF report written to {output_path}")
+    
+    # Save report
+    logger.info(f"Writing VIF report to {output_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     report_df.to_csv(output_path, index=False)
-
-    return report_df
-
+    
+    # If high VIF features exist, suggest Elastic Net selection
+    if len(high_vif_features) > 0:
+        logger.info("High VIF detected. Suggesting Elastic Net feature selection as fallback.")
+        # We don't modify the data here, just report the recommendation
+        # The actual selection would happen in model_training or a preprocessing step
+        
+    return True, high_vif_features
 
 def main():
-    """Entry point for VIF diagnostic script."""
-    try:
-        run_vif_diagnostic()
-        logger.info("VIF diagnostic completed successfully.")
-    except Exception as e:
-        logger.error(f"VIF diagnostic failed: {e}")
+    """Main entry point for VIF diagnostic script."""
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent
+    input_path = project_root / "data" / "processed" / "descriptors.csv"
+    output_path = project_root / "data" / "processed" / "vif_report.csv"
+    
+    success, high_vif_features = run_vif_diagnostic(input_path, output_path)
+    
+    if success:
+        logger.info(f"VIF diagnostic completed. Report saved to {output_path}")
+        if high_vif_features:
+            logger.warning(f"Features with VIF > {VIF_THRESHOLD}: {high_vif_features}")
+            logger.info("Recommendation: Use Elastic Net regularization or remove these features.")
+        else:
+            logger.info("No features with VIF > 5.0 detected.")
+    else:
+        logger.error("VIF diagnostic failed.")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

@@ -1,109 +1,91 @@
 """
-Unit tests for the logging infrastructure.
+Unit tests for logging utilities in code/utils/logging.py.
 """
-
-import logging
-import os
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
+import logging
+import tempfile
+import os
+from pathlib import Path
 
-import sys
-# Ensure code directory is in path for imports if running from root
-if "code" not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from utils.logging import setup_logging, get_logger
+from code.utils.logging import setup_logging, get_logger
 
 
 class TestSetupLogging:
-    """Tests for the setup_logging function."""
+    """Tests for setup_logging function."""
 
-    def test_console_handler_created(self, tmp_path):
-        """Test that a console handler is always created."""
-        logger = setup_logging(
-            log_level="INFO",
-            project_root=tmp_path
-        )
-        assert len(logger.handlers) >= 1
-        console_handler = next(
-            (h for h in logger.handlers if isinstance(h, logging.StreamHandler)),
-            None
-        )
-        assert console_handler is not None
+    def test_console_handler_added(self):
+        """Test that console handler is added."""
+        logger = setup_logging(log_level=logging.INFO)
+        handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler)]
+        assert len(handlers) > 0
 
-    def test_file_handler_created_when_path_provided(self, tmp_path):
-        """Test that a file handler is created when log_file is provided."""
-        log_file = "data/logs/test.log"
-        logger = setup_logging(
-            log_level="DEBUG",
-            log_file=log_file,
-            project_root=tmp_path
-        )
-        
-        file_handler = next(
-            (h for h in logger.handlers if isinstance(h, logging.FileHandler)),
-            None
-        )
-        assert file_handler is not None
-        assert file_handler.baseFilename == str(tmp_path / log_file)
-
-    def test_log_level_set_correctly(self, tmp_path):
-        """Test that the logger level is set correctly."""
-        logger = setup_logging(log_level="DEBUG", project_root=tmp_path)
+    def test_log_level_set(self):
+        """Test that log level is set correctly."""
+        logger = setup_logging(log_level=logging.DEBUG)
         assert logger.level == logging.DEBUG
 
-        logger2 = setup_logging(log_level="ERROR", project_root=tmp_path)
-        assert logger2.level == logging.ERROR
+    def test_file_handler_added(self):
+        """Test that file handler is added when log_file is specified."""
+        with tempfile.NamedTemporaryFile(suffix='.log', delete=False) as f:
+            log_path = f.name
 
-    def test_log_directory_created(self, tmp_path):
-        """Test that the logs directory is created if it doesn't exist."""
-        log_file = "data/logs/new_subdir/test.log"
-        logger = setup_logging(
-            log_level="INFO",
-            log_file=log_file,
-            project_root=tmp_path
-        )
-        
-        log_dir = tmp_path / "data" / "logs" / "new_subdir"
-        assert log_dir.exists()
+        try:
+            logger = setup_logging(log_file=log_path)
+            file_handlers = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
+            assert len(file_handlers) > 0
+        finally:
+            if os.path.exists(log_path):
+                os.unlink(log_path)
 
-    def test_duplicate_handler_prevention(self, tmp_path):
-        """Test that calling setup_logging multiple times doesn't add duplicate handlers."""
-        logger = setup_logging(log_level="INFO", project_root=tmp_path)
-        initial_count = len(logger.handlers)
-        
-        # Call again
-        logger2 = setup_logging(log_level="INFO", project_root=tmp_path)
-        
-        # Should be the same logger instance or at least not add more handlers to the named logger
-        # Since we are using a named logger 'research', we check the handlers of that name
-        test_logger = logging.getLogger("research")
-        assert len(test_logger.handlers) == initial_count
+    def test_formatter_set(self):
+        """Test that formatter is set."""
+        logger = setup_logging()
+        for handler in logger.handlers:
+            assert handler.formatter is not None
 
-    def test_logger_output(self, tmp_path, caplog):
-        """Test that the logger actually outputs messages."""
-        logger = setup_logging(log_level="INFO", project_root=tmp_path)
-        
-        with caplog.at_level(logging.INFO):
-            logger.info("Test message")
-        
-        assert "Test message" in caplog.text
+    def test_clears_existing_handlers(self):
+        """Test that existing handlers are cleared."""
+        # Add a dummy handler
+        root_logger = logging.getLogger()
+        dummy_handler = logging.StreamHandler()
+        root_logger.addHandler(dummy_handler)
+
+        try:
+            setup_logging()
+            # Check that the dummy handler is removed
+            assert dummy_handler not in root_logger.handlers
+        finally:
+            root_logger.removeHandler(dummy_handler)
+
 
 class TestGetLogger:
-    """Tests for the get_logger function."""
+    """Tests for get_logger function."""
 
-    def test_get_existing_logger(self, tmp_path):
-        """Test retrieving a logger that was set up."""
-        setup_logging(project_root=tmp_path)
-        logger = get_logger("research")
-        assert logger is not None
+    def test_returns_logger(self):
+        """Test that get_logger returns a logger instance."""
+        logger = get_logger()
         assert isinstance(logger, logging.Logger)
 
-    def test_get_custom_logger(self, tmp_path):
-        """Test retrieving a custom named logger."""
-        setup_logging(project_root=tmp_path)
-        custom_logger = get_logger("custom_module")
-        assert custom_logger.name == "custom_module"
+    def test_custom_name(self):
+        """Test with custom logger name."""
+        logger = get_logger(name='test_logger')
+        assert logger.name == 'test_logger'
+
+    def test_default_name(self):
+        """Test with default name (module name)."""
+        logger = get_logger()
+        # Default should be the module name or __name__
+        assert logger is not None
+
+    def test_multiple_calls_same_logger(self):
+        """Test that multiple calls with same name return same logger."""
+        logger1 = get_logger('shared_logger')
+        logger2 = get_logger('shared_logger')
+        assert logger1 is logger2
+
+    def test_different_names_different_loggers(self):
+        """Test that different names return different logger instances."""
+        logger1 = get_logger('logger_a')
+        logger2 = get_logger('logger_b')
+        assert logger1 is not logger2
+        assert logger1.name != logger2.name

@@ -1,1 +1,1 @@
-# Utils Package
+"""Utility modules for the phytoplankton analysis pipeline."""

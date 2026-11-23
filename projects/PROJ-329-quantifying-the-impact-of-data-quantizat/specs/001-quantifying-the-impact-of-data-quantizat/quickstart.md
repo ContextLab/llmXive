@@ -1,54 +1,85 @@
 # Quickstart: Quantizing GW Signals
 
 ## Prerequisites
-- Python 3.11+
+- Python 3.11+
 - Git
-- Access to a GitHub Actions runner (or local environment with 7 GB+ RAM).
+- Access to a GitHub Actions runner (or a local Linux environment with ≥ 7 GB RAM)
 
-## 1. Clone and Setup
+## 1. Clone and Set Up
 ```bash
 git clone <repo-url>
-cd projects/PROJ-329-quantifying-the-impact-of-data-quantizat/code/
+cd projects/PROJ-329-quantizing-the-impact-of-data-quantizat/code/
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 2. Download Data
-The noise data is fetched automatically from the verified HuggingFace source.
+## 2. Download LIGO O3 Noise (Verified)
 ```bash
 python src/data_generation.py --download-noise
 ```
-*Note: This downloads the O3 noise parquet file to `data/raw/` and computes a checksum.*
+*Streams the parquet file from the verified Hugging  Face URL and records a SHA‑256 checksum in `state/projects/PROJ-329-quantizing-the-impact-of-data-quantizat.yaml` (the project’s Single Source of Truth).*
 
-## 3. Run Simulation (Pilot)
-Run a pilot generation of 50 signals to verify the pipeline.
+## 3. Pilot Generation (All examined bit depths, N = 2 400)
 ```bash
-python src/data_generation.py --generate --count 50 --bit-depths 8,12,16
+# Split the full workload into eight CI jobs (each handles a subset of signals)
+for JOB in 0 1 2 3 4 5 6 7; do
+  python src/data_generation.py \
+    --generate \
+    --count 2400 \
+    --bit-depths 4,8,10,12,14,16 \
+    --snr-bins 8-14,14-20,20-30,30-50 \
+    --seed 42 \
+    --job-index $JOB \
+    --output-suffix _job${JOB}
+done
 ```
-*Output: `data/processed/waveforms.h5`*
+*Creates `data/processed/waveforms.h5` (baseline + quantized groups) and writes per‑waveform JSON metadata files that conform to `contracts/waveform.schema.yaml`. Checksums are written automatically.*
 
-## 4. Run Inference
-Run parameter estimation on the generated signals.
+## 4. Run Inference (MCMC, CPU‑only)
 ```bash
-python src/inference_engine.py --input data/processed/waveforms.h5 --method hybrid
+# Run the same eight‑job split for inference
+for JOB in 0 1 2 3 4 5 6 7; do
+  python src/inference_engine.py \
+    --input data/processed/waveforms_job${JOB}.h5 \
+    --method mcmc \
+    --nthreads 2 \
+    --job-index $JOB \
+    --output-suffix _job${JOB}
+done
 ```
-*Output: `data/results/inference_results.json`*
+*Produces `data/results/inference_results_job${JOB}.json` containing posterior means, per‑parameter MSE, Δₖ, and convergence status. Each result is validated against `contracts/result.schema.yaml`.*
 
-## 5. Analyze & Visualize
-Generate the error vs. SNR plots and identify the threshold.
+## 5. Analyse & Identify Thresholds
 ```bash
-python src/analysis.py --input data/results/inference_results.json --plot
+python src/analysis.py \
+  --input data/results/inference_results_job*.json \
+  --plot-dir figures \
+  --summary reports/crossover_thresholds.csv
 ```
-*Output: `figures/error_threshold.png`, `figures/summary_report.md`*
+*Aggregates Δₖ within SNR bins, fits LOWESS error‑vs‑SNR curves for each bit depth, identifies the SNR where median Δₖ > 10 % of the instrumental error, and writes diagnostic plots plus a CSV with 95 % confidence intervals (from a multi‑run reproducibility study).*
 
-## 6. Verify Acceptance
-Run the unit tests to ensure quantization logic and error metrics are correct.
+## 6. Verify Resource Estimates
 ```bash
-pytest tests/
+python scripts/compute_resource_estimate.py
 ```
+*Benchmarks the **full pipeline** (generation + quantization + inference + analysis) and writes `reports/resource_estimate.md`, confirming RAM ≤ 4.5 GB, CPU time ≤ 5 h per CI job, and disk usage ≤ 14 GB.*
 
-## Troubleshooting
-- **Memory Error**: Reduce `--count` in step 3. The default pilot is 50; the full study uses batching.
-- **Convergence Failed**: Check `convergence_status` in results. Low SNR signals may fail; they are recorded as "non-detections".
-- **Missing Noise**: If the HuggingFace download fails, check network connectivity. The fallback is a theoretical PSD (see `utils.py`).
+## 7. Run the Full Reproducibility Suite (SC‑005)
+```bash
+for SEED in {1..10}; do
+  python src/data_generation.py --generate --count 2400 --seed $SEED --output-suffix _run${SEED} --job-index 0
+  python src/inference_engine.py --input data/processed/waveforms_run${SEED}.h5 --output data/results/inference_results_run${SEED}.json --job-index 0
+  python src/analysis.py --input data/results/inference_results_run${SEED}.json --output reports/thresholds_run${SEED}.csv
+done
+python src/analysis.py --aggregate reports/thresholds_run*.csv --output reports/crossover_thresholds_final.csv
+```
+*Produces `reports/crossover_thresholds_final.csv` with the median crossover SNR per bit depth and a confidence interval across the ten independent runs. (fulfills SC‑005).*
+
+## 8. Troubleshooting
+- **MemoryError**: Reduce `--count` or increase HDF5 chunk size.  
+- **ConvergenceFailed**: Inspect the `convergence_status` field in the JSON; low‑SNR signals (< 8) are recorded as `"non-detection"` per the spec.  
+- **Missing Noise File**: The downloader aborts with a clear error; re‑run `--download-noise` to fetch the file again.
+
+---
+

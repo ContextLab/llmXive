@@ -1,0 +1,22 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory tree `projects/PROJ-normalized-gaps-between-consecutive-squa/...`\
+    \ is provided; the \u201CActual artifacts / evidence on disk\u201D section is\
+    \ empty, so we cannot confirm that the directories were created. The implementer\
+    \ must supply a listing or screenshot showing the full path hierarchy."
+T010:
+  c: false
+  h: a518123ad35a88fa6cca825654dffa4a899cc0704277ab76f186e615641c1e9a
+  r: The test file `tests/contract/test_squarefree_sequence.py` is present, but it
+    references `contracts/SquarefreeSequence.schema.yaml`, which does not exist in
+    the repository, causing the test to fail with a FileNotFoundError. The required
+    schema file must be added for the test to genuinely validate JSON against it.
+T018:
+  c: false
+  h: 6945c335db8af757c470957be9fc18a191ec5a36bf65ebc2b7784d2f78c026a8
+  r: The `tests/contract/test_test_result.py` file is present and contains a test
+    that attempts to load `contracts/TestResult.schema.yaml`, but the required schema
+    file does not exist in the repository, causing the test to fail (FileNotFoundError).
+    The missing schema means the test cannot actually validate any JSON against the
+    contract.

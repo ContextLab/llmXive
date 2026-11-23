@@ -1,0 +1,81 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MolecularGraph Schema
+description: Schema for serialized molecular graph data representing protein-ligand complexes.
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier (PDB ID + chain)"
+  nodes:
+    type: array
+    items:
+      type: object
+      properties:
+        atom_type:
+          type: string
+          description: "Atom type (e.g., C, N, O, H)"
+        charge:
+          type: number
+          description: "Formal charge"
+        hydrophobicity:
+          type: number
+          description: "Derived hydrophobicity score"
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 3
+          maxItems: 3
+          description: "3D coordinates [x, y, z]"
+      required:
+        - atom_type
+        - charge
+        - hydrophobicity
+        - coordinates
+  edges:
+    type: array
+    items:
+      type: object
+      properties:
+        source:
+          type: integer
+          description: "Source node index"
+        target:
+          type: integer
+          description: "Target node index"
+        bond_type:
+          type: string
+          enum:
+            - covalent
+            - non-covalent
+          description: "Type of bond"
+        distance:
+          type: number
+          description: "Distance in Angstroms"
+      required:
+        - source
+        - target
+        - bond_type
+        - distance
+  global_properties:
+    type: object
+    properties:
+      pKd:
+        type: number
+        description: "Binding affinity (pKd)"
+      resolution:
+        type: number
+        description: "Crystallographic resolution in Angstroms"
+      water_flagged:
+        type: boolean
+        description: "True if water-mediated interaction detected"
+    required:
+      - pKd
+      - resolution
+      - water_flagled
+required:
+  - id
+  - nodes
+  - edges
+  - global_properties
+additionalProperties: false

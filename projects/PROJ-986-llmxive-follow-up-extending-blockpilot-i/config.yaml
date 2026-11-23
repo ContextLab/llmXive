@@ -1,0 +1,50 @@
+# BlockPilot Extension Configuration
+# This file defines environment paths, dataset sources, and model settings.
+# Override with environment variables: LLMXIVE_CONFIG=/path/to/config.yaml
+
+dataset:
+  name: "gsm8k"
+  split: "train"
+  streaming: true
+  local_path: null  # Set to local directory if not using HF
+  hf_dataset_id: "gsm8k"
+  hf_config: "main"
+
+model:
+  model_name: "Qwen/Qwen2.5-0.5B-Instruct"
+  model_revision: "main"
+  torch_dtype: "float32"
+  device_map: "auto"
+  local_model_path: null  # Set to local model path if available
+  trust_remote_code: false
+
+sweep:
+  block_sizes: [1, 2, 4, 8, 16, 32]
+  max_samples: null
+  timeout_seconds: 21600
+  checkpoint_dir: "data/checkpoints"
+  resume: false
+
+features:
+  extract_attention_entropy: true
+  extract_hidden_norms: true
+  max_layers: null
+  entropy_aggregation: "mean"
+
+training:
+  test_split_ratio: 0.2
+  random_seed: 42
+  models: ["xgboost", "random_forest", "decision_tree"]
+  max_depth: 10
+  n_estimators: 100
+  vif_threshold: 5.0
+  output_dir: "data/models"
+
+paths:
+  project_root: "."
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_models: "data/models"
+  data_checkpoints: "data/checkpoints"
+  figures: "figures"
+  logs: "logs"

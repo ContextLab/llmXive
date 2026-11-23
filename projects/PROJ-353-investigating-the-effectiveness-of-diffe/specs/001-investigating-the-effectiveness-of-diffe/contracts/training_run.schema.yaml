@@ -1,57 +1,60 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: TrainingRun
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainingRun"
+description: "Schema for a single training run record"
+type: "object"
 properties:
   run_id:
-    type: string
-    description: "Unique identifier for the training run"
+    type: "string"
+    description: "Unique identifier for the run"
   graph_id:
-    type: string
-    description: "Reference to the SyntheticGraph id"
+    type: "string"
+    description: "Reference to the graph ID"
   loss_type:
-    type: string
+    type: "string"
     enum:
-      - ce
-      - infonce
-    description: "Loss function used (Cross-Entropy or InfoNCE)"
-  steps_to_convergence:
-    type: integer
-    minimum: 0
- description: "Epochs to reach [deferred] accuracy, or max_epochs if censored"
-  censored:
-    type: boolean
-    description: "True if the run did not converge within max_epochs"
+      - "cross_entropy"
+      - "info_nce"
+    description: "Loss function used"
+  convergence_epoch:
+    type:
+      - "integer"
+      - "null"
+    description: "Epoch where accuracy >= 0.90, or null if censored"
+  is_censored:
+    type: "boolean"
+    description: "True if convergence_epoch is null"
   final_accuracy:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Final classification accuracy"
-  trajectory:
-    type: array
+    description: "Final accuracy achieved"
+  accuracy_epoch_100:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy at epoch 100"
+  accuracy_epoch_500:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy at epoch 500"
+  total_epochs:
+    type: "integer"
+    description: "Total epochs run"
+  loss_curve:
+    type: "array"
     items:
-      type: object
-      properties:
-        epoch:
-          type: integer
-        loss:
-          type: number
-        accuracy:
-          type: number
-      required:
-        - epoch
-        - loss
-        - accuracy
-    description: "Per-epoch training metrics"
-  hyperparameters:
-    type: object
-    description: "Dictionary of hyperparameters used"
+      type: "number"
+    description: "Loss per epoch"
+  training_seed:
+    type: "integer"
+    description: "Random seed for training"
 required:
   - run_id
   - graph_id
   - loss_type
-  - steps_to_convergence
-  - censored
+  - is_censored
   - final_accuracy
-  - trajectory
-  - hyperparameters
+  - total_epochs
+  - training_seed
 additionalProperties: false

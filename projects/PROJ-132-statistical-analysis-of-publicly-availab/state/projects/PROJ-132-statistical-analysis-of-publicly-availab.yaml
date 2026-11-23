@@ -1,0 +1,6 @@
+artifact_hashes:
+  data/raw/archive/ebird_data.parquet: "placeholder_checksum"
+  data/provenance/scope_limitation.json: "placeholder_checksum"
+updated_at: "2023-10-27T10:00:00Z"
+dataset_source: "vvud/eb-data"
+status: "downloaded"

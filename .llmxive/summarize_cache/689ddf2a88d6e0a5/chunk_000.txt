@@ -1,0 +1,66 @@
+# Feature Specification: llmXive follow-up: extending "On the Geometry of On-Policy Distillation"
+
+**Feature Branch**: `001-llmxive-geometry-extension`  
+**Created**: 2026-07-14  
+**Status**: Draft  
+**Input**: User description: "llmXive follow-up: extending 'On the Geometry of On-Policy Distillation'"
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - Subspace Sufficiency Verification (Priority: P1) (US-1)
+
+**Journey**: A researcher runs the "Frozen-Subspace" distillation protocol to determine if the low-dimensional subspace identified by early On-Policy Distillation (OPD) updates is sufficient to achieve full-parameter performance when the rest of the model is frozen.
+
+**Why this priority**: This is the core hypothesis test. If the subspace is insufficient, the entire premise of extreme parameter efficiency via OPD geometry collapses. This must be validated before any comparative analysis with SFT.
+
+**Independent Test**: Can be fully tested by executing the "Frozen-Subspace OPD" run (N=30 independent random seeds) and comparing its final GSM8K test accuracy against the "Full-Parameter OPD" baseline (N=30 independent random seeds, same seeds). A Paired Two One‑Sided Tests (TOST) equivalence test (both one‑sided p‑values p_lower < 0.05 and p_upper < 0.05, delta=0.02, α=0.05) confirms the hypothesis. The test uses a held‑out generalization subset ([deferred] of the GSM8K test set, stratified by difficulty) to ensure statistical power ≥0.80 for detecting a difference of delta=0.02, calculated via a power analysis assuming a standard deviation of σ=0.015 (based on prior literature; see He et al., 2023). If the calculated power is <0.80, the result is interpreted as "inconclusive" rather than "equivalent".
+
+**Acceptance Scenarios**:
+
+1. **Given** a pre‑trained base model and the GSM8K dataset (split into a training set, a [deferred] evaluation set, and a [deferred] held‑out generalization subset), **When** the system performs layer‑wise SVD extraction (using per‑layer parameter deltas from the first few epochs) and trains only the top‑$k$ singular vectors (where $k$ is the *minimum* number required to explain ≥95% of cumulative variance for the primary target, or the corresponding $k$ for each threshold in the sensitivity sweep: [deferred], [deferred], [deferred] variance explained) for 3 epochs across 30 independent seeds, **Then** the final test accuracy on the held‑out generalization subset must be statistically equivalent to the Full‑Parameter OPD baseline within a margin of 2% (delta=0.02) using a **paired** TOST procedure (both p_lower < 0.05 and p_upper < 0.05) calculated on the paired differences of the 30 seed results. The system MUST report the achieved statistical power for this test; if power < 0.80, the result is flagged as "inconclusive".
+2. **Given** the same setup, **When** the training completes, **Then** the peak CPU RAM usage (measured as the maximum VmRSS value recorded in `/proc/self/status` for the process) must remain ≤7 GB and total wall‑clock time ≤6 hours.
+
+---
+
+### User Story 2 - Comparative Geometric Distinctness (Priority: P2) (US-2)
+
+**Journey**: A researcher validates that the observed subspace sufficiency is unique to OPD by running a control experiment where standard Supervised Fine‑Tuning (SFT) is forced into the same OPD‑identified subspace, and a control experiment where SFT is forced into a random subspace of the same dimensionality.
+
+**Why this priority**: This distinguishes the phenomenon from a generic property of low‑rank adaptation or underfitting. If SFT succeeds in the OPD subspace but fails in a random one, the "OPD‑specific" geometric advantage claim is valid. If SFT fails in both, the failure is due to dimensionality, not geometry. The hypothesis is that the OPD subspace is "optimization‑trajectory compatible" with OPD but not necessarily "task‑sufficient" for SFT's different objective landscape.
+
+**Independent Test**: Can be fully tested by running the "Frozen-Subspace SFT" experiment (using the exact same binary subspace mask derived from OPD, N=30 seeds) and verifying the accuracy drop relative to the Full‑Parameter OPD baseline, and a "Frozen-Subspace Random" control (random mask of same size, N=30 seeds) to confirm the failure is not unique to the OPD mask geometry.
+
+**Acceptance Scenarios**:
+
+1. **Given** the binary subspace mask derived from the OPD baseline run (averaged across 30 seeds), **When** the system trains the model using standard SFT objectives on the same data (with identical initialization and shuffle) for the same duration using the held‑out generalization subset ([deferred] of test set) across 30 independent seeds, **Then** the system MUST measure the accuracy drop relative to the Full‑Parameter OPD baseline. If the mean drop is **< 3 percentage points** **and** the **paired** two‑sample t‑test p‑value (α = 0.05) is **> 0.05**, the hypothesis that the OPD‑mask SFT retains performance is supported. A pre‑study power analysis (see FR‑021) must confirm ≥0.80 power for detecting a [deferred] effect size with σ = 0.015.
+2. **Given** a random binary subspace mask of the same dimensionality as the OPD mask, **When** the system trains the model using standard SFT objectives on the same data using the held‑out generalization subset across 30 independent seeds, **Then** the system MUST measure the accuracy drop. If the mean drop is **≥ 3 percentage points** **and** the **paired** two‑sample t‑test p‑value (α = 0.05) is **< 0.05**, the hypothesis that the random mask causes a significant performance loss is supported. Power analysis as above applies.
+3. **Given** the training logs, **When** the loss trajectory is analyzed, **Then** the Frozen‑Subspace SFT model must show a plateau (defined as ΔL < 0.001 change in loss over 2 consecutive epochs) that completes at or before epoch 2, whereas the OPD model must not plateau until later epochs of training. (i.e., OPD loss continues to change significantly in epochs 2‑3). The loss per epoch, ΔL, and plateau detection must be logged in JSON format as specified in FR‑010.
+
+---
+
+### User Story 3 - Resource Feasibility & Reproducibility (Priority: P3) (US-3)
+
+**Journey**: A developer verifies that the entire experimental pipeline (data download, SVD, training, evaluation) executes successfully on a standard CPU‑only GitHub Actions runner without OOM errors or time‑outs.
+
+**Why this priority**: The research question is only actionable if the experiment is computationally feasible on free‑tier infrastructure. If it requires GPU or exceeds 6 hours, the project cannot reach `research_complete`.
+
+**Independent Test**: Can be fully tested by running the CI pipeline on a `ubuntu-latest` runner (multi‑core vCPU, ample RAM) and verifying the job completes with exit code 0.
+
+**Acceptance Scenarios**:
+
+1. **Given** a fresh `ubuntu-latest` runner, **When** the full pipeline script is executed, **Then** the job must complete within 360 minutes (6 hours) without triggering a memory limit error.
+2. **Given** the execution logs, **When** the peak memory usage is reported (via maximum VmRSS value in `/proc/self/status`), **Then** it must be ≤7 GB at any point in the pipeline.
+
+---
+
+### Edge Cases
+
+- What happens if the SVD of the accumulated updates yields a singular value spectrum that is not sufficiently concentrated (i.e., >10% of total parameters are needed to explain ≥95% variance)?
+- How does the system handle a case where the GSM test set accuracy fluctuates significantly between runs due to random seed initialization?
+- What occurs if the "Frozen-Subspace" training loss diverges immediately, indicating a numerical instability in the masked gradient updates?
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST download the GSM8K training and test splits using the HuggingFace `datasets` library and cache them locally to avoid repeated network calls. (See US-1)

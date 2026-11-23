@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1911.11815",
+  "judged_at": "2026-09-01T07:13:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "systematic review of privacy-preserving federated learning protocols computer science",
+  "rationale": "This paper belongs in the literature review because it provides critical empirical evidence on the security vulnerabilities of federated learning protocols, which is a fundamental prerequisite for evaluating and designing \"privacy-preserving\" systems (Category a: same-mechanism evidence regarding adversarial robustness in FL). Additionally, it serves as a canonical study on the failure modes of existing robust FL methods, establishing the baseline against which new privacy-preserving protocols m",
+  "relevant": true
+}

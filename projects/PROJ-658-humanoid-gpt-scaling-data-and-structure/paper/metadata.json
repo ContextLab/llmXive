@@ -64,5 +64,15 @@
     "sec/5_conclusion.tex",
     "sec/6_limitations.tex",
     "sec/X_suppl.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "f63d93f16db15fd2ca3a1345e7f097b08463318ade16b94d70319db146f4ee2c",
+      "bytes": 8869013
+    },
+    "original.pdf": {
+      "sha256": "e96ea94a53c1c8f72eb99aa2b1ea8f6559e48a1bb22acdf2a72898cb4e214ea1",
+      "bytes": 8838202
+    }
+  }
 }

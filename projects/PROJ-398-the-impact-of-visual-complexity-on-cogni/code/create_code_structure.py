@@ -1,53 +1,63 @@
-"""Create the required code directory hierarchy for the project.
-
-This script ensures that the following directories exist under the project
-root's ``code`` folder:
-
-- src/lib/
-- src/metrics/
-- src/experiment/
-- src/analysis/
-- tests/
-
-For each package directory a minimal ``__init__.py`` file is created so that
-the directories are recognised as Python packages. The script can be run
-directly::
-
-    python code/create_code_structure.py
-
-It is safe to run multiple times; existing directories and files are left
-untouched.
-"""
 import os
 from pathlib import Path
+from typing import List
 
 def ensure_directory(path: Path) -> None:
-    """Create a directory if it does not already exist."""
-    path.mkdir(parents=True, exist_ok=True)
+    """Ensure the given directory path exists, creating it if necessary."""
+    os.makedirs(path, exist_ok=True)
 
-def create_init_file(package_path: Path) -> None:
-    """Create an empty ``__init__.py`` file if it does not exist."""
-    init_file = package_path / "__init__.py"
-    if not init_file.exists():
-        init_file.touch()
+def create_init_file(path: Path) -> None:
+    """Create an empty __init__.py file in the given directory."""
+    init_file = path / "__init__.py"
+    init_file.touch(exist_ok=True)
 
 def main() -> None:
-    # Base ``src`` directory relative to this script
-    src_base = Path(__file__).parent / "src"
+    """Create the required code directory structure."""
+    # Define the required directories relative to the project root
+    # Assuming the script runs from the project root or code/ directory
+    # We will create them relative to the current working directory if not specified otherwise,
+    # but typically these are project-root relative.
+    # Based on task description: `src/lib/`, `src/metrics/`, `src/experiment/`, `src/analysis/`, `tests/`
+    
+    # We assume the project root is the parent of the `code` directory or the script is run from root.
+    # To be safe and consistent with the task description which lists paths like `src/lib/`,
+    # we will create them relative to the current working directory (assumed to be project root).
+    
+    # However, looking at the existing files, they are in `code/`.
+    # The task says: "Create code directory structure (`src/lib/`, ...)"
+    # If this script is in `code/`, we should probably create `src/` and `tests/` in the parent.
+    # Let's assume the script is executed from the project root, or we create relative to where it is.
+    # Given the existing structure in `code/`, let's create the directories relative to the script's location's parent
+    # to match the `src/` and `tests/` at repository root convention mentioned in `tasks.md`.
+    
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent # Assuming code/ is at repo root or similar structure
 
-    # Sub‑packages to create
-    sub_packages = ["lib", "metrics", "experiment", "analysis"]
-    for sub in sub_packages:
-        pkg_path = src_base / sub
-        ensure_directory(pkg_path)
-        create_init_file(pkg_path)
+    directories = [
+        project_root / "src" / "lib",
+        project_root / "src" / "metrics",
+        project_root / "src" / "experiment",
+        project_root / "src" / "analysis",
+        project_root / "tests",
+    ]
 
-    # Create the top‑level ``tests`` package
-    tests_path = Path(__file__).parent / "tests"
-    ensure_directory(tests_path)
-    create_init_file(tests_path)
+    for dir_path in directories:
+        ensure_directory(dir_path)
+        create_init_file(dir_path)
 
-    print("Code directory structure created successfully.")
+    # Also ensure the parent `src` directory exists if it didn't have any subdirs created yet
+    # (though the loop above handles subdirs, the parent `src` might not have an __init__.py if not needed,
+    # but usually it's good practice. The task specifically lists subdirs).
+    # The task asks for `src/lib/`, `src/metrics/`, etc.
+    
+    # Create __init__.py for `src` as well to make it a package
+    src_dir = project_root / "src"
+    ensure_directory(src_dir)
+    create_init_file(src_dir)
+
+    print(f"Created directory structure at {project_root}")
+    for d in directories:
+        print(f"  - {d}")
 
 if __name__ == "__main__":
     main()

@@ -1,99 +1,86 @@
-# Feature Specification: Statistical Analysis of Publicly Available Music Streaming Data for Genre Evolution
+# Project Specification: Statistical Analysis of Publicly Available Music Streaming Data for Genre Evolution
 
-**Feature Branch**: `001-genre-evolution`  
-**Created**: 2026-07-06  
-**Status**: Draft  
-**Input**: User description: “Statistical Analysis of Publicly Available Music Streaming Data for Genre Evolution”  
+**Version**: 2.1 (Amended)
+**Date**: 2024-10-27
+**Status**: Active
 
-## User Scenarios & Testing *(mandatory)*  
+## 1. Introduction
 
-### User Story 1 – Generate Yearly Genre Embeddings (Priority: P1)  
+This project analyzes the evolution of music genres over time using publicly available streaming data. The primary goal is to determine whether music genres have become more or less distinct (converging or diverging) over recent decades.
 
-A researcher wants to create reproducible yearly genre embeddings from large‑scale streaming logs so that downstream temporal analyses can be performed.  
+## 2. Data Sources
 
-**Why this priority**: Without reliable embeddings the entire investigation collapses; this is the foundational data‑processing step.  
+### 2.1 Primary Source: Spotify Million Playlist Dataset (MPD)
+- **Description**: A large-scale dataset containing millions of playlists from Spotify.
+- **Access**: Publicly available via Hugging Face Datasets (`spotify_million_playlist`).
+- **Scope**: Covers tracks from the mids to the present.
+- **Note**: The original requirement for Last.fm 1-Billion Listening Events (FR-001) has been **WAIVED** per Spec Amendment `spec_amendment_lastfm.md` (T061). The pipeline now operates on MPD data only.
 
-**Independent Test**: Run the ingestion‑pre‑processing pipeline on a sample of the MPD and Last.fm datasets and verify that a set of genre‑level vectors is produced for each calendar year.  
+### 2.2 Metadata Enrichment: MusicBrainz
+- **Description**: Used to fetch genre tags and release years for tracks not explicitly tagged in MPD.
+- **Method**: API lookup with fuzzy matching fallback (Thefuzz).
 
-**Acceptance Scenarios**:  
+## 3. Functional Requirements
 
-1. **Given** the raw MPD and Last.fm 1‑Billion Listening Events files are present, **When** the pipeline executes the metadata extraction and Word2Vec training modules, **Then** a folder `yearly_embeddings/` contains a `.npy` file for every year in the study period, each with a dimension‑100 vector per canonical MusicBrainz genre.  
-2. **Given** a year with fewer than 5 000 track‑play sequences, **When** the training step runs, **Then** the system logs a warning but still outputs a genre‑vector file (with missing genres filled with zero vectors).  
+### FR-001: Data Ingestion
+The system must ingest the MPD dataset using a streaming architecture to handle large data volumes without exhausting memory (RAM < 6GB).
 
----  
+### FR-002: Metadata Matching
+The system must match MPD tracks to MusicBrainz records to obtain genre tags.
 
-### User Story 2 – Compute & Visualize Temporal Similarity (Priority: P2)  
+### FR-003: Embedding Generation
+The system must train a global Word2Vec model on track sequences to generate genre-level embeddings for each year.
 
-A researcher wants to quantify how genre boundaries shift over time and produce visual artefacts that communicate the trend.  
+### FR-004: Similarity Calculation
+The system must compute pairwise cosine similarities between yearly genre vectors.
 
-**Why this priority**: The similarity metrics and visualisations are the primary evidence for the research question and are needed before statistical testing.  
+### FR-005: Trend Analysis
+The system must fit a linear regression model to the similarity trend over time, using Newey-West HAC standard errors to account for autocorrelation.
 
-**Independent Test**: Execute the similarity‑calculation script on the embeddings generated in US‑1 and confirm that the mean off‑diagonal cosine similarity per year and corresponding heatmaps are saved.  
+### FR-006: Robustness Analysis (AMENDED)
+**Status**: **MODIFIED** (See Spec Amendment `spec_amendment_fr006.md`)
 
-**Acceptance Scenarios**:  
+**Requirement**: The pipeline must perform a **Cook's Distance Outlier Analysis** to identify influential years in the regression model. The analysis must calculate Cook's Distance for each data point, flag points exceeding the threshold $D_i > 4/n$ (where $n$ is the number of observations), and generate a report (`cooks_distance_report.csv`) detailing influential points. The regression results must be re-evaluated excluding these influential points to confirm trend stability.
 
-1. **Given** the yearly genre‑vector files, **When** the similarity module runs, **Then** a CSV `yearly_similarity.csv` lists each year with its mean off‑diagonal cosine similarity and intra‑genre variance.  
-2. **Given** the CSV output, **When** the visualization module runs, **Then** a PNG `similarity_trend.png` and an HTML heatmap `genre_similarity_heatmap.html` are created without errors.  
+*Note: The previous requirement for a "Sensitivity Sweep" over arbitrary thresholds has been replaced by this statistically rigorous method.*
 
----  
+## 4. Success Criteria
 
-### User Story 3 – Statistically Test Trend & Perform Sensitivity Checks (Priority: P3)  
+### SC-001: Data Coverage
+The pipeline must successfully process at least 80% of the available MPD tracks.
+*Note: The denominator for this calculation is now MPD tracks only, per Spec Amendment `spec_amendment_sc001.md` (T063).*
 
-A researcher wants to assess whether the observed similarity trend is statistically significant and verify robustness to threshold choices.  
+### SC-002: Statistical Significance
+The trend slope must be statistically significant (p-value < 0.05) after accounting for autocorrelation.
 
-**Why this priority**: The claim about genre blurring or tightening hinges on a defensible statistical inference; this story validates the scientific conclusion.  
+### SC-003: Robustness Validation (AMENDED)
+**Status**: **MODIFIED** (See Spec Amendment `spec_amendment_fr006.md`)
 
-**Independent Test**: Run the linear regression script on the similarity CSV and verify that (a) a slope estimate with 95 % CI and p-value is reported, and (b) a sensitivity report for three similarity-change thresholds is produced.  
+**Requirement**: The trend result is considered robust if the p-value remains < 0.05 after excluding data points identified as highly influential by Cook's Distance (where $D_i > 4/n$). If influential points are removed, the revised regression slope and p-value must be reported alongside the original.
 
-**Acceptance Scenarios**:  
+## 5. Deliverables
 
-1. **Given** `yearly_similarity.csv`, **When** the linear regression analysis executes, **Then** the console prints the fixed-effect coefficient for `year`, its 95 % CI, and a p-value (α = 0.05).  
-2. **Given** the same CSV, **When** the sensitivity module sweeps thresholds {0.005, 0.01, 0.02}, **Then** a table `sensitivity_report.csv` shows the slope and p-value for each threshold, demonstrating whether significance persists.  
+1. **Yearly Embeddings**: `yearly_embeddings/{year}.npy`
+2. **Similarity Data**: `data/derived/yearly_similarity.csv`
+3. **Regression Results**: `data/derived/regression_results.json`
+4. **Cook's Distance Report**: `data/derived/cooks_distance_report.csv` (Replaces `sensitivity_report.csv`)
+5. **Visualizations**: `similarity_trend.png`, `genre_similarity_heatmap.html`
 
----  
+## 6. Governance & Amendments
 
-### Edge Cases  
+This specification is subject to formal amendments to address scope deviations and methodological improvements.
 
-- What happens when a track has no MusicBrainz genre tag? → The system logs the omission and excludes the track from genre‑averaging; if > 20 % of tracks in a year are missing, a warning is raised.  
-- How does the system handle API rate‑limit errors from MusicBrainz or AcousticBrainz? → It implements exponential back‑off and retries up to three times; persistent failures abort the pipeline with a clear error message.  
-- What if a year contains fewer than 1 000 unique tracks after filtering? → The year is flagged as “low‑coverage” and excluded from the linear regression; the exclusion is recorded in `pipeline_log.txt`.  
+- **Amendment T061**: Removal of Last.fm 1-Billion requirement (MPD-only execution).
+- **Amendment T062**: Replacement of Sensitivity Sweep with Cook's Distance Analysis.
+- **Amendment T063**: Adjustment of Success Criterion SC-001 to MPD-only denominator.
 
-## Requirements *(mandatory)*  
+All amendments are stored in `specs/001-genre-evolution/`.
 
-### Functional Requirements  
+## 7. Execution Pipeline
 
-- **FR-001**: The system MUST ingest the Million Playlist Dataset and Last.fm 1‑Billion Listening Events files, extract track IDs, release years, and genre tags via the MusicBrainz API, and store a normalized metadata table. *(See US-1)*  
-- **FR-002**: The system MUST map each track to one or more canonical MusicBrainz genre labels, handling multi‑genre assignments by creating separate genre‑track links. *(See US-1)*  
-- **FR-003**: The system MUST train a skip‑gram Word2Vec model (gensim, dim = 100, window = 10, negative = 5, epochs = 5) and produce a yearly genre‑embedding matrix by averaging track vectors within each genre. *(See US-1)*  
-- **FR-004**: The system MUST compute pairwise cosine similarity between all genre vectors for each year, summarise the mean off‑diagonal similarity and intra‑genre variance, and output a CSV `yearly_similarity.csv`. *(See US-2)*  
-- **FR-005**: The system MUST fit a linear regression model with `year` as the independent variable and `mean_off_diagonal_similarity` as the dependent variable, using robust standard errors to account for low degrees of freedom (N=20), output the slope, 95 % CI, and an uncorrected p-value for the fixed effect. *(See US-3)*  
-- **FR-006**: The system MUST perform a sensitivity analysis by re‑computing the linear regression slope for each threshold in a set {0.005, 0.01, 0.02}, where for each threshold the system filters the dataset to include only years where the absolute year-over-year delta in similarity exceeds that threshold, and record the resulting uncorrected p-values in `sensitivity_report.csv`. *(See US-3)*  
-- **FR-007**: The system MUST generate visualisations: (a) a line plot of mean similarity over years with 95 % CI bands, and (b) a yearly similarity heatmap, exporting them as PNG and interactive HTML respectively. *(See US-2)*  
-- **FR-008**: The system MUST log all pipeline stages, parameters, and any warnings/errors to `pipeline_log.txt` to ensure reproducibility. *(General)*  
-- **FR-009**: The system MUST join Last.fm data with MusicBrainz metadata to resolve release years; tracks that cannot be matched to a release year in MusicBrainz after a reasonable number of retry attempts are excluded. from the temporal analysis. *(See US-1)*  
-- **FR-010**: The system MUST implement a fuzzy-matching fallback for missing MusicBrainz IDs: if a direct ID is missing, the system attempts to match by (artist, track title, album) tuple; if no match is found after 3 attempts, the track is excluded, and the exclusion rate is logged (warning if >20%). *(See US-1)*  
-- **FR-011**: The system MUST enforce a maximum RAM usage of ≤ 6 GB by implementing batched vector loading and discarding intermediate vectors immediately after aggregation; if memory usage approaches a critical threshold, the system MUST trigger a garbage collection cycle and log a warning. *(See US-1)*  
-
-### Key Entities  
-
-- **Metadata Table**: rows = tracks; columns = track ID, release year, MusicBrainz genre(s), play count per year.  
-- **Yearly Embedding Matrix**: rows = canonical genres; columns = 100‑dimensional embedding vectors for a given calendar year.  
-
-## Success Criteria *(mandatory)*  
-
-### Measurable Outcomes  
-
-- **SC-001**: ≥ 90 % of tracks that possess a MusicBrainz genre tag are successfully represented in the yearly embedding matrices (See US-1).  
-- **SC-002**: The linear regression model converges and reports a slope estimate with 95 % CI and an uncorrected p-value for the year effect (See US-3).  
-- **SC-003**: The sensitivity analysis reports p-values for all three thresholds {0.005, 0.01, 0.02} in `sensitivity_report.csv` (See US-3).  
-- **SC-004**: All visual artefacts (`similarity_trend.png`, `genre_similarity_heatmap.html`) are generated without runtime errors and match the schema defined in the documentation (See US-2).  
-
-## Assumptions  
-
-- The MPD and Last.fm datasets contain reliable release‑year metadata for the majority of tracks; tracks lacking a year are excluded.  
-- MusicBrainz provides a stable, curated genre taxonomy that can be treated as the ground‑truth categorical variable.  
-- Listening‑event logs span a multi-year period from the mid‑2000s to 2024. with sufficient density to train Word2Vec models on a sampled subset of ≤ 1 M sequences per year, keeping compute within free‑CPU limits.  
-- All statistical inference is observational; therefore, findings are framed as **associational** (no causal language).  
-- No GPU or CUDA libraries are used; all model training and inference rely on CPU‑only implementations (gensim, statsmodels).  
-- The cosine‑similarity threshold for “meaningful change” is justified by prior music‑information‑retrieval literature that treats a Δcosine ≥ 0.01 as a perceptible shift; the sensitivity sweep (0.005‑0.02) tests robustness around this community‑standard.  
-- The hardware constraints (CPU-only, ≤6GB RAM) are assumed based on the availability of free-tier compute resources for this research project.
+The pipeline is executed via `python -m src.code.run_pipeline` or individual modules:
+- `ingest.py`: Data ingestion and cleaning.
+- `embeddings.py`: Word2Vec training and aggregation.
+- `similarity.py`: Cosine similarity computation.
+- `regression.py`: Statistical testing and Cook's Distance analysis.
+- `viz.py`: Plot generation.

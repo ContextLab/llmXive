@@ -1,59 +1,55 @@
-"""
-Test suite for Task T006: Linting and Formatting Configuration.
-
-This test verifies that the project is configured with ruff and black,
-and that the existing codebase passes the configured linting rules.
-"""
 import os
 import subprocess
 import sys
 from pathlib import Path
-
 import pytest
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+
+@pytest.fixture
+def project_root():
+    """Return the root of the project (parent of code/)."""
+    return Path(__file__).resolve().parent.parent.parent
 
 
-def test_ruff_config_exists():
-    """Verify .ruff.toml configuration file exists."""
-    config_path = PROJECT_ROOT / ".ruff.toml"
-    assert config_path.exists(), f"Ruff config missing at {config_path}"
+def test_ruff_config_exists(project_root):
+    """Verify ruff.toml exists in the project root."""
+    ruff_path = project_root / "ruff.toml"
+    assert ruff_path.exists(), f"ruff.toml not found at {ruff_path}"
+    content = ruff_path.read_text()
+    assert "[lint]" in content, "ruff.toml must contain [lint] section"
 
 
-def test_black_config_exists():
+def test_black_config_exists(project_root):
     """Verify black configuration exists in pyproject.toml."""
-    pyproject_path = PROJECT_ROOT / "pyproject.toml"
-    assert pyproject_path.exists(), "pyproject.toml missing"
+    pyproject_path = project_root / "pyproject.toml"
+    assert pyproject_path.exists(), f"pyproject.toml not found at {pyproject_path}"
     content = pyproject_path.read_text()
-    assert "[tool.black]" in content, "Black configuration missing in pyproject.toml"
+    assert "[tool.black]" in content, "pyproject.toml must contain [tool.black] section"
 
 
-def test_ruff_lint_passes():
-    """Run ruff lint on the codebase and ensure it passes."""
-    ruff_path = PROJECT_ROOT / ".ruff.toml"
-    # Run ruff check on the src and tests directories
+def test_ruff_lint_passes(project_root):
+    """Run ruff check on the code directory to ensure no linting errors."""
+    code_dir = project_root / "code"
     result = subprocess.run(
-        [sys.executable, "-m", "ruff", "check", "--config", str(ruff_path), "src", "tests", "setup_project.py"],
-        cwd=PROJECT_ROOT,
+        [sys.executable, "-m", "ruff", "check", str(code_dir)],
         capture_output=True,
         text=True,
     )
-    # We expect exit code 0 for success. If there are linting errors, the task is incomplete.
-    # Note: We ignore E501 (line length) as black handles that, but ruff might still complain if not configured to ignore.
-    # The .ruff.toml explicitly ignores E501.
+    # We expect success (return code 0). If there are linting errors, this will fail.
     assert result.returncode == 0, (
-        f"Ruff linting failed:\n{result.stdout}\n{result.stderr}"
+        f"Ruff check failed:\n{result.stdout}\n{result.stderr}"
     )
 
 
-def test_black_format_check():
+def test_black_format_check(project_root):
     """Run black --check to ensure code is formatted correctly."""
+    code_dir = project_root / "code"
     result = subprocess.run(
-        [sys.executable, "-m", "black", "--check", "--config", str(PROJECT_ROOT / "pyproject.toml"), "src", "tests", "setup_project.py"],
-        cwd=PROJECT_ROOT,
+        [sys.executable, "-m", "black", "--check", str(code_dir)],
         capture_output=True,
         text=True,
     )
+    # We expect success (return code 0). If formatting is off, this will fail.
     assert result.returncode == 0, (
-        f"Black formatting check failed. Run 'black src tests setup_project.py' to fix.\n{result.stdout}\n{result.stderr}"
+        f"Black format check failed:\n{result.stdout}\n{result.stderr}"
     )

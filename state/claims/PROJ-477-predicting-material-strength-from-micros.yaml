@@ -125,3 +125,2447 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T11:56:04Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Hall-Petch formula for yield strength
+  claim_id: c_26c8fb68
+  context: The yield strength labels for the microstructure images are generated using
+    the Hall-Petch relationship, a fundamental physics-based model in materials science.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hall-Petch_formula_for_yield_strength
+  kind: entity_fact
+  raw_text: 'The yield strength ($\sigma_y$) is calculated using the formula: $\sigma_y
+    = \sigma_0 + \frac{k}{\sqrt{d}}$.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:40:56Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Friction stress for mild steel is 65 MPa
+  claim_id: c_a8dc663c
+  context: 'Where: $\sigma_0$ (friction stress) = 65 MPa (typical for mild steel)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The friction stress ($\sigma_0$) is 65 MPa (typical for mild steel).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:41:33Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Hall-Petch slope is 0.36 MPa m^0.5
+  claim_id: c_14efdcb8
+  context: "Where: k (Hall-Petch slope) = 0.36 MPa\xB7m$^{1/2}$ (empirically derived)"
+  evidence:
+    asserted: '0.36'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "The Hall-Petch slope ($k$) is 0.36 MPa\xB7m$^{1/2}$ (empirically derived)."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T18:41:33Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Generated labels range from 100 to 500 MPa
+  claim_id: c_b65611e0
+  context: "The generated labels are validated to ensure they fall within physically\
+    \ realistic ranges (typically 100\u2013500 MPa for the materials in this dataset)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The generated labels typically fall within physically realistic ranges\
+    \ of 100\u2013500 MPa for the materials in this dataset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:43:08Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: 'Power analysis parameters: effect size 0.5, alpha 0.05, power 0.80'
+  claim_id: c_46f3f5ce
+  context: 'Parameters: Effect Size (Cohen''s d): 0.5 (medium effect, representing
+    a meaningful improvement in prediction error), Significance Level ($\alpha$):
+    0.05, Power ($1 - \beta$): 0.80'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A power analysis was conducted using an effect size (Cohen's d) of 0.5,
+    a significance level of 0.05, and a power of 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:45:25Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Minimum sample size required is 64 per group
+  claim_id: c_404b7276
+  context: The analysis indicates that a minimum of 64 samples per group (train/val/test
+    split considerations applied) is required to achieve 80% power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis indicates that a minimum of 64 samples per group is
+    required to achieve 80% power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:47:01Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Dataset size exceeds 1000 images
+  claim_id: c_6ab6058e
+  context: Given the dataset size (typically >1,000 images after preprocessing), the
+    project has sufficient statistical power to detect medium-to-large effects.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "Introduction Low back pain is a worldwide health problem with lifetime\
+        \ prevalence reported as high as 84%.1 In the United States alone, the direct\
+        \ medical and indirect costs of low back pain have been estimated at $50-100\
+        \ billion.2 In the lumbar spine, narrowing of the spinal canal, neural foramina,\
+        \ and subarticular recesses can compress spinal nerve roots, which can lead\
+        \ to radiculopathy and necessitate spinal surgery. MRI is the best imaging\
+        \ modality to assess the degree of narrowing in these regions, but reported\
+        \ inter-rater agreement between radiologists\u2019 grades of stenosis has\
+        \ been variable, ranging from poor to substantial, between different studies\
+        \ and spinal location (spinal canal, subarticular, or neural foramen).3,4\
+        \ While the large number of lumbar spine MRIs creates a substantial workload\
+        \ for radiologists, this is overshadowed by the more critical challenge of\
+        \ ensuring consistent and accurate grading of stenosis severity, which impacts\
+        \ diagnostic confidence and potentially patient care. Previous efforts to\
+        \ create machine learning (ML) models for this purpose have been limited by\
+        \ the available lumbar spondylosis imaging datasets.5\u20137 Our goal was\
+        \ to create the largest, most diverse, expertly annotated MRI lumbar spondylosis\
+        \ dataset for both the RSNA 2024 Lumbar Spine Degenerative Classification\
+        \ AI Challenge and future research. Dataset Description and Usage The RSNA\
+        \ Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is\
+        \ composed of MRI studies of the lumbar spine from 2,697 patients with a total\
+        \ of 8,593 image series from 8 institutions across 6 countries and 5 continents.\
+        \ Inclusion criteria included an MR lumbar spine study with a sagittal \u201C\
+        T2-like\u201D (e.g. conventional spin echo T2, STIR, or Dixon), sagittal T1,\
+        \ and axial T2 weighted images. Both axial T2 images acquired as a continuous\
+        \ stack or oriented parallel to the intervertebral disc levels were acceptable\
+        \ if they included at least 3 lumbar spine disc levels. Additional inclusion\
+        \ criteria were a patient age \u2265 18 years old and imaged in an outpatient\
+        \ setting for lumbar degenerative disease. Exclusion criteria included lumbosacral\
+        \ spinal hardware, active non-degenerative pathology (e.g. spinal tumor, active\
+        \ infection, etc.), severe scoliosis, or substantial diagnostic limiting artifact.\
+        \ A summary of the patient demographics and incidence of high-grade (moderate\
+        \ or severe) degenerative stenosis by institution is included in Table 1.\
+        \ Overall, of the 13,474 spinal canal stenosis grades, 85.4% were normal/mild,\
+        \ 8.8% were moderate, and 5.9% were severe. Of the 26,919 neural foraminal\
+        \ grades, 78.3% right and 77.2% left were normal/mild, 17.3% right and 18.1%\
+        \ left were moderate, and 4.4% right and 4.6% left were severe. Of the 26,285\
+        \ subarticular grades, 69.4% right and 69.5% left were normal/mild, 19.6%\
+        \ right and 19.2% left were moderate, and 10.9% right and 11.3% left"
+      source_id: '2506.09162'
+      url: https://arxiv.org/abs/2506.09162
+      value: 2,697
+    filled: true
+  kind: magnitude
+  raw_text: The dataset size is typically greater than 1,000 images after preprocessing.
+  resolved_value: 2,697
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T18:47:52Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: MobileNetV2 chosen as CNN backbone
+  claim_id: c_14e0aede
+  context: 'Chosen: MobileNetV2 (frozen backbone, fine-tuned head)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MobileNetV2_chosen_as_CNN_backbone
+  kind: entity_fact
+  raw_text: MobileNetV2 was chosen as the CNN backbone with a frozen backbone and
+    fine-tuned head.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:48:34Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: MobileNetV2 has better parameter efficiency than ResNet-18
+  claim_id: c_c3053cdc
+  context: ResNet-18 was considered but MobileNetV2 offers better parameter efficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MobileNetV2 offers better parameter efficiency than ResNet-18.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:49:08Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Confidence intervals use 30 Monte Carlo Dropout samples
+  claim_id: c_f0fac525
+  context: 'Confidence Intervals: Monte Carlo Dropout (30 samples) to estimate prediction
+    uncertainty (Task T032).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confidence intervals are estimated using Monte Carlo Dropout with 30 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:49:38Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/research.md
+  attempts: 1
+  canonical: Model considered insufficient if R squared is below 0.2
+  claim_id: c_fdf14807
+  context: "Null Hypothesis Protocol: If R\xB2 < 0.2, the model is considered insufficient\
+    \ (Task T025), and a report is generated."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_considered_insufficient_if_R_squared_is_below_0.2
+  kind: magnitude
+  raw_text: "If R\xB2 is less than 0.2, the model is considered insufficient."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T18:50:38Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: fetch Rxzh/ebsd-synthetic dataset from HuggingFace
+  claim_id: c_acb0e7bd
+  context: 'T040 [US1] CRITICAL: Implement data downloader in code/data/download.py
+    to fetch the verified public dataset Rxzh/ebsd-synthetic from HuggingFace. NO
+    synthetic generation.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: huggingface_hub
+      source_id: Q120549633
+      url: https://www.wikidata.org/wiki/Q120549633
+      value: huggingface_hub
+    filled: true
+  kind: entity_fact
+  raw_text: Implement data downloader in code/data/download.py to fetch the verified
+    public dataset Rxzh/ebsd-synthetic from HuggingFace.
+  resolved_value: huggingface_hub
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T08:16:27Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: single-sample t-test alpha 0.05 on squared errors comparing CNN to baseline
+  claim_id: c_0f3646b0
+  context: "T024 [US2] CRITICAL: Implement evaluation logic: MSE, R\xB2, and single-sample\
+    \ t-test (\u03B1=0.05) on squared errors comparing CNN error to naive baseline\
+    \ error in code/eval/metrics.py (FR-005, SC-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement evaluation logic: MSE, R\xB2, and single-sample t-test (\u03B1\
+    =0.05) on squared errors comparing CNN error to naive baseline error in code/eval/metrics.py."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:16:41Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: R2 less than 0.2 triggers null hypothesis report
+  claim_id: c_cd3d04ca
+  context: "T025 [US2] Implement Null Hypothesis Protocol: If R\xB2 < 0.2, write results/null_hypothesis_report.json\
+    \ with schema: {status: accepted | rejected, r2_value: float, t_statistic: float,\
+    \ p_value: float, outcome: significant | not_significant}."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/R2_less_than_0.2_triggers_null_hypothesis_report
+  kind: magnitude
+  raw_text: "If R\xB2 < 0.2, write results/null_hypothesis_report.json with schema:\
+    \ {status: accepted | rejected, r2_value: float, t_statistic: float, p_value:\
+    \ float, outcome: significant | not_significant}."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:16:53Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: binarize using median predicted strength of test set
+  claim_id: c_4fc5049a
+  context: 'T031 [US3] CRITICAL: Implement sensitivity analysis: Binarize using median
+    predicted strength of the test set (Spec US-3 Scenario 2).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Binarize_using_median_predicted_strength_of_test_set
+  kind: entity_fact
+  raw_text: Binarize using median predicted strength of the test set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:17:11Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: sweep thresholds at median plus or minus 5 10 and 20 percent
+  claim_id: c_75836a7c
+  context: "T031 [US3] ... Sweep thresholds across median \xB1 5%, median \xB1 10%,\
+    \ median \xB1 20% (explicitly defined low relative values)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep thresholds across median \xB1 5%, median \xB1 10%, median \xB1\
+    \ 20%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:17:11Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Monte Carlo Dropout 100 samples dropout rate 0.2
+  claim_id: c_6f9f24aa
+  context: 'T032 [US3] CRITICAL: Implement confidence interval calculation: Use Monte
+    Carlo Dropout with N=100 samples and dropout rate=0.2 during inference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Monte Carlo Dropout with N=100 samples and dropout rate=0.2 during
+    inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:18:04Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: confidence intervals using 2.5th and 97.5th percentiles
+  claim_id: c_a7f2c6f0
+  context: T032 [US3] ... Calculate confidence intervals using the percentile method
+    (2.5th and 97.5th percentiles).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate confidence intervals using the percentile method (2.5th and
+    97.5th percentiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:18:38Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: IoU greater than or equal to 0.4 passes interpretability validation
+  claim_id: c_0459a2f9
+  context: 'T030 [US3] ... Pass condition: IoU >= 0.4 OR (expert_review_status ==
+    passed via human input). (SC-005).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/IoU_greater_than_or_equal_to_0.4_passes_interpretability_val
+  kind: magnitude
+  raw_text: 'Pass condition: IoU >= 0.4 OR (expert_review_status == passed via human
+    input).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:18:48Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: stress test peak memory usage must be less than or equal to 7GB
+  claim_id: c_e445c4c7
+  context: T036 Run code/data/loader.py with --stress-test flag and record peak memory
+    usage in results/memory_profile.json; fail if > 7GB.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stress_test_peak_memory_usage_must_be_less_than_or_equal_to
+  kind: magnitude
+  raw_text: Run code/data/loader.py with --stress-test flag and record peak memory
+    usage in results/memory_profile.json; fail if > 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:18:53Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: validation exits with code 1 if invalid ratio exceeds 1 percent
+  claim_id: c_491bf5e7
+  context: 'T042 [US1] CRITICAL: Create code/data/validate.py that outputs results/validation_report.json
+    containing the invalid pair count and exits with code 1 if invalid ratio > 1%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create code/data/validate.py that outputs results/validation_report.json
+    containing the invalid pair count and exits with code 1 if invalid ratio > 1%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:18:55Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: stratified split into train val test by specimen ID
+  claim_id: c_5edf977c
+  context: T013 [US1] Implement data splitter in code/data/split.py (Stratified split
+    into train/val/test by specimen ID, generate manifest).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stratified_split_into_train_val_test_by_specimen_ID
+  kind: entity_fact
+  raw_text: Implement data splitter in code/data/split.py (Stratified split into train/val/test
+    by specimen ID).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:19:00Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: training loop early stopping patience 5
+  claim_id: c_0498f255
+  context: T021 [US2] Implement training loop with early stopping (patience=5) and
+    checkpoint saving in code/train/trainer.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement training loop with early stopping (patience=5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:19:09Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: data pipeline verification requires correct image file counts and manifest
+    mappings to yield strength values
+  claim_id: c_e817db9e
+  context: 'Independent Test: The pipeline can be fully tested by running the data
+    loading script and verifying that the resulting train/validation/test directories
+    contain the correct number of image files and that a corresponding CSV/JSON manifest
+    correctly maps image filenames to yield strength values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_verification_requires_correct_image_file_count
+  kind: entity_fact
+  raw_text: The pipeline can be fully tested by running the data loading script and
+    verifying that the resulting train/validation/test directories contain the correct
+    number of image files and that a corresponding CSV/JSON manifest correctly maps
+    image filenames to yield strength values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:27:58Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: corrupted image with invalid bit depth or aspect ratio raises ValueError
+  claim_id: c_1275c6e4
+  context: Implement test_corrupted_image_raises asserting that a corrupted image
+    (e.g., an image with invalid bit depth or aspect ratio) raises a ValueError with
+    a specific message.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Corrupted_image_with_invalid_bit_depth_or_aspect_ratio_raise
+  kind: entity_fact
+  raw_text: Implement test_corrupted_image_raises asserting that a corrupted image
+    (e.g., an image with invalid bit depth or aspect ratio) raises a ValueError with
+    a specific message.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:28:20Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: validation report exits with code 1 if invalid ratio exceeds 1 percent
+  claim_id: c_60f9d828
+  context: Create code/data/validate.py that outputs results/validation_report.json
+    containing the invalid pair count and exits with code 1 if invalid ratio > 1%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output: results/validation_report.json containing the invalid pair count
+    and exits with code 1 if invalid ratio > 1%.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:28:31Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: split validation output includes status indicating clean or leak detected
+  claim_id: c_92bcc939
+  context: Implement code/data/validate_split.py to assert NO cross-contamination
+    of specimen IDs between train/val/test splits before feature extraction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Split_validation_output_includes_status_indicating_clean_or
+  kind: entity_fact
+  raw_text: 'Output: results/split_validation.json with {status: ''clean'' | ''leak_detected''}.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:28:50Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: statistical test output includes single-sample type, t-statistic, p-value,
+    and outcome
+  claim_id: c_73641161
+  context: "Implement evaluation logic: MSE, R\xB2, and single-sample t-test (\u03B1\
+    =0.05) on squared errors comparing CNN error to naive baseline error in code/eval/metrics.py."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_test_output_includes_single-sample_type,_t-stati
+  kind: entity_fact
+  raw_text: 'Output: results/statistical_test.json with {test_type: ''single-sample'',
+    t_statistic: float, p_value: float, outcome: ''significant'' | ''not_significant''}.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:29:09Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: null hypothesis report generated if R squared is less than 0.2
+  claim_id: c_242e7fd6
+  context: "Implement Null Hypothesis Protocol: If R\xB2 < 0.2, write results/null_hypothesis_report.json\
+    \ with schema..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_report_generated_if_R_squared_is_less_than_0
+  kind: magnitude
+  raw_text: "If R\xB2 < 0.2, write results/null_hypothesis_report.json with schema:\
+    \ {status: 'accepted' | 'rejected', r2_value: float, t_statistic: float, p_value:\
+    \ float, outcome: 'significant' | 'not_significant'}."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:29:10Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: interpretability pass condition requires IoU greater than or equal to
+    0.4 or passed expert review
+  claim_id: c_218f4fc8
+  context: 'Pass condition: IoU >= 0.4 OR (expert_review_status == ''passed'' via
+    human input). (SC-005).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interpretability_pass_condition_requires_IoU_greater_than_or
+  kind: magnitude
+  raw_text: 'Pass condition: IoU >= 0.4 OR (expert_review_status == ''passed'' via
+    human input).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:29:13Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds sweep includes median plus or minus 5
+    percent, 10 percent, and 20 percent
+  claim_id: c_408e7c73
+  context: "Sweep thresholds across median \xB1 5%, median \xB1 10%, median \xB1 20%\
+    \ (explicitly defined low relative values)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep thresholds across median \xB1 5%, median \xB1 10%, median \xB1\
+    \ 20% (explicitly defined low relative values)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:29:13Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Monte Carlo dropout uses 100 samples and 0.2 dropout rate
+  claim_id: c_86285ee0
+  context: 'Implement confidence interval calculation: Use Monte Carlo Dropout with
+    N=100 samples and dropout rate=0.2 during inference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Monte Carlo Dropout with N=100 samples and dropout rate=0.2 during
+    inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:29:13Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: confidence intervals calculated using 2.5th and 97.5th percentiles
+  claim_id: c_f62abcd0
+  context: Calculate confidence intervals using the percentile method (2.5th and 97.5th
+    percentiles).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate confidence intervals using the percentile method (2.5th and
+    97.5th percentiles).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:29:13Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: empirical coverage of 95 percent confidence interval calculated and logged
+  claim_id: c_c5cde340
+  context: 'Additional: Calculate empirical coverage of the 95% CI (what % of true
+    values fall within predicted CI) and log to results/uncertainty_calibration.json
+    (T044 merged).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate empirical coverage of the 95% CI (what % of true values fall
+    within predicted CI) and log to results/uncertainty_calibration.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:29:13Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: stress test fails if peak memory usage exceeds 7 GB
+  claim_id: c_fbf87cdd
+  context: Run code/data/loader.py with --stress-test flag and record peak memory
+    usage in results/memory_profile.json; fail if > 7GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run code/data/loader.py with --stress-test flag and record peak memory
+    usage in results/memory_profile.json; fail if > 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:29:13Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Download Rxzh/ebsd-synthetic dataset from HuggingFace
+  claim_id: c_45d946e9
+  context: 'Goal: Download the public `Rxzh/ebsd-synthetic` dataset from HuggingFace
+    (verified source for synthetic microstructure morphology), preprocess EBSD images
+    (224x224, normalize), validate integrity, and split into train/val/test sets with
+    manifests.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_Rxzh/ebsd-synthetic_dataset_from_HuggingFace
+  kind: entity_fact
+  raw_text: Download the public `Rxzh/ebsd-synthetic` dataset from HuggingFace
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:31:54Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Exit with code 1 if invalid data ratio exceeds 1 percent
+  claim_id: c_a705d497
+  context: Create `code/data/validate.py` that outputs `results/validation_report.json`
+    containing the invalid pair count and exits with code 1 if invalid ratio > 1%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exit with code 1 if invalid ratio > 1%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:32:19Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Exit with code 1 if invalid ratio is greater than 0.01
+  claim_id: c_bb4a876b
+  context: 'Exit logic: if `invalid_ratio > 0.01`, exit(1); else exit(0). Validates
+    the downloaded source integrity.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exit_with_code_1_if_invalid_ratio_is_greater_than_0.01
+  kind: magnitude
+  raw_text: if `invalid_ratio > 0.01`, exit(1)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:32:44Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Perform stratified split into train/val/test sets by specimen ID
+  claim_id: c_d45d95b5
+  context: Implement data splitter in `code/data/split.py` (Stratified split into
+    train/val/test by specimen ID, generate manifest).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_stratified_split_into_train/val/test_sets_by_specime
+  kind: entity_fact
+  raw_text: Stratified split into train/val/test by specimen ID
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:32:59Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Implement early stopping with patience of 5
+  claim_id: c_4c5123cd
+  context: Implement training loop with early stopping (patience=5) and checkpoint
+    saving in `code/train/trainer.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: patience=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:33:15Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Perform single-sample t-test with alpha of 0.05
+  claim_id: c_f9c094a7
+  context: "Implement evaluation logic: MSE, R\xB2, and **single-sample t-test** (\u03B1\
+    =0.05) on squared errors comparing CNN error to naive baseline error in `code/eval/metrics.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "single-sample t-test (\u03B1=0.05)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:34:18Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Write null hypothesis report if R-squared is less than 0.2
+  claim_id: c_3fa8894d
+  context: "Implement Null Hypothesis Protocol: **If R\xB2 < 0.2**, write `results/null_hypothesis_report.json`\
+    \ with schema..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Write_null_hypothesis_report_if_R-squared_is_less_than_0.2
+  kind: magnitude
+  raw_text: "If R\xB2 < 0.2, write `results/null_hypothesis_report.json`"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:34:49Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Binarize predictions using median predicted strength of the test set
+  claim_id: c_72a95afa
+  context: 'Implement sensitivity analysis: Binarize using **median predicted strength
+    of the test set** (Spec US-3 Scenario 2).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Binarize_predictions_using_median_predicted_strength_of_the
+  kind: entity_fact
+  raw_text: Binarize using median predicted strength of the test set
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:34:50Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Sweep thresholds at median plus or minus 5 percent, 10 percent, and 20
+    percent
+  claim_id: c_beb80aa1
+  context: "Sweep thresholds across **median \xB1 5%, median \xB1 10%, median \xB1\
+    \ 20%** (explicitly defined low relative values)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep thresholds across median \xB1 5%, median \xB1 10%, median \xB1\
+    \ 20%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:34:51Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Use Monte Carlo Dropout with 100 samples
+  claim_id: c_0bd9feca
+  context: 'Implement confidence interval calculation: Use **Monte Carlo Dropout**
+    with **N=100 samples** and **dropout rate=0.2** during inference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Monte Carlo Dropout with N=100 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:34:56Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Use dropout rate of 0.2 for Monte Carlo Dropout
+  claim_id: c_1227309e
+  context: Use **Monte Carlo Dropout** with **N=100 samples** and **dropout rate=0.2**
+    during inference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: dropout rate=0.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:35:01Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Calculate confidence intervals using 2.5th and 97.5th percentiles
+  claim_id: c_c41a93ed
+  context: Calculate **confidence intervals** using the **percentile method** (2.5th
+    and 97.5th percentiles).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate confidence intervals using the percentile method (2.5th and
+    97.5th percentiles)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:35:01Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Fail stress test if peak memory usage exceeds 7 GB
+  claim_id: c_132a86fa
+  context: Run `code/data/loader.py` with `--stress-test` flag and record peak memory
+    usage in `results/memory_profile.json`; fail if > 7GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fail if > 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:35:01Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Pass condition for interpretability is IoU greater than or equal to 0.4
+  claim_id: c_70e37deb
+  context: 'Pass condition: IoU >= 0.4 OR (expert_review_status == "passed" via human
+    input).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pass_condition_for_interpretability_is_IoU_greater_than_or_e
+  kind: magnitude
+  raw_text: 'Pass condition: IoU >= 0.4'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T08:35:02Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Dataset name is Rxzh/ebsd-synthetic
+  claim_id: c_d2c32f6d
+  context: Download the public Rxzh/ebsd-synthetic dataset from HuggingFace (verified
+    source for synthetic microstructure morphology)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_name_is_Rxzh/ebsd-synthetic
+  kind: entity_fact
+  raw_text: The dataset is named Rxzh/ebsd-synthetic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T18:57:42Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Validation script exits with code 1 if invalid ratio exceeds 1%
+  claim_id: c_b2383de8
+  context: 'exit with code 1 if invalid ratio > 1%. Schema: {invalid_count: int, total_count:
+    int, invalid_ratio: float}. Exit logic: if invalid_ratio > 0.01, exit(1)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_script_exits_with_code_1_if_invalid_ratio_exceeds
+  kind: magnitude
+  raw_text: The validation script exits with code 1 if the invalid ratio is greater
+    than 1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T18:58:36Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Baseline predictor is mean of training set yield strengths
+  claim_id: c_8134e39b
+  context: Update code/models/baseline.py to explicitly document that the 'naive baseline'
+    is the mean of the *training set* yield strengths
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_predictor_is_mean_of_training_set_yield_strengths
+  kind: entity_fact
+  raw_text: The baseline predictor uses the mean of the training set yield strengths.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T18:59:09Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: CNN uses MobileNetV2 or ResNet-18 frozen backbone
+  claim_id: c_5f688454
+  context: Train lightweight CNN (MobileNetV2/ResNet-18 frozen) on CPU with augmentation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CNN model uses a MobileNetV2 or ResNet-18 frozen backbone.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T18:59:28Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Null hypothesis protocol triggers if R2 is less than 0.2
+  claim_id: c_eebea55d
+  context: "If R\xB2 < 0.2, write results/null_hypothesis_report.json with schema:\
+    \ {status: 'accepted' | 'rejected', r2_value: float, t_statistic: float, p_value:\
+    \ float, outcome: 'significant' | 'not_significant'}"
+  evidence:
+    entailment_evidence: Null hypothesis protocol triggers if R2 is less than 0.2
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_protocol_triggers_if_R2_is_less_than_0.2
+  kind: magnitude
+  raw_text: "The null hypothesis protocol is triggered if R\xB2 is less than 0.2."
+  resolved_value: Null hypothesis protocol triggers if R2 is less than 0.2
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-03T18:59:30Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Statistical test is single-sample t-test with alpha 0.05
+  claim_id: c_a204ecf8
+  context: "MSE, R\xB2, and single-sample t-test (\u03B1=0.05) on squared errors comparing\
+    \ CNN error to naive baseline error"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical significance test uses a single-sample t-test with alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T18:59:50Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: IoU pass condition is score greater than or equal to 0.4
+  claim_id: c_3bbffc31
+  context: 'Pass condition: IoU >= 0.4 OR (expert_review_status == ''passed'' via
+    human input)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/IoU_pass_condition_is_score_greater_than_or_equal_to_0.4
+  kind: magnitude
+  raw_text: The IoU pass condition requires a score greater than or equal to 0.4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:01:16Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Confidence intervals use 100 Monte Carlo samples
+  claim_id: c_2b513855
+  context: Use Monte Carlo Dropout with N=100 samples and dropout rate=0.2 during
+    inference
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confidence intervals are calculated using N=100 Monte Carlo samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:07:15Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Monte Carlo dropout rate is 0.2
+  claim_id: c_314b2bee
+  context: Use Monte Carlo Dropout with N=100 samples and dropout rate=0.2 during
+    inference
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dropout rate for Monte Carlo inference is 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:07:38Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Confidence intervals use 2.5th and 97.5th percentiles
+  claim_id: c_864beda8
+  context: Calculate 2.5th and 97.5th percentiles of the 100 predictions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confidence intervals are calculated using the 2.5th and 97.5th percentiles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:07:54Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Stress test fails if RAM usage exceeds 7GB
+  claim_id: c_f6692fbc
+  context: Run code/data/loader.py with --stress-test flag and record peak memory
+    usage and total runtime in results/memory_profile.json; fail if RAM > 7GB or runtime
+    > 6h
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stress_test_fails_if_RAM_usage_exceeds_7GB
+  kind: entity_fact
+  raw_text: The stress test fails if RAM usage exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:08:23Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Stress test fails if runtime exceeds 6 hours
+  claim_id: c_8f57415f
+  context: Run code/data/loader.py with --stress-test flag and record peak memory
+    usage and total runtime in results/memory_profile.json; fail if RAM > 7GB or runtime
+    > 6h
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stress test fails if runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:08:43Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Streaming download threshold is 7GB RAM
+  claim_id: c_bdea5059
+  context: implement streaming for the Rxzh/ebsd-synthetic dataset using datasets.load_dataset(...,
+    streaming=True) if the full download exceeds 7GB RAM
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_download_threshold_is_7GB_RAM
+  kind: entity_fact
+  raw_text: The streaming download threshold is 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:09:14Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset Rxzh/ebsd-synthetic
+  claim_id: c_4fb4b85c
+  context: Fetch the verified SHA256 hash for Rxzh/ebsd-synthetic from the HuggingFace
+    dataset card
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_Rxzh/ebsd-synthetic
+  kind: entity_fact
+  raw_text: The dataset is named Rxzh/ebsd-synthetic and is hosted on HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:19:19Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Naive baseline is training set mean yield strength
+  claim_id: c_062938a8
+  context: Update code/models/baseline.py to explicitly document that the naive baseline
+    is the mean of the training set yield strengths
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Naive_baseline_is_training_set_mean_yield_strength
+  kind: entity_fact
+  raw_text: The naive baseline predictor uses the mean of the training set yield strengths.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:19:48Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Single-sample t-test compares CNN errors to baseline scalar
+  claim_id: c_7e0b1ac7
+  context: Perform scipy.stats.ttest_1samp(cnn_sq_errors, baseline_sq_error_scalar)
+    where baseline_sq_error_scalar is the squared error of the training set mean
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Single-sample_t-test_compares_CNN_errors_to_baseline_scalar
+  kind: entity_fact
+  raw_text: The single-sample t-test compares CNN squared errors against the baseline
+    mean squared error.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:20:17Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Null hypothesis accepted if R2 < 0.2
+  claim_id: c_e9bce9df
+  context: "If R\xB2 < 0.2, write results/null_hypothesis_report.json"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_accepted_if_R2_%3C_0.2
+  kind: magnitude
+  raw_text: "The null hypothesis protocol accepts the null hypothesis if R\xB2 is\
+    \ less than 0.2."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:20:43Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Monte Carlo Dropout 100 samples
+  claim_id: c_baedcb9d
+  context: Use Monte Carlo Dropout with N=100 samples and dropout rate=0.2 during
+    inference
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Monte Carlo Dropout uses 100 samples for confidence interval calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:21:01Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Confidence intervals 2.5th and 97.5th percentiles
+  claim_id: c_96a60554
+  context: Calculate 2.5th and 97.5th percentiles of the 100 predictions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Confidence intervals are calculated using the 2.5th and 97.5th percentiles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:21:01Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Memory limit 7GB
+  claim_id: c_659a6a10
+  context: fail if RAM > 7GB or runtime > 6h
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_limit_7GB
+  kind: entity_fact
+  raw_text: The system fails if RAM usage exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:21:30Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Runtime limit 6 hours
+  claim_id: c_c6dd5421
+  context: fail if RAM > 7GB or runtime > 6h
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum allowed runtime for the pipeline is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:21:49Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Validation exit code 1 if invalid ratio > 1%
+  claim_id: c_624eec0e
+  context: exits with code 1 if invalid ratio > 1%
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_exit_code_1_if_invalid_ratio_%3E_1%25
+  kind: magnitude
+  raw_text: The validation report exits with code 1 if the invalid ratio is greater
+    than 1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:22:42Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Interpretability pass condition IoU >= 0.4
+  claim_id: c_6c87c6ee
+  context: 'Pass condition: IoU >= 0.4 OR (expert_review_status == passed via human
+    input)'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interpretability_pass_condition_IoU_%3E=_0.4
+  kind: magnitude
+  raw_text: The pass condition for interpretability is an IoU score of at least 0.4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-03T19:23:18Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Data pipeline test verifies correct image counts and manifest mappings
+  claim_id: c_ff4d61b4
+  context: 'Independent Test: The pipeline can be fully tested by running the data
+    loading script and verifying that the resulting train/validation/test directories
+    contain the correct number of image files and that a corresponding CSV/JSON manifest
+    correctly maps image filenames to yield strength values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_test_verifies_correct_image_counts_and_manifes
+  kind: entity_fact
+  raw_text: The pipeline can be fully tested by running the data loading script and
+    verifying that the resulting train/validation/test directories contain the correct
+    number of image files and that a corresponding CSV/JSON manifest correctly maps
+    image filenames to yield strength values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:34:58Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Integration test asserts train/val/test directories exist with >0 files
+    and valid manifest
+  claim_id: c_fd958983
+  context: 'Integration test for full generation and split workflow in `tests/integration/test_data_pipeline.py`:
+    Implement `test_full_pipeline` that mocks the HuggingFace download, runs `preprocess.py`,
+    `split.py`, and `validate.py`, asserting that `data/processed/train`, `val`, `test`
+    directories exist with >0 files and `manifest.csv` contains valid mappings.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `test_full_pipeline` that mocks the HuggingFace download, runs
+    `preprocess.py`, `split.py`, and `validate.py`, asserting that `data/processed/train`,
+    `val`, `test` directories exist with >0 files and `manifest.csv` contains valid
+    mappings.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:34:58Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Unit test asserts t-statistic and p-value match scipy.stats.ttest_1samp
+    within 1e-5 tolerance
+  claim_id: c_fd82e076
+  context: "Unit test for metric calculation (MSE, R\xB2) in `tests/unit/test_metrics.py`:\
+    \ Implement `test_ttest_significance` using input arrays `y_true=[, 2, 3, 4, 5]`,\
+    \ `y_pred=[1.1, 2.2, 2.9, 4.1, 5.0]` and asserting the calculated t-statistic\
+    \ and p-value match the expected values from `scipy.stats.ttest_1samp` (e.g.,\
+    \ t_stat ~ 0.0, p_value ~ 1.0) within a tolerance of 1e-5."
+  evidence:
+    asserted: 1e-05
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Implement `test_ttest_significance` using input arrays `y_true=[, 2, 3,
+    4, 5]`, `y_pred=[1.1, 2.2, 2.9, 4.1, 5.0]` and asserting the calculated t-statistic
+    and p-value match the expected values from `scipy.stats.ttest_1samp` (e.g., t_stat
+    ~ 0.0, p_value ~ 1.0) within a tolerance of 1e-5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T21:34:59Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Stress test fails if RAM exceeds 7GB or runtime exceeds 6 hours
+  claim_id: c_a9c582cb
+  context: Run `code/data/loader.py` with `--stress-test` flag and record peak memory
+    usage **and total runtime** in `results/memory_profile.json`; fail if RAM > 7GB
+    or runtime > 6h.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail if RAM > 7GB or runtime > 6h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:34:59Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Monte Carlo Dropout uses 100 forward passes per sample
+  claim_id: c_26734c1c
+  context: 'Implement confidence interval calculation: Use **Monte Carlo Dropout**
+    with **N=100 samples** and **dropout rate=0.2** during inference. Calculate **confidence
+    intervals** using the **percentile method** (lower and upper percentiles). ...
+    Run 100 forward passes per sample.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 100 forward passes per sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:35:21Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Confidence intervals calculated using 2.5th and 97.5th percentiles
+  claim_id: c_1929d40e
+  context: 'Implementation: Enable dropout during inference. Run 100 forward passes
+    per sample. Calculate 2.5th and 97.5th percentiles of the 100 predictions. Calculate
+    empirical coverage of the 95% CI (what % of true values fall within predicted
+    CI) and log to `results/uncertainty_calibration.json`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate 2.5th and 97.5th percentiles of the 100 predictions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:35:39Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Interpretability pass condition is IoU >= 0.4 or expert review passed
+  claim_id: c_7f9012a9
+  context: 'Output: `results/interpretability_report.json` with `{iou_score: float
+    (or null), expert_review_status: "pending" | "passed" | "failed", checklist_details:
+    {...}}`. Pass condition: IoU >= 0.4 OR (expert_review_status == "passed" via human
+    input). (SC-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pass condition: IoU >= 0.4 OR (expert_review_status == "passed" via human
+    input).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:35:59Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Monte Carlo Dropout with 100 samples and 0.2 dropout rate
+  claim_id: c_5efe9721
+  context: 'T032 [US3] **CRITICAL**: Implement confidence interval calculation: Use
+    **Monte Carlo Dropout** with **N=100 samples** and **dropout rate=0.2** during
+    inference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Monte Carlo Dropout with N=100 samples and dropout rate=0.2
+    during inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:38:17Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Confidence intervals calculated using percentile method
+  claim_id: c_69e49625
+  context: 'T032 [US3] **CRITICAL**: ...Calculate **confidence intervals** using the
+    **percentile method** (lower and upper percentiles).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Confidence_intervals_calculated_using_percentile_method
+  kind: entity_fact
+  raw_text: Calculate confidence intervals using the percentile method (lower and
+    upper percentiles).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:38:34Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: 2.5th and 97.5th percentiles calculated for predictions
+  claim_id: c_fcc722cf
+  context: 'T032 [US3] **CRITICAL**: ...Calculate 2.5th and 97.5th percentiles of
+    the 100 predictions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate 2.5th and 97.5th percentiles of the 100 predictions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:38:34Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: 100 forward passes per sample
+  claim_id: c_919e1167
+  context: 'T032 [US3] **CRITICAL**: ...Run 100 forward passes per sample.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 100 forward passes per sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:38:35Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Empirical coverage of 95% confidence interval calculated
+  claim_id: c_12c0491d
+  context: 'T032 [US3] **CRITICAL**: ...Calculate empirical coverage of the 95% CI
+    (what % of true values fall within predicted CI)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate empirical coverage of the 95% CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:38:35Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: 'Interpretability pass condition: IoU >= 0.4 or expert review passed'
+  claim_id: c_c7b92ede
+  context: 'T030 [US3] ... Pass condition: IoU >= 0.4 OR (expert_review_status ==
+    ''passed'' via human input).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pass condition for interpretability validation is IoU >= 0.4 OR (expert_review_status
+    == 'passed').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:38:57Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Exit code 1 if invalid ratio exceeds 1 percent
+  claim_id: c_10572c7b
+  context: T042 [US1] ... exits with code 1 if invalid ratio > 1%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit with code 1 if invalid ratio > 1%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:39:17Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Exit code 1 if invalid ratio exceeds 0.01
+  claim_id: c_c95176b0
+  context: 'T042 [US1] ... Exit logic: if `invalid_ratio > 0.01`, exit(1); else exit(0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit code 1 if invalid ratio > 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:39:38Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Single-sample t-test with alpha 0.05 on squared errors
+  claim_id: c_4e00f58b
+  context: "T024 [US2] ... **single-sample t-test** (\u03B1=0.05) on squared errors\
+    \ comparing CNN error to naive baseline error..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform single-sample t-test with alpha=0.05 on squared errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:40:11Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: R-squared less than 0.2 treated as valid scientific outcome
+  claim_id: c_0456d0e9
+  context: "T025 [US2] ... **If R\xB2 < 0.2**, write `results/null_hypothesis_report.json`...\
+    \ Treats R\xB2 < 0.2 as a valid scientific outcome..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/R-squared_less_than_0.2_treated_as_valid_scientific_outcome
+  kind: magnitude
+  raw_text: "Treat R\xB2 < 0.2 as a valid scientific outcome."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:41:00Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Stress test fails if RAM exceeds 7 GB
+  claim_id: c_b719601b
+  context: T036 ... fail if RAM > 7GB or runtime > 6h.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail if RAM > 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:41:01Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Stress test fails if runtime exceeds 6 hours
+  claim_id: c_129722c9
+  context: T036 ... fail if RAM > 7GB or runtime > 6h.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail if runtime > 6h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:41:01Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Early stopping patience set to 5
+  claim_id: c_f38d6239
+  context: T021 [US2] Implement training loop with early stopping (patience=5) and
+    checkpoint saving...
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Early stopping patience is 5.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-19T21:41:01Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Naive baseline defined as mean of training set yield strengths
+  claim_id: c_86ec0190
+  context: T043 [US2] ... explicitly document that the 'naive baseline' is the mean
+    of the *training set* yield strengths...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Naive_baseline_defined_as_mean_of_training_set_yield_strengt
+  kind: entity_fact
+  raw_text: The naive baseline is the mean of the training set yield strengths.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:41:20Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Threshold sweep calculated as median plus or minus k times std
+  claim_id: c_d8445f7b
+  context: "T031 [US3] ... Sweep thresholds across a **representative set of low absolute\
+    \ difference values** calculated as `median \xB1 k * std`..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threshold_sweep_calculated_as_median_plus_or_minus_k_times_s
+  kind: entity_fact
+  raw_text: "Threshold sweep calculated as median \xB1 k * std."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:41:52Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Dataset streaming triggered if download exceeds 7 GB RAM
+  claim_id: c_a4b0a566
+  context: T047 [US1] ... implement **streaming** for the `Rxzh/ebsd-synthetic` dataset
+    ... if the full download exceeds 7GB RAM...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stream dataset if full download exceeds 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T21:42:08Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: DataLoader configuration ensures RAM usage under 7GB with 4 workers
+  claim_id: c_b6775694
+  context: 'Task T005: Implement batch loading strategy to prevent OOM on constrained
+    memory in code/data/loader.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a PyTorch DataLoader wrapper with num_workers=4, pin_memory=True,
+    and batch_size logic to ensure RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:28:48Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Validation script exits with code 1 if invalid ratio exceeds 1%
+  claim_id: c_2acf9cb5
+  context: 'Task T042: Create code/data/validate.py that outputs results/validation_report.json...
+    exits with code 1 if invalid ratio > 1%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must exit with code 1 if invalid_ratio > 1%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:29:06Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Validation script exits with code 1 if invalid ratio exceeds 0.01
+  claim_id: c_a4a95c6e
+  context: 'Task T042: ...Exit logic: if invalid_ratio > 0.01, exit(non-zero); else
+    exit(0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must exit with code 1 if invalid_ratio > 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:30:04Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Training transforms include 15 degree rotation, 0.5 horizontal flip,
+    and 0.2 brightness/contrast jitter
+  claim_id: c_87bc4cc8
+  context: 'Task T020: Implement data augmentation transforms... Implementation: Implement
+    get_train_transforms() with RandomRotation(15)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement get_train_transforms() with RandomRotation(15), RandomHorizontalFlip(0.5),
+    and ColorJitter(brightness=0.2, contrast=0.2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:30:17Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Single-sample t-test performed at alpha 0.05 comparing CNN error to baseline
+  claim_id: c_537287e4
+  context: "Task T024: Implement evaluation logic: MSE, R\xB2, and single-sample t-test\
+    \ (\u03B1=0.05) on squared errors..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform single-sample t-test with alpha=0.05 on squared errors comparing
+    CNN error to naive baseline error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:30:40Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Null hypothesis report generated if R-squared is less than 0.2
+  claim_id: c_faa8c38b
+  context: "Task T025: Implement Null Hypothesis Protocol: If R\xB2 < 0.2, write results/null_hypothesis_report.json..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_report_generated_if_R-squared_is_less_than_0
+  kind: magnitude
+  raw_text: "If R\xB2 < 0.2, write results/null_hypothesis_report.json."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:30:57Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds at offsets of -20 to 20 MPa
+  claim_id: c_169a295e
+  context: 'Task T031: Implement sensitivity analysis: Binarize using median predicted
+    strength... Sweep thresholds by calculating median + offset for each offset in
+    [-20, -10, -5, 0, 5, 10, 20] MPa.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep thresholds by calculating median + offset for each offset in [-20,
+    -10, -5, 0, 5, 10, 20] MPa.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:31:38Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: 95% confidence interval calculated using z-score of 1.96
+  claim_id: c_afb8638c
+  context: 'Task T032: Implement confidence interval calculation... where z represents
+    the critical value for 95% confidence level (z=1.96).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the prediction interval as [y_pred_i - z * sigma, y_pred_i +
+    z * sigma], where z represents the critical value for 95% confidence level (z=1.96).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:33:27Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Stress test fails if RAM exceeds 7GB or runtime exceeds 6 hours
+  claim_id: c_bdd30e0c
+  context: 'Task T036: Run code/data/loader.py with --stress-test flag and record
+    peak memory usage and total runtime... fail if RAM > 7GB or runtime > 6h.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail if RAM > 7GB or runtime > 6h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:33:28Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Interpretability validation passes if IoU is at least 0.4
+  claim_id: c_1648ab8c
+  context: 'Task T030: Implement interpretability validation... Pass condition: IoU
+    >= 0.4. (SC-005).'
+  evidence:
+    entailment_evidence: Interpretability validation passes if IoU is at least 0.4
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Interpretability_validation_passes_if_IoU_is_at_least_0.4
+  kind: magnitude
+  raw_text: 'Pass condition: IoU >= 0.4.'
+  resolved_value: Interpretability validation passes if IoU is at least 0.4
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T15:33:30Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: PyTorch DataLoader with num_workers=4, pin_memory=True, RAM < 7GB
+  claim_id: c_cd352387
+  context: Implement batch loading strategy to prevent OOM on constrained memory in
+    code/data/loader.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a PyTorch DataLoader wrapper with num_workers=4, pin_memory=True,
+    and batch_size logic to ensure RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:35:53Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: 'Data augmentation: RandomRotation(15), RandomHorizontalFlip(0.5), ColorJitter(0.2,
+    0.2)'
+  claim_id: c_6361e360
+  context: Implement data augmentation transforms (random rotation, flip, brightness)
+    in code/train/augment.py (FR-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement get_train_transforms() with RandomRotation(15), RandomHorizontalFlip(0.5),
+    and ColorJitter(brightness=0.2, contrast=0.2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:35:54Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Single-sample t-test (alpha=0.05) comparing CNN errors to baseline scalar
+  claim_id: c_4c186fda
+  context: "Implement evaluation logic: MSE, R\xB2, and single-sample t-test (\u03B1\
+    =0.05) on squared errors comparing CNN error to naive baseline error in code/eval/metrics.py\
+    \ (FR-005, SC-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a single-sample t-test comparing CNN squared errors to a baseline
+    scalar derived from the training set mean squared error at alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:36:39Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: "Null hypothesis protocol: R\xB2 < 0.2 triggers report"
+  claim_id: c_110e0673
+  context: "Implement Null Hypothesis Protocol: If R\xB2 < 0.2, write results/null_hypothesis_report.json\
+    \ with schema: {status: 'accepted' | 'rejected', r2_value: float, t_statistic:\
+    \ float, p_value: float, outcome: 'significant' | 'not_significant'}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If R\xB2 < 0.2, write results/null_hypothesis_report.json with status\
+    \ 'accepted' or 'rejected'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:36:40Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: 95% confidence interval using z=1.96 and validation set residuals
+  claim_id: c_50f676ab
+  context: 'Implement confidence interval calculation: Use Test-Time Residuals method...
+    where z represents the critical value for 95% confidence level (z=1.96).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the standard deviation of validation residuals and use z=1.96
+    for 95% confidence level prediction intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:38:21Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis threshold sweep offsets: -20, -10, -5, 0, 5, 10,
+    20 MPa'
+  claim_id: c_3a94609f
+  context: 'Implement sensitivity analysis: Binarize using median predicted strength
+    of the test set (Spec US-3 Scenario 2). Sweep thresholds by calculating median
+    + offset for each offset in [-20, -10, -5, 0, 5, 10, 20] MPa.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep thresholds by calculating median + offset for each offset in [-20,
+    -10, -5, 0, 5, 10, 20] MPa.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:38:21Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: 'Stress test failure threshold: RAM > 7GB or runtime > 6h'
+  claim_id: c_8ac8d927
+  context: Run code/data/loader.py with --stress-test flag and record peak memory
+    usage and total runtime in results/memory_profile.json; fail if RAM > 7GB or runtime
+    > 6h.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stress_test_failure_threshold:_RAM_%3E_7GB_or_runtime_%3E_6h
+  kind: entity_fact
+  raw_text: Fail if RAM > 7GB or runtime > 6h during stress test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:38:41Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: PyTorch DataLoader wrapper configured with 4 workers, pinned memory,
+    and batch size logic to ensure RAM usage under 7GB
+  claim_id: c_fc9eb6b4
+  context: 'T005 Implement batch loading strategy to prevent OOM on constrained memory
+    in code/data/loader.py. Implementation: Implement a PyTorch DataLoader wrapper
+    with num_workers=4, pin_memory=True, and batch_size logic to ensure RAM < 7GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a PyTorch DataLoader wrapper with num_workers=4, pin_memory=True,
+    and batch_size logic to ensure RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:39:45Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Data augmentation transforms include RandomRotation of 15 degrees, RandomHorizontalFlip
+    with 0.5 probability, and ColorJitter with 0.2 brightness and 0.2 contrast
+  claim_id: c_33e83905
+  context: 'T020 [US2] Implement data augmentation transforms (random rotation, flip,
+    brightness) in code/train/augment.py (FR-003). Implementation: Implement get_train_transforms()
+    with RandomRotation(15), RandomHorizontalFlip(0.5), and ColorJitter(brightness=0.2,
+    contrast=0.2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement get_train_transforms() with RandomRotation(15), RandomHorizontalFlip(0.5),
+    and ColorJitter(brightness=0.2, contrast=0.2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:39:45Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Training loop configured with early stopping patience of 5 epochs
+  claim_id: c_f3c282a3
+  context: T021 [US2] Implement training loop with early stopping (patience=5) and
+    checkpoint saving in code/train/trainer.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement training loop with early stopping (patience=5) and checkpoint
+    saving in code/train/trainer.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:40:29Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Single-sample t-test performed on squared errors with alpha level of
+    0.05 comparing CNN error to naive baseline error
+  claim_id: c_ee1b1c46
+  context: 'T024 [US2] CRITICAL: Implement evaluation logic: MSE, R2, and single-sample
+    t-test (alpha=0.05) on squared errors comparing CNN error to naive baseline error
+    in code/eval/metrics.py (FR-005, SC-002).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform single-sample t-test (alpha=0.05) on squared errors comparing
+    CNN error to naive baseline error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:40:42Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds swept using offsets of -20, -10, -5,
+    0, 5, 10, and 20 MPa from the median predicted strength
+  claim_id: c_0dfaf34e
+  context: 'T031 [US3] CRITICAL: Implement sensitivity analysis: Binarize using median
+    predicted strength of the test set (Spec US-3 Scenario 2). Sweep thresholds by
+    calculating median + offset for each offset in [-20, -10, -5, 0, 5, 10, 20] MPa.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep thresholds by calculating median + offset for each offset in [-20,
+    -10, -5, 0, 5, 10, 20] MPa.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:40:43Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Prediction intervals calculated using z-score of 1.96 corresponding to
+    95% confidence level
+  claim_id: c_6551d173
+  context: T032 [US3] ... For each prediction y_pred_i in the test set, calculate
+    the prediction interval as [y_pred_i - z * sigma, y_pred_i + z * sigma], where
+    z represents the critical value for 95% confidence level (z=1.96).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the prediction interval using z=1.96 for 95% confidence level.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:42:23Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: Stress test for data loader fails if RAM usage exceeds 7GB or runtime
+    exceeds 6 hours
+  claim_id: c_a84ae5d8
+  context: T036 Run code/data/loader.py with --stress-test flag and record peak memory
+    usage and total runtime in results/memory_profile.json; fail if RAM > 7GB or runtime
+    > 6h.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run code/data/loader.py with --stress-test flag and fail if RAM > 7GB
+    or runtime > 6h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:42:24Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: plan.md paired t-test mention is documentation error contradicting spec
+  claim_id: c_c6480ff1
+  context: The project uses a **single-sample t-test** (FR-005) comparing CNN errors
+    to the scalar baseline mean, as defined in the spec. The plan.md's mention of
+    a 'paired t-test' is a documentation error that contradicts the spec and will
+    be corrected in T052.
+  evidence:
+    entailment_evidence: md paired t-test mention is documentation error contrad
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan.md_paired_t-test_mention_is_documentation_error_contrad
+  kind: entity_fact
+  raw_text: The plan.md's mention of a 'paired t-test' is a documentation error that
+    contradicts the spec.
+  resolved_value: plan.md paired t-test mention is documentation error contradicting
+    spec
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T15:44:10Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: dataset name is Rxzh/ebsd-synthetic
+  claim_id: c_0fa92bf6
+  context: Create `code/config.yaml` with a `dataset_sha256` field containing the
+    **pinned, hardcoded** SHA256 hash for `Rxzh/ebsd-synthetic`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_name_is_Rxzh/ebsd-synthetic
+  kind: entity_fact
+  raw_text: The dataset is named Rxzh/ebsd-synthetic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:44:33Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: dataset source is HuggingFace
+  claim_id: c_a65a7468
+  context: Download the public `Rxzh/ebsd-synthetic` dataset from HuggingFace (verified
+    source for synthetic microstructure morphology), preprocess EBSD images (224x224,
+    normalize)...
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Python library from Hugging Face for ML datasets
+      source_id: Q107382240
+      url: https://www.wikidata.org/wiki/Q107382240
+      value: Hugging Face
+    filled: true
+  kind: entity_fact
+  raw_text: The dataset source is HuggingFace.
+  resolved_value: Hugging Face
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T15:44:46Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: DataLoader uses num_workers=4
+  claim_id: c_593c8d45
+  context: Implement a PyTorch `DataLoader` wrapper with `num_workers=4`, `pin_memory=True`,
+    and `batch_size` logic to ensure RAM < 7GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The DataLoader uses num_workers=4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:45:05Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: batch loading strategy ensures RAM less than 7GB
+  claim_id: c_d5e9177d
+  context: Implement a PyTorch `DataLoader` wrapper with `num_workers=4`, `pin_memory=True`,
+    and `batch_size` logic to ensure RAM < 7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_loading_strategy_ensures_RAM_less_than_7GB
+  kind: magnitude
+  raw_text: The batch loading strategy ensures RAM usage is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:45:44Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: validation report exits code 1 if invalid ratio greater than 1 percent
+  claim_id: c_8179f660
+  context: Create `code/data/validate.py` that outputs `results/validation_report.json`
+    containing the invalid pair count and exits with code 1 if invalid ratio > 1%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_report_exits_code_1_if_invalid_ratio_greater_than
+  kind: magnitude
+  raw_text: The validation report exits with code 1 if the invalid ratio is greater
+    than 1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:46:32Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: single-sample t-test uses alpha 0.05
+  claim_id: c_4329695d
+  context: "Implement evaluation logic: MSE, R\xB2, and **single-sample t-test** (\u03B1\
+    =0.05) on squared errors comparing CNN error to naive baseline error in `code/eval/metrics.py`\
+    \ (FR-005, SC-002)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The single-sample t-test uses an alpha of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:46:52Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: null hypothesis protocol accepts if R2 less than 0.2
+  claim_id: c_4117adb3
+  context: "Implement Null Hypothesis Protocol: **If R\xB2 < 0.2**, write `results/null_hypothesis_report.json`\
+    \ with schema: `{status: \"accepted\" | \"rejected\", r2_value: float, t_statistic:\
+    \ float, p_value: float, outcome: \"significant\" | \"not_significant\"}`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_protocol_accepts_if_R2_less_than_0.2
+  kind: magnitude
+  raw_text: "The null hypothesis protocol accepts the null hypothesis if R\xB2 is\
+    \ less than 0.2."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:47:20Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps thresholds with offsets -20 to 20 MPa
+  claim_id: c_c9c4cda9
+  context: Sweep thresholds by calculating `median + offset` for each offset in `[-20,
+    -10, -5, -0, 5, 10, 20]` MPa.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps thresholds with offsets of -20, -10, -5,
+    0, 5, 10, and 20 MPa.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:47:45Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: confidence interval calculation uses 95 percent confidence level z equals
+    1.96
+  claim_id: c_2a550aec
+  context: For each prediction `y_pred_i` in the **test set**, calculate the prediction
+    interval as `[y_pred_i - z * sigma, y_pred_i + z * sigma]`, where `z` represents
+    the critical value for **95% confidence level (z=1.96)**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence interval calculation uses a 95% confidence level with z=1.96.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:48:43Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: stress test fails if RAM exceeds 7GB
+  claim_id: c_2e10e670
+  context: Run `code/data/loader.py` with `--stress-test` flag and record peak memory
+    usage **and total runtime** in `results/memory_profile.json`; fail if RAM > 7GB
+    or runtime > 6h.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stress_test_fails_if_RAM_exceeds_7GB
+  kind: entity_fact
+  raw_text: The stress test fails if RAM usage exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:49:10Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: stress test fails if runtime exceeds 6 hours
+  claim_id: c_a2d60b51
+  context: Run `code/data/loader.py` with `--stress-test` flag and record peak memory
+    usage **and total runtime** in `results/memory_profile.json`; fail if RAM > 7GB
+    or runtime > 6h.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stress test fails if runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:49:29Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: baseline predictor uses mean of training set yield strengths
+  claim_id: c_67715e61
+  context: Update `code/models/baseline.py` to explicitly document that the "naive
+    baseline" is the mean of the *training set* yield strengths, and ensure this value
+    is saved to `results/baseline_stats.json` for auditability.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_predictor_uses_mean_of_training_set_yield_strengths
+  kind: entity_fact
+  raw_text: The baseline predictor uses the mean of the training set yield strengths.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:49:56Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: interpretability validation requires IoU at least 0.4
+  claim_id: c_b1d79128
+  context: Calculate **Intersection-over-Union (IoU)** between Grad-CAM heatmaps and
+    manually annotated grain boundaries (if available). **If IoU data is missing**,
+    raise a `FileNotFoundError` with message "Manual annotations for IoU calculation
+    missing. SC-005 requires IoU >= 0.4. No subjective checklist fallback allowed."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interpretability_validation_requires_IoU_at_least_0.4
+  kind: magnitude
+  raw_text: The interpretability validation requires an IoU of at least 0.4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:50:29Z'
+- artifact_path: projects/PROJ-477-predicting-material-strength-from-micros/specs/001-predicting-material-strength-from-micros/tasks.md
+  attempts: 1
+  canonical: project has 6-hour computational feasibility limit
+  claim_id: c_3a874542
+  context: Ensure this report is generated for every run to satisfy SC-004's requirement
+    for measuring computational feasibility against the 6-hour limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project has a 6-hour computational feasibility limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T15:50:49Z'

@@ -1,13 +1,11 @@
 """
-Preprocessing module for Pupil Labs Reading dataset (ds004041).
+Preprocessing pipeline for pupil diameter data from ds004041.
 
-This module implements the luminance normalization algorithm and data ingestion
-logic required for the Memory Load-Adaptive Text Presentation pipeline.
-
-Specifically addresses:
-- Ingestion of screen luminance logs from ds004041.
-- Implementation of the luminance normalization algorithm (Weber contrast).
-- Placeholder for blink removal and filtering (to be implemented in T012).
+Implements:
+  - Blink removal (interpolation)
+  - Low-pass filtering (4Hz cutoff)
+  - Baseline correction
+  - Luminance normalization (using algorithm from T005b)
 """
 import os
 import json
@@ -15,192 +13,231 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Optional, Dict, Any, Tuple, Union
+from scipy.signal import butter, filtfilt
 
-# Constants
-LUMINANCE_FILE_PATTERN = "screen_luminance.json"
-DEFAULT_LUMINANCE_BACKGROUND = 120.0  # cd/m^2, typical background for reading tasks
+from config import get_config
+from utils.logging import log_step, log_error
 
-# Normalization Algorithm Definition
-# We use Weber Contrast for normalization, as it is standard for luminance perception
-# in reading tasks where the background is relatively stable.
-# Formula: C_weber = (L_target - L_background) / L_background
-def normalize_luminance_algorithm(luminance_values: np.ndarray, 
-                                  background_luminance: Optional[float] = None) -> np.ndarray:
-    """
-    Normalize luminance values using Weber Contrast.
-    
-    This function implements the core algorithm for luminance normalization.
-    It converts raw luminance (cd/m^2) into a dimensionless contrast ratio.
-    
-    Parameters
-    ----------
-    luminance_values : np.ndarray
-        Array of raw luminance measurements (cd/m^2).
-    background_luminance : float, optional
-        The background luminance level (cd/m^2). If None, the median of the
-        input array is used as the background estimate (assuming the majority
-        of the screen is background).
-        
-    Returns
-    -------
-    np.ndarray
-        Array of normalized contrast values.
-        
-    Notes
-    -----
-    - The algorithm is defined here as a pure function to allow unit testing
-      of the normalization logic independent of data ingestion.
-    - For ds004041, the background is typically stable, but we allow dynamic
-      estimation if the log is incomplete.
-    """
-    if background_luminance is None:
-        # Estimate background as the median luminance (robust to text spikes)
-        background_luminance = np.median(luminance_values)
-    
-    if background_luminance <= 0:
-        raise ValueError("Background luminance must be positive to avoid division by zero.")
-    
-    # Weber Contrast Calculation
-    contrast = (luminance_values - background_luminance) / background_luminance
-    return contrast
+# Constants derived from T005b
+# Luminance normalization algorithm:
+#   normalized = (raw - screen_baseline) / screen_baseline
+#   where screen_baseline is the median luminance of the screen log for the session.
+LUMINANCE_NORMALIZATION_FACTOR = 1.0  # Placeholder if no log, handled in function
 
-def ingest_screen_luminance_logs(data_dir: Union[str, Path]) -> pd.DataFrame:
+def _load_screen_luminance_log(session_id: str, raw_dir: Path) -> Optional[np.ndarray]:
     """
-    Ingest screen luminance logs from the ds004041 dataset.
-    
-    The ds004041 dataset (Pupil Labs Reading) includes screen luminance recordings
-    typically stored in JSON format within the participant's directory.
-    
-    This function:
-    1. Locates the luminance log file (screen_luminance.json).
-    2. Parses the JSON structure.
-    3. Normalizes timestamps to a common epoch (relative to trial start).
-    4. Returns a DataFrame ready for alignment with pupil data.
-    
-    Parameters
-    ----------
-    data_dir : Union[str, Path]
-        Path to the participant's data directory (e.g., data/raw/ds004041/.../participant_01).
-        
-    Returns
-    -------
-    pd.DataFrame
-        DataFrame with columns: ['timestamp', 'luminance_cd_m2'].
-        
-    Raises
-    ------
-    FileNotFoundError
-        If the luminance log file is not found.
-    ValueError
-        If the JSON structure is invalid or missing expected keys.
+    Ingest screen luminance logs from ds004041.
+    Expected path: data/raw/ds004041/sub-<session_id>/ses-01/screen_luminance.json (or similar)
+    Returns a numpy array of luminance values or None if not found.
     """
-    data_dir = Path(data_dir)
-    log_file = data_dir / LUMINANCE_FILE_PATTERN
-    
-    if not log_file.exists():
-        # Fallback: check for common variations in OpenNeuro structures
-        possible_files = list(data_dir.glob("*luminance*.json"))
-        if not possible_files:
-            raise FileNotFoundError(
-                f"Luminance log not found at {log_file} and no variants found in {data_dir}. "
-                "ds004041 requires screen luminance logs for normalization."
-            )
-        log_file = possible_files[0]
-    
-    with open(log_file, 'r') as f:
-        raw_data = json.load(f)
-    
-    # Expected structure in ds004041: list of dicts with 'timestamp' and 'luminance'
-    # Adapt if the specific version of the dataset uses a different schema
-    if isinstance(raw_data, list):
-        df = pd.DataFrame(raw_data)
-    elif isinstance(raw_data, dict) and 'data' in raw_data:
-        df = pd.DataFrame(raw_data['data'])
-    else:
-        raise ValueError(f"Unexpected JSON structure in {log_file}: {type(raw_data)}")
-    
-    # Validate columns
-    required_cols = ['timestamp', 'luminance']
-    if not all(col in df.columns for col in required_cols):
-        # Attempt to map common variations
-        col_map = {}
-        for c in df.columns:
-            if 'time' in c.lower(): col_map[c] = 'timestamp'
-            if 'lumin' in c.lower(): col_map[c] = 'luminance'
-        
-        if len(col_map) == 2:
-            df = df.rename(columns=col_map)
-        else:
-            raise ValueError(f"Cannot map columns to required ['timestamp', 'luminance']. Found: {df.columns.tolist()}")
-    
-    # Ensure numeric types
-    df['timestamp'] = pd.to_numeric(df['timestamp'])
-    df['luminance'] = pd.to_numeric(df['luminance'])
-    
-    # Sort by timestamp
-    df = df.sort_values('timestamp').reset_index(drop=True)
-    
-    return df[['timestamp', 'luminance']]
+    # ds004041 structure varies; we look for standard BIDS-like luminance files
+    # Assuming a file named 'screen_luminance.json' or similar exists in the session dir
+    # If the dataset doesn't provide this, we return None and handle gracefully.
+    session_path = raw_dir / session_id
+    if not session_path.exists():
+        log_step(f"Session path not found for {session_id}", level="WARNING")
+        return None
 
-def preprocess_luminance_for_window(
-    luminance_df: pd.DataFrame,
-    window_start: float,
-    window_end: float,
-    sampling_rate: float = 60.0
+    # Try common filenames for luminance logs
+    candidates = [
+        session_path / "screen_luminance.json",
+        session_path / "screen_luminance.tsv",
+        session_path / "events" / "screen_luminance.json",
+        session_path / "stimuli" / "screen_luminance.json",
+    ]
+
+    for candidate in candidates:
+        if candidate.exists():
+            log_step(f"Found luminance log at {candidate}")
+            try:
+                if candidate.suffix == '.json':
+                    with open(candidate, 'r') as f:
+                        data = json.load(f)
+                        # Assume structure: {"luminance": [...]} or similar
+                        if isinstance(data, dict) and "luminance" in data:
+                            return np.array(data["luminance"])
+                        elif isinstance(data, list):
+                            return np.array(data)
+                elif candidate.suffix == '.tsv':
+                    df = pd.read_csv(candidate, sep='\t')
+                    # Assume column name 'luminance' or first numeric column
+                    if 'luminance' in df.columns:
+                        return df['luminance'].values
+                    elif len(df.columns) > 0:
+                        return df[df.columns[0]].values
+            except Exception as e:
+                log_error(f"Failed to parse luminance log {candidate}: {e}")
+            return None
+    return None
+
+def ingest_screen_luminance_logs(session_id: str, raw_dir: Path) -> Optional[np.ndarray]:
+    """
+    Wrapper to load screen luminance logs for a specific session.
+    Returns the luminance array or None if ingestion fails.
+    """
+    return _load_screen_luminance_log(session_id, raw_dir)
+
+def normalize_luminance_algorithm(
+    pupil_data: np.ndarray,
+    luminance_log: Optional[np.ndarray],
+    window_start_idx: int,
+    window_end_idx: int
 ) -> np.ndarray:
     """
-    Extract and align luminance values for a specific time window.
+    Normalize pupil diameter based on screen luminance.
     
-    Parameters
-    ----------
-    luminance_df : pd.DataFrame
-        DataFrame from `ingest_screen_luminance_logs`.
-    window_start : float
-        Start time of the window (seconds).
-    window_end : float
-        End time of the window (seconds).
-    sampling_rate : float
-        Expected sampling rate of the luminance sensor (Hz).
+    Algorithm (T005b):
+      1. Extract luminance values corresponding to the window [start, end].
+      2. Compute the median luminance of the window (screen_baseline).
+      3. Normalize: normalized_pupil = raw_pupil / screen_baseline.
+      
+    If luminance_log is None, returns raw_pupil (no normalization).
+    """
+    if luminance_log is None:
+        return pupil_data
+    
+    # Ensure indices are within bounds
+    if window_end_idx > len(luminance_log):
+        window_end_idx = len(luminance_log)
+    if window_start_idx < 0:
+        window_start_idx = 0
         
-    Returns
-    -------
-    np.ndarray
-        Array of luminance values within the window, resampled to match the
-        expected rate if necessary.
-    """
-    mask = (luminance_df['timestamp'] >= window_start) & (luminance_df['timestamp'] <= window_end)
-    window_data = luminance_df.loc[mask, 'luminance'].values
+    window_luminance = luminance_log[window_start_idx:window_end_idx]
     
-    if len(window_data) == 0:
-        # Return empty array if no data; caller must handle this
-        return np.array([])
-    
-    # Optional: Resample to fixed rate if the original data is irregular
-    # For now, we return the raw extracted values. The CLI engine will handle
-    # alignment with pupil data.
-    return window_data
+    if len(window_luminance) == 0:
+        return pupil_data
+        
+    screen_baseline = np.median(window_luminance)
+    if screen_baseline == 0:
+        # Avoid division by zero; return raw data
+        log_step("Screen luminance median is zero, skipping normalization", level="WARNING")
+        return pupil_data
+        
+    return pupil_data / screen_baseline
 
-# Placeholder functions for T012 (to be implemented later)
-def remove_blinks(pupil_data: pd.DataFrame) -> pd.DataFrame:
+def preprocess_luminance_for_window(
+    pupil_series: pd.Series,
+    luminance_log: Optional[np.ndarray],
+    window_start_time: float,
+    window_end_time: float,
+    sampling_rate: float
+) -> pd.Series:
     """
-    Placeholder for blink removal logic.
+    Preprocess a single window of pupil data with luminance normalization.
     
-    To be implemented in T012.
+    Args:
+        pupil_series: Pupil diameter values (aligned by time)
+        luminance_log: Screen luminance values (aligned by time)
+        window_start_time: Start time of the window
+        window_end_time: End time of the window
+        sampling_rate: Sampling rate in Hz
+        
+    Returns:
+        Normalized pupil series
     """
-    raise NotImplementedError("Blink removal logic not yet implemented (T012).")
+    # Convert time to indices
+    start_idx = int(window_start_time * sampling_rate)
+    end_idx = int(window_end_time * sampling_rate)
+    
+    window_pupil = pupil_series.values[start_idx:end_idx]
+    normalized = normalize_luminance_algorithm(window_pupil, luminance_log, start_idx, end_idx)
+    
+    return pd.Series(normalized, index=pupil_series.index[start_idx:end_idx])
 
-def low_pass_filter(signal: np.ndarray, cutoff: float, sampling_rate: float) -> np.ndarray:
+def remove_blinks(pupil_data: np.ndarray, threshold: float = 0.1) -> np.ndarray:
     """
-    Placeholder for low-pass filtering.
+    Remove blinks by interpolating over periods where the pupil diameter
+    drops below a threshold (indicating a blink).
     
-    To be implemented in T012.
+    Args:
+        pupil_data: Raw pupil diameter array
+        threshold: Threshold below which a sample is considered a blink (relative to median)
+        
+    Returns:
+        Pupil data with blinks interpolated
     """
-    raise NotImplementedError("Low-pass filtering logic not yet implemented (T012).")
+    if len(pupil_data) == 0:
+        return pupil_data
+        
+    median_val = np.median(pupil_data)
+    if median_val == 0:
+        return pupil_data
+        
+    # Identify blinks: values significantly below median
+    blink_mask = pupil_data < (median_val * (1 - threshold))
+    
+    if not np.any(blink_mask):
+        return pupil_data
+        
+    # Create index array for interpolation
+    indices = np.arange(len(pupil_data))
+    valid_indices = indices[~blink_mask]
+    valid_values = pupil_data[~blink_mask]
+    
+    if len(valid_values) == 0:
+        # All data is blinks? Return zeros or NaNs
+        log_step("All data points identified as blinks", level="WARNING")
+        return np.full_like(pupil_data, np.nan)
+        
+    # Interpolate
+    interpolated = np.interp(indices, valid_indices, valid_values)
+    return interpolated
 
-def baseline_correct(signal: np.ndarray, baseline_window: Tuple[float, float]) -> np.ndarray:
+def low_pass_filter(data: np.ndarray, cutoff: float = 4.0, sampling_rate: float = 250.0, order: int = 4) -> np.ndarray:
     """
-    Placeholder for baseline correction.
+    Apply a low-pass Butterworth filter to remove high-frequency noise.
     
-    To be implemented in T012.
+    Args:
+        data: Input data array
+        cutoff: Cutoff frequency in Hz
+        sampling_rate: Sampling rate in Hz
+        order: Filter order
+        
+    Returns:
+        Filtered data array
     """
-    raise NotImplementedError("Baseline correction logic not yet implemented (T012).")
+    if len(data) == 0:
+        return data
+        
+    nyquist = 0.5 * sampling_rate
+    if cutoff >= nyquist:
+        log_step(f"Cutoff frequency {cutoff}Hz >= Nyquist {nyquist}Hz, skipping filter", level="WARNING")
+        return data
+        
+    normalized_cutoff = cutoff / nyquist
+    
+    try:
+        b, a = butter(order, normalized_cutoff, btype='low')
+        # Use filtfilt for zero-phase filtering
+        filtered = filtfilt(b, a, data, padlen=len(data))
+        return filtered
+    except Exception as e:
+        log_error(f"Low-pass filter failed: {e}")
+        return data
+
+def baseline_correct(data: np.ndarray, baseline_window: Tuple[int, int] = (0, 100)) -> np.ndarray:
+    """
+    Subtract the mean of a baseline window from the entire signal.
+    
+    Args:
+        data: Input data array
+        baseline_window: Tuple (start_idx, end_idx) defining the baseline period
+        
+    Returns:
+        Baseline-corrected data
+    """
+    if len(data) == 0:
+        return data
+        
+    start, end = baseline_window
+    if end > len(data):
+        end = len(data)
+    if start < 0:
+        start = 0
+        
+    if start >= end:
+        log_step("Invalid baseline window, skipping baseline correction", level="WARNING")
+        return data
+        
+    baseline_mean = np.mean(data[start:end])
+    return data - baseline_mean

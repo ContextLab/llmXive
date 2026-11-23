@@ -1,0 +1,221 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Pipeline Output Artifacts Schema
+description: >-
+  Schema defining the structure of all major output artifacts produced by
+  the coral bleaching prediction pipeline (Models, Maps, Reports, Metrics).
+type: object
+required:
+  - model_artifacts
+  - map_artifacts
+  - metrics_artifacts
+  - report_artifacts
+properties:
+  model_artifacts:
+    type: object
+    description: Artifacts related to the trained XGBoost model.
+    properties:
+      model_path:
+        type: string
+        description: Relative path to the serialized model file (e.g., .json or .pkl).
+      feature_list_path:
+        type: string
+        description: Path to the text file listing the final feature set used.
+      training_results:
+        type: object
+        description: JSON object containing training metrics.
+        properties:
+          roc_auc:
+            type: number
+            nullable: true
+            description: ROC-AUC score on the held-out test set.
+          performance_status:
+            type: string
+            enum:
+              - PASS
+              - FAIL
+              - N/A
+            description: Status relative to the 0.80 threshold.
+          hyperparameters:
+            type: object
+            description: Final hyperparameters used.
+            additionalProperties: true
+      permutation_importance:
+        type: object
+        description: Results from permutation importance analysis.
+        properties:
+          n_permutations:
+            type: integer
+          features:
+            type: array
+            items:
+              type: object
+              properties:
+                feature:
+                  type: string
+                importance:
+                  type: number
+                p_value:
+                  type: number
+                corrected_p_value:
+                  type: number
+        required:
+          - n_permutations
+          - features
+      stability_analysis:
+        type: object
+        description: Bootstrap stability analysis results.
+        properties:
+          n_resamples:
+            type: integer
+          top_3_stability:
+            type: array
+            description: Stability scores for the top 3 features.
+            items:
+              type: object
+              properties:
+                feature:
+                  type: string
+                stability_score:
+                  type: number
+  map_artifacts:
+    type: object
+    description: Artifacts related to the risk mapping.
+    properties:
+      risk_map_path:
+        type: string
+        description: Relative path to the generated GeoTIFF risk map.
+      dominant_drivers:
+        type: object
+        description: Analysis of dominant drivers for high-risk pixels.
+        properties:
+          top_10_pixels:
+            type: array
+            items:
+              type: object
+              properties:
+                pixel_id:
+                  type: string
+                probability:
+                  type: number
+                dominant_driver:
+                  type: string
+      threshold_sensitivity:
+        type: object
+        description: Sensitivity analysis for classification thresholds.
+        properties:
+          thresholds:
+            type: array
+            items:
+              type: number
+          metrics:
+            type: array
+            items:
+              type: object
+              properties:
+                threshold:
+                  type: number
+                fp_rate:
+                  type: number
+                fn_rate:
+                  type: number
+  metrics_artifacts:
+    type: object
+    description: Aggregated metrics and validation results.
+    properties:
+      auprc:
+        type: number
+        nullable: true
+        description: Area Under Precision-Recall Curve against independent data.
+      independent_data_available:
+        type: boolean
+        description: Whether independent validation data was available.
+      runtime_log:
+        type: object
+        description: Runtime performance metrics.
+        properties:
+          total_runtime_seconds:
+            type: number
+          warning_issued:
+            type: boolean
+            description: True if runtime exceeded 6 hours.
+  report_artifacts:
+    type: object
+    description: Generated documentation and reports.
+    properties:
+      research_report_path:
+        type: string
+        description: Path to the final research.md report.
+      data_model_path:
+        type: string
+        description: Path to the data-model.md documentation.
+      data_gap_status:
+        type: object
+        properties:
+          status:
+            type: string
+            enum:
+              - PASS
+              - FAIL
+            description: Status of the data gap verification.
+          missing_sources:
+            type: array
+            items:
+              type: string
+            nullable: true
+examples:
+  - model_artifacts:
+      model_path: "data/models/bleaching_model.json"
+      feature_list_path: "data/processed/feature_list.txt"
+      training_results:
+        roc_auc: 0.82
+        performance_status: "PASS"
+        hyperparameters:
+          max_depth: 5
+          learning_rate: 0.1
+          n_estimators: 200
+      permutation_importance:
+        n_permutations: 1000
+        features:
+          - feature: "dhw"
+            importance: 0.45
+            p_value: 0.001
+            corrected_p_value: 0.005
+          - feature: "thermal_tolerance"
+            importance: 0.32
+            p_value: 0.002
+            corrected_p_value: 0.006
+      stability_analysis:
+        n_resamples: 100
+        top_3_stability:
+          - feature: "dhw"
+            stability_score: 0.98
+          - feature: "thermal_tolerance"
+            stability_score: 0.95
+          - feature: "sst_mean"
+            stability_score: 0.92
+  - map_artifacts:
+      risk_map_path: "data/models/bleaching_risk_map.tif"
+      threshold_sensitivity:
+        thresholds: [0.3, 0.5, 0.7]
+        metrics:
+          - threshold: 0.3
+            fp_rate: 0.15
+            fn_rate: 0.25
+          - threshold: 0.5
+            fp_rate: 0.08
+            fn_rate: 0.35
+          - threshold: 0.7
+            fp_rate: 0.03
+            fn_rate: 0.45
+  - metrics_artifacts:
+      auprc: 0.78
+      independent_data_available: true
+      runtime_log:
+        total_runtime_seconds: 18500
+        warning_issued: false
+  - report_artifacts:
+      research_report_path: "results/research.md"
+      data_model_path: "docs/data-model.md"
+      data_gap_status:
+        status: "PASS"
+        missing_sources: []

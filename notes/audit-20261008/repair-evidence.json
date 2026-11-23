@@ -1,0 +1,8 @@
+{
+  "exception": "FileNotFoundError",
+  "error": "[Errno 2] No such file or directory: 'projects/PROJ-relative/code/.venv/bin/python'",
+  "function": "llmxive.sandbox.run_pytest",
+  "input": "project_dir=Path(\"projects/PROJ-relative\")",
+  "expected": "Run pytest using the selected venv with paths relative to the project code directory",
+  "test_requirement": "Use a real subprocess and an existing Python executable in a relative project path. Prove that changing cwd does not break venv executable resolution."
+}

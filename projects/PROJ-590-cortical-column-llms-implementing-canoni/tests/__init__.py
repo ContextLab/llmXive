@@ -1,2 +1,3 @@
-# tests package
-# Root test package for the project.
+"""
+Tests package for the project.
+"""

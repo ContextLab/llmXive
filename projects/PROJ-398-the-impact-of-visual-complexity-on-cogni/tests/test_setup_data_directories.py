@@ -1,83 +1,63 @@
 """
-Tests for Task T001b: setup_data_directories.py
+Unit tests for ``code/setup_data_directories.py``.
+
+The tests verify that ``ensure_directory`` correctly creates a directory
+without raising and that ``main`` can be called without error (the actual
+creation of the project‑wide ``data/`` hierarchy is exercised but does not
+interfere with the repository because the test runs in an isolated temporary
+directory).
 """
+
 import os
-import shutil
 import tempfile
 from pathlib import Path
+
 import pytest
 
-# Import the functions to test
-# We need to adjust the import path based on how tests are run.
-# Assuming the test is run from the project root or code is in code/
-import sys
-from pathlib import Path
-
-# Add the 'code' directory to the path if running from root
-code_dir = Path(__file__).resolve().parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
-
+# Import the functions from the module under test.
 from setup_data_directories import ensure_directory, main
 
+def test_ensure_directory_creates_path():
+    """``ensure_directory`` must create a missing directory."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        target = Path(tmpdir) / "nested" / "dir"
+        # Directory should not exist yet.
+        assert not target.exists()
+        # Call the helper.
+        result = ensure_directory(target)
+        # It should now exist and be a directory.
+        assert result.is_dir()
+        assert result == target.resolve()
 
-class TestSetupDataDirectories:
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """Create a temporary directory structure for testing."""
-        self.test_dir = Path(tempfile.mkdtemp())
-        self.original_cwd = Path.cwd()
-        
-        # Change to the temp directory to simulate project root
-        os.chdir(self.test_dir)
-        
-        # Create a dummy 'code' directory so the script finds its parent correctly
-        (self.test_dir / "code").mkdir()
-        
-        yield
-        
-        # Cleanup
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.test_dir)
+def test_main_creates_default_data_structure(tmp_path, monkeypatch, capsys):
+    """
+    ``main`` should create the four top‑level ``data/*`` directories.
+    The test runs in a temporary directory that mimics a project root.
+    """
+    # Monkey‑patch the location of the project root to the temporary path.
+    # ``setup_data_directories`` computes the base as two parents up from this file.
+    # We therefore place a dummy ``code`` package inside the temporary directory
+    # and adjust ``__file__`` accordingly.
+    dummy_code_dir = tmp_path / "code"
+    dummy_code_dir.mkdir()
+    dummy_file = dummy_code_dir / "setup_data_directories.py"
+    dummy_file.write_text("# placeholder – not executed")
+    monkeypatch.setattr("setup_data_directories.__file__", str(dummy_file))
 
-    def test_ensure_directory_creates_new(self):
-        """Test that ensure_directory creates a new directory."""
-        new_path = self.test_dir / "data" / "new_folder"
-        assert not new_path.exists()
-        
-        ensure_directory(new_path)
-        
-        assert new_path.exists()
-        assert new_path.is_dir()
+    # Run ``main`` – it will resolve the base directory relative to the patched file.
+    main()
 
-    def test_ensure_directory_exists_no_error(self):
-        """Test that ensure_directory does not error if dir exists."""
-        existing_path = self.test_dir / "data" / "existing_folder"
-        existing_path.mkdir(parents=True)
-        
-        # Should not raise
-        ensure_directory(existing_path)
-        
-        assert existing_path.exists()
+    # Capture printed output to ensure the function ran.
+    captured = capsys.readouterr()
+    assert "Created/verified data directory" in captured.out
 
-    def test_main_creates_structure(self):
-        """Test that main() creates the required data directories."""
-        # Run main
-        main()
-        
-        # Verify structure
-        data_root = self.test_dir / "data"
-        assert data_root.exists()
-        assert data_root.is_dir()
-        
-        required_dirs = [
-            "stimuli",
-            "processed",
-            "measurements",
-            "raw"
-        ]
-        
-        for subdir in required_dirs:
-            dir_path = data_root / subdir
-            assert dir_path.exists(), f"Missing directory: {dir_path}"
-            assert dir_path.is_dir(), f"Not a directory: {dir_path}"
+    # Verify that the expected directories now exist under the temporary project root.
+    base_data = tmp_path / "data"
+    expected_dirs = [
+        base_data / "stimuli",
+        base_data / "processed",
+        base_data / "measurements",
+        base_data / "raw",
+    ]
+    for d in expected_dirs:
+        assert d.is_dir()

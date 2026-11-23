@@ -1,253 +1,299 @@
 """
-Unit tests for temporal validation module.
-Tests validate_temporal_consistency from code/data/validate_temporal.py
+Unit tests for temporal validation functionality.
 """
-import os
-import tempfile
-import json
-import pandas as pd
 import pytest
+import json
+import os
+import sys
+from datetime import datetime
 from pathlib import Path
+from unittest.mock import patch, MagicMock
+import pandas as pd
 
 # Add project root to path
-sys_path = str(Path(__file__).parent.parent.parent)
-if sys_path not in __import__("sys").path:
-    __import__("sys").path.insert(0, sys_path)
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from code.data.validate_temporal import validate_temporal_consistency, _process_file, _parse_time
-from code.utils.constants import DATA_RAW_DIR, DATA_PROCESSED_DIR
+from code.data.validate_temporal import (
+    parse_date,
+    load_manifest,
+    load_phenotype_data,
+    check_temporal_fields,
+    validate_studies_from_manifest,
+    TemporalVerificationWarning,
+    TemporalVerificationError
+)
 
+class TestParseDate:
+    def test_parse_standard_date(self):
+        """Test parsing standard YYYY-MM-DD format."""
+        result = parse_date("2023-01-15")
+        assert result is not None
+        assert result.year == 2023
+        assert result.month == 1
+        assert result.day == 15
 
-class TestTemporalValidation:
-    """Tests for temporal validation functionality."""
+    def test_parse_datetime(self):
+        """Test parsing datetime format."""
+        result = parse_date("2023-01-15 14:30:00")
+        assert result is not None
+        assert result.hour == 14
+        assert result.minute == 30
 
-    def test_parse_time_numeric(self):
-        """Test parsing numeric timestamps."""
-        assert _parse_time(123456) == 123456.0
-        assert _parse_time(123.456) == 123.456
-        assert _parse_time(0) == 0.0
+    def test_parse_invalid_date(self):
+        """Test parsing invalid date returns None."""
+        result = parse_date("not-a-date")
+        assert result is None
 
-    def test_parse_time_string_numeric(self):
-        """Test parsing string numeric values."""
-        assert _parse_time("123456") == 123456.0
-        assert _parse_time("123.456") == 123.456
+    def test_parse_empty_string(self):
+        """Test parsing empty string returns None."""
+        result = parse_date("")
+        assert result is None
 
-    def test_parse_time_date_string(self):
-        """Test parsing date strings."""
-        # Test various formats
-        assert _parse_time("2023-01-15") is not None
-        assert _parse_time("2023/01/15") is not None
-        assert _parse_time("15-01-2023") is not None
+    def test_parse_none(self):
+        """Test parsing None returns None."""
+        result = parse_date(None)
+        assert result is None
 
-    def test_parse_time_invalid(self):
-        """Test parsing invalid values."""
-        assert _parse_time(None) is None
-        assert _parse_time("") is None
-        assert _parse_time("invalid") is None
-        assert _parse_time(float('nan')) is None
-
-    def test_process_file_valid(self):
-        """Test processing a file with valid temporal data."""
+class TestCheckTemporalFields:
+    def test_no_temporal_fields(self):
+        """Test detection when no temporal fields exist."""
         df = pd.DataFrame({
-            "sample_time": [100, 200, 300],
-            "challenge_time": [150, 250, 350],
-            "other_col": ["a", "b", "c"]
+            'sample_id': [1, 2, 3],
+            'resistance_score': [0.5, 0.7, 0.3]
         })
+        phenotype_data = {
+            'study_id': 'test_study',
+            'df': df,
+            'columns': list(df.columns)
+        }
         
-        result = _process_file(df, "test.csv")
-        
-        assert result["valid"] is True
-        assert result["violation_count"] == 0
-        assert result["valid_rows"] == 3
-        assert result["total_rows"] == 3
+        status, verified, missing = check_temporal_fields(phenotype_data)
+        assert status == 'unverified'
+        assert len(missing) > 0
 
-    def test_process_file_violations(self):
-        """Test processing a file with temporal violations."""
+    def test_baseline_keyword_detection(self):
+        """Test detection of baseline/pre-challenge keywords."""
         df = pd.DataFrame({
-            "sample_time": [100, 200, 300],  # 300 >= 250 is a violation
-            "challenge_time": [150, 250, 250],
-            "other_col": ["a", "b", "c"]
+            'sample_id': [1, 2, 3],
+            'baseline_status': ['pre-challenge', 'pre-challenge', 'pre-challenge'],
+            'resistance_score': [0.5, 0.7, 0.3]
         })
+        phenotype_data = {
+            'study_id': 'test_study',
+            'df': df,
+            'columns': list(df.columns)
+        }
         
-        result = _process_file(df, "test.csv")
-        
-        assert result["valid"] is False
-        assert result["violation_count"] == 1
-        assert result["valid_rows"] == 3
+        status, verified, missing = check_temporal_fields(phenotype_data)
+        assert status == 'verified'
+        assert len(verified) > 0
 
-    def test_process_file_missing_columns(self):
-        """Test processing a file missing time columns."""
+    def test_date_comparison(self):
+        """Test date comparison logic."""
         df = pd.DataFrame({
-            "other_col": ["a", "b", "c"],
-            "another_col": [1, 2, 3]
+            'sample_date': ['2023-01-01', '2023-01-02', '2023-01-03'],
+            'inoculation_date': ['2023-01-10', '2023-01-11', '2023-01-12'],
+            'resistance_score': [0.5, 0.7, 0.3]
         })
+        phenotype_data = {
+            'study_id': 'test_study',
+            'df': df,
+            'columns': list(df.columns)
+        }
         
-        result = _process_file(df, "test.csv")
-        
-        assert result["sample_time_col"] is None
-        assert result["challenge_time_col"] is None
+        status, verified, missing = check_temporal_fields(phenotype_data)
+        assert status == 'verified'
+        assert 'sample_date' in verified or 'inoculation_date' in verified
 
-    def test_process_file_nan_values(self):
-        """Test processing a file with NaN time values."""
+    def test_missing_inoculation_date(self):
+        """Test when inoculation date is missing but sample date exists."""
         df = pd.DataFrame({
-            "sample_time": [100, None, 300],
-            "challenge_time": [150, 250, None],
-            "other_col": ["a", "b", "c"]
+            'sample_date': ['2023-01-01', '2023-01-02', '2023-01-03'],
+            'resistance_score': [0.5, 0.7, 0.3]
         })
+        phenotype_data = {
+            'study_id': 'test_study',
+            'df': df,
+            'columns': list(df.columns)
+        }
         
-        result = _process_file(df, "test.csv")
-        
-        # Only 1 row should be valid (index 0)
-        assert result["valid_rows"] == 1
-        assert result["total_rows"] == 3
+        status, verified, missing = check_temporal_fields(phenotype_data)
+        # Should be verified if baseline keywords are found, otherwise unverified
+        assert status in ['verified', 'unverified']
 
-    def test_validate_temporal_with_placeholder(self, monkeypatch, tmp_path):
-        """Test validation with placeholder file."""
-        # Create a temporary directory structure
-        raw_dir = tmp_path / "raw"
-        processed_dir = tmp_path / "processed"
-        raw_dir.mkdir()
-        processed_dir.mkdir()
+class TestLoadManifest:
+    def test_load_valid_manifest(self, tmp_path):
+        """Test loading a valid manifest file."""
+        manifest_data = [
+            {'study_id': 'ST001', 'title': 'Test Study'},
+            {'study_id': 'ST002', 'title': 'Another Study'}
+        ]
         
-        # Create a valid placeholder file
-        placeholder = raw_dir / "placeholder_phenotypes.csv"
-        df_valid = pd.DataFrame({
-            "sample_time": [100, 200, 300],
-            "challenge_time": [150, 250, 350],
-            "sample_id": ["s1", "s2", "s3"]
+        manifest_file = tmp_path / "study_manifest.json"
+        with open(manifest_file, 'w') as f:
+            json.dump(manifest_data, f)
+        
+        result = load_manifest(manifest_file)
+        assert len(result) == 2
+        assert result[0]['study_id'] == 'ST001'
+
+    def test_load_nonexistent_manifest(self, tmp_path):
+        """Test loading a non-existent manifest file."""
+        with pytest.raises(FileNotFoundError):
+            load_manifest(tmp_path / "nonexistent.json")
+
+class TestLoadPhenotypeData:
+    def test_load_phenotype_csv(self, tmp_path):
+        """Test loading phenotype CSV file."""
+        # Create mock raw directory
+        raw_dir = tmp_path / "data" / "raw"
+        raw_dir.mkdir(parents=True)
+        
+        phenotype_file = raw_dir / "ST001_phenotype.csv"
+        df = pd.DataFrame({
+            'sample_id': [1, 2, 3],
+            'resistance_score': [0.5, 0.7, 0.3]
         })
-        df_valid.to_csv(placeholder, index=False)
+        df.to_csv(phenotype_file, index=False)
         
-        # Monkeypatch constants
-        monkeypatch.setattr("code.data.validate_temporal.DATA_RAW_DIR", str(raw_dir))
-        monkeypatch.setattr("code.data.validate_temporal.DATA_PROCESSED_DIR", str(processed_dir))
-        
-        # Run validation
-        result = validate_temporal_consistency()
-        
-        assert result is True
-        
-        # Check report was written
-        report_path = processed_dir / "temporal_validation_report.json"
-        assert report_path.exists()
-        
-        with open(report_path) as f:
-            report = json.load(f)
-        
-        assert report["success"] is True
-        assert report["summary"]["violation_count"] == 0
+        # Mock the global DATA_RAW_DIR
+        with patch('code.data.validate_temporal.DATA_RAW_DIR', raw_dir):
+            result = load_phenotype_data("ST001")
+            
+        assert result is not None
+        assert result['study_id'] == 'ST001'
+        assert len(result['df']) == 3
 
-    def test_validate_temporal_with_violations(self, monkeypatch, tmp_path):
-        """Test validation detecting violations."""
-        # Create a temporary directory structure
-        raw_dir = tmp_path / "raw"
-        processed_dir = tmp_path / "processed"
-        raw_dir.mkdir()
-        processed_dir.mkdir()
+    def test_phenotype_not_found(self, tmp_path):
+        """Test when phenotype file doesn't exist."""
+        with patch('code.data.validate_temporal.DATA_RAW_DIR', tmp_path):
+            result = load_phenotype_data("NONEXISTENT")
+        assert result is None
+
+class TestValidateStudiesFromManifest:
+    def test_validate_single_verified_study(self, tmp_path):
+        """Test validation with one verified study."""
+        manifest = [{'study_id': 'ST001'}]
         
-        # Create a placeholder file with violations
-        placeholder = raw_dir / "placeholder_phenotypes.csv"
-        df_invalid = pd.DataFrame({
-            "sample_time": [100, 300, 400],  # 300 >= 250, 400 >= 350
-            "challenge_time": [150, 250, 350],
-            "sample_id": ["s1", "s2", "s3"]
+        # Create mock phenotype with baseline
+        raw_dir = tmp_path / "data" / "raw"
+        raw_dir.mkdir(parents=True)
+        phenotype_file = raw_dir / "ST001_phenotype.csv"
+        df = pd.DataFrame({
+            'sample_id': [1, 2],
+            'baseline_status': ['pre-challenge', 'pre-challenge']
         })
-        df_invalid.to_csv(placeholder, index=False)
+        df.to_csv(phenotype_file, index=False)
         
-        # Monkeypatch constants
-        monkeypatch.setattr("code.data.validate_temporal.DATA_RAW_DIR", str(raw_dir))
-        monkeypatch.setattr("code.data.validate_temporal.DATA_PROCESSED_DIR", str(processed_dir))
+        with patch('code.data.validate_temporal.DATA_RAW_DIR', raw_dir):
+            results = validate_studies_from_manifest(manifest)
         
-        # Run validation
-        result = validate_temporal_consistency()
-        
-        assert result is False
-        
-        # Check report was written
-        report_path = processed_dir / "temporal_validation_report.json"
-        assert report_path.exists()
-        
-        with open(report_path) as f:
-            report = json.load(f)
-        
-        assert report["success"] is False
-        assert report["summary"]["violation_count"] == 2
+        assert results['summary']['total'] == 1
+        assert results['summary']['verified'] == 1
 
-    def test_validate_temporal_no_files(self, monkeypatch, tmp_path):
-        """Test validation when no files exist."""
-        # Create empty directories
-        raw_dir = tmp_path / "raw"
-        processed_dir = tmp_path / "processed"
-        raw_dir.mkdir()
-        processed_dir.mkdir()
+    def test_validate_multiple_studies(self, tmp_path):
+        """Test validation with multiple studies."""
+        manifest = [
+            {'study_id': 'ST001'},
+            {'study_id': 'ST002'},
+            {'study_id': 'ST003'}
+        ]
         
-        # Monkeypatch constants
-        monkeypatch.setattr("code.data.validate_temporal.DATA_RAW_DIR", str(raw_dir))
-        monkeypatch.setattr("code.data.validate_temporal.DATA_PROCESSED_DIR", str(processed_dir))
+        raw_dir = tmp_path / "data" / "raw"
+        raw_dir.mkdir(parents=True)
         
-        # Run validation
-        result = validate_temporal_consistency()
-        
-        assert result is False
-        
-        # Check report was written with error
-        report_path = processed_dir / "temporal_validation_report.json"
-        assert report_path.exists()
-        
-        with open(report_path) as f:
-            report = json.load(f)
-        
-        assert report["success"] is False
-        assert report["summary"]["total_files"] == 0
-
-    def test_validate_temporal_date_formats(self, monkeypatch, tmp_path):
-        """Test validation with various date formats."""
-        # Create a temporary directory structure
-        raw_dir = tmp_path / "raw"
-        processed_dir = tmp_path / "processed"
-        raw_dir.mkdir()
-        processed_dir.mkdir()
-        
-        # Create a file with date strings
-        placeholder = raw_dir / "placeholder_phenotypes.csv"
-        df_dates = pd.DataFrame({
-            "sample_time": ["2023-01-01", "2023-02-01", "2023-03-01"],
-            "challenge_time": ["2023-01-15", "2023-02-15", "2023-03-15"],
-            "sample_id": ["s1", "s2", "s3"]
+        # ST001: verified
+        df1 = pd.DataFrame({
+            'sample_id': [1],
+            'baseline_status': ['pre-challenge']
         })
-        df_dates.to_csv(placeholder, index=False)
+        df1.to_csv(raw_dir / "ST001_phenotype.csv", index=False)
         
-        # Monkeypatch constants
-        monkeypatch.setattr("code.data.validate_temporal.DATA_RAW_DIR", str(raw_dir))
-        monkeypatch.setattr("code.data.validate_temporal.DATA_PROCESSED_DIR", str(processed_dir))
-        
-        # Run validation
-        result = validate_temporal_consistency()
-        
-        assert result is True
-
-    def test_validate_temporal_alternative_column_names(self, monkeypatch, tmp_path):
-        """Test validation with alternative column names."""
-        # Create a temporary directory structure
-        raw_dir = tmp_path / "raw"
-        processed_dir = tmp_path / "processed"
-        raw_dir.mkdir()
-        processed_dir.mkdir()
-        
-        # Create a file with alternative column names
-        placeholder = raw_dir / "placeholder_phenotypes.csv"
-        df_alt = pd.DataFrame({
-            "time_sample": [100, 200, 300],
-            "time_challenge": [150, 250, 350],
-            "sample_id": ["s1", "s2", "s3"]
+        # ST002: unverified (no temporal fields)
+        df2 = pd.DataFrame({
+            'sample_id': [1],
+            'resistance_score': [0.5]
         })
-        df_alt.to_csv(placeholder, index=False)
+        df2.to_csv(raw_dir / "ST002_phenotype.csv", index=False)
         
-        # Monkeypatch constants
-        monkeypatch.setattr("code.data.validate_temporal.DATA_RAW_DIR", str(raw_dir))
-        monkeypatch.setattr("code.data.validate_temporal.DATA_PROCESSED_DIR", str(processed_dir))
+        # ST003: verified
+        df3 = pd.DataFrame({
+            'sample_id': [1],
+            'timepoint': ['baseline']
+        })
+        df3.to_csv(raw_dir / "ST003_phenotype.csv", index=False)
         
-        # Run validation
-        result = validate_temporal_consistency()
+        with patch('code.data.validate_temporal.DATA_RAW_DIR', raw_dir):
+            results = validate_studies_from_manifest(manifest)
         
-        assert result is True
+        assert results['summary']['total'] == 3
+        assert results['summary']['verified'] == 2
+        assert results['summary']['unverified'] == 1
+
+class TestMain:
+    def test_main_with_verified_studies(self, tmp_path, capsys):
+        """Test main function with verified studies."""
+        # Setup directories
+        raw_dir = tmp_path / "data" / "raw"
+        raw_dir.mkdir(parents=True)
+        processed_dir = tmp_path / "data" / "processed"
+        processed_dir.mkdir(parents=True)
+        
+        # Create manifest
+        manifest = [{'study_id': 'ST001'}]
+        manifest_file = raw_dir / "study_manifest.json"
+        with open(manifest_file, 'w') as f:
+            json.dump(manifest, f)
+        
+        # Create verified phenotype
+        phenotype_file = raw_dir / "ST001_phenotype.csv"
+        df = pd.DataFrame({
+            'sample_id': [1],
+            'baseline_status': ['pre-challenge']
+        })
+        df.to_csv(phenotype_file, index=False)
+        
+        with patch('code.data.validate_temporal.DATA_RAW_DIR', raw_dir), \
+             patch('code.data.validate_temporal.DATA_PROCESSED_DIR', processed_dir):
+            with pytest.raises(SystemExit) as exc_info:
+                from code.data.validate_temporal import main
+                main()
+            
+            assert exc_info.value.code == 0
+        
+        # Verify output file created
+        output_file = processed_dir / "temporal_validation_log.json"
+        assert output_file.exists()
+        
+        with open(output_file) as f:
+            data = json.load(f)
+        assert data['summary']['verified'] >= 1
+
+    def test_main_with_no_verified_studies(self, tmp_path, capsys):
+        """Test main function with no verified studies."""
+        raw_dir = tmp_path / "data" / "raw"
+        raw_dir.mkdir(parents=True)
+        processed_dir = tmp_path / "data" / "processed"
+        processed_dir.mkdir(parents=True)
+        
+        manifest = [{'study_id': 'ST001'}]
+        manifest_file = raw_dir / "study_manifest.json"
+        with open(manifest_file, 'w') as f:
+            json.dump(manifest, f)
+        
+        # Create unverified phenotype
+        phenotype_file = raw_dir / "ST001_phenotype.csv"
+        df = pd.DataFrame({
+            'sample_id': [1],
+            'resistance_score': [0.5]
+        })
+        df.to_csv(phenotype_file, index=False)
+        
+        with patch('code.data.validate_temporal.DATA_RAW_DIR', raw_dir), \
+             patch('code.data.validate_temporal.DATA_PROCESSED_DIR', processed_dir):
+            with pytest.raises(SystemExit) as exc_info:
+                from code.data.validate_temporal import main
+                main()
+            
+            assert exc_info.value.code == 1

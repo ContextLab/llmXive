@@ -1,67 +1,126 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelResult"
-description: "Schema for trained model outputs and validation metrics."
-type: "object"
-properties:
-  model_type:
-    type: "string"
-    description: "Model algorithm used."
-    enum: ["LinearRegression", "Ridge", "RandomForest"]
-  target_variable:
-    type: "string"
-    description: "The hysteresis parameter being predicted."
-    enum: ["coercivity", "saturation"]
-  r2_cv:
-    type: "number"
-    description: "Cross-validated R² score (5-fold)."
-  mae_cv:
-    type: "number"
-    description: "Cross-validated Mean Absolute Error."
-  feature_importance:
-    type: "object"
-    description: "Top 3 features and their importance scores."
-    additionalProperties:
-      type: "number"
-  f_test_p_value:
-    type: "number"
-    description: "P-value from F-test vs. null model."
-  ci_lower:
-    type: "number"
-    description: "95% CI lower bound for R² (1000 resamples)."
-  ci_upper:
-    type: "number"
-    description: "95% CI upper bound for R² (1000 resamples)."
-  sc006_status:
-    type: "string"
-    description: "Status of SC-006 (R² >= 0.6). Marked as 'Exploratory Benchmark'."
-    enum: ["Exploratory Benchmark Met", "Exploratory Benchmark Not Met"]
-  data_scarcity_warning:
-    type: "boolean"
-    description: "True if N < 50, triggering FR-008 warning."
-  interpretation_disclaimer:
-    type: "string"
-    description: "Mandatory disclaimer: 'F-test validates statistical fit, not physical mechanism...'"
-  microstructure_note:
-    type: "string"
-    description: "Mandatory note: 'Hysteresis is heavily influenced by microstructure...'"
-  stratified_analysis_results:
-    type: "object"
-    description: "Results of stratified analysis by synthesis method (if performed)."
-  residual_confounding_check:
-    type: "string"
-    description: "Result of residual correlation check with synthesis method."
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Result Schema
+description: >
+  Canonical schema for machine learning model results in the 
+  composition-hysteresis prediction pipeline. Defines the structure for
+  model performance metrics, feature importance, and validation results.
+type: object
 required:
+  - model_id
   - model_type
-  - target_variable
-  - r2_cv
-  - mae_cv
-  - feature_importance
-  - f_test_p_value
-  - ci_lower
-  - ci_upper
-  - sc006_status
-  - data_scarcity_warning
-  - interpretation_disclaimer
-  - microstructure_note
-  - residual_confounding_check
+  - metrics
+  - training_timestamp
+properties:
+  model_id:
+    type: string
+    description: Unique identifier for the model run
+    pattern: "^[A-Z0-9_-]+$"
+  
+  model_type:
+    type: string
+    enum: ["LinearRegression", "RandomForest", "SVR", "GradientBoosting"]
+    description: Type of regression model used
+  
+  hyperparameters:
+    type: object
+    description: Model hyperparameters used
+    additionalProperties: true
+  
+  metrics:
+    type: object
+    description: Performance metrics from cross-validation
+    required:
+      - r2_mean
+      - r2_std
+      - mae_mean
+      - mae_std
+    properties:
+      r2_mean:
+        type: number
+        description: Mean R² score
+      r2_std:
+        type: number
+        description: Standard deviation of R² score
+      mae_mean:
+        type: number
+        description: Mean Absolute Error (mean)
+      mae_std:
+        type: number
+        description: Standard deviation of MAE
+      rmse_mean:
+        type: number
+        description: Root Mean Squared Error (mean)
+        nullable: true
+      rmse_std:
+        type: number
+        description: Standard deviation of RMSE
+        nullable: true
+  
+  feature_importance:
+    type: array
+    description: Ranked list of feature importances
+    items:
+      type: object
+      required:
+        - feature
+        - importance
+      properties:
+        feature:
+          type: string
+          description: Feature name
+        importance:
+          type: number
+          description: Importance score (e.g., permutation importance)
+  
+  validation:
+    type: object
+    description: Statistical validation results
+    properties:
+      f_test:
+        type: object
+        description: F-test results against null model
+        properties:
+          f_statistic:
+            type: number
+          p_value:
+            type: number
+          is_significant:
+            type: boolean
+      confidence_interval:
+        type: object
+        description: Bootstrap confidence interval for R²
+        properties:
+          r2_lower:
+            type: number
+          r2_upper:
+            type: number
+          confidence_level:
+            type: number
+            default: 0.95
+  
+  training_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of model training
+  
+  data_checksum:
+    type: string
+    description: SHA256 checksum of the input dataset
+    pattern: "^[a-f0-9]{64}$"
+  
+  config:
+    type: object
+    description: Training configuration details
+    properties:
+      n_splits:
+        type: integer
+        description: Number of CV folds
+      random_state:
+        type: integer
+        description: Random seed for reproducibility
+      preprocessing_steps:
+        type: array
+        items:
+          type: string
+        description: List of preprocessing steps applied
 additionalProperties: false

@@ -1,0 +1,15 @@
+status: none
+intent: download NOAA SST DHW rasters UNEP reef geometry Coral Trait Database ReefBase
+  python package dataset
+required_fields:
+- reef_id
+- species_name
+- latitude
+- longitude
+- mean_SST
+- mean_DHW
+- thermal_tolerance
+- bleaching_label
+cache_key: 46137f9f0e8a3a9da967769b60cd58bede08470b50f963f3028d412b62df21aa
+searched_at: '2026-10-10T15:19:37.549435+00:00'
+retry_count: 1

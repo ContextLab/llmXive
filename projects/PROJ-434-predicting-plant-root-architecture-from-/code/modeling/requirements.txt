@@ -1,0 +1,6 @@
+# Dependencies for modeling tasks
+scikit-learn>=1.3.0
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+# Note: Ensure project-wide requirements.txt is also updated if new dependencies are added

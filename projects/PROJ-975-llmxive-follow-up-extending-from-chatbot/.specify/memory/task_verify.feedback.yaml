@@ -1,0 +1,64 @@
+T001:
+  task: 558a684ab6cfd812e0d6b3f9f7f21befeb2df67af770009870cdfeffb5b574de
+T002:
+  reason: "The generated `tasks.json` fails schema validation \u2013 the required\
+    \ `ground_truth_skills` field is missing (or empty) for tasks, causing `test_schema_compliance`\
+    \ to error. The task records therefore do not conform to `task.schema.yaml`. To\
+    \ complete the task, each task must include a non\u2011empty `ground_truth_skills`\
+    \ array (3\u20115 skill IDs) that satisfies the schema, and the schema files must\
+    \ be present in the `contracts/` directory."
+  task: e1434351452dd1cf2ef1c0cd663e38c908eadce156262664ad059cbd6ec22783
+T003:
+  task: 3a00ec119c9e2f9d89ea6b136df79307137dbf0ba8a3c0879393fd3a6d76d0f6
+T004:
+  reason: "The pytest run (`code/.tasks/T004.tests_contract_test_schemas.py.log`)\
+    \ exits with failures: `test_real_tasks_schema_compliance` (and also `test_real_skills_schema_compliance`)\
+    \ report \u201CAdditional properties are not allowed\u201D (e.g., `edge_case`,\
+    \ `embedding_vector` in tasks). The `fix_tasks_schema.py` script runs without\
+    \ error but does not remove these extra fields, so the JSON files still violate\
+    \ the schemas. Consequently the test suite does not exit successfully, violating\
+    \ the task requirement."
+  task: d1c2ba04f33156fde60bc946cb13780ce4df3c9e770d833d90b3294136521cac
+T005:
+  task: 794d6e0d6d90cbd32a42721cee5338971eb6584e7926037d22b94be600b6fd2c
+T006:
+  reason: "Checked `code/agent.py` (has the Tuple import and CLI parsing) and the\
+    \ `data/results/execution_logs/` JSON\u2011L files (run_50_off_HIGH.jsonl exists).\
+    \ However, the required CSV log `data/results/experiment_log.csv` is missing,\
+    \ the script never imports `experiment_log.schema.yaml` for validation, and the\
+    \ integration test `tests/integration/test_agent_small_run.py` is absent. These\
+    \ missing artifacts prevent the task\u2019s requirement from being satisfied."
+  task: 2268e3c6d17909bc6bcae179a576c1528bd2dd7103fba9da26c4c54b7d8f36a1
+T007:
+  reason: "The provided `code/pruning.py` implements removal when the **maximum**\
+    \ cosine similarity to any other skill exceeds\u202F0.70, and the unit tests in\
+    \ `tests/unit/test_pruning.py` assert exactly this behavior. The task specification,\
+    \ however, requires pruning when the **minimum** cosine similarity is **below**\u202F\
+    0.70 (i.e., the opposite condition). Consequently the function\u2019s logic and\
+    \ its tests do not match the stated requirement, so the task is not correctly\
+    \ fulfilled."
+  task: 879e6d34228d71362b97399218ca86b39850a0c51abf877d1574bb99d386acec
+T008:
+  reason: The integration test `test_full_sweep.py` expects the schema file `contracts/experiment_log.schema.yaml`
+    to exist and be loaded for row validation, but this file is missing, causing the
+    test to error before any assertions are checked. Without the schema, the required
+    verification step cannot succeed. Adding the missing schema file (matching the
+    column definitions) is needed for the task to be considered complete.
+  task: 4c1a22860751fee18f16da0fa9f947cbf91ed437aac065ae52c1622e2f9ef7f6
+T009:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis.py exit=1'
+  task: b6168ab08addd0ce22e0de3601512cfa61bca6f771b8d7c5242f67a1885c948d
+T010:
+  reason: 'Requested task execution failed; rerun successfully: code/run_feasibility.py
+    exit=1'
+  task: 2f2825e38a345fe27caaa866e02bc662d2ec25de17b6cd0664ef6d792935d4a1
+T011:
+  task: 382998b842648afaf812db923632b152947e48bfc492e225531325361d793c7e
+T012:
+  task: 97b72fe26104dec0090b2cea9b2f74e9adc79038ec909c0b75de177671fa699c
+T013:
+  task: d09008595be9bc941f3ec62ad9908907844f27ec08e6251c4619bb1acb0625f0
+T014:
+  task: c2b7776851d8e8ac3d6f7dc5788935501e34f76b3ef3706fe9fed9df85961ea6
+T015:
+  task: 922df92926b39fe9a8f87f494101ca7ad39bf3ce515317ade5cc55eac5fdb0b2

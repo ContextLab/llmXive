@@ -1,6 +1,10 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Predicting Molecular Surface Area from Graph Convolutional Networks
 
-**Input**: Design documents from `/specs/001-predict-molecular-surface-area/`
+**Input**: Design documents from `/specs/001-predicting-molecular-surface-area/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -20,48 +24,45 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, directory structure, and schema generation.
 
-- [ ] T001 Create project structure: `mkdir -p code/data code/models code/eval code/utils tests/contract tests/unit tests/integration data/raw data/processed data/splits results/reports results/plots`
-- [ ] T002 Create `code/requirements.txt` containing pinned versions of: `rdkit`, `torch (cpu)`, `torch-geometric (cpu)`, `pandas`, `scikit-learn`, `pyyaml`, `numpy`, `pytest`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001-Setup-Dirs-Code [P] Initialize code-related directories. Create a Python script `scripts/setup_dirs.py` that generates the following directories: `code/`, `code/data/`, `code/models/`, `code/eval/`, `code/utils/`, `tests/contract/`, `tests/unit/`, `tests/integration/`, `logs/`. **Output**: `scripts/setup_dirs.py`.
+- [X] T001-Setup-Dirs-Data [P] Initialize data-related directories. Create a Python script `scripts/setup_dirs.py` that generates the following directories: `data/raw/`, `data/processed/`, `data/splits/`, `data/schemas/`. **Output**: `scripts/setup_dirs.py` (appended logic).
+- [X] T001-Setup-Dirs-Results [P] Initialize results-related directories. Create a Python script `scripts/setup_dirs.py` that generates the following directories: `results/reports/`, `results/plots/`, `results/baseline/`, `results/predictions/`. **Output**: `scripts/setup_dirs.py` (appended logic).
+- [X] T001-Setup-Execute [P] Run `python scripts/setup_dirs.py` from the repository root and verify that all listed directories are created. **Output**: All listed directories exist.
+- [X] T002 [P] Create `code/requirements.txt` containing pinned versions of: `rdkit==2023.9.5`, `pandas==2.1.4`, `scikit-learn==1.3.2`, `pyyaml==6.0.1`, `numpy==1.26.2`, `torch==2.1.0`, `torch-geometric==2.4.0`, `ruff==0.1.6`, `black==23.11.0`, `datasets==2.15.0`, `huggingface_hub==0.19.4`. **Note**: Removed unresolved claims and placeholders.
+- [X] T002-Install [P] Install dependencies. Run: `pip install -r code/requirements.txt` followed by `pip install torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu` and `pip install torch-geometric==2.4.0 --index-url https://download.pytorch.org/whl/cpu`. Do not use `torch (cpu)` as a package name. **Context**: These commands MUST be run inside the virtualenv created by T001-Setup-Execute.
+- [X] T002b [P] Create `code/config.py` and define `TIME_BUDGET` (float, hours) set to 6.0 (value from Plan.md 'Performance Goals'), `MAX_RAM_GB` (float) set to 7.0, `RANDOM_SEED` (int) set to 42, `MAX_MOLECULES` (int) set to 5000 (fixed cap for pilot study), and `SENSITIVITY_THRESHOLDS` (list of floats) set to `[0.01, 0.05, 0.1]` (unit: Å²). **Note**: The `SENSITIVITY_THRESHOLDS` values are explicitly set to the Spec-mandated list (FR-006, Assumptions) with units. **Dependency**: None.
+- [X] T003a [P] Create Ruff configuration. Generate `.ruff.toml` at repository root with project-specific linting rules. **Output**: `.ruff.toml`.
+- [X] T003b [P] Create Black configuration. Generate `pyproject.toml` (or `.black.toml` if preferred) with Black formatting rules. **Output**: `pyproject.toml` (Black section).
+- [X] T004 [P] Generate `specs/001-predicting-molecular-surface-area/contracts/dataset.schema.yaml` defining the expected fields for the processed dataset (SMILES, node_features, edge_features, surface_area, molecular_weight). **Note**: Path corrected to `contracts/` per Plan.md SSoT.
+- [ ] T005 [P] Generate `specs/001-predicting-molecular-surface-area/contracts/model_schema.yaml` defining the expected fields for model output (model_type, metrics, hyperparameters).
+- [X] T006 [P] Generate `specs/001-predicting-molecular-surface-area/contracts/sensitivity_schema.yaml` defining the expected fields for sensitivity reports (thresholds, success_rates, corrected_p_values).
+- [X] T049 [P] Implement pre-flight network connectivity check in `code/utils/network_check.py`. This task must run before any ingestion tasks to verify access to ZINC15. **Failure Behavior**: If the connection to ZINC15 fails or the URL is unreachable, the function MUST raise a `ConnectionError` immediately and halt the pipeline. Do NOT retry or fall back to synthetic data.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes robustness features (memory, network, batch sizing) to ensure the pipeline runs successfully.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup directory structure: `code/`, `data/raw/`, `data/processed/`, `data/splits/`, `results/`
-- [ ] T005 [P] Implement `code/__init__.py` and environment configuration loader
-- [ ] T006a [P] Setup logging infrastructure in `code/utils/logging.py`
-- [ ] T006b [P] Implement `conformer_config.json` generator in `code/utils/conformer_config.py`
-- [ ] T007 Create base data models (Molecule, Graph, EvaluationResult) in `code/models/`
-- [ ] T008 Implement seed pinning utility for reproducibility in `code/utils/seed.py`
-- [ ] T009 Setup dataset checksumming utility in `code/utils/checksum.py`
+- [X] T007 [P] Implement `code/__init__.py` and environment configuration loader
+- [X] T008a [P] Setup logging infrastructure in `code/utils/logging.py`
+- [X] T009a [P] Create base data model `Molecule` in `code/data_models/molecule.py`. **Attributes**: `smiles` (str), `mol` (rdkit.Chem.Mol), `molecular_weight` (float), `atom_count` (int), `node_features` (np.ndarray), `edge_features` (np.ndarray). **Methods**: `validate()`, `to_dict()`. **Node Features**: Must be explicitly defined as `[atom_type, hybridization, formal_charge]`. **Edge Features**: Must be explicitly defined as `[bond_type, conjugated, aromatic]`. **Dependency**: None.
+- [X] T009b [P] Create base data model `Graph` in `code/data_models/graph.py`. **Attributes**: `nodes` (list), `edges` (list), `node_features` (np.ndarray), `edge_features` (np.ndarray), `adjacency_matrix` (np.ndarray). **Methods**: `to_pyg_format()`, `validate()`. **Dependency**: None.
+- [X] T009c [P] Create base data model `EvaluationResult` in `code/data_models/evaluation_result.py`. **Attributes**: `model_type` (str), `mae` (float), `rmse` (float), `r2` (float), `predictions` (list), `errors` (list). **Methods**: `to_json()`, `summary()`. **Dependency**: None.
+- [X] T010 [P] Implement seed pinning utility for reproducibility in `code/utils/seed.py`. **Implementation**: Set `RANDOM_SEED` from `code/config.py` (value 42).
+- [X] T011 [P] Setup dataset checksumming utility in `code/utils/checksum.py`
+- [X] T017 [P] Implement SMILES validation utility in `code/utils/validators.py`. This utility MUST validate SMILES syntax and return a list of invalid strings. It must be used by T048 and T014. **Output**: `code/utils/validators.py` containing `validate_smiles(smiles_list)` function.
+- [X] T018 [P] Implement logging infrastructure for excluded molecules and dataset statistics in `code/utils/logging.py` (extending T008a). This utility MUST handle JSON logging for excluded molecules to `logs/excluded_molecules.log` and `logs/ingestion_errors.log`. **Output**: `code/utils/logging.py` with `def log_excluded_molecules(count: int, smiles_list: List[str]) -> None` and `def log_errors(errors: List[Exception]) -> None` functions. **Note**: The `log_errors` function MUST log invalid SMILES at the WARNING level.
+- [X] T045 [P] Implement memory-profiling wrapper in `code/utils/memory_monitor.py`. This wrapper MUST log peak RAM usage per epoch for training loops. If memory usage exceeds `MAX_RAM_GB` (from `code/config.py`), it must trigger an early exit with a diagnostic report. **Output**: `code/utils/memory_monitor.py` with `MemoryMonitor` class.
+- [X] T056 [P] Implement robust `load_dataset` wrapper in `code/data/ingest.py` that strictly adheres to the "Fail Loudly" principle. This wrapper MUST remove any `try/except` blocks that catch network errors and fall back to synthetic data. If the real ZINC15 stream fails, it MUST raise `ConnectionError` or `ValueError` immediately.
+- [ ] T057 [P] Implement checksum verification in `code/data/ingest.py`. This task MUST calculate the SHA-256 hash of each downloaded chunk and compare it against a known manifest (if available) or log the hash to `data/raw/checksums.json` for reproducibility. **Action**: This task MUST run unconditionally on the raw dataset, regardless of manifest availability. **Failure Behavior**: If a manifest exists and the calculated hash mismatches, the task MUST halt with a critical error. If no manifest is available, log the hash to `data/raw/checksums.json`. **Dependency**: T056.
+- [X] T058 [P] Implement dynamic batch size fallback in `code/models/train.py`. If the initial batch size causes an OOM error, the system MUST automatically reduce the batch size by half and retry, logging the adjustment, rather than crashing immediately (provided batch size >= 1).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,19 +76,23 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T010 [P] [US1] Contract test for data schema in `tests/contract/test_data_schema.py` validating against `schema.yaml`
-- [ ] T011 [US1] Integration test for SMILES ingestion pipeline in `tests/integration/test_ingest.py` (must run after T012-T014)
+- [X] T012 [P] [US1] Contract test for data schema in `tests/contract/test_data_schema.py` validating against `specs/001-predicting-molecular-surface-area/contracts/dataset.schema.yaml` (generated by T004) to ensure input format compliance before processing.
+- [ ] T013 [P] [US1] Integration test for SMILES ingestion pipeline in `tests/integration/test_ingest.py` (must run after T048)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement SMILES ingestion from ZINC15 (fetch from `https://zinc15.docking.org/subsets/home/...` specific subset) and validate syntax in `code/data/ingest.py`
-- [ ] T013 [US1] Implement 2D graph feature extraction (atom type, hybridization, charge) using RDKit in `code/data/preprocess.py`
-- [ ] T014 [US1] Implement 3D conformer generation (lowest energy) and SASA calculation in `code/data/preprocess.py` with chunked processing; **halt with critical error if >10% of conformer generation fails**
-- [ ] T015 [US1] Implement data splitting logic (stratified by Molecular Weight, KS test > 0.05) generating `data/splits/train_indices.csv` and `data/splits/test_indices.csv`
-- [ ] T016 [US1] Add validation and error handling for invalid SMILES and failed conformer generation; **log failure count and halt if >10% failure rate**
-- [ ] T017 [US1] Add logging for excluded molecules and dataset statistics
+- [ ] T048 [US1] Implement SMILES ingestion from ZINC15 using `datasets.load_dataset(..., streaming=True)` to avoid loading the full dataset into RAM. Fetch and process molecules in fixed-size chunks. **Strict Source Logic**: Check `DATA_SOURCE_OVERRIDE` environment variable. If present, use that source exclusively. If absent, fetch ONLY from ZINC15. Raise a critical error if the source is invalid or inaccessible. **Max Atoms Filter Implementation**: Calculate the number of atoms for each molecule using RDKit. If the atom count is > 100, exclude the molecule from the dataset and log the specific SMILES string to `logs/excluded_molecules.log` using T018. **Log Format**: Each line in `logs/excluded_molecules.log` MUST contain exactly one SMILES string and nothing else (no timestamps, no delimiters). **Invalid SMILES Handling**: Use T017 to catch syntax errors during parsing. **Log invalid SMILES to `logs/ingestion_errors.log` at the WARNING level** using T018. Validate syntax. **Schema Validation**: Validate against `specs/001-predicting-molecular-surface-area/contracts/dataset.schema.yaml` AND verify that the dataset contains the necessary fields or metadata to support 3D conformer generation (e.g., valid valence, atom types) to ensure downstream T015 will succeed. **Chunk Integrity**: After processing each chunk, verify that the number of rows in the output parquet matches the number of valid molecules in the input chunk (minus excluded ones). If the count is inconsistent, raise an error. The output will be written to `data/raw/chunk_*.parquet`. **Dependency**: T017, T018, T008a, T049.
+- [ ] T014-Pilot [US1] **Pilot Study**: Run a pilot study to estimate runtime per molecule. **Command**: `python code/data/pilot_study.py --input data/raw/chunk_*.parquet --count 100`. **Logic**: Process a representative sample of molecules, measure average time per molecule. **Output**: `data/processed/pilot_report.json` containing `avg_time_per_mol` (float, seconds) and `total_estimated_time` (float, hours) for the full dataset. **Dependency**: T048. <!-- FAILED-IN-EXECUTION: code/data/pilot_study.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/pilot_study.py exit=1 -->
+- [ ] T014-Sample [US1] Implement dataset sampling and power reporting. **Action**: Read `data/raw/chunk_*.parquet` and `data/processed/pilot_report.json`. **Logic**: Calculate `MAX_MOLECULES = floor(TIME_BUDGET / avg_time_per_mol)` based on the `TIME_BUDGET` variable from `code/config.py`. If the total count exceeds `MAX_MOLECULES` (or a predefined default threshold if pilot failed), select a random sample of exactly `MAX_MOLECULES` using `RANDOM_SEED`. If the count is below the limit, use all data. **Output**: `data/processed/sampled_dataset.parquet` and `data/processed/sampling_report.json` containing keys `total_available`, `sampled_count`, `sample_seed`, and `power_limitation_note` (text explaining the statistical power limitation of the sample size). **Dependency**: T048, T014-Pilot.
+- [ ] T014-Features [US1] 2D graph feature extraction (atom type, hybridization, charge) using RDKit in `code/data/preprocess.py`, and **calculate Molecular Weight** for each molecule. **Action**: Load filtered molecules from T014-Sample. **Filtering**: The >100 atom filter is already applied in T014-Sample; do not re-filter. **Order**: Extract 2D Features -> Calculate MW. **Output**: `data/processed/graphs_with_features.parquet`. **Dependency**: T014-Sample. **Note**: This task runs in parallel with T015a AFTER T014-Sample.
+- [ ] T015a [US1] 3D conformer generation (ETKDG) and failure logging in `code/data/preprocess.py`. **CRITICAL REQUIREMENT**: This task MUST generate `data/processed/conformer_params.json`, `data/processed/failure_report.csv`, and `data/processed/conformers.parquet`. **Explicit Parameter Logging**: Generate `data/processed/conformer_params.json` explicitly within this task using `json.dump` with keys `numThreads` (int, value 4), `maxAttempts` (int, value 100), `energyMinimizationSteps` (int, value 200), and `random_seed` (int, value 42) to satisfy Constitution Principle VII. **Generate `data/processed/failure_report.csv`** using `pandas.to_csv` with columns `[smiles, failure_reason, atom_count, numThreads, maxAttempts, energyMinimizationSteps, random_seed]` for any failed conformers. **Schema**: `failure_reason` must be a string enum with the following EXACT values: 'ETKDG_FAIL', 'MINIMIZATION_FAIL', 'INVALID_VALENCE', 'CONFORMER_GENERATION_FAIL', 'UNKNOWN_FAIL'. **Mapping Logic**: Map RDKit exceptions to these codes deterministically: `ValueError` (valence issues) -> 'INVALID_VALENCE'; `RuntimeError` (ETKDG failure) -> 'ETKDG_FAIL'; `RuntimeError` (minimization failure) -> 'MINIMIZATION_FAIL'; `RDKitException` (generic RDKit error) -> 'CONFORMER_GENERATION_FAIL'; Any other exception -> 'UNKNOWN_FAIL'. **Global Failure Counting**: Maintain a running count of `total_attempted` and `total_failed` for the entire dataset within this single sequential process. **Halt Logic**: This task MUST halt immediately with a critical error (exit code) if the running global failure rate (`total_failed / total_attempted`) exceeds a predefined threshold. **Output**: `data/processed/conformers.parquet` containing SMILES and the generated conformer objects (or serialized coordinates) using `pyarrow.parquet.write_table`. **Dependency**: T014-Sample (Must use the sampled dataset). **Note**: T015a runs SEQUENTIALLY after T014-Sample. It is NOT marked [P]. The global failure rate check is performed within this task to satisfy Spec Edge Case 3.
+- [ ] T014-Merge [US1] Merge 2D features with 3D conformers. **Action**: Merge `graphs_with_features.parquet` (T014-Features) and `conformers.parquet` (T015a). **Global State Aggregation**: In this task, aggregate the `total_attempted` and `total_failed` counts from T015a to confirm the final global failure rate. **Output**: `data/processed/graphs_with_features.parquet`. **Dependency**: T014-Features, T015a (SUCCESS STATE ONLY). **Note**: T014-Features and T015a run sequentially after T014-Sample. T014-Merge waits for T015a to complete fully.
+- [ ] T015b [US1] Calculate SASA and 3D geometric descriptors in `code/data/preprocess.py`. **Action**: Load conformers from T015a. Calculate SASA using RDKit. Calculate the following 3D geometric descriptors from the generated conformers: `radius_of_gyration`, `principal_moment_1`, `principal_moment_2`, `principal_moment_3`, and `sasa_components`. **Output**: `data/processed/descriptors.parquet` containing SMILES, `surface_area`, and the calculated 3D descriptors. **Dependency**: T015a.
+- [ ] T015d [US1] **Conformer Noise Check**: Generate a representative set of conformers for a sample of molecules using the parameters from `data/processed/conformer_params.json` (generated by T015a) but with different random seeds (incrementing by 1 for each conformer, i.e., seed, seed+1, seed+2, seed+3, seed+4). **Action**: Re-run the conformer generation logic (ETKDG) for each molecule in the subset with the new seeds. Calculate the SASA variance across these conformers for each molecule. Verify that the primary sensitivity thresholds (from T002b) are significantly larger than the calculated noise floor (variance). **Output**: `data/processed/noise_floor_report.json` containing `mean_variance`, `max_variance`, and `threshold_validation` (boolean). **Failure Handling**: If `threshold_validation` is false (i.e., noise floor >= primary threshold), this task MUST raise a critical error and halt the pipeline, logging the specific noise floor value and the threshold that failed. **Dependency**: T015a. **Note**: This task re-runs the generation logic; it does not just load T015a's output. It depends on the full completion of T015a.
+- [ ] T015c [US1] Merge artifacts and embed hashes in `code/data/preprocess.py`. **Action**: Merge `graphs_with_features.parquet` (T014-Merge), `conformers.parquet` (T015a), and `descriptors.parquet` (T015b) into `data/processed/paired_dataset.parquet`. **Verification**: Ensure `data/processed/conformer_params.json` exists and contains keys `numThreads`, `maxAttempts`, `energyMinimizationSteps`, `random_seed`. Ensure `data/processed/paired_dataset.parquet` contains the `surface_area` column with no NaN values and the required 3D descriptors. **Conformer Linkage**: Compute a SHA-256 hash of the `conformer_params.json` content and embed it as a `conformer_config_hash` in the Parquet file's metadata and as a new column `conformer_config_hash` in the dataset to ensure the 'Single Source of Truth' principle is met. **Dependency**: T014-Merge, T015a (SUCCESS STATE ONLY), T015b, T015d. **Note**: This task must not run if T015a failed.
+- [ ] T016 [US1] Implement data splitting logic (stratified by Molecular Weight) generating `data/splits/train_indices.csv`, `data/splits/test_indices.csv`, and `data/splits/split_report.json`. **Dependency**: Must run after T014-Merge (to ensure MW values are available). **Execute the Kolmogorov-Smirnov (KS) test** comparing the `molecular_weight` column of the training set vs the test set. **Output**: **ALWAYS** generate `data/splits/split_report.json` containing the key `ks_p_value` and `used_seed` (the integer seed used for this split), even if the p-value is <= 0.05. If p <= 0.05, also generate `data/splits/split_error_report.json` with details. **Failure Handling**: If p <= 0.05, the `split_report.json` must still be generated with the `used_seed` to allow T016-Gate to retry. **Note**: This task does NOT depend on T015 (SASA generation) as stratification relies solely on MW. **Dependency**: T014-Merge.
+- [ ] T016-Gate [US1] **Verify Split Report**: Load `data/splits/split_report.json` and verify that `ks_p_value` > 0.05. **Action**: If the condition is not met, retry the split with a new random seed up to 5 times. **Initial Seed**: The initial seed for the first attempt is `RANDOM_SEED` from `code/config.py` (a fixed integer value). The new seed for each retry is generated by **incrementing the `used_seed` from the report by exactly 1** (e.g., if the initial attempt used seed S and failed, the first retry uses S+1). **Retry Logic**: Re-execute `code/data/split.py --seed <new_seed>` and re-evaluate the KS test. If all retries fail (5 attempts total), generate `data/splits/split_failure_report.json` with fields `best_p_value`, `seeds_tried`, and `final_error`, log a CRITICAL error, and **HALT the pipeline (exit code 1)** (do NOT proceed with best-effort). **Output**: If successful, log a confirmation message; if failed, log the error and halt. **Dependency**: T016.
+- [ ] T016-Report [US1] **Report Final Dataset Statistics**: Calculate and report the final dataset size after all filtering steps (T048, T015a). **Action**: Count the number of molecules in `data/processed/paired_dataset.parquet` and `data/splits/train_indices.csv` / `data/splits/test_indices.csv`. **Output**: `data/processed/final_dataset_stats.json` containing keys `total_molecules`, `train_count`, `test_count`, `excluded_by_atom_count`, `excluded_by_conformer_failure`. **Dependency**: T015c, T016-Gate.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,23 +100,25 @@
 
 ## Phase 4: User Story 2 - GCN Model Training and Baseline Comparison (Priority: P2)
 
-**Goal**: Train a lightweight CPU-tractable GCN and a Geometry-Based Baseline, then compare performance.
+**Goal**: Train a lightweight CPU-tractable GCN and a Baseline on 2D descriptors, then compare performance.
 
-**Independent Test**: The training script runs to completion within the CI limit, producing two model artifacts and a results report showing MAE, RMSE, and R² for both, along with a statistical significance test.
+**Independent Test**: The training script runs to completion within the CI limit, producing two model artifacts and a results report showing MAE, RMSE, R² for both, along with a statistical significance test.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` validating against `model_schema.yaml`
-- [ ] T019 [P] [US2] Integration test for training loop and early stopping in `tests/integration/test_training.py`
+- [ ] T019 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` validating against `specs/001-predicting-molecular-surface-area/contracts/model_schema.yaml` (generated by T005)
+- [ ] T020 [P] [US2] Integration test for training loop and early stopping in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement lightweight GCN model definition (PyTorch Geometric, CPU-only) in `code/models/gcn.py` containing class `GCNModel` with `forward(input_tensor)` method
-- [ ] T021 [US2] Implement Geometry-Based Baseline using RDKit's 3D conformer generation in `code/models/baseline_3d.py`
-- [ ] T022 [US2] Implement training loop with early stopping (patience=5, max 50 epochs) in `code/models/train.py`
-- [ ] T023 [US2] Implement evaluation metrics (MAE, RMSE, R²) in `code/eval/metrics.py`
-- [ ] T024 [US2] Implement paired t-test and Cohen's d calculation for model comparison in `code/eval/metrics.py`
-- [ ] T025 [US2] Integrate training and evaluation to produce final comparison report generating `results/reports/model_comparison.json` containing MAE, RMSE, R2, p-value, and Cohen's d
+- [~] T021a [US2] Implement lightweight GCN model definition (PyTorch Geometric, CPU-only) in `code/models/gcn.py` containing class `GCNModel` with `forward(input_tensor)` method
+- [~] T021c [US2] **[FR-004] Train Geometry-Based Baseline**: Train a Random Forest model on **geometric descriptors** (from T015b: `radius_of_gyration`, `principal_moments`, `sasa_components`) using `code/models/baseline.py`. **Explicit Traceability**: This task directly implements FR-004's requirement for a "Geometry-Based Baseline using RDKit's 3D conformer generation" by training a predictive model on 3D geometric descriptors derived from those conformers. This approach satisfies the "explicitly uses 3D geometry" requirement without using 3D coordinates as direct model inputs (which would be a tautology). The baseline is a **learned model** (Random Forest) on 3D descriptors, distinct from a direct oracle calculation, to fairly compare against the learned GCN. **Training**: Train on the **training split** (from T016). **Inference Pipeline**: For the **test split**, load descriptors from `data/processed/descriptors.parquet` (T015b). **Clarification**: This is a TRAINED MODEL, distinct from the Geometry Oracle. The descriptors used are derived from RDKit's 3D conformer generation, satisfying the "Geometry-Based" requirement. The test set descriptors are loaded from the pre-computed dataset, NOT regenerated. **Input**: `data/processed/descriptors.parquet` (train split) and `data/processed/descriptors.parquet` (test split). **Output**: `results/baseline/baseline_3d.pkl` and `results/predictions/baseline_3d_predictions.parquet` containing columns `[smiles, predicted_sasa, error]`. **Dependency**: Must run after T016 (split indices), T015b (3D descriptors for training). **Note**: This task implements the required Geometry-Based Baseline per FR-004 and Plan Phase 3 Step 5. **Constraint**: It MUST NOT use 3D coordinates as input features.
+- [~] T022 [US2] Implement training loop with early stopping (patience=5, max 50 epochs) in `code/models/train.py`, incorporating gradient accumulation logic (merged from T050). **Output**: `results/predictions/gcn_predictions.parquet` containing columns `[smiles, predicted_sasa, error]`. **Verification**: Ensure `results/predictions/gcn_predictions.parquet` exists with the specified columns. **Dependency**: Must run after T021a and T016.
+- [~] T023a [US2] Implement MAE calculation function in `code/eval/metrics.py`. **Signature**: `def calculate_mae(y_true: np.ndarray, y_pred: np.ndarray) -> float`. **Dependency**: T010.
+- [~] T023b [US2] Implement RMSE calculation function in `code/eval/metrics.py`. **Signature**: `def calculate_rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float`. **Dependency**: T010.
+- [~] T023c [US2] Implement R² calculation function in `code/eval/metrics.py`. **Signature**: `def calculate_r2(y_true: np.ndarray, y_pred: np.ndarray) -> float`. **Dependency**: T010.
+- [ ] T040 [US2] **Calculate Model Performance Metrics**: Compute aggregate metrics (MAE, RMSE, R²) for the GCN model (from T022) and the **Geometry-Based Baseline (from T021c)** on the test set. **Output**: `results/reports/model_metrics.json` containing keys `gcn_mae`, `baseline_3d_mae`, `gcn_r2`, `baseline_3d_r2`. **Verification**: Ensure the JSON file exists and contains the specified keys. **Note**: This task calculates aggregate metrics for the required models. **Dependency**: Must run after T022 and T021c.
+- [ ] T025 [US2] Integrate training and evaluation to produce final comparison report generating `results/reports/model_comparison.json`. **Verification**: Ensure the JSON file exists and contains keys `gcn_mae`, `baseline_3d_mae`, `gcn_r2`, `baseline_3d_r2`, `p_value`, and `cohen_d`. Explicitly calculate and report the raw MAE, RMSE, and R² for the GCN (T022) and the **Geometry-Based Baseline (T021c)**. **Primary Comparison**: Perform a **paired t-test** comparing the prediction errors of the GCN model (T022) and the **Geometry-Based Baseline (T021c)**. This comparison satisfies Spec FR-005 and US-2 by comparing two predictive methods (GCN vs Geometry-Based Baseline). **Note**: This task explicitly compares GCN (T022) against T021c (Geometry-Based Baseline). **Dependency**: Must run after T022 and T021c.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -119,35 +126,47 @@
 
 ## Phase 5: User Story 3 - Sensitivity Analysis and Threshold Justification (Priority: P3)
 
-**Goal**: Perform sensitivity analysis on MAE thresholds and apply multiple-comparison corrections.
+**Goal**: Perform sensitivity analysis on MAE thresholds (absolute only) and apply multiple-comparison corrections.
 
 **Independent Test**: The analysis script re-runs the evaluation with modified thresholds and generates a report showing how success rates change, including corrected p-values.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_report.py` validating against `sensitivity_schema.yaml`
-- [ ] T027 [P] [US3] Unit test for Bonferroni/FDR correction logic in `tests/unit/test_statistics.py`
+- [~] T026 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_report.py` validating against `specs/001-predicting-molecular-surface-area/contracts/sensitivity_schema.yaml` (generated by T006)
+- [~] T027 [P] [US3] Unit test for Bonferroni/FDR correction logic in `tests/unit/test_statistics.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement sensitivity analysis script sweeping **absolute** MAE thresholds `{0.01, 0.05, 0.1} Å²` in `code/eval/sensitivity.py`
-- [ ] T029 [US3] Implement multiple-comparison correction (Bonferroni or FDR) for threshold sweep results in `code/eval/sensitivity.py`
-- [ ] T030 [US3] Generate sensitivity report with threshold justification and adjusted p-values writing `results/reports/sensitivity_analysis.md` containing the threshold sweep table and justification text
-- [ ] T031 [US3] Create visualization plots for sensitivity curves in `results/plots/`
+- [ ] T028 [US3] Implement sensitivity analysis script. **Primary Deliverable**: Calculate and report the success rate (percentage of molecules predicted within the threshold) for each threshold in the Spec-mandated set **{0.01, 0.05, 0.1} Å²**. **Action**: Load per-molecule predictions from `results/predictions/gcn_predictions.parquet` and `results/predictions/baseline_3d_predictions.parquet`. **Input Schema**: The input files MUST contain a column named `error` (float, unit: Å²) (as generated by T022 and T021c). **Success Rate Formula**: `success_rate = count(errors < threshold) / total_count`, where `total_count` is the number of molecules in the test set with valid predictions. **Primary Goal**: The primary goal of this task is to visualize and report the **variation in success rates** across the thresholds (the sensitivity curve), as mandated by FR-006 and US-3 Acceptance Scenario 1. **Secondary Deliverable**: Perform a **McNemar's test** on the **paired binary success/fail outcomes** (same set of molecules) for GCN vs Baseline at **EACH** of the three thresholds. **Output**: `data/processed/sensitivity_absolute.csv`. **Output Schema**: The CSV file MUST contain columns: `threshold` (float), `success_rate` (float, 0.0-1.0), `sample_size` (int), `statistic` (float, McNemar's chi-square), `p_value` (float). **Primary Verification**: This is the mandatory verification path per Spec FR-006. The report must explicitly state that the sensitivity curve (success rate vs threshold) is the primary metric and justify the threshold choice against experimental error. **Verification**: Verify that the sum of success_rate across thresholds is not used for aggregation, but each is reported independently. **Note**: The Plan.md FR/SC Coverage Map and this Task are aligned to use Spec-compliant thresholds of varying magnitudes. **Clarification**: This task implements absolute thresholds within a low range of Å². No relative threshold sweep is implemented or referenced. **Dependency**: None (thresholds hardcoded in task description).
+- [~] T029 [US3] Implement multiple-comparison correction (Bonferroni or FDR) for threshold sweep results in `code/eval/sensitivity.py`. **Condition**: Apply correction **whenever** multiple tests (n > 1) are performed, as mandated by Spec FR-007. **Method Selection**: **Use Bonferroni correction for all cases** where n > 1. Specify the chosen method and the condition in the output report. **Target**: Apply the correction **only** to the p-values generated by the **McNemar's test** performed at **each of the three thresholds** (0.01, 0.05, 0.1) in T028 (comparing GCN vs. Baseline success rates). Each threshold represents a distinct hypothesis test (null hypothesis: no difference in success rate at that threshold). The correction is applied to the set of 3 p-values. **Note**: The paired t-test from T025 (US-2) is a single test comparing overall errors and is NOT part of the sensitivity analysis (US-3), thus it does NOT require correction. This distinction is explicit to avoid ambiguity. **Dependency**: T028.
+- [~] T030 [US3] Generate sensitivity report with threshold justification and adjusted p-values writing `results/reports/sensitivity_analysis.md`. **Dependency**: Must run after T028 (Absolute), T029 (Correction), and T040 (Model Metrics). **Note**: Relative threshold sweep removed per Spec FR-006. **Justification Requirement**: The report must explicitly state the justification for the primary threshold. **Logic**: 1. If `research.md` exists and contains a relevant citation for the Å² threshold (e.g., a peer-reviewed paper on experimental error in SASA measurement), use that citation. 2. If `research.md` does not exist or contains no relevant citation, use the justification from the **Assumptions section of spec.md** ("typical experimental error margins in surface area measurement"). 3. The Spec Assumptions are always available, so the 'NO_CITATION_FOUND' branch is effectively removed; the report will always have a justification. **Noise Floor Handling**: The report must check `data/processed/noise_floor_report.json` (from T015d). If `threshold_validation` is false, the report MUST explicitly state that the thresholds are smaller than the conformer noise floor and that the results may be unreliable due to this limitation. **Include Power Limitation**: The report must include a "Limitations" section discussing the statistical power of the sample size (from T014-Sample) and any biases introduced by the chunked streaming process. **Dependency**: T028, T029, T040, T014-Sample, T015d.
+- [~] T031 [US3] Create visualization plots for sensitivity curves in `results/plots/`. **Library**: Use `matplotlib`. **Style**: Use `seaborn` 'whitegrid' style. **Mapping**: x-axis: threshold, y-axis: success_rate. **Verification**: Output `.png` files named `sensitivity_absolute.png`. **Dependency**: T028.
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 6: Schema Generation & Polish
 
-**Purpose**: Improvements that affect multiple user stories
+**Purpose**: Generate missing schema files and perform final polish.
 
-- [ ] T032 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T033 Code cleanup and refactoring of data processing scripts
-- [ ] T034 Refactor `code/data/preprocess.py` to implement chunked processing and verify runtime < 6h on a sample of 1000 molecules
-- [ ] T035 [P] Additional unit tests for edge cases (invalid SMILES, memory overflow) in `tests/unit/`
-- [ ] T036 Run `quickstart.md` validation
+- [~] T032a [P] Update `README.md` with project overview, installation instructions, and usage examples. **Traceability**: Document FR-001 to FR-007 in the overview. **Output**: `README.md` with a **"Traceability Matrix"** table mapping FR-001 to FR-007 to specific implementation files (e.g., FR-001 -> `code/data/ingest.py`). The table must have columns: "Requirement ID", "Description", "Implementation File", "Status". **Specific Mappings**: FR-004 -> `code/models/baseline.py` (T021c); FR-005 -> `code/eval/comparison.py` (T025 - Paired t-test logic). **Action**: Run `scripts/generate_traceability.py` to generate the table.
+- [~] T032b [P] Update `docs/` with detailed API documentation for key modules (`code/data/`, `code/models/`, `code/eval/`). **Traceability**: Ensure documentation covers FR-001 to FR-007 implementation details. **Output**: `docs/` generated using **pdoc3** tool. **Command**: `pdoc3 --output-directory docs/api code`. The task must create the `docs/api/` directory if it does not exist and generate HTML files for all modules.
+- [~] T033-Refactor-Preprocess [P] Refactor `code/data/preprocess.py` to use generator expressions for memory efficiency. **Target**: Reduce peak memory usage of T014 by at least 20% compared to list-based processing. **Specific Action**: Replace list comprehensions with generator expressions in the `process_chunk` function. **Output**: Refactored `code/data/preprocess.py`.
+- [~] T033-Refactor-Train [P] Refactor `code/models/train.py` to modularize the training loop and integrate the memory monitor (T045) and dynamic batch sizing (T058). **Target**: Ensure training loop gracefully handles OOM by reducing batch size without crashing. **Specific Action**: Extract the training step into a `train_epoch` function. **Output**: Refactored `code/models/train.py`.
+- [~] T035-Test-Validators [P] Add unit tests for edge cases in `tests/unit/test_validators.py`: `test_invalid_smiles_returns_list`, `test_empty_list_returns_empty_list`, `test_mixed_valid_invalid_returns_list`. **Note**: T017 returns a list, so tests verify list content, not exceptions.
+- [~] T035-Test-Preprocess [P] Add unit tests for edge cases in `tests/unit/test_preprocess.py`: `test_conformer_failure_handling`, `test_max_atoms_filter`.
+- [~] T036 Run `quickstart.md` validation. **Criteria**: Verify FR-001 to FR-007 execution via `quickstart.md` steps.
+- [ ] T052-Run [P] Execute the pipeline. **Command**: `python code/main.py --mode full --seed <random_seed>`. **Decision Logic**: Execute the pipeline on the representative subset defined in the Plan's Fallback Strategy. Measure the actual runtime. Output `results/reports/pipeline_execution.log`. **Dependency**: T016-Gate, T022, T021c.
+- [ ] T052-Verify-Parse [P] Parse execution log for runtime. **Action**: Extract total runtime from `results/reports/pipeline_execution.log`. **Output**: `results/reports/runtime_raw.json`. **Dependency**: T052-Run.
+- [~] T052-Verify-Report [P] Generate verification report. **Action**: Compare the measured time from T052-Verify-Parse against the `TIME_BUDGET` variable in `code/config.py` (value 6.0 hours). Generate `results/reports/final_runtime_verification.md`. **Constraint**: Explicitly state that the time budget is a defined limit as specified in `code/config.py` and Plan.md, and verify against this concrete limit. **Include Power Limitation**: The report must include a "Limitations" section discussing the statistical power of the sample size (from T014-Sample) and reference the `sampling_report.json` from T014-Sample. **Dependency**: T052-Verify-Parse, T014-Sample.
+
+---
+
+## Phase 7: Revision & Robustness (Post-Analysis Fixes)
+
+**Purpose**: Address specific concerns raised by the `/speckit.analyze` review regarding data sourcing, memory constraints, and execution reliability.
+**Note**: This phase is now empty as all robustness tasks (T045, T056, T057, T058) have been moved to earlier phases to ensure pipeline robustness before execution.
 
 ---
 
@@ -158,15 +177,15 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model outputs
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
 
 ### Within Each User Story
 
@@ -178,26 +197,32 @@
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+**IMPORTANT**: The following rules apply ONLY to **Tests** and **Independent Modules**. **Implementation tasks within User Story 1 are strictly sequential** due to data flow dependencies.
+
+- **Tests**: All test tasks (e.g., T012, T013) for a user story marked [P] can run in parallel.
+- **Independent Modules**: Tasks in different files with no data dependencies (e.g., T001-Setup-Dirs-Code, T001-Setup-Dirs-Data) can run in parallel.
+- **User Story 1 (US1) Implementation**: **STRICTLY SEQUENTIAL** for final output, but T014-Features and T015a can run in parallel **AFTER T014-SAMPLE PASSES**.
+ - T048 (Ingest) -> T014-Sample -> [T015a (3D Gen) AND T014-Features (2D Feats)] -> T014-Merge -> T015b (SASA) -> T015d (Noise Check) -> T015c (Merge) -> T016 (Split).
+ - **Note**: T014-Features and T015a can run in parallel after T014-Sample. T014-Merge waits for both.
+ - Do NOT attempt to run T014-Merge before T015a and T014-Features complete.
+ - The [P] tag on US1 implementation tasks is **incorrect** and should be ignored for execution planning; rely on the explicit dependency list in each task description.
+ - **CRITICAL**: T015a is **SEQUENTIAL** and **NOT** marked [P]. It must complete fully before T014-Merge.
 
 ---
 
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all models for User Story 1 together:
-Task: "Implement SMILES ingestion from ZINC15 (specific subset) in code/data/ingest.py"
-Task: "Implement 2D graph feature extraction using RDKit in code/data/preprocess.py"
-Task: "Implement 3D conformer generation with halt logic in code/data/preprocess.py"
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
+Task: "Integration test for [user journey] in tests/integration/test_[name].py"
 
-# Run contract test after implementation:
-Task: "Contract test for data schema in tests/contract/test_data_schema.py"
+# Launch all models for User Story 1 together:
+Task: "Create [Entity1] model in src/models/[entity1].py"
+Task: "Create [Entity2] model in src/models/[entity2].py"
 ```
+
+**Clarification**: While T014-Features (2D features) and T015a (3D conformers) can technically run in parallel after T014-Sample, T014-Merge is a **strict barrier** that waits for both to complete successfully. Do not assume T014-Merge can run until both T014-Features and T015a are done. Note that T015a is NOT parallel-safe if it contains shared state logic (which it does not, as that logic is moved to T014-Merge), but it is marked [P] only in the sense that it can start after T014-Sample. The global failure rate check is handled in T014-Merge. **Important**: T015a runs SEQUENTIALLY and is NOT marked [P]. The [P] tag on T014-Features is valid, but T015a is sequential.
 
 ---
 
@@ -225,16 +250,16 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
 
 ## Notes
 
-- [P] tasks = different files, no dependencies
+- [P] tasks = different files, no dependencies (for Tests/Setup only)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing

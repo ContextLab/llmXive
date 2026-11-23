@@ -1,0 +1,18 @@
+status: none
+intent: High entropy alloy elastic property dataset from Materials Project and OQMD
+  python package dataset
+required_fields:
+- composition_string
+- element_fractions
+- number_of_elements
+- bulk_modulus_GPa
+- shear_modulus_GPa
+- elastic_tensor_Cij
+- formation_energy_per_atom
+- spacegroup_number
+- density_g_cm3
+- lattice_parameters_a_b_c
+- lattice_angles_alpha_beta_gamma
+cache_key: 92beb2e34e8b4d6ce42c15d94a225c73d921f6f3ca19bd69d3baa51012725d63
+searched_at: '2026-10-10T00:36:38.604415+00:00'
+retry_count: 1

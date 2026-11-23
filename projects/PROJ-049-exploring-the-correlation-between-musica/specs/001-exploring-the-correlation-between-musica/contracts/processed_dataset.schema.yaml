@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Dataset Schema"
+type: object
+required:
+  - user_id
+  - openness_score
+  - conscientiousness_score
+  - extraversion_score
+  - agreeableness_score
+  - neuroticism_score
+  - age
+  - gender_onehot
+  - country_onehot
+  - total_minutes
+# The following fields are required only if listening data were successfully linked.
+properties:
+  user_id:
+    type: string
+  openness_score:
+    type: number
+  conscientiousness_score:
+    type: number
+  extraversion_score:
+    type: number
+  agreeableness_score:
+    type: number
+  neuroticism_score:
+    type: number
+  age:
+    type: integer
+  gender_onehot:
+    type: object
+    additionalProperties:
+      type: integer
+      enum: [0,1]
+  country_onehot:
+    type: object
+    additionalProperties:
+      type: integer
+      enum: [0,1]
+  total_minutes:
+    type: number
+    minimum: 0
+    description: "Placeholder (NaN) if listening data unavailable; otherwise sum of minutes."
+  genre_proportions:
+    type: object
+    description: "Proportion of total listening minutes per standardized genre (if available)."
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  genre_ilr:
+    type: object
+    description: "ILR‑transformed compositional vector derived from `genre_proportions` (if available)."
+    additionalProperties:
+      type: number

@@ -6,5 +6,7 @@ pandas
 numpy
 datasets
 ruptures
-transformers
-# Additional for flow if needed (opencv is already there)
+scipy
+pydantic
+tomli
+psutil  # auto-added: imported by run-book but missing from venv

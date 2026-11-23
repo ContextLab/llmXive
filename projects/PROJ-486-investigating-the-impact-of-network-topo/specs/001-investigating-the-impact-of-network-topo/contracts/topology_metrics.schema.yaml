@@ -1,52 +1,32 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Topology Metrics Schema
-description: Schema for the processed topology metrics CSV file.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Topology Metrics Schema"
+type: "object"
 properties:
   subject_id:
-    type: string
-    description: "Unique identifier for the subject."
+    type: "string"
+    description: "Unique identifier for the subject"
   atlas_type:
-    type: string
-    description: "Parcellation atlas used (e.g., Schaefer, AAL)."
-    enum:
-      - "Schaefer"
-      - "AAL"
-      - "Power264"
+    type: "string"
+    enum: ["Schaefer", "AAL", "Power"]
+    description: "Parcellation scheme used"
   clustering_coefficient:
-    type: number
-    description: "Weighted clustering coefficient for the subject."
+    type: "number"
+    description: "Clustering coefficient value (0.0 to 1.0)"
   characteristic_path_length:
-    type: number
-    description: "Characteristic path length for the subject."
-  entrainment_strength:
-    type: number
-    description: "Phase-locking value (PLV) for the subject (Synthetic or Real)."
-  vif:
-    type: number
-    description: "Variance Inflation Factor between clustering and path length."
-  is_significant:
-    type: boolean
-    description: "Whether the partial correlation is significant after Bonferroni correction."
-  adjusted_p_value:
-    type: number
-    description: "Bonferroni-corrected p-value."
-  partial_correlation_r:
-    type: number
-    description: "Partial correlation coefficient (r)."
-  raw_p_value:
-    type: number
-    description: "Raw p-value before correction."
-  correlation_coefficient:
-    type: number
-    description: "Spearman correlation coefficient (r) (univariate)."
-  collinearity_warning:
-    type: string
-    description: "Warning message if VIF > 5, otherwise null."
+    type: "number"
+    description: "Characteristic path length value"
+  is_zero_variance:
+    type: "boolean"
+    description: "Flag if the metric has zero variance across the sample"
+  data_source:
+    type: "string"
+    enum: ["Real", "Simulated"]
+    description: "Source of the data"
 required:
-  - subject_id
-  - atlas_type
-  - clustering_coefficient
-  - characteristic_path_length
-  - entrainment_strength
+  - "subject_id"
+  - "atlas_type"
+  - "clustering_coefficient"
+  - "characteristic_path_length"
+  - "is_zero_variance"
+  - "data_source"
 additionalProperties: false

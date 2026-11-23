@@ -27,7 +27,7 @@ A researcher must preprocess the raw EEG files and extract P300 amplitude and la
 
 **Why this priority**: Accurate ERP extraction is essential for valid statistical inference; errors here would invalidate downstream results.
 
-**Independent Test**: Execute the preprocessing pipeline on a sample of 20 participants and confirm that (a) the number of retained epochs per condition meets the minimum trial count and (b) the resulting event-related potential amplitudes fall within the physiologically plausible range.
+**Independent Test**: Execute the preprocessing pipeline on a sample of participants. and confirm that (a) the number of retained epochs per condition meets the minimum trial count and (b) the resulting event-related potential amplitudes fall within the physiologically plausible range.
 
 **Acceptance Scenarios**:
 
@@ -60,7 +60,7 @@ A researcher needs to fit a mixed‑effects regression testing (a) the main effe
 - **FR-001**: System MUST search OpenNeuro and PhysioNet for EEG datasets using the keywords “social”, “feedback”, “validation”, and “anxiety”, and output a CSV of candidate datasets. If no single dataset contains both simulated and real validation conditions, the system MUST identify separate datasets for each condition to enable meta-analysis. *(See US‑1)*
 - **FR-002**: System MUST verify that each candidate dataset includes (a) a social‑feedback manipulation (simulated vs. real) and (b) a validated social‑anxiety scale (e.g., LSAS, SPIN). *(See US‑1)*
 - **FR-003**: System MUST preprocess raw EEG files with a band-pass filter (0.1 Hz high-pass, 40 Hz low-pass) to remove slow drifts and artifacts, as described in prior work (DOI:10.1016/j.jneumeth.2020.108892), apply average reference, and perform ICA‑based ocular artifact removal, then epoch from a pre-stimulus baseline period to a post-stimulus window around feedback onset. *(See US‑2)*
-- **FR-004**: System MUST compute the peak P300 amplitude (maximum positive voltage) within a 250–550 ms window at electrodes Pz and CPz for each trial and export a tidy dataset containing `subject_id`, `condition`, `p300_amplitude`, `p300_latency`. *(See US‑2)*
+- **FR-004**: System MUST compute the peak P amplitude (maximum positive voltage) within a post-stimulus time window at electrodes Pz and CPz for each trial and export a tidy dataset containing `subject_id`, `condition`, `p300_amplitude`, `p300_latency`. *(See US‑2)*
 - **FR-005**: System MUST fit a linear mixed‑effects model with `p300_amplitude` as the dependent variable, `validation_type` (simulated vs. real) as a fixed effect, `social_anxiety_score` as a moderator, and random intercepts for participants; it MUST apply Holm‑Bonferroni correction for the set of tested fixed effects. *(See US‑3)*
 - **FR-006**: System MUST perform a sensitivity analysis sweeping the artifact-rejection voltage threshold over {±75, ±100, ±150 µV} and report how effect‑size estimates and adjusted p‑values change. This is required to ensure results are robust to noise-rejection criteria. *(See US‑3; Threshold justification required)*
 - **FR-007**: System MUST generate reproducible reports (PDF & HTML) containing ERP waveforms, model summary tables, sensitivity plots, and a discussion of associational vs. causal interpretation. *(See US‑3)*
@@ -80,7 +80,7 @@ A researcher needs to fit a mixed‑effects regression testing (a) the main effe
 
 ## Assumptions
 
-- Public EEG repositories (OpenNeuro, PhysioNet) are assumed to contain at least one dataset combining a social-feedback manipulation with a validated social-anxiety scale. If the automated search (FR-001) identifies zero eligible datasets, the pipeline will trigger a manual review protocol to expand search keywords, consider alternative public repositories, or execute a meta-analysis of separate datasets (one for simulated, one for real feedback) before escalating to human intervention. This assumption is grounded in the prevalence of social anxiety measures in cognitive neuroscience datasets (e.g., ds00XXXXX, ds003450) and the requirement for a fallback strategy ensures project continuity.
+- Public EEG repositories (OpenNeuro, PhysioNet) are assumed to contain at least one dataset combining a social-feedback manipulation with a validated social-anxiety scale. If the automated search (FR-001) identifies zero eligible datasets, the pipeline will trigger a manual review protocol to expand search keywords, consider alternative public repositories, or execute a meta-analysis of separate datasets (one for simulated, one for real feedback) before escalating to human intervention. This assumption is grounded in the prevalence of social anxiety measures in cognitive neuroscience datasets (e.g., dsXXXXX, ds003450) and the requirement for a fallback strategy ensures project continuity.
 - The P300 component is an established index of attentional allocation and stimulus evaluation; its amplitude threshold is adopted from standard ERP literature (Polich, 2007) and will be examined via the prescribed sensitivity analysis.
 - The study is observational; findings will be framed as *associational* effects, not causal claims.
 - Multiple hypothesis testing is limited to three fixed effects (main effect, moderator, interaction); Holm‑Bonferroni correction is sufficient to control family‑wise error at α = 0.05.

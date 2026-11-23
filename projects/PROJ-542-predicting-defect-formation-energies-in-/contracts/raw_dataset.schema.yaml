@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw Defect Dataset"
+type: object
+required:
+  - composition
+  - defect_type
+  - formation_energy
+properties:
+  composition:
+    type: string
+    description: "Perovskite formula in standard notation (e.g., 'BaTiO3')."
+  defect_type:
+    type: string
+    enum: ["oxygen_vacancy"]
+    description: "Type of defect; only 'oxygen_vacancy' is supported."
+  formation_energy:
+    type: number
+    description: "DFT‑computed defect formation energy in eV."
+  metadata:
+    type: object
+    description: "Optional additional fields (e.g., Materials Project ID)."
+additionalProperties: false

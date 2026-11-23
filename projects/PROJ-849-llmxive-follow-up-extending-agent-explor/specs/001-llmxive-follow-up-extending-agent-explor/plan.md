@@ -1,104 +1,126 @@
 # Implementation Plan: llmXive Follow-up: Semantic Divergence Diagnostic for Agentic Reasoning
 
-**Branch**: `001-llmxive-semantic-gap-diagnostic` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-follow-up-extending-agent-explor/spec.md`  
+**Branch**: `001-llmxive-semantic-gap-diagnostic` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-follow-up-extending-agent-explor/spec.md`
 **Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-agent-explor/spec.md`
 
 ## Summary
 
-This project is a **Simulation & Feasibility Study** that computes a **Semantic Divergence Score** for each multimodal reasoning problem, correlates it with (synthetically or user‑provided) RL failure rates, and builds a predictive risk classifier. All steps are designed to run on a CPU‑only GitHub Actions free‑tier runner within the memory and time limits of the Constitution.
+This feature implements a diagnostic tool to quantify the "Semantic Divergence Score" between an agent's internal "thinking" trace and its external "tool-action" distribution. The system loads a static subset of the MathVista dataset, extracts thinking prefixes (using static stubs if traces are missing), retrieves tool descriptions via BM25 (with lexical overlap masking), computes embeddings using DistilBERT (CPU-only), and calculates cosine similarity. It then correlates these scores with simulated RL failure rates (derived from a deterministic Oracle based on ground truth answers) and trains a Logistic Regression classifier to predict failure. The implementation strictly adheres to CPU constraints (≤7 GB RAM, 2 cores) and enforces data hygiene via checksums and versioning.
 
 ## Technical Context
 
-- **Language**: Python 3.11  
-- **Core Libraries** (pinned in `requirements.txt`):  
-  - `datasets==2.20.0`  
-  - `transformers==4.44.0` (CPU‑only, `torch==2.3.0+cpu`)  
-  - `scikit-learn==1.5.0`  
-  - `rank-bm25==0.2.2`  
-  - `pandas==2.2.2`  
-  - `numpy==2.1.0`  
-  - `pyyaml==6.0.2`  
-- **Storage**: Local `data/` directory, HuggingFace cache.  
-- **Testing**: `pytest` suite validates vector math, schema compliance, and end‑to‑end pipeline flow.  
-- **Target Platform**: Linux on GitHub Actions Free Tier (2 CPU, ≈7 GB RAM, ≈14 GB disk, ≤5 h timeout).  
-
-### Automatic Sampling Mechanism (FR‑008)
-
-1. **Pre‑flight size check** – before loading, the file size (or streaming metadata) of the MathVista subset is inspected.  
-2. **Streaming fallback** – if estimated size > 6 GB, the loader switches to `datasets.load_dataset(..., streaming=True)` and processes records in batches of **32**.  
-3. **Batch‑size safety** – each batch is embedded and discarded before the next batch, guaranteeing peak RAM ≤ 7 GB.  
-4. **Graceful abort** – if streaming is unavailable and the file exceeds the limit, the job aborts with a clear error message.
-
-### BM25 Retrieval & Embedding (Principle VI)
-
-* The tool documentation corpus is **synthetically generated** (see Research.md) from a fixed list of 30 domain‑relevant tool IDs with templated descriptions.  
-* A BM25 index is built over these descriptions.  
-* For each problem we query the top 10 tools.  
-* **Crucially**, each retrieved tool description is **embedded with the same DistilBERT encoder** (`distilbert-base-uncased`) used for the thinking prefix. The centroid is the arithmetic mean of those 10 embeddings (dimension = 768). This guarantees vector‑space compatibility for cosine similarity.
-
-## Phases & Mapping to Functional Requirements (FR)
-
-| Phase | Tasks | FR(s) addressed |
-|-------|-------|-----------------|
-| **0. Environment Setup** | Create virtualenv, install pinned deps, set `PYTHONHASHSEED=0` and `numpy.random.seed(42)`. | – |
-| **1. Data Ingestion** | • Download MathVista test split (≤ 500 records) via streaming if needed.<br>• Load `tool_mapping.csv` (checksum‑verified). If missing, **synthetically generate** a deterministic mapping from problem difficulty (low → basic tools, medium → mixed, high → advanced).<br>• Load `rl_failure_rates.csv` (checksum‑verified). If missing, **synthetically generate** failure rates as `failure_rate = 0.5 * difficulty + 0.5 * Uniform(0,1)` using a fixed seed.<br>• Load `tool_descriptions.csv` (checksum‑verified) or generate the synthetic tool corpus. | FR‑001, FR‑008 |
-| **2. Tool Corpus Construction** | Build BM25 index from the (synthetic or provided) tool descriptions. | FR‑002 |
-| **3. Embedding Service** | Encode `thinking_prefix` and each retrieved tool description with DistilBERT (CPU). Compute centroid of the top‑10 tool embeddings. | FR‑003 |
-| **4. Divergence Computation** | Compute cosine similarity and `semantic_divergence_score = 1 - cosine_similarity`. | FR‑004 |
-| **5. Correlation Analysis** | Verify sample size ≥ 30; perform Pearson correlation (single test, no multiple‑comparison correction). Power analysis (see Research.md) ensures detectability of r ≥ 0.20. Abort with “Statistical Power Insufficient” if N < 30. | FR‑005, SC‑001 |
-| **6. Predictive Modeling** | • Apply **K‑Means (k=2)** **only on the training split** to obtain risk groups “High‑Divergence” and “Low‑Divergence” (silhouette ≥ 0.25).<br>• Train a **logistic regression** classifier **using only** `semantic_divergence_score` (and optional `difficulty`) to predict binary RL outcome. Evaluate on held‑out test set; report accuracy, precision, recall. | FR‑006, FR‑007, SC‑002, SC‑003 |
-| **7. Output Generation** | Write per‑record JSON (`divergence_scores.json`) conforming to `output.schema.yaml`; write analysis summary JSON (`analysis_results.json`). | FR‑004, FR‑005, FR‑007 |
-| **8. Versioning & Checksums** | Compute SHA‑256 for every new artifact and **record them in** `state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml` (Principle V). | FR‑008, Principle V |
-| **9. Reference‑Validator CI Step** | After documentation generation, run `scripts/verify_references.py` which invokes the Reference‑Validator Agent on all citation URLs; CI fails if any citation does not meet the title‑token overlap threshold. | Principle II |
-| **10. Schema Generation** | Run `scripts/generate_schemas.py` to regenerate `src/models/schemas.py` from all `contracts/*.schema.yaml` before any code import, guaranteeing SSoT. | Principle IV |
-
-## Detailed Methodology
-
-### Synthetic Data Generation (independence guarantee)
-
-* **Problem Difficulty** – extracted from MathVista metadata (`difficulty` field, normalized to [0,1]).  
-* **Tool Mapping** – deterministic rule:  
-  - `difficulty < 0.33` → assign tools `{search, calculator}`.  
-  - `0.33 ≤ difficulty < 0.66` → `{search, calculator, graph_plotter}`.  
-  - `difficulty ≥ 0.66` → `{search, calculator, graph_plotter, symbolic_solver}`.  
-  Random seed = 42 ensures reproducibility.  
-* **RL Failure Rate** – computed as `0.5 * difficulty + 0.5 * U` where `U ~ Uniform(0,1)` with seed = 123. This makes failure rates **statistically related** to difficulty but **independent** of the tool‑mapping process.  
-
-Both generated files are written with accompanying SHA‑256 checksums recorded in the project state.
-
-### Power Analysis (Methodology‑597864ad)
-
-Using `statsmodels.stats.power.NormalIndPower`, with α = 0.05, power = 0.80, the required sample size to detect r = 0.20 is **≈ 194**. Our cap of 500 records comfortably exceeds this; the pipeline aborts if after filtering N < 30.
-
-### Edge‑Case Handling
-
-- **BM25 zero results** → `tool_centroid_embedding` set to `null`; record flagged `BM25_NO_RESULTS` and excluded from downstream analysis.  
-- **Missing `thinking_prefix`** → record skipped, logged with error code `THINKING_MISSING`.  
-- **Timeout** – `scripts/timeout_handler.py` enforces a 5‑hour wall‑clock limit; on breach, raises `TimeoutError`.  
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `datasets`, `sentence-transformers` (CPU wheels), `rank_bm25`, `scikit-learn`, `pandas`, `pyyaml`, `ruff`, `black`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/cache`) with checksums recorded in `state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml`  
+**Testing**: `pytest` (unit tests for embedding logic, integration tests for pipeline flow)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, ~7 GB RAM)  
+**Project Type**: Research CLI / Data Analysis Pipeline  
+**Performance Goals**: ≤5 hours total execution; peak memory ≤7 GB; no GPU usage for embedding/retrieval.  
+**Constraints**: CPU-only for all ML inference; dataset size capped at 500 records (downsampled to a reduced resolution if memory pressure detected); strict timeout enforcement.  
+**Scale/Scope**: Processing ≤500 multimodal reasoning problems; generating one correlation report and one classification model.
 
 ## Constitution Check
 
-| Principle | Compliance Statement |
-|-----------|----------------------|
-| I. Reproducibility | `requirements.txt` pins exact versions; all random seeds are fixed; CI runs the full pipeline from a fresh runner. |
-| II. Verified Accuracy | CI includes `scripts/verify_references.py` invoking the Reference‑Validator Agent on every citation URL. |
-| III. Data Hygiene | Raw datasets are read‑only; every transformation writes a new file with a SHA‑256 checksum recorded in `state/...`. |
-| IV. Single Source of Truth | Contracts define schemas; `scripts/generate_schemas.py` syncs them to `src/models/schemas.py`. |
-| V. Versioning Discipline | After each stage, `scripts/update_state_hashes.py` records SHA‑256 hashes of all artifacts in `state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml`. |
-| VI. Semantic Divergence Quantification | Divergence = `1 – cosine_similarity` between DistilBERT embeddings of thinking prefix and tool‑centroid (same encoder). |
-| VII. Diagnostic Validation Rigor | Logistic regression is trained on divergence (and optional difficulty) only; the ground‑truth RL failure rates are independent synthetic labels. |
+*Gates determined based on constitution file `projects/PROJ-849-llmxive-follow-up-extending-agent-explor/.specify/memory/constitution.md`*
 
-## Timeline (≤ 5 h CI)
+| Principle | Compliance Status | Implementation Detail |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | All random seeds pinned in `src/lib/config.py`. `datasets.load_dataset` uses canonical HF source. `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **PASS** | Citations in `research.md` limited to verified dataset URLs. No hallucinated sources. |
+| **III. Data Hygiene** | **PASS** | Raw data checksummed upon download. Derived data (embeddings, scores) written to new files with derivation logs. |
+| **IV. Single Source of Truth** | **PASS** | All metrics in `results/` trace back to specific rows in `data/processed/scores.parquet` and `code/` scripts. |
+| **V. Versioning Discipline** | **PASS** | Content hashes tracked in project state file. Artifacts invalidated on code change. |
+| **VI. Semantic Divergence Quantification** | **PASS** | Metric explicitly defined as `1 - cosine_similarity` between DistilBERT thinking embedding and BM25-retrieved tool centroid. **Implementation Detail**: The system uses a **non-reasoning** BM25 retrieval (keyword-based) and **does NOT** substitute the agent's own reasoned tool distributions. The retrieval logic is strictly keyword-based to ensure independence. |
+| **VII. Diagnostic Validation Rigor** | **PASS** | Logistic Regression predicts ground-truth AXPO outcomes (derived from a deterministic Oracle based on ground truth answers) using only semantic metrics. No data leakage from embedding to outcome generation. |
 
-| Step | Estimated Runtime |
-|------|-------------------|
-| Data download & checksum | < 5 min |
-| BM25 index building | < 1 min |
-| Embedding (500 × batch‑32) | ≈ 30 s |
-| Divergence computation | < 1 min |
-| Correlation & power check | < 1 min |
-| K‑Means + logistic regression | < 2 min |
-| Output writing, hashing, CI checks | < 2 min |
-| **Total** | **< 15 min** |
+## Project Structure
 
-All steps comfortably satisfy the free‑tier constraints.
+### Documentation (this feature)
+
+```text
+specs/001-llmxive-follow-up-extending-agent-explor/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/
+│   ├── dataset.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md             # Phase 2 output (created by /speckit-tasks)
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-849-llmxive-follow-up-extending-agent-explor/
+├── data/
+│   ├── raw/
+│   │   └── mathvista_subset.jsonl
+│   ├── processed/
+│   │   ├── tool_mappings.json
+│   │   ├── embeddings_cache.parquet
+│   │   └── divergence_scores.parquet
+│   └── cache/
+│       └── axpo_simulated_outcomes.jsonl
+├── src/
+│   ├── __init__.py
+│   ├── lib/
+│   │   ├── config.py          # Paths, seeds, thresholds, error definitions
+│   │   ├── data_loader.py     # HF dataset loading, BM25 index building
+│   │   ├── embedding_service.py # DistilBERT inference, centroid calculation
+│   │   ├── metrics.py         # Divergence calculation, correlation, logistic regression
+│   │   ├── errors.py          # TimeoutExceededError, MemoryLimitExceededError
+│   │   └── oracle.py          # Ground truth failure generation
+│   └── cli/
+│       └── run_diagnostic.py  # Main entry point
+├── tests/
+│   ├── unit/
+│   │   └── test_metrics.py
+│   └── integration/
+│       └── test_pipeline.py
+├── pyproject.toml             # Ruff/Black config, dependencies
+└── requirements.txt           # Pinned dependencies
+```
+
+**Structure Decision**: Single project structure (`src/`) chosen to minimize overhead for a research pipeline. `lib/` isolates core logic, `cli/` handles orchestration. `data/` follows the raw/processed split for hygiene.
+
+## Complexity Tracking
+
+*No violations detected in Constitution Check. Standard research pipeline complexity applies.*
+
+## Phased Execution Plan
+
+### Phase 0: Research & Feasibility (Research Agent)
+1.  **Data Verification**: Confirm `AI4Math/MathVista` dataset availability and field presence (`question`, `answer`, `metadata`).
+2.  **Tool Mapping Strategy**: Define schema for `mathvista_tool_map.json` (problem_id -> list of tool descriptions). Source: `data/tool_mappings/mathvista_tool_map.json` (static asset).
+3.  **Embedding Model Selection**: Verify `distilbert-base-uncased` or `sentence-transformers/all-MiniLM-L6-v2` runs within 7GB RAM on CPU.
+4.  **Outcome Simulation**: Define logic for `simulated_failure_rate` using a deterministic Oracle (ground truth answer comparison) to ensure reproducibility and independence from the thinking trace.
+
+### Phase 1: Design & Contracts (Design Agent)
+1.  **Data Model Definition**: Define schemas for `ProblemInstance`, `ToolDistribution`, `DivergenceMetric`.
+2.  **Contract Generation**: Create `contracts/*.schema.yaml` for input data, intermediate embeddings, and final output. **Explicitly map** `ProblemInstance`, `ToolDistribution`, and `DivergenceMetric` entities to `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`.
+3.  **API Design**: Define function signatures for `load_data`, `compute_divergence`, `run_correlation`, `train_classifier`.
+4.  **Error Handling**: Define `TimeoutExceededError` and `MemoryLimitExceededError` in `src/lib/errors.py` with clear module paths.
+
+### Phase 2: Implementation (Implementer Agent)
+1.  **Environment Setup**: Install dependencies, configure `pyproject.toml` (ruff/black), create directory structure. **Task T003**: Install and configure `ruff` and `black`.
+2.  **Config Creation**: **Task T004**: Create `src/lib/config.py` with all necessary paths, seeds, and thresholds.
+3.  **Data Loader**: **Task T005**: Implement `src/lib/data_loader.py` to fetch MathVista, extract thinking traces (or static stubs), load tool mappings from `data/tool_mappings/mathvista_tool_map.json`, build BM25 index. **Validate** inputs/outputs against `contracts/dataset.schema.yaml`.
+4.  **Embedding Service**: Implement `src/lib/embedding_service.py` for CPU-only DistilBERT inference and centroid calculation. **Validate** outputs against `contracts/dataset.schema.yaml`.
+5.  **Oracle Implementation**: **Task T008-impl-cache**: Implement `src/lib/oracle.py` to generate `simulated_failure` labels based on ground truth answers (independent of thinking trace). This task is **sequential** (not parallel) to data loading.
+6.  **Metric Engine**: **Task T004-ext**: Implement `src/lib/metrics.py` for divergence scoring (with centroid variance check and lexical overlap masking), Pearson/Point-Biserial correlation, and Logistic Regression training. **Include** check for N >= 30 and raise `InsufficientSampleSize` error if N < 30.
+7.  **CLI Orchestration**: Implement `src/cli/run_diagnostic.py` with timeout/memory monitoring. **Enforce** `TimeoutExceededError` and `MemoryLimitExceededError` (imported from `src/lib/errors.py`) as per FR-007.
+8.  **Testing**: Write unit tests for metric calculations and integration tests for the full pipeline.
+
+### Phase 3: Validation & Reporting (Validator Agent)
+1.  **Reproducibility Check**: Re-run pipeline on fresh runner; verify checksums and output consistency.
+2.  **Statistical Rigor**: Verify sample size (N ≥ 30), correlation significance (p < 0.05), and AUC-ROC (≥ 0.65). **Task T014**: Run statistical checks. **Task T015**: Generate final report (sequential to T014).
+3.  **Constitution Compliance**: Final audit against Principles I-VII.
+
+## Computational Feasibility & Data Strategy
+
+- **CPU-First**: All embedding and retrieval steps use CPU-optimized models (`sentence-transformers` with `device='cpu'`). No GPU required.
+- **Memory Management**: The pipeline processes data in batches. If memory usage approaches a high threshold, the system triggers a graceful downsampling to a reduced record count. (as per FR-007) and logs the action.
+- **Data Source**: Uses `AI4Math/MathVista` (verified URL) for problems. Tool mappings are generated from a curated JSON file (`data/tool_mappings/mathvista_tool_map.json`) which is a static asset in the repo.
+- **Outcome Data**: Simulated failure rates are derived from a deterministic Oracle (ground truth answer comparison) to ensure reproducibility and independence from the thinking trace.
+- **Timeout Enforcement**: A hard Time limit is enforced via a wrapper in `run_diagnostic.py`. If exceeded, `TimeoutExceededError` is raised.

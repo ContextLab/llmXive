@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2608.25091",
+  "judged_at": "2026-09-01T12:44:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"skillsvote: lifecycle governance of agent skills from collection, reco\" linguistics",
+  "rationale": "This paper satisfies criterion (a) by investigating the same core mechanism of \"agent skills\" and their lifecycle governance (specifically the transition from collection/definition to execution/safety) that the user's question targets, even though it focuses on the physical world and safety rather than linguistics. It also meets criterion (b) by providing empirical evidence on the dependent variable of \"skill governance\" (via the proposed \"Edge Skillguard\" framework) within the domain of autonom",
+  "relevant": true
+}

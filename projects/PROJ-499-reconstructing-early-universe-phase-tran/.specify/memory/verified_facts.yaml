@@ -1,4 +1,4 @@
-'|cpu dynesty feasibility limited live nested point sampling':
+'|code cpu dynesty feasibility implement inference limited live point py using':
   quote: K = 500 live points, although this should be adjusted de-
   source_id: '1904.02180'
   url: https://arxiv.org/abs/1904.02180

@@ -1,0 +1,7 @@
+# Project dependencies
+torch>=2.0
+pyarrow==14.0.1
+pandas
+datasets
+tqdm
+# other core dependencies are provided by the platform (numpy, scipy, scikit-learn, etc.)

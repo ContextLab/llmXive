@@ -1,37 +1,80 @@
-# PROJ-107: Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation
+# llmXive Research Pipeline: Dark Matter Halo Shapes
 
-## Hardware Constraints & Deviations
-**Important**: This project is designed to run on machines with limited resources (specifically **7GB RAM** and CPU-only execution).
+This project implements the automated science pipeline for quantifying the effects of dark matter halo shapes on galaxy formation.
 
-Due to these hardware constraints, the pipeline implements **chunked processing** and **sampling**. This is a documented deviation from the original requirement FR-001 ("process every FoF halo") to satisfy Success Criterion SC-005 (Feasibility).
+## Prerequisites
 
-- **Chunked I/O**: Data is read and processed in small chunks to prevent memory overflow.
-- **Sampling**: If a snapshot exceeds memory limits even with chunking, a representative sample is processed.
-- **No GPU**: All computations are performed on CPU.
-
-## Project Structure
-- `code/`: Source code for the pipeline
-- `data/`: Raw and processed data artifacts
-- `tests/`: Unit and integration tests
-- `specs/`: Feature specifications and design documents
+- Python 3.11+
+- pip
 
 ## Installation
-1. Ensure Python 3.11+ is installed.
+
+1. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
 2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Usage
-Run the main pipeline:
+## Code Quality Tools
+
+This project uses **Black** for formatting, **Ruff** for linting, and **Flake8** as a legacy compatibility layer.
+
+### Formatting
+
+Format code using Black:
+```bash
+black code/
+```
+
+### Linting
+
+Check code using Ruff:
+```bash
+ruff check code/
+```
+
+Alternatively, using Flake8:
+```bash
+flake8 code/
+```
+
+### Pre-commit Hooks (Optional)
+
+To automatically run these checks before committing, install pre-commit:
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+## Running the Pipeline
+
+See `docs/sampling_protocol.md` and `data/metadata.yaml` for data configuration.
+
+Execute the main pipeline:
 ```bash
 python code/main.py
 ```
 
-Run tests:
+## Testing
+
+Run the test suite:
 ```bash
 pytest code/tests/
 ```
 
-## Output
-The primary output for User Story 1 is `data/processed/halo_shapes.csv`, containing axial ratios, triaxiality, and other shape metrics for valid haloes.
+## Project Structure
+
+- `code/`: Source code
+- `data/`: Raw and processed data
+- `outputs/`: Generated reports and figures
+- `docs/`: Documentation
+- `state/`: Pipeline state files
+
+## License
+
+Research use only.

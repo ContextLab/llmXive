@@ -1,206 +1,206 @@
 """
-T019: Verify and archive output for User Story 1.
-
-This script validates that the data pipeline (T014-T018) successfully generated
-the required output artifacts:
-1. data/processed/cleaned_studies.csv
-2. data/raw/excluded_studies.log
-
-It performs structural validation (file existence, non-empty content, schema compliance)
-and logs the verification results using the project's structured logging infrastructure.
+Verification script for US1 pipeline outputs.
+Checks existence, row counts, and schema compliance for cleaned_studies.csv and excluded_studies.log.
 """
 import os
 import sys
 import csv
+import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 # Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
+project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from utils.logging import get_logger, log_event
-from utils.config import get_data_path, get_output_path, get_code_path
-from data.models import Study
+from utils.logging import get_logger
+from utils.config import get_data_path, get_contracts_path
 
 logger = get_logger(__name__)
 
-# Define expected artifacts per T019
-REQUIRED_ARTIFACTS = {
-    "cleaned_studies": {
-        "path": "data/processed/cleaned_studies.csv",
-        "type": "csv",
-        "required_columns": [
-            "study_id", "title", "author", "year", 
-            "intervention_component", "delivery_format",
-            "n_treatment", "n_control", "outcome_domain",
-            "effect_size", "se_effect_size"
-        ]
-    },
-    "excluded_studies": {
-        "path": "data/raw/excluded_studies.log",
-        "type": "log",
-        "min_lines": 0  # Log can be empty if no exclusions, but must exist
-    }
-}
+# Define expected paths relative to project root
+DATA_PATH = get_data_path()
+PROCESSED_DIR = DATA_PATH / "processed"
+RAW_DIR = DATA_PATH / "raw"
+CONTRACTS_PATH = get_contracts_path()
 
-def verify_csv_artifact(artifact_name: str, artifact_config: Dict[str, Any]) -> Dict[str, Any]:
-    """Verify a CSV artifact exists, is non-empty, and matches schema."""
-    result = {
-        "name": artifact_name,
-        "path": artifact_config["path"],
-        "status": "pending",
-        "issues": []
-    }
-    
-    full_path = project_root / artifact_config["path"]
-    
-    # Check existence
-    if not full_path.exists():
-        result["status"] = "failed"
-        result["issues"].append(f"File does not exist: {full_path}")
-        return result
-    
-    # Check file size
-    if full_path.stat().st_size == 0:
-        result["status"] = "failed"
-        result["issues"].append("File is empty")
-        return result
-    
-    # Validate CSV structure
-    if artifact_config["type"] == "csv":
-        try:
-            with open(full_path, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                headers = reader.fieldnames
-                
-                if not headers:
-                    result["status"] = "failed"
-                    result["issues"].append("CSV has no headers")
-                    return result
-                
-                # Check required columns
-                missing_cols = set(artifact_config["required_columns"]) - set(headers)
-                if missing_cols:
-                    result["status"] = "failed"
-                    result["issues"].append(f"Missing required columns: {missing_cols}")
-                    return result
-                
-                # Count records
-                rows = list(reader)
-                record_count = len(rows)
-                
-                if record_count == 0:
-                    result["status"] = "warning"
-                    result["issues"].append("CSV has headers but no data records")
-                else:
-                    result["status"] = "passed"
-                    result["record_count"] = record_count
-                    
-        except Exception as e:
-            result["status"] = "failed"
-            result["issues"].append(f"CSV validation error: {str(e)}")
-    
-    return result
+CLEANED_CSV_PATH = PROCESSED_DIR / "cleaned_studies.csv"
+EXCLUDED_LOG_PATH = RAW_DIR / "excluded_studies.log"
+CLEANED_SCHEMA_PATH = CONTRACTS_PATH / "cleaned_study.schema.yaml"
 
-def verify_log_artifact(artifact_name: str, artifact_config: Dict[str, Any]) -> Dict[str, Any]:
-    """Verify a log artifact exists."""
-    result = {
-        "name": artifact_name,
-        "path": artifact_config["path"],
-        "status": "pending",
-        "issues": []
-    }
-    
-    full_path = project_root / artifact_config["path"]
-    
-    if not full_path.exists():
-        result["status"] = "failed"
-        result["issues"].append(f"File does not exist: {full_path}")
-        return result
-    
-    if full_path.stat().st_size == 0:
-        # Empty log is acceptable if no studies were excluded
-        result["status"] = "passed"
-        result["line_count"] = 0
-        return result
-    
+REQUIRED_CSV_COLUMNS = [
+    "id", "title", "registry", "age_range", "diagnosis", "outcomes",
+    "intervention_components", "delivery_format", "follow_up",
+    "abstract_text", "social_skill_domain"
+]
+
+REQUIRED_LOG_FIELDS = ["study_id", "reason", "timestamp"]
+
+def verify_csv_artifact(path: Path) -> bool:
+    """Verify CSV file exists, has rows, and contains required columns."""
+    if not path.exists():
+        logger.error(f"CSV artifact missing: {path}")
+        return False
+
     try:
-        with open(full_path, 'r', encoding='utf-8') as f:
-            line_count = sum(1 for _ in f)
-            result["status"] = "passed"
-            result["line_count"] = line_count
+        with open(path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            headers = reader.fieldnames
+
+            if not headers:
+                logger.error("CSV file is empty or has no headers.")
+                return False
+
+            # Check required columns
+            missing_cols = set(REQUIRED_CSV_COLUMNS) - set(headers)
+            if missing_cols:
+                logger.error(f"CSV missing required columns: {missing_cols}")
+                return False
+
+            # Count rows
+            row_count = 0
+            for row in reader:
+                row_count += 1
+
+            if row_count == 0:
+                logger.error("CSV file has 0 data rows.")
+                return False
+
+            logger.info(f"CSV verification passed: {row_count} rows, all required columns present.")
+            return True
+
     except Exception as e:
-        result["status"] = "failed"
-        result["issues"].append(f"Log file read error: {str(e)}")
-    
-    return result
+        logger.error(f"Error reading CSV: {e}")
+        return False
+
+def verify_log_artifact(path: Path) -> bool:
+    """Verify JSONL log file exists and is not empty."""
+    if not path.exists():
+        logger.error(f"Log artifact missing: {path}")
+        return False
+
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
+        if not lines:
+            logger.error("Log file is empty.")
+            return False
+
+        # Validate JSON structure of each line
+        valid_count = 0
+        for i, line in enumerate(lines):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+                missing_fields = set(REQUIRED_LOG_FIELDS) - set(record.keys())
+                if missing_fields:
+                    logger.warning(f"Log line {i+1} missing fields: {missing_fields}")
+                else:
+                    valid_count += 1
+            except json.JSONDecodeError:
+                logger.error(f"Log line {i+1} is not valid JSON.")
+                return False
+
+        if valid_count == 0:
+            logger.error("Log file contains no valid records.")
+            return False
+
+        logger.info(f"Log verification passed: {valid_count} valid records.")
+        return True
+
+    except Exception as e:
+        logger.error(f"Error reading log: {e}")
+        return False
+
+def verify_schema_compliance(csv_path: Path, schema_path: Path) -> bool:
+    """
+    Verify CSV data against the YAML schema.
+    Checks enum values and basic type constraints defined in the schema.
+    """
+    if not schema_path.exists():
+        logger.error(f"Schema file missing: {schema_path}")
+        return False
+
+    try:
+        import yaml
+        with open(schema_path, 'r', encoding='utf-8') as f:
+            schema = yaml.safe_load(f)
+    except Exception as e:
+        logger.error(f"Failed to load schema: {e}")
+        return False
+
+    if not schema or 'properties' not in schema:
+        logger.error("Invalid schema format.")
+        return False
+
+    properties = schema['properties']
+    enum_fields = {}
+    for field_name, field_def in properties.items():
+        if 'enum' in field_def:
+            enum_fields[field_name] = set(field_def['enum'])
+
+    if not enum_fields:
+        logger.warning("No enum constraints found in schema to verify.")
+        # If no enums, we assume basic structural compliance is enough
+        return True
+
+    try:
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            row_count = 0
+            errors = []
+
+            for row in reader:
+                row_count += 1
+                for field, allowed_values in enum_fields.items():
+                    if field in row:
+                        val = row[field]
+                        if val and val not in allowed_values:
+                            errors.append(f"Row {row_count}: Field '{field}' has invalid value '{val}'. Allowed: {allowed_values}")
+
+            if errors:
+                logger.error(f"Schema compliance failed for {len(errors)} records.")
+                for err in errors[:5]: # Log first 5
+                    logger.error(err)
+                if len(errors) > 5:
+                    logger.error(f"... and {len(errors) - 5} more errors.")
+                return False
+
+            logger.info(f"Schema compliance verified for {row_count} records.")
+            return True
+
+    except Exception as e:
+        logger.error(f"Error during schema verification: {e}")
+        return False
 
 def main():
-    """Main verification routine for T019."""
-    logger.info("Starting T019 verification routine")
+    """Main entry point for verification."""
+    logger.info("Starting output verification for US1...")
     
-    verification_results = {}
     all_passed = True
-    
-    # Verify each required artifact
-    for artifact_name, config in REQUIRED_ARTIFACTS.items():
-        logger.info(f"Verifying artifact: {artifact_name}")
-        
-        if config["type"] == "csv":
-            result = verify_csv_artifact(artifact_name, config)
-        elif config["type"] == "log":
-            result = verify_log_artifact(artifact_name, config)
-        else:
-            result = {
-                "name": artifact_name,
-                "path": config["path"],
-                "status": "failed",
-                "issues": ["Unknown artifact type"]
-            }
-        
-        verification_results[artifact_name] = result
-        
-        if result["status"] == "failed":
-            all_passed = False
-            logger.error(f"Verification FAILED for {artifact_name}: {result['issues']}")
-        elif result["status"] == "warning":
-            logger.warning(f"Verification WARNING for {artifact_name}: {result['issues']}")
-        else:
-            logger.info(f"Verification PASSED for {artifact_name}")
-    
-    # Log summary
-    log_event(
-        event_type="t019_verification_complete",
-        data={
-            "overall_status": "passed" if all_passed else "failed",
-            "results": verification_results
-        }
-    )
-    
-    # Print summary to stdout
-    print("\n" + "="*60)
-    print("T019 VERIFICATION SUMMARY")
-    print("="*60)
-    for name, result in verification_results.items():
-        status_icon = "✓" if result["status"] in ["passed", "warning"] else "✗"
-        print(f"{status_icon} {name}: {result['status'].upper()}")
-        if result.get("issues"):
-            for issue in result["issues"]:
-                print(f"    - {issue}")
-        if "record_count" in result:
-            print(f"    Records: {result['record_count']}")
-        if "line_count" in result:
-            print(f"    Log lines: {result['line_count']}")
-    print("="*60)
-    
-    if not all_passed:
-        print("\nVERIFICATION FAILED: One or more artifacts are missing or invalid.")
-        sys.exit(1)
-    else:
-        print("\nVERIFICATION PASSED: All required artifacts are present and valid.")
+
+    # 1. Verify CSV
+    if not verify_csv_artifact(CLEANED_CSV_PATH):
+        all_passed = False
+
+    # 2. Verify Log
+    if not verify_log_artifact(EXCLUDED_LOG_PATH):
+        all_passed = False
+
+    # 3. Verify Schema
+    if not verify_schema_compliance(CLEANED_CSV_PATH, CLEANED_SCHEMA_PATH):
+        all_passed = False
+
+    if all_passed:
+        logger.info("All verification checks passed.")
         sys.exit(0)
+    else:
+        logger.error("One or more verification checks failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

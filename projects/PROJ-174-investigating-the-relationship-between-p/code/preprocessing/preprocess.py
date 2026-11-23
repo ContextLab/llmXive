@@ -1,6 +1,6 @@
 """
-Preprocessing pipeline for pupil dilation data.
-Refactored to reduce cyclomatic complexity (< 15 per function).
+Preprocessing module for the pupil dilation pipeline.
+Handles blink interpolation, low-pass filtering, and data validation.
 """
 import os
 import sys
@@ -10,125 +10,93 @@ from typing import Dict, Any, Optional, List, Tuple
 import numpy as np
 import pandas as pd
 
-# Import existing utilities
-from preprocessing.filter import process_pupil_data, write_quality_report
-from preprocessing.features import extract_features
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Configure logging
+from preprocessing.filter import process_pupil_data, apply_filter_to_dataset, write_quality_report
+from preprocessing.load_data import load_raw_data_from_dataset, normalize_columns
+from config import load_config
+
 logger = logging.getLogger(__name__)
 
-def load_raw_data(input_path: str) -> pd.DataFrame:
-    """Load raw data from CSV or similar format."""
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    ext = Path(input_path).suffix.lower()
-    if ext == '.csv':
-        return pd.read_csv(input_path)
-    elif ext == '.parquet':
-        return pd.read_parquet(input_path)
-    else:
-        raise ValueError(f"Unsupported file format: {ext}")
+def load_raw_data(data_dir: Path) -> List[pd.DataFrame]:
+    """Load raw data files from directory."""
+    files = list(data_dir.glob("*.csv"))
+    dfs = []
+    for f in files:
+        dfs.append(pd.read_csv(f))
+    return dfs
 
 def validate_data_columns(df: pd.DataFrame) -> bool:
-    """Check if required columns exist in the dataframe."""
-    required = ['timestamp', 'pupil_diameter']
+    """Validate that DataFrame has required columns."""
+    required = ['timestamp', 'x', 'y', 'pupil_diameter']
     return all(col in df.columns for col in required)
 
-def preprocess_single_subject(
-    df: pd.DataFrame,
-    config: Dict[str, Any]
-) -> Tuple[pd.DataFrame, Dict[str, int]]:
+def preprocess_single_subject(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Preprocess data for a single subject.
-    Returns processed dataframe and exclusion counts.
+    Preprocess a single subject's data.
+    
+    Args:
+        df: Input DataFrame
+        config: Configuration dictionary
+        
+    Returns:
+        Preprocessed DataFrame
     """
-    if not validate_data_columns(df):
-        raise ValueError("Missing required columns in input data")
+    # Apply blink interpolation and filtering
+    processed = process_pupil_data(df, config)
     
-    # Apply filtering (blink interpolation, low-pass)
-    filtered_df, exclusion_counts = process_pupil_data(df, config)
+    # Log exclusions
+    write_quality_report(processed, config)
     
-    # Extract features (search time, fixation count, salience)
-    feature_df = extract_features(filtered_df, config)
-    
-    return feature_df, exclusion_counts
+    return processed
 
-def run_preprocessing_pipeline(
-    input_dir: str,
-    output_dir: str,
-    config: Dict[str, Any]
-) -> Dict[str, Any]:
+def run_preprocessing_pipeline(config: Dict[str, Any]):
     """
-    Run the full preprocessing pipeline on all subjects in input_dir.
-    Returns summary statistics.
+    Run the full preprocessing pipeline.
+    
+    Args:
+        config: Configuration dictionary
     """
-    input_path = Path(input_dir)
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    processed_data_dir = Path(config['paths']['processed_data'])
+    processed_data_dir.mkdir(parents=True, exist_ok=True)
     
-    results = {
-        'total_files': 0,
-        'processed_files': 0,
-        'failed_files': 0,
-        'total_exclusions': {}
-    }
+    # Load processed data from loading stage
+    input_files = list(processed_data_dir.glob("*_normalized.csv"))
     
-    # Find all data files
-    data_files = list(input_path.glob("*.csv"))
-    results['total_files'] = len(data_files)
+    if not input_files:
+        logger.warning("No normalized files found. Creating empty processed file.")
+        # Create minimal structure
+        empty_df = pd.DataFrame(columns=['timestamp', 'x', 'y', 'pupil_diameter', 'subject_id', 'trial_id'])
+        empty_df.to_csv(processed_data_dir / 'preprocessed_data.csv', index=False)
+        return
     
-    quality_reports = []
+    all_processed = []
+    for input_file in input_files:
+        logger.info(f"Preprocessing {input_file}")
+        df = pd.read_csv(input_file)
+        processed = preprocess_single_subject(df, config)
+        
+        # Add subject ID based on filename
+        subject_id = input_file.stem.replace('_normalized', '')
+        processed['subject_id'] = subject_id
+        
+        all_processed.append(processed)
     
-    for file_path in data_files:
-        try:
-            logger.info(f"Processing: {file_path.name}")
-            df = load_raw_data(str(file_path))
-            processed_df, exclusions = preprocess_single_subject(df, config)
-            
-            # Save processed data
-            output_file = output_path / f"processed_{file_path.name}"
-            processed_df.to_csv(output_file, index=False)
-            
-            results['processed_files'] += 1
-            quality_reports.append(exclusions)
-            
-            # Aggregate exclusions
-            for key, count in exclusions.items():
-                results['total_exclusions'][key] = \
-                    results['total_exclusions'].get(key, 0) + count
-                
-        except Exception as e:
-            logger.error(f"Failed to process {file_path.name}: {str(e)}")
-            results['failed_files'] += 1
+    # Combine all subjects
+    combined = pd.concat(all_processed, ignore_index=True)
+    output_path = processed_data_dir / 'preprocessed_data.csv'
+    combined.to_csv(output_path, index=False)
     
-    # Write aggregated quality report
-    if quality_reports:
-        write_quality_report(quality_reports, str(output_path / "quality_report.csv"))
-    
-    return results
+    logger.info(f"Preprocessing complete. Output: {output_path}")
 
 def main():
-    """Main entry point for preprocessing pipeline."""
-    import argparse
-    from config import load_config
-    
-    parser = argparse.ArgumentParser(description="Preprocess pupil dilation data")
-    parser.add_argument("--input", required=True, help="Input directory")
-    parser.add_argument("--output", required=True, help="Output directory")
-    parser.add_argument("--config", default="code/config.yaml", help="Config file path")
+    """Main entry point for preprocessing."""
+    parser = argparse.ArgumentParser(description="Preprocess eye-tracking data")
+    parser.add_argument("--config", type=str, default="code/config.yaml")
     args = parser.parse_args()
     
-    # Load configuration
-    config = load_config(args.config)
-    
-    # Run pipeline
-    results = run_preprocessing_pipeline(args.input, args.output, config)
-    
-    # Log summary
-    logger.info(f"Preprocessing complete: {results}")
-    print(f"Processed {results['processed_files']}/{results['total_files']} files")
+    config = load_config(Path(args.config))
+    run_preprocessing_pipeline(config)
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-research"
+version = "0.1.0"
+description = "Automated science pipeline for llmXive follow-up research"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "networkx",
+    "scikit-learn",
+    "spacy",
+    "tqdm",
+    "pyyaml",
+    "requests",
+    "scipy",
+    "datasets",
+    "pytest",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+    "pytest-cov",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+select = ["E", "W", "F"]
+ignore = ["E501"]
+line-length = 88
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

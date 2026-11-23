@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.24637",
+  "judged_at": "2026-10-19T15:23:59Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"function-aware fill-in-the-middle as mid-training for coding agent fou\" computer science",
+  "rationale": "The paper directly extends the Fill-in-the-Middle (FIM) objective — the same mechanism at the core of the user's follow-up on function-aware FIM mid-training — satisfying criterion (a) same-mechanism evidence (and (b), measuring FIM-based code completion on code corpora). It is canonical prior work on modifying the FIM objective for code models.",
+  "relevant": true
+}

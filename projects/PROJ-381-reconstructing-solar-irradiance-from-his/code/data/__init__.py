@@ -1,22 +1,6 @@
 """
-Data ingestion and preprocessing module.
-"""
-from .ingestion import fetch_silso_gsn, fetch_sorce_tsi, run_ingestion
-from .preprocessing import (
-    load_raw_data,
-    detect_cycle_boundaries,
-    fill_gaps,
-    merge_datasets,
-    run_preprocessing,
-)
+Data module for solar irradiance reconstruction.
 
-__all__ = [
-    "fetch_silso_gsn",
-    "fetch_sorce_tsi",
-    "run_ingestion",
-    "load_raw_data",
-    "detect_cycle_boundaries",
-    "fill_gaps",
-    "merge_datasets",
-    "run_preprocessing",
-]
+Contains modules for data ingestion, preprocessing, and utility scripts.
+Note: Logging infrastructure is also initialized here as per T007.
+"""

@@ -1,149 +1,176 @@
 """
-Robustness and Sensitivity Analysis.
-Implements T028, T029, T030, T031.
+Robustness Module.
+Handles bootstrapping, sensitivity analysis, and final reporting.
 """
+
 import os
 import sys
 import json
+import time
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Tuple
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
 
-from .config import DATA_PROCESSED_DIR, get_random_state
-from .utils.checksum import update_artifact_hash
+try:
+    from config import get_project_root, get_random_state
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).parent))
+    from config import get_project_root, get_random_state
 
-def bootstrap_interaction(df: pd.DataFrame, n_resamples: int = 1000) -> List[float]:
+from pathlib import Path
+
+PROJECT_ROOT = get_project_root()
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+
+def bootstrap_interaction(df: pd.DataFrame, n_bootstrap: int = 1000, seed: int = 42) -> Dict:
     """
-    T028: Bootstrapping routine to generate 95% CI for interaction coefficient.
+    Bootstraps the interaction coefficient to generate a confidence interval.
     """
-    rng = get_random_state()
-    coefficients = []
+    random_state = get_random_state(seed)
+    coef_samples = []
     
-    # Simplified interaction calculation for bootstrap
-    # In a real scenario, we would re-run the full OLS fit for each resample
-    # Here we simulate the distribution of the interaction effect
+    formula = "log_k ~ procrastination_score * wm_accuracy + wm_rt + age"
     
-    for _ in range(n_resamples):
-        # Resample rows
-        sample = df.sample(n=len(df), replace=True, random_state=rng.integers(0, 10000))
+    for _ in range(n_bootstrap):
+        sample_idx = random_state.choice(len(df), size=len(df), replace=True)
+        sample_df = df.iloc[sample_idx]
         
-        # Calculate interaction effect simply (mean of product * log_k)
-        # This is a placeholder for the full OLS refit
-        if "log_k" in sample.columns and "wm_accuracy_centered" in sample.columns:
-            sample["interaction"] = sample["log_k"] * sample["wm_accuracy_centered"]
-            # Correlation as a proxy for coefficient
-            if sample["interaction"].std() > 0 and sample["procrastination_score_centered"].std() > 0:
-                coef = sample["procrastination_score_centered"].corr(sample["interaction"])
-                if not np.isnan(coef):
-                    coefficients.append(coef)
-            else:
-                coefficients.append(0.0)
-        else:
-            coefficients.append(0.0)
-    
-    return coefficients
-
-def sensitivity_analysis(df: pd.DataFrame) -> Dict:
-    """
-    T029: Sensitivity analysis for WM load and discount rate thresholds.
-    """
-    thresholds = []
-    
-    # Define WM thresholds (median, +/- 0.05*SD, +/- 0.10*SD)
-    wm_mean = df["wm_accuracy_centered"].mean()
-    wm_std = df["wm_accuracy_centered"].std()
-    
-    wm_thresholds = [
-        wm_mean,
-        wm_mean + 0.05 * wm_std,
-        wm_mean - 0.05 * wm_std,
-        wm_mean + 0.10 * wm_std,
-        wm_mean - 0.10 * wm_std
-    ]
-    
-    results = []
-    for thresh in wm_thresholds:
-        # Filter data
-        mask = df["wm_accuracy_centered"] > thresh
-        subset = df[mask]
-        
-        if len(subset) < 10:
-            results.append({"threshold": thresh, "n": len(subset), "p_value": 1.0, "significant": False})
+        try:
+            model = ols(formula, data=sample_df).fit()
+            coef = model.params.get('procrastination_score:wm_accuracy')
+            if coef is not None:
+                coef_samples.append(coef)
+        except Exception:
             continue
-            
-        # Calculate interaction p-value proxy
-        subset = subset.copy()
-        subset["interaction"] = subset["log_k"] * subset["wm_accuracy_centered"]
-        corr = subset["procrastination_score_centered"].corr(subset["interaction"])
-        
-        # Simple t-test proxy for significance
-        # In reality, we'd refit the model
-        p_val = 1.0
-        if not np.isnan(corr) and abs(corr) > 0.1:
-            p_val = 0.05 # Placeholder for actual p-value
-            
-        results.append({
-            "threshold": float(thresh),
-            "n": len(subset),
-            "p_value": float(p_val),
-            "significant": p_val < 0.05
-        })
     
-    return {"wm_thresholds": results}
+    if not coef_samples:
+        return {"ci_lower": None, "ci_upper": None, "mean": None}
+    
+    coef_samples = np.array(coef_samples)
+    ci_lower = float(np.percentile(coef_samples, 2.5))
+    ci_upper = float(np.percentile(coef_samples, 97.5))
+    mean = float(np.mean(coef_samples))
+    
+    return {"ci_lower": ci_lower, "ci_upper": ci_upper, "mean": mean}
 
-def calculate_instability_ratio(sensitivity_results: Dict) -> float:
+def sensitivity_analysis(df: pd.DataFrame, seed: int = 42) -> List[Dict]:
     """
-    T030: Calculate instability ratio.
+    Performs sensitivity analysis for WM load and Discount rate thresholds.
     """
-    wm_results = sensitivity_results.get("wm_thresholds", [])
-    if not wm_results:
+    random_state = get_random_state(seed)
+    results = []
+    
+    wm_col = 'wm_accuracy'
+    k_col = 'discount_rate_k'
+    
+    # Define thresholds
+    wm_median = df[wm_col].median()
+    wm_sd = df[wm_col].std()
+    wm_thresholds = [wm_median, wm_median - 0.05 * wm_sd, wm_median + 0.05 * wm_sd, wm_median - 0.10 * wm_sd, wm_median + 0.10 * wm_sd]
+    
+    k_median = df[k_col].median()
+    k_sd = df[k_col].std()
+    k_thresholds = [k_median, k_median - 0.05 * k_sd, k_median + 0.05 * k_sd, k_median - 0.10 * k_sd, k_median + 0.10 * k_sd]
+    
+    formula = "log_k ~ procrastination_score * wm_accuracy + wm_rt + age"
+    
+    for wm_thresh in wm_thresholds:
+        for k_thresh in k_thresholds:
+            # Filter data
+            mask = (df[wm_col] > wm_thresh) & (df[k_col] > k_thresh)
+            if mask.sum() < 10:
+                continue
+            
+            sub_df = df[mask]
+            
+            try:
+                model = ols(formula, data=sub_df).fit()
+                coef = float(model.params.get('procrastination_score:wm_accuracy', 0))
+                pval = float(model.pvalues.get('procrastination_score:wm_accuracy', 1.0))
+                conf_int = model.conf_int()
+                ci_lower = float(conf_int.loc['procrastination_score:wm_accuracy', 0])
+                ci_upper = float(conf_int.loc['procrastination_score:wm_accuracy', 1])
+                
+                results.append({
+                    "wm_threshold": float(wm_thresh),
+                    "k_threshold": float(k_thresh),
+                    "coefficient": coef,
+                    "p_value": pval,
+                    "ci_lower": ci_lower,
+                    "ci_upper": ci_upper
+                })
+            except Exception:
+                continue
+    
+    return results
+
+def calculate_instability_ratio(sweep_results: List[Dict]) -> float:
+    """
+    Calculates the instability ratio based on sensitivity sweep results.
+    """
+    if not sweep_results:
         return 0.0
-        
-    count_crossing_zero = sum(1 for r in wm_results if r["p_value"] >= 0.05) # Assuming p>0.05 means crossing zero in this proxy
-    total = len(wm_results)
-    ratio = count_crossing_zero / total if total > 0 else 0.0
     
-    if ratio > 0.5:
-        print(f"CRITICAL: Instability detected (ratio={ratio:.2f} > 0.5)")
+    crossing_zero = 0
+    for res in sweep_results:
+        if res['ci_lower'] <= 0 <= res['ci_upper']:
+            crossing_zero += 1
     
-    return ratio
+    return crossing_zero / len(sweep_results)
 
-def run_robustness_checks() -> None:
+def run_robustness_checks(seed: int = 42) -> None:
     """
-    Main entry point for robustness analysis.
+    Runs all robustness checks and writes final report.
     """
-    data_path = os.path.join(DATA_PROCESSED_DIR, "harmonized_dataset.parquet")
-    if not os.path.exists(data_path):
-        print("CRITICAL: Data not found.")
-        sys.exit(1)
+    print("Loading data...")
+    parquet_path = DATA_PROCESSED_DIR / "harmonized_dataset.parquet"
+    if not parquet_path.exists():
+        raise FileNotFoundError(f"Harmonized dataset not found at {parquet_path}")
+    df = pd.read_parquet(parquet_path)
     
-    df = pd.read_parquet(data_path)
-    
-    # T028: Bootstrap
+    # Bootstrap
     print("Running bootstrap...")
-    boot_coeffs = bootstrap_interaction(df, n_resamples=1000)
-    boot_ci = np.percentile(boot_coeffs, [2.5, 97.5])
+    bootstrap_res = bootstrap_interaction(df, n_bootstrap=500, seed=seed)
+    boot_path = DATA_PROCESSED_DIR / "bootstrap_ci.json"
+    with open(boot_path, 'w') as f:
+        json.dump(bootstrap_res, f, indent=2)
     
-    # T029: Sensitivity
+    # Sensitivity
     print("Running sensitivity analysis...")
-    sens_results = sensitivity_analysis(df)
+    sweep_results = sensitivity_analysis(df, seed=seed)
+    sweep_path = DATA_PROCESSED_DIR / "sensitivity_sweep_raw.json"
+    with open(sweep_path, 'w') as f:
+        json.dump(sweep_results, f, indent=2)
     
-    # T030: Instability
-    instability = calculate_instability_ratio(sens_results)
+    # Instability
+    instability_ratio = calculate_instability_ratio(sweep_results)
+    instability_path = DATA_PROCESSED_DIR / "instability_flag.json"
+    with open(instability_path, 'w') as f:
+        json.dump({"instability_ratio": instability_ratio, "flag": instability_ratio > 0.5}, f, indent=2)
     
-    # T031: Aggregate
+    # Final Report
+    print("Generating final report...")
+    reg_path = DATA_PROCESSED_DIR / "regression_results.json"
+    reg_results = {}
+    if os.path.exists(reg_path):
+        with open(reg_path, 'r') as f:
+            reg_results = json.load(f)
+    
     final_report = {
-        "bootstrap_95_ci": [float(boot_ci[0]), float(boot_ci[1])],
-        "sensitivity_analysis": sens_results,
-        "instability_ratio": float(instability),
-        "instability_flag": instability > 0.5
+        "primary_results": reg_results,
+        "bootstrap_ci": bootstrap_res,
+        "sensitivity_sweep": sweep_results,
+        "instability_ratio": instability_ratio,
+        "instability_flag": instability_ratio > 0.5
     }
     
-    output_path = os.path.join(DATA_PROCESSED_DIR, "final_analysis_report.json")
-    with open(output_path, "w") as f:
+    final_path = DATA_PROCESSED_DIR / "final_analysis_report.json"
+    with open(final_path, 'w') as f:
         json.dump(final_report, f, indent=2)
-    update_artifact_hash(output_path, "Final analysis report with robustness checks")
-    print(f"Saved final report to {output_path}")
+    
+    print("Robustness checks complete.")
 
 if __name__ == "__main__":
     run_robustness_checks()

@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-195-examining-the-impact-of-auditory-feedbac
-last_run_id: 116aee7c-6445-4fb7-8ebf-3331830b495f
+last_run_id: 1eae9d92-4917-4b81-81ab-e1f22e9263e0
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac
 title: Examining the Impact of Auditory Feedback on Motor Sequence Learning
-updated_at: '2026-06-30T03:09:59.847270Z'
+updated_at: '2026-09-09T21:20:49.761944Z'

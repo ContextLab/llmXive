@@ -1,0 +1,112 @@
+T002:
+  task: f1660ba3a3e65822b02a7f623607f474f8871c2d48da99156425c3c3127e0cc4
+T006:
+  reason: "The required state file `state/projects/PROJ-357-...yaml` does not exist,\
+    \ so the script\u2019s promised update of the YAML file has not been demonstrated.\
+    \ Without this artifact the task of \u201Ccomputing SHA256 checksums \u2026 and\
+    \ updating the state YAML\u201D is not satisfied."
+  task: 4e76e48fa412b4261f1d434741f5c62364b4342845b5feb944eb21eb8cede2ff
+T007:
+  task: b785c5b36a14f69896da8c3e7b43dd2a0e6e21914499dccd7faf9ed9b0719286
+T008:
+  task: 1fc230e7306254d7f54f563dc1854adafdcdb39e2cb66e1861cff917174fa5e1
+T009:
+  task: 49101c2ca96f395eb06ab89126dfc747ac16cbcf4514caf4aecc1ccf33a9bd20
+T010:
+  task: 814a924e2f1fb3457315dcb495e09ea01fe803b647a0671b3e8cacc6cff43a15
+T011:
+  task: 4afa8a46f3e3ca7996875c16944bf7e43e9b4a5079ab94f1b4453b98b562e655
+T011b:
+  task: b0f3043dcfbd51796b5469dd67f292da513a8c7843bc2b8142104076c223c405
+T012:
+  task: 2fa5d14fe36af86a5a8f72e05f8681c3926cebe1705d3d349bb342a324914158
+T013:
+  task: c49eb55186b396789514f60451367ef1f30c85b687a73697d1e4d01f1a815a1a
+T014:
+  task: f1f328da54da3309c9e39570afdd11f8ea12088bfa54fb8bb4258466e0542e39
+T015:
+  task: 75cba25bd810409fae693ae7c82e95e681fe3124c5b001275d689a19dcfa4fd7
+T016:
+  task: 0aca9380803211fcf5b5390e4fe40ae6c9ae557b9bf58856b27e83089d877c0a
+T019:
+  task: 5c13f952dcae3d9a178248c9a815101d0ead919ab153686a1aac923dc937129f
+T020:
+  task: b052fda83d1dd771685207414f8c9c5f013ee9064710b85b675c2e09af7166d8
+T021:
+  task: 5ca6b6ea7ea40022e8853054a150a7aab11d8ad715563a41558fd599b83b06dc
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/clutter_metrics.csv'
+  task: ccba36bfd5e4d492ec0352cc517960b27fa8bb6df0ef539f657759375b159171
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/validation_report.json'
+  task: 9e59643228a3a066fd9bcee8b91d2cafe0fd064e30261687f9a0ae9785026b7a
+T024:
+  task: 68a058c311430e51ab6055b3046610c1d11aa81b1d176ffb211850e8fe83edc7
+T032:
+  task: 5e2faa593d3e6614d6f267640f2c0ef8051c2ce050c8d1e84f996820cd354ef5
+T033:
+  task: 846779b0ddd40cbf6c9d194504a55e7b7903a9b297ef936fa07ce7e44f7b4329
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/fixed_effects_results.json,
+    data/interim/model_warnings.log'
+  task: 3d7a55cfe7cf979d2f7f23c2e9e3168d1d8093200887a00cc50a3d79d278ff73
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/regression_results.json'
+  task: 3ce746fba52d86380ee99344e55d53417b9d47363142b15e05c6b49749343718
+T036:
+  task: 7fe27407bfa7c912a5efeadc5526333df12de8524a8d96541f982efca0c43786
+T037:
+  task: e9fbaccd14fdc4227016a9c0d2dcbd6c3c11a0456402f8fd52d4704dc6c66541
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/regression_results.json'
+  task: e1f415639295afbc73c45000aa4f2f598850b8f6f2a89d067af9de5be97b2be6
+T039:
+  task: 8bc154c1a0a6cef816ea1a718a297dad7ad8b8094ba2c4140b2bd231b023294f
+T040:
+  task: 344c6c9b466ebd30d317dd68eae806cb3275297a59dcf22e7ae908892e679fac
+T041:
+  task: e5794f9f59383719f258678dfd3cff9373884203a3c8ea9693fc7592e749dc09
+T042:
+  task: 5b9f2847fd86a2195633f4e3c15fc6dd31570eb128a0950389bf19bc06a62fc8
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: state/timing_report.json'
+  task: 0ae986a1ee31e7c15fc3efe361961269b5a37c1029bf336c849156a5287df97d
+T045:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/web_interface.py'
+  task: 5ccfbbc52d875cc32fe30c669258d8e8fdeda691f0804204eb686bdbabdd69ba
+T046a:
+  task: 970960e6d5110c3dce336e64f0354d848a3e0ff99af0517f0365e32e8d676b1e
+T046b:
+  task: 6dad6a845dbbf884cf980ae2f58c72025a27b5ad573c27bfc5e62afcf8f7c7e7
+T047:
+  reason: 'declared artifact(s) missing/empty/invalid: data/interim/raw_pilot_responses.csv'
+  task: ed7ddce35172fbc7caee4ab4a6916e58e88af35c14bd49bb12f5f68a1d6ac48d
+T048:
+  task: f8a9a92a727823f3627bac3339508b7dd0719e771ecaed4da79467b2ba04d370
+T049a:
+  task: 71d98b2b8b6f1165b6353d9487aa1417992caa4d8fe96508ca8a4ba0e932866f
+T049b:
+  task: fee841e84a1a93a9aba63e0e494a73c6c05c42aea2772f13e308d81e3322bc0e
+T050:
+  task: fac2876dc91c2cce305b8850cc76128a24c533046642b36fb7807e3548889834
+T051:
+  task: 18b037445c339ba6f1b63c14aeb049d73620d32693ea67ef5248fa06689fdc72
+T052:
+  task: 4d1443cee9d5d2683c23f33e7fc4d94b68b21ecf9d62d4dd771f0f8a0236bda8
+T053:
+  task: 801d1883abf36be5546de63a161151d79a1f9e75c238e9f8424734d6deeb4a6c
+T054:
+  task: 0ea8080180f102b4857d3cafc76dea27186685a085b43e06ea3026a6f60eded9
+T055:
+  task: 13637bf6ed6a9ff37236347a68407ecf58e516fc75bf9a4fa75f70930e4419d7
+T056:
+  task: 3a4562a10980b2646fc592c4f4031aeb0aa0c46ced659e159c8dc8904aa9169f
+T057:
+  task: 06fa5019099d7b10e7438983c30316eea0c1ec49b0e73b6b6c8df29d83d5e5bf
+T058:
+  task: cbb71be278986ac5b726f167e49931625af5fd0e34a57d8cb64718dbdc16b57f
+T059:
+  task: 6a35aacf215b3680178fb9cc74a61ad7fac3f2c3187cd88d6a4ca72608e6cc29
+T060:
+  reason: 'declared artifact(s) missing/empty/invalid: state/timing_report.json'
+  task: 9ba8e55072d73ba9d5913af7d53053417bf459da4baa5e1f485caf69975a4c7d

@@ -4,28 +4,28 @@
 
 **Verdict**: pass
 
-The question asks about the extent to which dynamic environmental effects (captured by spectra) provide predictive signal for reaction yield beyond static structural information. This is a substantive scientific inquiry into the relationship between molecular state and reaction outcome, independent of the specific attention mechanism used to model it.
+The question asks whether experimentally measured spectra carry predictive signal for reaction yield beyond structural fingerprints — a substantive question about the information content of spectroscopic measurements relative to molecular structure. The attention architecture is the instrument, not the subject; the question would survive replacing the model class.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor (spectral intensities from IR, Raman, NMR) and the predicted variable (reaction yield) are derived from independent experimental measurements. While both relate to the chemical system, the yield is a macroscopic outcome of the reaction process, whereas the spectra are snapshots of molecular energy states; one does not mechanically derive from the other in a way that guarantees the correlation.
+The predictors are IR/¹H-NMR spectra and ECFP fingerprints (both derived from molecular identity, but distinct information sources); the predicted variable is experimentally measured reaction yield from HTE datasets — an independent laboratory outcome. No mechanical construction links spectra to yield. The label-permutation protocol further guards against spurious structure.
 
 ### Triviality check
 
 **Verdict**: pass
 
-A positive result would establish spectra as a superior proxy for environmental effects compared to static fingerprints, while a null result would be highly informative by suggesting that yield is determined by factors not captured in ground-state vibrational or nuclear magnetic resonance signals (e.g., transition state dynamics or solvent reorganization energy not reflected in reactant/product spectra).
+Both outcomes are informative: a positive result validates spectroscopy as a cheap, non-invasive yield-screening signal and localizes the responsible spectral regions; a null result is a publishable negative constraining claims that environmental/solvation information in bench spectra is usable for yield prediction. Neither answer is predetermined by domain knowledge.
 
 ### Question-narrowing check
 
 **Verdict**: pass
 
-The question explicitly names a domain relationship (spectral signal vs. yield prediction) and seeks to isolate the contribution of specific physical phenomena (environmental effects). It does not frame the inquiry around the performance of a specific architecture or computational budget.
+The question names a domain relationship (spectral information content vs. structural fingerprints for yield) and explicitly asks *which spectral regions* carry signal — a mechanistic question. Implementation constraints (CPU threads, epochs, batch size) are confined to the methodology, not the research question.
 
 ### Overall verdict
 
 **Verdict**: validated
 
-All four checks pass. The research question targets a genuine gap in understanding the predictive value of spectroscopic data for reaction yields, avoids implementation-focused framing, and ensures that the predictor and target are empirically distinct. The proposed methodology (attention mechanisms) is a tool to answer the question, not the subject of the question itself.
+All four checks pass. The research question is well-framed as an information-content question independent of the modeling method, with independent predictor and target sources and informative outcomes under either result. The main residual risk is data availability (matched spectra–yield pairs may fall below the ~300-reaction threshold), but the methodology already handles that with a documented halt rather than a degraded question, so it does not undermine the question itself.

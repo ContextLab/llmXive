@@ -1,0 +1,71 @@
+T001d:
+  c: false
+  h: 575396a91258595db399d866cf86ddb39c5614c9caf890867b01c387b7af47a0
+  r: "The `pyproject.toml` correctly contains the Black and Ruff configurations, but\
+    \ the required `.pre-commit-config.yaml` file is absent, so the pre\u2011commit\
+    \ hooks (detect\u2011secrets, black, ruff) have not been configured as stipulated."
+T011:
+  c: false
+  h: 63577b8fe604bd129ec17694b4b3d3f6c18d31681b46be505764aa7fc0b69bc4
+  r: The test file `tests/contract/test_schemas.py` is present, but the required data
+    artifacts `data/interim/cleaned_adress.csv`, `data/results/metadata.json`, and
+    the referenced `dataset.schema.yaml` are missing, so the contract validation cannot
+    actually be performed. The missing files must be created with the appropriate
+    schema/content for the task to be complete.
+T012c:
+  c: false
+  h: c279ae8cac5f0d583df90180e266c3903e3efbf827f12ce6a8048f829636f5a5
+  r: The required artifact `data/ingestion_amendment.log` does not exist, so no documentation
+    of FR-001 satisfaction or DementiaBank exclusion is present. The implementer must
+    create the log file with the specified entries.
+T012g:
+  c: false
+  h: 79ec3642b1d673786cf991b6b8986598873e6a70b8d516f0ab0bf0e70a85a77b
+  r: The repository lacks the required input files (`data/results/raw_record_count.json`,
+    `data/results/group_counts.json`, `data/interim/exclusions.log`) and the expected
+    output file (`data/results/metadata.json`). Moreover, `code/ingestion.py` does
+    not contain an implementation of the `aggregate_metadata()` function as specified.
+    The task therefore remains unfinished.
+T014:
+  c: false
+  h: b8b368ac695c2d27eca0c88e019212ef6db29fd1d45884ba9aa0118c1564e002
+  r: The provided `code/ingestion.py` contains only a patched `DataSourceConfig` class
+    and no `filter_records()` implementation, and the required `data/interim/exclusions.log`
+    file does not exist. Both the function and the exclusion log are missing, so the
+    task is not satisfied.
+T016:
+  c: false
+  h: 35b6a45a6b1d85190e328a377b412ce841148cadfb09aac585822b89c9adb2c2
+  r: The repository lacks the required `data/interim/cleaned_adress.csv` file, and
+    the provided `code/ingestion.py` excerpt does not show an implementation of a
+    `create_cleaned_dataset()` function that writes this CSV. Consequently, the core
+    deliverable of the task is absent.
+T024:
+  c: false
+  h: 3b0bae8be11da3f49aac8f222570108f7df33a154496800c70df360a01f37241
+  r: The required `data/processed/embeddings.npy` file does not exist, and the accompanying
+    `embeddings.derivation.log` is only a placeholder that has not been populated
+    with real execution details. Consequently, the semantic feature extraction has
+    not been fully implemented or executed as specified.
+T025a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., test script, log, or output) was provided that checks the
+    feature matrix for the six required columns, nor any evidence that such a verification
+    was performed. The implementer must supply a concrete test (or its results) that
+    confirms the matrix contains exactly the columns `[TTR, MTLD, Noun_Verb_Ratio,
+    Mean_Clause_Length, T_Unit_Count, Sentence_Embedding_Cosine_Similarity]`.
+T027:
+  c: false
+  h: 3071f90c9c6bb0711cb6c36feee7a1e0f0d296b5181b71ea611abe4eaefe35b9
+  r: "The repository lacks the required output file `data/results/statistical_metrics.json`,\
+    \ and the provided excerpt of `code/stats.py` shows no implementation of Bonferroni\
+    \ correction or any code that writes raw and adjusted p\u2011values to that JSON\
+    \ file. Both the correction logic and the persistence step are missing, so the\
+    \ task is not fulfilled."
+T028:
+  c: false
+  h: 88bdaee4d247df9ef33ffb9dcaedd076f70b2cb117df5a4af9667e504c150a40
+  r: "The required output file `data/results/statistical_metrics.json` is missing,\
+    \ so no Cohen's d calculations have been persisted as specified. The task\u2019\
+    s core deliverable is absent."

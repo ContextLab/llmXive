@@ -1,127 +1,124 @@
 """
-Pytest configuration and fixtures for the Ambient Temperature Influence on Moral Decision Speed project.
-
-This module provides:
-- CPU-only execution enforcement
-- Stratified sampling fixtures for memory-constrained testing
-- Common test utilities
+Pytest configuration for CPU-only execution and stratified sampling.
 """
 import os
 import sys
+import random
+from pathlib import Path
+from typing import List, Any, Dict, Optional
+
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
-from typing import Optional, Generator, Dict, Any
 
-# Ensure CPU-only execution by setting environment variables
-@pytest.fixture(autouse=True)
-def enforce_cpu_only():
-    """Force all computations to use CPU only."""
-    os.environ['CUDA_VISIBLE_DEVICES'] = ''
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress TF warnings
-    yield
-    # Cleanup if needed
+# Add project root to path to ensure imports work when running from tests/
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-def stratified_sample(
-    df: pd.DataFrame,
-    stratify_col: str,
-    sample_size: Optional[int] = None,
-    fraction: Optional[float] = None,
-    random_state: int = 42
-) -> pd.DataFrame:
+from code.config import get_path_env_override
+
+
+def pytest_configure(config):
     """
-    Perform stratified sampling on a DataFrame.
-
-    Args:
-        df: Input DataFrame
-        stratify_col: Column name to stratify by
-        sample_size: Number of samples to draw (mutually exclusive with fraction)
-        fraction: Fraction of samples to draw (mutually exclusive with sample_size)
-        random_state: Random seed for reproducibility
-
-    Returns:
-        Stratified sample DataFrame
-
-    Raises:
-        ValueError: If neither sample_size nor fraction is provided, or if both are provided
+    Configure pytest at startup.
+    - Enforce CPU-only execution for ML/Stats libraries if applicable.
+    - Register custom markers for stratified sampling.
     """
-    if sample_size is None and fraction is None:
-        raise ValueError("Either sample_size or fraction must be provided")
-    if sample_size is not None and fraction is not None:
-        raise ValueError("Only one of sample_size or fraction should be provided")
+    # Force CPU-only for torch/tensorflow if they were imported (defensive)
+    # Note: This project uses statsmodels/pandas, but we set env vars for consistency
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
 
-    # Set random seed for reproducibility
-    np.random.seed(random_state)
-
-    # Perform stratified sampling
-    if sample_size is not None:
-        # Calculate fraction based on total size
-        fraction = sample_size / len(df)
-
-    sample = df.groupby(stratify_col, group_keys=False).apply(
-        lambda x: x.sample(frac=fraction, random_state=random_state)
+    # Register markers
+    config.addinivalue_line(
+        "markers", "stratified: Mark a test to use stratified sampling on the input data."
+    )
+    config.addinivalue_line(
+        "markers", "cpu_only: Explicitly mark a test as CPU-only (enforced via config)."
     )
 
-    return sample.reset_index(drop=True)
+
+@pytest.fixture(scope="session", autouse=True)
+def enforce_cpu_only():
+    """
+    Session-scoped fixture that ensures the environment is set to CPU-only.
+    This is an autouse fixture, so it runs for every test.
+    """
+    # Re-assert environment variables to ensure no library overrides them
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+    os.environ["OPENBLAS_NUM_THREADS"] = "1"
+    os.environ["CUDA_VISIBLE_DEVICES"] = ""
+    yield
+    # No teardown needed for env vars usually, but we could restore if needed
+
 
 @pytest.fixture
-def sample_moral_machine_data() -> pd.DataFrame:
+def stratified_sample(request):
     """
-    Fixture providing a stratified sample of Moral Machine data for testing.
-    Uses stratification by country and dilemma type to ensure representative sampling.
+    Fixture to perform stratified sampling on a DataFrame based on a column.
+    Usage:
+      @pytest.mark.stratified(column='country', n=50)
+      def test_my_model(stratified_sample):
+          df = stratified_sample(...)
     """
-    # This fixture assumes the full dataset is available at data/raw/moral_machine.parquet
-    # For testing purposes, we create a synthetic sample that mimics the structure
-    # In production, this would load from the real data file
 
-    # Create a minimal synthetic dataset for testing
-    np.random.seed(42)
-    n_samples = 1000
+    def _sample(df: pd.DataFrame, column: str, n_per_strata: int = 10) -> pd.DataFrame:
+        if column not in df.columns:
+            raise ValueError(f"Stratification column '{column}' not found in DataFrame.")
 
-    data = {
-        'timestamp': pd.date_range('2016-01-01', periods=n_samples, freq='1min'),
-        'country': np.random.choice(['US', 'UK', 'DE', 'FR', 'JP', 'BR', 'IN'], n_samples),
-        'dilemma_type': np.random.choice(['pedestrian_vs_passenger', 'young_vs_old', 'healthy_vs_unhealthy'], n_samples),
-        'response_time_ms': np.random.exponential(2000, n_samples).clip(100, 10000),
-        'latitude': np.random.uniform(-90, 90, n_samples),
-        'longitude': np.random.uniform(-180, 180, n_samples),
-        'temperature_celsius': np.random.normal(20, 8, n_samples),
-        'choice': np.random.choice([0, 1], n_samples)
-    }
+        if len(df) == 0:
+            return df
 
-    df = pd.DataFrame(data)
+        groups = df.groupby(column)
+        sampled_dfs = []
 
-    # Apply stratified sampling (10% sample)
-    sampled_df = stratified_sample(df, stratify_col='country', fraction=0.1, random_state=42)
+        for name, group in groups:
+            if len(group) <= n_per_strata:
+                sampled_dfs.append(group)
+            else:
+                sampled_dfs.append(group.sample(n=n_per_strata, random_state=42))
 
-    return sampled_df
+        return pd.concat(sampled_dfs, ignore_index=True)
+
+    return _sample
+
 
 @pytest.fixture
-def sample_era5_data() -> pd.DataFrame:
+def mock_data_loader():
     """
-    Fixture providing a sample of ERA5 temperature data for testing.
+    Fixture to provide a mock data loader for testing ingestion logic.
+    Returns a DataFrame with realistic but synthetic structure (not values).
     """
-    # Create a minimal synthetic ERA5 dataset for testing
-    np.random.seed(42)
-    n_points = 500
-
+    # We use a small, deterministic dataset for unit tests.
+    # This is NOT the real data source, but a structural mock.
     data = {
-        'time': pd.date_range('2016-01-01', periods=n_points, freq='1h'),
-        'latitude': np.random.uniform(30, 60, n_points),
-        'longitude': np.random.uniform(-10, 30, n_points),
-        'temperature_2m': np.random.normal(15, 10, n_points)
+        'participant_id': ['P001', 'P002', 'P003', 'P004', 'P005'],
+        'latitude': [51.5074, 40.7128, 35.6895, -33.8688, 55.7558],
+        'longitude': [-0.1278, -74.0060, 139.6917, 151.2093, 37.6173],
+        'timestamp': pd.to_datetime(['2016-01-01 12:00:00', '2016-01-02 14:30:00',
+                                     '2016-01-03 09:15:00', '2016-01-04 18:45:00',
+                                     '2016-01-05 11:20:00']),
+        'response_time': [2500, 1800, 3200, 4100, 2900],
+        'country': ['UK', 'USA', 'Japan', 'Australia', 'Russia'],
+        'dilemma_id': ['D1', 'D1', 'D2', 'D2', 'D3']
     }
-
     return pd.DataFrame(data)
 
+
 @pytest.fixture
-def temp_output_dir(tmp_path: Path) -> Generator[Path, None, None]:
+def temp_output_dir(tmp_path):
     """
-    Fixture providing a temporary output directory for test artifacts.
-    Ensures tests don't pollute the actual results/ directory.
+    Fixture to create a temporary output directory structure mimicking the project.
     """
-    output_dir = tmp_path / "test_output"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    yield output_dir
-    # Cleanup is handled by pytest's tmp_path fixture
+    dirs = [
+        "data/processed",
+        "results/logs",
+        "results/figures",
+        "results/stats"
+    ]
+    for d in dirs:
+        (tmp_path / d).mkdir(parents=True, exist_ok=True)
+    return tmp_path

@@ -1,3 +1,10 @@
+"""
+Utility script to compute SHA-256 hashes for all files under data/ and write a manifest to state/.
+
+This script ensures data integrity and enforces the constitutional rule that derivations
+must be written to new filenames (no in-place modification) by recording checksums.
+"""
+
 import hashlib
 import json
 import os
@@ -5,234 +12,175 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
-from config import get_config_summary
-
+# Add project root to path to ensure imports work regardless of cwd
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+STATE_DIR = PROJECT_ROOT / "state"
+MANIFEST_PATH = STATE_DIR / "hash_manifest.json"
 
 def compute_sha256(file_path: Path) -> str:
-    """
-    Compute the SHA256 hash of a file's contents.
-
-    Args:
-        file_path: Path to the file to hash.
-
-    Returns:
-        Hexadecimal string of the SHA256 hash.
-    """
+    """Compute the SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except (IOError, OSError) as e:
+        raise RuntimeError(f"Failed to read file {file_path}: {e}")
 
-
-def hash_directory(
-    directory_path: Path,
-    extensions: Optional[List[str]] = None,
-    exclude_patterns: Optional[List[str]] = None
-) -> Dict[str, str]:
+def hash_directory(directory: Path, extensions: Optional[List[str]] = None) -> Dict[str, str]:
     """
-    Compute hashes for all files in a directory (recursive).
+    Recursively hash all files in a directory.
 
     Args:
-        directory_path: Path to the directory to hash.
-        extensions: Optional list of file extensions to include (e.g., ['.json', '.jsonl']).
-        exclude_patterns: Optional list of patterns to exclude (e.g., ['__pycache__', '.git']).
+        directory: Path to the directory to hash.
+        extensions: Optional list of file extensions to include (e.g., ['.jsonl', '.json']).
+                    If None, all files are included.
 
     Returns:
-        Dictionary mapping relative file paths to their SHA256 hashes.
+        A dictionary mapping relative file paths to their SHA-256 hashes.
     """
     hashes = {}
-    directory_path = directory_path.resolve()
+    if not directory.exists():
+        print(f"Warning: Directory {directory} does not exist. Skipping.", file=sys.stderr)
+        return hashes
 
-    if not directory_path.exists():
-        raise FileNotFoundError(f"Directory not found: {directory_path}")
-
-    for root, dirs, files in os.walk(directory_path):
-        # Filter out excluded directories
-        if exclude_patterns:
-            dirs[:] = [d for d in dirs if not any(p in d for p in exclude_patterns)]
-
+    for root, _, files in os.walk(directory):
         for file in files:
             file_path = Path(root) / file
-            rel_path = file_path.relative_to(directory_path)
+            rel_path = file_path.relative_to(PROJECT_ROOT)
 
-            # Check extensions if specified
             if extensions and file_path.suffix not in extensions:
                 continue
 
-            # Check exclude patterns for file names
-            if exclude_patterns and any(p in str(rel_path) for p in exclude_patterns):
-                continue
-
             try:
-                hashes[str(rel_path)] = compute_sha256(file_path)
-            except Exception as e:
-                print(f"Warning: Could not hash {rel_path}: {e}", file=sys.stderr)
+                file_hash = compute_sha256(file_path)
+                hashes[str(rel_path)] = file_hash
+            except RuntimeError as e:
+                print(f"Error hashing {file_path}: {e}", file=sys.stderr)
 
     return hashes
 
-
-def generate_manifest(
-    hashes: Dict[str, str],
-    directory_path: Path,
-    metadata: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+def generate_manifest(hashes: Dict[str, str], directory_name: str) -> Dict[str, Any]:
     """
-    Generate a manifest file containing hashes and metadata.
+    Generate a manifest dictionary containing metadata and hashes.
 
     Args:
-        hashes: Dictionary of file paths to hashes.
-        directory_path: Path to the directory being hashed.
-        metadata: Optional additional metadata to include.
+        hashes: Dictionary of relative paths to hashes.
+        directory_name: Name of the directory being hashed (e.g., 'data').
 
     Returns:
-        The manifest dictionary.
+        A dictionary representing the manifest.
     """
-    manifest = {
-        "directory": str(directory_path),
+    import datetime
+    return {
+        "directory": directory_name,
+        "timestamp": datetime.datetime.now().isoformat(),
+        "algorithm": "sha256",
         "file_count": len(hashes),
-        "files": hashes,
-        "config": get_config_summary(),
-        "metadata": metadata or {}
+        "files": hashes
     }
-    return manifest
 
-
-def verify_manifest(
-    manifest_path: Path,
-    directory_path: Path
-) -> Dict[str, Any]:
+def verify_manifest(manifest_path: Path) -> bool:
     """
-    Verify files against a manifest.
+    Verify the integrity of files against a stored manifest.
 
     Args:
         manifest_path: Path to the manifest JSON file.
-        directory_path: Path to the directory to verify.
 
     Returns:
-        Dictionary with verification results:
-        {
-            "valid": bool,
-            "missing_files": List[str],
-            "modified_files": List[str],
-            "extra_files": List[str]
-        }
+        True if all files match the manifest, False otherwise.
     """
-    with open(manifest_path, "r") as f:
-        manifest = json.load(f)
+    if not manifest_path.exists():
+        print(f"Error: Manifest not found at {manifest_path}", file=sys.stderr)
+        return False
 
-    expected_hashes = manifest.get("files", {})
-    directory_path = directory_path.resolve()
+    try:
+        with open(manifest_path, "r") as f:
+            manifest = json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON in manifest: {e}", file=sys.stderr)
+        return False
 
-    # Get current hashes
-    current_hashes = hash_directory(directory_path)
+    directory_name = manifest.get("directory", "data")
+    target_dir = PROJECT_ROOT / directory_name
+    if not target_dir.exists():
+        print(f"Error: Target directory {target_dir} not found.", file=sys.stderr)
+        return False
 
-    # Check for missing files
-    missing_files = [f for f in expected_hashes if f not in current_hashes]
+    all_match = True
+    stored_hashes = manifest.get("files", {})
 
-    # Check for modified files
-    modified_files = []
-    for rel_path, expected_hash in expected_hashes.items():
-        if rel_path in current_hashes:
-            if current_hashes[rel_path] != expected_hash:
-                modified_files.append(rel_path)
+    for rel_path_str, expected_hash in stored_hashes.items():
+        file_path = PROJECT_ROOT / rel_path_str
+        if not file_path.exists():
+            print(f"Mismatch: File {rel_path_str} missing.", file=sys.stderr)
+            all_match = False
+            continue
 
-    # Check for extra files (not in manifest but exist)
-    extra_files = [f for f in current_hashes if f not in expected_hashes]
+        try:
+            actual_hash = compute_sha256(file_path)
+            if actual_hash != expected_hash:
+                print(f"Mismatch: {rel_path_str} (Expected: {expected_hash}, Got: {actual_hash})", file=sys.stderr)
+                all_match = False
+            else:
+                print(f"OK: {rel_path_str}")
+        except RuntimeError as e:
+            print(f"Error verifying {rel_path_str}: {e}", file=sys.stderr)
+            all_match = False
 
-    is_valid = len(missing_files) == 0 and len(modified_files) == 0
+    return all_match
 
-    return {
-        "valid": is_valid,
-        "missing_files": missing_files,
-        "modified_files": modified_files,
-        "extra_files": extra_files
-    }
+def hash_artifact(file_path: Path) -> str:
+    """
+    Compute hash for a single artifact.
 
+    Args:
+        file_path: Path to the file.
+
+    Returns:
+        SHA-256 hash string.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"Artifact not found: {file_path}")
+    return compute_sha256(file_path)
 
 def main():
     """
-    CLI entry point for hash_artifacts module.
-    Usage: python -m code.utils.hash_artifacts <command> [args]
-    Commands:
-        hash <directory> [--extensions .json,.jsonl] [--exclude __pycache__]
-        verify <manifest_path> <directory>
+    Main entry point for the hash artifacts utility.
+    Computes hashes for all files under data/ and writes the manifest to state/.
     """
-    if len(sys.argv) < 2:
-        print("Usage: python -m code.utils.hash_artifacts <command> [args]")
-        print("Commands: hash, verify")
+    # Ensure state directory exists
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+
+    if not DATA_DIR.exists():
+        print(f"Error: Data directory {DATA_DIR} does not exist.", file=sys.stderr)
         sys.exit(1)
 
-    command = sys.argv[1]
+    print(f"Hashing files in {DATA_DIR}...")
+    hashes = hash_directory(DATA_DIR)
 
-    if command == "hash":
-        if len(sys.argv) < 3:
-            print("Error: Directory path required")
-            sys.exit(1)
+    if not hashes:
+        print("No files found to hash in data/.", file=sys.stderr)
+        sys.exit(0)
 
-        dir_path = Path(sys.argv[2])
-        extensions = None
-        exclude_patterns = None
+    manifest = generate_manifest(hashes, "data")
 
-        # Parse optional arguments
-        i = 3
-        while i < len(sys.argv):
-            if sys.argv[i] == "--extensions":
-                if i + 1 < len(sys.argv):
-                    extensions = sys.argv[i + 1].split(",")
-                    i += 2
-                else:
-                    print("Error: --extensions requires a value")
-                    sys.exit(1)
-            elif sys.argv[i] == "--exclude":
-                if i + 1 < len(sys.argv):
-                    exclude_patterns = sys.argv[i + 1].split(",")
-                    i += 2
-                else:
-                    print("Error: --exclude requires a value")
-                    sys.exit(1)
-            else:
-                i += 1
+    # Write manifest
+    with open(MANIFEST_PATH, "w") as f:
+        json.dump(manifest, f, indent=2)
 
-        hashes = hash_directory(dir_path, extensions, exclude_patterns)
-        manifest = generate_manifest(hashes, dir_path)
+    print(f"Manifest written to {MANIFEST_PATH}")
+    print(f"Total files hashed: {manifest['file_count']}")
 
-        # Save manifest to directory
-        manifest_path = dir_path / "hash_manifest.json"
-        with open(manifest_path, "w") as f:
-            json.dump(manifest, f, indent=2)
-
-        print(f"Manifest saved to: {manifest_path}")
-        print(f"Files hashed: {len(hashes)}")
-
-    elif command == "verify":
-        if len(sys.argv) < 4:
-            print("Error: manifest_path and directory_path required")
-            sys.exit(1)
-
-        manifest_path = Path(sys.argv[2])
-        dir_path = Path(sys.argv[3])
-
-        result = verify_manifest(manifest_path, dir_path)
-
-        if result["valid"]:
-            print("Verification PASSED: All files match.")
-        else:
-            print("Verification FAILED:")
-            if result["missing_files"]:
-                print(f"  Missing: {result['missing_files']}")
-            if result["modified_files"]:
-                print(f"  Modified: {result['modified_files']}")
-            if result["extra_files"]:
-                print(f"  Extra: {result['extra_files']}")
-
-        sys.exit(0 if result["valid"] else 1)
-
+    # Verify immediately after writing (optional but good practice)
+    print("Verifying manifest...")
+    if verify_manifest(MANIFEST_PATH):
+        print("Verification successful.")
     else:
-        print(f"Unknown command: {command}")
-        print("Commands: hash, verify")
+        print("Verification failed.", file=sys.stderr)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

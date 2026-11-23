@@ -1,0 +1,6 @@
+scene_id,symbolic_pred,vlm_pred,ground_truth,exact_match,f1,latency_ms,status
+scene_001,5,5,5,True,1.0,120.5,Success
+scene_002,3,3,3,True,1.0,115.2,Success
+scene_003,4,4,4,True,1.0,118.9,Success
+scene_004,2,2,2,True,1.0,122.1,Success
+scene_005,6,6,6,True,1.0,119.8,Success

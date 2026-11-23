@@ -1,0 +1,15 @@
+status: none
+intent: SyntheticTaskDataset python package synthetic multi-step task generation skill
+  library python package dataset
+required_fields:
+- task_id
+- task_description
+- ground_truth_path
+- skill_id
+- skill_name
+- skill_embedding
+- overlap_level
+- semantic_density
+cache_key: 51b33f4516efecb452f942779bbd63776a5ca0253bd6754998f611b8cd48b4b7
+searched_at: '2026-10-26T07:41:43.758737+00:00'
+retry_count: 1

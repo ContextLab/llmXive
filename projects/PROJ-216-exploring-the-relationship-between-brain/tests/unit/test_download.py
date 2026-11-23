@@ -1,111 +1,141 @@
-"""
-Unit tests for download.py functionality.
-Tests logic for subject selection, limit enforcement, and dataset priority.
-"""
-import pytest
-import sys
 import os
-from pathlib import Path
+import sys
+import json
+import unittest
 from unittest.mock import patch, MagicMock, mock_open
+from pathlib import Path
+import logging
 
 # Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-from download import get_subject_list, download_dataset, main, DATASET_ORDER
-from config import get_sample_limit
+from download import (
+    fetch_openneuro_data, 
+    validate_and_aggregate, 
+    check_validation_and_halt, 
+    ensure_directories,
+    get_subject_list,
+    download_dataset
+)
 
-class TestDownloadLogic:
-    @patch('download.get_subject_list')
+class TestDownloadValidation(unittest.TestCase):
+    
+    def setUp(self):
+        # Ensure directories exist for the test
+        ensure_directories()
+        # Clear any existing logs or outputs from previous runs
+        if Path("data/processed/valid_subjects.json").exists():
+            Path("data/processed/valid_subjects.json").unlink()
+        if Path("data/processed/validation_errors.log").exists():
+            Path("data/processed/validation_errors.log").unlink()
+        
+        # Setup logging to suppress noise during tests if needed, 
+        # but we want to see errors for debugging
+        self.logger = logging.getLogger("download")
+
+    def tearDown(self):
+        # Cleanup generated files
+        for f in ["data/processed/valid_subjects.json", "data/processed/validation_errors.log"]:
+            if Path(f).exists():
+                Path(f).unlink()
+
     @patch('download.download_dataset')
-    def test_priority_ds000224(self, mock_download, mock_get_list):
-        """Test that ds000224 is attempted first."""
-        # Mock data
-        mock_get_list.side_effect = [
-            ['sub-01', 'sub-02'], # ds000224
-            ['sub-03']            # ds000230 (should not be reached if limit met)
+    @patch('download.get_subject_list')
+    @patch('download.Path')
+    def test_fetch_openneuro_data_with_valid_fluid_intelligence(self, mock_path, mock_get_list, mock_download):
+        """
+        Test that the pipeline successfully fetches data and validates Fluid Intelligence scores.
+        """
+        # Mock download success
+        mock_download.return_value = True
+        
+        # Mock subject list
+        mock_get_list.return_value = [
+            {"id": "01", "dataset": "ds000224"},
+            {"id": "02", "dataset": "ds000224"}
         ]
-        mock_download.return_value = (2, ['sub-01', 'sub-02'])
+        
+        # Mock Path to simulate file existence for validation
+        # We need to mock the behavior of load_behavioral_scores indirectly via validate_and_aggregate
+        # Since validate_and_aggregate calls load_behavioral_scores which reads files,
+        # we mock the file reading logic inside validate_and_aggregate or the helper.
+        # However, validate_and_aggregate is called internally.
+        # Let's mock the specific file check in load_behavioral_scores logic.
+        
+        # We will patch the logic inside validate_and_aggregate to return scores
+        with patch('download.load_behavioral_scores') as mock_load_scores:
+            mock_load_scores.return_value = 0.85 # Valid score
+            
+            result = fetch_openneuro_data()
+            
+            self.assertTrue(result)
+            self.assertTrue(Path("data/processed/valid_subjects.json").exists())
+            
+            with open("data/processed/valid_subjects.json", 'r') as f:
+                data = json.load(f)
+            
+            self.assertEqual(data["count"], 2)
+            self.assertEqual(len(data["subjects"]), 2)
+            self.assertEqual(data["subjects"][0]["score"], 0.85)
 
-        with patch('download.get_config_summary') as mock_config:
-            mock_config.return_value = {}
-            with patch('download.get_dataset_ids') as mock_ids:
-                mock_ids.return_value = ['ds000224', 'ds000230']
-                with patch('download.get_sample_limit') as mock_limit:
-                    mock_limit.return_value = 10 # High limit to test full ds000224
-                    
-                    # We need to mock the file writing and logging to avoid side effects
-                    with patch('builtins.open', mock_open()):
-                        with patch('download.log_info'):
-                            with patch('download.log_warning'):
-                                with patch('download.log_error'):
-                                    with patch('subprocess.run'):
-                                        main()
+    @patch('download.download_dataset')
+    @patch('download.get_subject_list')
+    @patch('download.load_behavioral_scores')
+    def test_fetch_openneuro_data_zero_valid_subjects(self, mock_load_scores, mock_get_list, mock_download):
+        """
+        Test that the pipeline halts with correct error when no valid Fluid Intelligence scores are found.
+        This simulates the 'count 0' scenario.
+        """
+        # Mock download success
+        mock_download.return_value = True
         
-        # Verify ds000224 was called first
-        assert mock_get_list.call_count >= 1
-        # The first call should be for ds000224
-        # We can't easily check the order of calls without more complex mocking,
-        # but the logic in main() iterates DATASET_ORDER which is hardcoded.
-        # We trust the logic in main() for iteration order.
+        # Mock subject list
+        mock_get_list.return_value = [
+            {"id": "01", "dataset": "ds000224"}
+        ]
+        
+        # Mock load_behavioral_scores to return None (no score)
+        mock_load_scores.return_value = None
+        
+        # Expect RuntimeError
+        with self.assertRaises(RuntimeError) as context:
+            fetch_openneuro_data()
+        
+        self.assertIn("No valid Fluid Intelligence data found", str(context.exception))
+        
+        # Verify error log was written
+        self.assertTrue(Path("data/processed/validation_errors.log").exists())
+        with open("data/processed/validation_errors.log", 'r') as f:
+            content = f.read()
+            self.assertIn("[VALIDATION_ERROR]", content)
+            self.assertIn("No valid Fluid Intelligence data found", content)
 
-    def test_sample_limit_enforcement(self):
-        """Test that N=10 limit is respected."""
-        # This is tested in the logic of main() via the 'needed' calculation.
-        # We verify the config returns 10.
-        assert get_sample_limit() == 10
+    @patch('download.download_dataset')
+    @patch('download.get_subject_list')
+    def test_fetch_openneuro_data_download_failure(self, mock_get_list, mock_download):
+        """
+        Test behavior when both primary and fallback datasets fail.
+        """
+        # Mock download failure
+        mock_download.return_value = False
+        
+        # get_subject_list is not called if download fails, but we need to ensure the flow continues
+        # to validation which will create an empty JSON and halt.
+        
+        with self.assertRaises(RuntimeError) as context:
+            fetch_openneuro_data()
+        
+        self.assertIn("No valid Fluid Intelligence data found", str(context.exception))
+        self.assertTrue(Path("data/processed/validation_errors.log").exists())
 
-    @patch('download.subprocess.run')
-    def test_download_dataset_logic(self, mock_run):
-        """Test download_dataset function logic."""
-        mock_run.return_value = MagicMock(returncode=0)
+    def test_enforce_sample_limit(self):
+        """Test that the sample limit is correctly enforced."""
+        subjects = [{"id": str(i)} for i in range(15)]
+        limited = validate_and_aggregate.__globals__['enforce_sample_limit'](subjects, limit=10)
+        self.assertEqual(len(limited), 10)
         
-        output_dir = Path("/tmp/test")
-        subjects = ['sub-01', 'sub-02', 'sub-03']
-        limit = 2
-        
-        count, subs = download_dataset("ds000224", output_dir, subjects, limit)
-        
-        assert count == 2
-        assert subs == ['sub-01', 'sub-02']
-        # Verify subprocess.run was called twice
-        assert mock_run.call_count == 2
+        limited_small = validate_and_aggregate.__globals__['enforce_sample_limit'](subjects[:5], limit=10)
+        self.assertEqual(len(limited_small), 5)
 
-    @patch('download.subprocess.run')
-    def test_download_dataset_failure(self, mock_run):
-        """Test download_dataset handles failures gracefully."""
-        mock_run.return_value = MagicMock(returncode=1, stderr="Error")
-        
-        output_dir = Path("/tmp/test")
-        subjects = ['sub-01', 'sub-02']
-        limit = 2
-        
-        count, subs = download_dataset("ds000224", output_dir, subjects, limit)
-        
-        assert count == 0
-        assert subs == []
-        assert mock_run.call_count == 2
-        
-    @patch('download.urllib.request.urlopen')
-    def test_get_subject_list_api_success(self, mock_urlopen):
-        """Test get_subject_list with successful API response."""
-        mock_response = MagicMock()
-        mock_response.read.return_value = b'{"subjects": ["sub-01", "sub-02"]}'
-        mock_urlopen.return_value = mock_response
-        
-        subjects = get_subject_list("ds000224")
-        
-        assert subjects == ["sub-01", "sub-02"]
-
-    @patch('download.urllib.request.urlopen')
-    def test_get_subject_list_api_failure(self, mock_urlopen):
-        """Test get_subject_list with API failure."""
-        mock_urlopen.side_effect = Exception("Network error")
-        
-        subjects = get_subject_list("ds000224")
-        
-        assert subjects == []
-        
-    def test_dataset_order_constant(self):
-        """Verify the priority order is correct."""
-        assert DATASET_ORDER[0] == "ds000224"
-        assert DATASET_ORDER[1] == "ds000230"
+if __name__ == '__main__':
+    unittest.main()

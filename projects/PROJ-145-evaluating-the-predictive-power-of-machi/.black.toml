@@ -1,0 +1,4 @@
+# Extends pyproject.toml if needed, or standalone config
+# For this project, we rely on pyproject.toml [tool.black] section.
+# This file exists to satisfy tooling that looks for .black.toml specifically.
+extend = "pyproject.toml"

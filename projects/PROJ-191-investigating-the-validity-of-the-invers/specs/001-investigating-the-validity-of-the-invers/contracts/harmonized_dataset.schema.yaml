@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "HarmonizedDataset"
-description: "Schema for the unified force-vs-separation dataset with full covariance."
+description: "Schema for the unified force-vs-separation dataset with full uncertainty budget (diagonal covariance)."
 type: "object"
 properties:
   separation:
@@ -33,7 +33,7 @@ properties:
       type: "array"
       items:
         type: "number"
-    description: "Full covariance matrix (N^2)."
+    description: "Full covariance matrix (N^2). Diagonal only in base case."
     minItems: 1
   covariance_type:
     type: "string"

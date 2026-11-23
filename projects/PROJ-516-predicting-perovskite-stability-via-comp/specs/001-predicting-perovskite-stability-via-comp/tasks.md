@@ -1,238 +1,264 @@
-# Tasks: Predicting Perovskite Stability via Compositional Fingerprints
+# Tasks: Predicting Perovskite Stability via Compositional Fingerprints  
 
-**Input**: Design documents from `/specs/001-predicting-perovskite-stability/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, existing research artifacts, and reviewer feedback (instrument‑precision, metadata provenance, and missing artifact concerns).  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+The goal is to deliver a fully reproducible end‑to‑end pipeline that:
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+1. **Acquires real experimental data** from Materials Project and NREL (no synthetic stand‑ins).  
+2. **Computes compositional descriptors** and rigorously handles missing values, collinearity (VIF), and measurement uncertainty.  
+3. **Trains three baseline regressors** under strict CPU‑only constraints, with stratified k‑fold CV and uncertainty weighting.  
+4. **Performs interpretability** (SHAP) and **external out‑of‑distribution validation** on a literature dataset.  
+5. **Documents every step** (instrumentation audit, uncertainty propagation, feature‑importance significance) for a clean hand‑off to the paper stage.  
 
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-516-predicting-perovskite-stability-via-comp/`) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T002 Initialize Python 3.11 project with dependencies (`code/requirements.txt`)
-- [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools
+All tasks follow the canonical `- [ ] T### [USx?] description …` format, list exact artifact paths, and include indented verification steps.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project scaffolding & reproducibility foundation  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T001 [US0] Create core directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `state/`.  
+  - **Verification**: `tree -L 2` lists the directories; CI asserts they exist before any later task runs.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T002 [US0] Create `code/requirements.txt` with pinned versions:  
+  ```text
+  pandas==2.2.2
+  numpy==1.26.4
+  scikit-learn==1.5.0
+  shap==0.45.1
+  pymatgen==2024.5.1
+  mp-api==0.38.5
+  requests==2.32.3
+  pyyaml==6.0.2
+  ```  
+  - **Verification**: `pip install -r code/requirements.txt` succeeds in a fresh venv.  
 
-- [ ] T004 Implement `state_manager.py` to compute SHA-256 hashes for derived artifacts and update `state/...yaml`
-- [ ] T005 Create `contracts/descriptor.schema.yaml` defining the schema for `CompositionalDescriptor` entities
-- [ ] T005b Create `contracts/metadata.schema.yaml` defining the schema for `PerovskiteEntry` instrumentation metadata (TGA model, uncertainty)
-- [ ] T006 Implement `code/utils/data_fetcher.py` with retry logic: multiple retries with exponential backoff (increasing intervals) for API unavailability
-- [X] T007 Implement `code/utils/formula_parser.py` using `pymatgen` for deterministic A/B/X site assignment
-- [~] T008 Setup environment configuration management for API keys (Materials Project, NREL) in `.env`
-- [X] T009 Implement `code/utils/checksum_verifier.py` to validate raw data integrity against source checksums
-- [X] T009b Implement `code/utils/validator.py` to perform 'title-token-overlap' validation (≥ 0.7 threshold) against primary source citations before processing data
+- [X] T003 [US0] Add minimal `README.md` and `docs/quickstart.md` stub (to be expanded later).  
+  - **Verification**: Both files exist and contain at least one non‑comment line; CI checks for required sections (`Project overview`, `Installation`, `Running the pipeline`).  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T038 [US0] Implement **state manager** (`code/state_manager.py`) with `compute_hash(path)` and `update_state(path)` utilities.   <!-- FAILED-IN-EXECUTION: code/state_manager.py exit=1 -->
+  - **Verification**: Running `python -m code.state_manager data/raw/dummy.csv` creates/updates `state/project_state.yaml` with correct SHA‑256 hash and ISO‑8601 timestamp.  
 
----
+- [ ] T039 [US0] Initialise `state/project_state.yaml` (empty YAML with top‑level `artifacts: {}` and `updated_at:` timestamp).  
+  - **Verification**: File exists, is valid YAML, and is updated by `state_manager.update_state`.  
 
-## Phase 3: User Story 1 - Data Acquisition and Descriptor Computation (Priority: P1) 🎯 MVP
+- [ ] T005 [US0] Add deterministic seed module (`code/seed.py`) containing `SEED = 42`. All other scripts import this constant.  
+  - **Verification**: `code/seed.py` exists, contains the line `SEED = 42`, and a CI test imports it from three pipeline modules to confirm consistency.  
 
-**Goal**: Download perovskite data, filter for experimental TGA measurements, and compute compositional descriptors.
-
-**Independent Test**: Run on a sample of formulas; verify output CSV contains `formula`, `T_d`, `atomic_fraction_A`, `weighted_ionic_radius`, etc., with non-null values.
-
-### Tests for User Story 1 (OPTIONAL) ⚠️
-
-- [X] T010 [P] [US1] Contract test for data ingestion output schema in `tests/contract/test_data_ingestion.py`
-- [X] T011 [P] [US1] Integration test for API retry logic and error handling in `tests/integration/test_api_retries.py`
-
-### Implementation for User Story 1
-
-- [ ] T012 [US1] Implement `code/data_ingestion.py` to fetch data from NREL/Materials Project (validating via T009b), filtering for entries with `T_d` (TGA onset), and write output to `data/raw/nrel_perovskites.csv`
-- [ ] T013a [US1] Implement parsing logic to extract TGA model and precision (±5°C to ±10°C) from source metadata into a structured object and write to `data/raw/metadata.json`
-- [ ] T013b [US1] Write parsed instrumentation metadata to `data/raw/metadata.json` adhering to `contracts/metadata.schema.yaml`
-- [ ] T013c [US1] Implement logic to flag entries using the default ±10°C uncertainty bound in `data/raw/uncertainty_flags.json` and ensure this flag is propagated for weighting
-- [~] T014 [US1] Implement `code/feature_engineering.py` to compute atomic fractions, weighted averages (ionic radius, electronegativity, formation enthalpy, **first** ionization energy), and variance metrics; write output to `data/processed/descriptors.csv`
-- [ ] T014b [US1] Implement verification logic to confirm 'first ionization energy' column is present in `data/processed/descriptors.csv` matching FR-002 requirements
-- [~] T015 [US1] Implement logic to exclude entries with ≥2 missing descriptor values and log exclusion counts
-- [~] T016 [US1] Implement VIF diagnostic computation; flag descriptors with VIF > 5 and implement feature removal or Elastic Net fallback; write report to `data/processed/vif_report.csv`
-- [ ] T017 [US1] Write final processed dataset to `data/processed/descriptors.csv` including the `T_d_uncertainty` column and update `state/...yaml` with hash
-
-**Checkpoint**: User Story 1 fully functional; dataset ready for modeling.
+- [ ] T006 [US0] Enforce immutability of raw data (`code/data_hygiene.py`). After a successful download, the script sets read‑only permissions (`chmod 444`) on every file under `data/raw/`. Attempts to modify any raw file raise `PermissionError`.  
+  - **Verification**: CI test tries to append a line to `data/raw/nrel_perovskites.csv` and expects a `PermissionError`.  
 
 ---
 
-## Phase 4: User Story 2 - Model Training and Cross-Validation (Priority: P2)
+## Phase 2 – Data acquisition, cleaning, and provenance  
 
-**Goal**: Train baseline regressors (RF, GB, Elastic Net) with strict CPU constraints, grid search limits, and uncertainty weighting.
+- [ ] T007 [US1] Fetch NREL perovskite data (`code/data_ingestion.py::fetch_nrel`).  
+  - **Endpoint**: Zenodo DOI `10.5281/zenodo.10972088` → raw CSV URL `[UNRESOLVED-CLAIM: https://zenodo.org/records/10972088/files/nrel_perovskite_data.csv` — HTTP 404].  
+  - **Behaviour**: Uses `code/utils/data_fetcher.py` with exponential‑backoff retry (delays 1 s, 2 s, 4 s).  
+  - **Output**: `data/raw/nrel_perovskites.csv`.  
+  - **Verification**: File exists, row count ≥ 200, all rows have non‑null `T_d`, **and** column `measurement_origin` equals `"experimental"` for every row.  
 
-**Independent Test**: Run k-fold CV on a subset of the data, where k is determined by the experimental design.; verify all models complete within 30 mins with R² metrics.
+- [ ] T008 [US1] Fetch Materials Project data (`code/data_ingestion.py::fetch_mp`).  
+  - **Method**: Uses `mp-api` with `MP_API_KEY`. Queries `structure_type="perovskite"` and extracts `expt_decomp_temp`.  
+  - **Post‑filter**: Keep only entries with a non‑null experimental decomposition temperature and `measurement_origin == "experimental"`.  
+  - **Output**: `data/raw/mp_perovskites.csv`.  
+  - **Verification**: File exists, ≥ 200 rows, all `T_d` non‑null and `measurement_origin` == `"experimental"`.  
 
-### Tests for User Story 2 (OPTIONAL) ⚠️
+- [ ] T009 [US1] Merge & deduplicate raw datasets (`code/data_ingestion.py::merge_raw`).  
+  - **Logic**: Concatenates the two CSVs; retains both rows when the same `formula` appears in both sources, distinguished by the `source` column.  
+  - **Deduplication**: Drops exact duplicates on (`formula`, `source`).  
+  - **Output**: `data/raw/perovskites_merged.csv`.  
+  - **Verification**: Row count equals sum of source rows minus duplicate count; `logs/merge.log` records duplicate statistics.  
 
-- [ ] T018 [P] [US2] Unit test for grid search hyperparameter limit enforcement (≤10 combos) in `tests/unit/test_model_training.py`
-- [ ] T019 [P] [US2] Integration test for full pipeline runtime (must complete ≤ 6 hours) in `tests/integration/test_pipeline_runtime.py`
+- [ ] T010 [US1] Verify required predictor & outcome columns (`code/utils/column_verifier.py`).  
+  - Checks that `data/raw/perovskites_merged.csv` contains every column required by the spec (e.g., `formula`, `T_d`, `T_d_uncertainty`, `instrument_model`, `manufacturer`, `measurement_origin`).  
+  - **Output**: `data/processed/variable_presence_report.csv`.  
+  - **Verification**: Report shows all required columns present; CI fails if any are missing.  
 
-### Implementation for User Story 2
+- [ ] T011 [US1] Create instrumentation registry (`data/raw/instrument_registry.csv`).  
+  - **Columns**: `instrument_model,manufacturer,precision_celsius`.  
+  - **Sample rows**:  
+    ```csv
+    instrument_model,manufacturer,precision_celsius
+    TA Instruments Q500,TA Instruments,2.0
+    Mettler Toledo TGA/DSC 1,MT,1.5
+    ```  
+  - **Verification**: File exists, checksum recorded by `state_manager.update_state`.  
 
-- [ ] T020 [US2] Implement `code/model_training.py` with Random Forest, Gradient Boosting, and Elastic Net using `scikit-learn`; apply sample weights (1/σ) for Elastic Net and use custom wrappers for RF/GB to support sample weights; ensure all training uses default precision (no 8-bit/4-bit quantization) and CPU-only execution
-- [ ] T021 [US2] Configure k-fold cross-validation with stratification by perovskite family
-- [ ] T022 [US2] Implement grid search with a hard cap of ≤10 hyperparameter combinations per model
-- [ ] T023 [US2] Implement metric tracking (RMSE, R², MAE) and logging of best hyperparameters
-- [ ] T024 [US2] Ensure all training uses default precision (no 8-bit/4-bit quantization) and CPU-only execution
-- [ ] T025 [US2] Save trained models and metrics to `data/processed/model_runs.json` with required keys: `model_type`, `hyperparameters`, `metrics` (R², RMSE, MAE)
+- [ ] T040 [US1] Generate `metadata.json` (`code/utils/metadata_parser.py`).  
+  - For each entry in `perovskites_merged.csv`:  
+    1. Look up `instrument_model` in `instrument_registry.csv`.  
+    2. If found → `precision_source="registry"` and `precision` set to the registry value.  
+    3. If missing → log to `data/raw/instrumentation_fallbacks.log`, set `precision_source="default"` and `precision=10.0` °C.  
+  - **Output**: `data/raw/metadata.json` (list of objects with `formula`, `instrument_model`, `manufacturer`, `precision`, `precision_source`, `source`).  
+  - **Verification**: JSON validates against `contracts/metadata.schema.yaml`; fallback log contains at least one entry.  
 
-**Checkpoint**: User Story 2 complete; best model identified.
-
----
-
-## Phase 5: User Story 3 - Feature Importance Analysis and External Validation (Priority: P3)
-
-**Goal**: Extract SHAP values, perform permutation testing, and validate on held-out literature data (with proxy fallback).
-
-**Independent Test**: Run SHAP on a test set.; verify top 3 features reported with p-values < 0.05.
-
-### Tests for User Story 3 (OPTIONAL) ⚠️
-
-- [ ] T026 [P] [US3] Unit test for multiple-comparison correction (Bonferroni and Benjamini-Hochberg) in `tests/unit/test_feature_importance.py`
-- [ ] T027 [P] [US3] Integration test for OOD detection and separate metric reporting in `tests/integration/test_ood_validation.py`
-
-### Implementation for User Story 3
-
-- [ ] T028 [US3] Implement `code/validation.py` to extract SHAP values from the best model
-- [ ] T029 [US3] Implement permutation importance testing (a sufficient number of permutations) with **both** Bonferroni and Benjamini-Hochberg corrections for p < 0.05 significance
-- [ ] T030 [US3] Implement logic to load held-out experimental data from literature (specifically: NREL Perovskite Stability Database, DOI:.XXXX/XXXX); if unavailable, implement 'family-based proxy' (stratified split) as fallback per Assumptions
-- [ ] T031 [US3] Implement OOD detection: Flag compositions with elements/motifs not in training set (based on T017 dataset) and prediction distance (based on T025 model)
-- [ ] T032a [US3] Report separate R²/RMSE for in-distribution vs. out-of-distribution predictions (internal split)
-- [ ] T032b [US3] Report separate R²/RMSE for the held-out literature dataset (external validation) distinct from cross-validation metrics
-- [ ] T033 [US3] Generate ranked list of elemental properties by contribution to `T_d` prediction
-- [ ] T034 [US3] Write validation report to `data/processed/validation_report.md` including sections: External R²/RMSE, OOD Metrics, Feature Importance, and Permutation P-values
-
-**Checkpoint**: All user stories complete; external validation done.
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T035a [P] Update `README.md` with TGA uncertainty analysis and instrumentation details
-- [ ] T035b [P] Update `docs/api.md` with endpoint signatures and data schemas
-- [ ] T036a [P] Code refactor: Extract retry logic from `data_fetcher.py` to `code/utils/retry.py`
-- [ ] T036b [P] Refactor `data_fetcher.py` to import and use the new `retry.py` module
-- [ ] T037a [P] Profile pipeline and identify the most significant bottlenecks impacting the runtime target; write report to `docs/profiling_report.md`
-- [ ] T037b [P] Optimize identified bottlenecks to ensure full pipeline completes within 6 hours
-- [ ] T038 [P] Additional unit tests in `tests/unit/`
-- [ ] T039 Run `quickstart.md` validation
-- [ ] T040 Verify all artifacts have corresponding SHA-256 hashes in `state/...yaml`
+- [ ] T012 [US1] Compute total uncertainty (`code/utils/uncertainty_calculator.py`). *(new implementation)*  
+  - Reads `data/raw/perovskites_merged.csv` and `data/raw/metadata.json`.  
+  - Applies `sigma = sqrt(precision^2 + experimental_error^2)`, where `experimental_error` is taken from column `T_d_uncertainty` if present, otherwise `0`.  
+  - Writes:  
+    - `data/processed/descriptors_uncertainty.csv` (original columns + `total_uncertainty`).  
+    - `data/processed/exclusion_log.csv` listing any rows with `total_uncertainty ≤ 0` (should be empty).  
+  - **Verification**: All `total_uncertainty` values > 0; exclusion log is empty; CI loads the CSV and asserts the column exists and contains only positive numbers.  
 
 ---
 
-## Dependencies & Execution Order
+## Phase 3 – Feature engineering and data hygiene  
 
-### Phase Dependencies
+- [ ] T014 [US1] Compute compositional descriptors (`code/feature_engineering.py`).  
+  - Uses `pymatgen` to parse each formula, assign A/B/X sites, and retrieve elemental properties: ionic radius (coordination 6), electronegativity (Pauling), formation enthalpy, first ionization energy.  
+  - Calculates atomic fractions (A, B, X), weighted averages, and variances across sites.  
+  - **Output**: `data/processed/descriptors_features.csv` containing all descriptor columns listed in the spec **except** VIF‑related columns.  
+  - **Verification**: Spot‑check on `FAPbI3` against `tests/reference_descriptors/FAPbI3.json`; CI loads the CSV and asserts required columns are present and contain no NaNs.  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T015 [US1] Merge uncertainty and descriptor files (`code/feature_engineering.py::merge_uncertainty`).  
+  - Joins `descriptors_uncertainty.csv` and `descriptors_features.csv` on `formula` + `source`.  
+  - **Output**: `data/processed/descriptors_v1.csv`.  
+  - **Verification**: Row count unchanged; all descriptor columns plus `total_uncertainty` present.  
 
-### User Story Dependencies
+- [ ] T016 [US1] Compute VIF diagnostics (`code/utils/vif_calculator.py`).  
+  - Loads `descriptors_v1.csv`, fits a linear model for each descriptor against all others, obtains VIF via `statsmodels.stats.outliers_influence.variance_inflation_factor`.  
+  - Writes `data/processed/vif_report.csv` with columns `descriptor`, `vif_value`, `flagged` (`True` if `vif_value>5`).  
+  - **Verification**: At least one descriptor flagged (e.g., collinearity between `atomic_fraction_A` and `atomic_fraction_B`).  
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
+- [ ] T041 [US1] Add per‑row `vif_score` column (`code/utils/vif_score_adder.py`).  
+  - Computes a row‑wise VIF score (e.g., the maximum VIF among retained descriptors for that row) and appends it as `vif_score`.  
+  - **Output**: `data/processed/descriptors_vif_scored.csv`.  
+  - **Verification**: Column `vif_score` exists, numeric, and ≥ 1 for all rows.  
 
-### Within Each User Story
+- [ ] T017 [US1] Filter high‑VIF descriptors (`code/utils/vif_filter.py`).  
+  - Removes any descriptor where `flagged=True` from the feature matrix **but retains the `vif_score` column**.  
+  - **Output**: `data/processed/descriptors_vif_filtered.csv`.  
+  - **Verification**: Column list equals that of `descriptors_v1.csv` minus flagged descriptors; `vif_score` column still present.  
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+- [ ] T018 [US1] Exclude low‑quality entries (`code/data_cleaning.py`).  
+  - Drops rows with **≥ 2** missing descriptor values after VIF filtering.  
+  - Sets the required boolean `is_excluded` column (`True` for dropped rows, `False` otherwise).  
+  - Logs counts to `data/processed/exclusion_log.csv`.  
+  - **Output**: `data/processed/descriptors_final.csv`.  
+  - **Verification**: Remaining rows have ≤ 1 missing value, `is_excluded` column exists, and total rows ≥ 200.  
 
-### Parallel Opportunities
+- [ ] T019 [US1] Derive perovskite family (`code/feature_engineering.py::add_family`).  
+  - Uses element composition to assign `family` ∈ {lead‑halide, tin‑halide, double, other} per data‑model rules.  
+  - Overwrites `descriptors_final.csv` with the added `family` column.  
+  - **Verification**: Frequency table printed in the log shows all three families present; CI asserts column exists and contains only allowed enum values.  
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T020 [US1] Create sample‑weight column (`code/model_training.py::add_weights`).  
+  - Enforces a **minimum uncertainty of 1 °C**: `effective_uncertainty = max(total_uncertainty, 1.0)`.  
+  - Weight = 1 / (`effective_uncertainty`²).  
+  - Column added to `descriptors_final.csv`.  
+  - **Verification**: All weights are positive; summary statistics logged; CI checks that `weight` column exists and has no nulls.  
 
----
+- [ ] T021 [US1] Check minimum family representation (`code/data_cleaning.py::family_coverage_check`).  
+  - Confirms each `family` has at least 5 samples in `descriptors_final.csv`.  
+  - Logs warning if a family falls below the threshold but does not abort.  
+  - **Verification**: `logs/family_coverage_report.log` lists counts; CI fails only if any family has zero samples.  
 
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data ingestion output schema in tests/contract/test_data_ingestion.py"
-Task: "Integration test for API retry logic and error handling in tests/integration/test_api_retries.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/data_ingestion.py to fetch data..."
-Task: "Implement parsing logic to extract TGA metadata..."
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T042 [US1] Schema compliance verification (`code/utils/schema_validator.py`).  
+  - Validates `descriptors_final.csv` against `contracts/descriptor.schema.yaml`.  
+  - **Output**: `data/processed/schema_validation_report.json`.  
+  - **Verification**: CI fails if any row violates the schema.  
 
 ---
 
-## Notes
+## Phase 5 – Modeling (User Story 2, P2)  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only free-tier CI (a minimal number of cores, limited RAM). No GPU/CUDA, no 8-bit quantization, no large LLMs.
-- **Critical Constraint**: Real data only. No synthetic/fake datasets. All metrics must be derived from real experimental measurements.
-- **Review Action**: T013a/T013b/T013c explicitly address the instrumentation metadata requirement; T009b addresses the Constitutional "Verified Accuracy" gate.
-- **Review Action (Instrumentation)**: T013c and T020 ensure that both explicit and default uncertainties are propagated to model weighting, transforming the analysis into a rigorous measurement-based study.
+- [ ] T022 [US2] Stratified 5‑fold CV split (`code/model_training.py::stratified_cv`).  
+  - Uses `StratifiedKFold` on the `family` column.  
+  - **Pre‑flight check**: If a fold lacks a family, logs a **warning** (does not raise).  
+  - **Verification**: Test run prints fold composition; warnings captured in `logs/cv_warnings.log`.  
+
+- [ ] T023 [US2] Train baseline regressors with limited grid search (`code/model_training.py`).  
+  - **Random Forest**: `n_estimators` ∈ {100, 200}, `max_depth` ∈ {5, 10, None}.  
+  - **Gradient Boosting**: `n_estimators` ∈ {100, 200}, `learning_rate` ∈ {0.05, 0.1}, `max_depth` ∈ {3, 5}.  
+  - **Elastic Net**: `alpha` ∈ {0.01, 0.1, 1.0}, `l1_ratio` ∈ {0.5, 0.8}.  
+  - **Constraint**: ≤ 10 hyper‑parameter combos per model (enforced by `GridSearchCV` with `max_iter=10`).  
+  - Records mean ± std of **R²**, **RMSE**, **MAE** across folds.  
+  - **Outputs**: `data/processed/model_runs.json` (list of dicts with `model_type`, `best_params`, `cv_metrics`).  
+  - **Verification**: JSON contains exactly three entries; each `hyperparams` dict ≤ 10 keys; total runtime ≤ 4 h on the CI runner (checked via `code/main.py` timer).  
+
+- [ ] T024 [US2] Select best model & retrain on full data (`code/model_training.py::retrain_best`).  
+  - Chooses the model with highest mean CV R².  
+  - Retrains on the entire `descriptors_final.csv` using the same sample weights.  
+  - Saves the fitted estimator to `models/best_model.pkl`.  
+  - **Verification**: Pickle loads without error; stored hyper‑parameters match the best CV run; CI runs a quick inference on a single row to confirm predictability.  
+
+---
+
+## Phase 6 – Interpretability & external validation (User Story 3, P3)  
+
+- [ ] T025 [US3] Compute SHAP values (`code/validation.py::shap_analysis`).  
+  - Uses `shap.TreeExplainer` for tree‑based models or `shap.LinearExplainer` for Elastic Net.  
+  - Generates per‑feature mean absolute SHAP values.  
+  - **Output**: `data/processed/shap_values.csv` (columns `feature`, `mean_abs_shap`).  
+  - **Verification**: File exists, loads in pandas, and top‑5 features match the reference list in `tests/reference_shap/top5.json`.  
+
+- [ ] T026 [US3] Permutation importance with 1 000 permutations (`code/validation.py::perm_importance`).  
+  - Applies `sklearn.inspection.permutation_importance` with `n_repeats=1000`.  
+  - **Output**: `data/processed/feature_importance_raw.csv` (columns `feature`, `raw_p`, `importance_score`).  
+  - **Verification**: All `raw_p` values in [0, 1]; at least one feature has `raw_p < 0.05`.  
+
+- [ ] T027 [US3] Multiple‑testing correction (`code/validation.py::adjust_pvalues`).  
+  - Implements Benjamini‑Hochberg FDR control (α = 0.05).  
+  - Writes `data/processed/feature_importance.csv` with columns `feature`, `raw_p`, `adj_p`, `importance_score`, `significant` (`True` if `adj_p < 0.05`).  
+  - **Verification**: Adjusted p‑values are monotonic; CI checks that at least one feature is flagged `significant=True`.  
+
+- [ ] T028 [US3] Fetch external literature validation dataset (`code/data_sources/literature_fetcher.py`).  
+  - Downloads Zenodo DOI `10.5281/zenodo.10972088` file `literature_perovskite_stability.csv`.  
+  - Validates that the set contains at least one element not present in the training set (e.g., Sn or a double‑perovskite element).  
+  - **Output**: `data/raw/literature_validation.csv` (columns `formula`, `T_d`, `source="Literature"`).  
+  - **Verification**: OOD check passes; log `data/raw/literature_ood_check.log` records the novel elements.  
+
+- [ ] T029 [US3] External validation of best model (`code/validation.py::external_eval`).  
+  - Loads `models/best_model.pkl` and predicts on `literature_validation.csv`.  
+  - Computes **R²** and **RMSE** for the external set.  
+  - **Output**: `data/processed/external_metrics.csv` (columns `R2`, `RMSE`).  
+  - **Verification**: File exists; R² and RMSE are numeric; CI parses them without error.  
+
+- [ ] T030 [US3] Generalizability gap report (`code/validation.py::gap_report`).  
+  - Reads CV mean R² from `model_runs.json` (best model) and external R² from `external_metrics.csv`.  
+  - Writes `data/processed/generalizability_gap.csv` with rows `in_dist_R2`, `out_dist_R2`, `gap = in_dist_R2 - out_dist_R2`.  
+  - **Verification**: Gap value is non‑negative; file loads cleanly.  
+
+- [ ] T031 [US3] Generate full validation report (`docs/validation_report.md`).  
+  - Sections:  
+    1. Instrumentation audit (table from `instrument_registry.csv` + fallback stats).  
+    2. Data quality assessment (high‑ vs. low‑confidence counts from `metadata.json`).  
+    3. Model performance (CV metrics, best‑model hyper‑parameters).  
+    4. Feature importance (SHAP ranking, permutation significance, BH‑adjusted p‑values).  
+    5. External validation & generalizability gap (R², RMSE, gap).  
+    6. Uncertainty propagation (formula, distribution of `total_uncertainty`, impact of weighting).  
+  - **Verification**: All tables cross‑referenced to CSV artifacts; CI parses the markdown to ensure required headings are present.  
+
+---
+
+## Phase 7 – Final hand‑off & reproducibility checks  
+
+- [ ] T033 [US0] Implement pipeline driver (`code/main.py`).  
+  - Calls tasks in strict order, checks hashes via `state_manager` before each major step, aborts with `DataIntegrityError` on mismatch.  
+  - Logs elapsed time per phase; writes `data/processed/runtime_report.json` with `total_seconds` and `budget_status` (`PASS`/`WARN`/`FAIL`).  
+  - Enforces the hard runtime limit of 6 h (soft target 4 h).  
+  - **Verification**: Simulated slowdown (sleep) exceeding 6 h triggers graceful failure with appropriate error code; normal run completes within budget.  
+
+- [ ] T032 [US0] Update `docs/quickstart.md` with a single reproducible command:  
+  ```bash
+  python -m code.main run_all
+  ```  
+  and description of required environment variables (`MP_API_KEY`, optional `NREL_API_KEY`).  
+  - **Verification**: Running the command on a fresh runner executes the full pipeline without manual intervention and ends with “SUCCESS”.  
+
+- [ ] T034 [US0] Data lineage reporting (`code/data_hygiene.py::lineage_report`).  
+  - For each processed artifact, creates a sibling `.lineage.json` containing input hashes, current git commit SHA, and timestamp.  
+  - **Verification**: Sample lineage file exists for `descriptors_final.csv` and hashes match entries in `state/project_state.yaml`.  
+
+- [ ] T035 [US0] Citation title‑token‑overlap validation (`code/citation_validator.py`).  
+  - For every citation in `spec.md` and `plan.md`, retrieves the referenced document (via DOI or URL) and computes token overlap between citation title and document title.  
+  - Generates `data/processed/citation_validation_report.json` indicating pass/fail per citation (threshold ≥ 0.7).  
+  - **Verification**: CI fails if any citation reports overlap < 0.7.  
+
+- [ ] T036 [US0] Finalize repository state: commit all generated artifacts, ensure `state/project_state.yaml` is up‑to‑date, and tag the commit as `v0.1.0-pipeline`.  
+  - **Verification**: `git show` displays the tag; CI checks that the tag points to a commit where all verification tests pass.  
+
+- [ ] T037 [US0] SC‑006 Variable‑presence verification (`code/utils/sc006_verifier.py`).  
+  - Confirms that every predictor (all descriptor columns) and the outcome variable `T_d` exist in the source raw files (`nrel_perovskites.csv`, `mp_perovskites.csv`).  
+  - Produces `data/processed/sc006_report.csv` summarising presence/absence.  
+  - **Verification**: CI fails if any required column is missing; otherwise logs a success message.  

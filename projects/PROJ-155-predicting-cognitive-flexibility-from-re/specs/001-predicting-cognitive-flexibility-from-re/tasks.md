@@ -1,239 +1,149 @@
-# Tasks: Predicting Cognitive Flexibility from Resting‑State Functional Connectivity Variability
-
-**Input**: Design documents from `/specs/001-predicting-cognitive-flexibility-rsfc-variability/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are **OPTIONAL** - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `data/`, `docs/`, `tests/` at repository root (per `plan.md`)
-- Paths shown below assume single project structure defined in `plan.md`
-
----
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per `plan.md` (`code/`, `data/`, `docs/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, pandas, scikit-learn, statsmodels, nibabel, scipy, networkx, tqdm, pyyaml, nitime, pytest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 Create `code/config.py` to manage paths, seeds (42), and parameters (window=60s, step=1s, FD_threshold=0.2). **Note**: The 60s window deviation from the Constitution's 30s default is explicitly justified in `research.md`. **Action**: Ensure `research.md` is referenced as the source of this deviation.
-- [ ] T005 [Depends on T004] Implement `code/utils/motion.py` for Mean FD calculation and exclusion logic (US-1, US-2). **Note**: Requires T004 completion to load `FD_threshold` config.
-- [ ] T006 [P] Setup `code/data/__init__.py` and base data loading utilities
-- [X] T007 Create `code/utils/noise_filter.py` for SNR filtering and Motion-Noise Orthogonalization
-- [X] T008 Configure `code/utils/logging.py` for structured logging of exclusions and errors
-- [ ] T009 Setup environment configuration and `code/__init__.py`
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Download HCP large-scale subject release, apply minimal preprocessing outputs, parcellate with Schaefer atlas, and merge behavioral data.
-
-**Independent Test**: Run on a cohort of subjects; verify output CSV has columns: `Subject_ID` (str), `Mean_FD` (float), `Age` (int), `Sex` (str), `Flexibility_Score` (float). Fail if missing/null/wrong type.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: These tests verify the data pipeline structure before full execution.
-
-- [ ] T010 [P] [US1] Contract test for data ingestion schema in `tests/test_contracts.py`
-- [ ] T011 [P] [US1] Unit test for motion exclusion logic in `tests/test_motion.py`
-
-### Implementation for User Story 1
-
-- [ ] T012 [US1] Implement `code/data/download.py` to fetch HCP resting-state fMRI and behavioral data. **Specifics**: Fetch from `s3://hcp-openaccess/HCP_1200_Subjects/` using specific subject IDs. **Auth**: Use HCP Connectome API token for authentication. **Integrity**: Verify SHA checksums against the official HCP manifest file before processing. **Deliverable**: Raw NIfTI and behavioral CSVs in `data/raw/`.
-- [ ] T013 [P] [US1] Implement `code/data/preprocess.py` to load preprocessed NIfTI and apply Schaefer atlas parcellation
-- [ ] T014 [US1] Implement `code/data/merge.py` to join neuroimaging features with NIH Toolbox Dimensional Change Card Sort scores
-- [ ] T015 [US1] Implement motion filtering in `code/utils/motion.py` to exclude subjects with Mean FD > 0.2mm. **Deliverable**: Log excluded subjects to `data/processed/exclusion_log.csv` with exact columns: `Subject_ID`, `Exclusion_Reason` (value: "Motion"), `Mean_FD`. **Logic**: Drop rows where `Mean_FD` > 0.2. **Order**: This task MUST run before T017.
-- [ ] T015a [US1] Calculate and report success rate (SC-001). **Logic**: Read `exclusion_log.csv` (after T015 and T017) and the total count of input subjects (from T012 manifest). Compute `Pro_Processed = (Total - Excluded) / Total`. Write this metric to `data/processed/exclusion_log.csv` (summary row) and `data/results/regression_summary.json`. **Deliverable**: Final proportion metric in output artifacts. **Dependencies**: T012, T015, T017.
-- [ ] T016 [US1] Add validation to ensure `data/processed/final_results.csv` contains exactly one row per valid subject
-- [ ] T017 [US1] [Depends on T015] Add error handling for missing behavioral scores: drop subjects and log a specific row in `data/processed/exclusion_log.csv` with `Exclusion_Reason` = "Missing_Behavioral_Score". **Note**: Do not just log a count; write a row to the CSV. **Order**: Must run after T015 to ensure motion exclusions are processed first.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Dynamic Connectivity Metric Computation (Priority: P2)
-
-**Goal**: Compute sliding-window Pearson correlations, calculate edge-wise SD and Shannon entropy, and collapse into a subject-level variability metric.
-
-**Independent Test**: Run on single subject; verify output CSV has `Variability_Metric` (mean edge SD) and `Entropy`. Verify entropy formula manually.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [P] [US2] Unit test for sliding-window correlation matrix generation in `tests/test_connectivity.py`
-- [ ] T019 [P] [US2] Unit test for Shannon entropy calculation against manual formula in `tests/test_connectivity.py`
-- [ ] T020 [P] [US2] Unit test for null-model validation (phase-shuffled) in `tests/test_null_model.py`
-
-### Implementation for User Story 2
-
-- [ ] T021 [P] [US2] Implement `code/features/connectivity.py` sliding-window Pearson correlation (window=60s, step=1s). **Note**: The 60s window deviation from the Constitution's 30s default is explicitly justified in `research.md`.
-- [ ] T022 [P] [US2] Implement edge-wise standard deviation and Shannon entropy calculation in `code/features/connectivity.py`
-- [ ] T023 [US2] Implement aggregation logic to collapse edge metrics into single `Variability_Metric` per subject (mean edge SD).
-- [ ] T024 [US2] Implement `code/features/null_model.py` to generate **phase-shuffled surrogates** and validate metric significance (p < 0.05). **Rationale**: FR-008 explicitly mandates phase-shuffling for construct validity. **Deliverable**: Code that generates phase-shuffled time series, computes variability, and confirms real data variability is significantly higher (p < 0.05).
-- [ ] T025 [US2] Add batch processing logic to handle memory constraints (peak RAM < 7GB) for a cohort of subjects
-- [ ] T026 [US2] Save subject-level metrics to `data/processed/metrics.csv` (Intermediate file containing `Subject_ID`, `Variability_Metric`, `Entropy`). **Note**: Do NOT write to `final_results.csv` yet. This is an intermediate artifact for US3.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Association and Significance Testing (Priority: P3)
-
-**Goal**: Perform regression of flexibility on variability (controlling covariates), run a permutation test, and generate results.
-
-**Independent Test**: Run on mock data (r=0.5, n=100); verify p-value aligns with theory (tolerance within a predefined threshold).
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T027 [P] [US3] Unit test for regression model output format in `tests/test_regression.py`
-- [ ] T028 [P] [US3] Integration test for permutation test logic in `tests/test_permutation.py`
-- [ ] T029 [P] [US3] Contract test for final JSON output schema in `tests/test_contracts.py`
-
-### Implementation for User Story 3
-
-- [ ] T030 [P] [US3] Implement `code/analysis/regression.py` for linear model (variability ~ flexibility + age + sex + FD + scan_time). **Explicit Mapping**: Map the input variable `scan_time` to the dataset column `Total Scan Time` (as defined in Spec Key Entities).
-- [ ] T031 [P] [US3] Implement `code/analysis/permutation.py` for 10,000-iteration permutation test to generate null distribution
-- [ ] T032 [US3] Implement logic to handle p-value = 0.0 case (report as `< 0.0001`)
-- [ ] T033 [US3] Implement FDR correction logic for any post-hoc network-specific analyses (q ≤ 0.05)
-- [ ] T034 [US3] Generate `data/results/regression_summary.json` with Beta, SE, R, P-Value, Significance Status
-- [ ] T035 [US3] Implement `code/utils/plotting.py` to generate variability vs. flexibility plot with regression line and % CI
-- [ ] T036 [US3] [Depends on T030, T031] Merge `data/processed/metrics.csv` (from T026) with regression results and covariates to produce the final `data/processed/final_results.csv`. **Mandatory Columns**: `Subject_ID`, `Variability_Metric`, `Flexibility_Score`, `Covariates`, `Predicted_Score`, `Residual`, `Beta_Variability`, `SE_Variability`, `P_Value`. **Note**: This task is the definitive writer of `final_results.csv` and MUST include global regression coefficients (Beta, SE, P-Value) repeated in every row as per FR-007.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T037 [P] Documentation updates in `docs/` including `quickstart.md` and `research.md`
-- [ ] T038a [P] Refactor `code/features/connectivity.py` to use generators instead of lists for time-series buffering to reduce memory footprint.
-- [ ] T038b [P] Optimize memory usage patterns in `code/main.py` (e.g., explicit garbage collection, batch loading).
-- [ ] T039a [P] Implement batch processing in `code/features/connectivity.py` with `batch_size=50`.
-- [ ] T039b [P] Profile and optimize memory usage in `code/main.py` to ensure 1200 subjects processed within 6 hours. **Deliverable**: A benchmark script that runs the full pipeline and asserts execution time < 6h on CI.
-- [ ] T039c [P] Run the benchmark script from T039b and verify the 6-hour constraint is met.
-- [ ] T040 [P] Run full `pytest` suite including contract tests
-- [ ] T041 Security hardening: verify no hardcoded credentials in `code/config.py`
-- [ ] T042 Run `quickstart.md` validation to ensure end-to-end pipeline execution
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires US1 output (parcellated time-series)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires US2 output (variability metrics)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data ingestion schema in tests/test_contracts.py"
-Task: "Unit test for motion exclusion logic in tests/test_motion.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/data/download.py to fetch HCP resting-state fMRI and behavioral data"
-Task: "Implement code/utils/motion.py for Mean FD calculation and exclusion logic"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI (limited cores, 7GB RAM, no GPU)
-
-The research question remains: What is the impact of computational constraints on model performance?
-The method remains: Benchmarking across constrained hardware configurations.
-Smith et al. (2023) [arXiv:2301.12345]. No low-bit models, no deep net training, no large LLMs. [UNRESOLVED-CLAIM: c_252e418d — status=not_enough_info]
-- **Constraint**: No synthetic data for hypothesis testing. Use only real HCP data or fail with "Data Gap".
+# Tasks: Predicting Cognitive Flexibility from Resting‑State Functional Connectivity Variability  
+
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/`, original research idea, any existing code artifacts.
+
+## Phase 1 – Setup and first end‑to‑end analysis  
+
+The goal of this phase is to obtain a runnable pipeline on a tiny real‑data subset (e.g., 5 HCP subjects) that produces all required intermediate files and a preliminary regression result.
+
+- [ ] T001 [US1] **Create project skeleton, pin dependencies, and verify linting**   <!-- FAILED-IN-EXECUTION: code/lint_setup.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/lint_setup.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/lint_setup.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/lint_setup.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/lint_setup.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/lint_setup.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/lint_setup.py exit=1 -->
+  *Create directories* `code/`, `data/raw/`, `data/processed/`, `data/results/`, `figures/`, `docs/`, `tests/`.  
+  *Write* `requirements.txt` (numpy, pandas, scipy, statsmodels, nibabel, nilearn, scikit‑learn, tqdm, pyyaml, nitime, pytest, ruff).  
+  *Add* `.ruff.toml` with the project‑wide linting configuration.  
+  *Implement* `code/config.py` containing:  
+  ```python
+  SEED = 42
+  WINDOW_SEC = 60          # seconds, per spec
+  STEP_SEC = 1
+  FD_THRESHOLD = 0.2
+  BATCH_SIZE = 20
+  ```  
+  *Run* `ruff check . > data/logs/ruff.log` and confirm the log contains “✔ No errors”.  
+  **Verification**: `cat data/logs/ruff.log && grep -q "No errors"` succeeds; `test -d code && test -d data/raw && test -d data/processed && test -d data/results && test -d figures && test -d docs && test -d tests` succeeds; directory tree matches the list above.
+
+- [ ] T002 [US1] **Download HCP data, verify integrity, and preprocess**   <!-- FAILED-IN-EXECUTION: code/main.py exit=-1 (TIMEOUT) -->
+  *Implement* `code/data/download.py` to fetch the HCP 1200‑subject resting‑state fMRI (4 runs) and the behavioral CSV containing the NIH Toolbox Dimensional Change Card Sort score via the HCP API (authenticated with a token stored in `~/.hcp_token`).  
+  *Compute* SHA‑256 checksums for every downloaded file and write them to `data/raw/checksums.json`.  
+  *Implement* `code/data/preprocess.py` to:  
+  1. Load the Schaefer 200‑region atlas (downloaded from the official GitHub release).  
+  2. Apply the atlas to each subject’s minimally preprocessed NIfTI, producing a region‑wise time‑series matrix saved as `data/processed/timeseries/{subj}_ts.npy`.  
+  *Implement* `code/data/merge.py` to join the behavioral CSV with the imaging metadata, retaining only subjects that have a non‑null Flexibility_Score.  
+  *Implement* `code/utils/motion.py` to compute Mean FD from the motion parameters; subjects with `Mean_FD > FD_THRESHOLD` are excluded and logged to `data/processed/exclusion_log.csv`.  
+  **Verification**: Run `python -m code.data.download --subset 5` and `python -m code.data.preprocess --subset 5`; then `head data/processed/exclusion_log.csv` shows at least one row and `ls data/processed/timeseries/*_ts.npy | wc -l` equals the number of retained subjects (≤5).  
+
+- [ ] T003 [US2] **Compute sliding‑window dynamic connectivity, derive single variability predictor, and optional PCA components**  
+  *Implement* `code/features/connectivity.py` to:  
+  1. Load each subject’s time‑series (`*.npy`).  
+  2. Generate sliding windows of length `WINDOW_SEC` (60 s) with step `STEP_SEC` (1 s) and compute Pearson correlation matrices for every window.  
+  3. For each edge, calculate the standard deviation across windows (variability) and Shannon entropy of the correlation distribution (using `np.histogram` with 20 equally‑spaced bins).  
+  4. **Compute the primary subject‑level predictor** `Variability_MeanSD` as the mean of all edge‑wise standard deviations.  
+  5. Assemble an edge‑wise variability matrix and run Incremental PCA, retaining the top 10 components (`PCA_Component_1` … `PCA_Component_10`) for exploratory analysis only.  
+  6. Save a CSV `data/processed/variability_metrics.csv` with columns: `Subject_ID, Age, Sex, Mean_FD, Total_Scan_Time, Flexibility_Score, Status, Variability_MeanSD, PCA_Component_1 … PCA_Component_10`.  
+  **Verification**: After processing the 5‑subject subset, `head data/processed/variability_metrics.csv` shows 1 header line + 5 data lines; the file validates against `contracts/dataset.schema.yaml`; the header contains exactly the ten PCA columns plus `Variability_MeanSD`; each PCA column contains a float; the `Variability_MeanSD` column contains a float.
+
+- [ ] T004 [US2] **Validate RSFC‑variability metric against a phase‑shuffled surrogate null model**  
+  *Implement* `code/features/null_model.py` to:  
+  1. For each subject, generate a phase‑shuffled version of the original time‑series (FFT → randomize phase → inverse FFT).  
+  2. Re‑run the sliding‑window pipeline on the surrogate and compute the same `Variability_MeanSD` metric.  
+  3. Compare the real vs. surrogate distributions across subjects using a paired two‑tailed t‑test; store the resulting p‑value as `Null_Model_P` in `data/processed/variability_metrics.csv`.  
+  **Verification**: `grep "Null_Model_P" data/processed/variability_metrics.csv` shows a numeric column for every retained subject; the script asserts `p_value < 0.05` and prints “Null‑model validation passed (p < 0.05)”.
+
+- [ ] T005 [US3] **Run linear regression with covariates and produce a preliminary summary**  
+  *Implement* `code/analysis/regression.py` to fit via `statsmodels.api.OLS` the model:  
+  `Flexibility_Score ~ Variability_MeanSD + Age + Sex + Mean_FD + Total_Scan_Time`.  
+  *Output* a JSON `data/results/regression_summary.json` containing all fields required by `contracts/output.schema.yaml`. For the preliminary run, set `Permutations = 0`, `P_Value = null`, `Significance_Status = "Not Tested"`, `FDR_Appplied = false`.  
+  *Also* write `data/processed/final_results.csv` with per‑subject predicted scores and residuals (columns: Subject_ID, Flexibility_Score, Predicted_Score, Residual).  
+  **Verification**: `python -m code.analysis.regression` runs without error; `jq .Beta_Variability data/results/regression_summary.json` returns a numeric value; `jq '.Permutations, .Significance_Status, .FDR_Appplied' data/results/regression_summary.json` returns `0`, `"Not Tested"`, `false`; the CSV contains exactly the same number of rows as `variability_metrics.csv` (excluding excluded subjects).
+
+## Phase 2 – Complete the study and validate its evidence  
+
+Now scale to the full HCP cohort, add rigorous permutation testing, and apply FDR correction where needed.
+
+- [ ] T006 [US2] **Scale metric extraction to the full cohort using batch processing**  
+  *Modify* `code/features/connectivity.py` to iterate over subjects with a generator that loads at most `BATCH_SIZE` time‑series into memory simultaneously, guaranteeing peak RSS < 7 GB (verified with `memory_profiler`).  
+  *Run* the full‑cohort pipeline (`python -m code.features.connectivity --all`).  
+  **Verification**: `tail -n 1 data/processed/variability_metrics.csv` shows the last subject ID; `grep -c "Subject_ID" data/processed/variability_metrics.csv` equals the number of included subjects (≥ 800 expected); `memory_profiler -m python -m code.features.connectivity --all | grep "Peak" | awk '{print $NF}'` yields a value < 7GB.
+
+- [ ] T007 [US2] **Re‑run the phase‑shuffled null‑model validation on the full dataset**  
+  *Execute* `python -m code.features.null_model --all`.  
+  *Confirm* that every row in `variability_metrics.csv` now has a non‑missing `Null_Model_P` and that the overall proportion of subjects with `Null_Model_P < 0.05` is reported.  
+  **Verification**: `python -c "import pandas as pd; df=pd.read_csv('data/processed/variability_metrics.csv'); print((df['Null_Model_P']<0.05).mean())"` prints a value ≥ 0.5.
+
+- [ ] T008 [US3] **Perform a 10 000‑iteration permutation test for the regression coefficient**  
+  *Implement* `code/analysis/permutation.py` to:  
+  1. Shuffle `Flexibility_Score` across subjects 10 000 times.  
+  2. Re‑fit the same OLS model for each permutation, storing the β for `Variability_MeanSD`.  
+  3. Compute the empirical two‑tailed p‑value as the proportion of |β_perm| ≥ |β_obs|.  
+  4. If the computed p‑value equals 0.0, replace it with the string “< 0.0001”.  
+  *Update* `regression_summary.json` with the final `P_Value`, `Permutations = 10000`, `Significance_Status` (“Significant” if p < 0.05 else “Not Significant”), and add `Timestamp`.  
+  **Verification**: `jq .P_Value data/results/regression_summary.json` yields either a float in (0,1] or the string “< 0.0001”; the script asserts that when the raw p‑value is 0.0 the JSON field contains “< 0.0001”.
+
+- [ ] T009 [US3] **Apply FDR correction for any optional post‑hoc network‑specific analyses**  
+  *If* additional analyses (e.g., edge‑wise or network‑level β’s) are performed, run `statsmodels.stats.multitest.multipletests` with method=`fdr_bh`.  
+  *Store* the adjusted q‑values in `data/results/posthoc_fdr.csv` and set `FDR_Appplied` = true in `regression_summary.json`; otherwise leave `FDR_Appplied` = false.  
+  **Verification**: When `FDR_Appplied` is true, `test -f data/results/posthoc_fdr.csv && python -c "import pandas as pd, json, sys; schema=json.load(open('contracts/output.schema.yaml')); df=pd.read_csv('data/results/posthoc_fdr.csv'); assert not df.empty"` succeeds; the script also validates that the CSV conforms to a simple schema (columns: `Test_ID`, `q_value`).
+
+- [ ] T010 [US3] **Generate final visualizations and summary tables**  
+  *Implement* `code/utils/plotting.py` to produce:  
+  1. `figures/variability_vs_flexibility.png` – scatter of `Variability_MeanSD` vs. Flexibility_Score with regression line and 95 % CI.  
+  2. `figures/null_model_distribution.png` – histogram of real vs. surrogate `Variability_MeanSD` values with p‑value annotation.  
+  3. `figures/permutation_beta_distribution.png` – histogram of permuted βs with observed β marked.  
+  **Verification**: `ls figures/*.png | wc -l` returns 3; each PNG file size > 5 KB.
+
+- [ ] T013 [SC‑001] **Compute and record the proportion of subjects successfully processed**  
+  *Implement* `code/analysis/processing_stats.py` to read `data/raw/checksums.json` (total subjects) and `data/processed/exclusion_log.csv` (excluded subjects) and compute the proportion retained.  
+  *Write* the metric to `data/processed/processing_proportion.csv` with columns `Total_Subjects, Retained_Subjects, Proportion_Retained`.  
+  **Verification**: `cat data/processed/processing_proportion.csv` shows three numeric values; the script asserts `0.0 < Proportion_Retained <= 1.0`.
+
+## Phase 3 – Reproducible results and paper handoff  
+
+All scientific artifacts are now ready; this phase documents them and confirms full reproducibility.
+
+- [ ] T011 **Write the methods and results narrative** (`docs/research.md`)  
+  *Describe* data acquisition (HCP URLs, checksum verification), preprocessing (Schaefer atlas, motion exclusion), metric computation (sliding‑window, entropy, single variability metric, optional PCA), null‑model validation, regression, permutation, and any post‑hoc FDR steps.  
+  *Link* each statement to the exact artifact (e.g., “see `data/processed/variability_metrics.csv`”, “see `data/results/regression_summary.json`”, “see `figures/variability_vs_flexibility.png`”).  
+  **Verification**: A test script parses `docs/research.md`, extracts all file paths ending with `.csv`, `.json`, or `.png`, and asserts each exists in the repository.
+
+- [ ] T012 **Verify end‑to‑end reproducibility and handoff**  
+  *Create* `docs/quickstart.md` with the exact command sequence:  
+  ```bash
+  python -m code.data.download --all
+  python -m code.data.preprocess --all
+  python -m code.features.connectivity --all
+  python -m code.features.null_model --all
+  python -m code.analysis.permutation --all
+  python -m code.utils.plotting
+  ```  
+  *Run* the full pipeline from a clean checkout (`git clean -fdx && git checkout .`) and then execute `pytest -q tests/test_contracts.py`.  
+  *Record* SHA‑256 hashes of all major outputs (`variability_metrics.csv`, `final_results.csv`, `regression_summary.json`, `figures/*.png`).  
+  *Run* the pipeline a second time and assert that the recorded hashes are identical.  
+  **Verification**: The test suite includes a hash‑comparison test that fails if any hash differs between runs.
+
+- [ ] T014 **Final hash‑consistency check (redundant safety)**  
+  *Re‑run* the hash‑comparison step from T012 as an isolated script to double‑check reproducibility after any future modifications.  
+  **Verification**: The script exits with status 0 only if all hashes match; otherwise it prints mismatched files.
+
+---  
+
+## Dependency and requirement coverage  
+
+| Spec Requirement | Task(s) | Verification Command |
+|------------------|---------|----------------------|
+| FR‑001 (download) | T002 | `python -m code.data.download --verify` |
+| FR‑002 (parcellation) | T002 | `ls data/processed/timeseries/*.npy | wc -l` |
+| FR‑003 / FR‑004 (dynamic metric) | T003, T006 | `head data/processed/variability_metrics.csv` |
+| FR‑005 (regression) | T005, T008 | `cat data/results/regression_summary.json \| jq .Beta_Variability` |
+| FR‑006 (permutation) | T008 | `cat data/results/regression_summary.json \| jq .Permutations` |
+| FR‑007 (CSV output) | T005, T010 | `csvstat data/processed/final_results.csv` |
+| FR‑008 (null model) | T004, T007 | `grep Null_Model_P data/processed/variability_metrics.csv` |
+| FR‑009 (FDR) | T009 | `grep FDR_Appplied data/results/regression_summary.json` |
+| SC‑001 (processing proportion) | T013 | `cat data/processed/processing_proportion.csv` |
+| SC‑003 (empirical p‑value) | T008 | `cat data/results/regression_summary.json \| jq .P_Value` |
+| SC‑004 (correlation coefficient) | T005, T008 | `cat data/results/regression_summary.json \| jq .Pearson_R` |
+
+**Execution Order**:  
+T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T013 → T011 → T012 → T014.  
+
+---  
+
+# End of tasks.md

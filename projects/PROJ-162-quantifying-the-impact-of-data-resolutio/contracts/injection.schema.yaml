@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Injection Result Schema
+description: Schema for validation of gravitational wave injection results containing SNR and re-weighted SNR metrics.
+type: object
+required:
+  - resolution
+  - snr
+  - re_weighted_snr
+  - timestamp
+  - noise_segment_id
+properties:
+  resolution:
+    type: integer
+    description: Sampling frequency of the data in Hz (e.g., 4096, 2048, 1024, 512, 256).
+    minimum: 64
+  snr:
+    type: number
+    description: Matched-filter Signal-to-Noise Ratio (rho).
+    minimum: 0
+  re_weighted_snr:
+    type: number
+    description: Re-weighted SNR (rho_hat) accounting for chi-squared consistency tests.
+    minimum: 0
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the injection event.
+  noise_segment_id:
+    type: string
+    description: Unique identifier for the noise segment used (e.g., GWOSC run ID and segment name).
+  waveform_id:
+    type: string
+    description: Optional identifier for the injected waveform.
+  injected_snr:
+    type: number
+    description: Optional theoretical injected SNR for comparison.
+additionalProperties: false

@@ -1,0 +1,721 @@
+{
+  "fetched_at": "2026-08-26T16:20:48Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Crystal Structures from Molecular Fingerprints",
+      "target_n": 5
+    },
+    "duration_seconds": 56.142,
+    "ended_at": "2026-08-26T16:20:48Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "crystal structure prediction from molecular descriptors"
+        ],
+        [
+          2,
+          "machine learning crystal structure prediction"
+        ],
+        [
+          3,
+          "molecular fingerprint to crystal lattice mapping"
+        ],
+        [
+          4,
+          "data-driven crystal structure prediction"
+        ],
+        [
+          5,
+          "QSAR models for polymorph prediction"
+        ],
+        [
+          6,
+          "crystal structure prediction using molecular representations"
+        ],
+        [
+          7,
+          "deep learning for crystal structure determination"
+        ],
+        [
+          8,
+          "molecular graph neural networks for crystal prediction"
+        ],
+        [
+          9,
+          "predicting polymorph stability from molecular features"
+        ],
+        [
+          10,
+          "structure-property relationships in crystallography"
+        ],
+        [
+          11,
+          "computational crystal structure prediction algorithms"
+        ],
+        [
+          12,
+          "molecular encoding for crystal phase prediction"
+        ],
+        [
+          13,
+          "supervised learning for crystal structure classification"
+        ],
+        [
+          14,
+          "inverse crystal structure design from molecular properties"
+        ],
+        [
+          15,
+          "molecular similarity and crystal packing prediction"
+        ],
+        [
+          16,
+          "crystal structure prediction using random forests"
+        ],
+        [
+          17,
+          "generative models for crystal structure prediction"
+        ],
+        [
+          18,
+          "feature-based crystal structure prediction"
+        ],
+        [
+          19,
+          "molecular descriptor analysis for solid-state properties"
+        ],
+        [
+          20,
+          "automated crystal structure prediction from chemical formulas"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Crystal Structures from Molecular Fingerprints chemistry": 0,
+        "crystal structure prediction from molecular descriptors": 2,
+        "machine learning crystal structure prediction": 5
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "molecular fingerprint crystal structure prediction",
+      "graph neural network SMILES crystal lattice",
+      "space group symmetry descriptor machine learning",
+      "formation energy stability high-throughput screening",
+      "data-driven materials discovery inverse design"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1302.1059"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Crystal Structures from Molecular Fingerprints chemistry": 3,
+      "data-driven materials discovery inverse design": 3,
+      "formation energy stability high-throughput screening": 3,
+      "graph neural network SMILES crystal lattice": 3,
+      "molecular fingerprint crystal structure prediction": 2,
+      "space group symmetry descriptor machine learning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "1302.1059",
+          "rationale": "The paper is a review of the chemistry and crystal structures of topological insulators but does not address the specific mechanism of \"predicting\" structures from \"molecular fingerprints,\" nor does it establish a baseline or methodology for that predictive task. It falls under the rejection rule for \"distinct construct sharing only homonym keywords\" (sharing \"crystal structure\" and \"chemistry\" but lacking the predictive modeling or fingerprinting component central to the user's question).",
+          "title": "Crystal Structure and Chemistry of Topological Insulators"
+        },
+        {
+          "primary_pointer": "1007.2003",
+          "rationale": "The paper addresses the general problem of crystal structure prediction but uses a physics-based global optimization method (Minima Hopping) rather than the specific mechanism of \"molecular fingerprints\" (chemical descriptors) requested by the user. It fails to measure the same biological/physical pathway or variable (fingerprint-based prediction) and does not belong to the alternative-vocabulary cluster for fingerprint-based methods, thus satisfying the rejection criteria for distinct construct",
+          "title": "Crystal structure prediction using the Minima Hopping method"
+        },
+        {
+          "primary_pointer": "2103.06305",
+          "rationale": "The paper reports the experimental synthesis and characterization of a specific crystal structure and its magnetic properties, but it does not address the user's question regarding the *prediction* of crystal structures from *molecular fingerprints*. There is no connection to the computational methodology, machine learning models, or fingerprint-based descriptors required by the user's research topic, making it an off-domain study of a specific material rather than a relevant methodological or e",
+          "title": "Crystal Growth of a New 8H Perovskite Sr8Os6.3O24 Exhibiting High TC Ferromagnetism"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on machine learning for official statistics and the risks of changing data sources in a policy/government context, which is an entirely different domain from predicting crystal structures in chemistry. It shares no measurable connection to the user's specific mechanism (structure prediction), variables (molecular fingerprints), or empirical setting (crystalline materials), failing all inclusion criteria (a-f) and triggering the \"off-domain entirely\" rejection rule.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper provides general methodological recommendations for validating machine learning in biology (criterion d) but does not address the specific domain of crystal structure prediction, molecular fingerprints, or chemistry, nor does it measure the specific variables or mechanisms relevant to the user's question. It falls under the rejection rule for being \"off-domain entirely\" as it focuses on biological validation standards rather than the specific chemical prediction task requested.",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on learning curves in machine learning decision-making and does not address the specific domain of crystal structure prediction, molecular fingerprints, or the chemical mechanisms involved. It fails to meet any inclusion criteria (a-f) as it lacks the necessary domain specificity, empirical population, or foundational methodology for the user's chemistry-focused question.",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of crystal structure prediction or the use of molecular fingerprints in chemistry. It fails to meet any inclusion criteria (a-f) as it lacks the necessary biological/chemical mechanism, domain-specific variables, or canonical methodology for the user's specific research question.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2303.15563",
+          "rationale": "The paper focuses on privacy-preserving machine learning in the healthcare domain, which is entirely off-domain from the user's question regarding crystal structure prediction in chemistry. It shares no measurable connection to the specific mechanism (structure prediction), variables (molecular fingerprints), or empirical population (crystalline materials) required by the user's research question.",
+          "title": "Privacy-preserving machine learning for healthcare: open challenges and future perspectives"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-26T16:19:51Z",
+    "term_input": {
+      "normalized": "predicting crystal structures from molecular fingerprints chemistry",
+      "raw": "Predicting Crystal Structures from Molecular Fingerprints chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-08-26T16:20:19Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Interface energy and kinetic coefficient of crystal growth strongly depend on the face of the crystalline lattice. To investigate the kinetic anisotropy and velocity of different crystallographic faces we use the hyperbolic (modified) phase field crystal model which takes into account atomic density (as a slow thermodynamic variable) and atomic flux (as a fast thermodynamic variable). Such model covers slow and rapid regimes of interfaces propagation at small and large driving forces during solidification. In example of BCC crystal lattice invading the homogeneous liquid, dynamical regimes of advancing front propagating along the selected crystallographic directions are studied. The obtained velocity and the velocity sequences for different faces are compared with known results.",
+          "claimed_authors": [
+            "Vladimir Ankudinov",
+            "Peter K. Galenko"
+          ],
+          "claimed_title": "Growth of different faces in a body centered cubic lattice: a case of the phase-field-crystal modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.08248"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Growth of different faces in a body centered cubic lattice: a case of the phase-field-crystal modeling')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report on heavy quark mass calculations using Fermilab heavy quarks. Lattice calculations of heavy-strange meson masses are combined with one-loop (automated) lattice perturbation theory to arrive at the quark mass. Mesons are constructed from Fermilab heavy quarks and staggered light quarks. We use the MILC ensembles at three lattice spacings and sea quark mass ratios of $m_{\\rm u,d} / m_{\\rm s} = 0.1$ to 0.4. Preliminary results for the bottom quark are given in the potential subtracted scheme.",
+          "claimed_authors": [
+            "Elizabeth D. Freeland",
+            "Andreas S. Kronfeld",
+            "James N. Simone",
+            "Ruth S. Van de Water",
+            "Fermilab Lattice",
+            "MILC Collaborations"
+          ],
+          "claimed_title": "Heavy-Quark Masses from the Fermilab Method in Three-Flavor Lattice QCD",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0710.4339"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Heavy-Quark Masses from the Fermilab Method in Three-Flavor Lattice QCD')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study the $B \\to Kl^+l^-$ semileptonic decay process in three-flavor lattice QCD. We analyze several ensembles generated by the MILC collaboration at different lattice spacings and sea-quark masses. We use the asqtad improved staggered action for the light quarks and the clover action with the Fermilab interpretation for the heavy $b$ quark. We present preliminary results for the vector current induced form factors for a range of kaon energies. Our analysis includes chiral and continuum extrapolations based on SU(2) staggered χPT.",
+          "claimed_authors": [
+            "Ran Zhou",
+            "Jon A. Bailey",
+            "Alexei Bazavov",
+            "Aida X. El-Khadra",
+            "Steven Gottlieb",
+            "Rajendra D. Jain",
+            "Andreas S. Kronfeld",
+            "Ruth S. Van de Water",
+            "Fermilab Lattice",
+            "MILC Collaborations"
+          ],
+          "claimed_title": "Form factors for $B$ to $Kll$ semileptonic decay from three-flavor lattice QCD",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0981"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Form factors for $B$ to $Kll$ semileptonic decay from three-flavor lattice QCD')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article reviews the application of fragment descriptors at different stages of virtual screening: filtering, similarity search, and direct activity assessment using QSAR/QSPR models. Several case studies are considered. It is demonstrated that the power of fragment descriptors stems from their universality, very high computational efficiency, simplicity of interpretation and versatility.",
+          "claimed_authors": [
+            "Igor I. Baskin",
+            "Alexandre Varnek"
+          ],
+          "claimed_title": "Fragment Descriptors in Virtual Screening",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.3723"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Fragment Descriptors in Virtual Screening')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the Dark Energy Survey (DES), a proposed optical-near infrared survey of 5000 sq. deg of the South Galactic Cap to ~24th magnitude in SDSS griz, that would use a new 3 sq. deg CCD camera to be mounted on the Blanco 4-m telescope at Cerro Telolo Inter-American Observatory (CTIO). The survey data will allow us to measure the dark energy and dark matter densities and the dark energy equation of state through four independent methods: galaxy clusters, weak gravitational lensing tomography, galaxy angular clustering, and supernova distances. These methods are doubly complementary: they constrain different combinations of cosmological model parameters and are subject to different systematic errors. By deriving the four sets of measurements from the same data set with a common analysis framework, we will obtain important cross checks of the systematic errors and thereby make a substantial and robust advance in the precision of dark energy measurements.",
+          "claimed_authors": [
+            " The Dark Energy Survey Collaboration"
+          ],
+          "claimed_title": "The Dark Energy Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510346"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='The Dark Energy Survey')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "High throughput experimentation tools, machine learning (ML) methods, and open material databases are radically changing the way new materials are discovered. From the experimentally driven approach in the past, we are moving quickly towards the artificial intelligence (AI) driven approach, realizing the 'inverse design' capabilities that allow the discovery of new materials given the desired properties. This review aims to discuss different principles of AI-driven generative models that are applicable for materials discovery, including different materials representations available for this purpose. We will also highlight specific applications of generative models in designing new catalysts, semiconductors, polymers, or crystals while addressing challenges such as data scarcity, computational cost, interpretability, synthesizability, and dataset biases. Emerging approaches to overcome limitations and integrate AI with experimental workflows will be discussed, including multimodal models, physics informed architectures, and closed-loop discovery systems. This review aims to provide insights for researchers aiming to harness AI's transformative potential in accelerating materials discovery for sustainability, healthcare, and energy innovation.",
+          "claimed_authors": [
+            "Albertus Denny Handoko",
+            "Riko I Made"
+          ],
+          "claimed_title": "Artificial Intelligence and Generative Models for Materials Discovery -- A Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.03278"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Artificial Intelligence and Generative Models for Materials Discovery -- A Review')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Finite element (FE) simulations of structures and materials are getting increasingly more accurate, but also more computationally expensive as a collateral result. This development happens in parallel with a growing demand of data-driven design. To reconcile the two, a robust and data-efficient optimization method called Bayesian optimization (BO) has been previously established as a technique to optimize expensive objective functions. In parallel, the mesh width of an FE model can be exploited to evaluate an objective at a lower or higher fidelity (cost & accuracy) level. The multi-fidelity setting applied to BO, called multi-fidelity BO (MFBO), has also seen previous success. However, BO and MFBO have not seen a direct comparison with when faced with with a real-life engineering problem, such as metamaterial design for deformation and absorption qualities. Moreover, sampling quality and assessing design parameter sensitivity is often an underrepresented part of data-driven design. This paper aims to address these shortcomings by employing Sobol' samples with variance-based sensitivity analysis in order to reduce design problem complexity. Furthermore, this work describes, implements, applies and compares the performance BO with that MFBO when maximizing the energy absorption (EA) problem of spinodoid cellular structures is concerned. The findings show that MFBO is an effective way to maximize the EA of a spinodoid structure and is able to outperform BO by up to 11% across various hyperparameter settings. The results, which are made open-source, serve to support the utility of multi-fidelity techniques across expensive data-driven design problems.",
+          "claimed_authors": [
+            "Leo Guo",
+            "Hirak Kansara",
+            "Siamak F. Khosroshahi",
+            "GuoQi Zhang",
+            "Wei Tan"
+          ],
+          "claimed_title": "Multi-fidelity Bayesian Data-Driven Design of Energy Absorbing Spinodoid Cellular Structures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.22079"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Multi-fidelity Bayesian Data-Driven Design of Energy Absorbing Spinodoid Cellular Structures')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Discovering new materials is essential to solve challenges in climate change, sustainability and healthcare. A typical task in materials discovery is to search for a material in a database which maximises the value of a function. That function is often expensive to evaluate, and can rely upon a simulation or an experiment. Here, we introduce SyMDis, a sample efficient optimisation method based on symbolic learning, that discovers near-optimal materials in a large database. SyMDis performs comparably to a state-of-the-art optimiser, whilst learning interpretable rules to aid physical and chemical verification. Furthermore, the rules learned by SyMDis generalise to unseen datasets and return high performing candidates in a zero-shot evaluation, which is difficult to achieve with other approaches.",
+          "claimed_authors": [
+            "Daniel Cunnington",
+            "Flaviu Cipcigan",
+            "Rodrigo Neumann Barros Ferreira",
+            "Jonathan Booth"
+          ],
+          "claimed_title": "Symbolic Learning for Material Discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11487"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Crystal Structures from Molecular Fingerprints chemistry', candidate_title='Symbolic Learning for Material Discovery')",
+        "failed_at": "2026-08-26T16:20:20Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "R. J. Cava",
+            "Huiwen Ji",
+            "M. K. Fuccillo",
+            "Q. D. Gibson",
+            "Y. S. Hor"
+          ],
+          "title": "Crystal Structure and Chemistry of Topological Insulators",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1302.1059",
+        "summary": "Topological surface states, a new kind of electronic state of matter, have recently been observed on the cleaved surfaces of crystals of a handful of small band gap semiconductors. The underlying chemical factors that enable these states are crystal symmetry, the presence of strong spin orbit coupling, and an inversion of the energies of the bulk electronic states that normally contribute to the valence and conduction bands. The goals of this review are to briefly introduce the physics of topological insulators to a chemical audience and to describe the chemistry, defect chemistry, and crystal structures of the compounds in this emergent field.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1302.1059",
+          "http_status": 200,
+          "pdf_sample_score": 0.1462,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T16:20:19Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Maximilian Amsler",
+            "Stefan Goedecker"
+          ],
+          "title": "Crystal structure prediction using the Minima Hopping method",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2010
+        },
+        "primary_pointer": "1007.2003",
+        "summary": "A structure prediction method is presented based on the Minima Hopping method. Optimized moves on the configurational enthalpy surface are performed to escape local minima using variable cell shape molecular dynamics by aligning the initial atomic and cell velocities to low curvature directions of the current minimum. The method is applied to both silicon crystals and binary Lennard-Jones mixtures and the results are compared to previous investigations. It is shown that a high success rate is achieved and a reliable prediction of unknown ground state structures is possible.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1007.2003",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T16:20:20Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gohil S. Thakur",
+            "Thomas Doert",
+            "Shrikant Mohitkar",
+            "Walter Schnelle",
+            "Claudia Felser",
+            "Martin Jansen"
+          ],
+          "title": "Crystal Growth of a New 8H Perovskite Sr8Os6.3O24 Exhibiting High TC Ferromagnetism",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2103.06305",
+        "summary": "Single crystals of a new twinned hexagonal perovskite compound Sr8Os6.3O24 have been synthesized, and structural and magnetic properties have been determined. The compound crystallizes in a hexagonal cell with lattice parameters a = 9.6988(3) Å and c = 18.1657(5) Å. The structure is an eight-layered hexagonal B-site deficient perovskite with the layer sequence (ccch)2 and represents the first example of a hexagonal structure among 5d oxides adopting a twin option. The sample shows spontaneous ferromagnetic magnetization below 430 K with a small saturation moment of 0.11 μB/Os ion. This is the highest Curie temperature (TC) reported for any bulk perovskite containing only 5d ions at the B site.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2103.06305",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T16:20:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T16:20:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16189",
+        "summary": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16189",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T16:20:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T16:20:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "title": "Active learning for data streams: a survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.08893",
+        "summary": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.08893",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T16:20:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Alejandro Guerra-Manzanares",
+            "L. Julian Lechuga Lopez",
+            "Michail Maniatakos",
+            "Farah E. Shamout"
+          ],
+          "title": "Privacy-preserving machine learning for healthcare: open challenges and future perspectives",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.15563",
+        "summary": "Machine Learning (ML) has recently shown tremendous success in modeling various healthcare prediction tasks, ranging from disease diagnosis and prognosis to patient treatment. Due to the sensitive nature of medical data, privacy must be considered along the entire ML pipeline, from model training to inference. In this paper, we conduct a review of recent literature concerning Privacy-Preserving Machine Learning (PPML) for healthcare. We primarily focus on privacy-preserving training and inference-as-a-service, and perform a comprehensive review of existing trends, identify challenges, and discuss opportunities for future research directions. The aim of this review is to guide the development of private and efficient ML models in healthcare, with the prospects of translating research efforts into real-world settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.15563",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T16:20:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting crystal structures from molecular fingerprints chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

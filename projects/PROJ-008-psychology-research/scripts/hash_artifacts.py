@@ -1,209 +1,227 @@
 """
-Artifact Hashing Utility for Constitution Principle V.
+Artifact hashing utility for Constitution Principle V (Fail Fast).
 
-This script computes and records cryptographic hashes for all research artifacts
-to ensure data integrity and reproducibility. It supports:
-- SHA-256 hashing of all files in specified directories
-- JSON output manifest for audit trails
-- Verification of existing manifests against current file states
+This script computes SHA-256 hashes for all critical project artifacts
+to ensure data integrity and reproducibility. It validates that the
+project state matches the recorded hashes, preventing silent corruption
+or unauthorized modifications.
+
+Usage:
+    python scripts/hash_artifacts.py [--check] [--output data/hashes.json]
+
+Options:
+    --check    Compare current hashes against data/hashes.json
+    --output   Path to write the new hash manifest (default: data/hashes.json)
 """
 
+import argparse
 import hashlib
 import json
 import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Any, Optional
 
-# Add project root to path for imports
+# Project root is assumed to be the parent of 'scripts'
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+DATA_DIR = PROJECT_ROOT / "data"
+CODE_DIR = PROJECT_ROOT / "code"
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+DOCS_DIR = PROJECT_ROOT / "docs"
+TESTS_DIR = PROJECT_ROOT / "tests"
 
-from utils.config import get_config, get_data_path, get_code_path
-from utils.logging import get_logger, log_event
-
-# Configure logger
-logger = get_logger("hash_artifacts")
-
-# Directories to hash
-HASH_TARGETS = [
-    ("code", get_code_path()),
-    ("data/raw", get_data_path("raw")),
-    ("data/processed", get_data_path("processed")),
-    ("contracts", PROJECT_ROOT / "contracts"),
-    ("specs", PROJECT_ROOT / "specs"),
+# Patterns of files to hash (critical artifacts)
+CRITICAL_PATTERNS = [
+    "data/processed/*.csv",
+    "data/processed/*.json",
+    "data/raw/*.json",
+    "data/raw/*.log",
+    "contracts/*.schema.yaml",
+    "docs/protocol.md",
+    "docs/results.md",
+    "docs/analysis-plan.md",
+    "docs/ethics_determination.md",
+    "code/**/*.py",
+    "tests/**/*.py",
 ]
 
-# Output manifest path
-MANIFEST_PATH = PROJECT_ROOT / "data" / "artifacts" / "hash_manifest.json"
-
-
-def compute_sha256(file_path: Path) -> str:
+def compute_file_hash(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
         return sha256_hash.hexdigest()
     except Exception as e:
-        logger.error(f"Failed to hash {file_path}: {e}")
-        raise
+        raise RuntimeError(f"Failed to hash {file_path}: {e}")
 
+def find_critical_files(base_dir: Path, patterns: List[str]) -> List[Path]:
+    """Find files matching the critical patterns."""
+    found_files = []
+    for pattern in patterns:
+        # Convert glob pattern to relative path from base_dir
+        # Handle ** for recursive search
+        if "**" in pattern:
+            # Use rglob for recursive search
+            parts = pattern.split("/")
+            # Find the first part that contains **
+            for i, part in enumerate(parts):
+                if "**" in part:
+                    prefix = "/".join(parts[:i])
+                    suffix = "/".join(parts[i+1:])
+                    if prefix:
+                        search_dir = base_dir / prefix
+                    else:
+                        search_dir = base_dir
+                    for file in search_dir.rglob(suffix):
+                        if file.is_file():
+                            found_files.append(file)
+                    break
+        else:
+            # Simple glob
+            for file in base_dir.glob(pattern):
+                if file.is_file():
+                    found_files.append(file)
+    return sorted(found_files)
 
-def hash_directory(base_path: Path, relative_prefix: str) -> List[Dict[str, str]]:
-    """Recursively hash all files in a directory."""
-    results = []
-    if not base_path.exists():
-        logger.warning(f"Directory does not exist: {base_path}")
-        return results
+def generate_manifest(output_path: Optional[Path] = None) -> Dict[str, Any]:
+    """Generate a manifest of hashes for all critical artifacts."""
+    if output_path is None:
+        output_path = DATA_DIR / "hashes.json"
 
-    for file_path in base_path.rglob("*"):
-        if file_path.is_file() and not file_path.name.endswith(".json"):
-            # Skip the manifest itself
-            try:
-                rel_path = file_path.relative_to(PROJECT_ROOT)
-                hash_value = compute_sha256(file_path)
-                results.append({
-                    "path": str(rel_path),
-                    "hash": hash_value,
-                    "size": file_path.stat().st_size,
-                    "modified": datetime.fromtimestamp(
-                        file_path.stat().st_mtime, tz=timezone.utc
-                    ).isoformat()
-                })
-            except Exception as e:
-                logger.error(f"Error processing {file_path}: {e}")
+    all_files = []
+    for pattern in CRITICAL_PATTERNS:
+        # Determine base directory for pattern
+        if pattern.startswith("data/"):
+            base = DATA_DIR
+        elif pattern.startswith("contracts/"):
+            base = CONTRACTS_DIR
+        elif pattern.startswith("docs/"):
+            base = DOCS_DIR
+        elif pattern.startswith("code/"):
+            base = CODE_DIR
+        elif pattern.startswith("tests/"):
+            base = TESTS_DIR
+        else:
+            base = PROJECT_ROOT
 
-    return results
-
-
-def generate_manifest() -> Dict:
-    """Generate a complete hash manifest for all artifacts."""
-    logger.info("Starting artifact hashing process...")
-    start_time = datetime.now(timezone.utc)
+        files = find_critical_files(base, [pattern])
+        # Adjust paths to be relative to PROJECT_ROOT
+        for f in files:
+            rel_path = f.relative_to(PROJECT_ROOT)
+            all_files.append((str(rel_path), f))
 
     manifest = {
-        "generated_at": start_time.isoformat(),
-        "project": "PROJ-008-psychology-research",
-        "version": "1.0.0",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "project_root": str(PROJECT_ROOT),
         "artifacts": []
     }
 
-    for target_name, target_path in HASH_TARGETS:
-        if not target_path.exists():
-            logger.info(f"Skipping non-existent target: {target_name}")
-            continue
-
-        logger.info(f"Hashing {target_name}...")
-        artifacts = hash_directory(target_path, target_name)
-        manifest["artifacts"].extend(artifacts)
-
-    manifest["total_artifacts"] = len(manifest["artifacts"])
-    manifest["completed_at"] = datetime.now(timezone.utc).isoformat()
-
-    # Ensure output directory exists
-    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+    for rel_path, abs_path in all_files:
+        try:
+            file_hash = compute_file_hash(abs_path)
+            file_size = abs_path.stat().st_size
+            manifest["artifacts"].append({
+                "path": rel_path,
+                "sha256": file_hash,
+                "size_bytes": file_size
+            })
+        except Exception as e:
+            print(f"Warning: Skipping {rel_path} due to error: {e}", file=sys.stderr)
 
     # Write manifest
-    with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
 
-    logger.info(f"Manifest written to {MANIFEST_PATH}")
-    log_event("artifact_hashing_complete", {
-        "total_artifacts": manifest["total_artifacts"],
-        "manifest_path": str(MANIFEST_PATH)
-    })
-
+    print(f"Manifest generated: {output_path}")
+    print(f"Total artifacts hashed: {len(manifest['artifacts'])}")
     return manifest
 
-
-def verify_manifest(manifest_path: Optional[Path] = None) -> Tuple[bool, List[str]]:
-    """Verify current file hashes against a stored manifest."""
-    manifest_path = manifest_path or MANIFEST_PATH
+def verify_manifest(manifest_path: Optional[Path] = None) -> bool:
+    """Verify current artifacts against a stored manifest."""
+    if manifest_path is None:
+        manifest_path = DATA_DIR / "hashes.json"
 
     if not manifest_path.exists():
-        return False, [f"Manifest not found: {manifest_path}"]
+        print(f"Error: Manifest not found at {manifest_path}", file=sys.stderr)
+        return False
 
     with open(manifest_path, "r", encoding="utf-8") as f:
-        stored_manifest = json.load(f)
+        manifest = json.load(f)
 
-    mismatches = []
-    current_artifacts = {}
+    print(f"Verifying against manifest: {manifest_path}")
+    print(f"Generated at: {manifest.get('generated_at', 'unknown')}")
+    print("-" * 60)
 
-    # Re-hash all artifacts
-    for target_name, target_path in HASH_TARGETS:
-        if not target_path.exists():
+    all_valid = True
+    errors = []
+
+    for artifact in manifest["artifacts"]:
+        rel_path = artifact["path"]
+        expected_hash = artifact["sha256"]
+        abs_path = PROJECT_ROOT / rel_path
+
+        if not abs_path.exists():
+            errors.append(f"MISSING: {rel_path}")
+            all_valid = False
+            print(f"❌ MISSING: {rel_path}")
             continue
-        artifacts = hash_directory(target_path, target_name)
-        for artifact in artifacts:
-            current_artifacts[artifact["path"]] = artifact["hash"]
 
-    # Compare with stored manifest
-    for entry in stored_manifest.get("artifacts", []):
-        path = entry["path"]
-        stored_hash = entry["hash"]
+        try:
+            current_hash = compute_file_hash(abs_path)
+            if current_hash == expected_hash:
+                print(f"✅ OK: {rel_path}")
+            else:
+                errors.append(f"MISMATCH: {rel_path} (expected {expected_hash[:16]}..., got {current_hash[:16]}...)")
+                all_valid = False
+                print(f"❌ MISMATCH: {rel_path}")
+        except Exception as e:
+            errors.append(f"ERROR: {rel_path} - {e}")
+            all_valid = False
+            print(f"❌ ERROR: {rel_path} - {e}")
 
-        if path not in current_artifacts:
-            mismatches.append(f"MISSING: {path}")
-        elif current_artifacts[path] != stored_hash:
-            mismatches.append(f"MODIFIED: {path} (hash mismatch)")
-
-    # Check for new files not in manifest
-    for path in current_artifacts:
-        if not any(a["path"] == path for a in stored_manifest.get("artifacts", [])):
-            mismatches.append(f"NEW: {path}")
-
-    is_valid = len(mismatches) == 0
-    return is_valid, mismatches
-
+    print("-" * 60)
+    if all_valid:
+        print("✅ All artifacts verified successfully.")
+        return True
+    else:
+        print(f"❌ Verification failed. {len(errors)} error(s) found.")
+        for err in errors:
+            print(f"   {err}")
+        return False
 
 def main():
-    """Main entry point."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Artifact hashing utility for Constitution Principle V")
+    parser = argparse.ArgumentParser(
+        description="Hash critical project artifacts for integrity verification."
+    )
     parser.add_argument(
-        "--verify",
+        "--check",
         action="store_true",
         help="Verify current artifacts against stored manifest"
     )
     parser.add_argument(
-        "--generate",
-        action="store_true",
-        help="Generate a new hash manifest"
-    )
-    parser.add_argument(
-        "--manifest",
+        "--output",
         type=str,
-        default=str(MANIFEST_PATH),
-        help="Path to manifest file for verification"
+        default=None,
+        help="Path to write the hash manifest (default: data/hashes.json)"
     )
 
     args = parser.parse_args()
 
-    if args.verify:
-        is_valid, mismatches = verify_manifest(Path(args.manifest))
-        if is_valid:
-            logger.info("✓ All artifacts verified successfully")
-            sys.exit(0)
-        else:
-            logger.error("✗ Artifact verification failed:")
-            for mismatch in mismatches:
-                logger.error(f"  - {mismatch}")
-            sys.exit(1)
-
-    elif args.generate:
-        generate_manifest()
-        logger.info("✓ Manifest generation complete")
-        sys.exit(0)
-
+    if args.check:
+        success = verify_manifest()
+        sys.exit(0 if success else 1)
     else:
-        # Default action: generate new manifest
-        logger.info("No action specified. Generating new manifest...")
-        generate_manifest()
-
+        output_path = Path(args.output) if args.output else None
+        try:
+            generate_manifest(output_path)
+            sys.exit(0)
+        except Exception as e:
+            print(f"Error generating manifest: {e}", file=sys.stderr)
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

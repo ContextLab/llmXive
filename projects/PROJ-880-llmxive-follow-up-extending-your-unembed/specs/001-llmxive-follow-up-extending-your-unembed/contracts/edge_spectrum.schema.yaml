@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Edge Spectrum Schema"
+type: object
+required:
+  - "model_name"
+  - "language"
+  - "top_k"
+  - "edge_vectors"
+  - "checksum"
+  - "generated_at"
+properties:
+  model_name:
+    type: string
+    description: "Name of the language model."
+  language:
+    type: string
+    description: "ISO-639-1 code of the language."
+  top_k:
+    type: integer
+    minimum: 1
+  edge_vectors:
+    type: array
+    description: "Top-k singular vectors as a list of float arrays."
+    items:
+      type: array
+      items:
+        type: number
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the unembedding matrix."
+  generated_at:
+    type: string
+    format: date-time

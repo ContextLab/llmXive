@@ -1,0 +1,126 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Synthetic SpatialClaw Proxy Dataset Schema
+description: |
+  Schema for the generated synthetic dataset used to benchmark 2D vs 3D spatial reasoning.
+  Produced by code/data/generator.py and consumed by code/data/loader.py.
+type: object
+required:
+  - version
+  - metadata
+  - tasks
+properties:
+  version:
+    type: string
+    description: Schema version identifier (e.g., "1.0.0")
+    const: "1.0.0"
+  metadata:
+    type: object
+    required:
+      - generator_seed
+      - generation_timestamp
+      - total_tasks
+      - task_types
+    properties:
+      generator_seed:
+        type: integer
+        description: The random seed used for generation
+      generation_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      total_tasks:
+        type: integer
+        minimum: 1
+        description: Total number of task instances in the dataset
+      task_types:
+        type: object
+        required:
+          - occlusion
+          - depth
+          - relative
+        properties:
+          occlusion:
+            type: integer
+            description: Count of occlusion tasks
+          depth:
+            type: integer
+            description: Count of depth estimation tasks
+          relative:
+            type: integer
+            description: Count of relative position tasks
+  tasks:
+    type: array
+    description: List of task instances
+    items:
+      type: object
+      required:
+        - task_id
+        - scene_id
+        - task_type
+        - ground_truth_3d_params
+        - object_data
+      properties:
+        task_id:
+          type: string
+          pattern: "^task_[a-f0-9]{8}$"
+          description: Unique identifier for the task
+        scene_id:
+          type: string
+          pattern: "^scene_[a-f0-9]{8}$"
+          description: Identifier for the scene context
+        task_type:
+          type: string
+          enum:
+            - occlusion
+            - depth
+            - relative
+          description: Type of spatial reasoning required
+        ground_truth_3d_params:
+          type: object
+          description: Ground truth parameters in 3D space (for verification)
+          properties:
+            target_depth_m:
+              type: number
+              minimum: 0
+              description: True depth in meters
+            occlusion_ratio:
+              type: number
+              minimum: 0
+              maximum: 1
+              description: Fraction of object occluded
+            relative_vector:
+              type: array
+              items:
+                type: number
+              minItems: 3
+              maxItems: 3
+              description: [dx, dy, dz] relative vector
+        object_data:
+          type: object
+          description: Serialized object representation
+          properties:
+            points_3d:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                minItems: 3
+                maxItems: 3
+              description: List of [x, y, z] coordinates
+            bounding_box_3d:
+              type: object
+              properties:
+                center:
+                  type: array
+                  items:
+                    type: number
+                  minItems: 3
+                size:
+                  type: array
+                  items:
+                    type: number
+                  minItems: 3
+            material:
+              type: string
+              description: Material properties (e.g., "metal", "plastic")

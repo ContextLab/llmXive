@@ -1,0 +1,13 @@
+status: none
+intent: MemLens dataset download site github.com allenai memlens python package dataset
+required_fields:
+- question_id
+- question_text
+- answer_text
+- task_type
+- session_id
+- image_paths
+- metadata
+cache_key: 5302bb5ed3e3e4db060fab431871b7e0763a0445164786e40631fa396df6adf5
+searched_at: '2026-10-10T18:24:53.366340+00:00'
+retry_count: 1

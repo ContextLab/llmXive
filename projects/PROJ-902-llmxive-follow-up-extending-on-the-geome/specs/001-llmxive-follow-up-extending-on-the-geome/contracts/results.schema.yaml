@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aggregated Experiment Results Schema"
+description: "CSV schema for aggregated results of the geometry extension study."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier `<seed>_<condition>`."
+  seed:
+    type: integer
+    minimum: 0
+    description: "Random seed used for the run."
+  condition:
+    type: string
+    enum:
+      - "full_opd"
+      - "frozen_opd"
+      - "frozen_sft_opdmask"
+      - "frozen_sft_random"
+    description: "Experimental condition."
+  variance_explained:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Cumulative variance captured by the selected subspace (0‑1)."
+  k_selected:
+    type: integer
+    minimum: 1
+    description: "Number of singular vectors retained."
+  accuracy:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Test accuracy on the held‑out generalization subset."
+  peak_ram_mb:
+    type: number
+    minimum: 0
+    description: "Maximum resident memory usage (MiB)."
+  wall_time_sec:
+    type: number
+    minimum: 0
+    description: "Total wall‑clock time (seconds)."
+  loss_plateau_epoch:
+    type: integer
+    minimum: 1
+    description: "Epoch where loss plateau was first detected."
+  tost_p_lower:
+    type: [number, "null"]
+    minimum: 0
+    maximum: 1
+    description: "Lower‑side p‑value of the TOST equivalence test (null if not applicable)."
+  tost_p_upper:
+    type: [number, "null"]
+    minimum: 0
+    maximum: 1
+    description: "Upper‑side p‑value of the TOST equivalence test (null if not applicable)."
+  ttest_pvalue:
+    type: [number, "null"]
+    minimum: 0
+    maximum: 1
+    description: "Two‑sample (paired) t‑test p‑value for SFT comparisons (null if not applicable)."
+  power:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Achieved statistical power for the primary hypothesis test."
+required:
+  - run_id
+  - seed
+  - condition
+  - variance_explained
+  - k_selected
+  - accuracy
+  - peak_ram_mb
+  - wall_time_sec
+  - loss_plateau_epoch
+  - power
+additionalProperties: false

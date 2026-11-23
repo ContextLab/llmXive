@@ -1,29 +1,16 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+# Ignore raw and derived data directories
+data/raw/*
+data/derived/*
 
-# Virtual environments
+# Virtual environment
 venv/
-.venv/
-env/
-.env/
 
-# Data directories (keep in git but ignore large files if needed)
-data/raw/*.csv
-data/raw/*.parquet
-data/derived/*.parquet
-data/validation/*.csv
+# Python bytecode
+*.pyc
+__pycache__/
 
-# Logs
-*.log
-
-# IDE
+# Optional: ignore other temporary or IDE files
 .idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
+*.log
 .DS_Store
-Thumbs.db
+.vscode/

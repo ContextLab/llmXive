@@ -1,172 +1,66 @@
-"""
-T017: Validate output CSV types and generate validation report.
-
-Ensures `data/processed/merged_dataset.csv` has correct types and no non-numeric entries
-(except for ID/text columns), then generates `data/results/data_validation_report.json`.
-"""
 import os
 import sys
 import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, Any, List
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+DATA_RESULTS = PROJECT_ROOT / "data" / "results"
 
-from utils.config import get_config
-from utils.validation import validate_data_types
+DATA_RESULTS.mkdir(parents=True, exist_ok=True)
 
-def load_merged_dataset() -> pd.DataFrame:
-    """Load the merged dataset produced by T016."""
-    config = get_config()
-    input_path = config.get("data_paths.processed_merged_csv")
-    
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    return df
+def load_merged_dataset():
+    path = DATA_PROCESSED / "merged_dataset.csv"
+    if not path.exists():
+        raise FileNotFoundError(f"merged_dataset.csv not found at {path}")
+    return pd.read_csv(path)
 
-def validate_numeric_columns(df: pd.DataFrame) -> Dict[str, Any]:
+def validate_numeric_columns(df):
     """
-    Validate that numeric columns contain only numeric data (no strings, no NaN in critical fields).
-    Returns a summary of validation results.
+    Validates that numeric columns are actually numeric.
     """
     issues = []
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    object_cols = df.select_dtypes(include=['object']).columns.tolist()
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
     
-    # Check for non-numeric entries in numeric columns
     for col in numeric_cols:
-        # Check for NaN values
-        nan_count = df[col].isna().sum()
-        if nan_count > 0:
-            issues.append({
-                "column": col,
-                "issue": "missing_values",
-                "count": int(nan_count),
-                "severity": "warning" if nan_count < len(df) * 0.1 else "error"
-            })
-        
-        # Check for infinite values
-        inf_count = np.isinf(df[col]).sum()
-        if inf_count > 0:
-            issues.append({
-                "column": col,
-                "issue": "infinite_values",
-                "count": int(inf_count),
-                "severity": "error"
-            })
-        
-        # Check for non-numeric strings that might have been parsed as object
-        # (though select_dtypes should have filtered these)
-        if df[col].apply(lambda x: isinstance(x, str)).any():
-            issues.append({
-                "column": col,
-                "issue": "non_numeric_string_in_numeric_column",
-                "count": int(df[col].apply(lambda x: isinstance(x, str)).sum()),
-                "severity": "error"
-            })
-    
-    # Check object columns for unexpected numeric strings
-    for col in object_cols:
-        # Check if column should be numeric but is stored as object
-        # (e.g., "1.0", "2" as strings)
-        try:
-            pd.to_numeric(df[col], errors='raise')
-            # If successful, it's a numeric string column
-            issues.append({
-                "column": col,
-                "issue": "numeric_stored_as_string",
-                "count": len(df),
-                "severity": "warning",
-                "suggestion": "Convert to numeric type"
-            })
-        except (ValueError, TypeError):
-            pass  # Expected for text/ID columns
+        if df[col].isna().sum() > 0:
+            issues.append(f"Column '{col}' has {df[col].isna().sum()} NaN values.")
     
     return {
         "total_rows": len(df),
         "total_columns": len(df.columns),
-        "numeric_columns": len(numeric_cols),
-        "object_columns": len(object_cols),
-        "issues_found": len(issues),
+        "numeric_columns": list(numeric_cols),
         "issues": issues,
-        "is_valid": len([i for i in issues if i["severity"] == "error"]) == 0
+        "is_valid": len(issues) == 0
     }
 
-def generate_validation_report(df: pd.DataFrame, output_path: Path) -> Dict[str, Any]:
+def generate_validation_report(df):
     """
-    Generate a comprehensive validation report and save to JSON.
+    Generates a validation report JSON.
     """
-    # Basic schema validation
-    report = {
-        "file_path": str(output_path),
-        "timestamp": pd.Timestamp.now().isoformat(),
-        "dataset_info": {
-            "rows": len(df),
-            "columns": len(df.columns),
-            "column_names": df.columns.tolist(),
-            "dtypes": df.dtypes.astype(str).to_dict()
-        },
-        "numeric_validation": validate_numeric_columns(df),
-        "schema_compliance": validate_data_types(df)
-    }
-    
-    # Add summary statistics for numeric columns
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
-    if len(numeric_cols) > 0:
-        report["summary_statistics"] = {
-            col: {
-                "mean": float(df[col].mean()),
-                "std": float(df[col].std()),
-                "min": float(df[col].min()),
-                "max": float(df[col].max())
-            }
-            for col in numeric_cols
-        }
-    
-    # Save report
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2, default=str)
-    
-    return report
+    validation = validate_numeric_columns(df)
+    return validation
 
 def main():
-    """Main entry point for T017 validation task."""
-    config = get_config()
-    
-    input_path = Path(config.get("data_paths.processed_merged_csv"))
-    output_path = Path(config.get("data_paths.validation_report_json"))
-    
-    print(f"Loading merged dataset from: {input_path}")
+    """
+    Main entry point for validation.
+    Produces data/results/data_validation_report.json
+    """
     try:
         df = load_merged_dataset()
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}")
-        sys.exit(1)
-    
-    print(f"Dataset loaded: {len(df)} rows, {len(df.columns)} columns")
-    
-    print(f"Generating validation report: {output_path}")
-    report = generate_validation_report(df, output_path)
-    
-    if report["numeric_validation"]["is_valid"]:
-        print("✅ Validation PASSED: No critical issues found.")
-    else:
-        error_count = len([i for i in report["numeric_validation"]["issues"] if i["severity"] == "error"])
-        print(f"⚠️  Validation completed with {error_count} error(s) and {report['numeric_validation']['issues_found']} total issue(s).")
-        for issue in report["numeric_validation"]["issues"]:
-            if issue["severity"] == "error":
-                print(f"   - {issue['column']}: {issue['issue']} ({issue['count']} occurrences)")
-    
-    print(f"Report saved to: {output_path}")
-    return report
+        report = generate_validation_report(df)
+        
+        output_path = DATA_RESULTS / "data_validation_report.json"
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        print(f"Validation report saved to {output_path}")
+        
+    except Exception as e:
+        print(f"Error in validation: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

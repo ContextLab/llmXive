@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/contracts/counterfactual_explanation.json",
+  "title": "Counterfactual Explanation Output",
+  "description": "Schema for the structured output of the counterfactual explanation generator.",
+  "type": "object",
+  "properties": {
+    "explanation_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this explanation instance."
+    },
+    "trajectory_id": {
+      "type": "string",
+      "description": "Reference to the trajectory that triggered this explanation."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "failure", "timeout", "fallback"],
+      "description": "The generation status."
+    },
+    "violated_rule_id": {
+      "type": "string",
+      "description": "The ID of the specific rule that was violated, if any."
+    },
+    "violated_rule_text": {
+      "type": "string",
+      "description": "The natural language text of the violated rule."
+    },
+    "counterfactual_action": {
+      "type": "string",
+      "description": "The specific action that would have prevented the failure."
+    },
+    "reasoning_chain": {
+      "type": "string",
+      "description": "Step-by-step reasoning leading to the conclusion."
+    },
+    "confidence_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Model confidence in the generated explanation."
+    },
+    "tokens_used": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of tokens consumed during generation."
+    },
+    "fallback_reason": {
+      "type": ["string", "null"],
+      "description": "Reason for fallback if status is 'fallback'."
+    }
+  },
+  "required": ["explanation_id", "trajectory_id", "status", "violated_rule_id", "counterfactual_action"]
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.12759",
+  "judged_at": "2026-09-19T05:10:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"orbitquant: data-agnostic quantization for image and video diffusion t\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for the \"Data-Agnostic Quantization\" mechanism mentioned in the user's question, and criterion (a) as it measures the same core mechanism (low-bit quantization of large models) even though it focuses on speech models rather than diffusion models.",
+  "relevant": true
+}

@@ -1,0 +1,18 @@
+# Black configuration for PROJ-076
+# Implements T003b: Formatting configuration
+
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.tox
+  | __pycache__
+  | data
+  | results
+  | state
+  | build
+  | dist
+)/
+'''

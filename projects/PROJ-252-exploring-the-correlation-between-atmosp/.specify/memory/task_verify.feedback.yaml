@@ -1,0 +1,33 @@
+T001:
+  reason: "Checked `requirements.txt` (present and pinned), `code/seed_init.py` (sets\
+    \ both seeds and writes the log), and `docs/quickstart.md` (does not contain the\
+    \ required single\u2011line command). The log file `logs/seed_initialization.log`\
+    \ is never listed as an artifact, so there is no evidence it was created, and\
+    \ the quick\u2011start documentation does not match the specified command. These\
+    \ missing pieces prevent the task from being fully satisfied."
+  task: eb4c30dda10b647eb717126964d6b429d510b155109b140bef6ee17b84b8729b
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
+  task: b40c676761d4d10acbccc1038c129be31272e4a0d5e69cae243963971d35d792
+T003:
+  task: acb30775e93472c47c50a66a91e7525eda683504d75d0ab816ee758ae6501fb2
+T004:
+  task: a9ec07dd8b98b4477f970ff4633581d2d3c51e01b9cfee7fda72e154a6b72b05
+T005:
+  task: 309f87b0817ca7f0423ee9d635048b8373a7560e5d931fd97dc1f3d622da1d15
+T006:
+  task: ae895e8bf3b821e5b94752f797b87d496e2b2508296dfd5b5a44d7dcfee85fe1
+T008:
+  task: 22f8ac17be000f49e869e59c3b374f15d7be5bad41df3cb86d06f385b7d664e9
+T009:
+  task: 1bc5ea5d3d2515d35cd5309c62bcd337b1fc49d529411571d08933eb191c9c0a
+T010:
+  task: 1297e900aa48df5290f5d98fa97a9eb164dd231ef2b9f770b523f241e0e7e4c6
+T011:
+  task: 57ef81e74ef988f59df8fe54027f8f2d4cea657eeb8baa18903fdff038e5aa99
+T012:
+  task: ed2c48b959bfd1d1b963d5388cbc031bf086c673668de8b50998de7b6d8a0905
+T013:
+  task: edf3ea6fdfcf0cf46a6cd376698bfb1d3c845ff1e8971744f2b8a8aeaa5595fd
+T014:
+  task: 330e62e0e58336fc180e73c24e2479700ed4034173ebcabd556e297ca3c91dda

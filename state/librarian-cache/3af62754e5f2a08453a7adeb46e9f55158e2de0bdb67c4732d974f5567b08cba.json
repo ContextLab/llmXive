@@ -1,0 +1,640 @@
+{
+  "fetched_at": "2026-07-23T04:13:42Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suit\"",
+      "target_n": 5
+    },
+    "duration_seconds": 102.433,
+    "ended_at": "2026-07-23T04:13:42Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "evidence-based research ideation frameworks"
+        ],
+        [
+          2,
+          "AI-assisted research question generation"
+        ],
+        [
+          3,
+          "structured research proposal development tools"
+        ],
+        [
+          4,
+          "literature-driven hypothesis formulation systems"
+        ],
+        [
+          5,
+          "automated systematic review for research ideas"
+        ],
+        [
+          6,
+          "computational support for scientific creativity"
+        ],
+        [
+          7,
+          "NLP methods for research topic discovery"
+        ],
+        [
+          8,
+          "knowledge graph-based research ideation"
+        ],
+        [
+          9,
+          "evidence-grounded academic writing assistants"
+        ],
+        [
+          10,
+          "machine learning for literature gap analysis"
+        ],
+        [
+          11,
+          "generative AI in research methodology design"
+        ],
+        [
+          12,
+          "semantic search for research problem identification"
+        ],
+        [
+          13,
+          "cognitive support tools for academic researchers"
+        ],
+        [
+          14,
+          "automated synthesis of research trends and ideas"
+        ],
+        [
+          15,
+          "intelligent systems for grant proposal ideation"
+        ],
+        [
+          16,
+          "data-driven research direction exploration"
+        ],
+        [
+          17,
+          "large language models for academic brainstorming"
+        ],
+        [
+          18,
+          "evidence retrieval systems for scientific inquiry"
+        ],
+        [
+          19,
+          "algorithmic assistance in research design"
+        ],
+        [
+          20,
+          "intelligent tutoring systems for research skills"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "evidence-based research ideation frameworks": 4,
+        "llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suit\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "research ideation evidence grounded LLM",
+      "academic literature review automation agent",
+      "scholarly knowledge discovery hypothesis generation",
+      "citation graph traversal research assistant evaluation",
+      "epistemic scaffolding automated literature synthesis"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2504.16728"
+      ]
+    },
+    "per_query_hit_count": {
+      "academic literature review automation agent": 3,
+      "citation graph traversal research assistant evaluation": 3,
+      "epistemic scaffolding automated literature synthesis": 3,
+      "llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suit\" computer science": 3,
+      "research ideation evidence grounded LLM": 3,
+      "scholarly knowledge discovery hypothesis generation": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2407.18383",
+          "rationale": "The paper focuses on Information Retrieval and classification of medical literature using the Level of Evidence (LoE) framework, which is a distinct construct from the user's question about extending a specific Computer Science research ideation tool (\"ResearchStudio-Idea\") for LLMs. While both involve \"evidence,\" the paper addresses medical search relevance rather than the mechanism, variables, or methodology of LLM-based research ideation systems, failing to meet any of the inclusion criteria ",
+          "title": "Supporting Evidence-Based Medicine by Finding Both Relevant and Significant Works"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-23T04:12:00Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"researchstudio-idea: an evidence-grounded research-ideation skill suit\" computer science",
+      "raw": "llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suit\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-23T04:13:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-23T04:13:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-23T04:13:11Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Knowledge graphs can guide large language models (LLMs) reasoning, but the graph seen by a system is usually a retrieved, linked, temporally scoped, and incomplete evidence state rather than a complete account of truth. We develop a theoretical perspective on grounding observable LLM trajectories under such incomplete graph evidence.The evidence state induces entity anchors, typed relation residuals, path energies, and support regions, while the language model supplies a prior over candidate trajectories. We show that, under open-world incompleteness, no hard rule based only on the observed state can both reject every false unsupported trajectory and retain every true-but-unobserved one.We then characterize soft grounding as a KL-regularized deformation of the LLM prior: finite slack preserves support for unsupported but non-contradicted trajectories, whereas hard conditioning appears as an infinite-penalty limit.The framework also yields stability bounds under evidence perturbations and clarifies the constraint regimes appropriate for GraphRAG, KGQA, graph agents, constrained decoding, and faithful generation. The claims are evidence-relative: KG compatibility is treated as declared support, not factual truth.",
+          "claimed_authors": [
+            "Jiaqi Li",
+            "Fanghui Song"
+          ],
+          "claimed_title": "Grounding LLM Reasoning under Incomplete Graph Evidence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.30247"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Grounding LLM Reasoning under Incomplete Graph Evidence')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid development of large language models and AI agents has triggered a paradigm shift in academic literature retrieval, putting forward new demands for fine-grained, time-aware, and programmable retrieval. Existing graph-vector fusion methods still face bottlenecks such as matrix dependence, storage explosion, semantic dilution, and lack of AI-native support. This paper proposes a geometry-unified graph-vector fusion framework based on tensor manifold theory, which formally proves that an academic literature graph is a discrete projection of a tensor manifold, realizing the native unification of graph topology and vector geometric embedding. Based on this theoretical conclusion, we design four core modules: matrix-independent temporal diffusion signature update, hierarchical temporal manifold encoding, temporal Riemannian manifold indexing, and AI-agent programmable retrieval. Theoretical analysis and complexity proof show that all core algorithms have linear time and space complexity, which can adapt to large-scale dynamic academic literature graphs. This research provides a new theoretical framework and engineering solution for AI-native academic literature retrieval, promoting the industrial application of graph-vector fusion technology in the academic field.",
+          "claimed_authors": [
+            "Xing Wei",
+            "Yang Yu"
+          ],
+          "claimed_title": "Tensor Manifold-Based Graph-Vector Fusion for AI-Native Academic Literature Retrieval",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.16416"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Tensor Manifold-Based Graph-Vector Fusion for AI-Native Academic Literature Retrieval')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The process of conducting literature reviews is often time-consuming and labor-intensive. To streamline this process, I present an AI Literature Review Suite that integrates several functionalities to provide a comprehensive literature review. This tool leverages the power of open access science, large language models (LLMs) and natural language processing to enable the searching, downloading, and organizing of PDF files, as well as extracting content from articles. Semantic search queries are used for data retrieval, while text embeddings and summarization using LLMs present succinct literature reviews. Interaction with PDFs is enhanced through a user-friendly graphical user interface (GUI). The suite also features integrated programs for bibliographic organization, interaction and query, and literature review summaries. This tool presents a robust solution to automate and optimize the process of literature review in academic and industrial research.",
+          "claimed_authors": [
+            "David A. Tovar"
+          ],
+          "claimed_title": "AI Literature Review Suite",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.02443"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='AI Literature Review Suite')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Context is an important factor in computer vision as it offers valuable information to clarify and analyze visual data. Utilizing the contextual information inherent in an image or a video can improve the precision and effectiveness of object detectors. For example, where recognizing an isolated object might be challenging, context information can improve comprehension of the scene. This study explores the impact of various context-based approaches to object detection. Initially, we investigate the role of context in object detection and survey it from several perspectives. We then review and discuss the most recent context-based object detection approaches and compare them. Finally, we conclude by addressing research questions and identifying gaps for further studies. More than 265 publications are included in this survey, covering different aspects of context in different categories of object detection, including general object detection, video object detection, small object detection, camouflaged object detection, zero-shot, one-shot, and few-shot object detection. This literature review presents a comprehensive overview of the latest advancements in context-based object detection, providing valuable contributions such as a thorough understanding of contextual information and effective methods for integrating various context types into object detection, thus benefiting researchers.",
+          "claimed_authors": [
+            "Mahtab Jamali",
+            "Paul Davidsson",
+            "Reza Khoshkangini",
+            "Martin Georg Ljungqvist",
+            "Radu-Casian Mihailescu"
+          ],
+          "claimed_title": "Context in object detection: a systematic literature review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.23249"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Context in object detection: a systematic literature review')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Predicting the number of citations of scholarly documents is an upcoming task in scholarly document processing. Besides the intrinsic merit of this information, it also has a wider use as an imperfect proxy for quality which has the advantage of being cheaply available for large volumes of scholarly documents. Previous work has dealt with number of citations prediction with relatively small training data sets, or larger datasets but with short, incomplete input text. In this work we leverage the open access ACL Anthology collection in combination with the Semantic Scholar bibliometric database to create a large corpus of scholarly documents with associated citation information and we propose a new citation prediction model called SChuBERT. In our experiments we compare SChuBERT with several state-of-the-art citation prediction models and show that it outperforms previous methods by a large margin. We also show the merit of using more training data and longer input for number of citations prediction.",
+          "claimed_authors": [
+            "Thomas van Dongen",
+            "Gideon Maillette de Buy Wenniger",
+            "Lambert Schomaker"
+          ],
+          "claimed_title": "SChuBERT: Scholarly Document Chunks with BERT-encoding boost Citation Count Prediction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.11740"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='SChuBERT: Scholarly Document Chunks with BERT-encoding boost Citation Count Prediction')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce the problem of robust subgroup discovery, i.e., finding a set of interpretable descriptions of subsets that 1) stand out with respect to one or more target attributes, 2) are statistically robust, and 3) non-redundant. Many attempts have been made to mine either locally robust subgroups or to tackle the pattern explosion, but we are the first to address both challenges at the same time from a global modelling perspective. First, we formulate the broad model class of subgroup lists, i.e., ordered sets of subgroups, for univariate and multivariate targets that can consist of nominal or numeric variables, including traditional top-1 subgroup discovery in its definition. This novel model class allows us to formalise the problem of optimal robust subgroup discovery using the Minimum Description Length (MDL) principle, where we resort to optimal Normalised Maximum Likelihood and Bayesian encodings for nominal and numeric targets, respectively. Second, finding optimal subgroup lists is NP-hard. Therefore, we propose SSD++, a greedy heuristic that finds good subgroup lists and guarantees that the most significant subgroup found according to the MDL criterion is added in each iteration. In fact, the greedy gain is shown to be equivalent to a Bayesian one-sample proportion, multinomial, or t-test between the subgroup and dataset marginal target distributions plus a multiple hypothesis testing penalty. Furthermore, we empirically show on 54 datasets that SSD++ outperforms previous subgroup discovery methods in terms of quality, generalisation on unseen data, and subgroup list size.",
+          "claimed_authors": [
+            "Hugo Manuel Proença",
+            "Peter Grünwald",
+            "Thomas Bäck",
+            "Matthijs van Leeuwen"
+          ],
+          "claimed_title": "Robust subgroup discovery",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.13686"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Robust subgroup discovery')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The general pupose of the scholarly communication process is to support the creation and dissemination of ideas within the scientific community. At a finer granularity, there exists multiple stages which, when confronted by a member of the community, have different requirements and therefore different solutions. In order to take a researcher's idea from an initial inspiration to a community resource, the scholarly communication infrastructure may be required to 1) provide a scientist initial seed ideas; 2) form a team of well suited collaborators; 3) located the most appropriate venue to publish the formalized idea; 4) determine the most appropriate peers to review the manuscript; and 5) disseminate the end product to the most interested members of the community. Through the various delinieations of this process, the requirements of each stage are tied soley to the multi-functional resources of the community: its researchers, its journals, and its manuscritps. It is within the collection of these resources and their inherent relationships that the solutions to scholarly communication are to be found. This paper describes an associative network composed of multiple scholarly artifacts that can be used as a medium for supporting the scholarly communication process.",
+          "claimed_authors": [
+            "Marko A. Rodriguez"
+          ],
+          "claimed_title": "A Multi-Relational Network to Support the Scholarly Communication Process",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "cs/0601121"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='A Multi-Relational Network to Support the Scholarly Communication Process')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Peer-evaluation based measures of group research quality such as the UK's Research Assessment Exercise (RAE), which do not employ bibliometric analyses, cannot directly avail of such methods to normalize research impact across disciplines. This is seen as a conspicuous flaw of such exercises and calls have been made to find a remedy. Here a simple, systematic solution is proposed based upon a mathematical model for the relationship between research quality and group quantity. This model manifests both the Matthew effect and a phenomenon akin to the Ringelmann effect and reveals the existence of two critical masses for each academic discipline: a lower value, below which groups are vulnerable, and an upper value beyond which the dependency of quality on quantity reduces and plateaus appear when the critical masses are large. A possible normalization procedure is then to pitch these plateaus at similar levels. We examine the consequences of this procedure at RAE for a multitude of academic disciplines, corresponding to a range of critical masses.",
+          "claimed_authors": [
+            "Ralph Kenna",
+            "Bertrand Berche"
+          ],
+          "claimed_title": "Normalization of peer-evaluation measures of group research quality across academic disciplines",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1006.3863"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Normalization of peer-evaluation measures of group research quality across academic disciplines')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Normalised citation counts are routinely used to assess the average impact of research groups or nations. There is controversy over whether confidence intervals for them are theoretically valid or practically useful. In response, this article introduces the concept of a group's underlying research capability to produce impactful research. It then investigates whether confidence intervals could delimit the underlying capability of a group in practice. From 123120 confidence interval comparisons for the average citation impact of the national outputs of ten countries within 36 individual large monodisciplinary journals, moderately fewer than 95% of subsequent indicator values fall within 95% confidence intervals from prior years, with the percentage declining over time. This is consistent with confidence intervals effectively delimiting the research capability of a group, although it does not prove that this is the cause of the results. The results are unaffected by whether internationally collaborative articles are included.",
+          "claimed_authors": [
+            "Mike Thelwall"
+          ],
+          "claimed_title": "Confidence intervals for normalised citation counts: Can they delimit underlying research capability?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1710.08708"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Confidence intervals for normalised citation counts: Can they delimit underlying research capability?')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article compares (1) citation analysis with OpenAlex and Scopus, testing their citation counts, document type/coverage and subject classifications and (2) three citation-based indicators: raw counts, (field and year) Normalised Citation Scores (NCS) and Normalised Log-transformed Citation Scores (NLCS). Methods (1&2): The indicators calculated from 28.6 million articles were compared through 8,704 correlations on two gold standards for 97,816 UK Research Excellence Framework (REF) 2021 articles. The primary gold standard is ChatGPT scores, and the secondary is the average REF2021 expert review score for the department submitting the article. Results: (1) OpenAlex provides better citation counts than Scopus and its inclusive document classification/scope does not seem to cause substantial field normalisation problems. The broadest OpenAlex classification scheme provides the best indicators. (2) Counterintuitively, raw citation counts are at least as good as nearly all field normalised indicators, and better for single years, and NCS is better than NLCS. (1&2) There are substantial field differences. Thus, (1) OpenAlex is suitable for citation analysis in most fields and (2) the major citation-based indicators seem to work counterintuitively compared to quality judgements. Field normalisation seems ineffective because more cited fields tend to produce higher quality work, affecting interdisciplinary research or within-field topic differences.",
+          "claimed_authors": [
+            "Mike Thelwall",
+            "Xiaorui Jiang"
+          ],
+          "claimed_title": "Is OpenAlex Suitable for Research Quality Evaluation and Which Citation Indicator is Best?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.18427"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Is OpenAlex Suitable for Research Quality Evaluation and Which Citation Indicator is Best?')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Animatronic faces are a central component of socially interactive robots, enabling rich nonverbal communication through facial articulation. However, state-of-the-art animatronic faces are typically tailored systems: each new facial geometry requires extensive manual mechanical redesign, making large-scale personalization prohibitively slow and costly. In this work, we pursue automated and scalable mechanical face synthesis, aiming to rapidly generate a physically realizable facial mechanism for a wide range of facial geometries. We introduce a parametric, linkage-driven mechanical face template whose topology and actuator layout are explicitly parameterized to support systematic scaling and retargeting across diverse facial morphologies. Building on this template, we propose a hierarchical automatic design algorithm that takes a single 2D portrait as input, reconstructs a target 3D face, and synthesizes a collision-free, manufacturable internal mechanism. The algorithm combines anatomy-guided feasible motion volumes, Action Unit (AU)-derived trajectory-based expressiveness objectives, and a collision-driven outer-loop refinement strategy. Beyond hardware synthesis, we argue that future mechanical faces deployed at scale must engage in bidirectional, multi-turn conversation rather than functioning solely as speaking or listening heads. To this end, we develop a dual-identity conversational facial motion synthesis framework that jointly models speaking and listening behaviors from audio, producing temporally coherent 3D facial motion suitable for physical execution. We validate our system through extensive experiments, including (i) quantitative evaluation of automatic mechanism synthesis across diverse facial geometries, (ii) comparisons against manual mechanical design, (iii) benchmarks on conversational facial motion synthesis and real-time deployment, and (iv) perceptual user studies.",
+          "claimed_authors": [
+            "Zongzheng Zhang",
+            "Zi Lin",
+            "Jiawen Yang",
+            "Ziqiao Peng",
+            "Junyan Lao",
+            "Lin Cheng",
+            "Huazhe Xu",
+            "Hang Zhao",
+            "Hao Zhao"
+          ],
+          "claimed_title": "Automated Synthesis of Facial Mechanisms for Conversational Animatronic Robots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.11688"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Automated Synthesis of Facial Mechanisms for Conversational Animatronic Robots')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
+          "claimed_authors": [
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
+          ],
+          "claimed_title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.4609"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present HySemRAG, a framework that combines Extract, Transform, Load (ETL) pipelines with Retrieval-Augmented Generation (RAG) to automate large-scale literature synthesis and identify methodological research gaps. The system addresses limitations in existing RAG architectures through a multi-layered approach: hybrid retrieval combining semantic search, keyword filtering, and knowledge graph traversal; an agentic self-correction framework with iterative quality assurance; and post-hoc citation verification ensuring complete traceability. Our implementation processes scholarly literature through eight integrated stages: multi-source metadata acquisition, asynchronous PDF retrieval, custom document layout analysis using modified Docling architecture, bibliographic management, LLM-based field extraction, topic modeling, semantic unification, and knowledge graph construction. The system creates dual data products - a Neo4j knowledge graph enabling complex relationship queries and Qdrant vector collections supporting semantic search - serving as foundational infrastructure for verifiable information synthesis. Evaluation across 643 observations from 60 testing sessions demonstrates structured field extraction achieving 35.1% higher semantic similarity scores (0.655 $\\pm$ 0.178) compared to PDF chunking approaches (0.485 $\\pm$ 0.204, p < 0.000001). The agentic quality assurance mechanism achieves 68.3% single-pass success rates with 99.0% citation accuracy in validated responses. Applied to geospatial epidemiology literature on ozone exposure and cardiovascular disease, the system identifies methodological trends and research gaps, demonstrating broad applicability across scientific domains for accelerating evidence synthesis and discovery.",
+          "claimed_authors": [
+            "Alejandro Godinez"
+          ],
+          "claimed_title": "HySemRAG: A Hybrid Semantic Retrieval-Augmented Generation Framework for Automated Literature Synthesis and Methodological Gap Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.05666"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"ResearchStudio-Idea: An Evidence-Grounded Research', candidate_title='HySemRAG: A Hybrid Semantic Retrieval-Augmented Generation Framework for Automated Literature Synthesis and Methodological Gap Analysis')",
+        "failed_at": "2026-07-23T04:13:12Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Qihao Zhao",
+            "Yangyu Huang",
+            "Yalun Dai",
+            "Lingao Xiao",
+            "Jianjun Gao",
+            "Xin Zhang",
+            "Wenshan Wu",
+            "Scarlett Li",
+            "Yang He",
+            "Yan Lu",
+            "Yap Kim Hui"
+          ],
+          "title": "ResearchStudio-Idea: An Evidence-Grounded Research-Ideation Skill Suite from ML Conference Outcomes",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.04439",
+        "summary": "Large language models have made research ideation increasingly accessible, yet effective idea development requires more than generating candidate directions. Researchers must ground a problem in current literature, identify meaningful bottlenecks, differentiate from existing solutions, and evaluate risks before committing to implementation. We present ResearchStudio-Idea as a reusable skill suite for this first mile of research ideation. The suite includes Paper-Search, a standalone multi-source literature search skill; Scoop-Check, a standalone prior-art collision checker for novelty claims; and IdeaSpark, the end-to-end skill that composes evidence grounding, pattern-guided generation, collision retrieval, audit, and idea-card rendering into one workflow. IdeaSpark is constructed from a corpus of 1,947 machine learning conference papers collected from ICLR, ICML, and NeurIPS between 2021 and 2025, including Oral papers, a separately tracked high-citation subset, and rejected submissions. Analysis of these outcomes reveals 31 recurring ideation sub-patterns, consolidated into 15 reusable ideation patterns. Each pattern is operationalized as a structured card containing research contexts, bottleneck types, differentiation strategies, supporting precedents, and common failure modes. Given a research problem and an evidence bundle, IdeaSpark evaluates evidence readiness, reconstructs the surrounding research context, identifies unresolved bottlenecks, selects relevant patterns, instantiates one candidate direction, retrieves potentially conflicting prior work, and performs outcome-informed auditing. This workflow transforms reusable ideation patterns into traceable research proposals. Blind automated-judge evaluations show that IdeaSpark consistently produces stronger research proposals than no-skill and generic-skill baselines while maintaining competitive novelty.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.04439",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-23T04:13:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aniketh Garikaparthi",
+            "Manasi Patwardhan",
+            "Lovekesh Vig",
+            "Arman Cohan"
+          ],
+          "title": "IRIS: Interactive Research Ideation System for Accelerating Scientific Discovery",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.16728",
+        "summary": "The rapid advancement in capabilities of large language models (LLMs) raises a pivotal question: How can LLMs accelerate scientific discovery? This work tackles the crucial first stage of research, generating novel hypotheses. While recent work on automated hypothesis generation focuses on multi-agent frameworks and extending test-time compute, none of the approaches effectively incorporate transparency and steerability through a synergistic Human-in-the-loop (HITL) approach. To address this gap, we introduce IRIS: Interactive Research Ideation System, an open-source platform designed for researchers to leverage LLM-assisted scientific ideation. IRIS incorporates innovative features to enhance ideation, including adaptive test-time compute expansion via Monte Carlo Tree Search (MCTS), fine-grained feedback mechanism, and query-based literature synthesis. Designed to empower researchers with greater control and insight throughout the ideation process. We additionally conduct a user study with researchers across diverse disciplines, validating the effectiveness of our system in enhancing ideation. We open-source our code at https://github.com/Anikethh/IRIS-Interactive-Research-Ideation-System",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.16728",
+          "http_status": 200,
+          "pdf_sample_score": 0.2081,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-23T04:13:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Harshit Nigam",
+            "Manasi Patwardhan",
+            "Lovekesh Vig",
+            "Gautam Shroff"
+          ],
+          "title": "Acceleron: A Tool to Accelerate Research Ideation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.04382",
+        "summary": "Several tools have recently been proposed for assisting researchers during various stages of the research life-cycle. However, these primarily concentrate on tasks such as retrieving and recommending relevant literature, reviewing and critiquing the draft, and writing of research manuscripts. Our investigation reveals a significant gap in availability of tools specifically designed to assist researchers during the challenging ideation phase of the research life-cycle. To aid with research ideation, we propose `Acceleron', a research accelerator for different phases of the research life cycle, and which is specially designed to aid the ideation process. Acceleron guides researchers through the formulation of a comprehensive research proposal, encompassing a novel research problem. The proposals motivation is validated for novelty by identifying gaps in the existing literature and suggesting a plausible list of techniques to solve the proposed problem. We leverage the reasoning and domain-specific skills of Large Language Models (LLMs) to create an agent-based architecture incorporating colleague and mentor personas for LLMs. The LLM agents emulate the ideation process undertaken by researchers, engaging researchers in an interactive fashion to aid in the development of the research proposal. Notably, our tool addresses challenges inherent in LLMs, such as hallucinations, implements a two-stage aspect-based retrieval to manage precision-recall trade-offs, and tackles issues of unanswerability. As evaluation, we illustrate the execution of our motivation validation and method synthesis workflows on proposals from the ML and NLP domain, given by 3 distinct researchers. Our observations and evaluations provided by the researchers illustrate the efficacy of the tool in terms of assisting researchers with appropriate inputs at distinct stages and thus leading to improved time efficiency.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2403.04382",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-23T04:13:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sebastián Pizard",
+            "Diego Vallespir",
+            "Barbara Kitchenham"
+          ],
+          "title": "A longitudinal case study on the effects of an evidence-based software engineering training",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2202.03367",
+        "summary": "Context: Evidence-based software engineering (EBSE) can be an effective resource to bridge the gap between academia and industry by balancing research of practical relevance and academic rigor. To achieve this, it seems necessary to investigate EBSE training and its benefits for the practice. Objective: We sought both to develop an EBSE training course for university students and to investigate what effects it has on the attitudes and behaviors of the trainees. Method: We conducted a longitudinal case study to study our EBSE course and its effects. For this, we collect data at the end of each EBSE course (2017, 2018, and 2019), and in two follow-up surveys (one after 7 months of finishing the last course, and a second after 21 months). Results: Our EBSE courses seem to have taught students adequately and consistently. Half of the respondents to the surveys report making use of the new skills from the course. The most-reported effects in both surveys indicated that EBSE concepts increase awareness of the value of research and evidence and EBSE methods improve information gathering skills. Conclusions: As suggested by research in other areas, training appears to play a key role in the adoption of evidence-based practice. Our results indicate that our training method provides an introduction to EBSE suitable for undergraduates. However, we believe it is necessary to continue investigating EBSE training and its impact on software engineering practice.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2202.03367",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-23T04:13:19Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"researchstudio-idea: an evidence-grounded research-ideation skill suit\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

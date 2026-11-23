@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction"
+description: "Output of the policy model"
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample"
+  predicted_B:
+    type: "integer"
+    description: "Predicted optimal block size"
+  actual_B:
+    type: "integer"
+    description: "Ground truth B_star"
+  accuracy:
+    type: "boolean"
+    description: "True if predicted_B == actual_B"
+  model_type:
+    type: "string"
+    description: "Type of model used (XGBoost, Random Forest, Decision Tree)"
+  architecture:
+    type: "string"
+    description: "Model architecture used for evaluation (qwen3-4b, llama3-8b)"
+  domain:
+    type: "string"
+    description: "Domain of the sample (math, code, natural_language)"
+required:
+  - sample_id
+  - predicted_B
+  - actual_B
+  - accuracy
+  - model_type
+  - architecture
+  - domain
+additionalProperties: false
+examples:
+  - sample_id: "gsm8k-001"
+    predicted_B: 4
+    actual_B: 4
+    accuracy: true
+    model_type: "Random Forest"
+    architecture: "qwen3-4b"
+    domain: "math"

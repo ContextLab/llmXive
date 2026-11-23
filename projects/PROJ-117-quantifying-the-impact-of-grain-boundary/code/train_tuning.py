@@ -1,137 +1,155 @@
 """
-Train and tune XGBoost model for grain boundary diffusivity prediction.
+Train tuning script for XGBoost hyperparameter optimization.
 
 This script performs a 70/15/15 train/validation/test split, executes
-RandomizedSearchCV for hyperparameter tuning on the training set, and
-saves the best hyperparameters and compute metrics.
+RandomizedSearchCV for hyperparameter tuning on the training set,
+and saves the best hyperparameters and compute metrics.
 """
 import json
 import logging
 import os
 import sys
 import time
+import pickle
 from pathlib import Path
 from typing import Dict, Any, Tuple
 
 import numpy as np
 import pandas as pd
 import psutil
-from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from xgboost import XGBRegressor
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from scipy.stats import uniform, randint
 
-# Import from project utils
+# Import from project modules
 from utils import setup_logging, set_random_seed
 from preprocess import load_parsed_data
+from error_handling import DataInsufficiencyError, raise_data_insufficiency_error
 
-# Configure logging
+# Setup logging
 logger = setup_logging("train_tuning")
 
-# Paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-MODELS_DIR = PROJECT_ROOT / "models"
-ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
-REPORTS_DIR = ARTIFACTS_DIR / "reports"
-
-INPUT_FILE = PROCESSED_DIR / "cleaned_dataset.parquet"
-SPLIT_INDICES_FILE = PROCESSED_DIR / "split_indices.pkl"
-BEST_PARAMS_FILE = MODELS_DIR / "best_params.json"
-COMPUTE_METRICS_FILE = REPORTS_DIR / "compute_metrics.json"
+# Constants
+RANDOM_SEED = 42
+TRAIN_RATIO = 0.70
+VAL_RATIO = 0.15
+TEST_RATIO = 0.15
+CV_FOLDS = 5
+N_ITERATIONS = 50  # Number of parameter settings sampled in RandomizedSearchCV
+N_JOBS = 2  # Match CPU core constraint
 
 # Hyperparameter search space
 PARAM_DISTRIBUTION = {
-    'max_depth': [3, 4, 5, 6, 7, 8, 9, 10],
-    'learning_rate': [0.01, 0.05, 0.1, 0.2, 0.3],
-    'n_estimators': [50, 100, 150, 200, 250, 300]
+    'max_depth': randint(3, 10),
+    'learning_rate': uniform(0.01, 0.29),  # 0.01 to 0.30
+    'n_estimators': randint(50, 250),      # 50 to 300
+    'subsample': uniform(0.6, 0.4),        # 0.6 to 1.0
+    'colsample_bytree': uniform(0.6, 0.4), # 0.6 to 1.0
 }
 
-def load_and_prepare_data() -> Tuple[pd.DataFrame, pd.Series]:
-    """Load cleaned dataset and separate features from target."""
-    if not INPUT_FILE.exists():
-        raise FileNotFoundError(f"Input file not found: {INPUT_FILE}")
+def load_and_prepare_data() -> Tuple[pd.DataFrame, list]:
+    """
+    Load cleaned dataset and prepare features/target.
     
-    df = pd.read_parquet(INPUT_FILE)
+    Returns:
+        Tuple of (features DataFrame, target column name)
+    """
+    logger.info("Loading cleaned dataset...")
+    df = load_parsed_data("data/processed/cleaned_dataset.parquet")
     
-    # Identify target column (assuming 'diffusivity' based on spec)
+    if df is None or df.empty:
+        logger.error("Failed to load cleaned dataset. Ensure T011 has run successfully.")
+        raise DataInsufficiencyError("Cleaned dataset is empty or missing.")
+    
+    logger.info(f"Loaded dataset with {len(df)} records.")
+    
+    # Define target and features based on project data model
     target_col = 'diffusivity'
     if target_col not in df.columns:
-        # Fallback: find column with 'diffusivity' in name
-        matching_cols = [c for c in df.columns if 'diffusivity' in c.lower()]
-        if matching_cols:
-            target_col = matching_cols[0]
-            logger.warning(f"Target column '{target_col}' found via fuzzy match.")
-        else:
-            raise ValueError(f"Target column '{target_col}' not found in dataset. Available columns: {list(df.columns)}")
+        logger.error(f"Target column '{target_col}' not found in dataset.")
+        raise ValueError(f"Target column '{target_col}' missing from dataset.")
     
-    # Define features (exclude target and non-feature metadata if any)
-    # Assuming all numeric columns except target are features
-    feature_cols = [c for c in df.columns if c != target_col]
+    # Select feature columns (exclude target and non-feature metadata)
+    exclude_cols = [target_col, 'id', 'source', 'potential_id', 'simulation_method']
+    feature_cols = [col for col in df.columns if col not in exclude_cols]
     
-    X = df[feature_cols].dropna(axis=1)  # Drop columns with all NaN
-    y = df[target_col]
+    # Handle case where no features remain
+    if not feature_cols:
+        logger.error("No feature columns available after filtering.")
+        raise ValueError("No feature columns found in dataset.")
     
-    # Drop rows where target is NaN
-    mask = y.notna()
-    X = X[mask]
-    y = y[mask]
+    logger.info(f"Using {len(feature_cols)} features: {feature_cols[:5]}...")
     
-    logger.info(f"Loaded {len(y)} records with {X.shape[1]} features.")
-    return X, y
+    return df[feature_cols], target_col
 
 def split_data(X: pd.DataFrame, y: pd.Series) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
     """
-    Perform 70/15/15 train/validation/test split.
-    Saves split indices to disk for reproducibility in T012b.
+    Split data into train (70%), validation (15%), and test (15%) sets.
+    
+    Args:
+        X: Feature DataFrame
+        y: Target Series
+        
+    Returns:
+        Tuple of (X_train, X_val, X_test, y_train, y_val, y_test)
     """
-    # First split: 70% train, 30% temp (for val+test)
+    logger.info("Splitting data into train (70%), validation (15%), and test (15%) sets...")
+    
+    # First split: 70% train, 30% temp (val + test)
     X_train, X_temp, y_train, y_temp = train_test_split(
-        X, y, test_size=0.30, random_state=42
+        X, y, test_size=(VAL_RATIO + TEST_RATIO), random_state=RANDOM_SEED
     )
     
-    # Second split: 50% of temp for validation, 50% for test (15% each of total)
+    # Second split: 50% of temp for val, 50% for test (to get 15% each of total)
     X_val, X_test, y_val, y_test = train_test_split(
-        X_temp, y_temp, test_size=0.50, random_state=42
+        X_temp, y_temp, test_size=0.5, random_state=RANDOM_SEED
     )
     
-    # Save split indices for T012b
+    logger.info(f"Train size: {len(X_train)}, Val size: {len(X_val)}, Test size: {len(X_test)}")
+    
+    # Save split indices for reproducibility in T012b
     split_indices = {
         'train': X_train.index.tolist(),
         'val': X_val.index.tolist(),
         'test': X_test.index.tolist()
     }
-    SPLIT_INDICES_FILE.parent.mkdir(parents=True, exist_ok=True)
-    import pickle
-    with open(SPLIT_INDICES_FILE, 'wb') as f:
+    output_path = Path("data/processed/split_indices.pkl")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'wb') as f:
         pickle.dump(split_indices, f)
+    logger.info(f"Saved split indices to {output_path}")
     
-    logger.info(f"Split saved: Train={len(X_train)}, Val={len(X_val)}, Test={len(X_test)}")
     return X_train, X_val, X_test, y_train, y_val, y_test
 
-def tune_hyperparameters(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y_val: pd.Series) -> Dict[str, Any]:
+def tune_hyperparameters(X_train: pd.DataFrame, y_train: pd.Series) -> Dict[str, Any]:
     """
-    Execute RandomizedSearchCV for XGBoost hyperparameter tuning.
-    """
-    logger.info("Starting hyperparameter tuning...")
+    Perform RandomizedSearchCV for hyperparameter tuning.
     
-    # Initialize XGBoost regressor
+    Args:
+        X_train: Training features
+        y_train: Training target
+        
+    Returns:
+        Dictionary of best hyperparameters
+    """
+    logger.info("Starting hyperparameter tuning with RandomizedSearchCV...")
+    
     base_model = XGBRegressor(
         objective='reg:squarederror',
-        random_state=42,
-        n_jobs=-1,
+        random_state=RANDOM_SEED,
+        n_jobs=N_JOBS,
         verbosity=0
     )
     
-    # Perform RandomizedSearchCV
     search = RandomizedSearchCV(
         estimator=base_model,
         param_distributions=PARAM_DISTRIBUTION,
-        n_iter=20,
+        n_iter=N_ITERATIONS,
         scoring='r2',
-        cv=5,
-        random_state=42,
-        n_jobs=-1,
-        verbose=1
+        cv=CV_FOLDS,
+        verbose=1,
+        random_state=RANDOM_SEED,
+        n_jobs=N_JOBS
     )
     
     search.fit(X_train, y_train)
@@ -139,57 +157,83 @@ def tune_hyperparameters(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.Da
     best_params = search.best_params_
     best_score = search.best_score_
     
-    logger.info(f"Best R² on validation: {best_score:.4f}")
-    logger.info(f"Best hyperparameters: {best_params}")
+    logger.info(f"Best parameters: {best_params}")
+    logger.info(f"Best CV R² score: {best_score:.4f}")
     
-    # Save best parameters
-    MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(BEST_PARAMS_FILE, 'w') as f:
+    # Save best hyperparameters
+    output_path = Path("models/best_params.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(best_params, f, indent=2)
+    logger.info(f"Saved best hyperparameters to {output_path}")
     
     return best_params
 
-def measure_compute_metrics(start_time: float) -> Dict[str, Any]:
-    """Measure peak RAM usage and total runtime."""
+def measure_compute_metrics(start_time: float, best_params: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Measure and log peak RAM usage and total runtime.
+    
+    Args:
+        start_time: Start timestamp of the script
+        best_params: Best hyperparameters found
+        
+    Returns:
+        Dictionary of compute metrics
+    """
     end_time = time.time()
+    runtime_seconds = end_time - start_time
+    
+    # Get peak memory usage
     process = psutil.Process(os.getpid())
     peak_memory_mb = process.memory_info().rss / (1024 * 1024)
     
-    metrics = {
-        'runtime_seconds': round(end_time - start_time, 2),
-        'peak_memory_mb': round(peak_memory_mb, 2)
+    compute_metrics = {
+        "peak_memory_mb": round(peak_memory_mb, 2),
+        "runtime_seconds": round(runtime_seconds, 2),
+        "best_hyperparameters": best_params
     }
     
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(COMPUTE_METRICS_FILE, 'w') as f:
-        json.dump(metrics, f, indent=2)
+    # Save compute metrics
+    output_path = Path("artifacts/reports/compute_metrics.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(compute_metrics, f, indent=2)
+    logger.info(f"Saved compute metrics to {output_path}")
     
-    logger.info(f"Runtime: {metrics['runtime_seconds']}s, Peak RAM: {metrics['peak_memory_mb']}MB")
-    return metrics
+    return compute_metrics
 
 def main():
-    """Main entry point for training and tuning."""
-    logger.info("Starting train_tuning pipeline...")
+    """Main entry point for the training tuning script."""
+    logger.info("Starting hyperparameter tuning pipeline...")
     start_time = time.time()
     
     try:
-        # Load data
-        X, y = load_and_prepare_data()
+        # Set random seed for reproducibility
+        set_random_seed(RANDOM_SEED)
+        
+        # Load and prepare data
+        X, target_col = load_and_prepare_data()
+        y = X.pop(target_col)  # Remove target from features
         
         # Split data
         X_train, X_val, X_test, y_train, y_val, y_test = split_data(X, y)
         
         # Tune hyperparameters
-        best_params = tune_hyperparameters(X_train, y_train, X_val, y_val)
+        best_params = tune_hyperparameters(X_train, y_train)
         
-        # Measure and save compute metrics
-        compute_metrics = measure_compute_metrics(start_time)
+        # Measure compute metrics
+        compute_metrics = measure_compute_metrics(start_time, best_params)
         
-        logger.info("Train tuning completed successfully.")
+        logger.info("Hyperparameter tuning completed successfully.")
+        logger.info(f"Peak memory: {compute_metrics['peak_memory_mb']:.2f} MB")
+        logger.info(f"Runtime: {compute_metrics['runtime_seconds']:.2f} seconds")
         
+    except DataInsufficiencyError as e:
+        logger.error(f"Data insufficiency error: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Error during train tuning: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Unexpected error during tuning: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

@@ -29,7 +29,7 @@ A researcher performs differential expression analysis within each tumor type, i
 
 **Why this priority**: This implements the core research question of finding generalizable biomarkers. Without cross-cancer integration, the project cannot answer whether signatures generalize.
 
-**Independent Test**: Can be fully tested by running the DE analysis on 3 tumor types, computing the intersection of significant genes, and verifying that the meta-analysis produces a ranked gene panel with Stouffer's method p-values.
+**Independent Test**: Can be fully tested by running the DE analysis on multiple tumor types, computing the intersection of significant genes, and verifying that the meta-analysis produces a ranked gene panel with Stouffer's method p-values.
 
 **Acceptance Scenarios**:
 
@@ -49,9 +49,9 @@ A researcher builds elastic-net logistic regression models using the identified 
 
 **Acceptance Scenarios**:
 
-1. **Given** the meta-analyzed gene panel and training data (training set), **When** elastic-net logistic regression executes with 5-fold nested CV, **Then** optimal alpha and lambda parameters are selected and AUC is computed.
+1. **Given** the meta-analyzed gene panel and training data (training set), **When** elastic-net logistic regression executes with k-fold nested CV, **Then** optimal alpha and lambda parameters are selected and AUC is computed.
 2. **Given** a trained model, **When** external validation runs on ≥2 independent GEO datasets (after cross-platform normalization), **Then** the system MUST compute and report AUC for each cohort.
-3. **Given** model predictions and clinical response labels, **When** calibration curves are generated, **Then** for all deciles with a sample size ≥20, predicted probabilities MUST align with observed response rates within ±10% (95% CI of calibration error); for deciles with <20 samples, the system MUST report the CI and flag the result as 'underpowered'.
+3. **Given** model predictions and clinical response labels, **When** calibration curves are generated, **Then** for all deciles with a sample size ≥20, predicted probabilities MUST align with observed response rates within ±10% (% CI of calibration error); for deciles with <20 samples, the system MUST report the CI and flag the result as 'underpowered'.
 
 ---
 
@@ -113,4 +113,4 @@ A researcher builds elastic-net logistic regression models using the identified 
 - Sample size per tumor type is ≥50 responders and ≥50 non-responders to achieve adequate statistical power for differential expression; if power is insufficient, the analysis reports this limitation explicitly.
 - Sensitivity analysis will sweep FDR thresholds across a range of conventional significance levels. for the initial screening (FR-005) and panel size, but the final model significance will use the fixed Bonferroni-adjusted threshold (FR-010) for the specific hypothesis tested.
 - Gene expression predictors are not definitionally related (no collinearity by construction); if collinearity diagnostics (VIF > 5) identify related predictors, joint relationships are framed descriptively rather than as independent effects.
-- If only 3 tumor types are available, LOO is valid (leaving 2 for training); If the dataset drops to a minimal number of total types, LOO is invalid and the system MUST halt. (FR-008).
+- If only a limited number of tumor types are available, LOO is valid (leaving the remainder for training); If the dataset drops to a minimal number of total types, LOO is invalid and the system MUST halt. (FR-008).

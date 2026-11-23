@@ -1,0 +1,16 @@
+1c9c109452bc499e4518b9491dc7c747  ./annotation_hashes.txt
+9bf619b6757870dc7939fed4acf0532d  ./GCF_900095815.1_SIV6_assembly_report.txt
+887d677e9d7dc0682fcc351dea0ea178  ./GCF_900095815.1_SIV6_assembly_stats.txt
+fa0b37abe07de08ff11b4972559f8b13  ./GCF_900095815.1_SIV6_cds_from_genomic.fna.gz
+6524106e31c20b201db4f8a5de737b30  ./GCF_900095815.1_SIV6_fcs_report.txt
+87ddf14d3d5c2199774bd47257aa75cb  ./GCF_900095815.1_SIV6_feature_count.txt
+7c0873f161ca7ae9fbe38238292dbc21  ./GCF_900095815.1_SIV6_feature_table.txt.gz
+580ed57d3e0c68a60e42988198d9ea15  ./GCF_900095815.1_SIV6_gene_ontology.gaf.gz
+c8be7bc934c0d4e9c810bbea8efc4d9e  ./GCF_900095815.1_SIV6_genomic.fna.gz
+19b7c48177e9114103e6e761f7e571ba  ./GCF_900095815.1_SIV6_genomic.gbff.gz
+03c90eee71346de130b5d9dc038daeb2  ./GCF_900095815.1_SIV6_genomic.gff.gz
+493de1bf34c10fd4cfd5796d02cd2e29  ./GCF_900095815.1_SIV6_genomic.gtf.gz
+8f028801b5a677bb1cd255faa056a7a9  ./GCF_900095815.1_SIV6_protein.faa.gz
+ba97af67925af3953c07e174f22e0e84  ./GCF_900095815.1_SIV6_protein.gpff.gz
+3368b95ab936ae9e3fb09c4746c12206  ./GCF_900095815.1_SIV6_rna_from_genomic.fna.gz
+ae4488b50a09076da1ee76b7af423436  ./GCF_900095815.1_SIV6_translated_cds.faa.gz

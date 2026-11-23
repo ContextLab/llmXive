@@ -1,0 +1,14 @@
+torch-cpu
+transformers
+opencv-python
+scikit-learn
+scipy
+datasets
+lpips
+pandas
+pyyaml
+jsonschema
+psutil
+ruff
+black
+pytest

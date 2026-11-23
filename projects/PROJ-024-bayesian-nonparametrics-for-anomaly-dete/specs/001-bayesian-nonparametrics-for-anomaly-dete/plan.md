@@ -196,7 +196,7 @@ projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/
 
 ## Compute Feasibility
 
-- **Hardware**: GitHub Actions free tier (2 CPU, 7 GB RAM).
+- **Hardware**: GitHub Actions free tier (multiple CPU cores, sufficient RAM).
 - **Strategy**:
  - **No GPU**: All models run on CPU.
  - **Memory**: Data subset to fit <7 GB; use `chunked` processing if necessary.

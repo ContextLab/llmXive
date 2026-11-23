@@ -1,40 +1,59 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: EvaluationResult
-description: Schema for model evaluation results.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput"
+description: "Schema for model evaluation results and predictions."
+type: "object"
 properties:
   model_name:
-    type: string
-    description: "Name of the model (e.g., attention, fingerprint_baseline)."
-  rmse:
-    type: number
-    description: "Root Mean Squared Error."
-  mae:
-    type: number
-    description: "Mean Absolute Error."
-  r2:
-    type: number
-    description: "Coefficient of determination."
-  p_value:
-    type: number
-    description: "P-value from paired t-test vs best baseline."
-  attention_map:
-    type: array
+    type: "string"
+    description: "Name of the model (e.g., 'attention', 'fingerprint_only')."
+  metrics:
+    type: "object"
+    properties:
+      rmse:
+        type: "number"
+        description: "Root Mean Square Error."
+      mae:
+        type: "number"
+        description: "Mean Absolute Error."
+      r_squared:
+        type: "number"
+        description: "R-squared coefficient."
+    required:
+      - rmse
+      - mae
+      - r_squared
+  statistical_test:
+    type: "object"
+    properties:
+      p_value:
+        type: "number"
+        description: "P-value from paired t-test."
+      wilcoxon_p_value:
+        type: "number"
+        description: "P-value from Wilcoxon signed-rank test."
+      significant:
+        type: "boolean"
+        description: "Whether the result is statistically significant (after correction)."
+    required:
+      - p_value
+      - significant
+  attention_peaks:
+    type: "array"
     items:
-      type: number
-    description: "Averaged attention weights over the spectral axis."
-  permutation_r2:
-    type: number
-    nullable: true
-    description: "R² from the permutation test (null if not run)."
-  noise_robustness_score:
-    type: number
-    nullable: true
-    description: "Score from the noise robustness test (null if not run)."
+      type: "object"
+      properties:
+        wavenumber:
+          type: "number"
+          description: "Wavenumber or ppm of the peak."
+        weight:
+          type: "number"
+          description: "Attention weight at this peak."
+      required:
+        - wavenumber
+        - weight
+    description: "Top attention peaks identified."
 required:
   - model_name
-  - rmse
-  - mae
-  - r2
-  - p_value
-  - attention_map
+  - metrics
+  - statistical_test
+additionalProperties: false

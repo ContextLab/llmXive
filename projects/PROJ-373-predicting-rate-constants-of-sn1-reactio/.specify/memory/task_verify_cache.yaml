@@ -1,7 +1,24 @@
-T034:
+T028:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., a report, script output, or updated `quickstart.md` showing
-    that the steps run successfully) was provided; the implementer gave no evidence
-    that the quickstart guide was executed and validated. The required validation
-    is therefore missing.
+  h: b96c484cb05faa0ac2b698170e56c925771c3252df4d9dbbeabe0837e854ce7f
+  r: "The required input file `data/processed/cleaned_sn1.csv` is missing, and no\
+    \ `artifacts/collinearity_report.json` was generated. Moreover, the provided `collinearity.py`\
+    \ raises a `FileNotFoundError` instead of logging a blocked status JSON as specified,\
+    \ and the code is truncated before showing the VIF calculation and JSON report\
+    \ generation. The task\u2019s guard\u2011clause behavior and final report format\
+    \ are therefore not satisfied."
+T040:
+  c: false
+  h: fdadd2c98004a4a4df3c24825fed543047c62c94e77ab112eb9dd9850bcf7508
+  r: "The required `data/processed/cleaned_sn1.csv` does not exist, so the dynamic\
+    \ budgeting step cannot be performed, and no end\u2011to\u2011end run of `main.py`\
+    \ is shown. There is no `artifacts/feasibility_test_log.json`, no subprocess\u2011\
+    based timeout implementation, and no evidence that the pipeline was executed or\
+    \ that SC\u2011002 was verified. The task therefore remains unfinished."
+T602:
+  c: false
+  h: 6e4ab6485d2da7f6a462583809bcb3a62e1600494fd04250f12d6ae5f77001bf
+  r: The required deliverable `tests/integration/test_timeout_mechanism.py` is absent
+    from the repository (the file is listed as missing). Without this test file, the
+    integration test for the `--max-configs` timeout mechanism has not been provided,
+    so the task is not satisfied.

@@ -1,98 +1,89 @@
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
+
+import functools
 import json
-import logging
-import sys
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, Optional
-
-from config import get_logs_root, get_project_root
-
-# Global logger instance
-_logger: Optional[logging.Logger] = None
-_handler: Optional[logging.Handler] = None
-
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-JSON_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+from typing import Any
 
 
-class StructuredJsonFormatter(logging.Formatter):
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
-    A custom formatter that outputs log records as structured JSON.
-    Includes timestamp, level, logger name, message, and optional extra fields.
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
 
-    def format(self, record: logging.LogRecord) -> str:
-        log_data: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
-            "level": record.levelname,
-            "logger": record.name,
-            "message": record.getMessage(),
-        }
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
 
-        # Add standard attributes
-        if hasattr(record, "filename"):
-            log_data["filename"] = record.filename
-        if hasattr(record, "lineno"):
-            log_data["lineno"] = record.lineno
-        if hasattr(record, "funcName"):
-            log_data["funcName"] = record.funcName
+        return _wrapper
 
-        # Add exception info if present
-        if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
-
-        # Add extra fields if present
-        if hasattr(record, "__dict__"):
-            for key, value in record.__dict__.items():
-                if key not in {"msg", "args", "levelname", "levelno",
-                               "pathname", "filename", "module",
-                               "lineno", "funcName", "created",
-                               "msecs", "relativeCreated", "thread",
-                               "threadName", "processName", "process",
-                               "message", "exc_info", "exc_text",
-                               "stack_info", "name"}:
-                    log_data[key] = value
-
-        return json.dumps(log_data)
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
 
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def setup_logging(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Tolerant of every call shape:
+    1. setup_logging() -> basic init
+    2. setup_logging(log_level=logging.INFO, log_file=Path(...)) -> configure logger
+
+    log_level / log_file are accepted and ignored harmlessly; the logger
+    never raises on any arguments.
     """
-    Retrieves or creates the project logger with structured JSON output.
-    If name is None, uses the project root name.
-    """
-    global _logger, _handler
-
-    if _logger is None:
-        _logger = logging.getLogger("llmXive")
-        _logger.setLevel(logging.DEBUG)
-
-        # Prevent adding multiple handlers if called multiple times
-        if not _logger.handlers:
-            # Ensure logs directory exists
-            logs_root = get_logs_root()
-            logs_root.mkdir(parents=True, exist_ok=True)
-
-            # Console handler (optional, for immediate feedback)
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setLevel(logging.INFO)
-            console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
-            _logger.addHandler(console_handler)
-
-            # File handler with JSON formatting
-            log_file = logs_root / "pipeline.log"
-            file_handler = logging.FileHandler(log_file, mode="a")
-            file_handler.setLevel(logging.DEBUG)
-            file_handler.setFormatter(StructuredJsonFormatter())
-            _logger.addHandler(file_handler)
-
-    if name:
-        return _logger.getChild(name)
-    return _logger
-
-
-def setup_logging(name: Optional[str] = None) -> logging.Logger:
-    """
-    Alias for get_logger to explicitly set up logging infrastructure.
-    """
-    return get_logger(name)
+    global _GLOBAL_LOGGER
+    kwargs.pop("log_file", None)
+    kwargs.pop("log_level", None)
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER

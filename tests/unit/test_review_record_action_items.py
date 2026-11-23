@@ -88,7 +88,7 @@ def test_derived_score_repairs_model_verdict_score_mismatch() -> None:
     from llmxive.types import canonical_llm_review_score
 
     front = _base_kwargs(verdict="accept", score=1.0)  # as the weak model wrote it
-    with pytest.raises(ValidationError, match="accept must score 0.5"):
+    with pytest.raises(ValidationError, match=r"accept must score 0\.5"):
         ReviewRecord(**front)
     front["score"] = canonical_llm_review_score(front["verdict"])
     rec = ReviewRecord(**front)

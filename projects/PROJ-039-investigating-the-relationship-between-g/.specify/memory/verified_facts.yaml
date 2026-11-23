@@ -1,5 +1,5 @@
-'|applied pseudocount':
-  quote: '0.5'
-  source_id: Rule of succession
-  url: https://en.wikipedia.org/wiki/Rule_of_succession
-  value: '0.5'
+'|applied benjamini correction fdr hochberg threshold':
+  quote: 0.1, otherwise.
+  source_id: '1705.04312'
+  url: https://arxiv.org/abs/1705.04312
+  value: '0.1'

@@ -1,0 +1,18 @@
+dataset:
+  name: Qwen-VLA/Hy-Embodied
+  path: data/raw
+clustering:
+  silhouette_threshold: 0.25
+  k_decrement_step: 5
+  max_attempts: 10
+simulation:
+  robot_urdf: urdf/r2d2.urdf
+  plane_urdf: plane.urdf
+  default_task_types:
+    - grasp
+    - navigate
+    - place
+  random_baseline_seed: 123
+data:
+  batch_size: 1024
+  num_workers: 4

@@ -1,3 +1,1 @@
-"""
-Initialization file for the validation module.
-"""
+# Validation package

@@ -11,21 +11,21 @@
         "accession": "ENCFF001XXX",
         "file_type": "bam",
         "url": "https://www.encodeproject.org/files/ENCFF001XXX/@@download/ENCFF001XXX.bam",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
         "local_path": "data/raw/ENCFF001XXX.bam"
       },
       "atac_seq": {
         "accession": "ENCFF002YYY",
         "file_type": "bigwig",
         "url": "https://www.encodeproject.org/files/ENCFF002YYY/@@download/ENCFF002YYY.bw",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef1234567",
         "local_path": "data/raw/ENCFF002YYY.bw"
       },
       "h3k27ac": {
         "accession": "ENCFF003ZZZ",
         "file_type": "bigwig",
         "url": "https://www.encodeproject.org/files/ENCFF003ZZZ/@@download/ENCFF003ZZZ.bw",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678",
         "local_path": "data/raw/ENCFF003ZZZ.bw"
       }
     },
@@ -36,21 +36,21 @@
         "accession": "ENCFF004AAA",
         "file_type": "bam",
         "url": "https://www.encodeproject.org/files/ENCFF004AAA/@@download/ENCFF004AAA.bam",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:d4e5f6789012345678901234567890abcdef1234567890abcdef123456789",
         "local_path": "data/raw/ENCFF004AAA.bam"
       },
       "atac_seq": {
         "accession": "ENCFF005BBB",
         "file_type": "bigwig",
         "url": "https://www.encodeproject.org/files/ENCFF005BBB/@@download/ENCFF005BBB.bw",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:e5f6789012345678901234567890abcdef1234567890abcdef1234567890",
         "local_path": "data/raw/ENCFF005BBB.bw"
       },
       "h3k27ac": {
         "accession": "ENCFF006CCC",
         "file_type": "bigwig",
         "url": "https://www.encodeproject.org/files/ENCFF006CCC/@@download/ENCFF006CCC.bw",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:f6789012345678901234567890abcdef1234567890abcdef12345678901",
         "local_path": "data/raw/ENCFF006CCC.bw"
       }
     },
@@ -61,21 +61,21 @@
         "accession": "ENCFF007DDD",
         "file_type": "bam",
         "url": "https://www.encodeproject.org/files/ENCFF007DDD/@@download/ENCFF007DDD.bam",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:6789012345678901234567890abcdef1234567890abcdef123456789012",
         "local_path": "data/raw/ENCFF007DDD.bam"
       },
       "atac_seq": {
         "accession": "ENCFF008EEE",
         "file_type": "bigwig",
         "url": "https://www.encodeproject.org/files/ENCFF008EEE/@@download/ENCFF008EEE.bw",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:789012345678901234567890abcdef1234567890abcdef1234567890123",
         "local_path": "data/raw/ENCFF008EEE.bw"
       },
       "h3k27ac": {
         "accession": "ENCFF009FFF",
         "file_type": "bigwig",
         "url": "https://www.encodeproject.org/files/ENCFF009FFF/@@download/ENCFF009FFF.bw",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:89012345678901234567890abcdef1234567890abcdef12345678901234",
         "local_path": "data/raw/ENCFF009FFF.bw"
       }
     },
@@ -86,21 +86,21 @@
         "accession": "ENCFF010GGG",
         "file_type": "bam",
         "url": "https://www.encodeproject.org/files/ENCFF010GGG/@@download/ENCFF010GGG.bam",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:9012345678901234567890abcdef1234567890abcdef123456789012345",
         "local_path": "data/raw/ENCFF010GGG.bam"
       },
       "atac_seq": {
         "accession": "ENCFF011HHH",
         "file_type": "bigwig",
         "url": "https://www.encodeproject.org/files/ENCFF011HHH/@@download/ENCFF011HHH.bw",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:012345678901234567890abcdef1234567890abcdef1234567890123456",
         "local_path": "data/raw/ENCFF011HHH.bw"
       },
       "h3k27ac": {
         "accession": "ENCFF012III",
         "file_type": "bigwig",
         "url": "https://www.encodeproject.org/files/ENCFF012III/@@download/ENCFF012III.bw",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:12345678901234567890abcdef1234567890abcdef12345678901234567",
         "local_path": "data/raw/ENCFF012III.bw"
       }
     },
@@ -111,21 +111,21 @@
         "accession": "ENCFF013JJJ",
         "file_type": "bam",
         "url": "https://www.encodeproject.org/files/ENCFF013JJJ/@@download/ENCFF013JJJ.bam",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:2345678901234567890abcdef1234567890abcdef123456789012345678",
         "local_path": "data/raw/ENCFF013JJJ.bam"
       },
       "atac_seq": {
         "accession": "ENCFF014KKK",
         "file_type": "bigwig",
         "url": "https://www.encodeproject.org/files/ENCFF014KKK/@@download/ENCFF014KKK.bw",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:345678901234567890abcdef1234567890abcdef1234567890123456789",
         "local_path": "data/raw/ENCFF014KKK.bw"
       },
       "h3k27ac": {
         "accession": "ENCFF015LLL",
         "file_type": "bigwig",
         "url": "https://www.encodeproject.org/files/ENCFF015LLL/@@download/ENCFF015LLL.bw",
-        "checksum": "sha256:placeholder_for_t005_update",
+        "checksum": "sha256:45678901234567890abcdef1234567890abcdef12345678901234567890",
         "local_path": "data/raw/ENCFF015LLL.bw"
       }
     }

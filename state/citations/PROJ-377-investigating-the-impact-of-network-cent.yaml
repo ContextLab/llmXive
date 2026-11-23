@@ -86,3 +86,36 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/67805f089a9941c1844af93e/ea677010088659071a940118bdf4029df2097753a859b8924b8c50923173c282?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1783533091&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjc4MDVmMDg5YTk5NDFjMTg0NGFmOTNlL2VhNjc3MDEwMDg4NjU5MDcxYTk0MDExOGJkZjQwMjlkZjIwOTc3NTNhODU5Yjg5MjRiOGM1MDkyMzE3M2MyODJcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM1MzMwOTF9fX1dfQ__&Signature=MEUCIGf2ckO2ZhU5rFSKIZYQZYC-BQ7YTj0Wst6KCe6DsXByAiEA3qZc5d7M6MqG2NHMrB2wXOoB0PNoDl1wSzufk7-X-Ug_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-08T16:51:27.475102Z'
+- artifact_hash: b1880a41c094a1c5e9e14e72d32ae4cc1c9b9b4b4894cb4fcd5ab3e52684256d
+  artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/docs/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Installation &mdash; fmriprep version documentation
+  kind: url
+  value: https://fmriprep.org/en/stable/installation.html
+  verification_status: pending
+  verified_against_url: https://fmriprep.org/en/stable/installation.html
+  verified_at: '2026-09-21T10:32:28.176703Z'
+- artifact_hash: 39b82a7856414fcc1ba0f91941c26321bb3338834a76c14ea73b9540ac1d6bc0
+  artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/docs/CHANGELOG.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Keep a Changelog
+  fetched_title: Keep a Changelog
+  kind: url
+  value: https://keepachangelog.com/en/1.0.0/
+  verification_status: verified
+  verified_against_url: https://keepachangelog.com/en/1.0.0/
+  verified_at: '2026-09-21T10:49:59.805049Z'
+- artifact_hash: 39b82a7856414fcc1ba0f91941c26321bb3338834a76c14ea73b9540ac1d6bc0
+  artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/docs/CHANGELOG.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Semantic Versioning
+  fetched_title: Semantic Versioning 2.0.0 | Semantic Versioning
+  kind: url
+  value: https://semver.org/spec/v2.0.0.html
+  verification_status: verified
+  verified_against_url: https://semver.org/spec/v2.0.0.html
+  verified_at: '2026-09-21T10:49:59.805049Z'

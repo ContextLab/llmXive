@@ -1,5 +1,4 @@
-"""
-Visualization and plotting module.
-"""
-# Imports for plots and robustness visualizations will be added as tasks are implemented
-# Currently placeholders for package structure
+"""Visualization sub-package (scatter, coefficient, map, and distribution plots)."""
+from .plots import main as plots_main
+
+__all__ = ["plots_main"]

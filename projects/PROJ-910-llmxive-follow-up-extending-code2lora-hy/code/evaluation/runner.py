@@ -1,8 +1,9 @@
 """
-Evaluation runner for RepoPeftBench tasks.
+Evaluation runner for RepoPeftBench using AST-based adapters.
 
-Loads the AST-based adapter, runs inference on benchmark tasks,
-computes exact-match scores, and measures inference latency.
+This module implements FR-004 by computing both exact-match scores and inference latency.
+It loads the AST-based adapter, runs inference on the RepoPeftBench dataset, and outputs
+results to data/results/ast_scores.csv.
 """
 import os
 import csv
@@ -13,307 +14,256 @@ from typing import List, Dict, Any, Optional, Tuple
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
-
+import datasets
 from utils.config import load_config, Config
-from evaluation.baseline_loader import load_baseline_adapter, get_baseline_adapter_path
-from evaluation.latency_monitor import (
-    measure_inference_latency,
-    save_latency_results,
-    collect_latency_stats
-)
+from utils.logging import get_logger
+from utils.memory_monitor import run_step_with_memory_logging
 
+logger = get_logger(__name__)
 
-def load_repopeftbench_data(dataset_path: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_repopeftbench_data(config: Config, sample_size: Optional[int] = None) -> datasets.Dataset:
     """
-    Load RepoPeftBench dataset.
+    Load the RepoPeftBench Python subset from HuggingFace.
     
     Args:
-        dataset_path: Optional path to the dataset. If None, uses the 
-                    path from config.
-                    
-    Returns:
-        List of task dictionaries with 'task_id', 'prompt', 'expected_output'
-    """
-    config = load_config()
-    if dataset_path is None:
-        dataset_path = config.data_paths.repopeftbench_python
-    
-    data_path = Path(dataset_path)
-    if not data_path.exists():
-        raise FileNotFoundError(f"RepoPeftBench data not found at {data_path}")
-    
-    # Load JSONL or JSON format
-    tasks = []
-    if data_path.suffix == '.jsonl':
-        with open(data_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                tasks.append(json.loads(line))
-    elif data_path.suffix == '.json':
-        with open(data_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            # Handle both list format and dict with 'tasks' key
-            if isinstance(data, list):
-                tasks = data
-            elif isinstance(data, dict) and 'tasks' in data:
-                tasks = data['tasks']
-            else:
-                tasks = [data]
-    else:
-        raise ValueError(f"Unsupported file format: {data_path.suffix}")
-    
-    return tasks
-
-
-def load_ast_adapter(
-    adapter_path: Optional[str] = None,
-    base_model_name: Optional[str] = None
-) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
-    """
-    Load the AST-based adapter on top of the base model.
-    
-    Args:
-        adapter_path: Path to the adapter weights (.safetensors)
-        base_model_name: Name of the base model (from config if None)
+        config: Configuration object containing dataset paths
+        sample_size: Optional number of samples to load (for testing)
         
     Returns:
-        Tuple of (model, tokenizer)
+        HuggingFace Dataset object
     """
-    config = load_config()
+    logger.info("Loading RepoPeftBench dataset...")
+    try:
+        # Use streaming to handle large datasets
+        dataset = datasets.load_dataset(
+            config.repo_peft_bench_path, 
+            "python",
+            split="test",
+            streaming=True
+        )
+        
+        if sample_size:
+            dataset = dataset.take(sample_size)
+        
+        # Convert streaming dataset to list for processing
+        data_list = list(dataset)
+        logger.info(f"Loaded {len(data_list)} samples from RepoPeftBench")
+        return datasets.Dataset.from_list(data_list)
+    except Exception as e:
+        logger.error(f"Failed to load RepoPeftBench dataset: {e}")
+        raise
+
+def load_ast_adapter(config: Config) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+    """
+    Load the base model and attach the AST-based adapter.
     
-    if base_model_name is None:
-        base_model_name = config.model_paths.base_model
-    if adapter_path is None:
-        # Default to the generated adapter
-        adapter_path = str(Path(config.data_paths.adapters) / "ast_adapter.safetensors")
-    
-    # Load base model
-    tokenizer = AutoTokenizer.from_pretrained(base_model_name)
-    model = AutoModelForCausalLM.from_pretrained(
-        base_model_name,
+    Args:
+        config: Configuration object containing model paths
+        
+    Returns:
+        Tuple of (PeftModel, AutoTokenizer)
+    """
+    logger.info(f"Loading base model from {config.base_model_path}...")
+    tokenizer = AutoTokenizer.from_pretrained(config.base_model_path)
+    base_model = AutoModelForCausalLM.from_pretrained(
+        config.base_model_path,
         torch_dtype=torch.float32,
         device_map="auto" if torch.cuda.is_available() else "cpu"
     )
     
-    # Load adapter
-    model = PeftModel.from_pretrained(model, adapter_path)
+    adapter_path = config.ast_adapter_path
+    if not os.path.exists(adapter_path):
+        raise FileNotFoundError(f"AST adapter not found at {adapter_path}")
     
+    logger.info(f"Loading AST adapter from {adapter_path}...")
+    model = PeftModel.from_pretrained(base_model, adapter_path)
+    model = model.merge_and_unload()
+    
+    logger.info("AST adapter loaded successfully")
     return model, tokenizer
 
-
-def run_inference(
-    model: AutoModelForCausalLM,
-    tokenizer: AutoTokenizer,
-    prompt: str,
-    max_new_tokens: int = 128
-) -> str:
+def compute_exact_match(prediction: str, reference: str) -> bool:
     """
-    Run inference on a single prompt.
+    Compute exact match between prediction and reference.
     
     Args:
-        model: The loaded model with adapter
-        tokenizer: The tokenizer
-        prompt: Input prompt
-        max_new_tokens: Maximum tokens to generate
-        
-    Returns:
-        Generated text
-    """
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            do_sample=False,
-            pad_token_id=tokenizer.eos_token_id
-        )
-    
-    # Decode and extract generated text
-    generated = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
-    return generated.strip()
-
-
-def compute_exact_match(generated: str, expected: str) -> bool:
-    """
-    Compute exact match between generated and expected output.
-    
-    Args:
-        generated: Model's generated output
-        expected: Expected ground truth output
+        prediction: Model prediction string
+        reference: Reference string
         
     Returns:
         True if exact match, False otherwise
     """
-    # Normalize whitespace for comparison
-    gen_normalized = ' '.join(generated.split())
-    exp_normalized = ' '.join(expected.split())
-    return gen_normalized == exp_normalized
+    return prediction.strip() == reference.strip()
 
-
-def run_evaluation(
-    adapter_path: Optional[str] = None,
-    dataset_path: Optional[str] = None,
-    output_scores_path: Optional[str] = None,
-    output_latency_path: Optional[str] = None,
-    max_new_tokens: int = 128,
-    measure_latency: bool = True
-) -> Dict[str, Any]:
+def run_inference(
+    model: AutoModelForCausalLM,
+    tokenizer: AutoTokenizer,
+    task: Dict[str, Any],
+    max_length: int = 512
+) -> Tuple[str, float]:
     """
-    Run full evaluation on RepoPeftBench tasks.
+    Run inference on a single task and measure latency.
     
     Args:
-        adapter_path: Path to the AST adapter
-        dataset_path: Path to RepoPeftBench data
-        output_scores_path: Path to save scores CSV
-        output_latency_path: Path to save latency CSV
-        max_new_tokens: Max tokens for generation
-        measure_latency: Whether to measure inference latency
+        model: Loaded model
+        tokenizer: Loaded tokenizer
+        task: Task dictionary with 'input' and 'output' keys
+        max_length: Maximum generation length
         
     Returns:
-        Dict with evaluation results and statistics
+        Tuple of (prediction, latency_ms)
     """
-    config = load_config()
+    input_text = task['input']
+    inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
     
-    # Load data
-    tasks = load_repopeftbench_data(dataset_path)
+    start_time = time.perf_counter()
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=128,
+            temperature=0.0,  # Greedy decoding for exact match
+            do_sample=False
+        )
+    end_time = time.perf_counter()
     
-    # Load model and tokenizer
-    model, tokenizer = load_ast_adapter(adapter_path)
+    latency_ms = (end_time - start_time) * 1000
+    prediction = tokenizer.decode(outputs[0], skip_special_tokens=True)
     
-    # Prepare results
-    scores = []
-    latency_results = []
+    # Extract only the generated part (after input)
+    input_len = len(inputs['input_ids'][0])
+    prediction = tokenizer.decode(outputs[0][input_len:], skip_special_tokens=True)
     
-    for task in tasks:
-        task_id = task.get('task_id', f"task_{len(scores)}")
-        prompt = task.get('prompt', '')
-        expected = task.get('expected_output', '')
+    return prediction, latency_ms
+
+def run_evaluation(
+    dataset: datasets.Dataset,
+    model: AutoModelForCausalLM,
+    tokenizer: AutoTokenizer,
+    config: Config
+) -> List[Dict[str, Any]]:
+    """
+    Run evaluation on the entire dataset.
+    
+    Args:
+        dataset: RepoPeftBench dataset
+        model: Loaded model
+        tokenizer: Loaded tokenizer
+        config: Configuration object
         
-        # Measure latency if requested
-        if measure_latency:
-            def inference_func():
-                return run_inference(model, tokenizer, prompt, max_new_tokens)
-            
-            try:
-                latency_ms = measure_inference_latency(task_id, inference_func)
-                latency_results.append({
-                    'task_id': task_id,
-                    'latency_ms': latency_ms
-                })
-            except Exception as e:
-                # Record high latency or skip for failed tasks
-                latency_results.append({
-                    'task_id': task_id,
-                    'latency_ms': -1.0  # Indicator for error
-                })
-                # Continue to compute score (will likely fail)
+    Returns:
+        List of evaluation results
+    """
+    results = []
+    total_samples = len(dataset)
+    
+    logger.info(f"Starting evaluation on {total_samples} samples...")
+    
+    for i, task in enumerate(dataset):
+        task_id = task.get('task_id', f'task_{i}')
+        reference = task.get('output', '')
         
-        # Run inference
         try:
-            generated = run_inference(model, tokenizer, prompt, max_new_tokens)
-            is_match = compute_exact_match(generated, expected)
-            scores.append({
+            prediction, latency_ms = run_inference(model, tokenizer, task)
+            exact_match = compute_exact_match(prediction, reference)
+            
+            results.append({
                 'task_id': task_id,
-                'exact_match': int(is_match),
-                'generated': generated,
-                'expected': expected
+                'exact_match': 1 if exact_match else 0,
+                'latency_ms': round(latency_ms, 2),
+                'prediction': prediction,
+                'reference': reference
             })
+            
+            if (i + 1) % 10 == 0:
+                logger.info(f"Processed {i + 1}/{total_samples} samples")
+                
         except Exception as e:
-            scores.append({
+            logger.error(f"Error processing task {task_id}: {e}")
+            # Record failed tasks
+            results.append({
                 'task_id': task_id,
                 'exact_match': 0,
-                'generated': '',
-                'expected': expected,
+                'latency_ms': 0.0,
+                'prediction': '',
+                'reference': reference,
                 'error': str(e)
             })
     
-    # Save results
-    if output_scores_path is None:
-        output_scores_path = "data/results/ast_scores.csv"
-    
-    save_results(scores, output_scores_path)
-    
-    latency_stats = {}
-    if measure_latency and latency_results:
-        if output_latency_path is None:
-            output_latency_path = "data/results/latency.csv"
-        save_latency_results(latency_results, output_latency_path)
-        latency_stats = collect_latency_stats(latency_results)
-    
-    # Compute overall accuracy
-    total_tasks = len(scores)
-    correct = sum(s['exact_match'] for s in scores)
-    accuracy = correct / total_tasks if total_tasks > 0 else 0.0
-    
-    return {
-        'accuracy': accuracy,
-        'total_tasks': total_tasks,
-        'correct': correct,
-        'scores_path': output_scores_path,
-        'latency_stats': latency_stats,
-        'latency_path': output_latency_path if measure_latency else None
-    }
-
+    logger.info(f"Evaluation complete. Processed {len(results)} tasks.")
+    return results
 
 def save_results(results: List[Dict[str, Any]], output_path: str) -> None:
     """
     Save evaluation results to CSV.
     
     Args:
-        results: List of result dicts
-        output_path: Path to output file
+        results: List of evaluation results
+        output_path: Path to output CSV file
     """
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        Path(output_dir).mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-        # Use first result to determine fieldnames
-        if results:
-            fieldnames = list(results[0].keys())
-        else:
-            fieldnames = ['task_id', 'exact_match']
-        
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    # Write CSV with required columns
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['task_id', 'exact_match', 'latency_ms'])
         writer.writeheader()
+        
         for result in results:
-            writer.writerow(result)
-
+            writer.writerow({
+                'task_id': result['task_id'],
+                'exact_match': result['exact_match'],
+                'latency_ms': result['latency_ms']
+            })
+    
+    logger.info(f"Results saved to {output_path}")
 
 def main():
-    """
-    CLI entry point for evaluation.
-    """
-    import argparse
+    """Main entry point for AST adapter evaluation."""
+    config = load_config()
     
-    parser = argparse.ArgumentParser(description='Evaluate AST-based adapter on RepoPeftBench')
-    parser.add_argument('--adapter', type=str, default=None, help='Path to adapter weights')
-    parser.add_argument('--dataset', type=str, default=None, help='Path to RepoPeftBench data')
-    parser.add_argument('--scores-output', type=str, default=None, help='Path for scores CSV')
-    parser.add_argument('--latency-output', type=str, default=None, help='Path for latency CSV')
-    parser.add_argument('--max-tokens', type=int, default=128, help='Max new tokens')
-    parser.add_argument('--no-latency', action='store_true', help='Disable latency measurement')
+    # Ensure results directory exists
+    results_dir = Path(config.results_dir)
+    results_dir.mkdir(parents=True, exist_ok=True)
     
-    args = parser.parse_args()
+    output_path = results_dir / "ast_scores.csv"
     
-    results = run_evaluation(
-        adapter_path=args.adapter,
-        dataset_path=args.dataset,
-        output_scores_path=args.scores_output,
-        output_latency_path=args.latency_output,
-        max_new_tokens=args.max_tokens,
-        measure_latency=not args.no_latency
-    )
-    
-    print(f"Evaluation completed.")
-    print(f"Accuracy: {results['accuracy']:.4f} ({results['correct']}/{results['total_tasks']})")
-    
-    if results['latency_stats']:
-        print(f"Latency stats: {results['latency_stats']}")
-        print(f"Latency saved to: {results['latency_path']}")
-    
-    print(f"Scores saved to: {results['scores_path']}")
+    try:
+        # Load dataset
+        dataset = load_repopeftbench_data(config, sample_size=config.sample_size)
+        
+        # Load model and adapter
+        model, tokenizer = load_ast_adapter(config)
+        
+        # Run evaluation
+        results = run_evaluation(dataset, model, tokenizer, config)
+        
+        # Save results
+        save_results(results, str(output_path))
+        
+        # Compute and log summary statistics
+        total_tasks = len(results)
+        exact_matches = sum(1 for r in results if r['exact_match'] == 1)
+        accuracy = exact_matches / total_tasks if total_tasks > 0 else 0.0
+        avg_latency = sum(r['latency_ms'] for r in results) / total_tasks if total_tasks > 0 else 0.0
+        
+        logger.info(f"Summary: Accuracy={accuracy:.4f}, Avg Latency={avg_latency:.2f}ms")
+        
+        # Save summary JSON
+        summary_path = results_dir / "ast_evaluation_summary.json"
+        with open(summary_path, 'w') as f:
+            json.dump({
+                'total_tasks': total_tasks,
+                'exact_matches': exact_matches,
+                'accuracy': accuracy,
+                'avg_latency_ms': avg_latency
+            }, f, indent=2)
+        
+        logger.info(f"Evaluation complete. Results saved to {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Evaluation failed: {e}")
+        raise
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

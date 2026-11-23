@@ -4,28 +4,28 @@
 
 **Verdict**: pass
 
-The question investigates a substantive psychological mechanism: whether the trait of perceiving internal bodily states predicts the capacity to regulate physiological stress responses. It explicitly distinguishes this trait from the physiological state itself (baseline HRV) and does not hinge on the performance of a specific algorithm or computational constraint.
+The question asks about a substantive psychological and physiological mechanism: whether the trait of perceiving internal bodily states (interoceptive accuracy) causally predicts the capacity to regulate emotional physiology under stress. It is framed as a relationship between two distinct biological constructs rather than an inquiry into the performance limits of a specific algorithm, dataset, or hardware constraint.
 
 ### Circularity check
 
-**Verdict**: concern
+**Verdict**: pass
 
-The predictor (interoceptive accuracy via Schandry task) and the outcome (magnitude of HRV regulation) are nominally distinct: one is a behavioral count of perceived heartbeats, and the other is a derived statistical metric from ECG signals. However, the proposal notes a fallback to using "resting-state HRV stability" as a proxy for interoception if direct task data is missing; if this proxy is used, the predictor and the control variable (baseline HRV) become highly overlapping, creating a risk of mechanical correlation rather than empirical prediction.
+The predictor (behavioral interoceptive accuracy) is derived from a specific behavioral task (e.g., Schandry heartbeat perception task), which relies on the subject's explicit counting or estimation performance. The predicted variable (magnitude of physiological regulation) is derived from ECG/PPG signal analysis (HRV changes). These are independent data sources: one is a behavioral count/estimate, the other is a continuous physiological signal derived from a different sensor modality, so the relationship is not mechanically guaranteed by construction.
 
 ### Triviality check
 
 **Verdict**: pass
 
-Both outcomes are scientifically informative: a positive correlation would support the hypothesis that subjective body awareness drives autonomic resilience, while a null result (after controlling for baseline HRV) would suggest that interoceptive training is ineffective for populations with poor autonomic tone. Neither result is predetermined by current consensus, as the independence of perception from physiology in stress regulation remains a debated topic.
+Both outcomes are scientifically informative: a positive result would support the hypothesis that conscious body awareness is a distinct driver of resilience, potentially justifying interoceptive training interventions. A null result (even after controlling for baseline HRV) would be equally valuable, suggesting that the "perception" of the body does not independently drive regulation and that the relationship is merely a proxy for general autonomic tone, refining current theoretical models of stress.
 
 ### Question-narrowing check
 
 **Verdict**: pass
 
-The question clearly names a domain relationship (interoception predicting stress regulation) and explicitly seeks to disentangle it from a confounding variable (baseline HRV). It does not frame the inquiry around the feasibility of a specific dataset download or a specific software implementation, even though the methodology section discusses data availability constraints.
+The question names a clear domain relationship (the predictive link between interoceptive accuracy and stress regulation) and explicitly seeks to isolate this relationship from a confounding variable (baseline HRV). It does not frame the inquiry around whether a specific software tool can run within a time limit or if a specific model architecture can fit the data, but rather focuses on the empirical reality of the psychological phenomenon.
 
 ### Overall verdict
 
-**Verdict**: validator_revise
+**Verdict**: validated
 
-The core question is valid, but the proposal's reliance on a "proxy" variable (resting HRV) to represent interoception creates a circularity risk that must be resolved before analysis begins. If the direct Schandry task data is absent, the project cannot validly test the original question and must either restrict its scope to datasets that actually contain the task or reframe the question to investigate the correlation between baseline autonomic tone and regulation directly, rather than pretending HRV is a proxy for awareness. [REVISED] Does behavioral interoceptive accuracy (measured strictly via the Schandry heartbeat perception task) predict the magnitude of physiological emotional regulation during acute psychosocial stress, independent of baseline heart rate variability? (Note: If no open dataset contains both the Schandry task and a stress paradigm, the project scope must be limited to a feasibility audit confirming this data gap rather than attempting a statistical test with invalid proxies.) [/REVISED]
+The research question is well-posed, targeting a specific gap in the literature regarding the independent role of interoception in stress regulation. It avoids circularity by separating behavioral performance from physiological metrics and is not trivial as either a positive or negative finding would refine theoretical understanding. While the methodology section notes a potential data availability issue, the question itself remains valid and worthy of investigation.

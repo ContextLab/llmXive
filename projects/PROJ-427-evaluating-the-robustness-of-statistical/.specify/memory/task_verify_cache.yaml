@@ -1,0 +1,63 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree, files, or any filesystem artifacts were provided; there is
+    no evidence that `data/raw`, `data/corrupted`, `code`, `results`, and `tests`
+    directories exist, nor that empty `__init__.py` files were created in `code/`
+    and `tests/`. The required project structure is missing.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a Python project initialization was provided\u2014there is no\
+    \ directory structure, no `pyproject.toml`, `requirements.txt`, `environment.yml`,\
+    \ or any other file listing the required dependencies (pandas, numpy, scipy, statsmodels,\
+    \ matplotlib, seaborn, pyyaml, pytest). Without such artifacts, the claim that\
+    \ the project has been set up with those packages cannot be verified."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings) or setup scripts were presented. Without
+    such artifacts, the requirement to configure ruff/flake8 and Black is not satisfied.
+T005b:
+  c: true
+  h: b0d83e61a4c12236ae9499159765bae8332c54a40455c3e18d95ec541d2da92d
+  r: "The repository contains `tests/unit/test_schema_validation.py` (1.7\u202FKB)\
+    \ with code that loads `contracts/injection.schema.yaml` (checking its existence)\
+    \ and `config/error_rates.yaml`, and asserts that `error_rates` is a non\u2011\
+    empty list of numeric values. The sample `config/error_rates.yaml` is also present\
+    \ and correctly formatted."
+T014:
+  c: false
+  h: 4a7af7a5bbd868e7e84449d61e8c0c7547f4dcd8675b5501815246fe350adea0
+  r: "The repository lacks the required `contracts/result.schema.yaml` file, so validation\
+    \ against the schema cannot be performed. `code/simulate.py` does not contain\
+    \ a concrete implementation of the validation\u2011and\u2011recording logic (the\
+    \ file is truncated and only defines stubs). The `state/simulation_artifacts.yaml`\
+    \ file contains only placeholder comments and no actual checksum or validation\
+    \ entries. These missing/unfinished components prevent the task from being fulfilled."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, workflow file, or documentation was provided that actually invokes\
+    \ the subtasks T019a\u2011e in sequence, so the required orchestration artifact\
+    \ is missing. The implementer must supply a concrete pipeline (e.g., a shell script,\
+    \ Makefile, or workflow definition) that runs the download, clean, and verify\
+    \ steps in order."
+T019c:
+  c: false
+  h: 54425c429cf25d7d477732dc30eba967e840c146a9eaec430389d3d7095dbc4e
+  r: "The provided `code/download.py` only shows the start of the download logic and\
+    \ declares a `clean_dataset` function, but its implementation is absent (the file\
+    \ is truncated and no cleaning code is visible). Moreover, the required schema\
+    \ file `contracts/dataset.schema.yaml` is missing entirely, so validation against\
+    \ it cannot be performed. Consequently, the task of validating, coercing types,\
+    \ replacing empty strings with\u202FNaN, and writing cleaned files to `data/raw/cleaned/`\
+    \ is not fulfilled."
+T019e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, notebook, or output file was supplied that actually enumerates the\
+    \ datasets and reports the counts of numerical\u2011only, categorical\u2011only,\
+    \ and mixed datasets. Without such an artifact, the requirement to verify dataset\
+    \ diversity cannot be confirmed."

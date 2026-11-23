@@ -1,7 +1,9 @@
 from typing import Dict, Any, Optional, Tuple
 import numpy as np
 import pandas as pd
-from sklearn.impute import SimpleImputer, KNNImputer, IterativeImputer
+from sklearn.impute import SimpleImputer, KNNImputer
+from sklearn.experimental import enable_iterative_imputer  # Required for IterativeImputer
+from sklearn.impute import IterativeImputer
 from sklearn.linear_model import BayesianRidge
 from scipy import stats
 from .entities import SyntheticDataset, ImputationResult

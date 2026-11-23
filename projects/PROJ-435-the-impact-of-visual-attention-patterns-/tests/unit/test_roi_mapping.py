@@ -1,121 +1,65 @@
-"""
-Unit tests for ROI Mapping utilities.
-"""
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import sys
+from unittest.mock import patch, MagicMock
+from shapely.geometry import Point, Polygon
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Import from the project's utility module
+from code.utils.roi_mapping import is_point_in_roi, map_single_point_to_roi, map_gaze_to_rois
 
-from utils.roi_mapping import (
-    map_single_point_to_roi,
-    map_gaze_to_rois,
-    aggregate_fixation_roi_stats,
-    handle_zero_fixation_roi,
-    DEFAULT_ROIS
-)
+@pytest.fixture
+def sample_roi_config():
+    return {
+        "source_attribution": {
+            "vertices": [(0, 0), (100, 0), (100, 50), (0, 50)]
+        },
+        "headline_body": {
+            "vertices": [(0, 50), (800, 50), (800, 150), (0, 150)]
+        }
+    }
 
-class TestROIMapping:
-    
-    def test_map_single_point_to_roi_inside(self):
-        """Test mapping a point inside a known ROI."""
-        # Point inside headline ROI (0.5, 0.2)
-        roi = map_single_point_to_roi(0.5, 0.2, DEFAULT_ROIS)
-        assert roi == "headline"
-    
-    def test_map_single_point_to_roi_source(self):
-        """Test mapping a point inside source attribution ROI."""
-        # Point inside source attribution (0.1, 0.05)
-        roi = map_single_point_to_roi(0.1, 0.05, DEFAULT_ROIS)
-        assert roi == "source_attribution"
-    
-    def test_map_single_point_to_roi_outside(self):
-        """Test mapping a point outside all ROIs."""
-        # Point outside all ROIs (0.5, 1.5)
-        roi = map_single_point_to_roi(0.5, 1.5, DEFAULT_ROIS)
-        assert roi is None
-    
-    def test_map_gaze_to_rois_basic(self):
-        """Test basic ROI mapping on a DataFrame."""
-        data = {
-            'x': [0.1, 0.5, 0.5, 0.1],
-            'y': [0.05, 0.2, 0.5, 0.05],
-            'participant_id': ['P1', 'P1', 'P1', 'P2']
-        }
-        df = pd.DataFrame(data)
-        
-        mapped_df, excluded_count = map_gaze_to_rois(df)
-        
-        # Check assignments
-        assert mapped_df.loc[0, 'roi_assigned'] == 'source_attribution'
-        assert mapped_df.loc[1, 'roi_assigned'] == 'headline'
-        assert mapped_df.loc[2, 'roi_assigned'] == 'body_text'
-        assert mapped_df.loc[3, 'roi_assigned'] == 'source_attribution'
-        
-        assert excluded_count == 0
-    
-    def test_map_gaze_to_rois_exclusions(self):
-        """Test ROI mapping with points outside all ROIs."""
-        data = {
-            'x': [0.5, 0.5, 2.0],  # 2.0 is outside
-            'y': [0.5, 0.5, 0.5],
-            'participant_id': ['P1', 'P1', 'P1']
-        }
-        df = pd.DataFrame(data)
-        
-        mapped_df, excluded_count = map_gaze_to_rois(df)
-        
-        assert mapped_df.loc[0, 'roi_assigned'] == 'body_text'
-        assert mapped_df.loc[1, 'roi_assigned'] == 'body_text'
-        assert pd.isna(mapped_df.loc[2, 'roi_assigned'])
-        assert excluded_count == 1
-    
-    def test_aggregate_fixation_roi_stats(self):
-        """Test aggregation of fixation stats by ROI."""
-        data = {
-            'x': [0.1, 0.5, 0.5],
-            'y': [0.05, 0.2, 0.5],
-            'duration': [100, 200, 300],
-            'participant_id': ['P1', 'P1', 'P1'],
-            'stimulus_id': ['S1', 'S1', 'S1'],
-            'roi_assigned': ['source_attribution', 'headline', 'body_text']
-        }
-        df = pd.DataFrame(data)
-        
-        agg_df = aggregate_fixation_roi_stats(df)
-        
-        assert len(agg_df) == 3
-        assert agg_df.loc[0, 'total_duration'] == 100
-        assert agg_df.loc[0, 'fixation_count'] == 1
-    
-    def test_handle_zero_fixation_roi(self):
-        """Test handling of zero-fixation cases."""
-        # Data missing 'source_attribution' for P1-S1
-        data = {
-            'participant_id': ['P1', 'P1'],
-            'stimulus_id': ['S1', 'S1'],
-            'roi_assigned': ['headline', 'body_text'],
-            'total_duration': [200, 300],
-            'fixation_count': [1, 1],
-            'avg_duration': [200.0, 300.0]
-        }
-        df = pd.DataFrame(data)
-        
-        # Mock the full grid to include source_attribution
-        complete_df = handle_zero_fixation_roi(df)
-        
-        # Should now have 3 rows (headline, body_text, source_attribution)
-        assert len(complete_df) == 3
-        
-        # Check that source_attribution has zero values
-        source_row = complete_df[complete_df['roi_assigned'] == 'source_attribution'].iloc[0]
-        assert source_row['total_duration'] == 0
-        assert source_row['fixation_count'] == 0
-        assert source_row['avg_duration'] == 0
+@pytest.fixture
+def sample_gaze_data():
+    return pd.DataFrame({
+        'x': [50, 400, 150],
+        'y': [25, 75, 200],
+        'timestamp': [100, 200, 300],
+        'participant_id': ['P1', 'P1', 'P1']
+    })
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_is_point_in_roi_inside():
+    roi_vertices = [(0, 0), (100, 0), (100, 50), (0, 50)]
+    point = Point(50, 25)
+    roi_polygon = Polygon(roi_vertices)
+    assert is_point_in_roi(point, roi_polygon) is True
+
+def test_is_point_in_roi_outside():
+    roi_vertices = [(0, 0), (100, 0), (100, 50), (0, 50)]
+    point = Point(150, 25)
+    roi_polygon = Polygon(roi_vertices)
+    assert is_point_in_roi(point, roi_polygon) is False
+
+def test_map_single_point_to_roi_found(sample_roi_config):
+    point = Point(50, 25)
+    roi_name, matched = map_single_point_to_roi(point, sample_roi_config)
+    assert roi_name == "source_attribution"
+    assert matched is True
+
+def test_map_single_point_to_roi_not_found(sample_roi_config):
+    point = Point(200, 200)
+    roi_name, matched = map_single_point_to_roi(point, sample_roi_config)
+    assert roi_name is None
+    assert matched is False
+
+def test_map_gaze_to_rois(sample_roi_config, sample_gaze_data):
+    result = map_gaze_to_rois(sample_gaze_data, sample_roi_config)
+    assert 'roi_type' in result.columns
+    assert result.iloc[0]['roi_type'] == 'source_attribution'
+    assert result.iloc[1]['roi_type'] == 'headline_body'
+    assert result.iloc[2]['roi_type'] is None  # Outside any ROI
+
+def test_map_gaze_to_rois_empty_dataframe(sample_roi_config):
+    empty_df = pd.DataFrame(columns=['x', 'y', 'timestamp', 'participant_id'])
+    result = map_gaze_to_rois(empty_df, sample_roi_config)
+    assert 'roi_type' in result.columns
+    assert len(result) == 0

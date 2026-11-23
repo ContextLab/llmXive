@@ -1,47 +1,66 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "User-Track Aggregated Analysis Dataset Schema"
-description: "Schema for the final dataset used in the mixed-effects model (FR-005). Contains one row per unique User-Track pair."
-type: "object"
+title: "User-Track Pair Analysis Dataset"
+description: "Schema for data/processed/user_track_pairs_thr{n}.parquet"
+type: object
 properties:
   user_id:
-    type: "string"
-    description: "User ID for the random intercept (1|User)."
+    type: string
+    description: "Unique user identifier"
   track_id:
-    type: "string"
-    description: "ID of the matched track from MSD."
-  residualized_exposure_score:
-    type: "number"
-    description: "Residualized proportion of listens during ages 12-18 (adjusted for popularity)."
-    minimum: -10.0
-    maximum: 10.0
-  overall_popularity_score:
-    type: "number"
-    description: "Log-scaled total listens for the track."
-  mean_vividness:
-    type: "number"
-    description: "Mean memory vividness rating for this user-track pair."
+    type: string
+    description: "Unique track identifier"
+  total_listens:
+    type: integer
+    description: "Total listens for this pair (must be >= 5 per FR-009)"
+    minimum: 5
+  adolescent_listens:
+    type: integer
+    description: "Listens during adolescence"
+    minimum: 0
+  adolescent_exposure_ratio:
+    type: number
+    description: "Ratio of adolescent listens to total listens"
     minimum: 0.0
-    maximum: 100.0
+    maximum: 1.0
+  logit_ratio:
+    type: number
+    description: "Logit transformation of adolescent_exposure_ratio (continuity-corrected)"
+  mean_vividness:
+    type: number
+    description: "Average vividness rating (1-7)"
+    minimum: 1.0
+    maximum: 7.0
   mean_valence:
-    type: "number"
-    description: "Mean emotional valence rating for this user-track pair."
-    minimum: -5.0
-    maximum: 5.0
-  memory_count:
-    type: "integer"
-    description: "Number of memory cues aggregated for this pair."
+    type: number
+    description: "Average valence rating (1-7)"
+    minimum: 1.0
+    maximum: 7.0
+  track_popularity:
+    type: number
+    description: "Track popularity score"
+  match_threshold_used:
+    type: integer
+    description: "Levenshtein threshold used for matching"
+    enum: [1, 2, 3, 4, 5]
+  n_cues:
+    type: integer
+    description: "Number of memory cues"
     minimum: 1
-  match_distance:
-    type: "integer"
-    description: "Levenshtein distance used for matching."
-    maximum: 4
+  global_exposure_proxy:
+    type: number
+    description: "Population-level proxy for missing birth years"
+    minimum: 0.0
+    maximum: 1.0
 required:
   - user_id
   - track_id
-  - residualized_exposure_score
-  - overall_popularity_score
+  - total_listens
+  - adolescent_listens
+  - adolescent_exposure_ratio
+  - logit_ratio
   - mean_vividness
   - mean_valence
-  - memory_count
-  - match_distance
+  - track_popularity
+  - match_threshold_used
+  - n_cues
 additionalProperties: false

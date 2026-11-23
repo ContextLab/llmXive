@@ -1,0 +1,74 @@
+| **5 – Statistical Analysis** | • Compute change scores (post – baseline) for each metric (FR‑005).<br>• **Primary**: 10 000‑bootstrap CI for mean change (FR‑006).<br>• Normality check (Shapiro‑Wilk); if p < 0.05, **fallback** to Wilcoxon signed‑rank (FR‑006).<br>• **Effect size**: if normality holds, compute Cohen’s d with bias‑corrected 95 % CI (FR‑007); otherwise compute rank‑biserial correlation (non‑parametric effect size).<br>• Apply Holm‑Bonferroni correction across the four outcomes (FR‑008).<br>• **Validation step**: run `jsonschema.validate` on `results/statistical_summary.json` against `contracts/analysis.schema.yaml`; abort if validation fails.<br>• Write `results/statistical_summary.json` (single source of truth). | FR‑005‑FR‑008 | SC‑001‑SC‑005 |
+| **6 – Sensitivity & Reporting** | • Document self‑report limitation and, when available, incorporate objective screen‑time as a covariate in a sensitivity analysis (FR‑011).<br>• Generate box‑plots and change‑score histograms (`results/plots/`).<br>• Assemble a concise markdown report that references only `statistical_summary.json`. | FR‑011 | – |
+| **7 – End‑to‑End Verification** | • Execute `python -m code.pipeline.run_all --config code/config/study_config.yaml` (T001).<br>• Verify all output files against their JSON‑Schema contracts (T003).<br>• Confirm `pipeline.log` ends with `STATUS: SUCCESS` (T001).<br>• Ensure compliance aggregation (`code/compliance/aggregate_compliance.py`) exits with code 0 (T004).<br>• Ensure data‑merge script (`code/pipeline/merge_data.py`) exits with code 0 (T005). | All FRs | All SCs |
+
+### Deterministic Verification Details
+1. **Schema Validation** – `code/validation/validate_schema.py` runs `jsonschema.validate` on every CSV/JSON file; any failure aborts the pipeline.  
+2. **Checksum Generation** – `code/validation/generate_checksums.py` writes SHA‑256 digests for every file under `data/raw/` into `data/checksums.sha256`. The file itself is validated by a contract test.  
+3. **End‑to‑End Log** – The pipeline writes `pipeline.log` with timestamps for each stage and a final line `STATUS: SUCCESS`. An integration test (`tests/integration/test_pipeline_success.py`) asserts the presence of this line.  
+
+## Compute Feasibility
+- **Bootstrap**: 10 000 resamples × ≤ 100 participants × 5 metrics → < 45 s on 2‑core CPU.  
+- **Memory**: All data frames < 10 MB; peak RAM a few hundred MB.  
+- **Disk**: Raw + processed CSVs ≈ tens of MB; results + plots ≈ a few MB; logs ≈ tens of KB.  
+- **GPU**: Not required; all libraries are pure CPU.  
+
+## Decision / Rationale (CPU vs GPU)
+All statistical operations (bootstrap, effect‑size, correction) are implemented with `numpy`/`scipy` which run efficiently on CPU. No deep‑learning models are required, so the pipeline stays within the free‑tier runner limits. No GPU escape hatch is needed.
+
+## Risk Mitigation
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Practice effects on SART/Ospan | May inflate apparent improvement | Randomize task order, use alternate forms where possible, record timestamps, and include baseline performance as a covariate in exploratory analyses. |
+| Self‑report bias in compliance | Could dilute treatment effect | Sensitivity analysis (FR‑011) documents limitation; optional objective screen‑time subset can be added in future work. |
+| Attrition | Reduces power | Retain baseline data for descriptive stats; participants with missing post data excluded from paired tests (per FR‑009). |
+| Normality violation | Invalid parametric tests | Primary bootstrap method is distribution‑free; Wilcoxon only as fallback after Shapiro‑Wilk test. |
+| Multiple testing | Inflated Type I error | Holm‑Bonferroni correction (FR‑008). |
+| Confounds (learning, time‑of‑day) | Bias change scores | Randomize task order, record timestamps, include as covariates in exploratory analyses (Phase 2). |
+| Underpowered pilot | May yield non‑significant results | Target sample size is on the order of several dozen participants to achieve ~0.80 power for d=0.5; report effect sizes with CIs and power simulation results. |
+| Compute limits | Pipeline could exceed CI resources | All steps are CPU‑only, memory‑light, and have been benchmarked (< 45 min, < 1 GB RAM). |
+
+## Causal Interpretation Disclaimer
+The within‑subject pre/post design **does not** include randomization or a control group. Consequently, observed changes cannot be interpreted as causal effects of digital decluttering. Findings are presented as **associational** differences over time, and all causal language is avoided per the Scientific Soundness Disclaimer (see `plan.md`).  
+
+---
+
+
+## projects/PROJ-249-the-impact-of-digital-decluttering-on-co/specs/001-the-impact-of-digital-decluttering-on-co/research.md
+# Research: The Impact of Digital Decluttering on Cognitive Performance and Well‑being
+
+## Research Question
+Does a one‑week period of intentionally reduced digital engagement (digital decluttering) improve sustained attention, working memory capacity, and self‑reported stress and mood compared to baseline levels?
+
+## Methodological Approach
+
+### Study Design
+- **Design**: Within‑subject pre/post (baseline → 7‑day decluttering → post).  
+- **Intervention**: Participants self‑report daily adherence to three rules (≤ 30 min social media, no news consumption, notifications off).  
+- **Sample Size**: Target **N ≈ 80** participants (pilot feasibility).  
+  - **Power simulations** (Monte‑Carlo, 1 000 replications, effect size d = 0.5, Holm‑Bonferroni correction across four outcomes) indicate ≈ 0.80 power at **N ≈ 80**. If recruitment falls short, the achieved power will be reported alongside effect‑size estimates.  
+- **Primary Outcomes**:  
+  1. **SART** – commission errors (higher = worse attention).  
+  2. **Ospan** – operation‑span score (higher = better working memory).  
+  3. **PSS‑10** – total stress score (higher = more stress).  
+  4. **PANAS** – positive affect (PA) and negative affect (NA) sub‑scores.  
+
+### Instruments & Verification
+| Instrument | Source (Verified) | Verification |
+|------------|-------------------|--------------|
+| **SART** | OSF Task Repository v2.1+ (code only) | Downloaded via `datasets.load_dataset` from the verified SART JSON URLs (see “Verified datasets” block) and checksum‑validated. |
+| **Ospan** | OSF Task Repository v2.1+ (code only) | Same verification procedure as SART. |
+| **PSS‑10** | Public‑domain questionnaire | Scoring logic validated against the official scoring sheet; no external dataset required. |
+| **PANAS** | Public‑domain questionnaire | Scoring logic validated against the original PANAS manual. |
+
+> **Note**: The OSF links provide *task implementations* rather than pre‑collected participant data. Consequently, the study will **collect new participant data** during execution; no pre‑existing open dataset contains the required pre/post measures.
+
+### Power & Sample‑Size Strategy
+A Monte‑Carlo simulation (Phase 0) runs 1 000 simulated studies with N ranging from 30‑90, effect size d = 0.5, and Holm‑Bonferroni correction across four outcomes. The simulation shows ≈ 0.80 power at **N ≈ 80**. The plan therefore aims for N≈80 and will report the achieved power if the final sample is smaller.
+
+### Statistical Analysis Plan
+| Step | Method | Rationale |
+|------|--------|-----------|
+| **Change‑Score Computation** | `post – baseline` for each metric (FR‑005) | Direct within‑subject effect. |
+| **Primary Inferential Method** | Bootstrap 10 000 resamples for mean change CI (FR‑006) | Non‑parametric, robust to small N and non‑normality. |
+| **Normality Check** | Shapiro‑Wilk test; if p < 0.05, use Wilcoxon signed‑rank (FR‑006) | Ensures appropriate fallback only when normality is violated. |

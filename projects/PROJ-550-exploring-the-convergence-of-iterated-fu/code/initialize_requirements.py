@@ -1,18 +1,17 @@
+"""
+Initialize the Python project environment for PROJ-550.
+This script creates requirements.txt with pinned versions,
+installs dependencies, and freezes the environment.
+"""
 import subprocess
 import sys
 from pathlib import Path
 
 def main():
-    """
-    Initialize the Python project dependencies for T002.
-    1. Ensures requirements.txt exists with pinned versions.
-    2. Runs pip install -r requirements.txt.
-    3. Runs pip freeze > requirements.txt to confirm environment state.
-    """
-    project_root = Path(__file__).resolve().parent.parent
+    project_root = Path(__file__).parent.parent
     requirements_path = project_root / "code" / "requirements.txt"
 
-    # Define the pinned versions as per task specification
+    # Define pinned versions as per task specification
     pinned_versions = [
         "numpy==1.26.4",
         "scipy==1.12.0",
@@ -23,47 +22,31 @@ def main():
         "pyarrow==14.0.1",
     ]
 
-    # Write requirements.txt if it doesn't match or to ensure freshness
-    # (In a real CI/CD or local run, we ensure the file exists first)
-    if not requirements_path.exists():
-        print(f"Creating {requirements_path}...")
-        requirements_path.write_text("\n".join(pinned_versions) + "\n")
-    else:
-        current_content = requirements_path.read_text().strip().splitlines()
-        # Normalize comparison (strip whitespace)
-        current_clean = [line.strip() for line in current_content if line.strip()]
-        if current_clean != pinned_versions:
-            print(f"Updating {requirements_path} to match pinned versions...")
-            requirements_path.write_text("\n".join(pinned_versions) + "\n")
-        else:
-            print(f"{requirements_path} already matches pinned versions.")
+    print(f"Creating {requirements_path}...")
+    with open(requirements_path, "w") as f:
+        f.write("\n".join(pinned_versions) + "\n")
+    print("requirements.txt created successfully.")
 
-    # Step 2: Run pip install
-    print("Running pip install -r requirements.txt...")
-    try:
-        subprocess.check_call([
-            sys.executable, "-m", "pip", "install", "-r", str(requirements_path)
-        ])
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: pip install failed with exit code {e.returncode}")
-        raise SystemExit(1)
+    print("Installing dependencies...")
+    result = subprocess.run(
+        [sys.executable, "-m", "pip", "install", "-r", str(requirements_path)],
+        check=True,
+        capture_output=False
+    )
 
-    # Step 3: Run pip freeze to update requirements.txt with the exact installed state
-    print("Running pip freeze > requirements.txt...")
-    try:
-        # We write directly to the file to ensure it reflects the installed environment
-        # Note: This might include extra dependencies (e.g., typing-extensions)
-        # which is standard behavior for 'pip freeze'.
-        subprocess.check_call([
-            sys.executable, "-m", "pip", "freeze"
-        ], stdout=requirements_path.open("w"))
-        
-        print("requirements.txt updated with frozen environment.")
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: pip freeze failed with exit code {e.returncode}")
-        raise SystemExit(1)
+    print("Freezing environment to requirements.txt...")
+    freeze_result = subprocess.run(
+        [sys.executable, "-m", "pip", "freeze"],
+        check=True,
+        capture_output=True,
+        text=True
+    )
 
-    print("T002 Initialization complete.")
+    with open(requirements_path, "w") as f:
+        f.write(freeze_result.stdout)
+
+    print("Environment initialized successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

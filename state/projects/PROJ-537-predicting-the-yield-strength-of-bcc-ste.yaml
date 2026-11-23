@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-537-predicting-the-yield-strength-of-bcc-ste
-last_run_id: 12203b68-ea8f-4537-b053-803ecb63421d
+last_run_id: 62e1da75-cf02-444a-826f-c7a2f0ea45e3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-537-predicting-the-yield-strength-of-bcc-ste/specs/001-predicting-the-yield-strength-of-bcc-ste
 title: Predicting the Yield Strength of BCC Steels from Compositional Data and Density
   Functional Theory
-updated_at: '2026-07-05T20:22:34.030426Z'
+updated_at: '2026-10-19T14:17:26.306935Z'

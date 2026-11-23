@@ -32,7 +32,7 @@ This project addresses the research question: "Which structural features and mat
 | **III. Data Hygiene** | PASS | Raw data preserved in `data/raw` with checksums. Transformations produce new files in `data/processed`. No in-place modification. |
 | **IV. Single Source of Truth** | PASS | All figures/stats trace to specific rows in `data/processed` and blocks in `code/`. No hand-typed numbers in reports. |
 | **V. Versioning Discipline** | PASS | Artifact hashes tracked in state YAML. Content hashes used to invalidate stale review records. |
-| **VI. Computational Chemistry Integrity** | PASS | RDKit version pinned. Descriptors (VdW, H-bond) generated deterministically. RAM/CPU limits enforced in training scripts (max depth 10). |
+| **VI. Computational Chemistry Integrity** | PASS | RDKit version pinned. Descriptors (VdW, H-bond) generated deterministically. RAM/CPU limits enforced in training scripts (max depth bounded). |
 | **VII. Statistical Validation Rigor** | PASS | Mann-Whitney U test used for *model discrimination* comparison. **Validation**: Phase 1 includes a check to ensure ≥10 known high-performance bio-membranes exist before reserving them for the test set. If <10 exist, the pipeline halts. |
 
 ## Project Structure
@@ -98,7 +98,7 @@ tests/
 | **Multiple Imputation** | FR-006 requires handling missing critical variables (5-20%) without dropping records. | Simple mean imputation would bias the model and violate "Data Hygiene" by distorting variance. |
 | **Fallback Tree Depth** | FR-003 mandates a 60-minute runtime target with a fallback to reduce depth. **Resolved**: Depth reduces to **6** first, then to **4** if still exceeded. | Fixed depth might exceed the 6-hour CI limit if the dataset is larger than expected, causing job failure. |
 | **Mann-Whitney U Test** | Data is non-normal and observational; parametric t-tests would be invalid. | Parametric tests assume normality and equal variance, which is unlikely in sparse literature data. |
-| **Feature Reduction (RFE)** | **New**: Small-N (30-50) vs High-Dimensionality risk. | Training on all descriptors without reduction leads to severe overfitting and spurious R². RFE is mandatory. |
+| **Feature Reduction (RFE)** | **New**: Small-N vs High-Dimensionality risk. | Training on all descriptors without reduction leads to severe overfitting and spurious R². RFE is mandatory. |
 | **Predicted vs. Predicted Test** | **New**: Avoids comparing model predictions to experimental ground truth (circular). | Comparing predictions to experimental benchmarks conflates model error with material performance. |
 
 ## Implementation Phases
@@ -137,7 +137,7 @@ The research question remains: How does the proposed model generalize across dif
 ### Phase 4: Reporting & Future Work (Output: `data/reports/final_report.md`)
 1. **Report Generation**: Compile results, feature importance, and statistical test outcomes.
 2. **Citation Re-Validation**: Re-run `validate_citations.py` to ensure all references in the report are valid.
-3. **Candidate Recommendation**: Output `candidate_recommendation_report.md` listing top 3 candidates for *future* experimental validation (FR-009). Explicitly state that experimental validation is a future work requirement not performed in this phase.
+3. **Candidate Recommendation**: Output `candidate_recommendation_report.md` listing a shortlist of candidates for *future* experimental validation (FR-009). Explicitly state that experimental validation is a future work requirement not performed in this phase.
 
 ## FR/SC Coverage Matrix
 

@@ -1,62 +1,86 @@
 # Data Model: Assessing the Sensitivity of Common Statistical Tests to Dataset Size
 
-## Overview
+## Entity Relationship Diagram (Conceptual)
 
-This document defines the data structures for the simulation engine, focusing on the representation of configurations, simulation runs, and aggregated error metrics. All data is stored in CSV format for portability and reproducibility.
+```mermaid
+erDiagram
+    CONFIGURATION ||--|{ SIMULATION_RUN : generates
+    SIMULATION_RUN ||--|{ ERROR_METRIC : aggregates
+    ERROR_METRIC ||--|{ VISUALIZATION : produces
+    ERROR_METRIC ||--|{ REGRESSION_MODEL : feeds
+    
+    CONFIGURATION {
+        int sample_size
+        string distribution_type
+        float effect_size
+        string test_type
+    }
+    
+    SIMULATION_RUN {
+        int run_id
+        float p_value
+        bool rejected_null
+        string test_type
+        int sample_size
+        string distribution_type
+    }
+    
+    ERROR_METRIC {
+        float type1_rate
+        float type2_rate
+        float power
+        float ci_lower
+        float ci_upper
+        int n_replicates
+    }
+```
 
-## Entities
+## Data Definitions
 
-### 1. Configuration
+### Configuration
 Defines the parameters for a batch of simulations.
-- `config_id`: Unique identifier (hash of parameters).
-- `sample_size`: Integer (n).
-- `distribution`: String (normal, uniform, lognormal).
-- `effect_size`: Float (0.0 or 0.5).
-- `test_type`: String (ttest, anova, chi2).
+- `sample_size`: Integer (10 to 1000).
+- `distribution_type`: String ("normal", "uniform", "log-normal").
+- `effect_size`: Float (0.0 for null, 0.5 for alternative).
+- `test_type`: String ("t-test", "anova", "chi-squared").
 
-### 2. SimulationRun
-Represents a single iteration of the Monte Carlo loop.
+### SimulationRun
+Represents a single iteration of data generation and testing.
 - `run_id`: Unique identifier.
-- `config_id`: FK to Configuration.
-- `replicate_index`: Integer (1 to N).
-- `p_value`: Float.
-- `test_used`: String (e.g., "ttest_ind", "fisher_exact").
-- `error_type`: String (type1, type2, none).
-- `rejected_null`: Boolean.
+- `p_value`: The p-value returned by the statistical test.
+- `rejected_null`: Boolean (True if p < $\alpha$).
+- `ground_truth`: Boolean (True if $H_0$ is actually true).
+- `error_type`: String ("Type I", "Type II", "Correct", "None").
 
-### 3. ErrorMetric
-Aggregated results for a specific configuration.
-- `config_id`: FK to Configuration.
-- `error_rate`: Float (proportion of errors).
-- `ci_lower`: Float (95% CI lower bound, calculated via **Clopper-Pearson**).
-- `ci_upper`: Float (95% CI upper bound, calculated via **Clopper-Pearson**).
-- `replicate_count`: Integer (final number of replicates).
-- `convergence_achieved`: Boolean.
+### ErrorMetric
+Aggregated statistics for a specific configuration.
+- `configuration_id`: Composite key (sample_size, distribution, test, effect_size).
+- `type1_rate`: Proportion of Type I errors (if $H_0$ true).
+- `type2_rate`: Proportion of Type II errors (if $H_1$ true).
+- `power`: $1 - \text{type2\_rate}$.
+- `ci_lower`: Lower bound of 95% bootstrap CI.
+- `ci_upper`: Upper bound of 95% bootstrap CI.
+- `n_replicates`: Total number of replicates run for this config.
 
-### 4. RegressionResult
-Output of the regression analysis.
-- `predictor`: String (log_n, distribution, test_type).
-- `coefficient`: Float (beta).
-- `p_value`: Float.
-- `pseudo_r_squared`: Float (McFadden).
+### RegressionInput
+Prepared data for the Binomial GLM model.
+- `error_rate`: The observed error rate (proportion).
+- `log_n`: $\log(\text{sample\_size})$.
+- `dist_cat`: Categorical encoding of distribution.
+- `test_cat`: Categorical encoding of test type.
 
 ## File Formats
 
-### `data/raw/simulation_runs.csv`
-Raw output of the Monte Carlo engine.
-- Columns: `run_id`, `config_id`, `replicate_index`, `p_value`, `test_used`, `error_type`, `rejected_null`.
+### Raw Data (Generated)
+- `data/raw/simulation_runs_{timestamp}.csv`: Contains individual `SimulationRun` records.
+  - Columns: `run_id`, `sample_size`, `distribution`, `test`, `p_value`, `rejected`, `ground_truth`, `error_type`.
+  - Checksum: MD5 recorded in state file.
 
-### `data/processed/error_metrics.csv`
-Aggregated results.
-- Columns: `config_id`, `sample_size`, `distribution`, `effect_size`, `test_type`, `error_rate`, `ci_lower`, `ci_upper`, `replicate_count`.
+### Processed Data (Aggregated)
+- `data/processed/error_rates.csv`: Contains `ErrorMetric` records.
+  - Columns: `sample_size`, `distribution`, `test`, `effect_size`, `type1_rate`, `type2_rate`, `power`, `ci_lower`, `ci_upper`, `n_replicates`.
 
-### `data/processed/regression_results.csv`
-Regression analysis output.
-- Columns: `predictor`, `coefficient`, `p_value`, `pseudo_r_squared`.
-
-## Data Flow
-
-1. **Generation**: `config.py` → `data_generator.py` → `SimulationRun` objects.
-2. **Simulation**: `simulation_engine.py` processes `SimulationRun` objects, writes to `data/raw/simulation_runs.csv`.
-3. **Aggregation**: `analyzer.py` reads raw runs, computes `ErrorMetric` using **Clopper-Pearson** intervals, writes to `data/processed/error_metrics.csv`.
-4. **Analysis**: `analyzer.py` fits a **GLM binomial regression** on the error rate, writes `RegressionResult` to `data/processed/regression_results.csv`.
+### Output Artifacts
+- `data/visualizations/error_rate_curves.png`: Plot of error rate vs. sample size.
+- `data/visualizations/power_curves.png`: Plot of power vs. sample size.
+- `data/analysis/regression_results.yaml`: Regression coefficients and pseudo-$R^2$.

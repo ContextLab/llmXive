@@ -65,7 +65,7 @@ Perform two-sample t-tests comparing padded vs. unpadded throughput at each thre
 - **FR-001**: System MUST compile C++ benchmark harness with `-O3 -march=native` flags using `g++` on the GitHub Actions runner (See US-1)
 - **FR-002**: System MUST implement two counter variants: (a) packed `struct { long c1; long c2; long c3; }` with `#pragma pack(1)` to ensure 24-byte total size, and (b) padded `struct { alignas(64) long c1; alignas(64) long c2; alignas(64) long c3; }` where the struct size is ≥ 192 bytes to guarantee each member resides in a separate 64-byte cache line (See US-1)
 - **FR-003**: System MUST support worker thread counts N ∈ {1, 2, 4, 8} via command-line parameter (See US-2)
-- **FR-004**: System MUST perform exactly 10⁷ atomic increments per thread using `std::atomic<long>` (See US-2)
+- **FR-004**: System MUST perform a large number of atomic increments per thread using `std::atomic<long>` (See US-2)
 - **FR-005**: System MUST record wall-clock time for each thread-count/configuration pair across at least 5 independent runs and compute mean operations-per-second (See US-2)
 - **FR-006**: System MUST output raw timing data in CSV format with columns: thread_count, configuration, iteration_count, wall_clock_time_ms (See US-2)
 - **FR-007**: System MUST apply two-sample t-test (α = 0.05) comparing padded vs. unpadded throughput at each thread count (See US-3)
@@ -89,7 +89,7 @@ Perform two-sample t-tests comparing padded vs. unpadded throughput at each thre
 - **SC-002**: Statistical significance (p-value) is measured against α = 0.05 threshold for each thread-count comparison (See US-3)
 - **SC-003**: Effect size (Cohen's d) is measured against conventional benchmarks (small ≥ 0.2, medium ≥ 0.5, large ≥ 0.8) for each comparison (See US-3)
 - **SC-004**: Measurement validity is ensured by using atomic operations (`std::atomic<long>`) to prevent compiler optimization from eliminating increments (See US-2)
-- **SC-005**: Multiplicity control is applied via the Benjamini-Hochberg False Discovery Rate (FDR) procedure at q ≤ 0.05 across the 4 thread counts, consistent with standard practice in performance benchmarking where multiple correlated comparisons are made (see Benjamini & Hochberg, 1995). If the FDR-adjusted p-value for any thread count is ≤ 0.05, the difference is declared significant. (See US-3)
+- **SC-005**: Multiplicity control is applied via the Benjamini-Hochberg False Discovery Rate (FDR) procedure at q ≤ 0.05 across the 4 thread counts, consistent with standard practice in performance benchmarking where multiple correlated comparisons are made (see Benjamini & Hochberg,). If the FDR-adjusted p-value for any thread count is ≤ 0.05, the difference is declared significant. (See US-3)
 
 ## Assumptions
 

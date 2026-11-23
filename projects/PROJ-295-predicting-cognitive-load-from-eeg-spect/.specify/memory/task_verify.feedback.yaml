@@ -1,0 +1,112 @@
+T000:
+  task: bb234a57996f9214e8222ab0d4beccf244ebeb42cb676bdf2ab33f60eff11022
+T001:
+  task: ec6f56b8ee9534aa4f1a64b26fe42693770274886a86a06768836fdcec093f9a
+T002:
+  task: 489cf3c719bf9a1c86bb52526e2a7d4663271d73d9ee0acdaf6884e2086f9f4c
+T003:
+  reason: No directory listing or other evidence was provided to show that the required
+    folders (`code/data`, `code/features`, `code/models`, `tests/unit`, `tests/integration`,
+    `data/raw`, `data/processed`, `results`) were actually created. Without concrete
+    proof of these paths existing, the task cannot be considered completed.
+  task: 6e9a7ea45d7b5636fd0fb2aafe17aa58d7665232b4123a57de0f8791ff556362
+T005:
+  reason: The provided `requirements.txt` lists the required packages but uses open-ended
+    `>=` version specifiers instead of exact pinned versions, and it also includes
+    additional packages not requested. The task explicitly required pinned dependencies,
+    so the artifact does not satisfy the specification.
+  task: 4689fb4d8d772da4ba71d7ec6afff1c28cb00588ef4d599d04e8f9b126f276ae
+T006:
+  task: 18ce148111c4068042ef8c18b06929384f32bf2ca3511353d7fbc536c503d47c
+T007:
+  task: 88f841c4e7989dde1f42d4d00eeabe7b14f860fc2bb184a1f4084d195517c94a
+T008:
+  task: 2c0889be5308d21f1c0b44fb12a7f6223a5723f3441d2cd819ea44e12c9be258
+T009:
+  reason: "The provided `code/data/generate_manifest.py` only re\u2011exports functions\
+    \ from another module and does not contain any logic to download a tarball, compute\
+    \ its SHA\u2011256 checksum, or write a manifest file. The existing `data/manifest.yaml`\
+    \ lacks the required top\u2011level `checksum_sha256` field (and the `url`/`version`\
+    \ fields are nested under `dataset` rather than at the manifest root). Consequently,\
+    \ the task\u2019s specification\u2014producing a manifest with `url`, `version`,\
+    \ and `checksum_sha256`\u2014is not satisfied. The missing implementation and\
+    \ absent checksum field must be added."
+  task: d7d0ee7c35f3415e4405fac8ca247bdbb0bfa21c0fee5d19d831097dc2983902
+T010:
+  reason: The `download.py` script correctly downloads the primary dataset and checks
+    for `gaze.tsv`, but when the file is missing it only raises a `FileNotFoundError`
+    and prints a message; it never attempts to automatically download the fallback
+    dataset (`ds003465`) before raising the error, as the task requires. Adding logic
+    to trigger a fallback download in the exception handling path is needed.
+  task: 18741623a5d341917a30d45fe985f6df9d7dfa79307cb27391c04ebc1c15cd6a
+T011:
+  task: 204f641732bda0dd023ffc6b8ceffba8174e73a5c0b7dc392d57067def5f3de6
+T011b:
+  task: 80ee423c8ececf7bb7054a4d0d41fcf0064982e472c14c2b88e0c04344f3d220
+T012:
+  task: e5f89459546604baab7eb6ab4d0a6b607810726d5cc8b445c8fdae3e7646277d
+T013:
+  task: 0be1e67737760f69d5789ba8270ff6a4ee4a4713b1440c83838b5a87572c3531
+T014:
+  task: d3a603544b5f6ca0d5aecb10140c8db36d61b44b1b83ca8be38155a09da010af
+T015:
+  task: 9d36e55f58401eb685b1509c9ad6541378682a9dfc8be60e20e84264b7cc8060
+T016:
+  task: b5e4ae0660702bb305b3b0a01a334b1e0c5b3aec27b41eb07b61c23a077e4b47
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/preprocess_epoch.py'
+  task: 2d090c42680207d9972296dc19101e9e4739e49fe7725f4acf318b7d466c1bf0
+T018:
+  task: 904450e09757c955c24cf3b0c75bf136f23eab04abd4aa9aec17e715f56dd7c0
+T019:
+  task: ec1e9163e2cc5dd0adf963725c16ed1718ebff9666aaaadb258363bc1e98659a
+T020:
+  task: 21d8a652ff772ea39c2be641382c1eb0d511985586314a06ff099e725e63a828
+T021:
+  task: 262430e895de4820eb4bb07d6ee2c769aae5b9241073e54f3894fc8613c77e4e
+T022:
+  task: a8b2e537e7c356e229c6ad4424ecb6569d1551876d85a47d5c84cbed4f532642
+T023:
+  task: b7bbde05bfc169538d0e61abe25af24e1c24731290b423cdf629d0930a688921
+T024:
+  task: 72d46bffe1daa5cb384218335260e9612af4e2bc0382be06be9f1059d0c8b854
+T025:
+  task: 7f1a83998d3f7f6dc57435d8324509dd3f913173c864b7855097f158384b6623
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/split.py'
+  task: 705911dc79b03947e3b81d5495750cc7163f97245e4ecba3eee85ddf137ea0f4
+T027:
+  task: 71cb2cdd16b9830a6c6612e57ed1f1b3d3a74498bf8ac99554ae8c1e9640ca11
+T028:
+  task: 05ebbe7e8f9660f2d067018a4b282f4ff68e9970c28987f57694bc6454b76f20
+T029:
+  task: bdc29b069255a19b0d572865217a7dd17904222fb7edfee1722d52da7fe24e56
+T030:
+  task: 19db593122368b475632a95d5841c0e6b484a6cb1fc4eaefc95da256be981815
+T031:
+  task: e9a64a6cc1564cc585af8a6b1a6a272f0d04a8c09ac427d06b819c07100dfa72
+T032:
+  task: 34c9089f2fb6f1eacee35cb8b354049cabbc5cf3d54ddef23d9ecb3025e8793c
+T033:
+  task: bab8069f3621a232d9462098ef7410ce9240322b1fcef1e3acb29db309f90ebd
+T034:
+  task: c9330edbe3f0c05e422ff554522d24e7f02ce12aa36109b9074389ffa079bab5
+T035:
+  task: 93fcb4838adf5c0612b5c23b85fc2fc432113983356cff37b99665cfce6298f3
+T036:
+  task: be2e72176072564acf260a445d77ca19b2c6b9552ddeba93f1522d66cf7b0f17
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/permutation_test.py,
+    results/permutation_test.json'
+  task: 4c1dc2623da6c03f7d08feb5135d47528987f63d1c5aef546923579bd3026da4
+T040:
+  task: aebcab46cfac0a133db18836527a9b1b23a29aab870ebf4d988c29a9b9051f97
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/baseline.py, results/baseline_comparison.json'
+  task: 69a1d16bac24d61ebc378986c880092b79ea08ee140c5f46122c9fded032a99c
+T042:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/runtime_profiler.py,
+    results/runtime_profile.json'
+  task: a9bc08fbbcc61e556abf91216dabf597ff7ddc37a2159dec8e99d8bfd1f1afea
+T043:
+  task: 6174e095c1b417f5f9a779931b911edef3e32a10e4f8bd70a6e33d6fdbf4177f

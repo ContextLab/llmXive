@@ -1,9 +1,64 @@
+T002:
+  c: false
+  h: 02ee41ef5af50feb0cfcf60faaa28ae0fdb3436874bf166c5601832c7c3e0e53
+  r: The repository contains a `pyproject.toml` with the required Black configuration,
+    but there is no `.flake8` file present and no evidence (e.g., command output or
+    CI logs) that `flake8 --config .flake8 .` and `black --check .` both succeed.
+    Add a `.flake8` file with appropriate defaults and provide proof that both linting
+    and formatting checks pass.
+  sig: b880a76e2d2d0310c0992f2ad646e7a87acc8fe83e0f897968ee2a9b98a3b94e
+T004:
+  c: false
+  h: b46f36c041811503269df19902f309c1b66725aa799a62a540d148c399beec06
+  r: "All required schema files (`dataset.schema.yaml`, `descriptor.schema.yaml`,\
+    \ `analysis_output.schema.yaml`, `correlation.schema.yaml`, `flexibility.schema.yaml`,\
+    \ `output.schema.yaml`) are missing from `specs/001\u2011exploring\u2011the\u2011\
+    correlation\u2011between\u2011molecu/contracts/`, causing the `pytest` validation\
+    \ test to fail. The task\u2019s core deliverables are absent."
+  sig: 2919d6066b1c16fae1f61de30a2d8def4c3e669ccc25d03c57578b2b7b63022f
 T006:
   c: false
-  h: b211da3f453aa734e9613ec18d12904d547bf4eb8352095f33eaa7a9eb2c1d96
-  r: "The provided `generate_transparency_report.py` file is truncated (ends mid\u2011\
-    function) and never writes the required transparency artifacts or populates `data/`/`code/`.\
-    \ Additionally, the referenced deviation record `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`\
-    \ does not exist, so the script cannot fulfill its core requirement. The task\
-    \ needs a complete, runnable script that reads the YAML record, processes logs,\
-    \ and outputs the mandated artifacts."
+  h: 9914aae3ece5fb48343f57249c7f1395fe8fe5d86fea31a1482bcaab2398bc8b
+  r: "The provided `generate_transparency_report.py` script is present, but it does\
+    \ not contain any logic that actually writes the \u201CComputational Method Transparency\u201D\
+    \ section to `research.md`, and the shown code contains a typo (`DEFAULT_DEVIA`)\
+    \ that would raise a `NameError` if a YAML parse error occurs. Consequently the\
+    \ script does not fully meet the task\u2019s functional requirement."
+T013:
+  c: false
+  h: 0f8b2bd00a943aeddb56260569d969538af7601c9f12a11b0520655413d0c2fa
+  r: "The repository contains a partially shown `generate_conformers` function, but\
+    \ the code is truncated and does not include logic to filter conformers by the\
+    \ 10\u202Fkcal/mol energy window nor any code that writes the resulting ensembles\
+    \ to `data/processed/conformers.pkl`. Moreover, the required `conformers.pkl`\
+    \ file is absent. The task\u2019s output artifact is therefore missing."
+T014:
+  c: false
+  h: bc63d28135f1e3cda3dcbb08261d9d42a6117837efcf91c760951dfa07be3bb4
+  r: "The repository lacks the required `data/processed/conformers.pkl` input and\
+    \ the resulting `data/processed/descriptors_raw.csv` output. Moreover, the provided\
+    \ `code/data/descriptors.py` is truncated and does not contain the full implementation\
+    \ (e.g., conversion to XYZ, pyvib call, variance calculations, CSV writing, and\
+    \ the <450\u2011descriptor threshold check). These missing artifacts prevent the\
+    \ task from being genuinely completed."
+T015:
+  c: false
+  h: b4371263f668ed119ce1e3c05b4f98bf06fd7a22405295bf9cba0d949973a711
+  r: The analysis script defines a `calculate_bivariate_correlations` function that
+    computes the required Pearson and Spearman correlations, but it never writes the
+    results to `data/processed/correlation_diagnostic.csv` nor is the function invoked.
+    Consequently, the expected CSV file is missing from the repository. The task requires
+    both the computation and the saved output, which are not fully implemented.
+T016:
+  c: false
+  h: b4371263f668ed119ce1e3c05b4f98bf06fd7a22405295bf9cba0d949973a711
+  r: "The provided `analysis.py` does not contain any Benjamini\u2011Hochberg FDR\
+    \ correction logic nor code that writes a CSV with corrected q\u2011values, and\
+    \ the required output file `data/processed/correlation_diagnostic.csv` is absent.\
+    \ The task\u2019s core requirement is therefore unmet."
+T025:
+  c: false
+  h: a3042d1cf2056fa36e1c3ed3b7464fc109eaf5f0dcc7f6aaf3d27529a4597053
+  r: The required artifact `data/processed/enriched_data.csv` does not exist, so the
+    implementer could not read the `mw` column nor append a `complexity_metric` column
+    as specified. The task therefore remains unfinished.

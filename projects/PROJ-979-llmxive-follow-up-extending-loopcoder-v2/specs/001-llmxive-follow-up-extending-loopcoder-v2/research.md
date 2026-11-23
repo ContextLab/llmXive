@@ -1,90 +1,75 @@
-# Research: llmXive follow-up: extending "LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scali"
-
-## Problem Statement
-
-The core research question is whether the initial semantic uncertainty (entropy) of a hidden state in an iterative refinement model predicts its convergence trajectory on complex code generation tasks. Specifically, we investigate if high initial entropy correlates with a need for more refinement loops ($k$) to reach a correct solution. This is an **observational study**; findings will be framed as **associational**, not causal. The router simulation is an **ex-post feasibility analysis** to determine if the observed correlation could theoretically be leveraged for FLOPs savings.
+# Research: llmXive follow-up: extending "LoopCoder-v2"
 
 ## Dataset Strategy
 
-The study utilizes two primary code generation benchmarks: HumanEval and MBPP. These datasets provide the necessary ground truth (reference solutions) to determine convergence.
+| Dataset | Source URL (Verified) | Loader Strategy | Variables Used |
+|:--- |:--- |:--- |:--- |
+| **HumanEval** | ` | `datasets.load_dataset("parquet", data_files=...)` | `prompt`, `canonical_solution`, `test` (for execution) |
+| **MBPP** | ` | `datasets.load_dataset("parquet", data_files=...)` | `text`, `code`, `test_list` (for execution) |
+| **CodeLlama** | ` | Reference only (Model weights via `transformers`) | Model checkpoint: `meta-llama/CodeLlama-7b-Instruct-hf` |
 
-| Dataset | Source URL | Format | Usage |
-|---------|------------|--------|-------|
-| **HumanEval** | https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet | Parquet | Primary benchmark for code generation correctness. |
-| **MBPP** | https://huggingface.co/datasets/google-research-datasets/mbpp/resolve/main/full/prompt-00000-of-00001.parquet | Parquet | Secondary benchmark to ensure generalizability across code styles. |
-| **Model** | https://huggingface.co/codellama/CodeLlama-3b-Instruct-hf | PyTorch | **Pivot**: Replaces unverified "LoopCoder-v2". CodeLlama-Instruct is a verified open-weight model capable of iterative refinement via manual loop logic. Fits in ~6GB RAM (FP32) for 1.3b, satisfying CPU constraints for validation. |
+**Dataset Rationale**:
+- **HumanEval/MBPP**: These are the standard benchmarks for code generation. They provide the necessary `prompt` (input) and `canonical_solution`/`test` (ground truth) to compute convergence trajectories.
+- **CodeLlama-7b**: Selected as the target model for iterative refinement. The 7B size balances capability with feasibility on a single T4/V100 GPU (Kaggle).
+- **Variable Fit**: Both datasets contain the exact variables needed: `prompt` for entropy extraction, `canonical_solution` or `test` for convergence verification. No required variables are missing.
+- **Feasibility**: Both are open, directly downloadable via HuggingFace `parquet` files, and fit within the CI runner's memory when streamed or processed in batches.
 
-**Dataset-variable Fit**: Both HumanEval and MBPP contain the `prompt` and `canonical_solution` fields required to compute correctness. They do not contain internal model states; these must be generated via inference. The study requires an iterative model; CodeLlama-3b is used with a manual loop implementation to satisfy this.
+## Methodology & Statistical Rigor
 
-**Model Pivot Rationale**: The "LoopCoder-v2" checkpoint is not verified or publicly available. The plan pivots to `CodeLlama-3b-Instruct` (GPU) and `CodeLlama-1.3b-Instruct` (CPU) as verified alternatives that support iterative refinement.
+### 1. Semantic Entropy Extraction (FR-001)
+- **Method**: For each input $x$, generate $N=10$ samples using the model at temperature $T=0.8$.
+- **Clustering**: Cluster samples by semantic equivalence.
+ - **Implementation**: Parse code to AST. Normalize AST using `ast.unparse` with a standardized variable naming scheme. Compute a hash of the normalized AST using `hashlib.sha256`. Group samples by identical AST hashes.
+ - **Correction**: The spec requires clustering on *unseen* inputs. We will use the `test` suite execution results *only* for convergence, not for clustering. Clustering relies solely on AST normalization of the generated code.
+- **Entropy Calculation**: $H = -\sum p_i \log p_i$, where $p_i$ is the proportion of samples in cluster $i$.
+- **Edge Case**: If all samples have identical AST (deterministic), assign minimal entropy $\epsilon = 10^{-9}$ or exclude the sample, documenting the exclusion rate (See **FR-007**).
 
-## Methodology
+### 2. Convergence Trajectory (FR-002, FR-003)
+- **Execution**: Run iterative refinement for a range of iterations.
+ - $k=1$: Single pass.
+ - $k=2, 3$: Feed previous output + prompt back into the model.
+- **Convergence Definition**: First $k$ where the generated code passes all unit tests in the benchmark's `test` suite.
+- **Censored Data**: If no solution passes at $k=3$, mark as censored at $k=3$.
+- **Analysis**: Use **Kaplan-Meier Estimator** to compute survival curves (probability of *not* converging by step $k$). Compute **Spearman's $\rho$** between initial entropy and the *median survival time* (or use a Cox proportional hazards model if covariates are added).
 
-### Phase 1: Entropy Extraction (FR-001)
-For each input problem $x$:
-1. Generate $N=10$ samples using the model at loop count $k=1$.
-2. **Clustering**: Cluster samples by **exact code match** (string hashing) to determine semantic equivalence.
-   - **Sandboxed Execution**: Generated code is executed in a `docker` container or restricted `subprocess` environment with a 5-second timeout to prevent hanging/unsafe code.
-   - If execution fails or times out, the sample is treated as a unique cluster.
-   - **Crucial Distinction**: Entropy is computed based on the distribution of *unique code strings* (or execution results if available, but primarily string matching to avoid circularity with ground truth correctness). If the model generates the correct solution, it is just one cluster; this does not force entropy to zero unless all 10 samples are identical.
-3. Compute Shannon entropy $H = -\sum p_i \log p_i$ over cluster probabilities.
-4. **Edge Cases**: If $N$ samples are identical (zero entropy), assign a minimal non-zero value $\epsilon$ or exclude (log exclusion rate).
-5. **Output**: Write results to `data/processed/entropy_results.csv`. **Strict Separation**: This step does not run convergence loops.
+### 3. Dynamic Router Simulation (FR-004, FR-006)
+- **Model**: **Ordinal Logistic Regression** to predict optimal loop count $k \in \{1, 2, 3\}$.
+- **Training**: 5-fold cross-validation on the dataset.
+- **Baselines**:
+ - **Random Baseline**: Predict $k=1$ for all samples (or uniform random).
+ - **Static Baseline (k=2)**: Always predict $k=2$. This is the realistic deployment target for the non-inferiority test.
+ - **Oracle Baseline**: Knows the true optimal $k$ (used **only** to calculate theoretical maximum FLOPs savings, NOT for statistical non-inferiority testing).
+- **Metrics**:
+ - **Accuracy**: Classification accuracy of predicting the optimal $k$.
+ - **FLOPs Savings**: $(\text{Static } k_{avg} - \text{Router } k_{avg}) \times \text{FLOPs per step}$. The "Static $k_{avg}$" for the *savings calculation* can be compared against the Oracle's theoretical minimum, but the *statistical test* is against the Static k=2 baseline.
+ - **Non-Inferiority**: One-sided t-test or equivalence test (equivalence margin $\delta = 0.05$) comparing Router Accuracy vs **Static k=2** baseline accuracy. The Oracle is excluded from this statistical test as it represents a theoretical upper bound, not a deployable baseline.
 
-### Phase 2: Convergence Tracking (FR-002)
-For each input $x$:
-1. Run iterative refinement for $k \in \{1, 2, 3\}$.
-2. Record the first $k$ where the output matches the canonical solution.
-3. **Non-Convergence Handling**: If no match at $k=3$, label as "non-convergence" (mapped to $k=4$ for router simulation).
-4. **Output**: Write results to `data/processed/convergence_results.csv`.
+### 4. Robustness & Sensitivity (FR-005, FR-007)
+- **Multiple Comparisons**: Apply **Holm-Bonferroni** correction to p-values from strata-specific correlations.
+- **Sensitivity**: Sweep convergence threshold $k \in \{, 3, 4\}$ (if data permits) and report variation in $\rho$.
+- **Strata**: Define difficulty strata based on baseline pass@1 rates from literature (fixed a priori). Use **Hierarchical Mixed-Effects Models** for small strata ($<50$ samples) to borrow strength across groups.
 
-### Phase 3: Correlation Analysis (FR-003)
-1. Compute Spearman rank correlation ($\rho$) between initial entropy and convergence step.
-2. **Statistical Validity**: Use a **permutation test** (1000 permutations) to calculate p-values, avoiding assumptions of bivariate normality required by t-test approximations.
-3. Report p-value and effect size.
-4. **Null Hypothesis**: $H_0: \rho = 0$ (no association).
+## Compute Feasibility & GPU Strategy
 
-### Phase 4: Router Simulation (FR-004, FR-006)
-1. **Ex-Post Feasibility Study**: Train a logistic regression model to predict "optimal $k$" (binary: $k=1$ vs $k>1$) using entropy as the sole predictor.
-   - **Label Definition**: "Optimal $k$" is $1$ if convergence occurs at $k=1$, otherwise $>1$. Non-convergence ($k=4$) is grouped into $>1$.
-   - **Data Leakage Warning**: The label is derived from ground truth. This simulation tests if entropy *could* predict convergence, not if it can be deployed without ground truth. The router is **non-deployable** in a real-time setting without access to the ground truth label used for training.
- - **Out-of-Sample Validation**: The dataset is split into a training set and a held-out test set using stratified sampling. The model is trained on the [deferred] and evaluated on the [deferred] to ensure the decision boundary generalizes.
-2. **Random Baseline**: Compare against a baseline that always predicts $k=1$.
-3. **Statistical Test**: Use **McNemar's test** to compare the router's accuracy against the random baseline (paired data: router vs baseline on the same test set samples).
-4. **FLOPs Savings**: Compare total FLOPs of the dynamic router vs. a static $k=2$ baseline.
-5. **Non-Inferiority**: Perform a paired t-test (or non-inferiority test) to ensure accuracy does not drop significantly compared to static $k=2$.
+- **CPU vs. GPU**:
+ - **CPU**: Infeasible for CodeLlama-7b inference at the required scale ($N=164 \times 10 \times 3 \approx 5000$ forward passes).
+ - **GPU**: Required. We will use the **Kaggle GPU escape hatch**.
+- **Scaling**:
+ - **Batching**: Process inputs in batches sized to fit VRAM.
+ - **Precision**: Use `float16` or `bfloat16` to reduce memory footprint.
+ - **Streaming**: If dataset size exceeds memory, stream batches from HuggingFace.
+- **Runtime Estimate**:
+ - Large-scale model inference: approximately a few seconds per sample (with batching).
+ - Total samples: several thousand.
+ - Total time: within Kaggle's time limit.
 
-### Phase 5: Robustness & Sensitivity (FR-005, SC-003, SC-004)
-1. **Multiple Comparisons**: Apply Holm-Bonferroni correction to p-values if correlations are computed across difficulty strata.
-2. **Sensitivity Analysis**: Sweep convergence threshold $k \in \{2, 3, 4\}$ and report variation in $\rho$.
-3. **Underpowered Strata**:
-   - If a stratum has $n < 50$, it is flagged as "underpowered".
-   - **Dynamic Handling**: If the total sample size (e.g., N=50 for CPU validation) prevents creating strata with $n \ge 50$, the analysis will proceed on the full unstratified set or merge strata (e.g., Easy/Hard) to maintain statistical validity. The 'underpowered' flag is recorded in the output for transparency.
+## Statistical Power & Limitations
 
-## Statistical Rigor & Assumptions
-
-- **Observational Nature**: The study is observational. Claims will be framed as "associational" rather than causal. No randomization of model architecture occurs.
-- **Multiple Comparisons**: If testing correlations across multiple difficulty strata, the Holm-Bonferroni method will be used to control the family-wise error rate.
-- **Power Limitations**: The sample size is constrained by the fixed size of HumanEval and MBPP. The plan acknowledges that for fine-grained strata, power may be low. If a stratum is underpowered ($n < 50$), it will be merged or excluded, and results reported with caution. The CPU validation run (N=50) is a feasibility check; full statistical power is only available in the GPU run.
-- **Collinearity**: Entropy and convergence are distinct variables. However, if multiple predictors are used in the router (e.g., entropy + prompt length), collinearity diagnostics (VIF) will be reported.
-- **Measurement Validity**: Semantic entropy is computed using the standard method (Kuhn et al., 2023): $N=10$ samples, clustering by semantic equivalence (exact code match).
-
-## Compute Feasibility
-
-- **Hardware**:
-  - **Validation Mode**: CPU-only (2 vCPU, 7GB RAM). Uses `CodeLlama-1.3b-Instruct` (FP32, ~3GB). Sample size restricted to N=50 to fit within 6 hours.
-  - **Full Analysis Mode**: GPU (T4/V100, 16GB+ VRAM). Uses `CodeLlama-3b` or `7b` (FP32). Runs full dataset to satisfy SC-005.
-- **Strategy**: 
-  - **Model Pivot**: `LoopCoder-v2` is not verified. `CodeLlama-1.3b` (CPU) and `CodeLlama-3b/7b` (GPU) are used as verified alternatives.
-  - **Sandboxing**: Code execution is restricted to prevent hanging.
-  - **Parallelism**: Inference will be sequential or limited to a small number of parallel processes to avoid memory swapping on CPU.
-  - **Fallback**: If `CodeLlama-1.3b` exceeds memory on CPU, the plan falls back to `CodeLlama-0.5b` (if available) or reduces sample size further.
-
-## Decision Rationale
-
-- **Why CodeLlama?** It is a verified, open-weight model that fits within the memory constraints of the validation environment and supports iterative refinement via manual logic.
-- **Why $N=10$ samples?** This is a standard compromise between computational cost and entropy estimation accuracy (Kuhn et al.).
-- **Why $k \in \{1, 2, 3\}$?** The spec limits this range. Extending to $k=4$ or higher would increase runtime linearly and may not be necessary for the "early exit" hypothesis.
-- **Why Permutation Test?** It is robust for small sample sizes and discrete data, avoiding the normality assumptions of t-tests.
-- **Why McNemar's Test?** It is appropriate for comparing paired nominal data (router vs. random baseline on the same samples).
-- **Why 80/20 Split?** To ensure the router's decision boundary is validated on unseen data, preventing overfitting and providing a realistic estimate of performance.
+- **Power Analysis**:
+ - **Sample Size**: HumanEval ($N=164$) + MBPP (subset). Total $N \approx 400-500$.
+ - **Effect Size**: Target MDES $\rho = 0.2$ (small-to-medium).
+ - **Power**: With $N=400$, power to detect $\rho=0.2$ at $\alpha=0.05$ is $\approx 0.85$.
+ - **Limitation**: If the true effect is smaller ($\rho < 0.1$), the study will be underpowered. This will be explicitly stated.
+- **Causal Claims**:
+ - **Observational**: No random assignment of architecture. All findings regarding the relationship between entropy and convergence will be framed as associational, not causal.
+ - **Collinearity**: Entropy and convergence are distinct; however, if predictors are highly correlated, collinearity diagnostics (VIF) will be reported.

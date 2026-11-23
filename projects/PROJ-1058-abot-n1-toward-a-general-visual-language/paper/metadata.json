@@ -99,5 +99,11 @@
     "sections/related.tex",
     "solarized-light.sty",
     "solarized.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "a06ea17219622c8cb3e1f51879cbd310286279fc4a06c799c877c3765877f7d8",
+      "bytes": 49031
+    }
+  }
 }

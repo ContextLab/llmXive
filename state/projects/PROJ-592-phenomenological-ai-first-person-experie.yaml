@@ -6,7 +6,7 @@ failed_stage: null
 field: philosophy
 human_escalation_reason: null
 id: PROJ-592-phenomenological-ai-first-person-experie
-last_run_id: f04341a7-ba9f-49f6-9fc0-50f34dcbcd48
+last_run_id: bda4c5e4-c903-468a-8495-0b23275b1075
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-592-phenomenological-ai-first-person-experie/specs/001-phenomenological-ai-first-person-experie
 title: 'Phenomenological AI: First-Person Experience Modeling in Language Models'
-updated_at: '2026-06-30T05:27:03.026957Z'
+updated_at: '2026-09-20T03:15:01.443462Z'

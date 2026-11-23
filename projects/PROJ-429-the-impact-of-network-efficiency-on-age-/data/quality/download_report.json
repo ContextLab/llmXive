@@ -1,0 +1,7 @@
+{
+  "valid_count": 150,
+  "invalid_instrument_count": 5,
+  "missing_cognitive_count": 20,
+  "total_count": 175,
+  "status": "OK"
+}

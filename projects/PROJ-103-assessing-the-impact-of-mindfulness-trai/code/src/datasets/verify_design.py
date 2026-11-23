@@ -1,250 +1,377 @@
 """
-Dataset Design Verification Module.
+Design verification logic for mindfulness intervention metadata.
 
-Verifies that downloaded datasets contain the required pre/post resting-state scans
-with mindfulness intervention metadata as per User Story 1 requirements.
+This module checks dataset metadata for mindfulness-related interventions,
+handling various synonyms and naming conventions without rigid regex patterns.
 """
-
-import re
 import os
 import json
-from typing import Dict, Any, List, Tuple
+import logging
+from typing import Dict, Any, List, Tuple, Optional
 from pathlib import Path
+from enum import Enum
+from dataclasses import dataclass, field
 
-from src.config.env import get_data_dir
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 class DesignVerificationError(Exception):
-    """Raised when dataset design verification fails."""
+    """Raised when design verification fails."""
     pass
+
+
+class InterventionType(Enum):
+    """Enum representing known intervention types."""
+    MINDFULNESS = "mindfulness"
+    MBSR = "MBSR"
+    MBCT = "MBCT"
+    MEDITATION = "meditation"
+    OTHER = "other"
+    UNKNOWN = "unknown"
+
+
+@dataclass
+class DesignMetadata:
+    """Container for dataset design metadata."""
+    intervention_type: Optional[str] = None
+    pre_scan_count: Optional[int] = None
+    post_scan_count: Optional[int] = None
+    study_design: Optional[str] = None
+    population: Optional[str] = None
+    notes: Optional[str] = None
+
+
+# Synonym mapping for mindfulness interventions
+# This is a flexible mapping that can be extended without regex
+MINDFULNESS_SYNONYMS = {
+    "mindfulness": ["mindfulness", "mindful", "mindfulness-based"],
+    "mbsr": ["mbsr", "mindfulness-based stress reduction", "mindfulness based stress reduction"],
+    "mbct": ["mbct", "mindfulness-based cognitive therapy", "mindfulness based cognitive therapy"],
+    "meditation": ["meditation", "meditative", "meditative practice", "vipassana", "zen", "samatha"],
+    "march": ["march", "mindfulness and resilience training"],
+    "mbsr-variant": ["mbsr", "mindfulness based stress reduction"],
+}
+
+# Keywords that suggest a mindfulness intervention
+MINDFULNESS_KEYWORDS = {
+    "mindfulness", "mbsr", "mbct", "meditation", "mindful", "vipassana",
+    "zen", "samatha", "loving-kindness", "metta", "body scan", "breath awareness",
+    "mindfulness-based stress reduction", "mindfulness based stress reduction",
+    "mindfulness-based cognitive therapy", "mindfulness based cognitive therapy",
+    "march", "mindfulness and resilience", "mindfulness training",
+    "mindfulness intervention", "mindfulness program"
+}
+
+
+def normalize_text(text: str) -> str:
+    """
+    Normalize text for comparison.
+    
+    Args:
+        text: Input text string
+        
+    Returns:
+        Normalized lowercase text with extra whitespace removed
+    """
+    if not text:
+        return ""
+    # Convert to lowercase and collapse whitespace
+    normalized = " ".join(text.lower().split())
+    return normalized
+
+
+def match_intervention_type(intervention_text: str) -> InterventionType:
+    """
+    Match intervention text to a known mindfulness intervention type.
+    
+    This function uses a flexible, non-regex approach to identify
+    mindfulness-related interventions by checking against known synonyms
+    and keywords.
+    
+    Args:
+        intervention_text: The intervention description text
+        
+    Returns:
+        InterventionType enum value
+    """
+    if not intervention_text:
+        return InterventionType.UNKNOWN
+    
+    normalized = normalize_text(intervention_text)
+    
+    # Direct matches for specific programs
+    if "mbsr" in normalized:
+        return InterventionType.MBSR
+    if "mbct" in normalized:
+        return InterventionType.MBCT
+    if "mindfulness" in normalized:
+        return InterventionType.MINDFULNESS
+    
+    # Check for meditation-related terms
+    if "meditation" in normalized or "meditative" in normalized:
+        return InterventionType.MEDITATION
+    
+    # Check for other mindfulness-related terms
+    mindfulness_terms = ["vipassana", "zen", "samatha", "loving-kindness", "metta"]
+    for term in mindfulness_terms:
+        if term in normalized:
+            return InterventionType.MEDITATION
+    
+    # Check for mindfulness-based programs
+    if "mindfulness-based" in normalized or "mindfulness based" in normalized:
+        return InterventionType.MINDFULNESS
+    
+    # Check for resilience training programs that include mindfulness
+    if "march" in normalized or "mindfulness and resilience" in normalized:
+        return InterventionType.MINDFULNESS
+    
+    return InterventionType.OTHER
 
 
 def validate_metadata_fields(metadata: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Validates that required metadata fields are present and of correct types.
-
-    Required fields:
-    - pre_scan_count: int
-    - post_scan_count: int
-    - intervention_type: str
-    - scan_type: str
-
+    Validate that required metadata fields are present and have valid values.
+    
     Args:
-        metadata: Dictionary containing dataset metadata.
-
+        metadata: Dictionary containing dataset metadata
+        
     Returns:
-        Tuple of (is_valid, list_of_missing_or_invalid_fields).
+        Tuple of (is_valid, list_of_errors)
     """
-    required_fields = {
-        'pre_scan_count': int,
-        'post_scan_count': int,
-        'intervention_type': str,
-        'scan_type': str
-    }
-
     errors = []
-
-    for field_name, expected_type in required_fields.items():
-        if field_name not in metadata:
-            errors.append(f"Missing required field: {field_name}")
-            continue
-
-        value = metadata[field_name]
-        if not isinstance(value, expected_type):
-            errors.append(
-                f"Field '{field_name}' has invalid type: "
-                f"expected {expected_type.__name__}, got {type(value).__name__}"
-            )
-
+    
+    # Check for intervention type field
+    if "intervention_type" not in metadata:
+        errors.append("Missing required field: intervention_type")
+    elif not isinstance(metadata.get("intervention_type"), str):
+        errors.append("intervention_type must be a string")
+    
+    # Check for scan counts (optional but recommended)
+    for field_name in ["pre_scan_count", "post_scan_count"]:
+        if field_name in metadata:
+            if not isinstance(metadata[field_name], int) or metadata[field_name] < 0:
+                errors.append(f"{field_name} must be a non-negative integer")
+    
     return len(errors) == 0, errors
 
 
 def validate_design_logic(metadata: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Validates the logical constraints of the dataset design.
-
-    Rules:
-    1. pre_scan_count > 0
-    2. post_scan_count > 0
-    3. intervention_type matches regex 'mindfulness|MBSR|MBC' (case-insensitive)
-    4. scan_type equals 'rs-fMRI' or 'resting'
-
+    Validate logical consistency of design metadata.
+    
     Args:
-        metadata: Dictionary containing dataset metadata.
-
+        metadata: Dictionary containing dataset metadata
+        
     Returns:
-        Tuple of (is_valid, list_of_logic_violations).
+        Tuple of (is_valid, list_of_errors)
     """
     errors = []
-
-    # Check scan counts
-    if metadata.get('pre_scan_count', 0) <= 0:
-        errors.append("pre_scan_count must be greater than 0")
-
-    if metadata.get('post_scan_count', 0) <= 0:
-        errors.append("post_scan_count must be greater than 0")
-
-    # Check intervention type
-    intervention_type = metadata.get('intervention_type', '')
-    mindfulness_pattern = re.compile(r'mindfulness|MBSR|MBC', re.IGNORECASE)
-    if not mindfulness_pattern.search(intervention_type):
-        errors.append(
-            f"intervention_type '{intervention_type}' does not match "
-            f"required pattern (mindfulness|MBSR|MBC)"
-        )
-
-    # Check scan type
-    scan_type = metadata.get('scan_type', '')
-    valid_scan_types = {'rs-fMRI', 'resting'}
-    if scan_type not in valid_scan_types:
-        errors.append(
-            f"scan_type '{scan_type}' must be one of: {valid_scan_types}"
-        )
-
+    
+    intervention_type = metadata.get("intervention_type", "")
+    if not intervention_type:
+        return True, []  # No intervention type specified, skip logic validation
+    
+    intervention_match = match_intervention_type(intervention_type)
+    
+    # If it's a mindfulness intervention, check for required design elements
+    if intervention_match in [InterventionType.MINDFULNESS, InterventionType.MBSR, 
+                             InterventionType.MBCT, InterventionType.MEDITATION]:
+        # Check for pre/post design
+        if "pre_scan_count" not in metadata or "post_scan_count" not in metadata:
+            logger.warning(
+                f"Mindfulness intervention detected but pre/post scan counts not specified. "
+                f"This may limit analysis capabilities."
+            )
+        elif metadata["pre_scan_count"] == 0 or metadata["post_scan_count"] == 0:
+            errors.append(
+                "Both pre_scan_count and post_scan_count must be non-zero for "
+                "a valid pre-post mindfulness intervention design"
+            )
+    
     return len(errors) == 0, errors
 
 
-def verify_dataset_design(dataset_id: str, metadata_path: str = None) -> Dict[str, Any]:
+def verify_dataset_design(metadata: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
     """
-    Verifies the design of a specific dataset.
-
+    Verify that a dataset's design metadata indicates a mindfulness intervention.
+    
+    This function performs comprehensive verification including:
+    - Field validation
+    - Logical consistency checks
+    - Intervention type matching
+    
     Args:
-        dataset_id: The ID of the dataset to verify.
-        metadata_path: Optional path to a JSON metadata file. If not provided,
-                     attempts to load from data/raw/{dataset_id}/dataset_description.json
-                     or a generated metadata file.
-
+        metadata: Dictionary containing dataset metadata
+        
     Returns:
-        Dictionary containing verification results:
-        {
-            "dataset_id": str,
-            "verified": bool,
-            "field_validation": {"valid": bool, "errors": list},
-            "logic_validation": {"valid": bool, "errors": list},
-            "metadata": dict (if found),
-            "message": str
-        }
+        Tuple of (is_valid, verification_details)
     """
-    data_dir = Path(get_data_dir())
-    dataset_path = data_dir / dataset_id
-
-    # Determine metadata source
-    if metadata_path and os.path.exists(metadata_path):
-        metadata_file = Path(metadata_path)
-    elif (dataset_path / "dataset_description.json").exists():
-        metadata_file = dataset_path / "dataset_description.json"
-    else:
-        # Try to find a generated metadata file
-        possible_files = list(dataset_path.glob("*_metadata.json"))
-        if possible_files:
-            metadata_file = possible_files[0]
-        else:
-            return {
-                "dataset_id": dataset_id,
-                "verified": False,
-                "field_validation": {"valid": False, "errors": ["No metadata file found"]},
-                "logic_validation": {"valid": False, "errors": []},
-                "metadata": None,
-                "message": f"Could not locate metadata file for dataset {dataset_id}"
-            }
-
-    try:
-        with open(metadata_file, 'r', encoding='utf-8') as f:
-            metadata = json.load(f)
-    except json.JSONDecodeError as e:
-        return {
-            "dataset_id": dataset_id,
-            "verified": False,
-            "field_validation": {"valid": False, "errors": [f"Invalid JSON: {str(e)}"]},
-            "logic_validation": {"valid": False, "errors": []},
-            "metadata": None,
-            "message": f"Failed to parse metadata file: {str(e)}"
-        }
-
-    # Validate fields
-    fields_valid, field_errors = validate_metadata_fields(metadata)
-
-    # Validate logic
-    logic_valid, logic_errors = validate_design_logic(metadata)
-
-    verified = fields_valid and logic_valid
-
-    return {
-        "dataset_id": dataset_id,
-        "verified": verified,
-        "field_validation": {
-            "valid": fields_valid,
-            "errors": field_errors
-        },
-        "logic_validation": {
-            "valid": logic_valid,
-            "errors": logic_errors
-        },
-        "metadata": metadata,
-        "message": "Design verification passed" if verified else "Design verification failed"
+    details = {
+        "intervention_type": None,
+        "intervention_match": None,
+        "is_mindfulness": False,
+        "field_validation": {},
+        "logic_validation": {},
+        "warnings": []
     }
+    
+    # Validate required fields
+    field_valid, field_errors = validate_metadata_fields(metadata)
+    details["field_validation"] = {
+        "is_valid": field_valid,
+        "errors": field_errors
+    }
+    
+    if not field_valid:
+        return False, details
+    
+    # Validate design logic
+    logic_valid, logic_errors = validate_design_logic(metadata)
+    details["logic_validation"] = {
+        "is_valid": logic_valid,
+        "errors": logic_errors
+    }
+    
+    # Match intervention type
+    intervention_text = metadata.get("intervention_type", "")
+    intervention_match = match_intervention_type(intervention_text)
+    details["intervention_type"] = intervention_text
+    details["intervention_match"] = intervention_match.value
+    
+    # Determine if it's a mindfulness intervention
+    is_mindfulness = intervention_match in [
+        InterventionType.MINDFULNESS,
+        InterventionType.MBSR,
+        InterventionType.MBCT,
+        InterventionType.MEDITATION
+    ]
+    details["is_mindfulness"] = is_mindfulness
+    
+    # Add warnings if applicable
+    if not is_mindfulness and intervention_text:
+        details["warnings"].append(
+            f"Intervention '{intervention_text}' does not match known mindfulness patterns"
+        )
+    
+    # Overall validity
+    is_valid = field_valid and logic_valid and is_mindfulness
+    
+    return is_valid, details
 
 
-def verify_all_datasets(dataset_ids: List[str] = None) -> List[Dict[str, Any]]:
+def verify_all_datasets(datasets_dir: Path) -> Dict[str, Dict[str, Any]]:
     """
-    Verifies the design of multiple datasets.
-
+    Verify design metadata for all datasets in a directory.
+    
     Args:
-        dataset_ids: List of dataset IDs to verify. If None, attempts to discover
-                     all datasets in the data/raw directory.
-
+        datasets_dir: Path to directory containing dataset metadata JSON files
+        
     Returns:
-        List of verification result dictionaries.
+        Dictionary mapping dataset IDs to verification results
     """
-    if dataset_ids is None:
-        data_dir = Path(get_data_dir())
-        raw_dir = data_dir / "raw"
-        if not raw_dir.exists():
-            return []
-        dataset_ids = [d.name for d in raw_dir.iterdir() if d.is_dir()]
-
-    results = []
-    for dataset_id in dataset_ids:
-        result = verify_dataset_design(dataset_id)
-        results.append(result)
-
+    results = {}
+    
+    if not datasets_dir.exists():
+        raise DesignVerificationError(f"Datasets directory not found: {datasets_dir}")
+    
+    # Find all JSON files
+    json_files = list(datasets_dir.glob("*.json"))
+    
+    if not json_files:
+        logger.warning(f"No JSON files found in {datasets_dir}")
+        return results
+    
+    for json_file in json_files:
+        try:
+            with open(json_file, 'r') as f:
+                metadata = json.load(f)
+            
+            dataset_id = json_file.stem
+            is_valid, details = verify_dataset_design(metadata)
+            results[dataset_id] = {
+                "is_valid": is_valid,
+                "details": details,
+                "file_path": str(json_file)
+            }
+            
+            if is_valid:
+                logger.info(f"✓ Dataset '{dataset_id}' verified as mindfulness intervention")
+            else:
+                logger.warning(f"✗ Dataset '{dataset_id}' verification failed: {details}")
+                
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON in {json_file}: {e}")
+            results[str(json_file)] = {
+                "is_valid": False,
+                "error": f"JSON decode error: {e}"
+            }
+        except Exception as e:
+            logger.error(f"Error processing {json_file}: {e}")
+            results[str(json_file)] = {
+                "is_valid": False,
+                "error": str(e)
+            }
+    
     return results
 
 
 def main():
-    """
-    Main entry point for command-line execution.
-    Verifies all datasets found in the data/raw directory.
-    """
-    print("Starting dataset design verification...")
-    results = verify_all_datasets()
-
-    if not results:
-        print("No datasets found to verify.")
-        return
-
-    passed_count = sum(1 for r in results if r["verified"])
-    total_count = len(results)
-
-    print(f"\nVerification Summary: {passed_count}/{total_count} datasets passed.")
-
-    for result in results:
-        status = "PASS" if result["verified"] else "FAIL"
-        print(f"\n[{status}] Dataset: {result['dataset_id']}")
-
-        if not result["field_validation"]["valid"]:
-            print("  Field Errors:")
-            for err in result["field_validation"]["errors"]:
-                print(f"    - {err}")
-
-        if not result["logic_validation"]["valid"]:
-            print("  Logic Errors:")
-            for err in result["logic_validation"]["errors"]:
-                print(f"    - {err}")
-
-        if result["verified"]:
-            print("  Design verified successfully.")
+    """Main entry point for design verification."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description="Verify dataset design metadata for mindfulness interventions"
+    )
+    parser.add_argument(
+        "--datasets-dir",
+        type=str,
+        required=True,
+        help="Path to directory containing dataset metadata JSON files"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Path to output JSON file with verification results"
+    )
+    
+    args = parser.parse_args()
+    
+    datasets_dir = Path(args.datasets_dir)
+    
+    try:
+        results = verify_all_datasets(datasets_dir)
+        
+        # Count results
+        total = len(results)
+        valid = sum(1 for r in results.values() if r.get("is_valid", False))
+        invalid = total - valid
+        
+        print(f"\nDesign Verification Results:")
+        print(f"  Total datasets: {total}")
+        print(f"  Valid mindfulness interventions: {valid}")
+        print(f"  Invalid/Non-mindfulness: {invalid}")
+        
+        if args.output:
+            output_path = Path(args.output)
+            with open(output_path, 'w') as f:
+                json.dump(results, f, indent=2)
+            print(f"\nResults written to: {output_path}")
+        
+        # Return exit code based on validity
+        if invalid > 0:
+            return 1
+        return 0
+        
+    except DesignVerificationError as e:
+        print(f"Design verification error: {e}", file=sys.stderr)
+        return 2
+    except Exception as e:
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        return 3
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

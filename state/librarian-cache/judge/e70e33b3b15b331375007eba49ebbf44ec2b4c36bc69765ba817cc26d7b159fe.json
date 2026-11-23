@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.17646",
+  "judged_at": "2026-09-19T15:17:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of social media algorithm transparency on user well-being psychology",
+  "rationale": "The paper focuses on the effectiveness of religious communication strategies (da'wah) and audience engagement metrics on specific platforms, which is a distinct construct from the user's question regarding the causal impact of *algorithm transparency* on *user well-being*. It fails to measure the independent variable (transparency) or the dependent variable (psychological well-being) and does not address the underlying mechanism of algorithmic opacity, thus falling under the \"Distinct construct\"",
+  "relevant": false
+}

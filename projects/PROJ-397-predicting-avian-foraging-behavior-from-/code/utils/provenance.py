@@ -1,213 +1,150 @@
-"""
-Provenance utilities for the llmXive automated science pipeline.
-
-This module provides functionality for:
-- Generating deterministic hashes for data files
-- Logging metadata for reproducibility
-- Tracking pipeline execution context
-"""
 import hashlib
 import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List
+import yaml
 
-from .config import get_project_root, get_output_dir
+# Import config to get paths
+from utils.config import get_metadata_file, get_project_root
 
-
-def compute_file_hash(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
-    """
-    Compute a cryptographic hash of a file's contents.
-
-    Args:
-        file_path: Path to the file to hash.
-        algorithm: Hash algorithm to use (default: sha256).
-
-    Returns:
-        Hexadecimal string representation of the hash.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
-    """
+def compute_file_hash(file_path: Union[str, Path]) -> str:
+    """Compute SHA-256 hash of a file."""
     file_path = Path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
-    hasher = hashlib.new(algorithm)
+    
+    sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(8192), b""):
-            hasher.update(chunk)
-    return hasher.hexdigest()
-
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 def compute_data_hash(data: Any) -> str:
-    """
-    Compute a deterministic hash of Python data structures.
-
-    Args:
-        data: Any Python object (dict, list, etc.).
-
-    Returns:
-        Hexadecimal string representation of the hash.
-    """
-    # Serialize with sorted keys for determinism
-    serialized = json.dumps(data, sort_keys=True, default=str)
-    return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
-
+    """Compute SHA-256 hash of a data object (dict, list, etc)."""
+    json_str = json.dumps(data, sort_keys=True).encode('utf-8')
+    return hashlib.sha256(json_str).hexdigest()
 
 def generate_provenance_record(
-    input_files: Optional[list[str]] = None,
-    output_files: Optional[list[str]] = None,
-    parameters: Optional[Dict[str, Any]] = None,
-    script_name: Optional[str] = None,
+    artifact_name: str,
+    source_url: Optional[str] = None,
+    version: Optional[str] = None,
+    extraction_date: Optional[str] = None,
+    checksum: Optional[str] = None,
+    metadata: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
-    """
-    Generate a comprehensive provenance record for a pipeline step.
-
-    Args:
-        input_files: List of input file paths.
-        output_files: List of output file paths.
-        parameters: Dictionary of parameters used in the step.
-        script_name: Name of the script generating this record.
-
-    Returns:
-        Dictionary containing the provenance record.
-    """
-    project_root = get_project_root()
-    timestamp = datetime.utcnow().isoformat() + "Z"
-
-    record = {
-        "timestamp": timestamp,
-        "script": script_name or "unknown",
-        "project_root": str(project_root),
-        "inputs": [],
-        "outputs": [],
-        "parameters": parameters or {},
+    """Generate a provenance record dictionary."""
+    return {
+        "artifact_name": artifact_name,
+        "source_url": source_url,
+        "version": version,
+        "extraction_date": extraction_date or datetime.now().isoformat(),
+        "checksum": checksum,
+        "metadata": metadata or {},
+        "generated_at": datetime.now().isoformat()
     }
 
-    # Process input files with hashes
-    if input_files:
-        for f in input_files:
-            file_path = Path(f)
-            if file_path.exists():
-                record["inputs"].append({
-                    "path": str(file_path),
-                    "hash": compute_file_hash(file_path),
-                    "size_bytes": file_path.stat().st_size,
-                })
-            else:
-                record["inputs"].append({
-                    "path": str(file_path),
-                    "status": "missing",
-                })
+def load_metadata_config() -> Dict[str, Any]:
+    """Load the metadata.yaml file."""
+    metadata_file = get_metadata_file()
+    if not metadata_file.exists():
+        return {"datasets": {}, "artifacts": {}, "pipeline_runs": []}
+    
+    with open(metadata_file, 'r') as f:
+        return yaml.safe_load(f) or {"datasets": {}, "artifacts": {}, "pipeline_runs": []}
 
-    # Process output files with hashes
-    if output_files:
-        for f in output_files:
-            file_path = Path(f)
-            if file_path.exists():
-                record["outputs"].append({
-                    "path": str(file_path),
-                    "hash": compute_file_hash(file_path),
-                    "size_bytes": file_path.stat().st_size,
-                })
-            else:
-                record["outputs"].append({
-                    "path": str(file_path),
-                    "status": "pending",
-                })
+def save_metadata_config(metadata: Dict[str, Any]) -> None:
+    """Save the metadata dictionary to metadata.yaml."""
+    metadata_file = get_metadata_file()
+    with open(metadata_file, 'w') as f:
+        yaml.dump(metadata, f, default_flow_style=False)
 
-    return record
+def save_provenance_record(record: Dict[str, Any]) -> None:
+    """Append a provenance record to the metadata file."""
+    metadata = load_metadata_config()
+    if "artifacts" not in metadata:
+        metadata["artifacts"] = {}
+    
+    artifact_name = record.get("artifact_name", "unknown")
+    metadata["artifacts"][artifact_name] = record
+    
+    save_metadata_config(metadata)
 
+def record_source_info(
+    dataset_name: str,
+    source_url: str,
+    version: str,
+    checksum: str,
+    local_path: str
+) -> None:
+    """Record source information for a dataset in metadata.yaml."""
+    metadata = load_metadata_config()
+    if "datasets" not in metadata:
+        metadata["datasets"] = {}
+    
+    metadata["datasets"][dataset_name] = {
+        "source_url": source_url,
+        "version": version,
+        "download_date": datetime.now().isoformat(),
+        "checksum": checksum,
+        "local_path": local_path
+    }
+    
+    save_metadata_config(metadata)
 
-def save_provenance_record(
-    record: Dict[str, Any],
-    output_dir: Optional[Union[str, Path]] = None,
-    filename: Optional[str] = None,
-) -> Path:
-    """
-    Save a provenance record to a JSON file.
+def log_step(step_name: str, status: str, details: Optional[Dict[str, Any]] = None) -> None:
+    """Log a pipeline step execution."""
+    metadata = load_metadata_config()
+    if "pipeline_runs" not in metadata:
+        metadata["pipeline_runs"] = []
+    
+    run_record = {
+        "step_name": step_name,
+        "status": status,
+        "timestamp": datetime.now().isoformat(),
+        "details": details or {}
+    }
+    
+    metadata["pipeline_runs"].append(run_record)
+    save_metadata_config(metadata)
 
-    Args:
-        record: The provenance record dictionary.
-        output_dir: Directory to save the record (default: project's provenance dir).
-        filename: Name of the file (default: auto-generated based on timestamp).
+def verify_data_integrity(file_path: Union[str, Path], expected_checksum: str) -> bool:
+    """Verify the checksum of a file against an expected value."""
+    actual_checksum = compute_file_hash(file_path)
+    return actual_checksum == expected_checksum
 
-    Returns:
-        Path to the saved file.
-    """
-    if output_dir is None:
-        output_dir = get_output_dir() / "provenance"
-    else:
-        output_dir = Path(output_dir)
+def load_provenance_records() -> Dict[str, Any]:
+    """Load all provenance records from metadata.yaml."""
+    metadata = load_metadata_config()
+    return metadata.get("artifacts", {})
 
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    if filename is None:
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
-        filename = f"provenance_{timestamp}.json"
-
-    file_path = output_dir / filename
-
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(record, f, indent=2, default=str)
-
-    return file_path
-
-
-def log_step(
-    script_name: str,
-    input_files: list[str],
-    output_files: list[str],
-    parameters: Dict[str, Any],
-    status: str = "success",
-    error_message: Optional[str] = None,
-) -> Path:
-    """
-    Convenience function to generate and save a provenance record for a pipeline step.
-
-    Args:
-        script_name: Name of the script.
-        input_files: List of input file paths.
-        output_files: List of output file paths.
-        parameters: Dictionary of parameters.
-        status: Execution status ("success", "failed", "partial").
-        error_message: Optional error message if status is "failed".
-
-    Returns:
-        Path to the saved provenance record.
-    """
-    record = generate_provenance_record(
-        input_files=input_files,
-        output_files=output_files,
-        parameters=parameters,
-        script_name=script_name,
-    )
-    record["status"] = status
-    if error_message:
-        record["error"] = error_message
-
-    return save_provenance_record(record)
-
-
-def verify_data_integrity(
+def record_artifact_provenance(
+    artifact_name: str,
     file_path: Union[str, Path],
-    expected_hash: str,
-    algorithm: str = "sha256",
-) -> bool:
-    """
-    Verify that a file's hash matches an expected value.
+    source_url: Optional[str] = None,
+    version: Optional[str] = None,
+    metadata: Optional[Dict[str, Any]] = None
+) -> None:
+    """Record provenance for an artifact file."""
+    file_path = Path(file_path)
+    checksum = compute_file_hash(file_path)
+    
+    record = generate_provenance_record(
+        artifact_name=artifact_name,
+        source_url=source_url,
+        version=version,
+        checksum=checksum,
+        metadata=metadata
+    )
+    
+    save_provenance_record(record)
 
-    Args:
-        file_path: Path to the file to verify.
-        expected_hash: Expected hash value.
-        algorithm: Hash algorithm to use.
+def main():
+    """Example usage for testing provenance functions."""
+    print("Provenance module loaded successfully.")
+    # Example: record a dummy dataset
+    # record_source_info("test_dataset", "http://example.com", "1.0", "abc123", "data/raw/test.csv")
 
-    Returns:
-        True if the hash matches, False otherwise.
-    """
-    actual_hash = compute_file_hash(file_path, algorithm)
-    return actual_hash == expected_hash
+if __name__ == "__main__":
+    main()

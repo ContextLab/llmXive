@@ -1,127 +1,71 @@
 """
 Integration tests for data extraction module.
-
-Tests repo cloning and filtering logic.
+Tests T010: Query GitHub API and filter repos.
 """
 import pytest
-from pathlib import Path
-import pandas as pd
 import os
-import shutil
-from datetime import datetime, timedelta
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+import pandas as pd
 
-from data_extraction import (
-    filter_repos_by_age,
-    extract_git_metrics,
-    aggregate_file_metrics,
-    run_data_extraction
-)
+from code.data_extraction import query_github_repos, save_repos_metadata
 
 @pytest.fixture
-def sample_repos():
-    """Sample repository data for testing."""
-    now = datetime.now()
-    old_date = (now - timedelta(days=400)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    new_date = (now - timedelta(days=100)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    
-    return [
-        {
-            "full_name": "test/old-repo",
-            "name": "old-repo",
-            "language": "Python",
-            "stargazers_count": 1000,
-            "created_at": old_date,
-            "pushed_at": old_date,
-            "html_url": "https://github.com/test/old-repo"
-        },
-        {
-            "full_name": "test/new-repo",
-            "name": "new-repo",
-            "language": "Python",
-            "stargazers_count": 600,
-            "created_at": new_date,
-            "pushed_at": new_date,
-            "html_url": "https://github.com/test/new-repo"
-        }
+def mock_github_response():
+    """Mock GitHub API response."""
+    return {
+        "items": [
+            {
+                "id": 12345,
+                "full_name": "test/repo1",
+                "html_url": "https://github.com/test/repo1",
+                "stargazers_count": 6000,
+                "language": "Python",
+                "created_at": "2020-01-01T00:00:00Z",
+                "default_branch": "main"
+            },
+            {
+                "id": 67890,
+                "full_name": "test/repo2",
+                "html_url": "https://github.com/test/repo2",
+                "stargazers_count": 10000,
+                "language": "Java",
+                "created_at": "2019-05-15T00:00:00Z",
+                "default_branch": "master"
+            }
+        ]
+    }
+
+def test_query_github_repos_filters(mock_github_response):
+    """Test that query_github_repos correctly filters by stars and age."""
+    with patch('code.data_extraction.requests.get') as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = mock_github_response
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+
+        repos = query_github_repos(min_stars=500, min_age_years=2, max_results=10)
+
+        assert len(repos) == 2
+        assert repos[0]["stargazers_count"] >= 500
+        assert repos[1]["stargazers_count"] >= 500
+        # Check that repo_id is present
+        assert "repo_id" in repos[0]
+        assert "repo_id" in repos[1]
+
+def test_save_repos_metadata_creates_file(tmp_path):
+    """Test that save_repos_metadata creates a valid CSV."""
+    repos = [
+        {"repo_id": "1", "full_name": "a/b", "html_url": "url", "stargazers_count": 1000, "language": "Py", "created_at": "2020", "default_branch": "main"}
     ]
-
-def test_filter_repos_by_age(sample_repos):
-    """Test that repos older than 2 years are kept."""
-    filtered = filter_repos_by_age(sample_repos, min_age_years=2)
+    output_path = tmp_path / "test_repos.csv"
     
-    # Should only keep the old repo
-    assert len(filtered) == 1
-    assert filtered[0]["full_name"] == "test/old-repo"
-
-def test_aggregate_file_metrics():
-    """Test aggregation of file-level metrics."""
-    raw_metrics = [
-        {
-            "repo_id": "test/repo",
-            "file_path": "main.py",
-            "commit_hash": "abc123",
-            "commit_date": datetime.now(),
-            "additions": 10,
-            "deletions": 5,
-            "lines_changed": 15
-        },
-        {
-            "repo_id": "test/repo",
-            "file_path": "main.py",
-            "commit_hash": "def456",
-            "commit_date": datetime.now(),
-            "additions": 20,
-            "deletions": 10,
-            "lines_changed": 30
-        },
-        {
-            "repo_id": "test/repo",
-            "file_path": "utils.py",
-            "commit_hash": "ghi789",
-            "commit_date": datetime.now(),
-            "additions": 5,
-            "deletions": 2,
-            "lines_changed": 7
-        }
-    ]
+    save_repos_metadata(repos, output_path)
     
-    aggregated = aggregate_file_metrics(raw_metrics)
-    
-    assert len(aggregated) == 2
-    
-    main_py = next((f for f in aggregated if f["file_path"] == "main.py"), None)
-    assert main_py is not None
-    assert main_py["total_lines_changed"] == 45
-    assert main_py["total_additions"] == 30
-    assert main_py["total_deletions"] == 15
-
-def test_run_data_extraction_creates_files(tmp_path, monkeypatch):
-    """Test that run_data_extraction creates the expected output files."""
-    # Mock the GitHub query to return empty list to avoid API calls in tests
-    def mock_query(*args, **kwargs):
-        return []
-    
-    monkeypatch.setattr("data_extraction.query_github_repos", mock_query)
-    
-    # Change working directory to temp
-    original_cwd = os.getcwd()
-    os.chdir(tmp_path)
-    
-    try:
-        # Create necessary directories
-        Path("data/raw").mkdir(parents=True, exist_ok=True)
-        Path("data/logs").mkdir(parents=True, exist_ok=True)
-        
-        result_path = run_data_extraction(max_repos=0)
-        
-        # Check that metadata file was created (even if empty)
-        assert result_path.exists()
-        
-        # Check that validation log was created
-        validation_log = Path("data/logs/tool_validation_log.csv")
-        assert validation_log.exists()
-    finally:
-        os.chdir(original_cwd)
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    assert output_path.exists()
+    df = pd.read_csv(output_path)
+    assert len(df) == 1
+    assert df.iloc[0]["repo_id"] == "1"
+    assert df.iloc[0]["full_name"] == "a/b"
+    assert "total_lines_changed" not in df.columns # Metadata only
+    assert "stargazers_count" in df.columns

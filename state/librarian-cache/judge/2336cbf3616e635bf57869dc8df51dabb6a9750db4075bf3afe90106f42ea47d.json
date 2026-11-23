@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.05540",
+  "judged_at": "2026-09-19T18:41:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"humanoid-gpt: scaling data and structure for zero-shot motion tracking\" computer science",
+  "rationale": "The paper focuses on detecting machine-generated text using log-rank information, which is a distinct construct from the user's question about extending a specific motion-tracking architecture (\"Humanoid-GPT\") for zero-shot motion tracking. While both involve \"zero-shot\" capabilities and LLMs, the domain (text detection vs. humanoid motion tracking) and the specific mechanism (log-rank statistics vs. scaling data/structure for physical motion) are entirely different, failing the \"off-domain enti",
+  "relevant": false
+}

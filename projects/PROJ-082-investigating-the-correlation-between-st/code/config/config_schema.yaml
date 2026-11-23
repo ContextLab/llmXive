@@ -1,0 +1,51 @@
+# Configuration Schema for llmXive Pipeline
+# This file defines the expected structure and types for config.yaml
+
+type: object
+required:
+  - seed
+  - paths
+  - limits
+
+properties:
+  seed:
+    type: integer
+    minimum: 0
+    description: "Random seed for reproducibility"
+
+  paths:
+    type: object
+    description: "Directory paths for data and outputs"
+    properties:
+      raw_data:
+        type: string
+        description: "Path to raw data directory"
+      processed_data:
+        type: string
+        description: "Path to processed data directory"
+      derived_data:
+        type: string
+        description: "Path to derived data directory"
+      config:
+        type: string
+        description: "Path to config directory"
+      logs:
+        type: string
+        description: "Path to logs directory"
+      figures:
+        type: string
+        description: "Path to figures directory"
+
+  limits:
+    type: object
+    description: "Operational limits and thresholds"
+    properties:
+      max_studies:
+        type: integer
+        description: "Maximum number of studies to process"
+      min_studies_for_meta:
+        type: integer
+        description: "Minimum studies required for meta-analysis"
+      max_memory_mb:
+        type: number
+        description: "Maximum memory usage in megabytes"

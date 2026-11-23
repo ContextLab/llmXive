@@ -6,7 +6,7 @@ failed_stage: null
 field: other
 human_escalation_reason: null
 id: PROJ-820-llmxive-follow-up-extending-visual-gener
-last_run_id: 3c5ac6f2-0f51-4b83-bc1b-9a414fcab009
+last_run_id: b538e29f-23af-46cc-8ce6-06f48afd805c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-820-llmxive-follow-up-extending-visual-gener/specs/001-llmxive-follow-up-extending-visual-gener
 title: 'llmXive follow-up: extending "Visual Generation in the New Era: An Evolution
   from Atomic Mapping to "'
-updated_at: '2026-07-11T01:24:27.782885Z'
+updated_at: '2026-10-13T02:44:19.460686Z'

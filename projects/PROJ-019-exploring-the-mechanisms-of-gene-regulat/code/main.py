@@ -1,205 +1,266 @@
 """
-Main orchestration script for the gene regulation analysis pipeline.
-
-This script performs pre-flight checks, including disk space verification,
-before initiating the data ingestion, preprocessing, scanning, and enrichment workflow.
+Main orchestration module for the gene regulation pipeline.
+Implements the run_validation_report function to generate the final validation report.
 """
 import sys
 import json
 import logging
 from pathlib import Path
 from datetime import datetime, timezone
+from typing import List, Dict, Any, Optional
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-from code.config import TMP_DIR, DATA_PROCESSED_DIR, DATA_RAW_DIR, DATA_INTERIM_DIR
-from code.utils.disk_check import check_disk_space, InsufficientDiskSpaceError
+# Import configuration
+from code.config import DATA_PROCESSED_DIR, DATA_INTERIM_DIR, TMP_DIR
+
+# Import pipeline components
+from code.utils.disk_check import check_disk_space
+from code.utils.memory_check import check_memory
+from code.utils.time_check import start_timer, check_time_limit
 from code.download import download_all_peaks
-from code.preprocess import preprocess_all_cell_types
-from code.provenance import initialize_provenance, save_provenance, set_jaspar_version, add_encode_accession
-from code.scan import scan_all_cell_types
-from code.enrichment import process_cell_type_enrichment, aggregate_enrichment_results, main as enrichment_main
+from code.preprocess import preprocess_all_cell_types, aggregate_background_model
+from code.scan import scan_all_cell_types, save_scan_results
+from code.enrichment import aggregate_enrichment_results
+from code.visualize import generate_heatmap, calculate_silhouette_score
+from code.validate import (
+    load_silhouette_score,
+    enforce_silhouette_threshold,
+    validate_motifs,
+    load_validation_stats
+)
+from code.provenance import initialize_provenance, save_provenance, add_encode_accession, set_jaspar_version
 
-REQUIRED_SPACE_GB = 14
-JASPAR_VERSION = "2024"
-# Mapping of cell types to ENCODE accession IDs for provenance
-ENCODE_ACCESSIONS = {
-    "GM12878": "ENCFF151VJN",
-    "K562": "ENCFF001TDO",
-    "HepG2": "ENCFF001NQP",
-    "H1-hESC": "ENCFF001NQE",
-    "IMR90": "ENCFF001NQF"
-}
-
-def generate_ingestion_summary(peak_counts: dict) -> dict:
-    """
-    Generate the ingestion summary report.
+def run_preflight_checks():
+    """Run pre-flight checks for disk, memory, and time."""
+    logger.info("Running pre-flight checks...")
     
-    Args:
-        peak_counts: Dictionary mapping cell_type -> count of peaks.
-        
-    Returns:
-        Dictionary containing the summary metadata and counts.
-    """
+    # Check disk space
+    check_disk_space()
+    
+    # Check memory
+    check_memory()
+    
+    # Start time tracking
+    start_timer()
+    
+    logger.info("Pre-flight checks passed.")
+
+def run_ingestion():
+    """Run the data ingestion pipeline."""
+    logger.info("Starting data ingestion...")
+    
+    # Download peaks
+    peak_files = download_all_peaks()
+    
+    # Preprocess peaks
+    processed_peaks = preprocess_all_cell_types()
+    
+    # Aggregate background model
+    background_model = aggregate_background_model(processed_peaks)
+    
+    # Generate ingestion summary
+    ingestion_summary = {
+        "total_peaks": sum(len(peaks) for peaks in processed_peaks.values()),
+        "cell_types": list(processed_peaks.keys()),
+        "parsed_count": len(processed_peaks)
+    }
+    
+    # Write ingestion summary
+    ingestion_summary_path = DATA_PROCESSED_DIR / "ingestion_summary.json"
+    with open(ingestion_summary_path, 'w') as f:
+        json.dump(ingestion_summary, f, indent=2)
+    
+    logger.info(f"Ingestion summary written to {ingestion_summary_path}")
+    return ingestion_summary, processed_peaks, background_model
+
+def run_enrichment(processed_peaks, background_model):
+    """Run the enrichment analysis pipeline."""
+    logger.info("Starting enrichment analysis...")
+    
+    # Scan for motifs
+    motif_matches = scan_all_cell_types(processed_peaks)
+    
+    # Save scan results
+    save_scan_results(motif_matches)
+    
+    # Calculate enrichment
+    enrichment_results = aggregate_enrichment_results(motif_matches, background_model)
+    
+    # Write enrichment matrix
+    enrichment_matrix_path = DATA_PROCESSED_DIR / "enrichment_matrix.csv"
+    with open(enrichment_matrix_path, 'w') as f:
+        f.write("motif_id,cell_type,p_value,q_value\n")
+        for result in enrichment_results:
+            f.write(f"{result['motif_id']},{result['cell_type']},{result['p_value']},{result['q_value']}\n")
+    
+    logger.info(f"Enrichment matrix written to {enrichment_matrix_path}")
+    return enrichment_results
+
+def run_visualization_and_validation_pipeline(enrichment_results):
+    """Run the visualization and validation pipeline."""
+    logger.info("Starting visualization and validation...")
+    
+    # Generate heatmap
+    heatmap_path = DATA_PROCESSED_DIR / "heatmap.png"
+    generate_heatmap(enrichment_results, heatmap_path)
+    logger.info(f"Heatmap written to {heatmap_path}")
+    
+    # Calculate silhouette score
+    silhouette_score = calculate_silhouette_score(enrichment_results)
+    
+    # Write silhouette score
+    silhouette_score_path = DATA_PROCESSED_DIR / "silhouette_score.json"
+    with open(silhouette_score_path, 'w') as f:
+        json.dump({"silhouette_score": round(silhouette_score, 2)}, f, indent=2)
+    logger.info(f"Silhouette score written to {silhouette_score_path}")
+    
+    # Enforce silhouette threshold
+    silhouette_test_passed = enforce_silhouette_threshold(silhouette_score)
+    
+    # Validate motifs
+    validation_stats = validate_motifs(enrichment_results)
+    
+    # Write validation stats
+    validation_stats_path = DATA_PROCESSED_DIR / "validation_stats.json"
+    with open(validation_stats_path, 'w') as f:
+        json.dump(validation_stats, f, indent=2)
+    logger.info(f"Validation stats written to {validation_stats_path}")
+    
+    # Determine overlap test passed
+    overlap_test_passed = validation_stats.get("overlap_pct", 0) >= 60.0 if validation_stats.get("overlap_pct") is not None else False
+    
     return {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "jaspar_version": JASPAR_VERSION,
-        "total_cell_types": len(peak_counts),
-        "peak_counts_by_cell_type": peak_counts,
-        "output_directories": {
-            "raw": str(DATA_RAW_DIR),
-            "interim": str(DATA_INTERIM_DIR),
-            "processed": str(DATA_PROCESSED_DIR)
-        }
+        "silhouette_score": silhouette_score,
+        "silhouette_test_passed": silhouette_test_passed,
+        "overlap_test_passed": overlap_test_passed,
+        "validation_stats": validation_stats
     }
 
-def generate_enrichment_matrix(enrichment_results: dict) -> Path:
+def run_validation_report(heatmap_data, chip_data, score, silhouette_flag, overlap_flag):
     """
-    Aggregate enrichment results into a CSV matrix file.
+    Generate the final validation report.
     
     Args:
-        enrichment_results: Dictionary mapping cell_type -> list of motif enrichment records.
-        
-    Returns:
-        Path to the generated CSV file.
-    """
-    import csv
-    
-    output_path = Path(DATA_PROCESSED_DIR) / "enrichment_matrix.csv"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Flatten results for CSV
-    rows = []
-    for cell_type, records in enrichment_results.items():
-        for record in records:
-            rows.append({
-                "cell_type": cell_type,
-                "motif_id": record.get("motif_id", ""),
-                "p_value_raw": record.get("p_value_raw", 0.0),
-                "q_value_adj": record.get("q_value_adj", 0.0),
-                "fold_enrichment": record.get("fold_enrichment", 0.0)
-            })
-    
-    if not rows:
-        logger.warning("No enrichment results found to write to matrix.")
-        # Write empty file with headers
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=["cell_type", "motif_id", "p_value_raw", "q_value_adj", "fold_enrichment"])
-            writer.writeheader()
-        return output_path
-
-    fieldnames = ["cell_type", "motif_id", "p_value_raw", "q_value_adj", "fold_enrichment"]
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-    
-    logger.info(f"Enrichment matrix written to: {output_path}")
-    return output_path
-
-def main() -> int:
-    """
-    Entry point for the pipeline.
+        heatmap_data: Dictionary containing heatmap-related data (unused in final report structure)
+        chip_data: Dictionary containing ChIP-seq validation stats
+        score: The silhouette score (float)
+        silhouette_flag: Boolean indicating if silhouette test passed
+        overlap_flag: Boolean indicating if overlap test passed
     
     Returns:
-        int: 0 if successful, 1 if pre-flight checks fail or pipeline execution fails.
+        Dictionary containing the validation report
     """
-    logger.info("Starting gene regulation analysis pipeline pre-flight checks...")
+    logger.info("Generating validation report...")
     
-    # Ensure TMP_DIR exists
-    tmp_path = Path(TMP_DIR)
-    if not tmp_path.exists():
-        logger.info(f"Creating temporary directory: {tmp_path}")
-        try:
-            tmp_path.mkdir(parents=True, exist_ok=True)
-        except OSError as e:
-            logger.error(f"Failed to create temporary directory {tmp_path}: {e}")
-            return 1
-
-    logger.info(f"Verifying disk space in {tmp_path} (required: {REQUIRED_SPACE_GB} GB)...")
+    # Load top motifs from enrichment results (filtered by q < 0.05)
+    enrichment_matrix_path = DATA_PROCESSED_DIR / "enrichment_matrix.csv"
+    top_motifs = []
     
     try:
-        check_disk_space(
-            path=tmp_path,
-            required_gb=REQUIRED_SPACE_GB,
-            logger=logger
+        with open(enrichment_matrix_path, 'r') as f:
+            lines = f.readlines()[1:]  # Skip header
+            motif_data = {}
+            for line in lines:
+                parts = line.strip().split(',')
+                if len(parts) >= 4:
+                    motif_id, cell_type, p_value, q_value = parts[0], parts[1], float(parts[2]), float(parts[3])
+                    if q_value < 0.05:
+                        if motif_id not in motif_data or q_value < motif_data[motif_id]['q_value']:
+                            motif_data[motif_id] = {
+                                'motif_id': motif_id,
+                                'q_value': q_value,
+                                'cell_type': cell_type
+                            }
+            
+            # Get top motifs (sorted by q_value)
+            sorted_motifs = sorted(motif_data.values(), key=lambda x: x['q_value'])
+            
+            # Calculate overlap for each top motif (simplified: use overall overlap from validation_stats)
+            overall_overlap = chip_data.get("overlap_pct") if chip_data else None
+            for motif in sorted_motifs[:10]:  # Top 10 motifs
+                top_motifs.append({
+                    "motif_id": motif['motif_id'],
+                    "q_value": round(motif['q_value'], 4),
+                    "overlap_pct": round(overall_overlap, 2) if overall_overlap is not None else None
+                })
+    except FileNotFoundError:
+        logger.warning("Enrichment matrix not found, using empty top_motifs list")
+        top_motifs = []
+    
+    # Determine overall validation status
+    validation_passed = silhouette_flag and overlap_flag
+    
+    # Construct report
+    report = {
+        "overlap_pct": round(chip_data.get("overlap_pct"), 2) if chip_data and chip_data.get("overlap_pct") is not None else None,
+        "top_motifs": top_motifs,
+        "silhouette_score": round(score, 2),
+        "silhouette_test_passed": silhouette_flag,
+        "overlap_test_passed": overlap_flag,
+        "validation_passed": validation_passed
+    }
+    
+    # Write report
+    report_path = DATA_PROCESSED_DIR / "validation_report.json"
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Validation report written to {report_path}")
+    return report
+
+def run_ingestion_pipeline():
+    """Run the full ingestion pipeline."""
+    run_preflight_checks()
+    ingestion_summary, processed_peaks, background_model = run_ingestion()
+    return ingestion_summary, processed_peaks, background_model
+
+def run_enrichment_pipeline(processed_peaks, background_model):
+    """Run the full enrichment pipeline."""
+    return run_enrichment(processed_peaks, background_model)
+
+def run_visualization_and_validation_pipeline_wrapper(enrichment_results):
+    """Wrapper for visualization and validation pipeline."""
+    return run_visualization_and_validation_pipeline(enrichment_results)
+
+def main():
+    """Main entry point for the pipeline."""
+    logger.info("Starting gene regulation analysis pipeline...")
+    
+    try:
+        # Run ingestion
+        ingestion_summary, processed_peaks, background_model = run_ingestion_pipeline()
+        
+        # Run enrichment
+        enrichment_results = run_enrichment_pipeline(processed_peaks, background_model)
+        
+        # Run visualization and validation
+        validation_data = run_visualization_and_validation_pipeline_wrapper(enrichment_results)
+        
+        # Generate validation report
+        validation_report = run_validation_report(
+            heatmap_data={},  # Heatmap data is not needed for the report structure
+            chip_data=validation_data.get("validation_stats", {}),
+            score=validation_data.get("silhouette_score", 0.0),
+            silhouette_flag=validation_data.get("silhouette_test_passed", False),
+            overlap_flag=validation_data.get("overlap_test_passed", False)
         )
-        logger.info("Disk space check passed.")
-    except InsufficientDiskSpaceError as e:
-        logger.error(f"Pre-flight check failed: {e}")
-        return 1
+        
+        # Check if validation passed
+        if not validation_report["validation_passed"]:
+            logger.error("Validation failed. Check logs for details.")
+            sys.exit(1)
+        
+        logger.info("Pipeline completed successfully.")
+        
     except Exception as e:
-        logger.error(f"Unexpected error during disk space check: {e}")
-        return 1
-
-    logger.info("Pre-flight checks completed successfully.")
-    logger.info("Pipeline ready to proceed with data ingestion.")
-
-    # Initialize provenance
-    try:
-        initialize_provenance()
-        set_jaspar_version(JASPAR_VERSION)
-        for cell_type, accession in ENCODE_ACCESSIONS.items():
-            add_encode_accession(cell_type, accession)
-    except Exception as e:
-        logger.error(f"Failed to initialize provenance: {e}")
-        return 1
-
-    try:
-        # Step 1: Download raw data
-        logger.info("Step 1: Downloading ENCODE peak files...")
-        downloaded_files = download_all_peaks(logger=logger)
-        
-        if not downloaded_files:
-            logger.error("No files were downloaded successfully.")
-            return 1
-
-        # Step 2: Preprocess (parse, standardize, annotate, aggregate background)
-        logger.info("Step 2: Preprocessing downloaded files (parsing, standardizing, annotating)...")
-        peak_counts = preprocess_all_cell_types(logger=logger)
-
-        # Step 3: Generate and save ingestion summary
-        logger.info("Step 3: Generating ingestion summary report...")
-        summary_data = generate_ingestion_summary(peak_counts)
-        
-        output_path = Path(DATA_PROCESSED_DIR) / "ingestion_summary.json"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(summary_data, f, indent=2)
-        
-        logger.info(f"Ingestion summary written to: {output_path}")
-
-        # Step 4: Scan for motifs (US2 - T021)
-        logger.info("Step 4: Scanning peaks for TF motifs using FIMO...")
-        scan_results = scan_all_cell_types(logger=logger)
-        if not scan_results:
-            logger.warning("No motif scan results generated.")
-            # Continue to enrichment with empty results if necessary, or fail?
-            # Spec implies enrichment depends on scan. If no scan, enrichment will be empty.
-        
-        # Step 5: Calculate enrichment (US2 - T022, T023, T025)
-        logger.info("Step 5: Calculating motif enrichment and applying BH correction...")
-        enrichment_results = process_cell_type_enrichment(scan_results, logger=logger)
-        
-        # Aggregate and write final matrix
-        final_matrix_path = generate_enrichment_matrix(enrichment_results)
-        
-        # Save provenance
-        save_provenance()
-
-        logger.info("Pipeline execution completed successfully.")
-        return 0
-
-    except Exception as e:
-        logger.error(f"Pipeline execution failed: {e}", exc_info=True)
-        return 1
+        logger.error(f"Pipeline failed with error: {e}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

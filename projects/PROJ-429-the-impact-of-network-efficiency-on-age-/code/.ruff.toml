@@ -1,0 +1,21 @@
+# Linting configuration for llmXive project
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # Pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "B008", # Do not perform function call in argument defaults (common in testing)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Assert statements allowed in tests

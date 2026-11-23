@@ -1,0 +1,36 @@
+T004b:
+  c: false
+  h: 30e12019010a2a92f80d2aa0cb15a3a6905910c90ce771d971f06dd84ea8fc74
+  r: The required file `code/download/knot_info_loader.py` does not exist, so there
+    is no code to verify that it uses `retry_wrapper` or that the wrapper is invoked
+    on failure. The deliverable is missing.
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration files, or documentation for API routing or middleware
+    structure were presented. The only artifacts described relate to knot data download
+    and analysis, not to any API setup, so the required deliverable is missing.
+T104:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files, type\u2011hint annotations, or mypy output were presented; therefore\
+    \ we cannot verify that all public functions in the listed analysis modules have\
+    \ strict PEP\u202F484 type hints nor that `mypy --strict code/analysis/` runs\
+    \ with zero errors. The required artifacts are missing."
+T106:
+  c: false
+  h: dab75e356007dd3a63872823e1fb38bd82bdfa70b25e0e8ef08815d3e6a0d265
+  r: "The repository lacks `data/processed/knots_filtered.csv`, and `code/analysis/model_fitting.py`\
+    \ contains no code that reads this CSV (no `pd.read_csv` or similar). No unit\
+    \ test is present that checks for non\u2011zero real values in hyperbolic volume\
+    \ and crossing number. These missing artifacts mean the task\u2019s verification\
+    \ requirement is not satisfied."
+T151:
+  c: false
+  h: 563c9521671f3de4ed235bb22204f3f09f16fb188e01b0ed1b2ba9cebac673cd
+  r: "The provided `code/data/validator.py` is truncated and does not contain a complete\
+    \ implementation of `flag_dataframe` (the logic stops at an unfinished line).\
+    \ Additionally, the required unit test `tests/unit/test_validator_flag_logic.py`\
+    \ is absent, so there is no evidence that core invariants are correctly excluded\
+    \ from `missing_invariant_flags`. The task\u2019s verification criteria are therefore\
+    \ unmet."

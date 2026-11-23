@@ -1,0 +1,911 @@
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Flag runs with packet loss rate greater than 20 percent
+  claim_id: c_c5aae01d
+  context: T010 [US1] Implement validate_data_completeness()... Flag runs where packet_loss_rate
+    > 20%. If critical, exclude run.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_runs_with_packet_loss_rate_greater_than_20_percent
+  kind: magnitude
+  raw_text: Flag runs where packet_loss_rate > 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:33:15Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Detect network saturation at 20 percent packet loss
+  claim_id: c_f82f90fe
+  context: 'T014a [US1] Implement instrumentor_remote.py... Network Saturation: Implement
+    check_network_saturation() to detect >20% packet loss.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement check_network_saturation() to detect >20% packet loss.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:33:15Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Calculate capacity using formula N times W divided by log base N
+  claim_id: c_38269903
+  context: 'T032 [US3] Implement theoretical_bound.py... Specifics: Implement capacity
+    = (N * W) / (* log_base(N)) where N=node_count, W=bw...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_capacity_using_formula_N_times_W_divided_by_log_ba
+  kind: entity_fact
+  raw_text: Calculate capacity = (N * W) / (log_base(N)) where N=node_count, W=bw.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:34:04Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Trigger small-scale physical deployment of 10 to 20 local machines for
+    Golden Dataset
+  claim_id: c_2679e339
+  context: 'T035a_Physical [US3] Implement physical_validation_job.py... Specifics:
+    This task MUST trigger a small-scale physical deployment (10-20 local machines)
+    to generate the ''Golden Dataset''...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger a small-scale physical deployment (10-20 local machines) to generate
+    the 'Golden Dataset'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:34:19Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Use scipy.optimize.minimize with L-BFGS-B method and 1e-4 tolerance
+  claim_id: c_88c4c570
+  context: T037 [US3] Implement calibration.py... Use scipy.optimize.minimize with
+    method='L-BFGS-B' and tolerance=1e-4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use scipy.optimize.minimize with method='L-BFGS-B' and tolerance=1e-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:34:42Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Optimize full parameter sweep to fit within CI time limit
+  claim_id: c_534d87ee
+  context: 'Notes: The full parameter sweep (multiple runs) must be optimized to fit
+    within the CI time limit...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optimize_full_parameter_sweep_to_fit_within_CI_time_limit
+  kind: entity_fact
+  raw_text: The full parameter sweep must be optimized to fit within the CI time limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:34:57Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Reference Author et al 2023 with DOI 10.xxxx/xxxx
+  claim_id: c_052ace3f
+  context: 'The research question is: How can we optimize performance under a constrained
+    confidence interval? ... References: [Author et al., 2023] (doi:10.xxxx/xxxx).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'References: [Author et al., 2023] (doi:10.xxxx/xxxx).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T06:35:44Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'Ong & Motani 2007 capacity formula: (N * W) / ln(N)'
+  claim_id: c_6c6c61d3
+  context: 'Specifics: Implement `capacity = (N * W) / ln(N)` (Eq. 12 from Ong & Motani,
+    2007, using natural logarithm ln). **Topological Assumptions**: This formula assumes
+    a single-source, multiple-relay topology with uniform node distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement capacity = (N * W) / ln(N) (Eq. 12 from Ong & Motani, 2007,
+    using natural logarithm ln).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:49:27Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'Ong & Motani 2007 capacity formula: (N * W) / ln(N)'
+  claim_id: c_d44f5851
+  context: 'T032 [US3] Implement theoretical_bound.py in code/analysis/ to calculate
+    Ong & Motani capacity limits AND calculate the deviation metric between empirical
+    and theoretical curves. Specifics: Implement capacity = (N * W) / ln(N) (Eq. 12
+    from Ong & Motani, 2007, using natural logarithm ln).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The formula used is capacity = (N * W) / ln(N) (Eq. 12 from Ong & Motani,
+    2007, using natural logarithm ln).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T07:51:04Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Ong and Motani capacity formula assumes single-source multiple-relay
+    topology
+  claim_id: c_1a8ac5f5
+  context: 'Specifics: Implement `capacity = (N * W) / ln(N)` (Eq. 12 from Ong & Motani,
+    2007, using natural logarithm ln). **Topological Assumptions**: This formula assumes
+    a single-source, multiple-relay topology with uniform node distribution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ong_and_Motani_capacity_formula_assumes_single-source_multip
+  kind: entity_fact
+  raw_text: This formula assumes a single-source, multiple-relay topology with uniform
+    node distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T08:01:45Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Network saturation detection threshold is 20% packet loss
+  claim_id: c_7bb96323
+  context: 'Network Saturation: T014a must detect >20 % packet loss and signal T014b
+    to abort (not just flag) as per Edge Cases.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T014a must detect >20 % packet loss and signal T014b to abort.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:57:36Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Minimum adaptive chunk size is 1 MB
+  claim_id: c_fa185e93
+  context: "Adaptive Chunking: T015 ensures low\u2011RAM devices do not crash the\
+    \ system by splitting chunks (min 1 MB)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adaptive chunking algorithm has a minimum chunk size of 1 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:58:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Calibration convergence threshold 1e-4 over 5 checks or 1000 iterations
+  claim_id: c_2c1c2794
+  context: 'Convergence Criterion: Maintain a deque of the last 5 MSE values. After
+    each iteration compute relative_change = abs(current - value_5_steps_ago) / value_5_steps_ago.
+    Stop when relative_change < 1e-4 for five consecutive checks or after max_iterations
+    = 1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calibration convergence criterion requires relative change < 1e-4 for
+    five consecutive checks or after max_iterations = 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:58:25Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Simulation validation tolerance is 0.05 times mean physical value
+  claim_id: c_845a18dc
+  context: "Internal State Validator: Compute MSE, Pearson correlation; if abs(simulated\
+    \ - physical) > tolerance (tolerance = 0.05 \xD7 mean physical), raise ValidationFailure."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calibration validation tolerance is 0.05 \xD7 mean physical."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:58:47Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Ong and Motani capacity formula published in 2007
+  claim_id: c_b39d3618
+  context: 'Theoretical Bound: Use the capacity formula from Ong & Motani (2007) with
+    measured bandwidth and SNR; output theoretical_capacity, empirical_throughput,
+    deviation_metric; flag if empirical > capacity.'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: not_found
+    object: '2007'
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Ong_and_Motani_capacity_formula_published_in_2007
+    source_value: https://en.wikipedia.org/wiki/Ong_and_Motani_capacity_formula_published_in_2007
+    subject: Ong and Motani capacity formula
+  kind: relational
+  raw_text: The theoretical capacity formula is from Ong & Motani (2007).
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:59:10Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'dropout rate calculation formula: total heartbeat losses / total task
+    assignments'
+  claim_id: c_a8cb0bcd
+  context: 'Dropout Rate Calculation: Explicitly calculate dropout_rate per run: Count
+    total heartbeat losses / total task assignments. Write this rate to data/raw/dropout_events.json
+    with run_id, dropout_rate, and list of dropped_node_ids. This metric is required
+    as a covariate for the regression model (SC-006).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dropout_rate_calculation_formula:_total_heartbeat_losses_/_t
+  kind: entity_fact
+  raw_text: The dropout rate is calculated per run as the count of total heartbeat
+    losses divided by total task assignments.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:11:16Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'heterogeneity score formula: (cpu_speed_mhz / max_latency_ms) * (1 -
+    packet_loss_rate)'
+  claim_id: c_d5aac272
+  context: 'Re-assignment: Explicitly implement the heterogeneity-aware re-assignment
+    algorithm: ... Calculate a heterogeneity score for each available node: score
+    = (cpu_speed_mhz / max_latency_ms) * (1 - packet_loss_rate).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The heterogeneity score for node re-assignment is calculated as (cpu_speed_mhz
+    / max_latency_ms) * (1 - packet_loss_rate).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:11:42Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'network saturation threshold: packet loss > 20%'
+  claim_id: c_8a4152a7
+  context: 'Network Saturation Detection: Implement check_network_saturation() that
+    computes packet loss using ip -s link show <interface> (parse the RX and TX drop/err
+    fields). If loss >20 % raise NetworkSaturationException (sent to T014b).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Network saturation is detected when packet loss exceeds 20%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:11:42Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'coordination overhead ratio formula: handshake_time / total_execution_time'
+  claim_id: c_a5ce3c72
+  context: 'Implement overhead_calculator.py in code/analysis/ to compute coordination_overhead_ratio.
+    Specifics: Formula: coordination_overhead_ratio = handshake_time / total_execution_time.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coordination_overhead_ratio_formula:_handshake_time_/_total
+  kind: entity_fact
+  raw_text: The coordination overhead ratio is defined as handshake_time divided by
+    total_execution_time.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:12:14Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'statistical significance threshold: p < 0.05'
+  claim_id: c_6cecd92c
+  context: 'Implement anova_test.py in code/analysis/ to determine statistical significance
+    (p < 0.05) of granularity differences. Specifics: ... If p < 0.05, flag as statistically
+    significant.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/statistical_significance_threshold:_p_%3C_0.05
+  kind: magnitude
+  raw_text: Statistical significance for granularity differences is determined using
+    a p-value threshold of less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:12:41Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'theoretical bound calculation: Ong & Motani formula using bandwidth_Mbps
+    and snr_db'
+  claim_id: c_2d4690d5
+  context: 'Implement theoretical_bound_calculator.py in code/analysis/ to calculate
+    Ong & Motani capacity limits ... Specifics: Use the capacity formula from Ong
+    & Motani with measured bandwidth_Mbps and snr_db from T046a ... This task explicitly
+    satisfies FR-006/SC-002 on the physical data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Theoretical_bound_calculation:_Ong_%26_Motani_formula_using_ba
+  kind: entity_fact
+  raw_text: The theoretical capacity bound is calculated using the Ong & Motani formula
+    with measured bandwidth_Mbps and snr_db.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:13:18Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'calibration convergence criteria: relative_change < 1e-4 for 5 steps
+    or max_iterations = 1000'
+  claim_id: c_1144735d
+  context: 'Implement des_convergence_checker.py in code/simulation/ to check calibration
+    convergence. Specifics: ... Stop when relative_change < 1e-4 for five consecutive
+    checks or after max_iterations = 1000.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/calibration_convergence_criteria:_relative_change_%3C_1e-4_for
+  kind: magnitude
+  raw_text: The simulation calibration stops when the relative change in MSE is less
+    than 1e-4 for five consecutive checks or after 1000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:13:53Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'simulation validation tolerance: 0.05 * mean physical throughput'
+  claim_id: c_382b49bc
+  context: "Implement internal_state_validator.py in code/simulation/ to compare DES\
+    \ outputs against the Golden Dataset. Specifics: ... Tolerance: If abs(simulated\
+    \ - physical) > tolerance (tolerance = 0.05 \xD7 mean physical), raise ValidationFailure."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_validation_tolerance:_0.05_*_mean_physical_throug
+  kind: entity_fact
+  raw_text: The simulation validation tolerance is defined as 0.05 times the mean
+    physical throughput.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:14:21Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 2
+  canonical: 'adaptive chunking minimum size: 1 MB'
+  claim_id: c_d797d9c0
+  context: 'Adaptive Chunking Algorithm: ... If available_ram < chunk_size, recursively
+    halve the chunk until it fits (minimum 1 MB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum chunk size for adaptive chunking is 1 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:14:45Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: NetworkSaturationException raised if packet loss exceeds 20 percent
+  claim_id: c_209fe668
+  context: 'Network Saturation Detection: Implement check_network_saturation() that
+    computes packet loss using ip -s link show <interface> (parse the RX and TX drop/err
+    fields). If loss >20 % raise NetworkSaturationException (sent to T014b).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If loss >20 % raise NetworkSaturationException
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:12:01Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'Calibration convergence stop condition: relative change less than 1e-4
+    for five consecutive checks or 1000 iterations'
+  claim_id: c_67a3bc94
+  context: 'Logic: Maintain a deque of the last several MSE values. After each iteration
+    compute relative_change = abs(current - value_5_steps_ago) / value_5_steps_ago.
+    For the first iterations, skip the relative change check. Stop when relative_change
+    < 1e-4 for five consecutive checks or after max_iterations = 1000.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_convergence_stop_condition:_relative_change_less
+  kind: magnitude
+  raw_text: stop when relative_change < 1e-4 for five consecutive checks or after
+    max_iterations = 1000
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:12:30Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Validation tolerance set to 0.05 times the mean physical throughput
+  claim_id: c_447f3ad1
+  context: "Tolerance: If abs(simulated - physical) > tolerance (tolerance = 0.05\
+    \ \xD7 mean physical), raise ValidationFailure."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "tolerance = 0.05 \xD7 mean physical"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:12:56Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Adaptive chunking minimum size is 1 MB
+  claim_id: c_051f38db
+  context: 'Adaptive Chunking Algorithm: Configuration: Load base_chunk_size and min_chunk_size
+    from config/sweep_config.yaml. If available_ram < chunk_size, recursively halve
+    the chunk until it fits (minimum 1 MB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: minimum 1 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:13:20Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Black formatter line length set to 88
+  claim_id: c_a6f1b91b
+  context: 'Configure linting (ruff/flake8) and formatting (black) tools: Create pyproject.toml
+    with ruff rules (E, W, F, I) and black line-length=88.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: black line-length=88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:13:45Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: SSH connection timeout set to 5 seconds
+  claim_id: c_d397e4c4
+  context: 'Timeout Definition: Use ssh -o ConnectTimeout=5 to determine status.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ssh -o ConnectTimeout=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:14:12Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Process termination retry limit is 3 times with 1 second delay
+  claim_id: c_843f710c
+  context: "Verify Termination: Poll the remote process list (e.g. ps -p <pid>) to\
+    \ confirm termination, retry up to 3 times with a 1\u2011second delay."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "retry up to 3 times with a 1\u2011second delay"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:14:32Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'Heterogeneity score formula: cpu_speed_mhz divided by max_latency_ms
+    multiplied by (1 minus packet_loss_rate)'
+  claim_id: c_b1d68846
+  context: 'Calculate a heterogeneity score for each available node: score = (cpu_speed_mhz
+    / max_latency_ms) * (1 - packet_loss_rate).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: score = (cpu_speed_mhz / max_latency_ms) * (1 - packet_loss_rate)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:14:48Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: CPU speed measured via lscpu on Linux or sysctl on macOS
+  claim_id: c_a1d933df
+  context: 'Execution: Run ''lscpu | grep CPU MHz'' (or ''sysctl -n hw.cpufrequency''
+    on macOS) to obtain cpu_speed_mhz.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU_speed_measured_via_lscpu_on_Linux_or_sysctl_on_macOS
+  kind: entity_fact
+  raw_text: run 'lscpu | grep CPU MHz' (or 'sysctl -n hw.cpufrequency' on macOS)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:15:06Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator provides minimal CLI entry point for basic inspection
+  claim_id: c_7e5483ac
+  context: The orchestrator CLI command `python -m code.orchestrator.cli --help` displays
+    the available options and confirms that the entry point is functional.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator provides a minimal CLI entry point for basic inspection
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T20:08:13Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: sweep runner raises a clear error when tc is missing
+  claim_id: c_3d2a8a82
+  context: The sweep runner will raise a clear error; ensure the physical testbed
+    has `tc` installed.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep runner will raise a clear error; ensure the physical testbed
+    has `tc` installed.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T20:11:33Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator CLI help displays options and confirms entry point functionality
+  claim_id: c_f8f07a1b
+  context: This command displays the available options and confirms that the entry
+    point is functional.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator CLI help command displays the available options and confirms
+    that the entry point is functional.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T20:11:33Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: run command writes CSV file to data/raw with collected metrics
+  claim_id: c_bdd3b92f
+  context: 'This command: ... 4. Writes a CSV file to data/raw/ containing the collected
+    metrics'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The run command writes a CSV file to data/raw/ containing the collected
+    metrics
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: sweep command writes aggregated results to data/processed/execution_runs.csv
+  claim_id: c_a3d1913d
+  context: "The sweep command iterates over all granularity, node\u2011count and latency\
+    \ combinations defined in config.yaml, aggregates the results and writes them\
+    \ to data/processed/execution_runs.csv."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep command aggregates the results and writes them to data/processed/execution_runs.csv
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: theoretical bound validation writes data/results/theoretical_bound_validation.json
+  claim_id: c_ef3d6894
+  context: This loads the regression model, computes the Ong & Motani (2007) wireless
+    capacity bound using the measured bandwidth_Mbps and snr_db, and writes data/results/theoretical_bound_validation.json.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The theoretical bound validation command writes data/results/theoretical_bound_validation.json
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: integration tests can be run with --mock-testbed flag
+  claim_id: c_f18c7595
+  context: Integration Tests (Mocked Testbed) pytest tests/integration/ -v --mock-testbed
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Integration tests can be run with the --mock-testbed flag
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: computes Ong & Motani 2007 wireless capacity bound using measured bandwidth
+    and snr
+  claim_id: c_68d39e54
+  context: This loads the regression model, computes the Ong & Motani (2007) wireless
+    capacity bound using the measured bandwidth_Mbps and snr_db, and writes data/results/theoretical_bound_validation.json.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The theoretical bound validation computes the Ong & Motani (2007) wireless
+    capacity bound using the measured bandwidth_Mbps and snr_db
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-15T01:30:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator pretends to discover 15 nodes
+  claim_id: c_0b43ded0
+  context: 'What happens: The orchestrator pretends to discover 15 nodes.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T08:29:09Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: test suite validates JSON files against contracts schemas
+  claim_id: c_3476b03f
+  context: The test suite scans the `data/` directory and validates any JSON files
+    against the schemas in `contracts/`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The test suite scans the data directory and validates any JSON files against
+    the schemas in contracts/.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T08:29:09Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: sweep runner iterates over all config combinations
+  claim_id: c_5d7e86b1
+  context: The sweep runner iterates over all combinations defined in `config.yaml`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep runner iterates over all combinations defined in config.yaml.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T08:29:10Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator discovers 15 nodes
+  claim_id: c_91f4770b
+  context: The orchestrator pretends to discover 15 nodes. It logs the requested parameters.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T10:08:00Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: CLI run creates CSV and JSON files run_001, dropout_events, validation_status
+  claim_id: c_e748c1e5
+  context: During a single benchmark run, the orchestrator logs the requested parameters
+    and creates output files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A CSV file `data/raw/run_001.csv`, `data/raw/dropout_events.json`, and
+    `data/raw/validation_status.json` are created.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: Orchestrator discovers 15 nodes in single benchmark run
+  claim_id: c_80897db1
+  context: In the single benchmark run command, the orchestrator pretends to discover
+    15 nodes.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: Sweep runner generates no real data
+  claim_id: c_ad8d6553
+  context: When executing the full parameter sweep, the sweep runner acknowledges
+    the request but no real data are generated.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No real data are generated at this stage.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: CLI placeholder files cause contract tests to pass
+  claim_id: c_5dc12b79
+  context: The contract tests scan the data directory and validate JSON files; with
+    the placeholder files created by the CLI, the tests pass.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: With the placeholder files created by the CLI, the tests pass.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T11:09:34Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 2
+  canonical: tests pass with placeholder files created by the CLI
+  claim_id: c_f3527130
+  context: The test suite scans the data/ directory and validates any JSON files against
+    the schemas in contracts/. With the placeholder files created by the CLI, the
+    tests pass.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The test suite scans the data/ directory and validates any JSON files
+    against the schemas in contracts/. With the placeholder files created by the CLI,
+    the tests pass.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:20:35Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: orchestrator pretends to discover 15 nodes
+  claim_id: c_e839c791
+  context: In a single benchmark run the orchestrator pretends to discover 15 nodes.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The orchestrator pretends to discover 15 nodes.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:20:36Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/quickstart.md
+  attempts: 1
+  canonical: run creates CSV and JSON files
+  claim_id: c_e53daf05
+  context: After executing the single benchmark run, a CSV file data/raw/run_001.csv,
+    data/raw/dropout_events.json, and data/raw/validation_status.json are created.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A CSV file data/raw/run_001.csv, data/raw/dropout_events.json, and data/raw/validation_status.json
+    are created.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-19T13:20:36Z'

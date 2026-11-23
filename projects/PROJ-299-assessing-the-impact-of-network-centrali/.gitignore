@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/*.log
+logs/
+
+# Data - Raw (Large files, never commit)
+data/raw/**/*.nii
+data/raw/**/*.nii.gz
+data/raw/**/*.csv
+data/raw/**/*.zip
+data/raw/**/*.tar
+data/raw/**/*.gz
+
+# Data - Processed (Large files)
+data/processed/**/*.nii
+data/processed/**/*.nii.gz
+data/processed/**/*.csv
+
+# Data - Analysis (Large results)
+data/analysis/**/*.csv
+data/analysis/**/*.json
+data/analysis/**/*.pkl
+
+# Outputs (Reports and Figures)
+outputs/**/*.pdf
+outputs/**/*.png
+outputs/**/*.jpg
+outputs/**/*.svg
+
+# Environment Variables
+.env
+.env.local
+
+# Temporary files
+tmp/
+temp/
+*.tmp

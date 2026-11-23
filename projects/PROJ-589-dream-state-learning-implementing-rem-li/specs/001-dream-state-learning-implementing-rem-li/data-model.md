@@ -1,83 +1,42 @@
-# Data Model: Dream-State Learning: Implementing REM-like Consolidation in Language Models
+# Data Model: Dream-State Learning
 
 ## Overview
-
-This document defines the data structures, schemas, and flow for the Dream-State Learning experiment. The data model supports the oscillatory training cycle, the generation of pseudo-samples (masked real data), and the statistical evaluation of results.
-
-## Core Entities
-
-### 1. TrainingStep
-Represents a single iteration in the training loop.
--   `step_id`: Integer (0 to N).
--   `phase`: Enum ("wake", "dream").
--   `loss`: Float (Cross-Entropy or MLM loss).
--   `gradient_norm`: Float.
--   `timestamp`: ISO 8601 string.
--   `memory_rss_mb`: Integer (Peak RSS at this step).
--   `reconstruction_difficulty`: Float (Average entropy of the masked input tokens, used for Quality Control).
-
-### 2. PseudoSample
-Generated during the "dream" phase (now a masked real sample).
--   `original_input`: String (The real text to be reconstructed).
--   `masked_input`: String (Input with tokens replaced by `[MASK]`).
--   `generated_output`: String (Model's reconstruction).
--   `reconstruction_loss`: Float.
--   `entropy_bits`: Float (Average entropy of generated tokens, used for QC).
-
-### 3. EvaluationResult
-Result of a single run on a held-out task.
--   `run_id`: UUID (Unique identifier for the seed/run).
--   `seed`: Integer.
--   `dataset`: String (e.g., "GLUE-AX").
--   `accuracy`: Float.
--   `baseline_accuracy`: Float (from the paired baseline run).
--   `effect_size`: Float (Cohen's d).
--   `p_value`: Float (from Wilcoxon signed-rank test).
--   `is_significant`: Boolean.
--   `reconstruction_difficulty_avg`: Float (Average difficulty during training, for QC).
-
-### 4. ExperimentConfig
-The configuration for a specific run.
--   `model_name`: String.
--   `wake_dream_ratio`: Integer (4:1).
--   `dream_temperature`: Float.
--   `total_steps`: Integer.
--   `warmup_steps`: Integer (Default 20).
--   `seed`: Integer.
+Defines all persistent artifacts produced by the experiment, each validated against a JSON Schema in `contracts/`. All files are immutable once written; new derivations receive fresh filenames and corresponding hashes.
 
 ## Data Flow
+1. **Raw Ingestion** – GLUE parquet files (`data/raw/`) fetched via `datasets.load_dataset`.  
+2. **Pre‑processing** – No modification of raw files; masked pseudo‑samples generated on‑the‑fly during training and logged to `data/processed/dream_samples/`.  
+3. **Training Artifacts** – Checkpoints (`checkpoints/`) and per‑step logs (`logs/`).  
+4. **Evaluation Results** – JSON files under `data/results/` adhering to `evaluation_result.schema.yaml`.  
+5. **Aggregated Experiment Summary** – `data/results/experiment_summary.json` adhering to `experiment_result_schema.schema.yaml` and `statistical_report_schema.yaml`.  
+6. **Versioning** – SHA‑256 hashes recorded in `state/projects/PROJ-589-dream-state-learning-implementing-rem-li/artifact_hashes.yaml` using `artifact_hashes.schema.yaml`.
 
-1.  **Ingestion**: Raw GLUE/SuperGLUE data is downloaded to `data/raw/` and cached.
-2.  **Preprocessing**: Data is tokenized and split into `train` (for wake/dream) and `test` (for evaluation).
-3.  **Training Loop**:
-    -   `TrainingStep` records are appended to a log file (`data/logs/training_log.jsonl`).
-    -   `PseudoSample` data is transient (in-memory) but aggregated statistics (avg entropy, reconstruction difficulty) are logged.
-4.  **Evaluation**:
-    -   Model is loaded from `data/checkpoints/`.
-    -   `EvaluationResult` is computed and written to `data/results/experiment_results.json`.
-5.  **Analysis**: `EvaluationResult` entries are aggregated to compute the final Wilcoxon test statistics and correlation analysis.
+## Schemas (see `contracts/`)
 
-## Storage Schema
+| Schema File | Purpose |
+|-------------|---------|
+| `dataset.schema.yaml` | Raw GLUE record (id, text, label, split). |
+| `dream_sample_schema.schema.yaml` | Pseudo‑sample generated during a dream step (entropy, perplexity, masking). |
+| `dream_event.schema.yaml` | Diagnostics of each dream‑step execution (entropy, retries, discard flag). |
+| `training_config.schema.yaml` | Hyper‑parameter configuration for a run. |
+| `training_result.schema.yaml` | Aggregated run metrics (accuracy, memory, wall‑clock, status). |
+| `evaluation_result.schema.yaml` | Single evaluation run output (accuracy, loss, resource usage). |
+| `experiment_result_schema.schema.yaml` | Summary per seed & regime (final accuracy, steps, memory). |
+| `statistical_report_schema.yaml` | Paired t‑test outcome, effect size, power estimate, notes. |
+| `artifact_hashes.schema.yaml` | Content‑hash tracking for reproducibility. |
 
-### Checkpoints
--   Location: `data/checkpoints/{run_id}/model.pt`
--   Format: PyTorch `.pt` file (state_dict).
--   Metadata: Includes `step_id`, `loss`, and `seed` in the filename or accompanying `meta.json`.
+## Data Hygiene Rules
+1. **Immutability** – Raw files never overwritten; derived files receive new names (`*_v{hash}.json`).  
+2. **Checksums** – Every file in `data/raw/` has a `.sha256` side‑car; verification occurs at start of each CI run.  
+3. **PII** – GLUE is pre‑scrubbed; no additional PII may be introduced.  
+4. **Logging** – All wake/dream transitions, entropy, reconstruction error, and memory metrics logged in structured JSON (`logs/`).  
+5. **Schema Validation** – `tests/contract/` runs `jsonschema` validation on every artifact before the next pipeline stage.  
+6. **Versioning** – After each artifact is written, its SHA‑256 is recorded in `state/projects/PROJ-589-dream-state-learning-implementing-rem-li/artifact_hashes.yaml` using `artifact_hashes.schema.yaml`.  
 
-### Logs
--   Location: `data/logs/training_log.jsonl`
--   Format: JSON Lines (one object per line).
--   Schema: Matches `TrainingStep` entity.
+## Single Source of Truth (SSoT) Mapping
+- **Metrics** (accuracy, loss, peak memory, reconstruction error) → `data/results/experiment_summary.json`.  
+- **Figures** (training loss curves, reconstruction error vs. accuracy scatter) → `docs/figures/` (generated from the JSON source).  
+- **Logs** → `logs/` (referenced by the JSON summary for reproducibility).
 
-### Results
--   Location: `data/results/experiment_results.json`
--   Format: JSON Array.
--   Schema: Array of `EvaluationResult` objects.
+---
 
-## Constraints & Validations
-
--   **Memory**: `memory_rss_mb` must not exceed 6500 (6.5 GB).
--   **Entropy**: `entropy_bits` for a `PseudoSample` must be > 0.5 (if < 0.5, the sample is discarded).
--   **Consistency**: `total_steps` in `ExperimentConfig` must equal the sum of `wake` and `dream` steps in `TrainingStep` logs.
--   **Reproducibility**: `seed` must be identical for the experimental and baseline runs being compared.
--   **Quality Control**: `reconstruction_difficulty` must be logged for every dream step to enable correlation analysis with final accuracy.

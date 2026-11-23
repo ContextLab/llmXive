@@ -1,2 +1,1 @@
-# This file ensures the data/metadata directory is tracked by git.
-# Processed metadata (e.g., file_metadata.csv) will be generated here.
+# This directory holds metadata artifacts.

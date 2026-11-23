@@ -2,18 +2,29 @@ import logging
 import os
 import sys
 import time
+import json
 from datetime import datetime
 from pathlib import Path
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path if running from subdirectory
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-from config.environment import ensure_directories, get_ftp_urls, get_local_paths
+from config.environment import get_local_paths, ensure_directories
+from analysis.load_data import main as load_data_main
+from analysis.preprocess import main as preprocess_main
+from analysis.merge_metadata import main as merge_metadata_main
+from analysis.model import main as model_main
+from analysis.sensitivity import main as sensitivity_main
+from analysis.plot_final_figures import main as plot_main
+from analysis.write_dataset import main as write_dataset_main
 
 def setup_logging():
-    """Configures logging to file and console."""
-    ensure_directories()
-    log_file = Path(get_local_paths()["logs_dir"]) / f"analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    """Configure logging to file and console."""
+    paths = get_local_paths()
+    ensure_directories([paths['logs']])
+    
+    log_file = paths['logs'] / 'pipeline.log'
     
     logging.basicConfig(
         level=logging.INFO,
@@ -23,75 +34,56 @@ def setup_logging():
             logging.StreamHandler(sys.stdout)
         ]
     )
-    return logging.getLogger(__name__)
+    return logging.getLogger('pipeline')
 
 class AnalysisTimer:
-    def __init__(self, task_name):
-        self.task_name = task_name
+    def __init__(self, logger):
+        self.logger = logger
         self.start_time = None
-        self.end_time = None
+        self.total_time = 0
 
-    def __enter__(self):
+    def start(self):
         self.start_time = time.time()
-        logging.info(f"Starting task: {self.task_name}")
-        return self
+        self.logger.info("Pipeline started.")
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.end_time = time.time()
-        duration = self.end_time - self.start_time
-        if exc_type is not None:
-            logging.error(f"Task {self.task_name} failed after {duration:.2f}s")
-        else:
-            logging.info(f"Task {self.task_name} completed in {duration:.2f}s")
+    def stop(self):
+        self.total_time = time.time() - self.start_time
+        self.logger.info(f"Pipeline completed in {self.total_time:.2f} seconds.")
+        return self.total_time
 
 def run_pipeline():
-    """Executes the full analysis pipeline."""
+    """Execute the full analysis pipeline."""
     logger = setup_logging()
-    logger.info("Pipeline started")
+    timer = AnalysisTimer(logger)
     
-    # Import tasks
-    from analysis.load_data import main as task_load_data
-    from analysis.preprocess import main as task_preprocess
-    from analysis.merge_metadata import main as task_merge
-    from analysis.model import main as task_model
-    from analysis.sensitivity import main as task_sensitivity
-    from analysis.sensitivity_report import main as task_report
-    from analysis.visualize import main as task_visualize
-
     try:
-        # Phase 1: Data Acquisition
-        with AnalysisTimer("T012: Load Data"):
-            task_load_data()
+        timer.start()
         
-        # Phase 2: Preprocessing
-        with AnalysisTimer("T014-T017: Preprocess"):
-            task_preprocess()
+        # Phase 0: Data Availability Gate (Implicitly handled in load_data/validation)
+        # Note: T007A logic is embedded in load_data.py or run before this if needed.
         
-        # Phase 3: Merge
-        with AnalysisTimer("T018-T020: Merge Metadata"):
-            task_merge()
+        # Phase 3: User Story 1 - Data Acquisition & Preprocessing
+        logger.info("--- Phase 3: Data Acquisition & Preprocessing ---")
+        load_data_main()
+        preprocess_main()
+        merge_metadata_main() # T018: Merge metadata
+        write_dataset_main() # T020: Write final dataset (ensures checksum)
         
-        # Phase 4: Modeling
-        with AnalysisTimer("T023-T025: Statistical Modeling"):
-            task_model()
+        # Phase 4: User Story 2 - Statistical Modeling
+        logger.info("--- Phase 4: Statistical Modeling ---")
+        model_main()
         
-        # Phase 5: Sensitivity
-        with AnalysisTimer("T032-T037: Sensitivity Analysis"):
-            task_sensitivity()
+        # Phase 5: User Story 3 - Sensitivity Analysis
+        logger.info("--- Phase 5: Sensitivity Analysis ---")
+        sensitivity_main()
+        plot_main()
         
-        # Phase 6: Reporting
-        with AnalysisTimer("T038: Write Sensitivity Report"):
-            task_report()
+        timer.stop()
+        logger.info("Pipeline finished successfully.")
         
-        # Phase 7: Visualization
-        with AnalysisTimer("T037: Generate Plots"):
-            task_visualize()
-
-        logger.info("Pipeline completed successfully")
-        return 0
     except Exception as e:
         logger.error(f"Pipeline failed: {e}", exc_info=True)
-        return 1
+        raise
 
-if __name__ == "__main__":
-    sys.exit(run_pipeline())
+if __name__ == '__main__':
+    run_pipeline()

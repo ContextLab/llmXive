@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-483-evaluating-the-robustness-of-common-stat/`)
-- [X] T002 Initialize Python 3.10+ project with dependencies: `numpy`, `scipy`, `pandas`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `pytest` in `requirements.txt`
+- [X] T002 Initialize Python 3.11+ project with dependencies: `numpy`, `scipy`, `pandas`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `pytest` in `requirements.txt`
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
 
 ---
@@ -57,19 +57,34 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/config.py` to load and validate `code/config.yaml` against `contracts/simulation_config.schema.yaml`
-- [X] T005a [P] Create `data/manifests/datasets.yaml` with **verified UCI/OpenML URLs** for datasets containing continuous or categorical variables suitable for t-tests, ANOVA, or chi-squared tests. **Must include specific URLs**: e.g., ` (UCI Adult), ` (UCI Wine), and ` (OpenML example). This file must be populated before T005 runs.
-- [X] T005 [P] Implement `code/data_loader.py` (FR-001): Fetch datasets from **verified URLs defined in `data/manifests/datasets.yaml`**, parse them, **verify they contain continuous or categorical variables suitable for t-tests/ANOVA/chi-squared**, and save raw CSVs to `data/raw/` and generate `data/manifests/checksums.json`.
-- [X] T006a [P] Implement `code/dependency_injector.py` (FR-003): Vectorized **AR(1) resampling** function with tunable strength $r \in [0, 0.9]$. **Validation**: Verify injected autocorrelation matches target $r$ within 5% tolerance.
-- [ ] T006b [P] Implement `code/dependency_injector.py` (FR-003): **Block bootstrap** function for hierarchical dependency with tunable block size (range starting from a small lower bound up to 50) and strength parameters. **Validation**: Verify block size distribution matches target.
-- [ ] T006c [P] Implement `code/dependency_injector.py` (FR-003): **Spatial kernel smoothing** function for spatial dependency with tunable bandwidth (range low to high). **Requirement**: Must use a **validated feature-space clustering proxy** (provided by T037) for datasets lacking explicit coordinates.
-- [X] T037 [P] Implement `code/dependency_injector.py` (FR-003): **Feature-space clustering proxy** logic to generate spatial proxies for datasets lacking explicit coordinates. Output a proxy generation report to `data/manifests/spatial_proxy_report.json`.
-- [ ] T041 [P] Implement `code/dependency_injector.py` (FR-003): **Validation logic** for the feature-space clustering proxy. Ensure the proxy is validated as per FR-003 requirements. Output a validation report to `data/manifests/spatial_proxy_validation.json`.
-- [ ] T035 [P] Implement `code/data_loader.py` (FR-001, Spec Assumptions): **Dataset validation logic** to verify $N \ge 50$. If $N < 50$, skip the dataset and log a violation to `results/validation_report.json`. **If all fetched datasets fail this check, raise a `CriticalValidationError`** to prevent pipeline deadlock. **Note**: This task applies to ALL user stories.
-- [X] T007 [P] **Library Definition**: Create `code/metrics.py` (FR-005, SC-001). **Define** functions `calculate_type1_error`, `calculate_power`, `clopper_pearson_ci`, and `train_logistic_model`. **Do NOT run the simulation here**. Ensure all functions are designed to accept aggregated p-values and return metrics with **Clopper-Pearson confidence intervals**.
-- [ ] T016-logistic [P] **Library Definition**: Extend `code/metrics.py` (Constitution Principle VII): **Define** the logic to train and save logistic regression models relating **error rate to dependency strength** to `results/logistic_models.pkl`. **Verification**: Ensure model convergence and AUC > 0.5 logic is defined. **Execution** of this training will occur in Phase 3 after data generation.
-- [X] T008 [P] **Library Definition**: Implement `code/visualizer.py` (FR-006). **Define** plot generation logic for error rate curves and power comparisons. **Do NOT generate plots here**.
-- [~] T009 Setup `tests/unit/` with mock data fixtures for dependency injection logic validation
+- [X] T004b-schema [P] **Configuration Schema Definition**: Create `contracts/config_schema.schema.yaml` defining fields for `seed`, `n_replications`, `dependency_strengths`, `test_types`, `dataset_manifest_path`, `use_real_data`, and `use_streaming`. **Independent.**
+- [X] T004 [P] **Configuration Loader**: Implement `code/config.py` to load and validate `code/config.yaml` against `contracts/config_schema.schema.yaml`. **Depends on T004b-schema.**
+- [X] T004b-populate [P] **Configuration Population**: Populate `code/config.yaml` with default values: `seed=42`, `n_replications=10000`, `dependency_strengths: [0.0, 0.1, 0.2, 0.3, 0.5]`, `use_real_data: true`, `use_streaming: false`. **Note**: This task populates the config file. **Depends on T004.**
+- [X] T005a [P] **Dataset Schema Definition**: Create `contracts/dataset_schema.schema.yaml` defining fields for `dataset_id`, `source_url`, `variable_names` (continuous/categorical), `target_column`, and `data_type`. **Independent.**
+- [X] T005c **Dataset Population**: Populate `data/manifests/datasets.yaml` with **verified UCI URLs** for **Mixed datasets** that support **t-tests, ANOVA, AND chi-squared tests**. **Mandatory Inclusions**:
+ - **UCI Adult**: ` (Continuous: age, education-num; Categorical: workclass, education).
+ - **UCI Credit Card Default**: ` (Continuous: limit_bal, bill_amt; Categorical: sex, education).
+ - **Note**: These datasets contain both continuous and categorical variables, allowing all three test types (t-test, ANOVA, Chi-squared) to be run on the *same* dataset, satisfying FR-001. **Do NOT exclude mixed datasets.** **Note**: This task depends on T005a. **Depends on T005a.**
+- [ ] T005 [P] Implement `code/data_loader.py` (FR-001): Fetch datasets from **verified URLs defined in `data/manifests/datasets.yaml`** (after T005c), parse them, **verify they contain continuous or categorical variables suitable for t-tests/ANOVA/chi-squared** (continuous: variance > 0; categorical: at least 2 unique levels), and save raw CSVs to `data/raw/` and generate `data/manifests/checksums.json`. **Note**: This task iterates over the *entire* set defined in the manifest. **Depends on T005c and T004b-populate.**
+- [X] T035 [P] [US1] **Execution**: Implement `code/data_loader.py` (FR-001, Spec Assumptions): **Dataset validation logic** to verify $N$ is sufficient. If $N < 50$, skip the dataset and log a violation to `results/validation_report.json`. **If a dataset fails validation, it is skipped; the pipeline continues with remaining valid datasets. If NO valid datasets remain, the pipeline halts with a clear error.** **Note**: This task applies to ALL user stories. **Depends on T005 completion.**
+- [ ] T035b [P] [US1] **Power Verification**: Implement `code/data_loader.py` (FR-001, SC-001): **Statistical power verification** for remaining datasets. Calculate theoretical power for the replications target. If power < 0.80, log a warning to `results/power_report.json`. **Note**: This task applies to ALL user stories. **Depends on T035 completion.**
+- [X] T037 [P] [US1] **Feature-space clustering proxy**: Implement `code/dependency_injector.py` (FR-003): **Feature-space clustering proxy** logic to generate spatial proxies for datasets lacking explicit spatial coordinates. Use **K-Means with k=3** to generate proxy coordinates. Output a proxy generation report to `data/manifests/spatial_proxy_report.json`. **Note**: The specific algorithm and parameters are implementation choices, not mandated by the Spec. **If proxy generation fails, skip spatial injection for this dataset (Do NOT fallback).** **Note**: T037 is parallel-safe with T005, but T041 must wait for T037.
+- [X] T037b [P] **Proxy-to-r Mapping**: Implement `code/dependency_injector.py` (FR-003): **Mapping logic** to translate the K-Means proxy coordinates into the dependency strength parameter $r$ for spatial injection. Define the formula: `r = (silhouette_score - min_score) / (max_score - min_score)`. **Note**: This task defines the mapping logic. **Depends on T037.**
+- [ ] T041 **Proxy Validation**: Implement `code/dependency_injector.py` (FR-003): **Validation logic** for the feature-space clustering proxy. Validate the proxy using **silhouette score** (threshold > 0.25). Ensure the proxy is validated as per FR-003 requirements. Output a validation report to `data/manifests/spatial_proxy_validation.json`. **Must complete before T006c.** **Note**: This task is sequential after T037. **Depends on T037.** <!-- FAILED-IN-EXECUTION: code/validate_spatial_proxy.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validate_spatial_proxy.py exit=1 -->
+- [ ] T006a [P] Implement `code/dependency_injector.py` (FR-003): Vectorized **AR() resampling** function with **tunable strength restricted strictly to the discrete set** $r \in \{0, 0.1, 0.2, 0.3, 0.5\}$ as per FR-007. **Validation**: Verify injected autocorrelation matches target $r$ within 5% tolerance. **Parameter**: $\phi = r$. **Note**: This library supports ONLY the discrete set mandated by the spec to prevent implementation drift.
+- [ ] T006b-map [P] **Block Bootstrap r-Mapping**: Implement `code/dependency_injector.py` (FR-003, FR-007): **Mapping logic** to translate the sweep parameter $r$ into block size. **Standard Heuristic**: `block_size = max(MIN_BLOCK_SIZE, int(np.sqrt(N)))`, where `MIN_BLOCK_SIZE` is a small integer constant. **Note**: This task defines the standard block size for Block Bootstrap. The parameter `r` is NOT used for block size calculation in standard Block Bootstrap; `r` is used for the *sweep* of dependency strength, while block size is determined by sample size $N$ to induce hierarchical dependency. **Independent.**
+- [X] T006b [P] **Block Bootstrap Injection**: Implement `code/dependency_injector.py` (FR-003): **Block Bootstrap** function for hierarchical dependency. **Algorithm**: Resample contiguous blocks of data of size $b$ (calculated by T006b-map) with replacement. **Note**: This task implements the base injection logic. **Depends on T006b-map for block_size calculation.** **Reference T006b-map for the formula.**
+- [ ] T006b-Null [P] **Block Bootstrap Null Hypothesis Construction**: Implement `code/dependency_injector.py` (FR-002, FR-003): **Null Hypothesis Construction** for real data using Block Bootstrap. **Sequence**: (1) Inject dependency using T006b logic with block_size from T006b-map, (2) THEN permute labels via random shuffle. **Note**: This task implements the Null Hypothesis Construction path. **Depends on T006b and T006b-map and T005.**
+- [~] T006c-map [P] **Spatial r-Mapping**: Implement `code/dependency_injector.py` (FR-003, FR-007): **Mapping logic** to translate the sweep parameter $r$ into bandwidth. **Standard Heuristic**: `bandwidth = base_bandwidth` (calculated via Silverman's rule). **Note**: This task defines the bandwidth logic. The parameter `r` controls the *degree of smoothing* (weight) applied to the residuals in T006c-proxy, not the bandwidth itself. **Independent.**
+- [~] T006c-native [P] Implement `code/dependency_injector.py` (FR-003): **Spatial kernel smoothing** function for datasets with **explicit spatial coordinates**. Use **Gaussian kernel** and **Silverman's rule** to calculate `base_bandwidth`. **Note**: This task is for datasets with native coordinates, not proxies. **Reference T006c-map for the final bandwidth calculation.** **Depends on T006c-map.**
+- [~] T006c-proxy [P] Implement `code/dependency_injector.py` (FR-003): **Spatial kernel smoothing** function for datasets using a **validated feature-space clustering proxy** (from T041). Use **Gaussian kernel** and **Silverman's rule** to calculate `base_bandwidth`. **Requirement**: Must use **Euclidean distance** on the proxy coordinates. **Note**: Depends on T041 completion. **DO NOT run in parallel with T041.** **Reference T006c-map for the final bandwidth calculation.** **Depends on T041 and T006c-map.**
+- [ ] T006e [P] **Sweep Configuration**: Create `code/sweep_config.yaml` with the **mandatory dependency strength sweep set** $r \in \{0, 0.1, 0.2, 0.3, 0.5\}$ as per FR-007. **Note**: Execution tasks (T013) must consume this configuration.
+- [~] T007 [P] **Library Definition**: Create `code/metrics.py` (FR-005, SC-001). **Define** functions `calculate_type1_error`, `calculate_power`, `clopper_pearson_ci`, and `train_logistic_model`. **Do NOT run the simulation here**. Ensure all functions are designed to accept aggregated p-values and return metrics with **Clopper-Pearson confidence intervals**.
+- [~] T016-def [P] **Library Definition**: Extend `code/metrics.py` (Constitution Principle VII): **Define** the logic to train and save logistic regression models relating **error rate to dependency strength** to `results/logistic_models.pkl`. **Verification**: Ensure model convergence logic is defined. **Execution** of this training will occur in Phase 3 after data generation.
+- [~] T008 [P] **Library Definition**: Implement `code/visualizer.py` (FR-006). **Define** plot generation logic for error rate curves and power comparisons. **Do NOT generate plots here**.
+- [~] T043 [P] [US1] Unit test for AR(1) injection logic in `tests/unit/test_dependency_injector.py` (verify autocorrelation matches target $r$)
+- [~] T044 [P] [US1] Unit test for Block Bootstrap injection logic in `tests/unit/test_dependency_injector.py` (verify block size distribution)
+- [~] T045 [P] [US1] Unit test for Spatial Kernel Smoothing injection logic in `tests/unit/test_dependency_injector.py` (verify smoothing effect on proxy coordinates)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,24 +92,30 @@
 
 ## Phase 3: User Story 1 - Type I Error Inflation Quantification (Priority: P1) 🎯 MVP
 
-**Goal**: Quantify false-positive rate inflation of t-tests/ANOVA under varying dependency strengths (AR(1), Block Bootstrap).
+**Goal**: Quantify false-positive rate inflation of t-tests/ANOVA under varying dependency strengths (AR(1), Block Bootstrap, Spatial).
 
-**Independent Test**: Run 10,000 replications for a single test (t-test) and single dependency (AR(1), $r=0.3$) on a sampled dataset, outputting a table of observed error rates vs. nominal alpha with Clopper-Pearson CI.
+**Independent Test**: Run a large number of replications for a single test (t-test) and single dependency (AR(1), $r=0.3$) on a sampled dataset, outputting a table of observed error rates vs. nominal alpha with Clopper-Pearson CI.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for AR(1) injection logic in `tests/unit/test_dependency_injector.py` (verify autocorrelation matches target $r$)
-- [X] T011 [P] [US1] Unit test for Null Hypothesis construction in `tests/unit/test_simulation_runner.py` (verify p-values are uniform under $r=0$). **Note**: Create failing stub first.
+- [~] T010 [P] [US1] Unit test for AR(1) injection logic in `tests/unit/test_dependency_injector.py` (verify autocorrelation matches target $r$)
+- [~] T011 [P] [US1] Unit test for Null Hypothesis construction in `tests/unit/test_simulation_runner.py` (verify p-values are uniform under $r=0$). **Note**: Create failing stub first. Test function: `test_null_hypothesis_validity`.
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] **Execution**: Implement `code/simulation_runner.py` (FR-004, FR-005): Implement **"Generate-then-Inject"** Monte Carlo loop for t-test and ANOVA. **Algorithm**: 1) Generate synthetic data under true null (Normal(0,1)), 2) Inject dependency structure (AR(1)/Block Bootstrap) with strength $r$, 3) Apply statistical test, 4) Record p-value. **Note**: This implements the paradigm defined in `plan.md` Summary to ensure a true null hypothesis. Ensure a sufficient number of replications per config to achieve statistical robustness. **Output**: Save raw p-values to `results/simulation_raw.csv`. **This task is the PRODUCER of data for T007/T008 functions.**
-- [~] T013 [US1] **Execution**: Implement sensitivity analysis sweep in `code/main.py`: Sweep $r$ across a range of values including zero and positive increments. **Depends on T012 completion**. Aggregate results using functions defined in T007 to `results/aggregated.csv`.
-- [~] T014 [US1] **Execution**: Implement trend verification logic in `code/metrics.py`: Calculate **trend test (e.g., Spearman rank correlation)** to verify monotonic increase of error rates with $r$ (p < 0.05) as per US-1 AC-2. **This task consumes `results/aggregated.csv` from T013**. Output `trend_status` column to `results/aggregated.csv`.
+- [~] T012a-syn [US1] **Framework Validation**: Implement `code/simulation_runner.py` (FR-004, FR-005): **Synthetic Data Generator**. Generate synthetic data under the true null hypothesis (independence) with parameters **defined in `code/config.yaml`** (from T004b-populate). **Note**: This task is for **synthetic data only**. Do NOT use permutation of labels on real data here. Ensure a sufficient number of replications per config to achieve statistical robustness. **Output**: Save raw p-values to `results/simulation_raw_synthetic.csv`. **This task is the PRODUCER of data for T007/T008 functions.** **Depends on T007 (Library Definition) and T004b-populate (Config Population).**
+- [~] T012b-syn [US1] **Framework Validation**: Implement `code/simulation_runner.py` (FR-003): **Dependency Injector for Synthetic Data**. Inject dependency structure (AR(1)/Block Bootstrap/Spatial) with strength $r$ into the synthetic data generated by T012a-syn. **Note**: This task satisfies FR-003 for synthetic data. **Output**: Append results to `results/simulation_raw_synthetic.csv`. **Depends on T012a-syn.**
+- [~] T012c-syn [US1] **Framework Validation**: Implement `code/simulation_runner.py` (FR-004): **Test Runner for Synthetic Data**. Apply statistical test (t-test/ANOVA) to the injected synthetic data. Record p-value. **Note**: This task applies the test. **Output**: Append results to `results/simulation_raw_synthetic.csv`. **Depends on T012b-syn.**
+- [~] T012d [US1] **Execution**: Implement `code/simulation_runner.py` (FR-002): **Null Hypothesis Construction for Real Data (Primary Path)**. Load real data (from T005), **Inject dependency structure** (AR(1) via T006a, Block Bootstrap via T006b-Null, Spatial via T006c-proxy) with strength $r$, **Permute labels via random shuffle of the target column** to break any existing effect. **MUST inject dependency THEN permute labels**. **Note**: This task satisfies FR-002's requirement to construct a null hypothesis on *original data* via permutation. **Output**: Append results to `results/aggregated_us1.csv`. **Data Dependency**: T005 -> T012d. **Code Dependency**: T012a-syn (Framework reuse). **Depends on T005 (Data Fetch), T012a-syn (Framework), T006a, T006b-Null, T006c-proxy.**
+- [~] T013 [US1] **Execution**: Implement sensitivity analysis sweep in `code/main.py` for **all dependency structures** (temporal, hierarchical, spatial) and **all test types** (t-test, ANOVA, Chi-squared). **Consume the discrete set** $r \in \{0, 0.1, 0.2, 0.3, 0.5\}$ **from `code/sweep_config.yaml` (T006e)** and run simulations for both T012a-syn (synthetic) and T012d (real) modes. **Aggregation**: Merge results into a **single unified artifact** `results/aggregated_us1.csv` (schema: `test_type:str, dependency_structure:str, r:float, error_rate:float, ci_lower:float, ci_upper:float, source_mode:str`). **Note**: This task replaces the split T013a/T013b to prevent data fragmentation. **Primary Dependency**: T012d (Real Data). **Secondary Dependency**: T012c-syn (Synthetic). **Output**: `results/aggregated_us1.csv`. **Depends on T012d and T012c-syn.**
+- [~] T013b [US1] **Execution**: Implement **Table Artifact Generation** in `code/main.py` to format `results/aggregated_us1.csv` into a human-readable Markdown table `results/type1_error_table.md` as required by US-1 AC-1. **Note**: This task ensures the "Independent Test" requirement is met. **Depends on T013.**
+- [~] T014 [US1] **Execution**: Implement trend verification logic in `code/metrics.py`: Calculate **Spearman rank correlation** to verify monotonic increase of error rates with $r$ (p < 0.05) as per US-1 AC-2. **This task consumes `results/aggregated_us1.csv` from T013**. Output `trend_status` column to `results/aggregated_us1.csv`. **Depends on T013 completion.**
+- [~] T014b [US1] **Execution**: Implement **CI Width Verification** in `code/metrics.py` to calculate the **Clopper-Pearson CI width** and verify it meets the **$\pm 0.5\%$ precision target** (SC-003). If the width exceeds the target, trigger T014c. Log pass/fail status to `results/precision_report.json`. **Depends on T013 completion.**
+- [~] T014c [US1] **Execution**: Implement **Adaptive Replication Loop** in `code/main.py`. If T014b detects CI width > 0.5%, re-run the specific configuration with increased replications until the target is met or a hard cap (e.g., [deferred]) is reached. **Output**: Update `results/aggregated_us1.csv` and `results/precision_report.json`. **Depends on T014b.**
 - [~] T040 [US1] **Execution**: Implement edge case handling logic in `code/simulation_runner.py`: Define and implement behavior for datasets where the **null hypothesis cannot be cleanly constructed** (e.g., all variables highly correlated) or when **injected dependency violates normality assumptions** beyond non-independence, as defined in **spec.md Edge Cases**. Log specific edge case failures to `results/edge_case_report.json`. **Note**: This task applies to all user stories.
-- [ ] T016-logistic [US1] **Execution**: **Run** the logistic regression training defined in T016-logistic (Phase 2) using the aggregated data from T013. Save model to `results/logistic_models.pkl`. **Verification**: Ensure model convergence and AUC > 0.5.
+- [ ] T016-exec-us1 [US1] **Execution**: **Run** the logistic regression training defined in T016-def (Phase 2) using the **unified aggregated data from T013 (US1 only)**. Save model to `results/logistic_models_us1.pkl`. **Verification**: Ensure model convergence. **Save the model regardless of AUC**, as long as it converges, to preserve all valid trend data. **Depends on T013.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,17 +129,21 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T017 [P] [US2] Integration test for multi-test pipeline in `tests/integration/test_cross_test_comparison.py`
-- [X] T018 [P] [US2] Contract test for output CSV schema in `tests/contract/test_result_schema.py`
+- [~] T017 [P] [US2] Integration test for multi-test pipeline in `tests/integration/test_cross_test_comparison.py`
+- [~] T018 [P] [US2] Contract test for output CSV schema in `tests/contract/test_result_schema.py`
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] (Removed: Covered by T006c)
-- [X] T020a [US2] Extend `code/simulation_runner.py` to include **Chi-squared test logic** and block bootstrap for hierarchical structures.
-- [X] T020b [US2] Extend `code/metrics.py` to implement **Chi-squared error rate calculation and reporting** as required by FR-005.
-- [X] T021 [US2] Implement aggregation logic in `code/main.py` to group results by test type and dependency structure
-- [X] T022 [US2] Update `code/visualizer.py` to generate comparative line plots (x=dependency strength, y=error rate, hue=test type) per AC-1
-- [~] T023 [US2] Implement threshold detection logic to report specific $r$ where error rate exceeds $\alpha=0.10$ per AC-2
+- [~] T020a [US2] Extend `code/simulation_runner.py` to include **Chi-squared test logic** and block bootstrap for hierarchical structures. **Requirement**: Implement **contingency table construction logic** using **Sturges' rule (k = 1 + log2(N))** for binning continuous variables if the dataset lacks categorical ones.
+- [~] T020b [US2] Extend `code/metrics.py` to implement **Chi-squared error rate calculation and reporting** as required by FR-005.
+- [~] T020c [US2] **Execution**: Implement **Chi-squared simulation sweep** in `code/main.py`: Sweep $r$ across a **specific discrete set** of values including zero. **from `code/sweep_config.yaml`** for Chi-squared tests on **public datasets** (both synthetic and real/permutation modes) for all dependency structures (AR(1), Block, Spatial). **Depends on T020a and T020b completion**. Aggregate results using functions defined in T020b to `results/aggregated_us2.csv` (append mode). **Note**: This task writes to a **separate file** `results/aggregated_us2.csv` to avoid race conditions with T013. **Depends on T020a and T020b.**
+- [~] T020d [US2] **Execution**: Extend `code/dependency_injector.py` to support **spatial kernel smoothing** for Chi-squared tests, ensuring all tests can run under all structures as per US-2 AC-1. **Depends on T006c.**
+- [~] T020e [US2] **Execution**: Extend `code/dependency_injector.py` to support **Block Bootstrap** for Chi-squared tests (hierarchical dependency). **Depends on T006b.**
+- [~] T021 [US2] Implement aggregation logic in `code/main.py` to group results by test type and dependency structure (partial aggregation).
+- [~] T021b [US2] **Execution**: Implement **Multi-Test Merge Logic** in `code/main.py` to merge t-test, ANOVA, and Chi-squared results from T013 and T020c into a single unified artifact `results/aggregated_unified.csv` for visualization. **Depends on T013 and T020c.**
+- [~] T022 [US2] Update `code/visualizer.py` to generate comparative line plots (x=dependency strength, y=error rate, hue=test type) per AC-1 using `results/aggregated_unified.csv`. **Depends on T021b.**
+- [~] T023 [US2] Implement threshold detection logic to report specific $r$ where error rate exceeds $\alpha=0.10$ per AC-2. **Use linear interpolation** between discrete points if the exact threshold is not hit.
+- [ ] T016-exec-us2 [US2] **Execution**: **Run** the logistic regression training defined in T016-def (Phase 2) using the **unified aggregated data from T020c (US2 only)**. Save model to `results/logistic_models_us2.pkl`. **Verification**: Ensure model convergence. **Depends on T020c.**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -132,16 +157,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for effect injection logic in `tests/unit/test_effect_injection.py`
-- [ ] T025 [P] [US3] Integration test for power calculation in `tests/integration/test_power_analysis.py`
+- [~] T024 [P] [US3] Unit test for effect injection logic in `tests/unit/test_effect_injection.py`
+- [~] T025 [P] [US3] Integration test for power calculation in `tests/integration/test_power_analysis.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Extend `code/simulation_runner.py` to support "True Effect" mode (inject mean shift $\delta$ before dependency injection). **Depends on T012** (Generate-then-Inject loop).
-- [ ] T027a [US3] Implement power calculation logic in `code/metrics.py`: Calculate observed power at $r=0$ and $r=0.3$ for true effect scenarios.
-- [ ] T027b [US3] Implement delta calculation logic in `code/metrics.py`: Calculate **percentage reduction in power** between $r=0$ and $r=0.3$ as required by US-3 AC-2.
-- [ ] T028 [US3] Update `code/visualizer.py` to generate power loss curves (x=dependency strength, y=power)
-- [ ] T029 [US3] Add reporting logic in `code/main.py` to output the **percentage reduction in power** calculated by **T027b** to the final report.
+- [~] T026 [P] [US3] Extend `code/simulation_runner.py` to support "True Effect" mode (inject mean shift $\delta$ before dependency injection). **Depends on T012a-syn** (Synthetic Generator).
+- [~] T026b [US3] **Execution**: Implement the **mean shift injection logic** in `code/simulation_runner.py` to inject true effects (e.g., mean shift $\delta=1.0\sigma$) into the synthetic data before dependency injection. **Note**: This task explicitly implements the injection mechanism required by US-3 AC-1. **Shift the target variable; calculate $\sigma$ as the population std dev of the original data.**
+- [~] T026c [US3] **Execution**: Implement **Power Analysis Simulation Sweep** in `code/main.py` to run the Monte Carlo loop for power analysis (injecting effects) for $r=0$ and $r=0.3$ across all test types. **Output**: Append results to `results/aggregated_us3.csv`. **Depends on T026b and T020a.**
+- [~] T027a [US3] Implement power calculation logic in `code/metrics.py`: Calculate observed power at $r=0$ and $r=0.3$ for true effect scenarios.
+- [~] T027b [US3] Implement delta calculation logic in `code/metrics.py`: Calculate **percentage reduction in power** between $r=0$ and $r=0.3$ as required by US-3 AC-2.
+- [~] T028 [US3] Update `code/visualizer.py` to generate power loss curves (x=dependency strength, y=power)
+- [~] T029 [US3] Add reporting logic in `code/main.py` to output the **percentage reduction in power** calculated by **T027b** to `results/power_analysis.csv` and the final report. **Note**: This task ensures the specific metric is preserved. **Depends on T027b.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -151,13 +178,52 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T031a [P] Refactor: Extract simulation loop into `run_single_replication` function in `code/simulation_runner.py`
-- [ ] T031b [P] Refactor: Vectorize aggregation logic in `code/main.py` for CPU efficiency
-- [ ] T032a [P] Profile `code/simulation_runner.py` and optimize vectorized operations to ensure 10,000 replications complete in < 6 hours.
-- [ ] T032b [P] Log execution time and memory usage to `results/perf_log.json` to verify FR-008.
-- [ ] T033 [P] Additional unit tests for edge cases (null hypothesis construction, small N) in `tests/unit/`
-- [ ] T034 Run quickstart.md validation to ensure reproducibility
+- [~] T030 [P] Documentation updates in `docs/` and `README.md`
+- [~] T031a [P] Refactor: Extract simulation loop into `run_single_replication` function in `code/simulation_runner.py`
+- [~] T031b [P] Refactor: Vectorize aggregation logic in `code/main.py` for CPU efficiency
+- [~] T032a-Profile [P] **Execution**: Profile `code/simulation_runner.py` using **cProfile** to identify bottlenecks. **Dataset**: Use **UCI Wine**. **Metric**: Measure **wall-clock time** and **peak RSS** (Resident Set Size) for a single replication loop with $N=100$ and $r=0.3$. **Output**: Save profile stats to `results/perf_profile.json`. **Note**: This task replaces the non-executable T032a.
+- [~] T032a-Target [P] **Execution**: Define the **performance target** in `code/main.py`: 10,000 replications must complete in **< 6 hours** on a 2-core, 7GB RAM runner. **Metric**: Verify total wall-clock time for the largest configuration. **Output**: Log target and actual time to `results/perf_log.json`. **Note**: This task replaces the non-executable T032a.
+- [~] T032a-Optimize [P] **Execution**: Apply **vectorization** (numpy) or **chunking** strategies to `code/simulation_runner.py` to meet the 6-hour target defined in T032a-Target. **Technique**: Replace explicit Python loops with `numpy` vectorized operations where possible. **Output**: Update `results/perf_log.json` with optimization details. **Note**: This task replaces the non-executable T032a.
+- [~] T033 [P] Additional unit tests for edge cases (null hypothesis construction, small N) in `tests/unit/`
+- [ ] T034 Run quickstart.md validation to ensure reproducibility <!-- FAILED-IN-EXECUTION: code/quickstart_validation.py exit=1 -->
+
+---
+
+## Phase N+1: Revision & Robustness (Addressing Review Concerns)
+
+**Purpose**: Address specific concerns raised in prior reviews regarding data sourcing, scientific validity, and execution constraints.
+
+- [~] T050 [P] [Review: Data Sourcing] Update `data/manifests/datasets.yaml` to **remove any placeholder or generic "UCI" entries**. Replace with **exact, canonical, verified URLs** for specific datasets (e.g., ` for Wine, ` for Car). **Add a comment** in the file explaining the verification status of each URL. **Depends on T005a.** **Note**: Do NOT exclude mixed datasets.
+- [~] T051 [P] [Review: Scientific Validity] **Refactor `code/simulation_runner.py` (T012a-syn)**: Explicitly document and implement the **"Generate-then-Inject"** paradigm as the *only* method for null hypothesis construction on synthetic data. Add a **validation check** that verifies the synthetic data generation under $r=0$ yields uniform p-values, confirming the null is true. **Add a unit test** in `tests/unit/test_simulation_runner.py` to verify that under $r=0$ (no injection), the p-values are uniform. **Depends on T012a-syn.**
+- [~] T052 [P] [Review: Execution Constraints] Add a **pre-flight check** in `code/main.py` to estimate the memory footprint of the simulation for the largest dataset and highest replication count. **Threshold**: **GB** (80% of 7.5GB runner memory). **Formula**: `(max(dataset_rows) * 8 bytes * 10000) / (1024^3)`. If the estimate exceeds **6GB**, **log a warning and SKIP the specific dataset** to ensure **a sufficient number of replications** can be completed. **Do NOT reduce the replication count below 10,000, nor reduce the sample size below N=50**, as this violates FR-008 and statistical validity. Log the optimization steps in `results/perf_log.json`. **Depends on T032a.**
+- [~] T053 [P] [Review: Spatial Proxy Validity] Enhance `code/dependency_injector.py` (T037/T041) to **log the validity metric score** of the clustering proxy generation. **Threshold**: **silhouette_score > 0.25**. If the score falls below **0.25**, **log a warning** in `data/manifests/spatial_proxy_report.json` and **skip** the spatial dependency injection for that specific dataset. **Fallback to Block Bootstrap (T006b-Null) for hierarchical dependency** if the proxy fails. **Depends on T037, T041.**
+- [~] T054 [P] [Review: Edge Cases] Implement a **robustness test** in `code/simulation_runner.py` (T040) that attempts to run a single replication with a **highly correlated dataset** (where null construction is difficult). If the test fails or produces nonsensical p-values (e.g., all 0 or all 1), **log the specific failure mode** to `results/edge_case_report.json` and **skip** that specific configuration for the full run. **Depends on T040.**
+- [~] T056b [P] [Review: Data Fetch Robustness] **Refactor `code/data_loader.py`**: Implement a **fail-loud** policy for verified URLs. If a fetch fails, raise a `DataFetchError` and **halt the pipeline**. **Do NOT trigger any fallback to synthetic data**. Synthetic data generation is a **separate execution path** configured via `code/config.yaml` (e.g., `use_real_data: false`), not a runtime fallback for failed real data fetches. This ensures that if real data is unavailable, the pipeline fails explicitly rather than fabricating results. **Note**: This resolves the deadlock where a fetch failure would otherwise stop the entire project, while preserving the rule that real data fetches must not silently fall back to synthetic data. **Depends on T005.**
+- [~] T057 [P] [Review: Data Streaming] **Defensive**: Implement **streaming logic** in `code/data_loader.py` for datasets that exceed the 7GB RAM limit. Use `datasets.load_dataset(..., streaming=True)` or chunked CSV reading to **process the dataset in chunks** without loading it entirely into memory. **Only run if `config.use_streaming` is true (default: false)**. **If streaming is required, the dataset is processed in chunks** to preserve the 7GB RAM constraint. Log the streaming strategy and chunk sizes to `results/perf_log.json`. **Depends on T005.**
+- [~] T058 [P] [Review: Normality Assumption] **Defensive**: Extend `code/simulation_runner.py` (T040) to **log the Shapiro-Wilk test statistic** for the **residuals of the injected data**. **Threshold**: **p < 0.01**. If the injected dependency structure causes a severe violation of normality (p < 0.01), **log the specific configuration** to `results/edge_case_report.json` and **flag** the results for that configuration as potentially invalid for parametric tests. **Depends on T040.**
+- [~] T059 [P] [Review: Replication Count Verification] Add a **post-run verification** task in `code/main.py` to count the actual number of replications executed for each configuration. If the count deviates from the target by a significant margin, log a critical warning. to `results/perf_log.json` and **flag** the corresponding error rate estimates in `results/aggregated_us1.csv` and `results/aggregated_us2.csv` as potentially imprecise. **Depends on T013.**
+- [~] T060 [P] [Review: Trend Test Robustness] Enhance `code/metrics.py` (T014) to include a **Mann-Kendall trend test** in addition to Spearman correlation for verifying monotonicity. This provides a non-parametric check that is robust to outliers in the error rate estimates. **Depends on T014.**
+- [~] T060b [P] [Review: Trend Test Output] **Define Output Schema**: Create `results/trend_analysis.json` with schema: `test_type`, `dependency_structure`, `tau`, `p_value`, `trend_direction`. **Execution**: Implement logic in `code/main.py` to write Mann-Kendall results to this file. **Depends on T060.**
+- [~] T061 [P] [Review: Chi-Squared Binning] Document the **binning strategy** (Sturges' rule) used for Chi-squared tests in `docs/binning_strategy.md`. Ensure the strategy is applied consistently across all datasets and dependency configurations. **Depends on T020a.**
+- [~] T062 [P] [Review: Power Calculation Baseline] Ensure `code/metrics.py` (T027a) explicitly calculates the **theoretical power** for the independent case ($r=0$) using standard formulas (e.g., from `statsmodels.stats.power`) to compare against the observed power. Log the comparison to `results/power_analysis.csv`. **Depends on T027a.**
+- [~] T063 [P] [Review: Visualization Confidence Intervals] Update `code/visualizer.py` (T022, T028) to **explicitly plot the Clopper-Pearson 95% confidence intervals** as error bars on all error rate and power curves. Ensure the legend clearly indicates the CI method used. **Depends on T007.**
+- [ ] T064 [P] [Review: Configuration Audit] Generate a **configuration audit report** (`results/config_audit.json`) at the start of the pipeline that lists all active parameters (datasets, $r$ values, test types, injection methods) and their sources (config file, manifest). This ensures full traceability of the experimental setup. **Depends on T004.**
+- [ ] T064b [P] [Review: Per-Dataset Manifest] Generate `data/dependency_manifest.yaml` that records chosen parameters (r, method) for **each dataset** processed, updating dynamically if specific datasets are skipped due to size or validity (T035). **Depends on T035 and T064.**
+
+---
+
+## Phase N+2: Final Validation & Cleanup
+
+**Purpose**: Final checks to ensure the project is ready for the next analyze pass.
+
+- [ ] T065 [P] **Final Integration Test**: Run the full pipeline (T012d -> T016-exec-us1) on a small subset of configurations to verify end-to-end correctness. **Output**: `results/final_integration_test.json`. **Note**: This task must pass before the project is considered "clean".
+- [ ] T066 [P] **Documentation Finalization**: Ensure all `docs/` files are up to date with the final implementation details, including the "Generate-then-Inject" and "Inject-then-Permute" paradigms.
+- [ ] T067 [P] **Code Cleanup**: Remove any unused imports, debug prints, or temporary files. Ensure `requirements.txt` is minimal and accurate.
+- [ ] T068 [P] **README Update**: Update `README.md` with the final execution instructions, including how to run the pipeline on CPU-only runners and how to interpret the results.
+- [ ] T069 [P] **License Check**: Ensure all third-party libraries used are compatible with the project's license.
+- [ ] T070 [P] **Review Concern Validation**: Verify that all tasks in Phase N+1 (T050-T064b) have been successfully executed and that their output artifacts (logs, reports, manifests) are present and contain valid data. **Note**: This is a manual verification step to ensure no review concerns remain unaddressed.
+- [ ] T071 [P] **Constitution Re-Check**: Re-run the Constitution Check table in `plan.md` to confirm all principles (I-VII) are still satisfied after the revisions in Phase N+1. **Note**: Update the table status if any principle was inadvertently weakened.
+- [ ] T072 [P] **Artifact Hash Update**: Update `state.yaml` with the new content hashes for all modified artifacts (code, data, results, docs) to reflect the final state of the project. **Note**: This ensures versioning discipline is maintained for the next iteration.
 
 ---
 
@@ -167,18 +233,25 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - T005a must run before T005.
- - T041 must run before T006c (or T006c must handle missing proxy gracefully).
+ - T005a must run before T005c.
+ - T005c must run before T005.
+ - T037 and T041 must run before T006c (or T006c must handle missing proxy gracefully).
  - T035 must run after T005 to validate fetched data.
  - **T007/T008 (Library Definitions)** must be completed before T012/T022 (Execution) to ensure functions exist.
+ - **T004b-populate (Config Population)** must run before T012.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **T012 (Simulation Runner)** is the **first** execution task in Phase 3. It produces the data consumed by T013/T014.
- - **T013** depends on **T012** completion.
+ - **T012d (Real Data Null Construction)** is the **first** execution task in Phase 3. It produces the data consumed by T013.
+ - **T012a-syn (Synthetic Generator)** is a **Framework Validation** task. It produces data for T013 (Secondary).
+ - **T012d** depends on **T012a-syn (Code Reuse)** and **T005**.
+ - **T013** depends on **T012d (Real) and T012c-syn (Synthetic) completion**.
  - **T014** depends on **T013** completion.
- - **T016-logistic (Execution)** depends on **T013** completion.
+ - **T016-exec-us1 (Execution)** depends on **T013** completion.
+ - **T016-exec-us2 (Execution)** depends on **T020c** completion.
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase N+1)**: Can be run in parallel with Polish tasks, but depends on the core implementation (Phases 3-5) to have defined the behaviors being reviewed.
+- **Final Validation (Phase N+2)**: Depends on all previous phases being complete.
 
 ### User Story Dependencies
 
@@ -202,6 +275,8 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Revision tasks (T050-T064b) can be run in parallel with Polish tasks.
+- Final Validation tasks (T065-T072) must run sequentially after all other tasks.
 
 ---
 
@@ -225,7 +300,7 @@ Task: "Implement sensitivity analysis sweep in code/main.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Execution Order: T012 -> T013 -> T014 -> T016-logistic)
+3. Complete Phase 3: User Story 1 (Execution Order: T012d -> T013 -> T014 -> T014c -> T016-exec-us1)
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
@@ -260,9 +335,12 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only GitHub Actions (multi-core, sufficient RAM). No GPU, no deep learning, no low-bit quantization. Use vectorized NumPy operations.
-- **Scientific Validity**: The "Generate-then-Inject" paradigm (Plan) is the authoritative method for null hypothesis construction.
-- **Data Integrity**: All datasets must be fetched from verified, canonical URLs (UCI/OpenML) defined in `data/manifests/datasets.yaml`. No synthetic or fake data generation for input.
+- **Scientific Validity**: The "Generate-then-Inject" paradigm (Plan Update) is the authoritative method for null hypothesis construction on synthetic data. The "Inject-then-Permute" paradigm (FR-002) is required for validation on real public datasets.
+- **Data Integrity**: All datasets must be fetched from verified, canonical URLs (UCI/OpenML) defined in `data/manifests/datasets.yaml`. No synthetic or fake data generation for input. If fetch fails, the pipeline MUST halt with a clear error. Synthetic runs are a separate execution path defined in config, not a fallback.
 - **Reproducibility**: All random seeds must be pinned in `code/config.yaml` and logged in `results/perf_log.json`.
 - **Edge Cases**: T040 ensures robust handling of datasets where standard null construction fails.
-- **Task ID Integrity**: T016-logistic is the unique ID for the logistic regression task. T016 is no longer used.
+- **Task ID Integrity**: T016-def is the unique ID for the logistic regression library definition. T016-exec-us1 and T016-exec-us2 are unique IDs for US1 and US2 logistic regression execution tasks.
 - **Execution Flow**: Phase 2 defines *how* to calculate metrics (Library). Phase 3 *runs* the simulation (Producer) and then *applies* the metrics (Consumer).
+- **Revision Concerns**: Phase N+1 tasks (T050-T064b) address specific reviewer concerns regarding data sourcing, scientific validity, execution constraints, data loader robustness, edge case handling, streaming, normality, replication verification, trend robustness, binning strategy, power baseline, visualization CIs, configuration audit, and trend output schema. These must be addressed before the project is considered "clean" for the next analyze pass.
+- **Constitution Check**: The plan's Constitution Check section explicitly states **10,000 replications** (FR-004) to achieve $\pm 0.5\%$ precision (SC-003).
+- **Final Validation**: Phase N+2 tasks (T065-T072) ensure the project is fully integrated, documented, and ready for the next analyze pass.

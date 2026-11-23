@@ -18,7 +18,7 @@ This project investigates the correlation between code structural complexity and
 **Primary Dependencies**: `datasets` (HuggingFace), `tree-sitter` (and language bindings), `scikit-learn`, `pandas`, `networkx`, `radon`, `pyyaml`, `pytest`, `jsonschema`  
 **Storage**: Local filesystem (`data/` for raw/derived CSVs/JSONs, `models/` for pickled models)  
 **Testing**: `pytest` with contract validation against `contracts/task_artifact.schema.yaml`, `contracts/structural_metric.schema.yaml`, and `contracts/model_outcome.schema.yaml`.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, sufficient RAM)  
 **Project Type**: Research/Data Pipeline  
 **Performance Goals**: Complete full pipeline (ingest → analyze → model) within 6 hours on CPU-only runner.  
 **Constraints**: No GPU/CUDA. No large LLM inference. Memory usage must stay < 7GB (requires sampling if necessary).  

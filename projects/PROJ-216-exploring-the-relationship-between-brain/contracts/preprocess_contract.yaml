@@ -1,0 +1,6 @@
+input:
+  bids_dir: path
+  subject_id: string
+output:
+  preprocessed_nifti: path
+  motion_log: path

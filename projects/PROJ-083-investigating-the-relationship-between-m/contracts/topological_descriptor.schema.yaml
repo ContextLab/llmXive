@@ -1,0 +1,69 @@
+# Schema for TopologicalDescriptor
+# Defines the structure of calculated topological indices for a reactant molecule.
+# Used to validate the output of the descriptor calculation pipeline.
+
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+required:
+  - reaction_id
+  - smiles
+  - wiener_index
+  - balaban_index
+  - zagreb_index
+  - is_connected
+  - calculation_timestamp
+properties:
+  reaction_id:
+    type: string
+    description: "Foreign key linking to the ReactionRecord."
+    pattern: "^[A-Za-z0-9_-]+$"
+  
+  smiles:
+    type: string
+    description: "Canonical SMILES string used for calculation."
+    minLength: 1
+  
+  wiener_index:
+    type: number
+    description: "Wiener index (sum of all shortest path distances in the molecular graph)."
+    minimum: 0
+  
+  balaban_index:
+    type: number
+    description: "Balaban J index (connectivity index based on distances and cyclomatic number)."
+    minimum: 0
+  
+  zagreb_index:
+    type: number
+    description: "First Zagreb index (sum of squared vertex degrees)."
+    minimum: 0
+  
+  is_connected:
+    type: boolean
+    description: "True if the molecular graph is a single connected component."
+  
+  symmetry_group_size:
+    type: integer
+    description: "Order of the automorphism group of the reactant graph."
+    minimum: 1
+    default: 1
+  
+  calculation_timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp when the calculation was performed."
+  
+  error_details:
+    type: object
+    description: "Details if calculation failed or was skipped."
+    properties:
+      error_type:
+        type: string
+        enum:
+          - disconnected_graph
+          - invalid_smiles
+          - calculation_error
+      message:
+        type: string
+
+additionalProperties: false

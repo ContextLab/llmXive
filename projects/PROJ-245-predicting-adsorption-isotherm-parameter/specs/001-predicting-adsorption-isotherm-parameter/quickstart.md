@@ -1,73 +1,68 @@
 # Quickstart: Predicting Adsorption Isotherm Parameters from Molecular Features
 
 ## Prerequisites
-
--   Python 3.11+
--   Git
--   A POSIX-compliant shell (bash/zsh)
+*   Python 3.11+
+*   `pip`
+*   Access to the `data/` directory (or permission to run `code/data/fetch.py`).
 
 ## Installation
-
-1.  **Clone the Repository**
+1.  **Clone and Setup**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-245-predicting-adsorption-isotherm-parameter
-    ```
-
-2.  **Create Virtual Environment**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install Dependencies**
-    ```bash
+    cd projects/PROJ-245-predicting-adsorption-isotherm-parameter/code
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins versions for `rdkit`, `scikit-learn`, `pandas`, `numpy`, `shap`.*
+
+2.  **Verify Dependencies**:
+    ```bash
+    python -c "import rdkit; import shap; import sklearn; print('All dependencies OK')"
+    ```
 
 ## Running the Pipeline
 
-The pipeline is executed via the `main.py` script. It handles data generation (synthetic), preprocessing, training, and evaluation.
-
+### Step 1: Data Fetch & Curation
+*Note: The pipeline uses the verified `matsci/qmof` dataset.*
 ```bash
-python code/main.py
+python code/data/fetch.py
+python code/data/preprocessing.py --target henry_constant
 ```
+*This generates `data/processed/target_filtered.parquet`.*
 
-### What happens?
+### Step 2: Descriptor Calculation & Imputation
+```bash
+python code/data/descriptors.py
+python code/data/imputation.py
+```
+*Generates `data/processed/imputed_dataset.parquet` and `data/validation/exclusion_log.json`.*
+*Also generates `data/validation/missing_descriptors_report.json`.*
 
-1.  **Verification Audit**: Attempts to fetch NIST/MOF-1000. If failed, writes `verification_log.json`.
-2.  **Data Generation**: Creates a synthetic dataset (if real data unavailable) matching `contracts/dataset.schema.yaml`.
-3.  **Preprocessing**: Filters for Type I isotherms, calculates RDKit descriptors, normalizes units.
-4.  **Training**: Trains Linear Regression, Random Forest, and Gradient Boosting models with 5-fold CV.
-5.  **Evaluation**: Computes R², RMSE, MAE on the material-level split test set.
-6.  **Interpretation**: Generates SHAP summary plots and performs FDR-corrected permutation tests.
-7.  **Output**: Saves results to `data/processed/` and logs metrics to `stdout`.
+### Step 3: Model Training & Evaluation
+```bash
+python code/models/train.py --target henry_constant --models linear rf gb
+python code/models/null_model.py --target henry_constant
+```
+*Generates `data/results/model_metrics.json`, `data/results/null_model_fold_rmses.json`, and `data/results/null_model_comparison.json`.*
 
-## Verifying the Results
+### Step 4: Interpretation & Reporting
+```bash
+python code/interpret/shap_analysis.py --model rf
+python code/interpret/permutation.py --cluster-by adsorbent_id
+python code/interpret/consensus.py
+```
+*Generates `data/results/shap_summary.json`, `data/results/reduced_model_metrics.json`, `data/results/null_model_top3_rmses.json`, and the final report.*
 
-### 1. Check Output Files
-Ensure the following files are generated:
--   `data/processed/train.csv`
--   `data/processed/test.csv`
--   `data/processed/model_metrics.json`
--   `data/processed/shap_summary.png`
--   `data/verification_log.json` (if real data was unavailable)
+### Step 5: Runtime Logging
+The pipeline automatically generates `data/benchmarks/runtime_log.json` upon completion.
 
-### 2. Validate Success Criteria
--   **SC-001**: Check `model_metrics.json` for the best model's R² (Pipeline check).
--   **SC-004**: Verify runtime < 6h.
--   **SC-005**: Check that adjusted p-values (q-values) are present.
--   **SC-002/SC-003**: **Note**: These criteria are **Deferred**. They will only be measured in Phase 3 (External Validation) using a real literature dataset. Do not interpret synthetic R² values as scientific proof.
+## Validation
+To verify the pipeline:
+1.  Check that `data/results/shap_summary.json` contains at least 3 features.
+2.  Verify `data/results/null_model_comparison.json` shows the trained model RMSE is lower than the null model.
+3.  Ensure `data/validation/exclusion_log.json` exists and lists any excluded rows.
+4.  Ensure `data/benchmarks/runtime_log.json` exists and contains `start_time`, `end_time`, and `status`.
+5.  Ensure `data/results/permutation_pvalues.json` exists and contains adjusted p-values.
 
 ## Troubleshooting
-
--   **ImportError: No module named 'rdkit'**: Ensure you activated the virtual environment and ran `pip install -r requirements.txt`. RDKit is large; installation may take a few minutes.
-- **Memory Error**: The synthetic dataset is capped to [deferred] rows. If you modify the generator to create more data, ensure you stay within the 7GB RAM limit of the CI runner.
--   **No Verified Data**: If the script complains about missing data, it is expected. The pipeline uses the built-in synthetic generator and writes a `verification_log.json`. Do not attempt to fetch external URLs.
-
-## Next Steps
-
--   **Interpretation**: Review the SHAP plots in `data/processed/` to understand which molecular features drive adsorption (Pipeline check).
--   **External Validation**: (Phase 3) Load a small, verified literature dataset (e.g., Kr on CNTs) and re-run the pipeline to validate the scientific hypothesis (SC-002/SC-003).
--   **Extension**: Replace the synthetic generator with a verified dataset (if a valid URL is found in the future) and re-run.
+*   **"Dataset not found"**: The `fetch.py` script relies on the `matsci/qmof` dataset name. If this changes, update the `DATASET_NAMES` constant in `code/data/fetch.py`.
+*   **"Memory Error"**: Reduce the `SAMPLE_SIZE` in `code/data/fetch.py` or enable streaming.
+*   **"Type I Filter Failed"**: Check `data/processed/exclusion_log.json` for the column name issue. The fallback physics-based filter will be used if the column is missing.

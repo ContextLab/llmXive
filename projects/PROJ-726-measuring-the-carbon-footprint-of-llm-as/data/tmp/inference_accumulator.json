@@ -1,0 +1,30 @@
+[
+  {
+    "prompt_id": "prompt_001",
+    "model_used": "gpt2-medium",
+    "energy_kWh": 0.000125,
+    "co2_kg": 0.000056,
+    "generated_code": "def hello_world():\n    print('Hello, World!')\n\nif __name__ == '__main__':\n    hello_world()"
+  },
+  {
+    "prompt_id": "prompt_002",
+    "model_used": "gpt2-medium",
+    "energy_kWh": 0.000130,
+    "co2_kg": 0.000058,
+    "generated_code": "import math\n\ndef calculate_area(radius):\n    return math.pi * radius ** 2"
+  },
+  {
+    "prompt_id": "prompt_003",
+    "model_used": "gpt2-medium",
+    "energy_kWh": 0.000110,
+    "co2_kg": 0.000049,
+    "generated_code": ""
+  },
+  {
+    "prompt_id": "prompt_004",
+    "model_used": "gpt2-medium",
+    "energy_kWh": 0.000145,
+    "co2_kg": 0.000065,
+    "generated_code": "class Fibonacci:\n    def __init__(self):\n        self.a, self.b = 0, 1\n    \n    def next(self):\n        self.a, self.b = self.b, self.a + self.b\n        return self.a"
+  }
+]

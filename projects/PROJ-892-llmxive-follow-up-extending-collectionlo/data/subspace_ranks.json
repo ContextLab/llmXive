@@ -1,0 +1,12 @@
+{
+  "fire": 12,
+  "water": 15,
+  "earth": 10,
+  "air": 14,
+  "light": 8,
+  "darkness": 11,
+  "lightning": 9,
+  "ice": 13,
+  "poison": 7,
+  "nature": 16
+}

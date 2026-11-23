@@ -1,0 +1,17 @@
+description: Schema for resolved aggregate significance data
+type: object
+required:
+  - gene_symbol
+  - tumor_type
+  - p_value
+properties:
+  gene_symbol:
+    type: string
+    description: Validated HGNC gene symbol
+  tumor_type:
+    type: string
+    description: Tumor type associated with this p-value
+  p_value:
+    type: number
+    format: float
+    description: P-value for differential expression in this tumor type

@@ -3,10 +3,9 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "projet-037-microbiome-circadian"
+name = "gut-microbiome-circadian"
 version = "0.1.0"
 description = "Investigating the correlation between gut microbiome composition and circadian rhythm disruption"
-readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "pandas",
@@ -22,15 +21,6 @@ dependencies = [
     "biopython",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "flake8",
-    "black",
-    "isort",
-    "pytest",
-    "pytest-cov",
-]
-
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311']
@@ -38,14 +28,14 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
@@ -53,7 +43,7 @@ exclude = '''
 profile = "black"
 line_length = 88
 known_first_party = ["code"]
-known_third_party = ["pandas", "numpy", "sklearn", "scipy", "biom", "skbio", "statsmodels"]
+skip_gitignore = true
 
 [tool.flake8]
 max-line-length = 88
@@ -61,17 +51,16 @@ extend-ignore = ["E203", "W503"]
 exclude = [
     ".git",
     "__pycache__",
+    ".eggs",
     "build",
     "dist",
+    "*.egg-info",
     ".venv",
     "venv",
 ]
 per-file-ignores = [
     "__init__.py:F401",
 ]
-count = true
-statistics = true
-show-source = true
 max-complexity = 10
 
 [tool.pytest.ini_options]

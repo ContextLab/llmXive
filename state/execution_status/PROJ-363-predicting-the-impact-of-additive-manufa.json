@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-363-predicting-the-impact-of-additive-manufa",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/download_data.py (rc=1); python code/preprocess.py (rc=1); python code/train_models.py (rc=1); 4 declared deliverable(s) absent: data/processed/X_derived.csv; data/processed/X_raw.csv; data/processed/cleaned_316L.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/download_data.py -> rc=1\n    2026-09-26 02:50:58,426 - root - INFO - Using dataset URL from research.md: https://zenodo.org/records/10068024\n2026-09-26 02:50:58,959 - root - WARNING - Could not definitively verify 316L material type from metadata, proceeding with filename check.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/download_data.py\", line 280, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/download",
+    "python code/preprocess.py -> rc=1\n    2026-09-26 02:50:59,674 - utils - INFO - Starting preprocessing of data/raw/316L_LPBF_dataset.csv\n2026-09-26 02:50:59,674 - utils - ERROR - File not found: Input file not found: data/raw/316L_LPBF_dataset.csv",
+    "python code/train_models.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/train_models.py\", line 23, in <module>\n    logger = setup_logging(\"train_models\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/utils.py\", line 31, in setup_logging\n    logging.basicConfig(\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py\", line 2062, in basicConfig\n    root.setLev",
+    "python code/analyze_explainability.py -> rc=1\n    2026-09-26 02:51:04,742 - utils - INFO - Starting Explainability Analysis (US3)\n2026-09-26 02:51:04,742 - utils - ERROR - State file not found: state/selected_model.yaml. Ensure T028 has run."
+  ],
+  "fix_rounds": 4,
+  "model_tier": 0,
+  "total_attempts": 4,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-26T02:51:09Z"
+}

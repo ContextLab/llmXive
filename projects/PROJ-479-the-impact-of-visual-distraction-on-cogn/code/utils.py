@@ -4,126 +4,140 @@ import sys
 import hashlib
 import json
 from datetime import datetime
+from PIL import Image
+import random
+import numpy as np
 
-# Global seed state
-_global_seed = None
-_seed_initialized = False
-
-def get_logger(name: str) -> logging.Logger:
-    """
-    Configure and return a logger with a standard format.
-
-    Args:
-        name: The name of the logger (usually __name__).
-
-    Returns:
-        Configured logging.Logger instance.
-    """
+# --- Logging Setup ---
+def get_logger(name=__name__):
     logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
-
-    logger.setLevel(logging.INFO)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
     return logger
 
-def log_structured_error(error_type: str, message: str, details: dict = None) -> None:
-    """
-    Log an error in a structured JSON format for downstream parsing.
+logger = get_logger(__name__)
 
-    Args:
-        error_type: The specific type of error (e.g., 'unmatched_participant_ids').
-        message: A human-readable description.
-        details: Optional dictionary of additional context.
-    """
-    logger = get_logger(__name__)
-    log_entry = {
-        "timestamp": datetime.utcnow().isoformat(),
+# --- Structured Error Logging ---
+def log_structured_error(error_type: str, details: str):
+    """Log specific errors as structured JSON."""
+    error_log = {
+        "timestamp": datetime.now().isoformat(),
         "error_type": error_type,
-        "message": message,
-        "details": details or {}
+        "details": details
     }
-    logger.error(json.dumps(log_entry))
+    logger.error(json.dumps(error_log))
 
-def compute_file_checksum(filepath: str, algorithm: str = 'sha256') -> str:
-    """
-    Compute the checksum of a file.
-
-    Args:
-        filepath: Path to the file.
-        algorithm: Hash algorithm to use (default: sha256).
-
-    Returns:
-        Hex digest of the file checksum.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
-    """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"File not found: {filepath}")
-
-    hasher = hashlib.new(algorithm)
+# --- Checksumming ---
+def compute_file_checksum(file_path: str) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
     try:
-        with open(filepath, 'rb') as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hasher.update(chunk)
-        return hasher.hexdigest()
-    except Exception as e:
-        raise ValueError(f"Failed to compute checksum: {e}")
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        return None
 
-def init_seed_config(seed: int = 42):
-    """
-    Initialize the global random seed configuration.
+# Alias to match spec name
+def compute_checksum(file_path: str) -> str:
+    """Spec-compliant wrapper for compute_file_checksum."""
+    return compute_file_checksum(file_path)
 
-    Args:
-        seed: The seed value to use.
-    """
-    global _global_seed, _seed_initialized
-    _global_seed = seed
-    _seed_initialized = True
-    # Also set for numpy and random for consistency
-    import random
-    import numpy as np
+# --- Random Seed Management ---
+SEED = 42
+
+def init_seed_config():
+    """Initialize global random seed."""
+    random.seed(SEED)
+    np.random.seed(SEED)
+    logger.info(f"Random seed initialized to {SEED}")
+
+def set_random_seed(seed: int):
+    """Set global random seed."""
+    global SEED
+    SEED = seed
     random.seed(seed)
     np.random.seed(seed)
+    logger.info(f"Random seed set to {seed}")
 
-def set_random_seed(seed: int = None):
-    """
-    Set the random seed for reproducibility. Uses global seed if none provided.
-
-    Args:
-        seed: Optional explicit seed.
-    """
-    import random
-    import numpy as np
-
-    if seed is None:
-        if not _seed_initialized:
-            raise RuntimeError("Global seed not initialized. Call init_seed_config first.")
-        seed = _global_seed
-
-    random.seed(seed)
-    np.random.seed(seed)
+# Alias to match spec name
+def set_global_seed(seed: int):
+    """Spec-compliant wrapper for set_random_seed."""
+    set_random_seed(seed)
 
 def get_global_seed() -> int:
-    """
-    Get the currently configured global seed.
+    """Get current global random seed."""
+    return SEED
 
-    Returns:
-        The global seed integer.
-
-    Raises:
-        RuntimeError: If seed has not been initialized.
+# --- PII Sanitization ---
+def sanitize_image_pii(image_path: str) -> str:
     """
-    if not _seed_initialized:
-        raise RuntimeError("Global seed not initialized. Call init_seed_config first.")
-    return _global_seed
+    Sanitize image by renaming with SHA256 hash and stripping EXIF.
+    Returns the new path.
+    """
+    if not os.path.exists(image_path):
+        logger.error(f"Image not found: {image_path}")
+        return None
+
+    # Compute hash
+    checksum = compute_file_checksum(image_path)
+    if not checksum:
+        return None
+
+    # New filename
+    new_filename = f"img_{checksum}.jpg"
+    new_path = os.path.join("data/processed/sanitized_images", new_filename)
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(new_path), exist_ok=True)
+
+    try:
+        # Open image and strip EXIF
+        img = Image.open(image_path)
+        # Save without EXIF
+        img.save(new_path, exif=None)
+        logger.info(f"Sanitized image: {image_path} -> {new_path}")
+        return new_path
+    except Exception as e:
+        logger.error(f"Failed to sanitize image {image_path}: {e}")
+        return None
+
+# Spec-compliant wrapper for sanitizing a directory of images
+def sanitize_images(src_dir: str, dst_dir: str) -> list:
+    """
+    Sanitize all images in src_dir, copying them to dst_dir with SHA256-based names.
+    Returns a list of new image paths.
+    """
+    if not os.path.isdir(src_dir):
+        logger.error(f"Source directory does not exist: {src_dir}")
+        return []
+
+    os.makedirs(dst_dir, exist_ok=True)
+    sanitized_paths = []
+
+    for entry in os.listdir(src_dir):
+        entry_path = os.path.join(src_dir, entry)
+        if os.path.isfile(entry_path) and entry_path.lower().endswith(('.png', '.jpg', '.jpeg')):
+            new_path = sanitize_image_pii(entry_path)
+            if new_path:
+                # Move the sanitized file to the requested destination directory
+                final_path = os.path.join(dst_dir, os.path.basename(new_path))
+                os.replace(new_path, final_path)
+                sanitized_paths.append(final_path)
+
+    logger.info(f"Sanitized {len(sanitized_paths)} images from {src_dir} to {dst_dir}")
+    return sanitized_paths
+
+# Spec-compliant wrapper for error logging
+def log_error(error_type: str, details: str):
+    """Spec-compliant wrapper for log_structured_error."""
+    log_structured_error(error_type, details)

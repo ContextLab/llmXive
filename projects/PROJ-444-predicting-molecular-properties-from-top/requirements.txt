@@ -1,15 +1,11 @@
-rdkit
+# Base environment already provides: numpy, pandas, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil.
+# Additional project-specific requirements:
+rdkit-pypi
+# gudhi provides the TDA backend; install CPU-only wheel.
 gudhi
-dionysus2
-scikit-learn
-pandas
-numpy
-matplotlib
-seaborn
-pyyaml
-requests
+# VERIFIED REAL DATA SOURCE for the ESOL/Lipophilicity dataset.
+scikit-fingerprints
+# NetworkX is required by persistence utilities for shortest‑path calculations.
 networkx
-scipy
-pytest
-ruff
-black

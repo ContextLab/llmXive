@@ -1,83 +1,62 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: AtomicGraph
-description: |
-  Schema for an atomic graph representing an amorphous silicon structure.
-  Nodes are atoms, edges are bonds defined by a distance cutoff.
+description: >
+  Schema for atomic graph representations of amorphous silicon configurations.
+  Defines nodes with topological features (degree, clustering coefficient) and edges.
+  Used for validation of graph construction outputs from code/ingest/graph_builder.py.
 type: object
 required:
-  - metadata
   - nodes
   - edges
+  - graph_id
+  - cutoff_distance
 properties:
-  metadata:
-    type: object
-    description: Metadata about the source file and generation parameters.
-    required:
-      - source_file
-      - bond_cutoff
-      - atom_type
-      - node_count
-      - edge_count
-    properties:
-      source_file:
-        type: string
-        description: Path to the original XYZ file.
-      bond_cutoff:
-        type: number
-        description: Bond cutoff distance in Angstroms.
-      atom_type:
-        type: string
-        description: Element type (e.g., "Si").
-      node_count:
-        type: integer
-        minimum: 1
-      edge_count:
-        type: integer
-        minimum: 0
-      generated_at:
-        type: string
-        format: date-time
+  graph_id:
+    type: string
+    description: Unique identifier for the graph, derived from the source XYZ filename.
+    pattern: "^[a-zA-Z0-9_-]+$"
+  cutoff_distance:
+    type: number
+    description: Bond cutoff distance in Angstroms used for edge construction.
+    minimum: 0.0
   nodes:
     type: array
-    description: List of atom nodes with position and local degree.
+    description: List of atomic nodes with topological properties.
     items:
       type: object
       required:
-        - index
-        - position
+        - id
+        - coords
         - degree
+        - clustering_coeff
       properties:
-        index:
+        id:
           type: integer
-          description: Unique atom index (0-based).
-        position:
+          description: Unique integer identifier for the atom/node.
+        coords:
           type: array
-          description: Cartesian coordinates [x, y, z] in Angstroms.
+          description: 3D coordinates of the atom in Angstroms.
           items:
             type: number
           minItems: 3
           maxItems: 3
         degree:
           type: integer
-          description: Number of bonds connected to this atom.
+          description: Number of edges connected to this node (coordination number).
           minimum: 0
+        clustering_coeff:
+          type: number
+          description: Local clustering coefficient for the node.
+          minimum: 0.0
+          maximum: 1.0
   edges:
     type: array
-    description: List of undirected bonds.
+    description: List of edges represented as pairs of node indices.
     items:
-      type: object
-      required:
-        - source
-        - target
-        - distance
-      properties:
-        source:
-          type: integer
-          description: Index of the source atom.
-        target:
-          type: integer
-          description: Index of the target atom.
-        distance:
-          type: number
-          description: Distance between atoms in Angstroms.
+      type: array
+      description: Pair of node IDs [source, target].
+      items:
+        type: integer
+      minItems: 2
+      maxItems: 2
 additionalProperties: false

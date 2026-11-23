@@ -1,0 +1,14 @@
+{
+  "simulation_config": {
+    "N": 30,
+    "rho": 0.5,
+    "seed": 42,
+    "n_predictors": 3,
+    "n_replications": 100,
+    "alpha": 0.05,
+    "vif_threshold": 10.0,
+    "rhat_threshold": 1.05
+  },
+  "total_duration_seconds": 0.0,
+  "methods": {}
+}

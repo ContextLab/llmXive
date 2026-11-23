@@ -1,84 +1,71 @@
 import logging
 import sys
+import os
 from pathlib import Path
 from typing import Optional, Dict, Any
 import json
-import datetime
 
 class StructuredFormatter(logging.Formatter):
-    """Custom formatter for structured JSON logging."""
-    
-    def format(self, record: logging.LogRecord) -> str:
-        log_entry = {
-            "timestamp": datetime.datetime.utcnow().isoformat(),
+    def format(self, record):
+        log_data = {
+            "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,
-            "logger": record.name,
             "message": record.getMessage(),
+            "logger": record.name,
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno
         }
-        
-        if hasattr(record, "extra_data"):
-            log_entry["data"] = record.extra_data
-        
         if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
-        
-        return json.dumps(log_entry)
+            log_data["exc_info"] = self.formatException(record.exc_info)
+        return json.dumps(log_data)
 
-def get_logger(name: str, log_file: Optional[Path] = None) -> logging.Logger:
+def get_logger(name: str) -> logging.Logger:
     """
-    Get a configured logger instance.
-    
-    Args:
-        name: Logger name (usually __name__)
-        log_file: Optional path to write logs to. If None, logs to stderr.
-    
-    Returns:
-        Configured logger instance.
+    Get a logger with structured formatting.
     """
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    
     if logger.handlers:
         return logger
     
-    handler: logging.Handler
-    if log_file:
-        # Ensure directory exists
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        handler = logging.FileHandler(log_file)
-    else:
-        handler = logging.StreamHandler(sys.stderr)
+    logger.setLevel(logging.INFO)
     
-    handler.setFormatter(StructuredFormatter())
-    logger.addHandler(handler)
+    # Create console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.INFO)
+    
+    # Create formatter
+    formatter = StructuredFormatter()
+    ch.setFormatter(formatter)
+    
+    # Add handler to logger
+    logger.addHandler(ch)
     
     return logger
 
-def log_convergence_warning(logger: logging.Logger, message: str, details: Optional[Dict] = None):
-    """Log a convergence warning with optional details."""
-    extra = {"details": details} if details else {}
-    record = logger.makeRecord(
-        logger.name, logging.WARNING, "", 0, message, (), None
-    )
-    record.extra_data = extra
-    logger.handle(record)
+def log_convergence_warning(logger: logging.Logger, message: str):
+    """Log a convergence warning."""
+    logger.warning(f"CONVERGENCE WARNING: {message}")
 
-def log_fallback(logger: logging.Logger, fallback_reason: str, original_attempt: str):
-    """Log that a fallback mechanism was triggered."""
-    message = f"Fallback triggered: {fallback_reason} (Original: {original_attempt})"
-    extra = {"fallback_reason": fallback_reason, "original_attempt": original_attempt}
-    record = logger.makeRecord(
-        logger.name, logging.WARNING, "", 0, message, (), None
-    )
-    record.extra_data = extra
-    logger.handle(record)
+def log_fallback(logger: logging.Logger, message: str):
+    """Log a fallback event."""
+    logger.warning(f"FALLBACK: {message}")
 
-def log_error_context(logger: logging.Logger, error: Exception, context: Dict[str, Any]):
-    """Log an error with additional context."""
-    message = f"Error occurred: {str(error)}"
-    extra = {"context": context, "error_type": type(error).__name__}
-    record = logger.makeRecord(
-        logger.name, logging.ERROR, "", 0, message, (), None
-    )
-    record.extra_data = extra
-    logger.handle(record)
+def log_error_context(logger: logging.Logger, message: str, exc_info: Optional[Exception] = None):
+    """Log an error with context."""
+    if exc_info:
+        logger.error(f"ERROR: {message}", exc_info=True)
+    else:
+        logger.error(f"ERROR: {message}")
+
+def main():
+    """
+    Entry point for script execution.
+    """
+    logger = get_logger("test_logger")
+    logger.info("Test info message")
+    logger.warning("Test warning message")
+    logger.error("Test error message")
+
+if __name__ == "__main__":
+    main()

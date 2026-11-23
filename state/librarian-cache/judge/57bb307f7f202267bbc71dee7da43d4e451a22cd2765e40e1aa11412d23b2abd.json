@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.00236",
+  "judged_at": "2026-08-07T11:24:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"improved large language diffusion models\" linguistics",
+  "rationale": "The paper focuses on graph generation using discrete flow matching, which is a distinct domain from the user's question regarding Large Language Models (LLMs) and linguistics. While both involve generative modeling, the paper does not measure the same biological/algorithmic mechanism, variables, or empirical population as the user's query, and it falls under the \"off-domain entirely\" rejection rule.",
+  "relevant": false
+}

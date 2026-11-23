@@ -1,76 +1,75 @@
+"""Setup project layout for the dataset sparsity impact pipeline.
+
+This script creates the required directory structure and writes a
+`project_structure.txt` file that recursively lists all created
+directories relative to the project root.
+
+Directories created:
+  - code/
+  - data/raw/
+  - data/processed/
+  - data/results/
+  - data/metadata/
+  - tests/unit/
+  - tests/integration/
+  - docs/
+
+The script is idempotent: running it multiple times will not raise
+errors and will overwrite ``project_structure.txt`` with the current
+layout.
+"""
+
 import os
-import sys
 from pathlib import Path
+from llmxive_toolkit import paths
+
+def _create_directories(root: Path, dirs):
+    """Create each directory in ``dirs`` under ``root``."""
+    for rel_dir in dirs:
+        dir_path = root / rel_dir
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+def _list_directories(root: Path):
+    """Return a string with a recursive, sorted list of directories."""
+    lines = []
+
+    def _walk(current: Path, prefix: str = ""):
+        for child in sorted(current.iterdir()):
+            if child.is_dir():
+                rel = child.relative_to(root)
+                lines.append(str(rel) + "/")
+                _walk(child, prefix + "  ")
+
+    _walk(root)
+    return "\n".join(lines)
 
 def main():
-    """
-    Creates the required project directory structure for llmXive PROJ-458.
-    
-    This script implements Task T001: Create project structure.
-    It ensures the following directories exist relative to the project root:
-    - code/utils
-    - data/raw
-    - data/processed
-    - data/results
-    - data/metadata
-    - tests/unit
-    - tests/integration
-    - docs
-    """
-    # Define the project root (parent of code/ directory)
-    # We assume this script is run from the project root or the code/ directory.
-    # To be robust, we find the directory containing this script and look for 'code' or treat script dir as root.
-    script_dir = Path(__file__).resolve().parent
-    
-    # If the script is in 'code/', the root is parent. If it's in root, root is script_dir.
-    if script_dir.name == 'code':
-        root_dir = script_dir.parent
-    else:
-        # Fallback: assume script is at root or we create 'code' inside current
-        root_dir = script_dir
-
-    # Define relative paths to create
-    dirs_to_create = [
-        "code/utils",
+    # Define the required project layout (relative to the project root)
+    required_dirs = [
+        "code",
         "data/raw",
         "data/processed",
         "data/results",
         "data/metadata",
         "tests/unit",
         "tests/integration",
-        "docs"
+        "docs",
     ]
 
-    created_count = 0
-    skipped_count = 0
+    # The root path is provided by llmxive_toolkit.paths
+    project_root = paths.root
 
-    print(f"Project root identified at: {root_dir}")
-    print("Creating project structure...")
+    # Create directories
+    _create_directories(project_root, required_dirs)
 
-    for dir_path in dirs_to_create:
-        full_path = root_dir / dir_path
-        if full_path.exists():
-            print(f"  [SKIP] {dir_path} (already exists)")
-            skipped_count += 1
-        else:
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"  [CREATE] {dir_path}")
-            created_count += 1
+    # Generate a recursive directory listing
+    structure_listing = _list_directories(project_root)
 
-    print("-" * 40)
-    print(f"Done. Created {created_count} directories, skipped {skipped_count}.")
-    
-    # Verify existence by listing them
-    print("\nVerification of directory tree:")
-    for dir_path in dirs_to_create:
-        full_path = root_dir / dir_path
-        if full_path.exists():
-            print(f"  ✓ {dir_path}")
-        else:
-            print(f"  ✗ {dir_path} (MISSING)")
-            return 1
-    
-    return 0
+    # Write the listing to ``project_structure.txt`` at the project root
+    output_file = project_root / "project_structure.txt"
+    output_file.write_text(structure_listing, encoding="utf-8")
+
+    print(f"Project layout established. Listing written to {output_file}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

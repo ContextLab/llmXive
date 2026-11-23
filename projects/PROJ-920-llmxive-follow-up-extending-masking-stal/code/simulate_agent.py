@@ -1,159 +1,311 @@
+import argparse
 import json
 import math
+import os
 import random
 import sys
+import logging
+import csv
+import time
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
-from utils.heuristics import calculate_composite_density
+from typing import Dict, Any, List
 
-# Configuration constants for the heuristic solver
-ALPHA = 2.0  # Scaling factor for the logistic function
-THRESHOLD = 0.5  # Critical density threshold
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Default paths (can be overridden via CLI)
+DEFAULT_TRAJECTORY_FILE = "data/raw/trajectories.jsonl"
+# Updated to match analysis expectations
+DEFAULT_OUTPUT_FILE = "data/processed/simulation_logs.csv"
+CONFIG_FILE = "code/config/simulation_config.json"
+
+# Memory and batching limits
+MEMORY_LIMIT_GB = 2.0  # Updated to respect the ≤2 GB requirement
+CHUNK_SIZE = 100  # Number of trajectories processed per batch
 
 def sigmoid(x: float) -> float:
     """Compute the sigmoid function."""
     if x >= 0:
         return 1 / (1 + math.exp(-x))
     else:
-        # Numerical stability for large negative x
         exp_x = math.exp(x)
         return exp_x / (1 + exp_x)
 
-def heuristic_solver_success(density: float, alpha: float = ALPHA, threshold: float = THRESHOLD) -> bool:
-    """
-    Determine if the agent successfully retrieves evidence based on density.
-    Uses the logistic function P(retrieval) = sigmoid(alpha * (density - threshold)).
-    """
-    prob = sigmoid(alpha * (density - threshold))
-    return random.random() < prob
-
-def check_evidence_visibility(critical_evidence_turn_index: int, current_turn: int, retention_horizon: int) -> bool:
-    """
-    Check if the critical evidence is within the current retention horizon.
-    Returns True if the evidence is visible (i.e., not masked).
-    """
-    # The evidence is visible if the current turn is within [evidence_turn, evidence_turn + horizon - 1]
-    # But typically, at turn T, we look back `horizon` turns.
-    # Logic: Is the evidence turn index >= (current_turn - retention_horizon + 1)?
-    # And obviously evidence_turn <= current_turn.
-    if critical_evidence_turn_index > current_turn:
-        return False
-    start_of_window = current_turn - retention_horizon + 1
-    return critical_evidence_turn_index >= start_of_window
-
-def run_simulation(trajectories: List[Dict[str, Any]], retention_horizons: List[int]) -> List[Dict[str, Any]]:
-    """
-    Run the simulation for a list of trajectories and a list of retention horizons.
-    Returns a list of results for each (trajectory, horizon) pair.
-    """
-    results = []
-    for traj in trajectories:
-        text = traj.get("text", "")
-        density = traj.get("density", 0.0)
-        evidence_turn = traj.get("critical_evidence_turn_index", -1)
-        
-        # Calculate density if not provided (using the utility)
-        if density is None or density == 0.0:
-            # Fallback to utility calculation if needed, though trajectories should have it
-            # Assuming text is available
-            if text:
-                density = calculate_composite_density(text)
-            else:
-                density = 0.0
-
-        for horizon in retention_horizons:
-            # Determine if agent succeeds probabilistically based on density
-            agent_success = heuristic_solver_success(density)
-            
-            # Check if evidence is visible given the horizon
-            # We assume simulation runs at the final turn of the trajectory for this check
-            # Or we can iterate turns. The task implies a final success check.
-            # Based on T013: "1 if (critical_evidence_turn_index >= current_turn - retention_horizon + 1) AND (agent_heuristic_success = true)"
-            # We assume current_turn is the last turn index of the trajectory.
-            # If the trajectory has N turns, indices are 0..N-1.
-            # Let's assume the simulation runs at the end (turn = N-1).
-            # However, to be robust, let's assume the input trajectory has a 'total_turns' or we derive it.
-            # If not, we assume the evidence turn is the last relevant event, and we check if it's in the window of the last turn.
-            # Let's assume the "current turn" for the check is the turn index of the evidence itself? 
-            # No, the logic is: At the end of the search (or at turn T), did we retain the evidence?
-            # If evidence is at turn E, and we are at turn T, we retain it if E >= T - H + 1.
-            # Let's assume T is the length of the trajectory (or max index).
-            # If 'total_turns' is not in traj, we can't calculate T exactly without parsing text.
-            # Assumption: The input JSON from T011 includes 'total_turns' or we assume the check happens at the turn of the evidence?
-            # Re-reading T013: "Verify... failure when horizon < 5 for high-density evidence".
-            # Let's assume the simulation runs until the end of the trajectory.
-            # If the trajectory doesn't specify total turns, we might assume the evidence turn is the last one?
-            # No, evidence can be earlier.
-            # Let's assume the trajectory object has a 'total_turns' field added by T011.
-            total_turns = traj.get("total_turns", evidence_turn + 1) 
-            # If total_turns is not provided, default to evidence_turn + 1 (meaning evidence is the last thing)
-            # But if evidence is early, this logic changes.
-            # Let's assume the standard case: The agent runs for `total_turns` steps.
-            current_turn = total_turns - 1 # 0-indexed last turn
-            
-            visibility = check_evidence_visibility(evidence_turn, current_turn, horizon)
-            
-            final_success = 1 if (visibility and agent_success) else 0
-            
-            results.append({
-                "trajectory_id": traj.get("id", "unknown"),
-                "density": density,
-                "retention_horizon": horizon,
-                "evidence_turn": evidence_turn,
-                "total_turns": total_turns,
-                "visibility": visibility,
-                "agent_success": agent_success,
-                "final_success": final_success
-            })
-    return results
-
-def main():
-    """
-    Main entry point for the simulation.
-    Implements streaming approach to write results to data/processed/ immediately after each batch.
-    """
-    # Paths
-    input_path = Path("data/raw/trajectories.json")
-    output_dir = Path("data/processed")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Configuration
-    batch_size = 50  # Process 50 trajectories at a time to manage RAM
-    retention_horizons = list(range(1, 11)) # Test horizons 1 to 10
-    
-    if not input_path.exists():
-        print(f"Error: Input file {input_path} not found.")
+def load_simulation_config() -> Dict[str, Any]:
+    """Load simulation configuration from ``code/config/simulation_config.json``."""
+    config_path = Path(CONFIG_FILE)
+    if not config_path.exists():
+        logger.error(f"CONFIG_FILE_MISSING: {CONFIG_FILE}")
         sys.exit(1)
-    
-    # Load all trajectories (assuming they fit in memory, or we could stream the JSON if it was NDJSON)
-    # For JSON array, we load once. If the file is too large, we'd need a streaming JSON parser.
-    # Given the constraint "manage RAM", we assume the input is large but fits in RAM, 
-    # but we stream the *results* to disk to avoid accumulating a huge result list.
-    print(f"Loading trajectories from {input_path}...")
-    with open(input_path, 'r', encoding='utf-8') as f:
-        trajectories = json.load(f)
-    
-    print(f"Loaded {len(trajectories)} trajectories.")
-    
-    output_file = output_dir / "simulation_results.jsonl"
-    
-    with open(output_file, 'w', encoding='utf-8') as out_f:
-        # Process in batches
-        for i in range(0, len(trajectories), batch_size):
-            batch = trajectories[i:i+batch_size]
-            print(f"Processing batch {i//batch_size + 1} (rows {i} to {min(i+batch_size, len(trajectories))-1})...")
-            
-            batch_results = run_simulation(batch, retention_horizons)
-            
-            # Stream results immediately to disk
-            for res in batch_results:
-                out_f.write(json.dumps(res) + '\n')
-            
-            # Optional: Clear batch to free memory (though batch is small)
-            del batch
-            del batch_results
-    
-    print(f"Simulation complete. Results written to {output_file}")
+
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+
+        required_keys = ['alpha', 'threshold', 'seed', 'density_levels']
+        for key in required_keys:
+            if key not in config:
+                logger.error(f"CONFIG_FILE_MISSING_KEY: {key}")
+                sys.exit(1)
+
+        if not isinstance(config['alpha'], (int, float)) or config['alpha'] <= 0:
+            logger.error(f"CONFIG_INVALID_ALPHA: {config['alpha']}")
+            sys.exit(1)
+
+        if not isinstance(config['threshold'], (int, float)):
+            logger.error(f"CONFIG_INVALID_THRESHOLD: {config['threshold']}")
+            sys.exit(1)
+
+        return config
+    except json.JSONDecodeError as e:
+        logger.error(f"CONFIG_MALFORMED_JSON: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"CONFIG_LOAD_ERROR: {e}")
+        sys.exit(1)
+
+def heuristic_solver_success(density: float, alpha: float, threshold: float,
+                            rng: random.Random) -> (bool, float):
+    """
+    Determine success probabilistically using the logistic function.
+    Returns a tuple ``(success, retrieval_probability)``.
+    """
+    p_retrieval = sigmoid(alpha * (density - threshold))
+    success = rng.random() < p_retrieval
+    return success, p_retrieval
+
+def check_evidence_visibility(evidence_turn_index: int, requested_horizon: int,
+                              total_turns: int, is_last_turn: bool) -> bool:
+    """
+    Evidence is visible if its turn index lies within the last ``requested_horizon`` turns.
+    The ``is_last_turn`` flag does not alter visibility because the horizon is
+    defined as a count of most‑recent turns.
+    """
+    if requested_horizon <= 0:
+        return False
+    # Evidence is visible when it occurs at or after the start of the retained window.
+    return evidence_turn_index >= (total_turns - requested_horizon)
+
+def get_memory_usage_gb() -> float:
+    """
+    Estimate current memory usage in GB.
+    Uses the ``resource`` module on Unix platforms; otherwise returns 0.0.
+    """
+    try:
+        import resource
+        usage_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        # ``ru_maxrss`` is in kilobytes on Linux, bytes on macOS.
+        return usage_kb / (1024 * 1024)
+    except Exception:
+        return 0.0
+
+def load_trajectories_streaming(path: Path) -> List[Dict[str, Any]]:
+    """
+    Load trajectories from a JSON‑Lines file.
+    Performs basic existence and size checks.
+    """
+    if not path.exists():
+        logger.error("Data Flow Violation: Trajectory generation not complete")
+        sys.exit(1)
+
+    if path.stat().st_size == 0:
+        logger.error("Data Flow Violation: Trajectory file is empty")
+        sys.exit(1)
+
+    trajectories = []
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            for line_number, line in enumerate(f, start=1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    traj = json.loads(line)
+                    trajectories.append(traj)
+                except json.JSONDecodeError as e:
+                    logger.error(f"Data Flow Violation: Invalid JSON at line {line_number}: {e}")
+                    sys.exit(1)
+        return trajectories
+    except Exception as e:
+        logger.error(f"Failed to load trajectories: {e}")
+        sys.exit(1)
+
+def run_simulation_batch(
+    trajectories: List[Dict[str, Any]],
+    alpha: float,
+    threshold: float,
+    seed: int,
+    start_idx: int
+) -> List[Dict[str, Any]]:
+    """
+    Simulate a batch of trajectories.
+    Returns a list of dictionaries matching ``contracts/simulation_log.schema.yaml``.
+    """
+    rng = random.Random(seed)
+    batch_results: List[Dict[str, Any]] = []
+
+    for i, traj in enumerate(trajectories):
+        traj_id = traj.get('trajectory_id')
+        evidence_turn = traj.get('critical_evidence_turn')
+        density_value = traj.get('final_density')
+        is_last_turn = traj.get('is_last_turn', False)
+
+        if traj_id is None or evidence_turn is None or density_value is None:
+            logger.warning(f"Trajectory {start_idx + i} missing required metadata, skipping.")
+            continue
+
+        total_turns = len(traj.get('turns', []))
+        if total_turns == 0:
+            logger.warning(f"Trajectory {traj_id} has no turns, skipping.")
+            continue
+
+        actual_entropy = traj.get('actual_entropy', 0.0)
+        clamped_entropy = actual_entropy < 1e-6
+
+        for horizon in range(1, total_turns + 1):
+            visible = check_evidence_visibility(
+                evidence_turn, horizon, total_turns, is_last_turn
+            )
+
+            evidence_age = max(0, horizon - evidence_turn - 1)
+
+            if not visible:
+                success = False
+                retrieval_prob = 0.0
+            else:
+                success, retrieval_prob = heuristic_solver_success(
+                    density_value, alpha, threshold, rng
+                )
+
+            batch_results.append({
+                'trajectory_id': traj_id,
+                'density_value': float(density_value),
+                'requested_horizon': int(horizon),
+                'evidence_age': int(evidence_age),
+                'success': int(success),
+                'retrieval_prob': float(retrieval_prob),
+                'clamped_entropy': bool(clamped_entropy)
+            })
+
+    return batch_results
+
+def write_batch_to_file(batch_results: List[Dict[str, Any]],
+                        file_path: Path,
+                        append: bool):
+    """
+    Append a batch of simulation rows to the CSV file.
+    """
+    fieldnames = [
+        'trajectory_id',
+        'density_value',
+        'requested_horizon',
+        'evidence_age',
+        'success',
+        'retrieval_prob',
+        'clamped_entropy'
+    ]
+    mode = 'a' if append else 'w'
+    with open(file_path, mode, newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not append:
+            writer.writeheader()
+        writer.writerows(batch_results)
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Simulate agent with variable retention horizons"
+    )
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=42,
+        help="Random seed for reproducibility"
+    )
+    parser.add_argument(
+        '--input',
+        type=str,
+        default=DEFAULT_TRAJECTORY_FILE,
+        help="Path to the trajectories JSON‑Lines file"
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=DEFAULT_OUTPUT_FILE,
+        help="Path to write the simulation CSV file"
+    )
+    args = parser.parse_args()
+
+    seed = args.seed
+    trajectory_path = Path(args.input)
+    output_path = Path(args.output)
+
+    logger.info(f"Starting simulation (seed={seed})")
+    logger.info(f"Loading trajectories from {trajectory_path}")
+
+    # Load simulation configuration (alpha, threshold, etc.)
+    config = load_simulation_config()
+    alpha = config['alpha']
+    threshold = config['threshold']
+
+    # Load trajectories (streaming style)
+    trajectories = load_trajectories_streaming(trajectory_path)
+    total_trajectories = len(trajectories)
+    logger.info(f"Loaded {total_trajectories} trajectories")
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Remove any existing output file
+    if output_path.exists():
+        output_path.unlink()
+
+    start_time = time.time()
+    total_records = 0
+
+    first_batch = True
+    for start_idx in range(0, total_trajectories, CHUNK_SIZE):
+        batch = trajectories[start_idx:start_idx + CHUNK_SIZE]
+        batch_results = run_simulation_batch(
+            batch,
+            alpha,
+            threshold,
+            seed,
+            start_idx
+        )
+        write_batch_to_file(batch_results, output_path, append=not first_batch)
+        first_batch = False
+        total_records += len(batch_results)
+
+    duration = time.time() - start_time
+    logger.info(f"Simulation completed in {duration:.2f} seconds")
+    logger.info(f"Wrote {total_records} records to {output_path}")
+
+    # Memory usage check
+    usage_gb = get_memory_usage_gb()
+    if usage_gb > MEMORY_LIMIT_GB:
+        logger.error(f"MEMORY_LIMIT_EXCEEDED: {usage_gb:.2f} GB > {MEMORY_LIMIT_GB} GB")
+        sys.exit(1)
+    else:
+        logger.info(f"Memory usage OK: {usage_gb:.2f} GB")
+
+    # Verify file size and line count
+    if output_path.exists():
+        file_size = output_path.stat().st_size
+        logger.info(f"Output file size: {file_size} bytes")
+        with open(output_path, 'r', encoding='utf-8') as f:
+            line_count = sum(1 for _ in f)
+        expected_lines = total_records + 1  # +1 for header
+        if line_count != expected_lines:
+            logger.error(f"Line count mismatch: expected {expected_lines}, got {line_count}")
+            sys.exit(1)
+        logger.info(f"Line count verified: {line_count}")
+    else:
+        logger.error("Output file not created")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

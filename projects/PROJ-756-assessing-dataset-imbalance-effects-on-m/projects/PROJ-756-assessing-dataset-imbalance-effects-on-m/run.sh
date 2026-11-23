@@ -1,0 +1,1 @@
+#!/usr/bin/env bash\n# Placeholder run script for the project\nset -e\necho "Run script placeholder"\n

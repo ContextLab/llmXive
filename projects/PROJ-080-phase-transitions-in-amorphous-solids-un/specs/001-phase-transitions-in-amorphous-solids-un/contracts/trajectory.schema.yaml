@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MD Trajectory Schema"
+description: "Schema for raw molecular dynamics trajectory data or synthetic data."
+type: "object"
+properties:
+  timestep:
+    type: integer
+    description: "Simulation time step."
+  particle_id:
+    type: integer
+    description: "Unique ID for the particle."
+  x:
+    type: number
+    format: double
+    description: "X coordinate."
+  y:
+    type: number
+    format: double
+    description: "Y coordinate."
+  z:
+    type: number
+    format: double
+    description: "Z coordinate."
+  box_x:
+    type: number
+    format: double
+    description: "Simulation box dimension X."
+  box_y:
+    type: number
+    format: double
+    description: "Simulation box dimension Y."
+  box_z:
+    type: number
+    format: double
+    description: "Simulation box dimension Z."
+  stress_tensor:
+    type: array
+    items:
+      type: number
+    minItems: 6
+    maxItems: 6
+    description: "Stress tensor components (sigma_xx, sigma_yy, sigma_zz, sigma_xy, sigma_xz, sigma_yz)."
+  label:
+    type: string
+    enum:
+      - "brittle"
+      - "ductile"
+    description: "Label derived from physical simulation parameters."
+  expected_sha256:
+    type: string
+    description: "SHA-256 checksum of the raw data file. Generated during data generation phase."
+required:
+  - timestep
+  - particle_id
+  - x
+  - y
+  - z
+  - box_x
+  - box_y
+  - box_z
+additionalProperties: false

@@ -1,0 +1,34 @@
+# generated using pymatgen
+data_Sr0.4008Li4La3.5992O8
+_symmetry_space_group_name_H-M   P2_1/c
+_cell_length_a   5.87480000
+_cell_length_b   6.21520000
+_cell_length_c   5.85210000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   102.47800000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   14
+_chemical_formula_structural   Sr0.4008Li4La3.5992O8
+_chemical_formula_sum   'Sr0.4008 Li4 La3.5992 O8'
+_cell_volume   208.63078014
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x, y+1/2, -z+1/2'
+  4  'x, -y+1/2, z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  4  0.35738163  0.64688206  0.32568146  1.0
+  La  La1  4  0.20268383  0.08055492  0.30483863  0.8998
+  Sr  Sr2  4  0.20268383  0.08055492  0.30483863  0.1002
+  O  O3  4  0.08649841  0.73671352  0.50192322  1.0
+  O  O4  4  0.41325287  0.12473038  0.73255593  1.0

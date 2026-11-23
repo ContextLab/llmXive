@@ -31,5 +31,15 @@
     "figures/loss_3b_bal_loss.pdf",
     "figures/loss_task.pdf",
     "math_commands.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "ff7a8ff536568de434369eba30037b343a2f6e88c32692e6b6b3772d6febeec2",
+      "bytes": 962297
+    },
+    "original.pdf": {
+      "sha256": "54a68fffde2d1d05e2d57bfdf3a3c38417ca5f433b5beb9512cd46858ea3e033",
+      "bytes": 929123
+    }
+  }
 }

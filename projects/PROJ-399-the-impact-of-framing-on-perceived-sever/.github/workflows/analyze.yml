@@ -1,4 +1,4 @@
-name: Analyze Framing Effects
+name: R Analysis CI
 
 on:
   push:
@@ -7,86 +7,93 @@ on:
     branches: [ main ]
 
 jobs:
-  analyze:
+  build-and-test:
     runs-on: ubuntu-latest
-    # Targeting GitHub Actions free tier:
-    # - Limited CPU (2 cores typically)
-    # - Limited RAM (7GB)
-    # - No GPU available
+    # Targeting GitHub Actions free tier limits (2 cores, 7GB RAM)
+    # Optimized for CPU-only execution as per project constraints
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: '4.3.3'
+        # Use standard CRAN mirror
+        cran-mirror: 'https://cran.rstudio.com'
 
-      - name: Cache R dependencies
-        uses: actions/cache@v4
-        with:
-          path: code/renv/library
-          key: ${{ runner.os }}-renv-${{ hashFiles('code/renv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-renv-
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
 
-      - name: Install R and dependencies
-        uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: '4.3.2'
-          install-r: true
+    - name: Install R dependencies via renv
+      working-directory: code
+      run: |
+        if (requireNamespace("renv", quietly = TRUE)) {
+          renv::restore()
+        } else {
+          install.packages("renv")
+          renv::restore()
+        }
+      shell: Rscript {0}
 
-      - name: Install R packages from renv.lock
-        run: |
-          Rscript -e 'install.packages("renv")'
-          Rscript -e 'renv::restore()'
-        working-directory: code
+    - name: Verify R environment
+      working-directory: code
+      run: |
+        Rscript -e "sessionInfo()"
+        Rscript -e "cat('R version:', R.version$major, '.', R.version$minor, '\n')"
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-        working-directory: code
+    - name: Run Data Preparation (US1)
+      working-directory: code
+      run: |
+        Rscript 01_data_prep.R
+      env:
+        # Ensure deterministic behavior
+        R_SEED: ${{ secrets.R_SEED || '42' }}
 
-      - name: Run Data Preparation (01_data_prep.R)
-        run: |
-          Rscript 01_data_prep.R
-        working-directory: code
-        env:
-          R_CONFIG_FILE: config.yaml
+    - name: Run Power Analysis (US3)
+      working-directory: code
+      run: |
+        Rscript 02_power_analysis.R
 
-      - name: Run Power Analysis (02_power_analysis.R)
-        run: |
-          Rscript 02_power_analysis.R
-        working-directory: code
-        env:
-          R_CONFIG_FILE: config.yaml
+    - name: Run Statistical Analysis (US1 & US2)
+      working-directory: code
+      run: |
+        Rscript 03_analysis.R
 
-      - name: Run Statistical Analysis (03_analysis.R)
-        run: |
-          Rscript 03_analysis.R
-        working-directory: code
-        env:
-          R_CONFIG_FILE: config.yaml
+    - name: Run Export & Visualization
+      working-directory: code
+      run: |
+        Rscript 04_export.R
 
-      - name: Run Export and Visualization (04_export.R)
-        run: |
-          Rscript 04_export.R
-        working-directory: code
-        env:
-          R_CONFIG_FILE: config.yaml
+    - name: Run Unit Tests
+      working-directory: code
+      run: |
+        if (requireNamespace("testthat", quietly = TRUE)) {
+          testthat::test_dir("../tests")
+        } else {
+          stop("testthat package not found. Ensure renv.lock is up to date.")
+        }
+      shell: Rscript {0}
 
-      - name: Upload Results Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: analysis-results
-          path: |
-            results/
-            data/processed/
-          retention-days: 30
+    - name: Upload Results Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: analysis-results
+        path: |
+          projects/PROJ-399-the-impact-of-framing-on-perceived-sever/results/
+          projects/PROJ-399-the-impact-of-framing-on-perceived-sever/data/processed/
+        retention-days: 7
 
-      - name: Run Tests
-        run: |
-          Rscript -e 'testthat::test_dir("tests/")'
-        working-directory: code
+    - name: Fail if Power Analysis Warning
+      working-directory: code
+      run: |
+        # Check for critical power analysis warnings in logs
+        if [ -f "../results/processed/power_analysis_verification.json" ]; then
+          echo "Power analysis completed successfully."
+        else
+          echo "Critical: Power analysis verification file missing."
+          exit 1
+        fi

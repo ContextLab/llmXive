@@ -3,6 +3,7 @@ Integration tests for dataset content and schema validation.
 Verifies progressive_constraints schema and constraint_count field presence.
 """
 import os
+import json
 import pytest
 import pandas as pd
 from pathlib import Path
@@ -71,15 +72,14 @@ class TestFilteredDatasetSchema:
             constraints = row['progressive_constraints']
             if isinstance(constraints, str):
                 # If stored as string (e.g., JSON), parse it
-                import json
                 try:
                     parsed = json.loads(constraints)
                     assert len(parsed) == row['constraint_count'], \
                         f"Row {idx}: constraint_count mismatch ({row['constraint_count']} vs {len(parsed)})"
                 except json.JSONDecodeError:
                     # If it's a literal string representation, count commas or use other logic
-                    # For now, assume valid data
-                    pass
+                    # For now, assume valid data or fail loudly if parsing is required
+                    raise AssertionError(f"Row {idx}: progressive_constraints is not valid JSON: {constraints}")
 
     def test_filtered_dataset_size(self):
         """

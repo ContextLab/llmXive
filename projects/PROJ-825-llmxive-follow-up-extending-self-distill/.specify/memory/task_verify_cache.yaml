@@ -1,0 +1,9 @@
+T001:
+  c: true
+  h: ff98c462993f93e35fb5b44a176e54a6a996caf5294a54f1b541286b0b9e21f4
+  r: 'All required directories exist and are non-empty: `code/agents/`, `code/environments/`,
+    `code/metrics/`, `code/utils/`, `code/tests/`, `code/models/` (with `__init__.py`
+    package markers), `code/config.py` (5.8KB of real configuration code), and `data/`
+    with `data/processed/` (containing run artifacts). The task only asked for the
+    project root structure, which is fully present.'
+  sig: bcad7ff49e4f85600de80a773f7436911b1f5905606b5b43e23ece9db3f48f1d

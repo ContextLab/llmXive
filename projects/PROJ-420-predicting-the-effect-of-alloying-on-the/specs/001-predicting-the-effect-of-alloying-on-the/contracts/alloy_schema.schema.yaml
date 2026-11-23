@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloyRecord"
+description: "Schema for a single aluminum alloy entry after cleaning and normalization (legacy/compatibility)."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the alloy record."
+  source:
+    type: "string"
+    enum:
+      - "OpenML"
+    description: "Source database of the record."
+  poissons_ratio:
+    type: "number"
+    description: "Poisson's ratio (dimensionless)."
+    minimum: 0.0
+    maximum: 0.5
+  youngs_modulus:
+    type: "number"
+    description: "Young's modulus in GPa."
+    exclusiveMinimum: 0
+  is_monolithic:
+    type: "boolean"
+    description: "True if the alloy is monolithic (non-composite)."
+  measurement_method:
+    type: "string"
+    description: "Method used to measure Poisson's ratio"
+
+required:
+  - id
+  - source
+  - poissons_ratio
+  - youngs_modulus
+  - measurement_method
+additionalProperties: false

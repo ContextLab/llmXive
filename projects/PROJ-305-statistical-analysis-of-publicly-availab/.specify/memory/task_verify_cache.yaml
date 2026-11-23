@@ -1,0 +1,7 @@
+T001:
+  c: true
+  h: 87bf5868ded08e9e592e73a4e54d83ab050f02c2322d91edadaf8d2416d3335b
+  r: "Checked that all required directories exist, that `logs/structure.txt` is a\
+    \ non\u2011empty file containing the string \u201Csrc\u201D, and that `quickstart.md`\
+    \ documents the command `python -m src.main`."
+  sig: eff080f222af2961812107d6624abc4156fcd5533aff5211fb80bc4d6ebb0f33

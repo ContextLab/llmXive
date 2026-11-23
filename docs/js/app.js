@@ -1261,7 +1261,7 @@
 
     // FR-013b: on a successful artifact submission show, IN THE MODAL, a
     // confirmation with a clickable link to the created issue + that the
-    // contribution will be processed within the next hour. On failure: an
+    // contribution is queued for scheduled processing. On failure: an
     // inline error, input preserved for retry.
     function setMsg(id, kind, html) {
       const el = document.getElementById(id);
@@ -1271,7 +1271,7 @@
     }
     function confirmHtml(issue, what) {
       return (what || "Submitted") + ' as <a href="' + escapeHtml(issue.html_url) + '" target="_blank" rel="noopener">issue #' + issue.number +
-        '</a>. A maintenance agent will process it within the next hour.';
+        '</a>. Scheduled triage will process it when workers run.';
     }
 
     document.getElementById("submit-idea-btn").addEventListener("click", async () => {
@@ -1306,10 +1306,10 @@
       try {
         const res = await Auth.submitReview({ project_id: pid, stage, verdict, summary, strengths, concerns });
         // submitReview returns the Contents-API response (the commit), not an
-        // issue — link to the created review file + still say "within the hour"
+        // issue — link to the created review file and describe scheduled processing
         // (the advancement evaluator picks it up on the next cycle).
         const url = (res && res.content && res.content.html_url) || ("https://github.com/ContextLab/llmXive/tree/main/projects/" + pid + "/reviews");
-        setMsg("review-msg", "ok", 'Review submitted for ' + escapeHtml(pid) + ' — <a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">view it on GitHub</a>. It will be counted on the next pipeline cycle (within the hour).');
+        setMsg("review-msg", "ok", 'Review submitted for ' + escapeHtml(pid) + ' — <a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">view it on GitHub</a>. It will be available to the relevant reviewers on a later pipeline cycle.');
       } catch (err) {
         setMsg("review-msg", "err", "Could not submit review: " + escapeHtml(String(err.message || err)));
       } finally { btn.disabled = false; }

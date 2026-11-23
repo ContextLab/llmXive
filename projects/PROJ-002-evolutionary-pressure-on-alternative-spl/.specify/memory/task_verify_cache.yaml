@@ -1,0 +1,37 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no evidence of the required directory hierarchy (`src/`,\
+    \ `tests/`, `config/`, `data/`, `results/`, `docs/`). No file paths, listings,\
+    \ or screenshots are present to confirm that these folders exist and are non\u2011\
+    empty. The task therefore remains unfulfilled."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`tests/unit/`, `tests/integration/`,
+    `tests/contract/`) being present or populated is provided; the submission contains
+    only the task description and specifications, with no actual filesystem artifacts.
+    The implementer must create the three test directories in the project repository.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, pre\u2011commit hook definitions) or evidence of them being\
+    \ run are present. The claim provides only a unrelated pipeline specification\
+    \ and no concrete artifacts that demonstrate flake8/black have been set up, so\
+    \ the requirement to configure linting and formatting tools is not satisfied."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration files, pipeline scripts, log files, or output data (e.g.,
+    PSI tables, `pipeline.log`, BAM files, `lineage_specific_events.tsv`) were provided.
+    Without these concrete artifacts, the claim that the environment configuration
+    for CI vs Full (HPC) modes has been set up cannot be verified. The implementer
+    must supply the actual implementation files and example run outputs demonstrating
+    the required behavior.
+T055:
+  c: false
+  h: 354603391c6ff88703c575851092593ff74104d73778167988428e66d5a4e985
+  r: The required `src/pipeline/lifecycle_manager.py` file does not exist, so no script
+    is provided to perform the compression, Zenodo deposition, DOI recording, or cleanup
+    as specified. The task therefore remains unfulfilled.

@@ -1,49 +1,48 @@
 """
-Setup script for the data directory structure.
-
-Creates the required subdirectories under 'data/' as specified in the project
-implementation plan for organizing raw, preprocessed, and external datasets.
-
-Usage:
-    python code/scripts/setup_data_dirs.py
+Script to set up the data directory structure for the molecular properties project.
+Creates raw/, preprocessed/, and external/ subdirectories under data/.
 """
 import os
+import sys
 from pathlib import Path
 
 def main():
-    # Define the project root relative to this script's location
-    # The script is at code/scripts/, so root is two levels up
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent.parent
-    
+    """Create the required data directory structure."""
+    # Define the project root (assuming code/scripts/ is two levels deep from root)
+    # We navigate up to the project root
+    project_root = Path(__file__).resolve().parent.parent.parent
     data_dir = project_root / "data"
-    
-    # Define the required subdirectories
-    subdirs = [
-        "raw",
-        "preprocessed",
-        "external"
-    ]
-    
-    print(f"Setting up data directory structure at: {data_dir}")
-    
-    for subdir in subdirs:
-        target_path = data_dir / subdir
-        
-        if target_path.exists():
-            print(f"  [SKIP] {subdir}/ already exists.")
+
+    # Define subdirectories as per task T007
+    subdirs = ["raw", "preprocessed", "external"]
+
+    print(f"Setting up data directories in: {data_dir}")
+
+    # Create the main data directory if it doesn't exist
+    data_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Created/Verified: {data_dir}")
+
+    # Create subdirectories
+    for subdir_name in subdirs:
+        subdir_path = data_dir / subdir_name
+        if not subdir_path.exists():
+            subdir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created: {subdir_path}")
         else:
-            target_path.mkdir(parents=True, exist_ok=True)
-            print(f"  [CREATE] {subdir}/")
-            
-            # Create a .gitkeep file to ensure the directory is tracked by git
-            # even if it is empty.
-            gitkeep = target_path / ".gitkeep"
-            with open(gitkeep, "w") as f:
-                f.write("# Directory for project data\n")
-            print(f"    [CREATE] {subdir}/.gitkeep")
-    
-    print("Data directory structure setup complete.")
+            print(f"Exists: {subdir_path}")
+
+    # Verify the structure
+    print("\nVerification of data directory structure:")
+    for subdir_name in subdirs:
+        subdir_path = data_dir / subdir_name
+        if subdir_path.exists() and subdir_path.is_dir():
+            print(f"  [OK] {subdir_path}")
+        else:
+            print(f"  [FAIL] {subdir_path} does not exist or is not a directory")
+            sys.exit(1)
+
+    print("\nData directory structure setup complete.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

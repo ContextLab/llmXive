@@ -1,0 +1,41 @@
+type: object
+properties:
+  discharge_id:
+    type: integer
+  island_width:
+    type: number
+    minimum: 0
+  tau_e:
+    type: number
+    minimum: 0
+  confinement_mode:
+    type: string
+    enum: ["L-mode", "H-mode"]
+  h98y2:
+    type: number
+  q_min:
+    type: number
+  q_max:
+    type: number
+  resonant_surface_density:
+    type: number
+    minimum: 0
+  te_profile:
+    type: array
+    items:
+      type: number
+  ne_profile:
+    type: array
+    items:
+      type: number
+required:
+  - discharge_id
+  - island_width
+  - tau_e
+  - confinement_mode
+  - h98y2
+  - q_min
+  - q_max
+  - resonant_surface_density
+  - te_profile
+  - ne_profile

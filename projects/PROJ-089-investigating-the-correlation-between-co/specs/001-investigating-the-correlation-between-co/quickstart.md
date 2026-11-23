@@ -2,129 +2,73 @@
 
 ## Prerequisites
 
-- Python 3.11+  
-- Git (for cloning)  
-- ≥ 7 GB RAM, ≥ 14 GB disk space  
-- GitHub API token (optional, for higher rate limits)
+- **Python**: 3.11+
+- **Git**: Installed and in PATH.
+- **Semgrep**: `pip install semgrep==1.30.0` (or use the pinned `requirements.txt`).
+- **Access**: Public GitHub repositories (no token required for public repos).
 
 ## Installation
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd <repository-name>
+1. **Clone the Repository**:
+ ```bash
+ git clone
+ cd proj-089-code-churn-debt
+ ```
 
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+2. **Create Virtual Environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-# Install dependencies (requirements.txt will be generated in Phase 1)
-pip install -r requirements.txt
-```
-
-## Configuration
-
-1. **GitHub Token** (recommended):
-   ```bash
-   export GITHUB_TOKEN="your_token_here"
-   ```
-
-2. **Repository List** (optional):
-   - Edit `data/raw/repos_list.txt` to supply a custom list, or let the pipeline query GitHub automatically.
-
-3. **Parameter Tweaks** (optional, edit `code/config.py`):
-   - `FILE_SIZE_THRESHOLD = 10` LOC (default) – can be set to 5 or 20 for sensitivity runs.  
-   - `MAX_REPOS = 50` – number of repositories to analyze.  
-   - `MIN_STARS = 500` – star cutoff.  
-   - `MIN_AGE_YEARS = 2`.
+3. **Install Dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
 ## Running the Pipeline
 
-### Full Execution (Phase 0–6)
-
+### 1. Full Pipeline Execution
+Run the complete extraction, analysis, and reporting pipeline:
 ```bash
-python code/main.py
+python code/main.py --full
 ```
+*Note: This may take up to 6 hours depending on the number of repositories.*
 
-This orchestrates:
-1. Repository selection (GitHub API).  
-2. Cloning & git‑history extraction.  
-3. Static analysis with Radon (Python) and **Semgrep** (other languages).  
-4. Pre‑processing & metric calculation (raw metrics).  
-5. Mixed‑effects correlation analysis + meta‑analysis.  
-6. Sensitivity analysis (thresholds 5, 10, 20 LOC).  
-7. Visualization and generation of `summary_report.txt`.
-
-### Individual Stages (for debugging)
-
-- **Data Extraction**: `python code/data_extraction.py --repos 10`  
-- **Static Analysis**: `python code/static_analysis.py --repos 10`  
-- **Analysis**: `python code/analysis.py`  
-- **Visualization**: `python code/visualization.py`  
-- **Reporting**: `python code/reporting.py`
-
-### Testing
-
+### 2. Mock Run (Fast Test)
+Run a quick test with a single mock repository to verify logic:
 ```bash
-# Unit tests
-pytest tests/unit/
-
-# Contract (schema) tests
-pytest tests/contract/
-
-# End‑to‑end integration (small sample)
-pytest tests/integration/
+python code/main.py --mock
 ```
+*This generates dummy data and runs the statistical models without cloning real repos.*
 
-## Expected Outputs
+### 3. Specific Phases
+- **Extraction Only**:
+ ```bash
+ python code/extraction.py --repos data/raw/repos_metadata.csv
+ ```
+- **Analysis Only** (requires `data/processed/unified_metrics.csv`):
+ ```bash
+ python code/analysis.py
+ ```
+- **Reporting Only** (requires `data/processed/correlation_results.csv`):
+ ```bash
+ python code/reporting.py
+ ```
 
-```
-data/
-├── raw/
-│   ├── repos_metadata.csv
-│   ├── git_history/
-│   └── static_analysis/
-├── processed/
-│   └── unified_metrics.csv
-├── results/
-│   ├── correlation_results.csv
-│   ├── sensitivity_analysis.csv
-│   ├── plots/
-│   │   ├── repo_1_scatter.png
-│   │   └── aggregate_scatter.png
-│   └── summary_report.txt
-└── logs/
-    └── tool_validation_log.csv   # Contains tool version, star count, citation
-```
+## Output Artifacts
 
-- `summary_report.txt` includes a **correlation strength classification** per SC‑001 (|r| ≥ 0.3 → *moderate*).  
-- `tool_validation_log.csv` satisfies SC‑005 by logging each tool’s citation and star count.
+After a successful run, the following files will be generated in `data/processed/`:
+- `unified_metrics.csv`: Raw metrics for all files.
+- `unified_metrics_loc5.csv`: Filtered by avg_loc >= 5.
+- `unified_metrics_loc10.csv`: Filtered by avg_loc >= 10.
+- `unified_metrics_loc20.csv`: Filtered by avg_loc >= 20.
+- `correlation_results.csv`: Per-repo regression slopes.
+- `meta_analysis_results.csv`: Aggregated meta-analysis results.
+- `summary_report.txt`: Final human-readable report.
 
 ## Troubleshooting
 
-- **API rate limits** – set `GITHUB_TOKEN`.  
-- **Static analysis failures** – check `logs/tool_validation_log.csv` for error messages; problematic repos are skipped.  
-- **Out‑of‑memory** – reduce `MAX_REPOS` or process repositories sequentially (`--repos` flag).  
-- **Disk space** – delete `data/raw/git_history/` after successful extraction.
-
-## Debug Mode
-
-```bash
-python code/main.py --verbose
-```
-
-Enables detailed logging to `logs/`.
-
-## Verification Checklist
-
-1. Run on a small subset (`--repos 5`).  
-2. Confirm `data/processed/unified_metrics.csv` has non‑null `total_lines_changed` and `debt_score`.  
-3. Verify `correlation_results.csv` and `sensitivity_analysis.csv` are generated.  
-4. Ensure scatter plots appear in `data/results/plots/`.  
-5. Check `summary_report.txt` flags any correlation with |r| ≥ 0.3 as *moderate*.
-
-## Next Steps
-
-- Increase `MAX_REPOS` to the full 50‑100 range.  
-- Review `summary_report.txt` for findings.  
-- Share results with stakeholders or incorporate into a manuscript.
+- **Semgrep Error**: Ensure `semgrep==1.30.0` is installed. Some languages may not be supported.
+- **Timeout**: If the pipeline exceeds 6 hours, reduce the number of repositories in `data/raw/repos_metadata.csv`.
+- **Memory Error**: The pipeline streams data; if memory is exhausted, check for infinite loops in `git log` parsing.

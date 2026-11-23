@@ -1,0 +1,18 @@
+# Development and Linting Dependencies
+# Generated for T003: Configure linting (flake8/black) and formatting tools
+
+# Core project dependencies (ensure these are present)
+-r requirements.txt
+
+# Linting and Formatting
+flake8>=6.0.0
+black>=23.0.0
+isort>=5.12.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-xdist>=3.3.0
+
+# Type checking (optional but recommended for robustness)
+mypy>=1.5.0

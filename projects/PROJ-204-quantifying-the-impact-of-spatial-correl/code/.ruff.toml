@@ -1,6 +1,6 @@
 # Ruff configuration for llmXive project
 line-length = 88
-target-version = "py310"
+target-version = "py39"
 
 [lint]
 select = [
@@ -13,14 +13,21 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C408", # unnecessary collection call
+    "E501", # line too long (handled by formatter)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses/pydantic)
 ]
 
 [lint.isort]
-known-first-party = ["code"]
-force-to-top = ["code"]
+known-first-party = [
+    "analysis",
+    "data",
+    "modeling",
+    "preprocess",
+    "validation",
+    "report",
+    "utils"
+]
+force-sort-within-sections = true
 
 [format]
 quote-style = "double"

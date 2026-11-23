@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Output Schema"
+description: "Schema for the statistical analysis results, including coefficients and diagnostics."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  predictor_name:
+    type: "string"
+    description: "Name of the predictor variable (e.g., 'perceived_validation_score')."
+  coefficient:
+    type: "number"
+    description: "Estimated regression coefficient."
+  standard_error:
+    type: "number"
+    description: "Standard error of the coefficient."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the coefficient."
+  confidence_interval_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+  confidence_interval_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  vif_score:
+    type: "number"
+    description: "Variance Inflation Factor for the predictor."
+  sample_size:
+    type: "integer"
+    description: "Number of observations used in the model."
+  framing_label:
+    type: "string"
+    enum: ["associational", "correlational"]
+    description: "Explicit label for the nature of the finding (must not be causal)."
+required:
+  - model_id
+  - predictor_name
+  - coefficient
+  - standard_error
+  - p_value
+  - confidence_interval_lower
+  - confidence_interval_upper
+  - vif_score
+  - sample_size
+  - framing_label
+additionalProperties: false

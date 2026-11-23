@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for structural and functional connectivity matrices"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject"
+  structural_matrix:
+    type: "object"
+    properties:
+      shape:
+        type: "array"
+        items:
+          type: "integer"
+        minItems: 2
+        maxItems: 2
+      data:
+        type: "array"
+        items:
+          type: "number"
+      dtype:
+        type: "string"
+        enum: ["float32", "float64"]
+    required: ["shape", "data", "dtype"]
+  functional_matrix:
+    type: "object"
+    properties:
+      shape:
+        type: "array"
+        items:
+          type: "integer"
+        minItems: 2
+        maxItems: 2
+      data:
+        type: "array"
+        items:
+          type: "number"
+      dtype:
+        type: "string"
+        enum: ["float32", "float64"]
+    required: ["shape", "data", "dtype"]
+  metadata:
+    type: "object"
+    properties:
+      atlas:
+        type: "string"
+        const: "Schaefer400"
+      motion_fd:
+        type: "number"
+        minimum: 0
+      source_type:
+        type: "string"
+        enum: ["HCP", "OpenNeuro", "Synthetic"]
+    required: ["atlas", "source_type"]
+required: ["subject_id", "structural_matrix", "functional_matrix", "metadata"]

@@ -1,34 +1,30 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Ingestion Contract"
-description: "Validates the structure of a loaded dataset record before processing."
-type: "object"
+title: "Dataset Schema"
+description: "Validates raw dataset description and checksum."
+type: object
 required:
-  - "dataset_id"
-  - "source_url"
-  - "checksum"
-  - "sample_size"
-  - "outcome_column"
+  - name
+  - outcome_column
+  - n_samples
+  - missingness_proportion
+  - checksum
 properties:
-  dataset_id:
-    type: "string"
-    description: "Unique identifier for the dataset (e.g., 'uci_har')."
-  source_url:
-    type: "string"
-    description: "The verified URL from which the dataset was downloaded."
-  checksum:
-    type: "string"
-    description: "SHA-256 hash of the raw file content."
-  sample_size:
-    type: "integer"
-    description: "Number of rows in the dataset."
-  missingness_rate:
-    type: "number"
-    description: "Proportion of missing values (0.0 to 1.0)."
+  name:
+    type: string
+    description: "Human‑readable identifier of the dataset (e.g., 'Wine Quality')."
   outcome_column:
-    type: "string"
-    description: "Name of the target variable for statistical tests."
-  predictor_columns:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of feature column names."
+    type: string
+    description: "Name of the documented outcome variable."
+  n_samples:
+    type: integer
+    minimum: 1
+    description: "Number of rows after loading."
+  missingness_proportion:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of missing values before any cleaning."
+  checksum:
+    type: string
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: "SHA‑256 checksum of the raw file."

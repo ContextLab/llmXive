@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-840-llmxive-follow-up-extending-agents-last
-last_run_id: 246213b4-a7ac-4861-843c-db0bc96c0e6f
+last_run_id: 74943dcb-db43-4cd1-9aed-eac2d60af7dc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-840-llmxive-follow-up-extending-agents-last/specs/001-llmxive-follow-up-extending-agents-last
 title: 'llmXive follow-up: extending "Agents'' Last Exam"'
-updated_at: '2026-07-12T12:40:46.982218Z'
+updated_at: '2026-10-13T01:51:00.222050Z'

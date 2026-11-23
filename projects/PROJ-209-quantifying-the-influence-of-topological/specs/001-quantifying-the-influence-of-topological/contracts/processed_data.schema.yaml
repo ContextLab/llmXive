@@ -60,10 +60,14 @@ properties:
       collinearity_method:
         type: "string"
         description: "Method used to handle collinearity."
+      confounding_control_status:
+        type: "string"
+        description: "Status of confounding control (e.g., 'stratified', 'covariates', 'impossible')."
     required:
       - total_entries
       - excluded_entries
       - collinearity_method
+      - confounding_control_status
   required:
     - feature_matrix
     - metadata

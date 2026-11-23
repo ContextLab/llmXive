@@ -1,8 +1,86 @@
-columns:
+# Schema for simulation_result.csv output
+# Generated for PROJ-332-exploring-the-influence-of-network-topol
+# Matches FR-009 and T004c requirements
+
+type: object
+description: >-
+  Schema defining the structure of the simulation results CSV file.
+  Each row represents a batch of simulations at a specific connectivity level.
+
+properties:
+  seed:
+    type: integer
+    description: Random seed used for the simulation batch
+    
+  N:
+    type: integer
+    description: Number of nodes in the network graph
+    
+  p:
+    type: number
+    format: float
+    description: Connection probability (0.0 to 1.0)
+    
+  avg_degree:
+    type: number
+    format: float
+    description: Average node degree across the batch
+    
+  conductivity:
+    type: number
+    format: float
+    description: Effective thermal conductivity in W/(m·K)
+    
+  connectivity_probability:
+    type: number
+    format: float
+    description: Fraction of graphs in the batch that are fully connected (0.0 to 1.0)
+    # Replaces percolation_flag as per FR-009 correction
+    
+  percolation_threshold:
+    type: number
+    format: float
+    description: Detected percolation threshold (inflection point where P(connected)=0.5)
+    
+  convergence_rate:
+    type: number
+    format: float
+    description: Rate at which conductivity estimates converged (if applicable)
+    
+  pilot_variance:
+    type: number
+    format: float
+    description: Variance observed in the pilot study (N=10) in W²/(m²·K²)
+    
+  required_sample_size:
+    type: integer
+    description: Calculated required sample size based on pilot variance
+    
+  final_sample_size:
+    type: integer
+    description: Actual number of simulations run for this batch
+    
+  adjustment_triggered:
+    type: boolean
+    description: Whether dynamic sample size adjustment was triggered
+    
+  adjustment_reason:
+    type: string
+    description: Explanation for sample size adjustment (e.g., "High variance detected")
+    
+required:
   - seed
   - N
   - p
   - avg_degree
   - conductivity
-  - percolation_flag
-  - scaling_factor
+  - connectivity_probability
+  - percolation_threshold
+  - convergence_rate
+  - pilot_variance
+  - required_sample_size
+  - final_sample_size
+  - adjustment_triggered
+  - adjustment_reason
+
+additionalProperties: false

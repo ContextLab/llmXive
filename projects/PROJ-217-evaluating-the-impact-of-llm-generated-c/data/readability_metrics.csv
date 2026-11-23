@@ -1,0 +1,7 @@
+snippet_id,condition,code,human_comment,llm_comment,no_comment,BLEU_vs_source,BLEU_vs_human,ROUGE_L_vs_source,ROUGE_L_vs_human,Semantic_Similarity_vs_source,Semantic_Similarity_vs_human,Comment_Length,Flesch_Kincaid_Grade
+test-001,llm,"def add(a, b):
+    return a + b",Adds two numbers together.,Adds two numbers together.,,0.0,1.0,0.18181818181818182,1.0,0.8189831674098969,1.0,26,7.2
+test-001,human,"def add(a, b):
+    return a + b",Adds two numbers together.,Adds two numbers together.,,0.0,1.0,0.18181818181818182,1.0,0.8189831674098969,1.0,26,7.2
+test-001,none,"def add(a, b):
+    return a + b",Adds two numbers together.,Adds two numbers together.,,,,,,,,0,0

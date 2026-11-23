@@ -1,0 +1,57 @@
+T000a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no evidence of the two required markdown files (`amendment_pr_description.md`
+    and `amendment_sync_impact_report.md`). Neither file is present, linked, nor its
+    contents shown, so the deliverables are missing. The task is not satisfied.
+T000b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `amendment_ratified.md` file is present in the provided evidence, so the required
+    validation step cannot be performed and the deliverable (exit code 0 on file existence)
+    is not demonstrated. The task remains pending human action and the marker file.
+T000c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `constitutions/FR-030.md` file (or its contents) is present to check for\
+    \ the new Principle\u202FVI text and version bump, and there is no script or exit\u2011\
+    code output demonstrating the grep\u2011based validation against `amendment_ratified.md`.\
+    \ The required artifact and verification result are missing."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No actual artifact (e.g., a `.venv` directory, activation script, or output confirming
+    `python --version`) is provided; the claim consists only of command descriptions
+    without any evidence that the virtual environment was created or verified. The
+    required tangible proof is missing.
+T014c:
+  c: false
+  h: cb223623742140d46e24e8a0db52db1fbdda1207d61046d59d72a88a2cb7c48f
+  r: "The repository lacks the required Python wrapper script (`halstead_calc.py`\
+    \ or similar) and the compiled `halstead_calc.jar`. Only the Java source file\
+    \ is present, and the jar file is missing, so the task\u2019s deliverables are\
+    \ not provided."
+T018:
+  c: false
+  h: 9b68d86f3f10a66f9cc2912b3093a6f730864b4193501402fbab33138cdd3ff5
+  r: The repository contains `code/src/ingest.py`, but the shown portion does not
+    include a `validate_features()` implementation, nor any logic for NaN checking,
+    row dropping, or logging to `exclusions.log`. Moreover, the required `code/data/processed/exclusions.log`
+    file is absent. Consequently, the primary deliverable and the core functionality
+    are missing.
+T021:
+  c: false
+  h: e57108e3253e169e3ad08fb2eaedc79be170361e695debde0efd84e3f59cbcf7
+  r: "The repository contains a partially implemented `analysis.py`, but it does not\
+    \ include logic to write the required `code/data/results/correlation_report.json`.\
+    \ Moreover, the JSON report file is absent from the project. The task\u2019s deliverable\u2014\
+    producing a JSON file with the specified correlation metrics\u2014is therefore\
+    \ not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output file implementing the aggregation of ROC\u2011AUC\
+    \ and F\u2011score across the 50 cross\u2011validation folds was provided. The\
+    \ claim lacks any artifact (e.g., a Python function, notebook cell, or result\
+    \ CSV) that computes and reports the mean and standard deviation, so the requirement\
+    \ is not satisfied."

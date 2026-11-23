@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "QuantumStateDataset"
+description: "Schema for raw wavefunction dataset inputs (HDF5/NumPy) - Generated via ED/DMRG"
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      system_type:
+        type: "string"
+        enum: ["heisenberg", "ising"]
+      spin_count:
+        type: "integer"
+        minimum: 10
+        maximum: 40
+      parameters:
+        type: "object"
+        additionalProperties: true
+      source:
+        type: "string"
+        description: "Source method (e.g., 'internal_ed', 'internal_dmrg')"
+      generation_seed:
+        type: "integer"
+        description: "Random seed used for generation"
+      checksum:
+        type: "string"
+        description: "SHA-256 checksum of the raw file"
+    required:
+      - system_type
+      - spin_count
+      - source
+      - checksum
+  wavefunction:
+    type: "array"
+    description: "Flattened complex wavefunction coefficients (real and imag parts stored separately or as complex128) - Sparse format preferred"
+    items:
+      type: "number"
+    minItems: 1
+  labels:
+    type: "array"
+    description: "Labels for each configuration (e.g., 'ground_state', 'excited_1')"
+    items:
+      type: "string"
+required:
+  - metadata
+  - wavefunction
+  - labels
+additionalProperties: false

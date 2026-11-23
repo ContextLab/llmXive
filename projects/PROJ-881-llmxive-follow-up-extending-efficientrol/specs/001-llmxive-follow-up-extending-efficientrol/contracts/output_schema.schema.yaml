@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the final regression results and metrics."
+type: "object"
+required:
+  - "model_id"
+  - "task_type"
+  - "fixed_effects"
+  - "random_effects_variance"
+  - "auc_roc"
+  - "p_value"
+  - "fdr_corrected"
+  - "optimal_threshold"
+  - "fdr_verified"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the fitted model."
+  task_type:
+    type: "string"
+    enum:
+      - "gsm8k"
+      - "minigrid"
+      - "pooled"
+    description: "Task category for this model."
+  fixed_effects:
+    type: "object"
+    description: "Coefficients for fixed effects."
+    additionalProperties:
+      type: "number"
+  random_effects_variance:
+    type: "object"
+    description: "Variance components for random effects (0 for Clustered SE)."
+    additionalProperties:
+      type: "number"
+  auc_roc:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Area Under the ROC Curve."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value for the entropy coefficient."
+  fdr_corrected:
+    type: "boolean"
+    description: "Whether Benjamini-Hochberg correction was applied."
+  optimal_threshold:
+    type: "number"
+    description: "Entropy threshold minimizing weighted error."
+  false_positive_rate:
+    type: "number"
+    description: "FPR at optimal threshold."
+  false_negative_rate:
+    type: "number"
+    description: "FNR at optimal threshold."
+  fdr_verified:
+    type: "boolean"
+    description: "True if FDR < alpha (0.05), satisfying SC-005."
+additionalProperties: false

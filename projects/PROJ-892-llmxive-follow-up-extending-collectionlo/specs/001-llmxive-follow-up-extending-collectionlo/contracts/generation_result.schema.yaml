@@ -31,19 +31,25 @@ properties:
   lpips_distance:
     type: number
     description: "LPIPS distance from the FP16 baseline image."
-  cesr_score:
+  cesr_raw:
     type: number
-    description: "Cross‑Effect Similarity Ratio (mean similarity to BaselineFP16ReferenceImages of other effects)."
+    description: "Cross-Effect Similarity Ratio (raw similarity to other effect references)."
+  cesr_baseline:
+    type: number
+    description: "Mean similarity to Distractor Reference Images (baseline for normalization)."
+  cesr_normalized:
+    type: number
+    description: "Normalized CESR (cesr_raw - cesr_baseline) to isolate bleeding."
   style_classifier_score:
     type: number
     description: "Probability that the image matches its intended style according to a lightweight WikiArt classifier."
   checksum:
     type: string
-    description: "SHA‑256 hash of the image file."
+    description: "SHA-256 hash of the image file."
   timestamp:
     type: string
     format: date-time
-    description: "ISO‑8601 timestamp of generation."
+    description: "ISO-8601 timestamp of generation."
 required:
   - run_id
   - prompt_id
@@ -53,7 +59,9 @@ required:
   - image_path
   - cosine_similarity
   - lpips_distance
-  - cesr_score
+  - cesr_raw
+  - cesr_baseline
+  - cesr_normalized
   - style_classifier_score
   - checksum
   - timestamp

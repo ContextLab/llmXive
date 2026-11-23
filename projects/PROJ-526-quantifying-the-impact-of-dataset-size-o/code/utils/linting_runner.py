@@ -1,92 +1,141 @@
 """
-Utility to run linting and formatting checks as a script.
+Utility module to run linting and formatting checks.
+This module executes black and flake8 against the project codebase.
 """
+import subprocess
 import sys
 from pathlib import Path
+from typing import Tuple, Optional
+from code.linting_config import get_black_config, get_flake8_config
 
-# Add project root to path if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
 
-from code.linting_config import (
-    run_black_check,
-    run_black_format,
-    run_flake8,
-    run_isort_check,
-    run_isort_format
-)
+def run_black_check(project_root: Optional[Path] = None) -> Tuple[bool, str]:
+    """
+    Run black check in 'check' mode (no write) on the project.
+    
+    Args:
+        project_root: Path to the project root. Defaults to current working directory.
+        
+    Returns:
+        Tuple of (success: bool, message: str)
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+        
+    black_config = get_black_config()
+    code_dir = project_root / "code"
+    tests_dir = project_root / "tests"
+    
+    if not code_dir.exists() or not tests_dir.exists():
+        return False, "Code or tests directory not found."
 
-def main():
-    """Main entry point for linting runner."""
-    if len(sys.argv) < 2:
-        print("Usage: python -m code.utils.linting_runner [check|format]")
-        print("  check  : Run all checks (black, flake8, isort)")
-        print("  format : Format code with black and isort")
-        sys.exit(1)
-
-    command = sys.argv[1].lower()
-
-    if command == "check":
-        print("Running linting checks...")
-        success = True
-
-        print("Checking Black formatting...")
-        if not run_black_check():
-            print("  ❌ Black check failed")
-            success = False
+    cmd = [
+        sys.executable, "-m", "black",
+        "--config", str(project_root / "pyproject.toml"),
+        "--check",
+        "--diff",
+        str(code_dir),
+        str(tests_dir)
+    ]
+    
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        
+        if result.returncode == 0:
+            return True, "All files are formatted correctly with Black."
         else:
-            print("  ✅ Black check passed")
+            return False, f"Black check failed:\n{result.stdout}\n{result.stderr}"
+            
+    except FileNotFoundError:
+        return False, "Black is not installed. Please run: pip install black"
+    except Exception as e:
+        return False, f"Error running Black: {str(e)}"
 
-        print("Checking Isort...")
-        if not run_isort_check():
-            print("  ❌ Isort check failed")
-            success = False
+
+def run_flake8_check(project_root: Optional[Path] = None) -> Tuple[bool, str]:
+    """
+    Run flake8 check on the project.
+    
+    Args:
+        project_root: Path to the project root. Defaults to current working directory.
+        
+    Returns:
+        Tuple of (success: bool, message: str)
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+        
+    flake8_config = get_flake8_config()
+    code_dir = project_root / "code"
+    tests_dir = project_root / "tests"
+    
+    if not code_dir.exists() or not tests_dir.exists():
+        return False, "Code or tests directory not found."
+
+    cmd = [
+        sys.executable, "-m", "flake8",
+        "--config", str(project_root / ".flake8"),
+        str(code_dir),
+        str(tests_dir)
+    ]
+    
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        
+        if result.returncode == 0:
+            return True, "All files pass flake8 linting."
         else:
-            print("  ✅ Isort check passed")
+            return False, f"Flake8 check failed:\n{result.stdout}\n{result.stderr}"
+            
+    except FileNotFoundError:
+        return False, "Flake8 is not installed. Please run: pip install flake8"
+    except Exception as e:
+        return False, f"Error running Flake8: {str(e)}"
 
-        print("Running Flake8...")
-        if not run_flake8():
-            print("  ❌ Flake8 check failed")
-            success = False
-        else:
-            print("  ✅ Flake8 check passed")
 
-        if success:
-            print("\n✅ All linting checks passed!")
-            sys.exit(0)
-        else:
-            print("\n❌ Some linting checks failed.")
-            sys.exit(1)
-
-    elif command == "format":
-        print("Formatting code...")
-        success = True
-
-        print("Running Black...")
-        if not run_black_format():
-            print("  ❌ Black formatting failed")
-            success = False
-        else:
-            print("  ✅ Black formatting completed")
-
-        print("Running Isort...")
-        if not run_isort_format():
-            print("  ❌ Isort formatting failed")
-            success = False
-        else:
-            print("  ✅ Isort formatting completed")
-
-        if success:
-            print("\n✅ Code formatted successfully!")
-            sys.exit(0)
-        else:
-            print("\n❌ Some formatting steps failed.")
-            sys.exit(1)
+def main() -> int:
+    """
+    Main entry point to run all linting checks.
+    Returns 0 if all checks pass, 1 otherwise.
+    """
+    project_root = Path.cwd()
+    
+    print("Running linting checks...")
+    print("-" * 40)
+    
+    # Run Black
+    black_success, black_msg = run_black_check(project_root)
+    if black_success:
+        print(f"[PASS] Black: {black_msg}")
     else:
-        print(f"Unknown command: {command}")
-        print("Use 'check' or 'format'")
-        sys.exit(1)
+        print(f"[FAIL] Black: {black_msg}")
+        
+    # Run Flake8
+    flake8_success, flake8_msg = run_flake8_check(project_root)
+    if flake8_success:
+        print(f"[PASS] Flake8: {flake8_msg}")
+    else:
+        print(f"[FAIL] Flake8: {flake8_msg}")
+        
+    print("-" * 40)
+    
+    if black_success and flake8_success:
+        print("All linting checks passed!")
+        return 0
+    else:
+        print("One or more linting checks failed.")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,148 +1,143 @@
+%YAML 1.1
+---
 $schema: http://json-schema.org/draft-07/schema#
 title: Turbulence Analysis Output Schema
-description: >
-  Schema defining the structure of analysis outputs for the fractal dimension
-  and energy dissipation study. Used for contract validation in the pipeline.
+description: |
+  Schema defining the required output fields for fractal dimension (D_f),
+  energy dissipation rate (ε), and correlation analysis results.
+  Used for contract validation in the pipeline (T006).
 type: object
 required:
   - metadata
   - fractal_dimension
   - energy_dissipation
-  - correlation_results
-additionalProperties: false
-
+  - correlation_analysis
 properties:
   metadata:
     type: object
-    description: Metadata about the run including parameters and timestamps.
+    description: Execution metadata for reproducibility
     required:
+      - timestamp
       - re_lambda
       - vorticity_threshold
-      - timestamp
-      - software_version
+      - grid_size
     properties:
-      re_lambda:
-        type: number
-        description: Reynolds number based on Taylor microscale (Re_λ).
-      vorticity_threshold:
-        type: number
-        description: Threshold multiplier used for vorticity iso-surface extraction (e.g., 2.0, 3.0).
-      threshold_type:
-        type: string
-        enum: [normalized_rms, absolute]
-        description: Type of thresholding applied.
       timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of the analysis run.
-      software_version:
-        type: string
-        description: Version of the analysis pipeline.
+        description: ISO 8601 timestamp of execution
+      re_lambda:
+        type: number
+        description: Taylor-scale Reynolds number
+      vorticity_threshold:
+        type: number
+        description: Threshold multiplier used for iso-surface extraction (e.g., 2.0, 3.0, 4.0 times RMS)
       grid_size:
+        type: array
+        items:
+          type: integer
+        description: Dimensions of the input grid (e.g., [512, 512, 512])
+      seed:
+        type: integer
+        description: Random seed used for the run
+      pipeline_version:
         type: string
-        description: Dimensions of the input grid (e.g., "512x512x512").
-      data_source:
-        type: string
-        description: Source of the data (e.g., "JHTDB", "Phase-Shifted DNS Fallback").
+        description: Version of the pipeline code
 
   fractal_dimension:
     type: object
-    description: Results from the box-counting fractal dimension analysis.
+    description: Results from the box-counting algorithm
     required:
-      - d_f
-      - r_squared
+      - D_f
+      - R_squared
       - box_counts
     properties:
-      d_f:
+      D_f:
         type: number
-        description: Estimated fractal dimension (D_f). Must be between 2.0 and 3.0.
+        description: Estimated fractal dimension
         minimum: 2.0
         maximum: 3.0
-      r_squared:
+      R_squared:
         type: number
-        description: R-squared value of the linear fit in log-log space.
+        description: R-squared value of the linear fit in log-log space
         minimum: 0.0
         maximum: 1.0
       box_counts:
         type: array
-        description: Array of box counts for each box size used in the analysis.
+        description: Mapping of box size to count
         items:
-          type: integer
-          minimum: 0
-      box_sizes:
-        type: array
-        description: Array of box sizes used.
-        items:
-          type: number
-          minimum: 1
+          type: object
+          required:
+            - log_size
+            - log_count
+          properties:
+            log_size:
+              type: number
+            log_count:
+              type: number
 
   energy_dissipation:
     type: object
-    description: Results from the energy dissipation rate (ε) analysis.
+    description: Results from the energy dissipation rate calculation
     required:
-      - epsilon_mean
-      - epsilon_max
-      - epsilon_std
+      - mean_epsilon
+      - max_epsilon
       - intermittency_ratio
+      - kinematic_viscosity
     properties:
-      epsilon_mean:
+      mean_epsilon:
         type: number
-        description: Mean energy dissipation rate.
-      epsilon_max:
+        description: Mean energy dissipation rate
+      max_epsilon:
         type: number
-        description: Maximum energy dissipation rate observed.
-      epsilon_std:
-        type: number
-        description: Standard deviation of energy dissipation rate.
+        description: Maximum local energy dissipation rate
       intermittency_ratio:
         type: number
-        description: Ratio of max(ε) to mean(ε).
-      spatial_variance:
+        description: Ratio of max(ε) to mean(ε)
+      kinematic_viscosity:
         type: number
-        description: Spatial variance of the dissipation field.
+        description: Kinematic viscosity (ν) used in calculation
 
-  correlation_results:
+  correlation_analysis:
     type: object
-    description: Statistical correlation results between D_f and log(ε).
+    description: Statistical correlation between D_f and log(ε)
     required:
       - pearson_r
       - p_value
-      - slope
-      - intercept
       - n_samples
-      - ci_lower
-      - ci_upper
+      - bootstrap_ci
+      - null_model_check
     properties:
       pearson_r:
         type: number
-        description: Pearson correlation coefficient.
+        description: Pearson correlation coefficient
       p_value:
         type: number
-        description: P-value for the correlation test.
-      slope:
-        type: number
-        description: Slope of the linear regression line.
-      intercept:
-        type: number
-        description: Intercept of the linear regression line.
+        description: P-value for the correlation test
       n_samples:
         type: integer
-        description: Number of independent samples used in the analysis.
-      ci_lower:
-        type: number
-        description: Lower bound of the confidence interval for the correlation (block-bootstrap).
-      ci_upper:
-        type: number
-        description: Upper bound of the confidence interval for the correlation (block-bootstrap).
+        description: Number of independent samples used
+        minimum: 1
+      bootstrap_ci:
+        type: object
+        description: 95% confidence interval from block-bootstrapping
+        required:
+          - lower
+          - upper
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+      null_model_check:
+        type: boolean
+        description: True if the correlation holds against the Phase-Shifted DNS null model
       method:
         type: string
-        description: Statistical method used (e.g., "pearson", "spearman").
-      fwe_corrected:
+        enum:
+          - normalized_rms
+          - absolute_vorticity
+        description: Thresholding method used for this correlation result
+      is_null_finding:
         type: boolean
-        description: Whether Family-Wise Error correction was applied.
-      integral_length_scale:
-        type: number
-        description: Estimated integral length scale (λ) used for subdomain selection.
-      subdomain_count:
-        type: integer
-        description: Number of spatial subdomains selected for analysis.
+        description: True if the correlation is statistically insignificant (p > 0.05)

@@ -1,55 +1,51 @@
 """
-Script to initialize the project data directory structure.
+Script to initialize the data directory structure for the Hubble Constant Isotropy project.
 
-This script creates the necessary directory hierarchy for the Hubble Constant
-Isotropy analysis project, ensuring that data storage follows the standard
-convention:
+This script creates the required directory hierarchy under the 'data/' folder:
+- data/raw/: For raw, unmodified data downloads (e.g., from Zenodo)
+- data/processed/: For cleaned and transformed data ready for analysis
+- data/results/: For final analysis outputs, metrics, and reports
 
-- data/raw:   For unmodified, downloaded source data (e.g., Pantheon+ CSV)
-- data/processed: For cleaned, filtered, and spatially indexed datasets
-- data/results: For final analysis outputs, plots, and reports
-
-This corresponds to Task T003 in the project plan.
+Usage:
+    python code/setup_data_dirs.py
 """
 import os
 import sys
 from pathlib import Path
 
 def main():
-    # Determine the project root relative to this script location
-    # The script is located at code/setup_data_dirs.py
-    # We expect the project root to be the parent of the 'code' directory
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
+    """Create the standard data directory structure."""
+    # Determine the project root (assuming script is in code/)
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
     
-    data_dir = project_root / "data"
-    
-    directories = [
-        data_dir / "raw",
-        data_dir / "processed",
-        data_dir / "results",
-    ]
+    data_root = project_root / "data"
+    subdirs = ["raw", "processed", "results"]
     
     created_count = 0
-    existing_count = 0
     
-    print(f"Initializing data directories for project at: {project_root}")
-    
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {directory}")
+    for subdir_name in subdirs:
+        target_path = data_root / subdir_name
+        
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {target_path}")
             created_count += 1
         else:
-            # Check if it is actually a directory
-            if directory.is_dir():
-                print(f"Exists: {directory}")
-                existing_count += 1
-            else:
-                print(f"ERROR: Path exists but is not a directory: {directory}")
-                return 1
+            print(f"Directory already exists: {target_path}")
     
-    print(f"Data structure initialization complete. Created: {created_count}, Existing: {existing_count}")
+    # Create a .gitkeep in each to ensure they are tracked by git even if empty
+    for subdir_name in subdirs:
+        keep_file = data_root / subdir_name / ".gitkeep"
+        if not keep_file.exists():
+            keep_file.touch()
+            print(f"Created .gitkeep in: {keep_file}")
+            created_count += 1
+    
+    print(f"\nData directory structure initialized successfully.")
+    print(f"Root: {data_root}")
+    print(f"Directories created/updated: {created_count}")
+    
     return 0
 
 if __name__ == "__main__":

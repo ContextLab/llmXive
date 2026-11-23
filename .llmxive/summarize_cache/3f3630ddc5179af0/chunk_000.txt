@@ -1,0 +1,67 @@
+# Feature Specification: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
+
+**Feature Branch**: `001-semantic-collapse-threshold`
+**Created**: 2026-07-12
+**Status**: Draft
+**Input**: User description: "Do non-linear interactions between specific acoustic distortion types create a universal 'semantic collapse threshold' that cannot be predicted by the sum of individual distortion effects?"
+
+## User Stories & Testing
+
+### User Story 1 - Generate Compound Distortion Stress Curves (US-1) (Priority: P1)
+
+**User Journey**: A researcher needs to systematically apply a diverse set of compound acoustic distortions (combinations of reverberation and noise) to a stratified subset of the **Voices-in-the-Wild-2M** dataset to generate stress curves for small ASR models.
+
+**Why this priority**: This is the foundational data generation step. Without the stress curves (mapping distortion intensity to semantic integrity), no analysis of non-linear interactions or collapse thresholds is possible. It delivers the raw dataset required for the entire study.
+
+**Independent Test**: Can be fully tested by running the stress‑testing pipeline on a representative sample of audio clips (e.g., several clips) and verifying that for each clip, the system generates a comprehensive set of distinct distortion scenarios (based on the defined Cartesian product grid of SNR levels × RT60 levels), resulting in a CSV/JSON file containing the acoustic parameters, the ASR output, and the semantic similarity score for each scenario. The test validates the *process* of generating 54 scenarios per clip, regardless of the total subset size.
+
+**Acceptance Scenarios**:
+
+1. **Given** a clean audio clip from the stratified subset, **When** the system applies the 54 compound distortion vectors with incrementally increasing intensity parameters, **Then** the system outputs a record for each distortion level containing the specific parameters (SNR, RT60), the ASR hypothesis, and the calculated Semantic Similarity Score (SSS).
+2. **Given** the generated stress curve data, **When** a user queries for a specific model (e.g., Whisper‑tiny) and a specific distortion type (e.g., "Far‑field + Echo"), **Then** the system returns the ordered sequence of SSS scores corresponding to increasing distortion intensity.
+
+### User Story 2 - Identify Semantic Collapse Points (US-2) (Priority: P2)
+
+**User Journey**: A researcher needs to automatically identify the precise "collapse intensity" for each model/scenario combination, defined primarily by the inflection point of the degradation curve (maximum derivative) and secondarily by a concurrent composite‑metric threshold.
+
+**Why this priority**: This transforms raw stress curves into a scalar target variable required for the regression analysis. It isolates the specific failure event from the continuous degradation curve and ensures the target is not circularly dependent on a single metric.
+
+**Independent Test**: Can be fully tested by providing a pre‑calculated stress curve where the SSS decreases monotonically from a high to a low value between two known intensity steps, and verifying that the system correctly identifies the interpolation point (or the specific step) where the **Composite Collapse Metric (CCM)** first falls below the threshold and records this as the collapse intensity. The test must also verify that if the CCM never drops below the threshold across the tested intensity range, the system records the collapse intensity as "None" or "Max Tested" to indicate robustness.
+
+**Acceptance Scenarios**:
+
+1. **Given** a stress curve where the SSS decreases monotonically from 0.9 to 0.1, **When** the system processes the data, **Then** it identifies and records the specific distortion intensity vector where the **Composite Collapse Metric** first falls below the threshold (see FR‑021) and the WER exceeds the baseline‑multiplier condition. (Baseline calculated on the clean subset of the Voices‑in‑the‑Wild‑2M dataset).
+2. **Given** a stress curve where the Composite Collapse Metric never drops below the threshold across the tested intensity range, **When** the system processes the data, **Then** it records the collapse intensity as "None" or "Max Tested" to indicate the model remained robust within the tested bounds.
+
+### User Story 3 - Predict Collapse via Critical Interaction Vector (US-3) (Priority: P3)
+
+**User Journey**: A researcher needs to train a lightweight regression model to predict the identified collapse intensities based solely on the acoustic parameter vectors (including engineered interaction terms), while controlling for clip‑level confounds such as baseline SSS and transcript difficulty.
+
+**Why this priority**: This is the core scientific hypothesis test. It determines if the "semantic collapse threshold" is a predictable, universal phenomenon or an idiosyncratic failure mode, directly addressing the research question.
+
+**Independent Test**: Can be fully tested by splitting the dataset into training and held‑out test sets (stratified by speaker ID, distortion type, and transcript difficulty), training the regression model on the training set, and verifying that the model achieves a predefined correlation coefficient (R² ≥ 0.6) between predicted and actual collapse intensities on the test set. The test must also verify that a permutation baseline (FR‑027) yields an R² drop of at least 0.20, confirming the model learns genuine structure. Finally, a model‑agnostic SHAP analysis must be performed to confirm the form of interaction. The regression model must include baseline SSS and transcript‑difficulty (perplexity) as covariates (FR‑028). **Additionally**, the universality assessment now uses the absolute‑threshold collapse definition (FR‑036) to avoid model‑specific baseline scaling and is evaluated via FR‑051.
+
+**Acceptance Scenarios**:
+
+1. **Given** the dataset of acoustic parameter vectors (including interaction terms) **and** clip‑level covariates (baseline SSS, transcript perplexity), **When** the regression model is trained and evaluated on a held‑out test set, **Then** the system outputs the model performance metrics (R² ≥ 0.6, MAE) and the coefficients representing the "critical interaction vector."
+2. **Given** the trained predictor, **When** the system compares the critical interaction vectors across the set of small ASR models **using the universal collapse definition (FR‑036)**, **Then** it reports the degree of similarity (cosine similarity ≥ 0.80) between the vectors to assess generalizability (see FR‑051).
+3. **Given** the regression results, **When** a partial‑correlation analysis (FR‑035) is performed controlling for baseline SSS/WER, **Then** the system confirms that the acoustic parameters explain variance beyond the deterministic collapse rule.
+
+### Edge Cases
+
+- What happens when the semantic similarity score oscillates around the 0.5 baseline‑normalized threshold due to noise in the embedding model? (System must implement a smoothing/hysteresis mechanism to define a stable collapse intensity).
+- How does the system handle audio clips where the ASR model fails completely (outputs empty string) before the threshold is theoretically reached? (System maps this to a collapse intensity at the lowest tested intensity).
+- What if the Voices‑in‑the‑Wild‑2M subset lacks specific distortion combinations required for the 54 scenarios? (System logs a warning and proceeds with the available subset, noting the missing scenarios in the final report).
+
+## Requirements
+
+### Functional Requirements
+
+- **FR-001**: System MUST download and stratify a subset of **≥ 50,000** audio clips from the **Voices-in-the-Wild-2M** dataset, ensuring coverage of a comprehensive set of compound distortion scenarios via a metadata‑based sampling strategy using a pre‑computed index to stratify by speaker ID and recording environment (as proxies for acoustic conditions), specifically ensuring inclusion of high RT60 and low SNR conditions. The sample size of ≥ 50,000 provides ≥ 80 % power to detect an effect size f² ≥ 0.02 at α = 0.05 (see FR‑032). (See US‑1).
+- **FR-002**: System MUST apply a series of distinct compound acoustic distortion vectors (varying reverberation time and SNR) to each clean audio clip using physical acoustic models (e.g., pyroomacoustics), incrementally increasing intensity to generate stress curves. The generation phase MUST be executed via a distributed GPU‑enabled computing environment (e.g., Kubernetes with GPU nodes) to handle the workload of **≥ 50,000 clips × 54 scenarios × 5 models** within a 48‑hour wall‑time budget (See US‑1).
+- **FR-003**: System MUST compute the Semantic Similarity Score (SSS) between the clean reference transcript and the distorted ASR hypothesis using the **all‑MiniLM‑L6‑v2** model (source: Q801455, https://www.wikidata.org/wiki/Q801455). (See US‑1)
+- **FR-004**: System MUST identify the "semantic collapse intensity" for each model/scenario combination by executing the deterministic algorithm defined in **FR‑021**. (See US‑2)
+- **FR-005**: System MUST train a regression model to predict the **Universal Collapse Intensity** (as defined in FR‑036) from the acoustic parameter vector (including engineered interaction terms SNR × RT60, SNR², RT60²) **and** the clip‑level covariates baseline SSS and transcript‑difficulty (perplexity). The system MUST use a stratified split by speaker ID, distortion type, and transcript difficulty for training and validation. The system MUST perform a permutation baseline test (FR‑027) to demonstrate that performance degrades ≥ 0.20 R² when predictors are randomly permuted, ensuring the model learns genuine structure rather than merely reproducing the deterministic rule.
+- **FR-006**: System MUST perform a sensitivity analysis by sweeping the inflection‑point detection parameters (SSS threshold ∈ {low, medium, high} × baseline, WER multiplier ∈ {a lower value, 2, 2.5}) and analyzing the variance in the identified "critical interaction vector" across different curve morphologies (linear vs. sigmoid). (See US‑3)
+- **FR-007**: System MUST explicitly frame all predictive findings as ASSOCIATIONAL, avoiding causal claims regarding the distortions unless randomization is explicitly modeled. (See US‑3)
+- **FR-008**: System MUST perform multiple‑comparison correction (Benjamini‑Hochberg FDR ≤ 0.05) when evaluating the statistical significance of the interaction effects across the 54 scenarios. (See US‑3)

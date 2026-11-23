@@ -1,0 +1,12 @@
+status: none
+intent: download IMO IPhO olympiad prompt datasets and OpenSci-Reason nvidia OpenScience
+  python package dataset
+required_fields:
+- id
+- prompt
+- source
+- domain
+- difficulty
+cache_key: 27d9c4fda578002cb366f0da91b1eeaaa9bcbc9ab84fb7f184938ea6b72d3ca3
+searched_at: '2026-10-18T06:35:15.502191+00:00'
+retry_count: 1

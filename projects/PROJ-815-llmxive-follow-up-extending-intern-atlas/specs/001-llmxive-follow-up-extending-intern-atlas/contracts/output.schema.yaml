@@ -1,55 +1,166 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Final Output Schema
-description: Schema for the final aggregated results and report data.
+title: Model Evaluation and Results Output Schema
+description: Schema for the final results JSON containing metrics, plots, and analysis outputs.
 type: object
+required:
+  - baseline_model
+  - topological_model
+  - comparison
+  - timestamp
 properties:
-  summary:
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the results were generated.
+  baseline_model:
     type: object
+    description: Results for the citation-only baseline model.
     properties:
-      topological_model_auc: { type: number }
-      baseline_model_auc: { type: number }
-      improvement_delta: { type: number }
-      permutation_significance: { type: boolean }
-      stability_flag: { type: boolean }
-    required: [topological_model_auc, baseline_model_auc, improvement_delta, permutation_significance, stability_flag]
-  detailed_results:
-    type: array
-    items:
-      $ref: "#/definitions/ModelResult"
-  artifacts:
-    type: object
-    properties:
-      feature_dataset_checksum: { type: string }
-      model_checkpoint_checksum: { type: string }
-    required: [feature_dataset_checksum, model_checkpoint_checksum]
-definitions:
-  ModelResult:
-    type: object
-    properties:
-      model_type: { type: string }
-      auc_roc: { type: number }
-      precision: { type: number }
-      recall: { type: number }
-      f1_score: { type: number }
-      stability_flag: { type: boolean }
-      threshold_sweep:
+      model_type:
+        type: string
+      metrics:
         type: object
         properties:
-          "0.3": { type: object, properties: { fpr: { type: number }, fnr: { type: number } }, required: [fpr, fnr] }
-          "0.5": { type: object, properties: { fpr: { type: number }, fnr: { type: number } }, required: [fpr, fnr] }
-          "0.7": { type: object, properties: { fpr: { type: number }, fnr: { type: number } }, required: [fpr, fnr] }
-        required: ["0.3", "0.5", "0.7"]
+          auc_roc_macro:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          precision_macro:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          recall_macro:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          f1_macro:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          per_class:
+            type: object
+            description: Metrics broken down by class (0, 1, 2).
+            additionalProperties:
+              type: object
+              properties:
+                precision:
+                  type: number
+                recall:
+                  type: number
+                f1:
+                  type: number
+                auc_roc:
+                  type: number
+            required:
+              - precision
+              - recall
+              - f1
+              - auc_roc
+        required:
+          - auc_roc_macro
+          - precision_macro
+          - recall_macro
+          - f1_macro
+  topological_model:
+    type: object
+    description: Results for the topological features model.
+    properties:
+      model_type:
+        type: string
+      metrics:
+        type: object
+        properties:
+          auc_roc_macro:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          precision_macro:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          recall_macro:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          f1_macro:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          per_class:
+            type: object
+            description: Metrics broken down by class (0, 1, 2).
+            additionalProperties:
+              type: object
+              properties:
+                precision:
+                  type: number
+                recall:
+                  type: number
+                f1:
+                  type: number
+                auc_roc:
+                  type: number
+            required:
+              - precision
+              - recall
+              - f1
+              - auc_roc
+        required:
+          - auc_roc_macro
+          - precision_macro
+          - recall_macro
+          - f1_macro
+  comparison:
+    type: object
+    description: Delta metrics comparing topological vs. baseline.
+    properties:
+      auc_roc_delta:
+        type: number
+        description: Topological AUC - Baseline AUC.
+      f1_delta:
+        type: number
+      conclusion:
+        type: string
+        description: Summary statement on whether topological features add predictive power.
+  robustness_analysis:
+    type: object
+    description: Optional section for robustness/sensitivity results.
+    properties:
       permutation_test:
         type: object
         properties:
-          observed_auc: { type: number }
-          mean_permuted_auc: { type: number }
-          std_permuted_auc: { type: number }
-          significant: { type: boolean }
-        required: [observed_auc, mean_permuted_auc, std_permuted_auc, significant]
-    required: [model_type, auc_roc, stability_flag, threshold_sweep, permutation_test]
-required:
-  - summary
-  - detailed_results
-  - artifacts
+          iterations:
+            type: integer
+          observed_auc:
+            type: number
+          mean_permuted_auc:
+            type: number
+          p_value:
+            type: number
+      sensitivity_thresholds:
+        type: array
+        description: Results for thresholds {0.3, 0.5, 0.7}.
+        items:
+          type: object
+          properties:
+            threshold:
+              type: number
+            fpr:
+              type: number
+            fnr:
+              type: number
+            vif:
+              type: number
+            is_stable:
+              type: boolean
+  artifacts:
+    type: object
+    description: Paths to generated plot files.
+    properties:
+      pr_curve_plot:
+        type: string
+      permutation_distribution_plot:
+        type: string
+      threshold_sweep_plot:
+        type: string
 additionalProperties: false

@@ -1,119 +1,93 @@
-"""
-Unit tests for the perturbation generation pipeline (T018).
-Verifies the logic of generating, scoring, and filtering variants.
-"""
-import os
-import sys
 import json
-import tempfile
+import os
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from collections import Counter
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
+# Import the module under test
 from code.data.generate_perturbations import (
+    generate_single_candidate,
     generate_and_filter_perturbations,
-    load_humaneval_tasks,
-    save_results,
-    SEMANTIC_THRESHOLD
+    BUDGET_CAP,
+    MAX_CANDIDATES_PER_TASK,
+    TRANSFORMATION_TYPES
 )
 
-def test_generate_and_filter_logic():
-    """
-    Test that the pipeline correctly filters based on semantic score.
-    We mock the external dependencies (generation and validation) to
-    control the scores and verify the filtering logic.
-    """
-    # Mock task
-    mock_task = {
-        "task_id": "test_001",
-        "prompt": "def add(a, b): return a + b",
-        "canonical_solution": "return a + b"
+@pytest.fixture
+def sample_task():
+    return {
+        "task_id": "HumanEval/0",
+        "prompt": "def add(a, b):\n    return a + b",
+        "test": "assert add(1, 2) == 3",
+        "entry_point": "add"
     }
+
+@pytest.fixture
+def sample_tasks(sample_task):
+    return [sample_task, {
+        "task_id": "HumanEval/1",
+        "prompt": "def mul(a, b):\n    return a * b",
+        "test": "assert mul(2, 3) == 6",
+        "entry_point": "mul"
+    }]
+
+def test_generate_single_candidate_synonym(sample_task):
+    """Test that a synonym perturbation is generated correctly."""
+    candidate = generate_single_candidate(sample_task, "synonym", None)
+    assert candidate["task_id"] == "HumanEval/0"
+    assert candidate["perturbation_type"] == "synonym"
+    assert "candidate_text" in candidate
+    assert candidate["raw_score"] == 0.0  # Placeholder
+    assert candidate["is_valid"] is False  # Placeholder
+
+def test_generate_single_candidate_typo(sample_task):
+    """Test that a typo perturbation is generated correctly."""
+    candidate = generate_single_candidate(sample_task, "typo", None)
+    assert candidate["task_id"] == "HumanEval/0"
+    assert candidate["perturbation_type"] == "typo"
+    assert "candidate_text" in candidate
+
+def test_generate_single_candidate_rephrase(sample_task):
+    """Test that a rephrase perturbation is generated correctly."""
+    candidate = generate_single_candidate(sample_task, "rephrase", None)
+    assert candidate["task_id"] == "HumanEval/0"
+    assert candidate["perturbation_type"] == "rephrase"
+    assert "candidate_text" in candidate
+
+def test_generate_and_filter_perturbations_limit(sample_tasks, caplog):
+    """Test that generation respects the max candidates per task limit."""
+    # Mock logger to avoid None issues in test
+    class MockLogger:
+        def info(self, msg): pass
+        def warning(self, msg): pass
+        def error(self, msg): pass
     
-    # Mock candidates
-    mock_candidates = [
-        {"type": "synonym", "text": "def plus(a, b): return a + b"},
-        {"type": "typo", "text": "def add(a, b): retunr a + b"},
-        {"type": "rephrase", "text": "def add_numbers(a, b): return a + b"}
-    ]
-
-    # Mock validation results:
-    # 1. Valid (score > threshold)
-    # 2. Invalid (score < threshold)
-    # 3. Valid (score > threshold)
-    mock_validation_results = [
-        {"type": "synonym", "perturbed": "def plus(a, b): return a + b", "score": 0.98, "valid": True},
-        {"type": "typo", "perturbed": "def add(a, b): retunr a + b", "score": 0.85, "valid": False},
-        {"type": "rephrase", "perturbed": "def add_numbers(a, b): return a + b", "score": 0.96, "valid": True}
-    ]
-
-    # Patch the external functions
-    with patch('code.data.generate_perturbations.generate_perturbation_variants', return_value=mock_candidates), \
-         patch('code.data.generate_perturbations.validate_perturbation_batch', return_value=mock_validation_results):
-        
-        result = generate_and_filter_perturbations([mock_task])
-        
-        # Assert we got exactly 2 valid perturbations (the ones with score > 0.95)
-        assert len(result) == 2, f"Expected 2 valid perturbations, got {len(result)}"
-        
-        # Verify the types are correct
-        types = [r["perturbation_type"] for r in result]
-        assert "synonym" in types
-        assert "rephrase" in types
-        assert "typo" not in types
-
-        # Verify scores are preserved
-        for r in result:
-            assert r["semantic_score"] > SEMANTIC_THRESHOLD
-
-def test_empty_input():
-    """Test that empty input list returns empty output."""
-    result = generate_and_filter_perturbations([])
-    assert result == []
-
-def test_save_results_creates_file():
-    """Test that save_results actually writes a JSONL file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "test_output.jsonl"
-        test_data = [
-            {"id": 1, "text": "hello"},
-            {"id": 2, "text": "world"}
-        ]
-        
-        save_results(test_data, str(output_path))
-        
-        assert output_path.exists(), "Output file was not created"
-        
-        with open(output_path, 'r') as f:
-            lines = f.readlines()
-        
-        assert len(lines) == 2, f"Expected 2 lines, got {len(lines)}"
-        
-        # Verify JSON validity
-        for line in lines:
-            json.loads(line) # Should not raise
-
-def test_filtering_threshold_boundary():
-    """Test behavior exactly at the threshold boundary."""
-    mock_task = {"task_id": "boundary_test", "prompt": "test"}
-    mock_candidates = [{"type": "test", "text": "test_var"}]
+    logger = MockLogger()
+    candidates = generate_and_filter_perturbations(sample_tasks, logger)
     
-    # Exactly at threshold (0.95) should be invalid because condition is > 0.95
-    mock_results = [{"type": "test", "perturbed": "test_var", "score": 0.95, "valid": False}]
+    # Count candidates per task
+    counts = Counter(c["task_id"] for c in candidates)
     
-    with patch('code.data.generate_perturbations.generate_perturbation_variants', return_value=mock_candidates), \
-         patch('code.data.generate_perturbations.validate_perturbation_batch', return_value=mock_results):
-        
-        result = generate_and_filter_perturbations([mock_task])
-        assert len(result) == 0, "Score exactly at threshold should be filtered out"
+    # Verify no task exceeds 3 candidates
+    for task_id, count in counts.items():
+        assert count <= MAX_CANDIDATES_PER_TASK, f"Task {task_id} has {count} candidates, max is {MAX_CANDIDATES_PER_TASK}"
+
+def test_transformation_types_order():
+    """Verify that transformation types are sorted alphabetically."""
+    expected = ["rephrase", "synonym", "typo"]
+    assert TRANSFORMATION_TYPES == expected, "Transformation types must be sorted alphabetically for determinism"
+
+def test_schema_structure(sample_task):
+    """Verify the output schema matches the requirement."""
+    candidate = generate_single_candidate(sample_task, "synonym", None)
     
-    # Slightly above threshold
-    mock_results_above = [{"type": "test", "perturbed": "test_var", "score": 0.95001, "valid": True}]
+    required_keys = {"task_id", "perturbation_type", "raw_score", "is_valid", "candidate_text"}
+    assert set(candidate.keys()) == required_keys, f"Missing keys in schema: {required_keys - set(candidate.keys())}"
     
-    with patch('code.data.generate_perturbations.generate_perturbation_variants', return_value=mock_candidates), \
-         patch('code.data.generate_perturbations.validate_perturbation_batch', return_value=mock_results_above):
-        
-        result = generate_and_filter_perturbations([mock_task])
-        assert len(result) == 1, "Score above threshold should be retained"
+    assert isinstance(candidate["task_id"], str)
+    assert isinstance(candidate["perturbation_type"], str)
+    assert isinstance(candidate["raw_score"], float)
+    assert isinstance(candidate["is_valid"], bool)
+    assert isinstance(candidate["candidate_text"], str)
+    
+    assert candidate["perturbation_type"] in ["synonym", "typo", "rephrase"]

@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-317-the-impact-of-visual-detail-on-false-mem",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/validation/validate_quickstart.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"name\": \"Generate Mock Data\",             \"cmd\": [sy\u2026\u201d; 4 run-book script(s) missing (plan/impl path mismatch): python code/analysis/power.py; python code/analysis/anova.py; python code/utils/data_loader.py --source visual_genome --limit 30; 1 command(s) failed: python code/data/ethics_generator.py --mode pre-bundled --count 30 --seed 42 (rc=1); 1 declared deliverable(s) absent: data/analysis/power_report.json",
+  "artifacts": [],
+  "failures": [
+    "python code/data/ethics_generator.py --mode pre-bundled --count 30 --seed 42 -> rc=1\n    FAILURE: CRITICAL: No real IRB approval document found at /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/data/ethics/irb_approval_final.pdf. Recruitment cannot begin. Please obtain IRB approval for PROJ-317-the-impact-of-visual-detail-on-false-mem and place the document in the ethics directory before proceeding.",
+    "python code/analysis/power.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/analysis/power.py': [Errno 2] No such file or directory",
+    "python code/analysis/anova.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/analysis/anova.py': [Errno 2] No such file or directory",
+    "python code/utils/data_loader.py --source visual_genome --limit 30 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/utils/data_loader.py': [Errno 2] No such file or directory",
+    "python code/analysis/anova.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/code/analysis/anova.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-28T21:12:03Z"
+}

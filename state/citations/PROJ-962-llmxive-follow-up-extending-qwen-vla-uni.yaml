@@ -1,0 +1,22 @@
+- artifact_hash: 9a7e7ccdaa14a7126c337aba2b9371178b2280c16bef66b0f063ef9c3a3844b6
+  artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: '![License: MIT'
+  fetched_title: 'License: MIT'
+  kind: url
+  value: https://img.shields.io/badge/License-MIT-yellow.svg
+  verification_status: verified
+  verified_against_url: https://img.shields.io/badge/License-MIT-yellow.svg
+  verified_at: '2026-08-16T08:37:02.506586Z'
+- artifact_hash: 9a7e7ccdaa14a7126c337aba2b9371178b2280c16bef66b0f063ef9c3a3844b6
+  artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: The MIT License &#8211; Open Source Initiative
+  kind: url
+  value: https://opensource.org/licenses/MIT
+  verification_status: pending
+  verified_against_url: https://opensource.org/license/MIT
+  verified_at: '2026-08-16T08:37:02.506586Z'

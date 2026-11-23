@@ -1,0 +1,10 @@
+{
+  "rmse": 0.8945,
+  "r2": 0.7823,
+  "n_train": 902,
+  "n_test": 338,
+  "n_estimators": 100,
+  "max_depth": null,
+  "seed": 42,
+  "training_time_seconds": 12.45
+}

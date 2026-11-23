@@ -1,52 +1,48 @@
-"""
-Setup script to create the project's data and state directory structure.
-
-Creates the following directories atomically (using mkdir -p logic):
-- data/raw/
-- data/processed/
-- data/results/
-- data/results/figures/
-- state/
-
-Ensures idempotency by checking existence before creation.
-"""
 import os
 import sys
 from pathlib import Path
+import shutil
 
-def setup_directories(root_dir: str) -> None:
+def setup_directories():
     """
-    Create the required directory structure under the given root directory.
+    Creates the required directory structure for the project atomically.
+    Creates: data/raw/, data/processed/, data/results/, state/
     
-    Args:
-        root_dir: The project root directory path (e.g., 'projects/PROJ-428-...').
+    Uses mkdir -p equivalent logic to ensure directories exist without error
+    if they already exist.
     """
-    root = Path(root_dir).resolve()
+    # Determine project root (assuming code/src is two levels deep)
+    # We need to go up two levels from code/src to reach project root
+    project_root = Path(__file__).resolve().parent.parent.parent
     
-    required_dirs = [
-        root / "data" / "raw",
-        root / "data" / "processed",
-        root / "data" / "results",
-        root / "data" / "results" / "figures",
-        root / "state",
+    # Define required directories relative to project root
+    directories = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "results",
+        project_root / "state"
     ]
     
+    # Create directories atomically (mkdir -p behavior)
     created_count = 0
-    for dir_path in required_dirs:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
             created_count += 1
+            print(f"Created directory: {directory}")
         else:
-            print(f"Directory exists: {dir_path}")
+            print(f"Directory already exists: {directory}")
     
-    if created_count == 0:
-        print("All required directories already exist.")
-    else:
-        print(f"Successfully created {created_count} new directories.")
+    print(f"Directory setup complete. Created {created_count} new directories.")
+    
+    # Verify all directories exist
+    for directory in directories:
+        if not directory.exists():
+            raise RuntimeError(f"Failed to create required directory: {directory}")
+        if not directory.is_dir():
+            raise RuntimeError(f"Path exists but is not a directory: {directory}")
+    
+    return directories
 
 if __name__ == "__main__":
-    # Default to current working directory if no argument provided
-    project_root = sys.argv[1] if len(sys.argv) > 1 else "."
-    setup_directories(project_root)
-    print("Directory setup complete.")
+    setup_directories()

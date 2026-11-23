@@ -1,63 +1,138 @@
 # Data Model: Memory Palaces in LLMs
 
-## 1. Core Entities
+## Overview
 
-### 1.1 MemorySlot
-Represents a discrete location in the 2-D grid.
-- **Coordinates**: `(x, y)` where `x, y ∈ [0, 7]`.
-- **Embedding**: Vector `v ∈ ℝ^d` (d = hidden size of DistilGPT2, e.g., 768).
-- **Metadata**: `last_accessed` (timestamp), `eviction_count` (integer).
+This document defines the data structures, schemas, and storage formats used in the project. All data is stored in `data/` (raw) and `artifacts/results/` (processed).
 
-### 1.2 EpisodicChunk
-A text unit assigned to a memory slot.
-- **Text**: The raw string.
-- **Slot_ID**: The assigned `(x, y)` coordinate.
-- **Temporal_Order**: Integer index in the sequence.
-- **Content_Hash**: SHA-256 of the text (for reproducibility).
+## Raw Data
 
-### 1.3 RecallAccuracy
-The primary outcome metric.
-- **Dataset**: Name (e.g., "babi_task3").
-- **Seed**: Random seed used.
-- **Model_Type**: "spatial", "baseline", or "ablation".
-- **Accuracy**: Float (0.0 to 1.0).
-- **Timestamp**: When the metric was computed.
+-   **bAbI Task 3**: Downloaded from `facebook/babi` and stored as parquet.
+-   **LAMBADA**: Downloaded from `EleutherAI/lambada_openai` and stored as parquet.
+-   **Story Cloze**: Downloaded from `rocstories` and stored as parquet.
+-   **Checksums**: SHA-256 checksums are recorded for all raw files in `state/...yaml`.
 
-### 1.4 InterferenceDistance
-The structural metric.
-- **Dataset**: Name.
-- **Seed**: Random seed.
-- **Model_Type**: "spatial" or "baseline".
-- **Baseline_Accuracy**: Accuracy without interference.
-- **Interference_Accuracy**: Accuracy with noise injection (adjacent for spatial, random for baseline).
-- **Drop**: `Baseline_Accuracy - Interference_Accuracy`.
+## Processed Data
 
-### 1.5 CoordinateVariance
-The spatial distribution metric (FR-009).
-- **Dataset**: Name.
-- **Epoch**: Integer epoch index.
-- **Model_Type**: "spatial".
-- **Variance_X**: Variance of x-coordinates across all slots used in the epoch.
-- **Variance_Y**: Variance of y-coordinates across all slots used in the epoch.
-- **Total_Variance**: `Variance_X + Variance_Y`.
+### 1. Model Checkpoints
 
-## 2. Data Flow
+-   **Format**: Hugging Face `transformers` checkpoint (`.bin`, `.json`).
+-   **Location**: `code/models/spatial/` and `code/models/non_spatial/`.
+-   **Naming**: `model_seed_{seed}_variant_{variant}.pt`.
 
-1. **Input**: Raw datasets (bAbI, LAMBADA, Story Cloze) downloaded to `data/raw/`.
-2. **Processing**:
-   - Chunking: Split text into `EpisodicChunk`s.
-   - Assignment: Assign `MemorySlot` coordinates (e.g., round-robin or hash-based).
- - Subsampling: If dataset size > 20% of original (triggered by RAM > 6GB at batch size 4), keep top [deferred] by length.
-3. **Training**:
-   - Model loads chunks.
-   - Updates `MemorySlot` embeddings.
-   - Records `RecallAccuracy` per sample.
-   - Logs `CoordinateVariance` per epoch.
-4. **Evaluation**:
-   - Compute `InterferenceDistance` by injecting noise (adjacent for spatial, random for baseline).
-   - Aggregate metrics across seeds.
-5. **Output**: JSON/CSV files in `artifacts/results/`.
+### 2. Evaluation Results
 
-## 3. Schema Definitions
+-   **Format**: JSON.
+-   **Location**: `artifacts/results/run_summary.json`.
+-   **Schema**: See `contracts/results.schema.yaml`.
 
-See `contracts/` for detailed YAML schemas.
+### 3. Structural Metrics (Per-Epoch)
+
+-   **Format**: JSON.
+-   **Location**: `artifacts/metrics/epoch_{epoch}.json`.
+-   **Content**: Slot occupancy, coordinate variance, interference distance per sample.
+-   **Schema**: See `contracts/epoch_metrics.schema.yaml`.
+
+### 4. Training Run Logs
+
+-   **Format**: JSON.
+-   **Location**: `artifacts/logs/training_run_{run_id}.json`.
+-   **Content**: Hyperparameters, resource usage, subsampling rate.
+-   **Schema**: See `contracts/training_run.schema.yaml`.
+
+## Contracts
+
+The following contracts define the structure of the data.
+
+### Dataset Schema
+
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Name of the dataset (e.g., 'babi_task3')"
+  source_url:
+    type: string
+    description: "Verified URL or Hugging Face ID"
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the raw file"
+  num_samples:
+    type: integer
+    description: "Total number of samples in the dataset"
+```
+
+### Model Output Schema
+
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  seed:
+    type: integer
+    description: "Random seed used for this run"
+  variant:
+    type: string
+    enum: ["spatial", "non_spatial"]
+    description: "Model variant"
+  dataset:
+    type: string
+    description: "Dataset name"
+  recall_accuracy:
+    type: number
+    description: "Exact-match recall accuracy"
+  interference_distance:
+    type: number
+    description: "Drop in recall under interference"
+  slot_occupancy:
+    type: array
+    items:
+      type: integer
+    description: "Count of items per slot"
+  coordinate_variance:
+    type: number
+    description: "Trace of the 2D covariance matrix"
+```
+
+### Results Schema
+
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: "Unique ID for the experiment run"
+  timestamp:
+    type: string
+    format: date-time
+    description: "UTC timestamp of the run"
+  datasets:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        spatial_mean:
+          type: number
+        spatial_std:
+          type: number
+        non_spatial_mean:
+          type: number
+        non_spatial_std:
+          type: number
+        p_value:
+          type: number
+        effect_size:
+          type: number
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
+        interference_spatial:
+          type: number
+        interference_non_spatial:
+          type: number
+```

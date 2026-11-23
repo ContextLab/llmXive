@@ -1,8 +1,13 @@
 """
-Utility modules for llmXive project.
-Exposes logger and checkpoint utilities.
+Utilities package for the llmXive pipeline.
 """
-from .logger import get_logger, setup_logging
-from .checkpoint import CheckpointManager
+from .logger import setup_logging, get_logger
+from .checkpoint import CheckpointManager, save_state, load_state
 
-__all__ = ["get_logger", "setup_logging", "CheckpointManager"]
+__all__ = [
+    "setup_logging",
+    "get_logger",
+    "CheckpointManager",
+    "save_state",
+    "load_state"
+]

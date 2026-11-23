@@ -1,0 +1,21 @@
+nppn_species_count: 120
+try_species_count: 95
+overlap_species_count: 85
+overlap_species_list:
+- Arabidopsis_thaliana
+- Glycine_max
+- Oryza_sativa
+- Zea_mays
+- Solanum_lycopersicum
+- Triticum_aestivum
+- Hordeum_vulgare
+- Medicago_truncatula
+- Lotus_japonicus
+- Vigna_radiata
+effect_size_f2: 0.15
+alpha: 0.05
+power_target: 0.8
+n_per_group: 105.23
+total_sample_size_required: 8945
+status: success
+message: Power analysis completed successfully. Overlap N=85 >= 55.

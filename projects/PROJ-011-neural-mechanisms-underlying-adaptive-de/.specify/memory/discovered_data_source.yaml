@@ -1,0 +1,13 @@
+status: none
+intent: download OpenNeuro ds003694 fMRI dataset via openneuro-py python package dataset
+required_fields:
+- participant_id
+- session_id
+- run_id
+- bold_nifti_file
+- behavioral_log_csv
+- motion_parameters_file
+- event_onsets
+cache_key: 9f03bd35d83bc1ed6edf1ee1d989240b44bb90c8792f74f257623a3afc3f133c
+searched_at: '2026-10-15T07:53:02.690423+00:00'
+retry_count: 1

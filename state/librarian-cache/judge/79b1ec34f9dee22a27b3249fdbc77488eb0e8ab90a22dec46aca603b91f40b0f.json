@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1402.2581",
+  "judged_at": "2026-07-20T00:49:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular surface charge distribution from quantum chemical calculations chemistry",
+  "rationale": "This paper satisfies criteria (a) and (b) because it investigates the electrostatic components of surface-solvent interactions and solvation structure on molecular surfaces using quantum-adjacent methods (classical density functional theory), which directly relates to the user's domain of predicting molecular surface charge distributions and energetics, even though it focuses on clay hydration rather than general quantum chemical calculations.",
+  "relevant": true
+}

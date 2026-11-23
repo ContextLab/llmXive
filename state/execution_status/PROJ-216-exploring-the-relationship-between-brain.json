@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-216-exploring-the-relationship-between-brain",
+  "ok": false,
+  "reason": "8 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/preprocess.py: self-declared fabricated metric \u2014 \u201c\u2026lculation logic     # Returns dummy values for the sake of the logic fl\u2026\u201d; code/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026oading subject list from mock input: {mock_input_path}\")\u2026\u201d; code/download.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026For now, we rely on the mock input as per task verification\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/hash_update.py --state state/projects/PROJ-216-exploring-the-relationship-between-brain.yaml; 4 command(s) failed: python code/download.py --datasets ds000224 --sample-size 10 (rc=2); python code/preprocess.py --input data/raw --output data/interim (rc=1); python code/graph_metrics.py --input data/interim --atlas Schaefer200 --output data/processed/metrics.csv (rc=1); 4 declared deliverable(s) absent: data/processed/analysis_resource_profile.json; data/processed/graph_metrics.csv; data/processed/preprocessing_stats.json",
+  "artifacts": [],
+  "failures": [
+    "python code/download.py --datasets ds000224 --sample-size 10 -> rc=2\n    usage: download.py [-h] [--mock-input MOCK_INPUT]\ndownload.py: error: unrecognized arguments: --datasets ds000224 --sample-size 10",
+    "python code/preprocess.py --input data/raw --output data/interim -> rc=1\n    Warning: psutil not installed. Resource monitoring will be limited.\n2026-08-26 16:44:15,682 - __main__ - ERROR - Valid subjects file not found. Run T015 first.",
+    "python code/graph_metrics.py --input data/interim --atlas Schaefer200 --output data/processed/metrics.csv -> rc=1\n    ndling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-216-exploring-the-relationship-between-brain/code/graph_metrics.py\", line 296, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-216-exploring-the-relationship-between-brain/code/graph_metrics.py\", line 275, in main\n    metrics = compute_graph_metrics(sub, corr_mat)\n              ^^^^^^^^^^^^^^^^^^^^^",
+    "python code/stats.py --metrics data/processed/metrics.csv --behavioral data/processed/behavioral.csv --output reports/ -> rc=1\n    Error: /home/runner/work/llmXive/llmXive/projects/PROJ-216-exploring-the-relationship-between-brain/data/processed/graph_metrics.csv not found.",
+    "python code/hash_update.py --state state/projects/PROJ-216-exploring-the-relationship-between-brain.yaml -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-216-exploring-the-relationship-between-brain/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-216-exploring-the-relationship-between-brain/code/hash_update.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-26T16:44:19Z"
+}

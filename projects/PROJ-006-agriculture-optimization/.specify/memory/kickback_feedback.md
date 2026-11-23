@@ -1,10 +1,12 @@
-# Unresolved panel concerns (address in this revision)
+# Re-plan: task(s) could not be made to pass verification — adjust the approach
 
-The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
 
-**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'clarified'; worst unresolved severity = 'requirement'. Routing to 'specified' with full provenance so the next worker can address the root cause.
+## Repeatedly-unverifiable tasks
 
-## Unresolved concerns
+- `task-format` (rejected 1x): Tasker must repair ambiguous task identities while preserving requirements. Malformed: []; duplicates: ['T090a', 'T091', 'T092']
 
-- Success Criteria entries (SC-001 … SC-005) still lack explicit traceability notes linking each SC to its originating User Story (e.g., '(Derived from User Story 1)'). The prior concern was addressed by adding such notes, but the current specification does not contain them, leaving the SCs orphaned with respect to traceability.
-- [template_placeholder] unfilled [NNN-...] branch-name template placeholder in 'projects/PROJ-006-agriculture-optimization/specs/001-agriculture-optimization/spec.md': '[###-climate-smart-eval]'. A converged spec must not carry this; the reviser must resolve it before the spec advances.
+## Required change
+
+Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
+

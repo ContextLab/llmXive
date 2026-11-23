@@ -1,252 +1,176 @@
-# Tasks: The Role of Temporal Discounting in Procrastination on Cognitive Tasks
+# Tasks: The Role of Temporal Discounting in Procrastination on Cognitive Tasks  
 
-**Input**: Design documents from `/specs/001-temporal-discounting-procrastination/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contract schemas in `specs/001-the-role-of-temporal-discounting-in-proc/contracts/`.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+The goal is to deliver a fully‑reproducible end‑to‑end pipeline that  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn` dependencies
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+1. ingests real data from the three validated sources (Delay Discounting, Procrastination Scale, n‑back task);  
+2. fits hyperbolic discounting models;  
+3. runs a moderated OLS regression;  
+4. performs bootstrap‑based robustness checks and sensitivity sweeps;  
+5. logs exclusions and diagnostics loudly, and  
+6. writes all required artifacts that conform to the JSON schemas.  
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project scaffolding & early sanity check  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T001** Create project layout (`projects/PROJ-196-the-role-of-temporal-discounting-in-proc/`) with sub‑folders `data/raw`, `data/processed`, `code`, `tests`, `docs`.  
+  - *Verification*: `tests/test_scaffolding.py::test_directories_exist` passes.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [X] **T002** Add `requirements.txt` and `pyproject.toml` pinning exact library versions (`pandas==2.2.*`, `numpy==1.26.*`, `scipy==1.12.*`, `statsmodels==0.14.*`, `scikit-learn==1.5.*`).  
+  - *Verification*: `tests/test_environment.py::test_requirements_pinned` passes.  
 
-- [ ] T004 Setup `data/raw/` and `data/processed/` directory structure
-- [X] T005 [P] Implement `requirements.txt` with pinned versions for reproducibility
-- [ ] T006 [P] Configure `pytest` framework and directory structure
-- [X] T007 Create `code/__init__.py` and base configuration loader
-- [X] T008 [P] Setup seed management: Create `code/config.py` to load `RANDOM_SEED` and provide `get_random_state()` helper; explicitly pass `random_state` to all stochastic functions in `numpy`, `pandas`, `scipy` (including `stats`), and `sklearn` to ensure reproducibility per Constitution I.
-- [ ] T009 [P] Implement data checksum verification utility in `code/utils/checksum.py` AND integrate it to write/update the `artifact_hashes` map in `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml` for every raw/processed artifact, ensuring Single Source of Truth traceability per Constitution Principle III and V.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [X] **T003** Create `code/config.py` exposing `RANDOM_SEED = 20241010` and helper `def get_random_state(offset=0): return np.random.RandomState(RANDOM_SEED + offset)`.  
+  - *Verification*: `tests/test_config.py::test_random_seed_exposed` passes.  
 
 ---
 
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+## Phase 2 – Data acquisition, harmonisation & core‑construct check  
 
-**Goal**: Ingest, harmonize, and process raw data (or DGP) into a unified analysis-ready dataset with calculated discount rates.
+- [ ] **T004** Implement `code/ingestion.py` with:   <!-- ATOMIZE: requested -->
+  1. `verify_urls(urls: List[str]) -> None` that raises `RuntimeError` on any non‑200 HEAD response.  
+  2. `load_and_harmonize()` that (a) downloads the three raw files into `data/raw/`, (b) loads them, (c) inner‑joins on `participant_id` (abort if > 10 % rows lost), (d) fits a hyperbolic model per participant using `scipy.optimize.curve_fit` (records `fit_status`), (e) computes `log_k`, mean‑centers `log_k` and `wm_accuracy`, (f) creates the interaction term, (g) writes `data/processed/unified_analysis.csv`, (h) writes `data/processed/harmonization_log.json`, (i) writes `data/processed/excluded_participants.csv` (participants with failed fits), (j) writes `data/processed/halt_log.json` if any core construct column is missing or contains NaNs, and (k) updates the project's `state/...yaml` with SHA‑256 hashes of the new files.  
+  - *Verification*: `tests/test_ingestion.py::test_full_real_ingestion_success`, `tests/test_halt_on_missing_core.py::test_halt_log_created`, `tests/test_state_update.py::test_hashes_recorded` pass.  
 
-**Independent Test**: The pipeline can be fully tested by executing the data ingestion script and verifying the output DataFrame contains the required columns (`discount_rate_k`, `procrastination_score`, `wm_accuracy`, `wm_rt`, `age`, `gender`, `education`) with zero null values in key predictor/outcome columns after imputation or filtering.
+- [X] **T009** Create `code/model/config.json` containing:  
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+  ```json
+  {
+    "outcome": "procrastination_score",
+    "predictors": ["log_k", "wm_accuracy"],
+    "interaction": true,
+    "covariates": ["age", "gender", "education"]
+  }
+  ```  
 
-> **NOTE**: Tests are written first (TDD) but listed here to reflect dependency on code structure created by T013-T018.
+  - *Verification*: File exists and is valid JSON; `code/modeling.py` loads it without error.  
 
-- [X] T010 [P] [US1] Unit test for DGP parameter generation in `tests/test_ingestion.py`
-- [X] T011 [P] [US1] Unit test for hyperbolic model fitting edge cases (failure cases) in `tests/test_modeling.py`
-- [X] T012 [P] [US1] Integration test for full data harmonization pipeline in `tests/test_integration.py`
-
-### Implementation for User Story 1
-
-- [X] T013 [US1] **PRE-CHECK**: Implement DGP Configuration Validator in `code/ingestion.py`. This task validates the DGP parameters (schema definition, expected columns, reliability targets) *before* data generation. It must verify that the configuration matches the spec's requirements (e.g., Cronbach's alpha targets) and raise `SystemExit(1)` if the DGP config is invalid.
-- [~] T014 [US1] **DATA GENERATION**: Implement Data Generating Process (DGP) generator in `code/ingestion.py`. This task MUST generate **three distinct CSV files** (`data/raw/delay_discounting.csv`, `data/raw/procrastination.csv`, `data/raw/nback.csv`) simulating N=500 participants based on literature parameters. Each file must contain distinct experimental paradigm data (e.g., indifference points for discounting, scale responses for procrastination, accuracy/RT for n-back). Use `get_random_state()` from T008. <!-- FAILED: unspecified -->
-- [X] T014b [US1] **RELIABILITY CHECK**: Implement Reliability Verification in `code/ingestion.py`. This task MUST calculate Cronbach's alpha for each of the three generated synthetic datasets. If any alpha < 0.7, it MUST raise `SystemExit(1)` with message "CRITICAL: Synthetic data reliability below threshold (alpha < 0.7)". This task runs after T014 and before T015a.
-- [X] T015a [US1] **HARMONIZATION**: Implement data harmonization and merging logic in `code/ingestion.py`. This task reads the three distinct source files generated by T014, merges them using `participant_id`, and handles ID matching. It must check for >10% drop due to ID mismatch and flag/halt if exceeded. [UNRESOLVED-CLAIM: c_849523a5 — status=not_enough_info]
-- [~] T015b [US1] **CRITICAL HALT (Data)**: Implement validation logic to check for missing core constructs (`discount_rate_k`, `procrastination_score`, `wm_accuracy`) in the *generated and harmonized* data. If any are missing, **Raise SystemExit(1)** with message "CRITICAL: Missing core construct: {col}". This task MUST execute after T015a (to ensure data exists) and before T015c (model fitting).
-- [X] T015c [US1] **MODEL FITTING**: Implement hyperbolic model fitting function `fit_hyperbolic_model` in `code/modeling.py` using `scipy.optimize.curve_fit` (uses `get_random_state()`). This task calculates `discount_rate_k` for each participant in the harmonized dataset.
-- [ ] T016 [US1] **MISSING DATA HANDLING**: Implement missing data handling logic in `code/ingestion.py`. If missing covariates (age, gender) >10%, **flag for reduced model** by writing `data/processed/model_config.json` with `reduced_model: true` and excluding those covariates; otherwise perform listwise deletion or mean imputation. This task MUST run *before* T018 and write the config file so downstream tasks can read it.
-- [ ] T018 [US1] **WRITE DATASET**: Write the final harmonized dataset to `data/processed/harmonized_dataset.parquet` (only if T015b passed and T016 completed).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Moderation Regression Analysis (Priority: P2)
-
-**Goal**: Execute OLS regression to test the primary hypothesis (moderation effect) and calculate VIF.
-
-**Independent Test**: The analysis can be fully tested by running the regression script and verifying that the output includes a coefficient and p-value for the interaction term (`log(k) * wm_metric`), and that model assumptions (VIF) are reported.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T019 [P] [US2] Unit test for interaction term creation and mean-centering in `tests/test_modeling.py`
-- [ ] T020 [P] [US2] Unit test for VIF calculation and threshold flagging in `tests/test_modeling.py`
-
-### Implementation for User Story 2
-
-- [ ] T021 [P] [US2] Implement log-transformation of discount rate (`log(k)`) and mean-centering of predictors in `code/modeling.py`
-- [ ] T022 [US2] Implement OLS regression model construction with interaction term in `code/modeling.py` (FR-004). **Read `data/processed/model_config.json` from T016**: if `reduced_model` is true, exclude flagged covariates from the model.
-- [ ] T023 [US2] Implement VIF calculation and reporting logic (flag if > 5) [UNRESOLVED-CLAIM: c_39b28774 — status=not_enough_info] in `code/modeling.py` (FR-005)
-- [ ] T024 [US2] Implement extraction of coefficients, p-values, and confidence intervals for the interaction term
-- [ ] T032b [US2] **Intermediate Monitoring**: Wrap T021-T024 execution in `memory_profiler` and `time` module. If `max_memory_mb > 7168` or `elapsed_time` exceeds 50% of 6h limit, **Raise SystemExit(1)**.
-- [ ] T025 [US2] Save regression results summary to `data/processed/regression_results.json`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] **T007** Create `code/main.py` orchestrator that:   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+  1. Calls `ingestion.verify_urls()` on the three official URLs.  
+  2. If any URL check fails, aborts with a clear error (no synthetic fallback).  
+  3. Otherwise runs `load_and_harmonize()`.  
+  4. Proceeds to modelling, robustness, and assembly steps (see later phases).  
+  - *Verification*: `tests/test_main_abort_on_url_failure.py::test_abort_without_fallback` passes.  
 
 ---
 
-## Phase 5: User Story 3 - Robustness and Sensitivity Analysis (Priority: P3)
+## Phase 3 – Moderated regression analysis  
 
-**Goal**: Perform bootstrapping and sensitivity analysis to verify stability of the interaction effect.
-
-**Independent Test**: The robustness check can be independently tested by running the bootstrapping script and verifying that the confidence intervals for the interaction coefficient do not include zero (if the primary effect was significant) or that the stability metric is calculated.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T026 [P] [US3] Unit test for bootstrap resampling logic (1000 resamples) in `tests/test_robustness.py`
-- [ ] T027 [P] [US3] Unit test for sensitivity analysis threshold sweeps in `tests/test_robustness.py`
-
-### Implementation for User Story 3
-
-- [ ] T028 [P] [US3] Implement bootstrapping routine (1000 resamples) to generate 95% CI for interaction coefficient [UNRESOLVED-CLAIM: c_c23041a2 — status=not_enough_info] in `code/robustness.py` (FR-006)
-- [ ] T029 [US3] Implement sensitivity analysis for WM load threshold (median, ±0.05*SD, ±0.10*SD) and discount rate in `code/robustness.py` (FR-007)
-- [ ] T030 [US3] Implement logic to calculate `instability_ratio` = (count of thresholds where 95% CI crosses zero) / (total thresholds). **Flag instability if `instability_ratio > 0.5`** (SC-004).
-- [ ] T031 [US3] Aggregate all results (primary, bootstrap, sensitivity, instability_ratio) into a final `data/processed/final_analysis_report.json`. **Explicitly mandate writing the `instability_ratio` flag, the raw threshold sweep data (threshold values and corresponding p-values), and the variation report required by FR-007 to this JSON file.**
-- [ ] T032 [US3] **Final Verification**: Verify total runtime and memory usage stay within 6h/7GB limits on CPU (FR-010). Use `memory_profiler` and `time` module; assert `max_memory_mb < 7168` and `elapsed_time < 21600`.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T008** Implement `code/modeling.py` with three functions:  
+  1. `prepare_design_matrix(df)` – mean‑centers `log_k` and `wm_accuracy`, creates `interaction = centered_log_k * centered_wm_accuracy`, returns design matrix.  
+  2. `calculate_vif(df, predictors) -> Dict[str, float]` – computes VIF for each predictor and flags any > 5.  
+  3. `fit_ols(df, config_path)` – reads `code/model/config.json`, fits OLS (`statsmodels.api.OLS`) with outcome `procrastination_score` and predictors (main effects + interaction + optional covariates). Writes: `data/processed/ols_summary.json`, `coefficients.json`, `p_values.json`, `vif_report.json`, and pickles the fitted model to `data/processed/ols_model.pkl`.  
+  - *Verification*: `tests/test_modeling.py::test_full_ols_pipeline`, `tests/test_vif_threshold.py::test_all_vif_below_5` pass.  
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 4 – Robustness & sensitivity analysis  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T010** Create `data/processed/bootstrap_config.json` with deterministic seed information:  
 
-- [ ] T033 [P] Update `README.md` with execution instructions and DGP explanation
-- [ ] T034 Code cleanup and refactoring for readability: Refactor `code/ingestion.py` and `code/modeling.py` to reduce cyclomatic complexity < 10 as measured by `radon` **AND** remove all `TODO` comments.
-- [ ] T035 [P] Add docstrings to all public functions in `code/`
-- [ ] T036 Run full pipeline end-to-end to generate final artifacts
-- [ ] T037 Update `state.yaml` with execution hashes and completion status
+  ```json
+  {
+    "seed": 20241010,
+    "offset": 1000,
+    "n_resamples": 5000
+  }
+  ```  
 
----
+  - *Verification*: `tests/test_bootstrap_config.py::test_schema_validation` passes.  
 
-## Dependencies & Execution Order
+- [ ] **T011** Implement `code/robustness.py` functions:  
+  1. `bootstrap_interaction(df, config_path)` – reads the bootstrap config, builds a `RandomState` via `get_random_state(offset=config["offset"])`, performs `n_resamples` row‑wise resamples, refits the OLS each time, stores the interaction coefficient, computes the 95 % percentile CI, and writes `data/processed/bootstrap_ci.json` (`lower`, `upper`).  
+  - *Verification*: `tests/test_robustness.py::test_bootstrap_resampling_generates_95ci` passes.  
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on results from US2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] **T012** Add sensitivity sweep utilities to `code/robustness.py`:  
+  - `sensitivity_grid(df)` – returns a list of threshold dictionaries for WM accuracy (median ± 0.05·SD, ± 0.10·SD) and `log_k` (same scheme).  
+  - `run_sensitivity(df)` – iterates over the grid points, fits OLS for each, records the interaction p‑value, writes `data/processed/sensitivity_sweep_raw.json` (list of dicts) and `data/processed/pvalue_variation.json` (`min`, `max`, `std`), and writes a boolean `stability_flag` indicating whether > 50 % of swept p‑values cross 0.05.  
+  - *Verification*: `tests/test_robustness.py::test_sensitivity_threshold_sweep`, `tests/test_sensitivity_stability.py::test_stability_flag` pass.  
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 5 – Diagnostics visualisation  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for DGP parameter generation in tests/test_ingestion.py"
-Task: "Unit test for hyperbolic model fitting edge cases in tests/test_modeling.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement Data Generating Process (DGP) generator in code/ingestion.py"
-Task: "Implement hyperbolic model fitting function in code/modeling.py"
-```
+- [ ] **T013** Implement `code/visualizations/plot_diagnostics.py` that loads the pickled OLS model (`data/processed/ols_model.pkl`) and creates three PNGs saved under `data/processed/diagnostics/`: `residuals.png`, `qq_plot.png`, `scale_location.png`. It also runs standard tests (Shapiro‑Wilk, Breusch‑Pagan, Cook’s distance) and writes `data/processed/model_diagnostics_report.json` with boolean flags `residuals_normality`, `homoscedasticity`, `influential_points`.  
+  - *Verification*: `tests/test_visualizations.py::test_diagnostics_plots_created` passes.  
 
 ---
 
-## Implementation Strategy
+## Phase 6 – Final results assembly & resource accounting  
 
-### MVP First (User Story 1 Only)
+- [ ] **T014** Create `code/results/assemble_results.py` with `build_analysis_results()` that merges: OLS summary, coefficients, p‑values, interaction effect, VIF scores, bootstrap CI, sensitivity variation, stability flag, exclusion summary (`excluded_count` from `excluded_participants.csv`), and resource usage (see T015). The function writes `data/processed/analysis_results.json` that validates against `contracts/output.schema.yaml`.  
+  - *Verification*: `tests/test_results.py::test_analysis_results_schema` passes.  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Pipeline)
- - Developer B: User Story 2 (Regression)
- - Developer C: User Story 3 (Robustness)
-3. Stories complete and integrate independently
+- [ ] **T015** Implement `code/monitoring.py` with `record_resource_usage()` that records total CPU time (seconds) and peak memory (MB) to `data/processed/resource_usage.json`. `code/main.py` calls this after the full pipeline and updates the state YAML with hashes for all `data/processed/*` files.  
+  - *Verification*: CI step asserts `resource_usage.json` exists and the state YAML contains matching hashes.  
 
 ---
 
-## Notes
+## Phase 7 – Independent entry‑points for each user story  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: T015b MUST raise SystemExit(1) on missing core constructs.
-- **CRITICAL**: T016 MUST write `data/processed/model_config.json` to signal reduced model path.
-- **CRITICAL**: T008 MUST ensure seeds are passed to ALL stochastic functions.
-- **CRITICAL**: T032a/T032b MUST raise SystemExit(1) on resource limit breach.
-- **CRITICAL**: T014 MUST generate three distinct CSV files.
-- **CRITICAL**: T014b MUST halt if Cronbach's alpha < 0.7.
+- [ ] **T016** `code/run_us1.py` – Executes ingestion/harmonisation (real‑data only) and stops after writing `unified_analysis.csv` and `harmonization_log.json`.  
+  - *Verification*: `tests/test_us1.py::test_us1_end_to_end` passes.  
+
+- [ ] **T017** `code/run_us2.py` – Loads `unified_analysis.csv`, runs the moderated OLS regression, and produces all regression artifacts.  
+  - *Verification*: `tests/test_us2.py::test_us2_regression` passes.  
+
+- [ ] **T018** `code/run_us3.py` – Takes OLS results, runs bootstrap + sensitivity analyses, outputs CI, sweep files, and the `stability_flag`.  
+  - *Verification*: `tests/test_us3.py::test_us3_robustness` passes.  
+
+- [ ] **T019** `code/run_us4.py` – Generates exclusion logs (`excluded_participants.csv`) and performs the “halt‑loud” core‑construct check, aborting with a clear error message if any required column is missing or contains NaNs.  
+  - *Verification*: `tests/test_us4.py::test_us4_exclusions` passes.  
+
+- [ ] **T020** `code/run_us5.py` – Loads the OLS model and creates diagnostic visualisations without re‑running the regression.  
+  - *Verification*: `tests/test_us5.py::test_us5_diagnostics` passes.  
+
+- [ ] **T021** `code/run_us6.py` – Assembles the final `analysis_results.json` from any combination of prior JSON artifacts.  
+  - *Verification*: `tests/test_us6.py::test_us6_assembly` passes.  
+
+---
+
+## Phase 8 – Scientific success‑criteria verification  
+
+- [ ] **T022** `tests/test_sc001.py::test_interaction_significant` – Reads `analysis_results.json` and asserts `interaction_significant == true`.  
+
+- [ ] **T023** `tests/test_sc002.py::test_bootstrap_ci_nonzero` – Asserts that when `interaction_significant` is true, the bootstrap CI does **not** contain zero (`lower > 0` or `upper < 0`).  
+
+- [ ] **T024** `tests/test_sc004.py::test_sensitivity_stability` – Computes the proportion of sensitivity‑sweep p‑values crossing the 0.05 threshold; asserts the stability flag is `false` when > 50 % cross.  
+
+- [ ] **T025** `tests/test_sc005.py::test_resource_limits` – Loads `resource_usage.json` and asserts `cpu_time_seconds <= 21600` (6 h) **and** `peak_memory_mb <= 7000`.  
+
+---
+
+## Phase 9 – Contract generation & validation (Phase 0‑1)  
+
+- [ ] **T026** Copy `specs/001-the-role-of-temporal-discounting-in-proc/contracts/dataset.schema.yaml` to project root `contracts/dataset.schema.yaml`.  
+
+- [ ] **T027** Copy `specs/001-the-role-of-temporal-discounting-in-proc/contracts/output.schema.yaml` to `contracts/output.schema.yaml`.  
+
+- [ ] **T028** Run `jsonschema` validation against a sample `unified_analysis.csv` and the generated `analysis_results.json`.  
+  - *Verification*: `tests/test_contracts.py::test_schema_validation` passes.  
+
+---
+
+### Dependency map (spec → task)
+
+| Spec requirement | Satisfying task(s) |
+|------------------|--------------------|
+| FR‑001 (ingest three datasets) | T004 |
+| FR‑002 (hyperbolic fit) | T004 |
+| FR‑003 (WM metrics) | T004 |
+| FR‑004 (moderated OLS) | T008, T009 |
+| FR‑005 (VIF) | T008 |
+| FR‑006 (bootstrap CI) | T011 |
+| FR‑007 (sensitivity sweeps) | T012 |
+| FR‑008 (halt on missing constructs) | T004, T019 |
+| FR‑009 (≤10 % ID loss) | T004 |
+| FR‑010 (runtime & memory limits) | T015, T025 |
+| SC‑001 (interaction significance) | T022 |
+| SC‑002 (bootstrap CI non‑zero) | T023 |
+| SC‑003 (VIF < 5) | T008 |
+| SC‑004 (sensitivity stability) | T012 |
+| SC‑005 (resource limits) | T025 |
+| Additional verification (diagnostics, exclusion, DGP recovery) | T013, T014, T018, T021 |
+
+All tasks are presented as unchecked boxes; the verifier will mark them as completed once the corresponding artifacts and tests pass.  

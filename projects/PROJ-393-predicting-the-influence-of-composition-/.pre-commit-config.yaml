@@ -1,0 +1,51 @@
+# Pre-commit configuration for Heusler Alloy Hysteresis Prediction Project
+# Implements T003: Configure linting (ruff) and formatting (black)
+
+fail_fast: false
+minimum_pre_commit_version: "2.9.0"
+
+repos:
+  # Black: Opinionated code formatter
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        name: Black (Code Formatter)
+        language_version: python3.11
+        args: [--line-length=88, --target-version=py311]
+        files: ^code/
+        exclude: ^data/|^docs/|^specs/
+
+  # Ruff: Fast Python linter (replaces flake8, isort, pyupgrade, etc.)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.5
+    hooks:
+      # Linting
+      - id: ruff
+        name: Ruff (Linter)
+        language_version: python3.11
+        args: [--fix, --exit-non-zero-on-fix]
+        files: ^code/
+        exclude: ^data/|^docs/|^specs/
+      
+      # Format imports (isort replacement)
+      - id: ruff-format
+        name: Ruff Format (Isort replacement)
+        language_version: python3.11
+        files: ^code/
+        exclude: ^data/|^docs/|^specs/
+
+  # Pre-commit hooks for checking for large files
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.9.0
+    hooks:
+      - id: shellcheck
+        name: ShellCheck (Bash linter)
+        files: \.sh$
+        exclude: ^data/|^docs/
+
+  # Check for merge conflicts
+  - repo: meta
+    hooks:
+      - id: check-useless-excludes
+        name: Check for useless excludes

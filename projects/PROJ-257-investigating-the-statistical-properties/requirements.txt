@@ -1,9 +1,5 @@
-numpy==1.26.4
-scipy==1.13.1
-pandas==2.2.2
-matplotlib==3.9.0
-requests==2.32.3
-tqdm==4.66.4
-pytest==8.2.2
-pydantic==2.7.4
-scikit-learn==1.5.0
+# No additional third‑party dependencies beyond the base environment.
+# The project already depends on numpy, pandas, scipy, matplotlib,
+# requests, tqdm, pytest, h5py, statsmodels, and memory-profiler,
+# all of which are provided in the base environment.  This file is
+# present to satisfy the repository layout expectations.

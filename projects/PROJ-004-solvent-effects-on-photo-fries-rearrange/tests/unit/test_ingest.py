@@ -1,145 +1,141 @@
 """
-Unit tests for the Real Data Ingestion module (code/data/ingest.py).
-
-These tests verify the strict constraints of T015b:
-1. Failing loudly if real data is missing.
-2. Successfully loading and validating real data.
+Unit tests for the real data ingestion module.
 """
-
 import os
 import sys
 import tempfile
-import pandas as pd
 import pytest
+import pandas as pd
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.data.ingest import ingest_real_transient_absorption_data
-from code.config import get_raw_data_path, get_processed_data_path
+from code.data.ingest import ingest_real_transient_absorption_data, main
+from code.utils.seeds import set_seed
 
-class TestRealDataIngestion:
-    
-    def test_missing_file_raises_file_not_found(self):
-        """
-        T015b Constraint: MUST fail the pipeline with a clear error if the real data file is missing.
-        """
-        # Create a temporary directory to simulate a missing file in a clean path
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Temporarily override the raw data path to point to an empty temp dir
-            # We do this by patching the function or using a mock path if possible.
-            # Since the function uses config paths, we will test the error message logic
-            # by ensuring the file doesn't exist where expected.
-            
-            # Note: To test this robustly without changing global config state,
-            # we rely on the fact that 'real_traces.csv' won't exist in the default path
-            # if we are in a clean test environment. However, to be safe, we create a
-            # specific test scenario where we know the file is missing.
-            
-            # Since the function hardcodes the filename 'real_traces.csv' in the config path,
-            # and we cannot easily mock the config path without side effects,
-            # we will assert that if we create a temp dir and point the logic there, it fails.
-            # But the function uses `get_raw_data_path()`.
-            
-            # Alternative: We assume the test environment does not have the file.
-            # If it does, we skip.
-            # Better: We mock the `os.path.exists` check inside the module.
-            
-            with pytest.raises(FileNotFoundError) as exc_info:
-                # We pass a filename that definitely doesn't exist in the raw path
-                # The function looks for `input_filename` in `get_raw_data_path()`
-                ingest_real_transient_absorption_data(input_filename="non_existent_fake_file.csv")
-            
-            assert "Real data file not found" in str(exc_info.value)
-            assert "CRITICAL ERROR" in str(exc_info.value)
+# Set seed for reproducibility
+set_seed(42)
 
-    def test_empty_file_raises_value_error(self):
-        """
-        T015b Constraint: Must fail if the data file is empty.
-        """
-        raw_path = get_raw_data_path()
-        os.makedirs(raw_path, exist_ok=True)
-        
-        empty_file = os.path.join(raw_path, "empty_test.csv")
-        
-        # Create empty file
-        with open(empty_file, 'w') as f:
-            pass # Create empty file
-        
+class TestIngestRealData:
+    """Test cases for real data ingestion functionality."""
+
+    def test_ingest_existing_real_data(self):
+        """Test ingestion of existing real data file."""
+        # Create a temporary CSV file with valid data
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("time_ns,delta_absorbance,wavelength_nm\n")
+            f.write("0.0,0.05,350\n")
+            f.write("1.0,0.04,350\n")
+            f.write("2.0,0.03,350\n")
+            temp_path = f.name
+
         try:
-            with pytest.raises(ValueError) as exc_info:
-                ingest_real_transient_absorption_data(input_filename="empty_test.csv")
-            
-            assert "empty" in str(exc_info.value).lower()
-        finally:
-            if os.path.exists(empty_file):
-                os.remove(empty_file)
-
-    def test_missing_required_columns_raises_value_error(self):
-        """
-        T015b Constraint: Must fail if required columns are missing.
-        """
-        raw_path = get_raw_data_path()
-        os.makedirs(raw_path, exist_ok=True)
-        
-        bad_file = os.path.join(raw_path, "bad_cols.csv")
-        
-        # Create file with wrong columns
-        df_bad = pd.DataFrame({"wrong_col": [1, 2, 3]})
-        df_bad.to_csv(bad_file, index=False)
-        
-        try:
-            with pytest.raises(ValueError) as exc_info:
-                ingest_real_transient_absorption_data(input_filename="bad_cols.csv")
-            
-            assert "Missing required columns" in str(exc_info.value)
-        finally:
-            if os.path.exists(bad_file):
-                os.remove(bad_file)
-
-    def test_valid_data_loads_and_writes_output(self):
-        """
-        T015b Constraint: Successfully ingests real data and writes to processed.
-        """
-        raw_path = get_raw_data_path()
-        proc_path = get_processed_data_path()
-        os.makedirs(raw_path, exist_ok=True)
-        os.makedirs(proc_path, exist_ok=True)
-        
-        valid_file = os.path.join(raw_path, "valid_test.csv")
-        output_file = os.path.join(proc_path, "valid_test_out.csv")
-        
-        # Create valid data
-        df_valid = pd.DataFrame({
-            "time_ns": [0.0, 1.0, 2.0, 3.0],
-            "absorbance": [0.1, 0.2, 0.15, 0.1],
-            "wavelength_nm": [350.0, 350.0, 350.0, 350.0],
-            "solvent": ["acetonitrile"] * 4
-        })
-        df_valid.to_csv(valid_file, index=False)
-        
-        try:
-            # Run ingestion
-            result_df = ingest_real_transient_absorption_data(
-                input_filename="valid_test.csv",
-                output_filename="valid_test_out.csv"
+            df = ingest_real_transient_absorption_data(
+                data_path=temp_path,
+                use_real_data=True
             )
             
-            # Verify returned dataframe
-            assert result_df.equals(df_valid)
-            assert len(result_df) == 4
-            assert "time_ns" in result_df.columns
-            
-            # Verify output file was written
-            assert os.path.exists(output_file)
-            df_written = pd.read_csv(output_file)
-            assert df_written.equals(df_valid)
-            
+            assert df is not None
+            assert len(df) == 3
+            assert 'time_ns' in df.columns
+            assert 'delta_absorbance' in df.columns
+            assert 'wavelength_nm' in df.columns
+            assert df['time_ns'].iloc[0] == 0.0
         finally:
-            if os.path.exists(valid_file):
-                os.remove(valid_file)
-            if os.path.exists(output_file):
-                os.remove(output_file)
+            os.unlink(temp_path)
+
+    def test_missing_file_with_real_data_required(self):
+        """Test that FileNotFoundError is raised when file is missing and real data required."""
+        with pytest.raises(FileNotFoundError) as excinfo:
+            ingest_real_transient_absorption_data(
+                data_path="nonexistent_file.csv",
+                use_real_data=True
+            )
+        
+        assert "CRITICAL: Real data file missing. Aborting." in str(excinfo.value)
+
+    def test_missing_file_with_real_data_not_required(self):
+        """Test that None is returned when file is missing but real data not required."""
+        result = ingest_real_transient_absorption_data(
+            data_path="nonexistent_file.csv",
+            use_real_data=False
+        )
+        
+        assert result is None
+
+    def test_empty_file_raises_error(self):
+        """Test that empty file raises ValueError."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            # Write empty file
+            pass
+        temp_path = f.name
+
+        try:
+            with pytest.raises(ValueError) as excinfo:
+                ingest_real_transient_absorption_data(
+                    data_path=temp_path,
+                    use_real_data=True
+                )
+            
+            assert "empty" in str(excinfo.value).lower()
+        finally:
+            os.unlink(temp_path)
+
+    def test_missing_columns_raises_error(self):
+        """Test that missing required columns raise ValueError."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("time_ns,delta_absorbance\n")  # Missing wavelength_nm
+            f.write("0.0,0.05\n")
+            temp_path = f.name
+
+        try:
+            with pytest.raises(ValueError) as excinfo:
+                ingest_real_transient_absorption_data(
+                    data_path=temp_path,
+                    use_real_data=True
+                )
+            
+            assert "Missing required columns" in str(excinfo.value)
+        finally:
+            os.unlink(temp_path)
+
+    def test_invalid_csv_format_raises_error(self):
+        """Test that invalid CSV format raises ValueError."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("not,a,valid,csv\n")
+            f.write("with,random,commas\n")
+            temp_path = f.name
+
+        try:
+            with pytest.raises(ValueError) as excinfo:
+                ingest_real_transient_absorption_data(
+                    data_path=temp_path,
+                    use_real_data=True
+                )
+            
+            assert "parse" in str(excinfo.value).lower() or "csv" in str(excinfo.value).lower()
+        finally:
+            os.unlink(temp_path)
+
+    def test_cli_entry_point_with_missing_file(self):
+        """Test CLI behavior when file is missing and real data required."""
+        with patch('sys.argv', ['ingest.py', '--data-path', 'missing.csv', '--use-real-data', 'true']):
+            with patch('sys.exit') as mock_exit:
+                main()
+                mock_exit.assert_called_once_with(1)
+
+    def test_cli_entry_point_with_existing_file(self):
+        """Test CLI behavior with existing file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("time_ns,delta_absorbance,wavelength_nm\n")
+            f.write("0.0,0.05,350\n")
+            temp_path = f.name
+
+        try:
+            with patch('sys.argv', ['ingest.py', '--data-path', temp_path, '--use-real-data', 'true']):
+                # This should succeed without raising
+                main()
+        finally:
+            os.unlink(temp_path)

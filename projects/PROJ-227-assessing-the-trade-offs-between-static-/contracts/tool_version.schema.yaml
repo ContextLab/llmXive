@@ -1,0 +1,63 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Tool Version Schema
+description: Schema for recording tool versions used in analysis
+type: object
+required:
+  - recorded_at
+  - tools
+properties:
+  recorded_at:
+    type: string
+    format: date-time
+    description: Timestamp of version recording
+  tools:
+    type: array
+    items:
+      type: object
+      required:
+        - name
+        - version
+        - path_or_id
+      properties:
+        name:
+          type: string
+          description: Tool name (e.g., 'codeql', 'sonarqube', 'pytest')
+        version:
+          type: string
+          description: Version string (e.g., '2.14.0')
+        path_or_id:
+          type: string
+          description: Path to executable or dataset ID
+        platform:
+          type: string
+          description: Operating system/platform
+        install_method:
+          type: string
+          enum:
+            - pip
+            - cli
+            - docker
+            - system
+            - git
+          description: How the tool was installed
+        checksum:
+          type: string
+          description: Optional checksum for verification
+        notes:
+          type: string
+          description: Additional notes about the installation
+  verification_status:
+    type: object
+    properties:
+      all_verified:
+        type: boolean
+      failed_verifications:
+        type: array
+        items:
+          type: object
+          properties:
+            tool:
+              type: string
+            reason:
+              type: string
+additionalProperties: false

@@ -1,0 +1,29 @@
+T001a:
+  c: false
+  h: 8cc25b14faf79caef7a1800a432fe42739b5d7a632a11a01d24fbb4c318f8d12
+  r: The evidence does not include any script or CI configuration that checks the
+    availability of the Cochrane CSV and raises a `FileNotFoundError` on failure.
+    No file path, code snippet, or CI log showing the abort behavior is provided,
+    so the required validation functionality is missing.
+  sig: 627c0ce2a92595e9d6ff9d04d42d96218ee2a17db1a6606ee1beda72c6fade6e
+T003:
+  c: true
+  h: 95c9eed824740a506eab5b8567a0536ae42c9e61a11b2100f047429a2d3c4295
+  r: "Checked `code/simulation/estimators.py` for the three estimator implementations,\
+    \ the presence of Q, I\xB2, pooled effect, 95\u202F% CI, \u03C4\xB2 handling,\
+    \ and the `convergence_warning` flag, and verified that `tests/unit/test_estimators.py`\
+    \ contains tests that exercise these features (including \u03C4\xB2\u202F=\u202F\
+    0 equivalence and REML failure fallback to \u03C4\xB2\u202F=\u202F1e\u20116).\
+    \ All required artifacts exist and meet the specification."
+  sig: 4733e85432449d1c0b44f9617cc2aea8e995ced3aa832d1dcccb4284bd39b026
+T005:
+  c: false
+  h: a839bc8dd66d20007207847948f729902e05a481aa4b036909d687d3a607899c
+  r: "Checked `code/main.py`, `data/results/sample_estimates.csv` (missing), and `data/results/simulation_raw.jsonl`.\
+    \ The CLI does not accept `--sweep-type` or `--out`, writes outputs to the wrong\
+    \ locations, produces only one \u201CSynthetic\u201D estimator (not the three\
+    \ required), generates 20 simulation records and 20 estimation records (instead\
+    \ of 10\u202F+\u202F30), and the required `sample_estimates.csv` with 30 rows\
+    \ and the specified columns is absent. The task\u2019s end\u2011to\u2011end entry\
+    \ point and output specifications are therefore not met."
+  sig: c8efbc7b60be361c4923ad10dc878b764205470673dd1542344fa271510dd4f0

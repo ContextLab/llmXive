@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SLR Normal Point Data"
+type: "object"
+properties:
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "UTC timestamp of the observation"
+  range:
+    type: "number"
+    description: "Measured range in meters"
+  satellite_id:
+    type: "string"
+    description: "Identifier for the satellite (e.g., LAGEOS-1)"
+  station_id:
+    type: "string"
+    description: "Identifier for the SLR station"
+  quality_flag:
+    type: "integer"
+    description: "Quality flag (0=good, >0=filtered)"
+required:
+  - "timestamp"
+  - "range"
+  - "satellite_id"
+  - "station_id"
+  - "quality_flag"
+additionalProperties: false

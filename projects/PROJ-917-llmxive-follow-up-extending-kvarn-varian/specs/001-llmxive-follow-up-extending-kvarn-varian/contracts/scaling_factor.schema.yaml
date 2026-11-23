@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ScalingFactor"
+description: "Schema for a ground-truth scaling factor record."
+type: "object"
+properties:
+  matrix_id:
+    type: "string"
+    description: "Reference to the associated AttentionMatrix.id."
+  optimal_scaling_factor:
+    type: "number"
+    description: "The optimal scaling factor derived from KVarN Sinkhorn optimization."
+  sinkhorn_iterations:
+    type: "integer"
+    minimum: 1
+    description: "Number of iterations until convergence."
+  converged:
+    type: "boolean"
+    description: "Indicates whether the Sinkhorn solver converged."
+required:
+  - "matrix_id"
+  - "optimal_scaling_factor"
+  - "sinkhorn_iterations"
+  - "converged"
+additionalProperties: false

@@ -1,170 +1,143 @@
+"""
+Unit tests for the quality check module.
+"""
 import unittest
 import json
 import tempfile
+import os
 from pathlib import Path
 import sys
-import os
+import numpy as np
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add code to path if running standalone
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from src.data.quality_check import load_motion_json, calculate_fd, compute_subject_fd, run_quality_check, save_manifest
-from src.config import FD_THRESHOLD, HIGH_MOTION_PERCENTAGE_THRESHOLD, MIN_SAMPLE_SIZE
+from src.data.quality_check import calculate_fd, compute_subject_fd, load_motion_json
+
 
 class TestQualityCheck(unittest.TestCase):
-    
+
     def setUp(self):
+        """Set up temporary directory for test files."""
         self.temp_dir = Path(tempfile.mkdtemp())
-        self.subject_dir = self.temp_dir / "sub-01"
-        self.subject_dir.mkdir()
-        
-        # Create mock motion data
-        self.motion_data = [
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],  # First volume
-            [0.1, 0.1, 0.1, 0.001, 0.001, 0.001],  # Small motion
-            [0.5, 0.5, 0.5, 0.01, 0.01, 0.01],  # High motion (FD > 0.5)
-            [0.1, 0.1, 0.1, 0.001, 0.001, 0.001],  # Small motion
-        ]
-        
-        self.motion_json_path = self.subject_dir / "sub-01_task-rest_run-01_desc-motions.json"
-        with open(self.motion_json_path, 'w') as f:
-            json.dump({"repetitions": self.motion_data}, f)
-    
+        self.json_file = self.temp_dir / "test_motion.json"
+
     def tearDown(self):
-        import shutil
-        shutil.rmtree(self.temp_dir)
-    
-    def test_load_motion_json(self):
-        data = load_motion_json(self.motion_json_path)
-        self.assertIn("repetitions", data)
-        self.assertEqual(len(data["repetitions"]), len(self.motion_data))
-    
-    def test_calculate_fd(self):
-        # Test with known motion parameters
-        motion = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        fd = calculate_fd(motion)
-        self.assertEqual(fd, 0.0)
-        
-        # Test with small motion
-        motion = [0.1, 0.1, 0.1, 0.001, 0.001, 0.001]
-        fd = calculate_fd(motion)
-        # FD should be > 0.3 (trans) + small rotation
-        self.assertGreater(fd, 0.3)
-        
-        # Test with high motion
-        motion = [0.5, 0.5, 0.5, 0.01, 0.01, 0.01]
-        fd = calculate_fd(motion)
-        # FD should be > 1.5 (trans) + rotation
-        self.assertGreater(fd, 1.5)
-    
-    def test_compute_subject_fd(self):
-        mean_fd, n_high, n_total = compute_subject_fd(self.motion_json_path)
-        
-        self.assertEqual(n_total, 4)
-        # First volume has no previous, so we calculate for 3 transitions
-        # Volume 1->2: low motion
-        # Volume 2->3: high motion (0.4 diff in trans + rotation)
-        # Volume 3->4: low motion
-        self.assertEqual(n_high, 1)  # Only one high motion transition
-        self.assertGreater(mean_fd, 0)
-    
-    def test_run_quality_check_with_valid_data(self):
-        # Create a valid subject
-        valid_subject_dir = self.temp_dir / "sub-02"
-        valid_subject_dir.mkdir()
-        
-        valid_motion_data = [
+        """Clean up temporary directory."""
+        if self.json_file.exists():
+            self.json_file.unlink()
+        self.temp_dir.rmdir()
+
+    def test_calculate_fd_basic(self):
+        """Test basic FD calculation with known values."""
+        # Create a simple motion array: [rot_x, rot_y, rot_z, trans_x, trans_y, trans_z]
+        # 2 timepoints, so 1 FD value
+        motion = np.array([
             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.1, 0.1, 0.1, 0.001, 0.001, 0.001],
-            [0.1, 0.1, 0.1, 0.001, 0.001, 0.001],
-            [0.1, 0.1, 0.1, 0.001, 0.001, 0.001],
-        ]
+            [0.0, 0.0, 0.0, 0.1, 0.0, 0.0]
+        ])
         
-        with open(valid_subject_dir / "sub-02_task-rest_run-01_desc-motions.json", 'w') as f:
-            json.dump({"repetitions": valid_motion_data}, f)
+        # Expected FD: |0.1| (trans_x diff) = 0.1
+        # Rotations are 0, so no contribution
+        fd = calculate_fd(motion)
         
-        # Create enough subjects to meet minimum sample size
-        for i in range(20, 25):
-            sub_dir = self.temp_dir / f"sub-{i:02d}"
-            sub_dir.mkdir()
-            sub_motion_data = [
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.1, 0.1, 0.1, 0.001, 0.001, 0.001],
-            ]
-            with open(sub_dir / f"sub-{i:02d}_task-rest_run-01_desc-motions.json", 'w') as f:
-                json.dump({"repetitions": sub_motion_data}, f)
-        
-        manifest = run_quality_check(self.temp_dir)
-        
-        self.assertGreater(len(manifest["included"]), 0)
-        self.assertIn("sub-01", [s["subject_id"] for s in manifest["excluded"]])
-        self.assertIn("sub-02", [s["subject_id"] for s in manifest["included"]])
-    
-    def test_run_quality_check_high_motion_exclusion(self):
-        # Create a subject with high motion
-        high_motion_subject = self.temp_dir / "sub-high"
-        high_motion_subject.mkdir()
-        
-        high_motion_data = [
+        self.assertEqual(len(fd), 1)
+        self.assertAlmostEqual(fd[0], 0.1, places=5)
+
+    def test_calculate_fd_rotation(self):
+        """Test FD calculation with rotation changes."""
+        # 2 timepoints
+        # rot_x changes by 0.01 radians
+        # radius = 50mm -> displacement = 0.01 * 50 = 0.5mm
+        motion = np.array([
             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.5, 0.5, 0.5, 0.01, 0.01, 0.01],  # High motion
-            [0.5, 0.5, 0.5, 0.01, 0.01, 0.01],  # High motion
-            [0.5, 0.5, 0.5, 0.01, 0.01, 0.01],  # High motion
-        ]
+            [0.01, 0.0, 0.0, 0.0, 0.0, 0.0]
+        ])
         
-        with open(high_motion_subject / "sub-high_task-rest_run-01_desc-motions.json", 'w') as f:
-            json.dump({"repetitions": high_motion_data}, f)
+        fd = calculate_fd(motion)
+        # Expected: 0.01 * 50 = 0.5
+        self.assertAlmostEqual(fd[0], 0.5, places=5)
+
+    def test_calculate_fd_combined(self):
+        """Test FD calculation with combined translation and rotation."""
+        # 2 timepoints
+        # trans_x diff = 0.1
+        # rot_x diff = 0.01 (0.5mm)
+        motion = np.array([
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.01, 0.0, 0.0, 0.1, 0.0, 0.0]
+        ])
         
-        # Create enough valid subjects
-        for i in range(20, 25):
-            sub_dir = self.temp_dir / f"sub-{i:02d}"
-            sub_dir.mkdir()
-            sub_motion_data = [
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.1, 0.1, 0.1, 0.001, 0.001, 0.001],
-            ]
-            with open(sub_dir / f"sub-{i:02d}_task-rest_run-01_desc-motions.json", 'w') as f:
-                json.dump({"repetitions": sub_motion_data}, f)
+        fd = calculate_fd(motion)
+        # Expected: 0.5 (rot) + 0.1 (trans) = 0.6
+        self.assertAlmostEqual(fd[0], 0.6, places=5)
+
+    def test_calculate_fd_invalid_shape(self):
+        """Test that invalid motion shape raises error."""
+        motion = np.array([[0.0, 0.0, 0.0]]) # Only 3 params
+        with self.assertRaises(ValueError):
+            calculate_fd(motion)
+
+    def test_calculate_fd_multiple_timepoints(self):
+        """Test FD calculation with multiple timepoints."""
+        # 3 timepoints -> 2 FD values
+        motion = np.array([
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.1, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.2, 0.0, 0.0]
+        ])
         
-        manifest = run_quality_check(self.temp_dir)
-        
-        self.assertTrue(any(s["subject_id"] == "sub-high" for s in manifest["excluded"]))
-        self.assertTrue(any(s["reason"] == "high_motion" for s in manifest["excluded"]))
-    
-    def test_run_quality_check_minimum_sample_size_error(self):
-        # Create only 5 valid subjects (below MIN_SAMPLE_SIZE)
-        for i in range(1, 6):
-            sub_dir = self.temp_dir / f"sub-{i:02d}"
-            sub_dir.mkdir()
-            sub_motion_data = [
-                [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                [0.1, 0.1, 0.1, 0.001, 0.001, 0.001],
-            ]
-            with open(sub_dir / f"sub-{i:02d}_task-rest_run-01_desc-motions.json", 'w') as f:
-                json.dump({"repetitions": sub_motion_data}, f)
-        
-        with self.assertRaises(ValueError) as context:
-            run_quality_check(self.temp_dir)
-        
-        self.assertIn("below minimum threshold", str(context.exception))
-    
-    def test_save_manifest(self):
-        manifest = {
-            "included": [{"subject_id": "sub-01"}],
-            "excluded": [{"subject_id": "sub-02", "reason": "high_motion"}],
-            "total_subjects": 2,
-            "high_motion_excluded": 1,
-            "missing_data_excluded": 0
+        fd = calculate_fd(motion)
+        self.assertEqual(len(fd), 2)
+        self.assertAlmostEqual(fd[0], 0.1, places=5)
+        self.assertAlmostEqual(fd[1], 0.1, places=5)
+
+    def test_compute_subject_fd_integration(self):
+        """Test full computation from JSON file."""
+        # Create mock JSON data matching OpenNeuro format
+        # 5 timepoints
+        n_timepoints = 5
+        data = {
+            "trans_x": [0.0, 0.1, 0.2, 0.1, 0.0],
+            "trans_y": [0.0, 0.0, 0.0, 0.0, 0.0],
+            "trans_z": [0.0, 0.0, 0.0, 0.0, 0.0],
+            "rot_x": [0.0, 0.0, 0.0, 0.0, 0.0],
+            "rot_y": [0.0, 0.0, 0.0, 0.0, 0.0],
+            "rot_z": [0.0, 0.0, 0.0, 0.0, 0.0]
         }
         
-        output_path = self.temp_dir / "test_manifest.json"
-        save_manifest(manifest, output_path)
+        with open(self.json_file, 'w') as f:
+            json.dump(data, f)
         
-        self.assertTrue(output_path.exists())
-        with open(output_path, 'r') as f:
-            loaded_manifest = json.load(f)
+        sub_id, mean_fd, max_fd, fd_vals = compute_subject_fd(self.json_file)
         
-        self.assertEqual(loaded_manifest, manifest)
+        # Expected FDs:
+        # t0->t1: |0.1| = 0.1
+        # t1->t2: |0.1| = 0.1
+        # t2->t3: |-0.1| = 0.1
+        # t3->t4: |-0.1| = 0.1
+        expected_fds = [0.1, 0.1, 0.1, 0.1]
+        
+        self.assertEqual(len(fd_vals), 4)
+        for i, val in enumerate(fd_vals):
+            self.assertAlmostEqual(val, expected_fds[i], places=5)
+        
+        self.assertAlmostEqual(mean_fd, 0.1, places=5)
+        self.assertAlmostEqual(max_fd, 0.1, places=5)
+        self.assertEqual(sub_id, self.json_file.parent.name)
 
-if __name__ == "__main__":
+    def test_compute_subject_fd_missing_keys(self):
+        """Test that missing motion keys raise an error."""
+        data = {
+            "other_key": [1, 2, 3]
+        }
+        
+        with open(self.json_file, 'w') as f:
+            json.dump(data, f)
+        
+        with self.assertRaises(ValueError):
+            compute_subject_fd(self.json_file)
+
+
+if __name__ == '__main__':
     unittest.main()

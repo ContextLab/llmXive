@@ -1,2 +1,1 @@
-# This file ensures the directory exists in version control.
-# Processed data files will be generated here by the preprocessing pipeline.
+# This file ensures the data/processed directory is tracked by git.

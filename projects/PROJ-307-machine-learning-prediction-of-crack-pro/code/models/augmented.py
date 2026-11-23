@@ -1,7 +1,8 @@
 """
-Augmented model implementation (Random Forest, XGBoost).
+Augmented Models for Crack Propagation Prediction.
 
-Uses composition and heat-treatment features.
+Implements Random Forest and XGBoost models incorporating composition (wt%)
+and heat-treatment descriptors to predict crack growth rates.
 """
 import logging
 import os
@@ -11,8 +12,8 @@ from typing import Dict, Any, Optional, Tuple, List, Union
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import cross_val_score, KFold
-from sklearn.metrics import r2_score
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import r2_score, mean_squared_error
 import xgboost as xgb
 
 from config import get_config_dict
@@ -20,355 +21,384 @@ from logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Constants for feature handling
-COMPOSITION_PREFIX = "wt_"
-HEAT_TREATMENT_COL = "heat_treatment"
-TARGET_COL = "da_dN"
-DELTA_K_COL = "delta_K"
+# Constants for fallback handling
+COMPOSITION_FEATURES = [
+    "Fe_wt", "C_wt", "Mn_wt", "Cr_wt", "Ni_wt", "Mo_wt", "V_wt", "Al_wt", "Ti_wt", "Si_wt"
+]
+HEAT_TREATMENT_FEATURES = [
+    "heat_treatment_encoded"
+]
+REQUIRED_BASE_FEATURES = ["log_dK"]  # Delta K is always required
 
-# Fallback handling for missing composition/heat treatment
-FALLBACK_COMPOSITION = 0.0
-FALLBACK_HEAT_TREATMENT = "Unknown/Not Specified"
-
-def _prepare_features(
-    df: pd.DataFrame,
-    composition_cols: Optional[List[str]] = None,
-    encode_heat_treatment: bool = True
-) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+def _get_available_features(df: pd.DataFrame) -> Tuple[List[str], List[str], List[str]]:
     """
-    Prepare feature matrix X and target y.
-
-    Handles missing composition columns by filling with fallback values.
-    Handles missing heat treatment by imputing "Unknown/Not Specified".
-
+    Identify available composition and heat-treatment features in the dataframe.
+    
+    Args:
+        df: Input dataframe containing potential features.
+        
     Returns:
-        X: Feature DataFrame
-        y: Target Series
-        meta: Metadata dict with column names and encoding info
+        Tuple of (available_composition, available_heat_treatment, missing_features)
     """
-    logger.info("Preparing features for augmented model...")
-
-    # Ensure target exists
-    if TARGET_COL not in df.columns:
-        raise ValueError(f"Target column '{TARGET_COL}' not found in dataset")
-
-    y = df[TARGET_COL].copy()
-
-    # Determine composition columns
-    if composition_cols is None:
-        composition_cols = [c for c in df.columns if c.startswith(COMPOSITION_PREFIX)]
+    available_comp = [col for col in COMPOSITION_FEATURES if col in df.columns]
+    available_ht = [col for col in HEAT_TREATMENT_FEATURES if col in df.columns]
     
-    if not composition_cols:
-        logger.warning("No composition columns found (prefix '%s'). Using empty feature set.", COMPOSITION_PREFIX)
+    missing_comp = [col for col in COMPOSITION_FEATURES if col not in df.columns]
+    missing_ht = [col for col in HEAT_TREATMENT_FEATURES if col not in df.columns]
     
-    # Prepare composition features
-    X_comp = pd.DataFrame()
-    for col in composition_cols:
-        if col in df.columns:
-            # Impute missing composition values with 0.0 (fallback)
-            X_comp[col] = df[col].fillna(FALLBACK_COMPOSITION)
-        else:
-            # Column missing entirely - add with fallback values
-            logger.warning("Composition column '%s' not found. Filling with fallback.", col)
-            X_comp[col] = FALLBACK_COMPOSITION
+    missing_features = []
+    if missing_comp:
+        missing_features.extend([f"Composition: {c}" for c in missing_comp])
+    if missing_ht:
+        missing_features.extend([f"Heat Treatment: {h}" for h in missing_ht])
+        
+    return available_comp, available_ht, missing_features
 
-    # Prepare heat treatment feature
-    X_ht = pd.DataFrame()
-    if HEAT_TREATMENT_COL in df.columns:
-        ht_series = df[HEAT_TREATMENT_COL].fillna(FALLBACK_HEAT_TREATMENT)
+def _handle_missing_features(
+    df: pd.DataFrame,
+    comp_features: List[str],
+    ht_features: List[str],
+    missing_features: List[str]
+) -> Tuple[pd.DataFrame, List[str], bool]:
+    """
+    Gracefully handle missing composition or heat-treatment columns.
+    
+    Strategy:
+    1. If ALL composition features are missing, drop them from the model (log warning)
+    2. If ALL heat-treatment features are missing, drop them from the model (log warning)
+    3. If SOME features are missing, fill with 0.0 (assuming normalized/encoded) or 
+       the mean of available features if present.
+    4. If NO enriched features are available (only base features), return a flag.
+    
+    Args:
+        df: Input dataframe.
+        comp_features: List of available composition features.
+        ht_features: List of available heat-treatment features.
+        missing_features: List of missing feature descriptions.
+        
+    Returns:
+        Tuple of (processed_df, remaining_features, is_enriched_model)
+    """
+    remaining_features = []
+    is_enriched = False
+    
+    # Handle missing composition features
+    if comp_features:
+        # Some composition features exist
+        # Fill missing ones with 0.0 (common for encoded/normalized wt%)
+        # or calculate mean if we have at least one value
+        for col in COMPOSITION_FEATURES:
+            if col in df.columns:
+                remaining_features.append(col)
+            else:
+                # Log that this specific column is being filled with 0
+                logger.debug(f"Filling missing composition feature '{col}' with 0.0")
+                df[col] = 0.0
+                remaining_features.append(col)
+        is_enriched = True
     else:
-        logger.warning("Heat treatment column '%s' not found. Filling with fallback.", HEAT_TREATMENT_COL)
-        ht_series = pd.Series(FALLBACK_HEAT_TREATMENT, index=df.index)
-
-    if encode_heat_treatment:
-        # One-hot encode heat treatment
-        X_ht = pd.get_dummies(ht_series, prefix="ht")
-        if X_ht.empty:
-            X_ht = pd.DataFrame(index=df.index)
-    else:
-        # Keep as string if not encoding (rare case)
-        X_ht = pd.DataFrame({HEAT_TREATMENT_COL: ht_series})
-
-    # Combine features
-    X = pd.concat([X_comp, X_ht], axis=1)
-
-    # Drop rows with any NaN in features or target
-    mask = y.notna()
-    if not X.empty:
-        mask = mask & X.notna().all(axis=1)
+        # No composition features available
+        if missing_features:
+            logger.warning(
+                f"No composition features available. Missing: {missing_features}. "
+                "Proceeding without composition data. Model accuracy may be reduced."
+            )
+        # Ensure columns exist for consistency, filled with 0
+        for col in COMPOSITION_FEATURES:
+            if col not in df.columns:
+                df[col] = 0.0
+            else:
+                remaining_features.append(col)
     
-    X = X[mask]
-    y = y[mask]
-
-    if X.empty:
-        raise ValueError("Feature matrix is empty after preprocessing.")
-
-    logger.info("Feature matrix shape: %s, Target shape: %s", X.shape, y.shape)
-
-    meta = {
-        "composition_cols": composition_cols,
-        "encode_heat_treatment": encode_heat_treatment,
-        "feature_cols": list(X.columns),
-        "n_samples": len(X)
-    }
-
-    return X, y, meta
+    # Handle missing heat-treatment features
+    if ht_features:
+        for col in HEAT_TREATMENT_FEATURES:
+            if col in df.columns:
+                remaining_features.append(col)
+            else:
+                logger.debug(f"Filling missing heat-treatment feature '{col}' with 0.0")
+                df[col] = 0.0
+                remaining_features.append(col)
+        is_enriched = True
+    else:
+        if missing_features:
+            logger.warning(
+                f"No heat-treatment features available. Missing: {missing_features}. "
+                "Proceeding without heat-treatment data. Model accuracy may be reduced."
+            )
+        for col in HEAT_TREATMENT_FEATURES:
+            if col not in df.columns:
+                df[col] = 0.0
+            else:
+                remaining_features.append(col)
+                
+    return df, remaining_features, is_enriched
 
 def train_random_forest(
-    X: pd.DataFrame,
-    y: pd.Series,
-    n_estimators: int = 100,
-    max_depth: Optional[int] = None,
-    random_state: int = 42,
-    cv_folds: int = 5
+    df: pd.DataFrame,
+    target_col: str = "log_da_dN",
+    config: Optional[Dict[str, Any]] = None,
+    random_state: int = 42
 ) -> Tuple[RandomForestRegressor, Dict[str, Any]]:
     """
-    Train a Random Forest regressor.
-
-    Args:
-        X: Feature matrix
-        y: Target vector
-        n_estimators: Number of trees
-        max_depth: Maximum tree depth
-        random_state: Random seed
-        cv_folds: Number of CV folds
-
-    Returns:
-        model: Trained RandomForestRegressor
-        metrics: Dict with R2 scores and feature importance
-    """
-    logger.info("Training Random Forest (n_estimators=%d, max_depth=%s)...", n_estimators, max_depth)
-
-    model = RandomForestRegressor(
-        n_estimators=n_estimators,
-        max_depth=max_depth,
-        random_state=random_state,
-        n_jobs=-1,
-        verbose=0
-    )
-
-    # Cross-validation
-    kf = KFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
-    cv_scores = cross_val_score(model, X, y, cv=kf, scoring='r2')
+    Train a Random Forest model with graceful handling of missing features.
     
-    logger.info("CV R2 scores: %s, Mean: %.4f (+/- %.4f)", 
-                cv_scores, cv_scores.mean(), cv_scores.std())
-
-    # Train on full data
+    Args:
+        df: Preprocessed dataframe.
+        target_col: Name of the target column.
+        config: Optional configuration dictionary.
+        random_state: Random seed for reproducibility.
+        
+    Returns:
+        Tuple of (trained_model, metrics_dict)
+    """
+    logger.info("Training Random Forest model...")
+    
+    # Determine available features
+    available_comp, available_ht, missing_features = _get_available_features(df)
+    
+    if missing_features:
+        logger.info(f"Missing features detected: {missing_features}")
+    
+    # Prepare features with fallback handling
+    processed_df, feature_columns, is_enriched = _handle_missing_features(
+        df, available_comp, available_ht, missing_features
+    )
+    
+    # Ensure base features are present
+    for base_col in REQUIRED_BASE_FEATURES:
+        if base_col not in processed_df.columns:
+            raise ValueError(f"Required base feature '{base_col}' is missing from dataset.")
+        if base_col not in feature_columns:
+            feature_columns.append(base_col)
+    
+    logger.info(f"Using features: {feature_columns}")
+    if not is_enriched:
+        logger.warning("No enriched features (composition/heat-treatment) available. "
+                     "Model will rely solely on base features (Paris Law).")
+    
+    X = processed_df[feature_columns].values
+    y = processed_df[target_col].values
+    
+    # Handle NaNs in target (drop rows if necessary)
+    valid_mask = ~np.isnan(y) & ~np.isnan(X).any(axis=1)
+    if not np.all(valid_mask):
+        logger.warning(f"Dropping {np.sum(~valid_mask)} rows with NaN values.")
+        X = X[valid_mask]
+        y = y[valid_mask]
+    
+    if len(X) == 0:
+        raise ValueError("No valid data points remaining after filtering NaNs.")
+    
+    # Initialize model with safe defaults
+    model = RandomForestRegressor(
+        n_estimators=100,
+        max_depth=10,
+        min_samples_split=5,
+        min_samples_leaf=2,
+        random_state=random_state,
+        n_jobs=-1
+    )
+    
     model.fit(X, y)
-
-    # Feature importance
-    feature_importance = dict(zip(X.columns, model.feature_importances_))
-    sorted_importance = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
-
+    
+    # Calculate in-sample R2
+    y_pred = model.predict(X)
+    r2 = r2_score(y, y_pred)
+    mse = mean_squared_error(y, y_pred)
+    
     metrics = {
         "model_type": "RandomForest",
-        "cv_r2_mean": float(cv_scores.mean()),
-        "cv_r2_std": float(cv_scores.std()),
-        "cv_scores": cv_scores.tolist(),
-        "feature_importance": sorted_importance,
-        "n_features": len(X.columns),
-        "n_samples": len(X)
+        "is_enriched": is_enriched,
+        "missing_features": missing_features,
+        "feature_columns": feature_columns,
+        "r2": r2,
+        "mse": mse,
+        "n_samples": len(y)
     }
-
+    
+    logger.info(f"Random Forest trained. R2: {r2:.4f}, MSE: {mse:.4f}")
     return model, metrics
 
 def train_xgboost(
-    X: pd.DataFrame,
-    y: pd.Series,
-    n_estimators: int = 100,
-    max_depth: int = 6,
-    learning_rate: float = 0.1,
-    random_state: int = 42,
-    cv_folds: int = 5
+    df: pd.DataFrame,
+    target_col: str = "log_da_dN",
+    config: Optional[Dict[str, Any]] = None,
+    random_state: int = 42
 ) -> Tuple[xgb.XGBRegressor, Dict[str, Any]]:
     """
-    Train an XGBoost regressor.
-
+    Train an XGBoost model with graceful handling of missing features.
+    
     Args:
-        X: Feature matrix
-        y: Target vector
-        n_estimators: Number of boosting rounds
-        max_depth: Maximum tree depth
-        learning_rate: Step size shrinkage
-        random_state: Random seed
-        cv_folds: Number of CV folds
-
+        df: Preprocessed dataframe.
+        target_col: Name of the target column.
+        config: Optional configuration dictionary.
+        random_state: Random seed for reproducibility.
+        
     Returns:
-        model: Trained XGBRegressor
-        metrics: Dict with R2 scores and feature importance
+        Tuple of (trained_model, metrics_dict)
     """
-    logger.info("Training XGBoost (n_estimators=%d, max_depth=%d, lr=%.3f)...", 
-                n_estimators, max_depth, learning_rate)
-
+    logger.info("Training XGBoost model...")
+    
+    # Determine available features
+    available_comp, available_ht, missing_features = _get_available_features(df)
+    
+    if missing_features:
+        logger.info(f"Missing features detected: {missing_features}")
+    
+    # Prepare features with fallback handling
+    processed_df, feature_columns, is_enriched = _handle_missing_features(
+        df, available_comp, available_ht, missing_features
+    )
+    
+    # Ensure base features are present
+    for base_col in REQUIRED_BASE_FEATURES:
+        if base_col not in processed_df.columns:
+            raise ValueError(f"Required base feature '{base_col}' is missing from dataset.")
+        if base_col not in feature_columns:
+            feature_columns.append(base_col)
+    
+    logger.info(f"Using features: {feature_columns}")
+    if not is_enriched:
+        logger.warning("No enriched features (composition/heat-treatment) available. "
+                     "Model will rely solely on base features (Paris Law).")
+    
+    X = processed_df[feature_columns].values
+    y = processed_df[target_col].values
+    
+    # Handle NaNs
+    valid_mask = ~np.isnan(y) & ~np.isnan(X).any(axis=1)
+    if not np.all(valid_mask):
+        logger.warning(f"Dropping {np.sum(~valid_mask)} rows with NaN values.")
+        X = X[valid_mask]
+        y = y[valid_mask]
+    
+    if len(X) == 0:
+        raise ValueError("No valid data points remaining after filtering NaNs.")
+    
+    # Initialize model
     model = xgb.XGBRegressor(
-        n_estimators=n_estimators,
-        max_depth=max_depth,
-        learning_rate=learning_rate,
+        n_estimators=100,
+        max_depth=6,
+        learning_rate=0.1,
+        subsample=0.8,
+        colsample_bytree=0.8,
         random_state=random_state,
         n_jobs=-1,
-        verbosity=0,
-        eval_metric='rmse'
+        verbosity=0
     )
-
-    # Cross-validation
-    kf = KFold(n_splits=cv_folds, shuffle=True, random_state=random_state)
-    cv_scores = cross_val_score(model, X, y, cv=kf, scoring='r2')
     
-    logger.info("CV R2 scores: %s, Mean: %.4f (+/- %.4f)", 
-                cv_scores, cv_scores.mean(), cv_scores.std())
-
-    # Train on full data
     model.fit(X, y)
-
-    # Feature importance
-    feature_importance = dict(zip(X.columns, model.feature_importances_))
-    sorted_importance = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
-
+    
+    # Calculate in-sample R2
+    y_pred = model.predict(X)
+    r2 = r2_score(y, y_pred)
+    mse = mean_squared_error(y, y_pred)
+    
     metrics = {
         "model_type": "XGBoost",
-        "cv_r2_mean": float(cv_scores.mean()),
-        "cv_r2_std": float(cv_scores.std()),
-        "cv_scores": cv_scores.tolist(),
-        "feature_importance": sorted_importance,
-        "n_features": len(X.columns),
-        "n_samples": len(X)
+        "is_enriched": is_enriched,
+        "missing_features": missing_features,
+        "feature_columns": feature_columns,
+        "r2": r2,
+        "mse": mse,
+        "n_samples": len(y)
     }
-
+    
+    logger.info(f"XGBoost trained. R2: {r2:.4f}, MSE: {mse:.4f}")
     return model, metrics
 
 def train_augmented_model(
-    data_path: Union[str, Path],
-    model_type: str = "xgboost",
-    composition_cols: Optional[List[str]] = None,
-    config: Optional[Dict[str, Any]] = None,
-    output_path: Optional[Union[str, Path]] = None
+    df: pd.DataFrame,
+    model_type: str = "rf",
+    target_col: str = "log_da_dN",
+    config: Optional[Dict[str, Any]] = None
 ) -> Tuple[Any, Dict[str, Any]]:
     """
-    Main entry point to train augmented models.
-
+    Factory function to train an augmented model (RF or XGBoost).
+    
     Args:
-        data_path: Path to CSV data file
-        model_type: 'random_forest' or 'xgboost'
-        composition_cols: List of composition column names (optional)
-        config: Hyperparameter config dict (optional)
-        output_path: Path to save model and metrics (optional)
-
+        df: Preprocessed dataframe.
+        model_type: 'rf' for Random Forest, 'xgb' for XGBoost.
+        target_col: Target column name.
+        config: Optional configuration.
+        
     Returns:
-        model: Trained model instance
-        metrics: Training metrics and metadata
+        Tuple of (model, metrics)
     """
-    logger.info("Starting augmented model training for type: %s", model_type)
-
-    # Load config
-    if config is None:
-        config = get_config_dict()
-
-    # Load data
-    logger.info("Loading data from %s", data_path)
-    df = pd.read_csv(data_path)
-    
-    # Prepare features
-    X, y, meta = _prepare_features(df, composition_cols)
-
-    # Get hyperparameters from config
-    if model_type.lower() == "random_forest":
-        n_estimators = config.get("rf_n_estimators", 100)
-        max_depth = config.get("rf_max_depth", None)
-        random_state = config.get("random_seed", 42)
-        cv_folds = config.get("cv_folds", 5)
-
-        model, metrics = train_random_forest(
-            X, y,
-            n_estimators=n_estimators,
-            max_depth=max_depth,
-            random_state=random_state,
-            cv_folds=cv_folds
-        )
-    
-    elif model_type.lower() == "xgboost":
-        n_estimators = config.get("xgb_n_estimators", 100)
-        max_depth = config.get("xgb_max_depth", 6)
-        learning_rate = config.get("xgb_learning_rate", 0.1)
-        random_state = config.get("random_seed", 42)
-        cv_folds = config.get("cv_folds", 5)
-
-        model, metrics = train_xgboost(
-            X, y,
-            n_estimators=n_estimators,
-            max_depth=max_depth,
-            learning_rate=learning_rate,
-            random_state=random_state,
-            cv_folds=cv_folds
-        )
-    
+    if model_type.lower() == "rf":
+        return train_random_forest(df, target_col, config)
+    elif model_type.lower() == "xgb":
+        return train_xgboost(df, target_col, config)
     else:
-        raise ValueError(f"Unsupported model_type: {model_type}. Choose 'random_forest' or 'xgboost'.")
+        raise ValueError(f"Unsupported model type: {model_type}. Use 'rf' or 'xgb'.")
 
-    # Merge metadata into metrics
-    metrics.update(meta)
-
-    # Save outputs if path provided
-    if output_path:
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Save model (using joblib would be better, but saving dict for simplicity)
-        import pickle
-        model_path = output_path / f"{model_type.lower()}_model.pkl"
-        with open(model_path, "wb") as f:
-            pickle.dump(model, f)
-        
-        # Save metrics
-        import json
-        metrics_path = output_path / f"{model_type.lower()}_metrics.json"
-        with open(metrics_path, "w") as f:
-            json.dump(metrics, f, indent=2, default=str)
-        
-        logger.info("Model and metrics saved to %s", output_path)
-
-    logger.info("Augmented model training completed. CV R2: %.4f", metrics.get("cv_r2_mean", 0))
-    return model, metrics
-
-def predict(model: Any, X: pd.DataFrame) -> np.ndarray:
+def predict(
+    model: Any,
+    df: pd.DataFrame,
+    feature_columns: Optional[List[str]] = None
+) -> np.ndarray:
     """
-    Generate predictions using a trained augmented model.
-
-    Args:
-        model: Trained model (RandomForest or XGBoost)
-        X: Feature matrix
-
-    Returns:
-        predictions: Array of predicted values
-    """
-    if not hasattr(model, 'predict'):
-        raise TypeError("Model must have a 'predict' method.")
+    Generate predictions using a trained model.
     
+    Args:
+        model: Trained model instance.
+        df: Dataframe with features.
+        feature_columns: List of feature columns to use (if None, model expects all columns).
+        
+    Returns:
+        Array of predictions.
+    """
+    if feature_columns is None:
+        # Try to infer from model if possible, otherwise raise error
+        if hasattr(model, 'feature_names_in_'):
+            feature_columns = model.feature_names_in_
+        elif hasattr(model, 'feature_importances_'):
+            # Fallback: assume standard order if not known
+            logger.warning("Feature names not found in model. Attempting to use standard features.")
+            feature_columns = REQUIRED_BASE_FEATURES + COMPOSITION_FEATURES + HEAT_TREATMENT_FEATURES
+            feature_columns = [c for c in feature_columns if c in df.columns]
+        else:
+            raise ValueError("Cannot determine feature columns for prediction.")
+    
+    # Ensure all required columns exist
+    missing = [c for c in feature_columns if c not in df.columns]
+    if missing:
+        # Graceful fallback: fill missing with 0
+        logger.warning(f"Missing features for prediction: {missing}. Filling with 0.")
+        for col in missing:
+            df[col] = 0.0
+    
+    X = df[feature_columns].values
     return model.predict(X)
 
 def evaluate_model(
     model: Any,
-    X: pd.DataFrame,
-    y: pd.Series
+    df: pd.DataFrame,
+    target_col: str = "log_da_dN",
+    feature_columns: Optional[List[str]] = None
 ) -> Dict[str, float]:
     """
-    Evaluate model performance.
-
-    Args:
-        model: Trained model
-        X: Feature matrix
-        y: True target values
-
-    Returns:
-        metrics: Dict with R2 and MSE
-    """
-    y_pred = predict(model, X)
+    Evaluate model performance on a dataset.
     
-    r2 = r2_score(y, y_pred)
-    mse = float(np.mean((y - y_pred) ** 2))
+    Args:
+        model: Trained model.
+        df: Evaluation dataframe.
+        target_col: Target column.
+        feature_columns: Feature columns to use.
+        
+    Returns:
+        Dictionary of metrics (R2, MSE, RMSE).
+    """
+    y_true = df[target_col].values
+    y_pred = predict(model, df, feature_columns)
+    
+    r2 = r2_score(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred)
+    rmse = np.sqrt(mse)
     
     return {
         "r2": r2,
         "mse": mse,
-        "rmse": np.sqrt(mse)
+        "rmse": rmse
     }

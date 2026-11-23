@@ -1,86 +1,79 @@
 # Quickstart Guide: The Impact of Perceived Control Over Digital Environments on Anxiety
 
 ## Overview
-This project analyzes the correlation between perceived control over digital environments and anxiety levels, using social media data.
+A reproducible, CPU‑only pipeline that downloads a public tweet dataset with required metadata, scores anxiety, extracts a metadata‑based control proxy, runs a statistically rigorous correlation analysis (including residual normality testing, power analysis, and confounder control), verifies the statistical workflow, and visualizes the result.
 
 ## Prerequisites
-- Python 3.10+
-- pip
-- ~7GB RAM available
-- ~6 hours maximum runtime
+- Python 3.11+
+- `pip`
+- At least **7 GB** RAM available
+- ≤ 6 h uninterrupted runtime (GitHub Actions free tier)
 
 ## Installation
-
-1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd llmXive-the-impact-of-perceived-control-over-dig
-```
-
-2. Create a virtual environment and activate it:
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
+cd llmXive-proj-281
 pip install -r requirements.txt
 ```
 
-## Running the Pipeline
-
-### Full Pipeline with Performance Profiling
-To run the entire analysis pipeline with performance monitoring (runtime and memory):
-
+## Running the Full Pipeline
 ```bash
-python code/profiling.py
+python code/main.py
 ```
+This executes, in order:
+1. Data ingestion & checksum (`data_ingestion.py`)
+2. Language/gibberish filtering & anxiety scoring (`anxiety_scoring.py`)
+3. Control proxy extraction (`proxy_extractor.py`)
+4. Merge & confidence filtering
+5. OLS regression, residual Shapiro‑Wilk test, conditional correlation (Pearson or Spearman with user‑level de‑meaning), **post‑hoc power analysis** (`statistical_test.py`)
+6. **Statistical verification** (`tests/integration/test_pipeline.py` runs automatically as part of the pipeline)
+7. Scatter plot with regression line (`plot_results.py`)
 
-This will:
-1. Download and preprocess the dataset
-2. Score anxiety levels
-3. Extract control proxies
-4. Perform statistical analysis
-5. Generate visualizations
-6. Validate runtime < 6h and RAM < 7GB
+**Expected runtime**: ~1.8 h for 20 k rows on a 2‑core runner.  
+**Peak memory**: < 5 GB.
 
-Output will be saved to `data/processed/`.
-
-### Individual Stages
-You can also run individual stages by importing and calling the specific functions in `code/main.py`:
-
-```python
-from code.main import run_pipeline
-run_pipeline()
+## Running Individual Stages (debugging)
+```bash
+python code/services/data_ingestion.py          # Stage 1
+python code/services/anxiety_scoring.py         # Stage 2
+python code/services/proxy_extractor.py         # Stage 3
+python code/analysis/statistical_test.py        # Stage 5
+python code/viz/plot_results.py                 # Stage 6
 ```
 
 ## Output Files
-- `data/processed/scoring_results.csv`: Anxiety scores
-- `data/processed/proxy_results.csv`: Control proxies
-- `data/processed/analysis_results.json`: Statistical test results
-- `data/processed/correlation_plot.png`: Visualization
-- `data/processed/performance_report.json`: Performance metrics
+| File | Description |
+|------|-------------|
+| `data/raw/social_media.csv` | Raw download (checksum recorded). |
+| `data/processed/preprocessed_text.csv` | English, non‑gibberish tweets. |
+| `data/processed/scoring_results.csv` | Anxiety scores & confidence. |
+| `data/processed/proxy_results.csv` | Control proxy values. |
+| `data/processed/final_analysis.csv` | Merged dataset used for statistics. |
+| `data/processed/analysis_results.json` | Correlation method, coefficient, p‑value, significance flag, residual normality p‑value, sample size, confidence threshold, **achieved power** (conforms to `contracts/analysis.schema.yaml`). |
+| `data/processed/correlation_plot.png` | Scatter plot with regression line. |
+| `data/processed/coverage_report.json` | Row‑count and checksum audit (conforms to `contracts/dataset.schema.yaml`). |
+| `data/processed/profiling_report.json` | Runtime & memory usage vs. SC‑004 limits. |
 
-## Performance Constraints
-- **Runtime**: Must complete within 6 hours (SC-004)
-- **Memory**: Must not exceed 7GB RAM
-- **Coverage**: Anxiety scoring coverage ≥95%
-- **Confidence**: Minimum confidence score ≥0.6
-
-## Testing
-Run the test suite:
+## Validation & Testing
 ```bash
 pytest tests/ -v --cov=code
 ```
-
-Run specific profiling tests:
-```bash
-pytest tests/unit/test_profiling.py -v
-pytest tests/integration/test_profiling_integration.py -v
-```
+Key integration tests verify:
+- Presence and schema compliance of all JSON/CSV artifacts.
+- Correct execution of the residual Shapiro‑Wilk test, method selection, significance flag, and power analysis (addresses AC‑008 – AC‑010).
+- Graceful handling of download failures (SC‑003).
+- **Statistical verification** (T106) that the analysis results were derived as specified.
 
 ## Troubleshooting
-- **Memory Error**: Ensure no other heavy applications are running.
-- **Dataset Download Failed**: Check internet connection and HuggingFace access.
-- **Model Loading Error**: Verify `transformers` and `torch` are installed correctly.
+- **Missing dataset URL**: The required dataset is `cardiffnlp/tweet_sentiment_extraction`; it is downloaded via `datasets.load_dataset`. If the download fails, the run aborts with a clear error (no synthetic data generated).  
+- **Runtime exceeds 6 h**: The pipeline will automatically fall back to a deterministic random sample of 20 k rows and log the limitation in `coverage_report.json`.  
+- **Memory errors**: Ensure streaming mode is active; the pipeline processes data in 1 k‑row chunks.
+
+## Next Steps
+1. Review `analysis_results.json` for the correlation statistics and achieved power.  
+2. Inspect `correlation_plot.png`.  
+3. Incorporate the figures and numbers into the manuscript (single source of truth).  
+
+---
+
+

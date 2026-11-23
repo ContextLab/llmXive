@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReproResult",
+  "description": "Schema for storing individual paper reproducibility results, including metrics, deviations, and experimental metadata.",
+  "type": "object",
+  "required": [
+    "doi",
+    "reported_metrics",
+    "reproduced_metrics",
+    "deviations",
+    "score_s",
+    "flags",
+    "execution_environment"
+  ],
+  "properties": {
+    "doi": {
+      "type": "string",
+      "description": "Digital Object Identifier of the paper being reproduced."
+    },
+    "reported_metrics": {
+      "type": "object",
+      "description": "Metrics reported in the original paper.",
+      "properties": {
+        "mae": { "type": ["number", "null"] },
+        "r2": { "type": ["number", "null"] },
+        "spearman_rho": { "type": ["number", "null"] }
+      }
+    },
+    "reproduced_metrics": {
+      "type": "object",
+      "description": "Metrics calculated from the reproduced run.",
+      "properties": {
+        "mae": { "type": ["number", "null"] },
+        "r2": { "type": ["number", "null"] },
+        "spearman_rho": { "type": ["number", "null"] }
+      }
+    },
+    "deviations": {
+      "type": "object",
+      "description": "Absolute deviations between reported and reproduced metrics.",
+      "properties": {
+        "mae": { "type": ["number", "null"] },
+        "r2": { "type": ["number", "null"] },
+        "spearman_rho": { "type": ["number", "null"] }
+      }
+    },
+    "score_s": {
+      "type": ["number", "null"],
+      "description": "Reproducibility score S (0-1), where 1 is perfect reproducibility."
+    },
+    "experimental_replicates": {
+      "type": ["integer", "null"],
+      "description": "Number of independent experimental replicates reported in the source data. Added per reviewer feedback (Linus Pauling, Marie Curie) to quantify experimental rigor.",
+      "minimum": 1
+    },
+    "reaction_conditions": {
+      "type": ["object", "null"],
+      "description": "Specific reaction conditions under which yields were measured. Added per reviewer feedback.",
+      "properties": {
+        "temperature": {
+          "type": ["number", "null"],
+          "description": "Temperature in degrees Celsius."
+        },
+        "solvent": {
+          "type": ["string", "null"],
+          "description": "Solvent name (e.g., 'Toluene', 'Water')."
+        },
+        "catalyst_loading": {
+          "type": ["number", "null"],
+          "description": "Catalyst loading as a percentage or molar equivalent."
+        }
+      },
+      "additionalProperties": false
+    },
+    "yield_std_dev": {
+      "type": ["number", "null"],
+      "description": "Standard deviation of yields across experimental replicates. Added per reviewer feedback to assess variability."
+    },
+    "flags": {
+      "type": "array",
+      "description": "List of flags indicating issues (e.g., 'model_substituted', 'covariate_missing', 'seed_missing').",
+      "items": { "type": "string" }
+    },
+    "execution_environment": {
+      "type": "object",
+      "description": "Details of the environment where reproduction was attempted.",
+      "properties": {
+        "python_version": { "type": "string" },
+        "os": { "type": "string" },
+        "docker_hash": { "type": ["string", "null"] },
+        "seed_used": { "type": ["integer", "null"] }
+      }
+    },
+    "max_metric_std_dev": {
+      "type": ["number", "null"],
+      "description": "Maximum standard deviation observed across sensitivity analysis seeds."
+    },
+    "model_parameters_count": {
+      "type": ["integer", "null"],
+      "description": "Number of parameters in the original model, if available."
+    },
+    "substitution_reason": {
+      "type": ["string", "null"],
+      "description": "Reason for model substitution if the original model was too large."
+    }
+  },
+  "additionalProperties": false
+}

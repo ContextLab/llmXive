@@ -3,62 +3,53 @@ import stat
 import tempfile
 import shutil
 from pathlib import Path
+import sys
 import pytest
 
-# Import the function to test
-# We need to add the parent directory to the path to import from code
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
+# Ensure the code directory is in the path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
 from setup_permissions import set_restricted_permissions
 
-def test_set_restricted_permissions_on_mock_dir():
-    """
-    Test that the permission setting logic works correctly on a temporary directory.
-    We create a temp dir, set it up like data/raw, and verify the permission change.
-    """
-    # Create a temporary directory structure
-    temp_root = tempfile.mkdtemp()
-    try:
-        data_raw = Path(temp_root) / "data" / "raw"
-        data_raw.mkdir(parents=True)
-        
-        # Mock the function to work with our temp dir instead of the real project structure
-        # We'll test the core logic by directly manipulating permissions
-        original_mode = data_raw.stat().st_mode & 0o777
-        
-        # Set to 555
-        os.chmod(data_raw, stat.S_IRUSR | stat.S_IXUSR | 
-                        stat.S_IRGRP | stat.S_IXGRP | 
-                        stat.S_IROTH | stat.S_IXOTH)
-        
-        new_mode = data_raw.stat().st_mode & 0o777
-        
-        assert new_mode == 0o555, f"Expected 0o555, got {oct(new_mode)}"
-        
-        # Verify write permissions are removed
-        assert not (new_mode & stat.S_IWUSR), "Owner write permission should be removed"
-        assert not (new_mode & stat.S_IWGRP), "Group write permission should be removed"
-        assert not (new_mode & stat.S_IWOTH), "Other write permission should be removed"
-        
-        # Verify read and execute permissions are present
-        assert (new_mode & stat.S_IRUSR), "Owner read permission should be present"
-        assert (new_mode & stat.S_IXUSR), "Owner execute permission should be present"
-        
-    finally:
-        # Clean up
-        shutil.rmtree(temp_root)
+class TestPermissions:
+    @pytest.fixture
+    def temp_dir(self):
+        """Create a temporary directory for testing permissions."""
+        temp = tempfile.mkdtemp()
+        yield Path(temp)
+        shutil.rmtree(temp)
 
-def test_directory_not_found():
-    """Test behavior when the target directory does not exist"""
-    # This test would require mocking the Path existence check
-    # For now, we verify the logic exists
-    assert True
-
-def test_permission_bits_calculation():
-    """Verify that the permission bits calculation in the function is correct"""
-    # The function uses: stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
-    expected = 0o555
-    calculated = stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
-    assert calculated == expected, f"Permission calculation error: expected {oct(expected)}, got {oct(calculated)}"
+    def test_set_restricted_permissions_data_insufficient(self, temp_dir):
+        """Test that 'Data Insufficient' mode sets 555 permissions."""
+        # Simulate the mode logic by passing the mode directly
+        # We can't easily mock the global get_mode_flag without refactoring,
+        # so we test the core logic of the function if we can expose it,
+        # or we test the behavior by passing a specific mode argument if we modify the function.
+        # For this test, we will assume the function `set_restricted_permissions` 
+        # takes a mode argument for testing purposes (as defined in the implementation above).
+        
+        # Force the mode to 'Data Insufficient'
+        set_restricted_permissions(temp_dir, mode="Data Insufficient")
+        
+        current_mode = os.stat(str(temp_dir)).st_mode & 0o777
+        expected_mode = 0o555
+        
+        assert current_mode == expected_mode, f"Expected {oct(expected_mode)}, got {oct(current_mode)}"
+        
+    def test_set_restricted_permissions_primary(self, temp_dir):
+        """Test that 'Primary' mode sets 755 permissions."""
+        set_restricted_permissions(temp_dir, mode="Primary")
+        
+        current_mode = os.stat(str(temp_dir)).st_mode & 0o777
+        expected_mode = 0o755
+        
+        assert current_mode == expected_mode, f"Expected {oct(expected_mode)}, got {oct(current_mode)}"
+        
+    def test_set_restricted_permissions_underpowered(self, temp_dir):
+        """Test that 'Underpowered' mode sets 555 permissions."""
+        set_restricted_permissions(temp_dir, mode="Underpowered")
+        
+        current_mode = os.stat(str(temp_dir)).st_mode & 0o777
+        expected_mode = 0o555
+        
+        assert current_mode == expected_mode, f"Expected {oct(expected_mode)}, got {oct(current_mode)}"

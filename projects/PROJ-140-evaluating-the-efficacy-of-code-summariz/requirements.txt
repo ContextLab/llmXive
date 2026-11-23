@@ -1,9 +1,2 @@
-# Project Dependencies for PROJ-140
-# Generated/Updated for Task T030a
-
-pandas>=2.0.0
-numpy>=1.24.0
-statsmodels>=0.14.0
-python-dotenv>=1.0.0
-scikit-learn>=1.3.0
-scipy>=1.11.0
+datasets
+pyarrow==14.0.1

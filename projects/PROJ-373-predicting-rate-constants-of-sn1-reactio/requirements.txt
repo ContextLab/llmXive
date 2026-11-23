@@ -5,6 +5,6 @@ shap
 pandas
 pyyaml
 datasets
-jsonschema
 pytest
-pytest-cov
+ruff
+black

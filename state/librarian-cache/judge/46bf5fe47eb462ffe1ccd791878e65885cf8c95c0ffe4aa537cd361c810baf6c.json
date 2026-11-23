@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.25309",
+  "judged_at": "2026-08-07T11:24:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"improved large language diffusion models\" linguistics",
+  "rationale": "The paper focuses on tokenization architectures for specific Abugida scripts (Sinhala, Devanagari) to reduce token counts, which is a distinct construct from the user's question regarding \"Large Language Diffusion Models\" (a generative architecture class) and their linguistic extensions. The paper does not measure the same mechanism (diffusion vs. autoregressive tokenization), address the same domain (diffusion models vs. standard LLMs), or provide a baseline for the specific variables in the us",
+  "relevant": false
+}

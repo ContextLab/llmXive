@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.10351",
+  "judged_at": "2026-09-06T18:54:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of simulated social comparison on self-evaluation in online environments psychology",
+  "rationale": "This paper satisfies criterion (b) by measuring the dependent variable (psychological impact on self-evaluation/well-being) within the user's specified domain (online environments/social media) and population (teenagers), even though it frames the mechanism broadly as \"algorithmic and AI-driven\" effects rather than isolating \"simulated social comparison\" specifically. It also aligns with criterion (f) as a canonical study in the alternative-vocabulary cluster regarding the psychological harms of",
+  "relevant": true
+}

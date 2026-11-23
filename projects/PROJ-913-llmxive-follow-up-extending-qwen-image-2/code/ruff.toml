@@ -1,0 +1,42 @@
+# Ruff configuration for llmXive project
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # Pyflakes
+    "I",    # isort
+    "C",    # flake8-comprehensions
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "N",    # pep8-naming
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in ML)
+    "C901", # Too complex (handled by separate complexity checks if needed)
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".mypy_cache",
+    ".ruff_cache",
+    "data/",
+    "figures/",
+    "build/",
+    "dist/",
+]
+
+# Same as Black
+line-length = 88
+target-version = "py310"
+
+[lint.per-file-ignores]
+# Ignore specific rules in test files if needed
+"tests/*" = ["S101"] # Ignore assert statements in tests

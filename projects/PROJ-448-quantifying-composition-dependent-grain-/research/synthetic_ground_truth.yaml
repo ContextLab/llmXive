@@ -1,0 +1,21 @@
+# Synthetic Ground Truth Configuration
+# Used by data/generate_ground_truth.py for pipeline validation only
+# This file defines the exact interaction coefficients and random seed for reproducibility
+
+random_seed: 42
+
+interaction_coefficients:
+  # Interaction coefficients in eV (beta_ij)
+  beta_CrMo: 0.05
+  beta_CrV: 0.03
+  beta_MoV: 0.02
+  beta_CrW: 0.04
+  beta_MoW: 0.03
+  beta_VW: 0.02
+
+# Metadata for tracking
+metadata:
+  description: "Synthetic ground truth for regression engine validation"
+  purpose: "Pipeline logic verification only - not experimental data"
+  created_by: "T090-Config task"
+  version: "1.0"

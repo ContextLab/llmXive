@@ -1,0 +1,19 @@
+status: none
+intent: GHTorrent GitHub pull request dataset with diffs review comments linked issues
+  python package dataset
+required_fields:
+- repo_name
+- pr_number
+- pr_url
+- pr_author
+- pr_created_at
+- pr_merged_at
+- pr_state
+- diff_unified
+- files_changed
+- additions
+- deletions
+- review_comments
+cache_key: 803df38a416b7ada00eb695d52e18d9c6cf2f268401b918fef36edcc3a9a54d8
+searched_at: '2026-10-26T08:45:03.274471+00:00'
+retry_count: 1

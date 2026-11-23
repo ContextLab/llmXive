@@ -1,0 +1,26 @@
+status: verified
+kind: pypi_package
+ref: ir-datasets
+access_python: "import ir_datasets\n\n# Choose a dataset known to exist in ir_datasets\n\
+  dataset_name = \"trec-robust04\"\n\n# Load the dataset\nds = ir_datasets.load(dataset_name)\n\
+  \n# Materialize all qrels records\nqrels = list(ds.qrels_iter())\nrecord_count =\
+  \ len(qrels)\n\n# Ensure we have at least one record\nif record_count == 0:\n  \
+  \  raise RuntimeError(f\"No qrels found for dataset {dataset_name}\")\n\n# Extract\
+  \ field names from the first record\nfirst_record = qrels[0]\nif hasattr(first_record,\
+  \ \"_fields\"):\n    field_names = \",\".join(first_record._fields)\nelse:\n   \
+  \ field_names = \",\".join(first_record.__dict__.keys())\n\nprint(f\"RECORDS={record_count}\"\
+  )\nprint(f\"FIELDS={field_names}\")"
+record_count: 311410
+sample_fields:
+- query_id
+- doc_id
+- relevance
+- iteration
+field_coverage: 1.0
+required_fields:
+- query_id
+- doc_id
+- relevance
+intent: download TREC Robust and Web Track 2009-2012 qrels via ir_datasets python
+  package
+cache_key: 13c7e0612f07fa3aa7ed78b16d02aa51e3bea879335811dc230559eb21b75c5b

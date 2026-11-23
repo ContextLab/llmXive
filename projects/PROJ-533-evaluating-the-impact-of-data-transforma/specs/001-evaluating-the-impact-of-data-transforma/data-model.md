@@ -1,89 +1,28 @@
 # Data Model: Evaluating the Impact of Data Transformation on Statistical Test Sensitivity
 
-## Overview
-
-This document defines the data structures used throughout the project, ensuring consistency between download, transformation, simulation, and aggregation phases. All data is stored in CSV, JSON, or Parquet formats with checksums preserved.
-
-## Entities
-
-### Dataset
-Represents a public data source from UCI/OpenML.
-
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| dataset_id | str | Unique identifier (e.g., `uci_har`, `openml_123`) | Primary key |
-| source_url | str | Canonical URL of dataset | Must be verified or documented |
-| sample_size | int | Number of rows | ≥30 |
-| num_continuous | int | Number of continuous variables | ≥1 |
-| num_groups | int | Number of group levels | ≥2 |
-| shapiro_p | float | Shapiro-Wilk p-value | <0.05 for inclusion |
-| missing_rate | float | Proportion of missing values | ≤0.10 for inclusion |
-| checksum | str | SHA-256 hash of raw file | Non-empty |
-| included | bool | Whether dataset passed filtering | True/False |
-
-**Source**: `data/datasets.csv`
-
-### Transformation
-Represents one of three transformation methods applied to a variable.
-
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| dataset_id | str | Foreign key to Dataset | |
-| variable_name | str | Name of transformed variable | |
-| method | str | Box-Cox, Yeo-Johnson, or rank-based | Enum |
-| lambda_param | float | Optimized λ (for Box-Cox/Yeo-Johnson) | Null for rank-based |
-| transformed_values | list | Transformed data | Non-empty |
-| success | bool | Whether transformation succeeded | True/False |
-| log_message | str | Intervention log (e.g., log-shift applied) | Optional |
-
-**Source**: `data/processed/transformations/{dataset_id}_{method}.csv`
-
-### TestResult
-Represents outcome of a statistical test under a specific transformation.
-
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| result_id | str | Unique identifier | Primary key |
-| dataset_id | str | Foreign key to Dataset | |
-| method | str | Transformation method | Enum |
-| test_type | str | t-test, ANOVA, or Mann-Whitney U | Enum |
-| p_value | float | P-value from test | 0.0–1.0 |
-| significant | bool | p < α (default 0.05) | True/False |
-| condition | str | null or alternative | Enum |
-| effect_size | float | Cohen's d (for simulated data) | Null for real-world |
-| iteration | int | Simulation iteration number | 1–1000 |
-| seed | int | Random seed used | 42 (fixed) |
-
-**Source**: `results/type1_error/{dataset_id}.csv`, `results/power/{effect_size}.csv`
-
-### AggregatedResult
-Summary of Type I error or power across datasets.
-
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| method | str | Transformation method | Enum |
-| test_type | str | t-test or ANOVA | Enum |
-| metric | str | type1_error or power | Enum |
-| mean | float | Mean estimate | |
-| ci_lower | float | 95% bootstrap CI lower bound | |
-| ci_upper | float | 95% bootstrap CI upper bound | |
-| n_datasets | int | Number of datasets aggregated | ≥50 |
-| alpha | float | Significance threshold used | 0.01, 0.05, or 0.1 |
-
-**Source**: `results/aggregated/summary.csv`
+## Entity Relationship Overview
+| Entity | Primary Key | Key Attributes | Relationships |
+|--------|-------------|----------------|---------------|
+| **Dataset** | `dataset_id` (hash of source URL) | `source_url`, `filename`, `checksum_sha256`, `sample_size`, `num_continuous_vars`, `shapiro_wilk_p`, `skewness`, `kurtosis`, `missing_pct`, `status`, `filter_reason`, `exclusion_details` | 1‑many **Transformation**, 1‑many **SimulatedDataset**, 1‑many **ImputationLog** |
+| **Transformation** | `transformation_id` | `dataset_id` (FK), `variable_name`, `method` (`baseline`, `box_cox`, `yeo_johnson`, `rank_inverse_normal`), `lambda_param`, `intervention_log`, `status` | 1‑many **TestResult** |
+| **SimulatedDataset** | `sim_id` | `source_dataset_id` (FK), `effect_size` (null for null sims), `skewness`, `kurtosis`, `n_samples`, `seed_used` | Used by **Transformation** (baseline + three transformed versions) |
+| **TestResult** | `result_id` | `transformation_id` (FK), `test_type` (`t_test`, `anova`), `condition` (`null`, `alternative`), `effect_size`, `p_value`, `is_significant`, `seed_used`, `iteration` | — |
+| **AggregatedResult** | `agg_id` | `transformation`, `test_type`, `metric` (`type1_error`, `power`), `mean_value`, `ci_lower`, `ci_upper`, `ci_half_width`, `n_datasets`, `n_iterations` | — |
+| **FriedmanResult** | `friedman_id` | `test_type`, `transformation_comparison` (list), `statistic`, `p_value`, `significant`, `posthoc_pairs` (list of `{pair, p_adj}`) | — |
+| **SensitivityResult** | `sens_id` | `transformation`, `test_type`, `alpha`, `error_rate`, `n_iterations` | — |
+| **ImputationLog** | `log_id` | `dataset_id` (FK), `variable_name`, `method` (`mean`/`median`/`knn`), `imputed_pct`, `timestamp` | — |
 
 ## Data Flow
+1. **Ingestion** – `Dataset` rows created from `data/datasets.csv`.  
+2. **Filtering** – `status` updated; exclusions logged.  
+3. **Imputation** – `ImputationLog` entries recorded; missing values filled in temporary copies.  
+4. **Simulation (null & power)** – For each retained `Dataset`, create `SimulatedDataset` rows preserving that dataset’s distributional moments.  
+5. **Transformation** – Each `Dataset` and each `SimulatedDataset` receives four `Transformation` rows (baseline + three methods).  
+6. **Testing** – `TestResult` rows generated for every (`Transformation`, `test_type`, `condition`, `iteration`).  
+7. **Aggregation** – `AggregatedResult` rows computed from `TestResult`.  
+8. **Inference** – `FriedmanResult` and `SensitivityResult` rows produced.  
+9. **Reporting** – Tables/figures reference the corresponding rows; all contracts validated against the schemas in `contracts/`.  
 
-1. **Download**: `download_datasets.py` → `data/raw/` + `data/datasets.csv`
-2. **Filter**: `filter_datasets.py` → `data/processed/filtered/` + update `datasets.csv`
-3. **Transform**: `apply_transformations.py` → `data/processed/transformations/`
-4. **Simulate Null**: `simulate_null.py` → `results/type1_error/`
-5. **Simulate Power**: `simulate_power.py` → `results/power/`
-6. **Aggregate**: `aggregate_results.py` → `results/aggregated/` + plots
+All files conform to the JSON‑Schema contracts listed under `contracts/`.
 
-## Integrity Constraints
-
-- **Checksums**: All raw files checksummed and recorded in `data/checksums.csv` (FR-010).
-- **Seeds**: Random seed 42 stored in `results/simulation_seeds.txt` (Constitution Principle VII).
-- **Imputation**: Missing values imputed per variable; rate logged; >10% excluded.
-- **Transformation Failures**: Logged with variable name and reason; skipped if irrecoverable.
+---

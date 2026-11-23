@@ -1,0 +1,13 @@
+status: none
+intent: ProofWriter RuleTaker logical deduction DAG metadata synthetic dataset python
+  package dataset
+required_fields:
+- instance_id
+- puzzle_text
+- dag_edges
+- max_nesting_depth
+- average_branching_factor
+- ground_truth_solution
+cache_key: a3342b3c8ccc7866525625702e688e0b8174bbb2f79fd10a6e81eac6361a2ff0
+searched_at: '2026-10-25T20:47:48.018185+00:00'
+retry_count: 1

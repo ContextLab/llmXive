@@ -1,79 +1,20 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Preprocessed Dataset Schema
-description: |
-  Schema for the preprocessed dataset derived from the ABCD Study Release 4.0.
-  Contains Adverse Childhood Experiences (ACE) scores, demographic data,
-  and normalized hippocampal subfield volumes.
+title: Preprocessed Hippocampal Subfield Dataset Schema
+description: >
+  Schema for the preprocessed dataset used in the analysis of the impact
+  of early life stress on hippocampal subfield volumes. This dataset
+  contains phenotypic data, ACE scores, and normalized hippocampal subfield
+  volumes derived from the ABCD Study Release 4.0.
 type: object
 required:
   - properties
-  - required
   - type
 properties:
   type:
     type: string
     const: object
-  required:
-    type: array
-    items:
-      type: string
   properties:
     type: object
-    properties:
-      ACE:
-        description: Adverse Childhood Experiences score.
-        type: number
-        minimum: 0
-      Age:
-        description: Age of the participant at baseline (years).
-        type: number
-        minimum: 9
-        maximum: 11
-      Sex:
-        description: Biological sex of the participant.
-        type: string
-        enum: [Male, Female]
-      Site:
-        description: Scanning site identifier.
-        type: string
-      FamilyID:
-        description: Unique identifier for the family unit (to handle clustering).
-        type: string
-      CA3:
-        description: Raw volume of the CA3 hippocampal subfield.
-        type: number
-        minimum: 0
-      DG:
-        description: Raw volume of the Dentate Gyrus hippocampal subfield.
-        type: number
-        minimum: 0
-      Subiculum:
-        description: Raw volume of the Subiculum hippocampal subfield.
-        type: number
-        minimum: 0
-      ICV:
-        description: Intracranial volume used for normalization.
-        type: number
-        minimum: 0
-      Normalized_Volumes:
-        description: |
-          Object containing ICV-normalized volumes for each subfield.
-          Calculated as: RawVolume / ICV.
-        type: object
-        required:
-          - CA3
-          - DG
-          - Subiculum
-        properties:
-          CA3:
-            description: Normalized CA3 volume.
-            type: number
-          DG:
-            description: Normalized DG volume.
-            type: number
-          Subiculum:
-            description: Normalized Subiculum volume.
-            type: number
     required:
       - ACE
       - Age
@@ -85,3 +26,85 @@ properties:
       - Subiculum
       - ICV
       - Normalized_Volumes
+    properties:
+      ACE:
+        type: number
+        description: >
+          Adverse Childhood Experiences (ACE) score.
+          If log-transformed (as per FR-011), this represents the log(ACE + 1) value.
+        minimum: 0.0
+      Age:
+        type: number
+        description: Age of the participant at baseline.
+        minimum: 0.0
+      Sex:
+        type: string
+        description: >
+          Biological sex of the participant.
+          Expected values: 'M' (Male), 'F' (Female).
+        enum:
+          - M
+          - F
+      Site:
+        type: string
+        description: >
+          MRI scanner site identifier.
+          Example format: 'site_01', 'site_02', etc.
+      FamilyID:
+        type: string
+        description: >
+          Unique identifier for the family unit.
+          Used as the random effect grouping variable in LMMs.
+      CA3:
+        type: number
+        description: >
+          Raw volume of the CA3 hippocampal subfield in mm³.
+          Must be positive.
+        minimum: 0.0
+      DG:
+        type: number
+        description: >
+          Raw volume of the Dentate Gyrus (DG) hippocampal subfield in mm³.
+          Must be positive.
+        minimum: 0.0
+      Subiculum:
+        type: number
+        description: >
+          Raw volume of the Subiculum hippocampal subfield in mm³.
+          Must be positive.
+        minimum: 0.0
+      ICV:
+        type: number
+        description: >
+          Intracranial Volume (ICV) in mm³.
+          Used for normalization of subfield volumes.
+        minimum: 0.0
+      Normalized_Volumes:
+        type: object
+        description: >
+          Object containing normalized volumes for each subfield.
+          Calculated as RawVolume / ICV.
+        required:
+          - CA3
+          - DG
+          - Subiculum
+        properties:
+          CA3:
+            type: number
+            description: Normalized CA3 volume (CA3 / ICV).
+            minimum: 0.0
+          DG:
+            type: number
+            description: Normalized DG volume (DG / ICV).
+            minimum: 0.0
+          Subiculum:
+            type: number
+            description: Normalized Subiculum volume (Subiculum / ICV).
+            minimum: 0.0
+      ACE_Outlier_Flag:
+        type: boolean
+        description: >
+          Flag indicating if the ACE score is an extreme outlier (>3 SD from mean).
+          Added per Task T018 for sensitivity analysis.
+        default: false
+additionalProperties: false

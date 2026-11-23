@@ -1,0 +1,6 @@
+{
+  "input": "For each p \u2208 {5, 7, 11} and N \u2208 {1000, 10000, 100000, 1000000}, compute exact totient residue counts. Require a clean CPU rerun within 5 minutes.",
+  "output": "For each p \u2208 {5, 7, 11} and N \u2208 {1000, 10000, 100000, 1000000}, compute exact totient residue counts. Require a clean CPU rerun within 5 minutes.",
+  "domains_preserved": true,
+  "runtime_target_preserved": true
+}

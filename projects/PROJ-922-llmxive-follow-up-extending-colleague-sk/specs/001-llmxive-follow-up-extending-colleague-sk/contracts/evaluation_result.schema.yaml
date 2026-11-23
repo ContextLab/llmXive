@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: EvaluationResult
+description: Schema for scored metrics.
+type: object
+required:
+  - run_id
+  - heuristic_adherence
+  - hallucination_rate
+  - style_consistency
+properties:
+  run_id:
+    type: string
+    description: "Reference to InferenceOutput"
+  heuristic_adherence:
+    type: integer
+    enum:
+      - 0
+      - 1
+    description: "Binary task success"
+  hallucination_rate:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of hallucinated facts"
+  style_consistency:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Style consistency score"
+  exclusion_reason:
+    type: string
+    description: "Reason for exclusion (if any)"
+additionalProperties: false

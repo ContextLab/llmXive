@@ -1,56 +1,104 @@
-# Methodology: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
+# Methodology: Cross-Validation and Reproducibility
 
 ## Overview
+This document defines the statistical validation procedure for the regression models
+used to predict the impact of impurity clustering on grain boundary segregation.
+The methodology prioritizes reproducibility, statistical robustness, and adherence
+to the project's constraint of using real data without synthetic fallbacks.
 
-This document outlines the computational methodology employed in the `PROJ-355` project.
-The primary goal is to quantify the relationship between impurity clustering descriptors
-and grain boundary (GB) segregation energies using statistical regression models.
+## 1. Cross-Validation Procedure
 
-## Data Pipeline
+### 1.1 Primary Strategy: K-Fold Cross-Validation
+The primary validation method is **5-Fold Cross-Validation** (`k=5`).
+This approach splits the dataset into 5 equal-sized groups (folds). The model is
+trained on 4 folds and validated on the remaining fold. This process is repeated
+5 times, ensuring every data point is used exactly once for validation.
 
-1. **Data Acquisition**: Bulk crystal structures are downloaded from the Materials Project (MP)
- and the Open Quantum Materials Database (OQMD).
-2. **GB Construction**: Grain boundary supercells are constructed using `pymatgen`.
-3. **Impurity Insertion**: Impurity atoms are inserted at the GB interface.
-4. **Descriptor Computation**: Local atomic environment descriptors (RDF peaks, pair correlation,
- Voronoi neighbor counts) are computed for the interface region.
-5. **Energy Simulation**: Segregation energies are calculated using NIST EAM potentials
- with structural perturbation to break symmetry.
+**Algorithm:**
+1. Shuffle the dataset using the fixed random seed (see Section 2).
+2. Partition the data into $k=5$ disjoint sets $F_1, F_2,\dots,F_5$.
+3. For each fold $i$ from 1 to 5:
+ - **Training Set**: $\bigcup_{j \neq i} F_j$
+ - **Validation Set**: $F_i$
+ - Train the Linear Regression model on the Training Set.
+ - Compute metrics ($R^2$, RMSE, p-values) on the Validation Set.
+4. Aggregate metrics across all 5 folds (mean and standard deviation).
 
-## Cross-Validation Procedure
+### 1.2 Fallback Strategy: Leave-One-Out Cross-Validation (LOOCV)
+If the total number of samples $N$ is less than 5, 5-Fold CV is statistically
+unstable or impossible. In this case, the system automatically switches to
+**Leave-One-Out Cross-Validation (LOOCV)**.
 
-To ensure robust model evaluation and prevent overfitting, a **K-Fold Cross-Validation**
-strategy is employed.
+**Algorithm:**
+1. For each sample $x_i$ in the dataset (where $i = 1$ to $N$):
+ - **Training Set**: All samples except $x_i$.
+ - **Validation Set**: $\{x_i\}$.
+ - Train the model on the Training Set.
+ - Compute metrics on the single validation sample.
+2. Aggregate metrics across all $N$ iterations.
 
-### K-Fold Setup
-- **K Value**: 5 folds (configurable via `code/config.py`).
-- **Shuffle**: True.
-- **Random Seed**: Fixed at **42** (defined in `code/config.py`) to ensure reproducibility
- across runs (Constitution Principle I).
+**Decision Logic:**
+```python
+if N >= 5:
+ strategy = "5-Fold CV"
+ k = 5
+else:
+ strategy = "LOOCV"
+ k = N
+```
 
-### Procedure
-1. The dataset is split into K mutually exclusive subsets of approximately equal size.
-2. The model is trained K times. In each iteration:
- - K-1 folds are used for training.
- - The remaining 1 fold is used for validation.
-3. Metrics (R², RMSE, p-values) are computed for each fold and aggregated.
+## 2. Reproducibility and Random Seeds
 
-### LOOCV Fallback Logic
-If the dataset size is smaller than K (i.e., fewer than 5 samples), the procedure
-automatically switches to **Leave-One-Out Cross-Validation (LOOCV)**:
-- The number of folds is set to the number of samples.
-- Each sample serves as the validation set exactly once.
-- This ensures every data point is used for both training and validation.
+To ensure that results are exactly reproducible across different runs and environments,
+a single, fixed random seed is used for all stochastic operations.
 
-## Statistical Analysis
+- **Seed Value**: Defined in `code/config.py` as `RANDOM_SEED` (e.g., `RANDOM_SEED = 42`).
+- **Scope of Application**:
+ - Dataset shuffling prior to CV splitting.
+ - Random perturbations in structural simulations (if applicable).
+ - Initialization of any random number generators in modeling libraries.
+- **Implementation**:
+ All code paths utilizing randomness must explicitly instantiate their generator
+ using the configured seed:
+ ```python
+ import numpy as np
+ from config import RANDOM_SEED
 
-- **Model**: Linear Regression (MVP) with `statsmodels` OLS.
-- **Collinearity**: Variance Inflation Factor (VIF) is calculated. If VIF ≥ 10,
- a warning is logged, but features are retained as per FR-007 (Report, don't remove).
-- **Significance**: p-values are calculated for coefficients using HC3 robust standard errors.
- Multiple comparison correction (Bonferroni/FDR) is applied in Phase 5.
+ rng = np.random.default_rng(RANDOM_SEED)
+ ```
 
-## Reproducibility
+## 3. Metric Definitions
 
-All random operations (data splitting, structural perturbation) use the seed defined
-in `code/config.py`. The seed is 42.
+The following metrics are computed for each fold and aggregated:
+
+- **$R^2$ (Coefficient of Determination)**: Measures the proportion of variance
+ in the dependent variable (segregation energy) predictable from the independent
+ variables (clustering descriptors).
+- **RMSE (Root Mean Squared Error)**: Measures the square root of the average
+ squared differences between predicted and actual values.
+- **P-Values**: Extracted from the t-statistics of the regression coefficients
+ (Linear Regression only) to assess the statistical significance of each descriptor.
+- **Confidence Intervals**: 95% confidence intervals for predictions, calculated
+ using the standard error of the prediction.
+
+## 4. Handling Collinearity
+
+As per project requirements (FR-007), features are **not** removed even if
+collinearity is detected.
+
+- **Detection**: Variance Inflation Factor (VIF) is calculated prior to training.
+- **Reporting**: If VIF $\ge$ 10, a warning is logged, and the collinearity report
+ is generated (`data/processed/collinearity_report.md`).
+- **Modeling**: The model proceeds with raw descriptors. P-values are interpreted
+ with caution, noting that high collinearity may inflate standard errors.
+
+## 5. Execution Flow
+
+1. **Data Loading**: Load real data from `data/processed/descriptors.csv` and
+ `data/processed/segregation_energies.csv`.
+2. **Preprocessing**: Verify data integrity and handle missing values (if any).
+3. **Split Selection**: Determine if $N \ge 5$ to select CV strategy.
+4. **Model Training Loop**: Execute the chosen CV strategy.
+5. **Aggregation**: Compute mean and standard deviation of metrics.
+6. **Output**: Save results to `results/metrics.json` and
+ `results/metrics_per_fold.json`.

@@ -1,0 +1,6 @@
+# Window-specific stopwords for 2015-2019
+# Example: domain-specific terms common in late 2010s abstracts
+model
+system
+performance
+evaluation

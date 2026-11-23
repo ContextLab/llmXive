@@ -1,0 +1,11 @@
+requests
+pandas
+pybedtools
+scipy
+seaborn
+matplotlib
+biopython
+pytest
+psutil
+joblib
+# Note: joblib added to satisfy downstream scripts that depend on it.

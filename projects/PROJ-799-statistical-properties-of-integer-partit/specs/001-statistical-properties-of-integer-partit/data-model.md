@@ -1,43 +1,73 @@
-# Data Model: Statistical Properties of Integer Partitions
+# Data Model: Statistical Properties of Integer Partitions Into Distinct Prime Summands
 
 ## 1. Entity Definitions
 
-### 1.1 PartitionRecord
-Represents the ground truth data for a single integer $n$.
-*   **n**: Integer. The integer being partitioned.
-*   **count**: Integer. The exact value of $p_{\mathcal{P}}(n)$.
-*   **asymptotic**: Float. The predicted value $Q_{as}(n)$ based on the leading-order Roth & Szekeres term.
-*   **log_residual**: Float. $\log(\text{count}) - \log(\text{asymptotic})$. Null if count is 0.
+### 1.1. PartitionRecord
+| Field | Type | Description |
+|-------|------|-------------|
+| `n` | integer (≥ 1) | Integer being partitioned |
+| `p_P_n` | integer (≥ 0) | Exact count of partitions of `n` into distinct primes |
+| `Q_as_n` | number (> 0) | Asymptotic baseline prediction from Meinardus' theorem |
+| `R_n` | number | Log‑residual: log(p_P_n) - log(Q_as_n). Set to **‑9999** when either input is non‑positive. |
+| `pi_n` | integer (≥ 0) | Prime‑counting function π(n) |
+| `inv_log_n` | number (> 0) | Inverse natural log \(1/\ln(n)\) |
+| `cum_density` | number (≥ 0) | Cumulative sum of \(1/p\) for p ≤ n |
+| `gap_n` | integer (≥ 0) | Length of the prime gap that contains `n` |
 
-### 1.2 DensityFeatureSet
-Represents the predictor variables for a single integer $n$.
-*   **n**: Integer.
-*   **inv_log_n_sq**: Float. $1 / (\ln(n))^2$.
-*   **log_log_n_over_log_n**: Float. $\ln \ln(n) / \ln(n)$.
-*   **prime_density**: Float. $\pi(n) / n$.
-*   **dist_nearest_prime**: Integer. Distance to the closest prime.
-*   **sin_log_n**: Float. $\sin(\ln(n))$.
-*   **cos_log_n**: Float. $\cos(\ln(n))$.
+### 1.2. DensityFeatureSet
+| Field | Type | Description |
+|-------|------|-------------|
+| `n` | integer (≥ 1) | Same as above |
+| `pi_n` | integer (≥ 0) | Prime‑counting function π(n) |
+| `inv_log_n` | number (> 0) | Inverse natural log \(1/\ln(n)\) |
+| `cum_density` | number (≥ 0) | Cumulative sum of \(1/p\) for p ≤ n |
+| `R_n` | number | Target variable: log‑residual (sentinel ‑9999 if undefined) |
+| `gap_n` | integer (≥ 0) | Prime‑gap control variable |
 
-### 1.3 RegressionOutput
-Represents the results of the statistical model.
-*   **coefficients**: Dict mapping feature names to float values (or smooth term statistics for GAM).
-*   **p_values**: Dict mapping feature names to float values.
-*   **r_squared**: Float.
-*   **mse_cv**: Float. Mean Squared Error from cross-validation.
-*   **adjusted_p_values**: Dict mapping feature names to float values (Bonferroni corrected).
-*   **vif_scores**: Dict mapping feature names to VIF values.
+### 1.3. RegressionModel
+| Field | Type | Description |
+|-------|------|-------------|
+| `coefficients` | object (name → number) | Regression coefficients for each predictor |
+| `intercept` | number | Intercept term |
+| `r_squared` | number ∈[0,1] | \(R^{2}\) on the full data |
+| `p_values` | object (name → number) | Raw HAC‑adjusted \(p\)‑values |
+| `fdr_corrected_p_values` | object (name → number) | Benjamini‑Hochberg corrected \(p\)‑values |
+| `mse_cv` | number ≥ 0 | Mean Squared Error averaged over 10‑fold time‑series CV |
+| `null_model_R2` | number ∈[0,1] | \(R^{2}\) of intercept‑only model |
+| `null_model_MSE` | number ≥ 0 | MSE of intercept‑only model |
+
+### 1.4. ReferenceData
+| Field | Type | Description |
+|-------|------|-------------|
+| `n` | integer (≤ 100) | Small \(n\) for verification |
+| `p_P_n` | integer | Known exact count from literature |
 
 ## 2. Data Flow
 
-1.  **Input**: None (Primes generated internally).
-2.  **Step 1 (Generation)**: `generate_partitions.py` -> `data/raw/partitions_raw.csv`. **Checksum generated and recorded in state file.**
-3.  **Step 2 (Features)**: `feature_engineering.py` reads `partitions_raw.csv`, computes features, writes `data/processed/features.csv`.
-4.  **Step 3 (Modeling)**: `regression_model.py` reads `features.csv`, fits GAM model, calculates VIF, writes `data/processed/model_results.json`.
-5.  **Step 4 (Visualization)**: `visualize_results.py` reads `features.csv` and `model_results.json`, writes plots.
+1. **Raw primes** (`primes_up_to_50000.csv`) → `generate_partitions.py` → `partition_counts.csv`.  
+2. `compute_baseline.py` → `baseline_values.csv`.  
+3. `feature_engineering.py` merges the two, computes `R_n` (sentinel ‑9999 for non‑positive cases) and density features **plus** `gap_n`, and writes `features.csv` with columns:  
+   `n,p_P_n,Q_as_n,R_n,pi_n,inv_log_n,cum_density,gap_n`.  
+4. `fit_model.py` reads `features.csv` → `model_results.json` (conforms to `RegressionModel` schema).  
+5. `visualize.py` consumes `features.csv` and model predictions → `residuals_plot.png`.
 
-## 3. Constraints
+## 3. File Formats & Constraints
 
-*   **Integrity**: `count` must be $\ge 0$. `asymptotic` must be $> 0$.
-*   **Precision**: `count` must fit in `int64`. `log_residual` must be `float64`.
-*   **Filtering**: Rows with `count == 0` are excluded from the regression dataset.
+- **CSV files**: UTF‑8, comma delimiter, header row.  
+- `partition_counts.csv`: columns `n,p_P_n`.  
+- `baseline_values.csv`: columns `n,Q_as_n`.  
+- `features.csv`: columns `n,p_P_n,Q_as_n,R_n,pi_n,inv_log_n,cum_density,gap_n`.  
+  - `R_n` is **always a numeric value**; rows where `p_P_n=0` or `Q_as_n≤0` contain the sentinel **‑9999**.  
+- `model_results.json`: JSON object matching `RegressionModel` schema.  
+- **Checksums**: All files under `data/` have a SHA‑2 hash recorded in the project state file.
+
+## 4. Validation Rules
+
+- `p_P_n` must be integer ≥ 0; for \(n\le100\) it must match `reference_data.csv` exactly (SC‑003).  
+- `Q_as_n` must be > 0; values < \(10^{-10}\) are clamped before logging.  
+- `R_n` is computed only when both inputs are positive; otherwise set to **‑9999** (numeric sentinel).  
+- Density features must be consistent with the prime list (`pi_n` equals the count of primes ≤ `n`).  
+- No missing values are allowed in `features.csv` for rows used in regression (enforced by `test_features_non_null.py`).  
+
+---
+

@@ -49,5 +49,15 @@
     "main.bib",
     "main.tex",
     "math_commands.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "4d87e58c6557108730605c25260dd9aa34d24e42c79c10f781395a8ed1f3d891",
+      "bytes": 1838075
+    },
+    "original.pdf": {
+      "sha256": "070ecc51ad6cf993c1ce39a8fc2feafcf63c7987beeb53b8b5be31d4f38dc98d",
+      "bytes": 1797998
+    }
+  }
 }

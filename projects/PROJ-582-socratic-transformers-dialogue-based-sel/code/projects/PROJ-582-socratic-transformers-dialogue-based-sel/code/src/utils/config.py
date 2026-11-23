@@ -1,139 +1,215 @@
 """
-Environment configuration management for the Socratic Transformers project.
-Handles random seeds, model paths, and training hyperparameters via environment variables.
+Environment configuration management for Socratic Transformers project.
+
+Handles random seeds, model paths, and experimental parameters.
+Model IDs are required and must be provided via environment variables
+or a config file to allow experimental flexibility per FR-003.
 """
+
 import os
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 import numpy as np
+
 
 @dataclass
 class SocraticConfig:
     """
-    Central configuration dataclass for the Socratic Transformers pipeline.
-    Populates values from environment variables with sensible defaults.
-    """
-    # Random Seeds for reproducibility
-    seed: int = 42
-    torch_seed: int = 42
-    numpy_seed: int = 42
-    python_seed: int = 42
-
-    # Model Paths
-    base_model_path: str = "microsoft/phi-1.5"
-    fallback_model_path: str = "microsoft/phi-1.5"  # Default fallback to same if not specified
-    tokenizer_path: Optional[str] = None
-
-    # Training Hyperparameters (LoRA/PEFT)
-    lora_r: int = 16
-    lora_alpha: int = 32
-    lora_dropout: float = 0.05
-    target_modules: str = "q_proj,k_proj,v_proj,o_proj"  # Comma separated
-
-    # Quantization Settings
-    use_4bit: bool = True
-    bnb_4bit_compute_dtype: str = "float16"
-    bnb_4bit_quant_type: str = "nf4"
-
-    # Data Paths
-    data_root: str = "data"
-    raw_data_dir: str = "data/raw"
-    processed_data_dir: str = "data/processed"
-    results_dir: str = "data/results"
-
-    # Logging
-    log_level: str = "INFO"
-    log_file: Optional[str] = None
-
-    # Hardware Constraints
-    max_memory: Optional[str] = None  # e.g., "7GB"
-    device_map: str = "auto"
-
-    def __post_init__(self):
-        """Initialize tokenizer path if not set."""
-        if self.tokenizer_path is None:
-            self.tokenizer_path = self.base_model_path
-
-        # Resolve relative paths to absolute if they start with 'data'
-        if self.data_root.startswith("data"):
-            self.data_root = str(Path(__file__).parent.parent.parent.parent / self.data_root)
-        
-        # Ensure directories exist (optional, but good for config validation)
-        # We do not create them here to avoid side effects during config loading,
-        # but we normalize the paths.
+    Main configuration class for the Socratic Transformers pipeline.
     
-    def set_seeds(self) -> None:
-        """Set random seeds for reproducibility across libraries."""
-        random.seed(self.seed)
-        np.random.seed(self.numpy_seed)
-        try:
-            import torch
-            torch.manual_seed(self.torch_seed)
-            if torch.cuda.is_available():
-                torch.cuda.manual_seed_all(self.torch_seed)
-        except ImportError:
-            pass
+    Attributes:
+        CRITIC_MODEL_ID: Required. ID of the frozen critic model for adversarial critique.
+        BASE_MODEL_ID: Required. ID of the base model for answer generation and fine-tuning.
+        QUESTION_BANK_PATH: Optional. Path to a local question bank file.
+        ADVERSARIAL_PROMPT_TEMPLATE: Template string for generating critique prompts.
+        SELECTION_THRESHOLD: Float threshold for negative selection (similarity score).
+        RANDOM_SEED: Integer seed for reproducibility.
+    """
+    CRITIC_MODEL_ID: str = field(
+        default_factory=lambda: os.environ.get("CRITIC_MODEL_ID")
+    )
+    BASE_MODEL_ID: str = field(
+        default_factory=lambda: os.environ.get("BASE_MODEL_ID")
+    )
+    QUESTION_BANK_PATH: Optional[str] = None
+    ADVERSARIAL_PROMPT_TEMPLATE: str = "Identify logical contradictions in: {answer}"
+    SELECTION_THRESHOLD: float = 0.85
+    RANDOM_SEED: int = 42
+    
+    # Additional runtime paths
+    PROJECT_ROOT: Path = field(
+        default_factory=lambda: Path(__file__).resolve().parents[3]
+    )
+    DATA_RAW_DIR: Path = field(init=False)
+    DATA_PROCESSED_DIR: Path = field(init=False)
+    DATA_RESULTS_DIR: Path = field(init=False)
+    STATE_DIR: Path = field(init=False)
+    
+    def __post_init__(self):
+        """Initialize derived paths after dataclass initialization."""
+        self.DATA_RAW_DIR = self.PROJECT_ROOT / "data" / "raw"
+        self.DATA_PROCESSED_DIR = self.PROJECT_ROOT / "data" / "processed"
+        self.DATA_RESULTS_DIR = self.PROJECT_ROOT / "data" / "results"
+        self.STATE_DIR = self.PROJECT_ROOT / "state"
+        
+        # Ensure model IDs are set
+        if not self.CRITIC_MODEL_ID:
+            raise ValueError(
+                "CRITIC_MODEL_ID must be set via environment variable "
+                "or config file. Set CRITIC_MODEL_ID=<model_id>."
+            )
+        if not self.BASE_MODEL_ID:
+            raise ValueError(
+                "BASE_MODEL_ID must be set via environment variable "
+                "or config file. Set BASE_MODEL_ID=<model_id>."
+            )
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Export configuration to a dictionary."""
+        return {
+            "CRITIC_MODEL_ID": self.CRITIC_MODEL_ID,
+            "BASE_MODEL_ID": self.BASE_MODEL_ID,
+            "QUESTION_BANK_PATH": self.QUESTION_BANK_PATH,
+            "ADVERSARIAL_PROMPT_TEMPLATE": self.ADVERSARIAL_PROMPT_TEMPLATE,
+            "SELECTION_THRESHOLD": self.SELECTION_THRESHOLD,
+            "RANDOM_SEED": self.RANDOM_SEED,
+            "PROJECT_ROOT": str(self.PROJECT_ROOT),
+            "DATA_RAW_DIR": str(self.DATA_RAW_DIR),
+            "DATA_PROCESSED_DIR": str(self.DATA_PROCESSED_DIR),
+            "DATA_RESULTS_DIR": str(self.DATA_RESULTS_DIR),
+            "STATE_DIR": str(self.STATE_DIR),
+        }
 
-    def get_target_modules_list(self) -> list:
-        """Parse comma-separated target modules string into a list."""
-        return [m.strip() for m in self.target_modules.split(",") if m.strip()]
-
-# Global config instance
+# Global configuration instance
 _global_config: Optional[SocraticConfig] = None
+
+
+def get_config() -> SocraticConfig:
+    """
+    Retrieve the global configuration instance.
+    
+    Returns:
+        The active SocraticConfig instance.
+        
+    Raises:
+        ValueError: If the configuration has not been initialized.
+    """
+    if _global_config is None:
+        raise ValueError(
+            "Configuration not initialized. Call init_project() or set_config() first."
+        )
+    return _global_config
+
+
+def set_global_config(config: SocraticConfig) -> None:
+    """
+    Set the global configuration instance.
+    
+    Args:
+        config: The SocraticConfig instance to set as global.
+    """
+    global _global_config
+    _global_config = config
+
 
 def load_config_from_env() -> SocraticConfig:
     """
     Load configuration from environment variables.
-    Returns a new SocraticConfig instance.
+    
+    Environment variables:
+        CRITIC_MODEL_ID: Model ID for the critic.
+        BASE_MODEL_ID: Model ID for the base model.
+        QUESTION_BANK_PATH: Optional path to question bank.
+        ADVERSARIAL_PROMPT_TEMPLATE: Template for critique prompts.
+        SELECTION_THRESHOLD: Threshold for negative selection.
+        RANDOM_SEED: Random seed for reproducibility.
+        
+    Returns:
+        A new SocraticConfig instance populated from environment variables.
     """
-    config = SocraticConfig(
-        seed=int(os.getenv("SCT_SEED", 42)),
-        torch_seed=int(os.getenv("SCT_TORCH_SEED", 42)),
-        numpy_seed=int(os.getenv("SCT_NUMPY_SEED", 42)),
-        python_seed=int(os.getenv("SCT_PYTHON_SEED", 42)),
-        
-        base_model_path=os.getenv("SCT_BASE_MODEL", "microsoft/phi-1.5"),
-        fallback_model_path=os.getenv("SCT_FALLBACK_MODEL", "microsoft/phi-1.5"),
-        
-        lora_r=int(os.getenv("SCT_LORA_R", 16)),
-        lora_alpha=int(os.getenv("SCT_LORA_ALPHA", 32)),
-        lora_dropout=float(os.getenv("SCT_LORA_DROPOUT", 0.05)),
-        target_modules=os.getenv("SCT_TARGET_MODULES", "q_proj,k_proj,v_proj,o_proj"),
-        
-        use_4bit=os.getenv("SCT_USE_4BIT", "true").lower() in ("true", "1", "yes"),
-        bnb_4bit_compute_dtype=os.getenv("SCT_BNB_4BIT_DTYPE", "float16"),
-        bnb_4bit_quant_type=os.getenv("SCT_BNB_4BIT_TYPE", "nf4"),
-        
-        data_root=os.getenv("SCT_DATA_ROOT", "data"),
-        raw_data_dir=os.getenv("SCT_RAW_DATA_DIR", "data/raw"),
-        processed_data_dir=os.getenv("SCT_PROCESSED_DATA_DIR", "data/processed"),
-        results_dir=os.getenv("SCT_RESULTS_DIR", "data/results"),
-        
-        log_level=os.getenv("SCT_LOG_LEVEL", "INFO"),
-        log_file=os.getenv("SCT_LOG_FILE", None),
-        
-        max_memory=os.getenv("SCT_MAX_MEMORY", None),
-        device_map=os.getenv("SCT_DEVICE_MAP", "auto"),
+    critic_id = os.environ.get("CRITIC_MODEL_ID")
+    base_id = os.environ.get("BASE_MODEL_ID")
+    question_bank = os.environ.get("QUESTION_BANK_PATH")
+    prompt_template = os.environ.get(
+        "ADVERSARIAL_PROMPT_TEMPLATE",
+        "Identify logical contradictions in: {answer}"
     )
+    threshold_str = os.environ.get("SELECTION_THRESHOLD", "0.85")
+    seed_str = os.environ.get("RANDOM_SEED", "42")
+    
+    try:
+        threshold = float(threshold_str)
+    except ValueError:
+        raise ValueError(f"SELECTION_THRESHOLD must be a float, got: {threshold_str}")
+    
+    try:
+        seed = int(seed_str)
+    except ValueError:
+        raise ValueError(f"RANDOM_SEED must be an integer, got: {seed_str}")
+    
+    return SocraticConfig(
+        CRITIC_MODEL_ID=critic_id,
+        BASE_MODEL_ID=base_id,
+        QUESTION_BANK_PATH=question_bank,
+        ADVERSARIAL_PROMPT_TEMPLATE=prompt_template,
+        SELECTION_THRESHOLD=threshold,
+        RANDOM_SEED=seed
+    )
+
+def set_seed(seed: Optional[int] = None) -> None:
+    """
+    Set the random seed for reproducibility across all libraries.
+    
+    Args:
+        seed: The seed value. If None, uses the seed from the global config.
+    """
+    if seed is None:
+        config = get_config()
+        seed = config.RANDOM_SEED
+    
+    random.seed(seed)
+    np.random.seed(seed)
+    if 'torch' in globals() or 'torch' in __import__('sys').modules:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+
+def init_project() -> SocraticConfig:
+    """
+    Initialize the project by loading configuration from environment
+    and setting up the global config instance.
+    
+    Returns:
+        The initialized SocraticConfig instance.
+    """
+    config = load_config_from_env()
+    set_global_config(config)
+    set_seed(config.RANDOM_SEED)
+    
+    # Ensure directories exist
+    for dir_path in [config.DATA_RAW_DIR, config.DATA_PROCESSED_DIR, 
+                     config.DATA_RESULTS_DIR, config.STATE_DIR]:
+        dir_path.mkdir(parents=True, exist_ok=True)
+    
     return config
 
-def get_config() -> SocraticConfig:
-    """
-    Get the global configuration instance.
-    Loads from environment if not already set.
-    """
-    global _global_config
-    if _global_config is None:
-        _global_config = load_config_from_env()
-    return _global_config
+def main():
+    """Entry point for testing configuration loading."""
+    try:
+        config = init_project()
+        print(f"Configuration loaded successfully:")
+        print(f"  CRITIC_MODEL_ID: {config.CRITIC_MODEL_ID}")
+        print(f"  BASE_MODEL_ID: {config.BASE_MODEL_ID}")
+        print(f"  SELECTION_THRESHOLD: {config.SELECTION_THRESHOLD}")
+        print(f"  RANDOM_SEED: {config.RANDOM_SEED}")
+    except ValueError as e:
+        print(f"Configuration error: {e}")
+        return 1
+    return 0
 
-def set_global_config(config: SocraticConfig) -> None:
-    """
-    Manually set the global configuration instance.
-    Useful for testing or overriding environment defaults.
-    """
-    global _global_config
-    _global_config = config
+if __name__ == "__main__":
+    exit(main())

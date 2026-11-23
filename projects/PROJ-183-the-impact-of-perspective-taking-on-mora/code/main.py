@@ -42,18 +42,15 @@ def get_peak_ram_gb():
     # resource.getrusage(resource.RUSAGE_SELF).ru_maxrss is in KB on Linux/macOS
     try:
         max_rss_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        # On some platforms (like macOS), ru_maxrss is in bytes, but typically KB on Linux.
-        # Standard Linux: ru_maxrss is KB.
-        # To be safe, we check the magnitude or assume standard Linux behavior for CI.
-        # If it's bytes, it would be huge. If KB, it's ~thousands.
-        # Let's assume KB as per standard Linux man page.
+        # On standard Linux, ru_maxrss is in KB.
+        # Convert KB to GB: KB / 1024 / 1024
         return max_rss_kb / (1024.0 * 1024.0)
     except AttributeError:
         # Fallback for Windows where resource module might not have ru_maxrss
         logger.warning("resource.getrusage not available (Windows). Using 0.0 for RAM.")
         return 0.0
 
-def log_resource_metrics(start_time):
+def log_resource_metrics(start_time, step_name="Checkpoint"):
     """
     Logs current RAM usage and elapsed runtime.
     Logs warnings if thresholds are approached but does not raise errors.
@@ -61,18 +58,18 @@ def log_resource_metrics(start_time):
     elapsed_time = time.time() - start_time
     peak_ram = get_peak_ram_gb()
 
-    logger.info(f"Current Runtime: {elapsed_time:.2f} seconds")
-    logger.info(f"Peak RAM Usage: {peak_ram:.2f} GB")
+    logger.info(f"[{step_name}] Elapsed Runtime: {elapsed_time:.2f} seconds")
+    logger.info(f"[{step_name}] Peak RAM Usage: {peak_ram:.2f} GB")
 
     if peak_ram > RAM_LIMIT_GB:
-        logger.warning(f"CRITICAL: Peak RAM ({peak_ram:.2f} GB) exceeded limit ({RAM_LIMIT_GB} GB)")
+        logger.warning(f"[{step_name}] CRITICAL: Peak RAM ({peak_ram:.2f} GB) exceeded limit ({RAM_LIMIT_GB} GB)")
     elif peak_ram > RAM_WARNING_THRESHOLD:
-        logger.warning(f"WARNING: Peak RAM ({peak_ram:.2f} GB) approaching limit ({RAM_LIMIT_GB} GB)")
+        logger.warning(f"[{step_name}] WARNING: Peak RAM ({peak_ram:.2f} GB) approaching limit ({RAM_LIMIT_GB} GB)")
 
     if elapsed_time > RUNTIME_LIMIT_SECONDS:
-        logger.warning(f"CRITICAL: Runtime ({elapsed_time:.2f}s) exceeded limit ({RUNTIME_LIMIT_SECONDS:.2f}s)")
+        logger.warning(f"[{step_name}] CRITICAL: Runtime ({elapsed_time:.2f}s) exceeded limit ({RUNTIME_LIMIT_SECONDS:.2f}s)")
     elif elapsed_time > RUNTIME_WARNING_THRESHOLD:
-        logger.warning(f"WARNING: Runtime ({elapsed_time:.2f}s) approaching limit ({RUNTIME_LIMIT_SECONDS:.2f}s)")
+        logger.warning(f"[{step_name}] WARNING: Runtime ({elapsed_time:.2f}s) approaching limit ({RUNTIME_LIMIT_SECONDS:.2f}s)")
 
 def main():
     """
@@ -93,7 +90,7 @@ def main():
         time.sleep(1) 
         
         # Log metrics periodically or at specific checkpoints
-        log_resource_metrics(start_time)
+        log_resource_metrics(start_time, step_name="Mid-Run")
         
         # Final log
         total_runtime = time.time() - start_time

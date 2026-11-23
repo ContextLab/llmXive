@@ -78,9 +78,32 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2604.10702
   verified_at: '2026-07-16T03:16:19.542884Z'
-- artifact_hash: 9d548e725b8a1c2ea85df4431d0bc65ab7ec420da1923237addd16ba184c016e
+- artifact_hash: 7ff65179ae2802d9e95629b149eccecd1233ba43f37574cdfe0db8f7e52476f8
   artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2510.07895] Adaptive Optimizable Gaussian Process Regression Linear
+    Least Squares Regression Filtering Method for SEM Images'
+  kind: url
+  value: https://arxiv.org/abs/2510.07895
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2510.07895
+  verified_at: '2026-10-10T02:27:36.442130Z'
+- artifact_hash: 7ff65179ae2802d9e95629b149eccecd1233ba43f37574cdfe0db8f7e52476f8
+  artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: goal - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q4503831
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q4503831
+  verified_at: '2026-10-10T02:27:36.442130Z'
+- artifact_hash: 7ff65179ae2802d9e95629b149eccecd1233ba43f37574cdfe0db8f7e52476f8
+  artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/specs/001-quantifying-the-impact-of-grain-boundary/tasks.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: Nist - Wikidata
@@ -88,4 +111,4 @@
   value: https://www.wikidata.org/wiki/Q37499364
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q37499364
-  verified_at: '2026-07-16T08:09:19.893120Z'
+  verified_at: '2026-10-10T02:27:36.442130Z'

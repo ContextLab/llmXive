@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the processed message dataset containing emoji features and intensity scores. Only valid if data is available."
+type: object
+properties:
+  text_content:
+    type: string
+    description: "The raw text of the message."
+  emoji_presence:
+    type: boolean
+    description: "True if the message contains at least one emoji."
+  emoji_count:
+    type: integer
+    minimum: 0
+    description: "Total number of emojis in the message."
+  emoji_types:
+    type: array
+    items:
+      type: string
+      pattern: "^U\\+[0-9A-F]{4,6}$"
+    description: "List of unique Unicode code points for emojis (e.g., 'U+1F60D')."
+  intensity_score:
+    type: number
+    minimum: 1
+    maximum: 7
+    description: "Human-rated emotional intensity on a 1-7 Likert scale."
+  text_length:
+    type: integer
+    minimum: 0
+    description: "Character count of the text_content."
+  punctuation_count:
+    type: integer
+    minimum: 0
+    description: "Count of punctuation marks."
+required:
+  - text_content
+  - emoji_presence
+  - emoji_count
+  - emoji_types
+  - intensity_score
+  - text_length
+  - punctuation_count
+additionalProperties: false

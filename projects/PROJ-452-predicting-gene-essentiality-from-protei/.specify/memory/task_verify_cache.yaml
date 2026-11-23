@@ -1,0 +1,29 @@
+T009a:
+  c: false
+  h: cf80d8aa4ae9e80ed17960fb0cd48221f919d99818a3fbac9822e9ff854f3070
+  r: "The repository lacks a `fetch_phylogenetic_tree` implementation in `code/data_loader.py`\
+    \ (the file shows only placeholder functions for other data loading tasks) and\
+    \ the required output file `data/phylogeny/tree.newick` does not exist. Consequently\
+    \ the task\u2019s core functionality and its output are missing."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` or `research.md` files are present in the provided evidence,
+    and thus the required exact reproduction steps, commands, and data source listings
+    are missing. The implementer has not supplied the documentation artifacts the
+    task explicitly demands.
+T022:
+  c: false
+  h: e5a919aa617190f01963910fb0a75b915d128cd0536081789b891396dc1a3de0
+  r: "The required integration test file `tests/integration/test_cross_species.py`\
+    \ does not exist in the repository, so the artifact is missing and the task\u2019\
+    s deliverable is not provided."
+T063:
+  c: false
+  h: f81e8d89f1dc2dc12b5fe8a6dc67b0cd8806a586f82bfed0da98423aedacb754
+  r: The test file `tests/contract/test_mapping_schema.py` is present but its main
+    test function is empty (truncated) and does not actually load or validate `results/mapping_coverage.json`.
+    Moreover, the required data file `results/mapping_coverage.json` is missing entirely,
+    so the contract test cannot be executed as specified. The implementer must provide
+    a complete test that reads the JSON file and validates the required fields, and
+    ensure the `results/mapping_coverage.json` file exists with appropriate content.

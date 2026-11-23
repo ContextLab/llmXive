@@ -1,0 +1,44 @@
+# Ruff configuration for llmXive project
+# Extends default rules with project-specific settings
+
+line-length = 88
+target-version = "py39"
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in testing)
+]
+
+# Exclude generated files and data directories
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    "data/",
+    "state/",
+    "docs/",
+]
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
+combine-as-imports = true
+
+[lint.per-file-ignores]
+# Allow unused imports in __init__.py for public API exposure
+"code/__init__.py" = ["F401"]
+"tests/**/*.py" = ["F401", "E501"]
+"code/src/utils/constants.py" = ["F401"]

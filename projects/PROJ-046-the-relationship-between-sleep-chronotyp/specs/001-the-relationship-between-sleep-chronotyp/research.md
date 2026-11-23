@@ -1,80 +1,77 @@
 # Research: The Relationship Between Sleep Chronotype and Moral Judgement
 
 ## Research Question
+
 Do individuals with later sleep chronotypes (evening types) exhibit systematically different patterns of moral judgement compared to earlier chronotypes (morning types), independent of acute sleep deprivation?
 
-## Literature & Context
-Current literature suggests that circadian rhythms influence cognitive processing and emotional regulation, which may extend to moral reasoning. However, few studies have controlled for acute sleep deprivation (a confounder that affects both chronotype expression and moral judgment). This study aims to isolate the trait-like effect of chronotype on the five Moral Foundations (Care, Fairness, Loyalty, Authority, Sanctity).
+## Theoretical Background
 
-## Dataset Strategy
+- **Chronotype**: Defined by the Morningness-Eveningness Questionnaire (MEQ), a 19-item instrument developed by Horne and Östberg (1976) to assess circadian preference. Scores range from the minimum value (definite evening) to the maximum value (definite morning).
+- **Moral Foundations**: Based on Moral Foundations Theory (Graham, Haidt, Nosek, 2009), measuring five domains: Care, Fairness, Loyalty, Authority, Sanctity.
+- **Hypothesis**: Evening types may show distinct moral profiles, potentially influenced by circadian misalignment or social jetlag, even when controlling for acute sleepiness.
+- **Theoretical Dependency**: Acute sleepiness is often a function of the mismatch between chronotype and sleep schedule (social jetlag). This theoretical dependency implies potential collinearity between `chronotype` and `acute_sleepiness`. The analysis will monitor Variance Inflation Factors (VIF) and report on this dependency. If VIF > 2, the dependency is reported descriptively, and independent effects are not claimed.
 
-### Data Sources
-The analysis requires a **single, pre-merged** dataset containing the following variables for the *same* participants:
-1. **Chronotype**: MEQ scores.
-2. **Moral Judgment**: MFQ subscale scores.
-3. **Covariates**: PSQI (chronic sleep quality), Acute Sleepiness, Age, Sex.
+## Dataset Strategy & Data Collection Protocol
 
-**Verified Sources (per spec constraints):**
-* **MFQ Data**: Available via `lukebruhns/identity-refusal-mfq2` (HuggingFace).
- * *URL*: `
- * *Content Check*: Contains MFQ subscale scores. **Lacks** MEQ, PSQI, Acute Sleepiness.
-* **MEQ Data**: Available via `lighteval/me_q_sum` (HuggingFace).
- * *URL*: `
- * *Content Check*: This dataset is an NLP benchmark for summarization tasks (MEQ-Sum) and **does not** contain the standard Morningness-Eveningness Questionnaire (MEQ) scores required for chronotype classification (FR-002) or the associated demographic/sleep covariates.
-* **PSQI/Acute Sleepiness Data**: No verified source found in the provided block.
+**Critical Finding**: No single verified public dataset contains all required variables (MEQ, MFQ, PSQI, Acute Sleepiness) simultaneously.
+- **MEQ**: Available via `lighteval/me_q_sum` (Verified).
+- **MFQ**: Available via `lukebruhns/identity-refusal-mfq2` (Verified).
+- **PSQI / Acute Sleepiness**: No verified public source found.
 
-**Dataset Fit Analysis:**
-* **MEQ**: No verified source containing the full psychometric MEQ scores and required covariates.
-* **MFQ**: Present in `lukebruhns/identity-refusal-mfq2`.
-* **PSQI/Acute Sleepiness**: **NOT** present in any verified source.
-* **Merge Feasibility**: Merging the verified MFQ and MEQ sources is **methodologically invalid** because they lack a common `participant_id` and contain different subjects. Creating artificial rows by merging disjoint datasets destroys individual-level variance and invalidates the ANCOVA.
+**Decision**: The pipeline is designed as a **scientific tool** awaiting real data. It **cannot** validate the ANCOVA/MANCOVA statistical model using synthetic data, as this would produce mathematically meaningless results for the hypothesis "independent of acute sleep deprivation."
 
-**Resolution:**
-Per the spec's "Assumptions" section and the requirement to control for acute sleep deprivation (FR-007), the pipeline **MUST** require a single, pre-merged dataset containing all required variables.
-* **Strategy**: The pipeline will **ABORT** if the input data does not contain all required columns.
-* **Simulation**: **No simulation** of missing covariates is permitted. Synthetic data cannot test the relationship between real chronotype and moral judgment and would invalidate the research question.
-* **Data Collection**: The researcher must provide a merged dataset (e.g., from primary data collection via Prolific) or a specific merged file. The pipeline is designed to validate the presence of this data, not to create it.
+**Strategy**:
+1.  **Unit Testing (Classification)**: A synthetic dataset with *known* labels will be generated solely to test the classification logic (FR-002, SC-001). This data is **not** used for ANCOVA.
+2.  **Scientific Analysis**: The pipeline requires a real `data/raw/study_data.csv` provided by the user. If this file is missing, the statistical analysis phase is skipped, and the CI run passes with a "No Data" status.
+3.  **Data Collection Protocol**: To enable the study, the following protocol is recommended for data collection:
+    -   **Platform**: Prolific or Qualtrics Panel.
+    -   **Measures**:
+        -   MEQ (a standardized set of items, Horne & Östberg, 1976).
+        -   MFQ (version, 200 items or short form if validated, Graham et al., 2009).
+        -   PSQI (Global score).
+        -   Acute Sleepiness: 24-hour sleep diary or actigraphy data (or validated self-report scale like KSS).
+    -   **Inclusion**: PSQI ≤ 5 (chronic sleep quality) and valid acute sleepiness data.
+    -   **Sample Size**: Target n ≥ 159 (based on a priori power analysis, f=0.25, α=0.05, power=0.80).
+
+**Rationale**: This approach ensures scientific integrity. The pipeline is validated for *code correctness* (unit tests) and *statistical logic* (assumptions), but the *scientific results* are contingent on real data. No synthetic data is used to simulate the covariance structure for the ANCOVA, avoiding the fatal flaw of fabricating scientific evidence.
 
 ## Statistical Methodology
 
-### 1. Chronotype Classification (FR-002)
-* **Method**: Threshold-based classification of `MEQ_score`.
- * `MEQ >= 59`: "morning"
- * `MEQ <= 41`: "evening"
- * `41 < MEQ < 59`: "intermediate"
-* **Handling Missing**: Rows with `NA` or non-numeric `MEQ_score` are flagged and excluded from group analysis (FR-006).
+1.  **Chronotype Classification**:
+    -   Thresholds: Morning (≥59), Evening (≤41), Intermediate (42-58).
+    -   Handling Missing: Rows with missing MEQ or Acute Sleepiness are flagged `NA` and excluded from group analysis (FR-006).
 
-### 2. ANCOVA (FR-003)
-* **Model**: Separate linear models for each of the MFQ subscales.
- * `MFQ_subscale ~ chronotype + PSQI + acute_sleepiness + age + sex`
-* **Correction**: Bonferroni correction applied to the resulting p-values.
- * Adjusted alpha = 0.05 / 5 = 0.01.
-* **Covariates**: `PSQI` (chronic quality), `acute_sleepiness` (to control for deprivation), `age`, `sex`.
-* **Collinearity Check**: Variance Inflation Factors (VIF) calculated; if VIF > 2, a warning is issued (Assumption: Collinearity is low).
+2.  **Multivariate Analysis (MANCOVA)**:
+    -   **Primary Test**: MANCOVA with `chronotype` as factor and `MFQ_care`, `MFQ_fairness`, `MFQ_loyalty`, `MFQ_authority`, `MFQ_sanctity` as dependent variables.
+    -   **Covariates**: `PSQI`, `acute_sleepiness`, `age`, `sex`.
+    -   **Statistic**: Hotelling's Trace.
+    -   **Justification**: Controls for Type I error across correlated dependent variables and better captures the "pattern of judgement" than univariate tests alone.
 
-### 3. Effect Sizes (FR-004)
-* **Metric**: Cohen's *d* for significant contrasts (e.g., Evening vs. Morning).
-* **Confidence Interval**: 95% CI calculated for Cohen's *d*.
+3.  **Univariate Analysis (ANCOVA)**:
+    -   **Condition**: Only performed if MANCOVA is significant.
+    -   **Formula**: `MFQ_subscale ~ chronotype + PSQI + acute_sleepiness + age + sex`
+    -   **Correction**: Bonferroni adjustment for 5 subscales (α_corrected = 0.01).
+    -   **Assumptions Check**: Normality of residuals, Homogeneity of variance (Levene's test), Linearity.
+    -   **Collinearity**: Variance Inflation Factor (VIF) calculated; must be < 2. If VIF > 2, the dependency between chronotype and acute sleepiness is reported descriptively, and independent effects are not claimed.
 
-### 4. Power Analysis (FR-005)
-* **Method**: Post-hoc power calculation using `pwr` package.
-* **Parameters**: Effect size *f* = 0.25, alpha = 0.05, power = 0.80 (target n=159).
-* **Sensitivity**: Report power at observed effect sizes.
+4.  **Effect Sizes**:
+    -   Cohen's d for significant contrasts (Morning vs. Evening).
+    -   95% Confidence Intervals.
 
-### 5. Sensitivity Analysis (FR-005, SC-004)
-* **Sweep**: Re-evaluate significance for alpha_corrected values: {, 0.0125, 0.015}.
-* **Output**: Table showing significance status for each MFQ subscale at each threshold.
-
-## Statistical Rigor & Limitations
-* **Multiple Comparisons**: Bonferroni correction is strictly applied (α=0.01).
-* **Sample Size**: The pipeline assumes a sample size meeting the n=159 threshold. If the provided data is smaller, the power analysis will reflect this limitation explicitly.
-* **Causal Inference**: The study is **observational**. Claims will be framed as "associational." No causal claims regarding chronotype causing moral differences will be made.
-* **Measurement Validity**: MEQ and MFQ are standard instruments. Internal consistency (Cronbach's α) will be reported.
-* **Collinearity**: The plan acknowledges that if `acute_sleepiness` and `PSQI` are highly correlated, VIF will detect it. The plan does *not* claim independent effects if predictors are definitionally related.
-* **Data Limitation**: The study cannot proceed without a real merged dataset containing MEQ, MFQ, PSQI, and acute sleepiness. The pipeline will abort if such data is not provided.
+5.  **Power & Sensitivity Analysis**:
+    -   **Sensitivity for Effect Size**: Instead of post-hoc power (which is controversial), calculate the minimum effect size (f) detectable with [deferred] power given the observed sample size.
+    -   **Threshold Sensitivity**: Sweep α_corrected across a range of small positive values to assess the robustness of significance decisions. This is a pre-specified robustness check, not a search for significance. The report will list the significance status for every subscale at each threshold.
 
 ## Compute Feasibility
-* **Environment**: CPU-only GitHub Actions runner.
-* **Method**: Linear models (ANOVA/ANCOVA) are computationally trivial for N < 10,000.
-* **Memory**: Data will be loaded into RAM; no large model inference required.
-* **Runtime**: Estimated < 5 minutes for full pipeline.
+
+-   **CPU-First**: All operations are lightweight statistical operations in R.
+-   **Memory**: Estimated < 500 MB for n=1000.
+-   **Time**: < 10 minutes for full pipeline on 2 CPU cores.
+-   **GPU**: Not required.
+
+## Decision/Rationale
+
+-   **CPU vs GPU**: CPU is sufficient. No deep learning models are used.
+-   **Data Strategy**: Use verified MEQ/MFQ sources for schema validation. **No synthetic data for ANCOVA.** The pipeline requires real data for scientific results. The CI runner will skip analysis if real data is missing, ensuring no fabricated results.
+-   **MANCOVA vs ANCOVA**: MANCOVA is chosen as the primary test to address the "pattern" of judgement across correlated subscales, reducing Type I error risk. ANCOVA is a follow-up.
+-   **Power Analysis**: Post-hoc power is rejected in favor of sensitivity analysis for effect size, which is more informative for interpreting non-significant results.

@@ -1,3 +1,1 @@
-"""
-llmXive research pipeline for resting-state fMRI entropy analysis.
-"""
+# Empty init file for code package

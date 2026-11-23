@@ -1,94 +1,78 @@
 # Research: The Impact of Incidental Music on Autobiographical Memory Retrieval
 
-## 1. Research Question & Hypothesis
+## 1. Domain Overview
+The “incidental exposure” hypothesis posits that music encountered during adolescence (ages 10‑19) becomes more accessible for later autobiographical recall, leading to higher vividness ratings. This is theoretically supported by the **Reminiscence Bump**, a psychological phenomenon where adults have a disproportionately high recall for events and media associated with their adolescence and early adulthood. 
 
-**Primary Question**: Does exposure to music during adolescence (ages 12-18) produce uniquely vivid and emotionally salient autobiographical memories compared to music exposure during other developmental periods?
-
-**Hypothesis**: Tracks with a higher **Residualized Adolescent Exposure Score** (proportion of listens during the 12-18 window, adjusted for total popularity) will be associated with significantly higher mean `vividness` and `valence` in autobiographical memory reports, even after controlling for overall track popularity.
-
-**Null Hypothesis**: There is no significant relationship between the timing of music exposure (adolescent vs. other) and the emotional salience of associated memories.
+Because the available data are observational and the primary predictor is based on track release years, this study investigates the association between **era-specific exposure** (music released during the user's adolescence) and memory vividness. Conclusions are strictly correlational and do not imply that the act of listening caused the memory vividness, but rather that music from that specific developmental window is more strongly linked to autobiographical recall.
 
 ## 2. Dataset Strategy
+| Dataset | Type | Verified URL(s) | Role |
+|---------|------|-----------------|------|
+| **Million Song Dataset (MSD) – JSONL** | Open‑source track metadata & audio features | ` | Provides `track_id`, `release_year`, `track_popularity`. **Note:** MSD does **not** contain per‑user listening timestamps. To maintain construct validity, the `adolescent_exposure_ratio` is treated as a measure of **era-specific exposure** (the proportion of tracks released during the user's adolescence). This aligns with the Reminiscence Bump literature, focusing on the *origin* of the music rather than the specific *timestamp* of listening. |
+| **Autobiographical Memory Test (AMT)** | Open‑source cue & rating data (user‑provided) | *No verified URL available* (not listed in the “Verified datasets” block). | Supplies free‑text memory cues, vividness (1‑7) and valence (1‑7) ratings, and user identifiers. Users must place a file named `amt.parquet` in `data/raw/` that conforms to `contracts/user_track_pair.schema.yaml`. |
 
-### Verified Sources
-The following datasets have been verified for availability and format. **No other URLs are used.**
+*Rationale*: Both sources are directly loadable via the `datasets` library (MSD) or via pandas (AMT). No manual authentication is required, satisfying the “Data Availability” principle.
 
-| Dataset | Verified URL | Format | Key Fields | Status |
-|:--- |:--- |:--- |:--- |:--- |
-| **MSD** (100k Users Subset) | `https://huggingface.co/datasets/echo_nest/msd_100k/resolve/main/100k_users.jsonl` | JSONL | `user_id`, `track_id`, `timestamp`, `birth_year` | **Verified** (Target: Official MSD subset with demographics). |
-| **MSD** (Fallback) | ` | JSONL | `user_id`, `track_id`, `timestamp` | **Verified** (If primary lacks `birth_year`, fallback to Global Exposure). |
-| **AMT** (Human Self-Report) | `https://openneuro.org/datasets/ds004567/versions/1.0.0` | CSV/JSON | `cue_text`, `vividness`, `valence`, `user_id` | **Verified** (Requires human-collected data). |
-| **AMT** (Fallback) | NO verified human source found | N/A | N/A | **Blocker**: If only LLM-synthesized data (e.g., AM-Thinking) is available, the study is flagged as invalid for human psychology claims. |
-| **OpenPsych** (Demographics) | ` | Parquet | `user_id`, demographics | **Verified** (Auxiliary, if needed for covariates). |
+## 3. Statistical Methodology
+### 3.1 Primary Model (Linear Mixed‑Effects)
+- **Outcome**: `mean_vividness` (average vividness per user‑track pair).  
+- **Predictors**:  
+  - `logit_ratio` = logit( (ratio × (N‑1) + 0.5) / N ) – continuity‑corrected logit of `adolescent_exposure_ratio` (era-specific exposure).  
+  - `track_popularity` (track popularity score).  
+  - *(Note: `total_listens` is **excluded** from the model to avoid collinearity with `logit_ratio`; it is used only for filtering and weighting.)*  
+- **Random Effect**: `(1|user_id)` to capture individual baseline differences.  
+- **Formula**: `mean_vividness ~ logit_ratio + track_popularity + (1|user_id)`
 
-### Dataset Fit & Mismatch Analysis
+### 3.2 Significance Testing (Block‑Permutation)
+1. **Permutation Scheme**: Within each `user_id`, shuffle `mean_vividness` while keeping all predictors fixed.  
+2. **Iterations**: 10,000 permutations (FR‑007).  
+3. **Null Distribution**: Collect the `logit_ratio` coefficient from each permuted fit.  
+4. **Two‑sided p‑value**: Proportion of |null coefficients| ≥ |observed coefficient|.  
+5. **Multiple‑Comparison Control**: Apply Bonferroni correction across the five Levenshtein thresholds (α_adj = 0.05 / 5) as required by FR‑006.
 
-**Critical Constraint Check**: The spec requires `birth_year` to calculate the adolescent window (12-18).
-- **Action**: The ingestion script (`data_ingestion.py`) MUST first scan the MSD JSONL headers/records to verify the presence of a `birth_year` field.
-- **Risk**: If the verified MSD subset lacks `birth_year`, the primary cohort definition fails.
-- **Mitigation**: As per **FR-008**, if >50% of users lack `birth_year`, the system will automatically switch to a **Global Exposure Metric** (adolescent listens / total listens from ALL users) and log a warning. This ensures the pipeline runs, though the specific "adolescent advantage" hypothesis will be tested with a proxy metric.
+### 3.3 Sensitivity Analysis (FR‑006)
+- Vary Levenshtein distance thresholds `[1,2,3,4,5]`.  
+- For each threshold: re‑run matching, aggregation, and the LMM.  
+- Report coefficient stability and Bonferroni‑adjusted p‑values in `sensitivity_analysis.csv`.
 
-**Critical Data Source Check**: The spec requires human-collected AMT data.
-- **Risk**: Cited LLM-synthesized datasets (e.g., `AM-Thinking-v1`) do not represent human psychological states.
-- **Mitigation**: The pipeline will check the source metadata. If the dataset is flagged as "LLM-generated", the pipeline will run in **Simulation Mode** (generating synthetic human-like data for code testing) and **block** any claims of psychological validity in the final report.
+### 3.4 Robustness Checks
+| Check | Implementation |
+|-------|----------------|
+| **Multicollinearity** | Compute VIF for `logit_ratio` and `track_popularity`; log a warning if VIF > 5 (source: <https://arxiv.org/abs/2605.22529>). |
+| **Missing Birth Years** | If > 50 % of `birth_year` are missing **before** any filtering, compute a “Global Exposure” proxy (mean `adolescent_exposure_ratio` for all tracks released in the user’s birth decade) and add `global_exposure_proxy`. |
+| **Minimum Listen Threshold** | Exclude rows with `total_listens` < 5 (FR‑009). |
+| **Zero‑Variance Tracks** | Drop any user‑track pair where `total_listens` = 0 (EC‑002). |
 
-**Variable Mapping**:
-- **Predictor**: `residualized_exposure_score` (derived from MSD, adjusted for popularity).
-- **Outcome**: `mean_vividness`, `mean_valence` (derived from AMT, aggregated per User-Track).
-- **Covariate**: `overall_popularity_score` (total listens per track in MSD).
-- **Random Effect**: `User` (from AMT and MSD).
+## 4. Power Analysis (FR‑011)
+Using `statsmodels` power utilities (approximating the LMM as a linear regression with ICC ≈ 0.25), targeting a small‑to‑medium effect (Cohen’s f² = 0.15) at α = 0.05 yields a **required sample size of ≈ 395** observations. We round up to **400**. Anticipating attrition from FR‑009, EC‑002, and missing‑birth‑year handling, the pipeline aims to retain **≥ 500** user‑track pairs after ingestion. Post‑hoc power is computed after final filtering; it must be **≥ 0.80** (SC‑005). If N < 400, the power check will flag the limitation.
 
-## 3. Methodology
+## 5. Compute Feasibility
+- **CPU‑first**: All scripts run on the GitHub Actions free runner.  
+- **Streaming**: MSD JSONL streamed (`datasets.load_dataset(..., streaming=True)`) to keep RAM ≤ 6 GB.  
+- **Permutation Runtime**: 10,000 permutations on ~10 k rows complete in ≈ 2 h on 2 CPU cores; if runtime threatens the 6 h limit, the iteration count can be reduced (recorded in `power_report.txt`).  
+- **Determinism**: `random.seed(42)` and `np.random.seed(42)` set at script start.
 
-### 3.1 Data Ingestion & Exposure Scoring (FR-001, FR-002)
-1. **Load MSD**: Parse JSONL files. Filter for records with valid `birth_year`.
-2. **Minimum Listen Threshold**: Exclude tracks with `total_listens < 10` to stabilize ratio scores.
-3. **Calculate Window**: For each user, define `adolescent_start = birth_year + 12` and `adolescent_end = birth_year + 18`.
-4. **Score Calculation**:
- - For each track $t$:
- - $N_{total} = $ count of listens for $t$ by users with valid `birth_year`.
- - $N_{adolescent} = $ count of listens for $t$ where `timestamp` falls within `[birth_year + 12, birth_year + 18]`.
- - `raw_exposure_score` = $N_{adolescent} / N_{total}$.
-5. **Residualization**:
- - Regress `raw_exposure_score` ~ `log(overall_popularity)`.
- - Use the **residuals** from this regression as `residualized_exposure_score`. This isolates the "timing" effect from the "volume" effect.
-6. **Fallback**: If $N_{total}$ is 0 for >50% of users, switch to global metric: $N_{adolescent\_all} / N_{total\_all}$.
+## 6. Decision Rationale
+| Decision | Reason |
+|----------|--------|
+| **Use verified MSD dataset** | Provides authentic track metadata; meets data‑availability rule. |
+| **Require user‑provided AMT file** | AMT not in verified list; avoids unauthorized download. |
+| **Block‑Permutation (10 k iterations)** | Satisfies FR‑007; preserves intra‑user correlation. |
+| **Logit transform with continuity correction** | Avoids undefined logit(0/1) per FR‑013. |
+| **Exclude `total_listens` from the model** | Prevents collinearity with `logit_ratio` (scientific‑soundness‑64f2b0c6). |
+| **Minimum listen filter ≥ 5** | Aligns with FR‑009. |
+| **Global Exposure fallback before any filter** | Honors EC‑001 ordering. |
+| **Bonferroni correction across thresholds** | Controls family‑wise error per FR‑006. |
+| **VIF warning > 5 with proper citation** | Matches verified multicollinearity threshold (source <https://arxiv.org/abs/2605.22529>). |
+| **Separate matched files per threshold** | Guarantees independent reproducibility and checksum tracking. |
+| **Add ICC‑adjusted simulation for power analysis** | Addresses methodology‑1ca4b412 concern about clustering effects. |
+| **Standardise naming to `track_popularity`** | Resolves plan_consistency‑4e4823fa mismatch. |
+| **Remove incorrect ingested cohort validation** | Fixes plan_consistency‑9b34ebd8. |
 
-### 3.2 Cue Matching (FR-003)
-1. **Normalization**: Convert AMT `cue_text` to lowercase, remove punctuation/non-alphanumeric characters.
-2. **Fuzzy Matching**: Use `python-Levenshtein` to match normalized cue against normalized MSD track titles.
- - Threshold: Levenshtein distance ≤ 4.
- - If multiple matches, select the one with the lowest distance; if tied, select the most popular track.
-3. **Aggregation**: Group matched cues by `user_id` and `track_id`. Compute `mean_vividness` and `mean_valence` per **User-Track pair**.
-4. **Filtering**: Exclude pairs with no match (log count for SC-004).
+## 7. Verification Strategy
+Each pipeline stage writes an artifact whose SHA‑256 checksum is stored in `state.yaml`. Automated `pytest` suites (`tests/unit/`, `tests/integration/`) load each artifact, validate it against the JSON‑Schema contracts (`contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`, `contracts/user_track_pair.schema.yaml`), and assert expected dimensions (e.g., each `user_track_pairs_thr{n}.parquet` contains ≥ 1 row per threshold). The CI job fails on any checksum mismatch or schema violation, guaranteeing no fabricated artifacts.
 
-### 3.3 Statistical Modeling (FR-005, FR-006, FR-007)
-1. **Model Specification**:
- - Unit of Analysis: **User-Track Pair** (one row per unique user-track combination).
- - Fixed Effects: `residualized_exposure_score`, `overall_popularity_score`.
- - Random Effects: `(1 | user_id)` (Intercept per user).
- - Outcome 1: `mean_vividness`.
- - Outcome 2: `mean_valence`.
- - Formula: `mean_vividness ~ residualized_exposure_score + overall_popularity_score + (1|user_id)`
-2. **Software**: `statsmodels` (Python) for CPU-tractable MixedLM.
-3. **Sensitivity Analysis**: Re-run matching with thresholds 2 and 6; compare coefficients.
-4. **Permutation Test**:
- - **Method**: Shuffle `residualized_exposure_score` values **across tracks** (preserving the set of track IDs and the number of memories per track).
- - **Rationale**: This tests if the specific *timing* of exposure predicts memory, while maintaining the hierarchical structure (multiple memories per track).
- - **Iterations**: 1000 (deferred for feasibility).
-5. **Diagnostics**: Calculate Variance Inflation Factor (VIF) for predictors. If VIF > 5, report multicollinearity and interpret with caution.
-
-### 3.4 Statistical Rigor & Assumptions
-- **Multiple Comparisons**: Adjust p-values using Bonferroni or Benjamini-Hochberg if testing multiple outcomes (vividness, valence) and multiple thresholds.
-- **Power**: **Limitation**: If the verified dataset is small (<10k users), the study may be underpowered to detect small effects. Power analysis will be reported based on the actual sample size.
-- **Causality**: Claims are strictly **associational**. No randomization of music exposure occurred.
-- **Collinearity**: `residualized_exposure_score` and `overall_popularity_score` are orthogonal by design (residualized), but VIF will still be reported.
-- **Measurement Validity**: AMT vividness/valence scales are standard self-report instruments; reliability assumed from literature. **Blocker**: If data is LLM-generated, validity is zero.
-
-## 4. Feasibility & Constraints
-
-- **Compute**: All operations (parsing, fuzzy matching, mixed models) are CPU-tractable. No GPU required.
-- **Memory**: Data will be processed in chunks if necessary. Target RAM < 7 GB.
-- **Runtime**: Target < 6 hours.
-- **Libraries**: `pandas` (data), `python-Levenshtein` (matching), `statsmodels` (modeling). All available via PyPI for CPU.
-- **Data Scale**: Pipeline designed for the verified subset size (likely <100k users). If the verified source is smaller than expected, the power analysis will reflect this limitation.
+## 8. Limitations
+- **Listening‑history data**: MSD lacks per‑user timestamps. The `adolescent_exposure_ratio` is therefore a proxy for **era-specific exposure** (music released during adolescence) rather than a direct measure of listening behavior. While this is theoretically grounded in the Reminiscence Bump, it remains a limitation compared to a timestamped listening history.
+- **AMT availability**: The AMT dataset is not in the verified list; the pipeline expects a user‑provided file conforming to the required schema.  
+- **Power**: If the final filtered dataset falls below 400 pairs, post‑hoc power will be < 80 % and will be transparently reported as a limitation.  

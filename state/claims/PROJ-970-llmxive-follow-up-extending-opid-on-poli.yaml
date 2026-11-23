@@ -1,0 +1,270 @@
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Tier 1 graphs contain 5 to 10 nodes in a linear chain
+  claim_id: c_3bee5acb
+  context: 'T011a [P] [US1] Implement generate_tier_1_nodes in src/environment/graph_generator.py:
+    Create a linear chain of 5 to 10 nodes (randomly selected within range) with no
+    branching.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a linear chain of 5 to 10 nodes (randomly selected within range)
+    with no branching.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:25:37Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Tier 2 graphs contain 20 to 50 nodes with branching structure
+  claim_id: c_c32034b3
+  context: 'T012a [P] [US1] Implement generate_tier_2_nodes in src/environment/graph_generator.py:
+    Create 20 to 50 nodes (randomly selected within range) with branching structure.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create 20 to 50 nodes (randomly selected within range) with branching
+    structure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:25:59Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Tier 3 graphs contain 100 nodes with sparse structure
+  claim_id: c_072acb07
+  context: 'T013a [P] [US1] Implement generate_tier_3_nodes in src/environment/graph_generator.py:
+    Create 100+ nodes (fixed 100 for determinism in testing, scalable in logic) with
+    sparse structure.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create 100+ nodes (fixed 100 for determinism in testing, scalable in logic)
+    with sparse structure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:26:28Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Tier 3 graphs have 1 reward per 10 nodes
+  claim_id: c_fdebdc47
+  context: 'T013b [P] [US1] Implement generate_tier_3_edges in src/environment/graph_generator.py:
+    Create edges with high-entropy transitions and sparse rewards (1 reward per ~10
+    nodes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create edges with high-entropy transitions and sparse rewards (1 reward
+    per ~10 nodes).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:26:53Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Graph generation raises RuntimeError after 100 validation failures
+  claim_id: c_c1a8a6ac
+  context: T011c [US1] Implement generate_tier_1 wrapper... MUST call T014 (Validator)
+    in a loop (max_retries=100) until a valid graph is produced. Raise RuntimeError
+    if validation fails 100 times.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise RuntimeError if validation fails 100 times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:27:18Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: OPIDRouter uses Bernoulli trial with probability 1 minus threshold
+  claim_id: c_80c4a43e
+  context: 'T018 [P] [US2] Implement critical-first routing logic in OPIDRouter.should_inject:
+    Perform a Bernoulli trial with p = 1 - threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a Bernoulli trial with p = 1 - threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:27:52Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Simulation runs 1000 episodes per setting
+  claim_id: c_b310c66d
+  context: 'T024 [US3] Implement episode loop in ExperimentRunner.run_sweep: Execute
+    a loop for _ in range(N) for each (Tier, Threshold) combination. MUST use N=1000
+    (enforced by T004b).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute a loop for _ in range(N) for each (Tier, Threshold) combination.
+    MUST use N=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:28:58Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Memory usage kept below 7GB via sequential processing
+  claim_id: c_d5f10962
+  context: 'T025 [US3] Implement sequential processing logic in src/simulation/runner.py:
+    Ensure episodes are processed one-by-one and intermediate trajectory data is discarded
+    immediately to keep memory < 7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_kept_below_7GB_via_sequential_processing
+  kind: entity_fact
+  raw_text: Ensure episodes are processed one-by-one and intermediate trajectory data
+    is discarded immediately to keep memory < 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:29:30Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Success rate regression uses quadratic (degree 2) polynomial fit
+  claim_id: c_c2b03aa4
+  context: 'T027b [US3] Implement run_success_rate_regression in src/analysis/stats.py:
+    Perform a quadratic regression of success rate vs threshold (NOT entropy). MUST
+    use numpy.polyfit with degree=2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a quadratic regression of success rate vs threshold... MUST use
+    numpy.polyfit with degree=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:29:47Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Regression results output with 6 decimal precision
+  claim_id: c_da4e8267
+  context: T027b [US3] Implement run_success_rate_regression... Output coefficients
+    (a, b, c) to data/processed/regression_results.json with keys a, b, c (floats,
+    6 decimal precision), p_value (float), and is_inverted_u (boolean).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output coefficients (a, b, c) to data/processed/regression_results.json
+    with keys a, b, c (floats, 6 decimal precision), p_value (float), and is_inverted_u
+    (boolean).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:31:51Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Regression hypothesis requires p-value less than 0.05 and coefficient
+    a less than 0
+  claim_id: c_2cfdfda1
+  context: 'T027b [US3] ...MUST assert that p_value < 0.05 AND a < 0. If not, raise
+    AssertionError: Hypothesis failed: No inverted U-curve detected.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_hypothesis_requires_p-value_less_than_0.05_and_co
+  kind: magnitude
+  raw_text: MUST assert that p_value < 0.05 AND a < 0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:32:37Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Two-Way ANOVA used for threshold and tier interaction
+  claim_id: c_649f2523
+  context: 'T028 [US3] [P] Implement run_interaction_anova in src/analysis/stats.py:
+    Perform a Two-Way ANOVA (or equivalent interaction test) to measure the interaction
+    between routing threshold and environment complexity (Tier) to satisfy SC-004.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Two-Way_ANOVA_used_for_threshold_and_tier_interaction
+  kind: entity_fact
+  raw_text: Perform a Two-Way ANOVA (or equivalent interaction test) to measure the
+    interaction between routing threshold and environment complexity (Tier).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:33:14Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Inflection point calculated using -b/a formula
+  claim_id: c_ebf909c0
+  context: 'T029 [US3] Implement inflection point detection: Derive the inflection
+    point mathematically from the quadratic regression coefficients (vertex formula:
+    -b/a) from data/processed/regression_results.json (T027b) and record it.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inflection_point_calculated_using_-b/a_formula
+  kind: entity_fact
+  raw_text: 'Derive the inflection point mathematically from the quadratic regression
+    coefficients (vertex formula: -b/a).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:34:24Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Feasibility check fails if estimated time exceeds 6 hours
+  claim_id: c_dc9bfef9
+  context: T004b [P] ...MUST raise RuntimeError if estimated time > 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST raise RuntimeError if estimated time > 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:34:25Z'
+- artifact_path: projects/PROJ-970-llmxive-follow-up-extending-opid-on-poli/specs/001-llmxive-follow-up-extending-opid-on-poli/tasks.md
+  attempts: 1
+  canonical: Runtime estimation uses 100 nodes, 200 steps, and 1000 episodes
+  claim_id: c_9c349283
+  context: 'T004b [P] ...Calculate estimated runtime using deterministic constants:
+    100 nodes (Tier 3 max), 200 steps/episode, and N=1000 episodes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate estimated runtime using deterministic constants: 100 nodes
+    (Tier 3 max), 200 steps/episode, and N=1000 episodes.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:34:54Z'

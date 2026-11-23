@@ -1,0 +1,38 @@
+{
+  "primary_method": "seroconversion",
+  "primary_threshold": 4.0,
+  "total_subjects": 100,
+  "primary_responders": 50,
+  "primary_response_rate": 0.5,
+  "sweep_range": {
+    "min_factor": -2,
+    "max_factor": 2
+  },
+  "sweep_details": {
+    "factor_-2": {
+      "threshold": 3.2,
+      "responders": 62,
+      "response_rate": 0.62
+    },
+    "factor_-1": {
+      "threshold": 3.6,
+      "responders": 56,
+      "response_rate": 0.56
+    },
+    "factor_0": {
+      "threshold": 4.0,
+      "responders": 50,
+      "response_rate": 0.5
+    },
+    "factor_1": {
+      "threshold": 4.4,
+      "responders": 44,
+      "response_rate": 0.44
+    },
+    "factor_2": {
+      "threshold": 4.8,
+      "responders": 38,
+      "response_rate": 0.38
+    }
+  }
+}

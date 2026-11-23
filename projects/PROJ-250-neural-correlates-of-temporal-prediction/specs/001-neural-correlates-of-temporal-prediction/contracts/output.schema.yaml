@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MMN Analysis Output Schema"
+description: "Schema for validating per‑subject MMN metric rows."
+type: object
+properties:
+  metric_id:
+    type: string
+    description: "Unique identifier for the metric entry."
+  condition_label:
+    type: string
+    enum:
+      - "simple"
+      - "complex"
+    description: "Condition for which the metric was calculated."
+  electrode:
+    type: string
+    description: "EEG channel name (e.g., 'Fz')."
+  amplitude_diff:
+    type: number
+    description: "Mean voltage difference (deviant - standard) in µV."
+  latency_diff:
+    type: number
+    description: "Peak latency difference in ms."
+  window_start:
+    type: number
+    description: "Start of analysis window in ms."
+  window_end:
+    type: number
+    description: "End of analysis window in ms."
+  snr_ratio:
+    type: number
+    description: "Signal‑to‑Noise Ratio (|amplitude| / SEM of pre‑stimulus baseline)."
+  signal_validity:
+    type: boolean
+    description: "True if SNR ≥ 3.0."
+  t_statistic:
+    type: ["number", "null"]
+    description: "T‑statistic from paired test (null if not applicable)."
+  p_value:
+    type: ["number", "null"]
+    description: "Raw p‑value (null if not applicable)."
+  p_value_fdr:
+    type: ["number", "null"]
+    description: "FDR‑corrected p‑value (null if not applicable)."
+  cohen_d:
+    type: ["number", "null"]
+    description: "Effect size (Cohen's d)."
+  benchmark_reference:
+    type: string
+    description: "Path to benchmark JSON (e.g., 'data/benchmarks/mmn_effect_sizes.json')."
+  practical_significance:
+    type: boolean
+    description: "True if Cohen's d ≥ 0.5."
+  topographic_correlation:
+    type: ["number", "null"]
+    description: "Pearson r vs. canonical template (null if template missing)."
+  validation_type:
+    type: string
+    enum:
+      - "consistency_simple"
+      - "validity_complex"
+    description: "Indicates whether this row is a consistency or validity check."
+  significant:
+    type: boolean
+    description: "True if FDR‑corrected p‑value < 0.05."
+required:
+  - metric_id
+  - condition_label
+  - electrode
+  - amplitude_diff
+  - snr_ratio
+  - signal_validity
+  - p_value_fdr
+  - significant
+  - benchmark_reference
+  - practical_significance
+  - validation_type
+additionalProperties: false

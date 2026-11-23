@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "neural-oscillations-tDCS-biomarker"
 version = "0.1.0"
-description = "Automated science pipeline for neural oscillations as a biomarker for predicting response to tDCS"
+description = "Neural Oscillations as a Biomarker for Predicting Response to Transcranial Direct Current Stimulation"
 requires-python = ">=3.11"
 dependencies = [
     "mne==1.7.0",
@@ -18,41 +18,10 @@ dependencies = [
     "pytest==7.4.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-
-[tool.ruff]
-# Target Python version
-target-version = "py311"
-
-# Exclude directories
-exclude = [
-    "data/",
-    "models/",
-    "state/",
-    ".git",
-    "__pycache__",
-    "*.pyc",
-    ".eggs",
-    "*.egg-info",
-]
-
-# Line length
-line-length = 88
-
-[tool.ruff.lint]
-# Select rules
-select = ["E", "W", "F", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = []
-
 [tool.black]
-# Target Python version
-target-version = ["py311"]
-
-# Line length
 line-length = 88
-
-# Exclude directories
+target-version = ["py311"]
+include = '\.pyi?$'
 exclude = '''
 /(
     \.git
@@ -70,5 +39,41 @@ exclude = '''
 )/
 '''
 
-# Include patterns (optional, defaults to *.py)
-include = "\\.pyi?$"
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+exclude = [
+    "data/",
+    "models/",
+    "state/",
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

@@ -50,5 +50,15 @@
     "main.bib",
     "openmoss.cls",
     "paper.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "7df207aaff6d40209668ed942d0be165e2da1554eacae88e5b0257fbe16d283e",
+      "bytes": 15720579
+    },
+    "original.pdf": {
+      "sha256": "30c0bcc82ae190b24e98e6700b2ce35e18ad6e1d4d02c03ec5df5f2bf8f76028",
+      "bytes": 15688667
+    }
+  }
 }

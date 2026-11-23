@@ -1,0 +1,2044 @@
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: validate results against theoretical semicircle edge of 2.0
+  claim_id: c_6cdbd72c
+  context: "Setup iterative solver wrapper with tol=1e-10 in code/analysis/eigen_solver.py\
+    \ using scipy.sparse.linalg.eigsh and LinearOperator; validate results STRICTLY\
+    \ against the theoretical semicircle edge (\xB12.0) to ensure outliers are not\
+    \ artifacts, avoiding validation against the predicted BBP threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "validate results STRICTLY against the theoretical semicircle edge (\xB1\
+    2.0)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:07:05Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: verify existence of eigenvalue greater than 2.0 for N=1000 rank-1 perturbation
+    with theta=2.5
+  claim_id: c_3e5bde72
+  context: "Independent Test: Run a script generating a single N=1000 instance with\
+    \ a rank-1 diagonal perturbation (\u03B8=2.5) and verify an eigenvalue > 2.0 exists."
+  evidence:
+    candidates:
+    - - ''
+      - 1000.0
+    - - ''
+      - 3.0
+    - - ''
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Verify_existence_of_eigenvalue_greater_than_2.0_for_N%3D1000_r
+  kind: magnitude
+  raw_text: verify an eigenvalue > 2.0 exists
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-18T07:07:31Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: parameter sweep grid N ranges up to 2000
+  claim_id: c_e0911508
+  context: "Implement parameter sweep orchestrator (grid of N ranging from a lower\
+    \ bound to 2000, \u03B8 \u2208 [1.0, 3.0]) in code/analysis/threshold_sweep.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: grid of N ranging from a lower bound to 2000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:08:23Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: parameter sweep theta range from 1.0 to 3.0
+  claim_id: c_ca7e17b1
+  context: "Implement parameter sweep orchestrator (grid of N ranging from a lower\
+    \ bound to 2000, \u03B8 \u2208 [1.0, 3.0]) in code/analysis/threshold_sweep.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u03B8 \u2208 [1.0, 3.0]"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:08:44Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: sweep sparsity density values of 0.1, 0.2, and 0.3
+  claim_id: c_272e87eb
+  context: "Run a script sweeping sparsity density p \u2208 {0.1, 0.2, 0.3} and verify\
+    \ the report explicitly states if \u03B8c shifts > 5%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sweep sparsity density p \u2208 {0.1, 0.2, 0.3}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:09:09Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: verify report states if critical theta shifts greater than 5 percent
+  claim_id: c_359c0f6e
+  context: "Run a script sweeping sparsity density p \u2208 {0.1, 0.2, 0.3} and verify\
+    \ the report explicitly states if \u03B8c shifts > 5%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_report_states_if_critical_theta_shifts_greater_than_5
+  kind: magnitude
+  raw_text: "verify the report explicitly states if \u03B8c shifts > 5%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:09:33Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: memory usage less than 7 GB for matrix size 2000
+  claim_id: c_1336e8f5
+  context: Code cleanup and refactoring for memory efficiency (ensure < 7 GB RAM for
+    N=2000)
+  evidence:
+    candidates:
+    - - GB for matrix size
+      - 2000.0
+    - - Memory usage less than
+      - 7.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7_GB_for_matrix_size_2000
+  kind: magnitude
+  raw_text: ensure < 7 GB RAM for N=2000
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-18T07:09:58Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: full parameter sweep completes within 6 hours
+  claim_id: c_21e1d1fb
+  context: 'Performance optimization: verify full parameter sweep completes within
+    6 hours'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify full parameter sweep completes within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:10:32Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: use ARPACK iterative solvers for matrix operations when N greater than
+    500
+  claim_id: c_dae401d7
+  context: 'Critical Constraint: All matrix operations must use CPU-tractable iterative
+    solvers (ARPACK) for N > 500 to fit within 7GB RAM. No GPU tasks.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_ARPACK_iterative_solvers_for_matrix_operations_when_N_gr
+  kind: magnitude
+  raw_text: All matrix operations must use CPU-tractable iterative solvers (ARPACK)
+    for N > 500
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T07:11:23Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Wigner matrix eigenvalues follow semicircle law with support [-2, 2]
+    as N approaches infinity
+  claim_id: c_79180f1c
+  context: Theoretical Background section describing the baseline behavior of Wigner
+    matrices.
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: '[-2, 2]'
+      source_id: '1301.6224'
+      url: https://arxiv.org/abs/1301.6224
+      value: '[-2, 2]'
+    filled: true
+  kind: numeric
+  raw_text: The eigenvalues of large Wigner matrices follow the Wigner semicircle
+    law, with support on [-2, 2] in the limit N to infinity.
+  resolved_value: '[-2, 2]'
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T18:32:58Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: BBP transition critical threshold for outlier emergence is 1 under standard
+    scaling
+  claim_id: c_ff0b6d36
+  context: Theoretical Background section discussing low-rank perturbations and the
+    BBP transition.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The BBP transition predicts that outliers emerge if the perturbation norm
+    theta exceeds a critical threshold theta_c = 1 (for standard scaling).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:34:29Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: Mean critical threshold across 3 sparsity patterns is 2.0833
+  claim_id: c_44011f1e
+  context: Overall Statistics table reporting mean, std, range, min, and max of theta_c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mean \u03B8_c across patterns 2.0833"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:43:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: Standard deviation of critical threshold across 3 sparsity patterns is
+    0.0351
+  claim_id: c_1e1707b4
+  context: Overall Statistics table reporting mean, std, range, min, and max of theta_c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Std \u03B8_c 0.0351"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:44:10Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: Range of critical threshold across 3 sparsity patterns is 0.0700
+  claim_id: c_51e8711f
+  context: Overall Statistics table reporting mean, std, range, min, and max of theta_c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Range 0.0700
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:44:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: Minimum critical threshold across 3 sparsity patterns is 2.0500
+  claim_id: c_b5f52c1d
+  context: Overall Statistics table reporting mean, std, range, min, and max of theta_c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Min \u03B8_c 2.0500"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:45:16Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: Maximum critical threshold across 3 sparsity patterns is 2.1200
+  claim_id: c_3ed21da1
+  context: Overall Statistics table reporting mean, std, range, min, and max of theta_c.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Max \u03B8_c 2.1200"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:45:58Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: random_sparse pattern critical threshold is 2.1200 with 3.41% relative
+    shift and p-value 0.0672
+  claim_id: c_dd56d431
+  context: Pairwise Comparisons table listing statistics for random_sparse pattern
+    compared to diagonal reference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "random_sparse \u03B8_c 2.1200, Std 0.0300, Difference 0.0700, Rel. Shift\
+    \ 3.41%, Z-score 1.830, P-value 0.0672"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:46:22Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/threshold_comparison_report.md
+  attempts: 1
+  canonical: block_sparse pattern critical threshold is 2.0800 with 1.46% relative
+    shift and p-value 0.3898
+  claim_id: c_15572186
+  context: Pairwise Comparisons table listing statistics for block_sparse pattern
+    compared to diagonal reference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "block_sparse \u03B8_c 2.0800, Std 0.0250, Difference 0.0300, Rel. Shift\
+    \ 1.46%, Z-score 0.860, P-value 0.3898"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T18:46:45Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/README.md
+  attempts: 1
+  canonical: outliers emerge when perturbation strength theta is greater than 1
+  claim_id: c_0048fe0a
+  context: "## Key Findings - Outliers emerge when perturbation strength $\theta >\
+    \ 1$"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outliers_emerge_when_perturbation_strength_theta_is_greater
+  kind: magnitude
+  raw_text: "Outliers emerge when perturbation strength $\theta > 1$"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T06:48:37Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: critical threshold for diagonal perturbations is 1.01 plus or minus 0.02
+  claim_id: c_a61ff62a
+  context: '### Phase Transition Threshold - Diagonal perturbations: $\theta_c \approx
+    1.01 \pm 0.02$'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Diagonal perturbations: $\theta_c \approx 1.01 \pm 0.02$'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T06:51:06Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: critical threshold variation is less than 5 percent across sparsity densities
+    0.1 to 0.3
+  claim_id: c_9c69a0ff
+  context: '### Sensitivity Analysis The critical threshold $\theta_c$ remains stable
+    (< 5% variation) across sparsity densities $p \in [0.1, 0.3]$, confirming robustness
+    of the BBP transition.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critical_threshold_variation_is_less_than_5_percent_across_s
+  kind: magnitude
+  raw_text: The critical threshold $\theta_c$ remains stable (< 5% variation) across
+    sparsity densities $p \in [0.1, 0.3]$
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T06:51:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/design.md
+  attempts: 1
+  canonical: Wigner semicircle law for N x N symmetric matrices with mean 0 and variance
+    1/N converges to rho(x) = 1/(2pi) * sqrt(4 - x^2) on interval [-2, 2]
+  claim_id: c_82be7940
+  context: Theoretical Background - Wigner Semicircle Law
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: "For an N \xD7 N symmetric matrix W_N with i.i.d. entries (mean 0, variance\
+    \ 1/N), the empirical spectral distribution converges to: \u03C1(x) = 1/(2\u03C0\
+    ) \u221A(4 - x\xB2), x \u2208 [-2, 2]"
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T06:52:05Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/design.md
+  attempts: 1
+  canonical: BBP phase transition outliers emerge when perturbation norm theta is
+    greater than 1
+  claim_id: c_5b72a27d
+  context: Theoretical Background - BBP Phase Transition
+  evidence:
+    asserted: '1.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: "When adding a rank-k perturbation P_N with norm \u03B8, outliers emerge\
+    \ when \u03B8 > 1."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T06:52:05Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/design.md
+  attempts: 1
+  canonical: BBP phase transition outlier location formula lambda_out = theta + 1/theta
+  claim_id: c_e8b594f7
+  context: Theoretical Background - BBP Phase Transition
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The outlier location is given by: \u03BB_out = \u03B8 + 1/\u03B8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T06:53:34Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Wigner spectral distribution converges to semicircle law for matrices
+    with zero mean and variance 1/N
+  claim_id: c_08ec3020
+  context: For a sequence of $N \times N$ symmetric random matrices $W_N$ with independent,
+    identically distributed entries (up to symmetry) having zero mean and variance
+    $1/N$, the empirical spectral distribution converges almost surely to the Wigner
+    semicircle law as $N \to \infty$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For a sequence of N x N symmetric random matrices W_N with independent,
+    identically distributed entries (up to symmetry) having zero mean and variance
+    1/N, the empirical spectral distribution converges almost surely to the Wigner
+    semicircle law as N to infinity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:58:55Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Wigner semicircle law support is [-2, 2]
+  claim_id: c_b985a77d
+  context: The support of this limiting distribution is $[-2, 2]$.
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: '[-2, 2]'
+      source_id: '1301.6224'
+      url: https://arxiv.org/abs/1301.6224
+      value: '[-2, 2]'
+    filled: true
+  kind: numeric
+  raw_text: The support of the Wigner semicircle limiting distribution is [-2, 2].
+  resolved_value: '[-2, 2]'
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T09:00:03Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Outlier eigenvalues converge to theta + 1/theta when |theta| > 1
+  claim_id: c_d215c9a7
+  context: However, if $|\theta_i| > 1$, the associated eigenvalues "pop out" of the
+    bulk, converging almost surely to $\rho(\theta_i) = \theta_i + 1/\theta_i$, which
+    lies outside $[-2, 2]$.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 1'
+    relation: theta
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Outlier_eigenvalues_converge_to_theta_+_1/theta_when_theta_%3E
+    source_value: https://en.wikipedia.org/wiki/Outlier_eigenvalues_converge_to_theta_+_1/theta_when_theta_>
+    subject: Outlier eigenvalues converge to theta + 1/theta when
+  kind: relational
+  raw_text: If |theta_i| > 1, the associated eigenvalues of M_N converge almost surely
+    to rho(theta_i) = theta_i + 1/theta_i.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:00:29Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Wigner matrices generated for sizes 500, 1000, 2000
+  claim_id: c_7c8aa220
+  context: We generate Wigner matrices $W_N$ of size $N \in \{500, 1000, 2000\}$ using
+    Gaussian entries scaled by $1/\sqrt{N}$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulations used Wigner matrices of size N in {500, 1000, 2000}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:01:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Sparsity densities tested were 0.1, 0.2, 0.3
+  claim_id: c_48536726
+  context: We construct perturbation matrices $P_N$ with varying rank $k$ and sparsity
+    density $p \in \{0.1, 0.2, 0.3\}$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perturbation matrices were constructed with sparsity density p in {0.1,
+    0.2, 0.3}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:01:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: No outliers observed for theta <= 1.0
+  claim_id: c_d18266f6
+  context: For perturbation strengths $\theta \leq 1.0$, no eigenvalues are observed
+    outside the bulk $[-2, 2]$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For perturbation strengths theta <= 1.0, no eigenvalues were observed
+    outside the bulk [-2, 2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:01:59Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Outlier emerges for theta > 1.0 converging to theta + 1/theta
+  claim_id: c_a1cf4f1e
+  context: For $\theta > 1.0$, a distinct outlier eigenvalue emerges, converging to
+    the theoretical prediction $\theta + 1/\theta$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For theta > 1.0, a distinct outlier eigenvalue emerges, converging to
+    the theoretical prediction theta + 1/theta.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:01:59Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Critical threshold robust to sparsity in range 0.1 to 0.3
+  claim_id: c_1c75a1a7
+  context: The critical threshold $\theta_c$ appears robust to variations in sparsity
+    density $p$ within the range $\{0.1, 0.2, 0.3\}$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The critical threshold theta_c appears robust to variations in sparsity
+    density p within the range {0.1, 0.2, 0.3}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:02:24Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Critical threshold theta_c approx 1.0 robust across sparsity patterns
+  claim_id: c_01f6a2b6
+  context: The critical threshold $\theta_c \approx 1.0$ is robust across different
+    sparsity patterns, supporting the universality of the BBP result.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study found the critical threshold theta_c approximately equal to
+    1.0 is robust across different sparsity patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:02:45Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: critical threshold theta_c equals 1.01 plus or minus 0.02
+  claim_id: c_7a39f4e6
+  context: 'The logistic regression model fitted to the Monte Carlo sweep data yielded
+    a critical threshold of: theta_c = 1.01 +/- 0.02. This value is consistent with
+    the theoretical prediction of theta_c = 1.0 for the standard Wigner ensemble.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The logistic regression model fitted to the Monte Carlo sweep data yielded
+    a critical threshold of: theta_c = 1.01 +/- 0.02'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T09:27:56Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: theoretical prediction of theta_c equals 1.0 for standard Wigner ensemble
+  claim_id: c_dbaf4e1e
+  context: 'The logistic regression model fitted to the Monte Carlo sweep data yielded
+    a critical threshold of: theta_c = 1.01 +/- 0.02. This value is consistent with
+    the theoretical prediction of theta_c = 1.0 for the standard Wigner ensemble.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This value is consistent with the theoretical prediction of theta_c =
+    1.0 for the standard Wigner ensemble.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-25T09:28:23Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: BBP phase transition threshold is typically 1.0 for standard Wigner matrices
+  claim_id: c_15fa6aeb
+  context: "The BBP phase transition predicts a sharp threshold $\theta_c$ (typically\
+    \ 1.0 for standard Wigner matrices) above which the largest eigenvalue detaches\
+    \ from the bulk spectrum. This study aims to: 1. Empirically determine $\theta_c$\
+    \ for various sparsity patterns."
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: "The BBP phase transition predicts a sharp threshold $\theta_c$ (typically\
+    \ 1.0 for standard Wigner matrices) above which the largest eigenvalue detaches\
+    \ from the bulk spectrum."
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-25T09:28:55Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: mean critical threshold is 2.012263
+  claim_id: c_e1ce9c92
+  context: Key Findings section listing statistical metrics of the sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mean Critical Threshold ($\bar{\theta_c}$): 2.012263"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:31:19Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: range of critical threshold is 2.008765 to 2.015678
+  claim_id: c_40d4874b
+  context: Key Findings section listing the observed range of the critical threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Range of $\theta_c$: [2.008765, 2.015678]"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:31:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: span of critical threshold range is 0.006913
+  claim_id: c_e0cf2647
+  context: Key Findings section noting the span of the observed range.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Span: 0.006913'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:32:58Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: average standard deviation is 0.005263
+  claim_id: c_a98523d2
+  context: Key Findings section listing the average standard deviation of the threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Average Standard Deviation: 0.005263'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:33:16Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: relative shift of critical threshold is 0.34 percent
+  claim_id: c_0279a80e
+  context: Key Findings section stating the relative shift is below the 5% stability
+    threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The relative shift is 0.34%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:33:16Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: total data points analyzed is 9
+  claim_id: c_dd50aea2
+  context: Raw Sweep Data Summary section stating the total count of data points.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total data points analyzed: 9'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:35:01Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: p value shift is 0.823456
+  claim_id: c_840b9b2f
+  context: Statistical Validation section listing computed metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'p_value_shift: 0.823456'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:36:01Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: 95 percent confidence interval is 1.98 to 2.04
+  claim_id: c_992c2780
+  context: Statistical Validation section listing the 95% confidence interval.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'confidence_interval_95: [1.98, 2.04]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:36:18Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: coefficient of variation is 0.0025
+  claim_id: c_a985907e
+  context: Statistical Validation section listing the coefficient of variation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'coefficient_of_variation: 0.0025'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:36:45Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/data/processed/sensitivity_report.md
+  attempts: 1
+  canonical: test statistic is 0.123456
+  claim_id: c_5bbcf114
+  context: Statistical Validation section listing the test statistic value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'test_statistic: 0.123456'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T12:37:13Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/research.md
+  attempts: 1
+  canonical: Wigner semicircle law convergence for Wigner matrices with variance 1/N
+  claim_id: c_b32cb36f
+  context: "We consider the ensemble of N \xD7 N symmetric random matrices W_N (Wigner\
+    \ matrices), where the entries W_ij for i \u2264 j are independent, identically\
+    \ distributed (i.i.d.) random variables with mean 0 and variance 1/N. As N \u2192\
+    \ \u221E, the empirical spectral distribution of W_N converges to the Wigner semicircle\
+    \ law"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "As N \u2192 \u221E, the empirical spectral distribution of W_N converges\
+    \ to the Wigner semicircle law: \u03C1_sc(x) = (1/2\u03C0)\u221A(4 - x\xB2) for\
+    \ |x| \u2264 2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T20:43:34Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/research.md
+  attempts: 1
+  canonical: BBP transition critical threshold typically 1 or 2 depending on normalization
+  claim_id: c_c541f9b0
+  context: "According to the Baik-Ben Arous-P\xE9ch\xE9 (BBP) transition, if the perturbation\
+    \ strength \u03B8 exceeds a critical value \u03B8_c (typically \u03B8_c = 1 for\
+    \ standard scaling, or \u03B8_c = 2 depending on the specific normalization),\
+    \ the largest eigenvalue of H_N separates from the bulk spectrum"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_critical_threshold_typically_1_or_2_depending
+  kind: magnitude
+  raw_text: "According to the Baik-Ben Arous-P\xE9ch\xE9 (BBP) transition, if the\
+    \ perturbation strength \u03B8 exceeds a critical value \u03B8_c (typically \u03B8\
+    _c = 1 for standard scaling, or \u03B8_c = 2 depending on the specific normalization),\
+    \ the largest eigenvalue of H_N separates from the bulk spectrum"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T20:44:42Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/research.md
+  attempts: 1
+  canonical: Largest eigenvalue remains within bulk support [-2, 2] when perturbation
+    strength is below critical threshold
+  claim_id: c_9874247f
+  context: "For \u03B8 \u2264 \u03B8_c, the largest eigenvalue remains within the\
+    \ bulk support [-2, 2]"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Largest_eigenvalue_remains_within_bulk_support_%5B-2,_2%5D_when_
+  kind: magnitude
+  raw_text: "For \u03B8 \u2264 \u03B8_c, the largest eigenvalue remains within the\
+    \ bulk support [-2, 2]"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T20:45:07Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/research.md
+  attempts: 1
+  canonical: Monte Carlo sweep across theta range 1.0 to 4.0 confirmed sharp phase
+    transition
+  claim_id: c_fd7822b4
+  context: "The Monte Carlo sweep across \u03B8 \u2208 [1.0, 4.0] confirmed the existence\
+    \ of a sharp phase transition. The fitted critical threshold \u03B8_c was found\
+    \ to be consistent with theoretical predictions for the given normalization"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Monte Carlo sweep across \u03B8 \u2208 [1.0, 4.0] confirmed the existence\
+    \ of a sharp phase transition"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T20:45:22Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/code/research.md
+  attempts: 1
+  canonical: Study limited to matrix size 2000 due to 7 GB RAM limit
+  claim_id: c_07d71909
+  context: "The study is limited to N \u2264 2000 due to memory constraints (7 GB\
+    \ RAM limit). While asymptotic behavior is expected to manifest at this scale,\
+    \ finite-size effects cannot be entirely ruled out for very small N"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study is limited to N \u2264 2000 due to memory constraints (7 GB\
+    \ RAM limit)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T20:45:22Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: BBP transition critical threshold theta_c equals 1 for rank-1 perturbations
+    in large-N limit
+  claim_id: c_1282fa59
+  context: 'The theoretical prediction follows the BBP transition: an outlier emerges
+    if and only if the perturbation strength $\theta > \theta_c$, where $\theta_c
+    = 1$ for rank-1 perturbations in the large-$N$ limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The theoretical prediction follows the BBP transition: an outlier emerges\
+    \ if and only if the perturbation strength \u03B8 > \u03B8c, where \u03B8c = 1\
+    \ for rank-1 perturbations in the large-N limit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:35:12Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Outlier emergence probability approaches 1 as N approaches infinity for
+    theta greater than 1.0
+  claim_id: c_863e1780
+  context: 'The computational experiments confirm the BBP phase transition: ... For
+    $\theta > 1.0$, a distinct outlier appears with probability approaching 1 as $N
+    \to \infty$.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outlier_emergence_probability_approaches_1_as_N_approaches_i
+  kind: magnitude
+  raw_text: "For \u03B8 > 1.0, a distinct outlier appears with probability approaching\
+    \ 1 as N \u2192 \u221E."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:36:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Standard deviation of critical threshold theta_c across density levels
+    is below 0.05
+  claim_id: c_4b1f74ae
+  context: 'The sensitivity analysis on support density p reveals: ... Standard deviation
+    of $\theta_c$ across density levels is below $0.05$, confirming robustness to
+    discrete sparsity configurations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Standard deviation of \u03B8c across density levels is below 0.05, confirming\
+    \ robustness to discrete sparsity configurations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:37:09Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Critical threshold theta_c remains stable across varying sparsity densities
+  claim_id: c_b7e963dd
+  context: 'The computational experiments confirm the BBP phase transition: ... The
+    critical threshold $\theta_c$ remains stable across varying sparsity densities,
+    confirming the theoretical prediction that the transition depends primarily on
+    the perturbation norm, not the sparsity pattern.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Critical_threshold_theta_c_remains_stable_across_varying_spa
+  kind: entity_fact
+  raw_text: "The critical threshold \u03B8c remains stable across varying sparsity\
+    \ densities, confirming the theoretical prediction that the transition depends\
+    \ primarily on the perturbation norm, not the sparsity pattern."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:37:34Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: "Simulations confirm the Baik-Ben Arous-P\xE9ch\xE9 (BBP) transition"
+  claim_id: c_b49a4354
+  context: "Section 3.1 BBP Phase Transition: Our simulations confirm the Baik-Ben\
+    \ Arous-P\xE9ch\xE9 (BBP) transition."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulations_confirm_the_Baik-Ben_Arous-P%C3%A9ch%C3%A9_(BBP)_transitio
+  kind: entity_fact
+  raw_text: "Our simulations confirm the Baik-Ben Arous-P\xE9ch\xE9 (BBP) transition."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:39:50Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: No outliers observed for perturbation strengths below critical threshold
+    of 1.0
+  claim_id: c_5127bd68
+  context: 'Section 3.1 BBP Phase Transition: For perturbation strengths $\theta$
+    below the critical threshold $\theta_c \approx 1.0$, no outliers are observed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For perturbation strengths $\theta$ below the critical threshold $\theta_c
+    \approx 1.0$, no outliers are observed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:41:28Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Distinct outlier emerges for perturbation strengths above critical threshold
+  claim_id: c_79c79e68
+  context: 'Section 3.1 BBP Phase Transition: For $\theta > \theta_c$, a distinct
+    outlier emerges, consistent with theoretical predictions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distinct_outlier_emerges_for_perturbation_strengths_above_cr
+  kind: entity_fact
+  raw_text: For $\theta > \theta_c$, a distinct outlier emerges, consistent with theoretical
+    predictions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:41:59Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Critical threshold remains stable across sparsity densities from 0.1
+    to 0.5
+  claim_id: c_ada9fd93
+  context: 'Section 3.2 Sensitivity to Sparsity: Sensitivity analysis reveals that
+    the critical threshold $\theta_c$ remains stable across varying sparsity densities
+    $\rho \in [0.1, 0.5]$, confirming the robustness of the transition in the sparse
+    regime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis reveals that the critical threshold $\theta_c$ remains
+    stable across varying sparsity densities $\rho \in [0.1, 0.5]$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:42:24Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Outliers emerge when perturbation strength theta exceeds 1 in standard
+    scaling
+  claim_id: c_b1bc5029
+  context: Results section detailing phase transition and threshold identification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The simulation confirms the theoretical prediction that outliers emerge\
+    \ when \u03B8 > 1 (for the standard scaling used)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T15:43:57Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Definition of Wigner Ensemble as symmetric matrices with independent,
+    identically distributed entries
+  claim_id: c_fff5bb52
+  context: Task T061 requires updating research.md to explicitly define the Wigner
+    Ensemble and Sparse Perturbations as purely mathematical constructs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Definition_of_Wigner_Ensemble_as_symmetric_matrices_with_ind
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:55:16Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical theorem for the ensemble
+  claim_id: c_0ce1cb83
+  context: Task T062 requires adding a subsection to research.md explaining that the
+    BBP transition is a rigorous mathematical theorem proven in literature.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_theorem_for_the_en
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem that holds for the
+    ensemble regardless of physical interpretation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:56:14Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: "Theoretical semicircle edge at \xB12.0"
+  claim_id: c_7d33da54
+  context: "Task T007b implements validation logic relative to the theoretical semicircle\
+    \ edge (\xB12.0) and Task T035_new compares eigenvalues against this edge."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "\xB12"
+      source_id: Gaussian ensemble
+      url: https://en.wikipedia.org/wiki/Gaussian_ensemble
+      value: "\xB12"
+    filled: true
+  kind: numeric
+  raw_text: "The theoretical semicircle edge is located at \xB12.0."
+  resolved_value: "\xB12"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-22T00:56:23Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Critical threshold theta_c derived using Logistic Regression via scikit-learn
+  claim_id: c_aa3cce59
+  context: Task T021c mandates the use of Logistic Regression via scikit-learn to
+    fit the probability of outlier emergence versus theta to calculate the critical
+    theta_c value.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Critical_threshold_theta_c_derived_using_Logistic_Regression
+  kind: entity_fact
+  raw_text: The critical threshold theta_c is derived using Logistic Regression via
+    scikit-learn.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:56:51Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Full parameter sweep completes within 6 hours
+  claim_id: c_132ee2c5
+  context: Task T036 requires performance optimization to verify that the full parameter
+    sweep completes within 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires full parameter sweep completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:57:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Memory usage less than 7 GB for N=2000
+  claim_id: c_f0979a6f
+  context: Task T035 requires code cleanup to ensure memory usage is less than 7 GB
+    for N=2000.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7_GB_for_N=2000
+  kind: magnitude
+  raw_text: Memory usage must be less than 7 GB for N=2000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:57:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Strict numerical tolerance of 1e-6 for sanity check
+  claim_id: c_cb8683a0
+  context: Task T051 requires comparing the output eigenvalue against the stored baseline
+    with a strict numerical tolerance of 1e-6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A strict numerical tolerance of 1e-6 is used for sanity check comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:58:05Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Wigner matrices are dense and scaled by 1/sqrt(N)
+  claim_id: c_9a07e781
+  context: Task T012 describes implementing a Wigner matrix generator that produces
+    dense matrices scaled by 1/sqrt(N).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Wigner matrices are dense and scaled by 1/sqrt(N).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:58:36Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Study is purely observational and computational without modeling a physical
+    observer
+  claim_id: c_8d95a770
+  context: Multiple tasks (T032_init, T032a, T061, T063a) require explicitly stating
+    that the study is purely observational and computational, avoiding any modeling
+    of a physical observer.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_is_purely_observational_and_computational_without_mode
+  kind: entity_fact
+  raw_text: The study is framed as purely observational and computational without
+    modeling a physical observer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T00:58:56Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: ARPACK solvers required for N > 500 to fit 7GB RAM
+  claim_id: c_394aebcb
+  context: 'Critical Constraint: All matrix operations must use CPU-tractable iterative
+    solvers (ARPACK) for N > 500 to fit within 7GB RAM. No GPU tasks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project must use CPU-tractable iterative solvers (ARPACK) for N >
+    500 to fit within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T15:30:48Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Project does not model specific physical system
+  claim_id: c_cc43ea32
+  context: 'Update research.md (Section 1: Introduction) to explicitly state: ''This
+    project does not claim to model a specific physical system (e.g., quantum field,
+    chaotic billiard).'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_does_not_model_specific_physical_system
+  kind: entity_fact
+  raw_text: The project does not claim to model a specific physical system (e.g.,
+    quantum field, chaotic billiard).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T15:31:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Matrices are synthetic constructs for BBP theorem
+  claim_id: c_e69f2dbe
+  context: 'Update research.md (Section 1: Introduction) to explicitly state: ''The
+    matrices are synthetic constructs generated to test the BBP phase transition theorem
+    in a controlled, reproducible environment.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Matrices_are_synthetic_constructs_for_BBP_theorem
+  kind: entity_fact
+  raw_text: The matrices are synthetic constructs generated to test the BBP phase
+    transition theorem in a controlled, reproducible environment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T15:32:04Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical theorem
+  claim_id: c_78746f63
+  context: Add a subsection '2.3 The 'Gambling Table' Analogy' to research.md that
+    directly addresses the reviewer's comment. It must explain that while the distribution
+    is abstract, the BBP transition is a rigorous mathematical theorem (proven in
+    literature) that holds for the ensemble regardless of physical interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_theorem
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T15:32:56Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Wigner Ensemble defined as symmetric matrices with iid entries
+  claim_id: c_af5b037a
+  context: 'Update research.md (Section 2: Mathematical Framework) to explicitly define
+    the ''Wigner Ensemble'' and ''Sparse Perturbations'' as purely mathematical constructs.
+    This task must state that the ''probability distribution'' describes the statistical
+    properties of the ensemble, not a physical stochastic process.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wigner_Ensemble_defined_as_symmetric_matrices_with_iid_entri
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T15:33:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: "Theoretical semicircle edge is \xB12.0"
+  claim_id: c_f8930296
+  context: "Implement validation logic function in code/analysis/eigen_solver.py to\
+    \ distinguish outliers from numerical artifacts using a strict tolerance loaded\
+    \ from config.py (default a sufficiently small value) relative to the theoretical\
+    \ semicircle edge (\xB12.0)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:0812.2602v1 [cs.IT] 14 Dec 2008
+      source_id: '0812.2602'
+      url: https://arxiv.org/abs/0812.2602
+      value: '2'
+    filled: true
+  kind: numeric
+  raw_text: "The theoretical semicircle edge is at \xB12.0."
+  resolved_value: '2'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T15:35:11Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Full parameter sweep must complete within 6 hours
+  claim_id: c_32f6456c
+  context: 'Performance optimization: verify full parameter sweep completes within
+    6 hours; record execution time in state/sweep_timing.log.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project must complete the full parameter sweep within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T15:35:49Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Sanity check tolerance is 1e-6
+  claim_id: c_ca8324d8
+  context: Execute a single small-scale run (N=100, theta=2.5) to verify that the
+    code still runs correctly after documentation updates. Run python code/main.py
+    --N 100 --seed 42. Compare the output eigenvalue against the stored baseline state/sanity_baseline.json
+    (produced by T051a) with a strict numerical tolerance of 1e-6 (absolute difference).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sanity check uses a strict numerical tolerance of 1e-6 (absolute difference).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T15:36:09Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: User Story 1 test uses N=1000 and theta=2.5
+  claim_id: c_fac2aec2
+  context: "Independent Test: Run a script generating a single N=1000 instance with\
+    \ a rank-1 diagonal perturbation (\u03B8=2.5) and verify an eigenvalue > 2.0 exists."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 1 uses N=1000 and theta=2.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T15:37:20Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: User Story 1 test requires eigenvalue > 2.0
+  claim_id: c_3aaa4dbe
+  context: "Independent Test: Run a script generating a single N=1000 instance with\
+    \ a rank-1 diagonal perturbation (\u03B8=2.5) and verify an eigenvalue > 2.0 exists."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/User_Story_1_test_requires_eigenvalue_%3E_2.0
+  kind: magnitude
+  raw_text: The independent test for User Story 1 requires an eigenvalue greater than
+    2.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T15:37:51Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 0
+  canonical: theoretical semicircle edge is plus or minus 2.0
+  claim_id: c_21980bea
+  context: "Implement validation logic function in code/analysis/eigen_solver.py to\
+    \ distinguish outliers from numerical artifacts using a strict tolerance loaded\
+    \ from config.py (default 1e-10) relative to the theoretical semicircle edge (\xB1\
+    2.0)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:0812.2602v1 [cs.IT] 14 Dec 2008
+      source_id: '0812.2602'
+      url: https://arxiv.org/abs/0812.2602
+      value: '2'
+    filled: true
+  kind: numeric
+  raw_text: "The theoretical semicircle edge is \xB12.0."
+  resolved_value: '2'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T00:46:04Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical theorem
+  claim_id: c_49567015
+  context: The 'gambling table' is a metaphor for the statistical ensemble, not a
+    claim about physical randomness. The BBP transition is a rigorous mathematical
+    theorem (proven in literature) that holds for the ensemble regardless of physical
+    interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_theorem
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:47:53Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is rigorous mathematical result for Wigner matrices with
+    finite-rank perturbations
+  claim_id: c_6792160c
+  context: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations. This project verifies this theorem computationally.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_rigorous_mathematical_result_for_Wigner_ma
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:48:38Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Wigner Ensemble defined as set of symmetric matrices with independent
+    identically distributed entries
+  claim_id: c_f94591f5
+  context: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries. Sparse perturbations are deterministic matrices
+    added to this ensemble.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wigner_Ensemble_defined_as_set_of_symmetric_matrices_with_in
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:49:21Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: 'Wigner Ensemble definition: symmetric matrices with i.i.d. entries'
+  claim_id: c_2b488a8e
+  context: Update research.md to explicitly define the Wigner Ensemble and Sparse
+    Perturbations as purely mathematical constructs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wigner_Ensemble_definition:_symmetric_matrices_with_i.i.d._e
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:50:27Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical theorem
+  claim_id: c_fd07401c
+  context: Add a subsection explaining that the BBP transition is a rigorous mathematical
+    theorem that holds for the ensemble regardless of physical interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_theorem
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem (proven in literature)
+    that holds for the ensemble regardless of physical interpretation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:50:49Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition result for Wigner matrices with finite-rank perturbations
+  claim_id: c_7a3256b6
+  context: Update research.md to explicitly distinguish between the mathematical theorem
+    (BBP transition) and physical application.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_result_for_Wigner_matrices_with_finite-rank_p
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:50:50Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Study investigates asymptotic behavior of eigenvalues in mathematical
+    ensemble
+  claim_id: c_3a0bdb7b
+  context: Update research.md to explicitly state the study investigates the asymptotic
+    behavior of eigenvalues in a mathematical ensemble of random matrices.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_investigates_asymptotic_behavior_of_eigenvalues_in_mat
+  kind: entity_fact
+  raw_text: The study investigates the asymptotic behavior of eigenvalues in a mathematical
+    ensemble of random matrices.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:51:22Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Wigner Ensemble definition symmetric matrices independent identically
+    distributed entries
+  claim_id: c_fd806002
+  context: 'Update research.md (Section 2: Mathematical Framework) to explicitly define
+    the ''Wigner Ensemble'' and ''Sparse Perturbations'' as purely mathematical constructs.
+    This task must state that the ''probability distribution'' describes the statistical
+    properties of the ensemble, not a physical stochastic process.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wigner_Ensemble_definition_symmetric_matrices_independent_id
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:52:20Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition rigorous mathematical theorem
+  claim_id: c_8a94741d
+  context: It must explain that while the distribution is abstract, the BBP transition
+    is a rigorous mathematical theorem (proven in literature) that holds for the ensemble
+    regardless of physical interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_rigorous_mathematical_theorem
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:52:22Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition rigorous mathematical result Wigner matrices finite-rank
+    perturbations
+  claim_id: c_dd67aab1
+  context: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations. This project verifies this theorem computationally.
+    It does not claim that the matrices model a physical system where such perturbations
+    occur naturally.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_rigorous_mathematical_result_Wigner_matrices
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:52:24Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition holds ensemble regardless physical interpretation
+  claim_id: c_3f4f41c9
+  context: It must explain that while the distribution is abstract, the BBP transition
+    is a rigorous mathematical theorem (proven in literature) that holds for the ensemble
+    regardless of physical interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_holds_ensemble_regardless_physical_interpreta
+  kind: entity_fact
+  raw_text: The BBP transition holds for the ensemble regardless of physical interpretation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:53:10Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 0
+  canonical: Theoretical semicircle edge is +/-2.0
+  claim_id: c_6b12a891
+  context: "Implement validation logic function in code/analysis/eigen_solver.py to\
+    \ distinguish outliers from numerical artifacts using a strict tolerance loaded\
+    \ from config.py (default 1e-10) relative to the theoretical semicircle edge (\xB1\
+    2.0)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:0812.2602v1 [cs.IT] 14 Dec 2008
+      source_id: '0812.2602'
+      url: https://arxiv.org/abs/0812.2602
+      value: '2'
+    filled: true
+  kind: numeric
+  raw_text: "The theoretical semicircle edge is \xB12.0."
+  resolved_value: '2'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T00:54:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical theorem
+  claim_id: c_7a038a0e
+  context: It must explain that while the distribution is abstract, the BBP transition
+    is a rigorous mathematical theorem (proven in literature) that holds for the ensemble
+    regardless of physical interpretation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_theorem
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical theorem (proven in literature)
+    that holds for the ensemble regardless of physical interpretation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:54:41Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: Wigner Ensemble defined as symmetric matrices with iid entries
+  claim_id: c_65d959f2
+  context: 'This task must state that the probability distribution describes the statistical
+    properties of the ensemble, not a physical stochastic process. Append Text: ''The
+    Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wigner_Ensemble_defined_as_symmetric_matrices_with_iid_entri
+  kind: entity_fact
+  raw_text: The Wigner Ensemble is defined as the set of symmetric matrices with independent,
+    identically distributed entries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:54:48Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/tasks.md
+  attempts: 1
+  canonical: BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations
+  claim_id: c_131ca8dc
+  context: 'Update research.md to explicitly distinguish between the mathematical
+    theorem (BBP transition) and physical application. Append Text: ''The BBP transition
+    is a rigorous mathematical result for Wigner matrices with finite-rank perturbations.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BBP_transition_is_a_rigorous_mathematical_result_for_Wigner
+  kind: entity_fact
+  raw_text: The BBP transition is a rigorous mathematical result for Wigner matrices
+    with finite-rank perturbations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T00:54:52Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: mc_results.csv contains 1008 rows, one ARPACK result per run
+  claim_id: c_f84a7108
+  context: Output artifacts of the full theta sweep over the specified parameter grid.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: data/processed/mc_results.csv (1008 rows, one real ARPACK result per run)
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:14Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: "bulk-edge eigenvalues converge to \xB12.0 per matrix size N"
+  claim_id: c_19eef189
+  context: The sweep records convergence of the bulk spectral edge to the Wigner semicircle
+    edge.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "data/processed/convergence_data.json (per-N bulk-edge convergence to\
+    \ \xB12.0)"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:14Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: sweep memory usage stays under 7 GB for N=2000
+  claim_id: c_e147bc37
+  context: Troubleshooting note about memory errors in the full parameter sweep.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The sweep is optimized to stay under 7 GB for N=2000.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces identical eigenvalues given same seeds and parameters
+  claim_id: c_a43a5aa9
+  context: Reproducibility statement about the seeded random matrix pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Given the same seeds and parameters, the pipeline reproduces the same
+    eigenvalues (CPU-only ARPACK, scipy.sparse.linalg.eigsh).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:44:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: quick run generates single_run_results.json and single_run_summary.csv
+  claim_id: c_3983e158
+  context: The quick run command `python -m code.main --mode single --N 1000 --seed
+    42 --theta 2.5 --k 1 --pattern diagonal` produces these files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Running the quick single instance command produces data/processed/single_run_results.json
+    and a minimal CSV data/processed/single_run_summary.csv
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: mc_results.csv contains 1008 rows each with a real ARPACK result
+  claim_id: c_adec8ad5
+  context: Running the theta sweep over specified grids creates several artifacts,
+    including mc_results.csv.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The full parameter sweep produces data/processed/mc_results.csv with 1008
+    rows, one real ARPACK result per run
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: bulk-edge convergence to plusminus 2.0 recorded in convergence_data.json
+  claim_id: c_e5c79116
+  context: "The sweep output includes convergence_data.json documenting bulk\u2011\
+    edge convergence."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The convergence_data.json file records per\u2011N bulk\u2011edge convergence\
+    \ to \xB12.0"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces identical eigenvalues with identical seeds and parameters
+  claim_id: c_6ef89ebe
+  context: Reproducibility section states that with explicit seeding the same eigenvalues
+    are obtained.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Given the same seeds and parameters, the pipeline reproduces the same
+    eigenvalues
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T14:14:35Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: pipeline reproduces same eigenvalues given same seeds and parameters
+  claim_id: c_f82298d8
+  context: "All random number generators are seeded explicitly. Raw matrix files are\
+    \ checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`. Given\
+    \ the same seeds and parameters, the pipeline reproduces the same eigenvalues\
+    \ (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Given the same seeds and parameters, the pipeline reproduces the same\
+    \ eigenvalues (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T20:07:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: all random number generators are seeded explicitly
+  claim_id: c_a199ecbf
+  context: "All random number generators are seeded explicitly. Raw matrix files are\
+    \ checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`. Given\
+    \ the same seeds and parameters, the pipeline reproduces the same eigenvalues\
+    \ (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All random number generators are seeded explicitly.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T20:07:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: raw matrix files are checksummed upon generation
+  claim_id: c_906f8dc5
+  context: "All random number generators are seeded explicitly. Raw matrix files are\
+    \ checksummed (`data/raw/*.npy`) upon generation into `data/checksums.yaml`. Given\
+    \ the same seeds and parameters, the pipeline reproduces the same eigenvalues\
+    \ (CPU\u2011only ARPACK, `scipy.sparse.linalg.eigsh`)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Raw matrix files are checksummed (`data/raw/*.npy`) upon generation into
+    `data/checksums.yaml`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T20:07:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: single_run_results.json contains one SimulationRun and ten EigenvalueResult
+    entries
+  claim_id: c_f4413808
+  context: 'Expected: A JSON report in data/processed/single_run_results.json containing
+    one SimulationRun and ten EigenvalueResult entries.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A JSON report in data/processed/single_run_results.json containing one
+    SimulationRun and ten EigenvalueResult entries
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T22:12:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: top eigenvalue exceeds 2.05 when theta > 1
+  claim_id: c_74fe3203
+  context: The top eigenvalue should exceed 2.05 (outlier) when theta > 1.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The top eigenvalue should exceed 2.05 (outlier) when theta > 1
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T22:12:40Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: theoretical edge of random matrix eigenvalues is 2.0
+  claim_id: c_7ed104bc
+  context: The top eigenvalue should exceed 2.05 (outlier) when theta > 1, because
+    outlier detection uses the theoretical edge 2.0 plus tolerance 0.05
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: theoretical edge 2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-17T22:20:56Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/quickstart.md
+  attempts: 1
+  canonical: top eigenvalue exceeds 2.05 when theta > 1
+  claim_id: c_056e45be
+  context: The top eigenvalue should exceed 2.05 (outlier) when theta > 1, because
+    outlier detection uses the theoretical edge 2.0 plus tolerance 0.05
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The top eigenvalue should exceed 2.05 (outlier) when theta > 1
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T22:20:56Z'

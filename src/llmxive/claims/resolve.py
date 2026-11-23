@@ -297,6 +297,7 @@ def resolve_causal(claim: Claim, *, backend: Any, model: str | None,
             value=canonical,
             evidence={
                 "source_url": doc.final_url,
+                "source_validation_version": 2,
                 "entailment_status": verdict.status,
                 "entailment_evidence": verdict.evidence,
             },
@@ -308,6 +309,7 @@ def resolve_causal(claim: Claim, *, backend: Any, model: str | None,
             value=None,
             evidence={
                 "source_url": doc.final_url,
+                "source_validation_version": 2,
                 "entailment_status": verdict.status,
                 "entailment_evidence": verdict.evidence,
             },
@@ -321,7 +323,8 @@ def resolve_causal(claim: Claim, *, backend: Any, model: str | None,
         evidence={
             "reason": "source found but does not address causal claim",
             "source_url": doc.final_url,
-            "entailment_status": verdict.status,
+            "source_validation_version": 2,
+                "entailment_status": verdict.status,
         },
         resolver="resolve_causal",
     )
@@ -370,6 +373,7 @@ def resolve_entity_fact(claim: Claim, *, backend: Any, model: str | None,
             value=canonical,
             evidence={
                 "source_url": doc.final_url,
+                "source_validation_version": 2,
                 "entailment_status": verdict.status,
                 "entailment_evidence": verdict.evidence,
             },
@@ -381,6 +385,7 @@ def resolve_entity_fact(claim: Claim, *, backend: Any, model: str | None,
             value=None,
             evidence={
                 "source_url": doc.final_url,
+                "source_validation_version": 2,
                 "entailment_status": verdict.status,
                 "entailment_evidence": verdict.evidence,
             },
@@ -394,7 +399,8 @@ def resolve_entity_fact(claim: Claim, *, backend: Any, model: str | None,
         evidence={
             "reason": "source found but does not address entity claim",
             "source_url": doc.final_url,
-            "entailment_status": verdict.status,
+            "source_validation_version": 2,
+                "entailment_status": verdict.status,
         },
         resolver="resolve_entity_fact",
     )
@@ -425,10 +431,12 @@ def resolve_result(claim: Claim, *, backend: Any, model: str | None,
       canonical value AND verify_receipt passes  → VERIFIED.
       The verdict carries ``result_id`` in ``evidence`` so a downstream
       citation pointer ``result:<result_id>`` (FR-010) can be formed.
-    - No matching receipt, or HMAC verification fails (SC-004)  →
-      NOT_ENOUGH_INFO (block; absence of receipt ≠ REFUTED).
+    - For prose, authenticated current text artifacts must substantiate the
+      claim through source-grounded entailment and a verbatim quotation.
+    - No supporting current signed evidence → NOT_ENOUGH_INFO. Contradictory
+      authenticated evidence → REFUTED. Neither case permits result filling.
     """
-    from llmxive.results.harness import result_backed
+    from llmxive.results.harness import result_backed, source_fingerprint
 
     # The canonical field holds the value the model wrote; extract it.
     candidate_value = claim.canonical or claim.raw_text
@@ -441,6 +449,11 @@ def resolve_result(claim: Claim, *, backend: Any, model: str | None,
     if project_id:
         receipt = result_backed(candidate_value, project_id,
                                 repo_root=repo_root)
+
+    if receipt is None and project_id:
+        from llmxive.results.claims import resolve_artifact_claim
+        return resolve_artifact_claim(claim, project_id=project_id, backend=backend,
+                                      model=model, repo_root=repo_root)
 
     if receipt is None:
         return Verdict(
@@ -460,6 +473,7 @@ def resolve_result(claim: Claim, *, backend: Any, model: str | None,
         evidence={
             "result_id": receipt.result_id,
             "output_sha256": receipt.output_sha256,
+            "artifact_sha256": source_fingerprint(receipt),
             "created_at": receipt.created_at,
             "source": f"result:{receipt.result_id}",
         },

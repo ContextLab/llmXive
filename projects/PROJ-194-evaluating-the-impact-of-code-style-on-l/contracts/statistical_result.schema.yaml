@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: StatisticalResult
-description: Schema for the output of the statistical analysis phase.
+title: Statistical Result
+description: Schema for the result of statistical analysis (LMM/GLMM/Permutation).
 type: object
 required:
   - analysis_id
@@ -8,66 +8,73 @@ required:
   - model_type
   - fixed_effects
   - random_effects
-  - p_values
-  - effect_sizes
-  - normality_check
+  - normality_test
+  - results
+  - timestamp
 properties:
   analysis_id:
     type: string
-    description: Unique identifier for the analysis run.
+    description: Unique identifier for this analysis.
   metric_name:
     type: string
-    description: The dependent variable being analyzed (e.g., codebleu).
+    description: The metric being analyzed (e.g., "codebleu", "exact_match").
   model_type:
     type: string
     enum: ["LMM", "GLMM", "Permutation"]
-    description: Type of statistical model used.
+    description: The type of statistical model used.
   fixed_effects:
     type: array
     items:
       type: string
-    description: List of fixed effect factors (e.g., formatting, naming).
+    description: List of fixed effect factors (e.g., "formatting", "naming").
   random_effects:
     type: array
     items:
       type: string
-    description: List of random effect factors (e.g., function_id).
-  normality_check:
+    description: List of random effect factors (e.g., "function_id").
+  normality_test:
     type: object
-    description: Results of the Shapiro-Wilk test on residuals.
+    description: Result of the Shapiro-Wilk normality test on residuals.
     properties:
       statistic:
         type: number
+        format: float
       p_value:
         type: number
-      is_normal:
+        format: float
+      passed:
         type: boolean
-  p_values:
+        description: True if p_value >= 0.05.
+  results:
     type: object
-    description: Dictionary of factor names to corrected p-values.
-    additionalProperties:
-      type: number
-  effect_sizes:
-    type: object
-    description: Dictionary of factor names to effect size estimates.
-    additionalProperties:
-      type: number
-  confidence_intervals:
-    type: object
-    description: 95% confidence intervals for estimates.
-    additionalProperties:
-      type: array
-      items:
-        type: number
-      minItems: 2
-      maxItems: 2
-  method_details:
-    type: object
-    description: Additional details about the method (e.g., correction method).
+    description: Model coefficients and significance.
     properties:
-      correction_method:
-        type: string
-        description: e.g., "Bonferroni".
-      iterations:
-        type: integer
-        description: Number of iterations for permutation tests.
+      coefficients:
+        type: object
+        additionalProperties:
+          type: object
+          properties:
+            estimate:
+              type: number
+            std_error:
+              type: number
+            t_value:
+              type: number
+            p_value:
+              type: number
+            p_value_corrected:
+              type: number
+      effect_size:
+        type: number
+        format: float
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of analysis.
+additionalProperties: false

@@ -15,7 +15,7 @@ The core associational claim (correlation strength) is computed on the full alig
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `requests`, `pyyaml`, `tqdm`, `psutil`, `scikit-learn` (all CPU-only, no CUDA).  
 **Storage**: Local filesystem (`data/`, `results/`). Data downloaded via `requests` from NOAA/CDAWeb endpoints.  
 **Testing**: `pytest` for unit tests; contract validation via `jsonschema` against `contracts/`.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM, no GPU).  
 **Project Type**: Data analysis CLI / Research pipeline.  
 **Performance Goals**: Total runtime ≤ 6 hours; Peak RAM ≤ 7 GB.  
 **Data Scale**: Raw ingestion of k to tens of thousands of rows (multi-year flare/CME data); Final aligned analysis dataset expected to be <500 rows (all storms) or <50 rows (severe storms, Dst ≤ -100).  
@@ -23,8 +23,8 @@ The core associational claim (correlation strength) is computed on the full alig
 **Validation Logic**: Contract validation MUST block the writing of `aligned_events.csv` and the update of `data/source_manifest.yaml` if validation fails.  
 **Performance Metrics**: Execution time and peak RAM MUST be written to `results/metrics.json` under the `performance` key.  
 **VIF Fallback Logic**: If VIF > 5, the system selects the **univariate model with the higher absolute correlation coefficient** as the primary report. The selected model type (e.g., "univariate_flare") MUST be recorded in `results/metrics.json`. The joint R² is NOT reported if the joint model is discarded.  
-**Multiple Comparison Correction**: **Bonferroni** correction is used for the family of 5 tests (primary correlations + 3 threshold sensitivity tests). The method name MUST be recorded in `results/metrics.json`.  
-**Threshold Justification**: The implementation MUST cite the specific NOAA SWPC definition document: "https://www.swpc.noaa.gov/phenomena/geomagnetic-storms" for the "severe storm" (Dst ≤ -100 nT) threshold.  
+**Multiple Comparison Correction**: **Bonferroni** correction is used for the family of tests (primary correlations + threshold sensitivity tests). The method name MUST be recorded in `results/metrics.json`.  
+**Threshold Justification**: The implementation MUST cite the specific NOAA SWPC definition document: "https://www.swpc.noaa.gov/phenomena/geomagnetic-storms" for the "severe storm" threshold.  
 **Non-Linear Model**: If R² < 0.1, the system MUST test a piecewise model and report the improvement in fit in `results/metrics.json` under the key `piecewise_r2_improvement`.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.

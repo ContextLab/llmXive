@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-924-llmxive-follow-up-extending-agentdog-1-5",
+  "ok": false,
+  "reason": "4 command(s) failed: python -m code.taxonomy_builder --source \"agentdog_1_5_paper\" --output data/processed/taxonomy_centroids.json (rc=1); python -m code.drift_scoring --input data/raw/atbench.parquet --taxonomy data/processed/taxonomy_centroids.json --output data/processed/drift_results.csv (rc=1); python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/gold_standard_proxy.csv --output data/processed/validation_report.json (rc=1); 1 declared deliverable(s) absent: data/raw/agent_logs.csv",
+  "artifacts": [],
+  "failures": [
+    "python -m code.taxonomy_builder --source \"agentdog_1_5_paper\" --output data/processed/taxonomy_centroids.json -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/taxonomy_builder.py\", line 130, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/taxonomy_builder.py\", line 118, in main\n    taxonomy = load_taxonomy(ar",
+    "python -m code.drift_scoring --input data/raw/atbench.parquet --taxonomy data/processed/taxonomy_centroids.json --output data/processed/drift_results.csv -> rc=1\n    Loading taxonomy centroids...\n\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/drift_scoring.py\", line 194, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code",
+    "python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/gold_standard_proxy.csv --output data/processed/validation_report.json -> rc=1\n    follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py\", line 300, in _read\n    parser = TextFileReader(filepath_or_buffer, **kwds)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/panda",
+    "python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/human_annotations.csv --output data/processed/validation_report.json -> rc=1\n    follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py\", line 300, in _read\n    parser = TextFileReader(filepath_or_buffer, **kwds)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/.venv/lib/python3.11/site-packages/pandas/"
+  ],
+  "fix_rounds": 0,
+  "model_tier": 1,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-25T06:31:10Z"
+}

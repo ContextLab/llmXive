@@ -1,102 +1,97 @@
 """
-Setup script for the Memory Load-Adaptive Text Presentation project.
+Project structure creation script.
 
-Creates the required directory structure as defined in the implementation plan:
-- data/raw: For raw downloaded datasets
-- data/derived: For processed and derived data artifacts
-- code: For Python modules and scripts
-- tests: For unit and integration tests
-- results: For analysis outputs and reports
-- data/metadata: For dataset metadata and configuration
-- figures: For generated plots and visualizations
-- specs: For specification documents
-- docs: For project documentation
+This script establishes the directory layout required by the implementation
+plan:
+
+- data/raw
+- data/derived
+- code
+- tests
+- results
+
+For each directory a ``.gitkeep`` file is created so that empty folders are
+tracked by Git. The script is safe to run repeatedly; it will not overwrite
+existing files.
 """
 
 import os
-import sys
 from pathlib import Path
+from typing import List
 
-def create_directory_structure(root_path: Path) -> None:
-    """
-    Create the project directory structure.
-    
-    Args:
-        root_path: The root directory where the structure will be created.
-    """
-    directories = [
-        "data/raw",
-        "data/derived",
-        "code",
-        "tests/unit",
-        "tests/integration",
-        "results",
-        "data/metadata",
-        "figures",
-        "specs",
-        "docs",
-        "code/utils",
-        "code/report_assets",
-    ]
-    
-    created = []
-    for dir_path in directories:
-        full_path = root_path / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created.append(dir_path)
-            print(f"Created directory: {dir_path}")
-        else:
-            print(f"Directory already exists: {dir_path}")
-    
-    if not created:
-        print("All directories already exist.")
-    else:
-        print(f"\nSuccessfully created {len(created)} directories.")
+# ----------------------------------------------------------------------
+# Public API – matches the names referenced elsewhere in the repo
+# ----------------------------------------------------------------------
 
-def create_gitkeep_files(root_path: Path) -> None:
+
+def create_directory_structure(base_path: Path = Path(".")) -> List[Path]:
     """
-    Create .gitkeep files in all directories to ensure they are tracked by git.
-    
-    Args:
-        root_path: The root directory of the project.
+    Create the required top‑level project directories.
+
+    Parameters
+    ----------
+    base_path : Path, optional
+        The directory from which the relative paths are resolved.
+        Defaults to the repository root (``"."``).
+
+    Returns
+    -------
+    List[Path]
+        A list of the directories that were (or already were) created.
     """
-    directories = [
-        "data/raw",
-        "data/derived",
-        "code",
-        "tests/unit",
-        "tests/integration",
-        "results",
-        "data/metadata",
-        "figures",
-        "specs",
-        "docs",
-        "code/utils",
-        "code/report_assets",
+    # Relative directory names as specified in the task description
+    required_dirs = [
+        base_path / "data" / "raw",
+        base_path / "data" / "derived",
+        base_path / "code",
+        base_path / "tests",
+        base_path / "results",
     ]
-    
-    for dir_path in directories:
-        full_path = root_path / dir_path
-        gitkeep_path = full_path / ".gitkeep"
+
+    created: List[Path] = []
+    for d in required_dirs:
+        # ``parents=True`` creates any missing intermediate directories.
+        # ``exist_ok=True`` makes the call idempotent.
+        d.mkdir(parents=True, exist_ok=True)
+        created.append(d.resolve())
+    return created
+
+
+def create_gitkeep_files(directories: List[Path]) -> None:
+    """
+    Ensure each supplied directory contains a ``.gitkeep`` file.
+
+    The presence of ``.gitkeep`` (an empty file) is a conventional way to
+    keep otherwise empty directories under version control.
+
+    Parameters
+    ----------
+    directories : List[Path]
+        List of directories where a ``.gitkeep`` should be placed.
+    """
+    for d in directories:
+        gitkeep_path = d / ".gitkeep"
         if not gitkeep_path.exists():
-            gitkeep_path.touch()
-            print(f"Created .gitkeep in: {dir_path}")
+            # Write an empty file; ``touch`` semantics.
+            gitkeep_path.write_text("", encoding="utf-8")
 
-def main():
-    """Main entry point for the setup script."""
-    # Determine the root path (project root where this script is located)
-    script_dir = Path(__file__).parent
-    root_path = script_dir.parent  # Go up one level from code/
-    
-    print(f"Setting up project structure in: {root_path}")
-    print("-" * 50)
-    
-    create_directory_structure(root_path)
-    create_gitkeep_files(root_path)
-    
-    print("-" * 50)
-    print("Project structure setup complete.")
+
+def main() -> None:
+    """
+    Entry point for the script.
+
+    It creates the directory hierarchy and populates each with a
+    ``.gitkeep`` file. Any exception is allowed to propagate so that the CI
+    runner fails loudly if something goes wrong (e.g., permission errors).
+    """
+    # Resolve the repository root (the directory containing this script's
+    # parent ``code`` folder) to avoid issues when the script is executed
+    # from a different working directory.
+    repo_root = Path(__file__).resolve().parent.parent
+    dirs = create_directory_structure(base_path=repo_root)
+    create_gitkeep_files(dirs)
+
 
 if __name__ == "__main__":
+    # When the module is executed directly, run the main routine.
     main()

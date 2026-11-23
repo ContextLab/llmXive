@@ -68,13 +68,11 @@ jobs:
     concurrency:
       group: advance-${{ matrix.worker }}
       cancel-in-progress: false
-    # Fits the worst single convergence step (a live tasked/review panel
-    # convergence was observed at ~77 min) + setup/commit slack; the 2400s wall
-    # budget breaks the multi-tick loop early so the final step + commit always
-    # land. Lowered 150→90 (issue #1139 round 2) so a job cannot outlive the
-    # hourly cadence by more than one interval — bounding the concurrency-eviction
-    # window (a 150-min hang used to cancel up to 4 intervening scheduled ticks).
-    timeout-minutes: 90
+    # The October audit observed a single planning step taking 94 minutes.
+    # The CLI wall budget is checked BETWEEN steps, so it cannot enforce a
+    # 90-minute job limit. Bound the advance step separately and leave time
+    # to persist its state/diagnostics; per-worker concurrency prevents overlap.
+    timeout-minutes: 330
     strategy:
       fail-fast: false            # preserved (issue #1139): one worker failing
                                   # must NOT abort the rest of the matrix.
@@ -84,6 +82,7 @@ jobs:
                                      # max-parallel + the workers dispatch default.
     env:
       DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      LLMXIVE_RECEIPT_KEY: ${{ secrets.LLMXIVE_RECEIPT_KEY }}
       LLMXIVE_RUN_WALL_BUDGET_S: "2400"
       # Guarded paid fallback (claude-haiku) for when ALL free models flap;
       # globally hard-capped by the daily ~$2 credit budget (backends/credits.py).
@@ -108,15 +107,21 @@ jobs:
       - run: pip install "kaggle==2.2.3" "kagglesdk==0.1.31"
       - run: python -m llmxive preflight
       - name: Advance pass (deterministic worker ${{ matrix.worker }})
+        timeout-minutes: 300
         run: |
-          python -m llmxive run \
+          python -u -m llmxive run --checkpoint \
             --worker "${{ matrix.worker }}" \
             --workers "${WORKERS:-6}" \
             --max-tasks "${MAX_TASKS:-10}"
         env:
           WORKERS: ${{ github.event.inputs.workers }}
           MAX_TASKS: ${{ github.event.inputs.max_tasks }}
-      # Persist this tick's PROJECT STATE first (issue #1139, defect D16): commit
+      # --checkpoint publishes each completed graph tick (or recorded failure)
+      # before another starts, using the same research write/rebase guards. The
+      # single CLI process retains one project selection and one 40-minute
+      # admission budget; checkpoints do not restart either budget. A runner
+      # shutdown inside a tick can still lose that in-flight work.
+      # Persist any remaining PROJECT STATE first (issue #1139, defect D16): commit
       # + push BEFORE the (worker-0-only) web-data regeneration. Previously the
       # long, wholesale web-gen ran while this checkout was still holding the
       # tick's uncommitted state, and its regenerated web/data/projects.json was
@@ -126,6 +131,7 @@ jobs:
       # web-data churn into its own commit below.
       - name: Commit + push (project state)
         id: commit
+        if: always()
         run: |
           bash scripts/ci/commit-and-push.sh "advance(worker ${{ matrix.worker }}): tick"
       # Only worker 0 regenerates web data + triggers Pages — otherwise all 6
@@ -154,3 +160,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh workflow run pages.yml --ref main
+
+      - name: Preserve a conflicting tick for recovery
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unpushed-tick-${{ matrix.worker }}
+          path: ${{ runner.temp }}/llmxive-unpushed.patch
+          if-no-files-found: ignore
+          retention-days: 30
